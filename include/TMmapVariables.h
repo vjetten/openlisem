@@ -76,6 +76,7 @@ cTMap
 *WHrunoff,                   //!< water height available for runoff [m]
 *WHmax,                      //!< max runoff wh in m for reporting
 *WHstore,                    //!< water heigth stored in micro depressions [m]
+*WHtop,
 *WaterVolall,                //!< water volume total (incl surface storage) [m^3]
 *WaterVolin,                 //!< water volume total before kin wave (after tochannel) [m^3]
 //*WaterVolRunoff,                //!< water volume for runoff [m^3]

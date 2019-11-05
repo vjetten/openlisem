@@ -288,7 +288,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OutRunoff")==0)         SwitchOutrunoff = iii == 1;
         if (p1.compare("OutWH")==0)             SwitchOutwh = iii == 1;
         if (p1.compare("OutV")==0)              SwitchOutvelo = iii == 1;
-        if (p1.compare("OutInterception-")==0)  SwitchOutInt = iii == 1;
+        if (p1.compare("OutInterception")==0)  SwitchOutInt = iii == 1;
         if (p1.compare("OutSurfStor")==0)       SwitchOutss = iii == 1;
         if (p1.compare("OutInf")==0)            SwitchOutinf = iii == 1;
         if (p1.compare("OutTileDrain")==0)      SwitchOutTiledrain = iii == 1;

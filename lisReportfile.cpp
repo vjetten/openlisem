@@ -225,7 +225,8 @@ void TWorld::OutputUI(void)
         if (SwitchIncludeChannel)
             if (ChannelFlowWidth->Drc > 0)
                 COMBO_QOFCH->Drc = ChannelQn->Drc;
-        if(COMBO_QOFCH->Drc < 1e-6) COMBO_QOFCH->Drc = 0;
+        if(COMBO_QOFCH->Drc < 1e-6)
+            COMBO_QOFCH->Drc = 0;
 
 //            if (ChannelWidthExtended->Drc > 0)
 //            {

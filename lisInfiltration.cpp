@@ -382,8 +382,6 @@ void TWorld::InfilMethodsNew(int thread)
             fwh = WH->Drc; //runoff
         else
             fwh = hmx->Drc; // flood
-
-      //  fwh = hmxWH->Drc;
         // select the appropriate domain water height for overpressure
 
         //calculate potential insiltration rate fpot
@@ -420,20 +418,7 @@ void TWorld::InfilMethodsNew(int thread)
 
         fact->Drc = IncreaseInfiltrationDepthNew(r, c);//, fact1, &L1->Drc, &L2->Drc, &FFull->Drc);
         // adjust fact and increase L1 and L2, for twolayer, impermeable etc
-//        if (hmxWH->Drc < fact->Drc) // in case of rounding of errors, fact is equal to WH
-//        {
-//            fact->Drc = hmxWH->Drc;
-//            hmxWH->Drc = 0;
-//        }
-//        else
-//           hmxWH->Drc -= fact->Drc;
-//        FOR_ROW_COL_MV
-//        {
-//            if (FloodDomain->Drc == 0)
-//                WH->Drc = hmxWH->Drc;
-//            else
-//                hmx->Drc = hmxWH->Drc;
-//        }
+
         // adjust the WH in the correct domain with new fact
         if(FloodDomain->Drc == 0)
         {
@@ -465,26 +450,12 @@ void TWorld::InfilMethodsNew(int thread)
         else
         {
             space = (SoilDepth1->Drc - L1->Drc)*(Poreeff->Drc-Thetaeff->Drc);
-            if (SwitchTwoLayer)
-                space = space + (SoilDepth2->Drc - L2->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
+            if (SwitchTwoLayer && L2->Drc > 0)
+                space = /* space +*/ (SoilDepth2->Drc - L2->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
             // total spce left in the soil in m
 
-            FSurplus->Drc = std::min(0.0, fact->Drc - fpot->Drc); // negative value
-            if (FSurplus->Drc > -space)
-                FSurplus->Drc = -space;
-
-//            //limit surplus to available room in soil
-//            if (!SwitchTwoLayer || L1->Drc <  SoilDepth1->Drc)
-//            {
-//                space = (SoilDepth1->Drc - L1->Drc)*(Poreeff->Drc-Thetaeff->Drc);
-//                FSurplus->Drc = FSurplus->Drc < -space ? -space : FSurplus->Drc;
-//            }
-//            else
-//                if (SwitchTwoLayer && L2->Drc > 0)
-//                {
-//                    space = (SoilDepth2->Drc - L2->Drc - L1->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
-//                    FSurplus->Drc = FSurplus->Drc < -space ? -space : FSurplus->Drc;
-//                }
+            FSurplus->Drc = -1.0*std::min(space, std::max(0.0, fpot->Drc-fact->Drc));
+            // negative and smallest of space or fpot-fact
         }
     }}}}
 //report(*fpot,"fpot");

@@ -273,6 +273,9 @@ void TWorld::Totals(void)
     // recalc to mm for screen output
 
     floodBoundaryTot += K2DQOutBoun;
+
+    QtotT += K2DQOutBoun;
+
     FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
     // flood boundary losses are done separately in MB
 
@@ -439,7 +442,8 @@ void TWorld::MassBalance()
 
         double waterin = RainTot + SnowTot + WaterVolSoilTot + BaseFlow + WHinitVolTot; //floodVolTotInit
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot;
-        double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot + floodBoundaryTot ;//
+        double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot + floodBoundaryTot;//
+        //is already in qtot : floodBoundaryTot ;//
 
         if(SwitchKinematic2D == K2D_METHOD_DYN
            || (SwitchKinematic2D != K2D_METHOD_DYN && !SwitchIncludeChannel) ) {}
@@ -466,8 +470,6 @@ void TWorld::MassBalance()
 //        qDebug() << "S" << DetTot<< ChannelDetTot << FloodDetTot;
 //        qDebug() << DepTot << ChannelDepTot << FloodDepTot;
 //        qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
-
-
 
         MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
      //           qDebug() << MBs<<  DetTot<<DepTot<< SedTot << ChannelDetTot << ChannelDepTot<< ChannelSedTot;

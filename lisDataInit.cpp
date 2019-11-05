@@ -805,6 +805,7 @@ void TWorld::InitChannel(void)
         }
 
         ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth"));
+        cover(*ChannelWidth, *LDD, 0);
         //     ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
         //ChannelWidth->checkMap(SMALLEREQUAL, 0, "Channel width must be larger than 0 in channel cells");
         //      ChannelWidth->calcValue(0.9*_dx, MIN);
@@ -1560,6 +1561,7 @@ if (SwitchGrassStrip) {
     QpeakTime = 0;
     WH = NewMap(0);
     WHbef = NewMap(0);
+    WHtop = NewMap(0);
     WHrunoff = NewMap(0);
     WHmax = NewMap(0);
     WHstore = NewMap(0);

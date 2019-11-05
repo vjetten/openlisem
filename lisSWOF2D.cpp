@@ -954,7 +954,7 @@ void TWorld::setFloodDT(double t, cTMap * h)
 
 //---------------------------------------------------------------------------
 // 2nd order without iteration dt1, dt2!
-double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct)//, cTMap *q1, cTMap *q2)
+double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct)
 {
     double dt1 = 0, timesum = 0;
     double dt_max = std::min(_dt, _dx*dtmaxfrac);
@@ -1063,9 +1063,6 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
                 FloodT->Drc += FloodDT->Drc;
             }
 
-        //    if (correct)
-        //        correctMassBalance(sumh, h);
-
             n++;
             if (n > F_MaxIter)
                 break;
@@ -1112,7 +1109,7 @@ void TWorld::fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cT
     //sediment
     //only when sediment is modelled
     if (SwitchErosion)
-        SWOFSediment(thread,FloodDT,dt1,h,u,v );
+        SWOFSediment(thread,FloodDT,dt1,hs,us,vs );
 
     if (!SwitchHeun)
     {

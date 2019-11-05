@@ -332,10 +332,13 @@ void TWorld::ChannelFlood(void)
     dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
         //  threaded flooding
 
+    // boundary flow
+    Boundary2Ddyn(hmx, Uflood, Vflood);
+
     //new flood domain
     nrFloodedCells = 0;
     // used in infil and addRainfall
-    FOR_CELL_IN_FLOODAREA
+    FOR_ROW_COL_MV {
         if (hmx->Drc > 0)// && FloodZonePotential->Drc == 1)
         {
             FloodDomain->Drc = 1;
@@ -349,6 +352,8 @@ void TWorld::ChannelFlood(void)
     {
         UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
         Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
+        //only used for report
+        V->Drc = hmx->Drc > 0 ? UVflood->Drc : V->Drc;
 
         // addvolume infiltrated during flood process with FSurplus
         //InfilVolFlood->Drc += Iflood->Drc;
@@ -367,14 +372,7 @@ void TWorld::ChannelFlood(void)
 //        }
     }
 
-    // boundary flow
-    Boundary2Ddyn(hmx, Uflood, Vflood);
-    FOR_ROW_COL_MV
-    {
-        Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
-    }
-
-    FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
+    FloodMaxandTiming(hmxWH, UVflood, minReportFloodHeight);
 
     //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
     double area = nrFloodedCells*_dx*_dx;

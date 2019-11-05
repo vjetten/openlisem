@@ -30,7 +30,7 @@ functions: \n
 - void TWorld::ToFlood(void)\n
 - void TWorld::ToChannel(void)\n
 - void TWorld::CalcVelDisch(void)\n
-- void TWorld::OverlandFlowNew(void)\n
+- void TWorld::OverlandFlow(void)\n
  */
 
 #include <algorithm>
@@ -68,7 +68,7 @@ void TWorld::OverlandFlow(void)
 
         FloodMaxandTiming(WH, V, minReportFloodHeight);
 
-        FOR_ROW_COL_MV {
+        FOR_ROW_COL_MV {            
             hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
             hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
             FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
@@ -305,9 +305,11 @@ void TWorld::CalcVelDisch(int thread)
             Q->Drc = 0;
 
         V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/NN;
-        V->Drc = std::min(Q->Drc/(WHrunoff->Drc*FlowWidth->Drc), V->Drc);
+      //  V->Drc = std::min(Q->Drc/(WHrunoff->Drc*FlowWidth->Drc), V->Drc);
+      //  V->Drc = WHrunoff->Drc*FlowWidth->Drc > 0 ? Q->Drc/(WHrunoff->Drc*FlowWidth->Drc) : 0.0;
 
     }}}}
+report(*V,"v");
 }
 
 //---------------------------------------------------------------------------
@@ -323,7 +325,6 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
     //direction of velocity is in the direction of + and -
     // U is EW and V is NS
     // find which outlets on the boundary are directed to the outside based on sign U and V
-
 
     FOR_ROW_COL_MV {
         if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > MIN_HEIGHT)
@@ -341,7 +342,11 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
                 if (_V->Drc > 0)
                     tma->Drc = 1;
         }
+        if (SwitchIncludeChannel)
+             if (ChannelWidth->Drc == 0)
+                 tma->Drc = 0;
     }
+
 
     // sum all the outflow of these points
     K2DQOutBoun = 0;
@@ -358,8 +363,8 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
 
         K2DQOutBoun += _q;
         h->Drc -= dh;
-//        Qn->Drc = UV*(h->Drc*dy);
-//        Q->Drc = Qn->Drc;
+        Qn->Drc = UV*(h->Drc*dy);
+        Q->Drc = Qn->Drc;
 
         if (SwitchErosion) {
             double ds = frac * SSFlood->Drc;
@@ -737,7 +742,7 @@ void TWorld::OverlandFlow1D(void)
     {
         if (LDD->Drc == 5) // if outflow point, pit
         {
-            Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);//, BufferVol);
+            Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);
             //VJ 110429 q contains additionally infiltrated water volume after kin wave in m3
         }
     }
@@ -822,7 +827,7 @@ void TWorld::OverlandFlow1D(void)
             }
         }
     }
-
+report(*Qn,"qn");
     // convert calculate Qn back to WH and volume for next loop
     FOR_ROW_COL_MV
     {
@@ -856,14 +861,27 @@ void TWorld::OverlandFlow1D(void)
         InfilVolKinWave->Drc = InfilKWact;
     }
 
+
+//    FOR_ROW_COL_MV {
+//        WHtop->Drc = WHrunoff->Drc > 0.1 ? WHrunoff->Drc - 0.1 : 0;
+//        WHrunoff->Drc -= WHtop->Drc;
+//    }
+//    double dtflood = fullSWOF2Do2light(WHtop, V, V, DEM, true);
+//        //  threaded flooding
+//    FOR_ROW_COL_MV {
+//        WHrunoff->Drc += WHtop->Drc;
+//    }
+
+
     FOR_ROW_COL_MV
     {
         double R = WHrunoff->Drc*FlowWidth->Drc;
         double Perim = 2*WHrunoff->Drc + FlowWidth->Drc;
         Alpha->Drc = pow(N->Drc/sqrt(Grad->Drc) * pow(Perim, 2.0/3.0),0.6);
         V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/N->Drc;
-       // V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
         V->Drc = std::min(Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc), V->Drc);
+
+//        V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
         Q->Drc = Qn->Drc;
 
         WHroad->Drc = WHrunoff->Drc;
@@ -874,6 +892,7 @@ void TWorld::OverlandFlow1D(void)
 
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+        hmxWH->Drc = hmx->Drc  == 0 ? WH->Drc : hmx->Drc;   //hmxWH is all water
 
     }
     // new concentrations with new volume
