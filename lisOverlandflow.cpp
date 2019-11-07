@@ -71,7 +71,7 @@ void TWorld::OverlandFlow(void)
         FOR_ROW_COL_MV {            
             hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
             hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
-            FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+            //FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
         }
     }
 }
@@ -161,17 +161,17 @@ void TWorld::ToChannel()//int thread)
         ChannelOverflow(WHrunoff, V);
         return;
     }
+/*
+    ChannelOverflow(WHrunoff, V);
 
-//    ChannelOverflow(WHrunoff, V);
+    FOR_ROW_COL_MV {
+        WH->Drc = WHrunoff->Drc + WHstore->Drc;
+        WHroad->Drc = WHrunoff->Drc;
+        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+    }
 
-//    FOR_ROW_COL_MV {
-//        WH->Drc = WHrunoff->Drc + WHstore->Drc;
-//        WHroad->Drc = WHrunoff->Drc;
-//        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-//    }
-
-//    return;
-
+    return;
+*/
 
 //     /* OBSOLETE
     fill(*RunoffVolinToChannel, 0);
@@ -217,6 +217,7 @@ void TWorld::ToChannel()//int thread)
             // water diverted to the channel
             WHrunoff->Drcr -= dwh ;
             WHroad->Drcr -= dwh;
+            WHGrass->Drcr -= dwh;
             WH->Drcr -= dwh;
             //WaterVolall->Drcr = DX->Drcr*( WH->Drcr*SoilWidthDX->Drcr + WHroad->Drcr*RoadWidthDX->Drcr);
             WaterVolall->Drcr = WHrunoff->Drcr*ChannelAdj->Drcr*DX->Drcr + DX->Drcr*WHstore->Drcr*SoilWidthDX->Drcr;
@@ -309,7 +310,6 @@ void TWorld::CalcVelDisch(int thread)
       //  V->Drc = WHrunoff->Drc*FlowWidth->Drc > 0 ? Q->Drc/(WHrunoff->Drc*FlowWidth->Drc) : 0.0;
 
     }}}}
-report(*V,"v");
 }
 
 //---------------------------------------------------------------------------
@@ -343,28 +343,26 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
                     tma->Drc = 1;
         }
         if (SwitchIncludeChannel)
-             if (ChannelWidth->Drc == 0)
+             if (ChannelFlowWidth->Drc == 0)
                  tma->Drc = 0;
     }
-
 
     // sum all the outflow of these points
     K2DQOutBoun = 0;
     K2DQSOutBoun = 0;
     FOR_ROW_COL_MV
-            if(tma->Drc == 1 && h->Drc > MIN_HEIGHT)
+        if (tma->Drc == 1 && h->Drc > MIN_HEIGHT)
     {
         double dy = ChannelAdj->Drc;
         double UV = qSqrt(_U->Drc * _U->Drc + _V->Drc*_V->Drc);
         double frac = std::min( std::max(0.0, UV*_dt/DX->Drc) , 0.9);
-
-        double dh = std::max(0.0,frac*h->Drc);
+        double dh = frac*h->Drc;
         double _q = dh*DX->Drc*dy;
 
         K2DQOutBoun += _q;
         h->Drc -= dh;
-        Qn->Drc = UV*(h->Drc*dy);
-        Q->Drc = Qn->Drc;
+//        Qn->Drc = UV*(h->Drc*dy);
+//        Q->Drc = Qn->Drc;
 
         if (SwitchErosion) {
             double ds = frac * SSFlood->Drc;
@@ -376,7 +374,7 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
             BLFlood->Drc -= ds;
         }
     }
-  //  qDebug() << "K2DQOut boundary" << K2DQOutBoun << K2DQSOutBoun;
+ //   qDebug() << "K2DQOut boundary" << K2DQOutBoun << K2DQSOutBoun;
 }
 //---------------------------------------------------------------------------
 
@@ -404,23 +402,19 @@ void TWorld::OverlandFlow2Ddyn(void)
 
     FOR_ROW_COL_MV
     {
-      //  WHrunoff->Drc = std::max(WHrunoff->Drc, 0.0);
         UVflood->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
 
         V->Drc = UVflood->Drc;
         //copy V into UVflood, for report and MB stuff
 
-        Qn->Drc = V->Drc*(WHrunoff->Drc*FlowWidth->Drc);
+        Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);//FlowWidth->Drc);
         Q->Drc = Qn->Drc; // just to be sure
 
        // InfilVolKinWave->Drc = iro->Drc; // infil inside, m3
-    }
 
-
-    FOR_ROW_COL_MV
-    {
         WHroad->Drc = WHrunoff->Drc;
         // set road to average outflowing wh, no surface storage.
+        WHGrass->Drc = WHrunoff->Drc;
 
         WH->Drc = WHrunoff->Drc + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water

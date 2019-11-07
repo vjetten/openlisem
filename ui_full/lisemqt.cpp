@@ -111,6 +111,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     checkMapChannels->setVisible(false);
     transparencyChannel->setVisible(false);
+    checkOverlandFlow2D->setVisible(false);
 
 //    QSplitter *splitter = new QSplitter(tabWidget->widget(2));
 //    splitter->addWidget(tabWidget_out);

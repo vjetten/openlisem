@@ -132,8 +132,20 @@ void TWorld::Totals(void)
     // does not go to MB, is already in tot water vol
 
     //=== surface flow ===//   
+
+    floodVolTot = mapTotal(*FloodWaterVol);
+    floodVolTotmm = floodVolTot * catchmentAreaFlatMM; // to mm
+
     WaterVolTot = mapTotal(*WaterVolall);//m3
-    WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
+//    if(SwitchKinematic2D == K2D_METHOD_DYN
+//            || (SwitchKinematic2D != K2D_METHOD_DYN && !SwitchIncludeChannel) )
+//    {}
+//    else
+
+//    if (SwitchKinematic2D != K2D_METHOD_DYN)// && SwitchIncludeChannel)
+        WaterVolTot += floodVolTot;
+
+      WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
 
     // split into runoff and flood for screen reporting
     WaterVolRunoffmm = 0;
@@ -168,16 +180,6 @@ void TWorld::Totals(void)
         // recalc in mm for screen output
     }
 
-    //=== flood  ===//
-    if (SwitchChannelFlood)
-    {
-        floodVolTot = mapTotal(*FloodWaterVol);
-        floodVolTotmm = floodVolTot * catchmentAreaFlatMM; // to mm
-//
-//        if (SwitchFloodInitial && runstep == 1)
-//            floodVolTotInit = floodVolTot;
-        // save initial flood level for mass balance if start with flood
-    }
 
     // we have now:
     // WaterVolTot and WaterVolTotmm
@@ -265,8 +267,6 @@ void TWorld::Totals(void)
         //NOTE: for 2D flow Qn = K2DQ, already done
     }
 
-    Qtot += QtotT;
-
     // Total outflow in m3 for all timesteps
     // does NOT include flood water leaving domain (floodBoundaryTot)
     Qtotmm = Qtot*catchmentAreaFlatMM;
@@ -274,10 +274,13 @@ void TWorld::Totals(void)
 
     floodBoundaryTot += K2DQOutBoun;
 
-    QtotT += K2DQOutBoun;
+    QtotT += K2DQOutBoun; // boundary flow 2D
 
     FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
     // flood boundary losses are done separately in MB
+
+    Qtot += QtotT;
+    // add timestep total to run total
 
     //=====***** SEDIMENT *****====//
 
@@ -442,13 +445,14 @@ void TWorld::MassBalance()
 
         double waterin = RainTot + SnowTot + WaterVolSoilTot + BaseFlow + WHinitVolTot; //floodVolTotInit
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot;
-        double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot + floodBoundaryTot;//
+        double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;
         //is already in qtot : floodBoundaryTot ;//
 
-        if(SwitchKinematic2D == K2D_METHOD_DYN
-           || (SwitchKinematic2D != K2D_METHOD_DYN && !SwitchIncludeChannel) ) {}
-            else
-                waterflow += floodVolTot;
+//        if(SwitchKinematic2D == K2D_METHOD_DYN
+//                || (SwitchKinematic2D != K2D_METHOD_DYN && !SwitchIncludeChannel) )
+//        {}
+//        else
+//            waterflow += floodVolTot;
 
         MB = waterin > 0 ? (waterin - waterstore - waterflow)/waterin *100 : 0;
      //   qDebug() << MB << waterin << waterstore << waterflow;

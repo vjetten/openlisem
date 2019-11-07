@@ -1,7 +1,6 @@
 <p><strong>Overland flow</strong></p>
 <ul>
-<li>1D uses a kinematic wave on a predefined continues network that connects all cells to the outlet of the area (ldd.map). The network is user defined and is an input, the DEM is not used. The kinematic wave uses a finite difference iteration. If there is no channel activated, there is only runoff and no flood.</li>
-<li>2D diffusive flow uses the DEM to determine where water flows. The water is distributed over the cells downstream, using bilinear interpolation, with DEM and water height, but there is no conservation of momentum. This is equivalent to a diffusive wave solution. The 'flow' tab gives several options. A small adaptive timestep (non-iterative) is used to ensure stability.</li>
+<li>1D uses a kinematic wave on a predefined continues network that connects all cells to the outlet of the area (ldd.map). The network is user defined and is an input, the DEM is not used. The kinematic wave uses a finite difference iteration. If there is no channel activated, there is only runoff and no flood. If there is a channel and flooding, this is always simulated with a dynamic wave.</li>
 <li>2D dynamic flow uses the DEM to determine where water flows. The water is distributed over the cells downstream, using a full dynamic wave for shallow flow. 'Shallow' means that an average velocity is used for the depth. The 'flow' tab gives several numerical options. A small adaptive timestep (non-iterative) is used to ensure stability.</li>
 </ul>
 <p>NOTE: if a channel is ativated, all overflow from the channel on land is always simulated using a 2D dynamic wave. </p>

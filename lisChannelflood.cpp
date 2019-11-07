@@ -193,7 +193,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                         }
                     }
                     ChannelWaterVol->Drcr = ChannelWH->Drcr * ChannelDX->Drcr * ChannelWidth->Drcr;
-                    FloodWaterVol->Drc = _h->Drc*ChannelAdj->Drc*DX->Drc;
+                 //   FloodWaterVol->Drc = _h->Drc*ChannelAdj->Drc*DX->Drc;
 
                     // recalc channel water vol else big MB error
                     if(SwitchErosion)
@@ -328,12 +328,11 @@ void TWorld::ChannelFlood(void)
         }
     }
 
-
     dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
         //  threaded flooding
 
-    // boundary flow
     Boundary2Ddyn(hmx, Uflood, Vflood);
+    // boundary flow
 
     //new flood domain
     nrFloodedCells = 0;
@@ -361,12 +360,10 @@ void TWorld::ChannelFlood(void)
 
         // for output on screen
         hmxWH->Drc = FloodDomain->Drc  == 0 ? WH->Drc : hmx->Drc;   //hmxWH is all water
-       // V->Drc = FloodDomain->Drc  == 1 ? UVflood->Drc : V->Drc;
         hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
 
 //        if (SwitchErosion)
 //        {
-
 //            Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, SSFlood->Drc + BLFlood->Drc);
 //            Qsn->Drc = Conc->Drc*Qn->Drc;
 //        }
@@ -374,10 +371,9 @@ void TWorld::ChannelFlood(void)
 
     FloodMaxandTiming(hmxWH, UVflood, minReportFloodHeight);
 
-    //double avgh = (cells > 0 ? (sumh_t)/cells : 0);
     double area = nrFloodedCells*_dx*_dx;
     if (area > 0)
-    debug(QString("Flooding (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(nrFloodedCells));
+    debug(QString("Flooding (dt %1 sec, n %2): area %3 m2, %4 cells %5").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(nrFloodedCells).arg(K2DQOutBoun));
     // some screen error reporting
 
 }
