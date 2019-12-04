@@ -172,7 +172,6 @@ void TWorld::setZero(int thread, cTMap *_h, cTMap *_u, cTMap *_v)
 /// Numerical flux calculation on which the new velocity is based
 /// U_n+1 = U_n + dt/dx* [flux]  when flux is calculated by HLL, HLL2, Rusanov
 /// HLL = Harten, Lax, van Leer numerical solution
-/// TODO: 1/(c1-c2) can become 0?
 void TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
     double f1, f2, f3, cfl, tmp = 0;
@@ -1109,7 +1108,7 @@ void TWorld::fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cT
     //sediment
     //only when sediment is modelled
     if (SwitchErosion)
-        SWOFSediment(thread,FloodDT,dt1,hs,us,vs );
+        SWOFSediment(thread,FloodDT,dt1,h,u,v );  //TODO why not hs, us, vs
 
     if (!SwitchHeun)
     {

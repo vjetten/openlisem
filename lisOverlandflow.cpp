@@ -363,6 +363,7 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
         h->Drc -= dh;
 //        Qn->Drc = UV*(h->Drc*dy);
 //        Q->Drc = Qn->Drc;
+        // if actuivated this gives a mass balance error
 
         if (SwitchErosion) {
             double ds = frac * SSFlood->Drc;
@@ -821,7 +822,7 @@ void TWorld::OverlandFlow1D(void)
             }
         }
     }
-report(*Qn,"qn");
+
     // convert calculate Qn back to WH and volume for next loop
     FOR_ROW_COL_MV
     {
@@ -894,13 +895,7 @@ report(*Qn,"qn");
     {
         FOR_ROW_COL_MV
         {
-
-            //Conc->Drc = (Qn->Drc > 1e-6 ? Qs->Drc/Qn->Drc : 0);
             Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
-
-            // CHANGED, MORE STABLE CONC 19/9/13
-            // correct for very high concentrations, 850 after Govers et al
-            // recalc sediment volume
 
             if(SwitchUseGrainSizeDistribution)
             {

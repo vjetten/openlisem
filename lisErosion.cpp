@@ -335,17 +335,14 @@ double TWorld::OFTC(int r, int c, int d)
     //use Govers transport capacity equation
     if(OF_Method == FSGOVERS)
     {
-        //CG->Drc = pow((D50->Drc+5)/0.32, -0.6);
-        //DG->Drc = pow((D50->Drc+5)/300, 0.25);
-        //### Calc transport capacity
-        double omega = 0;
-
-        omega = 100* V->Drc*Grad->Drc;
+        double omega = 100* V->Drc*Grad->Drc;
 
         // V in cm/s in this formula assuming grad is SINE
         double omegacrit = 0.4;
         // critical unit streampower in cm/s
-        return std::min(MAXCONC, 2650 * CG->Drc * pow(std::max(0.0, omega - omegacrit), DG->Drc));
+        double cg = pow((D50->Drc+5)/0.32, -0.6);
+        double dg = pow((D50->Drc+5)/300, 0.25);
+        return std::min(MAXCONC, 2650 * cg * pow(std::max(0.0, omega - omegacrit), dg));
         // not more than 2650*0.32 = 848 kg/m3
 
     //use the Hairsine and Rose transport capacity equation
@@ -1104,7 +1101,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
  *
  */
 
-// TODO: can this be merged with SWOF detachment?
+// TODO: CHECK consistency SWOF
 void TWorld::FlowDetachment(int thread)
 {
    if (!SwitchErosion)
@@ -1120,7 +1117,7 @@ void TWorld::FlowDetachment(int thread)
        if(!SwitchUseGrainSizeDistribution) {
            //get the transport capacity for a single grain size
             // TC->Drc = OFTC(r,c,-1);
-             TC->Drc = calcTCSuspended(r,c,-1, FSGOVERS, V->Drc, 2);
+             TC->Drc = calcTCSuspended(r,c,-1, 0, V->Drc, 2);
 
        } else {
            //get the transport capacity for all induvidual grain sizes
@@ -1152,6 +1149,7 @@ void TWorld::FlowDetachment(int thread)
 
    }}}}
 
+
     //the iterator is either the number of grain classes, or 1 if no grain size distribution is used.
    int iterator = numgrainclasses;
    if(!SwitchUseGrainSizeDistribution){
@@ -1165,6 +1163,16 @@ void TWorld::FlowDetachment(int thread)
        {
           double erosionwh = WHrunoff->Drc;
           double erosionwv = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc;
+          if(SwitchKinematic2D != K2D_METHOD_KIN) {
+              erosionwh = std::max(WHrunoff->Drc-K2DWHStore->Drc ,0.0);
+              erosionwv = std::max(WHrunoff->Drc-K2DWHStore->Drc ,0.0)*ChannelAdj->Drc*DX->Drc;
+          }
+          //assume splash detachment has same grain size distribution as soil
+          if (!SwitchUseGrainSizeDistribution)
+              Sed->Drc += DETSplash->Drc;
+          else
+              Sed_D.Drcd += DETSplash->Drc * W_D.Drcd;
+
 
           if (erosionwh < MIN_HEIGHT) {
               DEP->Drc += -Sed->Drc;
@@ -1175,17 +1183,6 @@ void TWorld::FlowDetachment(int thread)
               // add grsinsize distribution here
 
           } else {
-
-              if(SwitchKinematic2D != K2D_METHOD_KIN) {
-                  erosionwh = std::max(WHrunoff->Drc-K2DWHStore->Drc ,0.0);
-                  erosionwv = std::max(WHrunoff->Drc-K2DWHStore->Drc ,0.0)*ChannelAdj->Drc*DX->Drc;
-              }
-
-              //assume splash detachment has same grain size distribution as soil
-              if (!SwitchUseGrainSizeDistribution)
-                  Sed->Drc += DETSplash->Drc;
-              else
-                  Sed_D.Drcd += DETSplash->Drc * W_D.Drcd;
 
               if(!SwitchUseGrainSizeDistribution)
                   Conc->Drc = MaxConcentration(erosionwv, Sed->Drc);
@@ -1220,6 +1217,7 @@ void TWorld::FlowDetachment(int thread)
               {
                   TransportFactor = _dt*settlingvelocities.at(d) * DX->Drc * fpa->Drc*SoilWidthDX->Drc;
               }
+              TransportFactor = std::min(TransportFactor, Qn->Drc*_dt);
 
               // detachment can only come from soil, not roads (so do not use flowwidth)
               // units s * m/s * m * m = m3
@@ -1231,8 +1229,8 @@ void TWorld::FlowDetachment(int thread)
                   //detachment =  W_D.at(d)->Drc * detachment;
               }
               // unit = kg/m3 * m3 = kg (/cell)
-              detachment = std::min(detachment, maxTC * erosionwv);
 
+              //detachment = std::min(detachment, maxTC * erosionwv);
               // cannot have more detachment than remaining capacity in flow
               // use discharge because standing water has no erosion
 
@@ -1267,17 +1265,10 @@ void TWorld::FlowDetachment(int thread)
                   detachment = std::max(0.0, MAXCONC * erosionwv - Sed->Drc);
               // not more detachment then is needed to keep below ssmax
 
-              //### sediment balance
-              Sed->Drc += detachment;
-              DETFlow->Drc += detachment;
-              if(SwitchUseGrainSizeDistribution)
-              {
-                  Sed_D.Drcd += detachment;
-              }
-
-              double deposition = 0;
 
               //### deposition
+              double deposition = 0;
+
               if(!SwitchUseGrainSizeDistribution)
               {
                   TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/erosionwh)) * erosionwv;  //TODO: SWOF uses entire WH for deposition
@@ -1342,26 +1333,25 @@ void TWorld::FlowDetachment(int thread)
                   }
               }
 
-              //keep track of deposition
-              DEP->Drc += deposition;
-
+              //### sediment balance
               // add to sediment in flow (IN KG/CELL)
+
+              Sed->Drc += detachment;
               Sed->Drc += deposition;
-              //if needed, add to sediment in flow for a certain grain class
+              DETFlow->Drc += detachment;
+              DEP->Drc += deposition;
+              Conc->Drc = MaxConcentration(erosionwv, Sed->Drc);
+
               if(SwitchUseGrainSizeDistribution)
               {
+                  Sed_D.Drcd += detachment;
                   Sed_D.Drcd += deposition;
-              }
-              //calculate concentration
-              if(SwitchUseGrainSizeDistribution)
-              {
                   Conc_D.Drcd = MaxConcentration(erosionwv, Sed_D.Drcd);
               }
-
-              Conc->Drc = MaxConcentration(erosionwv, Sed->Drc);
           }
        }
    }}}}
+
 }
 //---------------------------------------------------------------------------
 /**
@@ -2069,6 +2059,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int ty
     } else
         if (type == 2) {
             h = WH->Drc;
+            hs = WH->Drc;
             S = Grad->Drc;
             w = FlowWidth->Drc;
         }
@@ -2098,13 +2089,13 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int ty
     if(method == FSGOVERS)
     {
         //### Calc transport capacity
-        double uc = 100.0*U*S; //in cm/s
-        // V in cm/s in this formula assuming grad is SINE
-        double ucr = 0.4;
-        // critical unit streampower in cm/s
-        tc = ps * CG->Drc * pow(std::max(0.0, uc-ucr), DG->Drc); // kg/m3
+        double uc = 100.0*U*S; //in cm/s  in this formula assuming grad is SINE
+        double ucr = 0.4;   // critical unit streampower in cm/s
+        double cg = pow((D50->Drc+5)/0.32, -0.6);
+        double dg = pow((D50->Drc+5)/300, 0.25);
+        tc = ps * cg * pow(std::max(0.0, uc-ucr), dg); // kg/m3
 
-    }else
+    } else
         if(method == FSRIJN)
     {
          //https://www.leovanrijn-sediment.com/papers/Formulaesandtransport.pdf

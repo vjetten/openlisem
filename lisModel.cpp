@@ -206,7 +206,7 @@ void TWorld::DoModel()
 
             //do cell specific stuff, hydrology and splash detachment, threaded
             ThreadPool->RunCellCompute(wrapCellProcesses1D);
-            ThreadPool->WaitForAll();            
+            ThreadPool->WaitForAll();
 
             ToFlood();             // overland flow water added to flood (not in channel cells)
             ToChannel();           // water and sed flux going into channel in channel cells, goes to channeloverflow
@@ -215,8 +215,8 @@ void TWorld::DoModel()
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddiff or 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
             // flow detachment
-//            ThreadPool->RunCellCompute(fcompute2);
-//            ThreadPool->WaitForAll();
+       //     ThreadPool->RunCellCompute(fcompute2);
+       //     ThreadPool->WaitForAll();
 
             ChannelFlood();    // st venant channel 2D flooding from channel, only for kyn and diff of
 

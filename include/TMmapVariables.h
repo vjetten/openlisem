@@ -134,8 +134,8 @@ cTMap
 *TC,                         //!< transport capacity [kg/m^3]
 *Conc,                       //!< sediment concentration in flow [kg/m^3]
 *Sed,                        //!< sediment content of flow [kg]
-*CG,                         //!< parameter Govers in TC equation
-*DG,                         //!< parameter Govers in TC equation
+//*CG,                         //!< parameter Govers in TC equation
+//*DG,                         //!< parameter Govers in TC equation
 *SettlingVelocity,           //!< settling velocity according to Stokes [m/s]
 *PCA,                        //!< applied dose [kg/m2]
 *epsil,                      //!< mixing layer depth (m]

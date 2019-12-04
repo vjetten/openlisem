@@ -361,14 +361,40 @@ void TWorld::ChannelFlood(void)
         // for output on screen
         hmxWH->Drc = FloodDomain->Drc  == 0 ? WH->Drc : hmx->Drc;   //hmxWH is all water
         hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
-
-//        if (SwitchErosion)
-//        {
-//            Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, SSFlood->Drc + BLFlood->Drc);
-//            Qsn->Drc = Conc->Drc*Qn->Drc;
-//        }
     }
-
+    if(SwitchErosion)
+    {
+        //calculate concentration and new sediment discharge
+        //WHrunoff and Qn are adapted in case of 2D routing
+        if(!SwitchUseGrainSizeDistribution)
+        {
+            FOR_ROW_COL_MV
+            {
+                Conc->Drc =  MaxConcentration(FloodWaterVol->Drc, SSFlood->Drc + BLFlood->Drc);
+                Qsn->Drc = Conc->Drc*Qn->Drc;
+            }
+        }
+        else
+        {
+            //calculate total sediment from induvidual grain classes,
+            //and calculate concentration and new sediment discharge
+//            FOR_ROW_COL_MV
+//            {
+//                Sed->Drc = 0;
+//                Conc->Drc = 0;
+//            }
+//            FOR_ROW_COL_MV
+//            {
+//                FOR_GRAIN_CLASSES
+//                {
+//                    Sed->Drc += Sed_D.Drcd;
+//                    Conc_D.Drcd = MaxConcentration(FloodWaterVol->Drc, Sed_D.Drcd);
+//                    Conc->Drc += Conc_D.Drcd;
+//                }
+//                Qsn->Drc = Conc->Drc*Qn->Drc;
+//            }
+        }
+    }
     FloodMaxandTiming(hmxWH, UVflood, minReportFloodHeight);
 
     double area = nrFloodedCells*_dx*_dx;

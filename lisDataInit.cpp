@@ -1028,8 +1028,8 @@ void TWorld::InitMulticlass(void)
     TC = NewMap(0);
     Conc = NewMap(0);
 
-    CG = NewMap(0);
-    DG = NewMap(0);
+    //CG = NewMap(0);
+    //DG = NewMap(0);
     SettlingVelocity = NewMap(0);
     CohesionSoil = NewMap(0);
     Y = NewMap(0);
@@ -1139,8 +1139,8 @@ void TWorld::InitMulticlass(void)
         {
             FOR_ROW_COL_MV
             {
-                CG->Drc = pow((D50->Drc+5)/0.32, -0.6);
-                DG->Drc = pow((D50->Drc+5)/300, 0.25);
+//                CG->Drc = pow((D50->Drc+5)/0.32, -0.6);
+//                DG->Drc = pow((D50->Drc+5)/300, 0.25);
                 SettlingVelocity->Drc = GetSV(D50->Drc);
             }
         }else if(SwitchUseGrainSizeDistribution)

@@ -987,9 +987,6 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
             SSTCFlood->Drc += SSTC_D.Drcd;
         }
     }
-//    if (DepFlood->Drc > 0)
-//        qDebug() << "flood" << DepFlood->Drc;
-
 }
 //--------------------------------------------------------------------------------------------
 /**
