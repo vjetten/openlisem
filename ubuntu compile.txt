@@ -1,0 +1,39 @@
+
+
+Install ubuntu newest
+
+- QT: open source onine installer, select gcc 64bit and qt debug files (and qtcreator tools)
+Install this in /home/name/QT/q513
+- tools:
+
+sudo apt install cmake cmake-gui gcc g++ git libboost-all-dev libgdal-dev libncurses5-dev libpython-dev libqwt-qt5-dev libxerces-c-dev libxml2 libxml2-utils libxslt1-dev python-numpy qtbase5-dev python-docopt
+
+
+- opengl:
+sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
+
+- qwt 6.1.4: download tar bz2 package and unpack in ../QT
+go into the qwt directory, run 
+../q513/5.13.1/gcc_64/bin/qmake qwt.pro 
+make -j
+sudo make install
+
+- install pcraster 4.2.1
+http://pcraster.geo.uu.nl/getting-started/pcraster-on-linux/
+$ sudo apt install cmake gcc g++ git libboost-all-dev libgdal-dev libncurses5-dev libpython-dev libqwt-qt5-dev libxerces-c-dev libxml2 libxml2-utils libxslt1-dev python-numpy qtbase5-dev python-docopt
+$ wget http://pcraster.geo.uu.nl/pcraster/4.2.1/pcraster-4.2.1.tar.bz2
+$ tar xf pcraster-4.2.1.tar.bz2 && cd pcraster-4.2.1
+$ mkdir build && cd build
+$ cmake -DFERN_BUILD_ALGORITHM:BOOL=TRUE -DCMAKE_INSTALL_PREFIX:PATH=$HOME/pcraster ..
+$ cmake --build .
+$ make install
+
+- gdal (https://mothergeo-py.readthedocs.io/en/latest/development/how-to/gdal-ubuntu-pkg.html)
+sudo apt-get install gdal-bin
+and for python
+sudo apt-get install libgdal-dev
+
+export CPLUS_INCLUDE_PATH=/usr/include/gdal
+export C_INCLUDE_PATH=/usr/include/gdal
+
+ 

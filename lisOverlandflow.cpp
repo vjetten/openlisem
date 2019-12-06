@@ -161,7 +161,7 @@ void TWorld::ToChannel()//int thread)
         ChannelOverflow(WHrunoff, V);
         return;
     }
-/*
+
     ChannelOverflow(WHrunoff, V);
 
     FOR_ROW_COL_MV {
@@ -171,9 +171,9 @@ void TWorld::ToChannel()//int thread)
     }
 
     return;
-*/
 
-//     /* OBSOLETE
+
+     /* OBSOLETE
     fill(*RunoffVolinToChannel, 0);
 
     FOR_ROW_COL_MV_CH
