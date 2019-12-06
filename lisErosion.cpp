@@ -135,7 +135,7 @@ void TWorld::SplashDetachment(int thread)
       // leaf drip in mm, is calculated as plant leaf drip in interception function so mult cover
       // VJ 110206 stemflow is also accounted for
 
-      double WH0 = exp(-1.48*WH->Drc*1000);
+      double WH0 = exp(-1.48*hmxWH->Drc*1000);
       // water buffer effect on surface, WH in mm in this empirical equation from Torri ?
 
       if (AggrStab->Drc > 0)
