@@ -667,7 +667,7 @@ public:
     double GetSV(double d);
     void SplashDetachment(int thread);
     void FlowDetachment(int thread);
-    double MaxConcentration(double watvol, double sedvol);
+    double MaxConcentration(double watvol, double sedvol, double dep);
     void ChannelFlowDetachment(int r, int c);
 
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);

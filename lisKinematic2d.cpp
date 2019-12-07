@@ -532,7 +532,7 @@ double TWorld::K2DSolvebyInterpolationSed(int thread, cTMap *_S ,cTMap *_C)
         //K2DFMY->Drc = 0;
         K2DMN->Drc = K2DM->Drc;
         K2DMC->Drc = _C->Drc;
-        K2DMC->Drc = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, K2DM->Drc);
+        K2DMC->Drc = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, K2DM->Drc, DEP->Drc);
 
     }}}}
 
@@ -654,7 +654,7 @@ double TWorld::K2DSolvebyInterpolationSed(int thread, cTMap *_S ,cTMap *_C)
         _S->Drc = K2DMN->Drc;
         if(_C != nullptr)
         {
-            _C->Drc = MaxConcentration(K2DHNew->Drc * ChannelAdj->Drc * DX->Drc, K2DMN->Drc);
+            _C->Drc = MaxConcentration(K2DHNew->Drc * ChannelAdj->Drc * DX->Drc, K2DMN->Drc, DEP->Drc);
 
         }
     }}}}

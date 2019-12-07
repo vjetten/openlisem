@@ -357,7 +357,7 @@ void TWorld::ChannelFlood(void)
         {
             FOR_ROW_COL_MV
             {
-                Conc->Drc =  MaxConcentration(FloodWaterVol->Drc, SSFlood->Drc + BLFlood->Drc);
+                Conc->Drc =  MaxConcentration(FloodWaterVol->Drc, SSFlood->Drc + BLFlood->Drc, DepFlood->Drc);
                 Qsn->Drc = Conc->Drc*Qn->Drc;
             }
         }

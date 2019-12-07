@@ -135,7 +135,7 @@ void TWorld::ToFlood()//int thread)
                 //double UV = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
               //  SWOFSedimentLayerDepth(r,c,hmx->Drc,UV);
                 SWOFSedimentSetConcentration(r,c,hmx);
-                Conc->Drc = MaxConcentration(WHrunoff->Drc*ChannelAdj->Drc*DX->Drc, Sed->Drc);
+                Conc->Drc = MaxConcentration(WHrunoff->Drc*ChannelAdj->Drc*DX->Drc, Sed->Drc, DEP->Drc);
 
             }
          }
@@ -432,7 +432,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         {
             FOR_ROW_COL_MV
             {
-                Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, SSFlood->Drc + BLFlood->Drc);
+                Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, SSFlood->Drc + BLFlood->Drc, DEP->Drc);
                 Qsn->Drc = Conc->Drc*Qn->Drc;
             }
         }
@@ -451,7 +451,7 @@ void TWorld::OverlandFlow2Ddyn(void)
                 FOR_GRAIN_CLASSES
                 {
                     Sed->Drc += Sed_D.Drcd;
-                    Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed_D.Drcd);
+                    Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed_D.Drcd, DEP->Drc);
                     Conc->Drc += Conc_D.Drcd;
                 }
                 Qsn->Drc = Conc->Drc*Qn->Drc;
@@ -586,7 +586,7 @@ void TWorld::OverlandFlow2D(void)
         {
             FOR_ROW_COL_MV
             {
-                Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed->Drc);
+                Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed->Drc, DEP->Drc);
                 Qsn->Drc = Conc->Drc * Qn->Drc;
             }
         }
@@ -605,7 +605,7 @@ void TWorld::OverlandFlow2D(void)
                 FOR_GRAIN_CLASSES
                 {
                     Sed->Drc += Sed_D.Drcd;
-                    Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed_D.Drcd);
+                    Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed_D.Drcd, DEP->Drc);
                     Conc->Drc += Conc_D.Drcd;
                 }
             }
@@ -725,7 +725,7 @@ void TWorld::OverlandFlow1D(void)
         // calc seediment flux going in kin wave as Qs = Q*C
         FOR_ROW_COL_MV
         {
-            Conc->Drc = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed->Drc);
+            Conc->Drc = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed->Drc, DEP->Drc);
             Qs->Drc =  Q->Drc * Conc->Drc;
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
         }
@@ -767,7 +767,7 @@ void TWorld::OverlandFlow1D(void)
                 // calc seediment flux going in kin wave as Qs = Q*C
                 FOR_ROW_COL_MV
                 {
-                    Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed_D.Drcd);
+                    Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, Sed_D.Drcd, DEP->Drc);
                     Tempa_D.Drcd =  Q->Drc * Conc_D.Drcd;
                     Qs->Drc +=  Q->Drc * Conc_D.Drcd;
                     // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
@@ -895,7 +895,7 @@ void TWorld::OverlandFlow1D(void)
     {
         FOR_ROW_COL_MV
         {
-            Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
+            Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc, DEP->Drc);
 
             if(SwitchUseGrainSizeDistribution)
             {
