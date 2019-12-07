@@ -215,7 +215,7 @@ void TWorld::OutputUI(void)
         }
     }
 
-   //output maps
+    //output maps
 
     FOR_ROW_COL_MV
     {
@@ -228,12 +228,12 @@ void TWorld::OutputUI(void)
         if(COMBO_QOFCH->Drc < 1e-6)
             COMBO_QOFCH->Drc = 0;
 
-//            if (ChannelWidthExtended->Drc > 0)
-//            {
-//                fill(*tma,0.0);
-//                DistributeOverExtendedChannel(ChannelQn,tma);
-//                COMBO_QOFCH->Drc += tma->Drc;
-//            }
+        //            if (ChannelWidthExtended->Drc > 0)
+        //            {
+        //                fill(*tma,0.0);
+        //                DistributeOverExtendedChannel(ChannelQn,tma);
+        //                COMBO_QOFCH->Drc += tma->Drc;
+        //            }
     }
 
     FOR_ROW_COL_MV
@@ -307,13 +307,13 @@ void TWorld::OutputUI(void)
     if (SwitchIncludeChannel)
         copy(*op.channelMap, *LDDChannel);//*ChannelMaskExtended);
 
-   // report(*ChannelWidthExtended, "cwe.map");
+    // report(*ChannelWidthExtended, "cwe.map");
     //BB 151118 might be better to draw LDD, since that is actually used to determine the presence of a channel
 
     if (SwitchRoadsystem)
     {
         copy(*op.roadMap, *RoadWidthDX);
-       // calcMap(*op.roadMap, *HardSurface, ADD);
+        // calcMap(*op.roadMap, *HardSurface, ADD);
     }
     if (SwitchHouses)
         copy(*op.houseMap, *HouseCover);
@@ -710,7 +710,7 @@ void TWorld::ReportTotalsNew(void)
     out << "\"Water in flood              (mm):\"," << op.volFloodmm<< "\n";
     out << "\"Water in channels           (mm):\"," << op.ChannelVolTotmm<< "\n";
     out << "\"Total outflow (all flows)   (mm):\"," << op.Qtotmm<< "\n";
-   // out << "\"Total baseflow              (mm):\"," << op.BaseFlowtotmm<< "\n";
+    // out << "\"Total baseflow              (mm):\"," << op.BaseFlowtotmm<< "\n";
     out << "\"Total channel+OF discharge  (m3):\"," << op.Qtot<< "\n";
     out << "\"Total flood discharge       (m3):\"," << op.floodBoundaryTot<< "\n";
     out << "\"Total storm drain discharge (m3):\"," << op.Qtiletot<< "\n";
@@ -761,7 +761,7 @@ void TWorld::ReportMaps(void)
     report(*runoffTotalCell, runoffMapFileName); // in mm, total runoff from cell (but there is also runon!)
 
     report(*WHmax, floodWHmaxFileName);
-   // report(*floodHmxMax, floodWHmaxFileName);  // BOTH overland flow and flood for all combinations
+    // report(*floodHmxMax, floodWHmaxFileName);  // BOTH overland flow and flood for all combinations
 
     // max velocity on land in m/s
     report(*floodVMax, floodMaxVFileName);  // BOTH overland flow and flood for all combinations
@@ -794,7 +794,7 @@ void TWorld::ReportMaps(void)
             factor = 1.0/(_dx*_dx);  //kg/m2
         else
             if (ErosionUnits == 0)
-            factor = 10.0/(_dx*_dx); //ton/ha
+                factor = 10.0/(_dx*_dx); //ton/ha
 
         // all detachment combined
         FOR_ROW_COL_MV {
@@ -874,7 +874,7 @@ void TWorld::ReportMaps(void)
         }
         if (SwitchOutTileVol)
         {
-           // report(*TileV, "tilev"); //in m3/s
+            // report(*TileV, "tilev"); //in m3/s
             report(*TileWaterVol, OutTileVol); //in m3
         }
     }
@@ -973,8 +973,8 @@ void TWorld::ReportLandunits(void)
 //---------------------------------------------------------------------------
 void TWorld::ChannelFloodStatistics(void)
 {
-//    if (!SwitchIncludeChannel)
-//        return;
+    //    if (!SwitchIncludeChannel)
+    //        return;
     if (!SwitchChannelFlood) // always true for now
         return;
 
@@ -1109,18 +1109,18 @@ void TWorld::setupHydrographData()
     {
         if(PointMap->Drc > 0)
         {
-           nr.append(PointMap->Drc);
-           op.OutletIndices.append(PointMap->Drc);
-           op.OutletLocationX.append(r);
-           op.OutletLocationY.append(c);
-           op.OutletQ.append(new QList<double>);
-           op.OutletQs.append(new QList<double>);
-           op.OutletC.append(new QList<double>);
-           op.OutletChannelWH.append(new QList<double>);
-           op.OutletQpeak.append(0);
-           op.OutletQpeaktime.append(0);
-           op.OutletQtot.append(0);
-           op.OutletQstot.append(0);
+            nr.append(PointMap->Drc);
+            op.OutletIndices.append(PointMap->Drc);
+            op.OutletLocationX.append(r);
+            op.OutletLocationY.append(c);
+            op.OutletQ.append(new QList<double>);
+            op.OutletQs.append(new QList<double>);
+            op.OutletC.append(new QList<double>);
+            op.OutletChannelWH.append(new QList<double>);
+            op.OutletQpeak.append(0);
+            op.OutletQpeaktime.append(0);
+            op.OutletQtot.append(0);
+            op.OutletQstot.append(0);
         }
     }
 
@@ -1192,10 +1192,10 @@ void TWorld::setColor(int i)
         Colormap.append(1.0);
 
         Colors.clear();
-//        Colors.append("#dae3ff");
-//        Colors.append("#6daaff");
-//        Colors.append("#4c76e8");
-//        Colors.append("#4c57c3");
+        //        Colors.append("#dae3ff");
+        //        Colors.append("#6daaff");
+        //        Colors.append("#4c76e8");
+        //        Colors.append("#4c57c3");
         Colors.append("#9eccee");//#bfdcf9");
         Colors.append("#427dc6");//#b1c0e9");
         Colors.append("#204ab5");//#7b94e7");
@@ -1203,16 +1203,16 @@ void TWorld::setColor(int i)
         Colors.append("#df2a36");
     }
     if (i == 2){ // yellow red
-//        Colormap.clear();
-//        Colormap.append(0.0);
-//        Colormap.append(0.25);
-//        Colormap.append(0.75);
-//        Colormap.append(1.0);
-//        Colors.clear();
-//        Colors.append("#00FF00");
-//        Colors.append("#FFFF00");
-//        Colors.append("#FF0000");
-//        Colors.append("#A60000");
+        //        Colormap.clear();
+        //        Colormap.append(0.0);
+        //        Colormap.append(0.25);
+        //        Colormap.append(0.75);
+        //        Colormap.append(1.0);
+        //        Colors.clear();
+        //        Colors.append("#00FF00");
+        //        Colors.append("#FFFF00");
+        //        Colors.append("#FF0000");
+        //        Colors.append("#A60000");
         Colormap.clear();
         Colormap.append(0.0);
         Colormap.append(0.25);
@@ -1273,18 +1273,18 @@ void TWorld::setColor(int i)
         Colors.append("#008800");
     }
     if (i == 6) { // red yellow green
-//        Colormap.clear();
-//        Colormap.append(0.0);
-//        Colormap.append(0.25);
-//        Colormap.append(0.5);
-//        Colormap.append(0.75);
-//        Colormap.append(1.0);
-//        Colors.clear();
-//        Colors.append("#A60000");
-//        Colors.append("#FF0000");
-//        Colors.append("#FFFF00");
-//        Colors.append("#00FF00");
-//        Colors.append("#007300");
+        //        Colormap.clear();
+        //        Colormap.append(0.0);
+        //        Colormap.append(0.25);
+        //        Colormap.append(0.5);
+        //        Colormap.append(0.75);
+        //        Colormap.append(1.0);
+        //        Colors.clear();
+        //        Colors.append("#A60000");
+        //        Colors.append("#FF0000");
+        //        Colors.append("#FFFF00");
+        //        Colors.append("#00FF00");
+        //        Colors.append("#007300");
         Colormap.clear();
         Colormap.append(0.0);
         Colormap.append(0.25);
@@ -1293,16 +1293,16 @@ void TWorld::setColor(int i)
         Colormap.append(1.0);
 
         Colors.clear();
-//        Colors.append("#1a9641");
-//        Colors.append("#a6d96a");
-//        Colors.append("#ffffa0");
-//        Colors.append("#fdae61");
-//        Colors.append("#e0181c");
-Colors.append("#d7191c");
-Colors.append("#fdae61");
-Colors.append("#fdfd7e");
-Colors.append("#abdda4");
-Colors.append("#2b83ba");
+        //        Colors.append("#1a9641");
+        //        Colors.append("#a6d96a");
+        //        Colors.append("#ffffa0");
+        //        Colors.append("#fdae61");
+        //        Colors.append("#e0181c");
+        Colors.append("#d7191c");
+        Colors.append("#fdae61");
+        Colors.append("#fdfd7e");
+        Colors.append("#abdda4");
+        Colors.append("#2b83ba");
 
 
     }
@@ -1315,19 +1315,19 @@ Colors.append("#2b83ba");
         Colormap.append(0.5);
         Colormap.append(0.75);
         Colormap.append(1.0);
-//        Colors.clear();
-//        Colors.append("#007300");
-//        Colors.append("#00FF00");
-//        Colors.append("#FFFF00");
-//        Colors.append("#FF0000");
-//        Colors.append("#A60000");
+        //        Colors.clear();
+        //        Colors.append("#007300");
+        //        Colors.append("#00FF00");
+        //        Colors.append("#FFFF00");
+        //        Colors.append("#FF0000");
+        //        Colors.append("#A60000");
 
         Colors.clear();
-//        Colors.append("#e0181c");
-//        Colors.append("#fdae61");
-//        Colors.append("#ffffa0");
-//        Colors.append("#a6d96a");
-//        Colors.append("#1a9641");
+        //        Colors.append("#e0181c");
+        //        Colors.append("#fdae61");
+        //        Colors.append("#ffffa0");
+        //        Colors.append("#a6d96a");
+        //        Colors.append("#1a9641");
         Colors.append("#2b83ba");
         Colors.append("#a4ddd9");//abdda4");
         Colors.append("#ffffef");
@@ -1393,11 +1393,11 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"Water Height","m",hmxWH,Colormap,Colors,false,false,1.0,0.01);
     setColor(2);
     AddComboMap(0,"Flow Velocity","m/s",COMBO_VOFCH,Colormap,Colors,false,false,1.0, 0.01);
-  //  calc2Maps(*tm, *UVflood, *hmxWH,MUL);
+    //  calc2Maps(*tm, *UVflood, *hmxWH,MUL);
 
     AddComboMap(0,"Flow Momentum","m2/s",VH,Colormap,Colors,false,false,1.0, 0.01); //VH
 
-   if(SwitchIncludeChannel)
+    if(SwitchIncludeChannel)
     {
         setColor(1);
         AddComboMap(0,"Channel Discharge","l/s",ChannelQn,Colormap,Colors,true,false,1000.0, 1.0); //Chnaged thhis to ChannelQn
@@ -1407,11 +1407,11 @@ void TWorld::GetComboMaps()
         setColor(2);
         AddComboMap(0,"Channel Velocity","m/s",ChannelV,Colormap,Colors,false,false,1.0,0.01);
     }
-   if(SwitchIncludeTile || SwitchIncludeStormDrains) {
-       setColor(1);
-       AddComboMap(0,"Storm Drain Volume","m3",TileWaterVol,Colormap,Colors,false,false,1.0,1.0);
-       AddComboMap(0,"Storm Drain Discharge","l/s",TileQn,Colormap,Colors,false,false,1000.0,1.0);
-   }
+    if(SwitchIncludeTile || SwitchIncludeStormDrains) {
+        setColor(1);
+        AddComboMap(0,"Storm Drain Volume","m3",TileWaterVol,Colormap,Colors,false,false,1.0,1.0);
+        AddComboMap(0,"Storm Drain Discharge","l/s",TileQn,Colormap,Colors,false,false,1000.0,1.0);
+    }
     if(InfilMethod != INFIL_NONE)
     {
         setColor(4);
@@ -1419,8 +1419,8 @@ void TWorld::GetComboMaps()
         AddComboMap(0,"Infiltration","mm",InfilmmCum,Colormap,Colors,false,false,1.0,1.0);
 
         if (InfilMethod != INFIL_SWATRE) {
-                AddComboMap(0,"Moisture content 1","-",Thetaeff,Colormap,Colors,false,false,1.0,1.0);
-           if (SwitchTwoLayer)
+            AddComboMap(0,"Moisture content 1","-",Thetaeff,Colormap,Colors,false,false,1.0,1.0);
+            if (SwitchTwoLayer)
                 AddComboMap(0,"Moisture content 2","-",ThetaI2,Colormap,Colors,false,false,1.0,1.0);
             if (SwitchPercolation)
                 AddComboMap(0,"Percolation","mm",PercmmCum,Colormap,Colors,false,false,1.0,1.0);
@@ -1436,10 +1436,10 @@ void TWorld::GetComboMaps()
 
     setColor(3);
 
-//    if (SwitchIncludeTile || SwitchIncludeStormDrains) {
-//       AddComboMap(0,"Tile discharge","m3/s",TileQn,Colormap,Colors,false,false,1.0,0.01);
-//       AddComboMap(0,"Tile Volume","m3",TileWaterVol,Colormap,Colors,false,false,1.0,0.01);
-//    }
+    //    if (SwitchIncludeTile || SwitchIncludeStormDrains) {
+    //       AddComboMap(0,"Tile discharge","m3/s",TileQn,Colormap,Colors,false,false,1.0,0.01);
+    //       AddComboMap(0,"Tile Volume","m3",TileWaterVol,Colormap,Colors,false,false,1.0,0.01);
+    //    }
 
 
     QString txt = QString("Flood Height, h>%1 mm").arg(minReportFloodHeight*1000);
@@ -1453,21 +1453,21 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"Flood duration","min",floodTime,Colormap,Colors,false,false,1.0,1.0);
 
 
-  //  if(SwitchKinematic2D != K2D_METHOD_KIN)
-  //  {
-     //   AddComboMap(0,"Overland Flow Timestep","s",K2DDTr,Colormap,Colors,false,false,1.0,1.0);
+    //  if(SwitchKinematic2D != K2D_METHOD_KIN)
+    //  {
+    //   AddComboMap(0,"Overland Flow Timestep","s",K2DDTr,Colormap,Colors,false,false,1.0,1.0);
     //    AddComboMap(0,"pits","-",K2DPits,Colormap,Colors,false,false,1.0,1.0);
     //    AddComboMap(0,"slope","-",K2DSlope,Colormap,Colors,false,false,1.0,1.0);
 
-        //AddComboMap(0,"Overland Flow Timestep","s",K2DDTT,Colormap,Colors,false,false,1.0,1.0);
-  //  }
-     setColor(6);
-     if (SwitchVariableTimestep)
-     {
-         AddComboMap(0,"Timestep","s",FloodDTr,Colormap,Colors,false,false,1.0,1.0);
-       //  AddComboMap(0,"Timestep last","s",FloodDT,Colormap,Colors,false,false,1.0,1.0);
-     }
-     if (userCores > 1 || userCores == 0)
+    //AddComboMap(0,"Overland Flow Timestep","s",K2DDTT,Colormap,Colors,false,false,1.0,1.0);
+    //  }
+    setColor(6);
+    if (SwitchVariableTimestep)
+    {
+        AddComboMap(0,"Timestep","s",FloodDTr,Colormap,Colors,false,false,1.0,1.0);
+        //  AddComboMap(0,"Timestep last","s",FloodDT,Colormap,Colors,false,false,1.0,1.0);
+    }
+    if (userCores > 1 || userCores == 0)
         AddComboMap(0,"CoreMask" ,"-",CoreMask,Colormap,Colors,false,false,1.0,1.0);
 
 
@@ -1491,19 +1491,21 @@ void TWorld::GetComboMaps()
 
         setColor(9);
 
-        AddComboMap(1,"Combined Sed. load",unit,COMBO_SS,Colormap,Colors,false,false,factor, step);
-        AddComboMap(1,"Suspended sed.",unit,SSFlood,Colormap,Colors,false,false,factor, step);
-        if(SwitchUse2Layer)
-            AddComboMap(1,"Bedload sed.",unit,BLFlood,Colormap,Colors,false,false,factor, step);
-        AddComboMap(1,"TC suspended",unit,SSTCFlood,Colormap,Colors,false,false,factor, step);
-        if(SwitchUse2Layer)
-            AddComboMap(1,"TC bedload",unit,BLTCFlood,Colormap,Colors,false,false,factor, step);
-        AddComboMap(1,"Sed. Concentration","kg/m3",TotalConc,Colormap,Colors,false,false,1.0, step);
         AddComboMap(1,"Splash detachment",unit,DETSplashCum,Colormap,Colors,false,false,factor, step);
         AddComboMap(1,"Flow detachment",unit,DETFlowCum,Colormap,Colors,false,false,factor, step);
-        AddComboMap(1,"Transport Capacity","kg/m3",COMBO_TC,Colormap,Colors,false,false,1.0, step);
-        AddComboMap(1,"SSdepth","kg/m3",SSDepthFlood,Colormap,Colors,false,false,1.0, step);
-        AddComboMap(1,"BLdepth","kg/m3",BLDepthFlood,Colormap,Colors,false,false,1.0, step);
+        AddComboMap(1,"Sed. Concentration","kg/m3",TotalConc,Colormap,Colors,false,false,1.0, step);
+
+        if(SwitchUse2Layer) {
+            AddComboMap(1,"Suspended sed.",unit,SSFlood,Colormap,Colors,false,false,factor, step);
+            AddComboMap(1,"Bedload sed.",unit,BLFlood,Colormap,Colors,false,false,factor, step);
+            AddComboMap(1,"TC suspended",unit,SSTCFlood,Colormap,Colors,false,false,factor, step);
+            AddComboMap(1,"TC bedload",unit,BLTCFlood,Colormap,Colors,false,false,factor, step);
+            AddComboMap(1,"SS depth","kg/m3",SSDepthFlood,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"BL depth","kg/m3",BLDepthFlood,Colormap,Colors,false,false,1.0, step);
+        } else {
+            AddComboMap(1,"Sediment load",unit,COMBO_SS,Colormap,Colors,false,false,factor, step);
+            AddComboMap(1,"Transport Capacity","kg/m3",COMBO_TC,Colormap,Colors,false,false,1.0, step);
+        }
 
         setColor(10);
         AddComboMap(1,"Deposition",unit,DEPCum,Colormap,Colors,false,false,-factor, step);
