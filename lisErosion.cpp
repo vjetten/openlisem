@@ -215,7 +215,7 @@ void TWorld::SplashDetachment(int thread)
       //is already contained in soilwidth
       // no splash from house roofs
 
-      DETSplash->Drc = (1-Snowcover->Drc)*DETSplash->Drc;
+      DETSplash->Drc = 0;//(1-Snowcover->Drc)*DETSplash->Drc;
       // no splash on snow deck
 
       if(SwitchUseMaterialDepth)
@@ -1117,7 +1117,7 @@ void TWorld::FlowDetachment(int thread)
        if(!SwitchUseGrainSizeDistribution) {
            //get the transport capacity for a single grain size
             // TC->Drc = OFTC(r,c,-1);
-             TC->Drc = calcTCSuspended(r,c,-1, 0, V->Drc, 2);
+             TC->Drc = calcTCSuspended(r,c,-1, FSGOVERS, V->Drc, 2);
 
        } else {
            //get the transport capacity for all induvidual grain sizes
@@ -1168,6 +1168,12 @@ void TWorld::FlowDetachment(int thread)
               erosionwv = std::max(WHrunoff->Drc-K2DWHStore->Drc ,0.0)*ChannelAdj->Drc*DX->Drc;
           }
           //assume splash detachment has same grain size distribution as soil
+
+          double depdef = (MAXCONC - Conc->Drc)*erosionwv;
+          if (DETSplash->Drc > depdef) {
+              DEP->Drc += depdef-DETSplash->Drc;
+              DETSplash->Drc = depdef;
+          }
           if (!SwitchUseGrainSizeDistribution)
               Sed->Drc += DETSplash->Drc;
           else
@@ -1510,10 +1516,10 @@ void TWorld::ChannelFlowDetachment(int r, int c)
            deposition += -TSStemp->Drc;
            TBLtemp->Drc = 0;
            TSStemp->Drc = 0;
-           TBLTCtemp = 0;
-           TSSTCtemp = 0;
-           TBLCtemp = 0;
-           TSSCtemp = 0;
+           TBLTCtemp->Drc = 0;
+           TSSTCtemp->Drc = 0;
+           TBLCtemp->Drc = 0;
+           TSSCtemp->Drc = 0;
 
            ChannelDep->Drc += deposition;
 
@@ -1530,14 +1536,14 @@ void TWorld::ChannelFlowDetachment(int r, int c)
                }
            }
 
-           TBLDepthtemp = 0;
-           TSSDepthtemp = 0;
-           TBLTCtemp = 0;
-           TSSTCtemp = 0;
-           TBLCtemp = 0;
-           TSSCtemp = 0;
-           TBLtemp = 0;
-           TSStemp = 0;
+           TBLDepthtemp->Drc = 0;
+           TSSDepthtemp->Drc = 0;
+           TBLTCtemp->Drc = 0;
+           TSSTCtemp->Drc = 0;
+           TBLCtemp->Drc = 0;
+           TSSCtemp->Drc = 0;
+           TBLtemp->Drc = 0;
+           TSStemp->Drc = 0;
 
            if(SwitchUseGrainSizeDistribution)
            {
@@ -1566,7 +1572,7 @@ void TWorld::ChannelFlowDetachment(int r, int c)
 
           //  detachment
           TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc * ChannelFlowWidth->Drc;
-          TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
+          //TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
           //TransportFactor = ssdischarge*_dt;
           // use discharge because standing water has no erosion
 

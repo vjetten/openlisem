@@ -208,7 +208,7 @@ void TWorld::DoModel()
             ThreadPool->RunCellCompute(wrapCellProcesses1D);
             ThreadPool->WaitForAll();
 
-            ToFlood();             // overland flow water added to flood (not in channel cells)
+          //  ToFlood();             // overland flow water added to flood (not in channel cells)
             ToChannel();           // water and sed flux going into channel in channel cells, goes to channeloverflow
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
