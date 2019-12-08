@@ -86,10 +86,9 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     double fc = std::min(0.95,ChannelWidth->Drcr/_dx);
                     // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
                     double whlevel = (ChannelWH->Drcr-chdepth)*fc + _h->Drcr*(1-fc);
-                    double sedlevel = 0, inchansed = 0;
+                    double sedlevel = 0;
                     if (SwitchErosion) {
                         sedlevel = dH/ChannelWH->Drcr*ChannelSSSed->Drcr*fc + SSFlood->Drcr*(1-fc);
-                        inchansed = chdepth/ChannelWH->Drcr*ChannelSSSed->Drcr;
                     }
                     // equilibrium water level = weighed values of channel surplus level + _h
                     // can be negative if channelwh is below channel depth and low _h level
@@ -158,10 +157,11 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                         }
                     }
 
+                    // instantaneous waterlevel exquilibrium acccross channel and adjacent
                     if (dosimpel)
                     {
 
-                        if(whlevel > HMIN) // instantaneous waterlevel exquilibrium acccross channel and adjacent
+                        if(whlevel > HMIN)
                         {
                           //  qDebug() << r << c << "simpel";
                             ChannelWH->Drcr = whlevel + chdepth;
@@ -170,7 +170,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                             // new equilibrium levels
                             if(SwitchErosion)
                             {
-                                ChannelSSSed->Drc = sedlevel + inchansed;
+                                ChannelSSSed->Drcr = sedlevel+ ChannelSSConc->Drcr * chdepth*ChannelFlowWidth->Drcr*ChannelDX->Drcr;
                                 SSFlood->Drcr = sedlevel;
 
                                 if(SwitchUseGrainSizeDistribution)
@@ -191,7 +191,9 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                             // we assume that there is no more flow towards the channel.
                         }
                     }
+
                     ChannelWaterVol->Drcr = ChannelWH->Drcr * ChannelDX->Drcr * ChannelWidth->Drcr;
+                    // do not recalc floodvol, MB errors
 
                     // recalc channel water vol else big MB error
                     if(SwitchErosion)
@@ -357,7 +359,8 @@ void TWorld::ChannelFlood(void)
         {
             FOR_ROW_COL_MV
             {
-                Conc->Drc =  MaxConcentration(FloodWaterVol->Drc, SSFlood->Drc + BLFlood->Drc, DepFlood->Drc);
+                double sed = SSFlood->Drc + BLFlood->Drc;
+                Conc->Drc =  MaxConcentration(FloodWaterVol->Drc, &sed, &DepFlood->Drc);
                 Qsn->Drc = Conc->Drc*Qn->Drc;
             }
         }

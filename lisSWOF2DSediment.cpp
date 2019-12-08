@@ -216,12 +216,12 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap *DT, cTMap *h, cTMa
             _SS->Drc = MSSNFlood->Drc;
 
             //set concentration from present sediment
-            _BLC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*BLDepthFlood->Drc, _BL->Drc, DepFlood->Drc);
+            _BLC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*BLDepthFlood->Drc, &_BL->Drc, &DepFlood->Drc);
 
             //set concentration from present sediment
-            _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*SSDepthFlood->Drc, _SS->Drc, DepFlood->Drc);
+            _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*SSDepthFlood->Drc, &_SS->Drc, &DepFlood->Drc);
 
-            //USING h HERE and NOT ssdepth bldepth
+            //TODO: USING h HERE and NOT ssdepth bldepth ???
 
 
         }
@@ -306,6 +306,10 @@ void TWorld::SWOFSedimentCheckZero(int r, int c, cTMap * h)//,cTMap * u,cTMap * 
         }
     }
 }
+
+void TWorld::hoi(double *v) {
+    *v = *v *2;
+}
 //--------------------------------------------------------------------------------------------
 /**
  * @fn void TWorld::SWOFSedimentSetConcentration(int r, int c)
@@ -330,8 +334,10 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)
     cTMap * _SSC = SSCFlood;
     double hh = SSDepthFlood->Drc;
     double hhb = BLDepthFlood->Drc;
-    double maxsed = 0;
-            //h->Drc;
+
+//    double v = 3;
+//    hoi(&v);
+//    qDebug() << v;
 
 
     if(h->Drc > he_ca)
@@ -339,33 +345,21 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)
         if(!SwitchUseGrainSizeDistribution)
         {
             if (hhb > he_ca) {
-//                maxsed = MAXCONCBL * ChannelAdj->Drc*DX->Drc*hhb;
-//                if (_BL->Drc > maxsed){
-//                    DepFlood->Drc -= (_BL->Drc - maxsed);
-//                    _BL->Drc = maxsed;
-//                }
-                _BLC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hhb, _BL->Drc, DepFlood->Drc);
-                _BL->Drc = _BLC->Drc * ChannelAdj->Drc*DX->Drc*hhb;
+                _BLC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hhb, &_BL->Drc, &DepFlood->Drc);
+               // _BL->Drc = _BLC->Drc * ChannelAdj->Drc*DX->Drc*hhb;
             }
-
-//            maxsed = MAXCONC * ChannelAdj->Drc*DX->Drc*hh;
-//            if (_SS->Drc > maxsed){
-//                DepFlood->Drc -= (_SS->Drc - maxsed);
-//                _SS->Drc = maxsed;
-//            }
-
-            _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hh, _SS->Drc, DepFlood->Drc);
-            _SS->Drc = _SSC->Drc * ChannelAdj->Drc*DX->Drc*hh;
+            _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hh, &_SS->Drc, &DepFlood->Drc);
+            //_SS->Drc = _SSC->Drc * ChannelAdj->Drc*DX->Drc*hh;
 
         }else
         {
             FOR_GRAIN_CLASSES
             {
                 //set concentration from present sediment
-                BLC_D.Drcd = MaxConcentration(ChannelAdj->Drc*DX->Drc*hhb, BL_D.Drcd, DepFlood->Drc);
+                BLC_D.Drcd = MaxConcentration(ChannelAdj->Drc*DX->Drc*hhb, &BL_D.Drcd, &DepFlood->Drc);
 
                 //set concentration from present sediment
-                SSC_D.Drcd = MaxConcentration(ChannelAdj->Drc*DX->Drc*hh, SS_D.Drcd, DepFlood->Drc);
+                SSC_D.Drcd = MaxConcentration(ChannelAdj->Drc*DX->Drc*hh, &SS_D.Drcd, &DepFlood->Drc);
             }
         }
     }
@@ -509,7 +503,7 @@ void TWorld::SWOFSedimentDiffusion(int thread, cTMap *DT, cTMap *h,cTMap *u,cTMa
         {
             _SS->Drc = std::max(0.0,MSSNFlood->Drc);
             //set concentration from present sediment
-            _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, _SS->Drc, DepFlood->Drc);
+            _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, &_SS->Drc, &DepFlood->Drc);
         }
     }}}}
 }

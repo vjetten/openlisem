@@ -637,7 +637,7 @@ public:
   //  void SWOFSedimentMaxC(int r, int c);//, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSedimentCheckZero(int r, int c, cTMap * h);//,cTMap * u,cTMap * v);
     void SWOFSedimentSetConcentration(int r, int c, cTMap * h);//,cTMap * u,cTMap * v);
-
+void hoi(double *v);
     void SWOFSedimentDiffusion(int thread,cTMap* DT, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
 
  //   double SWOFSedimentTCBL(int r,int c, int d, cTMap * h, double UV); //cTMap * u,cTMap * v);
@@ -667,7 +667,7 @@ public:
     double GetSV(double d);
     void SplashDetachment(int thread);
     void FlowDetachment(int thread);
-    double MaxConcentration(double watvol, double sedvol, double dep);
+    double MaxConcentration(double watvol, double *sedvol, double *dep);
     void ChannelFlowDetachment(int r, int c);
 
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);

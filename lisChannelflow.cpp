@@ -410,8 +410,8 @@ void TWorld::ChannelFlow(void)
         {
             FOR_ROW_COL_MV_CH
             {
-                double concbl = MaxConcentration(ChannelWaterVol->Drc, ChannelBLSed->Drc, ChannelDep->Drc);
-                double concss = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc, ChannelDep->Drc);
+                double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
+                double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
                 //temp conc because we move everything with channelQ
 
                 ChannelConc->Drc = (concbl + concss); // allowed because of CH vol
@@ -427,8 +427,8 @@ void TWorld::ChannelFlow(void)
             {
                 FOR_ROW_COL_MV_CH
                  {
-                    RBLC_D.Drcd = MaxConcentration(ChannelWaterVol->Drc, RBL_D.Drcd, ChannelDep->Drc);
-                    RSSC_D.Drcd = MaxConcentration(ChannelWaterVol->Drc, RSS_D.Drcd, ChannelDep->Drc);
+                    RBLC_D.Drcd = MaxConcentration(ChannelWaterVol->Drc, &RBL_D.Drcd, &ChannelDep->Drc);
+                    RSSC_D.Drcd = MaxConcentration(ChannelWaterVol->Drc, &RSS_D.Drcd, &ChannelDep->Drc);
                     concbl += RBLC_D.Drcd;
                     concss += RSSC_D.Drcd;
 

@@ -482,9 +482,11 @@ void lisemqt::showComboMap(int i)
     if (op.ComboSymColor.at(i)) // symetric coloring for soilloss
     {
 
-        mi = -ma;
+        // mi = -ma;
         if (ComboMaxSpinBox2->value() > 0)
-                ComboMinSpinBox2->setValue(mi);
+            ComboMinSpinBox2->setValue(-ma);
+        else
+            ComboMinSpinBox2->setValue(mi);
     }
   //  qDebug() << mi << ma << MinV << MaxV;
 

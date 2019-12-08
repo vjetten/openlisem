@@ -387,7 +387,7 @@ void TWorld::Totals(void)
             // conc is okay in principle, Qs is conc (mass/vol)*Q so here this is reversed
             double sedall = Sed->Drc + BLFlood->Drc + SSFlood->Drc + ChannelSed->Drc;
             double waterall = WaterVolall->Drc + ChannelWaterVol->Drc;
-            TotalConc->Drc = MaxConcentration(waterall ,sedall, tmb->Drc);
+            TotalConc->Drc = MaxConcentration(waterall ,&sedall, &tmb->Drc);
             // for output
         }
 
