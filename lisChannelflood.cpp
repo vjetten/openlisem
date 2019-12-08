@@ -59,9 +59,6 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                 int rr = (int)ChannelSourceYExtended->Drc;
                 int cr = (int)ChannelSourceXExtended->Drc;
 
-                double WHbef = _h->Drcr;
-                double CWHbef = ChannelWH->Drcr;
-
                 SWOFSedimentSetConcentration(rr,cr, _h);
                 RiverSedimentMaxC(rr, cr);
 
@@ -160,13 +157,12 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     // instantaneous waterlevel exquilibrium acccross channel and adjacent
                     if (dosimpel)
                     {
-
                         if(whlevel > HMIN)
                         {
                           //  qDebug() << r << c << "simpel";
                             ChannelWH->Drcr = whlevel + chdepth;
                             _h->Drcr = whlevel;
-
+/*
                             // new equilibrium levels
                             if(SwitchErosion)
                             {
@@ -183,6 +179,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                                     //CALC TOTALS HERE
                                 }
                             }
+                            */
                         }
                         else
                         {

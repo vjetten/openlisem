@@ -538,7 +538,7 @@ double TWorld::GetSV(double d)
 {
     double dm = d / 1e6;
     double ds = dm * pow((2650/1000 - 1)*GRAV/(1e-6*1e-6),(1.0/3.0));
-    return 1e-6/dm*(ds*ds*ds)*pow(38.1+0.93*pow(ds,12.0/7.0), -7.0/8.0);
+  //  return 1e-6/dm*(ds*ds*ds)*pow(38.1+0.93*pow(ds,12.0/7.0), -7.0/8.0);
 //    // zhiyao et al, 2008
 
     //Stokes range settling velocity
