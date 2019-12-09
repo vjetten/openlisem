@@ -162,7 +162,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                           //  qDebug() << r << c << "simpel";
                             ChannelWH->Drcr = whlevel + chdepth;
                             _h->Drcr = whlevel;
-/*
+
                             // new equilibrium levels
                             if(SwitchErosion)
                             {
@@ -179,7 +179,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                                     //CALC TOTALS HERE
                                 }
                             }
-                            */
+
                         }
                         else
                         {
@@ -190,6 +190,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     }
 
                     ChannelWaterVol->Drcr = ChannelWH->Drcr * ChannelDX->Drcr * ChannelWidth->Drcr;
+
                     // do not recalc floodvol, MB errors
 
                     // recalc channel water vol else big MB error

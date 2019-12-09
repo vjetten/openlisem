@@ -74,11 +74,14 @@ double TWorld::MaxConcentration(double watvol, double *sedvol, double *dep)
    if (watvol > _dx*_dx*MIN_HEIGHT)
       conc = *sedvol/watvol;
    // 1e-6 is 1 ml/m2
-   else
+   else {
       conc = 0;
+//      *dep -= *sedvol;
+//      *sedvol = 0;
+   }
 
    if (conc > MAXCONC) {
-       *dep += (conc-MAXCONC)*watvol;
+     //  *dep += (conc-MAXCONC)*watvol;
        conc = MAXCONC;
        *sedvol = conc * watvol;
    }
@@ -164,6 +167,7 @@ void TWorld::SplashDetachment(int thread)
       double FPA = 1.0;
       if (RR->Drc > 0.1)
          FPA =  1-exp(-1.875*(WH->Drc/(0.01*RR->Drc)));
+
       // Between plants, directrain is already with 1-cover
       DetDT1 = g_to_kg * FPA*(strength*KE_DT+b)*WH0 * directrain;
       //ponded areas, kg/m2/mm * mm = kg/m2
@@ -1163,17 +1167,19 @@ void TWorld::FlowDetachment(int thread)
        {
           double erosionwh = WHrunoff->Drc;
           double erosionwv = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc;
+
           if(SwitchKinematic2D != K2D_METHOD_KIN) {
               erosionwh = std::max(WHrunoff->Drc-K2DWHStore->Drc ,0.0);
               erosionwv = std::max(WHrunoff->Drc-K2DWHStore->Drc ,0.0)*ChannelAdj->Drc*DX->Drc;
           }
           //assume splash detachment has same grain size distribution as soil
 
-          double depdef = (MAXCONC - Conc->Drc)*erosionwv;
-          if (DETSplash->Drc > depdef) {
-              DEP->Drc += depdef-DETSplash->Drc;
-              DETSplash->Drc = depdef;
-          }
+//          double depdef = (MAXCONC - Conc->Drc)*erosionwv;
+//          if (DETSplash->Drc > depdef) {
+//              DEP->Drc += depdef-DETSplash->Drc;
+//              DETSplash->Drc = depdef;
+//          }
+
           if (!SwitchUseGrainSizeDistribution)
               Sed->Drc += DETSplash->Drc;
           else
@@ -1186,7 +1192,7 @@ void TWorld::FlowDetachment(int thread)
               Conc->Drc = 0;
               TC->Drc = 0;
 
-              // add grsinsize distribution here
+              // TOSO: add grainsize distribution here
 
           } else {
 
@@ -1223,7 +1229,7 @@ void TWorld::FlowDetachment(int thread)
               {
                   TransportFactor = _dt*settlingvelocities.at(d) * DX->Drc * fpa->Drc*SoilWidthDX->Drc;
               }
-              TransportFactor = std::min(TransportFactor, Qn->Drc*_dt);
+          //    TransportFactor = std::min(TransportFactor, Qn->Drc*_dt);
 
               // detachment can only come from soil, not roads (so do not use flowwidth)
               // units s * m/s * m * m = m3
@@ -1232,11 +1238,11 @@ void TWorld::FlowDetachment(int thread)
 
               if(SwitchUseGrainSizeDistribution)
               {
-                  //detachment =  W_D.at(d)->Drc * detachment;
+                  detachment =  W_D.at(d)->Drc * detachment;
               }
               // unit = kg/m3 * m3 = kg (/cell)
 
-              //detachment = std::min(detachment, maxTC * erosionwv);
+              detachment = std::min(detachment, maxTC * erosionwv);
               // cannot have more detachment than remaining capacity in flow
               // use discharge because standing water has no erosion
 
@@ -2041,7 +2047,7 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
  */
 double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int type)
 {
-    double R, h, hs, n = 0, S = 0, w = 0;
+    double R, h, hs, S = 0, w = 0;
     cTMap *Wd = nullptr;
 
     if (type == 0) {
