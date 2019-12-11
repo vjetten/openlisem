@@ -117,8 +117,8 @@ void lisemqt::GetRunfile()
 void lisemqt::ParseInputData()
 {
     int j=0;
-    bool dummyrain = false;
-    bool dummysnow = false;
+  //  bool dummyrain = false;
+  //  bool dummysnow = false;
     int dummykinwave = 1;
     bool dummy2layerinfil = false;
   //  bool dummyErosion = false;
@@ -146,26 +146,6 @@ void lisemqt::ParseInputData()
             continue;
 
         if (p1.compare("Nr user Cores")==0) nrUserCores->setValue(iii);
-
-        //options in the main code, order is not important
-//        if (p1.compare("No Erosion simulation")==0){
-
-//            checkDoErosion->setChecked(!check);
-//            dummyErosion = !check;
-//            if(!check)
-//            {
-//                seterosionold = true;
-//            }
-
-//        }
-//        if (p1.compare("Include Erosion simulation")==0){
-
-//            if(!seterosionold)
-//            {
-//                dummyErosion = check || seterosionold;
-//                checkDoErosion->setChecked(check || seterosionold);
-//            }
-//        }
 
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
@@ -204,20 +184,20 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(valc);
         if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(valc);
     //    if (p1.compare("Flood initial level map")==0)        //->setChecked(check);
-        if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(valc);
+        if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(iii);
        // if (p1.compare("Flood max steps")==0)                E_FloodMaxSteps->setValue(val);
         if (p1.compare("Timestep flood")==0)                 E_TimestepMinFlood->setValue(valc);
 
-        if (p1.compare("Detachment efficiency")==0)          E_EfficiencyDET->setValue(valc);
+        if (p1.compare("Detachment efficiency")==0)          E_EfficiencyDET->setValue(iii);
         if (p1.compare("Use material depth")==0)             checkMaterialDepth->setChecked(check);
         if (p1.compare("No detachment boundary")==0)         checkNoSedBoundary->setChecked(check);
         if (p1.compare("Advanced sediment")==0)             checkAdvancedSediment->setChecked(check);
         if (p1.compare("Use 2 phase flow")==0)              checkBox_Sed2Phase->setChecked(check);
-        if (p1.compare("River BL method")==0)                 E_RBLMethod->setValue(valc);
-        if (p1.compare("River SS method")==0)                 E_RSSMethod->setValue(valc);
+        if (p1.compare("River BL method")==0)                 E_RBLMethod->setValue(iii);
+        if (p1.compare("River SS method")==0)                 E_RSSMethod->setValue(iii);
         if (p1.compare("Estimate grain size distribution")==0)checkEstimateGrainSizeDistribution->setChecked(check);
         if (p1.compare("Read grain distribution maps")==0)    checkReadGrainSizeDistribution->setChecked(check);
-        if (p1.compare("Number of grain size classes (simulated)")==0)  E_NumberClasses->setValue(valc);
+        if (p1.compare("Number of grain size classes (simulated)")==0)  E_NumberClasses->setValue(iii);
         if (p1.compare("Grain size class maps")==0)   {
             if (p.contains(","))
                 p.replace(",",";");
@@ -246,7 +226,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Timeplot as CSV")==0)                checkWriteCommaDelimited->setChecked(check);
         if (p1.compare("Report point output separate")==0)   checkSeparateOutput->setChecked(check);
  //       if (p1.compare("Report point output for SOBEK")==0)  checkWriteSOBEK->setChecked(check);
-        if (p1.compare("Report digits out")==0)             E_DigitsOut->setValue(valc);
+        if (p1.compare("Report digits out")==0)             E_DigitsOut->setValue(iii);
         if (p1.compare("Report format GTiff")==0)             checkFormatGtiff->setChecked(check);
 
 

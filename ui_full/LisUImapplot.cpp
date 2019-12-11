@@ -484,9 +484,8 @@ void lisemqt::showComboMap(int i)
 
          mi = -ma;
         if (ComboMaxSpinBox2->value() > 0)
-            ComboMinSpinBox2->setValue(-ma);
-        else
             ComboMinSpinBox2->setValue(mi);
+
     }
   //  qDebug() << mi << ma << MinV << MaxV;
 

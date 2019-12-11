@@ -166,8 +166,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                             // new equilibrium levels
                             if(SwitchErosion)
                             {
-                                ChannelSSSed->Drcr = sedlevel+ ChannelSSConc->Drcr * chdepth*ChannelFlowWidth->Drcr*ChannelDX->Drcr;
-                                SSFlood->Drcr = sedlevel;
+//                                ChannelSSSed->Drcr = sedlevel+ ChannelSSConc->Drcr * chdepth*ChannelFlowWidth->Drcr*ChannelDX->Drcr;
+//                                SSFlood->Drcr = sedlevel;
 
                                 if(SwitchUseGrainSizeDistribution)
                                 {

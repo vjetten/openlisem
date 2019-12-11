@@ -382,10 +382,6 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
     list->rowNr = pitRowNr;
     list->colNr = pitColNr;
 
-    // _Qsn->fill(0);
-    // NOT wrong when multiple outlets! DO this befiore the loop
-    //VJ 12/12/12 set output substance to zero
-
     while (list != nullptr)
     {
         int i = 0;

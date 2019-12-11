@@ -162,7 +162,7 @@ QString TWorld::checkOutputMapName(QString p, QString S, int i)
 void TWorld::ParseRunfileData(void)
 {
     int j=0;
-    int dummyAdvancedSed= 0;
+   // int dummyAdvancedSed= 0;
     SwitchRainfall = true;
 
     // do all switches (checkbox options) first
@@ -416,9 +416,9 @@ void TWorld::ParseRunfileData(void)
             if (p1.compare("Channel discharge map")==0)
                 channelDischargeMapFileName = checkOutputMapName(p, "Channel discharge map", 0);
             if (p1.compare("Channel Max Q")==0)
-                floodMaxQFileName =  p = checkOutputMapName(p, "channel max discharge",0); ;
+                floodMaxQFileName =  p = checkOutputMapName(p, "channel max discharge",0);
             if (p1.compare("Channel Max WH")==0)
-                floodMaxChanWHFileName =  p = checkOutputMapName(p, "channel max water height",0); ;
+                floodMaxChanWHFileName =  p = checkOutputMapName(p, "channel max water height",0);
         }
         if(SwitchErosion)
         {
@@ -441,9 +441,9 @@ void TWorld::ParseRunfileData(void)
             if (p1.compare("Flood time map")==0)
                 floodTimeFileName = checkOutputMapName(p, "flood time map",0);
             if (p1.compare("Flood stats")==0)
-                floodStatsFileName =  p = checkOutputMapName(p, "flood statistics file",1); ;
+                floodStatsFileName =  p = checkOutputMapName(p, "flood statistics file",1);
             if (p1.compare("Flood start time")==0)
-                floodFEWFileName =  p = checkOutputMapName(p, "flood start time",0); ;
+                floodFEWFileName =  p = checkOutputMapName(p, "flood start time",0);
         }
 
     }

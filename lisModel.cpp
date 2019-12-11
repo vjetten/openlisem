@@ -215,8 +215,8 @@ void TWorld::DoModel()
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddiff or 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
             // flow detachment
-       //     ThreadPool->RunCellCompute(fcompute2);
-       //     ThreadPool->WaitForAll();
+            ThreadPool->RunCellCompute(fcompute2);
+            ThreadPool->WaitForAll();
 
             ChannelFlood();    // st venant channel 2D flooding from channel, only for kyn and diff of
 
@@ -311,7 +311,7 @@ void TWorld::CellProcesses(int thread)
 
     SplashDetachment(thread);    // splash detachment
 
-    FlowDetachment(thread);      // flow detachment, V used is from calcveldis for diff and kin, but not dynamic
+   // FlowDetachment(thread);      // flow detachment, V used is from calcveldis for diff and kin, but not dynamic
 
     //Pestmobilisation();         // experimental
 }

@@ -81,7 +81,7 @@ double TWorld::MaxConcentration(double watvol, double *sedvol, double *dep)
    }
 
    if (conc > MAXCONC) {
-     //  *dep += (conc-MAXCONC)*watvol;
+       *dep += (conc-MAXCONC)*watvol;
        conc = MAXCONC;
        *sedvol = conc * watvol;
    }
@@ -541,8 +541,8 @@ double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *
 double TWorld::GetSV(double d)
 {
     double dm = d / 1e6;
-    double ds = dm * pow((2650/1000 - 1)*GRAV/(1e-6*1e-6),(1.0/3.0));
-  //  return 1e-6/dm*(ds*ds*ds)*pow(38.1+0.93*pow(ds,12.0/7.0), -7.0/8.0);
+    double ds = dm * pow((2650.0/1000.0 - 1.0)*GRAV/(1e-6*1e-6),(1.0/3.0));
+    return 1e-6/dm*(ds*ds*ds)*pow(38.1+0.93*pow(ds,12.0/7.0), -7.0/8.0);
 //    // zhiyao et al, 2008
 
     //Stokes range settling velocity
@@ -551,7 +551,7 @@ double TWorld::GetSV(double d)
     {
    //     qDebug() << 2*(2650-1000)*GRAV*pow(d/2000000.0, 2)/(9*0.001);
    //     return 2*(2650-1000)*GRAV*pow(d/2000000.0, 2)/(9*0.001);
-        return 2*(2650-1000)*GRAV*pow(d/2000000.0, 2)/(9*0.001);
+        return 2*(2650.0-1000.0)*GRAV*pow(d/2000000.0, 2)/(9*0.001);
     //Settling velocity by Zanke (1977)
     }else
     {

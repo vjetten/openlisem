@@ -199,7 +199,7 @@ void TWorld::ChannelWaterHeight(int thread)
         {
             ChannelWH->Drc = 0;
 
-            ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
+        //    ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
             // water from overland flow in channel cells
 
             //add baseflow
@@ -251,8 +251,8 @@ void TWorld::ChannelWaterHeightNT(void)
     {
        // ChannelWH->Drc = 0;
 
-        if(SwitchKinematic2D != K2D_METHOD_DYN)
-            ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
+//        if(SwitchKinematic2D != K2D_METHOD_DYN)
+//            ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
         // water from overland flow in channel cells
 
         //add baseflow
@@ -469,10 +469,10 @@ void TWorld::ChannelFlow(void)
             Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
     }
     cover(*ChannelQn, *LDD, 0);
-    // avoid missing values around channel for adding to Qn for output
 
     FOR_ROW_COL_MV_CH
     {
+ //       ChannelWaterVol->Drc = ChannelWaterVol->Drc + QinKW->Drc*_dt - ChannelQn->Drc*_dt ;
         ChannelWaterVol->Drc += -ChannelQn->Drc*_dt + QinKW->Drc * _dt;
 
         double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
@@ -483,7 +483,6 @@ void TWorld::ChannelFlow(void)
 
     ChannelWaterHeightFromVolumeNT();
      // all volumes are done, recalc channel water height from it, non threaded
-    // cover(*ChannelWH, *LDD, 0);
 
     // get the maximum for output
     FOR_ROW_COL_MV_CH
@@ -491,8 +490,6 @@ void TWorld::ChannelFlow(void)
         maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
         maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
     }
-
-
 
     if (SwitchErosion)
     {
@@ -510,8 +507,8 @@ void TWorld::ChannelFlow(void)
                     }
                     routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
                                    ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed); //ChannelSSWaterVol
-                }else
-                {
+                    RiverSedimentMaxC(r,c);
+                } else {
                     FOR_GRAIN_CLASSES
                     {
                         routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempa_D.at(d), Tempb_D.at(d),
@@ -573,10 +570,11 @@ void TWorld::ChannelFlow(void)
         {
             FOR_ROW_COL_MV_CH
             {
-                ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
-                ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r,c);
+                ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
+                ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
+
             }
         }
         else
