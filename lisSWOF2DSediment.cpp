@@ -307,9 +307,7 @@ void TWorld::SWOFSedimentCheckZero(int r, int c, cTMap * h)//,cTMap * u,cTMap * 
     }
 }
 
-void TWorld::hoi(double *v) {
-    *v = *v *2;
-}
+
 //--------------------------------------------------------------------------------------------
 /**
  * @fn void TWorld::SWOFSedimentSetConcentration(int r, int c)
@@ -334,11 +332,6 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)
     cTMap * _SSC = SSCFlood;
     double hh = SSDepthFlood->Drc;
     double hhb = BLDepthFlood->Drc;
-
-//    double v = 3;
-//    hoi(&v);
-//    qDebug() << v;
-
 
     if(h->Drc > he_ca)
     {

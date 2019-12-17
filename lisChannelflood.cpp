@@ -83,9 +83,12 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     double fc = std::min(0.95,ChannelWidth->Drcr/_dx);
                     // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
                     double whlevel = (ChannelWH->Drcr-chdepth)*fc + _h->Drcr*(1-fc);
-                    double sedlevel = 0;
+                    double sedlevel = 0, sedch = 0;
                     if (SwitchErosion) {
-                        sedlevel = dH/ChannelWH->Drcr*ChannelSSSed->Drcr*fc + SSFlood->Drcr*(1-fc);
+                        sedlevel = fc*ChannelSSSed->Drcr*std::max(0.0,ChannelWH->Drcr-chdepth)/ChannelWH->Drcr + (1-fc)*SSFlood->Drcr;
+                        sedch = ChannelSSConc->Drc * chdepth * ChannelFlowWidth->Drcr*ChannelDX->Drcr;
+                        //ChannelSSSed->Drcr * chdepth/ChannelWH->Drcr;
+                      //  sedlevel = dH/ChannelWH->Drcr*ChannelSSSed->Drcr*fc + SSFlood->Drcr*(1-fc);
                     }
                     // equilibrium water level = weighed values of channel surplus level + _h
                     // can be negative if channelwh is below channel depth and low _h level
@@ -166,9 +169,10 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                             // new equilibrium levels
                             if(SwitchErosion)
                             {
-//                                ChannelSSSed->Drcr = sedlevel+ ChannelSSConc->Drcr * chdepth*ChannelFlowWidth->Drcr*ChannelDX->Drcr;
-//                                SSFlood->Drcr = sedlevel;
-
+                                ChannelSSSed->Drcr = sedlevel+ ChannelSSConc->Drcr * chdepth*ChannelFlowWidth->Drcr*ChannelDX->Drcr;
+                                SSFlood->Drcr = sedlevel;
+    //                            ChannelSSSed->Drcr = sedlevel;
+    //                             SSFlood->Drcr = sedlevel + sedch;
                                 if(SwitchUseGrainSizeDistribution)
                                 {
                                     FOR_GRAIN_CLASSES
