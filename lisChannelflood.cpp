@@ -46,8 +46,13 @@ functions: \n
 //! Instantaneous mixing of flood water and channel water in channel cells
 //! note: ChannelDepth lets you also control which channels flood:
 //! those that are 0 react as usual (infinite capacity)
-void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
+void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
 {
+    cTMap *_SS;
+    if (doOF)
+        _SS = Sed;
+    else
+        _SS = SSFlood;
 
     for (int  r = 0; r < _nrRows; r++)
     {
@@ -59,10 +64,14 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                 int rr = (int)ChannelSourceYExtended->Drc;
                 int cr = (int)ChannelSourceXExtended->Drc;
 
-                SWOFSedimentSetConcentration(rr,cr, _h);
+                if (doOF)
+                    Conc->Drcr = MaxConcentration(ChannelAdj->Drc*DX->Drc*_h->Drcr, &Sed->Drc, &DEP->Drc);
+                else
+                    SWOFSedimentSetConcentration(rr,cr, _h);
+
                 RiverSedimentMaxC(rr, cr);
 
-                if (ChannelDepth->Drcr > 0 && ChannelMaxQ->Drcr <= 0)// && LDD->Drcr != 5)// && FloodZonePotential->Drc > 0)
+                if (ChannelDepth->Drcr > 0 && ChannelMaxQ->Drcr <= 0)
                 {
                     double chdepth = ChannelDepth->Drcr;
                    // double charea = ChannelWidth->Drcr*ChannelDX->Drcr;
@@ -83,13 +92,6 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     double fc = std::min(0.95,ChannelWidth->Drcr/_dx);
                     // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
                     double whlevel = (ChannelWH->Drcr-chdepth)*fc + _h->Drcr*(1-fc);
-                    double sedlevel = 0, sedch = 0;
-                    if (SwitchErosion) {
-                        sedlevel = fc*ChannelSSSed->Drcr*std::max(0.0,ChannelWH->Drcr-chdepth)/ChannelWH->Drcr + (1-fc)*SSFlood->Drcr;
-                        sedch = ChannelSSConc->Drc * chdepth * ChannelFlowWidth->Drcr*ChannelDX->Drcr;
-                        //ChannelSSSed->Drcr * chdepth/ChannelWH->Drcr;
-                      //  sedlevel = dH/ChannelWH->Drcr*ChannelSSSed->Drcr*fc + SSFlood->Drcr*(1-fc);
-                    }
                     // equilibrium water level = weighed values of channel surplus level + _h
                     // can be negative if channelwh is below channel depth and low _h level
                     double cwa = ChannelWidth->Drcr/ChannelAdj->Drcr;
@@ -113,7 +115,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                                 if(SwitchErosion) {
                                      double sed = fracC*ChannelSSSed->Drcr;
                                      ChannelSSSed->Drcr -= sed;
-                                     SSFlood->Drcr += sed;
+                                     _SS->Drcr += sed;
                                      if(SwitchUseGrainSizeDistribution)
                                      {
                                          FOR_GRAIN_CLASSES
@@ -139,9 +141,9 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                                 _h->Drcr -= dwh;
                                 ChannelWH->Drcr += (dwh/cwa);
                                 if(SwitchErosion) {
-                                    double sed = fracA*SSFlood->Drcr;
+                                    double sed = fracA*_SS->Drcr;
                                     ChannelSSSed->Drcr += sed;
-                                    SSFlood->Drcr -= sed;
+                                    _SS->Drcr -= sed;
 
                                     if(SwitchUseGrainSizeDistribution)
                                     {
@@ -162,17 +164,28 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     {
                         if(whlevel > HMIN)
                         {
-                          //  qDebug() << r << c << "simpel";
+                     //       qDebug() << r << c << "simpel";
                             ChannelWH->Drcr = whlevel + chdepth;
                             _h->Drcr = whlevel;
 
                             // new equilibrium levels
                             if(SwitchErosion)
                             {
-                                ChannelSSSed->Drcr = sedlevel+ ChannelSSConc->Drcr * chdepth*ChannelFlowWidth->Drcr*ChannelDX->Drcr;
-                                SSFlood->Drcr = sedlevel;
-    //                            ChannelSSSed->Drcr = sedlevel;
-    //                             SSFlood->Drcr = sedlevel + sedch;
+
+                                RiverSedimentLayerDepth(rr,cr);
+                                //SWOFSedimentLayerDepth(rr, cr, _h->Drcr, V->Drcr);
+
+                                double _sed = ChannelSSSed->Drcr + _SS->Drcr;
+                                double volch = ChannelSSDepth->Drcr*ChannelWidth->Drcr*ChannelDX->Drcr;
+                                double volof = /*SSDepthFlood->Drcr*/ _h->Drcr*ChannelAdj->Drcr*DX->Drcr;
+                                double _concavg = _sed/(volch+volof);
+
+                                ChannelSSSed->Drc = _concavg * volch;
+                                ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
+
+                                _SS->Drcr = _concavg * volof;
+                                //Conc->Drcr = = _concavg;
+
                                 if(SwitchUseGrainSizeDistribution)
                                 {
                                     FOR_GRAIN_CLASSES
@@ -194,16 +207,19 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     }
 
                     ChannelWaterVol->Drcr = ChannelWH->Drcr * ChannelDX->Drcr * ChannelWidth->Drcr;
-
                     // do not recalc floodvol, MB errors
 
                     // recalc channel water vol else big MB error
                     if(SwitchErosion)
                     {
-//                        SWOFSedimentLayerDepth(r,c,_h->Drcr, UVflood->Drcr);//V->Drcr);
-//                        RiverSedimentLayerDepth(rr,cr);
+                        if (doOF)
+                            Conc->Drcr = MaxConcentration(ChannelAdj->Drc*DX->Drc*_h->Drcr, &_SS->Drc, &DEP->Drc);
+                        else {
+                            SWOFSedimentLayerDepth(r,c,_h->Drcr, UVflood->Drcr);//V->Drcr);
+                            SWOFSedimentSetConcentration(rr,cr, _h);
+                        }
 
-                        SWOFSedimentSetConcentration(rr,cr, _h);
+                        RiverSedimentLayerDepth(rr,cr);
                         RiverSedimentMaxC(rr, cr);
                         // all concentrations, possible ChannelDep when surplus
 
@@ -305,7 +321,7 @@ void TWorld::ChannelFlood(void)
     if (SwitchKinematic2D == K2D_METHOD_DYN)
         return;
 
-    ChannelOverflow(hmx, UVflood);
+    ChannelOverflow(hmx, UVflood, false);
     // mix overflow water and flood water in channel cells
     // use hmx which is the 2Ddyn water
 

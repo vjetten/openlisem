@@ -631,12 +631,13 @@ public:
     QList<cTMap *> R_Advect;
     QList<cTMap *> F_Advect;
 
+
+    void OFSedimentSetConcentration(int r, int c, cTMap * h);
+
     //sediment for SWOF flood model
     void SWOFSedimentBalance(int thread);
-
-  //  void SWOFSedimentMaxC(int r, int c);//, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentCheckZero(int r, int c, cTMap * h);//,cTMap * u,cTMap * v);
-    void SWOFSedimentSetConcentration(int r, int c, cTMap * h);//,cTMap * u,cTMap * v);
+    void SWOFSedimentCheckZero(int r, int c, cTMap * h);
+    void SWOFSedimentSetConcentration(int r, int c, cTMap * h);
     void SWOFSedimentDiffusion(int thread,cTMap* DT, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
 
  //   double SWOFSedimentTCBL(int r,int c, int d, cTMap * h, double UV); //cTMap * u,cTMap * v);
@@ -647,9 +648,8 @@ public:
     void SWOFSediment(int thread,cTMap* DT, double dt, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
 
-    double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed);
-    double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,
-                          double Sji1, double alpha, double dt, double dx);
+    double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed);
+    double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,double Sji1, double alpha, double dx);
 
     void routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                                 cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
@@ -765,7 +765,7 @@ public:
     void ChannelFlood(void);
     void FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold);
     void ChannelFloodStatistics(void);
-    void ChannelOverflow(cTMap *_h, cTMap *_V);
+    void ChannelOverflow(cTMap *_h, cTMap *_V, bool doOF);
 
     double courant_factor;
     double courant_factor_diffusive;

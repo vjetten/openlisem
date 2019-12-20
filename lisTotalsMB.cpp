@@ -376,8 +376,8 @@ void TWorld::Totals(void)
             TotalSoillossMap->Drc = DETSplashCum->Drc + DETFlowCum->Drc + DEPCum->Drc;
                     //TotalDetMap->Drc + TotalDepMap->Drc;
                   // + TotalChanDetMap->Drc + TotalChanDepMap->Drc;
-//            TotalDepMap->Drc = std::min(0.0, TotalSoillossMap->Drc);
-//            TotalDetMap->Drc = std::max(0.0, TotalSoillossMap->Drc);
+            TotalDepMap->Drc = std::min(0.0, TotalSoillossMap->Drc); // for table damage output per landunit
+            TotalDetMap->Drc = std::max(0.0, TotalSoillossMap->Drc);
         }
 
         FOR_ROW_COL_MV
@@ -471,9 +471,9 @@ void TWorld::MassBalance()
         double sediment = SedTot + ChannelSedTot + FloodSedTot + SoilLossTot;
         //already in soiloss: + floodBoundarySedTot;
 
-//        qDebug() << "S" << DetTot<< ChannelDetTot << FloodDetTot;
-//        qDebug() << DepTot << ChannelDepTot << FloodDepTot;
-//        qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
+        qDebug() << "S" << DetTot<< ChannelDetTot << FloodDetTot;
+        qDebug() << DepTot << ChannelDepTot << FloodDepTot;
+        qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
 
         MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
      //           qDebug() << MBs<<  DetTot<<DepTot<< SedTot << ChannelDetTot << ChannelDepTot<< ChannelSedTot;

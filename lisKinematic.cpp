@@ -71,14 +71,14 @@ functions: \n
  * @return sediment outflow in next timestep
  *
  */
-double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed)
+double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed)
 {
     double Qsn = 0;
-    double totsed = sed + Sj1i*dt;  // add upstream sed to sed present in cell
-    double totwater = vol + Qj1i*dt;   // add upstream water to volume water in cell
+    double totsed = sed + Sj1i*_dt;  // add upstream sed to sed present in cell
+    double totwater = vol + Qj1i*_dt;   // add upstream water to volume water in cell
     if (totwater <= 1e-10)
         return (Qsn);
-    Qsn = std::min(totsed/dt, Qj1i1 * totsed/totwater);
+    Qsn = std::min(totsed/_dt, Qj1i1 * totsed/totwater);
     return (Qsn); // outflow is new concentration * new out flux
 
 }
@@ -101,7 +101,7 @@ double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, 
  * @return sediment outflow in next timestep
  *
  */
-double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i, double Sji1, double alpha, double dt,double dx)
+double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i, double Sji1, double alpha, double dx)
 {
     double Sj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C, s = 0;
     const double beta = 0.6;
@@ -118,11 +118,11 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
     aQb = alpha*pow(Qavg,beta);
     abQb_1 = alpha*beta*pow(Qavg,beta-1);
 
-    A = dt*Sj1i;
+    A = _dt*Sj1i;
     B = -dx*Cavg*abQb_1*(Qj1i1-Qji1);
     C = (Qji1 <= MIN_FLUX ? 0 : dx*aQb*Sji1/Qji1);
     if (Qj1i1 > MIN_FLUX)
-        Sj1i1 = (dx*dt*s+A+C+B)/(dt+dx*aQb/Qj1i1);
+        Sj1i1 = (dx*_dt*s+A+C+B)/(_dt+dx*aQb/Qj1i1);
     else
         Sj1i1 = 0;
 
@@ -452,18 +452,18 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                 {
                     Qin += _Qn->Drc;
                     Sin += _Qsn->Drc;
+                    QinKW->Drc = Sin; //reuse
                 }
             }
 
 
+            bool complex = true;
+            if (complex)
+                _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
+                                                          Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _DX->data[rowNr][colNr]);
+            else
+                _Qsn->data[rowNr][colNr] = simpleSedCalc(_Qn->data[rowNr][colNr], Qin, Sin, _Vol->data[rowNr][colNr], _Sed->data[rowNr][colNr]);
 
-                            //if (!SwitchSimpleSedKinWave)
-            _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
-                                                      Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);
-            /*else
-                                _Qsn->data[rowNr][colNr] = simpleSedCalc(_Qn->data[rowNr][colNr], Qin, Sin, _dt,
-                                                                         _Vol->data[rowNr][colNr], _Sed->data[rowNr][colNr]);
-                            */
             _Qsn->data[rowNr][colNr] = std::min(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
             // no more sediment outflow than total sed in cell
 

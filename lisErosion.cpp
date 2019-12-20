@@ -56,6 +56,17 @@ functions: \n
 #define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
     ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
+
+//---------------------------------------------------------------------------
+void TWorld::OFSedimentSetConcentration(int r, int c, cTMap * h)
+{
+    if(h->Drc > he_ca)
+    {
+            Conc->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, &Sed->Drc, &DEP->Drc);
+    }
+}
+
+
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::MaxConcentration(double watvol, double sedvol)
@@ -439,7 +450,7 @@ double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
     wtotal = wtotal*p;
 
     //iterate trough grain classes untill enough material is summed
-    double w = (*M).at(0)->Drc;;
+    double w = (*M).at(0)->Drc;
     FOR_GRAIN_CLASSES
     {
 
@@ -502,7 +513,7 @@ double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *
     //find factor of material we should reach
     wtotal = wtotal*p;
     //iterate trough grain classes untill enough material is summed
-    double w = (*M).at(0)->Drc;;
+    double w = (*M).at(0)->Drc;
     FOR_GRAIN_CLASSES
     {
 

@@ -754,7 +754,7 @@ void TWorld::InitChannel(void)
     ChannelWaterVol = NewMap(0);
     //ChannelBLWaterVol = NewMap(0);
     //ChannelSSWaterVol = NewMap(0);
-    RunoffVolinToChannel = NewMap(0);
+    //RunoffVolinToChannel = NewMap(0);
     ChannelQ = NewMap(0);
     ChannelQn = NewMap(0);
     ChannelQntot = NewMap(0);

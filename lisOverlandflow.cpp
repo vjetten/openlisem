@@ -109,10 +109,7 @@ void TWorld::ToFlood()//int thread)
             WHrunoff->Drc -= dwh;
             WHGrass->Drc -= dwh;
             WHroad->Drc -= dwh;
-//            WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-            //qDebug() << MB << "tflood" << r << c << dwh;
             WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-
 
             if(SwitchErosion)
             {
@@ -136,7 +133,6 @@ void TWorld::ToFlood()//int thread)
             }
          }
     }
-   // }}}}
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -154,31 +150,26 @@ void TWorld::ToChannel()//int thread)
         return;
 
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
-        ChannelOverflow(WHrunoff, V);
+        ChannelOverflow(WHrunoff, V, false);
         return;
     }
 
     CalcVelDischChannelNT();
-    fill(*RunoffVolinToChannel, 0);
 
-//    bool one = false;
-//    FOR_ROW_COL_MV_CH
-//    {
-//    if (hmx->Drc > MIN_HEIGHT)
-//        one = true;
-//    if (one) break;
-//    }
-//    if (one) {
-//        ChannelOverflow(WHrunoff, V);
+    ChannelOverflow(WHrunoff, V, true);
 
-//        FOR_ROW_COL_MV {
-//            WH->Drc = WHrunoff->Drc + WHstore->Drc;
-//            WHroad->Drc = WHrunoff->Drc;
-//            WHGrass->Drc = WHrunoff->Drc;
-//            WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-//        }
-//        return;
-//    }
+    FOR_ROW_COL_MV {
+        WH->Drc = WHrunoff->Drc + WHstore->Drc;
+        WHroad->Drc = WHrunoff->Drc;
+        WHGrass->Drc = WHrunoff->Drc;
+        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+    }
+    return;
+
+
+/* OBSOLETE ?
+
+//    fill(*RunoffVolinToChannel, 0);
     FOR_ROW_COL_MV_CH  //TODO: must be FOR_ROW_COL_MV ? else extended no sense
     {
         if(ChannelMaskExtended->data[r][c] == 1)
@@ -189,8 +180,10 @@ void TWorld::ToChannel()//int thread)
             double fractiontochannel;
             double Volume = WHrunoff->Drcr * FlowWidth->Drcr * DX->Drcr;
 
-            if (hmx->Drcr > MIN_HEIGHT)
+            if (hmx->Drcr > MIN_HEIGHT) {
+                count++;
                 continue;
+            }
 
             if (Volume == 0)
                 continue;
@@ -257,7 +250,7 @@ void TWorld::ToChannel()//int thread)
             }
         }
     }
-//   */
+   */
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -490,9 +483,14 @@ void TWorld::OverlandFlow1D(void)
     }
 
 
-    fill(*QinKW, 0.0);
-    // flag all new flux as missing value, needed in kin wave and replaced by new flux
-    fill(*tm, -1);
+//    double totsed = 0, totseda = 0;
+//    FOR_ROW_COL_MV {
+//        totsed = totsed + Sed->Drc;
+//    }
+
+
+    fill(*QinKW, 0.0); // store incoming wate rin a cell
+    fill(*tm, -1); // flag for confined fow in channels and culverts
 
     if (SwitchErosion)
     {
@@ -517,14 +515,88 @@ void TWorld::OverlandFlow1D(void)
             // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
         }
     }
+   // convert calculate Qn back to WH and volume for next loop
+
+    fill(*tma, 0);
+    FOR_ROW_COL_MV
+    {
+        bool K1Dexplicit = true;
+        double WaterVolout = 0;
+        double InfilKWact = 0;
+
+        if( K1Dexplicit)
+        {
+
+            WaterVolout = std::max(0.0, QinKW->Drc*_dt + WaterVolin->Drc  - Qn->Drc*_dt);
+            // new water vol is mass bal diff
+            WHrunoff->Drc = WaterVolout/(ChannelAdj->Drc*DX->Drc);
+            // runoff based on water vol out
+            // NOTE route substance is already an explicit solution
+        }
+        else
+        {
+            WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
+            //new WH based on A/dx = alpha Q^beta / dx
+
+            WaterVolout = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc;
+            // new volume
+        }
+        tma->Drc = WaterVolout;
+
+        double diff = QinKW->Drc*_dt + WaterVolin->Drc - WaterVolout - Qn->Drc * _dt;
+        InfilKWact = std::min(-FSurplus->Drc*SoilWidthDX->Drc*DX->Drc, diff);
+
+        // infiltration is the surplus infil (pot infil), or infil is all that was there
+        if (FFull->Drc == 1)
+            InfilKWact = 0;
+
+        InfilVolKinWave->Drc = InfilKWact;
+
+        double Perim = 2*WHrunoff->Drc + FlowWidth->Drc;
+        double R = WHrunoff->Drc*FlowWidth->Drc/Perim;
+        Alpha->Drc = pow(N->Drc/sqrt(Grad->Drc) * pow(Perim, 2.0/3.0),0.6); // for erosion
+        V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/N->Drc;
+   //     V->Drc = std::min(Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc), V->Drc);
+
+//        V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
+ //       Q->Drc = Qn->Drc;
+
+        WHroad->Drc = WHrunoff->Drc;
+        // set road to average outflowing wh, no surface storage.
+
+        WHGrass->Drc = WHrunoff->Drc;
+
+        WH->Drc = WHrunoff->Drc + WHstore->Drc;
+        // add new average waterlevel (A/dx) to stored water
+
+        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+        // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+        hmxWH->Drc = hmx->Drc  == 0 ? WH->Drc : hmx->Drc;   //hmxWH is all water
+
+    }
+
+//    FOR_ROW_COL_MV {
+//        WHtop->Drc = WHrunoff->Drc > 0.1 ? WHrunoff->Drc - 0.1 : 0;
+//        WHrunoff->Drc -= WHtop->Drc;
+//    }
+//    double dtflood = fullSWOF2Do2light(WHtop, V, V, DEM, true);
+//        //  threaded flooding
+//    FOR_ROW_COL_MV {
+//        WHrunoff->Drc += WHtop->Drc;
+//    }
+
 
     //      routing of substances add here!
     //      do after kin wave so that the new flux Qn out of a cell is known
     //      you need to have the ingoing substance flux QS (mass/s)
     //      and it will give outgoing flux QSn (mass/s)
     //      and the current amount Subs (mass) in suspension+solution
+
     if (SwitchErosion)
     {
+        fill(*QinKW, 0.0); // reuse
+        fill(*tm, 0.0);
+        copy(*tm, *Sed);
         if(!SwitchUseGrainSizeDistribution)
         {
 
@@ -533,7 +605,7 @@ void TWorld::OverlandFlow1D(void)
             {
                 if (LDD->Drc == 5) // if outflow point, pit
                 {
-                    routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);
+                    routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, tma, Sed);
                 }
             }
         } else {
@@ -597,84 +669,35 @@ void TWorld::OverlandFlow1D(void)
         }
     }
 
-    // convert calculate Qn back to WH and volume for next loop
-    FOR_ROW_COL_MV
-    {
-        bool K1Dexplicit = true;
-        double WaterVolout = 0, sedout = 0;
-        double InfilKWact = 0;
 
-        if( K1Dexplicit)
-        {
-
-            WaterVolout = std::max(0.0, QinKW->Drc*_dt + WaterVolin->Drc  - Qn->Drc*_dt);
-            // new water vol is mass bal diff
-            WHrunoff->Drc = WaterVolout/(ChannelAdj->Drc*DX->Drc);
-            // runoff based on water vol out
-            // NOTE route substance is already an explicit solution
-        }
-        else
-        {
-            WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
-            //new WH based on A/dx = alpha Q^beta / dx
-
-            WaterVolout = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc;
-            // new volume
-        }
-
-        double diff = QinKW->Drc*_dt + WaterVolin->Drc - WaterVolout - Qn->Drc * _dt;
-        InfilKWact = std::min(-FSurplus->Drc*SoilWidthDX->Drc*DX->Drc, diff);
-
-        // infiltration is the surplus infil (pot infil), or infil is all that was there
-        if (FFull->Drc == 1)
-            InfilKWact = 0;
-
-        InfilVolKinWave->Drc = InfilKWact;
-    }
-
-
-//    FOR_ROW_COL_MV {
-//        WHtop->Drc = WHrunoff->Drc > 0.1 ? WHrunoff->Drc - 0.1 : 0;
-//        WHrunoff->Drc -= WHtop->Drc;
-//    }
-//    double dtflood = fullSWOF2Do2light(WHtop, V, V, DEM, true);
-//        //  threaded flooding
-//    FOR_ROW_COL_MV {
-//        WHrunoff->Drc += WHtop->Drc;
-//    }
-
-
-    FOR_ROW_COL_MV
-    {
-        double R = WHrunoff->Drc*FlowWidth->Drc;
-        double Perim = 2*WHrunoff->Drc + FlowWidth->Drc;
-        Alpha->Drc = pow(N->Drc/sqrt(Grad->Drc) * pow(Perim, 2.0/3.0),0.6);
-        V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/N->Drc;
-   //     V->Drc = std::min(Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc), V->Drc);
-
-//        V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
-        Q->Drc = Qn->Drc;
-
-        WHroad->Drc = WHrunoff->Drc;
-        // set road to average outflowing wh, no surface storage.
-
-        WHGrass->Drc = WHrunoff->Drc;
-
-        WH->Drc = WHrunoff->Drc + WHstore->Drc;
-        // add new average waterlevel (A/dx) to stored water
-
-        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-        // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-        hmxWH->Drc = hmx->Drc  == 0 ? WH->Drc : hmx->Drc;   //hmxWH is all water
-
-    }
     // new concentrations with new volume
+
+//    if (SwitchErosion)
+//    {
+//        double _n=0.0;
+//        totseda = 0;
+//        FOR_ROW_COL_MV {
+//            totseda = totseda + Sed->Drc;
+//            if (Sed->Drc > 0)
+//                _n = _n+1.0;
+//        }
+//        double dsed = _n > 0 ? (totsed-totseda)/_n : 0.0;
+// //qDebug() << dsed;
+//        FOR_ROW_COL_MV
+//        {
+//            if(Sed->Drc > 0)
+//               Sed->Drc += dsed;
+//        }
+//    }
+
+
     if (SwitchErosion)
     {
         FOR_ROW_COL_MV
         {
-            Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
 
+            Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
+//Qsn->Drc = Conc->Drc * Qn->Drc;
             if(SwitchUseGrainSizeDistribution)
             {
                 FOR_GRAIN_CLASSES
