@@ -215,10 +215,10 @@ void TWorld::DoModel()
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddiff or 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
             // flow detachment
-          //  ThreadPool->RunCellCompute(fcompute2);
-          //  ThreadPool->WaitForAll();
+     //        ThreadPool->RunCellCompute(fcompute2);
+     //        ThreadPool->WaitForAll();
 
-            ChannelFlood();    // st venant channel 2D flooding from channel, only for kyn and diff of
+         //  ChannelFlood();    // st venant channel 2D flooding from channel, only for kyn and diff of
 
             OrderedProcesses();  //do ordered solutions such as channel LDD etc., non threaded
 
@@ -326,9 +326,13 @@ void TWorld::CellProcesses2(int thread) // obsolete for now
 
 void TWorld::OrderedProcesses()
 {
-    ChannelWaterHeightNT();  //NT is non threaded
+    ChannelAddBaseandRainNT();  //NT is non threaded
+
+    ChannelWaterHeightFromVolumeNT();
 
     CalcVelDischChannelNT(); // alpha, V and Q from Manning
+
+    ChannelFlowDetachment();  //detachment, deposition for SS and BL
 
     ChannelFlow();         // channel erosion and kin wave
 

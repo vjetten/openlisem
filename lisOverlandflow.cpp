@@ -204,6 +204,8 @@ void TWorld::ToChannel()//int thread)
 
             ChannelWaterVol->Drcr += dvol;
             // water diverted to the channel
+            ChannelWH->Drcr = ChannelWaterVol->Drcr/ChannelFlowWidth->Drcr;
+
             WHrunoff->Drcr -= dwh ;
             WHroad->Drcr -= dwh;
             WHGrass->Drcr -= dwh;
@@ -235,10 +237,8 @@ void TWorld::ToChannel()//int thread)
                         Conc->Drcr += Conc_D.Drcd;
                     }
                 }
-
-                RiverSedimentLayerDepth(rr,cr);
+               RiverSedimentLayerDepth(rr,cr);
                 RiverSedimentMaxC(rr,cr);
-
             }
         }
     }

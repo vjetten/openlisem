@@ -666,7 +666,7 @@ public:
     void SplashDetachment(int thread);
     void FlowDetachment(int thread);
     double MaxConcentration(double watvol, double *sedvol, double *dep);
-    void ChannelFlowDetachment(int r, int c);
+    void ChannelFlowDetachment();
 
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentLayerDepth(int r , int c);
@@ -731,8 +731,8 @@ public:
     void OverlandFlowNew(void);
     void ChannelFlow(void);
     double ChannelIterateWH(double _h, int r, int c);
-    void ChannelWaterHeightNT(void);
-    void ChannelWaterHeight(int thread);
+    void ChannelAddBaseandRainNT(void);
+    void ChannelAddBaseandRain(int thread);
     void ChannelWaterHeightFromVolumeNT(void);
     void ChannelWaterHeightFromVolume(int thread);
     void ToChannel();//int thread);

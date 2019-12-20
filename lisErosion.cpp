@@ -1149,132 +1149,133 @@ void TWorld::FlowDetachment(int thread)
                   minTC = std::min(TC_D.Drcd - Conc_D.Drcd,0.0);
               }
 
-//if (maxTC > 0) {
-              //### detachment
+              if (maxTC > 0) {
+                  //### detachment
 
-              if(!SwitchUseGrainSizeDistribution)
-              {
-                  TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * fpa->Drc*SoilWidthDX->Drc;
-                  // soilwidth is erodible surface
-              }else
-              {
-                  TransportFactor = _dt*settlingvelocities.at(d) * DX->Drc * fpa->Drc*SoilWidthDX->Drc;
-              }
-          //    TransportFactor = std::min(TransportFactor, Qn->Drc*_dt);
-
-              // detachment can only come from soil, not roads (so do not use flowwidth)
-              // units s * m/s * m * m = m3
-
-              detachment = maxTC * TransportFactor;
-
-              if(SwitchUseGrainSizeDistribution)
-              {
-                  detachment =  W_D.at(d)->Drc * detachment;
-              }
-              // unit = kg/m3 * m3 = kg (/cell)
-
-             // detachment = std::min(detachment, maxTC * erosionwv);
-              // cannot have more detachment than remaining capacity in flow
-
-              // exceptions
-              if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
-                  detachment = 0;
-              // VJ 190325 prevent any activity on the boundary!
-
-              if (GrassFraction->Drc > 0)
-                  detachment = (1-GrassFraction->Drc) * detachment;
-              // no flow detachment on grass strips
-
-              // Detachment edxceptions:
-              detachment = (1-StoneFraction->Drc) * detachment;
-              // no flow detachment on stony surfaces
-
-              if (SwitchHardsurface)
-                  detachment = (1-HardSurface->Drc) * detachment;
-              // no flow detachment on hard surfaces
-
-              if (SwitchHouses)
-                  detachment = (1-HouseCover->Drc)*detachment;
-              // no flow det from house roofs
-
-              detachment = (1-Snowcover->Drc) * detachment;
-              /* TODO: CHECK THIS no flow detachment on snow */
-              //is there erosion and sedimentation under the snowdeck?
-
-              detachment = DetachMaterial(r,c,d,false,false,false, detachment);
-
-              if(MAXCONC * erosionwv < Sed->Drc+detachment)
-                  detachment = std::max(0.0, MAXCONC * erosionwv - Sed->Drc);
-              // not more detachment then is needed to keep below ssmax
-
-//}
-              //### deposition
-
-//if (minTC == 0) {
-              if(!SwitchUseGrainSizeDistribution)
-              {
-                  TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/erosionwh)) * erosionwv;
-                  //   TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * FlowWidth->Drc;
-              }else
-              {
-                  TransportFactor = (1-exp(-_dt*settlingvelocities.at(d)/erosionwh)) * erosionwv;
-                  //   TransportFactor = _dt*settlingvelocities.at(d) * DX->Drc * FlowWidth->Drc;
-              }
-              // if settl velo is very small, transportfactor is 0 and depo is 0
-              // if settl velo is very large, transportfactor is 1 and depo is max
-
-              // deposition can occur on roads and on soil (so use flowwidth)
-
-              deposition = minTC * TransportFactor;
-              // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
-
-              if(!SwitchUseGrainSizeDistribution)
-                  deposition = std::max(deposition, -Sed->Drc);
-              else
-                  deposition = std::max(deposition, -Sed_D.Drcd);
-
-              //force deposition on grass strips
-              if (SwitchGrassStrip) {
-//                  if(!SwitchUseGrainSizeDistribution)
-//                  {
-//                      deposition = -Sed->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
-//                  } else {
-//                      deposition = -Sed_D.Drcd*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
-//                  }
-              }
-
-
-              if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
-                  deposition = 0;
-              // VJ 190325 prevent any activity on the boundary!
-
-
-              if (SwitchSedtrap && SedimentFilter->Drc > 0)
-              {
                   if(!SwitchUseGrainSizeDistribution)
                   {
-                      if (Sed->Drc > 0) {
-                          deposition += -Sed->Drc*SedimentFilter->Drc;
-                          Sed->Drc *= (1.0-SedimentFilter->Drc);
-                      }
-                  } else {
-                      if (Sed_D.Drcd > 0) {
-                          deposition = -Sed_D.Drcd*SedimentFilter->Drc;
-                          Sed_D.Drcd *= (1.0-SedimentFilter->Drc);
-                      }
+                      TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * fpa->Drc*SoilWidthDX->Drc;
+                      // soilwidth is erodible surface
+                  }else
+                  {
+                      TransportFactor = _dt*settlingvelocities.at(d) * DX->Drc * fpa->Drc*SoilWidthDX->Drc;
                   }
-              }
+                  TransportFactor = std::min(TransportFactor, Q->Drc*_dt);
 
-              //add deposition to soil layer
-              if(SwitchUseMaterialDepth)
-              {
-                  StorageDep->Drc += -deposition;
+                  // detachment can only come from soil, not roads (so do not use flowwidth)
+                  // units s * m/s * m * m = m3
+
+                  detachment = maxTC * TransportFactor;
+
                   if(SwitchUseGrainSizeDistribution)
                   {
-                      StorageDep_D.Drcd += -deposition;
+                      detachment =  W_D.at(d)->Drc * detachment;
                   }
-              }
-//} // minv > 0
+                  // unit = kg/m3 * m3 = kg (/cell)
+
+                  // detachment = std::min(detachment, maxTC * erosionwv);
+                  // cannot have more detachment than remaining capacity in flow
+
+                  // exceptions
+                  if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
+                      detachment = 0;
+                  // VJ 190325 prevent any activity on the boundary!
+
+                  if (GrassFraction->Drc > 0)
+                      detachment = (1-GrassFraction->Drc) * detachment;
+                  // no flow detachment on grass strips
+
+                  // Detachment edxceptions:
+                  detachment = (1-StoneFraction->Drc) * detachment;
+                  // no flow detachment on stony surfaces
+
+                  if (SwitchHardsurface)
+                      detachment = (1-HardSurface->Drc) * detachment;
+                  // no flow detachment on hard surfaces
+
+                  if (SwitchHouses)
+                      detachment = (1-HouseCover->Drc)*detachment;
+                  // no flow det from house roofs
+
+                  detachment = (1-Snowcover->Drc) * detachment;
+                  /* TODO: CHECK THIS no flow detachment on snow */
+                  //is there erosion and sedimentation under the snowdeck?
+
+                  detachment = DetachMaterial(r,c,d,false,false,false, detachment);
+
+                  if(MAXCONC * erosionwv < Sed->Drc+detachment)
+                      detachment = std::max(0.0, MAXCONC * erosionwv - Sed->Drc);
+                  // not more detachment then is needed to keep below ssmax
+
+              } else
+
+                  //### deposition
+
+                  if (minTC == 0) {
+                      if(!SwitchUseGrainSizeDistribution)
+                      {
+                          TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/erosionwh)) * erosionwv;
+                          //   TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * FlowWidth->Drc;
+                      }else
+                      {
+                          TransportFactor = (1-exp(-_dt*settlingvelocities.at(d)/erosionwh)) * erosionwv;
+                          //   TransportFactor = _dt*settlingvelocities.at(d) * DX->Drc * FlowWidth->Drc;
+                      }
+                      // if settl velo is very small, transportfactor is 0 and depo is 0
+                      // if settl velo is very large, transportfactor is 1 and depo is max
+
+                      // deposition can occur on roads and on soil (so use flowwidth)
+
+                      deposition = minTC * TransportFactor;
+                      // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
+
+                      if(!SwitchUseGrainSizeDistribution)
+                          deposition = std::max(deposition, -Sed->Drc);
+                      else
+                          deposition = std::max(deposition, -Sed_D.Drcd);
+
+                      //force deposition on grass strips
+                      if (SwitchGrassStrip) {
+                          //                  if(!SwitchUseGrainSizeDistribution)
+                          //                  {
+                          //                      deposition = -Sed->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
+                          //                  } else {
+                          //                      deposition = -Sed_D.Drcd*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
+                          //                  }
+                      }
+
+
+                      if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
+                          deposition = 0;
+                      // VJ 190325 prevent any activity on the boundary!
+
+
+                      if (SwitchSedtrap && SedimentFilter->Drc > 0)
+                      {
+                          if(!SwitchUseGrainSizeDistribution)
+                          {
+                              if (Sed->Drc > 0) {
+                                  deposition += -Sed->Drc*SedimentFilter->Drc;
+                                  Sed->Drc *= (1.0-SedimentFilter->Drc);
+                              }
+                          } else {
+                              if (Sed_D.Drcd > 0) {
+                                  deposition = -Sed_D.Drcd*SedimentFilter->Drc;
+                                  Sed_D.Drcd *= (1.0-SedimentFilter->Drc);
+                              }
+                          }
+                      }
+
+                      //add deposition to soil layer
+                      if(SwitchUseMaterialDepth)
+                      {
+                          StorageDep->Drc += -deposition;
+                          if(SwitchUseGrainSizeDistribution)
+                          {
+                              StorageDep_D.Drcd += -deposition;
+                          }
+                      }
+                  } // minv > 0
               //### sediment balance
               // add to sediment in flow (IN KG/CELL)
 
@@ -1315,334 +1316,350 @@ void TWorld::FlowDetachment(int thread)
  * @see TWorld:DetachMaterial
  *
  */
-void TWorld::ChannelFlowDetachment(int r, int c)
+void TWorld::ChannelFlowDetachment()
 {
-    RiverSedimentLayerDepth(r,c);
-    //creates ChannelBLDepth and ChannelSSDepth, if 1 layer ChannelBLDepth = 0
+    if (!SwitchIncludeChannel)
+        return;
 
-    double blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelFlowWidth->Drc;
-    double sswatervol = ChannelSSDepth->Drc*DX->Drc*ChannelFlowWidth->Drc;
+    if (!SwitchErosion)
+        return;
 
-  //  double bldepth = ChannelBLDepth->Drc;
- //   double ssdepth = ChannelSSDepth->Drc;
+    FOR_ROW_COL_MV_CH {
 
-    //discharges for both layers and watervolumes
-    double bldischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelBLDepth->Drc;
-    double ssdischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelSSDepth->Drc;
+        RiverSedimentLayerDepth(r,c);
+        //creates ChannelBLDepth and ChannelSSDepth, if 1 layer ChannelBLDepth = 0
 
-    //iterator is number of grain classes
-    int iterator = numgrainclasses;
-    if(!SwitchUseGrainSizeDistribution) {
-        iterator = 1;
-    }
+        double blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelFlowWidth->Drc;
+        double sswatervol = ChannelSSDepth->Drc*DX->Drc*ChannelFlowWidth->Drc;
 
-   ChannelDetFlow->Drc = 0;
-   ChannelDep->Drc = 0;
+        //  double bldepth = ChannelBLDepth->Drc;
+        //   double ssdepth = ChannelSSDepth->Drc;
 
-   //find transport capacity for bed and suspended layer
-   for(int d  = 0 ; d < iterator;d++)
-   {
-       cTMap * TBLTCtemp;
-       cTMap * TSSTCtemp;
+        //discharges for both layers and watervolumes
+        // double bldischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelBLDepth->Drc;
+        // double ssdischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelSSDepth->Drc;
 
-       if(!SwitchUseGrainSizeDistribution)
-       {
-           TBLTCtemp = ChannelBLTC;
-           TSSTCtemp = ChannelSSTC;
-       }else
-       {
-           TBLTCtemp = RBLTC_D.at(d);
-           TSSTCtemp = RSSTC_D.at(d);
-       }
-
-       //get transport capacity for bed/suspended load for a specific cell and grain size class
-      // TBLTCFlood->Drc = RiverSedimentTCBL(r,c,d, ChannelV->Drc, ChannelWH->Drc, ChannelBLDepth->Drc, ChannelWidth->Drc);
-      // TSSTCFlood->Drc = RiverSedimentTCSS(r,c,d, ChannelV->Drc, ChannelWH->Drc, ChannelSSDepth->Drc, ChannelWidth->Drc);
-       TBLTCtemp->Drc = calcTCBedload(r, c, d, R_BL_Method, ChannelV->Drc, 0);
-       TSSTCtemp->Drc = calcTCSuspended(r, c, d, R_SS_Method, ChannelV->Drc, 0);
-    }
-
-   //check if the sum of transport capacities of all grain sizes is larger than MAXCONC, and rescale if nessecery
-   if(SwitchUseGrainSizeDistribution)
-   {
-        ChannelBLTC->Drc = 0;
-        ChannelSSTC->Drc = 0;
-        FOR_GRAIN_CLASSES
-        {
-            ChannelBLTC->Drc += RBLTC_D.Drcd;
-            ChannelSSTC->Drc += RSSTC_D.Drcd;
+        //iterator is number of grain classes
+        int iterator = numgrainclasses;
+        if(!SwitchUseGrainSizeDistribution) {
+            iterator = 1;
         }
 
-       if(ChannelBLTC->Drc > MAXCONCBL)
-       {
-           FOR_GRAIN_CLASSES
-           {
-               RBLTC_D.Drcd *= MAXCONCBL/ChannelBLTC->Drc;
-           }
-           ChannelBLTC->Drc = MAXCONCBL;
-       }
-       if(ChannelSSTC->Drc > MAXCONC)
-       {
-           FOR_GRAIN_CLASSES
-           {
-               RSSTC_D.Drcd *= MAXCONC/ChannelSSTC->Drc;
-           }
-           ChannelSSTC->Drc = MAXCONC;
-       }
+        ChannelDetFlow->Drc = 0;
+        ChannelDep->Drc = 0;
 
-       ChannelBLTC->Drc = 0;
-       ChannelSSTC->Drc = 0;
-       FOR_GRAIN_CLASSES
-       {
-           ChannelBLTC->Drc += RBLTC_D.Drcd;
-           ChannelSSTC->Drc += RSSTC_D.Drcd;
-       }
+        //find transport capacity for bed and suspended layer
+        for(int d  = 0 ; d < iterator;d++)
+        {
+            cTMap * TBLTCtemp;
+            cTMap * TSSTCtemp;
 
-   }
+            if(!SwitchUseGrainSizeDistribution)
+            {
+                TBLTCtemp = ChannelBLTC;
+                TSSTCtemp = ChannelSSTC;
+            }else
+            {
+                TBLTCtemp = RBLTC_D.at(d);
+                TSSTCtemp = RSSTC_D.at(d);
+            }
 
-   for(int d  = 0 ; d < iterator;d++)
-   {
-       //set all maps for this grain class
+            //get transport capacity for bed/suspended load for a specific cell and grain size class
+            // TBLTCFlood->Drc = RiverSedimentTCBL(r,c,d, ChannelV->Drc, ChannelWH->Drc, ChannelBLDepth->Drc, ChannelWidth->Drc);
+            // TSSTCFlood->Drc = RiverSedimentTCSS(r,c,d, ChannelV->Drc, ChannelWH->Drc, ChannelSSDepth->Drc, ChannelWidth->Drc);
+            TBLTCtemp->Drc = calcTCBedload(r, c, d, R_BL_Method, ChannelV->Drc, 0);
+            TSSTCtemp->Drc = calcTCSuspended(r, c, d, R_SS_Method, ChannelV->Drc, 0);
+        }
 
-       cTMap * TBLDepthtemp;
-       cTMap * TSSDepthtemp;
-       cTMap * TBLTCtemp;
-       cTMap * TSSTCtemp;
-       cTMap * TBLCtemp;
-       cTMap * TSSCtemp;
-       cTMap * TBLtemp;
-       cTMap * TSStemp;
-       cTMap * TW;
+        //check if the sum of transport capacities of all grain sizes is larger than MAXCONC, and rescale if nessecery
+        if(SwitchUseGrainSizeDistribution)
+        {
+            ChannelBLTC->Drc = 0;
+            ChannelSSTC->Drc = 0;
+            FOR_GRAIN_CLASSES
+            {
+                ChannelBLTC->Drc += RBLTC_D.Drcd;
+                ChannelSSTC->Drc += RSSTC_D.Drcd;
+            }
 
-       double TSettlingVelocity;
+            if(ChannelBLTC->Drc > MAXCONCBL)
+            {
+                FOR_GRAIN_CLASSES
+                {
+                    RBLTC_D.Drcd *= MAXCONCBL/ChannelBLTC->Drc;
+                }
+                ChannelBLTC->Drc = MAXCONCBL;
+            }
+            if(ChannelSSTC->Drc > MAXCONC)
+            {
+                FOR_GRAIN_CLASSES
+                {
+                    RSSTC_D.Drcd *= MAXCONC/ChannelSSTC->Drc;
+                }
+                ChannelSSTC->Drc = MAXCONC;
+            }
 
-       if(!SwitchUseGrainSizeDistribution)
-       {
-           TBLDepthtemp = ChannelBLDepth;
-           TSSDepthtemp = ChannelSSDepth;
-           TBLTCtemp = ChannelBLTC;
-           TSSTCtemp = ChannelSSTC;
-           TBLCtemp = ChannelBLConc;
-           TSSCtemp = ChannelSSConc;
-           TBLtemp = ChannelBLSed;
-           TSStemp = ChannelSSSed;
-           TW = unity;
-           TSettlingVelocity = SettlingVelocity->Drc;
-       }else
-       {
-           TBLDepthtemp = RBLD_D.at(d);
-           TSSDepthtemp = RSSD_D.at(d);
-           TBLTCtemp = RBLTC_D.at(d);
-           TSSTCtemp = RSSTC_D.at(d);
-           TBLCtemp = RBLC_D.at(d);
-           TSSCtemp = RSSC_D.at(d);
-           TBLtemp = RBL_D.at(d);
-           TSStemp = RSS_D.at(d);
-           TW = RW_D.at(d);
-           TSettlingVelocity = settlingvelocities.at(d);
-       }
+            ChannelBLTC->Drc = 0;
+            ChannelSSTC->Drc = 0;
+            FOR_GRAIN_CLASSES
+            {
+                ChannelBLTC->Drc += RBLTC_D.Drcd;
+                ChannelSSTC->Drc += RSSTC_D.Drcd;
+            }
 
-       //when waterheight is insignificant, deposite all remaining sediment
-       double deposition = 0;
-       double detachment = 0;
+        }
 
-       if(ChannelWH->Drc < MIN_HEIGHT)
-       {
-           deposition = -TBLtemp->Drc;
-           deposition += -TSStemp->Drc;
-           TBLtemp->Drc = 0;
-           TSStemp->Drc = 0;
-           TBLTCtemp->Drc = 0;
-           TSSTCtemp->Drc = 0;
-           TBLCtemp->Drc = 0;
-           TSSCtemp->Drc = 0;
+        for(int d  = 0 ; d < iterator;d++)
+        {
+            //set all maps for this grain class
 
-           ChannelDep->Drc += deposition;
+            cTMap * TBLDepthtemp;
+            cTMap * TSSDepthtemp;
+            cTMap * TBLTCtemp;
+            cTMap * TSSTCtemp;
+            cTMap * TBLCtemp;
+            cTMap * TSSCtemp;
+            cTMap * TBLtemp;
+            cTMap * TSStemp;
+            cTMap * TW;
 
-           if(SwitchUseMaterialDepth)
-           {
-               RStorageDep->Drc += -deposition;
-               if(SwitchUseGrainSizeDistribution)
-               {
-                     RStorageDep_D.Drcd += -deposition;
-                     if(std::isnan(RStorageDep_D.Drcd))
-                     {
-                         qDebug() << "NAN dep1" << d;
-                     }
-               }
-           }
+            double TSettlingVelocity;
 
-           TBLDepthtemp->Drc = 0;
-           TSSDepthtemp->Drc = 0;
-           TBLTCtemp->Drc = 0;
-           TSSTCtemp->Drc = 0;
-           TBLCtemp->Drc = 0;
-           TSSCtemp->Drc = 0;
-           TBLtemp->Drc = 0;
-           TSStemp->Drc = 0;
+            if(!SwitchUseGrainSizeDistribution)
+            {
+                TBLDepthtemp = ChannelBLDepth;
+                TSSDepthtemp = ChannelSSDepth;
+                TBLTCtemp = ChannelBLTC;
+                TSSTCtemp = ChannelSSTC;
+                TBLCtemp = ChannelBLConc;
+                TSSCtemp = ChannelSSConc;
+                TBLtemp = ChannelBLSed;
+                TSStemp = ChannelSSSed;
+                TW = unity;
+                TSettlingVelocity = SettlingVelocity->Drc;
+            }else
+            {
+                TBLDepthtemp = RBLD_D.at(d);
+                TSSDepthtemp = RSSD_D.at(d);
+                TBLTCtemp = RBLTC_D.at(d);
+                TSSTCtemp = RSSTC_D.at(d);
+                TBLCtemp = RBLC_D.at(d);
+                TSSCtemp = RSSC_D.at(d);
+                TBLtemp = RBL_D.at(d);
+                TSStemp = RSS_D.at(d);
+                TW = RW_D.at(d);
+                TSettlingVelocity = settlingvelocities.at(d);
+            }
 
-           if(SwitchUseGrainSizeDistribution)
-           {
-               RBL_D.Drcd = 0;
-               RSS_D.Drcd = 0;
-               RBLTC_D.Drcd = 0;
-               RSSTC_D.Drcd = 0;
-               RBLC_D.Drcd = 0;
-               RSSC_D.Drcd = 0;
-           }
-       } else {
-          //### do suspended
+            double deposition = 0;
+            double detachment = 0;
+            double TransportFactor = 0;
+            double maxTC = 0;
+            double minTC = 0;
 
-          //deposition
-          double TransportFactor;
-          if (TSSDepthtemp->Drc > MIN_HEIGHT)
-              TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelWH->Drc)) * sswatervol; //TSSDepthtemp
-          else
-              TransportFactor =  1.0 * sswatervol;
+            //when waterheight is insignificant, deposite all remaining sediment
+            if(ChannelWH->Drc < MIN_HEIGHT)
+            {
+                deposition = -TBLtemp->Drc;
+                deposition += -TSStemp->Drc;
+                TBLtemp->Drc = 0;
+                TSStemp->Drc = 0;
+                TBLTCtemp->Drc = 0;
+                TSSTCtemp->Drc = 0;
+                TBLCtemp->Drc = 0;
+                TSSCtemp->Drc = 0;
 
-          double maxTC = std::max(TSSTCtemp->Drc - TSSCtemp->Drc,0.0);  // TC in kg/m3
-          double minTC = std::min(TSSTCtemp->Drc - TSSCtemp->Drc,0.0);
+                ChannelDep->Drc += deposition;
 
-          deposition = std::max(TransportFactor * minTC,-TSStemp->Drc); // in kg
-          // not more than SS present
+                if(SwitchUseMaterialDepth)
+                {
+                    RStorageDep->Drc += -deposition;
+                    if(SwitchUseGrainSizeDistribution)
+                    {
+                        RStorageDep_D.Drcd += -deposition;
+                        if(std::isnan(RStorageDep_D.Drcd))
+                        {
+                            qDebug() << "NAN dep1" << d;
+                        }
+                    }
+                }
 
-          //  detachment
-          TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc * ChannelFlowWidth->Drc;
-          //TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
-          //TransportFactor = ssdischarge*_dt;
-          // use discharge because standing water has no erosion
+                TBLDepthtemp->Drc = 0;
+                TSSDepthtemp->Drc = 0;
+                TBLTCtemp->Drc = 0;
+                TSSTCtemp->Drc = 0;
+                TBLCtemp->Drc = 0;
+                TSSCtemp->Drc = 0;
+                TBLtemp->Drc = 0;
+                TSStemp->Drc = 0;
 
-          //NB ChannelFlowWidth and ChannelWidth the same woith rect channel
-          detachment = TW->Drc * maxTC * TransportFactor;
-          // cannot have more detachment than remaining capacity in flow
+                if(SwitchUseGrainSizeDistribution)
+                {
+                    RBL_D.Drcd = 0;
+                    RSS_D.Drcd = 0;
+                    RBLTC_D.Drcd = 0;
+                    RSSTC_D.Drcd = 0;
+                    RBLC_D.Drcd = 0;
+                    RSSC_D.Drcd = 0;
+                }
+            } else {
+                //### do suspended first
 
-          detachment = DetachMaterial(r,c,d,true,false,false, detachment);
-          // multiply by Y
+                //deposition
+                maxTC = std::max(TSSTCtemp->Drc - TSSCtemp->Drc, 0.0);  // TC in kg/m3
+                minTC = std::min(TSSTCtemp->Drc - TSSCtemp->Drc, 0.0);
 
-          if(MAXCONC * sswatervol < TSStemp->Drc+detachment)
-              detachment = std::max(0.0, MAXCONC * sswatervol - TSStemp->Drc);
+                if (minTC > 0) {
+                    if (TSSDepthtemp->Drc > MIN_HEIGHT)
+                        TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelWH->Drc)) * sswatervol; //TSSDepthtemp
+                    else
+                        TransportFactor =  1.0 * sswatervol;
 
-          //### sediment balance
-          TSStemp->Drc += detachment;
-          TSStemp->Drc += deposition;
-          ChannelDep->Drc += deposition;
-          ChannelDetFlow->Drc += detachment;
+                    deposition = std::max(TransportFactor * minTC,-TSStemp->Drc); // in kg
+                    // not more than SS present
+                } else
+                    if (maxTC > 0) {
 
-          if(SwitchUseMaterialDepth)
-          {
-              RStorageDep->Drc += -deposition;
-              if(SwitchUseGrainSizeDistribution)
-                  RStorageDep_D.Drcd += -deposition;
-          }
+                        //  detachment
+                        TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc * ChannelFlowWidth->Drc;
+                        //TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
+                        //TransportFactor = ssdischarge*_dt;
+                        // use discharge because standing water has no erosion
 
-          //### do bedload
+                        //NB ChannelFlowWidth and ChannelWidth the same woith rect channel
+                        detachment = TW->Drc * maxTC * TransportFactor;
+                        // cannot have more detachment than remaining capacity in flow
 
-          if(TBLDepthtemp->Drc < MIN_HEIGHT) {
-              ChannelDep->Drc += -ChannelBLSed->Drc;
-              ChannelBLTC->Drc = 0;
-              ChannelBLConc->Drc = 0;
-              ChannelBLSed->Drc = 0;
+                        detachment = DetachMaterial(r,c,d,true,false,false, detachment);
+                        // multiply by Y
 
-          } else {
-              //there is BL
+                        if(MAXCONC * sswatervol < TSStemp->Drc+detachment)
+                            detachment = std::max(0.0, MAXCONC * sswatervol - TSStemp->Drc);
+                    }
 
-              maxTC = std::max(TBLTCtemp->Drc - TBLCtemp->Drc,0.0);
-              minTC = std::min(TBLTCtemp->Drc - TBLCtemp->Drc,0.0);
+                //### sediment balance add suspended
+                TSStemp->Drc += detachment;
+                TSStemp->Drc += deposition;
+                ChannelDep->Drc += deposition;
+                ChannelDetFlow->Drc += detachment;
 
-              //### detachment
-              TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc * ChannelFlowWidth->Drc;
-//              TransportFactor = std::min(TransportFactor, bldischarge*_dt);
-//              TransportFactor = bldischarge*_dt;
+                if(SwitchUseMaterialDepth)
+                {
+                    RStorageDep->Drc += -deposition;
+                    if(SwitchUseGrainSizeDistribution)
+                        RStorageDep_D.Drcd += -deposition;
+                }
 
-              // units s * m/s * m * m = m3
-              detachment =  TW->Drc *  maxTC * TransportFactor;
-              // unit = kg/m3 * m3 = kg
+                //### do bedload
 
-              detachment = DetachMaterial(r,c,d,true,false,true, detachment);
-              // mult by Y and mixingdepth
-              // IN KG/CELL
+                if(TBLDepthtemp->Drc < MIN_HEIGHT) {
+                    ChannelDep->Drc += -ChannelBLSed->Drc;
+                    ChannelBLTC->Drc = 0;
+                    ChannelBLConc->Drc = 0;
+                    ChannelBLSed->Drc = 0;
 
-              if(MAXCONC * blwatervol < TBLtemp->Drc+detachment)
-                  detachment = std::max(0.0, MAXCONC * blwatervol - TBLtemp->Drc);
-              // limit detachment to what BLtemp can carry
+                } else {
+                    //there is BL
 
-              //### deposition
-//              if (TSSDepthtemp->Drc > MIN_HEIGHT)
-//                  TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelBLDepth->Drc)) * blwatervol; //TSSDepthtemp
-//              else
-//                  TransportFactor =  1.0 * blwatervol;
-              // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
-              deposition = std::max(minTC * TransportFactor, -TBLtemp->Drc);
-              // cannot have more depo than sediment present
+                    maxTC = std::max(TBLTCtemp->Drc - TBLCtemp->Drc,0.0);
+                    minTC = std::min(TBLTCtemp->Drc - TBLCtemp->Drc,0.0);
 
-              if(SwitchUseMaterialDepth)
-              {
-                  RStorageDep->Drc += -deposition;
-                  if(SwitchUseGrainSizeDistribution)
-                  {
-                      RStorageDep_D.Drcd += -deposition;
-                  }
-              }
+                    if (maxTC > 0) {
+                        //### detachment
+                        TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc * ChannelFlowWidth->Drc;
+                        //              TransportFactor = std::min(TransportFactor, bldischarge*_dt);
+                        //              TransportFactor = bldischarge*_dt;
 
-              TBLtemp->Drc += detachment; //ChannelBLSed
-              TBLtemp->Drc += deposition;
-              ChannelDep->Drc += deposition;
-              ChannelDetFlow->Drc += detachment;
+                        // units s * m/s * m * m = m3
+                        detachment =  TW->Drc *  maxTC * TransportFactor;
+                        // unit = kg/m3 * m3 = kg
 
-            //  TBLCtemp->Drc = MaxConcentration(blwatervol, TBLtemp->Drc);
-              // last recalc for diffusion
-           }
-       }
-   }
+                        detachment = DetachMaterial(r,c,d,true,false,true, detachment);
+                        // mult by Y and mixingdepth
+                        // IN KG/CELL
 
-   if(SwitchUseGrainSizeDistribution)
-   {
-       FOR_GRAIN_CLASSES
-       {
-           RSSC_D.Drcd = MaxConcentration(ChannelWidth->Drc*DX->Drc*RSSD_D.Drcd, &RSS_D.Drcd, &ChannelDep->Drc);
-           double sssmax = MAXCONC * DX->Drc *ChannelWidth->Drc*RSSD_D.Drcd;
-           if(sssmax < RSS_D.Drcd) {
-               double surplus = RSS_D.Drcd - sssmax;
-               ChannelDep->Drc -= surplus;
-               RSS_D.Drcd = sssmax;
-               if(SwitchUseMaterialDepth)   // TODO: does not work with this maxconc !!!!!!
-               {
-                   RStorageDep->Drc += surplus;
-                   RStorageDep_D.Drcd += surplus;
-                   if(std::isnan(RStorageDep_D.Drcd))
-                   {
-                       qDebug() << "NAN dep3" << d;
-                   }
-               }
-           }
-           ChannelSSSed->Drc += RSS_D.Drcd;
+                        if(MAXCONC * blwatervol < TBLtemp->Drc+detachment)
+                            detachment = std::max(0.0, MAXCONC * blwatervol - TBLtemp->Drc);
+                        // limit detachment to what BLtemp can carry
+                    } else
+                        if (minTC > 0) {
+                            //### deposition
+                            if (TSSDepthtemp->Drc > MIN_HEIGHT)
+                                TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelBLDepth->Drc)) * blwatervol; //TSSDepthtemp
+                            else
+                                TransportFactor =  1.0 * blwatervol;
 
-           RBLC_D.Drcd = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*RBLD_D.Drcd, &RBL_D.Drcd, &ChannelDep->Drc);
-           sssmax = MAXCONCBL * DX->Drc *ChannelFlowWidth->Drc*RBLD_D.Drcd;
-           if(sssmax < BL_D.Drcd) {
-               ChannelDep->Drc -= (RBL_D.Drcd - sssmax);
-               RBL_D.Drcd = sssmax;
-               if(SwitchUseMaterialDepth)
-               {
-                   RStorageDep->Drc += (RBL_D.Drcd - sssmax);
-                   RStorageDep_D.Drcd += (RBL_D.Drcd - sssmax);
-                   if(std::isnan(RStorageDep_D.Drcd))
-                   {
-                       qDebug() << "NAN dep4" << d;
-                   }
-               }
-           }
-           ChannelBLSed->Drc += RBL_D.Drcd;
-       }
-   }
+                            // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
+                            deposition = std::max(minTC * TransportFactor, -TBLtemp->Drc);
+                            // cannot have more depo than sediment present
+
+                            if(SwitchUseMaterialDepth)
+                            {
+                                RStorageDep->Drc += -deposition;
+                                if(SwitchUseGrainSizeDistribution)
+                                {
+                                    RStorageDep_D.Drcd += -deposition;
+                                }
+                            }
+
+                            TBLtemp->Drc += detachment; //ChannelBLSed
+                            TBLtemp->Drc += deposition;
+                            ChannelDep->Drc += deposition;
+                            ChannelDetFlow->Drc += detachment;
+                        }
+                }
+            }
+        }
+
+        if(SwitchUseGrainSizeDistribution)
+        {
+            FOR_GRAIN_CLASSES
+            {
+                RSSC_D.Drcd = MaxConcentration(ChannelWidth->Drc*DX->Drc*RSSD_D.Drcd, &RSS_D.Drcd, &ChannelDep->Drc);
+                double sssmax = MAXCONC * DX->Drc *ChannelWidth->Drc*RSSD_D.Drcd;
+                if(sssmax < RSS_D.Drcd) {
+                    double surplus = RSS_D.Drcd - sssmax;
+                    ChannelDep->Drc -= surplus;
+                    RSS_D.Drcd = sssmax;
+                    if(SwitchUseMaterialDepth)   // TODO: does not work with this maxconc !!!!!!
+                    {
+                        RStorageDep->Drc += surplus;
+                        RStorageDep_D.Drcd += surplus;
+                        if(std::isnan(RStorageDep_D.Drcd))
+                        {
+                            qDebug() << "NAN dep3" << d;
+                        }
+                    }
+                }
+                ChannelSSSed->Drc += RSS_D.Drcd;
+
+                RBLC_D.Drcd = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*RBLD_D.Drcd, &RBL_D.Drcd, &ChannelDep->Drc);
+                sssmax = MAXCONCBL * DX->Drc *ChannelFlowWidth->Drc*RBLD_D.Drcd;
+                if(sssmax < BL_D.Drcd) {
+                    ChannelDep->Drc -= (RBL_D.Drcd - sssmax);
+                    RBL_D.Drcd = sssmax;
+                    if(SwitchUseMaterialDepth)
+                    {
+                        RStorageDep->Drc += (RBL_D.Drcd - sssmax);
+                        RStorageDep_D.Drcd += (RBL_D.Drcd - sssmax);
+                        if(std::isnan(RStorageDep_D.Drcd))
+                        {
+                            qDebug() << "NAN dep4" << d;
+                        }
+                    }
+                }
+                ChannelBLSed->Drc += RBL_D.Drcd;
+            }
+        }
+
+        //total transport capacity (bed load + suspended load), used for output
+        ChannelTC->Drc = ChannelBLTC->Drc + ChannelSSTC->Drc;
+        ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
 
 
-   //total transport capacity (bed load + suspended load), used for output
-   ChannelTC->Drc = ChannelBLTC->Drc + ChannelSSTC->Drc;
-   ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
-
-   RiverSedimentMaxC(r,c);
-   //partial and total concentration ALL DONE:
+        RiverSedimentMaxC(r,c);
+        //partial and total concentration ALL DONE
+    }
 }
 //---------------------------------------------------------------------------
 /**

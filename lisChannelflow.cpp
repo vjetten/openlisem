@@ -175,7 +175,7 @@ void TWorld::CalcVelDischChannel(int thread)
 
 //---------------------------------------------------------------------------
 //! add runofftochannel and rainfall and calc channel WH from volume
-void TWorld::ChannelWaterHeight(int thread)
+void TWorld::ChannelAddBaseandRain(int thread)
 {
     if (!SwitchIncludeChannel)
         return;
@@ -218,10 +218,10 @@ void TWorld::ChannelWaterHeight(int thread)
     if(!addedbaseflow)
         addedbaseflow = true;
 
-    ChannelWaterHeightFromVolume(thread);
+ //   ChannelWaterHeightFromVolume(thread);
 }
 //---------------------------------------------------------------------------
-void TWorld::ChannelWaterHeightNT(void)
+void TWorld::ChannelAddBaseandRainNT(void)
 {
 
     if (!SwitchIncludeChannel)
@@ -264,7 +264,7 @@ void TWorld::ChannelWaterHeightNT(void)
     if(!addedbaseflow)
         addedbaseflow = true;
 
-    ChannelWaterHeightFromVolumeNT();
+  //  ChannelWaterHeightFromVolumeNT();
 }
 //---------------------------------------------------------------------------
 
@@ -375,14 +375,6 @@ void TWorld::ChannelFlow(void)
     if (!SwitchIncludeChannel)
         return;
 
-    if (SwitchErosion)
-    {
-        FOR_ROW_COL_MV_CH {
-            ChannelFlowDetachment(r,c);
-            //detachment, deposition for SS and BL
-        }
-    }
-
     // initialize some channel stuff
     FOR_ROW_COL_MV_CH
     {
@@ -403,14 +395,14 @@ void TWorld::ChannelFlow(void)
         {
             FOR_ROW_COL_MV_CH
             {
-                double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
-                double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
+          //      double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
+          //      double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
                 //temp conc because we move everything with channelQ
 
-                ChannelConc->Drc = (concbl + concss); // allowed because of CH vol
+         //       ChannelConc->Drc = (concbl + concss); // allowed because of CH vol
                 ChannelQs->Drc =  ChannelQ->Drc * ChannelConc->Drc;
-                ChannelQBLs->Drc = ChannelQ->Drc *  concbl;
-                ChannelQSSs->Drc = ChannelQ->Drc  * concss;
+         //       ChannelQBLs->Drc = ChannelQ->Drc *  concbl;
+        //        ChannelQSSs->Drc = ChannelQ->Drc  * concss;
             }
 
         } else {
@@ -452,6 +444,7 @@ void TWorld::ChannelFlow(void)
             }
         }
     }
+
     ChannelQn->setAllMV();
     fill(*QinKW, 0.0);
 
@@ -465,8 +458,7 @@ void TWorld::ChannelFlow(void)
 
     FOR_ROW_COL_MV_CH
     {
- //       ChannelWaterVol->Drc = ChannelWaterVol->Drc + QinKW->Drc*_dt - ChannelQn->Drc*_dt ;
-        ChannelWaterVol->Drc += -ChannelQn->Drc*_dt + QinKW->Drc * _dt;
+        ChannelWaterVol->Drc = ChannelWaterVol->Drc + QinKW->Drc*_dt - ChannelQn->Drc*_dt ;
 
         double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
       //          double ChannelArea =ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
@@ -496,10 +488,11 @@ void TWorld::ChannelFlow(void)
                 {
                     if (SwitchUse2Layer) {
                         routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn,
-                                       ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed); //ChannelBLWaterVol
+                                       ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed);
                     }
                     routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
-                                   ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed); //ChannelSSWaterVol
+                                   ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed);
+                    //note: channelwatervol not really used
                     RiverSedimentMaxC(r,c);
                 } else {
                     FOR_GRAIN_CLASSES
