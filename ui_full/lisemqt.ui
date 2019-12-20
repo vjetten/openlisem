@@ -96,7 +96,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -1636,8 +1636,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>719</width>
-                <height>803</height>
+                <width>691</width>
+                <height>859</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_44">
@@ -1711,7 +1711,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>5</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -2459,7 +2459,7 @@
                      <item>
                       <widget class="QLabel" name="label_56">
                        <property name="text">
-                        <string>Nr of CPU cores used, more cores is faster but prone to errors (0 = all cores; 1 = 1 core etc.)</string>
+                        <string>Nr of CPU cores, more cores is faster for very large areas (0 = all cores; 1 = 1 core etc.)</string>
                        </property>
                       </widget>
                      </item>
@@ -4810,7 +4810,7 @@ p, li { white-space: pre-wrap; }
                       </font>
                      </property>
                      <property name="title">
-                      <string>Coupling overland flow and flood domain (kinematic/diffusive flow)</string>
+                      <string>Coupling overland flow and flood domain (kinematic flow)</string>
                      </property>
                      <layout class="QGridLayout" name="gridLayout_18">
                       <property name="leftMargin">
@@ -4912,7 +4912,7 @@ p, li { white-space: pre-wrap; }
                       <item row="2" column="0">
                        <widget class="QDoubleSpinBox" name="E_runoffPartitioning">
                         <property name="enabled">
-                         <bool>true</bool>
+                         <bool>false</bool>
                         </property>
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -4946,7 +4946,7 @@ p, li { white-space: pre-wrap; }
                       <item row="2" column="1">
                        <widget class="QLabel" name="label_97">
                         <property name="enabled">
-                         <bool>true</bool>
+                         <bool>false</bool>
                         </property>
                         <property name="palette">
                          <palette>

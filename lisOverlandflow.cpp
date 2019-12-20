@@ -97,14 +97,15 @@ void TWorld::ToFlood()//int thread)
         return;
 
     FOR_ROW_COL_MV {
-        if(WHrunoff->Drc > 0.001 && hmx->Drc > 0.001 && ChannelWidth->Drc == 0)
+//        if(WHrunoff->Drc > 0.000001 && hmx->Drc > 0.000001 && ChannelWidth->Drc == 0)
+        // note hmx threshols: larger gicves less sed balance error
+        if(hmx->Drc > 0.01 && ChannelWidth->Drc == 0)
         {
-            double frac = 1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
-            frac = std::max(std::min(frac, 1.0),0.0);
-
+            double frac = 1.0;//1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
+        //    frac = std::max(std::min(frac, 1.0),0.0);
             double dwh = frac * WHrunoff->Drc;
 
-            hmx->Drc += dwh;// * FlowWidth->Drc/_dx;
+            hmx->Drc += dwh;
             WH->Drc -= dwh;
             WHrunoff->Drc -= dwh;
             WHGrass->Drc -= dwh;
@@ -126,10 +127,9 @@ void TWorld::ToFlood()//int thread)
 
                     }
                 }
-
-                SWOFSedimentSetConcentration(r,c,hmx);
-                Conc->Drc = MaxConcentration(WHrunoff->Drc*ChannelAdj->Drc*DX->Drc, &Sed->Drc, &DEP->Drc);
-
+// rwcalc conc here gives mass balance errors
+           //     SWOFSedimentSetConcentration(r,c,hmx);
+           //     Conc->Drc = MaxConcentration(WHrunoff->Drc*ChannelAdj->Drc*DX->Drc, &Sed->Drc, &DEP->Drc);
             }
          }
     }
@@ -156,20 +156,19 @@ void TWorld::ToChannel()//int thread)
 
     CalcVelDischChannelNT();
 
-    ChannelOverflow(WHrunoff, V, true);
+//    ChannelOverflow(WHrunoff, V, true);
 
-    FOR_ROW_COL_MV {
-        WH->Drc = WHrunoff->Drc + WHstore->Drc;
-        WHroad->Drc = WHrunoff->Drc;
-        WHGrass->Drc = WHrunoff->Drc;
-        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-    }
-    return;
+//    FOR_ROW_COL_MV {
+//        WH->Drc = WHrunoff->Drc + WHstore->Drc;
+//        WHroad->Drc = WHrunoff->Drc;
+//        WHGrass->Drc = WHrunoff->Drc;
+//        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+//    }
+//    return;
 
 
-/* OBSOLETE ?
+// /*
 
-//    fill(*RunoffVolinToChannel, 0);
     FOR_ROW_COL_MV_CH  //TODO: must be FOR_ROW_COL_MV ? else extended no sense
     {
         if(ChannelMaskExtended->data[r][c] == 1)
@@ -179,11 +178,6 @@ void TWorld::ToChannel()//int thread)
 
             double fractiontochannel;
             double Volume = WHrunoff->Drcr * FlowWidth->Drcr * DX->Drcr;
-
-            if (hmx->Drcr > MIN_HEIGHT) {
-                count++;
-                continue;
-            }
 
             if (Volume == 0)
                 continue;
@@ -208,7 +202,6 @@ void TWorld::ToChannel()//int thread)
             double dvol = fractiontochannel*Volume;
             double dwh = fractiontochannel*WHrunoff->Drcr;
 
-           // RunoffVolinToChannel->Drcr  += dvol;
             ChannelWaterVol->Drcr += dvol;
             // water diverted to the channel
             WHrunoff->Drcr -= dwh ;
@@ -229,7 +222,6 @@ void TWorld::ToChannel()//int thread)
                 Sed->Drcr -= dsed;
 
                 Conc->Drcr = MaxConcentration(WHrunoff->Drcr * DX->Drcr * ChannelAdj->Drcr, &Sed->Drcr, &DEP->Drcr);
-            //    ChannelConc->Drcr = MaxConcentration(ChannelWH->Drcr * ChannelDX->Drcr * ChannelWidth->Drcr, &ChannelSSSed->Drcr, &ChannelDep->Drcr);
                 // adjust sediment in suspension
 
                 if(SwitchUseGrainSizeDistribution)
@@ -250,7 +242,7 @@ void TWorld::ToChannel()//int thread)
             }
         }
     }
-   */
+
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -697,7 +689,6 @@ void TWorld::OverlandFlow1D(void)
         {
 
             Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
-//Qsn->Drc = Conc->Drc * Qn->Drc;
             if(SwitchUseGrainSizeDistribution)
             {
                 FOR_GRAIN_CLASSES

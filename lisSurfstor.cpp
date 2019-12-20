@@ -63,7 +63,7 @@ void TWorld::GridCell(int thread)
         if (Cover->Drc + HouseCover->Drc > 1.0)
             Cover->Drc = 1.0-HouseCover->Drc;
 
-        SoilWidthDX->Drc = dxa;  //ezxcluding roads, including houses,
+        SoilWidthDX->Drc = dxa;  //excluding roads, including houses,
         //houses are assumed to be permeable but with high mannings n
     }}}}
 }

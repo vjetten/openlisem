@@ -199,9 +199,6 @@ void TWorld::ChannelWaterHeight(int thread)
         {
             ChannelWH->Drc = 0;
 
-        //    ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
-            // water from overland flow in channel cells
-
             //add baseflow
             if(SwitchChannelBaseflow)
             {
@@ -250,10 +247,6 @@ void TWorld::ChannelWaterHeightNT(void)
     FOR_ROW_COL_MV_CH
     {
        // ChannelWH->Drc = 0;
-
-//        if(SwitchKinematic2D != K2D_METHOD_DYN)
-//            ChannelWaterVol->Drc += RunoffVolinToChannel->Drc;
-        // water from overland flow in channel cells
 
         //add baseflow
         if(SwitchChannelBaseflow)

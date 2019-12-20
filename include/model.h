@@ -658,7 +658,6 @@ public:
     double K2DSolvebyInterpolationSed(int thread, cTMap *M, cTMap *MC);
 
 
-    double OFTC(int r, int c, int d);
     double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
     double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
     double GetDp(int r, int c,double p);

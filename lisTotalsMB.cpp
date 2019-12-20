@@ -382,9 +382,6 @@ void TWorld::Totals(void)
 
         FOR_ROW_COL_MV
         {
-            //double Q = Qoutput->Drc/1000;
-        //    TotalConc->Drc = (Q > MIN_FLUX ? Qsoutput->Drc/Q : 0);
-            // conc is okay in principle, Qs is conc (mass/vol)*Q so here this is reversed
             double sedall = Sed->Drc + BLFlood->Drc + SSFlood->Drc + ChannelSed->Drc;
             double waterall = WaterVolall->Drc + ChannelWaterVol->Drc;
             TotalConc->Drc = MaxConcentration(waterall ,&sedall, &tmb->Drc);
@@ -471,9 +468,9 @@ void TWorld::MassBalance()
         double sediment = SedTot + ChannelSedTot + FloodSedTot + SoilLossTot;
         //already in soiloss: + floodBoundarySedTot;
 
-        qDebug() << "S" << DetTot<< ChannelDetTot << FloodDetTot;
-        qDebug() << DepTot << ChannelDepTot << FloodDepTot;
-        qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
+      //  qDebug() << "S" << DetTot<< ChannelDetTot << FloodDetTot;
+      //  qDebug() << DepTot << ChannelDepTot << FloodDepTot;
+      //  qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
 
         MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
      //           qDebug() << MBs<<  DetTot<<DepTot<< SedTot << ChannelDetTot << ChannelDepTot<< ChannelSedTot;
