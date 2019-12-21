@@ -1207,11 +1207,13 @@ void TWorld::FlowDetachment(int thread)
                       detachment = std::max(0.0, MAXCONC * erosionwv - Sed->Drc);
                   // not more detachment then is needed to keep below ssmax
 
-              } else
+              }
+              else
 
                   //### deposition
 
-                  if (minTC == 0) {
+                  //if (minTC  0)
+                  {
                       if(!SwitchUseGrainSizeDistribution)
                       {
                           TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/erosionwh)) * erosionwv;
@@ -1582,7 +1584,8 @@ void TWorld::ChannelFlowDetachment()
                             detachment = std::max(0.0, MAXCONC * blwatervol - TBLtemp->Drc);
                         // limit detachment to what BLtemp can carry
                     } else
-                        if (minTC > 0) {
+                      //  if (minTC < 0)
+                        {
                             //### deposition
                             if (TSSDepthtemp->Drc > MIN_HEIGHT)
                                 TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelBLDepth->Drc)) * blwatervol; //TSSDepthtemp

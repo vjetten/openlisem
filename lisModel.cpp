@@ -208,8 +208,8 @@ void TWorld::DoModel()
             ThreadPool->RunCellCompute(wrapCellProcesses1D);
             ThreadPool->WaitForAll();
 
-            ToFlood();             // overland flow water added to flood (not in channel cells)
             ToChannel();           // water and sed flux going into channel in channel cells, goes to channeloverflow
+            ToFlood();             // overland flow water added to flood (not in channel cells)
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddiff or 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
@@ -218,7 +218,7 @@ void TWorld::DoModel()
      //        ThreadPool->RunCellCompute(fcompute2);
      //        ThreadPool->WaitForAll();
 
-         //  ChannelFlood();    // st venant channel 2D flooding from channel, only for kyn and diff of
+           // ChannelFlood();    // st venant channel 2D flooding from channel, only for kyn and diff of
 
             OrderedProcesses();  //do ordered solutions such as channel LDD etc., non threaded
 

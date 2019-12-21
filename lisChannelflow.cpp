@@ -395,14 +395,14 @@ void TWorld::ChannelFlow(void)
         {
             FOR_ROW_COL_MV_CH
             {
-          //      double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
-          //      double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
+                double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
+                double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
                 //temp conc because we move everything with channelQ
 
-         //       ChannelConc->Drc = (concbl + concss); // allowed because of CH vol
-                ChannelQs->Drc =  ChannelQ->Drc * ChannelConc->Drc;
-         //       ChannelQBLs->Drc = ChannelQ->Drc *  concbl;
-        //        ChannelQSSs->Drc = ChannelQ->Drc  * concss;
+                //ChannelConc->Drc = (concbl + concss); // allowed because of CH vol
+                //ChannelQs->Drc =  ChannelQ->Drc * ChannelConc->Drc;
+                ChannelQBLs->Drc = ChannelQ->Drc * concbl;
+                ChannelQSSs->Drc = ChannelQ->Drc * concss;
             }
 
         } else {
@@ -427,7 +427,7 @@ void TWorld::ChannelFlow(void)
             }
             FOR_ROW_COL_MV_CH
             {
-                ChannelQs->Drc =  ChannelQ->Drc * ChannelConc->Drc;
+                //ChannelQs->Drc =  ChannelQ->Drc * ChannelConc->Drc;
                 ChannelQBLs->Drc = ChannelQ->Drc * concbl;
                 ChannelQSSs->Drc = ChannelQ->Drc * concss;
             }
@@ -478,6 +478,11 @@ void TWorld::ChannelFlow(void)
 
     if (SwitchErosion)
     {
+        FOR_ROW_COL_MV_CH
+        {
+            RiverSedimentLayerDepth(r,c);
+            RiverSedimentMaxC(r,c);
+        }
         // route water 1D and sediment
         FOR_ROW_COL_MV_CH
         {
@@ -493,7 +498,7 @@ void TWorld::ChannelFlow(void)
                     routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
                                    ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed);
                     //note: channelwatervol not really used
-                    RiverSedimentMaxC(r,c);
+
                 } else {
                     FOR_GRAIN_CLASSES
                     {
@@ -558,7 +563,8 @@ void TWorld::ChannelFlow(void)
             {
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r,c);
-                ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
+          //       ChannelQsn->Drc = ChannelConc->Drc * ChannelQn->Drc;
+         ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
                 ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
 
             }
@@ -569,7 +575,7 @@ void TWorld::ChannelFlow(void)
             {
                 ChannelQBLsn->Drc = 0;
                 ChannelQSSsn->Drc= 0;
-                ChannelQs->Drc = 0;
+                //ChannelQs->Drc = 0;
                 ChannelQsn->Drc = 0;
                 ChannelSed->Drc = 0;
                 ChannelConc->Drc = 0;
