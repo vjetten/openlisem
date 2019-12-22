@@ -192,9 +192,10 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use material depth")==0)             checkMaterialDepth->setChecked(check);
         if (p1.compare("No detachment boundary")==0)         checkNoSedBoundary->setChecked(check);
         if (p1.compare("Advanced sediment")==0)             checkAdvancedSediment->setChecked(check);
-        if (p1.compare("Use 2 phase flow")==0)              checkBox_Sed2Phase->setChecked(check);
+        if (p1.compare("Use 2 phase flow")==0)              checkSed2Phase->setChecked(check);
         if (p1.compare("River BL method")==0)                 E_RBLMethod->setValue(iii);
         if (p1.compare("River SS method")==0)                 E_RSSMethod->setValue(iii);
+        if (p1.compare("Use grain size distribution")==0)     checkSedMultiGrain->setChecked(check);
         if (p1.compare("Estimate grain size distribution")==0)checkEstimateGrainSizeDistribution->setChecked(check);
         if (p1.compare("Read grain distribution maps")==0)    checkReadGrainSizeDistribution->setChecked(check);
         if (p1.compare("Number of grain size classes (simulated)")==0)  E_NumberClasses->setValue(iii);
@@ -323,14 +324,16 @@ void lisemqt::ParseInputData()
             spinKEparameterA3->setValue(param[1].toDouble());
             spinKEparameterB3->setValue(param[2].toDouble());
         }
-        if (p1.compare("KE time based")==0)      checkKETimebased->setChecked(check);
+        if (p1.compare("KE time based")==0)
+            checkKETimebased->setChecked(check);
 
         if (checkAdvancedSediment->isChecked())
         {
-            checkBox_Sed2Phase->setChecked(true);
+            checkSed2Phase->setChecked(true);
        //     checkBox_SedMultiGrain->setChecked(false);
             tabWidgetOptions->setTabEnabled(5,true);
-       /*     if(valc == 2)
+       /*
+           if(valc == 2)
                 checkBox_SedMultiGrain->setChecked(true);
             else
                 if(valc == 1)
@@ -410,7 +413,7 @@ void lisemqt::ParseInputData()
     //checkDoErosion->setChecked(dummyErosion);
     setErosionTab(checkDoErosion->isChecked());
 
-    checkBox_SedMultiGrain->setChecked(!checkBox_Sed2Phase->isChecked());
+    checkSedMultiGrain->setChecked(!checkSed2Phase->isChecked());
     tabWidgetOptions->setTabEnabled(5, checkAdvancedSediment->isChecked());
 
     checkOverlandFlow1D->setChecked(dummykinwave == 1);
@@ -536,9 +539,9 @@ void lisemqt::ParseInputData()
        // if (p1.compare("Flood level map")==0) E_FloodlevelMap->setText(p);
         if (p1.compare("Flood time map")==0) E_FloodTimeMap->setText(p);
         if (p1.compare("Flood start time")==0) E_FloodFEW->setText(p);
-        if (p1.compare("Max Velocity")==0) E_FloodmaxVMap->setText(p);
         if (p1.compare("Channel Max Q")==0) E_ChannelMaxQ->setText(p);
         if (p1.compare("Channel Max WH")==0) E_ChannelMaxWH->setText(p);
+        if (p1.compare("Max Velocity")==0) E_FloodmaxVMap->setText(p);
         if (p1.compare("Max Momentum")==0) E_FloodmaxVHMap->setText(p);
         if (p1.compare("Flood stats")==0) E_FloodStats->setText(p);
 
@@ -742,8 +745,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Advanced sediment")==0)        namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
 
         if (p1.compare("Use 2 phase flow")==0)  {
-            namelist[j].value.setNum((int) checkBox_Sed2Phase->isChecked());
-            checkBox_SedMultiGrain->setChecked(!checkBox_Sed2Phase->isChecked());
+            namelist[j].value.setNum((int) checkSed2Phase->isChecked());
+            checkSedMultiGrain->setChecked(!checkSed2Phase->isChecked());
         }
 
         if (p1.compare("Detachment efficiency")==0)          namelist[j].value = E_EfficiencyDET->text();
@@ -754,6 +757,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding SS method")==0)             namelist[j].value = E_SSMethod->text();
         if (p1.compare("River BL method")==0)                 namelist[j].value = E_RBLMethod->text();
         if (p1.compare("River SS method")==0)                 namelist[j].value = E_RSSMethod->text();
+        if (p1.compare("Use grain size distribution")==0)     namelist[j].value.setNum((int)checkSedMultiGrain->isChecked());
+
         if (p1.compare("Estimate grain size distribution")==0)namelist[j].value.setNum((int)checkEstimateGrainSizeDistribution->isChecked());
         if (p1.compare("Read grain distribution maps")==0)    namelist[j].value.setNum((int)checkReadGrainSizeDistribution->isChecked());
         if (p1.compare("Number of grain size classes (simulated)")==0)  namelist[j].value = E_NumberClasses->text();

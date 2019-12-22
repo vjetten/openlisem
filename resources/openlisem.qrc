@@ -11,7 +11,6 @@
         <file>screenshots.png</file>
         <file>Info.png</file>
         <file>pause2.png</file>
-        <file>Undo-icon.png</file>
         <file>stop1.png</file>
         <file>stop120.png</file>
         <file>Mscreenshots.png</file>
@@ -21,7 +20,6 @@
         <file>fontbigger.png</file>
         <file>fontselect.png</file>
         <file>fontsmaller.png</file>
-        <file>help1.png</file>
         <file>bullet.png</file>
         <file>information_4.png</file>
         <file>openLisem.ico</file>
@@ -33,7 +31,6 @@
         <file>2X/aguila2d2X.png</file>
         <file>2X/bullet2X.png</file>
         <file>2X/chart-line-stacked-icon2X.png</file>
-        <file>2X/deletereport42X.png</file>
         <file>2X/diropen2X.png</file>
         <file>2X/fileopen2X.png</file>
         <file>2X/filesave2X.png</file>
@@ -41,9 +38,7 @@
         <file>2X/fontbigger2X.png</file>
         <file>2X/fontselect2X.png</file>
         <file>2X/fontsmaller2X.png</file>
-        <file>2X/help12X.png</file>
         <file>2X/hsplitter2X.png</file>
-        <file>2X/Info2X.png</file>
         <file>2X/information_42X.png</file>
         <file>2X/map2X.png</file>
         <file>2X/map32X.png</file>
@@ -63,8 +58,6 @@
         <file>2X/stop12X.png</file>
         <file>2X/stop1202X.png</file>
         <file>2X/stop1242X.png</file>
-        <file>2X/timeplot2X.png</file>
-        <file>2X/Undo-icon2X.png</file>
         <file>2X/vsplitter2X.png</file>
         <file>2X/workdir2X.png</file>
         <file>question-mark-button.png</file>
@@ -76,5 +69,16 @@
         <file>help5.html</file>
         <file>help6.html</file>
         <file>help7.html</file>
+        <file>2X/pause-icon.png</file>
+        <file>2X/run-icon.png</file>
+        <file>2X/Stop-icon.png</file>
+        <file>2X/refresh-icon.png</file>
+        <file>2X/play-icon.png</file>
+        <file>2X/User-Interface-Save-As-icon.png</file>
+        <file>2X/open-folder-outline_icon.png</file>
+        <file>2X/savefile.png</file>
+        <file>2X/Folder-icon.png</file>
+        <file>2X/Folder-Open-icon.png</file>
+        <file>2X/File-Delete-icon.png</file>
     </qresource>
 </RCC>

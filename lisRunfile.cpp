@@ -189,16 +189,17 @@ void TWorld::ParseRunfileData(void)
 
 //        if (p1.compare("D90 for distribution")==0)          distD90 = p.toDouble();
 //        if (p1.compare("D50 for distribution")==0)          distD50 = p.toDouble();
-    //    if (p1.compare("OF method")==0)                       OF_Method     = iii;
 
 //        if (p1.compare("River BL method")==0)                 R_BL_Method     = iii;
 //        if (p1.compare("River SS method")==0)                 R_SS_Method     = iii;
 
-        if (p1.compare("Detachment efficiency")==0)          SwitchEfficiencyDET = iii;
+        //TODO ?
+        if (p1.compare("Detachment efficiency")==0)           SwitchEfficiencyDET = iii;
         if (p1.compare("Use material depth")==0)              SwitchUseMaterialDepth  = iii == 1;
         if (p1.compare("No detachment boundary")==0)          SwitchNoBoundarySed  = iii == 1;
         if (p1.compare("Advanced sediment")==0) SwitchAdvancedSed = iii;
         if (p1.compare("Use 2 phase flow")==0)                SwitchUse2Layer = iii;
+        if (p1.compare("Use grain size distribution")==0)     SwitchMulticlass = iii == 1;
         if (p1.compare("Estimate grain size distribution")==0)SwitchEstimateGrainSizeDistribution = iii == 1;
         if (p1.compare("Read grain distribution maps")==0)    SwitchReadGrainSizeDistribution    = iii == 1;
         if (p1.compare("Number of grain size classes (simulated)")==0)  numgrainclasses    = iii ;
@@ -326,13 +327,14 @@ void TWorld::ParseRunfileData(void)
         //profileName = getname("profile");//?????????????????????
         // profile map name
     }
-
     SwitchImpermeable = !SwitchPercolation;
     // cannot have both
+
     SwitchUse2Layer = SwitchAdvancedSed;
-    SwitchUseGrainSizeDistribution = !SwitchUse2Layer;
-    SwitchUseGrainSizeDistribution = false; // FOR NOW
-    qDebug() << SwitchUse2Layer << SwitchAdvancedSed;
+    SwitchUseGrainSizeDistribution = (getvalueint("Use grain size distribution") == 1);
+    if (!SwitchUse2Layer)
+        SwitchUseGrainSizeDistribution = false;
+    //qDebug() << SwitchUse2Layer << SwitchAdvancedSed;
 
     SwitchChannelFlood = true; // always true
     if (!SwitchIncludeChannel)

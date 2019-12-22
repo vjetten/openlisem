@@ -162,8 +162,6 @@ lisemqt::~lisemqt()
 // works automatically. if included here may be executed twice!!! not sure...
 void lisemqt::SetConnections()
 {
-   // connect(checkRainfall, SIGNAL(toggled(bool)), this, SLOT(doCheckRainfall(bool)));
-   // connect(checkSnowmelt, SIGNAL(toggled(bool)), this, SLOT(doCheckSnowmelt(bool)));
     connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
 
     connect(toolButton_fileOpen, SIGNAL(clicked()), this, SLOT(openRunFile()));
@@ -171,26 +169,17 @@ void lisemqt::SetConnections()
     connect(toolButton_MapDir, SIGNAL(clicked()), this, SLOT(setMapDir()));
 
     connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openMapname(QModelIndex)));
-    // double click on mapname opens fileopen
     connect(MapNameModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(editMapname(QModelIndex, QModelIndex)));
-    // doubleclick on mapname edits mapname
-
     connect(toolButton_ResultDir, SIGNAL(clicked()), this, SLOT(setResultDir()));
 
     connect(checkWritePCRaster,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
-    //   connect(checkWriteSOBEK,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
-
-    //  connect(checkChannelFlood, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-  //  connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-
     connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow1D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow2D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow2Ddyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-  //  connect(checkOverlandFlow2Ddyn, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
 
     connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
 
@@ -537,59 +526,32 @@ void lisemqt::on_E_SSMethod_valueChanged(int i)
     setSedimentText(i, 1, 1);
 }
 //--------------------------------------------------------------------
-//void lisemqt::on_checkBox_SedSingleSingle_toggled(bool v)
-//{
-//    if(v)
-//    {
-//        checkBox_Sed2Phase->setChecked(false);
-//        checkBox_SedMultiGrain->setChecked(false);
-//        sedbox1->setEnabled(false);
-//        sedbox2->setEnabled(false);
-//        sedbox3->setEnabled(false);
-//        E_RBLMethod->setValue(1); //1=van rijn simple
-//        E_RSSMethod->setValue(0); //0=govers
-//        E_BLMethod->setValue(1);
-//        E_SSMethod->setValue(0);
-//    } else {
-//        if(!checkBox_Sed2Phase->isChecked() && !checkBox_SedMultiMulti->isChecked())
-//        {
-//            checkBox_SedSingleSingle->setChecked(true);
-//        }
-//    }
-//}
-//--------------------------------------------------------------------
-
-void lisemqt::on_checkBox_Sed2Phase_toggled(bool v)
+void lisemqt::on_checkSed2Phase_toggled(bool v)
 {
     if(v)
     {
-        checkBox_SedMultiGrain->setChecked(false);
-       // checkBox_SedSingleSingle->setChecked(false);
+        checkSedMultiGrain->setChecked(false);
         sedbox1->setEnabled(false);
         sedbox2->setEnabled(true);
         sedbox3->setEnabled(true);
-//        E_RBLMethod->setValue(1);
-//        E_RSSMethod->setValue(0);
-//        E_BLMethod->setValue(1);
-//        E_SSMethod->setValue(0);
         E_RBLMethod->setEnabled(true);
         E_RSSMethod->setEnabled(true);
         E_BLMethod->setEnabled(true);
         E_SSMethod->setEnabled(true);
     }else
     {
-        if(!checkBox_SedMultiGrain->isChecked())// && !checkBox_SedSingleSingle->isChecked())
+        if(!checkSedMultiGrain->isChecked())
         {
-            checkBox_Sed2Phase->setChecked(true);
+            checkSed2Phase->setChecked(true);
         }
     }
 }
 //--------------------------------------------------------------------
 
-void lisemqt::on_checkBox_SedMultiGrain_toggled(bool v)
+void lisemqt::on_checkSedMultiGrain_toggled(bool v)
 {
     if(v) {
-        checkBox_Sed2Phase->setChecked(false);
+        checkSed2Phase->setChecked(false);
         sedbox1->setEnabled(true);
         sedbox2->setEnabled(true);
         sedbox3->setEnabled(true);
@@ -603,8 +565,8 @@ void lisemqt::on_checkBox_SedMultiGrain_toggled(bool v)
         E_SSMethod->setEnabled(false);
 
     } else {
-        if(!checkBox_Sed2Phase->isChecked())
-            checkBox_SedMultiGrain->setChecked(true);
+        if(!checkSed2Phase->isChecked())
+            checkSedMultiGrain->setChecked(true);
     }
 }
 //--------------------------------------------------------------------
@@ -647,10 +609,10 @@ void lisemqt::setErosionTab(bool yes)
 
     if (checkAdvancedSediment->isChecked())
     {
-        if (!checkBox_Sed2Phase->isChecked() && !checkBox_SedMultiGrain->isChecked())
+        if (!checkSed2Phase->isChecked() && !checkSedMultiGrain->isChecked())
         {
-            checkBox_SedMultiGrain->setChecked(false);
-            checkBox_Sed2Phase->setChecked(true);
+            checkSedMultiGrain->setChecked(false);
+            checkSed2Phase->setChecked(true);
         }
 
 
@@ -757,18 +719,24 @@ void lisemqt::setWriteOutputPCR(bool /* doit */)
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()
 {
+    toolBar->setIconSize(QSize(24,24));
+
+    //r
     restartAct = new QAction(QIcon(":/2X/refresh_242X.png"), "&Reset...", this);
+ //   restartAct = new QAction(QIcon(":/2X/refresh-icon.png"), "&Reset...", this);
     connect(restartAct, SIGNAL(triggered()), this, SLOT(resetAll()));
     toolBar->addAction(restartAct);
     toolBar->addSeparator();
 
-    openAct = new QAction(QIcon(":/2X/fileopen2X.png"), "&Open a run file...", this);
+ //   openAct = new QAction(QIcon(":/2X/fileopen2X.png"), "&Open a run file...", this);
+    openAct = new QAction(QIcon(":/2X/Folder-Open-icon.png"), "&Open a run file...", this);
     openAct->setShortcuts(QKeySequence::Open);
     openAct->setStatusTip("Open a run file");
     connect(openAct, SIGNAL(triggered()), this, SLOT(openRunFile()));
     toolBar->addAction(openAct);
 
     saveAct = new QAction(QIcon(":/2X/filesave2X.png"), "&Save the run file...", this);
+ //   saveAct = new QAction(QIcon(":/2X/savefile.png"), "&Save the run file...", this);
     saveAct->setShortcuts(QKeySequence::Save);
     saveAct->setStatusTip("Save a run file");
     connect(saveAct, SIGNAL(triggered()), this, SLOT(saveRunFile()));
@@ -795,28 +763,28 @@ void lisemqt::SetToolBar()
     //    connect(fontAct, SIGNAL(triggered()), this, SLOT(fontSelect()));
     //    toolBar->addAction(fontAct);
 
-    fontIncreaseAct = new QAction(QIcon(":/2X/fontbigger2X.png"), "&Increase font size", this);
-    connect(fontIncreaseAct, SIGNAL(triggered()), this, SLOT(fontIncrease()));
-    toolBar->addAction(fontIncreaseAct);
-    fontDecreaseAct = new QAction(QIcon(":/2X/fontsmaller2X.png"), "&Decrease font size", this);
-    connect(fontDecreaseAct, SIGNAL(triggered()), this, SLOT(fontDecrease()));
-    toolBar->addAction(fontDecreaseAct);
+//    fontIncreaseAct = new QAction(QIcon(":/2X/fontbigger2X.png"), "&Increase font size", this);
+//    connect(fontIncreaseAct, SIGNAL(triggered()), this, SLOT(fontIncrease()));
+//    toolBar->addAction(fontIncreaseAct);
+//    fontDecreaseAct = new QAction(QIcon(":/2X/fontsmaller2X.png"), "&Decrease font size", this);
+//    connect(fontDecreaseAct, SIGNAL(triggered()), this, SLOT(fontDecrease()));
+//    toolBar->addAction(fontDecreaseAct);
 
     toolBar->addSeparator();
-
-    runAct = new QAction(QIcon(":/2X/start12X.png"), "Run model...", this);
+//start12X.png pause22X.png stop12X.png
+    runAct = new QAction(QIcon(":/2X/play-icon.png"), "Run model...", this);
     runAct->setStatusTip("run the model ...");
     runAct->setCheckable(true);
     connect(runAct, SIGNAL(triggered()), this, SLOT(runmodel()));
     toolBar->addAction(runAct);
 
-    pauseAct = new QAction(QIcon(":/2X/pause22X.png"), "Pause the model...", this);
+    pauseAct = new QAction(QIcon(":/2X/pause-icon.png"), "Pause the model...", this);
     pauseAct->setStatusTip("pause the model run ...");
     connect(pauseAct, SIGNAL(triggered()), this, SLOT(pausemodel()));
     pauseAct->setCheckable(true);
     toolBar->addAction(pauseAct);
 
-    stopAct = new QAction(QIcon(":/2X/stop12X.png"), "Stop the model...", this);
+    stopAct = new QAction(QIcon(":/2X/Stop-icon.png"), "Stop the model...", this);
     stopAct->setStatusTip("stop the model run ...");
     connect(stopAct, SIGNAL(triggered()), this, SLOT(stopmodel()));
     stopAct->setCheckable(true);
@@ -1648,8 +1616,8 @@ void lisemqt::resetTabFlow()
 void lisemqt::resetTabSediment()
 {
     //sediment
-    checkBox_Sed2Phase->setChecked(true);
-    checkBox_SedMultiGrain->setChecked(false);
+    checkSed2Phase->setChecked(true);
+    checkSedMultiGrain->setChecked(false);
   //  checkBox_SedSingleSingle->setChecked(false);
 
     E_RBLMethod->setValue(1);
@@ -1836,8 +1804,8 @@ void lisemqt::resetAll()
 
     //sediment
     resetTabSediment();
-    checkBox_Sed2Phase->setChecked(false);
-    checkBox_SedMultiGrain->setChecked(false);
+    checkSed2Phase->setChecked(false);
+    checkSedMultiGrain->setChecked(false);
 
     //calibration
     resetTabCalibration();

@@ -589,7 +589,7 @@
                 </property>
                 <property name="icon">
                  <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/fileopen2X.png</normaloff>:/2X/fileopen2X.png</iconset>
+                  <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
                 </property>
                 <property name="autoRaise">
                  <bool>false</bool>
@@ -612,7 +612,7 @@
                 </property>
                 <property name="icon">
                  <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/deletereport42X.png</normaloff>:/2X/deletereport42X.png</iconset>
+                  <normaloff>:/2X/File-Delete-icon.png</normaloff>:/2X/File-Delete-icon.png</iconset>
                 </property>
                 <property name="autoRaise">
                  <bool>false</bool>
@@ -675,7 +675,7 @@
                 </property>
                 <property name="icon">
                  <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/fileopen2X.png</normaloff>:/2X/fileopen2X.png</iconset>
+                  <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
                 </property>
                 <property name="autoRaise">
                  <bool>false</bool>
@@ -794,7 +794,7 @@
                 </property>
                 <property name="icon">
                  <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/diropen2X.png</normaloff>:/2X/diropen2X.png</iconset>
+                  <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
                 </property>
                </widget>
               </item>
@@ -907,7 +907,7 @@
                 </property>
                 <property name="icon">
                  <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/diropen2X.png</normaloff>:/2X/diropen2X.png</iconset>
+                  <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
                 </property>
                 <property name="autoRaise">
                  <bool>false</bool>
@@ -1711,7 +1711,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>3</number>
+                  <number>5</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -7430,7 +7430,7 @@ p, li { white-space: pre-wrap; }
                        </property>
                        <layout class="QGridLayout" name="gridLayout_49">
                         <item row="1" column="0" colspan="2">
-                         <widget class="QCheckBox" name="checkBox_Sed2Phase">
+                         <widget class="QCheckBox" name="checkSed2Phase">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                             <horstretch>0</horstretch>
@@ -7474,9 +7474,9 @@ p, li { white-space: pre-wrap; }
                          </widget>
                         </item>
                         <item row="2" column="0" colspan="2">
-                         <widget class="QCheckBox" name="checkBox_SedMultiGrain">
+                         <widget class="QCheckBox" name="checkSedMultiGrain">
                           <property name="enabled">
-                           <bool>false</bool>
+                           <bool>true</bool>
                           </property>
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -11758,7 +11758,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/fileopen2X.png</normaloff>:/2X/fileopen2X.png</iconset>
+                  <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
                 </property>
                </widget>
               </item>

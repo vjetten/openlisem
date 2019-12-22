@@ -453,7 +453,7 @@ void TWorld::InitStandardInput(void)
         StripN = getvaluedouble("Grassstrip Mannings n");
         FOR_ROW_COL_MV
         {
-            if (GrassWidthDX != 0)
+            if (GrassWidthDX->Drc != 0)
             {
                 N->Drc = N->Drc*(1-GrassFraction->Drc)+StripN*GrassFraction->Drc;
                 Cover->Drc = Cover->Drc*(1-GrassFraction->Drc) + 0.95*GrassFraction->Drc;
@@ -1027,8 +1027,6 @@ void TWorld::InitMulticlass(void)
     TC = NewMap(0);
     Conc = NewMap(0);
 
-    //CG = NewMap(0);
-    //DG = NewMap(0);
     SettlingVelocity = NewMap(0);
     CohesionSoil = NewMap(0);
     Y = NewMap(0);
@@ -1138,8 +1136,6 @@ void TWorld::InitMulticlass(void)
         {
             FOR_ROW_COL_MV
             {
-//                CG->Drc = pow((D50->Drc+5)/0.32, -0.6);
-//                DG->Drc = pow((D50->Drc+5)/300, 0.25);
                 SettlingVelocity->Drc = GetSV(D50->Drc);
             }
         }else if(SwitchUseGrainSizeDistribution)
@@ -1449,7 +1445,7 @@ void TWorld::IntializeData(void)
         HouseCover = ReadMap(LDD,getvaluename("housecover"));
 if (SwitchGrassStrip) {
     FOR_ROW_COL_MV {
-        if (GrassWidthDX != 0)
+        if (GrassWidthDX->Drc != 0)
             HouseCover->Drc = HouseCover->Drc*(1-GrassFraction->Drc);
 }}
         RoofStore = ReadMap(LDD,getvaluename("roofstore"));
@@ -2424,7 +2420,7 @@ void TWorld::InitTiledrains(void)
             TileDX->Drc = _dx/cos(asin(TileGrad->Drc));
             TileSinkhole->Drc = std::min(TileSinkhole->Drc, 0.9*_dx*_dx);
             if (SwitchIncludeStormDrains)
-                 TileMaxQ->Drc = powl(4.0/TileDiameter->Drc, 2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+                 TileMaxQ->Drc = pow(4.0/TileDiameter->Drc, 2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
             // estimate maxq with full tube and manning, overestimate because long tubes do not stay full
         }
 

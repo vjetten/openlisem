@@ -367,8 +367,8 @@ public slots:
     void on_E_floodMinHeight_valueChanged(double);
 
   //  void on_checkBox_SedSingleSingle_toggled(bool v);
-    void on_checkBox_Sed2Phase_toggled(bool v);
-    void on_checkBox_SedMultiGrain_toggled(bool v);
+    void on_checkSed2Phase_toggled(bool v);
+    void on_checkSedMultiGrain_toggled(bool v);
 
     void on_E_RBLMethod_valueChanged(int);
     void on_E_RSSMethod_valueChanged(int);

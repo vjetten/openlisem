@@ -445,12 +445,6 @@ void TWorld::MassBalance()
         double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;
         //is already in qtot : floodBoundaryTot ;//
 
-//        if(SwitchKinematic2D == K2D_METHOD_DYN
-//                || (SwitchKinematic2D != K2D_METHOD_DYN && !SwitchIncludeChannel) )
-//        {}
-//        else
-//            waterflow += floodVolTot;
-
         MB = waterin > 0 ? (waterin - waterstore - waterflow)/waterin *100 : 0;
      //   qDebug() << MB << waterin << waterstore << waterflow;
      //   qDebug() << MB << WaterVolTot << ChannelVolTot << Qtot << floodBoundaryTot;
@@ -472,17 +466,24 @@ void TWorld::MassBalance()
       //  qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
 
         if ( SwitchKinematic2D == K2D_METHOD_KIN) {
+            // distribute sed errors over dep or det
+
             double dsed = detachment + deposition  - sediment;
             double count = 0;
+            //subtract old totals
             DepTot -= mapTotal(*DEP);
             DetFlowTot -= mapTotal(*DETFlow);
+            FloodDetTot -= mapTotal(*SSDetFlood);
+            FloodDepTot -= mapTotal(*DepFlood);
 
+            // more deposition than detachment
             if(dsed < 0){
                 FOR_ROW_COL_MV {
                     if (DEP->Drc < 0)
                         count += 1.0;
+                    if (DepFlood->Drc < 0)
+                        count += 1.0;
                 }
-
                 FOR_ROW_COL_MV {
                     if (DEP->Drc < 0)
                         DEP->Drc -= dsed/count;
@@ -490,15 +491,23 @@ void TWorld::MassBalance()
                         DETFlow->Drc += DEP->Drc;
                         DEP->Drc = 0;
                     }
-                   // DEP->Drc = std::min(DEP->Drc, 0.0);
+                    if (DepFlood->Drc < 0)
+                        DepFlood->Drc -= dsed/count;
+                    if (DepFlood->Drc > 0) {
+                        SSDetFlood->Drc += DepFlood->Drc;
+                        DepFlood->Drc = 0;
+                    }
                 }
 
             }
 
+            // more detachment than deposition
             if(dsed > 0){
                 count = 0;
                 FOR_ROW_COL_MV {
                     if (DETFlow->Drc > 0)
+                        count += 1.0;
+                    if (SSDetFlood->Drc > 0)
                         count += 1.0;
                 }
 
@@ -509,22 +518,26 @@ void TWorld::MassBalance()
                         DEP->Drc -= DETFlow->Drc;
                         DETFlow->Drc = 0;
                     }
-                   // DETFlow->Drc = std::max(DETFlow->Drc, 0.0);
+                    if (SSDetFlood->Drc > 0)
+                        SSDetFlood->Drc -= dsed/count;
+                    if (SSDetFlood->Drc < 0) {
+                        DepFlood->Drc -= SSDetFlood->Drc;
+                        SSDetFlood->Drc = 0;
+                    }
                 }
-
             }
 
+            // add new totals
             DetFlowTot += mapTotal(*DETFlow);
             DepTot += mapTotal(*DEP);
+            FloodDetTot += mapTotal(*SSDetFlood);
+            FloodDepTot += mapTotal(*DepFlood);
             DetTot = DetFlowTot + DetSplashTot;
             detachment = DetTot + ChannelDetTot + FloodDetTot;
             deposition = DepTot + ChannelDepTot + FloodDepTot;
-            //   qDebug() << "a" << detachment + deposition  - sediment;
         }
 
         MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
-     //           qDebug() << MBs<<  DetTot<<DepTot<< SedTot << ChannelDetTot << ChannelDepTot<< ChannelSedTot;
-                // << detachment << deposition << sediment;
     }
 
     if (SwitchPesticide)

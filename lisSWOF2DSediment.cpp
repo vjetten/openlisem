@@ -366,8 +366,7 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)
             //set concentration from present sediment
             _SSC->Drc = 0;
 
-        }else
-        {
+        } else {
             FOR_GRAIN_CLASSES
             {
                 //set concentration from present sediment
