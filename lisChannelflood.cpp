@@ -321,6 +321,14 @@ void TWorld::ChannelFlood(void)
     if (SwitchKinematic2D == K2D_METHOD_DYN)
         return;
 
+
+//    double dftot = mapTotal(*SSDetFlood);
+//    double sedtot = mapTotal(*SSFlood);
+//    double deptot = mapTotal(*DepFlood);
+//    double sout = mapTotal(*Qsn)*_dt;
+//    double dsed = dftot + deptot - sedtot -sout;
+
+
     ChannelOverflow(hmx, UVflood, false);
     // mix overflow water and flood water in channel cells
     // use hmx which is the 2Ddyn water
@@ -354,32 +362,57 @@ void TWorld::ChannelFlood(void)
             FloodDomain->Drc = 0;
     }
 
-    FOR_ROW_COL_MV
-    {
-        UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
-        Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
-        //only used for report
-        V->Drc = hmx->Drc > 0 ? UVflood->Drc : V->Drc;
+    FOR_ROW_COL_MV {
+        FloodWaterVol->Drc = 0;
+        UVflood->Drc = 0;
+        hmxWH->Drc = WH->Drc;
+        hmxflood->Drc = 0;
+        if (FloodDomain->Drc > 0) {
+            UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+           //NOT Qn->Drc
+            Qflood->Drc= UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
+            //only used for report
+            V->Drc = UVflood->Drc;
 
-        // addvolume infiltrated during flood process with FSurplus
-        //InfilVolFlood->Drc += Iflood->Drc;
-        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+            // addvolume infiltrated during flood process with FSurplus
+            //InfilVolFlood->Drc += Iflood->Drc;
+            FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
 
-        // for output on screen
-        hmxWH->Drc = FloodDomain->Drc  == 0 ? WH->Drc : hmx->Drc;   //hmxWH is all water
-        hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+            // for output on screen
+            hmxWH->Drc = hmx->Drc;   //hmxWH is all water
+            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+        }
     }
+
+//old
+//    FOR_ROW_COL_MV
+//    {
+//        UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+//        Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
+//        //only used for report
+//        V->Drc = hmx->Drc > 0 ? UVflood->Drc : V->Drc;
+
+//        // addvolume infiltrated during flood process with FSurplus
+//        //InfilVolFlood->Drc += Iflood->Drc;
+//        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+
+//        // for output on screen
+//        hmxWH->Drc = FloodDomain->Drc  == 0 ? WH->Drc : hmx->Drc;   //hmxWH is all water
+//        hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+//    }
+
     if(SwitchErosion)
     {
         //calculate concentration and new sediment discharge
         //WHrunoff and Qn are adapted in case of 2D routing
         if(!SwitchUseGrainSizeDistribution)
         {
-            FOR_ROW_COL_MV
-            {
-                double sed = SSFlood->Drc + BLFlood->Drc;
-                Conc->Drc =  MaxConcentration(FloodWaterVol->Drc, &sed, &DepFlood->Drc);
-                Qsn->Drc = Conc->Drc*Qn->Drc;
+            FOR_ROW_COL_MV {
+                if (FloodDomain->Drc  > 0) {
+                    double sed = SSFlood->Drc + BLFlood->Drc;
+                    Conc->Drc =  MaxConcentration(FloodWaterVol->Drc, &sed, &DepFlood->Drc);
+                    Qsn->Drc += Conc->Drc*Qflood->Drc;
+                }
             }
         }
         else
@@ -402,6 +435,48 @@ void TWorld::ChannelFlood(void)
 //                Qsn->Drc = Conc->Drc*Qn->Drc;
 //            }
         }
+/*
+         dftot = mapTotal(*SSDetFlood);
+         sedtot = mapTotal(*SSFlood);
+         deptot = mapTotal(*DepFlood);
+         sout = mapTotal(*Qsn)*_dt;
+         dsed = dsed - (dftot + deptot - sedtot-sout);
+         qDebug() << dsed << dftot;
+
+        if (fabs(dsed) > 1e-6 ) {
+            double count = 0;
+            if(dsed < 0){
+                FOR_ROW_COL_MV {
+                    if (DepFlood->Drc < 0)
+                        count += 1.0;
+                }
+                FOR_ROW_COL_MV {
+                    if (DepFlood->Drc < 0)
+                        DepFlood->Drc -= dsed/count;
+                }
+                deptot += mapTotal(*DepFlood);
+            }
+
+            if(dsed > 0){
+                count = 0;
+                FOR_ROW_COL_MV {
+                    if (SSDetFlood->Drc > 0)
+                        count += 1.0;
+                }
+                FOR_ROW_COL_MV {
+                    if (SSDetFlood->Drc > 0)
+                        SSDetFlood->Drc -= dsed/count;
+                }
+                dftot += mapTotal(*SSDetFlood);
+            }
+
+            dsed = (dftot + deptot - sedtot-sout);
+               qDebug() << "a" << dsed << count << dftot;
+        }
+*/
+
+
+
     }
     FloodMaxandTiming(hmxWH, UVflood, minReportFloodHeight);
 

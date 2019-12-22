@@ -100,7 +100,7 @@ int intervalBsearch(
 
 //--------------------------------------------------------------------------------
 LUT *CreateLutFromContents(
-        const double *lutCont,  // array with nrRows * nrCols values this pointer is grabbed, space freed by FreeLut()
+        double *lutCont,  // array with nrRows * nrCols values this pointer is grabbed, space freed by FreeLut()
         bool  gotoMinMax, //  see struct LUT definition
         int nrRows,
         int nrCols)
@@ -110,7 +110,7 @@ LUT *CreateLutFromContents(
 
     l = (LUT *)malloc(sizeof(LUT));
     l->key = (double *)malloc(sizeof(double)*nrCols);
-    l->lut = (const double **)malloc(sizeof(double *)*nrRows);
+    l->lut = (double **)malloc(sizeof(double *)*nrRows);
 
     //    l = new(LUT);
     //    l->key = new double(nrCols);
@@ -132,10 +132,10 @@ LUT *CreateLutFromContents(
 //--------------------------------------------------------------------------------
 void FreeLut(LUT *l)
 {
-   free((void *)(l->lut[0])); /* this ptr is grabbed in CreateLutFromContents:lutCont */
-    free((void *)(l->lut));
-    //free((l->lut[0])); /* this ptr is grabbed in CreateLutFromContents:lutCont */
-    //free((l->lut));
+  // free((void *)(l->lut[0])); /* this ptr is grabbed in CreateLutFromContents:lutCont */
+  //  free((void *)(l->lut));
+    free((double *)(l->lut[0])); /* this ptr is grabbed in CreateLutFromContents:lutCont */
+    free((double *)(l->lut));
     free(l->key);
     free(l);
 }

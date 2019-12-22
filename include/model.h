@@ -274,7 +274,7 @@ class TWorld: public QThread
     Q_OBJECT
 
 public:
-    TWorld(QObject *parent = 0);
+    TWorld(QObject *parent = nullptr);
     ~TWorld();
 
     /// copy of overall rows and columns, set in initmask

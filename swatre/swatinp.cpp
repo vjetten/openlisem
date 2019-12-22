@@ -86,88 +86,96 @@ void TWorld::InitializeProfile( void )
 /// new version using swatreProfileDef QStringList
 void TWorld::ReadSwatreInputNew(void)
 {
-   // get the profile inp file contents and put in stringlist
-   QFile fin(SwatreTableName);
-   if (!fin.open(QIODevice::ReadOnly | QIODevice::Text))
-   {
-      Error(QString("SWATRE: Can't open profile definition file %1").arg(SwatreTableName));
-      throw 1;
-   }
+    // get the profile inp file contents and put in stringlist
+    QFile fin(SwatreTableName);
+    if (!fin.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        Error(QString("SWATRE: Can't open profile definition file %1").arg(SwatreTableName));
+        throw 1;
+    }
 
-   // set profiles to nullptr
-   InitializeProfile();
+    // set profiles to nullptr
+    InitializeProfile();
 
-   // read profile.inp and put in StringList, trimmed and without blank lines
-   while (!fin.atEnd())
-   {
-      QString S = fin.readLine();
-      S = S.trimmed();
-      if (!S.isEmpty())
-      {
-         if (S.indexOf("#")< 0)
-            swatreProfileDef << S.trimmed();
-         else
-         {
-            int pos = S.indexOf("#");
-            if (pos > 0)
-               swatreProfileDef << S.remove(pos,S.count()).trimmed();
-         }
-      }
-   }
-   fin.close();
+    // read profile.inp and put in StringList, trimmed and without blank lines
+    while (!fin.atEnd())
+    {
+        QString S = fin.readLine();
+        S = S.trimmed();
+        if (!S.isEmpty())
+        {
+            if (S.indexOf("#")< 0)
+                swatreProfileDef << S.trimmed();
+            else
+            {
+                int pos = S.indexOf("#");
+                if (pos > 0)
+                    swatreProfileDef << S.remove(pos,S.count()).trimmed();
+            }
+        }
+    }
+    fin.close();
 
-   ZONE *z;
-   int  i;
-   QStringList checkList; // temp list to check for double profile nrs
-
-
-   // read node distances and make structure
-   z = ReadNodeDefinitionNew();
+    ZONE *z;
+    int  i;
+    QStringList checkList; // temp list to check for double profile nrs
 
 
-   //   mark count nr profiles
-   for (int i = z->nrNodes+1; i < swatreProfileDef.count(); i++)
-      if(swatreProfileDef[i-1].toDouble() && swatreProfileDef[i].toInt())
-      {
-          // if two values follow each other this is a new profile
-         nrProfileList++;
-         checkList << swatreProfileDef[i];
-      }
-   sizeProfileList = nrProfileList;
+    // read node distances and make structure
+    z = ReadNodeDefinitionNew();
 
-   if (nrProfileList == 0)
-      Error(QString("SWATRE: no profiles read from %1").arg(SwatreTableName));
 
-   checkList.sort();
-   for (int i = 0; i < checkList.count()-1; i++)
-   {
-      if (checkList[i] == checkList[i+1])
-         DEBUG(QString("Warning SWATRE: profile id %1 declared more than once").arg(checkList[i+1]));
-   }
-   // alternative duplicate check but with no info on duplicates
-   //   if (checkList.removeDuplicates() > 0)
-   //      Error(QString("SWATRE: there are duplicate profile ID's.");
+    //   mark count nr profiles
+    for (int i = z->nrNodes+1; i < swatreProfileDef.count(); i++) {
+        bool ok = false, oki = false;
+        double dummy = swatreProfileDef[i-1].toDouble(&ok);
+        int dummi = swatreProfileDef[i].toInt(&oki);
+        // if(swatreProfileDef[i-1].toDouble() && swatreProfileDef[i].toInt())
+        if (ok && oki)
+        {
+            // if two values follow each other this is a new profile
+            nrProfileList++;
+            checkList << swatreProfileDef[i];
+        }
+    }
+    sizeProfileList = nrProfileList;
 
-   // ordered int list with profile nrs
-   // makes checklist redundant
-   swatreProfileNr.clear();
-   for (int i = 0; i < checkList.count(); i++)
-      swatreProfileNr << checkList[i].toInt();
-   std::sort(swatreProfileNr.begin(), swatreProfileNr.end());
+    if (nrProfileList == 0)
+        Error(QString("SWATRE: no profiles read from %1").arg(SwatreTableName));
 
-   profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*sizeProfileList+1);
+    checkList.sort();
+    for (int i = 0; i < checkList.count()-1; i++)
+    {
+        if (checkList[i] == checkList[i+1])
+            DEBUG(QString("Warning SWATRE: profile id %1 declared more than once").arg(checkList[i+1]));
+    }
+    // alternative duplicate check but with no info on duplicates
+    //   if (checkList.removeDuplicates() > 0)
+    //      Error(QString("SWATRE: there are duplicate profile ID's.");
 
-   nrProfileList = 0;
-   for (i = z->nrNodes+1; i < swatreProfileDef.count(); i++)
-   {
-      if(swatreProfileDef[i-1].toDouble() && swatreProfileDef[i].toInt())
-      {
-         profileList[nrProfileList] = ReadProfileDefinitionNew(i, z);
-         // read the profile tables for each defined prpfile,
-         // i is the place in the StrinList where a profile starts
-         nrProfileList++;
-      }
-   }
+    // ordered int list with profile nrs
+    // makes checklist redundant
+    swatreProfileNr.clear();
+    for (int i = 0; i < checkList.count(); i++)
+        swatreProfileNr << checkList[i].toInt();
+    std::sort(swatreProfileNr.begin(), swatreProfileNr.end());
+
+    profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*sizeProfileList+1);
+
+    nrProfileList = 0;
+    for (i = z->nrNodes+1; i < swatreProfileDef.count(); i++) {
+        bool ok = false, oki = false;
+        double dummy = swatreProfileDef[i-1].toDouble(&ok);
+        int dummi = swatreProfileDef[i].toInt(&oki);
+        if (ok && oki)
+            //  if(swatreProfileDef[i-1].toDouble() && swatreProfileDef[i].toInt())
+        {
+            profileList[nrProfileList] = ReadProfileDefinitionNew(i, z);
+            // read the profile tables for each defined prpfile,
+            // i is the place in the StrinList where a profile starts
+            nrProfileList++;
+        }
+    }
 
 }
 //----------------------------------------------------------------------------------------------

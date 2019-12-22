@@ -61,7 +61,7 @@ typedef int (*QSORT_CMP)(const void *e1, const void *e2);
 
 /// SWATRE Land use tables, nrRows and nrCols mean rows and cols (3) in the table
 typedef struct LUT {
-    const  double **lut;
+    double **lut;
     double *key;  // buffer for search key
     int   nrRows, nrCols;
     bool  gotoMinMax;
@@ -69,7 +69,7 @@ typedef struct LUT {
 
 
 LUT *CreateLutFromContents(
-   const double *lutCont, // array with nrCols*nrRows items, this pointer is grabbed, space is freed by FreeLut()
+   double *lutCont, // array with nrCols*nrRows items, this pointer is grabbed, space is freed by FreeLut()
    bool  gotoMinMax,      //  see struct LUT definition
 	int nrRows, 
    int nrCols);

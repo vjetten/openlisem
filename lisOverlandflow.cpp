@@ -99,10 +99,10 @@ void TWorld::ToFlood()//int thread)
     FOR_ROW_COL_MV {
 //        if(WHrunoff->Drc > 0.000001 && hmx->Drc > 0.000001 && ChannelWidth->Drc == 0)
         // note hmx threshols: larger gicves less sed balance error
-        if(hmx->Drc > 0.01)// && ChannelWidth->Drc == 0)
+        if(hmx->Drc > 0.0 && WHrunoff->Drc > 0.0 && ChannelWidth->Drc == 0)
         {
-            double frac = 1.0;//1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
-        //    frac = std::max(std::min(frac, 1.0),0.0);
+            double frac = 1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
+            frac = std::max(std::min(frac, 1.0),0.0);
             double dwh = frac * WHrunoff->Drc;
 
             hmx->Drc += dwh;
@@ -127,9 +127,8 @@ void TWorld::ToFlood()//int thread)
 
                     }
                 }
-// rwcalc conc here gives mass balance errors
-           //     SWOFSedimentSetConcentration(r,c,hmx);
-           //     Conc->Drc = MaxConcentration(WHrunoff->Drc*ChannelAdj->Drc*DX->Drc, &Sed->Drc, &DEP->Drc);
+//                SWOFSedimentSetConcentration(r,c,hmx);
+//                Conc->Drc = MaxConcentration(WH->Drc*ChannelAdj->Drc*DX->Drc, &Sed->Drc, &DEP->Drc);
             }
          }
     }

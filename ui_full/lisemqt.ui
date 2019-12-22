@@ -1711,7 +1711,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>3</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -4912,7 +4912,7 @@ p, li { white-space: pre-wrap; }
                       <item row="2" column="0">
                        <widget class="QDoubleSpinBox" name="E_runoffPartitioning">
                         <property name="enabled">
-                         <bool>false</bool>
+                         <bool>true</bool>
                         </property>
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -4946,7 +4946,7 @@ p, li { white-space: pre-wrap; }
                       <item row="2" column="1">
                        <widget class="QLabel" name="label_97">
                         <property name="enabled">
-                         <bool>false</bool>
+                         <bool>true</bool>
                         </property>
                         <property name="palette">
                          <palette>
@@ -7365,19 +7365,6 @@ p, li { white-space: pre-wrap; }
                           </property>
                          </widget>
                         </item>
-                        <item row="0" column="2">
-                         <spacer name="horizontalSpacer">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>40</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
                         <item row="1" column="0" colspan="2">
                          <widget class="QCheckBox" name="checkNoSedBoundary">
                           <property name="font">
@@ -7394,7 +7381,6 @@ p, li { white-space: pre-wrap; }
                        </layout>
                        <zorder>E_EfficiencyDET</zorder>
                        <zorder>label_91</zorder>
-                       <zorder>horizontalSpacer</zorder>
                        <zorder>checkNoSedBoundary</zorder>
                       </widget>
                      </item>

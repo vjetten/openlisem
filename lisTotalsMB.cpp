@@ -460,8 +460,7 @@ void TWorld::MassBalance()
 
     // Mass Balance sediment, all in kg
 
-    //VJ 110825 forgot to include channeldettot in denominator in MBs!
-    if (SwitchErosion)// && SoilLossTot > 1e-9)
+    if (SwitchErosion)
     {
         double detachment = DetTot + ChannelDetTot + FloodDetTot;
         double deposition = DepTot + ChannelDepTot + FloodDepTot;
@@ -472,11 +471,61 @@ void TWorld::MassBalance()
       //  qDebug() << DepTot << ChannelDepTot << FloodDepTot;
       //  qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
 
+        if ( SwitchKinematic2D == K2D_METHOD_KIN) {
+            double dsed = detachment + deposition  - sediment;
+            double count = 0;
+            DepTot -= mapTotal(*DEP);
+            DetFlowTot -= mapTotal(*DETFlow);
+
+            if(dsed < 0){
+                FOR_ROW_COL_MV {
+                    if (DEP->Drc < 0)
+                        count += 1.0;
+                }
+
+                FOR_ROW_COL_MV {
+                    if (DEP->Drc < 0)
+                        DEP->Drc -= dsed/count;
+                    if (DEP->Drc > 0) {
+                        DETFlow->Drc += DEP->Drc;
+                        DEP->Drc = 0;
+                    }
+                   // DEP->Drc = std::min(DEP->Drc, 0.0);
+                }
+
+            }
+
+            if(dsed > 0){
+                count = 0;
+                FOR_ROW_COL_MV {
+                    if (DETFlow->Drc > 0)
+                        count += 1.0;
+                }
+
+                FOR_ROW_COL_MV {
+                    if (DETFlow->Drc > 0)
+                        DETFlow->Drc -= dsed/count;
+                    if (DETFlow->Drc < 0) {
+                        DEP->Drc -= DETFlow->Drc;
+                        DETFlow->Drc = 0;
+                    }
+                   // DETFlow->Drc = std::max(DETFlow->Drc, 0.0);
+                }
+
+            }
+
+            DetFlowTot += mapTotal(*DETFlow);
+            DepTot += mapTotal(*DEP);
+            DetTot = DetFlowTot + DetSplashTot;
+            detachment = DetTot + ChannelDetTot + FloodDetTot;
+            deposition = DepTot + ChannelDepTot + FloodDepTot;
+            //   qDebug() << "a" << detachment + deposition  - sediment;
+        }
+
         MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
      //           qDebug() << MBs<<  DetTot<<DepTot<< SedTot << ChannelDetTot << ChannelDepTot<< ChannelSedTot;
                 // << detachment << deposition << sediment;
     }
-    //VJ 121212 changed to mass balance relative to soil loss
 
     if (SwitchPesticide)
     {
