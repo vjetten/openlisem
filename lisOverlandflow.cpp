@@ -153,7 +153,7 @@ void TWorld::ToChannel()//int thread)
         return;
     }
 
-    CalcVelDischChannelNT();
+//    CalcVelDischChannelNT();
 
 //    ChannelOverflow(WHrunoff, V, true);
 
@@ -496,6 +496,19 @@ void TWorld::OverlandFlow1D(void)
         }
     }
 
+    bool doit = false;
+    FOR_ROW_COL_MV {
+        WHtop->Drc = WHrunoff->Drc > minReportFloodHeight ? WHrunoff->Drc - minReportFloodHeight : 0;
+       if (WHtop->Drc > 0)
+           doit = true;
+       if (doit) break;
+    }
+    if (doit) {
+        FOR_ROW_COL_MV {
+            WHrunoff->Drc -= WHtop->Drc;
+        }
+    }
+
     // route water
     Qn->setAllMV();
     FOR_ROW_COL_MV
@@ -566,15 +579,22 @@ void TWorld::OverlandFlow1D(void)
 
     }
 
-//    FOR_ROW_COL_MV {
-//        WHtop->Drc = WHrunoff->Drc > 0.1 ? WHrunoff->Drc - 0.1 : 0;
-//        WHrunoff->Drc -= WHtop->Drc;
-//    }
-//    double dtflood = fullSWOF2Do2light(WHtop, V, V, DEM, true);
-//        //  threaded flooding
-//    FOR_ROW_COL_MV {
-//        WHrunoff->Drc += WHtop->Drc;
-//    }
+    //spread out the top layer
+    if (doit) {
+        double dtf = fullSWOF2Do2light(WHtop, V, V, DEM, true);
+        double area = 0.0;
+        long cells = 0;
+        FOR_ROW_COL_MV {
+            WHrunoff->Drc += WHtop->Drc;
+            if (WHtop->Drc > 0.0) {
+                area+= _dx*_dx;
+                cells++;
+            }
+        }
+report(*WHtop,"whtop");
+        debug(QString("Flood top (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtf,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(cells));
+        // some screen error reporting
+    }
 
 
     //      routing of substances add here!
