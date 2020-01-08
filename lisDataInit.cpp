@@ -509,41 +509,42 @@ void TWorld::InitStandardInput(void)
 
         ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
         ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
-        ThetaSub = NewMap(0); //ReadMap(LDD,getvaluename("thetasub"));
-        copy(*ThetaSub, *ThetaI1);
-
         calcValue(*ThetaI1, thetaCalibration, MUL); //VJ 110712 calibration of theta
         calcMap(*ThetaI1, *ThetaS1, MIN); //VJ 110712 cannot be more than porosity
+        Psi1 = ReadMap(LDD,getvaluename("psi1"));
+        calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
+        calcValue(*Psi1, 0.01, MUL); // convert to meter
 
-        //VJ 101221 all infil maps are needed except psi
-        if(InfilMethod != INFIL_KSAT)
-        {
-            Psi1 = ReadMap(LDD,getvaluename("psi1"));
-            calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
-            calcValue(*Psi1, 0.01, MUL); // convert to meter
-        }
+        Ksat3 = NewMap(0);
+        ThetaI3 = NewMap(0);
+        ThetaS3 = NewMap(0);
+        Psi3 = NewMap(0);
+        copy(*ThetaI3, *ThetaI1);
+        copy(*ThetaS3, *ThetaS1);
+        copy(*Ksat3, *Ksat1);
+        copy(*Psi3, *Psi1);
 
         if (SwitchTwoLayer)
         {
             ThetaS2 = ReadMap(LDD,getvaluename("thetaS2"));
             ThetaI2 = ReadMap(LDD,getvaluename("thetaI2"));
-            copy(*ThetaSub, *ThetaI2);
-
             calcValue(*ThetaI2, thetaCalibration, MUL); //VJ 110712 calibration of theta
             calcMap(*ThetaI2, *ThetaS2, MIN); //VJ 110712 cannot be more than porosity
 
             //VJ 101221 all infil maps are needed except psi
-            if(InfilMethod != INFIL_KSAT)
-            {
                 Psi2 = ReadMap(LDD,getvaluename("psi2"));
                 calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
                 calcValue(*Psi2, 0.01, MUL);
-            }
 
             Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
             //VJ 101213 fixed bug: convert from mm to m
+
+            copy(*ThetaI3, *ThetaI2);
+            copy(*ThetaS3, *ThetaS2);
+            copy(*Ksat3, *Ksat2);
+            copy(*Psi3, *Psi2);
 
             FOR_ROW_COL_MV
             {
@@ -554,6 +555,7 @@ void TWorld::InitStandardInput(void)
                 }
             }
         }
+
         if (SwitchInfilCrust)
         {
             CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
@@ -898,7 +900,7 @@ void TWorld::InitFlood(void)
 //    URO = NewMap(0);
 //    VRO = NewMap(0);
     iro = NewMap(0);
-    UVflood = NewMap(0);
+    //UVflood = NewMap(0);
     Qflood = NewMap(0);
     hmxWH = NewMap(0);
     FloodWaterVol = NewMap(0);

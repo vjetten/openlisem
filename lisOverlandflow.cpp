@@ -54,26 +54,13 @@ void TWorld::OverlandFlow(void)
 {
     if(SwitchKinematic2D == K2D_METHOD_KIN)
         OverlandFlow1D();
-    else
-        if(SwitchKinematic2D == K2D_METHOD_DIFF)
-        OverlandFlow2D();
-        else
-            OverlandFlow2Ddyn();
 
-    if(SwitchKinematic2D == K2D_METHOD_DYN
-       || (SwitchKinematic2D != K2D_METHOD_DYN && !SwitchIncludeChannel) )
-    {
+    //        if(SwitchKinematic2D == K2D_METHOD_DIFF)
+    //        OverlandFlow2D();
 
-        copy(*hmxWH, *WH);  //there is no difference, only WH, hmx is now just for reporting
+    if(SwitchKinematic2D == K2D_METHOD_DYN)
+        OverlandFlow2Ddyn();
 
-        FloodMaxandTiming(WH, V, minReportFloodHeight);
-
-        FOR_ROW_COL_MV {            
-            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
-            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
-            //FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
-        }
-    }
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -148,23 +135,25 @@ void TWorld::ToChannel()//int thread)
     if (!SwitchIncludeChannel)
         return;
 
+    CalcVelDischChannelNT();
+
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
         ChannelOverflow(WHrunoff, V, false);
         return;
     }
 
-//    CalcVelDischChannelNT();
+    if(SwitchKinematic2D == K2D_METHOD_KIN) {
 
-//    ChannelOverflow(WHrunoff, V, true);
+        ChannelOverflow(WHrunoff, V, true);
 
-//    FOR_ROW_COL_MV {
-//        WH->Drc = WHrunoff->Drc + WHstore->Drc;
-//        WHroad->Drc = WHrunoff->Drc;
-//        WHGrass->Drc = WHrunoff->Drc;
-//        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-//    }
-//    return;
-
+        //    FOR_ROW_COL_MV {
+        //        WH->Drc = WHrunoff->Drc + WHstore->Drc;
+        //        WHroad->Drc = WHrunoff->Drc;
+        //        WHGrass->Drc = WHrunoff->Drc;
+        //        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+        //    }
+        return;
+    }
 
 // /*
 
@@ -261,10 +250,10 @@ void TWorld::CalcVelDisch(int thread)
 	if(SwitchKinematic2D == K2D_METHOD_DYN)
 		return;
 	
-    if(SwitchKinematic2D != K2D_METHOD_KIN)
-    {
-        return K2DCalcVelDisch(thread);  //manning velocity but with K2DSlope and K2DPits
-    }
+//    if(SwitchKinematic2D != K2D_METHOD_KIN)
+//    {
+//        return K2DCalcVelDisch(thread);  //manning velocity but with K2DSlope and K2DPits
+//    }
 
     FOR_ROW_COL_2DMT
     {
@@ -353,8 +342,7 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
         K2DQOutBoun += _q;
         h->Drc -= dh;
 //        Qn->Drc = UV*(h->Drc*dy);
-//        Q->Drc = Qn->Drc;
-        // if actuivated this gives a mass balance error
+        // if activated this gives a mass balance error
 
         if (SwitchErosion) {
             double ds = frac * SSFlood->Drc;
@@ -394,10 +382,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 
     FOR_ROW_COL_MV
     {
-        UVflood->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
-
-        V->Drc = UVflood->Drc;
-        //copy V into UVflood, for report and MB stuff
+        V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
 
         Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);//FlowWidth->Drc);
         Q->Drc = Qn->Drc; // just to be sure
@@ -413,7 +398,12 @@ void TWorld::OverlandFlow2Ddyn(void)
 
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
 
+        hmxWH->Drc = WH->Drc;
+        hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
+        hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
     }
+
+    FloodMaxandTiming(WH, V, minReportFloodHeight);
 
     if(SwitchErosion)
     {
@@ -496,18 +486,13 @@ void TWorld::OverlandFlow1D(void)
         }
     }
 
-    bool doit = false;
-    FOR_ROW_COL_MV {
-        WHtop->Drc = WHrunoff->Drc > minReportFloodHeight ? WHrunoff->Drc - minReportFloodHeight : 0;
-       if (WHtop->Drc > 0)
-           doit = true;
-       if (doit) break;
-    }
-    if (doit) {
-        FOR_ROW_COL_MV {
-            WHrunoff->Drc -= WHtop->Drc;
-        }
-    }
+//    bool doit = false;
+//    FOR_ROW_COL_MV {
+//       WHtop->Drc = std::min(0.0, WHrunoff->Drc - minReportFloodHeight);
+//       WHrunoff->Drc -= WHtop->Drc;
+//       if (WHtop->Drc > 0)
+//           doit = true;
+//    }
 
     // route water
     Qn->setAllMV();
@@ -561,9 +546,7 @@ void TWorld::OverlandFlow1D(void)
         Alpha->Drc = pow(N->Drc/sqrt(Grad->Drc) * pow(Perim, 2.0/3.0),0.6); // for erosion
         V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/N->Drc;
    //     V->Drc = std::min(Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc), V->Drc);
-
 //        V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
- //       Q->Drc = Qn->Drc;
 
         WHroad->Drc = WHrunoff->Drc;
         // set road to average outflowing wh, no surface storage.
@@ -580,22 +563,35 @@ void TWorld::OverlandFlow1D(void)
     }
 
     //spread out the top layer
-    if (doit) {
-        double dtf = fullSWOF2Do2light(WHtop, V, V, DEM, true);
-        double area = 0.0;
-        long cells = 0;
-        FOR_ROW_COL_MV {
-            WHrunoff->Drc += WHtop->Drc;
-            if (WHtop->Drc > 0.0) {
-                area+= _dx*_dx;
-                cells++;
-            }
-        }
-report(*WHtop,"whtop");
-        debug(QString("Flood top (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtf,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(cells));
-        // some screen error reporting
-    }
+//    if (doit) {
+//        double dtf = fullSWOF2Do2light(WHtop, V, V, DEM, true);
+//        double area = 0.0;
+//        long cells = 0;
+//        FOR_ROW_COL_MV {
+//            WHrunoff->Drc += WHtop->Drc;
+//            if (WHtop->Drc > 0.0) {
+//                area+= _dx*_dx;
+//                cells++;
+//            }
+//        }
+//        debug(QString("Flood top (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtf,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(cells));
+//        // some screen error reporting
+//    }
 
+
+    if(!SwitchIncludeChannel)
+    {
+
+        copy(*hmxWH, *WH);  //there is no difference, only WH, hmx is now just for reporting
+
+        FloodMaxandTiming(WH, V, minReportFloodHeight);
+
+        FOR_ROW_COL_MV {
+            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
+            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+            //FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+        }
+    }
 
     //      routing of substances add here!
     //      do after kin wave so that the new flux Qn out of a cell is known

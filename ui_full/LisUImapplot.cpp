@@ -632,16 +632,18 @@ void lisemqt::showChannelVector()
         for (int i = 0; i < Xa.length(); i++) {
 
             QwtPlotCurve *rivera = new QwtPlotCurve();
-            rivera->setPen(QColor("#000000"), 2, Qt::SolidLine );
+            rivera->setPen(QColor("#000000"), 1, Qt::SolidLine );
             rivera->attach( MPlot );
             rivera->setAxes(MPlot->xBottom, MPlot->yLeft);
 
             rivera->setSamples(Xa.at(i),Ya.at(i));
         }
 
-        {
-            QwtPlotCurve *culvert = new QwtPlotCurve();
-            QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( (int)dx*.4, (int)dx*.4) );
+        int dxi = (int) op.channelMap->cellSize()*0.4;
+        int size = dx < 10 ? dxi : 10;
+
+        QwtPlotCurve *culvert = new QwtPlotCurve();
+            QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( size,size ));
             culvert->setSymbol(blackdot);
             culvert->setStyle( QwtPlotCurve::NoCurve );
             culvert->attach( MPlot );
@@ -651,7 +653,6 @@ void lisemqt::showChannelVector()
             X << xend;
             Y << yend;
             culvert->setSamples(X, Y);
-        }
 
         Y.clear();
         Xa.clear();
@@ -661,10 +662,9 @@ void lisemqt::showChannelVector()
         op.Chanbranch.clear();
 
         if (checkChannelCulverts->isChecked()) {
-            int dx = (int) op.channelMap->cellSize();
             QwtPlotCurve *culvert = new QwtPlotCurve();
-            QwtSymbol *whitedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white,
-                                                               QPen( Qt::black ), QSize( dx,dx ) );
+            QwtSymbol *whitedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white,QPen( Qt::black ), QSize( size,size ) );
+            QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( size,size ));
             culvert->setSymbol(whitedot);
             culvert->setStyle( QwtPlotCurve::NoCurve );
             culvert->attach( MPlot );

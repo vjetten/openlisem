@@ -154,7 +154,6 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
 //        ErrorString = QString("Number of stations in rainfall file (%1) != nr of rainfall zones in ID map (%2)").arg(nrStations).arg(nrmap);
 //        throw 1;
 //    }
-
     nrSeries = rainRecs.size() - nrStations - skiprows;
     // count rainfall or snowmelt records
 
@@ -178,12 +177,14 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
             dirname = snowmeltFileDir;
 
         QStringList SL = rainRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), QString::SkipEmptyParts);
-        // split rainfall record row with whitespace
+
+          // split rainfall record row with whitespace
         rl.time = SL[0].toDouble();
         // time in min
-
+   //     qDebug() << SL << rl.time;
         if (r == 0)
             time = rl.time;
+
         if (r > 0 && rl.time <= time)
         {
             ErrorString = errorS + QString(" records at time %1 has unreadable value.").arg(rl.time);

@@ -215,7 +215,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                         if (doOF)
                             Conc->Drcr = MaxConcentration(ChannelAdj->Drc*DX->Drc*_h->Drcr, &_SS->Drc, &DEP->Drc);
                         else {
-                            SWOFSedimentLayerDepth(r,c,_h->Drcr, UVflood->Drcr);//V->Drcr);
+                            SWOFSedimentLayerDepth(r,c,_h->Drcr, V->Drcr);
                             SWOFSedimentSetConcentration(rr,cr, _h);
                         }
 
@@ -329,9 +329,10 @@ void TWorld::ChannelFlood(void)
 //    double dsed = dftot + deptot - sedtot -sout;
 
 
-    ChannelOverflow(hmx, UVflood, false);
+    ChannelOverflow(hmx, V, false);
     // mix overflow water and flood water in channel cells
     // use hmx which is the 2Ddyn water
+ //   ChannelOverflow(WHrunoff, V, true);
 
     double dtflood = 0;
 
@@ -364,15 +365,12 @@ void TWorld::ChannelFlood(void)
 
     FOR_ROW_COL_MV {
         FloodWaterVol->Drc = 0;
-        UVflood->Drc = 0;
         hmxWH->Drc = WH->Drc;
         hmxflood->Drc = 0;
         if (FloodDomain->Drc > 0) {
-            UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+            V->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
            //NOT Qn->Drc
-            Qflood->Drc= UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
-            //only used for report
-            V->Drc = UVflood->Drc;
+            Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
 
             // addvolume infiltrated during flood process with FSurplus
             //InfilVolFlood->Drc += Iflood->Drc;
@@ -383,12 +381,36 @@ void TWorld::ChannelFlood(void)
             hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
         }
     }
+//    FOR_ROW_COL_MV
+//    {
+//        V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
+
+//        Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
+//        Q->Drc = Qn->Drc; // just to be sure
+
+//       // InfilVolKinWave->Drc = iro->Drc; // infil inside, m3
+
+//        WHroad->Drc = WHrunoff->Drc;
+//        // set road to average outflowing wh, no surface storage.
+//        WHGrass->Drc = WHrunoff->Drc;
+
+//        WH->Drc = WHrunoff->Drc + WHstore->Drc;
+//        // add new average waterlevel (A/dx) to stored water
+
+//        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+
+//        hmxWH->Drc = WH->Drc;
+//        hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
+//        hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+//    }
+
+    FloodMaxandTiming(WH, V, minReportFloodHeight);
 
 //old
 //    FOR_ROW_COL_MV
 //    {
 //        UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
-//        Qflood->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
+//        Qn->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
 //        //only used for report
 //        V->Drc = hmx->Drc > 0 ? UVflood->Drc : V->Drc;
 
@@ -478,7 +500,7 @@ void TWorld::ChannelFlood(void)
 
 
     }
-    FloodMaxandTiming(hmxWH, UVflood, minReportFloodHeight);
+    FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
 
     double area = nrFloodedCells*_dx*_dx;
     if (area > 0)

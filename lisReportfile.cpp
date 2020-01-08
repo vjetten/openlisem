@@ -239,9 +239,9 @@ void TWorld::OutputUI(void)
     FOR_ROW_COL_MV
     {
         COMBO_VOFCH->Drc = V->Drc;
-        if(SwitchChannelFlood)
-            if(UVflood->Drc > 0)
-                COMBO_VOFCH->Drc = UVflood->Drc;
+//        if(SwitchChannelFlood)
+//            if(UVflood->Drc > 0)
+//                COMBO_VOFCH->Drc = UVflood->Drc;
         if (SwitchIncludeChannel)
             if (ChannelFlowWidth->Drc > 0)
                 COMBO_VOFCH->Drc = ChannelV->Drc;

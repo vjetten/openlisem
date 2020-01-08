@@ -241,7 +241,6 @@ cTMap
 *SoilDepth1,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *L1,                         //!< depth of wetting front in layer 1 [m]
 *Soilwater,                  //!< actual soil water content [-]
-*ThetaSub,
 *ThetaS2,                    //!< porosity soil layer 2 [-]
 *ThetaI2,                    //!< initial moisture content soil layer 2 [-]
 *Psi2,                       //!< intial suction head wetting front soil layer 2 (input map is in cm) [m]
@@ -267,6 +266,11 @@ cTMap
 *SedimentFilter,
 *GrassWidthDX,               //!< width of grasstrip in [m]
 *thetaTop,                   //!< average theta of node 0 and 1 for water repelency and nutrients
+
+*ThetaI3,
+*ThetaS3,
+*Ksat3,
+*Psi3,
 
 *ProfileID,                  //!< SWATRE profile unit number map
 *ProfileIDCrust,             //!< SWATRE profile unit number map for crusted areas
@@ -325,7 +329,7 @@ cTMap
 *BaseFlowInflow,
 
 // flood maps
-*UVflood,                     //!<
+//*UVflood,                     //!<
 *Qflood,                    //!<
 *floodHmxMax,                    //!<
 *floodTime,                    //!<
