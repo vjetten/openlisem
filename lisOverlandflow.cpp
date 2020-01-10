@@ -278,7 +278,7 @@ void TWorld::CalcVelDisch(int thread)
             Alpha->Drc = 0;
 
         if (Alpha->Drc > 0)
-            Q->Drc = pow((FlowWidth->Drc*WHrunoff->Drc)/Alpha->Drc, 1.66666666667);
+            Q->Drc = pow((FlowWidth->Drc*WHrunoff->Drc)/Alpha->Drc, 5.0/3.0);
         else
             Q->Drc = 0;
 
@@ -504,8 +504,10 @@ void TWorld::OverlandFlow1D(void)
             // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
         }
     }
-   // convert calculate Qn back to WH and volume for next loop
+//    fill(*Qn, 0);
+//    KinematicExplicit(LDD, Q, Qn, q, Alpha,DX, WaterVolin);
 
+    //convert calculate Qn back to WH and volume for next loop
     fill(*tma, 0);
     FOR_ROW_COL_MV
     {
@@ -515,8 +517,9 @@ void TWorld::OverlandFlow1D(void)
 
         if( K1Dexplicit)
         {
-
+//TODO what about q/surplus here????
             WaterVolout = std::max(0.0, QinKW->Drc*_dt + WaterVolin->Drc  - Qn->Drc*_dt);
+
             // new water vol is mass bal diff
             WHrunoff->Drc = WaterVolout/(ChannelAdj->Drc*DX->Drc);
             // runoff based on water vol out
@@ -524,8 +527,14 @@ void TWorld::OverlandFlow1D(void)
         }
         else
         {
+    //        double Aold = Alpha->Drc*pow(Q->Drc, 0.6);
+    //        double Anew = Alpha->Drc*pow(Qn->Drc, 0.6);
+
+//            Q->Drc = pow(A/Alpha->Drc, 5.0/3.0);
+
             WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
             //new WH based on A/dx = alpha Q^beta / dx
+            // apha is however determined from the old Q...
 
             WaterVolout = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc;
             // new volume

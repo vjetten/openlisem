@@ -218,7 +218,7 @@ void TWorld::DoModel()
      //        ThreadPool->RunCellCompute(fcompute2);
      //        ThreadPool->WaitForAll();
 
-            ChannelFlood();    // st venant channel 2D flooding from channel, only for kyn and diff of
+          //  ChannelFlood();    // st venant channel 2D flooding from channel, only for kyn and diff of
 
             OrderedProcesses();  //do ordered solutions such as channel LDD etc., non threaded
 
@@ -307,6 +307,8 @@ void TWorld::CellProcesses(int thread)
 
     SoilWater(thread);           // simple soil water balance, percolation from lower boundary
     SurfaceStorage(thread);      // surface storage and flow width, split WH in WHrunoff and WHstore
+
+  //  doETa(thread);
 
     CalcVelDisch(thread);        // overland flow velocity, discharge and alpha for erosion
 

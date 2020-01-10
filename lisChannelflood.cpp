@@ -336,6 +336,7 @@ void TWorld::ChannelFlood(void)
 
     double dtflood = 0;
 
+
     startFlood = false;
     FOR_ROW_COL_MV {
         if (hmx->Drc > 0) {
@@ -347,6 +348,16 @@ void TWorld::ChannelFlood(void)
     dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
         //  threaded flooding
 
+    FOR_ROW_COL_MV {
+        if (hmx->Drc < 0.001) {
+            WHrunoff->Drc += hmx->Drc;
+            WH->Drc = WHrunoff->Drc + WHstore->Drc;
+            hmx->Drc = 0;
+
+            WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+
+        }
+    }
     Boundary2Ddyn(hmx, Uflood, Vflood);
     // boundary flow
 

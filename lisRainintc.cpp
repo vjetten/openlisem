@@ -325,6 +325,15 @@ void TWorld::RainfallMap(void)
         RainNet->Drc = Rainc->Drc;
         // net rainfall in case of interception
 
+        if (Rain->Drc == 0)
+            noRain->Drc += _dt;
+        else
+            noRain->Drc = 0;
+
+//        if (noRain->Drc > 3.0*3600.0)
+  //          RainCum->Drc = 0;
+        // if dry spell for more than 23 hours
+
     }
 }
 //---------------------------------------------------------------------------

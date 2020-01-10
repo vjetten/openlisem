@@ -94,6 +94,11 @@ void TWorld::Totals(void)
     IntercTotmm = IntercTot*catchmentAreaFlatMM;
     // interception in mm and m3
 
+    //==== ETa ==========//
+    ETaTot = mapTotal(*ETa);
+    ETaTotmm = ETaTot*catchmentAreaFlatMM;
+    // interception in mm and m3
+
     //Litter
     IntercLitterTot = mapTotal(*LInterc);
     IntercLitterTotmm = IntercLitterTot*catchmentAreaFlatMM;
@@ -441,11 +446,12 @@ void TWorld::MassBalance()
     {
 
         double waterin = RainTot + SnowTot + WaterVolSoilTot + BaseFlow + WHinitVolTot; //floodVolTotInit
+        double waterout = ETaTot;
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot;
         double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;
         //is already in qtot : floodBoundaryTot ;//
 
-        MB = waterin > 0 ? (waterin - waterstore - waterflow)/waterin *100 : 0;
+        MB = waterin > 0 ? (waterin - waterout - waterstore - waterflow)/waterin *100 : 0;
      //   qDebug() << MB << waterin << waterstore << waterflow;
      //   qDebug() << MB << WaterVolTot << ChannelVolTot << Qtot << floodBoundaryTot;
 

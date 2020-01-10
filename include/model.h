@@ -384,7 +384,7 @@ public:
     bool rainStarted;
     double BulkDens;
     double nrCells, CatchmentArea, nrFloodedCells;
-    double LitterSmax;
+    double LitterSmax, ETaTot, ETaTotmm;
 
     ///pesticides
     double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;
@@ -723,6 +723,7 @@ public:
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull, int thread);
     void InfilMethodsNew(int thread);
     void SurfaceStorage(int thread);
+    void doETa(int thread);
     void OverlandFlow(void);
     void OverlandFlow2D(void);
     void correctWH(cTMap *_WH);
@@ -776,10 +777,10 @@ public:
     void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                    cTMap *_Q, cTMap *_Qn,
                    cTMap *_q, cTMap *_Alpha, cTMap *_DX,
-                   cTMap *_Vol);//,cTMap *_StorVol);
+                   cTMap *_Vol);
     double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double maxQ);
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
-
+    void KinematicExplicit(cTMap *_LDD, cTMap *Q, cTMap *Qn, cTMap *q, cTMap *Alpha,cTMap *_DX, cTMap *Vol);
     // kinematic 2D
     double K2DFlux(double t, double tmax);
     void K2DPreSolve(int thread);

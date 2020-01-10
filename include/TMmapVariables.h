@@ -45,6 +45,7 @@ cTMap
 
 *RainZone,                   //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *Rain,                       //!< map with rain from tis time intervall [m]
+*noRain,
 *Rainc,                      //!< map with rain from tis time intervall, spread over the surface (corrected or slope) [m]
 *RainCum,                    //!< cumulative rainfall, as spreadoutover slope [m]
 *RainCumFlat,                //!< cumulative rainfall [m]
@@ -62,6 +63,7 @@ cTMap
 *RoofStore,                  //!< Max storage of roof in [mm]
 *DrumStore,                  //!< Max storage of rainwter drums [m^3]
 *InterceptionmmCum,
+*ETa,
 
 *SnowmeltZone,               //!< snowmelt zone map, values corrspond to snowmelt gauge numbers [-]
 *Snowcover,                  //!< snowmelt cover map, value 1.0 if there is snowcover, 0 without [-]
@@ -89,7 +91,7 @@ cTMap
 *VH,
 //*Qoutflow,                   //!< new discharge after kin wave at outflow point [m^3/s]
 *QinKW,
-//*QoutKW,
+*QKW,
 *Qoutput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
 *Qs,                         //!< sediment discharge before kin wave [kg/s]
 *Qsn,                        //!< new sediment discharge after kin wave [kg/s]

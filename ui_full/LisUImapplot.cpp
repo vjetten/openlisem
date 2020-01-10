@@ -640,10 +640,9 @@ void lisemqt::showChannelVector()
         }
 
         int dxi = (int) op.channelMap->cellSize()*0.4;
-        int size = dx < 10 ? dxi : 10;
-
+        dxi = std::min(5,dxi);
         QwtPlotCurve *culvert = new QwtPlotCurve();
-            QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( size,size ));
+            QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi ));
             culvert->setSymbol(blackdot);
             culvert->setStyle( QwtPlotCurve::NoCurve );
             culvert->attach( MPlot );
@@ -663,8 +662,8 @@ void lisemqt::showChannelVector()
 
         if (checkChannelCulverts->isChecked()) {
             QwtPlotCurve *culvert = new QwtPlotCurve();
-            QwtSymbol *whitedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white,QPen( Qt::black ), QSize( size,size ) );
-            QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( size,size ));
+            QwtSymbol *whitedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white,QPen( Qt::black ), QSize( dxi, dxi ) );
+            QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi, dxi  ));
             culvert->setSymbol(whitedot);
             culvert->setStyle( QwtPlotCurve::NoCurve );
             culvert->attach( MPlot );

@@ -329,6 +329,8 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
             _Qn->data[rowNr][colNr] = IterateToQnew(Qin, _Q->data[rowNr][colNr], _q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr], QMax );
             // Newton Rapson iteration for water of current cell
 
+            //Vol->Drc = Vol->Drc+ (Qin-Qn->Drc-q->Drc)*_dt;
+
               /* cell rowN, colNr is now done */
 
             temp=list;
@@ -531,3 +533,45 @@ void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
     }
 }
 
+void TWorld::KinematicExplicit(cTMap *_LDD, cTMap *Q, cTMap *Qn, cTMap *q, cTMap *_Alpha,cTMap *_DX, cTMap *Vol)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+    FOR_ROW_COL_MV
+    {
+        double Qin = 0;
+        for (int i=1; i<=9; i++)
+        {
+            // this is the current cell
+            if (i==5)
+                continue;
+
+            // look around in 8 directions
+            int row = r+dy[i];
+            int col = c+dx[i];
+            int ldd = 0;
+
+            if (INSIDE(row, col) && !pcr::isMV(_LDD->data[row][col]))
+                ldd = (int) _LDD->Drc;
+            else
+                continue;
+
+            // if no MVs and row,col flows to central cell r,c
+            if (FLOWS_TO(ldd, row, col, r, c))
+            {
+                Qin += Q->data[row][col];
+                QinKW->Drc = Qin;
+            }
+        }
+        double QMax = 1e15;
+        Qn->Drc = IterateToQnew(Qin, Q->Drc, q->Drc, _Alpha->Drc, _dt, _DX->Drc, QMax );
+//        double h = (Qin*_dt + Vol->Drc - q->Drc*_dt)/(DX->Drc * ChannelAdj->Drc);
+//        if (h < MIN_FLUX)
+//            Qn->Drc = 0;
+//        else
+//        Qn->Drc = pow(h, 2.0/3.0)*sqrt(Grad->Drc)/N->Drc * h * ChannelAdj->Drc;
+
+    }
+
+}

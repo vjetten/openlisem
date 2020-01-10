@@ -1392,20 +1392,22 @@ void TWorld::IntializeData(void)
     RainCum = NewMap(0);
     RainCumFlat = NewMap(0);
     RainNet = NewMap(0);
+    noRain = NewMap(0);
     LeafDrain = NewMap(0);
-    //not used RainIntensity = NewMap(0);
-    //not used RainM3 = NewMap(0);
+
     CStor = NewMap(0);
     Interc = NewMap(0);
     // litter
     LCStor = NewMap(0);
     LInterc = NewMap(0);
-    //LRainCum = NewMap(0);
+
     InterceptionmmCum = NewMap(0);
     //houses
     HStor = NewMap(0);
     IntercHouse = NewMap(0);
     DStor = NewMap(0);
+
+    ETa = NewMap(0);
 
     Snowmelt = NewMap(0);
     Snowmeltc = NewMap(0);
@@ -1473,6 +1475,8 @@ if (SwitchGrassStrip) {
     InfilKWTot = 0;
     IntercTot = 0;
     IntercTotmm = 0;
+    ETaTot = 0;
+    ETaTotmm = 0;
     //houses
     IntercHouseTot = 0;
     IntercHouseTotmm = 0;
@@ -1619,6 +1623,7 @@ if (SwitchGrassStrip) {
         K2DTEST = NewMap(0);
 
     QinKW = NewMap(0);
+    QKW = NewMap(0);
     Qoutput = NewMap(0);
     Qsoutput = NewMap(0);
     q = NewMap(0);

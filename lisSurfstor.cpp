@@ -184,4 +184,61 @@ void TWorld::SurfaceStorage(int thread)
 
 }
 //---------------------------------------------------------------------------
+void TWorld::doETa(int thread)
+{
+    FOR_ROW_COL_2DMT
+    {
+        double tot = 0;
+        double tmp = 0;
+        double ETp = 5.0/(12.0*3600.0) * 0.001 *_dt;  //5m/day in m per dt
+        ETp = Rain->Drc > 0 ? 0.0 : ETp;
 
+        double ETa_soil = hmxWH->Drc > 0 ? 0.0: ThetaI1->Drc/ThetaS1->Drc * ETp;
+        ETa_soil *= Cover->Drc;
+        double moist = ThetaI1->Drc * SoilDepth1->Drc;
+        tmp = moist;
+        moist = std::max(0.0, moist - ETa_soil);
+        tmp = tmp - moist;
+        ThetaI1->Drc = moist/SoilDepth1->Drc;
+        tot = tot + tmp;
+
+        double ETa_int = Cover->Drc * ETp;
+        tmp = CStor->Drc;
+        CStor->Drc = std::max(0.0, CStor->Drc-ETa_int);
+        RainCum->Drc = std::max(0.0, RainCum->Drc-ETa_int);
+        tmp = tmp - CStor->Drc;
+        Interc->Drc =  Cover->Drc * CStor->Drc * SoilWidthDX->Drc * DX->Drc;
+        tot = tot + tmp;
+
+        double ETa_pond = hmxWH->Drc > 0 ? ETp : 0.0;
+        if (FloodDomain->Drc > 0) {
+            tmp = hmx->Drc;
+            hmx->Drc = std::max(0.0, hmx->Drc-ETa_pond );
+            tmp = tmp - hmx->Drc;
+            FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+            hmxWH->Drc = hmx->Drc;   //hmxWH is all water
+            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+        }
+        else {
+            tmp = WHrunoff->Drc;
+            WHrunoff->Drc = std::max(0.0, WHrunoff->Drc-ETa_pond );
+            tmp = tmp - WHrunoff->Drc;
+            WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+            WHroad->Drc = WHrunoff->Drc;
+            WHGrass->Drc = WHrunoff->Drc;
+            WH->Drc = WHrunoff->Drc + WHstore->Drc;
+            hmxWH->Drc = WH->Drc;
+            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
+            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+        }
+        tot = tot + tmp;
+
+        ETa->Drc += tot;
+
+//TODO fpa
+
+
+    }}}}
+
+
+}
