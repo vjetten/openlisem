@@ -1,6 +1,6 @@
 openLISEM
 ============
-Date: 191004
+Date: 200111
 ============
 
 For older versions and list of changes contact v.g.jetten AD utwente.nl
@@ -8,6 +8,11 @@ For older versions and list of changes contact v.g.jetten AD utwente.nl
 NOTE: only a 64bit version exists, 32 bit is no longer supported
 
 NOTE: The code since version 5.6 is compilable under linux Ubuntu
+
+version 5.7-5.91
+- fixed buggy 1d kin wave and 2d flood for sediment
+- revived option kin wave only
+- cosmetic and code cleaning
 
 version 5.5-5.7
 - Fixed all sediment MB errors, both simple and two phase flow (suspended and bedload) for 2D flow
