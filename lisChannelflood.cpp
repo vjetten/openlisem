@@ -347,16 +347,6 @@ void TWorld::ChannelFlood(void)
     dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
         //  threaded flooding
 
-    FOR_ROW_COL_MV {
-        if (hmx->Drc < 0.001) {
-            WHrunoff->Drc += hmx->Drc;
-            WH->Drc = WHrunoff->Drc + WHstore->Drc;
-            hmx->Drc = 0;
-
-            WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-
-        }
-    }
     Boundary2Ddyn(hmx, Uflood, Vflood);
     // boundary flow
 
@@ -391,47 +381,8 @@ void TWorld::ChannelFlood(void)
             hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
         }
     }
-//    FOR_ROW_COL_MV
-//    {
-//        V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
-
-//        Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
-//        Q->Drc = Qn->Drc; // just to be sure
-
-//       // InfilVolKinWave->Drc = iro->Drc; // infil inside, m3
-
-//        WHroad->Drc = WHrunoff->Drc;
-//        // set road to average outflowing wh, no surface storage.
-//        WHGrass->Drc = WHrunoff->Drc;
-
-//        WH->Drc = WHrunoff->Drc + WHstore->Drc;
-//        // add new average waterlevel (A/dx) to stored water
-
-//        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-
-//        hmxWH->Drc = WH->Drc;
-//        hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
-//        hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
-//    }
 
     FloodMaxandTiming(WH, V, minReportFloodHeight);
-
-//old
-//    FOR_ROW_COL_MV
-//    {
-//        UVflood->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
-//        Qn->Drc = UVflood->Drc * hmx->Drc * ChannelAdj->Drc;
-//        //only used for report
-//        V->Drc = hmx->Drc > 0 ? UVflood->Drc : V->Drc;
-
-//        // addvolume infiltrated during flood process with FSurplus
-//        //InfilVolFlood->Drc += Iflood->Drc;
-//        FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
-
-//        // for output on screen
-//        hmxWH->Drc = FloodDomain->Drc  == 0 ? WH->Drc : hmx->Drc;   //hmxWH is all water
-//        hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
-//    }
 
     if(SwitchErosion)
     {
@@ -467,45 +418,7 @@ void TWorld::ChannelFlood(void)
 //                Qsn->Drc = Conc->Drc*Qn->Drc;
 //            }
         }
-/*
-         dftot = mapTotal(*SSDetFlood);
-         sedtot = mapTotal(*SSFlood);
-         deptot = mapTotal(*DepFlood);
-         sout = mapTotal(*Qsn)*_dt;
-         dsed = dsed - (dftot + deptot - sedtot-sout);
-         qDebug() << dsed << dftot;
 
-        if (fabs(dsed) > 1e-6 ) {
-            double count = 0;
-            if(dsed < 0){
-                FOR_ROW_COL_MV {
-                    if (DepFlood->Drc < 0)
-                        count += 1.0;
-                }
-                FOR_ROW_COL_MV {
-                    if (DepFlood->Drc < 0)
-                        DepFlood->Drc -= dsed/count;
-                }
-                deptot += mapTotal(*DepFlood);
-            }
-
-            if(dsed > 0){
-                count = 0;
-                FOR_ROW_COL_MV {
-                    if (SSDetFlood->Drc > 0)
-                        count += 1.0;
-                }
-                FOR_ROW_COL_MV {
-                    if (SSDetFlood->Drc > 0)
-                        SSDetFlood->Drc -= dsed/count;
-                }
-                dftot += mapTotal(*SSDetFlood);
-            }
-
-            dsed = (dftot + deptot - sedtot-sout);
-               qDebug() << "a" << dsed << count << dftot;
-        }
-*/
 
 
 
