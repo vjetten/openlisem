@@ -308,7 +308,7 @@ void TWorld::CellProcesses(int thread)
     SoilWater(thread);           // simple soil water balance, percolation from lower boundary
     SurfaceStorage(thread);      // surface storage and flow width, split WH in WHrunoff and WHstore
 
-  //  doETa(thread);
+    //doETa(thread);
 
     CalcVelDisch(thread);        // overland flow velocity, discharge and alpha for erosion
 

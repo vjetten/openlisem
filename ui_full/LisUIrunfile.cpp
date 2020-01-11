@@ -681,8 +681,7 @@ void lisemqt::updateModelData()
             if (checkOverlandFlow1D->isChecked())  namelist[j].value = "1";
             //if (checkOverlandFlow2D->isChecked())  namelist[j].value = "2";// obsolete
             if (checkOverlandFlow2Ddyn->isChecked())  namelist[j].value = "3";
-            if (checkOverlandFlow1D->isChecked() && checkOverlandFlow2Ddyn->isChecked() )
-                namelist[j].value = "4";
+            if (checkOverlandFlow2Dkindyn->isChecked())  namelist[j].value = "4";
         }
         if (p1.compare("Timestep Kin Wave 2D")==0)           namelist[j].value = E_TimestepMin->text();
         if (p1.compare("Courant Kin Wave 2D")==0)            namelist[j].value = E_CourantFactorKin->text();
