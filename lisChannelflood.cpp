@@ -318,9 +318,8 @@ void TWorld::ChannelFlood(void)
     if (!SwitchIncludeChannel)
         return;
 
-    if (SwitchKinematic2D == K2D_METHOD_DYN)
+    if (SwitchKinematic2D != K2D_METHOD_KINDYN)
         return;
-
 
 //    double dftot = mapTotal(*SSDetFlood);
 //    double sedtot = mapTotal(*SSFlood);

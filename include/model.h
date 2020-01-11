@@ -192,6 +192,7 @@ class LisemThreadPool;
 #define K2D_METHOD_KIN   1
 #define K2D_METHOD_DIFF  2
 #define K2D_METHOD_DYN   3
+#define K2D_METHOD_KINDYN  4
 
 
 //---------------------------------------------------------------------------

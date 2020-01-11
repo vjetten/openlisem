@@ -52,7 +52,7 @@ functions: \n
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow(void)
 {
-    if(SwitchKinematic2D == K2D_METHOD_KIN)
+    if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
         OverlandFlow1D();
 
     //        if(SwitchKinematic2D == K2D_METHOD_DIFF)
@@ -142,20 +142,13 @@ void TWorld::ToChannel()//int thread)
         return;
     }
 
-    if(SwitchKinematic2D == K2D_METHOD_KIN) {
+    if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
 
         ChannelOverflow(WHrunoff, V, true);
-
-        //    FOR_ROW_COL_MV {
-        //        WH->Drc = WHrunoff->Drc + WHstore->Drc;
-        //        WHroad->Drc = WHrunoff->Drc;
-        //        WHGrass->Drc = WHrunoff->Drc;
-        //        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-        //    }
         return;
     }
 
-// /*
+ /*
 
     FOR_ROW_COL_MV_CH  //TODO: must be FOR_ROW_COL_MV ? else extended no sense
     {
@@ -230,7 +223,7 @@ void TWorld::ToChannel()//int thread)
             }
         }
     }
-
+*/
 }
 //--------------------------------------------------------------------------------------------
 /**

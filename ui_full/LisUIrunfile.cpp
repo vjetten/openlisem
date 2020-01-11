@@ -332,18 +332,6 @@ void lisemqt::ParseInputData()
             checkSed2Phase->setChecked(true);
        //     checkBox_SedMultiGrain->setChecked(false);
             tabWidgetOptions->setTabEnabled(5,true);
-       /*
-           if(valc == 2)
-                checkBox_SedMultiGrain->setChecked(true);
-            else
-                if(valc == 1)
-                    checkBox_Sed2Phase->setChecked(true);
-                else
-                {
-                    checkAdvancedSediment->setChecked(false);
-                    tabWidgetOptions->setTabEnabled(5,false);
-                }
-                */
         }
 
         if (p1.compare("Ksat calibration")==0) E_CalibrateKsat->setValue(valc);
@@ -417,16 +405,11 @@ void lisemqt::ParseInputData()
     tabWidgetOptions->setTabEnabled(5, checkAdvancedSediment->isChecked());
 
     checkOverlandFlow1D->setChecked(dummykinwave == 1);
-    checkOverlandFlow2D->setChecked(dummykinwave == 2);
+    //checkOverlandFlow2D->setChecked(dummykinwave == 2);
     checkOverlandFlow2Ddyn->setChecked(dummykinwave == 3);
-   // if (checkOverlandFlow2Ddyn->isChecked() && checkIncludeChannel->isChecked())
-    checkChannelFlood->setChecked(true);
-    bool yes = true;
-    if(checkOverlandFlow1D->isChecked() && !checkIncludeChannel->isChecked())
-        yes = false;
-    label_198->setEnabled(yes);
-    E_floodMinHeight->setEnabled(yes);
-    setFloodTab(yes);
+    checkOverlandFlow2Dkindyn->setChecked(dummykinwave == 4);
+    setFloodTab(dummykinwave > 1);
+
     //outputMapsFlood->setEnabled(yes);
 
     // first guess
@@ -575,9 +558,9 @@ void lisemqt::ParseInputData()
         E_SwatreTableName->setText(SwatreTableName);
     }
 
-    checkBox_OutHmx->setEnabled(checkChannelFlood->isChecked());
-    checkBox_OutQf->setEnabled(checkChannelFlood->isChecked());
-    checkBox_OutVf->setEnabled(checkChannelFlood->isChecked());
+  //  checkBox_OutHmx->setEnabled(checkChannelFlood->isChecked());
+  //  checkBox_OutQf->setEnabled(checkChannelFlood->isChecked());
+  //  checkBox_OutVf->setEnabled(checkChannelFlood->isChecked());
     //checkBox_OutHmxWH->setEnabled(checkChannelFlood->isChecked());
 
     on_checkIncludeChannel_clicked();
@@ -696,8 +679,10 @@ void lisemqt::updateModelData()
         if (p1.compare("Routing Kin Wave 2D")==0)
         {
             if (checkOverlandFlow1D->isChecked())  namelist[j].value = "1";
-            if (checkOverlandFlow2D->isChecked())  namelist[j].value = "2";
+            //if (checkOverlandFlow2D->isChecked())  namelist[j].value = "2";// obsolete
             if (checkOverlandFlow2Ddyn->isChecked())  namelist[j].value = "3";
+            if (checkOverlandFlow1D->isChecked() && checkOverlandFlow2Ddyn->isChecked() )
+                namelist[j].value = "4";
         }
         if (p1.compare("Timestep Kin Wave 2D")==0)           namelist[j].value = E_TimestepMin->text();
         if (p1.compare("Courant Kin Wave 2D")==0)            namelist[j].value = E_CourantFactorKin->text();

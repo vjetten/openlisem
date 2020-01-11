@@ -196,7 +196,7 @@ void TWorld::Totals(void)
     // sum all outflow in m3 for this timestep, Qtot is for all timesteps!
 
     // Add overland flow
-    if(SwitchKinematic2D == K2D_METHOD_KIN)
+    if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
     {
         FOR_ROW_COL_MV
         {
@@ -312,7 +312,8 @@ void TWorld::Totals(void)
         // for total soil loss calculation: TotalSoillossMap
 
         //outflow from domain/channel
-        if(SwitchKinematic2D == K2D_METHOD_KIN) {
+        if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
+        {
             FOR_ROW_COL_MV
             {
                 if (LDD->Drc == 5)
@@ -471,7 +472,8 @@ void TWorld::MassBalance()
       //  qDebug() << DepTot << ChannelDepTot << FloodDepTot;
       //  qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
 
-        if ( SwitchKinematic2D == K2D_METHOD_KIN) {
+        if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
+        {
             // distribute sed errors over dep or det
 
             double dsed = detachment + deposition  - sediment;

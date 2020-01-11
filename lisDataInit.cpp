@@ -293,6 +293,7 @@ void TWorld::InitStandardInput(void)
 
     // SwitchFlood1D2DCoupling = getvalueint("Flooding 1D2D coupling"); <- obsolete
     SwitchKinematic2D = std::max(getvalueint("Routing Kin Wave 2D"), 1);
+
     courant_factor_diffusive = getvaluedouble("Courant Kin Wave 2D");
     TimestepKinMin = getvaluedouble("Timestep Kin Wave 2D");
     ConcentrateKin = getvaluedouble("Flow concentration 2D");
@@ -365,7 +366,7 @@ void TWorld::InitStandardInput(void)
 
     // when 2D and no channel, just do what user wants, don't check!
     // when 1D flow and no channel, outlet should be ldd->pits
-    if (!SwitchIncludeChannel && SwitchKinematic2D == K2D_METHOD_KIN)
+    if (!SwitchIncludeChannel && (SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN))
     {        
         FOR_ROW_COL_MV
         {

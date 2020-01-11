@@ -583,18 +583,24 @@ void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
 void lisemqt::setFloodTab(bool yes)
 {
     yes = true;
-    if (checkOverlandFlow1D->isChecked() && !checkIncludeChannel->isChecked())
-            yes = false;
+    if (checkOverlandFlow2Dkindyn->isChecked() && !checkIncludeChannel->isChecked()) {
+        yes = false;
+        QMessageBox::warning(this,"openLISEM",QString("The combination of 1D overland flow and 2D flood can only be used with a channel activated."));
+        checkOverlandFlow1D->setChecked(true);
+    }
+    if (checkOverlandFlow1D->isChecked()) {
+        yes = false;
+    }
 
-    tabWidgetOptions->setTabEnabled(3, true);//yes);
-    frame_diffwave->setEnabled(checkOverlandFlow2D->isChecked());
-    frame_dynwave->setEnabled(true);//checkOverlandFlow2Ddyn->isChecked() || checkOverlandFlow2D->isChecked());
-    groupBox_coupling->setEnabled(!checkOverlandFlow2Ddyn->isChecked());
-//    E_floodMinHeight->setEnabled(checkOverlandFlow2Ddyn->isChecked());
-//    label_198->setEnabled(checkOverlandFlow2Ddyn->isChecked());
-    outputMapsFlood->setEnabled(yes);
+    tabWidgetOptions->setTabEnabled(3, yes);
+    //frame_diffwave->setEnabled(checkOverlandFlow2D->isChecked());
+    frame_dynwave->setEnabled(yes);
+
     E_floodMinHeight->setEnabled(yes);
+    label_198->setEnabled(yes);
     on_E_floodMinHeight_valueChanged(E_floodMinHeight->value());
+
+    outputMapsFlood->setEnabled(yes);
 }
 //--------------------------------------------------------------------
 void lisemqt::setErosionTab(bool yes)
@@ -722,8 +728,7 @@ void lisemqt::SetToolBar()
     toolBar->setIconSize(QSize(24,24));
 
     //r
-    restartAct = new QAction(QIcon(":/2X/refresh_242X.png"), "&Reset...", this);
- //   restartAct = new QAction(QIcon(":/2X/refresh-icon.png"), "&Reset...", this);
+    restartAct = new QAction(QIcon(":/2X/reset.png"), "&Reset...", this);
     connect(restartAct, SIGNAL(triggered()), this, SLOT(resetAll()));
     toolBar->addAction(restartAct);
     toolBar->addSeparator();
@@ -796,9 +801,12 @@ void lisemqt::SetToolBar()
     runGroup->addAction(stopAct);
     stopAct->setChecked(true);
 
-    aboutActI = new QAction(QIcon(":/2X/Info2X.png"), "", this);
+    toolBar->addSeparator();
+
+    aboutActI = new QAction(QIcon(":/2X/question-mark-button2x.png"), "", this);
     connect(aboutActI, SIGNAL(triggered()), this, SLOT(aboutInfo()));
     toolBar_2->addAction(aboutActI);
+        toolBar->addSeparator();
 
     connect(checkMapBuildings, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
     connect(checkMapRoads, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
@@ -982,8 +990,11 @@ void lisemqt::SetStyleUI()
  //   GroupImpermeable.addButton(checkPercolation,2);
 
     GroupRunoff.addButton(checkOverlandFlow1D,1);
-    GroupRunoff.addButton(checkOverlandFlow2D,2);
+  //  GroupRunoff.addButton(checkOverlandFlow2D,2);
     GroupRunoff.addButton(checkOverlandFlow2Ddyn,3);
+    GroupRunoff.addButton(checkOverlandFlow2Dkindyn,4);
+
+
 
 
 }
@@ -1602,7 +1613,7 @@ void lisemqt::resetTabFlow()
     E_CourantFactorKin->setValue(0.2);
     E_mixingFactor->setValue(2.0);
     E_runoffPartitioning->setValue(1.0);
-    E_1D2DCoupling->setValue(2);
+    //E_1D2DCoupling->setValue(2);
     E_floodSolution->setValue(2);   // dynamic wave
     E_FloodMaxIter->setValue(200);
     E_FloodReconstruction->setValue(3);  //HLL2 etc
@@ -1731,11 +1742,11 @@ void lisemqt::resetAll()
     checkBox_OutV->setChecked(false);
     checkBox_OutInf->setChecked(false);
     checkBox_OutSurfStor->setChecked(false);
-    checkBox_OutChanVol->setChecked(false);
+    //checkBox_OutChanVol->setChecked(false);
     checkBox_OutTiledrain->setChecked(false);
-    checkBox_OutHmx->setChecked(false);
-    checkBox_OutQf->setChecked(false);
-    checkBox_OutVf->setChecked(false);
+   // checkBox_OutHmx->setChecked(false);
+   // checkBox_OutQf->setChecked(false);
+   // checkBox_OutVf->setChecked(false);
     //checkBox_OutHmxWH->setChecked(false);
 
     printinterval->setValue(1);
@@ -1756,9 +1767,10 @@ void lisemqt::resetAll()
 
     //main
     checkOverlandFlow1D->setChecked(false);
-    checkOverlandFlow2D->setChecked(false);
+  //  checkOverlandFlow2D->setChecked(false);
     checkOverlandFlow2Ddyn->setChecked(true);
-    frame_diffwave->setEnabled(checkOverlandFlow2D->isChecked());
+    checkOverlandFlow2Dkindyn->setChecked(false);
+    //frame_diffwave->setEnabled(checkOverlandFlow2D->isChecked());
     //frame_dynwave->setEnabled(checkOverlandFlow2Ddyn->isChecked());
     groupBox_coupling->setEnabled(!checkOverlandFlow2Ddyn->isChecked());
 
@@ -1766,7 +1778,7 @@ void lisemqt::resetAll()
     checkAdvancedSediment->setChecked(false);
 
     checkIncludeChannel->setChecked(true);
-    checkChannelFlood->setChecked(true);
+    //checkChannelFlood->setChecked(true);
     checkChannelInfil->setChecked(false);
     checkChannelBaseflow->setChecked(false);
 

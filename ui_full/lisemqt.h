@@ -303,6 +303,7 @@ public:
     QButtonGroup GroupImpermeable;
     QButtonGroup GroupBaseflow;
     QButtonGroup GroupRunoff;
+    QButtonGroup GroupChannel;
 
     void setDisplayComboBoxes();
     void on_toolButton_help(int page);
