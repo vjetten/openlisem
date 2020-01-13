@@ -66,20 +66,6 @@ void TWorld::Interception(int thread)
                 LAIv = (log(1-Cover->Drc)/-0.4)/std::max(0.1,Cover->Drc);
             //Smax is based on LAI and LAI is the average of a gridcell, already including the cover
             // a low cover means a low LAI means little interception
-            // avoid division by 0
-
-            //            if (SwitchHardsurface)
-            //                Smax *= (1-HardSurface->Drc);
-            //VJ 110111 no interception on hard surfaces
-
-            //            if (PlantHeight->Drc < WH->Drc)
-            //            {
-            //                Smax = 0;
-            //                CS = 0;
-            //            }
-            //VJ no interception when water level is heigher than plants
-            //???? we cannot make interception 0 when water rises because of mass balance
-
 
             if (Smax > 0)
             {

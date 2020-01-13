@@ -91,12 +91,6 @@ void TWorld::InfilEffectiveKsat(void)
                 Ksateff->Drc *= (1-HouseCover->Drc);
             }
 
-//            if (RoadWidthDX->Drc > 0) {
-//                Ksateff->Drc *= (1-RoadWidthDX->Drc/_dx);
-//            //    Poreeff->Drc *= (1-RoadWidthDX->Drc/_dx);
-//            }
-//VJ 4.94 VJ 180215 roads are already excluded in surf storage so do not use it here
-
             Ksateff->Drc = std::max(0.0, Ksateff->Drc);
             Poreeff->Drc = std::max(0.0, Poreeff->Drc);
             Thetaeff->Drc = std::min(Thetaeff->Drc, Poreeff->Drc);

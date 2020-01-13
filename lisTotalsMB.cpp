@@ -472,7 +472,7 @@ void TWorld::MassBalance()
       //  qDebug() << DepTot << ChannelDepTot << FloodDepTot;
       //  qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
 
-        if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
+        if( SwitchKinematic2D == K2D_METHOD_KINDYN)
         {
             // distribute sed errors over dep or det
 
