@@ -402,7 +402,7 @@ void TWorld::OverlandFlow2Ddyn(void)
             FOR_ROW_COL_MV
             {
                 double sed = (SSFlood->Drc + BLFlood->Drc);
-                Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &sed, &DEP->Drc);
+                Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &sed, &DepFlood->Drc);
                 Qsn->Drc = Conc->Drc*Qn->Drc;
             }
         }
@@ -421,7 +421,7 @@ void TWorld::OverlandFlow2Ddyn(void)
                 FOR_GRAIN_CLASSES
                 {
                     Sed->Drc += Sed_D.Drcd;
-                    Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &Sed_D.Drcd, &DEP->Drc);
+                    Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &Sed_D.Drcd, &DepFlood->Drc);
                     Conc->Drc += Conc_D.Drcd;
                 }
                 Qsn->Drc = Conc->Drc*Qn->Drc;

@@ -341,7 +341,6 @@ void TWorld::ChannelFlood(void)
 
     double dtflood = 0;
 
-
     startFlood = false;
     FOR_ROW_COL_MV {
         if (hmx->Drc > 0) {
