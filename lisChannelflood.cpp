@@ -49,10 +49,14 @@ functions: \n
 void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
 {
     cTMap *_SS;
-    if (doOF)
+    cTMap *_SSC;
+    if (doOF) {
         _SS = Sed;
-    else
+        _SSC = Conc;
+    } else {
         _SS = SSFlood;
+        _SSC = SSCFlood;
+    }
 
     for (int  r = 0; r < _nrRows; r++)
     {
@@ -113,18 +117,19 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                                 ChannelWH->Drcr -= dwh;
 
                                 if(SwitchErosion) {
-                                     double sed = fracC*ChannelSSSed->Drcr;
-                                     ChannelSSSed->Drcr -= sed;
-                                     _SS->Drcr += sed;
-                                     if(SwitchUseGrainSizeDistribution)
-                                     {
-                                         FOR_GRAIN_CLASSES
-                                         {
-                                          //   SS_D.Drcd += RSSC_D.Drcd * vol;
-                                          //  RSS_D.Drcd -= RSSC_D.Drcd * vol;
-                                         }
-                                         //CALC TOTALS HERE
-                                     }
+                                  //  double sed = dwh*ChannelSSConc->Drcr;
+                                    double sed = fracC*ChannelSSSed->Drcr;
+                                    ChannelSSSed->Drcr -= sed;
+                                    _SS->Drcr += sed;
+                                    if(SwitchUseGrainSizeDistribution)
+                                    {
+                                        FOR_GRAIN_CLASSES
+                                        {
+                                            //   SS_D.Drcd += RSSC_D.Drcd * vol;
+                                            //  RSS_D.Drcd -= RSSC_D.Drcd * vol;
+                                        }
+                                        //CALC TOTALS HERE
+                                    }
                                 }
 
                             }
@@ -142,6 +147,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                                 ChannelWH->Drcr += (dwh/cwa);
                                 if(SwitchErosion) {
                                     double sed = fracA*_SS->Drcr;
+                                    //double sed = dwh*_SSC->Drcr;
                                     ChannelSSSed->Drcr += sed;
                                     _SS->Drcr -= sed;
 
@@ -149,8 +155,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                                     {
                                         FOR_GRAIN_CLASSES
                                         {
-                                       //     SS_D.Drcd += RSSC_D.Drcd * vol;
-                                       //     RSS_D.Drcd -= RSSC_D.Drcd * vol;
+                                            //     SS_D.Drcd += RSSC_D.Drcd * vol;
+                                            //     RSS_D.Drcd -= RSSC_D.Drcd * vol;
                                         }
                                         //CALC TOTALS HERE
                                     }
@@ -177,14 +183,14 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
 
                                 double _sed = ChannelSSSed->Drcr + _SS->Drcr;
                                 double volch = ChannelSSDepth->Drcr*ChannelWidth->Drcr*ChannelDX->Drcr;
-                                double volof = /*SSDepthFlood->Drcr*/ _h->Drcr*ChannelAdj->Drcr*DX->Drcr;
+                                double volof = _h->Drcr*ChannelAdj->Drcr*DX->Drcr;
                                 double _concavg = _sed/(volch+volof);
 
                                 ChannelSSSed->Drc = _concavg * volch;
                                 ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
 
                                 _SS->Drcr = _concavg * volof;
-                                //Conc->Drcr = = _concavg;
+                                _SSC->Drcr = _concavg;
 
                                 if(SwitchUseGrainSizeDistribution)
                                 {

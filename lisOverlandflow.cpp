@@ -148,7 +148,7 @@ void TWorld::ToChannel()//int thread)
         return;
     }
 
- /*
+   /*
 
     FOR_ROW_COL_MV_CH  //TODO: must be FOR_ROW_COL_MV ? else extended no sense
     {
@@ -223,7 +223,7 @@ void TWorld::ToChannel()//int thread)
             }
         }
     }
-*/
+ */
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -276,11 +276,6 @@ void TWorld::CalcVelDisch(int thread)
             Q->Drc = 0;
 
         V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/NN;
-      //  V->Drc = std::min(Q->Drc/(WHrunoff->Drc*FlowWidth->Drc), V->Drc);
-      //  V->Drc = WHrunoff->Drc*FlowWidth->Drc > 0 ? Q->Drc/(WHrunoff->Drc*FlowWidth->Drc) : 0.0;
-
-
-
 
     }}}}
 }
@@ -520,11 +515,6 @@ void TWorld::OverlandFlow1D(void)
         }
         else
         {
-    //        double Aold = Alpha->Drc*pow(Q->Drc, 0.6);
-    //        double Anew = Alpha->Drc*pow(Qn->Drc, 0.6);
-
-//            Q->Drc = pow(A/Alpha->Drc, 5.0/3.0);
-
             WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
             //new WH based on A/dx = alpha Q^beta / dx
             // apha is however determined from the old Q...
@@ -581,19 +571,7 @@ void TWorld::OverlandFlow1D(void)
 //    }
 
 
-    if(!SwitchIncludeChannel)
-    {
 
-        copy(*hmxWH, *WH);  //there is no difference, only WH, hmx is now just for reporting
-
-        FloodMaxandTiming(WH, V, minReportFloodHeight);
-
-        FOR_ROW_COL_MV {
-            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
-            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
-            //FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
-        }
-    }
 
     //      routing of substances add here!
     //      do after kin wave so that the new flux Qn out of a cell is known
@@ -614,7 +592,8 @@ void TWorld::OverlandFlow1D(void)
             {
                 if (LDD->Drc == 5) // if outflow point, pit
                 {
-                    routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, tma, Sed);
+                    routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);
+                    Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
                 }
             }
         } else {
@@ -722,6 +701,20 @@ void TWorld::OverlandFlow1D(void)
                 //qDebug()<< "ds overlandflow"<< C->Drc;
                 //qDebug()<< "ds overlandflow"<< Pest->Drc;
             }
+        }
+    }
+
+    if(!SwitchIncludeChannel)
+    {
+
+        copy(*hmxWH, *WH);  //there is no difference, only WH, hmx is now just for reporting
+
+        FloodMaxandTiming(WH, V, minReportFloodHeight);
+
+        FOR_ROW_COL_MV {
+            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
+            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+            //FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
         }
     }
 }

@@ -69,7 +69,7 @@ void TWorld::OFSedimentSetConcentration(int r, int c, cTMap * h)
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::MaxConcentration(double watvol, double sedvol)
- * @brief Calculates concentration with a maximum of MAXCONC
+ * @brief Calculates concentration with a maximum of MAXCONC, changes sed vol and deposisition
  *
  * @param watvol : the watervolume
  * @param sedvol : the sediment mass
@@ -82,18 +82,18 @@ double TWorld::MaxConcentration(double watvol, double *sedvol, double *dep)
    double conc = 0;
 
    if (watvol > _dx*_dx*MIN_HEIGHT)
-      conc = *sedvol/watvol;
-   // 1e-6 is 1 ml/m2
+      conc = *sedvol/watvol;   // 1e-6 is 1 ml/m2 !!
    else {
       conc = 0;
-//      *dep -= *sedvol;
-//      *sedvol = 0;
+      *dep -= *sedvol;
+      *sedvol = 0;
    }
 
    if (conc > MAXCONC) {
-       *dep += (conc-MAXCONC)*watvol;
+       double maxsed = MAXCONC*watvol;
+       *dep += maxsed-*sedvol;
        conc = MAXCONC;
-       *sedvol = conc * watvol;
+       *sedvol = maxsed;
    }
    return conc;
 }
@@ -482,19 +482,16 @@ double TWorld::GetSV(double d)
     double ds = dm * pow((2650.0/1000.0 - 1.0)*GRAV/(1e-6*1e-6),(1.0/3.0));
     return 1e-6/dm*(ds*ds*ds)*pow(38.1+0.93*pow(ds,12.0/7.0), -7.0/8.0);
 //    // zhiyao et al, 2008
-
-    //Stokes range settling velocity
-    //Stokes
+//------------
     if(d < 100)
     {
-   //     qDebug() << 2*(2650-1000)*GRAV*pow(d/2000000.0, 2)/(9*0.001);
-   //     return 2*(2650-1000)*GRAV*pow(d/2000000.0, 2)/(9*0.001);
         return 2*(2650.0-1000.0)*GRAV*pow(d/2000000.0, 2)/(9*0.001);
-    //Settling velocity by Zanke (1977)
+        //Stokes range settling velocity
     }else
     {
         double dm = d/1000.0;
         return 10.0 *(sqrt(1.0 + 0.01 *((2650.0-1000.0)/1000.0)* GRAV *dm*dm*dm )-1.0)/(dm);
+        //Settling velocity by Zanke (1977)
     }
 
 }
@@ -511,7 +508,7 @@ double TWorld::GetSV(double d)
  * @param c : coumn nr of the cell
  * @return void
  */
-void TWorld::SedimentSetMaterialDistribution()//(int r,int c)
+void TWorld::SedimentSetMaterialDistribution()
 {
     if(!SwitchUseMaterialDepth)
         return;

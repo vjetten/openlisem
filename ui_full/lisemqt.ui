@@ -646,8 +646,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>867</width>
-                <height>821</height>
+                <width>758</width>
+                <height>803</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_44">
@@ -721,7 +721,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>4</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">

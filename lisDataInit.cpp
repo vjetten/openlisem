@@ -1059,12 +1059,10 @@ void TWorld::InitMulticlass(void)
                     if (SwitchEfficiencyDET == 3)
                         Y->Drc = std::min(1.0, 1.0/(2.0*fabs(CohesionSoil->Drc)));
 
-            //            if (StoneFraction->Drc > 0)
-            //                Y->Drc = 0.84*exp(-6*StoneFraction->Drc);
-            // GOED IDEE ?
             if (CohesionSoil->Drc < 0)
                 Y->Drc = 0; // to force max strength
         }
+        report(*Y,"y.map");
     }
 
     if(SwitchIncludeChannel)
