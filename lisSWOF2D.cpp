@@ -1104,12 +1104,10 @@ void TWorld::fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cT
 
     setZero(thread,hs, us, vs);
 
-    //sediment
     //only when sediment is modelled
     if (SwitchErosion)
-        SWOFSediment(thread,FloodDT,dt1,h,u,v );  //TODO why not hs, us, vs
-report(*u, "u");
-report(*v, "v");
+        SWOFSediment(thread,FloodDT,h,u,v );  //TODO why not hs, us, vs
+
     if (!SwitchHeun)
     {
         FOR_ROW_COL_UF2DMT_DT {
@@ -1139,7 +1137,7 @@ void TWorld::fullSWOF2Do2lightWrapperErosion(int thread, cTMap *h, cTMap *u, cTM
 {
 
     //sediment
-    SWOFSediment(thread,FloodDT,dt1,h,u,v );
+    SWOFSediment(thread,FloodDT,h,u,v );
 
 
 }

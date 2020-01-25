@@ -364,29 +364,8 @@ void lisemqt::initOP()
     op.FloodDetTot = 0;
     op.volFloodmm = 0;
 
-//    op.F_solution = 1;
-//    op.F_scheme = 1;
-//    op.F_fluxLimiter = 1;
-//    op.F_MinTimestepFlood = 0.001;
-//    op.F_courant = 0.2;
-//    op.F_courant_diffusive = 0.2;
-//    op.F_Maxiter = 200;
-//    op.F_SigmaDiffusion = 1;
-
     op.format = "PCRaster";
 
 }
 //---------------------------------------------------------------------------
-void lisemqt::setFloodOP()
-{
-//    op.F_solution = E_floodSolution->text().toInt();
-//    op.F_fluxLimiter = E_FloodFluxLimiter->text().toInt();
-//    op.F_scheme = 1;//E_FloodScheme->text().toInt();
-//    op.F_SSMethod = E_SSMethod->text().toInt();
-//    op.F_SigmaDiffusion = E_SigmaDiffusion->text().toDouble();
-//    op.F_BLMethod = E_BLMethod->text().toInt();
-//    //op.F_MinTimestepFlood = E_TimestepMinFlood->text().toDouble();
-//    op.F_courant = E_courantFactor->text().toDouble();
-//    op.F_courant_diffusive = E_courantFactorSed->text().toDouble();
-//    op.F_Maxiter = E_FloodMaxIter->text().toInt();
-}
+

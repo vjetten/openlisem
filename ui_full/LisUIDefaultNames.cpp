@@ -364,8 +364,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Timestep Kin Wave 2D");
     namelist[i].value = QString("0.2");
     namelist[i++].name = QString("Courant Kin Wave 2D");
-    namelist[i].value = QString("0.2");
-    namelist[i++].name = QString("Flooding courant factor diffusive");
+//    namelist[i].value = QString("0.2");
+//    namelist[i++].name = QString("Flooding courant factor diffusive");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Flow Boundary 2D");
     namelist[i].value = QString("1.0");
@@ -416,16 +416,32 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Detachment efficiency");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("No detachment boundary");
+    namelist[i].value = QString("0.1");
+    namelist[i++].name = QString("Splash Delivery Ratio");
+    namelist[i].value = QString("0.5");
+    namelist[i++].name = QString("Particle Cohesion of Deposited Layer");
 
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Sediment]");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Use 2 phase flow");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("River BL method");
     namelist[i].value = QString("1");
+    namelist[i++].name = QString("River BL method");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("River SS method");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include River diffusion");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("River Sigma diffusion");
+    namelist[i].value = QString("0"); //govers
+    namelist[i++].name = QString("Flooding SS method");
+    namelist[i].value = QString("1"); //van rijn simplified
+    namelist[i++].name = QString("Flooding BL method");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include diffusion");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Sigma diffusion");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Use grain size distribution");
     namelist[i].value = QString("0");
@@ -438,14 +454,9 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Grain size class maps");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Use material depth");
-    namelist[i].value = QString("1"); //van rijn simplified
-    namelist[i++].name = QString("Flooding SS method");
-    namelist[i].value = QString("1"); //van rijn simplified
-    namelist[i++].name = QString("Flooding BL method");
-    namelist[i].value = QString("1"); //van rijn simplified
-    namelist[i++].name = QString("Sigma diffusion");
     namelist[i].value = QString("1400");
     namelist[i++].name = QString("Sediment bulk density");
+
 
     //###
     namelist[i++].name = QString("");
@@ -480,11 +491,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Cohesion Channel calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Aggregate stability calibration");
-    namelist[i].value = QString("0.1");
-    namelist[i++].name = QString("Splash Delivery Ratio");
-    namelist[i].value = QString("0.5");
-    namelist[i++].name = QString("Particle Cohesion of Deposited Layer");
-
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Output maps]");

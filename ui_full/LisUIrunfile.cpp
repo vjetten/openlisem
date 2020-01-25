@@ -173,10 +173,11 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use MUSCL")==0)                      checkMuscl->setChecked(check);
         if (p1.compare("Use time avg V")==0)                 checkTimeavgV->setChecked(check);
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(valc);
-        if (p1.compare("Flooding courant factor diffusive")==0)        E_courantFactorSed->setValue(valc);
+     //   if (p1.compare("Flooding courant factor diffusive")==0)        E_courantFactorSed->setValue(valc);
 
         if (p1.compare("Flooding BL method")==0)             E_BLMethod->setValue(iii);
         if (p1.compare("Flooding SS method")==0)             E_SSMethod->setValue(iii);
+        if (p1.compare("Include diffusion")==0)              checkDiffusion->setChecked(check);
         if (p1.compare("Sigma diffusion")==0)                E_SigmaDiffusion->setValue(valc);
         if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(iii);
         if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(iii);
@@ -195,6 +196,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use 2 phase flow")==0)              checkSed2Phase->setChecked(check);
         if (p1.compare("River BL method")==0)                 E_RBLMethod->setValue(iii);
         if (p1.compare("River SS method")==0)                 E_RSSMethod->setValue(iii);
+        if (p1.compare("Include River diffusion")==0)              checkRDiffusion->setChecked(check);
+        if (p1.compare("River Sigma diffusion")==0)           E_RSigmaDiffusion->setValue(valc);
         if (p1.compare("Use grain size distribution")==0)     checkSedMultiGrain->setChecked(check);
         if (p1.compare("Estimate grain size distribution")==0)checkEstimateGrainSizeDistribution->setChecked(check);
         if (p1.compare("Read grain distribution maps")==0)    checkReadGrainSizeDistribution->setChecked(check);
@@ -703,23 +706,22 @@ void lisemqt::updateModelData()
                 namelist[j].value.setNum(0);
         }
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
-        if (p1.compare("Flooding courant factor diffusive")==0)        namelist[j].value = E_courantFactorSed->text();
+      //  if (p1.compare("Flooding courant factor diffusive")==0)        namelist[j].value = E_courantFactorSed->text();
         //   if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();
 
-
+        if (p1.compare("Include diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
+        if (p1.compare("Include River diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
+        if (p1.compare("River Sigma diffusion")==0)          namelist[j].value = E_RSigmaDiffusion->text();
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
-        //    if (p1.compare("Include levees")==0)                 namelist[j].value.setNum((int)checkLevees->isChecked());
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
         if (p1.compare("Flooding mixing coefficient")==0)    namelist[j].value = E_mixingFactor->text();
         if (p1.compare("Flooding runoff partitioning")==0)   namelist[j].value = E_runoffPartitioning->text();
-        // if (p1.compare("Flooding 1D2D coupling")==0)         namelist[j].value = E_1D2DCoupling->text();
         if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
 
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
        // if (p1.compare("Flood max steps")==0)           namelist[j].value = E_FloodMaxSteps->text();
-       // if (p1.compare("Flood sediment transport method")==0) namelist[j].value.setNum((int)checkFloodSedimentInterpolation->isChecked());
         if (p1.compare("Timestep flood")==0)           namelist[j].value = E_TimestepMinFlood->text();
         if (p1.compare("Variable Timestep")==0)        namelist[j].value.setNum((int) checkVariableTimestep->isChecked());
         if (p1.compare("Heun")==0)        namelist[j].value.setNum((int) checkHeun->isChecked());

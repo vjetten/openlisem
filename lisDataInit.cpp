@@ -287,7 +287,7 @@ void TWorld::InitStandardInput(void)
     F_MaxIter = 200;//getvalueint("Flood max Iterations");
     minReportFloodHeight = getvaluedouble("Minimum reported flood height");
     courant_factor = getvaluedouble("Flooding courant factor");
-    courant_factor_sed = getvaluedouble("Flooding courant factor diffusive");
+   // courant_factor_sed = getvaluedouble("Flooding courant factor diffusive");
     mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
     runoff_partitioning = getvaluedouble("Flooding runoff partitioning");
 
@@ -298,18 +298,26 @@ void TWorld::InitStandardInput(void)
     TimestepKinMin = getvaluedouble("Timestep Kin Wave 2D");
     ConcentrateKin = getvaluedouble("Flow concentration 2D");
     TimestepfloodMin = getvaluedouble("Timestep flood");
-    OF_Method = (SwitchUseGrainSizeDistribution? FSHAIRSINEROSE : FSGOVERS);
+//    OF_Method = (SwitchUseGrainSizeDistribution? FSHAIRSINEROSE : FSGOVERS);
 
     F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
     F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
     F_maxSteps = 1;//getvalueint("Flood max steps");
 
     if (SwitchErosion) {
+        //default
+        R_BL_Method = FSRIJN;
+        R_SS_Method = FSGOVERS;
+        FS_BL_Method = FSRIJN;
+        FS_SS_Method = FSGOVERS;
+
         FS_SS_Method = getvalueint("Flooding SS method");
         FS_BL_Method = getvalueint("Flooding BL method");
-        R_BL_Method  = getvalueint("River BL method");
         R_SS_Method  = getvalueint("River SS method");
+        R_BL_Method  = getvalueint("River BL method");
+
         FS_SigmaDiffusion = getvaluedouble("Sigma diffusion");
+        R_SigmaDiffusion = getvaluedouble("River Sigma diffusion");
         if (SwitchUse2Layer && SwitchUseGrainSizeDistribution) {
             R_BL_Method = FSWUWANGJIA;
             R_SS_Method = FSWUWANGJIA;  // ignore because it has to be 3 when 2 layer and graisizedist
@@ -317,9 +325,9 @@ void TWorld::InitStandardInput(void)
             FS_SS_Method = FSWUWANGJIA;
         } else
             if(!SwitchUse2Layer && !SwitchUseGrainSizeDistribution) {
-                R_BL_Method = FSGOVERS;     // if single layer and no grainsize = simple erosion, then govers
+                R_BL_Method = FSRIJN;     // if single layer and no grainsize = simple erosion, then govers
                 R_SS_Method = FSGOVERS;
-                FS_BL_Method = FSGOVERS;
+                FS_BL_Method = FSRIJN;
                 FS_SS_Method = FSGOVERS;
             }
     }

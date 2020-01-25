@@ -514,47 +514,49 @@ void TWorld::ChannelFlow(void)
         cover(*ChannelQBLsn, *LDD, 0);
         cover(*ChannelQSSsn, *LDD, 0);
 
-        if(SwitchUseGrainSizeDistribution)
-        {
-            FOR_GRAIN_CLASSES
+        if (SwitchIncludeRiverDiffusion) {
+            if(SwitchUseGrainSizeDistribution)
             {
-                cover(*(Tempb_D.at(d)), *LDD, 0);
-                cover(*(Tempd_D.at(d)), *LDD, 0);
-            }
+                FOR_GRAIN_CLASSES
+                {
+                    cover(*(Tempb_D.at(d)), *LDD, 0);
+                    cover(*(Tempd_D.at(d)), *LDD, 0);
+                }
 
-            FOR_GRAIN_CLASSES
-            {
-                RiverSedimentDiffusion(_dt, RSS_D.at(d),RSSC_D.at(d));
-            }
-            FOR_ROW_COL_MV_CH
-            {
-                ChannelSed->Drc = 0;
-                ChannelConc->Drc = 0;
-                ChannelBLConc->Drc = 0;
-                ChannelSSConc->Drc = 0;
-                ChannelBLSed->Drc = 0;
-                ChannelSSSed->Drc = 0;
-            }
-            FOR_GRAIN_CLASSES
-            {
+                FOR_GRAIN_CLASSES
+                {
+                    RiverSedimentDiffusion(_dt, RSS_D.at(d),RSSC_D.at(d));
+                }
                 FOR_ROW_COL_MV_CH
-                 {
-                    ChannelBLSed->Drc += RBL_D.Drcd;
-                    ChannelSSSed->Drc += RSS_D.Drcd;
-                    ChannelSed->Drc += RSS_D.Drcd + RBL_D.Drcd;
-                    RBLC_D.Drcd = (ChannelQn->Drc > MIN_FLUX ? Tempb_D.Drcd/ChannelQn->Drc : 0);
-                    RSSC_D.Drcd = (ChannelQn->Drc > MIN_FLUX ? Tempd_D.Drcd/ChannelQn->Drc : 0);
-                    ChannelConc->Drc += RBLC_D.Drcd + RSSC_D.Drcd;
-                    ChannelBLConc->Drc += RBLC_D.Drcd;
-                    ChannelSSConc->Drc += RSSC_D.Drcd;
-                 }
+                {
+                    ChannelSed->Drc = 0;
+                    ChannelConc->Drc = 0;
+                    ChannelBLConc->Drc = 0;
+                    ChannelSSConc->Drc = 0;
+                    ChannelBLSed->Drc = 0;
+                    ChannelSSSed->Drc = 0;
+                }
+                FOR_GRAIN_CLASSES
+                {
+                    FOR_ROW_COL_MV_CH
+                    {
+                        ChannelBLSed->Drc += RBL_D.Drcd;
+                        ChannelSSSed->Drc += RSS_D.Drcd;
+                        ChannelSed->Drc += RSS_D.Drcd + RBL_D.Drcd;
+                        RBLC_D.Drcd = (ChannelQn->Drc > MIN_FLUX ? Tempb_D.Drcd/ChannelQn->Drc : 0);
+                        RSSC_D.Drcd = (ChannelQn->Drc > MIN_FLUX ? Tempd_D.Drcd/ChannelQn->Drc : 0);
+                        ChannelConc->Drc += RBLC_D.Drcd + RSSC_D.Drcd;
+                        ChannelBLConc->Drc += RBLC_D.Drcd;
+                        ChannelSSConc->Drc += RSSC_D.Drcd;
+                    }
+                }
             }
-        }
-        else
-        {            
-            RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
-            // note SSsed goes in and out, SSconc is recalculated inside
+            else
+            {
+                RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
+                // note SSsed goes in and out, SSconc is recalculated inside
 
+            }
         }
 
         if(!SwitchUseGrainSizeDistribution)
@@ -564,7 +566,7 @@ void TWorld::ChannelFlow(void)
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r,c);
           //       ChannelQsn->Drc = ChannelConc->Drc * ChannelQn->Drc;
-         ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
+                ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
                 ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
 
             }

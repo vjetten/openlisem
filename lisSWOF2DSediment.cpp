@@ -1034,7 +1034,7 @@ void TWorld::SWOFSedimentBalance(int thread)
  * @see SWOFSedimentSetConcentration
  */
 
-void TWorld::SWOFSediment(int thread,cTMap* DT,double dt,cTMap * h,cTMap * u,cTMap * v)
+void TWorld::SWOFSediment(int thread,cTMap* DT,cTMap * h,cTMap * u,cTMap * v)
 {
     //sediment detachment or deposition
     FOR_ROW_COL_UF2DMT_DT {
@@ -1060,7 +1060,8 @@ void TWorld::SWOFSediment(int thread,cTMap* DT,double dt,cTMap * h,cTMap * u,cTM
     {
         SWOFSedimentFlowInterpolation(thread,DT,h,u,v, BLFlood, BLCFlood, SSFlood, SSCFlood);
 
-        SWOFSedimentDiffusion(thread,DT,h,u,v, SSFlood, SSCFlood);
+        if (SwitchIncludeDiffusion)
+           SWOFSedimentDiffusion(thread,DT,h,u,v, SSFlood, SSCFlood);
 
     } else {
          //or if there are multiple grain size classes
@@ -1078,9 +1079,11 @@ void TWorld::SWOFSediment(int thread,cTMap* DT,double dt,cTMap * h,cTMap * u,cTM
         //SWOFSedimentBalance(thread);
 
         //diffusion
-        FOR_GRAIN_CLASSES
-        {
-            SWOFSedimentDiffusion(thread,DT,h,u,v,  SS_D.at(d), SSC_D.at(d));
+        if (SwitchIncludeDiffusion) {
+            FOR_GRAIN_CLASSES
+            {
+                SWOFSedimentDiffusion(thread,DT,h,u,v,  SS_D.at(d), SSC_D.at(d));
+            }
         }
 
         //calculate total sediment as sum of grain classes

@@ -305,7 +305,7 @@ public:
     Switchheaderpest, SwitchPesticide, SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,
   SwitchTimeavgV, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed,SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep, SwitchHeun, SwitchNeedD90, SwitchImage,
-    SwitchDumpH,SwitchDumpTheta,SwitchDumpK;
+    SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion;
  /* SwitchFloodSWOForder1, SwitchFloodSWOForder2,*/
     int SwitchFlood1D2DCoupling;
     int SwitchKinematic2D;
@@ -557,7 +557,7 @@ public:
     int FS_BL_Method;
     double FS_SigmaDiffusion;
 
-    int OF_Method;
+   // int OF_Method;
 
     int R_SS_Method;
     int R_BL_Method;
@@ -646,7 +646,7 @@ public:
 
     void SWOFSedimentFlowInterpolation(int thread,cTMap* dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentDet(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSediment(int thread,cTMap* DT, double dt, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSediment(int thread,cTMap* DT, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
 
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed);

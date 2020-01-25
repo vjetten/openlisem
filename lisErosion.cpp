@@ -1884,7 +1884,7 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
         //diffusion coefficient according to J.Smagorinski (1964)
         double eddyvs = cdx * dux;
         //and devide by turbulent prandtl-smidth number, def 1.0
-        double eta = eddyvs/FS_SigmaDiffusion;
+        double eta = eddyvs/R_SigmaDiffusion;
 
         //add diffusive fluxes to previous cell in channel.
         if(foundp)

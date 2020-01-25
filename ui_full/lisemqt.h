@@ -444,7 +444,6 @@ public slots:
     void fontIncrease();
     void setfontSize();
 
-    void setFloodOP();
     void setFormatMaps(bool);
 
 private slots:
