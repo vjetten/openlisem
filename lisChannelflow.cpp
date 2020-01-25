@@ -513,7 +513,10 @@ void TWorld::ChannelFlow(void)
 
         cover(*ChannelQBLsn, *LDD, 0);
         cover(*ChannelQSSsn, *LDD, 0);
-
+        FOR_ROW_COL_MV_CH
+        {
+           ChannelSSConc->Drc = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
+        }
         if (SwitchIncludeRiverDiffusion) {
             if(SwitchUseGrainSizeDistribution)
             {

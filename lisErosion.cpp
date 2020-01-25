@@ -1685,31 +1685,10 @@ void TWorld::RiverSedimentMaxC(int r, int c)
     //maximum concentration
     if(!SwitchUseGrainSizeDistribution)
     {
-//        double sssmax = MAXCONC * DX->Drc *ChannelFlowWidth->Drc*ChannelSSDepth->Drc;
-//        if(sssmax < _SS->Drc)
-//        {
-//            ChannelDep->Drc += (sssmax - _SS->Drc);// - sssmax);
-//            if(SwitchUseMaterialDepth)
-//            {
-//                RStorageDep->Drc += (_SS->Drc - sssmax);
-//            }
-//            _SS->Drc = sssmax;
-//        }
         _SSC->Drc = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*ChannelSSDepth->Drc, &_SS->Drc, &ChannelDep->Drc);
         //_SS->Drc = _SSC->Drc* ChannelFlowWidth->Drc*DX->Drc*ChannelSSDepth->Drc;
         // limit concentration to 850 and throw rest in deposition
 
-//        double smax = MAXCONCBL * DX->Drc *ChannelFlowWidth->Drc*ChannelBLDepth->Drc;
-//        if(smax < _BL->Drc)
-//        {
-//            ChannelDep->Drc += (smax - _BL->Drc);// - smax);
-//            if(SwitchUseMaterialDepth)
-//            {
-//                RStorageDep->Drc += (_BL->Drc - smax);
-//            }
-//            _BL->Drc = smax;
-
-//        }
         //set concentration from present sediment
         _BLC->Drc = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*ChannelBLDepth->Drc, &_BL->Drc, &ChannelDep->Drc);
        // _BL->Drc = _BLC->Drc * DX->Drc *ChannelFlowWidth->Drc*ChannelBLDepth->Drc;
@@ -1799,7 +1778,7 @@ void TWorld::RiverSedimentMaxC(int r, int c)
 void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
 {
 
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_MV_CH
     {
        MSSNFlood->Drc = _SS->Drc;
        MSSCFlood->Drc = MaxConcentration(ChannelWaterVol->Drc, &MSSNFlood->Drc, &ChannelDep->Drc);
@@ -1910,7 +1889,7 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
     }
 
     //recalculate concentrations
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_MV_CH
     {
         _SS->Drc = MSSNFlood->Drc;
         //set concentration from present sediment
