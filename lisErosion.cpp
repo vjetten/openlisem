@@ -1055,14 +1055,14 @@ void TWorld::FlowDetachment(int thread)
        DEP->Drc = 0;
        if(!SwitchUseGrainSizeDistribution) {
            //get the transport capacity for a single grain size
-             TC->Drc = calcTCSuspended(r,c,-1, FSGOVERS, V->Drc, 2);
+             TC->Drc = calcTCSuspended(r,c,-1, FSGOVERS, WHrunoff->Drc, V->Drc, 2);
 
        } else {
            //get the transport capacity for all induvidual grain sizes
            TC->Drc = 0;
            FOR_GRAIN_CLASSES
            {
-               TC_D.Drcd = calcTCSuspended(r,c,d, FSHAIRSINEROSE, V->Drc, 2);
+               TC_D.Drcd = calcTCSuspended(r,c,d, FSHAIRSINEROSE, WHrunoff->Drc, V->Drc, 2);
                TC->Drc += TC_D.Drcd;
            }
 
@@ -1366,8 +1366,8 @@ void TWorld::ChannelFlowDetachment()
             //get transport capacity for bed/suspended load for a specific cell and grain size class
             // TBLTCFlood->Drc = RiverSedimentTCBL(r,c,d, ChannelV->Drc, ChannelWH->Drc, ChannelBLDepth->Drc, ChannelWidth->Drc);
             // TSSTCFlood->Drc = RiverSedimentTCSS(r,c,d, ChannelV->Drc, ChannelWH->Drc, ChannelSSDepth->Drc, ChannelWidth->Drc);
-            TBLTCtemp->Drc = calcTCBedload(r, c, d, R_BL_Method, ChannelV->Drc, 0);
-            TSSTCtemp->Drc = calcTCSuspended(r, c, d, R_SS_Method, ChannelV->Drc, 0);
+            TBLTCtemp->Drc = calcTCBedload(r, c, d, R_BL_Method, ChannelWH->Drc,ChannelV->Drc, 0);
+            TSSTCtemp->Drc = calcTCSuspended(r, c, d, R_SS_Method, ChannelWH->Drc, ChannelV->Drc, 0);
         }
 
         //check if the sum of transport capacities of all grain sizes is larger than MAXCONC, and rescale if nessecery
@@ -1992,13 +1992,12 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
  * @param U : velicty can be channel of overland or flood
  * @param type : channel (0) or flood (1) or overland (2)
  */
-double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int type)
+double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double U, int type)
 {
-    double R=0, h=0, hs=0, S = 0, w = 0;
+    double R=0, hs=0, S = 0, w = 0;
     cTMap *Wd = nullptr;
 
     if (type == 0) {
-        h = ChannelWH->Drc;
         hs = ChannelSSDepth->Drc;
         S = ChannelGrad->Drc;
         w = ChannelWidth->Drc;
@@ -2006,7 +2005,6 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int ty
         Wd = RW_D.at(_d);
     } else
     if (type == 1) {
-        h = hmx->Drc;
         hs = SSDepthFlood->Drc;
         S = Grad->Drc;
         w = ChannelAdj->Drc;
@@ -2014,7 +2012,6 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int ty
         Wd = W_D.at(_d);
     } else
         if (type == 2) {
-            h = WHrunoff->Drc;
             hs = WHrunoff->Drc;
             S = Grad->Drc;
             w = FlowWidth->Drc;
@@ -2170,12 +2167,12 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double U, int ty
  * @param _d : The grain class (only needed when grain size distribution is used)
  * @param method : the TC method used
  */
-double TWorld::calcTCBedload(int r,int c, int _d, int method, double U, int type)
+double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double U, int type)
 {
-    double R, h, hb, n, S, w;
+    double R,  hb, n, S, w;
 
     if (type == 0) {
-        h = ChannelWH->Drc;
+    //    h = ChannelWH->Drc;
         hb = ChannelBLDepth->Drc;
         n = std::max(0.001, ChannelN->Drc);
         S = ChannelGrad->Drc;
@@ -2183,7 +2180,7 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double U, int type
         R = (w*h)/(2*h+w);
     } else
     if (type == 1) {
-        h = hmx->Drc;
+     //   h = hmx->Drc;
         hb = BLDepthFlood->Drc;
         n = std::max(0.001, N->Drc);
         S = Grad->Drc;

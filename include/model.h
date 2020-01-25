@@ -675,8 +675,8 @@ public:
  //   double RiverSedimentTCSS(int r,int c, int d, double V, double WH, double WHs, double w);
      void RiverSedimentMaxC(int r, int c);
 
-    double calcTCSuspended(int r,int c, int _d, int method, double U, int type);
-    double calcTCBedload(int r,int c, int _d, int method, double U, int type);
+    double calcTCSuspended(int r,int c, int _d, int method, double h, double U, int type);
+    double calcTCBedload(int r,int c, int _d, int method, double h, double U, int type);
 
 
     void FindBaseFlow(); //search for channel inflow from groundwater

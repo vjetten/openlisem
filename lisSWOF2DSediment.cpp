@@ -613,9 +613,9 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
             TSSTCFlood = SSTC_D.at(d);
         }
         //calculate tranport capacity for bed load and suspended load
-        TBLTCFlood->Drc = calcTCBedload(r, c, d, FS_BL_Method, velocity, 1);
+        TBLTCFlood->Drc = calcTCBedload(r, c, d, FS_BL_Method, h->Drc, velocity, 1);
                 //SWOFSedimentTCBL(r,c,d,h,velocity);  // van Rijn etc
-        TSSTCFlood->Drc = calcTCSuspended(r, c, d, FS_SS_Method, velocity, 1);
+        TSSTCFlood->Drc = calcTCSuspended(r, c, d, FS_SS_Method, h->Drc, velocity, 1);
                 //SWOFSedimentTCSS(r,c,d,h,velocity);   // Govers, van Rijn etc
     }
     //check for concentrations above MAXCONC
