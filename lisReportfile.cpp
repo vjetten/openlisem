@@ -1495,6 +1495,7 @@ void TWorld::GetComboMaps()
         AddComboMap(1,"Splash detachment",unit,DETSplashCum,Colormap,Colors,false,false,factor, step);
         AddComboMap(1,"Flow detachment",unit,DETFlowCum,Colormap,Colors,false,false,factor, step);
         AddComboMap(1,"Sed. Concentration","kg/m3",TotalConc,Colormap,Colors,false,false,1.0, step);
+        AddComboMap(1,"Facine","kg/m3",SedMaxVolume,Colormap,Colors,false,false,1.0, step);
 
         if(SwitchUse2Layer) {
             AddComboMap(1,"Suspended sed.",unit,SSFlood,Colormap,Colors,false,false,factor, step);

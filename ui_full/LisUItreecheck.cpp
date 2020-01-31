@@ -185,13 +185,22 @@ void lisemqt::on_checkInfilCrust_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkInfilGrass_clicked()
 {
-    on_checkSedtrap_clicked();
+    checkMapNameModel(CONSERVATIONMAPS, 0, checkSedtrap->isChecked()||checkInfilGrass->isChecked());
+    E_GrassStripN->setEnabled(checkInfilGrass->isChecked());
+    label_15->setEnabled(checkInfilGrass->isChecked());
+    label_98->setEnabled(checkInfilGrass->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkSedtrap_clicked()
 {
     checkMapNameModel(CONSERVATIONMAPS, 0, checkSedtrap->isChecked()||checkInfilGrass->isChecked());
-   // groupBoxConservation->setEnabled(checkSedtrap->isChecked()||checkInfilGrass->isChecked());
+    E_SedTrapN->setEnabled(checkSedtrap->isChecked());
+    E_BulkDens->setEnabled(checkSedtrap->isChecked());
+    label_189->setEnabled(checkSedtrap->isChecked());
+    label_191->setEnabled(checkSedtrap->isChecked());
+    label_104->setEnabled(checkSedtrap->isChecked());
+    label_33->setEnabled(checkSedtrap->isChecked());
+    // groupBoxConservation->setEnabled(checkSedtrap->isChecked());
 }
 //--------------------------------------------------------------------
 //void lisemqt::on_checkSnowmelt_clicked()

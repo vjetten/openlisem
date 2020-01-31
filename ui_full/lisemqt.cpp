@@ -178,7 +178,7 @@ void lisemqt::SetConnections()
     connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow1D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-    connect(checkOverlandFlow2D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+    Connect(checkOverlandFlow2Dkindyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow2Ddyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
 
     connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
@@ -810,7 +810,8 @@ void lisemqt::SetToolBar()
 
     connect(checkMapBuildings, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
     connect(checkMapRoads, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
-    connect(checkMapChannels, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
+  //  connect(checkMapChannels, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
+    connect(checkMapChannels, SIGNAL(clicked(bool)), this, SLOT(hideChannelVector(bool)));
     connect(checkMapFlowBarriers, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
 
     connect(ComboMaxSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
@@ -819,7 +820,7 @@ void lisemqt::SetToolBar()
     connect(ComboMinSpinBox2,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
 
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
-    connect(transparencyChannel, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaChannel(int)));
+   // connect(transparencyChannel, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaChannel(int)));
     connect(transparencyRoad, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaRoad(int)));
     connect(transparencyHouse, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaHouse(int)));
     connect(transparencyBarrier, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaBarrier(int)));
@@ -1653,11 +1654,12 @@ void lisemqt::resetTabErosion()
     E_EfficiencyDET->setValue(1);
     checkMaterialDepth->setChecked(false);
     E_DepositedCohesion->setValue(0.5);
-    E_BulkDens->setText("1400.00");
+    E_BulkDens->setText("1500.00");
 
     E_SplashDelibery->setValue(0.1);
     checkInfilGrass->setChecked(false);
     E_GrassStripN->setText("0.2");
+
 
     radioButtonKE1->setChecked(true);
     spinKEparameterA1->setValue(28.3);
@@ -1672,6 +1674,9 @@ void lisemqt::resetTabErosion()
 
     checkKETimebased->setChecked(false);
     //checkFloodSedimentInterpolation->setChecked(true);
+
+    E_SedTrapN->setText("0.8");
+    E_GrassStripN->setText("0.2");
 }
 void lisemqt::resetAll()
 {

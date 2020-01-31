@@ -159,6 +159,9 @@ public:
     void showBaseMap();
     void showChannelMap();
     void showChannelVector();
+
+    QwtPlotCurve *rivera;
+    QwtPlotCurve *culvert;
     void showRoadMap();
     void showHouseMap();
     void showFlowBarriersMap();
@@ -450,6 +453,7 @@ private slots:
 
     void showMapb(bool);
     void showMapd(double);
+    void hideChannelVector(bool);
 
 
     // functions that interact with the world thread signals

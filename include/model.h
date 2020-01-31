@@ -359,7 +359,7 @@ public:
     double ASCalibration;
     double SplashDelivery;
     double DepositedCohesion;
-    double StripN;
+    double StripN, SedTrapN;
     double StemflowFraction;
 
     double CanopyOpeness; // VJ 110209 added Aston factor as user input
@@ -632,8 +632,6 @@ public:
     QList<cTMap *> R_Advect;
     QList<cTMap *> F_Advect;
 
-
-    void OFSedimentSetConcentration(int r, int c, cTMap * h);
 
     //sediment for SWOF flood model
     void SWOFSedimentBalance(int thread);

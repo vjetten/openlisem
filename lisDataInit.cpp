@@ -423,8 +423,9 @@ void TWorld::InitStandardInput(void)
     //## landuse and surface data
 
     N = ReadMap(LDD,getvaluename("manning"));
+    Norg = NewMap(0);
     calcValue(*N, nCalibration, MUL); //VJ 110112 moved
-
+    copy(*Norg, *N);
     RR = ReadMap(LDD,getvaluename("RR"));
     PlantHeight = ReadMap(LDD,getvaluename("CH"));
     LAI = ReadMap(LDD,getvaluename("lai"));
@@ -456,6 +457,8 @@ void TWorld::InitStandardInput(void)
     if (SwitchGrassStrip)
     {
         KsatGrass = ReadMap(LDD,getvaluename("ksatgras"));
+        PoreGrass = ReadMap(LDD,getvaluename("poregras"));
+        CohGrass = ReadMap(LDD,getvaluename("cohgras"));
         GrassWidthDX = ReadMap(LDD,getvaluename("grasswidth"));
         copy(*GrassFraction, *GrassWidthDX);
         calcValue(*GrassFraction, _dx, DIV);
@@ -470,9 +473,11 @@ void TWorld::InitStandardInput(void)
             }
             //adjust mann N Cover and height
         }
-    }
-    else
+    } else {
         KsatGrass = NewMap(0);
+        PoreGrass = NewMap(0);
+        CohGrass = NewMap(0);
+    }
 
     StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
     // WheelWidth  = ReadMap(LDD,getvaluename("wheelwidth"));
@@ -671,18 +676,20 @@ void TWorld::InitStandardInput(void)
             }
         }
 
+        SedimentFilter = NewMap(0);
         if (SwitchSedtrap)
         {
-            SedimentFilter = ReadMap(LDD,getvaluename("sedtrap"));
-            calcValue(*SedimentFilter, 1.0, MIN);
-            calcValue(*SedimentFilter, 0.0, MAX);
-            FOR_ROW_COL_MV
-                if (SedimentFilter->Drc > 0) {
-                  N->Drc = N->Drc + 0.5*SedimentFilter->Drc;
+            SedMaxVolume = ReadMap(LDD,getvaluename("sedretmax"));
+            SedTrapN = getvaluedouble("Sediment Trap Mannings n");
+            FOR_ROW_COL_MV {
+                if (SedMaxVolume->Drc > 0)
+                    N->Drc = SedTrapN;
             }
         }
-        else
-            SedimentFilter = NewMap(0);
+        else {
+            SedTrapN = 0;
+            SedMaxVolume = NewMap(0);
+        }
     }
 }
 //---------------------------------------------------------------------------
@@ -1057,6 +1064,8 @@ void TWorld::InitMulticlass(void)
 
             CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
             // soil cohesion everywhere, plantcohesion only where plants
+            if (SwitchGrassStrip)
+                CohesionSoil->Drc = CohesionSoil->Drc  *(1-GrassFraction->Drc) + GrassFraction->Drc * CohGrass->Drc;
 
             if (SwitchEfficiencyDET == 1)
                 Y->Drc = std::min(1.0, 1.0/(0.89+0.56*fabs(CohesionSoil->Drc)));
@@ -1328,11 +1337,7 @@ void TWorld::InitMulticlass(void)
                 }
             }
         }
-
-
     }
-
-
 }
 
 //---------------------------------------------------------------------------

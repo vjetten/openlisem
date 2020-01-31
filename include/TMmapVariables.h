@@ -99,6 +99,7 @@ cTMap
 *q,                          //!< infiltration surplus going in kin wave (<= 0) [m2/s]
 *R,                          //!< hydraulic radius overland flow [m]
 *N,                          //!< Manning's n
+*Norg,                          //!< Manning's n
 *RR,                         //!< Random roughness, locally converted to m [cm]
 *MDS,                        //!< Maximum depression storage [m]
 *fpa,                        //!< fraction ponded area [-]
@@ -255,7 +256,8 @@ cTMap
 *KsatCompact,                //!< saturated hydraulic conductivity compacted soil surface (input is in mm/h) [m/s]
 *PoreCompact,                //!< saturated hydraulic conductivity compacted soil surface (input is in mm/h) [m/s]
 *KsatGrass,                  //!< saturated hydraulic conductivity grass strip (input is in mm/h) [m/s]
-*PoreGrass,                //!< saturated hydraulic conductivity compacted soil surface (input is in mm/h) [m/s]
+*PoreGrass,                  //!< Porosity grass strip (input in cm3/cm3)
+*CohGrass,                   //!< Cohesion grass strip (input in kPa)
 *Ksateff,                    //!< effective saturated hydraulic conductivity (input is in mm/h) [m/s]
 *Poreeff,
 *Thetaeff,
@@ -265,7 +267,8 @@ cTMap
 *fpotgr,                     //!< potential infiltration rate fo grassstrip [m/s]
 *WHGrass,                    //!< water level on a grassstrip [m]
 *GrassFraction,              //!< fraction of grasstrip in a cell [-]
-*SedimentFilter,
+*SedimentFilter,             //!< sediment deposited in the sediment trap in kg/m2
+*SedMaxVolume,               //!< maxvol of sediment in that can be trapped in m3
 *GrassWidthDX,               //!< width of grasstrip in [m]
 *thetaTop,                   //!< average theta of node 0 and 1 for water repelency and nutrients
 

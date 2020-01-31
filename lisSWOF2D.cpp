@@ -72,7 +72,7 @@ void TWorld::prepareFloodZ(cTMap *z)
         for (int c = 1; c < _nrCols; c++)
             if(!pcr::isMV(LDD->data[r][c]) && !pcr::isMV(LDD->data[r][c-1]))
             {
-                delz1->data[r][c-1] = z->Drc - z->data[r][c-1];
+                delz1->data[r][c-1] = (z->Drc) - z->data[r][c-1];
                 // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
             }
     for (int r = 1; r < _nrRows; r++)
@@ -412,6 +412,11 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
 {
     double dtx, dty;
 
+    cTMap *fbw = FlowBarrierW;
+    cTMap *fbe = FlowBarrierE;
+    cTMap *fbn = FlowBarrierN;
+    cTMap *fbs = FlowBarrierS;
+
     FOR_ROW_COL_UF2DMT_DT {
         if(FloodHMaskDer->Drc != 0) {
             f1->Drc = 0;
@@ -420,10 +425,23 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
             f1o->Drc = 0;
             f2o->Drc = 0;
             f3o->Drc = 0;
+            double bh = 0.1;
+            fbn->Drc = 0;
+            fbs->Drc = 0;
+            fbe->Drc = 0;
+            fbw->Drc = 0;
+//            if(LDD->Drc == 1) { fbn->Drc = bh; fbw->Drc = bh;}
+//            if(LDD->Drc == 2) { fbe->Drc = bh; fbw->Drc = bh;}
+//            if(LDD->Drc == 3) { fbn->Drc = bh; fbe->Drc = bh;}
+//            if(LDD->Drc == 4) { fbn->Drc = bh; fbs->Drc = bh;}
+//            if(LDD->Drc == 6) { fbn->Drc = bh; fbs->Drc = bh;}
+//            if(LDD->Drc == 7) { fbs->Drc = bh; fbw->Drc = bh;}
+//            if(LDD->Drc == 8) { fbe->Drc = bh; fbw->Drc = bh;}
+//            if(LDD->Drc == 9) { fbs->Drc = bh; fbe->Drc = bh;}
 
             if(c > 0 && !MV(r,c-1)) {
-                h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]  + std::max(FlowBarrierW->Drc,FlowBarrierE->data[r][c-1])));
-                h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]  + std::max(FlowBarrierW->Drc,FlowBarrierE->data[r][c-1])));
+                h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
+                h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
                 if (F_scheme == 1)
                     F_Rusanov(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
                 else
@@ -452,7 +470,7 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
             }
             // right hand side boundary
             if(c == _nrCols-1 || MV(r, c+1)){
-                double _h1d = std::max(0.0, h1r->Drc - FlowBarrierW->Drc);
+                double _h1d = std::max(0.0, h1r->Drc - fbw->Drc);
                 if (F_scheme == 1)
                     F_Rusanov(_h1d,u1r->Drc,v1r->Drc,0.,0.,0.);
                 else
@@ -478,8 +496,8 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
             g3o->Drc = 0;
 
             if(r > 0 && !MV(r-1,c)) {
-                h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c]  + std::max(FlowBarrierS->Drc,FlowBarrierN->data[r-1][c])));
-                h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]  + std::max(FlowBarrierS->Drc,FlowBarrierN->data[r-1][c])));
+                h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
+                h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
 
                 if (F_scheme == 1)
                     F_Rusanov(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c], h2g->Drc,v2l->Drc,u2l->Drc);
@@ -494,7 +512,7 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
                 g3->Drc = HLL2_f2;
                 cfly->Drc = HLL2_cfl;
             } else {
-                double _h2g = std::max(0.0, h2l->Drc - FlowBarrierN->Drc);
+                double _h2g = std::max(0.0, h2l->Drc - fbn->Drc);
                 if (F_scheme == 1)
                     F_Rusanov(0,0,0,_h2g,v2l->Drc,u2l->Drc);
                 else
@@ -509,7 +527,7 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
             }
             // left hand side boundary
             if (r == _nrRows-1 || MV(r+1, c)) {
-                double _h2d = std::max(0.0, h2d->Drc - FlowBarrierS->Drc);
+                double _h2d = std::max(0.0, h2d->Drc - fbs->Drc);
                 if (F_scheme == 1)
                     F_Rusanov(_h2d,v2l->Drc,u2l->Drc,0.,0.,0.);
                 else

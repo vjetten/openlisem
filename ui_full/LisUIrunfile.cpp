@@ -215,6 +215,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include compacted")==0)              checkInfilCompact->setChecked(check);
         if (p1.compare("Include grass strips")==0)           checkInfilGrass->setChecked(check);
         if (p1.compare("Grassstrip Mannings n")==0)           E_GrassStripN->setText(p);
+        if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setText(p);
         if (p1.compare("Include crusts")==0)                 checkInfilCrust->setChecked(check);
         if (p1.compare("Impermeable sublayer")==0)           checkImpermeable->setChecked(check);
         if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
@@ -336,6 +337,10 @@ void lisemqt::ParseInputData()
        //     checkBox_SedMultiGrain->setChecked(false);
             tabWidgetOptions->setTabEnabled(5,true);
         }
+        if (checkSedtrap->isChecked())
+            on_checkSedtrap_clicked();
+        if (checkInfilGrass->isChecked())
+            on_checkInfilGrass_clicked();
 
         if (p1.compare("Ksat calibration")==0) E_CalibrateKsat->setValue(valc);
         if (p1.compare("Grain Size calibration")==0)   E_CalibrateGS->setValue(valc);
@@ -768,6 +773,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include compacted")==0)            namelist[j].value.setNum((int)checkInfilCompact->isChecked());
         if (p1.compare("Include grass strips")==0)           namelist[j].value.setNum((int)checkInfilGrass->isChecked());
         if (p1.compare("Grassstrip Mannings n")==0)          namelist[j].value = E_GrassStripN->text();
+        if (p1.compare("Sediment Trap Mannings n")==0)          namelist[j].value = E_SedTrapN->text();
 
         if (p1.compare("Include crusts")==0)                 namelist[j].value.setNum((int)checkInfilCrust->isChecked());
         if (p1.compare("Impermeable sublayer")==0)           namelist[j].value.setNum((int)checkImpermeable->isChecked());

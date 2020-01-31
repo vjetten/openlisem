@@ -56,15 +56,6 @@ functions: \n
     ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 
-//---------------------------------------------------------------------------
-void TWorld::OFSedimentSetConcentration(int r, int c, cTMap * h)
-{
-    if(h->Drc > he_ca)
-    {
-            Conc->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, &Sed->Drc, &DEP->Drc);
-    }
-}
-
 
 //---------------------------------------------------------------------------
 /**
@@ -217,8 +208,8 @@ void TWorld::SplashDetachment(int thread)
       if (SwitchGrassStrip)
          DETSplash->Drc = (1-GrassFraction->Drc) * DETSplash->Drc;
       
-      if(SwitchSedtrap)
-          DETSplash->Drc = (1-SedimentFilter->Drc) * DETSplash->Drc;
+//      if(SwitchSedtrap)
+//          DETSplash->Drc = (1-SedimentFilter->Drc) * DETSplash->Drc;
 
       if (SwitchHardsurface)
          DETSplash->Drc = (1-HardSurface->Drc)*DETSplash->Drc;
@@ -297,8 +288,20 @@ void TWorld::SplashDetachment(int thread)
           DETSplash->Drc = detachment;
       }
 
+
+//      if (hmx->Drc > 0) {
+//          SSFlood->Drc += DETSplash->Drc;
+//          SSCFlood->Drc = MaxConcentration(ChannelAdj->Drc * DX->Drc * hmx->Drc, &SSFlood->Drc, &DepFlood->Drc);
+
+//      } else {
+//          Sed->Drc += DETSplash->Drc;
+//          Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
+//      }
+
+
       // IN KG/CELL
    }}}}
+
 }
 //---------------------------------------------------------------------------
 /**
@@ -808,8 +811,8 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             double fac2 = 1-fac1;
             //new erosion coefficient bases on soil layer mixinfactors
             double newY = Y->Drc * fac1 + fac2 * 1.0;
-            if (SwitchSedtrap && SedimentFilter->Drc > 0)
-                newY *= 1.0-SedimentFilter->Drc;
+//            if (SwitchSedtrap && SedimentFilter->Drc > 0)
+//                newY *= 1.0-SedimentFilter->Drc;
 
             //multiply potential detachment by erosion coefficient
             detachment = detachment *newY;
@@ -925,9 +928,6 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
         //new erosion coefficient bases on soil layer mixinfactors
         double newY = Y->Drc * fac1 + fac2 * 1.0;
         //multiply potential detachment by erosion coefficient
-
-        if (SwitchSedtrap && SedimentFilter->Drc > 0)
-            newY *= 1.0-SedimentFilter->Drc;
 
         detachment = detachment *newY;
 
@@ -1146,6 +1146,84 @@ void TWorld::FlowDetachment(int thread)
                   minTC = std::min(TC_D.Drcd - Conc_D.Drcd,0.0);
               }
 
+              if (minTC < 0) {
+
+                  //### deposition
+
+                  if(!SwitchUseGrainSizeDistribution)
+                  {
+                      TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/erosionwh)) * erosionwv;
+                      //   TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * FlowWidth->Drc;
+                  }else
+                  {
+                      TransportFactor = (1-exp(-_dt*settlingvelocities.at(d)/erosionwh)) * erosionwv;
+                      //   TransportFactor = _dt*settlingvelocities.at(d) * DX->Drc * FlowWidth->Drc;
+                  }
+                  // if settl velo is very small, transportfactor is 0 and depo is 0
+                  // if settl velo is very large, transportfactor is 1 and depo is max
+
+                  // deposition can occur on roads and on soil (so use flowwidth)
+
+                  deposition = minTC * TransportFactor;
+                  // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
+
+                  if(!SwitchUseGrainSizeDistribution)
+                      deposition = std::max(deposition, -Sed->Drc);
+                  else
+                      deposition = std::max(deposition, -Sed_D.Drcd);
+
+                  //force deposition on grass strips
+                  if (SwitchGrassStrip) {
+                      //                  if(!SwitchUseGrainSizeDistribution)
+                      //                  {
+                      //                      deposition = -Sed->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
+                      //                  } else {
+                      //                      deposition = -Sed_D.Drcd*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
+                      //                  }
+                  }
+
+
+                  if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
+                      deposition = 0;
+                  // VJ 190325 prevent any activity on the boundary!
+                  if (SwitchSedtrap && SedMaxVolume->Drc == 0 && N->Drc == SedTrapN) {
+                      N->Drc = Norg->Drc;
+                  }
+                  if (SwitchSedtrap && SedMaxVolume->Drc > 0)
+                  {
+                      if(!SwitchUseGrainSizeDistribution)
+                      {
+                          if (Sed->Drc > 0) {
+                              double depvol = Sed->Drc * 1.0/BulkDens; // m3
+                              if (SedMaxVolume->Drc < depvol)
+                                  depvol = SedMaxVolume->Drc;
+                              if (SedMaxVolume->Drc > 0){
+                                  deposition = -depvol*BulkDens;
+                                  maxTC = 0;
+                              }
+                              SedMaxVolume->Drc = SedMaxVolume->Drc - depvol;
+                              SedimentFilter->Drc += depvol*BulkDens;
+                          }
+
+                      } else {
+                          if (Sed_D.Drcd > 0) {
+//                              deposition = -Sed_D.Drcd*SedimentFilter->Drc;
+//                              Sed_D.Drcd *= (1.0-SedimentFilter->Drc);
+                          }
+                      }
+                  }
+
+                  //add deposition to soil layer
+                  if(SwitchUseMaterialDepth)
+                  {
+                      StorageDep->Drc += -deposition;
+                      if(SwitchUseGrainSizeDistribution)
+                      {
+                          StorageDep_D.Drcd += -deposition;
+                      }
+                  }
+              }
+
               if (maxTC > 0) {
                   //### detachment
 
@@ -1204,77 +1282,9 @@ void TWorld::FlowDetachment(int thread)
                       detachment = std::max(0.0, MAXCONC * erosionwv - Sed->Drc);
                   // not more detachment then is needed to keep below ssmax
 
-              }
-              else
-
-                  //### deposition
-
-                  //if (minTC  0)
-                  {
-                      if(!SwitchUseGrainSizeDistribution)
-                      {
-                          TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/erosionwh)) * erosionwv;
-                          //   TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * FlowWidth->Drc;
-                      }else
-                      {
-                          TransportFactor = (1-exp(-_dt*settlingvelocities.at(d)/erosionwh)) * erosionwv;
-                          //   TransportFactor = _dt*settlingvelocities.at(d) * DX->Drc * FlowWidth->Drc;
-                      }
-                      // if settl velo is very small, transportfactor is 0 and depo is 0
-                      // if settl velo is very large, transportfactor is 1 and depo is max
-
-                      // deposition can occur on roads and on soil (so use flowwidth)
-
-                      deposition = minTC * TransportFactor;
-                      // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
-
-                      if(!SwitchUseGrainSizeDistribution)
-                          deposition = std::max(deposition, -Sed->Drc);
-                      else
-                          deposition = std::max(deposition, -Sed_D.Drcd);
-
-                      //force deposition on grass strips
-                      if (SwitchGrassStrip) {
-                          //                  if(!SwitchUseGrainSizeDistribution)
-                          //                  {
-                          //                      deposition = -Sed->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
-                          //                  } else {
-                          //                      deposition = -Sed_D.Drcd*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
-                          //                  }
-                      }
-
-
-                      if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
-                          deposition = 0;
-                      // VJ 190325 prevent any activity on the boundary!
-
-
-                      if (SwitchSedtrap && SedimentFilter->Drc > 0)
-                      {
-                          if(!SwitchUseGrainSizeDistribution)
-                          {
-                              if (Sed->Drc > 0) {
-                                  deposition += -Sed->Drc*SedimentFilter->Drc;
-                                  Sed->Drc *= (1.0-SedimentFilter->Drc);
-                              }
-                          } else {
-                              if (Sed_D.Drcd > 0) {
-                                  deposition = -Sed_D.Drcd*SedimentFilter->Drc;
-                                  Sed_D.Drcd *= (1.0-SedimentFilter->Drc);
-                              }
-                          }
-                      }
-
-                      //add deposition to soil layer
-                      if(SwitchUseMaterialDepth)
-                      {
-                          StorageDep->Drc += -deposition;
-                          if(SwitchUseGrainSizeDistribution)
-                          {
-                              StorageDep_D.Drcd += -deposition;
-                          }
-                      }
-                  } // minv > 0
+                  if (SwitchSedtrap && SedMaxVolume->Drc > 0)
+                      detachment = 0;
+              } // minv > 0
               //### sediment balance
               // add to sediment in flow (IN KG/CELL)
 
@@ -1291,9 +1301,8 @@ void TWorld::FlowDetachment(int thread)
                   Conc_D.Drcd = MaxConcentration(erosionwv, &Sed_D.Drcd, &DEP->Drc);
               }
           }
-       }
-   }}}}
-
+       }}}}
+   }
 }
 //---------------------------------------------------------------------------
 /**

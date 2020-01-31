@@ -102,11 +102,9 @@ void lisemqt::DefaultMapnames()
 
     DEFmaps.append("1;Special surfaces");
     DEFmaps.append("2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst");
-    DEFmaps.append("2;Ksat Compact;ksatcomp.map;Ksat of compacted areas (all models except SWATRE) (mm/h);ksatcomp");
-    DEFmaps.append("2;Ksat Grass;ksatgras.map;Ksat of grassstrips (all models except SWATRE) (mm/h);ksatgras");
     DEFmaps.append("2;Porosity Crust;porecrust.map;Porosity of crusted areas (all models except SWATRE) (-);porecrst");
+    DEFmaps.append("2;Ksat Compact;ksatcomp.map;Ksat of compacted areas (all models except SWATRE) (mm/h);ksatcomp");
     DEFmaps.append("2;Porosity Compact;porecomp.map;Porosity of compacted areas (all models except SWATRE) (-);porecomp");
-    DEFmaps.append("2;Porosity Grass;poregrass.map;Porosity of grasstrips (all models except SWATRE) (-);poregras");
 //    DEFmaps.append("2;Initial moisture Crust;thetacrust.map;Initial moisture content of crusted areas (all models except SWATRE) (-);thetacrst");
 //    DEFmaps.append("2;Initial moisture Compact;thetacomp.map;Initial moisture content of compacted areas (all models except SWATRE) (-);thetacomp");
 //    DEFmaps.append("2;Initial moisture Grass;thetagrass.map;Initial moisture content of grasstrips (all models except SWATRE) (-);thetagras");
@@ -130,7 +128,10 @@ void lisemqt::DefaultMapnames()
 
     DEFmaps.append("0;Conservation");
     DEFmaps.append("2;Grass strips;grasswid.map;Width of grass strips (m);grasswidth");
-    DEFmaps.append("2;Sediment traps;sedtrap.map;Sediment trap (0 to 1), 0 = no effect and 1 = complete deposition and no erosion (-);sedtrap");
+    DEFmaps.append("2;Sediment traps;sedretmax.map;Max sediment volume in m2 per cell that can be trapped;sedretmax");
+    DEFmaps.append("2;Ksat Grass;ksatgras.map;Ksat of grassstrips (all models except SWATRE) (mm/h);ksatgras");
+    DEFmaps.append("2;Porosity Grass;poregras.map;Porosity of grasstrips (all models except SWATRE) (-);poregras");
+    DEFmaps.append("2;Cohesion Grass;cohgras.map;Porosity of grasstrips (all models except SWATRE) (-);cohgras");
 
 //    DEFmaps.append("0;Snowmelt");
 //    DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
@@ -454,7 +455,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Grain size class maps");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Use material depth");
-    namelist[i].value = QString("1400");
+    namelist[i].value = QString("1500.0");
     namelist[i++].name = QString("Sediment bulk density");
 
 
@@ -467,6 +468,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Grassstrip Mannings n");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include Sediment traps");
+    namelist[i].value = QString("0.8");
+    namelist[i++].name = QString("Sediment Trap Mannings n");
 
     //###
     namelist[i++].name = QString("");

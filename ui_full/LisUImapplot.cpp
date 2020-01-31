@@ -175,6 +175,11 @@ void lisemqt::setupMapPlot()
     contourDEM->attach( MPlot );
     // contours
 
+//    rivera = new QwtPlotCurve();
+//    rivera->setPen(QColor("#000000"), 1, Qt::SolidLine );
+//    rivera->attach( MPlot );
+//    rivera->setAxes(MPlot->xBottom, MPlot->yLeft);
+
     RD = new QwtMatrixRasterData();
     RDb = new QwtMatrixRasterData();
     RDbb = new QwtMatrixRasterData();
@@ -196,11 +201,9 @@ void lisemqt::setupMapPlot()
     //  mapRescaler->setReferenceAxis( QwtPlot::yLeft );
     //NOT resets the plot all the time after checking another map !!!
     mapRescaler->setAspectRatio( QwtPlot::xBottom, 1.0 );
-//    mapRescaler->setAspectRatio( QwtPlot::yLeft, 1.0 );
     mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
     mapRescaler->setAspectRatio( QwtPlot::xTop, 0.0 );
 //      mapRescaler->setRescalePolicy( QwtPlotRescaler::Fitting ); // every tmestep fits map to lower boundary, position not maintained
-    //  mapRescaler->setRescalePolicy( QwtPlotRescaler::Expanding ); //=DEFAULT ANYWAY
      mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
     //mapRescaler->setEnabled( true );
     // rescaling fixed to avoid deformation
@@ -246,10 +249,6 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD)//, double t
             else
                 mapData << (double)-1e20;
         }
-
-  //  mapData.replace(0, (double)type);
-    // highjack position 0,0 with flag to get the variable unit in the cursor in trackerTextF
-    //obsolete
 
     // set intervals for rasterdata, x,y,z min and max
     _RD->setValueMatrix( mapData, _M->nrCols() );
@@ -299,9 +298,6 @@ double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterDa
                 mapData << (double)-1e20;
             }
         }
-
-  //   mapData.replace(0, (double)type);
-    // highjack position 0,0 with flag to get the variable unit in the cursor in trackerTextF
 
     // set intervals for rasterdata, x,y,z min and max
     _RD->setValueMatrix( mapData, _M->nrCols() );
@@ -573,7 +569,23 @@ void lisemqt::showBaseMap()
     MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
     MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, dx);
     MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
+}
+//---------------------------------------------------------------------------
+void lisemqt::hideChannelVector(bool yes)
+{
+    rivera->setVisible(yes);
 
+    if (yes) {
+        op.branches << 0;
+        op.ChanDataX.clear();
+        op.ChanDataY.clear();
+        op.Chanbranch.clear();
+        op.CulvertX.clear();
+        op.CulvertY.clear();
+    } else {
+        showChannelVector();
+    }
+    MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::showChannelVector()
@@ -631,7 +643,7 @@ void lisemqt::showChannelVector()
 
         for (int i = 0; i < Xa.length(); i++) {
 
-            QwtPlotCurve *rivera = new QwtPlotCurve();
+            rivera = new QwtPlotCurve();
             rivera->setPen(QColor("#000000"), 1, Qt::SolidLine );
             rivera->attach( MPlot );
             rivera->setAxes(MPlot->xBottom, MPlot->yLeft);
@@ -639,7 +651,7 @@ void lisemqt::showChannelVector()
             rivera->setSamples(Xa.at(i),Ya.at(i));
         }
 
-        int dxi = (int) op.channelMap->cellSize()*0.4;
+        int dxi = (int) (op.channelMap->cellSize()*0.4);
         dxi = std::min(5,dxi);
         QwtPlotCurve *culvert = new QwtPlotCurve();
             QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi ));
@@ -661,7 +673,7 @@ void lisemqt::showChannelVector()
         op.Chanbranch.clear();
 
         if (checkChannelCulverts->isChecked()) {
-            QwtPlotCurve *culvert = new QwtPlotCurve();
+            culvert = new QwtPlotCurve();
             QwtSymbol *whitedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white,QPen( Qt::black ), QSize( dxi, dxi ) );
             QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi, dxi  ));
             culvert->setSymbol(whitedot);
