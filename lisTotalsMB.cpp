@@ -95,8 +95,8 @@ void TWorld::Totals(void)
     // interception in mm and m3
 
     //==== ETa ==========//
-    ETaTot = mapTotal(*ETa);
-    ETaTotmm = ETaTot*catchmentAreaFlatMM;
+ //   ETaTot = mapTotal(*ETa);
+  //  ETaTotmm = ETaTot*catchmentAreaFlatMM;
     // interception in mm and m3
 
     //Litter
@@ -322,15 +322,14 @@ void TWorld::Totals(void)
         } else {
             SoilLossTotT += K2DQSOut; // for dyn wave this is the boundary outflow
         }
-        // sum all sed in all boundary (in kg), needed for mass balance
 
         if (SwitchIncludeChannel)
         {
-            FOR_ROW_COL_MV_CH
-            {
-                if (LDDChannel->Drc == 5)
-                    SoilLossTotT += ChannelQsn->Drc * _dt;
-            }
+//            FOR_ROW_COL_MV_CH
+//            {
+//                if (LDDChannel->Drc == 5)
+//                    SoilLossTotT += ChannelQsn->Drc * _dt;
+//            }
 
             // units here in kg, conversion to ton in report functions
             ChannelDetTot += mapTotal(*ChannelDetFlow);
@@ -352,7 +351,11 @@ void TWorld::Totals(void)
         {
             Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // in kg/s
             // for reporting sed discharge screen
+            if(Outlet->Drc == 1)
+            SoilLossTotT = Qsoutput->Drc*_dt;
         }
+
+
 
         floodBoundarySedTot += K2DQSOutBoun;
         SoilLossTotT += K2DQSOutBoun;

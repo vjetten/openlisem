@@ -19448,7 +19448,7 @@ p, li { white-space: pre-wrap; }
               <item row="3" column="1" colspan="2">
                <widget class="QSpinBox" name="spinRiverSize">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -19501,7 +19501,7 @@ p, li { white-space: pre-wrap; }
               <item row="3" column="7">
                <widget class="QLabel" name="label_113">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="palette">
                  <palette>
@@ -19676,12 +19676,15 @@ p, li { white-space: pre-wrap; }
                 <property name="text">
                  <string>Channels</string>
                 </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
                </widget>
               </item>
               <item row="3" column="6">
                <widget class="QSpinBox" name="spinCulvertSize">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -19706,7 +19709,7 @@ p, li { white-space: pre-wrap; }
               <item row="3" column="5">
                <widget class="QLabel" name="label_105">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="palette">
                  <palette>
@@ -20829,12 +20832,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>63</x>
-     <y>381</y>
+     <x>86</x>
+     <y>378</y>
     </hint>
     <hint type="destinationlabel">
-     <x>66</x>
-     <y>381</y>
+     <x>89</x>
+     <y>378</y>
     </hint>
    </hints>
   </connection>
@@ -20849,8 +20852,8 @@ p, li { white-space: pre-wrap; }
      <y>356</y>
     </hint>
     <hint type="destinationlabel">
-     <x>68</x>
-     <y>381</y>
+     <x>91</x>
+     <y>378</y>
     </hint>
    </hints>
   </connection>
@@ -20861,12 +20864,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>63</x>
-     <y>381</y>
+     <x>86</x>
+     <y>378</y>
     </hint>
     <hint type="destinationlabel">
-     <x>70</x>
-     <y>381</y>
+     <x>93</x>
+     <y>378</y>
     </hint>
    </hints>
   </connection>
@@ -20877,12 +20880,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>63</x>
-     <y>381</y>
+     <x>86</x>
+     <y>378</y>
     </hint>
     <hint type="destinationlabel">
-     <x>66</x>
-     <y>381</y>
+     <x>89</x>
+     <y>378</y>
     </hint>
    </hints>
   </connection>
@@ -20931,6 +20934,70 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>64</x>
      <y>358</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkMapChannels</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_105</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>108</x>
+     <y>960</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>174</x>
+     <y>959</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkMapChannels</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinRiverSize</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>102</x>
+     <y>947</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>50</x>
+     <y>952</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkMapChannels</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinCulvertSize</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>76</x>
+     <y>961</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>262</x>
+     <y>952</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkMapChannels</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_113</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>80</x>
+     <y>956</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>294</x>
+     <y>950</y>
     </hint>
    </hints>
   </connection>

@@ -1433,7 +1433,7 @@ void TWorld::GetComboMaps()
 
     AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,Colormap,Colors,false,false,1000.0,0.1);
     AddComboMap(0,"Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,factor,0.1);
-    AddComboMap(0,"ETa cumulative","mm",ETa,Colormap,Colors,false,false,1000.0,0.1);
+  //  AddComboMap(0,"ETa cumulative","mm",ETa,Colormap,Colors,false,false,1000.0,0.1);
 
     setColor(3);
 

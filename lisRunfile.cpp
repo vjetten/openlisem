@@ -329,7 +329,8 @@ void TWorld::ParseRunfileData(void)
         //profileName = getname("profile");//?????????????????????
         // profile map name
     }
-    SwitchImpermeable = !SwitchPercolation;
+    if (SwitchImpermeable)
+        SwitchPercolation = false;
     // cannot have both
 
     SwitchUse2Layer = SwitchAdvancedSed;
