@@ -162,6 +162,9 @@ public:
 
     QwtPlotCurve *rivera;
     QwtPlotCurve *culvert;
+    QList<QwtPlotCurve*> rivers;
+    QList<QwtPlotCurve*> culverts;
+    int channelAlp;
     void showRoadMap();
     void showHouseMap();
     void showFlowBarriersMap();
@@ -332,7 +335,7 @@ public slots:
     void aboutQT();
     void aboutInfo();
     void resetAll();
-
+    void showMapSettings();
 
     void onOutletChanged(int);
     void editMapname(QModelIndex topLeft, QModelIndex bottomRight );

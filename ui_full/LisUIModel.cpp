@@ -51,10 +51,18 @@ void lisemqt::runmodel()
     }
     MPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true);
     MPlot->detachItems(QwtPlotItem::Rtti_PlotMarker, true);
+
+
+    startplot = true;
+    stopplot = false;
+
+    rivers.clear();
+    culverts.clear();
     op.ChanDataX.clear();
     op.ChanDataY.clear();
     op.Chanbranch.clear();
     op.branches.clear();
+
     //NOTE op.runfilename is set in function openRunFile()
     if (op.runfilename.isEmpty())
     {
@@ -83,7 +91,7 @@ void lisemqt::runmodel()
     checkMapFlowBarriers->setEnabled(checksatImage->isChecked());
 
     checkMapChannels->setChecked(false);
-    transparencyChannel->setEnabled(checkIncludeChannel->isChecked());
+  //  transparencyChannel->setEnabled(checkIncludeChannel->isChecked());
     checkMapChannels->setEnabled(checkIncludeChannel->isChecked());
 
     checkMapBuildings->setChecked(false);
@@ -94,8 +102,6 @@ void lisemqt::runmodel()
     transparencyRoad->setEnabled(checkRoadsystem->isChecked());
     checkMapRoads->setEnabled(checkRoadsystem->isChecked());
 
-    startplot = true;
-    stopplot = false;
 
     // initialize output graphs
     initPlot();

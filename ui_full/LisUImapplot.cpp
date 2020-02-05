@@ -69,9 +69,9 @@ void lisemqt::ssetAlphaMap(int v)
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaChannel(int v)
 {
-//    channelMap->setAlpha(v);
-//    if (v > 0 && checkMapChannels->isChecked())
-//        MPlot->replot();
+ //   channelMap->setAlpha(v);
+
+    hideChannelVector(true);
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaRoad(int v)
@@ -573,18 +573,35 @@ void lisemqt::showBaseMap()
 //---------------------------------------------------------------------------
 void lisemqt::hideChannelVector(bool yes)
 {
-    rivera->setVisible(yes);
-
-    if (yes) {
-        op.branches << 0;
-        op.ChanDataX.clear();
-        op.ChanDataY.clear();
-        op.Chanbranch.clear();
-        op.CulvertX.clear();
-        op.CulvertY.clear();
+    if (!checkIncludeChannel->isChecked())
+        return;
+    if(rivers.isEmpty())
+        return;
+    if (!yes) {
+        for (int i = 0; i < rivers.length(); i++)
+            rivers[i]->detach();
+        for (int i = 0; i < culverts.length(); i++)
+            culverts[i]->detach();
     } else {
-        showChannelVector();
+        for (int i = 0; i < rivers.length(); i++) {
+            QColor color = QColor("#000000");
+          //  color.setAlpha(channelAlp);
+           rivers[i]->setPen(color, spinRiverSize->value(), Qt::SolidLine );
+           rivers[i]->attach( MPlot );
+           rivers[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
+        }
+        for (int i = 0; i < culverts.length(); i++) {
+            int dxi = spinCulvertSize->value();
+
+            QwtSymbol *whitedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi ));
+
+            culverts[i]->setSymbol(whitedot);
+            culverts[i]->setStyle( QwtPlotCurve::NoCurve );
+            culverts[i]->attach( MPlot );
+            culverts[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
+        }
     }
+
     MPlot->replot();
 }
 //---------------------------------------------------------------------------
@@ -599,6 +616,8 @@ void lisemqt::showChannelVector()
     {
         QVector <double> X;
         QVector <double> Y;
+        checkMapChannels->setChecked(true);
+        channelAlp = 1.0;
 
         double xend, yend;
         double dx = op.channelMap->cellSize();
@@ -644,6 +663,7 @@ void lisemqt::showChannelVector()
         for (int i = 0; i < Xa.length(); i++) {
 
             rivera = new QwtPlotCurve();
+            rivers << rivera;
             rivera->setPen(QColor("#000000"), 1, Qt::SolidLine );
             rivera->attach( MPlot );
             rivera->setAxes(MPlot->xBottom, MPlot->yLeft);
@@ -653,17 +673,19 @@ void lisemqt::showChannelVector()
 
         int dxi = (int) (op.channelMap->cellSize()*0.4);
         dxi = std::min(5,dxi);
+        spinCulvertSize->setValue(dxi);
         QwtPlotCurve *culvert = new QwtPlotCurve();
-            QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi ));
-            culvert->setSymbol(blackdot);
-            culvert->setStyle( QwtPlotCurve::NoCurve );
-            culvert->attach( MPlot );
-            culvert->setAxes(MPlot->xBottom, MPlot->yLeft);
-            X.clear();
-            Y.clear();
-            X << xend;
-            Y << yend;
-            culvert->setSamples(X, Y);
+        culverts << culvert;
+        QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi ));
+        culvert->setSymbol(blackdot);
+        culvert->setStyle( QwtPlotCurve::NoCurve );
+        culvert->attach( MPlot );
+        culvert->setAxes(MPlot->xBottom, MPlot->yLeft);
+        X.clear();
+        Y.clear();
+        X << xend;
+        Y << yend;
+        culvert->setSamples(X, Y);
 
         Y.clear();
         Xa.clear();
@@ -674,6 +696,8 @@ void lisemqt::showChannelVector()
 
         if (checkChannelCulverts->isChecked()) {
             culvert = new QwtPlotCurve();
+            culverts << culvert;
+
             QwtSymbol *whitedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white,QPen( Qt::black ), QSize( dxi, dxi ) );
             QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi, dxi  ));
             culvert->setSymbol(whitedot);

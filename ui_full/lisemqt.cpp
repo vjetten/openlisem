@@ -109,7 +109,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setupMapPlot();
     // set up the raster map drawing
 
-    checkMapChannels->setVisible(false);
+    //checkMapChannels->setVisible(false);
     transparencyChannel->setVisible(false);
     checkOverlandFlow2D->setVisible(false);
 
@@ -820,14 +820,25 @@ void lisemqt::SetToolBar()
     connect(ComboMinSpinBox2,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
 
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
-   // connect(transparencyChannel, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaChannel(int)));
+  //  connect(transparencyChannel, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaChannel(int)));
     connect(transparencyRoad, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaRoad(int)));
     connect(transparencyHouse, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaHouse(int)));
     connect(transparencyBarrier, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaBarrier(int)));
     connect(transparencyBarrier, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaBarrier(int)));
     connect(transparencyMap, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaMap(int)));
-
+    connect(spinRiverSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
+    connect(spinCulvertSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
+    connect(toolShowMapDisplay, SIGNAL(pressed()),this,SLOT(showMapSettings()));
 }
+//---------------------------------------------------------------------------
+void lisemqt::showMapSettings()
+{
+    if(groupBox_drawMap->isVisible())
+        groupBox_drawMap->setVisible(false);
+    else
+        groupBox_drawMap->setVisible(true);
+}
+
 //---------------------------------------------------------------------------
 /// make some labels yellow
 void lisemqt::SetStyleUI()
