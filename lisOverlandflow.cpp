@@ -80,7 +80,7 @@ void TWorld::ToFlood()//int thread)
     if (!SwitchIncludeChannel)
         return;
 
-    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KIN)
+    if (SwitchKinematic2D == K2D_METHOD_DYN)// || SwitchKinematic2D == K2D_METHOD_KIN)
         return;
 
     FOR_ROW_COL_MV {
