@@ -312,30 +312,38 @@ void TWorld::Totals(void)
         // for total soil loss calculation: TotalSoillossMap
 
         //outflow from domain/channel
-        if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
-        {
+//        if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
+//        {
             FOR_ROW_COL_MV
             {
                 if (LDD->Drc == 5)
                     SoilLossTotT += Qsn->Drc * _dt;
             }
-        } else {
-            SoilLossTotT += K2DQSOut; // for dyn wave this is the boundary outflow
-        }
+//        }
+//            else {
+//            SoilLossTotT += K2DQSOut; // for dyn wave this is the boundary outflow
+//        }
 
         if (SwitchIncludeChannel)
         {
-//            FOR_ROW_COL_MV_CH
-//            {
-//                if (LDDChannel->Drc == 5)
-//                    SoilLossTotT += ChannelQsn->Drc * _dt;
-//            }
+            FOR_ROW_COL_MV_CH
+            {
+                if (LDDChannel->Drc == 5)
+                    SoilLossTotT += ChannelQsn->Drc * _dt;
+            }
 
             // units here in kg, conversion to ton in report functions
             ChannelDetTot += mapTotal(*ChannelDetFlow);
             ChannelDepTot += mapTotal(*ChannelDep);
             ChannelSedTot = mapTotal(*ChannelBLSed) + mapTotal(*ChannelSSSed);
         }
+
+        floodBoundarySedTot += K2DQSOutBoun;
+        SoilLossTotT += K2DQSOutBoun;
+        //FloodBoundarySedmm = floodBoundarySedTot*catchmentAreaFlatMM;
+        // flood boundary losses are done separately in MB
+
+
         // used for mass balance and screen output
         FloodDetTot += mapTotal(*BLDetFlood) + mapTotal(*SSDetFlood);
         FloodDepTot += mapTotal(*DepFlood);
@@ -351,16 +359,7 @@ void TWorld::Totals(void)
         {
             Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // in kg/s
             // for reporting sed discharge screen
-            if(Outlet->Drc == 1)
-            SoilLossTotT = Qsoutput->Drc*_dt;
         }
-
-
-
-        floodBoundarySedTot += K2DQSOutBoun;
-        SoilLossTotT += K2DQSOutBoun;
-        //FloodBoundarySedmm = floodBoundarySedTot*catchmentAreaFlatMM;
-        // flood boundary losses are done separately in MB
 
         // for reporting
         if (SwitchIncludeChannel)

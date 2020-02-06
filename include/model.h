@@ -551,7 +551,7 @@ public:
     void setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v);
     void correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2, double thv, double dv, double dt);
 
-    void infilInWave(cTMap * inf, cTMap *_h, double dt1);
+    void infilInWave(cTMap *_h, double dt1);
 
     //SEDIMENT TRANSPORT
     int FS_SS_Method;

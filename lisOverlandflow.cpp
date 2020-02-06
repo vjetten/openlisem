@@ -80,7 +80,7 @@ void TWorld::ToFlood()//int thread)
     if (!SwitchIncludeChannel)
         return;
 
-    if (SwitchKinematic2D == K2D_METHOD_DYN)
+    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KIN)
         return;
 
     FOR_ROW_COL_MV {
@@ -360,10 +360,9 @@ void TWorld::OverlandFlow2Ddyn(void)
 
     dtOF = fullSWOF2Do2light(WHrunoff, Uflood, Vflood, DEM, true);
     // this includes erosion
-
     //VJ new average flux over lisem timestep, else last Qn is used
-    // note iro is a volume!
-  //  infilInWave(iro, WHrunoff, _dt);
+
+    //  infilInWave(WHrunoff, _dt);
 
     Boundary2Ddyn(WHrunoff, Uflood, Vflood);  // do the domain boundaries
 
@@ -374,8 +373,6 @@ void TWorld::OverlandFlow2Ddyn(void)
 
         Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);//FlowWidth->Drc);
         Q->Drc = Qn->Drc; // just to be sure
-
-       // InfilVolKinWave->Drc = iro->Drc; // infil inside, m3
 
         WHroad->Drc = WHrunoff->Drc;
         // set road to average outflowing wh, no surface storage.

@@ -548,28 +548,30 @@ void TWorld::SoilWater(int thread)
 
 
 //---------------------------------------------------------------------------
-void TWorld::infilInWave(cTMap * inf, cTMap *_h, double dt1)
+void TWorld::infilInWave(cTMap *_h, double dt1)
 {
     if (InfilMethod == INFIL_SWATRE || InfilMethod == INFIL_NONE)
         return;
 
     FOR_ROW_COL_MV {
-        double cdx = DX->Drc;
-        double cdy = ChannelAdj->Drc;
+        if(FFull->Drc==0) {
+            double cdx = DX->Drc;
+            double cdy = ChannelAdj->Drc;
 
-        //calculate infiltration in time step
-        double infil = -1.0*FSurplus->Drc*dt1/_dt;
-        if (_h->Drc < infil)
-            infil = _h->Drc;
-        _h->Drc -= infil;
-        _h->Drc = std::max(_h->Drc , 0.0);
-        FSurplus->Drc += infil;//*SoilWidthDX->Drc/cdy;
-        FSurplus->Drc = std::min(0.0, FSurplus->Drc);
+            //calculate infiltration in time step
+            double infil = -1.0*FSurplus->Drc*dt1/_dt;
+            if (_h->Drc < infil)
+                infil = _h->Drc;
+            _h->Drc -= infil;
+            _h->Drc = std::max(_h->Drc , 0.0);
+            FSurplus->Drc += infil;//*SoilWidthDX->Drc/cdy;
+            FSurplus->Drc = std::min(0.0, FSurplus->Drc);
 
-        Fcum->Drc += infil;//*SoilWidthDX->Drc/cdy; //VJ !!!
+            Fcum->Drc -= infil;//*SoilWidthDX->Drc/cdy; //VJ !!!
 
-        //keep track of infiltration
-        inf->Drc = (infil*cdx*cdy);
+            //keep track of infiltration
+            InfilVolKinWave->Drc = (infil*cdx*cdy);
+        }
     }
 }
 //---------------------------------------------------------------------------
