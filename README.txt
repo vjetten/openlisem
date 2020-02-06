@@ -1,6 +1,6 @@
 openLISEM
 ============
-Date: 200111
+Date: 200205
 ============
 
 For older versions and list of changes contact v.g.jetten AD utwente.nl
@@ -8,6 +8,13 @@ For older versions and list of changes contact v.g.jetten AD utwente.nl
 NOTE: only a 64bit version exists, 32 bit is no longer supported
 
 NOTE: The code since version 5.6 is compilable under linux Ubuntu
+
+version 5.91-5.95
+- fixed: bug in 2D dyn ewave seidment: flow detachment was not working
+- fixed: impermeable lower boundary was always off
+- extended options and checked working of sediment traps and grass trips
+- 3 flow options: 1) kin wave (no flooding); 2) kin wave and flooding from channels; 3) full dynamic wave
+- river vector display can be toggled and line size adjusted
 
 version 5.7-5.91
 - fixed buggy 1d kin wave and 2d flood for sediment

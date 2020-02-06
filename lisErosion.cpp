@@ -481,22 +481,25 @@ double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *
  */
 double TWorld::GetSV(double d)
 {
-    double dm = d / 1e6;
-    double ds = dm * pow((2650.0/1000.0 - 1.0)*GRAV/(1e-6*1e-6),(1.0/3.0));
-    return 1e-6/dm*(ds*ds*ds)*pow(38.1+0.93*pow(ds,12.0/7.0), -7.0/8.0);
-//    // zhiyao et al, 2008
-//------------
-    if(d < 100)
-    {
-        return 2*(2650.0-1000.0)*GRAV*pow(d/2000000.0, 2)/(9*0.001);
-        //Stokes range settling velocity
-    }else
-    {
-        double dm = d/1000.0;
-        return 10.0 *(sqrt(1.0 + 0.01 *((2650.0-1000.0)/1000.0)* GRAV *dm*dm*dm )-1.0)/(dm);
-        //Settling velocity by Zanke (1977)
+    if (SwitchSV == 2) {
+        double dm = d / 1e6;
+        double ds = dm * pow((2650.0/1000.0 - 1.0)*GRAV/(1e-6*1e-6),(1.0/3.0));
+        return 1e-6/dm*(ds*ds*ds)*pow(38.1+0.93*pow(ds,12.0/7.0), -7.0/8.0);
+        //    // zhiyao et al, 2008
     }
 
+    if (SwitchSV == 1) {
+        if(d < 100)
+        {
+            return 2*(2650.0-1000.0)*GRAV*pow(d/2000000.0, 2)/(9*0.001);
+            //Stokes range settling velocity
+        }else
+        {
+            double dm = d/1000.0;
+            return 10.0 *(sqrt(1.0 + 0.01 *((2650.0-1000.0)/1000.0)* GRAV *dm*dm*dm )-1.0)/(dm);
+            //Settling velocity by Zanke (1977)
+        }
+    }
 }
 /**
  * @fn void TWorld::SedimentSetMaterialDistribution(int r,int c)

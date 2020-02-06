@@ -195,6 +195,7 @@ void TWorld::ParseRunfileData(void)
 
         //TODO ?
         if (p1.compare("Detachment efficiency")==0)           SwitchEfficiencyDET = iii;
+        if (p1.compare("SettlingVelocity")==0)                SwitchSV = iii;
         if (p1.compare("Use material depth")==0)              SwitchUseMaterialDepth  = iii == 1;
         if (p1.compare("No detachment boundary")==0)          SwitchNoBoundarySed  = iii == 1;
         if (p1.compare("Advanced sediment")==0) SwitchAdvancedSed = iii;

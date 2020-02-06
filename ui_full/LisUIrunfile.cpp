@@ -190,6 +190,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Timestep flood")==0)                 E_TimestepMinFlood->setValue(valc);
 
         if (p1.compare("Detachment efficiency")==0)          E_EfficiencyDET->setValue(iii);
+        if (p1.compare("Settling Velocity")==0)          E_settlingVelocity->setValue(iii);
         if (p1.compare("Use material depth")==0)             checkMaterialDepth->setChecked(check);
         if (p1.compare("No detachment boundary")==0)         checkNoSedBoundary->setChecked(check);
         if (p1.compare("Advanced sediment")==0)             checkAdvancedSediment->setChecked(check);
@@ -741,14 +742,16 @@ void lisemqt::updateModelData()
         }
 
         if (p1.compare("Detachment efficiency")==0)          namelist[j].value = E_EfficiencyDET->text();
+        if (p1.compare("Settling Velocity")==0)              namelist[j].value = E_settlingVelocity->text();
+
         if (p1.compare("Use material depth")==0)             namelist[j].value.setNum((int)checkMaterialDepth->isChecked());
         if (p1.compare("No detachment boundary")==0)         namelist[j].value.setNum((int)checkNoSedBoundary->isChecked());
 
         if (p1.compare("Flooding BL method")==0)             namelist[j].value = E_BLMethod->text();
         if (p1.compare("Flooding SS method")==0)             namelist[j].value = E_SSMethod->text();
-        if (p1.compare("River BL method")==0)                 namelist[j].value = E_RBLMethod->text();
-        if (p1.compare("River SS method")==0)                 namelist[j].value = E_RSSMethod->text();
-        if (p1.compare("Use grain size distribution")==0)     namelist[j].value.setNum((int)checkSedMultiGrain->isChecked());
+        if (p1.compare("River BL method")==0)                namelist[j].value = E_RBLMethod->text();
+        if (p1.compare("River SS method")==0)                namelist[j].value = E_RSSMethod->text();
+        if (p1.compare("Use grain size distribution")==0)    namelist[j].value.setNum((int)checkSedMultiGrain->isChecked());
 
         if (p1.compare("Estimate grain size distribution")==0)namelist[j].value.setNum((int)checkEstimateGrainSizeDistribution->isChecked());
         if (p1.compare("Read grain distribution maps")==0)    namelist[j].value.setNum((int)checkReadGrainSizeDistribution->isChecked());

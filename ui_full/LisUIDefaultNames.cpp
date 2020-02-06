@@ -415,6 +415,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("KE time based");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Detachment efficiency");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Settling Velocity");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("No detachment boundary");
     namelist[i].value = QString("0.1");

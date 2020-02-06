@@ -313,6 +313,7 @@ public:
     int ReportDigitsOut;
     int FlowBoundaryType;
     int userCores;
+    int SwitchSV;
 
     QList<int> FBid;
 
