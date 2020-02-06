@@ -310,16 +310,16 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
                 if (_V->Drc > 0)
                     tma->Drc = 1;
         }
-        if (SwitchIncludeChannel)
-             if (ChannelFlowWidth->Drc == 0)
-                 tma->Drc = 0;
+//        if (SwitchIncludeChannel)
+//             if (ChannelFlowWidth->Drc == 0)
+//                 tma->Drc = 0;
     }
 
     // sum all the outflow of these points
     K2DQOutBoun = 0;
     K2DQSOutBoun = 0;
     FOR_ROW_COL_MV
-        if (tma->Drc == 1 && h->Drc > MIN_HEIGHT)
+        if (tma->Drc == 1)// && h->Drc > MIN_HEIGHT)
     {
         double dy = ChannelAdj->Drc;
         double UV = qSqrt(_U->Drc * _U->Drc + _V->Drc*_V->Drc);

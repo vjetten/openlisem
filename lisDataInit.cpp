@@ -727,11 +727,20 @@ void TWorld::InitBoundary(void)
     FlowBoundary = NewMap(0);
     if (FlowBoundaryType == 0) // no outflow as flood or overland flow, only channel
     {
-//        FOR_ROW_COL_MV
-//        {
-//            if(Outlet->Drc > 0)
-//                FlowBoundary->Drc = 1;
-//        }
+        if (!SwitchIncludeChannel) {
+            FOR_ROW_COL_MV
+            {
+                if(LDD->Drc == 5)
+                    FlowBoundary->Drc = 1;
+            }
+        } else {
+            FOR_ROW_COL_MV_CH
+            {
+                if(LDDChannel->Drc == 5)
+                    FlowBoundary->Drc = 1;
+            }
+
+        }
     }
     else
         if(FlowBoundaryType == 1) // outflow everywhere

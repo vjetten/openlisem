@@ -425,11 +425,11 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
             f1o->Drc = 0;
             f2o->Drc = 0;
             f3o->Drc = 0;
-            double bh = 0.1;
-            fbn->Drc = 0;
-            fbs->Drc = 0;
-            fbe->Drc = 0;
-            fbw->Drc = 0;
+//            double bh = 0.1;
+//            fbn->Drc = 0;
+//            fbs->Drc = 0;
+//            fbe->Drc = 0;
+//            fbw->Drc = 0;
 //            if(LDD->Drc == 1) { fbn->Drc = bh; fbw->Drc = bh;}
 //            if(LDD->Drc == 2) { fbe->Drc = bh; fbw->Drc = bh;}
 //            if(LDD->Drc == 3) { fbn->Drc = bh; fbe->Drc = bh;}

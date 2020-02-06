@@ -131,6 +131,7 @@ void TWorld::Totals(void)
     }
 
     //=== surf store ===//
+    fill(*tm, 0);
     calcMapValue(*tm, *WHstore, 1000, MUL); //mm
     SurfStoremm = mapAverage(*tm);
     // surface storage CHECK THIS
@@ -204,10 +205,10 @@ void TWorld::Totals(void)
                 QtotT += Qn->Drc*_dt;
         }
     }
-    else
-    {
-        QtotT += K2DQOut; // NOTE: K2DQOut already based on if(K2DOutlets->Drc == 1)
-    }
+//    else
+//    {
+//        QtotT += K2DQOut; // NOTE: K2DQOut already based on if(K2DOutlets->Drc == 1)
+//    }
     // sum outflow m3 for all timesteps for all outlets, in m3
     // needed for mass balance
 
@@ -312,14 +313,14 @@ void TWorld::Totals(void)
         // for total soil loss calculation: TotalSoillossMap
 
         //outflow from domain/channel
-//        if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
-//        {
+        if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
+        {
             FOR_ROW_COL_MV
             {
                 if (LDD->Drc == 5)
                     SoilLossTotT += Qsn->Drc * _dt;
             }
-//        }
+        }
 //            else {
 //            SoilLossTotT += K2DQSOut; // for dyn wave this is the boundary outflow
 //        }

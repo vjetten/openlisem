@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1297</width>
+    <width>1608</width>
     <height>1262</height>
    </rect>
   </property>
@@ -96,7 +96,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -3654,8 +3654,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>629</width>
-                <height>845</height>
+                <width>786</width>
+                <height>854</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_44">
