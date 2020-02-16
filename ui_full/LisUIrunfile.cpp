@@ -167,7 +167,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Timestep Kin Wave 2D")==0)           E_TimestepMin->setValue(valc);
         if (p1.compare("Courant Kin Wave 2D")==0)            E_CourantFactorKin->setValue(valc);
         if (p1.compare("Flow Boundary 2D")==0)               E_FlowBoundary->setValue(iii);
-        if (p1.compare("Flow concentration 2D")==0)          E_concentrateFlow->setValue(valc);
+      //  if (p1.compare("Flow concentration 2D")==0)          E_concentrateFlow->setValue(valc);
         if (p1.compare("Variable Timestep")==0)              checkVariableTimestep->setChecked(check);
         if (p1.compare("Heun")==0)                           checkHeun->setChecked(check);
         if (p1.compare("Use MUSCL")==0)                      checkMuscl->setChecked(check);
@@ -695,7 +695,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Timestep Kin Wave 2D")==0)           namelist[j].value = E_TimestepMin->text();
         if (p1.compare("Courant Kin Wave 2D")==0)            namelist[j].value = E_CourantFactorKin->text();
         if (p1.compare("Flow Boundary 2D")==0)        namelist[j].value = E_FlowBoundary->text();
-        if (p1.compare("Flow concentration 2D")==0)     namelist[j].value = E_concentrateFlow->text();
+      //  if (p1.compare("Flow concentration 2D")==0)     namelist[j].value = E_concentrateFlow->text();
 
         if (p1.compare("Flood method SWOF2D order 1")==0)
         {

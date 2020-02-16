@@ -164,6 +164,7 @@ void TWorld::ParseRunfileData(void)
     int j=0;
    // int dummyAdvancedSed= 0;
     SwitchRainfall = true;
+    SwitchSV = 1;
 
     // do all switches (checkbox options) first
     for (j = 0; j < nrrunnamelist; j++)

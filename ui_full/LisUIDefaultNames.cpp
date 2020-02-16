@@ -178,12 +178,6 @@ void lisemqt::defaultRunFile()
     i = 0;
     namelist[i++].name = QString("[openLISEM runfile version 4]");
     namelist[i++].name = QString("");
-
-    // work directories are obsolete
-    //	namelist[i++].name = QString("[Work Directory]");
-    //	namelist[i++].name = QString("WorkDir");
-    //	namelist[i++].name = QString("");
-
     //###
     namelist[i++].name = QString("[Input]");
     namelist[i++].name = QString("Work Directory");
@@ -369,8 +363,10 @@ void lisemqt::defaultRunFile()
 //    namelist[i++].name = QString("Flooding courant factor diffusive");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Flow Boundary 2D");
-    namelist[i].value = QString("1.0");
-    namelist[i++].name = QString("Flow concentration 2D");
+//    namelist[i].value = QString("1.0");
+//    namelist[i++].name = QString("Flow concentration 2D");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Include buffers");
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Flooding]");
     namelist[i].value = QString("0");
@@ -393,7 +389,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding SWOF flux limiter");
     namelist[i].value = QString("0.1");
     namelist[i++].name = QString("Timestep flood");
-
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Variable Timestep");
 //    namelist[i].value = QString("0");

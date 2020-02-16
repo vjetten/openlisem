@@ -296,7 +296,7 @@ void TWorld::InitStandardInput(void)
 
     courant_factor_diffusive = getvaluedouble("Courant Kin Wave 2D");
     TimestepKinMin = getvaluedouble("Timestep Kin Wave 2D");
-    ConcentrateKin = getvaluedouble("Flow concentration 2D");
+  //  ConcentrateKin = getvaluedouble("Flow concentration 2D");
     TimestepfloodMin = getvaluedouble("Timestep flood");
 //    OF_Method = (SwitchUseGrainSizeDistribution? FSHAIRSINEROSE : FSGOVERS);
 
@@ -335,14 +335,14 @@ void TWorld::InitStandardInput(void)
 
     // flood maps
     DEM = ReadMap(LDD, getvaluename("dem"));
-
-    if (SwitchBuffers)
+qDebug() << SwitchBuffers;
+    if (SwitchBuffers) {
         Buffers = ReadMap(LDD, getvaluename("buffers"));
-    else
-        Buffers = NewMap(0);
-
-    cover(*Buffers, *LDD,0);
-    calcMap(*DEM, *Buffers, ADD);
+        cover(*Buffers, *LDD,0);
+        calcMap(*DEM, *Buffers, ADD);
+    }
+//    else
+//        Buffers = NewMap(0);
 
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     checkMap(*Grad, LARGER, 1.0, "Gradient must be SINE of slope angle (not TAN)");
@@ -2560,6 +2560,8 @@ void TWorld::InitChanNetwork()
     op.Chanbranch.clear();
     op.CulvertX.clear();
     op.CulvertY.clear();
+    op.EndPointX.clear();
+    op.EndPointY.clear();
 
     if(!SwitchIncludeChannel)
         return;
@@ -2639,7 +2641,6 @@ void TWorld::InitChanNetwork()
                             op.Chanbranch << branchnr;
                             op.ChanDataX << c*_dx + 0.5*_dx;
                             op.ChanDataY << (_nrRows-r-1)*_dx + 0.5*_dx;
-                   //         op.ChanDataY << (r)*_dx + 0.5*_dx;
                             temp=list;
                             list=list->prev;
                             free(temp);
@@ -2649,10 +2650,13 @@ void TWorld::InitChanNetwork()
                     } /* eowhile list != nullptr */
                 }
             }  //pit 5
-   // report(*tma, "node.map");
-   // qDebug() << op.Chanbranch.length() ;
-   // qDebug() << op.ChanDataX.length() ;
-   // qDebug() << "branches" << op.branches;
+
+    FOR_ROW_COL_MV_CH {
+        if (LDDChannel->Drc == 5){
+            op.EndPointX << c*_dx + 0.5*_dx;
+            op.EndPointY << (_nrRows-r-1)*_dx + 0.5*_dx;
+        }
+    }
 
     if(SwitchCulverts) {
         FOR_ROW_COL_MV {

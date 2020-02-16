@@ -96,7 +96,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -3644,7 +3644,7 @@
               <enum>Qt::ScrollBarAsNeeded</enum>
              </property>
              <property name="sizeAdjustPolicy">
-              <enum>QAbstractScrollArea::AdjustToContents</enum>
+              <enum>QAbstractScrollArea::AdjustIgnored</enum>
              </property>
              <property name="widgetResizable">
               <bool>true</bool>
@@ -3659,7 +3659,7 @@
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_44">
-               <item row="4" column="0">
+               <item row="1" column="0">
                 <widget class="QTabWidget" name="tabWidgetOptions">
                  <property name="enabled">
                   <bool>true</bool>
@@ -3729,22 +3729,19 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>4</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
                    <string>Global</string>
                   </attribute>
                   <layout class="QGridLayout" name="gridLayout_39">
-                   <item row="4" column="0">
-                    <layout class="QGridLayout" name="gridLayout_30">
-                     <property name="horizontalSpacing">
-                      <number>8</number>
-                     </property>
-                     <property name="verticalSpacing">
+                   <item row="0" column="0">
+                    <layout class="QGridLayout" name="gridLayout_50">
+                     <property name="spacing">
                       <number>0</number>
                      </property>
-                     <item row="1" column="5">
+                     <item row="0" column="1">
                       <spacer name="horizontalSpacer_12">
                        <property name="orientation">
                         <enum>Qt::Horizontal</enum>
@@ -3757,858 +3754,946 @@
                        </property>
                       </spacer>
                      </item>
-                     <item row="1" column="0" colspan="2">
-                      <widget class="QCheckBox" name="checkHouses">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="palette">
-                        <palette>
-                         <active>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </active>
-                         <inactive>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </inactive>
-                         <disabled>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>122</red>
-                             <green>122</green>
-                             <blue>122</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </disabled>
-                        </palette>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Include buildings -----</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="0" colspan="5">
-                      <widget class="QCheckBox" name="checkStormDrains">
-                       <property name="text">
-                        <string>Include storm drains</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="0" colspan="5">
-                      <widget class="QLabel" name="label_141">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="palette">
-                        <palette>
-                         <active>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </active>
-                         <inactive>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </inactive>
-                         <disabled>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>122</red>
-                             <green>122</green>
-                             <blue>122</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </disabled>
-                        </palette>
-                       </property>
+                     <item row="5" column="0">
+                      <widget class="QGroupBox" name="groupBox">
                        <property name="font">
                         <font>
                          <weight>75</weight>
                          <bold>true</bold>
                         </font>
                        </property>
-                       <property name="text">
-                        <string>Infrastructure</string>
+                       <property name="title">
+                        <string>Parallel processing</string>
                        </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="2">
-                      <widget class="QCheckBox" name="checkRoadsystem">
-                       <property name="palette">
-                        <palette>
-                         <active>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </active>
-                         <inactive>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </inactive>
-                         <disabled>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>122</red>
-                             <green>122</green>
-                             <blue>122</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </disabled>
-                        </palette>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Include road system -----</string>
-                       </property>
-                       <property name="checked">
-                        <bool>false</bool>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="1" colspan="4">
-                      <widget class="QCheckBox" name="checkRaindrum">
-                       <property name="enabled">
-                        <bool>false</bool>
-                       </property>
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="palette">
-                        <palette>
-                         <active>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </active>
-                         <inactive>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </inactive>
-                         <disabled>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>122</red>
-                             <green>122</green>
-                             <blue>122</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </disabled>
-                        </palette>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Include rainwater storage by drums</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="3" colspan="2">
-                      <widget class="QCheckBox" name="checkHardsurface">
-                       <property name="enabled">
-                        <bool>true</bool>
-                       </property>
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="palette">
-                        <palette>
-                         <active>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </active>
-                         <inactive>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </inactive>
-                         <disabled>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>122</red>
-                             <green>122</green>
-                             <blue>122</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </disabled>
-                        </palette>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Include hard surfaces</string>
-                       </property>
+                       <layout class="QHBoxLayout" name="horizontalLayout">
+                        <property name="spacing">
+                         <number>8</number>
+                        </property>
+                        <property name="leftMargin">
+                         <number>8</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>8</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="QSpinBox" name="nrUserCores">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="maximum">
+                           <number>8</number>
+                          </property>
+                          <property name="value">
+                           <number>1</number>
+                          </property>
+                          <property name="displayIntegerBase">
+                           <number>10</number>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="label_56">
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>Nr of CPU cores, more cores is faster for very large areas (0 = all cores; 1 = 1 core etc.)</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
                       </widget>
                      </item>
                      <item row="2" column="0">
-                      <widget class="QLabel" name="label_157">
-                       <property name="enabled">
-                        <bool>true</bool>
-                       </property>
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="pixmap">
-                        <pixmap resource="../resources/openlisem.qrc">:/bullet.png</pixmap>
-                       </property>
-                       <property name="scaledContents">
-                        <bool>true</bool>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item row="1" column="0">
-                    <layout class="QGridLayout" name="gridLayout_37">
-                     <property name="horizontalSpacing">
-                      <number>8</number>
-                     </property>
-                     <property name="verticalSpacing">
-                      <number>0</number>
-                     </property>
-                     <item row="2" column="1" colspan="2">
-                      <widget class="QCheckBox" name="checkAdvancedSediment">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="text">
-                        <string>Advanced sediment processes</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0">
-                      <widget class="QLabel" name="label_143">
-                       <property name="enabled">
-                        <bool>true</bool>
-                       </property>
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="pixmap">
-                        <pixmap resource="../resources/openlisem.qrc">:/bullet.png</pixmap>
-                       </property>
-                       <property name="scaledContents">
-                        <bool>true</bool>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="0" colspan="3">
-                      <widget class="QCheckBox" name="checkDoErosion">
-                       <property name="text">
-                        <string>Include erosion processes</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="0" colspan="3">
-                      <widget class="QLabel" name="label_108">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="palette">
-                        <palette>
-                         <active>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </active>
-                         <inactive>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </inactive>
-                         <disabled>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>122</red>
-                             <green>122</green>
-                             <blue>122</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </disabled>
-                        </palette>
-                       </property>
+                      <widget class="QGroupBox" name="groupBox">
                        <property name="font">
                         <font>
                          <weight>75</weight>
                          <bold>true</bold>
                         </font>
                        </property>
-                       <property name="text">
+                       <property name="title">
                         <string>Sediment</string>
                        </property>
+                       <layout class="QGridLayout" name="gridLayout_37">
+                        <property name="leftMargin">
+                         <number>8</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>8</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="horizontalSpacing">
+                         <number>8</number>
+                        </property>
+                        <property name="verticalSpacing">
+                         <number>0</number>
+                        </property>
+                        <item row="1" column="1" colspan="2">
+                         <widget class="QCheckBox" name="checkAdvancedSediment">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>Advanced sediment processes</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="1" column="0">
+                         <widget class="QLabel" name="label_143">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="text">
+                           <string/>
+                          </property>
+                          <property name="pixmap">
+                           <pixmap resource="../resources/openlisem.qrc">:/bullet.png</pixmap>
+                          </property>
+                          <property name="scaledContents">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="0" column="0" colspan="3">
+                         <widget class="QCheckBox" name="checkDoErosion">
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>Include erosion processes</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
                       </widget>
                      </item>
-                    </layout>
-                   </item>
-                   <item row="2" column="0">
-                    <layout class="QGridLayout" name="gridLayout_17">
-                     <property name="horizontalSpacing">
-                      <number>8</number>
-                     </property>
-                     <property name="verticalSpacing">
-                      <number>0</number>
-                     </property>
-                     <item row="0" column="0" rowspan="2" colspan="4">
-                      <widget class="QLabel" name="label_142">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="palette">
-                        <palette>
-                         <active>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </active>
-                         <inactive>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </inactive>
-                         <disabled>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>122</red>
-                             <green>122</green>
-                             <blue>122</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </disabled>
-                        </palette>
-                       </property>
+                     <item row="0" column="0">
+                      <widget class="QGroupBox" name="groupBox">
                        <property name="font">
                         <font>
                          <weight>75</weight>
                          <bold>true</bold>
                         </font>
                        </property>
-                       <property name="text">
-                        <string>Channels and rivers</string>
+                       <property name="title">
+                        <string>Surface flow</string>
                        </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0" colspan="4">
-                      <widget class="QCheckBox" name="checkIncludeChannel">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="palette">
-                        <palette>
-                         <active>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </active>
-                         <inactive>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </inactive>
-                         <disabled>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>122</red>
-                             <green>122</green>
-                             <blue>122</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </disabled>
-                        </palette>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Include channel/river</string>
-                       </property>
-                       <property name="checked">
-                        <bool>true</bool>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="5" column="0">
-                      <widget class="QLabel" name="label_156">
-                       <property name="enabled">
-                        <bool>true</bool>
-                       </property>
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="pixmap">
-                        <pixmap resource="../resources/openlisem.qrc">:/bullet.png</pixmap>
-                       </property>
-                       <property name="scaledContents">
-                        <bool>true</bool>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="1" colspan="3">
-                      <widget class="QCheckBox" name="checkChannelInfil">
-                       <property name="enabled">
-                        <bool>true</bool>
-                       </property>
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="palette">
-                        <palette>
-                         <active>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </active>
-                         <inactive>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </inactive>
-                         <disabled>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>122</red>
-                             <green>122</green>
-                             <blue>122</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </disabled>
-                        </palette>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Channel infiltration</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="5" column="1" colspan="3">
-                      <widget class="QCheckBox" name="checkChannelBaseflow">
-                       <property name="enabled">
-                        <bool>true</bool>
-                       </property>
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="palette">
-                        <palette>
-                         <active>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </active>
-                         <inactive>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </inactive>
-                         <disabled>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>122</red>
-                             <green>122</green>
-                             <blue>122</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </disabled>
-                        </palette>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Channel baseflow</string>
-                       </property>
+                       <layout class="QGridLayout" name="gridLayout_38">
+                        <property name="leftMargin">
+                         <number>8</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>8</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="horizontalSpacing">
+                         <number>8</number>
+                        </property>
+                        <property name="verticalSpacing">
+                         <number>0</number>
+                        </property>
+                        <item row="0" column="0" colspan="4">
+                         <widget class="QCheckBox" name="checkOverlandFlow1D">
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="toolTip">
+                           <string/>
+                          </property>
+                          <property name="text">
+                           <string>1D Kinematic wave for overland flow (using LDD flow network) </string>
+                          </property>
+                          <property name="checked">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="5" column="0">
+                         <widget class="QLabel" name="label_63">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string/>
+                          </property>
+                          <property name="pixmap">
+                           <pixmap resource="../resources/openlisem.qrc">:/bullet.png</pixmap>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="5" column="1">
+                         <widget class="QDoubleSpinBox" name="E_floodMinHeight">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="decimals">
+                           <number>2</number>
+                          </property>
+                          <property name="maximum">
+                           <double>1.000000000000000</double>
+                          </property>
+                          <property name="singleStep">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="value">
+                           <double>0.050000000000000</double>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="2" column="0" colspan="4">
+                         <widget class="QCheckBox" name="checkOverlandFlow2Dkindyn">
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>1D kinematic overland flow and 2D dyn. flood from channel (channel must be active)</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="4" column="0" colspan="4">
+                         <widget class="QCheckBox" name="checkOverlandFlow2Ddyn">
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>2D Dynamic wave for overland flow and flood (using DEM)</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="5" column="2" colspan="2">
+                         <widget class="QLabel" name="label_198">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="palette">
+                           <palette>
+                            <active>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </active>
+                            <inactive>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </inactive>
+                            <disabled>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>122</red>
+                                <green>122</green>
+                                <blue>122</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </disabled>
+                           </palette>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <italic>false</italic>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="toolTip">
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Minimum flood water height&lt;/span&gt;&lt;br/&gt;When using 2D dynamic wave, flood ad runoff are not distinguished, all is 2D flow. The minimum value of 0.05 m is set to distinguish artificially between hazardous flood and overland flow. This is only for the display and output maps, it does not affect the simuation itself. It does affect the reported flood start time and flood duration maps.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          </property>
+                          <property name="text">
+                           <string>Flood threshold: flow height reported as flood (m)</string>
+                          </property>
+                          <property name="alignment">
+                           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
                       </widget>
                      </item>
                      <item row="3" column="0">
-                      <widget class="QLabel" name="label_155">
-                       <property name="enabled">
-                        <bool>true</bool>
-                       </property>
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="pixmap">
-                        <pixmap resource="../resources/openlisem.qrc">:/bullet.png</pixmap>
-                       </property>
-                       <property name="scaledContents">
-                        <bool>true</bool>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="6" column="1" colspan="3">
-                      <widget class="QCheckBox" name="checkChannelCulverts">
-                       <property name="enabled">
-                        <bool>true</bool>
-                       </property>
-                       <property name="text">
-                        <string>Use Culverts</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="6" column="0">
-                      <widget class="QLabel" name="label_102">
-                       <property name="enabled">
-                        <bool>true</bool>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="pixmap">
-                        <pixmap resource="../resources/openlisem.qrc">:/bullet.png</pixmap>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item row="6" column="0">
-                    <layout class="QHBoxLayout" name="horizontalLayout">
-                     <item>
-                      <widget class="QSpinBox" name="nrUserCores">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="maximum">
-                        <number>8</number>
-                       </property>
-                       <property name="value">
-                        <number>1</number>
-                       </property>
-                       <property name="displayIntegerBase">
-                        <number>10</number>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLabel" name="label_56">
-                       <property name="text">
-                        <string>Nr of CPU cores, more cores is faster for very large areas (0 = all cores; 1 = 1 core etc.)</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item row="5" column="0">
-                    <widget class="QLabel" name="label_63">
-                     <property name="font">
-                      <font>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Parallel processing</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="0">
-                    <layout class="QGridLayout" name="gridLayout_38">
-                     <property name="horizontalSpacing">
-                      <number>8</number>
-                     </property>
-                     <property name="verticalSpacing">
-                      <number>0</number>
-                     </property>
-                     <item row="5" column="1">
-                      <widget class="QLabel" name="label_198">
-                       <property name="enabled">
-                        <bool>true</bool>
-                       </property>
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="palette">
-                        <palette>
-                         <active>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </active>
-                         <inactive>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </inactive>
-                         <disabled>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>122</red>
-                             <green>122</green>
-                             <blue>122</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </disabled>
-                        </palette>
-                       </property>
+                      <widget class="QGroupBox" name="groupBox">
                        <property name="font">
                         <font>
-                         <weight>50</weight>
-                         <bold>false</bold>
+                         <weight>75</weight>
+                         <bold>true</bold>
                         </font>
                        </property>
-                       <property name="toolTip">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Minimum flood water height&lt;/span&gt;&lt;br/&gt;When using 2D dynamic wave, flood ad runoff are not distinguished, all is 2D flow. The minimum value of 0.05 m is set to distinguish artificially between hazardous flood and overland flow. This is only for the display and output maps, it does not affect the simuation itself. It does affect the reported flood start time and flood duration maps.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <property name="title">
+                        <string>Channels and rivers</string>
                        </property>
-                       <property name="text">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flood threshold&lt;/span&gt;: flow height reported as flood (m)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                       </property>
+                       <layout class="QGridLayout" name="gridLayout_17">
+                        <property name="leftMargin">
+                         <number>8</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>8</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="horizontalSpacing">
+                         <number>8</number>
+                        </property>
+                        <property name="verticalSpacing">
+                         <number>0</number>
+                        </property>
+                        <item row="3" column="1" colspan="2">
+                         <widget class="QCheckBox" name="checkChannelBaseflow">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="palette">
+                           <palette>
+                            <active>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </active>
+                            <inactive>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </inactive>
+                            <disabled>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>122</red>
+                                <green>122</green>
+                                <blue>122</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </disabled>
+                           </palette>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>Channel baseflow</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="1" column="0">
+                         <widget class="QLabel" name="label_155">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="text">
+                           <string/>
+                          </property>
+                          <property name="pixmap">
+                           <pixmap resource="../resources/openlisem.qrc">:/bullet.png</pixmap>
+                          </property>
+                          <property name="scaledContents">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="3" column="0">
+                         <widget class="QLabel" name="label_156">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="text">
+                           <string/>
+                          </property>
+                          <property name="pixmap">
+                           <pixmap resource="../resources/openlisem.qrc">:/bullet.png</pixmap>
+                          </property>
+                          <property name="scaledContents">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="1" column="1" colspan="2">
+                         <widget class="QCheckBox" name="checkChannelInfil">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="palette">
+                           <palette>
+                            <active>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </active>
+                            <inactive>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </inactive>
+                            <disabled>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>122</red>
+                                <green>122</green>
+                                <blue>122</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </disabled>
+                           </palette>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>Channel infiltration</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="4" column="1" colspan="2">
+                         <widget class="QCheckBox" name="checkChannelCulverts">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>Use Culverts</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="4" column="0">
+                         <widget class="QLabel" name="label_102">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="text">
+                           <string/>
+                          </property>
+                          <property name="pixmap">
+                           <pixmap resource="../resources/openlisem.qrc">:/bullet.png</pixmap>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="0" column="0" colspan="3">
+                         <widget class="QCheckBox" name="checkIncludeChannel">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="palette">
+                           <palette>
+                            <active>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </active>
+                            <inactive>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </inactive>
+                            <disabled>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>122</red>
+                                <green>122</green>
+                                <blue>122</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </disabled>
+                           </palette>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>Include channel/river</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
                       </widget>
                      </item>
-                     <item row="0" column="3">
+                     <item row="4" column="0">
+                      <widget class="QGroupBox" name="groupBox">
+                       <property name="font">
+                        <font>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="title">
+                        <string>Infrastructure</string>
+                       </property>
+                       <layout class="QGridLayout" name="gridLayout_30">
+                        <property name="leftMargin">
+                         <number>8</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>8</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="horizontalSpacing">
+                         <number>8</number>
+                        </property>
+                        <property name="verticalSpacing">
+                         <number>0</number>
+                        </property>
+                        <item row="2" column="0" colspan="5">
+                         <widget class="QCheckBox" name="checkStormDrains">
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>Include storm drains</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="0" column="2">
+                         <widget class="QCheckBox" name="checkRoadsystem">
+                          <property name="palette">
+                           <palette>
+                            <active>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </active>
+                            <inactive>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </inactive>
+                            <disabled>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>122</red>
+                                <green>122</green>
+                                <blue>122</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </disabled>
+                           </palette>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>Include road system -----</string>
+                          </property>
+                          <property name="checked">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="1" column="0">
+                         <widget class="QLabel" name="label_157">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="text">
+                           <string/>
+                          </property>
+                          <property name="pixmap">
+                           <pixmap resource="../resources/openlisem.qrc">:/bullet.png</pixmap>
+                          </property>
+                          <property name="scaledContents">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="0" column="0" colspan="2">
+                         <widget class="QCheckBox" name="checkHouses">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="palette">
+                           <palette>
+                            <active>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </active>
+                            <inactive>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </inactive>
+                            <disabled>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>122</red>
+                                <green>122</green>
+                                <blue>122</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </disabled>
+                           </palette>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>Include buildings -----</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="1" column="1" colspan="4">
+                         <widget class="QCheckBox" name="checkRaindrum">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="palette">
+                           <palette>
+                            <active>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </active>
+                            <inactive>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </inactive>
+                            <disabled>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>122</red>
+                                <green>122</green>
+                                <blue>122</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </disabled>
+                           </palette>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>Include rainwater storage by drums</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="0" column="3" colspan="2">
+                         <widget class="QCheckBox" name="checkHardsurface">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="palette">
+                           <palette>
+                            <active>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </active>
+                            <inactive>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </inactive>
+                            <disabled>
+                             <colorrole role="WindowText">
+                              <brush brushstyle="SolidPattern">
+                               <color alpha="255">
+                                <red>122</red>
+                                <green>122</green>
+                                <blue>122</blue>
+                               </color>
+                              </brush>
+                             </colorrole>
+                            </disabled>
+                           </palette>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>Include hard surfaces</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </widget>
+                     </item>
+                     <item row="0" column="2" alignment="Qt::AlignTop">
                       <widget class="QToolButton" name="toolButton_help1">
                        <property name="text">
-                        <string>...</string>
+                        <string/>
                        </property>
                        <property name="icon">
                         <iconset resource="../resources/openlisem.qrc">
@@ -4617,203 +4702,23 @@
                        <property name="shortcut">
                         <string>F1</string>
                        </property>
-                      </widget>
-                     </item>
-                     <item row="5" column="0">
-                      <widget class="QDoubleSpinBox" name="E_floodMinHeight">
-                       <property name="enabled">
-                        <bool>true</bool>
-                       </property>
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="decimals">
-                        <number>2</number>
-                       </property>
-                       <property name="maximum">
-                        <double>1.000000000000000</double>
-                       </property>
-                       <property name="singleStep">
-                        <double>0.010000000000000</double>
-                       </property>
-                       <property name="value">
-                        <double>0.050000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="4" column="0" colspan="4">
-                      <widget class="QCheckBox" name="checkOverlandFlow2Ddyn">
-                       <property name="text">
-                        <string>2D Dynamic wave for overland flow and flood (using DEM)</string>
-                       </property>
-                       <property name="checked">
-                        <bool>true</bool>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="0" colspan="2">
-                      <widget class="QCheckBox" name="checkOverlandFlow2Dkindyn">
-                       <property name="text">
-                        <string>1D kinematic overland flow and 2D dyn. flood from channel (channel must be active)</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0" colspan="4">
-                      <widget class="QCheckBox" name="checkOverlandFlow2D">
-                       <property name="enabled">
+                       <property name="checkable">
                         <bool>false</bool>
                        </property>
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
+                       <property name="popupMode">
+                        <enum>QToolButton::DelayedPopup</enum>
                        </property>
-                       <property name="palette">
-                        <palette>
-                         <active>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </active>
-                         <inactive>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </inactive>
-                         <disabled>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>122</red>
-                             <green>122</green>
-                             <blue>122</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </disabled>
-                        </palette>
+                       <property name="toolButtonStyle">
+                        <enum>Qt::ToolButtonIconOnly</enum>
                        </property>
-                       <property name="font">
-                        <font>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>2D Diffusive wave (Using DEM)</string>
-                       </property>
-                       <property name="checked">
-                        <bool>false</bool>
+                       <property name="arrowType">
+                        <enum>Qt::NoArrow</enum>
                        </property>
                       </widget>
-                     </item>
-                     <item row="1" column="0" colspan="4">
-                      <widget class="QCheckBox" name="checkOverlandFlow1D">
-                       <property name="toolTip">
-                        <string/>
-                       </property>
-                       <property name="text">
-                        <string>1D Kinematic wave for overland flow (using LDD flow network) </string>
-                       </property>
-                       <property name="checked">
-                        <bool>false</bool>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="0" colspan="3">
-                      <widget class="QLabel" name="label_161">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="palette">
-                        <palette>
-                         <active>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </active>
-                         <inactive>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </inactive>
-                         <disabled>
-                          <colorrole role="WindowText">
-                           <brush brushstyle="SolidPattern">
-                            <color alpha="255">
-                             <red>122</red>
-                             <green>122</green>
-                             <blue>122</blue>
-                            </color>
-                           </brush>
-                          </colorrole>
-                         </disabled>
-                        </palette>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <weight>75</weight>
-                         <bold>true</bold>
-                        </font>
-                       </property>
-                       <property name="text">
-                        <string>Surface flow</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="2" colspan="2">
-                      <spacer name="horizontalSpacer_19">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>40</width>
-                         <height>20</height>
-                        </size>
-                       </property>
-                      </spacer>
                      </item>
                     </layout>
                    </item>
-                   <item row="7" column="0">
+                   <item row="1" column="0">
                     <spacer name="verticalSpacer_7">
                      <property name="orientation">
                       <enum>Qt::Vertical</enum>
@@ -5496,17 +5401,6 @@ p, li { white-space: pre-wrap; }
                        </property>
                       </widget>
                      </item>
-                     <item row="0" column="3">
-                      <widget class="QToolButton" name="toolButton_help2">
-                       <property name="text">
-                        <string>...</string>
-                       </property>
-                       <property name="icon">
-                        <iconset resource="../resources/openlisem.qrc">
-                         <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
-                       </property>
-                      </widget>
-                     </item>
                      <item row="2" column="0">
                       <widget class="QCheckBox" name="checkIncludeLitter">
                        <property name="sizePolicy">
@@ -5534,6 +5428,17 @@ p, li { white-space: pre-wrap; }
                       </size>
                      </property>
                     </spacer>
+                   </item>
+                   <item row="0" column="1" alignment="Qt::AlignRight|Qt::AlignTop">
+                    <widget class="QToolButton" name="toolButton_help2">
+                     <property name="text">
+                      <string>...</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/openlisem.qrc">
+                       <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
+                     </property>
+                    </widget>
                    </item>
                   </layout>
                  </widget>
@@ -5681,7 +5586,7 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="0" column="2">
+                   <item row="0" column="2" alignment="Qt::AlignTop">
                     <widget class="QToolButton" name="toolButton_help3">
                      <property name="text">
                       <string>...</string>
@@ -6349,19 +6254,45 @@ p, li { white-space: pre-wrap; }
                    <string>Flow</string>
                   </attribute>
                   <layout class="QGridLayout" name="gridLayout_3">
-                   <item row="1" column="2">
-                    <widget class="QToolButton" name="toolButton_resetFlow">
+                   <item row="4" column="0">
+                    <spacer name="verticalSpacer_8">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item row="1" column="4">
+                    <widget class="QToolButton" name="toolButton_help4">
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset to default values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>Help</string>
                      </property>
                      <property name="text">
                       <string>...</string>
                      </property>
                      <property name="icon">
                       <iconset resource="../resources/openlisem.qrc">
-                       <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
+                       <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
                      </property>
                     </widget>
+                   </item>
+                   <item row="1" column="3">
+                    <spacer name="horizontalSpacer_13">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
                    </item>
                    <item row="1" column="0" rowspan="2">
                     <widget class="QGroupBox" name="gridGroupBox">
@@ -6422,15 +6353,18 @@ p, li { white-space: pre-wrap; }
                        <number>8</number>
                       </property>
                       <property name="topMargin">
-                       <number>2</number>
+                       <number>0</number>
                       </property>
                       <property name="rightMargin">
-                       <number>2</number>
+                       <number>8</number>
                       </property>
                       <property name="bottomMargin">
-                       <number>2</number>
+                       <number>0</number>
                       </property>
-                      <property name="spacing">
+                      <property name="horizontalSpacing">
+                       <number>8</number>
+                      </property>
+                      <property name="verticalSpacing">
                        <number>2</number>
                       </property>
                       <item row="4" column="0" colspan="2">
@@ -6620,19 +6554,6 @@ p, li { white-space: pre-wrap; }
                       </item>
                      </layout>
                     </widget>
-                   </item>
-                   <item row="1" column="3">
-                    <spacer name="horizontalSpacer_13">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
                    </item>
                    <item row="3" column="0">
                     <widget class="QGroupBox" name="FloodParams">
@@ -7073,29 +6994,22 @@ p, li { white-space: pre-wrap; }
                      </layout>
                     </widget>
                    </item>
-                   <item row="1" column="1">
-                    <widget class="QToolButton" name="toolButton_help4">
+                   <item row="1" column="5">
+                    <widget class="QToolButton" name="toolButton_resetFlow">
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset to default values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     </property>
+                     <property name="toolTipDuration">
+                      <number>-5</number>
+                     </property>
                      <property name="text">
                       <string>...</string>
                      </property>
                      <property name="icon">
                       <iconset resource="../resources/openlisem.qrc">
-                       <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
+                       <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
                      </property>
                     </widget>
-                   </item>
-                   <item row="4" column="0">
-                    <spacer name="verticalSpacer_8">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>40</height>
-                      </size>
-                     </property>
-                    </spacer>
                    </item>
                   </layout>
                  </widget>
@@ -7146,7 +7060,7 @@ p, li { white-space: pre-wrap; }
                        </property>
                        <layout class="QVBoxLayout" name="verticalLayout_8">
                         <property name="spacing">
-                         <number>8</number>
+                         <number>0</number>
                         </property>
                         <property name="leftMargin">
                          <number>8</number>
@@ -8250,13 +8164,13 @@ p, li { white-space: pre-wrap; }
                          <number>8</number>
                         </property>
                         <property name="topMargin">
-                         <number>4</number>
+                         <number>0</number>
                         </property>
                         <property name="rightMargin">
                          <number>8</number>
                         </property>
                         <property name="bottomMargin">
-                         <number>4</number>
+                         <number>0</number>
                         </property>
                         <property name="horizontalSpacing">
                          <number>8</number>
@@ -8941,16 +8855,19 @@ p, li { white-space: pre-wrap; }
                          <number>8</number>
                         </property>
                         <property name="topMargin">
-                         <number>2</number>
+                         <number>0</number>
                         </property>
                         <property name="rightMargin">
                          <number>8</number>
                         </property>
                         <property name="bottomMargin">
-                         <number>2</number>
+                         <number>0</number>
                         </property>
-                        <property name="spacing">
-                         <number>2</number>
+                        <property name="horizontalSpacing">
+                         <number>8</number>
+                        </property>
+                        <property name="verticalSpacing">
+                         <number>0</number>
                         </property>
                         <item row="3" column="0">
                          <widget class="QLabel" name="label_145">
@@ -9128,16 +9045,19 @@ p, li { white-space: pre-wrap; }
                          <number>8</number>
                         </property>
                         <property name="topMargin">
-                         <number>2</number>
+                         <number>0</number>
                         </property>
                         <property name="rightMargin">
                          <number>8</number>
                         </property>
                         <property name="bottomMargin">
-                         <number>2</number>
+                         <number>0</number>
                         </property>
-                        <property name="spacing">
-                         <number>2</number>
+                        <property name="horizontalSpacing">
+                         <number>8</number>
+                        </property>
+                        <property name="verticalSpacing">
+                         <number>0</number>
                         </property>
                         <item row="5" column="3">
                          <widget class="QDoubleSpinBox" name="E_SigmaDiffusion">
@@ -9330,16 +9250,19 @@ p, li { white-space: pre-wrap; }
                          <number>8</number>
                         </property>
                         <property name="topMargin">
-                         <number>2</number>
+                         <number>0</number>
                         </property>
                         <property name="rightMargin">
                          <number>8</number>
                         </property>
                         <property name="bottomMargin">
-                         <number>2</number>
+                         <number>0</number>
                         </property>
-                        <property name="spacing">
-                         <number>2</number>
+                        <property name="horizontalSpacing">
+                         <number>8</number>
+                        </property>
+                        <property name="verticalSpacing">
+                         <number>0</number>
                         </property>
                         <item row="1" column="0" colspan="2">
                          <widget class="QCheckBox" name="checkSed2Phase">
@@ -9562,16 +9485,19 @@ p, li { white-space: pre-wrap; }
                          <number>8</number>
                         </property>
                         <property name="topMargin">
-                         <number>2</number>
+                         <number>0</number>
                         </property>
                         <property name="rightMargin">
                          <number>8</number>
                         </property>
                         <property name="bottomMargin">
-                         <number>2</number>
+                         <number>0</number>
                         </property>
-                        <property name="spacing">
-                         <number>2</number>
+                        <property name="horizontalSpacing">
+                         <number>8</number>
+                        </property>
+                        <property name="verticalSpacing">
+                         <number>0</number>
                         </property>
                         <item row="6" column="0" colspan="2">
                          <widget class="QCheckBox" name="checkRDiffusion">
@@ -12973,6 +12899,74 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </widget>
+                  <widget class="QCheckBox" name="checkOverlandFlow2D">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="geometry">
+                    <rect>
+                     <x>50</x>
+                     <y>450</y>
+                     <width>551</width>
+                     <height>16</height>
+                    </rect>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>0</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>122</red>
+                         <green>122</green>
+                         <blue>122</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>2D Diffusive wave (Using DEM)</string>
+                   </property>
+                   <property name="checked">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
                  </widget>
                 </widget>
                </item>
@@ -13048,7 +13042,10 @@ p, li { white-space: pre-wrap; }
               <property name="bottomMargin">
                <number>4</number>
               </property>
-              <property name="spacing">
+              <property name="horizontalSpacing">
+               <number>1</number>
+              </property>
+              <property name="verticalSpacing">
                <number>4</number>
               </property>
               <item row="0" column="1">
@@ -19081,72 +19078,6 @@ p, li { white-space: pre-wrap; }
               <property name="verticalSpacing">
                <number>2</number>
               </property>
-              <item row="8" column="1">
-               <widget class="QCheckBox" name="checkBoxComboMaps">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1" colspan="4">
-               <widget class="QSlider" name="transparencyRoad">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>Transparency channels</string>
-                </property>
-                <property name="maximum">
-                 <number>256</number>
-                </property>
-                <property name="value">
-                 <number>128</number>
-                </property>
-                <property name="sliderPosition">
-                 <number>128</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1" colspan="4">
-               <widget class="QSlider" name="transparencyHouse">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>Transparency roads</string>
-                </property>
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="maximum">
-                 <number>256</number>
-                </property>
-                <property name="value">
-                 <number>128</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
               <item row="2" column="5" colspan="2">
                <widget class="QCheckBox" name="checkMapRoads">
                 <property name="sizePolicy">
@@ -19204,10 +19135,10 @@ p, li { white-space: pre-wrap; }
                 </property>
                </widget>
               </item>
-              <item row="7" column="6">
-               <widget class="QLabel" name="label_163">
+              <item row="6" column="5">
+               <widget class="QLabel" name="label_92">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -19257,7 +19188,10 @@ p, li { white-space: pre-wrap; }
                  </font>
                 </property>
                 <property name="text">
-                 <string>Max</string>
+                 <string>Relief; nr. contours:</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
@@ -19375,10 +19309,167 @@ p, li { white-space: pre-wrap; }
                 </property>
                </widget>
               </item>
-              <item row="8" column="6" colspan="2">
+              <item row="8" column="1">
+               <widget class="QCheckBox" name="checkBoxComboMaps">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="2" colspan="3">
+               <widget class="QComboBox" name="DisplayComboBox">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="1" colspan="4">
+               <widget class="QSlider" name="transparencyMap">
+                <property name="maximum">
+                 <number>256</number>
+                </property>
+                <property name="value">
+                 <number>200</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" colspan="4">
+               <widget class="QSlider" name="transparencyHouse">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Transparency roads</string>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>256</number>
+                </property>
+                <property name="value">
+                 <number>128</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="5">
+               <widget class="QCheckBox" name="checkMapChannels">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="palette">
+                 <palette>
+                  <active>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </active>
+                  <inactive>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </inactive>
+                  <disabled>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>120</red>
+                      <green>120</green>
+                      <blue>120</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </disabled>
+                 </palette>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Channels; outlets</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="2" colspan="3">
+               <widget class="QComboBox" name="DisplayComboBox2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="6" colspan="3">
                <widget class="QDoubleSpinBox" name="ComboMaxSpinBox">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -19398,10 +19489,50 @@ p, li { white-space: pre-wrap; }
                 </property>
                </widget>
               </item>
-              <item row="8" column="5">
-               <widget class="QDoubleSpinBox" name="ComboMinSpinBox">
+              <item row="6" column="1" colspan="4">
+               <widget class="QSlider" name="transparency">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Transparency buildings</string>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>256</number>
+                </property>
+                <property name="value">
+                 <number>128</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>false</bool>
+                </property>
+                <property name="invertedControls">
+                 <bool>false</bool>
+                </property>
+                <property name="tickPosition">
+                 <enum>QSlider::NoTicks</enum>
+                </property>
+                <property name="tickInterval">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="6" colspan="3">
+               <widget class="QDoubleSpinBox" name="ComboMaxSpinBox2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -19418,118 +19549,6 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="maximum">
                  <double>999999.000000000000000</double>
-                </property>
-               </widget>
-              </item>
-              <item row="10" column="1">
-               <widget class="QCheckBox" name="checkBoxComboMaps2">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="8" column="2" colspan="3">
-               <widget class="QComboBox" name="DisplayComboBox">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-               </widget>
-              </item>
-              <item row="10" column="5">
-               <widget class="QDoubleSpinBox" name="ComboMinSpinBox2">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="minimum">
-                 <double>-999999.000000000000000</double>
-                </property>
-                <property name="maximum">
-                 <double>999999.000000000000000</double>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1" colspan="2">
-               <widget class="QSpinBox" name="spinRiverSize">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="maximum">
-                 <number>10</number>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1" colspan="4">
-               <widget class="QSlider" name="transparencyBarrier">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>transparency of rainfall, runoff, infill etc</string>
-                </property>
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="maximum">
-                 <number>256</number>
-                </property>
-                <property name="value">
-                 <number>256</number>
-                </property>
-                <property name="sliderPosition">
-                 <number>256</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
                 </property>
                </widget>
               </item>
@@ -19586,80 +19605,10 @@ p, li { white-space: pre-wrap; }
                 </property>
                </widget>
               </item>
-              <item row="11" column="5">
-               <widget class="QSlider" name="transparencyChannel">
-                <property name="maximum">
-                 <number>256</number>
-                </property>
-                <property name="value">
-                 <number>128</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="1" colspan="4">
-               <widget class="QSlider" name="transparency">
+              <item row="7" column="6">
+               <widget class="QLabel" name="label_163">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>Transparency buildings</string>
-                </property>
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="maximum">
-                 <number>256</number>
-                </property>
-                <property name="value">
-                 <number>128</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="invertedAppearance">
-                 <bool>false</bool>
-                </property>
-                <property name="invertedControls">
-                 <bool>false</bool>
-                </property>
-                <property name="tickPosition">
-                 <enum>QSlider::NoTicks</enum>
-                </property>
-                <property name="tickInterval">
-                 <number>30</number>
-                </property>
-               </widget>
-              </item>
-              <item row="10" column="2" colspan="3">
-               <widget class="QComboBox" name="DisplayComboBox2">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="3">
-               <widget class="QCheckBox" name="checkMapChannels">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -19709,17 +19658,14 @@ p, li { white-space: pre-wrap; }
                  </font>
                 </property>
                 <property name="text">
-                 <string>Channels</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
+                 <string>Max</string>
                 </property>
                </widget>
               </item>
-              <item row="3" column="6">
-               <widget class="QSpinBox" name="spinCulvertSize">
+              <item row="10" column="1">
+               <widget class="QCheckBox" name="checkBoxComboMaps2">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -19727,74 +19673,38 @@ p, li { white-space: pre-wrap; }
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="5">
+               <widget class="QDoubleSpinBox" name="ComboMinSpinBox2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
                 <property name="minimum">
-                 <number>2</number>
+                 <double>-999999.000000000000000</double>
                 </property>
-                <property name="value">
-                 <number>5</number>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="5">
-               <widget class="QLabel" name="label_105">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="palette">
-                 <palette>
-                  <active>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </active>
-                  <inactive>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </inactive>
-                  <disabled>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>120</red>
-                      <green>120</green>
-                      <blue>120</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </disabled>
-                 </palette>
-                </property>
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Endpoint,Culverts</string>
+                <property name="maximum">
+                 <double>999999.000000000000000</double>
                 </property>
                </widget>
               </item>
-              <item row="6" column="6" colspan="3">
+              <item row="6" column="6" colspan="4">
                <widget class="QSpinBox" name="nrcontourlevels">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -19826,73 +19736,10 @@ p, li { white-space: pre-wrap; }
                 </property>
                </widget>
               </item>
-              <item row="6" column="5">
-               <widget class="QLabel" name="label_92">
+              <item row="8" column="5">
+               <widget class="QDoubleSpinBox" name="ComboMinSpinBox">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="palette">
-                 <palette>
-                  <active>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </active>
-                  <inactive>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </inactive>
-                  <disabled>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>120</red>
-                      <green>120</green>
-                      <blue>120</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </disabled>
-                 </palette>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Relief, nr. contours:</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="10" column="6" colspan="2">
-               <widget class="QDoubleSpinBox" name="ComboMaxSpinBox2">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -19909,19 +19756,6 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="maximum">
                  <double>999999.000000000000000</double>
-                </property>
-               </widget>
-              </item>
-              <item row="7" column="1" colspan="4">
-               <widget class="QSlider" name="transparencyMap">
-                <property name="maximum">
-                 <number>256</number>
-                </property>
-                <property name="value">
-                 <number>200</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
                 </property>
                </widget>
               </item>
@@ -19979,6 +19813,103 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="text">
                  <string>Min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1" colspan="4">
+               <widget class="QSlider" name="transparencyBarrier">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>transparency of rainfall, runoff, infill etc</string>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>256</number>
+                </property>
+                <property name="value">
+                 <number>256</number>
+                </property>
+                <property name="sliderPosition">
+                 <number>256</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="6">
+               <widget class="QSpinBox" name="spinCulvertSize">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="minimum">
+                 <number>2</number>
+                </property>
+                <property name="value">
+                 <number>5</number>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1" colspan="4">
+               <widget class="QSlider" name="transparencyRoad">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Transparency channels</string>
+                </property>
+                <property name="maximum">
+                 <number>256</number>
+                </property>
+                <property name="value">
+                 <number>128</number>
+                </property>
+                <property name="sliderPosition">
+                 <number>128</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" colspan="4">
+               <widget class="QSlider" name="showRiverSize">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>10</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
                 </property>
                </widget>
               </item>
@@ -20771,12 +20702,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1125</x>
-     <y>185</y>
+     <x>1419</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1103</x>
-     <y>189</y>
+     <x>1395</x>
+     <y>181</y>
     </hint>
    </hints>
   </connection>
@@ -20787,12 +20718,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1125</x>
-     <y>185</y>
+     <x>1419</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1071</x>
-     <y>188</y>
+     <x>1364</x>
+     <y>181</y>
     </hint>
    </hints>
   </connection>
@@ -20803,12 +20734,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>63</x>
-     <y>378</y>
+     <x>131</x>
+     <y>497</y>
     </hint>
     <hint type="destinationlabel">
-     <x>69</x>
-     <y>378</y>
+     <x>421</x>
+     <y>498</y>
     </hint>
    </hints>
   </connection>
@@ -20819,12 +20750,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>63</x>
-     <y>378</y>
+     <x>131</x>
+     <y>497</y>
     </hint>
     <hint type="destinationlabel">
-     <x>66</x>
-     <y>378</y>
+     <x>334</x>
+     <y>498</y>
     </hint>
    </hints>
   </connection>
@@ -20835,12 +20766,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>63</x>
-     <y>375</y>
+     <x>131</x>
+     <y>521</y>
     </hint>
     <hint type="destinationlabel">
-     <x>66</x>
-     <y>375</y>
+     <x>298</x>
+     <y>522</y>
     </hint>
    </hints>
   </connection>
@@ -20851,12 +20782,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>63</x>
-     <y>375</y>
+     <x>131</x>
+     <y>521</y>
     </hint>
     <hint type="destinationlabel">
-     <x>68</x>
-     <y>375</y>
+     <x>385</x>
+     <y>522</y>
     </hint>
    </hints>
   </connection>
@@ -20867,12 +20798,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>86</x>
-     <y>378</y>
+     <x>154</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>378</y>
+     <x>360</x>
+     <y>474</y>
     </hint>
    </hints>
   </connection>
@@ -20883,12 +20814,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>72</x>
-     <y>356</y>
+     <x>118</x>
+     <y>552</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>378</y>
+     <x>447</x>
+     <y>474</y>
     </hint>
    </hints>
   </connection>
@@ -20899,12 +20830,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>86</x>
-     <y>378</y>
+     <x>154</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
-     <x>93</x>
-     <y>378</y>
+     <x>532</x>
+     <y>474</y>
     </hint>
    </hints>
   </connection>
@@ -20915,28 +20846,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>86</x>
-     <y>378</y>
+     <x>154</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>378</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkDoErosion</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkAdvancedSediment</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>191</x>
-     <y>517</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>262</x>
-     <y>539</y>
+     <x>360</x>
+     <y>474</y>
     </hint>
    </hints>
   </connection>
@@ -20947,12 +20862,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>354</y>
+     <x>93</x>
+     <y>540</y>
     </hint>
     <hint type="destinationlabel">
-     <x>64</x>
-     <y>354</y>
+     <x>318</x>
+     <y>541</y>
     </hint>
    </hints>
   </connection>
@@ -20963,44 +20878,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>358</y>
+     <x>93</x>
+     <y>630</y>
     </hint>
     <hint type="destinationlabel">
-     <x>64</x>
-     <y>358</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkMapChannels</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_105</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>108</x>
-     <y>960</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>174</x>
-     <y>959</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkMapChannels</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>spinRiverSize</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>102</x>
-     <y>947</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>50</x>
-     <y>952</y>
+     <x>318</x>
+     <y>631</y>
     </hint>
    </hints>
   </connection>
@@ -21011,12 +20894,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>76</x>
-     <y>961</y>
+     <x>182</x>
+     <y>963</y>
     </hint>
     <hint type="destinationlabel">
-     <x>262</x>
-     <y>952</y>
+     <x>296</x>
+     <y>969</y>
     </hint>
    </hints>
   </connection>
@@ -21027,12 +20910,172 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>80</x>
-     <y>956</y>
+     <x>183</x>
+     <y>963</y>
     </hint>
     <hint type="destinationlabel">
-     <x>294</x>
-     <y>950</y>
+     <x>327</x>
+     <y>969</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkMapRoads</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>transparencyRoad</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>185</x>
+     <y>944</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>101</x>
+     <y>945</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkMapBuildings</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>transparencyHouse</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>202</x>
+     <y>920</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>91</x>
+     <y>921</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkMapChannels</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>showRiverSize</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>147</x>
+     <y>952</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>73</x>
+     <y>953</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkMapFlowBarriers</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>transparencyBarrier</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>187</x>
+     <y>992</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>85</x>
+     <y>974</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkIncludeChannel</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>checkChannelInfil</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>179</x>
+     <y>526</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>194</x>
+     <y>548</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkIncludeChannel</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>checkChannelBaseflow</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>166</x>
+     <y>529</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>168</x>
+     <y>574</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkIncludeChannel</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>checkChannelCulverts</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>133</x>
+     <y>526</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>139</x>
+     <y>595</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkOverlandFlow2Ddyn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_198</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>349</x>
+     <y>403</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>359</x>
+     <y>424</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkOverlandFlow2Ddyn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_floodMinHeight</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>100</x>
+     <y>404</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>106</x>
+     <y>421</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkDoErosion</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>checkAdvancedSediment</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>227</x>
+     <y>463</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>260</x>
+     <y>486</y>
     </hint>
    </hints>
   </connection>

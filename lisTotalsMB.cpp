@@ -143,15 +143,8 @@ void TWorld::Totals(void)
     floodVolTotmm = floodVolTot * catchmentAreaFlatMM; // to mm
 
     WaterVolTot = mapTotal(*WaterVolall);//m3
-//    if(SwitchKinematic2D == K2D_METHOD_DYN
-//            || (SwitchKinematic2D != K2D_METHOD_DYN && !SwitchIncludeChannel) )
-//    {}
-//    else
-
-//    if (SwitchKinematic2D != K2D_METHOD_DYN)// && SwitchIncludeChannel)
-        WaterVolTot += floodVolTot;
-
-      WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
+//    WaterVolTot += floodVolTot;
+    WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
 
     // split into runoff and flood for screen reporting
     WaterVolRunoffmm = 0;

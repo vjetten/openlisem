@@ -586,10 +586,11 @@ void lisemqt::hideChannelVector(bool yes)
         for (int i = 0; i < rivers.length(); i++) {
             QColor color = QColor("#000000");
           //  color.setAlpha(channelAlp);
-           rivers[i]->setPen(color, spinRiverSize->value(), Qt::SolidLine );
+           rivers[i]->setPen(color, showRiverSize->value(), Qt::SolidLine );
            rivers[i]->attach( MPlot );
            rivers[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
         }
+
         for (int i = 0; i < culverts.length(); i++) {
             int dxi = spinCulvertSize->value();
 
@@ -617,7 +618,6 @@ void lisemqt::showChannelVector()
         QVector <double> X;
         QVector <double> Y;
         checkMapChannels->setChecked(true);
-        channelAlp = 1.0;
 
         double xend, yend;
         double dx = op.channelMap->cellSize();
@@ -661,13 +661,11 @@ void lisemqt::showChannelVector()
         }
 
         for (int i = 0; i < Xa.length(); i++) {
-
             rivera = new QwtPlotCurve();
             rivers << rivera;
             rivera->setPen(QColor("#000000"), 1, Qt::SolidLine );
             rivera->attach( MPlot );
             rivera->setAxes(MPlot->xBottom, MPlot->yLeft);
-
             rivera->setSamples(Xa.at(i),Ya.at(i));
         }
 
@@ -675,19 +673,17 @@ void lisemqt::showChannelVector()
         dxi = std::min(5,dxi);
         spinCulvertSize->setValue(dxi);
         QwtPlotCurve *culvert = new QwtPlotCurve();
-        culverts << culvert;
         QwtSymbol *blackdot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi ));
+
+        culverts << culvert;
         culvert->setSymbol(blackdot);
         culvert->setStyle( QwtPlotCurve::NoCurve );
         culvert->attach( MPlot );
         culvert->setAxes(MPlot->xBottom, MPlot->yLeft);
-        X.clear();
-        Y.clear();
-        X << xend;
-        Y << yend;
-        culvert->setSamples(X, Y);
+        culvert->setSamples(op.EndPointX,op.EndPointY);
+        op.EndPointX.clear();
+        op.EndPointY.clear();
 
-        Y.clear();
         Xa.clear();
         Ya.clear();
         op.ChanDataX.clear();

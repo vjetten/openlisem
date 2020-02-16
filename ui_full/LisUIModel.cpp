@@ -319,6 +319,8 @@ void lisemqt::initOP()
     op.branches.clear();
     op.CulvertX.clear();
     op.CulvertY.clear();
+    op.EndPointX.clear();
+    op.EndPointY.clear();
 
     op.runstep = 0;
     op.printstep = 0;

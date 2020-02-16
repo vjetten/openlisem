@@ -42,14 +42,14 @@ QStringList optionList;
 
 int main(int argc, char *argv[])
 {
+    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
     Fixture fixture; // <= necessary for GDAL
   // qputenv("QT_DEVICE_PIXEL_RATIO",QByteArray("2"));
  //   QApplication::setAttribute(Qt::AA_Use96Dpi);
  //   QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon(":/openlisem.ico"));
-//QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QLocale loc = QLocale::system(); // current locale
     loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
     QLocale::setDefault(loc);

@@ -63,6 +63,8 @@ struct output{
     QList <int> branches;
     QVector <double> CulvertX;
     QVector <double> CulvertY;
+    QVector <double> EndPointX;
+    QVector <double> EndPointY;
 
 //    int
 //    F_solution,

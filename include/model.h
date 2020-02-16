@@ -543,7 +543,7 @@ public:
     //void simpleSchemeOF(cTMap *_h, cTMap *_u, cTMap *_v);
     double maincalcfluxOF(cTMap *_h,double dt, double dt_max);
     void maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
-    void K2DDEMARO(void);
+    void dynOutflowPoints(void);
     //void Init2DOF(void);
     void OverlandFlow2Ddyn(void);
     void Boundary2Ddyn(cTMap* h, cTMap *U, cTMap *V);

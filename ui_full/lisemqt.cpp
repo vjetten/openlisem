@@ -110,7 +110,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     // set up the raster map drawing
 
     //checkMapChannels->setVisible(false);
-    transparencyChannel->setVisible(false);
+    //transparencyChannel->setVisible(false);
     checkOverlandFlow2D->setVisible(false);
 
 //    QSplitter *splitter = new QSplitter(tabWidget->widget(2));
@@ -596,9 +596,9 @@ void lisemqt::setFloodTab(bool yes)
     //frame_diffwave->setEnabled(checkOverlandFlow2D->isChecked());
     frame_dynwave->setEnabled(yes);
 
-    E_floodMinHeight->setEnabled(yes);
-    label_198->setEnabled(yes);
-    on_E_floodMinHeight_valueChanged(E_floodMinHeight->value());
+//    E_floodMinHeight->setEnabled(yes);
+//    label_198->setEnabled(yes);
+//    on_E_floodMinHeight_valueChanged(E_floodMinHeight->value());
 
     outputMapsFlood->setEnabled(yes);
 }
@@ -725,7 +725,7 @@ void lisemqt::setWriteOutputPCR(bool /* doit */)
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()
 {
-    toolBar->setIconSize(QSize(24,24));
+ //   toolBar->setIconSize(QSize(24,24));
 
     //r
     restartAct = new QAction(QIcon(":/2X/reset.png"), "&Reset...", this);
@@ -826,7 +826,7 @@ void lisemqt::SetToolBar()
     connect(transparencyBarrier, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaBarrier(int)));
     connect(transparencyBarrier, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaBarrier(int)));
     connect(transparencyMap, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaMap(int)));
-    connect(spinRiverSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
+    connect(showRiverSize, SIGNAL(sliderMoved(int)),this,SLOT(ssetAlphaChannel(int)));
     connect(spinCulvertSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
     connect(toolShowMapDisplay, SIGNAL(pressed()),this,SLOT(showMapSettings()));
 }
@@ -892,13 +892,13 @@ void lisemqt::SetStyleUI()
 //    toolBar_2->setIconSize(iSize);
 
     QString flat("QToolButton { background-color: white; border: none; }");
-    toolButton_help1->setStyleSheet(flat);
-    toolButton_help2->setStyleSheet(flat);
-    toolButton_help3->setStyleSheet(flat);
-    toolButton_help4->setStyleSheet(flat);
-    toolButton_help5->setStyleSheet(flat);
-    toolButton_help6->setStyleSheet(flat);
-    toolButton_help7->setStyleSheet(flat);
+//    toolButton_help1->setStyleSheet(flat);
+//    toolButton_help2->setStyleSheet(flat);
+//    toolButton_help3->setStyleSheet(flat);
+//    toolButton_help4->setStyleSheet(flat);
+//    toolButton_help5->setStyleSheet(flat);
+//    toolButton_help6->setStyleSheet(flat);
+//    toolButton_help7->setStyleSheet(flat);
 
 
     // interface elements that are not visible for now

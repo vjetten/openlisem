@@ -486,9 +486,7 @@ double TWorld::GetSV(double d)
         double ds = dm * pow((2650.0/1000.0 - 1.0)*GRAV/(1e-6*1e-6),(1.0/3.0));
         return 1e-6/dm*(ds*ds*ds)*pow(38.1+0.93*pow(ds,12.0/7.0), -7.0/8.0);
         //    // zhiyao et al, 2008
-    }
-
-    if (SwitchSV == 1) {
+    } else {
         if(d < 100)
         {
             return 2*(2650.0-1000.0)*GRAV*pow(d/2000000.0, 2)/(9*0.001);

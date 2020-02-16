@@ -327,17 +327,9 @@ void TWorld::ChannelFlood(void)
     if (SwitchKinematic2D != K2D_METHOD_KINDYN)
         return;
 
-//    double dftot = mapTotal(*SSDetFlood);
-//    double sedtot = mapTotal(*SSFlood);
-//    double deptot = mapTotal(*DepFlood);
-//    double sout = mapTotal(*Qsn)*_dt;
-//    double dsed = dftot + deptot - sedtot -sout;
-
-
     ChannelOverflow(hmx, V, false);
     // mix overflow water and flood water in channel cells
     // use hmx which is the 2Ddyn water
- //   ChannelOverflow(WHrunoff, V, true);
 
     double dtflood = 0;
 
@@ -379,11 +371,13 @@ void TWorld::ChannelFlood(void)
 
             // addvolume infiltrated during flood process with FSurplus
             //InfilVolFlood->Drc += Iflood->Drc;
-            FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+         //   FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
 
             // for output on screen
             hmxWH->Drc = hmx->Drc;   //hmxWH is all water
             hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+            FloodWaterVol->Drc = hmxflood->Drc*ChannelAdj->Drc*DX->Drc;
+
         }
     }
 
