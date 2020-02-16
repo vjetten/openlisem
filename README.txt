@@ -1,13 +1,19 @@
 openLISEM
 ============
-Date: 200205
+Date: 200216
 ============
 
-For older versions and list of changes contact v.g.jetten AD utwente.nl
+For questions contact v.g.jetten AD utwente.nl
 
-NOTE: only a 64bit version exists, 32 bit is no longer supported
-
+NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux Ubuntu
+
+version 5.96
+- Bug fix: flood height total in mm not reported on screen
+- Bug fix: did not show all outlets as dots in map display
+- Bug Fix: Initial food height (whinit.map) was not activated
+- Interface more consistent on 1D, 1D+ and 2D flow, flood threshold only for 2D
+- Corrected help files for global options
 
 version 5.91-5.95
 - fixed: bug in 2D dyn ewave seidment: flow detachment was not working

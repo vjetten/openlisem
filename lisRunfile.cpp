@@ -180,7 +180,6 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include channel infil")==0)          SwitchChannelInfil     = iii == 1;
         if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
         if (p1.compare("Include channel culverts")==0)       SwitchCulverts  = iii == 1;
-      //  if (p1.compare("Include channel flooding")==0)       SwitchChannelFlood     = iii == 1;
 
         if (p1.compare("Variable Timestep")==0) SwitchVariableTimestep = iii == 1;
         if (p1.compare("Use Heun")==0) SwitchHeun = iii == 1;
@@ -188,13 +187,6 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use time avg V")==0) SwitchTimeavgV = iii == 1;
         if (p1.compare("Flow Boundary 2D")==0)     FlowBoundaryType = iii;
 
-//        if (p1.compare("D90 for distribution")==0)          distD90 = p.toDouble();
-//        if (p1.compare("D50 for distribution")==0)          distD50 = p.toDouble();
-
-//        if (p1.compare("River BL method")==0)                 R_BL_Method     = iii;
-//        if (p1.compare("River SS method")==0)                 R_SS_Method     = iii;
-
-        //TODO ?
         if (p1.compare("Detachment efficiency")==0)           SwitchEfficiencyDET = iii;
         if (p1.compare("SettlingVelocity")==0)                SwitchSV = iii;
         if (p1.compare("Use material depth")==0)              SwitchUseMaterialDepth  = iii == 1;
@@ -209,14 +201,13 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Number of grain size classes (simulated)")==0)  numgrainclasses    = iii ;
         if (p1.compare("Grain size class maps")==0)     GrainMaps  = p;
 
-        //   if (p1.compare("Flood initial level map")==0)         SwitchFloodInitial     = iii == 1;
+        if (p1.compare("Flood initial level map")==0)         SwitchFloodInitial     = iii == 1;
         if (p1.compare("Include house storage")==0)            SwitchHouses    =   iii == 1;
         if (p1.compare("Include raindrum storage")==0)         SwitchRaindrum  =   iii == 1;
 
      //   if (p1.compare("Include Rainfall")==0)               SwitchRainfall =         iii == 1;
         if (p1.compare("Include Snowmelt")==0)               SwitchSnowmelt =         iii == 1;
         if (p1.compare("Include Satellite Image")==0)        SwitchImage =            iii == 1;
-     //   if (p1.compare("Simple depression storage")==0)      SwitchSimpleDepression = iii == 1;
         if (p1.compare("Hard Surfaces")==0)                  SwitchHardsurface      = iii == 1;
         if (p1.compare("Include road system")==0)            SwitchRoadsystem     = iii == 1;
         if (p1.compare("Include tile drains")==0)            SwitchIncludeTile      = iii == 1;
@@ -246,14 +237,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Subsoil drainage")==0)               SwitchDrainage =         iii == 1;
 
         if (p1.compare("Report point output separate")==0)   SwitchSeparateOutput =   iii == 1;
-//        if (p1.compare("Report point output for SOBEK")==0)  SwitchSOBEKoutput = iii == 1;
-//        if (p1.compare("SOBEK date string")==0)
-//        {
-//            SOBEKdatestring = p;
-//            SOBEKdatestring.remove(10,100);
-//        }
-        if (p1.compare("Report digits out")==0)   ReportDigitsOut = iii;
 
+        if (p1.compare("Report digits out")==0)   ReportDigitsOut = iii;
 
         if (p1.compare("Use canopy storage map")==0)   	   SwitchInterceptionLAI =  iii == 0;
 
@@ -287,23 +272,20 @@ void TWorld::ParseRunfileData(void)
         }
         if (p1.compare("KE time based")==0)   SwitchKETimebased = iii == 1;
 
-  //      if (p1.compare("CheckOutputMaps")==0)   outputcheck = p.split(";");
-//        // outputcheck is a string with 0,1,0,1,... etc
-
         if (p1.compare("OutRunoff")==0)         SwitchOutrunoff = iii == 1;
         if (p1.compare("OutWH")==0)             SwitchOutwh = iii == 1;
         if (p1.compare("OutV")==0)              SwitchOutvelo = iii == 1;
-        if (p1.compare("OutInterception")==0)  SwitchOutInt = iii == 1;
+        if (p1.compare("OutInterception")==0)   SwitchOutInt = iii == 1;
         if (p1.compare("OutSurfStor")==0)       SwitchOutss = iii == 1;
         if (p1.compare("OutInf")==0)            SwitchOutinf = iii == 1;
         if (p1.compare("OutTileDrain")==0)      SwitchOutTiledrain = iii == 1;
         if (p1.compare("OutTileVolume")==0)     SwitchOutTileVol = iii == 1;
-        if (p1.compare("OutDet")==0)      SwitchOutDet = iii == 1;
-        if (p1.compare("OutDep")==0)      SwitchOutDep = iii == 1;
-        if (p1.compare("OutTC")==0)        SwitchOutTC = iii == 1;
-        if (p1.compare("OutConc")==0)    SwitchOutConc = iii == 1;
-        if (p1.compare("OutSed")==0)      SwitchOutSed = iii == 1;
-        if (p1.compare("OutSL")==0)        SwitchOutSL = iii == 1;
+        if (p1.compare("OutDet")==0)            SwitchOutDet = iii == 1;
+        if (p1.compare("OutDep")==0)            SwitchOutDep = iii == 1;
+        if (p1.compare("OutTC")==0)             SwitchOutTC = iii == 1;
+        if (p1.compare("OutConc")==0)           SwitchOutConc = iii == 1;
+        if (p1.compare("OutSed")==0)            SwitchOutSed = iii == 1;
+        if (p1.compare("OutSL")==0)             SwitchOutSL = iii == 1;
 
         if (p1.compare("Erosion map units (0/1/2)")==0)  ErosionUnits = iii;
 

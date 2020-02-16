@@ -50,7 +50,6 @@ void TWorld::GridCell(int thread)
         if(SwitchIncludeChannel)
         {
             dxa = std::max(0.05*_dx, _dx - ChannelWidthExtended->Drc);
-            //VJ 161222 was 0.1, now 0.05*_dx
         }
 
         ChannelAdj->Drc = dxa;

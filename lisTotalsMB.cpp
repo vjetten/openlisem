@@ -137,14 +137,24 @@ void TWorld::Totals(void)
     // surface storage CHECK THIS
     // does not go to MB, is already in tot water vol
 
+    //TODO: check init WH
+    if (SwitchFloodInitial) {
+        FOR_ROW_COL_MV {
+            tma->Drc = hmxInit->Drc * DX->Drc * ChannelAdj->Drc;
+        }
+        WHinitVolTot = mapTotal(*tma);
+    }
+
     //=== surface flow ===//   
 
     floodVolTot = mapTotal(*FloodWaterVol);
     floodVolTotmm = floodVolTot * catchmentAreaFlatMM; // to mm
 
     WaterVolTot = mapTotal(*WaterVolall);//m3
-//    WaterVolTot += floodVolTot;
     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
+    if (SwitchKinematic2D == K2D_METHOD_KINDYN)
+       WaterVolTot += floodVolTot;
+    // in KINDYN the flood and ro are really split spatially so the flood vol is added here
 
     // split into runoff and flood for screen reporting
     WaterVolRunoffmm = 0;
@@ -198,10 +208,6 @@ void TWorld::Totals(void)
                 QtotT += Qn->Drc*_dt;
         }
     }
-//    else
-//    {
-//        QtotT += K2DQOut; // NOTE: K2DQOut already based on if(K2DOutlets->Drc == 1)
-//    }
     // sum outflow m3 for all timesteps for all outlets, in m3
     // needed for mass balance
 
@@ -262,24 +268,23 @@ void TWorld::Totals(void)
     // output fluxes for reporting to file and screen in l/s!
     FOR_ROW_COL_MV
     {
-        Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc);// in l/s
-        //NOTE: for 2D flow Qn = K2DQ, already done
+        Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc + Qflood->Drc + K2DQOutBoun);// in l/s
     }
 
     // Total outflow in m3 for all timesteps
     // does NOT include flood water leaving domain (floodBoundaryTot)
-    Qtotmm = Qtot*catchmentAreaFlatMM;
-    // recalc to mm for screen output
 
     floodBoundaryTot += K2DQOutBoun;
-
-    QtotT += K2DQOutBoun; // boundary flow 2D
-
     FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
     // flood boundary losses are done separately in MB
 
+    QtotT += K2DQOutBoun; // boundary flow 2D
+
     Qtot += QtotT;
     // add timestep total to run total
+    Qtotmm = Qtot*catchmentAreaFlatMM;
+    // recalc to mm for screen output
+
 
     //=====***** SEDIMENT *****====//
 
@@ -442,7 +447,7 @@ void TWorld::MassBalance()
   //  if (RainTot + SnowTot > 0)
     {
 
-        double waterin = RainTot + SnowTot + WaterVolSoilTot + BaseFlow + WHinitVolTot; //floodVolTotInit
+        double waterin = RainTot + SnowTot + WaterVolSoilTot + BaseFlowTot + WHinitVolTot;
         double waterout = ETaTot;
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot;
         double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;

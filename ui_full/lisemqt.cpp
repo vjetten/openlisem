@@ -111,7 +111,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     //checkMapChannels->setVisible(false);
     //transparencyChannel->setVisible(false);
-    checkOverlandFlow2D->setVisible(false);
+    //checkOverlandFlow2D->setVisible(false);
 
 //    QSplitter *splitter = new QSplitter(tabWidget->widget(2));
 //    splitter->addWidget(tabWidget_out);
@@ -596,11 +596,20 @@ void lisemqt::setFloodTab(bool yes)
     //frame_diffwave->setEnabled(checkOverlandFlow2D->isChecked());
     frame_dynwave->setEnabled(yes);
 
-//    E_floodMinHeight->setEnabled(yes);
-//    label_198->setEnabled(yes);
-//    on_E_floodMinHeight_valueChanged(E_floodMinHeight->value());
-
     outputMapsFlood->setEnabled(yes);
+    label_floodVolmm->setEnabled(yes);
+    label_107->setEnabled(yes);
+
+    if (checkOverlandFlow2Ddyn->isChecked()) {
+        label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
+        label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
+    }
+    else
+    {
+        label_107->setText("Flood mm");
+        label_40->setText("Runoff mm");
+    }
+
 }
 //--------------------------------------------------------------------
 void lisemqt::setErosionTab(bool yes)
@@ -1007,7 +1016,17 @@ void lisemqt::SetStyleUI()
     GroupRunoff.addButton(checkOverlandFlow2Dkindyn,4);
 
 
+    if (checkOverlandFlow2Ddyn->isChecked()) {
+        label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
+        label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
 
+    } else {
+        label_107->setText("Flood mm");
+        label_40->setText("Runoff mm");
+    }
+    bool yes = !checkOverlandFlow1D->isChecked();
+    label_floodVolmm->setEnabled(yes);
+    label_107->setEnabled(yes);
 
 }
 //--------------------------------------------------------------------
@@ -1057,26 +1076,46 @@ void lisemqt::setResultDir()
         E_ResultDir->setText( path );
 }
 //--------------------------------------------------------------------
+void lisemqt::on_checkOverlandFlow2Ddyn_stateChanged(int)
+{
+//    bool yes = true;
+
+//    if (checkOverlandFlow1D->isChecked())// && !checkIncludeChannel->isChecked())
+//        yes = false;
+
+//    if (checkOverlandFlow2Ddyn->isChecked()) {
+//        label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
+//        label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
+
+//    }
+//    else
+//    {
+//        label_107->setText("Flood mm");
+//        label_40->setText("Runoff mm");
+//    }
+//    label_floodVolmm->setEnabled(yes);
+//    label_107->setEnabled(yes);
+}
+//--------------------------------------------------------------------
 void lisemqt::on_E_floodMinHeight_valueChanged(double)
 {
-    bool yes = true;
+//    bool yes = true;
 
-    if (checkOverlandFlow1D->isChecked() && !checkIncludeChannel->isChecked())
-        yes = false;
+//    if (checkOverlandFlow1D->isChecked())// && !checkIncludeChannel->isChecked())
+//        yes = false;
 
-
-    if (yes) {
+//    if (checkOverlandFlow2Ddyn->isChecked()) {
         label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
         label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
 
-    }
-    else
-    {
-        label_107->setText("Flood mm");
-        label_40->setText("Runoff mm");
-    }
-    label_floodVolmm->setEnabled(yes);
-    label_107->setEnabled(yes);
+//    }
+//    else
+//    {
+//        label_107->setText("Flood mm");
+//        label_40->setText("Runoff mm");
+//    }
+//    label_floodVolmm->setEnabled(yes);
+//    label_107->setEnabled(yes);
 }
 //--------------------------------------------------------------------
 // this is for the directory with the table files

@@ -123,7 +123,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;ChannelMixingDepth;chansedmixdeth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
     DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
 //    DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
-    DEFmaps.append("2;hmxInit;hmxinit.map;Initial floodlevel (m);hmxinit");
+    DEFmaps.append("2;hmxInit;WHinit.map;Initial floodlevel (m);hmxinit");
 //    DEFmaps.append("2;floodZone;floodzone.map;potential flood zone to limit calculations (1 = in, 0 = out);floodzone");
 
     DEFmaps.append("0;Conservation");
@@ -379,8 +379,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding mixing coefficient");
     namelist[i].value = QString("2.0");
     namelist[i++].name = QString("Flooding runoff partitioning");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Flood initial level map");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Flood initial level map");
     namelist[i].value = QString("0.2");
     namelist[i++].name = QString("Flooding courant factor");
     namelist[i].value = QString("3"); //HLL2

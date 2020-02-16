@@ -36,7 +36,6 @@ void TWorld::ExtendChannel()
     ChannelMaskExtended = NewMap(0.0);
     ChannelFlowWidth = NewMap(0.0);
 
-
     if(!SwitchIncludeChannel)
     {
         return;

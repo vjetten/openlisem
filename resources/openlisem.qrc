@@ -51,5 +51,6 @@
         <file>2X/File-Delete-icon.png</file>
         <file>2X/reset.png</file>
         <file>2X/settings.png</file>
+        <file>../README.txt</file>
     </qresource>
 </RCC>

@@ -1,13 +1,13 @@
-<p><span style="font-size: 10pt;"><span style="font-weight: 600;">Advanced Sediment options</span></span></p>
-<p><span style="font-size: 9pt;"><strong>Two phase transport</strong>: s</span><span style="font-size: 9pt;">ediment is simulated in two layers: suspended and bedload. Transport capacities can be different for each layer, see below. The water depth is divided into a bedload layer depth and a suspended layer depth. Suspended transport is based on the D50 (median) value of the grainsize distribution, bedload on the upper D90 (upper 90% grainsize). Detachment and deposition are reported as the sum of the two.<br /></span></p>
-<p><strong><span style="font-size: 9pt;">Multiple grainsize classes:</span></strong><span style="font-size: 9pt;"> the sediment grainsize is divided into multiple classes, which are&nbsp; either estimated form the D50 and D90 maps, or used defined class boundaries are given. When this is selected, iption 3 for transport capacity will be chosen (see below)</span></p>
-<p><strong><span style="font-size: 10pt;">Channel and surface flow</span></strong></p>
-<p><span style="font-size: 9pt;">For the channel and the surface flow (overland flow and flood) the transport cvapacities and turbulence parameters can be selected separately.</span></p>
-<p><span style="font-weight: 600; font-size: 9pt;">Transport capacity equation for Bed load:</span><br /><span style="font-size: 9pt;">1-Van Rijn Simplified (2007)</span><br /><span style="font-size: 9pt;">2-Van Rijn Full (1984)</span><br /><span style="font-size: 9pt;">3-Wu, Wang &amp; Jia (wil be used with multiple grain size distribution)</span></p>
-<p><span style="font-size: 9pt;"><span style="font-weight: 600;">Transport capacity equation for Suspended layer:<br /></span>0-Govers</span><br /><span style="font-size: 9pt;">1-Van Rijn Simple</span><br /><span style="font-size: 9pt;">2-Van Rijn Full</span><br /><span style="font-size: 9pt;">3-Wu, Wang &amp; Jia (wil be used with multiple grain size distribution)</span></p>
-<p><span style="font-weight: 600; font-size: 9pt;">Turbulent Prandtl-Schmidt Number (p):</span><br /><span style="font-size: 9pt;">A coefficient influencing the sediment diffusion in flood water. </span><br /><span style="font-size: 9pt;">Influence is inversly linear (Diffusion *= 1/p)</span></p>
-<p><span style="font-weight: 600; font-size: 10pt;">Grain size distribution</span></p>
+<p><strong>Advanced Sediment options</strong></p>
+<p><strong>Two phase transport</strong>: sediment is simulated in two layers: suspended and bedload. Transport capacities can be different for each layer, see below. The water depth is divided into a bedload layer depth and a suspended layer depth. Suspended transport is based on the D50 (median) value of the grainsize distribution, bedload on the upper D90 (upper 90% grainsize). Detachment and deposition are reported as the sum of the two.</p>
+<p><strong>Multiple grainsize classes (not active for now):</strong> the sediment grainsize is divided into multiple classes, which are either estimated form the D50 and D90 maps, or used defined class boundaries are given. When this is selected, iption 3 for transport capacity will be chosen (see below)</p>
+<p><strong>Channel and surface flow</strong></p>
+<p>For the channel and the surface flow (overland flow and flood) the transport cvapacities and turbulence parameters can be selected separately.</p>
+<p><strong>Bed load</strong> transport capacity equation:<br />1-Van Rijn Simplified (2007)<br />2-Van Rijn Full (1984)<br />3-Wu, Wang &amp; Jia (wil be used with multiple grain size distribution)</p>
+<p><strong>Suspended load</strong> transport capacity:<br />0-Govers<br />1-Van Rijn Simple<br />2-Van Rijn Full<br />3-Wu, Wang &amp; Jia (wil be used with multiple grain size distribution)</p>
+<p><strong>Turbulent Prandtl-Schmidt Number</strong> (p):<br />A coefficient influencing the sediment diffusion in flood water. <br />Influence is inversly linear (Diffusion *= 1/p)</p>
+<p><strong>Grain size distribution (not active for now)<br /></strong></p>
 <ul>
-<li><span style="font-size: 9pt;">Estimate the distribution using a Log-normal function and the D50 and D90 values.</span></li>
-<li><span style="font-size: 9pt;">&nbsp;Provide a custom distribution trough a list of maps</span></li>
+<li>Estimate the distribution using a Log-normal function and the D50 and D90 values.</li>
+<li>&nbsp;Provide a custom distribution trough a list of maps</li>
 </ul>

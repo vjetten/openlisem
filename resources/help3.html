@@ -1,18 +1,18 @@
-<p style="-qt-block-indent: 0; text-indent: 0px; margin: 12px 0px 12px 0px;"><span style="font-size: 10pt;"><strong>Infiltration options</strong></span></p>
+<p><strong>Infiltration options</strong></p>
 <ul>
-<li style="text-indent: 0px;"><span style="font-size: 9pt;">No infiltration = catchment is impermeable</span></li>
-<li style="text-indent: 0px;"><span style="font-size: 9pt;">SWATRE = 1D finite difference multilayer scheme for soil water balance based on the SWATRE model (Richards equations), needs complex database setup</span></li>
-<li style="text-indent: 0px;"><span style="font-size: 9pt;">Green and Ampt = 1 or 2 layer infiltration based on simplified Darcy equation (Kutilek and Nielsen solution, no iteration)</span></li>
-<li style="text-indent: 0px;"><span style="font-size: 9pt;">Smith and Parlange = 1 or 2 layer infiltration based on exponential solution of the Darcy equation.</span></li>
+<li>No infiltration = catchment is impermeable</li>
+<li>SWATRE = 1D finite difference multilayer scheme for soil water balance based on the SWATRE model (Richards equations), needs complex database setup</li>
+<li>Green and Ampt = 1 or 2 layer infiltration based on simplified Darcy equation (Kutilek and Nielsen solution, no iteration)</li>
+<li>Smith and Parlange = 1 or 2 layer infiltration based on exponential solution of the Darcy equation.</li>
 </ul>
-<p style="-qt-block-indent: 0; text-indent: 0px; margin: 12px 0px 12px 0px;"><span style="font-weight: 600; font-size: 9pt;">Impermeable:</span><span style="font-size: 9pt;"> lower soil boundary is impermeable and soil can fill up, or else there is drainage from the bottom of the soil profile and the soil is infinitely large. When SWATRE is used the drainage is the flux from the bottom node, when G&&A or S&&P are used, the driange is the estimated unsaturated conductivity.</span></p>
-<p style="-qt-block-indent: 0; text-indent: 0px; margin: 12px 0px 12px 0px;"><span style="font-size: 9pt;"><span style="font-weight: 600;">2 layer (Green and Ampt or Smith and Parlange): <strong>u</strong></span>se a two layer infiltration system, all infiltration maps needed for layer 1 and 2 (ksat1.map and ksat2.map etc)</span></p>
-<p style="-qt-block-indent: 0; text-indent: 0px; margin: 12px 0px 12px 0px;"><span style="font-weight: 600; font-size: 9pt;">Percolation (Green and Ampt or Smith and Parlange) s</span><span style="font-size: 9pt;">oil water is removed from the lower soil layer by a flux based on ksat multiplied by an exponential decrease with soil moisture. When percolation is activated the moisture content changes.</span></p>
-<p style="-qt-block-indent: 0; text-indent: 0px; margin: 12px 0px 12px 0px;"><span style="font-weight: 600; font-size: 9pt;">Compacted areas</span><br /><span style="font-size: 9pt;">Cells which have a fraction of compacted area (compfrac.map) use the value in the maps ksatcomp.map (mm/h) and porosity porecomp.map (-) to affect infiltration in the top layer.</span></p>
-<p style="-qt-block-indent: 0; text-indent: 0px; margin: 12px 0px 12px 0px;"><span style="font-weight: 600; font-size: 9pt;">Crusts</span><br /><span style="font-size: 9pt;">Cells which have a fraction of crusted area (crustfrac.map) use the value in the map ksatcrust.map (mm/h) and crust porosity porecrust.map (-) to affect infiltration in the top layers.</span></p>
-<p style="-qt-block-indent: 0; text-indent: 0px; margin: 12px 0px 12px 0px;"><span style="font-weight: 600; font-size: 9pt;">Tile drains (Only with SWATRE):</span><br /><span style="font-size: 9pt;">Tile drains connect to the surface and transport water as subsurface flow. Uses kinematic wave.</span></p>
-<p style="-qt-block-indent: 0; text-indent: 0px; margin: 12px 0px 12px 0px;"><span style="font-weight: 600; font-size: 9pt;">Geometric average: </span><br /><span style="font-size: 9pt;">Calculate the average ksat between to layers as geometric sqrt(k1*k2), else calculate as plain average 0.5(k1+k2)</span></p>
-<p style="-qt-block-indent: 0; text-indent: 0px; margin: 12px 0px 12px 0px;"><span style="font-weight: 600; font-size: 9pt;">Fraction timestep: </span><br /><span style="font-size: 9pt;">Initial division of lisem timesteps to solve differential scheme</span></p>
-<p style="-qt-block-indent: 0; text-indent: 0px; margin: 12px 0px 12px 0px;"><span style="font-size: 9pt;"><span style="font-weight: 600;">Profile table: <br /></span>Text file with soil layer definitions, pointing to textfiles with soil physical properties (profile.inp)</span></p>
-<p style="-qt-block-indent: 0; text-indent: 0px; margin: 12px 0px 12px 0px;"><span style="font-weight: 600; font-size: 9pt;">Table dir: </span><br /><span style="font-size: 9pt;">Directory with tables with theta, h and k for different soil types.</span></p>
-<p style="-qt-block-indent: 0; text-indent: 0px; margin: 12px 0px 12px 0px;"><span style="font-weight: 600; font-size: 9pt;">Water repellency: </span><br /><span style="font-size: 9pt;">experimental and untested - use with caution!</span></p>
+<p><strong>Impermeable</strong>: lower soil boundary is impermeable and soil can fill up, or else there is drainage from the bottom of the soil profile and the soil is infinitely large. When SWATRE is used the drainage is the flux from the bottom node, when G&amp;&amp;A or S&amp;&amp;P are used, the drainage is the estimated unsaturated conductivity (using the Brooks-Corey equation).</p>
+<p><strong>2 layer</strong> (Green and Ampt or Smith and Parlange): <strong>u</strong>se a two layer infiltration system, all infiltration maps needed for layer 1 and 2 (ksat1.map and ksat2.map etc)</p>
+<p><strong>Compacted areas</strong><br />Cells which have a fraction of compacted area (compfrac.map) use the value in the maps ksatcomp.map (mm/h) and porosity porecomp.map (-) to affect infiltration in the top layer.</p>
+<p><strong>Crusts</strong><br />Cells which have a fraction of crusted area (crustfrac.map) use the value in the map ksatcrust.map (mm/h) and crust porosity porecrust.map (-) to affect infiltration in the top layers.</p>
+<p><strong>SWATRE options</strong></p>
+<ul>
+<li>Tile drains connect to the surface and transport water as subsurface flow. Uses kinematic wave.</li>
+<li>Geometric average: calculate the average ksat between to layers as geometric sqrt(k1*k2), <br />else calculate as plain average 0.5(k1+k2)</li>
+<li>Profile table: text file with soil layer definitions, pointing to textfiles with soil physical properties (profile.inp)</li>
+<li>Table dir: directory with tables with theta, h and k for different soil types.</li>
+</ul>

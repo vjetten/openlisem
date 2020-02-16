@@ -371,6 +371,7 @@ public slots:
     void on_toolButton_SwatreTableFile_clicked();
     void on_toolButton_SwatreTableShow_clicked();
     void on_E_floodMinHeight_valueChanged(double);
+    void on_checkOverlandFlow2Ddyn_stateChanged(int);
 
   //  void on_checkBox_SedSingleSingle_toggled(bool v);
     void on_checkSed2Phase_toggled(bool v);

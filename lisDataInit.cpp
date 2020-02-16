@@ -236,6 +236,7 @@ void TWorld::InitStandardInput(void)
 {
     //## catchment data
     LDD = InitMask(getvaluename("ldd"));
+    report(*LDD,"ldda.map");
     // THIS SHOULD BE THE FIRST MAP
     // LDD is also mask and reference file, everthing has to fit LDD
     // channels use channel LDD as mask
@@ -247,7 +248,6 @@ void TWorld::InitStandardInput(void)
     tmd = NewMap(0); // temp map for aux calculations
 
     CoreMask = NewMap(0);
-
 
 	gsizeCalibration = getvaluedouble("Grain Size calibration");
     ksatCalibration = getvaluedouble("Ksat calibration");
@@ -335,7 +335,6 @@ void TWorld::InitStandardInput(void)
 
     // flood maps
     DEM = ReadMap(LDD, getvaluename("dem"));
-qDebug() << SwitchBuffers;
     if (SwitchBuffers) {
         Buffers = ReadMap(LDD, getvaluename("buffers"));
         cover(*Buffers, *LDD,0);
@@ -380,6 +379,7 @@ qDebug() << SwitchBuffers;
         {
             if(Outlet->Drc > 0 && LDD->Drc != 5)
             {
+                qDebug() << r << c << LDD->Drc;
                 ErrorString = "Outlet points (outlet.map) do not coincide with LDD endpoints.";
                 throw 1;
             }
@@ -878,7 +878,7 @@ void TWorld::InitChannel(void)
 
         FOR_ROW_COL_MV_CH
         {
-            ChannelWidthMax->Drc = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc;
+            ChannelWidthMax->Drc = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc; // can be more than _dx
             ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
         }
 
@@ -917,11 +917,7 @@ void TWorld::InitChannel(void)
 //---------------------------------------------------------------------------
 void TWorld::InitFlood(void)
 {
-    //FloodZonePotential = ReadMap(LDD, getvaluename("floodzone"));
-   // FloodZonePotential = NewMap(1.0);
-
     prepareFlood = true;
-
 //    URO = NewMap(0);
 //    VRO = NewMap(0);
     iro = NewMap(0);
@@ -930,11 +926,6 @@ void TWorld::InitFlood(void)
     hmxWH = NewMap(0);
     FloodWaterVol = NewMap(0);
     floodTimeStart = NewMap(0);
-
-    //            if (SwitchLevees)
-    //                ChannelLevee = ReadMap(LDD, getvaluename("chanlevee"));
-    //            if (!SwitchLevees)
-    //                fill(*ChannelLevee, 0.0);
 
     iter_n = 0;
 
@@ -976,7 +967,7 @@ void TWorld::InitFlood(void)
     g1 = NewMap(0);
     g2 = NewMap(0);
     g3 = NewMap(0);
-    f1o = NewMap(0); // for right and down edges in c+1 and r+1 outsode domain
+    f1o = NewMap(0);
     f2o = NewMap(0);
     f3o = NewMap(0);
     g1o = NewMap(0);
@@ -1004,8 +995,6 @@ void TWorld::InitFlood(void)
     SSDetFlood = NewMap(0);
 
     DepFlood = NewMap(0);
-
-
 
     prepareFloodZ(DEM);
 }
@@ -1395,7 +1384,7 @@ void TWorld::IntializeData(void)
     COMBO_TC = NewMap(0);
 
     //### rainfall and interception maps
-    BaseFlow = 0;
+    BaseFlowTot = 0;
     RainTot = 0;
     RainTotmm = 0;
     Rainpeak = 0;
@@ -1653,15 +1642,8 @@ if (SwitchGrassStrip) {
     WaterVolall = NewMap(0);
 
     WHinitVolTot = 0;
-
     if (SwitchFloodInitial) {
-//        hmxInit = ReadMap(LDD, getvaluename("hmxinit")); //NewMap(0);//
-//        //report(*hmxInit, "hi.map");
-//        copy(*WH, *hmxInit);
-//        FOR_ROW_COL_MV {
-//            tma->Drc = hmxInit->Drc * DX->Drc * _dx;
-//        }
-//        WHinitVolTot = mapTotal(*tma);
+        hmxInit = ReadMap(LDD, getvaluename("hmxinit"));
     }
 
     SwatreSoilModel = nullptr;

@@ -217,45 +217,43 @@ void TWorld::OutputUI(void)
 
     //output maps
 
-    FOR_ROW_COL_MV
-    {
-        COMBO_QOFCH->Drc = Qn->Drc;
-        if(SwitchChannelFlood)
-            COMBO_QOFCH->Drc += Qflood->Drc;
-        if (SwitchIncludeChannel)
-            if (ChannelFlowWidth->Drc > 0)
-                COMBO_QOFCH->Drc = ChannelQn->Drc;
-        if(COMBO_QOFCH->Drc < 1e-6)
-            COMBO_QOFCH->Drc = 0;
-
-        //            if (ChannelWidthExtended->Drc > 0)
-        //            {
-        //                fill(*tma,0.0);
-        //                DistributeOverExtendedChannel(ChannelQn,tma);
-        //                COMBO_QOFCH->Drc += tma->Drc;
-        //            }
-    }
+//    FOR_ROW_COL_MV
+//    {
+//        COMBO_QOFCH->Drc = Qn->Drc;
+//        COMBO_QOFCH->Drc += Qflood->Drc;
+//        if (SwitchIncludeChannel) {
+//            if (ChannelFlowWidth->Drc > 0)
+//                COMBO_QOFCH->Drc = ChannelQn->Drc;
+//            if (ChannelWidthExtended->Drc > 0)
+//            {
+//                fill(*tma,0.0);
+//                DistributeOverExtendedChannel(ChannelQn,tma);
+//                COMBO_QOFCH->Drc += tma->Drc;
+//            }
+//        }
+//        if(COMBO_QOFCH->Drc < 1e-6)
+//            COMBO_QOFCH->Drc = 0;
+//    }
 
     FOR_ROW_COL_MV
     {
         COMBO_VOFCH->Drc = V->Drc;
-//        if(SwitchChannelFlood)
-//            if(UVflood->Drc > 0)
-//                COMBO_VOFCH->Drc = UVflood->Drc;
-        if (SwitchIncludeChannel)
+        if (SwitchIncludeChannel) {
             if (ChannelFlowWidth->Drc > 0)
                 COMBO_VOFCH->Drc = ChannelV->Drc;
-        //            if (ChannelWidthExtended->Drc > 0)
-        //            {
-        //                fill(*tma,0.0);
-        //                DistributeOverExtendedChannel(ChannelQn,tma);
-        //                COMBO_QOFCH->Drc += tma->Drc;
-        //            }
+            if (ChannelWidthExtended->Drc > 0)
+            {
+                fill(*tma,0.0);
+                DistributeOverExtendedChannel(ChannelQn,tma);
+                COMBO_VOFCH->Drc += tma->Drc;
+            }
+        }
+        if(COMBO_VOFCH->Drc < 1e-6)
+            COMBO_VOFCH->Drc = 0;
     }
     FOR_ROW_COL_MV {
         VH->Drc = COMBO_VOFCH->Drc * hmxWH->Drc;
     }
-    //report(*VH,"vh");
 
     if(SwitchErosion)
     {
@@ -307,10 +305,7 @@ void TWorld::OutputUI(void)
     if (SwitchIncludeChannel)
         copy(*op.channelMap, *LDDChannel);//*ChannelMaskExtended);
 
-    // report(*ChannelWidthExtended, "cwe.map");
-    //BB 151118 might be better to draw LDD, since that is actually used to determine the presence of a channel
-
-    if (SwitchRoadsystem)
+     if (SwitchRoadsystem)
     {
         copy(*op.roadMap, *RoadWidthDX);
         // calcMap(*op.roadMap, *HardSurface, ADD);
@@ -356,7 +351,7 @@ void TWorld::OutputUI(void)
     op.WaterVolTotmm = WaterVolRunoffmm;
     op.StormDrainTotmm = StormDrainTotmm;
     op.ChannelVolTotmm = ChannelVolTotmm;
-    op.BaseFlowtotmm = BaseFlow * 1000.0/(_dx*_dx*nrCells);
+    op.BaseFlowtotmm = BaseFlowTot * 1000.0/(_dx*_dx*nrCells);
     op.volFloodmm = floodVolTotmm;
     op.FloodTotMax = floodVolTotMax;
     op.FloodAreaMax = floodAreaMax;
@@ -1387,14 +1382,13 @@ void TWorld::GetComboMaps()
     ClearComboMaps();
 
     setColor(1);
-    AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);
+//    AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);
+    AddComboMap(0,"Total Discharge","l/s",Qoutput,Colormap,Colors,true,false,1.0, 1.0);
 
     setColor(3);
     AddComboMap(0,"Water Height","m",hmxWH,Colormap,Colors,false,false,1.0,0.01);
     setColor(2);
     AddComboMap(0,"Flow Velocity","m/s",COMBO_VOFCH,Colormap,Colors,false,false,1.0, 0.01);
-    //  calc2Maps(*tm, *UVflood, *hmxWH,MUL);
-
     AddComboMap(0,"Flow Momentum","m2/s",VH,Colormap,Colors,false,false,1.0, 0.01); //VH
 
     if(SwitchIncludeChannel)
@@ -1427,7 +1421,6 @@ void TWorld::GetComboMaps()
         }
     }
 
-
     setColor(5);
     double factor = 3600000.0/_dt; //from m to mm/h
 
@@ -1435,42 +1428,25 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,factor,0.1);
   //  AddComboMap(0,"ETa cumulative","mm",ETa,Colormap,Colors,false,false,1000.0,0.1);
 
-    setColor(3);
+    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
+        setColor(3);
+        QString txt = QString("Flood Height");
+        if (SwitchKinematic2D == K2D_METHOD_DYN)
+            txt = QString("Flood Height, h>%1 mm").arg(minReportFloodHeight*1000);\
 
-    //    if (SwitchIncludeTile || SwitchIncludeStormDrains) {
-    //       AddComboMap(0,"Tile discharge","m3/s",TileQn,Colormap,Colors,false,false,1.0,0.01);
-    //       AddComboMap(0,"Tile Volume","m3",TileWaterVol,Colormap,Colors,false,false,1.0,0.01);
-    //    }
-
-
-    QString txt = QString("Flood Height, h>%1 mm").arg(minReportFloodHeight*1000);
-
-    AddComboMap(0,txt,"m",hmxflood,Colormap,Colors,false,false,1.0,0.01);
-    setColor(3);
-    AddComboMap(0,"Max Flood height","m",floodHmxMax,Colormap,Colors,false,false,1.0,0.01);
-    setColor(6);
-    AddComboMap(0,"Flood Start Time","min",floodTimeStart,Colormap,Colors,false,false,1.0,1.0);
-    setColor(7);
-    AddComboMap(0,"Flood duration","min",floodTime,Colormap,Colors,false,false,1.0,1.0);
-
-
-    //  if(SwitchKinematic2D != K2D_METHOD_KIN)
-    //  {
-    //   AddComboMap(0,"Overland Flow Timestep","s",K2DDTr,Colormap,Colors,false,false,1.0,1.0);
-    //    AddComboMap(0,"pits","-",K2DPits,Colormap,Colors,false,false,1.0,1.0);
-    //    AddComboMap(0,"slope","-",K2DSlope,Colormap,Colors,false,false,1.0,1.0);
-
-    //AddComboMap(0,"Overland Flow Timestep","s",K2DDTT,Colormap,Colors,false,false,1.0,1.0);
-    //  }
-    setColor(6);
-    if (SwitchVariableTimestep)
-    {
-        AddComboMap(0,"Timestep","s",FloodDTr,Colormap,Colors,false,false,1.0,1.0);
-        //  AddComboMap(0,"Timestep last","s",FloodDT,Colormap,Colors,false,false,1.0,1.0);
+        AddComboMap(0,txt,"m",hmxflood,Colormap,Colors,false,false,1.0,0.01);
+        setColor(3);
+        AddComboMap(0,"Max Flood height","m",floodHmxMax,Colormap,Colors,false,false,1.0,0.01);
+        setColor(6);
+        AddComboMap(0,"Flood Start Time","min",floodTimeStart,Colormap,Colors,false,false,1.0,1.0);
+        setColor(7);
+        AddComboMap(0,"Flood duration","min",floodTime,Colormap,Colors,false,false,1.0,1.0);
+        setColor(6);
+        if (SwitchVariableTimestep)
+            AddComboMap(0,"Timestep","s",FloodDTr,Colormap,Colors,false,false,1.0,1.0);
     }
     if (userCores > 1 || userCores == 0)
         AddComboMap(0,"CoreMask" ,"-",CoreMask,Colormap,Colors,false,false,1.0,1.0);
-
 
     if(SwitchErosion)
     {

@@ -184,7 +184,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
         if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(valc);
         if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(valc);
-    //    if (p1.compare("Flood initial level map")==0)        //->setChecked(check);
+        if (p1.compare("Flood initial level map")==0)        checkFloodInitial->setChecked(check);
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(iii);
        // if (p1.compare("Flood max steps")==0)                E_FloodMaxSteps->setValue(val);
         if (p1.compare("Timestep flood")==0)                 E_TimestepMinFlood->setValue(valc);

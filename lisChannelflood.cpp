@@ -366,19 +366,20 @@ void TWorld::ChannelFlood(void)
         hmxflood->Drc = 0;
         if (FloodDomain->Drc > 0) {
             V->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
-           //NOT Qn->Drc
             Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
+            //Qn->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
 
             // addvolume infiltrated during flood process with FSurplus
             //InfilVolFlood->Drc += Iflood->Drc;
-         //   FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+            FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
 
             // for output on screen
             hmxWH->Drc = hmx->Drc;   //hmxWH is all water
-            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
-            FloodWaterVol->Drc = hmxflood->Drc*ChannelAdj->Drc*DX->Drc;
-
+            hmxflood->Drc = hmxWH->Drc;// < minReportFloodHeight ? 0.0 : hmxWH->Drc;
         }
+
+      //  WaterVolall->Drc = hmxWH->Drc*ChannelAdj->Drc*DX->Drc;
+
     }
 
     FloodMaxandTiming(WH, V, minReportFloodHeight);
@@ -426,7 +427,7 @@ void TWorld::ChannelFlood(void)
 
     double area = nrFloodedCells*_dx*_dx;
     if (area > 0)
-    debug(QString("Flooding (dt %1 sec, n %2): area %3 m2, %4 cells %5").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(nrFloodedCells).arg(K2DQOutBoun));
+    debug(QString("Flooding (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(nrFloodedCells));//.arg(K2DQOutBoun));
     // some screen error reporting
 
 }
