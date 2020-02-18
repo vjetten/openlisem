@@ -600,7 +600,7 @@ void lisemqt::setFloodTab(bool yes)
     label_floodVolmm->setEnabled(yes);
     label_107->setEnabled(yes);
 
-    if (checkOverlandFlow2Ddyn->isChecked()) {
+    if (checkOverlandFlow2Ddyn->isChecked() || checkOverlandFlow2Dkindyn->isChecked()) {
         label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
         label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
     }
@@ -1075,27 +1075,7 @@ void lisemqt::setResultDir()
     if(!path.isEmpty())
         E_ResultDir->setText( path );
 }
-//--------------------------------------------------------------------
-void lisemqt::on_checkOverlandFlow2Ddyn_stateChanged(int)
-{
-//    bool yes = true;
 
-//    if (checkOverlandFlow1D->isChecked())// && !checkIncludeChannel->isChecked())
-//        yes = false;
-
-//    if (checkOverlandFlow2Ddyn->isChecked()) {
-//        label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
-//        label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
-
-//    }
-//    else
-//    {
-//        label_107->setText("Flood mm");
-//        label_40->setText("Runoff mm");
-//    }
-//    label_floodVolmm->setEnabled(yes);
-//    label_107->setEnabled(yes);
-}
 //--------------------------------------------------------------------
 void lisemqt::on_E_floodMinHeight_valueChanged(double)
 {
@@ -1104,7 +1084,7 @@ void lisemqt::on_E_floodMinHeight_valueChanged(double)
 //    if (checkOverlandFlow1D->isChecked())// && !checkIncludeChannel->isChecked())
 //        yes = false;
 
-//    if (checkOverlandFlow2Ddyn->isChecked()) {
+//    if (checkOverlandFlow2Ddyn->isChecked()  || checkOverlandFlow2Dkindyn->isChecked()) {
         label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
         label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
 

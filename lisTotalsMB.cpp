@@ -152,9 +152,6 @@ void TWorld::Totals(void)
 
     WaterVolTot = mapTotal(*WaterVolall);//m3
     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
-//    if (SwitchKinematic2D == K2D_METHOD_KINDYN)
-//       WaterVolTot += floodVolTot;
-    // in KINDYN the flood and ro are really split spatially so the flood vol is added here
 
     // split into runoff and flood for screen reporting
     WaterVolRunoffmm = 0;
@@ -165,7 +162,7 @@ void TWorld::Totals(void)
         WaterVolRunoffmm += WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
         WaterVolRunoffmm_F += std::min(WHrunoff->Drc,minReportFloodHeight) * FlowWidth->Drc * DX->Drc;
     }
-    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_DIFF)
+    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN)
        WaterVolRunoffmm = WaterVolRunoffmm_F;
     WaterVolRunoffmm *= catchmentAreaFlatMM;
     // water on the surface in runoff in m3 and mm

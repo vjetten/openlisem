@@ -3654,8 +3654,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>786</width>
-                <height>854</height>
+                <width>759</width>
+                <height>859</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_44">
@@ -3729,7 +3729,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>3</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -3961,14 +3961,8 @@
                           </property>
                          </widget>
                         </item>
-                        <item row="5" column="0">
-                         <widget class="QLabel" name="label_63">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
+                        <item row="2" column="0" colspan="4">
+                         <widget class="QCheckBox" name="checkOverlandFlow2Dkindyn">
                           <property name="font">
                            <font>
                             <weight>50</weight>
@@ -3976,14 +3970,27 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string/>
-                          </property>
-                          <property name="pixmap">
-                           <pixmap resource="../resources/openlisem.qrc">:/bullet.png</pixmap>
+                           <string>1D kinematic overland flow and 2D dyn. flood from channel (channel must be active)</string>
                           </property>
                          </widget>
                         </item>
-                        <item row="5" column="1">
+                        <item row="4" column="0" colspan="4">
+                         <widget class="QCheckBox" name="checkOverlandFlow2Ddyn">
+                          <property name="font">
+                           <font>
+                            <weight>50</weight>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>2D Dynamic wave for overland flow and flood (using DEM)</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="5" column="0" colspan="2">
                          <widget class="QDoubleSpinBox" name="E_floodMinHeight">
                           <property name="enabled">
                            <bool>true</bool>
@@ -4014,36 +4021,7 @@
                           </property>
                          </widget>
                         </item>
-                        <item row="2" column="0" colspan="4">
-                         <widget class="QCheckBox" name="checkOverlandFlow2Dkindyn">
-                          <property name="font">
-                           <font>
-                            <weight>50</weight>
-                            <bold>false</bold>
-                           </font>
-                          </property>
-                          <property name="text">
-                           <string>1D kinematic overland flow and 2D dyn. flood from channel (channel must be active)</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="4" column="0" colspan="4">
-                         <widget class="QCheckBox" name="checkOverlandFlow2Ddyn">
-                          <property name="font">
-                           <font>
-                            <weight>50</weight>
-                            <bold>false</bold>
-                           </font>
-                          </property>
-                          <property name="text">
-                           <string>2D Dynamic wave for overland flow and flood (using DEM)</string>
-                          </property>
-                          <property name="checked">
-                           <bool>true</bool>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="5" column="2" colspan="2">
+                        <item row="5" column="2">
                          <widget class="QLabel" name="label_198">
                           <property name="enabled">
                            <bool>true</bool>
@@ -4108,6 +4086,19 @@
                            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                           </property>
                          </widget>
+                        </item>
+                        <item row="5" column="3">
+                         <spacer name="horizontalSpacer_10">
+                          <property name="orientation">
+                           <enum>Qt::Horizontal</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>40</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                         </spacer>
                         </item>
                        </layout>
                       </widget>
@@ -20702,8 +20693,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1419</x>
-     <y>178</y>
+     <x>1436</x>
+     <y>185</y>
     </hint>
     <hint type="destinationlabel">
      <x>1395</x>
@@ -20718,8 +20709,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1419</x>
-     <y>178</y>
+     <x>1436</x>
+     <y>185</y>
     </hint>
     <hint type="destinationlabel">
      <x>1364</x>
@@ -20734,12 +20725,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>131</x>
-     <y>497</y>
+     <x>167</x>
+     <y>523</y>
     </hint>
     <hint type="destinationlabel">
-     <x>421</x>
-     <y>498</y>
+     <x>380</x>
+     <y>525</y>
     </hint>
    </hints>
   </connection>
@@ -20750,12 +20741,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>131</x>
-     <y>497</y>
+     <x>167</x>
+     <y>523</y>
     </hint>
     <hint type="destinationlabel">
-     <x>334</x>
-     <y>498</y>
+     <x>302</x>
+     <y>525</y>
     </hint>
    </hints>
   </connection>
@@ -20766,12 +20757,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>131</x>
-     <y>521</y>
+     <x>167</x>
+     <y>548</y>
     </hint>
     <hint type="destinationlabel">
-     <x>298</x>
-     <y>522</y>
+     <x>272</x>
+     <y>550</y>
     </hint>
    </hints>
   </connection>
@@ -20782,12 +20773,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>131</x>
-     <y>521</y>
+     <x>167</x>
+     <y>548</y>
     </hint>
     <hint type="destinationlabel">
-     <x>385</x>
-     <y>522</y>
+     <x>350</x>
+     <y>550</y>
     </hint>
    </hints>
   </connection>
@@ -20798,12 +20789,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>154</x>
-     <y>473</y>
+     <x>190</x>
+     <y>498</y>
     </hint>
     <hint type="destinationlabel">
-     <x>360</x>
-     <y>474</y>
+     <x>324</x>
+     <y>500</y>
     </hint>
    </hints>
   </connection>
@@ -20818,8 +20809,8 @@ p, li { white-space: pre-wrap; }
      <y>552</y>
     </hint>
     <hint type="destinationlabel">
-     <x>447</x>
-     <y>474</y>
+     <x>402</x>
+     <y>500</y>
     </hint>
    </hints>
   </connection>
@@ -20830,12 +20821,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>154</x>
-     <y>473</y>
+     <x>190</x>
+     <y>498</y>
     </hint>
     <hint type="destinationlabel">
-     <x>532</x>
-     <y>474</y>
+     <x>479</x>
+     <y>500</y>
     </hint>
    </hints>
   </connection>
@@ -20846,12 +20837,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>154</x>
-     <y>473</y>
+     <x>190</x>
+     <y>498</y>
     </hint>
     <hint type="destinationlabel">
-     <x>360</x>
-     <y>474</y>
+     <x>324</x>
+     <y>500</y>
     </hint>
    </hints>
   </connection>
@@ -20862,12 +20853,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>93</x>
-     <y>540</y>
+     <x>128</x>
+     <y>563</y>
     </hint>
     <hint type="destinationlabel">
-     <x>318</x>
-     <y>541</y>
+     <x>305</x>
+     <y>565</y>
     </hint>
    </hints>
   </connection>
@@ -20878,12 +20869,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>93</x>
-     <y>630</y>
+     <x>128</x>
+     <y>661</y>
     </hint>
     <hint type="destinationlabel">
-     <x>318</x>
-     <y>631</y>
+     <x>305</x>
+     <y>663</y>
     </hint>
    </hints>
   </connection>
@@ -20898,8 +20889,8 @@ p, li { white-space: pre-wrap; }
      <y>963</y>
     </hint>
     <hint type="destinationlabel">
-     <x>296</x>
-     <y>969</y>
+     <x>264</x>
+     <y>982</y>
     </hint>
    </hints>
   </connection>
@@ -20914,8 +20905,8 @@ p, li { white-space: pre-wrap; }
      <y>963</y>
     </hint>
     <hint type="destinationlabel">
-     <x>327</x>
-     <y>969</y>
+     <x>290</x>
+     <y>982</y>
     </hint>
    </hints>
   </connection>
@@ -20926,8 +20917,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>185</x>
-     <y>944</y>
+     <x>169</x>
+     <y>957</y>
     </hint>
     <hint type="destinationlabel">
      <x>101</x>
@@ -20942,8 +20933,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>202</x>
-     <y>920</y>
+     <x>183</x>
+     <y>935</y>
     </hint>
     <hint type="destinationlabel">
      <x>91</x>
@@ -20958,12 +20949,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>147</x>
-     <y>952</y>
+     <x>223</x>
+     <y>980</y>
     </hint>
     <hint type="destinationlabel">
-     <x>73</x>
-     <y>953</y>
+     <x>91</x>
+     <y>978</y>
     </hint>
    </hints>
   </connection>
@@ -20974,12 +20965,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>187</x>
-     <y>992</y>
+     <x>170</x>
+     <y>1004</y>
     </hint>
     <hint type="destinationlabel">
-     <x>85</x>
-     <y>974</y>
+     <x>103</x>
+     <y>1001</y>
     </hint>
    </hints>
   </connection>
@@ -20990,12 +20981,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>179</x>
-     <y>526</y>
+     <x>214</x>
+     <y>562</y>
     </hint>
     <hint type="destinationlabel">
-     <x>194</x>
-     <y>548</y>
+     <x>261</x>
+     <y>584</y>
     </hint>
    </hints>
   </connection>
@@ -21006,12 +20997,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>166</x>
-     <y>529</y>
+     <x>201</x>
+     <y>562</y>
     </hint>
     <hint type="destinationlabel">
-     <x>168</x>
-     <y>574</y>
+     <x>235</x>
+     <y>608</y>
     </hint>
    </hints>
   </connection>
@@ -21022,12 +21013,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>133</x>
-     <y>526</y>
+     <x>168</x>
+     <y>562</y>
     </hint>
     <hint type="destinationlabel">
-     <x>139</x>
-     <y>595</y>
+     <x>206</x>
+     <y>632</y>
     </hint>
    </hints>
   </connection>
@@ -21038,12 +21029,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>349</x>
-     <y>403</y>
+     <x>384</x>
+     <y>429</y>
     </hint>
     <hint type="destinationlabel">
-     <x>359</x>
-     <y>424</y>
+     <x>361</x>
+     <y>447</y>
     </hint>
    </hints>
   </connection>
@@ -21054,12 +21045,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>100</x>
-     <y>404</y>
+     <x>135</x>
+     <y>429</y>
     </hint>
     <hint type="destinationlabel">
-     <x>106</x>
-     <y>421</y>
+     <x>109</x>
+     <y>452</y>
     </hint>
    </hints>
   </connection>
@@ -21070,12 +21061,44 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>227</x>
-     <y>463</y>
+     <x>262</x>
+     <y>495</y>
     </hint>
     <hint type="destinationlabel">
-     <x>260</x>
-     <y>486</y>
+     <x>327</x>
+     <y>517</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkOverlandFlow2Dkindyn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_198</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>180</x>
+     <y>403</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>187</x>
+     <y>439</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkOverlandFlow2Dkindyn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_floodMinHeight</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>104</x>
+     <y>396</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>95</x>
+     <y>439</y>
     </hint>
    </hints>
   </connection>
