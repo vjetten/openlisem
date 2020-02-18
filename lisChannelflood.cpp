@@ -291,8 +291,6 @@ void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
         if (_h->Drc > threshold) {
             floodTime->Drc += _dt/60;
             floodHmxMax->Drc = std::max(floodHmxMax->Drc, _h->Drc);
-//            if (floodHmxMax->Drc > threshold)
-//                floodHmxMax->Drc = 0;
         // for output
             floodVMax->Drc = std::max(floodVMax->Drc, _UV->Drc);
             floodVHMax->Drc = std::max(floodVMax->Drc, _UV->Drc*_h->Drc);
@@ -342,8 +340,8 @@ void TWorld::ChannelFlood(void)
     }
 
     dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
-        //  threaded flooding
 
+        //  threaded flooding
     Boundary2Ddyn(hmx, Uflood, Vflood);
     // boundary flow
 
@@ -351,7 +349,7 @@ void TWorld::ChannelFlood(void)
     nrFloodedCells = 0;
     // used in infil and addRainfall
     FOR_ROW_COL_MV {
-        if (hmx->Drc > 0)// && FloodZonePotential->Drc == 1)
+        if (hmx->Drc > 0)
         {
             FloodDomain->Drc = 1;
             nrFloodedCells += 1.0;
@@ -364,6 +362,8 @@ void TWorld::ChannelFlood(void)
         FloodWaterVol->Drc = 0;
         hmxWH->Drc = WH->Drc;
         hmxflood->Drc = 0;
+        Qflood->Drc = 0;
+
         if (FloodDomain->Drc > 0) {
             V->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
             Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
@@ -374,15 +374,18 @@ void TWorld::ChannelFlood(void)
             FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
 
             // for output on screen
-            hmxWH->Drc = hmx->Drc;   //hmxWH is all water
-            hmxflood->Drc = hmxWH->Drc;// < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+            hmxWH->Drc = hmx->Drc;
+            hmxflood->Drc = hmx->Drc < minReportFloodHeight ? 0.0 : hmx->Drc;
+            FloodWaterVol->Drc = hmxflood->Drc*ChannelAdj->Drc*DX->Drc;
         }
 
-      //  WaterVolall->Drc = hmxWH->Drc*ChannelAdj->Drc*DX->Drc;
-
+        // recalc all OF water volume adding flood
+        WaterVolall->Drc = DX->Drc * (WHrunoff->Drc*ChannelAdj->Drc +
+                                      WHstore->Drc*SoilWidthDX->Drc +
+                                      +hmx->Drc * ChannelAdj->Drc);
     }
 
-    FloodMaxandTiming(WH, V, minReportFloodHeight);
+    FloodMaxandTiming(hmx, V, minReportFloodHeight);
 
     if(SwitchErosion)
     {

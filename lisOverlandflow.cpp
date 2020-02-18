@@ -80,13 +80,11 @@ void TWorld::ToFlood()//int thread)
     if (!SwitchIncludeChannel)
         return;
 
-    if (SwitchKinematic2D == K2D_METHOD_DYN)// || SwitchKinematic2D == K2D_METHOD_KIN)
+    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KIN)
         return;
 
     FOR_ROW_COL_MV {
-//        if(WHrunoff->Drc > 0.000001 && hmx->Drc > 0.000001 && ChannelWidth->Drc == 0)
-        // note hmx threshols: larger gicves less sed balance error
-        if(hmx->Drc > 0.0 && WHrunoff->Drc > 0.0 && ChannelWidth->Drc == 0)
+        if(hmx->Drc > 0.0 && WHrunoff->Drc > 0.0)// && ChannelWidth->Drc == 0)
         {
             double frac = 1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
             frac = std::max(std::min(frac, 1.0),0.0);
@@ -143,7 +141,6 @@ void TWorld::ToChannel()//int thread)
     }
 
     if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
-
         ChannelOverflow(WHrunoff, V, true);
         return;
     }
@@ -310,11 +307,10 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
                 if (_V->Drc > 0)
                     tma->Drc = 1;
         }
-//        if (SwitchIncludeChannel)
-//             if (ChannelFlowWidth->Drc == 0)
-//                 tma->Drc = 0;
+        if (SwitchIncludeChannel)
+             if (LDDChannel->Drc == 5)
+                 tma->Drc = 1;
     }
-
     // sum all the outflow of these points
     K2DQOutBoun = 0;
     K2DQSOutBoun = 0;
@@ -387,6 +383,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
         hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
         FloodWaterVol->Drc = hmxflood->Drc*ChannelAdj->Drc*DX->Drc;
+        // used for screen output
     }
 
     FloodMaxandTiming(WH, V, minReportFloodHeight);
@@ -541,7 +538,6 @@ void TWorld::OverlandFlow1D(void)
 
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-        hmxWH->Drc = hmx->Drc  == 0 ? WH->Drc : hmx->Drc;   //hmxWH is all water
 
     }
 

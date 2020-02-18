@@ -1104,8 +1104,8 @@ void TWorld::setupHydrographData()
     {
         if(PointMap->Drc > 0)
         {
-            nr.append(PointMap->Drc);
-            op.OutletIndices.append(PointMap->Drc);
+            nr.append((int)PointMap->Drc);
+            op.OutletIndices.append((int)PointMap->Drc);
             op.OutletLocationX.append(r);
             op.OutletLocationY.append(c);
             op.OutletQ.append(new QList<double>);
@@ -1382,7 +1382,7 @@ void TWorld::GetComboMaps()
     ClearComboMaps();
 
     setColor(1);
-//    AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);
+//    AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);Qoutput
     AddComboMap(0,"Total Discharge","l/s",Qoutput,Colormap,Colors,true,false,1.0, 1.0);
 
     setColor(3);

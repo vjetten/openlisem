@@ -93,12 +93,6 @@ void TWorld::Totals(void)
     IntercTot = mapTotal(*Interc);
     IntercTotmm = IntercTot*catchmentAreaFlatMM;
     // interception in mm and m3
-
-    //==== ETa ==========//
- //   ETaTot = mapTotal(*ETa);
-  //  ETaTotmm = ETaTot*catchmentAreaFlatMM;
-    // interception in mm and m3
-
     //Litter
     IntercLitterTot = mapTotal(*LInterc);
     IntercLitterTotmm = IntercLitterTot*catchmentAreaFlatMM;
@@ -112,6 +106,12 @@ void TWorld::Totals(void)
         InterceptionmmCum->Drc = (Interc->Drc + IntercHouse->Drc + LInterc->Drc)*1000.0/CellArea->Drc;
         // for screen output only
     }
+
+
+    //==== ETa ==========//
+ //   ETaTot = mapTotal(*ETa);
+  //  ETaTotmm = ETaTot*catchmentAreaFlatMM;
+    // interception in mm and m3
 
     //=== infiltration ===//
     InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave);// + mapTotal(*InfilVolFlood); //m3
@@ -152,8 +152,8 @@ void TWorld::Totals(void)
 
     WaterVolTot = mapTotal(*WaterVolall);//m3
     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
-    if (SwitchKinematic2D == K2D_METHOD_KINDYN)
-       WaterVolTot += floodVolTot;
+//    if (SwitchKinematic2D == K2D_METHOD_KINDYN)
+//       WaterVolTot += floodVolTot;
     // in KINDYN the flood and ro are really split spatially so the flood vol is added here
 
     // split into runoff and flood for screen reporting
@@ -209,7 +209,6 @@ void TWorld::Totals(void)
         }
     }
     // sum outflow m3 for all timesteps for all outlets, in m3
-    // needed for mass balance
 
     // add channel outflow
     if (SwitchIncludeChannel)
@@ -223,10 +222,8 @@ void TWorld::Totals(void)
             //cumulative m3 spatial for .map output
         }
         // add channel outflow (in m3) to total for all pits
-        // recalc in mm for screen output
     }
 
-//TODO: stormdrains versus tile agriculture
     if(SwitchIncludeStormDrains) {
         FOR_ROW_COL_MV_TILE
                 if (LDDTile->Drc == 5)
@@ -265,7 +262,7 @@ void TWorld::Totals(void)
         }
     }
 
-    // output fluxes for reporting to file and screen in l/s!
+    // output fluxes for reporting to file and screen in l/s!]
     FOR_ROW_COL_MV
     {
         Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc + Qflood->Drc + K2DQOutBoun);// in l/s
