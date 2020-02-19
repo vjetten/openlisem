@@ -577,7 +577,8 @@ void lisemqt::hideChannelVector(bool yes)
         return;
     if(rivers.isEmpty())
         return;
-    if (!yes) {
+
+    if (!yes || showRiverSize->value() == 0) {
         for (int i = 0; i < rivers.length(); i++)
             rivers[i]->detach();
         for (int i = 0; i < culverts.length(); i++)

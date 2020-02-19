@@ -342,7 +342,7 @@ void TWorld::OutputUI(void)
     op.SurfStormm = SurfStoremm;
 
     op.IntercTotmm = IntercTotmm;
-    op.LitterStorageTotmm = IntercLitterTotmm;
+    op.IntercLitterTotmm = IntercLitterTotmm;
     op.IntercHouseTotmm = IntercHouseTotmm;
 
     op.RunoffFraction = 0;
@@ -378,10 +378,6 @@ void TWorld::OutputUI(void)
     op.FloodSedTot = FloodSedTot*0.001;
     op.SoilLossTot = (SoilLossTot)*0.001; // convert from kg to ton
     op.floodBoundarySedTot = floodBoundarySedTot; // not used
-
-
-
-
 }
 //---------------------------------------------------------------------------
 /** reporting timeseries for every non zero point PointMap
@@ -691,40 +687,49 @@ void TWorld::ReportTotalsNew(void)
     out.setRealNumberPrecision(9);
     out.setFieldWidth(16);
     out.setRealNumberNotation(QTextStream::FixedNotation);
-    out << "\"LISEM run with:," << op.runfilename << "\"\n";
-    out << "\"LISEM results at time (min):," << op.time <<"\"\n";
-    out << "\"Catchment area              (ha):\"," << op.CatchmentArea/10000.0<< "\n";
-    out << "\"Total Precipitation         (mm):\"," << op.RainTotmm<< "\n";
-    //out << "\"Total discharge             (mm):\"," << op.Qtotmm<< "\n";
-    out << "\"Total interception          (mm):\"," << op.IntercTotmm<< "\n";
-    out << "\"Total House interception    (mm):\"," << op.IntercHouseTotmm<< "\n";
-    out << "\"Total infiltration          (mm):\"," << op.InfilTotmm<< "\n";
-    out << "\"Surface storage             (mm):\"," << op.SurfStormm<< "\n";
-    out << "\"Storm Drain                 (mm):\"," << op.StormDrainTotmm<< "\n";
-    out << "\"Water in overland flow      (mm):\"," << op.WaterVolTotmm<< "\n";
-    out << "\"Water in flood              (mm):\"," << op.volFloodmm<< "\n";
-    out << "\"Water in channels           (mm):\"," << op.ChannelVolTotmm<< "\n";
-    out << "\"Total outflow (all flows)   (mm):\"," << op.Qtotmm<< "\n";
-    // out << "\"Total baseflow              (mm):\"," << op.BaseFlowtotmm<< "\n";
-    out << "\"Total channel+OF discharge  (m3):\"," << op.Qtot<< "\n";
-    out << "\"Total flood discharge       (m3):\"," << op.floodBoundaryTot<< "\n";
+    out << "\"LISEM run with:\"," << op.runfilename << "\n";
+    out << "\"LISEM results at time (min):\"," << op.time <<"\n";
+    out << "\"Catchment area (ha):\"," << op.CatchmentArea/10000.0<< "\n";
+    out << "\"Total Precipitation (mm):\"," << op.RainTotmm<< "\n";
+    out << "\"Total interception(mm):\"," << op.IntercTotmm<< "\n";
+    out << "\"Total Litter interception (mm):\"," << op.IntercLitterTotmm<< "\n";
+    out << "\"Total House interception (mm):\"," << op.IntercHouseTotmm<< "\n";
+    out << "\"Total infiltration (mm):\"," << op.InfilTotmm<< "\n";
+    out << "\"Surface storage (mm):\"," << op.SurfStormm<< "\n";
+    out << "\"Storm Drain (mm):\"," << op.StormDrainTotmm<< "\n";
+    if (SwitchKinematic2D == K2D_METHOD_KIN) {
+        out << "\"Water in overland flow (mm):\"," << op.WaterVolTotmm<< "\n";
+       // out << "\"Water in flood (mm):\"," << 0.0 << "\n";
+    } else {
+       out << QString("\"Water in overland flow (h<%1)(mm)):\",%2\n").arg(minReportFloodHeight*1000).arg(op.WaterVolTotmm);
+       out << QString("\"Water in flood (h>%1) (mm)):\",%2\n").arg(minReportFloodHeight*1000).arg(op.volFloodmm);
+    }
+    out << "\"Water in channels (mm):\"," << op.ChannelVolTotmm<< "\n";
+    out << "\"Total outflow (all flows) (mm):\"," << op.Qtotmm<< "\n";
+    out << "\n";
+    out << "\"Total channel+OF discharg (m3):\"," << op.Qtot<< "\n";
+    out << "\"Total flood discharge (m3):\"," << op.floodBoundaryTot<< "\n";
     out << "\"Total storm drain discharge (m3):\"," << op.Qtiletot<< "\n";
-    out << "\"Peak time precipitation    (min):\"," << op.RainpeakTime<< "\n";
-    out << "\"Peak discharge/Precipitation (%):\"," << op.RunoffFraction*100<< "\n";
-    out << "\"Flood volume (max level)    (m3):\"," << op.FloodTotMax<< "\n";
-    out << "\"Flood area (max level)      (m2):\"," << op.FloodAreaMax<< "\n";
-    out << "\"Splash detachment (land)   (ton):\"," << op.DetTotSplash<< "\n";
-    out << "\"Flow detachment (land)     (ton):\"," << op.DetTotFlow<< "\n";
-    out << "\"Deposition (land)          (ton):\"," << op.DepTot<< "\n";
-    out << "\"Suspended Sediment (land)  (ton):\"," << op.SedTot<< "\n";
-    out << "\"Flow detachment (channels) (ton):\"," << op.ChannelDetTot<< "\n";
-    out << "\"Deposition (channels)      (ton):\"," << op.ChannelDepTot<< "\n";
-    out << "\"Susp. Sediment (channels)  (ton):\"," << op.ChannelSedTot<< "\n";
-    out << "\"Flow detachment (flood)    (ton):\"," << op.FloodDetTot<< "\n";
-    out << "\"Deposition (flood)         (ton):\"," << op.FloodDepTot<< "\n";
-    out << "\"Susp. Sediment (flood   )  (ton):\"," << op.FloodSedTot<< "\n";
-    out << "\"Total soil loss            (ton):\"," << op.SoilLossTot<< "\n";
-    out << "\"Average soil loss        (kg/ha):\"," << (op.SoilLossTot*1000.0)/(op.CatchmentArea/10000.0)<< "\n";
+    out << "\"Peak time precipitation (min):\"," << op.RainpeakTime<< "\n";
+    out << "\"Total discharge/Precipitation (%):\"," << op.RunoffFraction*100<< "\n";
+    out << "\"Flood volume (max level) (m3):\"," << op.FloodTotMax<< "\n";
+    out << "\"Flood area (max level) (m2):\"," << op.FloodAreaMax<< "\n";
+    if (SwitchErosion) {
+        out << "\n";
+        out << "\"Splash detachment (land) (ton):\"," << op.DetTotSplash<< "\n";
+        out << "\"Flow detachment (land) (ton):\"," << op.DetTotFlow<< "\n";
+        out << "\"Deposition (land) (ton):\"," << op.DepTot<< "\n";
+        out << "\"Sediment (land) (ton):\"," << op.SedTot<< "\n";
+        out << "\"Flow detachment (channels) (ton):\"," << op.ChannelDetTot<< "\n";
+        out << "\"Deposition (channels) (ton):\"," << op.ChannelDepTot<< "\n";
+        out << "\"Sediment (channels) (ton):\"," << op.ChannelSedTot<< "\n";
+        out << "\"Flow detachment (flood) (ton):\"," << op.FloodDetTot<< "\n";
+        out << "\"Deposition (flood) (ton):\"," << op.FloodDepTot<< "\n";
+        out << "\"Susp. Sediment (flood) (ton):\"," << op.FloodSedTot<< "\n";
+        out << "\"Total soil loss (ton):\"," << op.SoilLossTot<< "\n";
+        out << "\"Average soil loss (kg/ha):\"," << (op.SoilLossTot*1000.0)/(op.CatchmentArea/10000.0)<< "\n";
+        out << "\n";
+    }
     for(int i = 0; i< op.OutletQpeak.length();i++)
     {
         out << "\"Peak discharge for outlet " + QString::number(i) +" (l/s):\"," << op.OutletQpeak.at(i)<< "\n";

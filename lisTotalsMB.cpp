@@ -158,7 +158,6 @@ void TWorld::Totals(void)
     WaterVolRunoffmm_F = 0;
     FOR_ROW_COL_MV
     {
-      //  WaterVolRunoffmm += WHrunoff->Drc * ChannelAdj->Drc * DX->Drc;
         WaterVolRunoffmm += WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
         WaterVolRunoffmm_F += std::min(WHrunoff->Drc,minReportFloodHeight) * FlowWidth->Drc * DX->Drc;
     }
