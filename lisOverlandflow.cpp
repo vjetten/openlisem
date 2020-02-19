@@ -383,8 +383,8 @@ void TWorld::OverlandFlow2Ddyn(void)
 
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
 
-        hmxWH->Drc = WH->Drc;
-        hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
+        hmxWH->Drc = WHrunoff->Drc;
+        hmx->Drc = std::max(0.0, WHrunoff->Drc - minReportFloodHeight);
         hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
         FloodWaterVol->Drc = hmxflood->Drc*ChannelAdj->Drc*DX->Drc;
     }

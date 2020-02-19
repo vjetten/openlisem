@@ -356,7 +356,7 @@ void TWorld::OutputUI(void)
     op.FloodTotMax = floodVolTotMax;
     op.FloodAreaMax = floodAreaMax;
 
-    op.Qtotmm = Qtotmm + FloodBoundarymm;
+    op.Qtotmm = Qtotmm;// + FloodBoundarymm;
     op.Qtot = Qtot; // all outflow through channeland runoff for all open and outlets boundaries
     op.floodBoundaryTot = floodBoundaryTot;
     op.Qtile = QTiletot*1000.0/_dt;  //average tile output over all tile outlets as a flox in l/s

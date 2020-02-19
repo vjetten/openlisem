@@ -133,7 +133,12 @@ void TWorld::Totals(void)
     //=== surf store ===//
     fill(*tm, 0);
     calcMapValue(*tm, *WHstore, 1000, MUL); //mm
-    SurfStoremm = mapAverage(*tm);
+    double SStot = 0;
+    FOR_ROW_COL_MV
+    {
+        SStot += WHstore->Drc * SoilWidthDX->Drc*DX->Drc;
+    }
+    SurfStoremm = SStot * catchmentAreaFlatMM;
     // surface storage CHECK THIS
     // does not go to MB, is already in tot water vol
 
@@ -161,14 +166,13 @@ void TWorld::Totals(void)
     WaterVolRunoffmm_F = 0;
     FOR_ROW_COL_MV
     {
-      //  WaterVolRunoffmm += WHrunoff->Drc * ChannelAdj->Drc * DX->Drc;
-        WaterVolRunoffmm += WHrunoff->Drc * FlowWidth->Drc * DX->Drc;
-        WaterVolRunoffmm_F += std::min(WHrunoff->Drc,minReportFloodHeight) * FlowWidth->Drc * DX->Drc;
+        WaterVolRunoffmm += WHrunoff->Drc * ChannelAdj->Drc * DX->Drc;
+        WaterVolRunoffmm_F += std::min(WHrunoff->Drc,minReportFloodHeight) * ChannelAdj->Drc * DX->Drc;
     }
-    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_DIFF)
+    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN)
        WaterVolRunoffmm = WaterVolRunoffmm_F;
     WaterVolRunoffmm *= catchmentAreaFlatMM;
-    // water on the surface in runoff in m3 and mm
+    // water on the surface in runoff mm
 
     // runoff fraction per cell calc as in-out/rainfall, indication of sinks and sources of runoff
     // exclude channel cells
