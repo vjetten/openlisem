@@ -289,7 +289,7 @@ void TWorld::InitStandardInput(void)
     courant_factor = getvaluedouble("Flooding courant factor");
    // courant_factor_sed = getvaluedouble("Flooding courant factor diffusive");
     mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
-    runoff_partitioning = getvaluedouble("Flooding runoff partitioning");
+    runoff_partitioning = 2.0;//getvaluedouble("Flooding runoff partitioning");
 
     // SwitchFlood1D2DCoupling = getvalueint("Flooding 1D2D coupling"); <- obsolete
     SwitchKinematic2D = std::max(getvalueint("Routing Kin Wave 2D"), 1);

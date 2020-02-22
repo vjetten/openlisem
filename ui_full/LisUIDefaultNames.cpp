@@ -377,8 +377,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Minimum reported flood height");
     namelist[i].value = QString("2.0");
     namelist[i++].name = QString("Flooding mixing coefficient");
-    namelist[i].value = QString("2.0");
-    namelist[i++].name = QString("Flooding runoff partitioning");
+//    namelist[i].value = QString("2.0");
+//    namelist[i++].name = QString("Flooding runoff partitioning");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood initial level map");
     namelist[i].value = QString("0.2");

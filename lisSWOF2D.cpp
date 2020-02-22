@@ -58,6 +58,47 @@ functions: \n
 
 #define dtmaxfrac 0.5
 
+//--------------------------------------------------------------------------------------------
+// correct mass balance
+double TWorld::getMass(cTMap *M)
+{
+    double sum2 = 0;
+    FOR_ROW_COL_MV
+    {
+        if(M->Drc > 0)
+            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
+    }
+    return sum2;
+}
+//---------------------------------------------------------------------------
+// correct mass balance
+void TWorld::correctMassBalance(double sum1, cTMap *M)
+{
+    double sum2 = 0;
+    double n = 0;
+    FOR_ROW_COL_MV
+    {
+        if(M->Drc > 0)
+        {
+            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
+            if(M->Drc > 0)
+                n += 1;
+        }
+    }
+    // total and cells active for M
+
+    //double dh = (n > 0 ? (sum1 - sum2)/n : 0);
+    double dhtot = sum2 > 0 ? (sum1 - sum2)/sum2 : 0;
+    FOR_ROW_COL_MV
+    {
+        if(M->Drc > 0)
+        {
+            M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
+            //M->Drc += dh/(DX->Drc*ChannelAdj->Drc); // <- equal distribution error
+            M->Drc = std::max(M->Drc , 0.0);
+        }
+    }
+}
 //---------------------------------------------------------------------------
 // used in datainit, done once
 void TWorld::prepareFloodZ(cTMap *z)

@@ -64,62 +64,6 @@ void TWorld::OverlandFlow(void)
 }
 //--------------------------------------------------------------------------------------------
 /**
- * @fn void TWorld::ToFlood(void)
- * @brief Calculates overland flow that flows into flooding water
- *
- * Calculates overland flow of water and sediment that flows into flooding water
- * based on the runoff partitioning factor. Depending on the parameter, water
- * is either transformed quickly or slowly. This imitates the effect that overland
- * flow would have on the velocity of the flood water.
- *
- * @return void
- * @see runoff_partitioning
- */
-void TWorld::ToFlood()//int thread)
-{
-    if (!SwitchIncludeChannel)
-        return;
-
-    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KIN)
-        return;
-
-    FOR_ROW_COL_MV {
-        if(hmx->Drc > 0.0 && WHrunoff->Drc > 0.0)// && ChannelWidth->Drc == 0)
-        {
-            double frac = 1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
-            frac = std::max(std::min(frac, 1.0),0.0);
-            double dwh = frac * WHrunoff->Drc;
-
-            hmx->Drc += dwh;
-            WH->Drc -= dwh;
-            WHrunoff->Drc -= dwh;
-            WHGrass->Drc -= dwh;
-            WHroad->Drc -= dwh;
-            WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-
-            if(SwitchErosion)
-            {
-                double dsed = frac*Sed->Drc;
-                SSFlood->Drc += dsed;
-                Sed->Drc -= dsed;
-
-                if(SwitchUseGrainSizeDistribution)
-                {
-                    FOR_GRAIN_CLASSES
-                    {
-                        SS_D.Drcd +=  Sed_D.Drcd * frac;
-                        Sed_D.Drcd = Sed_D.Drcd * (1-frac);
-
-                    }
-                }
-//                SWOFSedimentSetConcentration(r,c,hmx);
-//                Conc->Drc = MaxConcentration(WH->Drc*ChannelAdj->Drc*DX->Drc, &Sed->Drc, &DEP->Drc);
-            }
-         }
-    }
-}
-//--------------------------------------------------------------------------------------------
-/**
  * @fn void TWorld::ToChannel(void)
  * @brief Calculates fraction of overland flow that flows into channel
  *
@@ -292,7 +236,7 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
     // find which outlets on the boundary are directed to the outside based on sign U and V
 
     FOR_ROW_COL_MV {
-        if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > MIN_HEIGHT)
+        if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 0.0)
         {
             if (c > 0 && MV(r,c-1))
                 if (_U->Drc < 0)
@@ -307,9 +251,9 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
                 if (_V->Drc > 0)
                     tma->Drc = 1;
         }
-        if (SwitchIncludeChannel)
-             if (LDDChannel->Drc == 5)
-                 tma->Drc = 1;
+//        if (SwitchIncludeChannel)
+//             if (LDDChannel->Drc == 5)
+//                 tma->Drc = 1;
     }
     // sum all the outflow of these points
     K2DQOutBoun = 0;
@@ -367,7 +311,7 @@ void TWorld::OverlandFlow2Ddyn(void)
     {
         V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
 
-        Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);//FlowWidth->Drc);
+        Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
         Q->Drc = Qn->Drc; // just to be sure
 
         WHroad->Drc = WHrunoff->Drc;
@@ -376,17 +320,20 @@ void TWorld::OverlandFlow2Ddyn(void)
 
         WH->Drc = WHrunoff->Drc + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
-
-        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
+        //LOGIC:
+        // water layer in three parts: WHstore < (WHrunoff < minReportFloodHeight) < (hmx > minReportFloodHeight)
+        // WH =  WHstore + WHrunoff
 
         hmxWH->Drc = WH->Drc;
-        hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
-        hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+
+        hmx->Drc = std::max(0.0, WHrunoff->Drc - minReportFloodHeight);
+        hmxflood->Drc = std::max(0.0, WHrunoff->Drc - minReportFloodHeight);
         FloodWaterVol->Drc = hmxflood->Drc*ChannelAdj->Drc*DX->Drc;
         // used for screen output
     }
 
-    FloodMaxandTiming(WH, V, minReportFloodHeight);
+    FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
 
     if(SwitchErosion)
     {

@@ -183,7 +183,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(iii);
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
         if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(valc);
-        if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(valc);
+      //  if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(valc);
         if (p1.compare("Flood initial level map")==0)        checkFloodInitial->setChecked(check);
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(iii);
        // if (p1.compare("Flood max steps")==0)                E_FloodMaxSteps->setValue(val);
@@ -723,7 +723,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
         if (p1.compare("Flooding mixing coefficient")==0)    namelist[j].value = E_mixingFactor->text();
-        if (p1.compare("Flooding runoff partitioning")==0)   namelist[j].value = E_runoffPartitioning->text();
+      //  if (p1.compare("Flooding runoff partitioning")==0)   namelist[j].value = E_runoffPartitioning->text();
         if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
 
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
