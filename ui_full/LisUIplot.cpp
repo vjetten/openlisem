@@ -424,7 +424,6 @@ void lisemqt::initOutputData()
 // max 6 line text output below hydrographs
 void lisemqt::SetTextHydrographs()
 {
-    //    if(!checkNoErosion->isChecked())
     textGraph->clear();
 
     if(OutletQ.length() == 0)

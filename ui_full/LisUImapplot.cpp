@@ -67,11 +67,17 @@ void lisemqt::ssetAlphaMap(int v)
     MPlot->replot();
 }
 //---------------------------------------------------------------------------
+void lisemqt::ssetAlphaChannelOutlet(int v)
+{
+ //   channelMap->setAlpha(v);
+    if (showRiverSize->value() > 0)
+        hideChannelVector(true);
+}
+//---------------------------------------------------------------------------
 void lisemqt::ssetAlphaChannel(int v)
 {
  //   channelMap->setAlpha(v);
-
-    hideChannelVector(true);
+    hideChannelVector(v > 0);
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaRoad(int v)
@@ -578,16 +584,14 @@ void lisemqt::hideChannelVector(bool yes)
     if(rivers.isEmpty())
         return;
 
-    if (!yes || showRiverSize->value() == 0) {
+    if (!yes) {
         for (int i = 0; i < rivers.length(); i++)
             rivers[i]->detach();
         for (int i = 0; i < culverts.length(); i++)
             culverts[i]->detach();
     } else {
         for (int i = 0; i < rivers.length(); i++) {
-            QColor color = QColor("#000000");
-          //  color.setAlpha(channelAlp);
-           rivers[i]->setPen(color, showRiverSize->value(), Qt::SolidLine );
+           rivers[i]->setPen(QColor("#000000"), showRiverSize->value(), Qt::SolidLine );
            rivers[i]->attach( MPlot );
            rivers[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
         }
@@ -611,7 +615,7 @@ void lisemqt::showChannelVector()
 {
     if (!checkIncludeChannel->isChecked())
         return;
-    if(op.Chanbranch.isEmpty())
+    if (op.Chanbranch.isEmpty())
         return;
 
     if (startplot)
@@ -664,7 +668,8 @@ void lisemqt::showChannelVector()
         for (int i = 0; i < Xa.length(); i++) {
             rivera = new QwtPlotCurve();
             rivers << rivera;
-            rivera->setPen(QColor("#000000"), 1, Qt::SolidLine );
+            showRiverSize->setValue(1);
+            rivera->setPen(QColor("#000000"), 1 , Qt::SolidLine );
             rivera->attach( MPlot );
             rivera->setAxes(MPlot->xBottom, MPlot->yLeft);
             rivera->setSamples(Xa.at(i),Ya.at(i));

@@ -115,7 +115,7 @@ void LisemThreadPool::InitThreads(TWorld * world)
         TP_NumberOfCores = std::min(world->userCores, TP_NumberOfCores);
     }
     //VJ
-qDebug() << "cores" << TP_NumberOfCores;
+//qDebug() << "cores" << TP_NumberOfCores;
     minusone = world->NewMap(0.0);
     emptymask = world->NewMap(0.0);
 

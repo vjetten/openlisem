@@ -663,7 +663,7 @@ void TWorld::maincalcscheme(int thread, double dt, cTMap *he, cTMap *ve1, cTMap 
                                       + (h2l->Drc+h2r->Drc)*delzc2->Drc));
 
 
-                double sqQ = qSqrt(qes1*qes1+qes2*qes2);
+               // double sqQ = qSqrt(qes1*qes1+qes2*qes2);
 
                 double sqUV = qSqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc);
                 double nsq1 = (0.001+N->Drc)*(0.001+N->Drc)*GRAV/qPow(hes->Drc,4.0/3.0);

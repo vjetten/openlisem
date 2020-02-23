@@ -92,7 +92,7 @@ void TWorld::Wrapper_StoreAll(int not_used)
     TSList_snowav.append(SnowIntavg);
 
 
-    TSList_q.append((QtotT * 1000.0/_dt));
+    TSList_q.append((QtotT+Qfloodout) * 1000.0/_dt);
     if(SwitchIncludeChannel)
     {
         double channelwh = 0;
@@ -171,7 +171,7 @@ void TWorld::OutputUI(void)
 
     //hydrographs
     op.timestep = this->_dt/60.0;
-    op.OutletQ.at(0)->append((QtotT * 1000.0/_dt)); //QtotT is in m3
+    op.OutletQ.at(0)->append((QtotT) * 1000.0/_dt); //QtotT is in m3
     op.OutletQs.at(0)->append(SoilLossTotT);
     op.OutletC.at(0)->append((QtotT) > MIN_FLUX? SoilLossTotT/(QtotT) : 0);
     op.OutletQtot.replace(0,Qtot);
@@ -189,10 +189,8 @@ void TWorld::OutputUI(void)
     {
         int r = op.OutletLocationX.at(j);
         int c = op.OutletLocationY.at(j);
-
-        double discharge = Qoutput->Drc; //sum of current Qn, ChannelQn, TileQn in l/s
-        double sedimentdischarge = SwitchErosion? Qsoutput->Drc * _dt : 0.0;
-        // when diff this does not include flood sed discharge!
+        double discharge = Qoutput->Drc; //sum of current Qn, ChannelQn, Qflood in l/s, not Tile!
+        double sedimentdischarge = SwitchErosion? Qsoutput->Drc  : 0.0; // in kg/s   * _dt
         double sedimentconcentration = SwitchErosion? TotalConc->Drc : 0.0;
         double channelwh = SwitchIncludeChannel? ChannelWH->Drc : 0.0;
 
@@ -252,7 +250,7 @@ void TWorld::OutputUI(void)
             COMBO_VOFCH->Drc = 0;
     }
     FOR_ROW_COL_MV {
-        VH->Drc = COMBO_VOFCH->Drc * hmxWH->Drc;
+        VH->Drc = V->Drc * hmxWH->Drc;
     }
 
     if(SwitchErosion)
@@ -356,8 +354,8 @@ void TWorld::OutputUI(void)
     op.FloodTotMax = floodVolTotMax;
     op.FloodAreaMax = floodAreaMax;
 
-    op.Qtotmm = Qtotmm + FloodBoundarymm;
-    op.Qtot = Qtot; // all outflow through channeland runoff for all open and outlets boundaries
+    op.Qtotmm = Qtotmm;
+    op.Qtot = Qtot; // all outflow through channel and runoff for all open and outlets boundaries
     op.floodBoundaryTot = floodBoundaryTot;
     op.Qtile = QTiletot*1000.0/_dt;  //average tile output over all tile outlets as a flox in l/s
     op.Qtiletot = QTiletot;  //average tile output over all tile outlets as a flux in m3/s
@@ -788,7 +786,6 @@ void TWorld::ReportMaps(void)
     //===== SEDIMENT =====
     if(SwitchErosion)
     {
-        QString unit = "kg/cell";
         double factor = 1.0;
         if(ErosionUnits == 2)
             factor = 1.0/(_dx*_dx);  //kg/m2
@@ -1435,9 +1432,9 @@ void TWorld::GetComboMaps()
 
     if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
         setColor(3);
-        QString txt = QString("Flood Height");
-        if (SwitchKinematic2D == K2D_METHOD_DYN)
-            txt = QString("Flood Height, h>%1 mm").arg(minReportFloodHeight*1000);\
+      //  QString txt = QString("Flood Height");
+      //  if (SwitchKinematic2D == K2D_METHOD_DYN)
+        QString txt = QString("Flood Height, h>%1 mm").arg(minReportFloodHeight*1000);
 
         AddComboMap(0,txt,"m",hmxflood,Colormap,Colors,false,false,1.0,0.01);
         setColor(3);

@@ -56,6 +56,56 @@ TWorld::~TWorld()
 {
 }
 //---------------------------------------------------------------------------
+void TWorld::saveMBerror2file(bool doError, bool start)
+{
+    if (doError && start) {
+        //create error file
+        QFile efout(resultDir+errorFileName);
+        efout.open(QIODevice::WriteOnly | QIODevice::Text);
+        QTextStream eout(&efout);
+        eout << "#water mass balance error (%)\n";
+        eout << "2\n";
+        eout << "run step\n";
+        eout << "error\n";
+        //  eout << "runtime\n";
+        efout.flush();
+        efout.close();
+
+        if (SwitchErosion) {
+            QFile esfout(resultDir+errorSedFileName);
+            esfout.open(QIODevice::WriteOnly | QIODevice::Text);
+            QTextStream esout(&esfout);
+            esout << "#sediment mass balance error (%)\n";
+            esout << "2\n";
+            esout << "run step\n";
+            esout << "MBs error\n";
+            esfout.flush();
+            esfout.close();
+        }
+    }
+
+
+    if (doError) {
+        QFile efout(resultDir+errorFileName);
+        efout.open(QIODevice::Append | QIODevice::Text);
+        QTextStream eout(&efout);
+        eout << " " << runstep << " " << MB << /*" " << op.t <<*/ "\n";
+        efout.flush();
+        efout.close();
+
+        if (SwitchErosion) {
+            QFile esfout(resultDir+errorSedFileName);
+            esfout.open(QIODevice::Append | QIODevice::Text);
+            QTextStream esout(&esfout);
+            esout << " " << runstep << " " << MBs <<  "\n";
+            esfout.flush();
+            esfout.close();
+        }
+    }
+
+}
+
+//---------------------------------------------------------------------------
 // the actual model with the main loop
 void TWorld::DoModel()
 {
@@ -134,29 +184,8 @@ void TWorld::DoModel()
         DEBUG("setupHydrographData()");
         setupHydrographData();
 
-        //create error file
-        QFile efout(resultDir+errorFileName);
-        efout.open(QIODevice::WriteOnly | QIODevice::Text);
-        QTextStream eout(&efout);
-        eout << "#water mass balance error (%)\n";
-        eout << "2\n";
-        eout << "run step\n";
-        eout << "error\n";
-      //  eout << "runtime\n";
-        efout.flush();
-        efout.close();
-
-        if (SwitchErosion) {
-            QFile esfout(resultDir+errorSedFileName);
-            esfout.open(QIODevice::WriteOnly | QIODevice::Text);
-            QTextStream esout(&esfout);
-            esout << "#sediment mass balance error (%)\n";
-            esout << "2\n";
-            esout << "run step\n";
-            esout << "MBs error\n";
-            esfout.flush();
-            esfout.close();
-        }
+        bool saveMBerror = false;
+        saveMBerror2file(saveMBerror, true);
 
         InfilEffectiveKsat();
         // calc effective ksat from all surfaces once
@@ -211,6 +240,7 @@ void TWorld::DoModel()
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddiff or 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
+
             ChannelFlood(); // st venant channel 2D flooding from channel, only for kyn wave
 
             // flow detachment
@@ -227,25 +257,29 @@ void TWorld::DoModel()
             MassBalance();       // check water and sed mass balance
             OutputUI();          // fill the "op" structure for screen output
 
-            QFile efout(resultDir+errorFileName);
-            efout.open(QIODevice::Append | QIODevice::Text);
-            QTextStream eout(&efout);
-            eout << " " << runstep << " " << MB << /*" " << op.t <<*/ "\n";
-            efout.flush();
-            efout.close();
+            saveMBerror2file(saveMBerror, false);
 
-            if (SwitchErosion) {
-                QFile esfout(resultDir+errorSedFileName);
-                esfout.open(QIODevice::Append | QIODevice::Text);
-                QTextStream esout(&esfout);
-                esout << " " << runstep << " " << MBs <<  "\n";
-                esfout.flush();
-                esfout.close();
-            }
+//            std::function<void(int)> freport = std::bind((&TWorld::Wrapper_ReportAll),this,std::placeholders::_1);
+//            ThreadPool->RunReportFunction(freport);
+            mapFormat = op.format;
 
-            std::function<void(int)> freport = std::bind((&TWorld::Wrapper_ReportAll),this,std::placeholders::_1);
-            ThreadPool->RunReportFunction(freport);
-          //  ThreadPool->WaitForReportThread();
+            ReportTimeseriesNew();
+            // report hydrographs ande sedigraphs at all points in outpoint.map
+
+            ReportTotalsNew();
+            // report totals to a text file
+
+            ReportMaps();
+            // report all maps and mapseries
+
+            ReportLandunits();
+            // reportc stats per landunit class
+
+            ChannelFloodStatistics();
+            // report buildings submerged in flood level classes in 5cm intervals
+
+
+
 
             if (!noInterface)
                 emit show();

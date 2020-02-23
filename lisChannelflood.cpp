@@ -261,7 +261,7 @@ void TWorld::ToFlood()//int thread)
         if(hmx->Drc > 0.0 && WHrunoff->Drc > 0.0)// && ChannelWidth->Drc == 0)
         {
             double frac = 1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
-            frac = std::max(std::min(frac, 1.0),0.0);
+            frac = 1.0;//std::max(std::min(frac, 1.0),0.0);
             double dwh = frac * WHrunoff->Drc;
 
             hmx->Drc += dwh;
@@ -269,9 +269,6 @@ void TWorld::ToFlood()//int thread)
             WHrunoff->Drc -= dwh;
             WHGrass->Drc -= dwh;
             WHroad->Drc -= dwh;
-     //       WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-
-            hmxWH->Drc = WH->Drc + hmx->Drc;
 
             if(SwitchErosion)
             {
@@ -367,62 +364,39 @@ void TWorld::ChannelFlood(void)
     }
 
     ToFlood();
-    // mix WHrunoff with hmx, watervolall recalculated
-    // calc also hmxWH
+    // mix WHrunoff with hmx
 
         //  threaded flooding
-    Boundary2Ddyn(hmxWH, Uflood, Vflood);
+    Boundary2Ddyn(hmx, Uflood, Vflood);
     // boundary flow
 
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV {       
         if (FloodDomain->Drc > 0) {
             V->Drc = qSqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
             Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
+
+            double R = WHrunoff->Drc*ChannelAdj->Drc/(2*WHrunoff->Drc + ChannelAdj->Drc);
+            double vv = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/N->Drc;
+            double qq  = vv * WHrunoff->Drc * ChannelAdj->Drc;
+//            Qn->Drc += Qflood->Drc;
+
         }
+
+        hmxWH->Drc = WH->Drc + hmx->Drc;
 
         //InfilVolFlood->Drc += Iflood->Drc;
         // addvolume infiltrated during flood process with FSurplus
 
-     //   Qn->Drc = V->Drc * (hmxWH->Drc-WHstore->Drc) * ChannelAdj->Drc;
+        hmxflood->Drc = std::max(0.0, WHrunoff->Drc + hmx->Drc - minReportFloodHeight);
+        WHrunoffOutput->Drc = std::min(WHrunoff->Drc + hmx->Drc, minReportFloodHeight);
 
-        hmxflood->Drc =std::max(0.0, hmxWH->Drc - WHstore->Drc - minReportFloodHeight);
-        // WHstore subtracted for consistency with 2D dyn wave calculations
+        WaterVolall->Drc = DX->Drc * (WHrunoff->Drc*ChannelAdj->Drc + hmx->Drc * ChannelAdj->Drc
+                                      + WHstore->Drc*SoilWidthDX->Drc);
+        // all water on surface
+
         FloodWaterVol->Drc = hmxflood->Drc*ChannelAdj->Drc*DX->Drc;
-
-        // recalc all OF water volume adding flood
-        WaterVolall->Drc = DX->Drc * (WHrunoff->Drc*ChannelAdj->Drc +
-                                      WHstore->Drc*SoilWidthDX->Drc +
-                                      +hmx->Drc * ChannelAdj->Drc);
+        RunoffWaterVol->Drc = WHrunoffOutput->Drc*ChannelAdj->Drc*DX->Drc;
     }
-
-//    FOR_ROW_COL_MV {
-//        FloodWaterVol->Drc = 0;
-//        hmxWH->Drc = WH->Drc;
-//        hmxflood->Drc = 0;
-//        Qflood->Drc = 0;
-
-//        Qn->Drc = V->Drc * WHrunoff->Drc * ChannelAdj->Drc;
-
-//        if (FloodDomain->Drc > 0) {
-//            V->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
-//            Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
-
-//            //InfilVolFlood->Drc += Iflood->Drc;
-//            // addvolume infiltrated during flood process with FSurplus
-
-//            hmxWH->Drc += hmx->Drc;
-//            Qn->Drc = V->Drc * (hmxWH->Drc-WHstore->Drc) * ChannelAdj->Drc;
-
-//            hmxflood->Drc =std::max(0.0, hmxWH->Drc - WHstore->Drc - minReportFloodHeight);
-//            // WHstore subtracted for consistency with 2D dyn wave calculations
-//            FloodWaterVol->Drc = hmxflood->Drc*ChannelAdj->Drc*DX->Drc;
-//        }
-
-//        // recalc all OF water volume adding flood
-//        WaterVolall->Drc = DX->Drc * (WHrunoff->Drc*ChannelAdj->Drc +
-//                                    //  WHstore->Drc*SoilWidthDX->Drc +
-//                                      +hmx->Drc * ChannelAdj->Drc);
-//    }
 
     FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
 

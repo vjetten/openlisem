@@ -74,7 +74,7 @@ cTMap
 *WH,                         //!< water height on the surface [m]
 *WHbef,                      //!< water height on the surface before infiltration [m]
 *WHroad,                     //!< water height on the roads [m]
-*WHhard,                     //!< water height on the roads [m]
+*WHrunoffOutput,                     //!< water height on the roads [m]
 *WHrunoff,                   //!< water height available for runoff [m]
 *WHmax,                      //!< max runoff wh in m for reporting
 *WHstore,                    //!< water heigth stored in micro depressions [m]
@@ -352,6 +352,8 @@ cTMap
 *ChannelMaxQ,                //!<
 //*ChannelLevee,                //!<
 *FloodWaterVol,                //!<
+*RunoffWaterVol,                //!<
+
 //*FloodZonePotential,                //!<
 *DomainEdge,                //!<
 *FloodDT,

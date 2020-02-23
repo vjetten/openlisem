@@ -251,9 +251,13 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
                 if (_V->Drc > 0)
                     tma->Drc = 1;
         }
+        //CHECK:
 //        if (SwitchIncludeChannel)
 //             if (LDDChannel->Drc == 5)
 //                 tma->Drc = 1;
+//        if (LDD->Drc == 5)
+//            tma->Drc = 1;
+
     }
     // sum all the outflow of these points
     K2DQOutBoun = 0;
@@ -267,10 +271,9 @@ void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
         double dh = frac*h->Drc;
         double _q = dh*DX->Drc*dy;
 
-        K2DQOutBoun += _q;
+        K2DQOutBoun += _q/_dt;
         h->Drc -= dh;
-//        Qn->Drc = UV*(h->Drc*dy);
-        // if activated this gives a mass balance error
+        //K2DQ->Drc = _q/_dt;
 
         if (SwitchErosion) {
             double ds = frac * SSFlood->Drc;
@@ -327,9 +330,12 @@ void TWorld::OverlandFlow2Ddyn(void)
 
         hmxWH->Drc = WH->Drc;
 
-        hmx->Drc = std::max(0.0, WHrunoff->Drc - minReportFloodHeight);
+       // hmx->Drc = std::max(0.0, WHrunoff->Drc - minReportFloodHeight);
+
         hmxflood->Drc = std::max(0.0, WHrunoff->Drc - minReportFloodHeight);
         FloodWaterVol->Drc = hmxflood->Drc*ChannelAdj->Drc*DX->Drc;
+        WHrunoffOutput->Drc = std::min(WHrunoff->Drc, minReportFloodHeight);
+        RunoffWaterVol->Drc = WHrunoffOutput->Drc*ChannelAdj->Drc*DX->Drc;
         // used for screen output
     }
 
@@ -472,6 +478,7 @@ void TWorld::OverlandFlow1D(void)
         double R = WHrunoff->Drc*FlowWidth->Drc/Perim;
         Alpha->Drc = pow(N->Drc/sqrt(Grad->Drc) * pow(Perim, 2.0/3.0),0.6); // for erosion
         V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/N->Drc;
+    //    Qn->Drc = V->Drc * WHrunoff->Drc*FlowWidth->Drc;
    //     V->Drc = std::min(Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc), V->Drc);
 //        V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
 
@@ -482,6 +489,9 @@ void TWorld::OverlandFlow1D(void)
 
         WH->Drc = WHrunoff->Drc + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
+
+        hmxWH->Drc = WH->Drc;
+        //needed for totals and output
 
         WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);

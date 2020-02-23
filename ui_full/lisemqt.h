@@ -430,6 +430,7 @@ public slots:
 
     void ssetAlpha(int v);
     void ssetAlphaChannel(int v);
+    void ssetAlphaChannelOutlet(int v);
     void ssetAlphaRoad(int v);
     void ssetAlphaHouse(int v);
     void ssetAlphaBarrier(int v);

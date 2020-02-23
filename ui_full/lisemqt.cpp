@@ -836,7 +836,7 @@ void lisemqt::SetToolBar()
     connect(transparencyBarrier, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaBarrier(int)));
     connect(transparencyMap, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaMap(int)));
     connect(showRiverSize, SIGNAL(sliderMoved(int)),this,SLOT(ssetAlphaChannel(int)));
-    connect(spinCulvertSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
+    connect(spinCulvertSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannelOutlet(int)));
     connect(toolShowMapDisplay, SIGNAL(pressed()),this,SLOT(showMapSettings()));
 }
 //---------------------------------------------------------------------------

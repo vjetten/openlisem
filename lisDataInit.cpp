@@ -925,6 +925,7 @@ void TWorld::InitFlood(void)
     Qflood = NewMap(0);
     hmxWH = NewMap(0);
     FloodWaterVol = NewMap(0);
+        RunoffWaterVol = NewMap(0);
     floodTimeStart = NewMap(0);
 
     iter_n = 0;
@@ -1542,30 +1543,13 @@ if (SwitchGrassStrip) {
        // throw 1;
     }
     }
-//    if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
-//    {
-//        Fcum = NewMap(0);
-//        L1 = NewMap(0);
-//        L2 = NewMap(0);
-//        Fcumgr = NewMap(1e-10);
-//        L1gr = NewMap(1e-10);
-//        L2gr = NewMap(1e-10);
-//        if (InfilMethod != INFIL_KSAT)
-//        {
-//            Soilwater = NewMap(0);
-//            Soilwater2 = NewMap(0);
-//            calc2Maps(*Soilwater, *ThetaI1, *SoilDepth1, MUL);
-//            if (SwitchTwoLayer)
-//            {
-//                calc2Maps(*Soilwater2, *ThetaI2, *SoilDepth2, MUL);
-//            }
-//        }
-//    }
 
     //### runoff maps
     Qtot = 0;
     QtotT = 0;
     QTiletot = 0;
+    QfloodoutTot = 0;
+    Qfloodout = 0;
     Qtotmm = 0;
     FloodBoundarymm = 0;
     Qpeak = 0;
@@ -1577,7 +1561,7 @@ if (SwitchGrassStrip) {
     WHmax = NewMap(0);
     WHstore = NewMap(0);
     WHroad = NewMap(0);
-    WHhard = NewMap(0);
+    WHrunoffOutput = NewMap(0);
     WHGrass = NewMap(0);
     FlowWidth = NewMap(0);
     fpa = NewMap(0);
@@ -1587,57 +1571,59 @@ if (SwitchGrassStrip) {
     Q = NewMap(0);
     Qn = NewMap(0);
 
-    K2DV = NewMap(0);
+    K2DOutlets = NewMap(0);
 
-        K2DDEM = NewMap(0);
-        K2DWHStore = NewMap(0);
-        K2DPits = NewMap(0);
-        K2DPitsD = NewMap(0);
-        K2DOutlets = NewMap(0);
-        K2DSlopeX = NewMap(0);
-        K2DSlopeY = NewMap(0);
-        K2DSlope = NewMap(0);
-        K2DQM = NewMap(0);
-        K2DQMX = NewMap(0);
-        K2DQMY = NewMap(0);
-        //K2DFMX = NewMap(0);
-        //K2DFMY = NewMap(0);
-        K2DMN = NewMap(0);
-        K2DM = NewMap(0);
-        K2DMC = NewMap(0);
-        if(SwitchPesticide)
-        {
-            K2DQP = NewMap(0);
-            K2DQPX = NewMap(0);
-            K2DQPY = NewMap(0);
-            K2DP = NewMap(0);
-            K2DPC = NewMap(0);
-            K2DPCN = NewMap(0);
-        }
+    //OBSOLETE diffusive wave
+    //    K2DQ = NewMap(0);
+    //    K2DSlope = NewMap(0);
+    //    K2DV = NewMap(0);
+    //    K2DDEM = NewMap(0);
+    //    K2DWHStore = NewMap(0);
+    //    K2DPits = NewMap(0);
+    //    K2DPitsD = NewMap(0);
+    //    K2DSlopeX = NewMap(0);
+    //    K2DSlopeY = NewMap(0);
+    //    K2DQM = NewMap(0);
+    //    K2DQMX = NewMap(0);
+    //    K2DQMY = NewMap(0);
+    //K2DFMX = NewMap(0);
+    //K2DFMY = NewMap(0);
+    //    K2DMN = NewMap(0);
+    //    K2DM = NewMap(0);
+    //    K2DMC = NewMap(0);
+    //    K2DHOld = NewMap(0);
+    //    K2DHNew = NewMap(0);
+    //    K2DQX = NewMap(0);
+    //    K2DQY = NewMap(0);
+    //    K2DFX = NewMap(0);
+    //    K2DFY = NewMap(0);
+    //    K2DDT = NewMap(0);
+    //    K2DDTm = NewMap(0);
+    //    K2DDTr = NewMap(_dt);
+    //    K2DDTT = NewMap(0);
+    //    K2DQN = NewMap(0);
+    //    K2DI = NewMap(0);
+    //    K2DDTR = NewMap(0);
+    //    K2DDTC = NewMap(0);
+    //    K2DTEST = NewMap(0);
+    //    R = NewMap(0);
 
-        K2DHOld = NewMap(0);
-        K2DHNew = NewMap(0);
-        K2DQX = NewMap(0);
-        K2DQY = NewMap(0);
-        K2DFX = NewMap(0);
-        K2DFY = NewMap(0);
-        K2DQ = NewMap(0);
-        K2DDT = NewMap(0);
-        K2DDTm = NewMap(0);
-        K2DDTr = NewMap(_dt);
-        K2DDTT = NewMap(0);
-        K2DQN = NewMap(0);
-        K2DI = NewMap(0);
-        K2DDTR = NewMap(0);
-        K2DDTC = NewMap(0);
-        K2DTEST = NewMap(0);
+    if(SwitchPesticide)
+    {
+        K2DQP = NewMap(0);
+        K2DQPX = NewMap(0);
+        K2DQPY = NewMap(0);
+        K2DP = NewMap(0);
+        K2DPC = NewMap(0);
+        K2DPCN = NewMap(0);
+    }
 
     QinKW = NewMap(0);
-    QKW = NewMap(0);
+//    QKW = NewMap(0);
     Qoutput = NewMap(0);
     Qsoutput = NewMap(0);
     q = NewMap(0);
-    R = NewMap(0);
+
     WaterVolin = NewMap(0);
     WaterVolall = NewMap(0);
 
@@ -1926,8 +1912,8 @@ if (SwitchGrassStrip) {
 
     //K2Dslope also used for transport capacity of overland flow!
     //ALLEEN ALS ER 2D runoff gekozen is!!!
-    if(SwitchKinematic2D != K2D_METHOD_KIN)
-        K2DDEMAInitial();
+//    if(SwitchKinematic2D != K2D_METHOD_KIN)
+//        K2DDEMAInitial();
 
    // MakeWatersheds();
     if (SwitchChannelBaseflow)
