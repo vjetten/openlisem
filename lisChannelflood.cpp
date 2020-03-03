@@ -236,52 +236,61 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
         }
     }
 }
-
-
-
-
 //---------------------------------------------------------------------------
-// correct mass balance
-double TWorld::getMass(cTMap *M)
+/**
+ * @fn void TWorld::ToFlood(void)
+ * @brief Calculates overland flow that flows into flooding water
+ *
+ * Calculates overland flow of water and sediment that flows into flooding water
+ * based on the runoff partitioning factor. Depending on the parameter, water
+ * is either transformed quickly or slowly. This imitates the effect that overland
+ * flow would have on the velocity of the flood water.
+ *
+ * @return void
+ * @see runoff_partitioning
+ */
+void TWorld::ToFlood()//int thread)
 {
-    double sum2 = 0;
-    FOR_ROW_COL_MV
-    {
-        if(M->Drc > 0)
-            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
-    }
-    return sum2;
-}
-//---------------------------------------------------------------------------
-// correct mass balance
-void TWorld::correctMassBalance(double sum1, cTMap *M)
-{
-    double sum2 = 0;
-    double n = 0;
-    FOR_ROW_COL_MV
-    {
-        if(M->Drc > 0)
-        {
-            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
-            if(M->Drc > 0)
-                n += 1;
-        }
-    }
-    // total and cells active for M
+//    if (!SwitchIncludeChannel)
+//        return;
 
-    //double dh = (n > 0 ? (sum1 - sum2)/n : 0);
-    double dhtot = sum2 > 0 ? (sum1 - sum2)/sum2 : 0;
-    FOR_ROW_COL_MV
-    {
-        if(M->Drc > 0)
+//    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KIN)
+//        return;
+
+    FOR_ROW_COL_MV {
+        if(hmx->Drc > 0.0 && WHrunoff->Drc > 0.0)// && ChannelWidth->Drc == 0)
         {
-            M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
-            //M->Drc += dh/(DX->Drc*ChannelAdj->Drc); // <- equal distribution error
-            M->Drc = std::max(M->Drc , 0.0);
-        }
+            double frac = 1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
+            frac = 1.0;//std::max(std::min(frac, 1.0),0.0);
+            double dwh = frac * WHrunoff->Drc;
+
+            hmx->Drc += dwh;
+            WH->Drc -= dwh;
+            WHrunoff->Drc -= dwh;
+            WHGrass->Drc -= dwh;
+            WHroad->Drc -= dwh;
+
+            if(SwitchErosion)
+            {
+                double dsed = frac*Sed->Drc;
+                SSFlood->Drc += dsed;
+                Sed->Drc -= dsed;
+
+                if(SwitchUseGrainSizeDistribution)
+                {
+                    FOR_GRAIN_CLASSES
+                    {
+                        SS_D.Drcd +=  Sed_D.Drcd * frac;
+                        Sed_D.Drcd = Sed_D.Drcd * (1-frac);
+
+                    }
+                }
+//                SWOFSedimentSetConcentration(r,c,hmx);
+//                Conc->Drc = MaxConcentration(WH->Drc*ChannelAdj->Drc*DX->Drc, &Sed->Drc, &DEP->Drc);
+            }
+         }
     }
 }
-
 //---------------------------------------------------------------------------
 void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
 {
@@ -291,8 +300,6 @@ void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
         if (_h->Drc > threshold) {
             floodTime->Drc += _dt/60;
             floodHmxMax->Drc = std::max(floodHmxMax->Drc, _h->Drc);
-//            if (floodHmxMax->Drc > threshold)
-//                floodHmxMax->Drc = 0;
         // for output
             floodVMax->Drc = std::max(floodVMax->Drc, _UV->Drc);
             floodVHMax->Drc = std::max(floodVMax->Drc, _UV->Drc*_h->Drc);
@@ -328,8 +335,7 @@ void TWorld::ChannelFlood(void)
         return;
 
     ChannelOverflow(hmx, V, false);
-    // mix overflow water and flood water in channel cells
-    // use hmx which is the 2Ddyn water
+    // determine overflow water => hmx
 
     double dtflood = 0;
 
@@ -342,16 +348,13 @@ void TWorld::ChannelFlood(void)
     }
 
     dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
-        //  threaded flooding
-
-    Boundary2Ddyn(hmx, Uflood, Vflood);
-    // boundary flow
+    // 2D dyn flow of hmx water
 
     //new flood domain
     nrFloodedCells = 0;
     // used in infil and addRainfall
     FOR_ROW_COL_MV {
-        if (hmx->Drc > 0)// && FloodZonePotential->Drc == 1)
+        if (hmx->Drc > 0)
         {
             FloodDomain->Drc = 1;
             nrFloodedCells += 1.0;
@@ -360,29 +363,48 @@ void TWorld::ChannelFlood(void)
             FloodDomain->Drc = 0;
     }
 
+    ToFlood();
+    // mix WHrunoff with hmx
+
     FOR_ROW_COL_MV {
-        FloodWaterVol->Drc = 0;
-        hmxWH->Drc = WH->Drc;
-        hmxflood->Drc = 0;
+        Qflood->Drc = 0;
         if (FloodDomain->Drc > 0) {
-            V->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+            V->Drc = qSqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
             Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
-            //Qn->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
+        }
+    }
+    Boundary2Ddyn();//hmx, Qflood, Uflood, Vflood);
+    // boundary flow
 
-            // addvolume infiltrated during flood process with FSurplus
-            //InfilVolFlood->Drc += Iflood->Drc;
-            FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+    FOR_ROW_COL_MV {       
+        if (FloodDomain->Drc > 0) {
+     //       V->Drc = qSqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+            Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
 
-            // for output on screen
-            hmxWH->Drc = hmx->Drc;   //hmxWH is all water
-            hmxflood->Drc = hmxWH->Drc;// < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+//            double R = WHrunoff->Drc*ChannelAdj->Drc/(2*WHrunoff->Drc + ChannelAdj->Drc);
+//            double vv = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/N->Drc;
+//            double qq  = vv * WHrunoff->Drc * ChannelAdj->Drc;
+//            Qn->Drc += Qflood->Drc;
+
         }
 
-      //  WaterVolall->Drc = hmxWH->Drc*ChannelAdj->Drc*DX->Drc;
+        hmxWH->Drc = WH->Drc + hmx->Drc;
 
+        //InfilVolFlood->Drc += Iflood->Drc;
+        // addvolume infiltrated during flood process with FSurplus
+
+        hmxflood->Drc = std::max(0.0, WHrunoff->Drc + hmx->Drc - minReportFloodHeight);
+        WHrunoffOutput->Drc = std::min(WHrunoff->Drc + hmx->Drc, minReportFloodHeight);
+
+        WaterVolall->Drc = DX->Drc * (WHrunoff->Drc*ChannelAdj->Drc + hmx->Drc * ChannelAdj->Drc
+                                      + WHstore->Drc*SoilWidthDX->Drc);
+        // all water on surface
+
+        FloodWaterVol->Drc = hmxflood->Drc*ChannelAdj->Drc*DX->Drc;
+        RunoffWaterVol->Drc = WHrunoffOutput->Drc*ChannelAdj->Drc*DX->Drc;
     }
 
-    FloodMaxandTiming(WH, V, minReportFloodHeight);
+    FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
 
     if(SwitchErosion)
     {
@@ -418,12 +440,7 @@ void TWorld::ChannelFlood(void)
 //                Qsn->Drc = Conc->Drc*Qn->Drc;
 //            }
         }
-
-
-
-
     }
-    FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
 
     double area = nrFloodedCells*_dx*_dx;
     if (area > 0)

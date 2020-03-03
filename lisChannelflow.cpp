@@ -197,7 +197,13 @@ void TWorld::ChannelAddBaseandRain(int thread)
     {
         if(!pcr::isMV(LDDChannel->Drc))
         {
-            ChannelWH->Drc = 0;
+          //  ChannelWH->Drc = 0;
+            // subtract infiltration
+            if (SwitchChannelInfil) {
+                double inf = std::min(ChannelWaterVol->Drc, ChannelKsat->Drc*_dt/3600000.0 * ChannelWidth->Drc * ChannelDX->Drc);
+               ChannelWaterVol->Drc -= inf;
+               ChannelInfilVol->Drc += inf;
+            }
 
             //add baseflow
             if(SwitchChannelBaseflow)
@@ -246,7 +252,12 @@ void TWorld::ChannelAddBaseandRainNT(void)
     // calculate new channel WH , WidthUp and Volume
     FOR_ROW_COL_MV_CH
     {
-       // ChannelWH->Drc = 0;
+        // subtract infiltration
+        if (SwitchChannelInfil) {
+            double inf = std::min(ChannelWaterVol->Drc, ChannelKsat->Drc*_dt/3600000.0 * ChannelWidth->Drc * ChannelDX->Drc);
+           ChannelWaterVol->Drc -= inf;
+           ChannelInfilVol->Drc = inf;
+        }
 
         //add baseflow
         if(SwitchChannelBaseflow)
@@ -277,17 +288,15 @@ void TWorld::ChannelWaterHeightFromVolumeNT(void)
 
     FOR_ROW_COL_MV_CH
     {
-        if(!pcr::isMV(LDDChannel->Drc))
+        // calculate ChannelWH
+        if (ChannelSide->Drc == 0) // rectangular channel
         {
-            // calculate ChannelWH
-            if (ChannelSide->Drc == 0) // rectangular channel
-            {
-                ChannelFlowWidth->Drc = ChannelWidth->Drc;
-                ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
-            }
-            else
-            {
-                /*
+            ChannelFlowWidth->Drc = ChannelWidth->Drc;
+            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+        }
+        else
+        {
+            /*
                  non-rectangular, ABC fornula
                dw      w       dw
        \  |            |  /
@@ -300,20 +309,19 @@ void TWorld::ChannelWaterHeightFromVolumeNT(void)
        tan(a)h^2 + wh - area = 0
        aa (h2)   +   bb(h) +  cc = 0
     */
-                double aa = ChannelSide->Drc;  //=tan(a)
-                double bb = ChannelWidth->Drc; //=w
-                double cc = -ChannelWaterVol->Drc/ChannelDX->Drc; //=area
+            double aa = ChannelSide->Drc;  //=tan(a)
+            double bb = ChannelWidth->Drc; //=w
+            double cc = -ChannelWaterVol->Drc/ChannelDX->Drc; //=area
 
-                ChannelWH->Drc = (-bb + sqrt(bb*bb - 4.0*aa*cc))/(2.0*aa);
+            ChannelWH->Drc = (-bb + sqrt(bb*bb - 4.0*aa*cc))/(2.0*aa);
 
-                if (ChannelWH->Drc < 0)
-                {
-                    ErrorString = QString("channel water height is negative at row %1, col %2").arg(r).arg(c);
-                    throw 1;
-                }
-
-                ChannelFlowWidth->Drc = std::min(ChannelWidthMax->Drc , ChannelWidth->Drc + 2.0*ChannelSide->Drc*ChannelWH->Drc);
+            if (ChannelWH->Drc < 0)
+            {
+                ErrorString = QString("channel water height is negative at row %1, col %2").arg(r).arg(c);
+                throw 1;
             }
+
+            ChannelFlowWidth->Drc = std::min(ChannelWidthMax->Drc , ChannelWidth->Drc + 2.0*ChannelSide->Drc*ChannelWH->Drc);
         }
     }
 }
@@ -380,12 +388,12 @@ void TWorld::ChannelFlow(void)
     {
         ChannelQsn->Drc = 0;
         Channelq->Drc = 0;
-        if (SwitchChannelInfil)
-        {
-            // NOTE: for buffers channelksat = 0
-            Channelq->Drc =  -(ChannelKsat->Drc *  ChannelPerimeter->Drc/3600000.0);
-            //mm/h / 1000 = m/h / 3600 = m/s * m = m2/s
-        }
+//        if (SwitchChannelInfil)
+//        {
+//            // NOTE: for buffers channelksat = 0
+//            Channelq->Drc =  -(ChannelKsat->Drc *  ChannelPerimeter->Drc/3600000.0);
+//            //mm/h / 1000 = m/h / 3600 = m/s * m = m2/s
+//        }
     }
 
     //VJ calc concentrations and ingoing Qs

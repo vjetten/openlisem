@@ -48,14 +48,9 @@ void TWorld::Totals(void)
 
     /***** WATER *****/
 
-    FOR_ROW_COL_MV
-    {
-        if (SwitchKinematic2D < 3)
-              WHmax->Drc = std::max(WHmax->Drc, WH->Drc + hmx->Drc);
-        else
-              WHmax->Drc = std::max(WHmax->Drc, std::max(WH->Drc, hmx->Drc));
+    FOR_ROW_COL_MV {
+        WHmax->Drc = std::max(WHmax->Drc, hmxWH->Drc);
     }
-
 
     //=== precipitation ===//
     if (SwitchRainfall)
@@ -93,12 +88,6 @@ void TWorld::Totals(void)
     IntercTot = mapTotal(*Interc);
     IntercTotmm = IntercTot*catchmentAreaFlatMM;
     // interception in mm and m3
-
-    //==== ETa ==========//
- //   ETaTot = mapTotal(*ETa);
-  //  ETaTotmm = ETaTot*catchmentAreaFlatMM;
-    // interception in mm and m3
-
     //Litter
     IntercLitterTot = mapTotal(*LInterc);
     IntercLitterTotmm = IntercLitterTot*catchmentAreaFlatMM;
@@ -113,8 +102,14 @@ void TWorld::Totals(void)
         // for screen output only
     }
 
+
+    //==== ETa ==========//
+    //   ETaTot = mapTotal(*ETa);
+    //  ETaTotmm = ETaTot*catchmentAreaFlatMM;
+    // interception in mm and m3
+
     //=== infiltration ===//
-    InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave);// + mapTotal(*InfilVolFlood); //m3
+    InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave) + mapTotal(*ChannelInfilVol);// + mapTotal(*InfilVolFlood); //m3
 
     InfilKWTot += mapTotal(*InfilVolKinWave); // not really used, available for output when needed
     InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
@@ -122,24 +117,20 @@ void TWorld::Totals(void)
 
     // flood infil
     // used for reporting only
-    FOR_ROW_COL_MV
-    {
-        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc;
-        // infilvolflood is 0 when 2Ddyn
+    FOR_ROW_COL_MV {
+        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc + ChannelInfilVol->Drc;
         InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));
         PercmmCum->Drc += Perc->Drc*1000.0;
     }
 
     //=== surf store ===//
-    fill(*tm, 0);
-    calcMapValue(*tm, *WHstore, 1000, MUL); //mm
+
     double SStot = 0;
-    FOR_ROW_COL_MV
-    {
+    FOR_ROW_COL_MV {
         SStot += WHstore->Drc * SoilWidthDX->Drc*DX->Drc;
     }
     SurfStoremm = SStot * catchmentAreaFlatMM;
-    // surface storage CHECK THIS
+
     // does not go to MB, is already in tot water vol
 
     //TODO: check init WH
@@ -151,28 +142,26 @@ void TWorld::Totals(void)
     }
 
     //=== surface flow ===//   
+    WaterVolTot = mapTotal(*WaterVolall);//m3
+    WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; // => not used
+    //All water on surface
 
     floodVolTot = mapTotal(*FloodWaterVol);
     floodVolTotmm = floodVolTot * catchmentAreaFlatMM; // to mm
+    // flood water above user defined threshold
 
-    WaterVolTot = mapTotal(*WaterVolall);//m3
-    WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
-    if (SwitchKinematic2D == K2D_METHOD_KINDYN)
-       WaterVolTot += floodVolTot;
-    // in KINDYN the flood and ro are really split spatially so the flood vol is added here
-
-    // split into runoff and flood for screen reporting
-    WaterVolRunoffmm = 0;
-    WaterVolRunoffmm_F = 0;
-    FOR_ROW_COL_MV
-    {
-        WaterVolRunoffmm += WHrunoff->Drc * ChannelAdj->Drc * DX->Drc;
-        WaterVolRunoffmm_F += std::min(WHrunoff->Drc,minReportFloodHeight) * ChannelAdj->Drc * DX->Drc;
+    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
+       WaterVolRunoffmm = mapTotal(*RunoffWaterVol)* catchmentAreaFlatMM;//m3
+       // runoff water below user defined threshold
+    } else {
+        WaterVolRunoffmm = 0;
+        FOR_ROW_COL_MV {
+            WaterVolRunoffmm += WHrunoff->Drc * ChannelAdj->Drc * DX->Drc;
+        }
+        WaterVolRunoffmm *= catchmentAreaFlatMM;
     }
-    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN)
-       WaterVolRunoffmm = WaterVolRunoffmm_F;
-    WaterVolRunoffmm *= catchmentAreaFlatMM;
-    // water on the surface in runoff mm
+    // water on the surface in runoff in mm
+
 
     // runoff fraction per cell calc as in-out/rainfall, indication of sinks and sources of runoff
     // exclude channel cells
@@ -193,44 +182,46 @@ void TWorld::Totals(void)
         // recalc in mm for screen output
     }
 
-
-    // we have now:
-    // WaterVolTot and WaterVolTotmm
-    // ChannelVolTot and ChannelVolTotmm
-    // floodVolTot and floodVolTotmm
-
     //=== all discharges ===//
     QtotT = 0;
     // sum all outflow in m3 for this timestep, Qtot is for all timesteps!
 
-    // Add overland flow
-    if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
-    {
+    // Add overland flow, do this even for 2D dyn wave
+    if(SwitchKinematic2D != K2D_METHOD_DYN) {
         FOR_ROW_COL_MV
         {
-            if (LDD->Drc == 5)
+            if (LDD->Drc == 5) {
                 QtotT += Qn->Drc*_dt;
+            }
         }
     }
-    // sum outflow m3 for all timesteps for all outlets, in m3
-    // needed for mass balance
+
+    Qfloodout = 0;
+    if(SwitchKinematic2D == K2D_METHOD_KINDYN)
+    {
+        FOR_ROW_COL_MV {
+            if (LDD->Drc == 5) {
+                Qfloodout += Qflood->Drc * _dt;
+            }
+        }
+        QfloodoutTot += Qfloodout;
+    }
 
     // add channel outflow
     if (SwitchIncludeChannel)
     {
         FOR_ROW_COL_MV_CH
         {
-            if (LDDChannel->Drc == 5)
+            if (LDDChannel->Drc == 5) {
                 QtotT += ChannelQn->Drc*_dt; //m3
+            }
 
             ChannelQntot->Drc += ChannelQn->Drc*_dt;
             //cumulative m3 spatial for .map output
         }
         // add channel outflow (in m3) to total for all pits
-        // recalc in mm for screen output
     }
 
-//TODO: stormdrains versus tile agriculture
     if(SwitchIncludeStormDrains) {
         FOR_ROW_COL_MV_TILE
                 if (LDDTile->Drc == 5)
@@ -249,12 +240,6 @@ void TWorld::Totals(void)
             // tm->calcV(_dx, MUL); //in m3 ??? or DX?
             TileVolTot += mapTotal(*tm); // in m3
 
-            // water after kin wave
-            //WaterVolTot += mapTotal(*TileWaterVol); //m3
-            // add tile vol to total
-            //WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; //mm
-            // recalc in mm for screen output
-
             FOR_ROW_COL_MV_TILE
                     if (LDDTile->Drc == 5)
             {
@@ -263,26 +248,24 @@ void TWorld::Totals(void)
             }
 
             // add tile outflow (in m3) to total for all pits
-
-            //QtotOutlet += TileQn->DrcOutlet * _dt;  obsolete, now Qtot-
-            // add Tile outflow (in m3) to total for main outlet
         }
     }
 
-    // output fluxes for reporting to file and screen in l/s!
+    floodBoundaryTot += K2DQOutBoun*_dt;
+    FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
+    // 2D boundary losses, ALWAYS INCLUDES LDD=5 and channelLDD=5
+    QtotT += K2DQOutBoun*_dt;
+
+    // output fluxes for reporting to file and screen in l/s!]
     FOR_ROW_COL_MV
     {
-        Qoutput->Drc = 1000*(Qn->Drc + ChannelQn->Drc + Qflood->Drc + K2DQOutBoun);// in l/s
+        Qoutput->Drc = 1000.0*(Qn->Drc + ChannelQn->Drc + Qflood->Drc);// in l/s
+    //    if(LDD->Drc == 5)
+     //   qDebug() << Qoutput->Drc << QtotT*1000/_dt << Qfloodout/_dt;
     }
 
     // Total outflow in m3 for all timesteps
     // does NOT include flood water leaving domain (floodBoundaryTot)
-
-    floodBoundaryTot += K2DQOutBoun;
-    FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
-    // flood boundary losses are done separately in MB
-
-    QtotT += K2DQOutBoun; // boundary flow 2D
 
     Qtot += QtotT;
     // add timestep total to run total
@@ -360,7 +343,7 @@ void TWorld::Totals(void)
         // variables are valid for both 1D and 2D flow dyn and diff
         FOR_ROW_COL_MV
         {
-            Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // in kg/s
+            Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc + K2DQ->Drc;  // in kg/s
             // for reporting sed discharge screen
         }
 
@@ -455,7 +438,7 @@ void TWorld::MassBalance()
         double waterout = ETaTot;
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot;
         double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;
-        //is already in qtot : floodBoundaryTot ;//
+
 
         MB = waterin > 0 ? (waterin - waterout - waterstore - waterflow)/waterin *100 : 0;
      //   qDebug() << MB << waterin << waterstore << waterflow;

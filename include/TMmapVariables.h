@@ -74,7 +74,7 @@ cTMap
 *WH,                         //!< water height on the surface [m]
 *WHbef,                      //!< water height on the surface before infiltration [m]
 *WHroad,                     //!< water height on the roads [m]
-*WHhard,                     //!< water height on the roads [m]
+*WHrunoffOutput,                     //!< water height on the roads [m]
 *WHrunoff,                   //!< water height available for runoff [m]
 *WHmax,                      //!< max runoff wh in m for reporting
 *WHstore,                    //!< water heigth stored in micro depressions [m]
@@ -233,6 +233,8 @@ cTMap
 *fpot,                       //!< potential infiltration rate [m/s]
 *InfilVolKinWave,            //!< volume infiltrated in the kin wave (slope and channel) in this timestep [m^3]
 *InfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
+*ChannelInfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
+
 *InfilVolCum,                //!< cumulative infiltration volume for mass balance and map report [m^3]
 *InfilmmCum,                 //!< cumulative infiltration volume for map report and drawing [mm]
 *InfilVolFlood,
@@ -352,6 +354,8 @@ cTMap
 *ChannelMaxQ,                //!<
 //*ChannelLevee,                //!<
 *FloodWaterVol,                //!<
+*RunoffWaterVol,                //!<
+
 //*FloodZonePotential,                //!<
 *DomainEdge,                //!<
 *FloodDT,

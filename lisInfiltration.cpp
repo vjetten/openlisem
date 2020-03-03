@@ -410,7 +410,7 @@ void TWorld::InfilMethodsNew(int thread)
         fact->Drc = std::min(fpot->Drc, fwh);
         // actual infil in m, cannot have more infil than water on the surface
 
-        fact->Drc = IncreaseInfiltrationDepthNew(r, c);//, fact1, &L1->Drc, &L2->Drc, &FFull->Drc);
+        fact->Drc = IncreaseInfiltrationDepthNew(r, c);
         // adjust fact and increase L1 and L2, for twolayer, impermeable etc
 
         // adjust the WH in the correct domain with new fact

@@ -58,6 +58,7 @@ void lisemqt::runmodel()
 
     rivers.clear();
     culverts.clear();
+    outlets.clear();
     op.ChanDataX.clear();
     op.ChanDataY.clear();
     op.Chanbranch.clear();
@@ -341,7 +342,7 @@ void lisemqt::initOP()
     op.FloodTotMax = 0;
     op.FloodAreaMax = 0;
     op.BaseFlowtotmm = 0;
-    op.LitterStorageTotmm = 0;
+    op.IntercLitterTotmm = 0;
     op.WaterVolTotchannelmm = 0;
     op.Pmm = 0;
     op.Qtotmm = 0;

@@ -214,9 +214,9 @@ void TWorld::doETa(int thread)
             tmp = hmx->Drc;
             hmx->Drc = std::max(0.0, hmx->Drc-ETa_pond );
             tmp = tmp - hmx->Drc;
-            FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
-            hmxWH->Drc = hmx->Drc;   //hmxWH is all water
-            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+//            FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+//            hmxWH->Drc = hmx->Drc;   //hmxWH is all water
+//            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
         }
         else {
             tmp = WHrunoff->Drc;
@@ -226,9 +226,9 @@ void TWorld::doETa(int thread)
             WHroad->Drc = WHrunoff->Drc;
             WHGrass->Drc = WHrunoff->Drc;
             WH->Drc = WHrunoff->Drc + WHstore->Drc;
-            hmxWH->Drc = WH->Drc;
-            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
-            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+//            hmxWH->Drc = WH->Drc;
+//            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
+//            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
         }
         tot = tot + tmp;
 

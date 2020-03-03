@@ -233,7 +233,7 @@ void lisemqt::resizeEvent(QResizeEvent* event)
     {
         groupBox_drawMap->setVisible(true);
         groupBox_info->setVisible(true);
-        //    tabWidget_out->setIconSize(QSize(32,32));
+        tabWidget_out->setIconSize(QSize(32,32));
     }
     else
     {
@@ -248,7 +248,7 @@ void lisemqt::resizeEvent(QResizeEvent* event)
             groupBox_info->setVisible(false);
         }
 
-        //  tabWidget_out->setIconSize(QSize(16,16));
+        tabWidget_out->setIconSize(QSize(16,16));
     }
 }
 //--------------------------------------------------------------------
@@ -600,7 +600,7 @@ void lisemqt::setFloodTab(bool yes)
     label_floodVolmm->setEnabled(yes);
     label_107->setEnabled(yes);
 
-    if (checkOverlandFlow2Ddyn->isChecked()) {
+    if (checkOverlandFlow2Ddyn->isChecked() || checkOverlandFlow2Dkindyn->isChecked()) {
         label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
         label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
     }
@@ -734,7 +734,7 @@ void lisemqt::setWriteOutputPCR(bool /* doit */)
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()
 {
- //   toolBar->setIconSize(QSize(24,24));
+    toolBar->setIconSize(QSize(24,24));
 
     //r
     restartAct = new QAction(QIcon(":/2X/reset.png"), "&Reset...", this);
@@ -742,7 +742,6 @@ void lisemqt::SetToolBar()
     toolBar->addAction(restartAct);
     toolBar->addSeparator();
 
- //   openAct = new QAction(QIcon(":/2X/fileopen2X.png"), "&Open a run file...", this);
     openAct = new QAction(QIcon(":/2X/Folder-Open-icon.png"), "&Open a run file...", this);
     openAct->setShortcuts(QKeySequence::Open);
     openAct->setStatusTip("Open a run file");
@@ -777,15 +776,14 @@ void lisemqt::SetToolBar()
     //    connect(fontAct, SIGNAL(triggered()), this, SLOT(fontSelect()));
     //    toolBar->addAction(fontAct);
 
-//    fontIncreaseAct = new QAction(QIcon(":/2X/fontbigger2X.png"), "&Increase font size", this);
-//    connect(fontIncreaseAct, SIGNAL(triggered()), this, SLOT(fontIncrease()));
-//    toolBar->addAction(fontIncreaseAct);
-//    fontDecreaseAct = new QAction(QIcon(":/2X/fontsmaller2X.png"), "&Decrease font size", this);
-//    connect(fontDecreaseAct, SIGNAL(triggered()), this, SLOT(fontDecrease()));
-//    toolBar->addAction(fontDecreaseAct);
+    fontIncreaseAct = new QAction(QIcon(":/2X/fontbigger2X.png"), "&Increase font size", this);
+    connect(fontIncreaseAct, SIGNAL(triggered()), this, SLOT(fontIncrease()));
+    toolBar->addAction(fontIncreaseAct);
+    fontDecreaseAct = new QAction(QIcon(":/2X/fontsmaller2X.png"), "&Decrease font size", this);
+    connect(fontDecreaseAct, SIGNAL(triggered()), this, SLOT(fontDecrease()));
+    toolBar->addAction(fontDecreaseAct);
 
     toolBar->addSeparator();
-//start12X.png pause22X.png stop12X.png
     runAct = new QAction(QIcon(":/2X/play-icon.png"), "Run model...", this);
     runAct->setStatusTip("run the model ...");
     runAct->setCheckable(true);
@@ -836,7 +834,7 @@ void lisemqt::SetToolBar()
     connect(transparencyBarrier, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaBarrier(int)));
     connect(transparencyMap, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaMap(int)));
     connect(showRiverSize, SIGNAL(sliderMoved(int)),this,SLOT(ssetAlphaChannel(int)));
-    connect(spinCulvertSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
+    connect(spinCulvertSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannelOutlet(int)));
     connect(toolShowMapDisplay, SIGNAL(pressed()),this,SLOT(showMapSettings()));
 }
 //---------------------------------------------------------------------------
@@ -1075,27 +1073,7 @@ void lisemqt::setResultDir()
     if(!path.isEmpty())
         E_ResultDir->setText( path );
 }
-//--------------------------------------------------------------------
-void lisemqt::on_checkOverlandFlow2Ddyn_stateChanged(int)
-{
-//    bool yes = true;
 
-//    if (checkOverlandFlow1D->isChecked())// && !checkIncludeChannel->isChecked())
-//        yes = false;
-
-//    if (checkOverlandFlow2Ddyn->isChecked()) {
-//        label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
-//        label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
-
-//    }
-//    else
-//    {
-//        label_107->setText("Flood mm");
-//        label_40->setText("Runoff mm");
-//    }
-//    label_floodVolmm->setEnabled(yes);
-//    label_107->setEnabled(yes);
-}
 //--------------------------------------------------------------------
 void lisemqt::on_E_floodMinHeight_valueChanged(double)
 {
@@ -1104,7 +1082,7 @@ void lisemqt::on_E_floodMinHeight_valueChanged(double)
 //    if (checkOverlandFlow1D->isChecked())// && !checkIncludeChannel->isChecked())
 //        yes = false;
 
-//    if (checkOverlandFlow2Ddyn->isChecked()) {
+//    if (checkOverlandFlow2Ddyn->isChecked()  || checkOverlandFlow2Dkindyn->isChecked()) {
         label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
         label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
 
@@ -1935,7 +1913,6 @@ void lisemqt::fontDecrease()
 void lisemqt::fontIncrease()
 {
     genfontsize++;
-//    genfontsize = std::max(5, genfontsize);
     genfontsize = std::min(18, genfontsize);
     setfontSize();
 }
@@ -1957,7 +1934,7 @@ void lisemqt::setfontSize()
                                 QToolButton {font: %1px;}\
                                 QTabBar { font: %1px;}\
     ").arg(fs*dpiscale));
-                                /*
+/*
    QString tabstyle = QString("\
                               QTabBar::tab {min-width: 20ex; padding: 3px;}\
                               QTabBar::tab {border: 1px solid #C4C4C3;border-bottom-color: #C2C7CB; border-top-left-radius: 4px;border-top-right-radius: 4px; }\
@@ -1970,7 +1947,7 @@ void lisemqt::setfontSize()
                               QTabBar::tab:last:selected {margin-right: 0; }\
                                ");
    tabWidgetOptions->setStyleSheet(tabstyle);
-                              */
+*/
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetSediment_clicked()

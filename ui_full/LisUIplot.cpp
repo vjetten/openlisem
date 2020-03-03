@@ -424,7 +424,6 @@ void lisemqt::initOutputData()
 // max 6 line text output below hydrographs
 void lisemqt::SetTextHydrographs()
 {
-    //    if(!checkNoErosion->isChecked())
     textGraph->clear();
 
     if(OutletQ.length() == 0)
@@ -530,7 +529,7 @@ void lisemqt::showOutputData()
     label_qtot->setText(QString::number(op.Qtotmm,'f',dig));
     label_infiltot->setText(QString::number(op.InfilTotmm,'f',dig));
     label_surfstor->setText(QString::number(op.SurfStormm,'f',dig));
-    label_interctot->setText(QString::number(op.IntercTotmm+op.IntercHouseTotmm+op.LitterStorageTotmm,'f',dig));
+    label_interctot->setText(QString::number(op.IntercTotmm+op.IntercHouseTotmm+op.IntercLitterTotmm,'f',dig));
     if (checkOverlandFlow1D->isChecked() && !checkIncludeChannel->isChecked())
         label_floodVolmm->setText(QString::number(0,'f',dig));
     else

@@ -92,7 +92,7 @@ void TWorld::Wrapper_StoreAll(int not_used)
     TSList_snowav.append(SnowIntavg);
 
 
-    TSList_q.append((QtotT * 1000.0/_dt));
+    TSList_q.append((QtotT+Qfloodout) * 1000.0/_dt);
     if(SwitchIncludeChannel)
     {
         double channelwh = 0;
@@ -171,7 +171,7 @@ void TWorld::OutputUI(void)
 
     //hydrographs
     op.timestep = this->_dt/60.0;
-    op.OutletQ.at(0)->append((QtotT * 1000.0/_dt)); //QtotT is in m3
+    op.OutletQ.at(0)->append((QtotT) * 1000.0/_dt); //QtotT is in m3
     op.OutletQs.at(0)->append(SoilLossTotT);
     op.OutletC.at(0)->append((QtotT) > MIN_FLUX? SoilLossTotT/(QtotT) : 0);
     op.OutletQtot.replace(0,Qtot);
@@ -189,10 +189,8 @@ void TWorld::OutputUI(void)
     {
         int r = op.OutletLocationX.at(j);
         int c = op.OutletLocationY.at(j);
-
-        double discharge = Qoutput->Drc; //sum of current Qn, ChannelQn, TileQn in l/s
-        double sedimentdischarge = SwitchErosion? Qsoutput->Drc * _dt : 0.0;
-        // when diff this does not include flood sed discharge!
+        double discharge = Qoutput->Drc; //sum of current Qn, ChannelQn, Qflood in l/s, not Tile!
+        double sedimentdischarge = SwitchErosion? Qsoutput->Drc  : 0.0; // in kg/s   * _dt
         double sedimentconcentration = SwitchErosion? TotalConc->Drc : 0.0;
         double channelwh = SwitchIncludeChannel? ChannelWH->Drc : 0.0;
 
@@ -252,7 +250,7 @@ void TWorld::OutputUI(void)
             COMBO_VOFCH->Drc = 0;
     }
     FOR_ROW_COL_MV {
-        VH->Drc = COMBO_VOFCH->Drc * hmxWH->Drc;
+        VH->Drc = V->Drc * hmxWH->Drc;
     }
 
     if(SwitchErosion)
@@ -342,7 +340,7 @@ void TWorld::OutputUI(void)
     op.SurfStormm = SurfStoremm;
 
     op.IntercTotmm = IntercTotmm;
-    op.LitterStorageTotmm = IntercLitterTotmm;
+    op.IntercLitterTotmm = IntercLitterTotmm;
     op.IntercHouseTotmm = IntercHouseTotmm;
 
     op.RunoffFraction = 0;
@@ -356,8 +354,9 @@ void TWorld::OutputUI(void)
     op.FloodTotMax = floodVolTotMax;
     op.FloodAreaMax = floodAreaMax;
 
-    op.Qtotmm = Qtotmm;// + FloodBoundarymm;
-    op.Qtot = Qtot; // all outflow through channeland runoff for all open and outlets boundaries
+    op.Qtotmm = Qtotmm;
+    op.Qtot = Qtot; // all outflow through channel and runoff for all open and outlets boundaries
+
     op.floodBoundaryTot = floodBoundaryTot;
     op.Qtile = QTiletot*1000.0/_dt;  //average tile output over all tile outlets as a flox in l/s
     op.Qtiletot = QTiletot;  //average tile output over all tile outlets as a flux in m3/s
@@ -378,10 +377,6 @@ void TWorld::OutputUI(void)
     op.FloodSedTot = FloodSedTot*0.001;
     op.SoilLossTot = (SoilLossTot)*0.001; // convert from kg to ton
     op.floodBoundarySedTot = floodBoundarySedTot; // not used
-
-
-
-
 }
 //---------------------------------------------------------------------------
 /** reporting timeseries for every non zero point PointMap
@@ -691,40 +686,49 @@ void TWorld::ReportTotalsNew(void)
     out.setRealNumberPrecision(9);
     out.setFieldWidth(16);
     out.setRealNumberNotation(QTextStream::FixedNotation);
-    out << "\"LISEM run with:," << op.runfilename << "\"\n";
-    out << "\"LISEM results at time (min):," << op.time <<"\"\n";
-    out << "\"Catchment area              (ha):\"," << op.CatchmentArea/10000.0<< "\n";
-    out << "\"Total Precipitation         (mm):\"," << op.RainTotmm<< "\n";
-    //out << "\"Total discharge             (mm):\"," << op.Qtotmm<< "\n";
-    out << "\"Total interception          (mm):\"," << op.IntercTotmm<< "\n";
-    out << "\"Total House interception    (mm):\"," << op.IntercHouseTotmm<< "\n";
-    out << "\"Total infiltration          (mm):\"," << op.InfilTotmm<< "\n";
-    out << "\"Surface storage             (mm):\"," << op.SurfStormm<< "\n";
-    out << "\"Storm Drain                 (mm):\"," << op.StormDrainTotmm<< "\n";
-    out << "\"Water in overland flow      (mm):\"," << op.WaterVolTotmm<< "\n";
-    out << "\"Water in flood              (mm):\"," << op.volFloodmm<< "\n";
-    out << "\"Water in channels           (mm):\"," << op.ChannelVolTotmm<< "\n";
-    out << "\"Total outflow (all flows)   (mm):\"," << op.Qtotmm<< "\n";
-    // out << "\"Total baseflow              (mm):\"," << op.BaseFlowtotmm<< "\n";
-    out << "\"Total channel+OF discharge  (m3):\"," << op.Qtot<< "\n";
-    out << "\"Total flood discharge       (m3):\"," << op.floodBoundaryTot<< "\n";
+    out << "\"LISEM run with:\"," << op.runfilename << "\n";
+    out << "\"LISEM results at time (min):\"," << op.time <<"\n";
+    out << "\"Catchment area (ha):\"," << op.CatchmentArea/10000.0<< "\n";
+    out << "\"Total Precipitation (mm):\"," << op.RainTotmm<< "\n";
+    out << "\"Total interception(mm):\"," << op.IntercTotmm<< "\n";
+    out << "\"Total Litter interception (mm):\"," << op.IntercLitterTotmm<< "\n";
+    out << "\"Total House interception (mm):\"," << op.IntercHouseTotmm<< "\n";
+    out << "\"Total infiltration (mm):\"," << op.InfilTotmm<< "\n";
+    out << "\"Surface storage (mm):\"," << op.SurfStormm<< "\n";
+    out << "\"Storm Drain (mm):\"," << op.StormDrainTotmm<< "\n";
+    if (SwitchKinematic2D == K2D_METHOD_KIN) {
+        out << "\"Water in overland flow (mm):\"," << op.WaterVolTotmm<< "\n";
+        out << "\"Water in flood (mm):\"," << 0.0 << "\n";
+    } else {
+       out << QString("\"Water in overland flow (h<%1)(mm)):\",%2\n").arg(minReportFloodHeight*1000).arg(op.WaterVolTotmm);
+       out << QString("\"Water in flood (h>%1) (mm)):\",%2\n").arg(minReportFloodHeight*1000).arg(op.volFloodmm);
+    }
+    out << "\"Water in channels (mm):\"," << op.ChannelVolTotmm<< "\n";
+    out << "\"Total outflow (all flows) (mm):\"," << op.Qtotmm<< "\n";
+    out << "\n";
+    out << "\"Total channel+OF discharg (m3):\"," << op.Qtot<< "\n";
+    out << "\"Total flood discharge (m3):\"," << op.floodBoundaryTot<< "\n";
     out << "\"Total storm drain discharge (m3):\"," << op.Qtiletot<< "\n";
-    out << "\"Peak time precipitation    (min):\"," << op.RainpeakTime<< "\n";
-    out << "\"Peak discharge/Precipitation (%):\"," << op.RunoffFraction*100<< "\n";
-    out << "\"Flood volume (max level)    (m3):\"," << op.FloodTotMax<< "\n";
-    out << "\"Flood area (max level)      (m2):\"," << op.FloodAreaMax<< "\n";
-    out << "\"Splash detachment (land)   (ton):\"," << op.DetTotSplash<< "\n";
-    out << "\"Flow detachment (land)     (ton):\"," << op.DetTotFlow<< "\n";
-    out << "\"Deposition (land)          (ton):\"," << op.DepTot<< "\n";
-    out << "\"Suspended Sediment (land)  (ton):\"," << op.SedTot<< "\n";
-    out << "\"Flow detachment (channels) (ton):\"," << op.ChannelDetTot<< "\n";
-    out << "\"Deposition (channels)      (ton):\"," << op.ChannelDepTot<< "\n";
-    out << "\"Susp. Sediment (channels)  (ton):\"," << op.ChannelSedTot<< "\n";
-    out << "\"Flow detachment (flood)    (ton):\"," << op.FloodDetTot<< "\n";
-    out << "\"Deposition (flood)         (ton):\"," << op.FloodDepTot<< "\n";
-    out << "\"Susp. Sediment (flood   )  (ton):\"," << op.FloodSedTot<< "\n";
-    out << "\"Total soil loss            (ton):\"," << op.SoilLossTot<< "\n";
-    out << "\"Average soil loss        (kg/ha):\"," << (op.SoilLossTot*1000.0)/(op.CatchmentArea/10000.0)<< "\n";
+    out << "\"Peak time precipitation (min):\"," << op.RainpeakTime<< "\n";
+    out << "\"Total discharge/Precipitation (%):\"," << op.RunoffFraction*100<< "\n";
+    out << "\"Flood volume (max level) (m3):\"," << op.FloodTotMax<< "\n";
+    out << "\"Flood area (max level) (m2):\"," << op.FloodAreaMax<< "\n";
+    if (SwitchErosion) {
+        out << "\n";
+        out << "\"Splash detachment (land) (ton):\"," << op.DetTotSplash<< "\n";
+        out << "\"Flow detachment (land) (ton):\"," << op.DetTotFlow<< "\n";
+        out << "\"Deposition (land) (ton):\"," << op.DepTot<< "\n";
+        out << "\"Sediment (land) (ton):\"," << op.SedTot<< "\n";
+        out << "\"Flow detachment (channels) (ton):\"," << op.ChannelDetTot<< "\n";
+        out << "\"Deposition (channels) (ton):\"," << op.ChannelDepTot<< "\n";
+        out << "\"Sediment (channels) (ton):\"," << op.ChannelSedTot<< "\n";
+        out << "\"Flow detachment (flood) (ton):\"," << op.FloodDetTot<< "\n";
+        out << "\"Deposition (flood) (ton):\"," << op.FloodDepTot<< "\n";
+        out << "\"Susp. Sediment (flood) (ton):\"," << op.FloodSedTot<< "\n";
+        out << "\"Total soil loss (ton):\"," << op.SoilLossTot<< "\n";
+        out << "\"Average soil loss (kg/ha):\"," << (op.SoilLossTot*1000.0)/(op.CatchmentArea/10000.0)<< "\n";
+        out << "\n";
+    }
     for(int i = 0; i< op.OutletQpeak.length();i++)
     {
         out << "\"Peak discharge for outlet " + QString::number(i) +" (l/s):\"," << op.OutletQpeak.at(i)<< "\n";
@@ -783,7 +787,6 @@ void TWorld::ReportMaps(void)
     //===== SEDIMENT =====
     if(SwitchErosion)
     {
-        QString unit = "kg/cell";
         double factor = 1.0;
         if(ErosionUnits == 2)
             factor = 1.0/(_dx*_dx);  //kg/m2
@@ -1104,8 +1107,8 @@ void TWorld::setupHydrographData()
     {
         if(PointMap->Drc > 0)
         {
-            nr.append(PointMap->Drc);
-            op.OutletIndices.append(PointMap->Drc);
+            nr.append((int)PointMap->Drc);
+            op.OutletIndices.append((int)PointMap->Drc);
             op.OutletLocationX.append(r);
             op.OutletLocationY.append(c);
             op.OutletQ.append(new QList<double>);
@@ -1382,8 +1385,10 @@ void TWorld::GetComboMaps()
     ClearComboMaps();
 
     setColor(1);
-//    AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);
+//    AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);Qoutput
     AddComboMap(0,"Total Discharge","l/s",Qoutput,Colormap,Colors,true,false,1.0, 1.0);
+  //  if (FlowBoundaryType > 0)
+  //  AddComboMap(0,"Boundary Discharge","l/s",K2DQ,Colormap,Colors,true,false,1000.0, 1.0);
 
     setColor(3);
     AddComboMap(0,"Water Height","m",hmxWH,Colormap,Colors,false,false,1.0,0.01);
@@ -1430,9 +1435,9 @@ void TWorld::GetComboMaps()
 
     if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
         setColor(3);
-        QString txt = QString("Flood Height");
-        if (SwitchKinematic2D == K2D_METHOD_DYN)
-            txt = QString("Flood Height, h>%1 mm").arg(minReportFloodHeight*1000);\
+      //  QString txt = QString("Flood Height");
+      //  if (SwitchKinematic2D == K2D_METHOD_DYN)
+        QString txt = QString("Flood Height, h>%1 mm").arg(minReportFloodHeight*1000);
 
         AddComboMap(0,txt,"m",hmxflood,Colormap,Colors,false,false,1.0,0.01);
         setColor(3);
