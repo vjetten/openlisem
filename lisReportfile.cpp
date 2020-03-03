@@ -697,7 +697,7 @@ void TWorld::ReportTotalsNew(void)
     out << "\"Storm Drain (mm):\"," << op.StormDrainTotmm<< "\n";
     if (SwitchKinematic2D == K2D_METHOD_KIN) {
         out << "\"Water in overland flow (mm):\"," << op.WaterVolTotmm<< "\n";
-       // out << "\"Water in flood (mm):\"," << 0.0 << "\n";
+        out << "\"Water in flood (mm):\"," << 0.0 << "\n";
     } else {
        out << QString("\"Water in overland flow (h<%1)(mm)):\",%2\n").arg(minReportFloodHeight*1000).arg(op.WaterVolTotmm);
        out << QString("\"Water in flood (h>%1) (mm)):\",%2\n").arg(minReportFloodHeight*1000).arg(op.volFloodmm);
@@ -1386,6 +1386,8 @@ void TWorld::GetComboMaps()
     setColor(1);
 //    AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);Qoutput
     AddComboMap(0,"Total Discharge","l/s",Qoutput,Colormap,Colors,true,false,1.0, 1.0);
+  //  if (FlowBoundaryType > 0)
+  //  AddComboMap(0,"Boundary Discharge","l/s",K2DQ,Colormap,Colors,true,false,1000.0, 1.0);
 
     setColor(3);
     AddComboMap(0,"Water Height","m",hmxWH,Colormap,Colors,false,false,1.0,0.01);

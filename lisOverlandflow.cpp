@@ -222,69 +222,108 @@ void TWorld::CalcVelDisch(int thread)
 }
 
 //---------------------------------------------------------------------------
-void TWorld::Boundary2Ddyn(cTMap* h, cTMap *_U, cTMap *_V)
+void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
 {
-    if (FlowBoundaryType == 0)
-        return;
+    cTMap *h = WHrunoff;
+    cTMap *Q = Qn;
+    cTMap *_U = Uflood;
+    cTMap *_V = Vflood;
 
+    if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
+        Q = Qflood;
+        h = hmx;
+    }
+
+    K2DQOutBoun = 0;
+    K2DQSOutBoun = 0;
     fill(*tma, 0);
+    fill(*K2DQ, 0);
 
     // find oulets based on DEM and WHrunoff
     dynOutflowPoints();
-    //direction of velocity is in the direction of + and -
-    // U is EW and V is NS
-    // find which outlets on the boundary are directed to the outside based on sign U and V
+
+    if (FlowBoundaryType > 0) {
+        //direction of velocity is in the direction of + and -
+        // U is EW and V is NS
+        // find which outlets on the boundary are directed to the outside based on sign U and V
+        FOR_ROW_COL_MV {
+            if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 0.0)
+            {
+                if (c > 0 && MV(r,c-1))
+                    if (_U->Drc < 0)
+                        tma->Drc = 1;
+                if (c < _nrCols-1 && MV(r,c+1))
+                    if (_U->Drc > 0)
+                        tma->Drc = 1;
+                if (r > 0 && MV(r-1,c))
+                    if (_V->Drc < 0)
+                        tma->Drc = 1;
+                if (r < _nrRows-1 && MV(r+1,c))
+                    if (_V->Drc > 0)
+                        tma->Drc = 1;
+            }
+        }
+    }
 
     FOR_ROW_COL_MV {
-        if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 0.0)
-        {
-            if (c > 0 && MV(r,c-1))
-                if (_U->Drc < 0)
-                    tma->Drc = 1;
-            if (c < _nrCols-1 && MV(r,c+1))
-                if (_U->Drc > 0)
-                    tma->Drc = 1;
-            if (r > 0 && MV(r-1,c))
-                if (_V->Drc < 0)
-                    tma->Drc = 1;
-            if (r < _nrRows-1 && MV(r+1,c))
-                if (_V->Drc > 0)
-                    tma->Drc = 1;
-        }
-        //CHECK:
-//        if (SwitchIncludeChannel)
-//             if (LDDChannel->Drc == 5)
-//                 tma->Drc = 1;
-//        if (LDD->Drc == 5)
-//            tma->Drc = 1;
-
+        if(LDD->Drc == 5)
+            tma->Drc = 1;
     }
+    if(SwitchIncludeChannel)
+    FOR_ROW_COL_MV_CH {
+        if(LDDChannel->Drc == 5)
+            tma->Drc = 1;
+    }
+
+
+    FOR_ROW_COL_MV {
+        if (tma->Drc == 1) {
+            double dy = ChannelAdj->Drc;
+            double UV = qSqrt(_U->Drc * _U->Drc + _V->Drc*_V->Drc);
+            double frac = std::min( std::max(0.0, UV*_dt/DX->Drc) , 0.9);
+            double dh = frac*h->Drc;
+            double _q = dh*DX->Drc*dy;
+
+            K2DQOutBoun += _q/_dt;
+            h->Drc -= dh;
+            K2DQ->Drc = _q/_dt;
+            Q->Drc -= _q/_dt;
+
+            if (SwitchErosion) {
+                double ds = frac * SSFlood->Drc;
+                K2DQSOutBoun += ds;
+                SSFlood->Drc -= ds;
+
+                ds = frac * BLFlood->Drc;
+                K2DQSOutBoun += ds;
+                BLFlood->Drc -= ds;
+            }
+        }
+    }
+
+
     // sum all the outflow of these points
-    K2DQOutBoun = 0;
-    K2DQSOutBoun = 0;
-    FOR_ROW_COL_MV
-        if (tma->Drc == 1)// && h->Drc > MIN_HEIGHT)
-    {
-        double dy = ChannelAdj->Drc;
-        double UV = qSqrt(_U->Drc * _U->Drc + _V->Drc*_V->Drc);
-        double frac = std::min( std::max(0.0, UV*_dt/DX->Drc) , 0.9);
-        double dh = frac*h->Drc;
-        double _q = dh*DX->Drc*dy;
+//    FOR_ROW_COL_MV {
+//        if (tma->Drc == 2) {
+//            double Qout = std::min(Q->Drc, h->Drc*(DX->Drc*ChannelAdj->Drc)/_dt);
+//            K2DQOutBoun += Qout;
+//            double hold = h->Drc;
+//            h->Drc -= Qout*_dt/(DX->Drc*ChannelAdj->Drc);
+//            //Q->Drc = Qout;
+//            K2DQ->Drc = Qout;
 
-        K2DQOutBoun += _q/_dt;
-        h->Drc -= dh;
-        //K2DQ->Drc = _q/_dt;
+//            if (SwitchErosion) {
+//                double frac = hold > 0 ? (hold-h->Drc)/hold : 0.0;
+//                double ds = frac * SSFlood->Drc;
+//                K2DQSOutBoun += ds;
+//                SSFlood->Drc -= ds;
 
-        if (SwitchErosion) {
-            double ds = frac * SSFlood->Drc;
-            K2DQSOutBoun += ds;
-            SSFlood->Drc -= ds;
-
-            ds = frac * BLFlood->Drc;
-            K2DQSOutBoun += ds;
-            BLFlood->Drc -= ds;
-        }
-    }
+//                ds = frac * BLFlood->Drc;
+//                K2DQSOutBoun += ds;
+//                BLFlood->Drc -= ds;
+//            }
+//        }
+//    }
  //   qDebug() << "K2DQOut boundary" << K2DQOutBoun << K2DQSOutBoun;
 }
 //---------------------------------------------------------------------------
@@ -307,13 +346,19 @@ void TWorld::OverlandFlow2Ddyn(void)
 
     //  infilInWave(WHrunoff, _dt);
 
-    Boundary2Ddyn(WHrunoff, Uflood, Vflood);  // do the domain boundaries
-
-
     FOR_ROW_COL_MV
     {
         V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
 
+        Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
+        Q->Drc = Qn->Drc; // just to be sure
+    }
+
+
+    Boundary2Ddyn();//WHrunoff, Qn, Uflood, Vflood);  // do the domain boundaries
+
+    FOR_ROW_COL_MV
+    {
         Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
         Q->Drc = Qn->Drc; // just to be sure
 

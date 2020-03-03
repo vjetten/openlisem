@@ -109,7 +109,7 @@ void TWorld::Totals(void)
     // interception in mm and m3
 
     //=== infiltration ===//
-    InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave);// + mapTotal(*InfilVolFlood); //m3
+    InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave) + mapTotal(*ChannelInfilVol);// + mapTotal(*InfilVolFlood); //m3
 
     InfilKWTot += mapTotal(*InfilVolKinWave); // not really used, available for output when needed
     InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
@@ -118,8 +118,7 @@ void TWorld::Totals(void)
     // flood infil
     // used for reporting only
     FOR_ROW_COL_MV {
-        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc;
-        // infilvolflood is 0 when 2Ddyn
+        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc + ChannelInfilVol->Drc;
         InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));
         PercmmCum->Drc += Perc->Drc*1000.0;
     }
@@ -200,7 +199,6 @@ void TWorld::Totals(void)
         FOR_ROW_COL_MV {
             if (LDD->Drc == 5) {
                 Qfloodout += Qflood->Drc * _dt;
-               // QtotT += Qflood->Drc * _dt;
             }
         }
         QfloodoutTot += Qfloodout;
@@ -252,8 +250,8 @@ void TWorld::Totals(void)
 
     floodBoundaryTot += K2DQOutBoun*_dt;
     FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
-    // 2D boundary losses
-    QtotT += K2DQOutBoun*_dt; // boundary flow 2D
+    // 2D boundary losses, ALWAYS INCLUDES LDD=5 and channelLDD=5
+    QtotT += K2DQOutBoun*_dt;
 
     // output fluxes for reporting to file and screen in l/s!]
     FOR_ROW_COL_MV
@@ -342,7 +340,7 @@ void TWorld::Totals(void)
         // variables are valid for both 1D and 2D flow dyn and diff
         FOR_ROW_COL_MV
         {
-            Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc;  // in kg/s
+            Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc + K2DQ->Drc;  // in kg/s
             // for reporting sed discharge screen
         }
 
@@ -436,7 +434,7 @@ void TWorld::MassBalance()
         double waterin = RainTot + SnowTot + WaterVolSoilTot + BaseFlowTot + WHinitVolTot;
         double waterout = ETaTot;
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot;
-        double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;// - QfloodoutTot;
+        double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;
 
 
         MB = waterin > 0 ? (waterin - waterout - waterstore - waterflow)/waterin *100 : 0;

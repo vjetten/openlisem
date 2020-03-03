@@ -366,18 +366,24 @@ void TWorld::ChannelFlood(void)
     ToFlood();
     // mix WHrunoff with hmx
 
-        //  threaded flooding
-    Boundary2Ddyn(hmx, Uflood, Vflood);
+    FOR_ROW_COL_MV {
+        Qflood->Drc = 0;
+        if (FloodDomain->Drc > 0) {
+            V->Drc = qSqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+            Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
+        }
+    }
+    Boundary2Ddyn();//hmx, Qflood, Uflood, Vflood);
     // boundary flow
 
     FOR_ROW_COL_MV {       
         if (FloodDomain->Drc > 0) {
-            V->Drc = qSqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+     //       V->Drc = qSqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
             Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
 
-            double R = WHrunoff->Drc*ChannelAdj->Drc/(2*WHrunoff->Drc + ChannelAdj->Drc);
-            double vv = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/N->Drc;
-            double qq  = vv * WHrunoff->Drc * ChannelAdj->Drc;
+//            double R = WHrunoff->Drc*ChannelAdj->Drc/(2*WHrunoff->Drc + ChannelAdj->Drc);
+//            double vv = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/N->Drc;
+//            double qq  = vv * WHrunoff->Drc * ChannelAdj->Drc;
 //            Qn->Drc += Qflood->Drc;
 
         }

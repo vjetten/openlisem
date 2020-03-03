@@ -58,6 +58,7 @@ void lisemqt::runmodel()
 
     rivers.clear();
     culverts.clear();
+    outlets.clear();
     op.ChanDataX.clear();
     op.ChanDataY.clear();
     op.Chanbranch.clear();

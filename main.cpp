@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
   // qputenv("QT_DEVICE_PIXEL_RATIO",QByteArray("2"));
  //   QApplication::setAttribute(Qt::AA_Use96Dpi);
  //   QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+ //  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon(":/openlisem.ico"));
     QLocale loc = QLocale::system(); // current locale

@@ -164,6 +164,7 @@ public:
     QwtPlotCurve *culvert;
     QList<QwtPlotCurve*> rivers;
     QList<QwtPlotCurve*> culverts;
+    QList<QwtPlotCurve*> outlets;
     void showRoadMap();
     void showHouseMap();
     void showFlowBarriersMap();

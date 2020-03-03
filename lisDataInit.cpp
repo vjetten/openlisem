@@ -793,6 +793,7 @@ void TWorld::InitChannel(void)
     ChannelAlpha = NewMap(0);//
     ChannelPerimeter = NewMap(0); //VJ 110109 added for channel infil
     ChannelDX = NewMap(0);
+    ChannelInfilVol = NewMap(0);
 
     hmx = NewMap(0);
     hmxflood = NewMap(0);
@@ -1574,7 +1575,7 @@ if (SwitchGrassStrip) {
     K2DOutlets = NewMap(0);
 
     //OBSOLETE diffusive wave
-    //    K2DQ = NewMap(0);
+        K2DQ = NewMap(0);
     //    K2DSlope = NewMap(0);
     //    K2DV = NewMap(0);
     //    K2DDEM = NewMap(0);
@@ -2142,18 +2143,18 @@ void TWorld::FindBaseFlow()
                         tma->Drc = 0;
                         ncells ++;
 
-                        if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
-                        {
-                            double ksat = 0;//Ksat1->Drc;
+//                        if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
+//                        {
+//                            double ksat = 0;//Ksat1->Drc;
 
-                            if(SwitchChannelInfil)
-                            {
-                                ksat = ChannelKsat->Drc;
-                            }
+//                            if(SwitchChannelInfil)
+//                            {
+//                                ksat = ChannelKsat->Drc;
+//                            }
 
-                            infiltration += (ChannelWidth->Drc) * DX->Drc * ksat *1.0/3600000.0;
-                            tmd->Drc = (ChannelWidth->Drc) * DX->Drc * ksat *1.0/3600000.0;
-                        }
+//                            infiltration += (ChannelWidth->Drc) * DX->Drc * ksat *1.0/3600000.0;
+//                            tmd->Drc = (ChannelWidth->Drc) * DX->Drc * ksat *1.0/3600000.0;
+//                        }
 
                         temp=list;
                         list=list->prev;
@@ -2618,6 +2619,7 @@ void TWorld::InitChanNetwork()
                     } /* eowhile list != nullptr */
                 }
             }  //pit 5
+
 
     FOR_ROW_COL_MV_CH {
         if (LDDChannel->Drc == 5){
