@@ -157,7 +157,7 @@ public:
     void showComboMap(int i);
 
     void showBaseMap();
-    void showChannelMap();
+    void getOutletMap();
     void showChannelVector();
 
     QwtPlotCurve *rivera;
@@ -182,6 +182,7 @@ public:
     QwtPlotSpectrogram *roadMap;  // raster map drawing
     QwtPlotSpectrogram *houseMap;  // raster map drawing
     QwtPlotSpectrogram *flowbarriersMap;
+    QwtPlotSpectrogram *outletMap;
     QwtPlot *MPlot;               // plot in which the raster map is drawn
     QwtMatrixRasterData *RD;
     QwtMatrixRasterData *RDb;

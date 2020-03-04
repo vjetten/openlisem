@@ -353,10 +353,10 @@ void TWorld::InitStandardInput(void)
     bool check = false;
     FOR_ROW_COL_MV
     {
-        if (Outlet->Drc > 0)
+        if (Outlet->Drc > 0) {
             check = true;
-        if (check)
            break;
+        }
     }
     if (!check)
     {

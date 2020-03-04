@@ -36,17 +36,17 @@ public:
         QwtPlotSpectrogram * sp0 = static_cast<QwtPlotSpectrogram *> (list.at(0));
         // elevation info
 
+        QwtPlotSpectrogram * sp3 = static_cast<QwtPlotSpectrogram *> (list.at(7));
+        // outlet info
+
         if (sp2->data() == nullptr)
             return QwtText(txt);
         double z2 = sp2->data()->value(pos.x(), pos.y());
         double z0 = sp0->data()->value(pos.x(), pos.y());
+        int z3 = (int) sp3->data()->value(pos.x(), pos.y());
 
         if (z2 > -1e10)
         {
-          //  int index = sp2->data()->value(0,0);
-
-           // QString name = NameList.at(index);
-        //    QString unit = UnitList.at(index);
             int dig = 2;
             if (z0 < 1.0)
                 dig = 4;
@@ -55,6 +55,7 @@ public:
             else
                 txt = (QString("%1 ")/* + unit */+ QString(" [%2m]")).arg(z2,0,'f',3).arg(z0,0,'f',dig);
         }
+        if (z3 > 0) txt = txt + QString(" (Outlet %1)").arg(z3);
 
         QwtText text = QwtText(txt);
         text.setColor(Qt::black);

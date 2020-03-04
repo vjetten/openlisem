@@ -296,10 +296,10 @@ void TWorld::ExtendChannel()
 
             double nn = 0;
 
-            if(IsExtendedChannel(r,c,1,0)) { nn ++;};
-            if(IsExtendedChannel(r,c,-1,0)) { nn ++;};
-            if(IsExtendedChannel(r,c,0,1)) { nn ++;};
-            if(IsExtendedChannel(r,c,0,-1)) { nn ++;};
+            if(IsExtendedChannel(r,c,1,0)) nn+=1.0;
+            if(IsExtendedChannel(r,c,-1,0)) nn+=1.0;
+            if(IsExtendedChannel(r,c,0,1)) nn+=1.0;
+            if(IsExtendedChannel(r,c,0,-1)) nn+=1.0;
             if(nn == 4){
                 ChannelBoundaryExtended->Drc = 0;
                 ChannelBoundaryRExtended->Drc = 0;
@@ -312,10 +312,10 @@ void TWorld::ExtendChannel()
                 ChannelBoundaryRExtended->Drc = 1;
                 ChannelBoundaryLExtended->Drc = 1;
             }
-            if(IsExtendedChannel(r,c,-1,1)) { nn ++;};
-            if(IsExtendedChannel(r,c,-1,-1)) { nn ++;};
-            if(IsExtendedChannel(r,c,1,1)) { nn ++;};
-            if(IsExtendedChannel(r,c,1,-1)) { nn ++;};
+            if(IsExtendedChannel(r,c,-1,1)) nn+=1.0;
+            if(IsExtendedChannel(r,c,-1,-1)) nn+=1.0;
+            if(IsExtendedChannel(r,c,1,1)) nn+=1.0;
+            if(IsExtendedChannel(r,c,1,-1)) nn+=1.0;
         }
     }
 

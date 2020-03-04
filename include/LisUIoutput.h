@@ -102,6 +102,7 @@ struct output{
     cTMap *baseMap;
     cTMap *baseMapDEM;
     cTMap *channelMap;
+    cTMap *outletMap;
     cTMap *roadMap;
     cTMap *houseMap;
     cTMap *flowbarriersMap;

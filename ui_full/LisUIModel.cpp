@@ -207,8 +207,8 @@ void lisemqt::worldShow()
 
     showBaseMap(); // show shaded relief base map, only once, set startplot to false
 
-    //showChannelMap(); // show channel map
-    showChannelVector();
+    getOutletMap();
+    showChannelVector(); // show channel map
 
     showRoadMap(); // show road map
 
@@ -309,6 +309,7 @@ void lisemqt::initOP()
     op.baseMap = nullptr;
     op.baseMapDEM = nullptr;
     op.channelMap = nullptr;
+    op.outletMap = nullptr;
     op.roadMap = nullptr;
     op.houseMap = nullptr;
     op.flowbarriersMap = nullptr;

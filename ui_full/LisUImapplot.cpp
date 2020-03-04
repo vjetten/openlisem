@@ -69,14 +69,12 @@ void lisemqt::ssetAlphaMap(int v)
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaChannelOutlet(int v)
 {
- //   channelMap->setAlpha(v);
     if (showRiverSize->value() > 0)
         hideChannelVector(true);
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaChannel(int v)
 {
- //   channelMap->setAlpha(v);
     hideChannelVector(v > 0);
 }
 //---------------------------------------------------------------------------
@@ -137,54 +135,57 @@ void lisemqt::setupMapPlot()
     grid->attach( MPlot );
 
     // NOTE the order in which these are attached is the order displayed.
+    // 0
     baseMapDEM = new QwtPlotSpectrogram();
     baseMapDEM->setRenderThreadCount( 0 );
     baseMapDEM->attach( MPlot );
     // dem
-
+    // 1
     baseMapImage = new QwtPlotSpectrogram();
     baseMapImage->setRenderThreadCount( 0 );
     baseMapImage->attach( MPlot );
     //image
 
+    // 2
     baseMap = new QwtPlotSpectrogram();
     baseMap->setRenderThreadCount( 0 );
     baseMap->attach( MPlot );
     // shaded relief
 
-    drawMap = new QwtPlotSpectrogram(); //shaded
+    // 3 data
+    drawMap = new QwtPlotSpectrogram();
     drawMap->setRenderThreadCount( 0 );
     drawMap->attach( MPlot );
     //map for runoff, infil, flood etc
 
+    // 4
     houseMap = new QwtPlotSpectrogram();
     houseMap->setRenderThreadCount( 0 );
     houseMap->attach( MPlot );
     // building structure map
 
+    // 5
     roadMap = new QwtPlotSpectrogram();
     roadMap->setRenderThreadCount( 0 );
     roadMap->attach( MPlot );
     // road map
 
+    // 6
     flowbarriersMap = new QwtPlotSpectrogram();
     flowbarriersMap->setRenderThreadCount( 0 );
     flowbarriersMap->attach( MPlot );
 
-//    channelMap = new QwtPlotSpectrogram();
-//    channelMap->setRenderThreadCount( 0 );
-//    channelMap->attach( MPlot );
+    //7
+    outletMap = new QwtPlotSpectrogram();
+    outletMap->setRenderThreadCount( 0 );
+    outletMap->attach( MPlot );
     // channel map
 
+    //8
     contourDEM = new QwtPlotSpectrogram();
     contourDEM->setRenderThreadCount( 0 );
     contourDEM->attach( MPlot );
     // contours
-
-//    rivera = new QwtPlotCurve();
-//    rivera->setPen(QColor("#000000"), 1, Qt::SolidLine );
-//    rivera->attach( MPlot );
-//    rivera->setAxes(MPlot->xBottom, MPlot->yLeft);
 
     RD = new QwtMatrixRasterData();
     RDb = new QwtMatrixRasterData();
@@ -728,28 +729,21 @@ void lisemqt::showChannelVector()
     }
 }
 //---------------------------------------------------------------------------
-void lisemqt::showChannelMap()
+void lisemqt::getOutletMap()
 {
     if (!checkIncludeChannel->isChecked())
         return;
 
     if (startplot)
     {
-        double res = fillDrawMapData(op.channelMap, RDc);//,0 );
+        double res = fillDrawMapData(op.outletMap, RDc);
         if (res ==-1e20)
             return;
-        QwtLinearColorMapVJ *pala = new colorMapFlood();
-        pala->thresholdLCM = 0.01;
-
-        channelMap->setColorMap(pala);
         RDc->setInterval( Qt::ZAxis, QwtInterval( 0,1.0));
-        channelMap->setData(RDc);
+        outletMap->setData(RDc);
+        outletMap->setAlpha(0);
     }
 
-//    if (checkMapChannels->isChecked())
-//        channelMap->setAlpha(transparencyChannel->value());
-//    else
-//        channelMap->setAlpha(0);
 }
 //---------------------------------------------------------------------------
 void lisemqt::showRoadMap()
