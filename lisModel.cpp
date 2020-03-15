@@ -184,8 +184,7 @@ void TWorld::DoModel()
         DEBUG("setupHydrographData()");
         setupHydrographData();
 
-        bool saveMBerror = false;
-        saveMBerror2file(saveMBerror, true);
+        saveMBerror2file(SwitchDumpMassBallance, true);
 
         InfilEffectiveKsat();
         // calc effective ksat from all surfaces once
@@ -257,7 +256,7 @@ void TWorld::DoModel()
             MassBalance();       // check water and sed mass balance
             OutputUI();          // fill the "op" structure for screen output
 
-            saveMBerror2file(saveMBerror, false);
+            saveMBerror2file(SwitchDumpMassBallance, false);
 
 //            std::function<void(int)> freport = std::bind((&TWorld::Wrapper_ReportAll),this,std::placeholders::_1);
 //            ThreadPool->RunReportFunction(freport);

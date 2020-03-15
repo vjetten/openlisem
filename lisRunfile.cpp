@@ -234,7 +234,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Regular runoff output")==0)          SwitchOutputTimeStep =   iii == 1;
         if (p1.compare("User defined output")==0)            SwitchOutputTimeUser =   iii == 1;
         if (p1.compare("Output interval")==0)				 printinterval = iii;
-        if (p1.compare("Subsoil drainage")==0)               SwitchDrainage =         iii == 1;
+        if (p1.compare("Dump Mass Balance")==0)               SwitchDumpMassBallance = iii = 1;
 
         if (p1.compare("Report point output separate")==0)   SwitchSeparateOutput =   iii == 1;
 
@@ -290,6 +290,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Erosion map units (0/1/2)")==0)  ErosionUnits = iii;
 
         InfilMethod = getvalueint("Infil Method");
+
+
 
     }// first loop of runnamelist
 

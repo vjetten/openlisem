@@ -146,6 +146,7 @@ void lisemqt::ParseInputData()
             continue;
 
         if (p1.compare("Nr user Cores")==0) nrUserCores->setValue(iii);
+        if (p1.compare("Dump Mass Balance")==0) checkDumpMassBalance->setChecked(check);
 
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
@@ -664,6 +665,7 @@ void lisemqt::updateModelData()
         QString p;
 
         if (p1.compare("Nr user Cores")==0) namelist[j].value.setNum(nrUserCores->value());
+        if (p1.compare("Nr user Cores")==0) namelist[j].value.setNum((int)checkDumpMassBalance->isChecked());
         // erosion
         if (p1.compare("Include Erosion simulation")==0)      namelist[j].value.setNum((int)checkDoErosion->isChecked());
 

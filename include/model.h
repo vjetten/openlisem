@@ -305,7 +305,7 @@ public:
     Switchheaderpest, SwitchPesticide, SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,
   SwitchTimeavgV, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed,SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep, SwitchHeun, SwitchNeedD90, SwitchImage,
-    SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion;
+    SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchDumpMassBallance;
  /* SwitchFloodSWOForder1, SwitchFloodSWOForder2,*/
     int SwitchFlood1D2DCoupling;
     int SwitchKinematic2D;

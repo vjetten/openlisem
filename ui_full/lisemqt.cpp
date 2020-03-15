@@ -48,7 +48,6 @@ update of the runfile before running:
 
 #include <algorithm>
 #include "lisemqt.h"
-//#include "model.h"
 #include "global.h"
 
 output op;

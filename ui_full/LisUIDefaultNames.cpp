@@ -264,8 +264,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Begin time");
     namelist[i].value = QString("100");
     namelist[i++].name = QString("End time");
-    namelist[i].value = QString("0.15");
+    namelist[i].value = QString("0.1");
     namelist[i++].name = QString("Timestep");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Dump Mass Balance");
 
     //###
     namelist[i++].name = QString("");

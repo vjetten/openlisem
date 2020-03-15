@@ -1398,7 +1398,7 @@ void TWorld::GetComboMaps()
     setColor(3);
     AddComboMap(0,"Water Height","m",hmxWH,Colormap,Colors,false,false,1.0,0.01);
     setColor(2);
-    AddComboMap(0,"Flow Velocity","m/s",COMBO_VOFCH,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Flow Velocity","m/s", COMBO_VOFCH ,Colormap,Colors,false,false,1.0, 0.01);
     AddComboMap(0,"Flow Momentum","m2/s",VH,Colormap,Colors,false,false,1.0, 0.01); //VH
 
     if(SwitchIncludeChannel)
