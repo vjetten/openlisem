@@ -184,7 +184,8 @@ void TWorld::DoModel()
         DEBUG("setupHydrographData()");
         setupHydrographData();
 
-        saveMBerror2file(SwitchDumpMassBallance, true);
+        bool saveMBerror = false;
+        saveMBerror2file(saveMBerror, true);
 
         InfilEffectiveKsat();
         // calc effective ksat from all surfaces once
@@ -197,8 +198,7 @@ void TWorld::DoModel()
         ThreadPool->StartReportThread(this);
 
         //create a function object referring to the cellprocesses wrapper
-        wrapCellProcesses1D = std::bind((&TWorld::CellProcesses),this,std::placeholders::_1);
-        fcompute2 = std::bind((&TWorld::CellProcesses2),this,std::placeholders::_1);
+        CellProcesses1D = std::bind((&TWorld::CellProcesses),this,std::placeholders::_1);
 
         DEBUG("Running...");
 
@@ -224,29 +224,19 @@ void TWorld::DoModel()
             mutex.unlock();
             // check if user wants to quit or pause
 
-            //DEBUG(QString("Running timestep %1").arg((this->time - this->BeginTime)/_dt));
-
-            //these functions read files, so they can not be multithreaded well
+            //these functions read files, so they can not be multithreaded
             RainfallMap();         // get rainfall from table or mpas
             SnowmeltMap();         // get snowmelt
 
-            //do cell specific stuff, hydrology and splash detachment, threaded
-            ThreadPool->RunCellCompute(wrapCellProcesses1D);
+            //do 1D cell specific stuff, hydrology and splash detachment, threaded
+            ThreadPool->RunCellCompute(CellProcesses1D);
             ThreadPool->WaitForAll();
-
-            ToChannel();           // overland flow water and sed flux going into or out of channel, in channel cells
 
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
-            OverlandFlow(); // overland flow 1D (non threaded), 2Ddiff or 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
+            OverlandFlow();        // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
-            ChannelFlood(); // st venant channel 2D flooding from channel, only for kyn wave
-
-            // flow detachment
-     //        ThreadPool->RunCellCompute(fcompute2);
-     //        ThreadPool->WaitForAll();
-
-            OrderedProcesses();  //do ordered solutions such as channel LDD etc., non threaded
+            OrderedProcesses();    // do ordered LDD solutions channel, tiles, drains, non threaded
 
             //wait for the report thread that was started in the previous timestep
             ThreadPool->WaitForReportThread();
@@ -256,29 +246,12 @@ void TWorld::DoModel()
             MassBalance();       // check water and sed mass balance
             OutputUI();          // fill the "op" structure for screen output
 
-            saveMBerror2file(SwitchDumpMassBallance, false);
+            saveMBerror2file(saveMBerror, false);
 
-//            std::function<void(int)> freport = std::bind((&TWorld::Wrapper_ReportAll),this,std::placeholders::_1);
-//            ThreadPool->RunReportFunction(freport);
-            mapFormat = op.format;
+            std::function<void(int)> freport = std::bind((&TWorld::Wrapper_ReportAll),this,std::placeholders::_1);
+            ThreadPool->RunReportFunction(freport);
 
-            ReportTimeseriesNew();
-            // report hydrographs ande sedigraphs at all points in outpoint.map
-
-            ReportTotalsNew();
-            // report totals to a text file
-
-            ReportMaps();
-            // report all maps and mapseries
-
-            ReportLandunits();
-            // reportc stats per landunit class
-
-            ChannelFloodStatistics();
-            // report buildings submerged in flood level classes in 5cm intervals
-
-
-
+ //           reportAll();
 
             if (!noInterface)
                 emit show();
@@ -349,29 +322,23 @@ void TWorld::CellProcesses(int thread)
     //Pestmobilisation();         // experimental
 }
 
-void TWorld::CellProcesses2(int thread) // obsolete for now
-{
-    CalcVelDisch(thread);        // overland flow velocity, discharge and alpha for erosion
 
-    FlowDetachment(thread);      // flow detachment
-}
-
-
+// these are all non-threaded
 void TWorld::OrderedProcesses()
 {
-    ChannelAddBaseandRainNT();  //NT is non threaded
+    ChannelAddBaseandRainNT();  // add baseflow o, subtract infil, add rainfall
 
-    ChannelWaterHeightFromVolumeNT();
+    ChannelWaterHeightFromVolumeNT(); //calc WH from volume with abc rule, and flowwidth
 
     CalcVelDischChannelNT(); // alpha, V and Q from Manning
 
     ChannelFlowDetachment();  //detachment, deposition for SS and BL
 
-    ChannelFlow();         // channel erosion and kin wave
+    ChannelFlow();         // channel kin wave for water and sediment
 
-    TileFlow();          // storm/tile drain flow kin wave
+    TileFlow();          // tile drain flow kin wave
 
-    StormDrainFlow();
+    StormDrainFlow();    // storm drain flow kin wave
 
 }
 

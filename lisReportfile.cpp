@@ -47,7 +47,22 @@ functions: \n
 /// report to disk: timeseries at output points, totals, map series and land unit stats
 void TWorld::reportAll(void)
 {
+    mapFormat = op.format;
 
+    ReportTimeseriesNew();
+    // report hydrographs ande sedigraphs at all points in outpoint.map
+
+    ReportTotalsNew();
+    // report totals to a text file
+
+    ReportMaps();
+    // report all maps and mapseries
+
+    ReportLandunits();
+    // reportc stats per landunit class
+
+    ChannelFloodStatistics();
+    // report buildings submerged in flood level classes in 5cm intervals
 }
 
 //---------------------------------------------------------------------------
@@ -215,6 +230,24 @@ void TWorld::OutputUI(void)
 
     //output maps
 
+    if(SwitchIncludeChannel)
+    {
+        if (SwitchChannelExtended)
+        {
+            fill(*extQCH,0.0);
+            DistributeOverExtendedChannel(ChannelQn,extQCH);
+            fill(*extWHCH,0.0);
+            DistributeOverExtendedChannel(ChannelWH,extWHCH);
+            fill(*extVCH,0.0);
+            DistributeOverExtendedChannel(ChannelV,extVCH);
+        } else {
+            copy(*extQCH, *ChannelQn);
+            copy(*extWHCH, *ChannelWH);
+            copy(*extVCH, *ChannelV);
+        }
+                    copy(*extVCH, *ChannelV);
+    }
+
 //    FOR_ROW_COL_MV
 //    {
 //        COMBO_QOFCH->Drc = Qn->Drc;
@@ -238,13 +271,7 @@ void TWorld::OutputUI(void)
         COMBO_VOFCH->Drc = V->Drc;
         if (SwitchIncludeChannel) {
             if (ChannelFlowWidth->Drc > 0)
-                COMBO_VOFCH->Drc = ChannelV->Drc;
-            if (ChannelWidthExtended->Drc > 0)
-            {
-                fill(*tma,0.0);
-                DistributeOverExtendedChannel(ChannelQn,tma);
-                COMBO_VOFCH->Drc += tma->Drc;
-            }
+                COMBO_VOFCH->Drc = extVCH->Drc;
         }
         if(COMBO_VOFCH->Drc < 1e-6)
             COMBO_VOFCH->Drc = 0;
@@ -302,13 +329,11 @@ void TWorld::OutputUI(void)
 
     if (SwitchIncludeChannel) {
         copy(*op.channelMap, *LDDChannel);//*ChannelMaskExtended);
-        copy(*op.outletMap, *PointMap);//*ChannelMaskExtended);
+        copy(*op.outletMap, *PointMap);
     }
 
-     if (SwitchRoadsystem)
-    {
+    if (SwitchRoadsystem) {
         copy(*op.roadMap, *RoadWidthDX);
-        // calcMap(*op.roadMap, *HardSurface, ADD);
     }
     if (SwitchHouses)
         copy(*op.houseMap, *HouseCover);
@@ -1398,19 +1423,19 @@ void TWorld::GetComboMaps()
     setColor(3);
     AddComboMap(0,"Water Height","m",hmxWH,Colormap,Colors,false,false,1.0,0.01);
     setColor(2);
-    AddComboMap(0,"Flow Velocity","m/s", COMBO_VOFCH ,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Flow Velocity","m/s",COMBO_VOFCH,Colormap,Colors,false,false,1.0, 0.01);
     AddComboMap(0,"Flow Momentum","m2/s",VH,Colormap,Colors,false,false,1.0, 0.01); //VH
 
     if(SwitchIncludeChannel)
     {
         setColor(1);
-        AddComboMap(0,"Channel Discharge","l/s",ChannelQn,Colormap,Colors,true,false,1000.0, 1.0); //Chnaged thhis to ChannelQn
+        AddComboMap(0,"Channel Discharge","l/s",extQCH,Colormap,Colors,true,false,1000.0, 1.0);
         setColor(3);
-        AddComboMap(0,"Channel Water Height","m",ChannelWH,Colormap,Colors,false,false,1.0,0.01);
-
+        AddComboMap(0,"Channel Water Height","m",extWHCH,Colormap,Colors,false,false,1.0,0.01);
         setColor(2);
-        AddComboMap(0,"Channel Velocity","m/s",ChannelV,Colormap,Colors,false,false,1.0,0.01);
+        AddComboMap(0,"Channel Velocity","m/s",extVCH,Colormap,Colors,false,false,1.0,0.01);
     }
+
     if(SwitchIncludeTile || SwitchIncludeStormDrains) {
         setColor(1);
         AddComboMap(0,"Storm Drain Volume","m3",TileWaterVol,Colormap,Colors,false,false,1.0,1.0);

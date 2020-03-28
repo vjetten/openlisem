@@ -320,11 +320,9 @@ void TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
     HLL2_f2 = f2;
     HLL2_f3 = f3;
 }
-
 //---------------------------------------------------------------------------
 /// MUSCL: Monotone Upstream-centered Schemes for Conservation Laws
 /// see http://en.wikipedia.org/wiki/MUSCL_scheme
-///
 /// This MUSCL creates left and right u,v,h, arrays for in mainfluxcalc
 void TWorld::MUSCL(int thread, cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
 {
@@ -370,21 +368,6 @@ void TWorld::MUSCL(int thread, cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
             delzc1->Drc = z1r->Drc-z1l->Drc;
             if (c > 0 && !MV(r,c-1))
                 delz1->data[r][c-1] = z1l->Drc - z1r->data[r][c-1];
-//            if (_h->Drc > 1e-6) {//he_ca) {
-//                hlh = h1l->Drc/_h->Drc;
-//                hrh = h1r->Drc/_h->Drc;
-//                u1r->Drc = _u->Drc + hlh * du;
-//                u1l->Drc = _u->Drc - hrh * du;
-//                v1r->Drc = _v->Drc + hlh * dv;
-//                v1l->Drc = _v->Drc - hrh * dv;
-//            }
-//            else {
-//                u1r->Drc = _u->Drc;
-//                u1l->Drc = _u->Drc;
-//                v1r->Drc = _v->Drc;
-//                v1l->Drc = _v->Drc;
-//            }
-
 
             if (_h->Drc > he_ca) {
                 hlh = h1l->Drc/_h->Drc;
@@ -404,7 +387,7 @@ void TWorld::MUSCL(int thread, cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
 
     FOR_ROW_COL_UF2DMT_DT {
         if(FloodHMaskDer->Drc != 0)
-        {
+         {
             if(r > 0 && MV(r-1,c) && r < _nrRows-1 && !MV(r+1, c)) {
                 delta_h1 = _h->Drc - _h->data[r-1][c];
                 delta_u1 = _u->Drc - _u->data[r-1][c];
@@ -438,24 +421,6 @@ void TWorld::MUSCL(int thread, cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
             delzc2->Drc = z2r->Drc - z2l->Drc;
             if(r > 0 && MV(r-1,c))
                 delz2->data[r-1][c] = z2l->Drc - z2r->data[r-1][c];
-
-
-//            if (_h->Drc > 1e-6) {//he_ca) {
-//                hlh = h2l->Drc/_h->Drc;
-//                hrh = h2r->Drc/_h->Drc;
-//                u2r->Drc = _u->Drc + hlh * du;
-//                u2l->Drc = _u->Drc - hrh * du;
-//                v2r->Drc = _v->Drc + hlh * dv;
-//                v2l->Drc = _v->Drc - hrh * dv;
-//            }
-//            else {
-//                u2r->Drc = _u->Drc;
-//                u2l->Drc = _u->Drc;
-//                v2r->Drc = _v->Drc;
-//                v2l->Drc = _v->Drc;
-//            }
-
-
 
             if (_h->Drc > he_ca) {
                 hlh = h2l->Drc/_h->Drc;
@@ -499,19 +464,6 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
             f1o->Drc = 0;
             f2o->Drc = 0;
             f3o->Drc = 0;
-//            double bh = 0.1;
-//            fbn->Drc = 0;
-//            fbs->Drc = 0;
-//            fbe->Drc = 0;
-//            fbw->Drc = 0;
-//            if(LDD->Drc == 1) { fbn->Drc = bh; fbw->Drc = bh;}
-//            if(LDD->Drc == 2) { fbe->Drc = bh; fbw->Drc = bh;}
-//            if(LDD->Drc == 3) { fbn->Drc = bh; fbe->Drc = bh;}
-//            if(LDD->Drc == 4) { fbn->Drc = bh; fbs->Drc = bh;}
-//            if(LDD->Drc == 6) { fbn->Drc = bh; fbs->Drc = bh;}
-//            if(LDD->Drc == 7) { fbs->Drc = bh; fbw->Drc = bh;}
-//            if(LDD->Drc == 8) { fbe->Drc = bh; fbw->Drc = bh;}
-//            if(LDD->Drc == 9) { fbs->Drc = bh; fbe->Drc = bh;}
 
             if(c > 0 && !MV(r,c-1)) {
                 h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
@@ -572,7 +524,6 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
             if(r > 0 && !MV(r-1,c)) {
                 h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
                 h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
-
                 if (F_scheme == 1)
                     F_Rusanov(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c], h2g->Drc,v2l->Drc,u2l->Drc);
                 else
@@ -622,7 +573,7 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
         dtx = dt_max;
         dty = dt_max;
         if(FloodHMaskDer->Drc != 0){
-            double dx = ChannelAdj->Drc;// FlowWidth->Drc;
+            double dx =  ChannelAdj->Drc; //FlowWidth->Drc;//
             if (qFabs(cflx->Drc*dt/dx) > 1e-10)
                 dtx = std::min(dt_max, courant_factor*dx/cflx->Drc);
 
@@ -632,13 +583,12 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
 
             FloodDT->Drc = std::min(dtx, dty);
 
-
         }
     }}}}
 
 }
 //---------------------------------------------------------------------------
-// St Venant equations: conservation of mass and momentum: h u et v (= he, ve1, ve2)
+// St Venant equations: conservation of mass and momentum: h u and v (= he, ve1, ve2)
 void TWorld::maincalcscheme(int thread, double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
                             cTMap *hes, cTMap *ves1, cTMap *ves2)
 {
@@ -649,7 +599,7 @@ void TWorld::maincalcscheme(int thread, double dt, cTMap *he, cTMap *ve1, cTMap 
                 dt = FloodDT->Drc;
             else
                 dt = Flood_DTMIN;
-            double tx = dt/FlowWidth->Drc;//ChannelAdj->Drc; //
+            double tx = dt/ChannelAdj->Drc; //FlowWidth->Drc;
             double ty = dt/DX->Drc;
             double _f1=0, _f2=0, _f3=0, _g1=0, _g2=0, _g3=0;
 
@@ -697,6 +647,8 @@ void TWorld::maincalcscheme(int thread, double dt, cTMap *he, cTMap *ve1, cTMap 
                                       + (h2l->Drc+h2r->Drc)*delzc2->Drc));
 
 
+               // double sqQ = qSqrt(qes1*qes1+qes2*qes2);
+
                 double sqUV = qSqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc);
                 double nsq1 = (0.001+N->Drc)*(0.001+N->Drc)*GRAV/qPow(hes->Drc,4.0/3.0);
                 double nsq = nsq1*sqUV*dt;
@@ -704,40 +656,45 @@ void TWorld::maincalcscheme(int thread, double dt, cTMap *he, cTMap *ve1, cTMap 
                 ves1->Drc = (qes1/(1.0+nsq))/hes->Drc;
                 ves2->Drc = (qes2/(1.0+nsq))/hes->Drc;
 
-                // if hes is very small, v becomes very large!
-                // in that case take the smallest of v and manning V
-                if (hes->Drc < 0.1) {
-                    double sign1 = ves1->Drc < 0? -1.0 : 1.0;
-                    double sign2 = ves2->Drc < 0? -1.0 : 1.0;
-                    double vkin = pow(hes->Drc, 2.0/3.0)*sqrt(Grad->Drc)/N->Drc;
-                    ves1->Drc = sign1 * std::min(fabs(ves1->Drc), vkin);//hes->Drc/dt);
-                    ves2->Drc = sign2 * std::min(fabs(ves2->Drc), vkin);//hes->Drc/dt);
+                //NOTE ves1 is c-1, c+1    ves2 is r-1, r+1
+
+
+                double sign1 = ves1->Drc > 0 ? 1.0 : -1.0;
+                double sign2 = ves2->Drc > 0 ? 1.0 : -1.0;
+                sqUV = qSqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc);
+                double s1 = Grad->Drc, s2 = Grad->Drc;
+                double G = sqrt(GRAV*hes->Drc);
+                if (sign1 < 0) {
+                    if (c > 0 && !MV(r, c-1))
+                        s1 = sin(atan(fabs(hes->Drc-hes->data[r][c-1])));
+                } else {
+                    if (c < _nrCols-1 && !MV(r, c+1))
+                        s1 = sin(atan(fabs(hes->Drc-hes->data[r][c+1])));
+                }
+                if (sign2 < 0) {
+                    if (r > 0 && !MV(r-1, c))
+                        s2 = sin(atan(fabs(hes->Drc-hes->data[r-1][c])));
+                } else {
+                    if (r < _nrRows-1 && !MV(r+1, c))
+                        s2 = sin(atan(fabs(hes->Drc-hes->data[r+1][c])));
                 }
 
-                double fac = 0;
-                if (SwitchTimeavgV) {
-                    fac = 0.5+0.5*std::min(1.0,4*hes->Drc)*std::min(1.0,4*hes->Drc);
-                    fac = fac *exp(- std::max(1.0,dt) / nsq1);
-                }
-                ves1->Drc = fac * ve1->Drc + (1.0-fac) *ves1->Drc;
-                ves2->Drc = fac * ve2->Drc + (1.0-fac) *ves2->Drc;
+               ves1->Drc = sign1 * std::min(fabs(ves1->Drc), 4.0*(pow(hes->Drc,2.0/3.0)*sqrt(s1)/N->Drc + G));
+               ves2->Drc = sign2 * std::min(fabs(ves2->Drc), 4.0*(pow(hes->Drc,2.0/3.0)*sqrt(s2)/N->Drc + G));
+               // this says that when V is much larger than kinematic wave V + gravity wave, limit it to that
 
-                double thv = 10.0;
-              //  double dv = 5.0;
-             //   correctSpuriousVelocities(r, c, hes, ves1, ves2,thv, dv, dt);
-               sqUV = qSqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc);
-                if (sqUV > thv) {
-                    double v12 = ves1->Drc * ves1->Drc;
-                    double v22 = ves2->Drc * ves2->Drc;
-                    double vkin = pow(hes->Drc, 2.0/3.0)*sqrt(Grad->Drc)/N->Drc;
-                    double sign1 = ves1->Drc < 0? -1.0 : 1.0;
-                    double sign2 = ves2->Drc < 0? -1.0 : 1.0;
-                    double v1 = fabs(ves1->Drc);
-                    double v2 = fabs(ves2->Drc);
-                    ves1->Drc = sign1*std::min(v1, sqrt(v1*vkin));
-                    ves2->Drc = sign2*std::min(v2, sqrt(v2*vkin));
-                   // qDebug() << hes->Drc << ves1->Drc << ves2->Drc << vkin << qes1 << qes2;
-                }
+               double fac = 0;
+               if (SwitchTimeavgV) {
+                   fac = 0.5+0.5*std::min(1.0,4*hes->Drc)*std::min(1.0,4*hes->Drc);
+                   fac = fac *exp(- std::max(1.0,dt) / nsq1);
+               }
+               ves1->Drc = fac * ve1->Drc + (1.0-fac) *ves1->Drc;
+               ves2->Drc = fac * ve2->Drc + (1.0-fac) *ves2->Drc;
+
+//                double thv = 10.0;
+//                double dv = 5.0;
+//                correctSpuriousVelocities(r, c, hes, ves1, ves2,thv, dv, dt);
+
             }
             else
             {
@@ -754,6 +711,7 @@ void TWorld::maincalcscheme(int thread, double dt, cTMap *he, cTMap *ve1, cTMap 
             hes->Drc = 0;
         }
     }}}}
+
 }
 //---------------------------------------------------------------------------
 void TWorld::correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2, double thv, double dv, double dt)
@@ -850,7 +808,7 @@ void TWorld::setFloodMask(cTMap * h)
 
     FOR_ROW_COL_MV
     {
-        if(FloodHMaskDer->Drc > 1e-12)
+        if(FloodHMaskDer->Drc > he_ca)
         {
             FloodHR->data[rc][cc] = r;
             FloodHC->data[rc][cc] = c;
@@ -959,13 +917,13 @@ void TWorld::setFloodDT(double t, cTMap * h)
             int c = (int) (FloodHC->data[rc][cc]);
             if(!INSIDE(r,c)){out = true; break;}
 
-            if(h->Drc > HMIN) {
+            if(h->Drc > HMIN)
+            {
                 //for homogeneous timestep!!
 
                 //FloodDT->Drc = dtmin;
 
-            } else
-                if(FloodHMaskDer->Drc != 0.0)
+            }else if(FloodHMaskDer->Drc != 0.0)
             {
                 //for really small h, dt becomes small. We can not ignore due to possible incoming flow, so set to minimum of other cells
                 FloodDT->Drc = dtmin;//_max;
@@ -1026,9 +984,9 @@ void TWorld::setFloodDT(double t, cTMap * h)
             if(FloodHMaskDer->Drc != 0)
             {
                 if (!SwitchVariableTimestep)
-                    FloodDT->Drc = dtmin;
+                FloodDT->Drc = dtmin;
                 else
-                    FloodDT->Drc = std:: max(dtmin, FloodDTr->Drc);
+                FloodDT->Drc = FloodDTr->Drc;
 
                 //determine wether to do the timestep now or later
                 if(!(t + dtmin < _dt)) // if t > _dt do the remaining timestep
@@ -1051,6 +1009,7 @@ void TWorld::setFloodDT(double t, cTMap * h)
         if(out){break;}
     }
 
+
 }
 
 //---------------------------------------------------------------------------
@@ -1058,12 +1017,14 @@ void TWorld::setFloodDT(double t, cTMap * h)
 double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct)
 {
     double dt1 = 0, timesum = 0;
-    double dt_max = std::min(_dt, _dx*dtmaxfrac);
+    double dt_max = std::min(_dt, _dx);//*dtmaxfrac);
     int n = 0;
     double sumh = 0;
     bool stop;
 
-    SwitchHeun = false;
+    //F_MaxIter = (int) (_dt/TimestepfloodMin);
+
+    //SwitchHeun = false;
 
     if (startFlood)
     {
@@ -1134,25 +1095,10 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
                 setFloodMaskDT(FloodDT);
                 ThreadPool->SetMask(DEM,FloodDT,FloodDTR,FloodDTC);
 
-                flood_flowcompute2 = std::bind((&TWorld::fullSWOF2Do2lightWrapperDynamic2),this,std::placeholders::_1,hs,us,vs,hsa,usa,vsa, dt1);
+                flood_flowcompute2 = std::bind((&TWorld::fullSWOF2Do2lightWrapperDynamic2),this,std::placeholders::_1,h,u,v,hs,us,vs,hsa,usa,vsa, dt1);
                 ThreadPool->RunDynamicCompute(flood_flowcompute2);
                 ThreadPool->WaitForAll();
-                // Do Heun
-                FOR_ROW_COL_MV {
-                    double havg = 0.5*(h->Drc + hsa->Drc);
-                    if (havg >= he_ca) {
-                        double q1 = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
-                        u->Drc = q1/havg;
-                        double q2 = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
-                        v->Drc = q2/havg;
-                        h->Drc = havg;
-                    }
-                    else {
-                        u->Drc = 0;
-                        v->Drc = 0;
-                        h->Drc = 0;
-                    }
-                }
+
             } //heun
 
             timesum = timesum + Flood_DTMIN;
@@ -1164,12 +1110,13 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
             }
 
             n++;
-            if (n > F_MaxIter)
-                break;
+//            if (n > F_MaxIter)
+//                stop=true;
             // qDebug() << n << timesum << dt1;
         } while (!stop);
 
-        correctMassBalance(sumh, h);
+        if (correct)
+            correctMassBalance(sumh, h);
 
         FOR_ROW_COL_MV {
             SWOFSedimentSetConcentration(r,c,h);
@@ -1223,8 +1170,9 @@ void TWorld::fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cT
 }
 //---------------------------------------------------------------------------
 /// MC Dynamic processes for Heun, do all a second time and calculate time average (Heun method)
-void TWorld::fullSWOF2Do2lightWrapperDynamic2(int thread, cTMap *hs, cTMap *us, cTMap *vs,
-                                              cTMap *hsa, cTMap *usa, cTMap *vsa,
+void TWorld::fullSWOF2Do2lightWrapperDynamic2(int thread, cTMap *h, cTMap *u, cTMap *v,
+                                                          cTMap *hs, cTMap *us, cTMap *vs,
+                                                          cTMap *hsa, cTMap *usa, cTMap *vsa,
                                                double dt1)
 {
     //st venant equations, h, u, v go in hs, vs, us come out
@@ -1232,7 +1180,20 @@ void TWorld::fullSWOF2Do2lightWrapperDynamic2(int thread, cTMap *hs, cTMap *us, 
 
     setZero(thread,hsa, usa, vsa);
 
-
+    FOR_ROW_COL_UF2DMT_DT {
+        double havg = 0.5*(h->Drc + hsa->Drc);
+        if (havg >= he_ca) {
+            double q1 = 0.5*(h->Drc*u->Drc + hsa->Drc*usa->Drc);
+            u->Drc = q1/havg;
+            double q2 = 0.5*(h->Drc*v->Drc + hsa->Drc*vsa->Drc);
+            v->Drc = q2/havg;
+            h->Drc = havg;
+        } else {
+            u->Drc = 0;
+            v->Drc = 0;
+            h->Drc = 0;
+        }
+    }}}}
 }
 //---------------------------------------------------------------------------
 void TWorld::fullSWOF2Do2lightWrapperErosion(int thread, cTMap *h, cTMap *u, cTMap *v, double dt1)

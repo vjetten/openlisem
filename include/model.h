@@ -85,15 +85,6 @@ class LisemThreadPool;
     if(!pcr::isMV(LDD->data[r][c]))
 
 #define FOR_GRAIN_CLASSES for(int d  = 0 ; d < numgrainclasses;d++)
-/*
-#define FOR_CELL_IN_FLOODAREA for (long _i = 0; _i < nrFloodcells ; _i++)\
-{\
-    int r = floodRow[_i];\
-    int c = floodCol[_i];
-*/
-#define FOR_CELL_IN_FLOODAREA for(int r = 0; r < _nrRows; r++)\
-    for (int c = 0; c < _nrCols; c++)\
-    if(!pcr::isMV(LDD->data[r][c])) {
 
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
@@ -186,9 +177,6 @@ class LisemThreadPool;
 #define RRIJNFULL 2
 #define RWUWANGJIA 3
 
-#define OFGOVERS 0
-#define OFHAIRSINEROSE 1
-
 #define K2D_METHOD_KIN   1
 #define K2D_METHOD_DIFF  2
 #define K2D_METHOD_DYN   3
@@ -259,6 +247,15 @@ typedef struct RAIN_LIST {
 } RAIN_LIST;
 //---------------------------------------------------------------------------
 
+typedef struct ExtCH {
+    QList <int> childRow;
+    QList <int> childCol;
+    int chRow;
+    int chCol;
+    bool isExtended;
+} ExtCH;
+
+
 /// \class TWorld model.h contains the model 'World': constants, variables and erosion processes
 
 /** The model 'world': the main class containing all variables, maps, options, filenames.\n
@@ -291,7 +288,7 @@ public:
 
     /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
     bool SwitchRoadsystem, SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchLimitTC, SwitchLimitDepTC,
-    SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
+    SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow, SwitchChannelExtended,
     startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
     SwitchSimpleDepression,SwitchSedtrap, SwitchSnowmelt, SwitchRainfall, /*SwitchRunoffPerM,*/ SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchPercolation, SwitchDumphead, SwitchWaterRepellency,
@@ -303,9 +300,9 @@ public:
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum, SwitchLitter,
     Switchheaderpest, SwitchPesticide, SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,
-  SwitchTimeavgV, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed,SwitchFlowBarriers, SwitchBuffers,
+    SwitchTimeavgV, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed,SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep, SwitchHeun, SwitchNeedD90, SwitchImage,
-    SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchDumpMassBallance;
+    SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle;
  /* SwitchFloodSWOForder1, SwitchFloodSWOForder2,*/
     int SwitchFlood1D2DCoupling;
     int SwitchKinematic2D;
@@ -326,6 +323,9 @@ public:
     QList<double> FBTimeS;
     QList<double> FBTimeE;
     QList<double> FBTimeW;
+
+    QList <ExtCH> ExtChannel;
+    ExtCH ExtendCH;
 
 
     // multiple options that are set in interface or runfile, see defines above
@@ -497,6 +497,7 @@ public:
     void InitStandardInput(void); //VJ 170211
     void InitFlood(void);
     void InitChanNetwork();
+    void FindChannelAngles();
 
     // functions in lisRunfile.cpp
     QString getvaluename(QString vname);
@@ -519,8 +520,10 @@ public:
     double Flood_DTMIN;
     void fullSWOF2Do2lightWrapperCell1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     void fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *hs, cTMap *us, cTMap *vs, double dt1);
-    void fullSWOF2Do2lightWrapperDynamic2(int thread, cTMap *hs, cTMap *us, cTMap *vs, cTMap *hsa, cTMap *usa, cTMap *vsa, double dt1);
-    double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
+    void fullSWOF2Do2lightWrapperDynamic2(int thread, cTMap *h, cTMap *u, cTMap *v,
+                                          cTMap *hs, cTMap *us, cTMap *vs,
+                                          cTMap *hsa, cTMap *usa, cTMap *vsa, double dt1);
+    double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     void fullSWOF2Do2lightWrapperErosion(int thread, cTMap *h, cTMap *u, cTMap *v, double dt1);
 
     double limiter(double a, double b);
@@ -532,7 +535,8 @@ public:
     void F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    int F_scheme, F_fluxLimiter, F_reconstruction, F_replaceV, F_MaxIter, F_maxSteps;
+    int F_scheme, F_fluxLimiter, F_reconstruction, F_replaceV, F_MaxIter, F_AddGravity;\
+    double F_Angle;
 
     double F_levee;
     double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl, HLL_tmp;
@@ -550,6 +554,7 @@ public:
     void MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v);
     void correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2, double thv, double dv, double dt);
+    void simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v);
 
     void infilInWave(cTMap *_h, double dt1);
 
@@ -741,6 +746,7 @@ public:
     void CalcVelDisch(int thread);
     void CalcVelDischChannel(int thread);
     void CalcVelDischChannelNT();
+    void fromChannelVoltoWH(int r, int c);
     void ToTiledrain();//int thread);
     void TileFlow(void);
     void StormDrainFlow(void);
@@ -748,9 +754,15 @@ public:
     void CalcVelDischDrain(void);
     void GridCell(int thread);
 
+    void doExtendRow(int r, int c, int n,  double w2, double adx);
+    void doExtendCol(int r, int c, int n,  double w2, double adx);
+    void extendRow(int r, int c, int i, double w);
+    void extendCol(int r, int c, int i, double w);
+
     void ExtendChannel();
+    bool ExtendChannelNew();
     bool IsExtendedChannel(int r, int c, int dr, int dc);
-    void DistributeOverExtendedChannel(cTMap * _In, cTMap * _Out, bool do_not_div = false, bool proportional = true);
+    void DistributeOverExtendedChannel(cTMap * _In, cTMap * _Out);
     bool OUTORMVc(int r, int c);  // replaced by define
 
     void InitFlowBarriers(void);
@@ -873,14 +885,12 @@ public:
     ////MULTITHREADING STUFF
     LisemThreadPool * ThreadPool;
     //std::function<void(int)> freport;      // reporting thread
-    std::function<void(int)> wrapCellProcesses1D;    // 1D first part  = cellpropcesses
-    std::function<void(int)> fcompute2;    // 1D second part = cellprocesses2
+    std::function<void(int)> CellProcesses1D;    // 1D first part  = cellpropcesses
     std::function<void(int)> flowcompute;  // k2d wave
 
     std::function<void(int)> flood_cellcompute;   //swof part 1
     std::function<void(int)> flood_flowcompute;   // swof part 2
     std::function<void(int)> flood_flowcompute2;   // swof part 2 for Heun
-    std::function<void(int)> flood_flowcompute3;   // swof part 3 erosion
 
     QList<double> TSList_point;
     QList<double> TSList_rainav;
@@ -900,9 +910,9 @@ public:
 
 protected:
     void run();
-    QTime time_ms;
+  //  QTime time_ms;
     // talk to the interface
-
+    QElapsedTimer time_ms;
     void setupDisplayMaps();
     void setupHydrographData();
     void ClearHydrographData();

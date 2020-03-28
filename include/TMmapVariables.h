@@ -105,6 +105,7 @@ cTMap
 *fpa,                        //!< fraction ponded area [-]
 *SoilWidthDX,                //!< width of soil surface, excluding roads and channels [m]
 *RoadWidthDX,                //!< width of tarred roads [m]
+*RoadWidthHSDX,
 *StoneFraction,              //!< fraction of stones on the surface, affects splash [-]
 *CompactFraction,            //!< fraction compacted at the surface, uses ksat compact [-]
 *CrustFraction,              //!< fraction crusted at the surface, uses ksat crust [-]
@@ -301,6 +302,8 @@ cTMap
 *ChannelV,                   //!<
 *ChannelN,                   //!<
 *ChannelWH,                  //!<
+*ChannelWHExtended,                  //!<
+*ChannelVolExtended,                  //!<
 *ChannelWaterVol,            //!<
 //*ChannelBLWaterVol,            //!<
 //*ChannelSSWaterVol,            //!<
@@ -329,6 +332,7 @@ cTMap
 *ChannelCohesion,            //!<
 *ChannelY,                   //!<
 *ChannelDepth,               //!<
+*ChannelPAngle,               //!<
 
 //baseflow
 *BaseFlowDischarges,
@@ -468,6 +472,9 @@ cTMap
 *tmd,                        //!< Auxilary map
 *CoreMask,
 //display combinations
+*extQCH,
+*extVCH,
+*extWHCH,
 *COMBO_QOFCH,
 *COMBO_VOFCH,
 *COMBO_SS,

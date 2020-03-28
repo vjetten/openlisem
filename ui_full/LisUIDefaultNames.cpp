@@ -176,7 +176,7 @@ void lisemqt::defaultRunFile()
     //VJ CLEANED UP ORDER OF VARIABLES 160409
 
     i = 0;
-    namelist[i++].name = QString("[openLISEM runfile version 4]");
+    namelist[i++].name = QString("[openLISEM runfile version 5]");
     namelist[i++].name = QString("");
     //###
     namelist[i++].name = QString("[Input]");
@@ -191,6 +191,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include Satellite Image");
     namelist[i++].name = QString("satImage Directory");
     namelist[i++].name = QString("satImage file");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Advanced Options");
 
     //###
     namelist[i++].name = QString("");
@@ -264,10 +266,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Begin time");
     namelist[i].value = QString("100");
     namelist[i++].name = QString("End time");
-    namelist[i].value = QString("0.1");
+    namelist[i].value = QString("0.15");
     namelist[i++].name = QString("Timestep");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Dump Mass Balance");
 
     //###
     namelist[i++].name = QString("");
@@ -379,12 +379,16 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Minimum reported flood height");
     namelist[i].value = QString("2.0");
     namelist[i++].name = QString("Flooding mixing coefficient");
-//    namelist[i].value = QString("2.0");
-//    namelist[i++].name = QString("Flooding runoff partitioning");
+    namelist[i].value = QString("2.0");
+    namelist[i++].name = QString("Flooding runoff partitioning");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood initial level map");
     namelist[i].value = QString("0.2");
     namelist[i++].name = QString("Flooding courant factor");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Use MUSCL");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Use time avg V");
     namelist[i].value = QString("3"); //HLL2
     namelist[i++].name = QString("Flooding SWOF Reconstruction");
     namelist[i].value = QString("1"); //minmod
@@ -393,12 +397,18 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Timestep flood");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Variable Timestep");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Use Heun");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("Use MUSCL");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("Use time avg V");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use Heun");
+    namelist[i].value = QString("200");
+    namelist[i++].name = QString("Flood Max Iterations");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use gravity flow");
+    namelist[i].value = QString("0.02");
+    namelist[i++].name = QString("Angle flow to channel");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use fixed angle");
+
+
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Kinetic Energy]");

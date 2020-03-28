@@ -182,10 +182,10 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include channel culverts")==0)       SwitchCulverts  = iii == 1;
 
         if (p1.compare("Variable Timestep")==0) SwitchVariableTimestep = iii == 1;
-        if (p1.compare("Use Heun")==0) SwitchHeun = iii == 1;
         if (p1.compare("Use MUSCL")==0) SwitchMUSCL = iii == 1;
         if (p1.compare("Use time avg V")==0) SwitchTimeavgV = iii == 1;
         if (p1.compare("Flow Boundary 2D")==0)     FlowBoundaryType = iii;
+        if (p1.compare("Advanced Options")==0)     SwitchAdvancedOptions = iii == 1;
 
         if (p1.compare("Detachment efficiency")==0)           SwitchEfficiencyDET = iii;
         if (p1.compare("SettlingVelocity")==0)                SwitchSV = iii;
@@ -234,7 +234,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Regular runoff output")==0)          SwitchOutputTimeStep =   iii == 1;
         if (p1.compare("User defined output")==0)            SwitchOutputTimeUser =   iii == 1;
         if (p1.compare("Output interval")==0)				 printinterval = iii;
-        if (p1.compare("Dump Mass Balance")==0)               SwitchDumpMassBallance = iii = 1;
+        if (p1.compare("Subsoil drainage")==0)               SwitchDrainage =         iii == 1;
 
         if (p1.compare("Report point output separate")==0)   SwitchSeparateOutput =   iii == 1;
 
@@ -290,8 +290,6 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Erosion map units (0/1/2)")==0)  ErosionUnits = iii;
 
         InfilMethod = getvalueint("Infil Method");
-
-
 
     }// first loop of runnamelist
 

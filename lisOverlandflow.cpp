@@ -52,14 +52,17 @@ functions: \n
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow(void)
 {
-    if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
+    if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
+        ToChannel();           // overland flow water and sed flux going into or out of channel, in channel cells
+
         OverlandFlow1D();
 
-    //        if(SwitchKinematic2D == K2D_METHOD_DIFF)
-    //        OverlandFlow2D();
+        ChannelFlood(); // st venant channel 2D flooding from channel, only for kyn wave, partly parallel
+    }
 
-    if(SwitchKinematic2D == K2D_METHOD_DYN)
+    if(SwitchKinematic2D == K2D_METHOD_DYN) {
         OverlandFlow2Ddyn();
+    }
 
 }
 //--------------------------------------------------------------------------------------------
@@ -77,21 +80,21 @@ void TWorld::ToChannel()//int thread)
     if (!SwitchIncludeChannel)
         return;
 
-    CalcVelDischChannelNT();
+//    CalcVelDischChannelNT();
 
-    if(SwitchKinematic2D == K2D_METHOD_DYN) {
-        ChannelOverflow(WHrunoff, V, false);
-        return;
-    }
+//    if(SwitchKinematic2D == K2D_METHOD_DYN) {
+//        ChannelOverflow(WHrunoff, V, false);
+//        return;
+//    }
 
-    if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
-        ChannelOverflow(WHrunoff, V, true);
-        return;
-    }
+//    if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
+ //      ChannelOverflow(WHrunoff, V, true);
+//        return;
+//    }
 
-   /*
+//return;
 
-    FOR_ROW_COL_MV_CH  //TODO: must be FOR_ROW_COL_MV ? else extended no sense
+    FOR_ROW_COL_MV
     {
         if(ChannelMaskExtended->data[r][c] == 1)
         {
@@ -99,44 +102,43 @@ void TWorld::ToChannel()//int thread)
             int cr = (int)ChannelSourceXExtended->Drc;
 
             double fractiontochannel;
-            double Volume = WHrunoff->Drcr * FlowWidth->Drcr * DX->Drcr;
 
-            if (Volume == 0)
+            if (WHrunoff->Drc < HMIN)
                 continue;
 
-            if (ChannelAdj->Drcr == 0)
-                fractiontochannel = 1.0;
-            else
-                fractiontochannel = std::min(1.0, _dt*V->Drcr/std::max(0.01*_dx,0.5*ChannelAdj->Drcr));
+            double VtoChan = std::pow(WHrunoff->Drcr, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr; //F_Angle
+//            if (F_AddGravity == 1)
+//                VtoChan = sqrt(9.81*WHrunoff->Drc);
+//            else if (F_AddGravity == 2)
+//                VtoChan += sqrt(9.81*WHrunoff->Drc);
+//                VtoChan = std::max(VtoChan,sqrt(9.81*WHrunoff->Drc));
+
+            fractiontochannel = std::min(1.0, _dt*VtoChan/std::max(0.05*_dx,0.5*ChannelAdj->Drc));
             // fraction to channel calc from half the adjacent area width and flow velocity
 
-            // cannot flow into channel if water level in channel is higher than depth
-            if (WHrunoff->Drcr <= std::max(0.0 , ChannelWH->Drcr -ChannelDepthExtended->Drcr))
-            {
+            // cannot flow into channel if water level in channel is higher than runoff depth
+            if (SwitchKinematic2D == K2D_METHOD_KINDYN &&
+                WHrunoff->Drc <= std::max(0.0 , ChannelWH->Drcr - ChannelDepth->Drcr))
                 fractiontochannel = 0;
-            }
+
             // no inflow on culverts
             if (SwitchCulverts && ChannelMaxQ->Drcr  > 0)
-            {
                 fractiontochannel = 0;
-            }
 
-            double dvol = fractiontochannel*Volume;
-            double dwh = fractiontochannel*WHrunoff->Drcr;
+            if (fractiontochannel == 0)
+                continue;
 
-            ChannelWaterVol->Drcr += dvol;
+            double dwh = fractiontochannel*WHrunoff->Drc;
+
             // water diverted to the channel
-            ChannelWH->Drcr = ChannelWaterVol->Drcr/ChannelFlowWidth->Drcr;
+            ChannelWaterVol->Drcr += dwh* FlowWidth->Drc * DX->Drc;
+            fromChannelVoltoWH(rr, cr);
 
-            WHrunoff->Drcr -= dwh ;
-            WHroad->Drcr -= dwh;
-            WHGrass->Drcr -= dwh;
-            WH->Drcr -= dwh;
-            //WaterVolall->Drcr = DX->Drcr*( WH->Drcr*SoilWidthDX->Drcr + WHroad->Drcr*RoadWidthDX->Drcr);
-            WaterVolall->Drcr = WHrunoff->Drcr*ChannelAdj->Drcr*DX->Drcr + DX->Drcr*WHstore->Drcr*SoilWidthDX->Drcr;
-
-            ChannelWaterHeightFromVolumeNT();
-            // add tochannel to volume and recalc channelwh
+            WHrunoff->Drc -= dwh ;
+            WHroad->Drc -= dwh;
+            WHGrass->Drc -= dwh;
+            WH->Drc -= dwh;
+            WaterVolall->Drc = WHrunoff->Drcr*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
 
             if (SwitchErosion)
             {
@@ -160,11 +162,10 @@ void TWorld::ToChannel()//int thread)
                     }
                 }
                RiverSedimentLayerDepth(rr,cr);
-                RiverSedimentMaxC(rr,cr);
+               RiverSedimentMaxC(rr,cr);
             }
         }
     }
- */
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -332,6 +333,9 @@ void TWorld::OverlandFlow2Ddyn(void)
 {
     double dtOF = 0;
 
+    ChannelOverflow(WHrunoff, V, false);
+        // false means flood sediment maps are used
+
     startFlood = false;
     FOR_ROW_COL_MV {
         if (WHrunoff->Drc > HMIN){
@@ -349,7 +353,6 @@ void TWorld::OverlandFlow2Ddyn(void)
     FOR_ROW_COL_MV
     {
         V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
-
         Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
         Q->Drc = Qn->Drc; // just to be sure
     }
@@ -435,7 +438,6 @@ void TWorld::OverlandFlow1D(void)
     // recalculate water vars after subtractions in "to channel"
     FOR_ROW_COL_MV
     {
-        //WaterVolRunoff->Drc =  DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
         WaterVolin->Drc = DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
         //volume runoff into the kin wave, needed to determine infil in kin wave
 
@@ -460,14 +462,6 @@ void TWorld::OverlandFlow1D(void)
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
         }
     }
-
-//    bool doit = false;
-//    FOR_ROW_COL_MV {
-//       WHtop->Drc = std::min(0.0, WHrunoff->Drc - minReportFloodHeight);
-//       WHrunoff->Drc -= WHtop->Drc;
-//       if (WHtop->Drc > 0)
-//           doit = true;
-//    }
 
     // route water
     Qn->setAllMV();
@@ -496,13 +490,13 @@ void TWorld::OverlandFlow1D(void)
             WaterVolout = std::max(0.0, QinKW->Drc*_dt + WaterVolin->Drc  - Qn->Drc*_dt);
 
             // new water vol is mass bal diff
-            WHrunoff->Drc = WaterVolout/(ChannelAdj->Drc*DX->Drc);
+            WHrunoff->Drc = ChannelAdj->Drc > 0 ? WaterVolout/(ChannelAdj->Drc*DX->Drc) : 0.0;
             // runoff based on water vol out
             // NOTE route substance is already an explicit solution
         }
         else
         {
-            WHrunoff->Drc = (Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc;
+            WHrunoff->Drc = ChannelAdj->Drc > 0 ?(Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc : 0.0;
             //new WH based on A/dx = alpha Q^beta / dx
             // apha is however determined from the old Q...
 
@@ -520,7 +514,7 @@ void TWorld::OverlandFlow1D(void)
 
         InfilVolKinWave->Drc = InfilKWact;
 
-        double Perim = 2*WHrunoff->Drc + FlowWidth->Drc;
+        double Perim = FlowWidth->Drc > 0 ? 2*WHrunoff->Drc + FlowWidth->Drc : 0.0;
         double R = WHrunoff->Drc*FlowWidth->Drc/Perim;
         Alpha->Drc = pow(N->Drc/sqrt(Grad->Drc) * pow(Perim, 2.0/3.0),0.6); // for erosion
         V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/N->Drc;
@@ -543,22 +537,6 @@ void TWorld::OverlandFlow1D(void)
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
 
     }
-
-    //spread out the top layer
-//    if (doit) {
-//        double dtf = fullSWOF2Do2light(WHtop, V, V, DEM, true);
-//        double area = 0.0;
-//        long cells = 0;
-//        FOR_ROW_COL_MV {
-//            WHrunoff->Drc += WHtop->Drc;
-//            if (WHtop->Drc > 0.0) {
-//                area+= _dx*_dx;
-//                cells++;
-//            }
-//        }
-//        debug(QString("Flood top (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtf,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(cells));
-//        // some screen error reporting
-//    }
 
     //      routing of substances add here!
     //      do after kin wave so that the new flux Qn out of a cell is known

@@ -42,28 +42,21 @@ QStringList optionList;
 
 int main(int argc, char *argv[])
 {
-    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
+    // https://doc.qt.io/qt-5/highdpi.html
+ //   qputenv("QT_ENABLE_HIGHDPI_SCALING","1");
+ //   qputenv("QT_SCALE_FACTOR_ROUNDING_POLICY","1");
+
     Fixture fixture; // <= necessary for GDAL
-  // qputenv("QT_DEVICE_PIXEL_RATIO",QByteArray("2"));
- //   QApplication::setAttribute(Qt::AA_Use96Dpi);
- //   QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
- //  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication app(argc, argv);
+
     app.setWindowIcon(QIcon(":/openlisem.ico"));
     QLocale loc = QLocale::system(); // current locale
     loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
     QLocale::setDefault(loc);
-    qDebug() << loc;
 
-//    QFile file(":/openlisem.qss");
-//    file.open(QFile::ReadOnly);
-//    QString styleSheet = QLatin1String(file.readAll());
-//    file.close();
-//    qApp->setStyleSheet(styleSheet);
-//    QFont f("MS Shell Dlg 2", 8);
- //   qApp->setFont( f);
-//app.setStyle(QString("cleanlooks"));
-    app.setStyle(QStyleFactory::create("Fusion"));
+   app.setStyle(QStyleFactory::create("Fusion"));
+   //  app.setStyle(QStyleFactory::create("Windows"));
 
     op.LisemDir = QCoreApplication::applicationDirPath()+"/";
     // exe path, used for ini file
@@ -116,7 +109,7 @@ int main(int argc, char *argv[])
         {
             if (runfound)
             {
-                optionStr += str+ " ";;
+                optionStr += str+ " ";
                 if (str.contains("]"))
                 {
                     str.remove(']');
