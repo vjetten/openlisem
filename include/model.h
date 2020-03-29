@@ -301,9 +301,8 @@ public:
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum, SwitchLitter,
     Switchheaderpest, SwitchPesticide, SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,
     SwitchTimeavgV, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed,SwitchFlowBarriers, SwitchBuffers,
-    SwitchCulverts, SwitchUserCores, SwitchVariableTimestep, SwitchHeun, SwitchNeedD90, SwitchImage,
+    SwitchCulverts, SwitchUserCores, SwitchVariableTimestep, SwitchHeun, SwitchNeedD90, SwitchImage, SwitchResultDatetime,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle;
- /* SwitchFloodSWOForder1, SwitchFloodSWOForder2,*/
     int SwitchFlood1D2DCoupling;
     int SwitchKinematic2D;
     int SwitchEfficiencyDET;
@@ -553,7 +552,7 @@ public:
     void Boundary2Ddyn();//cTMap* h, cTMap* Q,cTMap *U, cTMap *V);
     void MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v);
-    void correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2, double thv, double dv, double dt);
+    void correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2);
     void simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v);
 
     void infilInWave(cTMap *_h, double dt1);

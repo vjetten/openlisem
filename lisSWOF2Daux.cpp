@@ -329,29 +329,7 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
 
             //NOTE ves1 is c-1, c+1    ves2 is r-1, r+1
 
-            double sign1 = ves1->Drc > 0 ? 1.0 : -1.0;
-            double sign2 = ves2->Drc > 0 ? 1.0 : -1.0;
-            sqUV = qSqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc);
-            double s1 = Grad->Drc, s2 = Grad->Drc;
-            double G = sqrt(GRAV*hes->Drc);
-            if (sign1 < 0) {
-                if (c > 0 && !MV(r, c-1))
-                    s1 = sin(atan(fabs(hes->Drc-hes->data[r][c-1])));
-            } else {
-                if (c < _nrCols-1 && !MV(r, c+1))
-                    s1 = sin(atan(fabs(hes->Drc-hes->data[r][c+1])));
-            }
-            if (sign2 < 0) {
-                if (r > 0 && !MV(r-1, c))
-                    s2 = sin(atan(fabs(hes->Drc-hes->data[r-1][c])));
-            } else {
-                if (r < _nrRows-1 && !MV(r+1, c))
-                    s2 = sin(atan(fabs(hes->Drc-hes->data[r+1][c])));
-            }
-
-            ves1->Drc = sign1 * std::min(fabs(ves1->Drc), 4.0*(pow(hes->Drc,2.0/3.0)*sqrt(s1)/N->Drc + G));
-            ves2->Drc = sign2 * std::min(fabs(ves2->Drc), 4.0*(pow(hes->Drc,2.0/3.0)*sqrt(s2)/N->Drc + G));
-            // this says that when V is much larger than kinematic wave V + gravity wave, limit it to that
+            correctSpuriousVelocities(r, c, hes, ves1, ves2);
 
             double fac = 0;
             if (SwitchTimeavgV) {

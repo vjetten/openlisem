@@ -10748,7 +10748,7 @@ p, li { white-space: pre-wrap; }
                          <number>0</number>
                         </property>
                         <property name="maximum">
-                         <number>2</number>
+                         <number>1</number>
                         </property>
                         <property name="value">
                          <number>0</number>
@@ -10758,7 +10758,7 @@ p, li { white-space: pre-wrap; }
                       <item row="4" column="1">
                        <widget class="QLabel" name="label_63">
                         <property name="text">
-                         <string>0 - Use kinematic V for flow to and from channel; 2 - use gravity flow from channel and kin V to channel</string>
+                         <string>0 - Use kinematic V for flow to and from channel; 1 - use gravity flow from channel and kin V to channel</string>
                         </property>
                        </widget>
                       </item>
@@ -13699,7 +13699,20 @@ p, li { white-space: pre-wrap; }
                  </font>
                 </property>
                 <property name="text">
-                 <string>Snow</string>
+                 <string>Snowmelt</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="3" colspan="3">
+               <widget class="QCheckBox" name="checkAddDatetime">
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>add date-time</string>
                 </property>
                </widget>
               </item>

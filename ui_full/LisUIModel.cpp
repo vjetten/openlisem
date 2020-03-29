@@ -136,7 +136,17 @@ void lisemqt::runmodel()
     W->batchmode = false;
     // run without Qt interface on openlisemtmp.run only
 
-    //setFloodOP();
+    op.timeStartRun =  QDateTime().currentDateTime().toString("yyMMdd-hhmm");
+    if (checkAddDatetime->isChecked()) {
+        screenShotDir = E_ResultDir->text() + QString("res"+op.timeStartRun+"/");
+        QDir(screenShotDir).mkpath(QString("screens/"));
+        screenShotDir = screenShotDir + QString("screens/");
+    } else {
+        screenShotDir = E_ResultDir->text();
+        QDir(screenShotDir).mkpath(QString("screens"+op.timeStartRun+"/"));
+        screenShotDir = screenShotDir + QString("screens"+op.timeStartRun+"/");
+    }
+    qDebug() << screenShotDir;
 
     W->start();
     // start the model thread, executes W->run()
@@ -146,11 +156,6 @@ void lisemqt::runmodel()
     toolButton_fileOpen->setEnabled(false);
     toolButton_deleteRun->setEnabled(false);
 
-    op.timeStartRun =  QDateTime().currentDateTime().toString("yyMMdd-hhmm");//"hh.mm-yy.MM.dd");
-
-    screenShotDir = CheckDir(E_ResultDir->text(), true) + "screens" + op.timeStartRun + "/";
-    QDir(E_ResultDir->text()).mkpath(screenShotDir);
-    qDebug() << screenShotDir;
 }
 //---------------------------------------------------------------------------
 void lisemqt::pausemodel()

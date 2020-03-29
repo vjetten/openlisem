@@ -657,43 +657,15 @@ void TWorld::maincalcscheme(int thread, double dt, cTMap *he, cTMap *ve1, cTMap 
                 ves2->Drc = (qes2/(1.0+nsq))/hes->Drc;
 
                 //NOTE ves1 is c-1, c+1    ves2 is r-1, r+1
+                correctSpuriousVelocities(r, c, hes, ves1, ves2);
 
-
-                double sign1 = ves1->Drc > 0 ? 1.0 : -1.0;
-                double sign2 = ves2->Drc > 0 ? 1.0 : -1.0;
-                sqUV = qSqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc);
-                double s1 = Grad->Drc, s2 = Grad->Drc;
-                double G = sqrt(GRAV*hes->Drc);
-                if (sign1 < 0) {
-                    if (c > 0 && !MV(r, c-1))
-                        s1 = sin(atan(fabs(hes->Drc-hes->data[r][c-1])));
-                } else {
-                    if (c < _nrCols-1 && !MV(r, c+1))
-                        s1 = sin(atan(fabs(hes->Drc-hes->data[r][c+1])));
+                double fac = 0;
+                if (SwitchTimeavgV) {
+                    fac = 0.5+0.5*std::min(1.0,4*hes->Drc)*std::min(1.0,4*hes->Drc);
+                    fac = fac *exp(- std::max(1.0,dt) / nsq1);
                 }
-                if (sign2 < 0) {
-                    if (r > 0 && !MV(r-1, c))
-                        s2 = sin(atan(fabs(hes->Drc-hes->data[r-1][c])));
-                } else {
-                    if (r < _nrRows-1 && !MV(r+1, c))
-                        s2 = sin(atan(fabs(hes->Drc-hes->data[r+1][c])));
-                }
-
-               ves1->Drc = sign1 * std::min(fabs(ves1->Drc), 4.0*(pow(hes->Drc,2.0/3.0)*sqrt(s1)/N->Drc + G));
-               ves2->Drc = sign2 * std::min(fabs(ves2->Drc), 4.0*(pow(hes->Drc,2.0/3.0)*sqrt(s2)/N->Drc + G));
-               // this says that when V is much larger than kinematic wave V + gravity wave, limit it to that
-
-               double fac = 0;
-               if (SwitchTimeavgV) {
-                   fac = 0.5+0.5*std::min(1.0,4*hes->Drc)*std::min(1.0,4*hes->Drc);
-                   fac = fac *exp(- std::max(1.0,dt) / nsq1);
-               }
-               ves1->Drc = fac * ve1->Drc + (1.0-fac) *ves1->Drc;
-               ves2->Drc = fac * ve2->Drc + (1.0-fac) *ves2->Drc;
-
-//                double thv = 10.0;
-//                double dv = 5.0;
-//                correctSpuriousVelocities(r, c, hes, ves1, ves2,thv, dv, dt);
+                ves1->Drc = fac * ve1->Drc + (1.0-fac) *ves1->Drc;
+                ves2->Drc = fac * ve2->Drc + (1.0-fac) *ves2->Drc;
 
             }
             else
@@ -714,8 +686,38 @@ void TWorld::maincalcscheme(int thread, double dt, cTMap *he, cTMap *ve1, cTMap 
 
 }
 //---------------------------------------------------------------------------
-void TWorld::correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2, double thv, double dv, double dt)
+void TWorld::correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2)
 {
+
+    double sign1 = ves1->Drc > 0 ? 1.0 : -1.0;
+    double sign2 = ves2->Drc > 0 ? 1.0 : -1.0;
+    double sqUV = qSqrt(ves1->Drc*ves1->Drc+ves2->Drc*ves2->Drc);
+    double s1 = Grad->Drc, s2 = Grad->Drc;
+    double G = sqrt(2*GRAV*hes->Drc); // bernouilly pressure velocity
+    if (sign1 < 0) {
+        if (c > 0 && !MV(r, c-1))
+            s1 = sin(atan(fabs(hes->Drc-hes->data[r][c-1])));
+    } else {
+        if (c < _nrCols-1 && !MV(r, c+1))
+            s1 = sin(atan(fabs(hes->Drc-hes->data[r][c+1])));
+    }
+    if (sign2 < 0) {
+        if (r > 0 && !MV(r-1, c))
+            s2 = sin(atan(fabs(hes->Drc-hes->data[r-1][c])));
+    } else {
+        if (r < _nrRows-1 && !MV(r+1, c))
+            s2 = sin(atan(fabs(hes->Drc-hes->data[r+1][c])));
+    }
+    double U1 =  4.0*(pow(hes->Drc,2.0/3.0)*sqrt(s1)/N->Drc + G);
+    double V1 =  4.0*(pow(hes->Drc,2.0/3.0)*sqrt(s2)/N->Drc + G);
+
+//    if (fabs(ves1->Drc) > U1 || fabs(ves2->Drc) > V1)
+//        tma->Drc = 1;
+    ves1->Drc = sign1 * std::min(fabs(ves1->Drc), U1);
+    ves2->Drc = sign2 * std::min(fabs(ves2->Drc), V1);
+    // when V is much larger than kinematic wave V + pressure flow, limit it to that
+
+    /*
     double vs1 = fabs(ves1->Drc);
     double vs2 = fabs(ves2->Drc);
     double Vsqrt = sqrt(vs1*vs1+vs2*vs2) ;
@@ -745,6 +747,7 @@ void TWorld::correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cT
         ves1->Drc = sign1*std::min(std::min(vh, vkin), vs1);
         ves2->Drc = sign2*std::min(std::min(vh, vkin), vs2);
     }
+    */
 }
 //---------------------------------------------------------------------------
 

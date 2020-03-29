@@ -178,14 +178,16 @@ void lisemqt::defaultRunFile()
     i = 0;
     namelist[i++].name = QString("[openLISEM runfile version 5]");
     namelist[i++].name = QString("");
-    //###
+
     namelist[i++].name = QString("[Input]");
     namelist[i++].name = QString("Work Directory");
     namelist[i++].name = QString("Map Directory");
-  //  namelist[i++].name = QString("Include Rainfall");
     namelist[i++].name = QString("Rainfall Directory");
     namelist[i++].name = QString("Rainfall file");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Include Snowmelt");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Result datetime");
 
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include Satellite Image");

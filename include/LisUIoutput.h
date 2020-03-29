@@ -44,7 +44,6 @@ struct output{
     int printstep;
     int maxstep;
 
-
     QList<int> OutletIndices;
     QList<int> OutletLocationX;
     QList<int> OutletLocationY;
@@ -66,23 +65,6 @@ struct output{
     QVector <double> EndPointX;
     QVector <double> EndPointY;
 
-//    int
-//    F_solution,
-//    F_scheme,
-//    F_SSMethod,
-//    F_BLMethod,
-//    F_SigmaDiffusion,
-//    F_fluxLimiter,
-//    F_replaceV,
-//    F_Maxiter;
-//    double
-//    F_maxVelocity,
-//    F_extremeHeight,
-//    F_extremeDiff,
-//    F_MinTimestepFlood,
-//    F_courant,
-//    F_courant_diffusive;
-
     double timestep, CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
 
     double
@@ -99,6 +81,7 @@ struct output{
     // sediment
     MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot;
 
+    // map pointers for display
     cTMap *baseMap;
     cTMap *baseMapDEM;
     cTMap *channelMap;
@@ -131,6 +114,7 @@ struct output{
     QString LisemDir;
     QString format;
     QString timeStartRun;
+    QString datestamp;
 
     bool doBatchmode;
 };

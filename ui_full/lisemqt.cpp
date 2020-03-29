@@ -232,7 +232,6 @@ void lisemqt::resizeEvent(QResizeEvent* event)
     {
         groupBox_drawMap->setVisible(true);
         groupBox_info->setVisible(true);
-        tabWidget_out->setIconSize(QSize(32,32));
     }
     else
     {
@@ -247,7 +246,6 @@ void lisemqt::resizeEvent(QResizeEvent* event)
             groupBox_info->setVisible(false);
         }
 
-        tabWidget_out->setIconSize(QSize(16,16));
     }
 }
 //--------------------------------------------------------------------
@@ -858,11 +856,12 @@ int lisemqt::SetStyleUISize()
     qDebug() << disp << _H << abs(_H-800) << abs(_H-1080) << abs(_H-1200) << abs(_H-1440) << genfontsize;
 
     tabWidgetOptions->tabBar()->setExpanding(true);
+  //  tabWidget_out->setIconSize(QSize(24, 24));
 
     // do a bit of size tweaking for large displays
     QSize iSize = QSize(16,16);
     if (disp == 1) {
-        tabWidget_out->setIconSize(QSize(16, 16));
+        tabWidget_out->setIconSize(QSize(24, 24));
         tabWidget_out->setStyleSheet("QTabBar::tab { height: 48px; width: 32px}");
         this->setStyleSheet(QString("QToolButton * {icon-size: 16px 16px}"));
         iSize = QSize(16,16);
@@ -902,10 +901,7 @@ void lisemqt::SetStyleUI()
     int x = SetStyleUISize();
     genfontsize += x;
     font.setPointSize(genfontsize);
-    qApp->setFont(font);
-
-    fontIncrease();
-    fontDecrease();
+//    qApp->setFont(font);
 
     toolBar_2->setMovable( false);
     toolBar->setMovable( false);
@@ -1507,14 +1503,7 @@ void lisemqt::shootScreen()
     QPixmap originalPixmap; // clear image for low memory situations
     QString format = "png";
     QFileInfo fi(op.runfilename);
-//    QString DT = "";
-//    if (startShootScreens) {
-//        DT = QDateTime().currentDateTime().toString("yyMMdd-hhmm");//"hh.mm-yy.MM.dd");
-//        startShootScreens = false;
-//    }
 
-  //  QString outdir = CheckDir(E_ResultDir->text(), true) + "screens" + op.timeStartRun + "/";
-  //  qDebug() << outdir;
     QString fileName = screenShotDir + fi.baseName();
     QString number = QString("-%1").arg(op.runstep,5,'d',0,'0');
     QString name;

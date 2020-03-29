@@ -117,12 +117,8 @@ void lisemqt::GetRunfile()
 void lisemqt::ParseInputData()
 {
     int j=0;
-  //  bool dummyrain = false;
-  //  bool dummysnow = false;
     int dummykinwave = 1;
     bool dummy2layerinfil = false;
-  //  bool dummyErosion = false;
- //   bool seterosionold = false;
     // get all the options/checks
 
     resetAll();
@@ -404,6 +400,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("OutSed")==0)     checkBox_OutSed->setChecked(check);
         if (p1.compare("OutSL")==0)      checkBox_OutSL->setChecked(check);
 
+        if (p1.compare("Result datetime")==0) checkAddDatetime->setChecked(check);
    }
 
     // ###################################
@@ -482,6 +479,7 @@ void lisemqt::ParseInputData()
                 E_ResultDir->setText(E_WorkDir + "res/");
 
         }
+
         if (p1.compare("Main results file")==0) E_MainTotals->setText(p);
         if (p1.compare("Filename point output")==0) E_PointResults->setText(p);
         if (p1.compare("Filename landunit output")==0) E_LandunitResults->setText(p);
@@ -917,53 +915,25 @@ void lisemqt::updateModelData()
         //VJ 110110 added
 
         // make a string for all output maps
-//        if (p1.compare("CheckOutputMaps")==0)
-//        {
-//            outputcheck.clear();
 
-            if (p1.compare("OutRunoff")==0)         namelist[j].value.setNum((int)checkBox_OutRunoff->isChecked());
-            if (p1.compare("OutWH")==0)             namelist[j].value.setNum((int)checkBox_OutWH->isChecked());
-            if (p1.compare("OutV")==0)              namelist[j].value.setNum((int)checkBox_OutV->isChecked());
-            if (p1.compare("OutInterception")==0)  namelist[j].value.setNum((int)checkBox_OutInterception->isChecked());
-            if (p1.compare("OutSurfStor")==0)       namelist[j].value.setNum((int)checkBox_OutSurfStor->isChecked());
-            if (p1.compare("OutInf")==0)            namelist[j].value.setNum((int)checkBox_OutInf->isChecked());
-            if (p1.compare("OutTileDrain")==0)      namelist[j].value.setNum((int)checkBox_OutTiledrain->isChecked());
-            if (p1.compare("OutTileVolume")==0)     namelist[j].value.setNum((int)checkBox_OutTileVol->isChecked());
 
-            if (p1.compare("OutDet")==0)     namelist[j].value.setNum((int)checkBox_OutDet->isChecked());
-            if (p1.compare("OutDep")==0)     namelist[j].value.setNum((int)checkBox_OutDep->isChecked());
-            if (p1.compare("OutTC")==0)      namelist[j].value.setNum((int)checkBox_OutTC->isChecked());
-            if (p1.compare("OutConc")==0)    namelist[j].value.setNum((int)checkBox_OutConc->isChecked());
-            if (p1.compare("OutSed")==0)     namelist[j].value.setNum((int)checkBox_OutSed->isChecked());
-            if (p1.compare("OutSL")==0)      namelist[j].value.setNum((int)checkBox_OutSL->isChecked());
-  /*
-            if (checkBox_OutRunoff->isChecked()) outputcheck << "1"; else outputcheck << "0"; //0
-            if (checkBox_OutConc->isChecked()) outputcheck << "1"; else outputcheck << "0"; //1
-            if (checkBox_OutWH->isChecked()) outputcheck << "1"; else outputcheck << "0"; //2
-            if (checkBox_OutInterception->isChecked()) outputcheck << "1"; else outputcheck << "0"; //3     outputcheck << "0";
-            if (checkBox_OutTC->isChecked())  outputcheck << "1"; else outputcheck << "0"; //4
-            if (checkBox_OutDet->isChecked()) outputcheck << "1"; else outputcheck << "0"; //5
-            if (checkBox_OutDep->isChecked()) outputcheck << "1"; else outputcheck << "0"; //6
-            if (checkBox_OutV->isChecked()) outputcheck << "1"; else outputcheck << "0"; //7
-            if (checkBox_OutInf->isChecked()) outputcheck << "1"; else outputcheck << "0"; //8
-            if (checkBox_OutSurfStor->isChecked())   outputcheck << "1"; else outputcheck << "0"; //9
-            if (checkBox_OutChanVol->isChecked())    outputcheck << "1"; else outputcheck << "0"; //10
-            outputcheck << "0";
-            if (checkBox_OutTiledrain->isChecked())  outputcheck << "1"; else outputcheck << "0"; //11
+        if (p1.compare("OutRunoff")==0)         namelist[j].value.setNum((int)checkBox_OutRunoff->isChecked());
+        if (p1.compare("OutWH")==0)             namelist[j].value.setNum((int)checkBox_OutWH->isChecked());
+        if (p1.compare("OutV")==0)              namelist[j].value.setNum((int)checkBox_OutV->isChecked());
+        if (p1.compare("OutInterception")==0)  namelist[j].value.setNum((int)checkBox_OutInterception->isChecked());
+        if (p1.compare("OutSurfStor")==0)       namelist[j].value.setNum((int)checkBox_OutSurfStor->isChecked());
+        if (p1.compare("OutInf")==0)            namelist[j].value.setNum((int)checkBox_OutInf->isChecked());
+        if (p1.compare("OutTileDrain")==0)      namelist[j].value.setNum((int)checkBox_OutTiledrain->isChecked());
+        if (p1.compare("OutTileVolume")==0)     namelist[j].value.setNum((int)checkBox_OutTileVol->isChecked());
 
-            if (checkBox_OutHmx->isChecked())        outputcheck << "1"; else outputcheck << "0"; //12
-            if (checkBox_OutQf->isChecked())         outputcheck << "1"; else outputcheck << "0"; //13
-            if (checkBox_OutVf->isChecked())         outputcheck << "1"; else outputcheck << "0"; //14
-            //if (checkBox_OutHmxWH->isChecked())      outputcheck << "1"; else outputcheck << "0"; //15
-            if (checkBox_OutSL->isChecked())         outputcheck << "1"; else outputcheck << "0"; //16
-            if (checkBox_OutSed->isChecked())        outputcheck << "1"; else outputcheck << "0"; //17
-            outputcheck << "0";
-            outputcheck << "0";
-            outputcheck << "0";
-            // twenty places for now
-            namelist[j].value = outputcheck.join(";");
-            */
-      //  }
+        if (p1.compare("OutDet")==0)     namelist[j].value.setNum((int)checkBox_OutDet->isChecked());
+        if (p1.compare("OutDep")==0)     namelist[j].value.setNum((int)checkBox_OutDep->isChecked());
+        if (p1.compare("OutTC")==0)      namelist[j].value.setNum((int)checkBox_OutTC->isChecked());
+        if (p1.compare("OutConc")==0)    namelist[j].value.setNum((int)checkBox_OutConc->isChecked());
+        if (p1.compare("OutSed")==0)     namelist[j].value.setNum((int)checkBox_OutSed->isChecked());
+        if (p1.compare("OutSL")==0)      namelist[j].value.setNum((int)checkBox_OutSL->isChecked());
+
+        if (p1.compare("Result datetime")==0) namelist[j].value.setNum((int)checkAddDatetime->isChecked());
     }
     //get all actual mapnames from the mapList structure
     fillNamelistMapnames(true);

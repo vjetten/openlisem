@@ -166,7 +166,7 @@ void TWorld::Totals(void)
     // runoff fraction per cell calc as in-out/rainfall, indication of sinks and sources of runoff
     // exclude channel cells
     FOR_ROW_COL_MV {
-        runoffTotalCell->Drc += Qn->Drc * _dt * catchmentAreaFlatMM; // in mm !!!!
+        runoffTotalCell->Drc += (Qn->Drc +Qflood->Drc)* _dt * catchmentAreaFlatMM; // in mm !!!!
     }
 
     //=== storm drain flow ===//

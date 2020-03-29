@@ -184,7 +184,7 @@ void TWorld::DoModel()
         DEBUG("setupHydrographData()");
         setupHydrographData();
 
-        bool saveMBerror = false;
+        bool saveMBerror = true;
         saveMBerror2file(saveMBerror, true);
 
         InfilEffectiveKsat();

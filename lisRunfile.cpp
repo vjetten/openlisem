@@ -23,8 +23,8 @@
 **
 *************************************************************************/
 
-#include "model.h"
-
+#include "lisemqt.h"
+#include "global.h"
 
 /*!
   \file lisRunfile.cpp
@@ -375,8 +375,9 @@ void TWorld::ParseRunfileData(void)
         }
 
         // OUTPUT FILES
-        if (p1.compare("Result Directory")==0)
+        if (p1.compare("Result Directory")==0) {
             resultDir = CheckDir(p, true);
+        }
 
         if (p1.compare("Main results file")==0)
             resultFileName = checkOutputMapName(p, "main results file", 1);
@@ -441,6 +442,13 @@ void TWorld::ParseRunfileData(void)
         SwitchRainfall = false;
         snowmeltFileName = rainFileName;
     }
+
+    SwitchResultDatetime = getvalueint("Result datetime") == 1;
+    if (SwitchResultDatetime) {
+        QDir(resultDir).mkpath(QString("/res"+op.timeStartRun+"/"));
+        resultDir = resultDir + QString("/res"+op.timeStartRun+"/");
+    }
+
 
     Outrunoff = "ro";
     Outconc   = "conc";

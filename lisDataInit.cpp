@@ -2360,12 +2360,19 @@ void TWorld::FindBaseFlow()
 //---------------------------------------------------------------------------
 void TWorld::FindChannelAngles()
 {
+    if(!SwitchIncludeChannel)
+        return;
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
     fill(*tma, -1);
+
+//    QList <double> aa;
+
     for (int rr = 0; rr < _nrRows; rr++)
         for (int cr = 0; cr < _nrCols; cr++) {
             if(LDDChannel->Drcr == 5) {
-                int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-                int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+                // aa << 0;
 
                 LDD_LINKEDLIST *list = nullptr;
                 LDD_LINKEDLIST *temp = nullptr;
@@ -2374,6 +2381,7 @@ void TWorld::FindChannelAngles()
                 list->prev = nullptr;
                 list->rowNr = rr;
                 list->colNr = cr;
+                double nn = 0;
 
                 while (list != nullptr)
                 {
@@ -2395,12 +2403,12 @@ void TWorld::FindChannelAngles()
                         c = colNr+dx[i];
 
                         if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
-                            ldd = (int) LDD->Drc;
+                            ldd = (int) LDDChannel->Drc;
                         else
                             continue;
 
                         // check if there are more cells upstream, if not subCatchDone remains true
-                        if (tma->Drc == -1 &&
+                        if (tma->Drc < 0 &&
                                 FLOWS_TO(ldd, r, c, rowNr, colNr) &&
                                 INSIDE(r, c))
                         {
@@ -2410,17 +2418,18 @@ void TWorld::FindChannelAngles()
                             list->rowNr = r;
                             list->colNr = c;
                             subCachDone = false;
+                            nn += 1.0;
                         }
                     }
 
                     if (subCachDone)
                     {
-                        double grad = 0, gradc = 0;
-                        double n = 0, nc = 0;
+                        double grad = 0;
+                        double n = 0;
 
                         for (i=1;i<=9;i++)
                         {
-                            int r, c, ldd = 0, lddc = 0;
+                            int r, c, ldd = 0;
 
                             if (i==5)
                                 continue;
@@ -2429,27 +2438,20 @@ void TWorld::FindChannelAngles()
                             c = colNr+dx[i];
 
                             if (INSIDE(r, c) && !pcr::isMV(LDD->Drc)) {
-                                if( !pcr::isMV(LDDChannel->Drc))
-                                    ldd = (int) LDD->Drc;
-                                else
-                                    lddc = (int) LDDChannel->Drc;
-                            } else
-                                continue;
+                                ldd = (int) LDD->Drc;
+                            }
 
                             if(ldd > 0 && FLOWS_TO(ldd, r,c,rowNr, colNr)) {
                                 double dist = ldd % 2 == 0? _dx : _dx*1.4242;
                                 grad += sin(atan((DEM->Drc-DEM->data[rowNr][colNr])/dist));
                                 n += 1.0;
                             }
-                            if(lddc > 0 && FLOWS_TO(lddc, r,c,rowNr, colNr)) {
-                                gradc += ChannelPAngle->Drc;
-                                nc += 1.0;
-                            }
+                            //                            if (nn != aa.last()) {
+                            //                                aa << nn;
+                            //                            }
                         }
 
                         ChannelPAngle->data[rowNr][colNr] =  n > 0 ? std::max(0.01,std::min(0.1,grad/n)) : 0.01;
-                        ChannelPAngle->data[rowNr][colNr] = 0.8*ChannelPAngle->data[rowNr][colNr] + 0.2*(nc > 0 ? gradc/nc : 0.01);
-
                         tma->data[rowNr][colNr] = 1;
 
                         temp=list;
@@ -2460,13 +2462,22 @@ void TWorld::FindChannelAngles()
             }
         }
 
+    double avggrad = 0;
+    double nn = 0;
+    FOR_ROW_COL_MV_CH {
+        avggrad += ChannelPAngle->Drc;
+        nn+=1.0;
+    }
+    avggrad /= nn;
+
     FOR_ROW_COL_MV_CH {
         if (SwitchFixedAngle)
             ChannelPAngle->Drc = F_Angle;
         else
-            ChannelPAngle->Drc = std::min(ChannelPAngle->Drc, F_Angle);
+            ChannelPAngle->Drc = 0.5*ChannelPAngle->Drc + 0.5*avggrad;
+        //std::min(ChannelPAngle->Drc, F_Angle);
     }
-  //  report(*ChannelPAngle,"cpa.map");
+    report(*ChannelPAngle,"cpa.map");
 }
 //---------------------------------------------------------------------------
 void TWorld::InitImages()
@@ -2660,7 +2671,7 @@ void TWorld::InitShade(void)
 // for drawing onscreen
 void TWorld::InitChanNetwork()
 {
-
+    int branchnr = 0;
     op.branches << 0;
     op.ChanDataX.clear();
     op.ChanDataY.clear();
@@ -2673,89 +2684,80 @@ void TWorld::InitChanNetwork()
     if(!SwitchIncludeChannel)
         return;
 
-    int branchnr = 0;
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
     fill(*tma, 0); // flag if cell is done
 
     for (int  rr = 0; rr < _nrRows; rr++)
         for (int  cc = 0; cc < _nrCols; cc++)
-            if(!pcr::isMV(LDDChannel->data[rr][cc])) {
-                if(LDDChannel->data[rr][cc] == 5) {
-                    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-                    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+            if(LDDChannel->data[rr][cc] == 5) {
+                LDD_LINKEDLIST *list = nullptr, *temp = nullptr;
+                list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
 
-                    /// Linked list of cells in order of LDD flow network, ordered from pit upwards
-                    LDD_LINKEDLIST *list = nullptr, *temp = nullptr;
-                    list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+                list->prev = nullptr;
+                list->rowNr = rr;
+                list->colNr = cc;
+                int len = 0;
 
-                    list->prev = nullptr;
-                    /// start gridcell: outflow point of area
-                    list->rowNr = rr;
-                    list->colNr = cc;
-                    int len = 0;
+                while (list != nullptr)
+                {
+                    int i = 0;
+                    bool  subCachDone = true;
 
-                    while (list != nullptr)
+                    int rowNr = list->rowNr;
+                    int colNr = list->colNr;
+
+                    for (i=1; i<=9; i++)
                     {
-                        int i = 0;
-                        bool  subCachDone = true;
+                        int r, c;
+                        int ldd = 0;
 
-                        int rowNr = list->rowNr;
-                        int colNr = list->colNr;
+                        // this is the current cell
+                        if (i==5)
+                            continue;
 
-                        for (i=1; i<=9; i++)
+                        r = rowNr+dy[i];
+                        c = colNr+dx[i];
+
+                        if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
+                            ldd = (int) LDDChannel->Drc;
+                        else
+                            continue;
+
+                        if (tma->Drc == 0 &&
+                                FLOWS_TO(ldd, r, c, rowNr, colNr) &&
+                                INSIDE(r, c))
                         {
-                            int r, c;
-                            int ldd = 0;
-
-                            // this is the current cell
-                            if (i==5)
-                                continue;
-
-                            r = rowNr+dy[i];
-                            c = colNr+dx[i];
-
-                            if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
-                                ldd = (int) LDDChannel->Drc;
-                            else
-                                continue;
-
-                            // check if there are more cells upstream, if not subCatchDone remains true
-                            if (tma->Drc == 0 &&
-                                    FLOWS_TO(ldd, r, c, rowNr, colNr) &&
-                                    INSIDE(r, c))
-                            {
-                                temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-                                temp->prev = list;
-                                list = temp;
-                                list->rowNr = r;
-                                list->colNr = c;
-                                subCachDone = false;
-                                len++;
-                            }
+                            temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+                            temp->prev = list;
+                            list = temp;
+                            list->rowNr = r;
+                            list->colNr = c;
+                            subCachDone = false;
+                            len++;
                         }
+                    }
 
-                        if (subCachDone)
-                        {
-                            int r = list->rowNr;
-                            int c = list->colNr;
+                    if (subCachDone)
+                    {
+                        int r = list->rowNr;
+                        int c = list->colNr;
 
+                        if (len != op.branches.last()) {
+                            branchnr++;
+                            op.branches << len;
+                        }
+                        tma->Drc = branchnr; // flag done
+                        op.Chanbranch << branchnr;
+                        op.ChanDataX << c*_dx + 0.5*_dx;
+                        op.ChanDataY << (_nrRows-r-1)*_dx + 0.5*_dx;
+                        temp=list;
+                        list=list->prev;
+                        free(temp);
+                    }
 
-                            if (len != op.branches.last()) {//op.branches.at(op.branches.length() -1) ) {
-                                branchnr++;
-                                op.branches << len;
-                            }
-                            tma->Drc = branchnr; // flag done
-                            op.Chanbranch << branchnr;
-                            op.ChanDataX << c*_dx + 0.5*_dx;
-                            op.ChanDataY << (_nrRows-r-1)*_dx + 0.5*_dx;
-                            temp=list;
-                            list=list->prev;
-                            free(temp);
-                            // go to the previous cell in the list
-                         }/* eof subcatchment done */
-
-                    } /* eowhile list != nullptr */
-                }
+                } /*  list != nullptr */
             }  //pit 5
 
 
