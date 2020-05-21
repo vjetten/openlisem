@@ -444,7 +444,7 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct)
              //   qDebug() << dt1 << dt2 << cnt;
              //   dt2 = std::min(dt2, _dt-timesum);
 
-                if (cnt++ == F_maxSteps)
+                if (cnt++ == F_MaxIter)
                     break;
             } while (dt2 < dt1);
 

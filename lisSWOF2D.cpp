@@ -370,21 +370,6 @@ void TWorld::MUSCL(int thread, cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
             delzc1->Drc = z1r->Drc-z1l->Drc;
             if (c > 0 && !MV(r,c-1))
                 delz1->data[r][c-1] = z1l->Drc - z1r->data[r][c-1];
-//            if (_h->Drc > 1e-6) {//he_ca) {
-//                hlh = h1l->Drc/_h->Drc;
-//                hrh = h1r->Drc/_h->Drc;
-//                u1r->Drc = _u->Drc + hlh * du;
-//                u1l->Drc = _u->Drc - hrh * du;
-//                v1r->Drc = _v->Drc + hlh * dv;
-//                v1l->Drc = _v->Drc - hrh * dv;
-//            }
-//            else {
-//                u1r->Drc = _u->Drc;
-//                u1l->Drc = _u->Drc;
-//                v1r->Drc = _v->Drc;
-//                v1l->Drc = _v->Drc;
-//            }
-
 
             if (_h->Drc > he_ca) {
                 hlh = h1l->Drc/_h->Drc;
@@ -439,24 +424,6 @@ void TWorld::MUSCL(int thread, cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
             if(r > 0 && MV(r-1,c))
                 delz2->data[r-1][c] = z2l->Drc - z2r->data[r-1][c];
 
-
-//            if (_h->Drc > 1e-6) {//he_ca) {
-//                hlh = h2l->Drc/_h->Drc;
-//                hrh = h2r->Drc/_h->Drc;
-//                u2r->Drc = _u->Drc + hlh * du;
-//                u2l->Drc = _u->Drc - hrh * du;
-//                v2r->Drc = _v->Drc + hlh * dv;
-//                v2l->Drc = _v->Drc - hrh * dv;
-//            }
-//            else {
-//                u2r->Drc = _u->Drc;
-//                u2l->Drc = _u->Drc;
-//                v2r->Drc = _v->Drc;
-//                v2l->Drc = _v->Drc;
-//            }
-
-
-
             if (_h->Drc > he_ca) {
                 hlh = h2l->Drc/_h->Drc;
                 hrh = h2r->Drc/_h->Drc;
@@ -499,19 +466,6 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
             f1o->Drc = 0;
             f2o->Drc = 0;
             f3o->Drc = 0;
-//            double bh = 0.1;
-//            fbn->Drc = 0;
-//            fbs->Drc = 0;
-//            fbe->Drc = 0;
-//            fbw->Drc = 0;
-//            if(LDD->Drc == 1) { fbn->Drc = bh; fbw->Drc = bh;}
-//            if(LDD->Drc == 2) { fbe->Drc = bh; fbw->Drc = bh;}
-//            if(LDD->Drc == 3) { fbn->Drc = bh; fbe->Drc = bh;}
-//            if(LDD->Drc == 4) { fbn->Drc = bh; fbs->Drc = bh;}
-//            if(LDD->Drc == 6) { fbn->Drc = bh; fbs->Drc = bh;}
-//            if(LDD->Drc == 7) { fbs->Drc = bh; fbw->Drc = bh;}
-//            if(LDD->Drc == 8) { fbe->Drc = bh; fbw->Drc = bh;}
-//            if(LDD->Drc == 9) { fbs->Drc = bh; fbe->Drc = bh;}
 
             if(c > 0 && !MV(r,c-1)) {
                 h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
@@ -1037,7 +991,7 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
     double sumh = 0;
     bool stop;
 
-    F_MaxIter = (int) std::min(20000.0, _dt/TimestepfloodMin);
+  //  F_MaxIter = (int) std::min(1000.0, _dt/TimestepfloodMin);
 
     if (startFlood)
     {

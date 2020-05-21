@@ -249,7 +249,7 @@ void TWorld::DoModel()
             OrderedProcesses();  //do ordered solutions such as channel LDD etc., non threaded
 
             //wait for the report thread that was started in the previous timestep
-            ThreadPool->WaitForReportThread();
+         //   ThreadPool->WaitForReportThread();
 
             Totals();            // calculate all totals and cumulative values
 

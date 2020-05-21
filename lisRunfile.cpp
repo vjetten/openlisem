@@ -175,37 +175,36 @@ void TWorld::ParseRunfileData(void)
 
         if (p1.compare("Nr user Cores") == 0) userCores = iii;
         //options in the main code, order is not important
-        if (p1.compare("Include Erosion simulation")==0)     SwitchErosion =          iii == 1;
-        if (p1.compare("Include main channels")==0)          SwitchIncludeChannel =   iii == 1;
-        if (p1.compare("Include channel infil")==0)          SwitchChannelInfil     = iii == 1;
-        if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
-        if (p1.compare("Include channel culverts")==0)       SwitchCulverts  = iii == 1;
+        if (p1.compare("Include Erosion simulation")==0)                SwitchErosion =          iii == 1;
+        if (p1.compare("Include main channels")==0)                     SwitchIncludeChannel =   iii == 1;
+        if (p1.compare("Include channel infil")==0)                     SwitchChannelInfil     = iii == 1;
+        if (p1.compare("Include channel baseflow")==0)                  SwitchChannelBaseflow  = iii == 1;
+        if (p1.compare("Include channel culverts")==0)                  SwitchCulverts  = iii == 1;
 
-        if (p1.compare("Variable Timestep")==0) SwitchVariableTimestep = iii == 1;
-        if (p1.compare("Use Heun")==0) SwitchHeun = iii == 1;
-        if (p1.compare("Use MUSCL")==0) SwitchMUSCL = iii == 1;
-        if (p1.compare("Use time avg V")==0) SwitchTimeavgV = iii == 1;
-        if (p1.compare("Flow Boundary 2D")==0)     FlowBoundaryType = iii;
+        if (p1.compare("Variable Timestep")==0)                         SwitchVariableTimestep = iii == 1;
+        if (p1.compare("Use MUSCL")==0)                                 SwitchMUSCL = iii == 1;
+        if (p1.compare("Use time avg V")==0)                            SwitchTimeavgV = iii == 1;
+        if (p1.compare("Flow Boundary 2D")==0)                          FlowBoundaryType = iii;
+        if (p1.compare("Advanced Options")==0)                          SwitchAdvancedOptions = iii == 1;
 
-        if (p1.compare("Detachment efficiency")==0)           SwitchEfficiencyDET = iii;
-        if (p1.compare("SettlingVelocity")==0)                SwitchSV = iii;
-        if (p1.compare("Use material depth")==0)              SwitchUseMaterialDepth  = iii == 1;
-        if (p1.compare("No detachment boundary")==0)          SwitchNoBoundarySed  = iii == 1;
-        if (p1.compare("Advanced sediment")==0) SwitchAdvancedSed = iii;
-        if (p1.compare("Use 2 phase flow")==0)                SwitchUse2Layer = iii;
-        if (p1.compare("Include River diffusion")==0)           SwitchIncludeRiverDiffusion = iii == 1;
-        if (p1.compare("Include diffusion")==0)                 SwitchIncludeDiffusion = iii == 1;
-        if (p1.compare("Use grain size distribution")==0)     SwitchMulticlass = iii == 1;
-        if (p1.compare("Estimate grain size distribution")==0)SwitchEstimateGrainSizeDistribution = iii == 1;
-        if (p1.compare("Read grain distribution maps")==0)    SwitchReadGrainSizeDistribution    = iii == 1;
+        if (p1.compare("Detachment efficiency")==0)                     SwitchEfficiencyDET = iii;
+        if (p1.compare("SettlingVelocity")==0)                          SwitchSV = iii;
+        if (p1.compare("Use material depth")==0)                        SwitchUseMaterialDepth  = iii == 1;
+        if (p1.compare("No detachment boundary")==0)                    SwitchNoBoundarySed  = iii == 1;
+        if (p1.compare("Advanced sediment")==0)                         SwitchAdvancedSed = iii;
+        if (p1.compare("Use 2 phase flow")==0)                          SwitchUse2Layer = iii;
+        if (p1.compare("Include River diffusion")==0)                   SwitchIncludeRiverDiffusion = iii == 1;
+        if (p1.compare("Include diffusion")==0)                         SwitchIncludeDiffusion = iii == 1;
+        if (p1.compare("Use grain size distribution")==0)               SwitchMulticlass = iii == 1;
+        if (p1.compare("Estimate grain size distribution")==0)          SwitchEstimateGrainSizeDistribution = iii == 1;
+        if (p1.compare("Read grain distribution maps")==0)              SwitchReadGrainSizeDistribution    = iii == 1;
         if (p1.compare("Number of grain size classes (simulated)")==0)  numgrainclasses    = iii ;
-        if (p1.compare("Grain size class maps")==0)     GrainMaps  = p;
+        if (p1.compare("Grain size class maps")==0)                     GrainMaps  = p;
 
-        if (p1.compare("Flood initial level map")==0)         SwitchFloodInitial     = iii == 1;
+        if (p1.compare("Flood initial level map")==0)          SwitchFloodInitial     = iii == 1;
         if (p1.compare("Include house storage")==0)            SwitchHouses    =   iii == 1;
         if (p1.compare("Include raindrum storage")==0)         SwitchRaindrum  =   iii == 1;
 
-     //   if (p1.compare("Include Rainfall")==0)               SwitchRainfall =         iii == 1;
         if (p1.compare("Include Snowmelt")==0)               SwitchSnowmelt =         iii == 1;
         if (p1.compare("Include Satellite Image")==0)        SwitchImage =            iii == 1;
         if (p1.compare("Hard Surfaces")==0)                  SwitchHardsurface      = iii == 1;
@@ -217,7 +216,7 @@ void TWorld::ParseRunfileData(void)
 
         if (p1.compare("Include flow barriers")==0)          SwitchFlowBarriers = iii == 1;
         if (p1.compare("Flow barrier table filename")==0)    FlowBarriersFileName = p;
-        if (p1.compare("Include buffers")==0)          SwitchBuffers = iii == 1;
+        if (p1.compare("Include buffers")==0)                SwitchBuffers = iii == 1;
 
         if (p1.compare("Include Sediment traps")==0)         SwitchSedtrap =          iii == 1;
         if (p1.compare("Include compacted")==0)              SwitchInfilCompact =     iii == 1;
@@ -234,7 +233,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Regular runoff output")==0)          SwitchOutputTimeStep =   iii == 1;
         if (p1.compare("User defined output")==0)            SwitchOutputTimeUser =   iii == 1;
         if (p1.compare("Output interval")==0)				 printinterval = iii;
-        if (p1.compare("Dump Mass Balance")==0)               SwitchDumpMassBallance = iii = 1;
+        if (p1.compare("Subsoil drainage")==0)               SwitchDrainage =         iii == 1;
 
         if (p1.compare("Report point output separate")==0)   SwitchSeparateOutput =   iii == 1;
 

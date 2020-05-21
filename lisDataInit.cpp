@@ -271,11 +271,8 @@ void TWorld::InitStandardInput(void)
     SplashDelivery =getvaluedouble("Splash Delivery Ratio");
     DepositedCohesion = getvaluedouble("Particle Cohesion of Deposited Layer");
     BulkDens = getvaluedouble("Sediment bulk density");
-
     //StemflowFraction = getvaluedouble("Stemflow fraction");
     CanopyOpeness = getvaluedouble("Canopy Openess");
-    //  maxFloodLevel = getvaluedouble("Max flood level");
-    //  minFloodDt = getvaluedouble("Min flood dt");
 
     //VJ 110829 water repellency
     waterRep_a = getvaluedouble("Water Repellency A");
@@ -284,25 +281,38 @@ void TWorld::InitStandardInput(void)
     waterRep_d = getvaluedouble("Water Repellency D");
 
     // VJ 170923 moved all 2D switches here
-    F_MaxIter = 200;//getvalueint("Flood max Iterations");
     minReportFloodHeight = getvaluedouble("Minimum reported flood height");
     courant_factor = getvaluedouble("Flooding courant factor");
    // courant_factor_sed = getvaluedouble("Flooding courant factor diffusive");
-    mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
-    runoff_partitioning = 2.0;//getvaluedouble("Flooding runoff partitioning");
-
-    // SwitchFlood1D2DCoupling = getvalueint("Flooding 1D2D coupling"); <- obsolete
-    SwitchKinematic2D = std::max(getvalueint("Routing Kin Wave 2D"), 1);
-
-    courant_factor_diffusive = getvaluedouble("Courant Kin Wave 2D");
-    TimestepKinMin = getvaluedouble("Timestep Kin Wave 2D");
-  //  ConcentrateKin = getvaluedouble("Flow concentration 2D");
     TimestepfloodMin = getvaluedouble("Timestep flood");
-//    OF_Method = (SwitchUseGrainSizeDistribution? FSHAIRSINEROSE : FSGOVERS);
 
-    F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
-    F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
-    F_maxSteps = 1;//getvalueint("Flood max steps");
+    if (SwitchAdvancedOptions) {
+        mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
+        runoff_partitioning = getvaluedouble("Flooding runoff partitioning");
+        F_MaxIter = getvalueint("Flood max Iterations");
+        F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
+        F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
+        SwitchHeun = (getvalueint("Use Heun") == 1);
+        F_AddGravity = getvalueint("Use gravity flow");
+        F_Angle = getvaluedouble("Angle flow to channel");
+        SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);
+    } else {
+        mixing_coefficient = 2.0;
+        runoff_partitioning = 1.0;
+        F_MaxIter = 200;
+        F_fluxLimiter = 1; //minmax, vanleer, albeda
+        F_scheme = 3;   //HLL HLL2 Rusanov
+        SwitchHeun = false;
+        SwitchFixedAngle = false;
+        F_AddGravity = 0;
+        F_Angle = 0.02;
+    }
+
+    SwitchKinematic2D = getvalueint("Routing Kin Wave 2D");
+
+    // courant_factor_diffusive = getvaluedouble("Courant Kin Wave 2D");
+    // TimestepKinMin = getvaluedouble("Timestep Kin Wave 2D");
+    //  ConcentrateKin = getvaluedouble("Flow concentration 2D");
 
     if (SwitchErosion) {
         //default
@@ -340,8 +350,6 @@ void TWorld::InitStandardInput(void)
         cover(*Buffers, *LDD,0);
         calcMap(*DEM, *Buffers, ADD);
     }
-//    else
-//        Buffers = NewMap(0);
 
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     checkMap(*Grad, LARGER, 1.0, "Gradient must be SINE of slope angle (not TAN)");
@@ -913,6 +921,9 @@ void TWorld::InitChannel(void)
     }
 
     ExtendChannel();
+
+    ChannelPAngle = NewMap(0);
+    FindChannelAngles();
 
 }
 //---------------------------------------------------------------------------
@@ -2639,6 +2650,116 @@ void TWorld::InitChanNetwork()
     }
 
 }
+//---------------------------------------------------------------------------
+void TWorld::FindChannelAngles()
+{
+    fill(*tma, -1);
+    for (int rr = 0; rr < _nrRows; rr++)
+        for (int cr = 0; cr < _nrCols; cr++) {
+            if(LDDChannel->Drcr == 5) {
+                int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+                int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
+                LDD_LINKEDLIST *list = nullptr;
+                LDD_LINKEDLIST *temp = nullptr;
+                list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+
+                list->prev = nullptr;
+                list->rowNr = rr;
+                list->colNr = cr;
+
+                while (list != nullptr)
+                {
+                    int i = 0;
+                    bool  subCachDone = true;
+                    int rowNr = list->rowNr;
+                    int colNr = list->colNr;
+
+                    for (i=1; i<=9; i++)
+                    {
+                        int r, c;
+                        int ldd = 0;
+
+                        if (i==5)
+                            continue;
+
+                        r = rowNr+dy[i];
+                        c = colNr+dx[i];
+
+                        if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
+                            ldd = (int) LDD->Drc;
+                        else
+                            continue;
+
+                        // check if there are more cells upstream, if not subCatchDone remains true
+                        if (tma->Drc == -1 &&
+                                FLOWS_TO(ldd, r, c, rowNr, colNr) &&
+                                INSIDE(r, c))
+                        {
+                            temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+                            temp->prev = list;
+                            list = temp;
+                            list->rowNr = r;
+                            list->colNr = c;
+                            subCachDone = false;
+                        }
+                    }
+
+                    if (subCachDone)
+                    {
+                        double grad = 0, gradc = 0;
+                        double n = 0, nc = 0;
+
+                        for (i=1;i<=9;i++)
+                        {
+                            int r, c, ldd = 0, lddc = 0;
+
+                            if (i==5)
+                                continue;
+
+                            r = rowNr+dy[i];
+                            c = colNr+dx[i];
+
+                            if (INSIDE(r, c) && !pcr::isMV(LDD->Drc)) {
+                                if( !pcr::isMV(LDDChannel->Drc))
+                                    ldd = (int) LDD->Drc;
+                                else
+                                    lddc = (int) LDDChannel->Drc;
+                            } else
+                                continue;
+
+                            if(ldd > 0 && FLOWS_TO(ldd, r,c,rowNr, colNr)) {
+                                double dist = ldd % 2 == 0? _dx : _dx*1.4242;
+                                grad += sin(atan((DEM->Drc-DEM->data[rowNr][colNr])/dist));
+                                n += 1.0;
+                            }
+                            if(lddc > 0 && FLOWS_TO(lddc, r,c,rowNr, colNr)) {
+                                gradc += ChannelPAngle->Drc;
+                                nc += 1.0;
+                            }
+                        }
+
+                        ChannelPAngle->data[rowNr][colNr] =  n > 0 ? std::max(0.01,std::min(0.1,grad/n)) : 0.01;
+                       // ChannelPAngle->data[rowNr][colNr] = 0.8*ChannelPAngle->data[rowNr][colNr] + 0.2*(nc > 0 ? gradc/nc : 0.01);
+
+                        tma->data[rowNr][colNr] = 1;
+
+                        temp=list;
+                        list=list->prev;
+                        free(temp);
+                    }
+                }
+            }
+        }
+
+    FOR_ROW_COL_MV_CH {
+        if (SwitchFixedAngle)
+            ChannelPAngle->Drc = F_Angle;
+        else
+            ChannelPAngle->Drc = std::min(ChannelPAngle->Drc, F_Angle);
+    }
+  //  report(*ChannelPAngle,"cpa.map");
+}
+//---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 

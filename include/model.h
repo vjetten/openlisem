@@ -52,10 +52,9 @@
 
 class LisemThreadPool;
 
-//#define OLDSWATRE 1
-
 //---------------------------------------------------------------------------
-//#define NULL nullptr
+
+#define mDebug() qDebug() << fixed << qSetRealNumberPrecision(2)
 
 #define PI 3.14159265
 
@@ -186,9 +185,6 @@ class LisemThreadPool;
 #define RRIJNFULL 2
 #define RWUWANGJIA 3
 
-#define OFGOVERS 0
-#define OFHAIRSINEROSE 1
-
 #define K2D_METHOD_KIN   1
 #define K2D_METHOD_DIFF  2
 #define K2D_METHOD_DYN   3
@@ -303,10 +299,10 @@ public:
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum, SwitchLitter,
     Switchheaderpest, SwitchPesticide, SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,
-  SwitchTimeavgV, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed,SwitchFlowBarriers, SwitchBuffers,
+    SwitchTimeavgV, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed,SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep, SwitchHeun, SwitchNeedD90, SwitchImage,
-    SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchDumpMassBallance;
- /* SwitchFloodSWOForder1, SwitchFloodSWOForder2,*/
+    SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle, SwitchDumpMassBallance;
+
     int SwitchFlood1D2DCoupling;
     int SwitchKinematic2D;
     int SwitchEfficiencyDET;
@@ -497,6 +493,7 @@ public:
     void InitStandardInput(void); //VJ 170211
     void InitFlood(void);
     void InitChanNetwork();
+    void FindChannelAngles();
 
     // functions in lisRunfile.cpp
     QString getvaluename(QString vname);
@@ -532,7 +529,8 @@ public:
     void F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    int F_scheme, F_fluxLimiter, F_reconstruction, F_replaceV, F_MaxIter, F_maxSteps;
+    int F_scheme, F_fluxLimiter, F_reconstruction, F_replaceV, F_MaxIter, F_AddGravity;\
+    double F_Angle;
 
     double F_levee;
     double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl, HLL_tmp;

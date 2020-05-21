@@ -170,8 +170,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flow Boundary 2D")==0)               E_FlowBoundary->setValue(iii);
       //  if (p1.compare("Flow concentration 2D")==0)          E_concentrateFlow->setValue(valc);
         if (p1.compare("Variable Timestep")==0)              checkVariableTimestep->setChecked(check);
-        if (p1.compare("Heun")==0)                           checkHeun->setChecked(check);
+        if (p1.compare("Use Heun")==0)                       checkHeun->setChecked(check);
         if (p1.compare("Use MUSCL")==0)                      checkMuscl->setChecked(check);
+        if (p1.compare("Use fixed angle")==0)                checkFixedAngle->setChecked(check);
         if (p1.compare("Use time avg V")==0)                 checkTimeavgV->setChecked(check);
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(valc);
      //   if (p1.compare("Flooding courant factor diffusive")==0)        E_courantFactorSed->setValue(valc);
@@ -184,11 +185,14 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(iii);
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
         if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(valc);
-      //  if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(valc);
+        if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(valc);
         if (p1.compare("Flood initial level map")==0)        checkFloodInitial->setChecked(check);
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(iii);
-       // if (p1.compare("Flood max steps")==0)                E_FloodMaxSteps->setValue(val);
         if (p1.compare("Timestep flood")==0)                 E_TimestepMinFlood->setValue(valc);
+        if (p1.compare("Use gravity flow")==0)               E_gravityToChannel->setValue(iii);
+        if (p1.compare("Angle flow to channel")==0)          E_angleToChannel->setValue(valc);
+
+        if (p1.compare("Advanced Options")==0)                 checkAdvancedOptions->setChecked(check);
 
         if (p1.compare("Detachment efficiency")==0)          E_EfficiencyDET->setValue(iii);
         if (p1.compare("Settling Velocity")==0)          E_settlingVelocity->setValue(iii);
@@ -359,8 +363,6 @@ void lisemqt::ParseInputData()
         //if (p1.compare("Stemflow fraction")==0)        E_StemflowFraction->setValue(valc);
         if (p1.compare("Canopy Openess")==0)           E_CanopyOpeness->setValue(valc);
         // VJ 110209 canopy openess, factor Aston as user input
-        //   if (p1.compare("Max flood level")==0)          E_maxFloodLevel->setValue(val);
-        //   if (p1.compare("Min flood dt")==0)             E_minFloodDt->setValue(val);
 
         //VJ 111120 water repellency
         if (p1.compare("Use Water Repellency")==0)      checkWaterRepellency->setChecked(check);
@@ -665,7 +667,6 @@ void lisemqt::updateModelData()
         QString p;
 
         if (p1.compare("Nr user Cores")==0) namelist[j].value.setNum(nrUserCores->value());
-        if (p1.compare("Nr user Cores")==0) namelist[j].value.setNum((int)checkDumpMassBalance->isChecked());
         // erosion
         if (p1.compare("Include Erosion simulation")==0)      namelist[j].value.setNum((int)checkDoErosion->isChecked());
 
@@ -678,11 +679,6 @@ void lisemqt::updateModelData()
         if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkFlowBarriers->isChecked());
         if (p1.compare("Include buffers")==0)          namelist[j].value.setNum((int) checkBuffers->isChecked());
         if (p1.compare("Flow barrier table filename")==0)    namelist[j].value = line_FlowBarriers->text();
-
-        //flooding
-        //if (p1.compare("Include channel flooding")==0)       namelist[j].value.setNum((int)checkChannelFlood->isChecked());
-        //     if (p1.compare("Include rainfall flooding")==0)      namelist[j].value.setNum((int)checkRainfallFlood->isChecked());
-        //     if (p1.compare("Rainfall flooding gradient")==0)     namelist[j].value = E_RainFloodGradient->text();
 
         if (p1.compare("Include litter interception")==0)    namelist[j].value.setNum((int)checkIncludeLitter->isChecked());
         if (p1.compare("Litter interception storage")==0)    namelist[j].value = E_LitterSmax->text();
@@ -697,25 +693,11 @@ void lisemqt::updateModelData()
         if (p1.compare("Timestep Kin Wave 2D")==0)           namelist[j].value = E_TimestepMin->text();
         if (p1.compare("Courant Kin Wave 2D")==0)            namelist[j].value = E_CourantFactorKin->text();
         if (p1.compare("Flow Boundary 2D")==0)        namelist[j].value = E_FlowBoundary->text();
-      //  if (p1.compare("Flow concentration 2D")==0)     namelist[j].value = E_concentrateFlow->text();
-
-        if (p1.compare("Flood method SWOF2D order 1")==0)
-        {
-            if (E_floodSolution->value() == 1)
-                namelist[j].value.setNum(1);
-            else
-                namelist[j].value.setNum(0);
-        }
-        if (p1.compare("Flood method SWOF2D order 2")==0)
-        {
-            if (E_floodSolution->value() == 2)
-                namelist[j].value.setNum(1);
-            else
-                namelist[j].value.setNum(0);
-        }
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
       //  if (p1.compare("Flooding courant factor diffusive")==0)        namelist[j].value = E_courantFactorSed->text();
-        //   if (p1.compare("Flooding SWOF scheme")==0)           namelist[j].value = E_FloodScheme->text();
+        if (p1.compare("Use gravity flow")==0)           namelist[j].value = E_gravityToChannel->text();
+        if (p1.compare("Angle flow to channel")==0)      namelist[j].value = E_angleToChannel->text();
+
 
         if (p1.compare("Include diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
@@ -725,16 +707,16 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
         if (p1.compare("Flooding mixing coefficient")==0)    namelist[j].value = E_mixingFactor->text();
-      //  if (p1.compare("Flooding runoff partitioning")==0)   namelist[j].value = E_runoffPartitioning->text();
+        if (p1.compare("Flooding runoff partitioning")==0)   namelist[j].value = E_runoffPartitioning->text();
         if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
 
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
-       // if (p1.compare("Flood max steps")==0)           namelist[j].value = E_FloodMaxSteps->text();
         if (p1.compare("Timestep flood")==0)           namelist[j].value = E_TimestepMinFlood->text();
         if (p1.compare("Variable Timestep")==0)        namelist[j].value.setNum((int) checkVariableTimestep->isChecked());
-        if (p1.compare("Heun")==0)        namelist[j].value.setNum((int) checkHeun->isChecked());
+        if (p1.compare("Use Heun")==0)        namelist[j].value.setNum((int) checkHeun->isChecked());
         if (p1.compare("Use MUSCL")==0)   namelist[j].value.setNum((int) checkMuscl->isChecked());
         if (p1.compare("Use time avg V")==0)    namelist[j].value.setNum((int) checkTimeavgV->isChecked());
+        if (p1.compare("Use fixed angle")==0)                namelist[j].value.setNum((int) checkFixedAngle->isChecked());
 
         if (p1.compare("Advanced sediment")==0)        namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
 
@@ -846,6 +828,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Snowmelt file")==0) namelist[j].value = SnowmeltFileName;
         if (p1.compare("satImage Directory")==0) namelist[j].value = satImageFileDir;
         if (p1.compare("satImage file")==0) namelist[j].value = satImageFileName;
+        if (p1.compare("Advanced Options")==0) namelist[j].value.setNum((int)checkAdvancedOptions->isChecked());
 
         if (p1.compare("Rainfall map")==0) namelist[j].value = E_RainfallMap->text();
         if (p1.compare("Interception map")==0) namelist[j].value = E_InterceptionMap->text();
@@ -887,9 +870,6 @@ void lisemqt::updateModelData()
         if (p1.compare("Stemflow fraction")==0) namelist[j].value = E_StemflowFraction->text();
         if (p1.compare("Canopy Openess")==0) namelist[j].value = E_CanopyOpeness->text();
         // VJ 110209 canopy openess, factor Aston as user input
-
-        //   if (p1.compare("Max flood level")==0) namelist[j].value = E_maxFloodLevel->text();
-        //   if (p1.compare("Min flood dt")==0) namelist[j].value = E_minFloodDt->text();
 
         if (p1.compare("Output interval")==0) namelist[j].value = printinterval->cleanText();
         if (p1.compare("Regular runoff output")==0) namelist[j].value.setNum(1);

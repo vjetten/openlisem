@@ -355,6 +355,7 @@ cTMap
 //*ChannelLevee,                //!<
 *FloodWaterVol,                //!<
 *RunoffWaterVol,                //!<
+*ChannelPAngle,
 
 //*FloodZonePotential,                //!<
 *DomainEdge,                //!<

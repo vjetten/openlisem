@@ -103,9 +103,9 @@ public:
     int genfontsize;
     double dpiscale;
 
-     QDialog *helpbox;
-     QTextEdit *helptxt;
-     QHBoxLayout *helpLayout;
+    QDialog *helpbox;
+    QTextEdit *helptxt;
+    QHBoxLayout *helpLayout;
 
     QProgressBar *pb;
     void resizeEvent(QResizeEvent* event);
@@ -125,6 +125,7 @@ public:
     void GetStorePath();
     void StorePath();
     void SetStyleUI();
+    int SetStyleUISize();
     void GetRunfile();
     void ParseInputData();
     void updateModelData();
@@ -451,6 +452,7 @@ public slots:
     void fontDecrease();
     void fontIncrease();
     void setfontSize();
+    void adjustFont(double v);
 
     void setFormatMaps(bool);
 

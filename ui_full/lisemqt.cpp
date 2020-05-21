@@ -48,6 +48,7 @@ update of the runfile before running:
 
 #include <algorithm>
 #include "lisemqt.h"
+//#include "model.h"
 #include "global.h"
 
 output op;
@@ -205,7 +206,6 @@ void lisemqt::setFormatMaps(bool check)
     E_InfiltrationMap->setText(QFileInfo(E_InfiltrationMap->text()).baseName() + ext);
     E_RunoffMap->setText(QFileInfo(E_RunoffMap->text()).baseName() + ext);
     E_DetachmentMap->setText(QFileInfo(E_DetachmentMap->text()).baseName() + ext);
-
     E_DepositionMap->setText(QFileInfo(E_DepositionMap->text()).baseName() + ext);
     E_SoillossMap->setText(QFileInfo(E_SoillossMap->text()).baseName() + ext);
     E_ChanDetachmentMap->setText(QFileInfo(E_ChanDetachmentMap->text()).baseName() + ext);
@@ -232,7 +232,6 @@ void lisemqt::resizeEvent(QResizeEvent* event)
     {
         groupBox_drawMap->setVisible(true);
         groupBox_info->setVisible(true);
-        tabWidget_out->setIconSize(QSize(32,32));
     }
     else
     {
@@ -247,7 +246,6 @@ void lisemqt::resizeEvent(QResizeEvent* event)
             groupBox_info->setVisible(false);
         }
 
-        tabWidget_out->setIconSize(QSize(16,16));
     }
 }
 //--------------------------------------------------------------------
@@ -830,8 +828,7 @@ void lisemqt::SetToolBar()
     connect(transparencyRoad, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaRoad(int)));
     connect(transparencyHouse, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaHouse(int)));
     connect(transparencyBarrier, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaBarrier(int)));
-    connect(transparencyBarrier, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaBarrier(int)));
-    connect(transparencyMap, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaMap(int)));
+   connect(transparencyMap, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaMap(int)));
     connect(showRiverSize, SIGNAL(sliderMoved(int)),this,SLOT(ssetAlphaChannel(int)));
     connect(spinCulvertSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannelOutlet(int)));
     connect(toolShowMapDisplay, SIGNAL(pressed()),this,SLOT(showMapSettings()));
@@ -844,76 +841,81 @@ void lisemqt::showMapSettings()
     else
         groupBox_drawMap->setVisible(true);
 }
+//---------------------------------------------------------------------------
+int lisemqt::SetStyleUISize()
+{
+    QRect rect = QGuiApplication::primaryScreen()->availableGeometry();
+    qDebug() << rect << QGuiApplication::primaryScreen()->availableVirtualGeometry();
+    int _H = rect.height();
+    int disp = 1;
+    if (abs(_H-800) > abs(_H-1080)) disp = 1;
+    if (abs(_H-1080) > abs(_H-1200)) disp = 2;
+    if (abs(_H-1200) > abs(_H-1440)) disp = 3;
+      if (abs(_H-1440) > abs(_H-1600)) disp = 4;
+    qDebug() << disp << _H << abs(_H-800) << abs(_H-1080) << abs(_H-1200) << abs(_H-1440) << genfontsize;
 
+    tabWidgetOptions->tabBar()->setExpanding(true);
+
+    // do a bit of size tweaking for large displays
+    QSize iSize = QSize(16,16);
+    if (disp == 1) {
+        tabWidget_out->setIconSize(QSize(24, 24));
+        tabWidget_out->setStyleSheet("QTabBar::tab { height: 48px; width: 32px}");
+        this->setStyleSheet(QString("QToolButton * {icon-size: 16px 16px}"));
+        iSize = QSize(16,16);
+
+    }
+    if (disp == 2 || disp == 3) {
+        tabWidget_out->setIconSize(QSize(32, 32));
+        tabWidget_out->setStyleSheet("QTabBar::tab { height: 64px; width: 48px}");
+        this->setStyleSheet(QString("QToolButton * {icon-size: 24px 24px}"));
+        iSize = QSize(24,24);
+    }
+    if (disp > 3) {
+        tabWidget_out->setIconSize(QSize(48, 48));
+        tabWidget_out->setStyleSheet("QTabBar::tab { height: 96px; width: 64px}");
+        this->setStyleSheet(QString("QToolButton * {icon-size: 32px 32px}"));
+        iSize = QSize(32,32);
+    }
+
+   // this->setStyleSheet(QString("QLabel::pixmap {height: 16px; width: 16px}"));
+
+    toolBar->setIconSize(iSize);
+    toolBar_2->setIconSize(iSize);
+
+    return disp;
+}
 //---------------------------------------------------------------------------
 /// make some labels yellow
 void lisemqt::SetStyleUI()
 {
-
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setIcon(QIcon(":/openLisem.ico"));
     trayIcon->show();
-
-    QRect rect = QGuiApplication::primaryScreen()->availableGeometry();
-    //qDebug() << QGuiApplication::primaryScreen()->availableVirtualGeometry();
-
-    int _H = rect.height();
-    QFont font = qApp->font();
-    genfontsize=font.pointSize();
-    dpiscale = 1.0;
-
     tabWidgetOptions->tabBar()->setExpanding(true);
-            genfontsize = 12;
-/*
-    // do a bit of size teaking for large displays becvause QT 5.5.0 does not have that yet
-    tabWidget_out->setIconSize(QSize(16, 16));
-    QSize iSize = QSize(16,16);
-// the "20" margin is because not all mon itors are exactly the pixel size, e.g. 1210
-    if (_H > 800) {
-        tabWidget_out->setIconSize(QSize(32, 32));
-        tabWidget_out->setStyleSheet("QTabBar::tab { height: 64px; width: 48px}");
-        genfontsize = 12;
-    }
-    if (_H > 1080-5) {
-        genfontsize = 14;
-        this->setStyleSheet(QString("QToolButton * {icon-size: 32px 32px}"));
-        iSize = QSize(24,24);
-    }
-    if (_H > 1440) {
-        dpiscale = 2.0;
-        genfontsize = 12;
-        tabWidget_out->setIconSize(QSize(48, 48));
-        tabWidget_out->setStyleSheet("QTabBar::tab { height: 96px; width: 64px}");
-        iSize = QSize(32,32);
-    }
 
-    setfontSize();
-*/
+    QFont font = qApp->font();
+    genfontsize=std::max(10,font.pointSize());
+    int x = SetStyleUISize();
+    genfontsize += x;
+    font.setPointSize(genfontsize);
+    qApp->setFont(font);
 
- //   this->setStyleSheet(QString("QLabel::pixmap {height: 16px; width: 16px}"));
+    fontIncrease();
+    fontDecrease();
 
     toolBar_2->setMovable( false);
     toolBar->setMovable( false);
-//    toolBar->setIconSize(iSize);
-//    toolBar_2->setIconSize(iSize);
 
     QString flat("QToolButton { background-color: white; border: none; }");
-//    toolButton_help1->setStyleSheet(flat);
-//    toolButton_help2->setStyleSheet(flat);
-//    toolButton_help3->setStyleSheet(flat);
-//    toolButton_help4->setStyleSheet(flat);
-//    toolButton_help5->setStyleSheet(flat);
-//    toolButton_help6->setStyleSheet(flat);
-//    toolButton_help7->setStyleSheet(flat);
-
 
     // interface elements that are not visible for now
 
     frameSpare->setVisible(false);
-    tabWidgetOptions->removeTab(7);
+    tabWidgetOptions->removeTab(8);
     frameNumerical->setVisible(false);
 
-    int w = 80, h = 15;//2*genfontsize;
+    int w = 80, h = 15;
     label_dx->setMinimumSize(w,h);
     label_area->setMinimumSize(w,h);
     label_time->setMinimumSize(w,h);
@@ -947,9 +949,6 @@ void lisemqt::SetStyleUI()
     label_detch->setMinimumSize(w,h);
     label_depch->setMinimumSize(w,h);
     label_sedvolch->setMinimumSize(w,h);
-    //    label_flooddet->setMinimumSize(w,h);
-    //    label_flooddep->setMinimumSize(w,h);
-    //    label_floodsed->setMinimumSize(w,h);
     label_soilloss->setMinimumSize(w,h);
     label_soillosskgha->setMinimumSize(w,h);
     label_SDR->setMinimumSize(w,h);
@@ -993,12 +992,6 @@ void lisemqt::SetStyleUI()
     label_soilloss->setStyleSheet("* { background-color: #ffff77 }");
     label_soillosskgha->setStyleSheet("* { background-color: #ffff77 }");
     label_SDR->setStyleSheet("* { background-color: #ffff77 }");
-    //    label_flooddet->setStyleSheet("* { background-color: #ffff77 }");
-    //    label_flooddep->setStyleSheet("* { background-color: #ffff77 }");
-    //    label_floodsed->setStyleSheet("* { background-color: #ffff77 }");
-    //label_buffervol->setStyleSheet("* { background-color: #ffff77 }");
-    //label_buffersed->setStyleSheet("* { background-color: #ffff77 }");
-
 
     //Grouped Buttons become mututally exclusive
     GroupMapDisplay.addButton(checkBoxComboMaps, 1);
@@ -1076,23 +1069,8 @@ void lisemqt::setResultDir()
 //--------------------------------------------------------------------
 void lisemqt::on_E_floodMinHeight_valueChanged(double)
 {
-//    bool yes = true;
-
-//    if (checkOverlandFlow1D->isChecked())// && !checkIncludeChannel->isChecked())
-//        yes = false;
-
-//    if (checkOverlandFlow2Ddyn->isChecked()  || checkOverlandFlow2Dkindyn->isChecked()) {
-        label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
-        label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
-
-//    }
-//    else
-//    {
-//        label_107->setText("Flood mm");
-//        label_40->setText("Runoff mm");
-//    }
-//    label_floodVolmm->setEnabled(yes);
-//    label_107->setEnabled(yes);
+    label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
+    label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
 }
 //--------------------------------------------------------------------
 // this is for the directory with the table files
@@ -1606,7 +1584,7 @@ void lisemqt::aboutInfo()
 {
     QMessageBox::information ( this, "openLISEM",
                                QString("openLISEM verion %7 (%8) is created wih:\n\n%1\n%2\n%3\n%4\n%5\n")
-                               .arg("- Qt cross platform application and UI framework version 5.2.X based on MingW 64bit and CMake (http://qt.nokia.com/).")
+                               .arg("- Qt cross platform application and UI framework version 5.14.X based on MingW 64bit and CMake (http://qt.nokia.com/).")
                                .arg("- Qwt technical application widgets for Qt (http://qwt.sf.net)")
                                .arg("- Flood source code based on fullSWOF2D (http://www.univ-orleans.fr/mapmo/soft/FullSWOF/)")
                                .arg("- PCRaster map functions: http://pcraster.geo.uu.nl/")
@@ -1641,15 +1619,23 @@ void lisemqt::resetTabFlow()
     E_CourantFactorKin->setValue(0.2);
     E_mixingFactor->setValue(2.0);
     E_runoffPartitioning->setValue(1.0);
-    //E_1D2DCoupling->setValue(2);
-    E_floodSolution->setValue(2);   // dynamic wave
     E_FloodMaxIter->setValue(200);
     E_FloodReconstruction->setValue(3);  //HLL2 etc
     E_FloodFluxLimiter->setValue(1);     //minmod etc
     E_courantFactorSed->setValue(0.2);
     E_concentrateFlow->setValue(1.0);
     E_courantFactor->setValue(0.2);
+
+    checkVariableTimestep->setChecked(false);
     checkHeun->setChecked(false);
+    checkMuscl->setChecked(true);
+    checkTimeavgV->setChecked(true);
+
+    E_floodMinHeight->setValue(0.05);
+    checkFloodInitial->setChecked(false);
+
+    E_gravityToChannel->setValue(0);
+    E_angleToChannel->setValue(0.02);
 }
 //--------------------------------------------------------------------
 void lisemqt::resetTabSediment()
@@ -1672,6 +1658,8 @@ void lisemqt::resetTabSediment()
 
     E_NumberClasses->setValue(6);
     E_GrainSizes->setText("2;20;50;125;150;500");
+
+    checkDiffusion->setChecked(true);
 }
 //--------------------------------------------------------------------
 void lisemqt::resetTabErosion()
@@ -1705,6 +1693,7 @@ void lisemqt::resetTabErosion()
     E_SedTrapN->setText("0.8");
     E_GrassStripN->setText("0.2");
 }
+
 void lisemqt::resetAll()
 {
     W = nullptr;
@@ -1732,6 +1721,7 @@ void lisemqt::resetAll()
     E_ResultDir->setText("");
     E_satImageName->setText("");
     checksatImage->setChecked(false);
+    checkAdvancedOptions->setChecked(false);
 
     checkSeparateOutput->setChecked(false);
     E_DigitsOut->setValue(3);
@@ -1804,7 +1794,7 @@ void lisemqt::resetAll()
     checkOverlandFlow2Dkindyn->setChecked(false);
     //frame_diffwave->setEnabled(checkOverlandFlow2D->isChecked());
     //frame_dynwave->setEnabled(checkOverlandFlow2Ddyn->isChecked());
-    groupBox_coupling->setEnabled(!checkOverlandFlow2Ddyn->isChecked());
+    //groupBox_coupling->setEnabled(!checkOverlandFlow2Ddyn->isChecked());
 
     checkDoErosion->setChecked(false);
     checkAdvancedSediment->setChecked(false);
@@ -1854,6 +1844,22 @@ void lisemqt::resetAll()
     //calibration
     resetTabCalibration();
 
+    checkVariableTimestep->setChecked(false);
+    checkHeun->setChecked(false);
+    checkMuscl->setChecked(true);
+    checkTimeavgV->setChecked(true);
+    E_courantFactor->setValue(0.2);
+    //   if (p1.compare("Flooding courant factor diffusive")==0)        E_courantFactorSed->setValue(valc);
+
+    E_floodMinHeight->setValue(0.05);
+    E_mixingFactor->setValue(2.0);
+    E_runoffPartitioning->setValue(1.0);
+    checkFloodInitial->setChecked(false);
+    E_FloodMaxIter->setValue(200);
+
+    E_gravityToChannel->setValue(0);
+    E_angleToChannel->setValue(0.02);
+
     tabWidget->setCurrentIndex(0);
     tabWidget_out->setCurrentIndex(1);
     tabWidget_out->setCurrentIndex(0);
@@ -1902,6 +1908,12 @@ void lisemqt::fontSelect()
     setfontSize();
 }
 //---------------------------------------------------------------
+void lisemqt::adjustFont(double v)
+{
+    genfontsize = int(v);
+    setfontSize();
+}
+//---------------------------------------------------------------
 void lisemqt::fontDecrease()
 {
     genfontsize--;
@@ -1912,41 +1924,44 @@ void lisemqt::fontDecrease()
 void lisemqt::fontIncrease()
 {
     genfontsize++;
-    genfontsize = std::min(18, genfontsize);
+    genfontsize = std::min(20, genfontsize);
     setfontSize();
 }
 //---------------------------------------------------------------
 void lisemqt::setfontSize()
 {
-    return;
+    int x = SetStyleUISize();
     int fs = genfontsize;
-    QFont font = qApp->font();
-    font.setPixelSize((int)((double)fs*dpiscale));
-    qApp->setFont(font);
 
     qApp->setStyleSheet(QString("\
+                                QLabel {font-size: %1px;}\
                                 QCheckBox::indicator {width: %1px; height: %1px;}\
                                 QRadioButton::indicator {width: %1px; height: %1px;}\
                                 QComboBox {font: %1px; padding: 1px 0px 1px 3px;}\
-                                QLineEdit {font: %1px;}\
-                                QLabel {font: %1px;}\
-                                QToolButton {font: %1px;}\
-                                QTabBar { font: %1px;}\
-    ").arg(fs*dpiscale));
-/*
-   QString tabstyle = QString("\
-                              QTabBar::tab {min-width: 20ex; padding: 3px;}\
-                              QTabBar::tab {border: 1px solid #C4C4C3;border-bottom-color: #C2C7CB; border-top-left-radius: 4px;border-top-right-radius: 4px; }\
-                              QTabBar::tab {background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);}\
-                              QTabBar::tab:selected, QTabBar::tab:hover {background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #fafafa, stop: 0.4 #f4f4f4,stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);}\
-                              QTabBar::tab:selected {border-color: #9B9B9B;border-bottom-color: #C2C7CB; }\
-                              QTabBar::tab:!selected {margin-top: 2px; }\
-                              QTabBar::tab:selected {margin-left: -2px;margin-right: -2px;}\
-                              QTabBar::tab:first:selected {margin-left: 0; }\
-                              QTabBar::tab:last:selected {margin-right: 0; }\
-                               ");
-   tabWidgetOptions->setStyleSheet(tabstyle);
-*/
+                                QLineEdit {font-size: %1px; padding: 1px;}\
+                                QToolButton {font-size: %1px;}\
+                                QPushButton {font-size: %1px;}\
+                                QCheckBox {font-size: %1px; padding:  1px 1px 1px 3px; }\
+                                QRadioButton {font-size: %1px; 1px 1px 1px 3px;  }\
+                                QSpinBox {width: %1px; height: %1px; font-size: %1px; padding: 1px; }\
+                                QDoubleSpinBox {width: %2px; height: %1px;font-size: %1px; padding: 1px}\
+                                ").arg(fs).arg(fs*2.4));
+
+    tabWidgetOptions->setStyleSheet( QString("font-size: %1px; ").arg(fs) );
+    tabWidget->setStyleSheet( QString("font-size: %1px; ").arg(fs) );
+
+    QString S = QString("QGroupBox {font-size: %1px;font-weight: bold;color: black;}").arg(fs);
+    groupBox1->setStyleSheet(S);
+    groupBox2->setStyleSheet(S);
+    groupBox3->setStyleSheet(S);
+    groupBox4->setStyleSheet(S);
+    groupBox5->setStyleSheet(S);
+    S = QString("QGroupBox {font-size: %1px;font-weight: bold;color: #1b6fb5;}").arg(fs);
+    watergroup->setStyleSheet(S);
+    sedgroup->setStyleSheet(S);
+    outletgroup->setStyleSheet(S);
+    groupTime->setStyleSheet(S);
+
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetSediment_clicked()
