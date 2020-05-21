@@ -357,15 +357,17 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
            ves1->Drc = (qes1/(1.0+nsq))/hes->Drc;
            ves2->Drc = (qes2/(1.0+nsq))/hes->Drc;
 
+            correctSpuriousVelocities(r, c, hes, ves1, ves2);//,thv, dv, dt);
+
            double fac = 0.5+0.5*std::min(1.0,4*hes->Drc)*std::min(1.0,4*hes->Drc);
            fac = fac *exp(- std::max(1.0,dt) / nsq1);
 
             ves1->Drc = fac * ve1->Drc + (1.0-fac) *ves1->Drc;
             ves2->Drc = fac * ve2->Drc + (1.0-fac) *ves2->Drc;
 
-            double thv = 10.0;
-            double dv = 5.0;
-            correctSpuriousVelocities(r, c, hes, ves1, ves2,thv, dv, dt);
+           // double thv = 10.0;
+           // double dv = 5.0;
+
         }
         else
         {

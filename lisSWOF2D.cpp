@@ -704,15 +704,9 @@ void TWorld::maincalcscheme(int thread, double dt, cTMap *he, cTMap *ve1, cTMap 
                 ves1->Drc = (qes1/(1.0+nsq))/hes->Drc;
                 ves2->Drc = (qes2/(1.0+nsq))/hes->Drc;
 
-                // if hes is very small, v becomes very large!
-                // in that case take the smallest of v and manning V
-                if (hes->Drc < 0.1) {
-                    double sign1 = ves1->Drc < 0? -1.0 : 1.0;
-                    double sign2 = ves2->Drc < 0? -1.0 : 1.0;
-                    double vkin = pow(hes->Drc, 2.0/3.0)*sqrt(Grad->Drc)/N->Drc;
-                    ves1->Drc = sign1 * std::min(fabs(ves1->Drc), vkin);//hes->Drc/dt);
-                    ves2->Drc = sign2 * std::min(fabs(ves2->Drc), vkin);//hes->Drc/dt);
-                }
+                // double thv = 10.0;
+               //  double dv = 5.0;
+                 correctSpuriousVelocities(r, c, hes, ves1, ves2);//,thv, dv, dt);
 
                 double fac = 0;
                 if (SwitchTimeavgV) {
@@ -722,22 +716,6 @@ void TWorld::maincalcscheme(int thread, double dt, cTMap *he, cTMap *ve1, cTMap 
                 ves1->Drc = fac * ve1->Drc + (1.0-fac) *ves1->Drc;
                 ves2->Drc = fac * ve2->Drc + (1.0-fac) *ves2->Drc;
 
-                double thv = 10.0;
-              //  double dv = 5.0;
-             //   correctSpuriousVelocities(r, c, hes, ves1, ves2,thv, dv, dt);
-               sqUV = qSqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc);
-                if (sqUV > thv) {
-                    double v12 = ves1->Drc * ves1->Drc;
-                    double v22 = ves2->Drc * ves2->Drc;
-                    double vkin = pow(hes->Drc, 2.0/3.0)*sqrt(Grad->Drc)/N->Drc;
-                    double sign1 = ves1->Drc < 0? -1.0 : 1.0;
-                    double sign2 = ves2->Drc < 0? -1.0 : 1.0;
-                    double v1 = fabs(ves1->Drc);
-                    double v2 = fabs(ves2->Drc);
-                    ves1->Drc = sign1*std::min(v1, sqrt(v1*vkin));
-                    ves2->Drc = sign2*std::min(v2, sqrt(v2*vkin));
-                   // qDebug() << hes->Drc << ves1->Drc << ves2->Drc << vkin << qes1 << qes2;
-                }
             }
             else
             {
@@ -756,38 +734,35 @@ void TWorld::maincalcscheme(int thread, double dt, cTMap *he, cTMap *ve1, cTMap 
     }}}}
 }
 //---------------------------------------------------------------------------
-void TWorld::correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2, double thv, double dv, double dt)
+void TWorld::correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2) //, double thv, double dv, double dt)
 {
-    double vs1 = fabs(ves1->Drc);
-    double vs2 = fabs(ves2->Drc);
-    double Vsqrt = sqrt(vs1*vs1+vs2*vs2) ;
-    double sign1 = ves1->Drc < 0? -1.0 : 1.0;
-    double sign2 = ves2->Drc < 0? -1.0 : 1.0;
-
-    if (Vsqrt < thv)
-        return;
-
-    double vu = r > 0 && !MV(r-1,c) ? fabs(ves1->data[r-1][c])+dv : vs1;
-    double vd = r < _nrRows-1 && !MV(r+1,c) ? fabs(ves1->data[r+1][c])+dv : vs1;
-    double vl = c > 0 && !MV(r,c-1) ? fabs(ves1->data[r][c-1])+dv : vs1;
-    double vr = c < _nrCols-1 && !MV(r,c+1) ? fabs(ves1->data[r][c+1]) + dv : vs1;
-
-    bool fv1 = (vs1 >= vu && vs1 >= vd && vs1 >= vl && vs1 >= vr);
-
-    vu = r > 0 && !MV(r-1,c) ? fabs(ves2->data[r-1][c])+dv : vs2;
-    vd = r < _nrRows-1 && !MV(r+1,c) ? fabs(ves2->data[r+1][c])+dv : vs2;
-    vl = c > 0 && !MV(r,c-1) ? fabs(ves2->data[r][c-1])+dv : vs2;
-    vr = c < _nrCols-1 && !MV(r,c+1) ? fabs(ves2->data[r][c+1]) + dv : vs2;
-
-    bool fv2 = (vs2 >= vu && vs2 >= vd && vs2 >= vl && vs2 >= vr);
-
-    if (vs1 > thv || vs2 > thv || Vsqrt > thv || fv1 || fv2) {
-        double vh = hes->Drc/dt;
-        double vkin = sqrt(qPow(hes->Drc, 2.0/3.0)*sqrt(Grad->Drc)/N->Drc);
-        ves1->Drc = sign1*std::min(std::min(vh, vkin), vs1);
-        ves2->Drc = sign2*std::min(std::min(vh, vkin), vs2);
+    double sign1 = ves1->Drc > 0 ? 1.0 : -1.0;
+    double sign2 = ves2->Drc > 0 ? 1.0 : -1.0;
+    double sqUV = qSqrt(ves1->Drc*ves1->Drc+ves2->Drc*ves2->Drc);
+    double s1 = Grad->Drc, s2 = Grad->Drc;
+    double G = sqrt(2*GRAV*hes->Drc); // bernouilly pressure velocity
+    if (sign1 < 0) {
+        if (c > 0 && !MV(r, c-1))
+            s1 = sin(atan(fabs(hes->Drc-hes->data[r][c-1])));
+    } else {
+        if (c < _nrCols-1 && !MV(r, c+1))
+            s1 = sin(atan(fabs(hes->Drc-hes->data[r][c+1])));
     }
-}
+    if (sign2 < 0) {
+        if (r > 0 && !MV(r-1, c))
+            s2 = sin(atan(fabs(hes->Drc-hes->data[r-1][c])));
+    } else {
+        if (r < _nrRows-1 && !MV(r+1, c))
+            s2 = sin(atan(fabs(hes->Drc-hes->data[r+1][c])));
+    }
+    double U1 =  4.0*(pow(hes->Drc,2.0/3.0)*sqrt(s1)/N->Drc + G);
+    double V1 =  4.0*(pow(hes->Drc,2.0/3.0)*sqrt(s2)/N->Drc + G);
+
+    ves1->Drc = sign1 * std::min(fabs(ves1->Drc), U1);
+    ves2->Drc = sign2 * std::min(fabs(ves2->Drc), V1);
+    // when V is much larger than kinematic wave V + pressure flow, limit it to that
+
+ }
 //---------------------------------------------------------------------------
 
 // fill the left and right h,u,v arrays to solve the 1D scheme, also used as prep for the 2D MUSCL scheme for the boundary cells
@@ -922,12 +897,11 @@ void TWorld::setFloodMaskDT(cTMap * DT)
 
 //---------------------------------------------------------------------------
 // t = timesum
-void TWorld::setFloodDT(double t, cTMap * h)
+void TWorld::setFloodDT(cTMap * h)
 {
     double dt_max = std::min(_dt, _dx*0.5);
     double dtmin = dt_max;
 
-    //find largest velocity and determine dt
     for(int rc = 0; rc < _nrRows; rc++)
     {
         bool out = false;
@@ -935,9 +909,11 @@ void TWorld::setFloodDT(double t, cTMap * h)
         {
             int r = (int) (FloodHR->data[rc][cc]);
             int c = (int) (FloodHC->data[rc][cc]);
-            if(!INSIDE(r,c)){out = true; break;}
+            //if(!INSIDE(r,c)){out = true; break;}  // no need, FllodHR/HC already is inside
 
-            if(h->Drc > HMIN && FloodHMaskDer->Drc != 0.0)
+            if (r < 0 || c < 0) {out = true; break;}
+
+            if(h->Drc > HMIN)// && FloodHMaskDer->Drc != 0.0) //FloodHMaskDer = >HMIN + 1 cell
             {
                dtmin = std::min(FloodDT->Drc,dtmin);
             }
@@ -946,9 +922,21 @@ void TWorld::setFloodDT(double t, cTMap * h)
     }
 
 
-    dtmin = std::min(_dt-t,std::max(TimestepfloodMin ,dtmin));
+    //dtmin = std::min(_dt-t,std::max(TimestepfloodMin ,dtmin));
+    dtmin = std::max(TimestepfloodMin ,dtmin);
+    // dtmin is smallest dt in whole map, the original dt1
 
     Flood_DTMIN = dtmin;
+
+    if (!SwitchVariableTimestep) {
+        FOR_ROW_COL_MV {
+            if(FloodHMaskDer->Drc != 0)
+                FloodDT->Drc = std::min(dtmin,_dt-FloodT->Drc);
+            else
+                FloodDT->Drc = 0;
+        }
+        return;
+    }
 
     for(int rc = 0; rc < _nrRows; rc++)
     {
@@ -957,31 +945,12 @@ void TWorld::setFloodDT(double t, cTMap * h)
         {
             int r = (int) (FloodHR->data[rc][cc]);
             int c = (int) (FloodHC->data[rc][cc]);
-            if(!INSIDE(r,c)){out = true; break;}
+           // if(!INSIDE(r,c)){out = true; break;}
+            if(r < 0 || c < 0){out = true; break;}
 
-            if(h->Drc > HMIN) {
-                //for homogeneous timestep!!
-
-                //FloodDT->Drc = dtmin;
-
-            } else
-                if(FloodHMaskDer->Drc != 0.0)
-            {
-                //for really small h, dt becomes small. We can not ignore due to possible incoming flow, so set to minimum of other cells
-                FloodDT->Drc = dtmin;//_max;
-            }
-
-            double dtm = dt_max; //_dt;
+            double dtm = dt_max;
             if(FloodHMaskDer->Drc != 0.0)
             {
-//                for (int i = -1; i<2; i++)
-//                    for (int j = -1; j < 2; j++)
-//                        if(!OUTORMV(r+i,c+j)) {
-//                            double weight = 1.0;
-//                            if (abs(i*j) >= 1)
-//                                weight = 1.5;
-//                            dtm = std::min(dtm, weight*FloodDT->data[r+i][c+j]);
-//                        }
 
                 if(!OUTORMV(r,c-1))
                     dtm = std::min(dtm, FloodDT->data[r][c-1]);
@@ -990,15 +959,15 @@ void TWorld::setFloodDT(double t, cTMap * h)
                 if(!OUTORMV(r-1,c))
                     dtm = std::min(dtm, FloodDT->data[r-1][c]);
                 if(!OUTORMV(r,c+1))
-                    dtm = std::min(dtm, 1.5*FloodDT->data[r][c+1]);
+                    dtm = std::min(dtm, FloodDT->data[r][c+1]);
                 if(!OUTORMV(r+1,c+1))
-                    dtm = std::min(dtm, 1.5*FloodDT->data[r+1][c+1]);
+                    dtm = std::min(dtm, 4*FloodDT->data[r+1][c+1]);
                 if(!OUTORMV(r+1,c-1))
-                    dtm = std::min(dtm, 1.5*FloodDT->data[r+1][c-1]);
+                    dtm = std::min(dtm, 4*FloodDT->data[r+1][c-1]);
                 if(!OUTORMV(r-1,c+1))
-                    dtm = std::min(dtm, 1.5*FloodDT->data[r-1][c+1]);
+                    dtm = std::min(dtm, 4*FloodDT->data[r-1][c+1]);
                 if(!OUTORMV(r-1,c-1))
-                    dtm = std::min(dtm, 1.5*FloodDT->data[r-1][c-1]);
+                    dtm = std::min(dtm, 4*FloodDT->data[r-1][c-1]);
 
                 if(!OUTORMV(r,c+2))
                     dtm = std::min(dtm,2*FloodDT->data[r][c+2]);
@@ -1022,28 +991,33 @@ void TWorld::setFloodDT(double t, cTMap * h)
             int r = (int) (FloodHR->data[rc][cc]);
             int c = (int) (FloodHC->data[rc][cc]);
             if(!INSIDE(r,c)){out = true; break;}
+         //   if(r < 0 || c < 0){out = true; break;}
 
             if(FloodHMaskDer->Drc != 0)
             {
-                if (!SwitchVariableTimestep)
-                    FloodDT->Drc = dtmin;
-                else
-                    FloodDT->Drc = std:: max(dtmin, FloodDTr->Drc);
+
+                    FloodDT->Drc = std::max(dtmin, FloodDTr->Drc);
+
+                    if (_dt-FloodT->Drc > dtmin)
+                        FloodDT->Drc = std::min(FloodDT->Drc,_dt-FloodT->Drc);
+                    if (FloodT->Drc >= _dt)
+                        FloodDT->Drc = 0;
 
                 //determine wether to do the timestep now or later
-                if(!(t + dtmin < _dt)) // if t > _dt do the remaining timestep
-                {
-                    FloodDT->Drc = std::max(0.0,_dt-FloodT->Drc);
+//                if(!(t + dtmin < _dt)) // if t > _dt do the remaining timestep
+//                {
+//                    FloodDT->Drc = std::max(0.0,_dt-FloodT->Drc);
 
-                } else
-                    if(!(FloodT->Drc > t + dtmin))
-                    {
-                        FloodDT->Drc = std::min(std::max(dtmin, FloodDT->Drc), _dt - FloodT->Drc);
-                       // FloodDT->Drc = std::min(FloodDT->Drc, _dt - FloodT->Drc);
+//                } else
+//                    if(!(FloodT->Drc > t + dtmin))
+//                    {
+//                        FloodDT->Drc = std::min(std::max(dtmin, FloodDT->Drc), _dt - FloodT->Drc);
+//                       // FloodDT->Drc = std::min(FloodDT->Drc, _dt - FloodT->Drc);
 
-                    } else {
-                        FloodDT->Drc = 0;
-                    }
+//                    } else {
+//                        FloodDT->Drc = 0;
+//                    }
+
             } else {
                 FloodDT->Drc = 0;
             }
@@ -1058,12 +1032,12 @@ void TWorld::setFloodDT(double t, cTMap * h)
 double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct)
 {
     double dt1 = 0, timesum = 0;
-    double dt_max = std::min(_dt, _dx*dtmaxfrac);
+    double dt_max = std::min(_dt, _dx*0.5);
     int n = 0;
     double sumh = 0;
     bool stop;
 
-    SwitchHeun = false;
+    F_MaxIter = (int) std::min(20000.0, _dt/TimestepfloodMin);
 
     if (startFlood)
     {
@@ -1081,6 +1055,9 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
         if (correct)
             sumh = getMass(h);
 
+        //mask flow domain to start: h>0 and one cell more
+        setFloodMask(h);
+
         do {
 
             dt1 = dt_max;
@@ -1088,50 +1065,54 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
             fill(*FloodDT,0.0);
             fill(*FloodDTr,0.0);
 
-            //mask flow domain: h>0 and one cell more
-            setFloodMask(h);
-
             //now set the height-dependent mask for FOR_ROW_COL_UFMT_DT
             ThreadPool->SetMask(DEM,FloodHMaskDer,FloodHR,FloodHC);
 
-            //creation callable function object by binding TWorld oject to member function
-            //this leaves only the thread id as a parameter for the compute function
             // MUSCL and maincalcflux (fluxes between cells, Rieman stuff, boundaries and smallest dt)
             flood_cellcompute = std::bind((&TWorld::fullSWOF2Do2lightWrapperCell1),this,std::placeholders::_1,h,u,v,z);
             ThreadPool->RunDynamicCompute(flood_cellcompute);
             ThreadPool->WaitForAll();
             // MUSCL and mainflux, dt1 not smallest because of threading !
 
-            setFloodDT(timesum, h);
+            setFloodDT(h);
             dt1 = Flood_DTMIN; // smallest dt in domain for this timestep
 
-            setFloodMaskDT(FloodDT);
+            FOR_ROW_COL_MV {
+                tma->Drc = 0;
+                FloodT->Drc += FloodDT->Drc;
+                if (FloodT->Drc > 0 && FloodT->Drc < _dt)
+                    tma->Drc = 1;
+            }
+            setFloodMaskDT(tma);//FloodDT);
             //now set the timestep-dependent mask for FOR_ROW_COL_UFMT_DT
             ThreadPool->SetMask(DEM,FloodDT,FloodDTR,FloodDTC);
 
-            //creation callable function object by binding TWorld oject to member function
-            //this leaves only the thread id as a parameter for the compute function
-            //add dt1 as one of the parameters
+            // order 2 calculations, new q u and v
             flood_flowcompute = std::bind((&TWorld::fullSWOF2Do2lightWrapperDynamic1),this,std::placeholders::_1,h,u,v,hs,us,vs, dt1);
             ThreadPool->RunDynamicCompute(flood_flowcompute);
             ThreadPool->WaitForAll();
-            //maincalcscheme with dt1 or flooddt->Drc
+            //maincalcscheme with dt1 or floodDT->Drc
 
-           // do a second time and do Heun
+            // do a second time and do Heun
             if (SwitchHeun)
             {
                 // do it all a second time, but not erosion
-                setFloodMask(h);
+            //    setFloodMask(h);
                 ThreadPool->SetMask(DEM,FloodHMaskDer,FloodHR,FloodHC);
-
                 flood_cellcompute = std::bind((&TWorld::fullSWOF2Do2lightWrapperCell1),this,std::placeholders::_1,hs,us,vs,z);
                 ThreadPool->RunDynamicCompute(flood_cellcompute);
                 ThreadPool->WaitForAll();
 
-                setFloodDT(timesum, h);
+                setFloodDT(h);
                 dt1 = Flood_DTMIN;
 
-                setFloodMaskDT(FloodDT);
+                FOR_ROW_COL_MV {
+                    tma->Drc = 0;
+                    FloodT->Drc += FloodDT->Drc;
+                    if (FloodT->Drc > 0 && FloodT->Drc < _dt)
+                        tma->Drc = 1;
+                }
+                setFloodMaskDT(tma);//FloodDT);
                 ThreadPool->SetMask(DEM,FloodDT,FloodDTR,FloodDTC);
 
                 flood_flowcompute2 = std::bind((&TWorld::fullSWOF2Do2lightWrapperDynamic2),this,std::placeholders::_1,hs,us,vs,hsa,usa,vsa, dt1);
@@ -1158,10 +1139,18 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
             timesum = timesum + Flood_DTMIN;
             stop = timesum  > _dt-1e-6;
 
-            FOR_ROW_COL_MV
-            {
+            double cnt=0;
+            FOR_ROW_COL_MV {
+                tma->Drc = 0;
                 FloodT->Drc += FloodDT->Drc;
+                if (FloodT->Drc > 0 && FloodT->Drc < _dt) {
+                    cnt+=1.0;
+                    tma->Drc = 1;
+                }
             }
+            stop = cnt < 1;
+            if (!stop)
+                setFloodMask(tma);
 
             n++;
             if (n > F_MaxIter)
@@ -1178,7 +1167,7 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
 
     iter_n = n;
     dt1 = n > 0? _dt/n : dt1;
-    return(dt1);
+    return(Flood_DTMIN);//dt1);
 }
 //---------------------------------------------------------------------------
 void TWorld::fullSWOF2Do2lightWrapperCell1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *z)

@@ -96,7 +96,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -3755,7 +3755,7 @@
                       </spacer>
                      </item>
                      <item row="5" column="0">
-                      <widget class="QGroupBox" name="groupBox">
+                      <widget class="QGroupBox" name="groupBox5">
                        <property name="font">
                         <font>
                          <weight>75</weight>
@@ -3823,7 +3823,7 @@
                       </widget>
                      </item>
                      <item row="2" column="0">
-                      <widget class="QGroupBox" name="groupBox">
+                      <widget class="QGroupBox" name="groupBox2">
                        <property name="font">
                         <font>
                          <weight>75</weight>
@@ -3913,7 +3913,7 @@
                       </widget>
                      </item>
                      <item row="0" column="0">
-                      <widget class="QGroupBox" name="groupBox">
+                      <widget class="QGroupBox" name="groupBox1">
                        <property name="font">
                         <font>
                          <weight>75</weight>
@@ -4104,7 +4104,7 @@
                       </widget>
                      </item>
                      <item row="3" column="0">
-                      <widget class="QGroupBox" name="groupBox">
+                      <widget class="QGroupBox" name="groupBox3">
                        <property name="font">
                         <font>
                          <weight>75</weight>
@@ -4387,7 +4387,7 @@
                       </widget>
                      </item>
                      <item row="4" column="0">
-                      <widget class="QGroupBox" name="groupBox">
+                      <widget class="QGroupBox" name="groupBox4">
                        <property name="font">
                         <font>
                          <weight>75</weight>

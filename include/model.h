@@ -515,7 +515,7 @@ public:
     void setFloodMaskDT(cTMap * DT);
 
     double fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
-    void setFloodDT(double t, cTMap * h);
+    void setFloodDT(cTMap * h);
     double Flood_DTMIN;
     void fullSWOF2Do2lightWrapperCell1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     void fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *hs, cTMap *us, cTMap *vs, double dt1);
@@ -549,7 +549,7 @@ public:
     void Boundary2Ddyn();//cTMap* h, cTMap* Q,cTMap *U, cTMap *V);
     void MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v);
-    void correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2, double thv, double dv, double dt);
+    void correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2);//, double thv, double dv, double dt);
 
     void infilInWave(cTMap *_h, double dt1);
 
@@ -900,7 +900,7 @@ public:
 
 protected:
     void run();
-    QTime time_ms;
+    QElapsedTimer time_ms;
     // talk to the interface
 
     void setupDisplayMaps();
