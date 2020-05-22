@@ -870,7 +870,7 @@ public:
 
     ////MULTITHREADING STUFF
     LisemThreadPool * ThreadPool;
-    //std::function<void(int)> freport;      // reporting thread
+   // std::function<void(int)> freport;      // reporting thread
     std::function<void(int)> wrapCellProcesses1D;    // 1D first part  = cellpropcesses
     std::function<void(int)> fcompute2;    // 1D second part = cellprocesses2
     std::function<void(int)> flowcompute;  // k2d wave

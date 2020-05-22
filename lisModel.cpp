@@ -196,9 +196,12 @@ void TWorld::DoModel()
         copy(*CoreMask, *ThreadPool->CoreMask);
         ThreadPool->StartReportThread(this);
 
+       // freport = std::bind((&TWorld::Wrapper_ReportAll),this,std::placeholders::_1);
+
+
         //create a function object referring to the cellprocesses wrapper
         wrapCellProcesses1D = std::bind((&TWorld::CellProcesses),this,std::placeholders::_1);
-        fcompute2 = std::bind((&TWorld::CellProcesses2),this,std::placeholders::_1);
+      //  fcompute2 = std::bind((&TWorld::CellProcesses2),this,std::placeholders::_1);
 
         DEBUG("Running...");
 
@@ -249,7 +252,7 @@ void TWorld::DoModel()
             OrderedProcesses();  //do ordered solutions such as channel LDD etc., non threaded
 
             //wait for the report thread that was started in the previous timestep
-         //   ThreadPool->WaitForReportThread();
+            ThreadPool->WaitForReportThread();
 
             Totals();            // calculate all totals and cumulative values
 
@@ -258,8 +261,9 @@ void TWorld::DoModel()
 
             saveMBerror2file(SwitchDumpMassBallance, false);
 
-//            std::function<void(int)> freport = std::bind((&TWorld::Wrapper_ReportAll),this,std::placeholders::_1);
-//            ThreadPool->RunReportFunction(freport);
+            std::function<void(int)> freport = std::bind((&TWorld::Wrapper_ReportAll),this,std::placeholders::_1);
+   //        ThreadPool->RunReportFunction(freport);
+           /*
             mapFormat = op.format;
 
             ReportTimeseriesNew();
@@ -276,6 +280,7 @@ void TWorld::DoModel()
 
             ChannelFloodStatistics();
             // report buildings submerged in flood level classes in 5cm intervals
+            */
 
 
 
