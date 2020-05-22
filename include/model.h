@@ -78,21 +78,12 @@ class LisemThreadPool;
 #define MV(r,c) pcr::isMV(LDD->data[r][c])
 #define MVin(r,c) (pcr::isMV(LDD->data[r][c]) && r < _nrRows && c < _nrCols && r >= 0 && c >= 0)
 
+#define FOR_GRAIN_CLASSES for(int d  = 0 ; d < numgrainclasses;d++)
+
 /// shortcut for LDD row and col loop
 #define FOR_ROW_COL_MV for(int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDD->data[r][c]))
-
-#define FOR_GRAIN_CLASSES for(int d  = 0 ; d < numgrainclasses;d++)
-/*
-#define FOR_CELL_IN_FLOODAREA for (long _i = 0; _i < nrFloodcells ; _i++)\
-{\
-    int r = floodRow[_i];\
-    int c = floodCol[_i];
-*/
-#define FOR_CELL_IN_FLOODAREA for(int r = 0; r < _nrRows; r++)\
-    for (int c = 0; c < _nrCols; c++)\
-    if(!pcr::isMV(LDD->data[r][c])) {
 
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\

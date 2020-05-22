@@ -239,7 +239,7 @@ void lisemqt::ParseInputData()
  //       if (p1.compare("Report point output for SOBEK")==0)  checkWriteSOBEK->setChecked(check);
         if (p1.compare("Report digits out")==0)             E_DigitsOut->setValue(iii);
         if (p1.compare("Report format GTiff")==0)             checkFormatGtiff->setChecked(check);
-
+        if (p1.compare("Dump mass balance")==0)             checkDumpMassBalance->setChecked(check);
 
 //        if (p1.compare("SOBEK date string")==0)              SOBEKdatestring->setText(p);
         if (p1.compare("Sediment bulk density")==0)          E_BulkDens->setText(p);
@@ -774,6 +774,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Report digits out")==0)             namelist[j].value = E_DigitsOut->text();
 
         if (p1.compare("Report format GTiff")==0)             namelist[j].value.setNum((int)checkFormatGtiff->isChecked());
+        if (p1.compare("Dump mass balance")==0)             namelist[j].value.setNum((int)checkDumpMassBalance->isChecked());
 
         if (p1.compare("Sediment bulk density")==0)          namelist[j].value = E_BulkDens->text();
         //if (p1.compare("Use canopy storage map")==0)   	     namelist[j].value.setNum((int)!checkInterceptionLAI->isChecked());

@@ -13,7 +13,7 @@
 
 void TWorld::setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v)
 {
-    FOR_CELL_IN_FLOODAREA  {
+    FOR_ROW_COL_MV  {
         if (_h->Drc <= he_ca)
         {
             _h->Drc = 0;
@@ -29,7 +29,7 @@ void TWorld::setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v)
         {
             _v->Drc = 0;
         }
-    }}
+    }
 }
 void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
 {

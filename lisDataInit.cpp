@@ -236,7 +236,6 @@ void TWorld::InitStandardInput(void)
 {
     //## catchment data
     LDD = InitMask(getvaluename("ldd"));
-    report(*LDD,"ldda.map");
     // THIS SHOULD BE THE FIRST MAP
     // LDD is also mask and reference file, everthing has to fit LDD
     // channels use channel LDD as mask
@@ -494,8 +493,8 @@ void TWorld::InitStandardInput(void)
     {
         RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
         checkMap(*RoadWidthDX, LARGER, _dx, "road width cannot be larger than gridcell size");
-        FOR_ROW_COL_MV
-            N->Drc = N->Drc * (1-RoadWidthDX->Drc/_dx) + 0.001*RoadWidthDX->Drc/_dx;
+    //    FOR_ROW_COL_MV
+    //        N->Drc = N->Drc * (1-RoadWidthDX->Drc/_dx) + 0.001*RoadWidthDX->Drc/_dx;
     }
     else
         RoadWidthDX = NewMap(0);
@@ -505,11 +504,18 @@ void TWorld::InitStandardInput(void)
         HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
         calcValue(*HardSurface, 1.0, MIN);
         calcValue(*HardSurface, 0.0, MAX);
-        FOR_ROW_COL_MV
-            N->Drc = N->Drc * (1-HardSurface->Drc) + 0.001*HardSurface->Drc;
+     //   FOR_ROW_COL_MV
+     //       N->Drc = N->Drc * (1-HardSurface->Drc) + 0.001*HardSurface->Drc;
     }
     else
         HardSurface = NewMap(0);
+
+    RoadWidthHSDX = NewMap(0);
+    FOR_ROW_COL_MV {
+        double frac = std::min(1.0,HardSurface->Drc + RoadWidthDX->Drc/_dx);
+        RoadWidthHSDX->Drc = std::min(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
+        N->Drc = N->Drc * (1-HardSurface->Drc) + 0.001*frac;
+    }
 
     //## infiltration data
 
@@ -887,7 +893,14 @@ void TWorld::InitChannel(void)
 
         FOR_ROW_COL_MV_CH
         {
-            ChannelWidthMax->Drc = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc; // can be more than _dx
+            // top width
+            ChannelWidthMax->Drc = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc;
+            if (ChannelWidthMax->Drc > 0.9*_dx && ChannelSide->Drc > 0) {
+               ChannelSide->Drc = 0.05*_dx/ChannelDepth->Drc;
+               ChannelWidthMax->Drc = 0.9*_dx;
+            }
+            // can be more than _dx
+
             ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
         }
 
@@ -2146,26 +2159,13 @@ void TWorld::FindBaseFlow()
 
                     // all cells above a cell are linked in a "sub-catchment or branch
                     // continue with water and sed calculations
-                    // rowNr and colNr are the last upstreM cell linked
+                    // rowNr and colNr are the last upstream cell linked
                     if (subCachDone)
                     {
                         int r = rowNr;
                         int c = colNr;
                         tma->Drc = 0;
                         ncells ++;
-
-//                        if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
-//                        {
-//                            double ksat = 0;//Ksat1->Drc;
-
-//                            if(SwitchChannelInfil)
-//                            {
-//                                ksat = ChannelKsat->Drc;
-//                            }
-
-//                            infiltration += (ChannelWidth->Drc) * DX->Drc * ksat *1.0/3600000.0;
-//                            tmd->Drc = (ChannelWidth->Drc) * DX->Drc * ksat *1.0/3600000.0;
-//                        }
 
                         temp=list;
                         list=list->prev;
@@ -2183,7 +2183,7 @@ void TWorld::FindBaseFlow()
                 list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
 
                 list->prev = nullptr;
-                /// start gridcell: outflow point of area
+                // start gridcell: outflow point of area
                 list->rowNr = ro;
                 list->colNr = co;
 
@@ -2275,10 +2275,11 @@ void TWorld::FindBaseFlow()
                         // first guess new h with old alpha
                         h1 = h;
                         double A = 0;
+                        double dww = 0;
 
+                        // newton raphson iteration
                         if (q > 0)
                         {
-                            double _23 = 2.0/3.0;
                             double F, dF;
                             int count = 0;
 
@@ -2286,28 +2287,32 @@ void TWorld::FindBaseFlow()
                                 h = h1;
                                 if (h < 1e-10)
                                     break;
-                                //double P = w+2*h;
-                                //double A = h*w;
 
                                 double P,R;
                                 double wh = h;
                                 double FW = ChannelWidth->Drc;
-                                double dw = /*0.5* */(ChannelFlowWidth->Drc - FW); // extra width when non-rectamgular
+                                double dw = (ChannelFlowWidth->Drc - FW); // extra width when non-rectamgular
+                                double dww = dw;
 
                                 if (dw > 0)
                                 {
                                     //Perim = FW + 2*sqrt(wh*wh + dw*dw);
                                     P = FW + 2.0*wh/cos(atan(ChannelSide->Drc));
+                                    // channelside is tan(angle), dw/wh = tan angle; wh/diagonal = cos angle, dw/diagonal = sin angle
+                                    //      dw
+                                    //     |  /
+                                    //   wh| /diagonal
+                                    //  ___|/
                                     A = FW*wh + wh*dw;
                                 }
                                 else
                                 {
-                                    P = FW + 2.0*wh/cos(atan(ChannelSide->Drc));
+                                    P = FW + 2.0*wh;
                                     A = FW*wh;
                                 }
 
                                 R = A/P;
-                                F = std::max(0.0, 1.0 - q/(sqrt(ChannelGrad->Drc)/ChannelN->Drc*A*pow(R,_23)));
+                                F = std::max(0.0, 1.0 - q/(sqrt(ChannelGrad->Drc)/ChannelN->Drc*A*pow(R,2.0/3.0)));
                                 dF = (5.0*w+6.0*h)/(3.0*h*P);
                                 h1 = h - F/dF;
                                 // function divided by derivative
@@ -2315,6 +2320,10 @@ void TWorld::FindBaseFlow()
                             }while(fabs(h1-h) > 1e-10 && count < 20);
                         }
 
+                        if (h > ChannelDepth->data[list->rowNr][list->colNr]) {
+                            h = ChannelDepth->data[list->rowNr][list->colNr];
+                            A = ChannelWidth->Drc*h + h*dww;
+                        }
                         BaseFlowInitialVolume->data[list->rowNr][list->colNr] = A*DX->Drc;
 
                         temp=list;

@@ -239,6 +239,8 @@ void TWorld::ParseRunfileData(void)
 
         if (p1.compare("Report digits out")==0)   ReportDigitsOut = iii;
 
+        if (p1.compare("Dump mass balance")==0)   SwitchDumpMassBallance = iii = 1;
+
         if (p1.compare("Use canopy storage map")==0)   	   SwitchInterceptionLAI =  iii == 0;
 
         if (p1.compare("KE parameters EQ1")==0)

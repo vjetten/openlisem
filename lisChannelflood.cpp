@@ -295,8 +295,7 @@ void TWorld::ToFlood()//int thread)
 void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
 {
     // floodwater volume and max flood map
-    FOR_CELL_IN_FLOODAREA
-    {
+    FOR_ROW_COL_MV {
         if (_h->Drc > threshold) {
             floodTime->Drc += _dt/60;
             floodHmxMax->Drc = std::max(floodHmxMax->Drc, _h->Drc);
@@ -305,23 +304,26 @@ void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
             floodVHMax->Drc = std::max(floodVMax->Drc, _UV->Drc*_h->Drc);
         // max velocity
         }
-    }}
+    }
+
     floodVolTotMax = 0;
     floodAreaMax = 0;
     double area = _dx*_dx;
-    FOR_CELL_IN_FLOODAREA
-    if (floodHmxMax->Drc > threshold)
-    {
-        floodVolTotMax += floodHmxMax->Drc*area;
-        floodAreaMax += area;
-    }}
+    FOR_ROW_COL_MV {
+        if (floodHmxMax->Drc > threshold)
+        {
+            floodVolTotMax += floodHmxMax->Drc*area;
+            floodAreaMax += area;
+        }
+    }
 
-    FOR_CELL_IN_FLOODAREA
-    if (_h->Drc > threshold && floodTimeStart->Drc == 0)
-    {
-        floodTimeStart->Drc = (time - RainstartTime)/60.0;
-      // time since first pixel received rainfall
-    }}
+    FOR_ROW_COL_MV {
+        if (_h->Drc > threshold && floodTimeStart->Drc == 0)
+        {
+            floodTimeStart->Drc = (time - RainstartTime)/60.0;
+            // time since first pixel received rainfall
+        }
+    }
 
 }
 //---------------------------------------------------------------------------
