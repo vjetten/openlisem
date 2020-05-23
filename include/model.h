@@ -736,6 +736,7 @@ public:
     void CalcVelDischTile(void);
     void CalcVelDischDrain(void);
     void GridCell(int thread);
+    void fromChannelVoltoWH(int r, int c);
 
     void ExtendChannel();
     bool IsExtendedChannel(int r, int c, int dr, int dc);
@@ -755,6 +756,7 @@ public:
     void FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold);
     void ChannelFloodStatistics(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V, bool doOF);
+    void ChannelOverflowNew(cTMap *_h, cTMap *_V, bool doOF);
 
     double courant_factor;
     double courant_factor_diffusive;

@@ -52,14 +52,17 @@ functions: \n
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow(void)
 {
-    if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
+    if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
+        ToChannel();           // overland flow water and sed flux going into or out of channel, in channel cells
+
         OverlandFlow1D();
 
-    //        if(SwitchKinematic2D == K2D_METHOD_DIFF)
-    //        OverlandFlow2D();
+        ChannelFlood(); // st venant channel 2D flooding from channel, only for kyn wave, partly parallel
+    }
 
-    if(SwitchKinematic2D == K2D_METHOD_DYN)
+    if(SwitchKinematic2D == K2D_METHOD_DYN) {
         OverlandFlow2Ddyn();
+    }
 
 }
 //--------------------------------------------------------------------------------------------
@@ -77,21 +80,21 @@ void TWorld::ToChannel()//int thread)
     if (!SwitchIncludeChannel)
         return;
 
-    CalcVelDischChannelNT();
+//    CalcVelDischChannelNT();
 
-    if(SwitchKinematic2D == K2D_METHOD_DYN) {
-        ChannelOverflow(WHrunoff, V, false);
-        return;
-    }
+//    if(SwitchKinematic2D == K2D_METHOD_DYN) {
+//        ChannelOverflow(WHrunoff, V, false);
+//        return;
+//    }
 
-    if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
-        ChannelOverflow(WHrunoff, V, true);
-        return;
-    }
+//    if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
+ //      ChannelOverflow(WHrunoff, V, true);
+//        return;
+//    }
 
-   /*
+//return;
 
-    FOR_ROW_COL_MV_CH  //TODO: must be FOR_ROW_COL_MV ? else extended no sense
+    FOR_ROW_COL_MV
     {
         if(ChannelMaskExtended->data[r][c] == 1)
         {
@@ -99,44 +102,43 @@ void TWorld::ToChannel()//int thread)
             int cr = (int)ChannelSourceXExtended->Drc;
 
             double fractiontochannel;
-            double Volume = WHrunoff->Drcr * FlowWidth->Drcr * DX->Drcr;
 
-            if (Volume == 0)
+            if (WHrunoff->Drc < HMIN)
                 continue;
 
-            if (ChannelAdj->Drcr == 0)
-                fractiontochannel = 1.0;
-            else
-                fractiontochannel = std::min(1.0, _dt*V->Drcr/std::max(0.01*_dx,0.5*ChannelAdj->Drcr));
+            double VtoChan = std::pow(WHrunoff->Drcr, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr; //F_Angle
+//            if (F_AddGravity == 1)
+//                VtoChan = sqrt(9.81*WHrunoff->Drc);
+//            else if (F_AddGravity == 2)
+//                VtoChan += sqrt(9.81*WHrunoff->Drc);
+//                VtoChan = std::max(VtoChan,sqrt(9.81*WHrunoff->Drc));
+
+            fractiontochannel = std::min(1.0, _dt*VtoChan/std::max(0.05*_dx,0.5*ChannelAdj->Drc));
             // fraction to channel calc from half the adjacent area width and flow velocity
 
-            // cannot flow into channel if water level in channel is higher than depth
-            if (WHrunoff->Drcr <= std::max(0.0 , ChannelWH->Drcr -ChannelDepthExtended->Drcr))
-            {
+            // cannot flow into channel if water level in channel is higher than runoff depth
+            if (SwitchKinematic2D == K2D_METHOD_KINDYN &&
+                WHrunoff->Drc <= std::max(0.0 , ChannelWH->Drcr - ChannelDepth->Drcr))
                 fractiontochannel = 0;
-            }
+
             // no inflow on culverts
             if (SwitchCulverts && ChannelMaxQ->Drcr  > 0)
-            {
                 fractiontochannel = 0;
-            }
 
-            double dvol = fractiontochannel*Volume;
-            double dwh = fractiontochannel*WHrunoff->Drcr;
+            if (fractiontochannel == 0)
+                continue;
 
-            ChannelWaterVol->Drcr += dvol;
+            double dwh = fractiontochannel*WHrunoff->Drc;
+
             // water diverted to the channel
-            ChannelWH->Drcr = ChannelWaterVol->Drcr/ChannelFlowWidth->Drcr;
+            ChannelWaterVol->Drcr += dwh* FlowWidth->Drc * DX->Drc;
+            fromChannelVoltoWH(rr, cr);
 
-            WHrunoff->Drcr -= dwh ;
-            WHroad->Drcr -= dwh;
-            WHGrass->Drcr -= dwh;
-            WH->Drcr -= dwh;
-            //WaterVolall->Drcr = DX->Drcr*( WH->Drcr*SoilWidthDX->Drcr + WHroad->Drcr*RoadWidthDX->Drcr);
-            WaterVolall->Drcr = WHrunoff->Drcr*ChannelAdj->Drcr*DX->Drcr + DX->Drcr*WHstore->Drcr*SoilWidthDX->Drcr;
-
-            ChannelWaterHeightFromVolumeNT();
-            // add tochannel to volume and recalc channelwh
+            WHrunoff->Drc -= dwh ;
+            WHroad->Drc -= dwh;
+            WHGrass->Drc -= dwh;
+            WH->Drc -= dwh;
+            WaterVolall->Drc = WHrunoff->Drcr*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
 
             if (SwitchErosion)
             {
@@ -160,11 +162,10 @@ void TWorld::ToChannel()//int thread)
                     }
                 }
                RiverSedimentLayerDepth(rr,cr);
-                RiverSedimentMaxC(rr,cr);
+               RiverSedimentMaxC(rr,cr);
             }
         }
     }
- */
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -331,6 +332,9 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
 void TWorld::OverlandFlow2Ddyn(void)
 {
     double dtOF = 0;
+
+    ChannelOverflowNew(WHrunoff, V, false);
+        // false means flood sediment maps are used
 
     startFlood = false;
     FOR_ROW_COL_MV {
