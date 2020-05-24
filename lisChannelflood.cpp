@@ -166,18 +166,30 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
                     double fc = std::min(0.95,ChannelWidthMax->Drcr/_dx);
                     // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
                     double whlevel = (ChannelWH->Drcr-chdepth)*fc + _h->Drc*(1-fc);
-                    double voltot = ChannelWaterVol->Drc + DX->Drcr*_h->Drc*ChannelAdj->Drc;
+
 
                     // equilibrium water level = weighed values of channel surplus level + _h
                     // can be negative if channelwh is below channel depth and low _h level
                     if(whlevel > HMIN)
                     {
-                        //ChannelWHExtended->Drc = whlevel + chdepth;
-                        _h->Drcr = voltot*(1-fc)/(DX->Drcr*ChannelAdj->Drcr);
-                                //whlevel;
+                        if (ChannelWH->Drcr > chdepth) {
+                            ChannelWH->Drcr = whlevel + chdepth;
+                            _h->Drcr = whlevel;
+                        } else {
+                            double voltot = ChannelWH->Drcr*(ChannelWidth->Drcr+ChannelSide->Drcr) + _h->Drc*ChannelAdj->Drc;
+                            double def = (chdepth-ChannelWH->Drcr)*(ChannelWidth->Drcr+ChannelSide->Drcr);
+                            voltot-=def; //fill up the rest of the channel
+                            _h->Drcr = voltot/_dx;
+                            ChannelWH->Drcr = chdepth + voltot/_dx;
 
-                        ChannelWaterVol->Drcr = voltot*fc;
-                        fromChannelVoltoWH(rr,cr);
+                        }
+
+
+                         //       voltot*(1-fc)/(DX->Drcr*ChannelAdj->Drcr);
+                                //
+
+                   //     ChannelWaterVol->Drcr = voltot*fc;
+                  //      fromChannelVoltoWH(rr,cr);
                         //ChannelWHExtended->Drc = ChannelWH->Drcr;
                         // new equilibrium levels
                         if(SwitchErosion)
@@ -296,14 +308,14 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                 // no diff in water level, no flow, continue
 
                 // VELOCITIES
-                double VtoChan = V->Drc;//std::pow(_h->Drcr, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr; //F_Angle
-                double VfromChan = sqrt(2*9.81*dH);
+                double VtoChan = std::pow(_h->Drcr, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr; //F_Angle
+                double VfromChan = sqrt(2*9.81*dH); //Bernoulli
                 double fracA = std::min(1.0, _dt*VtoChan/(0.5*_dx));
                 // fraction from _h to channel based on average flood velocity
                 double fracC = std::min(1.0, _dt*VfromChan/(0.5*_dx));
                 // fraction from channel to surrounding based on overflow height and manning
 
-                double cwa = ChannelWidth->Drcr/ChannelAdj->Drcr;
+                double cwa = ChannelAdj->Drc > 0 ? ChannelWidthMax->Drcr/ChannelAdj->Drc : 0;
 
                 bool dosimpel = false;//obsolete (SwitchFlood1D2DCoupling == 1);
 
@@ -526,7 +538,6 @@ void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
 
 }
 //---------------------------------------------------------------------------
-// NOTE DEM has barriers included, done in shade map calculation !!!!
 void TWorld::ChannelFlood(void)
 {
     if (!SwitchIncludeChannel)
