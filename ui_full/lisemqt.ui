@@ -96,7 +96,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -3654,8 +3654,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>759</width>
-                <height>859</height>
+                <width>762</width>
+                <height>807</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_44">
@@ -10631,7 +10631,7 @@ p, li { white-space: pre-wrap; }
                            <number>1</number>
                           </property>
                           <property name="maximum">
-                           <number>4</number>
+                           <number>3</number>
                           </property>
                           <property name="value">
                            <number>3</number>
@@ -10827,7 +10827,7 @@ p, li { white-space: pre-wrap; }
                            </font>
                           </property>
                           <property name="text">
-                           <string>Riemann solver: 1 - Rusanov; 2 - HLL; 3 - HLL2; 4 - HLL2 corrected (def. 3)</string>
+                           <string>Riemann solver: 1 - Rusanov; 2 - HLL; 3 - HLL2; (def. 3)</string>
                           </property>
                           <property name="alignment">
                            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

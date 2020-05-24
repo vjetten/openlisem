@@ -237,13 +237,9 @@ void TWorld::DoModel()
             ThreadPool->RunCellCompute(wrapCellProcesses1D);
             ThreadPool->WaitForAll();
 
-            //ToChannel();           // overland flow water and sed flux going into or out of channel, in channel cells
-
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddiff or 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
-
-         //   ChannelFlood(); // st venant channel 2D flooding from channel, only for kyn wave
 
             // flow detachment
      //        ThreadPool->RunCellCompute(fcompute2);
@@ -252,7 +248,7 @@ void TWorld::DoModel()
             OrderedProcesses();  //do ordered solutions such as channel LDD etc., non threaded
 
             //wait for the report thread that was started in the previous timestep
-            ThreadPool->WaitForReportThread();
+     //       ThreadPool->WaitForReportThread();
 
             Totals();            // calculate all totals and cumulative values
 
@@ -261,9 +257,9 @@ void TWorld::DoModel()
 
             saveMBerror2file(SwitchDumpMassBallance, false);
 
-            std::function<void(int)> freport = std::bind((&TWorld::Wrapper_ReportAll),this,std::placeholders::_1);
-   //        ThreadPool->RunReportFunction(freport);
-           /*
+       //     std::function<void(int)> freport = std::bind((&TWorld::Wrapper_ReportAll),this,std::placeholders::_1);
+      //     ThreadPool->RunReportFunction(freport);
+
             mapFormat = op.format;
 
             ReportTimeseriesNew();
@@ -280,9 +276,6 @@ void TWorld::DoModel()
 
             ChannelFloodStatistics();
             // report buildings submerged in flood level classes in 5cm intervals
-            */
-
-
 
 
             if (!noInterface)

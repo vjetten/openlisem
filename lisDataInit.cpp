@@ -2749,7 +2749,6 @@ void TWorld::FindChannelAngles()
                         }
 
                         ChannelPAngle->data[rowNr][colNr] =  n > 0 ? std::max(0.01,std::min(0.1,grad/n)) : 0.01;
-                       // ChannelPAngle->data[rowNr][colNr] = 0.8*ChannelPAngle->data[rowNr][colNr] + 0.2*(nc > 0 ? gradc/nc : 0.01);
 
                         tma->data[rowNr][colNr] = 1;
 
@@ -2764,8 +2763,8 @@ void TWorld::FindChannelAngles()
     FOR_ROW_COL_MV_CH {
         if (SwitchFixedAngle)
             ChannelPAngle->Drc = F_Angle;
-        else
-            ChannelPAngle->Drc = std::min(ChannelPAngle->Drc, F_Angle);
+//        else
+//            ChannelPAngle->Drc = std::min(ChannelPAngle->Drc, F_Angle);
     }
   //  report(*ChannelPAngle,"cpa.map");
 }

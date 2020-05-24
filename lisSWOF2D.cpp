@@ -863,7 +863,7 @@ void TWorld::setFloodDT(cTMap * h)
         {
             int r = (int) (FloodHR->data[rc][cc]);
             int c = (int) (FloodHC->data[rc][cc]);
-            //if(!INSIDE(r,c)){out = true; break;}  // no need, FllodHR/HC already is inside
+            //if(!INSIDE(r,c)){out = true; break;}  // no need, FloodHR/HC already is inside
 
             if (r < 0 || c < 0) {out = true; break;}
 
@@ -992,7 +992,7 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
     bool stop;
 
   //  F_MaxIter = (int) std::min(1000.0, _dt/TimestepfloodMin);
-
+fill(*tmb,0.0);
     if (startFlood)
     {
         if (SwitchErosion) {
@@ -1034,8 +1034,10 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
             FOR_ROW_COL_MV {
                 tma->Drc = 0;
                 FloodT->Drc += FloodDT->Drc;
-                if (FloodT->Drc > 0 && FloodT->Drc < _dt)
+                if (FloodT->Drc > 0 && FloodT->Drc < _dt) {
                     tma->Drc = 1;
+                    tmb->Drc += 1.0;
+                }
             }
             setFloodMaskDT(tma);//FloodDT);
             //now set the timestep-dependent mask for FOR_ROW_COL_UFMT_DT
@@ -1063,8 +1065,9 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
                 FOR_ROW_COL_MV {
                     tma->Drc = 0;
                     FloodT->Drc += FloodDT->Drc;
-                    if (FloodT->Drc > 0 && FloodT->Drc < _dt)
+                    if (FloodT->Drc > 0 && FloodT->Drc < _dt) {
                         tma->Drc = 1;
+                    }
                 }
                 setFloodMaskDT(tma);//FloodDT);
                 ThreadPool->SetMask(DEM,FloodDT,FloodDTR,FloodDTC);
@@ -1091,18 +1094,18 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
             } //heun
 
             timesum = timesum + Flood_DTMIN;
-            stop = timesum  > _dt-1e-6;
+           // stop = timesum  > _dt-1e-6;
 
             double cnt=0;
             FOR_ROW_COL_MV {
                 tma->Drc = 0;
-                FloodT->Drc += FloodDT->Drc;
                 if (FloodT->Drc > 0 && FloodT->Drc < _dt) {
                     cnt+=1.0;
                     tma->Drc = 1;
                 }
             }
             stop = cnt < 1;
+
             if (!stop)
                 setFloodMask(tma);
 
@@ -1118,6 +1121,10 @@ double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool co
             SWOFSedimentSetConcentration(r,c,h);
         }
     } // if floodstart
+
+    FOR_ROW_COL_MV {
+        FloodDTr->Drc = _dt/std::max(1.0,tmb->Drc);
+    }
 
     iter_n = n;
     dt1 = n > 0? _dt/n : dt1;
