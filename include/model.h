@@ -515,13 +515,19 @@ public:
     void setFloodMaskDT(cTMap * DT);
 
     double fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
-    void setFloodDT(double t, cTMap * h);
+    void setFloodDT(cTMap * h);
     double Flood_DTMIN;
+//    void fullSWOF2Do2lightWrapperCell1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
+//    void fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *hs, cTMap *us, cTMap *vs, double dt1);
+//    void fullSWOF2Do2lightWrapperDynamic2(int thread, cTMap *h, cTMap *u, cTMap *v,
+//                                          cTMap *hs, cTMap *us, cTMap *vs,
+//                                          cTMap *hsa, cTMap *usa, cTMap *vsa, double dt1);
+//    double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
+//    void fullSWOF2Do2lightWrapperErosion(int thread, cTMap *h, cTMap *u, cTMap *v, double dt1);
+
     void fullSWOF2Do2lightWrapperCell1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     void fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *hs, cTMap *us, cTMap *vs, double dt1);
-    void fullSWOF2Do2lightWrapperDynamic2(int thread, cTMap *h, cTMap *u, cTMap *v,
-                                          cTMap *hs, cTMap *us, cTMap *vs,
-                                          cTMap *hsa, cTMap *usa, cTMap *vsa, double dt1);
+    void fullSWOF2Do2lightWrapperDynamic2(int thread, cTMap *hs, cTMap *us, cTMap *vs, cTMap *hsa, cTMap *usa, cTMap *vsa, double dt1);
     double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     void fullSWOF2Do2lightWrapperErosion(int thread, cTMap *h, cTMap *u, cTMap *v, double dt1);
 
