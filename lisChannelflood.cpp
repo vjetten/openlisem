@@ -471,9 +471,9 @@ void TWorld::ToFlood()//int thread)
         if(hmx->Drc > 0.0 && WHrunoff->Drc > 0.0)// && ChannelWidth->Drc == 0)
         {
             double frac = 1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
-            frac = 1.0;//std::max(std::min(frac, 1.0),0.0);
+            frac = std::max(std::min(frac, 1.0),0.0);
             double dwh = frac * WHrunoff->Drc;
-
+            // if flowwidth != channeladj then deal with this here
             hmx->Drc += dwh;
             WH->Drc -= dwh;
             WHrunoff->Drc -= dwh;
@@ -549,6 +549,9 @@ void TWorld::ChannelFlood(void)
     ChannelOverflowNew(hmx, V, false);
     // determine overflow water => hmx
 
+ //   ToFlood();
+    // mix WHrunoff with hmx
+
     double dtflood = 0;
 
     startFlood = false;
@@ -575,8 +578,8 @@ void TWorld::ChannelFlood(void)
             FloodDomain->Drc = 0;
     }
 
+
     ToFlood();
-    // mix WHrunoff with hmx
 
     FOR_ROW_COL_MV {
         Qflood->Drc = 0;

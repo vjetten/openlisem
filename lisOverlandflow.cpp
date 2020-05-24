@@ -55,9 +55,9 @@ void TWorld::OverlandFlow(void)
     if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
         ToChannel();           // overland flow water and sed flux going into or out of channel, in channel cells
 
-        OverlandFlow1D();
+        OverlandFlow1D();      // kinematic wave
 
-        ChannelFlood(); // st venant channel 2D flooding from channel, only for kyn wave, partly parallel
+        ChannelFlood();        // st venant channel 2D flooding from channel
     }
 
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
@@ -94,12 +94,12 @@ void TWorld::ToChannel()//int thread)
 
 //return;
 
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_MV_CH
     {
-        if(ChannelMaskExtended->data[r][c] == 1)
-        {
-            int rr = (int)ChannelSourceYExtended->Drc;
-            int cr = (int)ChannelSourceXExtended->Drc;
+       // if(ChannelMaskExtended->data[r][c] == 1)
+       // {
+            int rr = r;//(int)ChannelSourceYExtended->Drc;
+            int cr = c;//(int)ChannelSourceXExtended->Drc;
 
             double fractiontochannel;
 
@@ -107,11 +107,6 @@ void TWorld::ToChannel()//int thread)
                 continue;
 
             double VtoChan = std::pow(WHrunoff->Drcr, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr; //F_Angle
-//            if (F_AddGravity == 1)
-//                VtoChan = sqrt(9.81*WHrunoff->Drc);
-//            else if (F_AddGravity == 2)
-//                VtoChan += sqrt(9.81*WHrunoff->Drc);
-//                VtoChan = std::max(VtoChan,sqrt(9.81*WHrunoff->Drc));
 
             fractiontochannel = std::min(1.0, _dt*VtoChan/std::max(0.05*_dx,0.5*ChannelAdj->Drc));
             // fraction to channel calc from half the adjacent area width and flow velocity
@@ -134,6 +129,7 @@ void TWorld::ToChannel()//int thread)
             ChannelWaterVol->Drcr += dwh* FlowWidth->Drc * DX->Drc;
             fromChannelVoltoWH(rr, cr);
 
+         // all drcr?
             WHrunoff->Drc -= dwh ;
             WHroad->Drc -= dwh;
             WHGrass->Drc -= dwh;
@@ -165,7 +161,7 @@ void TWorld::ToChannel()//int thread)
                RiverSedimentMaxC(rr,cr);
             }
         }
-    }
+    //}
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -333,7 +329,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 {
     double dtOF = 0;
 
-    ChannelOverflowNew(WHrunoff, V, false);
+    ChannelOverflow(WHrunoff, V, false);
         // false means flood sediment maps are used
 
     startFlood = false;
