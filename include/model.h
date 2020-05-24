@@ -733,7 +733,7 @@ public:
     void correctWH(cTMap *_WH);
     void Wrapper_OverlandFlow2D(int thread);
     void OverlandFlow1D(void);
-    void OverlandFlowNew(void);
+  //  void OverlandFlowNew(void);
     void ChannelFlow(void);
     double ChannelIterateWH(double _h, int r, int c);
     void ChannelAddBaseandRainNT(void);
@@ -777,6 +777,7 @@ public:
     void FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold);
     void ChannelFloodStatistics(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V, bool doOF);
+    void ChannelOverflowNew(cTMap *_h, cTMap *_V, bool doOF);
 
     double courant_factor;
     double courant_factor_diffusive;
