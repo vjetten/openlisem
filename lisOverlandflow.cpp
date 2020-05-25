@@ -55,9 +55,10 @@ void TWorld::OverlandFlow(void)
     if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
         ToChannel();           // overland flow water and sed flux going into or out of channel, in channel cells
 
-        OverlandFlow1D();
+        OverlandFlow1D();   // kinematic wave
 
-        ChannelFlood(); // st venant channel 2D flooding from channel, only for kyn wave, partly parallel
+        if(SwitchKinematic2D == K2D_METHOD_KINDYN)
+            ChannelFlood(); // st venant channel 2D flooding from channel, only for kyn wave, partly parallel
     }
 
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
@@ -80,20 +81,6 @@ void TWorld::ToChannel()//int thread)
     if (!SwitchIncludeChannel)
         return;
 
-//    CalcVelDischChannelNT();
-
-//    if(SwitchKinematic2D == K2D_METHOD_DYN) {
-//        ChannelOverflow(WHrunoff, V, false);
-//        return;
-//    }
-
-//    if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
- //      ChannelOverflow(WHrunoff, V, true);
-//        return;
-//    }
-
-//return;
-
     FOR_ROW_COL_MV
     {
         if(ChannelMaskExtended->data[r][c] == 1)
@@ -107,12 +94,6 @@ void TWorld::ToChannel()//int thread)
                 continue;
 
             double VtoChan = std::pow(WHrunoff->Drcr, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr; //F_Angle
-//            if (F_AddGravity == 1)
-//                VtoChan = sqrt(9.81*WHrunoff->Drc);
-//            else if (F_AddGravity == 2)
-//                VtoChan += sqrt(9.81*WHrunoff->Drc);
-//                VtoChan = std::max(VtoChan,sqrt(9.81*WHrunoff->Drc));
-
             fractiontochannel = std::min(1.0, _dt*VtoChan/std::max(0.05*_dx,0.5*ChannelAdj->Drc));
             // fraction to channel calc from half the adjacent area width and flow velocity
 

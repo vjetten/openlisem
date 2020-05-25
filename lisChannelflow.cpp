@@ -80,6 +80,18 @@ void TWorld::fromChannelVoltoWH(int r, int c)
     }
 }
 //---------------------------------------------------------------------------
+void TWorld::fromChannelWHtoVol(int r, int c)
+{
+
+    if (ChannelWH->Drc > ChannelDepth->Drc)
+        ChannelFlowWidth->Drc = ChannelWidthMax->Drc;
+    else
+        ChannelFlowWidth->Drc = ChannelWidth->Drc + ChannelWH->Drc*ChannelSide->Drc*2.0;
+
+    ChannelWaterVol->Drc = (ChannelWidth->Drc + ChannelFlowWidth->Drc)*0.5 * ChannelWH->Drc * ChannelDX->Drc;
+
+}
+//---------------------------------------------------------------------------
 // V, alpha and Q in the channel, called after overland flow vol to channel
 // called after flood and uses new channel flood water height
 void TWorld::CalcVelDischChannelNT()

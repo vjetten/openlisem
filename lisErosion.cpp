@@ -1692,15 +1692,17 @@ void TWorld::RiverSedimentMaxC(int r, int c)
     cTMap * _SS = ChannelSSSed;
     cTMap * _SSC = ChannelSSConc;
 
+   fromChannelWHtoVol(r, c);
+   double frac = ChannelSSDepth->Drc/ChannelWH->Drc;
     //maximum concentration
     if(!SwitchUseGrainSizeDistribution)
     {
-        _SSC->Drc = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*ChannelSSDepth->Drc, &_SS->Drc, &ChannelDep->Drc);
+        _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc*frac, &_SS->Drc, &ChannelDep->Drc);
         //_SS->Drc = _SSC->Drc* ChannelFlowWidth->Drc*DX->Drc*ChannelSSDepth->Drc;
         // limit concentration to 850 and throw rest in deposition
 
         //set concentration from present sediment
-        _BLC->Drc = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*ChannelBLDepth->Drc, &_BL->Drc, &ChannelDep->Drc);
+        _BLC->Drc = MaxConcentration(ChannelWaterVol->Drc*(1-frac), &_BL->Drc, &ChannelDep->Drc);
        // _BL->Drc = _BLC->Drc * DX->Drc *ChannelFlowWidth->Drc*ChannelBLDepth->Drc;
     } else {
        FOR_GRAIN_CLASSES

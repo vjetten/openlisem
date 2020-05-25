@@ -325,7 +325,6 @@ void TWorld::SWOFSedimentCheckZero(int r, int c, cTMap * h)//,cTMap * u,cTMap * 
  */
 void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)
 {
-
     cTMap * _BL = BLFlood;
     cTMap * _BLC = BLCFlood;
     cTMap * _SS = SSFlood;

@@ -572,6 +572,7 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
 
     // find largest velocity and determine dt
     dt = dt_max;
+    Flood_DTMIN = dt_max;
     FOR_ROW_COL_UF2DMT_DT {
         dtx = dt_max;
         dty = dt_max;
@@ -585,6 +586,7 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
                 dty = std::min(dt_max, courant_factor*dy/cfly->Drc);
 
             FloodDT->Drc = std::min(dtx, dty);
+            Flood_DTMIN = std::min(Flood_DTMIN, FloodDT->Drc);
 
 
         }
@@ -692,7 +694,7 @@ void TWorld::correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cT
 {
     double sign1 = ves1->Drc > 0 ? 1.0 : -1.0;
     double sign2 = ves2->Drc > 0 ? 1.0 : -1.0;
-    double sqUV = qSqrt(ves1->Drc*ves1->Drc+ves2->Drc*ves2->Drc);
+   // double sqUV = qSqrt(ves1->Drc*ves1->Drc+ves2->Drc*ves2->Drc);
     double s1 = Grad->Drc, s2 = Grad->Drc;
     double G = sqrt(2*GRAV*hes->Drc); // bernouilly pressure velocity
     if (sign1 < 0) {
@@ -880,7 +882,7 @@ void TWorld::setFloodDT(cTMap * h)
     dtmin = std::max(TimestepfloodMin ,dtmin);
     // dtmin is smallest dt in whole map, the original dt1
 
-    Flood_DTMIN = dtmin;
+  //  Flood_DTMIN = dtmin;
 
     if (!SwitchVariableTimestep) {
         FOR_ROW_COL_MV {

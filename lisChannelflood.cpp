@@ -88,15 +88,14 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                 double VtoChan = std::pow(_h->Drcr, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr; //F_Angle
                 double VfromChan = sqrt(2*9.81*dH); //Bernoulli
                 double fracA = std::min(1.0, _dt*VtoChan/(0.5*_dx));
-                // fraction from _h to channel based on average flood velocity
                 double fracC = std::min(1.0, _dt*VfromChan/(0.5*_dx));
-                // fraction from channel to surrounding based on overflow height and manning
 
                 double cwa = ChannelAdj->Drc > 0 ? ChannelWidthMax->Drcr/ChannelAdj->Drc : 0;
 
-                bool dosimpel = false;//obsolete (SwitchFlood1D2DCoupling == 1);
+                bool dosimpel = false;
 
-                if (dH > _h->Drcr)   // flow from channel
+                //=== flow from channel
+                if (dH > _h->Drcr)
                 {
                     double dwh = fracC * dH;
                     // amount flowing from channel
@@ -126,7 +125,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
 
                     }
                 }
-                else   // flow to channel
+                else   //=== flow to channel
                 {
                     double dwh = fracA * std::max(0.0, _h->Drcr);
                     // amount flowing to channel
@@ -159,15 +158,34 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                 // instantaneous waterlevel exquilibrium acccross channel and adjacent
                 if (dosimpel)
                 {
-                    double fc = std::min(0.95,ChannelWidth->Drcr/_dx);
+                    double fc = ChannelWidthMax->Drcr/_dx;
                     // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
                     double whlevel = (ChannelWH->Drcr-chdepth)*fc + _h->Drcr*(1-fc);
                     // equilibrium water level = weighed values of channel surplus level + _h
                     // can be negative if channelwh is below channel depth and low _h level
                     if(whlevel > HMIN)
                     {
-                        ChannelWH->Drcr = whlevel + chdepth;
-                        _h->Drcr = whlevel;
+                     //   ChannelWH->Drcr = whlevel + chdepth;
+                     //   _h->Drcr = whlevel;
+                        // deal woth WH when side > 0
+                        if (ChannelWH->Drcr > chdepth) {
+                            ChannelWH->Drcr = whlevel + chdepth;
+                            _h->Drcr = whlevel;
+                        } else {
+                            ChannelFlowWidth->Drcr = ChannelWidth->Drcr + ChannelWH->Drcr*ChannelSide->Drcr*2.0;
+                            double def = 0.5*(ChannelWidthMax->Drcr+ChannelFlowWidth->Drcr)*(chdepth-ChannelWH->Drcr);
+                            double toth = (_h->Drcr*ChannelAdj->Drcr-def)/ChannelAdj->Drcr;
+
+                            if (toth > 0) {
+                                _h->Drcr = toth*ChannelAdj->Drcr/_dx;
+                                ChannelWH->Drcr = chdepth+toth*ChannelAdj->Drcr/_dx;
+                            } else {
+                                qDebug() << toth;
+                                // should not be possible, caught before
+                            }
+                        }
+                        fromChannelWHtoVol(rr, cr);
+
 
                         // new equilibrium levels
                         if(SwitchErosion)
@@ -207,7 +225,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                     }
                 }
 
-                ChannelWaterVol->Drcr = ChannelWH->Drcr * ChannelDX->Drcr * ChannelWidth->Drcr;
+               // ChannelWaterVol->Drcr = ChannelWH->Drcr * ChannelDX->Drcr * ChannelWidth->Drcr;
+                fromChannelWHtoVol(rr, cr);
                 // do not recalc floodvol, MB errors
 
                 // recalc channel water vol else big MB error
@@ -235,6 +254,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
 //! Instantaneous mixing of flood water and channel water in channel cells
 //! note: ChannelDepth lets you also control which channels flood:
 //! those that are 0 react as usual (infinite capacity)
+//!
+//TODO: dosimpel DOES NOT WORK
 void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
 {
     cTMap *_SS;
@@ -278,20 +299,11 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
 
                 // VELOCITIES
 
+                // VELOCITIES
                 double VtoChan = std::pow(_h->Drcr, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr; //F_Angle
-                double VfromChan = std::pow(dH, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr;
-                if (F_AddGravity == 1) {
-                    VfromChan = sqrt(2*9.81*dH);
-                 //   VtoChan = sqrt(9.81*_h->Drc);
-                }
-//                else if (F_AddGravity == 2) {
-//                    VfromChan += sqrt(9.81*dH);
-//                    VtoChan += sqrt(9.81*_h->Drc);
-//                }
+                double VfromChan = sqrt(2*9.81*dH); //Bernoulli
                 double fracA = std::min(1.0, _dt*VtoChan/(0.5*_dx));
-                // fraction from _h to channel based on average flood velocity
                 double fracC = std::min(1.0, _dt*VfromChan/(0.5*_dx));
-                // fraction from channel to surrounding based on overflow height and manning
 
                 bool dosimpel = false;//obsolete (SwitchFlood1D2DCoupling == 1);
 
@@ -368,6 +380,8 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
                     // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
                     double whlevel = (ChannelWH->Drcr-chdepth)*fc + _h->Drc*(1-fc);
                     double voltot = ChannelWaterVol->Drc + DX->Drcr*_h->Drc*ChannelAdj->Drc;
+
+                    // DOES NOT WORK!!!!!
 
                     // equilibrium water level = weighed values of channel surplus level + _h
                     // can be negative if channelwh is below channel depth and low _h level
@@ -467,12 +481,6 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
  */
 void TWorld::ToFlood()//int thread)
 {
-//    if (!SwitchIncludeChannel)
-//        return;
-
-//    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KIN)
-//        return;
-
     FOR_ROW_COL_MV {
         if(hmx->Drc > 0.0 && WHrunoff->Drc > 0.0)
         {
@@ -542,9 +550,6 @@ void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
 void TWorld::ChannelFlood(void)
 {
     if (!SwitchIncludeChannel)
-        return;
-
-    if (SwitchKinematic2D != K2D_METHOD_KINDYN)
         return;
 
     ChannelOverflow(hmx, V, false);
