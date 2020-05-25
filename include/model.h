@@ -752,6 +752,7 @@ public:
     void CalcVelDischChannel(int thread);
     void CalcVelDischChannelNT();
     void fromChannelVoltoWH(int r, int c);
+    double channelVoltoWH(double vol, int r, int c);
     void fromChannelWHtoVol(int r, int c);
     void ToTiledrain();//int thread);
     void TileFlow(void);

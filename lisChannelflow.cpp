@@ -35,6 +35,36 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
+double TWorld::channelVoltoWH(double vol, int r, int c)
+{
+    double cwh = 0;
+    if (vol == 0) {
+        return 0;
+    } else {
+        if (ChannelSide->Drc == 0) {
+            return(vol/(ChannelWidth->Drc*ChannelDX->Drc));
+        } else {
+            double maxvol = ChannelDX->Drc * (ChannelDepth->Drc*(ChannelFlowWidth->Drc+ChannelWidth->Drc)/2.0);
+
+            if (vol < maxvol) {
+                // water below surface, WH from abc rule
+                double aa = ChannelSide->Drc;  //=tan(a)
+                double bb = ChannelWidth->Drc; //=w
+                double cc = - vol/ChannelDX->Drc; //=area
+
+                cwh = std::max(0.0,(-bb+sqrt(bb*bb - 4.0*cc*aa))/(2.0*aa));
+                if (cwh < 0) {
+                    ErrorString = QString("Channel water height is negative at row %1, col %2").arg(r).arg(c);
+                    throw 1;
+                }
+            } else {
+                // water above surface, WH is depth + part sticking out
+                cwh = ChannelDepth->Drc + (ChannelWaterVol->Drc - maxvol)/(ChannelDX->Drc*ChannelFlowWidth->Drc);
+            }
+        }
+    }
+    return (cwh);
+}
 
 void TWorld::fromChannelVoltoWH(int r, int c)
 {
@@ -74,7 +104,7 @@ void TWorld::fromChannelVoltoWH(int r, int c)
             } else {
                 // water above surface, WH is depth + part sticking out
                 ChannelFlowWidth->Drc = ChannelWidthMax->Drc;
-                ChannelWH->Drc = ChannelDepth->Drc + (ChannelWaterVol->Drc - maxvol)/ChannelDX->Drc/ChannelFlowWidth->Drc;
+                ChannelWH->Drc = ChannelDepth->Drc + (ChannelWaterVol->Drc - maxvol)/(ChannelDX->Drc*ChannelFlowWidth->Drc);
             }
         }
     }
@@ -82,13 +112,14 @@ void TWorld::fromChannelVoltoWH(int r, int c)
 //---------------------------------------------------------------------------
 void TWorld::fromChannelWHtoVol(int r, int c)
 {
-
-    if (ChannelWH->Drc > ChannelDepth->Drc)
+    if (ChannelWH->Drc > ChannelDepth->Drc) {
         ChannelFlowWidth->Drc = ChannelWidthMax->Drc;
-    else
+        ChannelWaterVol->Drc = (ChannelWidth->Drc + ChannelFlowWidth->Drc)*0.5 * ChannelDepth->Drc * ChannelDX->Drc +
+                (ChannelWH->Drc - ChannelDepth->Drc)*ChannelWidthMax->Drc;
+    } else {
         ChannelFlowWidth->Drc = ChannelWidth->Drc + ChannelWH->Drc*ChannelSide->Drc*2.0;
-
-    ChannelWaterVol->Drc = (ChannelWidth->Drc + ChannelFlowWidth->Drc)*0.5 * ChannelWH->Drc * ChannelDX->Drc;
+        ChannelWaterVol->Drc = (ChannelWidth->Drc + ChannelFlowWidth->Drc)*0.5 * ChannelWH->Drc * ChannelDX->Drc;
+    }
 
 }
 //---------------------------------------------------------------------------

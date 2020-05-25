@@ -588,7 +588,6 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
             FloodDT->Drc = std::min(dtx, dty);
             Flood_DTMIN = std::min(Flood_DTMIN, FloodDT->Drc);
 
-
         }
     }}}}
 
