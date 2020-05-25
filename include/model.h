@@ -531,6 +531,9 @@ public:
     double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     void fullSWOF2Do2lightWrapperErosion(int thread, cTMap *h, cTMap *u, cTMap *v, double dt1);
 
+    double minmod(double a, double b);
+    double fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
+
     double limiter(double a, double b);
     void MUSCL(int thread,cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
     void simpleScheme(int thread,cTMap *_h, cTMap *_u, cTMap *_v);
