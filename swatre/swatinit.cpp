@@ -94,23 +94,22 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
       cTMap *inith = ReadMap(LDD,fname);
       // get inithead information
 
-
       FOR_ROW_COL_MV
       {
          s->pixel[r*_nrCols+c].h[n] = inith->data[r][c]*psiCalibration;
-//if (n == 1)
-//    tmb->Drc = inith->data[r][c]*psiCalibration;
+
          // find depth of tilenode
-         if (!pcr::isMV(TileDepth->Drc) && TileDepth->Drc > 0)
-         {
-            // NOTE depth is in m while node info is in cm, so *100
-            // endComp is the depth at the bottom of the compartment, so the tile is <= endcomp
-            if (s->pixel[r*_nrCols+c].profile->zone->endComp[n] > TileDepth->Drc*100)
-               s->pixel[r*_nrCols+c].tilenode = n-1;
+         if (SwitchIncludeTile) {
+             if (!pcr::isMV(TileDepth->Drc) && TileDepth->Drc > 0)
+             {
+                 // NOTE depth is in m while node info is in cm, so *100
+                 // endComp is the depth at the bottom of the compartment, so the tile is <= endcomp
+                 if (s->pixel[r*_nrCols+c].profile->zone->endComp[n] > TileDepth->Drc*100)
+                     s->pixel[r*_nrCols+c].tilenode = n-1;
+             }
          }
       }
    }
- //  report(*tmb,"inith.map");
    return(s);
 }
 //--------------------------------------------------------------------------------

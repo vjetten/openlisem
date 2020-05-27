@@ -533,6 +533,7 @@ public:
 
     double minmod(double a, double b);
     double fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
+    double fullSWOF2open2(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
 
     double limiter(double a, double b);
     void MUSCL(int thread,cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
@@ -819,7 +820,7 @@ public:
     double ConcentrateKin;
     double TimestepKinMin;
     double KinematicBoundaryFraction = 0.05;
-    double TimestepfloodMin;
+    double TimestepfloodMin, TimestepfloodLast;
     //SWATRE
     /// filenames for Swatre soil information
     QString SwatreTableDir;

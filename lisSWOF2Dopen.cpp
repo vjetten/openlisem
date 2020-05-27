@@ -32,11 +32,15 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     bool stop;
     double dt_req_min = dt_max;
     double vxn, vyn;
+    double dt;
 
     QList <double> hll_x1;
     QList <double> hll_x2;
     QList <double> hll_y1;
     QList <double> hll_y2;
+
+    if (!startFlood)
+        TimestepfloodLast = dt_max;
 
     if (startFlood)
     {
@@ -44,7 +48,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
         do {
 
-            double dt = dt_max;
+            dt = TimestepfloodLast;//TimestepfloodMin;//dt_max;
             // make a copy
             FOR_ROW_COL_MV {
                 hs->Drc = h->Drc;
@@ -52,22 +56,19 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 vys->Drc = vy->Drc;
             }
 
-
             //flow 1
             FOR_ROW_COL_MV {
 
                 double dx = ChannelAdj->Drc;
                 double dy = DX->Drc;
-                double tx = dt/dx;
-                double ty = dt/dy;
-                double vmax = 0.1 * dx/dt;
+                double vmax = 1000;//0.1 * dx/dt;
 
                 double H = hs->Drc;
                 double n = N->Drc;
                 double Z = z->Drc;
                 double Vx = std::max(-vmax, std::min(vmax, vx->Drc));
                 double Vy = std::max(-vmax, std::min(vmax, vy->Drc));
-                  double qfout = Qn->Drc;
+                double qfout = Qn->Drc;
 
                 double z_x1 =  c > 0 && !MV(r,c-1)         ? z->data[r][c-1] : z->Drc;
                 double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? z->data[r][c+1] : z->Drc;
@@ -89,7 +90,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 double vy_y1 = r > 0 && !MV(r-1,c)         ? vys->data[r-1][c] : vys->Drc;
                 double vy_y2 = r < _nrRows-1 && !MV(r+1,c) ? vys->data[r+1][c] : vys->Drc;
 
-
                 vx_x1 = std::max(-vmax, std::min(vmax, vx_x1));
                 vx_x2 = std::max(-vmax, std::min(vmax, vx_x2));
                 vx_y1 = std::max(-vmax, std::min(vmax, vx_y1));
@@ -99,25 +99,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 vy_x2 = std::max(-vmax, std::min(vmax, vy_x2));
                 vy_y1 = std::max(-vmax, std::min(vmax, vy_y1));
                 vy_y2 = std::max(-vmax, std::min(vmax, vy_y2));
-
-
-//                double dh   = 0.5*minmod(H-h_x1, h_x2-H);
-//                double dz_h = 0.5*minmod(H-h_x1 + Z-z_x1, h_x2-H + z_x2-Z);
-//                double dvx  = 0.5*minmod(Vx-vx_x1, vx_x2-Vx);
-//                double dvy  = 0.5*minmod(Vy-vy_x1, vy_x2-Vy);
-
-//                double h1r = H+dh;
-//                double h1l = H-dh;
-//                double z1r = Z+(dz_h-dh);
-//                double z1l = Z+(dh-dz_h);
-//                double hlh = H > he_ca ? (H+dh)/H : 1.0;
-//                double vx1r = Vx + hlh*dvx;
-//                double vx1l = Vx - hlh*dvx;
-//                double vy1r = Vy + hlh*dvy;
-//                double vy1l = Vy - hlh*dvy;
-//                double h1d = std::max(0.0, h1r - std::max(0.0, z1l-z1r));
-//                double h1g = std::max(0.0, h1l - std::max(0.0, z1r-z1l));
-//                F_HLL2(h1d, vx1r, vy1r, h1g, vx1l, vy1l);
 
                 double B = 0.5; // dh+dz hydraulisch verschil mag max 0.5 zijn?
                 double sx_zh_x2 = std::min(B,std::max(-B,(z_x2 + h_x2 - Z - H)/dx));
@@ -141,9 +122,11 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 hll_y1 << HLL2_f1 << HLL2_f2 << HLL2_f3<< HLL2_cfl;
                 F_HLL2(H,Vy,Vx,h_y2,vy_y2,vx_y2);
                 hll_y2 << HLL2_f1 << HLL2_f2 << HLL2_f3<< HLL2_cfl;
-                double C = 0.1;
-                //void TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 
+
+                double C = 0.1;
+                double tx = dt/dx;
+                double ty = dt/dy;
 
                 double flux_x1 = std::max(-H * C,std::min(+tx*hll_x1.at(0),h_x1 * C));
                 double flux_x2 = std::max(-H * C,std::min(-tx*hll_x2.at(0),h_x2 * C));
@@ -219,7 +202,19 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     hn= 0;
                 }
 
-                double dt_req = courant_factor *_dx/( std::min(dt_max,std::max(0.01,sqrt(vxn*vxn + vyn*vyn))));
+                if (hn <= he_ca)
+                {
+                    hn = 0;
+                    vxn = 0;
+                    vyn = 0;
+                }
+
+                if (fabs(vxn) <= ve_ca)
+                    vxn = 0;
+                if (fabs(vyn) <= ve_ca)
+                    vyn = 0;
+
+                double dt_req = courant_factor *_dx/( std::min(dt_max,std::max(TimestepfloodMin,sqrt(vxn*vxn + vyn*vyn))));
 
 //                double dtx = std::min(dt_max, courant_factor*dx/(0.5*(hll_x1.at(3)+hll_x2.at(3))));
 //                double dty = std::min(dt_max, courant_factor*dy/(0.5*(hll_y1.at(3)+hll_y2.at(3))));
@@ -231,7 +226,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 vy->Drc = vyn;
                // Qn->Drc = fabs(qfout);
             }
-            setZeroOF(h, vx, vy);
 
             dt_req_min = dt_max;
             FOR_ROW_COL_MV {
@@ -241,12 +235,139 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             dt_req_min = std::min(dt_req_min, _dt-timesum);
 
             dt = dt_req_min;
+            TimestepfloodLast = dt;
 
             timesum += dt_req_min;
             stop = timesum > _dt-0.001;
             count++;
             if(count > 1000) stop = true;
+        } while (!stop);
 
+    } // if floodstart
+
+    correctMassBalance(sumh, h);
+
+    iter_n = count;
+
+    return(TimestepfloodLast);
+}
+
+
+// 2nd order without iteration dt1, dt2!
+double TWorld::fullSWOF2open2(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
+{
+    double timesum = 0;
+    double dt_max = std::min(_dt, _dx*0.5);
+    int count = 0;
+    double sumh = 0;
+    bool stop;
+    double dt_req_min = dt_max;
+    double vxn, vyn;
+
+    QList <double> hll_x1;
+    QList <double> hll_x2;
+    QList <double> hll_y1;
+    QList <double> hll_y2;
+
+    double dh,dz_h,dvx,dvy;
+    double h1r,h1l,z1r,z1l,hlh,vx1r,vx1l,vy1r,vy1l,h1d, h1g;
+
+    if (startFlood)
+    {
+        sumh = getMass(h);
+
+        do {
+
+            double dt = dt_max;
+            // make a copy
+            FOR_ROW_COL_MV {
+                hs->Drc = h->Drc;
+                vxs->Drc = vx->Drc;
+                vys->Drc = vy->Drc;
+            }
+
+            FOR_ROW_COL_MV {
+                double dx = ChannelAdj->Drc;
+                double dy = DX->Drc;
+                double tx = dt/dx;
+                double ty = dt/dy;
+
+                double H = hs->Drc;
+                double n = N->Drc;
+                double Z = z->Drc;
+                double Vx = vx->Drc;
+                double Vy = vy->Drc;
+
+                double z_x1 =  c > 0 && !MV(r,c-1)         ? z->data[r][c-1] : z->Drc;
+                double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? z->data[r][c+1] : z->Drc;
+                double z_y1 =  r > 0 && !MV(r-1,c)         ? z->data[r-1][c] : z->Drc;
+                double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? z->data[r+1][c] : z->Drc;
+
+                double h_x1 =  c > 0 && !MV(r,c-1)         ? hs->data[r][c-1] : hs->Drc;
+                double h_x2 =  c < _nrCols-1 && !MV(r,c+1) ? hs->data[r][c+1] : hs->Drc;
+                double h_y1 =  r > 0 && !MV(r-1,c)         ? hs->data[r-1][c] : hs->Drc;
+                double h_y2 =  r < _nrRows-1 && !MV(r+1,c) ? hs->data[r+1][c] : hs->Drc;
+
+                double vx_x1 = c > 0 && !MV(r,c-1)         ? vxs->data[r][c-1] : vxs->Drc;
+                double vx_x2 = c < _nrCols-1 && !MV(r,c+1) ? vxs->data[r][c+1] : vxs->Drc;
+                double vx_y1 = r > 0 && !MV(r-1,c)         ? vxs->data[r-1][c] : vxs->Drc;
+                double vx_y2 = r < _nrRows-1 && !MV(r+1,c) ? vxs->data[r+1][c] : vxs->Drc;
+
+                double vy_x1 = c > 0 && !MV(r,c-1)         ? vys->data[r][c-1] : vys->Drc;
+                double vy_x2 = c < _nrCols-1 && !MV(r,c+1) ? vys->data[r][c+1] : vys->Drc;
+                double vy_y1 = r > 0 && !MV(r-1,c)         ? vys->data[r-1][c] : vys->Drc;
+                double vy_y2 = r < _nrRows-1 && !MV(r+1,c) ? vys->data[r+1][c] : vys->Drc;
+
+                //col -1 and +1
+                dh   = 0.5*minmod(H-h_x1, h_x2-H);
+                dz_h = 0.5*minmod(H-h_x1 + Z-z_x1, h_x2-H + z_x2-Z);
+                dvx  = 0.5*minmod(Vx-vx_x1, vx_x2-Vx);
+                dvy  = 0.5*minmod(Vy-vy_x1, vy_x2-Vy);
+
+                h1r = H+dh;
+                h1l = H-dh;
+                z1r = Z+(dz_h-dh);
+                z1l = Z+(dh-dz_h);
+                hlh = H > he_ca ? (H+dh)/H : 1.0;
+                vx1r = Vx + hlh*dvx;
+                vx1l = Vx - hlh*dvx;
+                vy1r = Vy + hlh*dvy;
+                vy1l = Vy - hlh*dvy;
+
+                h1d = std::max(0.0, h1r - std::max(0.0, z1l-z1r));
+                h1g = std::max(0.0, h1l - std::max(0.0, z1r-z1l));
+                F_HLL2(h1d, vx1r, vy1r, h1g, vx1l, vy1l);
+                hll_x1 << HLL2_f1 << HLL2_f2 << HLL2_f3<< HLL2_cfl;
+
+                // row -1 and +1
+                dh   = 0.5*minmod(H-h_y1, h_y2-H);
+                dz_h = 0.5*minmod(H-h_y1 + Z-z_y1, h_y2-H + z_y2-Z);
+                dvx  = 0.5*minmod(Vx-vx_y1, vx_y2-Vx);
+                dvy  = 0.5*minmod(Vy-vy_y1, vy_y2-Vy);
+
+                h1r = H+dh;
+                h1l = H-dh;
+                z1r = Z+(dz_h-dh);
+                z1l = Z+(dh-dz_h);
+                hlh = H > he_ca ? (H+dh)/H : 1.0;
+                vx1r = Vx + hlh*dvx;
+                vx1l = Vx - hlh*dvx;
+                vy1r = Vy + hlh*dvy;
+                vy1l = Vy - hlh*dvy;
+
+//                h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
+//                h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
+
+                h1d = std::max(0.0, h1r - std::max(0.0, z1l-z1r));
+                h1g = std::max(0.0, h1l - std::max(0.0, z1r-z1l));
+                F_HLL2(h1d, vx1r, vy1r, h1g, vx1l, vy1l);
+                hll_y1 << HLL2_f1 << HLL2_f2 << HLL2_f3<< HLL2_cfl;
+
+                double hn = std::max(0.0, H - tx*(f1->data[r][c+1] - f1->Drc) - ty*(g1->data[r+1][c] - g1->Drc));
+
+
+
+            }
 
         } while (!stop);
     } // if floodstart
@@ -257,5 +378,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
     return(count > 0? _dt/count : dt_max);
 }
+
 
 
