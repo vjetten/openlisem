@@ -960,6 +960,8 @@ void TWorld::InitFlood(void)
     hs = NewMap(0);
     vs = NewMap(0);
     us = NewMap(0);
+    vxs = NewMap(0);
+    vys = NewMap(0);
     hsa = NewMap(0);
     vsa = NewMap(0);
     usa = NewMap(0);

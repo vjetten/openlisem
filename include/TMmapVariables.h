@@ -391,24 +391,17 @@ cTMap
 *hs, *vs, *us,
 *hsa, *vsa, *usa,
 *Uflood,*Vflood,*Iflood,
+*vxs, *vys,
 
 //FULLSWOF2D with Sediment
 *BLDepthFlood,
 *SSDepthFlood,
-//*BLVolFlood,
-//*SSVolFlood,
-//*temp1,*temp2,*temp3,*temp4,
-//*temp5,*temp6,*temp7,*temp8,
-//*temp9,*temp10,*temp11,*temp12,
 
 //layer itneraction
-//*BLDepFlood,
 *BLDetFlood,
-//*BLDetFloodTot,
 *BLTCFlood,
 *SSTCFlood,
 *SSDetFlood,
-//*SSDetFloodTot,
 *DepFlood,
 
 //sediment maps
@@ -420,16 +413,11 @@ cTMap
 //transport
 //Bed Load layer
 *MBLCFlood, *MBLNFlood,
-// *MBLCNFlood,*MBLFlood,
-//*bl1r,*bl1l,*bl2r,*bl2l,*blf1,*blg1,*bls,*bls2,*bl1d, *bl1g, *bl2d, *bl2g,
 
 //transport
 //Suspended Sediment Layer
 *MSSCFlood,*MSSNFlood,
-//*MSSCNFlood,*MSSFlood,
-//*ss1r,*ss1l,*ss2r,*ss2l,*ssf1,*ssg1,*sss,*sss2,*ss1d, *ss1g, *ss2d, *ss2g,
 
-//*q1flood,*q2flood,
 *som_z1,*som_z2,
 
 *LDDTile,                    //!< LDD network of tile drains, must be connected to outlet

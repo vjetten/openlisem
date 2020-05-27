@@ -182,6 +182,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(valc);
         if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(valc);
         if (p1.compare("Flood initial level map")==0)        checkFloodInitial->setChecked(check);
+        if (p1.compare("Timestep flood")==0)            E_TimestepMinFlood->setValue(valc);
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(iii);
         if (p1.compare("Use gravity flow")==0)           E_gravityToChannel->setValue(iii);
         if (p1.compare("Angle flow to channel")==0)           E_angleToChannel->setValue(valc);

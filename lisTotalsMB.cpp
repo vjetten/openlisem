@@ -260,6 +260,7 @@ void TWorld::Totals(void)
     FOR_ROW_COL_MV
     {
         Qoutput->Drc = 1000.0*(Qn->Drc + ChannelQn->Drc + Qflood->Drc);// in l/s
+        Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;
     //    if(LDD->Drc == 5)
      //   qDebug() << Qoutput->Drc << QtotT*1000/_dt << Qfloodout/_dt;
     }
