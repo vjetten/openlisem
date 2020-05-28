@@ -321,7 +321,7 @@ void TWorld::OverlandFlow2Ddyn(void)
     FOR_ROW_COL_MV {
         if (WHrunoff->Drc > HMIN){
             startFlood = true;
-            break;
+          //  break;
         }
     }
 

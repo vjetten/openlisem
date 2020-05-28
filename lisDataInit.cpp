@@ -364,7 +364,7 @@ void TWorld::InitStandardInput(void)
     {
         if (Outlet->Drc > 0) {
             check = true;
-           break;
+           //break;
         }
     }
     if (!check)
@@ -405,7 +405,7 @@ void TWorld::InitStandardInput(void)
         if(PointMap->Drc > 0)
         {
             found = true;
-            break;
+          //  break;
         }
     }
     if(!found)

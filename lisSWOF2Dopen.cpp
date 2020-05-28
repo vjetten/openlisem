@@ -11,6 +11,33 @@
 #define GRAV 9.8067
 #define EPSILON 1e-6
 
+vec4 TWorld::F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
+{
+    vec4 hll;
+    double f1, f2, f3, cfl;
+    double c;
+    if (h_L<=0. && h_R<=0.){
+        c = 0.;
+        f1 = 0.;
+        f2 = 0.;
+        f3 = 0.;
+        cfl = 0.;
+    }else{
+        c = std::max(fabs(u_L)+sqrt(GRAV*h_L),fabs(u_R)+sqrt(GRAV*h_R));
+        double cd = c*0.5;
+        double q_R = u_R*h_R;
+        double q_L = u_L*h_L;
+        f1 = (q_L+q_R)*0.5-cd*(h_R-h_L);
+        f2 = ((u_L*q_L)+(GRAV*0.5*h_L*h_L)+(u_R*q_R)+(GRAV*0.5*h_R*h_R))*0.5-cd*(q_R-q_L);
+        f3 = (q_L*v_L+q_R*v_R)*0.5-cd*(h_R*v_R-h_L*v_L);
+        cfl = c;//*tx;
+    }
+    hll.v[0] = f1;
+    hll.v[1] = f2;
+    hll.v[2] = f3;
+    hll.v[3] = cfl;
+    return hll;
+}
 //---------------------------------------------------------------------------
 vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
@@ -80,14 +107,21 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
         do {
 
             // make a copy
-            FOR_ROW_COL_MV {
+//#pragma omp parallel for collapse(2)
+            for(int r = 0; r < _nrRows; r++)
+                for (int c = 0; c < _nrCols; c++)
+                if(!pcr::isMV(LDD->data[r][c])) {
                 hs->Drc = h->Drc;
                 vxs->Drc = vx->Drc;
                 vys->Drc = vy->Drc;
             }
+//#pragma omp barrier
 
             //flow 1
-            FOR_ROW_COL_MV {
+#pragma omp parallel for collapse(2)
+            for(int r = 0; r < _nrRows; r++)
+                for (int c = 0; c < _nrCols; c++)
+                if(!pcr::isMV(LDD->data[r][c])) {
                 double dt = 0.5*TimestepfloodLast;
                 double vxn, vyn;
 
@@ -227,8 +261,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                // werkt allebij!
              //   double dt_req = courant_factor *_dx/( std::min(dt_max,std::max(0.01,sqrt(vxn*vxn + vyn*vyn))));
 
-             //   double dtx = dx/std::max(hll_x1.at(3),hll_x2.at(3));
-             //  double dty = dy/std::max(hll_y1.at(3),hll_y2.at(3));
                 double dtx = dx/std::max(hll_x1.v[3],hll_x2.v[3]);
                 double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]);
                 double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
@@ -239,7 +271,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 vy->Drc = vyn;
                // Qn->Drc = fabs(qfout);
             }
-
+#pragma omp barrier
             dt_req_min = dt_max;
             FOR_ROW_COL_MV {
                 dt_req_min = std::min(dt_req_min,FloodDT->Drc);
@@ -305,8 +337,8 @@ double TWorld::fullSWOF2open2(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 vec4 hll_y1;
                 vec4 hll_y2;
 
-                double dh,dz_h,dvx,dvy;
-                double h1r,h1l,z1r,z1l,hlh,vx1r,vx1l,vy1r,vy1l,h1d, h1g, delzc1, delzc2;
+                double dh,dz_h,dvx,dvy,hlh;
+                double h1r,h1l,h2r,h2l,z1r,z1l,z2r,z2l,vx1r,vx1l,vy1r,vy1l,delzc1, delzc2, delz1, delz2;
 
                 double dx = ChannelAdj->Drc;
                 double dy = DX->Drc;
@@ -348,6 +380,7 @@ double TWorld::fullSWOF2open2(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 z1r = Z+(dz_h-dh);
                 z1l = Z+(dh-dz_h);
                 delzc1 = z1r-z1l;
+                delz1 = z1l - z_x1;
 
                 hlh = H > he_ca ? (H+dh)/H : 1.0;
                 vx1r = Vx + hlh*dvx;
@@ -364,11 +397,12 @@ double TWorld::fullSWOF2open2(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 dvx  = 0.5*minmod(Vx-vx_y1, vx_y2-Vx);
                 dvy  = 0.5*minmod(Vy-vy_y1, vy_y2-Vy);
 
-                h1r = H+dh;
-                h1l = H-dh;
-                z1r = Z+(dz_h-dh);
-                z1l = Z+(dh-dz_h);
-                delzc2 = z1r-z1l;
+                h2r = H+dh;
+                h2l = H-dh;
+                z2r = Z+(dz_h-dh);
+                z2l = Z+(dh-dz_h);
+                delzc2 = z2r-z2l;
+                delz2 = z2l - z_y1;
 
                 hlh = H > he_ca ? (H+dh)/H : 1.0;
                 vx1r = Vx + hlh*dvx;
@@ -376,15 +410,23 @@ double TWorld::fullSWOF2open2(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 vy1r = Vy + hlh*dvy;
                 vy1l = Vy - hlh*dvy;
 
-                hll_y1 = F_HLL3(h1l,vx1l,vy1l,H,Vx,Vy);
-                hll_y2 = F_HLL3(H,Vx,Vy,h1r,vx1r,vy1r);
+                hll_y1 = F_HLL3(h2l,vx1l,vy1l,H,Vx,Vy);
+                hll_y2 = F_HLL3(H,Vx,Vy,h2r,vx1r,vy1r);
 
-                double sx_zh_x2 = (z_x2 + h_x2 - Z - H)/dx;
-                double sy_zh_y1 = (Z + H - z_y1 - h_y1)/dy;
-                double sx_zh_x1 = (Z + H - z_x1 - h_x1)/dx;
-                double sy_zh_y2 = (z_y2 + h_y2 - Z - H)/dy;
-                double sx_zh = minmod(sx_zh_x1, sx_zh_x2);
-                double sy_zh = minmod(sy_zh_y1, sy_zh_y2);
+//                double sx_zh_x2 = (z_x2 + h_x2 - Z - H)/dx;
+//                double sy_zh_y1 = (Z + H - z_y1 - h_y1)/dy;
+//                double sx_zh_x1 = (Z + H - z_x1 - h_x1)/dx;
+//                double sy_zh_y2 = (z_y2 + h_y2 - Z - H)/dy;
+//                double sx_zh = minmod(sx_zh_x1, sx_zh_x2);
+//                double sy_zh = minmod(sy_zh_y1, sy_zh_y2);
+
+                double h1d = std::max(0.0, h1r - std::max(0.0,  delz1));
+                double h1g = std::max(0.0, h1l - std::max(0.0, -delz1));
+                double h2d = std::max(0.0, h2r - std::max(0.0,  delz2));
+                double h2g = std::max(0.0, h2l - std::max(0.0, -delz2));
+
+//                h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]));
+//                h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]));
 
                 double C = courant_factor;//0.2;
                 double tx = dt/dx;
@@ -398,9 +440,28 @@ double TWorld::fullSWOF2open2(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 double hn = std::max(0.0, H + flux_x1 + flux_x2 + flux_y1 + flux_y2);
 
                 if(hn > he_ca) {
+                    double qxn = H * Vx -ty*(hll_y2.v[2] - hll_y1.v[2]) - tx*(hll_x2.v[1] - hll_x1.v[1] +
+                            GRAV*0.5*((h1g-h1l)*(h1g+h1l) + (h1r-h1d)*(h1r+h1d) + (h1l+h1r)*delzc1)) ;
+                            // 0.5 * GRAV *((h1l+h1r)*(h1l-h1r)+ (h1l+h1r)*delzc1));
+                    double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] +
+                             // 0.5 * GRAV *((h2l+h2r)*(h1l-h2r)+(h2l+h2r)*delzc2));
+                            GRAV*0.5*((h2g-h2l)*(h2g+h2l) + (h2r-h2d)*(h2r+h2d) + (h2l+h2r)*delzc2)) ;
 
-                    double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1]) - ty*(hll_y2.v[2] - hll_y1.v[2])- 0.5 * GRAV *hn*sx_zh * dt;
-                    double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1])- 0.5 * GRAV *hn*sy_zh * dt;
+
+//                    qes1 = he->Drc*ve1->Drc -
+//                            ty*(_g2 - g2->Drc) -
+//                            tx*(_f2 - f2->Drc +
+//                                GRAV*0.5*((h1g->Drc-h1l->Drc)*(h1g->Drc+h1l->Drc) +
+//                                          (h1r->Drc-h1d->Drc)*(h1r->Drc+h1d->Drc)
+//                                          + (h1l->Drc+h1r->Drc)*delzc1->Drc)) ;
+
+//                    qes2 = he->Drc*ve2->Drc -
+//                            tx*(_f3 - f3->Drc) -
+//                            ty*(_g3 - g3->Drc +
+//                                GRAV*0.5*((h2g->Drc-h2l->Drc)*(h2g->Drc+h2l->Drc) +
+//                                          (h2r->Drc-h2d->Drc)*(h2r->Drc+h2d->Drc)
+//                                          + (h2l->Drc+h2r->Drc)*delzc2->Drc));
+
 
                     double vsq = sqrt(Vx * Vx + Vy * Vy);
                     double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.01,pow(hn,4.0/3.0));

@@ -758,7 +758,7 @@ void TWorld::ChannelFlood(void)
     FOR_ROW_COL_MV {
         if (hmx->Drc > 0) {
             startFlood = true;
-            break;
+            //break;
         }
     }
 
