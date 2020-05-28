@@ -209,53 +209,7 @@ void TWorld::setZero(int thread, cTMap *_h, cTMap *_u, cTMap *_v)
       }
   }}}}
 }
-//---------------------------------------------------------------------------
-void TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
-{
-    double f1, f2, f3, cfl, tmp = 0;
-    if (h_L<=0. && h_R<=0.){
-        f1 = 0.;
-        f2 = 0.;
-        f3 = 0.;
-        cfl = 0.;
-    }
-    else
-    {
-        double grav_h_L = GRAV*h_L;
-        double grav_h_R = GRAV*h_R;
-        double sqrt_grav_h_L = sqrt(grav_h_L);  // wave velocity
-        double sqrt_grav_h_R = sqrt(grav_h_R);
-        double q_R = u_R*h_R;
-        double q_L = u_L*h_L;
-        double c1, c2;
 
-        if(h_L < he_ca)
-            c1 = u_R - 2*sqrt(GRAV*h_R);
-        else
-            c1 = std::min(u_L - sqrt_grav_h_L,u_R - sqrt_grav_h_R); //we already have u_L - sqrt_grav_h_L<u_L + sqrt_grav_h_L and u_R - sqrt_grav_h_R<u_R + sqrt_grav_h_R
-        if(h_R < he_ca)
-            c2 = u_L + 2*sqrt(GRAV*h_L);
-        else
-            c2 = std::max(u_L + sqrt_grav_h_L,u_R + sqrt_grav_h_R); //so we do not need all the eigenvalues to get c1 and c2
-        tmp = 1./(c2-c1);
-        double t1 = (std::min(c2,0.) - std::min(c1,0.))*tmp;
-        double t2 = 1. - t1;
-        double t3 = (c2*fabs(c1) - c1*fabs(c2))*0.5*tmp;
-        double c_star = (c1*h_R *(u_R - c2) - c2*h_L *(u_L - c1))/(h_R *(u_R - c2) - h_L *(u_L - c1)) ;
-
-        f1 = t1*q_R + t2*q_L - t3*(h_R - h_L);
-        f2 = t1*(q_R*u_R + grav_h_R*h_R*0.5) + t2*(q_L*u_L + grav_h_L*h_L*0.5) - t3*(q_R - q_L);
-        if(c_star > EPSILON)
-            f3=f1*v_L;
-        else
-            f3=f1*v_R;
-        cfl = std::max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition std::max(fabs(c1),fabs(c2))*tx with tx=dt/dx
-    }
-    HLL2_cfl = cfl;
-    HLL2_f1 = f1;
-    HLL2_f2 = f2;
-    HLL2_f3 = f3;
-}
 
 /// Numerical flux calculation on which the new velocity is based
 /// U_n+1 = U_n + dt/dx* [flux]  when flux is calculated by HLL, HLL2, Rusanov

@@ -311,6 +311,8 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
                                   (h1r->Drc-h1d->Drc)*(h1r->Drc+h1d->Drc)
                                   + (h1l->Drc+h1r->Drc)*delzc1->Drc)) ;
 
+            //
+
             qes2 = he->Drc*ve2->Drc -
                     tx*(_f3 - f3->Drc) -
                     ty*(_g3 - g3->Drc +

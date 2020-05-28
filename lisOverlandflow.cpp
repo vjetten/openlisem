@@ -325,9 +325,11 @@ void TWorld::OverlandFlow2Ddyn(void)
         }
     }
 
-//   dtOF = fullSWOF2Do2light(WHrunoff, Uflood, Vflood, DEM, true);
-  //   dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
-    dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
+    if (SwitchMUSCL)
+        //   dtOF = fullSWOF2Do2light(WHrunoff, Uflood, Vflood, DEM, true);
+        dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
+    else
+        dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
     // this includes erosion
     //VJ new average flux over lisem timestep, else last Qn is used
 
