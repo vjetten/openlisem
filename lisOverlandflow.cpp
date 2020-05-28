@@ -325,7 +325,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         }
     }
 
- //  dtOF = fullSWOF2Do2light(WHrunoff, Uflood, Vflood, DEM, true);
+//   dtOF = fullSWOF2Do2light(WHrunoff, Uflood, Vflood, DEM, true);
   //   dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
     dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
     // this includes erosion

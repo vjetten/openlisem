@@ -541,6 +541,7 @@ public:
     void maincalcflux(int thread, double dt, double dt_max);
     void maincalcscheme(int thread,double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     void setZero(int thread,cTMap *_h, cTMap *_u, cTMap *_v);
+    void F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     void F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
