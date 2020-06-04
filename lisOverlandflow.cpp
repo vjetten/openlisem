@@ -85,8 +85,8 @@ void TWorld::ToChannel()//int thread)
     {
         if(ChannelMaskExtended->data[r][c] == 1)
         {
-            int rr = (int)ChannelSourceYExtended->Drc;
-            int cr = (int)ChannelSourceXExtended->Drc;
+            int rr = r;//(int)ChannelSourceYExtended->Drc;
+            int cr = c;//(int)ChannelSourceXExtended->Drc;
 
             double fractiontochannel;
 
@@ -314,7 +314,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 {
     double dtOF = 0;
 
-    ChannelOverflowNew(WHrunoff, V, false);
+    ChannelOverflow(WHrunoff, V, false);
         // false means flood sediment maps are used
 
     startFlood = false;
@@ -325,12 +325,11 @@ void TWorld::OverlandFlow2Ddyn(void)
         }
     }
 
-    if (SwitchMUSCL)
-        //   dtOF = fullSWOF2Do2light(WHrunoff, Uflood, Vflood, DEM, true);
-        dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
-    else
-        dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
-    // this includes erosion
+    //if (SwitchMUSCL)
+        dtOF = fullSWOF2Do2light(WHrunoff, Uflood, Vflood, DEM, true);
+//    else
+//        dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
+//
     //VJ new average flux over lisem timestep, else last Qn is used
 
     //  infilInWave(WHrunoff, _dt);

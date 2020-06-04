@@ -112,6 +112,11 @@ void TWorld::fromChannelVoltoWH(int r, int c)
 //---------------------------------------------------------------------------
 void TWorld::fromChannelWHtoVol(int r, int c)
 {
+    if (ChannelSide->Drc == 0) {
+        ChannelWaterVol->Drc = ChannelWidth->Drc * ChannelWH->Drc * ChannelDX->Drc;
+        ChannelFlowWidth->Drc = ChannelWidth->Drc;
+        return;
+    }
     if (ChannelWH->Drc > ChannelDepth->Drc) {
         ChannelFlowWidth->Drc = ChannelWidthMax->Drc;
         ChannelWaterVol->Drc = (ChannelWidth->Drc + ChannelFlowWidth->Drc)*0.5 * ChannelDepth->Drc * ChannelDX->Drc +

@@ -191,14 +191,14 @@ void TWorld::DoModel()
         // calc effective ksat from all surfaces once
 
         //start multithreading threadpool
-   //     ThreadPool = new LisemThreadPool();
-   //     ThreadPool->InitThreads(this);
-   //     ThreadPool->SetMaskInitial(DEM);
-   //     copy(*CoreMask, *ThreadPool->CoreMask);
-   //     ThreadPool->StartReportThread(this);
+        ThreadPool = new LisemThreadPool();
+        ThreadPool->InitThreads(this);
+        ThreadPool->SetMaskInitial(DEM);
+        copy(*CoreMask, *ThreadPool->CoreMask);
+        ThreadPool->StartReportThread(this);
 
         //create a function object referring to the cellprocesses wrapper
-  //      CellProcesses1D = std::bind((&TWorld::CellProcesses),this,std::placeholders::_1);
+        CellProcesses1D = std::bind((&TWorld::CellProcesses),this,std::placeholders::_1);
 
         DEBUG("Running...");
 
@@ -229,14 +229,13 @@ void TWorld::DoModel()
             SnowmeltMap();         // get snowmelt
 
             //do 1D cell specific stuff, hydrology and splash detachment, threaded
-        //    ThreadPool->RunCellCompute(CellProcesses1D);
-        //    ThreadPool->WaitForAll();
-            CellProcesses(0);
-//#pragma omp barrier
+            ThreadPool->RunCellCompute(CellProcesses1D);
+            ThreadPool->WaitForAll();
+
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
             OverlandFlow();        // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
-#pragma omp barrier
+
             OrderedProcesses();    // do ordered LDD solutions channel, tiles, drains, non threaded
 
             //wait for the report thread that was started in the previous timestep
@@ -251,7 +250,7 @@ void TWorld::DoModel()
 
       //      std::function<void(int)> freport = std::bind((&TWorld::Wrapper_ReportAll),this,std::placeholders::_1);
       //      ThreadPool->RunReportFunction(freport);
-//#pragma omp barrier
+
             reportAll();
 
             if (!noInterface)

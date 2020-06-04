@@ -63,7 +63,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
     }
 
     FOR_ROW_COL_MV_CH {
-        if(ChannelMaskExtended->data[r][c] == 1)// && !pcr::isMV(LDDChannel->data[r][c]))
+    //    if(ChannelMaskExtended->data[r][c] == 1)// && !pcr::isMV(LDDChannel->data[r][c]))
         {
             int rr = r;//(int)ChannelSourceYExtended->Drc;
             int cr = c;//(int)ChannelSourceXExtended->Drc;
@@ -120,15 +120,15 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                             double sed = fracC*ChannelSSSed->Drcr;
                             ChannelSSSed->Drcr -= sed;
                             _SS->Drcr += sed;
-                            if(SwitchUseGrainSizeDistribution)
-                            {
-                                FOR_GRAIN_CLASSES
-                                {
-                                    //   SS_D.Drcd += RSSC_D.Drcd * vol;
-                                    //  RSS_D.Drcd -= RSSC_D.Drcd * vol;
-                                }
-                                //CALC TOTALS HERE
-                            }
+//                            if(SwitchUseGrainSizeDistribution)
+//                            {
+//                                FOR_GRAIN_CLASSES
+//                                {
+//                                    //   SS_D.Drcd += RSSC_D.Drcd * vol;
+//                                    //  RSS_D.Drcd -= RSSC_D.Drcd * vol;
+//                                }
+//                                //CALC TOTALS HERE
+//                            }
                         }
 
                     }
@@ -150,15 +150,15 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                             ChannelSSSed->Drcr += sed;
                             _SS->Drcr -= sed;
 
-                            if(SwitchUseGrainSizeDistribution)
-                            {
-                                FOR_GRAIN_CLASSES
-                                {
-                                    //     SS_D.Drcd += RSSC_D.Drcd * vol;
-                                    //     RSS_D.Drcd -= RSSC_D.Drcd * vol;
-                                }
-                                //CALC TOTALS HERE
-                            }
+//                            if(SwitchUseGrainSizeDistribution)
+//                            {
+//                                FOR_GRAIN_CLASSES
+//                                {
+//                                    //     SS_D.Drcd += RSSC_D.Drcd * vol;
+//                                    //     RSS_D.Drcd -= RSSC_D.Drcd * vol;
+//                                }
+//                                //CALC TOTALS HERE
+//                            }
                         }
                     }
                 }
@@ -194,15 +194,15 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                             _SS->Drcr = _concavg * volof;
                             _SSC->Drcr = _concavg;
 
-                            if(SwitchUseGrainSizeDistribution)
-                            {
-                                FOR_GRAIN_CLASSES
-                                {
-                                    // SS_D.Drcd += RSSC_D.Drcd * vol;
-                                    // RSS_D.Drcd -= RSSC_D.Drcd * vol;
-                                }
-                                //CALC TOTALS HERE
-                            }
+//                            if(SwitchUseGrainSizeDistribution)
+//                            {
+//                                FOR_GRAIN_CLASSES
+//                                {
+//                                    // SS_D.Drcd += RSSC_D.Drcd * vol;
+//                                    // RSS_D.Drcd -= RSSC_D.Drcd * vol;
+//                                }
+//                                //CALC TOTALS HERE
+//                            }
                         }
 
                     }
@@ -746,7 +746,7 @@ void TWorld::ChannelFlood(void)
     if (!SwitchIncludeChannel)
         return;
 
-    ChannelOverflowNew(hmx, V, false);
+    ChannelOverflow(hmx, V, false);
     // determine overflow water => hmx
 
     ToFlood();

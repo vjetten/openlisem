@@ -175,6 +175,8 @@ void TWorld::GetFlowBarrierData(QString name)
 
 void TWorld::SetFlowBarriers(int thread)
 {
+    if (!SwitchFlowBarriers)
+        return;
     FOR_ROW_COL_2DMT
     {
         if(this->time > FlowBarrierNT->Drc && !(FlowBarrierNT->Drc < 0))

@@ -460,7 +460,8 @@ void TWorld::MassBalance()
       //  qDebug() << "S" << DetTot<< ChannelDetTot << FloodDetTot;
       //  qDebug() << DepTot << ChannelDepTot << FloodDepTot;
       //  qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
-
+/*
+ * //ALL THIS IS UNNESSECARY WHEN MAXCONC IS KEPT SIMPLE!
         if( SwitchKinematic2D == K2D_METHOD_KINDYN)
         {
             // distribute sed errors over dep or det
@@ -533,7 +534,7 @@ void TWorld::MassBalance()
             detachment = DetTot + ChannelDetTot + FloodDetTot;
             deposition = DepTot + ChannelDepTot + FloodDepTot;
         }
-
+*/
         MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
     }
 
