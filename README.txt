@@ -1,6 +1,6 @@
 openLISEM
 ============
-Date: 200329
+Date: 200604
 ============
 
 For questions contact v.g.jetten AD utwente.nl
@@ -9,12 +9,10 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux Ubuntu
 
 version 5.97-5.98 beta
-- Bug-fix: non-rectangular channels finally fixed for water, NOT TESTED with sediment
 - Bug-fix: file runoff.map did not show flood when choosing kinematic+dynamic flow
 - flow to channel with kin V using perpendicular angle and from channel with gravity
 - spurious velocities as a result of SWOF limited to sum of kinematic velocity+pressure velocity
 - Advanced options for SWOF stuff
-- add possibility to save results in separate directories with datetime strings
 - Outlet shows numer when hovering with the mouse over it
 - better dealng with highDPI screens
 

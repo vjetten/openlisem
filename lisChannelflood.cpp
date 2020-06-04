@@ -276,6 +276,7 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
 
                  RiverSedimentMaxC(rr, cr);
              }
+
              if (ChannelDepth->Drcr > 0 && ChannelMaxQ->Drcr <= 0)
              {
                  double chdepth = ChannelDepth->Drcr;
@@ -319,17 +320,16 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
                              double sed = fracC*ChannelSSSed->Drcr;
                              ChannelSSSed->Drcr -= sed;
                              _SS->Drcr += sed;
-                             if(SwitchUseGrainSizeDistribution)
-                             {
-                                 FOR_GRAIN_CLASSES
-                                 {
-                                     //   SS_D.Drcd += RSSC_D.Drcd * vol;
-                                     //  RSS_D.Drcd -= RSSC_D.Drcd * vol;
-                                 }
+                             //  if(SwitchUseGrainSizeDistribution)
+                             //   {
+                             // FOR_GRAIN_CLASSES
+                            // {
+                                 //   SS_D.Drcd += RSSC_D.Drcd * vol;
+                                 //  RSS_D.Drcd -= RSSC_D.Drcd * vol;
+                                 // }
                                  //CALC TOTALS HERE
-                             }
+                                 //  }
                          }
-
                      }
                  }
                  else   // flow to channel
@@ -355,15 +355,15 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
                              ChannelSSSed->Drcr += sed;
                              _SS->Drcr -= sed;
 
-                             if(SwitchUseGrainSizeDistribution)
-                             {
-                                 FOR_GRAIN_CLASSES
-                                 {
-                                     //     SS_D.Drcd += RSSC_D.Drcd * vol;
-                                     //     RSS_D.Drcd -= RSSC_D.Drcd * vol;
-                                 }
-                                 //CALC TOTALS HERE
-                             }
+                             // if(SwitchUseGrainSizeDistribution)
+                             //  {
+                             //    FOR_GRAIN_CLASSES
+                             //   {
+                             //     SS_D.Drcd += RSSC_D.Drcd * vol;
+                             //     RSS_D.Drcd -= RSSC_D.Drcd * vol;
+                             //   }
+                             //CALC TOTALS HERE
+                             // }
                          }
                      }
                  }
@@ -399,15 +399,15 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
                              _SS->Drcr = _concavg * volof;
                              _SSC->Drcr = _concavg;
 
-                             if(SwitchUseGrainSizeDistribution)
-                             {
-                                 FOR_GRAIN_CLASSES
-                                 {
-                                     // SS_D.Drcd += RSSC_D.Drcd * vol;
-                                     // RSS_D.Drcd -= RSSC_D.Drcd * vol;
-                                 }
-                                 //CALC TOTALS HERE
-                             }
+                             //  if(SwitchUseGrainSizeDistribution)
+                             //  {
+                             //       FOR_GRAIN_CLASSES
+                             //       {
+                             // SS_D.Drcd += RSSC_D.Drcd * vol;
+                             // RSS_D.Drcd -= RSSC_D.Drcd * vol;
+                             //      }
+                             //CALC TOTALS HERE
+                             // }
                          }
 
                      }
@@ -694,17 +694,17 @@ void TWorld::ToFlood()//int thread)
                 SSFlood->Drc += dsed;
                 Sed->Drc -= dsed;
 
-                if(SwitchUseGrainSizeDistribution)
-                {
-                    FOR_GRAIN_CLASSES
-                    {
-                        SS_D.Drcd +=  Sed_D.Drcd * frac;
-                        Sed_D.Drcd = Sed_D.Drcd * (1-frac);
+//                if(SwitchUseGrainSizeDistribution)
+//                {
+//                    FOR_GRAIN_CLASSES
+//                    {
+//                        SS_D.Drcd +=  Sed_D.Drcd * frac;
+//                        Sed_D.Drcd = Sed_D.Drcd * (1-frac);
 
-                    }
-                }
-//                SWOFSedimentSetConcentration(r,c,hmx);
-//                Conc->Drc = MaxConcentration(WH->Drc*ChannelAdj->Drc*DX->Drc, &Sed->Drc, &DEP->Drc);
+//                    }
+//                }
+                SWOFSedimentSetConcentration(r,c,hmx);
+                Conc->Drc = MaxConcentration(WH->Drc*ChannelAdj->Drc*DX->Drc, &Sed->Drc, &DEP->Drc);
             }
          }
     }
@@ -746,7 +746,7 @@ void TWorld::ChannelFlood(void)
     if (!SwitchIncludeChannel)
         return;
 
-    ChannelOverflow(hmx, V, false);
+    ChannelOverflowNew(hmx, V, false);
     // determine overflow water => hmx
 
     ToFlood();

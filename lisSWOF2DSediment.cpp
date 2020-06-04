@@ -325,10 +325,7 @@ void TWorld::SWOFSedimentCheckZero(int r, int c, cTMap * h)//,cTMap * u,cTMap * 
  */
 void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)
 {
-    cTMap * _BL = BLFlood;
-    cTMap * _BLC = BLCFlood;
-    cTMap * _SS = SSFlood;
-    cTMap * _SSC = SSCFlood;
+
     double hh = SSDepthFlood->Drc;
     double hhb = BLDepthFlood->Drc;
 
@@ -336,45 +333,39 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)
     {
         if(!SwitchUseGrainSizeDistribution)
         {
-            if (hhb > he_ca) {
-                _BLC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hhb, &_BL->Drc, &DepFlood->Drc);
-               // _BL->Drc = _BLC->Drc * ChannelAdj->Drc*DX->Drc*hhb;
-            }
-            _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hh, &_SS->Drc, &DepFlood->Drc);
-            //_SS->Drc = _SSC->Drc * ChannelAdj->Drc*DX->Drc*hh;
-
-        }else
-        {
-            FOR_GRAIN_CLASSES
-            {
-                //set concentration from present sediment
-                BLC_D.Drcd = MaxConcentration(ChannelAdj->Drc*DX->Drc*hhb, &BL_D.Drcd, &DepFlood->Drc);
-
-                //set concentration from present sediment
-                SSC_D.Drcd = MaxConcentration(ChannelAdj->Drc*DX->Drc*hh, &SS_D.Drcd, &DepFlood->Drc);
-            }
+            if (hhb > he_ca)
+                BLCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hhb, &BLFlood->Drc, &DepFlood->Drc);
+            SSCFlood->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*hh, &SSFlood->Drc, &DepFlood->Drc);
         }
+//        else
+//        {
+//            FOR_GRAIN_CLASSES
+//            {
+//                //set concentration from present sediment
+//                BLC_D.Drcd = MaxConcentration(ChannelAdj->Drc*DX->Drc*hhb, &BL_D.Drcd, &DepFlood->Drc);
+
+//                //set concentration from present sediment
+//                SSC_D.Drcd = MaxConcentration(ChannelAdj->Drc*DX->Drc*hh, &SS_D.Drcd, &DepFlood->Drc);
+//            }
+//        }
     }
     else
     {
         if(!SwitchUseGrainSizeDistribution)
         {
-            //set concentration from present sediment
-            _BLC->Drc = 0;
-
-            //set concentration from present sediment
-            _SSC->Drc = 0;
-
-        } else {
-            FOR_GRAIN_CLASSES
-            {
-                //set concentration from present sediment
-                BLC_D.Drcd = 0;
-
-                //set concentration from present sediment
-                SSC_D.Drcd = 0;
-            }
+            BLCFlood->Drc = 0;
+            SSCFlood->Drc = 0;
         }
+//        else {
+//            FOR_GRAIN_CLASSES
+//            {
+//                //set concentration from present sediment
+//                BLC_D.Drcd = 0;
+
+//                //set concentration from present sediment
+//                SSC_D.Drcd = 0;
+//            }
+//        }
     }
 
 }
@@ -399,6 +390,7 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)
  *
  * @see FS_SigmaDiffusion
  */
+
 void TWorld::SWOFSedimentDiffusion(int thread, cTMap *DT, cTMap *h,cTMap *u,cTMap *v, cTMap *_SS, cTMap *_SSC)
 {
     FOR_ROW_COL_UF2DMTDER {
@@ -407,7 +399,6 @@ void TWorld::SWOFSedimentDiffusion(int thread, cTMap *DT, cTMap *h,cTMap *u,cTMa
             MSSNFlood->Drc = _SS->Drc;
             //set concentration from present sediment
             MSSCFlood->Drc = _SSC->Drc;
-                    //MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, MSSNFlood->Drc);
         }
     }}}}
 
@@ -535,25 +526,26 @@ void TWorld::SWOFSedimentLayerDepth(int r , int c, double h, double velocity)
         //rough bed bed load layer depth by Hu en Hui
         BLDepthFlood->Drc = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), factor*h), 0.1);
         SSDepthFlood->Drc = std::max(h - BLDepthFlood->Drc,0.0);
-    }else
-    {
-        FOR_GRAIN_CLASSES
-        {
-            double d50m = graindiameters.at(d)/1000000.0;
-            double d90m = /* 1.5 * */ graindiameters.at(d)/1000000.0; // 1.5 ???
-
-            //critical shear velocity for bed level motion by van rijn
-            double critshearvel = velocity * sqrt(GRAV)/(18 * log10(4*(ChannelAdj->Drc * h/(h*2 + ChannelAdj->Drc))/(d90m)));
-            //critical shear stress for bed level motion by van rijn
-            double critsheart = (critshearvel*critshearvel)/ (((ps-pw)/pw) * GRAV*d50m);
-            //rough bed bed load layer depth by Hu en Hui
-            BLD_D.Drcd = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), factor*h), 0.1);
-            SSD_D.Drcd = std::max(h - BLD_D.Drcd,0.0);
-            BLDepthFlood->Drc += BLD_D.Drcd * W_D.Drcd;
-            SSDepthFlood->Drc += SSD_D.Drcd * W_D.Drcd;
-
-        }
     }
+//    else
+//    {
+//        FOR_GRAIN_CLASSES
+//        {
+//            double d50m = graindiameters.at(d)/1000000.0;
+//            double d90m = /* 1.5 * */ graindiameters.at(d)/1000000.0; // 1.5 ???
+
+//            //critical shear velocity for bed level motion by van rijn
+//            double critshearvel = velocity * sqrt(GRAV)/(18 * log10(4*(ChannelAdj->Drc * h/(h*2 + ChannelAdj->Drc))/(d90m)));
+//            //critical shear stress for bed level motion by van rijn
+//            double critsheart = (critshearvel*critshearvel)/ (((ps-pw)/pw) * GRAV*d50m);
+//            //rough bed bed load layer depth by Hu en Hui
+//            BLD_D.Drcd = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), factor*h), 0.1);
+//            SSD_D.Drcd = std::max(h - BLD_D.Drcd,0.0);
+//            BLDepthFlood->Drc += BLD_D.Drcd * W_D.Drcd;
+//            SSDepthFlood->Drc += SSD_D.Drcd * W_D.Drcd;
+
+//        }
+//    }
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -687,7 +679,9 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
             TSSFlood = SSFlood;
             TSettlingVelocity = SettlingVelocity->Drc;
             TW = unity;
-        } else {
+        }
+        else
+        {
             TBLDepthFlood = BLD_D.at(d);
             TSSDepthFlood = SSD_D.at(d);
             TBLTCFlood = BLTC_D.at(d);
