@@ -372,11 +372,11 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
     if (startFlood)
     {
-        //        if (SwitchErosion) {
-        //            FOR_ROW_COL_MV {
-        //                SSFlood->Drc += DETSplash->Drc;
-        //                SSCFlood->Drc = MaxConcentration(ChannelAdj->Drc * DX->Drc * h->Drc, &SSFlood->Drc, &DepFlood->Drc);
-        //            }
+//        if (SwitchErosion) {
+//            FOR_ROW_COL_MV {
+//                SSFlood->Drc += DETSplash->Drc;
+//                SSCFlood->Drc = MaxConcentration(ChannelAdj->Drc * DX->Drc * h->Drc, &SSFlood->Drc, &DepFlood->Drc);
+//            }
 
         sumh = getMass(h);
 
@@ -394,8 +394,9 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
             maincalcschemeOF(dt1, h,u,v, hs,us,vs);
 
-            //            if (SwitchErosion)
-            //                SWOFSediment(dt1,h,u,v );
+
+//            if (SwitchErosion)
+//                SWOFSediment(dt1,h,u,v);
 
             setZeroOF(hs, us, vs);
             FOR_ROW_COL_MV {
