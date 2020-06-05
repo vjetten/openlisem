@@ -53,7 +53,7 @@ SET(APP_SOURCES
     lisRunfile
     lisSurfstor
     lisSnowmelt
-    lisKinematic2d
+  #  lisKinematic2d
     main
     operation
     swatre/swatstep
@@ -97,11 +97,7 @@ SET(APP_SOURCES
     include/swatreLookup.h
     include/swatremisc.h
     include/swatresoillut.h
-#include/csf.h
-#include/csfattr.h
-#include/csfimpl.h
-#include/csftypes.h
-#include/pcrtypes.h
+
     openlisemico.rc
 
 )

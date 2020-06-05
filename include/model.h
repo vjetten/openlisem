@@ -84,6 +84,11 @@ class LisemThreadPool;
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDD->data[r][c]))
 
+#define FOR_ROW_COL_MV_L _Pragma("omp parallel for collapse(2) num_threads(userCores)")\
+for(int r = 0; r < _nrRows; r++)\
+    for (int c = 0; c < _nrCols; c++)\
+    if(!pcr::isMV(LDD->data[r][c]))
+
 #define FOR_GRAIN_CLASSES for(int d  = 0 ; d < numgrainclasses;d++)
 
 /// shortcut for channel row and col loop
@@ -720,13 +725,11 @@ public:
     void ChannelFlow(void);
     double ChannelIterateWH(double _h, int r, int c);
     void ChannelAddBaseandRainNT(void);
-    void ChannelAddBaseandRain(int thread);
     void ChannelWaterHeightFromVolumeNT(void);
     void ChannelWaterHeightFromVolume(int thread);
     void ToChannel();//int thread);
     void ToFlood();//int thread);
     void CalcVelDisch(int thread);
-    void CalcVelDischChannel(int thread);
     void CalcVelDischChannelNT();
     void fromChannelVoltoWH(int r, int c);
     double channelVoltoWH(double vol, int r, int c);

@@ -177,115 +177,12 @@ void TWorld::CalcVelDischChannelNT()
     }
 }
 //---------------------------------------------------------------------------
-// V, alpha and Q in the channel, called after overland flow vol to channel
-// called after flood and uses new channel flood water height
-void TWorld::CalcVelDischChannel(int thread)
-{
-    if (!SwitchIncludeChannel)
-        return;
-    /*
-    dw      FW      dw
-   \  |            |  /
-    \ |         wh | /
-     \|____________|/
-  */
-    FOR_ROW_COL_2DMT
-    {
-        if(!(pcr::isMV(LDDChannel->Drc)))
-        {
-            double Perim, Radius, Area;
-            const double beta = 0.6;
-            double beta1 = 1/beta;
-            double wh = ChannelWH->Drc;
-            double FW = ChannelFlowWidth->Drc;
-            double grad = sqrt(ChannelGrad->Drc);
-
-            if (ChannelSide->Drc > 0)
-            {
-                double dw = ChannelSide->Drc * wh;
-                Perim = FW + 2.0*wh/cos(atan(ChannelSide->Drc));
-                Area = FW*wh + wh*dw;
-            }
-            else
-            {
-                Perim = FW + 2.0*wh;
-                Area = FW*wh;
-            }
-
-            Radius = (Perim > 0 ? Area/Perim : 0);
-
-            if (grad > MIN_SLOPE)
-                ChannelAlpha->Drc = std::pow(ChannelN->Drc/grad * std::pow(Perim, 2.0/3.0),beta);
-            else
-                ChannelAlpha->Drc = 0;
-
-            if (ChannelAlpha->Drc > 0)
-                ChannelQ->Drc = std::pow(Area/ChannelAlpha->Drc, beta1);
-            else
-                ChannelQ->Drc = 0;
-
-            ChannelV->Drc = std::pow(Radius, 2.0/3.0)*grad/ChannelN->Drc;
-        }
-
-    }}}}
-}
-
-//---------------------------------------------------------------------------
-//! add runofftochannel and rainfall and calc channel WH from volume
-void TWorld::ChannelAddBaseandRain(int thread)
-{
-    if (!SwitchIncludeChannel)
-        return;
-
-    FOR_ROW_COL_2DMT
-    {
-        if(ChannelMaskExtended->data[r][c] == 1)
-        {
-            int rr = (int)ChannelSourceYExtended->Drc;
-            int cr = (int)ChannelSourceXExtended->Drc;
-
-            // add rainfall in m3, no interception, not when culvert
-            if (ChannelMaxQ->Drc <= 0) {
-                // ChannelWaterVol->Drcr += Rainc->Drcr*(_dx - ChannelAdj->Drcr)*DX->Drcr;
-                ChannelWaterVol->Drcr += Rainc->Drc*ChannelFlowWidth->Drc*DX->Drc;
-            }
-
-            // subtract infiltration
-            if (SwitchChannelInfil) {
-                double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
-                inf = std::min(ChannelWaterVol->Drc, inf);
-               ChannelWaterVol->Drc -= inf;
-               ChannelInfilVol->Drc += inf;
-            }
-
-            //add baseflow
-            if(SwitchChannelBaseflow)
-            {
-                if(!addedbaseflow)
-                {
-                    ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
-                    BaseFlowTot += BaseFlowInitialVolume->Drc;
-
-                }
-                ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
-                BaseFlowTot += BaseFlowInflow->Drc * _dt;
-            }
-        }
-
-        ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc);
-        fromChannelVoltoWH(r, c);
-    }}}}
-
-    if(SwitchChannelBaseflow && !addedbaseflow)
-        addedbaseflow = true;
-}
-//---------------------------------------------------------------------------
 void TWorld::ChannelAddBaseandRainNT(void)
 {
     if (!SwitchIncludeChannel)
         return;
 
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         if(ChannelMaskExtended->data[r][c] == 1)
         {
             int rr = (int)ChannelSourceYExtended->Drc;

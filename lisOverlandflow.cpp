@@ -171,7 +171,7 @@ void TWorld::CalcVelDisch(int thread)
 //        return K2DCalcVelDisch(thread);  //manning velocity but with K2DSlope and K2DPits
 //    }
 
-    FOR_ROW_COL_2DMT
+    FOR_ROW_COL_MV_L
     {
         double Perim, R;
         double NN = N->Drc;
@@ -200,7 +200,7 @@ void TWorld::CalcVelDisch(int thread)
 
         V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/NN;
 
-    }}}}
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -228,7 +228,7 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
         //direction of velocity is in the direction of + and -
         // U is EW and V is NS
         // find which outlets on the boundary are directed to the outside based on sign U and V
-        FOR_ROW_COL_MV {
+        FOR_ROW_COL_MV_L {
             if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 0.0)
             {
                 if (c > 0 && MV(r,c-1))
@@ -247,7 +247,7 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
         }
     }
 
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         if(LDD->Drc == 5)
             tma->Drc = 1;
     }
@@ -258,7 +258,7 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
     }
 
 
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         if (tma->Drc == 1) {
             double dy = ChannelAdj->Drc;
             double UV = qSqrt(_U->Drc * _U->Drc + _V->Drc*_V->Drc);
@@ -283,30 +283,6 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
         }
     }
 
-
-    // sum all the outflow of these points
-//    FOR_ROW_COL_MV {
-//        if (tma->Drc == 2) {
-//            double Qout = std::min(Q->Drc, h->Drc*(DX->Drc*ChannelAdj->Drc)/_dt);
-//            K2DQOutBoun += Qout;
-//            double hold = h->Drc;
-//            h->Drc -= Qout*_dt/(DX->Drc*ChannelAdj->Drc);
-//            //Q->Drc = Qout;
-//            K2DQ->Drc = Qout;
-
-//            if (SwitchErosion) {
-//                double frac = hold > 0 ? (hold-h->Drc)/hold : 0.0;
-//                double ds = frac * SSFlood->Drc;
-//                K2DQSOutBoun += ds;
-//                SSFlood->Drc -= ds;
-
-//                ds = frac * BLFlood->Drc;
-//                K2DQSOutBoun += ds;
-//                BLFlood->Drc -= ds;
-//            }
-//        }
-//    }
- //   qDebug() << "K2DQOut boundary" << K2DQOutBoun << K2DQSOutBoun;
 }
 //---------------------------------------------------------------------------
 
@@ -318,7 +294,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         // false means flood sediment maps are used
 
     startFlood = false;
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         if (WHrunoff->Drc > HMIN){
             startFlood = true;
           //  break;
@@ -332,7 +308,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 
     //  infilInWave(WHrunoff, _dt);
 
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_MV_L
     {
         V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
         Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
@@ -342,7 +318,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 
     Boundary2Ddyn();//WHrunoff, Qn, Uflood, Vflood);  // do the domain boundaries
 
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_MV_L
     {
         Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
         Q->Drc = Qn->Drc; // just to be sure
@@ -378,7 +354,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         //WHrunoff and Qn are adapted in case of 2D routing
         if(!SwitchUseGrainSizeDistribution)
         {
-            FOR_ROW_COL_MV
+            FOR_ROW_COL_MV_L
             {
                 double sed = (SSFlood->Drc + BLFlood->Drc);
                 Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &sed, &DepFlood->Drc);
@@ -389,13 +365,13 @@ void TWorld::OverlandFlow2Ddyn(void)
         {
             //calculate total sediment from induvidual grain classes,
             //and calculate concentration and new sediment discharge
-            FOR_ROW_COL_MV
+            FOR_ROW_COL_MV_L
             {
                 Sed->Drc = 0;
                 Conc->Drc = 0;
 
             }
-            FOR_ROW_COL_MV
+            FOR_ROW_COL_MV_L
             {
                 FOR_GRAIN_CLASSES
                 {

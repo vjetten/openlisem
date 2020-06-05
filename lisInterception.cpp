@@ -51,7 +51,7 @@ void TWorld::Interception(int thread)
         return;
     //VJ 110113 bug fix, no interception when no rainfall and only snowmelt
 
-    FOR_ROW_COL_2DMT
+    FOR_ROW_COL_MV_L
     {
         if (Cover->Drc > 0)// && Rainc->Drc > 0)
         {
@@ -108,7 +108,7 @@ void TWorld::Interception(int thread)
         {
             RainNet->Drc = Rainc->Drc;
         }
-    }}}}
+    }
 }
 //---------------------------------------------------------------------------
 void TWorld::InterceptionLitter(int thread)
@@ -120,7 +120,7 @@ void TWorld::InterceptionLitter(int thread)
     if (!SwitchRainfall)
         return;
 
-    FOR_ROW_COL_2DMT
+    FOR_ROW_COL_MV_L
     {
         if (hmx->Drc == 0 && WH->Drc == 0 && Litter->Drc > 0 && RainNet->Drc > 0)
         {
@@ -153,7 +153,7 @@ void TWorld::InterceptionLitter(int thread)
             RainNet->Drc = drain + (1-Litter->Drc)*RainNet->Drc;// + (1-Cover->Drc)*Rainc->Drc;
             //recalc
         }
-    }}}}
+    }
 }
 //---------------------------------------------------------------------------
 void TWorld::InterceptionHouses(int thread)
@@ -165,7 +165,7 @@ void TWorld::InterceptionHouses(int thread)
     if (!SwitchRainfall)
         return;
 
-    FOR_ROW_COL_2DMT
+    FOR_ROW_COL_MV_L
     {
         if (HouseCover->Drc > 0 &&  Rainc->Drc > 0)
         {
@@ -219,6 +219,6 @@ void TWorld::InterceptionHouses(int thread)
 
             }
         }
-    }}}}
+    }
 }
 //---------------------------------------------------------------------------

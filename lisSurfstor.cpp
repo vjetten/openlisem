@@ -44,7 +44,7 @@ functions: \n
 void TWorld::GridCell(int thread)
 {
 
-    FOR_ROW_COL_2DMT
+    FOR_ROW_COL_MV_L
     {
         double dxa = _dx;
         if(SwitchIncludeChannel && ChannelWidthMax->Drc > 0)
@@ -63,14 +63,14 @@ void TWorld::GridCell(int thread)
 
         SoilWidthDX->Drc = dxa;  //excluding roads, including houses, hard surface
         //houses are assumed to be permeable but with high mannings n
-    }}}}
+    }
 //report(*ChannelAdj, "cda.map");
 }
 //---------------------------------------------------------------------------
 /// Adds new rainfall afterinterception to runoff water nheight or flood waterheight
 void TWorld::addRainfallWH(int thread)
 {
-    FOR_ROW_COL_2DMT
+    FOR_ROW_COL_MV_L
     {
         if (FloodDomain->Drc > 0) {
             hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
@@ -86,12 +86,12 @@ void TWorld::addRainfallWH(int thread)
                 WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
             // assume no interception and infiltration on roads, gross rainfall
         }
-    }}}}
+    }
 }
 //---------------------------------------------------------------------------
 void TWorld::SurfaceStorage(int thread)
 {
-    FOR_ROW_COL_2DMT
+    FOR_ROW_COL_MV_L
     {
         double RRm = 0.01*RR->Drc; // assume RR in cm convert to m
         double wh = WH->Drc, whflow = 0;
@@ -137,14 +137,12 @@ void TWorld::SurfaceStorage(int thread)
             WHrunoff->Drc = 0;
         // average WHrunoff from soil surface + roads, because kin wave can only do one discharge
         // this now takes care of ponded area, so water height is adjusted
-    }}}}
-
-
+    }
 }
 //---------------------------------------------------------------------------
 void TWorld::doETa(int thread)
 {
-    FOR_ROW_COL_2DMT
+    FOR_ROW_COL_MV_L
     {
         double tot = 0;
         double tmp = 0;
@@ -196,7 +194,5 @@ void TWorld::doETa(int thread)
 //TODO fpa
 
 
-    }}}}
-
-
+    }
 }

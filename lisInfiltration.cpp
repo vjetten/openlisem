@@ -336,7 +336,7 @@ void TWorld::Infiltration(int thread)
     }
 
     // calc infiltrated volume for mass balance
-    FOR_ROW_COL_2DMT
+    FOR_ROW_COL_MV_L
     {
         double cy = SoilWidthDX->Drc;
         if(FloodDomain->Drc > 0)
@@ -344,7 +344,7 @@ void TWorld::Infiltration(int thread)
 
         InfilVol->Drc = fact->Drc*cy*DX->Drc;
         // infil volume is WH before - water after
-    }}}}
+    }
 
 
 }
@@ -362,7 +362,7 @@ then calls IncreaseInfiltrationDepth to increase the wetting front.
 
 void TWorld::InfilMethodsNew(int thread)
 {
-    FOR_ROW_COL_2DMT {
+    FOR_ROW_COL_MV_L {
         // default vars are first layer vars
         double fact1 = 0;
         double Ks = Ksateff->Drc*_dt/3600000.0;  //in m
@@ -451,7 +451,7 @@ void TWorld::InfilMethodsNew(int thread)
             FSurplus->Drc = -1.0*std::min(space, std::max(0.0, fpot->Drc-fact->Drc));
             // negative and smallest of space or fpot-fact
         }
-    }}}}
+    }
 //report(*fpot,"fpot");
 //report(*L1,"la");
 //report(*L2,"lb");
@@ -475,7 +475,7 @@ void TWorld::SoilWater(int thread)
     if (SwitchImpermeable)
         return;
 
-    FOR_ROW_COL_2DMT
+    FOR_ROW_COL_MV_L
     {
         double Percolation, Ks, bca, dL, thetar, theta_E;
 
@@ -537,13 +537,7 @@ void TWorld::SoilWater(int thread)
 
         }
         Perc->Drc = Percolation;
-    }}}}
-// report(*Perc, "perc");
-
-
-
-
-
+    }
 }
 
 
@@ -553,7 +547,7 @@ void TWorld::infilInWave(cTMap *_h, double dt1)
     if (InfilMethod == INFIL_SWATRE || InfilMethod == INFIL_NONE)
         return;
 
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         if(FFull->Drc==0) {
             double cdx = DX->Drc;
             double cdy = ChannelAdj->Drc;
