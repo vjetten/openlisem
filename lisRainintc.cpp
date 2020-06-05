@@ -176,7 +176,7 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
         else
             dirname = snowmeltFileDir;
 
-        QStringList SL = rainRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), QString::SkipEmptyParts);
+        QStringList SL = rainRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
 
           // split rainfall record row with whitespace
         rl.time = SL[0].toDouble();

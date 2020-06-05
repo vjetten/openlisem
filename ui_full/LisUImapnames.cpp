@@ -93,7 +93,7 @@ void lisemqt::fillMapnames()
       {
          nr++;
 
-         SL = DEFmaps[i].split(";",QString::SkipEmptyParts);
+         SL = DEFmaps[i].split(";",Qt::SkipEmptyParts);
          mapList[nr].groupnr=branch;
          mapList[nr].varnr=subbranch+dec;
          mapList[nr].value=SL[2];   //<= mapname

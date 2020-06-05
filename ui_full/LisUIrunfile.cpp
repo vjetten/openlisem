@@ -279,7 +279,7 @@ void lisemqt::ParseInputData()
             if (p.contains(",")){
                 p.replace(",",";");
             }
-            param = p.split(";",QString::SkipEmptyParts);
+            param = p.split(";",Qt::SkipEmptyParts);
             //qDebug() << p << param;
             if (param.count() > 4) {
                 bool ok;
@@ -299,7 +299,7 @@ void lisemqt::ParseInputData()
             if (p.contains(",")){
                 p.replace(",",";");
             }
-            param = p.split(";",QString::SkipEmptyParts);
+            param = p.split(";",Qt::SkipEmptyParts);
             if (param.count() > 3) {
                 bool ok;
                 int i = param[0].toInt(&ok, 10);
@@ -317,7 +317,7 @@ void lisemqt::ParseInputData()
             if (p.contains(",")){
                 p.replace(",",";");
             }
-            param = p.split(";",QString::SkipEmptyParts);
+            param = p.split(";",Qt::SkipEmptyParts);
             if (param.count() > 3) {
                 bool ok;
                 int i = param[0].toInt(&ok, 10);
@@ -583,7 +583,7 @@ void lisemqt::ParseInputData()
     {
         for (int i = 0; i < DEFmaps.size(); i++)
         {
-            QStringList S = DEFmaps.at(i).split(";",QString::SkipEmptyParts);
+            QStringList S = DEFmaps.at(i).split(";",Qt::SkipEmptyParts);
             if (S.contains(namelist[j].name))
             {
                 QFileInfo fil(namelist[j].value);

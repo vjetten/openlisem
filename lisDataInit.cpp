@@ -1305,7 +1305,7 @@ void TWorld::InitMulticlass(void)
             {
 
                 numgrainclasses = 0;
-                QStringList diamlist = getvaluename("Grain size class maps").split(";", QString::SkipEmptyParts);
+                QStringList diamlist = getvaluename("Grain size class maps").split(";", Qt::SkipEmptyParts);
 
                 for(int i = 0; i < diamlist.count(); i++)
                 {

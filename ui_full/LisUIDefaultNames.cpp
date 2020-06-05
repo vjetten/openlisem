@@ -557,54 +557,14 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[map names]");
     namelist[i++].name = QString("");
-    /*
-    namelist[i++].name = QString("[OutputBASIC]");
-    namelist[i].value = QString("ro");
-    namelist[i++].name = QString("OUTRUNOFF");
-    namelist[i].value = QString("conc");
-    namelist[i++].name = QString("OUTCONC");
-    namelist[i].value = QString("wh");
-    namelist[i++].name = QString("OUTWH");
-    namelist[i].value = QString("roc");
-    namelist[i++].name = QString("OUTRWH");
-    namelist[i].value = QString("tc");
-    namelist[i++].name = QString("OUTTC");
-    namelist[i].value = QString("det");
-    namelist[i++].name = QString("OUTEROS");
-    namelist[i].value = QString("dep");
-    namelist[i++].name = QString("OUTDEPO");
-    namelist[i].value = QString("sloss");
-    namelist[i++].name = QString("OUTSOILLOSS");
-    namelist[i].value = QString("V");
-    namelist[i++].name = QString("OUTVELO");
-    namelist[i].value = QString("inf");
-    namelist[i++].name = QString("OUTINF");
-    namelist[i].value = QString("sstor");
-    namelist[i++].name = QString("OUTSS");
-    namelist[i].value = QString("chvol");
-    namelist[i++].name = QString("OUTCHVOL");
-    namelist[i].value = QString("qtile");
-    namelist[i++].name = QString("OUTTILED");
-    namelist[i].value = QString("whf");
-    namelist[i++].name = QString("OUTHMX");
-    namelist[i].value = QString("qf");
-    namelist[i++].name = QString("OUTQF");
-    namelist[i].value = QString("vf");
-    namelist[i++].name = QString("OUTVF");
-    namelist[i].value = QString("hmxwh");
-    namelist[i++].name = QString("OUTHMXWH");
-    namelist[i].value = QString("sed");
-    namelist[i++].name = QString("OUTSED");
-    namelist[i].value = QString("int");
-    namelist[i++].name = QString("OUTINT");
-*/
+
     // input maps start here !!!
     mapstartnr = i;
     int j = mapstartnr;
     for (i = 0; i < DEFmaps.count(); i++)
     {
         QStringList SL;
-        SL = DEFmaps[i].split(";",QString::SkipEmptyParts);
+        SL = DEFmaps[i].split(";",Qt::SkipEmptyParts);
 
         if (SL[0] == "0")
         {

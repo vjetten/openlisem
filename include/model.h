@@ -220,22 +220,8 @@ typedef struct UNIT_LIST {
     double var7;
 } UNIT_LIST;
 //---------------------------------------------------------------------------
-/// structure for output of land unit stats
-//typedef struct COORD {
-//    int _r;
-//    int _c;
-//} COORD;
-//--------------------------------------------------------------------------
-/// structure for watershed coordinates for flooding
-//typedef struct WS_LIST {
-//    bool flood;
-//   QList <COORD> cr;
-//   //  QVector <COORD> cr;
-//    int ws;
-//    double dt;
-//    double dt2;
-//    double dtsum;
-//} WS_LIST;
+/// vec4 used for HLL
+typedef struct vec4 { double v[4]; } vec4;
 //---------------------------------------------------------------------------
 /// Strunture to store rain station values of rainfile mapnames
 typedef struct RAIN_LIST {
@@ -510,26 +496,24 @@ public:
     //MapListStruct qx[9];
 
     //FLOOD according to FULLSWOF2D
-    void prepareFloodZ(cTMap *z);
-    void setFloodMask(cTMap * h);
-    void setFloodMaskDT(cTMap * DT);
+    double Flood_DTMIN;
+    int F_scheme, F_fluxLimiter, F_MaxIter, F_AddGravity;
+    double F_Angle;
+    double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl, HLL_tmp;
+    bool prepareFlood, startFlood;
+    int iter_n;
 
     double fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
-    void setFloodDT(cTMap * h);
-    double Flood_DTMIN;
-//    void fullSWOF2Do2lightWrapperCell1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
-//    void fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *hs, cTMap *us, cTMap *vs, double dt1);
-//    void fullSWOF2Do2lightWrapperDynamic2(int thread, cTMap *h, cTMap *u, cTMap *v,
-//                                          cTMap *hs, cTMap *us, cTMap *vs,
-//                                          cTMap *hsa, cTMap *usa, cTMap *vsa, double dt1);
-//    double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
-//    void fullSWOF2Do2lightWrapperErosion(int thread, cTMap *h, cTMap *u, cTMap *v, double dt1);
-
+    double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     void fullSWOF2Do2lightWrapperCell1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     void fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *hs, cTMap *us, cTMap *vs, double dt1);
     void fullSWOF2Do2lightWrapperDynamic2(int thread, cTMap *hs, cTMap *us, cTMap *vs, cTMap *hsa, cTMap *usa, cTMap *vsa, double dt1);
-    double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     void fullSWOF2Do2lightWrapperErosion(int thread, cTMap *h, cTMap *u, cTMap *v, double dt1);
+
+    void prepareFloodZ(cTMap *z);
+    void setFloodMask(cTMap * h);
+    void setFloodMaskDT(cTMap * DT);
+    void setFloodDT(cTMap * h);
 
     double limiter(double a, double b);
     void MUSCL(int thread,cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
@@ -537,29 +521,21 @@ public:
     void maincalcflux(int thread, double dt, double dt_max);
     void maincalcscheme(int thread,double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     void setZero(int thread,cTMap *_h, cTMap *_u, cTMap *_v);
-    void F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    void F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    void F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    void F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    int F_scheme, F_fluxLimiter, F_reconstruction, F_replaceV, F_MaxIter, F_AddGravity;\
-    double F_Angle;
-
-    double F_levee;
-    double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl, HLL_tmp;
-    bool prepareFlood, startFlood;
-    int verif, iter_n;
+    vec4 F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
+    vec4 F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
+    vec4 F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
+    vec4 F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
+    vec4 F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
+    void correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2);
 
     //runoff dynamic
-    //void simpleSchemeOF(cTMap *_h, cTMap *_u, cTMap *_v);
     double maincalcfluxOF(cTMap *_h,double dt, double dt_max);
     void maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     void dynOutflowPoints(void);
-    //void Init2DOF(void);
     void OverlandFlow2Ddyn(void);
     void Boundary2Ddyn();//cTMap* h, cTMap* Q,cTMap *U, cTMap *V);
     void MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v);
-    void correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2);
     void simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v);
 
     void infilInWave(cTMap *_h, double dt1);

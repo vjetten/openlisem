@@ -80,7 +80,7 @@ double *TWorld::ReadSoilTable(
 			Error(QString(READ_ERRORs).arg(fileName));
 		}
 
-      QStringList SL = QString(buf).split(QRegExp("\\s+"),QString::SkipEmptyParts);
+      QStringList SL = QString(buf).split(QRegExp("\\s+"),Qt::SkipEmptyParts);
       currNrCols = SL.count();
       strcpy(buf, SL.join(" ").toLatin1());
       // trim spaces and count columns

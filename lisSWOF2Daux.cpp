@@ -10,7 +10,351 @@
 
 #define GRAV 9.8067
 #define EPSILON 1e-6
+//--------------------------------------------------------------------------------------------
+// correct mass balance
+double TWorld::getMass(cTMap *M)
+{
+    double sum2 = 0;
+    FOR_ROW_COL_MV
+    {
+        if(M->Drc > 0)
+            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
+    }
+    return sum2;
+}
+//---------------------------------------------------------------------------
+// correct mass balance
+void TWorld::correctMassBalance(double sum1, cTMap *M)
+{
+    double sum2 = 0;
+    double n = 0;
+    FOR_ROW_COL_MV
+    {
+        if(M->Drc > 0)
+        {
+            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
+            if(M->Drc > 0)
+                n += 1;
+        }
+    }
+    // total and cells active for M
 
+    //double dh = (n > 0 ? (sum1 - sum2)/n : 0);
+    double dhtot = sum2 > 0 ? (sum1 - sum2)/sum2 : 0;
+    FOR_ROW_COL_MV
+    {
+        if(M->Drc > 0)
+        {
+            M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
+            //M->Drc += dh/(DX->Drc*ChannelAdj->Drc); // <- equal distribution error
+            M->Drc = std::max(M->Drc , 0.0);
+        }
+    }
+}
+//---------------------------------------------------------------------------
+// used in datainit, done once
+void TWorld::prepareFloodZ(cTMap *z)
+{
+
+    prepareFlood = false;
+
+    fill(*delz1,0);
+    fill(*delz2,0);
+    // diff between z cell and adjacent
+    for (int r = 0; r < _nrRows; r++)
+        for (int c = 1; c < _nrCols; c++)
+            if(!pcr::isMV(LDD->data[r][c]) && !pcr::isMV(LDD->data[r][c-1]))
+            {
+                delz1->data[r][c-1] = (z->Drc) - z->data[r][c-1];
+                // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
+            }
+    for (int r = 1; r < _nrRows; r++)
+        for (int c = 0; c < _nrCols; c++)
+            if(!pcr::isMV(LDD->data[r][c]) && !pcr::isMV(LDD->data[r-1][c]))
+            {
+                delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
+                // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
+            }
+
+    fill(*delta_z1, 0);
+    fill(*delta_z2, 0);
+    for (int r = 0; r < _nrRows; r++)
+        for (int c = 0; c < _nrCols-1; c++)
+            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r][c+1]))
+                delta_z1->Drc = (z->data[r][c+1] - z->Drc);
+    //                delta_z1->Drc = 0.5*((z->Drc - z->data[r][c-1]) + (z->data[r][c+1] - z->Drc));
+
+    for (int r = 1; r < _nrRows-1; r++)
+        for (int c = 0; c < _nrCols; c++)
+            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r+1][c]))
+                delta_z2->Drc = (z->data[r+1][c] - z->Drc);
+    //                delta_z2->Drc = 0.5*((z->Drc - z->data[r-1][c]) + (z->data[r+1][c] - z->Drc));
+
+}
+//---------------------------------------------------------------------------
+/**
+ * @brief TWorld::limiter: Flux limiters are used in high resolution schemes to avoid occilations
+ * @param a slope on one side
+ * @param b slope on oposite side
+ * @return rec
+ *
+ * ONLY used in MUSCL or ENO
+ * WIKI: Flux limiters are used in high resolution schemes, such as the MUSCL scheme, to avoid
+ * the spurious oscillations (wiggles) that would otherwise occur with high order spatial
+ * discretisation schemes due to shocks, discontinuities or sharp changes in the solution domain.
+ * Use of flux limiters, together with an appropriate high resolution scheme, make the solutions
+ * total variation diminishing (TVD).
+ */
+double TWorld::limiter(double a, double b)
+{
+    double eps = 1.e-15;
+    double rec = 0.;
+    // F_fluxLimiter=1;
+    if (F_fluxLimiter == (int)MINMOD)
+    {
+        if (a >= 0 && b >= 0)
+            rec = std::min(a, b);
+        else
+            if (a <= 0 && b <= 0)
+                rec = std::max(a, b);
+    }
+    else
+    {
+        double ab = a*b;
+
+        if (F_fluxLimiter == (int)VANLEER)
+        {
+            if (ab > 0)
+                return (2*ab/(a+b));
+        }
+        else
+            if (F_fluxLimiter == (int)VANALBEDA)
+            {
+                double aa = a*a;
+                double bb = b*b;
+                if (ab > 0)
+                    rec=(a*(bb+eps)+b*(aa+eps))/(aa+bb+2*eps);
+            }
+    }
+    return(rec);
+}
+
+/// Numerical flux calculation on which the new velocity is based
+/// U_n+1 = U_n + dt/dx* [flux]  when flux is calculated by HLL, HLL2, Rusanov
+/// HLL = Harten, Lax, van Leer numerical solution
+
+vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
+{
+    vec4 hll;
+    double f1, f2, f3, cfl,tmp;
+    double c;
+    if (h_L<=0. && h_R<=0.){
+        c = 0.;
+        f1 = 0.;
+        f2 = 0.;
+        f3 = 0.;
+        cfl = 0.;
+    }else{
+        double grav_h_L = GRAV*h_L;
+        double grav_h_R = GRAV*h_R;
+        double sqrt_grav_h_L = sqrt(grav_h_L);  // wave velocity
+        double sqrt_grav_h_R = sqrt(grav_h_R);
+        double q_R = u_R*h_R;
+        double q_L = u_L*h_L;
+        double c1;// = std::min(u_L - sqrt_grav_h_L,u_R - sqrt_grav_h_R); //we already have u_L - sqrt_grav_h_L<u_L + sqrt_grav_h_L and u_R - sqrt_grav_h_R<u_R + sqrt_grav_h_R
+        double c2;// = std::max(u_L + sqrt_grav_h_L,u_R + sqrt_grav_h_R); //so we do not need all the eigenvalues to get c1 and c2
+        if(h_L < he_ca) {
+            c1 = u_R - 2*sqrt(GRAV*h_R);
+        }else{
+            c1 = std::min(u_L-sqrt_grav_h_L,u_R-sqrt_grav_h_R); // as u-sqrt(grav_h) <= u+sqrt(grav_h)
+        }
+        if(h_R < he_ca) {
+            c2 = u_L + 2*sqrt(GRAV*h_L);
+        }else{
+            c2 = std::max(u_L+sqrt_grav_h_L,u_R+sqrt_grav_h_R); // as u+sqrt(grav_h) >= u-sqrt(grav_h)
+        }
+        tmp = 1./(c2-c1);
+        double t1 = (std::min(c2,0.) - std::min(c1,0.))*tmp;
+        double t2 = 1. - t1;
+        double t3 = (c2*fabs(c1) - c1*fabs(c2))*0.5*tmp;
+        double c_star = (c1*h_R *(u_R - c2) - c2*h_L *(u_L - c1))/(h_R *(u_R - c2) - h_L *(u_L - c1)) ;
+
+        f1 = t1*q_R+t2*q_L-t3*(h_R-h_L);
+        f2 = t1*(q_R*u_R+grav_h_R*h_R*0.5)+t2*(q_L*u_L+grav_h_L*h_L*0.5)-t3*(q_R-q_L);
+        if(c_star > EPSILON) {
+            f3=f1*v_L;
+        }else{
+            f3=f1*v_R;
+        }
+        cfl = std::max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+    }
+    hll.v[0] = f1;
+    hll.v[1] = f2;
+    hll.v[2] = f3;
+    hll.v[3] = cfl;
+    return hll;
+}
+
+vec4 TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
+{
+    vec4 hll;
+    double f1, f2, f3, cfl, tmp = 0;
+    if (h_L<=0. && h_R<=0.){
+        f1 = 0.;
+        f2 = 0.;
+        f3 = 0.;
+        cfl = 0.;
+    }
+    else
+    {
+        double grav_h_L = GRAV*h_L;
+        double grav_h_R = GRAV*h_R;
+        double sqrt_grav_h_L = sqrt(grav_h_L);  // wave velocity
+        double sqrt_grav_h_R = sqrt(grav_h_R);
+        double q_R = u_R*h_R;
+        double q_L = u_L*h_L;
+
+        double c1 = std::min(u_L - sqrt_grav_h_L,u_R - sqrt_grav_h_R); //we already have u_L - sqrt_grav_h_L<u_L + sqrt_grav_h_L and u_R - sqrt_grav_h_R<u_R + sqrt_grav_h_R
+        double c2 = std::max(u_L + sqrt_grav_h_L,u_R + sqrt_grav_h_R); //so we do not need all the eigenvalues to get c1 and c2
+        tmp = 1./(c2-c1);
+        double t1 = (std::min(c2,0.) - std::min(c1,0.))*tmp;
+        double t2 = 1. - t1;
+        double t3 = (c2*fabs(c1) - c1*fabs(c2))*0.5*tmp;
+
+        f1 = t1*q_R + t2*q_L - t3*(h_R - h_L);
+        f2 = t1*(q_R*u_R + grav_h_R*h_R*0.5) + t2*(q_L*u_L + grav_h_L*h_L*0.5) - t3*(q_R - q_L);
+        f3 = t1*q_R*v_R + t2*q_L*v_L - t3*(h_R*v_R - h_L*v_L);
+        cfl = std::max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition std::max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+    }
+    hll.v[0] = f1;
+    hll.v[1] = f2;
+    hll.v[2] = f3;
+    hll.v[3] = cfl;
+    return hll;
+}
+
+vec4 TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
+{
+    vec4 hll;
+    double f1, f2, f3, cfl, tmp = 0;
+    if (h_L<=0. && h_R<=0.){
+        f1 = 0.;
+        f2 = 0.;
+        f3 = 0.;
+        cfl = 0.;
+    }else{
+        double grav_h_L = GRAV*h_L;
+        double grav_h_R = GRAV*h_R;
+        double q_R = u_R*h_R;
+        double q_L = u_L*h_L;
+        double c1 = std::min(u_L-sqrt(grav_h_L),u_R-sqrt(grav_h_R));
+        double c2 = std::max(u_L+sqrt(grav_h_L),u_R+sqrt(grav_h_R));
+
+        //cfl is the velocity to calculate the real cfl=std::max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+        if (fabs(c1)<EPSILON && fabs(c2)<EPSILON){              //dry state
+            f1=0.;
+            f2=0.;
+            f3=0.;
+            cfl=0.; //std::max(fabs(c1),fabs(c2))=0
+        }else if (c1>=EPSILON){ //supercritical flow, from left to right : we have std::max(abs(c1),abs(c2))=c2>0
+            f1=q_L;   //flux
+            f2=q_L*u_L+GRAV*h_L*h_L*0.5;  //flux*velocity + 0.5*(wave velocity squared)
+            f3=q_L*v_L; //flux *velocity
+            cfl=c2; //std::max(fabs(c1),fabs(c2))=c2>0
+        }else if (c2<=-EPSILON){ //supercritical flow, from right to left : we have std::max(abs(c1),abs(c2))=-c1>0
+            f1=q_R;
+            f2=q_R*u_R+GRAV*h_R*h_R*0.5;
+            f3=q_R*v_R;
+            cfl=fabs(c1); //std::max(fabs(c1),fabs(c2))=fabs(c1)
+        }else{ //subcritical flow
+            tmp = 1./(c2-c1);
+            f1=(c2*q_L-c1*q_R)*tmp+c1*c2*(h_R-h_L)*tmp;
+            f2=(c2*(q_L*u_L+GRAV*h_L*h_L*0.5)-c1*(q_R*u_R+GRAV*h_R*h_R*0.5))*tmp+c1*c2*(q_R-q_L)*tmp;
+            f3=(c2*(q_L*v_L)-c1*(q_R*v_R))*tmp+c1*c2*(h_R*v_R-h_L*v_L)*tmp;
+            cfl=std::max(fabs(c1),fabs(c2));
+        }
+    }
+    hll.v[0] = f1;
+    hll.v[1] = f2;
+    hll.v[2] = f3;
+    hll.v[3] = cfl;
+    return hll;
+}
+
+vec4 TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
+{
+    vec4 hll;
+    double f1, f2, f3, cfl;
+    double c;
+    if (h_L<=0. && h_R<=0.){
+        c = 0.;
+        f1 = 0.;
+        f2 = 0.;
+        f3 = 0.;
+        cfl = 0.;
+    }else{
+        c = std::max(fabs(u_L)+sqrt(GRAV*h_L),fabs(u_R)+sqrt(GRAV*h_R));
+        double cd = c*0.5;
+        double q_R = u_R*h_R;
+        double q_L = u_L*h_L;
+        f1 = (q_L+q_R)*0.5-cd*(h_R-h_L);
+        f2 = ((u_L*q_L)+(GRAV*0.5*h_L*h_L)+(u_R*q_R)+(GRAV*0.5*h_R*h_R))*0.5-cd*(q_R-q_L);
+        f3 = (q_L*v_L+q_R*v_R)*0.5-cd*(h_R*v_R-h_L*v_L);
+        cfl = c;//*tx;
+    }
+    hll.v[0] = f1;
+    hll.v[1] = f2;
+    hll.v[2] = f3;
+    hll.v[3] = cfl;
+    return hll;
+}
+
+vec4 TWorld::F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
+{
+    vec4 rec;// = {0,0,0,0};
+    if (F_scheme == 1)
+        rec = F_Rusanov( h_L, u_L, v_L, h_R, u_R, v_R);
+    else
+        if (F_scheme == 2)
+            rec = F_HLL(h_L, u_L, v_L, h_R, u_R, v_R);
+        else
+            if (F_scheme == 3)
+                rec = F_HLL2(h_L, u_L, v_L, h_R, u_R, v_R);
+            else
+                if (F_scheme == 4)
+                    rec = F_HLL3(h_L, u_L, v_L, h_R, u_R, v_R);
+    return (rec);
+}
+//---------------------------------------------------------------------------
+void TWorld::correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2) //, double thv, double dv, double dt)
+{
+    double sign1 = ves1->Drc > 0 ? 1.0 : -1.0;
+    double sign2 = ves2->Drc > 0 ? 1.0 : -1.0;
+    double s1 = Grad->Drc, s2 = Grad->Drc;
+    double G = sqrt(2*GRAV*hes->Drc); // bernouilly pressure velocity
+    if (sign1 < 0) {
+        if (c > 0 && !MV(r, c-1))
+            s1 = sin(atan(fabs(hes->Drc-hes->data[r][c-1])));
+    } else {
+        if (c < _nrCols-1 && !MV(r, c+1))
+            s1 = sin(atan(fabs(hes->Drc-hes->data[r][c+1])));
+    }
+    if (sign2 < 0) {
+        if (r > 0 && !MV(r-1, c))
+            s2 = sin(atan(fabs(hes->Drc-hes->data[r-1][c])));
+    } else {
+        if (r < _nrRows-1 && !MV(r+1, c))
+            s2 = sin(atan(fabs(hes->Drc-hes->data[r+1][c])));
+    }
+    double U1 =  4.0*(pow(hes->Drc,2.0/3.0)*sqrt(s1)/N->Drc + G);
+    double V1 =  4.0*(pow(hes->Drc,2.0/3.0)*sqrt(s2)/N->Drc + G);
+
+    ves1->Drc = sign1 * std::min(fabs(ves1->Drc), U1);
+    ves2->Drc = sign2 * std::min(fabs(ves2->Drc), V1);
+    // when V is much larger than kinematic wave V + pressure flow, limit it to that
+
+}
+//---------------------------------------------------------------------------
 
 void TWorld::simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v)
 {
@@ -162,6 +506,7 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
 
 double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
 {
+    vec4 rec;
     double dt_tmp, dtx, dty;
     cTMap *fbw = FlowBarrierW;
     cTMap *fbe = FlowBarrierE;
@@ -180,29 +525,29 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
             if(c > 0 && !MV(r,c-1)) {
                 h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
                 h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
-                F_HLL2(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
-                f1->Drc = HLL2_f1;
-                f2->Drc = HLL2_f2;
-                f3->Drc = HLL2_f3;
-                cflx->Drc = HLL2_cfl;
+                rec = F_Riemann(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
+                f1->Drc =   rec.v[0];
+                f2->Drc =   rec.v[1];
+                f3->Drc =   rec.v[2];
+                cflx->Drc = rec.v[3];
             } else {
                 double _h1g = std::max(0.0, h1l->Drc - FlowBarrierE->Drc);
-                F_HLL2(0,0,0, _h1g, u1l->Drc, v1l->Drc);
-                f1->Drc = HLL2_f1;
-                f2->Drc = HLL2_f2;
-                f3->Drc = HLL2_f3;
-                cflx->Drc = HLL2_cfl;
+                rec = F_Riemann(0,0,0, _h1g, u1l->Drc, v1l->Drc);
+                f1->Drc = rec.v[0];
+                f2->Drc = rec.v[1];
+                f3->Drc = rec.v[2];
+                cflx->Drc = rec.v[3];
             }
 
             // right hand side boundary
             if(c == _nrCols-1 || MV(r, c+1)){
                 double _h1d = std::max(0.0, h1r->Drc - fbw->Drc);
-                F_HLL2(_h1d,u1r->Drc,v1r->Drc,0.,0.,0.);
-                f1o->Drc = HLL2_f1;
-                f2o->Drc = HLL2_f2;
-                f3o->Drc = HLL2_f3;
+                rec = F_Riemann(_h1d,u1r->Drc,v1r->Drc,0.,0.,0.);
+                f1o->Drc = rec.v[0];
+                f2o->Drc = rec.v[1];
+                f3o->Drc = rec.v[2];
             }
-       }
+        }
     }
 
     FOR_ROW_COL_MV {
@@ -217,26 +562,26 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
             if(r > 0 && !MV(r-1,c)) {
                 h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
                 h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
-                F_HLL2(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c], h2g->Drc,v2l->Drc,u2l->Drc);
-                g1->Drc = HLL2_f1;
-                g2->Drc = HLL2_f3;
-                g3->Drc = HLL2_f2;
-                cfly->Drc = HLL2_cfl;
+                rec = F_Riemann(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c], h2g->Drc,v2l->Drc,u2l->Drc);
+                g1->Drc = rec.v[0];
+                g2->Drc = rec.v[1];
+                g3->Drc = rec.v[2];
+                cfly->Drc = rec.v[3];
             } else {
                 double _h2g = std::max(0.0, h2l->Drc - fbn->Drc);
-                F_HLL2(0,0,0,_h2g,v2l->Drc,u2l->Drc);
-                g1->Drc = HLL2_f1;
-                g2->Drc = HLL2_f2;
-                g3->Drc = HLL2_f3;
-                cflx->Drc = HLL2_cfl;
+                rec = F_Riemann(0,0,0,_h2g,v2l->Drc,u2l->Drc);
+                g1->Drc = rec.v[0];
+                g2->Drc = rec.v[1];
+                g3->Drc = rec.v[2];
+                cflx->Drc = rec.v[3];
             }
             // left hand side boundary
             if (r == _nrRows-1 || MV(r+1, c)) {
                 double _h2d = std::max(0.0, h2d->Drc - fbs->Drc);
-                F_HLL2(_h2d,v2l->Drc,u2l->Drc,0.,0.,0.);
-                g1o->Drc = HLL2_f1;
-                g2o->Drc = HLL2_f3;
-                g3o->Drc = HLL2_f2;
+                rec = F_Riemann(_h2d,v2l->Drc,u2l->Drc,0.,0.,0.);
+                g1o->Drc = rec.v[0];
+                g2o->Drc = rec.v[1];
+                g3o->Drc = rec.v[2];
             }
         }
     }
@@ -320,8 +665,6 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
                                   (h2r->Drc-h2d->Drc)*(h2r->Drc+h2d->Drc)
                                   + (h2l->Drc+h2r->Drc)*delzc2->Drc));
 
-            // double sqQ = qSqrt(qes1*qes1+qes2*qes2);
-
             double sqUV = qSqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc);
             double nsq1 = (0.001+N->Drc)*(0.001+N->Drc)*GRAV/qPow(hes->Drc,4.0/3.0);
             double nsq = nsq1*sqUV*dt;
@@ -372,11 +715,11 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
     if (startFlood)
     {
-//        if (SwitchErosion) {
-//            FOR_ROW_COL_MV {
-//                SSFlood->Drc += DETSplash->Drc;
-//                SSCFlood->Drc = MaxConcentration(ChannelAdj->Drc * DX->Drc * h->Drc, &SSFlood->Drc, &DepFlood->Drc);
-//            }
+        //        if (SwitchErosion) {
+        //            FOR_ROW_COL_MV {
+        //                SSFlood->Drc += DETSplash->Drc;
+        //                SSCFlood->Drc = MaxConcentration(ChannelAdj->Drc * DX->Drc * h->Drc, &SSFlood->Drc, &DepFlood->Drc);
+        //            }
 
         sumh = getMass(h);
 
@@ -395,8 +738,8 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             maincalcschemeOF(dt1, h,u,v, hs,us,vs);
 
 
-//            if (SwitchErosion)
-//                SWOFSediment(dt1,h,u,v);
+            //            if (SwitchErosion)
+            //                SWOFSediment(dt1,h,u,v);
 
             setZeroOF(hs, us, vs);
             FOR_ROW_COL_MV {

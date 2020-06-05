@@ -645,7 +645,7 @@ void lisemqt::showChannelVector()
 
         int start = 1;//op.Chanbranch.at(0); // debug gives an assert error here!
 
-        for(int i = 1; i <= op.Chanbranch.length(); i++) {
+        for(int i = 1; i < op.Chanbranch.length(); i++) {
             if(op.Chanbranch.at(i) == op.Chanbranch.at(i-1)) {
                 if (op.Chanbranch.at(i) == start) {
                     X << op.ChanDataX.at(i);

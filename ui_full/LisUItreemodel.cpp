@@ -81,7 +81,7 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
 Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
 {
    if (!index.isValid())
-      return 0;
+      return Qt::NoItemFlags;
 
    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable ;
 
@@ -91,7 +91,7 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
    }
    TreeItem *item = getItem(index);
    if (!item->nodeEnabled)
-    	flags = 0;
+        flags = Qt::NoItemFlags;
 
    return flags;
 
@@ -214,7 +214,7 @@ void TreeModel::setupModelData(const QStringList &lines, TreeItem *parent)
 
       if (!lineData.isEmpty())
       {
-        	QStringList columnStrings = lineData.split(";", QString::KeepEmptyParts);
+            QStringList columnStrings = lineData.split(";", Qt::KeepEmptyParts);
          QList<QVariant> columnData;
 
          position = columnStrings[0].toInt();

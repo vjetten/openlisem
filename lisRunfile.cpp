@@ -245,7 +245,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("KE parameters EQ1")==0)
         {
             QStringList param;
-            param = p.split(";",QString::SkipEmptyParts);
+            param = p.split(";",Qt::SkipEmptyParts);
             if (param[0].toInt() == 1)
                 KEequationType = KE_EXPFUNCTION;
             KEParamater_a1 = param[1].toDouble();
@@ -255,7 +255,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("KE parameters EQ2")==0)
         {
             QStringList param;
-            param = p.split(";",QString::SkipEmptyParts);
+            param = p.split(";",Qt::SkipEmptyParts);
             if (param[0].toInt() == 1)
                 KEequationType = KE_LOGFUNCTION;
             KEParamater_a2 = param[1].toDouble();
@@ -264,7 +264,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("KE parameters EQ3")==0)
         {
             QStringList param;
-            param = p.split(";",QString::SkipEmptyParts);
+            param = p.split(";",Qt::SkipEmptyParts);
             if (param[0].toInt() == 1)
                 KEequationType = KE_POWERFUNCTION;
             KEParamater_a3 = param[1].toDouble();
