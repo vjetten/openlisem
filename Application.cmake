@@ -3,8 +3,7 @@ cmake_minimum_required(VERSION 2.8.11)
 # path to pcraster and qwt build directories on local machine
 # example windows
 IF(WIN32)
- SET(LISEM_QWT_ROOT "c:/QT/qwt-6.1.4")
-# SET(LISEM_QWT_ROOT "c:/qt/msys64/mingw64")
+ SET(LISEM_QWT_ROOT "c:/qt/msys64/mingw64")
  SET(PCRASTER_BUILD_DIR "c:/prgc/lisem_external/3rd_party_root-mwqt513/PCR")
  SET(GDAL_BUILD_DIR "c:/prgc/lisem_external/3rd_party_root-mwqt513/GDAL")
 ENDIF()
@@ -15,7 +14,8 @@ IF(UNIX)
  SET(PCRASTER_BUILD_DIR "~/pcraster-4.2.1")
 ENDIF()
 
-INCLUDE(Lisem)
+INCLUDE(LisemCompiler)
+INCLUDE(LisemExternal)
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}/include

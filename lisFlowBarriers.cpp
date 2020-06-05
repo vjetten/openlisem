@@ -86,7 +86,7 @@ void TWorld::GetFlowBarrierData(QString name)
 
     for(int i = 0; i < BarrierTypes.length(); i++)
     {
-        QStringList list = BarrierTypes.at(i).split(QRegExp("\\s+"),QString::SplitBehavior::SkipEmptyParts );
+        QStringList list = BarrierTypes.at(i).split(QRegExp("\\s+"),Qt::SkipEmptyParts );
 
         for(int j = 0; j < 9; j++ )
         {
