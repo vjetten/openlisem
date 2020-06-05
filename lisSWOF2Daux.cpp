@@ -738,8 +738,11 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             maincalcschemeOF(dt1, h,u,v, hs,us,vs);
 
 
-            //            if (SwitchErosion)
-            //                SWOFSediment(dt1,h,u,v);
+            FOR_ROW_COL_MV_L {
+                FloodDT->Drc = dt1;
+            }
+            if (SwitchErosion)
+                SWOFSediment(0, FloodDT,h,u,v);
 
             setZeroOF(hs, us, vs);
             FOR_ROW_COL_MV_L {

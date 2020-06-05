@@ -11,81 +11,16 @@
 #define GRAV 9.8067
 #define EPSILON 1e-6
 
-vec4 TWorld::F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
-{
-    vec4 hll;
-    double f1, f2, f3, cfl;
-    double c;
-    if (h_L<=0. && h_R<=0.){
-        c = 0.;
-        f1 = 0.;
-        f2 = 0.;
-        f3 = 0.;
-        cfl = 0.;
-    }else{
-        c = std::max(fabs(u_L)+sqrt(GRAV*h_L),fabs(u_R)+sqrt(GRAV*h_R));
-        double cd = c*0.5;
-        double q_R = u_R*h_R;
-        double q_L = u_L*h_L;
-        f1 = (q_L+q_R)*0.5-cd*(h_R-h_L);
-        f2 = ((u_L*q_L)+(GRAV*0.5*h_L*h_L)+(u_R*q_R)+(GRAV*0.5*h_R*h_R))*0.5-cd*(q_R-q_L);
-        f3 = (q_L*v_L+q_R*v_R)*0.5-cd*(h_R*v_R-h_L*v_L);
-        cfl = c;//*tx;
-    }
-    hll.v[0] = f1;
-    hll.v[1] = f2;
-    hll.v[2] = f3;
-    hll.v[3] = cfl;
-    return hll;
-}
-//---------------------------------------------------------------------------
-vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
-{
-    vec4 hll;
-    double f1, f2, f3, cfl, tmp = 0;
-    if (h_L<=0. && h_R<=0.){
-        f1 = 0.;
-        f2 = 0.;
-        f3 = 0.;
-        cfl = 0.;
-    }
-    else
-    {
-        double grav_h_L = GRAV*h_L;
-        double grav_h_R = GRAV*h_R;
-        double sqrt_grav_h_L = sqrt(grav_h_L);  // wave velocity
-        double sqrt_grav_h_R = sqrt(grav_h_R);
-        double q_R = u_R*h_R;
-        double q_L = u_L*h_L;
 
-        double c1 = std::min(u_L - sqrt_grav_h_L,u_R - sqrt_grav_h_R); //we already have u_L - sqrt_grav_h_L<u_L + sqrt_grav_h_L and u_R - sqrt_grav_h_R<u_R + sqrt_grav_h_R
-        double c2 = std::max(u_L + sqrt_grav_h_L,u_R + sqrt_grav_h_R); //so we do not need all the eigenvalues to get c1 and c2
-        tmp = 1./(c2-c1);
-        double t1 = (std::min(c2,0.) - std::min(c1,0.))*tmp;
-        double t2 = 1. - t1;
-        double t3 = (c2*fabs(c1) - c1*fabs(c2))*0.5*tmp;
-
-        f1 = t1*q_R + t2*q_L - t3*(h_R - h_L);
-        f2 = t1*(q_R*u_R + grav_h_R*h_R*0.5) + t2*(q_L*u_L + grav_h_L*h_L*0.5) - t3*(q_R - q_L);
-        f3 = t1*q_R*v_R + t2*q_L*v_L - t3*(h_R*v_R - h_L*v_L);
-        cfl = std::max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition std::max(fabs(c1),fabs(c2))*tx with tx=dt/dx
-    }
-    hll.v[0] = f1;
-    hll.v[1] = f2;
-    hll.v[2] = f3;
-    hll.v[3] = cfl;
-    return hll;
-
-}
-double TWorld::minmod(double a, double b)
-{   double rec = 0.;
-    if (a >= 0 && b >= 0)
-        rec = std::min(a, b);
-    else
-        if (a <= 0 && b <= 0)
-            rec = std::max(a, b);
-    return rec;
-}
+//double TWorld::minmod(double a, double b)
+//{   double rec = 0.;
+//    if (a >= 0 && b >= 0)
+//        rec = std::min(a, b);
+//    else
+//        if (a <= 0 && b <= 0)
+//            rec = std::max(a, b);
+//    return rec;
+//}
 
 // 2nd order without iteration dt1, dt2!
 double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
@@ -133,7 +68,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
                 double dx = ChannelAdj->Drc;
                 double dy = DX->Drc;
-                double vmax = 0.5 * dx/dt;
+                double vmax = 1e6;//0.5 * dx/dt;
 
                 double H = hs->Drc;
                 double n = N->Drc;
@@ -178,15 +113,15 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 double sy_zh_y2 = std::min(B,std::max(-B,(z_y2 + h_y2 - Z - H)/dy));
 
                 // if B = 0.5 this can never be >1?
-                double sx_zh = std::min(1.0,std::max(-1.0,minmod(sx_zh_x1, sx_zh_x2)));
-                double sy_zh = std::min(1.0,std::max(-1.0,minmod(sy_zh_y1, sy_zh_y2)));
+                double sx_zh = std::min(1.0,std::max(-1.0,limiter(sx_zh_x1, sx_zh_x2)));
+                double sy_zh = std::min(1.0,std::max(-1.0,limiter(sy_zh_y1, sy_zh_y2)));
 
-                hll_x1 = F_HLL3(h_x1,vx_x1,vy_x1,H,Vx,Vy);
-                hll_x2 = F_HLL3(H,Vx,Vy,h_x2,vx_x2,vy_x2);
-                hll_y1 = F_HLL3(h_y1,vy_y1,vx_y1,H,Vy,Vx);
-                hll_y2 = F_HLL3(H,Vy,Vx,h_y2,vy_y2,vx_y2);
+                hll_x1 = F_Riemann(h_x1,vx_x1,vy_x1,H,Vx,Vy);
+                hll_x2 = F_Riemann(H,Vx,Vy,h_x2,vx_x2,vy_x2);
+                hll_y1 = F_Riemann(h_y1,vy_y1,vx_y1,H,Vy,Vx);
+                hll_y2 = F_Riemann(H,Vy,Vx,h_y2,vy_y2,vx_y2);
 
-                double C = courant_factor;//0.2;
+                double C = 0.9;//std::max(courant_factor, 0.2);
                 double tx = dt/dx;
                 double ty = dt/dy;
 
@@ -299,7 +234,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     return(_dt/count);
 }
 
-
+/*
 // 2nd order without iteration dt1, dt2!
 double TWorld::fullSWOF2open2(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 {
@@ -560,6 +495,6 @@ double TWorld::fullSWOF2open2(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
     return(_dt/count);
 }
-
+*/
 
 

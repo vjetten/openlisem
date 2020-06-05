@@ -198,7 +198,7 @@ void TWorld::DoModel()
         ThreadPool->StartReportThread(this);
 
         //create a function object referring to the cellprocesses wrapper
-        CellProcesses1D = std::bind((&TWorld::CellProcesses),this,std::placeholders::_1);
+        //CellProcesses1D = std::bind((&TWorld::CellProcesses),this,std::placeholders::_1);
 
         DEBUG("Running...");
 
@@ -229,8 +229,10 @@ void TWorld::DoModel()
             SnowmeltMap();         // get snowmelt
 
             //do 1D cell specific stuff, hydrology and splash detachment, threaded
-            ThreadPool->RunCellCompute(CellProcesses1D);
-            ThreadPool->WaitForAll();
+            //ThreadPool->RunCellCompute(CellProcesses1D);
+            //ThreadPool->WaitForAll();
+
+            CellProcesses(0);
 
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
@@ -331,7 +333,7 @@ void TWorld::OrderedProcesses()
     ChannelWaterHeightFromVolumeNT(); //calc WH from volume with abc rule, and flowwidth
 
     CalcVelDischChannelNT(); // alpha, V and Q from Manning
-
+#pragma omp barrier
     ChannelFlowDetachment();  //detachment, deposition for SS and BL
 
     ChannelFlow();         // channel kin wave for water and sediment

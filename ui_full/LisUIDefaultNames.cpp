@@ -388,6 +388,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0.2");
     namelist[i++].name = QString("Flooding courant factor");
     namelist[i].value = QString("1");
+    namelist[i++].name = QString("Use SWOF 2.0");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Use MUSCL");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Use time avg V");
@@ -397,10 +399,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding SWOF flux limiter");
     namelist[i].value = QString("0.1");
     namelist[i++].name = QString("Timestep flood");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Variable Timestep");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use Heun");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Variable Timestep");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Use Heun");
     namelist[i].value = QString("200");
     namelist[i++].name = QString("Flood Max Iterations");
     namelist[i].value = QString("0");

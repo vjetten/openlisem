@@ -291,7 +291,7 @@ void TWorld::InitStandardInput(void)
         F_MaxIter = getvalueint("Flood max Iterations");
         F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
         F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
-        SwitchHeun = (getvalueint("Use Heun") == 1);
+        SwitchHeun = false;// (getvalueint("Use Heun") == 1);
         F_AddGravity = getvalueint("Use gravity flow");
         F_Angle = getvaluedouble("Angle flow to channel");
         SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);

@@ -74,7 +74,7 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap *DT, cTMap *h, cTMa
                                            cTMap *_BL, cTMap *_BLC, cTMap *_SS, cTMap *_SSC)
 {
 
-    FOR_ROW_COL_UF2DMTDER {
+    FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {
             //M... only used in this function!
@@ -90,13 +90,13 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap *DT, cTMap *h, cTMa
            //USING h HERE and NOT ssdepth bldepth WHY?
 
         }
-    }}}}
+    }
 
     double courant = 0.1*this->courant_factor;
     // flooding courant factor
 
     //first calculate the weights for the cells that are closest to location that flow is advected to
-    FOR_ROW_COL_UF2DMT_DT {
+    FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {
             //no flood velocity means no flood sediment transport, so skip this cell
@@ -205,9 +205,9 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap *DT, cTMap *h, cTMa
                 }
             }
         }
-    }}}}
+    }
 
-    FOR_ROW_COL_UF2DMTDER {
+    FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {
             MBLNFlood->Drc = std::max(0.0,MBLNFlood->Drc);
@@ -225,7 +225,7 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap *DT, cTMap *h, cTMa
 
 
         }
-    }}}}
+    }
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -393,18 +393,18 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)
 
 void TWorld::SWOFSedimentDiffusion(int thread, cTMap *DT, cTMap *h,cTMap *u,cTMap *v, cTMap *_SS, cTMap *_SSC)
 {
-    FOR_ROW_COL_UF2DMTDER {
+    FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {
             MSSNFlood->Drc = _SS->Drc;
             //set concentration from present sediment
             MSSCFlood->Drc = _SSC->Drc;
         }
-    }}}}
+    }
 
 
     //diffusion of Suspended Sediment layer
-    FOR_ROW_COL_UF2DMT_DT {
+    FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {
 
@@ -479,16 +479,16 @@ void TWorld::SWOFSedimentDiffusion(int thread, cTMap *DT, cTMap *h,cTMap *u,cTMa
                 }
             }
         }
-    }}}}
+    }
 
-    FOR_ROW_COL_UF2DMTDER {
+    FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {
             _SS->Drc = std::max(0.0,MSSNFlood->Drc);
             //set concentration from present sediment
             _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, &_SS->Drc, &DepFlood->Drc);
         }
-    }}}}
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1022,7 +1022,7 @@ void TWorld::SWOFSedimentBalance(int thread)
     if(SwitchUseGrainSizeDistribution)
     {
         //first set to zero
-        FOR_ROW_COL_UF2DMT_DT {
+        FOR_ROW_COL_MV_L {
             if(FloodHMaskDer->Drc != 0)
             {
                 BLFlood->Drc = 0;
@@ -1030,10 +1030,10 @@ void TWorld::SWOFSedimentBalance(int thread)
                 SSFlood->Drc = 0;
                 SSCFlood->Drc = 0;
             }
-        }}}}
+        }
 
         //then sum up all induvidual grain size classes
-        FOR_ROW_COL_UF2DMT_DT {
+        FOR_ROW_COL_MV_L {
             if(FloodHMaskDer->Drc != 0)
             {
                 FOR_GRAIN_CLASSES
@@ -1044,7 +1044,7 @@ void TWorld::SWOFSedimentBalance(int thread)
                     SSCFlood->Drc += SSC_D.Drcd;
                 }
             }
-        }}}}
+        }
     }
 }
 //--------------------------------------------------------------------------------------------
@@ -1072,22 +1072,22 @@ void TWorld::SWOFSedimentBalance(int thread)
 void TWorld::SWOFSediment(int thread,cTMap* DT,cTMap * h,cTMap * u,cTMap * v)
 {
     //sediment detachment or deposition
-    FOR_ROW_COL_UF2DMT_DT {
+    FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)// && DT->Drc > 1e-6)
         {
             SWOFSedimentDet(DT,r,c,h,u,v);
         }
-    }}}}
+    }
 
     //check for cells with insignificant water height and calculate concentration
-    FOR_ROW_COL_UF2DMT_DT {
+    FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {
             SWOFSedimentCheckZero(r,c,h);
 
             SWOFSedimentSetConcentration(r,c,h);
         }
-    }}}}
+    }
 
 
     //transport sediment using velocities and water heights from SWOF
@@ -1126,12 +1126,12 @@ void TWorld::SWOFSediment(int thread,cTMap* DT,cTMap * h,cTMap * u,cTMap * v)
     }
 
 
-    FOR_ROW_COL_UF2DMT_DT {
+    FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {
             SWOFSedimentSetConcentration(r,c,h);
         }
-    }}}}
+    }
 
 
 }

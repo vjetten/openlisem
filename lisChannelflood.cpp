@@ -647,7 +647,7 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
  */
 void TWorld::ToFlood()//int thread)
 {
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         if(hmx->Drc > 0.0 && WHrunoff->Drc > 0.0)
         {
             double frac = 1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
@@ -734,8 +734,11 @@ void TWorld::ChannelFlood(void)
         }
     }
 
-    dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
-  //  dtflood = fullSWOF2RO(hmx, Uflood, Vflood, DEM);
+  //  dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
+    if (SwitchSWOFopen)
+        dtflood = fullSWOF2open(hmx, Uflood, Vflood, DEM);
+    else
+        dtflood = fullSWOF2RO(hmx, Uflood, Vflood, DEM);
     // 2D dyn flow of hmx water
 
     //new flood domain
@@ -751,7 +754,7 @@ void TWorld::ChannelFlood(void)
             FloodDomain->Drc = 0;
     }
 
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         Qflood->Drc = 0;
         if (FloodDomain->Drc > 0) {
             V->Drc = qSqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
@@ -761,7 +764,7 @@ void TWorld::ChannelFlood(void)
     Boundary2Ddyn();
     // boundary flow
 
-    FOR_ROW_COL_MV {       
+    FOR_ROW_COL_MV_L {
         hmxWH->Drc = WH->Drc + hmx->Drc;
 
         //InfilVolFlood->Drc += Iflood->Drc;
@@ -786,7 +789,7 @@ void TWorld::ChannelFlood(void)
         //WHrunoff and Qn are adapted in case of 2D routing
         if(!SwitchUseGrainSizeDistribution)
         {
-            FOR_ROW_COL_MV {
+            FOR_ROW_COL_MV_L {
                 if (FloodDomain->Drc  > 0) {
                     double sed = SSFlood->Drc + BLFlood->Drc;
                     Conc->Drc =  MaxConcentration(FloodWaterVol->Drc, &sed, &DepFlood->Drc);

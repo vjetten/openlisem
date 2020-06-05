@@ -166,11 +166,6 @@ void TWorld::CalcVelDisch(int thread)
 	if(SwitchKinematic2D == K2D_METHOD_DYN)
 		return;
 	
-//    if(SwitchKinematic2D != K2D_METHOD_KIN)
-//    {
-//        return K2DCalcVelDisch(thread);  //manning velocity but with K2DSlope and K2DPits
-//    }
-
     FOR_ROW_COL_MV_L
     {
         double Perim, R;
@@ -302,7 +297,10 @@ void TWorld::OverlandFlow2Ddyn(void)
     }
 
  //    dtOF = fullSWOF2Do2light(WHrunoff, Uflood, Vflood, DEM, true);
-   dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
+    if (SwitchSWOFopen)
+        dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
+    else
+        dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
 
     //VJ new average flux over lisem timestep, else last Qn is used
 

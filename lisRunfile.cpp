@@ -181,7 +181,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include channel baseflow")==0)       SwitchChannelBaseflow  = iii == 1;
         if (p1.compare("Include channel culverts")==0)       SwitchCulverts  = iii == 1;
 
-        if (p1.compare("Variable Timestep")==0) SwitchVariableTimestep = iii == 1;
+//        if (p1.compare("Variable Timestep")==0) SwitchVariableTimestep = iii == 1;
+        if (p1.compare("Use SWOF 2.0")==0) SwitchSWOFopen = iii == 1;
         if (p1.compare("Use MUSCL")==0) SwitchMUSCL = iii == 1;
         if (p1.compare("Use time avg V")==0) SwitchTimeavgV = iii == 1;
         if (p1.compare("Flow Boundary 2D")==0)     FlowBoundaryType = iii;

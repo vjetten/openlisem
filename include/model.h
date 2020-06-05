@@ -291,7 +291,7 @@ public:
     SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum, SwitchLitter,
     Switchheaderpest, SwitchPesticide, SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,
-    SwitchTimeavgV, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed,SwitchFlowBarriers, SwitchBuffers,
+    SwitchTimeavgV, SwitchSWOFopen, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed,SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep, SwitchHeun, SwitchNeedD90, SwitchImage, SwitchResultDatetime,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle;
     int SwitchFlood1D2DCoupling;
@@ -508,12 +508,13 @@ public:
     bool prepareFlood, startFlood;
     int iter_n;
 
-    double fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
+//    double fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
-    void fullSWOF2Do2lightWrapperCell1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
-    void fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *hs, cTMap *us, cTMap *vs, double dt1);
-    void fullSWOF2Do2lightWrapperDynamic2(int thread, cTMap *hs, cTMap *us, cTMap *vs, cTMap *hsa, cTMap *usa, cTMap *vsa, double dt1);
-    void fullSWOF2Do2lightWrapperErosion(int thread, cTMap *h, cTMap *u, cTMap *v, double dt1);
+    double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
+//    void fullSWOF2Do2lightWrapperCell1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
+//    void fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *hs, cTMap *us, cTMap *vs, double dt1);
+//    void fullSWOF2Do2lightWrapperDynamic2(int thread, cTMap *hs, cTMap *us, cTMap *vs, cTMap *hsa, cTMap *usa, cTMap *vsa, double dt1);
+//    void fullSWOF2Do2lightWrapperErosion(int thread, cTMap *h, cTMap *u, cTMap *v, double dt1);
 
     void prepareFloodZ(cTMap *z);
     void setFloodMask(cTMap * h);
@@ -521,11 +522,11 @@ public:
     void setFloodDT(cTMap * h);
 
     double limiter(double a, double b);
-    void MUSCL(int thread,cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
-    void simpleScheme(int thread,cTMap *_h, cTMap *_u, cTMap *_v);
-    void maincalcflux(int thread, double dt, double dt_max);
-    void maincalcscheme(int thread,double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
-    void setZero(int thread,cTMap *_h, cTMap *_u, cTMap *_v);
+//    void MUSCL(int thread,cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
+//    void simpleScheme(int thread,cTMap *_h, cTMap *_u, cTMap *_v);
+//    void maincalcflux(int thread, double dt, double dt_max);
+//    void maincalcscheme(int thread,double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
+//    void setZero(int thread,cTMap *_h, cTMap *_u, cTMap *_v);
     vec4 F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
@@ -631,10 +632,6 @@ public:
     void SWOFSedimentCheckZero(int r, int c, cTMap * h);
     void SWOFSedimentSetConcentration(int r, int c, cTMap * h);
     void SWOFSedimentDiffusion(int thread,cTMap* DT, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
-
- //   double SWOFSedimentTCBL(int r,int c, int d, cTMap * h, double UV); //cTMap * u,cTMap * v);
- //   double SWOFSedimentTCSS(int r,int c, int d, cTMap * h, double UV); //cTMap * u,cTMap * v);
-
     void SWOFSedimentFlowInterpolation(int thread,cTMap* dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentDet(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSediment(int thread,cTMap* DT, cTMap * h,cTMap * u,cTMap * v);
@@ -662,8 +659,6 @@ public:
 
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentLayerDepth(int r , int c);
- //   double RiverSedimentTCBL(int r,int c, int d, double V, double WH, double WHb, double w);
- //   double RiverSedimentTCSS(int r,int c, int d, double V, double WH, double WHs, double w);
      void RiverSedimentMaxC(int r, int c);
 
     double calcTCSuspended(int r,int c, int _d, int method, double h, double U, int type);
