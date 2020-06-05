@@ -242,12 +242,12 @@ void TWorld::ChannelWaterHeightFromVolume(int thread)
     if(!SwitchIncludeChannel)
         return;
 
-    FOR_ROW_COL_2DMT
+    FOR_ROW_COL_MV_L
     {
         if(!pcr::isMV(LDDChannel->Drc)) {
            fromChannelVoltoWH(r, c);
         }
-    }}}}
+    }
 }
 //---------------------------------------------------------------------------
 //! calc channelflow, ChannelDepth, kin wave

@@ -191,11 +191,11 @@ void TWorld::DoModel()
         // calc effective ksat from all surfaces once
 
         //start multithreading threadpool
-        ThreadPool = new LisemThreadPool();
-        ThreadPool->InitThreads(this);
-        ThreadPool->SetMaskInitial(DEM);
-        copy(*CoreMask, *ThreadPool->CoreMask);
-        ThreadPool->StartReportThread(this);
+    //    ThreadPool = new LisemThreadPool();
+    //    ThreadPool->InitThreads(this);
+    //    ThreadPool->SetMaskInitial(DEM);
+    //    copy(*CoreMask, *ThreadPool->CoreMask);
+    //    ThreadPool->StartReportThread(this);
 
         //create a function object referring to the cellprocesses wrapper
         //CellProcesses1D = std::bind((&TWorld::CellProcesses),this,std::placeholders::_1);

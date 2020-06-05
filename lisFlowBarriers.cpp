@@ -177,7 +177,7 @@ void TWorld::SetFlowBarriers(int thread)
 {
     if (!SwitchFlowBarriers)
         return;
-    FOR_ROW_COL_2DMT
+    FOR_ROW_COL_MV_L
     {
         if(this->time > FlowBarrierNT->Drc && !(FlowBarrierNT->Drc < 0))
         {
@@ -196,7 +196,7 @@ void TWorld::SetFlowBarriers(int thread)
             FlowBarrierW->Drc = 0;
         }
 
-    }}}}
+    }
 
 
 }

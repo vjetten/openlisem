@@ -83,8 +83,8 @@ class LisemThreadPool;
 #define FOR_ROW_COL_MV for(int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDD->data[r][c]))
-
-#define FOR_ROW_COL_MV_L _Pragma("omp parallel for collapse(2) num_threads(userCores)")\
+//num_threads(userCores)
+#define FOR_ROW_COL_MV_L _Pragma("omp parallel for collapse(2)")\
 for(int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDD->data[r][c]))
@@ -103,7 +103,7 @@ for(int r = 0; r < _nrRows; r++)\
 
 
 //MULTITHREADING FOR_ROW variants
-
+/*
 /// this one is for non-dynamic processes, so simple catchment devided in squares
 #define FOR_ROW_COL_2DMT {bool out = false;\
     for(int rc = 0; rc < _nrRows && !out; rc++)\
@@ -139,7 +139,7 @@ for(int r = 0; r < _nrRows; r++)\
     {int r = (int) (ThreadPool->CellRListOrdered.at(thread)->data[rc][cc]);\
     int c = (int) (ThreadPool->CellCListOrdered.at(thread)->data[rc][cc]);\
     if(!INSIDE(r,c)){out = true; break;}
-
+*/
 /// shortcut to check if r,c is inside map boundaries, used in kinematic and flooding
 #define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
 #define OUTORMV(r, c)  (INSIDE(r,c) && !pcr::isMV(LDD->data[r][c]) ? false : true)
