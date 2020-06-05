@@ -358,10 +358,9 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
     }
 }
 //---------------------------------------------------------------------------
-// 2nd order without iteration dt1, dt2!
 double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
-    double dt1 = 0, dt2, timesum = 0;
+    double dt1 = 0, timesum = 0;
     double dt_max = std::min(_dt, _dx*0.5);
     int n = 0;
     double sumh = 0;
@@ -384,7 +383,6 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         do {
 
             dt1 = dt_max;
-            dt2 = dt_max;
 
             setZeroOF(h, u, v);
             simpleSchemeOF(h,u,v);
@@ -397,7 +395,7 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             maincalcschemeOF(dt1, h,u,v, hs,us,vs);
 
             //            if (SwitchErosion)
-            //                SWOFSediment(dt1,h,u,v );  //TODO why not hs, us, vs
+            //                SWOFSediment(dt1,h,u,v );
 
             setZeroOF(hs, us, vs);
             FOR_ROW_COL_MV {

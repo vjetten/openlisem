@@ -63,8 +63,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
     }
 
     FOR_ROW_COL_MV_CH {
-    //    if(ChannelMaskExtended->data[r][c] == 1)// && !pcr::isMV(LDDChannel->data[r][c]))
-        {
+       // if(ChannelMaskExtended->data[r][c] == 1)// && !pcr::isMV(LDDChannel->data[r][c]))
+       // {
             int rr = r;//(int)ChannelSourceYExtended->Drc;
             int cr = c;//(int)ChannelSourceXExtended->Drc;
 
@@ -93,15 +93,16 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
 
                 // VELOCITIES
                 double VtoChan = std::pow(_h->Drcr, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr; //F_Angle
-                double VfromChan = sqrt(2*9.81*dH); //Bernoulli
                 double fracA = std::min(1.0, _dt*VtoChan/(0.5*_dx));
                 // fraction from _h to channel based on average flood velocity
+
+                double VfromChan = sqrt(2*9.81*dH); //Bernoulli
                 double fracC = std::min(1.0, _dt*VfromChan/(0.5*_dx));
                 // fraction from channel to surrounding based on overflow height and manning
 
                 double cwa = ChannelAdj->Drc > 0 ? ChannelWidthMax->Drcr/ChannelAdj->Drc : 0;
 
-                bool dosimpel = false;//obsolete (SwitchFlood1D2DCoupling == 1);
+                bool dosimpel = false;
 
                 if (dH > _h->Drcr)   // flow from channel
                 {
@@ -116,19 +117,9 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                         ChannelWH->Drcr -= dwh;
 
                         if(SwitchErosion) {
-                            //  double sed = dwh*ChannelSSConc->Drcr;
                             double sed = fracC*ChannelSSSed->Drcr;
                             ChannelSSSed->Drcr -= sed;
                             _SS->Drcr += sed;
-//                            if(SwitchUseGrainSizeDistribution)
-//                            {
-//                                FOR_GRAIN_CLASSES
-//                                {
-//                                    //   SS_D.Drcd += RSSC_D.Drcd * vol;
-//                                    //  RSS_D.Drcd -= RSSC_D.Drcd * vol;
-//                                }
-//                                //CALC TOTALS HERE
-//                            }
                         }
 
                     }
@@ -146,19 +137,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                         ChannelWH->Drcr += (dwh/cwa);
                         if(SwitchErosion) {
                             double sed = fracA*_SS->Drcr;
-                            //double sed = dwh*_SSC->Drcr;
                             ChannelSSSed->Drcr += sed;
                             _SS->Drcr -= sed;
-
-//                            if(SwitchUseGrainSizeDistribution)
-//                            {
-//                                FOR_GRAIN_CLASSES
-//                                {
-//                                    //     SS_D.Drcd += RSSC_D.Drcd * vol;
-//                                    //     RSS_D.Drcd -= RSSC_D.Drcd * vol;
-//                                }
-//                                //CALC TOTALS HERE
-//                            }
                         }
                     }
                 }
@@ -194,15 +174,6 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                             _SS->Drcr = _concavg * volof;
                             _SSC->Drcr = _concavg;
 
-//                            if(SwitchUseGrainSizeDistribution)
-//                            {
-//                                FOR_GRAIN_CLASSES
-//                                {
-//                                    // SS_D.Drcd += RSSC_D.Drcd * vol;
-//                                    // RSS_D.Drcd -= RSSC_D.Drcd * vol;
-//                                }
-//                                //CALC TOTALS HERE
-//                            }
                         }
 
                     }
@@ -215,6 +186,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                 }
 
                 ChannelWaterVol->Drcr = ChannelWH->Drcr * ChannelDX->Drcr * ChannelWidth->Drcr;
+               // WaterVolall->Drcr = _h->Drcr*ChannelAdj->Drcr*DX->Drcr;
                 // do not recalc floodvol, MB errors
 
                 // recalc channel water vol else big MB error
@@ -234,7 +206,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                 }
 
             }
-        }
+       // }
     }
 }
 //---------------------------------------------------------------------------
@@ -746,7 +718,7 @@ void TWorld::ChannelFlood(void)
     if (!SwitchIncludeChannel)
         return;
 
-    ChannelOverflowNew(hmx, V, false);
+    ChannelOverflow(hmx, V, false);
     // determine overflow water => hmx
 
     ToFlood();

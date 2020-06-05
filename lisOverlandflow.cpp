@@ -314,7 +314,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 {
     double dtOF = 0;
 
-    ChannelOverflowNew(WHrunoff, V, false);
+    ChannelOverflow(WHrunoff, V, false);
         // false means flood sediment maps are used
 
     startFlood = false;
@@ -326,9 +326,9 @@ void TWorld::OverlandFlow2Ddyn(void)
     }
 
     //if (SwitchMUSCL)
-        dtOF = fullSWOF2Do2light(WHrunoff, Uflood, Vflood, DEM, true);
+  //       dtOF = fullSWOF2Do2light(WHrunoff, Uflood, Vflood, DEM, true);
 //    else
-//        dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
+       dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
 //
     //VJ new average flux over lisem timestep, else last Qn is used
 
