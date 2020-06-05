@@ -15,7 +15,7 @@
 double TWorld::getMass(cTMap *M)
 {
     double sum2 = 0;
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_MV_L
     {
         if(M->Drc > 0)
             sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
@@ -28,7 +28,7 @@ void TWorld::correctMassBalance(double sum1, cTMap *M)
 {
     double sum2 = 0;
     double n = 0;
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_MV_L
     {
         if(M->Drc > 0)
         {
@@ -41,7 +41,7 @@ void TWorld::correctMassBalance(double sum1, cTMap *M)
 
     //double dh = (n > 0 ? (sum1 - sum2)/n : 0);
     double dhtot = sum2 > 0 ? (sum1 - sum2)/sum2 : 0;
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_MV_L
     {
         if(M->Drc > 0)
         {
@@ -358,7 +358,7 @@ void TWorld::correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cT
 
 void TWorld::simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v)
 {
-    FOR_ROW_COL_MV{
+    FOR_ROW_COL_MV_L{
         h1r->Drc = _h->Drc;
         u1r->Drc = _u->Drc;
         v1r->Drc = _v->Drc;
@@ -377,7 +377,7 @@ void TWorld::simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v)
 
 void TWorld::setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v)
 {
-    FOR_ROW_COL_MV  {
+    FOR_ROW_COL_MV_L  {
         if (_h->Drc <= he_ca)
         {
             _h->Drc = 0;
@@ -398,7 +398,7 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
     double delta_h2, delta_u2, delta_v2;
     double dh, du, dv, dz_h, hlh, hrh, dz1, dz2;
 
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         if (_h->Drc > he_ca) {
             if(c > 0 && !MV(r,c-1) && c < _nrCols-1 && !MV(r,c+1)) {
                 delta_h1 = _h->Drc - _h->data[r][c-1];
@@ -451,7 +451,7 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
         }
     }
 
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         if (_h->Drc > he_ca) {
             if(r > 0 && MV(r-1,c) && r < _nrRows-1 && !MV(r+1, c)) {
                 delta_h1 = _h->Drc - _h->data[r-1][c];
@@ -513,7 +513,7 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
     cTMap *fbn = FlowBarrierN;
     cTMap *fbs = FlowBarrierS;
 
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         if(_h->Drc > he_ca){
             f1->Drc = 0;
             f2->Drc = 0;
@@ -525,14 +525,14 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
             if(c > 0 && !MV(r,c-1)) {
                 h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
                 h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
-                rec = F_Riemann(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
+                rec = F_HLL3(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
                 f1->Drc =   rec.v[0];
                 f2->Drc =   rec.v[1];
                 f3->Drc =   rec.v[2];
                 cflx->Drc = rec.v[3];
             } else {
-                double _h1g = std::max(0.0, h1l->Drc - FlowBarrierE->Drc);
-                rec = F_Riemann(0,0,0, _h1g, u1l->Drc, v1l->Drc);
+                double _h1g = std::max(0.0, h1l->Drc - fbe->Drc);
+                rec = F_HLL3(0,0,0, _h1g, u1l->Drc, v1l->Drc);
                 f1->Drc = rec.v[0];
                 f2->Drc = rec.v[1];
                 f3->Drc = rec.v[2];
@@ -542,7 +542,7 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
             // right hand side boundary
             if(c == _nrCols-1 || MV(r, c+1)){
                 double _h1d = std::max(0.0, h1r->Drc - fbw->Drc);
-                rec = F_Riemann(_h1d,u1r->Drc,v1r->Drc,0.,0.,0.);
+                rec = F_HLL3(_h1d,u1r->Drc,v1r->Drc,0.,0.,0.);
                 f1o->Drc = rec.v[0];
                 f2o->Drc = rec.v[1];
                 f3o->Drc = rec.v[2];
@@ -550,7 +550,7 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
         }
     }
 
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         if(_h->Drc > he_ca){
             g1->Drc = 0;
             g2->Drc = 0;
@@ -562,23 +562,23 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
             if(r > 0 && !MV(r-1,c)) {
                 h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
                 h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
-                rec = F_Riemann(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c], h2g->Drc,v2l->Drc,u2l->Drc);
+                rec = F_HLL3(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c], h2g->Drc,v2l->Drc,u2l->Drc);
                 g1->Drc = rec.v[0];
                 g2->Drc = rec.v[1];
                 g3->Drc = rec.v[2];
                 cfly->Drc = rec.v[3];
             } else {
                 double _h2g = std::max(0.0, h2l->Drc - fbn->Drc);
-                rec = F_Riemann(0,0,0,_h2g,v2l->Drc,u2l->Drc);
+                rec = F_HLL3(0,0,0,_h2g,v2l->Drc,u2l->Drc);
                 g1->Drc = rec.v[0];
                 g2->Drc = rec.v[1];
                 g3->Drc = rec.v[2];
-                cflx->Drc = rec.v[3];
+                cfly->Drc = rec.v[3];
             }
             // left hand side boundary
             if (r == _nrRows-1 || MV(r+1, c)) {
                 double _h2d = std::max(0.0, h2d->Drc - fbs->Drc);
-                rec = F_Riemann(_h2d,v2l->Drc,u2l->Drc,0.,0.,0.);
+                rec = F_HLL3(_h2d,v2l->Drc,u2l->Drc,0.,0.,0.);
                 g1o->Drc = rec.v[0];
                 g2o->Drc = rec.v[1];
                 g3o->Drc = rec.v[2];
@@ -615,7 +615,7 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
 
 void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2)
 {
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         double tx = dt/ChannelAdj->Drc; //FlowWidth->Drc;
         double ty = dt/DX->Drc;
         double _f1=0, _f2=0, _f3=0, _g1=0, _g2=0, _g3=0;
@@ -716,7 +716,7 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     if (startFlood)
     {
         //        if (SwitchErosion) {
-        //            FOR_ROW_COL_MV {
+        //            FOR_ROW_COL_MV_L {
         //                SSFlood->Drc += DETSplash->Drc;
         //                SSCFlood->Drc = MaxConcentration(ChannelAdj->Drc * DX->Drc * h->Drc, &SSFlood->Drc, &DepFlood->Drc);
         //            }
@@ -742,7 +742,7 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             //                SWOFSediment(dt1,h,u,v);
 
             setZeroOF(hs, us, vs);
-            FOR_ROW_COL_MV {
+            FOR_ROW_COL_MV_L {
                 h->Drc = hs->Drc;
                 u->Drc = us->Drc;
                 v->Drc = vs->Drc;

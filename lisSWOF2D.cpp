@@ -239,7 +239,7 @@ void TWorld::maincalcflux(int thread, double dt, double dt_max)
                 f3->Drc =   rec.v[2];
                 cflx->Drc = rec.v[3];
             } else {
-                double _h1g = std::max(0.0, h1l->Drc - FlowBarrierE->Drc);
+                double _h1g = std::max(0.0, h1l->Drc - fbe->Drc);
                 rec = F_Riemann(0,0,0, _h1g, u1l->Drc, v1l->Drc);
                 f1->Drc = rec.v[0];
                 f2->Drc = rec.v[1];

@@ -311,6 +311,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -373,6 +374,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -389,6 +391,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -442,6 +445,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -498,6 +502,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -557,6 +562,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -590,6 +596,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -646,6 +653,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -676,6 +684,7 @@
                   <widget class="QRadioButton" name="checkUnits_kgcell">
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -729,6 +738,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -748,6 +758,7 @@
                   <widget class="QRadioButton" name="checkUnits_kgm2">
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -804,6 +815,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -826,6 +838,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -888,6 +901,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -947,6 +961,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -1003,6 +1018,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -1089,6 +1105,7 @@
                 <widget class="QGroupBox" name="outputMapsFlood">
                  <property name="font">
                   <font>
+                   <pointsize>8</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -1153,6 +1170,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1206,6 +1224,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1222,6 +1241,7 @@
                    <widget class="QLabel" name="label_93">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1241,6 +1261,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1288,6 +1309,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1304,6 +1326,7 @@
                    <widget class="QLineEdit" name="E_stormDrainMap">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1317,6 +1340,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1330,6 +1354,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1377,6 +1402,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1393,6 +1419,7 @@
                    <widget class="QLabel" name="label_79">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1412,6 +1439,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1425,6 +1453,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1472,6 +1501,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1491,6 +1521,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1504,6 +1535,7 @@
                    <widget class="QLabel" name="label_103">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1523,6 +1555,7 @@
                 <widget class="QGroupBox" name="outputMapsWater">
                  <property name="font">
                   <font>
+                   <pointsize>8</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -1587,6 +1620,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1603,6 +1637,7 @@
                    <widget class="QLineEdit" name="E_RainfallMap">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1613,6 +1648,7 @@
                    <widget class="QLabel" name="label_136">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1666,6 +1702,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1719,6 +1756,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1735,6 +1773,7 @@
                    <widget class="QLineEdit" name="E_InterceptionMap">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1745,6 +1784,7 @@
                    <widget class="QLabel" name="label_138">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1761,6 +1801,7 @@
                    <widget class="QLineEdit" name="E_WHmaxMap">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1808,6 +1849,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1824,6 +1866,7 @@
                    <widget class="QLineEdit" name="E_RunoffMap">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1834,6 +1877,7 @@
                    <widget class="QLineEdit" name="E_InfiltrationMap">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1847,6 +1891,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1857,6 +1902,7 @@
                    <widget class="QLineEdit" name="E_FloodmaxVHMap">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1867,6 +1913,7 @@
                    <widget class="QLabel" name="label_74">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1896,6 +1943,7 @@
                 <widget class="QGroupBox" name="outputMapsSediment">
                  <property name="font">
                   <font>
+                   <pointsize>8</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -1966,6 +2014,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -2028,6 +2077,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -2047,6 +2097,7 @@
                    <widget class="QLabel" name="label_180">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -2106,6 +2157,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -2168,6 +2220,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -2187,6 +2240,7 @@
                    <widget class="QLabel" name="label_179">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -2249,6 +2303,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -2302,6 +2357,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -2358,6 +2414,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -2411,6 +2468,7 @@
                     </property>
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -2421,6 +2479,7 @@
                    <widget class="QLineEdit" name="E_ChanDetachmentMap">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -2431,6 +2490,7 @@
                    <widget class="QLineEdit" name="E_ChanDepositionMap">
                     <property name="font">
                      <font>
+                      <pointsize>8</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -2529,6 +2589,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -2585,6 +2646,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>75</weight>
                      <bold>true</bold>
                     </font>
@@ -2654,6 +2716,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -2710,6 +2773,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -2775,6 +2839,7 @@
                      </property>
                      <property name="font">
                       <font>
+                       <pointsize>8</pointsize>
                        <weight>50</weight>
                        <bold>false</bold>
                       </font>
@@ -2831,6 +2896,7 @@
                      </property>
                      <property name="font">
                       <font>
+                       <pointsize>8</pointsize>
                        <weight>50</weight>
                        <bold>false</bold>
                       </font>
@@ -2887,6 +2953,7 @@
                      </property>
                      <property name="font">
                       <font>
+                       <pointsize>8</pointsize>
                        <weight>50</weight>
                        <bold>false</bold>
                       </font>
@@ -2948,6 +3015,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3004,6 +3072,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3060,6 +3129,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3119,6 +3189,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3182,6 +3253,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>75</weight>
                      <bold>true</bold>
                     </font>
@@ -3238,6 +3310,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3291,6 +3364,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3347,6 +3421,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3403,6 +3478,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3466,6 +3542,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3640,6 +3717,8 @@
              <property name="font">
               <font>
                <pointsize>8</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
               </font>
              </property>
              <property name="text">
@@ -3891,6 +3970,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -3944,6 +4024,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -3997,6 +4078,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -4208,6 +4290,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -4324,6 +4407,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -4566,6 +4650,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -4610,6 +4695,7 @@
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -4623,6 +4709,7 @@
                <widget class="QCheckBox" name="checkAddDatetime">
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -5185,7 +5272,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>3</number>
+                  <number>7</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -5214,8 +5301,11 @@
                       <widget class="QGroupBox" name="groupBox5">
                        <property name="font">
                         <font>
+                         <pointsize>8</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
+                         <underline>false</underline>
+                         <kerning>true</kerning>
                         </font>
                        </property>
                        <property name="title">
@@ -5247,8 +5337,11 @@
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="maximum">
@@ -5266,8 +5359,11 @@
                          <widget class="QLabel" name="label_56">
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -5282,8 +5378,11 @@
                       <widget class="QGroupBox" name="groupBox2">
                        <property name="font">
                         <font>
+                         <pointsize>8</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
+                         <underline>false</underline>
+                         <kerning>true</kerning>
                         </font>
                        </property>
                        <property name="title">
@@ -5321,8 +5420,11 @@
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -5356,8 +5458,11 @@
                          <widget class="QCheckBox" name="checkDoErosion">
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -5372,8 +5477,11 @@
                       <widget class="QGroupBox" name="groupBox1">
                        <property name="font">
                         <font>
+                         <pointsize>8</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
+                         <underline>false</underline>
+                         <kerning>true</kerning>
                         </font>
                        </property>
                        <property name="title">
@@ -5402,8 +5510,11 @@
                          <widget class="QCheckBox" name="checkOverlandFlow1D">
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="toolTip">
@@ -5421,8 +5532,11 @@
                          <widget class="QCheckBox" name="checkOverlandFlow2Dkindyn">
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -5434,8 +5548,11 @@
                          <widget class="QCheckBox" name="checkOverlandFlow2Ddyn">
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -5459,8 +5576,11 @@
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="decimals">
@@ -5527,9 +5647,12 @@
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <italic>false</italic>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="toolTip">
@@ -5563,8 +5686,11 @@
                       <widget class="QGroupBox" name="groupBox3">
                        <property name="font">
                         <font>
+                         <pointsize>8</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
+                         <underline>false</underline>
+                         <kerning>true</kerning>
                         </font>
                        </property>
                        <property name="title">
@@ -5639,8 +5765,11 @@
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -5742,8 +5871,11 @@
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -5758,8 +5890,11 @@
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -5814,8 +5949,11 @@
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -5846,8 +5984,11 @@
                       <widget class="QGroupBox" name="groupBox4">
                        <property name="font">
                         <font>
+                         <pointsize>8</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
+                         <underline>false</underline>
+                         <kerning>true</kerning>
                         </font>
                        </property>
                        <property name="title">
@@ -5876,8 +6017,11 @@
                          <widget class="QCheckBox" name="checkStormDrains">
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -5926,8 +6070,11 @@
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -6007,8 +6154,11 @@
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -6066,8 +6216,11 @@
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -6125,8 +6278,11 @@
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -6202,8 +6358,11 @@
                     <widget class="QGroupBox" name="groupInterception">
                      <property name="font">
                       <font>
+                       <pointsize>8</pointsize>
                        <weight>75</weight>
                        <bold>true</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
                       </font>
                      </property>
                      <property name="title">
@@ -6276,8 +6435,11 @@
                         <property name="font">
                          <font>
                           <family>Courier New</family>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -6327,8 +6489,11 @@
                         <property name="font">
                          <font>
                           <family>Courier New</family>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -6378,8 +6543,11 @@
                         <property name="font">
                          <font>
                           <family>Courier New</family>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -6429,8 +6597,11 @@
                         <property name="font">
                          <font>
                           <family>Courier New</family>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -6480,8 +6651,11 @@
                         <property name="font">
                          <font>
                           <family>Courier New</family>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -6534,8 +6708,11 @@
                         <property name="font">
                          <font>
                           <family>Courier New</family>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -6592,8 +6769,11 @@
                         <property name="font">
                          <font>
                           <family>Courier New</family>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -6642,8 +6822,11 @@
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -6693,8 +6876,11 @@
                         <property name="font">
                          <font>
                           <family>Courier New</family>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -6717,8 +6903,11 @@
                        </property>
                        <property name="font">
                         <font>
+                         <pointsize>8</pointsize>
                          <weight>50</weight>
                          <bold>false</bold>
+                         <underline>false</underline>
+                         <kerning>true</kerning>
                         </font>
                        </property>
                        <property name="decimals">
@@ -6822,8 +7011,11 @@
                        </property>
                        <property name="font">
                         <font>
+                         <pointsize>8</pointsize>
                          <weight>50</weight>
                          <bold>false</bold>
+                         <underline>false</underline>
+                         <kerning>true</kerning>
                         </font>
                        </property>
                        <property name="text">
@@ -6968,8 +7160,11 @@ p, li { white-space: pre-wrap; }
                      </property>
                      <property name="font">
                       <font>
+                       <pointsize>8</pointsize>
                        <weight>50</weight>
                        <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
                       </font>
                      </property>
                      <property name="currentIndex">
@@ -7024,8 +7219,11 @@ p, li { white-space: pre-wrap; }
                      </property>
                      <property name="font">
                       <font>
+                       <pointsize>8</pointsize>
                        <weight>75</weight>
                        <bold>true</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
                       </font>
                      </property>
                      <property name="text">
@@ -7067,8 +7265,11 @@ p, li { white-space: pre-wrap; }
                      </property>
                      <property name="font">
                       <font>
+                       <pointsize>8</pointsize>
                        <weight>75</weight>
                        <bold>true</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
                       </font>
                      </property>
                      <property name="title">
@@ -7122,8 +7323,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -7178,8 +7382,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -7234,8 +7441,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -7290,8 +7500,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -7315,8 +7528,11 @@ p, li { white-space: pre-wrap; }
                      </property>
                      <property name="font">
                       <font>
+                       <pointsize>8</pointsize>
                        <weight>75</weight>
                        <bold>true</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
                       </font>
                      </property>
                      <property name="title">
@@ -7345,8 +7561,11 @@ p, li { white-space: pre-wrap; }
                        <widget class="QLineEdit" name="E_SwatreTableDir">
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                        </widget>
@@ -7433,8 +7652,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -7503,8 +7725,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -7522,8 +7747,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                        </widget>
@@ -7596,8 +7824,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -7655,8 +7886,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -7788,8 +8022,11 @@ p, li { white-space: pre-wrap; }
                      </property>
                      <property name="font">
                       <font>
+                       <pointsize>8</pointsize>
                        <weight>75</weight>
                        <bold>true</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
                       </font>
                      </property>
                      <property name="title">
@@ -7861,8 +8098,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -7880,8 +8120,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="maximum">
@@ -7902,8 +8145,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -7958,8 +8204,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -7977,8 +8226,11 @@ p, li { white-space: pre-wrap; }
                        <widget class="QCheckBox" name="checkFloodInitial">
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -7990,8 +8242,11 @@ p, li { white-space: pre-wrap; }
                        <widget class="QCheckBox" name="checkBuffers">
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -8052,8 +8307,11 @@ p, li { white-space: pre-wrap; }
                      </property>
                      <property name="font">
                       <font>
+                       <pointsize>8</pointsize>
                        <weight>75</weight>
                        <bold>true</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
                       </font>
                      </property>
                      <property name="title">
@@ -8140,8 +8398,11 @@ p, li { white-space: pre-wrap; }
                            </property>
                            <property name="font">
                             <font>
+                             <pointsize>8</pointsize>
                              <weight>50</weight>
                              <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
                             </font>
                            </property>
                            <property name="text">
@@ -8193,8 +8454,11 @@ p, li { white-space: pre-wrap; }
                            </property>
                            <property name="font">
                             <font>
+                             <pointsize>8</pointsize>
                              <weight>50</weight>
                              <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
                             </font>
                            </property>
                            <property name="text">
@@ -8246,8 +8510,11 @@ p, li { white-space: pre-wrap; }
                            </property>
                            <property name="font">
                             <font>
+                             <pointsize>8</pointsize>
                              <weight>50</weight>
                              <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
                             </font>
                            </property>
                            <property name="text">
@@ -8268,8 +8535,11 @@ p, li { white-space: pre-wrap; }
                            </property>
                            <property name="font">
                             <font>
+                             <pointsize>8</pointsize>
                              <weight>50</weight>
                              <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
                             </font>
                            </property>
                            <property name="decimals">
@@ -8336,8 +8606,11 @@ p, li { white-space: pre-wrap; }
                            </property>
                            <property name="font">
                             <font>
+                             <pointsize>8</pointsize>
                              <weight>50</weight>
                              <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
                             </font>
                            </property>
                            <property name="text">
@@ -8389,8 +8662,11 @@ p, li { white-space: pre-wrap; }
                            </property>
                            <property name="font">
                             <font>
+                             <pointsize>8</pointsize>
                              <weight>50</weight>
                              <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
                             </font>
                            </property>
                            <property name="text">
@@ -8414,8 +8690,11 @@ p, li { white-space: pre-wrap; }
                            </property>
                            <property name="font">
                             <font>
+                             <pointsize>8</pointsize>
                              <weight>50</weight>
                              <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
                             </font>
                            </property>
                            <property name="toolTip">
@@ -8498,8 +8777,11 @@ p, li { white-space: pre-wrap; }
                       <widget class="QGroupBox" name="groupKineticEnergy">
                        <property name="font">
                         <font>
+                         <pointsize>8</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
+                         <underline>false</underline>
+                         <kerning>true</kerning>
                         </font>
                        </property>
                        <property name="title">
@@ -8564,8 +8846,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -8650,8 +8935,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -8672,8 +8960,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="prefix">
@@ -8767,8 +9058,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -8789,8 +9083,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="decimals">
@@ -8878,8 +9175,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -8900,8 +9200,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="decimals">
@@ -8973,8 +9276,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -9029,8 +9335,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -9054,8 +9363,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="decimals">
@@ -9113,8 +9425,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -9138,8 +9453,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="decimals">
@@ -9208,8 +9526,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -9264,8 +9585,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -9289,8 +9613,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="decimals">
@@ -9348,8 +9675,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -9373,8 +9703,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="decimals">
@@ -9439,8 +9772,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -9520,8 +9856,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -9536,8 +9875,11 @@ p, li { white-space: pre-wrap; }
                            <widget class="QDoubleSpinBox" name="E_SplashDelibery">
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="alignment">
@@ -9599,8 +9941,11 @@ p, li { white-space: pre-wrap; }
                        </property>
                        <property name="font">
                         <font>
+                         <pointsize>8</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
+                         <underline>false</underline>
+                         <kerning>true</kerning>
                         </font>
                        </property>
                        <property name="title">
@@ -9635,8 +9980,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="minimum">
@@ -9660,8 +10008,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -9679,8 +10030,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="minimum">
@@ -9695,8 +10049,11 @@ p, li { white-space: pre-wrap; }
                          <widget class="QCheckBox" name="checkNoSedBoundary">
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -9708,8 +10065,11 @@ p, li { white-space: pre-wrap; }
                          <widget class="QLabel" name="label_118">
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -9724,8 +10084,11 @@ p, li { white-space: pre-wrap; }
                       <widget class="QGroupBox" name="groupBoxConservation">
                        <property name="font">
                         <font>
+                         <pointsize>8</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
+                         <underline>false</underline>
+                         <kerning>true</kerning>
                         </font>
                        </property>
                        <property name="title">
@@ -9762,8 +10125,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -9781,8 +10147,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -9803,8 +10172,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="inputMask">
@@ -9845,8 +10217,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -9907,8 +10282,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -9932,8 +10310,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="inputMask">
@@ -10012,8 +10393,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10071,8 +10455,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10092,8 +10479,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -10154,8 +10544,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="text">
@@ -10182,8 +10575,11 @@ p, li { white-space: pre-wrap; }
                             </property>
                             <property name="font">
                              <font>
+                              <pointsize>8</pointsize>
                               <weight>50</weight>
                               <bold>false</bold>
+                              <underline>false</underline>
+                              <kerning>true</kerning>
                              </font>
                             </property>
                             <property name="inputMask">
@@ -10290,8 +10686,11 @@ p, li { white-space: pre-wrap; }
                        </property>
                        <property name="font">
                         <font>
+                         <pointsize>8</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
+                         <underline>false</underline>
+                         <kerning>true</kerning>
                         </font>
                        </property>
                        <property name="title">
@@ -10329,8 +10728,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10348,8 +10750,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10364,8 +10769,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10389,8 +10797,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="minimum">
@@ -10414,8 +10825,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10430,8 +10844,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10446,8 +10863,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10474,8 +10894,11 @@ p, li { white-space: pre-wrap; }
                        </property>
                        <property name="font">
                         <font>
+                         <pointsize>8</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
+                         <underline>false</underline>
+                         <kerning>true</kerning>
                         </font>
                        </property>
                        <property name="title">
@@ -10519,8 +10942,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="minimum">
@@ -10541,8 +10967,11 @@ p, li { white-space: pre-wrap; }
                          <widget class="QLabel" name="label_101">
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10560,8 +10989,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10582,8 +11014,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="minimum">
@@ -10607,8 +11042,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="alignment">
@@ -10635,8 +11073,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10657,8 +11098,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10685,8 +11129,11 @@ p, li { white-space: pre-wrap; }
                        </property>
                        <property name="font">
                         <font>
+                         <pointsize>8</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
+                         <underline>false</underline>
+                         <kerning>true</kerning>
                         </font>
                        </property>
                        <property name="title">
@@ -10721,8 +11168,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10746,8 +11196,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10768,8 +11221,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10781,8 +11237,11 @@ p, li { white-space: pre-wrap; }
                          <widget class="QLabel" name="label_169">
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>75</weight>
                             <bold>true</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10830,8 +11289,11 @@ p, li { white-space: pre-wrap; }
                              </property>
                              <property name="font">
                               <font>
+                               <pointsize>8</pointsize>
                                <weight>50</weight>
                                <bold>false</bold>
+                               <underline>false</underline>
+                               <kerning>true</kerning>
                               </font>
                              </property>
                              <property name="text">
@@ -10855,8 +11317,11 @@ p, li { white-space: pre-wrap; }
                              </property>
                              <property name="font">
                               <font>
+                               <pointsize>8</pointsize>
                                <weight>50</weight>
                                <bold>false</bold>
+                               <underline>false</underline>
+                               <kerning>true</kerning>
                               </font>
                              </property>
                              <property name="alignment">
@@ -10886,8 +11351,11 @@ p, li { white-space: pre-wrap; }
                              </property>
                              <property name="font">
                               <font>
+                               <pointsize>8</pointsize>
                                <weight>50</weight>
                                <bold>false</bold>
+                               <underline>false</underline>
+                               <kerning>true</kerning>
                               </font>
                              </property>
                              <property name="text">
@@ -10917,8 +11385,11 @@ p, li { white-space: pre-wrap; }
                        </property>
                        <property name="font">
                         <font>
+                         <pointsize>8</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
+                         <underline>false</underline>
+                         <kerning>true</kerning>
                         </font>
                        </property>
                        <property name="title">
@@ -10956,8 +11427,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -10978,8 +11452,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="minimum">
@@ -11000,8 +11477,11 @@ p, li { white-space: pre-wrap; }
                          <widget class="QLabel" name="label_68">
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -11022,8 +11502,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="minimum">
@@ -11050,8 +11533,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="minimum">
@@ -11078,8 +11564,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -11100,8 +11589,11 @@ p, li { white-space: pre-wrap; }
                           </property>
                           <property name="font">
                            <font>
+                            <pointsize>8</pointsize>
                             <weight>50</weight>
                             <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
                            </font>
                           </property>
                           <property name="text">
@@ -11168,8 +11660,11 @@ p, li { white-space: pre-wrap; }
                        <widget class="QDoubleSpinBox" name="E_CalibrateTheta">
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="decimals">
@@ -11193,8 +11688,11 @@ p, li { white-space: pre-wrap; }
                        <widget class="QDoubleSpinBox" name="E_CalibrateChN">
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="minimum">
@@ -11261,6 +11759,8 @@ p, li { white-space: pre-wrap; }
                           <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="toolTip">
@@ -11315,9 +11815,12 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <italic>true</italic>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -11329,8 +11832,11 @@ p, li { white-space: pre-wrap; }
                        <widget class="QDoubleSpinBox" name="E_CalibratePsi">
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="decimals">
@@ -11427,6 +11933,8 @@ p, li { white-space: pre-wrap; }
                           <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="toolTip">
@@ -11490,6 +11998,8 @@ p, li { white-space: pre-wrap; }
                           <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="toolTip">
@@ -11580,6 +12090,8 @@ p, li { white-space: pre-wrap; }
                           <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="toolTip">
@@ -11603,8 +12115,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="minimum">
@@ -11698,6 +12213,8 @@ p, li { white-space: pre-wrap; }
                           <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="toolTip">
@@ -11765,6 +12282,10 @@ p, li { white-space: pre-wrap; }
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="toolTip">
@@ -11796,6 +12317,10 @@ p, li { white-space: pre-wrap; }
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="toolTip">
@@ -11810,8 +12335,11 @@ p, li { white-space: pre-wrap; }
                        <widget class="QDoubleSpinBox" name="E_CalibrateN">
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="minimum">
@@ -11832,8 +12360,11 @@ p, li { white-space: pre-wrap; }
                        <widget class="QDoubleSpinBox" name="E_CalibrateCHCOH">
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="minimum">
@@ -11851,8 +12382,11 @@ p, li { white-space: pre-wrap; }
                        <widget class="QDoubleSpinBox" name="E_CalibrateChKsat">
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="decimals">
@@ -11883,6 +12417,10 @@ p, li { white-space: pre-wrap; }
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="toolTip">
@@ -11907,6 +12445,10 @@ p, li { white-space: pre-wrap; }
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="toolTip">
@@ -11996,8 +12538,11 @@ p, li { white-space: pre-wrap; }
                        <widget class="QLabel" name="label_124">
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>75</weight>
                           <bold>true</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -12068,8 +12613,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="toolTip">
@@ -12136,9 +12684,12 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <italic>false</italic>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -12199,8 +12750,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -12221,8 +12775,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="toolTip">
@@ -12232,7 +12789,7 @@ p, li { white-space: pre-wrap; }
                          <number>1</number>
                         </property>
                         <property name="maximum">
-                         <number>3</number>
+                         <number>4</number>
                         </property>
                         <property name="value">
                          <number>3</number>
@@ -12283,12 +12840,15 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
-                         <string>Riemann solver: 1 - Rusanov; 2 - HLL; 3 - HLL2 (def. 3)</string>
+                         <string>Riemann solver: 1 - Rusanov; 2 - HLL; 3 - HLL2; 4 - HLL2c (def .4)</string>
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -12308,8 +12868,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="minimum">
@@ -12373,8 +12936,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -12427,8 +12993,11 @@ p, li { white-space: pre-wrap; }
                        <widget class="QLabel" name="label_121">
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>75</weight>
                           <bold>true</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -12449,8 +13018,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="decimals">
@@ -12511,8 +13083,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -12536,8 +13111,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="decimals">
@@ -12601,8 +13179,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -12617,8 +13198,11 @@ p, li { white-space: pre-wrap; }
                        <widget class="QLabel" name="label_108">
                         <property name="font">
                          <font>
+                          <pointsize>8</pointsize>
                           <weight>75</weight>
                           <bold>true</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
                          </font>
                         </property>
                         <property name="text">
@@ -12707,8 +13291,11 @@ p, li { white-space: pre-wrap; }
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>75</weight>
                      <bold>true</bold>
+                     <underline>false</underline>
+                     <kerning>true</kerning>
                     </font>
                    </property>
                    <property name="text">
@@ -12742,6 +13329,10 @@ p, li { white-space: pre-wrap; }
                       <property name="font">
                        <font>
                         <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="toolTip">
@@ -12830,9 +13421,12 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>75</weight>
                         <italic>true</italic>
                         <bold>true</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -12881,8 +13475,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -12906,8 +13503,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="minimum">
@@ -12965,8 +13565,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -12987,8 +13590,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="decimals">
@@ -13043,8 +13649,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -13068,8 +13677,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="decimals">
@@ -13111,8 +13723,11 @@ p, li { white-space: pre-wrap; }
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
+                     <underline>false</underline>
+                     <kerning>true</kerning>
                     </font>
                    </property>
                    <property name="frameShape">
@@ -13172,8 +13787,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -13228,8 +13846,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -13287,8 +13908,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="inputMask">
@@ -13349,8 +13973,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -13402,8 +14029,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -13427,8 +14057,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="maximum">
@@ -13486,8 +14119,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -13505,8 +14141,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="maximum">
@@ -13564,8 +14203,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -13583,8 +14225,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="maximum">
@@ -13642,8 +14287,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -13658,8 +14306,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="minimum">
@@ -13750,8 +14401,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -13772,8 +14426,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="decimals">
@@ -13803,8 +14460,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>75</weight>
                         <bold>true</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -13825,8 +14485,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="minimum">
@@ -13847,8 +14510,11 @@ p, li { white-space: pre-wrap; }
                      <widget class="QLabel" name="label_132">
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -13900,8 +14566,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -13916,8 +14585,11 @@ p, li { white-space: pre-wrap; }
                      <widget class="QSpinBox" name="E_FloodMaxSteps">
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="minimum">
@@ -13941,8 +14613,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="maximum">
@@ -14033,8 +14708,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -14089,8 +14767,11 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="font">
                        <font>
+                        <pointsize>8</pointsize>
                         <weight>50</weight>
                         <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
                        </font>
                       </property>
                       <property name="text">
@@ -14157,8 +14838,11 @@ p, li { white-space: pre-wrap; }
                    </property>
                    <property name="font">
                     <font>
+                     <pointsize>8</pointsize>
                      <weight>50</weight>
                      <bold>false</bold>
+                     <underline>false</underline>
+                     <kerning>true</kerning>
                     </font>
                    </property>
                    <property name="text">
@@ -14815,6 +15499,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="font">
               <font>
+               <pointsize>8</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -15362,6 +16047,7 @@ p, li { white-space: pre-wrap; }
                <widget class="QLabel" name="label_35">
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -16140,6 +16826,7 @@ p, li { white-space: pre-wrap; }
                <widget class="QLabel" name="label_64">
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -18604,6 +19291,7 @@ p, li { white-space: pre-wrap; }
             <widget class="QLabel" name="label_109">
              <property name="font">
               <font>
+               <pointsize>8</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -19208,6 +19896,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -19472,6 +20161,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -20011,6 +20701,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -20030,6 +20721,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="font">
                  <font>
+                  <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
@@ -20189,6 +20881,8 @@ p, li { white-space: pre-wrap; }
                  <property name="font">
                   <font>
                    <pointsize>8</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
                   </font>
                  </property>
                  <property name="mouseTracking">
@@ -20258,6 +20952,8 @@ p, li { white-space: pre-wrap; }
              <property name="font">
               <font>
                <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="value">

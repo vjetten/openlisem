@@ -81,7 +81,7 @@ void TWorld::ToChannel()//int thread)
     if (!SwitchIncludeChannel)
         return;
 
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_MV_L
     {
         if(ChannelMaskExtended->data[r][c] == 1)
         {
@@ -301,8 +301,8 @@ void TWorld::OverlandFlow2Ddyn(void)
         }
     }
 
-    dtOF = fullSWOF2Do2light(WHrunoff, Uflood, Vflood, DEM, true);
-//    dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
+ //    dtOF = fullSWOF2Do2light(WHrunoff, Uflood, Vflood, DEM, true);
+   dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
 
     //VJ new average flux over lisem timestep, else last Qn is used
 
@@ -394,7 +394,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 void TWorld::OverlandFlow1D(void)
 {
     // recalculate water vars after subtractions in "to channel"
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_MV_L
     {
         WaterVolin->Drc = DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
         //volume runoff into the kin wave, needed to determine infil in kin wave
@@ -413,7 +413,7 @@ void TWorld::OverlandFlow1D(void)
         fill(*Qs, 0.0);
         fill(*Qsn, 0.0);
         // calc seediment flux going in kin wave as Qs = Q*C
-        FOR_ROW_COL_MV
+        FOR_ROW_COL_MV_L
         {
             Conc->Drc = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &Sed->Drc, &DEP->Drc);
             Qs->Drc =  Q->Drc * Conc->Drc;
@@ -423,7 +423,7 @@ void TWorld::OverlandFlow1D(void)
 
     // route water
     Qn->setAllMV();
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_MV_L
     {
         if (LDD->Drc == 5) // if outflow point, pit
         {
@@ -431,12 +431,10 @@ void TWorld::OverlandFlow1D(void)
             // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
         }
     }
-//    fill(*Qn, 0);
-//    KinematicExplicit(LDD, Q, Qn, q, Alpha,DX, WaterVolin);
 
     //convert calculate Qn back to WH and volume for next loop
     fill(*tma, 0);
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_MV_L
     {
         bool K1Dexplicit = true;
         double WaterVolout = 0;
@@ -511,7 +509,7 @@ void TWorld::OverlandFlow1D(void)
         {
 
             Qsn->setAllMV();
-            FOR_ROW_COL_MV
+            FOR_ROW_COL_MV_L
             {
                 if (LDD->Drc == 5) // if outflow point, pit
                 {
@@ -523,7 +521,7 @@ void TWorld::OverlandFlow1D(void)
             FOR_GRAIN_CLASSES
             {
                 // calc seediment flux going in kin wave as Qs = Q*C
-                FOR_ROW_COL_MV
+                FOR_ROW_COL_MV_L
                 {
                     Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &Sed_D.Drcd, &DEP->Drc);
                     Tempa_D.Drcd =  Q->Drc * Conc_D.Drcd;
@@ -531,7 +529,7 @@ void TWorld::OverlandFlow1D(void)
                     // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
                 }
                 Tempb_D.at(d)->setAllMV();
-                FOR_ROW_COL_MV
+                FOR_ROW_COL_MV_L
                 {
                     if (LDD->Drc == 5) // if outflow point, pit
                     {
@@ -539,7 +537,7 @@ void TWorld::OverlandFlow1D(void)
                     }
                 }
 
-                FOR_ROW_COL_MV
+                FOR_ROW_COL_MV_L
                 {
                     Qsn->Drc += Tempb_D.Drcd;
                     // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
@@ -551,7 +549,7 @@ void TWorld::OverlandFlow1D(void)
             fill(*Sed, 0.0);
             FOR_GRAIN_CLASSES
             {
-                FOR_ROW_COL_MV
+                FOR_ROW_COL_MV_L
                 {
                     Sed->Drc += Sed_D.Drcd;
                 }
@@ -564,14 +562,14 @@ void TWorld::OverlandFlow1D(void)
     if (SwitchPesticide)
     {
         // calc pesticide flux going in kin wave as Qp = Q*C
-        FOR_ROW_COL_MV
+        FOR_ROW_COL_MV_L
         {
             Qp->Drc =  Qn->Drc * C->Drc;
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
         }
 
         fill(*Qpn, 0.0);
-        FOR_ROW_COL_MV
+        FOR_ROW_COL_MV_L
         {
             if (LDD->Drc == 5) // if outflow point, pit
             {
@@ -585,7 +583,7 @@ void TWorld::OverlandFlow1D(void)
 
     if (SwitchErosion)
     {
-        FOR_ROW_COL_MV
+        FOR_ROW_COL_MV_L
         {
 
             Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
@@ -615,7 +613,7 @@ void TWorld::OverlandFlow1D(void)
 
 //        FloodMaxandTiming(WH, V, minReportFloodHeight);
 
-//        FOR_ROW_COL_MV {
+//        FOR_ROW_COL_MV_L {
 //            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
 //            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
 //            //FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
@@ -626,10 +624,10 @@ void TWorld::OverlandFlow1D(void)
 // all points that flow outward of the domain by slope and water pressure
 void TWorld::dynOutflowPoints()
 {
-    FOR_ROW_COL_MV
+    FOR_ROW_COL_MV_L
         K2DOutlets->Drc = 0;
 
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         double Dhx = 0;
         double Dhy = 0;
 
@@ -727,7 +725,7 @@ void TWorld::dynOutflowPoints()
 
     //VJ use flowboundary map, type 1 is open flow, else use the map
     if (FlowBoundaryType != 1) {
-        FOR_ROW_COL_MV {
+        FOR_ROW_COL_MV_L {
             K2DOutlets->Drc *= FlowBoundary->Drc;  //copy 1 is 2
         }
     }
