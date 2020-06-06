@@ -181,7 +181,7 @@ void TWorld::ChannelAddBaseandRainNT(void)
 {
     if (!SwitchIncludeChannel)
         return;
-
+#pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         if(ChannelMaskExtended->data[r][c] == 1)
         {
@@ -241,9 +241,8 @@ void TWorld::ChannelWaterHeightFromVolume(int thread)
 
     if(!SwitchIncludeChannel)
         return;
-
-    FOR_ROW_COL_MV_L
-    {
+#pragma omp parallel for collapse(2)
+    FOR_ROW_COL_MV_L {
         if(!pcr::isMV(LDDChannel->Drc)) {
            fromChannelVoltoWH(r, c);
         }

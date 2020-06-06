@@ -5,11 +5,11 @@
 #include "operation.h"
 #include "global.h"
 
-#define he_ca 1e-6
-#define ve_ca 1e-6
+#define he_ca 1e-10
+#define ve_ca 1e-10
 
 #define GRAV 9.8067
-#define EPSILON 1e-6
+#define EPSILON 1e-10
 
 //double TWorld::minmod(double a, double b)
 //{   double rec = 0.;
@@ -45,12 +45,12 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     if (startFlood)
     {
         sumh = getMass(h);
-
+#pragma omp parallel for collapse(2)
         FOR_ROW_COL_MV_L {
             FloodDT->Drc = dt_max;
             FloodT->Drc = 0;
         }
-
+qDebug() << "hier";
         do {
 
             // make a copy
@@ -58,10 +58,11 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 hs->Drc = h->Drc;
                 vxs->Drc = vx->Drc;
                 vys->Drc = vy->Drc;
+                FloodHMaskDer->Drc = 1;
             }
 
             //flow
-            //#pragma omp parallel for collapse(2)
+            #pragma omp parallel for collapse(2)
             FOR_ROW_COL_MV_L {
                 double dt = TimestepfloodLast;//FloodDT->Drc;//
                 double vxn, vyn;
@@ -127,7 +128,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 hll_y1 = F_Riemann(h_y1,vy_y1,vx_y1,H,Vy,Vx); // r-1 and r
                 hll_y2 = F_Riemann(H,Vy,Vx,h_y2,vy_y2,vx_y2); // r and r+1
 
-                double C = courant_factor;//0.2;
+                double C = std::max(0.5, courant_factor);;
                 double tx = dt/dx;
                 double ty = dt/dy;
 

@@ -647,6 +647,7 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
  */
 void TWorld::ToFlood()//int thread)
 {
+    #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         if(hmx->Drc > 0.0 && WHrunoff->Drc > 0.0)
         {
@@ -682,6 +683,7 @@ void TWorld::ToFlood()//int thread)
     }
 }
 //---------------------------------------------------------------------------
+// DO NOT MAKE PARALLEL
 void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
 {
     // floodwater volume and max flood map
@@ -742,8 +744,7 @@ void TWorld::ChannelFlood(void)
     // 2D dyn flow of hmx water
 
     //new flood domain
-    nrFloodedCells = 0;
-    // used in infil and addRainfall
+    nrFloodedCells = 0;   
     FOR_ROW_COL_MV {
         if (hmx->Drc > 0)
         {
@@ -754,6 +755,7 @@ void TWorld::ChannelFlood(void)
             FloodDomain->Drc = 0;
     }
 
+#pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         Qflood->Drc = 0;
         if (FloodDomain->Drc > 0) {
@@ -761,9 +763,11 @@ void TWorld::ChannelFlood(void)
             Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
         }
     }
+
     Boundary2Ddyn();
     // boundary flow
 
+#pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         hmxWH->Drc = WH->Drc + hmx->Drc;
 
@@ -789,6 +793,7 @@ void TWorld::ChannelFlood(void)
         //WHrunoff and Qn are adapted in case of 2D routing
         if(!SwitchUseGrainSizeDistribution)
         {
+            #pragma omp parallel for collapse(2)
             FOR_ROW_COL_MV_L {
                 if (FloodDomain->Drc  > 0) {
                     double sed = SSFlood->Drc + BLFlood->Drc;

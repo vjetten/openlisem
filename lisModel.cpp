@@ -252,7 +252,7 @@ void TWorld::DoModel()
 
       //      std::function<void(int)> freport = std::bind((&TWorld::Wrapper_ReportAll),this,std::placeholders::_1);
       //      ThreadPool->RunReportFunction(freport);
-
+#pragma omp barrier
             reportAll();
 
             if (!noInterface)
@@ -333,7 +333,7 @@ void TWorld::OrderedProcesses()
     ChannelWaterHeightFromVolumeNT(); //calc WH from volume with abc rule, and flowwidth
 
     CalcVelDischChannelNT(); // alpha, V and Q from Manning
-#pragma omp barrier
+//#pragma omp barrier
     ChannelFlowDetachment();  //detachment, deposition for SS and BL
 
     ChannelFlow();         // channel kin wave for water and sediment

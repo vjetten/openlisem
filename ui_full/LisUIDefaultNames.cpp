@@ -387,10 +387,12 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flood initial level map");
     namelist[i].value = QString("0.2");
     namelist[i++].name = QString("Flooding courant factor");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("Use SWOF 2.0");
+//    namelist[i].value = QString("1");
+//    namelist[i++].name = QString("Use SWOF 2.0");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Use MUSCL");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use MUSCL");
+    namelist[i++].name = QString("Flood solution");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Use time avg V");
     namelist[i].value = QString("3"); //HLL2

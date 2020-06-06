@@ -76,8 +76,8 @@ SET(APP_SOURCES
     include/model.h
     include/TMmapVariables.h
     include/LisUIoutput.h
-    include/lisUnifiedFlowThreadPool
-    include/lisUnifiedFlowThread
+ #   include/lisUnifiedFlowThreadPool
+ #   include/lisUnifiedFlowThread
     include/CsfMap.h
     include/CsfRGBMap.h
     include/array.h

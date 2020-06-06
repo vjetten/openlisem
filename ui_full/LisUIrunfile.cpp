@@ -165,13 +165,21 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flow Boundary 2D")==0)               E_FlowBoundary->setValue(iii);
       //  if (p1.compare("Flow concentration 2D")==0)          E_concentrateFlow->setValue(valc);
         if (p1.compare("Variable Timestep")==0)              checkVariableTimestep->setChecked(check);
-        if (p1.compare("Use SWOF 2.0")==0)                   checkSWOFomp->setChecked(check);
+      //  if (p1.compare("Use SWOF 2.0")==0)                   checkSWOFomp->setChecked(check);
       //  if (p1.compare("Use Heun")==0)                       checkHeun->setChecked(check);
-        if (p1.compare("Use MUSCL")==0)                      checkMuscl->setChecked(check);
+      //  if (p1.compare("Use MUSCL")==0)                      checkMuscl->setChecked(check);
         if (p1.compare("Use fixed angle")==0)                checkFixedAngle->setChecked(check);
         if (p1.compare("Use time avg V")==0)                 checkTimeavgV->setChecked(check);
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(valc);
      //   if (p1.compare("Flooding courant factor diffusive")==0)        E_courantFactorSed->setValue(valc);
+        if (p1.compare("Flood solution")==0)
+        {
+            switch (iii) {
+            case 0 : rb_swof2->setChecked(true); break;
+            case 1 : rb_swofnomuscl->setChecked(true); break;
+            case 2 : rb_swofmuscl->setChecked(true); break;
+            }
+        }
 
         if (p1.compare("Flooding BL method")==0)             E_BLMethod->setValue(iii);
         if (p1.compare("Flooding SS method")==0)             E_SSMethod->setValue(iii);
@@ -254,7 +262,7 @@ void lisemqt::ParseInputData()
             case 7 : radioButton_8->setChecked(true); break;
             case 8 : radioButton_9->setChecked(true); break;
             }
-        }
+        }       
 
         if (p1.compare("Infil Method")==0 || p1.compare("Method")==0) //<= very old runfile
         {
@@ -710,12 +718,20 @@ void lisemqt::updateModelData()
 
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
         if (p1.compare("Timestep flood")==0)           namelist[j].value = E_TimestepMinFlood->text();
-        if (p1.compare("Use SWOF 2.0")==0)   namelist[j].value.setNum((int) checkSWOFomp->isChecked());
-        if (p1.compare("Use MUSCL")==0)   namelist[j].value.setNum((int) checkMuscl->isChecked());
+      //  if (p1.compare("Use SWOF 2.0")==0)   namelist[j].value.setNum((int) checkSWOFomp->isChecked());
+      // if (p1.compare("Use MUSCL")==0)   namelist[j].value.setNum((int) checkMuscl->isChecked());
         if (p1.compare("Use time avg V")==0)    namelist[j].value.setNum((int) checkTimeavgV->isChecked());
         if (p1.compare("Use fixed angle")==0)                namelist[j].value.setNum((int) checkFixedAngle->isChecked());
   //      if (p1.compare("Use Heun")==0)        namelist[j].value.setNum((int) checkHeun->isChecked());
 //        if (p1.compare("Variable Timestep")==0)        namelist[j].value.setNum((int) checkVariableTimestep->isChecked());
+        if (p1.compare("Flood solution")==0)
+        {
+            int i = 0;
+            if(rb_swof2->isChecked()) i = 0;
+            if(rb_swofnomuscl->isChecked()) i = 1;
+            if(rb_swofmuscl->isChecked()) i = 2;
+            namelist[j].value.setNum(i);
+        }
 
         if (p1.compare("Advanced sediment")==0)        namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
 

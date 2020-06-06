@@ -109,7 +109,7 @@ void TWorld::SplashDetachment(int thread)
     if (!SwitchErosion)
         return;
 
-
+#pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L
             if(WH->Drc > 0.0001)
     {
@@ -1052,6 +1052,7 @@ void TWorld::FlowDetachment(int thread)
         return;
 
     //transport capacity
+    #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L  {
         DETFlow->Drc = 0;
         DEP->Drc = 0;
@@ -1098,6 +1099,7 @@ void TWorld::FlowDetachment(int thread)
     //for each grain class, calculate flow detachment seperately
     for(int d  = 0 ; d < iterator;d++)
     {
+        #pragma omp parallel for collapse(2)
         FOR_ROW_COL_MV_L
         {
             double erosionwh = WHrunoff->Drc;

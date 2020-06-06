@@ -83,8 +83,8 @@ class LisemThreadPool;
 #define FOR_ROW_COL_MV for(int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDD->data[r][c]))
-//num_threads(userCores)
-#define FOR_ROW_COL_MV_L _Pragma("omp parallel for collapse(2)")\
+//_Pragma("omp parallel for collapse(2)") num_threads(userCores)
+#define FOR_ROW_COL_MV_L \
 for(int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDD->data[r][c]))
@@ -507,6 +507,7 @@ public:
     double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl, HLL_tmp;
     bool prepareFlood, startFlood;
     int iter_n;
+    int F_SWOFSolution;
 
 //    double fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);

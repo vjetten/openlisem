@@ -165,7 +165,7 @@ void TWorld::CalcVelDisch(int thread)
 {
 	if(SwitchKinematic2D == K2D_METHOD_DYN)
 		return;
-	
+    #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L
     {
         double Perim, R;
@@ -199,6 +199,7 @@ void TWorld::CalcVelDisch(int thread)
 }
 
 //---------------------------------------------------------------------------
+// DO NOT MAKE PARALLEL
 void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
 {
     cTMap *h = WHrunoff;
@@ -223,7 +224,7 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
         //direction of velocity is in the direction of + and -
         // U is EW and V is NS
         // find which outlets on the boundary are directed to the outside based on sign U and V
-        FOR_ROW_COL_MV_L {
+        FOR_ROW_COL_MV {
             if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 0.0)
             {
                 if (c > 0 && MV(r,c-1))
@@ -242,7 +243,7 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
         }
     }
 
-    FOR_ROW_COL_MV_L {
+    FOR_ROW_COL_MV {
         if(LDD->Drc == 5)
             tma->Drc = 1;
     }
@@ -253,7 +254,7 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
     }
 
 
-    FOR_ROW_COL_MV_L {
+    FOR_ROW_COL_MV {
         if (tma->Drc == 1) {
             double dy = ChannelAdj->Drc;
             double UV = qSqrt(_U->Drc * _U->Drc + _V->Drc*_V->Drc);
@@ -305,7 +306,7 @@ void TWorld::OverlandFlow2Ddyn(void)
     //VJ new average flux over lisem timestep, else last Qn is used
 
     //  infilInWave(WHrunoff, _dt);
-
+#pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L
     {
         V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
@@ -315,7 +316,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 
 
     Boundary2Ddyn();//WHrunoff, Qn, Uflood, Vflood);  // do the domain boundaries
-
+#pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L
     {
         Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
@@ -352,6 +353,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         //WHrunoff and Qn are adapted in case of 2D routing
         if(!SwitchUseGrainSizeDistribution)
         {
+            #pragma omp parallel for collapse(2)
             FOR_ROW_COL_MV_L
             {
                 double sed = (SSFlood->Drc + BLFlood->Drc);

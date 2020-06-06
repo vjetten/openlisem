@@ -1621,7 +1621,7 @@ void lisemqt::resetTabFlow()
     checkVariableTimestep->setChecked(false);
     checkHeun->setChecked(false);
     checkMuscl->setChecked(false);
-    checkSWOFomp->setChecked(true);
+    //checkSWOFomp->setChecked(true);
     checkTimeavgV->setChecked(true);
 
     E_floodMinHeight->setValue(0.05);
@@ -1839,7 +1839,7 @@ void lisemqt::resetAll()
 
     checkVariableTimestep->setChecked(false);
     checkHeun->setChecked(false);
-    checkSWOFomp->setChecked(true);
+    //checkSWOFomp->setChecked(true);
     checkMuscl->setChecked(true);
     checkTimeavgV->setChecked(true);
     E_courantFactor->setValue(0.2);

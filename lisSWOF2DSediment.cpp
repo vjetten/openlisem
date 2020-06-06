@@ -73,7 +73,7 @@ functions: \n
 void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap *DT, cTMap *h, cTMap *u,cTMap *v,
                                            cTMap *_BL, cTMap *_BLC, cTMap *_SS, cTMap *_SSC)
 {
-
+#pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {
@@ -96,6 +96,7 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap *DT, cTMap *h, cTMa
     // flooding courant factor
 
     //first calculate the weights for the cells that are closest to location that flow is advected to
+    #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {
@@ -206,7 +207,7 @@ void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap *DT, cTMap *h, cTMa
             }
         }
     }
-
+#pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {
@@ -393,6 +394,7 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)
 
 void TWorld::SWOFSedimentDiffusion(int thread, cTMap *DT, cTMap *h,cTMap *u,cTMap *v, cTMap *_SS, cTMap *_SSC)
 {
+  #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {
@@ -404,6 +406,7 @@ void TWorld::SWOFSedimentDiffusion(int thread, cTMap *DT, cTMap *h,cTMap *u,cTMa
 
 
     //diffusion of Suspended Sediment layer
+    #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {
@@ -480,7 +483,7 @@ void TWorld::SWOFSedimentDiffusion(int thread, cTMap *DT, cTMap *h,cTMap *u,cTMa
             }
         }
     }
-
+#pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {
@@ -1022,6 +1025,7 @@ void TWorld::SWOFSedimentBalance(int thread)
     if(SwitchUseGrainSizeDistribution)
     {
         //first set to zero
+        #pragma omp parallel for collapse(2)
         FOR_ROW_COL_MV_L {
             if(FloodHMaskDer->Drc != 0)
             {
@@ -1033,6 +1037,7 @@ void TWorld::SWOFSedimentBalance(int thread)
         }
 
         //then sum up all induvidual grain size classes
+        #pragma omp parallel for collapse(2)
         FOR_ROW_COL_MV_L {
             if(FloodHMaskDer->Drc != 0)
             {
@@ -1072,6 +1077,7 @@ void TWorld::SWOFSedimentBalance(int thread)
 void TWorld::SWOFSediment(int thread,cTMap* DT,cTMap * h,cTMap * u,cTMap * v)
 {
     //sediment detachment or deposition
+    #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)// && DT->Drc > 1e-6)
         {
@@ -1080,6 +1086,7 @@ void TWorld::SWOFSediment(int thread,cTMap* DT,cTMap * h,cTMap * u,cTMap * v)
     }
 
     //check for cells with insignificant water height and calculate concentration
+    #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {
@@ -1125,7 +1132,7 @@ void TWorld::SWOFSediment(int thread,cTMap* DT,cTMap * h,cTMap * u,cTMap * v)
         SWOFSedimentBalance(thread);
     }
 
-
+#pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         if(FloodHMaskDer->Drc != 0)
         {

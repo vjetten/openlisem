@@ -291,20 +291,26 @@ void TWorld::InitStandardInput(void)
         F_MaxIter = getvalueint("Flood max Iterations");
         F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
         F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
-        SwitchHeun = false;// (getvalueint("Use Heun") == 1);
+       // SwitchHeun = false;// (getvalueint("Use Heun") == 1);
         F_AddGravity = getvalueint("Use gravity flow");
         F_Angle = getvaluedouble("Angle flow to channel");
         SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);
+        F_SWOFSolution = getvalueint("Flood Solution");
+        SwitchMUSCL = F_SWOFSolution == 2;
+        SwitchSWOFopen = F_SWOFSolution == 0;
     } else {
         mixing_coefficient = 2.0;
         runoff_partitioning = 1.0;
         F_MaxIter = 200;
         F_fluxLimiter = 1; //minmax, vanleer, albeda
-        F_scheme = 3;   //HLL HLL2 Rusanov
-        SwitchHeun = false;
+        F_scheme = 4;   //Rusanov HLL HLL2 HLL2c
+      //  SwitchHeun = false;
         SwitchFixedAngle = false;
-        F_AddGravity = 0;
+        F_AddGravity = 1;
         F_Angle = 0.02;
+        F_SWOFSolution = 0;
+        SwitchMUSCL = false;
+        F_SWOFSolution = true;
     }
 
     SwitchKinematic2D = getvalueint("Routing Kin Wave 2D");
