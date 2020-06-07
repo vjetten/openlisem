@@ -1697,7 +1697,6 @@ void lisemqt::resetAll()
    // MPlot = nullptr;
 
     nrUserCores->setValue(0);
-    cpucores = nrUserCores->value();
     doShootScreens = false;
     startShootScreens = true;
 

@@ -247,12 +247,11 @@ void TWorld::InitStandardInput(void)
     tmd = NewMap(0); // temp map for aux calculations
 
     userCores = getvalueint("Nr user Cores");
-    qDebug() << SwitchUserCores << "using:" << userCores << "cores";
     int cores = omp_get_max_threads();
     if (userCores == 0 || userCores > cores)
         userCores = cores;
 
-    qDebug() << SwitchUserCores << "using:" << userCores << "cores";
+    qDebug() << "using:" << userCores << "cores";
 
 	gsizeCalibration = getvaluedouble("Grain Size calibration");
     ksatCalibration = getvaluedouble("Ksat calibration");

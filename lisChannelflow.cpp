@@ -68,17 +68,19 @@ double TWorld::channelVoltoWH(double vol, int r, int c)
 
 void TWorld::fromChannelVoltoWH(int r, int c)
 {
-//    non-rectangular, ABC fornula
-//            dw      w       dw
-//         __|   |            |   |__ surface, above water becomes rectangular
-//            \  |            |  /
-//             \ |          h |a/  <= tan(a) is channelside = tan angle of side wall
-//              \|____________|/
-//            area = h*w + h*dw
-//            tan(a) = dw/h, dw = h*tan(a) = h*side
-//            area =volume/DX
-//            tan(a)h^2 + w*h - area = 0
-//            aa (h2)   +   bb(h) +  cc = 0
+
+    //    non-rectangular, ABC fornula
+    //            dw      w       dw
+    //         __|   |            |   |__ surface, above water becomes rectangular
+    //            \  |            |  /
+    //             \ |          h |a/  <= tan(a) is channelside = tan angle of side wall
+    //              \|____________|/
+    //            area = h*w + h*dw
+    //            tan(a) = dw/h, dw = h*tan(a) = h*side
+    //            area =volume/DX
+    //            tan(a)h^2 + w*h - area = 0
+    //            aa (h2)   +   bb(h) +  cc = 0
+
     if (ChannelWaterVol->Drc == 0) {
         ChannelWH->Drc = 0;
         ChannelFlowWidth->Drc = 0;
@@ -140,7 +142,7 @@ void TWorld::CalcVelDischChannelNT()
     \ |         wh | /
      \|____________|/
   */
-
+#pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_CH  {
         double Perim, Radius, Area;
         const double beta = 0.6;
@@ -181,6 +183,7 @@ void TWorld::ChannelAddBaseandRainNT(void)
 {
     if (!SwitchIncludeChannel)
         return;
+
 #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         if(ChannelMaskExtended->data[r][c] == 1)
@@ -196,8 +199,8 @@ void TWorld::ChannelAddBaseandRainNT(void)
             if (SwitchChannelInfil) {
                 double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
                 inf = std::min(ChannelWaterVol->Drc, inf);
-               ChannelWaterVol->Drc -= inf;
-               ChannelInfilVol->Drc += inf;
+                ChannelWaterVol->Drc -= inf;
+                ChannelInfilVol->Drc += inf;
             }
 
             //add baseflow
@@ -230,6 +233,7 @@ void TWorld::ChannelWaterHeightFromVolumeNT(void)
         return;
 
     //TODO: extended channel!
+#pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_CH {
         fromChannelVoltoWH(r, c);
     }
@@ -241,10 +245,11 @@ void TWorld::ChannelWaterHeightFromVolume(int thread)
 
     if(!SwitchIncludeChannel)
         return;
+
 #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         if(!pcr::isMV(LDDChannel->Drc)) {
-           fromChannelVoltoWH(r, c);
+            fromChannelVoltoWH(r, c);
         }
     }
 }
@@ -257,24 +262,20 @@ void TWorld::ChannelFlow(void)
         return;
 
     // initialize some channel stuff
+#pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_CH
     {
         ChannelQsn->Drc = 0;
         Channelq->Drc = 0;
-//        if (SwitchChannelInfil)
-//        {
-//            Channelq->Drc =  -(ChannelKsat->Drc *  ChannelPerimeter->Drc/3600000.0);
-//            //mm/h / 1000 = m/h / 3600 = m/s * m = m2/s
-//        }
     }
 
-    //VJ calc concentrations and ingoing Qs
+    //concentrations and ingoing Qs
     if (SwitchErosion)
     {
         if(!SwitchUseGrainSizeDistribution)
         {
-            FOR_ROW_COL_MV_CH
-            {
+#pragma omp parallel for collapse(2)
+            FOR_ROW_COL_MV_CH {
                 double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
                 double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
                 //temp conc because we move everything with channelQ
@@ -290,8 +291,7 @@ void TWorld::ChannelFlow(void)
             double concss = 0;
             FOR_GRAIN_CLASSES
             {
-                FOR_ROW_COL_MV_CH
-                 {
+                FOR_ROW_COL_MV_CH {
                     RBLC_D.Drcd = MaxConcentration(ChannelWaterVol->Drc, &RBL_D.Drcd, &ChannelDep->Drc);
                     RSSC_D.Drcd = MaxConcentration(ChannelWaterVol->Drc, &RSS_D.Drcd, &ChannelDep->Drc);
                     concbl += RBLC_D.Drcd;
@@ -301,12 +301,11 @@ void TWorld::ChannelFlow(void)
 
                     Tempa_D.Drcd = ChannelQ->Drc * RBLC_D.Drcd;
                     Tempc_D.Drcd = ChannelQ->Drc * RSSC_D.Drcd;
-                 }
+                }
                 fill(*Tempb_D.at(d), 0.0);
                 fill(*Tempd_D.at(d), 0.0);
             }
-            FOR_ROW_COL_MV_CH
-            {
+            FOR_ROW_COL_MV_CH {
                 //ChannelQs->Drc =  ChannelQ->Drc * ChannelConc->Drc;
                 ChannelQBLs->Drc = ChannelQ->Drc * concbl;
                 ChannelQSSs->Drc = ChannelQ->Drc * concss;
@@ -329,19 +328,19 @@ void TWorld::ChannelFlow(void)
     fill(*QinKW, 0.0);
 
     // route water 1D and sediment
-    FOR_ROW_COL_MV_CH
-    {
+    FOR_ROW_COL_MV_CH {
         if (LDDChannel->Drc == 5)
             Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
     }
+
     cover(*ChannelQn, *LDD, 0);
 
-    FOR_ROW_COL_MV_CH
-    {
+#pragma omp parallel for collapse(2)
+    FOR_ROW_COL_MV_CH {
         ChannelWaterVol->Drc = ChannelWaterVol->Drc + QinKW->Drc*_dt - ChannelQn->Drc*_dt ;
 
         double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
-      //          double ChannelArea =ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
+        //          double ChannelArea =ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
         ChannelV->Drc = (ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0);
 
         fromChannelVoltoWH(r, c);
@@ -357,12 +356,14 @@ void TWorld::ChannelFlow(void)
 
     if (SwitchErosion)
     {
+#pragma omp parallel for collapse(2)
         FOR_ROW_COL_MV_CH
         {
             RiverSedimentLayerDepth(r,c);
             RiverSedimentMaxC(r,c);
         }
         // route water 1D and sediment
+
         FOR_ROW_COL_MV_CH
         {
             if (LDDChannel->Drc == 5)
@@ -392,12 +393,21 @@ void TWorld::ChannelFlow(void)
 
         cover(*ChannelQBLsn, *LDD, 0);
         cover(*ChannelQSSsn, *LDD, 0);
+
+#pragma omp parallel for collapse(2)
         FOR_ROW_COL_MV_CH
         {
-           ChannelSSConc->Drc = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
+            ChannelSSConc->Drc = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
         }
+
         if (SwitchIncludeRiverDiffusion) {
-            if(SwitchUseGrainSizeDistribution)
+
+            if(!SwitchUseGrainSizeDistribution)
+            {
+                RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
+                // note SSsed goes in and out, SSconc is recalculated inside
+            }
+            else
             {
                 FOR_GRAIN_CLASSES
                 {
@@ -433,24 +443,17 @@ void TWorld::ChannelFlow(void)
                     }
                 }
             }
-            else
-            {
-                RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
-                // note SSsed goes in and out, SSconc is recalculated inside
-
-            }
         }
 
         if(!SwitchUseGrainSizeDistribution)
         {
+#pragma omp parallel for collapse(2)
             FOR_ROW_COL_MV_CH
             {
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r,c);
-          //       ChannelQsn->Drc = ChannelConc->Drc * ChannelQn->Drc;
                 ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
                 ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
-
             }
         }
         else
@@ -472,7 +475,7 @@ void TWorld::ChannelFlow(void)
             FOR_GRAIN_CLASSES
             {
                 FOR_ROW_COL_MV_CH
-                 {
+                {
                     ChannelQBLsn->Drc += Tempb_D.Drcd ;
                     ChannelQSSsn->Drc += Tempd_D.Drcd;
                     ChannelQsn->Drc += Tempb_D.Drcd + Tempd_D.Drcd;
@@ -484,7 +487,7 @@ void TWorld::ChannelFlow(void)
                     ChannelConc->Drc += RBLC_D.Drcd + RSSC_D.Drcd;
                     ChannelBLConc->Drc += RBLC_D.Drcd;
                     ChannelSSConc->Drc += RSSC_D.Drcd;
-                 }
+                }
             }
         }
     }

@@ -77,7 +77,7 @@
 #define FOR_ROW_COL_MV for(int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDD->data[r][c]))
-//_Pragma("omp parallel for collapse(2)") num_threads(userCores)
+
 #define FOR_ROW_COL_MV_L \
 for(int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
@@ -94,9 +94,6 @@ for(int r = 0; r < _nrRows; r++)\
 #define FOR_ROW_COL_MV_TILE for (int  r = 0; r < _nrRows; r++)\
     for (int  c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDDTile->data[r][c]))
-
-
-//MULTITHREADING FOR_ROW variants
 
 /// shortcut to check if r,c is inside map boundaries, used in kinematic and flooding
 #define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
