@@ -67,28 +67,30 @@ void TWorld::reportAll(void)
 
 //---------------------------------------------------------------------------
 /** a helper function that calls all the report stuff within the thread*/
-void TWorld::Wrapper_ReportAll(int not_used)
-{
-    mapFormat = op.format;
+//void TWorld::Wrapper_ReportAll(int not_used)
+//{
+//    mapFormat = op.format;
 
-    ReportTimeseriesNew();
-    // report hydrographs ande sedigraphs at all points in outpoint.map
+//    ReportTimeseriesNew();
+//    // report hydrographs ande sedigraphs at all points in outpoint.map
 
-    ReportTotalsNew();
-    // report totals to a text file
+//    ReportTotalsNew();
+//    // report totals to a text file
 
-    ReportMaps();
-    // report all maps and mapseries
+//    ReportMaps();
+//    // report all maps and mapseries
 
-    ReportLandunits();
-    // reportc stats per landunit class
+//    ReportLandunits();
+//    // reportc stats per landunit class
 
-    ChannelFloodStatistics();
-    // report buildings submerged in flood level classes in 5cm intervals
-}
+//    ChannelFloodStatistics();
+//    // report buildings submerged in flood level classes in 5cm intervals
+//}
 
 //---------------------------------------------------------------------------
 /** put the report data in threadsafe data structure */
+
+/*
 void TWorld::Wrapper_StoreAll(int not_used)
 {
     TSList_point.clear();
@@ -176,7 +178,7 @@ void TWorld::Wrapper_StoreAll(int not_used)
     }
 
 }
-
+*/
 
 //---------------------------------------------------------------------------
 /** fill output structure 'op' with results to talk to the interface:

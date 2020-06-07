@@ -47,11 +47,6 @@
 #include "swatre_p.h"
 #include "swatre_g.h"
 
-#include "lisUnifiedFlowThread.h"
-#include "lisUnifiedFlowThreadPool.h"
-
-class LisemThreadPool;
-
 //#define OLDSWATRE 1
 
 //---------------------------------------------------------------------------
@@ -103,43 +98,7 @@ for(int r = 0; r < _nrRows; r++)\
 
 
 //MULTITHREADING FOR_ROW variants
-/*
-/// this one is for non-dynamic processes, so simple catchment devided in squares
-#define FOR_ROW_COL_2DMT {bool out = false;\
-    for(int rc = 0; rc < _nrRows && !out; rc++)\
-    {for (int cc = 0; cc < _nrCols; cc++)\
-    {int r = (int) (ThreadPool->CellRDerListOrdered.at(thread)->data[rc][cc]);\
-    int c = (int) (ThreadPool->CellCDerListOrdered.at(thread)->data[rc][cc]);\
-    if(!INSIDE(r,c)){out = true; break;}
 
-/// this is a dynamic one, without the buffer lines, buffer line becomes an extra thread
-#define FOR_ROW_COL_UF2DMT {bool out = false;\
-    for(int rc = 0; rc < _nrRows && !out; rc++)\
-    {for (int cc = 0; cc < _nrCols; cc++)\
-    {int r = (int) (ThreadPool->CellRMaskListOrdered.at(thread)->data[rc][cc]);\
-    int c = (int) (ThreadPool->CellCMaskListOrdered.at(thread)->data[rc][cc]);\
-    if(!INSIDE(r,c)){out = true; break;}
-
-/// this is another dynamic one, has the extra thread for the bufferline
-/// but also calls the cells directly next to the thread area
-/// this is usefull when, for example, flow heights on the buffer strip have been altered
-/// and therefore, volume needs also to be reset (DER stands for derivatives, the first reason this type was needed)
-#define FOR_ROW_COL_UF2DMTDER {bool out = false;\
-    for(int rc = 0; rc < _nrRows && !out; rc++)\
-    {for (int cc = 0; cc < _nrCols; cc++)\
-    {int r = (int) (ThreadPool->CellRDerListOrdered.at(thread)->data[rc][cc]);\
-    int c = (int) (ThreadPool->CellCDerListOrdered.at(thread)->data[rc][cc]);\
-    if(!INSIDE(r,c)){out = true; break;}
-
-/// this is a dynamic one, normal area + buffer strips as extra thread.
-/// Here only cells with a DT above 0 are called
-#define FOR_ROW_COL_UF2DMT_DT {bool out = false;\
-    for(int rc = 0; rc < _nrRows && !out; rc++)\
-    {for (int cc = 0; cc < _nrCols; cc++)\
-    {int r = (int) (ThreadPool->CellRListOrdered.at(thread)->data[rc][cc]);\
-    int c = (int) (ThreadPool->CellCListOrdered.at(thread)->data[rc][cc]);\
-    if(!INSIDE(r,c)){out = true; break;}
-*/
 /// shortcut to check if r,c is inside map boundaries, used in kinematic and flooding
 #define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
 #define OUTORMV(r, c)  (INSIDE(r,c) && !pcr::isMV(LDD->data[r][c]) ? false : true)
@@ -509,13 +468,8 @@ public:
     int iter_n;
     int F_SWOFSolution;
 
-//    double fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z, bool correct);
     double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
-//    void fullSWOF2Do2lightWrapperCell1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
-//    void fullSWOF2Do2lightWrapperDynamic1(int thread, cTMap *h, cTMap *u, cTMap *v, cTMap *hs, cTMap *us, cTMap *vs, double dt1);
-//    void fullSWOF2Do2lightWrapperDynamic2(int thread, cTMap *hs, cTMap *us, cTMap *vs, cTMap *hsa, cTMap *usa, cTMap *vsa, double dt1);
-//    void fullSWOF2Do2lightWrapperErosion(int thread, cTMap *h, cTMap *u, cTMap *v, double dt1);
 
     void prepareFloodZ(cTMap *z);
     void setFloodMask(cTMap * h);
@@ -523,11 +477,6 @@ public:
     void setFloodDT(cTMap * h);
 
     double limiter(double a, double b);
-//    void MUSCL(int thread,cTMap *ah, cTMap *au, cTMap *av, cTMap *az);
-//    void simpleScheme(int thread,cTMap *_h, cTMap *_u, cTMap *_v);
-//    void maincalcflux(int thread, double dt, double dt_max);
-//    void maincalcscheme(int thread,double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
-//    void setZero(int thread,cTMap *_h, cTMap *_u, cTMap *_v);
     vec4 F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
@@ -540,7 +489,7 @@ public:
     void maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     void dynOutflowPoints(void);
     void OverlandFlow2Ddyn(void);
-    void Boundary2Ddyn();//cTMap* h, cTMap* Q,cTMap *U, cTMap *V);
+    void Boundary2Ddyn();
     void MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v);
     void simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v);
@@ -551,8 +500,6 @@ public:
     int FS_SS_Method;
     int FS_BL_Method;
     double FS_SigmaDiffusion;
-
-   // int OF_Method;
 
     int R_SS_Method;
     int R_BL_Method;
@@ -867,14 +814,14 @@ public:
     void stop();
 
     ////MULTITHREADING STUFF
-    LisemThreadPool * ThreadPool;
+    //LisemThreadPool * ThreadPool;
     //std::function<void(int)> freport;      // reporting thread
-    std::function<void(int)> CellProcesses1D;    // 1D first part  = cellpropcesses
-    std::function<void(int)> flowcompute;  // k2d wave
+    //std::function<void(int)> CellProcesses1D;    // 1D first part  = cellpropcesses
+    //std::function<void(int)> flowcompute;  // k2d wave
 
-    std::function<void(int)> flood_cellcompute;   //swof part 1
-    std::function<void(int)> flood_flowcompute;   // swof part 2
-    std::function<void(int)> flood_flowcompute2;   // swof part 2 for Heun
+    //std::function<void(int)> flood_cellcompute;   //swof part 1
+   // std::function<void(int)> flood_flowcompute;   // swof part 2
+    //std::function<void(int)> flood_flowcompute2;   // swof part 2 for Heun
 
     QList<double> TSList_point;
     QList<double> TSList_rainav;
@@ -884,12 +831,10 @@ public:
     QList<double> TSList_qs;
     QList<double> TSList_c;
 
-    void Wrapper_ReportAll(int not_used);
-    void Wrapper_StoreAll(int not_used);
+  //  void Wrapper_ReportAll(int not_used);
+  //  void Wrapper_StoreAll(int not_used);
     void CellProcesses(int thread);
     void CellProcesses2(int thread);
-//    void DynamicProcesses1();
-//    void DynamicProcesses2();
     void OrderedProcesses();
 
 protected:

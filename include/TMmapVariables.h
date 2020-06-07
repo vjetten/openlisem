@@ -186,45 +186,15 @@ cTMap
 *Pdetach,
 *PCinfilt,
 *PCfilmexit,
-
-//for the kinematic wave in 2D
-*K2DDEM,                        //!<
-*K2DWHStore,                    //!<
-*K2DPits,                       //!<
-*K2DPitsD,                       //!<
-*K2DOutlets,                    //!<
-*K2DQM,                         //!<
-*K2DQMX,                         //!<
-*K2DQMY,                         //!<
-*K2DMN,                         //!<
-*K2DM,                         //!<
-*K2DMC,                         //!<
 *K2DQP,                         //!<
 *K2DQPX,                         //!<
 *K2DQPY,                         //!<
 *K2DP,                          //!<
 *K2DPC,                          //!<
 *K2DPCN,                          //!<
-*K2DSlopeX,                     //!<
-*K2DSlopeY,                     //!<
-*K2DSlope,                      //!<
-*K2DHOld,                       //!<
-*K2DHNew,                       //!<
-*K2DQX,                         //!<
-*K2DQY,                         //!<
+
+*K2DOutlets,                    //!<
 *K2DQ,                          //!<
-*K2DDTm,                        //!< Temporary local timestep (s)
-*K2DDTr,                        //!< Real previous timestep(s)
-*K2DDT,                         //!< Current local timestep (might be remainder) (s)
-*K2DDTT,                        //!< Current total time since last lisem timestep (s)
-*K2DQN,
-*K2DFX,                         //!< Flux in x-direction (m3/s)
-*K2DFY,                         //!< Flux in y-direction (m3/s)
-*K2DDTR,                        //!< the row nr of cells with a dt
-*K2DDTC,                        //!< the column nr of cells with a dt
-*K2DI,                          //!<
-*K2DTEST,
-*K2DV,
 
 // infiltration
 *Fcum,                       //!< cumulative infiltration [m]
@@ -340,7 +310,6 @@ cTMap
 *BaseFlowInflow,
 
 // flood maps
-//*UVflood,                     //!<
 *Qflood,                    //!<
 *floodHmxMax,                    //!<
 *floodTime,                    //!<

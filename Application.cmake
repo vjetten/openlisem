@@ -69,8 +69,8 @@ SET(APP_SOURCES
     lisInterception
     lisPesticide
     lisFlowBarriers
-    lisUnifiedFlowThreadPool
-    lisUnifiedFlowThread
+ #   lisUnifiedFlowThreadPool
+ #   lisUnifiedFlowThread
     lisExtendedChannel
     include/version.h
     include/model.h

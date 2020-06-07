@@ -190,16 +190,6 @@ void TWorld::DoModel()
         InfilEffectiveKsat();
         // calc effective ksat from all surfaces once
 
-        //start multithreading threadpool
-    //    ThreadPool = new LisemThreadPool();
-    //    ThreadPool->InitThreads(this);
-    //    ThreadPool->SetMaskInitial(DEM);
-    //    copy(*CoreMask, *ThreadPool->CoreMask);
-    //    ThreadPool->StartReportThread(this);
-
-        //create a function object referring to the cellprocesses wrapper
-        //CellProcesses1D = std::bind((&TWorld::CellProcesses),this,std::placeholders::_1);
-
         DEBUG("Running...");
 
         for (time = BeginTime; time < EndTime; time += _dt)
@@ -227,10 +217,6 @@ void TWorld::DoModel()
             //these functions read files, so they can not be multithreaded
             RainfallMap();         // get rainfall from table or mpas
             SnowmeltMap();         // get snowmelt
-
-            //do 1D cell specific stuff, hydrology and splash detachment, threaded
-            //ThreadPool->RunCellCompute(CellProcesses1D);
-            //ThreadPool->WaitForAll();
 
             CellProcesses(0);
 
@@ -333,7 +319,7 @@ void TWorld::OrderedProcesses()
     ChannelWaterHeightFromVolumeNT(); //calc WH from volume with abc rule, and flowwidth
 
     CalcVelDischChannelNT(); // alpha, V and Q from Manning
-//#pragma omp barrier
+
     ChannelFlowDetachment();  //detachment, deposition for SS and BL
 
     ChannelFlow();         // channel kin wave for water and sediment

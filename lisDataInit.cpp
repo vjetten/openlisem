@@ -1610,41 +1610,7 @@ if (SwitchGrassStrip) {
     Qn = NewMap(0);
 
     K2DOutlets = NewMap(0);
-
-    //OBSOLETE diffusive wave
-        K2DQ = NewMap(0);
-    //    K2DSlope = NewMap(0);
-    //    K2DV = NewMap(0);
-    //    K2DDEM = NewMap(0);
-    //    K2DWHStore = NewMap(0);
-    //    K2DPits = NewMap(0);
-    //    K2DPitsD = NewMap(0);
-    //    K2DSlopeX = NewMap(0);
-    //    K2DSlopeY = NewMap(0);
-    //    K2DQM = NewMap(0);
-    //    K2DQMX = NewMap(0);
-    //    K2DQMY = NewMap(0);
-    //K2DFMX = NewMap(0);
-    //K2DFMY = NewMap(0);
-    //    K2DMN = NewMap(0);
-    //    K2DM = NewMap(0);
-    //    K2DMC = NewMap(0);
-    //    K2DHOld = NewMap(0);
-    //    K2DHNew = NewMap(0);
-    //    K2DQX = NewMap(0);
-    //    K2DQY = NewMap(0);
-    //    K2DFX = NewMap(0);
-    //    K2DFY = NewMap(0);
-    //    K2DDT = NewMap(0);
-    //    K2DDTm = NewMap(0);
-    //    K2DDTr = NewMap(_dt);
-    //    K2DDTT = NewMap(0);
-    //    K2DQN = NewMap(0);
-    //    K2DI = NewMap(0);
-    //    K2DDTR = NewMap(0);
-    //    K2DDTC = NewMap(0);
-    //    K2DTEST = NewMap(0);
-    //    R = NewMap(0);
+    K2DQ = NewMap(0);
 
     if(SwitchPesticide)
     {
