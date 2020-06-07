@@ -104,7 +104,7 @@ double TWorld::MaxConcentration(double watvol, double *sedvol, double *dep)
  * @see KEequationType
  *
  */
-void TWorld::SplashDetachment(int thread)
+void TWorld::SplashDetachment()
 {
     if (!SwitchErosion)
         return;
@@ -1043,7 +1043,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
  */
 
 // TODO: CHECK consistency SWOF
-void TWorld::FlowDetachment(int thread)
+void TWorld::FlowDetachment()
 {
     if (!SwitchErosion)
         return;

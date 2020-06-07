@@ -76,7 +76,7 @@ void TWorld::OverlandFlow(void)
  *
  * @return void
  */
-void TWorld::ToChannel()//int thread)
+void TWorld::ToChannel()
 {
     if (!SwitchIncludeChannel)
         return;
@@ -161,7 +161,7 @@ void TWorld::ToChannel()//int thread)
  * @return void
  * @see mixing_coefficient
  */
-void TWorld::CalcVelDisch(int thread)
+void TWorld::CalcVelDisch()
 {
 	if(SwitchKinematic2D == K2D_METHOD_DYN)
 		return;

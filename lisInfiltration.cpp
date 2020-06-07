@@ -296,7 +296,7 @@ double TWorld::IncreaseInfiltrationDepthNew(int r, int c) //, double fact, doubl
   - increase of infiltration depth/wetting front, same function for each infiltration model: L1, L2, Fcum
   - decrease of surface water layer WH and calculate infiltration volume\n
   */
-void TWorld::Infiltration(int thread)
+void TWorld::Infiltration()
 {
 
     //Ksateff calculated before loop
@@ -329,7 +329,7 @@ void TWorld::Infiltration(int thread)
 
         break;
     default:
-        InfilMethodsNew(thread);        
+        InfilMethodsNew();
         // this function results in an actual infiltration "fact" (in m) and
         // potential infiltration "fpot" (in m), according to G&A, S&P etc.
         // It deals with 1 or 2 layers and increase of water depth
@@ -361,7 +361,7 @@ This function calculates the potential infiltration according to Ksat, G&A or S&
 then calls IncreaseInfiltrationDepth to increase the wetting front.
 */
 
-void TWorld::InfilMethodsNew(int thread)
+void TWorld::InfilMethodsNew()
 {
     #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
@@ -470,7 +470,7 @@ void TWorld::InfilMethodsNew(int thread)
   This is completely undocumented. The soil is either impermeable or has percolation. \n
   */
 //
-void TWorld::SoilWater(int thread)
+void TWorld::SoilWater()
 {
     if (InfilMethod == INFIL_SWATRE || InfilMethod == INFIL_NONE)
         return;

@@ -733,7 +733,7 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 FloodDT->Drc = dt1;
             }
             if (SwitchErosion)
-                SWOFSediment(0, FloodDT,h,u,v);
+                SWOFSediment(FloodDT,h,u,v);
 
             setZeroOF(hs, us, vs);
 

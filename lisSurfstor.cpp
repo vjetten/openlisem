@@ -41,7 +41,7 @@ functions: \n
 
 
 //---------------------------------------------------------------------------
-void TWorld::GridCell(int thread)
+void TWorld::GridCell()
 {
 #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L
@@ -68,7 +68,7 @@ void TWorld::GridCell(int thread)
 }
 //---------------------------------------------------------------------------
 /// Adds new rainfall afterinterception to runoff water nheight or flood waterheight
-void TWorld::addRainfallWH(int thread)
+void TWorld::addRainfallWH()
 {
     #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L
@@ -90,7 +90,7 @@ void TWorld::addRainfallWH(int thread)
     }
 }
 //---------------------------------------------------------------------------
-void TWorld::SurfaceStorage(int thread)
+void TWorld::SurfaceStorage()
 {
     #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L
@@ -142,7 +142,7 @@ void TWorld::SurfaceStorage(int thread)
     }
 }
 //---------------------------------------------------------------------------
-void TWorld::doETa(int thread)
+void TWorld::doETa()
 {
     #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L

@@ -572,13 +572,13 @@ public:
 
 
     //sediment for SWOF flood model
-    void SWOFSedimentBalance(int thread);
+    void SWOFSedimentBalance();
     void SWOFSedimentCheckZero(int r, int c, cTMap * h);
     void SWOFSedimentSetConcentration(int r, int c, cTMap * h);
-    void SWOFSedimentDiffusion(int thread,cTMap* DT, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentFlowInterpolation(int thread,cTMap* dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentDiffusion(cTMap* DT, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentFlowInterpolation(cTMap* dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentDet(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSediment(int thread,cTMap* DT, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSediment(cTMap* DT, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
 
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed);
@@ -588,7 +588,7 @@ public:
                                 cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                                 cTMap *_Alpha, cTMap *_DX, cTMap*_Vol, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
 
-    double K2DSolvebyInterpolationSed(int thread, cTMap *M, cTMap *MC);
+    double K2DSolvebyInterpolationSed( cTMap *M, cTMap *MC);
 
 
     double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
@@ -596,8 +596,8 @@ public:
     double GetDp(int r, int c,double p);
     double GetTotalDW(int r, int c,QList<cTMap *> *M);
     double GetSV(double d);
-    void SplashDetachment(int thread);
-    void FlowDetachment(int thread);
+    void SplashDetachment();
+    void FlowDetachment();
     double MaxConcentration(double watvol, double *sedvol, double *dep);
     void ChannelFlowDetachment();
 
@@ -633,52 +633,51 @@ public:
     /// convert snowmelt of a timestep into a map
     void SnowmeltMap(void);
     /// interception of vegetation canopy resulting in rainnet
-    void Interception(int thread);
+    void Interception();
     /// infiltration function calling all infiltration methods
     /// add rainnet to WH and calculating new WH
-    void InterceptionLitter(int thread);
+    void InterceptionLitter();
     /// subtract water retained in Litter under forest e.g.
-    void InterceptionHouses(int thread);
+    void InterceptionHouses();
     /// subtract water retained on houses, for urban projects    
-    void addRainfallWH(int thread);
+    void addRainfallWH();
     /// add net rainfall to WH, WHroads and WHgrass
 
     void InfilEffectiveKsat();
-    void Infiltration(int thread);
+    void Infiltration();
     void InfilSwatre(cTMap *_WH);
 
     double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFull);
     double IncreaseInfiltrationDepthNew(int r, int c);
 
-    void SoilWater(int thread);
-    void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull, int thread);
-    void InfilMethodsNew(int thread);
-    void SurfaceStorage(int thread);
-    void doETa(int thread);
-    void OverlandFlow(void);
-    void OverlandFlow2D(void);
+    void SoilWater();
+    void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
+    void InfilMethodsNew();
+    void SurfaceStorage();
+    void doETa();
+    void OverlandFlow();
+    void OverlandFlow2D();
     void correctWH(cTMap *_WH);
-    void Wrapper_OverlandFlow2D(int thread);
+
     void OverlandFlow1D(void);
-  //  void OverlandFlowNew(void);
-    void ChannelFlow(void);
+
+    void ChannelFlow();
     double ChannelIterateWH(double _h, int r, int c);
-    void ChannelAddBaseandRainNT(void);
-    void ChannelWaterHeightFromVolumeNT(void);
-    void ChannelWaterHeightFromVolume(int thread);
-    void ToChannel();//int thread);
-    void ToFlood();//int thread);
-    void CalcVelDisch(int thread);
-    void CalcVelDischChannelNT();
+    void ChannelAddBaseandRain();
+    void ChannelWaterHeightFromVolume();
+    void ToChannel();//);
+    void ToFlood();//);
+    void CalcVelDisch();
+    void CalcVelDischChannel();
     void fromChannelVoltoWH(int r, int c);
     double channelVoltoWH(double vol, int r, int c);
     void fromChannelWHtoVol(int r, int c);
-    void ToTiledrain();//int thread);
+    void ToTiledrain();//);
     void TileFlow(void);
     void StormDrainFlow(void);
     void CalcVelDischTile(void);
     void CalcVelDischDrain(void);
-    void GridCell(int thread);
+    void GridCell();
 
     void doExtendRow(int r, int c, int n,  double w2, double adx);
     void doExtendCol(int r, int c, int n,  double w2, double adx);
@@ -694,7 +693,7 @@ public:
     void InitFlowBarriers(void);
     double DEMFB(int r, int c, int rd, int cd, bool addwh);
     double FB(int r, int c, int rd, int cd);
-    void SetFlowBarriers(int thread);
+    void SetFlowBarriers();
     void GetFlowBarrierData(QString name);
     double FBW(double h, int r, int c, int dr, int dc);
 
@@ -722,12 +721,12 @@ public:
     void KinematicExplicit(cTMap *_LDD, cTMap *Q, cTMap *Qn, cTMap *q, cTMap *Alpha,cTMap *_DX, cTMap *Vol);
     // kinematic 2D
     double K2DFlux(double t, double tmax);
-    void K2DPreSolve(int thread);
-    void K2DSolve(int thread);
-    void K2DSolvebyInterpolation(int thread);
+    void K2DPreSolve();
+    void K2DSolve();
+    void K2DSolvebyInterpolation();
     void K2DInit();
-    void K2DCalcVelDisch(int thread);
-    void K2DDEMA(int thread);
+    void K2DCalcVelDisch();
+    void K2DDEMA();
     void K2DDEMAInitial();
     double K2DQOut, K2DQOutBoun;
     double K2DQSOut, K2DQSOutBoun;
@@ -809,16 +808,6 @@ public:
     QWaitCondition condition;
     void stop();
 
-    ////MULTITHREADING STUFF
-    //LisemThreadPool * ThreadPool;
-    //std::function<void(int)> freport;      // reporting thread
-    //std::function<void(int)> CellProcesses1D;    // 1D first part  = cellpropcesses
-    //std::function<void(int)> flowcompute;  // k2d wave
-
-    //std::function<void(int)> flood_cellcompute;   //swof part 1
-   // std::function<void(int)> flood_flowcompute;   // swof part 2
-    //std::function<void(int)> flood_flowcompute2;   // swof part 2 for Heun
-
     QList<double> TSList_point;
     QList<double> TSList_rainav;
     QList<double> TSList_snowav;
@@ -827,10 +816,9 @@ public:
     QList<double> TSList_qs;
     QList<double> TSList_c;
 
-  //  void Wrapper_ReportAll(int not_used);
-  //  void Wrapper_StoreAll(int not_used);
-    void CellProcesses(int thread);
-    void CellProcesses2(int thread);
+
+    void CellProcesses();
+    void CellProcesses2();
     void OrderedProcesses();
 
 protected:

@@ -44,7 +44,7 @@ functions: \n
 /// - so if a single tree inside a cell has an SMax of 2mm even if it covers 10%, the Smax of that cell is 2\n
 /// - therefore the same goes for LAI: the LAI of the plants inside the gridcell\n
 /// - this is also easier to observe. The LAI from a satellite image is the average LAI of a cell, must be divided by Cover
-void TWorld::Interception(int thread)
+void TWorld::Interception()
 {
     // all variables are in m
     if (!SwitchRainfall)
@@ -111,7 +111,7 @@ void TWorld::Interception(int thread)
     }
 }
 //---------------------------------------------------------------------------
-void TWorld::InterceptionLitter(int thread)
+void TWorld::InterceptionLitter()
 {
     // all variables are in m
     if (!SwitchLitter)
@@ -156,7 +156,7 @@ void TWorld::InterceptionLitter(int thread)
     }
 }
 //---------------------------------------------------------------------------
-void TWorld::InterceptionHouses(int thread)
+void TWorld::InterceptionHouses()
 {
     // all variables are in m
     if (!SwitchHouses)

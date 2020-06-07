@@ -173,7 +173,7 @@ void TWorld::GetFlowBarrierData(QString name)
 
 }
 
-void TWorld::SetFlowBarriers(int thread)
+void TWorld::SetFlowBarriers()
 {
     if (!SwitchFlowBarriers)
         return;

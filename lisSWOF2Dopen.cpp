@@ -217,7 +217,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             }
 
             if (SwitchErosion)
-                SWOFSediment(0, FloodDT,hs,vxs,vys);
+                SWOFSediment(FloodDT,hs,vxs,vys);
 
             stop = timesum > _dt-0.001;
             count++;

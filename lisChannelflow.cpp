@@ -132,7 +132,7 @@ void TWorld::fromChannelWHtoVol(int r, int c)
 //---------------------------------------------------------------------------
 // V, alpha and Q in the channel, called after overland flow vol to channel
 // called after flood and uses new channel flood water height
-void TWorld::CalcVelDischChannelNT()
+void TWorld::CalcVelDischChannel()
 {
     if (!SwitchIncludeChannel)
         return;
@@ -179,7 +179,7 @@ void TWorld::CalcVelDischChannelNT()
     }
 }
 //---------------------------------------------------------------------------
-void TWorld::ChannelAddBaseandRainNT(void)
+void TWorld::ChannelAddBaseandRain(void)
 {
     if (!SwitchIncludeChannel)
         return;
@@ -226,21 +226,7 @@ void TWorld::ChannelAddBaseandRainNT(void)
 }
 //---------------------------------------------------------------------------
 //! add runofftochannel and rainfall and calc channel WH from volume
-void TWorld::ChannelWaterHeightFromVolumeNT(void)
-{
-
-    if(!SwitchIncludeChannel)
-        return;
-
-    //TODO: extended channel!
-#pragma omp parallel for collapse(2)
-    FOR_ROW_COL_MV_CH {
-        fromChannelVoltoWH(r, c);
-    }
-}
-//---------------------------------------------------------------------------
-//! add runofftochannel and rainfall and calc channel WH from volume
-void TWorld::ChannelWaterHeightFromVolume(int thread)
+void TWorld::ChannelWaterHeightFromVolume()
 {
 
     if(!SwitchIncludeChannel)

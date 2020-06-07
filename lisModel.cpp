@@ -213,7 +213,7 @@ void TWorld::DoModel()
             RainfallMap();         // get rainfall from table or mpas
             SnowmeltMap();         // get snowmelt
 
-            CellProcesses(0);
+            CellProcesses();
 
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
@@ -278,29 +278,29 @@ void TWorld::DoModel()
     }
 }
 
-void TWorld::CellProcesses(int thread)
+void TWorld::CellProcesses()
 {
-    SetFlowBarriers(thread);     // update the presence of flow barriers
-    GridCell(thread);            // set channel widths, flowwidths road widths etc
+    SetFlowBarriers();     // update the presence of flow barriers
+    GridCell();            // set channel widths, flowwidths road widths etc
 
-    Interception(thread);        // vegetation interception
-    InterceptionLitter(thread);  // litter interception
-    InterceptionHouses(thread);  // urban interception
+    Interception();        // vegetation interception
+    InterceptionLitter();  // litter interception
+    InterceptionHouses();  // urban interception
 
-    addRainfallWH(thread);       // adds rainfall to runoff water height or flood water height
+    addRainfallWH();       // adds rainfall to runoff water height or flood water height
 
-    Infiltration(thread);        // infil of overland flow/flood water, decrease WH
+    Infiltration();        // infil of overland flow/flood water, decrease WH
 
-    SoilWater(thread);           // simple soil water balance, percolation from lower boundary
-    SurfaceStorage(thread);      // surface storage and flow width, split WH in WHrunoff and WHstore
+    SoilWater();           // simple soil water balance, percolation from lower boundary
+    SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
 
-    //doETa(thread);
+    //doETa();
 
-    CalcVelDisch(thread);        // overland flow velocity, discharge and alpha for erosion
+    CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
 
-    SplashDetachment(thread);    // splash detachment
+    SplashDetachment();    // splash detachment
 
-    FlowDetachment(thread);      // flow detachment, V used is from calcveldis for diff and kin, but not dynamic
+    FlowDetachment();      // flow detachment, V used is from calcveldis for diff and kin, but not dynamic
 
     //Pestmobilisation();         // experimental
 }
@@ -309,11 +309,11 @@ void TWorld::CellProcesses(int thread)
 // these are all non-threaded
 void TWorld::OrderedProcesses()
 {
-    ChannelAddBaseandRainNT();  // add baseflow o, subtract infil, add rainfall
+    ChannelAddBaseandRain();  // add baseflow o, subtract infil, add rainfall
 
-    ChannelWaterHeightFromVolumeNT(); //calc WH from volume with abc rule, and flowwidth
+    ChannelWaterHeightFromVolume(); //calc WH from volume with abc rule, and flowwidth
 
-    CalcVelDischChannelNT(); // alpha, V and Q from Manning
+    CalcVelDischChannel(); // alpha, V and Q from Manning
 
     ChannelFlowDetachment();  //detachment, deposition for SS and BL
 

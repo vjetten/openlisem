@@ -70,7 +70,7 @@ functions: \n
  * @return void
  */
 
-void TWorld::SWOFSedimentFlowInterpolation(int thread, cTMap *DT, cTMap *h, cTMap *u,cTMap *v,
+void TWorld::SWOFSedimentFlowInterpolation( cTMap *DT, cTMap *h, cTMap *u,cTMap *v,
                                            cTMap *_BL, cTMap *_BLC, cTMap *_SS, cTMap *_SSC)
 {
     double courant = 0.1*this->courant_factor;
@@ -362,7 +362,7 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)
  * @see FS_SigmaDiffusion
  */
 
-void TWorld::SWOFSedimentDiffusion(int thread, cTMap *DT, cTMap *h,cTMap *u,cTMap *v, cTMap *_SS, cTMap *_SSC)
+void TWorld::SWOFSedimentDiffusion( cTMap *DT, cTMap *h,cTMap *u,cTMap *v, cTMap *_SS, cTMap *_SSC)
 {
     //diffusion of Suspended Sediment layer
 #pragma omp parallel for collapse(2)
@@ -972,7 +972,7 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
  *
  * @return void
  */
-void TWorld::SWOFSedimentBalance(int thread)
+void TWorld::SWOFSedimentBalance()
 {
     if(SwitchUseGrainSizeDistribution)
     {
@@ -1020,7 +1020,7 @@ void TWorld::SWOFSedimentBalance(int thread)
  * @see SWOFSedimentSetConcentration
  */
 
-void TWorld::SWOFSediment(int thread,cTMap* DT,cTMap * h,cTMap * u,cTMap * v)
+void TWorld::SWOFSediment(cTMap* DT,cTMap * h,cTMap * u,cTMap * v)
 {
     //sediment detachment or deposition
 #pragma omp parallel for collapse(2)
@@ -1040,10 +1040,10 @@ void TWorld::SWOFSediment(int thread,cTMap* DT,cTMap * h,cTMap * u,cTMap * v)
     //transport sediment using velocities and water heights from SWOF
     if(!SwitchUseGrainSizeDistribution)
     {
-        SWOFSedimentFlowInterpolation(thread,DT,h,u,v, BLFlood, BLCFlood, SSFlood, SSCFlood);
+        SWOFSedimentFlowInterpolation(DT,h,u,v, BLFlood, BLCFlood, SSFlood, SSCFlood);
 
         if (SwitchIncludeDiffusion)
-            SWOFSedimentDiffusion(thread,DT,h,u,v, SSFlood, SSCFlood);
+            SWOFSedimentDiffusion(DT,h,u,v, SSFlood, SSCFlood);
 
     }
 //    else
@@ -1056,7 +1056,7 @@ void TWorld::SWOFSediment(int thread,cTMap* DT,cTMap * h,cTMap * u,cTMap * v)
 //        //transport sediment using velocities and water heights from SWOF
 //        FOR_GRAIN_CLASSES
 //        {
-//            SWOFSedimentFlowInterpolation(thread,DT,h,u,v, BL_D.at(d), BLC_D.at(d), SS_D.at(d),SSC_D.at(d));
+//            SWOFSedimentFlowInterpolation(DT,h,u,v, BL_D.at(d), BLC_D.at(d), SS_D.at(d),SSC_D.at(d));
 //        }
 
 //        //calculate total sediment as sum of grain classes
@@ -1066,7 +1066,7 @@ void TWorld::SWOFSediment(int thread,cTMap* DT,cTMap * h,cTMap * u,cTMap * v)
 //        if (SwitchIncludeDiffusion) {
 //            FOR_GRAIN_CLASSES
 //            {
-//                SWOFSedimentDiffusion(thread,DT,h,u,v,  SS_D.at(d), SSC_D.at(d));
+//                SWOFSedimentDiffusion(DT,h,u,v,  SS_D.at(d), SSC_D.at(d));
 //            }
 //        }
 
