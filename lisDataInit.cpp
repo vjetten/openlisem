@@ -47,7 +47,7 @@
 #include "lisemqt.h"
 #include "global.h"
 
-//#include "model.h"
+#include "model.h"
 #include "operation.h"
 #include "CsfRGBMap.h"
 
@@ -246,7 +246,13 @@ void TWorld::InitStandardInput(void)
     tmc = NewMap(0); // temp map for aux calculations
     tmd = NewMap(0); // temp map for aux calculations
 
-    CoreMask = NewMap(0);
+    userCores = getvalueint("Nr user Cores");
+    qDebug() << SwitchUserCores << "using:" << userCores << "cores";
+    int cores = omp_get_max_threads();
+    if (userCores == 0 || userCores > cores)
+        userCores = cores;
+
+    qDebug() << SwitchUserCores << "using:" << userCores << "cores";
 
 	gsizeCalibration = getvaluedouble("Grain Size calibration");
     ksatCalibration = getvaluedouble("Ksat calibration");
@@ -829,13 +835,13 @@ void TWorld::InitChannel(void)
     maxChannelflow = NewMap(0);//
     maxChannelWH = NewMap(0);//
     FloodDT = NewMap(0);
-    FloodDTr = NewMap(0);
+//    FloodDTr = NewMap(0);
     FloodT = NewMap(0);
-    FloodHMaskDer = NewMap(0);
-    FloodDTR = NewMap(0);
-    FloodDTC = NewMap(0);
-    FloodHR = NewMap(0);
-    FloodHC = NewMap(0);
+//    FloodHMaskDer = NewMap(0);
+//    FloodDTR = NewMap(0);
+//    FloodDTC = NewMap(0);
+//    FloodHR = NewMap(0);
+//    FloodHC = NewMap(0);
 
     if (SwitchIncludeChannel)
     {
@@ -954,85 +960,87 @@ void TWorld::InitChannel(void)
 void TWorld::InitFlood(void)
 {
     prepareFlood = true;
-    iro = NewMap(0);
+ //   iro = NewMap(0);
     Qflood = NewMap(0);
     hmxWH = NewMap(0);
     FloodWaterVol = NewMap(0);
-        RunoffWaterVol = NewMap(0);
+    RunoffWaterVol = NewMap(0);
     floodTimeStart = NewMap(0);
-
-    iter_n = 0;
-
     hs = NewMap(0);
     vs = NewMap(0);
     us = NewMap(0);
     vxs = NewMap(0);
     vys = NewMap(0);
-    hsa = NewMap(0);
-    vsa = NewMap(0);
-    usa = NewMap(0);
-    z1r = NewMap(0);
-    z1l = NewMap(0);
-    z2r = NewMap(0);
-    z2l = NewMap(0);
-    h1r = NewMap(0);
-    h1l = NewMap(0);
-    h2r = NewMap(0);
-    h2l = NewMap(0);
-    v1r = NewMap(0);
-    v1l = NewMap(0);
-    v2r = NewMap(0);
-    v2l = NewMap(0);
-    u1r = NewMap(0);
-    u1l = NewMap(0);
-    u2r = NewMap(0);
-    u2l = NewMap(0);
-
-    delta_z1 = NewMap(0);
-    delta_z2 = NewMap(0);
-    delzc1 = NewMap(0);
-    delzc2 = NewMap(0);
-    delz1 = NewMap(0);
-    delz2 = NewMap(0);
-
-    f1 = NewMap(0);
-    f2 = NewMap(0);
-    f3 = NewMap(0);
-    cflx = NewMap(0);
-    cfly = NewMap(0);
-    g1 = NewMap(0);
-    g2 = NewMap(0);
-    g3 = NewMap(0);
-    f1o = NewMap(0);
-    f2o = NewMap(0);
-    f3o = NewMap(0);
-    g1o = NewMap(0);
-    g2o = NewMap(0);
-    g3o = NewMap(0);
-    h1d = NewMap(0);
-    h1g = NewMap(0);
-    h2d = NewMap(0);
-    h2g = NewMap(0);
-
     Uflood = NewMap(0);
     Vflood = NewMap(0);
-    Iflood = NewMap(0);
+ //   Iflood = NewMap(0);
 
-    BLDepthFlood = NewMap(0);
-    SSDepthFlood = NewMap(0);
-    BLFlood = NewMap(0);
-    BLCFlood = NewMap(0);
-    BLTCFlood = NewMap(0);
-    BLDetFlood = NewMap(0);
+    iter_n = 0;
 
-    SSFlood = NewMap(0);
-    SSCFlood = NewMap(0);
-    SSTCFlood = NewMap(0);
-    SSDetFlood = NewMap(0);
+    if (!SwitchSWOFopen) {
+        hsa = NewMap(0);
+        vsa = NewMap(0);
+        usa = NewMap(0);
+        z1r = NewMap(0);
+        z1l = NewMap(0);
+        z2r = NewMap(0);
+        z2l = NewMap(0);
+        h1r = NewMap(0);
+        h1l = NewMap(0);
+        h2r = NewMap(0);
+        h2l = NewMap(0);
+        v1r = NewMap(0);
+        v1l = NewMap(0);
+        v2r = NewMap(0);
+        v2l = NewMap(0);
+        u1r = NewMap(0);
+        u1l = NewMap(0);
+        u2r = NewMap(0);
+        u2l = NewMap(0);
 
-    DepFlood = NewMap(0);
+        delta_z1 = NewMap(0);
+        delta_z2 = NewMap(0);
+        delzc1 = NewMap(0);
+        delzc2 = NewMap(0);
+        delz1 = NewMap(0);
+        delz2 = NewMap(0);
 
-    prepareFloodZ(DEM);
+        f1 = NewMap(0);
+        f2 = NewMap(0);
+        f3 = NewMap(0);
+        cflx = NewMap(0);
+        cfly = NewMap(0);
+        g1 = NewMap(0);
+        g2 = NewMap(0);
+        g3 = NewMap(0);
+        f1o = NewMap(0);
+        f2o = NewMap(0);
+        f3o = NewMap(0);
+        g1o = NewMap(0);
+        g2o = NewMap(0);
+        g3o = NewMap(0);
+        h1d = NewMap(0);
+        h1g = NewMap(0);
+        h2d = NewMap(0);
+        h2g = NewMap(0);
+
+        prepareFloodZ(DEM);
+    }
+
+    if (SwitchErosion) {
+        BLDepthFlood = NewMap(0);
+        SSDepthFlood = NewMap(0);
+        BLFlood = NewMap(0);
+        BLCFlood = NewMap(0);
+        BLTCFlood = NewMap(0);
+        BLDetFlood = NewMap(0);
+
+        SSFlood = NewMap(0);
+        SSCFlood = NewMap(0);
+        SSTCFlood = NewMap(0);
+        SSDetFlood = NewMap(0);
+        DepFlood = NewMap(0);
+    }
 }
 //---------------------------------------------------------------------------
 double TWorld::LogNormalDist(double d50,double s, double d)
@@ -1045,6 +1053,8 @@ double TWorld::LogNormalDist(double d50,double s, double d)
 //---------------------------------------------------------------------------
 void TWorld::InitMulticlass(void)
 {
+    if (!SwitchErosion)
+        return;
 
     unity = NewMap(1.0);
 
@@ -1135,16 +1145,6 @@ void TWorld::InitMulticlass(void)
 
     if(SwitchErosion)
     {
-        MSSCFlood = NewMap(0);
-        MSSNFlood = NewMap(0);
-        //MSSFlood = NewMap(0);
-        //MSSCNFlood = NewMap(0);
-
-        MBLCFlood = NewMap(0);
-        MBLNFlood = NewMap(0);
-        //MBLFlood = NewMap(0);
-        //MBLCNFlood = NewMap(0);
-
         graindiameters.clear();
         settlingvelocities.clear();
         Tempa_D.clear();
@@ -1190,7 +1190,9 @@ void TWorld::InitMulticlass(void)
             {
                 SettlingVelocity->Drc = GetSV(D50->Drc);
             }
-        }else if(SwitchUseGrainSizeDistribution)
+        }
+        else
+            if(SwitchUseGrainSizeDistribution)
         {
 
             if(SwitchEstimateGrainSizeDistribution)
@@ -2271,7 +2273,7 @@ void TWorld::FindBaseFlow()
                                 double wh = h;
                                 double FW = ChannelWidth->Drc;
                                 double dw = (ChannelFlowWidth->Drc - FW); // extra width when non-rectamgular
-                                double dww = dw;
+                                //double dww = dw;
 
                                 if (dw > 0)
                                 {

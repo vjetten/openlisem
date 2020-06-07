@@ -237,7 +237,6 @@ public:
     double timestep;
 
     int outletpoint = 1;
-    int cpucores = 0;
 
     QList<double> qmax;
     QList<double> qsmax;
@@ -404,7 +403,7 @@ public slots:
     void on_checkIncludeTiledrains_clicked();
     void on_checkBoxComboMaps_stateChanged(int);
     void on_checkBoxComboMaps2_stateChanged(int);
-    void on_nrUserCores_valueChanged(int d);
+    //void on_nrUserCores_valueChanged(int d);
     void on_ComboMinSpinBox_valueChanged(double);
     void on_ComboMaxSpinBox_valueChanged(double);
     void on_ComboMinSpinBox2_valueChanged(double);

@@ -55,7 +55,6 @@ void TWorld::correctMassBalance(double sum1, cTMap *M)
 // used in datainit, done once
 void TWorld::prepareFloodZ(cTMap *z)
 {
-
     prepareFlood = false;
 
     fill(*delz1,0);
@@ -82,14 +81,11 @@ void TWorld::prepareFloodZ(cTMap *z)
         for (int c = 0; c < _nrCols-1; c++)
             if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r][c+1]))
                 delta_z1->Drc = (z->data[r][c+1] - z->Drc);
-    //                delta_z1->Drc = 0.5*((z->Drc - z->data[r][c-1]) + (z->data[r][c+1] - z->Drc));
 
     for (int r = 1; r < _nrRows-1; r++)
         for (int c = 0; c < _nrCols; c++)
             if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r+1][c]))
                 delta_z2->Drc = (z->data[r+1][c] - z->Drc);
-    //                delta_z2->Drc = 0.5*((z->Drc - z->data[r-1][c]) + (z->data[r+1][c] - z->Drc));
-
 }
 //---------------------------------------------------------------------------
 /**
@@ -658,8 +654,6 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
                                   (h1r->Drc-h1d->Drc)*(h1r->Drc+h1d->Drc)
                                   + (h1l->Drc+h1r->Drc)*delzc1->Drc)) ;
 
-            //
-
             qes2 = he->Drc*ve2->Drc -
                     tx*(_f3 - f3->Drc) -
                     ty*(_g3 - g3->Drc +
@@ -682,27 +676,7 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
                 ves2->Drc = fac * ve2->Drc + (1.0-fac) *ves2->Drc;
             }
 
-            double threshold = 0.01 * _dx; // was 0.01
-            double hn = hes->Drc;
-            if(hn < threshold)
             correctSpuriousVelocities(r, c, hes, ves1, ves2);
-//            if(hn < threshold)
-//            {
-//                double kinfac = std::max(0.0,(threshold - hn) / (0.025 * _dx));
-//               // double sx_zh = !MV(r,c-1) && !MV(r,c+1) ? limiter(delz1->Drc+(he->Drc-he->data[r][c-1]),delz1->data[r][c+1]+(he->data[r][c+1]-he->Drc)) :0.5;
-//                double v_kin = (ves1->Drc > 0 ? 1.0 : -1.0)*pow(he->Drc, 2.0/3.0)*sqrt(fabs(delz1->Drc)/_dx)/(0.001+N->Drc);
-
-//                        //(sx_zh>0?1:-1) * hn * sqrt(hn) * std::max(0.001, sqrt(sx_zh > 0 ? sx_zh : -sx_zh))/(0.001+N->Drc);
-//                ves1->Drc = kinfac * v_kin + ves1->Drc*(1.0-kinfac);
-
-//                //double sy_zh = !MV(r-1,c) && !MV(r+1,c) ? limiter(delz2->Drc+(he->Drc-he->data[r-1][c]),delz2->data[r+1][c]+(he->data[r+1][c]-he->Drc)) :0.5;
-//                //v_kin = (sy_zh>0?1:-1) * hn * sqrt(hn) * std::max(0.001, sqrt(sy_zh > 0 ? sy_zh : -sy_zh))/(0.001+N->Drc);
-//                v_kin = (ves2->Drc > 0 ? 1.0 : -1.0)*pow(he->Drc, 2.0/3.0)*sqrt(fabs(delz2->Drc)/_dx)/(0.001+N->Drc);
-//                ves2->Drc = kinfac * v_kin + ves2->Drc*(1.0-kinfac);
-//            }
-
-
-
         }
         else
         {
@@ -730,11 +704,12 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
     if (startFlood)
     {
-        //        if (SwitchErosion) {
-        //            FOR_ROW_COL_MV_L {
-        //                SSFlood->Drc += DETSplash->Drc;
-        //                SSCFlood->Drc = MaxConcentration(ChannelAdj->Drc * DX->Drc * h->Drc, &SSFlood->Drc, &DepFlood->Drc);
-        //            }
+        if (SwitchErosion) {
+            FOR_ROW_COL_MV_L {
+                SSFlood->Drc += DETSplash->Drc;
+                SSCFlood->Drc = MaxConcentration(ChannelAdj->Drc * DX->Drc * h->Drc, &SSFlood->Drc, &DepFlood->Drc);
+            }
+        }
 
         sumh = getMass(h);
 
@@ -756,7 +731,6 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
             FOR_ROW_COL_MV_L {
                 FloodDT->Drc = dt1;
-                FloodHMaskDer->Drc = 1;
             }
             if (SwitchErosion)
                 SWOFSediment(0, FloodDT,h,u,v);

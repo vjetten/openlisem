@@ -332,21 +332,21 @@ cTMap
 //*FloodZonePotential,                //!<
 *DomainEdge,                //!<
 *FloodDT,
-*FloodDTr,
+//*FloodDTr,
 *FloodT,
-*FloodHMaskDer,
-*FloodDTR,
-*FloodDTC,
-*FloodHR,
-*FloodHC,
-
-
-*f1o, *f2o, *f3o,
-*g1o, *g2o, *g3o,
-*VRO, *URO,
-*iro,
+//*FloodHMaskDer,
+//*FloodDTR,
+//*FloodDTC,
+//*FloodHR,
+//*FloodHC,
+*VRO, *URO, *iro,
+*Uflood,*Vflood,*Iflood,
+*hs, *vs, *us,
+*vxs, *vys,
 
 // FULLSWOF2D
+*f1o, *f2o, *f3o,
+*g1o, *g2o, *g3o,
 *z1r, *z1l, *z2r, *z2l,
 *h1r, *h1l, *h2r, *h2l,
 *h1d, *h1g, *h2d, *h2g,
@@ -357,37 +357,20 @@ cTMap
 *delz1, *delz2,
 *f1, *f2, *f3, *cflx,
 *g1, *g2, *g3, *cfly,
-*hs, *vs, *us,
 *hsa, *vsa, *usa,
-*Uflood,*Vflood,*Iflood,
-*vxs, *vys,
 
 //FULLSWOF2D with Sediment
 *BLDepthFlood,
 *SSDepthFlood,
-
-//layer itneraction
 *BLDetFlood,
 *BLTCFlood,
 *SSTCFlood,
 *SSDetFlood,
 *DepFlood,
-
-//sediment maps
 *BLCFlood,
 *BLFlood,
 *SSCFlood,
 *SSFlood,
-
-//transport
-//Bed Load layer
-*MBLCFlood, *MBLNFlood,
-
-//transport
-//Suspended Sediment Layer
-*MSSCFlood,*MSSNFlood,
-
-*som_z1,*som_z2,
 
 *LDDTile,                    //!< LDD network of tile drains, must be connected to outlet
 *TileDrainSoil,              //!< drain volume from layer

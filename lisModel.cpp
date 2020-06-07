@@ -36,14 +36,9 @@
 
 #include <QtGui>
 #include "lisemqt.h"
-//#include "model.h"
+#include "model.h"
 #include "global.h"
 
-/*
- * 1D hydrology
- * runoff 1D kin or 2D diffusive wave -> liserosion + flooding 2Ddyn + swofsediment
- * runoff/flood 2D dyn wave: swof + swof sediment
- */
 
 //---------------------------------------------------------------------------
 TWorld::TWorld(QObject *parent) :

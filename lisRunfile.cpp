@@ -173,7 +173,7 @@ void TWorld::ParseRunfileData(void)
         QString p1 = runnamelist[j].name;
         QString p = runnamelist[j].value;
 
-        if (p1.compare("Nr user Cores") == 0) userCores = iii;
+    //    if (p1.compare("Nr user Cores") == 0) userCores = iii;
         //options in the main code, order is not important
         if (p1.compare("Include Erosion simulation")==0)     SwitchErosion =          iii == 1;
         if (p1.compare("Include main channels")==0)          SwitchIncludeChannel =   iii == 1;
@@ -296,7 +296,7 @@ void TWorld::ParseRunfileData(void)
 
     //##########################
 
-    SwitchUserCores = userCores > 0;
+    //SwitchUserCores = userCores > 0;
     //qDebug() << userCores;
 
     // check a few things

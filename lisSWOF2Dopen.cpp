@@ -50,7 +50,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             FloodDT->Drc = dt_max;
             FloodT->Drc = 0;
         }
-qDebug() << "hier";
+
         do {
 
             // make a copy
@@ -58,7 +58,6 @@ qDebug() << "hier";
                 hs->Drc = h->Drc;
                 vxs->Drc = vx->Drc;
                 vys->Drc = vy->Drc;
-                FloodHMaskDer->Drc = 1;
             }
 
             //flow
@@ -215,7 +214,6 @@ qDebug() << "hier";
 
             FOR_ROW_COL_MV_L {
                 FloodDT->Drc = dt_req_min;
-                FloodHMaskDer->Drc = 1.0; // needed for sed
             }
 
             if (SwitchErosion)

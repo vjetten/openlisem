@@ -48,7 +48,7 @@ update of the runfile before running:
 
 #include <algorithm>
 #include "lisemqt.h"
-//#include "model.h"
+#include "model.h"
 #include "global.h"
 
 output op;
@@ -66,6 +66,8 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setMinimumSize(1280,800);
     //    resize(1280, 800);
     showMaximized();
+
+    nrUserCores->setMaximum(omp_get_max_threads());
 
     helpbox = new QDialog();
     helpbox->resize(1080, 600);
@@ -294,21 +296,21 @@ void lisemqt::setErosionMapOutput(bool doit)
 
 //--------------------------------------------------------------------
 //gives values 0,1,2,4,6,8
-void lisemqt::on_nrUserCores_valueChanged(int d)
-{
-    int cores = cpucores;
-    cores = d;
-    if (d > 1) {
-        if (d % 2 == 1)  {
-            if (d < cpucores) cores--;
-            else
-                if (d > cpucores) cores++;
-        } else
-            cores = d;
-    }
-    nrUserCores->setValue(cores);
-    cpucores = cores;
-}
+//void lisemqt::on_nrUserCores_valueChanged(int d)
+//{
+//    int cores = cpucores;
+//    cores = d;
+//    if (d > 1) {
+//        if (d % 2 == 1)  {
+//            if (d < cpucores) cores--;
+//            else
+//                if (d > cpucores) cores++;
+//        } else
+//            cores = d;
+//    }
+//    nrUserCores->setValue(cores);
+//    cpucores = cores;
+//}
 //--------------------------------------------------------------------
 void lisemqt::on_ComboMinSpinBox_valueChanged(double d)
 {
@@ -1694,7 +1696,7 @@ void lisemqt::resetAll()
    // HPlot = nullptr;
    // MPlot = nullptr;
 
-    nrUserCores->setValue(1);
+    nrUserCores->setValue(0);
     cpucores = nrUserCores->value();
     doShootScreens = false;
     startShootScreens = true;

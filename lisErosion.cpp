@@ -1792,10 +1792,8 @@ void TWorld::RiverSedimentMaxC(int r, int c)
 void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
 {
 
-    FOR_ROW_COL_MV_CH
-    {
-        MSSNFlood->Drc = _SS->Drc;
-        MSSCFlood->Drc = MaxConcentration(ChannelWaterVol->Drc, &MSSNFlood->Drc, &ChannelDep->Drc);
+    FOR_ROW_COL_MV_CH {
+        _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, &_SS->Drc, &ChannelDep->Drc);
     }
 
 
@@ -1883,29 +1881,27 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
         if(foundp)
         {
             double coeff1 = std::min(dt*eta *std::min(1.0,ChannelSSDepth->data[rp][cp]/ChannelSSDepth->data[r][c]),
-                                     courant_factor/2.0) * MSSNFlood->Drc;
+                                     courant_factor/2.0) * _SS->Drc;
             //                                     courant_factor_diffusive/2.0) * MSSNFlood->Drc;
 
-            MSSNFlood->data[rp][cp] += coeff1;
-            MSSNFlood->data[r][c] -= coeff1;
+            _SS->data[rp][cp] += coeff1;
+            _SS->data[r][c] -= coeff1;
         }
 
         //add diffusive fluxes to next cell in channel.
         if(foundn)
         {
             double coeff2 = std::min(dt*eta *std::min(1.0,ChannelSSDepth->data[rn][cn]/ChannelSSDepth->data[r][c]),
-                                     courant_factor/2.0) * MSSNFlood->Drc;
-            //            courant_factor_diffusive/2.0) * MSSNFlood->Drc;
+                                     courant_factor/2.0) * _SS->Drc;
 
-            MSSNFlood->data[rn][cn] += coeff2;
-            MSSNFlood->data[r][c] -= coeff2;
+            _SS->data[rn][cn] += coeff2;
+            _SS->data[r][c] -= coeff2;
         }
     }
 
     //recalculate concentrations
     FOR_ROW_COL_MV_CH
     {
-        _SS->Drc = MSSNFlood->Drc;
         //set concentration from present sediment
         _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, &_SS->Drc, &ChannelDep->Drc);
     }
