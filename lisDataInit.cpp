@@ -1012,46 +1012,46 @@ void TWorld::InitErosion(void)
     if (!SwitchErosion)
         return;
 
-        COHCalibration = getvaluedouble("Cohesion calibration");
-        Cohesion = ReadMap(LDD,getvaluename("coh"));
-        calcValue(*Cohesion, COHCalibration, MUL);
+    COHCalibration = getvaluedouble("Cohesion calibration");
+    Cohesion = ReadMap(LDD,getvaluename("coh"));
+    calcValue(*Cohesion, COHCalibration, MUL);
 
-        RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
+    RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
 
-        ASCalibration = getvaluedouble("Aggregate stability calibration");
-        AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
-        calcValue(*AggrStab, ASCalibration, MUL);
+    ASCalibration = getvaluedouble("Aggregate stability calibration");
+    AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
+    calcValue(*AggrStab, ASCalibration, MUL);
 
-        D50 = ReadMap(LDD,getvaluename("D50"));
-        //SwitchNeedD90 = SwitchErosion && (SwitchChannelFlood || (SwitchUse2Layer && !R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution);
+    D50 = ReadMap(LDD,getvaluename("D50"));
+    //SwitchNeedD90 = SwitchErosion && (SwitchChannelFlood || (SwitchUse2Layer && !R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution);
+    if(SwitchUse2Layer && !SwitchUseGrainSizeDistribution)
+    {
+        D90 = ReadMap(LDD,getvaluename("D90"));
+    }
+
+    FOR_ROW_COL_MV
+    {
+        D50->Drc = D50->Drc *gsizeCalibration;
         if(SwitchUse2Layer && !SwitchUseGrainSizeDistribution)
         {
-            D90 = ReadMap(LDD,getvaluename("D90"));
+            D90->Drc = D90->Drc *gsizeCalibration;
         }
+    }
 
-        FOR_ROW_COL_MV
-        {
-            D50->Drc = D50->Drc *gsizeCalibration;
-            if(SwitchUse2Layer && !SwitchUseGrainSizeDistribution)
-            {
-                D90->Drc = D90->Drc *gsizeCalibration;
-            }
+    SedimentFilter = NewMap(0);
+    if (SwitchSedtrap)
+    {
+        SedMaxVolume = ReadMap(LDD,getvaluename("sedretmax"));
+        SedTrapN = getvaluedouble("Sediment Trap Mannings n");
+        FOR_ROW_COL_MV {
+            if (SedMaxVolume->Drc > 0)
+                N->Drc = SedTrapN;
         }
-
-        SedimentFilter = NewMap(0);
-        if (SwitchSedtrap)
-        {
-            SedMaxVolume = ReadMap(LDD,getvaluename("sedretmax"));
-            SedTrapN = getvaluedouble("Sediment Trap Mannings n");
-            FOR_ROW_COL_MV {
-                if (SedMaxVolume->Drc > 0)
-                    N->Drc = SedTrapN;
-            }
-        }
-        else {
-            SedTrapN = 0;
-            SedMaxVolume = NewMap(0);
-        }
+    }
+    else {
+        SedTrapN = 0;
+        SedMaxVolume = NewMap(0);
+    }
 
     //default
     R_BL_Method = FSRIJN;
@@ -1186,187 +1186,187 @@ void TWorld::InitErosion(void)
     }
 
 
-//    if(SwitchUseGrainSizeDistribution)
-//    {
+    //    if(SwitchUseGrainSizeDistribution)
+    //    {
 
-//        if(SwitchEstimateGrainSizeDistribution)
-//        {
-//            if(numgrainclasses == 0)
-//            {
-//                ErrorString = "Could not simulate 0 grain classes" +QString("\n")
-//                        + "Please provide a positive number";
-//                throw 1;
+    //        if(SwitchEstimateGrainSizeDistribution)
+    //        {
+    //            if(numgrainclasses == 0)
+    //            {
+    //                ErrorString = "Could not simulate 0 grain classes" +QString("\n")
+    //                        + "Please provide a positive number";
+    //                throw 1;
 
-//            }
+    //            }
 
 
-//            distD50 = 0;
-//            distD90 = 0;
-//            int count = 0;
-//            FOR_ROW_COL_MV
-//            {
-//                distD50 += D50->Drc;
-//                distD90 += D90->Drc;
-//                count++;
-//            }
-//            distD50 = distD50/count;
-//            distD90 = distD90/count;
+    //            distD50 = 0;
+    //            distD90 = 0;
+    //            int count = 0;
+    //            FOR_ROW_COL_MV
+    //            {
+    //                distD50 += D50->Drc;
+    //                distD90 += D90->Drc;
+    //                count++;
+    //            }
+    //            distD50 = distD50/count;
+    //            distD90 = distD90/count;
 
-//            double s = distD90- distD50;
-//            double s2l = std::max(distD50 - 2*s,distD50);
-//            double s2r = 2 * s;
+    //            double s = distD90- distD50;
+    //            double s2l = std::max(distD50 - 2*s,distD50);
+    //            double s2r = 2 * s;
 
-//            int classesleft = numgrainclasses;
-//            int mod2 = classesleft % 2;
-//            if(mod2 == 1)
-//            {
-//                classesleft -= 1;
-//            }
+    //            int classesleft = numgrainclasses;
+    //            int mod2 = classesleft % 2;
+    //            if(mod2 == 1)
+    //            {
+    //                classesleft -= 1;
+    //            }
 
-//            for(int i = 1; i < classesleft/2 + 1 ; i++)
-//            {
-//                double d = (distD50 - s2l) + ((double)i) * s2l/(1.0 + double(classesleft/2.0) );
-//                graindiameters.append(d);
-//                W_D.append(NewMap(s2l/(1.0 + double(classesleft/2.0) )));
-//            }
-//            if(mod2 == 1)
-//            {
-//                graindiameters.append(distD50);
-//                W_D.append(NewMap(0.5 *s2l/(1.0 + double(classesleft/2.0) ) + 0.5 * s2r/(1.0 + double(classesleft/2.0))));
-//            }
+    //            for(int i = 1; i < classesleft/2 + 1 ; i++)
+    //            {
+    //                double d = (distD50 - s2l) + ((double)i) * s2l/(1.0 + double(classesleft/2.0) );
+    //                graindiameters.append(d);
+    //                W_D.append(NewMap(s2l/(1.0 + double(classesleft/2.0) )));
+    //            }
+    //            if(mod2 == 1)
+    //            {
+    //                graindiameters.append(distD50);
+    //                W_D.append(NewMap(0.5 *s2l/(1.0 + double(classesleft/2.0) ) + 0.5 * s2r/(1.0 + double(classesleft/2.0))));
+    //            }
 
-//            for(int i = 1; i < classesleft/2 + 1; i++)
-//            {
-//                double d = (distD50) + ((double)i) *s2r/(1.0 + double(classesleft/2.0) );
-//                graindiameters.append(d);
-//                W_D.append(NewMap(s2r/(1.0 + double(classesleft/2.0))));
-//            }
+    //            for(int i = 1; i < classesleft/2 + 1; i++)
+    //            {
+    //                double d = (distD50) + ((double)i) *s2r/(1.0 + double(classesleft/2.0) );
+    //                graindiameters.append(d);
+    //                W_D.append(NewMap(s2r/(1.0 + double(classesleft/2.0))));
+    //            }
 
-//            FOR_GRAIN_CLASSES
-//            {
+    //            FOR_GRAIN_CLASSES
+    //            {
 
-//                settlingvelocities.append(GetSV(graindiameters.at(d)));
+    //                settlingvelocities.append(GetSV(graindiameters.at(d)));
 
-//                FOR_ROW_COL_MV
-//                {
-//                    W_D.Drcd = W_D.Drcd*LogNormalDist(D50->Drc,D90->Drc -D50->Drc,graindiameters.at(d));
-//                }
-//                Tempa_D.append(NewMap(0.0));
-//                Tempb_D.append(NewMap(0.0));
-//                Tempc_D.append(NewMap(0.0));
-//                Tempd_D.append(NewMap(0.0));
+    //                FOR_ROW_COL_MV
+    //                {
+    //                    W_D.Drcd = W_D.Drcd*LogNormalDist(D50->Drc,D90->Drc -D50->Drc,graindiameters.at(d));
+    //                }
+    //                Tempa_D.append(NewMap(0.0));
+    //                Tempb_D.append(NewMap(0.0));
+    //                Tempc_D.append(NewMap(0.0));
+    //                Tempd_D.append(NewMap(0.0));
 
-//                BL_D.append(NewMap(0.0));
-//                SS_D.append(NewMap(0.0));
-//                BLC_D.append(NewMap(0.0));
-//                SSC_D.append(NewMap(0.0));
-//                BLTC_D.append(NewMap(0.0));
-//                SSTC_D.append(NewMap(0.0));
-//                BLD_D.append(NewMap(0.0));
-//                SSD_D.append(NewMap(0.0));
+    //                BL_D.append(NewMap(0.0));
+    //                SS_D.append(NewMap(0.0));
+    //                BLC_D.append(NewMap(0.0));
+    //                SSC_D.append(NewMap(0.0));
+    //                BLTC_D.append(NewMap(0.0));
+    //                SSTC_D.append(NewMap(0.0));
+    //                BLD_D.append(NewMap(0.0));
+    //                SSD_D.append(NewMap(0.0));
 
-//                RBL_D.append(NewMap(0.0));
-//                RSS_D.append(NewMap(0.0));
-//                RBLC_D.append(NewMap(0.0));
-//                RSSC_D.append(NewMap(0.0));
-//                RBLTC_D.append(NewMap(0.0));
-//                RSSTC_D.append(NewMap(0.0));
-//                RBLD_D.append(NewMap(0.0));
-//                RSSD_D.append(NewMap(0.0));
+    //                RBL_D.append(NewMap(0.0));
+    //                RSS_D.append(NewMap(0.0));
+    //                RBLC_D.append(NewMap(0.0));
+    //                RSSC_D.append(NewMap(0.0));
+    //                RBLTC_D.append(NewMap(0.0));
+    //                RSSTC_D.append(NewMap(0.0));
+    //                RBLD_D.append(NewMap(0.0));
+    //                RSSD_D.append(NewMap(0.0));
 
-//                Sed_D.append(NewMap(0.0));
-//                TC_D.append(NewMap(0.0));
-//                Conc_D.append(NewMap(0.0));
+    //                Sed_D.append(NewMap(0.0));
+    //                TC_D.append(NewMap(0.0));
+    //                Conc_D.append(NewMap(0.0));
 
-//                StorageDep_D.append(NewMap(0.0));
-//                Storage_D.append(NewMap(0.0));
-//                RStorageDep_D.append(NewMap(0.0));
-//                RStorage_D.append(NewMap(0.0));
-//            }
+    //                StorageDep_D.append(NewMap(0.0));
+    //                Storage_D.append(NewMap(0.0));
+    //                RStorageDep_D.append(NewMap(0.0));
+    //                RStorage_D.append(NewMap(0.0));
+    //            }
 
-//            FOR_ROW_COL_MV
-//            {
-//                double wtotal = 0;
-//                FOR_GRAIN_CLASSES
-//                {
-//                    wtotal += (W_D).Drcd;
-//                }
+    //            FOR_ROW_COL_MV
+    //            {
+    //                double wtotal = 0;
+    //                FOR_GRAIN_CLASSES
+    //                {
+    //                    wtotal += (W_D).Drcd;
+    //                }
 
-//                if(wtotal != 0)
-//                {
-//                    FOR_GRAIN_CLASSES
-//                    {
-//                        (W_D).Drcd = (W_D).Drcd/wtotal;
-//                    }
-//                }
-//            }
+    //                if(wtotal != 0)
+    //                {
+    //                    FOR_GRAIN_CLASSES
+    //                    {
+    //                        (W_D).Drcd = (W_D).Drcd/wtotal;
+    //                    }
+    //                }
+    //            }
 
-//        }
+    //        }
 
-//        //        if(SwitchReadGrainSizeDistribution)
-//        //        {
+    //        //        if(SwitchReadGrainSizeDistribution)
+    //        //        {
 
-//        //            numgrainclasses = 0;
-//        //            QStringList diamlist = getvaluename("Grain size class maps").split(";", Qt::SkipEmptyParts);
+    //        //            numgrainclasses = 0;
+    //        //            QStringList diamlist = getvaluename("Grain size class maps").split(";", Qt::SkipEmptyParts);
 
-//        //            for(int i = 0; i < diamlist.count(); i++)
-//        //            {
-//        //                double diam = gsizeCalibration*diamlist.at(i).toDouble();
-//        //                ///gsizeCalibration ?? added later?
-//        //                if( diam > 0.0)
-//        //                {
-//        //                    numgrainclasses++;
-//        //                    graindiameters.append(diam);
+    //        //            for(int i = 0; i < diamlist.count(); i++)
+    //        //            {
+    //        //                double diam = gsizeCalibration*diamlist.at(i).toDouble();
+    //        //                ///gsizeCalibration ?? added later?
+    //        //                if( diam > 0.0)
+    //        //                {
+    //        //                    numgrainclasses++;
+    //        //                    graindiameters.append(diam);
 
-//        //                    settlingvelocities.append(GetSV(diam));
+    //        //                    settlingvelocities.append(GetSV(diam));
 
-//        //                    W_D.append(ReadMap(LDD,"GSD_"+diamlist.at(i)));
+    //        //                    W_D.append(ReadMap(LDD,"GSD_"+diamlist.at(i)));
 
-//        //                    graindiameters.clear();
+    //        //                    graindiameters.clear();
 
-//        //                    Tempa_D.append(NewMap(0.0));
-//        //                    Tempb_D.append(NewMap(0.0));
-//        //                    Tempc_D.append(NewMap(0.0));
-//        //                    Tempd_D.append(NewMap(0.0));
+    //        //                    Tempa_D.append(NewMap(0.0));
+    //        //                    Tempb_D.append(NewMap(0.0));
+    //        //                    Tempc_D.append(NewMap(0.0));
+    //        //                    Tempd_D.append(NewMap(0.0));
 
-//        //                    BL_D.append(NewMap(0.0));
-//        //                    SS_D.append(NewMap(0.0));
-//        //                    BLC_D.append(NewMap(0.0));
-//        //                    SSC_D.append(NewMap(0.0));
-//        //                    BLTC_D.append(NewMap(0.0));
-//        //                    SSTC_D.append(NewMap(0.0));
-//        //                    BLD_D.append(NewMap(0.0));
-//        //                    SSD_D.append(NewMap(0.0));
+    //        //                    BL_D.append(NewMap(0.0));
+    //        //                    SS_D.append(NewMap(0.0));
+    //        //                    BLC_D.append(NewMap(0.0));
+    //        //                    SSC_D.append(NewMap(0.0));
+    //        //                    BLTC_D.append(NewMap(0.0));
+    //        //                    SSTC_D.append(NewMap(0.0));
+    //        //                    BLD_D.append(NewMap(0.0));
+    //        //                    SSD_D.append(NewMap(0.0));
 
-//        //                    RBL_D.append(NewMap(0.0));
-//        //                    RSS_D.append(NewMap(0.0));
-//        //                    RBLC_D.append(NewMap(0.0));
-//        //                    RSSC_D.append(NewMap(0.0));
-//        //                    RBLTC_D.append(NewMap(0.0));
-//        //                    RSSTC_D.append(NewMap(0.0));
-//        //                    RBLD_D.append(NewMap(0.0));
-//        //                    RSSD_D.append(NewMap(0.0));
+    //        //                    RBL_D.append(NewMap(0.0));
+    //        //                    RSS_D.append(NewMap(0.0));
+    //        //                    RBLC_D.append(NewMap(0.0));
+    //        //                    RSSC_D.append(NewMap(0.0));
+    //        //                    RBLTC_D.append(NewMap(0.0));
+    //        //                    RSSTC_D.append(NewMap(0.0));
+    //        //                    RBLD_D.append(NewMap(0.0));
+    //        //                    RSSD_D.append(NewMap(0.0));
 
-//        //                    Sed_D.append(NewMap(0.0));
-//        //                    TC_D.append(NewMap(0.0));
-//        //                    Conc_D.append(NewMap(0.0));
+    //        //                    Sed_D.append(NewMap(0.0));
+    //        //                    TC_D.append(NewMap(0.0));
+    //        //                    Conc_D.append(NewMap(0.0));
 
-//        //                    StorageDep_D.append(NewMap(0.0));
-//        //                    Storage_D.append(NewMap(0.0));
-//        //                    RStorageDep_D.append(NewMap(0.0));
-//        //                    RStorage_D.append(NewMap(0.0));
-//        //                }
-//        //            }
+    //        //                    StorageDep_D.append(NewMap(0.0));
+    //        //                    Storage_D.append(NewMap(0.0));
+    //        //                    RStorageDep_D.append(NewMap(0.0));
+    //        //                    RStorage_D.append(NewMap(0.0));
+    //        //                }
+    //        //            }
 
-//        //            if(numgrainclasses == 0)
-//        //            {
-//        //                ErrorString = "Could not interpret grain classes from the string: \n"
-//        //                        +  getvaluename("Grain size class maps") + "\n"
-//        //                        + "Please provide positive values seperated by commas.";
-//        //                throw 1;
-//        //            }
-//        //        }
-//    }
+    //        //            if(numgrainclasses == 0)
+    //        //            {
+    //        //                ErrorString = "Could not interpret grain classes from the string: \n"
+    //        //                        +  getvaluename("Grain size class maps") + "\n"
+    //        //                        + "Please provide positive values seperated by commas.";
+    //        //                throw 1;
+    //        //            }
+    //        //        }
+    //    }
 }
 
 
