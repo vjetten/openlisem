@@ -121,7 +121,7 @@ void lisemqt::setupMapPlot()
 
     MPlot = new QwtPlot(title, this);
     // make the plot window
-    maplayout->insertWidget(1, MPlot, 0, 0);
+    maplayout->insertWidget(1, MPlot, 0);
 
     // put it on screen
     MPlot->enableAxis( MPlot->yRight );
