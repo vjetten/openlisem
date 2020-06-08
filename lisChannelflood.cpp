@@ -117,7 +117,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                         ChannelWH->Drcr -= dwh;
 
                         if(SwitchErosion) {
-                            double sed = dwh/ChannelWH->Drc * ChannelSSSed->Drcr; //* ChannelDX->Drcr * ChannelWidthMax->Drcr * ChannelSSConc->Drcr;
+                            double sed = ChannelWH->Drc > 0 ? dwh/ChannelWH->Drc * ChannelSSSed->Drcr : 0; //* ChannelDX->Drcr * ChannelWidthMax->Drcr * ChannelSSConc->Drcr;
                             ChannelSSSed->Drcr -= sed;
                             _SS->Drcr += sed;
                         }
