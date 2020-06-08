@@ -262,14 +262,13 @@ void TWorld::ChannelFlow(void)
         {
 #pragma omp parallel for collapse(2)
             FOR_ROW_COL_MV_CH {
-                double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
                 double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
-                //temp conc because we move everything with channelQ
-
-                //ChannelConc->Drc = (concbl + concss); // allowed because of CH vol
-                //ChannelQs->Drc =  ChannelQ->Drc * ChannelConc->Drc;
-                ChannelQBLs->Drc = ChannelQ->Drc * concbl;
                 ChannelQSSs->Drc = ChannelQ->Drc * concss;
+
+                if(SwitchUse2Layer) {
+                    double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
+                    ChannelQBLs->Drc = ChannelQ->Drc * concbl;
+                }
             }
 
         } else {
@@ -293,12 +292,14 @@ void TWorld::ChannelFlow(void)
             }
             FOR_ROW_COL_MV_CH {
                 //ChannelQs->Drc =  ChannelQ->Drc * ChannelConc->Drc;
-                ChannelQBLs->Drc = ChannelQ->Drc * concbl;
+                if(SwitchUse2Layer)
+                    ChannelQBLs->Drc = ChannelQ->Drc * concbl;
                 ChannelQSSs->Drc = ChannelQ->Drc * concss;
             }
         }
 
-        ChannelQBLsn->setAllMV();
+        if(SwitchUse2Layer)
+            ChannelQBLsn->setAllMV();
         ChannelQSSsn->setAllMV();
         if(SwitchUseGrainSizeDistribution)
         {
@@ -376,8 +377,8 @@ void TWorld::ChannelFlow(void)
                 }
             }
         }
-
-        cover(*ChannelQBLsn, *LDD, 0);
+        if(SwitchUse2Layer)
+            cover(*ChannelQBLsn, *LDD, 0);
         cover(*ChannelQSSsn, *LDD, 0);
 
 #pragma omp parallel for collapse(2)
@@ -438,8 +439,8 @@ void TWorld::ChannelFlow(void)
             {
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r,c);
-                ChannelQsn->Drc = ChannelQBLsn->Drc + ChannelQSSsn->Drc;
-                ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
+                ChannelQsn->Drc = (SwitchUse2Layer ? ChannelQBLsn->Drc : 0.0) + ChannelQSSsn->Drc;
+                ChannelSed->Drc = (SwitchUse2Layer ? ChannelBLSed->Drc : 0.0) + ChannelSSSed->Drc;
             }
         }
         else

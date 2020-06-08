@@ -34,16 +34,17 @@ public:
         QwtPlotItemList list = plot()->itemList(QwtPlotItem::Rtti_PlotSpectrogram);
         QwtPlotSpectrogram * sp2 = static_cast<QwtPlotSpectrogram *> (list.at(3));
         QwtPlotSpectrogram * sp0 = static_cast<QwtPlotSpectrogram *> (list.at(0));
-        // elevation info
-
+//        // elevation info
         QwtPlotSpectrogram * sp3 = static_cast<QwtPlotSpectrogram *> (list.at(7));
-        // outlet info
+//        // outlet info
 
         if (sp2->data() == nullptr)
             return QwtText(txt);
         double z2 = sp2->data()->value(pos.x(), pos.y());
         double z0 = sp0->data()->value(pos.x(), pos.y());
-        int z3 = (int) sp3->data()->value(pos.x(), pos.y());
+        int z3 = 0;
+        if (sp3->data() != nullptr)
+            z3 = (int) sp3->data()->value(pos.x(), pos.y());
 
         if (z2 > -1e10)
         {

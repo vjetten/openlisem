@@ -1,4 +1,4 @@
-
+//
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
 **  Copyright (C) 2010,2011  Victor Jetten
@@ -1448,7 +1448,7 @@ void TWorld::ChannelFlowDetachment()
                     TBLTCtemp = ChannelBLTC;
                     TBLCtemp = ChannelBLConc;
                     TBLtemp = ChannelBLSed;
-                    TSettlingVelocityBL = SettlingVelocitySS->Drc;
+                    TSettlingVelocityBL = SettlingVelocityBL->Drc;
                 }
                 TW = unity;
             }
@@ -1475,14 +1475,19 @@ void TWorld::ChannelFlowDetachment()
             //when waterheight is insignificant, deposite all remaining sediment
             if(ChannelWH->Drc < MIN_HEIGHT)
             {
-                deposition = -TBLtemp->Drc;
                 deposition += -TSStemp->Drc;
-                TBLtemp->Drc = 0;
                 TSStemp->Drc = 0;
-                TBLTCtemp->Drc = 0;
                 TSSTCtemp->Drc = 0;
-                TBLCtemp->Drc = 0;
                 TSSCtemp->Drc = 0;
+                TSSDepthtemp->Drc = 0;
+
+                if (SwitchUse2Layer) {
+                    deposition = -TBLtemp->Drc;
+                    TBLtemp->Drc = 0;
+                    TBLTCtemp->Drc = 0;
+                    TBLCtemp->Drc = 0;
+                    TBLDepthtemp->Drc = 0;
+                }
 
                 ChannelDep->Drc += deposition;
 
@@ -1498,15 +1503,6 @@ void TWorld::ChannelFlowDetachment()
                     //                        }
                     //                    }
                 }
-
-                TBLDepthtemp->Drc = 0;
-                TSSDepthtemp->Drc = 0;
-                TBLTCtemp->Drc = 0;
-                TSSTCtemp->Drc = 0;
-                TBLCtemp->Drc = 0;
-                TSSCtemp->Drc = 0;
-                TBLtemp->Drc = 0;
-                TSStemp->Drc = 0;
 
                 //                if(SwitchUseGrainSizeDistribution)
                 //                {
@@ -1554,6 +1550,10 @@ void TWorld::ChannelFlowDetachment()
                 TSStemp->Drc += deposition;
                 ChannelDep->Drc += deposition;
                 ChannelDetFlow->Drc += detachment;
+                ChannelTC->Drc = ChannelSSTC->Drc;
+                ChannelSed->Drc = ChannelSSSed->Drc;
+                //total transport capacity (bed load + suspended load), used for output
+
 
                 if(SwitchUseMaterialDepth)
                 {
@@ -1619,6 +1619,9 @@ void TWorld::ChannelFlowDetachment()
                             TBLtemp->Drc += deposition;
                             ChannelDep->Drc += deposition;
                             ChannelDetFlow->Drc += detachment;
+                            ChannelTC->Drc += ChannelBLTC->Drc;
+                            ChannelSed->Drc += ChannelBLSed->Drc;
+                            //total transport capacity (bed load + suspended load), used for output
                         }
                     }
                 }
@@ -1664,9 +1667,6 @@ void TWorld::ChannelFlowDetachment()
             //            }
         }
 
-        //total transport capacity (bed load + suspended load), used for output
-        ChannelTC->Drc = ChannelBLTC->Drc + ChannelSSTC->Drc;
-        ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
 
         RiverSedimentMaxC(r,c);
         //partial and total concentration ALL DONE
@@ -1699,69 +1699,66 @@ void TWorld::RiverSedimentMaxC(int r, int c)
     if(!SwitchUseGrainSizeDistribution)
     {
         _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc*frac, &_SS->Drc, &ChannelDep->Drc);
-        //_SS->Drc = _SSC->Drc* ChannelFlowWidth->Drc*DX->Drc*ChannelSSDepth->Drc;
-        // limit concentration to 850 and throw rest in deposition
-
-        //set concentration from present sediment
-        _BLC->Drc = MaxConcentration(ChannelWaterVol->Drc*(1-frac), &_BL->Drc, &ChannelDep->Drc);
-        // _BL->Drc = _BLC->Drc * DX->Drc *ChannelFlowWidth->Drc*ChannelBLDepth->Drc;
-    } else {
-        FOR_GRAIN_CLASSES
-        {
-            RSSC_D.Drcd = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*RSSD_D.Drcd, &RSS_D.Drcd, &ChannelDep->Drc);
-            // limit concentration to 850 and throw rest in deposition
-
-            double sssmax = MAXCONC * DX->Drc *ChannelFlowWidth->Drc*RSSD_D.Drcd;
-            if(sssmax < RSS_D.Drcd)
-            {
-                ChannelDep->Drc += (RSS_D.Drcd - sssmax);
-                ChannelSSSed->Drc += -(RSS_D.Drcd - sssmax);
-                if(SwitchUseMaterialDepth)
-                {
-                    RStorageDep->Drc += (RSS_D.Drcd - sssmax);
-                    RStorageDep_D.Drcd += (RSS_D.Drcd - sssmax);
-                    if(std::isnan(RStorageDep_D.Drcd))
-                    {
-                        qDebug() << "NAN dep3" << d;
-                    }
-                }
-                RSS_D.Drcd = sssmax;
-
-            }
-
-
-            RBLC_D.Drcd = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*RBLD_D.Drcd, &RBL_D.Drcd, &ChannelDep->Drc);
-            // limit concentration to 850 and throw rest in deposition
-
-            sssmax = MAXCONCBL * DX->Drc *ChannelFlowWidth->Drc*RBLD_D.Drcd;
-            if(sssmax < BL_D.Drcd)
-            {
-                ChannelDep->Drc += (RBL_D.Drcd - sssmax);
-                ChannelBLSed->Drc += -(RBL_D.Drcd - sssmax);
-                RBL_D.Drcd = sssmax;
-                if(SwitchUseMaterialDepth)
-                {
-                    RStorageDep->Drc += (RBL_D.Drcd - sssmax);
-                    RStorageDep_D.Drcd += (RBL_D.Drcd - sssmax);
-                    if(std::isnan(RStorageDep_D.Drcd))
-                    {
-                        qDebug() << "NAN dep4" << d;
-                    }
-                }
-            }
-        }
-
-        ChannelBLConc->Drc = 0;
-        ChannelSSConc->Drc = 0;
-
-        FOR_GRAIN_CLASSES
-        {
-            ChannelBLConc->Drc += RBLC_D.Drcd;
-            ChannelSSConc->Drc += RSSC_D.Drcd;
-        }
+        if (SwitchUse2Layer)
+            _BLC->Drc = MaxConcentration(ChannelWaterVol->Drc*(1-frac), &_BL->Drc, &ChannelDep->Drc);
     }
+//    else {
+//        FOR_GRAIN_CLASSES
+//        {
+//            RSSC_D.Drcd = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*RSSD_D.Drcd, &RSS_D.Drcd, &ChannelDep->Drc);
+//            // limit concentration to 850 and throw rest in deposition
 
-    ChannelSed->Drc = _BL->Drc + _SS->Drc;
+//            double sssmax = MAXCONC * DX->Drc *ChannelFlowWidth->Drc*RSSD_D.Drcd;
+//            if(sssmax < RSS_D.Drcd)
+//            {
+//                ChannelDep->Drc += (RSS_D.Drcd - sssmax);
+//                ChannelSSSed->Drc += -(RSS_D.Drcd - sssmax);
+//                if(SwitchUseMaterialDepth)
+//                {
+//                    RStorageDep->Drc += (RSS_D.Drcd - sssmax);
+//                    RStorageDep_D.Drcd += (RSS_D.Drcd - sssmax);
+//                    if(std::isnan(RStorageDep_D.Drcd))
+//                    {
+//                        qDebug() << "NAN dep3" << d;
+//                    }
+//                }
+//                RSS_D.Drcd = sssmax;
+
+//            }
+
+
+//            RBLC_D.Drcd = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*RBLD_D.Drcd, &RBL_D.Drcd, &ChannelDep->Drc);
+//            // limit concentration to 850 and throw rest in deposition
+
+//            sssmax = MAXCONCBL * DX->Drc *ChannelFlowWidth->Drc*RBLD_D.Drcd;
+//            if(sssmax < BL_D.Drcd)
+//            {
+//                ChannelDep->Drc += (RBL_D.Drcd - sssmax);
+//                ChannelBLSed->Drc += -(RBL_D.Drcd - sssmax);
+//                RBL_D.Drcd = sssmax;
+//                if(SwitchUseMaterialDepth)
+//                {
+//                    RStorageDep->Drc += (RBL_D.Drcd - sssmax);
+//                    RStorageDep_D.Drcd += (RBL_D.Drcd - sssmax);
+//                    if(std::isnan(RStorageDep_D.Drcd))
+//                    {
+//                        qDebug() << "NAN dep4" << d;
+//                    }
+//                }
+//            }
+//        }
+
+//        ChannelBLConc->Drc = 0;
+//        ChannelSSConc->Drc = 0;
+
+//        FOR_GRAIN_CLASSES
+//        {
+//            ChannelBLConc->Drc += RBLC_D.Drcd;
+//            ChannelSSConc->Drc += RSSC_D.Drcd;
+//        }
+//    }
+
+    ChannelSed->Drc = (SwitchUse2Layer ? _BL->Drc : 0) + _SS->Drc;
     //total concentration
     ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, &ChannelSed->Drc, &ChannelDep->Drc);
 
@@ -1920,7 +1917,7 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
 {
     if (!SwitchUse2Layer) {
         ChannelSSDepth->Drc = ChannelWH->Drc;
-        ChannelBLDepth->Drc = 0;
+       // ChannelBLDepth->Drc = 0;
         return;
     }
 

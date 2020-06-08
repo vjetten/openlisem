@@ -179,7 +179,7 @@ void lisemqt::setupMapPlot()
     outletMap = new QwtPlotSpectrogram();
     outletMap->setRenderThreadCount( 0 );
     outletMap->attach( MPlot );
-    // channel map
+    // channel map-
 
     //8
     contourDEM = new QwtPlotSpectrogram();

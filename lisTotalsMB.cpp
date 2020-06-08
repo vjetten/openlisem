@@ -326,7 +326,7 @@ void TWorld::Totals(void)
             // units here in kg, conversion to ton in report functions
             ChannelDetTot += mapTotal(*ChannelDetFlow);
             ChannelDepTot += mapTotal(*ChannelDep);
-            ChannelSedTot = mapTotal(*ChannelBLSed) + mapTotal(*ChannelSSSed);
+            ChannelSedTot = (SwitchUse2Layer ? mapTotal(*ChannelBLSed) : 0.0) + mapTotal(*ChannelSSSed);
         }
 
         floodBoundarySedTot += K2DQSOutBoun;
@@ -336,9 +336,9 @@ void TWorld::Totals(void)
 
 
         // used for mass balance and screen output
-        FloodDetTot += mapTotal(*BLDetFlood) + mapTotal(*SSDetFlood);
+        FloodDetTot += (SwitchUse2Layer ? mapTotal(*BLDetFlood) : 0.0) + mapTotal(*SSDetFlood);
         FloodDepTot += mapTotal(*DepFlood);
-        FloodSedTot = mapTotal(*BLFlood) + mapTotal(*SSFlood);
+        FloodSedTot = (SwitchUse2Layer ? mapTotal(*BLFlood) : 0.0) + mapTotal(*SSFlood);
 
         calcMap(*DETFlowCum, *BLDetFlood, ADD);
         calcMap(*DETFlowCum, *SSDetFlood, ADD);
@@ -381,7 +381,7 @@ void TWorld::Totals(void)
 
         FOR_ROW_COL_MV
         {
-            double sedall = Sed->Drc + BLFlood->Drc + SSFlood->Drc +  (SwitchIncludeChannel ? ChannelSed->Drc : 0.0);
+            double sedall = Sed->Drc + (SwitchUse2Layer ? BLFlood->Drc : 0.0) + SSFlood->Drc +  (SwitchIncludeChannel ? ChannelSed->Drc : 0.0);
             double waterall = WaterVolall->Drc + (SwitchIncludeChannel ? ChannelWaterVol->Drc : 0.0);
             TotalConc->Drc = MaxConcentration(waterall ,&sedall, &tmb->Drc);
             // for output

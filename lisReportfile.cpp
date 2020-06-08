@@ -286,22 +286,22 @@ void TWorld::OutputUI(void)
     {
         fill(*COMBO_SS, 0.0);
         calcMap(*COMBO_SS, *Sed, ADD);
-        calcMap(*COMBO_SS, *BLFlood, ADD);
+        if (SwitchUse2Layer)
+            calcMap(*COMBO_SS, *BLFlood, ADD);
         calcMap(*COMBO_SS, *SSFlood, ADD);
         if(SwitchIncludeChannel)
         {
-            calcMap(*COMBO_SS, *ChannelBLSed, ADD);
+            if (SwitchUse2Layer)
+                calcMap(*COMBO_SS, *ChannelBLSed, ADD);
             calcMap(*COMBO_SS, *ChannelSSSed, ADD);
         }
 
         copy(*COMBO_TC, *TC);
-        if(SwitchChannelFlood)
-        {
+        if (SwitchUse2Layer)
             calcMap(*COMBO_TC, *BLTCFlood, ADD);
-            calcMap(*COMBO_TC, *SSTCFlood, ADD);
-        }
+        calcMap(*COMBO_TC, *SSTCFlood, ADD);
         if(SwitchIncludeChannel)
-        {
+        {            
             calcMap(*COMBO_TC, *ChannelTC, ADD);  // sum of bl and ss
             copy(*COMBO_TC, *ChannelTC);
         }
@@ -331,8 +331,8 @@ void TWorld::OutputUI(void)
 
     if (SwitchIncludeChannel) {
         copy(*op.channelMap, *LDDChannel);//*ChannelMaskExtended);
-        copy(*op.outletMap, *PointMap);
     }
+    copy(*op.outletMap, *PointMap);
 
     if (SwitchRoadsystem) {
         copy(*op.roadMap, *RoadWidthDX);
@@ -1507,7 +1507,6 @@ void TWorld::GetComboMaps()
         AddComboMap(1,"Total Soil Loss",unit,TotalSoillossMap,Colormap,Colors,false,true,factor, step);
 
         setColor(9);
-
         AddComboMap(1,"Splash detachment",unit,DETSplashCum,Colormap,Colors,false,false,factor, step);
         AddComboMap(1,"Flow detachment",unit,DETFlowCum,Colormap,Colors,false,false,factor, step);
         AddComboMap(1,"Sed. Concentration","kg/m3",TotalConc,Colormap,Colors,false,false,1.0, step);
