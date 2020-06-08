@@ -907,18 +907,26 @@ void TWorld::InitChannel(void)
 
         FOR_ROW_COL_MV_CH
         {
+            if (ChannelSide->Drc > 0) {
+                double w = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc;
+                if (w > 0.9*_dx) {
+                    ChannelSide->Drc = 0.05*_dx/ChannelDepth->Drc;
+                    w = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc;
+                }
+                ChannelWidth->Drc  = 0.5*(w + ChannelWidth->Drc);
+                ChannelSide->Drc = 0;
+            }
+            ChannelWidthMax->Drc = ChannelWidth->Drc;
 
             // top width
-            ChannelWidthMax->Drc = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc;
-            if (ChannelWidthMax->Drc > 0.9*_dx && ChannelSide->Drc > 0) {
-               ChannelSide->Drc = 0.05*_dx/ChannelDepth->Drc;
-               ChannelWidthMax->Drc = 0.9*_dx;
-            }
+//            ChannelWidthMax->Drc = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc;
+//            if (ChannelWidthMax->Drc > 0.9*_dx && ChannelSide->Drc > 0) {
+//               ChannelSide->Drc = 0.05*_dx/ChannelDepth->Drc;
+//               ChannelWidthMax->Drc = 0.9*_dx;
+//            }
             // can be more than _dx
             ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
         }
-        report(*ChannelSide,"chansideadj.map");
-
 
         copy(*ChannelFlowWidth, *ChannelWidth); // actual width related to water height in channel
         cover(*ChannelFlowWidth, *LDD, 0);
