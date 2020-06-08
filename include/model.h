@@ -435,7 +435,7 @@ public:
     void InitBoundary(void); //VJ 110112
     void InitShade(void); //VJ 130301
     void InitImages(void);
-    void InitMulticlass(void); //VJ 110511
+    void InitErosion(void); //VJ 110511
     void GetInputData(void);      // get and make input maps
     void IntializeData(void);     // make all non-input maps
     void IntializeOptions(void);  // set all options to false etc

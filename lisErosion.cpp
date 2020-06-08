@@ -1151,7 +1151,7 @@ void TWorld::FlowDetachment()
                     if(!SwitchUseGrainSizeDistribution)
                     {
                         if (erosionwh > HMIN)
-                            TransportFactor = (1-exp(-_dt*SettlingVelocity->Drc/erosionwh)) * erosionwv;
+                            TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/erosionwh)) * erosionwv;
                         else
                             TransportFactor = erosionwv;
                     }
@@ -1230,7 +1230,7 @@ void TWorld::FlowDetachment()
 
                     if(!SwitchUseGrainSizeDistribution)
                     {
-                        TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * fpa->Drc*SoilWidthDX->Drc;
+                        TransportFactor = _dt*SettlingVelocitySS->Drc * DX->Drc * fpa->Drc*SoilWidthDX->Drc;
                         // soilwidth is erodible surface
                     }
                     //                else
@@ -1339,17 +1339,14 @@ void TWorld::ChannelFlowDetachment()
         RiverSedimentLayerDepth(r,c);
         //creates ChannelBLDepth and ChannelSSDepth, if 1 layer ChannelBLDepth = 0
 
-        double blwatervol = 0;
-        if (SwitchUse2Layer)
-                blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelFlowWidth->Drc;
         double sswatervol = ChannelSSDepth->Drc*DX->Drc*ChannelFlowWidth->Drc;
-
-        //  double bldepth = ChannelBLDepth->Drc;
-        //   double ssdepth = ChannelSSDepth->Drc;
-
-        //discharges for both layers and watervolumes
-        // double bldischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelBLDepth->Drc;
-        // double ssdischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelSSDepth->Drc;
+        double ssdischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelSSDepth->Drc;
+        double blwatervol = 0;
+        double bldischarge = 0;
+        if (SwitchUse2Layer) {
+            blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelFlowWidth->Drc;
+            bldischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelBLDepth->Drc;
+        }
 
         //iterator is number of grain classes
         int iterator = numgrainclasses;
@@ -1436,7 +1433,8 @@ void TWorld::ChannelFlowDetachment()
             cTMap * TSStemp;
             cTMap * TW;
 
-            double TSettlingVelocity;
+            double TSettlingVelocitySS;
+            double TSettlingVelocityBL;
 
             if(!SwitchUseGrainSizeDistribution)
             {
@@ -1444,14 +1442,15 @@ void TWorld::ChannelFlowDetachment()
                 TSSTCtemp = ChannelSSTC;
                 TSSCtemp = ChannelSSConc;
                 TSStemp = ChannelSSSed;
+                TSettlingVelocitySS = SettlingVelocitySS->Drc;
                 if (SwitchUse2Layer) {
                     TBLDepthtemp = ChannelBLDepth;
                     TBLTCtemp = ChannelBLTC;
                     TBLCtemp = ChannelBLConc;
                     TBLtemp = ChannelBLSed;
+                    TSettlingVelocityBL = SettlingVelocitySS->Drc;
                 }
                 TW = unity;
-                TSettlingVelocity = SettlingVelocity->Drc;
             }
             //            else
             //            {
@@ -1526,10 +1525,7 @@ void TWorld::ChannelFlowDetachment()
                 minTC = std::min(TSSTCtemp->Drc - TSSCtemp->Drc, 0.0);
 
                 if (minTC < 0) {
-                    if (TSSDepthtemp->Drc > MIN_HEIGHT)
-                        TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelWH->Drc)) * sswatervol;
-                    else
-                        TransportFactor =  1.0 * sswatervol;
+                    TransportFactor = (1-exp(-_dt*TSettlingVelocitySS/ChannelWH->Drc)) * sswatervol;
 
                     deposition = std::max(TransportFactor * minTC,-TSStemp->Drc); // in kg
                     // not more than SS present
@@ -1537,8 +1533,8 @@ void TWorld::ChannelFlowDetachment()
                     //    if (maxTC > 0) {
 
                     //  detachment
-                    TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc * ChannelFlowWidth->Drc;
-                    //TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
+                    TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelFlowWidth->Drc;
+                    TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
                     //TransportFactor = ssdischarge*_dt;
                     // use discharge because standing water has no erosion
 
@@ -1582,7 +1578,7 @@ void TWorld::ChannelFlowDetachment()
 
                         if (maxTC > 0) {
                             //### detachment
-                            TransportFactor = _dt*TSettlingVelocity * ChannelDX->Drc * ChannelFlowWidth->Drc;
+                            TransportFactor = _dt*TSettlingVelocityBL * ChannelDX->Drc * ChannelFlowWidth->Drc;
                             //              TransportFactor = std::min(TransportFactor, bldischarge*_dt);
                             //              TransportFactor = bldischarge*_dt;
 
@@ -1602,7 +1598,7 @@ void TWorld::ChannelFlowDetachment()
                         {
                             //### deposition
                             if (TBLDepthtemp->Drc > MIN_HEIGHT)
-                                TransportFactor = (1-exp(-_dt*TSettlingVelocity/TBLDepthtemp->Drc)) * blwatervol;
+                                TransportFactor = (1-exp(-_dt*TSettlingVelocityBL/TBLDepthtemp->Drc)) * blwatervol;
                             else
                                 TransportFactor =  1.0 * blwatervol;
 
@@ -2096,7 +2092,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                     double bsv = sqrt(GRAV * h * S); // bed shear velocity
                     double a = 0.1;  // half of the bedform height in m
                     double ca = 0.015 * (d50m/a) * pow(T,1.5)/pow(ds,0.3); //eq 38 reference concentration
-                    double sv = SettlingVelocity->Drc;//GetSV(D50->Drc);
+                    double sv = SettlingVelocitySS->Drc;//GetSV(D50->Drc);
 
                     double beta = std::min(1.0 + 2.0*(sv/bsv)*(sv/bsv),5.0);
                     double powcb = 0.75; // not clear, between 0.4 and 1

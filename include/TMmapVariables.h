@@ -140,7 +140,8 @@ cTMap
 *Sed,                        //!< sediment content of flow [kg]
 //*CG,                         //!< parameter Govers in TC equation
 //*DG,                         //!< parameter Govers in TC equation
-*SettlingVelocity,           //!< settling velocity according to Stokes [m/s]
+*SettlingVelocitySS,           //!< settling velocity according to Stokes [m/s]
+*SettlingVelocityBL,           //!< settling velocity according to Stokes [m/s]
 *PCA,                        //!< applied dose [kg/m2]
 *epsil,                      //!< mixing layer depth (m]
 *KD,                         //!< soil water partition coefficient [m3/kg]

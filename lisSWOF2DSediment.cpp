@@ -602,32 +602,36 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
         cTMap * TSSFlood;
         cTMap * TW;
 
-        double TSettlingVelocity;
+        double TSettlingVelocitySS;
+        double TSettlingVelocityBL;
         if (!SwitchUseGrainSizeDistribution) {
-            TBLDepthFlood = BLDepthFlood;
             TSSDepthFlood = SSDepthFlood;
-            TBLTCFlood = BLTCFlood;
             TSSTCFlood = SSTCFlood;
-            TBLCFlood = BLCFlood;
             TSSCFlood = SSCFlood;
-            TBLFlood = BLFlood;
             TSSFlood = SSFlood;
-            TSettlingVelocity = SettlingVelocity->Drc;
+            TSettlingVelocitySS = SettlingVelocitySS->Drc;
+            if (SwitchUse2Layer) {
+                TBLDepthFlood = BLDepthFlood;
+                TBLTCFlood = BLTCFlood;
+                TBLCFlood = BLCFlood;
+                TBLFlood = BLFlood;
+                TSettlingVelocityBL = SettlingVelocityBL->Drc;
+            }
             TW = unity;
         }
-        else
-        {
-            TBLDepthFlood = BLD_D.at(d);
-            TSSDepthFlood = SSD_D.at(d);
-            TBLTCFlood = BLTC_D.at(d);
-            TSSTCFlood = SSTC_D.at(d);
-            TBLCFlood = BLC_D.at(d);
-            TSSCFlood = SSC_D.at(d);
-            TBLFlood = BL_D.at(d);
-            TSSFlood = SS_D.at(d);
-            TW = W_D.at(d);
-            TSettlingVelocity = settlingvelocities.at(d);
-        }
+//        else
+//        {
+//            TBLDepthFlood = BLD_D.at(d);
+//            TSSDepthFlood = SSD_D.at(d);
+//            TBLTCFlood = BLTC_D.at(d);
+//            TSSTCFlood = SSTC_D.at(d);
+//            TBLCFlood = BLC_D.at(d);
+//            TSSCFlood = SSC_D.at(d);
+//            TBLFlood = BL_D.at(d);
+//            TSSFlood = SS_D.at(d);
+//            TW = W_D.at(d);
+//            TSettlingVelocitySS = settlingvelocities.at(d);
+//        }
 
         //discharges for both layers and watervolumes
         //note for non-advanced erosion BLdepth = 0
@@ -702,7 +706,7 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 //deposition based on settling velocity
                 //if there is a significant water height
                 //if (TSSDepthFlood->Drc > MIN_HEIGHT) {
-                    TransportFactor = (1-exp(-DT->Drc*TSettlingVelocity/h->Drc)) * sswatervol; //NOTE use entire depth h for deposition of SS
+                    TransportFactor = (1-exp(-DT->Drc*TSettlingVelocitySS/h->Drc)) * sswatervol; //NOTE use entire depth h for deposition of SS
                 //} else {
                   //  TransportFactor =  1.0*sswatervol;
                     // all sed is deposited
@@ -749,7 +753,7 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
             } else
             if (maxTC > 0) {
                 //erosion values based on discharge
-                TransportFactor = DT->Drc*TSettlingVelocity * DX->Drc * ChannelAdj->Drc;
+                TransportFactor = DT->Drc*TSettlingVelocitySS * DX->Drc * ChannelAdj->Drc;
                 TransportFactor = std::min(TransportFactor, ssdischarge*DT->Drc);
 
                 //    TransportFactor = ssdischarge*DT->Drc;
@@ -829,14 +833,13 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                         // IN KG/CELL
 
                         //### deposition
-                        TransportFactor = (1-exp(-DT->Drc*TSettlingVelocity/BLDepthFlood->Drc)) * blwatervol;
+                        TransportFactor = (1-exp(-DT->Drc*TSettlingVelocityBL/BLDepthFlood->Drc)) * blwatervol;
                         //   TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * FlowWidth->Drc;
                         // deposition can occur on roads and on soil (so use flowwidth)
 
                         // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
                         deposition = std::max(minTC * TransportFactor, -TBLFlood->Drc);
                         // cannot have more depo than sediment present
-                        qDebug() << minTC << TransportFactor << TBLFlood->Drc << deposition;
 
                         if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
                             deposition = 0;
@@ -886,7 +889,7 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                         //### detachment
                         // detachment can only come from soil, not roads (so do not use flowwidth)
                         // units s * m/s * m * m = m3
-                        TransportFactor = DT->Drc*TSettlingVelocity * DX->Drc * ChannelAdj->Drc; //SoilWidthDX->Drc;
+                        TransportFactor = DT->Drc*TSettlingVelocityBL * DX->Drc * ChannelAdj->Drc; //SoilWidthDX->Drc;
                         TransportFactor = std::min(TransportFactor, bldischarge*DT->Drc);
                         //TransportFactor = bldischarge*DT->Drc;
 
@@ -927,7 +930,6 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                             detachment = 0;
                         }
                     }
-qDebug() << deposition << DepFlood->Drc ;
                     //### sediment balance IN KG/CELL
                     DepFlood->Drc += deposition;
                     BLDetFlood->Drc += detachment;
@@ -939,21 +941,21 @@ qDebug() << deposition << DepFlood->Drc ;
         } // h > MIN_HEIGHT
     }   // iterator
 
-    if(SwitchUseGrainSizeDistribution)
-    {
-        BLFlood->Drc = 0;
-        SSFlood->Drc = 0;
-        BLTCFlood->Drc = 0;
-        SSTCFlood->Drc = 0;
+//    if(SwitchUseGrainSizeDistribution)
+//    {
+//        BLFlood->Drc = 0;
+//        SSFlood->Drc = 0;
+//        BLTCFlood->Drc = 0;
+//        SSTCFlood->Drc = 0;
 
-        FOR_GRAIN_CLASSES
-        {
-            BLFlood->Drc += BL_D.Drcd;
-            SSFlood->Drc += SS_D.Drcd;
-            BLTCFlood->Drc += BLTC_D.Drcd;
-            SSTCFlood->Drc += SSTC_D.Drcd;
-        }
-    }
+//        FOR_GRAIN_CLASSES
+//        {
+//            BLFlood->Drc += BL_D.Drcd;
+//            SSFlood->Drc += SS_D.Drcd;
+//            BLTCFlood->Drc += BLTC_D.Drcd;
+//            SSTCFlood->Drc += SSTC_D.Drcd;
+//        }
+//    }
 }
 //--------------------------------------------------------------------------------------------
 /**

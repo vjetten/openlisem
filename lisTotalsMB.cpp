@@ -109,7 +109,9 @@ void TWorld::Totals(void)
     // interception in mm and m3
 
     //=== infiltration ===//
-    InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave) + mapTotal(*ChannelInfilVol);// + mapTotal(*InfilVolFlood); //m3
+    InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave);
+    if (SwitchIncludeChannel)
+        InfilTot += mapTotal(*ChannelInfilVol);// + mapTotal(*InfilVolFlood); //m3
 
     InfilKWTot += mapTotal(*InfilVolKinWave); // not really used, available for output when needed
     InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
@@ -118,7 +120,9 @@ void TWorld::Totals(void)
     // flood infil
     // used for reporting only
     FOR_ROW_COL_MV {
-        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc + ChannelInfilVol->Drc;
+        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc;
+        if (SwitchIncludeChannel)
+            InfilVolCum->Drc += ChannelInfilVol->Drc;
         InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));
         PercmmCum->Drc += Perc->Drc*1000.0;
     }
@@ -259,7 +263,7 @@ void TWorld::Totals(void)
     // output fluxes for reporting to file and screen in l/s!]
     FOR_ROW_COL_MV
     {
-        Qoutput->Drc = 1000.0*(Qn->Drc + ChannelQn->Drc + Qflood->Drc);// in l/s
+        Qoutput->Drc = 1000.0*(Qn->Drc + (SwitchIncludeChannel ? ChannelQn->Drc : 0.0) + Qflood->Drc);// in l/s
         Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;
     //    if(LDD->Drc == 5)
      //   qDebug() << Qoutput->Drc << QtotT*1000/_dt << Qfloodout/_dt;
@@ -344,7 +348,7 @@ void TWorld::Totals(void)
         // variables are valid for both 1D and 2D flow dyn and diff
         FOR_ROW_COL_MV
         {
-            Qsoutput->Drc = Qsn->Drc + ChannelQsn->Drc + K2DQ->Drc;  // in kg/s
+            Qsoutput->Drc = Qsn->Drc + (SwitchIncludeChannel ? ChannelQsn->Drc : 0.0) + K2DQ->Drc;  // in kg/s
             // for reporting sed discharge screen
         }
 
@@ -377,8 +381,8 @@ void TWorld::Totals(void)
 
         FOR_ROW_COL_MV
         {
-            double sedall = Sed->Drc + BLFlood->Drc + SSFlood->Drc + ChannelSed->Drc;
-            double waterall = WaterVolall->Drc + ChannelWaterVol->Drc;
+            double sedall = Sed->Drc + BLFlood->Drc + SSFlood->Drc +  (SwitchIncludeChannel ? ChannelSed->Drc : 0.0);
+            double waterall = WaterVolall->Drc + (SwitchIncludeChannel ? ChannelWaterVol->Drc : 0.0);
             TotalConc->Drc = MaxConcentration(waterall ,&sedall, &tmb->Drc);
             // for output
         }
