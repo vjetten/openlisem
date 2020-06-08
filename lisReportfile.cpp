@@ -1517,10 +1517,10 @@ void TWorld::GetComboMaps()
         if(SwitchUse2Layer) {
             AddComboMap(1,"Suspended sed.",unit,SSFlood,Colormap,Colors,false,false,factor, step);
             AddComboMap(1,"Bedload sed.",unit,BLFlood,Colormap,Colors,false,false,factor, step);
-            AddComboMap(1,"TC suspended",unit,SSTCFlood,Colormap,Colors,false,false,factor, step);
-            AddComboMap(1,"TC bedload",unit,BLTCFlood,Colormap,Colors,false,false,factor, step);
-            AddComboMap(1,"SS depth","kg/m3",SSDepthFlood,Colormap,Colors,false,false,1.0, step);
-            AddComboMap(1,"BL depth","kg/m3",BLDepthFlood,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"TC suspended","kg/m3",SSTCFlood,Colormap,Colors,false,false,factor, step);
+            AddComboMap(1,"TC bedload","kg/m3",BLTCFlood,Colormap,Colors,false,false,factor, step);
+            AddComboMap(1,"SS depth","m",SSDepthFlood,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"BL depth","m",BLDepthFlood,Colormap,Colors,false,false,1.0, step);
         } else {
             AddComboMap(1,"Sediment load",unit,COMBO_SS,Colormap,Colors,false,false,factor, step);
             AddComboMap(1,"Transport Capacity","kg/m3",COMBO_TC,Colormap,Colors,false,false,1.0, step);
