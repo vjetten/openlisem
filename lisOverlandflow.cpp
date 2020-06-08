@@ -286,7 +286,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 {
     double dtOF = 0;
 
-    ChannelOverflowNew(WHrunoff, V, false);
+    ChannelOverflow(WHrunoff, V, false);
         // false means flood sediment maps are used
 
     startFlood = false;

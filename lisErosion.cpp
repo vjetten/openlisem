@@ -71,11 +71,13 @@ functions: \n
 double TWorld::MaxConcentration(double watvol, double *sedvol, double *dep)
 {
     //double conc = MAXCONC;
-
+double conc = 0;
     // when if activate, MBs error in KINDYN !!! Bizarre
-    //  if (watvol > 0) {
-    double conc = std::min(*sedvol/(watvol+0.001), MAXCONC);   // 1e-6 is 1 ml/m2 !!
-    //   } else {
+      if (watvol > 0)
+    conc = std::min(*sedvol/(watvol+0.001), MAXCONC);   // 1e-6 is 1 ml/m2 !!
+
+
+
     //      conc = MAXCONC;
     // *dep -= *sedvol;
     //*sedvol = 0;
@@ -1382,7 +1384,7 @@ void TWorld::ChannelFlowDetachment()
             // TSSTCFlood->Drc = RiverSedimentTCSS(r,c,d, ChannelV->Drc, ChannelWH->Drc, ChannelSSDepth->Drc, ChannelWidth->Drc);
             TBLTCtemp->Drc = calcTCBedload(r, c, d, R_BL_Method, ChannelWH->Drc,ChannelV->Drc, 0);
             TSSTCtemp->Drc = calcTCSuspended(r, c, d, R_SS_Method, ChannelWH->Drc, ChannelV->Drc, 0);
-
+qDebug() << TSSTCtemp->Drc  << TBLTCtemp->Drc << ChannelV->Drc << ChannelWH->Drc;
             //check if the sum of transport capacities of all grain sizes is larger than MAXCONC, and rescale if nessecery
             //            if(SwitchUseGrainSizeDistribution)
             //            {
@@ -1520,7 +1522,7 @@ void TWorld::ChannelFlowDetachment()
                 //deposition
                 maxTC = std::max(TSSTCtemp->Drc - TSSCtemp->Drc, 0.0);  // TC in kg/m3
                 minTC = std::min(TSSTCtemp->Drc - TSSCtemp->Drc, 0.0);
-
+qDebug() << maxTC << minTC << TSSCtemp->Drc;
                 if (minTC < 0) {
                     if (TSSDepthtemp->Drc > MIN_HEIGHT)
                         TransportFactor = (1-exp(-_dt*TSettlingVelocity/ChannelWH->Drc)) * sswatervol; //TSSDepthtemp
@@ -1541,9 +1543,10 @@ void TWorld::ChannelFlowDetachment()
                     //NB ChannelFlowWidth and ChannelWidth the same woith rect channel
                     detachment = TW->Drc * maxTC * TransportFactor;
                     // cannot have more detachment than remaining capacity in flow
-
+qDebug() << detachment;
                     detachment = DetachMaterial(r,c,d,true,false,false, detachment);
                     // multiply by Y
+                    qDebug() << detachment << "2";
 
                     if(MAXCONC * sswatervol < TSStemp->Drc+detachment)
                         detachment = std::max(0.0, MAXCONC * sswatervol - TSStemp->Drc);
