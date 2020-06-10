@@ -99,12 +99,32 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 vx_y1 = std::max(-vmax, std::min(vmax, vx_y1));
                 vx_y2 = std::max(-vmax, std::min(vmax, vx_y2));
 
-                vy_x1 = std::max(-vmax, std::min(vmax, vy_x1));
-                vy_x2 = std::max(-vmax, std::min(vmax, vy_x2));
-                vy_y1 = std::max(-vmax, std::min(vmax, vy_y1));
-                vy_y2 = std::max(-vmax, std::min(vmax, vy_y2));
+                vy_x1 = std::max(-vmax, std::min(vmax, vy_x1)); //left
+                vy_x2 = std::max(-vmax, std::min(vmax, vy_x2)); //right
+                vy_y1 = std::max(-vmax, std::min(vmax, vy_y1)); //up
+                vy_y2 = std::max(-vmax, std::min(vmax, vy_y2)); //down
 
-                double B = 1.0;//0.5; // dh+dz hydraulisch verschil mag max 0.5 zijn?
+//                double dh1   = 0.5*limiter(H-h_x1, h_x2-H);
+//                double dvx1  = 0.5*limiter(Vx-vx_x1, vx_x2-Vx);
+//                double dvy1  = 0.5*limiter(Vy-vy_x1, vy_x2-Vy);
+
+//                double hlh = H > he_ca ? (H+dh1)/H : 1.0;
+//                double vx1r = Vx + hlh*dvx1;
+//                double vx1l = Vx - hlh*dvx1;
+//                double vy1r = Vy + hlh*dvy1;
+//                double vy1l = Vy - hlh*dvy1;
+
+//                // row -1 and +1
+//                double dh2   = 0.5*limiter(H-h_y1, h_y2-H);
+//                double dvx2  = 0.5*limiter(Vx-vx_y1, vx_y2-Vx);
+//                double dvy2  = 0.5*limiter(Vy-vy_y1, vy_y2-Vy);
+//                double hlh2 = H > he_ca ? (H+dh2)/H : 1.0;
+//                double vx2d = Vx + hlh2*dvx2;
+//                double vx2u = Vx - hlh2*dvx2;
+//                double vy2d = Vy + hlh2*dvy2;
+//                double vy2u = Vy - hlh2*dvy2;
+
+                double B = 0.5; // dh+dz hydraulisch verschil mag max 0.5 zijn?
                 double sx_zh_x2 = std::min(B,std::max(-B,(z_x2 + h_x2 - Z - H)/dx));
                 double sy_zh_y1 = std::min(B,std::max(-B,(Z + H - z_y1 - h_y1)/dy));
                 double sx_zh_x1 = std::min(B,std::max(-B,(Z + H - z_x1 - h_x1)/dx));
@@ -114,12 +134,45 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 double sx_zh = std::min(1.0,std::max(-1.0,limiter(sx_zh_x1, sx_zh_x2)));
                 double sy_zh = std::min(1.0,std::max(-1.0,limiter(sy_zh_y1, sy_zh_y2)));
 
-                hll_x1 = F_Riemann(h_x1,vx_x1,vy_x1,H,Vx,Vy); // c-1 and c
-                hll_x2 = F_Riemann(H,Vx,Vy,h_x2,vx_x2,vy_x2); // c and c+1
-                hll_y1 = F_Riemann(h_y1,vy_y1,vx_y1,H,Vy,Vx); // r-1 and r
-                hll_y2 = F_Riemann(H,Vy,Vx,h_y2,vy_y2,vx_y2); // r and r+1
+//                hll_x1 = F_Riemann(h_x1,vx1l,vy1l,H,Vx,Vy); // c-1 and c
+//                hll_x2 = F_Riemann(H,Vx,Vy,h_x2,vx1r,vy1r); // c and c+1
+//                hll_y1 = F_Riemann(h_y1,vx2u,vy2u,H,Vy,Vx); // r-1 and r
+//                hll_y2 = F_Riemann(H,Vy,Vx,h_y2,vx2d,vy2d); // r and r+1
 
-                double C = std::min(0.5, courant_factor);;
+                double h_x1l = std::max(0.0, h_x1 - std::max(0.0,  (Z - z_x1)));
+                double h_x1r = std::max(0.0, H    - std::max(0.0, -(Z - z_x1)));
+                if(c > 0 && !MV(r,c-1))
+                    hll_x1 = F_Riemann(h_x1l,vx_x1,vy_x1,h_x1r,Vx,Vy); // c-1 and c
+                else
+                    hll_x1 = F_Riemann(0,0,0,h_x1r,Vx,Vy); // c-1 and c
+
+                double h_x2l = std::max(0.0, H    - std::max(0.0,  (z_x2 - Z)));
+                double h_x2r = std::max(0.0, h_x2 - std::max(0.0, -(z_x2 - Z)));
+                if(c < _nrCols-1 && !MV(r,c+1))
+                    hll_x2 = F_Riemann(h_x2l,Vx,Vy,h_x2r,vx_x2,vy_x2); // c and c+1
+                else
+                    hll_x2 = F_Riemann(h_x2l,Vx,Vy,0,0,0); // c and c+1
+
+                double h_y1u = std::max(0.0, h_y1 - std::max(0.0,  (Z - z_y1)));
+                double h_y1d = std::max(0.0, H    - std::max(0.0, -(Z - z_y1)));
+                if (r > 0 && !MV(r-1,c))
+                    hll_y1 = F_Riemann(h_y1u,vy_y1,vx_y1,h_y1d,Vy,Vx); // r-1 and r
+                else
+                    hll_y1 = F_Riemann(0,0,0,h_y1d,Vy,Vx); // r-1 and r
+
+                double h_y2u = std::max(0.0, H    - std::max(0.0,  (z_y2 - Z)));
+                double h_y2d = std::max(0.0, h_y2 - std::max(0.0, -(z_y2 - Z)));
+                if( r < _nrRows-1 && !MV(r+1,c))
+                    hll_y2 = F_Riemann(h_y2u,Vy,Vx,h_y2d,vy_y2,vx_y2); // r and r+1
+                else
+                    hll_y2 = F_Riemann(h_y2u,Vy,Vx,0,0,0); // r and r+1
+
+//                hll_x1 = F_Riemann(h_x1,vx_x1,vy_x1,H,Vx,Vy); // c-1 and c
+//                hll_x2 = F_Riemann(H,Vx,Vy,h_x2,vx_x2,vy_x2); // c and c+1
+//                hll_y1 = F_Riemann(h_y1,vy_y1,vx_y1,H,Vy,Vx); // r-1 and r
+//                hll_y2 = F_Riemann(H,Vy,Vx,h_y2,vy_y2,vx_y2); // r and r+1
+
+                double C = std::min(0.5, courant_factor);
                 double tx = dt/dx;
                 double ty = dt/dy;
 
@@ -150,7 +203,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         vyn = fac * Vy + (1.0-fac) *vyn;
                     }
 
-                    double threshold = 0.001 * _dx; // was 0.01
+                    double threshold = 0.01 * _dx; // was 0.01
                     if(hn < threshold)
                     {
                         double kinfac = std::max(0.0,(threshold - hn) / (0.025 * _dx));

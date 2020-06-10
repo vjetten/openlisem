@@ -353,7 +353,7 @@ cTMap
 *h1d, *h1g, *h2d, *h2g,
 *v1r, *v1l, *v2r, *v2l,
 *u1r, *u1l, *u2r, *u2l,
-*delta_z1, *delta_z2,
+//*delta_z1, *delta_z2,
 *delzc1, *delzc2,
 *delz1, *delz2,
 *f1, *f2, *f3, *cflx,

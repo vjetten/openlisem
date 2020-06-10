@@ -422,9 +422,13 @@ void TWorld::ToFlood()
 {
 #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
-        if(hmx->Drc > 0.0 && WHrunoff->Drc > 0.0)
+        if(hmx->Drc > 0 && WHrunoff->Drc > 0)
         {
-            double frac = 1-exp(-runoff_partitioning*hmx->Drc/WHrunoff->Drc);
+            double frac = 1-exp(-runoff_partitioning*hmx->Drc/(WHrunoff->Drc+0.001));
+
+//            double V = qSqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+//            double Vkin = pow(WHrunoff->Drc,2.0/3.0)*sqrt(Grad->Drc)/N->Drc;
+//            frac = Vkin/(V+0.001);
             frac = std::max(std::min(frac, 1.0),0.0);
             double dwh = frac * WHrunoff->Drc;
 

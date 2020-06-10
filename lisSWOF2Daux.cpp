@@ -75,17 +75,17 @@ void TWorld::prepareFloodZ(cTMap *z)
                 // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
             }
 
-    fill(*delta_z1, 0);
-    fill(*delta_z2, 0);
-    for (int r = 0; r < _nrRows; r++)
-        for (int c = 0; c < _nrCols-1; c++)
-            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r][c+1]))
-                delta_z1->Drc = (z->data[r][c+1] - z->Drc);
+//    fill(*delta_z1, 0);
+//    fill(*delta_z2, 0);
+//    for (int r = 0; r < _nrRows; r++)
+//        for (int c = 0; c < _nrCols-1; c++)
+//            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r][c+1]))
+//                delta_z1->Drc = (z->data[r][c+1] - z->Drc);
 
-    for (int r = 1; r < _nrRows-1; r++)
-        for (int c = 0; c < _nrCols; c++)
-            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r+1][c]))
-                delta_z2->Drc = (z->data[r+1][c] - z->Drc);
+//    for (int r = 1; r < _nrRows-1; r++)
+//        for (int c = 0; c < _nrCols; c++)
+//            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r+1][c]))
+//                delta_z2->Drc = (z->data[r+1][c] - z->Drc);
 }
 //---------------------------------------------------------------------------
 /**

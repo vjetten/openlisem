@@ -955,8 +955,8 @@ void TWorld::InitFlood(void)
         u2r = NewMap(0);
         u2l = NewMap(0);
 
-        delta_z1 = NewMap(0);
-        delta_z2 = NewMap(0);
+        //delta_z1 = NewMap(0);
+        //delta_z2 = NewMap(0);
         delzc1 = NewMap(0);
         delzc2 = NewMap(0);
         delz1 = NewMap(0);
