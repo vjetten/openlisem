@@ -122,7 +122,6 @@ void TWorld::DoModel()
 
     //TODO: check material depth
     //TODO: check grainsize classes
-    //TODO: check grass strips, just inthe input maps or special characteristics
     try
     {
         DEBUG("reading and initializing data");

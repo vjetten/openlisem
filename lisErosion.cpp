@@ -224,11 +224,11 @@ void TWorld::SplashDetachment()
 
         if(SwitchUseMaterialDepth)
         {
-            if(SwitchUseGrainSizeDistribution)
-            {
-                StorageDep->Drc = GetTotalDW(r,c,&StorageDep_D);
-                Storage->Drc = GetTotalDW(r,c,&Storage_D);
-            }
+//            if(SwitchUseGrainSizeDistribution)
+//            {
+//                StorageDep->Drc = GetTotalDW(r,c,&StorageDep_D);
+//                Storage->Drc = GetTotalDW(r,c,&Storage_D);
+//            }
 
             //check wat we can detach from the top and bottom layer of present material
             double dleft = DETSplash->Drc ;
@@ -238,24 +238,27 @@ void TWorld::SplashDetachment()
 
             deptake = std::min(dleft,StorageDep->Drc);
             StorageDep->Drc -= deptake;
+            // det not more than storage
+            // decrease store depth
 
-            if(SwitchUseGrainSizeDistribution)
-            {
-                double wtotal = 0;
-                FOR_GRAIN_CLASSES
-                {
-                    wtotal += StorageDep_D.Drcd;
-                }
-                if(wtotal != 0)
-                {
-                    FOR_GRAIN_CLASSES
-                    {
-                        StorageDep_D.Drcd = StorageDep_D.Drcd * StorageDep->Drc/wtotal;
-                    }
-                }
-            }
+//            if(SwitchUseGrainSizeDistribution)
+//            {
+//                double wtotal = 0;
+//                FOR_GRAIN_CLASSES
+//                {
+//                    wtotal += StorageDep_D.Drcd;
+//                }
+//                if(wtotal != 0)
+//                {
+//                    FOR_GRAIN_CLASSES
+//                    {
+//                        StorageDep_D.Drcd = StorageDep_D.Drcd * StorageDep->Drc/wtotal;
+//                    }
+//                }
+//            }
 
             detachment += deptake;
+            // detachment is now taken material
 
 
             if(!(Storage->Drc < 0))
@@ -263,27 +266,26 @@ void TWorld::SplashDetachment()
                 mattake = std::min(dleft,Storage->Drc);
                 Storage->Drc -= mattake;
 
-                if(SwitchUseGrainSizeDistribution)
-                {
-                    double wtotal = 0;
-                    FOR_GRAIN_CLASSES
-                    {
-                        wtotal += Storage_D.Drcd;
-                    }
-                    if(wtotal != 0)
-                    {
-                        FOR_GRAIN_CLASSES
-                        {
-                            Storage_D.Drcd = Storage_D.Drcd * Storage->Drc/wtotal;
-                        }
-                    }
-                }
+//                if(SwitchUseGrainSizeDistribution)
+//                {
+//                    double wtotal = 0;
+//                    FOR_GRAIN_CLASSES
+//                    {
+//                        wtotal += Storage_D.Drcd;
+//                    }
+//                    if(wtotal != 0)
+//                    {
+//                        FOR_GRAIN_CLASSES
+//                        {
+//                            Storage_D.Drcd = Storage_D.Drcd * Storage->Drc/wtotal;
+//                        }
+//                    }
+//                }
                 detachment += mattake;
             }else
             {
                 detachment += dleft;
             }
-
             DETSplash->Drc = detachment;
         }
 
@@ -1058,33 +1060,33 @@ void TWorld::FlowDetachment()
             //get the transport capacity for a single grain size
             TC->Drc = calcTCSuspended(r,c,-1, FSGOVERS, WHrunoff->Drc, V->Drc, 2);
 
-        } else {
-            //get the transport capacity for all induvidual grain sizes
-            TC->Drc = 0;
-            FOR_GRAIN_CLASSES
-            {
-                TC_D.Drcd = calcTCSuspended(r,c,d, FSHAIRSINEROSE, WHrunoff->Drc, V->Drc, 2);
-                TC->Drc += TC_D.Drcd;
-            }
-
-            //if the total transport capacity is too high, limit it to the maximum value (MAXCONC)
-            if(TC->Drc > MAXCONC)
-            {
-                //rescale all induvidual tc's to conform to MAXCONC
-                FOR_GRAIN_CLASSES
-                {
-                    TC_D.Drcd *= MAXCONC/TC->Drc;
-                }
-                TC->Drc = MAXCONC;
-            }
-
-            TC->Drc = 0;
-            FOR_GRAIN_CLASSES
-            {
-                TC->Drc += TC_D.Drcd;
-            }
         }
+//        else {
+//            //get the transport capacity for all induvidual grain sizes
+//            TC->Drc = 0;
+//            FOR_GRAIN_CLASSES
+//            {
+//                TC_D.Drcd = calcTCSuspended(r,c,d, FSHAIRSINEROSE, WHrunoff->Drc, V->Drc, 2);
+//                TC->Drc += TC_D.Drcd;
+//            }
 
+//            //if the total transport capacity is too high, limit it to the maximum value (MAXCONC)
+//            if(TC->Drc > MAXCONC)
+//            {
+//                //rescale all induvidual tc's to conform to MAXCONC
+//                FOR_GRAIN_CLASSES
+//                {
+//                    TC_D.Drcd *= MAXCONC/TC->Drc;
+//                }
+//                TC->Drc = MAXCONC;
+//            }
+
+//            TC->Drc = 0;
+//            FOR_GRAIN_CLASSES
+//            {
+//                TC->Drc += TC_D.Drcd;
+//            }
+//        }
     }
 
 
@@ -1108,7 +1110,7 @@ void TWorld::FlowDetachment()
             else
                 Sed_D.Drcd += DETSplash->Drc * W_D.Drcd;
 
-            if (erosionwh < MIN_HEIGHT) {
+            if (erosionwh < HMIN) {
                 DEP->Drc += -Sed->Drc;
                 Sed->Drc = 0;
                 Conc->Drc = 0;
@@ -1148,13 +1150,13 @@ void TWorld::FlowDetachment()
 
                     //### deposition
 
-                    if(!SwitchUseGrainSizeDistribution)
-                    {
-                        if (erosionwh > HMIN)
+//                    if(!SwitchUseGrainSizeDistribution)
+//                    {
+//                        if (erosionwh > HMIN)
                             TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/erosionwh)) * erosionwv;
-                        else
-                            TransportFactor = erosionwv;
-                    }
+//                        else
+//                            TransportFactor = erosionwv;
+//                    }
                     //                    else
                     //                    {
                     //                        TransportFactor = (1-exp(-_dt*settlingvelocities.at(d)/erosionwh)) * erosionwv;
@@ -1224,30 +1226,30 @@ void TWorld::FlowDetachment()
                         //                        }
                     }
                 }
-
+                else
                 if (maxTC > 0) {
                     //### detachment
 
-                    if(!SwitchUseGrainSizeDistribution)
-                    {
-                        TransportFactor = _dt*SettlingVelocitySS->Drc * DX->Drc * fpa->Drc*SoilWidthDX->Drc;
+                    //if(!SwitchUseGrainSizeDistribution)
+                    //{
+                        TransportFactor = _dt*SettlingVelocitySS->Drc * DX->Drc * SoilWidthDX->Drc; //fpa->Drc*
                         // soilwidth is erodible surface
-                    }
+                    //}
                     //                else
                     //                {
                     //                    TransportFactor = _dt*settlingvelocities.at(d) * DX->Drc * fpa->Drc*SoilWidthDX->Drc;
                     //                }
-                    TransportFactor = std::min(TransportFactor, Q->Drc*_dt);
+                   // TransportFactor = std::min(TransportFactor, Q->Drc*_dt);
 
                     // detachment can only come from soil, not roads (so do not use flowwidth)
                     // units s * m/s * m * m = m3
 
                     detachment = maxTC * TransportFactor;
 
-                    if(SwitchUseGrainSizeDistribution)
-                    {
-                        detachment =  W_D.at(d)->Drc * detachment;
-                    }
+//                    if(SwitchUseGrainSizeDistribution)
+//                    {
+//                        detachment =  W_D.at(d)->Drc * detachment;
+//                    }
                     // unit = kg/m3 * m3 = kg (/cell)
 
                     // detachment = std::min(detachment, maxTC * erosionwv);
@@ -1296,15 +1298,15 @@ void TWorld::FlowDetachment()
                 DEP->Drc += deposition;
                 Conc->Drc = MaxConcentration(erosionwv, &Sed->Drc, &DEP->Drc);
 
-                if(SwitchUseGrainSizeDistribution)
-                {
-                    Sed_D.Drcd += detachment;
-                    Sed_D.Drcd += deposition;
-                    Conc_D.Drcd = MaxConcentration(erosionwv, &Sed_D.Drcd, &DEP->Drc);
-                }
+//                if(SwitchUseGrainSizeDistribution)
+//                {
+//                    Sed_D.Drcd += detachment;
+//                    Sed_D.Drcd += deposition;
+//                    Conc_D.Drcd = MaxConcentration(erosionwv, &Sed_D.Drcd, &DEP->Drc);
+//                }
             }
-        }
-    }
+        } // FOR
+    } // iterator
 }
 //---------------------------------------------------------------------------
 /**

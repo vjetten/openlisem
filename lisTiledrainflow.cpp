@@ -51,7 +51,7 @@ void TWorld::ToTiledrain()//int thread)
                 // fraction based on surface, simpel! Street inlet is assumed to be a hole in the street
 
                 double MaxVol = DX->Drc * PI*TileDiameter->Drc*TileDiameter->Drc*0.25;
-                if (TileWaterVol->Drc > MaxVol*0.99)
+                if (TileWaterVol->Drc > MaxVol*0.95)
                     fractiontotile = 0;
 
                 RunoffVolinToTile->Drc = fractiontotile*WHrunoff->Drc * FlowWidth->Drc * DX->Drc;

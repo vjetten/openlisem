@@ -548,6 +548,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("OutSed");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("OutSL");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutSedSS");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutSedBL");
 
     namelist[i++].name = QString("CheckOutputMapsMC");
 

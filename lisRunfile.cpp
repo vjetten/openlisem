@@ -287,6 +287,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OutConc")==0)           SwitchOutConc = iii == 1;
         if (p1.compare("OutSed")==0)            SwitchOutSed = iii == 1;
         if (p1.compare("OutSL")==0)             SwitchOutSL = iii == 1;
+        if (p1.compare("OutSedSS")==0)          SwitchOutSedSS = iii == 1;
+        if (p1.compare("OutSedBL")==0)          SwitchOutSedBL = iii == 1;
 
         if (p1.compare("Erosion map units (0/1/2)")==0)  ErosionUnits = iii;
 
@@ -472,6 +474,8 @@ void TWorld::ParseRunfileData(void)
     OutHmxWH  = "";
     OutSL  = "sloss";
     OutSed  = "sed";
+    OutSedSS  = "sedSS";
+    OutSedBL  = "sedBL";
 
 }
 //------------------------------------------------------------------------------

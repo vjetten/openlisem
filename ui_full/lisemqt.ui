@@ -96,7 +96,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -1087,7 +1087,7 @@
               </font>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="tab">
               <attribute name="title">
@@ -3556,6 +3556,20 @@
                   <widget class="QCheckBox" name="checkBox_OutTileVol">
                    <property name="text">
                     <string>tilev - tile volume (m3)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="10" column="1">
+                  <widget class="QCheckBox" name="checkBox_OutSedSS">
+                   <property name="text">
+                    <string>SS - Suspended in flow (selected units)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="11" column="1">
+                  <widget class="QCheckBox" name="checkBox_OutSedBL">
+                   <property name="text">
+                    <string>BL - Bedload in flow (selected units)</string>
                    </property>
                   </widget>
                  </item>
@@ -20489,9 +20503,9 @@ p, li { white-space: pre-wrap; }
                    <colorrole role="WindowText">
                     <brush brushstyle="SolidPattern">
                      <color alpha="255">
-                      <red>128</red>
-                      <green>128</green>
-                      <blue>128</blue>
+                      <red>58</red>
+                      <green>58</green>
+                      <blue>58</blue>
                      </color>
                     </brush>
                    </colorrole>
@@ -20500,9 +20514,9 @@ p, li { white-space: pre-wrap; }
                    <colorrole role="WindowText">
                     <brush brushstyle="SolidPattern">
                      <color alpha="255">
-                      <red>128</red>
-                      <green>128</green>
-                      <blue>128</blue>
+                      <red>58</red>
+                      <green>58</green>
+                      <blue>58</blue>
                      </color>
                     </brush>
                    </colorrole>
@@ -20572,9 +20586,9 @@ p, li { white-space: pre-wrap; }
                    <colorrole role="WindowText">
                     <brush brushstyle="SolidPattern">
                      <color alpha="255">
-                      <red>128</red>
-                      <green>128</green>
-                      <blue>128</blue>
+                      <red>58</red>
+                      <green>58</green>
+                      <blue>58</blue>
                      </color>
                     </brush>
                    </colorrole>
@@ -20583,9 +20597,9 @@ p, li { white-space: pre-wrap; }
                    <colorrole role="WindowText">
                     <brush brushstyle="SolidPattern">
                      <color alpha="255">
-                      <red>128</red>
-                      <green>128</green>
-                      <blue>128</blue>
+                      <red>58</red>
+                      <green>58</green>
+                      <blue>58</blue>
                      </color>
                     </brush>
                    </colorrole>
@@ -20632,9 +20646,9 @@ p, li { white-space: pre-wrap; }
                    <colorrole role="WindowText">
                     <brush brushstyle="SolidPattern">
                      <color alpha="255">
-                      <red>129</red>
-                      <green>129</green>
-                      <blue>129</blue>
+                      <red>58</red>
+                      <green>58</green>
+                      <blue>58</blue>
                      </color>
                     </brush>
                    </colorrole>
@@ -20643,9 +20657,9 @@ p, li { white-space: pre-wrap; }
                    <colorrole role="WindowText">
                     <brush brushstyle="SolidPattern">
                      <color alpha="255">
-                      <red>129</red>
-                      <green>129</green>
-                      <blue>129</blue>
+                      <red>58</red>
+                      <green>58</green>
+                      <blue>58</blue>
                      </color>
                     </brush>
                    </colorrole>
@@ -20744,9 +20758,9 @@ p, li { white-space: pre-wrap; }
                    <colorrole role="WindowText">
                     <brush brushstyle="SolidPattern">
                      <color alpha="255">
-                      <red>129</red>
-                      <green>129</green>
-                      <blue>129</blue>
+                      <red>58</red>
+                      <green>58</green>
+                      <blue>58</blue>
                      </color>
                     </brush>
                    </colorrole>
@@ -20755,9 +20769,9 @@ p, li { white-space: pre-wrap; }
                    <colorrole role="WindowText">
                     <brush brushstyle="SolidPattern">
                      <color alpha="255">
-                      <red>129</red>
-                      <green>129</green>
-                      <blue>129</blue>
+                      <red>58</red>
+                      <green>58</green>
+                      <blue>58</blue>
                      </color>
                     </brush>
                    </colorrole>
@@ -20787,26 +20801,6 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="7" column="0">
-               <widget class="QCheckBox" name="checkMBtoFile">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string/>
                 </property>
                </widget>
               </item>

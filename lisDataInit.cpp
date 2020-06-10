@@ -772,9 +772,10 @@ void TWorld::InitChannel(void)
         cover(*ChannelWidth, *LDD, 0);
         //     ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
         //ChannelWidth->checkMap(SMALLEREQUAL, 0, "Channel width must be larger than 0 in channel cells");
-        //      ChannelWidth->calcValue(0.9*_dx, MIN);
+
         FOR_ROW_COL_MV_CH
         {
+            ChannelWidth->Drc = std::min(ChannelWidth->Drc, 0.95*_dx);
             if (ChannelWidth->Drc <= 0)
             {
                 ErrorString = QString("Map %1 contains channel cells with width = 0").arg(getvaluename("chanwidth"));
@@ -819,8 +820,8 @@ void TWorld::InitChannel(void)
         {
             if (ChannelSide->Drc > 0) {
                 double w = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc;
-                if (w > 0.9*_dx) {
-                    ChannelSide->Drc = 0.05*_dx/ChannelDepth->Drc;
+                if (w > 0.95*_dx) {
+                    ChannelSide->Drc = 0.025*_dx/ChannelDepth->Drc;
                     w = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc;
                 }
                 ChannelWidth->Drc  = 0.5*(w + ChannelWidth->Drc);
@@ -830,9 +831,9 @@ void TWorld::InitChannel(void)
 
             // top width
             //            ChannelWidthMax->Drc = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc;
-            //            if (ChannelWidthMax->Drc > 0.9*_dx && ChannelSide->Drc > 0) {
-            //               ChannelSide->Drc = 0.05*_dx/ChannelDepth->Drc;
-            //               ChannelWidthMax->Drc = 0.9*_dx;
+            //            if (ChannelWidthMax->Drc > 0.95*_dx && ChannelSide->Drc > 0) {
+            //               ChannelSide->Drc = 0.025*_dx/ChannelDepth->Drc;
+            //               ChannelWidthMax->Drc = 0.95*_dx;
             //            }
             // can be more than _dx
             ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
@@ -1412,7 +1413,9 @@ void TWorld::IntializeData(void)
     //combination display
     COMBO_QOFCH = NewMap(0);
     COMBO_VOFCH = NewMap(0);
+    COMBO_SED = NewMap(0);
     COMBO_SS = NewMap(0);
+    COMBO_BL = NewMap(0);
     COMBO_TC = NewMap(0);
     extQCH = NewMap(0);
     extVCH = NewMap(0);
@@ -1508,7 +1511,6 @@ void TWorld::IntializeData(void)
     HouseWidthDX = NewMap(0);
     FOR_ROW_COL_MV
     {
-        //HouseCover->Drc = std::min(0.9, HouseCover->Drc);
         HouseWidthDX->Drc = std::min(_dx,  HouseCover->Drc *_dx);
         // assume there is always space next to house
         N->Drc = N->Drc * (1-HouseCover->Drc) + 0.25*HouseCover->Drc;
@@ -1854,7 +1856,7 @@ void TWorld::IntializeData(void)
                     RStorage->Drc = RStorage->Drc * ChannelWidth->Drc * DX->Drc;
                 }else
                 {
-                    Storage->Drc = -999999;
+                    RStorage->Drc = -999999;
                 }
             }
             RStorageDep = NewMap(0.0);

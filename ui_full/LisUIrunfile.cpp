@@ -393,8 +393,6 @@ void lisemqt::ParseInputData()
         setSedimentText(E_RBLMethod->value(), 0, 0);
         setSedimentText(E_RSSMethod->value(), 0, 1);
 
-
-        if (p1.compare("OutRunoff")==0)         checkBox_OutRunoff->setChecked(check);
         if (p1.compare("OutRunoff")==0)         checkBox_OutRunoff->setChecked(check);
         if (p1.compare("OutWH")==0)             checkBox_OutWH->setChecked(check);
         if (p1.compare("OutV")==0)              checkBox_OutV->setChecked(check);
@@ -409,6 +407,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("OutConc")==0)    checkBox_OutConc->setChecked(check);
         if (p1.compare("OutSed")==0)     checkBox_OutSed->setChecked(check);
         if (p1.compare("OutSL")==0)      checkBox_OutSL->setChecked(check);
+        if (p1.compare("OutSedSS")==0)     checkBox_OutSedSS->setChecked(check);
+        if (p1.compare("OutSedBL")==0)     checkBox_OutSedBL->setChecked(check);
 
         if (p1.compare("Result datetime")==0) checkAddDatetime->setChecked(check);
    }
@@ -951,6 +951,8 @@ void lisemqt::updateModelData()
         if (p1.compare("OutConc")==0)    namelist[j].value.setNum((int)checkBox_OutConc->isChecked());
         if (p1.compare("OutSed")==0)     namelist[j].value.setNum((int)checkBox_OutSed->isChecked());
         if (p1.compare("OutSL")==0)      namelist[j].value.setNum((int)checkBox_OutSL->isChecked());
+        if (p1.compare("OutSedSS")==0)     namelist[j].value.setNum((int)checkBox_OutSedSS->isChecked());
+        if (p1.compare("OutSedBL")==0)     namelist[j].value.setNum((int)checkBox_OutSedBL->isChecked());
 
         if (p1.compare("Result datetime")==0) namelist[j].value.setNum((int)checkAddDatetime->isChecked());
     }

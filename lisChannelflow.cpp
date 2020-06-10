@@ -170,8 +170,15 @@ void TWorld::CalcVelDischChannel()
         else
             ChannelAlpha->Drc = 0;
 
-        if (ChannelAlpha->Drc > 0)
+        if (ChannelAlpha->Drc > 0) {
             ChannelQ->Drc = std::pow(Area/ChannelAlpha->Drc, beta1);
+            //ChannelQ->Drc = std::min(ChannelMaxQ->Drc, ChannelQ->Drc);
+            if (ChannelQ->Drc > ChannelMaxQ->Drc){
+                ChannelAlpha->Drc = Area/std::pow(ChannelMaxQ->Drc, beta);
+                ChannelQ->Drc = ChannelMaxQ->Drc;
+            }
+
+        }
         else
             ChannelQ->Drc = 0;
 
@@ -183,7 +190,7 @@ void TWorld::ChannelAddBaseandRain(void)
 {
     if (!SwitchIncludeChannel)
         return;
-
+// making this parallel gives mass balance errors!!!
 #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {
         if(ChannelMaskExtended->data[r][c] == 1)
@@ -196,7 +203,7 @@ void TWorld::ChannelAddBaseandRain(void)
             }
 
             // subtract infiltration
-            if (SwitchChannelInfil) {
+            if (SwitchChannelInfil && ChannelMaxQ->Drc <= 0) {
                 double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
                 inf = std::min(ChannelWaterVol->Drc, inf);
                 ChannelWaterVol->Drc -= inf;

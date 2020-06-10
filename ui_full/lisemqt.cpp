@@ -655,6 +655,8 @@ void lisemqt::setErosionTab(bool yes)
     checkBox_OutSed->setEnabled(checkDoErosion->isChecked());
     checkBox_OutTC->setEnabled(checkDoErosion->isChecked());
     groupKineticEnergy->setEnabled(checkDoErosion->isChecked());
+    checkBox_OutSedSS->setEnabled(checkDoErosion->isChecked() && checkAdvancedSediment->isChecked());
+    checkBox_OutSedBL->setEnabled(checkDoErosion->isChecked() && checkAdvancedSediment->isChecked());
 
     checkBoxComboMaps2->setEnabled(checkDoErosion->isChecked());
     ComboMinSpinBox2->setEnabled(checkDoErosion->isChecked());
@@ -1577,10 +1579,12 @@ void lisemqt::aboutQT()
 void lisemqt::aboutInfo()
 {
     QMessageBox::information ( this, "openLISEM",
-                               QString("openLISEM verion %7 (%8) is created wih:\n\n%1\n%2\n%3\n%4\n%5\n")
-                               .arg("- Qt cross platform application and UI framework version 5.14.X based on MingW 64bit and CMake (http://qt.nokia.com/).")
+                               QString("openLISEM verion %8 (%9) is created wih:\n\n%1\n%2\n%3\n%4\n%5\n%6\n%7\n")
+                               .arg("- MSYS2 with MingW64, Qt and CMake (http://qt.nokia.com/).")
                                .arg("- Qwt technical application widgets for Qt (http://qwt.sf.net)")
-                               .arg("- Flood source code based on fullSWOF2D (http://www.univ-orleans.fr/mapmo/soft/FullSWOF/)")
+                               .arg("- Flood source code partly based on fullSWOF2D (http://www.univ-orleans.fr/mapmo/soft/FullSWOF/)")
+                               .arg("- Using openMP for parallel processing (https://www.openmp.org/)")
+                               .arg("- Using GDAL for map handling (https://gdal.org/)")
                                .arg("- PCRaster map functions: http://pcraster.geo.uu.nl/")
                                .arg("Details can be found at: http://lisem.sourceforge.net")
                                .arg(VERSIONNR)

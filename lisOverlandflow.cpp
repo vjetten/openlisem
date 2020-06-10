@@ -27,7 +27,6 @@
   \brief calculate interactions between channel flow, overland flow and flooding, calculate Q, V and call the kin wave
 
 functions: \n
-- void TWorld::ToFlood(void)\n
 - void TWorld::ToChannel(void)\n
 - void TWorld::CalcVelDisch(void)\n
 - void TWorld::OverlandFlow(void)\n
@@ -131,17 +130,17 @@ void TWorld::ToChannel()
                 Conc->Drcr = MaxConcentration(WHrunoff->Drcr * DX->Drcr * ChannelAdj->Drcr, &Sed->Drcr, &DEP->Drcr);
                 // adjust sediment in suspension
 
-                if(SwitchUseGrainSizeDistribution)
-                {
-                    Conc->Drcr = 0;
-                    FOR_GRAIN_CLASSES
-                    {
-                        RSS_D.Drcdr += fractiontochannel * Sed_D.Drcdr;
-                        Sed_D.Drcd = Sed_D.Drcd * (1-fractiontochannel);
-                        Conc_D.Drcd = MaxConcentration(WHrunoff->Drcr * DX->Drcr * ChannelAdj->Drcr, &Sed_D.Drcd, &DEP->Drcr);
-                        Conc->Drcr += Conc_D.Drcd;
-                    }
-                }
+//                if(SwitchUseGrainSizeDistribution)
+//                {
+//                    Conc->Drcr = 0;
+//                    FOR_GRAIN_CLASSES
+//                    {
+//                        RSS_D.Drcdr += fractiontochannel * Sed_D.Drcdr;
+//                        Sed_D.Drcd = Sed_D.Drcd * (1-fractiontochannel);
+//                        Conc_D.Drcd = MaxConcentration(WHrunoff->Drcr * DX->Drcr * ChannelAdj->Drcr, &Sed_D.Drcd, &DEP->Drcr);
+//                        Conc->Drcr += Conc_D.Drcd;
+//                    }
+//                }
                RiverSedimentLayerDepth(rr,cr);
                RiverSedimentMaxC(rr,cr);
             }
@@ -286,7 +285,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 {
     double dtOF = 0;
 
-    ChannelOverflowNew(WHrunoff, V, false);
+    ChannelOverflow(WHrunoff, V, false);
         // false means flood sediment maps are used
 
     startFlood = false;

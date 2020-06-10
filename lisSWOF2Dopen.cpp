@@ -74,7 +74,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
                 double dx = ChannelAdj->Drc;
                 double dy = DX->Drc;
-                double vmax = 0.5 * dx/dt;
+                double vmax = 0.25 * dx/dt;  // courant?
 
                 double H = hs->Drc;
                 double n = N->Drc;
@@ -127,7 +127,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 hll_y1 = F_Riemann(h_y1,vy_y1,vx_y1,H,Vy,Vx); // r-1 and r
                 hll_y2 = F_Riemann(H,Vy,Vx,h_y2,vy_y2,vx_y2); // r and r+1
 
-                double C = std::max(0.5, courant_factor);;
+                double C = std::min(0.5, courant_factor);;
                 double tx = dt/dx;
                 double ty = dt/dy;
 
@@ -230,7 +230,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     } // if floodstart
 
     correctMassBalance(sumh, h);
-
+    if (count == 0) count =1;
     iter_n = count;
 
     return(_dt/count);

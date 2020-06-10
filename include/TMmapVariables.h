@@ -419,6 +419,8 @@ cTMap
 *COMBO_QOFCH,
 *COMBO_VOFCH,
 *COMBO_SS,
+*COMBO_BL,
+*COMBO_SED,
 *COMBO_TC,
 *ChannelDepthExtended,
 *ChannelWidthExtended,

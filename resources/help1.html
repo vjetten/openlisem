@@ -5,17 +5,18 @@
 <li>2D dynamic flow uses the DEM to determine where water flows. The water is distributed over the cells downstream, using a full dynamic wave for with depth-average velocity. The 'flow' tab gives several numerical options. It uses a semi-explicit finite volume solution with a small adaptive timestep (non-iterative).<br />The distinction netween runoff and flood is user defined by a flood threshold (in m). All water above this threshold is considered flood (hazardous), below is considered runoff.</li>
 </ul>
 <p>NOTE: channel flow is always 1D kinematic wave over a channel network (lddchan.map in PCRaster).</p>
-<p>NOTE: a kinematic wave is adviced for large scale problems and less than optimal DEMs (e.g. SRTM or ASTER DEMs).&nbsp;</p>
+<p>NOTE: a kinematic wave is adviced for large scale problems and less than optimal DEMs (e.g. SRTM or ASTER DEMs).</p>
 <p><strong>Sediment processes</strong></p>
 <ul>
 <li>Switch erosion processes on or off. If switched on, sediment dynamics are simulated for for all flows. Only suspended matter is simulated (no bedload) using the Govers transport capacity equation.</li>
-<li>Advanced sediment transporty allows you to simulate suspended and bedload transport, with different transport capacity equations, mulitple grainsize classes, and sediment material depth.</li>
+<li>Advanced sediment transporty allows you to simulate suspended and bedload transport, with different transport capacity equations.</li>
 </ul>
 <p><strong>Channels/Rivers</strong></p>
-<p>The channel system can be switched off entirely in which case only overland flow is considered (for research purposes). Channels are 1D networks using a kinematic wave for flow.</p>
+<p>The channel system can be switched off entirely in which case only overland flow is considered. Channels are 1D networks using a kinematic wave for flow.</p>
 <ul>
 <li>Channel infiltration: assumed to be saturated infiltration, the flux equals ChannelKsat (mm/h). If not checked the channel is assumed impermeable. Mutually exclusive with baseflow.</li>
 <li>Channel baseflow: the baseflow discharge at the outlet(s) is given in m3/s in the map baseflow.map. This discharge is iterated over the entire channel, so that the kinematic wave gives the stated baseflow at the outlet. Mutually exclusive with channel infiltration.</li>
+<li>Channel Culverts: these are cells in the channel that constrain the discharge a maximum flow in m3/s (specified in ChanMaxQ.map). It is a simple bottleneck, no pipe flow physics are used.</li>
 </ul>
 <p><strong>Infrastructure</strong></p>
 <p>Switch on or off the effect of buildings and infrastructure:</p>
@@ -26,4 +27,4 @@
 <li>Storm drains (tile drains) are networks of circular subsurface pipes with regular inlets. A kinematic wave transports water along this system. The maximum flow is determined by the diameter, gradient and Manning's n. Can be used for urban drains or agricultural tile drains.</li>
 </ul>
 <p><strong>Parallel processing</strong></p>
-<p>All CPUs have more than 1 core that can be activated simultatneously for calculations. If the value is set at 0, all cores present are used. The flow domain is divided in areas that are calculated in parallel with a narrow band to connect these areas when they are done. This is usually faster (20% and 50%) for large areas but may also lead to errors. It is NOT faster for small areas. For small areas there is hardly any difference. Defualt = 1 (1 core used). Note that writing results to disk and screen is always done in a separate core.</p>
+<p>All CPUs have more than 1 core that can be activated simultatneously for calculations. If the value is set at 0, all cores present are used. For small catchments this may not be faster (the overhead is more than the gain)!</p>

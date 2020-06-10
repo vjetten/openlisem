@@ -284,16 +284,27 @@ void TWorld::OutputUI(void)
 
     if(SwitchErosion)
     {
-        fill(*COMBO_SS, 0.0);
-        calcMap(*COMBO_SS, *Sed, ADD);
+        fill(*COMBO_SED, 0.0);
+        calcMap(*COMBO_SED, *Sed, ADD);
         if (SwitchUse2Layer)
-            calcMap(*COMBO_SS, *BLFlood, ADD);
-        calcMap(*COMBO_SS, *SSFlood, ADD);
+            calcMap(*COMBO_SED, *BLFlood, ADD);
+        calcMap(*COMBO_SED, *SSFlood, ADD);
         if(SwitchIncludeChannel)
         {
             if (SwitchUse2Layer)
-                calcMap(*COMBO_SS, *ChannelBLSed, ADD);
-            calcMap(*COMBO_SS, *ChannelSSSed, ADD);
+                calcMap(*COMBO_SED, *ChannelBLSed, ADD);
+            calcMap(*COMBO_SED, *ChannelSSSed, ADD);
+        }
+
+        if (SwitchUse2Layer) {
+            fill(*COMBO_SS, 0.0);
+            fill(*COMBO_BL, 0.0);
+            calcMap(*COMBO_BL, *BLFlood, ADD);
+            calcMap(*COMBO_SS, *SSFlood, ADD);
+            if(SwitchIncludeChannel) {
+                calcMap(*COMBO_BL, *ChannelBLSed, ADD);
+                calcMap(*COMBO_SS, *ChannelSSSed, ADD);
+            }
         }
 
         copy(*COMBO_TC, *TC);
@@ -857,15 +868,29 @@ void TWorld::ReportMaps(void)
         copy(*tm, *TotalSoillossMap);
         calcValue(*tm, factor, MUL);
         report(*tm, totalSoillossFileName);
-        if (SwitchOutSL)
-            report(*tm, OutSL);      // in user units
+        if (SwitchOutSL) report(*tm, OutSL);      // in user units
 
         // total sediment
-        copy(*tm, *COMBO_SS); //kg/cell
-        calcValue(*tm, factor, MUL);
-        if (SwitchOutSed) report(*tm, OutSed);      // in user units
+        if (SwitchOutSed) {
+            copy(*tm, *COMBO_SED); //kg/cell
+            calcValue(*tm, factor, MUL);
+            report(*tm, OutSed);      // in user units
+        }
         if (SwitchOutConc) report(*TotalConc, Outconc);  // in g/l
         if (SwitchOutTC) report(*COMBO_TC, Outtc);      // in g/l
+
+        if(SwitchUse2Layer) {
+            if (SwitchOutSedSS) {
+                copy(*tm, *COMBO_SS); //kg/cell
+                calcValue(*tm, factor, MUL);
+                report(*tm, OutSedSS);      // in user units
+            }
+            if (SwitchOutSedBL) {
+                copy(*tm, *COMBO_BL); //kg/cell
+                calcValue(*tm, factor, MUL);
+                report(*tm, OutSedBL);      // in user units
+            }
+        }
 
     }
 
@@ -1514,14 +1539,14 @@ void TWorld::GetComboMaps()
         AddComboMap(1,"Sed trap","kg/m3",SedMaxVolume,Colormap,Colors,false,false,1.0, step);
 
         if(SwitchUse2Layer) {
-            AddComboMap(1,"Suspended sed.",unit,SSFlood,Colormap,Colors,false,false,factor, step);
-            AddComboMap(1,"Bedload sed.",unit,BLFlood,Colormap,Colors,false,false,factor, step);
+            AddComboMap(1,"Suspended sed.",unit,COMBO_SS/*SSFlood*/,Colormap,Colors,false,false,factor, step);
+            AddComboMap(1,"Bedload sed.",unit,COMBO_BL /*BLFlood*/,Colormap,Colors,false,false,factor, step);
             AddComboMap(1,"TC suspended","kg/m3",SSTCFlood,Colormap,Colors,false,false,factor, step);
             AddComboMap(1,"TC bedload","kg/m3",BLTCFlood,Colormap,Colors,false,false,factor, step);
-            AddComboMap(1,"SS depth","m",SSDepthFlood,Colormap,Colors,false,false,1.0, step);
-            AddComboMap(1,"BL depth","m",BLDepthFlood,Colormap,Colors,false,false,1.0, step);
+           // AddComboMap(1,"SS depth","m",SSDepthFlood,Colormap,Colors,false,false,1.0, step);
+           // AddComboMap(1,"BL depth","m",BLDepthFlood,Colormap,Colors,false,false,1.0, step);
         } else {
-            AddComboMap(1,"Sediment load",unit,COMBO_SS,Colormap,Colors,false,false,factor, step);
+            AddComboMap(1,"Sediment load",unit,COMBO_SED,Colormap,Colors,false,false,factor, step);
             AddComboMap(1,"Transport Capacity","kg/m3",COMBO_TC,Colormap,Colors,false,false,1.0, step);
         }
 
