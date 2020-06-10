@@ -63,6 +63,7 @@ SET(APP_SOURCES
     swatre/lookup
     swatre/swatinp
     lisChannelflood
+    lisChannelErosion
     lisSWOF2Dopen
     lisSWOF2Daux
     lisSWOF2DSediment

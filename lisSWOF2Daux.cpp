@@ -704,13 +704,6 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
     if (startFlood)
     {
-        if (SwitchErosion) {
-            FOR_ROW_COL_MV_L {
-                SSFlood->Drc += DETSplash->Drc;
-                SSCFlood->Drc = MaxConcentration(ChannelAdj->Drc * DX->Drc * h->Drc, &SSFlood->Drc, &DepFlood->Drc);
-            }
-        }
-
         sumh = getMass(h);
 
         do {

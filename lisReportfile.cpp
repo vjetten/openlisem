@@ -1451,6 +1451,8 @@ void TWorld::GetComboMaps()
 //    FOR_ROW_COL_MV {
 //         tma->Drc = hmxWH->Drc < 1e-6 ? 0 : hmxWH->Drc;
 //    }
+    AddComboMap(0,"Water Height","m",hmx,Colormap,Colors,false,false,1.0,0.01);
+    AddComboMap(0,"Water Height","m",WHrunoff,Colormap,Colors,false,false,1.0,0.01);
     AddComboMap(0,"Water Height","m",hmxWH,Colormap,Colors,false,false,1.0,0.01);
     setColor(2);
     AddComboMap(0,"Flow Velocity","m/s",COMBO_VOFCH,Colormap,Colors,false,false,1.0, 0.01);

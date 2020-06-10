@@ -392,16 +392,23 @@ void TWorld::OverlandFlow2Ddyn(void)
 //--------------------------------------------------------------------------------------------
 void TWorld::OverlandFlow1D(void)
 {
+    double totw = 0;
     // recalculate water vars after subtractions in "to channel"
     FOR_ROW_COL_MV_L
     {
         WaterVolin->Drc = DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
         //volume runoff into the kin wave, needed to determine infil in kin wave
-
+totw += WHrunoff->Drc;
         // WaterVolin total water volume in m3 before kin wave, WHrunoff may be adjusted in tochannel
         q->Drc = FSurplus->Drc*SoilWidthDX->Drc/_dt;  //???FlowWidth
         // infil flux in kin wave (<= 0)negative value), in m2/s, in kiv wave DX is used
         // surplus related to infiltrating surfaces
+    }
+    if(totw < 1e-10) {
+        fill(*Qn, 0.0);
+        if (SwitchErosion)
+            fill(*Qsn, 0.0);
+        return;
     }
 
     fill(*QinKW, 0.0); // store incoming wate rin a cell

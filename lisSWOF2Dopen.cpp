@@ -31,14 +31,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     bool stop;
     double dt_req_min = dt_max;
 
-    if (SwitchErosion) {
-        FOR_ROW_COL_MV_L {
-            SSFlood->Drc += DETSplash->Drc;
-            SSCFlood->Drc = MaxConcentration(ChannelAdj->Drc * DX->Drc * h->Drc, &SSFlood->Drc, &DepFlood->Drc);
-            // recalc concentration
-        }
-    }
-
     if (!startFlood)
         TimestepfloodLast = dt_max;
 
