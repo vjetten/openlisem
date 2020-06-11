@@ -1297,7 +1297,7 @@ void lisemqt::savefile(QString name)
             out << namelist[i].name << "\n"; // already contains \n
         else
             out << namelist[i].name << "=" << namelist[i].value << "\n";
-        qDebug() << namelist[i].name << "=" << namelist[i].value << "\n";
+        //qDebug() << namelist[i].name << "=" << namelist[i].value;
     }
     fp.close();
 }

@@ -186,10 +186,8 @@ void TWorld::SplashDetachment()
 
             if(SwitchUseMaterialDepth)
             {
-                //          double depdepth = std::max((StorageDep->Drc / (1600.0))/(_dx * DX->Drc),0.0);
                 double depdepth = std::max((StorageDep->Drc / BulkDens)/(_dx * DX->Drc),0.0);
-                // VJ 170308 changed to bulkdensity input
-                double fac1 = std::max(0.0,1.0 - depdepth/SedimentMixingDepth->Drc);
+                double fac1 = std::max(0.0,1.0 - depdepth/(SedimentMixingDepth->Drc+0.01));
                 double fac2 = 1.0 - fac1;
 
                 strength = strength * fac2 + (0.1033/DepositedCohesion) * fac1;
@@ -789,7 +787,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             //linear decrease in influence from lower soil layer
             //from 0 to MixingDepth, with fac1 for bottom layer, fac2 for top layer
             double fac1 = 1.0;
-            if(SedimentMixingDepth->Drc > MIN_HEIGHT)
+           // if(SedimentMixingDepth->Drc > MIN_HEIGHT)
                 fac1 = std::max(0.0,1.0 - depdepth/SedimentMixingDepth->Drc);
             double fac2 = 1-fac1;
             //new erosion coefficient bases on soil layer mixinfactors

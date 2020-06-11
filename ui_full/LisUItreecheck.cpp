@@ -193,14 +193,27 @@ void lisemqt::on_checkInfilGrass_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkSedtrap_clicked()
 {
+    bool yes = checkSedtrap->isChecked();
     checkMapNameModel(CONSERVATIONMAPS, 0, checkSedtrap->isChecked()||checkInfilGrass->isChecked());
-    E_SedTrapN->setEnabled(checkSedtrap->isChecked());
-    E_BulkDens->setEnabled(checkSedtrap->isChecked());
-    label_189->setEnabled(checkSedtrap->isChecked());
-    label_191->setEnabled(checkSedtrap->isChecked());
-    label_104->setEnabled(checkSedtrap->isChecked());
-    label_33->setEnabled(checkSedtrap->isChecked());
+    E_SedTrapN->setEnabled(yes);
+    E_BulkDens->setEnabled(yes);
+     label_189->setEnabled(yes);
+     label_191->setEnabled(yes);
+     label_104->setEnabled(yes);
+      label_33->setEnabled(yes);
+
     // groupBoxConservation->setEnabled(checkSedtrap->isChecked());
+}
+//--------------------------------------------------------------------
+void lisemqt::on_checkMaterialDepth_clicked()
+{
+    //checkMapNameModel(CONSERVATIONMAPS, 0, checkSedtrap->isChecked()||checkInfilGrass->isChecked());
+    bool yes = checkMaterialDepth->isChecked();
+    E_DepositedCohesion->setEnabled(yes);
+    E_BulkDens->setEnabled(yes);
+    label_130->setEnabled(yes);
+    label_190->setEnabled(yes);
+    matdepthparams->setEnabled(yes);
 }
 //--------------------------------------------------------------------
 //void lisemqt::on_checkSnowmelt_clicked()

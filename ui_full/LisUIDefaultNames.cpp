@@ -72,9 +72,9 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Aggregates;aggrstab.map;Aggregate stability for splash erosion (-);aggrstab");
     DEFmaps.append("2;D50;d50.map;Median of the texture of the suspendeed matter (mu);d50");
     DEFmaps.append("2;D90;d90.map;90% quartile of the texture of the suspendeed matter (mu);d90");
-    DEFmaps.append("2;Material;detmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);detmat");
-    DEFmaps.append("2;MixingDepth;sedmixdeth.map; Mixing depth for deposited sediment (m);sedmixdepth");
-    DEFmaps.append("2;MaxDepth;maxdetdepth.map; Maximum depth for detachment (m);maxdet");
+    DEFmaps.append("2;Max material;detmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);detmat");
+    DEFmaps.append("2;MixingDepth;sedmixdepth.map; Mixing depth for deposited sediment (m);sedmixdepth");
+    //DEFmaps.append("2;MaxDepth;maxdetdepth.map; Maximum depth for detachment (m)(-1 = infinite);maxdet");
 
     DEFmaps.append("0;Infiltration");
     DEFmaps.append("1;Swatre");
@@ -121,7 +121,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
     DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh");
     DEFmaps.append("2;Channelmaterial;chandetmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);chandetmat");
-    DEFmaps.append("2;ChannelMixingDepth;chansedmixdeth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
+    DEFmaps.append("2;ChannelMixingDepth;chansedmixdepth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
     DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
 //    DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
     DEFmaps.append("2;hmxInit;WHinit.map;Initial floodlevel (m);hmxinit");
@@ -414,6 +414,12 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("No detachment boundary");
     namelist[i].value = QString("0.1");
     namelist[i++].name = QString("Splash Delivery Ratio");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use material depth");
+    namelist[i].value = QString("1500.0");
+    namelist[i++].name = QString("Sediment bulk density");
+    namelist[i].value = QString("0.5");
+    namelist[i++].name = QString("Particle Cohesion of Deposited Layer");
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Sediment]");
@@ -445,12 +451,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Read grain distribution maps");
     namelist[i].value = QString("2;20;50;125;250;500");
     namelist[i++].name = QString("Grain size class maps");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use material depth");
-    namelist[i].value = QString("1500.0");
-    namelist[i++].name = QString("Sediment bulk density");
-    namelist[i].value = QString("0.5");
-    namelist[i++].name = QString("Particle Cohesion of Deposited Layer");
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Conservation]");

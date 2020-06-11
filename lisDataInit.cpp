@@ -368,7 +368,7 @@ void TWorld::InitStandardInput(void)
         {
             if(Outlet->Drc > 0 && LDD->Drc != 5)
             {
-                qDebug() << r << c << LDD->Drc;
+                //qDebug() << r << c << LDD->Drc;
                 ErrorString = "Outlet points (outlet.map) do not coincide with LDD endpoints.";
                 throw 1;
             }
@@ -1830,6 +1830,8 @@ void TWorld::IntializeData(void)
     if(SwitchErosion && SwitchUseMaterialDepth)
     {
         Storage = ReadMap(LDD, getvaluename("detmat"));
+        StorageDep = NewMap(0.0);
+        SedimentMixingDepth = ReadMap(LDD, getvaluename("sedmixdepth"));
         FOR_ROW_COL_MV
         {
             if(Storage->Drc != -1)
@@ -1839,15 +1841,17 @@ void TWorld::IntializeData(void)
             {
                 Storage->Drc = -999999;
             }
+            SedimentMixingDepth->Drc  = std::max(0.01, SedimentMixingDepth->Drc);
         }
-        StorageDep = NewMap(0.0);
-        SedimentMixingDepth = ReadMap(LDD, getvaluename("sedmixdepth"));
+
     }
 
     if(SwitchIncludeChannel)
     {
         if(SwitchErosion && SwitchUseMaterialDepth)
         {
+            RStorageDep = NewMap(0.0);
+            RSedimentMixingDepth = ReadMap(LDD, getvaluename("chansedmixdepth"));
             RStorage = ReadMap(LDD, getvaluename("chandetmat"));
             FOR_ROW_COL_MV
             {
@@ -1858,9 +1862,8 @@ void TWorld::IntializeData(void)
                 {
                     RStorage->Drc = -999999;
                 }
+                RSedimentMixingDepth->Drc = std::max(RSedimentMixingDepth->Drc, 0.01);
             }
-            RStorageDep = NewMap(0.0);
-            RSedimentMixingDepth = ReadMap(LDD, getvaluename("chansedmixdepth"));
         }
 
     }

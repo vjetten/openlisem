@@ -579,19 +579,23 @@ void lisemqt::ParseInputData()
     //checkBox_OutHmxWH->setEnabled(checkChannelFlood->isChecked());
 
     on_checkIncludeChannel_clicked();
-
+    on_checkMaterialDepth_clicked();
     //****====------====****//
 
     // get all map names, DEFmaps contains default map names and descriptions
     // adapt the DEFmaps list with names from the run file
     // this is to display the correct names in the interface
-    for (j = mapstartnr; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
+    for (j = mapstartnr; j < nrnamelist; j++)
     {
         for (int i = 0; i < DEFmaps.size(); i++)
         {
             QStringList S = DEFmaps.at(i).split(";",Qt::SkipEmptyParts);
             if (S.contains(namelist[j].name))
             {
+                if(namelist[j].value == "chansedmixdeth.map") namelist[j].value = "chansedmixdepth.map";
+                if(namelist[j].value == "sedmixdeth.map") namelist[j].value = "sedmixdepth.map";
+                qDebug() << j << namelist[j].value;
+
                 QFileInfo fil(namelist[j].value);
                 S[2] = fil.fileName();  //VJ bug fix from 4 to 2
                 namelist[j].value = fil.fileName();

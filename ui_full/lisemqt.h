@@ -423,6 +423,7 @@ public slots:
     void on_checkInfilGrass_clicked();
     void on_checkInfil2layer_clicked();
     void on_checkSedtrap_clicked();
+    void on_checkMaterialDepth_clicked();
   //  void on_checkSnowmelt_clicked();
     void on_checkExpandActive_clicked();
     void on_E_MapDir_returnPressed();
