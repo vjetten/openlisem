@@ -274,6 +274,7 @@ public:
     long stepP;
 
     bool oldRunfile; // check is old runfile for ksat calibration
+    bool saveRunFileOnce; // check is old runfile for ksat calibration
 
     //interface names
     TreeModel *MapNameModel;

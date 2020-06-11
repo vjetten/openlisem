@@ -429,8 +429,6 @@ void TWorld::ParseRunfileData(void)
 
         if(SwitchChannelFlood)
         {
-//            if (p1.compare("Flood level map")==0)
-//                floodLevelFileName = checkOutputMapName(p, "flood level map",0);
             if (p1.compare("Flood time map")==0)
                 floodTimeFileName = checkOutputMapName(p, "flood time map",0);
             if (p1.compare("Flood stats")==0)

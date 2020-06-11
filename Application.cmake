@@ -24,11 +24,13 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(APP_SOURCES
+    main
     CsfMap
+    CsfRGBMap
     error
     fixture
     io
-    lisTotalsMB
+    operation
     ui_full/LisUItreecheck
     ui_full/LisUIModel
     ui_full/LisUIrunfile
@@ -39,53 +41,43 @@ SET(APP_SOURCES
     ui_full/lisemqt
     ui_full/LisUIplot
     ui_full/LisUImapplot
-    CsfRGBMap
-    lisChannelflow
-    lisTiledrainflow
-    lisDataInit
-    lisErosion
-    lisInfiltration
-    lisKinematic
-    lisModel
-    lisOverlandflow
-    lisRainintc
-    lisReportfile
-    lisRunfile
-    lisSurfstor
-    lisSnowmelt
-  #  lisKinematic2d
-    main
-    operation
     swatre/swatstep
     swatre/swatinit
     swatre/soillut
     swatre/lutio
     swatre/lookup
     swatre/swatinp
-    lisChannelflood
     lisChannelErosion
-    lisSWOF2Dopen
-    lisSWOF2Daux
-    lisSWOF2DSediment
-    lisInterception
-    lisPesticide
-    lisFlowBarriers
- #   lisUnifiedFlowThreadPool
- #   lisUnifiedFlowThread
+    lisChannelflood
+    lisChannelflow
+    lisDataInit
+    lisErosion
     lisExtendedChannel
-    include/version.h
-    include/model.h
-    include/TMmapVariables.h
-    include/LisUIoutput.h
- #   include/lisUnifiedFlowThreadPool
- #   include/lisUnifiedFlowThread
+    lisFlowBarriers
+    lisInfiltration
+    lisInterception
+    lisKinematic
+    lisModel
+    lisOverlandflow
+    lisPesticide
+    lisRainintc
+    lisReportfile
+    lisRunfile
+    lisSnowmelt
+    lisSurfstor
+    lisSWOF2Daux
+    lisSWOF2Dopen
+    lisSWOF2DSediment
+    lisTiledrainflow
+    lisTotalsMB
+    include/array.h
     include/CsfMap.h
     include/CsfRGBMap.h
-    include/array.h
     include/error.h
     include/fixture.h
     include/global.h
     include/io.h
+    include/LisUIoutput.h
     include/LisUIoutput.h
     include/masked_raster.h
     include/mmath.h
@@ -98,7 +90,8 @@ SET(APP_SOURCES
     include/swatreLookup.h
     include/swatremisc.h
     include/swatresoillut.h
-
+    include/TMmapVariables.h
+    include/version.h
     openlisemico.rc
 
 )

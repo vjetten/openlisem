@@ -62,6 +62,7 @@ void lisemqt::GetRunfile()
     // so old junk or misspelled stuff is simply IGNORED
     // namelist now contains the actual runfile data
     oldRunfile = false;
+    saveRunFileOnce=false;
     int i = 0;
 
     while (!fin.atEnd())
@@ -70,6 +71,9 @@ void lisemqt::GetRunfile()
 
         if (i == 0 && !S.contains("openLISEM"))
             oldRunfile = true;
+        if (i == 0 && !S.contains("[openLISEM runfile version 6.0]"))
+            saveRunFileOnce = true;
+
         i++;
 
         if (S.contains("="))
@@ -141,37 +145,29 @@ void lisemqt::ParseInputData()
         if (p1.contains("["))
             continue;
 
-        if (p1.compare("Nr user Cores")==0) nrUserCores->setValue(iii);
-
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
         if (p1.compare("Include channel culverts")==0)       checkChannelCulverts->setChecked(check);
         if (p1.compare("Include Erosion simulation")==0)     checkDoErosion->setChecked(check);
-        //if (p1.compare("Include channel flooding")==0)       checkChannelFlood->setChecked(check);
         if (p1.compare("Include road system")==0)            checkRoadsystem->setChecked(check);
         if (p1.compare("Include storm drains")==0)           checkStormDrains->setChecked(check);
         if (p1.compare("Hard Surfaces")==0)                  checkHardsurface->setChecked(check);
-
-        //houses
+        if (p1.compare("Nr user Cores")==0) nrUserCores->setValue(iii);
+        //infrastructure
         if (p1.compare("Include house storage")==0)          checkHouses->setChecked(check);
         if (p1.compare("Include raindrum storage")==0)       checkRaindrum->setChecked(check);
         if (p1.compare("Include litter interception")==0)    checkIncludeLitter->setChecked(check);
         if (p1.compare("Litter interception storage")==0)    E_LitterSmax->setValue(valc);
 
         if (p1.compare("Routing Kin Wave 2D")==0)            dummykinwave = iii;
-        if (p1.compare("Timestep Kin Wave 2D")==0)           E_TimestepMin->setValue(valc);
-        if (p1.compare("Courant Kin Wave 2D")==0)            E_CourantFactorKin->setValue(valc);
         if (p1.compare("Flow Boundary 2D")==0)               E_FlowBoundary->setValue(iii);
-      //  if (p1.compare("Flow concentration 2D")==0)          E_concentrateFlow->setValue(valc);
         if (p1.compare("Variable Timestep")==0)              checkVariableTimestep->setChecked(check);
-      //  if (p1.compare("Use SWOF 2.0")==0)                   checkSWOFomp->setChecked(check);
       //  if (p1.compare("Use Heun")==0)                       checkHeun->setChecked(check);
       //  if (p1.compare("Use MUSCL")==0)                      checkMuscl->setChecked(check);
         if (p1.compare("Use fixed angle")==0)                checkFixedAngle->setChecked(check);
         if (p1.compare("Use time avg V")==0)                 checkTimeavgV->setChecked(check);
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(valc);
-     //   if (p1.compare("Flooding courant factor diffusive")==0)        E_courantFactorSed->setValue(valc);
         if (p1.compare("Flood solution")==0)
         {
             switch (iii) {
@@ -195,6 +191,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(iii);
         if (p1.compare("Use gravity flow")==0)           E_gravityToChannel->setValue(iii);
         if (p1.compare("Angle flow to channel")==0)           E_angleToChannel->setValue(valc);
+        if (p1.compare("Pit Value")==0)           E_pitValue->setValue(valc);
 
         if (p1.compare("Advanced Options")==0)                 checkAdvancedOptions->setChecked(check);
 
@@ -696,8 +693,8 @@ void lisemqt::updateModelData()
             if (checkOverlandFlow2Ddyn->isChecked())  namelist[j].value = "3";
             if (checkOverlandFlow2Dkindyn->isChecked())  namelist[j].value = "4";
         }
-        if (p1.compare("Timestep Kin Wave 2D")==0)           namelist[j].value = E_TimestepMin->text();
-        if (p1.compare("Courant Kin Wave 2D")==0)            namelist[j].value = E_CourantFactorKin->text();
+        //if (p1.compare("Timestep Kin Wave 2D")==0)           namelist[j].value = E_TimestepMin->text();
+        //if (p1.compare("Courant Kin Wave 2D")==0)            namelist[j].value = E_CourantFactorKin->text();
         if (p1.compare("Flow Boundary 2D")==0)        namelist[j].value = E_FlowBoundary->text();
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
       //  if (p1.compare("Flooding courant factor diffusive")==0)        namelist[j].value = E_courantFactorSed->text();
@@ -715,6 +712,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding mixing coefficient")==0)    namelist[j].value = E_mixingFactor->text();
         if (p1.compare("Flooding runoff partitioning")==0)   namelist[j].value = E_runoffPartitioning->text();
         if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
+        if (p1.compare("Pit Value")==0)                     namelist[j].value = E_pitValue->text();
 
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
         if (p1.compare("Timestep flood")==0)           namelist[j].value = E_TimestepMinFlood->text();
@@ -961,5 +959,12 @@ void lisemqt::updateModelData()
 
     currentDir = E_WorkDir;//->text();
     QDir::setCurrent(currentDir);
+
+    if (saveRunFileOnce) {
+        savefile(op.runfilename);
+        saveRunFileOnce = false;
+        QMessageBox::warning(this,"openLISEM",QString("The run file is updated to version 6.0 (obsolete options are removed and missing options use default values)."));
+
+    }
 
 }

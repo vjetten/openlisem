@@ -15,7 +15,7 @@
 double TWorld::getMass(cTMap *M)
 {
     double sum2 = 0;
-    FOR_ROW_COL_MV_L
+    FOR_ROW_COL_MV
     {
         if(M->Drc > 0)
             sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
@@ -28,7 +28,7 @@ void TWorld::correctMassBalance(double sum1, cTMap *M)
 {
     double sum2 = 0;
     double n = 0;
-    FOR_ROW_COL_MV_L
+    FOR_ROW_COL_MV
     {
         if(M->Drc > 0)
         {
@@ -41,7 +41,7 @@ void TWorld::correctMassBalance(double sum1, cTMap *M)
 
     //double dh = (n > 0 ? (sum1 - sum2)/n : 0);
     double dhtot = sum2 > 0 ? (sum1 - sum2)/sum2 : 0;
-    FOR_ROW_COL_MV_L
+    FOR_ROW_COL_MV
     {
         if(M->Drc > 0)
         {
@@ -74,18 +74,6 @@ void TWorld::prepareFloodZ(cTMap *z)
                 delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
                 // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
             }
-
-//    fill(*delta_z1, 0);
-//    fill(*delta_z2, 0);
-//    for (int r = 0; r < _nrRows; r++)
-//        for (int c = 0; c < _nrCols-1; c++)
-//            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r][c+1]))
-//                delta_z1->Drc = (z->data[r][c+1] - z->Drc);
-
-//    for (int r = 1; r < _nrRows-1; r++)
-//        for (int c = 0; c < _nrCols; c++)
-//            if(!pcr::isMV(LDD->data[r][c]) || !pcr::isMV(LDD->data[r+1][c]))
-//                delta_z2->Drc = (z->data[r+1][c] - z->Drc);
 }
 //---------------------------------------------------------------------------
 /**

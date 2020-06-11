@@ -459,7 +459,8 @@ public:
     double Flood_DTMIN;
     int F_scheme, F_fluxLimiter, F_MaxIter, F_AddGravity;
     double F_Angle;
-    double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl, HLL_tmp;
+   // double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl, HLL_tmp;
+    double F_pitValue;
     bool prepareFlood, startFlood;
     int iter_n;
     int F_SWOFSolution;
@@ -555,6 +556,7 @@ public:
     cTMap *Storage;
     cTMap *StorageDep;
     cTMap *SedimentMixingDepth;
+    cTMap *maxDetachment;
 
     QList<cTMap *> RStorageDep_D;
     QList<cTMap *> RStorage_D;

@@ -111,10 +111,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setupMapPlot();
     // set up the raster map drawing
 
-    //checkMapChannels->setVisible(false);
-    //transparencyChannel->setVisible(false);
-    //checkOverlandFlow2D->setVisible(false);
-
 //    QSplitter *splitter = new QSplitter(tabWidget->widget(2));
 //    splitter->addWidget(tabWidget_out);
 //    splitter->addWidget(widgetMB);
@@ -1268,21 +1264,22 @@ void lisemqt::savefileas()
                                                     QString("Text Files (*.run);;All Files (*)"),
                                                     &selectedFilter);
     //options);
-    if (!fileName.isEmpty())
+    if (!fileName.isEmpty()) {
+        updateModelData();
         savefile(fileName);
+    }
 
 }
 //--------------------------------------------------------------------
 void lisemqt::saveRunFile()
 {
+    updateModelData();
+    // change runfile strings with current interface options
     savefile(op.runfilename);
 }
 //--------------------------------------------------------------------
 void lisemqt::savefile(QString name)
 {
-    updateModelData();
-    // change runfile strings with current interface options
-
     QFile fp(name);
     if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
     {
@@ -1292,7 +1289,7 @@ void lisemqt::savefile(QString name)
     }
 
     QTextStream out(&fp);
-    out << QString("[openLISEM runfile version 1.0]\n");
+    out << QString("[openLISEM runfile version 6.0]\n");
 
     for (int i = 1; i < nrnamelist; i++)
     {
@@ -1300,6 +1297,7 @@ void lisemqt::savefile(QString name)
             out << namelist[i].name << "\n"; // already contains \n
         else
             out << namelist[i].name << "=" << namelist[i].value << "\n";
+        qDebug() << namelist[i].name << "=" << namelist[i].value << "\n";
     }
     fp.close();
 }
@@ -1616,6 +1614,7 @@ void lisemqt::resetTabFlow()
     E_TimestepMinFlood->setValue(0.2);
     E_CourantFactorKin->setValue(0.2);
     E_mixingFactor->setValue(2.0);
+    E_pitValue->setValue(10.0);
     E_runoffPartitioning->setValue(1.0);
     E_FloodMaxIter->setValue(200);
     E_FloodReconstruction->setValue(3);  //HLL2 etc

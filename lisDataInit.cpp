@@ -303,6 +303,7 @@ void TWorld::InitStandardInput(void)
         F_SWOFSolution = getvalueint("Flood Solution");
         SwitchMUSCL = F_SWOFSolution == 2;
         SwitchSWOFopen = F_SWOFSolution == 0;
+        F_pitValue = getvaluedouble("Pit Value");
     } else {
         mixing_coefficient = 2.0;
         runoff_partitioning = 1.0;
@@ -316,13 +317,10 @@ void TWorld::InitStandardInput(void)
         F_SWOFSolution = 0;
         SwitchMUSCL = false;
         F_SWOFSolution = true;
+        F_pitValue = 10.0;
     }
 
     SwitchKinematic2D = getvalueint("Routing Kin Wave 2D");
-
-    // courant_factor_diffusive = getvaluedouble("Courant Kin Wave 2D");
-    // TimestepKinMin = getvaluedouble("Timestep Kin Wave 2D");
-    //  ConcentrateKin = getvaluedouble("Flow concentration 2D");
 
     // flood maps
     DEM = ReadMap(LDD, getvaluename("dem"));
@@ -330,7 +328,8 @@ void TWorld::InitStandardInput(void)
         Buffers = ReadMap(LDD, getvaluename("buffers"));
         cover(*Buffers, *LDD,0);
         calcMap(*DEM, *Buffers, ADD);
-    }
+    } 
+
     //    else
     //        Buffers = NewMap(0);
 
@@ -361,7 +360,6 @@ void TWorld::InitStandardInput(void)
     // when 2D flow and channel, lddchannel->pits are leading, should coincide with user outlet
     // when 1D flow and channel, channel is leading
     // Checked in initchannel
-
     // when 2D and no channel, just do what user wants, don't check!
     // when 1D flow and no channel, outlet should be ldd->pits
     if (!SwitchIncludeChannel && (SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN))
@@ -1826,6 +1824,9 @@ void TWorld::IntializeData(void)
         }
     }
 
+//    if(SwitchErosion) {
+//        maxDetachment = ReadMap(LDD, getvaluename("maxdet"));
+//    }
     if(SwitchErosion && SwitchUseMaterialDepth)
     {
         Storage = ReadMap(LDD, getvaluename("detmat"));
@@ -1841,7 +1842,6 @@ void TWorld::IntializeData(void)
         }
         StorageDep = NewMap(0.0);
         SedimentMixingDepth = ReadMap(LDD, getvaluename("sedmixdepth"));
-
     }
 
     if(SwitchIncludeChannel)

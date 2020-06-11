@@ -798,6 +798,12 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 }
             }
             //### sediment balance
+//            double store = maxDetachment->Drc*BulkDens*ChannelAdj->Drc*DX->Drc;
+//            if ((maxDetachment->Drc != -1) && store > 0) {
+//                detachment = std::min(detachment, store);
+//                store -= detachment;
+//                maxDetachment->Drc = store/(BulkDens*ChannelAdj->Drc*DX->Drc);
+//            }
 
             TSSFlood->Drc += deposition;
             TSSFlood->Drc += detachment;
@@ -1014,6 +1020,12 @@ void TWorld::SWOFSedimentBalance()
 
 void TWorld::SWOFSediment(cTMap* DT,cTMap * h,cTMap * u,cTMap * v)
 {
+#pragma omp parallel for collapse(2)
+    FOR_ROW_COL_MV_L {
+        SWOFSedimentCheckZero(r,c,h);
+        SWOFSedimentSetConcentration(r,c,h);
+    }
+
     //sediment detachment or deposition
 #pragma omp parallel for collapse(2)
     FOR_ROW_COL_MV_L {

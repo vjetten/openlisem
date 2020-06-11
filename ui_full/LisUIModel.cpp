@@ -74,6 +74,7 @@ void lisemqt::runmodel()
    // label_runfilename->setText(QFileInfo(op.runfilename).fileName());
     /* TODO if run from commandline this name must exist */
 
+    updateModelData();
     savefile(QString(op.LisemDir+"openlisemtmp.run"));
     // save the current settings as a runfile that is read by the model
     // in savefile(string) the runfile is updated with all user options and map names

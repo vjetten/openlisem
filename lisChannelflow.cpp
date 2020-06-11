@@ -173,11 +173,12 @@ void TWorld::CalcVelDischChannel()
         if (ChannelAlpha->Drc > 0) {
             ChannelQ->Drc = std::pow(Area/ChannelAlpha->Drc, beta1);
             //ChannelQ->Drc = std::min(ChannelMaxQ->Drc, ChannelQ->Drc);
-            if (ChannelQ->Drc > ChannelMaxQ->Drc){
-                ChannelAlpha->Drc = Area/std::pow(ChannelMaxQ->Drc, beta);
-                ChannelQ->Drc = ChannelMaxQ->Drc;
+            if (SwitchCulverts) {
+                if (ChannelMaxQ->Drc > 0 && ChannelQ->Drc > ChannelMaxQ->Drc){
+                    ChannelAlpha->Drc = Area/std::pow(ChannelMaxQ->Drc, beta);
+                    ChannelQ->Drc = ChannelMaxQ->Drc;
+                }
             }
-
         }
         else
             ChannelQ->Drc = 0;
