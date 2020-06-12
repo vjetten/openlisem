@@ -933,6 +933,10 @@ void TWorld::InitFlood(void)
 
     iter_n = 0;
 
+    delz1 = NewMap(0);
+    delz2 = NewMap(0);
+    prepareFloodZ(DEM);
+
     if (!SwitchSWOFopen) {
         hsa = NewMap(0);
         vsa = NewMap(0);
@@ -954,12 +958,8 @@ void TWorld::InitFlood(void)
         u2r = NewMap(0);
         u2l = NewMap(0);
 
-        //delta_z1 = NewMap(0);
-        //delta_z2 = NewMap(0);
         delzc1 = NewMap(0);
         delzc2 = NewMap(0);
-        delz1 = NewMap(0);
-        delz2 = NewMap(0);
 
         f1 = NewMap(0);
         f2 = NewMap(0);
@@ -979,8 +979,6 @@ void TWorld::InitFlood(void)
         h1g = NewMap(0);
         h2d = NewMap(0);
         h2g = NewMap(0);
-
-        prepareFloodZ(DEM);
     }
 
     if (SwitchErosion) {

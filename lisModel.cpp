@@ -185,8 +185,6 @@ void TWorld::DoModel()
 
         DEBUG("Running...");
 
-        bool stopit = false;
-
         for (time = BeginTime; time < EndTime; time += _dt)
         {
             if (runstep > 0 && runstep % printinterval == 0)
@@ -209,8 +207,6 @@ void TWorld::DoModel()
             mutex.unlock();
             // check if user wants to quit or pause
 
-            if(!stopRequested) {
-
             //these functions read files, so they can not be multithreaded
             RainfallMap();         // get rainfall from table or mpas
             SnowmeltMap();         // get snowmelt
@@ -227,12 +223,11 @@ void TWorld::DoModel()
 
             MassBalance();       // check water and sed mass balance
 
-            }
-//#pragma omp barrier
             OutputUI();          // fill the "op" structure for screen output and calc some output maps
 
             saveMBerror2file(saveMBerror, false);
 
+            #pragma omp barrier
             reportAll();
 
             if (!noInterface)
@@ -240,8 +235,7 @@ void TWorld::DoModel()
             // send the op structure with data to function worldShow in LisUIModel.cpp
 
             if(stopRequested)
-                break;
-                //time = EndTime;
+                time = EndTime;
         }
 
         if (SwitchEndRun)

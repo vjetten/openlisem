@@ -91,8 +91,6 @@ void TWorld::prepareFloodZ(cTMap *z)
             DEMdz->Drc = 1/(1+pow(minZ/(1.5*F_pitValue),4.0));
             //DEM->Drc += minZ;
         }
-
-
     }
 }
 //---------------------------------------------------------------------------
