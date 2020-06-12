@@ -336,7 +336,7 @@ void TWorld::Infiltration()
     }
 
     // calc infiltrated volume for mass balance
-    #pragma omp parallel for collapse(2)
+    #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
         double cy = SoilWidthDX->Drc;
@@ -363,7 +363,7 @@ then calls IncreaseInfiltrationDepth to increase the wetting front.
 
 void TWorld::InfilMethodsNew()
 {
-    #pragma omp parallel for collapse(2)
+    #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         // default vars are first layer vars
         double fact1 = 0;
@@ -476,7 +476,7 @@ void TWorld::SoilWater()
         return;
     if (SwitchImpermeable)
         return;
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
         double Percolation, Ks, bca, dL, thetar, theta_E;
@@ -548,7 +548,7 @@ void TWorld::infilInWave(cTMap *_h, double dt1)
 {
     if (InfilMethod == INFIL_SWATRE || InfilMethod == INFIL_NONE)
         return;
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(FFull->Drc==0) {
             double cdx = DX->Drc;

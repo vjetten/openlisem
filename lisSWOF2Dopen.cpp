@@ -28,7 +28,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     {
         sumh = getMass(h);
 
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
         FOR_ROW_COL_MV_L {
             FloodDT->Drc = dt_max;
             //FloodT->Drc = 0;
@@ -43,7 +43,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 vys->Drc = vy->Drc;
             }
             //flow
-            #pragma omp parallel for collapse(2)
+            #pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 double dt = TimestepfloodLast;//FloodDT->Drc;//
                 double vxn, vyn;
@@ -54,9 +54,23 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 vec4 hll_y1;
                 vec4 hll_y2;
 
+                //                        double h23=pow(hn, 2.0/3.0);
+                //                        //double v_kin = (sx_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sx_zh > 0 ? sx_zh : -sx_zh))/(0.001+n);
+                //                        double v_kinx = h23 * std::max(0.001, sqrt(fabs(sx_zh))/(0.001+n));
+                //                        double vxna = fabs(vxn);
+                //                        double kinfac = vxna > 4*v_kinx ? v_kinx/vxna : 0;
+                //                        vxn = (sx_zh>0?1:-1)*(kinfac * v_kinx + vxna*(1.0-kinfac));
+                //                        double v_kiny = h23 * std::max(0.001, sqrt(fabs(sy_zh))/(0.001+n));
+                //                        double vyna = fabs(vyn);
+                //                                //(sy_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sy_zh > 0 ? sy_zh : -sy_zh))/(0.001+n);
+                //                        kinfac = vyna > 4*v_kiny ? v_kiny/vyna : 0;
+                //                        vyn = (sy_zh>0?1:-1)*(kinfac * v_kiny + vyna*(1.0-kinfac));
+
+
+
                 double dx = ChannelAdj->Drc;
                 double dy = DX->Drc;
-                double vmax = 0.5 * dx/dt;  // courant?
+                double vmax = 0.5 * std::min(20.0,dx)/dt;  // courant?
 
                 double H = hs->Drc;
                 double n = N->Drc;
@@ -186,10 +200,11 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double threshold = 0.01 * _dx; // was 0.01
                     if(hn < threshold)
                     {
+                        double h23 = pow(hn, 2.0/3.0);//hn * sqrt(hn)
                         double kinfac = std::max(0.0,(threshold - hn) / (0.025 * _dx));
-                        double v_kin = (sx_zh>0?1:-1) * hn * sqrt(hn) * std::max(0.001, sqrt(sx_zh > 0 ? sx_zh : -sx_zh))/(0.001+n);
+                        double v_kin = (sx_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sx_zh > 0 ? sx_zh : -sx_zh))/(0.001+n);
                         vxn = kinfac * v_kin + vxn*(1.0-kinfac);
-                        v_kin = (sy_zh>0?1:-1) * hn * sqrt(hn) * std::max(0.001, sqrt(sy_zh > 0 ? sy_zh : -sy_zh))/(0.001+n);
+                        v_kin = (sy_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sy_zh > 0 ? sy_zh : -sy_zh))/(0.001+n);
                         vyn = kinfac * v_kin + vyn*(1.0-kinfac);
                     }
 

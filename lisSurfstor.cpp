@@ -43,7 +43,7 @@ functions: \n
 //---------------------------------------------------------------------------
 void TWorld::GridCell()
 {
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
         double dxa = _dx;
@@ -70,7 +70,7 @@ void TWorld::GridCell()
 /// Adds new rainfall afterinterception to runoff water nheight or flood waterheight
 void TWorld::addRainfallWH()
 {
-    #pragma omp parallel for collapse(2)
+    #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
         if (FloodDomain->Drc > 0) {
@@ -92,7 +92,7 @@ void TWorld::addRainfallWH()
 //---------------------------------------------------------------------------
 void TWorld::SurfaceStorage()
 {
-    #pragma omp parallel for collapse(2)
+    #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
         double RRm = 0.01*RR->Drc; // assume RR in cm convert to m
@@ -144,7 +144,7 @@ void TWorld::SurfaceStorage()
 //---------------------------------------------------------------------------
 void TWorld::doETa()
 {
-    #pragma omp parallel for collapse(2)
+    #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
         double tot = 0;

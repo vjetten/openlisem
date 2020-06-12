@@ -682,7 +682,24 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
                 ves2->Drc = fac * ve2->Drc + (1.0-fac) *ves2->Drc;
             }
 
-            correctSpuriousVelocities(r, c, hes, ves1, ves2);
+            //correctSpuriousVelocities(r, c, hes, ves1, ves2);
+
+            double threshold = 0.01 * _dx; // was 0.01
+            if(hes->Drc < threshold)
+            {
+                double h23 = pow(hes->Drc, 2.0/3.0);//hn * sqrt(hn)
+                double kinfac = std::max(0.0,(threshold - hes->Drc) / (0.025 * _dx));
+                double sx_zh = delz1->Drc;
+                double sy_zh = delz2->Drc;
+                double v_kin = (sx_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sx_zh > 0 ? sx_zh : -sx_zh))/(0.001+N->Drc);
+                ves1->Drc = kinfac * v_kin + ves1->Drc*(1.0-kinfac);
+                v_kin = (sy_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sy_zh > 0 ? sy_zh : -sy_zh))/(0.001+N->Drc);
+                ves2->Drc = kinfac * v_kin + ves2->Drc*(1.0-kinfac);
+            }
+
+            double vmax = 0.5*_dx/dt;
+            ves1->Drc = std::max(-vmax, std::min(vmax, ves1->Drc));
+            ves2->Drc = std::max(-vmax, std::min(vmax, ves2->Drc));
         }
         else
         {

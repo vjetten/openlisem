@@ -291,6 +291,9 @@ void TWorld::InitStandardInput(void)
     courant_factor = getvaluedouble("Flooding courant factor");
     // courant_factor_sed = getvaluedouble("Flooding courant factor diffusive");
     TimestepfloodMin = getvaluedouble("Timestep flood");
+    F_SWOFSolution = getvalueint("Flood Solution");
+    SwitchMUSCL = F_SWOFSolution == 2;
+    SwitchSWOFopen = F_SWOFSolution == 0;
 
     if (SwitchAdvancedOptions) {
         mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
@@ -302,9 +305,6 @@ void TWorld::InitStandardInput(void)
         F_AddGravity = getvalueint("Use gravity flow");
         F_Angle = getvaluedouble("Angle flow to channel");
         SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);
-        F_SWOFSolution = getvalueint("Flood Solution");
-        SwitchMUSCL = F_SWOFSolution == 2;
-        SwitchSWOFopen = F_SWOFSolution == 0;
         F_pitValue = getvaluedouble("Pit Value");
     } else {
         mixing_coefficient = 2.0;
@@ -316,9 +316,6 @@ void TWorld::InitStandardInput(void)
         SwitchFixedAngle = false;
         F_AddGravity = 1;
         F_Angle = 0.02;
-        F_SWOFSolution = 0;
-        SwitchMUSCL = false;
-        F_SWOFSolution = true;
         F_pitValue = 10.0;
     }
 

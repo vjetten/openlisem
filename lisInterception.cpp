@@ -50,7 +50,7 @@ void TWorld::Interception()
     if (!SwitchRainfall)
         return;
     //VJ 110113 bug fix, no interception when no rainfall and only snowmelt
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
         if (Cover->Drc > 0)// && Rainc->Drc > 0)
@@ -119,7 +119,7 @@ void TWorld::InterceptionLitter()
 
     if (!SwitchRainfall)
         return;
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
         if (hmx->Drc == 0 && WH->Drc == 0 && Litter->Drc > 0 && RainNet->Drc > 0)
@@ -164,7 +164,7 @@ void TWorld::InterceptionHouses()
 
     if (!SwitchRainfall)
         return;
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
         if (HouseCover->Drc > 0 &&  Rainc->Drc > 0)

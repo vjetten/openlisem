@@ -142,7 +142,7 @@ void TWorld::CalcVelDischChannel()
     \ |         wh | /
      \|____________|/
   */
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_CH  {
         double Perim, Radius, Area;
         const double beta = 0.6;
@@ -192,7 +192,7 @@ void TWorld::ChannelAddBaseandRain(void)
     if (!SwitchIncludeChannel)
         return;
 // making this parallel gives mass balance errors!!!
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(ChannelMaskExtended->data[r][c] == 1)
         {
@@ -240,7 +240,7 @@ void TWorld::ChannelWaterHeightFromVolume()
     if(!SwitchIncludeChannel)
         return;
 
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(!pcr::isMV(LDDChannel->Drc)) {
             fromChannelVoltoWH(r, c);
@@ -256,7 +256,7 @@ void TWorld::ChannelFlow(void)
         return;
 
     // initialize some channel stuff
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_CH
     {
         ChannelQsn->Drc = 0;
@@ -268,7 +268,7 @@ void TWorld::ChannelFlow(void)
     {
         if(!SwitchUseGrainSizeDistribution)
         {
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_CH {
                 double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
                 ChannelQSSs->Drc = ChannelQ->Drc * concss;
@@ -330,7 +330,7 @@ void TWorld::ChannelFlow(void)
 
     cover(*ChannelQn, *LDD, 0);
 
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_CH {
         ChannelWaterVol->Drc = ChannelWaterVol->Drc + QinKW->Drc*_dt - ChannelQn->Drc*_dt ;
 
@@ -351,7 +351,7 @@ void TWorld::ChannelFlow(void)
 
     if (SwitchErosion)
     {
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
         FOR_ROW_COL_MV_CH
         {
             RiverSedimentLayerDepth(r,c);
@@ -389,7 +389,7 @@ void TWorld::ChannelFlow(void)
             cover(*ChannelQBLsn, *LDD, 0);
         cover(*ChannelQSSsn, *LDD, 0);
 
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
         FOR_ROW_COL_MV_CH
         {
             ChannelSSConc->Drc = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
@@ -442,7 +442,7 @@ void TWorld::ChannelFlow(void)
 
         if(!SwitchUseGrainSizeDistribution)
         {
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_CH
             {
                 RiverSedimentLayerDepth(r,c);
