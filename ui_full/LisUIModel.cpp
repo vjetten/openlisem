@@ -137,8 +137,10 @@ void lisemqt::runmodel()
     W->batchmode = false;
     // run without Qt interface on openlisemtmp.run only
 
-    op.timeStartRun =  QDateTime().currentDateTime().toString("yyMMdd-hhmm");
+    op.timeStartRun = QDateTime().currentDateTime().toString("yyMMdd-hhmm");
+
     if (checkAddDatetime->isChecked()) {
+        E_ResultDir->text() =
         screenShotDir = E_ResultDir->text() + QString("res"+op.timeStartRun+"/");
         QDir(screenShotDir).mkpath(QString("screens/"));
         screenShotDir = screenShotDir + QString("screens/");

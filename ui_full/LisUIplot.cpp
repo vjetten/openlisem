@@ -68,23 +68,40 @@ void lisemqt::setupPlot()
     // order determines order of display in Legend
     //VJ 101223 changed for qwt 6.0.0
 
+    QPen pen1, pen2, pen3, pen4, pen5;
+    pen1.setWidth(2);
     col.setRgb( 60,60,200,255 );
-    QGraph->setPen(QPen(col));
-    PGraph->setPen(QPen("#000000"));
+    pen1.setColor(col);
+    pen1.setCosmetic(true);
+    pen2.setWidth(2);
+    pen2.setColor("#000000");
+    pen2.setCosmetic(false);
+    col.setRgb( 0,160,160,255 );
+    pen3.setWidth(2);
+    pen3.setColor(col);
+    pen3.setCosmetic(true);
+    pen4.setWidth(2);
+    pen4.setColor(Qt::red);
+    pen4.setCosmetic(false);
+    col.setRgb( 200,0,0,255 ); // darkred
+    pen5.setWidth(2);
+    pen5.setColor(col);
+    pen5.setCosmetic(false);
 
-    PGraph->setAxes(HPlot->xBottom, HPlot->yRight);
-
+    QGraph->setPen(pen1);
     QGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
 
-    QtileGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
-    col.setRgb( 0,160,160,255 );
-    QtileGraph->setPen(QPen(col));
+    PGraph->setPen(pen2);
+    PGraph->setAxes(HPlot->xBottom, HPlot->yRight);
 
+    QtileGraph->setPen(pen3);
+    QtileGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
+
+    QsGraph->setPen(pen4);
     QsGraph->setAxes(HPlot->xBottom, HPlot->yRight);
+
+    CGraph->setPen(pen5);
     CGraph->setAxes(HPlot->xBottom, HPlot->yRight);
-    QsGraph->setPen(QPen(Qt::red));
-    col.setRgb( 200,0,0,255 ); // darkred
-    CGraph->setPen(QPen(col));
 
     PGraph->setStyle(QwtPlotCurve::Steps);
     QGraph->setStyle(QwtPlotCurve::Lines);

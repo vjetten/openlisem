@@ -39,7 +39,7 @@ functions: \n
 
 #include <algorithm>
 #include "lisemqt.h"
-//#include "model.h"
+#include "model.h"
 #include "operation.h"
 #include "global.h"
 
@@ -47,15 +47,15 @@ functions: \n
 /// report to disk: timeseries at output points, totals, map series and land unit stats
 void TWorld::reportAll(void)
 {
-    mapFormat = op.format;
-
     ReportTimeseriesNew();
     // report hydrographs ande sedigraphs at all points in outpoint.map
 
     ReportTotalsNew();
     // report totals to a text file
 
-    ReportMaps();
+    if (!SwitchEndRun)
+        ReportMaps();
+    ReportMapSeries();
     // report all maps and mapseries
 
     ReportLandunits();
@@ -64,122 +64,6 @@ void TWorld::reportAll(void)
     ChannelFloodStatistics();
     // report buildings submerged in flood level classes in 5cm intervals
 }
-
-//---------------------------------------------------------------------------
-/** a helper function that calls all the report stuff within the thread*/
-//void TWorld::Wrapper_ReportAll(int not_used)
-//{
-//    mapFormat = op.format;
-
-//    ReportTimeseriesNew();
-//    // report hydrographs ande sedigraphs at all points in outpoint.map
-
-//    ReportTotalsNew();
-//    // report totals to a text file
-
-//    ReportMaps();
-//    // report all maps and mapseries
-
-//    ReportLandunits();
-//    // reportc stats per landunit class
-
-//    ChannelFloodStatistics();
-//    // report buildings submerged in flood level classes in 5cm intervals
-//}
-
-//---------------------------------------------------------------------------
-/** put the report data in threadsafe data structure */
-
-/*
-void TWorld::Wrapper_StoreAll(int not_used)
-{
-    TSList_point.clear();
-    TSList_rainav.clear();
-    TSList_snowav.clear();
-    TSList_q.clear();
-    TSList_h.clear();
-    TSList_qs.clear();
-    TSList_c.clear();
-
-    double RainIntavg = RainAvgmm * 3600/_dt;
-    double SnowIntavg = SnowAvgmm * 3600/_dt;
-
-    TSList_point.append(0);
-    TSList_rainav.append(RainIntavg);
-    TSList_snowav.append(SnowIntavg);
-
-
-    TSList_q.append((QtotT+Qfloodout) * 1000.0/_dt);
-    if(SwitchIncludeChannel)
-    {
-        double channelwh = 0;
-        if(SwitchIncludeChannel)
-        {
-
-            FOR_ROW_COL_MV_CH
-            {
-                if(LDDChannel->Drc == 5)
-                {
-                    channelwh += ChannelWH->Drc;
-                }
-            }
-        }
-        TSList_h.append(channelwh);
-    }else
-    {
-        TSList_h.append(0);
-    }
-
-    if(SwitchErosion)
-    {
-        TSList_qs.append(SoilLossTotT/_dt);
-        TSList_c.append((QtotT) > 1e-6? SoilLossTotT/(QtotT) : 0);
-    }else
-    {
-        TSList_qs.append(0.0);
-        TSList_c.append(0.0);
-    }
-
-    FOR_ROW_COL_MV
-    {
-        if ( PointMap->Drc > 0 )
-        {
-            TSList_point.append(PointMap->Drc);
-            TSList_rainav.append(RainIntavg);
-            TSList_snowav.append(SnowIntavg);
-
-            if(SwitchIncludeChannel)
-            {
-                TSList_q.append(Qoutput->Drc);
-                TSList_h.append(ChannelWH->Drc);
-                if(SwitchErosion)
-                {
-                    TSList_qs.append(Qsoutput->Drc);
-                    TSList_c.append(TotalConc->Drc);
-                }else
-                {
-                    TSList_qs.append(0.0);
-                    TSList_c.append(0.0);
-                }
-
-            }else
-            {
-                TSList_q.append(0.0);
-                TSList_h.append(0.0);
-                if(SwitchErosion)
-                {
-                    TSList_qs.append(0.0);
-                    TSList_c.append(0.0);
-                }
-            }
-
-
-        }
-    }
-
-}
-*/
-
 //---------------------------------------------------------------------------
 /** fill output structure 'op' with results to talk to the interface:
     report to screen, hydrographs and maps */
@@ -783,6 +667,7 @@ void TWorld::ReportTotalsNew(void)
 //---------------------------------------------------------------------------
 /// Report maps for totals and mapseries (like report in PCRaster)
 /// output filenames are fixed, cannot be changed by the user
+/// outputnames that start with "out" are series
 void TWorld::ReportMaps(void)
 {
 
@@ -839,16 +724,12 @@ void TWorld::ReportMaps(void)
             tm->Drc =std::max(0.0,TotalSoillossMap->Drc)*factor;
         }
         report(*tm, totalErosionFileName);
-        if (SwitchOutDet)
-            report(*tm, Outeros); // in units
 
         // all deposition combined
         FOR_ROW_COL_MV {
             tm->Drc =std::min(0.0,TotalSoillossMap->Drc)*factor;
         }
         report(*tm, totalDepositionFileName);
-        if (SwitchOutDep)
-            report(*tm, Outdepo); // in units
 
         // all channel depostion combined
         if (SwitchIncludeChannel)
@@ -868,32 +749,14 @@ void TWorld::ReportMaps(void)
         copy(*tm, *TotalSoillossMap);
         calcValue(*tm, factor, MUL);
         report(*tm, totalSoillossFileName);
-        if (SwitchOutSL) report(*tm, OutSL);      // in user units
 
         // total sediment
-        if (SwitchOutSed) {
-            copy(*tm, *COMBO_SED); //kg/cell
-            calcValue(*tm, factor, MUL);
-            report(*tm, OutSed);      // in user units
-        }
-        if (SwitchOutConc) report(*TotalConc, Outconc);  // in g/l
-        if (SwitchOutTC) report(*COMBO_TC, Outtc);      // in g/l
-
-        if(SwitchUse2Layer) {
-            if (SwitchOutSedSS) {
-                copy(*tm, *COMBO_SS); //kg/cell
-                calcValue(*tm, factor, MUL);
-                report(*tm, OutSedSS);      // in user units
-            }
-            if (SwitchOutSedBL) {
-                copy(*tm, *COMBO_BL); //kg/cell
-                calcValue(*tm, factor, MUL);
-                report(*tm, OutSedBL);      // in user units
-            }
-        }
 
     }
-
+}
+//---------------------------------------------------------------------------
+void TWorld::ReportMapSeries(void)
+{
     //discharge l/s
     if (SwitchOutrunoff)
         report(*Qoutput, Outrunoff);
@@ -931,12 +794,69 @@ void TWorld::ReportMaps(void)
         }
     }
 
+    //===== SEDIMENT =====
+    if(SwitchErosion)
+    {
+        double factor = 1.0;
+        if(ErosionUnits == 2)
+            factor = 1.0/(_dx*_dx);  //kg/m2
+        else
+            if (ErosionUnits == 0)
+                factor = 10.0/(_dx*_dx); //ton/ha
+
+        if (SwitchOutDet) {
+            // all detachment combined
+            FOR_ROW_COL_MV {
+                tm->Drc =std::max(0.0,TotalSoillossMap->Drc)*factor;
+            }
+            report(*tm, Outeros); // in units
+        }
+
+        // all deposition combined
+
+        if (SwitchOutDep) {
+            FOR_ROW_COL_MV {
+                tm->Drc =std::min(0.0,TotalSoillossMap->Drc)*factor;
+            }
+            report(*tm, Outdepo); // in units
+        }
+
+        if (SwitchOutSL) {
+            calcValue(*tm, factor, MUL);
+            report(*tm, OutSL);      // in user units
+        }
+
+        // total sediment
+        if (SwitchOutSed) {
+            copy(*tm, *COMBO_SED); //kg/cell
+            calcValue(*tm, factor, MUL);
+            report(*tm, OutSed);      // in user units
+        }
+        if (SwitchOutConc) report(*TotalConc, Outconc);  // in g/l
+        if (SwitchOutTC) report(*COMBO_TC, Outtc);      // in g/l
+
+        if(SwitchUse2Layer) {
+            if (SwitchOutSedSS) {
+                copy(*tm, *COMBO_SS); //kg/cell
+                calcValue(*tm, factor, MUL);
+                report(*tm, OutSedSS);      // in user units
+            }
+            if (SwitchOutSedBL) {
+                copy(*tm, *COMBO_BL); //kg/cell
+                calcValue(*tm, factor, MUL);
+                report(*tm, OutSedBL);      // in user units
+            }
+        }
+    }
 }
 //---------------------------------------------------------------------------
 /// Land unit statistics: count nr land units in classifiedfile
 // VJ 110110 count nr of land units in classified file
 void TWorld::CountLandunits(void)
 {
+    if (!SwitchErosion)
+        return;
+
     int i, j;
     for (i = 0; i < 512; i++)
     {
@@ -1025,9 +945,7 @@ void TWorld::ReportLandunits(void)
 //---------------------------------------------------------------------------
 void TWorld::ChannelFloodStatistics(void)
 {
-    //    if (!SwitchIncludeChannel)
-    //        return;
-    if (!SwitchChannelFlood) // always true for now
+    if(SwitchKinematic2D == K2D_METHOD_KIN)
         return;
 
     for (int i = 0; i < 256; i++)
@@ -1554,6 +1472,12 @@ void TWorld::GetComboMaps()
 
         setColor(10);
         AddComboMap(1,"Deposition",unit,DEPCum,Colormap,Colors,false,false,-factor, step);
+
+        if(SwitchUseMaterialDepth) {
+            AddComboMap(1,"Storage",unit,Storage,Colormap,Colors,false,false,-factor, step);
+        AddComboMap(1,"Storage",unit,StorageDep,Colormap,Colors,false,false,-factor, step);
+        }
+
 
         if(SwitchUseGrainSizeDistribution)
         {

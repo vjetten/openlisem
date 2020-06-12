@@ -28,7 +28,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     {
         sumh = getMass(h);
 
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
         FOR_ROW_COL_MV_L {
             FloodDT->Drc = dt_max;
             //FloodT->Drc = 0;
@@ -43,7 +43,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 vys->Drc = vy->Drc;
             }
             //flow
-            #pragma omp parallel for collapse(2)
+            #pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 double dt = TimestepfloodLast;//FloodDT->Drc;//
                 double vxn, vyn;
@@ -64,13 +64,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 double Vx = std::max(-vmax, std::min(vmax, vx->Drc));
                 double Vy = std::max(-vmax, std::min(vmax, vy->Drc));
 
-                double z_x1 =  c > 0 && !MV(r,c-1)         ? z->data[r][c-1] : z->Drc;
-                double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? z->data[r][c+1] : z->Drc;
-                double z_y1 =  r > 0 && !MV(r-1,c)         ? z->data[r-1][c] : z->Drc;
-                double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? z->data[r+1][c] : z->Drc;
-
-                double dZ = F_pitValue;
-                bool flag = (Z < z_x1-dZ && Z < z_x2-dZ && Z < z_y1-dZ && Z < z_y2-dZ);
+                double z_x1 =  c > 0 && !MV(r,c-1)         ? z->data[r][c-1] : Z;
+                double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? z->data[r][c+1] : Z;
+                double z_y1 =  r > 0 && !MV(r-1,c)         ? z->data[r-1][c] : Z;
+                double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? z->data[r+1][c] : Z;
 
                 double h_x1 =  c > 0 && !MV(r,c-1)         ? hs->data[r][c-1] : hs->Drc;
                 double h_x2 =  c < _nrCols-1 && !MV(r,c+1) ? hs->data[r][c+1] : hs->Drc;
@@ -111,7 +108,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 //                hll_y1 = F_Riemann(h_y1,vy_y1,vx_y1,H,Vy,Vx); // r-1 and r
 //                hll_y2 = F_Riemann(H,Vy,Vx,h_y2,vy_y2,vx_y2); // r and r+1
 
-                double fac = flag ? 0 : 1/(1+pow(H/(2*F_pitValue),4.0));
+                double fac = 1.0;//DEMdz->Drc;
                 double dz_x1 = fac*(Z - z_x1);
                 double dz_x2 = fac*(z_x2 - Z);
                 double dz_y1 = fac*(Z - z_y1);

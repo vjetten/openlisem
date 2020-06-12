@@ -210,6 +210,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Report digits out");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Report format GTiff");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("End run report");
     namelist[i].value = QString("rainfall.map");
     namelist[i++].name = QString("Rainfall map");
     namelist[i].value = QString("interception.map");

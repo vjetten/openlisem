@@ -164,7 +164,7 @@ void TWorld::CalcVelDisch()
 {
 	if(SwitchKinematic2D == K2D_METHOD_DYN)
 		return;
-    #pragma omp parallel for collapse(2)
+    #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
         double Perim, R;
@@ -305,7 +305,7 @@ void TWorld::OverlandFlow2Ddyn(void)
     //VJ new average flux over lisem timestep, else last Qn is used
 
     //  infilInWave(WHrunoff, _dt);
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
         V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
@@ -315,7 +315,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 
 
     Boundary2Ddyn();//WHrunoff, Qn, Uflood, Vflood);  // do the domain boundaries
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
         Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
@@ -352,7 +352,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         //WHrunoff and Qn are adapted in case of 2D routing
         if(!SwitchUseGrainSizeDistribution)
         {
-            #pragma omp parallel for collapse(2)
+            #pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L
             {
                 double sed = (SSFlood->Drc + BLFlood->Drc);

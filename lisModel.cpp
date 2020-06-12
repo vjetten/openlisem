@@ -119,9 +119,8 @@ void TWorld::DoModel()
     time_ms.start();
     // get time to calc run length
 
-
-    //TODO: check material depth
     //TODO: check grainsize classes
+
     try
     {
         DEBUG("reading and initializing data");
@@ -186,6 +185,8 @@ void TWorld::DoModel()
 
         DEBUG("Running...");
 
+        bool stopit = false;
+
         for (time = BeginTime; time < EndTime; time += _dt)
         {
             if (runstep > 0 && runstep % printinterval == 0)
@@ -208,6 +209,8 @@ void TWorld::DoModel()
             mutex.unlock();
             // check if user wants to quit or pause
 
+            if(!stopRequested) {
+
             //these functions read files, so they can not be multithreaded
             RainfallMap();         // get rainfall from table or mpas
             SnowmeltMap();         // get snowmelt
@@ -220,19 +223,16 @@ void TWorld::DoModel()
 
             OrderedProcesses();    // do ordered LDD solutions channel, tiles, drains, non threaded
 
-            //wait for the report thread that was started in the previous timestep
-          //  ThreadPool->WaitForReportThread();
-
             Totals();            // calculate all totals and cumulative values
 
             MassBalance();       // check water and sed mass balance
-            OutputUI();          // fill the "op" structure for screen output
+
+            }
+//#pragma omp barrier
+            OutputUI();          // fill the "op" structure for screen output and calc some output maps
 
             saveMBerror2file(saveMBerror, false);
 
-      //      std::function<void(int)> freport = std::bind((&TWorld::Wrapper_ReportAll),this,std::placeholders::_1);
-      //      ThreadPool->RunReportFunction(freport);
-#pragma omp barrier
             reportAll();
 
             if (!noInterface)
@@ -240,13 +240,12 @@ void TWorld::DoModel()
             // send the op structure with data to function worldShow in LisUIModel.cpp
 
             if(stopRequested)
-                time = EndTime;
+                break;
+                //time = EndTime;
         }
 
-        //close the threads
-   //     ThreadPool->WaitForReportThread();
-  //      ThreadPool->WaitForAll();
-  //      ThreadPool->Close();
+        if (SwitchEndRun)
+            ReportMaps();
 
         DestroyData();  // destroy all maps automatically
         DEBUG("Data destroyed");

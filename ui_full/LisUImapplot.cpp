@@ -595,8 +595,13 @@ void lisemqt::hideChannelVector(bool yes)
         for (int i = 0; i < outlets.length(); i++)
             outlets[i]->detach();
     } else {
+        QPen pen1;
+        pen1.setWidth(showRiverSize->value());
+        pen1.setColor(QColor("#000000"));
+        pen1.setCosmetic(true);
+
         for (int i = 0; i < rivers.length(); i++) {
-           rivers[i]->setPen(QColor("#000000"), showRiverSize->value(), Qt::SolidLine );
+           rivers[i]->setPen(pen1);
            rivers[i]->attach( MPlot );
            rivers[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
         }
@@ -657,8 +662,8 @@ void lisemqt::showChannelVector()
                     start = op.Chanbranch.at(i);
 
                     // find connecting cell
-                    int _dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
-                    int _dy[10] = {0,  -1, -1, -1,  0, 0, 0, 1, 1, 1};
+                    int _dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+                    int _dy[10] = {0, -1,-1,-1,  0, 0, 0,  1, 1, 1};
 
                     int c = int(xend/dx);//-0.5*dx
                     int r = nrRows-1-int(yend/dx);//-0.5*dx
@@ -679,12 +684,16 @@ void lisemqt::showChannelVector()
                 Ya.push_back(Y);
             }
         }
-
+        QPen pen1;
+        pen1.setWidth(1);
+        pen1.setColor(QColor("#000000"));
+        pen1.setCosmetic(false);
         for (int i = 0; i < Xa.length(); i++) {
             rivera = new QwtPlotCurve();
             rivers << rivera;
             showRiverSize->setValue(1);
-            rivera->setPen(QColor("#000000"), 1 , Qt::SolidLine );
+
+            rivera->setPen(pen1);
             rivera->attach( MPlot );
             rivera->setAxes(MPlot->xBottom, MPlot->yLeft);
             rivera->setSamples(Xa.at(i),Ya.at(i));

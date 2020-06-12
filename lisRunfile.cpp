@@ -236,10 +236,9 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("User defined output")==0)            SwitchOutputTimeUser =   iii == 1;
         if (p1.compare("Output interval")==0)				 printinterval = iii;
         if (p1.compare("Subsoil drainage")==0)               SwitchDrainage =         iii == 1;
-
         if (p1.compare("Report point output separate")==0)   SwitchSeparateOutput =   iii == 1;
-
         if (p1.compare("Report digits out")==0)   ReportDigitsOut = iii;
+        if (p1.compare("Report end run")==0)   SwitchEndRun = iii == 1;
 
         if (p1.compare("Use canopy storage map")==0)   	   SwitchInterceptionLAI =  iii == 0;
 

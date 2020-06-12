@@ -240,6 +240,7 @@ void lisemqt::ParseInputData()
  //       if (p1.compare("Report point output for SOBEK")==0)  checkWriteSOBEK->setChecked(check);
         if (p1.compare("Report digits out")==0)             E_DigitsOut->setValue(iii);
         if (p1.compare("Report format GTiff")==0)             checkFormatGtiff->setChecked(check);
+        if (p1.compare("End run report")==0)             checkEndRunReport->setChecked(check);
 
 
 //        if (p1.compare("SOBEK date string")==0)              SOBEKdatestring->setText(p);
@@ -594,7 +595,7 @@ void lisemqt::ParseInputData()
             {
                 if(namelist[j].value == "chansedmixdeth.map") namelist[j].value = "chansedmixdepth.map";
                 if(namelist[j].value == "sedmixdeth.map") namelist[j].value = "sedmixdepth.map";
-                qDebug() << j << namelist[j].value;
+                //qDebug() << j << namelist[j].value;
 
                 QFileInfo fil(namelist[j].value);
                 S[2] = fil.fileName();  //VJ bug fix from 4 to 2
@@ -791,6 +792,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Report digits out")==0)             namelist[j].value = E_DigitsOut->text();
 
         if (p1.compare("Report format GTiff")==0)             namelist[j].value.setNum((int)checkFormatGtiff->isChecked());
+        if (p1.compare("End run report")==0)                namelist[j].value.setNum((int)checkEndRunReport->isChecked());
 
         if (p1.compare("Sediment bulk density")==0)          namelist[j].value = E_BulkDens->text();
         //if (p1.compare("Use canopy storage map")==0)   	     namelist[j].value.setNum((int)!checkInterceptionLAI->isChecked());

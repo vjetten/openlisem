@@ -27,12 +27,11 @@
 \brief List of maps with descriptions and units. Linked directly in the model class.
 */
 
-// separte here for easier Doxygen comments
-
 cTMap
 
 //*_MASK,
 *DEM,                        //!< DEM [m]
+*DEMdz,                        //!< DEM [m]
 *Shade,                      //!< Shaded relief for display [0-1]
 *ShadeBW,                      //!< Shaded relief for display [0-1]
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]

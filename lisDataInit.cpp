@@ -253,6 +253,8 @@ void TWorld::InitStandardInput(void)
 
     qDebug() << "using:" << userCores << "cores";
 
+   // omp_set_num_threads(userCores);
+
     gsizeCalibration = getvaluedouble("Grain Size calibration");
     ksatCalibration = getvaluedouble("Ksat calibration");
     nCalibration = getvaluedouble("N calibration");
@@ -329,6 +331,7 @@ void TWorld::InitStandardInput(void)
         cover(*Buffers, *LDD,0);
         calcMap(*DEM, *Buffers, ADD);
     } 
+    DEMdz = NewMap(0);
 
     //    else
     //        Buffers = NewMap(0);
@@ -439,8 +442,6 @@ void TWorld::InitStandardInput(void)
     checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
 
     checkMap(*PlantHeight, SMALLER, 0.0, "Cover fraction must be >= 0");
-
-    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
 
     GrassFraction = NewMap(0);
     if (SwitchGrassStrip)
@@ -1010,6 +1011,8 @@ void TWorld::InitErosion(void)
 {
     if (!SwitchErosion)
         return;
+
+    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
 
     COHCalibration = getvaluedouble("Cohesion calibration");
     Cohesion = ReadMap(LDD,getvaluename("coh"));

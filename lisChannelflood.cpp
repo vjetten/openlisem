@@ -61,7 +61,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
             _SSC = SSCFlood;
         }
     }
-//#pragma omp parallel for collapse(2)
+//#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_CH {
         if(ChannelMaskExtended->data[r][c] == 1)// && !pcr::isMV(LDDChannel->data[r][c]))
         {
@@ -420,7 +420,7 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
  */
 void TWorld::ToFlood()
 {
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(hmx->Drc > 0 && WHrunoff->Drc > 0)
         {
@@ -532,7 +532,7 @@ void TWorld::ChannelFlood(void)
             FloodDomain->Drc = 0;
     }
 
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         Qflood->Drc = 0;
         if (FloodDomain->Drc > 0) {
@@ -544,7 +544,7 @@ void TWorld::ChannelFlood(void)
     Boundary2Ddyn();
     // boundary flow
 
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         hmxWH->Drc = WH->Drc + hmx->Drc;
 
@@ -570,7 +570,7 @@ void TWorld::ChannelFlood(void)
         //WHrunoff and Qn are adapted in case of 2D routing
         if(!SwitchUseGrainSizeDistribution)
         {
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (FloodDomain->Drc  > 0) {
                     double sed = SSFlood->Drc + BLFlood->Drc;
