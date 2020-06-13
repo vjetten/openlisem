@@ -55,6 +55,7 @@ void lisemqt::runmodel()
 
     startplot = true;
     stopplot = false;
+    doHouse = true;
 
     rivers.clear();
     culverts.clear();
@@ -98,12 +99,13 @@ void lisemqt::runmodel()
 
     checkMapBuildings->setChecked(false);
     transparencyHouse->setEnabled(checkHouses->isChecked());
+    transparencyHouse->setValue(255);
     checkMapBuildings->setEnabled(checkHouses->isChecked());
+    transparencyHouse->setVisible(false);
 
     checkMapRoads->setChecked(false);
     transparencyRoad->setEnabled(checkRoadsystem->isChecked());
     checkMapRoads->setEnabled(checkRoadsystem->isChecked());
-
 
     // initialize output graphs
     initPlot();

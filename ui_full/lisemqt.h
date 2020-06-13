@@ -171,7 +171,8 @@ public:
     void showFlowBarriersMap();
     void showImageMap();
     double fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD);//, double type);
-    double fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterData *_RD);//, double type);
+    double fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterData *_RD);
+    double transvalue;
 
     QwtText title;
     QwtPlotSpectrogram *drawMap;  // raster map drawing
@@ -262,6 +263,7 @@ public:
     QwtPlotCurve *outPoints;
     bool startplot = true;
     bool stopplot;
+    bool doHouse;
     double yas, yasP, y2as;
     QVector <double> QData;
     QVector <double> QData1;

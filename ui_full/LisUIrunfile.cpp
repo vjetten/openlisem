@@ -726,7 +726,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Use time avg V")==0)    namelist[j].value.setNum((int) checkTimeavgV->isChecked());
         if (p1.compare("Use fixed angle")==0)                namelist[j].value.setNum((int) checkFixedAngle->isChecked());
   //      if (p1.compare("Use Heun")==0)        namelist[j].value.setNum((int) checkHeun->isChecked());
-//        if (p1.compare("Variable Timestep")==0)        namelist[j].value.setNum((int) checkVariableTimestep->isChecked());
+        if (p1.compare("Variable Timestep")==0)        namelist[j].value.setNum((int) checkVariableTimestep->isChecked());
         if (p1.compare("Flood solution")==0)
         {
             int i = 0;

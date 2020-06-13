@@ -87,7 +87,10 @@ void lisemqt::ssetAlphaRoad(int v)
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaHouse(int v)
 {
-    houseMap->setAlpha(v);
+    //houseMap->setAlpha(v);
+    transvalue = ((double) v)/256.0;
+    doHouse = true;
+    showHouseMap();
     if (v > 0 && checkMapBuildings->isChecked())
         MPlot->replot();
 }
@@ -116,6 +119,8 @@ void lisemqt::initMapPlot()
 // called at the start of openLisem, creates structures to hold maps
 void lisemqt::setupMapPlot()
 {
+    transvalue = 1.0;
+
     title.setText("Runoff (l/s)");
     title.setFont(QFont("MS Shell Dlg 2",12));
 
@@ -236,7 +241,7 @@ void lisemqt::setupMapPlot()
 }
 //---------------------------------------------------------------------------
 // fill the current raster data structure with new data, called each run step
-double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD)//, double type)
+double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD)
 {
     double maxV = -1e20;
     mapData.clear();  //QVector double
@@ -448,9 +453,8 @@ void lisemqt::showComboMap(int i)
     }
 
     MPlot->setTitle(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
-
     // fill vector RD with matrix data and find the new max value
-    double MaxV = fillDrawMapData(op.ComboMapsSafe.at(i), RD);//, i);
+    double MaxV = fillDrawMapData(op.ComboMapsSafe.at(i), RD);
     if (MaxV ==-1e20)
         return;
 
@@ -539,7 +543,7 @@ void lisemqt::showBaseMap()
     if (!startplot)
         return;
 
-    double res = fillDrawMapData(op.baseMap, RDb);//, 0);
+    double res = fillDrawMapData(op.baseMap, RDb);
     if (res == -1e20)
         return;
 
@@ -549,7 +553,7 @@ void lisemqt::showBaseMap()
     baseMap->setData(RDb);
     // setdata sets a pointer to DRb to the private QWT d_data Qvector
 
-    res = fillDrawMapData(op.baseMapDEM, RDbb);//, 7);
+    res = fillDrawMapData(op.baseMapDEM, RDbb);
     if (res == -1e20)
         return;
     double mindem = mapMinimum(*op.baseMapDEM);
@@ -759,7 +763,7 @@ void lisemqt::showRoadMap()
 {
     if (startplot)
     {
-        double res = fillDrawMapData(op.roadMap, RDd);//, 0);
+        double res = fillDrawMapData(op.roadMap, RDd);
         if (res ==-1e20)
             return;
         RDd->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
@@ -776,20 +780,30 @@ void lisemqt::showRoadMap()
 //---------------------------------------------------------------------------
 void lisemqt::showHouseMap()
 {
-    if (startplot)
+    if (startplot || doHouse)
     {
-        // set intervals for rasterdata, x,y,z min and max
-        double res = fillDrawMapData(op.houseMap, RDe);//, 0);
+//        for(int r = 0; r < op.houseMap->nrRows(); r++)
+//            for (int c = 0; c < op.houseMap->nrCols(); c++)
+//                if(!pcr::isMV(op.houseMap->data[r][c]))
+//                    op.houseMap->Drc *= transvalue;
+
+        double res = fillDrawMapData(op.houseMap, RDe);
+
+//        for(int r = 0; r < op.houseMap->nrRows(); r++)
+//            for (int c = 0; c < op.houseMap->nrCols(); c++)
+//                if(!pcr::isMV(op.houseMap->data[r][c]))
+//                    RDe->setValue(r,c, op.houseMap->data[r][c]* transvalue);
+
         if (res ==-1e20)
             return;
-        RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0 ,res));
+        RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0,1.0));
         houseMap->setData(RDe);
+        doHouse = false;
     }
-    if (checkMapBuildings->isChecked())
-        houseMap->setAlpha(transparencyHouse->value());
-    else
-        houseMap->setAlpha(0);
-
+//    if (checkMapBuildings->isChecked())
+//        houseMap->setAlpha(transparencyHouse->value());
+//    else
+//        houseMap->setAlpha(0);
     houseMap->setColorMap(new colorMapHouse());
 }
 //---------------------------------------------------------------------------
@@ -801,7 +815,7 @@ void lisemqt::showFlowBarriersMap()
     {
 
       // set intervals for rasterdata, x,y,z min and max
-      double res = fillDrawMapData(op.flowbarriersMap, RDf);//, 0);
+      double res = fillDrawMapData(op.flowbarriersMap, RDf);
       if (res ==-1e20)
         return;
       RDf->setInterval( Qt::ZAxis, QwtInterval( 0.0, res));

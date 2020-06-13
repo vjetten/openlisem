@@ -392,8 +392,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Use fixed angle");
     namelist[i].value = QString("10.0");
     namelist[i++].name = QString("Pit Value");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Variable Timestep");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Variable Timestep");
 //    namelist[i].value = QString("0");
 //    namelist[i++].name = QString("Use Heun");
 
