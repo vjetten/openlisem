@@ -207,14 +207,28 @@ void lisemqt::on_checkSedtrap_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkMaterialDepth_clicked()
 {
-    //checkMapNameModel(CONSERVATIONMAPS, 0, checkSedtrap->isChecked()||checkInfilGrass->isChecked());
     bool yes = checkMaterialDepth->isChecked();
     E_DepositedCohesion->setEnabled(yes);
-    E_BulkDens->setEnabled(yes);
+    E_BulkDens2->setEnabled(yes);
     label_130->setEnabled(yes);
     label_190->setEnabled(yes);
     matdepthparams->setEnabled(yes);
+    label_105->setEnabled(yes);
 }
+//--------------------------------------------------------------------
+//void lisemqt::on_E_BulkDens2_editingFinished()
+//{
+//     E_BulkDens->setText(E_BulkDens2->text());
+//     qDebug() << "dens";
+
+//}
+////--------------------------------------------------------------------
+//void lisemqt::on_E_BulkDens_editingFinished()
+//{
+//     E_BulkDens2->setText(E_BulkDens->text());
+//     qDebug() << "dens2";
+//}
+
 //--------------------------------------------------------------------
 //void lisemqt::on_checkSnowmelt_clicked()
 //{

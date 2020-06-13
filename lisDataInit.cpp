@@ -328,8 +328,6 @@ void TWorld::InitStandardInput(void)
         cover(*Buffers, *LDD,0);
         calcMap(*DEM, *Buffers, ADD);
     } 
-    DEMdz = NewMap(0);
-
     //    else
     //        Buffers = NewMap(0);
 
@@ -930,9 +928,25 @@ void TWorld::InitFlood(void)
 
     iter_n = 0;
 
-    delz1 = NewMap(0);
-    delz2 = NewMap(0);
-    prepareFloodZ(DEM);
+    DEMdz = NewMap(1);
+    if (F_pitValue > 0) {
+        FOR_ROW_COL_MV_L {
+            double Z = DEM->Drc;
+            double z_x1 =  c > 0 && !MV(r,c-1)         ? DEM->data[r][c-1] : Z;
+            double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? DEM->data[r][c+1] : Z;
+            double z_y1 =  r > 0 && !MV(r-1,c)         ? DEM->data[r-1][c] : Z;
+            double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? DEM->data[r+1][c] : Z;
+
+            // make a weighing factor that reduces the effect opf the fit on flow based on the depth larfger than the threshold
+            double dZ = F_pitValue;
+            bool flag = (Z < z_x1-dZ && Z < z_x2-dZ && Z < z_y1-dZ && Z < z_y2-dZ);
+            if (flag) {
+                double minZ = std::min(std::min(std::min(fabs(Z - z_x1), fabs(Z - z_x2)), fabs(Z-z_y1)), fabs(Z-z_y2));
+                DEMdz->Drc = 1/(1+pow(minZ/(1.5*F_pitValue),4.0));
+                //OR? DEM->Drc += minZ;
+            }
+        }
+    }
 
     if (!SwitchSWOFopen) {
         hsa = NewMap(0);
@@ -976,6 +990,9 @@ void TWorld::InitFlood(void)
         h1g = NewMap(0);
         h2d = NewMap(0);
         h2g = NewMap(0);
+        delz1 = NewMap(0);
+        delz2 = NewMap(0);
+        prepareFloodZ(DEM);
     }
 
     if (SwitchErosion) {

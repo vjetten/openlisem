@@ -183,6 +183,19 @@ void lisemqt::SetConnections()
 
     connect(checkFormatGtiff, SIGNAL(toggled(bool)), this, SLOT(setFormatMaps(bool)));
 
+    connect(E_BulkDens2,SIGNAL(editingFinished()),this, SLOT(updateBulkDens()));
+    connect(E_BulkDens,SIGNAL(editingFinished()),this, SLOT(updateBulkDens2()));
+
+}
+void lisemqt::updateBulkDens()
+{
+    QString txt = E_BulkDens2->text();
+    E_BulkDens->setText(txt);
+}
+void lisemqt::updateBulkDens2()
+{
+    QString txt = E_BulkDens->text();
+    E_BulkDens2->setText(txt);
 }
 //--------------------------------------------------------------------
 void lisemqt::setFormatMaps(bool check)
@@ -1658,6 +1671,7 @@ void lisemqt::resetTabSediment()
     E_GrainSizes->setText("2;20;50;125;150;500");
 
     checkDiffusion->setChecked(true);
+    checkRDiffusion->setChecked(true);
 }
 //--------------------------------------------------------------------
 void lisemqt::resetTabErosion()
@@ -1668,6 +1682,7 @@ void lisemqt::resetTabErosion()
     checkMaterialDepth->setChecked(false);
     E_DepositedCohesion->setValue(0.5);
     E_BulkDens->setText("1500.00");
+    E_BulkDens2->setText("1500.00");
 
     E_SplashDelibery->setValue(0.1);
     checkInfilGrass->setChecked(false);

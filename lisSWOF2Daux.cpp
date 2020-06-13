@@ -15,6 +15,7 @@
 double TWorld::getMass(cTMap *M)
 {
     double sum2 = 0;
+    #pragma omp parallel for reduction(+:sum2) collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV
     {
         if(M->Drc > 0)
@@ -28,7 +29,9 @@ void TWorld::correctMassBalance(double sum1, cTMap *M)
 {
     double sum2 = 0;
     double n = 0;
-    FOR_ROW_COL_MV
+
+    #pragma omp parallel for reduction(+:sum2) collapse(2) num_threads(userCores)
+    FOR_ROW_COL_MV_L
     {
         if(M->Drc > 0)
         {
@@ -41,7 +44,9 @@ void TWorld::correctMassBalance(double sum1, cTMap *M)
 
     //double dh = (n > 0 ? (sum1 - sum2)/n : 0);
     double dhtot = sum2 > 0 ? (sum1 - sum2)/sum2 : 0;
-    FOR_ROW_COL_MV
+   // qDebug() << 1+dhtot;
+#pragma omp parallel for collapse(2) num_threads(userCores)
+    FOR_ROW_COL_MV_L
     {
         if(M->Drc > 0)
         {
@@ -74,24 +79,6 @@ void TWorld::prepareFloodZ(cTMap *z)
                 delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
                 // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
             }
-
-    FOR_ROW_COL_MV_L {
-        double Z = z->Drc;
-        double z_x1 =  c > 0 && !MV(r,c-1)         ? z->data[r][c-1] : Z;
-        double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? z->data[r][c+1] : Z;
-        double z_y1 =  r > 0 && !MV(r-1,c)         ? z->data[r-1][c] : Z;
-        double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? z->data[r+1][c] : Z;
-
-        // make a weighing factor that reduces the effect opf the fit on flow based on the depth larfger than the threshold
-        DEMdz->Drc  = 1.0;
-        double dZ = F_pitValue;
-        bool flag = (Z < z_x1-dZ && Z < z_x2-dZ && Z < z_y1-dZ && Z < z_y2-dZ);
-        if (flag) {
-            double minZ = std::min(std::min(std::min(fabs(Z - z_x1), fabs(Z - z_x2)), fabs(Z-z_y1)), fabs(Z-z_y2));
-            DEMdz->Drc = 1/(1+pow(minZ/(1.5*F_pitValue),4.0));
-            //DEM->Drc += minZ;
-        }
-    }
 }
 //---------------------------------------------------------------------------
 /**

@@ -704,23 +704,18 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
 
             if (minTC < 0) {
                 //deposition based on settling velocity
-                //if there is a significant water height
-                //if (TSSDepthFlood->Drc > MIN_HEIGHT) {
-                    TransportFactor = (1-exp(-DT->Drc*TSettlingVelocitySS/h->Drc)) * sswatervol; //NOTE use entire depth h for deposition of SS
-                //} else {
-                  //  TransportFactor =  1.0*sswatervol;
-                    // all sed is deposited
-                //}
+                TransportFactor = (1-exp(-DT->Drc*TSettlingVelocitySS/h->Drc)) * sswatervol; //NOTE use entire depth h for deposition of SS
 
                 deposition  = std::max(TransportFactor * minTC,-TSSFlood->Drc);
 
                 // exceptions
                 if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
                     deposition = 0;
-                // VJ 190325 prevent any activity on the boundary!
+                // prevent any activity on the boundary!
 
                 if (SwitchSedtrap && SedMaxVolume->Drc == 0 && N->Drc == SedTrapN) {
                     N->Drc = Norg->Drc;
+                    // if sed trap is full, no effect of N increase
                 }
                 if (SwitchSedtrap && SedMaxVolume->Drc > 0)
                 {
@@ -739,7 +734,7 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                         }
 
                     } else {
-                        //
+                        //TODO
                     }
                 }
                 if(SwitchUseMaterialDepth)
@@ -754,9 +749,9 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
             if (maxTC > 0) {
                 //erosion values based on discharge
                 TransportFactor = DT->Drc*TSettlingVelocitySS * DX->Drc * ChannelAdj->Drc;
-                TransportFactor = std::min(TransportFactor, ssdischarge*DT->Drc);
 
-                //    TransportFactor = ssdischarge*DT->Drc;
+                //?????
+                TransportFactor = std::min(TransportFactor, ssdischarge*DT->Drc);
 
                 detachment = TW->Drc * maxTC * TransportFactor;  // TW is 1 or grainsize fraction
 
@@ -798,13 +793,6 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 }
             }
             //### sediment balance
-//            double store = maxDetachment->Drc*BulkDens*ChannelAdj->Drc*DX->Drc;
-//            if ((maxDetachment->Drc != -1) && store > 0) {
-//                detachment = std::min(detachment, store);
-//                store -= detachment;
-//                maxDetachment->Drc = store/(BulkDens*ChannelAdj->Drc*DX->Drc);
-//            }
-
             TSSFlood->Drc += deposition;
             TSSFlood->Drc += detachment;
             TSSFlood->Drc = std::max(0.0,TSSFlood->Drc);
@@ -827,13 +815,9 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
                 } else {
                     // there is BL transport
 
-                    //deposition and detachment
-
                     //### calc concentration and net transport capacity
                     maxTC = std::max(TBLTCFlood->Drc - TBLCFlood->Drc,0.0);
-                    // positive difference: TC deficit becomes detachment (ppositive)
                     minTC = std::min(TBLTCFlood->Drc - TBLCFlood->Drc,0.0);
-                    // negative difference: TC surplus becomes deposition (negative)
                     // unit kg/m3
                     if (minTC < 0) {
                         // IN KG/CELL
@@ -849,17 +833,17 @@ void TWorld::SWOFSedimentDet(cTMap * DT, int r,int c, cTMap * h,cTMap * u,cTMap 
 
                         if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
                             deposition = 0;
-                        // VJ 190325 prevent any activity on the boundary!
+                        // prevent any activity on the boundary!
 
                         //force deposition on grass strips  ?????????????????
-                        //                if (SwitchGrassStrip) {
-                        //                    if(!SwitchUseGrainSizeDistribution)
-                        //                    {
-                        //                        deposition = -Sed->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
-                        //                    } else {
-                        //                        deposition = -Sed_D.Drcd*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
-                        //                    }
-                        //                }
+//                        if (SwitchGrassStrip) {
+//                            if(!SwitchUseGrainSizeDistribution)
+//                            {
+//                                deposition = -Sed->Drc*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
+//                            } else {
+//                                deposition = -Sed_D.Drcd*GrassFraction->Drc + (1-GrassFraction->Drc)*deposition;
+//                            }
+//                        }
 
                         if (SwitchSedtrap && SedMaxVolume->Drc > 0)
                         {
@@ -1020,12 +1004,6 @@ void TWorld::SWOFSedimentBalance()
 
 void TWorld::SWOFSediment(cTMap* DT,cTMap * h,cTMap * u,cTMap * v)
 {
-#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        SWOFSedimentCheckZero(r,c,h);
-        SWOFSedimentSetConcentration(r,c,h);
-    }
-
     //sediment detachment or deposition
 #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {

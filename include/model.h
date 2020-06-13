@@ -78,8 +78,7 @@
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDD->data[r][c]))
 
-#define FOR_ROW_COL_MV_L \
-for(int r = 0; r < _nrRows; r++)\
+#define FOR_ROW_COL_MV_L for(int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDD->data[r][c]))
 

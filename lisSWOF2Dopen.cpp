@@ -20,6 +20,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     double sumh = 0;
     bool stop;
     double dt_req_min = dt_max;
+    double maxv = -1;
 
     if (!startFlood)
         TimestepfloodLast = dt_max;
@@ -37,15 +38,20 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
         do {
 
             // make a copy
+            maxv = -1;
+#pragma omp parallel for reduction(min:maxv) collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 hs->Drc = h->Drc;
                 vxs->Drc = vx->Drc;
                 vys->Drc = vy->Drc;
+                double V = sqrt(vx->Drc*vx->Drc + vy->Drc*vy->Drc);
+                maxv = std::max(maxv, V);
             }
+
             //flow
-            #pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                double dt = TimestepfloodLast;//FloodDT->Drc;//
+                double dt = TimestepfloodLast;
                 double vxn, vyn;
 
                 //typedef struct vec4 { double v[4]; } vec4;
@@ -54,23 +60,9 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 vec4 hll_y1;
                 vec4 hll_y2;
 
-                //                        double h23=pow(hn, 2.0/3.0);
-                //                        //double v_kin = (sx_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sx_zh > 0 ? sx_zh : -sx_zh))/(0.001+n);
-                //                        double v_kinx = h23 * std::max(0.001, sqrt(fabs(sx_zh))/(0.001+n));
-                //                        double vxna = fabs(vxn);
-                //                        double kinfac = vxna > 4*v_kinx ? v_kinx/vxna : 0;
-                //                        vxn = (sx_zh>0?1:-1)*(kinfac * v_kinx + vxna*(1.0-kinfac));
-                //                        double v_kiny = h23 * std::max(0.001, sqrt(fabs(sy_zh))/(0.001+n));
-                //                        double vyna = fabs(vyn);
-                //                                //(sy_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sy_zh > 0 ? sy_zh : -sy_zh))/(0.001+n);
-                //                        kinfac = vyna > 4*v_kiny ? v_kiny/vyna : 0;
-                //                        vyn = (sy_zh>0?1:-1)*(kinfac * v_kiny + vyna*(1.0-kinfac));
-
-
-
                 double dx = ChannelAdj->Drc;
                 double dy = DX->Drc;
-                double vmax = 0.5 * std::min(20.0,dx)/dt;  // courant?
+                double vmax = 0.5 * dx/dt;//std::min(maxv*2.0, 0.5 * dx/dt);  // courant?
 
                 double H = hs->Drc;
                 double n = N->Drc;
@@ -240,7 +232,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             }
 
 
-#pragma omp parallel for reduction(min:dt_req_min) collapse(2)
+#pragma omp parallel for reduction(min:dt_req_min) collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV {
                 double res = FloodDT->Drc;
                 dt_req_min = std::min(dt_req_min, res);
@@ -252,6 +244,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             TimestepfloodLast = dt_req_min;
             timesum += dt_req_min;
 
+#pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 FloodDT->Drc = dt_req_min;
             }
@@ -261,15 +254,16 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
             stop = timesum > _dt-0.001;
             count++;
+            //qDebug() << timesum << count;
 
-            //            qDebug() << timesum << count;
+            correctMassBalance(sumh, h);
 
-            if(count > 1000) stop = true;
+            if(count > F_MaxIter) stop = true;
         } while (!stop);
 
     } // if floodstart
 
-    correctMassBalance(sumh, h);
+
     if (count == 0) count =1;
     iter_n = count;
 
@@ -309,3 +303,15 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 //                rec = F_Riemann(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
 
 
+
+//                        double h23=pow(hn, 2.0/3.0);
+//                        //double v_kin = (sx_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sx_zh > 0 ? sx_zh : -sx_zh))/(0.001+n);
+//                        double v_kinx = h23 * std::max(0.001, sqrt(fabs(sx_zh))/(0.001+n));
+//                        double vxna = fabs(vxn);
+//                        double kinfac = vxna > 4*v_kinx ? v_kinx/vxna : 0;
+//                        vxn = (sx_zh>0?1:-1)*(kinfac * v_kinx + vxna*(1.0-kinfac));
+//                        double v_kiny = h23 * std::max(0.001, sqrt(fabs(sy_zh))/(0.001+n));
+//                        double vyna = fabs(vyn);
+//                                //(sy_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sy_zh > 0 ? sy_zh : -sy_zh))/(0.001+n);
+//                        kinfac = vyna > 4*v_kiny ? v_kiny/vyna : 0;
+//                        vyn = (sy_zh>0?1:-1)*(kinfac * v_kiny + vyna*(1.0-kinfac));

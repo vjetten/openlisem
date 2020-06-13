@@ -424,6 +424,8 @@ public slots:
     void on_checkInfil2layer_clicked();
     void on_checkSedtrap_clicked();
     void on_checkMaterialDepth_clicked();
+//    void on_E_BulkDens2_editingFinished();
+//    void on_E_BulkDens_editingFinished();
   //  void on_checkSnowmelt_clicked();
     void on_checkExpandActive_clicked();
     void on_E_MapDir_returnPressed();
@@ -455,6 +457,10 @@ public slots:
     void setfontSize();
 
     void setFormatMaps(bool);
+
+    void updateBulkDens();
+    void updateBulkDens2();
+
 
 private slots:
 
