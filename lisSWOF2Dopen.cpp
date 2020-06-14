@@ -20,10 +20,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     double sumh = 0;
     bool stop;
     double dt_req_min = dt_max;
-    double maxv = -1;
-
-//    if (!startFlood)
-//        TimestepfloodLast = dt_max;
 
     if (startFlood)
     {
@@ -37,26 +33,23 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
         }
 
         do {
-
             // make a copy
-            maxv = -1;
-#pragma omp parallel for reduction(min:maxv) collapse(2) num_threads(userCores)
+#pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
+                double vmax = 0.5 * _dx/FloodDT->Drc;  // courant?
                 hs->Drc = h->Drc;
-                vxs->Drc = vx->Drc;
-                vys->Drc = vy->Drc;
-                double V = sqrt(vx->Drc*vx->Drc + vy->Drc*vy->Drc);
-                maxv = std::max(maxv, V);
+                vxs->Drc = std::max(-vmax, std::min(vmax,vx->Drc));
+                vys->Drc = std::max(-vmax, std::min(vmax,vy->Drc));
             }
 
-            //flow
+            //flow for cells which have h and not done yet (FloodT < _dt)
 #pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (FloodT->Drc < _dt && h->Drc > 0) {
                     double dt = FloodDT->Drc; // use previous timestep to start
                     double vxn, vyn;
 
-                    tma->Drc += 1.0;
+                    tma->Drc += 1.0; // nr times a cell is processed
 
                     //typedef struct vec4 { double v[4]; } vec4;
                     vec4 hll_x1;
@@ -66,33 +59,38 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
                     double dx = ChannelAdj->Drc;
                     double dy = DX->Drc;
-                    double vmax = 0.5 * dx/dt;//std::min(maxv*2.0, 0.5 * dx/dt);  // courant?
+
 
                     double H = hs->Drc;
                     double n = N->Drc;
                     double Z = z->Drc;
-                    double Vx = std::max(-vmax, std::min(vmax, vx->Drc));
-                    double Vy = std::max(-vmax, std::min(vmax, vy->Drc));
+                    double Vx = vxs->Drc; //std::max(-vmax, std::min(vmax, vxs->Drc));
+                    double Vy = vys->Drc; //std::max(-vmax, std::min(vmax, vys->Drc));
 
-                    double z_x1 =  c > 0 && !MV(r,c-1)         ? z->data[r][c-1] : Z;
-                    double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? z->data[r][c+1] : Z;
-                    double z_y1 =  r > 0 && !MV(r-1,c)         ? z->data[r-1][c] : Z;
-                    double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? z->data[r+1][c] : Z;
+                    bool bc1 = c > 0 && !MV(r,c-1)        ;
+                    bool bc2 = c < _nrCols-1 && !MV(r,c+1);
+                    bool br1 = r > 0 && !MV(r-1,c)        ;
+                    bool br2 = r < _nrRows-1 && !MV(r+1,c);
 
-                    double h_x1 =  c > 0 && !MV(r,c-1)         ? hs->data[r][c-1] : H;
-                    double h_x2 =  c < _nrCols-1 && !MV(r,c+1) ? hs->data[r][c+1] : H;
-                    double h_y1 =  r > 0 && !MV(r-1,c)         ? hs->data[r-1][c] : H;
-                    double h_y2 =  r < _nrRows-1 && !MV(r+1,c) ? hs->data[r+1][c] : H;
+                    double z_x1 =  bc1 ? z->data[r][c-1] : Z;
+                    double z_x2 =  bc2 ? z->data[r][c+1] : Z;
+                    double z_y1 =  br1 ? z->data[r-1][c] : Z;
+                    double z_y2 =  br2 ? z->data[r+1][c] : Z;
 
-                    double vx_x1 = c > 0 && !MV(r,c-1)         ? vxs->data[r][c-1] : Vx;
-                    double vx_x2 = c < _nrCols-1 && !MV(r,c+1) ? vxs->data[r][c+1] : Vx;
-                    double vx_y1 = r > 0 && !MV(r-1,c)         ? vxs->data[r-1][c] : Vx;
-                    double vx_y2 = r < _nrRows-1 && !MV(r+1,c) ? vxs->data[r+1][c] : Vx;
+                    double h_x1 =  bc1 ? hs->data[r][c-1] : H;
+                    double h_x2 =  bc2 ? hs->data[r][c+1] : H;
+                    double h_y1 =  br1 ? hs->data[r-1][c] : H;
+                    double h_y2 =  br2 ? hs->data[r+1][c] : H;
 
-                    double vy_x1 = c > 0 && !MV(r,c-1)         ? vys->data[r][c-1] : Vy;
-                    double vy_x2 = c < _nrCols-1 && !MV(r,c+1) ? vys->data[r][c+1] : Vy;
-                    double vy_y1 = r > 0 && !MV(r-1,c)         ? vys->data[r-1][c] : Vy;
-                    double vy_y2 = r < _nrRows-1 && !MV(r+1,c) ? vys->data[r+1][c] : Vy;
+                    double vx_x1 = bc1 ? vxs->data[r][c-1] : Vx;
+                    double vx_x2 = bc2 ? vxs->data[r][c+1] : Vx;
+                    double vx_y1 = br1 ? vxs->data[r-1][c] : Vx;
+                    double vx_y2 = br2 ? vxs->data[r+1][c] : Vx;
+
+                    double vy_x1 = bc1 ? vys->data[r][c-1] : Vy;
+                    double vy_x2 = bc2 ? vys->data[r][c+1] : Vy;
+                    double vy_y1 = br1 ? vys->data[r-1][c] : Vy;
+                    double vy_y2 = br2 ? vys->data[r+1][c] : Vy;
 
                     double fb_x1=0,fb_x2=0,fb_y1=0,fb_y2=0;
                     if (SwitchFlowBarriers) {
@@ -102,23 +100,23 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         fb_y2 = std::max(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]);
                     }
 
-                    vx_x1 = std::max(-vmax, std::min(vmax, vx_x1));
-                    vx_x2 = std::max(-vmax, std::min(vmax, vx_x2));
-                    vx_y1 = std::max(-vmax, std::min(vmax, vx_y1));
-                    vx_y2 = std::max(-vmax, std::min(vmax, vx_y2));
+                    //                    vx_x1 = std::max(-vmax, std::min(vmax, vx_x1));
+                    //                    vx_x2 = std::max(-vmax, std::min(vmax, vx_x2));
+                    //                    vx_y1 = std::max(-vmax, std::min(vmax, vx_y1));
+                    //                    vx_y2 = std::max(-vmax, std::min(vmax, vx_y2));
 
-                    vy_x1 = std::max(-vmax, std::min(vmax, vy_x1)); //left
-                    vy_x2 = std::max(-vmax, std::min(vmax, vy_x2)); //right
-                    vy_y1 = std::max(-vmax, std::min(vmax, vy_y1)); //up
-                    vy_y2 = std::max(-vmax, std::min(vmax, vy_y2)); //down
+                    //                    vy_x1 = std::max(-vmax, std::min(vmax, vy_x1)); //left
+                    //                    vy_x2 = std::max(-vmax, std::min(vmax, vy_x2)); //right
+                    //                    vy_y1 = std::max(-vmax, std::min(vmax, vy_y1)); //up
+                    //                    vy_y2 = std::max(-vmax, std::min(vmax, vy_y2)); //down
 
                     // No effect of terrain: use for lakes?
-                    //                hll_x1 = F_Riemann(h_x1,vx_x1,vy_x1,H,Vx,Vy); // c-1 and c
-                    //                hll_x2 = F_Riemann(H,Vx,Vy,h_x2,vx_x2,vy_x2); // c and c+1
-                    //                hll_y1 = F_Riemann(h_y1,vy_y1,vx_y1,H,Vy,Vx); // r-1 and r
-                    //                hll_y2 = F_Riemann(H,Vy,Vx,h_y2,vy_y2,vx_y2); // r and r+1
+                    // hll_x1 = F_Riemann(h_x1,vx_x1,vy_x1,H,Vx,Vy); // c-1 and c
+                    // hll_x2 = F_Riemann(H,Vx,Vy,h_x2,vx_x2,vy_x2); // c and c+1
+                    // hll_y1 = F_Riemann(h_y1,vy_y1,vx_y1,H,Vy,Vx); // r-1 and r
+                    // hll_y2 = F_Riemann(H,Vy,Vx,h_y2,vy_y2,vx_y2); // r and r+1
 
-                    double fac = DEMdz->Drc; // if Z is in a piy > 10m from the surrounding cells, reduce the effect of the DEM
+                    double fac = DEMdz->Drc; // if Z is in a pit > 10m from the surrounding cells, reduce the effect of the DEM
                     double dz_x1 = fac*(Z - z_x1);
                     double dz_x2 = fac*(z_x2 - Z);
                     double dz_y1 = fac*(Z - z_y1);
@@ -126,37 +124,37 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
                     double h_x1l = std::max(0.0, h_x1 - std::max(0.0,  dz_x1 + fb_x1));
                     double h_x1r = std::max(0.0, H    - std::max(0.0, -dz_x1 + fb_x1));
-                    if(c > 0 && !MV(r,c-1))
+                    if(bc1)
                         hll_x1 = F_Riemann(h_x1l,vx_x1,vy_x1,h_x1r,Vx,Vy); // c-1 and c
                     else
                         hll_x1 = F_Riemann(0,0,0,h_x1r,Vx,Vy);
 
                     double h_x2l = std::max(0.0, H    - std::max(0.0,  dz_x2 + fb_x2));
                     double h_x2r = std::max(0.0, h_x2 - std::max(0.0, -dz_x2 + fb_x2));
-                    if(c < _nrCols-1 && !MV(r,c+1))
+                    if(bc2)
                         hll_x2 = F_Riemann(h_x2l,Vx,Vy,h_x2r,vx_x2,vy_x2); // c and c+1
                     else
                         hll_x2 = F_Riemann(h_x2l,Vx,Vy,0,0,0);
 
                     double h_y1u = std::max(0.0, h_y1 - std::max(0.0,  dz_y1 + fb_y1));
                     double h_y1d = std::max(0.0, H    - std::max(0.0, -dz_y1 + fb_y1));
-                    if (r > 0 && !MV(r-1,c))
+                    if (br1)
                         hll_y1 = F_Riemann(h_y1u,vy_y1,vx_y1,h_y1d,Vy,Vx); // r-1 and r
                     else
                         hll_y1 = F_Riemann(0,0,0,h_y1d,Vy,Vx);
 
                     double h_y2u = std::max(0.0, H    - std::max(0.0,  dz_y2 + fb_y2));
                     double h_y2d = std::max(0.0, h_y2 - std::max(0.0, -dz_y2 + fb_y2));
-                    if( r < _nrRows-1 && !MV(r+1,c))
+                    if(br2)
                         hll_y2 = F_Riemann(h_y2u,Vy,Vx,h_y2d,vy_y2,vx_y2); // r and r+1
                     else
                         hll_y2 = F_Riemann(h_y2u,Vy,Vx,0,0,0);
 
                     double B = 0.5; //1.0 is theoretical max else faster than gravity
-                    double sx_zh_x2 = std::min(B,std::max(-B,(z_x2 + h_x2 - Z - H)/dx));
-                    double sy_zh_y1 = std::min(B,std::max(-B,(Z + H - z_y1 - h_y1)/dy));
-                    double sx_zh_x1 = std::min(B,std::max(-B,(Z + H - z_x1 - h_x1)/dx));
-                    double sy_zh_y2 = std::min(B,std::max(-B,(z_y2 + h_y2 - Z - H)/dy));
+                    double sx_zh_x2 = std::min(B, std::max(-B, (z_x2 + h_x2 - Z - H)/dx));
+                    double sy_zh_y1 = std::min(B, std::max(-B, (Z + H - z_y1 - h_y1)/dy));
+                    double sx_zh_x1 = std::min(B, std::max(-B, (Z + H - z_x1 - h_x1)/dx));
+                    double sy_zh_y2 = std::min(B, std::max(-B, (z_y2 + h_y2 - Z - H)/dy));
 
                     // if B = 0.5 this can never be >1?
                     double sx_zh = std::min(1.0,std::max(-1.0,limiter(sx_zh_x1, sx_zh_x2)));
@@ -250,16 +248,15 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
             dt_req_min = std::max(TimestepfloodMin, dt_req_min);
             dt_req_min = std::min(dt_req_min, _dt-timesum);
-            //TimestepfloodLast = dt_req_min;
-            timesum += dt_req_min;
 
-//#pragma omp parallel for collapse(2) num_threads(userCores)
-//            FOR_ROW_COL_MV_L {
-//                FloodDT->Drc = dt_req_min;
-//            }
+            //#pragma omp parallel for collapse(2) num_threads(userCores)
+            //            FOR_ROW_COL_MV_L {
+            //                FloodDT->Drc = dt_req_min;
+            //            }
 
             int cnt = 0;
-            FOR_ROW_COL_MV {
+#pragma omp parallel for collapse(2) num_threads(userCores)
+            FOR_ROW_COL_MV_L {
                 if (h->Drc > 0) {
                     if (SwitchVariableTimestep)
                         FloodDT->Drc = std::max(dt_req_min,sqrt(dt_req_min*FloodDT->Drc));
@@ -267,38 +264,44 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         FloodDT->Drc = dt_req_min;
                     FloodT->Drc += FloodDT->Drc;
                 } else {
-                    FloodT->Drc = _dt+0.001;
+                    FloodT->Drc = _dt;
                 }
+            }
 
+            // nr cells that need processing
+#pragma omp parallel for reduction(+:cnt) collapse(2) num_threads(userCores)
+            FOR_ROW_COL_MV_L {
                 if (FloodT->Drc < _dt)
                     cnt++;
             }
             stop = cnt < 1;
-            qDebug() << cnt;
+            //    qDebug() << cnt;
 
             if (SwitchErosion)
                 SWOFSediment(FloodDT,hs,vxs,vys);
 
-//            stop = timesum > _dt-0.001;
+            //timesum += dt_req_min;
+            // stop = timesum > _dt-0.001;
             count++;
-            //qDebug() << timesum << count;
 
-            correctMassBalance(sumh, h);
+
 
             if(count > F_MaxIter) stop = true;
         } while (!stop);
 
+        correctMassBalance(sumh, h);
     } // if floodstart
 
     double avgdt = 0;
-    FOR_ROW_COL_MV {
+#pragma omp parallel for reduction(+:avgdt) collapse(2) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         FloodDT->Drc = tma->Drc > 0 ? _dt/tma->Drc : dt_max;
         avgdt = avgdt + FloodDT->Drc;
     }
     avgdt = avgdt/nrCells;
     iter_n = count;
 
-    return(avgdt);//_dt/count);
+    return(avgdt);//_dt/count
 }
 
 
@@ -334,15 +337,3 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 //                rec = F_Riemann(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
 
 
-
-//                        double h23=pow(hn, 2.0/3.0);
-//                        //double v_kin = (sx_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sx_zh > 0 ? sx_zh : -sx_zh))/(0.001+n);
-//                        double v_kinx = h23 * std::max(0.001, sqrt(fabs(sx_zh))/(0.001+n));
-//                        double vxna = fabs(vxn);
-//                        double kinfac = vxna > 4*v_kinx ? v_kinx/vxna : 0;
-//                        vxn = (sx_zh>0?1:-1)*(kinfac * v_kinx + vxna*(1.0-kinfac));
-//                        double v_kiny = h23 * std::max(0.001, sqrt(fabs(sy_zh))/(0.001+n));
-//                        double vyna = fabs(vyn);
-//                                //(sy_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sy_zh > 0 ? sy_zh : -sy_zh))/(0.001+n);
-//                        kinfac = vyna > 4*v_kiny ? v_kiny/vyna : 0;
-//                        vyn = (sy_zh>0?1:-1)*(kinfac * v_kiny + vyna*(1.0-kinfac));
