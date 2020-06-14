@@ -928,7 +928,7 @@ void TWorld::InitFlood(void)
 
     iter_n = 0;
 
-    DEMdz = NewMap(1);
+    DEMdz = NewMap(1.0);
     if (F_pitValue > 0) {
         FOR_ROW_COL_MV_L {
             double Z = DEM->Drc;
@@ -942,8 +942,9 @@ void TWorld::InitFlood(void)
             bool flag = (Z < z_x1-dZ && Z < z_x2-dZ && Z < z_y1-dZ && Z < z_y2-dZ);
             if (flag) {
                 double minZ = std::min(std::min(std::min(fabs(Z - z_x1), fabs(Z - z_x2)), fabs(Z-z_y1)), fabs(Z-z_y2));
-                DEMdz->Drc = 1/(1+pow(minZ/(1.5*F_pitValue),4.0));
-                //OR? DEM->Drc += minZ;
+             //   DEMdz->Drc = 1/(1+pow(minZ/(1.5*F_pitValue),4.0));
+                //OR?
+                DEM->Drc += minZ;
             }
         }
     }

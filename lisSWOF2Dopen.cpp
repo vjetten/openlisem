@@ -36,10 +36,9 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             // make a copy
 #pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                double vmax = 0.5 * _dx/FloodDT->Drc;  // courant?
                 hs->Drc = h->Drc;
-                vxs->Drc = std::max(-vmax, std::min(vmax,vx->Drc));
-                vys->Drc = std::max(-vmax, std::min(vmax,vy->Drc));
+                vxs->Drc = vx->Drc;//std::max(-vmax, std::min(vmax,vx->Drc));
+                vys->Drc = vy->Drc;//std::max(-vmax, std::min(vmax,vy->Drc));
             }
 
             //flow for cells which have h and not done yet (FloodT < _dt)
@@ -48,6 +47,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 if (FloodT->Drc < _dt && h->Drc > 0) {
                     double dt = FloodDT->Drc; // use previous timestep to start
                     double vxn, vyn;
+                    double vmax = 0.5*(dt < 1 ? _dx+sqrt(_dx/dt) : _dx/dt);  // courant?
 
                     tma->Drc += 1.0; // nr times a cell is processed
 
@@ -64,8 +64,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double H = hs->Drc;
                     double n = N->Drc;
                     double Z = z->Drc;
-                    double Vx = vxs->Drc; //std::max(-vmax, std::min(vmax, vxs->Drc));
-                    double Vy = vys->Drc; //std::max(-vmax, std::min(vmax, vys->Drc));
+                    double Vx = std::max(-vmax, std::min(vmax, vxs->Drc));
+                    double Vy = std::max(-vmax, std::min(vmax, vys->Drc));
 
                     bool bc1 = c > 0 && !MV(r,c-1)        ;
                     bool bc2 = c < _nrCols-1 && !MV(r,c+1);
@@ -100,15 +100,15 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         fb_y2 = std::max(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]);
                     }
 
-                    //                    vx_x1 = std::max(-vmax, std::min(vmax, vx_x1));
-                    //                    vx_x2 = std::max(-vmax, std::min(vmax, vx_x2));
-                    //                    vx_y1 = std::max(-vmax, std::min(vmax, vx_y1));
-                    //                    vx_y2 = std::max(-vmax, std::min(vmax, vx_y2));
+                    vx_x1 = std::max(-vmax, std::min(vmax, vx_x1));
+                    vx_x2 = std::max(-vmax, std::min(vmax, vx_x2));
+                    vx_y1 = std::max(-vmax, std::min(vmax, vx_y1));
+                    vx_y2 = std::max(-vmax, std::min(vmax, vx_y2));
 
-                    //                    vy_x1 = std::max(-vmax, std::min(vmax, vy_x1)); //left
-                    //                    vy_x2 = std::max(-vmax, std::min(vmax, vy_x2)); //right
-                    //                    vy_y1 = std::max(-vmax, std::min(vmax, vy_y1)); //up
-                    //                    vy_y2 = std::max(-vmax, std::min(vmax, vy_y2)); //down
+                    vy_x1 = std::max(-vmax, std::min(vmax, vy_x1)); //left
+                    vy_x2 = std::max(-vmax, std::min(vmax, vy_x2)); //right
+                    vy_y1 = std::max(-vmax, std::min(vmax, vy_y1)); //up
+                    vy_y2 = std::max(-vmax, std::min(vmax, vy_y2)); //down
 
                     // No effect of terrain: use for lakes?
                     // hll_x1 = F_Riemann(h_x1,vx_x1,vy_x1,H,Vx,Vy); // c-1 and c

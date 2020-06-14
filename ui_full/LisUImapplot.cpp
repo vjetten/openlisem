@@ -689,13 +689,12 @@ void lisemqt::showChannelVector()
             }
         }
         QPen pen1;
-        pen1.setWidth(1);
+        pen1.setWidth(showRiverSize->value());
         pen1.setColor(QColor("#000000"));
         pen1.setCosmetic(false);
         for (int i = 0; i < Xa.length(); i++) {
             rivera = new QwtPlotCurve();
             rivers << rivera;
-            showRiverSize->setValue(1);
 
             rivera->setPen(pen1);
             rivera->attach( MPlot );
