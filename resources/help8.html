@@ -1,0 +1,19 @@
+<p><strong>Advanced parameters</p></strong>
+
+If you know what you are doing!
+<p><strong>Numerical parameters for dynamic flow</p></strong>
+<ul>
+    <li>Riemann solver: smoothing functions that gives new states and es on cell boundaries based on pressure and momentum differences. HLL are Harten-Lax-van Leer type solvers(def 4-HLL2c)</li>
+    <li>Flux limiter: algorithms to avoid shocks at cell boundaries: minmod takes the smallest pressure and momentum differences accross a boundary, Van Leer and Albeda are smoother functions but less conservative (def 1-minmod).</li>
+    <li>Max iterations: forces break out of th flood loop, usually not necessary, better to try different Courant conditions and minimum timesteps in the Flow tab (def 200).</li>
+    <li>Single cell pits <i>experimental<i>: when a cell is more than Xm deeper than its 4 neigbours in X and Y directions, the effect of the terrain is decreased, so that flow is possible. A value < 0 a very high value will ignire this effect.</li>
+</ul>
+<p><strong>Connecting Overland flow/flood to Channel</p></strong>
+A fraction of the water beside the channel in a channe cell, is diverted to the channel. This fraction is based on the general flow velocity of the water [0], or based on the Manning's velocity using the terrain slope perpendicular to the channel [1].
+<p><strong>Connecting Kinematic Overland flow to flood</p></strong>
+<ul>
+<li>Runoff water is slowed down when entering the flood water, simulated by a temporarily increased Manning resistance: n = n_org*(2-exp(-a(flood h))) (def a = 2)</li>
+<li>When using the option 1D kinematic overlandf low with 2D channel flooding, the overland flow and flood water must be mixed. Two parameters are used: an exponential function of the ratio between the two: flood is increased by a fraction of the runoff, where the fraction is calculated as: 1-exp(-b*(flood h)/(runoff h), where b has a value larger than 1 (def b=1)</li>
+</ul>
+
+

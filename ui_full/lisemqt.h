@@ -364,6 +364,7 @@ public slots:
     void on_toolButton_help5_clicked();
     void on_toolButton_help6_clicked();
     void on_toolButton_help7_clicked();
+    void on_toolButton_help8_clicked();
 
     void on_toolButton_RainfallName_clicked();
 //   void on_toolButton_SnowmeltName_clicked();

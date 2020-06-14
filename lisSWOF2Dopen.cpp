@@ -249,11 +249,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             dt_req_min = std::max(TimestepfloodMin, dt_req_min);
             dt_req_min = std::min(dt_req_min, _dt-timesum);
 
-            //#pragma omp parallel for collapse(2) num_threads(userCores)
-            //            FOR_ROW_COL_MV_L {
-            //                FloodDT->Drc = dt_req_min;
-            //            }
-
             int cnt = 0;
 #pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
@@ -284,14 +279,13 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             // stop = timesum > _dt-0.001;
             count++;
 
-
-
             if(count > F_MaxIter) stop = true;
         } while (!stop);
 
         correctMassBalance(sumh, h);
     } // if floodstart
 
+    // for screen output
     double avgdt = 0;
 #pragma omp parallel for reduction(+:avgdt) collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {

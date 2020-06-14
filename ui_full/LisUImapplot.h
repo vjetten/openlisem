@@ -170,15 +170,15 @@ class colorMapHouse: public QwtLinearColorMap
     {
         if ( value < 0.05 )
             return qRgba( 0, 0, 0, 0 );
-        int a = (int) 255*value;
-        return qRgba(10,10,10,a);//QwtLinearColorMap::rgb( interval, value );
-    }
-//public:
-//    colorMapHouse():
-//          QwtLinearColorMap( QColor("#AAAAAA"), QColor("#222222"))
-//    {
+   //     int a = (int) 255*value;
+   //     return qRgba(10,10,10,a);
+        return QwtLinearColorMap::rgb( interval, value );
 
-//    }
+    }
+public:
+    colorMapHouse():
+          QwtLinearColorMap( QColor("#AAAAAA"), QColor("#222222"))
+    { }
 };
 //---------------------------------------------------------------------------
 /// flow barrier map

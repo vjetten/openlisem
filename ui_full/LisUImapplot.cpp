@@ -87,10 +87,10 @@ void lisemqt::ssetAlphaRoad(int v)
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaHouse(int v)
 {
-    //houseMap->setAlpha(v);
-    transvalue = ((double) v)/256.0;
-    doHouse = true;
-    showHouseMap();
+    houseMap->setAlpha(v);
+//    transvalue = ((double) v)/256.0;
+//    doHouse = true;
+//    showHouseMap();
     if (v > 0 && checkMapBuildings->isChecked())
         MPlot->replot();
 }
@@ -780,19 +780,9 @@ void lisemqt::showRoadMap()
 //---------------------------------------------------------------------------
 void lisemqt::showHouseMap()
 {
-    if (startplot || doHouse)
+    if (startplot)
     {
-//        for(int r = 0; r < op.houseMap->nrRows(); r++)
-//            for (int c = 0; c < op.houseMap->nrCols(); c++)
-//                if(!pcr::isMV(op.houseMap->data[r][c]))
-//                    op.houseMap->Drc *= transvalue;
-
         double res = fillDrawMapData(op.houseMap, RDe);
-
-//        for(int r = 0; r < op.houseMap->nrRows(); r++)
-//            for (int c = 0; c < op.houseMap->nrCols(); c++)
-//                if(!pcr::isMV(op.houseMap->data[r][c]))
-//                    RDe->setValue(r,c, op.houseMap->data[r][c]* transvalue);
 
         if (res ==-1e20)
             return;
@@ -800,10 +790,10 @@ void lisemqt::showHouseMap()
         houseMap->setData(RDe);
         doHouse = false;
     }
-//    if (checkMapBuildings->isChecked())
-//        houseMap->setAlpha(transparencyHouse->value());
-//    else
-//        houseMap->setAlpha(0);
+    if (checkMapBuildings->isChecked())
+        houseMap->setAlpha(transparencyHouse->value());
+    else
+        houseMap->setAlpha(0);
     houseMap->setColorMap(new colorMapHouse());
 }
 //---------------------------------------------------------------------------

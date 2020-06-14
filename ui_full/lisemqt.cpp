@@ -2029,6 +2029,11 @@ void lisemqt::on_toolButton_help7_clicked()
     on_toolButton_help(7);
 }
 //---------------------------------------------------------------
+void lisemqt::on_toolButton_help8_clicked()
+{
+    on_toolButton_help(8);
+}
+//---------------------------------------------------------------
 void lisemqt::on_toolButton_help(int page)
 {
     QString filename;

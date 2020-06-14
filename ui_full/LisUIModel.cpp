@@ -99,9 +99,7 @@ void lisemqt::runmodel()
 
     checkMapBuildings->setChecked(false);
     transparencyHouse->setEnabled(checkHouses->isChecked());
-    transparencyHouse->setValue(255);
     checkMapBuildings->setEnabled(checkHouses->isChecked());
-    transparencyHouse->setVisible(false);
 
     checkMapRoads->setChecked(false);
     transparencyRoad->setEnabled(checkRoadsystem->isChecked());

@@ -171,7 +171,7 @@ void TWorld::CalcVelDisch()
         double NN = N->Drc;
 
         if (SwitchIncludeChannel)
-            NN = N->Drc * std::min(qExp(mixing_coefficient*hmx->Drc), 2.0);
+            NN = N->Drc * std::min(2.0-qExp(-mixing_coefficient*hmx->Drc), 2.0);
         // slow down water in flood zone
 
         // avg WH from soil surface and roads, over width FlowWidth
