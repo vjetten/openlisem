@@ -45,7 +45,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 #pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (FloodT->Drc < _dt && h->Drc > 0) {
-                    double dt = FloodDT->Drc; // use previous timestep to start
+                    double dt = std::max(0.5*FloodDT->Drc, dt_req_min); // use previous timestep to start
                     double vxn, vyn;
                     double vmax = 0.5*(dt < 1 ? _dx+sqrt(_dx/dt) : _dx/dt);  // courant?
 
@@ -116,7 +116,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     // hll_y1 = F_Riemann(h_y1,vy_y1,vx_y1,H,Vy,Vx); // r-1 and r
                     // hll_y2 = F_Riemann(H,Vy,Vx,h_y2,vy_y2,vx_y2); // r and r+1
 
-                    double fac = DEMdz->Drc; // if Z is in a pit > 10m from the surrounding cells, reduce the effect of the DEM
+                    double fac = 1.0;//DEMdz->Drc; // if Z is in a pit > 10m from the surrounding cells, reduce the effect of the DEM
                     double dz_x1 = fac*(Z - z_x1);
                     double dz_x2 = fac*(z_x2 - Z);
                     double dz_y1 = fac*(Z - z_y1);
@@ -270,13 +270,13 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     cnt++;
             }
             stop = cnt < 1;
-            //    qDebug() << cnt;
+                //qDebug() << cnt;
 
             if (SwitchErosion)
                 SWOFSediment(FloodDT,hs,vxs,vys);
 
-            //timesum += dt_req_min;
-            // stop = timesum > _dt-0.001;
+            timesum += dt_req_min;
+        //     stop = timesum > _dt-0.001;
             count++;
 
             if(count > F_MaxIter) stop = true;
