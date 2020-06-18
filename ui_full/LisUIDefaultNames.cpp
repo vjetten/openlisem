@@ -395,6 +395,9 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Variable Timestep");
 //    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Minimum Timestep Method");
+
+//    namelist[i].value = QString("0");
 //    namelist[i++].name = QString("Use Heun");
 
     //###
@@ -562,6 +565,8 @@ void lisemqt::defaultRunFile()
             }
     }
     nrnamelist = j;
+    for (int i = 0; i < nrnamelist; i++)
+        namelist[i].gotit = false;
 }
 //---------------------------------------------------------------------------
 

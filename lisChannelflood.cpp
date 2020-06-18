@@ -261,7 +261,9 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
                 // no diff in water level, no flow, continue
 
                 // VELOCITIES
-                double VtoChan = std::pow(_h->Drcr, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr; //F_Angle
+                double VtoChan = V->Drc;
+                if (F_AddGravity == 1)
+                    VtoChan = std::pow(_h->Drcr, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr; //F_Angle
                 double fracA = std::min(1.0, _dt*VtoChan/(0.5*_dx));
                 // fraction from _h to channel based on average flood velocity
 

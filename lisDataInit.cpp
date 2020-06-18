@@ -414,7 +414,6 @@ void TWorld::InitStandardInput(void)
     calcValue(*N, nCalibration, MUL); //VJ 110112 moved
     copy(*Norg, *N);
     RR = ReadMap(LDD,getvaluename("RR"));
-    PlantHeight = ReadMap(LDD,getvaluename("CH"));
     LAI = ReadMap(LDD,getvaluename("lai"));
     Cover = ReadMap(LDD,getvaluename("cover"));
 
@@ -429,14 +428,11 @@ void TWorld::InitStandardInput(void)
     else
         Litter = NewMap(0);
     LitterSmax = getvaluedouble("Litter interception storage");
-
     checkMap(*RR, SMALLER, 0.0, "Raindom roughness RR must be >= 0");
     checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
     checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");
     checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
     checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
-
-    checkMap(*PlantHeight, SMALLER, 0.0, "Cover fraction must be >= 0");
 
     GrassFraction = NewMap(0);
     if (SwitchGrassStrip)
@@ -464,7 +460,6 @@ void TWorld::InitStandardInput(void)
         CohGrass = NewMap(0);
     }
 
-    StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
     // WheelWidth  = ReadMap(LDD,getvaluename("wheelwidth"));
 
     if (SwitchRoadsystem)
@@ -496,7 +491,6 @@ void TWorld::InitStandardInput(void)
     }
 
     //## infiltration data
-
     if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
     {
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
@@ -927,8 +921,7 @@ void TWorld::InitFlood(void)
     FloodT = NewMap(0);
 
     iter_n = 0;
-
-    DEMdz = NewMap(0);
+    DEMdz = NewMap(1.0);
     if (F_pitValue > 0) {
         FOR_ROW_COL_MV_L {
             double Z = DEM->Drc;
@@ -939,15 +932,22 @@ void TWorld::InitFlood(void)
 
             // make a weighing factor that reduces the effect opf the fit on flow based on the depth larfger than the threshold
             double dZ = F_pitValue;
+//            bool flag = false;
+//            if (Z < z_x1-dZ && LDD->Drc == 6){ flag = true; dzmin = fabs(Z - z_x1);}
+//            if (Z < z_x2-dZ && LDD->Drc == 4){ flag = true; dzmin = fabs(Z - z_x2);}
+//            if (Z < z_y1-dZ && LDD->Drc == 8){ flag = true; dzmin = fabs(Z - z_y1);}
+//            if (Z < z_y2-dZ && LDD->Drc == 2){ flag = true; dzmin = fabs(Z - z_y2);}
+
             bool flag = (Z < z_x1-dZ && Z < z_x2-dZ && Z < z_y1-dZ && Z < z_y2-dZ);
             DEMdz->Drc = 1.0;
             if (flag) {
                 double minZ = std::min(std::min(std::min(fabs(Z - z_x1), fabs(Z - z_x2)), fabs(Z-z_y1)), fabs(Z-z_y2));
                 DEMdz->Drc = 1/(1+pow(minZ/(1.5*F_pitValue),4.0));
                 //OR?
-     //           DEM->Drc += minZ;
+                DEM->Drc += minZ;
             }
         }
+        report(*DEMdz,"pitflag.map");
     }
 
     if (!SwitchSWOFopen) {
@@ -1025,6 +1025,13 @@ void TWorld::InitErosion(void)
 {
     if (!SwitchErosion)
         return;
+
+    PlantHeight = ReadMap(LDD,getvaluename("CH"));
+    checkMap(*PlantHeight, SMALLER, 0.0, "Cover fraction must be >= 0");
+
+
+
+    StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
 
     LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
 

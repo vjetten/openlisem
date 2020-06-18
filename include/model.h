@@ -164,6 +164,7 @@ typedef struct LDD_LINKEDLIST {
 typedef struct NAME_LIST {
     QString name;
     QString value;
+    bool gotit;
 } NAME_LIST;
 //---------------------------------------------------------------------------
 /// structure for output of land unit stats
@@ -246,7 +247,7 @@ public:
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum, SwitchLitter,
     Switchheaderpest, SwitchPesticide, SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,
     SwitchTimeavgV, SwitchSWOFopen, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed,SwitchFlowBarriers, SwitchBuffers,
-    SwitchCulverts, SwitchUserCores, SwitchVariableTimestep, SwitchHeun, SwitchNeedD90, SwitchImage, SwitchResultDatetime,
+    SwitchCulverts, SwitchUserCores, SwitchVariableTimestep, SwitchMinDTfloodMethod, SwitchHeun, SwitchNeedD90, SwitchImage, SwitchResultDatetime,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle;
     int SwitchFlood1D2DCoupling;
     int SwitchKinematic2D;

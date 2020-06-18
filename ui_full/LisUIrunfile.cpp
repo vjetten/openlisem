@@ -53,7 +53,6 @@ void lisemqt::GetRunfile()
                              .arg(fin.errorString()));
         return;
     }
-
     //   currentDir = QFileInfo(op.runfilename).path();//absoluteFilePath();
     //   QDir::setCurrent(currentDir);
 
@@ -64,6 +63,7 @@ void lisemqt::GetRunfile()
     oldRunfile = false;
     saveRunFileOnce=false;
     int i = 0;
+    int found = 0;
 
     while (!fin.atEnd())
     {
@@ -75,28 +75,31 @@ void lisemqt::GetRunfile()
             saveRunFileOnce = true;
 
         i++;
-
         if (S.contains("="))
         {
-
             QStringList SL = S.split(QRegExp("="));
 
-            for (int j = 0; j < nrnamelist; j++)
-            {
-                if (namelist[j].name == SL[0].trimmed())
-                {
+            for (int j = 0; j < nrnamelist; j++) {
+                if (namelist[j].name == SL[0].trimmed()) {
                     namelist[j].value = SL[1].trimmed();
+                    namelist[j].gotit = true;
                     break;
                 }
             }
         }
-
     }
 
+    for (int i = 0; i < nrnamelist; i++) {
+        if (!namelist[i].value.isEmpty() && !namelist[i].gotit)
+            saveRunFileOnce = true;
+    }
+
+    // what is this doing here? runtime options to the namelist? why?
     if (optionList.count() > 0)
     {
         for (i=0; i< optionList.count(); i++)
         {
+            qDebug() << optionList.at(i);
             if (optionList[i].contains("="))
             {
                 QString S = optionList[i];
@@ -115,6 +118,9 @@ void lisemqt::GetRunfile()
             }
         }
     }
+
+
+
 }
 //---------------------------------------------------------------------------
 //! ParseInputData : interpret runfile text and fill interface variables
@@ -163,6 +169,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Routing Kin Wave 2D")==0)            dummykinwave = iii;
         if (p1.compare("Flow Boundary 2D")==0)               E_FlowBoundary->setValue(iii);
         if (p1.compare("Variable Timestep")==0)              checkVariableTimestep->setChecked(check);
+        //if (p1.compare("Minimum Timestep Method")==0)        checkminDTfloodMethod->setChecked(check);
       //  if (p1.compare("Use Heun")==0)                       checkHeun->setChecked(check);
       //  if (p1.compare("Use MUSCL")==0)                      checkMuscl->setChecked(check);
         if (p1.compare("Use fixed angle")==0)                checkFixedAngle->setChecked(check);
@@ -727,6 +734,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Use fixed angle")==0)                namelist[j].value.setNum((int) checkFixedAngle->isChecked());
   //      if (p1.compare("Use Heun")==0)        namelist[j].value.setNum((int) checkHeun->isChecked());
         if (p1.compare("Variable Timestep")==0)        namelist[j].value.setNum((int) checkVariableTimestep->isChecked());
+        //if (p1.compare("Minimum Timestep Method")==0)        namelist[j].value.setNum((int) checkminDTfloodMethod->isChecked());
+
         if (p1.compare("Flood solution")==0)
         {
             int i = 0;
@@ -969,7 +978,8 @@ void lisemqt::updateModelData()
     if (saveRunFileOnce) {
         savefile(op.runfilename);
         saveRunFileOnce = false;
-        QMessageBox::warning(this,"openLISEM",QString("The run file is updated to version 6.0 (obsolete options are removed and missing options use default values)."));
+        QMessageBox::warning(this,"openLISEM",QString("The run file has changed: obsolete options are removed and missing options use default values.\
+ The  new has your choices where applicable."));
 
     }
 

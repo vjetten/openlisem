@@ -91,8 +91,14 @@ void TWorld::ToChannel()
 
             if (WHrunoff->Drc < HMIN)
                 continue;
+            if (hmx->Drc > HMIN)
+                continue;
 
-            double VtoChan = std::pow(WHrunoff->Drcr, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr; //F_Angle
+
+
+            double VtoChan = V->Drc;
+            if (F_AddGravity == 1)
+                VtoChan = std::pow(WHrunoff->Drcr, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr; //F_Angle
             fractiontochannel = std::min(1.0, _dt*VtoChan/std::max(0.05*_dx,0.5*ChannelAdj->Drc));
             // fraction to channel calc from half the adjacent area width and flow velocity
 
