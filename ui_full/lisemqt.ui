@@ -4328,7 +4328,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>7</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -4404,7 +4404,7 @@
                            <number>8</number>
                           </property>
                           <property name="value">
-                           <number>1</number>
+                           <number>0</number>
                           </property>
                           <property name="displayIntegerBase">
                            <number>10</number>

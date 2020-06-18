@@ -20,6 +20,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     double sumh = 0;
     bool stop;
     double dt_req_min = dt_max;
+    int cnt;
 
     if (startFlood)
     {
@@ -76,10 +77,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     if (r > 0 && !MV(r-1,c)        ) dt = std::min(dt, FloodDT->data[r-1][c]);
                     if (r < _nrRows-1 && !MV(r+1,c)) dt = std::min(dt, FloodDT->data[r+1][c]);
 
-                    if (c > 0 && !MV(r-1,c-1)        ) dt = std::min(dt, 4*FloodDT->data[r-1][c-1]);
-                    if (c < _nrCols-1 && !MV(r+1,c+1)) dt = std::min(dt, 4*FloodDT->data[r+1][c+1]);
-                    if (r > 0 && !MV(r-1,c+1)        ) dt = std::min(dt, 4*FloodDT->data[r-1][c+1]);
-                    if (r < _nrRows-1 && !MV(r+1,c-1)) dt = std::min(dt, 4*FloodDT->data[r+1][c-1]);
+                    if (c > 0 && r > 0 && !MV(r-1,c-1)        ) dt = std::min(dt, 4*FloodDT->data[r-1][c-1]);
+                    if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) dt = std::min(dt, 4*FloodDT->data[r+1][c+1]);
+                    if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) dt = std::min(dt, 4*FloodDT->data[r-1][c+1]);
+                    if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)) dt = std::min(dt, 4*FloodDT->data[r+1][c-1]);
 
                     if (c > 1 && !MV(r,c-2)        ) dt = std::min(dt, 2*FloodDT->data[r][c-2]);
                     if (c < _nrCols-2 && !MV(r,c+2)) dt = std::min(dt, 2*FloodDT->data[r][c+2]);
@@ -147,10 +148,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
                     double fb_x1=0,fb_x2=0,fb_y1=0,fb_y2=0;
                     if (SwitchFlowBarriers) {
-                        fb_x1 = std::max(FlowBarrierW->Drc, FlowBarrierE->data[r][c-1]);
-                        fb_x2 = std::max(FlowBarrierE->Drc, FlowBarrierE->data[r][c+1]);
-                        fb_y1 = std::max(FlowBarrierN->Drc, FlowBarrierS->data[r-1][c]);
-                        fb_y2 = std::max(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]);
+                        fb_x1 = bc1 ? std::max(FlowBarrierW->Drc, FlowBarrierE->data[r][c-1]) : FlowBarrierW->Drc;
+                        fb_x2 = bc2 ? std::max(FlowBarrierE->Drc, FlowBarrierE->data[r][c+1]) : FlowBarrierE->Drc;
+                        fb_y1 = br1 ? std::max(FlowBarrierN->Drc, FlowBarrierS->data[r-1][c]) : FlowBarrierN->Drc;
+                        fb_y2 = br2 ? std::max(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]) : FlowBarrierS->Drc;
                     }
 
 //                    vx_x1 = std::max(-vmax, std::min(vmax, vx_x1));
@@ -212,10 +213,11 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     // if B = 0.5 this can never be >1?
                     double sx_zh = std::min(1.0,std::max(-1.0,limiter(sx_zh_x1, sx_zh_x2)));
                     double sy_zh = std::min(1.0,std::max(-1.0,limiter(sy_zh_y1, sy_zh_y2)));
-                    double C = std::min(0.5, courant_factor);
+
                     double tx = dt/dx;
                     double ty = dt/dy;
 
+                    double C = std::min(0.25, courant_factor);
                     double flux_x1 = std::max(-H * C,std::min(+tx*hll_x1.v[0],h_x1 * C));
                     double flux_x2 = std::max(-H * C,std::min(-tx*hll_x2.v[0],h_x2 * C));
                     double flux_y1 = std::max(-H * C,std::min(+ty*hll_y1.v[0],h_y1 * C));
@@ -284,7 +286,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
 
                     FloodDT->Drc = std::min(dt_req1, dt_req);
-//                    FloodDT->Drc = std::max(TimestepfloodMin, FloodDT->Drc);
                     // taking the smalklest works best for instabiliies!
                     h->Drc = hn;
                     vx->Drc = vxn;
@@ -316,13 +317,14 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 SWOFSediment(FloodDT,hs,vxs,vys);
 
             if (SwitchVariableTimestep) {
-                int cnt = 0;
+                cnt = 0;
                 // nr cells that need processing
 #pragma omp parallel for reduction(+:cnt) collapse(2) num_threads(userCores)
                 FOR_ROW_COL_MV_L {
                     if (FloodT->Drc < _dt-0.001)
                         cnt++;
                 }
+                qDebug() << cnt;
                 stop = cnt < 1;
             } else {
                 stop = timesum > _dt-0.001;
