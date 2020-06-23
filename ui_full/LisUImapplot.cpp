@@ -28,8 +28,8 @@
 #include "global.h"
 #include "LisUImapplot.h"
 
-#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
-    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+_dy[ldd]==rTo && cFrom+_dx[ldd]==cTo )
+//#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
+//    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+_dy[ldd]==rTo && cFrom+_dx[ldd]==cTo )
 
 //---------------------------------------------------------------------------
 QwtLinearColorMapVJ::QwtLinearColorMapVJ( const QColor &color1,const QColor &color2, QwtLinearColorMap::Format format ):

@@ -27,8 +27,8 @@
 #include "operation.h"
 #include "model.h"
 
-#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
-    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
+//#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
+//    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 #define do_row(r, c, w2, n)   if(n == 1) extendRow(r,c,1,w2);\
 else for (int i = 1; i < n; i++) extendRow(r,c,i,(i == n-1) ? w2 : adx);tma->data[r][c]=2

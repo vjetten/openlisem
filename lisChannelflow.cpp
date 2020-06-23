@@ -191,7 +191,7 @@ void TWorld::ChannelAddBaseandRain(void)
 {
     if (!SwitchIncludeChannel)
         return;
-// making this parallel gives mass balance errors!!!
+    // making this parallel gives mass balance errors!!!
 #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(ChannelMaskExtended->data[r][c] == 1)
@@ -486,5 +486,121 @@ void TWorld::ChannelFlow(void)
             }
         }
     }
+}
+//---------------------------------------------------------------------------
+
+void TWorld::ChannelFlow2D(void)
+{
+    if (!SwitchIncludeChannel)
+        return;
+
+    double dt_max = std::min(_dt, _dx/2);
+    double timesum = 0;
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, -1, -1, -1, 0, 0, 0, 1, 1, 1};
+    double dt = dt_max;
+
+    do {
+
+        //#pragma omp parallel for collapse(2) num_threads(userCores)
+        FOR_ROW_COL_MV_CH
+        {
+            vec4 hll;
+            // current cell
+            double CDEP = ChannelDepth->Drc;
+            double CWH = ChannelWH->Drc;
+            double CWID = ChannelWidth->Drc;
+            double CHV = ChannelV->Drc;
+            double CHN = ChannelN->Drc;
+            double CHVOL = ChannelWaterVol->Drc;
+            double Z = DEM->Drc-CDEP;
+            double Dx = ChannelDX->Drc;
+
+            // downstream cell
+            int ldd = (int)LDDChannel->Drc;
+            int rr = r + dy[ldd];
+            int cr = c + dx[ldd];
+            double CDEP1 = ChannelDepth->Drcr;
+            double CWH1 = ChannelWH->Drcr;
+            double CWID1 = ChannelWidth->Drcr;
+            double CHV1 = ChannelV->Drcr;
+            double CHN1 = ChannelN->Drcr;
+            double Z1 = DEM->Drcr-CDEP1;
+            double CHVOL1 = 0;
+
+            double chhn = CWH; //?
+            double chvn = CHV;
+            double ch_vadd = 0.0f;
+            double ch_vaddw = 1.0f;
+            double CHQ = 0;
+
+            if (LDDChannel->Drc == 5) {
+
+            } else {
+                vec4 hll = F_Riemann(CWH,CHV,0,CWH1,CHV1,0);
+                CHQ = (dt/Dx)*(std::min(CWH,CWH1)/Dx)*((Dx * 0.5*(CWH+CWH1)) * hll.v[0]);
+                CHQ = std::min(0.25 * CHVOL,CHQ);
+                CHQ = std::max(-0.25 * CHVOL1,CHQ);
+                //CHQ = CHQ * 0.5;
+
+                double CHS = (Z + CWH - Z1 - CWH1)/Dx;
+                ch_vadd = ch_vadd + dt * 0.5 * 9.81 * std::max(-1.0,std::min(1.0,CHS));
+                if(CHQ < 0)
+                {
+                    CHVOL1 = CWH1*CWID1*Dx;
+                    CHV1= (CHV1 * CHVOL1 - CHV1 *(CHQ))/std::max(0.01, CHVOL1 - CHQ);
+                }
+
+                CWH1 = CWH1 - CHQ/(CWID1 * Dx);
+                //flux_chx2 = flux_chx2 + ch_q;
+
+            }
+
+            for (int i=1; i <= 9; i++)
+            {
+                    int r, c;
+                    int ldd = 0;
+                    if (i==5)
+                        continue;
+
+                    int rr = r+dy[i];
+                    int cr = c+dx[i];
+
+                    if (FLOWS_TO(ldd, rr, cr, r, c) && INSIDE(rr, cr))
+                    {
+                        double CDEP2 = ChannelDepth->Drcr;
+                        double CWH2 = ChannelWH->Drcr;
+                        double CWID2 = ChannelWidth->Drcr;
+                        double CHV2 = ChannelV->Drcr;
+                        double CHN2 = ChannelN->Drcr;
+                        double Z2 = DEM->Drcr-CDEP2;
+                        double CHQ2 = 0;
+                        double CHVOL2 = CWH2 * CWID2 * Dx;
+
+                        //flow in from previous cell
+                        vec4 hll = F_Riemann(CWH2,CHV2,0,CWH,CHV,0);
+                        CHQ2 = (dt/Dx)*(std::min(CWH,CWH2)/Dx)*((Dx * 0.5*(CWH+CWH2)) * hll.v[0]);
+                        CHQ2 = std::min(0.25 * CHVOL2,CHQ2);
+                        CHQ2 = std::max(-0.25 * CHVOL,CHQ2);
+                        CHQ2 = CHQ2 * 0.5;
+
+                        double CHS2 = (Z2 + CWH2 - Z - CWH)/Dx;
+                        if(CHQ2 > 0)
+                        {
+                            CHVOL2 = chhn*CWID1*Dx;
+                            chvn = (chvn * CHVOL2 - CHV2 *(CHQ2))/std::max(0.01, CHVOL2 - CHQ2);
+                        }
+                        ch_vadd = ch_vadd + dt * 0.5 * 9.81 * std::max(-1.0,std::min(1.0,(CHS2)));
+                        ch_vaddw = ch_vaddw + 1.0;
+
+                        chhn = chhn +CHQ2/(CWID * Dx);
+
+                        flux_chx1 = flux_chx1 + CHQ2;
+                    }
+                }
+            } // for ldd ! 5
+        } // FOR ROW COL
+
+    } while (timesum < _dt);
 }
 //---------------------------------------------------------------------------

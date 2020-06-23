@@ -68,6 +68,8 @@
 #define Drcd    at(d)->data[r][c]
 #define Drcdr   at(d)->data[rr][cr]
 #define Drci    data[r+dr[i]][c+dc[i]]
+#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
+    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 /// shortcut missing value in map
 #define MV(r,c) pcr::isMV(LDD->data[r][c])
@@ -664,6 +666,7 @@ public:
     void OverlandFlow1D(void);
 
     void ChannelFlow();
+    void ChannelFlow2D();
     double ChannelIterateWH(double _h, int r, int c);
     void ChannelAddBaseandRain();
     void ChannelWaterHeightFromVolume();

@@ -1947,12 +1947,12 @@ void lisemqt::setfontSize()
                                 QCheckBox::indicator {width: %1px; height: %1px;}\
                                 QRadioButton::indicator {width: %1px; height: %1px;}\
                                 QComboBox {font: %1px; padding: 1px 0px 1px 3px;}\
-                                QLineEdit {font-size: %1px; padding: 1px;}\
+                                QLineEdit {font-size: %1px; padding: 1px 1px 1px 1px}\
                                 QToolButton {font-size: %1px;}\
-                                QCheckBox {font-size: %1px; padding:  1px 1px 1px 3px; }\
+                                QCheckBox {font-size: %1px; padding:  1px 1px 1px 1px; }\
                                 QRadioButton {font-size: %1px; 1px 1px 1px 3px;  }\
-                                QSpinBox {width: %1px; height: %1px; font-size: %1px; padding: 1px; }\
-                                QDoubleSpinBox {width: %2px; height: %1px;font-size: %1px; padding: 1px}\
+                                QSpinBox {width: %1px; height: %1px; font-size: %1px; padding: 0px 0px 0px 0px; }\
+                                QDoubleSpinBox {width: %2px; height: %1px;font-size: %1px; padding: 0px 0px 0px 0px}\
                                 ").arg(fs).arg(fs*2.4));
 
     tabWidgetOptions->setStyleSheet( QString("font-size: %1px; ").arg(fs) );

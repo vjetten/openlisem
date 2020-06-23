@@ -1427,10 +1427,10 @@ void TWorld::GetComboMaps()
         setColor(7);
         AddComboMap(0,"Flood duration","min",floodTime,Colormap,Colors,false,false,1.0,1.0);
         setColor(6);
-//        if (SwitchVariableTimestep) {
-          //  AddComboMap(0,"Timestep","s",FloodDT,Colormap,Colors,false,false,1.0,0.01);
-           // AddComboMap(0,"Steps pr cell","-",FloodT,Colormap,Colors,false,false,1.0,1.0);
-  //      }
+        if (SwitchVariableTimestep) {
+            AddComboMap(0,"Timestep","s",FloodDT,Colormap,Colors,false,false,1.0,0.01);
+            AddComboMap(0,"Steps pr cell","-",FloodT,Colormap,Colors,false,false,1.0,1.0);
+        }
     }
 
     if(SwitchErosion)

@@ -52,8 +52,8 @@
 #include "CsfRGBMap.h"
 
 
-#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
-    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
+//#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
+//    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 
 
@@ -932,17 +932,12 @@ void TWorld::InitFlood(void)
 
             // make a weighing factor that reduces the effect opf the fit on flow based on the depth larfger than the threshold
             double dZ = F_pitValue;
-//            bool flag = false;
-//            if (Z < z_x1-dZ && LDD->Drc == 6){ flag = true; dzmin = fabs(Z - z_x1);}
-//            if (Z < z_x2-dZ && LDD->Drc == 4){ flag = true; dzmin = fabs(Z - z_x2);}
-//            if (Z < z_y1-dZ && LDD->Drc == 8){ flag = true; dzmin = fabs(Z - z_y1);}
-//            if (Z < z_y2-dZ && LDD->Drc == 2){ flag = true; dzmin = fabs(Z - z_y2);}
-
             bool flag = (Z < z_x1-dZ && Z < z_x2-dZ && Z < z_y1-dZ && Z < z_y2-dZ);
             DEMdz->Drc = 1.0;
             if (flag) {
                 double minZ = std::min(std::min(std::min(fabs(Z - z_x1), fabs(Z - z_x2)), fabs(Z-z_y1)), fabs(Z-z_y2));
-                DEMdz->Drc = 1/(1+pow(minZ/(1.5*F_pitValue),4.0));
+                DEMdz->Drc = minZ*0.9 < F_pitValue ? 1.0 : 1/(1+pow(minZ/(1.0+F_pitValue),4.0));
+
                 //OR?
                 DEM->Drc += minZ;
             }
@@ -2128,8 +2123,6 @@ void TWorld::FindBaseFlow()
                             int rowNr = list->rowNr;
                             int colNr = list->colNr;
 
-                            /** put all points that have to be calculated to calculate the current point in the list,
-                     before the current point */
                             for (i=1; i<=9; i++)
                             {
                                 int r, c;
