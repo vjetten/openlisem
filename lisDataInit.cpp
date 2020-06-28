@@ -2191,8 +2191,6 @@ void TWorld::FindBaseFlow()
                             int rowNr = list->rowNr;
                             int colNr = list->colNr;
 
-                            /** put all points that have to be calculated to calculate the current point in the list,
-                     before the current point */
                             for (i=1; i<=9; i++)
                             {
                                 int r, c;

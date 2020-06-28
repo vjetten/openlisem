@@ -469,6 +469,7 @@ public:
 
     double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
+    void ChannelSWOFopen();
 
     void prepareFloodZ(cTMap *z);
     void setFloodMask(cTMap * h);

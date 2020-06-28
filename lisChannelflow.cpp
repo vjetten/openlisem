@@ -318,7 +318,7 @@ void TWorld::ChannelFlow(void)
             }
         }
     }
-
+/*
     ChannelQn->setAllMV();
     fill(*QinKW, 0.0);
 
@@ -341,6 +341,8 @@ void TWorld::ChannelFlow(void)
         fromChannelVoltoWH(r, c);
 
     }
+*/
+    ChannelSWOFopen();
 
     // get the maximum for output
     FOR_ROW_COL_MV_CH
@@ -511,7 +513,6 @@ void TWorld::ChannelFlow2D(void)
             double CWH = ChannelWH->Drc;
             double CWID = ChannelWidth->Drc;
             double CHV = ChannelV->Drc;
-            double CHN = ChannelN->Drc;
             double CHVOL = ChannelWaterVol->Drc;
             double Z = DEM->Drc-CDEP;
             double Dx = ChannelDX->Drc;
@@ -524,14 +525,13 @@ void TWorld::ChannelFlow2D(void)
             double CWH1 = ChannelWH->Drcr;
             double CWID1 = ChannelWidth->Drcr;
             double CHV1 = ChannelV->Drcr;
-            double CHN1 = ChannelN->Drcr;
             double Z1 = DEM->Drcr-CDEP1;
             double CHVOL1 = 0;
 
             double chhn = CWH; //?
             double chvn = CHV;
-            double ch_vadd = 0.0f;
-            double ch_vaddw = 1.0f;
+            double ch_vadd = 0.0;
+            double ch_vaddw = 1.0;
             double CHQ = 0;
 
             if (LDDChannel->Drc == 5) {
@@ -572,14 +572,14 @@ void TWorld::ChannelFlow2D(void)
                         double CWH2 = ChannelWH->Drcr;
                         double CWID2 = ChannelWidth->Drcr;
                         double CHV2 = ChannelV->Drcr;
-                        double CHN2 = ChannelN->Drcr;
                         double Z2 = DEM->Drcr-CDEP2;
                         double CHQ2 = 0;
                         double CHVOL2 = CWH2 * CWID2 * Dx;
 
                         //flow in from previous cell
                         vec4 hll = F_Riemann(CWH2,CHV2,0,CWH,CHV,0);
-                        CHQ2 = (dt/Dx)*(std::min(CWH,CWH2)/Dx)*((Dx * 0.5*(CWH+CWH2)) * hll.v[0]);
+                        CHQ2 = (dt/Dx)*(std::min(CWH,CWH2)/Dx)*((Dx * 0.5*(CWH+CWH2)) * hll.v[0]);  //units: s/m*(m/m)*m*m *m*m/s
+
                         CHQ2 = std::min(0.25 * CHVOL2,CHQ2);
                         CHQ2 = std::max(-0.25 * CHVOL,CHQ2);
                         CHQ2 = CHQ2 * 0.5;
@@ -595,11 +595,11 @@ void TWorld::ChannelFlow2D(void)
 
                         chhn = chhn +CHQ2/(CWID * Dx);
 
-                        flux_chx1 = flux_chx1 + CHQ2;
+                        //flux_chx1 = flux_chx1 + CHQ2;
                     }
                 }
             } // for ldd ! 5
-        } // FOR ROW COL
+
 
     } while (timesum < _dt);
 }
