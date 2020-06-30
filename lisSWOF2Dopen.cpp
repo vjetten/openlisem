@@ -356,6 +356,78 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 }
 
 //-----------------------------------------------------------------------------------------------------
+void TWorld::makeChannelList()
+{
+    /*
+    if(!SwitchIncludeChannel)
+        return;
+
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+    fill(*tma, -1);
+
+    for (int rr = 0; rr < _nrRows; rr++)
+        for (int cr = 0; cr < _nrCols; cr++) {
+            if(LDDChannel->Drcr == 5) {
+                //LDD_LINKEDLIST *chlist = nullptr;
+                LDD_LINKEDLIST *temp = nullptr;
+                chlist = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+
+                chlist->prev = nullptr;
+                chlist->rowNr = rr;
+                chlist->colNr = cr;
+
+                while (chlist != nullptr)
+                {
+                    int i = 0;
+                    bool  subCatchDone = true;
+
+                    int rowNr = chlist->rowNr;
+                    int colNr = chlist->colNr;
+
+
+                    for (i=1; i<=9; i++)
+                    {
+                        int r, c;
+                        int ldd = 0;
+
+                        // this is the current cell
+                        if (i==5)
+                            continue;
+
+                        r = rowNr+dy[i];
+                        c = colNr+dx[i];
+
+                        if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
+                            ldd = (int) LDDChannel->Drc;
+
+                        // check if there are more cells upstream, if not subCatchDone remains true
+                        if (tma->Drc < 0 && ldd > 0 && FLOWS_TO(ldd, r, c, rowNr, colNr)) {
+                            temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+                            temp->prev = chlist;
+                            chlist = temp;
+                            chlist->rowNr = r;
+                            chlist->colNr = c;
+                            subCatchDone = false;
+                        }
+                    }
+
+                    if (subCatchDone)
+                    {
+                        tma->data[rowNr][colNr] = 1; // flag done
+
+                        temp=chlist;
+                        chlist=chlist->prev;
+                        //free(temp);
+                    }
+                }
+            }
+        }
+    }
+    */
+}
+
 void TWorld::ChannelSWOFopen()
 {
     if(!SwitchIncludeChannel)
@@ -364,7 +436,7 @@ void TWorld::ChannelSWOFopen()
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
-
+    bool CorrectMassBalance = true;
     double timesum = 0;
     double dt_max = std::min(_dt, _dx*0.5);
     int count = 0;
@@ -375,11 +447,14 @@ void TWorld::ChannelSWOFopen()
     double dt_req = dt_max;
 
     double sum1 = 0;
-    #pragma omp parallel for reduction(+:sum1) collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_CH {
-        if(ChannelWH->Drc > 0)
-            sum1 += ChannelWH->Drc*ChannelWidth->Drc*ChannelDX->Drc;
+    if (CorrectMassBalance) {
+#pragma omp parallel for reduction(+:sum1) collapse(2) num_threads(userCores)
+        FOR_ROW_COL_MV_CH {
+            if(ChannelWH->Drc > 0)
+                sum1 += ChannelWH->Drc*ChannelWidth->Drc*ChannelDX->Drc;
+        }
     }
+
 
     fill(*ChannelQn, 0);
 
@@ -393,20 +468,21 @@ void TWorld::ChannelSWOFopen()
         for (int rr = 0; rr < _nrRows; rr++)
             for (int cr = 0; cr < _nrCols; cr++) {
                 if(LDDChannel->Drcr == 5) {
-                    LDD_LINKEDLIST *list = nullptr;
+
+                    LDD_LINKEDLIST *chlist = nullptr;
                     LDD_LINKEDLIST *temp = nullptr;
-                    list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+                    chlist = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
 
-                    list->prev = nullptr;
-                    list->rowNr = rr;
-                    list->colNr = cr;
+                    chlist->prev = nullptr;
+                    chlist->rowNr = rr;
+                    chlist->colNr = cr;
 
-                    while (list != nullptr)
+                    while (chlist != nullptr)
                     {
                         int i = 0;
                         bool  subCatchDone = true;
-                        int rowNr = list->rowNr;
-                        int colNr = list->colNr;
+                        int rowNr = chlist->rowNr;
+                        int colNr = chlist->colNr;
 
                         for (i=1; i<=9; i++)
                         {
@@ -426,10 +502,10 @@ void TWorld::ChannelSWOFopen()
                             // check if there are more cells upstream, if not subCatchDone remains true
                             if (tma->Drc < 0 && ldd > 0 && FLOWS_TO(ldd, r, c, rowNr, colNr)) {
                                 temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-                                temp->prev = list;
-                                list = temp;
-                                list->rowNr = r;
-                                list->colNr = c;
+                                temp->prev = chlist;
+                                chlist = temp;
+                                chlist->rowNr = r;
+                                chlist->colNr = c;
                                 subCatchDone = false;
                             }
                         }
@@ -456,13 +532,17 @@ void TWorld::ChannelSWOFopen()
                             double s_zh_out = 0;
                             vec4 hll_out = {0,0,0,0};
                             int ldd = (int)LDDChannel->data[rowNr][colNr];
+
                             if (ldd == 5) {
                                 s_zh_out =  0.5*(H/Dx)+ ChannelGrad->data[rowNr][colNr];
                                 Vn = -pow(H, 2.0/3.0)/N*sqrt(s_zh_out);
                                 double Q = dt *H*W*Vn;
                                 Q = std::max(0.0,std::max(-C * Vol,Q));
-                              //  flux_out = Q;
+
+                                flux_out = Q;
+
                                 ch_vadd = ch_vadd + dt * 0.5 * GRAV * std::max(-B,std::min(B,s_zh_out));
+
                             } else {
                                 double DX2 = ldd % 2 == 0 ? Dx : Dx*sqrt(2);
                                 int r = rowNr+dy[ldd];
@@ -478,10 +558,13 @@ void TWorld::ChannelSWOFopen()
                                 Q = std::max(-C*Volo, std::min(Q, C*Vol));
 
                                 s_zh_out = std::min(B, std::max(-B, (H + Z - Zo - Ho)/DX2));
+
                                 ch_vadd = ch_vadd + dt * 0.5 * GRAV * s_zh_out;
+
                                 if(Q < 0) {
                                     Vn = (Vn*Vol - Vo*Q)/std::max(0.01,Vol - Q);
                                 }
+
                                 flux_out = Q;
                             }
 
@@ -548,13 +631,10 @@ void TWorld::ChannelSWOFopen()
                                     fac = fac *exp(- std::max(1.0,dt) / chnsq1);
                                     Vn = fac * V + (1.0-fac) *Vn;
                                 }
+                                qDebug() << Vn;
+
                             }
 
-                            if (std::isnan(Vn)) {
-                                Vn = 0;
-                                Hn = 0;
-                                qDebug() << "oei";
-                            }
                             if (fabs(Vn) <= ve_ca)
                                 Vn = 0;
                             if (Hn < he_ca) {
@@ -562,13 +642,13 @@ void TWorld::ChannelSWOFopen()
                                 Hn = 0;
                             }
                             dt_req = std::min(dt_req,courant_factor *Dx/( std::min(dt_max,std::max(0.01,fabs(Vn)))));
-
                             ChannelU->data[rowNr][colNr] = Vn;
                             ChannelWH->data[rowNr][colNr] = Hn;
 
                             tma->data[rowNr][colNr] = 1; // flag done
-                            temp=list;
-                            list=list->prev;
+
+                            temp=chlist;
+                            chlist=chlist->prev;
                             free(temp);
                         }
                     }
@@ -589,32 +669,34 @@ void TWorld::ChannelSWOFopen()
 
     //qDebug() << count;
 
-
-    double sum2 = 0;
-    double n = 0;
+    if (CorrectMassBalance) {
+        double sum2 = 0;
+        double n = 0;
 #pragma omp parallel for reduction(+:sum2) collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_CH {
-        if(ChannelWH->Drc > 0) {
-            sum2 += ChannelWH->Drc*ChannelWidth->Drc*ChannelDX->Drc;
-            if(ChannelWH->Drc > 0)
-                n += 1.0;
+        FOR_ROW_COL_MV_CH {
+            if(ChannelWH->Drc > 0) {
+                sum2 += ChannelWH->Drc*ChannelWidth->Drc*ChannelDX->Drc;
+                if(ChannelWH->Drc > 0)
+                    n += 1.0;
+            }
         }
-    }
-    double dhtot = sum2 > 0 ? (sum1 - sum2)/sum2 : 0;
+        double dhtot = sum2 > 0 ? (sum1 - sum2)/sum2 : 0;
 
 #pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_CH {
-        if(ChannelWH->Drc > 0) {
-            ChannelWH->Drc = ChannelWH->Drc*(1.0 + dhtot);
-            ChannelWH->Drc = std::max(ChannelWH->Drc , 0.0);
+        FOR_ROW_COL_MV_CH {
+            if(ChannelWH->Drc > 0) {
+                ChannelWH->Drc = ChannelWH->Drc*(1.0 + dhtot);
+                ChannelWH->Drc = std::max(ChannelWH->Drc , 0.0);
+            }
         }
     }
 
-#pragma omp parallel for collapse(2) num_threads(userCores)
+//#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_CH {
         ChannelV->Drc = fabs(ChannelU->Drc);
         ChannelQn->Drc = ChannelV->Drc*ChannelWH->Drc*ChannelWidth->Drc;
         ChannelWaterVol->Drc = ChannelWH->Drc*ChannelWidth->Drc*ChannelDX->Drc;
+       // qDebug() << ChannelQn->Drc << ChannelU->Drc;
     }
 }
 

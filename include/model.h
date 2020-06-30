@@ -475,6 +475,7 @@ public:
     double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     void ChannelSWOFopen();
+    void makeChannelList();
 
     void prepareFloodZ(cTMap *z);
     void setFloodMask(cTMap * h);
@@ -671,10 +672,9 @@ public:
 
     void OverlandFlow1D(void);
 
-    LDD_LINKEDLIST *CHlist;
+    LDD_LINKEDLIST *chlist;
     void makeChannelLinkedList();
     void ChannelFlow();
-    void ChannelFlow2D();
     double ChannelIterateWH(double _h, int r, int c);
     void ChannelAddBaseandRain();
     void ChannelWaterHeightFromVolume();
