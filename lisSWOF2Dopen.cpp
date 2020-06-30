@@ -346,21 +346,27 @@ void TWorld::ChannelSWOFopen()
     double dt_max = std::min(_dt, _dx*0.5);
     int count = 0;
     bool stop;
-    double dt = _dt;//dt_max;
+    double dt = dt_max;
     double C = std::min(0.25, courant_factor);
     double B = 0.5;
+    double dt_req1 = dt_max;
 
+
+    fill(*ChannelQn, 0);
 
     do {
         stop = false;
-        double dt_req1 = dt_max;
 
         // do the whole channel
         fill(*tma, -1);
+        fill(*tmb, 0);
+        fill(*tmc, 0);
+        fill(*tmd, 0);
+        dt_req1 = dt_max;
+
         for (int rr = 0; rr < _nrRows; rr++)
             for (int cr = 0; cr < _nrCols; cr++) {
                 if(LDDChannel->Drcr == 5) {
-
                     LDD_LINKEDLIST *list = nullptr;
                     LDD_LINKEDLIST *temp = nullptr;
                     list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
@@ -372,7 +378,7 @@ void TWorld::ChannelSWOFopen()
                     while (list != nullptr)
                     {
                         int i = 0;
-                        bool  subCachDone = true;
+                        bool  subCatchDone = true;
                         int rowNr = list->rowNr;
                         int colNr = list->colNr;
 
@@ -398,90 +404,122 @@ void TWorld::ChannelSWOFopen()
                                 list = temp;
                                 list->rowNr = r;
                                 list->colNr = c;
-                                subCachDone = false;
+                                subCatchDone = false;
                             }
                         }
 
-                        if (subCachDone)
+                        if (subCatchDone)
                         {
-                            double n = 0;
-
                             int ldd = (int)LDDChannel->data[rowNr][colNr];
                             int r = rowNr+dy[ldd];
                             int c = colNr+dx[ldd];
 
                             double H = ChannelWH->data[rowNr][colNr]; // the current cell
-                            double V = ChannelV->data[rowNr][colNr];
+                            double V = ChannelU->data[rowNr][colNr];
                             double Z = DEM->data[rowNr][colNr];
                             double W = ChannelWidth->data[rowNr][colNr];
+
                             double Ho = ChannelWH->Drc; // downstream cell
-                            double Vo = ChannelV->Drc;
+                            double Vo = ChannelU->Drc;
                             double Zo = DEM->Drc;
                             double Wo = ChannelWidth->Drc;
-                            double Dxo = 0.5*(W+Wo); // or min() ?
 
-                            // average the incoming cells
-//                            double Hin = 0.0;
-//                            double Vin = 0.0;
-//                            double Zin = 0.0;
-//                            double Win = 0.0;
-//                            for (i = 1; i <= 9; i++)
-//                            {
-//                                int r, c, ldd = 0;
+                            double flux_in = 0;
+                            double s_zh_in = 0;
+                            double hll_in = 0;
+                            double n = 0;
+                            for (i = 1; i <= 9; i++)
+                            {
+                                int r, c, ldd = 0;
 
-//                                if (i==5)
-//                                    continue;
+                                if (i==5)
+                                    continue;
 
-//                                r = rowNr+dy[i];
-//                                c = colNr+dx[i];
+                                r = rowNr+dy[i];
+                                c = colNr+dx[i];
 
-//                                if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
-//                                    ldd = (int) LDDChannel->Drc;
+                                if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
+                                    ldd = (int) LDDChannel->Drc;
+                                else
+                                    continue;
 
+                                if (ldd > 0 && FLOWS_TO(ldd, r,c,rowNr,colNr)){
+                                    flux_in += tmb->Drc;
+                                    s_zh_in += tmc->Drc;
+                                    hll_in += tmd->Drc;
 
-//                                if(ldd > 0 && FLOWS_TO(ldd, r,c,rowNr, colNr)) {
-//                                    Hin += ChannelWH->Drc;
-//                                    Vin += ChannelV->Drc;
-//                                    Zin += DEM->Drc;
-//                                    Win += ChannelWidth->Drc;
-//                                    n+=1.0;
-//                                }
-//                            }
-//                            Hin = n > 0 ? Hin/n : 0;
-//                            Vin = n > 0 ? Vin/n : 0;
-//                            Zin = n > 0 ? Zin/n : 0;
-//                            Win = n > 0 ? Win/n : 0;
+                                    n += 1.0;
+                                }
+                            }
+                            flux_in = n > 0 ? flux_in/n : 0;
+                            s_zh_in = n > 0 ? s_zh_in/n : 0;
 
-//                            double Dxi = 0.5*(W+Win);
-                            double s_zh_0 = std::min(B, std::max(-B, (Ho + Zo - Z - H)/Dxo));
-//                            double s_zh_1 = std::min(B, std::max(-B, (H + Z - Zin - Hin)/Dxi));
-                            double s_zh = std::min(1.0,std::max(-1.0,limiter(s_zh_1, s_zh_0)));
-
-//                            vec4 hll_in = F_Riemann(Hin, Vin,0,H,V,0);
+                            double Dx = ChannelDX->Drc;
+                            double tx = dt/Dx;
+                            //downstream
+                            double s_zh_out = std::min(B, std::max(-B, (Ho + Zo - Z - H)/Dx));
                             vec4 hll_out = F_Riemann(H,V,0, Ho, Vo, 0);
+                            double flux_out = std::max(-H * C,std::min(-tx*hll_out.v[0], Ho * C));
 
-                            double txi = dt/Dxi;
-                            double txo = dt/Dxo;
+                            tmb->data[rowNr][colNr] = flux_out;
+                            tmc->data[rowNr][colNr] = s_zh_out;
+                            tmd->data[rowNr][colNr] = hll_out.v[1];
 
-                            double flux_in  = std::max(-H * C,std::min(+txi*hll_in.v[0], Hin * C));
-                            double flux_out = std::max(-H * C,std::min(-txo*hll_out.v[0], Ho * C));
+/*
+                            //"n" is for next
 
-                            double Hn = ChannelWH->data[rowNr][colNr];
-                            Hn = std::max(0.0, Hn +  flux_in + flux_out);
+                            vec4 hll_out = F_Riemann(H,V,0, Ho, Vo, 0);
+                            float ch_q = (dt/dx)*(min(ch_width,chn_width)/dx)*((dx * 0.5*(chn_width +ch_width)) *hll_x1.x);
+                            double ch_q = tx * std::min(H, Ho)*0.5*(W+Wo)) * hll_out.v[0];
+
+                            ch_q = min(0.25 * ch_vol,ch_q);
+                            ch_q = max(-0.25 * chn_vol,ch_q);
+                            ch_q = ch_q * 0.5;
+
+                            double ch_slope = (Z + H - Zo - Ho)/Dx;
+                            ch_vadd = ch_vadd + dt * 0.5 * GRAV * std::max(-1.0,min(1.0,ch_slope));
+                            if(ch_q < 0)
+                            {
+                                    double new_ch_vol = chhn*(W*Dx);
+                                    chvn = (chvn * new_ch_vol - chn_v *(ch_q))/std::max(0.01,new_ch_vol - ch_q);
+                            }
+
+                            chhn = chhn - ch_q/(W * Dx);
+                            flux_chx2 = flux_chx2 + ch_q;
+ */
+
+
+                            //  double s_zh_1 = std::min(B, std::max(-B, (H + Z - Zin - Hin)/Dx));
+                              //vec4 hll_in = F_Riemann(Hin, Vin,0,H,V,0);
+                             //double flux_in  = std::max(-H * C,std::min(+tx*hll_in.v[0], Hin * C));
+
+                            double s_zh = std::min(1.0,std::max(-1.0,limiter(s_zh_in, s_zh_out)));
+                            // unit = hll_out.v[0] = V*H = m/s*m
+
+                            double Hn = std::max(0.0, H + flux_in + flux_out);
 
                             double Vn = 0;
-                            double qxn = 0;
                             if (Hn > he_ca) {
-                                qxn = H * V - txo*hll_out.v[1] - txi*hll_in.v[1] - 0.5 * GRAV *Hn * s_zh * dt;
+                                //double qxn = H * V - tx*(hll_out.v[1] - hll_in) - 0.5 * GRAV *Hn * s_zh * dt;
+                                double qxn = H * V - tx*(hll_out.v[1] - hll_in) - 0.5 * GRAV *Hn * s_zh * dt;
+
                                 double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.01,pow(Hn,4.0/3.0));
                                 double nsq = nsq1*V*dt;
-
                                 Vn = (qxn/(1.0+nsq))/std::max(0.01,Hn);
 
                                 if (SwitchTimeavgV) {
                                     double fac = 0.5+0.5*std::min(1.0,4*Hn)*std::min(1.0,4*Hn);
                                     fac = fac *exp(- std::max(1.0,dt) / nsq1);
                                     Vn = fac * V + (1.0-fac) *Vn;
+                                }
+
+                                double threshold = 0.01 * _dx;
+                                if(Hn < threshold)
+                                {
+                                    double h23 = pow(Hn, 2.0/3.0);
+                                    double kinfac = std::max(0.0,(threshold - Hn) / (0.025 * _dx));
+                                    double v_kin = (s_zh>0?1:-1) * h23 * std::max(0.001, sqrt(s_zh > 0 ? s_zh : -s_zh))/(0.001+n);
+                                    Vn = kinfac * v_kin + Vn*(1.0-kinfac);
                                 }
                             }
                             if (std::isnan(Vn))
@@ -496,12 +534,13 @@ void TWorld::ChannelSWOFopen()
                                 Hn = 0;
                             }
 
-                            dt_req1 = std::min(dt_req1 , courant_factor *_dx/( std::min(dt_max,std::max(0.01,Vn))));
+                            dt_req1 = std::min(dt_req1 , courant_factor *Dx/( std::min(dt_max,std::max(0.01,Vn))));
+                            //dt_req1 = std::min(dt_req1, std::min(dt_max, courant_factor*Dx/std::max(hll_in.v[3],hll_out.v[3])));
 
-                            ChannelV->data[rowNr][colNr] = Vn;
+                            double vmax = 20.0;//std::min(courant_factor, 0.2) * ChannelWidth->data[rowNr][colNr]/dt_req1;
+                            ChannelU->data[rowNr][colNr] = std::max(-vmax,std::min(vmax,Vn));
+
                             ChannelWH->data[rowNr][colNr] = Hn;
-                            ChannelQn->data[rowNr][colNr] = fabs(Vn)*Hn*ChannelWidth->data[rowNr][colNr]; //????????
-                            ChannelWaterVol->data[rowNr][colNr] = Hn*ChannelWidth->data[rowNr][colNr]*ChannelDX->data[rowNr][colNr];
 
                             tma->data[rowNr][colNr] = 1; // flag done
                             temp=list;
@@ -512,17 +551,25 @@ void TWorld::ChannelSWOFopen()
                 }
             }
 
-        dt = dt_req1;
+        dt = std::min(dt_req1, _dt-timesum);
+       // qDebug() << timesum << dt;
 
-//        timesum = timesum + dt;
-//        if (timesum > _dt-1e-6)
-//            stop = true;
-//        count++;
-//        if (count > 200)
+        timesum = timesum + dt;
+        if (timesum > _dt-1e-6)
+            stop = true;
+        count++;
+        if (count > 200)
             stop = true;
 
     } while (!stop);
+
     qDebug() << count;
+
+    FOR_ROW_COL_MV_CH {
+        ChannelV->Drc = fabs(ChannelU->Drc);
+        ChannelQn->Drc = ChannelV->Drc*ChannelWH->Drc*ChannelWidth->Drc;
+        ChannelWaterVol->Drc = ChannelWH->Drc*ChannelWidth->Drc*ChannelDX->Drc;
+    }
 }
 
 //              //  if (SwitchMUSCL) {

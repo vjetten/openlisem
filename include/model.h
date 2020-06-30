@@ -155,6 +155,11 @@ typedef struct MapListStruct {
     cTMap *m;
 }  MapListStruct;
 //---------------------------------------------------------------------------list
+typedef struct LDD_COOR {
+    int r;
+    int c;
+}  LDD_COOR;
+//---------------------------------------------------------------------------
 /// linked list structure for network in kin wave
 typedef struct LDD_LINKEDLIST {
     int rowNr;
@@ -666,6 +671,8 @@ public:
 
     void OverlandFlow1D(void);
 
+    LDD_LINKEDLIST *CHlist;
+    void makeChannelLinkedList();
     void ChannelFlow();
     void ChannelFlow2D();
     double ChannelIterateWH(double _h, int r, int c);

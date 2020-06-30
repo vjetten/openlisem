@@ -270,6 +270,7 @@ cTMap
 *ChannelQSSsn,                 //!<
 *ChannelGrad,                //!<
 *ChannelV,                   //!<
+*ChannelU,                   //!<
 *ChannelN,                   //!<
 *ChannelWH,                  //!<
 *ChannelWHExtended,                  //!<

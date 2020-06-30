@@ -507,7 +507,6 @@ void TWorld::ChannelFlow2D(void)
         //#pragma omp parallel for collapse(2) num_threads(userCores)
         FOR_ROW_COL_MV_CH
         {
-            vec4 hll;
             // current cell
             double CDEP = ChannelDepth->Drc;
             double CWH = ChannelWH->Drc;
@@ -535,10 +534,11 @@ void TWorld::ChannelFlow2D(void)
             double CHQ = 0;
 
             if (LDDChannel->Drc == 5) {
-
+//bla bla
             } else {
                 vec4 hll = F_Riemann(CWH,CHV,0,CWH1,CHV1,0);
                 CHQ = (dt/Dx)*(std::min(CWH,CWH1)/Dx)*((Dx * 0.5*(CWH+CWH1)) * hll.v[0]);
+                // s/m * - * m*m * m/s
                 CHQ = std::min(0.25 * CHVOL,CHQ);
                 CHQ = std::max(-0.25 * CHVOL1,CHQ);
                 //CHQ = CHQ * 0.5;
@@ -602,5 +602,73 @@ void TWorld::ChannelFlow2D(void)
 
 
     } while (timesum < _dt);
+}
+//---------------------------------------------------------------------------
+void TWorld::makeChannelLinkedList()
+{
+    if(!SwitchIncludeChannel)
+        return;
+
+    QList <LDD_COOR> *chl;
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+    for (int rr = 0; rr < _nrRows; rr++)
+        for (int cr = 0; cr < _nrCols; cr++) {
+            if(LDDChannel->Drcr == 5) {
+                CHlist = nullptr;
+                LDD_LINKEDLIST *temp = nullptr;
+                CHlist = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+
+                CHlist->prev = nullptr;
+                CHlist->rowNr = rr;
+                CHlist->colNr = cr;
+
+                while (CHlist != nullptr)
+                {
+                    int i = 0;
+                    bool  subCatchDone = true;
+                    int rowNr = CHlist->rowNr;
+                    int colNr = CHlist->colNr;
+
+                    for (i=1; i<=9; i++)
+                    {
+                        int r, c;
+                        int ldd = 0;
+
+                        // this is the current cell
+                        if (i==5)
+                            continue;
+
+                        r = rowNr+dy[i];
+                        c = colNr+dx[i];
+
+                        if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
+                            ldd = (int) LDDChannel->Drc;
+
+                        if (tma->Drc < 0 && ldd > 0 && FLOWS_TO(ldd, r, c, rowNr, colNr)) {
+
+                            temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
+                            temp->prev = CHlist;
+
+                            CHlist = temp;
+                            CHlist->rowNr = r;
+                            CHlist->colNr = c;
+
+                            subCatchDone = false;
+                        }
+                    }
+
+                    if (subCatchDone)
+                    {
+                        tma->data[rowNr][colNr] = 1; // flag done
+                        temp=CHlist;
+                        CHlist=CHlist->prev;
+                    }
+                }
+            }
+        }
+
+
 }
 //---------------------------------------------------------------------------

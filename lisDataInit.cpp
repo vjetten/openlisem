@@ -730,6 +730,7 @@ void TWorld::InitChannel(void)
     ChannelQs = NewMap(0);
     ChannelQsn = NewMap(0);
     ChannelV = NewMap(0);//
+    ChannelU = NewMap(0);//
     ChannelWH = NewMap(0);
     Channelq = NewMap(0);//
     ChannelAlpha = NewMap(0);//
