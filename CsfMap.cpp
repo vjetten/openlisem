@@ -1,6 +1,6 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011  Victor Jetten
+**  Copyright (C) 2010,2011  Victor JettenJetten, Bastian van de Bout
 **  contact:
 **
 **  This program is free software: you can redistribute it and/or modify
