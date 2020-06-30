@@ -571,6 +571,7 @@ void TWorld::ChannelSWOFopen()
                             // upstream cells
                             double flux_in = 0;
                             double nn = 0;
+                            double hll_in1 = 0;
                             for (i = 1; i <= 9; i++)
                             {
                                 int r, c, ldd = 0;
@@ -597,6 +598,8 @@ void TWorld::ChannelSWOFopen()
                                     double Voli = Wi*Dx*Hi;
                                     Q = std::max(-C*Vol,std::min(C*Voli,Q));
 
+                                    hll_in1 += hll_in.v[1];
+
                                     double DX2 = ldd % 2 == 0 ? Dx : Dx*sqrt(2);
                                     double s_zh_in = std::min(B, std::max(-B, (Hi + Zi - Z - H)/DX2));
                                     double s_zh = std::min(1.0,std::max(-1.0,limiter(s_zh_in, s_zh_out)));
@@ -613,26 +616,29 @@ void TWorld::ChannelSWOFopen()
                             }
 
                             if(nn > 0) {
-                                ch_vadd = ch_vadd/(nn+1); // plus 1 because of vadd in outflux
+                                ch_vadd = ch_vadd/(nn+1);
+                                hll_in1 = hll_in1/nn;// plus 1 because of vadd in outflux
                             }
 
                             Hn = H + (flux_out + flux_in)/(W*Dx);
                             Hn = std::max(0.0,Hn);
                             // add outgoing and incoming fluxes
-
                             if (Hn > he_ca) {
-                                Vn = Vn - ch_vadd;
+                              //  Vn = Vn - ch_vadd;
+            //                    double qv = 0.5*(flux_out + flux_in)/(W*Dx);
+                                double qv = H*V - tx*(hll_out.v[1] - hll_in1) - ch_vadd;
+//                                double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1]) - ty*(hll_y2.v[2] - hll_y1.v[2])- 0.5 * GRAV *hn*sx_zh * dt;
+
                                 double chnsq1 = (0.001+N)*(0.001+N)*GRAV/std::max(0.01,pow(Hn,4.0/3.0));
-                                double  chnsq = chnsq1*fabs(V)*dt;
-                                Vn = V/(1.0+chnsq);
+                                double  chnsq = chnsq1*fabs(Vn)*dt;
+                                Vn = (qv/(1.0+chnsq))/std::max(0.01,Hn);
                                 Vn = std::min(25.0,std::max(-25.0,Vn));
+
                                 if (SwitchTimeavgV) {
                                     double fac = 0.5+0.5*std::min(1.0,4*Hn)*std::min(1.0,4*Hn);
                                     fac = fac *exp(- std::max(1.0,dt) / chnsq1);
                                     Vn = fac * V + (1.0-fac) *Vn;
                                 }
-                                qDebug() << Vn;
-
                             }
 
                             if (fabs(Vn) <= ve_ca)
@@ -641,7 +647,7 @@ void TWorld::ChannelSWOFopen()
                                 Vn = 0;
                                 Hn = 0;
                             }
-                            dt_req = std::min(dt_req,courant_factor *Dx/( std::min(dt_max,std::max(0.01,fabs(Vn)))));
+                            dt_req = std::min(dt_req,0.1*courant_factor *Dx/( std::min(dt_max,std::max(0.01,fabs(Vn)))));
                             ChannelU->data[rowNr][colNr] = Vn;
                             ChannelWH->data[rowNr][colNr] = Hn;
 

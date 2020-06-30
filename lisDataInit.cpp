@@ -746,7 +746,7 @@ void TWorld::InitChannel(void)
         //## channel maps
         LDDChannel = InitMaskChannel(getvaluename("lddchan"));
         // LDDChannel is the mask for channels
-        makeChannelList();
+       // makeChannelList();
 
         // for 1D or 2D overland flow: channel outlet points are checked, leading
         FOR_ROW_COL_MV
