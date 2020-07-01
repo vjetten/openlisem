@@ -318,33 +318,34 @@ void TWorld::ChannelFlow(void)
             }
         }
     }
-/*
-    ChannelQn->setAllMV();
-    fill(*QinKW, 0.0);
+    SwitchChannelKinWave = true;
+    if (SwitchChannelKinWave) {
+        ChannelQn->setAllMV();
+        fill(*QinKW, 0.0);
 
-    // route water 1D and sediment
-    FOR_ROW_COL_MV_CH {
-        if (LDDChannel->Drc == 5)
-            Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
-    }
+        // route water 1D and sediment
+        FOR_ROW_COL_MV_CH {
+            if (LDDChannel->Drc == 5)
+                Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
+        }
 
-    cover(*ChannelQn, *LDD, 0);
+        cover(*ChannelQn, *LDD, 0);
 
 #pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_CH {
-        ChannelWaterVol->Drc = ChannelWaterVol->Drc + QinKW->Drc*_dt - ChannelQn->Drc*_dt ;
+        FOR_ROW_COL_MV_CH {
+            ChannelWaterVol->Drc = ChannelWaterVol->Drc + QinKW->Drc*_dt - ChannelQn->Drc*_dt ;
 
-        double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
-        //          double ChannelArea =ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
-        ChannelV->Drc = (ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0);
+            double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
+            //          double ChannelArea =ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
+            ChannelV->Drc = (ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0);
 
-        fromChannelVoltoWH(r, c);
+            fromChannelVoltoWH(r, c);
 
+        }
+    } else {
+
+        ChannelSWOFopen();
     }
-*/
-
-    ChannelSWOFopen();
-
     // get the maximum for output
     FOR_ROW_COL_MV_CH
     {

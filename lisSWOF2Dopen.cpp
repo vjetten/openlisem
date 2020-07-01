@@ -564,7 +564,8 @@ void TWorld::ChannelSWOFopen()
                                 if(Q < 0) {
                                     Vn = (Vn*Vol - Vo*Q)/std::max(0.01,Vol - Q);
                                 }
-
+                              //  Hn = Hn - Q/(W*Dx);
+                                qDebug() << Q;
                                 flux_out = Q;
                             }
 
@@ -572,6 +573,7 @@ void TWorld::ChannelSWOFopen()
                             double flux_in = 0;
                             double nn = 0;
                             double hll_in1 = 0;
+                            double s_zh_ina = 0;
                             for (i = 1; i <= 9; i++)
                             {
                                 int r, c, ldd = 0;
@@ -587,7 +589,7 @@ void TWorld::ChannelSWOFopen()
                                 else
                                     continue;
 
-                                if (ldd > 0 && FLOWS_TO(ldd, r,c,rowNr,colNr)){
+                                if (ldd > 0 && ldd != 5 && FLOWS_TO(ldd, r,c,rowNr,colNr)){
                                     double Hi = ChannelWH->Drc;
                                     double Vi = ChannelU->Drc;
                                     double Zi = DEM->Drc;
@@ -603,35 +605,37 @@ void TWorld::ChannelSWOFopen()
                                     double DX2 = ldd % 2 == 0 ? Dx : Dx*sqrt(2);
                                     double s_zh_in = std::min(B, std::max(-B, (Hi + Zi - Z - H)/DX2));
                                     double s_zh = std::min(1.0,std::max(-1.0,limiter(s_zh_in, s_zh_out)));
+                                    s_zh_ina += s_zh;
 
                                     ch_vadd = ch_vadd + dt * 0.5 * GRAV * s_zh;
 
                                     if(Q > 0) {
-                                        double new_ch_vol = H*W*Dx;
+                                        double new_ch_vol = Hn*W*Dx;// or H?
                                         Vn = (Vn*new_ch_vol + Vi*Q)/std::max(0.01,new_ch_vol + Q);
                                     }
+                                   // Hn = Hn + Q/(W*Dx);
                                     flux_in = flux_in + Q;
                                     nn += 1.0;
                                 }
                             }
 
                             if(nn > 0) {
-                                ch_vadd = ch_vadd/(nn+1);
-                                hll_in1 = hll_in1/nn;// plus 1 because of vadd in outflux
+                                ch_vadd = ch_vadd/(nn+1);// plus 1 because of vadd in outflux
+                                hll_in1 = hll_in1/nn;
+                                s_zh_ina = s_zh_ina/nn;
                             }
 
-                            Hn = H + (flux_out + flux_in)/(W*Dx);
+                            Hn = H + (-flux_out + flux_in)/(W*Dx);
                             Hn = std::max(0.0,Hn);
                             // add outgoing and incoming fluxes
                             if (Hn > he_ca) {
-                              //  Vn = Vn - ch_vadd;
-            //                    double qv = 0.5*(flux_out + flux_in)/(W*Dx);
-                                double qv = H*V - tx*(hll_out.v[1] - hll_in1) - ch_vadd;
-//                                double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1]) - ty*(hll_y2.v[2] - hll_y1.v[2])- 0.5 * GRAV *hn*sx_zh * dt;
+                                double Vn = Vn + ch_vadd;
+                                //double qv = 0.5*(flux_out + flux_in)/(W*Dx) - ch_vadd;
+                                //                    double qv = H*V - tx*(hll_out.v[1] - hll_in1) - 0.5*GRAV*Hn*s_zh_ina*dt;
 
                                 double chnsq1 = (0.001+N)*(0.001+N)*GRAV/std::max(0.01,pow(Hn,4.0/3.0));
                                 double  chnsq = chnsq1*fabs(Vn)*dt;
-                                Vn = (qv/(1.0+chnsq))/std::max(0.01,Hn);
+                                Vn = (Vn/(1.0+chnsq));// /std::max(0.01,Hn);
                                 Vn = std::min(25.0,std::max(-25.0,Vn));
 
                                 if (SwitchTimeavgV) {
@@ -647,7 +651,15 @@ void TWorld::ChannelSWOFopen()
                                 Vn = 0;
                                 Hn = 0;
                             }
-                            dt_req = std::min(dt_req,0.1*courant_factor *Dx/( std::min(dt_max,std::max(0.01,fabs(Vn)))));
+
+                            dt_req = std::min(dt_req,courant_factor *Dx/( std::min(dt_max,std::max(0.01,fabs(Vn)))));
+
+
+                            // gebruik riemann solver cfl
+                            double dtx = Dx/hll_out.v[3];
+                            dt_req = std::max(TimestepfloodMin, std::min(dt_req, courant_factor*dtx));
+
+
                             ChannelU->data[rowNr][colNr] = Vn;
                             ChannelWH->data[rowNr][colNr] = Hn;
 
@@ -660,7 +672,7 @@ void TWorld::ChannelSWOFopen()
                     }
                 }
             }
-
+//qDebug() << count << dt_req;
         dt = std::min(dt_req, _dt-timesum);
       //  qDebug() << timesum << dt;
 
