@@ -226,6 +226,7 @@ void TWorld::Totals(void)
         // add channel outflow (in m3) to total for all pits
     }
 
+
     if(SwitchIncludeStormDrains) {
         FOR_ROW_COL_MV_TILE
                 if (LDDTile->Drc == 5)
