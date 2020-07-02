@@ -411,10 +411,10 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                 continue;
 
             // check if there are more cells upstream, if not subCatchDone remains true
-//            if (pcr::isMV(_Qsn->Drc) &&
-//                    FLOWS_TO(ldd, r, c, rowNr, colNr) &&
-//                    INSIDE(r, c))
-            if (ldd > 0 && FLOWS_TO(ldd, r, c, rowNr, colNr)) {
+            if (pcr::isMV(_Qsn->Drc) &&
+                    FLOWS_TO(ldd, r, c, rowNr, colNr) &&
+                    INSIDE(r, c)) {
+//            if (ldd > 0 && FLOWS_TO(ldd, r, c, rowNr, colNr)) {
                 temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
                 temp->prev = list;
                 list = temp;

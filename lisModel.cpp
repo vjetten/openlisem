@@ -305,7 +305,7 @@ void TWorld::OrderedProcesses()
 
     ChannelWaterHeightFromVolume(); //calc WH from volume with abc rule, and flowwidth
 
-    //CalcVelDischChannel(); // alpha, V and Q from Manning
+    CalcVelDischChannel(); // alpha, V and Q from Manning
 
     ChannelFlowDetachment();  //detachment, deposition for SS and BL
 

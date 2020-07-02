@@ -318,7 +318,7 @@ void TWorld::ChannelFlow(void)
             }
         }
     }
-    SwitchChannelKinWave = true;
+    SwitchChannelKinWave = false;
     if (SwitchChannelKinWave) {
         ChannelQn->setAllMV();
         fill(*QinKW, 0.0);
@@ -492,9 +492,5 @@ void TWorld::ChannelFlow(void)
     }
 }
 
-//---------------------------------------------------------------------------
-void TWorld::makeChannelLinkedList()
-{
 
-}
 //---------------------------------------------------------------------------

@@ -131,7 +131,7 @@ void TWorld::OutputUI(void)
             copy(*extWHCH, *ChannelWH);
             copy(*extVCH, *ChannelV);
         }
-                    copy(*extVCH, *ChannelV);
+        copy(*extVCH, *ChannelV);
     }
 
 //    FOR_ROW_COL_MV

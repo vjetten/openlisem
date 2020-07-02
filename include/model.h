@@ -672,8 +672,6 @@ public:
 
     void OverlandFlow1D(void);
 
-    LDD_LINKEDLIST *chlist;
-    void makeChannelLinkedList();
     void ChannelFlow();
     double ChannelIterateWH(double _h, int r, int c);
     void ChannelAddBaseandRain();
