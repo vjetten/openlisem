@@ -4328,7 +4328,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>3</number>
+                  <number>7</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -11957,7 +11957,10 @@ p, li { white-space: pre-wrap; }
                       <item row="4" column="1">
                        <widget class="QLabel" name="label">
                         <property name="text">
-                         <string>EXPERIMETAL: Single cell pits of this depth (m) have outflow in 2D flow (def -1 ignores)</string>
+                         <string>EXPERIMETAL: when water level is higher than this threshold terrain around p (-1 ignores)its is gradually ignored as water rises</string>
+                        </property>
+                        <property name="wordWrap">
+                         <bool>true</bool>
                         </property>
                        </widget>
                       </item>

@@ -298,7 +298,7 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
                 else   // flow to channel
                 {
                     // water above channel so rectangular
-                    if (dH > 0){
+                //    if (dH > 0){
                         double dwh = fracA * _h->Drcr;
                         if (dH + dwh/cwa > _h->Drcr-dwh) {
                             // if too much flow
@@ -312,29 +312,29 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
                                 _SS->Drcr -= sed;
                             }
                         }
-                    }
-                    else
-                    {
-                        // water below channel so can have side angle
-                        double dwh = fracA * _h->Drcr;
-                        double dvol = dwh*DX->Drcr*ChannelAdj->Drcr;
-                        double cwh = channelVoltoWH(ChannelWaterVol->Drcr+dvol,rr, cr);
+//                    }
+//                    else
+//                    {
+//                        // water below channel so can have side angle
+//                        double dwh = fracA * _h->Drcr;
+//                        double dvol = dwh*DX->Drcr*ChannelAdj->Drcr;
+//                        double cwh = channelVoltoWH(ChannelWaterVol->Drcr+dvol,rr, cr);
 
-                        if (cwh-chdepth > _h->Drcr-dwh) {
-                            // if too much flow
-                            dosimpel = true;
-                        } else {
-                            _h->Drcr -= dwh;
-                            ChannelWaterVol->Drcr += dvol;
-                            fromChannelVoltoWH(rr, cr);
+//                        if (cwh-chdepth > _h->Drcr-dwh) {
+//                            // if too much flow
+//                            dosimpel = true;
+//                        } else {
+//                            _h->Drcr -= dwh;
+//                            ChannelWaterVol->Drcr += dvol;
+//                            fromChannelVoltoWH(rr, cr);
 
-                            if(SwitchErosion) {
-                                double sed = fracA*_SS->Drcr;
-                                ChannelSSSed->Drcr += sed;
-                                _SS->Drcr -= sed;
-                            }
-                        }
-                    }
+//                            if(SwitchErosion) {
+//                                double sed = fracA*_SS->Drcr;
+//                                ChannelSSSed->Drcr += sed;
+//                                _SS->Drcr -= sed;
+//                            }
+//                        }
+//                    }
                 }
 
                 // instantaneous waterlevel exquilibrium acccross channel and adjacent

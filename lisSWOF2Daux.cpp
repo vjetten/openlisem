@@ -286,8 +286,8 @@ vec4 TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
         double cd = c*0.5;
         double q_R = u_R*h_R;
         double q_L = u_L*h_L;
-        f1 = (q_L+q_R)*0.5-cd*(h_R-h_L);
-        f2 = ((u_L*q_L)+(GRAV*0.5*h_L*h_L)+(u_R*q_R)+(GRAV*0.5*h_R*h_R))*0.5-cd*(q_R-q_L);
+        f1 = (q_L+q_R)*0.5-cd*(h_R-h_L); //m*m/s
+        f2 = ((u_L*q_L)+(GRAV*0.5*h_L*h_L)+(u_R*q_R)+(GRAV*0.5*h_R*h_R))*0.5-cd*(q_R-q_L); //m/s*m2/s
         f3 = (q_L*v_L+q_R*v_R)*0.5-cd*(h_R*v_R-h_L*v_L);
         cfl = c;//*tx;
     }

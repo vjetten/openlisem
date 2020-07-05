@@ -318,7 +318,7 @@ void TWorld::ChannelFlow(void)
             }
         }
     }
-    SwitchChannelKinWave = false;
+    SwitchChannelKinWave = true;
     if (SwitchChannelKinWave) {
         ChannelQn->setAllMV();
         fill(*QinKW, 0.0);
@@ -345,6 +345,7 @@ void TWorld::ChannelFlow(void)
     } else {
 
         ChannelSWOFopen();
+
     }
     // get the maximum for output
     FOR_ROW_COL_MV_CH

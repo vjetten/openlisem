@@ -816,8 +816,9 @@ void TWorld::InitChannel(void)
                 }
                 ChannelWidth->Drc  = 0.5*(w + ChannelWidth->Drc);
                 ChannelSide->Drc = 0;
-            }
+            } else
             ChannelWidthMax->Drc = ChannelWidth->Drc;
+            // make always a rectangular channel
 
             // top width
             //            ChannelWidthMax->Drc = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc;

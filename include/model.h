@@ -298,7 +298,7 @@ public:
     double KEParamater_a1, KEParamater_b1, KEParamater_c1;
     double KEParamater_a2, KEParamater_b2;
     double KEParamater_a3, KEParamater_b3;
-
+double sum1;
     /// calibration parameters
     double gsizeCalibration;
     double ksatCalibration;

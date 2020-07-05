@@ -75,7 +75,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
 #pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                if (hs->Drc > 0) {
+                if (hs->Drc > 0.0001) {
                     tmb->Drc = 1;
                     if (c > 0 && !MV(r,c-1)        ) tmb->data[r][c-1] = 1;
                     if (c < _nrCols-1 && !MV(r,c+1)) tmb->data[r][c+1] = 1;
@@ -114,7 +114,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             //flow for cells which have h and not done yet (FloodT < _dt)
 #pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                if (tmb->Drc > 0) {
+                if (tmb->Drc > 0)
+                {
                     double dt = SwitchVariableTimestep ? FloodDT->Drc : dt_req_min;
                     double vxn, vyn;
                     //   double vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
@@ -169,7 +170,9 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         fb_y2 = br2 ? std::max(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]) : FlowBarrierS->Drc;
                     }
 
-                    double fac = DEMdz->Drc; // if Z is in a pit > 10m from the surrounding cells, reduce the effect of the DEM
+                    double fac = 1.0;
+                    if (F_pitValue > 0)
+                        fac =1/(1+pow(H/(2*F_pitValue),4));
                     double dz_x1 = fac*(Z - z_x1);
                     double dz_x2 = fac*(z_x2 - Z);
                     double dz_y1 = fac*(Z - z_y1);
@@ -230,8 +233,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1])+ 0.5 * GRAV *hn*sy_zh * dt;
 
                         double vsq = sqrt(Vx * Vx + Vy * Vy);
-//.                        double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.01,pow(hn,4.0/3.0));
-                        double nsq1 = (0.001+n)*(0.001+n)*GRAV/pow(hn,4.0/3.0);
+                        double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.01,pow(hn,4.0/3.0));
+ //                       double nsq1 = (0.001+n)*(0.001+n)*GRAV/pow(hn,4.0/3.0);
                         double nsq = nsq1*vsq*dt;
 
                         vxn = (qxn/(1.0+nsq))/std::max(0.01,hn);
@@ -285,7 +288,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]);
                     double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
 
-                    FloodDT->Drc = std::min(dt_req1, dt_req);
+                    FloodDT->Drc = dt_req1;//std::min(dt_req1, dt_req);
                     // taking the smallest works best for instabiliies!
                     h->Drc = hn;
                     vx->Drc = vxn;
@@ -452,7 +455,7 @@ void TWorld::ChannelSWOFopen()
     if (CorrectMassBalance) {
         FOR_ROW_COL_MV_CH {
             if(ChannelWH->Drc > 0)
-                sum1 += ChannelWH->Drc*ChannelWidth->Drc*ChannelDX->Drc;
+                sum1 += ChannelWH->Drc;//*ChannelWidth->Drc*ChannelDX->Drc;
         }
     }
 
@@ -464,7 +467,6 @@ void TWorld::ChannelSWOFopen()
 
         // do the whole channel
         fill(*tma, -1);
-        fill(*tmb, 0);
         dt_req = dt_max;
 
         for (int rr = 0; rr < _nrRows; rr++)
@@ -536,8 +538,8 @@ void TWorld::ChannelSWOFopen()
                             int ldd = (int)LDDChannel->data[rowNr][colNr];
 
                             // if ldd == 5 use these values
-                            double Vo = Vo = pow(H, 2.0/3.0)/N*sqrt(ChannelGrad->data[rowNr][colNr]);
-                            double Ho = std::max(0.0, H-Vo*dt);// *0.9;
+                            double Vo = pow(H, 2.0/3.0)/N*sqrt(ChannelGrad->data[rowNr][colNr]);
+                            double Ho = std::max(0.0, H*(1-Vo/Dx*dt));
                             double Zo = Z*std::max(0.99, (1.0-ChannelGrad->data[rowNr][colNr])); // at least a 1% slope
                             double Wo = W;
                             double DX2 = Dx;
@@ -545,7 +547,7 @@ void TWorld::ChannelSWOFopen()
                             if (ldd != 5) {
                                 int r = rowNr+dy[ldd];
                                 int c = colNr+dx[ldd];
-                                DX2 = ldd % 2 == 0 ? Dx : Dx*sqrt(2);
+                                DX2 = Dx;//ldd % 2 == 0 ? Dx : Dx*sqrt(2);
                                 Ho = ChannelWH->Drc;
                                 Vo = ChannelU->Drc;
                                 Zo = DEM->Drc;
@@ -553,8 +555,7 @@ void TWorld::ChannelSWOFopen()
                             }
 
                             hll_out = F_Riemann(H,V,0, Ho,Vo,0);
-                            //  double Q = tx * 0.5*(H+Ho)*std::min(W,Wo) * hll_out.v[0];
-                            double Q = tx * Ho*Wo * hll_out.v[0];
+                            double Q = tx * 0.5*(H+Ho)*std::min(W,Wo) * hll_out.v[0];
                             double Volo = Wo*Dx*Ho;
                             Q = std::max(-C*Volo, std::min(Q, C*Vol));
                             s_zh_out = std::min(B, std::max(-B, (H + Z - Zo - Ho)/DX2));
@@ -563,9 +564,9 @@ void TWorld::ChannelSWOFopen()
                                 Vn = (Vn*Vol - Vo*Q)/std::max(0.01,Vol - Q);
                             }
                             flux_out = Q;
-                            Hn = std::max(0.0, Hn - Q/(W*Dx));
-                           // if (ldd == 5)
-                           //     qout += Q;
+                          //  Hn = std::max(0.0, Hn - Q/(W*Dx));
+//                            if (ldd == 5)
+//                                qout += Q;
 
                             // ===== upstream cells =====
                             double flux_in = 0;
@@ -588,15 +589,14 @@ void TWorld::ChannelSWOFopen()
                                     continue;
 
                                 if (ldd > 0 && ldd != 5 && FLOWS_TO(ldd, r,c,rowNr,colNr)){
-                                    double DX2 = ldd % 2 == 0 ? Dx : Dx*sqrt(2);
+                                    double DX2 = Dx;//ldd % 2 == 0 ? Dx : Dx*sqrt(2);
                                     double Hi = ChannelWH->Drc;
                                     double Vi = ChannelU->Drc;
                                     double Zi = DEM->Drc;
                                     double Wi = ChannelWidth->Drc;
 
                                     vec4 hll_in = F_Riemann(Hi,Vi,0, H,V,0);
-                                  //  double Q = tx * 0.5*(H+Hi)*std::min(W,Wi) * hll_in.v[0];
-                                    double Q = tx * Hi*Wi * hll_in.v[0];
+                                    double Q = tx * 0.5*(H+Hi)*std::min(W,Wi) * hll_in.v[0];
                                     double Voli = Wi*Dx*Hi;
                                     Q = std::max(-C*Vol,std::min(C*Voli,Q));
 
@@ -612,37 +612,41 @@ void TWorld::ChannelSWOFopen()
                                         double new_ch_vol = Hn*W*Dx;// or H?
                                         Vn = (Vn*new_ch_vol + Vi*Q)/std::max(0.01,new_ch_vol + Q);
                                     }
-                                    Hn = std::max(0.0, Hn + Q/(W*Dx));
+                                //    Hn = std::max(0.0, Hn + Q/(W*Dx));
                                     flux_in = flux_in + Q;
                                     nn += 1.0;
                                 }
                             }
 
                             if(nn > 0) {
-                                ch_vadd = ch_vadd/(nn+1);// nn+1 because of ch_vadd for downstream cell
+                           //     ch_vadd = ch_vadd/(nn+1);// nn+1 because of ch_vadd for downstream cell
                                 hll_in1 = hll_in1/nn;
-                                s_zh_ina = s_zh_ina/nn;
+                                s_zh_ina = s_zh_ina/nn; // average limited hydraulic pressure
+                            } else {
+                                //qDebug() << rowNr << colNr << s_zh_out << flux_in << flux_out;
+                              //  flux_out = fabs(flux_out);
+                             //   qDebug() << hll_out.v[1] << flux_out << s_zh_out << hll_out.v[0];
                             }
+                          //  qDebug() << rowNr << colNr << s_zh_out << flux_in << flux_out;
 
                             Hn = std::max(0.0,H + (flux_in-flux_out)/(W*Dx));
                             // add outgoing and incoming fluxes
 
                             if (Hn > he_ca) {
-                                //Vn = Vn + ch_vadd;
-                                //double qv = Vn;
+                             //   Vn = Vn + ch_vadd;
+                             //   double qv = Vn;
                                 double qv = H*V - tx*(hll_out.v[1] - hll_in1) + 0.5*GRAV*Hn*s_zh_ina*dt;
                                 qv=qv/std::max(0.01,Hn);
-//                                double chnsq1 = (0.001+N)*(0.001+N)*GRAV/std::max(0.01,pow(Hn,4.0/3.0));
                                 double chnsq1 = (0.001+N)*(0.001+N)*GRAV/pow(Hn,4.0/3.0);
                                 double chnsq = chnsq1*fabs(V)*dt;
                                 Vn = (qv/(1.0+chnsq));
                                 Vn = std::min(25.0,std::max(-25.0,Vn));
 
-                                if (SwitchTimeavgV) {
-                                    double fac = 0.5+0.5*std::min(1.0,4*Hn)*std::min(1.0,4*Hn);
-                                    fac = fac *exp(- std::max(1.0,dt) / chnsq1);
-                                    Vn = fac * V + (1.0-fac) *Vn;
-                                }
+//                                if (SwitchTimeavgV) {
+//                                    double fac = 0.5+0.5*std::min(1.0,4*Hn)*std::min(1.0,4*Hn);
+//                                    fac = fac *exp(- std::max(1.0,dt) / chnsq1);
+//                                    Vn = fac * V + (1.0-fac) *Vn;
+//                                }
                             } else {
                                 Vn = 0;
                                 Hn = 0;
@@ -661,7 +665,7 @@ void TWorld::ChannelSWOFopen()
 
                             ChannelU->data[rowNr][colNr] = Vn;
                             ChannelWH->data[rowNr][colNr] = Hn;
-                            tmb->data[rowNr][colNr] += fabs(flux_out);
+                            //ChannelQn->data[rowNr][colNr] += std::max(0.0,flux_out);
 
                             tma->data[rowNr][colNr] = 1; // flag done
 
@@ -694,7 +698,7 @@ void TWorld::ChannelSWOFopen()
 
         FOR_ROW_COL_MV_CH {
             if(ChannelWH->Drc > 0) {
-                sum2 += ChannelWH->Drc*ChannelWidth->Drc*ChannelDX->Drc;
+                sum2 += ChannelWH->Drc;//*ChannelWidth->Drc*ChannelDX->Drc;
                 if(ChannelWH->Drc > 0)
                     n += 1.0;
             }
@@ -710,14 +714,17 @@ void TWorld::ChannelSWOFopen()
             }
             sum3 = sum3 + ChannelWH->Drc;
         }
-        qDebug() << sum1-sum2 << sum1-sum3;
+    //    qDebug() << sum1-sum2 << sum1-sum3;
     }
 
 //#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_CH {
         ChannelV->Drc = fabs(ChannelU->Drc);
         ChannelQn->Drc = ChannelV->Drc*ChannelWH->Drc*ChannelWidth->Drc;
+        ChannelQ->Drc = ChannelQn->Drc;
         ChannelWaterVol->Drc = ChannelWH->Drc*ChannelWidth->Drc*ChannelDX->Drc;
+        ChannelAlpha->Drc = ChannelWH->Drc*ChannelWidth->Drc/std::pow(ChannelQn->Drc, 0.6);
     }
+    report(*ChannelU,"chu");
 }
 
