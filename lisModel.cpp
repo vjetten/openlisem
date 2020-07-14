@@ -227,7 +227,7 @@ void TWorld::DoModel()
 
             saveMBerror2file(saveMBerror, false);
 
-            #pragma omp barrier
+           // #pragma omp barrier
             reportAll();
 
             if (!noInterface)
