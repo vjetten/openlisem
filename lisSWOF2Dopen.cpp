@@ -81,6 +81,11 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     if (c < _nrCols-1 && !MV(r,c+1)) tmb->data[r][c+1] = 1;
                     if (r > 0 && !MV(r-1,c)        ) tmb->data[r-1][c] = 1;
                     if (r < _nrRows-1 && !MV(r+1,c)) tmb->data[r+1][c] = 1;
+
+                    if (c > 0 && r > 0 && !MV(r-1,c-1)                ) tmb->data[r-1][c-1]=1;
+                    if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) tmb->data[r+1][c+1]=1;
+                    if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) tmb->data[r-1][c+1]=1;
+                    if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) tmb->data[r+1][c-1]=1;
                 }
             }
 
@@ -219,18 +224,18 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double tx = dt/dx;
                     double ty = dt/dy;
 
-                    double C = 1.0;//0.25;//std::min(0.25, courant_factor);
+                    double C = 0.25;//std::min(0.25, courant_factor);
                     double flux_x1 = +tx*hll_x1.v[0];
                     double flux_x2 = -tx*hll_x2.v[0];
                     double flux_y1 = +ty*hll_y1.v[0];
                     double flux_y2 = -ty*hll_y2.v[0];
-                    if(H + flux_x1 + flux_x2 + flux_y1 + flux_y2 < 0) {
-                        C = 0.9*H/abs(flux_x1 + flux_x2 + flux_y1 + flux_y2);
+                 //   if(H + flux_x1 + flux_x2 + flux_y1 + flux_y2 < 0) {
+                  //      C = 0.9*H/abs(flux_x1 + flux_x2 + flux_y1 + flux_y2);
                         flux_x1 = std::max(-H * C,std::min(flux_x1,h_x1 * C));
                         flux_x2 = std::max(-H * C,std::min(flux_x2,h_x2 * C));
                         flux_y1 = std::max(-H * C,std::min(flux_y1,h_y1 * C));
                         flux_y2 = std::max(-H * C,std::min(flux_y2,h_y2 * C));
-                    }
+                //    }
 
                     double hn = std::max(0.0, H + flux_x1 + flux_x2 + flux_y1 + flux_y2);
 
@@ -238,6 +243,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
                         double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1]) - ty*(hll_y2.v[2] - hll_y1.v[2])+ 0.5 * GRAV *hn*sx_zh * dt;
                         double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1])+ 0.5 * GRAV *hn*sy_zh * dt;
+//                        double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1]) - ty*(hll_y2.v[2] - hll_y1.v[2])+ 0.5 * GRAV *((H-h_x1)*(H+h_x1)+(h_x2-H)*(h_x2+H)) *tx;
+//                        double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1])+ 0.5 * GRAV *((H-h_y1)*(H+h_y1)+(h_y2-H)*(h_y2+H)) *ty;
 
                         double vsq = sqrt(Vx * Vx + Vy * Vy);
                        double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.01,pow(hn,4.0/3.0));

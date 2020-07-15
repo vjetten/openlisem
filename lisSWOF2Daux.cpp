@@ -321,6 +321,7 @@ void TWorld::correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cT
     double sign2 = ves2->Drc > 0 ? 1.0 : -1.0;
     double s1 = Grad->Drc, s2 = Grad->Drc;
     double G = sqrt(2*GRAV*hes->Drc); // bernouilly pressure velocity
+
     if (sign1 < 0) {
         if (c > 0 && !MV(r, c-1))
             s1 = sin(atan(fabs(hes->Drc-hes->data[r][c-1])));
@@ -335,6 +336,7 @@ void TWorld::correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cT
         if (r < _nrRows-1 && !MV(r+1, c))
             s2 = sin(atan(fabs(hes->Drc-hes->data[r+1][c])));
     }
+
     double U1 =  4.0*(pow(hes->Drc,2.0/3.0)*sqrt(s1)/N->Drc + G);
     double V1 =  4.0*(pow(hes->Drc,2.0/3.0)*sqrt(s2)/N->Drc + G);
 
@@ -347,7 +349,7 @@ void TWorld::correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cT
 
 void TWorld::simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v)
 {
-
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L{
         h1r->Drc = _h->Drc;
         u1r->Drc = _u->Drc;
@@ -367,7 +369,7 @@ void TWorld::simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v)
 
 void TWorld::setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v)
 {
-
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L  {
         if (_h->Drc <= he_ca)
         {
@@ -382,13 +384,14 @@ void TWorld::setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v)
             _v->Drc = 0;
     }
 }
+//---------------------------------------------------------------------------
 
 void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
 {
     double delta_h1, delta_u1, delta_v1;
     double delta_h2, delta_u2, delta_v2;
     double dh, du, dv, dz_h, hlh, hrh, dz1, dz2;
-
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (_h->Drc > he_ca) {
             if(c > 0 && !MV(r,c-1) && c < _nrCols-1 && !MV(r,c+1)) {
@@ -441,7 +444,7 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
             v1l->Drc = _v->Drc - hrh * dv;
         }
     }
-
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (_h->Drc > he_ca) {
             if(r > 0 && MV(r-1,c) && r < _nrRows-1 && !MV(r+1, c)) {
@@ -494,6 +497,7 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
         }
     }
 }
+//---------------------------------------------------------------------------
 
 double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
 {
@@ -504,6 +508,7 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
     cTMap *fbn = FlowBarrierN;
     cTMap *fbs = FlowBarrierS;
 
+//#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(_h->Drc > he_ca){
             f1->Drc = 0;
@@ -541,6 +546,7 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
         }
     }
 
+//#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(_h->Drc > he_ca){
             g1->Drc = 0;
@@ -553,7 +559,9 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
             if(r > 0 && !MV(r-1,c)) {
                 h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
                 h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
+
                 rec = F_Riemann(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c], h2g->Drc,v2l->Drc,u2l->Drc);
+
                 g1->Drc = rec.v[0];
                 g2->Drc = rec.v[1];
                 g3->Drc = rec.v[2];
@@ -582,7 +590,7 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
     FOR_ROW_COL_MV
             if (_h->Drc > he_ca)
     {
-        double dx = ChannelAdj->Drc;//FlowWidth->Drc;//
+        double dx = _dx;//ChannelAdj->Drc;//FlowWidth->Drc;//
         if (qFabs(cflx->Drc*dt/dx) < 1e-10)
             dt_tmp = dt_max;
         else
@@ -593,7 +601,7 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
     FOR_ROW_COL_MV
             if (_h->Drc > he_ca)
     {
-        double dy = DX->Drc;
+        double dy = _dx;//DX->Drc;
         if (qFabs(cfly->Drc*dt/dy) < 1e-10)
             dt_tmp = dt_max;
         else
@@ -606,9 +614,11 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
 
 void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2)
 {
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        double tx = dt/ChannelAdj->Drc; //FlowWidth->Drc;
-        double ty = dt/DX->Drc;
+        double Hes, Ves1, Ves2;
+        double tx = dt/_dx;//ChannelAdj->Drc; //FlowWidth->Drc;
+        double ty = dt/_dx;//DX->Drc;
         double _f1=0, _f2=0, _f3=0, _g1=0, _g2=0, _g3=0;
 
         //choose left hand boundary and normal (f1), or right hand boundary values (f1o)
@@ -632,9 +642,11 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
             _g2 = g2o->Drc;
             _g3 = g3o->Drc;
         }
-        hes->Drc = std::max(0.0, he->Drc - tx*(_f1 - f1->Drc) - ty*(_g1 - g1->Drc));
 
-        if (hes->Drc > he_ca)
+        Hes = std::max(0.0, he->Drc - tx*(_f1 - f1->Drc) - ty*(_g1 - g1->Drc));
+        //hes->Drc = std::max(0.0, he->Drc - tx*(_f1 - f1->Drc) - ty*(_g1 - g1->Drc));
+
+        if (Hes > he_ca)
         {
             //Solution of the equation of momentum (Second and third equation of Saint-venant)
             double qes1;
@@ -655,52 +667,57 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
                                   + (h2l->Drc+h2r->Drc)*delzc2->Drc));
 
             double sqUV = qSqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc);
-            double nsq1 = (0.001+N->Drc)*(0.001+N->Drc)*GRAV/qPow(hes->Drc,4.0/3.0);
+            double nsq1 = (0.001+N->Drc)*(0.001+N->Drc)*GRAV/std::max(0.01, qPow(Hes,4.0/3.0));
             double nsq = nsq1*sqUV*dt;
 
-            ves1->Drc = (qes1/(1.0+nsq))/hes->Drc;
-            ves2->Drc = (qes2/(1.0+nsq))/hes->Drc;
+            Ves1 = (qes1/(1.0+nsq))/Hes;
+            Ves2 = (qes2/(1.0+nsq))/Hes;
 
             //NOTE ves1 is c-1, c+1    ves2 is r-1, r+1
             if (SwitchTimeavgV) {
-                double fac = 0.5+0.5*std::min(1.0,4*hes->Drc)*std::min(1.0,4*hes->Drc);
+                double fac = 0.5+0.5*std::min(1.0,4*Hes)*std::min(1.0,4*Hes);
                 fac = fac *exp(- std::max(1.0,dt) / nsq1);
-                ves1->Drc = fac * ve1->Drc + (1.0-fac) *ves1->Drc;
-                ves2->Drc = fac * ve2->Drc + (1.0-fac) *ves2->Drc;
+                Ves1 = fac * ve1->Drc + (1.0-fac) *Ves1;
+                Ves2 = fac * ve2->Drc + (1.0-fac) *Ves2;
             }
 
             //correctSpuriousVelocities(r, c, hes, ves1, ves2);
 
+
             double threshold = 0.01 * _dx; // was 0.01
-            if(hes->Drc < threshold)
-            {
-                double h23 = pow(hes->Drc, 2.0/3.0);//hn * sqrt(hn)
-                double kinfac = std::max(0.0,(threshold - hes->Drc) / (0.025 * _dx));
+            if(Hes < threshold) {
+            //    correctSpuriousVelocities(r, c, hes, ves1, ves2);
+                double h23 = Hes*sqrt(Hes);//pow(Hes, 2.0/3.0);//hn * sqrt(hn)
+                double kinfac = std::max(0.0,(threshold - Hes) / (0.025 * _dx));
                 double sx_zh = delz1->Drc;
                 double sy_zh = delz2->Drc;
                 double v_kin = (sx_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sx_zh > 0 ? sx_zh : -sx_zh))/(0.001+N->Drc);
-                ves1->Drc = kinfac * v_kin + ves1->Drc*(1.0-kinfac);
+                Ves1 = kinfac * v_kin + Ves1*(1.0-kinfac);
                 v_kin = (sy_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sy_zh > 0 ? sy_zh : -sy_zh))/(0.001+N->Drc);
-                ves2->Drc = kinfac * v_kin + ves2->Drc*(1.0-kinfac);
+                Ves2 = kinfac * v_kin + Ves2*(1.0-kinfac);
             }
 
             double vmax = 0.5*_dx/dt;
-            ves1->Drc = std::max(-vmax, std::min(vmax, ves1->Drc));
-            ves2->Drc = std::max(-vmax, std::min(vmax, ves2->Drc));
+            Ves1 = std::max(-vmax, std::min(vmax, Ves1));
+            Ves2 = std::max(-vmax, std::min(vmax, Ves2));
         }
         else
         {
             // Case of height of water < ha.
-            ves1->Drc = 0;
-            ves2->Drc = 0;
+            Ves1 = 0;
+            Ves2 = 0;
         }
         // dan maar even met geweld!
-        if (std::isnan(ves1->Drc) || std::isnan(ves2->Drc)  )
+        if (std::isnan(Ves1) || std::isnan(Ves2)  )
         {
-            ves1->Drc = 0;
-            ves2->Drc = 0;
-            hes->Drc = 0;
+            Ves1 = 0;
+            Ves2 = 0;
+            Hes = 0;
         }
+
+        hes->Drc = Hes;
+        ves1->Drc = Ves1;
+        ves2->Drc = Ves2;
     }
 }
 //---------------------------------------------------------------------------
@@ -731,7 +748,7 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             maincalcschemeOF(dt1, h,u,v, hs,us,vs);
 
             // for erosion
-
+#pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 FloodDT->Drc = dt1;
             }
@@ -739,7 +756,7 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 SWOFSediment(FloodDT,h,u,v);
 
             setZeroOF(hs, us, vs);
-
+#pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 h->Drc = hs->Drc;
                 u->Drc = us->Drc;
