@@ -502,6 +502,12 @@ double sum1;
 
     void infilInWave(cTMap *_h, double dt1);
 
+    void MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
+    void maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
+    double maincalcflux(cTMap *_h,double dt, double dt_max);
+    double fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
+
+
     //SEDIMENT TRANSPORT
     int FS_SS_Method;
     int FS_BL_Method;
@@ -721,8 +727,8 @@ double sum1;
     double courant_factor_sed;
     double mixing_coefficient, runoff_partitioning;
     double minReportFloodHeight;
-    void correctMassBalance(double sum1, cTMap *M);
-    double getMass(cTMap *M);
+    void correctMassBalance(double sum1, cTMap *M, double th);
+    double getMass(cTMap *M, double th);
     void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                    cTMap *_Q, cTMap *_Qn,
                    cTMap *_q, cTMap *_Alpha, cTMap *_DX,

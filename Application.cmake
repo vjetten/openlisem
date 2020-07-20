@@ -65,6 +65,7 @@ SET(APP_SOURCES
     lisRunfile
     lisSnowmelt
     lisSurfstor
+    lisSWOF2D
     lisSWOF2Daux
     lisSWOF2Dopen
     lisSWOF2DSediment

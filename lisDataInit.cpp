@@ -994,23 +994,23 @@ void TWorld::InitFlood(void)
         delz2 = NewMap(0);
         prepareFloodZ(DEM);
     } else {
-        hll0_x1 = NewMap(0);
-        hll1_x1 = NewMap(0);
-        hll2_x1 = NewMap(0);
+//        hll0_x1 = NewMap(0);
+//        hll1_x1 = NewMap(0);
+//        hll2_x1 = NewMap(0);
 
-        hll0_y1 = NewMap(0);
-        hll1_y1 = NewMap(0);
-        hll2_y1 = NewMap(0);
+//        hll0_y1 = NewMap(0);
+//        hll1_y1 = NewMap(0);
+//        hll2_y1 = NewMap(0);
 
-        hll0_x2 = NewMap(0);
-        hll1_x2 = NewMap(0);
-        hll2_x2 = NewMap(0);
+//        hll0_x2 = NewMap(0);
+//        hll1_x2 = NewMap(0);
+//        hll2_x2 = NewMap(0);
 
-        hll0_y2 = NewMap(0);
-        hll1_y2 = NewMap(0);
-        hll2_y2 = NewMap(0);
-        sxzh = NewMap(0);
-        syzh = NewMap(0);
+//        hll0_y2 = NewMap(0);
+//        hll1_y2 = NewMap(0);
+//        hll2_y2 = NewMap(0);
+//        sxzh = NewMap(0);
+//        syzh = NewMap(0);
     }
 
     if (SwitchErosion) {
