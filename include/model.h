@@ -505,8 +505,6 @@ double sum1;
     void MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     double maincalcflux(cTMap *_h,double dt, double dt_max);
-    double fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
-
 
     //SEDIMENT TRANSPORT
     int FS_SS_Method;

@@ -285,8 +285,8 @@ void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
                             cTMap *hes, cTMap *ves1, cTMap *ves2)
 {
     FOR_ROW_COL_MV {
-        double tx = dt/ChannelAdj->Drc; //
-        double ty = dt/_dx;//DX->Drc;
+        double tx = dt/ChannelAdj->Drc;
+        double ty = dt/DX->Drc;
         double _f1=0, _f2=0, _f3=0, _g1=0, _g2=0, _g3=0;
 
         //choose left hand boundary and normal (f1), or right hand boundary values (f1o)
@@ -351,6 +351,9 @@ void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
                 ves2->Drc = fac * ve2->Drc + (1.0-fac) *ves2->Drc;
             }
 
+            double vmax = 0.25*_dx/dt;
+            ves1->Drc = std::max(-vmax, std::min(vmax, ves1->Drc));
+            ves2->Drc = std::max(-vmax, std::min(vmax, ves2->Drc));
 
         }
         else
@@ -370,59 +373,5 @@ void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
     }
 }
 //---------------------------------------------------------------------------
-// 2nd order without iteration dt1, dt2!
-double TWorld::fullSWOF2Do2light(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
-{
-    double dt1 = 0, timesum = 0;
-    double dt_max = std::min(_dt, _dx*0.5);
-    int n = 0;
-    double sumh = 0;
-    bool stop;
 
-    if (startFlood)
-    {
-
-        sumh = getMass(h, 0);
-
-        do {
-
-            dt1 = dt_max;
-
-			double dt1 = dt_max;
-
-            setZeroOF(h, u, v);
-            simpleSchemeOF(h,u,v);
-			if (SwitchMUSCL)
-                MUSCL(h,u,v,z);
-
-            dt1 = maincalcflux(h, dt1, dt_max);
-            dt1 = std::min(dt1, _dt-timesum);
-            maincalcscheme(dt1, h,u,v, hs,us,vs);
-				
-            setZeroOF(hs, us, vs);
-
-            FOR_ROW_COL_MV {
-                h->Drc = hs->Drc;
-                u->Drc = us->Drc;
-                v->Drc = vs->Drc;
-            }
-
-            timesum = timesum + dt1;
-            stop = timesum  > _dt-1e-6;
-
-            n++;
-            if (n > F_MaxIter)
-                break;
-            // qDebug() << n << timesum << dt1;
-        } while (!stop);
-
-        correctMassBalance(sumh, h,0);
-
-    } // if floodstart
-
-
-    iter_n = n;
-    dt1 = n > 0? _dt/n : dt1;
-    return(dt1);
-}
 

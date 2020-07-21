@@ -515,11 +515,9 @@ void TWorld::ChannelFlood(void)
         }
     }
 
-    //  dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
     if (SwitchSWOFopen)
         dtflood = fullSWOF2open(hmx, Uflood, Vflood, DEM);
     else
-        //dtflood  = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM);
         dtflood = fullSWOF2RO(hmx, Uflood, Vflood, DEM);
     // 2D dyn flow of hmx water
 
