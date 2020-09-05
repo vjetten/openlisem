@@ -560,7 +560,6 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
 
 double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
 {
-    vec4 rec;
     double dt_tmp, dtx, dty;
     cTMap *fbw = FlowBarrierW;
     cTMap *fbe = FlowBarrierE;
@@ -578,22 +577,27 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
         double _f3o=0;
         double _h1d = 0;
         double _h1g = 0;
+        vec4 rec;
+        double _h1r = h1r->Drc;
+        double _h1l = h1l->Drc;
+        double _fbe = fbe->Drc;
+        double _fbw = fbw->Drc;
+        double _u1r = u1r->Drc;
+        double _u1l = u1l->Drc;
+        double _v1r = v1r->Drc;
+        double _v1l = v1l->Drc;
 
         if(_h->Drc > he_ca)
         {
-            double _h1r = h1r->data[r][c-1];
-            double _h1l = h1l->Drc;
-            double _delz1 = delz1->data[r][c-1];
-            double _fbe = fbe->data[r][c-1];
-            double _fbw = fbw->Drc;
-            double _u1r = u1r->data[r][c-1];
-            double _u1l = u1l->Drc;
-            double _v1r = v1r->data[r][c-1];
-            double _v1l = v1l->Drc;
-
             if(c > 0 && !MV(r,c-1)) {
+                _h1r = h1r->data[r][c-1];
+                double _delz1 = delz1->data[r][c-1];
+                _fbe = fbe->data[r][c-1];
+                _u1r = u1r->data[r][c-1];
+                _v1r = v1r->data[r][c-1];
                 _h1d = std::max(0.0, _h1r - std::max(0.0,  _delz1  + std::max(_fbw,_fbe)));
                 _h1g = std::max(0.0, _h1l - std::max(0.0, -_delz1  + std::max(_fbw,_fbe)));
+
                 rec = F_Riemann(_h1d, _u1r, _v1r,_h1g, _u1l, _v1l);
                 _f1 =   rec.v[0];
                 _f2 =   rec.v[1];
@@ -604,7 +608,12 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
             // left hand side boundary
             if (c == 0 || MV(r,c-1))
             {
+//                _h1l = h1l->Drc;
+//                _fbe = fbe->Drc;
+//                _u1l = u1l->Drc;
+//                _v1l = v1l->Drc;
                 _h1g = std::max(0.0, _h1l - _fbe);
+
                 rec = F_Riemann(0,0,0, _h1g, _u1l, _v1l);
                 _f1 = rec.v[0];
                 _f2 = rec.v[1];
@@ -614,7 +623,12 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
 
             // right hand side boundary
             if(c == _nrCols-1 || MV(r, c+1)) {
+//                _h1r = h1r->Drc;
+//                _fbw = fbw->Drc;
+//                _u1r = u1r->Drc;
+//                _v1r = v1r->Drc;
                 _h1d = std::max(0.0, _h1r - _fbw);
+
                 rec = F_Riemann(_h1d,_u1r,_v1r,0.,0.,0.);
                 _f1o = rec.v[0];
                 _f2o = rec.v[1];
@@ -643,26 +657,31 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
         double _g1o=0;
         double _g2o=0;
         double _g3o=0;
+        vec4 rec;
+        double _h2d = 0;
+        double _h2g = 0;
+        double _h2r = h2r->Drc;
+        double _h2l = h2l->Drc;
+        double _fbn = fbn->Drc;
+        double _fbs = fbs->Drc;
+        double _u2r = u2r->Drc;
+        double _u2l = u2l->Drc;
+        double _v2r = v2r->Drc;
+        double _v2l = v2l->Drc;
 
-        double _h2d = 0;//h2d->data[r-1][c];
-        double _h2g = 0;//h2g->Drc;
+
         if(_h->Drc > he_ca)
         {
-            double _h2r = h2r->data[r-1][c];
-            double _h2l = h2l->Drc;
-            double _delz2 = delz2->data[r-1][c];
-            double _fbn = fbn->data[r-1][c];
-            double _fbs = fbs->Drc;
-            double _u2r = u2r->data[r-1][c];
-            double _u2l = u2l->Drc;
-            double _v2r = v2r->data[r-1][c];
-            double _v2l = v2l->Drc;
             if(r > 0 && !MV(r-1,c)) {
+                _h2r = h2r->data[r-1][c];
+                 double _delz2 = delz2->data[r-1][c];
+                _fbn = fbn->data[r-1][c];
+                _u2r = u2r->data[r-1][c];
+                _v2r = v2r->data[r-1][c];
                 _h2d = std::max(0.0, _h2r - std::max(0.0,  _delz2  + std::max(_fbs,_fbn)));
                 _h2g = std::max(0.0, _h2l - std::max(0.0, -_delz2  + std::max(_fbs,_fbn)));
 
                 rec = F_Riemann(_h2d,_v2r,_u2r, _h2g,_v2l,_u2l);
-
                 _g1 = rec.v[0];
                 _g2 = rec.v[2]; //!!!!!!!
                 _g3 = rec.v[1]; //!!!!!!!
@@ -673,6 +692,7 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
             if (r == 0 || MV(r-1,c))
             {
                 _h2g = std::max(0.0, _h2l - _fbn);
+
                 rec = F_Riemann(0,0,0,_h2g,_v2l,_u2l);
                 _g1 = rec.v[0];
                 _g2 = rec.v[2];
@@ -682,6 +702,7 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
             // lower side boundary
             if (r == _nrRows-1 || MV(r+1, c)) {
                 _h2d = std::max(0.0, _h2d - _fbs);
+
                 rec = F_Riemann(_h2d,_v2l,_u2l,0.,0.,0.);
                 _g1o = rec.v[0];
                 _g2o = rec.v[2];
@@ -702,10 +723,9 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
 
     }
 
-
-
     dtx = dt_max;
     dty = dt_max;
+//    #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV
             if (_h->Drc > he_ca)
     {
@@ -715,8 +735,10 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
         else
             dt_tmp = courant_factor*dx/cflx->Drc;
         dtx = std::min(std::min(dt, dt_tmp), dtx);
+//        dtx = std::min(dt_tmp, dtx);
     }
 
+//#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV
             if (_h->Drc > he_ca)
     {
@@ -726,6 +748,7 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
         else
             dt_tmp = courant_factor*dy/cfly->Drc;
         dty = std::min(std::min(dt, dt_tmp), dty);
+//        dty = std::min(dt_tmp, dty);
     }
 
     return(std::max(TimestepfloodMin, std::min(dtx,dty)));
@@ -810,6 +833,7 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
                 Ves1 = fac * ve1->Drc + (1.0-fac) *Ves1;
                 Ves2 = fac * ve2->Drc + (1.0-fac) *Ves2;
             }
+
             //       correctSpuriousVelocities(r, c, hes, ves1, ves2);
             // gives instability!
 
@@ -866,28 +890,26 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
         do {
 
-            dt1 = dt_max;
+         //   dt1 = dt_max;
 
             setZeroOF(h, u, v);
             simpleSchemeOF(h,u,v);
+            // MUSCL: build left and right pressures anbd velocities with flux limiters
+            if (SwitchMUSCL)
+                MUSCLOF(h,u,v,z);
 
             // non openmp version
             //if (SwitchMUSCL)
             //MUSCL(h,u,v,z);
-            //      dt1 = maincalcfluxOF(h, dt1, dt_max);
             //dt1 = maincalcflux(h, dt1, dt_max);
             //dt1 = std::min(dt1, _dt-timesum);
             //maincalcscheme(dt1, h,u,v, hs,us,vs);
 
-            // MUSCL: build left and right pressures anbd velocities with flux limiters
-            if (SwitchMUSCL)
-                MUSCLOF(h,u,v,z);
             // riemann solvers
             dt1 = maincalcfluxOF(h, dt1, dt_max);
             dt1 = std::min(dt1, _dt-timesum);
             // st venant equations
             maincalcschemeOF(dt1, h,u,v, hs,us,vs);
-
 
             // for erosion
 #pragma omp parallel for collapse(2) num_threads(userCores)

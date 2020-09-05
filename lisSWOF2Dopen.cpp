@@ -293,7 +293,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]);
                     double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
 
-                    FloodDT->Drc = std::min(dt_req1, dt_req);
+                    FloodDT->Drc = dt_req1;//std::min(dt_req1, dt_req);
                     // taking the smallest works best for instabiliies!
                     h->Drc = hn;
                     vx->Drc = vxn;

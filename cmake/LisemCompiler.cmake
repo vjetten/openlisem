@@ -13,10 +13,11 @@ ENDIF()
 IF(WIN32)
     SET(PCRASTER_RASTER_FORMAT_LIBRARIES "${PCRASTER_BUILD_DIR}/lib/libpcraster_raster_format.a")
     SET(PCRASTER_RASTER_FORMAT_INCLUDE_DIRS "${PCRASTER_BUILD_DIR}/include")
-    SET(GDAL_LIBRARIES "${GDAL_BUILD_DIR}/lib/libgdal.dll")
+    SET(GDAL_LIBRARIES "${GDAL_BUILD_DIR}/lib/libgdal.dll.a")
     SET(GDAL_INCLUDE_DIRS "${GDAL_BUILD_DIR}/include")
     SET(QWT_INCLUDE_DIRS "${LISEM_QWT_ROOT}/include/qwt")
     SET(QWT_LIBRARIES "${LISEM_QWT_ROOT}/lib/libqwt.dll.a")
+    SET(OMP_INCLUDE_DIRS, "C:/Qt/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/10.2.0/include/")
 ENDIF()
 
 
