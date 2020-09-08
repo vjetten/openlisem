@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1608</width>
-    <height>1283</height>
+    <height>1288</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -4253,8 +4253,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>783</width>
-                <height>869</height>
+                <width>759</width>
+                <height>885</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_44">
@@ -4328,7 +4328,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>7</number>
+                  <number>2</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -7259,7 +7259,7 @@ p, li { white-space: pre-wrap; }
                             <string>SWOF 2.0 (fast)</string>
                            </property>
                            <property name="checked">
-                            <bool>true</bool>
+                            <bool>false</bool>
                            </property>
                           </widget>
                          </item>
@@ -7276,6 +7276,9 @@ p, li { white-space: pre-wrap; }
                            </property>
                            <property name="text">
                             <string>SWOF without MUSCL, cell centered</string>
+                           </property>
+                           <property name="checked">
+                            <bool>true</bool>
                            </property>
                           </widget>
                          </item>
@@ -7300,6 +7303,9 @@ p, li { white-space: pre-wrap; }
                       </item>
                       <item row="2" column="0">
                        <widget class="QGroupBox" name="groupBox_3">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>

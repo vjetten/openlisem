@@ -229,13 +229,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double flux_x2 = -tx*hll_x2.v[0];
                     double flux_y1 = +ty*hll_y1.v[0];
                     double flux_y2 = -ty*hll_y2.v[0];
-                 //   if(H + flux_x1 + flux_x2 + flux_y1 + flux_y2 < 0) {
-                  //      C = 0.9*H/abs(flux_x1 + flux_x2 + flux_y1 + flux_y2);
-                        flux_x1 = std::max(-H * C,std::min(flux_x1,h_x1 * C));
-                        flux_x2 = std::max(-H * C,std::min(flux_x2,h_x2 * C));
-                        flux_y1 = std::max(-H * C,std::min(flux_y1,h_y1 * C));
-                        flux_y2 = std::max(-H * C,std::min(flux_y2,h_y2 * C));
-                //    }
+                    flux_x1 = std::max(-H * C,std::min(flux_x1,h_x1 * C));
+                    flux_x2 = std::max(-H * C,std::min(flux_x2,h_x2 * C));
+                    flux_y1 = std::max(-H * C,std::min(flux_y1,h_y1 * C));
+                    flux_y2 = std::max(-H * C,std::min(flux_y2,h_y2 * C));
 
                     double hn = std::max(0.0, H + flux_x1 + flux_x2 + flux_y1 + flux_y2);
 

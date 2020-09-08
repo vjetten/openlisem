@@ -1,12 +1,20 @@
 openLISEM
 ============
-Date: 200604
+Date: 200907
 ============
 
 For questions contact v.g.jetten AD utwente.nl
 
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux Ubuntu
+
+version 6.1 BETA (warning: new dlls, do NOT mix with pre 6.0 versions)
+- fixed bug in getting values from Riemann solver 
+
+version 6.0 BETA (warning: new dlls, do NOT mix with older versions)
+- extensive rewriting of the code to use parallel processing with openMP
+- changed compilation to MSYS so the newest versions of QT and MINGW are used
+- new 2D flow process (very fast), still being tested 
 
 version 5.97-5.98 beta
 - Bug-fix: file runoff.map did not show flood when choosing kinematic+dynamic flow

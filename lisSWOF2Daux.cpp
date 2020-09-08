@@ -563,15 +563,15 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
                 rec = F_Riemann(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c], h2g->Drc,v2l->Drc,u2l->Drc);
 
                 g1->Drc = rec.v[0];
-                g2->Drc = rec.v[1];
-                g3->Drc = rec.v[2];
+                g2->Drc = rec.v[2];
+                g3->Drc = rec.v[1];
                 cfly->Drc = rec.v[3];
             } else {
                 double _h2g = std::max(0.0, h2l->Drc - fbn->Drc);
                 rec = F_Riemann(0,0,0,_h2g,v2l->Drc,u2l->Drc);
                 g1->Drc = rec.v[0];
-                g2->Drc = rec.v[1];
-                g3->Drc = rec.v[2];
+                g2->Drc = rec.v[2];
+                g3->Drc = rec.v[1];
                 cfly->Drc = rec.v[3];
             }
             // left hand side boundary
@@ -579,8 +579,8 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
                 double _h2d = std::max(0.0, h2d->Drc - fbs->Drc);
                 rec = F_Riemann(_h2d,v2l->Drc,u2l->Drc,0.,0.,0.);
                 g1o->Drc = rec.v[0];
-                g2o->Drc = rec.v[1];
-                g3o->Drc = rec.v[2];
+                g2o->Drc = rec.v[2];
+                g3o->Drc = rec.v[1];
             }
         }
     }
