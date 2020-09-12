@@ -515,7 +515,6 @@ void TWorld::ChannelFlood(void)
         }
     }
 
-    //  dtflood = fullSWOF2Do2light(hmx, Uflood, Vflood, DEM, true);
     if (SwitchSWOFopen)
         dtflood = fullSWOF2open(hmx, Uflood, Vflood, DEM);
     else

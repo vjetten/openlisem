@@ -360,6 +360,12 @@ cTMap
 *g1, *g2, *g3, *cfly,
 *hsa, *vsa, *usa,
 
+*hll0_x1, *hll1_x1, *hll2_x1,
+*hll0_y1, *hll1_y1, *hll2_y1,
+*hll0_x2, *hll1_x2, *hll2_x2,
+*hll0_y2, *hll1_y2, *hll2_y2,
+*sxzh, *syzh,
+
 //FULLSWOF2D with Sediment
 *BLDepthFlood,
 *SSDepthFlood,

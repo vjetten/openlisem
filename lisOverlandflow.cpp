@@ -302,7 +302,6 @@ void TWorld::OverlandFlow2Ddyn(void)
         }
     }
 
- //    dtOF = fullSWOF2Do2light(WHrunoff, Uflood, Vflood, DEM, true);
     if (SwitchSWOFopen)
         dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
     else
