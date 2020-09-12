@@ -508,7 +508,7 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
     cTMap *fbn = FlowBarrierN;
     cTMap *fbs = FlowBarrierS;
 
-//#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(_h->Drc > he_ca){
             f1->Drc = 0;
@@ -546,7 +546,7 @@ double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
         }
     }
 
-//#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(_h->Drc > he_ca){
             g1->Drc = 0;

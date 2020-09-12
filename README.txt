@@ -9,7 +9,8 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux Ubuntu
 
 version 6.1 BETA (warning: new dlls, do NOT mix with pre 6.0 versions)
-- fixed bug in getting values from Riemann solver 
+- fixed bug in getting values from Riemann solver. This was solved befor but reappeared!
+- SAFEST choice for flood modelling is the SWOF without or with MUSCL. SWOF 2.0 is experimental 
 
 version 6.0 BETA (warning: new dlls, do NOT mix with older versions)
 - extensive rewriting of the code to use parallel processing with openMP

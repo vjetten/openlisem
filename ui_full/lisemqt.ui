@@ -4228,6 +4228,26 @@
              </layout>
             </widget>
            </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label1">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Simulation options</string>
+             </property>
+            </widget>
+           </item>
            <item row="4" column="0">
             <widget class="QScrollArea" name="scrollArea">
              <property name="sizePolicy">
@@ -4328,7 +4348,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>7</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -7160,7 +7180,7 @@ p, li { white-space: pre-wrap; }
                             <double>0.001000000000000</double>
                            </property>
                            <property name="value">
-                            <double>0.100000000000000</double>
+                            <double>0.200000000000000</double>
                            </property>
                           </widget>
                          </item>
@@ -7295,77 +7315,6 @@ p, li { white-space: pre-wrap; }
                            </property>
                            <property name="text">
                             <string>SWOF with MUSCL</string>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </widget>
-                      </item>
-                      <item row="2" column="0">
-                       <widget class="QGroupBox" name="groupBox_3">
-                        <property name="enabled">
-                         <bool>false</bool>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>75</weight>
-                          <bold>true</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="title">
-                         <string>Channel flow</string>
-                        </property>
-                        <layout class="QGridLayout" name="gridLayout_62">
-                         <property name="leftMargin">
-                          <number>4</number>
-                         </property>
-                         <property name="topMargin">
-                          <number>2</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>4</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>2</number>
-                         </property>
-                         <property name="spacing">
-                          <number>4</number>
-                         </property>
-                         <item row="0" column="0">
-                          <widget class="QRadioButton" name="rb_Channel_KinWave">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>1D Kinematic Wave over LDD network</string>
-                           </property>
-                           <property name="checked">
-                            <bool>true</bool>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="1" column="0">
-                          <widget class="QRadioButton" name="rb_Channel_DynWave">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>2D Dynamic Wave over LDD network</string>
                            </property>
                           </widget>
                          </item>
@@ -11791,7 +11740,7 @@ p, li { white-space: pre-wrap; }
                       <item row="5" column="0" colspan="2">
                        <widget class="QCheckBox" name="checkVariableTimestep">
                         <property name="enabled">
-                         <bool>true</bool>
+                         <bool>false</bool>
                         </property>
                         <property name="palette">
                          <palette>
@@ -12200,8 +12149,17 @@ p, li { white-space: pre-wrap; }
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
                         <property name="minimum">
-                         <number>-2</number>
+                         <number>0</number>
                         </property>
                         <property name="maximum">
                          <number>1</number>
@@ -14215,31 +14173,88 @@ p, li { white-space: pre-wrap; }
                     <double>0.050000000000000</double>
                    </property>
                   </widget>
+                  <widget class="QGroupBox" name="groupBox_3">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="geometry">
+                    <rect>
+                     <x>10</x>
+                     <y>560</y>
+                     <width>401</width>
+                     <height>61</height>
+                    </rect>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                     <underline>false</underline>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="title">
+                    <string>Channel flow</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_62">
+                    <property name="leftMargin">
+                     <number>4</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>2</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>4</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>2</number>
+                    </property>
+                    <property name="spacing">
+                     <number>4</number>
+                    </property>
+                    <item row="0" column="0">
+                     <widget class="QRadioButton" name="rb_Channel_KinWave">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>1D Kinematic Wave over LDD network</string>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QRadioButton" name="rb_Channel_DynWave">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>2D Dynamic Wave over LDD network</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
                  </widget>
                 </widget>
                </item>
               </layout>
              </widget>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label1">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>8</pointsize>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Simulation options</string>
-             </property>
             </widget>
            </item>
            <item row="0" column="0">

@@ -109,4 +109,3 @@ add_executable(Lisem WIN32
 # Use the Widgets module from Qt 5.
 TARGET_LINK_LIBRARIES(Lisem Qt5::Widgets Qt5::Gui Qt5::Core ${LISEM_EXTERNAL_LIBRARIES})
 
-#TARGET_LINK_LIBRARIES(Lisem ${QWT_LIBRARIES})

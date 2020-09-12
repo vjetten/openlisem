@@ -4,11 +4,13 @@
 FIND_PACKAGE(GDAL REQUIRED)
 FIND_PACKAGE(Qwt REQUIRED)
 FIND_PACKAGE(PCRasterRasterFormat REQUIRED)
+FIND_PACKAGE(OpenMP)
 
-find_package(OpenMP)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(OpenMP::OpenMP_CXX)
 endif()
+
+
 
 # Fixup GDAL variable.
 #IF(WIN32 AND MINGW)
