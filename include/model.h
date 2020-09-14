@@ -38,8 +38,8 @@
 
 #include <QtGui>
 #include <QMutex>
-//#include "C:/Qt/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/10.2.0/include/omp.h"
-#include "omp.h"
+#include "C:/Qt/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/10.1.0/include/omp.h"
+//#include "omp.h"
 
 #include "CsfMap.h"
 #include "io.h"
@@ -492,7 +492,7 @@ double sum1;
     void correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2);
 
     //runoff dynamic
-    double maincalcfluxOF(cTMap *_h,double dt, double dt_max);
+    double maincalcfluxOF(cTMap *_h, double dt, double dt_max);
     void maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     void dynOutflowPoints(void);
     void OverlandFlow2Ddyn(void);

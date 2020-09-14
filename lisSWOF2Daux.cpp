@@ -558,121 +558,126 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
 }
 //---------------------------------------------------------------------------
 
-double TWorld::maincalcfluxOF(cTMap *_h,double dt, double dt_max)
+double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
 {
     vec4 rec;
-    double dt_tmp, dtx, dty;
+    double dt_tmp, dtx;
     cTMap *fbw = FlowBarrierW;
     cTMap *fbe = FlowBarrierE;
     cTMap *fbn = FlowBarrierN;
     cTMap *fbs = FlowBarrierS;
 
-#pragma omp parallel for collapse(2) num_threads(userCores)
+    #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(_h->Drc > he_ca){
-            f1->Drc = 0;
-            f2->Drc = 0;
-            f3->Drc = 0;
-            f1o->Drc = 0;
-            f2o->Drc = 0;
-            f3o->Drc = 0;
+        f1->Drc = 0;
+        f2->Drc = 0;
+        f3->Drc = 0;
+        f1o->Drc = 0;
+        f2o->Drc = 0;
+        f3o->Drc = 0;
+        g1->Drc = 0;
+        g2->Drc = 0;
+        g3->Drc = 0;
+        g1o->Drc = 0;
+        g2o->Drc = 0;
+        g3o->Drc = 0;
+        tma->Drc = dt_max;
+        tmb->Drc = dt_max;
+    }
 
-            if(c > 0 && !MV(r,c-1)) {
-                h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
-                h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
-                rec = F_Riemann(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
-                f1->Drc =   rec.v[0];
-                f2->Drc =   rec.v[1];
-                f3->Drc =   rec.v[2];
-                cflx->Drc = rec.v[3];
-            } else {
-                double _h1g = std::max(0.0, h1l->Drc - fbe->Drc);
-                rec = F_Riemann(0,0,0, _h1g, u1l->Drc, v1l->Drc);
-                f1->Drc = rec.v[0];
-                f2->Drc = rec.v[1];
-                f3->Drc = rec.v[2];
-                cflx->Drc = rec.v[3];
-            }
 
-            // right hand side boundary
-            if(c == _nrCols-1 || MV(r, c+1)){
-                double _h1d = std::max(0.0, h1r->Drc - fbw->Drc);
-                rec = F_Riemann(_h1d,u1r->Drc,v1r->Drc,0.,0.,0.);
-                f1o->Drc = rec.v[0];
-                f2o->Drc = rec.v[1];
-                f3o->Drc = rec.v[2];
-            }
+//#pragma omp parallel for collapse(2) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if(c > 0 && !MV(r,c-1)) {
+            h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
+            h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
+            rec = F_Riemann(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
+            f1->Drc =   rec.v[0];
+            f2->Drc =   rec.v[1];
+            f3->Drc =   rec.v[2];
+            cflx->Drc = rec.v[3];
+        }
+    }
+
+//#pragma omp parallel for collapse(2) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if(r > 0 && !MV(r-1,c)) {
+            h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
+            h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
+            rec = F_Riemann(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c], h2g->Drc,v2l->Drc,u2l->Drc);
+            g1->Drc = rec.v[0];
+            g2->Drc = rec.v[2]; //!!!!!!!!!!!!
+            g3->Drc = rec.v[1];
+            cfly->Drc = rec.v[3];
         }
     }
 
 #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(_h->Drc > he_ca){
-            g1->Drc = 0;
-            g2->Drc = 0;
-            g3->Drc = 0;
-            g1o->Drc = 0;
-            g2o->Drc = 0;
-            g3o->Drc = 0;
+        // left hand side boundary
+        if(c == 0 || MV(r,c-1)) {
+            double _h1g = std::max(0.0, h1l->Drc - fbe->Drc);
+            rec = F_Riemann(0,0,0, _h1g, u1l->Drc, v1l->Drc);
+            f1->Drc = rec.v[0];
+            f2->Drc = rec.v[1];
+            f3->Drc = rec.v[2];
+            cflx->Drc = rec.v[3];
+        }
 
-            if(r > 0 && !MV(r-1,c)) {
-                h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
-                h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
+        // right hand side boundary
+        if(c == _nrCols-1 || MV(r, c+1)){
+            double _h1d = std::max(0.0, h1r->Drc - fbw->Drc);
+            rec = F_Riemann(_h1d,u1r->Drc,v1r->Drc,0.,0.,0.);
+            f1o->Drc = rec.v[0];
+            f2o->Drc = rec.v[1];
+            f3o->Drc = rec.v[2];
+        }
+        //upper boundary
+        if (r == 0 || MV(r-1,c)) {
+            double _h2g = std::max(0.0, h2l->Drc - fbn->Drc);
+            rec = F_Riemann(0,0,0,_h2g,v2l->Drc,u2l->Drc);
+            g1->Drc = rec.v[0];
+            g2->Drc = rec.v[2];
+            g3->Drc = rec.v[1];
+            cfly->Drc = rec.v[3];
+        }
 
-                rec = F_Riemann(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c], h2g->Drc,v2l->Drc,u2l->Drc);
-
-                g1->Drc = rec.v[0];
-                g2->Drc = rec.v[2]; //!!!!!!!!!!!!
-                g3->Drc = rec.v[1];
-                cfly->Drc = rec.v[3];
-            } else {
-                double _h2g = std::max(0.0, h2l->Drc - fbn->Drc);
-                rec = F_Riemann(0,0,0,_h2g,v2l->Drc,u2l->Drc);
-                g1->Drc = rec.v[0];
-                g2->Drc = rec.v[2];
-                g3->Drc = rec.v[1];
-                cfly->Drc = rec.v[3];
-            }
-            // left hand side boundary
-            if (r == _nrRows-1 || MV(r+1, c)) {
-                double _h2d = std::max(0.0, h2d->Drc - fbs->Drc);
-                rec = F_Riemann(_h2d,v2l->Drc,u2l->Drc,0.,0.,0.);
-                g1o->Drc = rec.v[0];
-                g2o->Drc = rec.v[2];
-                g3o->Drc = rec.v[1];
-            }
+        // lower boundary
+        if (r == _nrRows-1 || MV(r+1, c)) {
+            double _h2d = std::max(0.0, h2d->Drc - fbs->Drc);
+            rec = F_Riemann(_h2d,v2l->Drc,u2l->Drc,0.,0.,0.);
+            g1o->Drc = rec.v[0];
+            g2o->Drc = rec.v[2];
+            g3o->Drc = rec.v[1];
         }
     }
 
     dtx = dt_max;
-    dty = dt_max;
-//    #pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV
-            if (_h->Drc > he_ca)
-    {
-        double dx = _dx;//ChannelAdj->Drc;//FlowWidth->Drc;//
-        if (qFabs(cflx->Drc*dt/dx) < 1e-10)
-            dt_tmp = dt_max;
-        else
-            dt_tmp = courant_factor*dx/cflx->Drc;
-        dtx = std::min(std::min(dt, dt_tmp), dtx);
-//        dtx = std::min(dt_tmp, dtx);
+
+#pragma omp parallel for collapse(2) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if(_h->Drc > he_ca) {
+            if (qFabs(cflx->Drc*dt/_dx) < 1e-10)
+                dt_tmp = dt_max;
+            else
+                dt_tmp = courant_factor*_dx/cflx->Drc;
+            tma->Drc = dt_tmp;
+
+            if (qFabs(cfly->Drc*dt/_dx) < 1e-10)
+                dt_tmp = dt_max;
+            else
+                dt_tmp = courant_factor*_dx/cfly->Drc;
+            tmb->Drc = dt_tmp;
+        }
     }
 
-//#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV
-            if (_h->Drc > he_ca)
-    {
-        double dy = _dx;//DX->Drc;
-        if (qFabs(cfly->Drc*dt/dy) < 1e-10)
-            dt_tmp = dt_max;
-        else
-            dt_tmp = courant_factor*dy/cfly->Drc;
-        dty = std::min(std::min(dt, dt_tmp), dty);
-//        dty = std::min(dt_tmp, dty);
+    FOR_ROW_COL_MV {
+        if(_h->Drc > he_ca) {
+        dtx = std::min(dtx, std::min(tma->Drc, tmb->Drc));
+        }
     }
+    return(std::max(TimestepfloodMin, dtx));
 
-    return(std::max(TimestepfloodMin, std::min(dtx,dty)));
 }
 
 void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2)
@@ -800,18 +805,18 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
         do {
 
-         //   dt1 = dt_max;
+            dt1 = dt_max;
 
             setZeroOF(h, u, v);
             simpleSchemeOF(h,u,v);
-            // MUSCL: build left and right pressures anbd velocities with flux limiters
+            // MUSCL: build left and right pressures and velocities with flux limiters
             if (SwitchMUSCL)
                 MUSCLOF(h,u,v,z);
 
             // non openmp version
             //if (SwitchMUSCL)
             //MUSCL(h,u,v,z);
-            //dt1 = maincalcflux(h, dt1, dt_max);
+         //   dt1 = maincalcflux(h, dt1, dt_max);
             //dt1 = std::min(dt1, _dt-timesum);
             //maincalcscheme(dt1, h,u,v, hs,us,vs);
 

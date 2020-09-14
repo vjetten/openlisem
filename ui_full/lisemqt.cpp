@@ -64,7 +64,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     // set up interface
 
     setMinimumSize(1280,800);
-    //    resize(1280, 800);
     showMaximized();
 
     nrUserCores->setMaximum(omp_get_max_threads());
@@ -76,6 +75,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     helptxt = new QTextEdit();
     helpLayout->addWidget(helptxt);
 
+    checkAddDatetime->setVisible(false);
 
     RunFileNames.clear();
     op.runfilename.clear();

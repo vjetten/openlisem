@@ -178,7 +178,7 @@ double TWorld::maincalcflux(cTMap *_h,double dt, double dt_max)
     cTMap *fbs = FlowBarrierS;
 
     FOR_ROW_COL_MV {
-        if(_h->Drc > he_ca) {
+       // if(_h->Drc > he_ca) {
             f1->Drc = 0;
             f2->Drc = 0;
             f3->Drc = 0;
@@ -210,11 +210,11 @@ double TWorld::maincalcflux(cTMap *_h,double dt, double dt_max)
                 f2o->Drc = rec.v[1];
                 f3o->Drc = rec.v[2];
             }
-        }
+      //  }
     }
 
     FOR_ROW_COL_MV {
-        if(_h->Drc > he_ca){
+   //     if(_h->Drc > he_ca){
             g1->Drc = 0;
             g2->Drc = 0;
             g3->Drc = 0;
@@ -248,7 +248,7 @@ double TWorld::maincalcflux(cTMap *_h,double dt, double dt_max)
                 g2o->Drc = rec.v[2];
                 g3o->Drc = rec.v[1];
             }
-        }
+     //   }
     }
 
     // find largest velocity and determine dt
