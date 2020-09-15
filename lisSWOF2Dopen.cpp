@@ -123,7 +123,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 {
                     double dt = SwitchVariableTimestep ? FloodDT->Drc : dt_req_min;
                     double vxn, vyn;
-                    //   double vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
+                    double vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
 
                     tma->Drc += 1.0; // nr times a cell is processed
 
@@ -176,18 +176,18 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     }
 
                     double fac = 1.0;
-                    if (F_pitValue > 0)
-                        fac =1/(1+pow(H/(2*F_pitValue),4));
+//                    if (F_pitValue > 0)
+//                        fac =1/(1+pow(H/(2*F_pitValue),4));
                     double dz_x1 = fac*(Z - z_x1);
                     double dz_x2 = fac*(z_x2 - Z);
                     double dz_y1 = fac*(Z - z_y1);
                     double dz_y2 = fac*(z_y2 - Z);
 
-                    double h_x1r = std::max(0.0, h_x1 - std::max(0.0,  dz_x1 + fb_x1)); //h-Z+z1
-                    double h_x1l = std::max(0.0, H    - std::max(0.0, -dz_x1 + fb_x1)); // H+Z-z1
-                    //h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
-                    //h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
-                    //rec = F_Riemann(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
+                    //h_x1r|h_x1l  h_x2l|h_x2r
+                    //_____|____________|_____
+
+                    double h_x1r = std::max(0.0, h_x1 - std::max(0.0,  dz_x1 + fb_x1));
+                    double h_x1l = std::max(0.0, H    - std::max(0.0, -dz_x1 + fb_x1));
 
                     if(bc1)
                         hll_x1 = F_Riemann(h_x1r,vx_x1,vy_x1, h_x1l,Vx,Vy); // c-1 and c  //
@@ -228,24 +228,26 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double tx = dt/dx;
                     double ty = dt/dy;
 
-                    double C = 0.25;//std::min(0.25, courant_factor);
+               //     double C = 0.25;//std::min(0.25, courant_factor);
                     double flux_x1 = +tx*hll_x1.v[0];
                     double flux_x2 = -tx*hll_x2.v[0];
                     double flux_y1 = +ty*hll_y1.v[0];
                     double flux_y2 = -ty*hll_y2.v[0];
-                    flux_x1 = std::max(-H * C,std::min(flux_x1,h_x1 * C));
-                    flux_x2 = std::max(-H * C,std::min(flux_x2,h_x2 * C));
-                    flux_y1 = std::max(-H * C,std::min(flux_y1,h_y1 * C));
-                    flux_y2 = std::max(-H * C,std::min(flux_y2,h_y2 * C));
+//                    flux_x1 = std::max(-H * C,std::min(flux_x1,h_x1 * C));
+//                    flux_x2 = std::max(-H * C,std::min(flux_x2,h_x2 * C));
+//                    flux_y1 = std::max(-H * C,std::min(flux_y1,h_y1 * C));
+//                    flux_y2 = std::max(-H * C,std::min(flux_y2,h_y2 * C));
 
 
                     double hn = std::max(0.0, H + flux_x1 + flux_x2 + flux_y1 + flux_y2);
 
                     if(hn > he_ca) {
-                      //  double gflow_x = tx * (GRAV*0.5*((h_x1l-H)*(h_x1l+H)+(H-h_x2l)*(H+h_x2l) + (H+H)*limiter(Z-z_x1,z_x2-Z)));
-                      //  double gflow_y = ty * (GRAV*0.5*((h_y1u-H)*(h_y1u+H)+(h_y2d-H)*(h_y2d+H) + (H+H)*limiter(Z-z_y1,z_y2-Z)));
-                        double gflow_x = 0.5 * GRAV *H*sx_zh * dt;
-                        double gflow_y = 0.5 * GRAV *H*sy_zh * dt;
+                      //  double gflow_x = tx * (GRAV*0.5*((h_x1l-h_x1r)*(h_x1l+h_x1r)+(h_x2l-h_x2r)*(h_x2l+h_x2r) + (H+H)*limiter(Z-z_x1,z_x2-Z)));
+                      //  double gflow_y = ty * (GRAV*0.5*((h_y1u-h_y1d)*(h_y1u+h_y1d)+(h_y2u-h_y2d)*(h_y2u+h_y2d) + (H+H)*limiter(Z-z_y1,z_y2-Z)));
+                          double gflow_x = tx * GRAV*0.5*((h_x1l-h_x1r)*(h_x1l+h_x1r)+(h_x2l-h_x2r)*(h_x2l+h_x2r));
+                          double gflow_y = ty * GRAV*0.5*((h_y1u-h_y1d)*(h_y1u+h_y1d)+(h_y2u-h_y2d)*(h_y2u+h_y2d));
+                     //   double gflow_x = 0.5 * GRAV *H*sx_zh * dt;
+                     //   double gflow_y = 0.5 * GRAV *H*sy_zh * dt;
                         double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1]) - ty*(hll_y2.v[2] - hll_y1.v[2])+ gflow_x;
                         double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1])+ gflow_y;
 
@@ -255,7 +257,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
                         vxn = (qxn/(1.0+nsq))/std::max(0.01,hn);
                         vyn = (qyn/(1.0+nsq))/std::max(0.01,hn);
-
 
                         if (SwitchTimeavgV) {
                             double fac = 0.5+0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
@@ -298,7 +299,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]);
                     double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
 
-                    FloodDT->Drc = dt_req1;//std::min(dt_req1, dt_req);
+                    FloodDT->Drc = dt_req;//std::min(dt_req1, dt_req);
                     // taking the smallest works best for instabiliies!
                     h->Drc = hn;
                     vx->Drc = vxn;
@@ -332,7 +333,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             if (SwitchVariableTimestep) {
                 cnt = 0;
                 // nr cells that need processing
-                //#pragma omp parallel for reduction(+:cnt) collapse(2) num_threads(userCores)
+                #pragma omp parallel for reduction(+:cnt) collapse(2) num_threads(userCores)
                 FOR_ROW_COL_MV_L {
                     if (FloodT->Drc < _dt-0.001)
                         cnt++;

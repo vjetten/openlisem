@@ -369,6 +369,11 @@ void TWorld::simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v)
         h2l->Drc = _h->Drc;
         u2l->Drc = _u->Drc;
         v2l->Drc = _v->Drc;
+
+//        if(c < _nrCols-1 && !MV(r,c+1))
+//            delzc1->Drc = limiter(delz1->data[r][c+1],delz1->Drc);
+//        if(r < _nrRows-1 && !MV(r+1, c))
+//            delzc2->Drc = limiter(delz2->data[r+1][c],delz2->Drc);
     }
 }
 
@@ -561,7 +566,7 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
 double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
 {
     vec4 rec;
-    double dt_tmp, dtx;
+    double dt_tmp, dtx = dt_max;
     cTMap *fbw = FlowBarrierW;
     cTMap *fbe = FlowBarrierE;
     cTMap *fbn = FlowBarrierN;
@@ -584,7 +589,6 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
         tma->Drc = dt_max;
         tmb->Drc = dt_max;
     }
-
 
 //#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -637,7 +641,7 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
             double _h2g = std::max(0.0, h2l->Drc - fbn->Drc);
             rec = F_Riemann(0,0,0,_h2g,v2l->Drc,u2l->Drc);
             g1->Drc = rec.v[0];
-            g2->Drc = rec.v[2];
+            g2->Drc = rec.v[2];//!!!
             g3->Drc = rec.v[1];
             cfly->Drc = rec.v[3];
         }
@@ -673,7 +677,7 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
 
     FOR_ROW_COL_MV {
         if(_h->Drc > he_ca) {
-        dtx = std::min(dtx, std::min(tma->Drc, tmb->Drc));
+            dtx = std::min(dtx, std::min(tma->Drc, tmb->Drc));
         }
     }
     return(std::max(TimestepfloodMin, dtx));
@@ -685,8 +689,8 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
 #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double Hes, Ves1, Ves2;
-        double tx = dt/ChannelAdj->Drc;
-        double ty = dt/DX->Drc;
+        double tx = dt/_dx;//ChannelAdj->Drc;
+        double ty = dt/_dx;//DX->Drc;
         double _f1=0, _f2=0, _f3=0, _g1=0, _g2=0, _g3=0;
 
         //choose left hand boundary and normal (f1), or right hand boundary values (f1o)
@@ -764,9 +768,9 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
 //                Ves2 = kinfac * v_kin + Ves2*(1.0-kinfac);
 //            }
 
-            double vmax = 0.25*_dx/dt;
-            Ves1 = std::max(-vmax, std::min(vmax, Ves1));
-            Ves2 = std::max(-vmax, std::min(vmax, Ves2));
+//            double vmax = 0.25*_dx/dt;
+//            Ves1 = std::max(-vmax, std::min(vmax, Ves1));
+//            Ves2 = std::max(-vmax, std::min(vmax, Ves2));
         }
         else
         {

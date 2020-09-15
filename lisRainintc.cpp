@@ -284,6 +284,7 @@ void TWorld::RainfallMap(void)
             ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesM[rainplace].name;
             throw 1;
         }
+        #pragma omp parallel for collapse(2) num_threads(userCores)
         FOR_ROW_COL_MV
         {
             Rain->Drc = _M->Drc *_dt/tt;
@@ -293,6 +294,7 @@ void TWorld::RainfallMap(void)
     }
     else
     {
+        #pragma omp parallel for collapse(2) num_threads(userCores)
         FOR_ROW_COL_MV
         {
             if (RainZone->Drc-1 <  RainfallSeriesM[rainplace].intensity.count())
@@ -313,7 +315,7 @@ void TWorld::RainfallMap(void)
         RainstartTime = time;
     }
 
-
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV
     {
         Rainc->Drc = Rain->Drc * _dx/DX->Drc;
@@ -325,10 +327,10 @@ void TWorld::RainfallMap(void)
         RainNet->Drc = Rainc->Drc;
         // net rainfall in case of interception
 
-        if (Rain->Drc == 0)
-            noRain->Drc += _dt;
-        else
-            noRain->Drc = 0;
+//        if (Rain->Drc == 0)
+//            noRain->Drc += _dt;
+//        else
+//            noRain->Drc = 0;
 
 //        if (noRain->Drc > 3.0*3600.0)
   //          RainCum->Drc = 0;

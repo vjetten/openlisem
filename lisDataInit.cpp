@@ -1478,7 +1478,7 @@ void TWorld::IntializeData(void)
     RainCum = NewMap(0);
     RainCumFlat = NewMap(0);
     RainNet = NewMap(0);
-    noRain = NewMap(0);
+ //   noRain = NewMap(0);
     LeafDrain = NewMap(0);
 
     CStor = NewMap(0);

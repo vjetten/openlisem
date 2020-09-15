@@ -79,7 +79,7 @@ void TWorld::ToChannel()
 {
     if (!SwitchIncludeChannel)
         return;
-
+    #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
         if(ChannelMaskExtended->data[r][c] == 1)

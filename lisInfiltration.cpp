@@ -53,6 +53,7 @@ void TWorld::InfilEffectiveKsat(void)
 {
     if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
     {
+        #pragma omp parallel for collapse(2) num_threads(userCores)
         FOR_ROW_COL_MV
         {
             Ksateff->Drc = Ksat1->Drc;
@@ -124,8 +125,10 @@ void TWorld::InfilSwatre(cTMap *_WH)
 
 	
     // WH and fpot done in swatrestep
-    FOR_ROW_COL_MV
-            fact->Drc = (WHbef->Drc - _WH->Drc);
+#pragma omp parallel for collapse(2) num_threads(userCores)
+    FOR_ROW_COL_MV  {
+        fact->Drc = (WHbef->Drc - _WH->Drc);
+    }
     // actual; infil is dif between WH before and after
 
     if (SwitchInfilCrust)
@@ -140,6 +143,7 @@ void TWorld::InfilSwatre(cTMap *_WH)
         // CrustFraction is cells > 0
 
         // calculate average cell values
+        #pragma omp parallel for collapse(2) num_threads(userCores)
         FOR_ROW_COL_MV
         {
             //tm = WH on crust and tma = fpot crust
@@ -158,7 +162,7 @@ void TWorld::InfilSwatre(cTMap *_WH)
         fill(*tmc, 0.0);
 
         SwatreStep(op.runstep, SwatreSoilModelCompact, tm, tma, tmb, tmc, CompactFraction);
-
+#pragma omp parallel for collapse(2) num_threads(userCores)
         FOR_ROW_COL_MV
         {
             WH->Drc = tm->Drc*CompactFraction->Drc + WH->Drc*(1-CompactFraction->Drc);
@@ -310,6 +314,7 @@ void TWorld::Infiltration()
         return;
     case INFIL_SWATRE :
         fill(*tm, 0);
+        #pragma omp parallel for collapse(2) num_threads(userCores)
         FOR_ROW_COL_MV
         {
             if (FloodDomain->Drc == 0)
@@ -318,7 +323,7 @@ void TWorld::Infiltration()
                 tm->Drc = hmx->Drc;
         }
         InfilSwatre(tm);
-
+#pragma omp parallel for collapse(2) num_threads(userCores)
         FOR_ROW_COL_MV
         {
             if (FloodDomain->Drc == 0)
