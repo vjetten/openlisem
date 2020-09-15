@@ -183,8 +183,18 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double dz_y1 = fac*(Z - z_y1);
                     double dz_y2 = fac*(z_y2 - Z);
 
-                    //h_x1r|h_x1l  h_x2l|h_x2r
+                    //coding:
+                    //h_x1r|h_x1l  h_x2r|h_x2l
                     //_____|____________|_____
+
+                    //h_y1d
+                    //-----
+                    //h_y1u
+                    //
+                    //h_y2d
+                    //-----
+                    //h_y2u
+
 
                     double h_x1r = std::max(0.0, h_x1 - std::max(0.0,  dz_x1 + fb_x1));
                     double h_x1l = std::max(0.0, H    - std::max(0.0, -dz_x1 + fb_x1));
@@ -194,36 +204,36 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     else
                         hll_x1 = F_Riemann(0,0,0, h_x1l,Vx,Vy);
 
-                    double h_x2l = std::max(0.0, H    - std::max(0.0,  dz_x2 + fb_x2));
-                    double h_x2r = std::max(0.0, h_x2 - std::max(0.0, -dz_x2 + fb_x2));
+                    double h_x2r = std::max(0.0, H    - std::max(0.0,  dz_x2 + fb_x2));
+                    double h_x2l = std::max(0.0, h_x2 - std::max(0.0, -dz_x2 + fb_x2));
                     if(bc2)
-                        hll_x2 = F_Riemann(h_x2l,Vx,Vy, h_x2r,vx_x2,vy_x2); // c and c+1
+                        hll_x2 = F_Riemann(h_x2r,Vx,Vy, h_x2l,vx_x2,vy_x2); // c and c+1
                     else
-                        hll_x2 = F_Riemann(h_x2l,Vx,Vy, 0,0,0);
+                        hll_x2 = F_Riemann(h_x2r,Vx,Vy, 0,0,0);
 
-                    double h_y1u = std::max(0.0, h_y1 - std::max(0.0,  dz_y1 + fb_y1));
-                    double h_y1d = std::max(0.0, H    - std::max(0.0, -dz_y1 + fb_y1));
+                    double h_y1d = std::max(0.0, h_y1 - std::max(0.0,  dz_y1 + fb_y1));
+                    double h_y1u = std::max(0.0, H    - std::max(0.0, -dz_y1 + fb_y1));
                     if (br1)
-                        hll_y1 = F_Riemann(h_y1u,vy_y1,vx_y1, h_y1d,Vy,Vx); // r-1 and r
+                        hll_y1 = F_Riemann(h_y1d,vy_y1,vx_y1, h_y1u,Vy,Vx); // r-1 and r
                     else
-                        hll_y1 = F_Riemann(0,0,0, h_y1d,Vy,Vx);
+                        hll_y1 = F_Riemann(0,0,0, h_y1u,Vy,Vx);
 
-                    double h_y2u = std::max(0.0, H    - std::max(0.0,  dz_y2 + fb_y2));
-                    double h_y2d = std::max(0.0, h_y2 - std::max(0.0, -dz_y2 + fb_y2));
+                    double h_y2d = std::max(0.0, H    - std::max(0.0,  dz_y2 + fb_y2));
+                    double h_y2u = std::max(0.0, h_y2 - std::max(0.0, -dz_y2 + fb_y2));
                     if(br2)
-                        hll_y2 = F_Riemann(h_y2u,Vy,Vx, h_y2d,vy_y2,vx_y2); // r and r+1
+                        hll_y2 = F_Riemann(h_y2d,Vy,Vx, h_y2u,vy_y2,vx_y2); // r and r+1
                     else
-                        hll_y2 = F_Riemann(h_y2u,Vy,Vx, 0,0,0);
+                        hll_y2 = F_Riemann(h_y2d,Vy,Vx, 0,0,0);
 
-                    double B = 0.5; //1.0 is theoretical max else faster than gravity
-                    double sx_zh_x1 = std::min(B, std::max(-B, (Z + H - z_x1 - h_x1)/dx));
-                    double sx_zh_x2 = std::min(B, std::max(-B, (z_x2 + h_x2 - Z - H)/dx));
-                    double sy_zh_y1 = std::min(B, std::max(-B, (Z + H - z_y1 - h_y1)/dy));
-                    double sy_zh_y2 = std::min(B, std::max(-B, (z_y2 + h_y2 - Z - H)/dy));
+//                    double B = 0.5; //1.0 is theoretical max else faster than gravity
+//                    double sx_zh_x1 = std::min(B, std::max(-B, (Z + H - z_x1 - h_x1)/dx));
+//                    double sx_zh_x2 = std::min(B, std::max(-B, (z_x2 + h_x2 - Z - H)/dx));
+//                    double sy_zh_y1 = std::min(B, std::max(-B, (Z + H - z_y1 - h_y1)/dy));
+//                    double sy_zh_y2 = std::min(B, std::max(-B, (z_y2 + h_y2 - Z - H)/dy));
 
-                    // if B = 0.5 this can never be >1?
-                    double sx_zh = std::min(1.0,std::max(-1.0,limiter(sx_zh_x1, sx_zh_x2)));
-                    double sy_zh = std::min(1.0,std::max(-1.0,limiter(sy_zh_y1, sy_zh_y2)));
+//                    // if B = 0.5 this can never be >1?
+//                    double sx_zh = std::min(1.0,std::max(-1.0,limiter(sx_zh_x1, sx_zh_x2)));
+//                    double sy_zh = std::min(1.0,std::max(-1.0,limiter(sy_zh_y1, sy_zh_y2)));
 
                     double tx = dt/dx;
                     double ty = dt/dy;
@@ -242,10 +252,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double hn = std::max(0.0, H + flux_x1 + flux_x2 + flux_y1 + flux_y2);
 
                     if(hn > he_ca) {
-                      //  double gflow_x = tx * (GRAV*0.5*((h_x1l-h_x1r)*(h_x1l+h_x1r)+(h_x2l-h_x2r)*(h_x2l+h_x2r) + (H+H)*limiter(Z-z_x1,z_x2-Z)));
-                      //  double gflow_y = ty * (GRAV*0.5*((h_y1u-h_y1d)*(h_y1u+h_y1d)+(h_y2u-h_y2d)*(h_y2u+h_y2d) + (H+H)*limiter(Z-z_y1,z_y2-Z)));
-                          double gflow_x = tx * GRAV*0.5*((h_x1l-h_x1r)*(h_x1l+h_x1r)+(h_x2l-h_x2r)*(h_x2l+h_x2r));
-                          double gflow_y = ty * GRAV*0.5*((h_y1u-h_y1d)*(h_y1u+h_y1d)+(h_y2u-h_y2d)*(h_y2u+h_y2d));
+                      //  double gflow_x = tx * GRAV*0.5*( (h_x1r-h_x1l)*(h_x1r+h_x1l)+(h_x2r-h_x2l)*(h_x2r+h_x2l) + (h_x1l+h_x2r)*limiter(dz_x1,dz_x2));
+                      //  double gflow_y = ty * GRAV*0.5*( (h_y1d-h_y1u)*(h_y1d+h_y1u)+(h_y2d-h_y2u)*(h_y2d+h_y2u) + (h_y1u+h_y2d)*limiter(dz_y1,dz_y2));
+                      double gflow_x = tx * GRAV*0.5*((h_x1r-h_x1l)*(h_x1r+h_x1l)+(h_x2r-h_x2l)*(h_x2r+h_x2l));
+                      double gflow_y = ty * GRAV*0.5*((h_y1d-h_y1u)*(h_y1d+h_y1u)+(h_y2d-h_y2u)*(h_y2d+h_y2u));
                      //   double gflow_x = 0.5 * GRAV *H*sx_zh * dt;
                      //   double gflow_y = 0.5 * GRAV *H*sy_zh * dt;
                         double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1]) - ty*(hll_y2.v[2] - hll_y1.v[2])+ gflow_x;

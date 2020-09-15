@@ -75,14 +75,27 @@ void TWorld::prepareFloodZ(cTMap *z)
                 // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
             }
 
-    //    FOR_ROW_COL_MV_L {
-    //        if (!MV(r,c+1) && !MV(r,c-1) && c > 0 && c < _nrCols-1) {
-    //            delzc1->Drc = limiter((z->data[r][c+1] - z->Drc),(z->Drc - z->data[r][c-1]));
-    //        }
-    //        if (!MV(r+1,c) && !MV(r-1,c) && r > 0 && r < _nrRows-1) {
-    //            delzc2->Drc = limiter((z->data[r+1][c] - z->Drc),(z->Drc - z->data[r-1][c]));
-    //        }
-    //    }
+//    FOR_ROW_COL_MV_L {
+//        delz1->Drc  = 0;
+//        delz2->Drc  = 0;
+//        if (!MV(r,c-1) && c > 0) {
+//            delz1->data[r][c-1] = z->Drc - z->data[r][c-1];
+//        }
+//        if (!MV(r-1,c) && r > 0) {
+//            delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
+//        }
+//    }
+
+//    FOR_ROW_COL_MV_L {
+//        delzc1->Drc  = 0;
+//        delzc2->Drc  = 0;
+//        if (c > 0 && c < _nrCols-1 && !MV(r,c+1) && !MV(r,c-1)) {
+//            delzc1->Drc = limiter((z->data[r][c+1] - z->Drc),(z->Drc - z->data[r][c-1]));
+//        }
+//        if (r > 0 && r < _nrRows-1 && !MV(r+1,c) && !MV(r-1,c)) {
+//            delzc2->Drc = limiter((z->data[r+1][c] - z->Drc),(z->Drc - z->data[r-1][c]));
+//        }
+//    }
 }
 //---------------------------------------------------------------------------
 /**
@@ -453,7 +466,7 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
             double _z1r = zx+(dz_h-dh);
             double _z1l = zx+(dh-dz_h);
 
-            double _delzc1 = _z1r-_z1l;
+            double _delzc1 = _z1r-_z1l; // boils sown to limiter(dz1, dz2) !?
 
             double hlh = _h1l/hx;
             double hrh = _h1r/hx;
