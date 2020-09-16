@@ -45,6 +45,9 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     double dt_req_min = dt_max;
     int cnt;
 
+
+    int step = 1;
+
     if (startFlood)
     {
         sumh = getMass(h, 0);
@@ -58,14 +61,18 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
         do {
             // make a copy
-            double vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
+         //   bool SwitchLimitSWOFVelocity = true;
+
+          //  if (SwitchLimitSWOFVelocity) {
+                double vmax = 100000;//std::min(courant_factor, 0.2) * _dx/dt_req_min;
 #pragma omp parallel for collapse(2) num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                hs->Drc = h->Drc;
-                vxs->Drc = std::max(-vmax, std::min(vmax,vx->Drc));
-                vys->Drc = std::max(-vmax, std::min(vmax,vy->Drc));
-                //limit V here, than not necessary later
-            }
+                FOR_ROW_COL_MV_L {
+                    hs->Drc = h->Drc;
+                    vxs->Drc = std::max(-vmax, std::min(vmax,vx->Drc));
+                    vys->Drc = std::max(-vmax, std::min(vmax,vy->Drc));
+                    //limit V here, than not necessary later
+                }
+        //    }
 
             // tmb is used as flag for cells that need processing
 #pragma omp parallel for collapse(2) num_threads(userCores)
@@ -123,7 +130,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 {
                     double dt = SwitchVariableTimestep ? FloodDT->Drc : dt_req_min;
                     double vxn, vyn;
-                    double vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
+                    //  double vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
 
                     tma->Drc += 1.0; // nr times a cell is processed
 
@@ -176,8 +183,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     }
 
                     double fac = 1.0;
-//                    if (F_pitValue > 0)
-//                        fac =1/(1+pow(H/(2*F_pitValue),4));
+                    //                    if (F_pitValue > 0)
+                    //                        fac =1/(1+pow(H/(2*F_pitValue),4));
                     double dz_x1 = fac*(Z - z_x1);
                     double dz_x2 = fac*(z_x2 - Z);
                     double dz_y1 = fac*(Z - z_y1);
@@ -225,95 +232,108 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     else
                         hll_y2 = F_Riemann(h_y2d,Vy,Vx, 0,0,0);
 
-//                    double B = 0.5; //1.0 is theoretical max else faster than gravity
-//                    double sx_zh_x1 = std::min(B, std::max(-B, (Z + H - z_x1 - h_x1)/dx));
-//                    double sx_zh_x2 = std::min(B, std::max(-B, (z_x2 + h_x2 - Z - H)/dx));
-//                    double sy_zh_y1 = std::min(B, std::max(-B, (Z + H - z_y1 - h_y1)/dy));
-//                    double sy_zh_y2 = std::min(B, std::max(-B, (z_y2 + h_y2 - Z - H)/dy));
-
-//                    // if B = 0.5 this can never be >1?
-//                    double sx_zh = std::min(1.0,std::max(-1.0,limiter(sx_zh_x1, sx_zh_x2)));
-//                    double sy_zh = std::min(1.0,std::max(-1.0,limiter(sy_zh_y1, sy_zh_y2)));
-
-                    double tx = dt/dx;
-                    double ty = dt/dy;
-
-               //     double C = 0.25;//std::min(0.25, courant_factor);
-                    double flux_x1 = +tx*hll_x1.v[0];
-                    double flux_x2 = -tx*hll_x2.v[0];
-                    double flux_y1 = +ty*hll_y1.v[0];
-                    double flux_y2 = -ty*hll_y2.v[0];
-//                    flux_x1 = std::max(-H * C,std::min(flux_x1,h_x1 * C));
-//                    flux_x2 = std::max(-H * C,std::min(flux_x2,h_x2 * C));
-//                    flux_y1 = std::max(-H * C,std::min(flux_y1,h_y1 * C));
-//                    flux_y2 = std::max(-H * C,std::min(flux_y2,h_y2 * C));
-
-
-                    double hn = std::max(0.0, H + flux_x1 + flux_x2 + flux_y1 + flux_y2);
-
-                    if(hn > he_ca) {
-                      //  double gflow_x = tx * GRAV*0.5*( (h_x1r-h_x1l)*(h_x1r+h_x1l)+(h_x2r-h_x2l)*(h_x2r+h_x2l) + (h_x1l+h_x2r)*limiter(dz_x1,dz_x2));
-                      //  double gflow_y = ty * GRAV*0.5*( (h_y1d-h_y1u)*(h_y1d+h_y1u)+(h_y2d-h_y2u)*(h_y2d+h_y2u) + (h_y1u+h_y2d)*limiter(dz_y1,dz_y2));
-                      double gflow_x = tx * GRAV*0.5*((h_x1r-h_x1l)*(h_x1r+h_x1l)+(h_x2r-h_x2l)*(h_x2r+h_x2l));
-                      double gflow_y = ty * GRAV*0.5*((h_y1d-h_y1u)*(h_y1d+h_y1u)+(h_y2d-h_y2u)*(h_y2d+h_y2u));
-                     //   double gflow_x = 0.5 * GRAV *H*sx_zh * dt;
-                     //   double gflow_y = 0.5 * GRAV *H*sy_zh * dt;
-                        double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1]) - ty*(hll_y2.v[2] - hll_y1.v[2])+ gflow_x;
-                        double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1])+ gflow_y;
-
-                        double vsq = sqrt(Vx * Vx + Vy * Vy);
-                        double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.01,pow(hn,4.0/3.0));
-                        double nsq = nsq1*vsq*dt;
-
-                        vxn = (qxn/(1.0+nsq))/std::max(0.01,hn);
-                        vyn = (qyn/(1.0+nsq))/std::max(0.01,hn);
-
-                        if (SwitchTimeavgV) {
-                            double fac = 0.5+0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
-                            fac = fac *exp(- std::max(1.0,dt) / nsq1);
-                            vxn = fac * Vx + (1.0-fac) *vxn;
-                            vyn = fac * Vy + (1.0-fac) *vyn;
-                        }
-
-//                        double threshold = 0.001 * _dx; // was 0.01
-//                        if(hn < threshold)
-//                        {
-//                            double h23 = pow(hn, 2.0/3.0);//hn * sqrt(hn)
-//                            double kinfac = std::max(0.0,(threshold - hn) / (0.025 * _dx));
-//                            double v_kin = (sx_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sx_zh > 0 ? sx_zh : -sx_zh))/(0.001+n);
-//                            vxn = kinfac * v_kin + vxn*(1.0-kinfac);
-//                            v_kin = (sy_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sy_zh > 0 ? sy_zh : -sy_zh))/(0.001+n);
-//                            vyn = kinfac * v_kin + vyn*(1.0-kinfac);
-//                        }
-
-                    } else {
-                        hn = H; // if no fluxes then also no chaneg in h
-                        vxn = 0;
-                        vyn = 0;
-                    }
-                    // dan maar even met geweld!
-                    if (std::isnan(vxn) || std::isnan(vyn)  )
-                    {
-                        vxn = 0;
-                        vyn = 0;
-                    }
-
-                    if (fabs(vxn) <= ve_ca)
-                        vxn = 0;
-                    if (fabs(vyn) <= ve_ca)
-                        vyn = 0;
-
-                    //double dt_req1 = courant_factor *_dx/( std::min(dt_max,std::max(0.01,sqrt(vxn*vxn + vyn*vyn))));
-                    // gebruik riemann solver cfl
                     double dtx = dx/std::max(hll_x1.v[3],hll_x2.v[3]);
                     double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]);
                     double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
 
                     FloodDT->Drc = dt_req;//std::min(dt_req1, dt_req);
                     // taking the smallest works best for instabiliies!
-                    h->Drc = hn;
-                    vx->Drc = vxn;
-                    vy->Drc = vyn;
+
+                    // if step = 0 do not calculate new fluxes and states becasue the first is always dt_max
+                    // now that we have a first guess of the timesteps the smallest can be found and the
+                    if (step > 0) {
+
+                        //double B = 0.5; //1.0 is theoretical max else faster than gravity
+                        //double sx_zh_x1 = std::min(B, std::max(-B, (Z + H - z_x1 - h_x1)/dx));
+                        //double sx_zh_x2 = std::min(B, std::max(-B, (z_x2 + h_x2 - Z - H)/dx));
+                        //double sy_zh_y1 = std::min(B, std::max(-B, (Z + H - z_y1 - h_y1)/dy));
+                        //double sy_zh_y2 = std::min(B, std::max(-B, (z_y2 + h_y2 - Z - H)/dy));
+
+                        //// if B = 0.5 this can never be >1?
+                        //double sx_zh = std::min(1.0,std::max(-1.0,limiter(sx_zh_x1, sx_zh_x2)));
+                        //double sy_zh = std::min(1.0,std::max(-1.0,limiter(sy_zh_y1, sy_zh_y2)));
+
+                        double tx = dt/dx;
+                        double ty = dt/dy;
+
+                        //     double C = 0.25;//std::min(0.25, courant_factor);
+                        double flux_x1 = +tx*hll_x1.v[0];
+                        double flux_x2 = -tx*hll_x2.v[0];
+                        double flux_y1 = +ty*hll_y1.v[0];
+                        double flux_y2 = -ty*hll_y2.v[0];
+                        //flux_x1 = std::max(-H * C,std::min(flux_x1,h_x1 * C));
+                        //flux_x2 = std::max(-H * C,std::min(flux_x2,h_x2 * C));
+                        //flux_y1 = std::max(-H * C,std::min(flux_y1,h_y1 * C));
+                        //flux_y2 = std::max(-H * C,std::min(flux_y2,h_y2 * C));
+
+
+                        double hn = std::max(0.0, H + flux_x1 + flux_x2 + flux_y1 + flux_y2);
+
+                        if(hn > he_ca) {
+                            //  double gflow_x = tx * GRAV*0.5*( (h_x1r-h_x1l)*(h_x1r+h_x1l)+(h_x2r-h_x2l)*(h_x2r+h_x2l) + (h_x1l+h_x2r)*limiter(dz_x1,dz_x2));
+                            //  double gflow_y = ty * GRAV*0.5*( (h_y1d-h_y1u)*(h_y1d+h_y1u)+(h_y2d-h_y2u)*(h_y2d+h_y2u) + (h_y1u+h_y2d)*limiter(dz_y1,dz_y2));
+                            double gflow_x = tx * GRAV*0.5*((h_x1r-h_x1l)*(h_x1r+h_x1l)+(h_x2r-h_x2l)*(h_x2r+h_x2l));
+                            double gflow_y = ty * GRAV*0.5*((h_y1d-h_y1u)*(h_y1d+h_y1u)+(h_y2d-h_y2u)*(h_y2d+h_y2u));
+                            //   double gflow_x = 0.5 * GRAV *H*sx_zh * dt;
+                            //   double gflow_y = 0.5 * GRAV *H*sy_zh * dt;
+                            double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1]) - ty*(hll_y2.v[2] - hll_y1.v[2])+ gflow_x;
+                            double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1])+ gflow_y;
+
+                            double vsq = sqrt(Vx * Vx + Vy * Vy);
+                            double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.01,pow(hn,4.0/3.0));
+                            double nsq = nsq1*vsq*dt;
+
+                            vxn = (qxn/(1.0+nsq))/std::max(0.01,hn);
+                            vyn = (qyn/(1.0+nsq))/std::max(0.01,hn);
+
+                            if (SwitchTimeavgV) {
+                                double fac = 0.5+0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
+                                fac = fac *exp(- std::max(1.0,dt) / nsq1);
+                                vxn = fac * Vx + (1.0-fac) *vxn;
+                                vyn = fac * Vy + (1.0-fac) *vyn;
+                            }
+
+                            //double threshold = 0.001 * _dx; // was 0.01
+                            //if(hn < threshold)
+                            //{
+                            //    double h23 = pow(hn, 2.0/3.0);//hn * sqrt(hn)
+                            //    double kinfac = std::max(0.0,(threshold - hn) / (0.025 * _dx));
+                            //    double v_kin = (sx_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sx_zh > 0 ? sx_zh : -sx_zh))/(0.001+n);
+                            //    vxn = kinfac * v_kin + vxn*(1.0-kinfac);
+                            //    v_kin = (sy_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sy_zh > 0 ? sy_zh : -sy_zh))/(0.001+n);
+                            //    vyn = kinfac * v_kin + vyn*(1.0-kinfac);
+                            //}
+
+                        } else {
+                            hn = H; // if no fluxes then also no chaneg in h
+                            vxn = 0;
+                            vyn = 0;
+                        }
+                        // dan maar even met geweld!
+                        if (std::isnan(vxn) || std::isnan(vyn)  )
+                        {
+                            vxn = 0;
+                            vyn = 0;
+                        }
+
+                        if (fabs(vxn) <= ve_ca)
+                            vxn = 0;
+                        if (fabs(vyn) <= ve_ca)
+                            vyn = 0;
+
+                        //double dt_req1 = courant_factor *_dx/( std::min(dt_max,std::max(0.01,sqrt(vxn*vxn + vyn*vyn))));
+                        // gebruik riemann solver cfl
+                        //     double dtx = dx/std::max(hll_x1.v[3],hll_x2.v[3]);
+                        //    double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]);
+                        //   double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
+
+                        // FloodDT->Drc = dt_req;//std::min(dt_req1, dt_req);
+                        // taking the smallest works best for instabiliies!
+
+                        h->Drc = hn;
+                        vx->Drc = vxn;
+                        vy->Drc = vyn;
+                    }
                 }
             }
 
@@ -325,6 +345,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             dt_req_min = std::min(dt_req_min, _dt-timesum);
             timesum += dt_req_min;
 
+            if (step > 0)
 #pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (!SwitchVariableTimestep)
@@ -354,6 +375,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 stop = timesum > _dt-0.001;
             }
 
+            step = 1;
             count++; // nr loops
 
             if(count > F_MaxIter)
