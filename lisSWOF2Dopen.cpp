@@ -1,4 +1,5 @@
 
+
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
 **  Copyright (C) 2010,2011, 2020  Victor Jetten, Bastian van de Bout
@@ -61,25 +62,22 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
         do {
             // make a copy
-         //   bool SwitchLimitSWOFVelocity = true;
+            bool SwitchLimitSWOFVelocity = true;
+            double vmax = 100000;
+            if (SwitchLimitSWOFVelocity)
+                vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
 
-          //  if (SwitchLimitSWOFVelocity) {
-                double vmax = 100000;//std::min(courant_factor, 0.2) * _dx/dt_req_min;
-#pragma omp parallel for collapse(2) num_threads(userCores)
-                FOR_ROW_COL_MV_L {
-                    hs->Drc = h->Drc;
-                    vxs->Drc = std::max(-vmax, std::min(vmax,vx->Drc));
-                    vys->Drc = std::max(-vmax, std::min(vmax,vy->Drc));
-                    //limit V here, than not necessary later
-                }
-        //    }
-
-            // tmb is used as flag for cells that need processing
 #pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
+                hs->Drc = h->Drc;
+                vxs->Drc = std::max(-vmax, std::min(vmax,vx->Drc));
+                vys->Drc = std::max(-vmax, std::min(vmax,vy->Drc));
+                //limit V here, than not necessary later
                 tmb->Drc = 0;
             }
+            // tmb is used as flag for cells that need processing
 
+            // set tmb for all cells with surface water plus 1 surrounding cell
 #pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (hs->Drc > 0) {
@@ -96,6 +94,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 }
             }
 
+            // experimental: variable timestep set to false
             if (SwitchVariableTimestep) {
                 double dt = dt_max;
                 //#pragma omp parallel for reduction(min:dt) collapse(2) num_threads(userCores)
@@ -123,7 +122,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 }
             }
 
-            //flow for cells which have h and not done yet (FloodT < _dt)
+            //do all flow and state calculations
 #pragma omp parallel for collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (tmb->Drc > 0)
@@ -183,24 +182,26 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     }
 
                     double fac = 1.0;
-                    //                    if (F_pitValue > 0)
-                    //                        fac =1/(1+pow(H/(2*F_pitValue),4));
+                    //if (F_pitValue > 0)
+                    //   fac =1/(1+pow(H/(2*F_pitValue),4));
                     double dz_x1 = fac*(Z - z_x1);
                     double dz_x2 = fac*(z_x2 - Z);
                     double dz_y1 = fac*(Z - z_y1);
                     double dz_y2 = fac*(z_y2 - Z);
 
-                    //coding:
+                    // calculate Riemann valaues for all four boundaries of a cell
+
+                    //coding left right and up/down boundary h
                     //h_x1r|h_x1l  h_x2r|h_x2l
                     //_____|____________|_____
 
-                    //h_y1d
-                    //-----
-                    //h_y1u
-                    //
-                    //h_y2d
-                    //-----
-                    //h_y2u
+                    // |h_y1d
+                    // |-----
+                    // |h_y1u
+                    // |
+                    // |h_y2d
+                    // |-----
+                    // |h_y2u
 
 
                     double h_x1r = std::max(0.0, h_x1 - std::max(0.0,  dz_x1 + fb_x1));
@@ -232,15 +233,14 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     else
                         hll_y2 = F_Riemann(h_y2d,Vy,Vx, 0,0,0);
 
+                    // determine smallest dt in x and y
                     double dtx = dx/std::max(hll_x1.v[3],hll_x2.v[3]);
                     double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]);
                     double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
+                    FloodDT->Drc = dt_req;
 
-                    FloodDT->Drc = dt_req;//std::min(dt_req1, dt_req);
-                    // taking the smallest works best for instabiliies!
-
-                    // if step = 0 do not calculate new fluxes and states becasue the first is always dt_max
-                    // now that we have a first guess of the timesteps the smallest can be found and the
+                    // if step = 0 do not calculate new fluxes and states yet because the first dt is always dt_max
+                    // find a smallest dt of the flow domain first
                     if (step > 0) {
 
                         //double B = 0.5; //1.0 is theoretical max else faster than gravity
@@ -249,26 +249,29 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         //double sy_zh_y1 = std::min(B, std::max(-B, (Z + H - z_y1 - h_y1)/dy));
                         //double sy_zh_y2 = std::min(B, std::max(-B, (z_y2 + h_y2 - Z - H)/dy));
 
-                        //// if B = 0.5 this can never be >1?
+                        // // if B = 0.5 this can never be >1?
                         //double sx_zh = std::min(1.0,std::max(-1.0,limiter(sx_zh_x1, sx_zh_x2)));
                         //double sy_zh = std::min(1.0,std::max(-1.0,limiter(sy_zh_y1, sy_zh_y2)));
 
                         double tx = dt/dx;
                         double ty = dt/dy;
 
-                        //     double C = 0.25;//std::min(0.25, courant_factor);
                         double flux_x1 = +tx*hll_x1.v[0];
                         double flux_x2 = -tx*hll_x2.v[0];
                         double flux_y1 = +ty*hll_y1.v[0];
                         double flux_y2 = -ty*hll_y2.v[0];
+
+                        // ??????
+                        //double C = 0.25;//std::min(0.25, courant_factor);
                         //flux_x1 = std::max(-H * C,std::min(flux_x1,h_x1 * C));
                         //flux_x2 = std::max(-H * C,std::min(flux_x2,h_x2 * C));
                         //flux_y1 = std::max(-H * C,std::min(flux_y1,h_y1 * C));
                         //flux_y2 = std::max(-H * C,std::min(flux_y2,h_y2 * C));
 
-
                         double hn = std::max(0.0, H + flux_x1 + flux_x2 + flux_y1 + flux_y2);
+                        // mass balance
 
+                        // momentum balance for cells with water
                         if(hn > he_ca) {
                             //  double gflow_x = tx * GRAV*0.5*( (h_x1r-h_x1l)*(h_x1r+h_x1l)+(h_x2r-h_x2l)*(h_x2r+h_x2l) + (h_x1l+h_x2r)*limiter(dz_x1,dz_x2));
                             //  double gflow_y = ty * GRAV*0.5*( (h_y1d-h_y1u)*(h_y1d+h_y1u)+(h_y2d-h_y2u)*(h_y2d+h_y2u) + (h_y1u+h_y2d)*limiter(dz_y1,dz_y2));
@@ -293,7 +296,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                                 vyn = fac * Vy + (1.0-fac) *vyn;
                             }
 
-                            //double threshold = 0.001 * _dx; // was 0.01
+                            //??? NEEDED ???
+                            //double threshold = 0.01 * _dx;
                             //if(hn < threshold)
                             //{
                             //    double h23 = pow(hn, 2.0/3.0);//hn * sqrt(hn)
@@ -305,10 +309,11 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                             //}
 
                         } else {
-                            hn = H; // if no fluxes then also no chaneg in h
+                            hn = H; // if no fluxes then also no change in h
                             vxn = 0;
                             vyn = 0;
                         }
+
                         // dan maar even met geweld!
                         if (std::isnan(vxn) || std::isnan(vyn)  )
                         {
@@ -321,14 +326,13 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         if (fabs(vyn) <= ve_ca)
                             vyn = 0;
 
-                        //double dt_req1 = courant_factor *_dx/( std::min(dt_max,std::max(0.01,sqrt(vxn*vxn + vyn*vyn))));
+                        // moved to above:
+                        // oplossing Bastian: double dt_req1 = courant_factor *_dx/( std::min(dt_max,std::max(0.01,sqrt(vxn*vxn + vyn*vyn))));
                         // gebruik riemann solver cfl
-                        //     double dtx = dx/std::max(hll_x1.v[3],hll_x2.v[3]);
-                        //    double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]);
-                        //   double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
-
+                        // double dtx = dx/std::max(hll_x1.v[3],hll_x2.v[3]);
+                        // double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]);
+                        // double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
                         // FloodDT->Drc = dt_req;//std::min(dt_req1, dt_req);
-                        // taking the smallest works best for instabiliies!
 
                         h->Drc = hn;
                         vx->Drc = vxn;
@@ -337,6 +341,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 }
             }
 
+            // find smallest domain dt
 #pragma omp parallel for reduction(min:dt_req_min) collapse(2) num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 double res = FloodDT->Drc;
@@ -345,37 +350,40 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             dt_req_min = std::min(dt_req_min, _dt-timesum);
             timesum += dt_req_min;
 
-            if (step > 0)
+
+            if (step > 0) {
 #pragma omp parallel for collapse(2) num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                if (!SwitchVariableTimestep)
-                    FloodDT->Drc = dt_req_min;
-                else
-                    FloodDT->Drc = FloodDT->Drc = std::max(TimestepfloodMin, std::min(FloodDT->Drc, _dt-FloodT->Drc));
-
-                FloodT->Drc += FloodDT->Drc;
-                if (FloodT->Drc > _dt)
-                    FloodT->Drc = _dt;
-            }
-
-            if (SwitchErosion)
-                SWOFSediment(FloodDT,hs,vxs,vys);
-
-            if (SwitchVariableTimestep) {
-                cnt = 0;
-                // nr cells that need processing
-                #pragma omp parallel for reduction(+:cnt) collapse(2) num_threads(userCores)
                 FOR_ROW_COL_MV_L {
-                    if (FloodT->Drc < _dt-0.001)
-                        cnt++;
+                    if (!SwitchVariableTimestep)
+                        FloodDT->Drc = dt_req_min;
+                    else
+                        FloodDT->Drc = FloodDT->Drc = std::max(TimestepfloodMin, std::min(FloodDT->Drc, _dt-FloodT->Drc));
+
+                    FloodT->Drc += FloodDT->Drc;
+                    if (FloodT->Drc > _dt)
+                        FloodT->Drc = _dt;
                 }
-                //qDebug() << cnt;
-                stop = cnt < 1;
-            } else {
-                stop = timesum > _dt-0.001;
+
+                if (SwitchErosion)
+                    SWOFSediment(FloodDT,hs,vxs,vys);
+
+                if (SwitchVariableTimestep) {
+                    cnt = 0;
+                    // nr cells that need processing
+#pragma omp parallel for reduction(+:cnt) collapse(2) num_threads(userCores)
+                    FOR_ROW_COL_MV_L {
+                        if (FloodT->Drc < _dt-0.001)
+                            cnt++;
+                    }
+                    //qDebug() << cnt;
+                    stop = cnt < 1;
+                } else {
+                    stop = timesum > _dt-0.001;
+                }
             }
 
-            step = 1;
+            step = 1; // now we have a good dt min, do gthe real calculations
+
             count++; // nr loops
 
             if(count > F_MaxIter)
