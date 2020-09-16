@@ -221,8 +221,8 @@ double TWorld::IncreaseInfiltrationDepthNew(int r, int c) //, double fact, doubl
 {
     double store1 = (Poreeff->Drc-Thetaeff->Drc); // space in the top layer
     double store2 = 0;
-    double L = L1->Drc + L2->Drc;
-    double dfact = 0;
+    double L = Lw->Drc;//L1->Drc + L2->Drc;
+    double dfact1 = 0, dfact2 = 0;
     double fact_out = 0;
     bool passing = false;
 
@@ -241,44 +241,50 @@ double TWorld::IncreaseInfiltrationDepthNew(int r, int c) //, double fact, doubl
             L = L + fact->Drc/store1;
 
             if (L > SoilDepth1->Drc) { // moving into second layer
-                dfact = fact->Drc - (SoilDepth1->Drc - L1->Drc) * store1;
-                L1->Drc = SoilDepth1->Drc;
+                dfact1 = (SoilDepth1->Drc - Lw->Drc) * store1;
+                dfact2 = fact->Drc - dfact1; // remaining going into layer 2
+                Lw->Drc = SoilDepth1->Drc;
                 passing = true;
             } else {
                 fact_out = fact->Drc;
-                L1->Drc = L;
+                Lw->Drc = L;
             }
         } else {  // already in 2nd layer
              L = L + fact->Drc/store2;
 
              if (L > SoilDepth2->Drc) {
-                 fact_out = fact->Drc - (SoilDepth2->Drc - L1->Drc + L2->Drc) * store2;
-                 L2->Drc = SoilDepth2->Drc-SoilDepth1->Drc;
+                 //fact_out = fact->Drc - (SoilDepth2->Drc - L1->Drc + L2->Drc) * store2;
+                 fact_out = (SoilDepth2->Drc - Lw->Drc) * store2;
+                 Lw->Drc = SoilDepth2->Drc;
                  if (SwitchImpermeable)
                      FFull->Drc = 1;
-             } else
+             } else {
                  fact_out = fact->Drc;
+                 Lw->Drc = L;
+             }
         }
         if (passing) {  // moving from depth 1 to 2
-            L = L1->Drc + dfact/store2; // increase L with remaining fact
+            L = SoilDepth1->Drc + dfact2/store2; // increase L with remaining fact
+
             if (L > SoilDepth2->Drc) {
-                fact_out = fact->Drc - (SoilDepth2->Drc - L1->Drc + L2->Drc) * store2;
-                L2->Drc = SoilDepth2->Drc-SoilDepth1->Drc;
+                fact_out = dfact1 + (SoilDepth2->Drc - Lw->Drc) * store2;
+                Lw->Drc = SoilDepth2->Drc;
                 if (SwitchImpermeable)
                     FFull->Drc = 1;
             }
-            else
-                fact_out = fact->Drc;
+        } else {
+            fact_out = fact->Drc;
+            Lw->Drc = L;
         }
     } else { //single layer
-        L = L + fact->Drc/store1;
+        L = L + fact->Drc/store1; // increase wetting front
         if (L > SoilDepth1->Drc) {
-            fact_out = (SoilDepth1->Drc - L1->Drc) * store1;
-            L1->Drc = SoilDepth1->Drc;
+            fact_out = (SoilDepth1->Drc - Lw->Drc) * store1;
+            Lw->Drc = SoilDepth1->Drc;
             if (SwitchImpermeable)
                 FFull->Drc = 1;
         } else {
-            L1->Drc = L;
+            Lw->Drc = L;
             fact_out = fact->Drc;
         }
     }
@@ -314,7 +320,7 @@ void TWorld::Infiltration()
         return;
     case INFIL_SWATRE :
         fill(*tm, 0);
-        #pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for collapse(2) num_threads(userCores)
         FOR_ROW_COL_MV
         {
             if (FloodDomain->Drc == 0)
@@ -376,7 +382,7 @@ void TWorld::InfilMethodsNew()
         double fwh = 0;
         double Psi = Psi1->Drc/100; // in m
         double space = std::max(Poreeff->Drc-Thetaeff->Drc, 0.0);
-        double L = L1->Drc + L2->Drc;
+        double L = Lw->Drc;
 
         // get the correct water layer
         if (FloodDomain->Drc == 0)
@@ -389,7 +395,7 @@ void TWorld::InfilMethodsNew()
         if (SwitchTwoLayer ) {
 
             // if wetting front in second layer set those vars
-            if (L1->Drc > SoilDepth1->Drc)
+            if (Lw->Drc > SoilDepth1->Drc)
             {
                 Ks = std::min(Ksateff->Drc, Ksat2->Drc)*_dt/3600000.0;
                 // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
@@ -450,19 +456,23 @@ void TWorld::InfilMethodsNew()
             FSurplus->Drc = 0;
         else
         {
-            space = (SoilDepth1->Drc - L1->Drc)*(Poreeff->Drc-Thetaeff->Drc);
-            if (SwitchTwoLayer && L2->Drc > 0)
-                space = /* space +*/ (SoilDepth2->Drc - L2->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
-            // total spce left in the soil in m
+            space = 0;
+            if (SwitchTwoLayer) {
+                if (Lw->Drc < SoilDepth1->Drc) {
+                    space = (SoilDepth1->Drc - Lw->Drc)*(Poreeff->Drc-Thetaeff->Drc);
+                } else {
+                    if (Lw->Drc < SoilDepth2->Drc)
+                        space = (SoilDepth2->Drc - Lw->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
+                }
+            } else {
+                if (Lw->Drc < SoilDepth1->Drc)
+                    space = (SoilDepth1->Drc - Lw->Drc)*(Poreeff->Drc-Thetaeff->Drc);
+            }
 
             FSurplus->Drc = -1.0*std::min(space, std::max(0.0, fpot->Drc-fact->Drc));
             // negative and smallest of space or fpot-fact
         }
     }
-//report(*fpot,"fpot");
-//report(*L1,"la");
-//report(*L2,"lb");
-//report(*fact,"factb");
 }
 //---------------------------------------------------------------------------
 
@@ -497,9 +507,12 @@ void TWorld::SoilWater()
                 Percolation = Ks * pow(theta_E, bca);
                 // percolation in m
 
-                dL = std::min(SoilDepth2->Drc - SoilDepth1->Drc, SoilDepth2->Drc - L1->Drc - L2->Drc);
-                // dL is the second layer when L2 is 0 or the remainder of the second layer when L2 > 0
-                // so we only have to deal with ThetaI2
+                if (Lw->Drc > SoilDepth1->Drc)
+                    dL = SoilDepth2->Drc - Lw->Drc;
+                else
+                    dL = SoilDepth2->Drc - SoilDepth1->Drc;
+                // if Wet Fr still in first layer percolation only make 2nd drier
+
                 double moisture = dL*(ThetaI2->Drc-thetar);
 
                 if (moisture > Percolation) {
@@ -507,16 +520,17 @@ void TWorld::SoilWater()
                     moisture -= Percolation;
                     ThetaI2->Drc = moisture/dL+thetar;
                 } else {
-                    // decrease thetaeff because of percolation and decrease L1 with the remaining bit
-                    double dP = Percolation - moisture;
-                    ThetaI2->Drc = thetar;
-                    L2->Drc -= std::max(0.0, dP/(ThetaS2->Drc - thetar));
+                    // wetting front = soildepth1, dL = 0, moisture = 0
+                    // assume tehta goes back to half pore and decrease the wetting fornt
+                    ThetaI2->Drc = 0.5*(ThetaS2->Drc - thetar);
+                    Lw->Drc -= std::max(0.0, Percolation/(ThetaS2->Drc - ThetaI2->Drc));
                 }
 
-                if (L1->Drc+L2->Drc < SoilDepth2->Drc)
+                if (Lw->Drc < SoilDepth2->Drc)
                     FFull->Drc = 0;
             }
         } else {
+            // one layer
             thetar = 0.025 * Poreeff->Drc;
             if(Thetaeff->Drc > thetar) {
                 Ks = Ksateff->Drc*_dt/3600000.0;
@@ -525,21 +539,22 @@ void TWorld::SoilWater()
                 Percolation = Ks * pow(theta_E, bca);
             }
 
-            dL = std::max(0.0, SoilDepth1->Drc - L1->Drc);
+            dL = std::max(0.0, SoilDepth1->Drc - Lw->Drc);
             double moisture = dL*(Thetaeff->Drc-thetar);
             if (moisture > Percolation) {
+                // wetting front has not reached bottom, make soil drier
                 // decrease thetaeff because of percolation
                 moisture -= Percolation;
                 Thetaeff->Drc = moisture/dL+thetar;
             } else {
-                // decrease thetaeff because of percolation and decrease L1 with the remaining bit
-                double dP = Percolation - moisture;
-                Thetaeff->Drc = thetar;
-                L1->Drc -= std::max(0.0, dP/(ThetaS1->Drc - thetar));
+                // wetting front = soildepth1, dL = 0, moisture = 0
+                // assume tehta goes back to half pore and decrease the wetting fornt
+                Thetaeff->Drc = 0.5*(Poreeff->Drc - thetar);
+                Lw->Drc -= std::max(0.0, Percolation/(Poreeff->Drc - Thetaeff->Drc));
             }
 
 
-            if (L1->Drc < SoilDepth1->Drc)
+            if (Lw->Drc < SoilDepth1->Drc)
                 FFull->Drc = 0;
 
         }

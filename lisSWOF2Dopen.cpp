@@ -303,7 +303,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     if (fabs(vyn) <= ve_ca)
                         vyn = 0;
 
-                    double dt_req1 = courant_factor *_dx/( std::min(dt_max,std::max(0.01,sqrt(vxn*vxn + vyn*vyn))));
+                    //double dt_req1 = courant_factor *_dx/( std::min(dt_max,std::max(0.01,sqrt(vxn*vxn + vyn*vyn))));
                     // gebruik riemann solver cfl
                     double dtx = dx/std::max(hll_x1.v[3],hll_x2.v[3]);
                     double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]);

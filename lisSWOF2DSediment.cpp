@@ -347,7 +347,7 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)
 void TWorld::SWOFSedimentDiffusion( cTMap *DT, cTMap *h,cTMap *u,cTMap *v, cTMap *_SS, cTMap *_SSC)
 {
     //diffusion of Suspended Sediment layer
-//#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
         //cell sizes
@@ -399,6 +399,9 @@ void TWorld::SWOFSedimentDiffusion( cTMap *DT, cTMap *h,cTMap *u,cTMap *v, cTMap
         int dy[4] = {1, 0, 0, -1};
 
 
+        tmb->Drc = _SS->Drc;
+        tmc->Drc = _SS->Drc;
+
         //use the calculated weights to distribute flow
         for (int i=0; i<4; i++)
         {
@@ -411,17 +414,24 @@ void TWorld::SWOFSedimentDiffusion( cTMap *DT, cTMap *h,cTMap *u,cTMap *v, cTMap
             //add fluxes to cells
             if(INSIDE(r2,c2) && !pcr::isMV(LDD->data[r2][c2]))
             {
-                //diffusion coefficient
+                //diffusion coefficient eta
                 double coeff =  DT->Drc * eta * std::min(1.0, SSDepthFlood->data[r2][c2]/SSDepthFlood->data[r][c]);
                 coeff = std::min(coeff, courant_factor/4.0);
 
-                _SS->data[r2][c2] += coeff*_SS->Drc;
-                _SS->data[r][c] -= coeff*_SS->Drc;
+                //_SS->data[r2][c2] += coeff*_SS->Drc;
+                //_SS->data[r][c] -= coeff*_SS->Drc;
+
+                tmb->data[r2][c2] += coeff*_SS->Drc;
+                tmc->data[r][c] -= coeff*_SS->Drc;
+                // then later add tmb and tmc
+
             }
         }
     }
 #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
+        _SS->Drc = tmb->Drc + tmc->Drc;
+
         _SS->Drc = std::max(0.0,_SS->Drc);
         //set concentration from present sediment
         _SSC->Drc = MaxConcentration(ChannelAdj->Drc*DX->Drc*h->Drc, &_SS->Drc, &DepFlood->Drc);
