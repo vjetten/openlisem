@@ -185,6 +185,9 @@ void TWorld::DoModel()
 
         DEBUG("Running...");
 
+        SetFlowBarriers();     // update the presence of flow barriers
+        GridCell();
+
         for (time = BeginTime; time < EndTime; time += _dt)
         {
             if (runstep > 0 && runstep % printinterval == 0)
@@ -272,18 +275,17 @@ void TWorld::DoModel()
 
 void TWorld::CellProcesses()
 {
-    SetFlowBarriers();     // update the presence of flow barriers
-    GridCell();            // set channel widths, flowwidths road widths etc
+//    SetFlowBarriers();     // update the presence of flow barriers
+//    GridCell();            // set channel widths, flowwidths road widths etc
 
     Interception();        // vegetation interception
     InterceptionLitter();  // litter interception
     InterceptionHouses();  // urban interception
-
     addRainfallWH();       // adds rainfall to runoff water height or flood water height
 
     Infiltration();        // infil of overland flow/flood water, decrease WH
-
     SoilWater();           // simple soil water balance, percolation from lower boundary
+
     SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
 
     //doETa();

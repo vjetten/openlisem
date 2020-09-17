@@ -64,7 +64,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             // make a copy
             bool SwitchLimitSWOFVelocity = true;
             double vmax = 100000;
-            if (SwitchLimitSWOFVelocity)
+           // if (SwitchLimitSWOFVelocity)
                 vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
 
 #pragma omp parallel for collapse(2) num_threads(userCores)
@@ -243,42 +243,50 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     // find a smallest dt of the flow domain first
                     if (step > 0) {
 
-                        //double B = 0.5; //1.0 is theoretical max else faster than gravity
-                        //double sx_zh_x1 = std::min(B, std::max(-B, (Z + H - z_x1 - h_x1)/dx));
-                        //double sx_zh_x2 = std::min(B, std::max(-B, (z_x2 + h_x2 - Z - H)/dx));
-                        //double sy_zh_y1 = std::min(B, std::max(-B, (Z + H - z_y1 - h_y1)/dy));
-                        //double sy_zh_y2 = std::min(B, std::max(-B, (z_y2 + h_y2 - Z - H)/dy));
+                        double B = 0.5; //1.0 is theoretical max else faster than gravity
+                        double sx_zh_x1 = std::min(B, std::max(-B, (Z + H - z_x1 - h_x1)/dx));
+                        double sx_zh_x2 = std::min(B, std::max(-B, (z_x2 + h_x2 - Z - H)/dx));
+                        double sy_zh_y1 = std::min(B, std::max(-B, (Z + H - z_y1 - h_y1)/dy));
+                        double sy_zh_y2 = std::min(B, std::max(-B, (z_y2 + h_y2 - Z - H)/dy));
 
-                        // // if B = 0.5 this can never be >1?
-                        //double sx_zh = std::min(1.0,std::max(-1.0,limiter(sx_zh_x1, sx_zh_x2)));
-                        //double sy_zh = std::min(1.0,std::max(-1.0,limiter(sy_zh_y1, sy_zh_y2)));
+                         // if B = 0.5 this can never be >1?
+                        double sx_zh = std::min(1.0,std::max(-1.0,limiter(sx_zh_x1, sx_zh_x2)));
+                        double sy_zh = std::min(1.0,std::max(-1.0,limiter(sy_zh_y1, sy_zh_y2)));
 
                         double tx = dt/dx;
                         double ty = dt/dy;
 
-                        double flux_x1 = +tx*hll_x1.v[0];
-                        double flux_x2 = -tx*hll_x2.v[0];
-                        double flux_y1 = +ty*hll_y1.v[0];
-                        double flux_y2 = -ty*hll_y2.v[0];
+                        double flux_x1 = +hll_x1.v[0]/_dx;
+                        double flux_x2 = -hll_x2.v[0]/_dx;
+                        double flux_y1 = +hll_y1.v[0]/_dx;
+                        double flux_y2 = -hll_y2.v[0]/_dx;
 
                         // ??????
-                        //double C = 0.25;//std::min(0.25, courant_factor);
-                        //flux_x1 = std::max(-H * C,std::min(flux_x1,h_x1 * C));
-                        //flux_x2 = std::max(-H * C,std::min(flux_x2,h_x2 * C));
-                        //flux_y1 = std::max(-H * C,std::min(flux_y1,h_y1 * C));
-                        //flux_y2 = std::max(-H * C,std::min(flux_y2,h_y2 * C));
+//                        double C = 1.0;//std::min(0.25, courant_factor);
+//                        flux_x1 = std::max(-H * C,std::min(flux_x1,h_x1 * C));
+//                        flux_x2 = std::max(-H * C,std::min(flux_x2,h_x2 * C));
+//                        flux_y1 = std::max(-H * C,std::min(flux_y1,h_y1 * C));
+//                        flux_y2 = std::max(-H * C,std::min(flux_y2,h_y2 * C));
+                        double tot = dt*(flux_x1 + flux_x2 + flux_y1 + flux_y2);
+                        if (H+tot < 0) {
+                            dt = H/-tot*dt;
+                        }
+//                        flux_x1 = std::max(-H * C,std::min(flux_x1,h_x1 * C));
+//                        flux_x2 = std::max(-H * C,std::min(flux_x2,h_x2 * C));
+//                        flux_y1 = std::max(-H * C,std::min(flux_y1,h_y1 * C));
+//                        flux_y2 = std::max(-H * C,std::min(flux_y2,h_y2 * C));
 
-                        double hn = std::max(0.0, H + flux_x1 + flux_x2 + flux_y1 + flux_y2);
+                        double hn = std::max(0.0, H + dt*(flux_x1 + flux_x2 + flux_y1 + flux_y2));
                         // mass balance
 
                         // momentum balance for cells with water
                         if(hn > he_ca) {
-                            //  double gflow_x = tx * GRAV*0.5*( (h_x1r-h_x1l)*(h_x1r+h_x1l)+(h_x2r-h_x2l)*(h_x2r+h_x2l) + (h_x1l+h_x2r)*limiter(dz_x1,dz_x2));
-                            //  double gflow_y = ty * GRAV*0.5*( (h_y1d-h_y1u)*(h_y1d+h_y1u)+(h_y2d-h_y2u)*(h_y2d+h_y2u) + (h_y1u+h_y2d)*limiter(dz_y1,dz_y2));
-                            double gflow_x = tx * GRAV*0.5*((h_x1r-h_x1l)*(h_x1r+h_x1l)+(h_x2r-h_x2l)*(h_x2r+h_x2l));
-                            double gflow_y = ty * GRAV*0.5*((h_y1d-h_y1u)*(h_y1d+h_y1u)+(h_y2d-h_y2u)*(h_y2d+h_y2u));
-                            //   double gflow_x = 0.5 * GRAV *H*sx_zh * dt;
-                            //   double gflow_y = 0.5 * GRAV *H*sy_zh * dt;
+                              double gflow_x = tx * GRAV*0.5*( (h_x1r-h_x1l)*(h_x1r+h_x1l)+(h_x2r-h_x2l)*(h_x2r+h_x2l) + (h_x1l+h_x2r)*limiter(dz_x1,dz_x2));
+                              double gflow_y = ty * GRAV*0.5*( (h_y1d-h_y1u)*(h_y1d+h_y1u)+(h_y2d-h_y2u)*(h_y2d+h_y2u) + (h_y1u+h_y2d)*limiter(dz_y1,dz_y2));
+                          //   double gflow_x = tx * GRAV*0.5*((h_x1r-h_x1l)*(h_x1r+h_x1l)+(h_x2r-h_x2l)*(h_x2r+h_x2l));
+                           //  double gflow_y = ty * GRAV*0.5*((h_y1d-h_y1u)*(h_y1d+h_y1u)+(h_y2d-h_y2u)*(h_y2d+h_y2u));
+                           //     double gflow_x = 0.5 * GRAV *H*sx_zh * dt;
+                          //   double gflow_y = 0.5 * GRAV *H*sy_zh * dt;
                             double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1]) - ty*(hll_y2.v[2] - hll_y1.v[2])+ gflow_x;
                             double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1])+ gflow_y;
 
@@ -380,19 +388,18 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 } else {
                     stop = timesum > _dt-0.001;
                 }
+                count++; // nr loops
             }
 
-            step = 1; // now we have a good dt min, do gthe real calculations
-
-            count++; // nr loops
+            step = 1; // now we have a good dt min, do the real calculations
 
             if(count > F_MaxIter)
                 stop = true;
         } while (!stop);
 
         correctMassBalance(sumh, h, 0);
-        //    double sumh1 = getMass(h);
-        //    qDebug() << sumh << sumh1 << sumh-sumh1;
+//            double sumh1 = getMass(h, 0);
+//            qDebug() << sumh << sumh1 << (sumh-sumh1)/sumh;
 
     } // if floodstart
 

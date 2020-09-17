@@ -295,6 +295,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         // false means flood sediment maps are used
 
     startFlood = false;
+#pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (WHrunoff->Drc > HMIN){
             startFlood = true;
@@ -323,29 +324,31 @@ void TWorld::OverlandFlow2Ddyn(void)
 #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
-        Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
+        double WHR = WHrunoff->Drc;
+        double Area = ChannelAdj->Drc*DX->Drc;
+
+        Qn->Drc = V->Drc*(WHR*ChannelAdj->Drc);
         Q->Drc = Qn->Drc; // just to be sure
 
-        WHroad->Drc = WHrunoff->Drc;
+        WHroad->Drc = WHR;
         // set road to average outflowing wh, no surface storage.
-        WHGrass->Drc = WHrunoff->Drc;
+        WHGrass->Drc = WHR;
 
-        WH->Drc = WHrunoff->Drc + WHstore->Drc;
+        WH->Drc = WHR + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
-        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
+        WaterVolall->Drc = WHR*Area + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
         //LOGIC:
         // water layer in three parts: WHstore < (WHrunoff < minReportFloodHeight) < (hmx > minReportFloodHeight)
         // WH =  WHstore + WHrunoff
 
         hmxWH->Drc = WH->Drc;
 
-       // hmx->Drc = std::max(0.0, WHrunoff->Drc - minReportFloodHeight);
+        hmxflood->Drc = std::max(0.0, WHR - minReportFloodHeight);
 
-        hmxflood->Drc = std::max(0.0, WHrunoff->Drc - minReportFloodHeight);
-
-        FloodWaterVol->Drc = hmxflood->Drc*ChannelAdj->Drc*DX->Drc;
-        WHrunoffOutput->Drc = std::min(WHrunoff->Drc, minReportFloodHeight);
-        RunoffWaterVol->Drc = WHrunoffOutput->Drc*ChannelAdj->Drc*DX->Drc;
+        FloodWaterVol->Drc = hmxflood->Drc*Area;
+        //WHrunoffOutput->Drc = std::min(WHrunoff->Drc, minReportFloodHeight);
+        //RunoffWaterVol->Drc = WHrunoffOutput->Drc*ChannelAdj->Drc*DX->Drc;
+        RunoffWaterVol->Drc = std::min(WHR, minReportFloodHeight)*Area;
         // used for screen output
     }
 

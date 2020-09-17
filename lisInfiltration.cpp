@@ -111,10 +111,14 @@ void TWorld::InfilEffectiveKsat(void)
 /// SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
 void TWorld::InfilSwatre(cTMap *_WH)
 {
-    copy(*WHbef, *_WH); // copy water height before infil
-
-    fill(*tma, 1.0); // flag to indicate where the swatrestep model should be run
-
+  //  copy(*WHbef, *_WH); // copy water height before infil
+//    fill(*tma, 1.0); // flag to indicate where the swatrestep model should be run
+#pragma omp parallel for collapse(2) num_threads(userCores)
+        FOR_ROW_COL_MV
+        {
+            tm->Drc = WHbef->Drc;
+            tma->Drc = 1.0;
+        }
     //calculate a new crustfraction for water repellency
     // formula = f = 1/(1+1.2^(theta-30)), theta in %
 
@@ -133,11 +137,18 @@ void TWorld::InfilSwatre(cTMap *_WH)
 
     if (SwitchInfilCrust)
     {
-        copy(*tm, *WHbef);
-        fill(*tma, 0.0);
-        fill(*tmb, 0.0);
-        fill(*tmc, 0.0);
-
+//        copy(*tm, *WHbef);
+//        fill(*tma, 0.0);
+//        fill(*tmb, 0.0);
+//        fill(*tmc, 0.0);
+#pragma omp parallel for collapse(2) num_threads(userCores)
+        FOR_ROW_COL_MV
+        {
+            tm->Drc = WHbef->Drc;
+            tma->Drc = 0;
+            tmb->Drc = 0;
+            tmc->Drc = 0;
+        }
         SwatreStep(op.runstep, SwatreSoilModelCrust, tm, tma, tmb, thetaTop, CrustFraction);
         // calculate crust SWATRE and get the soil moisture of the top node
         // CrustFraction is cells > 0
@@ -156,10 +167,18 @@ void TWorld::InfilSwatre(cTMap *_WH)
 
     if (SwitchInfilCompact)
     {
-        copy(*tm, *WHbef);
-        fill(*tma, 0.0);
-        fill(*tmb, 0.0);
-        fill(*tmc, 0.0);
+//        copy(*tm, *WHbef);
+//        fill(*tma, 0.0);
+//        fill(*tmb, 0.0);
+//        fill(*tmc, 0.0);
+#pragma omp parallel for collapse(2) num_threads(userCores)
+        FOR_ROW_COL_MV
+        {
+            tm->Drc = WHbef->Drc;
+            tma->Drc = 0;
+            tmb->Drc = 0;
+            tmc->Drc = 0;
+        }
 
         SwatreStep(op.runstep, SwatreSoilModelCompact, tm, tma, tmb, tmc, CompactFraction);
 #pragma omp parallel for collapse(2) num_threads(userCores)
@@ -177,10 +196,16 @@ void TWorld::InfilSwatre(cTMap *_WH)
 
     if (SwitchGrassStrip)
     {
-        copy(*tm, *WHGrass);
-        fill(*tmb, 0.0);
-        fill(*tmc, 0.0);
-
+//        copy(*tm, *WHGrass);
+//        fill(*tmb, 0.0);
+//        fill(*tmc, 0.0);
+#pragma omp parallel for collapse(2) num_threads(userCores)
+        FOR_ROW_COL_MV
+        {
+            tm->Drc = WHGrass->Drc;
+            tmb->Drc = 0;
+            tmc->Drc = 0;
+        }
         SwatreStep(op.runstep, SwatreSoilModelGrass, WHGrass, fpotgr, tmb, tmc, GrassFraction);
 
         FOR_ROW_COL_MV
@@ -225,6 +250,9 @@ double TWorld::IncreaseInfiltrationDepthNew(int r, int c) //, double fact, doubl
     double dfact1 = 0, dfact2 = 0;
     double fact_out = 0;
     bool passing = false;
+    double SoilDep1 = SoilDepth1->Drc;
+    double SoilDep2 = SoilDepth2->Drc;
+    double Fact = fact->Drc;
 
      if (SwitchTwoLayer)
          store2 = (ThetaS2->Drc-ThetaI2->Drc);
@@ -237,55 +265,55 @@ double TWorld::IncreaseInfiltrationDepthNew(int r, int c) //, double fact, doubl
     FFull->Drc = 0;
     if (SwitchTwoLayer) {
 
-        if (L < SoilDepth1->Drc) { // still in first layer
-            L = L + fact->Drc/store1;
+        if (L < SoilDep1) { // still in first layer
+            L = L + Fact/store1;
 
-            if (L > SoilDepth1->Drc) { // moving into second layer
-                dfact1 = (SoilDepth1->Drc - Lw->Drc) * store1;
-                dfact2 = fact->Drc - dfact1; // remaining going into layer 2
-                Lw->Drc = SoilDepth1->Drc;
+            if (L > SoilDep1) { // moving into second layer
+                dfact1 = (SoilDep1 - Lw->Drc) * store1;
+                dfact2 = Fact - dfact1; // remaining going into layer 2
+                Lw->Drc = SoilDep1;
                 passing = true;
             } else {
-                fact_out = fact->Drc;
+                fact_out = Fact;
                 Lw->Drc = L;
             }
         } else {  // already in 2nd layer
-             L = L + fact->Drc/store2;
+             L = L + Fact/store2;
 
-             if (L > SoilDepth2->Drc) {
+             if (L > SoilDep2) {
                  //fact_out = fact->Drc - (SoilDepth2->Drc - L1->Drc + L2->Drc) * store2;
-                 fact_out = (SoilDepth2->Drc - Lw->Drc) * store2;
-                 Lw->Drc = SoilDepth2->Drc;
+                 fact_out = (SoilDep2 - Lw->Drc) * store2;
+                 Lw->Drc = SoilDep2;
                  if (SwitchImpermeable)
                      FFull->Drc = 1;
              } else {
-                 fact_out = fact->Drc;
+                 fact_out = Fact;
                  Lw->Drc = L;
              }
         }
         if (passing) {  // moving from depth 1 to 2
-            L = SoilDepth1->Drc + dfact2/store2; // increase L with remaining fact
+            L = SoilDep1 + dfact2/std::max(0.001,store2); // increase L with remaining fact
 
-            if (L > SoilDepth2->Drc) {
-                fact_out = dfact1 + (SoilDepth2->Drc - Lw->Drc) * store2;
-                Lw->Drc = SoilDepth2->Drc;
+            if (L > SoilDep2) {
+                fact_out = dfact1 + (SoilDep2 - Lw->Drc) * store2;
+                Lw->Drc = SoilDep2;
                 if (SwitchImpermeable)
                     FFull->Drc = 1;
             }
         } else {
-            fact_out = fact->Drc;
+            fact_out = Fact;
             Lw->Drc = L;
         }
     } else { //single layer
-        L = L + fact->Drc/store1; // increase wetting front
-        if (L > SoilDepth1->Drc) {
-            fact_out = (SoilDepth1->Drc - Lw->Drc) * store1;
-            Lw->Drc = SoilDepth1->Drc;
+        L = L + fact->Drc/std::max(0.001,store1); // increase wetting front
+        if (L > SoilDep1) {
+            fact_out = (SoilDep1 - Lw->Drc) * store1;
+            Lw->Drc = SoilDep1;
             if (SwitchImpermeable)
                 FFull->Drc = 1;
         } else {
             Lw->Drc = L;
-            fact_out = fact->Drc;
+            fact_out = Fact;
         }
     }
 

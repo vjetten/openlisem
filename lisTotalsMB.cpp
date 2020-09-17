@@ -99,7 +99,7 @@ void TWorld::Totals(void)
     FOR_ROW_COL_MV
     {
         InterceptionmmCum->Drc = (Interc->Drc + IntercHouse->Drc + LInterc->Drc)*1000.0/CellArea->Drc;
-        // for screen output only
+        // for screen and file output
     }
 
 

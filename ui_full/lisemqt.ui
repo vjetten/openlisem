@@ -4183,8 +4183,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>759</width>
-                <height>925</height>
+                <width>762</width>
+                <height>873</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_44">
@@ -4258,7 +4258,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>4</number>
+                  <number>7</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -7186,7 +7186,7 @@ p, li { white-space: pre-wrap; }
                             </font>
                            </property>
                            <property name="text">
-                            <string>SWOF 2.0 (fast)</string>
+                            <string>SWOF 2.0 (cell centered, faster)</string>
                            </property>
                            <property name="checked">
                             <bool>false</bool>
@@ -7205,7 +7205,7 @@ p, li { white-space: pre-wrap; }
                             </font>
                            </property>
                            <property name="text">
-                            <string>SWOF without MUSCL, cell centered</string>
+                            <string>SWOF (cell cetered, no MUSCL)</string>
                            </property>
                            <property name="checked">
                             <bool>true</bool>
@@ -7224,7 +7224,7 @@ p, li { white-space: pre-wrap; }
                             </font>
                            </property>
                            <property name="text">
-                            <string>SWOF with MUSCL</string>
+                            <string>SWOF (with MUSC)</string>
                            </property>
                           </widget>
                          </item>
@@ -11509,7 +11509,7 @@ p, li { white-space: pre-wrap; }
                    <item row="0" column="0">
                     <widget class="QCheckBox" name="checkAdvancedOptions">
                      <property name="enabled">
-                      <bool>true</bool>
+                      <bool>false</bool>
                      </property>
                      <property name="text">
                       <string>Advanced options</string>

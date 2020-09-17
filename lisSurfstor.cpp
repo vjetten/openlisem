@@ -43,6 +43,8 @@ functions: \n
 //---------------------------------------------------------------------------
 void TWorld::GridCell()
 {
+
+
 #pragma omp parallel for collapse(2) num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
@@ -126,19 +128,20 @@ void TWorld::SurfaceStorage()
 //        else
 //            fpa->Drc = 1-exp(-1.875*(wh/RRm));
         // fraction ponded area of a gridcell
-        fpa->Drc = 1;
+        double Fpa = 1;
 
-        FlowWidth->Drc = std::min(_dx, fpa->Drc*SoilWidthDX->Drc + RoadWidthHSDX->Drc);
+        double FW = std::min(_dx, Fpa*SoilWidthDX->Drc + RoadWidthHSDX->Drc);
         // calculate flowwidth by fpa*surface + road, excludes channel already
 
-        FlowWidth->Drc = std::min(ChannelAdj->Drc, FlowWidth->Drc);
+        FW = std::min(ChannelAdj->Drc, FW);
 
-        if (FlowWidth->Drc > 0)
-            WHrunoff->Drc = WaterVolrunoff/(DX->Drc*FlowWidth->Drc);
+        if (FW > 0)
+            WHrunoff->Drc = WaterVolrunoff/(DX->Drc*FW);
         else
             WHrunoff->Drc = 0;
         // average WHrunoff from soil surface + roads, because kin wave can only do one discharge
         // this now takes care of ponded area, so water height is adjusted
+        FlowWidth->Drc = FW;
     }
 }
 //---------------------------------------------------------------------------
