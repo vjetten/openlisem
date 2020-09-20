@@ -192,7 +192,7 @@ void TWorld::ChannelAddBaseandRain(void)
     if (!SwitchIncludeChannel)
         return;
     // making this parallel gives mass balance errors!!!
-#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(ChannelMaskExtended->data[r][c] == 1)
         {
@@ -227,7 +227,7 @@ void TWorld::ChannelAddBaseandRain(void)
 
         ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc);
         fromChannelVoltoWH(r, c);
-    }
+    }}
 
     if(SwitchChannelBaseflow && !addedbaseflow)
         addedbaseflow = true;
@@ -240,12 +240,12 @@ void TWorld::ChannelWaterHeightFromVolume()
     if(!SwitchIncludeChannel)
         return;
 
-#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(!pcr::isMV(LDDChannel->Drc)) {
             fromChannelVoltoWH(r, c);
         }
-    }
+    }}
 }
 //---------------------------------------------------------------------------
 //! calc channelflow, ChannelDepth, kin wave

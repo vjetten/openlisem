@@ -79,9 +79,8 @@ void TWorld::ToChannel()
 {
     if (!SwitchIncludeChannel)
         return;
-    #pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         if(ChannelMaskExtended->data[r][c] == 1)
         {
             int rr = r;//(int)ChannelSourceYExtended->Drc;
@@ -151,7 +150,7 @@ void TWorld::ToChannel()
                RiverSedimentMaxC(rr,cr);
             }
         }
-    }
+    }}
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -170,9 +169,8 @@ void TWorld::CalcVelDisch()
 {
 	if(SwitchKinematic2D == K2D_METHOD_DYN)
 		return;
-    #pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         double Perim, R;
         double NN = N->Drc;
 
@@ -200,7 +198,7 @@ void TWorld::CalcVelDisch()
 
         V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/NN;
 
-    }
+    }}
 }
 
 //---------------------------------------------------------------------------
@@ -283,7 +281,6 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
             }
         }
     }
-
 }
 //---------------------------------------------------------------------------
 
@@ -295,13 +292,13 @@ void TWorld::OverlandFlow2Ddyn(void)
         // false means flood sediment maps are used
 
     startFlood = false;
-#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (WHrunoff->Drc > HMIN){
             startFlood = true;
           //  break;
         }
-    }
+    }}
 
     if (SwitchSWOFopen)
         dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
@@ -311,19 +308,17 @@ void TWorld::OverlandFlow2Ddyn(void)
     //VJ new average flux over lisem timestep, else last Qn is used
 
     //  infilInWave(WHrunoff, _dt);
-#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
         Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
         Q->Drc = Qn->Drc; // just to be sure
-    }
+    }}
 
 
     Boundary2Ddyn();//WHrunoff, Qn, Uflood, Vflood);  // do the domain boundaries
-#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         double WHR = WHrunoff->Drc;
         double Area = ChannelAdj->Drc*DX->Drc;
 
@@ -350,7 +345,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         //RunoffWaterVol->Drc = WHrunoffOutput->Drc*ChannelAdj->Drc*DX->Drc;
         RunoffWaterVol->Drc = std::min(WHR, minReportFloodHeight)*Area;
         // used for screen output
-    }
+    }}
 
     FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
 
@@ -360,25 +355,23 @@ void TWorld::OverlandFlow2Ddyn(void)
         //WHrunoff and Qn are adapted in case of 2D routing
         if(!SwitchUseGrainSizeDistribution)
         {
-            #pragma omp parallel for collapse(2) num_threads(userCores)
-            FOR_ROW_COL_MV_L
-            {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
                 double sed = (SSFlood->Drc + BLFlood->Drc);
                 Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &sed, &DepFlood->Drc);
                 Qsn->Drc = Conc->Drc*Qn->Drc;
-            }
+            }}
         }
         else
         {
             //calculate total sediment from induvidual grain classes,
             //and calculate concentration and new sediment discharge
-            FOR_ROW_COL_MV_L
-            {
+            FOR_ROW_COL_MV {
                 Sed->Drc = 0;
                 Conc->Drc = 0;
 
             }
-            FOR_ROW_COL_MV_L
+            FOR_ROW_COL_MV
             {
                 FOR_GRAIN_CLASSES
                 {
@@ -402,8 +395,7 @@ void TWorld::OverlandFlow1D(void)
 {
     double totw = 0;
     // recalculate water vars after subtractions in "to channel"
-    FOR_ROW_COL_MV_L
-    {
+    FOR_ROW_COL_MV {
         WaterVolin->Drc = DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
         //volume runoff into the kin wave, needed to determine infil in kin wave
 totw += WHrunoff->Drc;
@@ -427,7 +419,7 @@ totw += WHrunoff->Drc;
         fill(*Qs, 0.0);
         fill(*Qsn, 0.0);
         // calc seediment flux going in kin wave as Qs = Q*C
-        FOR_ROW_COL_MV_L
+        FOR_ROW_COL_MV
         {
             Conc->Drc = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &Sed->Drc, &DEP->Drc);
             Qs->Drc =  Q->Drc * Conc->Drc;
@@ -437,7 +429,7 @@ totw += WHrunoff->Drc;
 
     // route water
     Qn->setAllMV();
-    FOR_ROW_COL_MV_L
+    FOR_ROW_COL_MV
     {
         if (LDD->Drc == 5) // if outflow point, pit
         {
@@ -448,7 +440,7 @@ totw += WHrunoff->Drc;
 
     //convert calculate Qn back to WH and volume for next loop
     fill(*tma, 0);
-    FOR_ROW_COL_MV_L
+    FOR_ROW_COL_MV
     {
         bool K1Dexplicit = true;
         double WaterVolout = 0;
@@ -523,7 +515,7 @@ totw += WHrunoff->Drc;
         {
 
             Qsn->setAllMV();
-            FOR_ROW_COL_MV_L
+            FOR_ROW_COL_MV
             {
                 if (LDD->Drc == 5) // if outflow point, pit
                 {
@@ -535,7 +527,7 @@ totw += WHrunoff->Drc;
             FOR_GRAIN_CLASSES
             {
                 // calc seediment flux going in kin wave as Qs = Q*C
-                FOR_ROW_COL_MV_L
+                FOR_ROW_COL_MV
                 {
                     Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &Sed_D.Drcd, &DEP->Drc);
                     Tempa_D.Drcd =  Q->Drc * Conc_D.Drcd;
@@ -543,7 +535,7 @@ totw += WHrunoff->Drc;
                     // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
                 }
                 Tempb_D.at(d)->setAllMV();
-                FOR_ROW_COL_MV_L
+                FOR_ROW_COL_MV
                 {
                     if (LDD->Drc == 5) // if outflow point, pit
                     {
@@ -551,7 +543,7 @@ totw += WHrunoff->Drc;
                     }
                 }
 
-                FOR_ROW_COL_MV_L
+                FOR_ROW_COL_MV
                 {
                     Qsn->Drc += Tempb_D.Drcd;
                     // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
@@ -563,7 +555,7 @@ totw += WHrunoff->Drc;
             fill(*Sed, 0.0);
             FOR_GRAIN_CLASSES
             {
-                FOR_ROW_COL_MV_L
+                FOR_ROW_COL_MV
                 {
                     Sed->Drc += Sed_D.Drcd;
                 }
@@ -576,14 +568,14 @@ totw += WHrunoff->Drc;
     if (SwitchPesticide)
     {
         // calc pesticide flux going in kin wave as Qp = Q*C
-        FOR_ROW_COL_MV_L
+        FOR_ROW_COL_MV
         {
             Qp->Drc =  Qn->Drc * C->Drc;
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
         }
 
         fill(*Qpn, 0.0);
-        FOR_ROW_COL_MV_L
+        FOR_ROW_COL_MV
         {
             if (LDD->Drc == 5) // if outflow point, pit
             {
@@ -597,7 +589,7 @@ totw += WHrunoff->Drc;
 
     if (SwitchErosion)
     {
-        FOR_ROW_COL_MV_L
+        FOR_ROW_COL_MV
         {
 
             Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
@@ -619,29 +611,16 @@ totw += WHrunoff->Drc;
             }
         }
     }
-
-//    if(!SwitchIncludeChannel)
-//    {
-
-//        copy(*hmxWH, *WH);  //there is no difference, only WH, hmx is now just for reporting
-
-//        FloodMaxandTiming(WH, V, minReportFloodHeight);
-
-//        FOR_ROW_COL_MV_L {
-//            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
-//            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
-//            //FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
-//        }
-//    }
 }
 //---------------------------------------------------------------------------
 // all points that flow outward of the domain by slope and water pressure
 void TWorld::dynOutflowPoints()
 {
-    FOR_ROW_COL_MV_L
+    FOR_ROW_COL_MV {
         K2DOutlets->Drc = 0;
+    }
 
-    FOR_ROW_COL_MV_L {
+    FOR_ROW_COL_MV {
         double Dhx = 0;
         double Dhy = 0;
 
@@ -739,7 +718,7 @@ void TWorld::dynOutflowPoints()
 
     //VJ use flowboundary map, type 1 is open flow, else use the map
     if (FlowBoundaryType != 1) {
-        FOR_ROW_COL_MV_L {
+        FOR_ROW_COL_MV {
             K2DOutlets->Drc *= FlowBoundary->Drc;  //copy 1 is 2
         }
     }

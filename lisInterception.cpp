@@ -50,9 +50,9 @@ void TWorld::Interception()
     if (!SwitchRainfall)
         return;
     //VJ 110113 bug fix, no interception when no rainfall and only snowmelt
-#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        RainNet->Drc = Rainc->Drc;
         double Cv = Cover->Drc;
         if (Cv > 0)// && Rainc->Drc > 0)
         {
@@ -106,11 +106,7 @@ void TWorld::Interception()
             // net rainfall is direct rainfall + drainage
             // rainfall that falls on the soil, used in infiltration
         }
-        else
-        {
-            RainNet->Drc = Rainc->Drc;
-        }
-    }
+    }}
 }
 //---------------------------------------------------------------------------
 void TWorld::InterceptionLitter()
@@ -121,9 +117,8 @@ void TWorld::InterceptionLitter()
 
     if (!SwitchRainfall)
         return;
-#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         double CvL = Litter->Drc;
         if (hmx->Drc == 0 && WH->Drc == 0 && CvL > 0 && RainNet->Drc > 0)
         {
@@ -149,7 +144,7 @@ void TWorld::InterceptionLitter()
             RainNet->Drc = drain + (1-CvL)*RainNet->Drc;// + (1-Cover->Drc)*Rainc->Drc;
             //recalc
         }
-    }
+    }}
 }
 //---------------------------------------------------------------------------
 void TWorld::InterceptionHouses()
@@ -160,9 +155,8 @@ void TWorld::InterceptionHouses()
 
     if (!SwitchRainfall)
         return;
-#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         double CvH = HouseCover->Drc;
         if (CvH > 0 &&  Rainc->Drc > 0)
         {
@@ -215,7 +209,7 @@ void TWorld::InterceptionHouses()
                 RainNet->Drc = drumdrain + (1-CvH)*RainNet->Drc;
             }
         }
-    }
+    }}
 }
 //---------------------------------------------------------------------------
 void TWorld::InterceptionAll()
@@ -224,9 +218,8 @@ void TWorld::InterceptionAll()
     if (!SwitchRainfall)
         return;
 
-#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         double Cv = Cover->Drc;
         double RainNet_ = RainNet->Drc;
         double Rainc_ = Rainc->Drc;
@@ -375,7 +368,7 @@ void TWorld::InterceptionAll()
             }
         }
         RainNet->Drc = RainNet_;
-    }
+    }}
 //        if (FloodDomain->Drc > 0) {
 //            hmx->Drc += RainNet_ + Snowmeltc->Drc;
 //        } else {

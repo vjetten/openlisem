@@ -53,12 +53,12 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     {
         sumh = getMass(h, 0);
 
-#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             FloodDT->Drc = dt_max;
             FloodT->Drc = 0;
             tma->Drc = 0;
-        }
+        }}
 
         do {
             // make a copy
@@ -67,18 +67,18 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
            // if (SwitchLimitSWOFVelocity)
                 vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
 
-#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 hs->Drc = h->Drc;
                 vxs->Drc = std::max(-vmax, std::min(vmax,vx->Drc));
                 vys->Drc = std::max(-vmax, std::min(vmax,vy->Drc));
                 //limit V here, than not necessary later
                 tmb->Drc = 0;
-            }
+            }}
             // tmb is used as flag for cells that need processing
 
             // set tmb for all cells with surface water plus 1 surrounding cell
-#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (hs->Drc > 0) {
                     tmb->Drc = 1;
@@ -92,13 +92,13 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) tmb->data[r-1][c+1]=1;
                     if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) tmb->data[r+1][c-1]=1;
                 }
-            }
+            }}
 
             // experimental: variable timestep set to false
             if (SwitchVariableTimestep) {
                 double dt = dt_max;
                 //#pragma omp parallel for reduction(min:dt) collapse(2) num_threads(userCores)
-                FOR_ROW_COL_MV_L {
+                FOR_ROW_COL_MV {
                     dt = FloodDT->Drc;
                     if (c > 0 && !MV(r,c-1)        ) dt = std::min(dt, FloodDT->data[r][c-1]);
                     if (c < _nrCols-1 && !MV(r,c+1)) dt = std::min(dt, FloodDT->data[r][c+1]);
@@ -123,7 +123,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             }
 
             //do all flow and state calculations
-#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (tmb->Drc > 0)
                 {
@@ -347,20 +347,20 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         vy->Drc = vyn;
                     }
                 }
-            }
+            }}
 
             // find smallest domain dt
-#pragma omp parallel for reduction(min:dt_req_min) collapse(2) num_threads(userCores)
+#pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 double res = FloodDT->Drc;
                 dt_req_min = std::min(dt_req_min, res);
-            }
+            }}
             dt_req_min = std::min(dt_req_min, _dt-timesum);
             timesum += dt_req_min;
 
 
             if (step > 0) {
-#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
                 FOR_ROW_COL_MV_L {
                     if (!SwitchVariableTimestep)
                         FloodDT->Drc = dt_req_min;
@@ -370,7 +370,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     FloodT->Drc += FloodDT->Drc;
                     if (FloodT->Drc > _dt)
                         FloodT->Drc = _dt;
-                }
+                }}
 
                 if (SwitchErosion)
                     SWOFSediment(FloodDT,hs,vxs,vys);
@@ -378,11 +378,11 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 if (SwitchVariableTimestep) {
                     cnt = 0;
                     // nr cells that need processing
-#pragma omp parallel for reduction(+:cnt) collapse(2) num_threads(userCores)
+#pragma omp parallel for reduction(+:cnt) num_threads(userCores)
                     FOR_ROW_COL_MV_L {
                         if (FloodT->Drc < _dt-0.001)
                             cnt++;
-                    }
+                    }}
                     //qDebug() << cnt;
                     stop = cnt < 1;
                 } else {
@@ -407,7 +407,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     double avgdt = 0;
     double nc= 0;
     //#pragma omp parallel for reduction(+:avgdt) collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L {
+    FOR_ROW_COL_MV {
         FloodDT->Drc = tma->Drc > 0 ? _dt/tma->Drc : 0;
         FloodT->Drc = tma->Drc;
         if (tma->Drc > 0)

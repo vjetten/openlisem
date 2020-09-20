@@ -177,8 +177,7 @@ void TWorld::SetFlowBarriers()
 {
     if (!SwitchFlowBarriers)
         return;
-    FOR_ROW_COL_MV_L
-    {
+    FOR_ROW_COL_MV_L {
         if(this->time > FlowBarrierNT->Drc && !(FlowBarrierNT->Drc < 0))
         {
             FlowBarrierN->Drc = 0;
@@ -196,9 +195,7 @@ void TWorld::SetFlowBarriers()
             FlowBarrierW->Drc = 0;
         }
 
-    }
-
-
+    }}
 }
 
 double TWorld::FBW(double h, int r, int c, int dr, int dc)

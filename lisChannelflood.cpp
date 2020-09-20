@@ -422,7 +422,7 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
  */
 void TWorld::ToFlood()
 {
-#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for  num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(hmx->Drc > 0 && WHrunoff->Drc > 0)
         {
@@ -459,27 +459,28 @@ void TWorld::ToFlood()
                 Conc->Drc = MaxConcentration(WH->Drc*ChannelAdj->Drc*DX->Drc, &Sed->Drc, &DEP->Drc);
             }
         }
-    }
+    }}
 }
 //---------------------------------------------------------------------------
 // DO NOT MAKE PARALLEL
 void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
 {
     // floodwater volume and max flood map
-    FOR_ROW_COL_MV  {
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV {
         if (_h->Drc > threshold) {
             floodTime->Drc += _dt/60;
             floodHmxMax->Drc = std::max(floodHmxMax->Drc, _h->Drc);
             // for output
             floodVMax->Drc = std::max(floodVMax->Drc, _UV->Drc);
-            floodVHMax->Drc = std::max(floodVMax->Drc, _UV->Drc*_h->Drc);
+            floodVHMax->Drc = std::max(floodVHMax->Drc, _UV->Drc*_h->Drc);
             // max velocity
         }
     }
     floodVolTotMax = 0;
     floodAreaMax = 0;
     double area = _dx*_dx;
-    FOR_ROW_COL_MV  {
+    FOR_ROW_COL_MV {
         if (floodHmxMax->Drc > threshold) {
             floodVolTotMax += floodHmxMax->Drc*area;
             floodAreaMax += area;
@@ -533,19 +534,19 @@ void TWorld::ChannelFlood(void)
             FloodDomain->Drc = 0;
     }
 
-#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         Qflood->Drc = 0;
         if (FloodDomain->Drc > 0) {
             V->Drc = qSqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
             Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
         }
-    }
+    }}
 
     Boundary2Ddyn();
     // boundary flow
 
-#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         hmxWH->Drc = WH->Drc + hmx->Drc;
 
@@ -561,7 +562,7 @@ void TWorld::ChannelFlood(void)
 
         FloodWaterVol->Drc = hmxflood->Drc*ChannelAdj->Drc*DX->Drc;
         RunoffWaterVol->Drc = WHrunoffOutput->Drc*ChannelAdj->Drc*DX->Drc;
-    }
+    }}
 
     FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
 
@@ -571,14 +572,14 @@ void TWorld::ChannelFlood(void)
         //WHrunoff and Qn are adapted in case of 2D routing
         if(!SwitchUseGrainSizeDistribution)
         {
-#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (FloodDomain->Drc  > 0) {
                     double sed = SSFlood->Drc + BLFlood->Drc;
                     Conc->Drc =  MaxConcentration(FloodWaterVol->Drc, &sed, &DepFlood->Drc);
                     Qsn->Drc += Conc->Drc*Qflood->Drc;
                 }
-            }
+            }}
         }
         else
         {

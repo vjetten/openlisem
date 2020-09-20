@@ -375,18 +375,15 @@ void TWorld::Infiltration()
     }
 
     // calc infiltrated volume for mass balance
-    #pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         double cy = SoilWidthDX->Drc;
         if(FloodDomain->Drc > 0)
             cy = ChannelAdj->Drc;
 
         InfilVol->Drc = fact->Drc*cy*DX->Drc;
         // infil volume is WH before - water after
-    }
-
-
+    }}
 }
 //---------------------------------------------------------------------------
 // Infiltration by Green and Ampt,Smith and Parlange or Ksat.
@@ -402,7 +399,7 @@ then calls IncreaseInfiltrationDepth to increase the wetting front.
 
 void TWorld::InfilMethodsNew()
 {
-    #pragma omp parallel for collapse(2) num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         // default vars are first layer vars
         double fact1 = 0;
@@ -500,7 +497,7 @@ void TWorld::InfilMethodsNew()
             FSurplus->Drc = -1.0*std::min(space, std::max(0.0, fpot->Drc-fact->Drc));
             // negative and smallest of space or fpot-fact
         }
-    }
+    }}
 }
 //---------------------------------------------------------------------------
 
@@ -519,9 +516,8 @@ void TWorld::SoilWater()
         return;
     if (SwitchImpermeable)
         return;
-#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         double Percolation, Ks, bca, dL, thetar, theta_E;
 
         Percolation = 0;
@@ -587,7 +583,7 @@ void TWorld::SoilWater()
 
         }
         Perc->Drc = Percolation;
-    }
+    }}
 }
 
 
@@ -596,7 +592,7 @@ void TWorld::infilInWave(cTMap *_h, double dt1)
 {
     if (InfilMethod == INFIL_SWATRE || InfilMethod == INFIL_NONE)
         return;
-#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(FFull->Drc==0) {
             double cdx = DX->Drc;
@@ -616,9 +612,10 @@ void TWorld::infilInWave(cTMap *_h, double dt1)
             //keep track of infiltration
             InfilVolKinWave->Drc = (infil*cdx*cdy);
         }
-    }
+    }}
 }
 //---------------------------------------------------------------------------
+// OBSOLETE!
 double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFullp)
 {
     double dL1, dL2; // increase in wetting front layer 1 and 2 in m

@@ -45,9 +45,8 @@ void TWorld::GridCell()
 {
 
 
-#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         double dxa = _dx;
         if(SwitchIncludeChannel && ChannelWidthMax->Drc > 0)
             dxa = std::max(0.05, _dx - ChannelWidthMax->Drc);
@@ -65,16 +64,15 @@ void TWorld::GridCell()
 
         SoilWidthDX->Drc = dxa;  //excluding roads, including houses, hard surface
         //houses are assumed to be permeable but with high mannings n
-    }
+    }}
 //report(*ChannelAdj, "cda.map");
 }
 //---------------------------------------------------------------------------
 /// Adds new rainfall afterinterception to runoff water nheight or flood waterheight
 void TWorld::addRainfallWH()
 {
-    #pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         if (FloodDomain->Drc > 0) {
             hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
         } else {
@@ -89,14 +87,13 @@ void TWorld::addRainfallWH()
                 WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
             // assume no interception and infiltration on roads, gross rainfall
         }
-    }
+    }}
 }
 //---------------------------------------------------------------------------
 void TWorld::SurfaceStorage()
 {
-    #pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
+    #pragma omp parallel num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         double RRm = 0.01*RR->Drc; // assume RR in cm convert to m
         double wh = WH->Drc, whflow = 0;
         double mds = MDS->Drc;  // mds is in meters
@@ -142,14 +139,13 @@ void TWorld::SurfaceStorage()
         // average WHrunoff from soil surface + roads, because kin wave can only do one discharge
         // this now takes care of ponded area, so water height is adjusted
         FlowWidth->Drc = FW;
-    }
+    }}
 }
 //---------------------------------------------------------------------------
 void TWorld::doETa()
 {
-    #pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         double tot = 0;
         double tmp = 0;
         double ETp = 5.0/(12.0*3600.0) * 0.001 *_dt;  //5m/day in m per dt
@@ -200,5 +196,5 @@ void TWorld::doETa()
 //TODO fpa
 
 
-    }
+    }}
 }

@@ -137,7 +137,7 @@ void TWorld::SplashDetachment()
     if (!SwitchErosion)
         return;
 
-#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         DETSplash->Drc = 0;
         if(WHrunoff->Drc > 0.0001 || hmx->Drc > 0.0001)
@@ -331,7 +331,7 @@ void TWorld::SplashDetachment()
 
             // IN KG/CELL
         }
-    }
+    }}
 
 }
 
@@ -362,7 +362,7 @@ void TWorld::FlowDetachment()
         return;
 
     //transport capacity
-#pragma omp parallel for collapse(2) num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L  {
         DETFlow->Drc = 0;
         DEP->Drc = 0;
@@ -397,7 +397,7 @@ void TWorld::FlowDetachment()
         //                TC->Drc += TC_D.Drcd;
         //            }
         //        }
-    }
+    }}
 
 
     //the iterator is either the number of grain classes, or 1 if no grain size distribution is used.
@@ -409,9 +409,8 @@ void TWorld::FlowDetachment()
     //for each grain class, calculate flow detachment seperately
     for(int d  = 0 ; d < iterator;d++)
     {
-#pragma omp parallel for collapse(2) num_threads(userCores)
-        FOR_ROW_COL_MV_L
-        {
+#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
             double erosionwh = WHrunoff->Drc;
             double erosionwv = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc;
 
@@ -616,7 +615,7 @@ void TWorld::FlowDetachment()
                 //                    Conc_D.Drcd = MaxConcentration(erosionwv, &Sed_D.Drcd, &DEP->Drc);
                 //                }
             }
-        } // FOR
+        }} // FOR
     } // iterator
 }
 //---------------------------------------------------------------------------
