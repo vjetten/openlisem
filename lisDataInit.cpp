@@ -253,7 +253,23 @@ void TWorld::InitStandardInput(void)
 
     qDebug() << "using:" << userCores << "cores";
 
-   // omp_set_num_threads(userCores);
+
+    time_ms.start();
+    for (int i = 0 ; i < 10000; i++)
+        {
+            #pragma omp parallel for collapse(2) num_threads(userCores)
+            FOR_ROW_COL_MV_L
+                 {
+                double V = 0;
+
+                   V = tm->Drc+ 1;
+                    V  = pow(V, 0.34);
+                //     tm->Drc = V;
+            }
+        }
+        qDebug() << time_ms.elapsed()*0.001/60.0;
+
+
 
     gsizeCalibration = getvaluedouble("Grain Size calibration");
     ksatCalibration = getvaluedouble("Ksat calibration");

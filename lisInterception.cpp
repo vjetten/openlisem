@@ -218,3 +218,177 @@ void TWorld::InterceptionHouses()
     }
 }
 //---------------------------------------------------------------------------
+void TWorld::InterceptionAll()
+{
+    // all variables are in m
+    if (!SwitchRainfall)
+        return;
+
+#pragma omp parallel for collapse(2) num_threads(userCores)
+    FOR_ROW_COL_MV_L
+    {
+        double Cv = Cover->Drc;
+        double RainNet_ = RainNet->Drc;
+        double Rainc_ = Rainc->Drc;
+        double RainCum_ = RainCum->Drc;
+        double AreaSoil = SoilWidthDX->Drc * DX->Drc;
+
+        if (Cv > 0)
+        {
+            double CS = CStor->Drc;
+            //actual canopy storage in m
+            double Smax = CanopyStorage->Drc;
+            //max canopy storage in m
+            double LAIv;
+            if (SwitchInterceptionLAI)
+                LAIv = LAI->Drc;
+            else
+                LAIv = (log(1-Cv)/-0.4)/std::max(0.1,Cv);
+            //Smax is based on LAI and LAI is the average of a gridcell, already including the cover
+            // a low cover means a low LAI means little interception
+
+            if (Smax > 0)
+            {
+                double k = 1-exp(-CanopyOpeness*LAIv);
+                //a dense canopy has a low openess factor, so little direct throughfall and high CS
+
+                CS = Smax*(1-exp(-k*RainCum_/Smax));
+                //      CS = Smax*(1-exp(-0.0653*LAIv*RainCum->Drc/Smax));
+                //VJ 110209 direct use of openess, astons value quite open for eucalypt.
+                //A good guess is using the cover LAI relation
+                //and interpreting cover as openess: k = exp(-0.45*LAI) BUT this is 0.065!!!
+            }
+            else
+                CS = 0;
+            // 0.0653 is canopy openess, based on Aston (1979), based on Merriam (1960/1973), De Jong & Jetten 2003
+            // is not the same as canopy cover. it also deals with how easy rainfall drips through the canopy
+            // possible to use equation from Ahston but for very open Eucalypt
+
+            //            CS = std::max(0.0, CS * (1-StemflowFraction));
+            //VJ 110206 decrease storage with stemflow fraction!
+            // but stemflowfraction doesn't go anywhere!!!!!!!!!!!!!!!!!
+            // it doesn't matter, either stemflow is removed from the storage and added to RainNet
+            // or it is not subtracted in the first place, so the storage is a bit more but leafdrain is earlier at maximum
+
+            LeafDrain->Drc = std::max(0.0, Cv*(Rainc_ - (CS - CStor->Drc)));
+            // diff between new and old strage is subtracted from rainfall
+            // rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
+            // note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
+
+            CStor->Drc = CS;
+            // put new storage back in map
+            Interc->Drc =  Cv * CS * AreaSoil;
+           // Interc->Drc =  Cv * CS * _dx * DX->Drc;
+            // WHY: cvover already takes care of this, trees can be above a road or channel
+
+            RainNet_ = LeafDrain->Drc + (1-Cv)*Rainc_;
+            // net rainfall is direct rainfall + drainage
+            // rainfall that falls on the soil, used in infiltration
+        }
+        else
+        {
+            RainNet_ = Rainc_;
+        }
+
+        if (SwitchLitter) {
+            double CvL = Litter->Drc;
+            if (hmx->Drc == 0 && WH->Drc == 0 && CvL > 0 && RainNet_ > 0)
+            {
+
+                double Smax = LitterSmax/1000.0;
+                // assume simply that the cover linearly scales between 0 and LtterSmax of storage
+
+                double LCS = LCStor->Drc;
+                //actual canopy storage in m
+
+                LCS = std::min(LCS + RainNet_, Smax);
+                // add water to the storage, not more than max
+
+                double drain = std::max(0.0, CvL*(RainNet_ - (LCS - LCStor->Drc)));
+                // diff between new and old storage is subtracted from leafdrip
+
+                LCStor->Drc = LCS;
+                // put new storage back in map for next dt
+
+                LInterc->Drc =  Litter->Drc * LCS * AreaSoil;
+                // only on soil surface, not channels or roads, in m3
+
+                RainNet_ = drain + (1-CvL)*RainNet_;
+                //recalc
+            }
+        }
+
+    // all variables are in m
+        if (SwitchHouses)
+        {
+            double CvH = HouseCover->Drc;
+            if (CvH > 0 &&  RainNet_ > 0)
+            {
+                //house on cell in m2
+                double HS = HStor->Drc;
+                //actual roof storage in m
+
+                double Hmax = RoofStore->Drc;
+                //max roof storage in m
+
+                HS = std::min(HS + RainNet_, Hmax);
+
+                double housedrain = std::max(0.0, CvH * (RainNet_ - (HS - HStor->Drc)));
+                // overflow in m3/m2 of house
+
+                HStor->Drc = HS;
+                // put new storage back in maps in m
+
+                double roofsurface = (AreaSoil * CvH); // m2
+               // double roofsurface = (_dx * DX->Drc * CvH); // m2
+                // user should assure housecover is correct with respect to channel and roads
+                IntercHouse->Drc =  roofsurface * HS;
+                // total interception in m3,exclude roads, channels
+
+                RainNet_ = housedrain + (1-CvH)*RainNet_;
+                // net rainfall is direct rainfall + drainage
+                // rainfall that falls on the soil, used in infiltration
+
+                // filling raindrums with surplus drainage from roofs
+                // drum is recalculated to m based on roof surface
+                double DS = 0;
+                if (SwitchRaindrum && DrumStore->Drc > 0)
+                {
+                    double Dmax = DrumStore->Drc/roofsurface;
+                    //max drum storage in m as if roof storage is more
+
+                    DS = DStor->Drc;
+                    //actual drum storage in m
+
+                    DS = std::min(DS + RainNet_, Dmax);
+                    // fill tank to max
+                    double drumdrain = std::max(0.0, HouseCover->Drc * (RainNet_ - (DS - DStor->Drc)));
+
+                    DStor->Drc = DS;
+                    // put new drum storage back in maps in m3
+
+                    IntercHouse->Drc += roofsurface * DS;
+                    // total interception in m3,exclude roads, channels
+
+                    RainNet_ = drumdrain + (1-CvH)*RainNet_;
+                }
+            }
+        }
+        RainNet->Drc = RainNet_;
+    }
+//        if (FloodDomain->Drc > 0) {
+//            hmx->Drc += RainNet_ + Snowmeltc->Drc;
+//        } else {
+//            WH->Drc += RainNet_ + Snowmeltc->Drc;
+//            // add net to water rainfall on soil surface (in m)
+
+//            if (SwitchGrassStrip && GrassWidthDX->Drc > 0)
+//                WHGrass->Drc += RainNet_ + Snowmeltc->Drc;
+//            // net rainfall on grass strips, infil is calculated separately for grassstrips
+
+//            if (SwitchRoadsystem && RoadWidthHSDX->Drc > 0)
+//                WHroad->Drc += Rainc_ + Snowmeltc->Drc;
+//            // assume no interception and infiltration on roads, gross rainfall
+//        }
+
+}

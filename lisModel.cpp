@@ -180,14 +180,14 @@ void TWorld::DoModel()
         bool saveMBerror = true;
         saveMBerror2file(saveMBerror, true);
 
-        InfilEffectiveKsat();
-        // calc effective ksat from all surfaces once
+        InfilEffectiveKsat();  // calc effective ksat from all surfaces once
+        SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
+        GridCell();            // static for now
+
+
+
 
         DEBUG("Running...");
-
-        SetFlowBarriers();     // update the presence of flow barriers
-        GridCell();
-
         for (time = BeginTime; time < EndTime; time += _dt)
         {
             if (runstep > 0 && runstep % printinterval == 0)
@@ -200,14 +200,18 @@ void TWorld::DoModel()
                 qDebug() << runstep << maxstep << time/60 ;
             }
 
-            mutex.lock();
-            if(stopRequested) DEBUG("User interrupt... finishing time step");
-            mutex.unlock();
+            if(stopRequested) {
+                mutex.lock();
+                DEBUG("User interrupt... finishing time step");
+                mutex.unlock();
+            }
 
-            mutex.lock();
-            if (waitRequested) DEBUG("User pause...");
-            if (waitRequested) condition.wait(&mutex);
-            mutex.unlock();
+            if (waitRequested) {
+                mutex.lock();
+                DEBUG("User pause...");
+                condition.wait(&mutex);
+                mutex.unlock();
+            }
             // check if user wants to quit or pause
 
             //these functions read files, so they can not be multithreaded
@@ -230,11 +234,10 @@ void TWorld::DoModel()
 
             saveMBerror2file(saveMBerror, false);
 
-           // #pragma omp barrier
             reportAll();
 
             if (!noInterface)
-                emit show();
+               emit show();
             // send the op structure with data to function worldShow in LisUIModel.cpp
 
             if(stopRequested)
@@ -278,6 +281,7 @@ void TWorld::CellProcesses()
 //    SetFlowBarriers();     // update the presence of flow barriers
 //    GridCell();            // set channel widths, flowwidths road widths etc
 
+    //InterceptionAll();        // vegetation interception
     Interception();        // vegetation interception
     InterceptionLitter();  // litter interception
     InterceptionHouses();  // urban interception
@@ -310,7 +314,7 @@ void TWorld::OrderedProcesses()
     CalcVelDischChannel(); // alpha, V and Q from Manning
 
     ChannelFlowDetachment();  //detachment, deposition for SS and BL
-    ChannelFlow();         // channel kin wave for water and sediment
+    ChannelFlow();            //channel kin wave for water and sediment
 
     TileFlow();          // tile drain flow kin wave
 

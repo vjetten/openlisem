@@ -658,6 +658,7 @@ double sum1;
     /// subtract water retained on houses, for urban projects    
     void addRainfallWH();
     /// add net rainfall to WH, WHroads and WHgrass
+    void InterceptionAll();
 
     void InfilEffectiveKsat();
     void Infiltration();
