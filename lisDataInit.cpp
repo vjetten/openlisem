@@ -240,6 +240,10 @@ void TWorld::InitStandardInput(void)
         newcr.r = r;
         newcr.c = c;
         cr_ << newcr;
+
+        _r_ << r;
+        _c_ << c;
+        nrValidCells++;
     }
 
     tm = NewMap(0); // temp map for aux calculations
@@ -256,18 +260,18 @@ void TWorld::InitStandardInput(void)
     qDebug() << "using:" << userCores << "cores";
 
 
-    time_ms.start();
-    for (int i = 0 ; i < 10000; i++)
-        {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L  {
-                double V = 0;
-                V = tm->Drc+ 1;
-                V  = pow(V, 0.34);
-                tm->Drc = V;
-            }}
-        }
-        qDebug() << time_ms.elapsed()*0.001/60.0;
+//    time_ms.start();
+//    for (int i = 0 ; i < 10000; i++)
+//        {
+//            #pragma omp parallel for num_threads(userCores)
+//            FOR_ROW_COL_MV_L  {
+//                double V = 0;
+//                V = tm->Drc+ 1;
+//                V  = pow(V, 0.34);
+//                tm->Drc = V;
+//            }}
+//        }
+//        qDebug() << time_ms.elapsed()*0.001/60.0;
 
 
 

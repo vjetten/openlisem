@@ -85,8 +85,11 @@
 //    for (int c = 0; c < _nrCols; c++)\
 //    if(!pcr::isMV(LDD->data[r][c]))
 
-#define FOR_ROW_COL_MV_L for(size_t i_ = 0; i_ < nrValidCells; i_++)\
+#define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < nrValidCells; i_++)\
 {int r = cr_.at(i_).r; int c = cr_.at(i_).c;
+
+//#define FOR_ROW_COL_MV_L for(size_t i_ = 0; i_ < nrValidCells; i_++)\
+//{int r = _r_.at(i_); int c = _c_.at(i_);
 
 #define FOR_GRAIN_CLASSES for(int d  = 0 ; d < numgrainclasses;d++)
 
@@ -233,12 +236,14 @@ public:
     ~TWorld();
 
     /// copy of overall rows and columns, set in initmask
-    long _nrRows;
-    long _nrCols;
+    int _nrRows;
+    int _nrCols;
 
-    size_t nrValidCells;
-    QVector <LDD_COOR> cr_;
+    long nrValidCells;
+    QList <LDD_COOR> cr_;
 
+    QVector <int> _r_;
+    QVector <int> _c_;
     /// map management structure, automatic adding and deleting of all cTMap variables
     MapListStruct maplistCTMap[NUMNAMES];
     int maplistnr;
