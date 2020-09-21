@@ -118,6 +118,7 @@ cTMap
 *Litter,                     //!< vegetation litter cover fraction [-]
 *CanopyStorage,              //!< canopy storage [m]
 *LAI,                        //!< leaf area index [m^2/m^2]
+*kLAI,
 *LandUnit,                   //!< land unit class (> 0) [-]
 
 *Cohesion,                   //!< total cohesion of the soil surface: coh soil *(1-cover) + coh plant (cover) [kPa]
@@ -235,6 +236,7 @@ cTMap
 *Ksateff,                    //!< effective saturated hydraulic conductivity (input is in mm/h) [m/s]
 *Poreeff,
 *Thetaeff,
+*bca,
 *Perc,
 *PercmmCum,
 *factgr,                     //!< actual infiltration rate fo grassstrip [m/s]

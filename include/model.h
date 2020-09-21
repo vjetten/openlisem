@@ -85,7 +85,9 @@
 //    for (int c = 0; c < _nrCols; c++)\
 //    if(!pcr::isMV(LDD->data[r][c]))
 
-#define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < cr_.size(); i_++)\
+//#define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < nrValidCells; i_++)\
+
+#define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
 {int r = cr_[i_].r; int c = cr_[i_].c;
 
 //#define FOR_ROW_COL_MV_L for(QVector<LDD_COOR>::iterator it = cr_.begin(); it != cr_.end(); ++it)\
@@ -253,7 +255,7 @@ public:
     long nrValidCells1;
     QVector <LDD_COOR> cr_;
     QVector <LDD_COOR> cr1_;
-
+    QVector <LDD_COOR> cr0_;
 
     QVector <int> _r_;
     QVector <int> _c_;
@@ -689,7 +691,6 @@ double sum1;
     void Infiltration();
     void InfilSwatre(cTMap *_WH);
 
-    double IncreaseInfiltrationDepth(int r, int c, double fact, REAL8 *L1p, REAL8 *L2p, REAL8 *FFull);
     double IncreaseInfiltrationDepthNew(int r, int c);
 
     void SoilWater();

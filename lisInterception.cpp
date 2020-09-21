@@ -52,7 +52,8 @@ void TWorld::Interception()
     //VJ 110113 bug fix, no interception when no rainfall and only snowmelt
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        RainNet->Drc = Rainc->Drc;
+        double Rainc_ = Rainc->Drc;
+        RainNet->Drc = Rainc_;
         double Cv = Cover->Drc;
         if (Cv > 0)// && Rainc->Drc > 0)
         {
@@ -60,20 +61,20 @@ void TWorld::Interception()
             //actual canopy storage in m
             double Smax = CanopyStorage->Drc;
             //max canopy storage in m
-            double LAIv;
-            if (SwitchInterceptionLAI)
-                LAIv = LAI->Drc;
-            else
-                LAIv = (log(1-Cv)/-0.4)/std::max(0.1,Cv);
+//            double LAIv;
+//            if (SwitchInterceptionLAI)
+//                LAIv = LAI->Drc;
+//            else
+//                LAIv = (log(1-Cv)/-0.4)/std::max(0.1,Cv);
             //Smax is based on LAI and LAI is the average of a gridcell, already including the cover
             // a low cover means a low LAI means little interception
 
             if (Smax > 0)
             {
-                double k = 1-exp(-CanopyOpeness*LAIv);
+                //double k = 1-exp(-CanopyOpeness*LAI->Drc);
                 //a dense canopy has a low openess factor, so little direct throughfall and high CS
 
-                CS = Smax*(1-exp(-k*RainCum->Drc/Smax));
+                CS = Smax*(1-exp(-kLAI->Drc*RainCum->Drc/Smax));
                 //      CS = Smax*(1-exp(-0.0653*LAIv*RainCum->Drc/Smax));
                 //VJ 110209 direct use of openess, astons value quite open for eucalypt.
                 //A good guess is using the cover LAI relation
@@ -91,7 +92,7 @@ void TWorld::Interception()
             // it doesn't matter, either stemflow is removed from the storage and added to RainNet
             // or it is not subtracted in the first place, so the storage is a bit more but leafdrain is earlier at maximum
 
-            LeafDrain->Drc = std::max(0.0, Cv*(Rainc->Drc - (CS - CStor->Drc)));
+            LeafDrain->Drc = std::max(0.0, Cv*(Rainc_ - (CS - CStor->Drc)));
             // diff between new and old strage is subtracted from rainfall
             // rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
             // note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
@@ -102,7 +103,7 @@ void TWorld::Interception()
            // Interc->Drc =  Cv * CS * _dx * DX->Drc;
             // WHY: cvover already takes care of this, trees can be above a road or channel
 
-            RainNet->Drc = LeafDrain->Drc + (1-Cv)*Rainc->Drc;
+            RainNet->Drc = LeafDrain->Drc + (1-Cv)*Rainc_;
             // net rainfall is direct rainfall + drainage
             // rainfall that falls on the soil, used in infiltration
         }
@@ -120,6 +121,7 @@ void TWorld::InterceptionLitter()
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double CvL = Litter->Drc;
+        double RainNet_ = RainNet->Drc;
         if (hmx->Drc == 0 && WH->Drc == 0 && CvL > 0 && RainNet->Drc > 0)
         {
 
@@ -129,10 +131,10 @@ void TWorld::InterceptionLitter()
             double LCS = LCStor->Drc;
             //actual canopy storage in m
 
-            LCS = std::min(LCS + RainNet->Drc, Smax);
+            LCS = std::min(LCS + RainNet_, Smax);
             // add water to the storage, not more than max
 
-            double drain = std::max(0.0, CvL*(RainNet->Drc - (LCS - LCStor->Drc)));
+            double drain = std::max(0.0, CvL*(RainNet_ - (LCS - LCStor->Drc)));
             // diff between new and old storage is subtracted from leafdrip
 
             LCStor->Drc = LCS;
@@ -141,7 +143,7 @@ void TWorld::InterceptionLitter()
             LInterc->Drc =  Litter->Drc * LCS * SoilWidthDX->Drc * DX->Drc;
             // only on soil surface, not channels or roads, in m3
 
-            RainNet->Drc = drain + (1-CvL)*RainNet->Drc;// + (1-Cover->Drc)*Rainc->Drc;
+            RainNet->Drc = drain + (1-CvL)*RainNet_;// + (1-Cover->Drc)*Rainc->Drc;
             //recalc
         }
     }}
@@ -158,6 +160,7 @@ void TWorld::InterceptionHouses()
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double CvH = HouseCover->Drc;
+        double RainNet_ = RainNet->Drc;
         if (CvH > 0 &&  Rainc->Drc > 0)
         {
             //house on cell in m2
@@ -167,9 +170,9 @@ void TWorld::InterceptionHouses()
             double Hmax = RoofStore->Drc;
             //max roof storage in m
 
-            HS = std::min(HS + RainNet->Drc, Hmax);
+            HS = std::min(HS + RainNet_, Hmax);
 
-            double housedrain = std::max(0.0, CvH * (RainNet->Drc - (HS - HStor->Drc)));
+            double housedrain = std::max(0.0, CvH * (RainNet_ - (HS - HStor->Drc)));
             // overflow in m3/m2 of house
 
             HStor->Drc = HS;
@@ -181,7 +184,7 @@ void TWorld::InterceptionHouses()
             IntercHouse->Drc =  roofsurface * HS;
             // total interception in m3,exclude roads, channels
 
-            RainNet->Drc = housedrain + (1-CvH)*RainNet->Drc;
+            RainNet_ = housedrain + (1-CvH)*RainNet_;
             // net rainfall is direct rainfall + drainage
             // rainfall that falls on the soil, used in infiltration
 
@@ -196,9 +199,9 @@ void TWorld::InterceptionHouses()
                 DS = DStor->Drc;
                 //actual drum storage in m
 
-                DS = std::min(DS + RainNet->Drc, Dmax);
+                DS = std::min(DS + RainNet_, Dmax);
                 // fill tank to max
-                double drumdrain = std::max(0.0, HouseCover->Drc * (RainNet->Drc - (DS - DStor->Drc)));
+                double drumdrain = std::max(0.0, HouseCover->Drc * (RainNet_ - (DS - DStor->Drc)));
 
                 DStor->Drc = DS;
                 // put new drum storage back in maps in m3
@@ -206,9 +209,10 @@ void TWorld::InterceptionHouses()
                 IntercHouse->Drc += roofsurface * DS;
                 // total interception in m3,exclude roads, channels
 
-                RainNet->Drc = drumdrain + (1-CvH)*RainNet->Drc;
+                RainNet_ = drumdrain + (1-CvH)*RainNet_;
             }
         }
+        RainNet->Drc = RainNet_;
     }}
 }
 //---------------------------------------------------------------------------

@@ -245,6 +245,16 @@ void TWorld::InitStandardInput(void)
 
     FOR_ROW_COL_MV {
         LDD_COOR newcr;
+        if (r > 0 && r < _nrRows-1) {
+            newcr.r = r;
+            newcr.c = c;
+            cr0_ << newcr;
+        }
+    }
+
+
+    FOR_ROW_COL_MV {
+        LDD_COOR newcr;
         newcr.r = r;
         newcr.c = c;
         cr1_ << newcr;
@@ -274,12 +284,9 @@ void TWorld::InitStandardInput(void)
             cr1_ << newcr;
         }
     }
-    nrValidCells1 = cr1_.size();
-    qDebug() << nrValidCells << nrValidCells1;
-
+    nrValidCells1 = cr1_.size();   
 
     tm = NewMap(0); // temp map for aux calculations
-
     tma = NewMap(0); // temp map for aux calculations
     tmb = NewMap(0); // temp map for aux calculations
     tmc = NewMap(0); // temp map for aux calculations
@@ -293,18 +300,23 @@ void TWorld::InitStandardInput(void)
     qDebug() << "using:" << userCores << "cores";
 
 
-    time_ms.start();
-    for (int i = 0 ; i < 10000; i++)
-        {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L  {
-                double V = 0;
-                V = tm->Drc+ 1;
-                V  = pow(V, 0.34);
-                tm->Drc = V;
-            }}
-        }
-        qDebug() << time_ms.elapsed()*0.001/60.0;
+//    time_ms.start();
+//    for (int i = 0 ; i < 10000; i++)
+//        {
+//            #pragma omp parallel for num_threads(userCores)
+//        for(long i_ = 0; i_ < nrValidCells; i_++)
+//        {
+//            int r = cr_[i_].r;
+//            int c = cr_[i_].c;
+//                double V = 0;
+//           //     V = tm->data[cr_[i_].r][cr_[i_].c]+ 1;
+//                V = tm->Drc;
+//                V  = pow(V, 0.34);
+//             //   tm->data[cr_[i_].r][cr_[i_].c] = V;
+//                tm->Drc = V;
+//            }
+//        }
+//        qDebug() << time_ms.elapsed()*0.001/60.0;
 
 
 
@@ -487,6 +499,17 @@ void TWorld::InitStandardInput(void)
     checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
     checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
 
+    if (SwitchInterceptionLAI)
+        FOR_ROW_COL_MV {
+            LAI->Drc = (log(1-Cover->Drc)/-0.4)/std::max(0.1,Cover->Drc);
+        }
+
+    kLAI = NewMap(0);
+    FOR_ROW_COL_MV {
+        kLAI->Drc = 1-exp(-CanopyOpeness*LAI->Drc);
+    }
+
+
     GrassFraction = NewMap(0);
     if (SwitchGrassStrip)
     {
@@ -568,14 +591,14 @@ void TWorld::InitStandardInput(void)
         calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
         calcValue(*Psi1, 0.01, MUL); // convert to meter
 
-        Ksat3 = NewMap(0);
-        ThetaI3 = NewMap(0);
-        ThetaS3 = NewMap(0);
-        Psi3 = NewMap(0);
-        copy(*ThetaI3, *ThetaI1);
-        copy(*ThetaS3, *ThetaS1);
-        copy(*Ksat3, *Ksat1);
-        copy(*Psi3, *Psi1);
+//        Ksat3 = NewMap(0);
+//        ThetaI3 = NewMap(0);
+//        ThetaS3 = NewMap(0);
+//        Psi3 = NewMap(0);
+//        copy(*ThetaI3, *ThetaI1);
+//        copy(*ThetaS3, *ThetaS1);
+//        copy(*Ksat3, *Ksat1);
+//        copy(*Psi3, *Psi1);
 
         if (SwitchTwoLayer)
         {
@@ -594,10 +617,10 @@ void TWorld::InitStandardInput(void)
             calcValue(*SoilDepth2, 1000, DIV);
             //VJ 101213 fixed bug: convert from mm to m
 
-            copy(*ThetaI3, *ThetaI2);
-            copy(*ThetaS3, *ThetaS2);
-            copy(*Ksat3, *Ksat2);
-            copy(*Psi3, *Psi2);
+//            copy(*ThetaI3, *ThetaI2);
+//            copy(*ThetaS3, *ThetaS2);
+//            copy(*Ksat3, *Ksat2);
+//            copy(*Psi3, *Psi2);
 
             FOR_ROW_COL_MV
             {
@@ -1672,6 +1695,7 @@ void TWorld::IntializeData(void)
     Ksateff = NewMap(0);
     Poreeff = NewMap(0);
     Thetaeff = NewMap(0);
+    bca = NewMap(0);
     FSurplus = NewMap(0);
     FFull = NewMap(0);
     Perc = NewMap(0);

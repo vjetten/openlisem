@@ -574,7 +574,6 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
     }
 }
 //---------------------------------------------------------------------------
-
 double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
 {
     vec4 rec;
@@ -584,7 +583,7 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
     cTMap *fbn = FlowBarrierN;
     cTMap *fbs = FlowBarrierS;
 
-    #pragma omp parallel for num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         f1->Drc = 0;
         f2->Drc = 0;
@@ -613,7 +612,6 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
 //    }
 //}
 
-
 //#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(c > 0 && !MV(r,c-1)) {
@@ -634,7 +632,7 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
             h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
             rec = F_Riemann(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c], h2g->Drc,v2l->Drc,u2l->Drc);
             g1->Drc = rec.v[0];
-            g2->Drc = rec.v[2]; //!!!!!!!!!!!!
+            g2->Drc = rec.v[2]; // !!!!!!!!!!!!
             g3->Drc = rec.v[1];
             cfly->Drc = rec.v[3];
         }
@@ -653,19 +651,20 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
         }
 
         // right hand side boundary
-        if(c == _nrCols-1 || MV(r, c+1)){
+        if(c == _nrCols-1 || MV(r, c+1)) {
             double _h1d = std::max(0.0, h1r->Drc - fbw->Drc);
             rec = F_Riemann(_h1d,u1r->Drc,v1r->Drc,0.,0.,0.);
             f1o->Drc = rec.v[0];
             f2o->Drc = rec.v[1];
             f3o->Drc = rec.v[2];
         }
+
         //upper boundary
         if (r == 0 || MV(r-1,c)) {
             double _h2g = std::max(0.0, h2l->Drc - fbn->Drc);
             rec = F_Riemann(0,0,0,_h2g,v2l->Drc,u2l->Drc);
             g1->Drc = rec.v[0];
-            g2->Drc = rec.v[2];//!!!
+            g2->Drc = rec.v[2];// !!!
             g3->Drc = rec.v[1];
             cfly->Drc = rec.v[3];
         }
@@ -675,7 +674,7 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
             double _h2d = std::max(0.0, h2d->Drc - fbs->Drc);
             rec = F_Riemann(_h2d,v2l->Drc,u2l->Drc,0.,0.,0.);
             g1o->Drc = rec.v[0];
-            g2o->Drc = rec.v[2];
+            g2o->Drc = rec.v[2];// !!!
             g3o->Drc = rec.v[1];
         }
     }}
@@ -704,26 +703,27 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
             dtx = std::min(dtx, std::min(tma->Drc, tmb->Drc));
         }
     }
-    return(std::max(TimestepfloodMin, dtx));
 
+    return(std::max(TimestepfloodMin, dtx));
 }
 
 void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2)
 {
 #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
+    FOR_ROW_COL_MV_L  {
         double Hes, Ves1, Ves2;
         double tx = dt/_dx;//ChannelAdj->Drc;
         double ty = dt/_dx;//DX->Drc;
         double _f1=0, _f2=0, _f3=0, _g1=0, _g2=0, _g3=0;
 
         //choose left hand boundary and normal (f1), or right hand boundary values (f1o)
-        if (c < _nrCols-1 && !MV(r, c+1)){
+        if (c < _nrCols-1 && !MV(r, c+1)) {
             _f1 = f1->data[r][c+1];
             _f2 = f2->data[r][c+1];
             _f3 = f3->data[r][c+1];
-        }
-        if (c == _nrCols-1 || MV(r, c+1)){
+        } else
+        //if (c == _nrCols-1 || MV(r, c+1))
+        {
             _f1 = f1o->Drc;
             _f2 = f2o->Drc;
             _f3 = f3o->Drc;
@@ -732,8 +732,9 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
             _g1 = g1->data[r+1][c];
             _g2 = g2->data[r+1][c];
             _g3 = g3->data[r+1][c];
-        }
-        if (r == _nrRows-1 || MV(r+1, c)) {
+        } else
+        //if (r == _nrRows-1 || MV(r+1, c))
+        {
             _g1 = g1o->Drc;
             _g2 = g2o->Drc;
             _g3 = g3o->Drc;
@@ -752,7 +753,7 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
                     tx*(_f2 - f2->Drc +
                         GRAV*0.5*((h1g->Drc-h1l->Drc)*(h1g->Drc+h1l->Drc) +
                                   (h1r->Drc-h1d->Drc)*(h1r->Drc+h1d->Drc)
-                                  + (h1l->Drc+h1r->Drc)*delzc1->Drc)) ;
+                                  + (h1l->Drc+h1r->Drc)*delzc1->Drc));
 
             qes2 = he->Drc*ve2->Drc -
                     tx*(_f3 - f3->Drc) -

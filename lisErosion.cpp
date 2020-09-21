@@ -443,7 +443,7 @@ void TWorld::FlowDetachment()
                 if(!SwitchUseGrainSizeDistribution)
                 {
                     maxTC = std::max(TC->Drc - Conc->Drc,0.0);
-                    // positive difference: TC deficit becomes detachment (positive)
+                    // positive difference: TC defi  cit becomes detachment (positive)
                     minTC = std::min(TC->Drc - Conc->Drc,0.0);
                     // negative difference: TC surplus becomes deposition (negative)
                     // unit kg/m3

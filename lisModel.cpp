@@ -184,9 +184,6 @@ void TWorld::DoModel()
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
 
-
-
-
         DEBUG("Running...");
         for (time = BeginTime; time < EndTime; time += _dt)
         {
