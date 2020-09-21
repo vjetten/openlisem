@@ -85,8 +85,18 @@
 //    for (int c = 0; c < _nrCols; c++)\
 //    if(!pcr::isMV(LDD->data[r][c]))
 
-#define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < nrValidCells; i_++)\
-{int r = cr_.at(i_).r; int c = cr_.at(i_).c;
+#define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < cr_.size(); i_++)\
+{int r = cr_[i_].r; int c = cr_[i_].c;
+
+//#define FOR_ROW_COL_MV_L for(QVector<LDD_COOR>::iterator it = cr_.begin(); it != cr_.end(); ++it)\
+//    {int r = it->r; int c = it->c;
+
+//#define FOR_ROW_COL_MV_LL for(QVector<LDD_COOR>::iterator it = cr1_.begin(); it != cr1_.end(); ++it)\
+//    {int r = it->r; int c = it->c;
+
+
+#define FOR_ROW_COL_MV_LL for(long i_ = 0; i_ < cr1_.size(); i_++)\
+{int r = cr1_.at(i_).r; int c = cr1_.at(i_).c;
 
 //#define FOR_ROW_COL_MV_L for(size_t i_ = 0; i_ < nrValidCells; i_++)\
 //{int r = _r_.at(i_); int c = _c_.at(i_);
@@ -240,7 +250,10 @@ public:
     int _nrCols;
 
     long nrValidCells;
-    QList <LDD_COOR> cr_;
+    long nrValidCells1;
+    QVector <LDD_COOR> cr_;
+    QVector <LDD_COOR> cr1_;
+
 
     QVector <int> _r_;
     QVector <int> _c_;
@@ -462,6 +475,7 @@ double sum1;
     void InitFlood(void);
     void InitChanNetwork();
     void FindChannelAngles();
+    void AddZero(cTMap *M);
 
     // functions in lisRunfile.cpp
     QString getvaluename(QString vname);

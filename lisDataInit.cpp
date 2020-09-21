@@ -240,13 +240,46 @@ void TWorld::InitStandardInput(void)
         newcr.r = r;
         newcr.c = c;
         cr_ << newcr;
-
-        _r_ << r;
-        _c_ << c;
-        nrValidCells++;
     }
+    nrValidCells = cr_.size();
+
+    FOR_ROW_COL_MV {
+        LDD_COOR newcr;
+        newcr.r = r;
+        newcr.c = c;
+        cr1_ << newcr;
+
+        if(c > 0 && pcr::isMV(LDD->data[r][c-1])) {
+            LDD_COOR newcr;
+            newcr.r = r;
+            newcr.c = c;
+            cr1_ << newcr;
+        }
+        if(c < _nrCols-1 && pcr::isMV(LDD->data[r][c+1])) {
+            LDD_COOR newcr;
+            newcr.r = r;
+            newcr.c = c;
+            cr1_ << newcr;
+        }
+        if(r > 0 && pcr::isMV(LDD->data[r-1][c])) {
+            LDD_COOR newcr;
+            newcr.r = r;
+            newcr.c = c;
+            cr1_ << newcr;
+        }
+        if(r < _nrRows-1 && pcr::isMV(LDD->data[r+1][c])) {
+            LDD_COOR newcr;
+            newcr.r = r;
+            newcr.c = c;
+            cr1_ << newcr;
+        }
+    }
+    nrValidCells1 = cr1_.size();
+    qDebug() << nrValidCells << nrValidCells1;
+
 
     tm = NewMap(0); // temp map for aux calculations
+
     tma = NewMap(0); // temp map for aux calculations
     tmb = NewMap(0); // temp map for aux calculations
     tmc = NewMap(0); // temp map for aux calculations
@@ -260,18 +293,18 @@ void TWorld::InitStandardInput(void)
     qDebug() << "using:" << userCores << "cores";
 
 
-//    time_ms.start();
-//    for (int i = 0 ; i < 10000; i++)
-//        {
-//            #pragma omp parallel for num_threads(userCores)
-//            FOR_ROW_COL_MV_L  {
-//                double V = 0;
-//                V = tm->Drc+ 1;
-//                V  = pow(V, 0.34);
-//                tm->Drc = V;
-//            }}
-//        }
-//        qDebug() << time_ms.elapsed()*0.001/60.0;
+    time_ms.start();
+    for (int i = 0 ; i < 10000; i++)
+        {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L  {
+                double V = 0;
+                V = tm->Drc+ 1;
+                V  = pow(V, 0.34);
+                tm->Drc = V;
+            }}
+        }
+        qDebug() << time_ms.elapsed()*0.001/60.0;
 
 
 
@@ -909,6 +942,15 @@ void TWorld::InitChannel(void)
     FindChannelAngles();
 }
 //---------------------------------------------------------------------------
+void TWorld::AddZero(cTMap *M)
+{
+    for(int r = 0; r < _nrRows; r++)
+        for (int c = 0; c < _nrCols; c++)
+        {
+            M->data[r][c] = 0;
+        }
+}
+//---------------------------------------------------------------------------
 void TWorld::InitFlood(void)
 {
     FloodSedTot = 0;
@@ -969,9 +1011,9 @@ void TWorld::InitFlood(void)
     }
 
     if (!SwitchSWOFopen) {
-        hsa = NewMap(0);
-        vsa = NewMap(0);
-        usa = NewMap(0);
+        //hsa = NewMap(0);
+        //vsa = NewMap(0);
+       // usa = NewMap(0);
         z1r = NewMap(0);
         z1l = NewMap(0);
         z2r = NewMap(0);
@@ -1013,24 +1055,38 @@ void TWorld::InitFlood(void)
         delz1 = NewMap(0);
         delz2 = NewMap(0);
         prepareFloodZ(DEM);
-    } else {
-//        hll0_x1 = NewMap(0);
-//        hll1_x1 = NewMap(0);
-//        hll2_x1 = NewMap(0);
-
-//        hll0_y1 = NewMap(0);
-//        hll1_y1 = NewMap(0);
-//        hll2_y1 = NewMap(0);
-
-//        hll0_x2 = NewMap(0);
-//        hll1_x2 = NewMap(0);
-//        hll2_x2 = NewMap(0);
-
-//        hll0_y2 = NewMap(0);
-//        hll1_y2 = NewMap(0);
-//        hll2_y2 = NewMap(0);
-//        sxzh = NewMap(0);
-//        syzh = NewMap(0);
+        AddZero(z1r);
+        AddZero(z1l);
+        AddZero(z2r);
+        AddZero(z2l);
+        AddZero(h1r);
+        AddZero(h1l);
+        AddZero(h2r);
+        AddZero(h2l);
+        AddZero(v1r);
+        AddZero(v1l);
+        AddZero(v2r);
+        AddZero(v2l);
+        AddZero(u1r);
+        AddZero(u1l);
+        AddZero(u2r);
+        AddZero(u2l);
+        AddZero(f1 );
+        AddZero(f2 );
+        AddZero(f3 );
+        AddZero(g1 );
+        AddZero(g2 );
+        AddZero(g3 );
+        AddZero(f1o);
+        AddZero(f2o);
+        AddZero(f3o);
+        AddZero(g1o);
+        AddZero(g2o);
+        AddZero(g3o);
+        AddZero(h1d);
+        AddZero(h1g);
+        AddZero(h2d);
+        AddZero(h2g);
     }
 
     if (SwitchErosion) {

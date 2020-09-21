@@ -602,8 +602,20 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
         tmb->Drc = dt_max;
     }}
 
-//#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV {
+//FOR_ROW_COL_MV {
+//    if(c > 0 && !MV(r,c-1)) {
+//        h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
+//        h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
+//    }
+//    if(r > 0 && !MV(r-1,c)) {
+//        h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
+//        h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
+//    }
+//}
+
+
+//#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         if(c > 0 && !MV(r,c-1)) {
             h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
             h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
@@ -613,10 +625,10 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
             f3->Drc =   rec.v[2];
             cflx->Drc = rec.v[3];
         }
-    }
+    }}
 
-//#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV {
+//#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         if(r > 0 && !MV(r-1,c)) {
             h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
             h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
@@ -626,7 +638,7 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
             g3->Drc = rec.v[1];
             cfly->Drc = rec.v[3];
         }
-    }
+    }}
 
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
