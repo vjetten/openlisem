@@ -61,16 +61,17 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
             _SSC = SSCFlood;
         }
     }
-//#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_CH {
-        if(ChannelMaskExtended->data[r][c] == 1)// && !pcr::isMV(LDDChannel->data[r][c]))
-        {
+
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+//        if(ChannelMaskExtended->data[r][c] == 1)// && !pcr::isMV(LDDChannel->data[r][c]))
+//        {
             int rr = r;//(int)ChannelSourceYExtended->Drc;
             int cr = c;//(int)ChannelSourceXExtended->Drc;
 
             if (SwitchErosion) {
                 if (doOF)
-                    Conc->Drcr = MaxConcentration(ChannelAdj->Drc*DX->Drc*_h->Drcr, &Sed->Drc, &DEP->Drc);
+                    Conc->Drcr = MaxConcentration(CHAdjDX->Drc*_h->Drcr, &Sed->Drc, &DEP->Drc);
                 else
                     SWOFSedimentSetConcentration(rr,cr, _h);
 
@@ -191,7 +192,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                 if(SwitchErosion)
                 {
                     if (doOF)
-                        Conc->Drcr = MaxConcentration(ChannelAdj->Drc*DX->Drc*_h->Drcr, &_SS->Drc, &DEP->Drc);
+                        Conc->Drcr = MaxConcentration(CHAdjDX->Drc*_h->Drcr, &_SS->Drc, &DEP->Drc);
                     else {
                         SWOFSedimentLayerDepth(r,c,_h->Drcr, V->Drcr);
                         SWOFSedimentSetConcentration(rr,cr, _h);
@@ -204,8 +205,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                 }
 
             }
-        }
-    }
+        }}
+    //}
 }
 //---------------------------------------------------------------------------
 //! Get flood level in channel from 1D kin wave channel
@@ -239,7 +240,7 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
 
             if(SwitchErosion) {
                 if (doOF)
-                    Conc->Drcr = MaxConcentration(ChannelAdj->Drc*DX->Drc*_h->Drcr, &Sed->Drc, &DEP->Drc);
+                    Conc->Drcr = MaxConcentration(CHAdjDX->Drc*_h->Drcr, &Sed->Drc, &DEP->Drc);
                 else
                     SWOFSedimentSetConcentration(rr,cr, _h);
 
@@ -390,7 +391,7 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
                 // recalc channel water vol else big MB error
                 if(SwitchErosion) {
                     if (doOF)
-                        Conc->Drcr = MaxConcentration(ChannelAdj->Drc*DX->Drc*_h->Drcr, &_SS->Drc, &DEP->Drc);
+                        Conc->Drcr = MaxConcentration(CHAdjDX->Drc*_h->Drcr, &_SS->Drc, &DEP->Drc);
                     else {
                         SWOFSedimentLayerDepth(r,c,_h->Drcr, V->Drcr);
                         SWOFSedimentSetConcentration(rr,cr, _h);
@@ -456,7 +457,7 @@ void TWorld::ToFlood()
                 //                    }
                 //                }
                 SWOFSedimentSetConcentration(r,c,hmx);
-                Conc->Drc = MaxConcentration(WH->Drc*ChannelAdj->Drc*DX->Drc, &Sed->Drc, &DEP->Drc);
+                Conc->Drc = MaxConcentration(WH->Drc*CHAdjDX->Drc, &Sed->Drc, &DEP->Drc);
             }
         }
     }}
@@ -512,7 +513,7 @@ void TWorld::ChannelFlood(void)
     FOR_ROW_COL_MV {
         if (hmx->Drc > 0) {
             startFlood = true;
-            //break;
+            break;
         }
     }
 
@@ -560,18 +561,21 @@ void TWorld::ChannelFlood(void)
                                       + WHstore->Drc*SoilWidthDX->Drc);
         // all water on surface
 
-        FloodWaterVol->Drc = hmxflood->Drc*ChannelAdj->Drc*DX->Drc;
-        RunoffWaterVol->Drc = WHrunoffOutput->Drc*ChannelAdj->Drc*DX->Drc;
+        FloodWaterVol->Drc = hmxflood->Drc*CHAdjDX->Drc;
+        RunoffWaterVol->Drc = WHrunoffOutput->Drc*CHAdjDX->Drc;
+
+        WHmax->Drc = std::max(WHmax->Drc, hmxWH->Drc);
     }}
 
     FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
+
 
     if(SwitchErosion)
     {
         //calculate concentration and new sediment discharge
         //WHrunoff and Qn are adapted in case of 2D routing
-        if(!SwitchUseGrainSizeDistribution)
-        {
+    //    if(!SwitchUseGrainSizeDistribution)
+      //  {
 #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (FloodDomain->Drc  > 0) {
@@ -580,9 +584,9 @@ void TWorld::ChannelFlood(void)
                     Qsn->Drc += Conc->Drc*Qflood->Drc;
                 }
             }}
-        }
-        else
-        {
+        //}
+     //   else
+//        {
             //calculate total sediment from induvidual grain classes,
             //and calculate concentration and new sediment discharge
             //            FOR_ROW_COL_MV
@@ -600,7 +604,7 @@ void TWorld::ChannelFlood(void)
             //                }
             //                Qsn->Drc = Conc->Drc*Qn->Drc;
             //            }
-        }
+  //      }
     }
 
     double area = nrFloodedCells*_dx*_dx;

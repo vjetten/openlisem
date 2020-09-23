@@ -142,8 +142,8 @@ void TWorld::CalcVelDischChannel()
     \ |         wh | /
      \|____________|/
   */
-#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV_CH  {
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL  {
         double Perim, Radius, Area;
         const double beta = 0.6;
         double beta1 = 1/beta;
@@ -184,7 +184,7 @@ void TWorld::CalcVelDischChannel()
             ChannelQ->Drc = 0;
 
         ChannelV->Drc = std::pow(Radius, 2.0/3.0)*grad/ChannelN->Drc;
-    }
+    }}
 }
 //---------------------------------------------------------------------------
 void TWorld::ChannelAddBaseandRain(void)
@@ -193,11 +193,11 @@ void TWorld::ChannelAddBaseandRain(void)
         return;
     // making this parallel gives mass balance errors!!!
 #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if(ChannelMaskExtended->data[r][c] == 1)
-        {
-            int rr = (int)ChannelSourceYExtended->Drc;
-            int cr = (int)ChannelSourceXExtended->Drc;
+    FOR_ROW_COL_MV_CHL {
+//        if(ChannelMaskExtended->data[r][c] == 1)
+  //      {
+            int rr = r;//(int)ChannelSourceYExtended->Drc;
+            int cr = c;//(int)ChannelSourceXExtended->Drc;
 
             if (ChannelMaxQ->Drc <= 0) {
                 ChannelWaterVol->Drcr += Rainc->Drc*ChannelWidthMax->Drcr*DX->Drcr;
@@ -223,7 +223,7 @@ void TWorld::ChannelAddBaseandRain(void)
                 ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
                 BaseFlowTot += BaseFlowInflow->Drc * _dt;
             }
-        }
+        //}
 
         ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc);
         fromChannelVoltoWH(r, c);
@@ -266,10 +266,10 @@ void TWorld::ChannelFlow(void)
     //concentrations and ingoing Qs
     if (SwitchErosion)
     {
-        if(!SwitchUseGrainSizeDistribution)
-        {
-#pragma omp parallel for collapse(2) num_threads(userCores)
-            FOR_ROW_COL_MV_CH {
+   //     if(!SwitchUseGrainSizeDistribution)
+   //     {
+#pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
                 double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
                 ChannelQSSs->Drc = ChannelQ->Drc * concss;
 
@@ -277,8 +277,8 @@ void TWorld::ChannelFlow(void)
                     double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
                     ChannelQBLs->Drc = ChannelQ->Drc * concbl;
                 }
-            }
-
+            }}
+/*
         } else {
             double concbl = 0;
             double concss = 0;
@@ -305,18 +305,20 @@ void TWorld::ChannelFlow(void)
                 ChannelQSSs->Drc = ChannelQ->Drc * concss;
             }
         }
+        */
 
         if(SwitchUse2Layer)
             ChannelQBLsn->setAllMV();
         ChannelQSSsn->setAllMV();
-        if(SwitchUseGrainSizeDistribution)
-        {
-            FOR_GRAIN_CLASSES
-            {
-                Tempb_D.at(d)->setAllMV();
-                Tempd_D.at(d)->setAllMV();
-            }
-        }
+
+//        if(SwitchUseGrainSizeDistribution)
+//        {
+//            FOR_GRAIN_CLASSES
+//            {
+//                Tempb_D.at(d)->setAllMV();
+//                Tempd_D.at(d)->setAllMV();
+//            }
+//        }
     }
     SwitchChannelKinWave = true;
     if (SwitchChannelKinWave) {
@@ -331,8 +333,8 @@ void TWorld::ChannelFlow(void)
 
         cover(*ChannelQn, *LDD, 0);
 
-#pragma omp parallel for collapse(2) num_threads(userCores)
-        FOR_ROW_COL_MV_CH {
+#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
             ChannelWaterVol->Drc = ChannelWaterVol->Drc + QinKW->Drc*_dt - ChannelQn->Drc*_dt ;
 
             double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
@@ -341,7 +343,7 @@ void TWorld::ChannelFlow(void)
 
             fromChannelVoltoWH(r, c);
 
-        }
+        }}
     } else {
 
         ChannelSWOFopen();
@@ -356,12 +358,12 @@ void TWorld::ChannelFlow(void)
 
     if (SwitchErosion)
     {
-#pragma omp parallel for collapse(2) num_threads(userCores)
-        FOR_ROW_COL_MV_CH
+#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL
         {
             RiverSedimentLayerDepth(r,c);
             RiverSedimentMaxC(r,c);
-        }
+        }}
         // route water 1D and sediment
 
         FOR_ROW_COL_MV_CH
@@ -369,8 +371,8 @@ void TWorld::ChannelFlow(void)
             if (LDDChannel->Drc == 5)
             {
                 //explicit routing of matter using Q and new Qn
-                if(!SwitchUseGrainSizeDistribution)
-                {
+            //    if(!SwitchUseGrainSizeDistribution)
+              //  {
                     if (SwitchUse2Layer) {
                         routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn,
                                        ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed);
@@ -378,7 +380,7 @@ void TWorld::ChannelFlow(void)
                     routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
                                    ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed);
                     //note: channelwatervol not really used
-
+                /*
                 } else {
                     FOR_GRAIN_CLASSES
                     {
@@ -388,6 +390,7 @@ void TWorld::ChannelFlow(void)
                                        ChannelAlpha, ChannelDX, ChannelWaterVol, RSS_D.at(d));
                     }
                 }
+                */
             }
         }
         if(SwitchUse2Layer)
@@ -407,6 +410,7 @@ void TWorld::ChannelFlow(void)
                 RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
                 // note SSsed goes in and out, SSconc is recalculated inside
             }
+            /*
             else
             {
                 FOR_GRAIN_CLASSES
@@ -443,19 +447,21 @@ void TWorld::ChannelFlow(void)
                     }
                 }
             }
+            */
         }
 
         if(!SwitchUseGrainSizeDistribution)
         {
-#pragma omp parallel for collapse(2) num_threads(userCores)
-            FOR_ROW_COL_MV_CH
+#pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL
             {
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r,c);
                 ChannelQsn->Drc = (SwitchUse2Layer ? ChannelQBLsn->Drc : 0.0) + ChannelQSSsn->Drc;
                 ChannelSed->Drc = (SwitchUse2Layer ? ChannelBLSed->Drc : 0.0) + ChannelSSSed->Drc;
-            }
+            }}
         }
+        /*
         else
         {
             FOR_ROW_COL_MV_CH
@@ -490,6 +496,7 @@ void TWorld::ChannelFlow(void)
                 }
             }
         }
+            */
     }
 }
 

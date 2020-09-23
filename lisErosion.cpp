@@ -412,7 +412,7 @@ void TWorld::FlowDetachment()
 #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             double erosionwh = WHrunoff->Drc;
-            double erosionwv = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc;
+            double erosionwv = WHrunoff->Drc*CHAdjDX->Drc;
 
             if (erosionwh < HMIN) {
                 DEP->Drc += -Sed->Drc;

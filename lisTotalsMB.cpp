@@ -37,30 +37,34 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
-
+double TWorld::MapTotal(cTMap &M)
+{
+    double total = 0;
+    #pragma omp parallel for reduction(+:total) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+       total = total + M.Drc;
+    }}
+    return (total);
+}
 //---------------------------------------------------------------------------
 // totals for screen and file output and mass balance
 void TWorld::Totals(void)
 {
     double rainfall, snowmelt;
     double oldrainpeak, oldsnowpeak;
-    double catchmentAreaFlatMM = 1000.0/(_dx*_dx*nrCells);  
+    double catchmentAreaFlatMM = 1000.0/(_dx*_dx*nrCells);
 
     /***** WATER *****/
-
-    FOR_ROW_COL_MV {
-        WHmax->Drc = std::max(WHmax->Drc, hmxWH->Drc);
-    }
 
     //=== precipitation ===//
     if (SwitchRainfall)
     {
-        RainAvgmm = mapAverage(*Rain)*1000.0;
+        RainAvgmm = MapTotal(*Rain)*1000.0/(double)nrValidCells;
+
         RainTotmm += RainAvgmm;
         // spatial avg area rainfall in mm
 
-        calcMapValue(*tm, *Rain, (_dx*_dx), MUL); //in m3
-        rainfall = mapTotal(*tm);
+        rainfall = RainAvgmm/1000.0*_dx*_dx*nrCells;
         RainTot += rainfall; // in m3
 
         oldrainpeak  = Rainpeak;
@@ -71,11 +75,11 @@ void TWorld::Totals(void)
 
     if (SwitchSnowmelt)
     {
-        SnowAvgmm = mapAverage(*Snowmelt)*1000;
+        SnowAvgmm = MapTotal(*Snowmelt)*1000.0/nrCells;
+
         SnowTotmm += SnowAvgmm;
 
-        calcMapValue(*tm, *Snowmelt, (_dx*_dx), MUL); //in m3
-        snowmelt = mapTotal(*tm);
+        snowmelt = SnowAvgmm/1000.0*_dx*_dx*nrCells;
         SnowTot += snowmelt; // in m3
 
         oldsnowpeak = Snowpeak;
@@ -83,24 +87,27 @@ void TWorld::Totals(void)
         if (oldsnowpeak < Snowpeak)
             SnowpeakTime = time;
     }
-    
+
     //=== interception ===//
-    IntercTot = mapTotal(*Interc);
+    IntercTot = MapTotal(*Interc);
     IntercTotmm = IntercTot*catchmentAreaFlatMM;
     // interception in mm and m3
     //Litter
-    IntercLitterTot = mapTotal(*LInterc);
-    IntercLitterTotmm = IntercLitterTot*catchmentAreaFlatMM;
-    //houses
-    IntercHouseTot = mapTotal(*IntercHouse);
-    IntercHouseTotmm = IntercHouseTot*catchmentAreaFlatMM;
-    // interception in mm and m3
+    if (SwitchLitter) {
+        IntercLitterTot = MapTotal(*LInterc);
+        IntercLitterTotmm = IntercLitterTot*catchmentAreaFlatMM;
+    }
 
-    FOR_ROW_COL_MV
-    {
+    if (SwitchHouses) {
+        IntercHouseTot = MapTotal(*IntercHouse);
+        IntercHouseTotmm = IntercHouseTot*catchmentAreaFlatMM;
+        // interception in mm and m3
+    }
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         InterceptionmmCum->Drc = (Interc->Drc + IntercHouse->Drc + LInterc->Drc)*1000.0/CellArea->Drc;
         // for screen and file output
-    }
+    }}
 
 
     //==== ETa ==========//
@@ -109,59 +116,65 @@ void TWorld::Totals(void)
     // interception in mm and m3
 
     //=== infiltration ===//
-    InfilTot += mapTotal(*InfilVol) + mapTotal(*InfilVolKinWave);
-    if (SwitchIncludeChannel)
-        InfilTot += mapTotal(*ChannelInfilVol);// + mapTotal(*InfilVolFlood); //m3
+    InfilTot += MapTotal(*InfilVol) + MapTotal(*InfilVolKinWave);
+    if (SwitchIncludeChannel && SwitchChannelInfil) {
+        InfilTot += MapTotal(*ChannelInfilVol); //m3
+    }
 
-    InfilKWTot += mapTotal(*InfilVolKinWave); // not really used, available for output when needed
+    InfilKWTot += MapTotal(*InfilVolKinWave); // not really used, available for output when needed
     InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
     // infiltration mm and m3
 
     // flood infil
     // used for reporting only
-    FOR_ROW_COL_MV {
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc;
         if (SwitchIncludeChannel)
             InfilVolCum->Drc += ChannelInfilVol->Drc;
         InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));
         PercmmCum->Drc += Perc->Drc*1000.0;
-    }
+    }}
 
     //=== surf store ===//
 
     double SStot = 0;
-    FOR_ROW_COL_MV {
+    #pragma omp parallel for reduction(+:SStot) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         SStot += WHstore->Drc * SoilWidthDX->Drc*DX->Drc;
-    }
+    }}
     SurfStoremm = SStot * catchmentAreaFlatMM;
 
     // does not go to MB, is already in tot water vol
 
     //TODO: check init WH
+    //ONLY ONCE?
     if (SwitchFloodInitial) {
-        FOR_ROW_COL_MV {
-            tma->Drc = hmxInit->Drc * DX->Drc * ChannelAdj->Drc;
-        }
-        WHinitVolTot = mapTotal(*tma);
+        WHinitVolTot = 0;
+#pragma omp parallel for reduction(+:WHinitVolTot) num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            WHinitVolTot = hmxInit->Drc * DX->Drc * ChannelAdj->Drc;
+        }}
     }
 
-    //=== surface flow ===//   
-    WaterVolTot = mapTotal(*WaterVolall);//m3
+    //=== surface flow ===//
+    WaterVolTot = MapTotal(*WaterVolall);//m3
     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; // => not used
     //All water on surface
 
-    floodVolTot = mapTotal(*FloodWaterVol);
+    floodVolTot = MapTotal(*FloodWaterVol);
     floodVolTotmm = floodVolTot * catchmentAreaFlatMM; // to mm
     // flood water above user defined threshold
 
     if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
-       WaterVolRunoffmm = mapTotal(*RunoffWaterVol)* catchmentAreaFlatMM;//m3
+       WaterVolRunoffmm = MapTotal(*RunoffWaterVol)* catchmentAreaFlatMM;//m3
        // runoff water below user defined threshold
     } else {
         WaterVolRunoffmm = 0;
-        FOR_ROW_COL_MV {
+        #pragma omp parallel for reduction(+:WaterVolRunoffmm) num_threads(userCores)
+        FOR_ROW_COL_MV_L {
             WaterVolRunoffmm += WHrunoff->Drc * ChannelAdj->Drc * DX->Drc;
-        }
+        }}
         WaterVolRunoffmm *= catchmentAreaFlatMM;
     }
     // water on the surface in runoff in mm
@@ -169,18 +182,19 @@ void TWorld::Totals(void)
 
     // runoff fraction per cell calc as in-out/rainfall, indication of sinks and sources of runoff
     // exclude channel cells
-    FOR_ROW_COL_MV {
+        #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         runoffTotalCell->Drc += (Qn->Drc +Qflood->Drc)* _dt * catchmentAreaFlatMM; // in mm !!!!
-    }
+    }}
 
     //=== storm drain flow ===//
-    StormDrainVolTot = mapTotal(*TileWaterVol);
+    StormDrainVolTot = MapTotal(*TileWaterVol);
     StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
 
     //=== channel flow ===//
     if (SwitchIncludeChannel)
     {
-        ChannelVolTot = mapTotal(*ChannelWaterVol); //m3
+        ChannelVolTot = MapTotal(*ChannelWaterVol); //m3
         // add channel vol to total
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
@@ -237,7 +251,7 @@ void TWorld::Totals(void)
     } else {
         if (SwitchIncludeTile)
         {
-            WaterVolSoilTot = mapTotal(*TileWaterVolSoil);
+            WaterVolSoilTot = MapTotal(*TileWaterVolSoil);
             // input for mass balance, is the water seeping from the soil, input
             // this is the water before the kin wave
             calc2Maps(*tm, *TileDrainSoil, *TileWidth, MUL); //in m3
@@ -262,13 +276,12 @@ void TWorld::Totals(void)
     QtotT += K2DQOutBoun*_dt;
 
     // output fluxes for reporting to file and screen in l/s!]
-    FOR_ROW_COL_MV
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L
     {
         Qoutput->Drc = 1000.0*(Qn->Drc + (SwitchIncludeChannel ? ChannelQn->Drc : 0.0) + Qflood->Drc);// in l/s
         Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;
-    //    if(LDD->Drc == 5)
-     //   qDebug() << Qoutput->Drc << QtotT*1000/_dt << Qfloodout/_dt;
-    }
+    }}
 
     // Total outflow in m3 for all timesteps
     // does NOT include flood water leaving domain (floodBoundaryTot)
@@ -288,18 +301,31 @@ void TWorld::Totals(void)
 
     if (SwitchErosion)
     {
-
+        SedTot = 0;
+#pragma omp parallel for reduction(+:DetSplashTot,DetFlowTot,DepTot,SedTot) num_threads(userCores)
+        FOR_ROW_COL_MV_L {
         // Dep and Detflow are zero if 2Ddyn
-        DetSplashTot += mapTotal(*DETSplash);
-        DetFlowTot += mapTotal(*DETFlow);
-        DepTot += mapTotal(*DEP);
-        DetTot = DetFlowTot + DetSplashTot;
-        SedTot = mapTotal(*Sed);        
+            DetSplashTot += DETSplash->Drc;
+            DetFlowTot += DETFlow->Drc;
+            DepTot += DEP->Drc;
+            SedTot += Sed->Drc;
+        }}
+    //        DetSplashTot += mapTotal(*DETSplash);
+    //        DetFlowTot += mapTotal(*DETFlow);
+    //        DepTot += mapTotal(*DEP);
+    //        SedTot = mapTotal(*Sed);
         // all in kg/cell
+        DetTot = DetFlowTot + DetSplashTot;
 
-        calcMap(*DETSplashCum, *DETSplash, ADD);
-        calcMap(*DETFlowCum, *DETFlow, ADD);
-        calcMap(*DEPCum, *DEP, ADD);
+#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            DETSplashCum->Drc += DETSplash->Drc;
+            DETFlowCum->Drc += DETFlow->Drc;
+            DEPCum->Drc += DEP->Drc;
+        }}
+        //calcMap(*DETSplashCum, *DETSplash, ADD);
+        //calcMap(*DETFlowCum, *DETFlow, ADD);
+        //calcMap(*DEPCum, *DEP, ADD);
         // DEP is set to 0 each timestep
         // for total soil loss calculation: TotalSoillossMap
 
@@ -325,9 +351,17 @@ void TWorld::Totals(void)
             }
 
             // units here in kg, conversion to ton in report functions
-            ChannelDetTot += mapTotal(*ChannelDetFlow);
-            ChannelDepTot += mapTotal(*ChannelDep);
-            ChannelSedTot = (SwitchUse2Layer ? mapTotal(*ChannelBLSed) : 0.0) + mapTotal(*ChannelSSSed);
+//#pragma omp parallel for reduction(+:DetSplashTot,DetFlowTot,DepTot,SedTot) num_threads(userCores)
+//        FOR_ROW_COL_MV_L {
+//        // Dep and Detflow are zero if 2Ddyn
+//            DetSplashTot += DETSplash->Drc;
+//            DetFlowTot += DETFlow->Drc;
+//            DepTot += DEP->Drc;
+//            SedTot += Sed->Drc;
+//        }}
+            ChannelDetTot += MapTotal(*ChannelDetFlow);
+            ChannelDepTot += MapTotal(*ChannelDep);
+            ChannelSedTot = (SwitchUse2Layer ? MapTotal(*ChannelBLSed) : 0.0) + MapTotal(*ChannelSSSed);
         }
 
         floodBoundarySedTot += K2DQSOutBoun;
@@ -337,36 +371,39 @@ void TWorld::Totals(void)
 
 
         // used for mass balance and screen output
-        FloodDetTot += (SwitchUse2Layer ? mapTotal(*BLDetFlood) : 0.0) + mapTotal(*SSDetFlood);
+        FloodDetTot += (SwitchUse2Layer ? MapTotal(*BLDetFlood) : 0.0) + MapTotal(*SSDetFlood);
         FloodDepTot += mapTotal(*DepFlood);
-        FloodSedTot = (SwitchUse2Layer ? mapTotal(*BLFlood) : 0.0) + mapTotal(*SSFlood);
+        FloodSedTot = (SwitchUse2Layer ? MapTotal(*BLFlood) : 0.0) + MapTotal(*SSFlood);
 
-        calcMap(*DETFlowCum, *BLDetFlood, ADD);
-        calcMap(*DETFlowCum, *SSDetFlood, ADD);
-        calcMap(*DEPCum, *DepFlood, ADD);
-
+#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            DETFlowCum->Drc += BLDetFlood->Drc;
+            DETFlowCum->Drc += SSDetFlood->Drc;
+            DEPCum->Drc += DepFlood->Drc;
+        }}
         // SPATIAL totals for output overland flow all in kg/cell
         // variables are valid for both 1D and 2D flow dyn and diff
-        FOR_ROW_COL_MV
+        FOR_ROW_COL_MV_L
         {
             Qsoutput->Drc = Qsn->Drc + (SwitchIncludeChannel ? ChannelQsn->Drc : 0.0) + K2DQ->Drc;  // in kg/s
             // for reporting sed discharge screen
-        }
+        }}
 
         // for reporting
         if (SwitchIncludeChannel)
         {
-            fill(*tma,0.0);
-            DistributeOverExtendedChannel(ChannelDetFlow,tma);
-            fill(*tmb,0.0);
-            DistributeOverExtendedChannel(ChannelDep,tmb);
-            FOR_ROW_COL_MV
+//            fill(*tma,0.0);
+//            DistributeOverExtendedChannel(ChannelDetFlow,tma);
+//            fill(*tmb,0.0);
+//            DistributeOverExtendedChannel(ChannelDep,tmb);
+#pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL
             {
-                DETFlowCum->Drc += tma->Drc;
-                DEPCum->Drc += tmb->Drc;
+                DETFlowCum->Drc += ChannelDetFlow->Drc;
+                DEPCum->Drc += ChannelDep->Drc;
                 TotalChanDetMap->Drc += ChannelDetFlow->Drc;
                 TotalChanDepMap->Drc += ChannelDep->Drc;
-            }
+            }}
         }
 
 

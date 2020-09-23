@@ -245,16 +245,6 @@ void TWorld::InitStandardInput(void)
 
     FOR_ROW_COL_MV {
         LDD_COOR newcr;
-        if (r > 0 && r < _nrRows-1) {
-            newcr.r = r;
-            newcr.c = c;
-            cr0_ << newcr;
-        }
-    }
-
-
-    FOR_ROW_COL_MV {
-        LDD_COOR newcr;
         newcr.r = r;
         newcr.c = c;
         cr1_ << newcr;
@@ -300,23 +290,33 @@ void TWorld::InitStandardInput(void)
     qDebug() << "using:" << userCores << "cores";
 
 
+    double *hoi = new double[nrValidCells];
+    long i = 0;
+    FOR_ROW_COL_MV {
+        hoi[i++] = 0;
+    }
+
 //    time_ms.start();
 //    for (int i = 0 ; i < 10000; i++)
-//        {
-//            #pragma omp parallel for num_threads(userCores)
-//        for(long i_ = 0; i_ < nrValidCells; i_++)
-//        {
-//            int r = cr_[i_].r;
-//            int c = cr_[i_].c;
-//                double V = 0;
-//           //     V = tm->data[cr_[i_].r][cr_[i_].c]+ 1;
-//                V = tm->Drc;
-//                V  = pow(V, 0.34);
-//             //   tm->data[cr_[i_].r][cr_[i_].c] = V;
-//                tm->Drc = V;
-//            }
-//        }
-//        qDebug() << time_ms.elapsed()*0.001/60.0;
+//    {
+//        #pragma omp parallel for num_threads(userCores)
+//        FOR_ROW_COL_MV_L {
+//            double V = 0;
+//            V = tm->Drc + 1.0;
+//            V -= 0.34;
+//            V  = pow(V, 0.34);
+//            V  = sqrt(V);
+//            tm->Drc = V;
+//            /* more expensive
+//            tm->Drc += 1.0;
+//            tm->Drc -= 0.34;
+//            tm->Drc  = pow(tm->Drc, 0.34);
+//            tm->Drc  = sqrt(tm->Drc);
+//            */
+//        }}
+//    }
+//    qDebug() << time_ms.elapsed()*0.001/60;
+
 
 
 
@@ -824,6 +824,16 @@ void TWorld::InitChannel(void)
         // LDDChannel is the mask for channels
        // makeChannelList();
 
+        FOR_ROW_COL_MV_CH {
+            LDD_COOR newcr;
+            newcr.r = r;
+            newcr.c = c;
+            crch_ << newcr;
+        }
+        nrValidCellsCH = crch_.size();
+
+
+
         // for 1D or 2D overland flow: channel outlet points are checked, leading
         FOR_ROW_COL_MV
         {
@@ -999,6 +1009,7 @@ void TWorld::InitFlood(void)
     hmxflood = NewMap(0);
     FloodDomain = NewMap(0);
     ChannelAdj = NewMap(_dx);
+    CHAdjDX = NewMap(0);
 
     floodHmxMax = NewMap(0);//
     floodVMax = NewMap(0);//

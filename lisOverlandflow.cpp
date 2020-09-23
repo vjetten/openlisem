@@ -123,7 +123,7 @@ void TWorld::ToChannel()
             WHroad->Drc -= dwh;
             WHGrass->Drc -= dwh;
             WH->Drc -= dwh;
-            WaterVolall->Drc = WHrunoff->Drcr*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+            WaterVolall->Drc = WHrunoff->Drcr*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
 
             if (SwitchErosion)
             {
@@ -320,7 +320,6 @@ void TWorld::OverlandFlow2Ddyn(void)
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double WHR = WHrunoff->Drc;
-        double Area = ChannelAdj->Drc*DX->Drc;
 
         Qn->Drc = V->Drc*(WHR*ChannelAdj->Drc);
         Q->Drc = Qn->Drc; // just to be sure
@@ -331,7 +330,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 
         WH->Drc = WHR + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
-        WaterVolall->Drc = WHR*Area + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
+        WaterVolall->Drc = WHR*CHAdjDX->Drc + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
         //LOGIC:
         // water layer in three parts: WHstore < (WHrunoff < minReportFloodHeight) < (hmx > minReportFloodHeight)
         // WH =  WHstore + WHrunoff
@@ -340,11 +339,14 @@ void TWorld::OverlandFlow2Ddyn(void)
 
         hmxflood->Drc = std::max(0.0, WHR - minReportFloodHeight);
 
-        FloodWaterVol->Drc = hmxflood->Drc*Area;
+        FloodWaterVol->Drc = hmxflood->Drc*CHAdjDX->Drc;
         //WHrunoffOutput->Drc = std::min(WHrunoff->Drc, minReportFloodHeight);
         //RunoffWaterVol->Drc = WHrunoffOutput->Drc*ChannelAdj->Drc*DX->Drc;
-        RunoffWaterVol->Drc = std::min(WHR, minReportFloodHeight)*Area;
+        RunoffWaterVol->Drc = std::min(WHR, minReportFloodHeight)*CHAdjDX->Drc;
         // used for screen output
+
+        WHmax->Drc = std::max(WHmax->Drc, hmxWH->Drc);
+
     }}
 
     FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
@@ -353,35 +355,35 @@ void TWorld::OverlandFlow2Ddyn(void)
     {
         //calculate concentration and new sediment discharge
         //WHrunoff and Qn are adapted in case of 2D routing
-        if(!SwitchUseGrainSizeDistribution)
-        {
+//        if(!SwitchUseGrainSizeDistribution)
+//        {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 double sed = (SSFlood->Drc + BLFlood->Drc);
                 Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &sed, &DepFlood->Drc);
                 Qsn->Drc = Conc->Drc*Qn->Drc;
             }}
-        }
-        else
-        {
-            //calculate total sediment from induvidual grain classes,
-            //and calculate concentration and new sediment discharge
-            FOR_ROW_COL_MV {
-                Sed->Drc = 0;
-                Conc->Drc = 0;
+//        }
+//        else
+//        {
+//            //calculate total sediment from induvidual grain classes,
+//            //and calculate concentration and new sediment discharge
+//            FOR_ROW_COL_MV {
+//                Sed->Drc = 0;
+//                Conc->Drc = 0;
 
-            }
-            FOR_ROW_COL_MV
-            {
-                FOR_GRAIN_CLASSES
-                {
-                    Sed->Drc += Sed_D.Drcd;
-                    Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &Sed_D.Drcd, &DepFlood->Drc);
-                    Conc->Drc += Conc_D.Drcd;
-                }
-                Qsn->Drc = Conc->Drc*Qn->Drc;
-            }
-        }
+//            }
+//            FOR_ROW_COL_MV
+//            {
+//                FOR_GRAIN_CLASSES
+//                {
+//                    Sed->Drc += Sed_D.Drcd;
+//                    Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &Sed_D.Drcd, &DepFlood->Drc);
+//                    Conc->Drc += Conc_D.Drcd;
+//                }
+//                Qsn->Drc = Conc->Drc*Qn->Drc;
+//            }
+//        }
     }
 
     debug(QString("Average dynamic timestep (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));
@@ -462,7 +464,7 @@ totw += WHrunoff->Drc;
             //new WH based on A/dx = alpha Q^beta / dx
             // apha is however determined from the old Q...
 
-            WaterVolout = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc;
+            WaterVolout = WHrunoff->Drc*CHAdjDX->Drc;
             // new volume
         }
         tma->Drc = WaterVolout;
@@ -495,7 +497,7 @@ totw += WHrunoff->Drc;
         hmxWH->Drc = WH->Drc;
         //needed for totals and output
 
-        WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+        WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
 
     }

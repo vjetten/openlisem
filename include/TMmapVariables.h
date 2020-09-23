@@ -286,6 +286,7 @@ cTMap
 *ChannelFlowWidth,           //!<
 *ChannelWidthMax,           //!<
 *ChannelAdj,                //!<
+*CHAdjDX,                //!<
 *ChannelPerimeter,           //!<
 *ChannelDX,                  //!<
 *ChannelKsat,                //!<

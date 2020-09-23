@@ -85,17 +85,14 @@
 //    for (int c = 0; c < _nrCols; c++)\
 //    if(!pcr::isMV(LDD->data[r][c]))
 
-//#define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < nrValidCells; i_++)\
-
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
 {int r = cr_[i_].r; int c = cr_[i_].c;
 
+#define FOR_ROW_COL_MV_CHL for(long i_ = nrValidCellsCH-1; i_ >= 0; i_--)\
+{int r = crch_[i_].r; int c = crch_[i_].c;
+
 //#define FOR_ROW_COL_MV_L for(QVector<LDD_COOR>::iterator it = cr_.begin(); it != cr_.end(); ++it)\
 //    {int r = it->r; int c = it->c;
-
-//#define FOR_ROW_COL_MV_LL for(QVector<LDD_COOR>::iterator it = cr1_.begin(); it != cr1_.end(); ++it)\
-//    {int r = it->r; int c = it->c;
-
 
 #define FOR_ROW_COL_MV_LL for(long i_ = 0; i_ < cr1_.size(); i_++)\
 {int r = cr1_.at(i_).r; int c = cr1_.at(i_).c;
@@ -252,10 +249,12 @@ public:
     int _nrCols;
 
     long nrValidCells;
+    long nrValidCellsCH;
     long nrValidCells1;
     QVector <LDD_COOR> cr_;
     QVector <LDD_COOR> cr1_;
     QVector <LDD_COOR> cr0_;
+    QVector <LDD_COOR> crch_;
 
     QVector <int> _r_;
     QVector <int> _c_;
@@ -827,6 +826,7 @@ double sum1;
     void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
                          double drainfraction, double *repel, double *Theta, SOIL_MODEL *s);
 
+    double MapTotal(cTMap &M);
     void Totals(void);
     void MassBalance(void);
     void OutputUI(void);

@@ -15,12 +15,11 @@
 double TWorld::getMass(cTMap *M, double th)
 {
     double sum2 = 0;
-#pragma omp parallel for reduction(+:sum2) collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV
-    {
+#pragma omp parallel for reduction(+:sum2) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         if(M->Drc > th)
             sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
-    }
+    }}
     return sum2;
 }
 //---------------------------------------------------------------------------
@@ -862,7 +861,7 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             }}
 
             if (SwitchErosion)
-                SWOFSediment(FloodDT,h,u,v);
+                SWOFSediment(FloodDT,hs,us,vs);
 
             setZeroOF(hs, us, vs);
 #pragma omp parallel for num_threads(userCores)

@@ -51,6 +51,7 @@ void TWorld::GridCell()
 //        dxa = std::max(0.05, _dx - ChannelWidthExtended->Drc);
 
         ChannelAdj->Drc = dxa;
+        CHAdjDX->Drc = dxa*DX->Drc;
 
         RoadWidthHSDX->Drc = std::min(dxa, RoadWidthHSDX->Drc);
         dxa = std::max(0.0, dxa - RoadWidthHSDX->Drc);
@@ -63,7 +64,6 @@ void TWorld::GridCell()
         SoilWidthDX->Drc = dxa;  //excluding roads, including houses, hard surface
         //houses are assumed to be permeable but with high mannings n
     }}
-report(*SoilWidthDX, "sw.map");
 }
 //---------------------------------------------------------------------------
 /// Adds new rainfall afterinterception to runoff water nheight or flood waterheight
@@ -187,7 +187,7 @@ void TWorld::doETa()
             tmp = hmx->Drc;
             hmx->Drc = std::max(0.0, hmx->Drc-ETa_pond );
             tmp = tmp - hmx->Drc;
-//            FloodWaterVol->Drc = hmx->Drc*ChannelAdj->Drc*DX->Drc;
+//            FloodWaterVol->Drc = hmx->Drc*CHAdjDX->Drc;
 //            hmxWH->Drc = hmx->Drc;   //hmxWH is all water
 //            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
         }
@@ -195,7 +195,7 @@ void TWorld::doETa()
             tmp = WHrunoff->Drc;
             WHrunoff->Drc = std::max(0.0, WHrunoff->Drc-ETa_pond );
             tmp = tmp - WHrunoff->Drc;
-            WaterVolall->Drc = WHrunoff->Drc*ChannelAdj->Drc*DX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+            WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
             WHroad->Drc = WHrunoff->Drc;
             WHGrass->Drc = WHrunoff->Drc;
             WH->Drc = WHrunoff->Drc + WHstore->Drc;

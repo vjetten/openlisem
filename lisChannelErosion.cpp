@@ -74,8 +74,8 @@ void TWorld::ChannelFlowDetachment()
     if (!SwitchErosion)
         return;
 
-    FOR_ROW_COL_MV_CH {
-
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
         RiverSedimentLayerDepth(r,c);
         //creates ChannelBLDepth and ChannelSSDepth, if 1 layer ChannelBLDepth = 0
 
@@ -116,8 +116,6 @@ void TWorld::ChannelFlowDetachment()
             //            }
 
             //get transport capacity for bed/suspended load for a specific cell and grain size class
-            // TBLTCFlood->Drc = RiverSedimentTCBL(r,c,d, ChannelV->Drc, ChannelWH->Drc, ChannelBLDepth->Drc, ChannelWidth->Drc);
-            // TSSTCFlood->Drc = RiverSedimentTCSS(r,c,d, ChannelV->Drc, ChannelWH->Drc, ChannelSSDepth->Drc, ChannelWidth->Drc);
             if (SwitchUse2Layer)
                 TBLTCtemp->Drc = calcTCBedload(r, c, d, R_BL_Method, ChannelWH->Drc,ChannelV->Drc, 0);
             TSSTCtemp->Drc = calcTCSuspended(r, c, d, R_SS_Method, ChannelWH->Drc, ChannelV->Drc, 0);
@@ -410,7 +408,7 @@ void TWorld::ChannelFlowDetachment()
 
         RiverSedimentMaxC(r,c);
         //partial and total concentration ALL DONE
-    }
+    }}
 }
 //---------------------------------------------------------------------------
 /**
@@ -527,15 +525,15 @@ void TWorld::RiverSedimentMaxC(int r, int c)
  */
 void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
 {
-
-    FOR_ROW_COL_MV_CH {
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
         _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, &_SS->Drc, &ChannelDep->Drc);
-    }
+    }}
 
 
     //diffusion of Suspended Sediment layer
-    FOR_ROW_COL_MV_CH
-    {
+//#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CH {
 
         int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
         int dy[10] = {0, -1, -1, -1, 0, 0, 0, 1, 1, 1};
@@ -636,11 +634,11 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
     }
 
     //recalculate concentrations
-    FOR_ROW_COL_MV_CH
-    {
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
         //set concentration from present sediment
         _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, &_SS->Drc, &ChannelDep->Drc);
-    }
+    }}
 }
 
 //---------------------------------------------------------------------------
