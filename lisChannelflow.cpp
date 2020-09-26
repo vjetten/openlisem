@@ -290,7 +290,7 @@ void TWorld::ChannelFlow(void)
 
         cover(*ChannelQn, *LDD, 0); // necessary???
 
-#pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             ChannelWaterVol->Drc = ChannelWaterVol->Drc + QinKW->Drc*_dt - ChannelQn->Drc*_dt ;
 
@@ -306,49 +306,47 @@ void TWorld::ChannelFlow(void)
         ChannelSWOFopen();
 
     }
+
     // get the maximum for output
-    FOR_ROW_COL_MV_CH
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL
     {
         maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
         maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
-    }
+    }}
 
     if (SwitchErosion)
     {
         if(SwitchUse2Layer)
             ChannelQBLsn->setAllMV();
         ChannelQSSsn->setAllMV();
-#pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL
-        {
-            RiverSedimentLayerDepth(r,c);
-            RiverSedimentMaxC(r,c);
-        }}
-        // route water 1D and sediment
 
+        // WHY the following????
+//        #pragma omp parallel for num_threads(userCores)
+//        FOR_ROW_COL_MV_CHL
+//        {
+//            RiverSedimentLayerDepth(r,c);
+//            RiverSedimentMaxC(r,c);
+//        }}
+
+        // route water 1D and sediment
         FOR_ROW_COL_MV_CH
         {
             if (LDDChannel->Drc == 5)
             {
                 //explicit routing of matter using Q and new Qn
-                    if (SwitchUse2Layer) {
-                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn,
-                                       ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed);
-                    }
-                    routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
-                                   ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed);
-                    //note: channelwatervol not really used
+                if (SwitchUse2Layer) {
+                    routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn,
+                                   ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed);
+                }
+                routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
+                               ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed);
+                //note: channelwatervol not really used
             }
         }
-        if(SwitchUse2Layer)
+        if (SwitchUse2Layer)
             cover(*ChannelQBLsn, *LDD, 0);
         cover(*ChannelQSSsn, *LDD, 0);
-
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL
-        {
-            ChannelSSConc->Drc = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
-        }}
 
         if (SwitchIncludeRiverDiffusion) {
             RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
@@ -356,8 +354,7 @@ void TWorld::ChannelFlow(void)
         }
 
         #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL
-        {
+        FOR_ROW_COL_MV_CHL {
             RiverSedimentLayerDepth(r,c);
             RiverSedimentMaxC(r,c);
             ChannelQsn->Drc = (SwitchUse2Layer ? ChannelQBLsn->Drc : 0.0) + ChannelQSSsn->Drc;
@@ -366,131 +363,4 @@ void TWorld::ChannelFlow(void)
     }
 }
 
-        /*
-           //     if(SwitchUseGrainSizeDistribution)
-           //     {
-                    double concbl = 0;
-                    double concss = 0;
-                    FOR_GRAIN_CLASSES
-                    {
-                        FOR_ROW_COL_MV_CH {
-                            RBLC_D.Drcd = MaxConcentration(ChannelWaterVol->Drc, &RBL_D.Drcd, &ChannelDep->Drc);
-                            RSSC_D.Drcd = MaxConcentration(ChannelWaterVol->Drc, &RSS_D.Drcd, &ChannelDep->Drc);
-                            concbl += RBLC_D.Drcd;
-                            concss += RSSC_D.Drcd;
-
-                            ChannelConc->Drc += RBLC_D.Drcd + RSSC_D.Drcd;
-
-                            Tempa_D.Drcd = ChannelQ->Drc * RBLC_D.Drcd;
-                            Tempc_D.Drcd = ChannelQ->Drc * RSSC_D.Drcd;
-                        }
-                        fill(*Tempb_D.at(d), 0.0);
-                        fill(*Tempd_D.at(d), 0.0);
-                    }
-                    FOR_ROW_COL_MV_CH {
-                        //ChannelQs->Drc =  ChannelQ->Drc * ChannelConc->Drc;
-                        if(SwitchUse2Layer)
-                            ChannelQBLs->Drc = ChannelQ->Drc * concbl;
-                        ChannelQSSs->Drc = ChannelQ->Drc * concss;
-                    }
-                }
-
-                if(SwitchUseGrainSizeDistribution)
-                {
-                    FOR_GRAIN_CLASSES
-                    {
-                        Tempb_D.at(d)->setAllMV();
-                        Tempd_D.at(d)->setAllMV();
-                    }
-                }
-        */
-
-        /*
-        else
-        {
-            FOR_GRAIN_CLASSES
-            {
-                cover(*(Tempb_D.at(d)), *LDD, 0);
-                cover(*(Tempd_D.at(d)), *LDD, 0);
-            }
-
-            FOR_GRAIN_CLASSES
-            {
-                RiverSedimentDiffusion(_dt, RSS_D.at(d),RSSC_D.at(d));
-            }
-            FOR_ROW_COL_MV_CH
-            {
-                ChannelSed->Drc = 0;
-                ChannelConc->Drc = 0;
-                ChannelBLConc->Drc = 0;
-                ChannelSSConc->Drc = 0;
-                ChannelBLSed->Drc = 0;
-                ChannelSSSed->Drc = 0;
-            }
-            FOR_GRAIN_CLASSES
-            {
-                FOR_ROW_COL_MV_CH
-                {
-                    ChannelBLSed->Drc += RBL_D.Drcd;
-                    ChannelSSSed->Drc += RSS_D.Drcd;
-                    ChannelSed->Drc += RSS_D.Drcd + RBL_D.Drcd;
-                    RBLC_D.Drcd = (ChannelQn->Drc > MIN_FLUX ? Tempb_D.Drcd/ChannelQn->Drc : 0);
-                    RSSC_D.Drcd = (ChannelQn->Drc > MIN_FLUX ? Tempd_D.Drcd/ChannelQn->Drc : 0);
-                    ChannelConc->Drc += RBLC_D.Drcd + RSSC_D.Drcd;
-                    ChannelBLConc->Drc += RBLC_D.Drcd;
-                    ChannelSSConc->Drc += RSSC_D.Drcd;
-                }
-            }
-        }
-        */
-        /*
-    //    if(!SwitchUseGrainSizeDistribution)
-      //  {
-        } else {
-            FOR_GRAIN_CLASSES
-            {
-                routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempa_D.at(d), Tempb_D.at(d),
-                               ChannelAlpha, ChannelDX, ChannelWaterVol, RBL_D.at(d));
-                routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, Tempc_D.at(d), Tempd_D.at(d),
-                               ChannelAlpha, ChannelDX, ChannelWaterVol, RSS_D.at(d));
-            }
-        }
-        */
-
-        /*
-        else
-        {
-            FOR_ROW_COL_MV_CH
-            {
-                ChannelQBLsn->Drc = 0;
-                ChannelQSSsn->Drc= 0;
-                //ChannelQs->Drc = 0;
-                ChannelQsn->Drc = 0;
-                ChannelSed->Drc = 0;
-                ChannelConc->Drc = 0;
-                ChannelBLConc->Drc = 0;
-                ChannelSSConc->Drc = 0;
-                ChannelBLSed->Drc = 0;
-                ChannelSSSed->Drc = 0;
-            }
-
-            FOR_GRAIN_CLASSES
-            {
-                FOR_ROW_COL_MV_CH
-                {
-                    ChannelQBLsn->Drc += Tempb_D.Drcd ;
-                    ChannelQSSsn->Drc += Tempd_D.Drcd;
-                    ChannelQsn->Drc += Tempb_D.Drcd + Tempd_D.Drcd;
-                    ChannelBLSed->Drc += RBL_D.Drcd;
-                    ChannelSSSed->Drc += RSS_D.Drcd;
-                    ChannelSed->Drc += RSS_D.Drcd + RBL_D.Drcd;
-                    RBLC_D.Drcd = (ChannelQn->Drc > MIN_FLUX ? Tempb_D.Drcd/ChannelQn->Drc : 0);
-                    RSSC_D.Drcd = (ChannelQn->Drc > MIN_FLUX ? Tempd_D.Drcd/ChannelQn->Drc : 0);
-                    ChannelConc->Drc += RBLC_D.Drcd + RSSC_D.Drcd;
-                    ChannelBLConc->Drc += RBLC_D.Drcd;
-                    ChannelSSConc->Drc += RSSC_D.Drcd;
-                }
-            }
-        }
-            */
 
