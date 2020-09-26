@@ -118,7 +118,7 @@ void TWorld::DoModel()
     errorSedFileName = QString(resultDir + "errorsed"+ timestampRun +".txt");
     time_ms.start();
     // get time to calc run length
-
+    startTime=omp_get_wtime()/60.0;
     //TODO: check grainsize classes
 
     try

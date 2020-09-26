@@ -294,8 +294,8 @@ void TWorld::RainfallMap(void)
     }
     else
     {
-        #pragma omp parallel for collapse(2) num_threads(userCores)
-        FOR_ROW_COL_MV
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
         {
             if (RainZone->Drc-1 <  RainfallSeriesM[rainplace].intensity.count())
                 Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
@@ -308,15 +308,15 @@ void TWorld::RainfallMap(void)
             //TODO: weighted average if dt larger than table dt
             if (!rainStarted && Rain->Drc  > 0)
                 rainStarted = true;
-        }
+        }}
     }
     if (rainStarted && RainstartTime == -1)
     {
         RainstartTime = time;
     }
 
-#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L
     {
         Rainc->Drc = Rain->Drc * _dx/DX->Drc;
         // correction for slope dx/DX, water spreads out over larger area
@@ -326,17 +326,7 @@ void TWorld::RainfallMap(void)
         // cumulative rainfall corrected for slope, used in interception
         RainNet->Drc = Rainc->Drc;
         // net rainfall in case of interception
-
-//        if (Rain->Drc == 0)
-//            noRain->Drc += _dt;
-//        else
-//            noRain->Drc = 0;
-
-//        if (noRain->Drc > 3.0*3600.0)
-  //          RainCum->Drc = 0;
-        // if dry spell for more than 23 hours
-
-    }
+    }}
 }
 //---------------------------------------------------------------------------
 

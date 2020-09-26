@@ -169,34 +169,40 @@ void TWorld::CalcVelDisch()
 {
 	if(SwitchKinematic2D == K2D_METHOD_DYN)
 		return;
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        double Perim, R;
+      //  double Perim, R;
         double NN = N->Drc;
+        double alpha;
+        double WHr = WHrunoff->Drc;
+        double FW = FlowWidth->Drc;
 
         if (SwitchIncludeChannel)
-            NN = N->Drc;// * std::min(2.0-qExp(-mixing_coefficient*hmx->Drc), 2.0);
-        // slow down water in flood zone
+            NN = N->Drc * (2.0-qExp(-mixing_coefficient*hmx->Drc));
+        // slow down water in flood zone, if hmx = 0 then factor = 1
 
         // avg WH from soil surface and roads, over width FlowWidth
-        Perim =  2*WHrunoff->Drc + FlowWidth->Drc;
+     //   Perim = FW; // ssurface flow does not have sides!only roughness  2*WHr + FW;
 
-        if (Perim > 0)
-            R = WHrunoff->Drc*FlowWidth->Drc/Perim;
-        else
-            R = 0;
+//        if (Perim > 0)
+//            R = WHr*FW/Perim;
+//        else
+//            R = 0;
+       // R = WHr;
 
         if (Grad->Drc > MIN_SLOPE)
-            Alpha->Drc = pow(NN/sqrt(Grad->Drc) * pow(Perim, 2.0/3.0),0.6);
+            alpha = pow(NN/sqrtGrad->Drc * pow(FW, 2.0/3.0),0.6);
         else
-            Alpha->Drc = 0;
+            alpha = 0;
 
-        if (Alpha->Drc > 0)
-            Q->Drc = pow((FlowWidth->Drc*WHrunoff->Drc)/Alpha->Drc, 5.0/3.0);
+        if (alpha > 0)
+            Q->Drc = pow((FW*WHr)/alpha, 5.0/3.0);
         else
             Q->Drc = 0;
 
-        V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/NN;
+        V->Drc = pow(WHr, 2.0/3.0) * sqrtGrad->Drc/NN;
+        Alpha->Drc = alpha;
 
     }}
 }
@@ -395,44 +401,35 @@ void TWorld::OverlandFlow2Ddyn(void)
 //--------------------------------------------------------------------------------------------
 void TWorld::OverlandFlow1D(void)
 {
-    double totw = 0;
     // recalculate water vars after subtractions in "to channel"
-    FOR_ROW_COL_MV {
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         WaterVolin->Drc = DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
         //volume runoff into the kin wave, needed to determine infil in kin wave
-totw += WHrunoff->Drc;
         // WaterVolin total water volume in m3 before kin wave, WHrunoff may be adjusted in tochannel
         q->Drc = FSurplus->Drc*SoilWidthDX->Drc/_dt;  //???FlowWidth
         // infil flux in kin wave (<= 0)negative value), in m2/s, in kiv wave DX is used
         // surplus related to infiltrating surfaces
-    }
-    if(totw < 1e-10) {
-        fill(*Qn, 0.0);
-        if (SwitchErosion)
-            fill(*Qsn, 0.0);
-        return;
-    }
-
-    fill(*QinKW, 0.0); // store incoming wate rin a cell
-    fill(*tm, -1); // flag for confined fow in channels and culverts
+        QinKW->Drc = 0; // store for incoming water in a cell
+        tm->Drc = -1;
+        // flag for confined fow in channel culverts
+    }}
 
     if (SwitchErosion)
     {
-        fill(*Qs, 0.0);
-        fill(*Qsn, 0.0);
         // calc seediment flux going in kin wave as Qs = Q*C
-        FOR_ROW_COL_MV
-        {
+#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            Qsn->Drc = 0.0;
             Conc->Drc = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &Sed->Drc, &DEP->Drc);
             Qs->Drc =  Q->Drc * Conc->Drc;
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
-        }
+        }}
     }
 
     // route water
     Qn->setAllMV();
-    FOR_ROW_COL_MV
-    {
+    FOR_ROW_COL_MV {
         if (LDD->Drc == 5) // if outflow point, pit
         {
             Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);
@@ -473,15 +470,15 @@ totw += WHrunoff->Drc;
         InfilKWact = std::min(-FSurplus->Drc*SoilWidthDX->Drc*DX->Drc, diff);
 
         // infiltration is the surplus infil (pot infil), or infil is all that was there
-        if (FFull->Drc == 1)
-            InfilKWact = 0;
+//        if (FFull->Drc == 1)
+//            InfilKWact = 0;
 
         InfilVolKinWave->Drc = InfilKWact;
 
         double Perim = FlowWidth->Drc > 0 ? 2*WHrunoff->Drc + FlowWidth->Drc : 0.0;
         double R = WHrunoff->Drc*FlowWidth->Drc/Perim;
-        Alpha->Drc = pow(N->Drc/sqrt(Grad->Drc) * pow(Perim, 2.0/3.0),0.6); // for erosion
-        V->Drc = pow(R, 2.0/3.0) * sqrt(Grad->Drc)/N->Drc;
+        Alpha->Drc = pow(N->Drc/sqrtGrad->Drc * pow(Perim, 2.0/3.0),0.6); // for erosion
+        V->Drc = pow(R, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
     //    Qn->Drc = V->Drc * WHrunoff->Drc*FlowWidth->Drc;
    //     V->Drc = std::min(Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc), V->Drc);
 //        V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
@@ -515,7 +512,6 @@ totw += WHrunoff->Drc;
         copy(*tm, *Sed);
         if(!SwitchUseGrainSizeDistribution)
         {
-
             Qsn->setAllMV();
             FOR_ROW_COL_MV
             {

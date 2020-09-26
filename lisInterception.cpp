@@ -236,36 +236,13 @@ void TWorld::InterceptionAll()
             //actual canopy storage in m
             double Smax = CanopyStorage->Drc;
             //max canopy storage in m
-            double LAIv;
-            if (SwitchInterceptionLAI)
-                LAIv = LAI->Drc;
-            else
-                LAIv = (log(1-Cv)/-0.4)/std::max(0.1,Cv);
-            //Smax is based on LAI and LAI is the average of a gridcell, already including the cover
-            // a low cover means a low LAI means little interception
 
             if (Smax > 0)
             {
-                double k = 1-exp(-CanopyOpeness*LAIv);
-                //a dense canopy has a low openess factor, so little direct throughfall and high CS
-
-                CS = Smax*(1-exp(-k*RainCum_/Smax));
-                //      CS = Smax*(1-exp(-0.0653*LAIv*RainCum->Drc/Smax));
-                //VJ 110209 direct use of openess, astons value quite open for eucalypt.
-                //A good guess is using the cover LAI relation
-                //and interpreting cover as openess: k = exp(-0.45*LAI) BUT this is 0.065!!!
+                CS = Smax*(1-exp(-kLAI->Drc*RainCum_/Smax));
             }
-            else
-                CS = 0;
-            // 0.0653 is canopy openess, based on Aston (1979), based on Merriam (1960/1973), De Jong & Jetten 2003
-            // is not the same as canopy cover. it also deals with how easy rainfall drips through the canopy
-            // possible to use equation from Ahston but for very open Eucalypt
-
-            //            CS = std::max(0.0, CS * (1-StemflowFraction));
-            //VJ 110206 decrease storage with stemflow fraction!
-            // but stemflowfraction doesn't go anywhere!!!!!!!!!!!!!!!!!
-            // it doesn't matter, either stemflow is removed from the storage and added to RainNet
-            // or it is not subtracted in the first place, so the storage is a bit more but leafdrain is earlier at maximum
+            //else
+              //  CS = 0;
 
             LeafDrain->Drc = std::max(0.0, Cv*(Rainc_ - (CS - CStor->Drc)));
             // diff between new and old strage is subtracted from rainfall
@@ -307,7 +284,7 @@ void TWorld::InterceptionAll()
                 LCStor->Drc = LCS;
                 // put new storage back in map for next dt
 
-                LInterc->Drc =  Litter->Drc * LCS * AreaSoil;
+                LInterc->Drc =  CvL * LCS * AreaSoil;
                 // only on soil surface, not channels or roads, in m3
 
                 RainNet_ = drain + (1-CvL)*RainNet_;
@@ -320,6 +297,7 @@ void TWorld::InterceptionAll()
         {
             double CvH = HouseCover->Drc;
             if (CvH > 0 &&  RainNet_ > 0)
+
             {
                 //house on cell in m2
                 double HS = HStor->Drc;

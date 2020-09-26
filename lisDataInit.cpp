@@ -234,6 +234,17 @@ void TWorld::InitStandardInput(void)
     // LDD is also mask and reference file, everthing has to fit LDD
     // channels use channel LDD as mask
 
+// slower:
+//    long _i_ = 0;
+//    for(int r = 0; r < _nrRows; r++)
+//        for (int c = 0; c < _nrCols; c++)
+//        {
+//            if(!pcr::isMV(LDD->data[r][c]))
+//                cri_ << _i_;
+//            _i_++;
+//        }
+//    nrValidCells = cri_.size();
+
 
     FOR_ROW_COL_MV {
         LDD_COOR newcr;
@@ -289,12 +300,6 @@ void TWorld::InitStandardInput(void)
 
     qDebug() << "using:" << userCores << "cores";
 
-
-    double *hoi = new double[nrValidCells];
-    long i = 0;
-    FOR_ROW_COL_MV {
-        hoi[i++] = 0;
-    }
 
 //    time_ms.start();
 //    for (int i = 0 ; i < 10000; i++)
@@ -400,6 +405,10 @@ void TWorld::InitStandardInput(void)
     checkMap(*Grad, LARGER, 1.0, "Gradient must be SINE of slope angle (not TAN)");
     // calcValue(*Grad, 0.001, MAX);
     // VJ 170210 better to check the code where grad is 0, there q = 0, alpha = 0, so v = 0
+    sqrtGrad = NewMap(0);
+    FOR_ROW_COL_MV {
+        sqrtGrad->Drc = sqrt(Grad->Drc);
+    }
 
     Outlet = ReadMap(LDD, getvaluename("outlet"));
     cover(*Outlet, *LDD, 0);
@@ -498,17 +507,6 @@ void TWorld::InitStandardInput(void)
     checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");
     checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
     checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
-
-    if (SwitchInterceptionLAI)
-        FOR_ROW_COL_MV {
-            LAI->Drc = (log(1-Cover->Drc)/-0.4)/std::max(0.1,Cover->Drc);
-        }
-
-    kLAI = NewMap(0);
-    FOR_ROW_COL_MV {
-        kLAI->Drc = 1-exp(-CanopyOpeness*LAI->Drc);
-    }
-
 
     GrassFraction = NewMap(0);
     if (SwitchGrassStrip)
@@ -1610,11 +1608,8 @@ void TWorld::IntializeData(void)
     SnowmeltCum = NewMap(0);
 
     InterceptionLAIType = getvalueint("Canopy storage equation");
-    if (InterceptionLAIType == 8)
-    {
-        SwitchInterceptionLAI = false;
-        CanopyStorage = ReadMap(LDD,getvaluename("smax"));
-    }
+    SwitchInterceptionLAI = InterceptionLAIType < 8;
+
     if (SwitchInterceptionLAI)
     {
         CanopyStorage = NewMap(0); //in m !!!
@@ -1634,6 +1629,22 @@ void TWorld::IntializeData(void)
             }
         }
     }
+    else
+    {
+        CanopyStorage = ReadMap(LDD,getvaluename("smax"));
+        //if we have a Smax map directly we need the LAI so we derive it from the cover
+        FOR_ROW_COL_MV {
+            LAI->Drc = (log(std::max(0.01,1-Cover->Drc))/-0.4);// /std::max(0.1,Cover->Drc);
+        }
+    }
+
+    // openness coefficient k
+    kLAI = NewMap(0);
+    FOR_ROW_COL_MV {
+        kLAI->Drc = 1-exp(-CanopyOpeness*LAI->Drc);
+    }
+
+
     calcValue(*CanopyStorage, 0.001, MUL); // from mm to m
     //NOTE: LAI is still needed for canopy openness, can be circumvented with cover
     if (SwitchHouses)
@@ -1742,15 +1753,13 @@ void TWorld::IntializeData(void)
     QpeakTime = 0;
     WH = NewMap(0);
     WHbef = NewMap(0);
-    WHtop = NewMap(0);
     WHrunoff = NewMap(0);
     WHmax = NewMap(0);
     WHstore = NewMap(0);
     WHroad = NewMap(0);
-    WHrunoffOutput = NewMap(0);
     WHGrass = NewMap(0);
     FlowWidth = NewMap(0);
-    fpa = NewMap(0);
+    //fpa = NewMap(0);
     V = NewMap(0);
     VH = NewMap(0);
     Alpha = NewMap(0);

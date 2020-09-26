@@ -108,51 +108,36 @@ void TWorld::SurfaceStorage()
 {
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        double RRm = 0.01*RR->Drc; // assume RR in cm convert to m
-        double wh = WH->Drc, whflow = 0;
-        double mds = MDS->Drc;  // mds is in meters
-        double WaterVolrunoff;
+        double wh = WH->Drc;
+        //double WaterVolrunoff;
+        double SW = SoilWidthDX->Drc;
+        double RW = RoadWidthHSDX->Drc;
+        double WHr = WHroad->Drc;
+        double WHs;
 
         //### surface storage on rough surfaces
-
-        if (RRm < 0.001)
-            whflow = wh;
-        else
-            whflow = std::max(0.0, wh - mds*(1-exp(-1.875*(wh/RRm))) );
+        WHs = std::min(wh, MDS->Drc*(1-exp(-1.875*(wh/std::max(0.01,0.01*RR->Drc)))));
         // non-linear release fo water from depression storage
         // resemles curves from GIS surface tests, unpublished
 
-        WHstore->Drc = wh - whflow;
-        // average water stored on flowwidth and not available for flow, in m
-
-        WaterVolrunoff = DX->Drc*( whflow*SoilWidthDX->Drc + WHroad->Drc*RoadWidthHSDX->Drc);
-        // runoff volume available for flow, surface + road + hard surfaces
-        // soil surface excludes houses and roads and channels and hard surfaces
-
-        WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthHSDX->Drc);
-        // all water in the cell incl storage
-
-        //### the trick: use ponded area for flowwidth
-        // for "natural" soil surfaces with a given roughness
-//        if (RRm == 0)
-//            fpa->Drc = 1;
-//        else
-//            fpa->Drc = 1-exp(-1.875*(wh/RRm));
-        // fraction ponded area of a gridcell
-        double Fpa = 1;
-
-        double FW = std::min(_dx, Fpa*SoilWidthDX->Drc + RoadWidthHSDX->Drc);
+        double FW = std::min(ChannelAdj->Drc, SW + RW);
         // calculate flowwidth by fpa*surface + road, excludes channel already
 
-        FW = std::min(ChannelAdj->Drc, FW);
-
-        if (FW > 0)
-            WHrunoff->Drc = WaterVolrunoff/(DX->Drc*FW);
-        else
-            WHrunoff->Drc = 0;
+    //    if (FW > 0) {
+          //  WaterVolrunoff = DX->Drc*( whflow*SoilWidthDX->Drc + WHroad->Drc*RoadWidthHSDX->Drc);
+            // runoff volume available for flow, surface + road + hard surfaces
+            // soil surface excludes houses and roads and channels and hard surfaces
+           // WHrunoff->Drc = WaterVolrunoff/(DX->Drc*FW);
+        WHrunoff->Drc = ((wh - WHs)*SW + WHr*RW)/FW;
+      //  } else
+        //    WHrunoff->Drc = 0;
         // average WHrunoff from soil surface + roads, because kin wave can only do one discharge
         // this now takes care of ponded area, so water height is adjusted
         FlowWidth->Drc = FW;
+
+        WaterVolall->Drc = DX->Drc*(wh*SW + WHr*RW);
+        // all water in the cell incl storage
+        WHstore->Drc = WHs;
     }}
 }
 //---------------------------------------------------------------------------

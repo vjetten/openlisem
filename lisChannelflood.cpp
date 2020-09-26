@@ -555,14 +555,14 @@ void TWorld::ChannelFlood(void)
         // addvolume infiltrated during flood process with FSurplus
 
         hmxflood->Drc = std::max(0.0, WHrunoff->Drc + hmx->Drc - minReportFloodHeight);
-        WHrunoffOutput->Drc = std::min(WHrunoff->Drc + hmx->Drc, minReportFloodHeight);
 
         WaterVolall->Drc = DX->Drc * (WHrunoff->Drc*ChannelAdj->Drc + hmx->Drc * ChannelAdj->Drc
                                       + WHstore->Drc*SoilWidthDX->Drc);
         // all water on surface
 
-        FloodWaterVol->Drc = hmxflood->Drc*CHAdjDX->Drc;
-        RunoffWaterVol->Drc = WHrunoffOutput->Drc*CHAdjDX->Drc;
+        FloodWaterVol->Drc = hmxflood->Drc * CHAdjDX->Drc;
+        double WHrunoffOutput = std::min(WHrunoff->Drc + hmx->Drc, minReportFloodHeight);
+        RunoffWaterVol->Drc = WHrunoffOutput * CHAdjDX->Drc;
 
         WHmax->Drc = std::max(WHmax->Drc, hmxWH->Drc);
     }}

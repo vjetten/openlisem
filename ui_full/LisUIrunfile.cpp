@@ -252,7 +252,7 @@ void lisemqt::ParseInputData()
 
 //        if (p1.compare("SOBEK date string")==0)              SOBEKdatestring->setText(p);
         if (p1.compare("Sediment bulk density")==0)          E_BulkDens->setText(p);
-        if (p1.compare("Use canopy storage map")==0)          radioButton_9->setChecked(check);
+     //   if (p1.compare("Use canopy storage map")==0)         radioButton_9->setChecked(check);
 
         if (p1.compare("Canopy storage equation")==0)
         {
@@ -816,7 +816,7 @@ void lisemqt::updateModelData()
             if(radioButton_6->isChecked()) i = 5;
             if(radioButton_7->isChecked()) i = 6;
             if(radioButton_8->isChecked()) i = 7;
-            if(radioButton_9->isChecked()) i = 8;
+            if(radioButton_9->isChecked()) i = 8;  // 8 = storage map, not LAI eq
             namelist[j].value.setNum(i);
         }
 

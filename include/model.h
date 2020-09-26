@@ -81,24 +81,29 @@
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDD->data[r][c]))
 
+//SLOW!
 //#define FOR_ROW_COL_MV_L for(int r = 0; r < _nrRows; r++)\
 //    for (int c = 0; c < _nrCols; c++)\
 //    if(!pcr::isMV(LDD->data[r][c]))
 
+// faster
+//#define FOR_ROW_COL_MV_L for(QVector <LDD_COOR>::iterator crit_ = cr_.begin(); crit_ != cr_.end();  ++crit_)\
+//{int r = crit_->r; int c = crit_->c;
+
+
+// faster
+//#define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
+//{long _i_ = cri_[i_]; int r = (int)(_i_/_nrCols); int c = (int)(_i_ % _nrCols);
+
+// fastest, QVector stores all elements in the same consequtive memory!
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
 {int r = cr_[i_].r; int c = cr_[i_].c;
 
 #define FOR_ROW_COL_MV_CHL for(long i_ = nrValidCellsCH-1; i_ >= 0; i_--)\
 {int r = crch_[i_].r; int c = crch_[i_].c;
 
-//#define FOR_ROW_COL_MV_L for(QVector<LDD_COOR>::iterator it = cr_.begin(); it != cr_.end(); ++it)\
-//    {int r = it->r; int c = it->c;
-
-#define FOR_ROW_COL_MV_LL for(long i_ = 0; i_ < cr1_.size(); i_++)\
-{int r = cr1_.at(i_).r; int c = cr1_.at(i_).c;
-
-//#define FOR_ROW_COL_MV_L for(size_t i_ = 0; i_ < nrValidCells; i_++)\
-//{int r = _r_.at(i_); int c = _c_.at(i_);
+#define FOR_ROW_COL_MV_LL for(long i_ = nrValidCells1-1; i_ >= 0; i_--)\
+{int r = cr1_[i_].r; int c = cr1_[i_].c;
 
 #define FOR_GRAIN_CLASSES for(int d  = 0 ; d < numgrainclasses;d++)
 
@@ -255,9 +260,12 @@ public:
     QVector <LDD_COOR> cr1_;
     QVector <LDD_COOR> cr0_;
     QVector <LDD_COOR> crch_;
+    //QVector <long> cri_;
 
-    QVector <int> _r_;
-    QVector <int> _c_;
+//    QVector <LDD_COOR>::iterator crit_;
+//    QVector <LDD_COOR>::iterator critend_;
+
+
     /// map management structure, automatic adding and deleting of all cTMap variables
     MapListStruct maplistCTMap[NUMNAMES];
     int maplistnr;
@@ -324,7 +332,7 @@ public:
     double KEParamater_a1, KEParamater_b1, KEParamater_c1;
     double KEParamater_a2, KEParamater_b2;
     double KEParamater_a3, KEParamater_b3;
-double sum1;
+
     /// calibration parameters
     double gsizeCalibration;
     double ksatCalibration;
@@ -688,9 +696,9 @@ double sum1;
 
     void InfilEffectiveKsat();
     void Infiltration();
-    void InfilSwatre(cTMap *_WH);
+    void InfilSwatre();
 
-    double IncreaseInfiltrationDepthNew(int r, int c);
+    double IncreaseInfiltrationDepthNew(double fact_, int r, int c);
 
     void SoilWater();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
@@ -870,6 +878,7 @@ protected:
   //  QTime time_ms;
     // talk to the interface
     QElapsedTimer time_ms;
+    double startTime;
     void setupDisplayMaps();
     void setupHydrographData();
     void ClearHydrographData();

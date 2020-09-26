@@ -37,6 +37,7 @@ cTMap
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
 *CellArea,                   //!< cell area = DX * _dx [m^2]
 *Grad,                       //!< sine of the DEM gradient [-]
+*sqrtGrad,
 *LDD,                        //!< local drain direction map [-]
 *Outlet,                     //!< main outlet of the catchment, value 5 in LDD map [-]
 *PointMap,                   //!< map with output points, values > 0 [-]
@@ -73,11 +74,10 @@ cTMap
 *WH,                         //!< water height on the surface [m]
 *WHbef,                      //!< water height on the surface before infiltration [m]
 *WHroad,                     //!< water height on the roads [m]
-*WHrunoffOutput,                     //!< water height on the roads [m]
+//*WHrunoffOutput,                     //!< water height on the roads [m]
 *WHrunoff,                   //!< water height available for runoff [m]
 *WHmax,                      //!< max runoff wh in m for reporting
 *WHstore,                    //!< water heigth stored in micro depressions [m]
-*WHtop,
 *WaterVolall,                //!< water volume total (incl surface storage) [m^3]
 *WaterVolin,                 //!< water volume total before kin wave (after tochannel) [m^3]
 //*WaterVolRunoff,                //!< water volume for runoff [m^3]
@@ -101,7 +101,7 @@ cTMap
 *Norg,                          //!< Manning's n
 *RR,                         //!< Random roughness, locally converted to m [cm]
 *MDS,                        //!< Maximum depression storage [m]
-*fpa,                        //!< fraction ponded area [-]
+//*fpa,                        //!< fraction ponded area [-]
 *SoilWidthDX,                //!< width of soil surface, excluding roads and channels [m]
 *RoadWidthDX,                //!< width of tarred roads [m]
 *RoadWidthHSDX,

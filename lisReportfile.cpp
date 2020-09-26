@@ -247,6 +247,7 @@ void TWorld::OutputUI(void)
 
     // MAP DISPLAY VARIABLES
     op.t = time_ms.elapsed()*0.001/60.0;
+    op.t = omp_get_wtime()/60.0 - startTime;
     op.time = time/60;
     op.maxtime = op.t/runstep * op.maxstep;
     op.dx = _dx;
