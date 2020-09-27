@@ -1169,6 +1169,7 @@ void TWorld::InitErosion(void)
     AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
     calcValue(*AggrStab, ASCalibration, MUL);
 
+
     D50 = ReadMap(LDD,getvaluename("D50"));
     //SwitchNeedD90 = SwitchErosion && (SwitchChannelFlood || (SwitchUse2Layer && !R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution);
     if(SwitchUse2Layer && !SwitchUseGrainSizeDistribution)
@@ -1261,6 +1262,7 @@ void TWorld::InitErosion(void)
         SettlingVelocityBL = NewMap(0);
     CohesionSoil = NewMap(0);
     Y = NewMap(0);
+    splashb = NewMap(0);
 
     FOR_ROW_COL_MV
     {
@@ -1281,6 +1283,21 @@ void TWorld::InitErosion(void)
 
         if (CohesionSoil->Drc < 0)
             Y->Drc = 0; // to force max strength
+
+
+        // empirical analysis based on Limburg data, dating 1989
+        if (AggrStab->Drc > 0)
+        {
+            AggrStab->Drc = 2.82/AggrStab->Drc;
+            splashb->Drc = 2.96;
+        }
+        else
+        {
+            AggrStab->Drc = 0.1033/std::max(CohesionSoil->Drc,1.0);
+            splashb->Drc = 3.58;
+        }
+
+
     }
 
     FOR_ROW_COL_MV

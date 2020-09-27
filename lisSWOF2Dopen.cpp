@@ -62,7 +62,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
         do {
             // make a copy
-            bool SwitchLimitSWOFVelocity = true;
+           // bool SwitchLimitSWOFVelocity = true;
             double vmax = 100000;
            // if (SwitchLimitSWOFVelocity)
                 vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
@@ -203,7 +203,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     // |-----
                     // |h_y2u
 
-
                     double h_x1r = std::max(0.0, h_x1 - std::max(0.0,  dz_x1 + fb_x1));
                     double h_x1l = std::max(0.0, H    - std::max(0.0, -dz_x1 + fb_x1));
                     if(bc1)
@@ -270,37 +269,35 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         double tot = dt*(flux_x1 + flux_x2 + flux_y1 + flux_y2);
                         if (H+tot < 0) {
                             dt = H/-tot*dt;
-                          }
-//                        flux_x1 = std::max(-H * C,std::min(flux_x1,h_x1 * C));
-//                        flux_x2 = std::max(-H * C,std::min(flux_x2,h_x2 * C));
-//                        flux_y1 = std::max(-H * C,std::min(flux_y1,h_y1 * C));
-//                        flux_y2 = std::max(-H * C,std::min(flux_y2,h_y2 * C));
+                        }
 
-                       double hn = std::max(0.0, H + dt*(flux_x1 + flux_x2 + flux_y1 + flux_y2));
-                       //double hn = std::max(0.0, H - tx*(hll_x2.v[0]-hll_x1.v[0]) - ty * (hll_y2.v[0]-hll_y1.v[0]));
+                        double hn = std::max(0.0, H + dt*(flux_x1 + flux_x2 + flux_y1 + flux_y2));
                         // mass balance
 
                         // momentum balance for cells with water
                         if(hn > he_ca) {
-                              double gflow_x = tx * GRAV*0.5*( (h_x1r-h_x1l)*(h_x1r+h_x1l)+(h_x2r-h_x2l)*(h_x2r+h_x2l));// + (h_x1l+h_x2r)*limiter(dz_x1,dz_x2));
-                              double gflow_y = ty * GRAV*0.5*( (h_y1d-h_y1u)*(h_y1d+h_y1u)+(h_y2d-h_y2u)*(h_y2d+h_y2u));// + (h_y1u+h_y2d)*limiter(dz_y1,dz_y2));
-                            //  double gflow_x = 0.5 * GRAV *H*sx_zh * dt;
-                            //  double gflow_y = 0.5 * GRAV *H*sy_zh * dt;
-//                            double h_corr_x1 = std::max(h_x1,H);
-//                            double h_corr_x2 = std::max(h_x2,H);
-//                            double h_corr_y1 = std::max(h_y1,H);
-//                            double h_corr_y2 = std::max(h_y2,H);
-//                            double dhcx = (H - h_corr_x2) - (H - h_corr_x1);
-//                            double dhcy = (H - h_corr_y2) - (H - h_corr_y1);
+                            // worn ginterpretation!
+                            //double gflow_x = GRAV*0.5*( (h_x1r-h_x1l)*(h_x1r+h_x1l)+(h_x2r-h_x2l)*(h_x2r+h_x2l)) + (h_x1l+h_x2r)*limiter(dz_x1,dz_x2));
+                            //double gflow_y = GRAV*0.5*( (h_y1d-h_y1u)*(h_y1d+h_y1u)+(h_y2d-h_y2u)*(h_y2d+h_y2u)) + (h_y1u+h_y2d)*limiter(dz_y1,dz_y2));
 
-                         //   double gflow_x = tx*0.5 * GRAV*H*(dhcx > 0.0? 1.0:-1.0)*fabs(dhcx);
-                         //   double gflow_y = tx*0.5 * GRAV*H*(dhcy > 0.0? 1.0:-1.0)*fabs(dhcy);
+                            double gflow_x = GRAV*0.5*( (h_x1l-H)*(h_x1l+H)+(H-h_x2r)*(H+h_x2r));// + (H)*limiter(dz_x1,dz_x2));
+                            double gflow_y = GRAV*0.5*( (h_y1u-H)*(h_y1u+H)+(H-h_y2d)*(H+h_y2d));// + (H)*limiter(dz_y1,dz_y2));
 
-                            //    float qxn = h * vx - tx*(hll_x2.y - hll_x1.y + f_centre_x)  - tx*(hll_y2.z - hll_y1.z);
-                            //    float qyn = h * vy - tx*(hll_x2.z - hll_x1.z) - tx*(hll_y2.y - hll_y1.y + f_centre_y);
+                            // old bastian
+                            //double gflow_x = 0.5 * GRAV *H*sx_zh;
+                            //double gflow_y = 0.5 * GRAV *H*sy_zh;
+                            // new Bastian
+                            //double h_corr_x1 = std::max(h_x1,H);
+                            //double h_corr_x2 = std::max(h_x2,H);
+                            //double h_corr_y1 = std::max(h_y1,H);
+                            //double h_corr_y2 = std::max(h_y2,H);
+                            //double dhcx = (H - h_corr_x2) - (H - h_corr_x1);
+                            //double dhcy = (H - h_corr_y2) - (H - h_corr_y1);
+                            //gflow_x = 0.5 * GRAV*H*(dhcx > 0.0? 1.0:-1.0)*fabs(dhcx);
+                            //gflow_y = 0.5 * GRAV*H*(dhcy > 0.0? 1.0:-1.0)*fabs(dhcy);
 
-                            double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1]) - ty*(hll_y2.v[2] - hll_y1.v[2])+ gflow_x;
-                            double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1])+ gflow_y;
+                            double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
+                            double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
 
                             double vsq = sqrt(Vx * Vx + Vy * Vy);
                             double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.01,pow(hn,4.0/3.0));
@@ -327,6 +324,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                             //    v_kin = (sy_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sy_zh > 0 ? sy_zh : -sy_zh))/(0.001+n);
                             //    vyn = kinfac * v_kin + vyn*(1.0-kinfac);
                             //}
+
+                            //tmd->Drc =sqrt(qxn*qxn+qyn*qyn);
 
                         } else {
                             hn = H; // if no fluxes then also no change in h

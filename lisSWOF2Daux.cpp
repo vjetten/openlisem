@@ -316,17 +316,17 @@ vec4 TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
 vec4 TWorld::F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
     vec4 rec;// = {0,0,0,0};
-    if (F_scheme == 1)
-        rec = F_Rusanov( h_L, u_L, v_L, h_R, u_R, v_R);
+    if (F_scheme == 4)
+        rec = F_HLL3(h_L, u_L, v_L, h_R, u_R, v_R);
     else
-        if (F_scheme == 2)
-            rec = F_HLL(h_L, u_L, v_L, h_R, u_R, v_R);
+        if (F_scheme == 3)
+            rec = F_HLL2(h_L, u_L, v_L, h_R, u_R, v_R);
         else
-            if (F_scheme == 3)
-                rec = F_HLL2(h_L, u_L, v_L, h_R, u_R, v_R);
+            if (F_scheme == 2)
+                rec = F_HLL(h_L, u_L, v_L, h_R, u_R, v_R);
             else
-                if (F_scheme == 4)
-                    rec = F_HLL3(h_L, u_L, v_L, h_R, u_R, v_R);
+                if (F_scheme == 1)
+                    rec = F_Rusanov( h_L, u_L, v_L, h_R, u_R, v_R);
     return (rec);
 }
 //---------------------------------------------------------------------------
@@ -611,12 +611,20 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
 //    }
 //}
 
+            //coding left right and up/down boundary h
+            //  h1d-1|h1g    h1d|h1g+1
+            //  h1r-1|h1l    h1r|h1l+1
+            //  _____|__________|_____
+
+
 //#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(c > 0 && !MV(r,c-1)) {
             h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
             h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
             rec = F_Riemann(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
+            // riemann(r, c-1
+
             f1->Drc =   rec.v[0];
             f2->Drc =   rec.v[1];
             f3->Drc =   rec.v[2];
@@ -714,6 +722,21 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
         double tx = dt/_dx;//ChannelAdj->Drc;
         double ty = dt/_dx;//DX->Drc;
         double _f1=0, _f2=0, _f3=0, _g1=0, _g2=0, _g3=0;
+        double h1g_ = h1g->Drc;
+        double h1l_ = h1l->Drc;
+        double h1r_ = h1r->Drc;
+        double h1d_ = h1d->Drc;
+        double h2g_ = h2g->Drc;
+        double h2l_ = h2l->Drc;
+        double h2r_ = h2r->Drc;
+        double h2d_ = h2d->Drc;
+        double ve1_ = ve1->Drc;
+        double ve2_ = ve2->Drc;
+
+        //f r,c => riemann(c-1,r   c,r)
+        //g t,c => riemann(c,r-1   c,r)
+        //_f = r,c+1    => riemann(c,r, c+1,r)
+        //_g = r+1,c    => riemann(c,r, c,r+1)
 
         //choose left hand boundary and normal (f1), or right hand boundary values (f1o)
         if (c < _nrCols-1 && !MV(r, c+1)) {
@@ -739,6 +762,7 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
             _g3 = g3o->Drc;
         }
 
+        // Hes = -tx*(riemann(c,r, c+1,r) - riemann(c-1,r   c,r))
         Hes = std::max(0.0, he->Drc - tx*(_f1 - f1->Drc) - ty*(_g1 - g1->Drc));
 
         if (Hes > he_ca)
@@ -746,23 +770,19 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
             //Solution of the equation of momentum (Second and third equation of Saint-venant)
             double qes1;
             double qes2;
+//            f1->Drc =   rec.v[0];
+//            f2->Drc =   rec.v[1];
+//            f3->Drc =   rec.v[2];
+//            g1->Drc = rec.v[0];
+//            g2->Drc = rec.v[2];// !!!
+//            g3->Drc = rec.v[1];
+            qes1 = he->Drc*ve1_ - ty*(_g2 - g2->Drc) - tx*(_f2 - f2->Drc +
+                        GRAV*0.5*((h1g_-h1l_)*(h1g_+h1l_) + (h1r_-h1d_)*(h1r_+h1d_) + (h1l_+h1r_)*delzc1->Drc));
 
-            qes1 = he->Drc*ve1->Drc -
-                    ty*(_g2 - g2->Drc) -
-                    tx*(_f2 - f2->Drc +
-                        GRAV*0.5*((h1g->Drc-h1l->Drc)*(h1g->Drc+h1l->Drc) +
-                                  (h1r->Drc-h1d->Drc)*(h1r->Drc+h1d->Drc)
-                                  + (h1l->Drc+h1r->Drc)*delzc1->Drc));
+            qes2 = he->Drc*ve2_ - tx*(_f3 - f3->Drc) - ty*(_g3 - g3->Drc +
+                        GRAV*0.5*((h2g_-h2l_)*(h2g_+h2l_) + (h2r_-h2d_)*(h2r_+h2d_) + (h2l_+h2r_)*delzc2->Drc));
 
-            qes2 = he->Drc*ve2->Drc -
-                    tx*(_f3 - f3->Drc) -
-                    ty*(_g3 - g3->Drc +
-                        GRAV*0.5*((h2g->Drc-h2l->Drc)*(h2g->Drc+h2l->Drc) +
-                                  (h2r->Drc-h2d->Drc)*(h2r->Drc+h2d->Drc)
-                                  + (h2l->Drc+h2r->Drc)*delzc2->Drc));
-
-
-            double sqUV = qSqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc);
+            double sqUV = qSqrt(ve1_*ve1_+ve2_*ve2_);
             double nsq1 = (0.001+N->Drc)*(0.001+N->Drc)*GRAV/std::max(0.01, qPow(Hes,4.0/3.0));
             double nsq = nsq1*sqUV*dt;
 
@@ -773,12 +793,9 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
                 double fac = 0;
                 fac = 0.5+0.5*std::min(1.0,4*Hes)*std::min(1.0,4*Hes);
                 fac = fac *exp(- std::max(1.0,dt) / nsq1);
-                Ves1 = fac * ve1->Drc + (1.0-fac) *Ves1;
-                Ves2 = fac * ve2->Drc + (1.0-fac) *Ves2;
+                Ves1 = fac * ve1_ + (1.0-fac) *Ves1;
+                Ves2 = fac * ve2_ + (1.0-fac) *Ves2;
             }
-
-            //       correctSpuriousVelocities(r, c, hes, ves1, ves2);
-            // gives instability!
 
 //            double threshold = 0.001 * _dx;
 //            if(Hes < threshold) {
@@ -795,6 +812,7 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
 //            double vmax = 0.25*_dx/dt;
 //            Ves1 = std::max(-vmax, std::min(vmax, Ves1));
 //            Ves2 = std::max(-vmax, std::min(vmax, Ves2));
+            //tmd->Drc = sqrt(qes1*qes1+qes2*qes2);
         }
         else
         {

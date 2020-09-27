@@ -126,6 +126,7 @@ cTMap
 *CohesionSoil,               //!< cohesion by plant roots [kPa]
 *Y,                          //!< erosion efficiency 0-1, basd on cohesion [-]
 *AggrStab,                   //!< aggregate stability, median of drops in lowe test [-]
+*splashb,                   //!< aggregate stability, median of drops in lowe test [-]
 *D50,                        //!< median of grainsize distribution [mu]
 *D90,                        //!< 90 % of grainsize distribution is below this value [mu]
 *DETSplash,                  //!< splash detachment [kg/cell]

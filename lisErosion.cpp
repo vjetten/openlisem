@@ -142,13 +142,15 @@ void TWorld::SplashDetachment()
         DETSplash->Drc = 0;
         if(WHrunoff->Drc > 0.0001 || hmx->Drc > 0.0001)
         {
-            double b, strength, DetDT1 = 0, DetDT2 = 0, DetLD1, DetLD2;
+            double DetDT1 = 0, DetDT2 = 0, DetLD1, DetLD2;
             double g_to_kg = 0.001;
-
-            double Int = Rain->Drc * 3600/_dt * 1000;
-            // intensity in mm/h, Rain is in m
-
+            double Lc = Litter->Drc;
+            double Cv = Cover->Drc;
+            double strength = AggrStab->Drc;
+            double b = splashb->Drc;
+            double Int = Rain->Drc * 3600/_dt * 1000; // intensity in mm/h, Rain is in m
             double KE_DT = 0.0;
+            double DETSplash_;
 
             switch (KEequationType)
             {
@@ -159,30 +161,18 @@ void TWorld::SplashDetachment()
             }
             //VJ 110706  KE equations
 
-            double directrain = (1-Litter->Drc) * (1-Cover->Drc)*Rainc->Drc * 1000;
+            double directrain = (1-Lc) * (1-Cv)*Rainc->Drc * 1000;
             // Added litter also to directrain, assme it covers the entire cell, not only under the plant
             // rainfall between plants in mm
 
             double KE_LD = std::max(15.3*sqrt(PlantHeight->Drc)-5.87, 0.0);
             // kin energy in J/m2/mm
-            double throughfall = (1-Litter->Drc) * Cover->Drc * LeafDrain->Drc * 1000;
+            double throughfall = (1-Lc) * Cv * LeafDrain->Drc * 1000;
             // leaf drip in mm, is calculated as plant leaf drip in interception function so mult cover
             // VJ 110206 stemflow is also accounted for
 
             double WH0 = exp(-1.48*hmxWH->Drc*1000);
             // water buffer effect on surface, WH in mm in this empirical equation from Torri ?
-
-            if (AggrStab->Drc > 0)
-            {
-                strength = 2.82/AggrStab->Drc;
-                b = 2.96;
-            }
-            else
-            {
-                strength = 0.1033/CohesionSoil->Drc;
-                b = 3.58;
-            }
-            // empirical analysis based on Limburg data, dating 1989
 
             if(SwitchUseMaterialDepth)
             {
@@ -221,46 +211,41 @@ void TWorld::SplashDetachment()
             DetLD2 = g_to_kg * (1-FPA)*(strength*KE_LD+b) * throughfall * SplashDelivery;
             //dry areas, kg/m2/mm * mm = kg/m2
 
-            DETSplash->Drc = DetLD1 + DetLD2 + DetDT1 + DetDT2;
+            DETSplash_ = DetLD1 + DetLD2 + DetDT1 + DetDT2;
             // Total splash kg/m2
 
             // Deal with all exceptions:
 
-            DETSplash->Drc *= (SoilWidthDX->Drc*DX->Drc);
+            DETSplash_ *= (SoilWidthDX->Drc*DX->Drc);
             // kg/cell, only splash over soilwidth, not roads and channels
             // FROM KG/M2 TO KG/CELL
 
-            DETSplash->Drc = (1-StoneFraction->Drc) * DETSplash->Drc;
+            DETSplash_ = (1-StoneFraction->Drc) * DETSplash_;
             // no splash on stone surfaces
 
             if (SwitchGrassStrip)
-                DETSplash->Drc = (1-GrassFraction->Drc) * DETSplash->Drc;
+                DETSplash_ = (1-GrassFraction->Drc) * DETSplash_;
 
             //      if(SwitchSedtrap)
             //          DETSplash->Drc = (1-SedimentFilter->Drc) * DETSplash->Drc;
 
             if (SwitchHardsurface)
-                DETSplash->Drc = (1-HardSurface->Drc)*DETSplash->Drc;
+                DETSplash_ = (1-HardSurface->Drc)*DETSplash_;
             // no splash on hard surfaces
 
             if (SwitchHouses)
-                DETSplash->Drc = (1-HouseCover->Drc)*DETSplash->Drc;
+                DETSplash_ = (1-HouseCover->Drc)*DETSplash_;
             //is already contained in soilwidth
             // no splash from house roofs
 
-            DETSplash->Drc = (1-Snowcover->Drc)*DETSplash->Drc;
+            if (SwitchSnowmelt)
+                DETSplash_ = (1-Snowcover->Drc)*DETSplash_;
             // no splash on snow deck
 
             if(SwitchUseMaterialDepth)
             {
-                //            if(SwitchUseGrainSizeDistribution)
-                //            {
-                //                StorageDep->Drc = GetTotalDW(r,c,&StorageDep_D);
-                //                Storage->Drc = GetTotalDW(r,c,&Storage_D);
-                //            }
-
                 //check wat we can detach from the top and bottom layer of present material
-                double dleft = DETSplash->Drc ;
+                double dleft = DETSplash_;
                 double deptake = 0;
                 double mattake = 0;
                 double detachment = 0;
@@ -269,22 +254,6 @@ void TWorld::SplashDetachment()
                 StorageDep->Drc -= deptake;
                 // det not more than storage
                 // decrease store depth
-
-                //            if(SwitchUseGrainSizeDistribution)
-                //            {
-                //                double wtotal = 0;
-                //                FOR_GRAIN_CLASSES
-                //                {
-                //                    wtotal += StorageDep_D.Drcd;
-                //                }
-                //                if(wtotal != 0)
-                //                {
-                //                    FOR_GRAIN_CLASSES
-                //                    {
-                //                        StorageDep_D.Drcd = StorageDep_D.Drcd * StorageDep->Drc/wtotal;
-                //                    }
-                //                }
-                //            }
 
                 detachment += deptake;
                 // detachment is now taken material
@@ -295,40 +264,25 @@ void TWorld::SplashDetachment()
                     mattake = std::min(dleft,Storage->Drc);
                     Storage->Drc -= mattake;
 
-                    //                if(SwitchUseGrainSizeDistribution)
-                    //                {
-                    //                    double wtotal = 0;
-                    //                    FOR_GRAIN_CLASSES
-                    //                    {
-                    //                        wtotal += Storage_D.Drcd;
-                    //                    }
-                    //                    if(wtotal != 0)
-                    //                    {
-                    //                        FOR_GRAIN_CLASSES
-                    //                        {
-                    //                            Storage_D.Drcd = Storage_D.Drcd * Storage->Drc/wtotal;
-                    //                        }
-                    //                    }
-                    //                }
                     detachment += mattake;
                 }else
                 {
                     detachment += dleft;
                 }
-                DETSplash->Drc = detachment;
+                DETSplash_ = detachment;
             }
 
 
             if (hmx->Drc > 0) {
-                SSFlood->Drc += DETSplash->Drc;
+                SSFlood->Drc += DETSplash_;
                 SSCFlood->Drc = MaxConcentration(ChannelAdj->Drc * DX->Drc * hmx->Drc, &SSFlood->Drc, &DepFlood->Drc);
 
             } else {
-                Sed->Drc += DETSplash->Drc;
+                Sed->Drc += DETSplash_;
                 Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
             }
 
-
+            DETSplash->Drc = DETSplash_;
             // IN KG/CELL
         }
     }}

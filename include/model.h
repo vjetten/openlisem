@@ -297,6 +297,7 @@ public:
     int FlowBoundaryType;
     int userCores;
     int SwitchSV;
+    double stengthb; // splash strength,
 
     QList<int> FBid;
 
