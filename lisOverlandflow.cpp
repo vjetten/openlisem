@@ -121,7 +121,7 @@ void TWorld::ToChannel()
 
             WHrunoff->Drc -= dwh ;
             WHroad->Drc -= dwh;
-            WHGrass->Drc -= dwh;
+            //WHGrass->Drc -= dwh;
             WH->Drc -= dwh;
             WaterVolall->Drc = WHrunoff->Drcr*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
 
@@ -178,7 +178,7 @@ void TWorld::CalcVelDisch()
         double WHr = WHrunoff->Drc;
         double FW = FlowWidth->Drc;
 
-        if (SwitchIncludeChannel)
+        if (SwitchIncludeChannel && hmx->Drc > 0.001)
             NN = N->Drc * (2.0-qExp(-mixing_coefficient*hmx->Drc));
         // slow down water in flood zone, if hmx = 0 then factor = 1
 
@@ -233,7 +233,7 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
         //direction of velocity is in the direction of + and -
         // U is EW and V is NS
         // find which outlets on the boundary are directed to the outside based on sign U and V
-        FOR_ROW_COL_MV {
+        FOR_ROW_COL_MV_L {
             if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 0.0)
             {
                 if (c > 0 && MV(r,c-1))
@@ -249,7 +249,7 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
                     if (_V->Drc > 0)
                         tma->Drc = 1;
             }
-        }
+        }}
     }
 
     FOR_ROW_COL_MV {
@@ -263,7 +263,7 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
     }
 
 
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         if (tma->Drc == 1) {
             double dy = ChannelAdj->Drc;
             double UV = qSqrt(_U->Drc * _U->Drc + _V->Drc*_V->Drc);
@@ -286,7 +286,7 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
                 BLFlood->Drc -= ds;
             }
         }
-    }
+    }}
 }
 //---------------------------------------------------------------------------
 
@@ -321,8 +321,8 @@ void TWorld::OverlandFlow2Ddyn(void)
         Q->Drc = Qn->Drc; // just to be sure
     }}
 
-
     Boundary2Ddyn();//WHrunoff, Qn, Uflood, Vflood);  // do the domain boundaries
+
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double WHR = WHrunoff->Drc;
@@ -332,7 +332,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 
         WHroad->Drc = WHR;
         // set road to average outflowing wh, no surface storage.
-        WHGrass->Drc = WHR;
+        //WHGrass->Drc = WHR;
 
         WH->Drc = WHR + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
@@ -486,7 +486,7 @@ void TWorld::OverlandFlow1D(void)
         WHroad->Drc = WHrunoff->Drc;
         // set road to average outflowing wh, no surface storage.
 
-        WHGrass->Drc = WHrunoff->Drc;
+        //WHGrass->Drc = WHrunoff->Drc;
 
         WH->Drc = WHrunoff->Drc + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
@@ -522,6 +522,7 @@ void TWorld::OverlandFlow1D(void)
                 }
             }
         } else {
+            /*
             FOR_GRAIN_CLASSES
             {
                 // calc seediment flux going in kin wave as Qs = Q*C
@@ -558,7 +559,7 @@ void TWorld::OverlandFlow1D(void)
                     Sed->Drc += Sed_D.Drcd;
                 }
             }
-
+*/
         }
     }
 
@@ -591,6 +592,7 @@ void TWorld::OverlandFlow1D(void)
         {
 
             Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
+            /*
             if(SwitchUseGrainSizeDistribution)
             {
                 FOR_GRAIN_CLASSES
@@ -598,7 +600,7 @@ void TWorld::OverlandFlow1D(void)
                     Conc_D.Drcd = (Qn->Drc > MIN_FLUX ? Tempb_D.Drcd/Qn->Drc : 0);
                 }
             }
-
+*/
             if (SwitchPesticide)
             {
                 //C->Drc = ConcentrationP(WaterVolall->Drc, Pest->Drc);
@@ -614,11 +616,11 @@ void TWorld::OverlandFlow1D(void)
 // all points that flow outward of the domain by slope and water pressure
 void TWorld::dynOutflowPoints()
 {
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         K2DOutlets->Drc = 0;
-    }
+    }}
 
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         double Dhx = 0;
         double Dhy = 0;
 
@@ -712,12 +714,12 @@ void TWorld::dynOutflowPoints()
                 K2DOutlets->Drc = 1;
             }
         }
-    }
+    }}
 
     //VJ use flowboundary map, type 1 is open flow, else use the map
     if (FlowBoundaryType != 1) {
-        FOR_ROW_COL_MV {
+        FOR_ROW_COL_MV_L {
             K2DOutlets->Drc *= FlowBoundary->Drc;  //copy 1 is 2
-        }
+        }}
     }
 }

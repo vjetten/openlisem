@@ -242,7 +242,7 @@ cTMap
 *PercmmCum,
 *factgr,                     //!< actual infiltration rate fo grassstrip [m/s]
 *fpotgr,                     //!< potential infiltration rate fo grassstrip [m/s]
-*WHGrass,                    //!< water level on a grassstrip [m]
+//*WHGrass,                    //!< water level on a grassstrip [m]
 *GrassFraction,              //!< fraction of grasstrip in a cell [-]
 *SedimentFilter,             //!< sediment deposited in the sediment trap in kg/m2
 *SedMaxVolume,               //!< maxvol of sediment in that can be trapped in m3

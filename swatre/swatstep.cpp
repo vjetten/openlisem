@@ -549,12 +549,12 @@ void TWorld::SwatreStep(int step, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap
 
       if (SwitchIncludeTile)
          drainfraction = TileWidth->Drc/_dx;
-//qDebug() << r << c << r*_nrCols+c;
+
       ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, drainfraction,
                       &repellency, &Theta, s);
       // estimate new h and theta at the end of dt
-//tmc->Drc = s->pixel[r*_nrCols+c].var;
-SwitchDumpH = true;
+
+      SwitchDumpH = true;
       if(SwitchDumpH || SwitchDumpTheta || SwitchDumpK) {
           if(s->pixel[r*_nrCols+c].dumpHid > 0) {
               for (int i = 0; i < s->pixel[r*_nrCols+c].nrNodes; i++) {
@@ -581,6 +581,7 @@ SwitchDumpH = true;
 
       _theta->Drc = Theta;
       // save the average moisture content of the top two layers
+      // used for repellency OBSOLETE
 
       if (SwitchWaterRepellency)
          RepellencyFraction->Drc = repellency;

@@ -1774,7 +1774,7 @@ void TWorld::IntializeData(void)
     WHmax = NewMap(0);
     WHstore = NewMap(0);
     WHroad = NewMap(0);
-    WHGrass = NewMap(0);
+    //WHGrass = NewMap(0);
     FlowWidth = NewMap(0);
     //fpa = NewMap(0);
     V = NewMap(0);

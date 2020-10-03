@@ -54,43 +54,41 @@ void TWorld::InfilEffectiveKsat(void)
 {
     if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
     {
-        #pragma omp parallel for num_threads(userCores)
+       // #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L
         {
             Ksateff->Drc = Ksat1->Drc;
-            if (SwitchInfilCrust)
-                Ksateff->Drc = Ksat1->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
-            if (SwitchInfilCompact)
-                Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
-            if (SwitchInfilCrust && SwitchInfilCompact)
-                Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc-CrustFraction->Drc) +
-                        KsatCrust->Drc*CrustFraction->Drc + KsatCompact->Drc*CompactFraction->Drc;
-
             Poreeff->Drc = ThetaS1->Drc;
             Thetaeff->Drc = ThetaI1->Drc;
 
+            if (SwitchInfilCompact)
+                Ksateff->Drc = Ksateff->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
+
+            if (SwitchInfilCrust)
+                Ksateff->Drc = Ksateff->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
+
             if (SwitchInfilCompact) {
-                Poreeff->Drc = ThetaS1->Drc*(1-CompactFraction->Drc) + PoreCompact->Drc*CompactFraction->Drc;
-                Thetaeff->Drc = ThetaI1->Drc*(1-CompactFraction->Drc) +
-                        ThetaI1->Drc*PoreCompact->Drc/ThetaS1->Drc *CompactFraction->Drc;
+                Poreeff->Drc = Poreeff->Drc*(1-CompactFraction->Drc) + PoreCompact->Drc*CompactFraction->Drc;
+                Thetaeff->Drc = Thetaeff->Drc*(1-CompactFraction->Drc) + ThetaI1->Drc/ThetaS1->Drc*PoreCompact->Drc * CompactFraction->Drc;
             }
             if (SwitchInfilCrust) {
                 Poreeff->Drc = ThetaS1->Drc*(1-CrustFraction->Drc) + PoreCrust->Drc*CrustFraction->Drc;
-                Thetaeff->Drc = ThetaI1->Drc*(1-CrustFraction->Drc) +
-                        ThetaI1->Drc*PoreCrust->Drc/ThetaS1->Drc *CrustFraction->Drc;
+                Thetaeff->Drc = ThetaI1->Drc*(1-CrustFraction->Drc) + ThetaI1->Drc/ThetaS1->Drc*PoreCrust->Drc * CrustFraction->Drc;
             }
             if (SwitchGrassStrip) {
                 Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
                 Poreeff->Drc = ThetaS1->Drc*(1-GrassFraction->Drc) + PoreGrass->Drc*GrassFraction->Drc;
-                Thetaeff->Drc = ThetaI1->Drc*(1-GrassFraction->Drc) +
-                        ThetaI1->Drc*PoreGrass->Drc/ThetaS1->Drc *GrassFraction->Drc;
+                Thetaeff->Drc = ThetaI1->Drc*(1-GrassFraction->Drc) + ThetaI1->Drc/ThetaS1->Drc *PoreGrass->Drc * GrassFraction->Drc;
             }
 
-            if (SwitchHardsurface)
+            if (SwitchHardsurface) {
                 Ksateff->Drc *= (1-HardSurface->Drc);
+                Poreeff->Drc *= (1-HardSurface->Drc);
+            }
 
             if (SwitchHouses) {
                 Ksateff->Drc *= (1-HouseCover->Drc);
+                Poreeff->Drc *= (1-HouseCover->Drc);
             }
 
             Ksateff->Drc = std::max(0.0, Ksateff->Drc);
@@ -109,6 +107,8 @@ void TWorld::InfilEffectiveKsat(void)
 
         }
     }}
+report(*Ksateff,"kse.map");
+report(*Poreeff,"poree.map");
 }
 //---------------------------------------------------------------------------
 /*!
@@ -155,14 +155,17 @@ void TWorld::InfilSwatre()
 
     // for normal surface swatre should be done in all cells
     SwatreStep(op.runstep, SwatreSoilModel, tm, fpot, TileDrainSoil, thetaTop, tma);
-    // NOTE WH changes in SWATRE
+    // NOTE tm=WH changes in SWATRE
     // tiledrainsoil is in m per timestep, if not switchtiles then contains 0
-
 	
     // WH and fpot done in swatrestep
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L  {
         fact->Drc = (WHbef->Drc - tm->Drc);
+        if (FloodDomain->Drc == 0)
+            WH->Drc = tm->Drc;
+        else
+            hmx->Drc = tm->Drc;
     }}
     // actual; infil is dif between WH before and after
 
@@ -175,8 +178,9 @@ void TWorld::InfilSwatre()
             tma->Drc = 0;
             tmb->Drc = 0;
             tmc->Drc = 0;
+            tmd->Drc = 0; // WH or hmx
         }}
-        SwatreStep(op.runstep, SwatreSoilModelCrust, tm, tma, tmb, thetaTop, CrustFraction);
+        SwatreStep(op.runstep, SwatreSoilModelCrust, tm, tma, tmb, tmc, CrustFraction);
         // calculate crust SWATRE and get the soil moisture of the top node
         // CrustFraction is cells > 0
 
@@ -184,51 +188,84 @@ void TWorld::InfilSwatre()
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L
         {
-            WH->Drc = tm->Drc*CrustFraction->Drc + WH->Drc*(1-CrustFraction->Drc);
-            fact->Drc = (WHbef->Drc - WH->Drc);
+            if (FloodDomain->Drc == 0)
+                tmd->Drc = WH->Drc;
+            else
+                tmd->Drc = hmx->Drc;
+            tmd->Drc = tm->Drc*CrustFraction->Drc + tmd->Drc*(1-CrustFraction->Drc);
+            if (FloodDomain->Drc == 0)
+                WH->Drc = tmd->Drc;
+            else
+                hmx->Drc = tmd->Drc;
+            fact->Drc = (WHbef->Drc - tmc->Drc);
             fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
+            thetaTop->Drc = tmc->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
         }}
     }
 
     if (SwitchInfilCompact)
     {
-#pragma omp parallel for collapse(2) num_threads(userCores)
-        FOR_ROW_COL_MV
+#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
         {
             tm->Drc = WHbef->Drc;
-            tma->Drc = 0;
-            tmb->Drc = 0;
-            tmc->Drc = 0;
-        }
+            tma->Drc = 0; // fpot
+            tmb->Drc = 0; // tile drain
+            tmc->Drc = 0; // theta top layer for repellency
+            tmd->Drc = 0;
+        }}
 
         SwatreStep(op.runstep, SwatreSoilModelCompact, tm, tma, tmb, tmc, CompactFraction);
 
-#pragma omp parallel for collapse(2) num_threads(userCores)
-        FOR_ROW_COL_MV
+#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
         {
-            WH->Drc = tm->Drc*CompactFraction->Drc + WH->Drc*(1-CompactFraction->Drc);
-            fact->Drc = (WHbef->Drc - WH->Drc);
+            if (FloodDomain->Drc == 0)
+                tmd->Drc = WH->Drc;
+            else
+                tmd->Drc = hmx->Drc;
+            tmd->Drc = tm->Drc*CompactFraction->Drc + tmd->Drc*(1-CompactFraction->Drc);
+            if (FloodDomain->Drc == 0)
+                WH->Drc = tmd->Drc;
+            else
+                hmx->Drc = tmd->Drc;
+
+            fact->Drc = (WHbef->Drc - tmd->Drc);
             fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
             thetaTop->Drc = tmc->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
-        }
+        }}
     }
 
     if (SwitchGrassStrip)
     {
-#pragma omp parallel for collapse(2) num_threads(userCores)
-        FOR_ROW_COL_MV
+#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
         {
-            tm->Drc = WHGrass->Drc;
+            tm->Drc = WHbef->Drc;//WHGrass->Drc;
+            tma->Drc = 0;
             tmb->Drc = 0;
             tmc->Drc = 0;
-        }
-        SwatreStep(op.runstep, SwatreSoilModelGrass, WHGrass, fpotgr, tmb, tmc, GrassFraction);
+            tmd->Drc = 0;
+        }}
+        SwatreStep(op.runstep, SwatreSoilModelGrass, tm, tma, tmb, tmc, GrassFraction);
 
-        FOR_ROW_COL_MV
+#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
         {
-    //        factgr->Drc = (tm->Drc - WHGrass->Drc);
+            if (FloodDomain->Drc == 0)
+                tmd->Drc = WH->Drc;
+            else
+                tmd->Drc = hmx->Drc;
+            tmd->Drc = tm->Drc*GrassFraction->Drc + tmd->Drc*(1-GrassFraction->Drc);
+            if (FloodDomain->Drc == 0)
+                WH->Drc = tmd->Drc;
+            else
+                hmx->Drc = tmd->Drc;
+
+            fact->Drc = (WHbef->Drc - tmd->Drc);
+            fpot->Drc = tma->Drc*GrassFraction->Drc + fpot->Drc*(1-GrassFraction->Drc);
             thetaTop->Drc = tmc->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
-        }
+        }}
     }
 
     if (SwitchWaterRepellency)
@@ -243,10 +280,6 @@ void TWorld::InfilSwatre()
         //        RepellencyFraction->report("repelfr");
 
     }
-
-// FSurplus->Drc ???????????????????
-
-
 }
 
 //---------------------------------------------------------------------------
@@ -256,12 +289,11 @@ void TWorld::InfilSwatre()
 
  this function is called form all infiltration functions except Swatre:\n
  - one layer or two layers
- - impermeable bottom or not, returns flag profile full
- - returns depth of the wetting front (L1 or L1+L2)\n
+  - returns depth of the wetting front (Lw)\n
  - returns actual infiltration in mm, NOT rate in mm/h
 */
 
-double TWorld::IncreaseInfiltrationDepthNew(double fact_, int r, int c) //, double fact, double *L1p, double *L2p, double *FFullp)
+double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, double fact, double *L1p, double *L2p, double *FFullp)
 {
     double store1 = (Poreeff->Drc-Thetaeff->Drc); // space in the top layer
     double L = Lw->Drc;
@@ -275,55 +307,56 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_, int r, int c) //, doub
         double store2 = (ThetaS2->Drc-ThetaI2->Drc);
         double dfact1 = 0, dfact2 = 0;
 
-        if (L < SoilDep1) { // still in first layer
-            L = L + fact_/store1;
+        if (L < SoilDep1) {
+            // still in first layer
+            L = L + fact_in/store1;
 
-            if (L > SoilDep1) { // moving into second layer
+            if (L > SoilDep1) {
+                // moving into second layer
                 dfact1 = (SoilDep1 - Lw->Drc) * store1;
-                dfact2 = fact_ - dfact1; // remaining going into layer 2
-                Lw->Drc = SoilDep1;
+                dfact2 = fact_in - dfact1; // remaining going into layer 2
+                L = SoilDep1;
                 passing = true;
             } else {
-                fact_out = fact_;
-                Lw->Drc = L;
+                fact_out = fact_in;
             }
-        } else {  // already in 2nd layer
-             L = L + fact_/store2;
+        } else {
+            // already in 2nd layer
+            L = L + fact_in/store2;
 
-             if (L > SoilDep2) {
-                 fact_out = (SoilDep2 - Lw->Drc) * store2;
-                 Lw->Drc = SoilDep2;
-             } else {
-                 fact_out = fact_;
-                 Lw->Drc = L;
-             }
+            if (L > SoilDep2) {
+                fact_out = (SoilDep2 - Lw->Drc) * store2;
+                L = SoilDep2;
+            } else {
+                fact_out = fact_in;
+            }
         }
         if (passing) {  // moving from depth 1 to 2
-            L = SoilDep1 + dfact2/std::max(0.001,store2); // increase L with remaining fact
+            L = SoilDep1 + dfact2/std::max(0.01,store2); // increase L with remaining fact
 
             if (L > SoilDep2) {
                 fact_out = dfact1 + (SoilDep2 - Lw->Drc) * store2;
-                Lw->Drc = SoilDep2;
+                L = SoilDep2;
             }
         } else {
-            fact_out = fact_;
-            Lw->Drc = L;
+            fact_out = fact_in;
         }
 
     } else {
         //single layer
         if(L < SoilDep1) {
-            L = L + fact_/std::max(0.001,store1); // increase wetting front
+            // not full
+            L = L + fact_in/std::max(0.01,store1); // increase wetting front
             if (L > SoilDep1) {
                 fact_out = (SoilDep1 - Lw->Drc) * store1;
-                Lw->Drc = SoilDep1;
+                L = SoilDep1;
             } else {
-                Lw->Drc = L;
-                fact_out = fact_;
+                fact_out = fact_in;
             }
         }
     }
 
+    Lw->Drc = L;
     return fact_out;
 
 }

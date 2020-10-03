@@ -75,8 +75,8 @@ void TWorld::addRainfallWH()
             WH->Drc += RainNet->Drc + Snowmeltc->Drc;
             // add net to water rainfall on soil surface (in m)
 
-            if (SwitchGrassStrip && GrassWidthDX->Drc > 0)
-                WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
+         //   if (SwitchGrassStrip && GrassWidthDX->Drc > 0)
+         //       WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
             // net rainfall on grass strips, infil is calculated separately for grassstrips
 
             if (SwitchRoadsystem && RoadWidthHSDX->Drc > 0)
@@ -92,8 +92,8 @@ void TWorld::addRainfallWH()
                 WH->Drc += RainNet->Drc + Snowmeltc->Drc;
                 // add net to water rainfall on soil surface (in m)
 
-                if (SwitchGrassStrip && GrassWidthDX->Drc > 0)
-                    WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
+            //    if (SwitchGrassStrip && GrassWidthDX->Drc > 0)
+            //        WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
                 // net rainfall on grass strips, infil is calculated separately for grassstrips
 
                 if (SwitchRoadsystem && RoadWidthHSDX->Drc > 0)
@@ -101,7 +101,7 @@ void TWorld::addRainfallWH()
                 // assume no interception and infiltration on roads, gross rainfall
             }
         }}
-    }
+    }        
 }
 //---------------------------------------------------------------------------
 void TWorld::SurfaceStorage()
@@ -182,7 +182,7 @@ void TWorld::doETa()
             tmp = tmp - WHrunoff->Drc;
             WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
             WHroad->Drc = WHrunoff->Drc;
-            WHGrass->Drc = WHrunoff->Drc;
+            //WHGrass->Drc = WHrunoff->Drc;
             WH->Drc = WHrunoff->Drc + WHstore->Drc;
 //            hmxWH->Drc = WH->Drc;
 //            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);

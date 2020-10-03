@@ -438,7 +438,7 @@ void TWorld::ToFlood()
             hmx->Drc += dwh;
             WH->Drc -= dwh;
             WHrunoff->Drc -= dwh;
-            WHGrass->Drc -= dwh;
+            //WHGrass->Drc -= dwh;
             WHroad->Drc -= dwh;
 
             if(SwitchErosion)
