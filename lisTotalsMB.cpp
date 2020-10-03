@@ -206,37 +206,53 @@ void TWorld::Totals(void)
 
     // Add overland flow, do this even for 2D dyn wave
     if(SwitchKinematic2D != K2D_METHOD_DYN) {
-        FOR_ROW_COL_MV
-        {
-            if (LDD->Drc == 5) {
-                QtotT += Qn->Drc*_dt;
-            }
-        }
+//        FOR_ROW_COL_MV
+//        {
+//            if (LDD->Drc == 5) {
+//                QtotT += Qn->Drc*_dt;
+//            }
+//        }
+//#pragma omp parallel for reduction(+:QtotT) num_threads(userCores)
+        FOR_ROW_COL_LDD5 {
+            QtotT += Qn->Drc*_dt;
+        }}
+
     }
 
     Qfloodout = 0;
     if(SwitchKinematic2D == K2D_METHOD_KINDYN)
     {
-        FOR_ROW_COL_MV {
-            if (LDD->Drc == 5) {
-                Qfloodout += Qflood->Drc * _dt;
-            }
-        }
+//        FOR_ROW_COL_MV {
+//            if (LDD->Drc == 5) {
+//                Qfloodout += Qflood->Drc * _dt;
+//            }
+//        }
+
+//#pragma omp parallel for reduction(+:Qfloodout) num_threads(userCores)
+        FOR_ROW_COL_LDD5 {
+            Qfloodout += Qflood->Drc * _dt;
+        }}
+
         QfloodoutTot += Qfloodout;
     }
 
     // add channel outflow
     if (SwitchIncludeChannel)
     {
-        FOR_ROW_COL_MV_CH
-        {
-            if (LDDChannel->Drc == 5) {
-                QtotT += ChannelQn->Drc*_dt; //m3
-            }
+   //     FOR_ROW_COL_MV_CH
+     //   {
+       //     if (LDDChannel->Drc == 5) {
 
-            ChannelQntot->Drc += ChannelQn->Drc*_dt;
-            //cumulative m3 spatial for .map output
-        }
+//#pragma omp parallel for reduction(+:QtotT) num_threads(userCores)
+            FOR_ROW_COL_LDDCH5 {
+                QtotT += ChannelQn->Drc*_dt; //m3
+            }}
+#pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                ChannelQntot->Drc += ChannelQn->Drc*_dt;
+                //cumulative m3 spatial for .map output
+            }}
+      //  }
         // add channel outflow (in m3) to total for all pits
     }
 
@@ -332,11 +348,17 @@ void TWorld::Totals(void)
         //outflow from domain/channel
         if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
         {
-            FOR_ROW_COL_MV
-            {
-                if (LDD->Drc == 5)
-                    SoilLossTotT += Qsn->Drc * _dt;
-            }
+//            FOR_ROW_COL_MV
+//            {
+//                if (LDD->Drc == 5)
+//                    SoilLossTotT += Qsn->Drc * _dt;
+//            }
+
+       // #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
+        FOR_ROW_COL_LDD5 {
+            SoilLossTotT += Qsn->Drc * _dt;
+        }}
+
         }
 //            else {
 //            SoilLossTotT += K2DQSOut; // for dyn wave this is the boundary outflow
@@ -344,11 +366,13 @@ void TWorld::Totals(void)
 
         if (SwitchIncludeChannel)
         {
-            FOR_ROW_COL_MV_CH
-            {
-                if (LDDChannel->Drc == 5)
+//            FOR_ROW_COL_MV_CH
+//            {
+//                if (LDDChannel->Drc == 5)
+           // #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
+            FOR_ROW_COL_LDDCH5 {
                     SoilLossTotT += ChannelQsn->Drc * _dt;
-            }
+            }}
 
             // units here in kg, conversion to ton in report functions
 //#pragma omp parallel for reduction(+:DetSplashTot,DetFlowTot,DepTot,SedTot) num_threads(userCores)
@@ -359,6 +383,7 @@ void TWorld::Totals(void)
 //            DepTot += DEP->Drc;
 //            SedTot += Sed->Drc;
 //        }}
+
             ChannelDetTot += MapTotal(*ChannelDetFlow);
             ChannelDepTot += MapTotal(*ChannelDep);
             ChannelSedTot = (SwitchUse2Layer ? MapTotal(*ChannelBLSed) : 0.0) + MapTotal(*ChannelSSSed);

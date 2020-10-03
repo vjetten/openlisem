@@ -474,7 +474,7 @@ void writeRaster(
     char** metadata{driver->GetMetadata()};
     bool driverSupportsCreate{CSLFetchBoolean(metadata, GDAL_DCAP_CREATE,
         FALSE) != FALSE};
-driverSupportsCreate = FALSE;
+    driverSupportsCreate = FALSE;
     if(driverSupportsCreate) {
         // All is well, write using GDAL.
         qDebug() << "hoi";

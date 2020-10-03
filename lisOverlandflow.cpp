@@ -252,14 +252,20 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
         }}
     }
 
-    FOR_ROW_COL_MV {
-        if(LDD->Drc == 5)
+//    FOR_ROW_COL_MV {
+//        if(LDD->Drc == 5)
+//            tma->Drc = 1;
+//    }
+    FOR_ROW_COL_LDD5 {
+        tma->Drc = 1;
+    }}
+
+    if(SwitchIncludeChannel) {
+        //FOR_ROW_COL_MV_CH {
+        //  if(LDDChannel->Drc == 5)
+        FOR_ROW_COL_LDDCH5 {
             tma->Drc = 1;
-    }
-    if(SwitchIncludeChannel)
-    FOR_ROW_COL_MV_CH {
-        if(LDDChannel->Drc == 5)
-            tma->Drc = 1;
+        }}
     }
 
 
@@ -429,13 +435,15 @@ void TWorld::OverlandFlow1D(void)
 
     // route water
     Qn->setAllMV();
-    FOR_ROW_COL_MV {
-        if (LDD->Drc == 5) // if outflow point, pit
-        {
+//    FOR_ROW_COL_MV {
+//        if (LDD->Drc == 5)
+//        {
+
+        FOR_ROW_COL_LDD5 {
             Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);
             // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
-        }
-    }
+        }}
+   // }
 
     //convert calculate Qn back to WH and volume for next loop
     fill(*tma, 0);
@@ -513,14 +521,16 @@ void TWorld::OverlandFlow1D(void)
         if(!SwitchUseGrainSizeDistribution)
         {
             Qsn->setAllMV();
-            FOR_ROW_COL_MV
-            {
-                if (LDD->Drc == 5) // if outflow point, pit
-                {
-                    routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);
-                    Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
-                }
-            }
+       //     FOR_ROW_COL_MV
+       //     {
+       //         if (LDD->Drc == 5) // if outflow point, pit
+       //         {
+
+            FOR_ROW_COL_LDD5 {
+                routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);
+                Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
+            }}
+        //    }
         } else {
             /*
             FOR_GRAIN_CLASSES

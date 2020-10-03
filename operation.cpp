@@ -10,6 +10,7 @@ void copy(
     cTMap& raster,
     cTMap const& other)
 {
+
     for (int r = 0; r < raster.nrRows(); r++)
         for (int c = 0; c < raster.nrCols(); c++)
         {
@@ -44,7 +45,7 @@ void fill(
     double value)
 {
     int r, c;
-
+//#pragma omp parallel for collapse(2)
     for (r = 0; r < raster.nrRows(); r++)
         for (c = 0; c < raster.nrCols(); c++)
             if (!pcr::isMV(raster.data[r][c]))
@@ -214,7 +215,7 @@ void cover(
     double value2)
 {
     int r, c;
-
+//#pragma omp parallel for collapse(2)
     for (r = 0; r < raster.nrRows(); r++)
         for (c = 0; c < raster.nrCols(); c++)
             if (pcr::isMV(raster.data[r][c]) && !pcr::isMV(value1.data[r][c]))
@@ -231,6 +232,7 @@ void calcValue(
     double value,
     int oper)
 {
+//    #pragma omp parallel for collapse(2)
     for (int r = 0; r < raster.nrRows(); r++)
         for (int c = 0; c < raster.nrCols(); c++)
             if (!pcr::isMV(raster.data[r][c]))

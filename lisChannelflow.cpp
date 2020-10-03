@@ -191,46 +191,56 @@ void TWorld::ChannelAddBaseandRain(void)
 {
     if (!SwitchIncludeChannel)
         return;
-    // making this parallel gives mass balance errors!!!
-#pragma omp parallel for num_threads(userCores)
+
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
 //        if(ChannelMaskExtended->data[r][c] == 1)
   //      {
-            int rr = r;//(int)ChannelSourceYExtended->Drc;
-            int cr = c;//(int)ChannelSourceXExtended->Drc;
+       int rr = r;//(int)ChannelSourceYExtended->Drc;
+       int cr = c;//(int)ChannelSourceXExtended->Drc;
 
-            if (ChannelMaxQ->Drc <= 0) {
-                ChannelWaterVol->Drcr += Rainc->Drc*ChannelWidthMax->Drcr*DX->Drcr;
-            }
+        if (ChannelMaxQ->Drc <= 0)
+            ChannelWaterVol->Drcr += Rainc->Drc*ChannelWidthMax->Drcr*DX->Drcr;
 
-            // subtract infiltration
-            if (SwitchChannelInfil && ChannelMaxQ->Drc <= 0) {
-                double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
-                inf = std::min(ChannelWaterVol->Drc, inf);
-                ChannelWaterVol->Drc -= inf;
-                ChannelInfilVol->Drc += inf;
-            }
+      //  fromChannelVoltoWH(r, c);
+    }}
+//}
 
+    // subtract infiltration
+    if (SwitchChannelInfil) {
+    #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
+            inf = std::min(ChannelWaterVol->Drc, inf);
+            ChannelWaterVol->Drc -= inf;
+            ChannelInfilVol->Drc += inf;
+        }}
+    }
+
+    // add baseflow
+    if(SwitchChannelBaseflow)
+    {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
             //add baseflow
-            if(SwitchChannelBaseflow)
+            if(!addedbaseflow)
             {
-                if(!addedbaseflow)
-                {
-                    ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
-                    BaseFlowTot += BaseFlowInitialVolume->Drc;
+                ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
+                BaseFlowTot += BaseFlowInitialVolume->Drc;
 
-                }
-                ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
-                BaseFlowTot += BaseFlowInflow->Drc * _dt;
             }
-        //}
+            ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
+            BaseFlowTot += BaseFlowInflow->Drc * _dt;
 
-        ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc);
+        }}
+        if (!addedbaseflow)
+            addedbaseflow = true;
+    }
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
         fromChannelVoltoWH(r, c);
     }}
-
-    if(SwitchChannelBaseflow && !addedbaseflow)
-        addedbaseflow = true;
 }
 //---------------------------------------------------------------------------
 //! add runofftochannel and rainfall and calc channel WH from volume
@@ -243,7 +253,9 @@ void TWorld::ChannelWaterHeightFromVolume()
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(!pcr::isMV(LDDChannel->Drc)) {
-            fromChannelVoltoWH(r, c);
+            ChannelFlowWidth->Drc = ChannelWidth->Drc;
+            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+//            fromChannelVoltoWH(r, c);
         }
     }}
 }
@@ -283,10 +295,11 @@ void TWorld::ChannelFlow(void)
     if (SwitchChannelKinWave) {
         ChannelQn->setAllMV();
         // route water 1D and sediment
-        FOR_ROW_COL_MV_CH {
-            if (LDDChannel->Drc == 5)
-                Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
-        }
+//        FOR_ROW_COL_MV_CH {
+//            if (LDDChannel->Drc == 5)
+        FOR_ROW_COL_LDDCH5 {
+            Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
+        }}
 
         cover(*ChannelQn, *LDD, 0); // necessary???
 
@@ -330,10 +343,11 @@ void TWorld::ChannelFlow(void)
 //        }}
 
         // route water 1D and sediment
-        FOR_ROW_COL_MV_CH
-        {
-            if (LDDChannel->Drc == 5)
-            {
+//        FOR_ROW_COL_MV_CH
+//        {
+//            if (LDDChannel->Drc == 5)
+//            {
+        FOR_ROW_COL_LDDCH5 {
                 //explicit routing of matter using Q and new Qn
                 if (SwitchUse2Layer) {
                     routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn,
@@ -342,8 +356,8 @@ void TWorld::ChannelFlow(void)
                 routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
                                ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed);
                 //note: channelwatervol not really used
-            }
-        }
+            }}
+        //}
         if (SwitchUse2Layer)
             cover(*ChannelQBLsn, *LDD, 0);
         cover(*ChannelQSSsn, *LDD, 0);

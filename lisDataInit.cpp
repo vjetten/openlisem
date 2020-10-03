@@ -255,6 +255,16 @@ void TWorld::InitStandardInput(void)
     nrValidCells = cr_.size();
 
     FOR_ROW_COL_MV {
+        if (LDD->Drc == 5) {
+        LDD_COOR newcr;
+        newcr.r = r;
+        newcr.c = c;
+        crldd5_ << newcr;
+        }
+    }
+    nrValidCellsLDD5 = crldd5_.size();
+
+    FOR_ROW_COL_MV {
         LDD_COOR newcr;
         newcr.r = r;
         newcr.c = c;
@@ -830,6 +840,16 @@ void TWorld::InitChannel(void)
         }
         nrValidCellsCH = crch_.size();
 
+
+        FOR_ROW_COL_MV_CH {
+            if (LDDChannel->Drc == 5) {
+            LDD_COOR newcr;
+            newcr.r = r;
+            newcr.c = c;
+            crlddch5_ << newcr;
+            }
+        }
+        nrValidCellsLDDCH5 = crlddch5_.size();
 
 
         // for 1D or 2D overland flow: channel outlet points are checked, leading

@@ -80,10 +80,12 @@ void TWorld::OutputUI(void)
 
     double channelwh = 0;
     if(SwitchIncludeChannel) {
-        FOR_ROW_COL_MV_CH  {
-            if(LDDChannel->Drc == 5)
+//        FOR_ROW_COL_MV_CH  {
+  //          if(LDDChannel->Drc == 5)
+//#pragma omp parallel for reduction(+:channelwh) num_threads(userCores)
+        FOR_ROW_COL_LDDCH5 {
                 channelwh += ChannelWH->Drc;
-        }
+        }}
     }
     op.OutletChannelWH.at(0)->append(channelwh);
     for(int j = 1; j < op.OutletIndices.length(); j++)
@@ -127,11 +129,17 @@ void TWorld::OutputUI(void)
             fill(*extVCH,0.0);
             DistributeOverExtendedChannel(ChannelV,extVCH);
         } else {
-            copy(*extQCH, *ChannelQn);
-            copy(*extWHCH, *ChannelWH);
-            copy(*extVCH, *ChannelV);
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                extQCH->Drc = ChannelQn->Drc;
+                extWHCH->Drc = ChannelWH->Drc;
+                extVCH->Drc = ChannelV->Drc;
+            }}
+          // copy(*extQCH, *ChannelQn);
+          // copy(*extWHCH, *ChannelWH);
+          // copy(*extVCH, *ChannelV);
         }
-        copy(*extVCH, *ChannelV);
+      //  copy(*extVCH, *ChannelV);
     }
 
 //    FOR_ROW_COL_MV
@@ -152,8 +160,8 @@ void TWorld::OutputUI(void)
 //            COMBO_QOFCH->Drc = 0;
 //    }
 
-    FOR_ROW_COL_MV
-    {
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         COMBO_VOFCH->Drc = V->Drc;
         if (SwitchIncludeChannel) {
             if (ChannelFlowWidth->Drc > 0)
@@ -161,10 +169,9 @@ void TWorld::OutputUI(void)
         }
         if(COMBO_VOFCH->Drc < 1e-6)
             COMBO_VOFCH->Drc = 0;
-    }
-    FOR_ROW_COL_MV {
+
         VH->Drc = V->Drc * hmxWH->Drc;
-    }
+    }}
 
     if(SwitchErosion)
     {
@@ -211,40 +218,42 @@ void TWorld::OutputUI(void)
     }
 
     //make sure sediment maps for all grain sizes are present
-    if(SwitchErosion && SwitchUseGrainSizeDistribution) {
-        FOR_GRAIN_CLASSES {
-            if(op.graindiameters.length() < numgrainclasses + 1) {
-                op.graindiameters.append(graindiameters.at(d));
-            } else {
-                break;
-            }
+//    if(SwitchErosion && SwitchUseGrainSizeDistribution) {
+//        FOR_GRAIN_CLASSES {
+//            if(op.graindiameters.length() < numgrainclasses + 1) {
+//                op.graindiameters.append(graindiameters.at(d));
+//            } else {
+//                break;
+//            }
+//        }
+//    }
+
+    // ONLY ONCE
+    if (runstep <= 1) {
+        copy(*op.baseMap, *ShadeBW);
+        copy(*op.baseMapDEM, *DEM);
+
+        if (SwitchIncludeChannel) {
+            copy(*op.channelMap, *LDDChannel);//*ChannelMaskExtended);
         }
-    }
+        copy(*op.outletMap, *PointMap);
 
-    copy(*op.baseMap, *ShadeBW);
-    copy(*op.baseMapDEM, *DEM);
+        if (SwitchRoadsystem) {
+            copy(*op.roadMap, *RoadWidthDX);
+        }
+        if (SwitchHouses)
+            copy(*op.houseMap, *HouseCover);
 
-    if (SwitchIncludeChannel) {
-        copy(*op.channelMap, *LDDChannel);//*ChannelMaskExtended);
-    }
-    copy(*op.outletMap, *PointMap);
-
-    if (SwitchRoadsystem) {
-        copy(*op.roadMap, *RoadWidthDX);
-    }
-    if (SwitchHouses)
-        copy(*op.houseMap, *HouseCover);
-
-    if(SwitchFlowBarriers)
-    {
-        fill(*tma,0.0);
-        FOR_ROW_COL_MV
+        if(SwitchFlowBarriers)
         {
-            tma->Drc = std::max(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),FlowBarrierW->Drc),FlowBarrierS->Drc);
+            fill(*tma,0.0);
+            FOR_ROW_COL_MV
+            {
+                tma->Drc = std::max(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),FlowBarrierW->Drc),FlowBarrierS->Drc);
+            }
+            copy(*op.flowbarriersMap,*tma);
         }
-        copy(*op.flowbarriersMap,*tma);
     }
-
     // MAP DISPLAY VARIABLES
     op.t = time_ms.elapsed()*0.001/60.0;
     op.t = omp_get_wtime()/60.0 - startTime;
@@ -312,9 +321,7 @@ void TWorld::OutputUI(void)
 void TWorld::ReportTimeseriesNew(void)
 {
     int nr = 0;
-    //    int hour = 0;
-    //    int min = 0;
-    //    int sec = 0;
+
     int DIG = ReportDigitsOut;
     //int SOBEKlines = (int) (EndTime-BeginTime)/_dt+1;
     double RainIntavg = RainAvgmm * 3600/_dt;
