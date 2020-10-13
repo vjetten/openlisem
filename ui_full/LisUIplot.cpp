@@ -452,10 +452,10 @@ void lisemqt::SetTextHydrographs()
 
     int dig = E_DigitsOut->value(); //DIGITS;
 
-    label_qpeaksub->setText(QString::number(OutletQpeak.at(j),'f',dig));
-    label_qpeaktime->setText(QString::number(OutletQpeaktime.at(j),'f',dig));
-    label_qtotm3sub->setText(QString::number(OutletQtot.at(j),'f',dig));
-    label_dischargesub->setText(QString::number(OutletQ.at(j)->at(OutletQ.at(j)->length()-1),'f',dig));
+    label_qpeaksub->setText(QString::number(OutletQpeak.at(j),'e',dig));
+    label_qpeaktime->setText(QString::number(OutletQpeaktime.at(j),'e',dig));
+    label_qtotm3sub->setText(QString::number(OutletQtot.at(j),'e',dig));
+    label_dischargesub->setText(QString::number(OutletQ.at(j)->at(OutletQ.at(j)->length()-1),'e',dig));
 
     if(checkDoErosion->isChecked())
         label_soillosssub->setText(QString::number(OutletQstot.at(j),'f',dig));

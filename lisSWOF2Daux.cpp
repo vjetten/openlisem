@@ -464,7 +464,8 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
             double _z1r = zx+(dz_h-dh);
             double _z1l = zx+(dh-dz_h);
 
-            double _delzc1 = _z1r-_z1l; // boils sown to limiter(dz1, dz2) !?
+            double _delzc1 = _z1r-_z1l; // boils down to limiter(dz1, dz2) !?
+            //zx+(dz_h-dh)- zx -(dh-dz_h) = 2dh_z - 2dh =limiter(h+z)-limiter(h)
 
             double hlh = _h1l/hx;
             double hrh = _h1r/hx;
@@ -819,7 +820,7 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
             Hes = 0;
             Ves1 = 0;
             Ves2 = 0;
-        }
+        }      
 
         // dan maar even met geweld!
         if (std::isnan(Ves1) || std::isnan(Ves2))
@@ -834,6 +835,22 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
         ves1->Drc = Ves1;
         ves2->Drc = Ves2;
     }}
+
+
+    if(F_pitValue > 0) {
+        FOR_ROW_COL_MV_L  {
+            if (DEMdz->Drc == 1 && hes->Drc > F_pitValue) {
+                vec4 rec;
+                int ldd = (int) LDD->Drc;
+                int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
+                int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
+                rec = F_Riemann(hes->Drc, ves1->Drc, ves2->Drc, hes->data[r+dy[ldd]][c+dx[ldd]], ves1->data[r+dy[ldd]][c+dx[ldd]], ves2->data[r+dy[ldd]][c+dx[ldd]]);
+                double dH = dt/_dx*(rec.v[0]) + dt/_dx*(rec.v[0]);
+                hes->Drc -= dH;
+                hes->data[r+dy[ldd]][c+dx[ldd]] += dH;
+            }
+        }}
+    }
 }
 //---------------------------------------------------------------------------
 double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)

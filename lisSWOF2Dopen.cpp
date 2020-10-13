@@ -125,7 +125,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             //do all flow and state calculations
 #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                if (tmb->Drc > 0)
+               if (tmb->Drc > 0)
                 {
                     double dt = SwitchVariableTimestep ? FloodDT->Drc : dt_req_min;
                     double vxn, vyn;
@@ -260,7 +260,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         double flux_y2 = -hll_y2.v[0]/_dx;
 
                         // ??????
-//                        double C = 1.0;//std::min(0.25, courant_factor);
+//                        double C = 0.2;//std::min(0.25, courant_factor);
 //                        flux_x1 = std::max(-H * C,std::min(flux_x1,h_x1 * C));
 //                        flux_x2 = std::max(-H * C,std::min(flux_x2,h_x2 * C));
 //                        flux_y1 = std::max(-H * C,std::min(flux_y1,h_y1 * C));
@@ -280,8 +280,9 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                             //double gflow_x = GRAV*0.5*( (h_x1r-h_x1l)*(h_x1r+h_x1l)+(h_x2r-h_x2l)*(h_x2r+h_x2l)) + (h_x1l+h_x2r)*limiter(dz_x1,dz_x2));
                             //double gflow_y = GRAV*0.5*( (h_y1d-h_y1u)*(h_y1d+h_y1u)+(h_y2d-h_y2u)*(h_y2d+h_y2u)) + (h_y1u+h_y2d)*limiter(dz_y1,dz_y2));
 
-                            double gflow_x = GRAV*0.5*( (h_x1l-H)*(h_x1l+H)+(H-h_x2r)*(H+h_x2r));// + (H)*limiter(dz_x1,dz_x2));
-                            double gflow_y = GRAV*0.5*( (h_y1u-H)*(h_y1u+H)+(H-h_y2d)*(H+h_y2d));// + (H)*limiter(dz_y1,dz_y2));
+                            double gflow_x = GRAV*0.5*( (h_x1l-H)*(h_x1l+H)+(H-h_x2r)*(H+h_x2r));// + (H+H)*limiter(dz_x1,dz_x2));
+                            double gflow_y = GRAV*0.5*( (h_y1u-H)*(h_y1u+H)+(H-h_y2d)*(H+h_y2d));// + (H+H)*limiter(dz_y1,dz_y2));
+                          //  GRAV*0.5*((h1g_-h1l_)*(h1g_+h1l_) + (h1r_-h1d_)*(h1r_+h1d_) + (h1l_+h1r_)*delzc1->Drc));
 
                             // old bastian
                             //double gflow_x = 0.5 * GRAV *H*sx_zh;
@@ -369,6 +370,20 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             dt_req_min = std::min(dt_req_min, _dt-timesum);
             timesum += dt_req_min;
 
+            if(F_pitValue > 0) {
+                FOR_ROW_COL_MV_L  {
+                    if (DEMdz->Drc == 1 && h->Drc > F_pitValue) {
+                        vec4 rec;
+                        int ldd = (int) LDD->Drc;
+                        int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
+                        int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
+                        rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->data[r+dy[ldd]][c+dx[ldd]], vx->data[r+dy[ldd]][c+dx[ldd]], vy->data[r+dy[ldd]][c+dx[ldd]]);
+                        double dH = dt_req_min/_dx*(rec.v[0]) + dt_req_min/_dx*(rec.v[0]);
+                        h->Drc -= dH;
+                        h->data[r+dy[ldd]][c+dx[ldd]] += dH;
+                    }
+                }}
+            }
 
             if (step > 0) {
 #pragma omp parallel for num_threads(userCores)
@@ -376,7 +391,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     if (!SwitchVariableTimestep)
                         FloodDT->Drc = dt_req_min;
                     else
-                        FloodDT->Drc = FloodDT->Drc = std::max(TimestepfloodMin, std::min(FloodDT->Drc, _dt-FloodT->Drc));
+                        FloodDT->Drc = std::max(TimestepfloodMin, std::min(FloodDT->Drc, _dt-FloodT->Drc));
 
                     FloodT->Drc += FloodDT->Drc;
                     if (FloodT->Drc > _dt)

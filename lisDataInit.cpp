@@ -1038,18 +1038,49 @@ void TWorld::InitFlood(void)
     FloodT = NewMap(0);
 
     iter_n = 0;
-    DEMdz = NewMap(1.0);
+    DEMdz = NewMap(0);
     if (F_pitValue > 0) {
         FOR_ROW_COL_MV_L {
+            tma->Drc= 0;
             double Z = DEM->Drc;
             double z_x1 =  c > 0 && !MV(r,c-1)         ? DEM->data[r][c-1] : Z;
             double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? DEM->data[r][c+1] : Z;
             double z_y1 =  r > 0 && !MV(r-1,c)         ? DEM->data[r-1][c] : Z;
             double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? DEM->data[r+1][c] : Z;
+            int ldd = (int) LDD->Drc;
 
+            if (z_x1 > Z+F_pitValue) {
+               if (ldd == 1 || ldd == 7) {
+                   if(z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
+                       tma->Drc = 1;
+                   }
+               }
+            }
+            if (z_x2 > Z+F_pitValue) {
+               if (ldd == 3 || ldd == 9) {
+                   if (z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
+                      tma->Drc = 1;
+                   }
+               }
+            }
+            if (z_y1 > Z+F_pitValue) {
+               if (ldd == 7 || ldd == 9) {
+                   if(z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
+                       tma->Drc = 1;
+                   }
+               }
+            }
+            if (z_y2 > Z+F_pitValue) {
+               if (ldd == 1 || ldd == 3) {
+                   if(z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
+                       tma->Drc = 1;
+                   }
+               }
+            }
+
+//            double dZ = F_pitValue;
+            /*
             // make a weighing factor that reduces the effect opf the fit on flow based on the depth larfger than the threshold
-            double dZ = F_pitValue;
-            bool flag = (Z < z_x1-dZ && Z < z_x2-dZ && Z < z_y1-dZ && Z < z_y2-dZ);
             DEMdz->Drc = 1.0;
             if (flag) {
                 double minZ = std::min(std::min(std::min(fabs(Z - z_x1), fabs(Z - z_x2)), fabs(Z-z_y1)), fabs(Z-z_y2));
@@ -1058,8 +1089,10 @@ void TWorld::InitFlood(void)
                 //OR?
                 DEM->Drc += minZ;
             }
+            */
+            DEMdz->Drc = tma->Drc;
         }}
-       // report(*DEMdz,"pitflag.map");
+        report(*tma,"tma.map");
     }
 
     if (!SwitchSWOFopen) {

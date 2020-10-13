@@ -295,7 +295,40 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
     }}
 }
 //---------------------------------------------------------------------------
+void TWorld::SolveDeepWH(void)
+{
+    if (F_pitValue < 0)
+        return;
+    long cnt = 0;
 
+//#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (DEMdz->Drc == 1 && WHrunoff->Drc > F_pitValue) {
+            int ldd = (int) LDD->Drc;
+            int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
+            int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
+            double f = 0.2;
+
+            double H = WHrunoff->Drc;
+            double H1 = WHrunoff->data[r+dy[ldd]][c+dx[ldd]];
+            double dH = H*f;
+
+           // double dH = 0;// _dt*(f*H*_dx*std::pow(f*H, 0.667)*sqrt(Grad->Drc)/N->Drc)/(_dx*DX->Drc);
+            WHrunoff->data[r+dy[ldd]][c+dx[ldd]] += dH;
+            WHrunoff->Drc -= dH;
+
+            Vflood->Drc *= WHrunoff->Drc/H;
+            Uflood->Drc *= WHrunoff->Drc/H;
+            Vflood->data[r+dy[ldd]][c+dx[ldd]] *= WHrunoff->data[r+dy[ldd]][c+dx[ldd]]/H1;
+            Uflood->data[r+dy[ldd]][c+dx[ldd]] *= WHrunoff->data[r+dy[ldd]][c+dx[ldd]]/H1;
+
+          //  qDebug() << r << c << ldd << H << dH << WHrunoff->data[r+dy[ldd]][c+dx[ldd]];
+            cnt++;
+        }
+    }}
+    if (cnt > 0) qDebug() << cnt;
+}
+//---------------------------------------------------------------------------
 void TWorld::OverlandFlow2Ddyn(void)
 {
     double dtOF = 0;
@@ -312,11 +345,13 @@ void TWorld::OverlandFlow2Ddyn(void)
         }
     }}
 
+
+  //   SolveDeepWH();
+
     if (SwitchSWOFopen)
         dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
     else
         dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
-
     //VJ new average flux over lisem timestep, else last Qn is used
 
     //  infilInWave(WHrunoff, _dt);
