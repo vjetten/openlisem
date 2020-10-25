@@ -240,9 +240,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include tile drains")==0)            checkIncludeTiledrains->setChecked(check);
         //	  if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
 
-        if (p1.compare("Timeseries as PCRaster")==0)         checkWritePCRnames->setChecked(check);
-        if (p1.compare("Timeplot as PCRaster")==0)           checkWritePCRaster->setChecked(check);
-        if (p1.compare("Timeplot as CSV")==0)                checkWriteCommaDelimited->setChecked(check);
+    //    if (p1.compare("Timeseries as PCRaster")==0)         checkWritePCRnames->setChecked(check);
+        if (p1.compare("Timeplot as PCRaster")==0)           checkWritePCRaster->setChecked(!check);
+      //  if (p1.compare("Timeplot as CSV")==0)                checkWriteCommaDelimited->setChecked(check);
         if (p1.compare("Report point output separate")==0)   checkSeparateOutput->setChecked(check);
  //       if (p1.compare("Report point output for SOBEK")==0)  checkWriteSOBEK->setChecked(check);
         if (p1.compare("Report digits out")==0)             E_DigitsOut->setValue(iii);
@@ -496,6 +496,7 @@ void lisemqt::ParseInputData()
         }
 
         if (p1.compare("Main results file")==0) E_MainTotals->setText(p);
+        if (p1.compare("Total Series file")==0) E_SeriesTotals->setText(p);
         if (p1.compare("Filename point output")==0) E_PointResults->setText(p);
         if (p1.compare("Filename landunit output")==0) E_LandunitResults->setText(p);
         // resultDir is added in report operation
@@ -794,9 +795,9 @@ void lisemqt::updateModelData()
         //if (p1.compare("Matric head files")==0)              namelist[j].value.setNum((int)checkDumphead->isChecked());
      //   if (p1.compare("Include percolation")==0)                 namelist[j].value.setNum((int)checkPercolation->isChecked());
         if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());
-        if (p1.compare("Timeseries as PCRaster")==0)         namelist[j].value.setNum((int)checkWritePCRnames->isChecked());
-        if (p1.compare("Timeseries as CSV")==0)              namelist[j].value.setNum((int)checkWriteCommaDelimited->isChecked());
-        if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum((int)checkWritePCRaster->isChecked());
+     //   if (p1.compare("Timeseries as PCRaster")==0)         namelist[j].value.setNum((int)checkWritePCRnames->isChecked());
+     //   if (p1.compare("Timeseries as CSV")==0)              namelist[j].value.setNum((int)checkWriteCommaDelimited->isChecked());
+        if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum(checkWritePCRaster->isChecked() ? 0 : 1);
         if (p1.compare("Report point output separate")==0)   namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
         if (p1.compare("Report digits out")==0)             namelist[j].value = E_DigitsOut->text();
 
@@ -848,6 +849,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Map Directory")==0)    namelist[j].value = E_MapDir->text();
         if (p1.compare("Result Directory")==0) namelist[j].value = E_ResultDir->text();
         if (p1.compare("Main results file")==0) namelist[j].value = E_MainTotals->text();
+        if (p1.compare("Total series file")==0) namelist[j].value = E_SeriesTotals->text();
         if (p1.compare("Filename point output")==0) namelist[j].value = E_PointResults->text();
         if (p1.compare("Filename landunit output")==0) namelist[j].value = E_LandunitResults->text();
         if (p1.compare("Rainfall Directory")==0) namelist[j].value = RainFileDir;

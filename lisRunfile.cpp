@@ -207,7 +207,6 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include house storage")==0)            SwitchHouses    =   iii == 1;
         if (p1.compare("Include raindrum storage")==0)         SwitchRaindrum  =   iii == 1;
 
-     //   if (p1.compare("Include Rainfall")==0)               SwitchRainfall =         iii == 1;
         if (p1.compare("Include Snowmelt")==0)               SwitchSnowmelt =         iii == 1;
         if (p1.compare("Include Satellite Image")==0)        SwitchImage =            iii == 1;
         if (p1.compare("Hard Surfaces")==0)                  SwitchHardsurface      = iii == 1;
@@ -226,13 +225,13 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include grass strips")==0)           SwitchGrassStrip =       iii == 1;
         if (p1.compare("Include crusts")==0)                 SwitchInfilCrust =       iii == 1;
         if (p1.compare("Impermeable sublayer")==0)           SwitchImpermeable =      iii == 1;
-       // if (p1.compare("Include percolation")==0)            SwitchPercolation =      iii == 1;
         if (p1.compare("Matric head files")==0)              SwitchDumphead =         iii == 1;
         if (p1.compare("Geometric mean Ksat")==0)            SwitchGeometric =    	  iii == 1;
         if (p1.compare("Use Water Repellency")==0)           SwitchWaterRepellency  = iii == 1;
-        if (p1.compare("Timeseries as PCRaster")==0)         SwitchWritePCRnames =    iii == 1;
-        if (p1.compare("Timeseries as CSV")==0)              SwitchWriteCommaDelimited =    iii == 1;
-        if (p1.compare("Timeplot as PCRaster")==0)           SwitchWritePCRtimeplot = iii == 1;
+        if (p1.compare("Timeplot as PCRaster")==0) {
+            SwitchWritePCRtimeplot = iii == 1;
+            SwitchWriteCommaDelimited = iii < 1;
+        }
         if (p1.compare("Regular runoff output")==0)          SwitchOutputTimeStep =   iii == 1;
         if (p1.compare("User defined output")==0)            SwitchOutputTimeUser =   iii == 1;
         if (p1.compare("Output interval")==0)				 printinterval = iii;
@@ -240,8 +239,6 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Report point output separate")==0)   SwitchSeparateOutput =   iii == 1;
         if (p1.compare("Report digits out")==0)   ReportDigitsOut = iii;
         if (p1.compare("Report end run")==0)   SwitchEndRun = iii == 1;
-
-     //   if (p1.compare("Use canopy storage map")==0)   	   SwitchInterceptionLAI =  iii == 0;
 
         if (p1.compare("KE parameters EQ1")==0)
         {
@@ -384,6 +381,8 @@ void TWorld::ParseRunfileData(void)
 
         if (p1.compare("Main results file")==0)
             resultFileName = checkOutputMapName(p, "main results file", 1);
+        if (p1.compare("Total Series file")==0)
+            totalSeriesFileName = checkOutputMapName(p, "Total Series file", 1);
         if (p1.compare("Filename point output")==0)
             outflowFileName = checkOutputMapName(p, "hydrograph file(s)", 1);
         if (p1.compare("Filename landunit output")==0)

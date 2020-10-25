@@ -613,8 +613,8 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
 //}
 
             //coding left right and up/down boundary h
-            //  h1d-1|h1g    h1d|h1g+1
-            //  h1r-1|h1l    h1r|h1l+1
+            //  h1d-1|h1g h  h1d|h1g+1
+            //  h1r-1|h1l h  h1r|h1l+1
             //  _____|__________|_____
 
 

@@ -2204,6 +2204,7 @@ void TWorld::IntializeOptions(void)
     SwatreTableDir.clear();
     SwatreTableName = QString("profile.inp");//.clear();
     resultFileName.clear();
+    totalSeriesFileName.clear();
 
     SwitchUse2Layer = false;
     SwitchUseGrainSizeDistribution = false;
@@ -2257,7 +2258,7 @@ void TWorld::IntializeOptions(void)
     SwitchMapoutSs = false;
     SwitchMapoutChvol = false;
     */
-    SwitchWritePCRnames = false;
+    //SwitchWritePCRnames = false;
     SwitchWriteCommaDelimited = true;
     SwitchWritePCRtimeplot = false;
     SwitchNoErosionOutlet = false;

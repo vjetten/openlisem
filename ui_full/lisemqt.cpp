@@ -170,8 +170,8 @@ void lisemqt::SetConnections()
     connect(MapNameModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(editMapname(QModelIndex, QModelIndex)));
     connect(toolButton_ResultDir, SIGNAL(clicked()), this, SLOT(setResultDir()));
 
-    connect(checkWritePCRaster,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
-    connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
+ //   connect(checkWritePCRaster,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
+ //   connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
@@ -708,15 +708,15 @@ void lisemqt::setRunoffTab(bool)
 void lisemqt::setWriteOutputSOBEK(bool doit)
 {
     //   checkWriteSOBEK->setChecked(!doit);
-    checkWriteCommaDelimited->setChecked(!doit);
-    checkWritePCRaster->setChecked(!doit);
+    //checkWriteCommaDelimited->setChecked(!doit);
+    //checkWritePCRaster->setChecked(!doit);
 }
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputCSV(bool doit)
 {
-    checkWriteSOBEK->setChecked(!doit);
+   // checkWriteSOBEK->setChecked(!doit);
     //   checkWriteCommaDelimited->setChecked(!doit);
-    checkWritePCRaster->setChecked(!doit);
+   // checkWritePCRaster->setChecked(!doit);
 }
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputPCR(bool /* doit */)
@@ -729,17 +729,17 @@ void lisemqt::setWriteOutputPCR(bool /* doit */)
     //        //checkSeparateOutput->setChecked(true);
     //    }
     //    else
-    if (checkWritePCRaster->isChecked())
-    {
-        //checkWriteSOBEK->setChecked(false);
-        checkWriteCommaDelimited->setChecked(false);
-    }
-    else
-        if (checkWriteCommaDelimited->isChecked())
-        {
-            //checkWriteSOBEK->setChecked(false);
-            checkWritePCRaster->setChecked(false);
-        }
+//    if (checkWritePCRaster->isChecked())
+//    {
+//        //checkWriteSOBEK->setChecked(false);
+//        //checkWriteCommaDelimited->setChecked(false);
+//    }
+//    else
+//        if (checkWriteCommaDelimited->isChecked())
+//        {
+//            //checkWriteSOBEK->setChecked(false);
+//            checkWritePCRaster->setChecked(false);
+//        }
 }
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()
@@ -1736,9 +1736,9 @@ void lisemqt::resetAll()
 
     checkSeparateOutput->setChecked(false);
     E_DigitsOut->setValue(3);
-    checkWritePCRnames->setChecked(true);   //map series format
+   // checkWritePCRnames->setChecked(true);   //map series format
     checkWritePCRaster->setChecked(false); //timeplot format
-    checkWriteCommaDelimited->setChecked(true);
+    //checkWriteCommaDelimited->setChecked(true);
 
     E_RainfallMap->setText("rainfall.map");
     E_InterceptionMap->setText("interception.map");
@@ -1760,7 +1760,8 @@ void lisemqt::resetAll()
     E_FloodmaxVHMap->setText("VHmax.map");
     E_stormDrainMap->setText("Stormdrain.map");
     E_MainTotals->setText("totals.csv");
-    E_PointResults->setText("outlets.csv");
+    E_SeriesTotals->setText("totalSeries.csv");
+    E_PointResults->setText("hydrographs.csv");
 
     E_BeginTime->setText("0");
     E_EndTime->setText("100");

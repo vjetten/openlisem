@@ -271,14 +271,14 @@
                  <enum>Qt::LeftToRight</enum>
                 </property>
                 <property name="text">
-                 <string>Catchment and outlet totals </string>
+                 <string>Catchment and outlet totals: </string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
-              <item row="0" column="1" colspan="2">
+              <item row="0" column="1">
                <widget class="QLineEdit" name="E_MainTotals">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -332,6 +332,37 @@
                 </property>
                 <property name="toolTip">
                  <string>Text file with totals at the outlet</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QLabel" name="label_110">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Totals per timestep:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QLineEdit" name="E_SeriesTotals">
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
                 </property>
                </widget>
               </item>
@@ -391,78 +422,15 @@
                  <enum>Qt::RightToLeft</enum>
                 </property>
                 <property name="text">
-                 <string>Outlet/Sample point Hydrographs </string>
+                 <string>Outlet/Sample point Hydrographs: </string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
-              <item row="1" column="1" colspan="2">
-               <widget class="QLineEdit" name="E_PointResults">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="palette">
-                 <palette>
-                  <active>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </active>
-                  <inactive>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </inactive>
-                  <disabled>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>122</red>
-                      <green>122</green>
-                      <blue>122</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </disabled>
-                 </palette>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string>Text file(s) with hydrographs and sedigraphs</string>
-                </property>
-               </widget>
-              </item>
               <item row="2" column="0">
-               <widget class="QCheckBox" name="checksatImage">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
+               <widget class="QCheckBox" name="checkWritePCRaster">
                 <property name="font">
                  <font>
                   <pointsize>8</pointsize>
@@ -471,40 +439,15 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>Background satellite image </string>
+                 <string>Comma Delimited output</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
-              <item row="2" column="1" colspan="2">
-               <widget class="QLineEdit" name="E_satImageName">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="3">
-               <widget class="QToolButton" name="toolButton_satImageName">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0" colspan="2">
-               <widget class="QRadioButton" name="checkWriteCommaDelimited">
+              <item row="2" column="1">
+               <widget class="QCheckBox" name="checkSeparateOutput">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -556,11 +499,11 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>Hydrographs in comma-delimited format</string>
+                 <string>separate files for each reporting point</string>
                 </property>
                </widget>
               </item>
-              <item row="3" column="2">
+              <item row="2" column="2" colspan="2">
                <widget class="QLabel" name="label_81">
                 <property name="palette">
                  <palette>
@@ -614,7 +557,7 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="3" rowspan="2">
+              <item row="2" column="4">
                <widget class="QSpinBox" name="E_DigitsOut">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -640,50 +583,13 @@
                 </property>
                </widget>
               </item>
-              <item row="4" column="0" rowspan="2" colspan="2">
-               <widget class="QRadioButton" name="checkWritePCRaster">
+              <item row="3" column="0">
+               <widget class="QCheckBox" name="checksatImage">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
-                </property>
-                <property name="palette">
-                 <palette>
-                  <active>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </active>
-                  <inactive>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </inactive>
-                  <disabled>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>122</red>
-                      <green>122</green>
-                      <blue>122</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </disabled>
-                 </palette>
                 </property>
                 <property name="font">
                  <font>
@@ -693,15 +599,40 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>Hydrographs in PCRaster format</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
+                 <string>Background satellite image:</string>
                 </property>
                </widget>
               </item>
-              <item row="5" column="2" colspan="2" alignment="Qt::AlignRight">
-               <widget class="QCheckBox" name="checkSeparateOutput">
+              <item row="3" column="1" colspan="3">
+               <widget class="QLineEdit" name="E_satImageName">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="4">
+               <widget class="QToolButton" name="toolButton_satImageName">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" colspan="3">
+               <widget class="QLineEdit" name="E_PointResults">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -752,8 +683,8 @@
                   <bold>false</bold>
                  </font>
                 </property>
-                <property name="text">
-                 <string>separate  files for each discharge point</string>
+                <property name="toolTip">
+                 <string>Text file(s) with hydrographs and sedigraphs</string>
                 </property>
                </widget>
               </item>
@@ -3714,7 +3645,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>762</width>
-                <height>873</height>
+                <height>847</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_44">
@@ -20057,7 +19988,10 @@ p, li { white-space: pre-wrap; }
                  <number>256</number>
                 </property>
                 <property name="value">
-                 <number>128</number>
+                 <number>200</number>
+                </property>
+                <property name="sliderPosition">
+                 <number>200</number>
                 </property>
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>

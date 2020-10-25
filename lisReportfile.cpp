@@ -47,11 +47,14 @@ functions: \n
 /// report to disk: timeseries at output points, totals, map series and land unit stats
 void TWorld::reportAll(void)
 {
-    ReportTimeseriesNew();
-    // report hydrographs ande sedigraphs at all points in outpoint.map
 
     ReportTotalsNew();
     // report totals to a text file
+
+    ReportTotalSeries();
+
+    ReportTimeseriesNew();
+    // report hydrographs ande sedigraphs at all points in outpoint.map
 
     if (!SwitchEndRun)
         ReportMaps();
@@ -287,6 +290,7 @@ void TWorld::OutputUI(void)
     op.volFloodmm = floodVolTotmm;
     op.FloodTotMax = floodVolTotMax;
     op.FloodAreaMax = floodAreaMax;
+    op.FloodArea = floodArea;
 
     op.Qtotmm = Qtotmm;
     op.Qtot = Qtot; // all outflow through channel and runoff for all open and outlets boundaries
@@ -311,6 +315,117 @@ void TWorld::OutputUI(void)
     op.FloodSedTot = FloodSedTot*0.001;
     op.SoilLossTot = (SoilLossTot)*0.001; // convert from kg to ton
     op.floodBoundarySedTot = floodBoundarySedTot; // not used
+}
+//---------------------------------------------------------------------------
+void TWorld::ReportTotalSeries(void)
+{
+    int DIG = ReportDigitsOut;
+    QString newname1, pnr, sep = (SwitchWritePCRtimeplot ? " " : ",");
+    int width = (!SwitchWritePCRtimeplot ? 0 : 3+DIG-3);
+
+    newname1 = resultDir + totalSeriesFileName;
+    // use simply resultdir + filename
+
+    if (SwitchWriteHeaders) //  make file at first timestep
+    {
+        QFile fout(newname1);
+        fout.open(QIODevice::WriteOnly | QIODevice::Text);
+        QTextStream out(&fout);
+
+        out << "LISEM run - " << op.runfilename << "\n";
+        out << "Time(min)" << sep << "P(mm)" << sep << "Ic(mm)";
+        if (SwitchLitter)
+            out << sep << "Ic(litter)(mm)";
+        if (SwitchHouses)
+            out << sep << "Ic(roof)(mm)";
+        out << sep << "Inf(mm)";
+        out << sep << "SS(mm)";
+        if (SwitchIncludeStormDrains)
+            out << sep << "StormDrain(mm)";
+        out << sep << "Runoff(mm)";
+        out << sep << "Flood(mm)";
+        out << sep << "Flood area(m2)";
+        out << sep << "Channels(mm)";
+        out << sep << "Outflow(mm)";
+        if (SwitchErosion) {
+            out << sep << "Splash(ton)";
+            out << sep << "FlowDet(ton)";
+            out << sep << "Dep(ton)";
+            out << sep << "Sed(ton)";
+            out << sep << "ChanDet(ton)";
+            out << sep << "ChanDep(ton)";
+            out << sep << "ChanSed(ton)";
+            out << sep << "FloodDet(ton)";
+            out << sep << "FloodDep(ton)";
+            out << sep << "FloodSed(ton)";
+            out << sep << "SoilLoss(ton)";
+        }
+        out << "\n";
+        fout.flush();
+        fout.close();
+    }
+
+
+    QFile fout(newname1);
+    fout.open(QIODevice::Append | QIODevice::Text);
+    QTextStream out(&fout);
+    out.setRealNumberPrecision(DIG);
+    out.setFieldWidth(width);
+    out.setRealNumberNotation(QTextStream::FixedNotation);
+
+    out << time/60;
+    out << sep << op.RainTotmm;
+    out << sep << op.IntercTotmm;
+    if (SwitchLitter)
+        out << sep << op.IntercLitterTotmm;
+    if (SwitchHouses)
+        out << sep << op.IntercHouseTotmm;
+    out << sep << op.InfilTotmm;
+    out << sep << op.SurfStormm;
+    if (SwitchIncludeStormDrains)
+    out << sep << op.StormDrainTotmm;
+    out << sep << op.WaterVolTotmm;
+    out << sep << op.volFloodmm;
+    out << sep << op.FloodArea;
+    out << sep << op.ChannelVolTotmm;
+    out << sep << op.Qtotmm;
+    if (SwitchErosion) {
+        out << sep << op.DetTotSplash;
+        out << sep << op.DetTotFlow;
+        out << sep << op.DepTot;
+        out << sep << op.SedTot;
+        out << sep << op.ChannelDetTot;
+        out << sep << op.ChannelDepTot;
+        out << sep << op.ChannelSedTot;
+        out << sep << op.FloodDetTot;
+        out << sep << op.FloodDepTot;
+        out << sep << op.FloodSedTot;
+        out << sep << op.SoilLossTot;
+    }
+    out << "\n";
+
+    /*
+    if (SwitchErosion) {
+        out << "\n";
+        out << "\"Splash detachment (land) (ton):\"," << op.DetTotSplash<< "\n";
+        out << "\"Flow detachment (land) (ton):\"," << op.DetTotFlow<< "\n";
+        out << "\"Deposition (land) (ton):\"," << op.DepTot<< "\n";
+        out << "\"Sediment (land) (ton):\"," << op.SedTot<< "\n";
+        out << "\"Flow detachment (channels) (ton):\"," << op.ChannelDetTot<< "\n";
+        out << "\"Deposition (channels) (ton):\"," << op.ChannelDepTot<< "\n";
+        out << "\"Sediment (channels) (ton):\"," << op.ChannelSedTot<< "\n";
+        out << "\"Flow detachment (flood) (ton):\"," << op.FloodDetTot<< "\n";
+        out << "\"Deposition (flood) (ton):\"," << op.FloodDepTot<< "\n";
+        out << "\"Susp. Sediment (flood) (ton):\"," << op.FloodSedTot<< "\n";
+        out << "\"Total soil loss (ton):\"," << op.SoilLossTot<< "\n";
+        out << "\"Average soil loss (kg/ha):\"," << (op.SoilLossTot*1000.0)/(op.CatchmentArea/10000.0)<< "\n";
+        out << "\n";
+    }
+    */
+    fout.flush();
+    fout.close();
+
+
 }
 //---------------------------------------------------------------------------
 /** reporting timeseries for every non zero point PointMap
@@ -1425,11 +1540,11 @@ void TWorld::GetComboMaps()
         setColor(3);
       //  QString txt = QString("Flood Height");
       //  if (SwitchKinematic2D == K2D_METHOD_DYN)
-        QString txt = QString("Flood Height, h>%1 mm").arg(minReportFloodHeight*1000);
+        QString txt = QString("Max flood Height (h>%1m)").arg(minReportFloodHeight);
 
-        AddComboMap(0,txt,"m",hmxflood,Colormap,Colors,false,false,1.0,0.01);
-        setColor(3);
-        AddComboMap(0,"Max Flood height","m",floodHmxMax,Colormap,Colors,false,false,1.0,0.01);
+//        AddComboMap(0,txt,"m",hmxflood,Colormap,Colors,false,false,1.0,0.01);
+//        setColor(3);
+        AddComboMap(0,txt,"m",floodHmxMax,Colormap,Colors,false,false,1.0,0.01);
         setColor(6);
         AddComboMap(0,"Flood Start Time","min",floodTimeStart,Colormap,Colors,false,false,1.0,1.0);
         setColor(7);

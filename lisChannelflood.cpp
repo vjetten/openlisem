@@ -464,7 +464,7 @@ void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
 {
     // floodwater volume and max flood map
     #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         if (_h->Drc > threshold) {
             floodTime->Drc += _dt/60;
             floodHmxMax->Drc = std::max(floodHmxMax->Drc, _h->Drc);
@@ -473,22 +473,26 @@ void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
             floodVHMax->Drc = std::max(floodVHMax->Drc, _UV->Drc*_h->Drc);
             // max velocity
         }
-    }
+    }}
     floodVolTotMax = 0;
-    floodAreaMax = 0;
+    floodArea = 0;
     double area = _dx*_dx;
-    FOR_ROW_COL_MV {
+
+    #pragma omp parallel for reduction(+:floodVolTotMax,floodArea) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         if (floodHmxMax->Drc > threshold) {
             floodVolTotMax += floodHmxMax->Drc*area;
-            floodAreaMax += area;
         }
         if (_h->Drc > threshold && floodTimeStart->Drc == 0)  {
             floodTimeStart->Drc = (time - RainstartTime)/60.0;
             // time since first pixel received rainfall
         }
-    }
+        if (_h->Drc > threshold) {
+            floodArea += area;
+        }
+    }}
 
-
+    floodAreaMax = std::max(floodArea,floodAreaMax);
 }
 //---------------------------------------------------------------------------
 // NOTE DEM has barriers included, done in shade map calculation !!!!
