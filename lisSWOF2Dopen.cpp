@@ -45,6 +45,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     bool stop;
     double dt_req_min = dt_max;
     int cnt;
+    double avgdt = _dt;
 
 
     int step = 1;
@@ -56,7 +57,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             FloodDT->Drc = dt_max;
-            FloodT->Drc = 0;
+            //FloodT->Drc = 0;
             tma->Drc = 0;
         }}
 
@@ -95,39 +96,39 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             }}
 
             // experimental: variable timestep set to false
-            if (SwitchVariableTimestep) {
-                double dt = dt_max;
-                //#pragma omp parallel for reduction(min:dt) collapse(2) num_threads(userCores)
-                FOR_ROW_COL_MV {
-                    dt = FloodDT->Drc;
-                    if (c > 0 && !MV(r,c-1)        ) dt = std::min(dt, FloodDT->data[r][c-1]);
-                    if (c < _nrCols-1 && !MV(r,c+1)) dt = std::min(dt, FloodDT->data[r][c+1]);
-                    if (r > 0 && !MV(r-1,c)        ) dt = std::min(dt, FloodDT->data[r-1][c]);
-                    if (r < _nrRows-1 && !MV(r+1,c)) dt = std::min(dt, FloodDT->data[r+1][c]);
-                    double fc = 2.0;
-                    if (c > 0 && r > 0 && !MV(r-1,c-1)                ) dt = std::min(dt, fc*FloodDT->data[r-1][c-1]);
-                    if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) dt = std::min(dt, fc*FloodDT->data[r+1][c+1]);
-                    if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) dt = std::min(dt, fc*FloodDT->data[r-1][c+1]);
-                    if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) dt = std::min(dt, fc*FloodDT->data[r+1][c-1]);
-                    fc = 1.5;
-                    if (c > 1 && !MV(r,c-2)        ) dt = std::min(dt, fc*FloodDT->data[r][c-2]);
-                    if (c < _nrCols-2 && !MV(r,c+2)) dt = std::min(dt, fc*FloodDT->data[r][c+2]);
-                    if (r > 1 && !MV(r-2,c)        ) dt = std::min(dt, fc*FloodDT->data[r-2][c]);
-                    if (r < _nrRows-2 && !MV(r+2,c)) dt = std::min(dt, fc*FloodDT->data[r+2][c]);
+//            if (SwitchVariableTimestep) {
+//                double dt = dt_max;
+//                //#pragma omp parallel for reduction(min:dt) collapse(2) num_threads(userCores)
+//                FOR_ROW_COL_MV {
+//                    dt = FloodDT->Drc;
+//                    if (c > 0 && !MV(r,c-1)        ) dt = std::min(dt, FloodDT->data[r][c-1]);
+//                    if (c < _nrCols-1 && !MV(r,c+1)) dt = std::min(dt, FloodDT->data[r][c+1]);
+//                    if (r > 0 && !MV(r-1,c)        ) dt = std::min(dt, FloodDT->data[r-1][c]);
+//                    if (r < _nrRows-1 && !MV(r+1,c)) dt = std::min(dt, FloodDT->data[r+1][c]);
+//                    double fc = 2.0;
+//                    if (c > 0 && r > 0 && !MV(r-1,c-1)                ) dt = std::min(dt, fc*FloodDT->data[r-1][c-1]);
+//                    if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) dt = std::min(dt, fc*FloodDT->data[r+1][c+1]);
+//                    if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) dt = std::min(dt, fc*FloodDT->data[r-1][c+1]);
+//                    if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) dt = std::min(dt, fc*FloodDT->data[r+1][c-1]);
+//                    fc = 1.5;
+//                    if (c > 1 && !MV(r,c-2)        ) dt = std::min(dt, fc*FloodDT->data[r][c-2]);
+//                    if (c < _nrCols-2 && !MV(r,c+2)) dt = std::min(dt, fc*FloodDT->data[r][c+2]);
+//                    if (r > 1 && !MV(r-2,c)        ) dt = std::min(dt, fc*FloodDT->data[r-2][c]);
+//                    if (r < _nrRows-2 && !MV(r+2,c)) dt = std::min(dt, fc*FloodDT->data[r+2][c]);
 
-                    FloodDT->Drc = dt;
+//                    FloodDT->Drc = dt;
 
-                    if (FloodT->Drc > _dt - 0.001)
-                        tmb->Drc = 0;
-                }
-            }
+//                    if (FloodT->Drc > _dt - 0.001)
+//                        tmb->Drc = 0;
+//                }
+//            }
 
             //do all flow and state calculations
 #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                if (tmb->Drc > 0)
                 {
-                    double dt = SwitchVariableTimestep ? FloodDT->Drc : dt_req_min;
+                    double dt = dt_req_min;//SwitchVariableTimestep ? FloodDT->Drc : dt_req_min;
                     double vxn, vyn;
                     //  double vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
 
@@ -240,6 +241,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     // if step = 0 do not calculate new fluxes and states yet because the first dt is always dt_max
                     // find a smallest dt of the flow domain first
                     if (step > 0) {
+
                         double tx = dt/dx;
                         double ty = dt/dy;
 
@@ -335,6 +337,42 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
 //                            }
 
+                            // force flow when a diagonal solution exists and a blockage
+                            if(F_pitValue > 0) {
+                                FOR_ROW_COL_MV_L  {
+                                    if (DEMdz->Drc == 1 && h->Drc > F_pitValue) {
+                                        vec4 rec;
+                                        int ldd = (int) LDD->Drc;
+                                        int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
+                                        int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
+                                        rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->data[r+dy[ldd]][c+dx[ldd]], vx->data[r+dy[ldd]][c+dx[ldd]], vy->data[r+dy[ldd]][c+dx[ldd]]);
+                                        double dH = dt_req_min/_dx*(rec.v[0]) + dt_req_min/_dx*(rec.v[0]);
+                                        h->Drc -= dH;
+                                        h->data[r+dy[ldd]][c+dx[ldd]] += dH;
+                                    }
+                                }}
+                            }
+
+
+                            if (SwitchErosion) {
+                                #pragma omp parallel for num_threads(userCores)
+                                FOR_ROW_COL_MV_L {
+                                //     if (!SwitchVariableTimestep)
+                                    FloodDT->Drc = dt_req_min;
+                                //     else
+                                //         FloodDT->Drc = std::max(TimestepfloodMin, std::min(FloodDT->Drc, _dt-FloodT->Drc));
+
+                                //FloodT->Drc += dt_req_min;//FloodDT->Drc;
+                                //if (FloodT->Drc > _dt)
+                                //    FloodT->Drc = _dt;
+                                }}
+
+                                SWOFSediment(FloodDT,hs,vxs,vys);
+                            }
+
+                            timesum += dt_req_min;
+
+
                         } else {
                             hn = H; // if no fluxes then also no change in h
                             vxn = 0;
@@ -367,56 +405,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 dt_req_min = std::min(dt_req_min, res);
             }}
             dt_req_min = std::min(dt_req_min, _dt-timesum);
-            timesum += dt_req_min;
 
-            // force flow when a diagonal solution exists and a blockage
-            if(F_pitValue > 0) {
-                FOR_ROW_COL_MV_L  {
-                    if (DEMdz->Drc == 1 && h->Drc > F_pitValue) {
-                        vec4 rec;
-                        int ldd = (int) LDD->Drc;
-                        int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
-                        int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
-                        rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->data[r+dy[ldd]][c+dx[ldd]], vx->data[r+dy[ldd]][c+dx[ldd]], vy->data[r+dy[ldd]][c+dx[ldd]]);
-                        double dH = dt_req_min/_dx*(rec.v[0]) + dt_req_min/_dx*(rec.v[0]);
-                        h->Drc -= dH;
-                        h->data[r+dy[ldd]][c+dx[ldd]] += dH;
-                    }
-                }}
-            }
+            stop = timesum > _dt-0.001;
 
-            if (step > 0) {
-#pragma omp parallel for num_threads(userCores)
-                FOR_ROW_COL_MV_L {
-                    if (!SwitchVariableTimestep)
-                        FloodDT->Drc = dt_req_min;
-                    else
-                        FloodDT->Drc = std::max(TimestepfloodMin, std::min(FloodDT->Drc, _dt-FloodT->Drc));
-
-                    FloodT->Drc += FloodDT->Drc;
-                    if (FloodT->Drc > _dt)
-                        FloodT->Drc = _dt;
-                }}
-
-                if (SwitchErosion)
-                    SWOFSediment(FloodDT,hs,vxs,vys);
-
-                if (SwitchVariableTimestep) {
-                    cnt = 0;
-                    // nr cells that need processing
-#pragma omp parallel for reduction(+:cnt) num_threads(userCores)
-                    FOR_ROW_COL_MV_L {
-                        if (FloodT->Drc < _dt-0.001)
-                            cnt++;
-                    }}
-                    //qDebug() << cnt;
-                    stop = cnt < 1;
-
-                } else {
-                    stop = timesum > _dt-0.001;
-                }
-                count++; // nr loops
-            }
+            count++; // nr loops
 
             step = 1; // now we have a good dt min, do the real calculations
 
@@ -428,23 +420,26 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 //            double sumh1 = getMass(h, 0);
 //            qDebug() << sumh << sumh1 << (sumh-sumh1)/sumh;
 
+        // for screen output
+
+//        double nc= 0;
+//        //#pragma omp parallel for reduction(+:avgdt) num_threads(userCores)
+//        FOR_ROW_COL_MV_L {
+//            FloodDT->Drc = tma->Drc > 0 ? _dt/tma->Drc : 0;
+//          //  FloodT->Drc = tma->Drc;
+//            if (tma->Drc > 0)
+//                nc += 1.0;
+//            avgdt = avgdt + FloodDT->Drc;
+//        }}
+//        avgdt = avgdt/nc;
+//        iter_n = count;
+
     } // if floodstart
 
-    // for screen output
-    double avgdt = 0;
-    double nc= 0;
-    //#pragma omp parallel for reduction(+:avgdt) collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV {
-        FloodDT->Drc = tma->Drc > 0 ? _dt/tma->Drc : 0;
-        FloodT->Drc = tma->Drc;
-        if (tma->Drc > 0)
-            nc += 1.0;
-        avgdt = avgdt + FloodDT->Drc;
-    }
-    avgdt = avgdt/nc;
-    iter_n = count;
+qDebug() << avgdt << _dt/count << count << dt_req_min;
 
-    return(avgdt);//_dt/count
+    //return(avgdt);//_dt/count
+    return(count > 0 ? _dt/count : _dt);
 }
 
 //-----------------------------------------------------------------------------------------------------

@@ -125,6 +125,7 @@ void lisemqt::setupPlot()
 
     HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
     HPlot->setAxisTitle(HPlot->yRight, "P (mm/h)");
+    multiplierRain->setValue(0);
 
     HPlot->setAxisScale(HPlot->yRight, 0, 1);
     HPlot->setAxisScale(HPlot->yLeft, 0, 1);
@@ -137,6 +138,7 @@ void lisemqt::setupPlot()
     col.setRgb( 210,210,210,180 );
     grid->setMinorPen(QPen(col, 0 , Qt::DotLine));
     grid->attach(HPlot);
+
 
     HPlot->replot();
     // draw empty plot
@@ -308,7 +310,7 @@ void lisemqt::on_multiplierRain_valueChanged(double)
 {
     double mult = qPow(10.0, multiplierRain->value());
     if(multiplierRain->value() > 0)
-        HPlot->setAxisTitle(HPlot->yLeft, QString("Q (l/s) - P (x%1 mm/h)").arg(mult));
+        HPlot->setAxisTitle(HPlot->yLeft, QString("Q (l/s) - P (%1 mm/h)").arg(1/mult));
     else
         HPlot->setAxisTitle(HPlot->yLeft, QString("Q (l/s) - P (mm/h)"));
 }
