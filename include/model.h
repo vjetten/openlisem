@@ -636,6 +636,7 @@ public:
     void SWOFSedimentDiffusion(cTMap* DT, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentFlowInterpolation(cTMap* dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentDet(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSedimentDetNew(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSediment(cTMap* DT, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
 

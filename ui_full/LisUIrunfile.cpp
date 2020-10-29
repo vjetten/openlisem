@@ -716,9 +716,9 @@ void lisemqt::updateModelData()
 
 
         if (p1.compare("Include diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
-        if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
+        if (p1.compare("Sigma diffusion")==0)                namelist[j].value = checkDiffusion->text();
         if (p1.compare("Include River diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
-        if (p1.compare("River Sigma diffusion")==0)          namelist[j].value = E_RSigmaDiffusion->text();
+        if (p1.compare("River Sigma diffusion")==0)          namelist[j].value = checkRDiffusion->text();
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();

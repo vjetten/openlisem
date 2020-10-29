@@ -1311,8 +1311,7 @@ void TWorld::InitErosion(void)
     Conc = NewMap(0);
 
     SettlingVelocitySS = NewMap(0);
-    if (SwitchUse2Layer)
-        SettlingVelocityBL = NewMap(0);
+    SettlingVelocityBL = NewMap(0);
     CohesionSoil = NewMap(0);
     Y = NewMap(0);
     splashb = NewMap(0);

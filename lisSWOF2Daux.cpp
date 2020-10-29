@@ -687,31 +687,38 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
         }
     }}
 
+//    dtx = dt_max;
+
+//#pragma omp parallel for num_threads(userCores)
+//    FOR_ROW_COL_MV_L {
+//        if(_h->Drc > he_ca) {
+//            if (qFabs(cflx->Drc*dt/_dx) < 1e-10)
+//                dt_tmp = dt_max;
+//            else
+//                dt_tmp = courant_factor*_dx/cflx->Drc;
+//            tma->Drc = dt_tmp;
+
+//            if (qFabs(cfly->Drc*dt/_dx) < 1e-10)
+//                dt_tmp = dt_max;
+//            else
+//                dt_tmp = courant_factor*_dx/cfly->Drc;
+//            tmb->Drc = dt_tmp;
+//        }
+//    }}
+
+//    FOR_ROW_COL_MV {
+//        if(_h->Drc > he_ca) {
+//            dtx = std::min(dtx, std::min(tma->Drc, tmb->Drc));
+//        }
+//    }
+
     dtx = dt_max;
 
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for reduction(min : dtx) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(_h->Drc > he_ca) {
-            if (qFabs(cflx->Drc*dt/_dx) < 1e-10)
-                dt_tmp = dt_max;
-            else
-                dt_tmp = courant_factor*_dx/cflx->Drc;
-            tma->Drc = dt_tmp;
-
-            if (qFabs(cfly->Drc*dt/_dx) < 1e-10)
-                dt_tmp = dt_max;
-            else
-                dt_tmp = courant_factor*_dx/cfly->Drc;
-            tmb->Drc = dt_tmp;
-        }
+        dtx = std::min(dtx, courant_factor*_dx/cflx->Drc);
+        dtx = std::min(dtx, courant_factor*_dx/cfly->Drc);
     }}
-
-    FOR_ROW_COL_MV {
-        if(_h->Drc > he_ca) {
-            dtx = std::min(dtx, std::min(tma->Drc, tmb->Drc));
-        }
-    }
-
     return(std::max(TimestepfloodMin, dtx));
 }
 

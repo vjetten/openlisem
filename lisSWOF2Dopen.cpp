@@ -302,12 +302,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 //                                vyn = kinfac * v_kin + vyn*(1.0f-kinfac);
 
 //                            }
-
-
-                            if (SwitchErosion) {
-                                SWOFSediment(FloodDT,hs,vxs,vys);
-                            }
-
                         } else { // hn < ha
                             hn = H; // if no fluxes then also no change in h
                             vxn = 0;
@@ -345,15 +339,14 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         double dH = dt_req_min/_dx*(rec.v[0]) + dt_req_min/_dx*(rec.v[0]);
                         h->Drc -= dH;
                         h->data[r+dy[ldd]][c+dx[ldd]] += dH;
-
-                        if (SwitchErosion) {
-
-
-                        }
-
                     }
                 }}
             }
+
+            if (SwitchErosion) {
+                SWOFSediment(FloodDT,hs,vxs,vys);
+            }
+
 
             // find smallest domain dt
             #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)

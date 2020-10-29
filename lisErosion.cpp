@@ -1290,16 +1290,16 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
         S = ChannelGrad->Drc;
         w = ChannelWidth->Drc;
         R = (w*h)/(2*h+w);
-        if (SwitchMulticlass)
-            Wd = RW_D.at(_d);
+//        if (SwitchMulticlass)
+//            Wd = RW_D.at(_d);
     } else
         if (type == 1) {
             hs = SSDepthFlood->Drc;
             S = Grad->Drc;
             w = ChannelAdj->Drc;
             R = (w*h)/(2*h+w);
-            if (SwitchMulticlass)
-                Wd = W_D.at(_d);
+//            if (SwitchMulticlass)
+//                Wd = W_D.at(_d);
         } else
             if (type == 2) {
                 hs = WHrunoff->Drc;

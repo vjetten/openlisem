@@ -3719,7 +3719,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>7</number>
+                  <number>5</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">

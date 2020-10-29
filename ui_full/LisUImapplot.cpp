@@ -547,7 +547,7 @@ void lisemqt::showBaseMap()
     if (res == -1e20)
         return;
 
-    baseMap->setAlpha(75);
+    baseMap->setAlpha(transparency->value());
     baseMap->setColorMap(new colorMapGray());
     RDb->setInterval( Qt::ZAxis, QwtInterval( 0,res));
     baseMap->setData(RDb);
