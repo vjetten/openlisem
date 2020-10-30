@@ -440,61 +440,6 @@ void TWorld::RiverSedimentMaxC(int r, int c)
         if (SwitchUse2Layer)
             _BLC->Drc = MaxConcentration(ChannelWaterVol->Drc*(1-frac), &_BL->Drc, &ChannelDep->Drc);
     }
-//    else {
-//        FOR_GRAIN_CLASSES
-//        {
-//            RSSC_D.Drcd = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*RSSD_D.Drcd, &RSS_D.Drcd, &ChannelDep->Drc);
-//            // limit concentration to 850 and throw rest in deposition
-
-//            double sssmax = MAXCONC * DX->Drc *ChannelFlowWidth->Drc*RSSD_D.Drcd;
-//            if(sssmax < RSS_D.Drcd)
-//            {
-//                ChannelDep->Drc += (RSS_D.Drcd - sssmax);
-//                ChannelSSSed->Drc += -(RSS_D.Drcd - sssmax);
-//                if(SwitchUseMaterialDepth)
-//                {
-//                    RStorageDep->Drc += (RSS_D.Drcd - sssmax);
-//                    RStorageDep_D.Drcd += (RSS_D.Drcd - sssmax);
-//                    if(std::isnan(RStorageDep_D.Drcd))
-//                    {
-//                        qDebug() << "NAN dep3" << d;
-//                    }
-//                }
-//                RSS_D.Drcd = sssmax;
-
-//            }
-
-
-//            RBLC_D.Drcd = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*RBLD_D.Drcd, &RBL_D.Drcd, &ChannelDep->Drc);
-//            // limit concentration to 850 and throw rest in deposition
-
-//            sssmax = MAXCONCBL * DX->Drc *ChannelFlowWidth->Drc*RBLD_D.Drcd;
-//            if(sssmax < BL_D.Drcd)
-//            {
-//                ChannelDep->Drc += (RBL_D.Drcd - sssmax);
-//                ChannelBLSed->Drc += -(RBL_D.Drcd - sssmax);
-//                RBL_D.Drcd = sssmax;
-//                if(SwitchUseMaterialDepth)
-//                {
-//                    RStorageDep->Drc += (RBL_D.Drcd - sssmax);
-//                    RStorageDep_D.Drcd += (RBL_D.Drcd - sssmax);
-//                    if(std::isnan(RStorageDep_D.Drcd))
-//                    {
-//                        qDebug() << "NAN dep4" << d;
-//                    }
-//                }
-//            }
-//        }
-
-//        ChannelBLConc->Drc = 0;
-//        ChannelSSConc->Drc = 0;
-
-//        FOR_GRAIN_CLASSES
-//        {
-//            ChannelBLConc->Drc += RBLC_D.Drcd;
-//            ChannelSSConc->Drc += RSSC_D.Drcd;
-//        }
-//    }
 
     ChannelSed->Drc = (SwitchUse2Layer ? _BL->Drc : 0) + _SS->Drc;
     //total concentration
@@ -529,7 +474,6 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
     FOR_ROW_COL_MV_CHL {
         _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, &_SS->Drc, &ChannelDep->Drc);
     }}
-
 
     //diffusion of Suspended Sediment layer
 //#pragma omp parallel for num_threads(userCores)
@@ -614,22 +558,21 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
         //add diffusive fluxes to previous cell in channel.
         if(foundp)
         {
-            double coeff1 = std::min(dt*eta *std::min(1.0,ChannelSSDepth->data[rp][cp]/ChannelSSDepth->data[r][c]),
-                                     courant_factor/2.0) * _SS->Drc;
-            //                                     courant_factor_diffusive/2.0) * MSSNFlood->Drc;
+            double coeff = ChannelSSDepth->data[r][c] > 0 ? dt*eta *std::min(1.0,ChannelSSDepth->data[rp][cp]/ChannelSSDepth->data[r][c]) : 0.0;
+            coeff = std::min(coeff, courant_factor);
 
-            _SS->data[rp][cp] += coeff1;
-            _SS->data[r][c] -= coeff1;
+            _SS->data[rp][cp] += coeff * _SS->Drc;
+            _SS->data[r][c] -= coeff * _SS->Drc;
         }
 
         //add diffusive fluxes to next cell in channel.
         if(foundn)
         {
-            double coeff2 = std::min(dt*eta *std::min(1.0,ChannelSSDepth->data[rn][cn]/ChannelSSDepth->data[r][c]),
-                                     courant_factor/2.0) * _SS->Drc;
+            double coeff = ChannelSSDepth->data[r][c] > 0 ? dt*eta *std::min(1.0,ChannelSSDepth->data[rn][cn]/ChannelSSDepth->data[r][c]) : 0.0;
+            coeff = std::min(coeff, courant_factor);
 
-            _SS->data[rn][cn] += coeff2;
-            _SS->data[r][c] -= coeff2;
+            _SS->data[rn][cn] += coeff  * _SS->Drc;
+            _SS->data[r][c] -= coeff  * _SS->Drc;
         }
     }
 
@@ -637,6 +580,7 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         //set concentration from present sediment
+        _SS->Drc = std::max(0.0,_SS->Drc);
         _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, &_SS->Drc, &ChannelDep->Drc);
     }}
 }
@@ -679,23 +623,4 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
         ChannelSSDepth->Drc = std::max(ChannelWH->Drc - ChannelBLDepth->Drc,0.0);
 
     }
-//    else {
-//        ChannelBLDepth->Drc = 0;
-//        ChannelSSDepth->Drc = 0;
-//        FOR_GRAIN_CLASSES
-//        {
-//            //for each grain size, use the grain class property
-//            double d50m = graindiameters.at(d)/1000000.0;
-//            double d90m = /* 1.5 * */ graindiameters.at(d)/1000000.0; // why 1.5 ???
-//            //critical shear velocity for bed level motion by van rijn
-//            double critshearvel = ChannelV->Drc * sqrt(GRAV)/(18 * log10(4*R/d90m));
-//            //critical shear stress for bed level motion by van rijn
-//            double critsheart = (critshearvel*critshearvel)/ (((ps-pw)/pw) * GRAV*d50m);
-//            //rough bed bed load layer depth by Hu en Hui
-//            RBLD_D.Drcd = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), factor*ChannelWH->Drc), 0.1);
-//            RSSD_D.Drcd = std::max(ChannelWH->Drc - RBLD_D.Drcd ,0.0);
-//            ChannelBLDepth->Drc += RBLD_D.Drcd * RW_D.Drcd;
-//            ChannelSSDepth->Drc += RSSD_D.Drcd * RW_D.Drcd;
-//        }
-//    }
 }

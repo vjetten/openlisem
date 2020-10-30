@@ -195,8 +195,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("No detachment boundary")==0)          SwitchNoBoundarySed  = iii == 1;
         if (p1.compare("Advanced sediment")==0) SwitchAdvancedSed = iii;
         if (p1.compare("Use 2 phase flow")==0)                SwitchUse2Layer = iii;
-        if (p1.compare("Include River diffusion")==0)           SwitchIncludeRiverDiffusion = iii == 1;
-        if (p1.compare("Include diffusion")==0)                 SwitchIncludeDiffusion = iii == 1;
+        if (p1.compare("Include River diffusion")==0)         SwitchIncludeRiverDiffusion = iii == 1;
+        if (p1.compare("Include diffusion")==0)               SwitchIncludeDiffusion = iii == 1;
         if (p1.compare("Use grain size distribution")==0)     SwitchMulticlass = iii == 1;
         if (p1.compare("Estimate grain size distribution")==0)SwitchEstimateGrainSizeDistribution = iii == 1;
         if (p1.compare("Read grain distribution maps")==0)    SwitchReadGrainSizeDistribution    = iii == 1;
@@ -319,8 +319,11 @@ void TWorld::ParseRunfileData(void)
 
     SwitchUse2Layer = SwitchAdvancedSed;
     SwitchUseGrainSizeDistribution = (getvalueint("Use grain size distribution") == 1);
-    if (!SwitchUse2Layer)
+    if (!SwitchUse2Layer) {
         SwitchUseGrainSizeDistribution = false;
+        SwitchIncludeDiffusion = false;
+        SwitchIncludeRiverDiffusion = false;
+    }
     //qDebug() << SwitchUse2Layer << SwitchAdvancedSed;
 
     SwitchChannelFlood = true; // always true

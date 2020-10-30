@@ -138,30 +138,8 @@ void TWorld::OutputUI(void)
                 extWHCH->Drc = ChannelWH->Drc;
                 extVCH->Drc = ChannelV->Drc;
             }}
-          // copy(*extQCH, *ChannelQn);
-          // copy(*extWHCH, *ChannelWH);
-          // copy(*extVCH, *ChannelV);
         }
-      //  copy(*extVCH, *ChannelV);
     }
-
-//    FOR_ROW_COL_MV
-//    {
-//        COMBO_QOFCH->Drc = Qn->Drc;
-//        COMBO_QOFCH->Drc += Qflood->Drc;
-//        if (SwitchIncludeChannel) {
-//            if (ChannelFlowWidth->Drc > 0)
-//                COMBO_QOFCH->Drc = ChannelQn->Drc;
-//            if (ChannelWidthExtended->Drc > 0)
-//            {
-//                fill(*tma,0.0);
-//                DistributeOverExtendedChannel(ChannelQn,tma);
-//                COMBO_QOFCH->Drc += tma->Drc;
-//            }
-//        }
-//        if(COMBO_QOFCH->Drc < 1e-6)
-//            COMBO_QOFCH->Drc = 0;
-//    }
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -178,38 +156,29 @@ void TWorld::OutputUI(void)
 
     if(SwitchErosion)
     {
-        fill(*COMBO_SED, 0.0);
-        calcMap(*COMBO_SED, *Sed, ADD);
-        if (SwitchUse2Layer)
-            calcMap(*COMBO_SED, *BLFlood, ADD);
-        calcMap(*COMBO_SED, *SSFlood, ADD);
-        if(SwitchIncludeChannel)
-        {
-            if (SwitchUse2Layer)
-                calcMap(*COMBO_SED, *ChannelBLSed, ADD);
-            calcMap(*COMBO_SED, *ChannelSSSed, ADD);
-        }
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            COMBO_SS->Drc = 0;
+            COMBO_BL->Drc = 0;
+            COMBO_TC->Drc = TC->Drc;
 
-        if (SwitchUse2Layer) {
-            fill(*COMBO_SS, 0.0);
-            fill(*COMBO_BL, 0.0);
-            calcMap(*COMBO_BL, *BLFlood, ADD);
-            calcMap(*COMBO_SS, *SSFlood, ADD);
-            if(SwitchIncludeChannel) {
-                calcMap(*COMBO_BL, *ChannelBLSed, ADD);
-                calcMap(*COMBO_SS, *ChannelSSSed, ADD);
+            COMBO_SS->Drc += SSFlood->Drc;
+            COMBO_TC->Drc += SSTCFlood->Drc;
+            if (SwitchUse2Layer) {
+                COMBO_BL->Drc += BLFlood->Drc;
+                COMBO_TC->Drc += BLTCFlood->Drc;
             }
-        }
 
-        copy(*COMBO_TC, *TC);
-        if (SwitchUse2Layer)
-            calcMap(*COMBO_TC, *BLTCFlood, ADD);
-        calcMap(*COMBO_TC, *SSTCFlood, ADD);
-        if(SwitchIncludeChannel)
-        {            
-            calcMap(*COMBO_TC, *ChannelTC, ADD);  // sum of bl and ss
-            copy(*COMBO_TC, *ChannelTC);
-        }
+            if(SwitchIncludeChannel)
+            {
+                COMBO_SS->Drc += ChannelSSSed->Drc;
+                if (SwitchUse2Layer)
+                    COMBO_BL->Drc += ChannelBLSed->Drc;
+                COMBO_TC->Drc += ChannelTC->Drc;
+            }
+            COMBO_SED->Drc = COMBO_SS->Drc + COMBO_BL->Drc;
+
+        }}
     }
 
     //output maps for combo box
@@ -1584,10 +1553,10 @@ void TWorld::GetComboMaps()
         if(SwitchUse2Layer) {
             AddComboMap(1,"Suspended sed.",unit,COMBO_SS/*SSFlood*/,Colormap,Colors,false,false,factor, step);
             AddComboMap(1,"Bedload sed.",unit,COMBO_BL /*BLFlood*/,Colormap,Colors,false,false,factor, step);
-            AddComboMap(1,"TC suspended","kg/m3",SSTCFlood,Colormap,Colors,false,false,factor, step);
-            AddComboMap(1,"TC bedload","kg/m3",BLTCFlood,Colormap,Colors,false,false,factor, step);
-           // AddComboMap(1,"SS depth","m",SSDepthFlood,Colormap,Colors,false,false,1.0, step);
-           // AddComboMap(1,"BL depth","m",BLDepthFlood,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"TC suspended","kg/m3",SSTCFlood,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"TC bedload","kg/m3",BLTCFlood,Colormap,Colors,false,false,1.0, step);
+         //   AddComboMap(1,"SS depth","m",SSDepthFlood,Colormap,Colors,false,false,1.0, step);
+         //   AddComboMap(1,"BL depth","m",BLDepthFlood,Colormap,Colors,false,false,1.0, step);
         } else {
             AddComboMap(1,"Sediment load",unit,COMBO_SED,Colormap,Colors,false,false,factor, step);
             AddComboMap(1,"Transport Capacity","kg/m3",COMBO_TC,Colormap,Colors,false,false,1.0, step);

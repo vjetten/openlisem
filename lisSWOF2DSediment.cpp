@@ -72,10 +72,15 @@ functions: \n
 void TWorld::SWOFSedimentDiffusion( cTMap *DT, cTMap *h,cTMap *u,cTMap *v, cTMap *_SS, cTMap *_SSC)
 {
     //diffusion of Suspended Sediment layer
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        tmb->Drc = 0;// _SS->Drc;
+        tmc->Drc = 0;// _SS->Drc;
+    }}
+
 //#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-if (SSDepthFlood->data[r][c] == 0)
-    continue;
+
         //cell sizes
         double cdx = DX->Drc;
         double cdy = _dx;
@@ -124,10 +129,6 @@ if (SSDepthFlood->data[r][c] == 0)
         int dx[4] = {0, 1, -1, 0};
         int dy[4] = {1, 0, 0, -1};
 
-
-       // tmb->Drc = _SS->Drc;
-      //  tmc->Drc = _SS->Drc;
-
         //use the calculated weights to distribute flow
         for (int i=0; i<4; i++)
         {
@@ -144,19 +145,20 @@ if (SSDepthFlood->data[r][c] == 0)
                 double coeff = SSDepthFlood->Drc > 0 ? DT->Drc * eta * std::min(1.0, SSDepthFlood->data[r2][c2]/SSDepthFlood->Drc) : 0.0;
                 coeff = std::min(coeff, courant_factor);
 
-                _SS->data[r2][c2] += coeff*_SS->Drc;
-                _SS->data[r][c] -= coeff*_SS->Drc;
+          //      _SS->data[r2][c2] += coeff*_SS->Drc;
+//                _SS->data[r][c] -= coeff*_SS->Drc;
 
-//                tmb->data[r2][c2] += coeff*_SS->Drc;
-//                tmc->data[r][c] -= coeff*_SS->Drc;
+                tmb->data[r2][c2] += coeff*_SS->Drc;
+                tmc->data[r][c] -= coeff*_SS->Drc;
                 // then later add tmb and tmc
 
             }
         }
     }}
+
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-//        _SS->Drc = tmb->Drc + tmc->Drc;
+        _SS->Drc += tmb->Drc + tmc->Drc;
 
         _SS->Drc = std::max(0.0,_SS->Drc);
         //set concentration from present sediment
@@ -1258,8 +1260,8 @@ void TWorld::SWOFSediment(cTMap* DT,cTMap * h,cTMap * u,cTMap * v)
     //transport sediment using velocities and water heights from SWOF
     SWOFSedimentFlowInterpolation(DT,h,u,v, BLFlood, BLCFlood, SSFlood, SSCFlood);
 
-   // if (SwitchIncludeDiffusion)
-    SWOFSedimentDiffusion(DT,h,u,v, SSFlood, SSCFlood);
+    if (SwitchIncludeDiffusion)
+        SWOFSedimentDiffusion(DT,h,u,v, SSFlood, SSCFlood);
 
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
