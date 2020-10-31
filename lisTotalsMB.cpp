@@ -326,10 +326,6 @@ void TWorld::Totals(void)
             DepTot += DEP->Drc;
             SedTot += Sed->Drc;
         }}
-    //        DetSplashTot += mapTotal(*DETSplash);
-    //        DetFlowTot += mapTotal(*DETFlow);
-    //        DepTot += mapTotal(*DEP);
-    //        SedTot = mapTotal(*Sed);
         // all in kg/cell
         DetTot = DetFlowTot + DetSplashTot;
 
@@ -339,9 +335,6 @@ void TWorld::Totals(void)
             DETFlowCum->Drc += DETFlow->Drc;
             DEPCum->Drc += DEP->Drc;
         }}
-        //calcMap(*DETSplashCum, *DETSplash, ADD);
-        //calcMap(*DETFlowCum, *DETFlow, ADD);
-        //calcMap(*DEPCum, *DEP, ADD);
         // DEP is set to 0 each timestep
         // for total soil loss calculation: TotalSoillossMap
 
@@ -354,10 +347,10 @@ void TWorld::Totals(void)
 //                    SoilLossTotT += Qsn->Drc * _dt;
 //            }
 
-       // #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
-        FOR_ROW_COL_LDD5 {
-            SoilLossTotT += Qsn->Drc * _dt;
-        }}
+           // #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
+            FOR_ROW_COL_LDD5 {
+                SoilLossTotT += Qsn->Drc * _dt;
+            }}
 
         }
 //            else {

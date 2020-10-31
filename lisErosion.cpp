@@ -76,6 +76,7 @@ double TWorld::MaxConcentration(double watvol, double *sedvol, double *dep)
         conc = std::min(*sedvol/(watvol+0.001), MAXCONC);   // 1e-6 is 1 ml/m2 !!
     else
         conc = 0;
+    if (conc < 1e-10) conc = 0;
     //      conc = MAXCONC;
     // *dep -= *sedvol;
     //*sedvol = 0;
