@@ -215,6 +215,17 @@
               <string>Graphs and tabels</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_32">
+              <item row="0" column="3">
+               <widget class="QLineEdit" name="E_SeriesTotals">
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+               </widget>
+              </item>
               <item row="0" column="0">
                <widget class="QLabel" name="label_22">
                 <property name="sizePolicy">
@@ -278,67 +289,10 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="E_MainTotals">
+              <item row="3" column="0">
+               <widget class="QCheckBox" name="checksatImage">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="palette">
-                 <palette>
-                  <active>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </active>
-                  <inactive>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </inactive>
-                  <disabled>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>122</red>
-                      <green>122</green>
-                      <blue>122</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </disabled>
-                 </palette>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string>Text file with totals at the outlet</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QLabel" name="label_110">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -351,18 +305,24 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>Totals per timestep:</string>
+                 <string>Background satellite image:</string>
                 </property>
                </widget>
               </item>
-              <item row="0" column="3">
-               <widget class="QLineEdit" name="E_SeriesTotals">
+              <item row="2" column="0">
+               <widget class="QCheckBox" name="checkWritePCRaster">
                 <property name="font">
                  <font>
                   <pointsize>8</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
+                </property>
+                <property name="text">
+                 <string>Comma Delimited output</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -429,25 +389,8 @@
                 </property>
                </widget>
               </item>
-              <item row="2" column="0">
-               <widget class="QCheckBox" name="checkWritePCRaster">
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Comma Delimited output</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QCheckBox" name="checkSeparateOutput">
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="E_MainTotals">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -498,122 +441,8 @@
                   <bold>false</bold>
                  </font>
                 </property>
-                <property name="text">
-                 <string>separate files for each reporting point</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="2" colspan="2">
-               <widget class="QLabel" name="label_81">
-                <property name="palette">
-                 <palette>
-                  <active>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </active>
-                  <inactive>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>0</red>
-                      <green>0</green>
-                      <blue>0</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </inactive>
-                  <disabled>
-                   <colorrole role="WindowText">
-                    <brush brushstyle="SolidPattern">
-                     <color alpha="255">
-                      <red>122</red>
-                      <green>122</green>
-                      <blue>122</blue>
-                     </color>
-                    </brush>
-                   </colorrole>
-                  </disabled>
-                 </palette>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Digits in output and display</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="4">
-               <widget class="QSpinBox" name="E_DigitsOut">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="maximum">
-                 <number>12</number>
-                </property>
-                <property name="value">
-                 <number>3</number>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QCheckBox" name="checksatImage">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Background satellite image:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1" colspan="3">
-               <widget class="QLineEdit" name="E_satImageName">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
+                <property name="toolTip">
+                 <string>Text file with totals at the outlet</string>
                 </property>
                </widget>
               </item>
@@ -631,7 +460,44 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="1" colspan="3">
+              <item row="0" column="2">
+               <widget class="QLabel" name="label_110">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Totals per timestep:</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" colspan="3">
+               <widget class="QLineEdit" name="E_satImageName">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
                <widget class="QLineEdit" name="E_PointResults">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -685,6 +551,143 @@
                 </property>
                 <property name="toolTip">
                  <string>Text file(s) with hydrographs and sedigraphs</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLabel" name="label_81">
+                <property name="palette">
+                 <palette>
+                  <active>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </active>
+                  <inactive>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </inactive>
+                  <disabled>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>122</red>
+                      <green>122</green>
+                      <blue>122</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </disabled>
+                 </palette>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Digits in output and display</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QSpinBox" name="E_DigitsOut">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>12</number>
+                </property>
+                <property name="value">
+                 <number>3</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2" colspan="2">
+               <widget class="QCheckBox" name="checkSeparateOutput">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="palette">
+                 <palette>
+                  <active>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </active>
+                  <inactive>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </inactive>
+                  <disabled>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>122</red>
+                      <green>122</green>
+                      <blue>122</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </disabled>
+                 </palette>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>separate files for each reporting point</string>
                 </property>
                </widget>
               </item>
@@ -2418,57 +2421,6 @@
                  </layout>
                 </widget>
                </item>
-               <item row="1" column="0" colspan="2">
-                <widget class="QCheckBox" name="checkAddDatetime">
-                 <property name="palette">
-                  <palette>
-                   <active>
-                    <colorrole role="WindowText">
-                     <brush brushstyle="SolidPattern">
-                      <color alpha="255">
-                       <red>0</red>
-                       <green>0</green>
-                       <blue>0</blue>
-                      </color>
-                     </brush>
-                    </colorrole>
-                   </active>
-                   <inactive>
-                    <colorrole role="WindowText">
-                     <brush brushstyle="SolidPattern">
-                      <color alpha="255">
-                       <red>0</red>
-                       <green>0</green>
-                       <blue>0</blue>
-                      </color>
-                     </brush>
-                    </colorrole>
-                   </inactive>
-                   <disabled>
-                    <colorrole role="WindowText">
-                     <brush brushstyle="SolidPattern">
-                      <color alpha="255">
-                       <red>122</red>
-                       <green>122</green>
-                       <blue>122</blue>
-                      </color>
-                     </brush>
-                    </colorrole>
-                   </disabled>
-                  </palette>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>8</pointsize>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>add date-time</string>
-                 </property>
-                </widget>
-               </item>
               </layout>
              </widget>
              <widget class="QWidget" name="tab_4">
@@ -3645,7 +3597,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>762</width>
-                <height>847</height>
+                <height>824</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_44">
@@ -3719,7 +3671,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>5</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -9371,7 +9323,7 @@ p, li { white-space: pre-wrap; }
                         <item row="6" column="2">
                          <widget class="QDoubleSpinBox" name="E_RSigmaDiffusion">
                           <property name="enabled">
-                           <bool>false</bool>
+                           <bool>true</bool>
                           </property>
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -9389,7 +9341,7 @@ p, li { white-space: pre-wrap; }
                            </font>
                           </property>
                           <property name="minimum">
-                           <double>0.500000000000000</double>
+                           <double>0.200000000000000</double>
                           </property>
                           <property name="maximum">
                            <double>1.000000000000000</double>
@@ -9398,7 +9350,7 @@ p, li { white-space: pre-wrap; }
                            <double>0.050000000000000</double>
                           </property>
                           <property name="value">
-                           <double>1.000000000000000</double>
+                           <double>0.500000000000000</double>
                           </property>
                          </widget>
                         </item>
@@ -9768,7 +9720,7 @@ p, li { white-space: pre-wrap; }
                         <item row="5" column="3">
                          <widget class="QDoubleSpinBox" name="E_SigmaDiffusion">
                           <property name="enabled">
-                           <bool>false</bool>
+                           <bool>true</bool>
                           </property>
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -9786,7 +9738,7 @@ p, li { white-space: pre-wrap; }
                            </font>
                           </property>
                           <property name="minimum">
-                           <double>0.500000000000000</double>
+                           <double>0.200000000000000</double>
                           </property>
                           <property name="maximum">
                            <double>1.000000000000000</double>
@@ -9795,7 +9747,7 @@ p, li { white-space: pre-wrap; }
                            <double>0.050000000000000</double>
                           </property>
                           <property name="value">
-                           <double>1.000000000000000</double>
+                           <double>0.500000000000000</double>
                           </property>
                          </widget>
                         </item>
@@ -15047,6 +14999,60 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="text">
                  <string>Snowmelt</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="3" colspan="3">
+               <widget class="QCheckBox" name="checkAddDatetime">
+                <property name="palette">
+                 <palette>
+                  <active>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </active>
+                  <inactive>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </inactive>
+                  <disabled>
+                   <colorrole role="WindowText">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>122</red>
+                      <green>122</green>
+                      <blue>122</blue>
+                     </color>
+                    </brush>
+                   </colorrole>
+                  </disabled>
+                 </palette>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Make a subdirectory under the result directory with a date-time stamp&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>add date-time</string>
                 </property>
                </widget>
               </item>
@@ -21271,12 +21277,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1415</x>
-     <y>180</y>
+     <x>979</x>
+     <y>197</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1391</x>
-     <y>185</y>
+     <x>1565</x>
+     <y>200</y>
     </hint>
    </hints>
   </connection>
@@ -21287,8 +21293,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1415</x>
-     <y>180</y>
+     <x>979</x>
+     <y>197</y>
     </hint>
     <hint type="destinationlabel">
      <x>1356</x>
@@ -21303,12 +21309,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>251</x>
-     <y>575</y>
+     <x>215</x>
+     <y>502</y>
     </hint>
     <hint type="destinationlabel">
-     <x>423</x>
-     <y>576</y>
+     <x>367</x>
+     <y>504</y>
     </hint>
    </hints>
   </connection>
@@ -21319,12 +21325,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>251</x>
-     <y>575</y>
+     <x>215</x>
+     <y>502</y>
     </hint>
     <hint type="destinationlabel">
-     <x>337</x>
-     <y>576</y>
+     <x>291</x>
+     <y>504</y>
     </hint>
    </hints>
   </connection>
@@ -21335,12 +21341,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>217</x>
-     <y>599</y>
+     <x>187</x>
+     <y>524</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>600</y>
+     <x>263</x>
+     <y>526</y>
     </hint>
    </hints>
   </connection>
@@ -21351,12 +21357,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>217</x>
-     <y>599</y>
+     <x>187</x>
+     <y>524</y>
     </hint>
     <hint type="destinationlabel">
-     <x>389</x>
-     <y>600</y>
+     <x>339</x>
+     <y>526</y>
     </hint>
    </hints>
   </connection>
@@ -21367,12 +21373,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>278</x>
-     <y>551</y>
+     <x>237</x>
+     <y>480</y>
     </hint>
     <hint type="destinationlabel">
-     <x>364</x>
-     <y>552</y>
+     <x>313</x>
+     <y>482</y>
     </hint>
    </hints>
   </connection>
@@ -21387,8 +21393,8 @@ p, li { white-space: pre-wrap; }
      <y>552</y>
     </hint>
     <hint type="destinationlabel">
-     <x>450</x>
-     <y>552</y>
+     <x>389</x>
+     <y>482</y>
     </hint>
    </hints>
   </connection>
@@ -21399,12 +21405,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>278</x>
-     <y>551</y>
+     <x>237</x>
+     <y>480</y>
     </hint>
     <hint type="destinationlabel">
-     <x>535</x>
-     <y>552</y>
+     <x>464</x>
+     <y>482</y>
     </hint>
    </hints>
   </connection>
@@ -21415,12 +21421,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>278</x>
-     <y>551</y>
+     <x>237</x>
+     <y>480</y>
     </hint>
     <hint type="destinationlabel">
-     <x>364</x>
-     <y>552</y>
+     <x>313</x>
+     <y>482</y>
     </hint>
    </hints>
   </connection>
@@ -21431,12 +21437,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>225</x>
-     <y>524</y>
+     <x>226</x>
+     <y>450</y>
     </hint>
     <hint type="destinationlabel">
-     <x>341</x>
-     <y>525</y>
+     <x>288</x>
+     <y>452</y>
     </hint>
    </hints>
   </connection>
@@ -21447,12 +21453,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>225</x>
-     <y>615</y>
+     <x>226</x>
+     <y>531</y>
     </hint>
     <hint type="destinationlabel">
-     <x>341</x>
-     <y>616</y>
+     <x>288</x>
+     <y>533</y>
     </hint>
    </hints>
   </connection>
@@ -21463,12 +21469,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>253</x>
-     <y>1009</y>
+     <x>223</x>
+     <y>1082</y>
     </hint>
     <hint type="destinationlabel">
-     <x>297</x>
-     <y>1010</y>
+     <x>260</x>
+     <y>1084</y>
     </hint>
    </hints>
   </connection>
@@ -21479,12 +21485,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>253</x>
-     <y>1009</y>
+     <x>223</x>
+     <y>1082</y>
     </hint>
     <hint type="destinationlabel">
-     <x>327</x>
-     <y>1010</y>
+     <x>286</x>
+     <y>1085</y>
     </hint>
    </hints>
   </connection>
@@ -21495,12 +21501,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>189</x>
-     <y>985</y>
+     <x>169</x>
+     <y>1058</y>
     </hint>
     <hint type="destinationlabel">
-     <x>123</x>
-     <y>986</y>
+     <x>112</x>
+     <y>1061</y>
     </hint>
    </hints>
   </connection>
@@ -21511,12 +21517,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>204</x>
-     <y>961</y>
+     <x>180</x>
+     <y>1034</y>
     </hint>
     <hint type="destinationlabel">
-     <x>123</x>
-     <y>962</y>
+     <x>112</x>
+     <y>1037</y>
     </hint>
    </hints>
   </connection>
@@ -21527,12 +21533,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>253</x>
-     <y>1009</y>
+     <x>223</x>
+     <y>1082</y>
     </hint>
     <hint type="destinationlabel">
-     <x>123</x>
-     <y>1010</y>
+     <x>112</x>
+     <y>1085</y>
     </hint>
    </hints>
   </connection>
@@ -21543,12 +21549,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>190</x>
-     <y>937</y>
+     <x>169</x>
+     <y>1010</y>
     </hint>
     <hint type="destinationlabel">
-     <x>123</x>
-     <y>938</y>
+     <x>112</x>
+     <y>1013</y>
     </hint>
    </hints>
   </connection>
@@ -21559,12 +21565,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>311</x>
-     <y>534</y>
+     <x>342</x>
+     <y>456</y>
     </hint>
     <hint type="destinationlabel">
-     <x>422</x>
-     <y>554</y>
+     <x>468</x>
+     <y>473</y>
     </hint>
    </hints>
   </connection>
@@ -21575,12 +21581,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>298</x>
-     <y>534</y>
+     <x>329</x>
+     <y>456</y>
     </hint>
     <hint type="destinationlabel">
-     <x>347</x>
-     <y>574</y>
+     <x>393</x>
+     <y>490</y>
     </hint>
    </hints>
   </connection>
@@ -21591,12 +21597,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>265</x>
-     <y>534</y>
+     <x>296</x>
+     <y>456</y>
     </hint>
     <hint type="destinationlabel">
-     <x>318</x>
-     <y>594</y>
+     <x>364</x>
+     <y>507</y>
     </hint>
    </hints>
   </connection>
@@ -21607,12 +21613,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>448</x>
-     <y>438</y>
+     <x>479</x>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
-     <x>428</x>
-     <y>440</y>
+     <x>362</x>
+     <y>379</y>
     </hint>
    </hints>
   </connection>
@@ -21623,12 +21629,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>199</x>
-     <y>438</y>
+     <x>230</x>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
-     <x>116</x>
-     <y>443</y>
+     <x>100</x>
+     <y>383</y>
     </hint>
    </hints>
   </connection>
@@ -21639,12 +21645,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>359</x>
-     <y>476</y>
+     <x>390</x>
+     <y>407</y>
     </hint>
     <hint type="destinationlabel">
-     <x>488</x>
-     <y>496</y>
+     <x>519</x>
+     <y>424</y>
     </hint>
    </hints>
   </connection>
@@ -21655,12 +21661,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>244</x>
-     <y>418</y>
+     <x>275</x>
+     <y>358</y>
     </hint>
     <hint type="destinationlabel">
-     <x>428</x>
-     <y>440</y>
+     <x>362</x>
+     <y>379</y>
     </hint>
    </hints>
   </connection>
@@ -21671,12 +21677,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>168</x>
-     <y>418</y>
+     <x>199</x>
+     <y>358</y>
     </hint>
     <hint type="destinationlabel">
-     <x>116</x>
-     <y>443</y>
+     <x>100</x>
+     <y>383</y>
     </hint>
    </hints>
   </connection>
@@ -21687,12 +21693,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>457</x>
-     <y>380</y>
+     <x>478</x>
+     <y>328</y>
     </hint>
     <hint type="destinationlabel">
-     <x>495</x>
-     <y>541</y>
+     <x>516</x>
+     <y>474</y>
     </hint>
    </hints>
   </connection>
@@ -21703,12 +21709,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>340</x>
-     <y>376</y>
+     <x>361</x>
+     <y>328</y>
     </hint>
     <hint type="destinationlabel">
-     <x>358</x>
-     <y>557</y>
+     <x>379</x>
+     <y>533</y>
     </hint>
    </hints>
   </connection>
@@ -21719,12 +21725,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>191</x>
-     <y>372</y>
+     <x>212</x>
+     <y>328</y>
     </hint>
     <hint type="destinationlabel">
-     <x>220</x>
-     <y>626</y>
+     <x>241</x>
+     <y>624</y>
     </hint>
    </hints>
   </connection>

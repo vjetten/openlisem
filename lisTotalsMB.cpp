@@ -386,7 +386,7 @@ void TWorld::Totals(void)
 
             ChannelDetTot += MapTotal(*ChannelDetFlow);
             ChannelDepTot += MapTotal(*ChannelDep);
-            ChannelSedTot = (SwitchUse2Layer ? MapTotal(*ChannelBLSed) : 0.0) + MapTotal(*ChannelSSSed);
+            ChannelSedTot = (SwitchUse2Phase ? MapTotal(*ChannelBLSed) : 0.0) + MapTotal(*ChannelSSSed);
         }
 
         floodBoundarySedTot += K2DQSOutBoun;
@@ -396,9 +396,9 @@ void TWorld::Totals(void)
 
 
         // used for mass balance and screen output
-        FloodDetTot += (SwitchUse2Layer ? MapTotal(*BLDetFlood) : 0.0) + MapTotal(*SSDetFlood);
+        FloodDetTot += (SwitchUse2Phase ? MapTotal(*BLDetFlood) : 0.0) + MapTotal(*SSDetFlood);
         FloodDepTot += mapTotal(*DepFlood);
-        FloodSedTot = (SwitchUse2Layer ? MapTotal(*BLFlood) : 0.0) + MapTotal(*SSFlood);
+        FloodSedTot = (SwitchUse2Phase ? MapTotal(*BLFlood) : 0.0) + MapTotal(*SSFlood);
 
 #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
@@ -433,22 +433,22 @@ void TWorld::Totals(void)
 
 
         // with all det and dep calculate the soil loss, excl channel
-        FOR_ROW_COL_MV
+#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
         {
             TotalSoillossMap->Drc = DETSplashCum->Drc + DETFlowCum->Drc + DEPCum->Drc;
-                    //TotalDetMap->Drc + TotalDepMap->Drc;
-                  // + TotalChanDetMap->Drc + TotalChanDepMap->Drc;
             TotalDepMap->Drc = std::min(0.0, TotalSoillossMap->Drc); // for table damage output per landunit
             TotalDetMap->Drc = std::max(0.0, TotalSoillossMap->Drc);
-        }
+        }}
 
-        FOR_ROW_COL_MV
+#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
         {
-            double sedall = Sed->Drc + (SwitchUse2Layer ? BLFlood->Drc : 0.0) + SSFlood->Drc +  (SwitchIncludeChannel ? ChannelSed->Drc : 0.0);
+            double sedall = Sed->Drc + (SwitchUse2Phase ? BLFlood->Drc : 0.0) + SSFlood->Drc +  (SwitchIncludeChannel ? ChannelSed->Drc : 0.0);
             double waterall = WaterVolall->Drc + (SwitchIncludeChannel ? ChannelWaterVol->Drc : 0.0);
-            TotalConc->Drc = MaxConcentration(waterall ,&sedall, &tmb->Drc);
+            TotalConc->Drc = MaxConcentration(waterall ,&sedall, NULL);
             // for output
-        }
+        }}
 
         fill(*DepFlood,0.0);
         fill(*BLDetFlood,0.0);

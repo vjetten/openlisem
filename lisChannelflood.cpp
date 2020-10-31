@@ -165,7 +165,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                         double _concavg = _sed/(volch+volof);
 
                         ChannelSSSed->Drc = _concavg * volch;
-                        ChannelSed->Drc = (SwitchUse2Layer ? ChannelBLSed->Drc : 0.0) + ChannelSSSed->Drc;
+                        ChannelSed->Drc = (SwitchUse2Phase ? ChannelBLSed->Drc : 0.0) + ChannelSSSed->Drc;
 
                         _SS->Drc = _concavg * volof;
                         _SSC->Drc = _concavg;

@@ -194,7 +194,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use material depth")==0)              SwitchUseMaterialDepth  = iii == 1;
         if (p1.compare("No detachment boundary")==0)          SwitchNoBoundarySed  = iii == 1;
         if (p1.compare("Advanced sediment")==0) SwitchAdvancedSed = iii;
-        if (p1.compare("Use 2 phase flow")==0)                SwitchUse2Layer = iii;
+        if (p1.compare("Use 2 phase flow")==0)                SwitchUse2Phase = iii;
         if (p1.compare("Include River diffusion")==0)         SwitchIncludeRiverDiffusion = iii == 1;
         if (p1.compare("Include diffusion")==0)               SwitchIncludeDiffusion = iii == 1;
         if (p1.compare("Use grain size distribution")==0)     SwitchMulticlass = iii == 1;
@@ -317,14 +317,14 @@ void TWorld::ParseRunfileData(void)
         SwitchPercolation = false;
     // cannot have both
 
-    SwitchUse2Layer = SwitchAdvancedSed;
+    SwitchUse2Phase = SwitchAdvancedSed;
     SwitchUseGrainSizeDistribution = (getvalueint("Use grain size distribution") == 1);
-    if (!SwitchUse2Layer) {
+    if (!SwitchUse2Phase) {
         SwitchUseGrainSizeDistribution = false;
         SwitchIncludeDiffusion = false;
         SwitchIncludeRiverDiffusion = false;
     }
-    //qDebug() << SwitchUse2Layer << SwitchAdvancedSed;
+    //qDebug() << SwitchUse2Phase << SwitchAdvancedSed;
 
     SwitchChannelFlood = true; // always true
     if (!SwitchIncludeChannel)

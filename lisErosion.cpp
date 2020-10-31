@@ -604,10 +604,8 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
      * sediment in flow. THIS IS REQUIRED! to maintain mass
      * balance
      */
-    // when there is no usage of material depth,
-    // there is no deposited layer
-    // actual erosion can then be calculated using
-    // the original erosion efficiency coefficient
+    // when there is no usage of material depth, there is no deposited layer
+    // actual erosion can then be calculated using the original erosion efficiency coefficient
     if(!SwitchUseMaterialDepth)
     {
         if(channel)
@@ -638,34 +636,6 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
         //multiply potential detachment by erosion coefficient
         detachment = detachment *newY;
 
-        //when a grain size distribution is used,
-        //transport capacity if dependend on the
-        //grain size distribution
-        //this is therefore needed to converge to stable values
-        if( SwitchUseGrainSizeDistribution)
-        {
-            //if there is not an indicator for infinite sediment
-            //and there is less sediment in the combined layers
-            //than will be detached, use analytical solution
-            if(!((RStorage->Drc) < -1) &&  detachment > RStorage_D.Drcd + RStorageDep_D.Drcd)
-            {
-                double masstotal = GetTotalDW(r,c,&RStorage_D)+ GetTotalDW(r,c,&RStorageDep_D);
-                double a = RStorage_D.Drcd + RStorageDep_D.Drcd;
-                double c2 = masstotal;
-                double b = bl? RBLC_D.Drcd:RSSC_D.Drcd;
-                double d2 = DX->Drc;
-                double e = ChannelWidth->Drc;
-                double f = bl? RBLTC_D.Drcd:RSSTC_D.Drcd;
-                double h = bl? RBLD_D.Drcd:RSSD_D.Drcd;
-                double t1 = c2 - b*d2*e*h + d2*e*f*h;
-                double t2_1 = c2 - b*d2*e*h + d2*e*f*h;
-                double t2_2 = b*c2*d2*e*h - a * d2 * e * f*h;
-                double t2 = sqrt(t2_1 * t2_1 + 4 * t2_2);
-                detachment = t1 - t2;
-
-            }
-
-        }
         //to remove small rounding errors that lead to negative values
         detachment = std::max(detachment,0.0);
 
@@ -675,57 +645,29 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
         double mattake = 0;
         detachment = 0;
 
-        //when a grain size distribution is used
-        if(SwitchUseGrainSizeDistribution)
-        {
-            //take from soil layer mass within that grain class
-            deptake = std::min(dleft,RStorageDep_D.Drcd);
-            dleft -= deptake;
-            //and take the same from the total
-            RStorageDep_D.Drcd -= deptake;
-            RStorageDep->Drc -= deptake;
-        }else
-        {
-            //take from the total storage
-            deptake = std::min(dleft,RStorageDep->Drc);
-            RStorageDep->Drc -= deptake;
-        }
+        //take from the total storage
+        deptake = std::min(dleft,RStorageDep->Drc);
+        RStorageDep->Drc -= deptake;
+
         //add to the detachment what we have taken from the first soil layer
         detachment += deptake;
 
         //if the deposited layer is empty
         //use erosion efficiency of bottom layer again
         if(newY > 0)
-        {
             dleft *= ChannelY->Drc/newY;
-        }else
-        {
+        else
             dleft = 0;
-        }
 
         //bottom soil layer can be infinite
         if(!((RStorage->Drc) < -1))
         {
-            //take sediment from the soil layer storage
-            if(SwitchUseGrainSizeDistribution)
-            {
-                //take from soil layer mass within that grain class
-                mattake = std::min(dleft,RStorage_D.Drcd);
-                dleft -= mattake;
-                //take from the total storage
-                RStorage_D.Drcd -= mattake;
-                RStorage->Drc -= mattake;
-
-            }else
-            {
-                //take from the total storage
-                mattake = std::min(dleft,RStorage->Drc);
-                RStorage->Drc -= mattake;
-            }
+            //take from the total storage
+            mattake = std::min(dleft,RStorage->Drc);
+            RStorage->Drc -= mattake;
             //add to the detachment what we have taken from the second soil layer
             detachment += mattake;
-        }else
-        {
+        } else {
             //all left potential detachment is added to detachment (infinite soil layer)
             detachment += dleft;
         }
@@ -749,34 +691,6 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             //multiply potential detachment by erosion coefficient
             detachment = detachment *newY;
 
-            //when a grain size distribution is used,
-            //transport capacity if dependend on the
-            //grain size distribution
-            //this is therefore needed to converge to stable values
-//            if( SwitchUseGrainSizeDistribution)
-//            {
-//                //if there is not an indicator for infinite sediment
-//                //and there is less sediment in the combined layers
-//                //than will be detached, use analytical solution
-//                if(!((Storage->Drc) < -1) &&  detachment > Storage_D.Drcd + StorageDep_D.Drcd)
-//                {
-//                    double masstotal = GetTotalDW(r,c,&Storage_D)+ GetTotalDW(r,c,&StorageDep_D);
-//                    double a = Storage_D.Drcd + StorageDep_D.Drcd;
-//                    double c2 = masstotal;
-//                    double b = bl? BLC_D.Drcd:SSC_D.Drcd;
-//                    double d2 = DX->Drc;
-//                    double e = ChannelAdj->Drc;
-//                    double f = bl? BLTC_D.Drcd:SSTC_D.Drcd;
-//                    double h = bl? BLD_D.Drcd:SSD_D.Drcd;
-
-//                    double t1 = c2 - b*d2*e*h + d2*e*f*h;
-//                    double t2_1 = c2 - b*d2*e*h + d2*e*f*h;
-//                    double t2_2 = b*c2*d2*e*h - a * d2 * e * f*h;
-//                    double t2 = sqrt(t2_1 * t2_1 + 4 * t2_2);
-//                    detachment = t1 - t2;
-
-//                }
-//            }
             //to remove small rounding errors that lead to negative values
             detachment = std::max(detachment,0.0);
 
@@ -786,57 +700,28 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             double mattake = 0;
             detachment = 0;
 
-            //when a grain size distribution is used
-            if(SwitchUseGrainSizeDistribution)
-            {
-                //take from soil layer mass within that grain class
-                deptake = std::min(dleft,StorageDep_D.Drcd);
-                dleft -= deptake;
-                //and take the same from the total
-                StorageDep_D.Drcd -= deptake;
-                StorageDep->Drc -= deptake;
-            }
-            else
-            {
-                //take from the total storage
-                deptake = std::min(dleft,StorageDep->Drc);
-                StorageDep->Drc -= deptake;
-            }
+            //take from the total storage
+            deptake = std::min(dleft,StorageDep->Drc);
+            StorageDep->Drc -= deptake;
+
             //add to the detachment what we have taken from the first soil layer
             detachment += deptake;
 
             //if the deposited layer is empty
             //use erosion efficiency of bottom layer again
             if(newY > 0)
-            {
                 dleft *= Y->Drc/newY;
-            }else
-
-            {
+            else
                 dleft = 0;
-            }
 
             if(!((Storage->Drc) < -1))
             {
-                if(SwitchUseGrainSizeDistribution)
-                {
-                    //take from soil layer mass within that grain class
-                    mattake = std::min(dleft,Storage_D.Drcd);
-                    dleft -= mattake;
-                    //take from the total storage
-                    Storage_D.Drcd -= mattake;
-                    Storage->Drc -= mattake;
-                }
-                else
-                {
-                    //take from the total storage
-                    mattake = std::min(dleft,Storage->Drc);
-                    Storage->Drc -= mattake;
-                }
+                //take from the total storage
+                mattake = std::min(dleft,Storage->Drc);
+                Storage->Drc -= mattake;
                 //add to the detachment what we have taken from the second soil layer
                 detachment += mattake;
-            }else
-            {
+            } else {
                 //all left potential detachment is added to detachment (infinite soil layer)
                 detachment += dleft;
             }
@@ -864,35 +749,6 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
 
             detachment = detachment *newY;
 
-            //when a grain size distribution is used,
-            //transport capacity if dependend on the
-            //grain size distribution
-            //this is therefore needed to converge to stable values
-            if( SwitchUseGrainSizeDistribution)
-            {
-                if(!((Storage->Drc) < -1) && detachment > (Storage_D.Drcd + StorageDep_D.Drcd))
-                {
-                    //if there is not an indicator for infinite sediment
-                    //and there is less sediment in the combined layers
-                    //than will be detached, use analytical solution
-                    double masstotal = GetTotalDW(r,c,&Storage_D)+ GetTotalDW(r,c,&StorageDep_D);
-                    double a = Storage_D.Drcd + StorageDep_D.Drcd;
-                    double c2 = masstotal;
-                    double b = Conc_D.Drcd;
-                    double d2 = DX->Drc;
-                    double e = ChannelAdj->Drc;
-                    double f = TC_D.Drcd;
-                    double h = WHrunoff->Drc;
-
-                    double t1 = c2 - b*d2*e*h + d2*e*f*h;
-                    double t2_1 = c2 - b*d2*e*h + d2*e*f*h;
-                    double t2_2 = b*c2*d2*e*h - a * d2 * e * f*h;
-                    double t2 = sqrt(t2_1 * t2_1 + 4 * t2_2);
-                    detachment = t1 - t2;
-
-                }
-
-            }
             //to remove small rounding errors that lead to negative values
             detachment = std::max(detachment,0.0);
             //check wat we can detache from the top and bottom layer of present material
@@ -900,54 +756,29 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             double deptake = 0;
             double mattake = 0;
             detachment = 0;
-            //when a grain size distribution is used
-            if(SwitchUseGrainSizeDistribution)
-            {
-                //take from soil layer mass within that grain class
-                deptake = std::min(dleft,StorageDep_D.Drcd);
-                dleft -= deptake;
-                //and take the same from the total
-                StorageDep_D.Drcd -= deptake;
-                StorageDep->Drc -= deptake;
-            }else
-            {
-                //take from the total storage
-                deptake = std::min(dleft,StorageDep->Drc);
-                StorageDep->Drc -= deptake;
-            }
+
+            //take from the total storage
+            deptake = std::min(dleft,StorageDep->Drc);
+            StorageDep->Drc -= deptake;
+
             //add to the detachment what we have taken from the first soil layer
             detachment += deptake;
             //if the deposited layer is empty
             //use erosion efficiency of bottom layer again
             if(newY > 0)
-            {
                 dleft *= Y->Drc/newY;
-            }else
-            {
+            else
                 dleft = 0;
-            }
+
             //bottom soil layer can be infinite
             if(!((Storage->Drc) < -1))
             {
-                //take sediment from the soil layer storage
-                if(SwitchUseGrainSizeDistribution)
-                {
-                    //take from soil layer mass within that grain class
-                    mattake = std::min(dleft,Storage_D.Drcd);
-                    dleft -= mattake;
-                    //take from the total storage
-                    Storage_D.Drcd -= mattake;
-                    Storage->Drc -= mattake;
-                }else
-                {
-                    //take from the total storage
-                    mattake = std::min(dleft,Storage->Drc);
-                    Storage->Drc -= mattake;
-                }
+                //take from the total storage
+                mattake = std::min(dleft,Storage->Drc);
+                Storage->Drc -= mattake;
                 //add to the detachment what we have taken from the second soil layer
                 detachment += mattake;
-            }else
-            {
+            } else {
                 //all left potential detachment is added to detachment (infinite soil layer)
                 detachment += dleft;
             }
@@ -1154,7 +985,7 @@ void TWorld::SedimentSetMaterialDistribution()
             }
 
         }
-
+/*
         //update grain size distributed weights
         if(SwitchUseGrainSizeDistribution)
         {
@@ -1261,7 +1092,7 @@ void TWorld::SedimentSetMaterialDistribution()
                     }
                 }
             }
-        }
+        } */
     }
 }
 

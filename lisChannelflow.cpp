@@ -284,7 +284,7 @@ void TWorld::ChannelFlow(void)
             double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
             ChannelQSSs->Drc = ChannelQ->Drc * concss;
 
-            if(SwitchUse2Layer) {
+            if(SwitchUse2Phase) {
                 double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
                 ChannelQBLs->Drc = ChannelQ->Drc * concbl;
             }
@@ -330,7 +330,7 @@ void TWorld::ChannelFlow(void)
 
     if (SwitchErosion)
     {
-        if(SwitchUse2Layer)
+        if(SwitchUse2Phase)
             ChannelQBLsn->setAllMV();
         ChannelQSSsn->setAllMV();
 
@@ -349,7 +349,7 @@ void TWorld::ChannelFlow(void)
 //            {
         FOR_ROW_COL_LDDCH5 {
                 //explicit routing of matter using Q and new Qn
-                if (SwitchUse2Layer) {
+                if (SwitchUse2Phase) {
                     routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn,
                                    ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed);
                 }
@@ -358,7 +358,7 @@ void TWorld::ChannelFlow(void)
                 //note: channelwatervol not really used
             }}
         //}
-        if (SwitchUse2Layer)
+        if (SwitchUse2Phase)
             cover(*ChannelQBLsn, *LDD, 0);
         cover(*ChannelQSSsn, *LDD, 0);
 
@@ -371,8 +371,8 @@ void TWorld::ChannelFlow(void)
         FOR_ROW_COL_MV_CHL {
             RiverSedimentLayerDepth(r,c);
             RiverSedimentMaxC(r,c);
-            ChannelQsn->Drc = (SwitchUse2Layer ? ChannelQBLsn->Drc : 0.0) + ChannelQSSsn->Drc;
-            ChannelSed->Drc = (SwitchUse2Layer ? ChannelBLSed->Drc : 0.0) + ChannelSSSed->Drc;
+            ChannelQsn->Drc = (SwitchUse2Phase ? ChannelQBLsn->Drc : 0.0) + ChannelQSSsn->Drc;
+            ChannelSed->Drc = (SwitchUse2Phase ? ChannelBLSed->Drc : 0.0) + ChannelSSSed->Drc;
         }}
     }
 }

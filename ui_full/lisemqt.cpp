@@ -75,7 +75,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     helptxt = new QTextEdit();
     helpLayout->addWidget(helptxt);
 
-    checkAddDatetime->setVisible(false);
+    //checkAddDatetime->setVisible(false);
 
     RunFileNames.clear();
     op.runfilename.clear();
@@ -1653,15 +1653,14 @@ void lisemqt::resetTabSediment()
     //sediment
     checkSed2Phase->setChecked(true);
     checkSedMultiGrain->setChecked(false);
-  //  checkBox_SedSingleSingle->setChecked(false);
 
     E_RBLMethod->setValue(1);
     E_RSSMethod->setValue(0);
     E_BLMethod->setValue(1);
     E_SSMethod->setValue(0);
 
-    E_SigmaDiffusion->setValue(1);
-    E_RSigmaDiffusion->setValue(1);
+    E_SigmaDiffusion->setValue(0.5);
+    E_RSigmaDiffusion->setValue(0.5);
 
     checkEstimateGrainSizeDistribution->setChecked(false); // if multiclass, estimate from D50 and D90
     checkReadGrainSizeDistribution->setChecked(false); // if multiclass, calculate from user series

@@ -948,7 +948,7 @@ void TWorld::InitChannel(void)
             ChannelSSDepth = NewMap(0);
             ChannelQSSs = NewMap(0);
             ChannelQSSsn = NewMap(0);
-            if (SwitchUse2Layer) {
+            if (SwitchUse2Phase) {
                 ChannelBLSed = NewMap(0);
                 ChannelBLConc = NewMap(0);
                 ChannelBLTC = NewMap(0);
@@ -1224,8 +1224,8 @@ void TWorld::InitErosion(void)
 
 
     D50 = ReadMap(LDD,getvaluename("D50"));
-    //SwitchNeedD90 = SwitchErosion && (SwitchChannelFlood || (SwitchUse2Layer && !R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution);
-    if(SwitchUse2Layer && !SwitchUseGrainSizeDistribution)
+    //SwitchNeedD90 = SwitchErosion && (SwitchChannelFlood || (SwitchUse2Phase && !R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution);
+    if(SwitchUse2Phase && !SwitchUseGrainSizeDistribution)
     {
         D90 = ReadMap(LDD,getvaluename("D90"));
     }
@@ -1233,7 +1233,7 @@ void TWorld::InitErosion(void)
     FOR_ROW_COL_MV
     {
         D50->Drc = D50->Drc *gsizeCalibration;
-        if(SwitchUse2Layer && !SwitchUseGrainSizeDistribution)
+        if(SwitchUse2Phase && !SwitchUseGrainSizeDistribution)
         {
             D90->Drc = D90->Drc *gsizeCalibration;
         }
@@ -1267,13 +1267,13 @@ void TWorld::InitErosion(void)
 
     FS_SigmaDiffusion = getvaluedouble("Sigma diffusion");
     R_SigmaDiffusion = getvaluedouble("River Sigma diffusion");
-    if (SwitchUse2Layer && SwitchUseGrainSizeDistribution) {
+    if (SwitchUse2Phase && SwitchUseGrainSizeDistribution) {
         R_BL_Method = FSWUWANGJIA;
         R_SS_Method = FSWUWANGJIA;  // ignore because it has to be 3 when 2 layer and graisizedist
         FS_BL_Method = FSWUWANGJIA;
         FS_SS_Method = FSWUWANGJIA;
     } else
-        if(!SwitchUse2Layer && !SwitchUseGrainSizeDistribution) {
+        if(!SwitchUse2Phase && !SwitchUseGrainSizeDistribution) {
             R_BL_Method = FSRIJN;     // if single layer and no grainsize = simple erosion, then govers
             R_SS_Method = FSGOVERS;
             FS_BL_Method = FSRIJN;
@@ -1355,7 +1355,7 @@ void TWorld::InitErosion(void)
     FOR_ROW_COL_MV
     {
         SettlingVelocitySS->Drc = GetSV(D50->Drc);
-        if (SwitchUse2Layer)
+        if (SwitchUse2Phase)
             SettlingVelocityBL->Drc = GetSV(D90->Drc);
     }
 
@@ -2205,7 +2205,7 @@ void TWorld::IntializeOptions(void)
     resultFileName.clear();
     totalSeriesFileName.clear();
 
-    SwitchUse2Layer = false;
+    SwitchUse2Phase = false;
     SwitchUseGrainSizeDistribution = false;
     SwitchReadGrainSizeDistribution = false;
     SwitchHardsurface = false;

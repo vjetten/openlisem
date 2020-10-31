@@ -164,7 +164,7 @@ void TWorld::OutputUI(void)
 
             COMBO_SS->Drc += SSFlood->Drc;
             COMBO_TC->Drc += SSTCFlood->Drc;
-            if (SwitchUse2Layer) {
+            if (SwitchUse2Phase) {
                 COMBO_BL->Drc += BLFlood->Drc;
                 COMBO_TC->Drc += BLTCFlood->Drc;
             }
@@ -172,10 +172,13 @@ void TWorld::OutputUI(void)
             if(SwitchIncludeChannel)
             {
                 COMBO_SS->Drc += ChannelSSSed->Drc;
-                if (SwitchUse2Layer)
+                if (SwitchUse2Phase)
                     COMBO_BL->Drc += ChannelBLSed->Drc;
                 COMBO_TC->Drc += ChannelTC->Drc;
             }
+
+            COMBO_SS->Drc = COMBO_SS->Drc  < 1e-6 ? 0 : COMBO_SS->Drc;
+            COMBO_BL->Drc = COMBO_BL->Drc  < 1e-6 ? 0 : COMBO_BL->Drc;
             COMBO_SED->Drc = COMBO_SS->Drc + COMBO_BL->Drc;
 
         }}
@@ -927,7 +930,7 @@ void TWorld::ReportMapSeries(void)
         if (SwitchOutConc) report(*TotalConc, Outconc);  // in g/l
         if (SwitchOutTC) report(*COMBO_TC, Outtc);      // in g/l
 
-        if(SwitchUse2Layer) {
+        if(SwitchUse2Phase) {
             if (SwitchOutSedSS) {
                 copy(*tm, *COMBO_SS); //kg/cell
                 calcValue(*tm, factor, MUL);
@@ -1550,7 +1553,7 @@ void TWorld::GetComboMaps()
         if (SwitchSedtrap)
         AddComboMap(1,"Sed trap","kg/m3",SedMaxVolume,Colormap,Colors,false,false,1.0, step);
 
-        if(SwitchUse2Layer) {
+        if(SwitchUse2Phase) {
             AddComboMap(1,"Suspended sed.",unit,COMBO_SS/*SSFlood*/,Colormap,Colors,false,false,factor, step);
             AddComboMap(1,"Bedload sed.",unit,COMBO_BL /*BLFlood*/,Colormap,Colors,false,false,factor, step);
             AddComboMap(1,"TC suspended","kg/m3",SSTCFlood,Colormap,Colors,false,false,1.0, step);
@@ -1581,7 +1584,7 @@ void TWorld::GetComboMaps()
             }
             if(SwitchIncludeChannel)
             {
-                if(SwitchUse2Layer)
+                if(SwitchUse2Phase)
                 {
                     FOR_GRAIN_CLASSES
                     {

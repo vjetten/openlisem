@@ -62,7 +62,7 @@ functions: \n
  * @param c : the column nr of the cell
  * @see TWorld:RiverSedimentTCBL
  * @see TWorld:RiverSedimentTCSS
- * @see TWorld:SwitchUse2Layer
+ * @see TWorld:SwitchUse2Phase
  * @see TWorld:DetachMaterial
  *
  */
@@ -83,7 +83,7 @@ void TWorld::ChannelFlowDetachment()
         double ssdischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelSSDepth->Drc;
         double blwatervol = 0;
         double bldischarge = 0;
-        if (SwitchUse2Layer) {
+        if (SwitchUse2Phase) {
             blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelFlowWidth->Drc;
             bldischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelBLDepth->Drc;
         }
@@ -105,7 +105,7 @@ void TWorld::ChannelFlowDetachment()
 
             if(!SwitchUseGrainSizeDistribution)
             {
-                if (SwitchUse2Layer)
+                if (SwitchUse2Phase)
                     TBLTCtemp = ChannelBLTC;
                 TSSTCtemp = ChannelSSTC;
             }
@@ -116,7 +116,7 @@ void TWorld::ChannelFlowDetachment()
             //            }
 
             //get transport capacity for bed/suspended load for a specific cell and grain size class
-            if (SwitchUse2Layer)
+            if (SwitchUse2Phase)
                 TBLTCtemp->Drc = calcTCBedload(r, c, d, R_BL_Method, ChannelWH->Drc,ChannelV->Drc, 0);
             TSSTCtemp->Drc = calcTCSuspended(r, c, d, R_SS_Method, ChannelWH->Drc, ChannelV->Drc, 0);
 
@@ -181,7 +181,7 @@ void TWorld::ChannelFlowDetachment()
                 TSSCtemp = ChannelSSConc;
                 TSStemp = ChannelSSSed;
                 TSettlingVelocitySS = SettlingVelocitySS->Drc;
-                if (SwitchUse2Layer) {
+                if (SwitchUse2Phase) {
                     TBLDepthtemp = ChannelBLDepth;
                     TBLTCtemp = ChannelBLTC;
                     TBLCtemp = ChannelBLConc;
@@ -219,7 +219,7 @@ void TWorld::ChannelFlowDetachment()
                 TSSCtemp->Drc = 0;
                 TSSDepthtemp->Drc = 0;
 
-                if (SwitchUse2Layer) {
+                if (SwitchUse2Phase) {
                     deposition = -TBLtemp->Drc;
                     TBLtemp->Drc = 0;
                     TBLTCtemp->Drc = 0;
@@ -301,7 +301,7 @@ void TWorld::ChannelFlowDetachment()
                 }
 
                 //### do bedload
-                if (SwitchUse2Layer) {
+                if (SwitchUse2Phase) {
                     if(TBLDepthtemp->Drc < MIN_HEIGHT) {
                         ChannelDep->Drc += -ChannelBLSed->Drc;
                         ChannelBLTC->Drc = 0;
@@ -437,11 +437,11 @@ void TWorld::RiverSedimentMaxC(int r, int c)
     if(!SwitchUseGrainSizeDistribution)
     {
         _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc*frac, &_SS->Drc, &ChannelDep->Drc);
-        if (SwitchUse2Layer)
+        if (SwitchUse2Phase)
             _BLC->Drc = MaxConcentration(ChannelWaterVol->Drc*(1-frac), &_BL->Drc, &ChannelDep->Drc);
     }
 
-    ChannelSed->Drc = (SwitchUse2Layer ? _BL->Drc : 0) + _SS->Drc;
+    ChannelSed->Drc = (SwitchUse2Phase ? _BL->Drc : 0) + _SS->Drc;
     //total concentration
     ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, &ChannelSed->Drc, &ChannelDep->Drc);
 
@@ -597,7 +597,7 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
 
 void TWorld::RiverSedimentLayerDepth(int r , int c)
 {
-    if (!SwitchUse2Layer) {
+    if (!SwitchUse2Phase) {
         ChannelSSDepth->Drc = ChannelWH->Drc;
        // ChannelBLDepth->Drc = 0;
         return;
