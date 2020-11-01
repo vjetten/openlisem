@@ -842,22 +842,6 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
         ves1->Drc = Ves1;
         ves2->Drc = Ves2;
     }}
-
-
-    if(F_pitValue > 0) {
-        FOR_ROW_COL_MV_L  {
-            if (DEMdz->Drc == 1 && hes->Drc > F_pitValue) {
-                vec4 rec;
-                int ldd = (int) LDD->Drc;
-                int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
-                int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
-                rec = F_Riemann(hes->Drc, ves1->Drc, ves2->Drc, hes->data[r+dy[ldd]][c+dx[ldd]], ves1->data[r+dy[ldd]][c+dx[ldd]], ves2->data[r+dy[ldd]][c+dx[ldd]]);
-                double dH = dt/_dx*(rec.v[0]) + dt/_dx*(rec.v[0]);
-                hes->Drc -= dH;
-                hes->data[r+dy[ldd]][c+dx[ldd]] += dH;
-            }
-        }}
-    }
 }
 //---------------------------------------------------------------------------
 double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
@@ -896,22 +880,25 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             // st venant equations
             maincalcschemeOF(dt1, h,u,v, hs,us,vs);
 
+            SWOFDiagonalFlow(dt1, hs, us, vs);
+            setZeroOF(hs, us, vs);
+
             // for erosion
 #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 FloodDT->Drc = dt1;
-            }}
+            }}        
 
             if (SwitchErosion)
-                SWOFSediment(FloodDT,hs,us,vs);
+                SWOFSediment(dt1, FloodDT,hs,us,vs);
 
-            setZeroOF(hs, us, vs);
 #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 h->Drc = hs->Drc;
                 u->Drc = us->Drc;
                 v->Drc = vs->Drc;
             }}
+
 
 
             timesum = timesum + dt1;
@@ -932,4 +919,21 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     return(dt1);
 }
 
-
+void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
+{
+    // force flow when a diagonal solution exists and a blockage
+    if(F_pitValue > 0) {
+        FOR_ROW_COL_MV_L  {
+            if (DEMdz->Drc == 1 && h->Drc > F_pitValue) {
+                vec4 rec;
+                int ldd = (int) LDD->Drc;
+                int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
+                int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
+                rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->data[r+dy[ldd]][c+dx[ldd]], vx->data[r+dy[ldd]][c+dx[ldd]], vy->data[r+dy[ldd]][c+dx[ldd]]);
+                double dH = dt_req_min/_dx*(rec.v[0]) + dt_req_min/_dx*(rec.v[0]);
+                h->Drc -= dH;
+                h->data[r+dy[ldd]][c+dx[ldd]] += dH;
+            }
+        }}
+    }
+}

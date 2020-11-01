@@ -173,7 +173,7 @@ void lisemqt::SetConnections()
  //   connect(checkWritePCRaster,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
  //   connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
     connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
-    connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
+//    connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow1D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow2Dkindyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
@@ -506,7 +506,7 @@ void lisemqt::setSedimentText(int i, int j, int k)
             if (i==2) label_STBL->setText("Bedload TC Van Rijn (full)");
             if (i==3) label_STBL->setText("Bedload TC Wu, Wang & Jia (multiclass)");
         } else {
-            if (i==0) label_STSS->setText("Suspended TC Govers, 1980");
+            if (i==0) label_STSS->setText("Suspended TC Govers");
             if (i==1) label_STSS->setText("Suspended TC Van Rijn (simplified)");
             if (i==2) label_STSS->setText("Suspended TC Van Rijn (full)");
             if (i==3) label_STSS->setText("Suspended TC Wu, Wang & Jia (multiclass)");
@@ -536,23 +536,24 @@ void lisemqt::on_E_SSMethod_valueChanged(int i)
 //--------------------------------------------------------------------
 void lisemqt::on_checkSed2Phase_toggled(bool v)
 {
-    if(v)
-    {
-        checkSedMultiGrain->setChecked(false);
-        sedbox1->setEnabled(false);
-        sedbox2->setEnabled(true);
-        sedbox3->setEnabled(true);
-        E_RBLMethod->setEnabled(true);
-        E_RSSMethod->setEnabled(true);
-        E_BLMethod->setEnabled(true);
-        E_SSMethod->setEnabled(true);
-    }else
-    {
-        if(!checkSedMultiGrain->isChecked())
-        {
-            checkSed2Phase->setChecked(true);
-        }
-    }
+//    if(v)
+//    {
+//      //  checkSedMultiGrain->setChecked(false);
+//        sedbox1->setEnabled(false);
+//        sedbox2->setEnabled(true);
+//        sedbox3->setEnabled(true);
+//        E_RBLMethod->setEnabled(true);
+//        E_RSSMethod->setEnabled(true);
+//        E_BLMethod->setEnabled(true);
+//        E_SSMethod->setEnabled(true);
+//    }
+//    else
+//    {
+//        if(!checkSedMultiGrain->isChecked())
+//        {
+//            checkSed2Phase->setChecked(true);
+//        }
+//    }
 }
 //--------------------------------------------------------------------
 
@@ -572,10 +573,11 @@ void lisemqt::on_checkSedMultiGrain_toggled(bool v)
         E_BLMethod->setEnabled(false);
         E_SSMethod->setEnabled(false);
 
-    } else {
-        if(!checkSed2Phase->isChecked())
-            checkSedMultiGrain->setChecked(true);
     }
+//    else {
+//        if(!checkSed2Phase->isChecked())
+//            checkSedMultiGrain->setChecked(true);
+//    }
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkEstimateGrainSizeDistribution_toggled(bool v)
@@ -623,16 +625,16 @@ void lisemqt::setFloodTab(bool yes)
 void lisemqt::setErosionTab(bool yes)
 {
     tabWidgetOptions->setTabEnabled(4, checkDoErosion->isChecked());
-    tabWidgetOptions->setTabEnabled(5, checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
+  //  tabWidgetOptions->setTabEnabled(5, checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
 
 //    if (checkDoErosion->isChecked())
 //        checkBox_SedSingleSingle->setChecked(!checkAdvancedSediment->isChecked());
 //    // note checkBox_SedSingleSingle is not visible but still needed
 
 
-    if (checkAdvancedSediment->isChecked())
-    {
-        if (!checkSed2Phase->isChecked() && !checkSedMultiGrain->isChecked())
+   // if (checkAdvancedSediment->isChecked())
+   // {
+        if (!checkSed2Phase->isChecked())// && !checkSedMultiGrain->isChecked())
         {
             checkSedMultiGrain->setChecked(false);
             checkSed2Phase->setChecked(true);
@@ -654,7 +656,7 @@ void lisemqt::setErosionTab(bool yes)
         E_SSMethod->setValue(i4);
 
 
-    }
+ //   }
     //  yes = checkDoErosion->isChecked();
     outputMapsSediment->setEnabled(checkDoErosion->isChecked());
     checkBox_OutConc->setEnabled(checkDoErosion->isChecked());
@@ -664,8 +666,8 @@ void lisemqt::setErosionTab(bool yes)
     checkBox_OutSed->setEnabled(checkDoErosion->isChecked());
     checkBox_OutTC->setEnabled(checkDoErosion->isChecked());
     groupKineticEnergy->setEnabled(checkDoErosion->isChecked());
-    checkBox_OutSedSS->setEnabled(checkDoErosion->isChecked() && checkAdvancedSediment->isChecked());
-    checkBox_OutSedBL->setEnabled(checkDoErosion->isChecked() && checkAdvancedSediment->isChecked());
+    checkBox_OutSedSS->setEnabled(checkDoErosion->isChecked() && checkSed2Phase->isChecked());
+    checkBox_OutSedBL->setEnabled(checkDoErosion->isChecked() && checkSed2Phase->isChecked());
 
     checkBoxComboMaps2->setEnabled(checkDoErosion->isChecked());
     ComboMinSpinBox2->setEnabled(checkDoErosion->isChecked());
@@ -924,6 +926,7 @@ void lisemqt::SetStyleUI()
 
     frameSpare->setVisible(false);
     tabWidgetOptions->removeTab(8);
+    tabWidgetOptions->removeTab(7);
     frameNumerical->setVisible(false);
 
     int w = 80, h = 15;
@@ -1808,7 +1811,7 @@ void lisemqt::resetAll()
     //groupBox_coupling->setEnabled(!checkOverlandFlow2Ddyn->isChecked());
 
     checkDoErosion->setChecked(false);
-    checkAdvancedSediment->setChecked(false);
+    //checkAdvancedSediment->setChecked(false);
 
     checkIncludeChannel->setChecked(true);
     //checkChannelFlood->setChecked(true);
@@ -2041,9 +2044,9 @@ void lisemqt::on_toolButton_help(int page)
     if (page == 3) filename=":/help3.html";
     if (page == 4) filename=":/help4.html";
     if (page == 5) filename=":/help5.html";
-    if (page == 6) filename=":/help6.html";
-    if (page == 7) filename=":/help7.html";
-    if (page == 8) filename=":/help8.html";
+    //if (page == 6) filename=":/help6.html";
+    if (page == 6) filename=":/help7.html";
+    if (page == 7) filename=":/help8.html";
 
     QFile file(filename);
     file.open(QFile::ReadOnly | QFile::Text);

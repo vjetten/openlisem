@@ -115,7 +115,7 @@ QString TWorld::CheckDir(QString p, bool makeit)
     path = QDir(p).fromNativeSeparators(p);
     path = QDir(path).absoluteFilePath(path);
 
-    if (!path.endsWith("/"))
+    if (!path.endsWith("/") || !path.endsWith("\\"))
         path = path + '/';
 
     if (!QDir(path).exists())
@@ -193,7 +193,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("SettlingVelocity")==0)                SwitchSV = iii;
         if (p1.compare("Use material depth")==0)              SwitchUseMaterialDepth  = iii == 1;
         if (p1.compare("No detachment boundary")==0)          SwitchNoBoundarySed  = iii == 1;
-        if (p1.compare("Advanced sediment")==0) SwitchAdvancedSed = iii;
+   //     if (p1.compare("Advanced sediment")==0) SwitchAdvancedSed = iii;
         if (p1.compare("Use 2 phase flow")==0)                SwitchUse2Phase = iii;
         if (p1.compare("Include River diffusion")==0)         SwitchIncludeRiverDiffusion = iii == 1;
         if (p1.compare("Include diffusion")==0)               SwitchIncludeDiffusion = iii == 1;
@@ -317,13 +317,8 @@ void TWorld::ParseRunfileData(void)
         SwitchPercolation = false;
     // cannot have both
 
-    SwitchUse2Phase = SwitchAdvancedSed;
+    //SwitchUse2Phase = SwitchAdvancedSed;
     SwitchUseGrainSizeDistribution = (getvalueint("Use grain size distribution") == 1);
-    if (!SwitchUse2Phase) {
-        SwitchUseGrainSizeDistribution = false;
-        SwitchIncludeDiffusion = false;
-        SwitchIncludeRiverDiffusion = false;
-    }
     //qDebug() << SwitchUse2Phase << SwitchAdvancedSed;
 
     SwitchChannelFlood = true; // always true
@@ -448,8 +443,8 @@ void TWorld::ParseRunfileData(void)
 
     SwitchResultDatetime = getvalueint("Result datetime") == 1;
     if (SwitchResultDatetime) {
-        QDir(resultDir).mkpath(QString("/res"+op.timeStartRun+"/"));
-        resultDir = resultDir + QString("/res"+op.timeStartRun+"/");
+        QDir(resultDir).mkpath(QString("res"+op.timeStartRun+"/"));
+        resultDir = resultDir + QString("res"+op.timeStartRun+"/");
     }
 
 

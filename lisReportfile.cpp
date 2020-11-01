@@ -1573,7 +1573,7 @@ void TWorld::GetComboMaps()
         AddComboMap(1,"Storage",unit,StorageDep,Colormap,Colors,false,false,-factor, step);
         }
 
-
+/*
         if(SwitchUseGrainSizeDistribution)
         {
             setColor(9);
@@ -1615,6 +1615,7 @@ void TWorld::GetComboMaps()
             }
 
         }
+        */
     }
 
 }

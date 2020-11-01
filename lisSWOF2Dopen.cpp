@@ -242,7 +242,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         double tot = dt*(flux_x1 + flux_x2 + flux_y1 + flux_y2);
                         if (H+tot < 0) {
                             dt = H/-tot*dt;
-                            qDebug() << "oei" << H-tot;
+                           // qDebug() << "oei" << H-tot;
                         }
 
                         double hn = std::max(0.0, H + dt*(flux_x1 + flux_x2 + flux_y1 + flux_y2));
@@ -327,27 +327,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 } // tmb > 0, active cells + 1
             }}
 
-            // force flow when a diagonal solution exists and a blockage
-            if(F_pitValue > 0 && step > 0) {
-                FOR_ROW_COL_MV_L  {
-                    if (DEMdz->Drc == 1 && h->Drc > F_pitValue) {
-                        vec4 rec;
-                        int ldd = (int) LDD->Drc;
-                        int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
-                        int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
-                        rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->data[r+dy[ldd]][c+dx[ldd]], vx->data[r+dy[ldd]][c+dx[ldd]], vy->data[r+dy[ldd]][c+dx[ldd]]);
-                        double dH = dt_req_min/_dx*(rec.v[0]) + dt_req_min/_dx*(rec.v[0]);
-                        h->Drc -= dH;
-                        h->data[r+dy[ldd]][c+dx[ldd]] += dH;
-                    }
-                }}
-            }
-
-            if (SwitchErosion) {
-                SWOFSediment(FloodDT,hs,vxs,vys);
-            }
-
-
             // find smallest domain dt
             #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
             FOR_ROW_COL_MV_L {
@@ -363,6 +342,11 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             }}
 
             if (step > 0) {
+                SWOFDiagonalFlow(dt_req_min, h, vx, vy);
+
+                if (SwitchErosion) {
+                    SWOFSediment(dt_req_min, FloodDT,hs,vxs,vys);
+                }
                 timesum += dt_req_min;
                 count++; // nr loops
             }
@@ -381,7 +365,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     } // if floodstart
 
     //qDebug() << _dt/count << count << dt_req_min;
-    iter_n = count;
+    iter_n = std::max(1,count);
     return(count > 0 ? _dt/count : _dt);
 }
 

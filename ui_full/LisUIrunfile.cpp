@@ -186,7 +186,10 @@ void lisemqt::ParseInputData()
 
         if (p1.compare("Flooding BL method")==0)             E_BLMethod->setValue(iii);
         if (p1.compare("Flooding SS method")==0)             E_SSMethod->setValue(iii);
-        if (p1.compare("Include diffusion")==0)              checkDiffusion->setChecked(check);
+        if (p1.compare("Include diffusion")==0) {
+            checkDiffusion->setChecked(check);
+            E_SigmaDiffusion->setEnabled(checkDiffusion->isChecked());
+        }
         if (p1.compare("Sigma diffusion")==0)                E_SigmaDiffusion->setValue(valc);
         if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(iii);
         if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(iii);
@@ -206,11 +209,14 @@ void lisemqt::ParseInputData()
         if (p1.compare("Settling Velocity")==0)          E_settlingVelocity->setValue(iii);
         if (p1.compare("Use material depth")==0)             checkMaterialDepth->setChecked(check);
         if (p1.compare("No detachment boundary")==0)         checkNoSedBoundary->setChecked(check);
-        if (p1.compare("Advanced sediment")==0)             checkAdvancedSediment->setChecked(check);
+  //      if (p1.compare("Advanced sediment")==0)             checkAdvancedSediment->setChecked(check);
         if (p1.compare("Use 2 phase flow")==0)              checkSed2Phase->setChecked(check);
         if (p1.compare("River BL method")==0)                 E_RBLMethod->setValue(iii);
         if (p1.compare("River SS method")==0)                 E_RSSMethod->setValue(iii);
-        if (p1.compare("Include River diffusion")==0)              checkRDiffusion->setChecked(check);
+        if (p1.compare("Include River diffusion")==0) {
+            checkRDiffusion->setChecked(check);
+            E_RSigmaDiffusion->setEnabled(checkRDiffusion->isChecked());
+        }
         if (p1.compare("River Sigma diffusion")==0)           E_RSigmaDiffusion->setValue(valc);
         if (p1.compare("Use grain size distribution")==0)     checkSedMultiGrain->setChecked(check);
         if (p1.compare("Estimate grain size distribution")==0)checkEstimateGrainSizeDistribution->setChecked(check);
@@ -346,12 +352,12 @@ void lisemqt::ParseInputData()
         if (p1.compare("KE time based")==0)
             checkKETimebased->setChecked(check);
 
-        if (checkAdvancedSediment->isChecked())
-        {
-            checkSed2Phase->setChecked(true);
-       //     checkBox_SedMultiGrain->setChecked(false);
-            tabWidgetOptions->setTabEnabled(5,true);
-        }
+//        if (checkAdvancedSediment->isChecked())
+//        {
+//            checkSed2Phase->setChecked(true);
+//       //     checkBox_SedMultiGrain->setChecked(false);
+//            tabWidgetOptions->setTabEnabled(5,true);
+//        }
         if (checkSedtrap->isChecked())
             on_checkSedtrap_clicked();
         if (checkInfilGrass->isChecked())
@@ -423,8 +429,8 @@ void lisemqt::ParseInputData()
     //checkDoErosion->setChecked(dummyErosion);
     setErosionTab(checkDoErosion->isChecked());
 
-    checkSedMultiGrain->setChecked(!checkSed2Phase->isChecked());
-    tabWidgetOptions->setTabEnabled(5, checkAdvancedSediment->isChecked());
+ //   checkSedMultiGrain->setChecked(!checkSed2Phase->isChecked());
+ //    tabWidgetOptions->setTabEnabled(5, checkAdvancedSediment->isChecked());
 
     checkOverlandFlow1D->setChecked(dummykinwave == 1);
     //checkOverlandFlow2D->setChecked(dummykinwave == 2);
@@ -746,11 +752,11 @@ void lisemqt::updateModelData()
             namelist[j].value.setNum(i);
         }
 
-        if (p1.compare("Advanced sediment")==0)        namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
+   //     if (p1.compare("Advanced sediment")==0)        namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
 
         if (p1.compare("Use 2 phase flow")==0)  {
             namelist[j].value.setNum((int) checkSed2Phase->isChecked());
-            checkSedMultiGrain->setChecked(!checkSed2Phase->isChecked());
+           // checkSedMultiGrain->setChecked(!checkSed2Phase->isChecked());
         }
 
         if (p1.compare("Detachment efficiency")==0)          namelist[j].value = E_EfficiencyDET->text();

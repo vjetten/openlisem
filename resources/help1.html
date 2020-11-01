@@ -9,7 +9,7 @@
 <p><strong>Sediment processes</strong></p>
 <ul>
 <li>Switch erosion processes on or off. If switched on, sediment dynamics are simulated for for all flows. Only suspended matter is simulated (no bedload) using the Govers transport capacity equation.</li>
-<li>Advanced sediment transporty allows you to simulate suspended and bedload transport, with different transport capacity equations.</li>
+<!--<li>Advanced sediment transporty allows you to simulate suspended and bedload transport, with different transport capacity equations.</li>-->
 </ul>
 <p><strong>Channels/Rivers</strong></p>
 <p>The channel system can be switched off entirely in which case only overland flow is considered. Channels are 1D networks using a kinematic wave for flow.</p>
@@ -26,5 +26,3 @@
 <li>Hard Surfaces (parking lots, courtyards, airstrips), have no interception, are impermebale, smooth, have no detachment of sediment but can have depsition. They behave the same as roads but are a separate class because they are often in a different land use class.</li>
 <li>Storm drains (tile drains) are networks of circular subsurface pipes with regular inlets. A kinematic wave transports water along this system. The maximum flow is determined by the diameter, gradient and Manning's n. Can be used for urban drains or agricultural tile drains.</li>
 </ul>
-<p><strong>Parallel processing</strong></p>
-<p>All CPUs have more than 1 core that can be activated simultatneously for calculations. If the value is set at 0, all cores present are used. For small catchments this may not be faster (the overhead is more than the gain)!</p>

@@ -542,6 +542,7 @@ public:
     void MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v);
     void simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v);
+    void SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
 
     void infilInWave(cTMap *_h, double dt1);
 
@@ -633,11 +634,11 @@ public:
     void SWOFSedimentBalance();
     void SWOFSedimentCheckZero(int r, int c, cTMap * h);
     void SWOFSedimentSetConcentration(int r, int c, cTMap * h);
-    void SWOFSedimentDiffusion(cTMap* DT, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentFlowInterpolation(cTMap* dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentFlowInterpolation(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentDet(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentDetNew(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSediment(cTMap* DT, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSediment(double dt, cTMap* DT, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
 
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed);
@@ -659,6 +660,7 @@ public:
     void FlowDetachment();
     double MaxConcentration(double watvol, double *sedvol, double *dep);
     void ChannelFlowDetachment();
+    void ChannelFlowDetachmentNew();
 
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentLayerDepth(int r , int c);

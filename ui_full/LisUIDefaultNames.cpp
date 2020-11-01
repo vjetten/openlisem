@@ -274,8 +274,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Routing Kin Wave 2D");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include Erosion simulation");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Advanced sediment");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Advanced sediment");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include main channels");
     namelist[i].value = QString("0");

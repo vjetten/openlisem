@@ -310,7 +310,7 @@ void TWorld::OrderedProcesses()
 
     CalcVelDischChannel(); // alpha, V and Q from Manning
 
-    ChannelFlowDetachment();  //detachment, deposition for SS and BL
+    ChannelFlowDetachmentNew();  //detachment, deposition for SS and BL
     ChannelFlow();            //channel kin wave for water and sediment
 
     TileFlow();          // tile drain flow kin wave
