@@ -665,7 +665,7 @@ void lisemqt::setErosionTab(bool yes)
     checkBox_OutSL->setEnabled(checkDoErosion->isChecked());
     checkBox_OutSed->setEnabled(checkDoErosion->isChecked());
     checkBox_OutTC->setEnabled(checkDoErosion->isChecked());
-    groupKineticEnergy->setEnabled(checkDoErosion->isChecked());
+    //groupKineticEnergy->setEnabled(checkDoErosion->isChecked());
     checkBox_OutSedSS->setEnabled(checkDoErosion->isChecked() && checkSed2Phase->isChecked());
     checkBox_OutSedBL->setEnabled(checkDoErosion->isChecked() && checkSed2Phase->isChecked());
 
@@ -1706,6 +1706,8 @@ void lisemqt::resetTabErosion()
 
     E_SedTrapN->setText("0.8");
     E_GrassStripN->setText("0.2");
+
+    resetTabSediment();
 }
 
 void lisemqt::resetAll()
