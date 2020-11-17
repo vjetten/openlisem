@@ -191,7 +191,7 @@ void TWorld::SplashDetachment()
             // Between plants, directrain is already with 1-cover
             DetDT1 = g_to_kg * FPA*(strength*KE_DT+b)*WH0 * directrain;
             //ponded areas, kg/m2/mm * mm = kg/m2
-            DetDT2 = g_to_kg * (1-FPA)*(strength*KE_DT+b) * directrain * SplashDelivery;
+            DetDT2 = hmxWH->Drc > 0 ? g_to_kg * (1-FPA)*(strength*KE_DT+b) * directrain * SplashDelivery : 0.0;
             //dry areas, kg/m2/mm * mm = kg/m2
 
             if (SwitchKETimebased)
@@ -287,7 +287,6 @@ void TWorld::SplashDetachment()
             // IN KG/CELL
         }
     }}
-
 }
 
 //---------------------------------------------------------------------------

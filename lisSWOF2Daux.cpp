@@ -889,7 +889,7 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 FloodDT->Drc = dt1;
             }}        
 
-            if (SwitchErosion)
+            if (SwitchErosion && SwitchErosionInsideLoop)
                 SWOFSediment(dt1, FloodDT,hs,us,vs);
 
 #pragma omp parallel for num_threads(userCores)
@@ -912,6 +912,9 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     } // if floodstart
 
     correctMassBalance(sumh, h, 0);
+
+    if (SwitchErosion && !SwitchErosionInsideLoop)
+        SWOFSediment(_dt, FloodDT,h,u,v);
 
     iter_n = n;
     dt1 = n > 0? _dt/n : dt1;

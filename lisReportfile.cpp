@@ -274,9 +274,9 @@ void TWorld::OutputUI(void)
 
     op.MBs = MBs;
     op.DetTotSplash = DetSplashTot*0.001; // convert from kg to ton per cell
-    op.DetTotFlow = DetFlowTot*0.001; // convert from kg to ton
-    op.DepTot = DepTot*0.001; // convert from kg to ton
-    op.SedTot = SedTot*0.001; // convert from kg to ton
+    op.DetTotFlow = DetFlowTot*0.001;// + FloodDetTot*0.001; // convert from kg to ton
+    op.DepTot = DepTot*0.001;// + FloodDepTot*0.001; // convert from kg to ton
+    op.SedTot = SedTot*0.001;// + FloodSedTot*0.001; // convert from kg to ton
 
     op.ChannelDetTot = ChannelDetTot*0.001; // convert from kg to ton
     op.ChannelDepTot = ChannelDepTot*0.001; // convert from kg to ton
@@ -735,15 +735,15 @@ void TWorld::ReportTotalsNew(void)
     if (SwitchErosion) {
         out << "\n";
         out << "\"Splash detachment (land) (ton):\"," << op.DetTotSplash<< "\n";
-        out << "\"Flow detachment (land) (ton):\"," << op.DetTotFlow<< "\n";
-        out << "\"Deposition (land) (ton):\"," << op.DepTot<< "\n";
-        out << "\"Sediment (land) (ton):\"," << op.SedTot<< "\n";
+        out << "\"Flow detachment (land) (ton):\"," << op.DetTotFlow+op.FloodDetTot<< "\n";
+        out << "\"Deposition (land) (ton):\"," << op.DepTot+op.FloodDepTot<< "\n";
+        out << "\"Sediment (land) (ton):\"," << op.SedTot+op.FloodSedTot<< "\n";
         out << "\"Flow detachment (channels) (ton):\"," << op.ChannelDetTot<< "\n";
         out << "\"Deposition (channels) (ton):\"," << op.ChannelDepTot<< "\n";
         out << "\"Sediment (channels) (ton):\"," << op.ChannelSedTot<< "\n";
-        out << "\"Flow detachment (flood) (ton):\"," << op.FloodDetTot<< "\n";
-        out << "\"Deposition (flood) (ton):\"," << op.FloodDepTot<< "\n";
-        out << "\"Susp. Sediment (flood) (ton):\"," << op.FloodSedTot<< "\n";
+    //    out << "\"Flow detachment (flood) (ton):\"," << op.FloodDetTot<< "\n";
+    //    out << "\"Deposition (flood) (ton):\"," << op.FloodDepTot<< "\n";
+    //    out << "\"Susp. Sediment (flood) (ton):\"," << op.FloodSedTot<< "\n";
         out << "\"Total soil loss (ton):\"," << op.SoilLossTot<< "\n";
         out << "\"Average soil loss (kg/ha):\"," << (op.SoilLossTot*1000.0)/(op.CatchmentArea/10000.0)<< "\n";
         out << "\n";

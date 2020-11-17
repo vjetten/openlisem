@@ -344,8 +344,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             if (step > 0) {
                 SWOFDiagonalFlow(dt_req_min, h, vx, vy);
 
-                if (SwitchErosion) {
-                    SWOFSediment(dt_req_min, FloodDT,hs,vxs,vys);
+                if (SwitchErosion && SwitchErosionInsideLoop) {
+                    SWOFSediment(dt_req_min, FloodDT,h,vx,vy);
                 }
                 timesum += dt_req_min;
                 count++; // nr loops
@@ -362,6 +362,9 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
         correctMassBalance(sumh, h, 0);
 //            double sumh1 = getMass(h, 0);
 //            qDebug() << sumh << sumh1 << (sumh-sumh1)/sumh;
+        if (SwitchErosion && !SwitchErosionInsideLoop) {
+            SWOFSediment(_dt, FloodDT,h,vx,vy);
+        }
     } // if floodstart
 
     //qDebug() << _dt/count << count << dt_req_min;

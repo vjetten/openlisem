@@ -327,6 +327,7 @@ void TWorld::Totals(void)
             SedTot += Sed->Drc;
         }}
         // all in kg/cell
+
         DetTot = DetFlowTot + DetSplashTot;
 
 #pragma omp parallel for num_threads(userCores)
@@ -446,7 +447,7 @@ void TWorld::Totals(void)
         fill(*DepFlood,0.0);
         fill(*BLDetFlood,0.0);
         fill(*SSDetFlood,0.0);
-        // RESET flood variables (?)
+        // RESET flood variables
 
         SoilLossTot += SoilLossTotT;
         // total sediment outflow from outlets and domain boundaries

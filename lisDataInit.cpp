@@ -386,6 +386,7 @@ void TWorld::InitStandardInput(void)
         F_Angle = getvaluedouble("Angle flow to channel");
         SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);
         F_pitValue = getvaluedouble("Pit Value");
+        SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
     } else {
         mixing_coefficient = 2.0;
         runoff_partitioning = 1.0;
@@ -397,6 +398,7 @@ void TWorld::InitStandardInput(void)
         F_AddGravity = 1;
         F_Angle = 0.02;
         F_pitValue = 10.0;
+        SwitchErosionInsideLoop = false;
     }
 
     SwitchKinematic2D = getvalueint("Routing Kin Wave 2D");
@@ -1140,38 +1142,38 @@ void TWorld::InitFlood(void)
         delz1 = NewMap(0);
         delz2 = NewMap(0);
         prepareFloodZ(DEM);
-        AddZero(z1r);
-        AddZero(z1l);
-        AddZero(z2r);
-        AddZero(z2l);
-        AddZero(h1r);
-        AddZero(h1l);
-        AddZero(h2r);
-        AddZero(h2l);
-        AddZero(v1r);
-        AddZero(v1l);
-        AddZero(v2r);
-        AddZero(v2l);
-        AddZero(u1r);
-        AddZero(u1l);
-        AddZero(u2r);
-        AddZero(u2l);
-        AddZero(f1 );
-        AddZero(f2 );
-        AddZero(f3 );
-        AddZero(g1 );
-        AddZero(g2 );
-        AddZero(g3 );
-        AddZero(f1o);
-        AddZero(f2o);
-        AddZero(f3o);
-        AddZero(g1o);
-        AddZero(g2o);
-        AddZero(g3o);
-        AddZero(h1d);
-        AddZero(h1g);
-        AddZero(h2d);
-        AddZero(h2g);
+//        AddZero(z1r);
+//        AddZero(z1l);
+//        AddZero(z2r);
+//        AddZero(z2l);
+//        AddZero(h1r);
+//        AddZero(h1l);
+//        AddZero(h2r);
+//        AddZero(h2l);
+//        AddZero(v1r);
+//        AddZero(v1l);
+//        AddZero(v2r);
+//        AddZero(v2l);
+//        AddZero(u1r);
+//        AddZero(u1l);
+//        AddZero(u2r);
+//        AddZero(u2l);
+//        AddZero(f1 );
+//        AddZero(f2 );
+//        AddZero(f3 );
+//        AddZero(g1 );
+//        AddZero(g2 );
+//        AddZero(g3 );
+//        AddZero(f1o);
+//        AddZero(f2o);
+//        AddZero(f3o);
+//        AddZero(g1o);
+//        AddZero(g2o);
+//        AddZero(g3o);
+//        AddZero(h1d);
+//        AddZero(h1g);
+//        AddZero(h2d);
+//        AddZero(h2g);
     }
 
     if (SwitchErosion) {
@@ -2222,7 +2224,7 @@ void TWorld::IntializeOptions(void)
     SwitchChannelInfil = false;
     SwitchAllinChannel = false;
     SwitchErosion = false;
-    SwitchAltErosion = false;
+    SwitchErosionInsideLoop = true;
     SwitchSimpleDepression = false;
     SwitchSedtrap = false;
     SwitchRainfall = true; //VL 110103 add rainfall default true

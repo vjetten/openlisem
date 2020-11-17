@@ -634,11 +634,12 @@ void lisemqt::setErosionTab(bool yes)
 
    // if (checkAdvancedSediment->isChecked())
    // {
-        if (!checkSed2Phase->isChecked())// && !checkSedMultiGrain->isChecked())
-        {
-            checkSedMultiGrain->setChecked(false);
-            checkSed2Phase->setChecked(true);
-        }
+//        if (!checkSed2Phase->isChecked())// && !checkSedMultiGrain->isChecked())
+//        {
+//            checkSedMultiGrain->setChecked(false);
+//            checkSed2Phase->setChecked(true);
+//        }
+     checkSedMultiGrain->setChecked(false);
 
 
         int i1 = E_RBLMethod->value();
@@ -928,6 +929,8 @@ void lisemqt::SetStyleUI()
     tabWidgetOptions->removeTab(8);
     tabWidgetOptions->removeTab(7);
     frameNumerical->setVisible(false);
+
+    toolBox_erosion->setCurrentIndex(0);
 
     int w = 80, h = 15;
     label_dx->setMinimumSize(w,h);
@@ -1944,19 +1947,18 @@ void lisemqt::fontIncrease()
 //---------------------------------------------------------------
 void lisemqt::setfontSize()
 {
-    int x = SetStyleUISize();
+   // int x = SetStyleUISize();
     int fs = genfontsize;
 
-    qApp->setStyleSheet(QString("\
-                                QLabel {font-size: %1px;}\
-                                QCheckBox::indicator {width: %1px; height: %1px;}\
-                                QRadioButton::indicator {width: %1px; height: %1px;}\
-                                QComboBox {font: %1px; padding: 1px 0px 1px 3px;}\
+    qApp->setStyleSheet(QString("QLabel {font-size: %1px}\
+                                QCheckBox::indicator {width: %1px; height: %1px}\
+                                QRadioButton::indicator {width: %1px; height: %1px}\
+                                QComboBox {font-size: %1px; padding: 1px 0px 1px 3px}\
                                 QLineEdit {font-size: %1px; padding: 1px 1px 1px 1px}\
-                                QToolButton {font-size: %1px;}\
-                                QCheckBox {font-size: %1px; padding:  1px 1px 1px 1px; }\
-                                QRadioButton {font-size: %1px; 1px 1px 1px 3px;  }\
-                                QSpinBox {width: %1px; height: %1px; font-size: %1px; padding: 0px 0px 0px 0px; }\
+                                QToolButton {font-size: %1px}\
+                                QCheckBox {font-size: %1px; padding:  1px 1px 1px 1px}\
+                                QRadioButton {font-size: %1px; 1px 1px 1px 3px}\
+                                QSpinBox {width: %1px; height: %1px; font-size: %1px; padding: 0px 0px 0px 0px}\
                                 QDoubleSpinBox {width: %2px; height: %1px;font-size: %1px; padding: 0px 0px 0px 0px}\
                                 ").arg(fs).arg(fs*2.4));
 
@@ -1974,6 +1976,9 @@ void lisemqt::setfontSize()
     sedgroup->setStyleSheet(S);
     outletgroup->setStyleSheet(S);
     groupTime->setStyleSheet(S);
+
+    S = QString("QToolBox::tab {background-color: #1b6fb5}");
+    toolBox_erosion->setStyleSheet(S);
 
 }
 //---------------------------------------------------------------

@@ -38,7 +38,7 @@
 
 #include <QtGui>
 #include <QMutex>
-#include "C:/Qt/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/10.2.0/include/omp.h"
+#include "C:/Qt/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/10.1.0/include/omp.h"
 //#include "omp.h"
 
 #include "CsfMap.h"
@@ -281,7 +281,7 @@ public:
     /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
     bool SwitchRoadsystem, SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchLimitTC, SwitchLimitDepTC,
     SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow, SwitchChannelExtended,
-    startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchAltErosion,
+    startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchErosionInsideLoop,
     SwitchSimpleDepression,SwitchSedtrap, SwitchSnowmelt, SwitchRainfall, /*SwitchRunoffPerM,*/ SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchPercolation, SwitchDumphead, SwitchWaterRepellency,
     SwitchWheelAsChannel, SwitchMulticlass, SwitchNutrients, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,

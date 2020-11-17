@@ -202,6 +202,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use gravity flow")==0)           E_gravityToChannel->setValue(iii);
         if (p1.compare("Angle flow to channel")==0)           E_angleToChannel->setValue(valc);
         if (p1.compare("Pit Value")==0)           E_pitValue->setValue(valc);
+        if (p1.compare("Calculate erosion inside 2D loop")==0)        checkErosionInsideLoop->setChecked(check);
 
         if (p1.compare("Advanced Options")==0)                 checkAdvancedOptions->setChecked(check);
 
@@ -732,6 +733,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding runoff partitioning")==0)   namelist[j].value = E_runoffPartitioning->text();
         if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
         if (p1.compare("Pit Value")==0)                     namelist[j].value = E_pitValue->text();
+        if (p1.compare("Calculate erosion inside 2D loop")==0) namelist[j].value.setNum((int)checkErosionInsideLoop->isChecked());
 
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
         if (p1.compare("Timestep flood")==0)           namelist[j].value = E_TimestepMinFlood->text();
@@ -752,12 +754,7 @@ void lisemqt::updateModelData()
             namelist[j].value.setNum(i);
         }
 
-   //     if (p1.compare("Advanced sediment")==0)        namelist[j].value.setNum((int)checkAdvancedSediment->isChecked());
-
-        if (p1.compare("Use 2 phase flow")==0)  {
-            namelist[j].value.setNum((int) checkSed2Phase->isChecked());
-           // checkSedMultiGrain->setChecked(!checkSed2Phase->isChecked());
-        }
+        if (p1.compare("Use 2 phase flow")==0)              namelist[j].value.setNum((int) checkSed2Phase->isChecked());
 
         if (p1.compare("Detachment efficiency")==0)          namelist[j].value = E_EfficiencyDET->text();
         if (p1.compare("Settling Velocity")==0)              namelist[j].value = E_settlingVelocity->text();
