@@ -402,7 +402,7 @@ void TWorld::FlowDetachment()
 
                 TransportFactor = _dt*SettlingVelocitySS->Drc * DX->Drc * SoilWidthDX->Drc; //fpa->Drc*
                 // soilwidth is erodible surface
-                // TransportFactor = std::min(TransportFactor, Q->Drc*_dt);
+                 TransportFactor = std::min(TransportFactor, Q->Drc*_dt);
                 // detachment can only come from soil, not roads (so do not use flowwidth)
                 // units s * m/s * m * m = m3
 
