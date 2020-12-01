@@ -1,13 +1,12 @@
-openLISEM source code install
-=============================
-
 1) The openLISEM model 
 ======================
-This is the event based spatial flood, runoff and erosion model openLISEM. Thank you 
+openLISEM is an event based spatial flood, runoff and erosion model openLISEM. Thank you 
 for downloading. openLISEM simulates the spatial dynamics of surface runoff and 
 erosion for small plots of several m2 to catchments of >500 km2. 
- about the theory and dataset for now can be found on this website (in draft form). openLISEM uses the 
-freeware GIS PCRaster (http://pcraster.geo.uu.nl) for database creation and 
+Details on  the theory and dataset for now can be found on this website (in draft form):
+https://sourceforge.net/projects/lisem/
+
+openLISEM uses the freeware GIS PCRaster (http://pcraster.geo.uu.nl) for database creation and 
 analysis of the results. 
 
 INSTALL: just unzip the files to a directory of your choice.
@@ -19,49 +18,36 @@ has to be present in a subdirectory "platforms".
 This software is free and open source, hosted by  sourceforge.net. The project 
 details can be found on:  https://sourceforge.net/projects/lisem/
 
-All license details can be found on this website. The compiled model openLISEM 
-and the source code, or parts of the source code can be used for any purpose, 
-but the disclaimer as specified below is in effect. openLISEM in any version 
-(compiled or as source code) cannot be sold or be part of a commercial package, 
-unless express permission is gained from Victor Jetten (v.g.jetten AD utwente.nl). If you 
-use this software for publications, please give the correct references in the 
-text (TO BE FURTHER SPECIFIED, contact victor jetten). 
+Part of the code is based on the open source project FULLSWOF of the univcersity of Orleans. 
+For details see: https://www.idpoisson.fr/fullswof/
 
-3) openLISEM development: for programmers 
-=========================================
-a) Code of conduct for developers
---------------------------------
--	Changes that are made to the code must be made available to 
-the community. 
 
--	The process descriptions in a model are often a matter of 
-choice. Please do not delete any of the model code if you want certain processes 
-to be calculated differently, but add your processes as new options to the code. 
-Also the LISEM run file has a certain layout that aims to be backward compatible and 
-must remain so. 
+3)  openLISEM source code development is done with QT and MSYS/MINGW (sibnce version 6.0).
 
--	If you add lines to the code, please give a comment with your 
-initials, a date and a one-liner describing what you did: 
-//VJ 101216 Solved bug x y 
+For pacman commands see here: https://devhints.io/pacman 
 
-- A list of author abbreviations and full names and addresses should be 
-maintained in the header file version.h: 
-/* VJ = Victor Jetten, Dept of Earth Systems Analysis, ITC, twente University */ 
-Add your credentials to this list 
+Follow this installation guide https://wiki.qt.io/MSYS2, basically:
+pacman -Sy
+pacman --needed -S bash pacman pacman-mirrors msys2-runtime
+pacman -Su
+pacman -S base-devel git mercurial cvs wget p7zip
+pacman -S perl ruby python2 mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain
+pacman -S mingw-w64-i686-qt-creator mingw-w64-x86_64-qt-creator
 
-b) Downloading and compiling the source code 
---------------------------------------------
-1.	openLISEM uses the Qt development environmwent. Install the developing 
-environment. Everything is maintained in one single package by Nokia. There are 
-two free LGPL versionsof the "Qt cross platform application and UI framework" 
-(version 4.7.X or later), download the SDK version: 
-http://qt.nokia.com/downloads 
+download and install the following packages:
 
-2.	Qwt technical application widgets for Qt: (version 6.0.0) http://qwt.sf.net 
-and https://sourceforge.net/projects/qwt/ 
+pacman -S mingw-w64-x86_64-openmp
+pacman -S mingw-w64-x86_64-qwt
+pacman -S mingw-w64-x86_64-gdal
+pacman -S mingw-w64-x86_64-clang
 
-3.	Tortoise SVN (or another package) for version control: http://tortoisesvn.net/ 
+good luck
+Victor Jetten
+v.g.jetten@utwente.nl
 
-c) Installation 
---------------- 
-please contact me: v.g.jetten AD utwente.nl 
+
+
+
+
+
+
