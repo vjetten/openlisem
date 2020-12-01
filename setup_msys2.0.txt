@@ -1,0 +1,19 @@
+
+
+https://devhints.io/pacman
+
+pacman -Sy
+pacman --needed -S bash pacman pacman-mirrors msys2-runtime
+pacman -Su
+pacman -S base-devel git mercurial cvs wget p7zip
+pacman -S perl ruby python2 mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain
+pacman -S mingw-w64-i686-qt-creator mingw-w64-x86_64-qt-creator
+pacman -S mingw-w64-x86_64-openmp
+pacman -S mingw-w64-x86_64-qwt
+pacman -S mingw-w64-x86_64-gdal
+pacman -S mingw-w64-x86_64-clang
+
+SET (CMAKE_C_COMPILER_WORKS 1)
+SET (CMAKE_CXX_COMPILER_WORKS 1)
+
+C:/Qt/msys64/mingw64/lib/libqwt.dll.a
