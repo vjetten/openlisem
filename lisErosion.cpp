@@ -147,7 +147,7 @@ void TWorld::SplashDetachment()
             double Lc = Litter->Drc;
             double Cv = Cover->Drc;
             double strength = AggrStab->Drc;
-            double b = splashb->Drc;
+            double b = 0;//splashb->Drc;
             double Int = Rain->Drc * 3600/_dt * 1000; // intensity in mm/h, Rain is in m
             double KE_DT = 0.0;
             double DETSplash_;

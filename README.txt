@@ -1,12 +1,20 @@
 openLISEM
 ============
-Date: 200907
+Date: 201201
 ============
 
 For questions contact v.g.jetten AD utwente.nl
 
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux Ubuntu
+NOTE: since version 6 it is fully parallel and developed with MSYS
+
+version 6.2-6.4
+- bug fixing in sediment
+- corrections in SWOF 2.0 so that it behaves more as the old SWOF, better now
+- interface changes
+- checked infiltration and percolation
+- further openMP related optimizations
 
 version 6.1 BETA (warning: new dlls, do NOT mix with pre 6.0 versions)
 - fixed bug in getting values from Riemann solver. This was solved befor but reappeared!
@@ -147,7 +155,6 @@ The following features are inplemented in the course of 2015 and 2016:
 Because of diffusive runoff the range of resolutions can now be larger, LISEM is being tested from 1 cm gridcells (2 m2) to 20m gridcells (600 km2)
 
 
-
 1) The openLISEM model 
 ======================
 
@@ -164,14 +171,7 @@ analysis of the results.
 This software is free and open source, hosted by  sourceforge.net. The project 
 details can be found on:  http://lisem.sourceforge.net
 
-All license details can be found on this website. The compiled model openLISEM 
-and the source code, or parts of the source code can be used for any purpose, 
-but the disclaimer as specified below is in effect. openLISEM in any version 
-(compiled or as source code) cannot be sold or be part of a commercial package, 
-unless express permission is gained from Victor Jetten (jetten@itc.nl). If you 
-use this software for publications, please give the correct references in the 
-text (TO BE FURTHER SPECIFIED, contact victor jetten). 
-
+It is distributed under the GPLv3 licence, distributed with this package
 
 Good Luck
 

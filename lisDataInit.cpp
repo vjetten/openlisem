@@ -1216,13 +1216,13 @@ void TWorld::InitErosion(void)
 
     COHCalibration = getvaluedouble("Cohesion calibration");
     Cohesion = ReadMap(LDD,getvaluename("coh"));
-    calcValue(*Cohesion, COHCalibration, MUL);
+ //   calcValue(*Cohesion, COHCalibration, MUL);
 
     RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
 
     ASCalibration = getvaluedouble("Aggregate stability calibration");
     AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
-    calcValue(*AggrStab, ASCalibration, MUL);
+   // calcValue(*AggrStab, ASCalibration, MUL);
 
 
     D50 = ReadMap(LDD,getvaluename("D50"));
@@ -1321,7 +1321,7 @@ void TWorld::InitErosion(void)
     FOR_ROW_COL_MV
     {
 
-        CohesionSoil->Drc = Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
+        CohesionSoil->Drc = COHCalibration*Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
         // soil cohesion everywhere, plantcohesion only where plants
         if (SwitchGrassStrip)
             CohesionSoil->Drc = CohesionSoil->Drc  *(1-GrassFraction->Drc) + GrassFraction->Drc * CohGrass->Drc;
@@ -1342,12 +1342,12 @@ void TWorld::InitErosion(void)
         // empirical analysis based on Limburg data, dating 1989
         if (AggrStab->Drc > 0)
         {
-            AggrStab->Drc = 2.82/AggrStab->Drc;
+            AggrStab->Drc = 2.82/std::max(ASCalibration*AggrStab->Drc, 1.0);
             splashb->Drc = 2.96;
         }
         else
         {
-            AggrStab->Drc = 0.1033/std::max(CohesionSoil->Drc,1.0);
+            AggrStab->Drc = 0.1033/std::max(ASCalibration*Cohesion->Drc,1.0);
             splashb->Drc = 3.58;
         }
 
