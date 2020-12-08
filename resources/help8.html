@@ -1,13 +1,12 @@
 <p><strong>Advanced parameters</p></strong>
 <p><strong>Parallel processing</strong></p>
 <p>All CPUs have more than 1 core that can be activated simultatneously for calculations. If the value is set at 0, all cores present are used. For small catchments this may not be faster (the overhead is more than the gain)!</p>
-If you know what you are doing!
 <p><strong>Numerical parameters for dynamic flow</p></strong>
 <ul>
-    <li>Riemann solver: smoothing functions that gives new states and es on cell boundaries based on pressure and momentum differences. HLL are Harten-Lax-van Leer type solvers(def 4-HLL2c)</li>
-    <li>Flux limiter: algorithms to avoid shocks at cell boundaries: minmod takes the smallest pressure and momentum differences accross a boundary, Van Leer and Albeda are smoother functions but less conservative (def 1-minmod).</li>
-    <li>Max iterations: forces break out of th flood loop, usually not necessary, better to try different Courant conditions and minimum timesteps in the Flow tab (def 200).</li>
-    <li>Single cell pits <i>experimental<i>: when a cell is more than Xm deeper than its 4 neigbours in X and Y directions, the effect of the terrain is decreased, so that flow is possible. A value < 0 a very high value will ignire this effect.</li>
+    <li>Riemann solver: smoothing functions that gives new states and fluxes on cell boundaries based on pressure and momentum differences. HLL are Harten-Lax-van Leer type solvers (def 4-HLL2c)</li>
+    <li>Flux limiter, only used if 2D flow with MUSCL is used: algorithms to avoid shocks at cell boundaries: minmod takes the smallest pressure and momentum differences accross a boundary, Van Leer and Albeda are smoother functions but less conservative (def 1-minmod).</li>
+    <li>Max iterations: forces break out of n-th flood loop, usually not necessary, better to try different Courant conditions and minimum timesteps in the Flow tab (def 200).</li>
+    <li>Diagonal connections <i>experimental<i>: the 2D solution can see an obstruction in the direction of flow while there is a diagonal outlet according to the LDD. This connection is forced if the water height > value. A value < 0 or a very high value will ignore this effect.</li>
 </ul>
 <p><strong>Connecting Overland flow/flood to Channel</p></strong>
 A fraction of the water beside the channel in a channe cell, is diverted to the channel. This fraction is based on the general flow velocity of the water [0], or based on the Manning's velocity using the terrain slope perpendicular to the channel [1].
