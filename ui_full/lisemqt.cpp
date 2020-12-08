@@ -2052,9 +2052,8 @@ void lisemqt::on_toolButton_help(int page)
     if (page == 4) filename=":/help4.html";
     if (page == 5) filename=":/help5.html";
     //if (page == 6) filename=":/help6.html";
-    if (page == 6) filename=":/help7.html";
-    if (page == 7) filename=":/help8.html";
-
+    if (page == 7) filename=":/help7.html";
+    if (page == 8) filename=":/help8.html";
     QFile file(filename);
     file.open(QFile::ReadOnly | QFile::Text);
     QTextStream stream(&file);

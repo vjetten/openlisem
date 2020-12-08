@@ -90,6 +90,8 @@ void lisemqt::GetRunfile()
     }
 
     for (int i = 0; i < nrnamelist; i++) {
+       if (!namelist[i].value.isEmpty() && !namelist[i].gotit)
+        qDebug() << namelist[i].name << namelist[i].value << namelist[i].gotit;
         if (!namelist[i].value.isEmpty() && !namelist[i].gotit)
             saveRunFileOnce = true;
     }

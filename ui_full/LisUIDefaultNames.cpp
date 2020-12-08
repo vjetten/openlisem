@@ -429,9 +429,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Particle Cohesion of Deposited Layer");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Calculate erosion inside 2D loop");
-    //###
-    namelist[i].value = QString("0.5");
-    namelist[i++].name = QString("Particle Cohesion of Deposited Layer");
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Sediment]");
     namelist[i].value = QString("0");
