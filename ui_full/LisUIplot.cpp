@@ -273,10 +273,9 @@ void lisemqt::killPlot()
 
 }
 void lisemqt::GetPlotData()
-{
-
+{   
     QtileData << op.Qtile;
-    PData << op.Pmm*qPow(10.0, multiplierRain->value());
+//    PData << op.Pmm*qPow(10.0, multiplierRain->value());
     TData << op.time;
 
     for(int i = 0; i < OutletIndices.length(); i++)
@@ -303,6 +302,15 @@ void lisemqt::GetPlotData()
     OutletQtot.append(op.OutletQtot);
     OutletQstot.append(op.OutletQstot);
     timestep = op.timestep;
+
+//    double mf = 0;
+//     for(int i = 0; i < 6; i++) {
+//         mf = (double)i;
+//         if(op.Rainpeak*qPow(10.0, mf) > op.OutletQpeak.at(0))
+//             break;
+//     }
+//     mf -= 1.0;
+     PData << op.Pmm*mult;//qPow(10.0, mf);
 }
 
 //---------------------------------------------------------------------------
@@ -317,7 +325,18 @@ void lisemqt::on_multiplierRain_valueChanged(double)
 //---------------------------------------------------------------------------
 void lisemqt::showPlot()
 {
-    double mult = qPow(10.0, multiplierRain->value());
+  //  double mult = qPow(10.0, multiplierRain->value());
+    mult = 1;
+    int i;
+   double mf[6] ={1,10,100,1000,10000,1000000};
+     for(i = 0; i < 6; i++) {
+         if(op.Rainpeak*mf[i] > op.OutletQpeak.at(0)) {
+             break;
+         }
+     }
+     mult = mf[i-1];
+     qDebug() << mult << i << op.Rainpeak*mult << op.OutletQpeak.at(0);
+
     QData.clear();
     QsData.clear();
     CData.clear();

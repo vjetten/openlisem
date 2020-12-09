@@ -1,19 +1,30 @@
+do all this:
 
 
-https://devhints.io/pacman
+https://wiki.qt.io/MSYS2
 
+basically:
+install msys and open window
 pacman -Sy
 pacman --needed -S bash pacman pacman-mirrors msys2-runtime
 pacman -Su
 pacman -S base-devel git mercurial cvs wget p7zip
-pacman -S perl ruby python2 mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain
+pacman -S perl ruby python mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain
+
+info on pacman options: https://devhints.io/pacman
+
+
+addtionally instaLL:
+qt creator
 pacman -S mingw-w64-i686-qt-creator mingw-w64-x86_64-qt-creator
-pacman -S mingw-w64-x86_64-openmp
-pacman -S mingw-w64-x86_64-qwt
-pacman -S mingw-w64-x86_64-gdal
-pacman -S mingw-w64-x86_64-clang
+libs for lisem
+pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-qwt mingw-w64-x86_64-gdal mingw-w64-x86_64-clang
+
+
+
 
 SET (CMAKE_C_COMPILER_WORKS 1)
 SET (CMAKE_CXX_COMPILER_WORKS 1)
 
+location:
 C:/Qt/msys64/mingw64/lib/libqwt.dll.a

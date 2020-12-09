@@ -243,6 +243,8 @@ void TWorld::OutputUI(void)
     op.Pmm = (RainAvgmm + SnowAvgmm)*3600/_dt;
     op.RainTotmm = RainTotmm + SnowTotmm;
     op.RainpeakTime = RainpeakTime/60;
+    op.Rainpeak = Rainpeak;
+
     op.InfilTotmm = InfilTotmm;
     op.InfilKWTotmm = InfilKWTot; // infil part in kin wave not used
 

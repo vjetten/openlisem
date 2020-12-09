@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 2.8.11)
 
 # path to pcraster and qwt build directories on local machine
-# example windows
+# windows MSYS2.0 libs
 IF(WIN32)
  SET(LISEM_QWT_ROOT "c:/qt/msys64/mingw64")
- SET(PCRASTER_BUILD_DIR "c:/prgc/lisem_external/3rd_party_root-mwqt513/PCR")
- SET(GDAL_BUILD_DIR "c:/qt/msys64/mingw64")#"c:/prgc/lisem_external/3rd_party_root-mwqt513/GDAL")
+ SET(PCRASTER_BUILD_DIR "c:/qt/msys64/mingw64")
+ SET(GDAL_BUILD_DIR "c:/qt/msys64/mingw64")
 ENDIF()
 
-# example linux
+# linux ubuntu
 IF(UNIX)
  SET(LISEM_QWT_ROOT "/usr/local/qwt-6.1.4")
  SET(PCRASTER_BUILD_DIR "~/pcraster-4.2.1")
@@ -94,7 +94,6 @@ SET(APP_SOURCES
     include/TMmapVariables.h
     include/version.h
     openlisemico.rc
-
 )
 
 QT5_WRAP_UI(UI_SOURCES ui_full/lisemqt.ui)

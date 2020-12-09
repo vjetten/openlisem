@@ -1,14 +1,100 @@
 
 # Find packages. ---------------------------------------------------------------
 # this calls fndq
-FIND_PACKAGE(GDAL REQUIRED)
-FIND_PACKAGE(Qwt REQUIRED)
-FIND_PACKAGE(PCRasterRasterFormat REQUIRED)
-FIND_PACKAGE(OpenMP)
+#FIND_PACKAGE(GDAL REQUIRED)
+#FIND_PACKAGE(Qwt REQUIRED)
+#FIND_PACKAGE(PCRasterRasterFormat REQUIRED)
+#FIND_PACKAGE(OpenMP REQUIRED)
 
+#===== OMP =====
 if(OpenMP_CXX_FOUND)
     target_link_libraries(OpenMP::OpenMP_CXX)
 endif()
+
+FIND_PATH(OMP_INCLUDE_DIRS
+    NAMES omp.h
+)
+
+MARK_AS_ADVANCED(
+    OMP_INCLUDE_DIRS
+)
+
+FIND_PATH(OMP_INCLUDE_DIRS
+    NAMES omp.h
+)
+
+#===== QWT =====
+
+FIND_LIBRARY(QWT_LIBRARIES
+    NAMES qwt
+)
+
+IF(WIN32)
+    FIND_LIBRARY(QWT_DEBUG_LIBRARY
+        NAMES qwtd
+    )
+    SET(QWT_LIBRARIES
+        optimized ${QWT_LIBRARIES}
+        debug ${QWT_DEBUG_LIBRARY}
+    )
+ENDIF()
+
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(Qwt
+    REQUIRED_VARS
+        QWT_LIBRARIES
+        QWT_INCLUDE_DIRS
+)
+
+
+MARK_AS_ADVANCED(
+    QWT_LIBRARIES
+    QWT_INCLUDE_DIRS
+)
+
+FIND_PATH(QWT_INCLUDE_DIRS
+    NAMES qwt.h
+)
+
+FIND_LIBRARY(QWT_LIBRARIES
+    NAMES qwt
+)
+
+
+#===== PCR =====
+
+FIND_PATH(PCRASTER_RASTER_FORMAT_INCLUDE_DIRS
+    NAMES csf.h
+)
+
+
+FIND_LIBRARY(PCRASTER_RASTER_FORMAT_LIBRARIES
+    NAMES pcraster_raster_format
+  #  NAMES pcraster_raster_formatd
+)
+IF(WIN32)
+    FIND_LIBRARY(PCRASTER_RASTER_FORMAT_DEBUG_LIBRARY
+        NAMES pcraster_raster_formatd
+    )
+    SET(PCRASTER_RASTER_FORMAT_LIBRARIES
+        optimized ${PCRASTER_RASTER_FORMAT_LIBRARIES}
+        debug ${PCRASTER_RASTER_FORMAT_DEBUG_LIBRARY}
+    )
+ENDIF()
+
+
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(PCRasterRasterFormat
+    REQUIRED_VARS
+        PCRASTER_RASTER_FORMAT_LIBRARIES
+        PCRASTER_RASTER_FORMAT_INCLUDE_DIRS
+)
+
+
+MARK_AS_ADVANCED(
+    PCRASTER_RASTER_FORMAT_LIBRARIES
+    PCRASTER_RASTER_FORMAT_INCLUDE_DIRS
+)
 
 
 # Configure project. -----------------------------------------------------------

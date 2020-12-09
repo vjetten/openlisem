@@ -100,7 +100,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
 
             double cwa = ChannelAdj->Drc > 0 ? ChannelWidthMax->Drc/ChannelAdj->Drc : 0;
 
-            bool dosimpel = false;
+            bool dosimpel = true;
 
             if (dH > _h->Drc)   // flow from channel
             {

@@ -35,7 +35,6 @@
 #include <QtWidgets>
 #include <QSystemTrayIcon>
 
-//QWT library files
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_grid.h>
@@ -236,6 +235,7 @@ public:
     QList<double> OutletQstot;
     QList<double> Rainfall;
     double timestep;
+    double mult;
 
     int outletpoint = 1;
 
