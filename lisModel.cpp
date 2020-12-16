@@ -302,14 +302,17 @@ void TWorld::CellProcesses()
 // these are all non-threaded
 void TWorld::OrderedProcesses()
 {
+    SwitchChannelKinWave = true;//false;//
+
     ChannelAddBaseandRain();  // add baseflow o, subtract infil, add rainfall
 
     ChannelWaterHeightFromVolume(); //calc WH from volume with abc rule, and flowwidth
 
     CalcVelDischChannel(); // alpha, V and Q from Manning
 
-    ChannelFlowDetachmentNew();  //detachment, deposition for SS and BL
     ChannelFlow();            //channel kin wave for water and sediment
+
+    ChannelFlowDetachmentNew();  //detachment, deposition for SS and BL
 
     TileFlow();          // tile drain flow kin wave
 

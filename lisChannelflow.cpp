@@ -136,6 +136,9 @@ void TWorld::CalcVelDischChannel()
 {
     if (!SwitchIncludeChannel)
         return;
+    if(!SwitchChannelKinWave)
+        return;
+
     /*
     dw      FW      dw
    \  |            |  /
@@ -291,7 +294,6 @@ void TWorld::ChannelFlow(void)
         }}
     }
 
-    SwitchChannelKinWave = true;
     if (SwitchChannelKinWave) {
         ChannelQn->setAllMV();
         // route water 1D and sediment
@@ -376,5 +378,4 @@ void TWorld::ChannelFlow(void)
         }}
     }
 }
-
 

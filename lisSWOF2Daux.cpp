@@ -315,6 +315,11 @@ vec4 TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
 
 vec4 TWorld::F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
+  //  1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
+  //  2e component: Momentum flux in gelijke richting per meter per tijdseenheid  ( dus (m4/s2)/(m) = m3/s2 = h*u*u)
+  //  3d component: Momentum flux in loodrechte richting per meter per tijdseenheid  ( dus (m4/s2)/(m) = m3/s2 = h*u*v)
+
+
     vec4 rec;// = {0,0,0,0};
     if (F_scheme == 4)
         rec = F_HLL3(h_L, u_L, v_L, h_R, u_R, v_R);

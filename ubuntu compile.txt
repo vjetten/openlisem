@@ -20,7 +20,7 @@ sudo make install
 
 - install pcraster 4.2.1
 http://pcraster.geo.uu.nl/getting-started/pcraster-on-linux/
-$ sudo apt install cmake gcc g++ git libboost-all-dev libgdal-dev libncurses5-dev libpython-dev libqwt-qt5-dev libxerces-c-dev libxml2 libxml2-utils libxslt1-dev python-numpy qtbase5-dev python-docopt
+$ sudo apt install cmake gcc g++ git libboost-all-dev libgdal-dev libncurses5-dev libpython3-dev libqwt-qt5-dev libxerces-c-dev libxml2 libxml2-utils libxslt1-dev python3-numpy qtbase5-dev python-docopt
 $ wget http://pcraster.geo.uu.nl/pcraster/4.2.1/pcraster-4.2.1.tar.bz2
 $ tar xf pcraster-4.2.1.tar.bz2 && cd pcraster-4.2.1
 $ mkdir build && cd build

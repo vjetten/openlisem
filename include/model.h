@@ -722,6 +722,7 @@ public:
     void OverlandFlow1D(void);
 
     void ChannelFlow();
+
     double ChannelIterateWH(double _h, int r, int c);
     void ChannelAddBaseandRain();
     void ChannelWaterHeightFromVolume();
