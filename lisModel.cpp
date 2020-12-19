@@ -303,7 +303,6 @@ void TWorld::CellProcesses()
 void TWorld::OrderedProcesses()
 {
     SwitchChannelKinWave = true;//false;//
-
     ChannelAddBaseandRain();  // add baseflow o, subtract infil, add rainfall
 
     ChannelWaterHeightFromVolume(); //calc WH from volume with abc rule, and flowwidth

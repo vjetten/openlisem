@@ -67,9 +67,9 @@
 #define Drcr    data[rr][cr]
 #define Drcd    at(d)->data[r][c]
 #define Drcdr   at(d)->data[rr][cr]
-#define Drci    data[r+dr[i]][c+dc[i]]
+//#define Drci   data[r+dy[i]][c+dx[i]]
 #define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
-    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
+    ( ldd != 0 &&  rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 /// shortcut missing value in map
 #define MV(r,c) pcr::isMV(LDD->data[r][c])
@@ -263,12 +263,15 @@ public:
     long nrValidCellsLDDCH5;
     long nrValidCellsCH;
     long nrValidCells1;
+    long nrValidCellsLinkedLDD;
     QVector <LDD_COOR> cr_;
     QVector <LDD_COOR> crldd5_;
     QVector <LDD_COOR> crlddch5_;
     QVector <LDD_COOR> cr1_;
     QVector <LDD_COOR> cr0_;
     QVector <LDD_COOR> crch_;
+    QVector <LDD_COOR> crlinkedldd_;
+    QVector <LDD_COOR> crlinkedlddch_;
 
     /// map management structure, automatic adding and deleting of all cTMap variables
     MapListStruct maplistCTMap[NUMNAMES];
@@ -630,7 +633,7 @@ public:
 
 
     //sediment for SWOF flood model
-    void SWOFSedimentBalance();
+   // void SWOFSedimentBalance();
     void SWOFSedimentCheckZero(int r, int c, cTMap * h);
     void SWOFSedimentSetConcentration(int r, int c, cTMap * h);
     void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
@@ -647,7 +650,7 @@ public:
                                 cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                                 cTMap *_Alpha, cTMap *_DX, cTMap*_Vol, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
 
-    double K2DSolvebyInterpolationSed( cTMap *M, cTMap *MC);
+  //  double K2DSolvebyInterpolationSed( cTMap *M, cTMap *MC);
 
 
     double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
@@ -779,22 +782,28 @@ public:
                    cTMap *_Vol);
     double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double maxQ);
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
-    void KinematicExplicit(cTMap *_LDD, cTMap *Q, cTMap *Qn, cTMap *q, cTMap *Alpha,cTMap *_DX, cTMap *Vol);
-    // kinematic 2D
-    double K2DFlux(double t, double tmax);
-    void K2DPreSolve();
-    void K2DSolve();
-    void K2DSolvebyInterpolation();
-    void K2DInit();
-    void K2DCalcVelDisch();
-    void K2DDEMA();
-    void K2DDEMAInitial();
-    double K2DQOut, K2DQOutBoun;
-    double K2DQSOut, K2DQSOutBoun;
-    double K2DQPOut;
-    double ConcentrateKin;
-    double TimestepKinMin;
-    double KinematicBoundaryFraction = 0.05;
+    void KinematicExplicit(QVector<LDD_COOR> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
+    void KinematicSubstance(QVector <LDD_COOR> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
+
+    void MakeLinkedList(QVector <LDD_COOR> _crlinked_,cTMap *_LDD);
+
+    // kinematic 2D    
+//    double K2DFlux(double t, double tmax);
+//    void K2DPreSolve();
+//    void K2DSolve();
+//    void K2DSolvebyInterpolation();
+//    void K2DInit();
+//    void K2DCalcVelDisch();
+//    void K2DDEMA();
+//    void K2DDEMAInitial();
+    double K2DQOutBoun;
+//    double K2DQOut;
+//    double K2DQSOut,
+    double K2DQSOutBoun;
+//    double K2DQPOut;
+ //   double ConcentrateKin;
+ //   double TimestepKinMin;
+ //   double KinematicBoundaryFraction = 0.05;
     double TimestepfloodMin, TimestepfloodLast;
     //SWATRE
     /// filenames for Swatre soil information

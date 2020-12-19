@@ -28,3 +28,6 @@ SET (CMAKE_CXX_COMPILER_WORKS 1)
 
 location:
 C:/Qt/msys64/mingw64/lib/libqwt.dll.a
+
+
+:-1: error: The following variables are used in this project, but they are set to NOTFOUND.Please set them or make sure they are set and tested correctly in the CMake files:PCRASTER_RASTER_FORMAT_DEBUG_LIBRARY    linked by target "Lisem" in directory C:/prgc/lisemCMake Generate step failed.  Build files cannot be regenerated correctly.

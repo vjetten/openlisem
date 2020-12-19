@@ -442,17 +442,22 @@ void TWorld::OverlandFlow2Ddyn(void)
 void TWorld::OverlandFlow1D(void)
 {
     // recalculate water vars after subtractions in "to channel"
-#pragma omp parallel for num_threads(userCores)
+
+
+    double tot = 0;
+//#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         WaterVolin->Drc = DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
         //volume runoff into the kin wave, needed to determine infil in kin wave
         // WaterVolin total water volume in m3 before kin wave, WHrunoff may be adjusted in tochannel
-        q->Drc = FSurplus->Drc*SoilWidthDX->Drc/_dt;  //???FlowWidth
+        q->Drc = FSurplus->Drc*SoilWidthDX->Drc/_dt;
         // infil flux in kin wave (<= 0)negative value), in m2/s, in kiv wave DX is used
         // surplus related to infiltrating surfaces
         QinKW->Drc = 0; // store for incoming water in a cell
         tm->Drc = -1;
         // flag for confined fow in channel culverts
+        tot = tot + WaterVolin->Drc;
+
     }}
 
     if (SwitchErosion)
@@ -466,47 +471,26 @@ void TWorld::OverlandFlow1D(void)
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
         }}
     }
-
+fill(*tm,0);
     // route water
-    Qn->setAllMV();
-//    FOR_ROW_COL_MV {
-//        if (LDD->Drc == 5)
-//        {
+//    Qn->setAllMV();
+//    FOR_ROW_COL_LDD5 {
+//        Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);
+//        // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
+//    }}
+   KinematicExplicit(crlinkedldd_, LDD, Q, Qn, q, Alpha,DX, tm);
 
-        FOR_ROW_COL_LDD5 {
-            Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);
-            // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
-        }}
-   // }
-
-    //convert calculate Qn back to WH and volume for next loop
-    fill(*tma, 0);
-    FOR_ROW_COL_MV
+//convert calculate Qn back to WH and volume for next loop
+//#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L
     {
-        bool K1Dexplicit = true;
-        double WaterVolout = 0;
         double InfilKWact = 0;
+        double WaterVolout = std::max(0.0, QinKW->Drc*_dt + WaterVolin->Drc  - Qn->Drc*_dt);
 
-        if( K1Dexplicit)
-        {
-//TODO what about q/surplus here????
-            WaterVolout = std::max(0.0, QinKW->Drc*_dt + WaterVolin->Drc  - Qn->Drc*_dt);
-
-            // new water vol is mass bal diff
-            WHrunoff->Drc = ChannelAdj->Drc > 0 ? WaterVolout/(ChannelAdj->Drc*DX->Drc) : 0.0;
-            // runoff based on water vol out
-            // NOTE route substance is already an explicit solution
-        }
-        else
-        {
-            WHrunoff->Drc = ChannelAdj->Drc > 0 ?(Alpha->Drc*pow(Qn->Drc, 0.6))/ChannelAdj->Drc : 0.0;
-            //new WH based on A/dx = alpha Q^beta / dx
-            // apha is however determined from the old Q...
-
-            WaterVolout = WHrunoff->Drc*CHAdjDX->Drc;
-            // new volume
-        }
-        tma->Drc = WaterVolout;
+        // new water vol is mass bal diff
+        WHrunoff->Drc = ChannelAdj->Drc > 0 ? WaterVolout/(ChannelAdj->Drc*DX->Drc) : 0.0;
+        // runoff based on water vol out
+        // NOTE route substance is already an explicit solution
 
         double diff = QinKW->Drc*_dt + WaterVolin->Drc - WaterVolout - Qn->Drc * _dt;
         InfilKWact = std::min(-FSurplus->Drc*SoilWidthDX->Drc*DX->Drc, diff);
@@ -516,14 +500,12 @@ void TWorld::OverlandFlow1D(void)
 //            InfilKWact = 0;
 
         InfilVolKinWave->Drc = InfilKWact;
-
-        double Perim = FlowWidth->Drc > 0 ? 2*WHrunoff->Drc + FlowWidth->Drc : 0.0;
-        double R = WHrunoff->Drc*FlowWidth->Drc/Perim;
+        //Q->Drc = Qn->Drc;
+        double Perim = FlowWidth->Drc;// > 0 ? 2*WHrunoff->Drc + FlowWidth->Drc : 0.0;
+        double R = WHrunoff->Drc;//*FlowWidth->Drc/Perim;
         Alpha->Drc = pow(N->Drc/sqrtGrad->Drc * pow(Perim, 2.0/3.0),0.6); // for erosion
-        V->Drc = pow(R, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
-    //    Qn->Drc = V->Drc * WHrunoff->Drc*FlowWidth->Drc;
-   //     V->Drc = std::min(Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc), V->Drc);
-//        V->Drc = Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc);
+       V->Drc = pow(R, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
+  //      V->Drc = WHrunoff->Drc > 0 ? Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc) : 0;
 
         WHroad->Drc = WHrunoff->Drc;
         // set road to average outflowing wh, no surface storage.
@@ -538,9 +520,7 @@ void TWorld::OverlandFlow1D(void)
 
         WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
-
-    }
-
+    }}
     //      routing of substances add here!
     //      do after kin wave so that the new flux Qn out of a cell is known
     //      you need to have the ingoing substance flux QS (mass/s)
@@ -552,59 +532,12 @@ void TWorld::OverlandFlow1D(void)
         fill(*QinKW, 0.0); // reuse
         fill(*tm, 0.0);
         copy(*tm, *Sed);
-        if(!SwitchUseGrainSizeDistribution)
-        {
             Qsn->setAllMV();
-       //     FOR_ROW_COL_MV
-       //     {
-       //         if (LDD->Drc == 5) // if outflow point, pit
-       //         {
-
             FOR_ROW_COL_LDD5 {
                 routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);
-                Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
             }}
-        //    }
-        } else {
-            /*
-            FOR_GRAIN_CLASSES
-            {
-                // calc seediment flux going in kin wave as Qs = Q*C
-                FOR_ROW_COL_MV
-                {
-                    Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &Sed_D.Drcd, &DEP->Drc);
-                    Tempa_D.Drcd =  Q->Drc * Conc_D.Drcd;
-                    Qs->Drc +=  Q->Drc * Conc_D.Drcd;
-                    // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
-                }
-                Tempb_D.at(d)->setAllMV();
-                FOR_ROW_COL_MV
-                {
-                    if (LDD->Drc == 5) // if outflow point, pit
-                    {
-                        routeSubstance(r,c, LDD, Q, Qn, Tempa_D.at(d), Tempb_D.at(d), Alpha, DX, WaterVolin, Sed_D.at(d));//, BufferVol, BufferSed);
-                    }
-                }
+//          KinematicSubstance(crlinkedldd_, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
 
-                FOR_ROW_COL_MV
-                {
-                    Qsn->Drc += Tempb_D.Drcd;
-                    // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
-                }
-
-
-            }
-
-            fill(*Sed, 0.0);
-            FOR_GRAIN_CLASSES
-            {
-                FOR_ROW_COL_MV
-                {
-                    Sed->Drc += Sed_D.Drcd;
-                }
-            }
-*/
-        }
     }
 
     // route other stuff

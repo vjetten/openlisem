@@ -334,8 +334,8 @@ void lisemqt::showPlot()
              break;
          }
      }
-     mult = mf[i-1];
-     qDebug() << mult << i << op.Rainpeak*mult << op.OutletQpeak.at(0);
+     mult = mf[i-1]*0.5;
+  //   qDebug() << mult << i << op.Rainpeak*mult << op.OutletQpeak.at(0);
 
     QData.clear();
     QsData.clear();

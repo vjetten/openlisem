@@ -234,6 +234,13 @@ void TWorld::InitStandardInput(void)
     // LDD is also mask and reference file, everthing has to fit LDD
     // channels use channel LDD as mask
 
+    tm = NewMap(0); // temp map for aux calculations
+    tma = NewMap(0); // temp map for aux calculations
+    tmb = NewMap(0); // temp map for aux calculations
+    tmc = NewMap(0); // temp map for aux calculations
+    tmd = NewMap(0); // temp map for aux calculations
+
+
 // slower:
 //    long _i_ = 0;
 //    for(int r = 0; r < _nrRows; r++)
@@ -264,51 +271,48 @@ void TWorld::InitStandardInput(void)
     }
     nrValidCellsLDD5 = crldd5_.size();
 
-    FOR_ROW_COL_MV {
-        LDD_COOR newcr;
-        newcr.r = r;
-        newcr.c = c;
-        cr1_ << newcr;
+    MakeLinkedList(crlinkedldd_, LDD);
 
-        if(c > 0 && pcr::isMV(LDD->data[r][c-1])) {
-            LDD_COOR newcr;
-            newcr.r = r;
-            newcr.c = c;
-            cr1_ << newcr;
-        }
-        if(c < _nrCols-1 && pcr::isMV(LDD->data[r][c+1])) {
-            LDD_COOR newcr;
-            newcr.r = r;
-            newcr.c = c;
-            cr1_ << newcr;
-        }
-        if(r > 0 && pcr::isMV(LDD->data[r-1][c])) {
-            LDD_COOR newcr;
-            newcr.r = r;
-            newcr.c = c;
-            cr1_ << newcr;
-        }
-        if(r < _nrRows-1 && pcr::isMV(LDD->data[r+1][c])) {
-            LDD_COOR newcr;
-            newcr.r = r;
-            newcr.c = c;
-            cr1_ << newcr;
-        }
-    }
-    nrValidCells1 = cr1_.size();   
+//    FOR_ROW_COL_MV {
+//        LDD_COOR newcr;
+//        newcr.r = r;
+//        newcr.c = c;
+//        cr1_ << newcr;
 
-    tm = NewMap(0); // temp map for aux calculations
-    tma = NewMap(0); // temp map for aux calculations
-    tmb = NewMap(0); // temp map for aux calculations
-    tmc = NewMap(0); // temp map for aux calculations
-    tmd = NewMap(0); // temp map for aux calculations
+//        if(c > 0 && pcr::isMV(LDD->data[r][c-1])) {
+//            LDD_COOR newcr;
+//            newcr.r = r;
+//            newcr.c = c;
+//            cr1_ << newcr;
+//        }
+//        if(c < _nrCols-1 && pcr::isMV(LDD->data[r][c+1])) {
+//            LDD_COOR newcr;
+//            newcr.r = r;
+//            newcr.c = c;
+//            cr1_ << newcr;
+//        }
+//        if(r > 0 && pcr::isMV(LDD->data[r-1][c])) {
+//            LDD_COOR newcr;
+//            newcr.r = r;
+//            newcr.c = c;
+//            cr1_ << newcr;
+//        }
+//        if(r < _nrRows-1 && pcr::isMV(LDD->data[r+1][c])) {
+//            LDD_COOR newcr;
+//            newcr.r = r;
+//            newcr.c = c;
+//            cr1_ << newcr;
+//        }
+//    }
+//    nrValidCells1 = cr1_.size();
+
 
     userCores = getvalueint("Nr user Cores");
     int cores = omp_get_max_threads();
     if (userCores == 0 || userCores > cores)
         userCores = cores;
 
-    qDebug() << "using:" << userCores << "cores";
+  //  qDebug() << "using:" << userCores << "cores";
 
 
 //    time_ms.start();
@@ -842,6 +846,7 @@ void TWorld::InitChannel(void)
         }
         nrValidCellsCH = crch_.size();
 
+        MakeLinkedList(crlinkedlddch_, LDDChannel);
 
         FOR_ROW_COL_MV_CH {
             if (LDDChannel->Drc == 5) {

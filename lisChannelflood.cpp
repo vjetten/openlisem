@@ -49,6 +49,9 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
 {
     if (!SwitchIncludeChannel)
         return;
+    if (!SwitchChannelKinWave)
+        return;
+
 
     cTMap *_SS;
     cTMap *_SSC;

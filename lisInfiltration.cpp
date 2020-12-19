@@ -105,8 +105,8 @@ void TWorld::InfilEffectiveKsat(void)
 
         }
     }}
-report(*Ksateff,"kse.map");
-report(*Poreeff,"poree.map");
+//report(*Ksateff,"kse.map");
+//report(*Poreeff,"poree.map");
 }
 //---------------------------------------------------------------------------
 /*!
@@ -125,11 +125,11 @@ report(*Poreeff,"poree.map");
 void TWorld::Infiltration()
 {
 
-    if (InfilMethod != INFIL_SWATRE) {
-        InfilMethodsNew();
-    } else {
+    if (InfilMethod == INFIL_SWATRE)
         InfilSwatre();
-    }
+    else
+    if (InfilMethod != INFIL_NONE)
+        InfilMethodsNew();
 }
 //---------------------------------------------------------------------------
 /// SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
