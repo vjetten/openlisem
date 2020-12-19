@@ -171,7 +171,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
         itercount = -2;
         return(0);
     }
-    if (Qmax ==0)
+    if (Qmax <= 0)
         Qmax = 1e20;
     // pow function sum flux must be > 0
     if (Qold+Qin > 0)
@@ -207,21 +207,21 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
 }
 
 
-void TWorld::KinematicExplicit(QVector <LDD_COOR>_crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax)
+void TWorld::KinematicExplicit()//QVector <LDD_COOR>_crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax)
 {   
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
-    fill(*_Qn, 0);
+    fill(*Qn, 0);
 
 // #pragma omp parallel for reduction(+:Qin) num_threads(userCores)
-    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
+    for(long i_ =  0; i_ < crlinkedldd_.size(); i_++)
     {
-        int r = _crlinked_[i_].r;
-        int c = _crlinked_[i_].c;
+        int r = crlinkedldd_[i_].r;
+        int c = crlinkedldd_[i_].c;
 
         double Qin = 0;
-        QinKW->Drc = 0;
+    //    QinKW->Drc = 0;
 
         for (int i = 1; i <= 9; i++)
         {
@@ -232,22 +232,20 @@ void TWorld::KinematicExplicit(QVector <LDD_COOR>_crlinked_, cTMap *_LDD, cTMap 
             int rr = r+dy[i];
             int cr = c+dx[i];
 
-            if (INSIDE(rr, cr) && !pcr::isMV(_LDD->Drcr))
-                ldd = (int) _LDD->Drcr;
+            if (INSIDE(rr, cr) && !pcr::isMV(LDD->Drcr))
+                ldd = (int) LDD->Drcr;
             else
                 continue;
 
             // if the cells flow into
             if (FLOWS_TO(ldd, rr,cr,r,c)) {
-                Qin += _Qn->Drcr;
+                Qin += Qn->Drcr;
             }
         }
+
         QinKW->Drc = Qin;
-        _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc);
+        Qn->Drc = IterateToQnew(QinKW->Drc,Q->Drc, q->Drc, Alpha->Drc, _dt, DX->Drc, 0);
     }
-    report(*QinKW,"qk");
-    report(*_Qn,"qn");
-    report(*_Q,"q");
 }
 
 void TWorld::KinematicSubstance(QVector <LDD_COOR> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
@@ -298,11 +296,12 @@ void TWorld::KinematicSubstance(QVector <LDD_COOR> _crlinked_, cTMap *_LDD, cTMa
     }
 }
 
-void TWorld::MakeLinkedList(QVector <LDD_COOR> _crlinked_, cTMap *_LDD)
+QVector <LDD_COOR> TWorld::MakeLinkedList(cTMap *_LDD)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
     int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
 
+    QVector <LDD_COOR> _crlinked_;
     _crlinked_.clear();
 
     fill(*tma, -1); // flag
@@ -372,7 +371,8 @@ void TWorld::MakeLinkedList(QVector <LDD_COOR> _crlinked_, cTMap *_LDD)
 
         }
     }
-  //  qDebug() << _crlinked_.size();
+    qDebug() << _crlinked_.size();
+    return(_crlinked_);
 }
 
 

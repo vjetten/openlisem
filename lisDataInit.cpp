@@ -271,8 +271,8 @@ void TWorld::InitStandardInput(void)
     }
     nrValidCellsLDD5 = crldd5_.size();
 
-    MakeLinkedList(crlinkedldd_, LDD);
-
+    crlinkedldd_ = MakeLinkedList(LDD);
+qDebug() << crlinkedldd_.size();
 //    FOR_ROW_COL_MV {
 //        LDD_COOR newcr;
 //        newcr.r = r;
@@ -846,7 +846,8 @@ void TWorld::InitChannel(void)
         }
         nrValidCellsCH = crch_.size();
 
-        MakeLinkedList(crlinkedlddch_, LDDChannel);
+        crlinkedlddch_ = MakeLinkedList(LDDChannel);
+        qDebug() << crlinkedlddch_.size();
 
         FOR_ROW_COL_MV_CH {
             if (LDDChannel->Drc == 5) {

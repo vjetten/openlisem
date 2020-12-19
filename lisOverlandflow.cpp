@@ -368,7 +368,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         double WHR = WHrunoff->Drc;
 
         Qn->Drc = V->Drc*(WHR*ChannelAdj->Drc);
-        Q->Drc = Qn->Drc; // just to be sure
+       // Q->Drc = Qn->Drc; // just to be sure
 
         WHroad->Drc = WHR;
         // set road to average outflowing wh, no surface storage.
@@ -471,14 +471,14 @@ void TWorld::OverlandFlow1D(void)
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
         }}
     }
-fill(*tm,0);
+
     // route water
 //    Qn->setAllMV();
 //    FOR_ROW_COL_LDD5 {
 //        Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);
 //        // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
 //    }}
-   KinematicExplicit(crlinkedldd_, LDD, Q, Qn, q, Alpha,DX, tm);
+KinematicExplicit();//crlinkedldd_, LDD, Q, Qn, q, Alpha,DX, tm);
 
 //convert calculate Qn back to WH and volume for next loop
 //#pragma omp parallel for num_threads(userCores)

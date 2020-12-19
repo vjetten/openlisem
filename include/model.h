@@ -782,10 +782,10 @@ public:
                    cTMap *_Vol);
     double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double maxQ);
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
-    void KinematicExplicit(QVector<LDD_COOR> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
+    void KinematicExplicit();//QVector<LDD_COOR> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
     void KinematicSubstance(QVector <LDD_COOR> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
 
-    void MakeLinkedList(QVector <LDD_COOR> _crlinked_,cTMap *_LDD);
+    QVector <LDD_COOR> MakeLinkedList(cTMap *_LDD);
 
     // kinematic 2D    
 //    double K2DFlux(double t, double tmax);
