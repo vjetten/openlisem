@@ -131,6 +131,8 @@ void TWorld::fromChannelWHtoVol(int r, int c)
 
 }
 //---------------------------------------------------------------------------
+/* NOT USED */
+
 // V, alpha and Q in the channel, called after overland flow vol to channel
 // called after flood and uses new channel flood water height
 void TWorld::CalcVelDischChannel()
@@ -151,9 +153,13 @@ void TWorld::CalcVelDischChannel()
         double Perim, Radius, Area;
         const double beta = 0.6;
         double beta1 = 1/beta;
+        double grad = sqrt(ChannelGrad->Drc);
+
+        ChannelFlowWidth->Drc = ChannelWidth->Drc;
+        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+
         double wh = ChannelWH->Drc;
         double FW = ChannelFlowWidth->Drc;
-        double grad = sqrt(ChannelGrad->Drc);
 
         if (ChannelSide->Drc > 0)
         {
@@ -249,6 +255,7 @@ void TWorld::ChannelAddBaseandRain(void)
     }}
 }
 //---------------------------------------------------------------------------
+    /* NOT USED */
 //! add runofftochannel and rainfall and calc channel WH from volume
 void TWorld::ChannelWaterHeightFromVolume()
 {
@@ -273,9 +280,45 @@ void TWorld::ChannelFlow(void)
     if (!SwitchIncludeChannel)
         return;
 
-    // initialize some channel stuff
+    double beta = 0.6;
+    double beta1 = 1/beta;
+
+    // velocity, alpha, Q
 #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
+        double Perim, Radius, Area;
+        double sqrtgrad = sqrt(ChannelGrad->Drc);
+        double alpha = 0;
+        double N = ChannelN->Drc;
+        double V = 0;
+        double Q = 0;
+        double MaxQ = ChannelMaxQ->Drc;
+
+        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+
+        double wh = ChannelWH->Drc;
+        double FW = ChannelFlowWidth->Drc;
+        if (wh > 1e-10) {
+            Perim = FW + 2.0*wh;
+            Area = FW*wh;
+            Radius = (Perim > 0 ? Area/Perim : 0);
+
+            if (sqrtgrad > MIN_SLOPE) {
+                alpha = std::pow(N/sqrtgrad * std::pow(Perim, 2.0/3.0), beta);
+                Q = std::pow(Area/alpha, beta1);
+                if (SwitchCulverts) {
+                    if (MaxQ > 0 && Q > MaxQ){
+                        alpha = Area/std::pow(MaxQ, beta);
+                        Q = MaxQ;
+                    }
+                }
+            }
+            V = std::pow(Radius, 2.0/3.0)*sqrtgrad/N;
+        }
+
+        ChannelAlpha->Drc = alpha;
+        ChannelQ->Drc = Q;
+        ChannelV->Drc = V;
         ChannelQsn->Drc = 0;
         Channelq->Drc = 0;
         QinKW->Drc = 0;
@@ -297,16 +340,21 @@ void TWorld::ChannelFlow(void)
     }
 
     if (SwitchChannelKinWave) {
+
         if (SwitchLinkedList) {
+
             ChannelQn->setAllMV();
             // route water 1D and sediment
             FOR_ROW_COL_LDDCH5 {
                 Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
             }}
-            cover(*ChannelQn, *LDD, 0); // necessary???
+            cover(*ChannelQn, *LDD, 0);
+
         } else {
+
             fill(*ChannelQn, 0);
             KinematicExplicit(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
+
         }
 
 #pragma omp parallel for num_threads(userCores)
@@ -340,6 +388,7 @@ void TWorld::ChannelFlow(void)
     if (SwitchErosion)
     {
         if (SwitchLinkedList) {
+
             if(SwitchUse2Phase) {
                 ChannelQBLsn->setAllMV();
                 FOR_ROW_COL_LDDCH5 {
@@ -359,10 +408,10 @@ void TWorld::ChannelFlow(void)
         } else {
             if(SwitchUse2Phase) {
                 fill(*ChannelQBLsn,0);
-                KinematicSubstance(crlinkedldd_, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
+                KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
             }
             fill(*ChannelQSSsn,0);
-            KinematicSubstance(crlinkedldd_, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
+            KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
         }
 
         if (SwitchIncludeRiverDiffusion) {

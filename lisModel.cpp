@@ -305,9 +305,9 @@ void TWorld::OrderedProcesses()
     SwitchChannelKinWave = true;//false;//
     ChannelAddBaseandRain();  // add baseflow o, subtract infil, add rainfall
 
-    ChannelWaterHeightFromVolume(); //calc WH from volume with abc rule, and flowwidth
+    //ChannelWaterHeightFromVolume(); //calc WH from volume with abc rule, and flowwidth
 
-    CalcVelDischChannel(); // alpha, V and Q from Manning
+    //CalcVelDischChannel(); // alpha, V and Q from Manning
 
     ChannelFlow();            //channel kin wave for water and sediment
 

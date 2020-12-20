@@ -291,13 +291,13 @@ void TWorld::KinematicSubstance(QVector <LDD_COOR> _crlinked_, cTMap *_LDD, cTMa
 
         QinKW->Drc = Sin;
 
-        if (Sin > 0 || _Qs->Drc > 0) {
+        //if (Sin > 0 || _Qs->Drc > 0) {
             _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
             _Qsn->Drc = std::min(_Qsn->Drc, QinKW->Drc+_Sed->Drc/_dt);
             // no more sediment outflow than total sed in cell
             _Sed->Drc = std::max(0.0, QinKW->Drc*_dt + _Sed->Drc - _Qsn->Drc*_dt);
             // new sed volume based on all fluxes and org sed present
-        }
+       // }
     }
 }
 //---------------------------------------------------------------------------
