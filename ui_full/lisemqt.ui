@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1715</width>
+    <width>1642</width>
     <height>985</height>
    </rect>
   </property>
@@ -229,11 +229,11 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>798</width>
+                <width>747</width>
                 <height>648</height>
                </rect>
               </property>
-              <layout class="QGridLayout" name="gridLayout_63">
+              <layout class="QFormLayout" name="formLayout_2">
                <item row="0" column="0">
                 <widget class="QTabWidget" name="tabWidget_OutputMaps">
                  <property name="enabled">
@@ -325,6 +325,12 @@
                    </item>
                    <item row="3" column="0">
                     <widget class="QGroupBox" name="outputMapsWater">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="font">
                       <font>
                        <pointsize>8</pointsize>
@@ -749,7 +755,7 @@
                    <item row="3" column="1">
                     <widget class="QGroupBox" name="outputMapsFlood">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -1276,6 +1282,12 @@
                    </item>
                    <item row="4" column="0">
                     <widget class="QGroupBox" name="outputMapsSediment">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="font">
                       <font>
                        <pointsize>8</pointsize>
@@ -1840,6 +1852,18 @@
                    </item>
                    <item row="4" column="1">
                     <widget class="QLabel" name="label_131">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="frameShape">
+                      <enum>QFrame::Box</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Plain</enum>
+                     </property>
                      <property name="text">
                       <string/>
                      </property>
@@ -5196,12 +5220,12 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>805</width>
+                <width>783</width>
                 <height>607</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_8">
-               <item row="1" column="0">
+               <item row="0" column="0">
                 <widget class="QTabWidget" name="tabWidgetOptions">
                  <property name="enabled">
                   <bool>true</bool>
@@ -5271,7 +5295,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>6</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -6101,6 +6125,583 @@
                   </attribute>
                   <layout class="QGridLayout" name="gridLayout_41">
                    <item row="2" column="0">
+                    <widget class="QGroupBox" name="groupInterception">
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="title">
+                      <string>Canopy storage equation</string>
+                     </property>
+                     <property name="flat">
+                      <bool>false</bool>
+                     </property>
+                     <property name="checkable">
+                      <bool>false</bool>
+                     </property>
+                     <widget class="QRadioButton" name="radioButton_5">
+                      <property name="geometry">
+                       <rect>
+                        <x>9</x>
+                        <y>109</y>
+                        <width>379</width>
+                        <height>20</height>
+                       </rect>
+                      </property>
+                      <property name="palette">
+                       <palette>
+                        <active>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </active>
+                        <inactive>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </inactive>
+                        <disabled>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>122</red>
+                            <green>122</green>
+                            <blue>122</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </disabled>
+                       </palette>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Courier New</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Eucalypt: S = 0.0918*LAI^1.04 (n=8, R2=0.51)</string>
+                      </property>
+                     </widget>
+                     <widget class="QRadioButton" name="radioButton_2">
+                      <property name="geometry">
+                       <rect>
+                        <x>9</x>
+                        <y>43</y>
+                        <width>315</width>
+                        <height>20</height>
+                       </rect>
+                      </property>
+                      <property name="palette">
+                       <palette>
+                        <active>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </active>
+                        <inactive>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </inactive>
+                        <disabled>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>122</red>
+                            <green>122</green>
+                            <blue>122</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </disabled>
+                       </palette>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Courier New</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Pinus: S = 0.2331*LAI (n=12,R2=0.88)</string>
+                      </property>
+                     </widget>
+                     <widget class="QRadioButton" name="radioButton_4">
+                      <property name="geometry">
+                       <rect>
+                        <x>9</x>
+                        <y>87</y>
+                        <width>355</width>
+                        <height>20</height>
+                       </rect>
+                      </property>
+                      <property name="palette">
+                       <palette>
+                        <active>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </active>
+                        <inactive>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </inactive>
+                        <disabled>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>122</red>
+                            <green>122</green>
+                            <blue>122</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </disabled>
+                       </palette>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Courier New</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Olive: S = 1.46 * LAI^0.56 (n=5, R2=0.87)</string>
+                      </property>
+                     </widget>
+                     <widget class="QRadioButton" name="radioButton_7">
+                      <property name="geometry">
+                       <rect>
+                        <x>9</x>
+                        <y>153</y>
+                        <width>331</width>
+                        <height>20</height>
+                       </rect>
+                      </property>
+                      <property name="palette">
+                       <palette>
+                        <active>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </active>
+                        <inactive>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </inactive>
+                        <disabled>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>122</red>
+                            <green>122</green>
+                            <blue>122</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </disabled>
+                       </palette>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Courier New</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Bracken: S = 0.1713*LAI (n=8, R2=0.98)</string>
+                      </property>
+                     </widget>
+                     <widget class="QRadioButton" name="radioButton_1">
+                      <property name="geometry">
+                       <rect>
+                        <x>9</x>
+                        <y>21</y>
+                        <width>347</width>
+                        <height>20</height>
+                       </rect>
+                      </property>
+                      <property name="palette">
+                       <palette>
+                        <active>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </active>
+                        <inactive>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </inactive>
+                        <disabled>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>122</red>
+                            <green>122</green>
+                            <blue>122</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </disabled>
+                       </palette>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Courier New</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Crops: S = 0.935+0.498*LAI-0.00575*LAI^2</string>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                     <widget class="QRadioButton" name="radioButton_3">
+                      <property name="geometry">
+                       <rect>
+                        <x>9</x>
+                        <y>65</y>
+                        <width>363</width>
+                        <height>20</height>
+                       </rect>
+                      </property>
+                      <property name="palette">
+                       <palette>
+                        <active>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </active>
+                        <inactive>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </inactive>
+                        <disabled>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>122</red>
+                            <green>122</green>
+                            <blue>122</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </disabled>
+                       </palette>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Courier New</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Douglas Fir: S = 0.3165*LAI (n=4, R2=0.83)</string>
+                      </property>
+                     </widget>
+                     <widget class="Line" name="line_2">
+                      <property name="geometry">
+                       <rect>
+                        <x>9</x>
+                        <y>197</y>
+                        <width>715</width>
+                        <height>16</height>
+                       </rect>
+                      </property>
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                     </widget>
+                     <widget class="QRadioButton" name="radioButton_6">
+                      <property name="geometry">
+                       <rect>
+                        <x>9</x>
+                        <y>131</y>
+                        <width>419</width>
+                        <height>20</height>
+                       </rect>
+                      </property>
+                      <property name="palette">
+                       <palette>
+                        <active>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </active>
+                        <inactive>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </inactive>
+                        <disabled>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>122</red>
+                            <green>122</green>
+                            <blue>122</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </disabled>
+                       </palette>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Courier New</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Broadleaved forest: S = 0.2856*LAI (n=5, R2=0.60)</string>
+                      </property>
+                     </widget>
+                     <widget class="QRadioButton" name="radioButton_9">
+                      <property name="geometry">
+                       <rect>
+                        <x>9</x>
+                        <y>202</y>
+                        <width>246</width>
+                        <height>20</height>
+                       </rect>
+                      </property>
+                      <property name="palette">
+                       <palette>
+                        <active>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </active>
+                        <inactive>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </inactive>
+                        <disabled>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>122</red>
+                            <green>122</green>
+                            <blue>122</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </disabled>
+                       </palette>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>User defined Smax (needs smax.map)</string>
+                      </property>
+                     </widget>
+                     <widget class="QRadioButton" name="radioButton_8">
+                      <property name="geometry">
+                       <rect>
+                        <x>9</x>
+                        <y>175</y>
+                        <width>419</width>
+                        <height>20</height>
+                       </rect>
+                      </property>
+                      <property name="palette">
+                       <palette>
+                        <active>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </active>
+                        <inactive>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </inactive>
+                        <disabled>
+                         <colorrole role="WindowText">
+                          <brush brushstyle="SolidPattern">
+                           <color alpha="255">
+                            <red>122</red>
+                            <green>122</green>
+                            <blue>122</blue>
+                           </color>
+                          </brush>
+                         </colorrole>
+                        </disabled>
+                       </palette>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Courier New</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                        <underline>false</underline>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Clumped grass: S = 0.59 * LAI^0.88 (n=6, R2=0.82)</string>
+                      </property>
+                     </widget>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
                     <spacer name="verticalSpacer">
                      <property name="orientation">
                       <enum>Qt::Vertical</enum>
@@ -6115,53 +6716,38 @@
                    </item>
                    <item row="0" column="0">
                     <layout class="QGridLayout" name="gridLayout_28">
-                     <item row="0" column="1" rowspan="2">
-                      <widget class="QDoubleSpinBox" name="E_CanopyOpeness">
+                     <item row="2" column="0">
+                      <widget class="QCheckBox" name="checkIncludeLitter">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
                        </property>
-                       <property name="font">
-                        <font>
-                         <pointsize>8</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                         <underline>false</underline>
-                         <kerning>true</kerning>
-                        </font>
-                       </property>
-                       <property name="decimals">
-                        <number>3</number>
-                       </property>
-                       <property name="maximum">
-                        <double>1.000000000000000</double>
-                       </property>
-                       <property name="singleStep">
-                        <double>0.001000000000000</double>
-                       </property>
-                       <property name="value">
-                        <double>0.450000000000000</double>
+                       <property name="text">
+                        <string>Include Litter interception</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="2" column="1">
-                      <widget class="QDoubleSpinBox" name="E_LitterSmax">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
+                     <item row="0" column="3" rowspan="2">
+                      <widget class="QToolButton" name="toolButton_resetInterception">
+                       <property name="text">
+                        <string>...</string>
                        </property>
-                       <property name="decimals">
-                        <number>1</number>
+                       <property name="icon">
+                        <iconset resource="../resources/openlisem.qrc">
+                         <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
                        </property>
-                       <property name="singleStep">
-                        <double>0.100000000000000</double>
+                      </widget>
+                     </item>
+                     <item row="0" column="4" rowspan="2">
+                      <widget class="QToolButton" name="toolButton_help2">
+                       <property name="text">
+                        <string>...</string>
                        </property>
-                       <property name="value">
-                        <double>1.000000000000000</double>
+                       <property name="icon">
+                        <iconset resource="../resources/openlisem.qrc">
+                         <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
                        </property>
                       </widget>
                      </item>
@@ -6249,6 +6835,69 @@ p, li { white-space: pre-wrap; }
                        </property>
                       </widget>
                      </item>
+                     <item row="0" column="1" rowspan="2">
+                      <widget class="QDoubleSpinBox" name="E_CanopyOpeness">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>8</pointsize>
+                         <weight>50</weight>
+                         <bold>false</bold>
+                         <underline>false</underline>
+                         <kerning>true</kerning>
+                        </font>
+                       </property>
+                       <property name="decimals">
+                        <number>3</number>
+                       </property>
+                       <property name="maximum">
+                        <double>1.000000000000000</double>
+                       </property>
+                       <property name="singleStep">
+                        <double>0.001000000000000</double>
+                       </property>
+                       <property name="value">
+                        <double>0.450000000000000</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="1">
+                      <widget class="QDoubleSpinBox" name="E_LitterSmax">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="decimals">
+                        <number>1</number>
+                       </property>
+                       <property name="singleStep">
+                        <double>0.100000000000000</double>
+                       </property>
+                       <property name="value">
+                        <double>1.000000000000000</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="2">
+                      <spacer name="horizontalSpacer_2">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
                      <item row="2" column="2">
                       <widget class="QLabel" name="label_133">
                        <property name="sizePolicy">
@@ -6262,592 +6911,7 @@ p, li { white-space: pre-wrap; }
                        </property>
                       </widget>
                      </item>
-                     <item row="2" column="0">
-                      <widget class="QCheckBox" name="checkIncludeLitter">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="text">
-                        <string>Include Litter interception</string>
-                       </property>
-                      </widget>
-                     </item>
                     </layout>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QGroupBox" name="groupInterception">
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="title">
-                      <string>Canopy storage equation</string>
-                     </property>
-                     <property name="flat">
-                      <bool>false</bool>
-                     </property>
-                     <property name="checkable">
-                      <bool>false</bool>
-                     </property>
-                     <layout class="QGridLayout" name="gridLayout_5">
-                      <property name="leftMargin">
-                       <number>8</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>4</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>8</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>2</number>
-                      </property>
-                      <property name="horizontalSpacing">
-                       <number>8</number>
-                      </property>
-                      <property name="verticalSpacing">
-                       <number>2</number>
-                      </property>
-                      <item row="4" column="0">
-                       <widget class="QRadioButton" name="radioButton_5">
-                        <property name="palette">
-                         <palette>
-                          <active>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </active>
-                          <inactive>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </inactive>
-                          <disabled>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>122</red>
-                              <green>122</green>
-                              <blue>122</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </disabled>
-                         </palette>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <family>Courier New</family>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Eucalypt: S = 0.0918*LAI^1.04 (n=8, R2=0.51)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QRadioButton" name="radioButton_2">
-                        <property name="palette">
-                         <palette>
-                          <active>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </active>
-                          <inactive>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </inactive>
-                          <disabled>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>122</red>
-                              <green>122</green>
-                              <blue>122</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </disabled>
-                         </palette>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <family>Courier New</family>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Pinus: S = 0.2331*LAI (n=12,R2=0.88)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="0">
-                       <widget class="QRadioButton" name="radioButton_4">
-                        <property name="palette">
-                         <palette>
-                          <active>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </active>
-                          <inactive>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </inactive>
-                          <disabled>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>122</red>
-                              <green>122</green>
-                              <blue>122</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </disabled>
-                         </palette>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <family>Courier New</family>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Olive: S = 1.46 * LAI^0.56 (n=5, R2=0.87)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="6" column="0">
-                       <widget class="QRadioButton" name="radioButton_7">
-                        <property name="palette">
-                         <palette>
-                          <active>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </active>
-                          <inactive>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </inactive>
-                          <disabled>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>122</red>
-                              <green>122</green>
-                              <blue>122</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </disabled>
-                         </palette>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <family>Courier New</family>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Bracken: S = 0.1713*LAI (n=8, R2=0.98)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="0">
-                       <widget class="QRadioButton" name="radioButton_1">
-                        <property name="palette">
-                         <palette>
-                          <active>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </active>
-                          <inactive>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </inactive>
-                          <disabled>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>122</red>
-                              <green>122</green>
-                              <blue>122</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </disabled>
-                         </palette>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <family>Courier New</family>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Crops: S = 0.935+0.498*LAI-0.00575*LAI^2</string>
-                        </property>
-                        <property name="checked">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="0">
-                       <widget class="QRadioButton" name="radioButton_3">
-                        <property name="palette">
-                         <palette>
-                          <active>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </active>
-                          <inactive>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </inactive>
-                          <disabled>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>122</red>
-                              <green>122</green>
-                              <blue>122</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </disabled>
-                         </palette>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <family>Courier New</family>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Douglas Fir: S = 0.3165*LAI (n=4, R2=0.83)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="8" column="0">
-                       <widget class="Line" name="line_2">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="5" column="0">
-                       <widget class="QRadioButton" name="radioButton_6">
-                        <property name="palette">
-                         <palette>
-                          <active>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </active>
-                          <inactive>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </inactive>
-                          <disabled>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>122</red>
-                              <green>122</green>
-                              <blue>122</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </disabled>
-                         </palette>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <family>Courier New</family>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Broadleaved forest: S = 0.2856*LAI (n=5, R2=0.60)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="9" column="0">
-                       <widget class="QRadioButton" name="radioButton_9">
-                        <property name="palette">
-                         <palette>
-                          <active>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </active>
-                          <inactive>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </inactive>
-                          <disabled>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>122</red>
-                              <green>122</green>
-                              <blue>122</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </disabled>
-                         </palette>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>User defined Smax (needs smax.map)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="7" column="0">
-                       <widget class="QRadioButton" name="radioButton_8">
-                        <property name="palette">
-                         <palette>
-                          <active>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </active>
-                          <inactive>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </inactive>
-                          <disabled>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>122</red>
-                              <green>122</green>
-                              <blue>122</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </disabled>
-                         </palette>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <family>Courier New</family>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Clumped grass: S = 0.59 * LAI^0.88 (n=6, R2=0.82)</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item row="1" column="4">
-                    <spacer name="horizontalSpacer_11">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item row="0" column="6">
-                    <widget class="QToolButton" name="toolButton_help2">
-                     <property name="text">
-                      <string>...</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
-                       <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="7">
-                    <widget class="QToolButton" name="toolButton_resetInterception">
-                     <property name="text">
-                      <string>...</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
-                       <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
-                     </property>
-                    </widget>
                    </item>
                   </layout>
                  </widget>
@@ -6856,13 +6920,50 @@ p, li { white-space: pre-wrap; }
                    <string>Infiltration</string>
                   </attribute>
                   <layout class="QGridLayout" name="gridLayout_2">
-                   <item row="2" column="0">
-                    <widget class="QGroupBox" name="groupBox_InfilOptions">
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_69">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active>
+                        <colorrole role="WindowText">
+                         <brush brushstyle="SolidPattern">
+                          <color alpha="255">
+                           <red>0</red>
+                           <green>0</green>
+                           <blue>0</blue>
+                          </color>
+                         </brush>
+                        </colorrole>
+                       </active>
+                       <inactive>
+                        <colorrole role="WindowText">
+                         <brush brushstyle="SolidPattern">
+                          <color alpha="255">
+                           <red>0</red>
+                           <green>0</green>
+                           <blue>0</blue>
+                          </color>
+                         </brush>
+                        </colorrole>
+                       </inactive>
+                       <disabled>
+                        <colorrole role="WindowText">
+                         <brush brushstyle="SolidPattern">
+                          <color alpha="255">
+                           <red>122</red>
+                           <green>122</green>
+                           <blue>122</blue>
+                          </color>
+                         </brush>
+                        </colorrole>
+                       </disabled>
+                      </palette>
                      </property>
                      <property name="font">
                       <font>
@@ -6873,247 +6974,108 @@ p, li { white-space: pre-wrap; }
                        <kerning>true</kerning>
                       </font>
                      </property>
-                     <property name="title">
-                      <string>General options</string>
+                     <property name="text">
+                      <string>Infiltration model</string>
                      </property>
-                     <layout class="QGridLayout" name="gridLayout_52">
-                      <item row="0" column="0">
-                       <widget class="QCheckBox" name="checkImpermeable">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="palette">
-                         <palette>
-                          <active>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </active>
-                          <inactive>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </inactive>
-                          <disabled>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>122</red>
-                              <green>122</green>
-                              <blue>122</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </disabled>
-                         </palette>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Impermeable lower soil boundary (1) or free drainage (0)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="5" column="0" colspan="2">
-                       <widget class="QCheckBox" name="checkInfilCrust">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="palette">
-                         <palette>
-                          <active>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </active>
-                          <inactive>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </inactive>
-                          <disabled>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>122</red>
-                              <green>122</green>
-                              <blue>122</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </disabled>
-                         </palette>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Include crusts (needs additional maps)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="0" colspan="2">
-                       <widget class="QCheckBox" name="checkInfilCompact">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="palette">
-                         <palette>
-                          <active>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </active>
-                          <inactive>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </inactive>
-                          <disabled>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>122</red>
-                              <green>122</green>
-                              <blue>122</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </disabled>
-                         </palette>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Include compacted areas (needs additional maps)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0" colspan="2">
-                       <widget class="QCheckBox" name="checkInfil2layer">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="palette">
-                         <palette>
-                          <active>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </active>
-                          <inactive>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </inactive>
-                          <disabled>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>122</red>
-                              <green>122</green>
-                              <blue>122</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </disabled>
-                         </palette>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>2 layer Green &amp; Ampt or Smith &amp; Parlange (needs 2nd layer maps)</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
+                    </widget>
+                   </item>
+                   <item row="5" column="3">
+                    <spacer name="verticalSpacer_3">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QComboBox" name="E_InfiltrationMethod">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active>
+                        <colorrole role="WindowText">
+                         <brush brushstyle="SolidPattern">
+                          <color alpha="255">
+                           <red>0</red>
+                           <green>0</green>
+                           <blue>0</blue>
+                          </color>
+                         </brush>
+                        </colorrole>
+                        <colorrole role="ButtonText">
+                         <brush brushstyle="SolidPattern">
+                          <color alpha="255">
+                           <red>0</red>
+                           <green>0</green>
+                           <blue>0</blue>
+                          </color>
+                         </brush>
+                        </colorrole>
+                       </active>
+                       <inactive>
+                        <colorrole role="WindowText">
+                         <brush brushstyle="SolidPattern">
+                          <color alpha="255">
+                           <red>0</red>
+                           <green>0</green>
+                           <blue>0</blue>
+                          </color>
+                         </brush>
+                        </colorrole>
+                        <colorrole role="ButtonText">
+                         <brush brushstyle="SolidPattern">
+                          <color alpha="255">
+                           <red>0</red>
+                           <green>0</green>
+                           <blue>0</blue>
+                          </color>
+                         </brush>
+                        </colorrole>
+                       </inactive>
+                       <disabled>
+                        <colorrole role="WindowText">
+                         <brush brushstyle="SolidPattern">
+                          <color alpha="255">
+                           <red>122</red>
+                           <green>122</green>
+                           <blue>122</blue>
+                          </color>
+                         </brush>
+                        </colorrole>
+                        <colorrole role="ButtonText">
+                         <brush brushstyle="SolidPattern">
+                          <color alpha="255">
+                           <red>122</red>
+                           <green>122</green>
+                           <blue>122</blue>
+                          </color>
+                         </brush>
+                        </colorrole>
+                       </disabled>
+                      </palette>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="currentIndex">
+                      <number>-1</number>
+                     </property>
                     </widget>
                    </item>
                    <item row="3" column="0">
@@ -7516,89 +7478,6 @@ p, li { white-space: pre-wrap; }
                      </layout>
                     </widget>
                    </item>
-                   <item row="0" column="0">
-                    <widget class="QLabel" name="label_69">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active>
-                        <colorrole role="WindowText">
-                         <brush brushstyle="SolidPattern">
-                          <color alpha="255">
-                           <red>0</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </brush>
-                        </colorrole>
-                       </active>
-                       <inactive>
-                        <colorrole role="WindowText">
-                         <brush brushstyle="SolidPattern">
-                          <color alpha="255">
-                           <red>0</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </brush>
-                        </colorrole>
-                       </inactive>
-                       <disabled>
-                        <colorrole role="WindowText">
-                         <brush brushstyle="SolidPattern">
-                          <color alpha="255">
-                           <red>122</red>
-                           <green>122</green>
-                           <blue>122</blue>
-                          </color>
-                         </brush>
-                        </colorrole>
-                       </disabled>
-                      </palette>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Infiltration model</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="5" column="2">
-                    <spacer name="verticalSpacer_3">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>40</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item row="0" column="2" alignment="Qt::AlignTop">
-                    <widget class="QToolButton" name="toolButton_help3">
-                     <property name="text">
-                      <string>...</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
-                       <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="0" column="1">
                     <spacer name="horizontalSpacer_4">
                      <property name="orientation">
@@ -7612,93 +7491,278 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </spacer>
                    </item>
-                   <item row="1" column="0">
-                    <widget class="QComboBox" name="E_InfiltrationMethod">
+                   <item row="0" column="3" alignment="Qt::AlignTop">
+                    <widget class="QToolButton" name="toolButton_help3">
+                     <property name="text">
+                      <string>...</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/openlisem.qrc">
+                       <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QGroupBox" name="groupBox_InfilOptions">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
-                     <property name="palette">
-                      <palette>
-                       <active>
-                        <colorrole role="WindowText">
-                         <brush brushstyle="SolidPattern">
-                          <color alpha="255">
-                           <red>0</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </brush>
-                        </colorrole>
-                        <colorrole role="ButtonText">
-                         <brush brushstyle="SolidPattern">
-                          <color alpha="255">
-                           <red>0</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </brush>
-                        </colorrole>
-                       </active>
-                       <inactive>
-                        <colorrole role="WindowText">
-                         <brush brushstyle="SolidPattern">
-                          <color alpha="255">
-                           <red>0</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </brush>
-                        </colorrole>
-                        <colorrole role="ButtonText">
-                         <brush brushstyle="SolidPattern">
-                          <color alpha="255">
-                           <red>0</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </brush>
-                        </colorrole>
-                       </inactive>
-                       <disabled>
-                        <colorrole role="WindowText">
-                         <brush brushstyle="SolidPattern">
-                          <color alpha="255">
-                           <red>122</red>
-                           <green>122</green>
-                           <blue>122</blue>
-                          </color>
-                         </brush>
-                        </colorrole>
-                        <colorrole role="ButtonText">
-                         <brush brushstyle="SolidPattern">
-                          <color alpha="255">
-                           <red>122</red>
-                           <green>122</green>
-                           <blue>122</blue>
-                          </color>
-                         </brush>
-                        </colorrole>
-                       </disabled>
-                      </palette>
-                     </property>
                      <property name="font">
                       <font>
                        <pointsize>8</pointsize>
-                       <weight>50</weight>
-                       <bold>false</bold>
+                       <weight>75</weight>
+                       <bold>true</bold>
                        <underline>false</underline>
                        <kerning>true</kerning>
                       </font>
                      </property>
-                     <property name="currentIndex">
-                      <number>-1</number>
+                     <property name="title">
+                      <string>General options</string>
                      </property>
+                     <layout class="QGridLayout" name="gridLayout_52">
+                      <item row="0" column="0">
+                       <widget class="QCheckBox" name="checkImpermeable">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="palette">
+                         <palette>
+                          <active>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>0</red>
+                              <green>0</green>
+                              <blue>0</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
+                          </active>
+                          <inactive>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>0</red>
+                              <green>0</green>
+                              <blue>0</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
+                          </inactive>
+                          <disabled>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>122</red>
+                              <green>122</green>
+                              <blue>122</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
+                          </disabled>
+                         </palette>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Impermeable lower soil boundary (1) or free drainage (0)</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="5" column="0" colspan="2">
+                       <widget class="QCheckBox" name="checkInfilCrust">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="palette">
+                         <palette>
+                          <active>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>0</red>
+                              <green>0</green>
+                              <blue>0</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
+                          </active>
+                          <inactive>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>0</red>
+                              <green>0</green>
+                              <blue>0</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
+                          </inactive>
+                          <disabled>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>122</red>
+                              <green>122</green>
+                              <blue>122</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
+                          </disabled>
+                         </palette>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Include crusts (needs additional maps)</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="0" colspan="2">
+                       <widget class="QCheckBox" name="checkInfilCompact">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="palette">
+                         <palette>
+                          <active>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>0</red>
+                              <green>0</green>
+                              <blue>0</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
+                          </active>
+                          <inactive>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>0</red>
+                              <green>0</green>
+                              <blue>0</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
+                          </inactive>
+                          <disabled>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>122</red>
+                              <green>122</green>
+                              <blue>122</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
+                          </disabled>
+                         </palette>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Include compacted areas (needs additional maps)</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0" colspan="2">
+                       <widget class="QCheckBox" name="checkInfil2layer">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="palette">
+                         <palette>
+                          <active>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>0</red>
+                              <green>0</green>
+                              <blue>0</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
+                          </active>
+                          <inactive>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>0</red>
+                              <green>0</green>
+                              <blue>0</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
+                          </inactive>
+                          <disabled>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>122</red>
+                              <green>122</green>
+                              <blue>122</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
+                          </disabled>
+                         </palette>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>2 layer Green &amp; Ampt or Smith &amp; Parlange (needs 2nd layer maps)</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </widget>
                    </item>
-                   <item row="0" column="3">
+                   <item row="0" column="2">
                     <widget class="QToolButton" name="toolButton_resetInfiltration">
                      <property name="text">
                       <string>...</string>
@@ -8112,23 +8176,6 @@ p, li { white-space: pre-wrap; }
                      <property name="icon">
                       <iconset resource="../resources/openlisem.qrc">
                        <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="3">
-                    <widget class="QToolButton" name="toolButton_resetFlow">
-                     <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset to default values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                     </property>
-                     <property name="toolTipDuration">
-                      <number>-5</number>
-                     </property>
-                     <property name="text">
-                      <string>...</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
-                       <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
                      </property>
                     </widget>
                    </item>
@@ -8574,6 +8621,23 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </spacer>
                    </item>
+                   <item row="2" column="1">
+                    <widget class="QToolButton" name="toolButton_resetFlow">
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset to default values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     </property>
+                     <property name="toolTipDuration">
+                      <number>-5</number>
+                     </property>
+                     <property name="text">
+                      <string>...</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/openlisem.qrc">
+                       <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
                   </layout>
                  </widget>
                  <widget class="QWidget" name="tab_erosion">
@@ -8581,6 +8645,30 @@ p, li { white-space: pre-wrap; }
                    <string>Erosion</string>
                   </attribute>
                   <layout class="QGridLayout" name="gridLayout_48">
+                   <item row="0" column="2">
+                    <widget class="QToolButton" name="toolButton_help5">
+                     <property name="text">
+                      <string>...</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/openlisem.qrc">
+                       <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <spacer name="verticalSpacer_6">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>223</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
                    <item row="0" column="0" rowspan="2">
                     <widget class="QToolBox" name="toolBox_erosion">
                      <property name="sizePolicy">
@@ -8612,7 +8700,7 @@ p, li { white-space: pre-wrap; }
                        <rect>
                         <x>0</x>
                         <y>0</y>
-                        <width>687</width>
+                        <width>665</width>
                         <height>205</height>
                        </rect>
                       </property>
@@ -11216,29 +11304,7 @@ p, li { white-space: pre-wrap; }
                      </widget>
                     </widget>
                    </item>
-                   <item row="0" column="1">
-                    <widget class="QToolButton" name="toolButton_help5">
-                     <property name="text">
-                      <string>...</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
-                       <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="2">
-                    <widget class="QToolButton" name="toolButton_resetErosion">
-                     <property name="text">
-                      <string>...</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
-                       <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1" rowspan="2">
+                   <item row="1" column="2" rowspan="2">
                     <spacer name="verticalSpacer_11">
                      <property name="orientation">
                       <enum>Qt::Vertical</enum>
@@ -11251,18 +11317,16 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </spacer>
                    </item>
-                   <item row="2" column="0">
-                    <spacer name="verticalSpacer_6">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
+                   <item row="0" column="1">
+                    <widget class="QToolButton" name="toolButton_resetErosion">
+                     <property name="text">
+                      <string>...</string>
                      </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>223</height>
-                      </size>
+                     <property name="icon">
+                      <iconset resource="../resources/openlisem.qrc">
+                       <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
                      </property>
-                    </spacer>
+                    </widget>
                    </item>
                   </layout>
                  </widget>
