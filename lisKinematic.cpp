@@ -206,22 +206,23 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
     return Qkx;
 }
 
+//---------------------------------------------------------------------------
 
-void TWorld::KinematicExplicit()//QVector <LDD_COOR>_crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax)
+void TWorld::KinematicExplicit(QVector <LDD_COOR>_crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax)
 {   
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
-    fill(*Qn, 0);
+    fill(*_Qn, 0);
 
 // #pragma omp parallel for reduction(+:Qin) num_threads(userCores)
-    for(long i_ =  0; i_ < crlinkedldd_.size(); i_++)
+    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
     {
-        int r = crlinkedldd_[i_].r;
-        int c = crlinkedldd_[i_].c;
+        int r = _crlinked_[i_].r;
+        int c = _crlinked_[i_].c;
 
         double Qin = 0;
-    //    QinKW->Drc = 0;
+        QinKW->Drc = 0;
 
         for (int i = 1; i <= 9; i++)
         {
@@ -232,21 +233,23 @@ void TWorld::KinematicExplicit()//QVector <LDD_COOR>_crlinked_, cTMap *_LDD, cTM
             int rr = r+dy[i];
             int cr = c+dx[i];
 
-            if (INSIDE(rr, cr) && !pcr::isMV(LDD->Drcr))
-                ldd = (int) LDD->Drcr;
+            if (INSIDE(rr, cr) && !pcr::isMV(_LDD->Drcr))
+                ldd = (int) _LDD->Drcr;
             else
                 continue;
 
             // if the cells flow into
             if (FLOWS_TO(ldd, rr,cr,r,c)) {
-                Qin += Qn->Drcr;
+                Qin += _Qn->Drcr;
             }
         }
 
         QinKW->Drc = Qin;
-        Qn->Drc = IterateToQnew(QinKW->Drc,Q->Drc, q->Drc, Alpha->Drc, _dt, DX->Drc, 0);
+        if (Qin > 0 || _Q->Drc > 0)
+           _Qn->Drc = IterateToQnew(QinKW->Drc,_Q->Drc, _q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc);
     }
 }
+//---------------------------------------------------------------------------
 
 void TWorld::KinematicSubstance(QVector <LDD_COOR> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
 {
@@ -288,13 +291,16 @@ void TWorld::KinematicSubstance(QVector <LDD_COOR> _crlinked_, cTMap *_LDD, cTMa
 
         QinKW->Drc = Sin;
 
-        _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
-        _Qsn->Drc = std::min(_Qsn->Drc, QinKW->Drc+_Sed->Drc/_dt);
-        // no more sediment outflow than total sed in cell
-        _Sed->Drc = std::max(0.0, QinKW->Drc*_dt + _Sed->Drc - _Qsn->Drc*_dt);
-        // new sed volume based on all fluxes and org sed present
+        if (Sin > 0 || _Qs->Drc > 0) {
+            _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
+            _Qsn->Drc = std::min(_Qsn->Drc, QinKW->Drc+_Sed->Drc/_dt);
+            // no more sediment outflow than total sed in cell
+            _Sed->Drc = std::max(0.0, QinKW->Drc*_dt + _Sed->Drc - _Qsn->Drc*_dt);
+            // new sed volume based on all fluxes and org sed present
+        }
     }
 }
+//---------------------------------------------------------------------------
 
 QVector <LDD_COOR> TWorld::MakeLinkedList(cTMap *_LDD)
 {
@@ -620,12 +626,12 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
             QinKW->data[rowNr][colNr] = Sin; //reuse
 
 
-            bool complex = true;
-            if (complex)
+     //       bool complex = true;
+     //       if (complex)
                 _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
                                                           Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _DX->data[rowNr][colNr]);
-            else
-                _Qsn->data[rowNr][colNr] = simpleSedCalc(_Qn->data[rowNr][colNr], Qin, Sin, _Vol->data[rowNr][colNr], _Sed->data[rowNr][colNr]);
+     //       else
+     //           _Qsn->data[rowNr][colNr] = simpleSedCalc(_Qn->data[rowNr][colNr], Qin, Sin, _Vol->data[rowNr][colNr], _Sed->data[rowNr][colNr]);
 
             _Qsn->data[rowNr][colNr] = std::min(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
             // no more sediment outflow than total sed in cell

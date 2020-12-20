@@ -35,6 +35,7 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
+/* not used */
 double TWorld::channelVoltoWH(double vol, int r, int c)
 {
     double cwh = 0;
@@ -242,7 +243,9 @@ void TWorld::ChannelAddBaseandRain(void)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        fromChannelVoltoWH(r, c);
+       // fromChannelVoltoWH(r, c);
+        ChannelFlowWidth->Drc = ChannelWidth->Drc;
+        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
     }}
 }
 //---------------------------------------------------------------------------
@@ -272,8 +275,7 @@ void TWorld::ChannelFlow(void)
 
     // initialize some channel stuff
 #pragma omp parallel num_threads(userCores)
-    FOR_ROW_COL_MV_CHL
-    {
+    FOR_ROW_COL_MV_CHL {
         ChannelQsn->Drc = 0;
         Channelq->Drc = 0;
         QinKW->Drc = 0;
@@ -295,25 +297,30 @@ void TWorld::ChannelFlow(void)
     }
 
     if (SwitchChannelKinWave) {
-        ChannelQn->setAllMV();
-        // route water 1D and sediment
-//        FOR_ROW_COL_MV_CH {
-//            if (LDDChannel->Drc == 5)
-        FOR_ROW_COL_LDDCH5 {
-            Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
-        }}
+        if (SwitchLinkedList) {
+            ChannelQn->setAllMV();
+            // route water 1D and sediment
+            FOR_ROW_COL_LDDCH5 {
+                Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
+            }}
+            cover(*ChannelQn, *LDD, 0); // necessary???
+        } else {
+            fill(*ChannelQn, 0);
+            KinematicExplicit(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
+        }
 
-        cover(*ChannelQn, *LDD, 0); // necessary???
-
-        #pragma omp parallel for num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             ChannelWaterVol->Drc = ChannelWaterVol->Drc + QinKW->Drc*_dt - ChannelQn->Drc*_dt ;
 
             double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
-            //          double ChannelArea =ChannelAlpha->Drc*std::pow(ChannelQn->Drc, 0.6);
-            ChannelV->Drc = (ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0);
+            double R = ChannelArea/(ChannelWidth->Drc + 2*ChannelWH->Drc);
+           // ChannelV->Drc = (ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0);
+            ChannelV->Drc = pow(R, 2.0/3.0) * sqrt(ChannelGrad->Drc)/ChannelN->Drc;
 
-            fromChannelVoltoWH(r, c);
+            //fromChannelVoltoWH(r, c);
+            ChannelFlowWidth->Drc = ChannelWidth->Drc;
+            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 
         }}
     } else {
@@ -332,37 +339,31 @@ void TWorld::ChannelFlow(void)
 
     if (SwitchErosion)
     {
-        if(SwitchUse2Phase)
-            ChannelQBLsn->setAllMV();
-        ChannelQSSsn->setAllMV();
-
-        // WHY the following????
-//        #pragma omp parallel for num_threads(userCores)
-//        FOR_ROW_COL_MV_CHL
-//        {
-//            RiverSedimentLayerDepth(r,c);
-//            RiverSedimentMaxC(r,c);
-//        }}
-
-        // route water 1D and sediment
-//        FOR_ROW_COL_MV_CH
-//        {
-//            if (LDDChannel->Drc == 5)
-//            {
-        FOR_ROW_COL_LDDCH5 {
-                //explicit routing of matter using Q and new Qn
-                if (SwitchUse2Phase) {
+        if (SwitchLinkedList) {
+            if(SwitchUse2Phase) {
+                ChannelQBLsn->setAllMV();
+                FOR_ROW_COL_LDDCH5 {
                     routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn,
                                    ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed);
-                }
-                routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
-                               ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed);
-                //note: channelwatervol not really used
+                }}
+                cover(*ChannelQBLsn, *LDD, 0);
+            }
+
+            ChannelQSSsn->setAllMV();
+            //route water 1D and sediment
+            FOR_ROW_COL_LDDCH5 {
+               routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
+                              ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed);
             }}
-        //}
-        if (SwitchUse2Phase)
-            cover(*ChannelQBLsn, *LDD, 0);
-        cover(*ChannelQSSsn, *LDD, 0);
+            cover(*ChannelQSSsn, *LDD, 0);
+        } else {
+            if(SwitchUse2Phase) {
+                fill(*ChannelQBLsn,0);
+                KinematicSubstance(crlinkedldd_, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
+            }
+            fill(*ChannelQSSsn,0);
+            KinematicSubstance(crlinkedldd_, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
+        }
 
         if (SwitchIncludeRiverDiffusion) {
             RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
@@ -373,9 +374,16 @@ void TWorld::ChannelFlow(void)
         FOR_ROW_COL_MV_CHL {
             RiverSedimentLayerDepth(r,c);
             RiverSedimentMaxC(r,c);
-            ChannelQsn->Drc = (SwitchUse2Phase ? ChannelQBLsn->Drc : 0.0) + ChannelQSSsn->Drc;
-            ChannelSed->Drc = (SwitchUse2Phase ? ChannelBLSed->Drc : 0.0) + ChannelSSSed->Drc;
+            ChannelQsn->Drc = ChannelQSSsn->Drc;
+            ChannelSed->Drc = ChannelSSSed->Drc;
         }}
+        if(SwitchUse2Phase) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                ChannelQsn->Drc += ChannelQBLsn->Drc;
+                ChannelSed->Drc += ChannelBLSed->Drc;
+            }}
+        }
     }
 }
 

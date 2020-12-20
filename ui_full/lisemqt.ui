@@ -290,7 +290,7 @@
                   </font>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tab">
                   <attribute name="title">
@@ -5271,7 +5271,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -8968,8 +8968,8 @@ p, li { white-space: pre-wrap; }
                        <rect>
                         <x>0</x>
                         <y>0</y>
-                        <width>687</width>
-                        <height>180</height>
+                        <width>521</width>
+                        <height>140</height>
                        </rect>
                       </property>
                       <attribute name="label">
@@ -10100,8 +10100,8 @@ p, li { white-space: pre-wrap; }
                        <rect>
                         <x>0</x>
                         <y>0</y>
-                        <width>687</width>
-                        <height>227</height>
+                        <width>586</width>
+                        <height>187</height>
                        </rect>
                       </property>
                       <attribute name="label">
@@ -10666,8 +10666,8 @@ p, li { white-space: pre-wrap; }
                        <rect>
                         <x>0</x>
                         <y>0</y>
-                        <width>687</width>
-                        <height>188</height>
+                        <width>560</width>
+                        <height>148</height>
                        </rect>
                       </property>
                       <attribute name="label">
@@ -12176,7 +12176,7 @@ p, li { white-space: pre-wrap; }
                       <string>Advanced options</string>
                      </property>
                      <property name="checked">
-                      <bool>true</bool>
+                      <bool>false</bool>
                      </property>
                     </widget>
                    </item>
@@ -12192,8 +12192,8 @@ p, li { white-space: pre-wrap; }
                       <enum>QFrame::Raised</enum>
                      </property>
                      <layout class="QGridLayout" name="gridLayout_53">
-                      <item row="2" column="0">
-                       <widget class="QSpinBox" name="E_FloodFluxLimiter">
+                      <item row="2" column="1" colspan="2">
+                       <widget class="QLabel" name="label_100">
                         <property name="enabled">
                          <bool>true</bool>
                         </property>
@@ -12244,22 +12244,24 @@ p, li { white-space: pre-wrap; }
                          <font>
                           <pointsize>8</pointsize>
                           <weight>50</weight>
+                          <italic>false</italic>
                           <bold>false</bold>
                           <underline>false</underline>
                           <kerning>true</kerning>
                          </font>
                         </property>
-                        <property name="toolTip">
-                         <string>Avoiding oscillations in PDE</string>
+                        <property name="text">
+                         <string>Flux limiter: 1 - Minmod; 2 - van Leer; 3 - van Albeda (def. 1)</string>
                         </property>
-                        <property name="minimum">
-                         <number>1</number>
+                        <property name="alignment">
+                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                         </property>
-                        <property name="maximum">
-                         <number>3</number>
-                        </property>
-                        <property name="value">
-                         <number>1</number>
+                       </widget>
+                      </item>
+                      <item row="6" column="0" colspan="2">
+                       <widget class="QCheckBox" name="checkErosionInsideLoop">
+                        <property name="text">
+                         <string>Calculate erosion inside iteration loop for 2D flow (slower)</string>
                         </property>
                        </widget>
                       </item>
@@ -12338,72 +12340,6 @@ p, li { white-space: pre-wrap; }
                         </property>
                        </widget>
                       </item>
-                      <item row="2" column="1" colspan="2">
-                       <widget class="QLabel" name="label_100">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="palette">
-                         <palette>
-                          <active>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </active>
-                          <inactive>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </inactive>
-                          <disabled>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>122</red>
-                              <green>122</green>
-                              <blue>122</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </disabled>
-                         </palette>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <italic>false</italic>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Flux limiter: 1 - Minmod; 2 - van Leer; 3 - van Albeda (def. 1)</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
                       <item row="1" column="0">
                        <widget class="QSpinBox" name="E_FloodReconstruction">
                         <property name="enabled">
@@ -12472,10 +12408,81 @@ p, li { white-space: pre-wrap; }
                       <item row="5" column="1" colspan="2">
                        <widget class="QLabel" name="label">
                         <property name="text">
-                         <string>if waterheight reaches this value (m) and there is only a diagonal connection, move water to that diagonal cell</string>
+                         <string>if cell has diagonal connection and waterheight reaches this value (m) move water diagonally</string>
                         </property>
                         <property name="wordWrap">
                          <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="0">
+                       <widget class="QSpinBox" name="E_FloodFluxLimiter">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="palette">
+                         <palette>
+                          <active>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>0</red>
+                              <green>0</green>
+                              <blue>0</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
+                          </active>
+                          <inactive>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>0</red>
+                              <green>0</green>
+                              <blue>0</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
+                          </inactive>
+                          <disabled>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>122</red>
+                              <green>122</green>
+                              <blue>122</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
+                          </disabled>
+                         </palette>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="toolTip">
+                         <string>Avoiding oscillations in PDE</string>
+                        </property>
+                        <property name="minimum">
+                         <number>1</number>
+                        </property>
+                        <property name="maximum">
+                         <number>3</number>
+                        </property>
+                        <property name="value">
+                         <number>1</number>
                         </property>
                        </widget>
                       </item>
@@ -12560,10 +12567,13 @@ p, li { white-space: pre-wrap; }
                         </property>
                        </widget>
                       </item>
-                      <item row="6" column="0" colspan="2">
-                       <widget class="QCheckBox" name="checkErosionInsideLoop">
+                      <item row="7" column="0" colspan="2">
+                       <widget class="QCheckBox" name="checkLinkedList">
                         <property name="text">
-                         <string>Calculate erosion inside iteration loop for 2D flow (slower)</string>
+                         <string>Use linked list for kinematic flow (slower)</string>
+                        </property>
+                        <property name="checked">
+                         <bool>true</bool>
                         </property>
                        </widget>
                       </item>

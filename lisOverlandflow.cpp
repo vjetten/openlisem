@@ -116,7 +116,9 @@ void TWorld::ToChannel()
 
             // water diverted to the channel
             ChannelWaterVol->Drcr += dwh* FlowWidth->Drc * DX->Drc;
-            fromChannelVoltoWH(rr, cr);
+          //  fromChannelVoltoWH(rr, cr);
+            ChannelFlowWidth->Drc = ChannelWidth->Drc;
+            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 
             WHrunoff->Drc -= dwh ;
             WHroad->Drc -= dwh;
@@ -473,15 +475,18 @@ void TWorld::OverlandFlow1D(void)
     }
 
     // route water
-//    Qn->setAllMV();
-//    FOR_ROW_COL_LDD5 {
-//        Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);
-//        // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
-//    }}
-KinematicExplicit();//crlinkedldd_, LDD, Q, Qn, q, Alpha,DX, tm);
+    if (SwitchLinkedList) {
+        Qn->setAllMV();
+        FOR_ROW_COL_LDD5 {
+            Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);
+            // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
+        }}
+    } else {
+        KinematicExplicit(crlinkedldd_, LDD, Q, Qn, q, Alpha,DX, tm);
+    }
 
 //convert calculate Qn back to WH and volume for next loop
-//#pragma omp parallel for num_threads(userCores)
+#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
         double InfilKWact = 0;
@@ -501,11 +506,10 @@ KinematicExplicit();//crlinkedldd_, LDD, Q, Qn, q, Alpha,DX, tm);
 
         InfilVolKinWave->Drc = InfilKWact;
         //Q->Drc = Qn->Drc;
-        double Perim = FlowWidth->Drc;// > 0 ? 2*WHrunoff->Drc + FlowWidth->Drc : 0.0;
-        double R = WHrunoff->Drc;//*FlowWidth->Drc/Perim;
-        Alpha->Drc = pow(N->Drc/sqrtGrad->Drc * pow(Perim, 2.0/3.0),0.6); // for erosion
-       V->Drc = pow(R, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
-  //      V->Drc = WHrunoff->Drc > 0 ? Qn->Drc/(WHrunoff->Drc*ChannelAdj->Drc) : 0;
+       // double Perim = FlowWidth->Drc;// > 0 ? 2*WHrunoff->Drc + FlowWidth->Drc : 0.0;
+        //double R = WHrunoff->Drc;//*FlowWidth->Drc/Perim;
+        Alpha->Drc = pow(N->Drc/sqrtGrad->Drc * pow(FlowWidth->Drc, 2.0/3.0),0.6); // for erosion
+        V->Drc = pow(WHrunoff->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
 
         WHroad->Drc = WHrunoff->Drc;
         // set road to average outflowing wh, no surface storage.
@@ -521,22 +525,26 @@ KinematicExplicit();//crlinkedldd_, LDD, Q, Qn, q, Alpha,DX, tm);
         WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
     }}
-    //      routing of substances add here!
-    //      do after kin wave so that the new flux Qn out of a cell is known
-    //      you need to have the ingoing substance flux QS (mass/s)
-    //      and it will give outgoing flux QSn (mass/s)
-    //      and the current amount Subs (mass) in suspension+solution
 
     if (SwitchErosion)
     {
-        fill(*QinKW, 0.0); // reuse
-        fill(*tm, 0.0);
-        copy(*tm, *Sed);
-            Qsn->setAllMV();
-            FOR_ROW_COL_LDD5 {
-                routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);
-            }}
-//          KinematicSubstance(crlinkedldd_, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
+        //      routing of substances add here!
+        //      do after kin wave so that the new flux Qn out of a cell is known
+        //      you need to have the ingoing substance flux QS (mass/s)
+        //      and it will give outgoing flux QSn (mass/s)
+        //      and the current amount Subs (mass) in suspension+solution
+
+        if (SwitchLinkedList) {
+            fill(*QinKW, 0.0); // reuse
+            fill(*tm, 0.0);
+            copy(*tm, *Sed);
+                Qsn->setAllMV();
+                FOR_ROW_COL_LDD5 {
+                    routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);
+                }}
+        } else {
+          KinematicSubstance(crlinkedldd_, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
+        }
 
     }
 
@@ -550,14 +558,16 @@ KinematicExplicit();//crlinkedldd_, LDD, Q, Qn, q, Alpha,DX, tm);
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
         }
 
-        fill(*Qpn, 0.0);
-        FOR_ROW_COL_MV
-        {
-            if (LDD->Drc == 5) // if outflow point, pit
-            {
-                routeSubstance(r,c, LDD, Q, Qn, Qp, Qpn, Alpha, DX, WaterVolin, Pest);//, BufferVol, nullptr);
-            }
-        }
+//        fill(*Qpn, 0.0);
+//        FOR_ROW_COL_MV
+//        {
+//            if (LDD->Drc == 5) // if outflow point, pit
+//            {
+//                routeSubstance(r,c, LDD, Q, Qn, Qp, Qpn, Alpha, DX, WaterVolin, Pest);//, BufferVol, nullptr);
+//            }
+//        }
+        KinematicSubstance(crlinkedldd_, LDD, Q, Qn, Qp, Qpn, Alpha, DX, Pest);
+
     }
 
 
@@ -569,15 +579,7 @@ KinematicExplicit();//crlinkedldd_, LDD, Q, Qn, q, Alpha,DX, tm);
         {
 
             Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
-            /*
-            if(SwitchUseGrainSizeDistribution)
-            {
-                FOR_GRAIN_CLASSES
-                {
-                    Conc_D.Drcd = (Qn->Drc > MIN_FLUX ? Tempb_D.Drcd/Qn->Drc : 0);
-                }
-            }
-*/
+
             if (SwitchPesticide)
             {
                 //C->Drc = ConcentrationP(WaterVolall->Drc, Pest->Drc);

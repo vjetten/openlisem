@@ -391,6 +391,7 @@ qDebug() << crlinkedldd_.size();
         SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);
         F_pitValue = getvaluedouble("Pit Value");
         SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
+        SwitchLinkedList = getvalueint("Use Linked List") == 1;
     } else {
         mixing_coefficient = 2.0;
         runoff_partitioning = 1.0;
@@ -403,6 +404,7 @@ qDebug() << crlinkedldd_.size();
         F_Angle = 0.02;
         F_pitValue = 10.0;
         SwitchErosionInsideLoop = false;
+        SwitchLinkedList = false;
     }
 
     SwitchKinematic2D = getvalueint("Routing Kin Wave 2D");

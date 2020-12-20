@@ -22,7 +22,7 @@ IF(WIN32)
     SET(QWT_INCLUDE_DIRS "${LISEM_QWT_ROOT}/include/qwt")
     SET(QWT_LIBRARIES "${LISEM_QWT_ROOT}/lib/libqwt.dll.a")
 
-    SET(OMP_INCLUDE_DIRS "C:/Qt/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/10.2.0/include/")
+    SET(OMP_INCLUDE_DIRS "C:/Qt/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/10.2.0/include")
 ENDIF()
 
 

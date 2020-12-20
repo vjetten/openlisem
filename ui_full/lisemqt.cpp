@@ -118,6 +118,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
     // put the progress bar into the statusbar
 
+    tabWidgetOptions->setCurrentIndex(0);
+    tabWidget_OutputMaps->setCurrentIndex(0);
+
     doBatchmode = doBatch;
     batchRunname = runname;
     doCheckRainfall(true);
@@ -2058,5 +2061,15 @@ void lisemqt::on_toolButton_help(int page)
     file.open(QFile::ReadOnly | QFile::Text);
     QTextStream stream(&file);
     helptxt->setHtml(stream.readAll());
-    helpbox->show();
+  //  helpbox->show();
+
+
+    QTextEdit *view = new QTextEdit(helptxt->toHtml());
+    view->createStandardContextMenu();
+    view->setWindowTitle("Option help");
+    view->setMinimumWidth(640);
+    view->setMinimumHeight(480);
+    view->setAttribute(Qt::WA_DeleteOnClose);
+
+    view->show();
 }
