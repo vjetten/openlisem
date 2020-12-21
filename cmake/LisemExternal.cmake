@@ -25,15 +25,15 @@ FIND_LIBRARY(QWT_LIBRARIES
     NAMES qwt
 )
 
-IF(WIN32)
-    FIND_LIBRARY(QWT_DEBUG_LIBRARY
-        NAMES qwt #qwtd
-    )
-    SET(QWT_LIBRARIES
-        optimized ${QWT_LIBRARIES}
-        debug ${QWT_DEBUG_LIBRARY}
-    )
-ENDIF()
+#IF(WIN32)
+#    FIND_LIBRARY(QWT_DEBUG_LIBRARY
+#        NAMES qwt #qwtd
+#    )
+#    SET(QWT_LIBRARIES
+#        optimized ${QWT_LIBRARIES}
+#        debug ${QWT_DEBUG_LIBRARY}
+#    )
+#ENDIF()
 
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(Qwt
