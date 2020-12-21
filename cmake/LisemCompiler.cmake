@@ -6,22 +6,16 @@ IF(UNIX AND NOT CYGWIN)
     SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
     SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
 
-    SET(PCRASTER_RASTER_FORMAT_LIBRARIES "${PCRASTER_BUILD_DIR}/build/bin/libpcraster_raster_format.a")
-    SET(PCRASTER_RASTER_FORMAT_INCLUDE_DIRS "${PCRASTER_BUILD_DIR}/source/rasterformat/sources/pcraster_raster_format")
-    SET(QWT_LIBRARIES "${LISEM_QWT_ROOT}/lib/libqwt.so")
-    SET(QWT_INCLUDE_DIRS "${LISEM_QWT_ROOT}/include/")
+    SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.so")
+    SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/")
 ENDIF()
 
+# assuming MSYS instalation: https://wiki.qt.io/MSYS2
 IF(WIN32)
-    SET(PCRASTER_RASTER_FORMAT_INCLUDE_DIRS "${PCRASTER_BUILD_DIR}/include")
-    SET(PCRASTER_RASTER_FORMAT_LIBRARIES "${PCRASTER_BUILD_DIR}/lib/pcraster/libpcraster_raster_format.a")
-
     SET(GDAL_INCLUDE_DIRS "${GDAL_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${GDAL_BUILD_DIR}/lib/libgdal.dll.a")
-
-    SET(QWT_INCLUDE_DIRS "${LISEM_QWT_ROOT}/include/qwt")
-    SET(QWT_LIBRARIES "${LISEM_QWT_ROOT}/lib/libqwt.dll.a")
-
+    SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/qwt")
+    SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
     SET(OMP_INCLUDE_DIRS "C:/Qt/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/10.2.0/include")
 ENDIF()
 

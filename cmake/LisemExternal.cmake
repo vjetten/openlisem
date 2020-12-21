@@ -1,10 +1,6 @@
 
 # Find packages. ---------------------------------------------------------------
-# this calls fndq
-#FIND_PACKAGE(GDAL REQUIRED)
-#FIND_PACKAGE(Qwt REQUIRED)
-#FIND_PACKAGE(PCRasterRasterFormat REQUIRED)
-#FIND_PACKAGE(OpenMP REQUIRED)
+
 
 #===== OMP =====
 if(OpenMP_CXX_FOUND)
@@ -31,7 +27,7 @@ FIND_LIBRARY(QWT_LIBRARIES
 
 IF(WIN32)
     FIND_LIBRARY(QWT_DEBUG_LIBRARY
-        NAMES qwtd
+        NAMES qwt #qwtd
     )
     SET(QWT_LIBRARIES
         optimized ${QWT_LIBRARIES}
@@ -61,49 +57,12 @@ FIND_LIBRARY(QWT_LIBRARIES
 )
 
 
-#===== PCR =====
-
-FIND_PATH(PCRASTER_RASTER_FORMAT_INCLUDE_DIRS
-    NAMES csf.h
-)
-
-
-FIND_LIBRARY(PCRASTER_RASTER_FORMAT_LIBRARIES
-    NAMES pcraster_raster_format
-  #  NAMES pcraster_raster_formatd
-)
-IF(WIN32)
-    FIND_LIBRARY(PCRASTER_RASTER_FORMAT_DEBUG_LIBRARY
-        NAMES pcraster_raster_formatd
-    )
-    SET(PCRASTER_RASTER_FORMAT_LIBRARIES
-        optimized ${PCRASTER_RASTER_FORMAT_LIBRARIES}
-        debug ${PCRASTER_RASTER_FORMAT_DEBUG_LIBRARY}
-    )
-ENDIF()
-
-
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(PCRasterRasterFormat
-    REQUIRED_VARS
-        PCRASTER_RASTER_FORMAT_LIBRARIES
-        PCRASTER_RASTER_FORMAT_INCLUDE_DIRS
-)
-
-
-MARK_AS_ADVANCED(
-    PCRASTER_RASTER_FORMAT_LIBRARIES
-    PCRASTER_RASTER_FORMAT_INCLUDE_DIRS
-)
-
-
 # Configure project. -----------------------------------------------------------
 
 INCLUDE_DIRECTORIES(
     SYSTEM
     ${GDAL_INCLUDE_DIRS}
     ${QWT_INCLUDE_DIRS}
-    ${PCRASTER_RASTER_FORMAT_INCLUDE_DIRS}
     ${OMP_INCLUDE_DIRS}
 )
 
@@ -111,5 +70,4 @@ INCLUDE_DIRECTORIES(
 SET(LISEM_EXTERNAL_LIBRARIES
     ${GDAL_LIBRARIES}
     ${QWT_LIBRARIES}
-    ${PCRASTER_RASTER_FORMAT_LIBRARIES}
 )
