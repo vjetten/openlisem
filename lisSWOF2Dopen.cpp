@@ -342,16 +342,19 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             }}
 
             if (step > 0) {
-                SWOFDiagonalFlow(dt_req_min, h, vx, vy);
+                double dts = dt_req_min;
+
+                SWOFDiagonalFlow(dts, h, vx, vy);
 
                 if (SwitchErosion && SwitchErosionInsideLoop) {
-                    SWOFSediment(dt_req_min, FloodDT,h,vx,vy);
+                    SWOFSediment(dts, FloodDT,h,vx,vy);
                 }
+
                 timesum += dt_req_min;
                 count++; // nr loops
             }
 
-            step = 1; // now we have a good dt min, do the real calculations
+            step += 1; // now we have a good dt min, do the real calculations
 
             stop = timesum > _dt-0.001;
             if(count > F_MaxIter)
@@ -373,78 +376,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 }
 
 //-----------------------------------------------------------------------------------------------------
-void TWorld::makeChannelList()
-{
-    /*
-    if(!SwitchIncludeChannel)
-        return;
-
-    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-
-    fill(*tma, -1);
-
-    for (int rr = 0; rr < _nrRows; rr++)
-        for (int cr = 0; cr < _nrCols; cr++) {
-            if(LDDChannel->Drcr == 5) {
-                //LDD_LINKEDLIST *chlist = nullptr;
-                LDD_LINKEDLIST *temp = nullptr;
-                chlist = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-
-                chlist->prev = nullptr;
-                chlist->rowNr = rr;
-                chlist->colNr = cr;
-
-                while (chlist != nullptr)
-                {
-                    int i = 0;
-                    bool  subCatchDone = true;
-
-                    int rowNr = chlist->rowNr;
-                    int colNr = chlist->colNr;
-
-
-                    for (i=1; i<=9; i++)
-                    {
-                        int r, c;
-                        int ldd = 0;
-
-                        // this is the current cell
-                        if (i==5)
-                            continue;
-
-                        r = rowNr+dy[i];
-                        c = colNr+dx[i];
-
-                        if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
-                            ldd = (int) LDDChannel->Drc;
-
-                        // check if there are more cells upstream, if not subCatchDone remains true
-                        if (tma->Drc < 0 && ldd > 0 && FLOWS_TO(ldd, r, c, rowNr, colNr)) {
-                            temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-                            temp->prev = chlist;
-                            chlist = temp;
-                            chlist->rowNr = r;
-                            chlist->colNr = c;
-                            subCatchDone = false;
-                        }
-                    }
-
-                    if (subCatchDone)
-                    {
-                        tma->data[rowNr][colNr] = 1; // flag done
-
-                        temp=chlist;
-                        chlist=chlist->prev;
-                        //free(temp);
-                    }
-                }
-            }
-        }
-    }
-    */
-}
-
 void TWorld::ChannelSWOFopen()
 {
     if(!SwitchIncludeChannel)

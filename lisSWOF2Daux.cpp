@@ -931,16 +931,24 @@ void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
 {
     // force flow when a diagonal solution exists and a blockage
     if(F_pitValue > 0) {
+        int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
+        int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
         FOR_ROW_COL_MV_L  {
             if (DEMdz->Drc == 1 && h->Drc > F_pitValue) {
                 vec4 rec;
                 int ldd = (int) LDD->Drc;
-                int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
-                int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
+
                 rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->data[r+dy[ldd]][c+dx[ldd]], vx->data[r+dy[ldd]][c+dx[ldd]], vy->data[r+dy[ldd]][c+dx[ldd]]);
                 double dH = dt_req_min/_dx*(rec.v[0]) + dt_req_min/_dx*(rec.v[0]);
                 h->Drc -= dH;
                 h->data[r+dy[ldd]][c+dx[ldd]] += dH;
+
+                if (SwitchErosion) {
+                    double dS = dH*DX->Drc*ChannelAdj->Drc*SSCFlood->Drc;
+                    SSFlood->Drc -= dS;
+                    SSFlood->data[r+dy[ldd]][c+dx[ldd]] += dS;
+                }
+
             }
         }}
     }
