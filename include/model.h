@@ -95,6 +95,8 @@
 //{long _i_ = cri_[i_]; int r = (int)(_i_/_nrCols); int c = (int)(_i_ % _nrCols);
 
 // fastest, QVector stores all elements in the same consequtive memory!
+//for(long i_ = 0; i_< nrValidCells; i_++)
+
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
 {int r = cr_[i_].r; int c = cr_[i_].c;
 
@@ -106,9 +108,6 @@
 
 #define FOR_ROW_COL_MV_CHL for(long i_ = nrValidCellsCH-1; i_ >= 0; i_--)\
 {int r = crch_[i_].r; int c = crch_[i_].c;
-
-#define FOR_ROW_COL_MV_LL for(long i_ = nrValidCells1-1; i_ >= 0; i_--)\
-{int r = cr1_[i_].r; int c = cr1_[i_].c;
 
 #define FOR_GRAIN_CLASSES for(int d  = 0 ; d < numgrainclasses;d++)
 
@@ -264,14 +263,19 @@ public:
     long nrValidCellsCH;
     long nrValidCells1;
     long nrValidCellsLinkedLDD;
-    QVector <LDD_COOR> cr_;
+    //QVector <LDD_COOR> cr_;
+    LDD_COOR *cr_;
+    LDD_COOR *crch_;
+    LDD_COOR *crlinkedldd_;
+    LDD_COOR *crlinkedlddch_;
+
     QVector <LDD_COOR> crldd5_;
     QVector <LDD_COOR> crlddch5_;
-    QVector <LDD_COOR> cr1_;
-    QVector <LDD_COOR> cr0_;
-    QVector <LDD_COOR> crch_;
-    QVector <LDD_COOR> crlinkedldd_;
-    QVector <LDD_COOR> crlinkedlddch_;
+    //QVector <LDD_COOR> cr1_;
+    //QVector <LDD_COOR> cr0_;
+    //QVector <LDD_COOR> crch_;
+//    QVector <LDD_COOR> crlinkedldd_;
+//    QVector <LDD_COOR> crlinkedlddch_;
 
     /// map management structure, automatic adding and deleting of all cTMap variables
     MapListStruct maplistCTMap[NUMNAMES];
@@ -781,28 +785,15 @@ public:
                    cTMap *_Vol);
     double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double maxQ);
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
-    void KinematicExplicit(QVector<LDD_COOR> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
-    void KinematicSubstance(QVector <LDD_COOR> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
-
+    void KinematicExplicit(LDD_COOR *_crlinked_, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
+    void KinematicSubstance(LDD_COOR *_crlinked_, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
+/*QVector<LDD_COOR> _crlinked_*/
     QVector <LDD_COOR> MakeLinkedList(cTMap *_LDD);
 
     // kinematic 2D    
-//    double K2DFlux(double t, double tmax);
-//    void K2DPreSolve();
-//    void K2DSolve();
-//    void K2DSolvebyInterpolation();
-//    void K2DInit();
-//    void K2DCalcVelDisch();
-//    void K2DDEMA();
-//    void K2DDEMAInitial();
+
     double K2DQOutBoun;
-//    double K2DQOut;
-//    double K2DQSOut,
     double K2DQSOutBoun;
-//    double K2DQPOut;
- //   double ConcentrateKin;
- //   double TimestepKinMin;
- //   double KinematicBoundaryFraction = 0.05;
     double TimestepfloodMin, TimestepfloodLast;
     //SWATRE
     /// filenames for Swatre soil information

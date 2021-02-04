@@ -50,6 +50,7 @@
 #include "model.h"
 #include "operation.h"
 #include "CsfRGBMap.h"
+#include <omp.h>
 
 //---------------------------------------------------------------------------
 /** \n void TWorld::InitMapList(void)
@@ -143,6 +144,14 @@ void TWorld::DestroyData(void)
         if (SwatreSoilModelGrass)
             CloseSwatre(SwatreSoilModelGrass);
     }
+//    free(cr_);
+//    free(crch_);
+//    free(crlinkedldd_);
+//    free(crlinkedlddch_);
+
+//    crldd5_.clear();
+//    crlddch5_.clear();
+
 
     // DEBUG("kill display data");
     // ClearComboMaps();
@@ -240,26 +249,24 @@ void TWorld::InitStandardInput(void)
     tmc = NewMap(0); // temp map for aux calculations
     tmd = NewMap(0); // temp map for aux calculations
 
-
-// slower:
-//    long _i_ = 0;
-//    for(int r = 0; r < _nrRows; r++)
-//        for (int c = 0; c < _nrCols; c++)
-//        {
-//            if(!pcr::isMV(LDD->data[r][c]))
-//                cri_ << _i_;
-//            _i_++;
-//        }
-//    nrValidCells = cri_.size();
-
-
+    nrValidCells = 0;
     FOR_ROW_COL_MV {
-        LDD_COOR newcr;
-        newcr.r = r;
-        newcr.c = c;
-        cr_ << newcr;
+        nrValidCells++;
     }
-    nrValidCells = cr_.size();
+
+    cr_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCells);
+
+    long i = 0;
+    FOR_ROW_COL_MV {
+//        LDD_COOR newcr;
+//        newcr.r = r;
+//        newcr.c = c;
+//        cr_ << newcr;
+        cr_[i].r = r;
+        cr_[i].c = c;
+        i++;
+    }
+//    nrValidCells = cr_.size();
 
     FOR_ROW_COL_MV {
         if (LDD->Drc == 5) {
@@ -271,73 +278,69 @@ void TWorld::InitStandardInput(void)
     }
     nrValidCellsLDD5 = crldd5_.size();
 
-    crlinkedldd_ = MakeLinkedList(LDD);
-qDebug() << crlinkedldd_.size();
-//    FOR_ROW_COL_MV {
-//        LDD_COOR newcr;
-//        newcr.r = r;
-//        newcr.c = c;
-//        cr1_ << newcr;
-
-//        if(c > 0 && pcr::isMV(LDD->data[r][c-1])) {
-//            LDD_COOR newcr;
-//            newcr.r = r;
-//            newcr.c = c;
-//            cr1_ << newcr;
-//        }
-//        if(c < _nrCols-1 && pcr::isMV(LDD->data[r][c+1])) {
-//            LDD_COOR newcr;
-//            newcr.r = r;
-//            newcr.c = c;
-//            cr1_ << newcr;
-//        }
-//        if(r > 0 && pcr::isMV(LDD->data[r-1][c])) {
-//            LDD_COOR newcr;
-//            newcr.r = r;
-//            newcr.c = c;
-//            cr1_ << newcr;
-//        }
-//        if(r < _nrRows-1 && pcr::isMV(LDD->data[r+1][c])) {
-//            LDD_COOR newcr;
-//            newcr.r = r;
-//            newcr.c = c;
-//            cr1_ << newcr;
-//        }
-//    }
-//    nrValidCells1 = cr1_.size();
-
+    crlinkedldd_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCells);
+    QVector <LDD_COOR> temp = MakeLinkedList(LDD);
+    for (long i=0; i < temp.size(); i++) {
+        crlinkedldd_[i].r = temp[i].r;
+        crlinkedldd_[i].c = temp[i].c;
+    }
+    temp.clear();
 
     userCores = getvalueint("Nr user Cores");
     int cores = omp_get_max_threads();
     if (userCores == 0 || userCores > cores)
         userCores = cores;
 
-  //  qDebug() << "using:" << userCores << "cores";
+    qDebug() << "using:" << userCores << "cores";
 
+/*
+    time_ms.start();
+    for (int i = 0 ; i < 10000; i++)
+    {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            double V = 0;
+            V = tm->Drc + 1.0;
+            V -= 0.34;
+            V  = pow(V, 0.34);
+            V  = sqrt(V);
+            tm->Drc = V;
 
-//    time_ms.start();
-//    for (int i = 0 ; i < 10000; i++)
-//    {
-//        #pragma omp parallel for num_threads(userCores)
-//        FOR_ROW_COL_MV_L {
-//            double V = 0;
-//            V = tm->Drc + 1.0;
-//            V -= 0.34;
-//            V  = pow(V, 0.34);
-//            V  = sqrt(V);
-//            tm->Drc = V;
-//            /* more expensive
 //            tm->Drc += 1.0;
 //            tm->Drc -= 0.34;
 //            tm->Drc  = pow(tm->Drc, 0.34);
 //            tm->Drc  = sqrt(tm->Drc);
-//            */
-//        }}
-//    }
-//    qDebug() << time_ms.elapsed()*0.001/60;
+
+        }}
+    }
+    qDebug() << time_ms.elapsed()*0.001/60;
 
 
+    double *mem = (double*)malloc(_nrRows*_nrCols* sizeof(double));
+    double **A = (double**)malloc(_nrRows* sizeof(double*));
+    for(int i = 0; i < _nrRows; i++)
+       A[i] = mem + _nrCols*i;
 
+    time_ms.start();
+    for (int i = 0 ; i < 10000; i++)
+    {
+        #pragma omp parallel for num_threads(userCores)
+        //FOR_ROW_COL_MV_L {
+for(long i_ = nrValidCells-1; i_ >= 0; i_--){
+          //  long ii = r*_nrCols+c;
+    long ii = i_;
+            double V = 0;
+            V = mem[ii] + 1.0;
+            V -= 0.34;
+            V  = pow(V, 0.34);
+            V  = sqrt(V);
+            mem[ii] = V;
+
+
+        }
+    }
+    qDebug() << time_ms.elapsed()*0.001/60;
+*/
 
     gsizeCalibration = getvaluedouble("Grain Size calibration");
     ksatCalibration = getvaluedouble("Ksat calibration");
@@ -838,29 +841,28 @@ void TWorld::InitChannel(void)
         //## channel maps
         LDDChannel = InitMaskChannel(getvaluename("lddchan"));
         // LDDChannel is the mask for channels
-       // makeChannelList();
 
+        nrValidCellsCH = 0;
         FOR_ROW_COL_MV_CH {
-            LDD_COOR newcr;
-            newcr.r = r;
-            newcr.c = c;
-            crch_ << newcr;
+            nrValidCellsCH++;
         }
-        nrValidCellsCH = crch_.size();
-
-        crlinkedlddch_ = MakeLinkedList(LDDChannel);
-        qDebug() << crlinkedlddch_.size();
-
+        crch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
+        long i = 0;
         FOR_ROW_COL_MV_CH {
-            if (LDDChannel->Drc == 5) {
-            LDD_COOR newcr;
-            newcr.r = r;
-            newcr.c = c;
-            crlddch5_ << newcr;
-            }
+            crch_[i].r = r;
+            crch_[i].c = c;
+            i++;
         }
-        nrValidCellsLDDCH5 = crlddch5_.size();
 
+        crlinkedlddch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
+
+        QVector <LDD_COOR> temp = MakeLinkedList(LDDChannel);
+
+        for (long i=0; i < temp.size(); i++) {
+            crlinkedlddch_[i].r = temp[i].r;
+            crlinkedlddch_[i].c = temp[i].c;
+        }
+        temp.clear();
 
         // for 1D or 2D overland flow: channel outlet points are checked, leading
         FOR_ROW_COL_MV
@@ -1150,38 +1152,6 @@ void TWorld::InitFlood(void)
         delz1 = NewMap(0);
         delz2 = NewMap(0);
         prepareFloodZ(DEM);
-//        AddZero(z1r);
-//        AddZero(z1l);
-//        AddZero(z2r);
-//        AddZero(z2l);
-//        AddZero(h1r);
-//        AddZero(h1l);
-//        AddZero(h2r);
-//        AddZero(h2l);
-//        AddZero(v1r);
-//        AddZero(v1l);
-//        AddZero(v2r);
-//        AddZero(v2l);
-//        AddZero(u1r);
-//        AddZero(u1l);
-//        AddZero(u2r);
-//        AddZero(u2l);
-//        AddZero(f1 );
-//        AddZero(f2 );
-//        AddZero(f3 );
-//        AddZero(g1 );
-//        AddZero(g2 );
-//        AddZero(g3 );
-//        AddZero(f1o);
-//        AddZero(f2o);
-//        AddZero(f3o);
-//        AddZero(g1o);
-//        AddZero(g2o);
-//        AddZero(g3o);
-//        AddZero(h1d);
-//        AddZero(h1g);
-//        AddZero(h2d);
-//        AddZero(h2g);
     }
 
     if (SwitchErosion) {

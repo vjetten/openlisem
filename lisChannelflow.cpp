@@ -353,7 +353,7 @@ void TWorld::ChannelFlow(void)
         } else {
 
             fill(*ChannelQn, 0);
-            KinematicExplicit(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
+            KinematicExplicit(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
 
         }
 
@@ -408,10 +408,10 @@ void TWorld::ChannelFlow(void)
         } else {
             if(SwitchUse2Phase) {
                 fill(*ChannelQBLsn,0);
-                KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
+                KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
             }
             fill(*ChannelQSSsn,0);
-            KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
+            KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
         }
 
         if (SwitchIncludeRiverDiffusion) {

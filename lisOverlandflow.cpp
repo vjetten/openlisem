@@ -338,13 +338,13 @@ void TWorld::OverlandFlow2Ddyn(void)
         // false means flood sediment maps are used
 
     startFlood = false;
-#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
+//#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV {
         if (WHrunoff->Drc > HMIN){
             startFlood = true;
-          //  break;
+            break;
         }
-    }}
+    }
 
 
   //   SolveDeepWH();
@@ -482,7 +482,7 @@ void TWorld::OverlandFlow1D(void)
             // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
         }}
     } else {
-        KinematicExplicit(crlinkedldd_, LDD, Q, Qn, q, Alpha,DX, tm);
+        KinematicExplicit(crlinkedldd_, nrValidCells, LDD, Q, Qn, q, Alpha,DX, tm);
     }
 
 //convert calculate Qn back to WH and volume for next loop
@@ -543,7 +543,7 @@ void TWorld::OverlandFlow1D(void)
                     routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);
                 }}
         } else {
-          KinematicSubstance(crlinkedldd_, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
+          KinematicSubstance(crlinkedldd_,nrValidCells,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
         }
 
     }
@@ -566,7 +566,7 @@ void TWorld::OverlandFlow1D(void)
 //                routeSubstance(r,c, LDD, Q, Qn, Qp, Qpn, Alpha, DX, WaterVolin, Pest);//, BufferVol, nullptr);
 //            }
 //        }
-        KinematicSubstance(crlinkedldd_, LDD, Q, Qn, Qp, Qpn, Alpha, DX, Pest);
+        KinematicSubstance(crlinkedldd_, nrValidCells, LDD, Q, Qn, Qp, Qpn, Alpha, DX, Pest);
 
     }
 

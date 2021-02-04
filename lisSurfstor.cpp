@@ -69,8 +69,9 @@ void TWorld::GridCell()
 /// Adds new rainfall afterinterception to runoff water nheight or flood waterheight
 void TWorld::addRainfallWH()
 {
+
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
-#pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             WH->Drc += RainNet->Drc + Snowmeltc->Drc;
             // add net to water rainfall on soil surface (in m)
@@ -78,13 +79,9 @@ void TWorld::addRainfallWH()
          //   if (SwitchGrassStrip && GrassWidthDX->Drc > 0)
          //       WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
             // net rainfall on grass strips, infil is calculated separately for grassstrips
-
-            if (SwitchRoadsystem && RoadWidthHSDX->Drc > 0)
-                WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
-            // assume no interception and infiltration on roads, gross rainfall
         }}
     } else {
-    #pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (FloodDomain->Drc > 0) {
                 hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
@@ -95,13 +92,25 @@ void TWorld::addRainfallWH()
             //    if (SwitchGrassStrip && GrassWidthDX->Drc > 0)
             //        WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
                 // net rainfall on grass strips, infil is calculated separately for grassstrips
-
-                if (SwitchRoadsystem && RoadWidthHSDX->Drc > 0)
-                    WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
-                // assume no interception and infiltration on roads, gross rainfall
             }
         }}
     }        
+
+//    #pragma omp parallel for num_threads(userCores)
+//    FOR_ROW_COL_MV_L {
+//            hmx->Drc += RainNet->Drc + Snowmeltc->Drc * FloodDomain->Drc;
+//            WH->Drc += RainNet->Drc + Snowmeltc->Drc * (1-FloodDomain->Drc);
+//            // add net to water rainfall on soil surface (in m)
+//    }}
+
+    if (SwitchRoadsystem) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            if (RoadWidthHSDX->Drc > 0)
+                WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
+        }}
+    }
+
 }
 //---------------------------------------------------------------------------
 void TWorld::SurfaceStorage()

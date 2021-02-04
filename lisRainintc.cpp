@@ -277,43 +277,47 @@ void TWorld::RainfallMap(void)
             RainfallSeriesM[rainplace].name)));
 
         FOR_ROW_COL_MV
-                if (pcr::isMV(_M->Drc))
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
         {
-            QString sr, sc;
-            sr.setNum(r); sc.setNum(c);
-            ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesM[rainplace].name;
-            throw 1;
-        }
-        #pragma omp parallel for collapse(2) num_threads(userCores)
-        FOR_ROW_COL_MV
-        {
-            Rain->Drc = _M->Drc *_dt/tt;
-            if (!rainStarted && Rain->Drc  > 0)
-                rainStarted = true;
-        }
+            if (pcr::isMV(_M->Drc))
+            {
+                QString sr, sc;
+                sr.setNum(r); sc.setNum(c);
+                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesM[rainplace].name;
+                throw 1;
+            }
+            else
+                Rain->Drc = _M->Drc *_dt/tt;
+        }}
     }
     else
     {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L
         {
-            if (RainZone->Drc-1 <  RainfallSeriesM[rainplace].intensity.count())
-                Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
-            else
-            {
-                ErrorString = QString("No rainfall data for ID map zone %1").arg(RainZone->Drc);
-                throw 1;
-            }
+            //.            if (RainZone->Drc-1 <  RainfallSeriesM[rainplace].intensity.count())
+            Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
+            //            else
+            //            {
+            //                ErrorString = QString("No rainfall data for ID map zone %1").arg(RainZone->Drc);
+            //                throw 1;
+            //            }
             // Rain in m per timestep from mm/h, rtecord nr corresponds map ID value -1
             //TODO: weighted average if dt larger than table dt
-            if (!rainStarted && Rain->Drc  > 0)
-                rainStarted = true;
         }}
     }
-    if (rainStarted && RainstartTime == -1)
-    {
-        RainstartTime = time;
+
+    if (!rainStarted) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            if(Rain->Drc > 0) rainStarted = true;
+        }}
     }
+
+
+    if (rainStarted && RainstartTime == -1)
+        RainstartTime = time;
 
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L

@@ -208,7 +208,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
 
 //---------------------------------------------------------------------------
 
-void TWorld::KinematicExplicit(QVector <LDD_COOR>_crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax)
+void TWorld::KinematicExplicit(/*QVector <LDD_COOR>_crlinked_*/ LDD_COOR *_crlinked_ , long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax)
 {   
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -216,7 +216,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COOR>_crlinked_, cTMap *_LDD, cTMap 
     fill(*_Qn, 0);
 
 // #pragma omp parallel for reduction(+:Qin) num_threads(userCores)
-    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
+    for(long i_ =  0; i_ < nrcells; i_++) //n_crlinked_.size()
     {
         int r = _crlinked_[i_].r;
         int c = _crlinked_[i_].c;
@@ -251,7 +251,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COOR>_crlinked_, cTMap *_LDD, cTMap 
 }
 //---------------------------------------------------------------------------
 
-void TWorld::KinematicSubstance(QVector <LDD_COOR> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
+void TWorld::KinematicSubstance(LDD_COOR *_crlinked_/*QVector <LDD_COOR> _crlinked_*/,long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -259,7 +259,7 @@ void TWorld::KinematicSubstance(QVector <LDD_COOR> _crlinked_, cTMap *_LDD, cTMa
     fill(*_Qsn, 0);
 
     //#pragma omp parallel for reduction(+:Qin) num_threads(userCores)
-    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
+    for(long i_ =  0; i_ < nrcells; i_++) //n_crlinked_.size()
     {
         int r = _crlinked_[i_].r;
         int c = _crlinked_[i_].c;

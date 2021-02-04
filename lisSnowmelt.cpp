@@ -61,29 +61,28 @@ void TWorld::SnowmeltMap(void)
       auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(
           SnowmeltSeriesM[place].name)));
 
-      FOR_ROW_COL_MV
-              if (pcr::isMV(_M->Drc))
-      {
-          QString sr, sc;
-          sr.setNum(r); sc.setNum(c);
-          ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+SnowmeltSeriesM[place].name;
-          throw 1;
-      }
-      FOR_ROW_COL_MV
-      {
+      #pragma omp parallel for num_threads(userCores)
+      FOR_ROW_COL_MV_L {
+          if (pcr::isMV(_M->Drc)) {
+              QString sr, sc;
+              sr.setNum(r); sc.setNum(c);
+              ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+SnowmeltSeriesM[place].name;
+              throw 1;
+          }
+          else
           Snowmelt->Drc = _M->Drc *_dt/tt;
-      }
+      }}
    }
    else
    {
-      FOR_ROW_COL_MV
-      {
+#pragma omp parallel for num_threads(userCores)
+      FOR_ROW_COL_MV_L {
          Snowmelt->Drc = SnowmeltSeriesM[place].intensity[(int) SnowmeltZone->Drc-1]*_dt/tt;
          // Rain in m per timestep from mm/h, rtecord nr corresponds map nID value -1
-      }
+      }}
    }
-
-   FOR_ROW_COL_MV
+#pragma omp parallel for num_threads(userCores)
+   FOR_ROW_COL_MV_L
    {
        Snowmeltc->Drc = Snowmelt->Drc * _dx/DX->Drc;
        // correction for slope dx/DX, water spreads out over larger area
@@ -92,6 +91,6 @@ void TWorld::SnowmeltMap(void)
        //RainNet->Drc = Rainc->Drc;
        // net rainfall in case of interception
 
-   }
+   }}
 }
 //---------------------------------------------------------------------------
