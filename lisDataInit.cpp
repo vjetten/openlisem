@@ -278,13 +278,14 @@ void TWorld::InitStandardInput(void)
     }
     nrValidCellsLDD5 = crldd5_.size();
 
-    crlinkedldd_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCells);
-    QVector <LDD_COOR> temp = MakeLinkedList(LDD);
-    for (long i=0; i < temp.size(); i++) {
-        crlinkedldd_[i].r = temp[i].r;
-        crlinkedldd_[i].c = temp[i].c;
-    }
-    temp.clear();
+     crlinkedldd_ = MakeLinkedList(LDD);
+//    crlinkedldd_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCells);
+//    QVector <LDD_COOR> temp = MakeLinkedList(LDD);
+//    for (long i=0; i < temp.size(); i++) {
+//        crlinkedldd_[i].r = temp[i].r;
+//        crlinkedldd_[i].c = temp[i].c;
+//    }
+//    temp.clear();
 
     userCores = getvalueint("Nr user Cores");
     int cores = omp_get_max_threads();
@@ -846,23 +847,39 @@ void TWorld::InitChannel(void)
         FOR_ROW_COL_MV_CH {
             nrValidCellsCH++;
         }
-        crch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
-        long i = 0;
+        //crch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
+        //long i = 0;
         FOR_ROW_COL_MV_CH {
-            crch_[i].r = r;
-            crch_[i].c = c;
-            i++;
+            LDD_COOR newcr;
+            newcr.r = r;
+            newcr.c = c;
+            crch_ << newcr;
+
+//            crch_[i].r = r;
+//            crch_[i].c = c;
+//            i++;
         }
+        crlinkedlddch_= MakeLinkedList(LDDChannel);
+    //   crlinkedlddch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
+    //        QVector <LDD_COOR> temp = MakeLinkedList(LDDChannel);
 
-        crlinkedlddch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
+//        for (long i=0; i < temp.size(); i++) {
+//            crlinkedlddch_[i].r = temp[i].r;
+//            crlinkedlddch_[i].c = temp[i].c;
+//        }
+//        temp.clear();
 
-        QVector <LDD_COOR> temp = MakeLinkedList(LDDChannel);
-
-        for (long i=0; i < temp.size(); i++) {
-            crlinkedlddch_[i].r = temp[i].r;
-            crlinkedlddch_[i].c = temp[i].c;
+        crlddch5_.clear();
+        FOR_ROW_COL_MV_CH {
+            if (LDDChannel->Drc == 5) {
+                LDD_COOR newcr;
+                newcr.r = r;
+                newcr.c = c;
+                crlddch5_ << newcr;
+            }
         }
-        temp.clear();
+        nrValidCellsLDDCH5 = crlddch5_.size();
+
 
         // for 1D or 2D overland flow: channel outlet points are checked, leading
         FOR_ROW_COL_MV

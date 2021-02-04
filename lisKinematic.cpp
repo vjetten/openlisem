@@ -207,8 +207,8 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
 }
 
 //---------------------------------------------------------------------------
-
-void TWorld::KinematicExplicit(/*QVector <LDD_COOR>_crlinked_*/ LDD_COOR *_crlinked_ , long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax)
+/*LDD_COOR *_crlinked_*/
+void TWorld::KinematicExplicit(QVector <LDD_COOR>_crlinked_ , long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax)
 {   
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -250,8 +250,8 @@ void TWorld::KinematicExplicit(/*QVector <LDD_COOR>_crlinked_*/ LDD_COOR *_crlin
     }
 }
 //---------------------------------------------------------------------------
-
-void TWorld::KinematicSubstance(LDD_COOR *_crlinked_/*QVector <LDD_COOR> _crlinked_*/,long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
+/*LDD_COOR *_crlinked_*/
+void TWorld::KinematicSubstance(QVector <LDD_COOR> _crlinked_,long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};

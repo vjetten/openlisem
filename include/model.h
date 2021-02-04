@@ -258,24 +258,19 @@ public:
     int _nrCols;
 
     long nrValidCells;
+    long nrValidCellsCH;
     long nrValidCellsLDD5;
     long nrValidCellsLDDCH5;
-    long nrValidCellsCH;
-    long nrValidCells1;
-    long nrValidCellsLinkedLDD;
-    //QVector <LDD_COOR> cr_;
     LDD_COOR *cr_;
-    LDD_COOR *crch_;
-    LDD_COOR *crlinkedldd_;
-    LDD_COOR *crlinkedlddch_;
-
+    //LDD_COOR *crlinkedldd_;
+    //LDD_COOR *crch_;
+    //LDD_COOR *crlinkedlddch_;
     QVector <LDD_COOR> crldd5_;
     QVector <LDD_COOR> crlddch5_;
-    //QVector <LDD_COOR> cr1_;
-    //QVector <LDD_COOR> cr0_;
-    //QVector <LDD_COOR> crch_;
-//    QVector <LDD_COOR> crlinkedldd_;
-//    QVector <LDD_COOR> crlinkedlddch_;
+    //QVector <LDD_COOR> cr_;
+    QVector <LDD_COOR> crch_;
+    QVector <LDD_COOR> crlinkedldd_;
+    QVector <LDD_COOR> crlinkedlddch_;
 
     /// map management structure, automatic adding and deleting of all cTMap variables
     MapListStruct maplistCTMap[NUMNAMES];
@@ -785,9 +780,9 @@ public:
                    cTMap *_Vol);
     double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double maxQ);
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
-    void KinematicExplicit(LDD_COOR *_crlinked_, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
-    void KinematicSubstance(LDD_COOR *_crlinked_, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
-/*QVector<LDD_COOR> _crlinked_*/
+    void KinematicExplicit(QVector<LDD_COOR> _crlinked, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
+    void KinematicSubstance(QVector<LDD_COOR> _crlinked_, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
+/*  LDD_COOR *_crlinked_*/
     QVector <LDD_COOR> MakeLinkedList(cTMap *_LDD);
 
     // kinematic 2D    

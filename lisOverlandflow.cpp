@@ -80,7 +80,7 @@ void TWorld::ToChannel()
         return;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(ChannelMaskExtended->data[r][c] == 1)
+        if(ChannelWidth->Drc > 0)
         {
             int rr = r;//(int)ChannelSourceYExtended->Drc;
             int cr = c;//(int)ChannelSourceXExtended->Drc;
@@ -91,8 +91,6 @@ void TWorld::ToChannel()
                 continue;
             if (hmx->Drc > HMIN)
                 continue;
-
-
 
             double VtoChan = V->Drc;
             if (F_AddGravity == 1)
@@ -136,17 +134,6 @@ void TWorld::ToChannel()
                 Conc->Drcr = MaxConcentration(WHrunoff->Drcr * DX->Drcr * ChannelAdj->Drcr, &Sed->Drcr, &DEP->Drcr);
                 // adjust sediment in suspension
 
-//                if(SwitchUseGrainSizeDistribution)
-//                {
-//                    Conc->Drcr = 0;
-//                    FOR_GRAIN_CLASSES
-//                    {
-//                        RSS_D.Drcdr += fractiontochannel * Sed_D.Drcdr;
-//                        Sed_D.Drcd = Sed_D.Drcd * (1-fractiontochannel);
-//                        Conc_D.Drcd = MaxConcentration(WHrunoff->Drcr * DX->Drcr * ChannelAdj->Drcr, &Sed_D.Drcd, &DEP->Drcr);
-//                        Conc->Drcr += Conc_D.Drcd;
-//                    }
-//                }
                RiverSedimentLayerDepth(rr,cr);
                RiverSedimentMaxC(rr,cr);
             }
@@ -268,7 +255,6 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
             tma->Drc = 1;
         }}
     }
-
 
     FOR_ROW_COL_MV_L {
         if (tma->Drc == 1) {
