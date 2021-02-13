@@ -225,15 +225,13 @@ void TWorld::DoModel()
 
             MassBalance();       // check water and sed mass balance
 
-           OutputUI();          // fill the "op" structure for screen output and calc some output maps
+            OutputUI();          // fill the "op" structure for screen output and calc some output maps
 
             saveMBerror2file(saveMBerror, false);
 
-             reportAll();
+            reportAll();
 
-            if (!noInterface)
-               emit show();
-            // send the op structure with data to function worldShow in LisUIModel.cpp
+            emit show(); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
 
             if(stopRequested)
                 time = EndTime;

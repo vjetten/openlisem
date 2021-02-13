@@ -76,17 +76,14 @@ void TWorld::OutputUI(void)
 
     //hydrographs
     op.timestep = this->_dt/60.0;
-    op.OutletQ.at(0)->append((QtotT) * 1000.0/_dt); //QtotT is in m3
+    op.OutletQ.at(0)->append(QtotT * 1000.0/_dt); //QtotT is in m3
     op.OutletQs.at(0)->append(SoilLossTotT);
-    op.OutletC.at(0)->append((QtotT) > MIN_FLUX? SoilLossTotT/(QtotT) : 0);
+    op.OutletC.at(0)->append(QtotT > MIN_FLUX? SoilLossTotT/QtotT : 0);
     op.OutletQtot.replace(0,Qtot);
     op.OutletQstot.replace(0,SoilLossTot/1000.0);
 
     double channelwh = 0;
     if(SwitchIncludeChannel) {
-//        FOR_ROW_COL_MV_CH  {
-  //          if(LDDChannel->Drc == 5)
-//#pragma omp parallel for reduction(+:channelwh) num_threads(userCores)
         FOR_ROW_COL_LDDCH5 {
                 channelwh += ChannelWH->Drc;
         }}
