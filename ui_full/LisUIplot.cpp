@@ -280,15 +280,20 @@ void lisemqt::GetPlotData()
 
     for(int i = 0; i < OutletIndices.length(); i++)
     {
-        OutletQ.at(i)->clear();
-        OutletQs.at(i)->clear();
-        OutletC.at(i)->clear();
-        OutletChannelWH.at(i)->clear();
+//        OutletQ.at(i)->clear();
+//        OutletQs.at(i)->clear();
+//        OutletC.at(i)->clear();
+//        OutletChannelWH.at(i)->clear();
 
-        OutletQ.at(i)->append(*op.OutletQ.at(i));
-        OutletQs.at(i)->append(*op.OutletQs.at(i));
-        OutletC.at(i)->append(*op.OutletC.at(i));
-        OutletChannelWH.at(i)->append(*op.OutletChannelWH.at(i));
+//        OutletQ.at(i)->append(*op.OutletQ.at(i));
+//        OutletQs.at(i)->append(*op.OutletQs.at(i));
+//        OutletC.at(i)->append(*op.OutletC.at(i));
+//        OutletChannelWH.at(i)->append(*op.OutletChannelWH.at(i));
+
+        OutletQ[i] = op.OutletQ[i];
+        OutletQs[i] = op.OutletQs[i];
+        OutletC[i] = op.OutletC[i];
+        OutletChannelWH[i] = op.OutletChannelWH[i];
     }
 
     Rainfall.append(op.Pmm);
@@ -420,10 +425,10 @@ void lisemqt::startPlots()
 
     for(int i =0; i < OutletIndices.length(); i++)
     {
-        OutletQ.append(new QList<double>);
-        OutletQs.append(new QList<double>);
-        OutletC.append(new QList<double>);
-        OutletChannelWH.append(new QList<double>);
+        OutletQ.append(new QVector<double>);
+        OutletQs.append(new QVector<double>);
+        OutletC.append(new QVector<double>);
+        OutletChannelWH.append(new QVector<double>);
         qmax.append(0);
         qsmax.append(0);
         cmax.append(0);

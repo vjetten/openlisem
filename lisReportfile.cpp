@@ -51,14 +51,15 @@ void TWorld::reportAll(void)
     ReportTotalsNew();
     // report totals to a text file
 
-    ReportTotalSeries();
+  //  ReportTotalSeries();
 
     ReportTimeseriesNew();
     // report hydrographs ande sedigraphs at all points in outpoint.map
 
-    if (!SwitchEndRun)
+    if (!SwitchEndRun) {
         ReportMaps();
-    ReportMapSeries();
+     ReportMapSeries();
+    }
     // report all maps and mapseries
 
     ReportLandunits();
@@ -120,7 +121,7 @@ void TWorld::OutputUI(void)
     }
 
     //output maps
-
+/*
     if(SwitchIncludeChannel)
     {
         if (SwitchChannelExtended)
@@ -140,16 +141,16 @@ void TWorld::OutputUI(void)
             }}
         }
     }
-
+*/
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        COMBO_VOFCH->Drc = V->Drc;
-        if (SwitchIncludeChannel) {
-            if (ChannelFlowWidth->Drc > 0)
-                COMBO_VOFCH->Drc = extVCH->Drc;
-        }
-        if(COMBO_VOFCH->Drc < 1e-6)
-            COMBO_VOFCH->Drc = 0;
+//        COMBO_VOFCH->Drc = V->Drc;
+//        if (SwitchIncludeChannel) {
+//            if (ChannelFlowWidth->Drc > 0)
+//                COMBO_VOFCH->Drc = extVCH->Drc;
+//        }
+//        if(COMBO_VOFCH->Drc < 1e-6)
+//            COMBO_VOFCH->Drc = 0;
 
         VH->Drc = V->Drc * hmxWH->Drc;
     }}
@@ -187,9 +188,13 @@ void TWorld::OutputUI(void)
     //output maps for combo box
     for(int i = 0; i < op.ComboMapsSafe.length(); i++)
     {
-        fill(*tma, 0.0);
-        calcMapValue(*tma, *op.ComboMaps.at(i),op.ComboScaling.at(i), MUL);
-        copy(*op.ComboMapsSafe.at(i), *tma);
+//        fill(*tma, 0.0);
+//        calcMapValue(*tma, *op.ComboMaps.at(i),op.ComboScaling.at(i), MUL);
+//        copy(*op.ComboMapsSafe.at(i), *tma);
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            op.ComboMapsSafe[i]->Drc = op.ComboMaps[i]->Drc * op.ComboScaling.at(i);
+        }}
     }
 
     //make sure sediment maps for all grain sizes are present
@@ -1166,10 +1171,10 @@ void TWorld::setupHydrographData()
     op.OutletIndices.append(0);
     op.OutletLocationX.append(0);
     op.OutletLocationY.append(0);
-    op.OutletQ.append(new QList<double>);
-    op.OutletQs.append(new QList<double>);
-    op.OutletC.append(new QList<double>);
-    op.OutletChannelWH.append(new QList<double>);
+    op.OutletQ.append(new QVector<double>);
+    op.OutletQs.append(new QVector<double>);
+    op.OutletC.append(new QVector<double>);
+    op.OutletChannelWH.append(new QVector<double>);
     op.OutletQpeak.append(0);
     op.OutletQpeaktime.append(0);
     op.OutletQtot.append(0);
@@ -1183,10 +1188,10 @@ void TWorld::setupHydrographData()
             op.OutletIndices.append((int)PointMap->Drc);
             op.OutletLocationX.append(r);
             op.OutletLocationY.append(c);
-            op.OutletQ.append(new QList<double>);
-            op.OutletQs.append(new QList<double>);
-            op.OutletC.append(new QList<double>);
-            op.OutletChannelWH.append(new QList<double>);
+            op.OutletQ.append(new QVector<double>);
+            op.OutletQs.append(new QVector<double>);
+            op.OutletC.append(new QVector<double>);
+            op.OutletChannelWH.append(new QVector<double>);
             op.OutletQpeak.append(0);
             op.OutletQpeaktime.append(0);
             op.OutletQtot.append(0);
@@ -1470,17 +1475,23 @@ void TWorld::GetComboMaps()
  //   AddComboMap(0,"Water Height","m",WHrunoff,Colormap,Colors,false,false,1.0,0.01);
     AddComboMap(0,"Water Height","m",hmxWH,Colormap,Colors,false,false,1.0,0.01);
     setColor(2);
-    AddComboMap(0,"Flow Velocity","m/s",COMBO_VOFCH,Colormap,Colors,false,false,1.0, 0.01);
+    AddComboMap(0,"Flow Velocity","m/s",V /*COMBO_VOFCH*/,Colormap,Colors,false,false,1.0, 0.01);
     AddComboMap(0,"Flow Momentum","m2/s",VH,Colormap,Colors,false,false,1.0, 0.01); //VH
 
     if(SwitchIncludeChannel)
     {
+//        setColor(1);
+//        AddComboMap(0,"Channel Discharge","l/s",extQCH,Colormap,Colors,true,false,1000.0, 1.0);
+//        setColor(3);
+//        AddComboMap(0,"Channel Water Height","m",extWHCH,Colormap,Colors,false,false,1.0,0.01);
+//        setColor(2);
+//        AddComboMap(0,"Channel Velocity","m/s",extVCH,Colormap,Colors,false,false,1.0,0.01);
         setColor(1);
-        AddComboMap(0,"Channel Discharge","l/s",extQCH,Colormap,Colors,true,false,1000.0, 1.0);
+        AddComboMap(0,"Channel Discharge","l/s",ChannelQn,Colormap,Colors,true,false,1000.0, 1.0);
         setColor(3);
-        AddComboMap(0,"Channel Water Height","m",extWHCH,Colormap,Colors,false,false,1.0,0.01);
+        AddComboMap(0,"Channel Water Height","m",ChannelWH,Colormap,Colors,false,false,1.0,0.01);
         setColor(2);
-        AddComboMap(0,"Channel Velocity","m/s",extVCH,Colormap,Colors,false,false,1.0,0.01);
+        AddComboMap(0,"Channel Velocity","m/s",ChannelV,Colormap,Colors,false,false,1.0,0.01);
     }
 
     if(SwitchIncludeTile || SwitchIncludeStormDrains) {

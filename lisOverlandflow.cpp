@@ -51,6 +51,9 @@ functions: \n
 void TWorld::OverlandFlow(void)
 {
     if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
+        CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
+        FlowDetachment();      // flow detachment, V used is from calcveldis for diff and kin, but not dynamic
+
         ToChannel();           // overland flow water and sed flux going into or out of channel, in channel cells
 
         OverlandFlow1D();   // kinematic wave

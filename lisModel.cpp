@@ -225,11 +225,11 @@ void TWorld::DoModel()
 
             MassBalance();       // check water and sed mass balance
 
-            OutputUI();          // fill the "op" structure for screen output and calc some output maps
+           OutputUI();          // fill the "op" structure for screen output and calc some output maps
 
             saveMBerror2file(saveMBerror, false);
 
-            reportAll();
+             reportAll();
 
             if (!noInterface)
                emit show();
@@ -289,11 +289,8 @@ void TWorld::CellProcesses()
 
     //doETa();
 
-    CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
 
     SplashDetachment();    // splash detachment
-
-    FlowDetachment();      // flow detachment, V used is from calcveldis for diff and kin, but not dynamic
 
     //Pestmobilisation();         // experimental
 }

@@ -47,14 +47,14 @@ struct output{
     QList<int> OutletIndices;
     QList<int> OutletLocationX;
     QList<int> OutletLocationY;
-    QList<QList<double>*> OutletQ;
-    QList<QList<double>*> OutletQs;
-    QList<QList<double>*> OutletC;
-    QList<QList<double>*> OutletChannelWH;
-    QList<double> OutletQpeak;
-    QList<double> OutletQpeaktime;
-    QList<double> OutletQtot;
-    QList<double> OutletQstot;
+    QList<QVector<double>*> OutletQ;
+    QList<QVector<double>*> OutletQs;
+    QList<QVector<double>*> OutletC;
+    QList<QVector<double>*> OutletChannelWH;
+    QVector<double> OutletQpeak;
+    QVector<double> OutletQpeaktime;
+    QVector<double> OutletQtot;
+    QVector<double> OutletQstot;
 
     QVector <double> ChanDataX;
     QVector <double> ChanDataY;
