@@ -272,6 +272,7 @@ void lisemqt::killPlot()
     CData.clear();
 
 }
+
 void lisemqt::GetPlotData()
 {   
     QtileData << op.Qtile;
@@ -349,16 +350,24 @@ void lisemqt::showPlot()
 
     int index = OutletIndices.indexOf(this->outletpoint);
 
-    for(int i = 0; i < OutletQ.at(index)->length();i++)
+    for(int i = 0; i < OutletQ[index]->length();i++)
     {
+//        PData << Rainfall[i]*mult;
+//        QData << OutletQ[index][i];
+//        QsData <<OutletQs[index][i];
+//        CData << OutletC[index][i];
+
         PData << Rainfall.at(i)*mult;
         QData << OutletQ.at(index)->at(i);
         QsData <<OutletQs.at(index)->at(i);
         CData << OutletC.at(index)->at(i);
 
-        qmax.replace(index,OutletQ.at(index)->at(i) > qmax.at(index)? OutletQ.at(index)->at(i) : qmax.at(index));
-        qsmax.replace(index,OutletQs.at(index)->at(i) > qsmax.at(index)? OutletQs.at(index)->at(i) : qsmax.at(index));
-        cmax.replace(index,OutletC.at(index)->at(i) > cmax.at(index)? OutletC.at(index)->at(i) : cmax.at(index));
+        qmax[index] = std::max(qmax[index], OutletQ[index]->at(i));
+        qsmax[index] = std::max(qsmax[index], OutletQs[index]->at(i));
+        cmax[index] = std::max(cmax[index], OutletC[index]->at(i));
+        //qmax.replace(index,OutletQ.at(index)->at(i) > qmax.at(index)? OutletQ.at(index)->at(i) : qmax.at(index));
+        //qsmax.replace(index,OutletQs.at(index)->at(i) > qsmax.at(index)? OutletQs.at(index)->at(i) : qsmax.at(index));
+        //cmax.replace(index,OutletC.at(index)->at(i) > cmax.at(index)? OutletC.at(index)->at(i) : cmax.at(index));
     }
 
     QGraph->setSamples(TData,QData);

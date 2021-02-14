@@ -70,17 +70,17 @@ void TWorld::GridCell()
 void TWorld::addRainfallWH()
 {
 
-    if(SwitchKinematic2D == K2D_METHOD_DYN) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            WH->Drc += RainNet->Drc + Snowmeltc->Drc;
-            // add net to water rainfall on soil surface (in m)
+//    if(SwitchKinematic2D == K2D_METHOD_DYN) {
+//        #pragma omp parallel for num_threads(userCores)
+//        FOR_ROW_COL_MV_L {
+//            WH->Drc += RainNet->Drc + Snowmeltc->Drc;
+//            // add net to water rainfall on soil surface (in m)
 
-         //   if (SwitchGrassStrip && GrassWidthDX->Drc > 0)
-         //       WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
-            // net rainfall on grass strips, infil is calculated separately for grassstrips
-        }}
-    } else {
+//         //   if (SwitchGrassStrip && GrassWidthDX->Drc > 0)
+//         //       WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
+//            // net rainfall on grass strips, infil is calculated separately for grassstrips
+//        }}
+//    } else {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (FloodDomain->Drc > 0) {
@@ -94,7 +94,7 @@ void TWorld::addRainfallWH()
                 // net rainfall on grass strips, infil is calculated separately for grassstrips
             }
         }}
-    }        
+//    }
 
 //    #pragma omp parallel for num_threads(userCores)
 //    FOR_ROW_COL_MV_L {
@@ -206,3 +206,4 @@ void TWorld::doETa()
 
     }}
 }
+

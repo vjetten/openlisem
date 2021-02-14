@@ -558,17 +558,19 @@ void TWorld::DistributeOverExtendedChannel(cTMap * _In, cTMap * _Out)
 {
     if(!SwitchIncludeChannel)
         return;
-    double intot = mapTotal(*_In);
+    double intot = MapTotal(*_In);
     fill(*_Out, 0.0);
 
     if(!SwitchChannelExtended) {
-        FOR_ROW_COL_MV {
+#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
             _Out->Drc = _In->Drc;
-        }
+        }}
         return;
     }
 
-    FOR_ROW_COL_MV {
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
         if(ChannelMaskExtended->Drc == 1) {
             int rr = (int)ChannelSourceYExtended->Drc;
             int cr = (int)ChannelSourceXExtended->Drc;
@@ -576,16 +578,17 @@ void TWorld::DistributeOverExtendedChannel(cTMap * _In, cTMap * _Out)
             _Out->Drc = _In->Drcr * div;
         //    qDebug() << rr << cr << div << ChannelWidthExtended->Drc << ChannelWidthMax->Drcr;
         }
-    }
+    }}
 
     double outtot = mapTotal(*_Out);
     if(outtot > 0) {
-        FOR_ROW_COL_MV {
+#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
             if(ChannelMaskExtended->Drc == 1) {
                 _Out->Drc *= intot/outtot;
             }
-        }
+        }}
     }
-    outtot = mapTotal(*_Out);
+    outtot = MapTotal(*_Out);
     //qDebug() << intot << outtot;
 }

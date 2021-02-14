@@ -175,7 +175,7 @@ void TWorld::DoModel()
         DEBUG("setupHydrographData()");
         setupHydrographData();
 
-        bool saveMBerror = true;
+        bool saveMBerror = false;
         saveMBerror2file(saveMBerror, true);
 
         InfilEffectiveKsat();  // calc effective ksat from all surfaces once
@@ -188,12 +188,6 @@ void TWorld::DoModel()
             if (runstep > 0 && runstep % printinterval == 0)
                 printstep++;
             runstep++;
-
-            if (noInterface && !noOutput)
-            {
-                int maxstep = static_cast <int>((EndTime-BeginTime)/_dt) ;
-                qDebug() << runstep << maxstep << time/60 ;
-            }
 
             if(stopRequested) {
                 mutex.lock();
@@ -214,6 +208,9 @@ void TWorld::DoModel()
             SnowmeltMap();         // get snowmelt
 
             CellProcesses();
+        //    do_CellProcesses();
+
+            SplashDetachment();    // splash detachment
 
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
@@ -226,12 +223,13 @@ void TWorld::DoModel()
             MassBalance();       // check water and sed mass balance
 
             OutputUI();          // fill the "op" structure for screen output and calc some output maps
-
-            saveMBerror2file(saveMBerror, false);
+               // ^ HEEL DUUR!
 
             reportAll();
 
-            emit show(); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
+            emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
+
+            saveMBerror2file(saveMBerror, false);
 
             if(stopRequested)
                 time = EndTime;
@@ -274,7 +272,6 @@ void TWorld::CellProcesses()
 //    SetFlowBarriers();     // update the presence of flow barriers
 //    GridCell();            // set channel widths, flowwidths road widths etc
 
-    //InterceptionAll();        // vegetation interception
     Interception();        // vegetation interception
     InterceptionLitter();  // litter interception
     InterceptionHouses();  // urban interception
@@ -286,9 +283,6 @@ void TWorld::CellProcesses()
     SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
 
     //doETa();
-
-
-    SplashDetachment();    // splash detachment
 
     //Pestmobilisation();         // experimental
 }

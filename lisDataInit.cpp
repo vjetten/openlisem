@@ -144,14 +144,9 @@ void TWorld::DestroyData(void)
         if (SwatreSoilModelGrass)
             CloseSwatre(SwatreSoilModelGrass);
     }
-//    free(cr_);
-//    free(crch_);
-//    free(crlinkedldd_);
-//    free(crlinkedlddch_);
 
-//    crldd5_.clear();
-//    crlddch5_.clear();
-
+      //if (cr_) free(cr_);
+      //if (crch_) free(crch_);
 
     // DEBUG("kill display data");
     // ClearComboMaps();
@@ -254,17 +249,17 @@ void TWorld::InitStandardInput(void)
         nrValidCells++;
     }
 
-    cr_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCells);
+//    cr_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCells);
 
-    long i = 0;
+ //   long i = 0;
     FOR_ROW_COL_MV {
-//        LDD_COOR newcr;
-//        newcr.r = r;
-//        newcr.c = c;
-//        cr_ << newcr;
-        cr_[i].r = r;
-        cr_[i].c = c;
-        i++;
+        LDD_COOR newcr;
+        newcr.r = r;
+        newcr.c = c;
+        cr_ << newcr;
+//        cr_[i].r = r;
+//        cr_[i].c = c;
+//        i++;
     }
 //    nrValidCells = cr_.size();
 
@@ -848,16 +843,16 @@ void TWorld::InitChannel(void)
             nrValidCellsCH++;
         }
         //crch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
-        //long i = 0;
+        long i = 0;
         FOR_ROW_COL_MV_CH {
             LDD_COOR newcr;
             newcr.r = r;
             newcr.c = c;
             crch_ << newcr;
 
-//            crch_[i].r = r;
-//            crch_[i].c = c;
-//            i++;
+          //  crch_[i].r = r;
+          //  crch_[i].c = c;
+          //  i++;
         }
         crlinkedlddch_= MakeLinkedList(LDDChannel);
     //   crlinkedlddch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);

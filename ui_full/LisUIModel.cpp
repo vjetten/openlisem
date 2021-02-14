@@ -122,7 +122,7 @@ void lisemqt::runmodel()
     W = new TWorld();
     // make the model world !!!
 
-    connect(W, SIGNAL(show(void)),this, SLOT(worldShow(void)),Qt::BlockingQueuedConnection);//Qt::QueuedConnection);
+    connect(W, SIGNAL(show(bool)),this, SLOT(worldShow(bool)),Qt::BlockingQueuedConnection);//Qt::QueuedConnection);
     connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
     connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
     // connect emitted signals from the model thread to the interface routines that handle them
@@ -197,15 +197,16 @@ void lisemqt::stopmodel()
     }
 }
 //---------------------------------------------------------------------------
-void lisemqt::worldShow()
+void lisemqt::worldShow(bool showall)
 {
     progressBar->setMaximum(op.maxstep);
     progressBar->setValue(op.runstep);
-
     startPlots(); // called once using bool startplot
 
     showOutputData(); // show output data for all and point x
 
+    if (!showall)
+        return;
 
     GetPlotData(); // get the plot data from the output structure
 
@@ -227,7 +228,7 @@ void lisemqt::worldShow()
 
     startplot = false;
 
-    showMap(); // show map
+    showMap(); // show map with delected data
 
     if (doShootScreens)
        shootScreen();

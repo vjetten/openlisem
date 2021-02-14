@@ -58,7 +58,7 @@ void TWorld::reportAll(void)
 
     if (!SwitchEndRun) {
         ReportMaps();
-     ReportMapSeries();
+        ReportMapSeries();
     }
     // report all maps and mapseries
 
@@ -74,13 +74,78 @@ void TWorld::reportAll(void)
 void TWorld::OutputUI(void)
 {
 
-    //hydrographs
     op.timestep = this->_dt/60.0;
+
+    op.t = time_ms.elapsed()*0.001/60.0;
+    op.t = omp_get_wtime()/60.0 - startTime;
+    op.time = time/60;
+    op.maxtime = op.t/runstep * op.maxstep;
+    op.dx = _dx;
+    op.runstep = runstep;
+    op.maxstep = (int) ((EndTime-BeginTime)/_dt);
+    op.EndTime = EndTime/60.0;
+    op.CatchmentArea = CatchmentArea;
+
+    op.Pmm = (RainAvgmm + SnowAvgmm)*3600/_dt;
+    op.RainTotmm = RainTotmm + SnowTotmm;
+    op.RainpeakTime = RainpeakTime/60;
+    op.Rainpeak = Rainpeak;
+
+    op.InfilTotmm = InfilTotmm;
+    op.InfilKWTotmm = InfilKWTot; // infil part in kin wave not used
+
+    op.SurfStormm = SurfStoremm;
+
+    op.IntercTotmm = IntercTotmm;
+    op.IntercLitterTotmm = IntercLitterTotmm;
+    op.IntercHouseTotmm = IntercHouseTotmm;
+
+    op.RunoffFraction = 0;
+    if (op.RainTotmm > 0)
+        op.RunoffFraction = std::max(0.0, (op.Qtotmm - op.BaseFlowtotmm)/op.RainTotmm);
+    op.WaterVolTotmm = WaterVolRunoffmm;
+    op.StormDrainTotmm = StormDrainTotmm;
+    op.ChannelVolTotmm = ChannelVolTotmm;
+    op.BaseFlowtotmm = BaseFlowTot * 1000.0/(_dx*_dx*nrCells);
+    op.volFloodmm = floodVolTotmm;
+    op.FloodTotMax = floodVolTotMax;
+    op.FloodAreaMax = floodAreaMax;
+    op.FloodArea = floodArea;
+
+    op.Qtotmm = Qtotmm;
+    op.Qtot = Qtot; // all outflow through channel and runoff for all open and outlets boundaries
+
+    op.floodBoundaryTot = floodBoundaryTot;
+    op.Qtile = QTiletot*1000.0/_dt;  //average tile output over all tile outlets as a flox in l/s
+    op.Qtiletot = QTiletot;  //average tile output over all tile outlets as a flux in m3/s
+    op.MB = MB;
+
+    op.MBs = MBs;
+    op.DetTotSplash = DetSplashTot*0.001; // convert from kg to ton per cell
+    op.DetTotFlow = DetFlowTot*0.001;// + FloodDetTot*0.001; // convert from kg to ton
+    op.DepTot = DepTot*0.001;// + FloodDepTot*0.001; // convert from kg to ton
+    op.SedTot = SedTot*0.001;// + FloodSedTot*0.001; // convert from kg to ton
+
+    op.ChannelDetTot = ChannelDetTot*0.001; // convert from kg to ton
+    op.ChannelDepTot = ChannelDepTot*0.001; // convert from kg to ton
+    op.ChannelSedTot = ChannelSedTot*0.001; // convert from kg to ton
+
+    op.FloodDepTot = FloodDepTot*0.001;
+    op.FloodDetTot = FloodDetTot*0.001;
+    op.FloodSedTot = FloodSedTot*0.001;
+    op.SoilLossTot = (SoilLossTot)*0.001; // convert from kg to ton
+    op.floodBoundarySedTot = floodBoundarySedTot; // not used
+
+//    if (noInterface)
+//        return;
+    //hydrographs
+
     op.OutletQ.at(0)->append(QtotT * 1000.0/_dt); //QtotT is in m3
     op.OutletQs.at(0)->append(SoilLossTotT);
     op.OutletC.at(0)->append(QtotT > MIN_FLUX? SoilLossTotT/QtotT : 0);
     op.OutletQtot.replace(0,Qtot);
     op.OutletQstot.replace(0,SoilLossTot/1000.0);
+
 
     double channelwh = 0;
     if(SwitchIncludeChannel) {
@@ -100,6 +165,7 @@ void TWorld::OutputUI(void)
 
         op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * discharge/1000.0); //cumulative in m3/s
         op.OutletQstot.replace(j,op.OutletQstot.at(j) + sedimentdischarge/1000.0);
+        op.OutletQ.at(j)->append(discharge);
         op.OutletQ.at(j)->append(discharge);
         op.OutletQs.at(j)->append(sedimentdischarge);
         op.OutletC.at(j)->append(sedimentconcentration);
@@ -185,25 +251,11 @@ void TWorld::OutputUI(void)
     //output maps for combo box
     for(int i = 0; i < op.ComboMapsSafe.length(); i++)
     {
-//        fill(*tma, 0.0);
-//        calcMapValue(*tma, *op.ComboMaps.at(i),op.ComboScaling.at(i), MUL);
-//        copy(*op.ComboMapsSafe.at(i), *tma);
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             op.ComboMapsSafe[i]->Drc = op.ComboMaps[i]->Drc * op.ComboScaling.at(i);
         }}
     }
-
-    //make sure sediment maps for all grain sizes are present
-//    if(SwitchErosion && SwitchUseGrainSizeDistribution) {
-//        FOR_GRAIN_CLASSES {
-//            if(op.graindiameters.length() < numgrainclasses + 1) {
-//                op.graindiameters.append(graindiameters.at(d));
-//            } else {
-//                break;
-//            }
-//        }
-//    }
 
     // ONLY ONCE
     if (runstep <= 1) {
@@ -232,65 +284,7 @@ void TWorld::OutputUI(void)
         }
     }
     // MAP DISPLAY VARIABLES
-    op.t = time_ms.elapsed()*0.001/60.0;
-    op.t = omp_get_wtime()/60.0 - startTime;
-    op.time = time/60;
-    op.maxtime = op.t/runstep * op.maxstep;
-    op.dx = _dx;
-    op.runstep = runstep;
-    op.maxstep = (int) ((EndTime-BeginTime)/_dt);
-    op.EndTime = EndTime/60.0;
-    op.CatchmentArea = CatchmentArea;
 
-    op.Pmm = (RainAvgmm + SnowAvgmm)*3600/_dt;
-    op.RainTotmm = RainTotmm + SnowTotmm;
-    op.RainpeakTime = RainpeakTime/60;
-    op.Rainpeak = Rainpeak;
-
-    op.InfilTotmm = InfilTotmm;
-    op.InfilKWTotmm = InfilKWTot; // infil part in kin wave not used
-
-    op.SurfStormm = SurfStoremm;
-
-    op.IntercTotmm = IntercTotmm;
-    op.IntercLitterTotmm = IntercLitterTotmm;
-    op.IntercHouseTotmm = IntercHouseTotmm;
-
-    op.RunoffFraction = 0;
-    if (op.RainTotmm > 0)
-        op.RunoffFraction = std::max(0.0, (op.Qtotmm - op.BaseFlowtotmm)/op.RainTotmm);
-    op.WaterVolTotmm = WaterVolRunoffmm;
-    op.StormDrainTotmm = StormDrainTotmm;
-    op.ChannelVolTotmm = ChannelVolTotmm;
-    op.BaseFlowtotmm = BaseFlowTot * 1000.0/(_dx*_dx*nrCells);
-    op.volFloodmm = floodVolTotmm;
-    op.FloodTotMax = floodVolTotMax;
-    op.FloodAreaMax = floodAreaMax;
-    op.FloodArea = floodArea;
-
-    op.Qtotmm = Qtotmm;
-    op.Qtot = Qtot; // all outflow through channel and runoff for all open and outlets boundaries
-
-    op.floodBoundaryTot = floodBoundaryTot;
-    op.Qtile = QTiletot*1000.0/_dt;  //average tile output over all tile outlets as a flox in l/s
-    op.Qtiletot = QTiletot;  //average tile output over all tile outlets as a flux in m3/s
-    op.MB = MB;
-
-    op.MBs = MBs;
-    op.DetTotSplash = DetSplashTot*0.001; // convert from kg to ton per cell
-    op.DetTotFlow = DetFlowTot*0.001;// + FloodDetTot*0.001; // convert from kg to ton
-    op.DepTot = DepTot*0.001;// + FloodDepTot*0.001; // convert from kg to ton
-    op.SedTot = SedTot*0.001;// + FloodSedTot*0.001; // convert from kg to ton
-
-    op.ChannelDetTot = ChannelDetTot*0.001; // convert from kg to ton
-    op.ChannelDepTot = ChannelDepTot*0.001; // convert from kg to ton
-    op.ChannelSedTot = ChannelSedTot*0.001; // convert from kg to ton
-
-    op.FloodDepTot = FloodDepTot*0.001;
-    op.FloodDetTot = FloodDetTot*0.001;
-    op.FloodSedTot = FloodSedTot*0.001;
-    op.SoilLossTot = (SoilLossTot)*0.001; // convert from kg to ton
-    op.floodBoundarySedTot = floodBoundarySedTot; // not used
 }
 //---------------------------------------------------------------------------
 void TWorld::ReportTotalSeries(void)
@@ -769,12 +763,10 @@ void TWorld::ReportTotalsNew(void)
 /// outputnames that start with "out" are series
 void TWorld::ReportMaps(void)
 {
-
-    FOR_ROW_COL_MV
-    {
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         tm->Drc = (RainCumFlat->Drc + SnowmeltCum->Drc*DX->Drc/_dx) * 1000.0; // m to mm
-    }
-
+    }}
     report(*tm, rainfallMapFileName);
 
     report(*InterceptionmmCum, interceptionMapFileName);
@@ -819,34 +811,38 @@ void TWorld::ReportMaps(void)
                 factor = 10.0/(_dx*_dx); //ton/ha
 
         // all detachment combined
-        FOR_ROW_COL_MV {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
             tm->Drc =std::max(0.0,TotalSoillossMap->Drc)*factor;
-        }
+            tma->Drc =std::min(0.0,TotalSoillossMap->Drc)*factor;
+        }}
         report(*tm, totalErosionFileName);
-
         // all deposition combined
-        FOR_ROW_COL_MV {
-            tm->Drc =std::min(0.0,TotalSoillossMap->Drc)*factor;
-        }
-        report(*tm, totalDepositionFileName);
-
+        report(*tma, totalDepositionFileName);
         // all channel depostion combined
+
         if (SwitchIncludeChannel)
         {
-            FOR_ROW_COL_MV_CH {
-                tm->Drc =std::min(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc)*factor;
-            }
-            report(*tm, totalChanDepositionFileName);
-
-            // all channel detachment combined
-            FOR_ROW_COL_MV_CH {
-                tm->Drc =std::max(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc)*factor;
-            }
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                if (ChannelWidth->Drc > 0) {
+                    tm->Drc =std::max(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc)*factor;
+                    tma->Drc =std::min(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc)*factor;
+                } else {
+                    tm->Drc = 0;
+                    tma->Drc = 0;
+                }
+            }}
             report(*tm, totalChanErosionFileName);
+            report(*tma, totalChanDepositionFileName);
         }
 
-        copy(*tm, *TotalSoillossMap);
-        calcValue(*tm, factor, MUL);
+        //copy(*tm, *TotalSoillossMap);
+        //calcValue(*tm, factor, MUL);
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            tm->Drc = TotalSoillossMap->Drc  * factor;
+        }}
         report(*tm, totalSoillossFileName);
 
         // total sediment
@@ -875,15 +871,24 @@ void TWorld::ReportMapSeries(void)
 
     if (SwitchOutss)
     {
-        calcMapValue(*tm, *WHstore, 1000, MUL);// in mm
+        //calcMapValue(*tm, *WHstore, 1000, MUL);// in mm
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            tm->Drc = WHstore->Drc  * 1000;
+        }}
         report(*tm, Outss);
+
     }
 
     if (SwitchIncludeTile|| SwitchIncludeStormDrains)
     {
         if (SwitchOutTiledrain)
         {
-            calcMapValue(*tm, *TileQn, 1000, MUL);
+           // calcMapValue(*tm, *TileQn, 1000, MUL);
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                tm->Drc = TileQn->Drc  * 1000;
+            }}
             report(*tm, OutTiledrain); //in l/s
         }
         if (SwitchOutTileVol)
@@ -905,30 +910,40 @@ void TWorld::ReportMapSeries(void)
 
         if (SwitchOutDet) {
             // all detachment combined
-            FOR_ROW_COL_MV {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
                 tm->Drc =std::max(0.0,TotalSoillossMap->Drc)*factor;
-            }
+            }}
             report(*tm, Outeros); // in units
         }
 
         // all deposition combined
 
         if (SwitchOutDep) {
-            FOR_ROW_COL_MV {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
                 tm->Drc =std::min(0.0,TotalSoillossMap->Drc)*factor;
-            }
+            }}
             report(*tm, Outdepo); // in units
         }
 
         if (SwitchOutSL) {
-            calcValue(*tm, factor, MUL);
+            //alcValue(*tm, factor, MUL);
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                tm->Drc =TotalSoillossMap->Drc*factor;
+            }}
             report(*tm, OutSL);      // in user units
         }
 
         // total sediment
         if (SwitchOutSed) {
-            copy(*tm, *COMBO_SED); //kg/cell
-            calcValue(*tm, factor, MUL);
+//            copy(*tm, *COMBO_SED); //kg/cell
+//            calcValue(*tm, factor, MUL);
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                tm->Drc = COMBO_SED->Drc*factor;
+            }}
             report(*tm, OutSed);      // in user units
         }
         if (SwitchOutConc) report(*TotalConc, Outconc);  // in g/l
@@ -936,13 +951,21 @@ void TWorld::ReportMapSeries(void)
 
         if(SwitchUse2Phase) {
             if (SwitchOutSedSS) {
-                copy(*tm, *COMBO_SS); //kg/cell
-                calcValue(*tm, factor, MUL);
-                report(*tm, OutSedSS);      // in user units
+//                copy(*tm, *COMBO_SS); //kg/cell
+//                calcValue(*tm, factor, MUL);
+                #pragma omp parallel for num_threads(userCores)
+                FOR_ROW_COL_MV_L {
+                    tm->Drc = COMBO_SS->Drc*factor;
+                }}
+            report(*tm, OutSedSS);      // in user units
             }
             if (SwitchOutSedBL) {
-                copy(*tm, *COMBO_BL); //kg/cell
-                calcValue(*tm, factor, MUL);
+              //  copy(*tm, *COMBO_BL); //kg/cell
+              //  calcValue(*tm, factor, MUL);
+                #pragma omp parallel for num_threads(userCores)
+                FOR_ROW_COL_MV_L {
+                    tm->Drc = COMBO_BL->Drc*factor;
+                }}
                 report(*tm, OutSedBL);      // in user units
             }
         }

@@ -46,6 +46,7 @@ SET(APP_SOURCES
     swatre/lutio
     swatre/lookup
     swatre/swatinp
+    LisCellProcesses
     lisChannelErosion
     lisChannelflood
     lisChannelflow

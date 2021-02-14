@@ -206,13 +206,6 @@ void TWorld::Totals(void)
 
     // Add overland flow, do this even for 2D dyn wave
     if(SwitchKinematic2D != K2D_METHOD_DYN) {
-//        FOR_ROW_COL_MV
-//        {
-//            if (LDD->Drc == 5) {
-//                QtotT += Qn->Drc*_dt;
-//            }
-//        }
-//#pragma omp parallel for reduction(+:QtotT) num_threads(userCores)
         FOR_ROW_COL_LDD5 {
             QtotT += Qn->Drc*_dt;
         }}
@@ -222,12 +215,6 @@ void TWorld::Totals(void)
     Qfloodout = 0;
     if(SwitchKinematic2D == K2D_METHOD_KINDYN)
     {
-//        FOR_ROW_COL_MV {
-//            if (LDD->Drc == 5) {
-//                Qfloodout += Qflood->Drc * _dt;
-//            }
-//        }
-
 //#pragma omp parallel for reduction(+:Qfloodout) num_threads(userCores)
         FOR_ROW_COL_LDD5 {
             Qfloodout += Qflood->Drc * _dt;

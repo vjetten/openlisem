@@ -340,6 +340,7 @@ public slots:
     void aboutInfo();
     void resetAll();
     void showMapSettings();
+    void setOutputScreen();
 
     void onOutletChanged(int);
     void editMapname(QModelIndex topLeft, QModelIndex bottomRight );
@@ -473,7 +474,7 @@ private slots:
 
 
     // functions that interact with the world thread signals
-    void worldShow();
+    void worldShow(bool showall);
     void worldDone(const QString &results);
     void worldDebug(const QString &results);
 
@@ -493,6 +494,7 @@ private:
     QAction *aboutAct;
     QAction *aboutActI;
     QAction *restartAct;
+    QAction *showAllAct;
 
     QAction *fontAct;
     QAction *fontIncreaseAct;

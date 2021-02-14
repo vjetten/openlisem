@@ -261,13 +261,13 @@ public:
     long nrValidCellsCH;
     long nrValidCellsLDD5;
     long nrValidCellsLDDCH5;
-    LDD_COOR *cr_;
-    //LDD_COOR *crlinkedldd_;
+    //LDD_COOR *cr_;
     //LDD_COOR *crch_;
+    //LDD_COOR *crlinkedldd_;
     //LDD_COOR *crlinkedlddch_;
     QVector <LDD_COOR> crldd5_;
     QVector <LDD_COOR> crlddch5_;
-    //QVector <LDD_COOR> cr_;
+    QVector <LDD_COOR> cr_;
     QVector <LDD_COOR> crch_;
     QVector <LDD_COOR> crlinkedldd_;
     QVector <LDD_COOR> crlinkedlddch_;
@@ -703,22 +703,29 @@ public:
     /// subtract water retained on houses, for urban projects    
     void addRainfallWH();
     /// add net rainfall to WH, WHroads and WHgrass
-    void InterceptionAll();
+
+    void do_Interception(int r, int c);
+    void do_Percolation(int r, int c);
+    void do_InfiltrationGA(int r, int c, double fwh, double SW, double flooddomain);
+    void do_SplashDetachment(int r, int c, double WH, double flooddomain);
+
 
     void InfilEffectiveKsat();
     void Infiltration();
     void InfilSwatre();
 
-    double IncreaseInfiltrationDepthNew(double fact_, int r, int c);
+    double IncreaseInfiltrationDepthNew(double fact_, double L, int r, int c);
 
     void SoilWater();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
-    void InfilMethodsNew();
+    void InfilMethodsNew(int r, int c);
     void SurfaceStorage();
     void doETa();
     void OverlandFlow();
     void OverlandFlow2D();
     void correctWH(cTMap *_WH);
+
+    void do_1D_All();
 
     void OverlandFlow1D(void);
 
@@ -785,8 +792,10 @@ public:
 /*  LDD_COOR *_crlinked_*/
     QVector <LDD_COOR> MakeLinkedList(cTMap *_LDD);
 
-    // kinematic 2D    
 
+    void do_CellProcesses();
+
+    // kinematic 2D
     double K2DQOutBoun;
     double K2DQSOutBoun;
     double TimestepfloodMin, TimestepfloodLast;
@@ -901,7 +910,7 @@ protected:
 signals:
     void done(const QString &results);
     void debug(const QString &results);
-    void show(); //use the output structure "op" declared in global.h and LisUIoutput.h
+    void show(bool showall); //use the output structure "op" declared in global.h and LisUIoutput.h
 
 private slots:   //note, was private loop but dixygen does not recognize that
     /// the main model loop, from here all processes are called in a time loop

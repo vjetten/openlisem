@@ -724,6 +724,15 @@ void lisemqt::setWriteOutputCSV(bool doit)
     //   checkWriteCommaDelimited->setChecked(!doit);
    // checkWritePCRaster->setChecked(!doit);
 }
+
+void lisemqt::setOutputScreen()
+{
+  if (W) {
+    W->noInterface = !W->noInterface;
+    showAllAct->setChecked(!W->noInterface);
+  }
+}
+
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputPCR(bool /* doit */)
 {
@@ -787,17 +796,18 @@ void lisemqt::SetToolBar()
     connect(shootMscreenAct, SIGNAL(triggered()), this, SLOT(shootMScreen()));
     toolBar->addAction(shootMscreenAct);
 
-
-    //    fontAct = new QAction(QIcon(":/fontselect.png"), "&Select font", this);
-    //    connect(fontAct, SIGNAL(triggered()), this, SLOT(fontSelect()));
-    //    toolBar->addAction(fontAct);
-
     fontIncreaseAct = new QAction(QIcon(":/2X/fontbigger2X.png"), "&Increase font size", this);
     connect(fontIncreaseAct, SIGNAL(triggered()), this, SLOT(fontIncrease()));
     toolBar->addAction(fontIncreaseAct);
     fontDecreaseAct = new QAction(QIcon(":/2X/fontsmaller2X.png"), "&Decrease font size", this);
     connect(fontDecreaseAct, SIGNAL(triggered()), this, SLOT(fontDecrease()));
     toolBar->addAction(fontDecreaseAct);
+
+    toolBar->addSeparator();
+    showAllAct = new QAction(QIcon(":/2X/chart-line-stacked-icon2X.png"), "&no output to screen", this);
+    showAllAct->setCheckable(true);
+    connect(showAllAct, SIGNAL(triggered()), this, SLOT(setOutputScreen()));
+    toolBar->addAction(showAllAct);
 
     toolBar->addSeparator();
     runAct = new QAction(QIcon(":/2X/play-icon.png"), "Run model...", this);
