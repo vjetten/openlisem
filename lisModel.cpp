@@ -204,13 +204,9 @@ void TWorld::DoModel()
             // check if user wants to quit or pause
 
             //these functions read files, so they can not be multithreaded
-            RainfallMap();         // get rainfall from table or mpas
-            SnowmeltMap();         // get snowmelt
 
-            CellProcesses();
-        //    do_CellProcesses();
-
-            SplashDetachment();    // splash detachment
+           //  CellProcesses();
+           do_CellProcesses();
 
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
@@ -238,32 +234,27 @@ void TWorld::DoModel()
         if (SwitchEndRun)
             ReportMaps();
 
-        DestroyData();  // destroy all maps automatically
+        DestroyData();  // destroy all maps automatically        
         DEBUG("Data destroyed");
 
-        if (!noInterface)
-            emit done("finished");
-        else
-        {
-            if (!noOutput)
-                qDebug() << "Done";
+        emit done("finished");
 
+        //???????????
+        if(batchmode)
             QApplication::quit();
-        }
-
-
     }
     catch(...)  // if an error occurred
     {
         DestroyData();
 
-        if (!noInterface)
+//        if (!noInterface)
             emit done("ERROR STOP: "+ErrorString);
-        else
-        {
-            qDebug() << "ERROR STOP: "+ErrorString;
-            QApplication::quit();
-        }
+//        else
+//        {
+//            qDebug() << "ERROR STOP: "+ErrorString;
+//          if(batchmode)
+//                QApplication::quit();
+//        }
     }
 }
 
@@ -271,10 +262,13 @@ void TWorld::CellProcesses()
 {
 //    SetFlowBarriers();     // update the presence of flow barriers
 //    GridCell();            // set channel widths, flowwidths road widths etc
+    RainfallMap();         // get rainfall from table or mpas
+    SnowmeltMap();         // get snowmelt
 
     Interception();        // vegetation interception
     InterceptionLitter();  // litter interception
     InterceptionHouses();  // urban interception
+
     addRainfallWH();       // adds rainfall to runoff water height or flood water height
 
     Infiltration();        // infil of overland flow/flood water, decrease WH
@@ -285,6 +279,9 @@ void TWorld::CellProcesses()
     //doETa();
 
     //Pestmobilisation();         // experimental
+
+    SplashDetachment();    // splash detachment
+
 }
 
 

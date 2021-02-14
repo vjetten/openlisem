@@ -377,7 +377,7 @@ QVector <LDD_COOR> TWorld::MakeLinkedList(cTMap *_LDD)
 
         }
     }
-    qDebug() << _crlinked_.size();
+   // qDebug() << _crlinked_.size();
     return(_crlinked_);
 }
 
@@ -623,7 +623,7 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                     Sin += _Qsn->Drc;
                 }
             }
-            QinKW->data[rowNr][colNr] = Sin; //reuse
+        //    QinKW->data[rowNr][colNr] = Sin; //reuse
 
 
      //       bool complex = true;

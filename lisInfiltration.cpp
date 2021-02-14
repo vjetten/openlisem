@@ -129,7 +129,7 @@ void TWorld::Infiltration()
         InfilSwatre();
     else
     if (InfilMethod != INFIL_NONE) {
-#pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             InfilMethodsNew(r, c);
         }}

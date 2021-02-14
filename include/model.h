@@ -657,7 +657,7 @@ public:
     double GetTotalDW(int r, int c,QList<cTMap *> *M);
     double GetSV(double d);
     void SplashDetachment();
-    void FlowDetachment();
+    void FlowDetachment(int r, int c);
     double MaxConcentration(double watvol, double *sedvol, double *dep);
     void ChannelFlowDetachment();
     void ChannelFlowDetachmentNew();
@@ -707,7 +707,7 @@ public:
     void do_Interception(int r, int c);
     void do_Percolation(int r, int c);
     void do_InfiltrationGA(int r, int c, double fwh, double SW, double flooddomain);
-    void do_SplashDetachment(int r, int c, double WH, double flooddomain);
+    void do_SplashDetachment(int r, int c, double WH);
 
 
     void InfilEffectiveKsat();
@@ -734,9 +734,9 @@ public:
     double ChannelIterateWH(double _h, int r, int c);
     void ChannelAddBaseandRain();
     void ChannelWaterHeightFromVolume();
-    void ToChannel();//);
-    void ToFlood();//);
-    void CalcVelDisch();
+    void ToChannel(int r, int c);
+    void ToFlood();
+    void CalcVelDisch(int r, int c);
     void CalcVelDischChannel();
     void fromChannelVoltoWH(int r, int c);
     double channelVoltoWH(double vol, int r, int c);

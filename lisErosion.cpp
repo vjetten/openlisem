@@ -306,33 +306,27 @@ void TWorld::SplashDetachment()
  *
  */
 
-// TODO: CHECK consistency SWOF
-void TWorld::FlowDetachment()
+// Overland flow erosion for 1D flow
+void TWorld::FlowDetachment(int r, int c)
 {
-    if (!SwitchErosion)
-        return;
+//    if (!SwitchErosion)
+//        return;
 
-    if (SwitchKinematic2D == K2D_METHOD_DYN)
-        return;
+//    if (SwitchKinematic2D == K2D_METHOD_DYN)
+//        return;
 
     //transport capacity
-#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L  {
+//#pragma omp parallel for num_threads(userCores)
+//    FOR_ROW_COL_MV_L  {
         DETFlow->Drc = 0;
         DEP->Drc = 0;
         //get the transport capacity for a single grain size
         TC->Drc = calcTCSuspended(r,c,-1, FS_SS_Method, WHrunoff->Drc, V->Drc, 2);
-    }}
+ //  }}
 
 
-    //the iterator is either the number of grain classes, or 1 if no grain size distribution is used.
-//    int iterator = numgrainclasses;
-//    if(!SwitchUseGrainSizeDistribution){
-//        iterator = 1;
-//    }
-
-#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
+//#pragma omp parallel for num_threads(userCores)
+  //  FOR_ROW_COL_MV_L {
         double erosionwh = WHrunoff->Drc;
         double erosionwv = WHrunoff->Drc*CHAdjDX->Drc;
 
@@ -452,7 +446,7 @@ void TWorld::FlowDetachment()
             DEP->Drc += deposition;
             Conc->Drc = MaxConcentration(erosionwv, &Sed->Drc, &DEP->Drc);
         }
-    }} // FOR
+  //  }} // FOR
 }
 //---------------------------------------------------------------------------
 /**

@@ -134,7 +134,6 @@ cTMap
 *DETFlow,                    //!< flow detachment [kg/cell]
 *DETFlowCum,
 *DEPCum,
-//*DEPBLCum,
 *DEP,                        //!< deposition [kg/cell]
 *TC,                         //!< transport capacity [kg/m^3]
 *Conc,                       //!< sediment concentration in flow [kg/m^3]

@@ -276,7 +276,6 @@ void TWorld::RainfallMap(void)
         auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(
             RainfallSeriesM[rainplace].name)));
 
-        FOR_ROW_COL_MV
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L
         {

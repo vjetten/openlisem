@@ -43,7 +43,12 @@ void TWorld::ToTiledrain()//int thread)
 
     if (SwitchIncludeTile || SwitchIncludeStormDrains)
     {
-        fill(*RunoffVolinToTile,0);
+        //fill(*RunoffVolinToTile,0);
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            RunoffVolinToTile->Drc = 0;
+        }}
+
         FOR_ROW_COL_MV_TILE {
             if(TileSinkhole->Drc > 0)
             {

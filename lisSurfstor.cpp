@@ -98,8 +98,8 @@ void TWorld::addRainfallWH()
 
 //    #pragma omp parallel for num_threads(userCores)
 //    FOR_ROW_COL_MV_L {
-//            hmx->Drc += RainNet->Drc + Snowmeltc->Drc * FloodDomain->Drc;
-//            WH->Drc += RainNet->Drc + Snowmeltc->Drc * (1-FloodDomain->Drc);
+//            hmx->Drc += (RainNet->Drc + Snowmeltc->Drc) * FloodDomain->Drc;
+//            WH->Drc += (RainNet->Drc + Snowmeltc->Drc) * (1-FloodDomain->Drc);
 //            // add net to water rainfall on soil surface (in m)
 //    }}
 

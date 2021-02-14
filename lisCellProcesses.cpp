@@ -3,158 +3,155 @@
 
 
 
-void TWorld::do_SplashDetachment(int r, int c, double WH, double flooddomain)
+void TWorld::do_SplashDetachment(int r, int c, double WH)
 {
-//    if (!SwitchErosion)
-//        return;
+    DETSplash->Drc = 0;
+    if(WH > 0.0001)// || hmx->Drc > 0.0001)
+    {
+        double DetDT1 = 0, DetDT2 = 0, DetLD1, DetLD2;
+        double g_to_kg = 0.001;
+        double Lc = Litter->Drc;
+        double Cv = Cover->Drc;
+        double strength = AggrStab->Drc;
+        double b = 0;//splashb->Drc;
+        double Int = Rain->Drc * 3600/_dt * 1000; // intensity in mm/h, Rain is in m
+        double KE_DT = 0.0;
+        double DETSplash_;
 
-        DETSplash->Drc = 0;
-        if(WH > 0.0001)// || hmx->Drc > 0.0001)
+        switch (KEequationType)
         {
-            double DetDT1 = 0, DetDT2 = 0, DetLD1, DetLD2;
-            double g_to_kg = 0.001;
-            double Lc = Litter->Drc;
-            double Cv = Cover->Drc;
-            double strength = AggrStab->Drc;
-            double b = 0;//splashb->Drc;
-            double Int = Rain->Drc * 3600/_dt * 1000; // intensity in mm/h, Rain is in m
-            double KE_DT = 0.0;
-            double DETSplash_;
-
-            switch (KEequationType)
-            {
-                case KE_EXPFUNCTION: KE_DT = KEParamater_a1*(1-(KEParamater_b1*exp(-KEParamater_c1*Int))); break;
-                case KE_LOGFUNCTION: KE_DT = (Int > 1 ? KEParamater_a2 + KEParamater_b2*log10(Int) : 0); break;
-                case KE_POWERFUNCTION: KE_DT = KEParamater_a3*pow(Int, KEParamater_b3); break;
-                    // kin energy in J/m2/mm
-            }
-            //VJ 110706  KE equations
-
-            double directrain = (1-Lc) * (1-Cv)*Rainc->Drc * 1000;
-            // Added litter also to directrain, assme it covers the entire cell, not only under the plant
-            // rainfall between plants in mm
-
-            double KE_LD = std::max(15.3*sqrt(PlantHeight->Drc)-5.87, 0.0);
+        case KE_EXPFUNCTION: KE_DT = KEParamater_a1*(1-(KEParamater_b1*exp(-KEParamater_c1*Int))); break;
+        case KE_LOGFUNCTION: KE_DT = (Int > 1 ? KEParamater_a2 + KEParamater_b2*log10(Int) : 0); break;
+        case KE_POWERFUNCTION: KE_DT = KEParamater_a3*pow(Int, KEParamater_b3); break;
             // kin energy in J/m2/mm
-            double throughfall = (1-Lc) * Cv * LeafDrain->Drc * 1000;
-            // leaf drip in mm, is calculated as plant leaf drip in interception function so mult cover
-            // VJ 110206 stemflow is also accounted for
-
-            double WH0 = exp(-1.48*hmxWH->Drc*1000);
-            // water buffer effect on surface, WH in mm in this empirical equation from Torri ?
-
-            if(SwitchUseMaterialDepth)
-            {
-                double depdepth = std::max((StorageDep->Drc / BulkDens)/(_dx * DX->Drc),0.0);
-                double fac1 = std::max(0.0,1.0 - depdepth/(SedimentMixingDepth->Drc+0.01));
-                double fac2 = 1.0 - fac1;
-
-                strength = strength * fac2 + (0.1033/DepositedCohesion) * fac1;
-                b = b * fac2 + 3.58 * fac1;
-            }
-
-            double FPA = 1.0;
-            if (RR->Drc > 0.1)
-                FPA =  1-exp(-1.875*(WH/(0.01*RR->Drc)));
-
-            // Between plants, directrain is already with 1-cover
-            DetDT1 = g_to_kg * FPA*(strength*KE_DT+b)*WH0 * directrain;
-            //ponded areas, kg/m2/mm * mm = kg/m2
-            DetDT2 = hmxWH->Drc > 0 ? g_to_kg * (1-FPA)*(strength*KE_DT+b) * directrain * SplashDelivery : 0.0;
-            //dry areas, kg/m2/mm * mm = kg/m2
-
-            if (SwitchKETimebased)
-            {
-                if (directrain > 0)
-                {
-                    DetDT1 = g_to_kg * FPA*(strength*KE_DT+b)*WH0 * _dt/3600;
-                    //ponded areas, kg/m2/sec * sec = kg/m2
-                    DetDT2 = g_to_kg * (1-FPA)*(strength*KE_DT+b) * _dt/3600 * SplashDelivery;
-                    //dry areas, kg/m2/sec * sec = kg/m2
-                }
-            }
-            //based on work by Juan Sanchez
-
-            // Under plants, throughfall is already with cover
-            DetLD1 = g_to_kg * FPA*(strength*KE_LD+b)*WH0 * throughfall;
-            //ponded areas, kg/m2/mm * mm = kg/m2
-            DetLD2 = g_to_kg * (1-FPA)*(strength*KE_LD+b) * throughfall * SplashDelivery;
-            //dry areas, kg/m2/mm * mm = kg/m2
-
-            DETSplash_ = DetLD1 + DetLD2 + DetDT1 + DetDT2;
-            // Total splash kg/m2
-
-            // Deal with all exceptions:
-
-            DETSplash_ *= (SoilWidthDX->Drc*DX->Drc);
-            // kg/cell, only splash over soilwidth, not roads and channels
-            // FROM KG/M2 TO KG/CELL
-
-            DETSplash_ = (1-StoneFraction->Drc) * DETSplash_;
-            // no splash on stone surfaces
-
-            if (SwitchGrassStrip)
-                DETSplash_ = (1-GrassFraction->Drc) * DETSplash_;
-
-            //      if(SwitchSedtrap)
-            //          DETSplash->Drc = (1-SedimentFilter->Drc) * DETSplash->Drc;
-
-            if (SwitchHardsurface)
-                DETSplash_ = (1-HardSurface->Drc)*DETSplash_;
-            // no splash on hard surfaces
-
-            if (SwitchHouses)
-                DETSplash_ = (1-HouseCover->Drc)*DETSplash_;
-            //is already contained in soilwidth
-            // no splash from house roofs
-
-            if (SwitchSnowmelt)
-                DETSplash_ = (1-Snowcover->Drc)*DETSplash_;
-            // no splash on snow deck
-
-            if(SwitchUseMaterialDepth)
-            {
-                //check wat we can detach from the top and bottom layer of present material
-                double dleft = DETSplash_;
-                double deptake = 0;
-                double mattake = 0;
-                double detachment = 0;
-
-                deptake = std::min(dleft,StorageDep->Drc);
-                StorageDep->Drc -= deptake;
-                // det not more than storage
-                // decrease store depth
-
-                detachment += deptake;
-                // detachment is now taken material
-
-
-                if(!(Storage->Drc < 0))
-                {
-                    mattake = std::min(dleft,Storage->Drc);
-                    Storage->Drc -= mattake;
-
-                    detachment += mattake;
-                }else
-                {
-                    detachment += dleft;
-                }
-                DETSplash_ = detachment;
-            }
-
-
-            if (hmx->Drc > 0) {
-                SSFlood->Drc += DETSplash_;
-                SSCFlood->Drc = MaxConcentration(ChannelAdj->Drc * DX->Drc * hmx->Drc, &SSFlood->Drc, &DepFlood->Drc);
-
-            } else {
-                Sed->Drc += DETSplash_;
-                Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
-            }
-
-            DETSplash->Drc = DETSplash_;
-            // IN KG/CELL
         }
+        //VJ 110706  KE equations
+
+        double directrain = (1-Lc) * (1-Cv)*Rainc->Drc * 1000;
+        // Added litter also to directrain, assme it covers the entire cell, not only under the plant
+        // rainfall between plants in mm
+
+        double KE_LD = std::max(15.3*sqrt(PlantHeight->Drc)-5.87, 0.0);
+        // kin energy in J/m2/mm
+        double throughfall = (1-Lc) * Cv * LeafDrain->Drc * 1000;
+        // leaf drip in mm, is calculated as plant leaf drip in interception function so mult cover
+        // VJ 110206 stemflow is also accounted for
+
+        double WH0 = exp(-1.48*hmxWH->Drc*1000);
+        // water buffer effect on surface, WH in mm in this empirical equation from Torri ?
+
+        if(SwitchUseMaterialDepth)
+        {
+            double depdepth = std::max((StorageDep->Drc / BulkDens)/(_dx * DX->Drc),0.0);
+            double fac1 = std::max(0.0,1.0 - depdepth/(SedimentMixingDepth->Drc+0.01));
+            double fac2 = 1.0 - fac1;
+
+            strength = strength * fac2 + (0.1033/DepositedCohesion) * fac1;
+            b = b * fac2 + 3.58 * fac1;
+        }
+
+        double FPA = 1.0;
+        if (RR->Drc > 0.1)
+            FPA =  1-exp(-1.875*(WH/(0.01*RR->Drc)));
+
+        // Between plants, directrain is already with 1-cover
+        DetDT1 = g_to_kg * FPA*(strength*KE_DT+b)*WH0 * directrain;
+        //ponded areas, kg/m2/mm * mm = kg/m2
+        DetDT2 = hmxWH->Drc > 0 ? g_to_kg * (1-FPA)*(strength*KE_DT+b) * directrain * SplashDelivery : 0.0;
+        //dry areas, kg/m2/mm * mm = kg/m2
+
+        if (SwitchKETimebased)
+        {
+            if (directrain > 0)
+            {
+                DetDT1 = g_to_kg * FPA*(strength*KE_DT+b)*WH0 * _dt/3600;
+                //ponded areas, kg/m2/sec * sec = kg/m2
+                DetDT2 = g_to_kg * (1-FPA)*(strength*KE_DT+b) * _dt/3600 * SplashDelivery;
+                //dry areas, kg/m2/sec * sec = kg/m2
+            }
+        }
+        //based on work by Juan Sanchez
+
+        // Under plants, throughfall is already with cover
+        DetLD1 = g_to_kg * FPA*(strength*KE_LD+b)*WH0 * throughfall;
+        //ponded areas, kg/m2/mm * mm = kg/m2
+        DetLD2 = g_to_kg * (1-FPA)*(strength*KE_LD+b) * throughfall * SplashDelivery;
+        //dry areas, kg/m2/mm * mm = kg/m2
+
+        DETSplash_ = DetLD1 + DetLD2 + DetDT1 + DetDT2;
+        // Total splash kg/m2
+
+        // Deal with all exceptions:
+
+        DETSplash_ *= (SoilWidthDX->Drc*DX->Drc);
+        // kg/cell, only splash over soilwidth, not roads and channels
+        // FROM KG/M2 TO KG/CELL
+
+        DETSplash_ = (1-StoneFraction->Drc) * DETSplash_;
+        // no splash on stone surfaces
+
+        if (SwitchGrassStrip)
+            DETSplash_ = (1-GrassFraction->Drc) * DETSplash_;
+
+        //      if(SwitchSedtrap)
+        //          DETSplash->Drc = (1-SedimentFilter->Drc) * DETSplash->Drc;
+
+        if (SwitchHardsurface)
+            DETSplash_ = (1-HardSurface->Drc)*DETSplash_;
+        // no splash on hard surfaces
+
+        if (SwitchHouses)
+            DETSplash_ = (1-HouseCover->Drc)*DETSplash_;
+        //is already contained in soilwidth
+        // no splash from house roofs
+
+        if (SwitchSnowmelt)
+            DETSplash_ = (1-Snowcover->Drc)*DETSplash_;
+        // no splash on snow deck
+
+        if(SwitchUseMaterialDepth)
+        {
+            //check wat we can detach from the top and bottom layer of present material
+            double dleft = DETSplash_;
+            double deptake = 0;
+            double mattake = 0;
+            double detachment = 0;
+
+            deptake = std::min(dleft,StorageDep->Drc);
+            StorageDep->Drc -= deptake;
+            // det not more than storage
+            // decrease store depth
+
+            detachment += deptake;
+            // detachment is now taken material
+
+
+            if(!(Storage->Drc < 0))
+            {
+                mattake = std::min(dleft,Storage->Drc);
+                Storage->Drc -= mattake;
+
+                detachment += mattake;
+            }else
+            {
+                detachment += dleft;
+            }
+            DETSplash_ = detachment;
+        }
+
+
+        if (hmx->Drc > 0) {
+            SSFlood->Drc += DETSplash_;
+            SSCFlood->Drc = MaxConcentration(ChannelAdj->Drc * DX->Drc * hmx->Drc, &SSFlood->Drc, &DepFlood->Drc);
+
+        } else {
+            Sed->Drc += DETSplash_;
+            Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
+        }
+
+        DETSplash->Drc = DETSplash_;
+        // IN KG/CELL
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -454,40 +451,78 @@ void TWorld::do_CellProcesses()
     FOR_ROW_COL_MV_L {
 
         if (SwitchRainfall) {
+            double timeminprev = (time-_dt) / 60; //prev time in minutes
+            int  rainplace;
+            double tt = 3600000.0;
+
+            for (rainplace = 0; rainplace < nrRainfallseries; rainplace++)
+                if (timeminprev < RainfallSeriesM[rainplace].time)
+                    break;
+
+            if (RainfallSeriesM[rainplace].isMap)
+            {
+                auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesM[rainplace].name)));
+                if (pcr::isMV(_M->Drc))
+                {
+                    QString sr, sc;
+                    sr.setNum(r); sc.setNum(c);
+                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesM[rainplace].name;
+                    throw 1;
+                }
+                else
+                    Rain->Drc = _M->Drc *_dt/tt;
+            }
+            else
+            {
+                Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
+            }
+
+            if (!rainStarted) {
+                if(Rain->Drc > 0)
+                    rainStarted = true;
+            }
+            if (rainStarted && RainstartTime == -1)
+                RainstartTime = time;
+
+            Rainc->Drc = Rain->Drc * _dx/DX->Drc;
+            // correction for slope dx/DX, water spreads out over larger area
+            RainCumFlat->Drc += Rain->Drc;
+            // cumulative rainfall
+            RainCum->Drc += Rainc->Drc;
+            // cumulative rainfall corrected for slope, used in interception
+            RainNet->Drc = Rainc->Drc;
+            // net rainfall in case of interception
+
             if (Rainc->Drc > 0)
                 do_Interception(r,c);
         }
 
+        //========================
 
-        double fwh, SW, FloodDomain_ = FloodDomain->Drc;
+        double FloodDomain_ = FloodDomain->Drc;
         if (FloodDomain_ == 0) {
             WH->Drc += RainNet->Drc + Snowmeltc->Drc;
-            fwh = WH->Drc;
-            SW = SoilWidthDX->Drc;
         } else {
             hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
-            fwh = hmx->Drc;
-            SW = ChannelAdj->Drc;
         }
-
         double RW = RoadWidthHSDX->Drc;
-        if (SwitchRoadsystem) {
-            if (RW > 0)
+        if (SwitchRoadsystem && RW > 0) {
                 WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
         }
 
+        //========================
+
         if (InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE) {
 
-            do_InfiltrationGA(r,c, fwh, SW, FloodDomain_);
-
+          //  do_InfiltrationGA(r,c, fwh, SW, FloodDomain_);
+            InfilMethodsNew(r, c);
             if (!SwitchImpermeable)
                 do_Percolation(r, c);
         }
 
-
         //===== SURFACE STORAGE =====
 
-        SW = SoilWidthDX->Drc;
+        double SW = SoilWidthDX->Drc;
         double WHr = WHroad->Drc;
         double WHs; //WHstore
         double WH_ = WH->Drc;
@@ -495,7 +530,7 @@ void TWorld::do_CellProcesses()
         //### surface storage on rough surfaces
         WHs = std::min(WH_, MDS->Drc*(1-exp(-1.875*(WH_/std::max(0.01,0.01*RR->Drc)))));
         // non-linear release fo water from depression storage
-        // resemles curves from GIS surface tests, unpublished
+        // resembles curves from GIS surface tests, unpublished
 
         double FW = std::min(ChannelAdj->Drc, SW + RW);
         // calculate flowwidth by fpa*surface + road, excludes channel already
@@ -508,103 +543,14 @@ void TWorld::do_CellProcesses()
 
         //========================
 
+        if (SwitchErosion) {
+            double wh = FloodDomain_ == 0 ? WH->Drc : hmx->Drc;
+            do_SplashDetachment(r,c,wh);
+        }
+
+
+
+
     }}
 }
 
-
-/*
-                // default vars are first layer vars
-        double fact_ = fact->Drc;
-        double Ks = Ksateff->Drc*_dt/3600000.0;  //in m
-        double fwh = 0;
-        double SW = 0;
-        double Psi = Psi1->Drc/100; // in m
-        double space = std::max(Poreeff->Drc-Thetaeff->Drc, 0.0);
-        double Lw_ = Lw->Drc;
-        double fpot_ = 0;
-        double SoilDep1 = SoilDepth1->Drc;
-        double SoilDep2;
-        double Ks2;
-        double Psi2_;
-        double ThetaI2_;
-        double ThetaS2_;
-        double FloodDomain_ = FloodDomain->Drc;
-
-        if (FloodDomain_ == 0) {
-            WH->Drc += RainNet->Drc + Snowmeltc->Drc;
-            fwh = WH->Drc; //runoff
-            SW = SoilWidthDX->Drc; //runoff
-        } else {
-            hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
-            fwh = hmx->Drc; // flood
-            SW = ChannelAdj->Drc;
-        }
-        // select the appropriate domain water height for overpressure
-
-        //calculate potential insiltration rate fpot
-        if (SwitchTwoLayer ) {
-            SoilDep2 = SoilDepth2->Drc;
-            Ks2 = Ksat2->Drc*_dt/3600000.0;
-            Psi2_ = Psi2->Drc/100;
-            ThetaI2_ = ThetaI2->Drc;
-            ThetaS2_ = ThetaS2->Drc;
-
-            // if wetting front in second layer set those vars
-            if (Lw_ > SoilDep1)
-            {
-                Ks = std::min(Ksateff->Drc, Ks2); // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
-                Psi = Psi2_;
-                space = std::max(ThetaS2->Drc-ThetaI2->Drc, 0.0);
-            }
-        }
-
-        if (GA)
-            fpot_ = Ks*(1.0+(Psi+fwh)/std::max(1e-4, Lw_));
-        else {
-            double B = (fwh + Psi)*space;
-            if (B > 0.01) {
-                fpot_ = Ks*exp(Fcum->Drc/B)/(exp(Fcum->Drc/B)-1);
-            } else
-                fpot_ = Ks;
-        }
-
-        fact_ = std::min(fpot_, fwh);
-        // actual infil in m, cannot have more infil than water on the surface
-
-        fact_ = IncreaseInfiltrationDepthNew(fact_, r, c);
-        Lw_ = Lw->Drc;
-        // adjust fact and increase Lw, for twolayer, impermeable etc
-        if (fwh < fact_)
-        {
-            fact_ = fwh;
-            fwh = 0;
-        }
-        else
-            fwh -= fact_;
-
-        // adjust the WH in the correct domain with new fact
-        if(FloodDomain_ == 0)
-            WH->Drc = fwh;
-        else
-            hmx->Drc = fwh;
-
-        if (!GA)
-            Fcum->Drc += fact_;
-        // increase cumulative infil in m
-        InfilVol->Drc = fact_*SW*DX->Drc;
-        // calc infiltrated volume for mass balance
-
-        // calc surplus infiltration (negative in m) for kin wave
-        if(SwitchKinematic2D != K2D_METHOD_DYN) {
-            space = 0;
-            if (Lw_ < SoilDep1)
-                space = (SoilDepth1->Drc - Lw_)*(Poreeff->Drc-Thetaeff->Drc);
-            if (SwitchTwoLayer) {
-                if (Lw_ > SoilDep1 && Lw_ < SoilDep2)
-                    space = (SoilDep2 - Lw_)*(ThetaS2->Drc-ThetaI2->Drc);
-            }
-
-            FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
-            // negative and smallest of space or fpot-fact ???
-        }
-*/

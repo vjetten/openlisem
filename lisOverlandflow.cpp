@@ -51,15 +51,20 @@ functions: \n
 void TWorld::OverlandFlow(void)
 {
     if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
-        CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
-        FlowDetachment();      // flow detachment, V used is from calcveldis for diff and kin, but not dynamic
 
-        ToChannel();           // overland flow water and sed flux going into or out of channel, in channel cells
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L  {
+            CalcVelDisch(r, c);        // overland flow velocity, discharge and alpha
 
+            if (SwitchErosion)
+                FlowDetachment(r, c);   // flow detachment
+
+            ToChannel(r, c);           // overland flow water and sed flux going into or out of channel, in channel cells
+        }}
         OverlandFlow1D();   // kinematic wave
 
         if(SwitchKinematic2D == K2D_METHOD_KINDYN)
-            ChannelFlood(); // st venant channel 2D flooding from channel, only for kyn wave, partly parallel
+         ChannelFlood(); // st venant channel 2D flooding from channel, only for kyn wave, partly parallel
     }
 
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
@@ -77,71 +82,68 @@ void TWorld::OverlandFlow(void)
  *
  * @return void
  */
-void TWorld::ToChannel()
+void TWorld::ToChannel(int r, int c)
 {
     if (!SwitchIncludeChannel)
         return;
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if(ChannelWidth->Drc > 0)
+  //  #pragma omp parallel for num_threads(userCores)
+  //  FOR_ROW_COL_MV_L {
+    if (ChannelWidth->Drc > 0)
+    {
+        double fractiontochannel;
+
+        if (WHrunoff->Drc < HMIN)
+            return;
+        if (hmx->Drc > HMIN)
+            return;
+
+        double VtoChan = V->Drc;
+        if (F_AddGravity == 1)
+            VtoChan = std::pow(WHrunoff->Drc, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drc; //F_Angle
+        fractiontochannel = std::min(1.0, _dt*VtoChan/std::max(0.05*_dx,0.5*ChannelAdj->Drc));
+        // fraction to channel calc from half the adjacent area width and flow velocity
+
+        // cannot flow into channel if water level in channel is higher than runoff depth
+        if (SwitchKinematic2D == K2D_METHOD_KINDYN &&
+                WHrunoff->Drc <= std::max(0.0 , ChannelWH->Drc - ChannelDepth->Drc))
+            fractiontochannel = 0;
+
+        // no inflow on culverts
+        if (SwitchCulverts && ChannelMaxQ->Drc  > 0)
+            fractiontochannel = 0;
+
+        if (fractiontochannel == 0)
+            return;//continue;
+
+        double dwh = fractiontochannel*WHrunoff->Drc;
+
+        // water diverted to the channel
+        ChannelWaterVol->Drc += dwh* FlowWidth->Drc * DX->Drc;
+        //  fromChannelVoltoWH(rr, cr);
+        ChannelFlowWidth->Drc = ChannelWidth->Drc;
+        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+
+        WHrunoff->Drc -= dwh ;
+        WHroad->Drc -= dwh;
+        //WHGrass->Drc -= dwh;
+        WH->Drc -= dwh;
+        WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+
+        if (SwitchErosion)
         {
-            int rr = r;//(int)ChannelSourceYExtended->Drc;
-            int cr = c;//(int)ChannelSourceXExtended->Drc;
+            double dsed = fractiontochannel*Sed->Drc;
+            ChannelSSSed->Drc  += dsed;
+            //sediment diverted to the channel
+            Sed->Drc -= dsed;
 
-            double fractiontochannel;
+            Conc->Drc = MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, &Sed->Drc, &DEP->Drc);
+            // adjust sediment in suspension
 
-            if (WHrunoff->Drc < HMIN)
-                continue;
-            if (hmx->Drc > HMIN)
-                continue;
-
-            double VtoChan = V->Drc;
-            if (F_AddGravity == 1)
-                VtoChan = std::pow(WHrunoff->Drcr, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr; //F_Angle
-            fractiontochannel = std::min(1.0, _dt*VtoChan/std::max(0.05*_dx,0.5*ChannelAdj->Drc));
-            // fraction to channel calc from half the adjacent area width and flow velocity
-
-            // cannot flow into channel if water level in channel is higher than runoff depth
-            if (SwitchKinematic2D == K2D_METHOD_KINDYN &&
-                WHrunoff->Drc <= std::max(0.0 , ChannelWH->Drcr - ChannelDepth->Drcr))
-                fractiontochannel = 0;
-
-            // no inflow on culverts
-            if (SwitchCulverts && ChannelMaxQ->Drcr  > 0)
-                fractiontochannel = 0;
-
-            if (fractiontochannel == 0)
-                continue;
-
-            double dwh = fractiontochannel*WHrunoff->Drc;
-
-            // water diverted to the channel
-            ChannelWaterVol->Drcr += dwh* FlowWidth->Drc * DX->Drc;
-          //  fromChannelVoltoWH(rr, cr);
-            ChannelFlowWidth->Drc = ChannelWidth->Drc;
-            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
-
-            WHrunoff->Drc -= dwh ;
-            WHroad->Drc -= dwh;
-            //WHGrass->Drc -= dwh;
-            WH->Drc -= dwh;
-            WaterVolall->Drc = WHrunoff->Drcr*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-
-            if (SwitchErosion)
-            {
-                double dsed = fractiontochannel*Sed->Drcr;
-                ChannelSSSed->Drcr  += dsed;
-                //sediment diverted to the channel
-                Sed->Drcr -= dsed;
-
-                Conc->Drcr = MaxConcentration(WHrunoff->Drcr * DX->Drcr * ChannelAdj->Drcr, &Sed->Drcr, &DEP->Drcr);
-                // adjust sediment in suspension
-
-               RiverSedimentLayerDepth(rr,cr);
-               RiverSedimentMaxC(rr,cr);
-            }
+            RiverSedimentLayerDepth(r,c);
+            RiverSedimentMaxC(r,c);
         }
-    }}
+    }
+  //  }}
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -156,46 +158,34 @@ void TWorld::ToChannel()
  * @return void
  * @see mixing_coefficient
  */
-void TWorld::CalcVelDisch()
+void TWorld::CalcVelDisch(int r, int c)
 {
-	if(SwitchKinematic2D == K2D_METHOD_DYN)
-		return;
+ //   #pragma omp parallel for num_threads(userCores)
+ //   FOR_ROW_COL_MV_L {
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-      //  double Perim, R;
-        double NN = N->Drc;
-        double alpha;
-        double WHr = WHrunoff->Drc;
-        double FW = FlowWidth->Drc;
+    double NN = N->Drc;
+    double alpha;
+    double WHr = WHrunoff->Drc;
+    double FW = FlowWidth->Drc;
 
-        if (SwitchIncludeChannel && hmx->Drc > 0.001)
-            NN = N->Drc * (2.0-qExp(-mixing_coefficient*hmx->Drc));
-        // slow down water in flood zone, if hmx = 0 then factor = 1
+    if (SwitchIncludeChannel && hmx->Drc > 0.001)
+        NN = N->Drc * (2.0-qExp(-mixing_coefficient*hmx->Drc));
+    // slow down water in flood zone, if hmx = 0 then factor = 1
 
-        // avg WH from soil surface and roads, over width FlowWidth
-     //   Perim = FW; // ssurface flow does not have sides!only roughness  2*WHr + FW;
+    if (Grad->Drc > MIN_SLOPE)
+        alpha = pow(NN/sqrtGrad->Drc * pow(FW, 2.0/3.0),0.6);
+    else
+        alpha = 0;
 
-//        if (Perim > 0)
-//            R = WHr*FW/Perim;
-//        else
-//            R = 0;
-       // R = WHr;
+    if (alpha > 0)
+        Q->Drc = pow((FW*WHr)/alpha, 5.0/3.0);
+    else
+        Q->Drc = 0;
 
-        if (Grad->Drc > MIN_SLOPE)
-            alpha = pow(NN/sqrtGrad->Drc * pow(FW, 2.0/3.0),0.6);
-        else
-            alpha = 0;
+    V->Drc = pow(WHr, 2.0/3.0) * sqrtGrad->Drc/NN;
+    Alpha->Drc = alpha;
 
-        if (alpha > 0)
-            Q->Drc = pow((FW*WHr)/alpha, 5.0/3.0);
-        else
-            Q->Drc = 0;
-
-        V->Drc = pow(WHr, 2.0/3.0) * sqrtGrad->Drc/NN;
-        Alpha->Drc = alpha;
-
-    }}
+ //   }}
 }
 
 //---------------------------------------------------------------------------
@@ -214,16 +204,36 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
 
     K2DQOutBoun = 0;
     K2DQSOutBoun = 0;
-    fill(*tma, 0);
-    fill(*K2DQ, 0);
+    //fill(*tma, 0);
+    //fill(*K2DQ, 0);
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        tma->Drc = 0;
+        K2DQ->Drc = 0;
+        K2DOutlets->Drc = 0;
+    }}
 
     // find oulets based on DEM and WHrunoff
     dynOutflowPoints();
+    //find K2DOutlets = 1
+
+    FOR_ROW_COL_LDD5 {
+        tma->Drc = 1;
+    }}
+
+    if(SwitchIncludeChannel) {
+        //FOR_ROW_COL_MV_CH {
+        //  if(LDDChannel->Drc == 5)
+        FOR_ROW_COL_LDDCH5 {
+            tma->Drc = 1;
+        }}
+    }
 
     if (FlowBoundaryType > 0) {
         //direction of velocity is in the direction of + and -
         // U is EW and V is NS
         // find which outlets on the boundary are directed to the outside based on sign U and V
+#pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 0.0)
             {
@@ -240,49 +250,35 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
                     if (_V->Drc > 0)
                         tma->Drc = 1;
             }
-        }}
-    }
+            //        }}
+            //    }
 
-//    FOR_ROW_COL_MV {
-//        if(LDD->Drc == 5)
-//            tma->Drc = 1;
-//    }
-    FOR_ROW_COL_LDD5 {
-        tma->Drc = 1;
-    }}
+            //    #pragma omp parallel for num_threads(userCores)
+            //    FOR_ROW_COL_MV_L {
+            if (tma->Drc == 1) {
+                double dy = ChannelAdj->Drc;
+                double UV = qSqrt(_U->Drc * _U->Drc + _V->Drc*_V->Drc);
+                double frac = std::min( std::max(0.0, UV*_dt/DX->Drc) , 0.9);
+                double dh = frac*h->Drc;
+                double _q = dh*DX->Drc*dy;
 
-    if(SwitchIncludeChannel) {
-        //FOR_ROW_COL_MV_CH {
-        //  if(LDDChannel->Drc == 5)
-        FOR_ROW_COL_LDDCH5 {
-            tma->Drc = 1;
-        }}
-    }
+                K2DQOutBoun += _q/_dt;
+                h->Drc -= dh;
+                K2DQ->Drc = _q/_dt;
+                Q->Drc -= _q/_dt;
 
-    FOR_ROW_COL_MV_L {
-        if (tma->Drc == 1) {
-            double dy = ChannelAdj->Drc;
-            double UV = qSqrt(_U->Drc * _U->Drc + _V->Drc*_V->Drc);
-            double frac = std::min( std::max(0.0, UV*_dt/DX->Drc) , 0.9);
-            double dh = frac*h->Drc;
-            double _q = dh*DX->Drc*dy;
+                if (SwitchErosion) {
+                    double ds = frac * SSFlood->Drc;
+                    K2DQSOutBoun += ds;
+                    SSFlood->Drc -= ds;
 
-            K2DQOutBoun += _q/_dt;
-            h->Drc -= dh;
-            K2DQ->Drc = _q/_dt;
-            Q->Drc -= _q/_dt;
-
-            if (SwitchErosion) {
-                double ds = frac * SSFlood->Drc;
-                K2DQSOutBoun += ds;
-                SSFlood->Drc -= ds;
-
-                ds = frac * BLFlood->Drc;
-                K2DQSOutBoun += ds;
-                BLFlood->Drc -= ds;
+                    ds = frac * BLFlood->Drc;
+                    K2DQSOutBoun += ds;
+                    BLFlood->Drc -= ds;
+                }
             }
-        }
-    }}
+        }}
+    }
 }
 //---------------------------------------------------------------------------
 void TWorld::SolveDeepWH(void)
@@ -334,9 +330,7 @@ void TWorld::OverlandFlow2Ddyn(void)
             break;
         }
     }
-
-
-  //   SolveDeepWH();
+  //   SolveDeepWH(); ?????????????????????
 
     if (SwitchSWOFopen)
         dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
@@ -384,44 +378,15 @@ void TWorld::OverlandFlow2Ddyn(void)
 
         WHmax->Drc = std::max(WHmax->Drc, hmxWH->Drc);
 
+        if (SwitchErosion) {
+            double sed = (SSFlood->Drc + BLFlood->Drc);
+            Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &sed, &DepFlood->Drc);
+            Qsn->Drc = Conc->Drc*Qn->Drc;
+        }
+
     }}
 
     FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
-
-    if(SwitchErosion)
-    {
-        //calculate concentration and new sediment discharge
-        //WHrunoff and Qn are adapted in case of 2D routing
-//        if(!SwitchUseGrainSizeDistribution)
-//        {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                double sed = (SSFlood->Drc + BLFlood->Drc);
-                Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &sed, &DepFlood->Drc);
-                Qsn->Drc = Conc->Drc*Qn->Drc;
-            }}
-//        }
-//        else
-//        {
-//            //calculate total sediment from induvidual grain classes,
-//            //and calculate concentration and new sediment discharge
-//            FOR_ROW_COL_MV {
-//                Sed->Drc = 0;
-//                Conc->Drc = 0;
-
-//            }
-//            FOR_ROW_COL_MV
-//            {
-//                FOR_GRAIN_CLASSES
-//                {
-//                    Sed->Drc += Sed_D.Drcd;
-//                    Conc_D.Drcd = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &Sed_D.Drcd, &DepFlood->Drc);
-//                    Conc->Drc += Conc_D.Drcd;
-//                }
-//                Qsn->Drc = Conc->Drc*Qn->Drc;
-//            }
-//        }
-    }
 
     debug(QString("Average dynamic timestep (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));
     // some screen error reporting
@@ -434,9 +399,8 @@ void TWorld::OverlandFlow1D(void)
 {
     // recalculate water vars after subtractions in "to channel"
 
-
     double tot = 0;
-//#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         WaterVolin->Drc = DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
         //volume runoff into the kin wave, needed to determine infil in kin wave
@@ -449,35 +413,39 @@ void TWorld::OverlandFlow1D(void)
         // flag for confined fow in channel culverts
         tot = tot + WaterVolin->Drc;
 
-    }}
-
-    if (SwitchErosion)
-    {
-        // calc seediment flux going in kin wave as Qs = Q*C
-#pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
+        if (SwitchErosion) {
+            // calc seediment flux going in kin wave as Qs = Q*C
             Qsn->Drc = 0.0;
             Conc->Drc = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &Sed->Drc, &DEP->Drc);
             Qs->Drc =  Q->Drc * Conc->Drc;
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
-        }}
-    }
+        }
+    }}
 
     // route water
     if (SwitchLinkedList) {
-        Qn->setAllMV();
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            pcr::setMV(Qn->Drc);//Qsn->setAllMV();
+            QinKW->Drc = 0;
+       //     pcr::setMV(Qsn->Drc);//Qsn->setAllMV();
+        }}
+        //Qn->setAllMV();
         FOR_ROW_COL_LDD5 {
             Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);
             // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
         }}
+  //      FOR_ROW_COL_LDD5 {
+  //            routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);
+  //      }}
     } else {
         KinematicExplicit(crlinkedldd_, nrValidCells, LDD, Q, Qn, q, Alpha,DX, tm);
+  //      KinematicSubstance(crlinkedldd_,nrValidCells,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
     }
 
 //convert calculate Qn back to WH and volume for next loop
-#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         double InfilKWact = 0;
         double WaterVolout = std::max(0.0, QinKW->Drc*_dt + WaterVolin->Drc  - Qn->Drc*_dt);
 
@@ -513,81 +481,59 @@ void TWorld::OverlandFlow1D(void)
 
         WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+
+        if (SwitchErosion)
+             Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
     }}
 
+    //      routing of substances add here!
     if (SwitchErosion)
     {
-        //      routing of substances add here!
-        //      do after kin wave so that the new flux Qn out of a cell is known
-        //      you need to have the ingoing substance flux QS (mass/s)
-        //      and it will give outgoing flux QSn (mass/s)
-        //      and the current amount Subs (mass) in suspension+solution
-
         if (SwitchLinkedList) {
-            fill(*QinKW, 0.0); // reuse
-            fill(*tm, 0.0);
-            copy(*tm, *Sed);
-                Qsn->setAllMV();
-                FOR_ROW_COL_LDD5 {
-                    routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);
-                }}
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+               // QinKW->Drc = 0;
+                pcr::setMV(Qsn->Drc);//Qsn->setAllMV();
+            }}
+            FOR_ROW_COL_LDD5 {
+                  routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);
+            }}
         } else {
-          KinematicSubstance(crlinkedldd_,nrValidCells,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
+            KinematicSubstance(crlinkedldd_,nrValidCells,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
         }
-
     }
 
     // route other stuff
     if (SwitchPesticide)
     {
         // calc pesticide flux going in kin wave as Qp = Q*C
-        FOR_ROW_COL_MV
-        {
-            Qp->Drc =  Qn->Drc * C->Drc;
-            // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
-        }
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+           Qp->Drc =  Qn->Drc * C->Drc;
+        }}
 
-//        fill(*Qpn, 0.0);
-//        FOR_ROW_COL_MV
-//        {
-//            if (LDD->Drc == 5) // if outflow point, pit
-//            {
-//                routeSubstance(r,c, LDD, Q, Qn, Qp, Qpn, Alpha, DX, WaterVolin, Pest);//, BufferVol, nullptr);
-//            }
-//        }
         KinematicSubstance(crlinkedldd_, nrValidCells, LDD, Q, Qn, Qp, Qpn, Alpha, DX, Pest);
 
-    }
-
-
-    // new concentrations with new volume
-
-    if (SwitchErosion)
-    {
-        FOR_ROW_COL_MV
-        {
-
-            Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
-
-            if (SwitchPesticide)
-            {
-                //C->Drc = ConcentrationP(WaterVolall->Drc, Pest->Drc);
-                C->Drc = Qn->Drc > MIN_FLUX ? Qpn->Drc/Qn->Drc : 0;
-                C_N->Drc = C->Drc;
-                //qDebug()<< "ds overlandflow"<< C->Drc;
-                //qDebug()<< "ds overlandflow"<< Pest->Drc;
-            }
-        }
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            //C->Drc = ConcentrationP(WaterVolall->Drc, Pest->Drc);
+            C->Drc = Qn->Drc > MIN_FLUX ? Qpn->Drc/Qn->Drc : 0;
+            C_N->Drc = C->Drc;
+            //qDebug()<< "ds overlandflow"<< C->Drc;
+            //qDebug()<< "ds overlandflow"<< Pest->Drc;
+        }}
     }
 }
 //---------------------------------------------------------------------------
 // all points that flow outward of the domain by slope and water pressure
 void TWorld::dynOutflowPoints()
 {
-    FOR_ROW_COL_MV_L {
-        K2DOutlets->Drc = 0;
-    }}
+//    #pragma omp parallel for num_threads(userCores)
+//    FOR_ROW_COL_MV_L {
+//        K2DOutlets->Drc = 0;
+//    }}
 
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double Dhx = 0;
         double Dhy = 0;
@@ -686,6 +632,7 @@ void TWorld::dynOutflowPoints()
 
     //VJ use flowboundary map, type 1 is open flow, else use the map
     if (FlowBoundaryType != 1) {
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             K2DOutlets->Drc *= FlowBoundary->Drc;  //copy 1 is 2
         }}

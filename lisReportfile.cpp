@@ -166,10 +166,10 @@ void TWorld::OutputUI(void)
         op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * discharge/1000.0); //cumulative in m3/s
         op.OutletQstot.replace(j,op.OutletQstot.at(j) + sedimentdischarge/1000.0);
         op.OutletQ.at(j)->append(discharge);
-        op.OutletQ.at(j)->append(discharge);
         op.OutletQs.at(j)->append(sedimentdischarge);
         op.OutletC.at(j)->append(sedimentconcentration);
         op.OutletChannelWH.at(j)->append(std::isnan(channelwh)?0.0:channelwh);
+
     }
 
     for(int j = 0; j < op.OutletIndices.length(); j++)

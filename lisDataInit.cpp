@@ -147,6 +147,12 @@ void TWorld::DestroyData(void)
 
       //if (cr_) free(cr_);
       //if (crch_) free(crch_);
+    cr_.clear();
+    crch_.clear();
+    crldd5_.clear();
+    crlddch5_.clear();
+    crlinkedldd_.clear();
+    crlinkedlddch_.clear();
 
     // DEBUG("kill display data");
     // ClearComboMaps();
@@ -229,6 +235,17 @@ void TWorld::GetInputData(void)
     InitChanNetwork();
 
 }
+
+//double calcje(int r, int c, double h)
+//{
+//    double V;
+//    V = h + 1.0;
+//    V -= 0.34;
+//    V  = pow(V, 0.34);
+//    V  = sqrt(V);
+//    return(V);
+
+//}
 //---------------------------------------------------------------------------
 void TWorld::InitStandardInput(void)
 {
@@ -287,27 +304,92 @@ void TWorld::InitStandardInput(void)
     if (userCores == 0 || userCores > cores)
         userCores = cores;
 
-    qDebug() << "using:" << userCores << "cores";
+   // qDebug() << "using:" << userCores << "cores";
 
-/*
+    /*
+
     time_ms.start();
-    for (int i = 0 ; i < 10000; i++)
+    for (int i = 0 ; i < 1000; i++)
     {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             double V = 0;
-            V = tm->Drc + 1.0;
-            V -= 0.34;
-            V  = pow(V, 0.34);
-            V  = sqrt(V);
-            tm->Drc = V;
-
-//            tm->Drc += 1.0;
-//            tm->Drc -= 0.34;
-//            tm->Drc  = pow(tm->Drc, 0.34);
-//            tm->Drc  = sqrt(tm->Drc);
-
+            bool a = true, b = true, c = true;
+            if (a) {
+                tm->Drc=calcje(r,c,tm->Drc);
+            }
+            if (b) {
+                tm->Drc=calcje(r,c,tm->Drc);
+            }
+            if (c) {
+                tm->Drc=calcje(r,c,tm->Drc);
+            }
         }}
+    }
+    qDebug() << time_ms.elapsed()*0.001/60;
+
+    time_ms.start();
+    for (int i = 0 ; i < 1000; i++)
+    {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            double V = 0;
+            bool a = true, b = true, c = true;
+            if (a) {
+                V = tm->Drc + 1.0;
+                V -= 0.34;
+                V  = pow(V, 0.34);
+                V  = sqrt(V);
+                tm->Drc = V;
+            }
+            if (b) {
+                V = tm->Drc + 1.0;
+                V -= 0.34;
+                V  = pow(V, 0.34);
+                V  = sqrt(V);
+                tm->Drc = V;
+            }
+            if (c) {
+                V = tm->Drc + 1.0;
+                V -= 0.34;
+                V  = pow(V, 0.34);
+                V  = sqrt(V);
+                tm->Drc = V;
+            }
+        }}
+    }
+    qDebug() << time_ms.elapsed()*0.001/60;
+
+    time_ms.start();
+    for (int i = 0 ; i < 1000; i++)
+    {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            double V = 0;
+                V = tm->Drc + 1.0;
+                V -= 0.34;
+                V  = pow(V, 0.34);
+                V  = sqrt(V);
+                tm->Drc = V;
+            }}
+#pragma omp parallel for num_threads(userCores)
+FOR_ROW_COL_MV_L {
+    double V = 0;
+        V = tm->Drc + 1.0;
+        V -= 0.34;
+        V  = pow(V, 0.34);
+        V  = sqrt(V);
+        tm->Drc = V;
+    }}
+#pragma omp parallel for num_threads(userCores)
+FOR_ROW_COL_MV_L {
+    double V = 0;
+        V = tm->Drc + 1.0;
+        V -= 0.34;
+        V  = pow(V, 0.34);
+        V  = sqrt(V);
+        tm->Drc = V;
+    }}
     }
     qDebug() << time_ms.elapsed()*0.001/60;
 
@@ -1197,8 +1279,6 @@ void TWorld::InitErosion(void)
 
     PlantHeight = ReadMap(LDD,getvaluename("CH"));
     checkMap(*PlantHeight, SMALLER, 0.0, "Cover fraction must be >= 0");
-
-
 
     StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
 

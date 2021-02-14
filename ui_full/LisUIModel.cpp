@@ -132,7 +132,7 @@ void lisemqt::runmodel()
     // stoprequested is used to stop the thread with the interface
     W->waitRequested = false;
     // waitrequested is used to pause the thread with the interface, only on windows machines!
-    W->noInterface = false;
+    W->noInterface = true;
     W->noOutput = false;
     W->batchmode = false;
     // run without Qt interface on openlisemtmp.run only
