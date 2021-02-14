@@ -204,55 +204,64 @@ void TWorld::ChannelAddBaseandRain(void)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-//        if(ChannelMaskExtended->data[r][c] == 1)
-  //      {
-       int rr = r;//(int)ChannelSourceYExtended->Drc;
-       int cr = c;//(int)ChannelSourceXExtended->Drc;
 
         if (ChannelMaxQ->Drc <= 0)
-            ChannelWaterVol->Drcr += Rainc->Drc*ChannelWidthMax->Drcr*DX->Drcr;
+            ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthMax->Drc*DX->Drc;
 
-      //  fromChannelVoltoWH(r, c);
-    }}
-//}
-
-    // subtract infiltration
-    if (SwitchChannelInfil) {
-    #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL {
+        // subtract infiltration
+        if (SwitchChannelInfil) {
             double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
             inf = std::min(ChannelWaterVol->Drc, inf);
             ChannelWaterVol->Drc -= inf;
             ChannelInfilVol->Drc += inf;
-        }}
-    }
+        }
 
-    // add baseflow
-    if(SwitchChannelBaseflow)
-    {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL {
-            //add baseflow
+        if(SwitchChannelBaseflow)
+        {
             if(!addedbaseflow)
             {
                 ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
                 BaseFlowTot += BaseFlowInitialVolume->Drc;
-
             }
             ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
             BaseFlowTot += BaseFlowInflow->Drc * _dt;
+        }
 
-        }}
-        if (!addedbaseflow)
-            addedbaseflow = true;
-    }
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
-       // fromChannelVoltoWH(r, c);
         ChannelFlowWidth->Drc = ChannelWidth->Drc;
         ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+
     }}
+    if (!addedbaseflow)
+        addedbaseflow = true;
+
+
+
+//    // add baseflow
+//    if(SwitchChannelBaseflow)
+//    {
+//        #pragma omp parallel for num_threads(userCores)
+//        FOR_ROW_COL_MV_CHL {
+//            //add baseflow
+//            if(!addedbaseflow)
+//            {
+//                ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
+//                BaseFlowTot += BaseFlowInitialVolume->Drc;
+
+//            }
+//            ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
+//            BaseFlowTot += BaseFlowInflow->Drc * _dt;
+
+//        }}
+//        if (!addedbaseflow)
+//            addedbaseflow = true;
+//    }
+
+//    #pragma omp parallel for num_threads(userCores)
+//    FOR_ROW_COL_MV_CHL {
+//       // fromChannelVoltoWH(r, c);
+//        ChannelFlowWidth->Drc = ChannelWidth->Drc;
+//        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+//    }}
 }
 //---------------------------------------------------------------------------
     /* NOT USED */
@@ -280,22 +289,45 @@ void TWorld::ChannelFlow(void)
     if (!SwitchIncludeChannel)
         return;
 
-    double beta = 0.6;
-    double beta1 = 1/beta;
 
     // velocity, alpha, Q
 #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
+/*
+        if (ChannelMaxQ->Drc <= 0)
+            ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthMax->Drc*DX->Drc;
+
+        // subtract infiltration
+        if (SwitchChannelInfil) {
+            double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
+            inf = std::min(ChannelWaterVol->Drc, inf);
+            ChannelWaterVol->Drc -= inf;
+            ChannelInfilVol->Drc += inf;
+        }
+
+        if(SwitchChannelBaseflow)
+        {
+            if(!addedbaseflow)
+            {
+                ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
+                BaseFlowTot += BaseFlowInitialVolume->Drc;
+            }
+            ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
+            BaseFlowTot += BaseFlowInflow->Drc * _dt;
+        }
+*/
+        ChannelFlowWidth->Drc = ChannelWidth->Drc;
+        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+
+        double beta = 0.6;
+        double beta1 = 1/beta;
         double Perim, Radius, Area;
         double sqrtgrad = sqrt(ChannelGrad->Drc);
         double alpha = 0;
         double N = ChannelN->Drc;
-        double V = 0;
-        double Q = 0;
         double MaxQ = ChannelMaxQ->Drc;
-
-        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
-
+        ChannelV->Drc = 0;
+        ChannelQ->Drc = 0;
         double wh = ChannelWH->Drc;
         double FW = ChannelFlowWidth->Drc;
         if (wh > 1e-10) {
@@ -305,30 +337,23 @@ void TWorld::ChannelFlow(void)
 
             if (sqrtgrad > MIN_SLOPE) {
                 alpha = std::pow(N/sqrtgrad * std::pow(Perim, 2.0/3.0), beta);
-                Q = std::pow(Area/alpha, beta1);
+                ChannelQ->Drc = std::pow(Area/alpha, beta1);
                 if (SwitchCulverts) {
-                    if (MaxQ > 0 && Q > MaxQ){
+                    if (MaxQ > 0 && ChannelQ->Drc > MaxQ){
                         alpha = Area/std::pow(MaxQ, beta);
-                        Q = MaxQ;
+                        ChannelQ->Drc = MaxQ;
                     }
                 }
             }
-            V = std::pow(Radius, 2.0/3.0)*sqrtgrad/N;
+            ChannelV->Drc = std::pow(Radius, 2.0/3.0)*sqrtgrad/N;
         }
 
         ChannelAlpha->Drc = alpha;
-        ChannelQ->Drc = Q;
-        ChannelV->Drc = V;
         ChannelQsn->Drc = 0;
         Channelq->Drc = 0;
         QinKW->Drc = 0;
-    }}
 
-    //concentrations and ingoing Qs
-    if (SwitchErosion)
-    {
-#pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL {
+        if (SwitchErosion) {
             double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
             ChannelQSSs->Drc = ChannelQ->Drc * concss;
 
@@ -336,8 +361,27 @@ void TWorld::ChannelFlow(void)
                 double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
                 ChannelQBLs->Drc = ChannelQ->Drc * concbl;
             }
-        }}
-    }
+        }
+
+    }}
+
+    if (!addedbaseflow)
+        addedbaseflow = true;
+
+    //concentrations and ingoing Qs
+//    if (SwitchErosion)
+//    {
+//#pragma omp parallel for num_threads(userCores)
+//        FOR_ROW_COL_MV_CHL {
+//            double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
+//            ChannelQSSs->Drc = ChannelQ->Drc * concss;
+
+//            if(SwitchUse2Phase) {
+//                double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
+//                ChannelQBLs->Drc = ChannelQ->Drc * concbl;
+//            }
+//        }}
+//    }
 
     if (SwitchChannelKinWave) {
 
@@ -376,7 +420,6 @@ void TWorld::ChannelFlow(void)
         ChannelSWOFopen();
 
     }
-
     // get the maximum for output
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL
@@ -397,7 +440,6 @@ void TWorld::ChannelFlow(void)
                 }}
                 cover(*ChannelQBLsn, *LDD, 0);
             }
-
             ChannelQSSsn->setAllMV();
             //route water 1D and sediment
             FOR_ROW_COL_LDDCH5 {
@@ -406,33 +448,34 @@ void TWorld::ChannelFlow(void)
             }}
             cover(*ChannelQSSsn, *LDD, 0);
         } else {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                ChannelQSSsn->Drc = 0;
+                if(SwitchUse2Phase)
+                    ChannelQBLsn->Drc = 0;
+            }}
+           // fill(*ChannelQSSsn,0);
+            KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
             if(SwitchUse2Phase) {
-                fill(*ChannelQBLsn,0);
+              //  fill(*ChannelQBLsn,0);
                 KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
             }
-            fill(*ChannelQSSsn,0);
-            KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
         }
-
         if (SwitchIncludeRiverDiffusion) {
             RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
             // note SSsed goes in and out, SSconc is recalculated inside
         }
-
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             RiverSedimentLayerDepth(r,c);
             RiverSedimentMaxC(r,c);
             ChannelQsn->Drc = ChannelQSSsn->Drc;
             ChannelSed->Drc = ChannelSSSed->Drc;
-        }}
-        if(SwitchUse2Phase) {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_CHL {
+            if(SwitchUse2Phase) {
                 ChannelQsn->Drc += ChannelQBLsn->Drc;
                 ChannelSed->Drc += ChannelBLSed->Drc;
-            }}
-        }
+            }
+        }}
     }
 }
 
