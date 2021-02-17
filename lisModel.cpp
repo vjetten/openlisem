@@ -288,12 +288,9 @@ void TWorld::CellProcesses()
 // these are all non-threaded
 void TWorld::OrderedProcesses()
 {
-    SwitchChannelKinWave = true;//false;//
+    SwitchChannelKinWave = true;// set to false for experimental swof in channel
+
     ChannelAddBaseandRain();  // add baseflow o, subtract infil, add rainfall
-
-    //ChannelWaterHeightFromVolume(); //calc WH from volume with abc rule, and flowwidth
-
-    //CalcVelDischChannel(); // alpha, V and Q from Manning
 
     ChannelFlow();            //channel kin wave for water and sediment
 

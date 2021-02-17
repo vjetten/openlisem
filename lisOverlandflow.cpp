@@ -470,10 +470,6 @@ void TWorld::OverlandFlow1D(void)
         Alpha->Drc = pow(N->Drc/sqrtGrad->Drc * pow(FlowWidth->Drc, 2.0/3.0),0.6); // for erosion
         V->Drc = pow(WHrunoff->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
 
-        V->Drc = fabs(V->Drc);
-        Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
-        Q->Drc = Qn->Drc; // just to be sure
-
         WHroad->Drc = WHrunoff->Drc;
         // set road to average outflowing wh, no surface storage.
 

@@ -152,8 +152,15 @@ void TWorld::DestroyData(void)
     crldd5_.clear();
     crlddch5_.clear();
 
-    //crlinkedldd_.clear();
-    //crlinkedlddch_.clear();
+    for(int i_ = 0; i_ < crlinkedldd_.size(); i_++){
+        crlinkedldd_[i_].in.clear();
+    }
+    crlinkedldd_.clear();
+
+    for(int i_ = 0; i_ < crlinkedlddch_.size(); i_++){
+        crlinkedlddch_[i_].in.clear();
+    }
+    crlinkedlddch_.clear();
 
     // DEBUG("kill display data");
     // ClearComboMaps();
