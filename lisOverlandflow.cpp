@@ -53,6 +53,7 @@ void TWorld::OverlandFlow(void)
     if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
 
         #pragma omp parallel for num_threads(userCores)
+
         FOR_ROW_COL_MV_L  {
             CalcVelDisch(r, c);        // overland flow velocity, discharge and alpha
 
@@ -435,12 +436,13 @@ void TWorld::OverlandFlow1D(void)
             Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);
             // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
         }}
-  //      FOR_ROW_COL_LDD5 {
-  //            routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);
-  //      }}
     } else {
+
         KinematicExplicit(crlinkedldd_, nrValidCells, LDD, Q, Qn, q, Alpha,DX, tm);
-  //      KinematicSubstance(crlinkedldd_,nrValidCells,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
+//        FOR_ROW_COL_MV_L {
+//            Qn->Drc = std::min(Qn->Drc, WaterVolin->Drc/_dt);
+//        }}
+        //KinematicSWOFopen(WHrunoff, V);
     }
 
 //convert calculate Qn back to WH and volume for next loop
@@ -458,8 +460,8 @@ void TWorld::OverlandFlow1D(void)
         InfilKWact = std::min(-FSurplus->Drc*SoilWidthDX->Drc*DX->Drc, diff);
 
         // infiltration is the surplus infil (pot infil), or infil is all that was there
-//        if (FFull->Drc == 1)
-//            InfilKWact = 0;
+ //        if (FFull->Drc == 1)
+ //            InfilKWact = 0;
 
         InfilVolKinWave->Drc = InfilKWact;
         //Q->Drc = Qn->Drc;
@@ -467,6 +469,10 @@ void TWorld::OverlandFlow1D(void)
         //double R = WHrunoff->Drc;//*FlowWidth->Drc/Perim;
         Alpha->Drc = pow(N->Drc/sqrtGrad->Drc * pow(FlowWidth->Drc, 2.0/3.0),0.6); // for erosion
         V->Drc = pow(WHrunoff->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
+
+        V->Drc = fabs(V->Drc);
+        Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
+        Q->Drc = Qn->Drc; // just to be sure
 
         WHroad->Drc = WHrunoff->Drc;
         // set road to average outflowing wh, no surface storage.

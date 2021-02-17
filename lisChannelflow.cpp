@@ -396,9 +396,11 @@ void TWorld::ChannelFlow(void)
 
         } else {
 
-            fill(*ChannelQn, 0);
             KinematicExplicit(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
-
+                #pragma omp parallel num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelWaterVol->Drc/_dt);
+            }}
         }
 
 #pragma omp parallel for num_threads(userCores)
@@ -421,6 +423,7 @@ void TWorld::ChannelFlow(void)
 
     }
     // get the maximum for output
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL
     {

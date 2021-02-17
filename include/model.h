@@ -185,6 +185,12 @@ typedef struct LDD_COOR {
     int c;
 }  LDD_COOR;
 //---------------------------------------------------------------------------
+typedef struct LDD_COORIN {
+    int r;
+    int c;
+    QVector <LDD_COOR> in;
+}  LDD_COORIN;
+//---------------------------------------------------------------------------
 /// linked list structure for network in kin wave
 typedef struct LDD_LINKEDLIST {
     int rowNr;
@@ -269,8 +275,8 @@ public:
     QVector <LDD_COOR> crlddch5_;
     QVector <LDD_COOR> cr_;
     QVector <LDD_COOR> crch_;
-    QVector <LDD_COOR> crlinkedldd_;
-    QVector <LDD_COOR> crlinkedlddch_;
+    QVector <LDD_COORIN> crlinkedldd_;
+    QVector <LDD_COORIN> crlinkedlddch_;
 
     /// map management structure, automatic adding and deleting of all cTMap variables
     MapListStruct maplistCTMap[NUMNAMES];
@@ -518,6 +524,8 @@ public:
     double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     void ChannelSWOFopen();
+
+    void KinematicSWOFopen(cTMap *_h, cTMap *_V);
 
     void prepareFloodZ(cTMap *z);
     void setFloodMask(cTMap * h);
@@ -787,10 +795,10 @@ public:
                    cTMap *_Vol);
     double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double maxQ);
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
-    void KinematicExplicit(QVector<LDD_COOR> _crlinked, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
-    void KinematicSubstance(QVector<LDD_COOR> _crlinked_, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
+    void KinematicExplicit(QVector<LDD_COORIN> _crlinked, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
+    void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
 /*  LDD_COOR *_crlinked_*/
-    QVector <LDD_COOR> MakeLinkedList(cTMap *_LDD);
+    QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
 
 
     void do_CellProcesses();
