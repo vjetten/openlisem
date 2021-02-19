@@ -501,7 +501,7 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
     }
 
     SwitchKinematic2D = getvalueint("Routing Kin Wave 2D");
-
+    qDebug() << "SwitchKinematic2D" << SwitchKinematic2D;
     // flood maps
     DEM = ReadMap(LDD, getvaluename("dem"));
     if (SwitchBuffers) {

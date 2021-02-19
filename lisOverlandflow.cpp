@@ -50,10 +50,10 @@ functions: \n
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow(void)
 {
+
     if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
 
         #pragma omp parallel for num_threads(userCores)
-
         FOR_ROW_COL_MV_L  {
             CalcVelDisch(r, c);        // overland flow velocity, discharge and alpha
 
@@ -205,18 +205,12 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
 
     K2DQOutBoun = 0;
     K2DQSOutBoun = 0;
-    //fill(*tma, 0);
-    //fill(*K2DQ, 0);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         tma->Drc = 0;
         K2DQ->Drc = 0;
         K2DOutlets->Drc = 0;
     }}
-
-    // find oulets based on DEM and WHrunoff
-    dynOutflowPoints();
-    //find K2DOutlets = 1
 
     FOR_ROW_COL_LDD5 {
         tma->Drc = 1;
@@ -229,39 +223,47 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
             tma->Drc = 1;
         }}
     }
-
+// CHECK should flow boundary be at the start?
     if (FlowBoundaryType > 0) {
+        // find oulets based on DEM and WHrunoff
+        dynOutflowPoints();
+        //find K2DOutlets = 1
         //direction of velocity is in the direction of + and -
         // U is EW and V is NS
         // find which outlets on the boundary are directed to the outside based on sign U and V
-#pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for reduction(+:K2DQSOutBoun,K2DQOutBoun) num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 0.0)
             {
                 if (c > 0 && MV(r,c-1))
-                    if (_U->Drc < 0)
+                    if (_U->Drc < 0) {
                         tma->Drc = 1;
+                    }
                 if (c < _nrCols-1 && MV(r,c+1))
-                    if (_U->Drc > 0)
+                    if (_U->Drc > 0) {
                         tma->Drc = 1;
+                    }
                 if (r > 0 && MV(r-1,c))
-                    if (_V->Drc < 0)
+                    if (_V->Drc < 0) {
                         tma->Drc = 1;
+                    }
                 if (r < _nrRows-1 && MV(r+1,c))
-                    if (_V->Drc > 0)
+                    if (_V->Drc > 0) {
                         tma->Drc = 1;
+                    }
             }
-            //        }}
-            //    }
+        }}
+    }
 
-            //    #pragma omp parallel for num_threads(userCores)
-            //    FOR_ROW_COL_MV_L {
+        #pragma omp parallel for reduction(+:K2DQSOutBoun,K2DQOutBoun) num_threads(userCores)
+        FOR_ROW_COL_MV_L {
             if (tma->Drc == 1) {
-                double dy = ChannelAdj->Drc;
+
                 double UV = qSqrt(_U->Drc * _U->Drc + _V->Drc*_V->Drc);
-                double frac = std::min( std::max(0.0, UV*_dt/DX->Drc) , 0.9);
+                double frac = UV*_dt/DX->Drc;
+                frac = std::max(0.0, std::min(frac, 0.9));
                 double dh = frac*h->Drc;
-                double _q = dh*DX->Drc*dy;
+                double _q = dh*DX->Drc*ChannelAdj->Drc;
 
                 K2DQOutBoun += _q/_dt;
                 h->Drc -= dh;
@@ -279,7 +281,7 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
                 }
             }
         }}
-    }
+    //}
 }
 //---------------------------------------------------------------------------
 void TWorld::SolveDeepWH(void)
@@ -427,9 +429,8 @@ void TWorld::OverlandFlow1D(void)
     if (SwitchLinkedList) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            pcr::setMV(Qn->Drc);//Qsn->setAllMV();
+            pcr::setMV(Qn->Drc);
             QinKW->Drc = 0;
-       //     pcr::setMV(Qsn->Drc);//Qsn->setAllMV();
         }}
         //Qn->setAllMV();
         FOR_ROW_COL_LDD5 {
@@ -439,9 +440,7 @@ void TWorld::OverlandFlow1D(void)
     } else {
 
         KinematicExplicit(crlinkedldd_, nrValidCells, LDD, Q, Qn, q, Alpha,DX, tm);
-//        FOR_ROW_COL_MV_L {
-//            Qn->Drc = std::min(Qn->Drc, WaterVolin->Drc/_dt);
-//        }}
+
         //KinematicSWOFopen(WHrunoff, V);
     }
 

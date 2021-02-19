@@ -447,51 +447,54 @@ void TWorld::do_Percolation(int r, int c)
 
 void TWorld::do_CellProcesses()
 {
+      RainfallMap();         // get rainfall from table or mpas
+
+
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
         if (SwitchRainfall) {
-            double timeminprev = (time-_dt) / 60; //prev time in minutes
-            int  rainplace;
-            double tt = 3600000.0;
+//            double timeminprev = (time-_dt) / 60; //prev time in minutes
+//            int  rainplace;
+//            double tt = 3600000.0;
 
-            for (rainplace = 0; rainplace < nrRainfallseries; rainplace++)
-                if (timeminprev < RainfallSeriesM[rainplace].time)
-                    break;
+//            for (rainplace = 0; rainplace < nrRainfallseries; rainplace++)
+//                if (timeminprev < RainfallSeriesM[rainplace].time)
+//                    break;
 
-            if (RainfallSeriesM[rainplace].isMap)
-            {
-                auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesM[rainplace].name)));
-                if (pcr::isMV(_M->Drc))
-                {
-                    QString sr, sc;
-                    sr.setNum(r); sc.setNum(c);
-                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesM[rainplace].name;
-                    throw 1;
-                }
-                else
-                    Rain->Drc = _M->Drc *_dt/tt;
-            }
-            else
-            {
-                Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
-            }
+//            if (RainfallSeriesM[rainplace].isMap)
+//            {
+//                auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesM[rainplace].name)));
+//                if (pcr::isMV(_M->Drc))
+//                {
+//                    QString sr, sc;
+//                    sr.setNum(r); sc.setNum(c);
+//                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesM[rainplace].name;
+//                    throw 1;
+//                }
+//                else
+//                    Rain->Drc = _M->Drc *_dt/tt;
+//            }
+//            else
+//            {
+//                Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
+//            }
 
-            if (!rainStarted) {
-                if(Rain->Drc > 0)
-                    rainStarted = true;
-            }
-            if (rainStarted && RainstartTime == -1)
-                RainstartTime = time;
+//            if (!rainStarted) {
+//                if(Rain->Drc > 0)
+//                    rainStarted = true;
+//            }
+//            if (rainStarted && RainstartTime == -1)
+//                RainstartTime = time;
 
-            Rainc->Drc = Rain->Drc * _dx/DX->Drc;
-            // correction for slope dx/DX, water spreads out over larger area
-            RainCumFlat->Drc += Rain->Drc;
-            // cumulative rainfall
-            RainCum->Drc += Rainc->Drc;
-            // cumulative rainfall corrected for slope, used in interception
-            RainNet->Drc = Rainc->Drc;
-            // net rainfall in case of interception
+//            Rainc->Drc = Rain->Drc * _dx/DX->Drc;
+//            // correction for slope dx/DX, water spreads out over larger area
+//            RainCumFlat->Drc += Rain->Drc;
+//            // cumulative rainfall
+//            RainCum->Drc += Rainc->Drc;
+//            // cumulative rainfall corrected for slope, used in interception
+//            RainNet->Drc = Rainc->Drc;
+//            // net rainfall in case of interception
 
             if (Rainc->Drc > 0)
                 do_Interception(r,c);

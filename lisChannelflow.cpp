@@ -344,7 +344,7 @@ void TWorld::ChannelFlow(void)
             FOR_ROW_COL_LDDCH5 {
                 Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
             }}
-          //  cover(*ChannelQn, *LDD, 0);
+            cover(*ChannelQn, *LDD, 0);
 
         } else {
             KinematicExplicit(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
