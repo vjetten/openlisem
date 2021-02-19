@@ -188,7 +188,9 @@ typedef struct LDD_COOR {
 typedef struct LDD_COORIN {
     int r;
     int c;
+    int nr;
     QVector <LDD_COOR> in;
+    LDD_COOR *inn;
 }  LDD_COORIN;
 //---------------------------------------------------------------------------
 /// linked list structure for network in kin wave

@@ -154,11 +154,15 @@ void TWorld::DestroyData(void)
 
     for(int i_ = 0; i_ < crlinkedldd_.size(); i_++){
         crlinkedldd_[i_].in.clear();
+        if(crlinkedldd_[i_].inn)
+            free(crlinkedldd_[i_].inn);
     }
     crlinkedldd_.clear();
 
     for(int i_ = 0; i_ < crlinkedlddch_.size(); i_++){
         crlinkedlddch_[i_].in.clear();
+        if(crlinkedlddch_[i_].inn)
+            free(crlinkedlddch_[i_].inn);
     }
     crlinkedlddch_.clear();
 
