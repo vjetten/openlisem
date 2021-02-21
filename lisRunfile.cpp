@@ -185,6 +185,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use SWOF 2.0")==0) SwitchSWOFopen = iii == 1;
         if (p1.compare("Use MUSCL")==0) SwitchMUSCL = iii == 1;
         if (p1.compare("Use time avg V")==0) SwitchTimeavgV = iii == 1;
+        if (p1.compare("2D Diagonal flow")==0) Switch2DDiagonalFlow = iii == 1;
         if (p1.compare("Flow Boundary 2D")==0)     FlowBoundaryType = iii;
         if (p1.compare("Advanced Options")==0)     SwitchAdvancedOptions = iii == 1;
 

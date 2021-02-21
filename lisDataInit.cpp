@@ -495,7 +495,7 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         SwitchFixedAngle = false;
         F_AddGravity = 1;
         F_Angle = 0.02;
-        F_pitValue = 10.0;
+        F_pitValue = 0.1;
         SwitchErosionInsideLoop = false;
         SwitchLinkedList = false;
     }
@@ -1196,21 +1196,9 @@ void TWorld::InitFlood(void)
                }
             }
 
-//            double dZ = F_pitValue;
-            /*
-            // make a weighing factor that reduces the effect opf the fit on flow based on the depth larfger than the threshold
-            DEMdz->Drc = 1.0;
-            if (flag) {
-                double minZ = std::min(std::min(std::min(fabs(Z - z_x1), fabs(Z - z_x2)), fabs(Z-z_y1)), fabs(Z-z_y2));
-                DEMdz->Drc = minZ*0.9 < F_pitValue ? 1.0 : 1/(1+pow(minZ/(1.0+F_pitValue),4.0));
-
-                //OR?
-                DEM->Drc += minZ;
-            }
-            */
             DEMdz->Drc = tma->Drc;
         }}
-        report(*tma,"tma.map");
+        report(*tma,"pits.map");
     }
 
     if (!SwitchSWOFopen) {

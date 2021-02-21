@@ -70,7 +70,7 @@ functions: \n
  * @see SWOFSedimentSetConcentration
  */
 
-void TWorld::SWOFSediment(double dt, cTMap* DT,cTMap * h,cTMap * u,cTMap * v)
+void TWorld::SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v)
 {
     //sediment detachment or deposition
     SWOFSedimentDetNew(dt, h,u,v);

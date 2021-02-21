@@ -1659,6 +1659,7 @@ void lisemqt::resetTabFlow()
     checkMuscl->setChecked(false);
     //checkSWOFomp->setChecked(true);
     checkTimeavgV->setChecked(true);
+    check2DDiagonalFlow->setChecked(true);
 
     E_floodMinHeight->setValue(0.05);
     checkFloodInitial->setChecked(false);
@@ -1880,7 +1881,7 @@ void lisemqt::resetAll()
     checkHeun->setChecked(false);
     //checkSWOFomp->setChecked(true);
     checkMuscl->setChecked(true);
-    checkTimeavgV->setChecked(true);
+    check2DDiagonalFlow->setChecked(true);
     E_courantFactor->setValue(0.2);
     //   if (p1.compare("Flooding courant factor diffusive")==0)        E_courantFactorSed->setValue(valc);
 

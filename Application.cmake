@@ -69,6 +69,7 @@ SET(APP_SOURCES
     lisSWOF2Daux
     lisSWOF2Dopen
     lisSWOF2DSediment
+    lisSWOF2DChannel
     lisTiledrainflow
     lisTotalsMB
     include/array.h
