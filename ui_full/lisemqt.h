@@ -479,6 +479,8 @@ private slots:
     void worldDebug(const QString &results);
 
 
+    void on_check2DDiagonalFlow_toggled(bool checked);
+
 private:
 
     QSystemTrayIcon *trayIcon;

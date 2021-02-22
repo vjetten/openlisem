@@ -607,7 +607,7 @@ void lisemqt::setFloodTab(bool yes)
 
     tabWidgetOptions->setTabEnabled(3, yes);
     //frame_diffwave->setEnabled(checkOverlandFlow2D->isChecked());
-    frame_dynwave->setEnabled(yes);
+    FloodParams->setEnabled(yes);
 
     outputMapsFlood->setEnabled(yes);
     label_floodVolmm->setEnabled(yes);
@@ -2083,4 +2083,10 @@ void lisemqt::on_toolButton_help(int page)
     view->setAttribute(Qt::WA_DeleteOnClose);
 
     view->show();
+}
+
+void lisemqt::on_check2DDiagonalFlow_toggled(bool checked)
+{
+    E_pitValue->setEnabled(checked);
+    label_135->setEnabled(checked);
 }

@@ -41,14 +41,19 @@ void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
 {
     // force flow when a diagonal solution exists and a blockage
   //  if(F_pitValue > 0) {
+    //        FOR_ROW_COL_MV_L  {
         #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L  {
-            if (DEMdz->Drc == 1 && h->Drc > F_pitValue) {
+        for(long i_= 0; i_ < dcr_.size(); i_++) {
+
+            int r = dcr_[i_].r;
+            int c = dcr_[i_].c;
+
+            if (/* DEMdz->Drc > 0 && */ h->Drc > F_pitValue) {
                 int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
                 int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
 
                 vec4 rec;
-                int ldd = (int) LDD->Drc;
+                int ldd = dcr_[i_].ldd;//(int) DEMdz->Drc;
                 int rr = r+dy[ldd];
                 int cr = c+dx[ldd];
 
@@ -64,8 +69,8 @@ void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
                 }
 
             }
-        }}
- //   }
+        //}}
+    }
 }
 //-------------------------------------------------------------------------------------------------
 double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
@@ -330,12 +335,12 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             dt_req_min = std::min(dt_req_min, _dt-timesum);
 
             if (step > 0) {
-                if (Switch2DDiagonalFlow) {
-                    SWOFDiagonalFlow(dt_req_min, h, vx, vy);
-                }
-
                 if (SwitchErosion && SwitchErosionInsideLoop) {
                     SWOFSediment(dt_req_min, h,vx,vy);
+                }
+
+                if (Switch2DDiagonalFlow) {
+                    SWOFDiagonalFlow(dt_req_min, h, vx, vy);
                 }
 
                 timesum += dt_req_min;

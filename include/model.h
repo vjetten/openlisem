@@ -184,6 +184,12 @@ typedef struct LDD_COOR {
     int r;
     int c;
 }  LDD_COOR;
+//---------------------------------------------------------------------------list
+typedef struct LDD_COORi {
+    int r;
+    int c;
+    int ldd;
+}  LDD_COORi;
 //---------------------------------------------------------------------------
 typedef struct LDD_COORIN {
     int r;
@@ -276,6 +282,7 @@ public:
     QVector <LDD_COOR> crldd5_;
     QVector <LDD_COOR> crlddch5_;
     QVector <LDD_COOR> cr_;
+    QVector <LDD_COORi> dcr_;
     QVector <LDD_COOR> crch_;
     QVector <LDD_COORIN> crlinkedldd_;
     QVector <LDD_COORIN> crlinkedlddch_;

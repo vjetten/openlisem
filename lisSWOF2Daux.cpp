@@ -885,9 +885,6 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             // st venant equations
             maincalcschemeOF(dt1, h,u,v, hs,us,vs);
 
-            if(Switch2DDiagonalFlow) {
-                SWOFDiagonalFlow(dt1, hs, us, vs);
-            }
             setZeroOF(hs, us, vs);
 
             // for erosion
@@ -898,6 +895,10 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
             if (SwitchErosion && SwitchErosionInsideLoop)
                 SWOFSediment(dt1, hs,us,vs);
+
+            if(Switch2DDiagonalFlow) {
+                SWOFDiagonalFlow(dt1, hs, us, vs);
+            }
 
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {

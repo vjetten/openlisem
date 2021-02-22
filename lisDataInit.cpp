@@ -496,6 +496,7 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         F_AddGravity = 1;
         F_Angle = 0.02;
         F_pitValue = 0.1;
+        Switch2DDiagonalFlow = true;
         SwitchErosionInsideLoop = false;
         SwitchLinkedList = false;
     }
@@ -937,7 +938,7 @@ void TWorld::InitChannel(void)
             nrValidCellsCH++;
         }
         //crch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
-        long i = 0;
+        //long i = 0;
         FOR_ROW_COL_MV_CH {
             LDD_COOR newcr;
             newcr.r = r;
@@ -1156,47 +1157,90 @@ void TWorld::InitFlood(void)
     FloodT = NewMap(0);
 
     iter_n = 0;
-    DEMdz = NewMap(0);
-    if (F_pitValue > 0) {
+  //  DEMdz = NewMap(0);
+    dcr_.clear();
+    if (Switch2DDiagonalFlow) {
         FOR_ROW_COL_MV_L {
             tma->Drc= 0;
+
             double Z = DEM->Drc;
             double z_x1 =  c > 0 && !MV(r,c-1)         ? DEM->data[r][c-1] : Z;
             double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? DEM->data[r][c+1] : Z;
             double z_y1 =  r > 0 && !MV(r-1,c)         ? DEM->data[r-1][c] : Z;
             double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? DEM->data[r+1][c] : Z;
+            double z_x11 =  c > 0 && !MV(r,c-1)         ? DEM->data[r-1][c-1] : Z;
+            double z_x21 =  c < _nrCols-1 && !MV(r,c+1) ? DEM->data[r+1][c-1] : Z;
+            double z_y11 =  r > 0 && !MV(r-1,c)         ? DEM->data[r-1][c+1] : Z;
+            double z_y21 =  r < _nrRows-1 && !MV(r+1,c) ? DEM->data[r+1][c+1] : Z;
             int ldd = (int) LDD->Drc;
 
-            if (z_x1 > Z+F_pitValue) {
-               if (ldd == 1 || ldd == 7) {
-                   if(z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-                       tma->Drc = 1;
-                   }
-               }
+            // left blockage
+            if (z_x1 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
+                if(z_x11 < Z+F_pitValue)
+                  tma->Drc = 7;
+                if(z_y11 < Z+F_pitValue)
+                  tma->Drc = 1;
             }
-            if (z_x2 > Z+F_pitValue) {
-               if (ldd == 3 || ldd == 9) {
-                   if (z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-                      tma->Drc = 1;
-                   }
-               }
+            // right blockage
+            if (z_x2 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
+                if(z_y11 < Z+F_pitValue)
+                  tma->Drc = 9;
+                if(z_y21 < Z+F_pitValue)
+                  tma->Drc = 3;
             }
-            if (z_y1 > Z+F_pitValue) {
-               if (ldd == 7 || ldd == 9) {
-                   if(z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-                       tma->Drc = 1;
-                   }
-               }
+            // upper blockage
+            if (z_y1 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
+                if(z_x11 < Z+F_pitValue)
+                  tma->Drc = 7;
+                if(z_x21 < Z+F_pitValue)
+                  tma->Drc = 9;
             }
-            if (z_y2 > Z+F_pitValue) {
-               if (ldd == 1 || ldd == 3) {
-                   if(z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-                       tma->Drc = 1;
-                   }
-               }
+            //lower blockage
+            if (z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
+                if(z_x21 < Z+F_pitValue)
+                  tma->Drc = 1;
+                if(z_y21 < Z+F_pitValue)
+                  tma->Drc = 3;
             }
 
-            DEMdz->Drc = tma->Drc;
+
+//            if (z_x1 > Z+F_pitValue) {
+//               if (ldd == 1 || ldd == 7) {
+//                   if(z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
+//                       tma->Drc = 1;
+//                   }
+//               }
+//            }
+//            if (z_x2 > Z+F_pitValue) {
+//               if (ldd == 3 || ldd == 9) {
+//                   if (z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
+//                      tma->Drc = 1;
+//                   }
+//               }
+//            }
+//            if (z_y1 > Z+F_pitValue) {
+//               if (ldd == 7 || ldd == 9) {
+//                   if(z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
+//                       tma->Drc = 1;
+//                   }
+//               }
+//            }
+//            if (z_y2 > Z+F_pitValue) {
+//               if (ldd == 1 || ldd == 3) {
+//                   if(z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
+//                       tma->Drc = 1;
+//                   }
+//               }
+//            }
+
+  //          DEMdz->Drc = tma->Drc;
+            if (tma->Drc > 0) {
+                LDD_COORi dclrc;
+                dclrc.r = r;
+                dclrc.c = c;
+                dclrc.ldd = (int) tma->Drc;
+                dcr_ << dclrc;
+            }
         }}
         report(*tma,"pits.map");
     }
