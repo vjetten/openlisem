@@ -94,6 +94,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
     if (startFlood)
     {
+
         sumh = getMass(h, 0);
 //        if (SwitchErosion)
 //            sumS = getMassSed(SSFlood, 0);
@@ -105,12 +106,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 //        }}
 
         do {
-
             // bool SwitchLimitSWOFVelocity = true;
             //double vmax = 100000;
             // if (SwitchLimitSWOFVelocity)
             //      vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
-
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 hs->Drc = h->Drc;
@@ -119,7 +118,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 FloodDT->Drc = dt_max;
 
                 tmb->Drc = 0;
+            }}
 
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
                 if (hs->Drc > 0) {
                     tmb->Drc = 1;
                     if (c > 0 && !MV(r,c-1)        ) tmb->data[r][c-1] = 1;
@@ -134,11 +136,11 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 }
             }}
 
-
             //do all flow and state calculations
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
             if (tmb->Drc > 0) {
+
                 double dt = dt_req_min;
                 double vxn, vyn;
                 //  double vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
@@ -348,7 +350,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
             if (step > 0) {
 
-                if (SwitchErosion) {// && SwitchErosionInsideLoop) {
+                if (SwitchErosion) {
                     SWOFSediment(dt_req_min, h,vx,vy);
                 }
 
