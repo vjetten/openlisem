@@ -15,10 +15,20 @@
 double TWorld::getMass(cTMap *M, double th)
 {
     double sum2 = 0;
-#pragma omp parallel for reduction(+:sum2) num_threads(userCores)
+    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
             sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
+    }}
+    return sum2;
+}
+double TWorld::getMassSed(cTMap *M, double th)
+{
+    double sum2 = 0;
+    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if(M->Drc > th)
+            sum2 += M->Drc;
     }}
     return sum2;
 }
@@ -49,6 +59,33 @@ void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
         }
     }}
 }
+
+void TWorld::correctMassBalanceSed(double sum1, cTMap *M, double th)
+{
+    double sum2 = 0;
+    double n = 0;
+
+    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if(M->Drc > th)
+        {
+            sum2 += M->Drc;
+            n += 1;
+        }
+    }}
+// total and cells active for M
+    double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if(M->Drc > th)
+        {
+            M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
+            M->Drc = std::max(M->Drc , 0.0);
+        }
+    }}
+}
+
 //---------------------------------------------------------------------------
 // used in datainit, done once
 void TWorld::prepareFloodZ(cTMap *z)
@@ -855,12 +892,16 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     double dt1 = dt_max, timesum = 0;
     int n = 0;
     double sumh = 0;
+    double sumS = 0;
     bool stop;
 
 
     if (startFlood)
     {
         sumh = getMass(h, 0);
+        if (SwitchErosion)
+            sumS = getMass(SSFlood, 0);
+
 
         do {
 
@@ -893,7 +934,7 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 //                FloodDT->Drc = dt1;
 //            }}
 
-            if (SwitchErosion && SwitchErosionInsideLoop)
+            if (SwitchErosion)// && SwitchErosionInsideLoop)
                 SWOFSediment(dt1, hs,us,vs);
 
             if(Switch2DDiagonalFlow) {
@@ -920,9 +961,12 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     } // if floodstart
 
     correctMassBalance(sumh, h, 0);
+    if (SwitchErosion)
+        correctMassBalanceSed(sumS, SSFlood, 0);
 
-    if (SwitchErosion && !SwitchErosionInsideLoop)
-        SWOFSediment(_dt, h,u,v);
+
+//    if (SwitchErosion && !SwitchErosionInsideLoop)
+//        SWOFSediment(_dt, h,u,v);
 
     iter_n = n;
     dt1 = n > 0? _dt/n : dt1;

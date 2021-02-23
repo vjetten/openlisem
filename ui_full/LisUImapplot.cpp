@@ -315,9 +315,11 @@ double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterDa
     _RD->setValueMatrix( mapData, _M->nrCols() );
     // set column number to divide vector into rows
 
-    /*qDebug() << "referencing";
+    /*
+    qDebug() << "referencing";
     qDebug() << _M->north() << base->north() << _M->nrRows() * _M->cellSize() << base->nrRows()*base->cellSize();
-    qDebug() << _M->west() << base->west();*/
+    qDebug() << _M->west() << base->west();
+*/
 
     double cy = (_M->north()-base->north())+(-_M->nrRows()*_M->cellSize() +base->nrRows()*base->cellSize());
     double cx = (_M->west()-base->west());

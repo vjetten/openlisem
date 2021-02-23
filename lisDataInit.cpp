@@ -50,7 +50,6 @@
 #include "model.h"
 #include "operation.h"
 #include "CsfRGBMap.h"
-#include <omp.h>
 
 //---------------------------------------------------------------------------
 /** \n void TWorld::InitMapList(void)
@@ -483,7 +482,7 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         F_Angle = getvaluedouble("Angle flow to channel");
         SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);
         F_pitValue = getvaluedouble("Pit Value");
-        SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
+        //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
         SwitchLinkedList = getvalueint("Use Linked List") == 1;
     } else {
         mixing_coefficient = 2.0;
@@ -496,13 +495,12 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         F_AddGravity = 1;
         F_Angle = 0.02;
         F_pitValue = 0.1;
-        Switch2DDiagonalFlow = true;
-        SwitchErosionInsideLoop = false;
+        //Switch2DDiagonalFlow = true;
+        //SwitchErosionInsideLoop = true;
         SwitchLinkedList = false;
     }
 
     SwitchKinematic2D = getvalueint("Routing Kin Wave 2D");
-    qDebug() << "SwitchKinematic2D" << SwitchKinematic2D;
     // flood maps
     DEM = ReadMap(LDD, getvaluename("dem"));
     if (SwitchBuffers) {
@@ -1105,7 +1103,7 @@ void TWorld::InitChannel(void)
 
     }
 
-    SwitchChannelExtended = ExtendChannelNew();
+   // SwitchChannelExtended = ExtendChannelNew();
     //   ExtendChannel();
 
     ChannelPAngle = NewMap(0);
@@ -1158,6 +1156,7 @@ void TWorld::InitFlood(void)
 
     iter_n = 0;
   //  DEMdz = NewMap(0);
+
     dcr_.clear();
     if (Switch2DDiagonalFlow) {
         FOR_ROW_COL_MV_L {
@@ -1168,72 +1167,96 @@ void TWorld::InitFlood(void)
             double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? DEM->data[r][c+1] : Z;
             double z_y1 =  r > 0 && !MV(r-1,c)         ? DEM->data[r-1][c] : Z;
             double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? DEM->data[r+1][c] : Z;
-            double z_x11 =  c > 0 && !MV(r,c-1)         ? DEM->data[r-1][c-1] : Z;
-            double z_x21 =  c < _nrCols-1 && !MV(r,c+1) ? DEM->data[r+1][c-1] : Z;
-            double z_y11 =  r > 0 && !MV(r-1,c)         ? DEM->data[r-1][c+1] : Z;
-            double z_y21 =  r < _nrRows-1 && !MV(r+1,c) ? DEM->data[r+1][c+1] : Z;
-            int ldd = (int) LDD->Drc;
+            /*
 
+            double z_x11 =  c > 0 && r > 0 && !MV(r-1,c-1)         ? DEM->data[r-1][c-1] : Z;
+            double z_x21 =  c > 0 && r < _nrRows-1 && !MV(r+1,c-1) ? DEM->data[r+1][c-1] : Z;
+            double z_y11 =  r > 0 && c < _nrCols-1 && !MV(r-1,c+1)         ? DEM->data[r-1][c+1] : Z;
+            double z_y21 =  r < _nrRows-1 && c < _nrCols-1 && !MV(r+1,c+1) ? DEM->data[r+1][c+1] : Z;
+            //note: true blockage if the diagonal cells are higher than the centrer cell will not be flagged
             // left blockage
             if (z_x1 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-                if(z_x11 < Z+F_pitValue)
-                  tma->Drc = 7;
-                if(z_y11 < Z+F_pitValue)
-                  tma->Drc = 1;
+                bool z1 = z_x11 < Z+F_pitValue;
+                bool z2 = z_y11 < Z+F_pitValue;
+                if (z1 && z2) {
+                    if (z_x11 < z_y11)
+                        z2 = false;
+                }
+
+                if(z1) tma->Drc = 7;
+                if(z2) tma->Drc = 1;
             }
             // right blockage
             if (z_x2 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-                if(z_y11 < Z+F_pitValue)
-                  tma->Drc = 9;
-                if(z_y21 < Z+F_pitValue)
-                  tma->Drc = 3;
+                bool z1 = z_y11 < Z+F_pitValue;
+                bool z2 = z_y21 < Z+F_pitValue;
+                if (z1 && z2) {
+                    if (z_y11 < z_y21)
+                        z2 = false;
+                }
+                if(z1) tma->Drc = 9;
+                if(z2) tma->Drc = 3;
+//                if(z_y11 < Z+F_pitValue)
+//                  tma->Drc = 9;
+//                if(z_y21 < Z+F_pitValue)
+//                  tma->Drc = 3;
             }
             // upper blockage
             if (z_y1 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-                if(z_x11 < Z+F_pitValue)
-                  tma->Drc = 7;
-                if(z_x21 < Z+F_pitValue)
-                  tma->Drc = 9;
+                bool z1 = z_x11 < Z+F_pitValue;
+                bool z2 = z_x21 < Z+F_pitValue;
+                if (z1 && z2) {
+                    if (z_x11 < z_x21)
+                        z2 = false;
+                }
+                if(z1) tma->Drc = 7;
+                if(z2) tma->Drc = 9;
+//                if(z_x11 < Z+F_pitValue)
+//                  tma->Drc = 7;
+//                if(z_x21 < Z+F_pitValue)
+//                  tma->Drc = 9;
             }
             //lower blockage
             if (z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-                if(z_x21 < Z+F_pitValue)
-                  tma->Drc = 1;
-                if(z_y21 < Z+F_pitValue)
-                  tma->Drc = 3;
+                bool z1 = z_x21 < Z+F_pitValue;
+                bool z2 = z_y21 < Z+F_pitValue;
+                if (z1 && z2) {
+                    if (z_x21 < z_y21)
+                        z2 = false;
+                }
+                if(z1) tma->Drc = 1;
+                if(z2) tma->Drc = 3;
+
+//                if(z_x21 < Z+F_pitValue)
+//                  tma->Drc = 1;
+//                if(z_y21 < Z+F_pitValue)
+//                  tma->Drc = 3;
+            }
+*/
+// ldd map based:
+            int ldd = (int) LDD->Drc;
+            if (z_x1 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
+                if (ldd == 1 || ldd == 7)
+                    tma->Drc = ldd;
+            }
+            if (z_x2 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
+                if (ldd == 3 || ldd == 9)
+                    tma->Drc = ldd;
+            }
+            if (z_y1 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
+                if (ldd == 7 || ldd == 9)
+                    tma->Drc = ldd;
+            }
+            if (z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
+                if (ldd == 1 || ldd == 3)
+                    tma->Drc = ldd;
             }
 
-
-//            if (z_x1 > Z+F_pitValue) {
-//               if (ldd == 1 || ldd == 7) {
-//                   if(z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-//                       tma->Drc = 1;
-//                   }
-//               }
-//            }
-//            if (z_x2 > Z+F_pitValue) {
-//               if (ldd == 3 || ldd == 9) {
-//                   if (z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-//                      tma->Drc = 1;
-//                   }
-//               }
-//            }
-//            if (z_y1 > Z+F_pitValue) {
-//               if (ldd == 7 || ldd == 9) {
-//                   if(z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-//                       tma->Drc = 1;
-//                   }
-//               }
-//            }
-//            if (z_y2 > Z+F_pitValue) {
-//               if (ldd == 1 || ldd == 3) {
-//                   if(z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-//                       tma->Drc = 1;
-//                   }
-//               }
-//            }
-
   //          DEMdz->Drc = tma->Drc;
+            // do not include channels, channels will do the outflow
+            if(SwitchIncludeChannel && ChannelWidth->Drc > 0)
+                tma->Drc = 0;
+
             if (tma->Drc > 0) {
                 LDD_COORi dclrc;
                 dclrc.r = r;
@@ -1950,6 +1973,7 @@ void TWorld::IntializeData(void)
     Alpha = NewMap(0);
     Q = NewMap(0);
     Qn = NewMap(0);
+    Qdiag = NewMap(0);
 
     K2DOutlets = NewMap(0);
     K2DQ = NewMap(0);
@@ -2087,10 +2111,6 @@ void TWorld::IntializeData(void)
         PSorMixingex=NewMap(0);
         PInfiltex=NewMap(0);
 
-        //   Qin=NewMap(0);
-        //   Sin=NewMap(0);
-        //   Fin=NewMap(0);
-
         Pdetach=NewMap(0);
     }
     if (SwitchPesticide)
@@ -2213,6 +2233,7 @@ void TWorld::IntializeData(void)
         }
 
     }
+    /*
     if(SwitchErosion && SwitchUseGrainSizeDistribution)
     {
         IW_D.clear();
@@ -2256,24 +2277,16 @@ void TWorld::IntializeData(void)
             }
         }
     }
+    */
 
 
-    //VJ 110113 all channel and buffer initialization moved to separate functions
-    //calculate slope, outlets and pitches for kinematic 2D
-
-    //K2Dslope also used for transport capacity of overland flow!
-    //ALLEEN ALS ER 2D runoff gekozen is!!!
-    //    if(SwitchKinematic2D != K2D_METHOD_KIN)
-    //        K2DDEMAInitial();
-
-    // MakeWatersheds();
     if (SwitchChannelBaseflow)
         FindBaseFlow();
 
-    if(SwitchFlowBarriers)
-    {
+//    if(SwitchFlowBarriers)
+//    {
 
-    }
+//    }
 }
 //---------------------------------------------------------------------------
 void TWorld::IntializeOptions(void)
@@ -2312,7 +2325,6 @@ void TWorld::IntializeOptions(void)
     tileQmaxfilename= QString("drainqmax.map");
 
     rainFileName.clear();
-    SwitchLimitTC = false;
     rainFileDir.clear();
     snowmeltFileName.clear();
     snowmeltFileDir.clear();
@@ -2325,65 +2337,34 @@ void TWorld::IntializeOptions(void)
     SwitchUseGrainSizeDistribution = false;
     SwitchReadGrainSizeDistribution = false;
     SwitchHardsurface = false;
-    SwitchLimitDepTC = false;
-    SwatreInitialized = false;
     SwitchInfilGA2 = false;
-    SwitchWheelPresent = false;
     SwitchCompactPresent = false;
     SwitchIncludeChannel = false;
-    SwitchChannelFlood = true;
     SwitchCulverts = false;
     SwitchChannelBaseflow = false;
-    startbaseflowincrease = false;
     SwitchChannelInfil = false;
-    SwitchAllinChannel = false;
     SwitchErosion = false;
-    SwitchErosionInsideLoop = true;
-    SwitchSimpleDepression = false;
+    Switch2DDiagonalFlow = true;
     SwitchSedtrap = false;
     SwitchRainfall = true; //VL 110103 add rainfall default true
     SwitchSnowmelt = false;
-    //SwitchRunoffPerM = false;
     SwitchInfilCompact = false;
     SwitchInfilCrust = false;
     SwitchGrassStrip = false;
     SwitchImpermeable = false;
     SwitchDumphead = false;
-    SwitchWheelAsChannel = false;
     SwitchMulticlass = false;
     SwitchNutrients = false;
-    SwitchGullies = false;
-    SwitchGullyEqualWD = false;
-    SwitchGullyInfil = false;
-    SwitchGullyInit = false;
     SwitchOutputTimeStep = false;
     SwitchOutputTimeUser = false;
     SwitchEfficiencyDET = 1;
-    SwitchStoninessDET = false;
-    /*
-    SwitchMapoutRunoff = false;
-    SwitchMapoutConc = false;
-    SwitchMapoutWH = false;
-    SwitchMapoutWHC = false;
-    SwitchMapoutTC = false;
-    SwitchMapoutEros = false;
-    SwitchMapoutDepo = false;
-    SwitchMapoutV = false;
-    SwitchMapoutInf = false;
-    SwitchMapoutSs = false;
-    SwitchMapoutChvol = false;
-    */
-    //SwitchWritePCRnames = false;
     SwitchWriteCommaDelimited = true;
     SwitchWritePCRtimeplot = false;
-    SwitchNoErosionOutlet = false;
     SwitchDrainage = false;
     SwitchPestout = false;
     SwitchSeparateOutput = false;
     SwitchInterceptionLAI = false;
     SwitchTwoLayer = false;
-    SwitchSimpleSedKinWave = false;
-    SwitchSOBEKoutput = false;
     SwitchPCRoutput = false;
     SwitchGeometric = true;
     SwitchImpermeable = false;

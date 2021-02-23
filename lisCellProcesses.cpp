@@ -142,7 +142,7 @@ void TWorld::do_SplashDetachment(int r, int c, double WH)
 
         if (hmx->Drc > 0) {
             SSFlood->Drc += DETSplash_;
-            SSCFlood->Drc = MaxConcentration(ChannelAdj->Drc * DX->Drc * hmx->Drc, &SSFlood->Drc, &DepFlood->Drc);
+            SSCFlood->Drc = MaxConcentration(CHAdjDX->Drc * hmx->Drc, &SSFlood->Drc, &DepFlood->Drc);
 
         } else {
             Sed->Drc += DETSplash_;

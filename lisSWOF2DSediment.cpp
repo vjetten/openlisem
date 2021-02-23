@@ -75,12 +75,12 @@ void TWorld::SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v)
     //sediment detachment or deposition
     SWOFSedimentDetNew(dt, h,u,v);
 
-    //check for cells with insignificant water height and calculate concentration
-#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        //SWOFSedimentCheckZero(r,c,h); //already in det, not necessary
-        SWOFSedimentSetConcentration(r,c,h);
-    }}
+//check for cells with insignificant water height and calculate concentration
+//#pragma omp parallel for num_threads(userCores)
+//    FOR_ROW_COL_MV_L {
+//        //SWOFSedimentCheckZero(r,c,h); //already in det, not necessary
+//       // SWOFSedimentSetConcentration(r,c,h);
+//    }}
 
     //transport sediment using velocities and water heights from SWOF
     SWOFSedimentFlowInterpolation(dt, h,u,v, BLFlood, BLCFlood, SSFlood, SSCFlood);
@@ -88,10 +88,11 @@ void TWorld::SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v)
     if (SwitchIncludeDiffusion)
         SWOFSedimentDiffusion(dt, h,u,v, SSFlood, SSCFlood);
 
-#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        SWOFSedimentSetConcentration(r,c,h);
-    }}
+    // is already ndone
+//    #pragma omp parallel for num_threads(userCores)
+//    FOR_ROW_COL_MV_L {
+//        SWOFSedimentSetConcentration(r,c,h);
+//    }}
 }
 
 //--------------------------------------------------------------------------------------------
@@ -375,6 +376,7 @@ void TWorld::SWOFSedimentFlowInterpolation(double dt, cTMap *h, cTMap *u,cTMap *
         _SS->Drc = std::max(0.0,_SS->Drc);
         _SSC->Drc = MaxConcentration(CHAdjDX->Drc*SSDepthFlood->Drc, &_SS->Drc, &DepFlood->Drc);
     }}
+
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -792,8 +794,11 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                 BL += deposition;
                 BLFlood->Drc = std::max(0.0,BL);
             }  // BL exist
-        } // 2 phase
+        } // 2 phase       
     } // h > MIN_HEIGHT
+
+    SWOFSedimentSetConcentration(r,c,h);
+
     }}
 }
 
@@ -926,11 +931,11 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
             double blwatervol = 0;
             if (SwitchUse2Phase) {
                 bldischarge = velocity * ChannelAdj->Drc * TBLDepthFlood->Drc;
-                blwatervol = ChannelAdj->Drc * DX->Drc * TBLDepthFlood->Drc;
+                blwatervol = CHAdjDX->Drc * TBLDepthFlood->Drc;
             }
 
             double ssdischarge = velocity * ChannelAdj->Drc * TSSDepthFlood->Drc;
-            double sswatervol = ChannelAdj->Drc * DX->Drc * TSSDepthFlood->Drc;
+            double sswatervol = CHAdjDX->Drc * TSSDepthFlood->Drc;
 
             double deposition = 0;
             double detachment = 0;

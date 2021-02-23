@@ -556,6 +556,7 @@ bool TWorld::IsExtendedChannel(int r, int c, int dr, int dc)
 //bool do_not_divide = false,bool proportional = true)
 void TWorld::DistributeOverExtendedChannel(cTMap * _In, cTMap * _Out)
 {
+    /*
     if(!SwitchIncludeChannel)
         return;
     double intot = MapTotal(*_In);
@@ -591,4 +592,5 @@ void TWorld::DistributeOverExtendedChannel(cTMap * _In, cTMap * _Out)
     }
     outtot = MapTotal(*_Out);
     //qDebug() << intot << outtot;
+    */
 }

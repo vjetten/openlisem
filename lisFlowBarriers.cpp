@@ -177,6 +177,7 @@ void TWorld::SetFlowBarriers()
 {
     if (!SwitchFlowBarriers)
         return;
+
     FOR_ROW_COL_MV_L {
         if(this->time > FlowBarrierNT->Drc && !(FlowBarrierNT->Drc < 0))
         {

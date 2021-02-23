@@ -81,6 +81,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     op.runfilename.clear();
     E_runFileList->clear();
 
+    //TODO: check all options and default values
     resetAll();
     // all options and mapnames are reset to their default names and values
     // fill DEFmaps stringlist and make mapList with default names
@@ -121,14 +122,16 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     tabWidgetOptions->setCurrentIndex(0);
     tabWidget_OutputMaps->setCurrentIndex(0);
 
-    doBatchmode = doBatch;
+    doBatchmode = doBatch; // save in iface for later use
     batchRunname = runname;
-    doCheckRainfall(true);
+    doCheckRainfall(true); // ???????? why here
 
-    if(doBatchmode)
+    if(doBatch)
     {
         runfilelist.clear();
-        runfilelist << batchRunname;
+        runfilelist << runname;//.split(';');
+
+//        for (int n = 0; n < runfilelist.size(); n++) {
         op.runfilename = runname;
         GetRunfile();   // get the nrunfile and fill namelist
         ParseInputData(); // fill interface with namelist data and fill mapList
@@ -874,14 +877,14 @@ void lisemqt::showMapSettings()
 int lisemqt::SetStyleUISize()
 {
     QRect rect = QGuiApplication::primaryScreen()->availableGeometry();
-    qDebug() << rect << QGuiApplication::primaryScreen()->availableVirtualGeometry();
+    //qDebug() << rect << QGuiApplication::primaryScreen()->availableVirtualGeometry();
     int _H = rect.height();
     int disp = 1;
     if (abs(_H-800) > abs(_H-1080)) disp = 1;
     if (abs(_H-1080) > abs(_H-1200)) disp = 2;
     if (abs(_H-1200) > abs(_H-1440)) disp = 3;
       if (abs(_H-1440) > abs(_H-1600)) disp = 4;
-    qDebug() << disp << _H << abs(_H-800) << abs(_H-1080) << abs(_H-1200) << abs(_H-1440) << genfontsize;
+    //qDebug() << disp << _H << abs(_H-800) << abs(_H-1080) << abs(_H-1200) << abs(_H-1440) << genfontsize;
 
     tabWidgetOptions->tabBar()->setExpanding(true);
   //  tabWidget_out->setIconSize(QSize(24, 24));
@@ -943,7 +946,7 @@ void lisemqt::SetStyleUI()
     tabWidgetOptions->removeTab(7);
     frameNumerical->setVisible(false);
 
-    toolBox_erosion->setCurrentIndex(0);
+    tabWidget_erosion->setCurrentIndex(0);
 
     int w = 80, h = 15;
     label_dx->setMinimumSize(w,h);
@@ -1992,7 +1995,7 @@ void lisemqt::setfontSize()
     groupTime->setStyleSheet(S);
 
     S = QString("QToolBox::tab {background-color: #1b6fb5}");
-    toolBox_erosion->setStyleSheet(S);
+    tabWidget_erosion->setStyleSheet(S);
 
 }
 //---------------------------------------------------------------

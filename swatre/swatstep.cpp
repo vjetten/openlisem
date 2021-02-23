@@ -562,7 +562,7 @@ void TWorld::SwatreStep(int step, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap
                   dig = QString("%1").arg(i, 12-name.length(), 10, QLatin1Char('0'));
                   name=name+dig;
                   name.insert(8, ".");
-                  qDebug() << name << dig;
+                  //qDebug() << name << dig;
               }
           }
       }

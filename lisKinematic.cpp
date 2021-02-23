@@ -383,7 +383,6 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
                     newcr.in.clear();
                     newcr.inn = (LDD_COOR*) malloc(sizeof(LDD_COOR)*9);
                     newcr.nr = 0;
-                   // qDebug() << "hier";
 
                     int j = 0;
                     for (i=1;i<=9;i++)

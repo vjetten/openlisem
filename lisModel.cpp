@@ -111,13 +111,13 @@ void TWorld::DoModel()
 
     mapFormat = "PCRaster";
 
-    //  QString DT = QDateTime().currentDateTime().toString("hh.mm-yy.MM.dd");
     errorFileName = QString(resultDir + "error"+ timestampRun +".txt");
     errorSedFileName = QString(resultDir + "errorsed"+ timestampRun +".txt");
     time_ms.start();
     // get time to calc run length
     startTime=omp_get_wtime()/60.0;
-    //TODO: check grainsize classes
+
+    //qDebug() << SwitchErosion << Switch2DDiagonalFlow << F_pitValue;
 
     try
     {
@@ -175,7 +175,7 @@ void TWorld::DoModel()
         DEBUG("setupHydrographData()");
         setupHydrographData();
 
-        bool saveMBerror = false;
+        bool saveMBerror = true;
         saveMBerror2file(saveMBerror, true);
 
         InfilEffectiveKsat();  // calc effective ksat from all surfaces once
@@ -205,9 +205,8 @@ void TWorld::DoModel()
 
             //these functions read files, so they can not be multithreaded
 
-           //  CellProcesses();
-            do_CellProcesses();
-
+             CellProcesses();
+          //  do_CellProcesses();
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
             OverlandFlow();        // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!

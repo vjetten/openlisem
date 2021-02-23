@@ -274,10 +274,11 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
                     double ds = frac * SSFlood->Drc;
                     K2DQSOutBoun += ds;
                     SSFlood->Drc -= ds;
-
-                    ds = frac * BLFlood->Drc;
-                    K2DQSOutBoun += ds;
-                    BLFlood->Drc -= ds;
+                    if (SwitchUse2Phase) {
+                        ds = frac * BLFlood->Drc;
+                        K2DQSOutBoun += ds;
+                        BLFlood->Drc -= ds;
+                    }
                 }
             }
         }}
@@ -349,7 +350,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 
         if (SwitchErosion) {
             double sed = (SSFlood->Drc + BLFlood->Drc);
-            Conc->Drc =  MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &sed, &DepFlood->Drc);
+            Conc->Drc =  MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, &sed, &DepFlood->Drc);
             Qsn->Drc = Conc->Drc*Qn->Drc;
         }
 
@@ -385,7 +386,7 @@ void TWorld::OverlandFlow1D(void)
         if (SwitchErosion) {
             // calc seediment flux going in kin wave as Qs = Q*C
             Qsn->Drc = 0.0;
-            Conc->Drc = MaxConcentration(WHrunoff->Drc * ChannelAdj->Drc * DX->Drc, &Sed->Drc, &DEP->Drc);
+            Conc->Drc = MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, &Sed->Drc, &DEP->Drc);
             Qs->Drc =  Q->Drc * Conc->Drc;
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
         }

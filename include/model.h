@@ -38,7 +38,8 @@
 
 #include <QtGui>
 #include <QMutex>
-#include <omp.h>
+#include "C:\\Qt\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\10.2.0\\include\\omp.h"
+//#include <omp.h>
 
 #include "CsfMap.h"
 #include "io.h"
@@ -295,44 +296,46 @@ public:
 #include "TMmapVariables.h"
 
     /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
-    bool SwitchRoadsystem, SwitchHardsurface, SwatreInitialized, SwitchInfilGA2, SwitchLimitTC, SwitchLimitDepTC,
-    SwitchWheelPresent, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow, SwitchChannelExtended,
-    startbaseflowincrease, SwitchChannelInfil, SwitchAllinChannel, SwitchErosion, SwitchErosionInsideLoop, SwitchLinkedList,
-    SwitchSimpleDepression,SwitchSedtrap, SwitchSnowmelt, SwitchRainfall, /*SwitchRunoffPerM,*/ SwitchInfilCompact,
+/*
+ SwitchLimitDepTC,SwatreInitialized, SwitchLimitTC, SwitchWheelPresent,SwitchChannelExtended,startbaseflowincrease,SwitchAllinChannel,
+  SwitchErosionInsideLoop, SwitchSimpleDepression,SwitchRunoffPerM,SwitchWheelAsChannel, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,
+    SwitchGullyInit,SwitchMapoutRunoff, SwitchMapoutConc, SwitchWritePCRnames,SwitchNoErosionOutlet,SwitchSimpleSedKinWave, SwitchSOBEKoutput,
+    SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol
+SwitchChannelFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,SwitchRainfallFlood,SwitchLevees,SwitchWatershed,SwitchMinDTfloodMethod,SwitchNeedD90,
+   int SwitchFlood1D2DCoupling;
+*/
+
+    bool SwitchRoadsystem, SwitchHardsurface, SwitchInfilGA2, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
+    SwitchChannelInfil,  SwitchErosion, SwitchLinkedList,    SwitchSedtrap, SwitchSnowmelt, SwitchRainfall,  SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchPercolation, SwitchDumphead, SwitchWaterRepellency,
-    SwitchWheelAsChannel, SwitchMulticlass, SwitchNutrients, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,
-    SwitchGullyInit, SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchMapoutRunoff, SwitchMapoutConc,
-    SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,
-    SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol /*, SwitchWritePCRnames*/, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
-    SwitchNoErosionOutlet, SwitchDrainage, SwitchPestout, SwitchSeparateOutput, SwitchEndRun,
-    SwitchInterceptionLAI, SwitchTwoLayer, SwitchSimpleSedKinWave, SwitchSOBEKoutput, SwitchChannelKinWave,
-    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased, SwitchHouses, SwitchChannelFlood, SwitchRaindrum, SwitchLitter,
-    Switchheaderpest, SwitchPesticide, SwitchRainfallFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,
-    SwitchTimeavgV, Switch2DDiagonalFlow, SwitchSWOFopen, SwitchMUSCL, SwitchLevees, SwitchFloodInitial, SwitchWatershed,SwitchFlowBarriers, SwitchBuffers,
-    SwitchCulverts, SwitchUserCores, SwitchVariableTimestep, SwitchMinDTfloodMethod, SwitchHeun, SwitchNeedD90, SwitchImage, SwitchResultDatetime,
+    SwitchMulticlass, SwitchNutrients,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
+    SwitchDrainage, SwitchPestout, SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
+    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
+    SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide,
+    SwitchTimeavgV, Switch2DDiagonalFlow, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
+    SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle;
-    int SwitchFlood1D2DCoupling;
+
     int SwitchKinematic2D;
-    int SwitchEfficiencyDET;
+    int SwitchEfficiencyDET; // detachment efficiency
     int ReportDigitsOut;
-    int FlowBoundaryType;
+    int FlowBoundaryType; // open, closed
     int userCores;
-    int SwitchSV;
+    int SwitchSV; //ettling velocity
     double stengthb; // splash strength,
 
+    // flow bloundaries
     QList<int> FBid;
-
     QList<double> FBHeightN;
     QList<double> FBHeightS;
     QList<double> FBHeightE;
     QList<double> FBHeightW;
-
     QList<double> FBTimeN;
     QList<double> FBTimeS;
     QList<double> FBTimeE;
     QList<double> FBTimeW;
 
-    QList <ExtCH> ExtChannel;
+    QVector <ExtCH> ExtChannel;
     ExtCH ExtendCH;
 
 
@@ -797,7 +800,9 @@ public:
     double mixing_coefficient, runoff_partitioning;
     double minReportFloodHeight;
     void correctMassBalance(double sum1, cTMap *M, double th);
+    void correctMassBalanceSed(double sum1, cTMap *M, double th);
     double getMass(cTMap *M, double th);
+    double getMassSed(cTMap *M, double th);
     void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
                    cTMap *_Q, cTMap *_Qn,
                    cTMap *_q, cTMap *_Alpha, cTMap *_DX,

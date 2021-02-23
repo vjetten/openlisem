@@ -91,7 +91,7 @@ void lisemqt::GetRunfile()
 
     for (int i = 0; i < nrnamelist; i++) {
        if (!namelist[i].value.isEmpty() && !namelist[i].gotit)
-        qDebug() << namelist[i].name << namelist[i].value << namelist[i].gotit;
+        //qDebug() << namelist[i].name << namelist[i].value << namelist[i].gotit;
         if (!namelist[i].value.isEmpty() && !namelist[i].gotit)
             saveRunFileOnce = true;
     }
@@ -101,7 +101,7 @@ void lisemqt::GetRunfile()
     {
         for (i=0; i< optionList.count(); i++)
         {
-            qDebug() << optionList.at(i);
+            //qDebug() << optionList.at(i);
             if (optionList[i].contains("="))
             {
                 QString S = optionList[i];
@@ -171,12 +171,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("Routing Kin Wave 2D")==0)            dummykinwave = iii;
         if (p1.compare("Flow Boundary 2D")==0)               E_FlowBoundary->setValue(iii);
         if (p1.compare("Variable Timestep")==0)              checkVariableTimestep->setChecked(check);
-        //if (p1.compare("Minimum Timestep Method")==0)        checkminDTfloodMethod->setChecked(check);
-      //  if (p1.compare("Use Heun")==0)                       checkHeun->setChecked(check);
-      //  if (p1.compare("Use MUSCL")==0)                      checkMuscl->setChecked(check);
         if (p1.compare("Use fixed angle")==0)                checkFixedAngle->setChecked(check);
         if (p1.compare("Use time avg V")==0)                 checkTimeavgV->setChecked(check);
-        if (p1.compare("2D Diagonal flow")==0)               check2DDiagonalFlow->setChecked(check);
+        if (p1.compare("Use 2D Diagonal flow")==0)           check2DDiagonalFlow->setChecked(check);
 
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(valc);
         if (p1.compare("Flood solution")==0)
@@ -215,7 +212,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("Settling Velocity")==0)          E_settlingVelocity->setValue(iii);
         if (p1.compare("Use material depth")==0)             checkMaterialDepth->setChecked(check);
         if (p1.compare("No detachment boundary")==0)         checkNoSedBoundary->setChecked(check);
-  //      if (p1.compare("Advanced sediment")==0)             checkAdvancedSediment->setChecked(check);
         if (p1.compare("Use 2 phase flow")==0)              checkSed2Phase->setChecked(check);
         if (p1.compare("River BL method")==0)                 E_RBLMethod->setValue(iii);
         if (p1.compare("River SS method")==0)                 E_RSSMethod->setValue(iii);
@@ -260,11 +256,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Report digits out")==0)             E_DigitsOut->setValue(iii);
         if (p1.compare("Report format GTiff")==0)             checkFormatGtiff->setChecked(check);
         if (p1.compare("End run report")==0)             checkEndRunReport->setChecked(check);
-
-
-//        if (p1.compare("SOBEK date string")==0)              SOBEKdatestring->setText(p);
         if (p1.compare("Sediment bulk density")==0)          E_BulkDens->setText(p);
-     //   if (p1.compare("Use canopy storage map")==0)         radioButton_9->setChecked(check);
 
         if (p1.compare("Canopy storage equation")==0)
         {
@@ -358,12 +350,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("KE time based")==0)
             checkKETimebased->setChecked(check);
 
-//        if (checkAdvancedSediment->isChecked())
-//        {
-//            checkSed2Phase->setChecked(true);
-//       //     checkBox_SedMultiGrain->setChecked(false);
-//            tabWidgetOptions->setTabEnabled(5,true);
-//        }
         if (checkSedtrap->isChecked())
             on_checkSedtrap_clicked();
         if (checkInfilGrass->isChecked())
@@ -432,7 +418,6 @@ void lisemqt::ParseInputData()
 
     // ###################################
 
-    //checkDoErosion->setChecked(dummyErosion);
     setErosionTab(checkDoErosion->isChecked());
 
  //   checkSedMultiGrain->setChecked(!checkSed2Phase->isChecked());
@@ -668,7 +653,7 @@ QString lisemqt::CheckDir(QString p, bool makeit)
         if (makeit)
         {
             QDir(path).mkpath(path);
-            qDebug() << "NOTE: Result dir created !";
+            //qDebug() << "NOTE: Result dir created !";
         }
         else
         {
@@ -746,7 +731,7 @@ void lisemqt::updateModelData()
       //  if (p1.compare("Use SWOF 2.0")==0)   namelist[j].value.setNum((int) checkSWOFomp->isChecked());
       // if (p1.compare("Use MUSCL")==0)   namelist[j].value.setNum((int) checkMuscl->isChecked());
         if (p1.compare("Use time avg V")==0)    namelist[j].value.setNum((int) checkTimeavgV->isChecked());
-        if (p1.compare("2D Diagonal flow")==0)               namelist[j].value.setNum((int) check2DDiagonalFlow->isChecked());
+        if (p1.compare("Use 2D Diagonal flow")==0)               namelist[j].value.setNum((int) check2DDiagonalFlow->isChecked());
 
         if (p1.compare("Use fixed angle")==0)                namelist[j].value.setNum((int) checkFixedAngle->isChecked());
   //      if (p1.compare("Use Heun")==0)        namelist[j].value.setNum((int) checkHeun->isChecked());

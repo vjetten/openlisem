@@ -149,7 +149,7 @@ void lisemqt::runmodel()
         QDir(screenShotDir).mkpath(QString("screens"+op.timeStartRun+"/"));
         screenShotDir = screenShotDir + QString("screens"+op.timeStartRun+"/");
     }
-    qDebug() << screenShotDir;
+    //qDebug() << screenShotDir;
 
     W->start();
     // start the model thread, executes W->run()
@@ -261,7 +261,7 @@ void lisemqt::worldDone(const QString &results)
     QFile::remove(QString(op.LisemDir+"openlisemtmp.run"));
 
     // delete the temp run file
-    qDebug() << QString(op.LisemDir+"openlisemtmp.run")<< "deleted";
+    //qDebug() << QString(op.LisemDir+"openlisemtmp.run")<< "deleted";
 
     stopAct->setChecked(false);
     runAct->setChecked(false);

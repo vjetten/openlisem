@@ -31,7 +31,7 @@ cTMap
 
 //*_MASK,
 *DEM,                        //!< DEM [m]
-*DEMdz,                        //!< DEM [m]
+//*DEMdz,                        //!< DEM [m]
 *Shade,                      //!< Shaded relief for display [0-1]
 *ShadeBW,                      //!< Shaded relief for display [0-1]
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
@@ -87,6 +87,7 @@ cTMap
 *Alpha,                      //!< alpha in A = alphaQ^b
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
+*Qdiag,
 *VH,
 //*Qoutflow,                   //!< new discharge after kin wave at outflow point [m^3/s]
 *QinKW,

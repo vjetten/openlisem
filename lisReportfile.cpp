@@ -51,7 +51,7 @@ void TWorld::reportAll(void)
     ReportTotalsNew();
     // report totals to a text file
 
-  //  ReportTotalSeries();
+    ReportTotalSeries();
 
     ReportTimeseriesNew();
     // report hydrographs ande sedigraphs at all points in outpoint.map
@@ -1482,18 +1482,14 @@ void TWorld::GetComboMaps()
     ClearComboMaps();
 
     setColor(1);
-//    AddComboMap(0,"Total Discharge","l/s",COMBO_QOFCH,Colormap,Colors,true,false,1000.0, 1.0);Qoutput
     AddComboMap(0,"Total Discharge","l/s",Qoutput,Colormap,Colors,true,false,1.0, 1.0);
   //  if (FlowBoundaryType > 0)
   //  AddComboMap(0,"Boundary Discharge","l/s",K2DQ,Colormap,Colors,true,false,1000.0, 1.0);
 
     setColor(3);
-//    FOR_ROW_COL_MV {
-//         tma->Drc = hmxWH->Drc < 1e-6 ? 0 : hmxWH->Drc;
-//    }
- //   AddComboMap(0,"Water Height","m",hmx,Colormap,Colors,false,false,1.0,0.01);
- //   AddComboMap(0,"Water Height","m",WHrunoff,Colormap,Colors,false,false,1.0,0.01);
     AddComboMap(0,"Water Height","m",hmxWH,Colormap,Colors,false,false,1.0,0.01);
+    if (Switch2DDiagonalFlow)
+       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,Colormap,Colors,false,false,1.0, 0.01);
     setColor(2);
     AddComboMap(0,"Flow Velocity","m/s",V /*COMBO_VOFCH*/,Colormap,Colors,false,false,1.0, 0.01);
     AddComboMap(0,"Flow Momentum","m2/s",VH,Colormap,Colors,false,false,1.0, 0.01); //VH
@@ -1512,6 +1508,8 @@ void TWorld::GetComboMaps()
         AddComboMap(0,"Channel Water Height","m",ChannelWH,Colormap,Colors,false,false,1.0,0.01);
         setColor(2);
         AddComboMap(0,"Channel Velocity","m/s",ChannelV,Colormap,Colors,false,false,1.0,0.01);
+
+
     }
 
     if(SwitchIncludeTile || SwitchIncludeStormDrains) {

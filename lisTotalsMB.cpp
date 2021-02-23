@@ -173,7 +173,7 @@ void TWorld::Totals(void)
         WaterVolRunoffmm = 0;
         #pragma omp parallel for reduction(+:WaterVolRunoffmm) num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            WaterVolRunoffmm += WHrunoff->Drc * ChannelAdj->Drc * DX->Drc;
+            WaterVolRunoffmm += WHrunoff->Drc * CHAdjDX->Drc;
         }}
         WaterVolRunoffmm *= catchmentAreaFlatMM;
     }
@@ -381,9 +381,10 @@ void TWorld::Totals(void)
         FloodDepTot += mapTotal(*DepFlood);
         FloodSedTot = (SwitchUse2Phase ? MapTotal(*BLFlood) : 0.0) + MapTotal(*SSFlood);
 
-#pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            DETFlowCum->Drc += BLDetFlood->Drc;
+            if (SwitchUse2Phase)
+                DETFlowCum->Drc += BLDetFlood->Drc;
             DETFlowCum->Drc += SSDetFlood->Drc;
             DEPCum->Drc += DepFlood->Drc;
         }}
@@ -402,7 +403,7 @@ void TWorld::Totals(void)
 //            DistributeOverExtendedChannel(ChannelDetFlow,tma);
 //            fill(*tmb,0.0);
 //            DistributeOverExtendedChannel(ChannelDep,tmb);
-#pragma omp parallel for num_threads(userCores)
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_CHL
             {
                 DETFlowCum->Drc += ChannelDetFlow->Drc;
@@ -414,7 +415,7 @@ void TWorld::Totals(void)
 
 
         // with all det and dep calculate the soil loss, excl channel
-#pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L
         {
             TotalSoillossMap->Drc = DETSplashCum->Drc + DETFlowCum->Drc + DEPCum->Drc;
@@ -422,19 +423,20 @@ void TWorld::Totals(void)
             TotalDetMap->Drc = std::max(0.0, TotalSoillossMap->Drc);
         }}
 
-#pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L
         {
             double sedall = Sed->Drc + (SwitchUse2Phase ? BLFlood->Drc : 0.0) + SSFlood->Drc +  (SwitchIncludeChannel ? ChannelSed->Drc : 0.0);
             double waterall = WaterVolall->Drc + (SwitchIncludeChannel ? ChannelWaterVol->Drc : 0.0);
             TotalConc->Drc = MaxConcentration(waterall ,&sedall, NULL);
             // for output
-        }}
 
-        fill(*DepFlood,0.0);
-        fill(*BLDetFlood,0.0);
-        fill(*SSDetFlood,0.0);
-        // RESET flood variables
+            // set to zero for next loop
+            DepFlood->Drc = 0;
+            BLDetFlood->Drc = 0;
+            SSDetFlood->Drc = 0;
+
+        }}
 
         SoilLossTot += SoilLossTotT;
         // total sediment outflow from outlets and domain boundaries

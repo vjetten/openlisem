@@ -42,9 +42,13 @@ QStringList optionList;
 
 int main(int argc, char *argv[])
 {
-    // https://doc.qt.io/qt-5/highdpi.html
- //   qputenv("QT_ENABLE_HIGHDPI_SCALING","1");
- //   qputenv("QT_SCALE_FACTOR_ROUNDING_POLICY","1");
+    // open console but only if run from cmd.exe in win
+#ifdef _WIN32
+    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
+        freopen("CONOUT$", "w", stdout);
+        freopen("CONOUT$", "w", stderr);
+    }
+#endif
 
     Fixture fixture; // <= necessary for GDAL
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -61,6 +65,8 @@ int main(int argc, char *argv[])
     op.LisemDir = QCoreApplication::applicationDirPath()+"/";
     // exe path, used for ini file
 
+    QStringList args=QCoreApplication::arguments();
+
     if (argc <= 1)
     {
         lisemqt iface;
@@ -73,6 +79,46 @@ int main(int argc, char *argv[])
     }
     else
     {
+        // run without interface nin console
+        QString name;
+        bool batchmode;
+        bool runfound = false;
+
+        for(QString const& str:args)
+        {
+            if (str.contains("?")) {
+                printf("syntax:\nlisem -r runfile \n");
+                return 0;
+            }
+        }
+
+        for(QString const& str: args)
+        {
+            if (batchmode && str.contains("-r"))
+            {
+                int n = args.indexOf("-r");
+                runfound = true;
+                batchmode = true;
+                name = str;
+                name.remove("-r");
+                if (name.isEmpty())
+                    name= args[n+1];
+            }
+        }
+
+        if (!batchmode)
+        {
+            printf("syntax:\nlisem -r runfile \n");
+            return 0;
+        }
+
+        lisemqt iface(0, batchmode, name);
+        iface.setWindowTitle(VERSION);
+        iface.show();
+
+        return app.exec();
+    }
+        /*
         // run without interface
         bool noInterface;
         bool noOutput;
@@ -189,5 +235,5 @@ int main(int argc, char *argv[])
             return app.exec();
         }
     }
-
+*/
 }

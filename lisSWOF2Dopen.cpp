@@ -40,36 +40,44 @@
 void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
 {
     // force flow when a diagonal solution exists and a blockage
-  //  if(F_pitValue > 0) {
-    //        FOR_ROW_COL_MV_L  {
-        #pragma omp parallel for num_threads(userCores)
-        for(long i_= 0; i_ < dcr_.size(); i_++) {
+    #pragma omp parallel for num_threads(userCores)
+    for(long i_= 0; i_ < dcr_.size(); i_++) {
 
-            int r = dcr_[i_].r;
-            int c = dcr_[i_].c;
+        int r = dcr_[i_].r;
+        int c = dcr_[i_].c;
 
-            if (/* DEMdz->Drc > 0 && */ h->Drc > F_pitValue) {
-                int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
-                int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
+        if (h->Drc > F_pitValue) {
+            int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
+            int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
 
-                vec4 rec;
-                int ldd = dcr_[i_].ldd;//(int) DEMdz->Drc;
-                int rr = r+dy[ldd];
-                int cr = c+dx[ldd];
+            vec4 rec;
+            int ldd = dcr_[i_].ldd;
+            int rr = r+dy[ldd];
+            int cr = c+dx[ldd];
 
+//            if (h->Drcr+DEM->Drc < h->Drc*DEM->Drcr) {
+            if (h->Drcr < h->Drc) {
+                // 1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
                 rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->Drcr, vx->Drcr, vy->Drcr);
-                double dH = dt_req_min/_dx*(rec.v[0]) + dt_req_min/_dx*(rec.v[0]);
+                double flux = std::abs(rec.v[0]);
+                double dH = std::min(h->Drc *0.9, flux*dt_req_min/_dx);
+
                 h->Drc -= dH;
                 h->Drcr += dH;
+                Qdiag->Drc = flux;
 
                 if (SwitchErosion) {
-                    double dS = dH*DX->Drc*ChannelAdj->Drc*SSCFlood->Drc;
+                    double dS = std::min(0.9*SSFlood->Drc, dH*CHAdjDX->Drc*SSCFlood->Drc);
                     SSFlood->Drc -= dS;
                     SSFlood->Drcr += dS;
+                    if (SwitchUse2Phase) {
+                        double dBL = std::min(0.9*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
+                        BLFlood->Drc -= dBL;
+                        BLFlood->Drcr += dBL;
+                    }
                 }
-
             }
-        //}}
+        }
     }
 }
 //-------------------------------------------------------------------------------------------------
@@ -79,6 +87,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     double dt_max = std::min(_dt, _dx*0.5);
     int count = 0;
     double sumh = 0;
+    double sumS = 0;
     bool stop;
     double dt_req_min = dt_max;
     int step = 0;
@@ -86,6 +95,9 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     if (startFlood)
     {
         sumh = getMass(h, 0);
+//        if (SwitchErosion)
+//            sumS = getMassSed(SSFlood, 0);
+
 
 //        #pragma omp parallel for num_threads(userCores)
 //        FOR_ROW_COL_MV_L {
@@ -335,13 +347,15 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             dt_req_min = std::min(dt_req_min, _dt-timesum);
 
             if (step > 0) {
-                if (SwitchErosion && SwitchErosionInsideLoop) {
+
+                if (SwitchErosion) {// && SwitchErosionInsideLoop) {
                     SWOFSediment(dt_req_min, h,vx,vy);
                 }
 
                 if (Switch2DDiagonalFlow) {
                     SWOFDiagonalFlow(dt_req_min, h, vx, vy);
                 }
+
 
                 timesum += dt_req_min;
                 count++; // nr loops
@@ -356,11 +370,15 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
         } while (!stop);
 
         correctMassBalance(sumh, h, 0);
+
+//        if (SwitchErosion)
+  //          correctMassBalanceSed(sumS, SSFlood, 0);
+
         //            double sumh1 = getMass(h, 0);
         //            qDebug() << sumh << sumh1 << (sumh-sumh1)/sumh;
-        if (SwitchErosion && !SwitchErosionInsideLoop) {
-            SWOFSediment(_dt, h,vx,vy);
-        }
+//        if (SwitchErosion && !SwitchErosionInsideLoop) {
+//            SWOFSediment(_dt, h,vx,vy);
+//        }
     } // if floodstart
 
     //qDebug() << _dt/count << count << dt_req_min;
