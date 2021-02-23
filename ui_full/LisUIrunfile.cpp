@@ -215,11 +215,11 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use 2 phase flow")==0)              checkSed2Phase->setChecked(check);
         if (p1.compare("River BL method")==0)                 E_RBLMethod->setValue(iii);
         if (p1.compare("River SS method")==0)                 E_RSSMethod->setValue(iii);
-        if (p1.compare("Include River diffusion")==0) {
-            checkRDiffusion->setChecked(check);
-            E_RSigmaDiffusion->setEnabled(checkRDiffusion->isChecked());
-        }
-        if (p1.compare("River Sigma diffusion")==0)           E_RSigmaDiffusion->setValue(valc);
+//        if (p1.compare("Include River diffusion")==0) {
+//            checkRDiffusion->setChecked(check);
+//            E_RSigmaDiffusion->setEnabled(checkRDiffusion->isChecked());
+//        }
+//        if (p1.compare("River Sigma diffusion")==0)           E_RSigmaDiffusion->setValue(valc);
         if (p1.compare("Use grain size distribution")==0)     checkSedMultiGrain->setChecked(check);
         if (p1.compare("Estimate grain size distribution")==0)checkEstimateGrainSizeDistribution->setChecked(check);
         if (p1.compare("Read grain distribution maps")==0)    checkReadGrainSizeDistribution->setChecked(check);
@@ -714,8 +714,8 @@ void lisemqt::updateModelData()
 
         if (p1.compare("Include diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
-        if (p1.compare("Include River diffusion")==0)        namelist[j].value.setNum((int)checkRDiffusion->isChecked());
-        if (p1.compare("River Sigma diffusion")==0)          namelist[j].value = E_RSigmaDiffusion->text();
+//        if (p1.compare("Include River diffusion")==0)        namelist[j].value.setNum((int)checkRDiffusion->isChecked());
+//        if (p1.compare("River Sigma diffusion")==0)          namelist[j].value = E_RSigmaDiffusion->text();
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();

@@ -1405,7 +1405,7 @@ void TWorld::InitErosion(void)
     R_BL_Method  = getvalueint("River BL method");
 
     FS_SigmaDiffusion = getvaluedouble("Sigma diffusion");
-    R_SigmaDiffusion = getvaluedouble("River Sigma diffusion");
+    //R_SigmaDiffusion = getvaluedouble("River Sigma diffusion");
     if (SwitchUse2Phase && SwitchUseGrainSizeDistribution) {
         R_BL_Method = FSWUWANGJIA;
         R_SS_Method = FSWUWANGJIA;  // ignore because it has to be 3 when 2 layer and graisizedist

@@ -409,7 +409,7 @@ void TWorld::ChannelFlow(void)
                 KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
             }
         }
-        if (SwitchIncludeRiverDiffusion) {
+        if (SwitchIncludeDiffusion) {
             RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
             // note SSsed goes in and out, SSconc is recalculated inside
         }

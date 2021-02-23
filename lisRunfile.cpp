@@ -192,7 +192,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use material depth")==0)                SwitchUseMaterialDepth  = iii == 1;
         if (p1.compare("No detachment boundary")==0)            SwitchNoBoundarySed  = iii == 1;
         if (p1.compare("Use 2 phase flow")==0)                  SwitchUse2Phase = iii;
-        if (p1.compare("Include River diffusion")==0)           SwitchIncludeRiverDiffusion = iii == 1;
+//        if (p1.compare("Include River diffusion")==0)           SwitchIncludeRiverDiffusion = iii == 1;
         if (p1.compare("Include diffusion")==0)                 SwitchIncludeDiffusion = iii == 1;
         if (p1.compare("Use grain size distribution")==0)       SwitchMulticlass = iii == 1;
         if (p1.compare("Estimate grain size distribution")==0)  SwitchEstimateGrainSizeDistribution = iii == 1;

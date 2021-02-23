@@ -497,25 +497,25 @@ void lisemqt::setSedimentText(int i, int j, int k)
     // i = TC, j= river or surface, k = BL or SS
     if (j == 0) {
         if ( k == 0) {
-            if (i==1) label_RTBL->setText("Bedload TC Van Rijn (simplified)");
-            if (i==2) label_RTBL->setText("Bedload TC Van Rijn (full)");
-            if (i==3) label_RTBL->setText("Bedload TC Wu, Wang & Jia (multiclass)");
+            if (i==1) label_RTBL->setText("Channel Bedload TC Van Rijn (simplified)");
+            if (i==2) label_RTBL->setText("Channel Bedload TC Van Rijn (full)");
+            if (i==3) label_RTBL->setText("Channel Bedload TC Wu, Wang & Jia (multiclass)");
         } else {
-            if (i==0) label_RTSS->setText("Suspended TC Govers");
-            if (i==1) label_RTSS->setText("Suspended TC Van Rijn (simplified)");
-            if (i==2) label_RTSS->setText("Suspended TC Van Rijn (full)");
-            if (i==3) label_RTSS->setText("Suspended TC Wu, Wang & Jia (multiclass)");
+            if (i==0) label_RTSS->setText("Channel Suspended TC Govers");
+            if (i==1) label_RTSS->setText("Channel Suspended TC Van Rijn (simplified)");
+            if (i==2) label_RTSS->setText("Channel Suspended TC Van Rijn (full)");
+            if (i==3) label_RTSS->setText("Channel Suspended TC Wu, Wang & Jia (multiclass)");
         }
     } else {
         if ( k == 0) {
-            if (i==1) label_STBL->setText("Bedload TC Van Rijn (simplified)");
-            if (i==2) label_STBL->setText("Bedload TC Van Rijn (full)");
-            if (i==3) label_STBL->setText("Bedload TC Wu, Wang & Jia (multiclass)");
+            if (i==1) label_STBL->setText("Overland flow Bedload TC Van Rijn (simplified)");
+            if (i==2) label_STBL->setText("Overland flow Bedload TC Van Rijn (full)");
+            if (i==3) label_STBL->setText("Overland flow Bedload TC Wu, Wang & Jia (multiclass)");
         } else {
-            if (i==0) label_STSS->setText("Suspended TC Govers");
-            if (i==1) label_STSS->setText("Suspended TC Van Rijn (simplified)");
-            if (i==2) label_STSS->setText("Suspended TC Van Rijn (full)");
-            if (i==3) label_STSS->setText("Suspended TC Wu, Wang & Jia (multiclass)");
+            if (i==0) label_STSS->setText("Overland flow Suspended TC Govers");
+            if (i==1) label_STSS->setText("Overland flow Suspended TC Van Rijn (simplified)");
+            if (i==2) label_STSS->setText("Overland flow Suspended TC Van Rijn (full)");
+            if (i==3) label_STSS->setText("Overland flow Suspended TC Wu, Wang & Jia (multiclass)");
         }
     }
 }
@@ -542,6 +542,9 @@ void lisemqt::on_E_SSMethod_valueChanged(int i)
 //--------------------------------------------------------------------
 void lisemqt::on_checkSed2Phase_toggled(bool v)
 {
+      sedbox3->setEnabled(v);
+      E_RBLMethod->setEnabled(v);
+      E_BLMethod->setEnabled(v);
 //    if(v)
 //    {
 //      //  checkSedMultiGrain->setChecked(false);
@@ -1674,7 +1677,7 @@ void lisemqt::resetTabFlow()
 void lisemqt::resetTabSediment()
 {
     //sediment
-    checkSed2Phase->setChecked(true);
+    checkSed2Phase->setChecked(false);
     checkSedMultiGrain->setChecked(false);
 
     E_RBLMethod->setValue(1);
@@ -1683,7 +1686,7 @@ void lisemqt::resetTabSediment()
     E_SSMethod->setValue(0);
 
     E_SigmaDiffusion->setValue(0.5);
-    E_RSigmaDiffusion->setValue(0.5);
+//    E_RSigmaDiffusion->setValue(0.5);
 
     checkEstimateGrainSizeDistribution->setChecked(false); // if multiclass, estimate from D50 and D90
     checkReadGrainSizeDistribution->setChecked(false); // if multiclass, calculate from user series
@@ -1692,7 +1695,7 @@ void lisemqt::resetTabSediment()
     E_GrainSizes->setText("2;20;50;125;150;500");
 
     checkDiffusion->setChecked(true);
-    checkRDiffusion->setChecked(true);
+    //checkRDiffusion->setChecked(true);
 }
 //--------------------------------------------------------------------
 void lisemqt::resetTabErosion()
@@ -2092,4 +2095,16 @@ void lisemqt::on_check2DDiagonalFlow_toggled(bool checked)
 {
     E_pitValue->setEnabled(checked);
     label_135->setEnabled(checked);
+}
+
+void lisemqt::on_checkDiffusion_toggled(bool checked)
+{
+    E_SigmaDiffusion->setEnabled(checked);
+    label_101->setEnabled(checked);
+}
+
+void lisemqt::on_checkHouses_toggled(bool checked)
+{
+    checkRaindrum->setEnabled(checked);
+    label_157->setEnabled(checked);
 }

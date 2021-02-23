@@ -577,7 +577,7 @@ SwitchChannelFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,SwitchRainfall
 
     int R_SS_Method;
     int R_BL_Method;
-    double R_SigmaDiffusion;
+//    double R_SigmaDiffusion;
 
     //int GrainSizeDistributionType;
 
@@ -655,9 +655,9 @@ SwitchChannelFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,SwitchRainfall
     void SWOFSedimentCheckZero(int r, int c, cTMap * h);
     void SWOFSedimentSetConcentration(int r, int c, cTMap * h);
     void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentFlowInterpolation(int r, int c, double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentFlowInterpolation(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentDet(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentDetNew(int r, int c, double dt, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
 

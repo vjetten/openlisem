@@ -481,6 +481,10 @@ private slots:
 
     void on_check2DDiagonalFlow_toggled(bool checked);
 
+    void on_checkDiffusion_toggled(bool checked);
+
+    void on_checkHouses_toggled(bool checked);
+
 private:
 
     QSystemTrayIcon *trayIcon;

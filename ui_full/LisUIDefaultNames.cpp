@@ -442,9 +442,9 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("River SS method");
     namelist[i].value = QString("1");
-    namelist[i++].name = QString("Include River diffusion");
-    namelist[i].value = QString("0.5");
-    namelist[i++].name = QString("River Sigma diffusion");
+//    namelist[i++].name = QString("Include River diffusion");
+//    namelist[i].value = QString("0.5");
+//    namelist[i++].name = QString("River Sigma diffusion");
     namelist[i].value = QString("0"); //govers
     namelist[i++].name = QString("Flooding SS method");
     namelist[i].value = QString("1"); //van rijn simplified

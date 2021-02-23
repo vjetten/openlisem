@@ -739,7 +739,7 @@ FOR_ROW_COL_MV_CH {
     //diffusion coefficient according to J.Smagorinski (1964)
     double eddyvs = cdx * dux;
     //and devide by turbulent prandtl-smidth number, def 1.0
-    double eta = eddyvs/R_SigmaDiffusion;
+    double eta = eddyvs/FS_SigmaDiffusion;
 
     //add diffusive fluxes to previous cell in channel.
     if(foundp)
