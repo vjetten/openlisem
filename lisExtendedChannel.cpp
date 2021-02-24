@@ -105,13 +105,14 @@ void TWorld::doExtendCol(int r, int c, int n, double w2, double adx)
 
 void TWorld::extendRow(int r, int c, int i, double w)
 {
-    if (!OUTORMV(r-i, c) && tma->data[r-i][c] <= 0){
+
+    if (notMVIn(r-1,c) && tma->data[r-i][c] <= 0){
         ChannelWidthExtended->data[r-i][c] = std::max(ChannelWidthExtended->data[r-i][c],w);
         if (ChannelWidthExtended->data[r-i][c] > 0) tma->data[r-i][c] = 1;
         ChannelSourceYExtended->data[r-i][c] = r;
         ChannelSourceXExtended->data[r-i][c] = c;
     }
-    if (!OUTORMV(r+i, c) && tma->data[r+i][c] <= 0){
+    if (notMVIn(r+1,c) && tma->data[r+i][c] <= 0){
         ChannelWidthExtended->data[r+i][c] = std::max(ChannelWidthExtended->data[r+i][c],w);
         if (ChannelWidthExtended->data[r+i][c] > 0) tma->data[r+i][c] = 1;
         ChannelSourceYExtended->data[r+i][c] = r;
@@ -121,13 +122,13 @@ void TWorld::extendRow(int r, int c, int i, double w)
 
 void TWorld::extendCol(int r, int c, int i, double w)
 {
-    if (!OUTORMV(r, c-i) && tma->data[r][c-i] <= 0){
+    if (notMVIn(r,c-1) && tma->data[r][c-i] <= 0){
         ChannelWidthExtended->data[r][c-i] = std::max(ChannelWidthExtended->data[r][c-i],w);
         if (ChannelWidthExtended->data[r][c-i] > 0) tma->data[r][c-i] = 1;
         ChannelSourceYExtended->data[r][c-i] = r;
         ChannelSourceXExtended->data[r][c-i] = c;
     }
-    if (!OUTORMV(r, c+i)  && tma->data[r][c+i] <= 0){
+    if (notMVIn(r,c+1)  && tma->data[r][c+i] <= 0){
         ChannelWidthExtended->data[r][c+i] = std::max(ChannelWidthExtended->data[r][c+i],w);
         if (ChannelWidthExtended->data[r][c+i] > 0) tma->data[r][c+i] = 1;
         ChannelSourceYExtended->data[r][c+i] = r;
@@ -226,14 +227,14 @@ bool TWorld::ExtendChannelNew()
                 if (i==5)
                     continue;
                 int rr = r+dy[i];
-                int cc = c+dx[i];
+                int cr = c+dx[i];
 
-                if (!OUTORMV(rr, cc) && !pcr::isMV(LDDChannel->data[rr][cc]))
-                    ldd = (int) LDDChannel->data[rr][cc];
+                if (notMVIn(rr,cr) && !pcr::isMV(LDDChannel->Drcr))
+                    ldd = (int) LDDChannel->Drcr;
                 else
                     continue;
 
-                if (FLOWS_TO(ldd, rr, cc, r, c))
+                if (FLOWS_TO(ldd, rr, cr, r, c))
                    if (ldd % 2 == 0) lddfrom << ldd;
             }
             int lddfromi = 0;
@@ -283,14 +284,14 @@ bool TWorld::ExtendChannelNew()
                     if (i==5)
                         continue;
                     int rr = r+dy[i];
-                    int cc = c+dx[i];
+                    int cr = c+dx[i];
 
-                    if (!OUTORMV(rr, cc) && !pcr::isMV(LDDChannel->data[rr][cc]))
-                        ldd = (int) LDDChannel->data[rr][cc];
+                    if (notMVIn(rr,cr) && !pcr::isMV(LDDChannel->Drcr))
+                        ldd = (int) LDDChannel->Drcr;
                     else
                         continue;
 
-                    if (FLOWS_TO(ldd, rr, cc, r, c))
+                    if (FLOWS_TO(ldd, rr, cr, r, c))
                         lddfrom << ldd;
                 }
                 int m = 0;
@@ -401,7 +402,7 @@ void TWorld::ExtendChannel()
             for(int r2 = r - i; r2 < r + i + 1; r2++)
             {
                 int c2 = c - i;
-                if(!OUTORMV(r2,c2))
+                if(notMVIn(r2,c2))
                 {
                     if(!pcr::isMV(LDDChannel->data[r2][c2]))
                     {
@@ -431,7 +432,7 @@ void TWorld::ExtendChannel()
             {
                 int c2 = c+i;
 
-                if(!OUTORMV(r2,c2))
+                if(notMVIn(r2,c2))
                 {
                     if(!pcr::isMV(LDDChannel->data[r2][c2]))
                     {
@@ -460,7 +461,7 @@ void TWorld::ExtendChannel()
             for(int c2 = c - i + 1; c2 < c + i; c2++)
             {
                 int r2 = r - i;
-                if(!OUTORMV(r2,c2))
+                if(notMVIn(r2,c2))
                 {
                     if(!pcr::isMV(LDDChannel->data[r2][c2]))
                     {
@@ -490,7 +491,7 @@ void TWorld::ExtendChannel()
             for(int c2 = c - i + 1; c2 < c + i; c2++)
             {
                 int r2 = r+i;
-                if(!OUTORMV(r2,c2))
+                if(notMVIn(r2,c2))
                 {
                     if(!pcr::isMV(LDDChannel->data[r2][c2]))
                     {
@@ -541,7 +542,7 @@ void TWorld::ExtendChannel()
 
 bool TWorld::IsExtendedChannel(int r, int c, int dr, int dc)
 {
-    if(!OUTORMV(r+dr,c+dc))
+    if(notMVIn(r+dr,c+dc))
     {
         return ChannelMaskExtended->data[r+dr][c+dc] == 1;
     }else

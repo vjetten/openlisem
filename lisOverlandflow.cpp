@@ -514,23 +514,23 @@ void TWorld::dynOutflowPoints()
         double demy1 = DEMFB(r,c,1,0,true);
         double demy2 = DEMFB(r,c,-1,0,true);
 
-        if(OUTORMV(r,c+1)) // returns true if outside rows. cols or mv
+        if(!notMVIn(r,c+1)) // returns true if outside rows. cols or mv
         {
             if(demx1 < demx2)
                 K2DOutlets->Drc = 1;
         }
-        if(OUTORMV(r,c-1))
+        if(!notMVIn(r,c-1))
         {
             if(demx2 <demx1)
                 K2DOutlets->Drc = 1;
         }
 
-        if(OUTORMV(r+1,c))
+        if(!notMVIn(r+1,c))
         {
             if(demy1 < demy2)
                 K2DOutlets->Drc = 1;
         }
-        if(OUTORMV(r-1,c))
+        if(!notMVIn(r-1,c))
         {
             if(demy2 < demy1)
                 K2DOutlets->Drc = 1;
@@ -552,12 +552,12 @@ void TWorld::dynOutflowPoints()
             Dhy = (demy2-dem);
         }
 
-        if(OUTORMV(r,c+1) && OUTORMV(r,c-1))
+        if(!notMVIn(r,c+1) && !notMVIn(r,c-1))
         {
             Dhx = 0;
             K2DOutlets->Drc = 1;
         }
-        if(OUTORMV(r+1,c) && OUTORMV(r-1,c))
+        if(!notMVIn(r+1,c) && !notMVIn(r-1,c))
         {
             Dhy = 0;
             K2DOutlets->Drc = 1;

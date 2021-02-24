@@ -207,7 +207,7 @@ double TWorld::FBW(double h, int r, int c, int dr, int dc)
         return 1.0;
     }
 
-    if(OUTORMV(r+dr,c+dc))
+    if(!notMVIn(r+dr,c+dc))
     {
         return 0.0;
     }
@@ -229,7 +229,7 @@ double TWorld::FB(int r, int c, int rd, int cd)
         return dem;
     }
 
-    if(OUTORMV(r+rd,c+cd))
+    if(!notMVIn(r+rd,c+cd))
     {
         return 0.0;
     }
@@ -324,7 +324,7 @@ double TWorld::DEMFB(int r, int c, int rd, int cd, bool addwh)
         return 0;
     }
 
-    if(OUTORMV(r+rd,c+cd))
+    if(!notMVIn(r+rd,c+cd))
     {
         return dem;
     }

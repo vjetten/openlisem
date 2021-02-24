@@ -379,8 +379,10 @@ void TWorld::ParseRunfileData(void)
             totalSeriesFileName = checkOutputMapName(p, "Total Series file", 1);
         if (p1.compare("Filename point output")==0)
             outflowFileName = checkOutputMapName(p, "hydrograph file(s)", 1);
-        if (p1.compare("Filename landunit output")==0)
-            totalLandunitFileName = checkOutputMapName(p, "Landunit stats output file",1);
+        if (p1.compare("Filename landunit output")==0) {
+           // totalLandunitFileName = checkOutputMapName(p, "Landunit stats output file",1);
+            totalLandunitFileName = QString("totlandunit.csv");
+        }
 
         if (p1.compare("Rainfall map")==0)
             rainfallMapFileName = checkOutputMapName(p, "rainfall map", 0);

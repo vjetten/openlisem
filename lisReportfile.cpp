@@ -980,7 +980,7 @@ void TWorld::CountLandunits(void)
         return;
 
     int i, j;
-    for (i = 0; i < 512; i++)
+    for (i = 0; i < NRUNITS; i++)
     {
         unitList[i].nr = 0;
         unitList[i].var0 = 0;
@@ -1000,10 +1000,10 @@ void TWorld::CountLandunits(void)
             if ((long)LandUnit->Drc == unitList[j].nr)
                 found = true;
 
-        if(!found && i < 512)
+        if(!found && i < NRUNITS)
         {
-            unitList[i].nr = (long)LandUnit->Drc;
-            i++;
+             unitList[i].nr = (long)LandUnit->Drc;
+             i++;
         }
     }
     landUnitNr = i;
@@ -1013,54 +1013,47 @@ void TWorld::CountLandunits(void)
 /// Report the erosion totals per land unit
 void TWorld::ReportLandunits(void)
 {
-    QString newname1;
-
     if (!SwitchErosion)
         return;
 
-    for (int i = 0; i < landUnitNr; i++)
+    #pragma omp parallel for num_threads(userCores)
+    for (int i = 0; i < landUnitNr; i++)//landUnitNr; i++)
     {
         unitList[i].var0 = 0;
         unitList[i].var1 = 0;
         unitList[i].var2 = 0;
         unitList[i].var3 = 0;
-        unitList[i].var4 = 0;
-        unitList[i].var5 = 0;
     }
 
-    FOR_ROW_COL_MV
-    {
+   #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         //variables are kg/cell convert to ton/cell
         for (int i = 0; i < landUnitNr; i++)
-            if (unitList[i].nr == (long)LandUnit->Drc)
-            {
+            if (unitList[i].nr == (int)LandUnit->Drc) {
                 unitList[i].var0 += CellArea->Drc/10000;//ha
                 unitList[i].var1 += TotalDetMap->Drc/1000; //ton/cell
                 unitList[i].var2 += TotalDepMap->Drc/1000;
                 unitList[i].var3 += TotalSoillossMap->Drc/1000;
             }
-    }
+    }}
 
 
-    newname1 = resultDir + totalLandunitFileName;
-
-    QFile fout(newname1);
+    QString name;
+    name = resultDir + QFileInfo(totalLandunitFileName).baseName()+timestampRun+".csv";
+    QFile fout(name);
     fout.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream out(&fout);
     out.setRealNumberPrecision(3);
-    out.setFieldWidth(12);
     out.setRealNumberNotation(QTextStream::FixedNotation);
 
-    //TODO: make this comma delimited?
-    out << "    Landunit        Area  Detachment  Deposition   Soil Loss\n";
-    out << "           #          ha         ton         ton         ton\n";
+    out << "Landunit,Area,Detachment,Deposition,Soil Loss\n";
+    out << "#,ha,ton,ton,ton\n";
     for (int i = 0; i < landUnitNr; i++)
-        out << unitList[i].nr
-            << unitList[i].var0
-            << unitList[i].var1
-            << unitList[i].var2
-            << unitList[i].var3
-            << "\n";
+        out << unitList[i].nr << ","
+            << unitList[i].var0 << ","
+            << unitList[i].var1 << ","
+            << unitList[i].var2 << ","
+            << unitList[i].var3 << "\n";
     fout.close();
 
 }
@@ -1070,7 +1063,8 @@ void TWorld::ChannelFloodStatistics(void)
     if(SwitchKinematic2D == K2D_METHOD_KIN)
         return;
 
-    for (int i = 0; i < 256; i++)
+    #pragma omp parallel for num_threads(userCores)
+    for (int i = 0; i < NRUNITS; i++)
     {
         floodList[i].nr = i;
         floodList[i].var0 = 0.05*i; //depth
@@ -1079,15 +1073,16 @@ void TWorld::ChannelFloodStatistics(void)
         floodList[i].var3 = 0;
         floodList[i].var4 = 0;
         floodList[i].var5 = 0;
+        floodList[i].var6 = 0;
     }
-    double area = _dx*_dx;
+
     int nr = 0;
-    FOR_ROW_COL_MV
-    {
+    FOR_ROW_COL_MV_L {
+        double area = _dx*_dx;
         if(floodHmxMax->Drc > 0)  //floodHmxMax has zero under treshold
         {
             int i = 0;
-            while (floodList[i].var0 < floodHmxMax->Drc && i < 256)
+            while (floodList[i].var0 < floodHmxMax->Drc && i < NRUNITS)
                 i++;
             if (i > 0)
                 i--;
@@ -1099,8 +1094,10 @@ void TWorld::ChannelFloodStatistics(void)
             floodList[i].var4 = std::max(floodTimeStart->Drc/60.0,floodList[i].var4); // max time in this class
             if (SwitchHouses)
                 floodList[i].var5 += HouseCover->Drc*area;
+            if (SwitchRoadsystem)
+                floodList[i].var6 += RoadWidthDX->Drc*DX->Drc;
         }
-    }
+    }}
 
     QString name;
     name = resultDir + QFileInfo(floodStatsFileName).baseName()+timestampRun+".csv";
@@ -1108,33 +1105,37 @@ void TWorld::ChannelFloodStatistics(void)
     if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
+    double totarea = 0;
+    double totvol = 0;
+    double totbuild = 0;
+    double totroad = 0;
+    for (int i = 1; i < nr+1; i++)
+    {
+        totarea += floodList[i].var1;
+        totvol += floodList[i].var2;
+        totbuild += floodList[i].var5;
+        totroad += floodList[i].var6;
+    }
+
     QTextStream out(&fp);
     out.setRealNumberPrecision(2);
     out.setRealNumberNotation(QTextStream::FixedNotation);
 
     out << "\"LISEM run with:," << op.runfilename << "\"" << "\n";
     out << "\"results at time (min):\"" << op.time << "\n";
-    out << "class,Depth,Area,Volume,Duration,Start,Structures\n";
-    out << "#,m,m2,m3,h,h,m2\n";
-    for (int i = 0; i < nr+1; i++)
+    out << "class,Depth,Area,Volume,Duration,Start,Structures,Roads\n";
+    out << "#,m,m2,m3,h,h,m2,m2\n";
+    out << "total" << ",>0.05," << totarea << "," << totvol << ",,," << totbuild << "," << totroad <<"\n";
+    for (int i = 1; i < nr+1; i++)
         out << i << ","
             << floodList[i].var0 << ","
             << floodList[i].var1 << ","
             << floodList[i].var2 << ","
             << floodList[i].var3 << ","
             << floodList[i].var4 << ","
-            << floodList[i].var5
+            << floodList[i].var5 << ","
+            << floodList[i].var6
             << "\n";
-
-    double totarea = 0;
-    double totvol = 0;
-    double totbuild = 0;
-    for (int i = 0; i < nr+1; i++)
-    {
-        totarea += floodList[i].var1;
-        totvol += floodList[i].var2;
-        totbuild += floodList[i].var5;
-    }
 
     fp.flush();
     fp.close();

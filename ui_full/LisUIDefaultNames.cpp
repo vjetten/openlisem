@@ -252,7 +252,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel detachment map");
     namelist[i].value = QString("chandep.map");
     namelist[i++].name = QString("Channel deposition map");
-    namelist[i].value = QString("totlandunit.txt");
+    namelist[i].value = QString("totlandunit.csv");
     namelist[i++].name = QString("Filename landunit output");
     namelist[i].value = QString("floodstats.csv");
     namelist[i++].name = QString("Flood stats");

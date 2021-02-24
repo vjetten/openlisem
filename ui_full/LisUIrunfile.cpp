@@ -495,7 +495,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Main results file")==0) E_MainTotals->setText(p);
         if (p1.compare("Total Series file")==0) E_SeriesTotals->setText(p);
         if (p1.compare("Filename point output")==0) E_PointResults->setText(p);
-        if (p1.compare("Filename landunit output")==0) E_LandunitResults->setText(p);
+   //     if (p1.compare("Filename landunit output")==0) E_LandunitResults->setText(p);
         // resultDir is added in report operation
 
         if (p1.compare("Rainfall Directory")==0) RainFileDir = CheckDir(p);
@@ -846,7 +846,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Main results file")==0) namelist[j].value = E_MainTotals->text();
         if (p1.compare("Total series file")==0) namelist[j].value = E_SeriesTotals->text();
         if (p1.compare("Filename point output")==0) namelist[j].value = E_PointResults->text();
-        if (p1.compare("Filename landunit output")==0) namelist[j].value = E_LandunitResults->text();
+     //   if (p1.compare("Filename landunit output")==0) namelist[j].value = E_LandunitResults->text();
         if (p1.compare("Rainfall Directory")==0) namelist[j].value = RainFileDir;
         if (p1.compare("Rainfall file")==0) namelist[j].value = RainFileName;
         if (p1.compare("Snowmelt Directory")==0) namelist[j].value = SnowmeltFileDir;

@@ -7,7 +7,12 @@ For questions contact v.g.jetten AD utwente.nl
 
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux Ubuntu
-NOTE: since version 6 it is fully parallel and developed with MSYS
+NOTE: since version 6 it is fully parallel and developed with MSYS2.0, and openmp
+
+version 6.5-6.6
+- SWOF sediment fully parallel computing
+- minimize nr loops
+- Diagonal flow with SWOF
 
 version 6.2-6.4
 - bug fixing in sediment

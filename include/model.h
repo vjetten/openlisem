@@ -68,13 +68,16 @@
 #define Drcr    data[rr][cr]
 #define Drcd    at(d)->data[r][c]
 #define Drcdr   at(d)->data[rr][cr]
-//#define Drci   data[r+dy[i]][c+dx[i]]
+#define Drci   data[r+dy[i]][c+dx[i]]
+
 #define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
     ( ldd != 0 &&  rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
-/// shortcut missing value in map
+/// shortcuts missing value and inside map
 #define MV(r,c) pcr::isMV(LDD->data[r][c])
-#define MVin(r,c) (pcr::isMV(LDD->data[r][c]) && r < _nrRows && c < _nrCols && r >= 0 && c >= 0)
+#define notMVIn(r,c) (!pcr::isMV(LDD->data[r][c]) && r < _nrRows && c < _nrCols && r >= 0 && c >= 0)
+#define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
+//#define OUTORMV(r, c)  (INSIDE(r,c) && !pcr::isMV(LDD->data[r][c]) ? false : true)
 
 /// shortcut for LDD row and col loop
 #define FOR_ROW_COL_MV for(int r = 0; r < _nrRows; r++)\
@@ -89,7 +92,6 @@
 // faster
 //#define FOR_ROW_COL_MV_L for(QVector <LDD_COOR>::iterator crit_ = cr_.begin(); crit_ != cr_.end();  ++crit_)\
 //{int r = crit_->r; int c = crit_->c;
-
 
 // faster
 //#define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
@@ -117,15 +119,12 @@
     for (int  c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDDChannel->data[r][c]))
 
-/// shortcut for tile network row and col loop.
+/// shortcut for tile network row and col loop
 #define FOR_ROW_COL_MV_TILE for (int  r = 0; r < _nrRows; r++)\
     for (int  c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDDTile->data[r][c]))
 
-/// shortcut to check if r,c is inside map boundaries, used in kinematic and flooding
-#define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
-#define OUTORMV(r, c)  (INSIDE(r,c) && !pcr::isMV(LDD->data[r][c]) ? false : true)
-
+#define NRUNITS 512  /// \def max number of landunits or depth classes in flooding
 #define NUMNAMES 2000   /// \def NUMNAMES runfile namelist max
 #define NUMMAPS 1000    /// \def max nr maps
 #define MIN_FLUX 1e-6 /// \def minimum flux (m3/s) in kinematic wave
@@ -216,7 +215,7 @@ typedef struct NAME_LIST {
 //---------------------------------------------------------------------------
 /// structure for output of land unit stats
 typedef struct UNIT_LIST {
-    long nr;
+    long nr; // can have any class number
     double var0;
     double var1;
     double var2;
@@ -296,13 +295,14 @@ public:
 #include "TMmapVariables.h"
 
     /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
-/*
+
+/* OBSOLETE
  SwitchLimitDepTC,SwatreInitialized, SwitchLimitTC, SwitchWheelPresent,SwitchChannelExtended,startbaseflowincrease,SwitchAllinChannel,
-  SwitchErosionInsideLoop, SwitchSimpleDepression,SwitchRunoffPerM,SwitchWheelAsChannel, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,
-    SwitchGullyInit,SwitchMapoutRunoff, SwitchMapoutConc, SwitchWritePCRnames,SwitchNoErosionOutlet,SwitchSimpleSedKinWave, SwitchSOBEKoutput,
-    SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol
-SwitchChannelFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,SwitchRainfallFlood,SwitchLevees,SwitchWatershed,SwitchMinDTfloodMethod,SwitchNeedD90,
-   int SwitchFlood1D2DCoupling;
+ SwitchErosionInsideLoop, SwitchSimpleDepression,SwitchRunoffPerM,SwitchWheelAsChannel, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,
+ SwitchGullyInit,SwitchMapoutRunoff, SwitchMapoutConc, SwitchWritePCRnames,SwitchNoErosionOutlet,SwitchSimpleSedKinWave, SwitchSOBEKoutput,
+ SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol
+ SwitchChannelFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,SwitchRainfallFlood,SwitchLevees,SwitchWatershed,SwitchMinDTfloodMethod,SwitchNeedD90,
+ int SwitchFlood1D2DCoupling;
 */
 
     bool SwitchRoadsystem, SwitchHardsurface, SwitchInfilGA2, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
@@ -335,9 +335,9 @@ SwitchChannelFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,SwitchRainfall
     QList<double> FBTimeE;
     QList<double> FBTimeW;
 
+    // extended channel obsolete
     QVector <ExtCH> ExtChannel;
     ExtCH ExtendCH;
-
 
     // multiple options that are set in interface or runfile, see defines above
 
@@ -480,9 +480,8 @@ SwitchChannelFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,SwitchRainfall
     QString satImageFileDir;
 
     // list with class values of land unit map
-    UNIT_LIST unitList[512]; // just a fixed number for 512 classes, who cares!
-    UNIT_LIST floodList[512]; // just a fixed number for 512 classes, who cares!
-    QVector <UNIT_LIST> unitListM;
+    UNIT_LIST unitList[NRUNITS];
+    UNIT_LIST floodList[NRUNITS];
     int landUnitNr;
     // data initialization, runfile reading and parsing
     NAME_LIST runnamelist[NUMNAMES]; // structure for runfile variables and names

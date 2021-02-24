@@ -2297,9 +2297,9 @@ void TWorld::IntializeOptions(void)
     //dirs and names
     resultDir.clear();
     inputDir.clear();
-    outflowFileName = QString("totals.txt");
+    outflowFileName = QString("totals.csv");
     outflowFileName = QString("outlets.csv");
-    totalLandunitFileName = QString("totlandunit.txt");
+    totalLandunitFileName = QString("totlandunit.csv");
 
     totalErosionFileName = QString("erosion.map");
     totalDepositionFileName = QString("deposition.map");
