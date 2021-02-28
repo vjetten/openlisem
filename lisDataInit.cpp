@@ -177,7 +177,7 @@ cTMap *TWorld::InitMask(QString name)
 {
     // read map and make a mask map
 
-    cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
+    cTMap *_M = new cTMap(readRaster(name));
 
     maplistCTMap[maplistnr].m = _M;
     maplistnr++;
@@ -471,6 +471,8 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
     SwitchMUSCL = F_SWOFSolution == 2;
     SwitchSWOFopen = F_SWOFSolution == 0;
 
+    F_pitValue = getvaluedouble("Pit Value");
+
     if (SwitchAdvancedOptions) {
         mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
         runoff_partitioning = getvaluedouble("Flooding runoff partitioning");
@@ -481,7 +483,6 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         F_AddGravity = getvalueint("Use gravity flow");
         F_Angle = getvaluedouble("Angle flow to channel");
         SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);
-        F_pitValue = getvaluedouble("Pit Value");
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
         SwitchLinkedList = getvalueint("Use Linked List") == 1;
     } else {
@@ -494,7 +495,7 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         SwitchFixedAngle = false;
         F_AddGravity = 1;
         F_Angle = 0.02;
-        F_pitValue = 0.1;
+        F_pitValue = _dx/100;
         //Switch2DDiagonalFlow = true;
         //SwitchErosionInsideLoop = true;
         SwitchLinkedList = false;
@@ -1973,7 +1974,7 @@ void TWorld::IntializeData(void)
     Alpha = NewMap(0);
     Q = NewMap(0);
     Qn = NewMap(0);
-    Qdiag = NewMap(0);
+    //Qdiag = NewMap(0);
 
     K2DOutlets = NewMap(0);
     K2DQ = NewMap(0);

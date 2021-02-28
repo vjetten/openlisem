@@ -58,7 +58,7 @@ void TWorld::OverlandFlow(void)
             CalcVelDisch(r, c);        // overland flow velocity, discharge and alpha
 
             if (SwitchErosion)
-                FlowDetachment(r, c);   // flow detachment
+                cell_FlowDetachment(r, c);   // flow detachment
 
             ToChannel(r, c);           // overland flow water and sed flux going into or out of channel, in channel cells
         }}
@@ -514,23 +514,23 @@ void TWorld::dynOutflowPoints()
         double demy1 = DEMFB(r,c,1,0,true);
         double demy2 = DEMFB(r,c,-1,0,true);
 
-        if(!notMVIn(r,c+1)) // returns true if outside rows. cols or mv
+        if(OUTORMV(r,c+1)) // returns true if outside rows. cols or mv
         {
             if(demx1 < demx2)
                 K2DOutlets->Drc = 1;
         }
-        if(!notMVIn(r,c-1))
+        if(OUTORMV(r,c-1))
         {
             if(demx2 <demx1)
                 K2DOutlets->Drc = 1;
         }
 
-        if(!notMVIn(r+1,c))
+        if(OUTORMV(r+1,c))
         {
             if(demy1 < demy2)
                 K2DOutlets->Drc = 1;
         }
-        if(!notMVIn(r-1,c))
+        if(OUTORMV(r-1,c))
         {
             if(demy2 < demy1)
                 K2DOutlets->Drc = 1;
@@ -552,12 +552,12 @@ void TWorld::dynOutflowPoints()
             Dhy = (demy2-dem);
         }
 
-        if(!notMVIn(r,c+1) && !notMVIn(r,c-1))
+        if(OUTORMV(r,c+1) && OUTORMV(r,c-1))
         {
             Dhx = 0;
             K2DOutlets->Drc = 1;
         }
-        if(!notMVIn(r+1,c) && !notMVIn(r-1,c))
+        if(OUTORMV(r+1,c) && OUTORMV(r-1,c))
         {
             Dhy = 0;
             K2DOutlets->Drc = 1;

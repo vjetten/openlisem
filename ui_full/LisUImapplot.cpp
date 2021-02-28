@@ -250,6 +250,7 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD)
         return (maxV);
 
     // copy map data into vector for the display structure
+
     for(int r = _M->nrRows()-1; r >= 0; r--)
         for(int c=0; c < _M->nrCols(); c++)
         {
@@ -261,6 +262,28 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD)
             else
                 mapData << (double)-1e20;
         }
+
+//    // faster to fill a QVector than to create it each time
+//    long i_=0;
+//    //reduction(max:maxV)
+//    //    #pragma omp parallel for collapse(2)
+//    long all = _M->nrCols()*_M->nrRows();
+//      for(int r = 0; r < _M->nrRows(); r++)
+//        for(int c = 0; c < _M->nrCols(); c++)
+//        {
+//            i_= all - ((_M->nrCols()-c-1)+_M->nrCols()*r);
+//            if(!pcr::isMV(_M->Drc))
+//            {
+//                mapData[i_] = _M->Drc;
+//                maxV = std::max(maxV, _M->Drc);
+//            }
+//            else
+//                mapData[i_] = (double)-1e20;
+//        }
+
+//#pragma omp parallel for reduction(max:maxV)
+//      for (i_ = 0; i_ < all; i_++)
+//          maxV = std::max(maxV, mapData[i_]);
 
     // set intervals for rasterdata, x,y,z min and max
     _RD->setValueMatrix( mapData, _M->nrCols() );
@@ -276,7 +299,7 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD)
 double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterData *_RD)//, double type)
 {
     double maxV = -1e20;
-    mapData.clear();  //QVector double
+    RGBData.clear();  //QVector double
 
     if (_M == nullptr)
         return (maxV);
@@ -302,17 +325,17 @@ double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterDa
                     valuechar[2] = _M->dataR[r][c];
                 }
 
-                mapData << value;
+                RGBData << value;
                 maxV = std::max(maxV, 1.0);
             }
             else
             {
-                mapData << (double)-1e20;
+                RGBData << (double)-1e20;
             }
         }
 
     // set intervals for rasterdata, x,y,z min and max
-    _RD->setValueMatrix( mapData, _M->nrCols() );
+    _RD->setValueMatrix( RGBData, _M->nrCols() );
     // set column number to divide vector into rows
 
     /*
@@ -544,6 +567,14 @@ void lisemqt::showBaseMap()
 {
     if (!startplot)
         return;
+
+
+    nrValidCells = 0;
+    for(int r = 0; r < op.baseMapDEM->nrRows(); r++)
+        for(int c=0; c < op.baseMapDEM->nrCols(); c++)
+        {
+            mapData << (double)-1e20;
+        }
 
     double res = fillDrawMapData(op.baseMap, RDb);
     if (res == -1e20)

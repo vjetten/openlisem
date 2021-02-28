@@ -528,17 +528,17 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
  * @param _theta
  * @param where
  */
-void TWorld::SwatreStep(int step, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta, cTMap *where)
+void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta)//, cTMap *where)
 {   
    // map "where" is used as a flag here, it is the fraction of crust, compaction, grass
    // so that the additional calculations are not done everywhere
    // for normal soil surface where is always 1.
    // this prevents doing swatrestep for crusting for cells that are 0 for instance
- //  fill(*tmc,0);
-   FOR_ROW_COL_MV
-         if(where->Drc > 0) // flag to indicate if this pixel has to be done
+
+//   FOR_ROW_COL_MV
+//         if(where->Drc > 0) // flag to indicate if this pixel has to be done
          // for regular soil this is 1 so always done, for e.g. crusting only when larger than 0
-   {
+//   {
       double wh, infil, drain, drainfraction = 0, Theta, repellency;
       QString dig;
 
@@ -550,11 +550,10 @@ void TWorld::SwatreStep(int step, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap
       if (SwitchIncludeTile)
          drainfraction = TileWidth->Drc/_dx;
 
-      ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, drainfraction,
-                      &repellency, &Theta, s);
+      ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, drainfraction, &repellency, &Theta, s);
       // estimate new h and theta at the end of dt
 
-      SwitchDumpH = true;
+      //SwitchDumpH = true;
       if(SwitchDumpH || SwitchDumpTheta || SwitchDumpK) {
           if(s->pixel[r*_nrCols+c].dumpHid > 0) {
               for (int i = 0; i < s->pixel[r*_nrCols+c].nrNodes; i++) {
@@ -585,7 +584,7 @@ void TWorld::SwatreStep(int step, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap
 
       if (SwitchWaterRepellency)
          RepellencyFraction->Drc = repellency;
-   }
+ //  }
   // report (*tmc,"ksatav");
 }
 //--------------------------------------------------------------------------------

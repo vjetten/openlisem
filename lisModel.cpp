@@ -205,8 +205,9 @@ void TWorld::DoModel()
 
             //these functions read files, so they can not be multithreaded
 
-             CellProcesses();
-          //  do_CellProcesses();
+        //   CellProcesses();
+            do_CellProcesses();
+
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
             OverlandFlow();        // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!

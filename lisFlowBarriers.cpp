@@ -207,8 +207,7 @@ double TWorld::FBW(double h, int r, int c, int dr, int dc)
         return 1.0;
     }
 
-    if(!notMVIn(r+dr,c+dc))
-    {
+    if(OUTORMV(r+dr,c+dc)) {
         return 0.0;
     }
 
@@ -229,8 +228,7 @@ double TWorld::FB(int r, int c, int rd, int cd)
         return dem;
     }
 
-    if(!notMVIn(r+rd,c+cd))
-    {
+    if(OUTORMV(r+rd,c+cd)) {
         return 0.0;
     }
 
@@ -296,35 +294,29 @@ double TWorld::DEMFB(int r, int c, int rd, int cd, bool addwh)
                 wh = WHrunoff->data[r + rd][c + cd];
             }
             dem = DEM->data[r + rd][c + cd];
-        }else
-        {
-            if(!pcr::isMV(LDD->data[r][c]))
-            {
+        } else {
+            if(!pcr::isMV(LDD->data[r][c])) {
                 wh = 0;
                 dem = DEM->Drc;
-            }else
-            {
+            } else {
                return 0;
             }
         }
 
-    }else if(INSIDE(r,c))
-    {
-        if(!pcr::isMV(LDD->data[r][c]))
+    } else if(INSIDE(r,c)) {
+        if(!pcr::isMV(LDD->Drc))
         {
             wh = 0;
             dem = DEM->Drc;
-        }else
-        {
+        } else {
            return 0;
         }
 
-    }else
-    {
+    } else {
         return 0;
     }
 
-    if(!notMVIn(r+rd,c+cd))
+    if(OUTORMV(r+rd,c+cd))
     {
         return dem;
     }

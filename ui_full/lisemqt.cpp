@@ -491,7 +491,7 @@ void lisemqt::on_DisplayComboBox2_currentIndexChanged(int j)
     ComboMinSpinBox2->setValue(op.userMinV.at(i));
     this->showMap();
 }
-
+/*
 void lisemqt::setSedimentText(int i, int j, int k)
 {
     // i = TC, j= river or surface, k = BL or SS
@@ -522,47 +522,30 @@ void lisemqt::setSedimentText(int i, int j, int k)
 //--------------------------------------------------------------------
 void lisemqt::on_E_RBLMethod_valueChanged(int i)
 {
-    setSedimentText(i, 0, 0);
+  //  setSedimentText(i, 0, 0);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_E_RSSMethod_valueChanged(int i)
 {
-    setSedimentText(i, 0, 1);
+    //setSedimentText(i, 0, 1);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_E_BLMethod_valueChanged(int i)
 {
-    setSedimentText(i, 1, 0);
+//    setSedimentText(i, 1, 0);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_E_SSMethod_valueChanged(int i)
 {
-    setSedimentText(i, 1, 1);
+  //  setSedimentText(i, 1, 1);
 }
+*/
 //--------------------------------------------------------------------
 void lisemqt::on_checkSed2Phase_toggled(bool v)
 {
       sedbox3->setEnabled(v);
       E_RBLMethod->setEnabled(v);
       E_BLMethod->setEnabled(v);
-//    if(v)
-//    {
-//      //  checkSedMultiGrain->setChecked(false);
-//        sedbox1->setEnabled(false);
-//        sedbox2->setEnabled(true);
-//        sedbox3->setEnabled(true);
-//        E_RBLMethod->setEnabled(true);
-//        E_RSSMethod->setEnabled(true);
-//        E_BLMethod->setEnabled(true);
-//        E_SSMethod->setEnabled(true);
-//    }
-//    else
-//    {
-//        if(!checkSedMultiGrain->isChecked())
-//        {
-//            checkSed2Phase->setChecked(true);
-//        }
-//    }
 }
 //--------------------------------------------------------------------
 
@@ -583,10 +566,6 @@ void lisemqt::on_checkSedMultiGrain_toggled(bool v)
         E_SSMethod->setEnabled(false);
 
     }
-//    else {
-//        if(!checkSed2Phase->isChecked())
-//            checkSedMultiGrain->setChecked(true);
-//    }
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkEstimateGrainSizeDistribution_toggled(bool v)
@@ -765,7 +744,7 @@ void lisemqt::setWriteOutputPCR(bool /* doit */)
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()
 {
-    toolBar->setIconSize(QSize(24,24));
+    toolBar->setIconSize(QSize(32,32));
 
     //r
     restartAct = new QAction(QIcon(":/2X/reset.png"), "&Reset...", this);
@@ -793,11 +772,11 @@ void lisemqt::SetToolBar()
     toolBar->addAction(saveasAct);
     toolBar->addSeparator();
 
-    shootscreenAct = new QAction(QIcon(":/2X/screenshots2X.png"), "make a screendump of the current page", this);
+    shootscreenAct = new QAction(QIcon(":/2X/screenshots2X.png"), "make a screenshow of the current page", this);
     connect(shootscreenAct, SIGNAL(triggered()), this, SLOT(shootScreen()));
     toolBar->addAction(shootscreenAct);
 
-    shootMscreenAct = new QAction(QIcon(":/2X/Mscreenshots2X.png"), "Save the run in multiple screendumps", this);
+    shootMscreenAct = new QAction(QIcon(":/2X/Mscreenshots2X.png"), "Save the run in multiple screenshots", this);
     shootMscreenAct->setCheckable(true);
     connect(shootMscreenAct, SIGNAL(triggered()), this, SLOT(shootMScreen()));
     toolBar->addAction(shootMscreenAct);
@@ -810,7 +789,7 @@ void lisemqt::SetToolBar()
     toolBar->addAction(fontDecreaseAct);
 
     toolBar->addSeparator();
-    showAllAct = new QAction(QIcon(":/2X/chart-line-stacked-icon2X.png"), "&no output to screen", this);
+    showAllAct = new QAction(QIcon(":/2X/noscreen.png"), "&no output to screen", this);
     showAllAct->setCheckable(true);
     connect(showAllAct, SIGNAL(triggered()), this, SLOT(setOutputScreen()));
     toolBar->addAction(showAllAct);
@@ -996,38 +975,38 @@ void lisemqt::SetStyleUI()
     label_area->setStyleSheet("* { background-color: #ffffff }");
     label_time->setStyleSheet("* { background-color: #ffffff }");
     label_endtime->setStyleSheet("* { background-color: #ffffff }");
-    label_raintot->setStyleSheet("* { background-color: #ffff77 }");
-    label_watervoltot->setStyleSheet("* { background-color: #ffff77 }");
-    label_stormdraintot->setStyleSheet("* { background-color: #ffff77 }");
-    label_qtot->setStyleSheet("* { background-color: #ffff77 }");
-    label_infiltot->setStyleSheet("* { background-color: #ffff77 }");
-    label_surfstor->setStyleSheet("* { background-color: #ffff77 }");
-    label_interctot->setStyleSheet("* { background-color: #ffff77 }");
-    //label_qtotm3->setStyleSheet("* { background-color: #ffff77 }");
-    label_qpeaktime->setStyleSheet("* { background-color: #ffff77 }");
-    label_ppeaktime->setStyleSheet("* { background-color: #ffff77 }");
-    label_QPfrac->setStyleSheet("* { background-color: #ffff77 }");
-    //label_discharge->setStyleSheet("* { background-color: #ffff77 }");
-    label_floodVolmm->setStyleSheet("* { background-color: #ffff77 }");
-    label_watervolchannel->setStyleSheet("* { background-color: #ffff77 }");
-    //   label_litterstore->setStyleSheet("* { background-color: #ffff77 }");
-    label_baseflowtot->setStyleSheet("* { background-color: #ffff77 }");
+    label_raintot->setStyleSheet("* { background-color: #ffff99 }");
+    label_watervoltot->setStyleSheet("* { background-color: #ffff99 }");
+    label_stormdraintot->setStyleSheet("* { background-color: #ffff99 }");
+    label_qtot->setStyleSheet("* { background-color: #ffff99 }");
+    label_infiltot->setStyleSheet("* { background-color: #ffff99 }");
+    label_surfstor->setStyleSheet("* { background-color: #ffff99 }");
+    label_interctot->setStyleSheet("* { background-color: #ffff99 }");
+    //label_qtotm3->setStyleSheet("* { background-color: #ffff99 }");
+    label_qpeaktime->setStyleSheet("* { background-color: #ffff99 }");
+    label_ppeaktime->setStyleSheet("* { background-color: #ffff99 }");
+    label_QPfrac->setStyleSheet("* { background-color: #ffff99 }");
+    //label_discharge->setStyleSheet("* { background-color: #ffff99 }");
+    label_floodVolmm->setStyleSheet("* { background-color: #ffff99 }");
+    label_watervolchannel->setStyleSheet("* { background-color: #ffff99 }");
+    //   label_litterstore->setStyleSheet("* { background-color: #ffff99 }");
+    label_baseflowtot->setStyleSheet("* { background-color: #ffff99 }");
 
-    label_qtotm3sub->setStyleSheet("* { background-color: #ffff77 }");
-    label_dischargesub->setStyleSheet("* { background-color: #ffff77 }");
-    label_qpeaksub->setStyleSheet("* { background-color: #ffff77 }");
-    label_soillosssub->setStyleSheet("* { background-color: #ffff77 }");
+    label_qtotm3sub->setStyleSheet("* { background-color: #ffff99 }");
+    label_dischargesub->setStyleSheet("* { background-color: #ffff99 }");
+    label_qpeaksub->setStyleSheet("* { background-color: #ffff99 }");
+    label_soillosssub->setStyleSheet("* { background-color: #ffff99 }");
 
-    label_splashdet->setStyleSheet("* { background-color: #ffff77 }");
-    label_flowdet->setStyleSheet("* { background-color: #ffff77 }");
-    label_sedvol->setStyleSheet("* { background-color: #ffff77 }");
-    label_dep->setStyleSheet("* { background-color: #ffff77 }");
-    label_detch->setStyleSheet("* { background-color: #ffff77 }");
-    label_depch->setStyleSheet("* { background-color: #ffff77 }");
-    label_sedvolch->setStyleSheet("* { background-color: #ffff77 }");
-    label_soilloss->setStyleSheet("* { background-color: #ffff77 }");
-    label_soillosskgha->setStyleSheet("* { background-color: #ffff77 }");
-    label_SDR->setStyleSheet("* { background-color: #ffff77 }");
+    label_splashdet->setStyleSheet("* { background-color: #ffff99 }");
+    label_flowdet->setStyleSheet("* { background-color: #ffff99 }");
+    label_sedvol->setStyleSheet("* { background-color: #ffff99 }");
+    label_dep->setStyleSheet("* { background-color: #ffff99 }");
+    label_detch->setStyleSheet("* { background-color: #ffff99 }");
+    label_depch->setStyleSheet("* { background-color: #ffff99 }");
+    label_sedvolch->setStyleSheet("* { background-color: #ffff99 }");
+    label_soilloss->setStyleSheet("* { background-color: #ffff99 }");
+    label_soillosskgha->setStyleSheet("* { background-color: #ffff99 }");
+    label_SDR->setStyleSheet("* { background-color: #ffff99 }");
 
     //Grouped Buttons become mututally exclusive
     GroupMapDisplay.addButton(checkBoxComboMaps, 1);
@@ -1063,8 +1042,7 @@ void lisemqt::setMapDir()
 
     pathin = findValidDir(E_MapDir->text(), false);
 
-    path = QFileDialog::getExistingDirectory(this, QString("Select maps directory"),
-                                             pathin);//,
+    path = QFileDialog::getExistingDirectory(this, QString("Select maps directory"),pathin);//,
                                              // /*QFileDialog::ShowDirsOnly |*/ QFileDialog::DontResolveSymlinks);
     if(!path.isEmpty())
         E_MapDir->setText( path );
@@ -1594,7 +1572,6 @@ void lisemqt::shootScreen()
                         name = NameList.at(index);
                 } else if (checkBoxComboMaps2->isChecked()) {
                     int index = DisplayComboBox2->currentIndex()+DisplayComboBox->count();
-                    qDebug() << index;
                     if( index > -1 && index < NameList.length())
                         name = NameList.at(index);
                 }
@@ -1950,7 +1927,6 @@ void lisemqt::fontSelect()
 //---------------------------------------------------------------
 void lisemqt::fontDecrease()
 {
-  //  qDebug()<< "d" << genfontsize;
     genfontsize--;
     genfontsize = std::max(5, genfontsize);
     setfontSize();
@@ -1958,7 +1934,6 @@ void lisemqt::fontDecrease()
 //---------------------------------------------------------------
 void lisemqt::fontIncrease()
 {
-   // qDebug()<< "i" << genfontsize;
     genfontsize++;
     genfontsize = std::min(20, genfontsize);
     setfontSize();
@@ -2101,6 +2076,7 @@ void lisemqt::on_checkDiffusion_toggled(bool checked)
 {
     E_SigmaDiffusion->setEnabled(checked);
     label_101->setEnabled(checked);
+    label_139->setEnabled(checked);
 }
 
 void lisemqt::on_checkHouses_toggled(bool checked)

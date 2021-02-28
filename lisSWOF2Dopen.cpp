@@ -37,9 +37,18 @@
 
 
 //-------------------------------------------------------------------------------------------------
+// force flow when a diagonal solution exists and a DEM blockage is present
 void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
 {
-    // force flow when a diagonal solution exists and a blockage
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        tma->Drc = 0;
+        tmb->Drc = 0;
+        tmc->Drc = 0;
+    }}
+
+    bool doit = false;
+
     #pragma omp parallel for num_threads(userCores)
     for(long i_= 0; i_ < dcr_.size(); i_++) {
 
@@ -49,13 +58,15 @@ void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
         if (h->Drc > F_pitValue) {
             int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
             int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
+            doit = true;
 
             vec4 rec;
             int ldd = dcr_[i_].ldd;
             int rr = r+dy[ldd];
             int cr = c+dx[ldd];
 
-//            if (h->Drcr+DEM->Drc < h->Drc*DEM->Drcr) {
+            // h downstream cannot be updated inside parallel loop!
+            // save these values and add later
             if (h->Drcr < h->Drc) {
                 // 1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
                 rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->Drcr, vx->Drcr, vy->Drcr);
@@ -63,22 +74,38 @@ void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
                 double dH = std::min(h->Drc *0.9, flux*dt_req_min/_dx);
 
                 h->Drc -= dH;
-                h->Drcr += dH;
-                Qdiag->Drc = flux;
+                //h->Drcr += dH;
+                tmc->Drcr += dH;
+                //Qdiag->Drc = flux;
 
                 if (SwitchErosion) {
                     double dS = std::min(0.9*SSFlood->Drc, dH*CHAdjDX->Drc*SSCFlood->Drc);
                     SSFlood->Drc -= dS;
-                    SSFlood->Drcr += dS;
+                    //SSFlood->Drcr += dS;
+                    tma->Drcr += dS;
                     if (SwitchUse2Phase) {
                         double dBL = std::min(0.9*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
                         BLFlood->Drc -= dBL;
-                        BLFlood->Drcr += dBL;
+//                        BLFlood->Drcr += dBL;
+                        tmb->Drcr += dBL;
                     }
                 }
             }
         }
     }
+
+    if (doit) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            if (SwitchErosion) {
+                SSFlood->Drc += tma->Drc;
+                if (SwitchUse2Phase)
+                    BLFlood->Drc += tmb->Drc;
+            }
+            h->Drc += tmc->Drc;
+        }}
+    }
+
 }
 //-------------------------------------------------------------------------------------------------
 double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)

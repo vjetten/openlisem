@@ -101,6 +101,7 @@ public:
 
     int genfontsize;
     double dpiscale;
+    long nrValidCells;
 
     QDialog *helpbox;
     QTextEdit *helptxt;
@@ -209,6 +210,7 @@ public:
     QString E_WorkDir;
 
     QVector<double> mapData;
+    QVector<double> RGBData;
     QwtInterval legend;
     QwtScaleWidget *rightAxis;
     QwtPlotRescaler *mapRescaler;
@@ -323,7 +325,7 @@ public:
     void resetTabSediment();
     void doCheckRainfall(bool);
 
-    void setSedimentText(int i, int j, int k);
+ //   void setSedimentText(int i, int j, int k);
 
 public slots:
     // functions linked to actions
@@ -383,10 +385,10 @@ public slots:
     void on_checkSed2Phase_toggled(bool v);
     void on_checkSedMultiGrain_toggled(bool v);
 
-    void on_E_RBLMethod_valueChanged(int);
-    void on_E_RSSMethod_valueChanged(int);
-    void on_E_BLMethod_valueChanged(int);
-    void on_E_SSMethod_valueChanged(int);
+//    void on_E_RBLMethod_valueChanged(int);
+//    void on_E_RSSMethod_valueChanged(int);
+//    void on_E_BLMethod_valueChanged(int);
+//    void on_E_SSMethod_valueChanged(int);
 
     void on_DisplayComboBox_currentIndexChanged(int);
     void on_DisplayComboBox2_currentIndexChanged(int);

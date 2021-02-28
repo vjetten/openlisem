@@ -77,7 +77,7 @@
 #define MV(r,c) pcr::isMV(LDD->data[r][c])
 #define notMVIn(r,c) (!pcr::isMV(LDD->data[r][c]) && r < _nrRows && c < _nrCols && r >= 0 && c >= 0)
 #define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
-//#define OUTORMV(r, c)  (INSIDE(r,c) && !pcr::isMV(LDD->data[r][c]) ? false : true)
+#define OUTORMV(r, c)  (INSIDE(r,c) && !pcr::isMV(LDD->data[r][c]) ? false : true)
 
 /// shortcut for LDD row and col loop
 #define FOR_ROW_COL_MV for(int r = 0; r < _nrRows; r++)\
@@ -676,7 +676,7 @@ public:
     double GetTotalDW(int r, int c,QList<cTMap *> *M);
     double GetSV(double d);
     void SplashDetachment();
-    void FlowDetachment(int r, int c);
+    void cell_FlowDetachment(int r, int c);
     double MaxConcentration(double watvol, double *sedvol, double *dep);
     void ChannelFlowDetachment();
     void ChannelFlowDetachmentNew();
@@ -723,34 +723,29 @@ public:
     void addRainfallWH();
     /// add net rainfall to WH, WHroads and WHgrass
 
-    void do_Interception(int r, int c);
-    void do_Percolation(int r, int c);
-    void do_InfiltrationGA(int r, int c, double fwh, double SW, double flooddomain);
-    void do_SplashDetachment(int r, int c, double WH);
-
+    void cell_Interception(int r, int c);
+    void cell_Percolation(int r, int c);
+    void cell_SplashDetachment(int r, int c, double WH);
 
     void InfilEffectiveKsat();
     void Infiltration();
     void InfilSwatre();
+    void cell_InfilSwatre(int r, int c);
 
     double IncreaseInfiltrationDepthNew(double fact_, double L, int r, int c);
 
     void SoilWater();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
-    void InfilMethodsNew(int r, int c);
+    void cell_InfilMethods(int r, int c);
     void SurfaceStorage();
     void doETa();
     void OverlandFlow();
     void OverlandFlow2D();
     void correctWH(cTMap *_WH);
 
-    void do_1D_All();
-
     void OverlandFlow1D(void);
-
     void ChannelFlow();
 
-    double ChannelIterateWH(double _h, int r, int c);
     void ChannelAddBaseandRain();
     void ChannelWaterHeightFromVolume();
     void ToChannel(int r, int c);
@@ -776,7 +771,6 @@ public:
     bool ExtendChannelNew();
     bool IsExtendedChannel(int r, int c, int dr, int dc);
     void DistributeOverExtendedChannel(cTMap * _In, cTMap * _Out);
-    bool OUTORMVc(int r, int c);  // replaced by define
 
     void InitFlowBarriers(void);
     double DEMFB(int r, int c, int rd, int cd, bool addwh);
@@ -794,25 +788,20 @@ public:
     void ChannelOverflowNew(cTMap *_h, cTMap *_V, bool doOF);
 
     double courant_factor;
-    double courant_factor_diffusive;
-    double courant_factor_sed;
     double mixing_coefficient, runoff_partitioning;
     double minReportFloodHeight;
     void correctMassBalance(double sum1, cTMap *M, double th);
     void correctMassBalanceSed(double sum1, cTMap *M, double th);
     double getMass(cTMap *M, double th);
     double getMassSed(cTMap *M, double th);
-    void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
-                   cTMap *_Q, cTMap *_Qn,
-                   cTMap *_q, cTMap *_Alpha, cTMap *_DX,
-                   cTMap *_Vol);
+    void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha, cTMap *_DX, cTMap *_Vol);
     double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double maxQ);
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
     void KinematicExplicit(QVector<LDD_COORIN> _crlinked, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
     void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
-/*  LDD_COOR *_crlinked_*/
-    QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
 
+    //LDD_COOR *_crlinked_
+    QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
 
     void do_CellProcesses();
 
@@ -841,7 +830,7 @@ public:
     int tnode; //VJ 110122 node nr in profile with tile drains
 
     SOIL_MODEL *InitSwatre(cTMap *profileMap);//, QString initHeadMaps, cTMap *tiledepthMap, double dtMin);
-    void SwatreStep(int step, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta, cTMap *where);
+    void SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta);//, cTMap *where);
     void CloseSwatre(SOIL_MODEL *s);
     void FreeSwatreInfo(void);
     //VJ 111104 old stuff, no longer used but kept for now

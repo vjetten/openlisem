@@ -391,10 +391,10 @@ void lisemqt::ParseInputData()
                 checkUnits_kgm2->setChecked(true);
         }
 
-        setSedimentText(E_BLMethod->value(), 1, 0);
-        setSedimentText(E_SSMethod->value(), 1, 1);
-        setSedimentText(E_RBLMethod->value(), 0, 0);
-        setSedimentText(E_RSSMethod->value(), 0, 1);
+//        setSedimentText(E_BLMethod->value(), 1, 0);
+//        setSedimentText(E_SSMethod->value(), 1, 1);
+//        setSedimentText(E_RBLMethod->value(), 0, 0);
+//        setSedimentText(E_RSSMethod->value(), 0, 1);
 
         if (p1.compare("OutRunoff")==0)         checkBox_OutRunoff->setChecked(check);
         if (p1.compare("OutWH")==0)             checkBox_OutWH->setChecked(check);

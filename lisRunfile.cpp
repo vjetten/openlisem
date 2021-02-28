@@ -114,7 +114,7 @@ QString TWorld::CheckDir(QString p, bool makeit)
     path = QDir(p).fromNativeSeparators(p);
     path = QDir(path).absoluteFilePath(path);
 
-    if (!path.endsWith("/") || !path.endsWith("\\"))
+    if (!path.endsWith("/") && !path.endsWith("\\"))
         path = path + '/';
 
     if (!QDir(path).exists())
@@ -332,8 +332,10 @@ void TWorld::ParseRunfileData(void)
         QString p = runnamelist[j].value;
 
         // input ourput dirs and file names
-        if (p1.compare("Map Directory")==0)
+        if (p1.compare("Map Directory")==0) {
             inputDir=CheckDir(p);
+            qDebug() << p << inputDir;
+        }
     }
     // start again and do the rest of the variables, map names etc.
     // choice of options in first loop determines what happens in this loop

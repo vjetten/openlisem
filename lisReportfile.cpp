@@ -1489,8 +1489,8 @@ void TWorld::GetComboMaps()
 
     setColor(3);
     AddComboMap(0,"Water Height","m",hmxWH,Colormap,Colors,false,false,1.0,0.01);
-    if (Switch2DDiagonalFlow)
-       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,Colormap,Colors,false,false,1.0, 0.01);
+//    if (Switch2DDiagonalFlow)
+//       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,Colormap,Colors,false,false,1.0, 0.01);
     setColor(2);
     AddComboMap(0,"Flow Velocity","m/s",V /*COMBO_VOFCH*/,Colormap,Colors,false,false,1.0, 0.01);
     AddComboMap(0,"Flow Momentum","m2/s",VH,Colormap,Colors,false,false,1.0, 0.01); //VH

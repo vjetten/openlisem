@@ -12,7 +12,7 @@
 <li>SWOF 2.0: Simplified and very fast SWOF solution, using cell center values and a flux limiter only for the hydraulic pressure differences.</li>
 <li>Cell centred solution (0): Water pressure and velocities on cell boundaries based on a 1st order taylor solution, only using information in the cell itself. Faster but less accurate.<br /> MUSCL solution (1): Water pressure and velocities on cell boundaries based on a 2st order taylor solution, using information nin the cell and neighbours in X and Y direction. Slower and more accurate.</li>
 <li>Time average velocity: Velocity of cells is a weighted average between two iteration steps (def on).</li>
-<li>Enable diagonal flow when blocked: water can be blocked in X and Y direction in 2D flow (pit), while a diagonal outlet exists. Enabling uses the LDD to transport water and sediment to this diagonal cell  (def on).</li>
+<li>Enable diagonal flow when blocked: water can be blocked in X and Y direction in 2D flow (pit), while a diagonal outlet exists. Enabling uses the LDD to transport water and sediment to this diagonal cell  (def on). The thershold pit depth is set at 0.1m (a guide value is 1% is the cell size).</li>
 </ul>
 <p>Courant factor: Determines minimum timstep, lower means smaller timesteps in the iteration are used. (def. 0.2, range 0.01-1.0).</p>
 <p>Minimum timestep: User defined minimum timestep for dynamic wave solution. In case of instability lower this value (def. 0.2sec).</p>
