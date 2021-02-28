@@ -21232,13 +21232,6 @@ p, li { white-space: pre-wrap; }
                   <property name="bottomMargin">
                    <number>0</number>
                   </property>
-                  <item>
-                   <widget class="QSlider" name="horizontalSlider">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
                  </layout>
                 </widget>
                </item>
