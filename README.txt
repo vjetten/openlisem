@@ -6,13 +6,15 @@ Date: 201201
 For questions contact v.g.jetten AD utwente.nl
 
 NOTE: only a 64bit version exists, 32 bit is not supported
-NOTE: The code since version 5.6 is compilable under linux Ubuntu
+NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu)
 NOTE: since version 6 it is fully parallel and developed with MSYS2.0, and openmp
 
 version 6.5-6.6
-- SWOF sediment fully parallel computing
-- minimize nr loops
-- Diagonal flow with SWOF
+- SWOF sediment changed fully parallel computing
+- maximize parallel comnputing efficiency in all processes
+- Diagonal (LDD) flow with SWOF when pit in X or Y dircetion using user defined pit threshold
+- icon changes
+- NOTE Swatre has not been checked for a while
 
 version 6.2-6.4
 - bug fixing in sediment
@@ -22,7 +24,7 @@ version 6.2-6.4
 - further openMP related optimizations
 
 version 6.1 BETA (warning: new dlls, do NOT mix with pre 6.0 versions)
-- fixed bug in getting values from Riemann solver. This was solved befor but reappeared!
+- fixed bug in getting values from Riemann solver. This was solved before but reappeared!
 - SAFEST choice for flood modelling is the SWOF without or with MUSCL. SWOF 2.0 is experimental 
 
 version 6.0 BETA (warning: new dlls, do NOT mix with older versions)

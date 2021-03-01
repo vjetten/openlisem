@@ -15,35 +15,17 @@ has to be present in a subdirectory "platforms".
 
 2) Terms of use 
 ===============
-This software is free and open source, hosted by  sourceforge.net. The project 
-details can be found on:  https://sourceforge.net/projects/lisem/
+This software is free and open source (GNU v3), hosted by  sourceforge.net. The project 
+details can be found on:  https://sourceforge.net/projects/lisem/ or https://github.com/vjetten/openlisem 
+copyright details are given in the file "COPYRIGHT" in this repository
 
-Part of the code is based on the open source project FULLSWOF of the univcersity of Orleans. 
+Part of the code is based on the open source project FULLSWOF of the university of Orleans. 
 For details see: https://www.idpoisson.fr/fullswof/
 
 
-3)  openLISEM source code development is done with QT and MSYS/MINGW (sibnce version 6.0).
-
-For pacman commands see here: https://devhints.io/pacman 
-
-Follow this installation guide https://wiki.qt.io/MSYS2, basically:
-pacman -Sy
-pacman --needed -S bash pacman pacman-mirrors msys2-runtime
-pacman -Su
-pacman -S base-devel git mercurial cvs wget p7zip
-pacman -S perl ruby python2 mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain
-pacman -S mingw-w64-i686-qt-creator mingw-w64-x86_64-qt-creator
-
-download and install the following packages:
-
-pacman -S mingw-w64-x86_64-openmp
-pacman -S mingw-w64-x86_64-qwt
-pacman -S mingw-w64-x86_64-gdal
-pacman -S mingw-w64-x86_64-clang
-
 good luck
 Victor Jetten
-v.g.jetten@utwente.nl
+v.g.jetten AD utwente.nl
 
 
 
