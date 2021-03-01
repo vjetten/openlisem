@@ -42,6 +42,10 @@
         <file>2X/map2XBW.png</file>
         <file>2X/noscreen.png</file>
         <file>2X/map2XBWa.png</file>
+        <file>../COPYRIGHT</file>
+        <file>../INSTALL</file>
+        <file>../compile lisem windows 210301.txt</file>
+        <file>../ubuntu compile.txt</file>
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>
