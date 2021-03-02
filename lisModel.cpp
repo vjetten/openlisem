@@ -102,7 +102,7 @@ void TWorld::saveMBerror2file(bool doError, bool start)
 // the actual model with the main loop
 void TWorld::DoModel()
 {
-    if (!noInterface)
+    if (!op.doBatchmode)
         temprunname = QString(op.LisemDir+"openlisemtmp.run");
     else
         temprunname = op.runfilename;
@@ -122,8 +122,9 @@ void TWorld::DoModel()
     try
     {
         DEBUG("reading and initializing data");
-        IntializeOptions();
-        // set all to 0 and false
+
+        IntializeOptions(); // reset all options
+
         InitMapList();
         // map structure to destroy data automatically
 
@@ -132,7 +133,6 @@ void TWorld::DoModel()
         DEBUG("ParseRunfileData()");
         ParseRunfileData();
         // get and parse runfile
-        qDebug() << InfilMethod <<  SwitchImpermeable << SwitchTwoLayer;
 
         BeginTime = getvaluedouble("Begin time") * 60;
         EndTime = getvaluedouble("End time") * 60;
@@ -272,7 +272,6 @@ void TWorld::CellProcesses()
 
     addRainfallWH();       // adds rainfall to runoff water height or flood water height
 
-    qDebug() << InfilMethod <<  SwitchImpermeable << SwitchTwoLayer;
     Infiltration();        // infil of overland flow/flood water, decrease WH
 
     SoilWater();           // simple soil water balance, percolation from lower boundary

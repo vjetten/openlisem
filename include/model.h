@@ -125,8 +125,8 @@
     if(!pcr::isMV(LDDTile->data[r][c]))
 
 #define NRUNITS 512  /// \def max number of landunits or depth classes in flooding
-#define NUMNAMES 2000   /// \def NUMNAMES runfile namelist max
-#define NUMMAPS 1000    /// \def max nr maps
+#define NUMNAMES 512   /// \def NUMNAMES runfile namelist max
+#define NUMMAPS 512    /// \def max nr maps
 #define MIN_FLUX 1e-6 /// \def minimum flux (m3/s) in kinematic wave
 #define MIN_HEIGHT 1e-6 /// \def minimum water height (m) for transport of sediment
 #define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
@@ -135,8 +135,13 @@
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
-#define INFIL_GREENAMPT 2
-#define INFIL_SMITH 3
+#define INFIL_HOLTAN 2
+#define INFIL_GREENAMPT 3
+#define INFIL_GREENAMPT2 4
+#define INFIL_KSAT 5
+#define INFIL_MOREL 21
+#define INFIL_SMITH 22
+#define INFIL_SMITH2 23
 
 #define KE_EXPFUNCTION 0
 #define KE_LOGFUNCTION 1

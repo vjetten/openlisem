@@ -7493,7 +7493,7 @@ p, li { white-space: pre-wrap; }
                      </property>
                      <layout class="QGridLayout" name="gridLayout_52">
                       <item row="0" column="0">
-                       <widget class="QCheckBox" name="checkImpermeable">
+                       <widget class="QCheckBox" name="checkInfilImpermeable">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -7606,7 +7606,7 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="text">
-                         <string>Include crusts (needs additional maps)</string>
+                         <string>Include crusts (needs ksatcrst.map and porecrst.map)</string>
                         </property>
                        </widget>
                       </item>
@@ -7665,7 +7665,7 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="text">
-                         <string>Include compacted areas (needs additional maps)</string>
+                         <string>Include compacted areas (needs ksatcomp.map and porecomp.map)</string>
                         </property>
                        </widget>
                       </item>

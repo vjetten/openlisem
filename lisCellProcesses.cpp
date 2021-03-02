@@ -304,8 +304,8 @@ void TWorld::do_CellProcesses()
         } else {
             hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
         }
-        double RW = RoadWidthHSDX->Drc;
-        if (SwitchRoadsystem && RW > 0) {
+        double RW = RoadWidthDX->Drc;
+        if ((SwitchRoadsystem || SwitchHardsurface) && RW > 0) {
             WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
         }
 

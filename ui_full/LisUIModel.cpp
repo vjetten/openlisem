@@ -52,7 +52,6 @@ void lisemqt::runmodel()
     MPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true);
     MPlot->detachItems(QwtPlotItem::Rtti_PlotMarker, true);
 
-
     startplot = true;
     stopplot = false;
     doHouse = true;
@@ -76,6 +75,10 @@ void lisemqt::runmodel()
     /* TODO if run from commandline this name must exist */
 
     updateModelData();
+    QFile f(QString(op.LisemDir+"openlisemtmp.run"));
+    if (f.exists())
+        f.remove();
+
     savefile(QString(op.LisemDir+"openlisemtmp.run"));
     // save the current settings as a runfile that is read by the model
     // in savefile(string) the runfile is updated with all user options and map names

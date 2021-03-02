@@ -238,7 +238,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Grassstrip Mannings n")==0)           E_GrassStripN->setText(p);
         if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setText(p);
         if (p1.compare("Include crusts")==0)                 checkInfilCrust->setChecked(check);
-        if (p1.compare("Impermeable sublayer")==0)           checkImpermeable->setChecked(check);
+        if (p1.compare("Impermeable sublayer")==0)           checkInfilImpermeable->setChecked(check);
         if (p1.compare("Two layer")==0)                      checkInfil2layer->setChecked(check);
         if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
    //     if (p1.compare("Include percolation")==0)            checkPercolation->setChecked(check);
@@ -605,8 +605,8 @@ void lisemqt::ParseInputData()
             namelist[j].value = fil.fileName();
         }
 
-for (int j = 0; j < nrnamelist; j++)
-    qDebug() << namelist[j].name << namelist[j].value;
+//for (int j = 0; j < nrnamelist; j++)
+//    qDebug() << namelist[j].name << namelist[j].value;
     // fill the mapList structure with all map names fom the runfile
     // if there are new variables that are not in the run file
     // the maplist contains the default names already
@@ -663,7 +663,6 @@ void lisemqt::updateModelData()
     for (int j = 0; j < nrnamelist; j++)
     {
         QString p1 = namelist[j].name;
-       // QString p;
 
         if (p1.compare("Nr user Cores")==0) namelist[j].value.setNum(nrUserCores->value());
         // erosion
@@ -691,17 +690,14 @@ void lisemqt::updateModelData()
         }
         //if (p1.compare("Timestep Kin Wave 2D")==0)           namelist[j].value = E_TimestepMin->text();
         //if (p1.compare("Courant Kin Wave 2D")==0)            namelist[j].value = E_CourantFactorKin->text();
+        //  if (p1.compare("Flooding courant factor diffusive")==0)        namelist[j].value = E_courantFactorSed->text();
+
         if (p1.compare("Flow Boundary 2D")==0)        namelist[j].value = E_FlowBoundary->text();
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
-      //  if (p1.compare("Flooding courant factor diffusive")==0)        namelist[j].value = E_courantFactorSed->text();
         if (p1.compare("Use gravity flow")==0)           namelist[j].value = E_gravityToChannel->text();
         if (p1.compare("Angle flow to channel")==0)      namelist[j].value = E_angleToChannel->text();
-
-
         if (p1.compare("Include diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
-//        if (p1.compare("Include River diffusion")==0)        namelist[j].value.setNum((int)checkRDiffusion->isChecked());
-//        if (p1.compare("River Sigma diffusion")==0)          namelist[j].value = E_RSigmaDiffusion->text();
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
@@ -714,13 +710,10 @@ void lisemqt::updateModelData()
 
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
         if (p1.compare("Timestep flood")==0)           namelist[j].value = E_TimestepMinFlood->text();
-      //  if (p1.compare("Use SWOF 2.0")==0)   namelist[j].value.setNum((int) checkSWOFomp->isChecked());
-      // if (p1.compare("Use MUSCL")==0)   namelist[j].value.setNum((int) checkMuscl->isChecked());
         if (p1.compare("Use time avg V")==0)    namelist[j].value.setNum((int) checkTimeavgV->isChecked());
         if (p1.compare("Use 2D Diagonal flow")==0)               namelist[j].value.setNum((int) check2DDiagonalFlow->isChecked());
 
         if (p1.compare("Use fixed angle")==0)                namelist[j].value.setNum((int) checkFixedAngle->isChecked());
-  //      if (p1.compare("Use Heun")==0)        namelist[j].value.setNum((int) checkHeun->isChecked());
         if (p1.compare("Variable Timestep")==0)        namelist[j].value.setNum((int) checkVariableTimestep->isChecked());
 
         if (p1.compare("Flood solution")==0)
@@ -772,13 +765,10 @@ void lisemqt::updateModelData()
         if (p1.compare("Sediment Trap Mannings n")==0)          namelist[j].value = E_SedTrapN->text();
 
         if (p1.compare("Include crusts")==0)                 namelist[j].value.setNum((int)checkInfilCrust->isChecked());
-        if (p1.compare("Impermeable sublayer")==0)           namelist[j].value.setNum((int)checkImpermeable->isChecked());
-        if (p1.compare("Two layer")==0)                      namelist[j].value.setNum((int)checkInfil2layer->isChecked());
+        if (p1.compare("Impermeable sublayer")==0)          namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
+        if (p1.compare("Two layer")==0)                     namelist[j].value.setNum((int)checkInfil2layer->isChecked());
         //if (p1.compare("Matric head files")==0)              namelist[j].value.setNum((int)checkDumphead->isChecked());
-     //   if (p1.compare("Include percolation")==0)                 namelist[j].value.setNum((int)checkPercolation->isChecked());
         if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());
-     //   if (p1.compare("Timeseries as PCRaster")==0)         namelist[j].value.setNum((int)checkWritePCRnames->isChecked());
-     //   if (p1.compare("Timeseries as CSV")==0)              namelist[j].value.setNum((int)checkWriteCommaDelimited->isChecked());
         if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum(checkWritePCRaster->isChecked() ? 0 : 1);
         if (p1.compare("Report point output separate")==0)   namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
         if (p1.compare("Report digits out")==0)             namelist[j].value = E_DigitsOut->text();

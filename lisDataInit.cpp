@@ -597,7 +597,7 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
     N = ReadMap(LDD,getvaluename("manning"));
     Norg = NewMap(0);
     calcValue(*N, nCalibration, MUL); //VJ 110112 moved
-    copy(*Norg, *N);
+    copy(*Norg, *N); //ed in sed trap... if trap is full loose resistance
     RR = ReadMap(LDD,getvaluename("RR"));
     LAI = ReadMap(LDD,getvaluename("lai"));
     Cover = ReadMap(LDD,getvaluename("cover"));
@@ -651,8 +651,6 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
     {
         RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
         checkMap(*RoadWidthDX, LARGER, _dx, "road width cannot be larger than gridcell size");
-        //        FOR_ROW_COL_MV
-        //            N->Drc = N->Drc * (1-RoadWidthDX->Drc/_dx) + 0.001*RoadWidthDX->Drc/_dx;
     }
     else
         RoadWidthDX = NewMap(0);
@@ -662,8 +660,6 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
         calcValue(*HardSurface, 1.0, MIN);
         calcValue(*HardSurface, 0.0, MAX);
-        //        FOR_ROW_COL_MV
-        //            N->Drc = N->Drc * (1-HardSurface->Drc) + 0.001*HardSurface->Drc;
     }
     else
         HardSurface = NewMap(0);
@@ -672,15 +668,13 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
     FOR_ROW_COL_MV {
         double frac = std::min(1.0,HardSurface->Drc + RoadWidthDX->Drc/_dx);
         RoadWidthHSDX->Drc = std::min(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
-        N->Drc = N->Drc * (1-HardSurface->Drc) + 0.001*frac;
+        N->Drc = N->Drc * (1-frac) + 0.0025*frac;
+//        N->Drc = N->Drc * (1-RoadWidthHSDX->Drc) + 0.0025*frac;
     }
 
     //## infiltration data
     if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
     {
-        SwitchTwoLayer = getvalueint("Two layer") == 0? false : true;
-
-
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);

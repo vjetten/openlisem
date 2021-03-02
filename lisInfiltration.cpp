@@ -53,45 +53,48 @@ void TWorld::InfilEffectiveKsat(void)
     if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
     {
         #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L
-        {
+        FOR_ROW_COL_MV_L {
             Ksateff->Drc = Ksat1->Drc;
             Poreeff->Drc = ThetaS1->Drc;
             Thetaeff->Drc = ThetaI1->Drc;
 
-            if (SwitchInfilCompact)
-                Ksateff->Drc = Ksateff->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
-
-            if (SwitchInfilCrust)
-                Ksateff->Drc = Ksateff->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
-
+            // affected surfaces
             if (SwitchInfilCompact) {
+                Ksateff->Drc = Ksateff->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
                 Poreeff->Drc = Poreeff->Drc*(1-CompactFraction->Drc) + PoreCompact->Drc*CompactFraction->Drc;
-                Thetaeff->Drc = Thetaeff->Drc*(1-CompactFraction->Drc) + ThetaI1->Drc/ThetaS1->Drc*PoreCompact->Drc * CompactFraction->Drc;
             }
+
             if (SwitchInfilCrust) {
+                Ksateff->Drc = Ksateff->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
                 Poreeff->Drc = ThetaS1->Drc*(1-CrustFraction->Drc) + PoreCrust->Drc*CrustFraction->Drc;
-                Thetaeff->Drc = ThetaI1->Drc*(1-CrustFraction->Drc) + ThetaI1->Drc/ThetaS1->Drc*PoreCrust->Drc * CrustFraction->Drc;
             }
+
             if (SwitchGrassStrip) {
                 Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
                 Poreeff->Drc = ThetaS1->Drc*(1-GrassFraction->Drc) + PoreGrass->Drc*GrassFraction->Drc;
-                Thetaeff->Drc = ThetaI1->Drc*(1-GrassFraction->Drc) + ThetaI1->Drc/ThetaS1->Drc *PoreGrass->Drc * GrassFraction->Drc;
             }
 
-            if (SwitchHardsurface) {
-                Ksateff->Drc *= (1-HardSurface->Drc);
-                Poreeff->Drc *= (1-HardSurface->Drc);
-            }
+            // impermeable surfaces
+//            if (SwitchHardsurface) {
+//                Ksateff->Drc *= (1-HardSurface->Drc);
+//                Poreeff->Drc *= (1-HardSurface->Drc);
+//            }
 
             if (SwitchHouses) {
                 Ksateff->Drc *= (1-HouseCover->Drc);
                 Poreeff->Drc *= (1-HouseCover->Drc);
             }
 
+//            if (SwitchRoadsystem) {
+//                Ksateff->Drc *= (1-RoadWidthDX->Drc/_dx);
+//                Poreeff->Drc *= (1-RoadWidthDX->Drc/_dx);
+//            }
+//DO NOT INCLUDE ROADS AND HARDSURF HERE BECUAE SOILWIDTH ALREADY EXCLUDES THOSE (but not houses!)
+
             Ksateff->Drc = std::max(0.0, Ksateff->Drc);
-            Poreeff->Drc = std::max(0.0, Poreeff->Drc);
-            Thetaeff->Drc = std::min(Thetaeff->Drc, Poreeff->Drc);
+            Poreeff->Drc = std::max(0.35, Poreeff->Drc);
+            Thetaeff->Drc = std::min(1.0,Poreeff->Drc/ThetaS1->Drc) * ThetaI1->Drc;
+                    //std::min(Thetaeff->Drc, Poreeff->Drc);
             // prob unneccessary
 
             Ksateff->Drc *= ksatCalibration;
@@ -102,11 +105,11 @@ void TWorld::InfilEffectiveKsat(void)
             else
                 bca->Drc = 5.55*qPow(Ksateff->Drc,-0.114);
             // percolation coefficient
-
-        }
-    }}
-//report(*Ksateff,"kse.map");
-//report(*Poreeff,"poree.map");
+        }}
+    }
+report(*Ksateff,"ksateff1.map");
+report(*Poreeff,"poreeff1.map");
+report(*Thetaeff,"thetaeff1.map");
 }
 //---------------------------------------------------------------------------
 /*!
@@ -456,8 +459,8 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
         if (L < SoilDep1) {
             // still in first layer
             L = L + fact_in/std::max(0.01,dtheta1);
-            if (r == 258 && c == 630)
-            qDebug() << "1st layer" << r << c << L;
+//if (r == 258 && c == 630)
+//    qDebug() << "1st layer" << r << c << L;
 
             if (L > SoilDep1) {
                 // moving into second layer
@@ -470,8 +473,8 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
         } else {
             // already in 2nd layer
             L = L + fact_in/std::max(0.01,dtheta2);
-            if (r == 258 && c == 630)
-qDebug() << "2nd layer" << r << c << L;
+//if (r == 258 && c == 630)
+//qDebug() << "2nd layer" << r << c << L;
             if (L > SoilDep2) {
                 fact_out = (SoilDep2 - Lw->Drc) * dtheta2;
                 L = SoilDep2;
@@ -482,8 +485,8 @@ qDebug() << "2nd layer" << r << c << L;
 
         // moving from layer 1 to 2
         if (passing) {
-            if (r == 258 && c == 630)
-qDebug() << "passing" << r << c << L;
+//if (r == 258 && c == 630)
+//qDebug() << "passing" << r << c << L;
             L = SoilDep1 + dfact2/std::max(0.01,dtheta2); // increase L with remaining fact
 
             if (L > SoilDep2) {
@@ -493,8 +496,8 @@ qDebug() << "passing" << r << c << L;
         } else {
             fact_out = fact_in;
         }
-        if (r == 258 && c == 630)
-qDebug() << "return" << r << c << L << fact_in << fact_out << SoilDep1 << SoilDep2;
+//if (r == 258 && c == 630)
+//qDebug() << "return" << r << c << L << fact_in << fact_out << SoilDep1 << SoilDep2;
         Lw->Drc = L;
         return fact_out;
 
@@ -551,6 +554,7 @@ void TWorld::cell_InfilMethods(int r, int c)
         if (FloodDomain->Drc == 0) {
             fwh = WH->Drc; //runoff
             SW = SoilWidthDX->Drc; //runoff
+            // hard surf are already in ksaeff, so infil is affected
         } else {
             fwh = hmx->Drc; // flood
             SW = ChannelAdj->Drc;
@@ -563,7 +567,7 @@ void TWorld::cell_InfilMethods(int r, int c)
             // if wetting front in second layer set those vars
             if (Lw->Drc > SoilDep1)
             {
-                Ks = std::min(Ksateff->Drc, Ksat2->Drc*_dt/3600000.0);
+                Ks = std::min(Ks, Ksat2->Drc*_dt/3600000.0);
                 // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
                 Psi = Psi2->Drc/100;
             }

@@ -103,7 +103,7 @@ void lisemqt::DefaultMapnames()
 
     DEFmaps.append("1;Special surfaces");
     DEFmaps.append("2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst");
-    DEFmaps.append("2;Porosity Crust;porecrust.map;Porosity of crusted areas (all models except SWATRE) (-);porecrst");
+    DEFmaps.append("2;Porosity Crust;porecrst.map;Porosity of crusted areas (all models except SWATRE) (-);porecrst");
     DEFmaps.append("2;Ksat Compact;ksatcomp.map;Ksat of compacted areas (all models except SWATRE) (mm/h);ksatcomp");
     DEFmaps.append("2;Porosity Compact;porecomp.map;Porosity of compacted areas (all models except SWATRE) (-);porecomp");
 //    DEFmaps.append("2;Initial moisture Crust;thetacrust.map;Initial moisture content of crusted areas (all models except SWATRE) (-);thetacrst");

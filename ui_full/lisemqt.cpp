@@ -1838,8 +1838,7 @@ void lisemqt::resetAll()
     checkInfilCompact->setChecked(false);
     checkInfilCrust->setChecked(false);
     checkInfil2layer->setChecked(false);
-    checkImpermeable->setChecked(false);
-    //checkPercolation->setChecked(true);
+    checkInfilImpermeable->setChecked(false);
     checkIncludeTiledrains->setChecked(false);
     checkGeometric->setChecked(true);
     E_SWATREDtsecFraction->setValue(0.2);

@@ -123,7 +123,7 @@ QString TWorld::CheckDir(QString p, bool makeit)
         {
             QDir(path).mkpath(path);
             DEBUG("NOTE: Result dir created !");
-            qDebug() << "NOTE: Result dir created !";
+            //qDebug() << "NOTE: Result dir created !";
         }
         else
             path.clear();
@@ -171,6 +171,7 @@ void TWorld::ParseRunfileData(void)
         int iii = runnamelist[j].value.toInt();
         QString p1 = runnamelist[j].name;
         QString p = runnamelist[j].value;
+       // qDebug() << p1 << p << iii;
         //options in the main code, order is not important
         if (p1.compare("Include Erosion simulation")==0)        SwitchErosion =          iii == 1;
         if (p1.compare("Include main channels")==0)             SwitchIncludeChannel =   iii == 1;
@@ -179,8 +180,6 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
 
         if (p1.compare("Variable Timestep")==0)                 SwitchVariableTimestep = iii == 1;
-        if (p1.compare("Use SWOF 2.0")==0)                      SwitchSWOFopen = iii == 1;
-        if (p1.compare("Use MUSCL")==0)                         SwitchMUSCL = iii == 1;
         if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
 
         if (p1.compare("Use 2D Diagonal flow")==0)              Switch2DDiagonalFlow = iii == 1;
@@ -220,11 +219,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include compacted")==0)                 SwitchInfilCompact =     iii == 1;
         if (p1.compare("Include grass strips")==0)              SwitchGrassStrip =       iii == 1;
         if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =       iii == 1;
-        if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =      iii == 1;
-//        if (p1.compare("Two layer")==0)                        {
-//         qDebug() << iii;
-//            SwitchTwoLayer =         iii == 1;
-//        }
+        if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable = iii == 1;
+        if (p1.compare("Two layer")==0)                         SwitchTwoLayer =         iii == 1;
 
         if (p1.compare("Matric head files")==0)                 SwitchDumphead =         iii == 1;
         if (p1.compare("Geometric mean Ksat")==0)               SwitchGeometric =        iii == 1;
@@ -288,14 +284,24 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OutSedBL")==0)          SwitchOutSedBL = iii == 1;
 
         if (p1.compare("Erosion map units (0/1/2)")==0)  ErosionUnits = iii;
-//qDebug() << j << runnamelist[j].name << runnamelist[j].value;
     }// first loop of runnamelist
-qDebug() << SwitchImpermeable << SwitchTwoLayer;
+
     //##########################
 
     InfilMethod = getvalueint("Infil Method");
+    if (InfilMethod == INFIL_GREENAMPT2) InfilMethod = INFIL_GREENAMPT;
+    if (InfilMethod == INFIL_SMITH2) InfilMethod = INFIL_SMITH;
+    //deal with old runfil pre 6.6
 
-
+//#define INFIL_NONE 0
+//#define INFIL_SWATRE 1
+//#define INFIL_HOLTAN 2
+//#define INFIL_GREENAMPT 3
+//#define INFIL_GREENAMPT2 4
+//#define INFIL_KSAT 5
+//#define INFIL_MOREL 21
+//#define INFIL_SMITH 22
+//#define INFIL_SMITH2 23
     //SwitchUserCores = userCores > 0;
     //qDebug() << userCores;
 
@@ -423,15 +429,12 @@ qDebug() << SwitchImpermeable << SwitchTwoLayer;
                 totalChanDepositionFileName = checkOutputMapName(p, "Channel deposition map",0);
         }
 
-        //        if(SwitchChannelFlood)
-        //        {
         if (p1.compare("Flood time map")==0)
             floodTimeFileName = checkOutputMapName(p, "flood time map",0);
         if (p1.compare("Flood stats")==0)
             floodStatsFileName =  p = checkOutputMapName(p, "flood statistics file",1);
         if (p1.compare("Flood start time")==0)
             floodFEWFileName =  p = checkOutputMapName(p, "flood start time",0);
-        //        }
 
     }
 
@@ -473,7 +476,7 @@ qDebug() << SwitchImpermeable << SwitchTwoLayer;
 }
 //------------------------------------------------------------------------------
 void TWorld::GetRunFile(void)
-{
+{    
     QFile fin(temprunname);
 
     if (!fin.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -499,7 +502,6 @@ void TWorld::GetRunFile(void)
                 QStringList SL = S.split(QRegExp("="));
                 runnamelist[nrrunnamelist].name = SL[0].trimmed();
                 runnamelist[nrrunnamelist].value = SL[1].trimmed();
-//qDebug() << SL;
                 nrrunnamelist++;
             }
         }
