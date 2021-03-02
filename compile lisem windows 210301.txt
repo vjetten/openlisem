@@ -45,7 +45,16 @@ open cmake-gui. The first line should piint to the folder 'lisem' the second lin
 press configure, choose "codeblocks - MingW makefiles" 
 
 Open Qtcreator and load the file "CMakeList.txt" in the folder lisem
-You should be able to compile now
+
+find Aplicattion.cmake and change:
+IF(WIN32)
+ SET(QWT_BUILD_DIR "c:\\qt\\msys64\\mingw64")
+ SET(GDAL_BUILD_DIR "c:\\qt\\msys64\\mingw64")
+ENDIF()
+
+to the path wehre you have instaled msys64
+
+You should be able to compile now...
 
 best of luck!
 Victor Jetten

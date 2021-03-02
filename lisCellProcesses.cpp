@@ -36,6 +36,7 @@ void TWorld::cell_Percolation(int r, int c)
     if(SwitchTwoLayer) {
         pore = ThetaS2->Drc;
         thetar = 0.025 * pore;
+        theta_E = 0;
         theta = ThetaI2->Drc;
         double SoilDep2 = SoilDepth2->Drc;
 
@@ -350,5 +351,7 @@ void TWorld::do_CellProcesses()
         }
 
     }}
+report(*Lw, "lw");
+
 }
 

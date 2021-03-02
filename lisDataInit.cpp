@@ -678,6 +678,9 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
     //## infiltration data
     if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
     {
+        SwitchTwoLayer = getvalueint("Two layer") == 0? false : true;
+
+
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
@@ -2334,48 +2337,78 @@ void TWorld::IntializeOptions(void)
     resultFileName.clear();
     totalSeriesFileName.clear();
 
+    SwitchUserCores = false;
+
+    SwitchImage = false;
+    SwitchResultDatetime = false;
+    SwitchVariableTimestep = false;
+    SwitchWriteCommaDelimited = true;
+    SwitchWritePCRtimeplot = false;
+    SwitchOutputTimeStep = false;
+    SwitchOutputTimeUser = false;
+    SwitchSeparateOutput = false;
+    SwitchPCRoutput = false;
+    SwitchWriteHeaders = true; // write headers in output files in first timestep
+    SwitchEndRun = false;
+
+    SwitchAdvancedOptions = false;
+
+    SwitchRainfall = true;
+    SwitchSnowmelt = false;
+    SwitchRoadsystem = false;
+    SwitchHouses = false;
+    SwitchRaindrum = false;
+
+    SwitchInterceptionLAI = false;
+    SwitchLitter = false;
+
+    SwitchLinkedList = false;
+    SwitchChannelKinWave = true;
+    SwitchTimeavgV = true;
+    Switch2DDiagonalFlow = true;
+    SwitchSWOFopen = true;
+    SwitchMUSCL = false;
+    SwitchFloodInitial = false;
+    SwitchFlowBarriers = false;
+    SwitchBuffers = false;
+    SwitchHeun = false;
+    SwitchFixedAngle = false;
+
+    SwitchErosion = false;
     SwitchUse2Phase = false;
     SwitchUseGrainSizeDistribution = false;
     SwitchReadGrainSizeDistribution = false;
-    SwitchHardsurface = false;
-    SwitchInfilGA2 = false;
-    SwitchCompactPresent = false;
+    SwitchSedtrap = false;
+    SwitchMulticlass = false;
+    SwitchEfficiencyDET = 1;
+    SwitchKETimebased = false;
+    SwitchIncludeDiffusion = false;
+    SwitchIncludeRiverDiffusion = false;
+
     SwitchIncludeChannel = false;
-    SwitchCulverts = false;
     SwitchChannelBaseflow = false;
     SwitchChannelInfil = false;
-    SwitchErosion = false;
-    Switch2DDiagonalFlow = true;
-    SwitchSedtrap = false;
-    SwitchRainfall = true; //VL 110103 add rainfall default true
-    SwitchSnowmelt = false;
+    SwitchCulverts = false;
+    SwitchIncludeTile = false;
+    SwitchIncludeStormDrains = false;
+
+    SwitchHardsurface = false;
     SwitchInfilCompact = false;
     SwitchInfilCrust = false;
     SwitchGrassStrip = false;
-    SwitchImpermeable = false;
     SwitchDumphead = false;
-    SwitchMulticlass = false;
-    SwitchNutrients = false;
-    SwitchOutputTimeStep = false;
-    SwitchOutputTimeUser = false;
-    SwitchEfficiencyDET = 1;
-    SwitchWriteCommaDelimited = true;
-    SwitchWritePCRtimeplot = false;
-    SwitchDrainage = false;
-    SwitchPestout = false;
-    SwitchSeparateOutput = false;
-    SwitchInterceptionLAI = false;
-    SwitchTwoLayer = false;
-    SwitchPCRoutput = false;
+    initSwatreStructure = false;  // check to flag when swatre 3D structure is created, needed to clean up data
     SwitchGeometric = true;
+    SwitchWaterRepellency = false;
     SwitchImpermeable = false;
-    SwitchPercolation = true;
-    SwitchWriteHeaders = true; // write headers in output files in first timestep
-
-    initSwatreStructure = false;
-    // check to flag when swatre 3D structure is created, needed to clean up data
+    SwitchTwoLayer = false;
+    SwitchDumpH = false;
+    SwitchDumpTheta = false;
+    SwitchDumpK = false;
 
     SwitchPesticide = false;
+    Switchheaderpest = true;
+
 }
 //---------------------------------------------------------------------------
 void TWorld::FindBaseFlow()

@@ -132,6 +132,7 @@ void TWorld::DoModel()
         DEBUG("ParseRunfileData()");
         ParseRunfileData();
         // get and parse runfile
+        qDebug() << InfilMethod <<  SwitchImpermeable << SwitchTwoLayer;
 
         BeginTime = getvaluedouble("Begin time") * 60;
         EndTime = getvaluedouble("End time") * 60;
@@ -205,8 +206,8 @@ void TWorld::DoModel()
 
             //these functions read files, so they can not be multithreaded
 
-        //   CellProcesses();
-            do_CellProcesses();
+           CellProcesses();
+         //   do_CellProcesses();
 
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
@@ -271,7 +272,9 @@ void TWorld::CellProcesses()
 
     addRainfallWH();       // adds rainfall to runoff water height or flood water height
 
+    qDebug() << InfilMethod <<  SwitchImpermeable << SwitchTwoLayer;
     Infiltration();        // infil of overland flow/flood water, decrease WH
+
     SoilWater();           // simple soil water balance, percolation from lower boundary
 
     SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore

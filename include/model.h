@@ -135,13 +135,8 @@
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
-#define INFIL_HOLTAN 2
-#define INFIL_GREENAMPT 3
-#define INFIL_GREENAMPT2 4
-#define INFIL_KSAT 5
-#define INFIL_MOREL 21
-#define INFIL_SMITH 22
-#define INFIL_SMITH2 23
+#define INFIL_GREENAMPT 2
+#define INFIL_SMITH 3
 
 #define KE_EXPFUNCTION 0
 #define KE_LOGFUNCTION 1
@@ -302,14 +297,14 @@ public:
  SwitchGullyInit,SwitchMapoutRunoff, SwitchMapoutConc, SwitchWritePCRnames,SwitchNoErosionOutlet,SwitchSimpleSedKinWave, SwitchSOBEKoutput,
  SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol
  SwitchChannelFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,SwitchRainfallFlood,SwitchLevees,SwitchWatershed,SwitchMinDTfloodMethod,SwitchNeedD90,
- int SwitchFlood1D2DCoupling;
+ int SwitchFlood1D2DCoupling;SwitchPercolation, SwitchInfilGA2, SwitchCompactPresent, SwitchNutrients, SwitchPestout, SwitchDrainage,
 */
 
-    bool SwitchRoadsystem, SwitchHardsurface, SwitchInfilGA2, SwitchCompactPresent, SwitchIncludeChannel, SwitchChannelBaseflow,
+    bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,
     SwitchChannelInfil,  SwitchErosion, SwitchLinkedList,    SwitchSedtrap, SwitchSnowmelt, SwitchRainfall,  SwitchInfilCompact,
-    SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchPercolation, SwitchDumphead, SwitchWaterRepellency,
-    SwitchMulticlass, SwitchNutrients,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
-    SwitchDrainage, SwitchPestout, SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
+    SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
+    SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
+    SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
     SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide,
     SwitchTimeavgV, Switch2DDiagonalFlow, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
@@ -732,7 +727,7 @@ public:
     void InfilSwatre();
     void cell_InfilSwatre(int r, int c);
 
-    double IncreaseInfiltrationDepthNew(double fact_, double L, int r, int c);
+    double IncreaseInfiltrationDepthNew(double fact_, int r, int c);
 
     void SoilWater();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);

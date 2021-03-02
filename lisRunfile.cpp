@@ -221,8 +221,13 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include grass strips")==0)              SwitchGrassStrip =       iii == 1;
         if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =       iii == 1;
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =      iii == 1;
+//        if (p1.compare("Two layer")==0)                        {
+//         qDebug() << iii;
+//            SwitchTwoLayer =         iii == 1;
+//        }
+
         if (p1.compare("Matric head files")==0)                 SwitchDumphead =         iii == 1;
-        if (p1.compare("Geometric mean Ksat")==0)               SwitchGeometric =    	  iii == 1;
+        if (p1.compare("Geometric mean Ksat")==0)               SwitchGeometric =        iii == 1;
         if (p1.compare("Use Water Repellency")==0)              SwitchWaterRepellency  = iii == 1;
         if (p1.compare("Timeplot as PCRaster")==0) {
             SwitchWritePCRtimeplot = iii == 1;
@@ -231,7 +236,6 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Regular runoff output")==0)             SwitchOutputTimeStep =   iii == 1;
         if (p1.compare("User defined output")==0)               SwitchOutputTimeUser =   iii == 1;
         if (p1.compare("Output interval")==0)                   printinterval = iii;
-        if (p1.compare("Subsoil drainage")==0)                  SwitchDrainage =         iii == 1;
         if (p1.compare("Report point output separate")==0)      SwitchSeparateOutput =   iii == 1;
         if (p1.compare("Report digits out")==0)                 ReportDigitsOut = iii;
         if (p1.compare("Report end run")==0)                    SwitchEndRun = iii == 1;
@@ -284,21 +288,19 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OutSedBL")==0)          SwitchOutSedBL = iii == 1;
 
         if (p1.compare("Erosion map units (0/1/2)")==0)  ErosionUnits = iii;
-
-        InfilMethod = getvalueint("Infil Method");
-
+//qDebug() << j << runnamelist[j].name << runnamelist[j].value;
     }// first loop of runnamelist
-
+qDebug() << SwitchImpermeable << SwitchTwoLayer;
     //##########################
+
+    InfilMethod = getvalueint("Infil Method");
+
 
     //SwitchUserCores = userCores > 0;
     //qDebug() << userCores;
 
     // check a few things
-    if (InfilMethod == INFIL_GREENAMPT2 || InfilMethod == INFIL_SMITH2)
-        SwitchTwoLayer = true;
-    else
-        SwitchTwoLayer = false;
+
     if (InfilMethod == INFIL_SWATRE)
     {
         swatreDT = _dt/10; //getvaluedouble("SWATRE internal minimum timestep");
@@ -307,11 +309,8 @@ void TWorld::ParseRunfileData(void)
         //  initheadName = getvaluename("inithead");
         // only map name is needed, data is read in swatre lib
         //profileName = getname("profile");//?????????????????????
-        // profile map name
+        // profile map name      
     }
-    if (SwitchImpermeable)
-        SwitchPercolation = false;
-    // cannot have both
 
     //SwitchUse2Phase = SwitchAdvancedSed;
     SwitchUseGrainSizeDistribution = (getvalueint("Use grain size distribution") == 1);
@@ -334,7 +333,7 @@ void TWorld::ParseRunfileData(void)
         // input ourput dirs and file names
         if (p1.compare("Map Directory")==0) {
             inputDir=CheckDir(p);
-            qDebug() << p << inputDir;
+            //qDebug() << p << inputDir;
         }
     }
     // start again and do the rest of the variables, map names etc.
@@ -500,7 +499,7 @@ void TWorld::GetRunFile(void)
                 QStringList SL = S.split(QRegExp("="));
                 runnamelist[nrrunnamelist].name = SL[0].trimmed();
                 runnamelist[nrrunnamelist].value = SL[1].trimmed();
-
+//qDebug() << SL;
                 nrrunnamelist++;
             }
         }

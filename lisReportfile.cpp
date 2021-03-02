@@ -1528,7 +1528,7 @@ void TWorld::GetComboMaps()
             AddComboMap(0,"Moisture content 1","-",Thetaeff,Colormap,Colors,false,false,1.0,1.0);
             if (SwitchTwoLayer)
                 AddComboMap(0,"Moisture content 2","-",ThetaI2,Colormap,Colors,false,false,1.0,1.0);
-            if (SwitchPercolation)
+            if (!SwitchImpermeable)
                 AddComboMap(0,"Percolation","mm",PercmmCum,Colormap,Colors,false,false,1.0,1.0);
         }
     }

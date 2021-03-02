@@ -315,7 +315,7 @@ void lisemqt::defaultRunFile()
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Infiltration]");
-    namelist[i].value = QString("3");
+    namelist[i].value = QString("2");  //GA =2
     namelist[i++].name = QString("Infil Method");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include compacted");
@@ -323,7 +323,9 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include crusts");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Impermeable sublayer");
-    namelist[i].value = QString("1");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Two layer");
+//    namelist[i].value = QString("1");
     // obsolete
 //    namelist[i++].name = QString("Include percolation");
 //    namelist[i].value = QString("0");

@@ -63,7 +63,7 @@ void lisemqt::GetRunfile()
     oldRunfile = false;
     saveRunFileOnce=false;
     int i = 0;
-    int found = 0;
+    //int found = 0;
 
     while (!fin.atEnd())
     {
@@ -130,7 +130,6 @@ void lisemqt::ParseInputData()
 {
     int j=0;
     int dummykinwave = 1;
-    bool dummy2layerinfil = false;
     // get all the options/checks
 
     resetAll();
@@ -240,6 +239,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setText(p);
         if (p1.compare("Include crusts")==0)                 checkInfilCrust->setChecked(check);
         if (p1.compare("Impermeable sublayer")==0)           checkImpermeable->setChecked(check);
+        if (p1.compare("Two layer")==0)                      checkInfil2layer->setChecked(check);
         if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
    //     if (p1.compare("Include percolation")==0)            checkPercolation->setChecked(check);
         if (p1.compare("Include flow barriers")==0)          checkFlowBarriers->setChecked(check);
@@ -272,23 +272,8 @@ void lisemqt::ParseInputData()
             case 8 : radioButton_9->setChecked(true); break;
             }
         }       
+        if (p1.compare("Infil Method")==0) E_InfiltrationMethod->setCurrentIndex(iii);
 
-        if (p1.compare("Infil Method")==0 || p1.compare("Method")==0) //<= very old runfile
-        {
-            namelist[j].name = QString("Infil Method");
-            uiInfilMethod = 0;
-            dummy2layerinfil = false;
-            switch(iii) {
-            case INFIL_SWATRE : uiInfilMethod = 1; break;
-            case INFIL_GREENAMPT : uiInfilMethod = 2; break;
-            case INFIL_GREENAMPT2 : uiInfilMethod = 2; dummy2layerinfil = true; break;
-            case INFIL_SMITH : uiInfilMethod = 3; break;
-            case INFIL_SMITH2 : uiInfilMethod = 3;  dummy2layerinfil = true; break;
-            case INFIL_KSAT : uiInfilMethod = 4; break;
-            }
-            E_InfiltrationMethod->setCurrentIndex(uiInfilMethod);
-            checkInfil2layer->setChecked(dummy2layerinfil);
-        }
 
         //VJ 110705 KE equations
         if (p1.compare("KE parameters EQ1")==0)
@@ -620,7 +605,8 @@ void lisemqt::ParseInputData()
             namelist[j].value = fil.fileName();
         }
 
-
+for (int j = 0; j < nrnamelist; j++)
+    qDebug() << namelist[j].name << namelist[j].value;
     // fill the mapList structure with all map names fom the runfile
     // if there are new variables that are not in the run file
     // the maplist contains the default names already
@@ -677,7 +663,7 @@ void lisemqt::updateModelData()
     for (int j = 0; j < nrnamelist; j++)
     {
         QString p1 = namelist[j].name;
-        QString p;
+       // QString p;
 
         if (p1.compare("Nr user Cores")==0) namelist[j].value.setNum(nrUserCores->value());
         // erosion
@@ -787,6 +773,7 @@ void lisemqt::updateModelData()
 
         if (p1.compare("Include crusts")==0)                 namelist[j].value.setNum((int)checkInfilCrust->isChecked());
         if (p1.compare("Impermeable sublayer")==0)           namelist[j].value.setNum((int)checkImpermeable->isChecked());
+        if (p1.compare("Two layer")==0)                      namelist[j].value.setNum((int)checkInfil2layer->isChecked());
         //if (p1.compare("Matric head files")==0)              namelist[j].value.setNum((int)checkDumphead->isChecked());
      //   if (p1.compare("Include percolation")==0)                 namelist[j].value.setNum((int)checkPercolation->isChecked());
         if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());
@@ -917,11 +904,9 @@ void lisemqt::updateModelData()
             {
             case 0 : namelist[j].value.setNum(INFIL_NONE); break;
             case 1 : namelist[j].value.setNum(INFIL_SWATRE);break;
-            case 2 : if(checkInfil2layer->isChecked()) namelist[j].value.setNum(INFIL_GREENAMPT2);
-                else namelist[j].value.setNum(INFIL_GREENAMPT);break;
-            case 3 : if(checkInfil2layer->isChecked()) namelist[j].value.setNum(INFIL_SMITH2);
-                else namelist[j].value.setNum(INFIL_SMITH); break;
-            case 4: namelist[j].value.setNum(INFIL_KSAT); break;
+            case 2 : namelist[j].value.setNum(INFIL_GREENAMPT);break;
+            case 3 : namelist[j].value.setNum(INFIL_SMITH); break;
+//            case 4:  namelist[j].value.setNum(INFIL_KSAT); break;
             }
         }
 

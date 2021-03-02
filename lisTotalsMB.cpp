@@ -129,7 +129,7 @@ void TWorld::Totals(void)
     // used for reporting only
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc + InfilVolFlood->Drc;
+        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc;// + InfilVolFlood->Drc;
         if (SwitchIncludeChannel)
             InfilVolCum->Drc += ChannelInfilVol->Drc;
         InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));
