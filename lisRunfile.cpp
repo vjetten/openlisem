@@ -444,10 +444,31 @@ void TWorld::ParseRunfileData(void)
     }
 
     SwitchResultDatetime = getvalueint("Result datetime") == 1;
+    SwitchOutputTimestamp = getvalueint("Add timestamp") == 1;
+
     if (SwitchResultDatetime) {
         QDir(resultDir).mkpath(QString("res"+op.timeStartRun+"/"));
         resultDir = resultDir + QString("res"+op.timeStartRun+"/");
-    }
+    }       
+
+    totalLandunitFileName = QString("totlandunit.csv");
+
+    if(SwitchOutputTimestamp) {
+        QString name = QFileInfo(resultFileName).baseName()+"-"+op.timeStartRun+"."+QFileInfo(resultFileName).suffix();
+        resultFileName = name;
+
+        name = QFileInfo(outflowFileName).baseName()+"-"+op.timeStartRun+"."+QFileInfo(outflowFileName).suffix();
+        outflowFileName = name;
+
+        name = QFileInfo(totalSeriesFileName).baseName()+"-"+op.timeStartRun+"."+QFileInfo(totalSeriesFileName).suffix();
+        totalSeriesFileName = name;
+
+        name = QFileInfo(floodStatsFileName).baseName()+"-"+op.timeStartRun+"."+QFileInfo(floodStatsFileName).suffix();
+        floodStatsFileName = name;
+
+        name = QFileInfo(totalLandunitFileName).baseName()+"-"+op.timeStartRun+".csv";
+        totalLandunitFileName = name;
+   }
 
     Outrunoff = "ro";
     Outconc   = "conc";

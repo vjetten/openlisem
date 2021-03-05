@@ -107,12 +107,10 @@ void TWorld::DoModel()
     else
         temprunname = op.runfilename;
 
-    timestampRun = QDateTime().currentDateTime().toString("yy.MM.dd-hh.mm");
-
     mapFormat = "PCRaster";
 
-    errorFileName = QString(resultDir + "error"+ timestampRun +".txt");
-    errorSedFileName = QString(resultDir + "errorsed"+ timestampRun +".txt");
+    errorFileName = QString(resultDir + "error-"+ op.timeStartRun +".txt");
+    errorSedFileName = QString(resultDir + "errorsed-"+ op.timeStartRun +".txt");
     time_ms.start();
     // get time to calc run length
     startTime=omp_get_wtime()/60.0;
@@ -176,7 +174,7 @@ void TWorld::DoModel()
         DEBUG("setupHydrographData()");
         setupHydrographData();
 
-        bool saveMBerror = true;
+        bool saveMBerror = false;
         saveMBerror2file(saveMBerror, true);
 
         InfilEffectiveKsat();  // calc effective ksat from all surfaces once

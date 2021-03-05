@@ -97,7 +97,7 @@ void TWorld::InfilEffectiveKsat(void)
                     //std::min(Thetaeff->Drc, Poreeff->Drc);
             // prob unneccessary
 
-            Ksateff->Drc *= ksatCalibration;
+          //  Ksateff->Drc *= ksatCalibration;
             // apply runfile/iface calibration factor
 
             if(SwitchTwoLayer)
@@ -441,68 +441,59 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
 {
     double dtheta1 = Poreeff->Drc-Thetaeff->Drc; // space in the top layer
     double L = Lw->Drc;
+    double SoilDep1 = SoilDepth1->Drc;
+    double Lp = L;
     double fact_out = 0;
     bool passing = false;
-    double SoilDep1 = SoilDepth1->Drc;
 
-    if (SwitchTwoLayer && L < SoilDepth2->Drc) {
+    if (SwitchTwoLayer) {
 
         double SoilDep2 = SoilDepth2->Drc;
+        double SoilLayer2 = SoilDep2 - SoilDep1;
         double dtheta2 = ThetaS2->Drc-ThetaI2->Drc;
-        double dfact1 = 0, dfact2 = 0;
+        double dfact1 = SoilDep1*dtheta1;
+        double dfact2 = 0;
 
         if (SwitchImpermeable && L > SoilDep2 - 1e-6) {
             Lw->Drc = SoilDep2;
             return 0;
-        }
+        }                
 
         if (L < SoilDep1) {
-            // still in first layer
-            L = L + fact_in/std::max(0.01,dtheta1);
-//if (r == 258 && c == 630)
-//    qDebug() << "1st layer" << r << c << L;
-
-            if (L > SoilDep1) {
-                // moving into second layer
-                dfact1 = (SoilDep1 - Lw->Drc) * dtheta1;
-                dfact2 = fact_in - dfact1; // remaining going into layer 2
+            if(fact_in > dfact1) {
                 passing = true;
+                dfact2 = fact_in - dfact1;
             } else {
+                // still in SD1
+                L = L + fact_in/std::max(0.01,dtheta1);
+                Lw->Drc = L;
                 fact_out = fact_in;
             }
         } else {
-            // already in 2nd layer
+            //L already in layer 2
             L = L + fact_in/std::max(0.01,dtheta2);
-//if (r == 258 && c == 630)
-//qDebug() << "2nd layer" << r << c << L;
             if (L > SoilDep2) {
-                fact_out = (SoilDep2 - Lw->Drc) * dtheta2;
+                fact_out = (SoilLayer2 - Lp) * dtheta2;
                 L = SoilDep2;
-            } else {
-                fact_out = fact_in;
-            }
-        }       
+            } else
+                fact_out = fact_in; // everything fitted
+            Lw->Drc = L;
+        }
 
-        // moving from layer 1 to 2
         if (passing) {
-//if (r == 258 && c == 630)
-//qDebug() << "passing" << r << c << L;
             L = SoilDep1 + dfact2/std::max(0.01,dtheta2); // increase L with remaining fact
 
             if (L > SoilDep2) {
-                fact_out = dfact1 + (SoilDep2 - Lw->Drc) * dtheta2;
+                fact_out = (SoilLayer2 - Lp) * dtheta2;
                 L = SoilDep2;
-            }
-        } else {
-            fact_out = fact_in;
+            } else
+                fact_out = fact_in; // verything fitted
+            Lw->Drc = L;
         }
-//if (r == 258 && c == 630)
-//qDebug() << "return" << r << c << L << fact_in << fact_out << SoilDep1 << SoilDep2;
-        Lw->Drc = L;
-        return fact_out;
 
+        return fact_out;
     } else {
-        //single layer
+//single layer
         if (SwitchImpermeable && L > SoilDep1 - 1e-6) {
             Lw->Drc = SoilDep1;
             return 0;
@@ -512,13 +503,12 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
             // not full
             L = L + fact_in/std::max(0.01,dtheta1); // increase wetting front
             if (L > SoilDep1) {
-                fact_out = (SoilDep1 - Lw->Drc) * dtheta1;
+                fact_out = (SoilDep1 - Lp) * dtheta1;
                 L = SoilDep1;
-            } else {
+            } else
                 fact_out = fact_in;
-            }
+            Lw->Drc = L;
         }
-        Lw->Drc = L;
         return fact_out;
     }
 

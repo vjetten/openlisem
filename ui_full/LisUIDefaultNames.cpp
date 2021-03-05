@@ -204,8 +204,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Filename point output");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Report point output separate");
-//    namelist[i].value = QString("1");
-//    namelist[i++].name = QString("Timeplot as CSV");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Add timestamp");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Timeplot as PCRaster");
     namelist[i].value = QString("3");

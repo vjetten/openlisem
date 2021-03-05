@@ -35,7 +35,7 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define VERSIONNR "6.61 beta"
+#define VERSIONNR "6.62 beta"
 #define DATE "2021/03/01"
 
 

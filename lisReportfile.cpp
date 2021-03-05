@@ -1039,7 +1039,7 @@ void TWorld::ReportLandunits(void)
 
 
     QString name;
-    name = resultDir + QFileInfo(totalLandunitFileName).baseName()+timestampRun+".csv";
+    name = resultDir + QFileInfo(totalLandunitFileName).baseName()+"-"+op.timeStartRun+".csv";
     QFile fout(name);
     fout.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream out(&fout);
@@ -1099,9 +1099,7 @@ void TWorld::ChannelFloodStatistics(void)
         }
     }}
 
-    QString name;
-    name = resultDir + QFileInfo(floodStatsFileName).baseName()+timestampRun+".csv";
-    QFile fp(name);
+    QFile fp(resultDir + floodStatsFileName);
     if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
@@ -1523,6 +1521,7 @@ void TWorld::GetComboMaps()
         setColor(4);
         AddComboMap(0,"Interception","mm",InterceptionmmCum,Colormap,Colors,false,false,1.0,1.0);
         AddComboMap(0,"Infiltration","mm",InfilmmCum,Colormap,Colors,false,false,1.0,1.0);
+        AddComboMap(0,"Lw","mm",Lw,Colormap,Colors,false,false,1.0,1.0);
 
         if (InfilMethod != INFIL_SWATRE) {
             AddComboMap(0,"Moisture content 1","-",Thetaeff,Colormap,Colors,false,false,1.0,1.0);

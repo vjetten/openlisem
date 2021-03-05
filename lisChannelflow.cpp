@@ -151,8 +151,6 @@ void TWorld::CalcVelDischChannel()
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL  {
         double Perim, Radius, Area;
-        const double beta = 0.6;
-        double beta1 = 1/beta;
         double grad = sqrt(ChannelGrad->Drc);
 
         ChannelFlowWidth->Drc = ChannelWidth->Drc;
@@ -176,16 +174,15 @@ void TWorld::CalcVelDischChannel()
         Radius = (Perim > 0 ? Area/Perim : 0);
 
         if (grad > MIN_SLOPE)
-            ChannelAlpha->Drc = std::pow(ChannelN->Drc/grad * std::pow(Perim, 2.0/3.0),beta);
+            ChannelAlpha->Drc = std::pow(ChannelN->Drc/grad * std::pow(Perim, 2.0/3.0),0.6);
         else
             ChannelAlpha->Drc = 0;
 
         if (ChannelAlpha->Drc > 0) {
-            ChannelQ->Drc = std::pow(Area/ChannelAlpha->Drc, beta1);
-            //ChannelQ->Drc = std::min(ChannelMaxQ->Drc, ChannelQ->Drc);
+            ChannelQ->Drc = std::pow(Area/ChannelAlpha->Drc, 1.0/0.6);
             if (SwitchCulverts) {
                 if (ChannelMaxQ->Drc > 0 && ChannelQ->Drc > ChannelMaxQ->Drc){
-                    ChannelAlpha->Drc = Area/std::pow(ChannelMaxQ->Drc, beta);
+                    ChannelAlpha->Drc = Area/std::pow(ChannelMaxQ->Drc, 0.6);
                     ChannelQ->Drc = ChannelMaxQ->Drc;
                 }
             }
@@ -287,6 +284,7 @@ void TWorld::ChannelFlow(void)
 //            BaseFlowTot += BaseFlowInflow->Drc * _dt;
 //        }
 
+        // calc velocity and Q
         ChannelFlowWidth->Drc = ChannelWidth->Drc;
         ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 
@@ -309,7 +307,11 @@ void TWorld::ChannelFlow(void)
                 if (SwitchCulverts) {
                     if (MaxQ > 0 && ChannelQ->Drc > MaxQ){
                         ChannelAlpha->Drc = Area/std::pow(MaxQ, 0.6);
+                        Perim = std::pow(std::pow(ChannelAlpha->Drc, 1.0/0.6)*sqrtgrad/N,3.0/2.0);
+                        wh = Perim/FW;
+                        Radius = (wh*FW)/Perim;
                         ChannelQ->Drc = MaxQ;
+                        ChannelWH->Drc = wh;
                     }
                 }
             }

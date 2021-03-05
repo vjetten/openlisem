@@ -676,6 +676,8 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
     if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
     {
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
+        calcValue(*Ksat1, ksatCalibration, MUL);
+
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
         //VJ 101213 fixed bug: convert from mm to m
@@ -719,8 +721,15 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
             calcValue(*Psi2, 0.01, MUL);
 
             Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
+            calcValue(*Ksat2, ksatCalibration, MUL);
+
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
+//            FOR_ROW_COL_MV {
+//                SoilDepth2->Drc = std::min(0.01,SoilDepth2->Drc - SoilDepth1->Drc);
+//            }
+
+
             //VJ 101213 fixed bug: convert from mm to m
 
 //            copy(*ThetaI3, *ThetaI2);
@@ -2295,9 +2304,11 @@ void TWorld::IntializeOptions(void)
     //dirs and names
     resultDir.clear();
     inputDir.clear();
-    outflowFileName = QString("totals.csv");
+    resultFileName = QString("totals.csv");
     outflowFileName = QString("outlets.csv");
+    totalSeriesFileName = QString("totalseries.csv");
     totalLandunitFileName = QString("totlandunit.csv");
+    floodStatsFileName = QString("floodstats.csv");
 
     totalErosionFileName = QString("erosion.map");
     totalDepositionFileName = QString("deposition.map");
@@ -2318,7 +2329,6 @@ void TWorld::IntializeOptions(void)
     floodMaxVFileName = QString("Vmax.map");
     floodMaxVHFileName = QString("VHmax.map");
     floodWHmaxFileName= QString("WHmax.map");
-    floodStatsFileName = QString("floodstats.csv");
     tileWaterVolfilename= QString("drainvol.map");
     tileQmaxfilename= QString("drainqmax.map");
 
@@ -2329,12 +2339,14 @@ void TWorld::IntializeOptions(void)
     SwatreTableDir.clear();
     SwatreTableName = QString("profile.inp");//.clear();
     resultFileName.clear();
+    outflowFileName.clear();
     totalSeriesFileName.clear();
 
     SwitchUserCores = false;
 
     SwitchImage = false;
     SwitchResultDatetime = false;
+    SwitchOutputTimestamp = false;
     SwitchVariableTimestep = false;
     SwitchWriteCommaDelimited = true;
     SwitchWritePCRtimeplot = false;

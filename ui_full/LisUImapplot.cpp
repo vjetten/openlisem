@@ -69,7 +69,8 @@ void lisemqt::ssetAlphaMap(int v)
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaChannelOutlet(int v)
 {
-    if (showRiverSize->value() > 0)
+    //if (showRiverSize->value() > 0)
+        if (spinChannelSize->value() > 0)
         hideChannelVector(true);
 }
 //---------------------------------------------------------------------------
@@ -633,7 +634,7 @@ void lisemqt::hideChannelVector(bool yes)
             outlets[i]->detach();
     } else {
         QPen pen1;
-        pen1.setWidth(showRiverSize->value());
+        pen1.setWidth(spinChannelSize->value());//showRiverSize->value());
         pen1.setColor(QColor("#000000"));
         pen1.setCosmetic(true);
 
@@ -722,7 +723,7 @@ void lisemqt::showChannelVector()
             }
         }
         QPen pen1;
-        pen1.setWidth(showRiverSize->value());
+        pen1.setWidth(spinChannelSize->value());//showRiverSize->value());
         pen1.setColor(QColor("#000000"));
         pen1.setCosmetic(false);
         for (int i = 0; i < Xa.length(); i++) {

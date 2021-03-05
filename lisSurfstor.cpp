@@ -50,6 +50,9 @@ void TWorld::GridCell()
             dxa = std::max(0.05, _dx - ChannelWidthMax->Drc);
 //        dxa = std::max(0.05, _dx - ChannelWidthExtended->Drc);
 
+        if (SwitchCulverts && ChannelMaxQ->Drc > 0)
+            dxa = _dx;
+
         ChannelAdj->Drc = dxa;
         CHAdjDX->Drc = dxa*DX->Drc;
 
