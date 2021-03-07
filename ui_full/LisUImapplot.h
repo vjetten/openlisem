@@ -182,7 +182,7 @@ public:
 };
 //---------------------------------------------------------------------------
 /// flow barrier map
-class colorMapFlowBarrier: public QwtLinearColorMap
+class colorMapImage: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
@@ -192,8 +192,8 @@ class colorMapFlowBarrier: public QwtLinearColorMap
         return QwtLinearColorMap::rgb( interval, value );
     }
 public:
-    colorMapFlowBarrier():
-        QwtLinearColorMap( QColor("#000000"), QColor("#FFFF00"))
+    colorMapImage():
+        QwtLinearColorMap( QColor("#000000"), QColor("#FFFFFF"))
     {
 
     }

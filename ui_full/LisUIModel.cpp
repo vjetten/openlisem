@@ -59,10 +59,10 @@ void lisemqt::runmodel()
     rivers.clear();
     culverts.clear();
     outlets.clear();
-    op.ChanDataX.clear();
-    op.ChanDataY.clear();
-    op.Chanbranch.clear();
-    op.branches.clear();
+//    op.ChanDataX.clear();
+//    op.ChanDataY.clear();
+//    op.Chanbranch.clear();
+//    op.branches.clear();
 
     //NOTE op.runfilename is set in function openRunFile()
     if (op.runfilename.isEmpty())
@@ -90,11 +90,11 @@ void lisemqt::runmodel()
     checkBoxComboMaps->setChecked(true);
     checkBoxComboMaps2->setChecked(false);
 
-    checkMapFlowBarriers->setChecked(false);
+    checkMapImage->setChecked(false);
     //transparencyBarrier->setEnabled(checkFlowBarriers->isChecked());
     //checkMapFlowBarriers->setEnabled(checkFlowBarriers->isChecked());
-    transparencyBarrier->setEnabled(checksatImage->isChecked());
-    checkMapFlowBarriers->setEnabled(checksatImage->isChecked());
+    transparencyImage->setEnabled(checksatImage->isChecked());
+    checkMapImage->setEnabled(checksatImage->isChecked());
 
     checkMapChannels->setChecked(false);
   //  transparencyChannel->setEnabled(checkIncludeChannel->isChecked());
@@ -202,6 +202,7 @@ void lisemqt::stopmodel()
 //---------------------------------------------------------------------------
 void lisemqt::worldShow(bool showall)
 {
+
     progressBar->setMaximum(op.maxstep);
     progressBar->setValue(op.runstep);
     startPlots(); // called once using bool startplot
@@ -220,7 +221,8 @@ void lisemqt::worldShow(bool showall)
     showBaseMap(); // show shaded relief base map, only once, set startplot to false
 
     getOutletMap();
-    showChannelVector(); // show channel map
+//    showChannelVector(); // show channel map
+    showChannelVectorNew(); // show channel map
 
     showRoadMap(); // show road map
 
@@ -327,10 +329,10 @@ void lisemqt::initOP()
     op.flowbarriersMap = nullptr;
     op.Image = nullptr;
 
-    op.ChanDataX.clear();
-    op.ChanDataY.clear();
-    op.Chanbranch.clear();
-    op.branches.clear();
+//    op.ChanDataX.clear();
+//    op.ChanDataY.clear();
+//    op.Chanbranch.clear();
+//    op.branches.clear();
     op.CulvertX.clear();
     op.CulvertY.clear();
     op.EndPointX.clear();

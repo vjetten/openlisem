@@ -476,43 +476,39 @@ void writeRaster(
     QString const& pathName,
     QString const& format)
 {
-    if(raster.nrRows() == 0 || raster.nrCols() == 0) {
-        return;
-    }
+//    if(raster.nrRows() == 0 || raster.nrCols() == 0) {
+//        return;
+//    }
 
-    if(pathName.isEmpty()) {
-        ErrorString = "Cannot write file, file name empty";
-        throw 1;
-    }
+//    if(pathName.isEmpty()) {
+//        ErrorString = "Cannot write file, file name empty";
+//        throw 1;
+//    }
 
-
-    GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(
-        format.toLatin1().constData());
-
-    if(!driver) {
-        Error(QString("Format driver %1 not available.").arg(
-            format.toLatin1().constData()));
-    }
-
-    char** metadata{driver->GetMetadata()};
-    bool driverSupportsCreate{CSLFetchBoolean(metadata, GDAL_DCAP_CREATE,
-        FALSE) != FALSE};
-    driverSupportsCreate = FALSE;
-    if(driverSupportsCreate) {
-        // All is well, write using GDAL.
-        qDebug() << "hoi";
-        writeGDALRaster(raster, pathName, *driver);
-    }
-    else if(format == "PCRaster") {
+    if (format == "PCRaster") {
         // OK, until PCRaster supports Create(), we'll handle writing to
         // PCRaster format ourselves. Work is underway to add support
         // for Create() to the GDAL PCRaster driver.
         writePCRasterRaster(raster, pathName);
-    }
-    else {
-        Error(QString(
-            "Format driver %1 cannot be used to create datasets.").arg(
+    } else {
+        GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(
+            format.toLatin1().constData());
+
+        if(!driver) {
+            Error(QString("Format driver %1 not available.").arg(
                 format.toLatin1().constData()));
+        }
+
+        char** metadata{driver->GetMetadata()};
+        bool driverSupportsCreate{CSLFetchBoolean(metadata, GDAL_DCAP_CREATE, FALSE) != FALSE};
+        if(driverSupportsCreate) {
+            // All is well, write using GDAL.
+            writeGDALRaster(raster, pathName, *driver);
+        } else {
+            Error(QString(
+                "Format driver %1 cannot be used to create datasets.").arg(
+                    format.toLatin1().constData()));
+        }
     }
 }
 

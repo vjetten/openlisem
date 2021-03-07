@@ -152,14 +152,14 @@ void TWorld::DestroyData(void)
     crlddch5_.clear();
 
     for(int i_ = 0; i_ < crlinkedldd_.size(); i_++){
-        crlinkedldd_[i_].in.clear();
+       // crlinkedldd_[i_].in.clear();
         if(crlinkedldd_[i_].inn)
             free(crlinkedldd_[i_].inn);
     }
     crlinkedldd_.clear();
 
     for(int i_ = 0; i_ < crlinkedlddch_.size(); i_++){
-        crlinkedlddch_[i_].in.clear();
+      //  crlinkedlddch_[i_].in.clear();
         if(crlinkedlddch_[i_].inn)
             free(crlinkedlddch_[i_].inn);
     }
@@ -981,6 +981,7 @@ void TWorld::InitChannel(void)
         {
             if(Outlet->Drc > 0 && LDDChannel->Drc != 5)
             {
+                qDebug() << r << c << LDDChannel->Drc;
                 ErrorString = "Outlet points (outlet.map) do not coincide with Channel LDD endpoints.";
                 throw 1;
             }
@@ -3010,15 +3011,42 @@ void TWorld::InitShade(void)
 // for drawing onscreen
 void TWorld::InitChanNetwork()
 {
-    int branchnr = 0;
-    op.branches << 0;
-    op.ChanDataX.clear();
-    op.ChanDataY.clear();
-    op.Chanbranch.clear();
+    if(!SwitchIncludeChannel)
+        return;
+
+    op.lddch_.clear();
+    op.lddch_.append(crlinkedlddch_);
+
     op.CulvertX.clear();
     op.CulvertY.clear();
     op.EndPointX.clear();
     op.EndPointY.clear();
+
+    FOR_ROW_COL_MV_CH {
+        if (LDDChannel->Drc == 5){
+            op.EndPointX << c*_dx + 0.5*_dx;
+            op.EndPointY << (_nrRows-r-1)*_dx + 0.5*_dx;
+        }
+    }
+
+    if(SwitchCulverts) {
+        FOR_ROW_COL_MV {
+            if (ChannelMaxQ->Drc > 0) {
+                op.CulvertX << c*_dx + 0.5*_dx;
+                op.CulvertY << (_nrRows-r-1)*_dx + 0.5*_dx;
+            }
+
+        }
+    }
+
+
+/*
+    int branchnr = 0;
+    op.branches.clear();
+    op.branches << 0;
+    op.ChanDataX.clear();
+    op.ChanDataY.clear();
+    op.Chanbranch.clear();
 
     if(!SwitchIncludeChannel)
         return;
@@ -3083,22 +3111,24 @@ void TWorld::InitChanNetwork()
                         int r = list->rowNr;
                         int c = list->colNr;
 
+                        // new branch nr is needed, first number = 0
                         if (len != op.branches.last()) {
                             branchnr++;
                             op.branches << len;
                         }
+
                         tma->Drc = branchnr; // flag done
                         op.Chanbranch << branchnr;
                         op.ChanDataX << c*_dx + 0.5*_dx;
                         op.ChanDataY << (_nrRows-r-1)*_dx + 0.5*_dx;
+
                         temp=list;
                         list=list->prev;
                         free(temp);
                     }
 
-                } /*  list != nullptr */
+                }
             }  //pit 5
-
 
     FOR_ROW_COL_MV_CH {
         if (LDDChannel->Drc == 5){
@@ -3116,7 +3146,7 @@ void TWorld::InitChanNetwork()
 
         }
     }
-
+*/
 }
 
 //---------------------------------------------------------------------------

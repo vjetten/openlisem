@@ -466,7 +466,7 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
             } else {
                 // still in SD1
                 L = L + fact_in/std::max(0.01,dtheta1);
-                Lw->Drc = L;
+             //   Lw->Drc = L;
                 fact_out = fact_in;
             }
         } else {
@@ -477,7 +477,7 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
                 L = SoilDep2;
             } else
                 fact_out = fact_in; // everything fitted
-            Lw->Drc = L;
+           // Lw->Drc = L;
         }
 
         if (passing) {
@@ -487,10 +487,10 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
                 fact_out = (SoilLayer2 - Lp) * dtheta2;
                 L = SoilDep2;
             } else
-                fact_out = fact_in; // verything fitted
-            Lw->Drc = L;
+                fact_out = fact_in; // everything fitted
         }
 
+        Lw->Drc = L;
         return fact_out;
     } else {
 //single layer
@@ -507,8 +507,9 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
                 L = SoilDep1;
             } else
                 fact_out = fact_in;
-            Lw->Drc = L;
         }
+
+        Lw->Drc = L;
         return fact_out;
     }
 

@@ -184,6 +184,7 @@ void TWorld::DoModel()
         DEBUG("Running...");
         for (time = BeginTime; time < EndTime; time += _dt)
         {
+
             if (runstep > 0 && runstep % printinterval == 0)
                 printstep++;
             runstep++;
@@ -202,8 +203,6 @@ void TWorld::DoModel()
             }
             // check if user wants to quit or pause
 
-            //these functions read files, so they can not be multithreaded
-
            CellProcesses();
          //   do_CellProcesses();
 
@@ -218,7 +217,6 @@ void TWorld::DoModel()
             MassBalance();       // check water and sed mass balance
 
             OutputUI();          // fill the "op" structure for screen output and calc some output maps
-               // ^ HEEL DUUR!
 
             reportAll();
 
@@ -259,28 +257,79 @@ void TWorld::DoModel()
 
 void TWorld::CellProcesses()
 {
-//    SetFlowBarriers();     // update the presence of flow barriers
-//    GridCell();            // set channel widths, flowwidths road widths etc
     RainfallMap();         // get rainfall from table or mpas
     SnowmeltMap();         // get snowmelt
 
-    Interception();        // vegetation interception
-    InterceptionLitter();  // litter interception
-    InterceptionHouses();  // urban interception
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (Rainc->Drc > 0)
+            cell_Interception(r,c);
+        if (FloodDomain->Drc > 0) {
+            hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
+        } else {
+            WH->Drc += RainNet->Drc + Snowmeltc->Drc;
+            // add net to water rainfall on soil surface (in m)
 
-    addRainfallWH();       // adds rainfall to runoff water height or flood water height
+            //    if (SwitchGrassStrip && GrassWidthDX->Drc > 0)
+            //        WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
+            // net rainfall on grass strips, infil is calculated separately for grassstrips
+        }
+        if (RoadWidthHSDX->Drc > 0)
+            WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
 
-    Infiltration();        // infil of overland flow/flood water, decrease WH
+        if (InfilMethod == INFIL_SWATRE) {
+           cell_InfilSwatre(r, c);
+        }
+        else
+        if (InfilMethod != INFIL_NONE) {
+           cell_InfilMethods(r, c);
+           if (!SwitchImpermeable)
+               cell_Percolation(r, c);
 
-    SoilWater();           // simple soil water balance, percolation from lower boundary
+        }
+        double wh = WH->Drc;
+        double SW = SoilWidthDX->Drc;
+        double RW = RoadWidthHSDX->Drc;
+        double WHr = WHroad->Drc;
+        double WHs;
+        //### surface storage on rough surfaces
+        WHs = std::min(wh, MDS->Drc*(1-exp(-1.875*(wh/std::max(0.01,0.01*RR->Drc)))));
+        // non-linear release fo water from depression storage
+        // resemles curves from GIS surface tests, unpublished
+        double FW = std::min(ChannelAdj->Drc, SW + RW);
+        // calculate flowwidth by fpa*surface + road, excludes channel already
 
-    SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
+        WHrunoff->Drc = ((wh - WHs)*SW + WHr*RW)/FW;
+        FlowWidth->Drc = FW;
 
-    //doETa();
+        WaterVolall->Drc = DX->Drc*(wh*SW + WHr*RW);
+        // all water in the cell incl storage
+        WHstore->Drc = WHs;
 
-    //Pestmobilisation();         // experimental
+        if (SwitchErosion) {
+            double wh = FloodDomain->Drc == 0 ? WH->Drc : hmx->Drc;
+            cell_SplashDetachment(r,c,wh);
+        }
 
-    SplashDetachment();    // splash detachment
+
+    }}
+//    Interception();        // vegetation interception
+//    InterceptionLitter();  // litter interception
+//    InterceptionHouses();  // urban interception
+
+//    addRainfallWH();       // adds rainfall to runoff water height or flood water height
+
+//    Infiltration();        // infil of overland flow/flood water, decrease WH
+
+//    SoilWater();           // simple soil water balance, percolation from lower boundary
+
+//    SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
+
+//    doETa();
+
+//    Pestmobilisation();         // experimental
+
+//    SplashDetachment();    // splash detachment
 
 }
 

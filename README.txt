@@ -9,6 +9,13 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu)
 NOTE: since version 6 it is fully parallel and developed with MSYS2.0, and openmp
 
+version 6.61-6.62beta
+- fixed small bug when using culverts (add rain to overland flow and not channel when culvert)
+- fixed error in infiltration, seems to work now
+- ksat calibration for the whole column, not only first layer
+- added depth wetting front (m) to screen output
+- add optional timestamp tot output text files
+
 version 6.5-6.6
 - SWOF sediment changed fully parallel computing
 - maximize parallel comnputing efficiency in all processes

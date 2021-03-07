@@ -210,8 +210,8 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
 /*LDD_COOR *_crlinked_*/
 void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax)
 {   
-   int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-   int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+   //int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+   //int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -243,8 +243,6 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , long nrcells, cT
 //            }
 //        }
 
-// NOT FASTER
-//        for(int j = 0; j < _crlinked_[i_].in.size(); j++) {
         if (_crlinked_[i_].nr >0) {
             for(int j = 0; j < _crlinked_[i_].nr; j++) {
                 int rr = _crlinked_[i_].inn[j].r;
@@ -380,7 +378,8 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
                     LDD_COORIN newcr;
                     newcr.r = rowNr;
                     newcr.c = colNr;
-                    newcr.in.clear();
+                    newcr.ldd = (int) _LDD->data[rowNr][colNr];
+                  //  newcr.in.clear();
                     newcr.inn = (LDD_COOR*) malloc(sizeof(LDD_COOR)*9);
                     newcr.nr = 0;
 

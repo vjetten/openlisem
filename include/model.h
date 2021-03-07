@@ -195,7 +195,8 @@ typedef struct LDD_COORIN {
     int r;
     int c;
     int nr;
-    QVector <LDD_COOR> in;
+    int ldd;
+  //  QVector <LDD_COOR> in;
     LDD_COOR *inn;
 }  LDD_COORIN;
 //---------------------------------------------------------------------------
@@ -908,13 +909,17 @@ protected:
 
     //combobox map selection
     void GetComboMaps();
-    void setColor(int i);
     void ClearComboMaps();
     void AddComboMap(int listn, QString name, QString unit,cTMap * map,QList<double> ColorMap,
                      QList<QString> Colors, bool log = false,bool symcol = false, double scale = 1.0, double step = 1.0);
+    void setLegendColors();
 
     QList<double> Colormap;
     QList<QString> Colors;
+
+    QList <QStringList> Legend;
+    QList <QList <double>> LegendMap;
+
 signals:
     void done(const QString &results);
     void debug(const QString &results);

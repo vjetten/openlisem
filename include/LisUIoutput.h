@@ -37,7 +37,10 @@
 /// structure to pass variables form the model to the interface.
 /// This tsructure is the link, visible by both
 
-
+//typedef struct LDD_COOR {
+//    int r;
+//    int c;
+//}  LDD_COOR;
 
 struct output{
     int runstep;
@@ -56,14 +59,15 @@ struct output{
     QVector<double> OutletQtot;
     QVector<double> OutletQstot;
 
-    QVector <double> ChanDataX;
-    QVector <double> ChanDataY;
-    QVector<int> Chanbranch;
-    QList <int> branches;
+//    QVector <double> ChanDataX;
+//    QVector <double> ChanDataY;
+//    QVector<int> Chanbranch;
+//    QList <int> branches;
     QVector <double> CulvertX;
     QVector <double> CulvertY;
     QVector <double> EndPointX;
     QVector <double> EndPointY;
+    QVector <LDD_COORIN> lddch_;
 
     double timestep, CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
 

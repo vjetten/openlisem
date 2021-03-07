@@ -70,7 +70,7 @@ void lisemqt::ssetAlphaMap(int v)
 void lisemqt::ssetAlphaChannelOutlet(int v)
 {
     //if (showRiverSize->value() > 0)
-        if (spinChannelSize->value() > 0)
+    if (spinChannelSize->value() > 0)
         hideChannelVector(true);
 }
 //---------------------------------------------------------------------------
@@ -89,19 +89,19 @@ void lisemqt::ssetAlphaRoad(int v)
 void lisemqt::ssetAlphaHouse(int v)
 {
     houseMap->setAlpha(v);
-//    transvalue = ((double) v)/256.0;
-//    doHouse = true;
-//    showHouseMap();
+    //    transvalue = ((double) v)/256.0;
+    //    doHouse = true;
+    //    showHouseMap();
     if (v > 0 && checkMapBuildings->isChecked())
         MPlot->replot();
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaBarrier(int v)
 {
-  flowbarriersMap->setAlpha(v);
-  if (v > 0 && checkMapFlowBarriers->isChecked())
-    MPlot->replot();
-  // flowbarrier is now sat image, highjacked!
+    imageMap->setAlpha(v);
+    if (v > 0 && checkMapImage->isChecked())
+        MPlot->replot();
+    // flowbarrier is now sat image, highjacked!
 }
 
 //---------------------------------------------------------------------------
@@ -177,9 +177,9 @@ void lisemqt::setupMapPlot()
     // road map
 
     // 6
-    flowbarriersMap = new QwtPlotSpectrogram();
-    flowbarriersMap->setRenderThreadCount( 0 );
-    flowbarriersMap->attach( MPlot );
+    imageMap = new QwtPlotSpectrogram();
+    imageMap->setRenderThreadCount( 0 );
+    imageMap->attach( MPlot );
 
     //7
     outletMap = new QwtPlotSpectrogram();
@@ -216,8 +216,8 @@ void lisemqt::setupMapPlot()
     mapRescaler->setAspectRatio( QwtPlot::xBottom, 1.0 );
     mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
     mapRescaler->setAspectRatio( QwtPlot::xTop, 0.0 );
-//      mapRescaler->setRescalePolicy( QwtPlotRescaler::Fitting ); // every tmestep fits map to lower boundary, position not maintained
-     mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
+    //      mapRescaler->setRescalePolicy( QwtPlotRescaler::Fitting ); // every tmestep fits map to lower boundary, position not maintained
+    mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
     //mapRescaler->setEnabled( true );
     // rescaling fixed to avoid deformation
 
@@ -264,27 +264,27 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD)
                 mapData << (double)-1e20;
         }
 
-//    // faster to fill a QVector than to create it each time
-//    long i_=0;
-//    //reduction(max:maxV)
-//    //    #pragma omp parallel for collapse(2)
-//    long all = _M->nrCols()*_M->nrRows();
-//      for(int r = 0; r < _M->nrRows(); r++)
-//        for(int c = 0; c < _M->nrCols(); c++)
-//        {
-//            i_= all - ((_M->nrCols()-c-1)+_M->nrCols()*r);
-//            if(!pcr::isMV(_M->Drc))
-//            {
-//                mapData[i_] = _M->Drc;
-//                maxV = std::max(maxV, _M->Drc);
-//            }
-//            else
-//                mapData[i_] = (double)-1e20;
-//        }
+    //    // faster to fill a QVector than to create it each time
+    //    long i_=0;
+    //    //reduction(max:maxV)
+    //    #pragma omp parallel for collapse(2)
+    //    long all = _M->nrCols()*_M->nrRows();
+    //      for(int r = 0; r < _M->nrRows(); r++)
+    //        for(int c = 0; c < _M->nrCols(); c++)
+    //        {
+    //            i_= all - ((_M->nrCols()-c-1)+_M->nrCols()*r);
+    //            if(!pcr::isMV(_M->Drc))
+    //            {
+    //                mapData[i_] = _M->Drc;
+    //                maxV = std::max(maxV, _M->Drc);
+    //            }
+    //            else
+    //                mapData[i_] = (double)-1e20;
+    //        }
 
-//#pragma omp parallel for reduction(max:maxV)
-//      for (i_ = 0; i_ < all; i_++)
-//          maxV = std::max(maxV, mapData[i_]);
+    //#pragma omp parallel for reduction(max:maxV)
+    //      for (i_ = 0; i_ < all; i_++)
+    //          maxV = std::max(maxV, mapData[i_]);
 
     // set intervals for rasterdata, x,y,z min and max
     _RD->setValueMatrix( mapData, _M->nrCols() );
@@ -442,22 +442,20 @@ void lisemqt::showMap()
     }
     else
         if (ActiveList == 1)
-    {
-        showComboMap(IndexList1.at(DisplayComboBox2->currentIndex()));
-    }
+        {
+            showComboMap(IndexList1.at(DisplayComboBox2->currentIndex()));
+        }
 
     //channelMap->setAlpha(checkMapChannels->isChecked() ? transparencyChannel->value() : 0);
     roadMap->setAlpha(checkMapRoads->isChecked() ? transparencyRoad->value() : 0);
     houseMap->setAlpha(checkMapBuildings->isChecked() ? transparencyHouse->value() : 0);
 
-    flowbarriersMap->setAlpha(0);  // flow barriers foir now not used, sat image instead
-//    if (checkFlowBarriers->isChecked())
-//    flowbarriersMap->setAlpha(checkMapFlowBarriers->isChecked() ? transparencyBarrier->value() : 0);
+    // imageMap->setAlpha(0);  // flow barriers for now not used, sat image instead
     if (checksatImage->isChecked()){
-        baseMapImage->setAlpha(checkMapFlowBarriers->isChecked() ? transparencyBarrier->value() : 0);
+        baseMapImage->setAlpha(checkMapImage->isChecked() ? transparencyImage->value() : 0);
     }
 
-    baseMapDEM->setAlpha(checkMapFlowBarriers->isChecked() ? 0 : 255);
+    baseMapDEM->setAlpha(checkMapImage->isChecked() ? 0 : 255);
 
     if (nrcontourlevels->value() > 0)
     {
@@ -510,17 +508,17 @@ void lisemqt::showComboMap(int i)
         mi = 0;
     if(mi > ma)
         ma = mi;
-  //   qDebug() << mi << ma << MinV << MaxV;
+    //   qDebug() << mi << ma << MinV << MaxV;
 
     if (op.ComboSymColor.at(i)) // symetric coloring for soilloss
     {
 
-         mi = -ma;
+        mi = -ma;
         if (ComboMaxSpinBox2->value() > 0)
             ComboMinSpinBox2->setValue(mi);
 
     }
-  //  qDebug() << mi << ma << MinV << MaxV;
+    //  qDebug() << mi << ma << MinV << MaxV;
 
 
     RD->setInterval( Qt::ZAxis, QwtInterval( mi, ma));
@@ -594,7 +592,7 @@ void lisemqt::showBaseMap()
     contourmax = mapMaximum(*op.baseMapDEM);
     contourmin = mindem;
 
-    baseMapDEM->setAlpha(checkMapFlowBarriers->isChecked() ? 0 : 255);
+    baseMapDEM->setAlpha(checkMapImage->isChecked() ? 0 : 255);
     baseMapDEM->setColorMap(new colorMapElevation());
     RDbb->setInterval( Qt::ZAxis, QwtInterval( mindem,res));
     baseMapDEM->setData(RDbb);
@@ -628,8 +626,8 @@ void lisemqt::hideChannelVector(bool yes)
         for (int i = 0; i < rivers.length(); i++)
             rivers[i]->detach();
         if (checkChannelCulverts->isChecked() && culverts.length() > 0)
-        for (int i = 0; i < culverts.length(); i++)
-            culverts[i]->detach();
+            for (int i = 0; i < culverts.length(); i++)
+                culverts[i]->detach();
         for (int i = 0; i < outlets.length(); i++)
             outlets[i]->detach();
     } else {
@@ -639,9 +637,9 @@ void lisemqt::hideChannelVector(bool yes)
         pen1.setCosmetic(true);
 
         for (int i = 0; i < rivers.length(); i++) {
-           rivers[i]->setPen(pen1);
-           rivers[i]->attach( MPlot );
-           rivers[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
+            rivers[i]->setPen(pen1);
+            rivers[i]->attach( MPlot );
+            rivers[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
         }
 
         for (int i = 0; i < culverts.length(); i++) {
@@ -671,13 +669,13 @@ void lisemqt::hideChannelVector(bool yes)
 //---------------------------------------------------------------------------
 void lisemqt::showChannelVector()
 {
+    /*
     if (!checkIncludeChannel->isChecked())
         return;
     if (op.Chanbranch.isEmpty())
         return;
-
-    if (startplot)
-    {
+    qDebug() << op.Chanbranch.length();
+    if (startplot) {
         QVector <double> X;
         QVector <double> Y;
         checkMapChannels->setChecked(true);
@@ -707,7 +705,7 @@ void lisemqt::showChannelVector()
                     int r = nrRows-1-int(yend/dx);//-0.5*dx
                     double ldd = !pcr::isMV(op.channelMap->Drc) ? op.channelMap->Drc : 0;
 
-                 //     qDebug() << i<< dx << yend << xend << r << c << ldd;
+                    //     qDebug() << i<< dx << yend << xend << r << c << ldd;
                     Y << yend + _dy[(int)ldd]*dx;
                     X << xend + _dx[(int)ldd]*dx;
                     //
@@ -773,8 +771,145 @@ void lisemqt::showChannelVector()
         op.CulvertX.clear();
         op.CulvertY.clear();
     }
+    */
 }
 //---------------------------------------------------------------------------
+void lisemqt::showChannelVectorNew()
+{
+    if (!checkIncludeChannel->isChecked())
+        return;
+//    if (op.CHData.length() < 1)
+//        return;
+
+    if (startplot) {
+        QVector <double> X;
+        QVector <double> Y;
+        checkMapChannels->setChecked(true);
+        int _dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+        int _dy[10] = {0, -1,-1,-1,  0, 0, 0,  1, 1, 1};
+
+        double xend, yend;
+        double dx = op.channelMap->cellSize();
+        double _nrRows = op.channelMap->nrRows();
+
+        for(long i_ =  0; i_ < op.lddch_.size(); i_++)
+        {
+            int r = _nrRows-op.lddch_[i_].r-1;
+            int c = op.lddch_[i_].c;
+            double ldd = op.lddch_[i_].ldd;
+
+            xend = c*dx + 0.5*dx;
+            yend = r*dx + 0.5*dx;
+            if (op.lddch_[i_].nr == 0) {
+                Y << yend;
+                X << xend;
+            }
+            Y << yend + _dy[(int)ldd]*dx;
+            X << xend + _dx[(int)ldd]*dx;
+
+            if (i_ < op.lddch_.size() -1 && op.lddch_[i_+1].nr == 0) {
+                Xa.push_back(X);
+                Ya.push_back(Y);
+                X.clear();
+                Y.clear();
+            }
+        }
+        Xa.push_back(X);
+        Ya.push_back(Y);
+        X.clear();
+        Y.clear();
+
+/*
+
+        double xend, yend;
+        double dx = op.channelMap->cellSize();
+
+        for(int i = 0; i < op.CHData.length(); i++) {
+            qDebug() << i << op.CHData.length() << op.CHData[i].length();
+            for(int j = 0; j < op.CHData[i].length(); j++)  {
+
+//                if (j == 0) {
+//                    X <<  op.CHData[i].at(j).c*dx + 0.5*dx;
+//                    Y <<  op.CHData[i].at(j).r*dx + 0.5*dx;
+//                }
+                xend = op.CHData[i].at(j).c*dx + 0.5*dx;
+                yend = op.CHData[i].at(j).r*dx + 0.5*dx;
+                //               cr.r = (_nrRows-r-1)*_dx + 0.5*_dx;
+                //               cr.c = c*_dx + 0.5*_dx;
+
+                // find connecting cell
+                int _dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+                int _dy[10] = {0, -1,-1,-1,  0, 0, 0,  1, 1, 1};
+
+                int c = op.CHData[i].at(j).c;
+                int r = op.CHData[i].at(j).r;
+                double ldd = !pcr::isMV(op.channelMap->Drc) ? op.channelMap->Drc : 0;
+
+                Y << yend + _dy[(int)ldd]*dx;
+                X << xend + _dx[(int)ldd]*dx;
+
+            }
+            Xa.push_back(X);
+            Ya.push_back(Y);
+            X.clear();
+            Y.clear();
+
+        }
+
+        */
+
+        QPen pen1;
+        pen1.setWidth(spinChannelSize->value());//showRiverSize->value());
+        pen1.setColor(QColor("#000000"));
+        pen1.setCosmetic(false);
+        for (int i = 0; i < Xa.length(); i++) {
+            rivera = new QwtPlotCurve();
+            rivers << rivera;
+
+            rivera->setPen(pen1);
+            rivera->attach( MPlot );
+            rivera->setAxes(MPlot->xBottom, MPlot->yLeft);
+            rivera->setSamples(Xa.at(i),Ya.at(i));
+        }
+
+        int dxi = (int) (op.channelMap->cellSize()*0.4);
+        dxi = std::min(5,dxi);
+        spinCulvertSize->setValue(dxi);
+
+        QwtPlotCurve *outlet = new QwtPlotCurve();
+        QwtSymbol *whitedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi ));
+        outlets << outlet;
+        outlet->setSymbol(whitedot);
+        outlet->setStyle( QwtPlotCurve::NoCurve );
+        outlet->attach( MPlot );
+        outlet->setAxes(MPlot->xBottom, MPlot->yLeft);
+        outlet->setSamples(op.EndPointX,op.EndPointY);
+
+        // clear here for the next run of a different area
+        op.EndPointX.clear();
+        op.EndPointY.clear();
+        Xa.clear();
+        Ya.clear();
+        op.ChanDataX.clear();
+        op.ChanDataY.clear();
+        op.Chanbranch.clear();
+
+        QwtSymbol *greendot = new QwtSymbol( QwtSymbol::Ellipse, Qt::green,QPen( Qt::black ), QSize( dxi, dxi ) );
+
+        if (checkChannelCulverts->isChecked()) {
+            culvert = new QwtPlotCurve();
+            culverts << culvert;
+            culvert->setSymbol(greendot);
+            culvert->setStyle( QwtPlotCurve::NoCurve );
+            culvert->attach( MPlot );
+            culvert->setAxes(MPlot->xBottom, MPlot->yLeft);
+            culvert->setSamples(op.CulvertX,op.CulvertY);
+        }
+
+        op.CulvertX.clear();
+        op.CulvertY.clear();
+    }
+}
 void lisemqt::getOutletMap()
 {
     if (!checkIncludeChannel->isChecked())
@@ -834,23 +969,23 @@ void lisemqt::showHouseMap()
 void lisemqt::showFlowBarriersMap()
 {
 
-  if (startplot)
+    if (startplot)
     {
 
-      // set intervals for rasterdata, x,y,z min and max
-      double res = fillDrawMapData(op.flowbarriersMap, RDf);
-      if (res ==-1e20)
-        return;
-      RDf->setInterval( Qt::ZAxis, QwtInterval( 0.0, res));
-      flowbarriersMap->setData(RDf);
+        // set intervals for rasterdata, x,y,z min and max
+        double res = fillDrawMapData(op.flowbarriersMap, RDf);
+        if (res ==-1e20)
+            return;
+        RDf->setInterval( Qt::ZAxis, QwtInterval( 0.0, res));
+        imageMap->setData(RDf);
     }
 
-  if (checkMapFlowBarriers->isChecked())
-    flowbarriersMap->setAlpha(transparencyBarrier->value());
-  else
-    flowbarriersMap->setAlpha(0);
+    if (checkMapImage->isChecked())
+        imageMap->setAlpha(transparencyImage->value());
+    else
+        imageMap->setAlpha(0);
 
-  flowbarriersMap->setColorMap(new colorMapFlowBarrier());
+    imageMap->setColorMap(new colorMapImage());
 
 }
 //---------------------------------------------------------------------------
@@ -866,9 +1001,9 @@ void lisemqt::showImageMap()
     }
 
     if (checksatImage->isChecked())
-      baseMapImage->setAlpha(transparencyBarrier->value());
+        baseMapImage->setAlpha(transparencyImage->value());
     else
-      baseMapImage->setAlpha(0);
+        baseMapImage->setAlpha(0);
 
     baseMapImage->setColorMap(new colorMapRGB());
 }

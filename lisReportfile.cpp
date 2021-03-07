@@ -47,13 +47,12 @@ functions: \n
 /// report to disk: timeseries at output points, totals, map series and land unit stats
 void TWorld::reportAll(void)
 {
-
     ReportTotalsNew();
     // report totals to a text file
 
     ReportTotalSeries();
 
-    ReportTimeseriesNew();
+ //   ReportTimeseriesNew();
     // report hydrographs ande sedigraphs at all points in outpoint.map
 
     if (!SwitchEndRun) {
@@ -613,7 +612,8 @@ void TWorld::ReportTimeseriesNew(void)
 
     if (SwitchSeparateOutput)
     {
-        FOR_ROW_COL_MV
+       // #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
         {
             if ( PointMap->Drc > 0 ) // all points in separate files
             {
@@ -641,8 +641,8 @@ void TWorld::ReportTimeseriesNew(void)
                 if (SwitchErosion) out << sep << QSALL << sep << Qsoutput->Drc << sep << TotalConc->Drc;
                 out << "\n";
                 fout.close();
-            }  // if point
-        }  //rows cols
+            }
+        }}
     } //switch separate
     else
     {
@@ -667,8 +667,8 @@ void TWorld::ReportTimeseriesNew(void)
         if (SwitchSnowmelt) out << sep << SnowIntavg;
 
         out << sep << QALL;
-
-        FOR_ROW_COL_MV
+//#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
         {
             if ( PointMap->Drc > 0 )
             {
@@ -676,16 +676,17 @@ void TWorld::ReportTimeseriesNew(void)
                 if (SwitchIncludeChannel) out << sep << ChannelWH->Drc;
                 if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
             }
-        }
+        }}
 
         if (SwitchErosion)
         {
             out << sep << QSALL;
-            FOR_ROW_COL_MV
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L
             {
                 if ( PointMap->Drc > 0 )
                     out << sep << Qsoutput->Drc << sep << TotalConc->Drc;
-            }
+            }}
         }
         out << "\n";
         fout.close();
@@ -906,10 +907,9 @@ void TWorld::ReportMapSeries(void)
             factor = 1.0/(_dx*_dx);  //kg/m2
         else
             if (ErosionUnits == 0)
-                factor = 10.0/(_dx*_dx); //ton/ha
+                factor = 10.0/(_dx*_dx); //ton/ha               
 
         if (SwitchOutDet) {
-            // all detachment combined
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 tm->Drc =std::max(0.0,TotalSoillossMap->Drc)*factor;
@@ -928,7 +928,6 @@ void TWorld::ReportMapSeries(void)
         }
 
         if (SwitchOutSL) {
-            //alcValue(*tm, factor, MUL);
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 tm->Drc =TotalSoillossMap->Drc*factor;
@@ -938,8 +937,6 @@ void TWorld::ReportMapSeries(void)
 
         // total sediment
         if (SwitchOutSed) {
-//            copy(*tm, *COMBO_SED); //kg/cell
-//            calcValue(*tm, factor, MUL);
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 tm->Drc = COMBO_SED->Drc*factor;
@@ -951,8 +948,6 @@ void TWorld::ReportMapSeries(void)
 
         if(SwitchUse2Phase) {
             if (SwitchOutSedSS) {
-//                copy(*tm, *COMBO_SS); //kg/cell
-//                calcValue(*tm, factor, MUL);
                 #pragma omp parallel for num_threads(userCores)
                 FOR_ROW_COL_MV_L {
                     tm->Drc = COMBO_SS->Drc*factor;
@@ -960,8 +955,6 @@ void TWorld::ReportMapSeries(void)
             report(*tm, OutSedSS);      // in user units
             }
             if (SwitchOutSedBL) {
-              //  copy(*tm, *COMBO_BL); //kg/cell
-              //  calcValue(*tm, factor, MUL);
                 #pragma omp parallel for num_threads(userCores)
                 FOR_ROW_COL_MV_L {
                     tm->Drc = COMBO_BL->Drc*factor;
@@ -1275,223 +1268,199 @@ void TWorld::ClearHydrographData()
 }
 
 //---------------------------------------------------------------------------
-void TWorld::setColor(int i)
+void TWorld::setLegendColors()
 {
-    if (i == 1){  //blue red
-        Colormap.clear();
-        Colormap.append(0.0);
-        Colormap.append(0.01);
-        Colormap.append(0.1);
-        Colormap.append(0.3);
-        Colormap.append(1.0);
+    Legend.clear();
+    LegendMap.clear();
 
-        Colors.clear();
-        //        Colors.append("#dae3ff");
-        //        Colors.append("#6daaff");
-        //        Colors.append("#4c76e8");
-        //        Colors.append("#4c57c3");
-        Colors.append("#9eccee");//#bfdcf9");
-        Colors.append("#427dc6");//#b1c0e9");
-        Colors.append("#204ab5");//#7b94e7");
-        Colors.append("#072a9c");//#2037b5");
-        Colors.append("#df2a36");
-    }
-    if (i == 2){ // yellow red
-        //        Colormap.clear();
-        //        Colormap.append(0.0);
-        //        Colormap.append(0.25);
-        //        Colormap.append(0.75);
-        //        Colormap.append(1.0);
-        //        Colors.clear();
-        //        Colors.append("#00FF00");
-        //        Colors.append("#FFFF00");
-        //        Colors.append("#FF0000");
-        //        Colors.append("#A60000");
-        Colormap.clear();
-        Colormap.append(0.0);
-        Colormap.append(0.25);
-        Colormap.append(0.5);
-        Colormap.append(0.75);
-        Colormap.append(1.0);
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.01);
+    Colormap.append(0.1);
+    Colormap.append(0.3);
+    Colormap.append(1.0);
 
-        Colors.clear();
-        Colors.append("#ffffb2");
-        Colors.append("#fecc5c");
-        Colors.append("#fd8d3c");
-        Colors.append("#f03b20");
-        Colors.append("#bd0026");
+    Colors.clear();
+    Colors.append("#9eccee");
+    Colors.append("#427dc6");
+    Colors.append("#204ab5");
+    Colors.append("#072a9c");
+    Colors.append("#df2a36");
 
+    Legend<<Colors; //0
+    LegendMap << Colormap;
 
-    }
-    if (i == 3){ //blue
-        Colormap.clear();
-        Colormap.append(0.0);
-        Colormap.append(0.25);
-        Colormap.append(0.5);
-        Colormap.append(0.75);
-        Colormap.append(1.0);
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.25);
+    Colormap.append(0.5);
+    Colormap.append(0.75);
+    Colormap.append(1.0);
 
-        Colors.clear();
-        Colors.append("#9eccee");//#bfdcf9");
-        Colors.append("#427dc6");//#b1c0e9");
-        Colors.append("#204ab5");//#7b94e7");
-        Colors.append("#072a9c");//#2037b5");
-        Colors.append("#07215e");//#183280");
+    Colors.clear();
+    Colors.append("#ffffb2");
+    Colors.append("#fecc5c");
+    Colors.append("#fd8d3c");
+    Colors.append("#f03b20");
+    Colors.append("#bd0026");
 
+    Legend<<Colors; //1
+    LegendMap << Colormap;
 
-    }
-    if (i == 4) { // yellow blue
-        Colormap.clear();
-        Colormap.append(0.0);
-        Colormap.append(0.25);
-        Colormap.append(0.5);
-        Colormap.append(0.75);
-        Colormap.append(1.0);
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.25);
+    Colormap.append(0.5);
+    Colormap.append(0.75);
+    Colormap.append(1.0);
 
-        Colors.clear();
-        Colors.append("#ffff61");
-        Colors.append("#c7e55a");
-        Colors.append("#32b1df");
-        Colors.append("#3271ca");
-        Colors.append("#2c3898");
-    }
-    if (i == 5) { // blue green
+    Colors.clear();
+    Colors.append("#9eccee");
+    Colors.append("#427dc6");
+    Colors.append("#204ab5");
+    Colors.append("#072a9c");
+    Colors.append("#07215e");
 
-        Colormap.clear();
-        Colormap.append(0.0);
-        Colormap.append(0.5);
-        Colormap.append(1.0);
-        Colors.clear();
-        Colors.append("#8888FF");
-        Colors.append("#0000FF");
-        Colors.append("#008800");
-    }
-    if (i == 6) { // red yellow green
-        //        Colormap.clear();
-        //        Colormap.append(0.0);
-        //        Colormap.append(0.25);
-        //        Colormap.append(0.5);
-        //        Colormap.append(0.75);
-        //        Colormap.append(1.0);
-        //        Colors.clear();
-        //        Colors.append("#A60000");
-        //        Colors.append("#FF0000");
-        //        Colors.append("#FFFF00");
-        //        Colors.append("#00FF00");
-        //        Colors.append("#007300");
-        Colormap.clear();
-        Colormap.append(0.0);
-        Colormap.append(0.25);
-        Colormap.append(0.5);
-        Colormap.append(0.75);
-        Colormap.append(1.0);
+    Legend<<Colors; //2
+    LegendMap << Colormap;
 
-        Colors.clear();
-        //        Colors.append("#1a9641");
-        //        Colors.append("#a6d96a");
-        //        Colors.append("#ffffa0");
-        //        Colors.append("#fdae61");
-        //        Colors.append("#e0181c");
-        Colors.append("#d7191c");
-        Colors.append("#fdae61");
-        Colors.append("#fdfd7e");
-        Colors.append("#abdda4");
-        Colors.append("#2b83ba");
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.15);
+    Colormap.append(0.3);
+    Colormap.append(0.5);
+    Colormap.append(0.75);
+    Colormap.append(1.0);
 
+    Colors.clear();
+    Colors.append("#ffff99");
+    Colors.append("#ffff51");
+    Colors.append("#c7e55a");
+    Colors.append("#32b1df");
+    Colors.append("#3271ca");
+    Colors.append("#2c3898");
 
-    }
+    Legend<<Colors; //3
+    LegendMap << Colormap;
 
-    if (i == 7) { //blue green yellow red
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.5);
+    Colormap.append(1.0);
+    Colors.clear();
 
-        Colormap.clear();
-        Colormap.append(0.0);
-        Colormap.append(0.25);
-        Colormap.append(0.5);
-        Colormap.append(0.75);
-        Colormap.append(1.0);
-        //        Colors.clear();
-        //        Colors.append("#007300");
-        //        Colors.append("#00FF00");
-        //        Colors.append("#FFFF00");
-        //        Colors.append("#FF0000");
-        //        Colors.append("#A60000");
+    Colors.append("#77aa66");
+    Colors.append("#32b1df");
+    Colors.append("#3271ca");
 
-        Colors.clear();
-        //        Colors.append("#e0181c");
-        //        Colors.append("#fdae61");
-        //        Colors.append("#ffffa0");
-        //        Colors.append("#a6d96a");
-        //        Colors.append("#1a9641");
-        Colors.append("#2b83ba");
-        Colors.append("#a4ddd9");//abdda4");
-        Colors.append("#ffffef");
-        Colors.append("#d3b03e");//#fdae61");
-        Colors.append("#d7191c");
-    }
-    if (i == 8) {  // green white yellow red
-        Colormap.clear();
-        Colormap.append(0.0);
-        Colormap.append(0.3);
-        Colormap.append(0.5);
-        Colormap.append(0.70);
-        Colormap.append(1.0);
-        Colors.clear();
-        Colors.append("#616ca2");
-        Colors.append("#50B547");
-        Colors.append("#FFFFFF");
-        Colors.append("#ffff88");
-        Colors.append("#FF0000");
+    Legend<<Colors; //4
+    LegendMap << Colormap;
 
-    }
-    if (i == 9) {  //YELLOW ORGANDE BROWN/RED
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.25);
+    Colormap.append(0.5);
+    Colormap.append(0.75);
+    Colormap.append(1.0);
 
-        Colormap.clear();
-        Colormap.append(0.0);
-        Colormap.append(0.25);
-        Colormap.append(0.5);
-        Colormap.append(0.75);
-        Colormap.append(1.0);
-        Colors.clear();
-        Colors.append("#ffffd4");
-        Colors.append("#fed98e");
-        Colors.append("#fe9929");
-        Colors.append("#d95f0e");
-        Colors.append("#a94400");
+    Colors.clear();
+    Colors.append("#d7191c");
+    Colors.append("#fdae61");
+    Colors.append("#fdfd7e");
+    Colors.append("#abdda4");
+    Colors.append("#2b83ba");
 
-    }
-    if (i == 10) {  // greenish colors
-        Colormap.clear();
-        Colormap.append(0.0);
-        Colormap.append(0.25);
-        Colormap.append(0.5);
-        Colormap.append(0.75);
-        Colormap.append(1.0);
-        Colors.clear();
-        Colors.append("#f0f9e8");
-        Colors.append("#bae4bc");
-        Colors.append("#7bccc4");
-        Colors.append("#43a2ca");
-        Colors.append("#0868ac");
-    }
+    Legend<<Colors; //5
+    LegendMap << Colormap;
+
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.25);
+    Colormap.append(0.5);
+    Colormap.append(0.75);
+    Colormap.append(1.0);
+
+    Colors.clear();
+    Colors.append("#2b83ba");
+    Colors.append("#a4ddd9");
+    Colors.append("#ffffef");
+    Colors.append("#d3b03e");
+    Colors.append("#d7191c");
+
+    Legend<<Colors; //6
+    LegendMap << Colormap;
+
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.3);
+    Colormap.append(0.5);
+    Colormap.append(0.70);
+    Colormap.append(1.0);
+    Colors.clear();
+    Colors.append("#616ca2");
+    Colors.append("#50B547");
+    Colors.append("#FFFFFF");
+    Colors.append("#ffff88");
+    Colors.append("#FF0000");
+
+    Legend<<Colors; //7
+    LegendMap << Colormap;
+
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.25);
+    Colormap.append(0.5);
+    Colormap.append(0.75);
+    Colormap.append(1.0);
+    Colors.clear();
+    Colors.append("#ffffd4");
+    Colors.append("#fed98e");
+    Colors.append("#fe9929");
+    Colors.append("#d95f0e");
+    Colors.append("#a94400");
+
+    Legend<<Colors; //8
+    LegendMap << Colormap;
+
+    Colormap.clear();
+    Colormap.append(0.0);
+    Colormap.append(0.25);
+    Colormap.append(0.5);
+    Colormap.append(0.75);
+    Colormap.append(1.0);
+    Colors.clear();
+    Colors.append("#f0f9e8");
+    Colors.append("#bae4bc");
+    Colors.append("#7bccc4");
+    Colors.append("#43a2ca");
+    Colors.append("#0868ac");
+
+    Legend<<Colors; //9
+    LegendMap << Colormap;
+
 }
+//---------------------------------------------------------------------------
 
+// setup display list of maps in combo boxes
+//create combo box maps, once before run
 void TWorld::GetComboMaps()
 {
-    //combo box maps
     ClearComboMaps();
 
-    setColor(1);
-    AddComboMap(0,"Total Discharge","l/s",Qoutput,Colormap,Colors,true,false,1.0, 1.0);
-  //  if (FlowBoundaryType > 0)
-  //  AddComboMap(0,"Boundary Discharge","l/s",K2DQ,Colormap,Colors,true,false,1000.0, 1.0);
+    setLegendColors();
 
-    setColor(3);
-    AddComboMap(0,"Water Height","m",hmxWH,Colormap,Colors,false,false,1.0,0.01);
+    int cl = 0;
+    AddComboMap(0,"Total Discharge","l/s",Qoutput,LegendMap[cl],Legend[cl],true,false,1.0, 1.0);
+  //  if (FlowBoundaryType > 0)
+  //  AddComboMap(0,"Boundary Discharge","l/s",K2DQ,LegendMap[cl],Legend[cl],true,false,1000.0, 1.0);
+
+    cl = 2;
+    AddComboMap(0,"Water Height","m",hmxWH,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
 //    if (Switch2DDiagonalFlow)
-//       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,Colormap,Colors,false,false,1.0, 0.01);
-    setColor(2);
-    AddComboMap(0,"Flow Velocity","m/s",V /*COMBO_VOFCH*/,Colormap,Colors,false,false,1.0, 0.01);
-    AddComboMap(0,"Flow Momentum","m2/s",VH,Colormap,Colors,false,false,1.0, 0.01); //VH
+//       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
+    cl = 1;
+    AddComboMap(0,"Flow Velocity","m/s",V /*COMBO_VOFCH*/,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
+    AddComboMap(0,"Flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.01); //VH
 
     if(SwitchIncludeChannel)
     {
@@ -1501,68 +1470,67 @@ void TWorld::GetComboMaps()
 //        AddComboMap(0,"Channel Water Height","m",extWHCH,Colormap,Colors,false,false,1.0,0.01);
 //        setColor(2);
 //        AddComboMap(0,"Channel Velocity","m/s",extVCH,Colormap,Colors,false,false,1.0,0.01);
-        setColor(1);
-        AddComboMap(0,"Channel Discharge","l/s",ChannelQn,Colormap,Colors,true,false,1000.0, 1.0);
-        setColor(3);
-        AddComboMap(0,"Channel Water Height","m",ChannelWH,Colormap,Colors,false,false,1.0,0.01);
-        setColor(2);
-        AddComboMap(0,"Channel Velocity","m/s",ChannelV,Colormap,Colors,false,false,1.0,0.01);
+        cl = 0;
+        AddComboMap(0,"Channel Discharge","l/s",ChannelQn,LegendMap[cl],Legend[cl],true,false,1000.0, 1.0);
+        cl = 2;
+        AddComboMap(0,"Channel Water Height","m",ChannelWH,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
+        cl = 1;
+        AddComboMap(0,"Channel Velocity","m/s",ChannelV,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
 
 
     }
 
     if(SwitchIncludeTile || SwitchIncludeStormDrains) {
-        setColor(1);
-        AddComboMap(0,"Storm Drain Volume","m3",TileWaterVol,Colormap,Colors,false,false,1.0,1.0);
-        AddComboMap(0,"Storm Drain Discharge","l/s",TileQn,Colormap,Colors,false,false,1000.0,1.0);
+        cl = 0;
+        AddComboMap(0,"Storm Drain Volume","m3",TileWaterVol,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+        AddComboMap(0,"Storm Drain Discharge","l/s",TileQn,LegendMap[cl],Legend[cl],false,false,1000.0,1.0);
     }
     if(InfilMethod != INFIL_NONE)
     {
-        setColor(4);
-        AddComboMap(0,"Interception","mm",InterceptionmmCum,Colormap,Colors,false,false,1.0,1.0);
-        AddComboMap(0,"Infiltration","mm",InfilmmCum,Colormap,Colors,false,false,1.0,1.0);
-        AddComboMap(0,"Lw","mm",Lw,Colormap,Colors,false,false,1.0,1.0);
+        cl = 3;
+        AddComboMap(0,"Interception","mm",InterceptionmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+        AddComboMap(0,"Infiltration","mm",InfilmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+        if (InfilMethod > 1)
+            AddComboMap(0,"Depth wetting front","m",Lw,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
 
         if (InfilMethod != INFIL_SWATRE) {
-            AddComboMap(0,"Moisture content 1","-",Thetaeff,Colormap,Colors,false,false,1.0,1.0);
+            AddComboMap(0,"Moisture content 1","-",Thetaeff,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
             if (SwitchTwoLayer)
-                AddComboMap(0,"Moisture content 2","-",ThetaI2,Colormap,Colors,false,false,1.0,1.0);
+                AddComboMap(0,"Moisture content 2","-",ThetaI2,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
             if (!SwitchImpermeable)
-                AddComboMap(0,"Percolation","mm",PercmmCum,Colormap,Colors,false,false,1.0,1.0);
+                AddComboMap(0,"Percolation","mm",PercmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         }
     }
 
-    setColor(5);
+    cl = 4;
     double factor = 3600000.0/_dt; //from m to mm/h
 
-    AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,Colormap,Colors,false,false,1000.0,0.1);
-    AddComboMap(0,"Rainfall Intensity","mm/h",Rain,Colormap,Colors,false,false,factor,0.1);
-  //  AddComboMap(0,"ETa cumulative","mm",ETa,Colormap,Colors,false,false,1000.0,0.1);
+    AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,LegendMap[cl],Legend[cl],false,false,1000.0,0.1);
+    AddComboMap(0,"Rainfall Intensity","mm/h",Rain,LegendMap[cl],Legend[cl],false,false,factor,0.1);
+  //  AddComboMap(0,"ETa cumulative","mm",ETa,LegendMap[cl],Legend[cl],false,false,1000.0,0.1);
 
     if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
-        setColor(3);
-      //  QString txt = QString("Flood Height");
-      //  if (SwitchKinematic2D == K2D_METHOD_DYN)
+        cl = 2;
         QString txt = QString("Max flood Height (h>%1m)").arg(minReportFloodHeight);
 
-//        AddComboMap(0,txt,"m",hmxflood,Colormap,Colors,false,false,1.0,0.01);
+//        AddComboMap(0,txt,"m",hmxflood,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
 //        setColor(3);
-        AddComboMap(0,txt,"m",floodHmxMax,Colormap,Colors,false,false,1.0,0.01);
-        setColor(6);
-        AddComboMap(0,"Flood Start Time","min",floodTimeStart,Colormap,Colors,false,false,1.0,1.0);
-        setColor(7);
-        AddComboMap(0,"Flood duration","min",floodTime,Colormap,Colors,false,false,1.0,1.0);
-        setColor(6);
+        AddComboMap(0,txt,"m",floodHmxMax,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
+        cl = 5;
+        AddComboMap(0,"Flood Start Time","min",floodTimeStart,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+        cl = 6;
+        AddComboMap(0,"Flood duration","min",floodTime,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+        cl = 5;
         if (SwitchVariableTimestep) {
-            AddComboMap(0,"Timestep","s",FloodDT,Colormap,Colors,false,false,1.0,0.01);
-            AddComboMap(0,"Steps pr cell","-",FloodT,Colormap,Colors,false,false,1.0,1.0);
+            AddComboMap(0,"Timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
+            AddComboMap(0,"Steps pr cell","-",FloodT,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         }
     }
 
     if(SwitchErosion)
     {
         double step = 0.01;
-        setColor(7);
+        cl = 6;
 
         QString unit = "kg/cell";
         double factor = 1.0;
@@ -1575,80 +1543,35 @@ void TWorld::GetComboMaps()
             factor = 10.0/(_dx*_dx);
             unit = "t/ha";
         }
-        AddComboMap(1,"Total Soil Loss",unit,TotalSoillossMap,Colormap,Colors,false,true,factor, step);
+        AddComboMap(1,"Total Soil Loss",unit,TotalSoillossMap,LegendMap[cl],Legend[cl],false,true,factor, step);
 
-        setColor(9);
-        AddComboMap(1,"Splash detachment",unit,DETSplashCum,Colormap,Colors,false,false,factor, step);
-        AddComboMap(1,"Flow detachment",unit,DETFlowCum,Colormap,Colors,false,false,factor, step);
-        AddComboMap(1,"Sed. Concentration","kg/m3",TotalConc,Colormap,Colors,false,false,1.0, step);
+        cl = 8;
+        AddComboMap(1,"Splash detachment",unit,DETSplashCum,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"Flow detachment",unit,DETFlowCum,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"Sed. Concentration","kg/m3",TotalConc,LegendMap[cl],Legend[cl],false,false,1.0, step);
         if (SwitchSedtrap)
-        AddComboMap(1,"Sed trap","kg/m3",SedMaxVolume,Colormap,Colors,false,false,1.0, step);
+        AddComboMap(1,"Sed trap","kg/m3",SedMaxVolume,LegendMap[cl],Legend[cl],false,false,1.0, step);
 
         if(SwitchUse2Phase) {
-            AddComboMap(1,"Suspended sed.",unit,COMBO_SS/*SSFlood*/,Colormap,Colors,false,false,factor, step);
-            AddComboMap(1,"Bedload sed.",unit,COMBO_BL /*BLFlood*/,Colormap,Colors,false,false,factor, step);
-            AddComboMap(1,"TC suspended","kg/m3",SSTCFlood,Colormap,Colors,false,false,1.0, step);
-            AddComboMap(1,"TC bedload","kg/m3",BLTCFlood,Colormap,Colors,false,false,1.0, step);
-         //   AddComboMap(1,"SS depth","m",SSDepthFlood,Colormap,Colors,false,false,1.0, step);
-         //   AddComboMap(1,"BL depth","m",BLDepthFlood,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"Suspended sed.",unit,COMBO_SS/*SSFlood*/,LegendMap[cl],Legend[cl],false,false,factor, step);
+            AddComboMap(1,"Bedload sed.",unit,COMBO_BL /*BLFlood*/,LegendMap[cl],Legend[cl],false,false,factor, step);
+            AddComboMap(1,"TC suspended","kg/m3",SSTCFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
+            AddComboMap(1,"TC bedload","kg/m3",BLTCFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
+         //   AddComboMap(1,"SS depth","m",SSDepthFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
+         //   AddComboMap(1,"BL depth","m",BLDepthFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
         } else {
-            AddComboMap(1,"Sediment load",unit,COMBO_SED,Colormap,Colors,false,false,factor, step);
-            AddComboMap(1,"Transport Capacity","kg/m3",COMBO_TC,Colormap,Colors,false,false,1.0, step);
+            AddComboMap(1,"Sediment load",unit,COMBO_SED,LegendMap[cl],Legend[cl],false,false,factor, step);
+            AddComboMap(1,"Transport Capacity","kg/m3",COMBO_TC,LegendMap[cl],Legend[cl],false,false,1.0, step);
         }
 
-        setColor(10);
-        AddComboMap(1,"Deposition",unit,DEPCum,Colormap,Colors,false,false,-factor, step);
+        cl = 9;
+        AddComboMap(1,"Deposition",unit,DEPCum,LegendMap[cl],Legend[cl],false,false,-factor, step);
 
         if(SwitchUseMaterialDepth) {
-            AddComboMap(1,"Storage",unit,Storage,Colormap,Colors,false,false,-factor, step);
-        AddComboMap(1,"Storage",unit,StorageDep,Colormap,Colors,false,false,-factor, step);
+            AddComboMap(1,"Storage",unit,Storage,LegendMap[cl],Legend[cl],false,false,-factor, step);
+        AddComboMap(1,"Storage",unit,StorageDep,LegendMap[cl],Legend[cl],false,false,-factor, step);
         }
-
-/*
-        if(SwitchUseGrainSizeDistribution)
-        {
-            setColor(9);
-
-            FOR_GRAIN_CLASSES
-            {
-                AddComboMap(1,"Overland S.L. Grain Class " + QString::number(d),"kg/m2",Sed_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-            }
-            if(SwitchIncludeChannel)
-            {
-                if(SwitchUse2Phase)
-                {
-                    FOR_GRAIN_CLASSES
-                    {
-                        AddComboMap(1,"Channel BL S.L. Grain Class " + QString::number(d),"kg/m2",RBL_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-                    }
-                    FOR_GRAIN_CLASSES
-                    {
-                        AddComboMap(1,"Channel SS S.L. Grain Class " + QString::number(d),"kg/m2",RSS_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-                    }
-                }else
-                {
-                    FOR_GRAIN_CLASSES
-                    {
-                        AddComboMap(1,"Channel S.L. Grain Class " + QString::number(d),"kg/m2",RBL_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-                    }
-                }
-            }
-            if(SwitchChannelFlood)
-            {
-                FOR_GRAIN_CLASSES
-                {
-                    AddComboMap(1,"Flood BL S.L. Grain Class " + QString::number(d),"kg/m2",BL_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx), step);
-                }
-                FOR_GRAIN_CLASSES
-                {
-                    AddComboMap(1,"Flood SS S.L. Grain Class " + QString::number(d),"kg/m2",SS_D.at(d),Colormap,Colors,false,false,1.0/(_dx*_dx),step);
-                }
-            }
-
-        }
-        */
     }
-
 }
 //---------------------------------------------------------------------------
 void TWorld::ClearComboMaps()
@@ -1710,3 +1633,4 @@ void TWorld::stop()
     stopRequested = true;
 }
 //---------------------------------------------------------------------------
+
