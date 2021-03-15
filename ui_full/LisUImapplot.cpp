@@ -778,8 +778,6 @@ void lisemqt::showChannelVectorNew()
 {
     if (!checkIncludeChannel->isChecked())
         return;
-//    if (op.CHData.length() < 1)
-//        return;
 
     if (startplot) {
         QVector <double> X;
@@ -890,9 +888,9 @@ void lisemqt::showChannelVectorNew()
         op.EndPointY.clear();
         Xa.clear();
         Ya.clear();
-        op.ChanDataX.clear();
-        op.ChanDataY.clear();
-        op.Chanbranch.clear();
+//        op.ChanDataX.clear();
+//        op.ChanDataY.clear();
+//        op.Chanbranch.clear();
 
         QwtSymbol *greendot = new QwtSymbol( QwtSymbol::Ellipse, Qt::green,QPen( Qt::black ), QSize( dxi, dxi ) );
 
@@ -910,6 +908,7 @@ void lisemqt::showChannelVectorNew()
         op.CulvertY.clear();
     }
 }
+
 void lisemqt::getOutletMap()
 {
     if (!checkIncludeChannel->isChecked())
