@@ -2692,10 +2692,10 @@ void TWorld::FindBaseFlow()
         {
             tmd->Drc = 0;
         }
+
+        report(*BaseFlowInitialVolume,"baseflowinitm3s.map");
+        report(*BaseFlowInflow,"baseinflow.map");
     }
-
-
-
 }
 //---------------------------------------------------------------------------
 void TWorld::FindChannelAngles()

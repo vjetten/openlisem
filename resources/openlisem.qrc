@@ -46,6 +46,7 @@
         <file>../INSTALL</file>
         <file>../compile lisem windows 210301.txt</file>
         <file>../ubuntu compile.txt</file>
+        <file>../../lisempy/inputlisem0.5.py</file>
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>

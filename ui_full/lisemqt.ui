@@ -102,7 +102,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -5334,7 +5334,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>4</number>
                  </property>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="title">
@@ -9955,7 +9955,7 @@ p, li { white-space: pre-wrap; }
                              </font>
                             </property>
                             <property name="text">
-                             <string>Overland flow transport capacity equation (0-Givers; 1-Van Rijn Simplified; 2-Van Rijn (Full)</string>
+                             <string>Overland flow transport capacity equation (0-Govers; 1-Van Rijn Simplified; 2-Van Rijn (Full)</string>
                             </property>
                             <property name="alignment">
                              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -9981,7 +9981,7 @@ p, li { white-space: pre-wrap; }
                              </font>
                             </property>
                             <property name="text">
-                             <string>Channel transport capacity equation (0-Givers; 1-Van Rijn Simplified; 2-Van Rijn (Full)</string>
+                             <string>Channel transport capacity equation (0-Govers; 1-Van Rijn Simplified; 2-Van Rijn (Full)</string>
                             </property>
                             <property name="alignment">
                              <set>Qt::AlignJustify|Qt::AlignVCenter</set>

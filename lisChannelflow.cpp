@@ -215,10 +215,11 @@ void TWorld::ChannelAddBaseandRain(void)
 
         if(SwitchChannelBaseflow)
         {
+            //qDebug()
             if(!addedbaseflow)
             {
                 ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
-                BaseFlowTot += BaseFlowInitialVolume->Drc;
+                //BaseFlowTot += BaseFlowInitialVolume->Drc;
             }
             ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
             BaseFlowTot += BaseFlowInflow->Drc * _dt;

@@ -1043,8 +1043,11 @@ void lisemqt::setMapDir()
 
     pathin = findValidDir(E_MapDir->text(), false);
 
-    path = QFileDialog::getExistingDirectory(this, QString("Select maps directory"),pathin);//,
-                                             // /*QFileDialog::ShowDirsOnly |*/ QFileDialog::DontResolveSymlinks);
+//    path = QFileDialog::getExistingDirectory(this, QString("Select maps directory"),pathin,QFileDialog::ShowDirsOnly);
+//                                             //QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks |
+    path = QFileDialog::getOpenFileName(this,QString("Select maps directory"),
+                                        pathin,"maps (*.map)");
+
     if(!path.isEmpty())
         E_MapDir->setText( path );
 }
@@ -1112,7 +1115,7 @@ void lisemqt::on_toolButton_SwatreTableFile_clicked()
 {
     QString path;
     path = QFileDialog::getOpenFileName(this,
-                                        QString("Select thee SWATRE profile definition file"),
+                                        QString("Select the SWATRE profile definition file"),
                                         SwatreTableName,"Profiles (*.inp);;All files (*.*)");
     if(!path.isEmpty())
     {
@@ -1592,7 +1595,7 @@ void lisemqt::aboutQT()
 void lisemqt::aboutInfo()
 {
     QMessageBox::information ( this, "openLISEM",
-                               QString("openLISEM verion %8 (%9) is created wih:\n\n%1\n%2\n%3\n%4\n%5\n%6\n%7\n")
+                               QString("openLISEM verion %8 (%9) is created wih:\n\n%1\n%2\n%3\n%4\n%5\n%6\n%7\n%8")
                                .arg("- MSYS2 with MingW64, Qt and CMake (http://qt.nokia.com/).")
                                .arg("- Qwt technical application widgets for Qt (http://qwt.sf.net)")
                                .arg("- Flood source code partly based on fullSWOF2D (http://www.univ-orleans.fr/mapmo/soft/FullSWOF/)")
@@ -1600,6 +1603,7 @@ void lisemqt::aboutInfo()
                                .arg("- Using GDAL for map handling (https://gdal.org/)")
                                .arg("- PCRaster lib map functions: http://pcraster.geo.uu.nl/")
                                .arg("Details can be found at: http://lisem.sourceforge.net")
+                               .arg("This software is made available under GNU CPLv3.0")
                                .arg(VERSIONNR)
                                .arg(DATE)
                                );

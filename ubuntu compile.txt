@@ -5,11 +5,9 @@ sudo apt install cmake cmake-gui gcc g++ git libboost-all-dev libgdal-dev libncu
 - opengl:
 sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
 
-- qwt 6.1.4: download tar bz2 package and unpack in ../QT
-go into the qwt directory, run 
-../q513/5.13.1/gcc_64/bin/qmake qwt.pro 
-make -j
-sudo make install
+
+compilation is doen in qtcreator, so install qt
+https://wiki.qt.io/Install_Qt_5_on_Ubuntu 
 
 - install pcraster 4.3 via miniconda: https://pcraster.geo.uu.nl/pcraster/4.3.0/documentation/pcraster_project/install.html
 
@@ -18,7 +16,9 @@ sudo apt-get install gdal-bin
 and for python
 sudo apt-get install libgdal-dev
 
+Not sure about this:
 export CPLUS_INCLUDE_PATH=/usr/include/gdal
 export C_INCLUDE_PATH=/usr/include/gdal
 
  
+comnpiling goes via QtCreator: load 
