@@ -321,7 +321,8 @@ public:
 */
 
     bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelInflow,
-    SwitchChannelInfil,  SwitchErosion, SwitchLinkedList,    SwitchSedtrap, SwitchSnowmelt, SwitchRainfall,  SwitchInfilCompact,
+    SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchRainfall,
+    SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
@@ -409,7 +410,9 @@ public:
     double StormDrainTotmm, floodVolTotmm, floodTotmmInit;
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
-    bool rainStarted;
+    bool rainStarted;    
+    bool ETStarted;
+    double ETstartTime;
     double BulkDens;
     double nrCells, CatchmentArea, nrFloodedCells;
     double LitterSmax, ETaTot, ETaTotmm;
@@ -432,7 +435,9 @@ public:
     int nrDischargeseries;
     int nrRainfallseries;
     int nrSnowmeltseries;
+    int nrETseries;
     QVector <RAIN_LIST> RainfallSeriesM;  // rainfall vector of records
+    QVector <RAIN_LIST> ETSeriesM;
     QVector <RAIN_LIST> SnowmeltSeriesM;
     QVector <Q_LIST> DischargeInSeries;
     QVector <LDD_COORloc> crQin_;
@@ -480,6 +485,8 @@ public:
 
     QString rainFileName;
     QString rainFileDir;
+    QString ETFileName;
+    QString ETFileDir;
     QString dischargeinFileName;
     QString dischargeinFileDir;
     QString snowmeltFileName;
@@ -727,9 +734,14 @@ public:
     // 1D hydro processes
     //input timeseries
     void GetDischargeData(QString name);
-    void GetRainfallDataM(QString name, bool israinfall);   // get input timeseries
+    void GetRainfallData(QString name);   // get input timeseries
+    void GetETData(QString name);   // get input timeseries
+    void GetSnowmeltData(QString name);   // get input timeseries
+    double getTimefromString(QString sss);
     /// convert rainfall of a timestep into a map
     void RainfallMap(void);
+    /// convert ET of a timestep into a map
+    void ETMap(void);
     /// convert snowmelt of a timestep into a map
     void SnowmeltMap(void);
     void DischargeInflow(void);

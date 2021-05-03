@@ -289,6 +289,8 @@ public:
     QString RainFileDir;
     QString DischargeinDir;
     QString DischargeinFileName;
+    QString ETDir;
+    QString ETFileName;
     QString SnowmeltFileName;
     QString SnowmeltFileDir;
     QString SwatreTableName;
@@ -496,7 +498,6 @@ private slots:
 
     void on_toolButton_DischargeInName_clicked();
 
-    void on_toolButton_fileOpen_clicked();
 
 private:
 

@@ -152,6 +152,11 @@ void lisemqt::ParseInputData()
         if (p1.contains("["))
             continue;
 
+        if (p1.compare("Use Rainfall Satellite")==0)         checkRainfallSatellite->setChecked(check);// dummysnow = check;
+        if (p1.compare("Include ET")==0)                     checkIncludeET->setChecked(check);// dummysnow = check;
+        if (p1.compare("Use ET Satellite")==0)               checkETSatellite->setChecked(check);// dummysnow = check;
+        //if (p1.compare("Include Snowmelt")==0)               checkSnowmelt->setChecked(check);// dummysnow = check;
+
         if (p1.compare("Nr user Cores")==0) nrUserCores->setValue(iii);
         if (p1.compare("Result datetime")==0) checkAddDatetime->setChecked(check);
         if (p1.compare("Timeplot as PCRaster")==0)           checkWritePCRaster->setChecked(!check);
@@ -162,7 +167,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("End run report")==0)                 checkEndRunReport->setChecked(check);
         if (p1.compare("Add timestamp")==0)                  checkOutputTimestamp->setChecked(check);
         if (p1.compare("Variable Timestep")==0)              checkVariableTimestep->setChecked(check);
-        if (p1.compare("Include Snowmelt")==0)               checkSnowmelt->setChecked(check);// dummysnow = check;
         if (p1.compare("Include Satellite Image")==0)        checksatImage->setChecked(check);
         if (p1.compare("Output interval")==0)                printinterval->setValue(std::max(1,iii));
         if (p1.compare("Erosion map units (0/1/2)")==0)
@@ -421,8 +425,10 @@ void lisemqt::ParseInputData()
         QString p1 = namelist[j].name;
         QString p = namelist[j].value;
 
-        if (p1.compare("Begin time")==0) E_BeginTime->setText(p);
-        if (p1.compare("End time")==0) E_EndTime->setText(p);
+        if (p1.compare("Begin time day")==0) E_BeginTimeDay->setText(p);
+        if (p1.compare("End time day")==0) E_EndTimeDay->setText(p);
+        if (p1.compare("Begin time min")==0) E_BeginTimeMin->setText(p);
+        if (p1.compare("End time min")==0) E_EndTimeDay->setText(p);
         if (p1.compare("Timestep")==0) E_Timestep->setText(p);
 
         // input ourput dirs and file names
@@ -484,10 +490,22 @@ void lisemqt::ParseInputData()
             }
         }
 
+        if (p1.compare("ET Directory")==0) ETDir = CheckDir(p);
+        if (p1.compare("ET file")==0)
+        {
+            E_ETName->setText(ETDir + p);
+            ETFileName = p;
+            if (!QFileInfo(E_ETName->text()).exists())
+            {
+                ETDir = QString(E_WorkDir + "rain/");
+                E_ETName->setText(ETDir + p);
+            }
+        }
+
         if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
         if (p1.compare("Discharge inflow file")==0)
         {
-            E_RainfallName->setText(DischargeinDir + p);
+            E_DischargeInName->setText(DischargeinDir + p);
             DischargeinFileName = p;
             if (!QFileInfo(E_DischargeInName->text()).exists())
             {
@@ -644,6 +662,12 @@ void lisemqt::updateModelData()
     {
         QString p1 = namelist[j].name;
 
+        if (p1.compare("Use Rainfall satellite")==0)        namelist[j].value.setNum((int)checkRainfallSatellite->isChecked());
+        if (p1.compare("Include ET")==0)                    namelist[j].value.setNum((int)checkIncludeET->isChecked());
+        if (p1.compare("Use ET satellite")==0)              namelist[j].value.setNum((int)checkETSatellite->isChecked());
+        //if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
+
+
         if (p1.compare("Nr user Cores")==0) namelist[j].value.setNum(nrUserCores->value());
         // erosion
         if (p1.compare("Include Erosion simulation")==0)      namelist[j].value.setNum((int)checkDoErosion->isChecked());
@@ -730,8 +754,6 @@ void lisemqt::updateModelData()
         if (p1.compare("Hard Surfaces")==0)                  namelist[j].value.setNum((int)checkHardsurface->isChecked());
         if (p1.compare("Include storm drains")==0)           namelist[j].value.setNum((int)checkStormDrains->isChecked());
 
-     //   if (p1.compare("Include Rainfall")==0)               namelist[j].value.setNum((int)checkRainfall->isChecked());
-        if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
         if (p1.compare("Include Satellite Image")==0)        namelist[j].value.setNum((int)checksatImage->isChecked());
 
         if (p1.compare("Include Sediment traps")==0)         namelist[j].value.setNum((int)checkSedtrap->isChecked());
@@ -790,8 +812,10 @@ void lisemqt::updateModelData()
         }
         if (p1.compare("KE time based")==0)      namelist[j].value.setNum((int)checkKETimebased->isChecked());
 
-        if (p1.compare("Begin time")==0) namelist[j].value = E_BeginTime->text();
-        if (p1.compare("End time")==0)   namelist[j].value = E_EndTime->text();
+        if (p1.compare("Begin time Day")==0) namelist[j].value = E_BeginTimeDay->text();
+        if (p1.compare("End time Day")==0)   namelist[j].value = E_EndTimeDay->text();
+        if (p1.compare("Begin time Min")==0) namelist[j].value = E_BeginTimeMin->text();
+        if (p1.compare("End time Min")==0)   namelist[j].value = E_EndTimeMin->text();
         if (p1.compare("Timestep")==0)   namelist[j].value = E_Timestep->text();
         if (p1.compare("Work Directory")==0)    namelist[j].value = E_WorkDir;//->text();
         if (p1.compare("Map Directory")==0)    namelist[j].value = E_MapDir->text();

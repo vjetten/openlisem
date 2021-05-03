@@ -1803,8 +1803,10 @@ void lisemqt::resetAll()
     E_SeriesTotals->setText("totalSeries.csv");
     E_PointResults->setText("hydrographs.csv");
 
-    E_BeginTime->setText("0");
-    E_EndTime->setText("100");
+    E_BeginTimeDay->setText("1");
+    E_BeginTimeMin->setText("0");
+    E_EndTimeDay->setText("1");
+    E_EndTimeMin->setText("120");
     E_Timestep->setText("20");
 
     checkBox_OutRunoff->setChecked(false);
@@ -1836,7 +1838,7 @@ void lisemqt::resetAll()
 
     progressBar->setValue(0);
 
-    checkSnowmelt->setChecked(false);
+    //checkSnowmelt->setChecked(false);
     //checkRainfall->setChecked(true);
 
     //main

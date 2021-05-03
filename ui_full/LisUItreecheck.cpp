@@ -290,7 +290,7 @@ void lisemqt::RunAllChecks()
     checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
     checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
-    checkMapNameModel(RAINFALLMAPS, 0, checkSnowmelt->isChecked());
+   // checkMapNameModel(RAINFALLMAPS, 0, checkSnowmelt->isChecked());
 
     int nr = E_InfiltrationMethod->currentIndex();
     if (nr == 0)

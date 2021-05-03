@@ -599,7 +599,11 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
 
     if (SwitchRainfall)
     {
-        RainZone = ReadMap(LDD,getvaluename("id"));
+        RainZone = ReadMap(LDD,getvaluename("ID"));
+    }
+    if (SwitchIncludeET)
+    {
+        ETZone = ReadMap(LDD,getvaluename("ETID"));
     }
 
     Snowcover = NewMap(0);
@@ -1811,6 +1815,7 @@ void TWorld::IntializeData(void)
     RainpeakTime = 0;
     RainstartTime = -1;
     rainStarted = false;
+    ETStarted = false;
     RainAvgmm = 0;
     SnowAvgmm = 0;
     SnowTot = 0;
@@ -1838,6 +1843,7 @@ void TWorld::IntializeData(void)
     DStor = NewMap(0);
 
     ETa = NewMap(0);
+    ETp = NewMap(0);
 
     Snowmelt = NewMap(0);
     Snowmeltc = NewMap(0);
@@ -2311,6 +2317,8 @@ void TWorld::IntializeOptions(void)
 
     rainFileName.clear();
     rainFileDir.clear();
+    ETFileName.clear();
+    ETFileDir.clear();
     snowmeltFileName.clear();
     snowmeltFileDir.clear();
     SwatreTableDir.clear();

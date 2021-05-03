@@ -45,7 +45,7 @@ functions: \n
 /// reads also old RUU lisem rain files
 /// can read rainfall maps in between intensity values
 /// format: first line ends with integer that is nr of data columns excl time
-void TWorld::GetRainfallDataM(QString name, bool israinfall)
+void TWorld::GetRainfallData(QString name)
 {
     RAIN_LIST rl;
     QFile fff(name);
@@ -58,13 +58,11 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
     int nrSeries = 0;
     int skiprows = 0;
     double time = 0.0;
-    QString errorS = (israinfall ? "Rainfall" : "Snowmelt");
     bool oldformat = true;
-
 
     if (!fi.exists())
     {
-        ErrorString = errorS + " file not found: " + name;
+        ErrorString = "Rainfall file not found: " + name;
         throw 1;
     }
 
@@ -78,17 +76,10 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
         S = fff.readLine();
         if (S.contains("\n"))
             S.remove(S.count()-1,1);
-        // readLine also reads \n as a character on an empty line!
         if (!S.trimmed().isEmpty())
             rainRecs << S.trimmed();
-        //qDebug() << S;
     }
     fff.close();
-    // get all rainfall records without empty lines
-    //rainRecs << QString("1000000 0");
-    // DOES NOT WORK for more than one station
-    // add a very large number so that the rainfall after the last timestep is 0
-
 
     // check first if PCRaster graph format is present: header, number of vars, columns equal vars
     int count = rainRecs[1].toInt(&ok, 10);
@@ -104,6 +95,9 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
         // nr stations is count-1 for time as forst column
     }
 
+    if (rainRecs[0].contains("RUU"))
+        oldformat = true;
+
     if (oldformat)
     {
         QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
@@ -114,7 +108,6 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
         // failure gives 0
         SL = rainRecs[rainRecs.count()-1].split(QRegExp("\\s+"));
         oldformat = (nrStations == SL.count()-1);
-
     }
 
     //check if nr stations found equals nr columns-1, 1st column is time
@@ -124,22 +117,20 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
         skiprows = 3;
 
     int nrmap = 0;
-    if (israinfall)
-        nrmap = countUnits(*RainZone);
-    else
-        nrmap = countUnits(*SnowmeltZone);
+    nrmap = countUnits(*RainZone);
 
-//    if (nrmap != nrStations)
-//    {
-//        ErrorString = QString("Number of stations in rainfall file (%1) != nr of rainfall zones in ID map (%2)").arg(nrStations).arg(nrmap);
-//        throw 1;
-//    }
+    if (nrmap > nrStations)
+    {
+        ErrorString = QString("Number of stations in rainfall file (%1) < nr of rainfall zones in ID map (%2)").arg(nrStations).arg(nrmap);
+        throw 1;
+    }
+
     nrSeries = rainRecs.size() - nrStations - skiprows;
     // count rainfall or snowmelt records
 
     if (nrSeries <= 1)
     {
-        ErrorString = errorS + " records <= 1, must at least have one interval with 2 rows: a begin and end time.";
+        ErrorString = "Rainfall records <= 1, must at least have one interval with 2 rows: a begin and end time.";
         throw 1;
     }
 
@@ -151,37 +142,36 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
         rl.isMap = false;
         rl.name = "";
         QString dirname;
-        if (israinfall)
-            dirname = rainFileDir;
-        else
-            dirname = snowmeltFileDir;
+        dirname = rainFileDir;
 
+        // split rainfall record row with whitespace
         QStringList SL = rainRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
 
-          // split rainfall record row with whitespace
-        rl.time = SL[0].toDouble();
-        // time in min
-   //     qDebug() << SL << rl.time;
+        // read date time string and convert to time in minutes
+        rl.time = getTimefromString(SL[0]);
+
+        qDebug() << rl.time << SL[0];
+
         if (r == 0)
             time = rl.time;
 
         if (r > 0 && rl.time <= time)
         {
-            ErrorString = errorS + QString(" records at time %1 has unreadable value.").arg(rl.time);
+            qDebug() << r << time << rl.time;
+            ErrorString = QString("Rainfall records at time %1 has unreadable value.").arg(rl.time);
             throw 1;
         }
         else
             time = rl.time;
 
         // check if record has characters, then filename assumed
-
-        if (SL[1].contains(QRegExp("[A-Za-z]")))
+        if (SwitchRainfallSatellite)//  SL[1].contains(QRegExp("[A-Za-z]")))
         {
             QFileInfo fi(QDir(dirname), SL[1]);
             // asume second record is name
             if (!fi.exists())
             {
-                ErrorString = errorS + QString(" map %1 not found. Rainfall maps must be in the rainfall directory.").arg(SL[1]);
+                ErrorString = QString("Rainfall map %1 not found. Rainfall maps must be in the rainfall directory.").arg(SL[1]);
                 throw 1;
             }
 
@@ -199,37 +189,25 @@ void TWorld::GetRainfallDataM(QString name, bool israinfall)
                 rl.intensity << SL[i].toDouble(&ok);
                 if (!ok)
                 {
-                    ErrorString = errorS + QString(" records at time %1 has unreadable value.").arg(SL[0]);
+                    ErrorString = QString("Rainfall records at time %1 has unreadable value.").arg(SL[0]);
                     throw 1;
                 }
             }
         }
-        if (israinfall)
-            RainfallSeriesM << rl;
-        else
-            SnowmeltSeriesM << rl;
+        RainfallSeriesM << rl;
     }
 
-    nrSeries++;
-    rl.time = 1440*365;
-    for (int i = 1; i < nrStations; i++)
-        rl.intensity << 0.0;
+    if(!SwitchETSatellite) {
+        nrSeries++;
+        rl.time = rl.time+1440;
 
-    if (israinfall)
+        for (int i = 1; i < nrStations; i++)
+            rl.intensity << 0.0;
+
         RainfallSeriesM << rl;
-    else
-        SnowmeltSeriesM << rl;
+    }
 
-    if (israinfall)
-        nrRainfallseries = nrSeries;
-    else
-        nrSnowmeltseries = nrSeries;
-
-//      for (int i = 0; i < RainfallSeriesM.count(); i++)
-//         qDebug() << "rain" << RainfallSeriesM[i].time <<RainfallSeriesM[i].intensity << RainfallSeriesM[i].name;
-
-//      for (int i = 0; i < SnowmeltSeriesM.count(); i++)
-//         qDebug() << " snow" << SnowmeltSeriesM[i].time <<SnowmeltSeriesM[i].intensity << SnowmeltSeriesM[i].name;
+    nrRainfallseries = nrSeries;
 }
 //---------------------------------------------------------------------------
 /**
@@ -420,9 +398,6 @@ qDebug() << locationnnrsrec;
         }
     }}
 
-   // qDebug() << crQin_;
-
-
     for(int r = 0; r < nrSeries; r++)
     {
         // initialize rainfall record structure
@@ -505,4 +480,394 @@ void TWorld::DischargeInflow(void)
     report(*Qinflow,"qinf");
 }
     //---------------------------------------------------------------------------
+void TWorld::GetETData(QString name)
+{
+    RAIN_LIST rl;
+    QFile fff(name);
+    QFileInfo fi(name);
+    QString S;
+    QStringList ETRecs;
+    QStringList SL;
+    bool ok;
+    int nrStations = 0;
+    int nrSeries = 0;
+    int skiprows = 0;
+    double time = 0.0;
 
+    if (!SwitchIncludeET)
+        return;
+
+    if (!fi.exists())
+    {
+        ErrorString = "ET file not found: " + name;
+        throw 1;
+    }
+
+    nrETseries = 0;
+
+    fff.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    // get all rainfall records without empty lines
+    while (!fff.atEnd())
+    {
+        S = fff.readLine();
+        if (S.contains("\n"))
+            S.remove(S.count()-1,1);
+        if (!S.trimmed().isEmpty())
+            ETRecs << S.trimmed();
+    }
+    fff.close();
+
+    // check first if PCRaster graph format is present: header, number of vars, columns equal vars
+    int cols = ETRecs[1].toInt(&ok, 10); // nr of columns specified in file
+
+    // header
+    // second line is only an integer
+    bool oldformat = true;
+    if (ok)
+    {
+        SL = ETRecs[cols+2].split(QRegExp("\\s+"));  // get first data row and split in cols
+        if (cols == SL.count())
+            oldformat = false;
+        //if the number of columns equals the integer then new format
+        nrStations = cols-1;
+        // nr stations is cols-2 with day/hour/min as first column
+    }
+    if (ETRecs[0].contains("RUU"))
+        oldformat = true;
+
+    if(oldformat) {
+        ErrorString = "old style rainfall/ET records no longer supported";
+        throw 1;
+    }
+
+    //check if nr stations found equals nr columns-1, 1st column is time
+    skiprows = 3;
+
+    int nrmap = 0;
+    nrmap = countUnits(*ETZone);
+
+    if (nrmap > nrStations)
+    {
+        ErrorString = QString("Number of stations in ET file (%1) < nr of rainfall zones in ETID map (%2)").arg(nrStations).arg(nrmap);
+        throw 1;
+    }
+
+    nrSeries = ETRecs.size() - nrStations - skiprows;
+    // count nr data records
+
+    if (nrSeries <= 1)
+    {
+        ErrorString = "ET data records <= 1, must at least have one interval with 2 rows: a begin and end time.";
+        throw 1;
+    }
+
+    for(int r = 0; r < nrSeries; r++)
+    {
+        // initialize rainfall record structure
+        rl.time = 0;
+        rl.intensity.clear();
+        rl.isMap = false;
+        rl.name = "";
+        QString dirname;
+        dirname = ETFileDir;
+
+        // split rainfall record row with whitespace
+        QStringList SL = ETRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+
+        // read date time string and convert to time in minutes
+        rl.time = getTimefromString(SL[0]);
+
+        if (r == 0)
+            time = rl.time;
+
+        if (r > 0 && rl.time <= time)
+        {
+            ErrorString = QString("ET records at time %1 has unreadable value.").arg(rl.time);
+            throw 1;
+        }
+        else
+            time = rl.time;
+
+        // check if record has characters, then filename assumed
+
+        if (SwitchETSatellite)
+        {
+            QFileInfo fi(QDir(dirname), SL[1]);
+            // asume second record is name
+            if (!fi.exists())
+            {
+                ErrorString = QString("ET maps %1 not found. ET maps must be in the ET directory.").arg(SL[1]);
+                throw 1;
+            }
+
+            rl.name = fi.absoluteFilePath();
+            rl.isMap = true;
+            // a mapname if the file exists
+        } else {
+            // record is assumed to be a double
+
+            for (int i = 1; i <= nrStations; i++)
+            {
+                bool ok = false;
+                rl.intensity << SL[i].toDouble(&ok);
+                if (!ok)
+                {
+                    ErrorString = QString("ET records at time %1 has unreadable value.").arg(SL[0]);
+                    throw 1;
+                }
+            }
+        }
+        ETSeriesM << rl;
+    }
+
+    if(!SwitchETSatellite) {
+        nrSeries++;
+        rl.time = rl.time+1440;
+        for (int i = 1; i < nrStations; i++)
+            rl.intensity << 0.0;
+        ETSeriesM << rl;
+    }
+
+    nrETseries = nrSeries;
+}
+//---------------------------------------------------------------------------
+void TWorld::GetSnowmeltData(QString name)
+{
+    RAIN_LIST rl;
+    QFile fff(name);
+    QFileInfo fi(name);
+    QString S;
+    QStringList rainRecs;
+    QStringList SL;
+    bool ok;
+    int nrStations = 0;
+    int nrSeries = 0;
+    int skiprows = 0;
+    double time = 0.0;
+    bool oldformat = true;
+
+    if (!SwitchSnowmelt)
+        return;
+
+    if (!fi.exists())
+    {
+        ErrorString = "SnowMelt file not found: " + name;
+        throw 1;
+    }
+
+    nrSnowmeltseries = 0;
+
+    fff.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    while (!fff.atEnd())
+    {
+        S = fff.readLine();
+        if (S.contains("\n"))
+            S.remove(S.count()-1,1); // readLine also reads \n as a character on an empty line!
+        if (!S.trimmed().isEmpty())
+            rainRecs << S.trimmed();
+    }
+    fff.close();
+
+    // check first if PCRaster graph format is present: header, number of vars, columns equal vars
+    int count = rainRecs[1].toInt(&ok, 10);
+    // header
+    // second line is only an integer
+    if (ok)
+    {
+        SL = rainRecs[count+2].split(QRegExp("\\s+"));
+        if (count == SL.count())
+            oldformat = false;
+        //if the number of columns equals the integer then new format
+        nrStations = count-1;
+        // nr stations is count-1 for time as forst column
+    }
+
+    if (rainRecs[0].contains("RUU"))
+        oldformat = true;
+
+    if (oldformat)
+    {
+        QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
+        // get first line, white space character as split for header
+
+        nrStations = SL[SL.size()-1].toInt(&ok, 10);
+        // read nr stations from last value in old style header
+        // failure gives 0
+        SL = rainRecs[rainRecs.count()-1].split(QRegExp("\\s+"));
+        oldformat = (nrStations == SL.count()-1);
+    }
+
+    //check if nr stations found equals nr columns-1, 1st column is time
+    if (oldformat)
+        skiprows = 1;
+    else
+        skiprows = 3;
+
+    int nrmap = 0;
+    nrmap = countUnits(*SnowmeltZone);
+    if (nrmap > nrStations)
+    {
+        ErrorString = QString("Number of stations in Snowmelt file (%1) < nr of rainfall zones in SNOWID map (%2)").arg(nrStations).arg(nrmap);
+        throw 1;
+    }
+    nrSeries = rainRecs.size() - nrStations - skiprows;
+    // count rainfall or snowmelt records
+
+    if (nrSeries <= 1)
+    {
+        ErrorString = "Snowmelt records <= 1, must at least have one interval with 2 rows: a begin and end time.";
+        throw 1;
+    }
+
+    for(int r = 0; r < nrSeries; r++)
+    {
+        // initialize rainfall record structure
+        rl.time = 0;
+        rl.intensity.clear();
+        rl.isMap = false;
+        rl.name = "";
+        QString dirname;
+        dirname = snowmeltFileDir;
+
+        // split rainfall record row with whitespace
+        QStringList SL = rainRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+
+        // read date time string and convert to time in minutes
+        rl.time = getTimefromString(SL[0]);
+
+        if (r == 0)
+            time = rl.time;
+
+
+        if (r > 0 && rl.time <= time)
+        {
+            ErrorString = QString("Snowmelt records at time %1 has unreadable value.").arg(rl.time);
+            throw 1;
+        }
+        else
+            time = rl.time;
+
+        // check if record has characters, then filename assumed
+        if (SwitchRainfallSatellite)//  SL[1].contains(QRegExp("[A-Za-z]")))
+        {
+            QFileInfo fi(QDir(dirname), SL[1]);
+            // asume second record is name
+            if (!fi.exists())
+            {
+                ErrorString = QString("Snowmelt map %1 not found. Snowmelt maps must be in the rainfall directory.").arg(SL[1]);
+                throw 1;
+            }
+
+            rl.name = fi.absoluteFilePath();
+            rl.isMap = true;
+            // a mapname if the file exists
+        }
+        else
+        {
+            // record is a assumed to be a double
+            for (int i = 1; i <= nrStations; i++)
+            {
+                bool ok = false;
+                rl.intensity << SL[i].toDouble(&ok);
+                if (!ok)
+                {
+                    ErrorString = QString(" records at time %1 has unreadable value.").arg(SL[0]);
+                    throw 1;
+                }
+            }
+        }
+
+        SnowmeltSeriesM << rl;
+    }
+
+    if(!SwitchETSatellite) {
+        nrSeries++;
+        rl.time = rl.time+1440;
+
+        for (int i = 1; i < nrStations; i++)
+            rl.intensity << 0.0;
+
+        SnowmeltSeriesM << rl;
+    }
+
+    nrSnowmeltseries = nrSeries;
+}
+//---------------------------------------------------------------------------
+double TWorld::getTimefromString(QString sss)
+{
+    // read date time string and convert to time in minutes
+
+    if (!sss.contains(QRegExp("[-:/]"))) {
+        return(sss.toDouble());
+
+    } else {
+        // DDD/HH/MM or DDD-HH-MM or DDD:HH:MM
+        QStringList DHM = sss.split(QRegExp("[-:/]"));
+        bool nohour = (DHM.count() == 2);
+        double day = DHM.at(0).toDouble();
+        double hour = 0;
+        double min = 0;
+        if (nohour)
+            min = DHM.at(1).toDouble();
+        else {
+            hour = DHM.at(1).toDouble();
+            min = DHM.at(2).toDouble();
+        }
+
+        return((day-1)*1440+hour*60+min);
+    }
+}
+//---------------------------------------------------------------------------
+void TWorld::ETMap(void)
+{
+    double timeminprev = (time-_dt) / 60; //prev time in minutes
+    int  ETplace;
+    double tt = 3600000.0;
+
+    if (!SwitchRainfall)
+        return;
+
+    for (ETplace = 0; ETplace < nrETseries; ETplace++)
+        if (timeminprev < ETSeriesM[ETplace].time)
+            break;
+
+    if (ETSeriesM[ETplace].isMap)
+    {
+        auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(ETSeriesM[ETplace].name)));
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
+        {
+            if (pcr::isMV(_M->Drc))
+            {
+                QString sr, sc;
+                sr.setNum(r); sc.setNum(c);
+                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+ETSeriesM[ETplace].name;
+                throw 1;
+            }
+            else
+                ETp->Drc = _M->Drc *_dt/tt;
+        }}
+    }
+    else
+    {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
+        {
+            ETp->Drc = ETSeriesM[ETplace].intensity[(int) ETZone->Drc-1]*_dt/tt;
+        }}
+    }
+
+    if (!ETStarted) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            if(ETp->Drc > 0) ETStarted = true;
+        }}
+    }
+
+
+    if (ETStarted && ETstartTime == -1)
+        ETstartTime = time;
+}

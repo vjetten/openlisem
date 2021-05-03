@@ -44,6 +44,7 @@ cTMap
 *FlowBoundary,               //!< map with open boundary fior diffusive runoff (1) or closed boundary (0)
 
 *RainZone,                   //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
+*ETZone,                     //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *Rain,                       //!< map with rain from tis time intervall [m]
 //*noRain,
 *Rainc,                      //!< map with rain from tis time intervall, spread over the surface (corrected or slope) [m]
@@ -64,6 +65,7 @@ cTMap
 *DrumStore,                  //!< Max storage of rainwter drums [m^3]
 *InterceptionmmCum,
 *ETa,
+*ETp,
 
 *SnowmeltZone,               //!< snowmelt zone map, values corrspond to snowmelt gauge numbers [-]
 *Snowcover,                  //!< snowmelt cover map, value 1.0 if there is snowcover, 0 without [-]

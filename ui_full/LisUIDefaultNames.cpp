@@ -39,7 +39,8 @@ void lisemqt::DefaultMapnames()
     //# syntax: branch level; keyword; default mapname; description; variable name
     DEFmaps.append("0;Rainfall");
     DEFmaps.append("2;ID;ID.map;Raingauge zone ID numbers, correspond to columns (1,2,...) in rainfall file;ID");
-    DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
+    DEFmaps.append("2;ET ID;ETID.map;ET zone ID numbers, correspond to columns (1,2,...) in EvapoTranspiration file;ETID");
+//    DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
 
     DEFmaps.append("0;Catchment");
     DEFmaps.append("2;DEM;dem.map;Digital elevation model (m);dem");
@@ -135,9 +136,6 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Porosity Grass;poregras.map;Porosity of grasstrips (all models except SWATRE) (-);poregras");
     DEFmaps.append("2;Cohesion Grass;cohgras.map;Porosity of grasstrips (all models except SWATRE) (-);cohgras");
 
-//    DEFmaps.append("0;Snowmelt");
-//    DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
-
     DEFmaps.append("0;Storm/Tile drains");
     DEFmaps.append("2;LDD;lddtile.map;LDD of tile drain system (must be one system connected to the outlet);lddtile");
     DEFmaps.append("2;Sink;tilesink.map;Sink holes connecting surface to tile drain system (size in m2);tilesink");
@@ -184,7 +182,15 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Rainfall Directory");
     namelist[i++].name = QString("Rainfall file");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include Snowmelt");
+    namelist[i++].name = QString("Use Rainfall satellite");
+    namelist[i++].name = QString("ET Directory");
+    namelist[i++].name = QString("ET file");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include ET");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use ET satellite");
+    //    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Include Snowmelt");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Result datetime");
     namelist[i].value = QString("0");
@@ -264,11 +270,15 @@ void lisemqt::defaultRunFile()
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Simulation times]");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Begin time Day");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("End time Day");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Begin time");
-    namelist[i].value = QString("100");
-    namelist[i++].name = QString("End time");
-    namelist[i].value = QString("0.15");
+    namelist[i++].name = QString("Begin time Min");
+    namelist[i].value = QString("120");
+    namelist[i++].name = QString("End time Min");
+    namelist[i].value = QString("10");
     namelist[i++].name = QString("Timestep");
 
     //###

@@ -153,16 +153,24 @@ void TWorld::DoModel()
         // reset all display output maps for new job
         // must be done after Initialize Data because then we know how large the map is
 
+        SwitchSnowmelt = false;
         if (SwitchRainfall)
         {
             DEBUG("GetRainfallData()");
-            GetRainfallDataM(rainFileName, true);
+            GetRainfallData(rainFileName);
+        }
+        if (SwitchIncludeET)
+        {
+            DEBUG("GetETData()");
+            GetRainfallData(ETFileName);
         }
         if (SwitchSnowmelt)
         {
             DEBUG("GetSnowmeltData()");
-            GetRainfallDataM(snowmeltFileName, false);
+            GetSnowmeltData(snowmeltFileName);
         }
+
+
         if (SwitchChannelInflow)
         {
             DEBUG("GetDischargeData()");
