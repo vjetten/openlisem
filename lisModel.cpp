@@ -132,8 +132,11 @@ void TWorld::DoModel()
         ParseRunfileData();
         // get and parse runfile
 
-        BeginTime = getvaluedouble("Begin time") * 60;
-        EndTime = getvaluedouble("End time") * 60;
+        QString bt = getvaluestring("Begin time");
+        QString et = getvaluestring("End time");
+        BeginTime = getTimefromString(bt)*60; // in seconds!
+        EndTime = getTimefromString(et)*60;
+
         _dt = getvaluedouble("Timestep");
         op.BeginTime = BeginTime/60; // for graph drawing
         op.EndTime = EndTime/60;// for graph drawing

@@ -541,6 +541,7 @@ public:
     QString getvaluename(QString vname);
     double getvaluedouble(QString vname);
     int getvalueint(QString vname);
+    QString getvaluestring(QString vname);
     QString CheckDir(QString p, bool makeit = false);
     QString GetName(QString p);
     QString checkOutputMapName(QString p, QString S, int i);

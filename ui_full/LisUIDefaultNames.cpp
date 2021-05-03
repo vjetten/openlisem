@@ -270,14 +270,10 @@ void lisemqt::defaultRunFile()
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Simulation times]");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("Begin time Day");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("End time Day");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Begin time Min");
-    namelist[i].value = QString("120");
-    namelist[i++].name = QString("End time Min");
+    namelist[i].value = QString("1:0");
+    namelist[i++].name = QString("Begin time");
+    namelist[i].value = QString("1:100");
+    namelist[i++].name = QString("End time");
     namelist[i].value = QString("10");
     namelist[i++].name = QString("Timestep");
 

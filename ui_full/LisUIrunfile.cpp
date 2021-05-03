@@ -425,10 +425,8 @@ void lisemqt::ParseInputData()
         QString p1 = namelist[j].name;
         QString p = namelist[j].value;
 
-        if (p1.compare("Begin time day")==0) E_BeginTimeDay->setText(p);
-        if (p1.compare("End time day")==0) E_EndTimeDay->setText(p);
-        if (p1.compare("Begin time min")==0) E_BeginTimeMin->setText(p);
-        if (p1.compare("End time min")==0) E_EndTimeDay->setText(p);
+        if (p1.compare("Begin time")==0) E_BeginTime->setText(p);
+        if (p1.compare("End time")==0) E_EndTime->setText(p);
         if (p1.compare("Timestep")==0) E_Timestep->setText(p);
 
         // input ourput dirs and file names
@@ -812,10 +810,8 @@ void lisemqt::updateModelData()
         }
         if (p1.compare("KE time based")==0)      namelist[j].value.setNum((int)checkKETimebased->isChecked());
 
-        if (p1.compare("Begin time Day")==0) namelist[j].value = E_BeginTimeDay->text();
-        if (p1.compare("End time Day")==0)   namelist[j].value = E_EndTimeDay->text();
-        if (p1.compare("Begin time Min")==0) namelist[j].value = E_BeginTimeMin->text();
-        if (p1.compare("End time Min")==0)   namelist[j].value = E_EndTimeMin->text();
+        if (p1.compare("Begin time")==0) namelist[j].value = E_BeginTime->text();
+        if (p1.compare("End time")==0)   namelist[j].value = E_EndTime->text();
         if (p1.compare("Timestep")==0)   namelist[j].value = E_Timestep->text();
         if (p1.compare("Work Directory")==0)    namelist[j].value = E_WorkDir;//->text();
         if (p1.compare("Map Directory")==0)    namelist[j].value = E_MapDir->text();

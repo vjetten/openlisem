@@ -1803,10 +1803,8 @@ void lisemqt::resetAll()
     E_SeriesTotals->setText("totalSeries.csv");
     E_PointResults->setText("hydrographs.csv");
 
-    E_BeginTimeDay->setText("1");
-    E_BeginTimeMin->setText("0");
-    E_EndTimeDay->setText("1");
-    E_EndTimeMin->setText("120");
+    E_BeginTime->setText("1:0");
+    E_EndTime->setText("1:120");
     E_Timestep->setText("20");
 
     checkBox_OutRunoff->setChecked(false);

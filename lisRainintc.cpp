@@ -67,7 +67,6 @@ void TWorld::GetRainfallData(QString name)
     }
 
     nrRainfallseries = 0;
-    nrSnowmeltseries = 0;
 
     fff.open(QIODevice::ReadOnly | QIODevice::Text);
 
@@ -253,14 +252,7 @@ void TWorld::RainfallMap(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L
         {
-            //.            if (RainZone->Drc-1 <  RainfallSeriesM[rainplace].intensity.count())
             Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
-            //            else
-            //            {
-            //                ErrorString = QString("No rainfall data for ID map zone %1").arg(RainZone->Drc);
-            //                throw 1;
-            //            }
-            // Rain in m per timestep from mm/h, rtecord nr corresponds map ID value -1
             //TODO: weighted average if dt larger than table dt
         }}
     }
@@ -342,7 +334,7 @@ void TWorld::GetDischargeData(QString name)
     }}
 
     int count = QRecs[1].toInt(&ok, 10); // nr of columns stated in the file
-qDebug() << count << nrStations;
+
     if (nrStations != count - 1) {
         ErrorString = QString("Nr columns is in the discharge inflow file (%1) is not equal to nr locations in the discharge inflow point map").arg(name);
         throw 1;
