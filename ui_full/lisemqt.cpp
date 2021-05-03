@@ -179,7 +179,7 @@ void lisemqt::SetConnections()
 
  //   connect(checkWritePCRaster,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
  //   connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
-    connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
+ //   connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
 //    connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow1D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
@@ -554,7 +554,7 @@ void lisemqt::on_checkSedMultiGrain_toggled(bool v)
 {
     if(v) {
         checkSed2Phase->setChecked(false);
-        sedbox1->setEnabled(true);
+     //   sedbox1->setEnabled(true);
         sedbox2->setEnabled(true);
         sedbox3->setEnabled(true);
         E_RBLMethod->setValue(3);
@@ -571,12 +571,12 @@ void lisemqt::on_checkSedMultiGrain_toggled(bool v)
 //--------------------------------------------------------------------
 void lisemqt::on_checkEstimateGrainSizeDistribution_toggled(bool v)
 {
-    checkReadGrainSizeDistribution->setChecked(!v);
+   //checkReadGrainSizeDistribution->setChecked(!v);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
 {
-    checkEstimateGrainSizeDistribution->setChecked(!v);
+    //checkEstimateGrainSizeDistribution->setChecked(!v);
 }
 //--------------------------------------------------------------------
 void lisemqt::setFloodTab(bool yes)
@@ -628,7 +628,7 @@ void lisemqt::setErosionTab(bool yes)
 //            checkSedMultiGrain->setChecked(false);
 //            checkSed2Phase->setChecked(true);
 //        }
-     checkSedMultiGrain->setChecked(false);
+     //checkSedMultiGrain->setChecked(false);
 
 
         int i1 = E_RBLMethod->value();
@@ -930,7 +930,7 @@ void lisemqt::SetStyleUI()
     tabWidgetOptions->removeTab(7);
     frameNumerical->setVisible(false);
 
-    tabWidget_erosion->setCurrentIndex(0);
+    //tabWidget_erosion->setCurrentIndex(0);
     if (darkLISEM) {
         QPalette darkPalette;
         darkPalette.setColor(QPalette::Window,QColor(53,53,53));
@@ -1691,7 +1691,7 @@ void lisemqt::resetTabSediment()
 {
     //sediment
     checkSed2Phase->setChecked(false);
-    checkSedMultiGrain->setChecked(false);
+//    checkSedMultiGrain->setChecked(false);
 
     E_RBLMethod->setValue(1);
     E_RSSMethod->setValue(0);
@@ -1701,11 +1701,11 @@ void lisemqt::resetTabSediment()
     E_SigmaDiffusion->setValue(0.5);
 //    E_RSigmaDiffusion->setValue(0.5);
 
-    checkEstimateGrainSizeDistribution->setChecked(false); // if multiclass, estimate from D50 and D90
-    checkReadGrainSizeDistribution->setChecked(false); // if multiclass, calculate from user series
+//    checkEstimateGrainSizeDistribution->setChecked(false); // if multiclass, estimate from D50 and D90
+//    checkReadGrainSizeDistribution->setChecked(false); // if multiclass, calculate from user series
 
-    E_NumberClasses->setValue(6);
-    E_GrainSizes->setText("2;20;50;125;150;500");
+//    E_NumberClasses->setValue(6);
+//    E_GrainSizes->setText("2;20;50;125;150;500");
 
     checkDiffusion->setChecked(true);
     //checkRDiffusion->setChecked(true);
@@ -1891,7 +1891,7 @@ void lisemqt::resetAll()
     //sediment
     resetTabSediment();
     checkSed2Phase->setChecked(false);
-    checkSedMultiGrain->setChecked(false);
+    //checkSedMultiGrain->setChecked(false);
 
     //calibration
     resetTabCalibration();
@@ -1998,10 +1998,10 @@ void lisemqt::setfontSize()
 
     QString S = QString("QGroupBox {font-size: %1px;font-weight: bold;color: black;}").arg(fs);
     groupBox1->setStyleSheet(S);
-    groupBox2->setStyleSheet(S);
+    //groupBox2->setStyleSheet(S);
     groupBox3->setStyleSheet(S);
     groupBox4->setStyleSheet(S);
-    groupBox5->setStyleSheet(S);
+    //groupBox5->setStyleSheet(S);
     S = QString("QGroupBox {font-size: %1px;font-weight: bold;color: #1b6fb5;}").arg(fs);
     watergroup->setStyleSheet(S);
     sedgroup->setStyleSheet(S);
@@ -2009,7 +2009,7 @@ void lisemqt::setfontSize()
     groupTime->setStyleSheet(S);
 
     S = QString("QToolBox::tab {background-color: #1b6fb5}");
-    tabWidget_erosion->setStyleSheet(S);
+    //tabWidget_erosion->setStyleSheet(S);
 
 }
 //---------------------------------------------------------------

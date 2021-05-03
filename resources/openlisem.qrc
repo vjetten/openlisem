@@ -45,10 +45,21 @@
         <file>../INSTALL</file>
         <file>../compile lisem windows 210301.txt</file>
         <file>../ubuntu compile.txt</file>
-        <file>../../lisempy/inputlisem0.5.py</file>
         <file>2X/Folder-Open-icon.png</file>
         <file>darcula.css</file>
         <file>black.qss</file>
+        <file>calibr.png</file>
+        <file>Plant-icon.png</file>
+        <file>soil2.png</file>
+        <file>water.png</file>
+        <file>rain.png</file>
+        <file>eros.png</file>
+        <file>soil3.png</file>
+        <file>erosc.png</file>
+        <file>Plant-iconc.png</file>
+        <file>rainc.png</file>
+        <file>soil3c.png</file>
+        <file>waterc.png</file>
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>

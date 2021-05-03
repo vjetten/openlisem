@@ -339,15 +339,15 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include diffusion")==0)               checkDiffusion->setChecked(check);
         if (p1.compare("Sigma diffusion")==0)                 E_SigmaDiffusion->setValue(valc);
 
-        if (p1.compare("Use grain size distribution")==0)     checkSedMultiGrain->setChecked(check);
-        if (p1.compare("Estimate grain size distribution")==0)checkEstimateGrainSizeDistribution->setChecked(check);
-        if (p1.compare("Read grain distribution maps")==0)    checkReadGrainSizeDistribution->setChecked(check);
-        if (p1.compare("Number of grain size classes (simulated)")==0)
-                                                              E_NumberClasses->setValue(iii);
-        if (p1.compare("Grain size class maps")==0)   {
-            if (p.contains(",")) p.replace(",",";");
-            E_GrainSizes->setText(p);
-        }
+//        if (p1.compare("Use grain size distribution")==0)     checkSedMultiGrain->setChecked(check);
+//        if (p1.compare("Estimate grain size distribution")==0)checkEstimateGrainSizeDistribution->setChecked(check);
+//        if (p1.compare("Read grain distribution maps")==0)    checkReadGrainSizeDistribution->setChecked(check);
+//        if (p1.compare("Number of grain size classes (simulated)")==0)
+//                                                              E_NumberClasses->setValue(iii);
+//        if (p1.compare("Grain size class maps")==0)   {
+//            if (p.contains(",")) p.replace(",",";");
+//            E_GrainSizes->setText(p);
+//        }
         //ADVANCED
         if (p1.compare("Advanced Options")==0)                 checkAdvancedOptions->setChecked(check);
         if (p1.compare("Calculate erosion inside 2D loop")==0)  checkErosionInsideLoop->setChecked(check);
@@ -401,7 +401,7 @@ void lisemqt::ParseInputData()
 
     // ###################################
 
-    setErosionTab(checkDoErosion->isChecked());
+   // setErosionTab(checkDoErosion->isChecked());
     if (checkSedtrap->isChecked())
         on_checkSedtrap_clicked();
     if (checkInfilGrass->isChecked())
@@ -735,12 +735,11 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding SS method")==0)             namelist[j].value = E_SSMethod->text();
         if (p1.compare("River BL method")==0)                namelist[j].value = E_RBLMethod->text();
         if (p1.compare("River SS method")==0)                namelist[j].value = E_RSSMethod->text();
-        if (p1.compare("Use grain size distribution")==0)    namelist[j].value.setNum((int)checkSedMultiGrain->isChecked());
-
-        if (p1.compare("Estimate grain size distribution")==0)namelist[j].value.setNum((int)checkEstimateGrainSizeDistribution->isChecked());
-        if (p1.compare("Read grain distribution maps")==0)    namelist[j].value.setNum((int)checkReadGrainSizeDistribution->isChecked());
-        if (p1.compare("Number of grain size classes (simulated)")==0)  namelist[j].value = E_NumberClasses->text();
-        if (p1.compare("Grain size class maps")==0)   namelist[j].value = E_GrainSizes->text();
+//        if (p1.compare("Use grain size distribution")==0)    namelist[j].value.setNum((int)checkSedMultiGrain->isChecked());
+//        if (p1.compare("Estimate grain size distribution")==0)namelist[j].value.setNum((int)checkEstimateGrainSizeDistribution->isChecked());
+//        if (p1.compare("Read grain distribution maps")==0)    namelist[j].value.setNum((int)checkReadGrainSizeDistribution->isChecked());
+//        if (p1.compare("Number of grain size classes (simulated)")==0)  namelist[j].value = E_NumberClasses->text();
+//        if (p1.compare("Grain size class maps")==0)   namelist[j].value = E_GrainSizes->text();
 
         //tile drains
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
