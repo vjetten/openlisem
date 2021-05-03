@@ -65,6 +65,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     setMinimumSize(1280,800);
     showMaximized();
+    darkLISEM = false;
 
     nrUserCores->setMaximum(omp_get_max_threads());
 
@@ -77,7 +78,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     //checkAddDatetime->setVisible(false);
 
-    RunFileNames.clear();
+    //RunFileNames.clear();
     op.runfilename.clear();
     E_runFileList->clear();
 
@@ -930,6 +931,32 @@ void lisemqt::SetStyleUI()
     frameNumerical->setVisible(false);
 
     tabWidget_erosion->setCurrentIndex(0);
+    if (darkLISEM) {
+        QPalette darkPalette;
+        darkPalette.setColor(QPalette::Window,QColor(53,53,53));
+        darkPalette.setColor(QPalette::WindowText,Qt::white);
+        darkPalette.setColor(QPalette::ButtonText,Qt::white);
+        darkPalette.setColor(QPalette::HighlightedText,Qt::white);
+        darkPalette.setColor(QPalette::Text,QColor("#ffffaa"));
+        darkPalette.setColor(QPalette::Disabled,QPalette::WindowText,QColor(164,164,164));
+        darkPalette.setColor(QPalette::Base,QColor(96,96,96));
+        darkPalette.setColor(QPalette::AlternateBase,QColor(66,66,66));
+        darkPalette.setColor(QPalette::ToolTipBase,Qt::white);
+        darkPalette.setColor(QPalette::ToolTipText,Qt::white);
+
+        darkPalette.setColor(QPalette::Disabled,QPalette::Text,QColor(164,164,164));
+        darkPalette.setColor(QPalette::Dark,QColor(35,35,35));
+        darkPalette.setColor(QPalette::Shadow,QColor(20,20,20));
+        darkPalette.setColor(QPalette::Button,QColor(53,53,53));
+        darkPalette.setColor(QPalette::Disabled,QPalette::ButtonText,QColor(164,164,164));
+        darkPalette.setColor(QPalette::BrightText,Qt::red);
+        darkPalette.setColor(QPalette::Link,QColor(42,130,218));
+        darkPalette.setColor(QPalette::Highlight,QColor(42,130,218));
+        darkPalette.setColor(QPalette::Disabled,QPalette::Highlight,QColor(80,80,80));
+        darkPalette.setColor(QPalette::Disabled,QPalette::HighlightedText,QColor(127,127,127));
+
+        qApp->setPalette(darkPalette);
+    }
 
     int w = 80, h = 15;
     label_dx->setMinimumSize(w,h);
@@ -972,43 +999,45 @@ void lisemqt::SetStyleUI()
     label_MBs->setMinimumSize(w,h);
     label_MB->setMinimumSize(w,h);
 
-    label_dx->setStyleSheet("* { background-color: #ffffff }");
-    label_area->setStyleSheet("* { background-color: #ffffff }");
-    label_time->setStyleSheet("* { background-color: #ffffff }");
-    label_endtime->setStyleSheet("* { background-color: #ffffff }");
-    label_raintot->setStyleSheet("* { background-color: #ffff99 }");
-    label_watervoltot->setStyleSheet("* { background-color: #ffff99 }");
-    label_stormdraintot->setStyleSheet("* { background-color: #ffff99 }");
-    label_qtot->setStyleSheet("* { background-color: #ffff99 }");
-    label_infiltot->setStyleSheet("* { background-color: #ffff99 }");
-    label_surfstor->setStyleSheet("* { background-color: #ffff99 }");
-    label_interctot->setStyleSheet("* { background-color: #ffff99 }");
-    //label_qtotm3->setStyleSheet("* { background-color: #ffff99 }");
-    label_qpeaktime->setStyleSheet("* { background-color: #ffff99 }");
-    label_ppeaktime->setStyleSheet("* { background-color: #ffff99 }");
-    label_QPfrac->setStyleSheet("* { background-color: #ffff99 }");
-    //label_discharge->setStyleSheet("* { background-color: #ffff99 }");
-    label_floodVolmm->setStyleSheet("* { background-color: #ffff99 }");
-    label_watervolchannel->setStyleSheet("* { background-color: #ffff99 }");
-    //   label_litterstore->setStyleSheet("* { background-color: #ffff99 }");
-    label_baseflowtot->setStyleSheet("* { background-color: #ffff99 }");
+    QString ly = "#ffff99";
+    if (!darkLISEM) {
+        label_dx->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_area->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_time->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_endtime->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_raintot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_watervoltot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_stormdraintot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_qtot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_infiltot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_surfstor->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_interctot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        //label_qtotm3->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_qpeaktime->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_ppeaktime->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_QPfrac->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        //label_discharge->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_floodVolmm->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_watervolchannel->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        //   label_litterstore->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_baseflowtot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
 
-    label_qtotm3sub->setStyleSheet("* { background-color: #ffff99 }");
-    label_dischargesub->setStyleSheet("* { background-color: #ffff99 }");
-    label_qpeaksub->setStyleSheet("* { background-color: #ffff99 }");
-    label_soillosssub->setStyleSheet("* { background-color: #ffff99 }");
+        label_qtotm3sub->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_dischargesub->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_qpeaksub->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_soillosssub->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
 
-    label_splashdet->setStyleSheet("* { background-color: #ffff99 }");
-    label_flowdet->setStyleSheet("* { background-color: #ffff99 }");
-    label_sedvol->setStyleSheet("* { background-color: #ffff99 }");
-    label_dep->setStyleSheet("* { background-color: #ffff99 }");
-    label_detch->setStyleSheet("* { background-color: #ffff99 }");
-    label_depch->setStyleSheet("* { background-color: #ffff99 }");
-    label_sedvolch->setStyleSheet("* { background-color: #ffff99 }");
-    label_soilloss->setStyleSheet("* { background-color: #ffff99 }");
-    label_soillosskgha->setStyleSheet("* { background-color: #ffff99 }");
-    label_SDR->setStyleSheet("* { background-color: #ffff99 }");
-
+        label_splashdet->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_flowdet->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_sedvol->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_dep->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_detch->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_depch->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_sedvolch->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_soilloss->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_soillosskgha->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_SDR->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+    }
     //Grouped Buttons become mututally exclusive
     GroupMapDisplay.addButton(checkBoxComboMaps, 1);
     GroupMapDisplay.addButton(checkBoxComboMaps2, 2);
@@ -1043,10 +1072,10 @@ void lisemqt::setMapDir()
 
     pathin = findValidDir(E_MapDir->text(), false);
 
-//    path = QFileDialog::getExistingDirectory(this, QString("Select maps directory"),pathin,QFileDialog::ShowDirsOnly);
-//                                             //QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks |
-    path = QFileDialog::getOpenFileName(this,QString("Select maps directory"),
-                                        pathin,"maps (*.map)");
+    path = QFileDialog::getExistingDirectory(this, QString("Select maps directory"),pathin,QFileDialog::ShowDirsOnly);
+                                             //QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks |
+//    path = QFileDialog::getOpenFileName(this,QString("Select maps directory"),
+//                                        pathin,"maps (*.map)");
 
     if(!path.isEmpty())
         E_MapDir->setText( path );
@@ -1147,6 +1176,7 @@ void lisemqt::on_toolButton_SwatreTableShow_clicked()
 
     file.close();
 }
+
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_RainfallName_clicked()
 {
@@ -1345,6 +1375,7 @@ void lisemqt::openRunFile()
     E_runFileList->setDuplicatesEnabled(false);
     E_runFileList->setInsertPolicy(QComboBox::InsertAtTop);
 
+    // check if it exists, if not add
     bool exst = false;
     int nr = 0;
     for (int i = 0; i < E_runFileList->count(); i++)
@@ -1357,10 +1388,10 @@ void lisemqt::openRunFile()
     if (!exst)
         E_runFileList->insertItem(0,path);
 
-    RunFileNames.clear();
-    for (int i = 0; i <= E_runFileList->count(); i++)
-        RunFileNames << E_runFileList->itemText(i);
-    //    RunFileNames.removeDuplicates();
+    // renew runfilenames
+//    RunFileNames.clear();
+//    for (int i = 0; i <= E_runFileList->count(); i++)
+//        RunFileNames << E_runFileList->itemText(i);
 
     op.runfilename = E_runFileList->itemText(nr);
     E_runFileList->setCurrentIndex(nr);
@@ -1824,6 +1855,7 @@ void lisemqt::resetAll()
     //checkChannelFlood->setChecked(true);
     checkChannelInfil->setChecked(false);
     checkChannelBaseflow->setChecked(false);
+    checkChannelInflow->setChecked(false);
 
     checkRoadsystem->setChecked(false);
     checkHouses->setChecked(false);
@@ -2088,3 +2120,64 @@ void lisemqt::on_checkHouses_toggled(bool checked)
     checkRaindrum->setEnabled(checked);
     label_157->setEnabled(checked);
 }
+
+
+void lisemqt::on_toolButton_DischargeInName_clicked()
+{
+    QString path;
+
+    DischargeinDir = findValidDir(DischargeinDir, false);
+
+    path = QFileDialog::getOpenFileName(this,
+                                        QString("Select discarge input file"),
+                                        DischargeinDir);
+    if(!path.isEmpty())
+    {
+        QFileInfo fi(path);
+        DischargeinFileName = fi.fileName();
+        DischargeinDir = CheckDir(fi.absolutePath());//Dir().path());
+        E_DischargeInName->setText( RainFileDir + DischargeinFileName  );
+    }
+}
+
+// select a file or directory
+// doFile = 0: select a directory;
+// dofile = 1 select a file and return file name only;
+// dofile = 2 return filename wioth full path
+QString lisemqt::getFileorDir(QString inputdir,QString title, QStringList filters, int doFile)
+{
+    QFileDialog dialog;
+    QString dirout = inputdir;
+    if (doFile > 0) {
+        dialog.setNameFilters(filters);
+        dialog.setDirectory(QFileInfo(inputdir).absoluteDir());
+        dialog.setFileMode(QFileDialog::ExistingFile);
+    } else {
+        filters.clear();
+        dialog.setNameFilters(filters);
+        dialog.setDirectory(QDir(inputdir));
+        dialog.setFileMode(QFileDialog::DirectoryOnly);
+    }
+
+    dialog.setLabelText(QFileDialog::LookIn,title);
+    dialog.exec();
+
+    if (doFile > 0) {
+        dirout = "";
+        if (dialog.selectedFiles().count() > 0)
+            dirout = dialog.selectedFiles().at(0);
+        if (doFile == 1)
+            dirout = QFileInfo(dirout).fileName();
+        if (doFile == 2)
+            dirout = QFileInfo(dirout).absoluteFilePath();
+        qDebug() << dirout;
+    } else {
+        dirout = dialog.selectedUrls().at(0).path();
+        dirout.remove(0,1);
+        if (dirout.lastIndexOf('/') != dirout.length())
+            dirout = dirout + "/";
+    }
+
+    return dirout;
+}
+

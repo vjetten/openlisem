@@ -89,6 +89,8 @@ cTMap
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
 *Qdiag,
 *VH,
+*QinLocation,
+*Qinflow,
 //*Qoutflow,                   //!< new discharge after kin wave at outflow point [m^3/s]
 *QinKW,
 *QKW,

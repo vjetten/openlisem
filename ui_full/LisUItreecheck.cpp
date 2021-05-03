@@ -126,6 +126,7 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int inr)
     int nr = std::max(0, inr);
     checkInfil2layer->setEnabled(bool(nr == 2 || nr == 3));
     groupBox_SwatreOptions->setEnabled(nr == 1);
+    checkBox_OutTheta->setEnabled(bool(nr == 2 || nr == 3));
 
     uiInfilMethod = nr;
     // set runfile var to infil nr

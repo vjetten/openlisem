@@ -899,6 +899,15 @@ void TWorld::ReportMapSeries(void)
         }
     }
 
+
+    if (SwitchOutTheta) {
+        if (InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE) {
+            report(*ThetaI1, OutTheta1); //in l/s
+            if (SwitchTwoLayer)
+                report(*ThetaI2, OutTheta2); //in l/s
+        }
+    }
+
     //===== SEDIMENT =====
     if(SwitchErosion)
     {

@@ -129,6 +129,7 @@ void lisemqt::setupMapPlot()
     // make the plot window
     maplayout->insertWidget(1, MPlot, 0);
 
+  //  MPlot->setStyleSheet(QString("* { background-color: %1 }").arg("#555555"));
     // put it on screen
     MPlot->enableAxis( MPlot->yRight );
     MPlot->setAxisTitle(HPlot->xBottom, "m");

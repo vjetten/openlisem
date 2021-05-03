@@ -178,6 +178,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include channel infil")==0)             SwitchChannelInfil     = iii == 1;
         if (p1.compare("Include channel baseflow")==0)          SwitchChannelBaseflow  = iii == 1;
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
+        if (p1.compare("Include channel inflow")==0)            SwitchChannelInflow  = iii == 1;
 
         if (p1.compare("Variable Timestep")==0)                 SwitchVariableTimestep = iii == 1;
         if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
@@ -274,6 +275,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OutInf")==0)            SwitchOutinf = iii == 1;
         if (p1.compare("OutTileDrain")==0)      SwitchOutTiledrain = iii == 1;
         if (p1.compare("OutTileVolume")==0)     SwitchOutTileVol = iii == 1;
+        if (p1.compare("OutTheta")==0)          SwitchOutTheta= iii == 1;
         if (p1.compare("OutDet")==0)            SwitchOutDet = iii == 1;
         if (p1.compare("OutDep")==0)            SwitchOutDep = iii == 1;
         if (p1.compare("OutTC")==0)             SwitchOutTC = iii == 1;
@@ -315,7 +317,7 @@ void TWorld::ParseRunfileData(void)
         //  initheadName = getvaluename("inithead");
         // only map name is needed, data is read in swatre lib
         //profileName = getname("profile");//?????????????????????
-        // profile map name      
+        // profile map name
     }
 
     //SwitchUse2Phase = SwitchAdvancedSed;
@@ -363,6 +365,12 @@ void TWorld::ParseRunfileData(void)
             if (p1.compare("Rainfall Directory")==0) rainFileDir = CheckDir(p);
             if (p1.compare("Rainfall file")==0) rainFileName = rainFileDir + "/" + p;
         }
+        if (SwitchChannelInflow)
+        {
+            if (p1.compare("Discharge inflow Directory")==0) dischargeinFileDir = CheckDir(p);
+            if (p1.compare("Discharge inflow file")==0) dischargeinFileName = dischargeinFileDir + "/" + p;
+        }
+
         //        if (SwitchSnowmelt)
         //        {
         //            if (p1.compare("Snowmelt Directory")==0) snowmeltFileDir = CheckDir(p);
@@ -483,6 +491,8 @@ void TWorld::ParseRunfileData(void)
     Outss     = "sstor";
     Outchvol  = "";
     OutTiledrain = "Qtile";
+    OutTheta1 = "thetaa";
+    OutTheta2 = "thetab";
     OutTileVol = "Voltile";
     OutTileV = "Vtile";
     OutHmx  = "";

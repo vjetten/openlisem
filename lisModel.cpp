@@ -163,6 +163,12 @@ void TWorld::DoModel()
             DEBUG("GetSnowmeltData()");
             GetRainfallDataM(snowmeltFileName, false);
         }
+        if (SwitchChannelInflow)
+        {
+            DEBUG("GetDischargeData()");
+            GetDischargeData(dischargeinFileName);
+        }
+
         // get all input data and create and initialize all maps and variables
 
         CountLandunits();

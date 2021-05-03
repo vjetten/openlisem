@@ -200,6 +200,14 @@ typedef struct LDD_COORIN {
     LDD_COOR *inn;
 }  LDD_COORIN;
 //---------------------------------------------------------------------------
+typedef struct LDD_COORloc {
+    int r;
+    int c;
+    int loc;
+    int nr;
+}  LDD_COORloc;
+//---------------------------------------------------------------------------list
+
 /// linked list structure for network in kin wave
 typedef struct LDD_LINKEDLIST {
     int rowNr;
@@ -238,6 +246,12 @@ typedef struct RAIN_LIST {
     bool isMap;
     QString name;
 } RAIN_LIST;
+//---------------------------------------------------------------------------
+/// Strunture to store rain station values of rainfile mapnames
+typedef struct Q_LIST {
+    double time;
+    QVector <double> Qin;
+} Q_LIST;
 //---------------------------------------------------------------------------
 
 typedef struct ExtCH {
@@ -306,7 +320,7 @@ public:
  int SwitchFlood1D2DCoupling;SwitchPercolation, SwitchInfilGA2, SwitchCompactPresent, SwitchNutrients, SwitchPestout, SwitchDrainage,
 */
 
-    bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,
+    bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelInflow,
     SwitchChannelInfil,  SwitchErosion, SwitchLinkedList,    SwitchSedtrap, SwitchSnowmelt, SwitchRainfall,  SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
@@ -415,10 +429,14 @@ public:
     QString mapFormat;
 
     /// timeseries variables and output strings
+    int nrDischargeseries;
     int nrRainfallseries;
     int nrSnowmeltseries;
     QVector <RAIN_LIST> RainfallSeriesM;  // rainfall vector of records
     QVector <RAIN_LIST> SnowmeltSeriesM;
+    QVector <Q_LIST> DischargeInSeries;
+    QVector <LDD_COORloc> crQin_;
+    QVector <int> locationnnrsrec;
 
     // output formatting for SOBEK flood model input
     QString SOBEKdatestring;
@@ -462,6 +480,8 @@ public:
 
     QString rainFileName;
     QString rainFileDir;
+    QString dischargeinFileName;
+    QString dischargeinFileDir;
     QString snowmeltFileName;
     QString snowmeltFileDir;
     QString resultFileName;
@@ -469,10 +489,10 @@ public:
     /// standard names of output map series
     QString Outrunoff, Outconc, Outwh, Outrwh, Outvelo, Outinf, Outss, Outchvol,
     Outtc, Outeros, Outdepo, OutSL, OutSed, OutInt,OutSedSS, OutSedBL,
-    OutTiledrain, OutTileVol,OutTileV, OutHmx, OutVf, OutQf, OutHmxWH;
+    OutTiledrain, OutTileVol,OutTileV, OutHmx, OutVf, OutQf, OutHmxWH, OutTheta1, OutTheta2;
     bool  SwitchOutrunoff, SwitchOutconc, SwitchOutwh, SwitchOutrwh, SwitchOutvelo, SwitchOutinf, SwitchOutss, SwitchOutchvol,
     SwitchOutConc, SwitchOutTC, SwitchOutDet, SwitchOutDep, SwitchOutSL, SwitchOutSed, SwitchOutInt, SwitchOutSedSS, SwitchOutSedBL,
-    SwitchOutTiledrain, SwitchOutTileVol, SwitchOutHmx, SwitchOutVf, SwitchOutQf, SwitchOutHmxWH;
+    SwitchOutTiledrain, SwitchOutTileVol, SwitchOutHmx, SwitchOutVf, SwitchOutQf, SwitchOutHmxWH, SwitchOutTheta;
     QString errorFileName;
     QString errorSedFileName;
     QString satImageFileName;
@@ -706,11 +726,13 @@ public:
 
     // 1D hydro processes
     //input timeseries
+    void GetDischargeData(QString name);
     void GetRainfallDataM(QString name, bool israinfall);   // get input timeseries
     /// convert rainfall of a timestep into a map
     void RainfallMap(void);
     /// convert snowmelt of a timestep into a map
     void SnowmeltMap(void);
+    void DischargeInflow(void);
     /// interception of vegetation canopy resulting in rainnet
     void Interception();
     /// infiltration function calling all infiltration methods

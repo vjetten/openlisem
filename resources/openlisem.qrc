@@ -8,7 +8,6 @@
         <file>help6.html</file>
         <file>help7.html</file>
         <file>bullet.png</file>
-        <file>2X/bullet2X.png</file>
         <file>2X/chart-line-stacked-icon2X.png</file>
         <file>2X/diropen2X.png</file>
         <file>2X/filesave2X.png</file>
@@ -31,7 +30,7 @@
         <file>2X/User-Interface-Save-As-icon.png</file>
         <file>2X/savefile.png</file>
         <file>2X/Folder-icon.png</file>
-        <file>2X/Folder-Open-icon.png</file>
+        <file>2X/Folder-Open-icon1.png</file>
         <file>2X/File-Delete-icon.png</file>
         <file>2X/reset.png</file>
         <file>2X/settings.png</file>
@@ -47,6 +46,9 @@
         <file>../compile lisem windows 210301.txt</file>
         <file>../ubuntu compile.txt</file>
         <file>../../lisempy/inputlisem0.5.py</file>
+        <file>2X/Folder-Open-icon.png</file>
+        <file>darcula.css</file>
+        <file>black.qss</file>
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>

@@ -5,20 +5,28 @@ sudo apt install cmake cmake-gui gcc g++ git libboost-all-dev libgdal-dev libncu
 - opengl:
 sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
 
-
-compilation is doen in qtcreator, so install qt
+compilation is done in qtcreator, so install qt:
 https://wiki.qt.io/Install_Qt_5_on_Ubuntu 
 
-- install pcraster 4.3 via miniconda: https://pcraster.geo.uu.nl/pcraster/4.3.0/documentation/pcraster_project/install.html
+- install pcraster 4.3 via (mini)conda:
+https://pcraster.geo.uu.nl/pcraster/4.3.0/documentation/pcraster_project/install.html
 
-- gdal (https://mothergeo-py.readthedocs.io/en/latest/development/how-to/gdal-ubuntu-pkg.html)
+- install gdal (https://mothergeo-py.readthedocs.io/en/latest/development/how-to/gdal-ubuntu-pkg.html)
 sudo apt-get install gdal-bin
-and for python
+- and for python
 sudo apt-get install libgdal-dev
 
 Not sure about this:
 export CPLUS_INCLUDE_PATH=/usr/include/gdal
 export C_INCLUDE_PATH=/usr/include/gdal
 
- 
-comnpiling goes via QtCreator: load 
+
+- get the lisem code via github:
+https://github.com/vjetten/openlisem.git
+
+open cmake-gui and add the folder with the code as the first folder
+and the folder where the executable is going as the second folder
+click configure and choose codeblocks
+the project should configure automatically
+
+compiling goes via QtCreator: load cmakelist.txt

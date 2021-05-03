@@ -62,6 +62,13 @@ int main(int argc, char *argv[])
    app.setStyle(QStyleFactory::create("Fusion"));
    //  app.setStyle(QStyleFactory::create("Windows"));
 
+       // increase font size for better reading
+       QFont defaultFont = QApplication::font();
+       defaultFont.setPointSize(defaultFont.pointSize()+2);
+       qApp->setFont(defaultFont);
+       // modify palette to dark
+
+
     op.LisemDir = QCoreApplication::applicationDirPath()+"/";
     // exe path, used for ini file
 

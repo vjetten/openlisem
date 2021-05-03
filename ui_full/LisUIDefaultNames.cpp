@@ -119,12 +119,13 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;N;chanman.map;Mannings n of channel bed (-);chanman");
     DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
     DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
+    DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
+    DEFmaps.append("2;Dscharge input;QinPoints.map;Locations in channel network where discharge is added from a text record. Unique nr > 0;qinpoints");
+    DEFmaps.append("2;hmxInit;WHinit.map;Initial floodlevel (m);hmxinit");
     DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh");
     DEFmaps.append("2;Channelmaterial;chandetmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);chandetmat");
     DEFmaps.append("2;ChannelMixingDepth;chansedmixdepth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
-    DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
 //    DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
-    DEFmaps.append("2;hmxInit;WHinit.map;Initial floodlevel (m);hmxinit");
 //    DEFmaps.append("2;floodZone;floodzone.map;potential flood zone to limit calculations (1 = in, 0 = out);floodzone");
 
     DEFmaps.append("0;Conservation");
@@ -192,6 +193,9 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("satImage file");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Advanced Options");
+    namelist[i++].name = QString("Discharge inflow directory");
+    namelist[i++].name = QString("Discharge inflow file");
+
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Output]");
@@ -284,6 +288,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include channel baseflow");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel culverts");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include channel inflow");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Hard Surfaces");
     namelist[i].value = QString("1");
@@ -523,6 +529,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("OutInf");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("OutTileDrain");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutTheta");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("OutTileV");
     namelist[i].value = QString("0");

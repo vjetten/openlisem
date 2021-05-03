@@ -521,21 +521,43 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         sqrtGrad->Drc = sqrt(Grad->Drc);
     }
 
-    Outlet = ReadMap(LDD, getvaluename("outlet"));
-    cover(*Outlet, *LDD, 0);
-    bool check = false;
-    FOR_ROW_COL_MV
-    {
-        if (Outlet->Drc > 0) {
-            check = true;
-            //break;
+//    Outlet = ReadMap(LDD, getvaluename("outlet"));
+//    cover(*Outlet, *LDD, 0);
+//    bool check = false;
+//    FOR_ROW_COL_MV
+//    {
+//        if (Outlet->Drc > 0) {
+//            check = true;
+//            //break;
+//        }
+//    }
+//    if (!check)
+//    {
+//        ErrorString = "No outlet points (values >= 1) defined in outlet.map.";
+//        throw 1;
+//    }
+
+    int cnt = 0;
+    Outlet = NewMap(0);
+    FOR_ROW_COL_MV {
+        if(LDD->Drc == 5) {
+            cnt++;
+            Outlet->Drc = cnt;
         }
     }
-    if (!check)
-    {
-        ErrorString = "No outlet points (values >= 1) defined in outlet.map?";
-        throw 1;
-    }
+    //    if (!SwitchIncludeChannel && (SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN))
+    //    {
+    //        FOR_ROW_COL_MV
+    //        {
+    //            if(Outlet->Drc > 0 && LDD->Drc != 5)
+    //            {
+    //                //qDebug() << r << c << LDD->Drc;
+    //                ErrorString = "Outlet points (outlet.map) do not coincide with LDD endpoints.";
+    //                throw 1;
+    //            }
+    //        }
+    //    }
+
 
     // USER defined outlet points. these are leading.
 
@@ -545,28 +567,26 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
     // Checked in initchannel
     // when 2D and no channel, just do what user wants, don't check!
     // when 1D flow and no channel, outlet should be ldd->pits
-    if (!SwitchIncludeChannel && (SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN))
-    {
-        FOR_ROW_COL_MV
-        {
-            if(Outlet->Drc > 0 && LDD->Drc != 5)
-            {
-                //qDebug() << r << c << LDD->Drc;
-                ErrorString = "Outlet points (outlet.map) do not coincide with LDD endpoints.";
-                throw 1;
-            }
-        }
-    }
+//    if (!SwitchIncludeChannel && (SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN))
+//    {
+//        FOR_ROW_COL_MV
+//        {
+//            if(Outlet->Drc > 0 && LDD->Drc != 5)
+//            {
+//                //qDebug() << r << c << LDD->Drc;
+//                ErrorString = "Outlet points (outlet.map) do not coincide with LDD endpoints.";
+//                throw 1;
+//            }
+//        }
+//    }
 
     // points are user observation points. they should include outlet points
     PointMap = ReadMap(LDD,getvaluename("outpoint"));
     //map with points for output data
     // VJ 110630 show hydrograph for selected output point
     bool found = false;
-    FOR_ROW_COL_MV
-    {
-        if(PointMap->Drc > 0)
-        {
+    FOR_ROW_COL_MV {
+        if(PointMap->Drc > 0) {
             found = true;
             //  break;
         }
@@ -977,7 +997,7 @@ void TWorld::InitChannel(void)
 
 
         // for 1D or 2D overland flow: channel outlet points are checked, leading
-        FOR_ROW_COL_MV
+        FOR_ROW_COL_MV_CH
         {
             if(Outlet->Drc > 0 && LDDChannel->Drc != 5)
             {
@@ -1981,7 +2001,6 @@ void TWorld::IntializeData(void)
     Alpha = NewMap(0);
     Q = NewMap(0);
     Qn = NewMap(0);
-    //Qdiag = NewMap(0);
 
     K2DOutlets = NewMap(0);
     K2DQ = NewMap(0);
@@ -2241,60 +2260,17 @@ void TWorld::IntializeData(void)
         }
 
     }
-    /*
-    if(SwitchErosion && SwitchUseGrainSizeDistribution)
-    {
-        IW_D.clear();
-        RW_D.clear();
-
-        FOR_GRAIN_CLASSES
-        {
-            if(SwitchIncludeChannel)
-            {
-                RW_D.append(NewMap(0.0));
-            }
-            IW_D.append(NewMap(0.0));
-
-            FOR_ROW_COL_MV
-            {
-                IW_D.Drcd = W_D.Drcd;
-                if(SwitchUseMaterialDepth)
-                {
-                    if(!(Storage->Drc > 0))
-                    {
-                        Storage_D.Drcd = W_D.Drcd * Storage->Drc;
-                    }else
-                    {
-                        Storage_D.Drcd = -999999;
-                    }
-                }
-                if(SwitchIncludeChannel)
-                {
-                    RW_D.Drcd = W_D.Drcd;
-                    if(SwitchUseMaterialDepth)
-                    {
-                        if(!(RStorage->Drc > 0))
-                        {
-                            RStorage_D.Drcd = RW_D.Drcd * RStorage->Drc;
-                        }else
-                        {
-                            RStorage_D.Drcd = -999999;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    */
-
 
     if (SwitchChannelBaseflow)
         FindBaseFlow();
 
-//    if(SwitchFlowBarriers)
-//    {
+    if (SwitchChannelInflow) {
+        Qinflow = NewMap(0);
+        QinLocation = ReadMap(LDD, getvaluename("qinpoints"));
+    } else {
+        QinLocation = NewMap(0);
+    }
 
-//    }
 }
 //---------------------------------------------------------------------------
 void TWorld::IntializeOptions(void)
@@ -2396,6 +2372,7 @@ void TWorld::IntializeOptions(void)
     SwitchChannelBaseflow = false;
     SwitchChannelInfil = false;
     SwitchCulverts = false;
+    SwitchChannelInflow = false;
     SwitchIncludeTile = false;
     SwitchIncludeStormDrains = false;
 

@@ -181,6 +181,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
         if (p1.compare("Include channel culverts")==0)       checkChannelCulverts->setChecked(check);
+        if (p1.compare("Include channel inflow")==0)         checkChannelInflow->setChecked(check);
         if (p1.compare("Include Erosion simulation")==0)     checkDoErosion->setChecked(check);
         if (p1.compare("Include road system")==0)            checkRoadsystem->setChecked(check);
         if (p1.compare("Include storm drains")==0)           checkStormDrains->setChecked(check);
@@ -381,7 +382,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("OutSurfStor")==0)       checkBox_OutSurfStor->setChecked(check);
         if (p1.compare("OutInf")==0)            checkBox_OutInf->setChecked(check);
         if (p1.compare("OutTileDrain")==0)      checkBox_OutTiledrain->setChecked(check);
-        if (p1.compare("OutTileVolume")==0)     checkBox_OutTileVol->setChecked(check);
+        if (p1.compare("OutTileVolume")==0)         checkBox_OutTileVol->setChecked(check);
+        if (p1.compare("OutTheta")==0)         checkBox_OutTheta->setChecked(check);
         if (p1.compare("OutDet")==0)     checkBox_OutDet->setChecked(check);
         if (p1.compare("OutDep")==0)     checkBox_OutDep->setChecked(check);
         if (p1.compare("OutTC")==0)      checkBox_OutTC->setChecked(check);
@@ -481,6 +483,20 @@ void lisemqt::ParseInputData()
                 E_RainfallName->setText(RainFileDir + p);
             }
         }
+
+        if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
+        if (p1.compare("Discharge inflow file")==0)
+        {
+            E_RainfallName->setText(DischargeinDir + p);
+            DischargeinFileName = p;
+            if (!QFileInfo(E_DischargeInName->text()).exists())
+            {
+                DischargeinDir = QString(E_WorkDir + "rain/");
+                E_DischargeInName->setText(DischargeinDir + p);
+            }
+        }
+
+
         if (checksatImage->isChecked()) {
             if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
             if (p1.compare("satImage file")==0)
@@ -637,6 +653,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
         if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
+        if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkChannelInflow->isChecked());
 
         if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkFlowBarriers->isChecked());
         if (p1.compare("Include buffers")==0)          namelist[j].value.setNum((int) checkBuffers->isChecked());
@@ -887,6 +904,7 @@ void lisemqt::updateModelData()
         if (p1.compare("OutInf")==0)            namelist[j].value.setNum((int)checkBox_OutInf->isChecked());
         if (p1.compare("OutTileDrain")==0)      namelist[j].value.setNum((int)checkBox_OutTiledrain->isChecked());
         if (p1.compare("OutTileVolume")==0)     namelist[j].value.setNum((int)checkBox_OutTileVol->isChecked());
+        if (p1.compare("OutTheta")==0)         namelist[j].value.setNum((int)checkBox_OutTheta->isChecked());
 
         if (p1.compare("OutDet")==0)     namelist[j].value.setNum((int)checkBox_OutDet->isChecked());
         if (p1.compare("OutDep")==0)     namelist[j].value.setNum((int)checkBox_OutDep->isChecked());

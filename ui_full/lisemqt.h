@@ -110,6 +110,7 @@ public:
     QProgressBar *pb;
     void resizeEvent(QResizeEvent* event);
 
+    bool darkLISEM;
     bool doBatchmode;
     QString batchRunname;
 
@@ -286,12 +287,14 @@ public:
     QString currentDir;
     QString RainFileName;
     QString RainFileDir;
+    QString DischargeinDir;
+    QString DischargeinFileName;
     QString SnowmeltFileName;
     QString SnowmeltFileDir;
     QString SwatreTableName;
     QString SwatreTableDir;
     QStringList DEFmaps;
-    QStringList RunFileNames;
+    //QStringList RunFileNames;
     QString satImageFileDir;
     QString satImageFileName;
     int CurrentRunFile;
@@ -371,7 +374,9 @@ public slots:
     void on_toolButton_help8_clicked();
 
     void on_toolButton_RainfallName_clicked();
-//   void on_toolButton_SnowmeltName_clicked();
+   // void on_toolButton_DichargeInName_clicked();
+
+    //void on_toolButton_SnowmeltName_clicked();
     void on_toolButton_RainfallShow_clicked();
 //    void on_toolButton_SnowmeltShow_clicked();
     void on_toolButton_ShowRunfile_clicked();
@@ -468,6 +473,7 @@ public slots:
     void updateBulkDens();
     void updateBulkDens2();
 
+    QString getFileorDir(QString inputdir,QString title, QStringList filters, int doFile);
 
 private slots:
 
@@ -487,6 +493,10 @@ private slots:
     void on_checkDiffusion_toggled(bool checked);
 
     void on_checkHouses_toggled(bool checked);
+
+    void on_toolButton_DischargeInName_clicked();
+
+    void on_toolButton_fileOpen_clicked();
 
 private:
 

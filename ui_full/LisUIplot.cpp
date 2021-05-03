@@ -51,6 +51,9 @@ void lisemqt::setupPlot()
     layout_Plot->insertWidget(0, HPlot, 1);
     //HPlot->canvas()->setFrameStyle( QFrame::StyledPanel);//QFrame::Box | QFrame::Plain );
 
+ //   HPlot->setStyleSheet(QString("* { background-color: %1 }").arg("#555555"));
+   // HPlot->setStyleSheet(QString("* { color: %1 }").arg("#000000"));
+
     // panning with the left mouse button
     (void) new QwtPlotPanner( HPlot->canvas() );
 
@@ -485,15 +488,15 @@ void lisemqt::SetTextHydrographs()
 
     int j = OutletIndices.indexOf(this->outletpoint);
 
-    int dig = E_DigitsOut->value(); //DIGITS;
+//    int dig = E_DigitsOut->value(); //DIGITS;
 
-    label_qpeaksub->setText(QString::number(OutletQpeak.at(j),'e',dig));
-    label_qpeaktime->setText(QString::number(OutletQpeaktime.at(j),'e',dig));
-    label_qtotm3sub->setText(QString::number(OutletQtot.at(j),'e',dig));
-    label_dischargesub->setText(QString::number(OutletQ.at(j)->at(OutletQ.at(j)->length()-1),'e',dig));
+//    label_qpeaksub->setText(QString::number(OutletQpeak.at(j),'e',dig));
+//    label_qpeaktime->setText(QString::number(OutletQpeaktime.at(j),'e',dig));
+//    label_qtotm3sub->setText(QString::number(OutletQtot.at(j),'e',dig));
+//    label_dischargesub->setText(QString::number(OutletQ.at(j)->at(OutletQ.at(j)->length()-1),'e',dig));
 
-    if(checkDoErosion->isChecked())
-        label_soillosssub->setText(QString::number(OutletQstot.at(j),'f',dig));
+//    if(checkDoErosion->isChecked())
+//        label_soillosssub->setText(QString::number(OutletQstot.at(j),'f',dig));
 
     int steps = OutletQ.at(0)->length();
     for(int i = 0; i < steps; i++)
@@ -561,43 +564,59 @@ void lisemqt::showOutputData()
 
     int dig = E_DigitsOut->value();//DIGITS;
 
-    label_dx->setText(QString::number(op.dx,'f',dig));
-    label_area->setText(QString::number(op.CatchmentArea/1000000,'f',dig));
-    label_time->setText(QString::number(op.time,'f',dig));
-    label_endtime->setText(QString::number(op.EndTime,'f',dig));
-    label_runtime->setText(QString::number(op.t,'f',dig));
-    label_endruntime->setText(QString::number(op.maxtime,'f',dig));
+    if(OutletQ.length() == 0)
+    {
+        return;
+    }
+
+    QString format;
+    if(darkLISEM)
+        format = QString("<font color=#ffffaa>%2</font>");
+    else
+        format= QString("<font color=#000000>%2</font>");
+
+    label_dx->setText(format.arg(QString::number(op.dx,'f',dig)));
+    //label_dx->setText(QString::number(op.dx,'f',dig));
+    label_area->setText(format.arg(QString::number(op.CatchmentArea/1000000,'f',dig)));
+    label_time->setText(format.arg(QString::number(op.time,'f',dig)));
+    label_endtime->setText(format.arg(QString::number(op.EndTime,'f',dig)));
+    label_runtime->setText(format.arg(QString::number(op.t,'f',dig)));
+    label_endruntime->setText(format.arg(QString::number(op.maxtime,'f',dig)));
+
+    // mm output
+    label_raintot->setText(format.arg(QString::number(op.RainTotmm,'f',dig)));
+    label_watervoltot->setText(format.arg(QString::number(op.WaterVolTotmm,'f',dig)));
+    label_stormdraintot->setText(format.arg(QString::number(op.StormDrainTotmm,'f',dig)));
+    label_qtot->setText(format.arg(QString::number(op.Qtotmm,'f',dig)));
+    label_infiltot->setText(format.arg(QString::number(op.InfilTotmm,'f',dig)));
+    label_surfstor->setText(format.arg(QString::number(op.SurfStormm,'f',dig)));
+    label_interctot->setText(format.arg(QString::number(op.IntercTotmm+op.IntercHouseTotmm+op.IntercLitterTotmm,'f',dig)));
+    if (checkOverlandFlow1D->isChecked() && !checkIncludeChannel->isChecked())
+        label_floodVolmm->setText(format.arg(QString::number(0,'f',dig)));
+    else
+        label_floodVolmm->setText(format.arg(QString::number(op.volFloodmm,'f',dig)));
+
+    label_watervolchannel->setText(format.arg(QString::number(op.ChannelVolTotmm,'f',dig)));
+    label_baseflowtot->setText(format.arg(QString::number(op.BaseFlowtotmm,'f',dig)));
+    //  label_litterstore->setText(QString::number(op.LitterStorageTotmm,'f',dig));
+
+    // peak time
+    label_QPfrac->setText(format.arg(QString::number((op.RainTotmm > 0 ? op.Qtotmm/op.RainTotmm*100 : 0),'f',dig)));
+    label_ppeaktime->setText(format.arg(QString::number(op.RainpeakTime,'f',2)));
 
     // mass balance
     label_MB->setText(QString::number(op.MB,'e',dig));
     if (op.MB > 0)
         label_MB->setText(" "+label_MB->text());
 
-    // mm output
-    label_raintot->setText(QString::number(op.RainTotmm,'f',dig));
+    int j = OutletIndices.indexOf(this->outletpoint);
+    label_qpeaksub->setText(format.arg(QString::number(OutletQpeak.at(j),'f',2)));
+    label_qpeaktime->setText(format.arg(QString::number(OutletQpeaktime.at(j),'f',2)));
+    label_qtotm3sub->setText(format.arg(QString::number(OutletQtot.at(j),'f',2)));
+    label_dischargesub->setText(format.arg(QString::number(OutletQ.at(j)->at(OutletQ.at(j)->length()-1),'f',2)));
 
-    label_watervoltot->setText(QString::number(op.WaterVolTotmm,'f',dig));
-    label_stormdraintot->setText(QString::number(op.StormDrainTotmm,'f',dig));
-    label_qtot->setText(QString::number(op.Qtotmm,'f',dig));
-    label_infiltot->setText(QString::number(op.InfilTotmm,'f',dig));
-    label_surfstor->setText(QString::number(op.SurfStormm,'f',dig));
-    label_interctot->setText(QString::number(op.IntercTotmm+op.IntercHouseTotmm+op.IntercLitterTotmm,'f',dig));
-    if (checkOverlandFlow1D->isChecked() && !checkIncludeChannel->isChecked())
-        label_floodVolmm->setText(QString::number(0,'f',dig));
-    else
-        label_floodVolmm->setText(QString::number(op.volFloodmm,'f',dig));
-
-    label_watervolchannel->setText(QString::number(op.ChannelVolTotmm,'f',dig));
-    label_baseflowtot->setText(QString::number(op.BaseFlowtotmm,'f',dig));
-    //  label_litterstore->setText(QString::number(op.LitterStorageTotmm,'f',dig));
-
-    // outlet
-    //    label_qtotm3->setText(QString::number(op.Qtot,'f',2));
-    //    label_discharge->setText(QString::number(op.Q,'f',2));
-
-    // peak time
-    label_QPfrac->setText(QString::number((op.RainTotmm > 0 ? op.Qtotmm/op.RainTotmm*100 : 0),'f',dig));
-    label_ppeaktime->setText(QString::number(op.RainpeakTime,'f',dig));
+    label_soillosssub->setEnabled(checkDoErosion->isChecked());
+    label_94->setEnabled(checkDoErosion->isChecked());
 
     if(checkDoErosion->isChecked())
     {
@@ -606,25 +625,22 @@ void lisemqt::showOutputData()
         if (op.MBs > 0)
             label_MBs->setText(" "+label_MBs->text());
 
-        label_splashdet->setText(QString::number(op.DetTotSplash,'f',dig));
-        label_flowdet->setText(QString::number(op.DetTotFlow+op.FloodDetTot,'f',dig));
-        label_sedvol->setText(QString::number(op.SedTot+op.FloodSedTot,'f',dig));
-        label_dep->setText(QString::number(op.DepTot+op.FloodDepTot,'f',dig));
+        label_soillosssub->setText(format.arg(QString::number(OutletQstot.at(j),'f',dig)));
+        label_splashdet->setText(format.arg(QString::number(op.DetTotSplash,'f',dig)));
+        label_flowdet->setText(format.arg(QString::number(op.DetTotFlow+op.FloodDetTot,'f',dig)));
+        label_sedvol->setText(format.arg(QString::number(op.SedTot+op.FloodSedTot,'f',dig)));
+        label_dep->setText(format.arg(QString::number(op.DepTot+op.FloodDepTot,'f',dig)));
 
-        label_detch->setText(QString::number(op.ChannelDetTot,'f',dig));
-        label_depch->setText(QString::number(op.ChannelDepTot,'f',dig));
-        label_sedvolch->setText(QString::number(op.ChannelSedTot,'f',dig));
+        label_detch->setText(format.arg(QString::number(op.ChannelDetTot,'f',dig)));
+        label_depch->setText(format.arg(QString::number(op.ChannelDepTot,'f',dig)));
+        label_sedvolch->setText(format.arg(QString::number(op.ChannelSedTot,'f',dig)));
 
-//        label_flooddet->setText(QString::number(op.FloodDetTot,'f',dig));
-//        label_flooddep->setText(QString::number(op.FloodDepTot,'f',dig));
-//        label_floodsed->setText(QString::number(op.FloodSedTot,'f',dig));
-
-        label_soilloss->setText(QString::number(op.SoilLossTot,'f',dig));
-        label_soillosskgha->setText(QString::number(op.SoilLossTot/(op.CatchmentArea/10000)*1000,'f',dig));
+        label_soilloss->setText(format.arg(QString::number(op.SoilLossTot,'f',dig)));
+        label_soillosskgha->setText(format.arg(QString::number(op.SoilLossTot/(op.CatchmentArea/10000)*1000,'f',dig)));
 
         double SDR = op.DetTotSplash + op.ChannelDetTot + op.DetTotFlow;
         SDR = (SDR > 0? 100*op.SoilLossTot/(SDR) : 0);
         SDR = std::min(SDR ,100.0);
-        label_SDR->setText(QString::number(SDR,'f',dig));
+        label_SDR->setText(format.arg(QString::number(SDR,'f',dig)));
     }
 }
