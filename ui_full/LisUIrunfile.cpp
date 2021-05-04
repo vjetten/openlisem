@@ -152,9 +152,9 @@ void lisemqt::ParseInputData()
         if (p1.contains("["))
             continue;
 
-        if (p1.compare("Use Rainfall Satellite")==0)         checkRainfallSatellite->setChecked(check);// dummysnow = check;
+        //if (p1.compare("Use Rainfall Satellite")==0)         checkRainfallSatellite->setChecked(check);// dummysnow = check;
         if (p1.compare("Include ET")==0)                     checkIncludeET->setChecked(check);// dummysnow = check;
-        if (p1.compare("Use ET Satellite")==0)               checkETSatellite->setChecked(check);// dummysnow = check;
+        //if (p1.compare("Use ET Satellite")==0)               checkETSatellite->setChecked(check);// dummysnow = check;
         //if (p1.compare("Include Snowmelt")==0)               checkSnowmelt->setChecked(check);// dummysnow = check;
 
         if (p1.compare("Nr user Cores")==0) nrUserCores->setValue(iii);
@@ -660,9 +660,9 @@ void lisemqt::updateModelData()
     {
         QString p1 = namelist[j].name;
 
-        if (p1.compare("Use Rainfall satellite")==0)        namelist[j].value.setNum((int)checkRainfallSatellite->isChecked());
+        //if (p1.compare("Use Rainfall satellite")==0)        namelist[j].value.setNum((int)checkRainfallSatellite->isChecked());
         if (p1.compare("Include ET")==0)                    namelist[j].value.setNum((int)checkIncludeET->isChecked());
-        if (p1.compare("Use ET satellite")==0)              namelist[j].value.setNum((int)checkETSatellite->isChecked());
+        //if (p1.compare("Use ET satellite")==0)              namelist[j].value.setNum((int)checkETSatellite->isChecked());
         //if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
 
 

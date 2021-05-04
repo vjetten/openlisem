@@ -60,6 +60,8 @@
         <file>rainc.png</file>
         <file>soil3c.png</file>
         <file>waterc.png</file>
+        <file>eros1bw.png</file>
+        <file>soil3bw.png</file>
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>

@@ -445,8 +445,8 @@ public slots:
     void on_E_MapDir_returnPressed();
     void on_E_ResultDir_returnPressed();
 
-    void on_checkEstimateGrainSizeDistribution_toggled(bool v);
-    void on_checkReadGrainSizeDistribution_toggled(bool v);
+ //   void on_checkEstimateGrainSizeDistribution_toggled(bool v);
+  //  void on_checkReadGrainSizeDistribution_toggled(bool v);
 
     void ssetAlpha(int v);
     void ssetAlphaChannel(int v);

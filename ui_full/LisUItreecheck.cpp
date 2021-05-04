@@ -256,7 +256,7 @@ void lisemqt::doCheckRainfall(bool check)
     checkMapNameModel(RAINFALLMAPS, 0, check);
 
     E_RainfallName->setEnabled(check);
-    label_4->setEnabled(check);
+    //label_4->setEnabled(check);
     toolButton_RainfallShow->setEnabled(check);
     toolButton_RainfallName->setEnabled(check);
 }

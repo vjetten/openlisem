@@ -65,6 +65,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     setMinimumSize(1280,800);
     showMaximized();
+
     darkLISEM = false;
 
     nrUserCores->setMaximum(omp_get_max_threads());
@@ -569,15 +570,15 @@ void lisemqt::on_checkSedMultiGrain_toggled(bool v)
     }
 }
 //--------------------------------------------------------------------
-void lisemqt::on_checkEstimateGrainSizeDistribution_toggled(bool v)
-{
-   //checkReadGrainSizeDistribution->setChecked(!v);
-}
-//--------------------------------------------------------------------
-void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
-{
-    //checkEstimateGrainSizeDistribution->setChecked(!v);
-}
+//void lisemqt::on_checkEstimateGrainSizeDistribution_toggled(bool v)
+//{
+//   //checkReadGrainSizeDistribution->setChecked(!v);
+//}
+////--------------------------------------------------------------------
+//void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
+//{
+//    //checkEstimateGrainSizeDistribution->setChecked(!v);
+//}
 //--------------------------------------------------------------------
 void lisemqt::setFloodTab(bool yes)
 {
@@ -923,8 +924,12 @@ void lisemqt::SetStyleUI()
 
     QString flat("QToolButton { background-color: white; border: none; }");
 
-    // interface elements that are not visible for now
+    groupBoxInput->setStyleSheet("QGroupBox::title{color: #4477aa;}");
+    groupBoxOutput->setStyleSheet("QGroupBox::title{color: #4477aa;}");
+    checkDoErosion->setStyleSheet("QCheckBox {color: #4477aa;}");
 
+
+    // interface elements that are not visible for now
     frameSpare->setVisible(false);
     tabWidgetOptions->removeTab(8);
     tabWidgetOptions->removeTab(7);
@@ -1660,9 +1665,9 @@ void lisemqt::resetTabFlow()
     checkFlowBarriers->setChecked(false);
     line_FlowBarriers->setText("flowbarriers.txt");
     E_FlowBoundary->setValue(1);
-    E_TimestepMin->setValue(0.2);
+    //E_TimestepMin->setValue(0.2);
     E_TimestepMinFlood->setValue(0.2);
-    E_CourantFactorKin->setValue(0.2);
+    //E_CourantFactorKin->setValue(0.2);
     E_mixingFactor->setValue(2.0);
     E_pitValue->setValue(10.0);
     E_runoffPartitioning->setValue(1.0);
@@ -1670,12 +1675,12 @@ void lisemqt::resetTabFlow()
     E_FloodReconstruction->setValue(3);  //HLL2 etc
     E_FloodFluxLimiter->setValue(1);     //minmod etc
     E_courantFactorSed->setValue(0.2);
-    E_concentrateFlow->setValue(1.0);
+    //E_concentrateFlow->setValue(1.0);
     E_courantFactor->setValue(0.2);
 
     checkVariableTimestep->setChecked(false);
     checkHeun->setChecked(false);
-    checkMuscl->setChecked(false);
+    //checkMuscl->setChecked(false);
     //checkSWOFomp->setChecked(true);
     checkTimeavgV->setChecked(true);
     check2DDiagonalFlow->setChecked(true);
@@ -1899,7 +1904,7 @@ void lisemqt::resetAll()
     checkVariableTimestep->setChecked(false);
     checkHeun->setChecked(false);
     //checkSWOFomp->setChecked(true);
-    checkMuscl->setChecked(true);
+    //checkMuscl->setChecked(true);
     check2DDiagonalFlow->setChecked(true);
     E_courantFactor->setValue(0.2);
     //   if (p1.compare("Flooding courant factor diffusive")==0)        E_courantFactorSed->setValue(valc);
@@ -1997,10 +2002,10 @@ void lisemqt::setfontSize()
     tabWidget->setStyleSheet( QString("font-size: %1px; ").arg(fs) );
 
     QString S = QString("QGroupBox {font-size: %1px;font-weight: bold;color: black;}").arg(fs);
-    groupBox1->setStyleSheet(S);
+    //groupBox1->setStyleSheet(S);
     //groupBox2->setStyleSheet(S);
-    groupBox3->setStyleSheet(S);
-    groupBox4->setStyleSheet(S);
+    //groupBox3->setStyleSheet(S);
+    //groupBox4->setStyleSheet(S);
     //groupBox5->setStyleSheet(S);
     S = QString("QGroupBox {font-size: %1px;font-weight: bold;color: #1b6fb5;}").arg(fs);
     watergroup->setStyleSheet(S);
