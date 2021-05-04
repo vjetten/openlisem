@@ -65,6 +65,7 @@ cTMap
 *DrumStore,                  //!< Max storage of rainwter drums [m^3]
 *InterceptionmmCum,
 *ETa,
+*ETaCum,
 *ETp,
 
 *SnowmeltZone,               //!< snowmelt zone map, values corrspond to snowmelt gauge numbers [-]

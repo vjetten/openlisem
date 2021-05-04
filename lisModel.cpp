@@ -314,6 +314,11 @@ void TWorld::CellProcesses()
                cell_Percolation(r, c);
 
         }
+
+        if (SwitchIncludeET) {
+            cell_ETa(r, c);
+        }
+
         double wh = WH->Drc;
         double SW = SoilWidthDX->Drc;
         double RW = RoadWidthHSDX->Drc;
@@ -378,31 +383,3 @@ void TWorld::OrderedProcesses()
 
 }
 
-/* non threaded version for reference:
-            SetFlowBarriers();     // update the presence of flow barriers
-            GridCell();            // set channel widths, flowwidths road widths etc
-            RainfallMap();         // get rainfall from table or mpas
-            SnowmeltMap();         // get snowmelt
-            Interception();        // vegetation interception
-            InterceptionLitter();  // litter interception
-            InterceptionHouses();  // urban interception
-            addRainfallWH();       // adds rainfall to runoff water height or flood water height
-            Infiltration();        // infil of overland flow water, decrease WH
-            SoilWater();           // simple soil water balance, percolation from lower boundary
-            SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
-            CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
-            SplashDetachment();    // splash detachment
-            ToFlood();             // overland flow water added to flood (not in channel cells)
-            ToChannel();           // water and sed flux going into channel in channel cells
-            ToTiledrain();         // fraction going into tiledrain directly from surface
-            OverlandFlow();        // overland flow wave for water and sed
-            CalcVelDisch();        // overland flow velocity, discharge and alpha for erosion
-            FlowDetachment();      // flow detachment
-            ChannelWaterHeight();  // add rainfall and runoff to channel and get channel WH from volume
-            ChannelFlood();        // st venant channel 2D flooding from channel
-            CalcVelDischChannel(); // alpha, V and Q from Manning
-            ChannelFlow();         // channel erosion and kin wave
-            TileFlow();            // tile drain flow kin wave
-            Totals();              // calculate all totals and cumulative values
-            MassBalance();         // check water and sed mass balance
-            */

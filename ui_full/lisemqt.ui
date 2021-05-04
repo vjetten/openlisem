@@ -10443,7 +10443,7 @@ p, li { white-space: pre-wrap; }
                  <string>Event based</string>
                 </property>
                 <property name="checked">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -14713,6 +14713,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>222</x>
      <y>407</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioETsatfile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_10</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>147</x>
+     <y>514</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>168</x>
+     <y>541</y>
     </hint>
    </hints>
   </connection>

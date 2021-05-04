@@ -182,7 +182,8 @@ void TWorld::doETa()
         }
         tot = tot + tmp;
 
-        ETa->Drc += tot;
+        ETa->Drc = tot;
+        ETaCum->Drc += tot;
 
 //TODO fpa
 

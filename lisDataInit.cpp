@@ -1842,8 +1842,11 @@ void TWorld::IntializeData(void)
     IntercHouse = NewMap(0);
     DStor = NewMap(0);
 
-    ETa = NewMap(0);
-    ETp = NewMap(0);
+    if (SwitchIncludeET) {
+        ETa = NewMap(0);
+        ETaCum = NewMap(0);
+        ETp = NewMap(0);
+    }
 
     Snowmelt = NewMap(0);
     Snowmeltc = NewMap(0);

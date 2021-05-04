@@ -355,3 +355,85 @@ report(*Lw, "lw");
 
 }
 
+//---------------------------------------------------------------------------
+void TWorld::cell_ETa(int r, int c)
+{
+    //NOTE: all in meter
+    double tot = 0;
+    double ETp = 5.0/(12.0*3600.0) * 0.001 *_dt;  //5m/day in m per dt
+    double SoilDep1 = SoilDepth1->Drc;
+    double SoilDep2 = SwitchTwoLayer ? SoilDepth2->Drc-SoilDepth1->Drc : 0.0;
+    double thetai1 = ThetaI1->Drc;
+    double thetai2 = SwitchTwoLayer ? ThetaI2->Drc : 0.0;
+    double thetas1 = ThetaS1->Drc;
+    double thetas2 = SwitchTwoLayer ? ThetaS2->Drc : 0.0;
+    double cover = Cover->Drc;
+
+    // soil ET from top 15 cm where there is no cover and no ponding
+    double ETa_soil = 0;
+    ETa_soil = hmx->Drc > 0 || WH->Drc > 0 ? 0.0 : thetai1/ThetaS1->Drc * ETp;
+    ETa_soil = thetai1 < 0.05 ? 0.0 : ETa_soil;
+    ETa_soil *= 1-cover;
+    if (ETa_soil > 0) {
+        double moist = thetai1 * std::min(150.0,SoilDep1); // assume soil evap fomr top 15 cm
+        ETa_soil = std::min(ETa_soil, moist);
+        moist = moist - ETa_soil;
+        double moist1 = thetai1 * std::max(0.0, SoilDep1-150.0);
+        ThetaI1->Drc = (moist1+moist)/SoilDep1;
+        tot = tot + ETa_soil;
+    }
+
+    // interception ET where there is cover
+    double cstor = CStor->Drc;
+    double ETa_int = cover * ETp;
+    ETa_int = std::min(cstor, ETa_int);
+    cstor = cstor-ETa_int;
+    Interc->Drc =  cover * cstor * SoilWidthDX->Drc * DX->Drc;
+    CStor->Drc = cstor;
+    tot = tot + ETa_int;
+
+    //transpiration form the entire soil where cover
+    thetai1 = ThetaI1->Drc;
+    double ETa_Tr = ETa_int == 0 ? cover * ETp : 0.0;
+    double moist = thetai1*SoilDep1 + thetai2 * SoilDep2;
+    double the = (thetai1+thetai2)/(thetas1+thetas2);
+    double ETfactor = 1.0-(1.0/(1.0+pow(the/((thetas1+thetas2)*0.5), 5.0)));
+    ETa_Tr = std::min(moist*0.95, ETa_Tr);
+    ETa_Tr = ETa_Tr * ETfactor;
+
+    moist = moist - ETa_Tr;
+    double moist1 = moist*SoilDep1/(SoilDep1+SoilDep2);
+    double moist2 = moist*SoilDep2/(SoilDep1+SoilDep2);
+    ThetaI1->Drc = moist1/SoilDep1;
+    if (SwitchTwoLayer)
+        ThetaI2->Drc = moist2/SoilDep2;
+    tot = tot + ETa_Tr;
+
+    // surface waters
+    double wh = WH->Drc;
+    double whr = WHrunoff->Drc;
+    double hm = hmx->Drc;
+    double ETa_pond = hm > 0 || wh > 0 ? ETp : 0.0;
+    if (hm > 0) {
+        ETa_pond = std::min(ETa_pond, hmx->Drc);
+        hm = hm-ETa_pond;
+        hmx->Drc = hm;
+    } else {
+        ETa_pond = std::min(ETa_pond, wh);
+        wh = wh-ETa_pond;
+        if (wh < WHstore->Drc) {
+            WHstore->Drc = wh;
+            whr = 0;
+        } else {
+            whr = wh - WHstore->Drc;
+        }
+        WaterVolall->Drc = whr*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+        WHroad->Drc = whr;
+        WH->Drc = wh;
+        WHrunoff->Drc = whr;
+    }
+    tot = tot + ETa_pond;
+
+    ETa->Drc = tot;
+    ETaCum->Drc += tot;
+}
