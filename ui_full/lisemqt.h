@@ -287,10 +287,14 @@ public:
     QString currentDir;
     QString RainFileName;
     QString RainFileDir;
+    QString RainSatFileName;
+    QString RainSatFileDir;
+    QString ETFileName;
+    QString ETFileDir;
+    QString ETSatFileName;
+    QString ETSatFileDir;
     QString DischargeinDir;
     QString DischargeinFileName;
-    QString ETDir;
-    QString ETFileName;
     QString SnowmeltFileName;
     QString SnowmeltFileDir;
     QString SwatreTableName;
@@ -315,6 +319,7 @@ public:
     int mapstartnr;
     bool doShootScreens, startShootScreens;
     QString mapFormat;
+    int cpucores;
 
     // buttongroups to make checkboxes mutually exclusive
     QButtonGroup GroupMapDisplay;
@@ -331,7 +336,7 @@ public:
     void resetTabSediment();
     void doCheckRainfall(bool);
 
- //   void setSedimentText(int i, int j, int k);
+    void setErosionTab();
 
 public slots:
     // functions linked to actions
@@ -364,7 +369,7 @@ public slots:
     void on_toolButton_resetErosion_clicked();
     void on_toolButton_resetFlow_clicked();
     void on_toolButton_resetCalibration_clicked();
-    void on_toolButton_resetSediment_clicked();
+
 
     void on_toolButton_help1_clicked();
     void on_toolButton_help2_clicked();
@@ -391,7 +396,7 @@ public slots:
 
   //  void on_checkBox_SedSingleSingle_toggled(bool v);
     void on_checkSed2Phase_toggled(bool v);
-    void on_checkSedMultiGrain_toggled(bool v);
+//    void on_checkSedMultiGrain_toggled(bool v);
 
 //    void on_E_RBLMethod_valueChanged(int);
 //    void on_E_RSSMethod_valueChanged(int);
@@ -413,12 +418,11 @@ public slots:
     void on_checkChannelBaseflow_clicked();
     void on_checkDoErosion_clicked();
     void on_checkOverlandFlow1D_clicked();
-    void on_checkOverlandFlow2D_clicked();
     void on_checkIncludeChannel_clicked();
     void on_checkIncludeTiledrains_clicked();
     void on_checkBoxComboMaps_stateChanged(int);
     void on_checkBoxComboMaps2_stateChanged(int);
-    //void on_nrUserCores_valueChanged(int d);
+    void on_nrUserCores_valueChanged(int d);
     void on_ComboMinSpinBox_valueChanged(double);
     void on_ComboMaxSpinBox_valueChanged(double);
     void on_ComboMinSpinBox2_valueChanged(double);
@@ -462,7 +466,6 @@ public slots:
 
     //void setFloodErosion();
     void setFloodTab(bool);
-    void setErosionTab(bool);
     void setRunoffTab(bool);
 
     void fontSelect();
@@ -498,6 +501,16 @@ private slots:
 
     void on_toolButton_DischargeInName_clicked();
 
+
+    void on_checkBox_EventBased_clicked(bool checked);
+
+    void on_toolButton_rainsatName_clicked();
+
+    void on_toolButton_ETName_clicked();
+
+    void on_toolButton_ETsatName_clicked();
+
+    void on_checkIncludeET_toggled(bool checked);
 
 private:
 

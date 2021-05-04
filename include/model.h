@@ -428,6 +428,7 @@ public:
     double time, BeginTime, EndTime;
     double _dt, _dx;
     long runstep, printstep, printinterval;
+    bool SwitchEventbased;
 
     QString mapFormat;
 

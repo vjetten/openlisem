@@ -270,12 +270,18 @@ void lisemqt::defaultRunFile()
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Simulation times]");
-    namelist[i].value = QString("1:0");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Begin time day");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Begin time");
-    namelist[i].value = QString("1:100");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("End time day");
+    namelist[i].value = QString("120");
     namelist[i++].name = QString("End time");
     namelist[i].value = QString("10");
     namelist[i++].name = QString("Timestep");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Event based");
 
     //###
     namelist[i++].name = QString("");
@@ -467,16 +473,16 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include diffusion");
     namelist[i].value = QString("0.5");
     namelist[i++].name = QString("Sigma diffusion");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use grain size distribution");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Estimate grain size distribution");
-    namelist[i].value = QString("6");
-    namelist[i++].name = QString("Number of grain size classes (simulated)");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Read grain distribution maps");
-    namelist[i].value = QString("2;20;50;125;250;500");
-    namelist[i++].name = QString("Grain size class maps");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Use grain size distribution");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Estimate grain size distribution");
+//    namelist[i].value = QString("6");
+//    namelist[i++].name = QString("Number of grain size classes (simulated)");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Read grain distribution maps");
+//    namelist[i].value = QString("2;20;50;125;250;500");
+//    namelist[i++].name = QString("Grain size class maps");
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Conservation]");

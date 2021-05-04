@@ -83,6 +83,8 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     op.runfilename.clear();
     E_runFileList->clear();
 
+    checkBox_EventBased->setChecked(false);
+
     //TODO: check all options and default values
     resetAll();
     // all options and mapnames are reset to their default names and values
@@ -178,10 +180,6 @@ void lisemqt::SetConnections()
     connect(MapNameModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(editMapname(QModelIndex, QModelIndex)));
     connect(toolButton_ResultDir, SIGNAL(clicked()), this, SLOT(setResultDir()));
 
- //   connect(checkWritePCRaster,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
- //   connect(checkWriteCommaDelimited,SIGNAL(toggled(bool)), this, SLOT(setWriteOutputPCR(bool)));
- //   connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
-//    connect(checkAdvancedSediment, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
     connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow1D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow2Dkindyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
@@ -298,10 +296,6 @@ void lisemqt::on_checkOverlandFlow1D_clicked()
     tabWidgetOptions->setTabEnabled(3, true);
 }
 
-void lisemqt::on_checkOverlandFlow2D_clicked()
-{
-    tabWidgetOptions->setTabEnabled(3, true);
-}
 //--------------------------------------------------------------------
 void lisemqt::setErosionMapOutput(bool doit)
 {
@@ -313,21 +307,21 @@ void lisemqt::setErosionMapOutput(bool doit)
 
 //--------------------------------------------------------------------
 //gives values 0,1,2,4,6,8
-//void lisemqt::on_nrUserCores_valueChanged(int d)
-//{
-//    int cores = cpucores;
-//    cores = d;
-//    if (d > 1) {
-//        if (d % 2 == 1)  {
-//            if (d < cpucores) cores--;
-//            else
-//                if (d > cpucores) cores++;
-//        } else
-//            cores = d;
-//    }
-//    nrUserCores->setValue(cores);
-//    cpucores = cores;
-//}
+void lisemqt::on_nrUserCores_valueChanged(int d)
+{
+    int cores = cpucores;
+    cores = d;
+    if (d > 1) {
+        if (d % 2 == 1)  {
+            if (d < cpucores) cores--;
+            else
+                if (d > cpucores) cores++;
+        } else
+            cores = d;
+    }
+    nrUserCores->setValue(cores);
+    cpucores = cores;
+}
 //--------------------------------------------------------------------
 void lisemqt::on_ComboMinSpinBox_valueChanged(double d)
 {
@@ -551,33 +545,23 @@ void lisemqt::on_checkSed2Phase_toggled(bool v)
 }
 //--------------------------------------------------------------------
 
-void lisemqt::on_checkSedMultiGrain_toggled(bool v)
-{
-    if(v) {
-        checkSed2Phase->setChecked(false);
-     //   sedbox1->setEnabled(true);
-        sedbox2->setEnabled(true);
-        sedbox3->setEnabled(true);
-        E_RBLMethod->setValue(3);
-        E_RSSMethod->setValue(4);
-        E_BLMethod->setValue(3);
-        E_SSMethod->setValue(4);
-        E_RBLMethod->setEnabled(false);
-        E_RSSMethod->setEnabled(false);
-        E_BLMethod->setEnabled(false);
-        E_SSMethod->setEnabled(false);
+//void lisemqt::on_checkSedMultiGrain_toggled(bool v)
+//{
+//    if(v) {
+//        checkSed2Phase->setChecked(false);
+//     //   sedbox1->setEnabled(true);
+//        sedbox2->setEnabled(true);
+//        sedbox3->setEnabled(true);
+//        E_RBLMethod->setValue(3);
+//        E_RSSMethod->setValue(4);
+//        E_BLMethod->setValue(3);
+//        E_SSMethod->setValue(4);
+//        E_RBLMethod->setEnabled(false);
+//        E_RSSMethod->setEnabled(false);
+//        E_BLMethod->setEnabled(false);
+//        E_SSMethod->setEnabled(false);
 
-    }
-}
-//--------------------------------------------------------------------
-//void lisemqt::on_checkEstimateGrainSizeDistribution_toggled(bool v)
-//{
-//   //checkReadGrainSizeDistribution->setChecked(!v);
-//}
-////--------------------------------------------------------------------
-//void lisemqt::on_checkReadGrainSizeDistribution_toggled(bool v)
-//{
-//    //checkEstimateGrainSizeDistribution->setChecked(!v);
+//    }
 //}
 //--------------------------------------------------------------------
 void lisemqt::setFloodTab(bool yes)
@@ -612,42 +596,24 @@ void lisemqt::setFloodTab(bool yes)
 
 }
 //--------------------------------------------------------------------
-void lisemqt::setErosionTab(bool yes)
+void lisemqt::setErosionTab()
 {
     tabWidgetOptions->setTabEnabled(4, checkDoErosion->isChecked());
-  //  tabWidgetOptions->setTabEnabled(5, checkAdvancedSediment->isChecked() && checkDoErosion->isChecked());
 
-//    if (checkDoErosion->isChecked())
-//        checkBox_SedSingleSingle->setChecked(!checkAdvancedSediment->isChecked());
-//    // note checkBox_SedSingleSingle is not visible but still needed
+    int i1 = E_RBLMethod->value();
+    int i2 = E_RSSMethod->value();
+    int i3 = E_BLMethod->value();
+    int i4 = E_SSMethod->value();
 
+    E_RBLMethod->setValue(0);
+    E_RSSMethod->setValue(0);
+    E_BLMethod->setValue(0);
+    E_SSMethod->setValue(0);
+    E_RBLMethod->setValue(i1);
+    E_RSSMethod->setValue(i2);
+    E_BLMethod->setValue(i3);
+    E_SSMethod->setValue(i4);
 
-   // if (checkAdvancedSediment->isChecked())
-   // {
-//        if (!checkSed2Phase->isChecked())// && !checkSedMultiGrain->isChecked())
-//        {
-//            checkSedMultiGrain->setChecked(false);
-//            checkSed2Phase->setChecked(true);
-//        }
-     //checkSedMultiGrain->setChecked(false);
-
-
-        int i1 = E_RBLMethod->value();
-        int i2 = E_RSSMethod->value();
-        int i3 = E_BLMethod->value();
-        int i4 = E_SSMethod->value();
-
-        E_RBLMethod->setValue(0);
-        E_RSSMethod->setValue(0);
-        E_BLMethod->setValue(0);
-        E_SSMethod->setValue(0);
-        E_RBLMethod->setValue(i1);
-        E_RSSMethod->setValue(i2);
-        E_BLMethod->setValue(i3);
-        E_SSMethod->setValue(i4);
-
-
- //   }
     //  yes = checkDoErosion->isChecked();
     outputMapsSediment->setEnabled(checkDoErosion->isChecked());
     checkBox_OutConc->setEnabled(checkDoErosion->isChecked());
@@ -656,7 +622,6 @@ void lisemqt::setErosionTab(bool yes)
     checkBox_OutSL->setEnabled(checkDoErosion->isChecked());
     checkBox_OutSed->setEnabled(checkDoErosion->isChecked());
     checkBox_OutTC->setEnabled(checkDoErosion->isChecked());
-    //groupKineticEnergy->setEnabled(checkDoErosion->isChecked());
     checkBox_OutSedSS->setEnabled(checkDoErosion->isChecked() && checkSed2Phase->isChecked());
     checkBox_OutSedBL->setEnabled(checkDoErosion->isChecked() && checkSed2Phase->isChecked());
 
@@ -665,7 +630,7 @@ void lisemqt::setErosionTab(bool yes)
     ComboMaxSpinBox2->setEnabled(checkDoErosion->isChecked());
     DisplayComboBox2->setEnabled(checkDoErosion->isChecked());
 
-    if (!yes)
+    if (!checkDoErosion->isChecked())
     {
         int dig = E_DigitsOut->value();
         label_MBs->setText(QString::number(0,'e',dig));
@@ -927,13 +892,13 @@ void lisemqt::SetStyleUI()
     groupBoxInput->setStyleSheet("QGroupBox::title{color: #4477aa;}");
     groupBoxOutput->setStyleSheet("QGroupBox::title{color: #4477aa;}");
     checkDoErosion->setStyleSheet("QCheckBox {color: #4477aa;}");
-
+    checkSed2Phase->setStyleSheet("QCheckBox {color: #4477aa;}");
 
     // interface elements that are not visible for now
     frameSpare->setVisible(false);
     tabWidgetOptions->removeTab(8);
     tabWidgetOptions->removeTab(7);
-    frameNumerical->setVisible(false);
+    //frameNumerical->setVisible(false);
 
     //tabWidget_erosion->setCurrentIndex(0);
     if (darkLISEM) {
@@ -1808,8 +1773,10 @@ void lisemqt::resetAll()
     E_SeriesTotals->setText("totalSeries.csv");
     E_PointResults->setText("hydrographs.csv");
 
-    E_BeginTime->setText("1:0");
-    E_EndTime->setText("1:120");
+    E_BeginTimeDay->setText("1");
+    E_BeginTimeMin->setText("0");
+    E_EndTimeDay->setText("1");
+    E_EndTimeMin->setText("120");
     E_Timestep->setText("20");
 
     checkBox_OutRunoff->setChecked(false);
@@ -1935,11 +1902,9 @@ QString lisemqt::findValidDir(QString path, bool up)
 {
     if (!QFileInfo(path).exists() || path.isEmpty())
         path = E_MapDir->text();
-    //    if (!QFileInfo(path).exists() || path.isEmpty())
-    //        path = E_WorkDir->text();
+
     if (!QFileInfo(path).exists() || path.isEmpty())
     {
-        //    path = QFileInfo(op.runfilename).absolutePath();
         QDir ddir(op.runfilename);
         ddir.cdUp();
         path = ddir.absolutePath();
@@ -2016,11 +1981,6 @@ void lisemqt::setfontSize()
     S = QString("QToolBox::tab {background-color: #1b6fb5}");
     //tabWidget_erosion->setStyleSheet(S);
 
-}
-//---------------------------------------------------------------
-void lisemqt::on_toolButton_resetSediment_clicked()
-{
-    resetTabSediment();
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetCalibration_clicked()
@@ -2186,3 +2146,65 @@ QString lisemqt::getFileorDir(QString inputdir,QString title, QStringList filter
     return dirout;
 }
 
+
+void lisemqt::on_checkBox_EventBased_clicked(bool checked)
+{
+    E_BeginTimeDay->setDisabled(checked);
+    E_EndTimeDay->setDisabled(checked);
+    if (checked) {
+        label_6->setText("Begin time (min)");
+        label_7->setText("End time (min)");
+    } else {
+        label_6->setText("Begin time (DDD:MMMM)");
+        label_7->setText("End time (DDD:MMMM)");
+    }
+}
+
+void lisemqt::on_toolButton_rainsatName_clicked()
+{
+    if (!QFileInfo(RainSatFileDir).exists() || RainSatFileDir.isEmpty())
+        RainSatFileDir = RainFileDir;
+    if (!QFileInfo(RainSatFileDir).exists() || RainSatFileDir.isEmpty())
+        RainSatFileDir = currentDir;
+    QStringList filters({"PCRaster maps (*.map)","Any files (*)"});
+    QString sss = getFileorDir(RainSatFileDir,"Select the first rainfall map", filters, 2);
+
+    RainSatFileName = QFileInfo(sss).baseName();
+
+    E_rainsatName->setText(RainSatFileName);
+}
+
+
+void lisemqt::on_toolButton_ETName_clicked()
+{
+    if (!QFileInfo(ETFileDir).exists() || ETFileDir.isEmpty())
+        ETFileDir = RainFileDir;
+    if (!QFileInfo(ETFileDir).exists() || ETFileDir.isEmpty())
+        ETFileDir = currentDir;
+    QStringList filters({"Text file (*.tbl *.txt)","Any files (*)"});
+
+    ETFileName = getFileorDir(ETFileDir,"Select ET stations file", filters, 2);
+
+    E_ETName->setText(ETFileName);
+}
+
+
+void lisemqt::on_toolButton_ETsatName_clicked()
+{
+    if (!QFileInfo(ETSatFileDir).exists() || ETSatFileDir.isEmpty())
+        ETSatFileDir = RainSatFileDir;
+    if (!QFileInfo(ETSatFileDir).exists() || ETSatFileDir.isEmpty())
+        ETSatFileDir = currentDir;
+    QStringList filters({"PCRaster maps (*.map)","Any files (*)"});
+
+    QString sss = getFileorDir(ETSatFileDir,"Select the first ET map", filters, 2);
+
+    ETSatFileName = QFileInfo(sss).baseName();
+    E_ETsatName->setText(ETSatFileName);
+}
+
+void lisemqt::on_checkIncludeET_toggled(bool checked)
+{
+    radioGroupET->setEnabled(checked);
+
+}

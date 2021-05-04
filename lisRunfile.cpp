@@ -173,7 +173,6 @@ QString TWorld::checkOutputMapName(QString p, QString S, int i)
 void TWorld::ParseRunfileData(void)
 {
     int j=0;
-    // int dummyAdvancedSed= 0;
     SwitchRainfall = true;
     SwitchSV = 1;
 
@@ -212,9 +211,9 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use 2 phase flow")==0)                  SwitchUse2Phase = iii;
 //        if (p1.compare("Include River diffusion")==0)           SwitchIncludeRiverDiffusion = iii == 1;
         if (p1.compare("Include diffusion")==0)                 SwitchIncludeDiffusion = iii == 1;
-        if (p1.compare("Use grain size distribution")==0)       SwitchMulticlass = iii == 1;
-        if (p1.compare("Estimate grain size distribution")==0)  SwitchEstimateGrainSizeDistribution = iii == 1;
-        if (p1.compare("Read grain distribution maps")==0)      SwitchReadGrainSizeDistribution    = iii == 1;
+//        if (p1.compare("Use grain size distribution")==0)       SwitchMulticlass = iii == 1;
+//        if (p1.compare("Estimate grain size distribution")==0)  SwitchEstimateGrainSizeDistribution = iii == 1;
+//        if (p1.compare("Read grain distribution maps")==0)      SwitchReadGrainSizeDistribution    = iii == 1;
         //   if (p1.compare("Number of grain size classes (simulated)")==0)  numgrainclasses    = iii ;
         //   if (p1.compare("Grain size class maps")==0)     GrainMaps  = p;
 
@@ -337,8 +336,7 @@ void TWorld::ParseRunfileData(void)
         // profile map name
     }
 
-    //SwitchUse2Phase = SwitchAdvancedSed;
-    SwitchUseGrainSizeDistribution = (getvalueint("Use grain size distribution") == 1);
+    //SwitchUseGrainSizeDistribution = (getvalueint("Use grain size distribution") == 1);
     //qDebug() << SwitchUse2Phase << SwitchAdvancedSed;
 
     //SwitchChannelFlood = true; // always true

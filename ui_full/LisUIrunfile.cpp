@@ -401,7 +401,10 @@ void lisemqt::ParseInputData()
 
     // ###################################
 
-   // setErosionTab(checkDoErosion->isChecked());
+    groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
+
+    on_checkIncludeET_toggled(checkIncludeET->isChecked());
+
     if (checkSedtrap->isChecked())
         on_checkSedtrap_clicked();
     if (checkInfilGrass->isChecked())
@@ -419,14 +422,17 @@ void lisemqt::ParseInputData()
     QDir dir(E_WorkDir);
     if (dir.cdUp())
         E_WorkDir = dir.absolutePath()+"/";
+    // workdir is now parent of runfile directory
 
     for (j = 0; j < nrnamelist; j++)
     {
         QString p1 = namelist[j].name;
         QString p = namelist[j].value;
 
-        if (p1.compare("Begin time")==0) E_BeginTime->setText(p);
-        if (p1.compare("End time")==0) E_EndTime->setText(p);
+        if (p1.compare("Begin time day")==0) E_BeginTimeDay->setText(p);
+        if (p1.compare("Begin time")==0) E_BeginTimeMin->setText(p);
+        if (p1.compare("End time day")==0)   E_EndTimeDay->setText(p);
+        if (p1.compare("End time")==0)   E_EndTimeMin->setText(p);
         if (p1.compare("Timestep")==0) E_Timestep->setText(p);
 
         // input ourput dirs and file names
@@ -448,6 +454,7 @@ void lisemqt::ParseInputData()
                 QDir dir(E_WorkDir);
                 if (dir.cdUp())
                     E_WorkDir = dir.absolutePath()+"/";
+                // workdir is now parent of maps directory
 
             }
 
@@ -488,15 +495,15 @@ void lisemqt::ParseInputData()
             }
         }
 
-        if (p1.compare("ET Directory")==0) ETDir = CheckDir(p);
+        if (p1.compare("ET Directory")==0) ETFileDir = CheckDir(p);
         if (p1.compare("ET file")==0)
         {
-            E_ETName->setText(ETDir + p);
+            E_ETName->setText(ETFileDir + p);
             ETFileName = p;
             if (!QFileInfo(E_ETName->text()).exists())
             {
-                ETDir = QString(E_WorkDir + "rain/");
-                E_ETName->setText(ETDir + p);
+                ETFileDir = QString(E_WorkDir + "rain/");
+                E_ETName->setText(ETFileDir + p);
             }
         }
 
@@ -809,8 +816,10 @@ void lisemqt::updateModelData()
         }
         if (p1.compare("KE time based")==0)      namelist[j].value.setNum((int)checkKETimebased->isChecked());
 
-        if (p1.compare("Begin time")==0) namelist[j].value = E_BeginTime->text();
-        if (p1.compare("End time")==0)   namelist[j].value = E_EndTime->text();
+        if (p1.compare("Begin time day")==0) namelist[j].value = E_BeginTimeDay->text();
+        if (p1.compare("Begin time")==0) namelist[j].value = E_BeginTimeMin->text();
+        if (p1.compare("End time day")==0)   namelist[j].value = E_EndTimeDay->text();
+        if (p1.compare("End time")==0)   namelist[j].value = E_EndTimeMin->text();
         if (p1.compare("Timestep")==0)   namelist[j].value = E_Timestep->text();
         if (p1.compare("Work Directory")==0)    namelist[j].value = E_WorkDir;//->text();
         if (p1.compare("Map Directory")==0)    namelist[j].value = E_MapDir->text();
@@ -941,7 +950,7 @@ void lisemqt::updateModelData()
     //get all actual mapnames from the mapList structure
     fillNamelistMapnames(true);
 
-    currentDir = E_WorkDir;//->text();
+    currentDir = E_WorkDir;
     QDir::setCurrent(currentDir);
 
     if (saveRunFileOnce) {
