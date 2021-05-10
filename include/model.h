@@ -321,7 +321,7 @@ public:
 */
 
     bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelInflow,
-    SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchRainfall,
+    SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchRainfall, SwitchEventbased,
     SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
@@ -428,7 +428,6 @@ public:
     double time, BeginTime, EndTime;
     double _dt, _dx;
     long runstep, printstep, printinterval;
-    bool SwitchEventbased;
 
     QString mapFormat;
 

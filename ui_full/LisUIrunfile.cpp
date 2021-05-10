@@ -133,6 +133,8 @@ void lisemqt::ParseInputData()
     // get all the options/checks
 
     resetAll();
+    bool ETmaps = false;
+    bool Rainmaps = false;
 
     for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
     {
@@ -151,11 +153,11 @@ void lisemqt::ParseInputData()
         bool check = iii == 1;
         if (p1.contains("["))
             continue;
-
-        //if (p1.compare("Use Rainfall Satellite")==0)         checkRainfallSatellite->setChecked(check);// dummysnow = check;
-        if (p1.compare("Include ET")==0)                     checkIncludeET->setChecked(check);// dummysnow = check;
-        //if (p1.compare("Use ET Satellite")==0)               checkETSatellite->setChecked(check);// dummysnow = check;
-        //if (p1.compare("Include Snowmelt")==0)               checkSnowmelt->setChecked(check);// dummysnow = check;
+        if (p1.compare("Event based")==0)                   checkEventBased->setChecked(check);
+        if (p1.compare("Use Rainfall maps")==0)             Rainmaps = check;
+        if (p1.compare("Include ET")==0)                    checkIncludeET->setChecked(check);
+        if (p1.compare("Use ET maps")==0)                   ETmaps = check;
+        //if (p1.compare("Include Snowmelt")==0)               checkSnowmelt->setChecked(check);
 
         if (p1.compare("Nr user Cores")==0) nrUserCores->setValue(iii);
         if (p1.compare("Result datetime")==0) checkAddDatetime->setChecked(check);
@@ -400,6 +402,11 @@ void lisemqt::ParseInputData()
    }
 
     // ###################################
+
+    radioETfile->setChecked(!ETmaps);
+    radioETsatfile->setChecked(ETmaps);
+    radioRainFile->setChecked(!Rainmaps);
+    radioRainSatFile->setChecked(Rainmaps);
 
     groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
 
@@ -667,9 +674,10 @@ void lisemqt::updateModelData()
     {
         QString p1 = namelist[j].name;
 
-        //if (p1.compare("Use Rainfall satellite")==0)        namelist[j].value.setNum((int)checkRainfallSatellite->isChecked());
-        if (p1.compare("Include ET")==0)                    namelist[j].value.setNum((int)checkIncludeET->isChecked());
-        //if (p1.compare("Use ET satellite")==0)              namelist[j].value.setNum((int)checkETSatellite->isChecked());
+        if (p1.compare("Event based")==0)              namelist[j].value.setNum((int)checkEventBased->isChecked());
+        if (p1.compare("Use Rainfall maps")==0)        namelist[j].value.setNum((int)radioRainSatFile->isChecked());
+        if (p1.compare("Include ET")==0)               namelist[j].value.setNum((int)checkIncludeET->isChecked());
+        if (p1.compare("Use ET maps")==0)              namelist[j].value.setNum((int)radioETsatfile->isChecked());
         //if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
 
 

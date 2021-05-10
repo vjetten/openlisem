@@ -83,7 +83,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     op.runfilename.clear();
     E_runFileList->clear();
 
-    checkBox_EventBased->setChecked(false);
+    checkEventBased->setChecked(true);
 
     //TODO: check all options and default values
     resetAll();
@@ -893,6 +893,7 @@ void lisemqt::SetStyleUI()
     groupBoxOutput->setStyleSheet("QGroupBox::title{color: #4477aa;}");
     checkDoErosion->setStyleSheet("QCheckBox {color: #4477aa;}");
     checkSed2Phase->setStyleSheet("QCheckBox {color: #4477aa;}");
+    label_55->setStyleSheet("QLabel {color: #4477aa;}");
 
     // interface elements that are not visible for now
     frameSpare->setVisible(false);
@@ -2147,7 +2148,7 @@ QString lisemqt::getFileorDir(QString inputdir,QString title, QStringList filter
 }
 
 
-void lisemqt::on_checkBox_EventBased_clicked(bool checked)
+void lisemqt::on_checkEventBased_clicked(bool checked)
 {
     E_BeginTimeDay->setDisabled(checked);
     E_EndTimeDay->setDisabled(checked);

@@ -132,7 +132,6 @@ void TWorld::DoModel()
         ParseRunfileData();
         // get and parse runfile
 
-        SwitchEventbased = getvalueint("Event based") == 1;
         //BeginTime = getTimefromString(bt)*60; // in seconds!
         //EndTime = getTimefromString(et)*60;
         if (SwitchEventbased) {

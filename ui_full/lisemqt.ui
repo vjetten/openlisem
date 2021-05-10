@@ -2485,7 +2485,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -2496,13 +2496,42 @@
                  <widget class="QWidget" name="tab_6">
                   <attribute name="icon">
                    <iconset resource="../resources/openlisem.qrc">
-                    <normaloff>:/2X/settings.png</normaloff>:/2X/settings.png</iconset>
+                    <normaloff>:/2X/settings2.png</normaloff>:/2X/settings2.png</iconset>
                   </attribute>
                   <attribute name="title">
                    <string/>
                   </attribute>
                   <layout class="QGridLayout" name="gridLayout_38">
-                   <item row="0" column="0" rowspan="2" colspan="2">
+                   <item row="3" column="0">
+                    <widget class="QCheckBox" name="checkDoErosion">
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Erosion processes</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="1">
+                    <spacer name="verticalSpacer_4">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>322</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item row="1" column="0" rowspan="2" colspan="2">
                     <widget class="QGroupBox" name="groupSurfaceflow">
                      <property name="font">
                       <font>
@@ -2595,7 +2624,7 @@
                      </layout>
                     </widget>
                    </item>
-                   <item row="0" column="2">
+                   <item row="1" column="2">
                     <spacer name="horizontalSpacer_7">
                      <property name="orientation">
                       <enum>Qt::Horizontal</enum>
@@ -2608,49 +2637,20 @@
                      </property>
                     </spacer>
                    </item>
-                   <item row="0" column="3">
-                    <widget class="QToolButton" name="toolButton_help1">
-                     <property name="text">
-                      <string/>
+                   <item row="2" column="3" rowspan="5">
+                    <spacer name="verticalSpacer_14">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
                      </property>
-                     <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
-                       <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>24</width>
+                       <height>675</height>
+                      </size>
                      </property>
-                     <property name="shortcut">
-                      <string>F1</string>
-                     </property>
-                     <property name="checkable">
-                      <bool>false</bool>
-                     </property>
-                     <property name="popupMode">
-                      <enum>QToolButton::DelayedPopup</enum>
-                     </property>
-                     <property name="toolButtonStyle">
-                      <enum>Qt::ToolButtonIconOnly</enum>
-                     </property>
-                     <property name="arrowType">
-                      <enum>Qt::NoArrow</enum>
-                     </property>
-                    </widget>
+                    </spacer>
                    </item>
-                   <item row="2" column="0">
-                    <widget class="QCheckBox" name="checkDoErosion">
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Erosion processes</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0" colspan="2">
+                   <item row="4" column="0" colspan="2">
                     <widget class="QGroupBox" name="groupChannels">
                      <property name="font">
                       <font>
@@ -2899,7 +2899,33 @@
                      </layout>
                     </widget>
                    </item>
-                   <item row="4" column="0" colspan="2">
+                   <item row="1" column="3">
+                    <widget class="QToolButton" name="toolButton_help1">
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/openlisem.qrc">
+                       <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
+                     </property>
+                     <property name="shortcut">
+                      <string>F1</string>
+                     </property>
+                     <property name="checkable">
+                      <bool>false</bool>
+                     </property>
+                     <property name="popupMode">
+                      <enum>QToolButton::DelayedPopup</enum>
+                     </property>
+                     <property name="toolButtonStyle">
+                      <enum>Qt::ToolButtonIconOnly</enum>
+                     </property>
+                     <property name="arrowType">
+                      <enum>Qt::NoArrow</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0" colspan="2">
                     <widget class="QGroupBox" name="groupInfrastructrure">
                      <property name="font">
                       <font>
@@ -3070,31 +3096,21 @@
                      </layout>
                     </widget>
                    </item>
-                   <item row="5" column="1">
-                    <spacer name="verticalSpacer_4">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_55">
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
                      </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>322</height>
-                      </size>
+                     <property name="text">
+                      <string>General process options</string>
                      </property>
-                    </spacer>
-                   </item>
-                   <item row="1" column="3" rowspan="5">
-                    <spacer name="verticalSpacer_14">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>24</width>
-                       <height>675</height>
-                      </size>
-                     </property>
-                    </spacer>
+                    </widget>
                    </item>
                   </layout>
                  </widget>
@@ -3144,7 +3160,7 @@
                        <widget class="QFrame" name="radioGroupRain">
                         <layout class="QGridLayout" name="gridLayout_50">
                          <item row="0" column="0">
-                          <widget class="QRadioButton" name="radio_rainStation">
+                          <widget class="QRadioButton" name="radioRainFile">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                              <horstretch>0</horstretch>
@@ -3221,7 +3237,7 @@
                           </widget>
                          </item>
                          <item row="1" column="0" colspan="3">
-                          <widget class="QRadioButton" name="radioRainSat">
+                          <widget class="QRadioButton" name="radioRainSatFile">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                              <horstretch>0</horstretch>
@@ -7409,7 +7425,7 @@ p, li { white-space: pre-wrap; }
                  <widget class="QWidget" name="tab_calib">
                   <attribute name="icon">
                    <iconset resource="../resources/openlisem.qrc">
-                    <normaloff>:/calibr.png</normaloff>:/calibr.png</iconset>
+                    <normaloff>:/2X/advanced.png</normaloff>:/2X/advanced.png</iconset>
                   </attribute>
                   <attribute name="title">
                    <string/>
@@ -10425,7 +10441,7 @@ p, li { white-space: pre-wrap; }
                </widget>
               </item>
               <item row="0" column="0">
-               <widget class="QCheckBox" name="checkBox_EventBased">
+               <widget class="QCheckBox" name="checkEventBased">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -14509,7 +14525,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>radioRainSat</sender>
+   <sender>radioRainSatFile</sender>
    <signal>toggled(bool)</signal>
    <receiver>E_rainsatName</receiver>
    <slot>setEnabled(bool)</slot>
@@ -14525,7 +14541,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>radioRainSat</sender>
+   <sender>radioRainSatFile</sender>
    <signal>toggled(bool)</signal>
    <receiver>toolButton_rainsatName</receiver>
    <slot>setEnabled(bool)</slot>
@@ -14541,7 +14557,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>radio_rainStation</sender>
+   <sender>radioRainFile</sender>
    <signal>toggled(bool)</signal>
    <receiver>E_RainfallName</receiver>
    <slot>setEnabled(bool)</slot>
@@ -14557,7 +14573,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>radio_rainStation</sender>
+   <sender>radioRainFile</sender>
    <signal>toggled(bool)</signal>
    <receiver>toolButton_RainfallName</receiver>
    <slot>setEnabled(bool)</slot>
@@ -14573,7 +14589,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>radio_rainStation</sender>
+   <sender>radioRainFile</sender>
    <signal>toggled(bool)</signal>
    <receiver>toolButton_RainfallShow</receiver>
    <slot>setEnabled(bool)</slot>
@@ -14605,7 +14621,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_EventBased</sender>
+   <sender>checkEventBased</sender>
    <signal>toggled(bool)</signal>
    <receiver>E_BeginTimeDay</receiver>
    <slot>setDisabled(bool)</slot>
@@ -14621,7 +14637,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_EventBased</sender>
+   <sender>checkEventBased</sender>
    <signal>toggled(bool)</signal>
    <receiver>E_EndTimeDay</receiver>
    <slot>setDisabled(bool)</slot>
@@ -14685,7 +14701,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>radioRainSat</sender>
+   <sender>radioRainSatFile</sender>
    <signal>toggled(bool)</signal>
    <receiver>E_rainSatTimeInterval</receiver>
    <slot>setEnabled(bool)</slot>
@@ -14701,7 +14717,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>radioRainSat</sender>
+   <sender>radioRainSatFile</sender>
    <signal>toggled(bool)</signal>
    <receiver>label_9</receiver>
    <slot>setEnabled(bool)</slot>

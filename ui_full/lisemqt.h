@@ -502,7 +502,7 @@ private slots:
     void on_toolButton_DischargeInName_clicked();
 
 
-    void on_checkBox_EventBased_clicked(bool checked);
+    void on_checkEventBased_clicked(bool checked);
 
     void on_toolButton_rainsatName_clicked();
 

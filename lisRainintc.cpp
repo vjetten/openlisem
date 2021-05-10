@@ -47,6 +47,7 @@ functions: \n
 /// format: first line ends with integer that is nr of data columns excl time
 void TWorld::GetRainfallData(QString name)
 {
+    qDebug() << name;
     RAIN_LIST rl;
     QFile fff(name);
     QFileInfo fi(name);
