@@ -501,6 +501,11 @@ void lisemqt::ParseInputData()
                 E_RainfallName->setText(RainFileDir + p);
             }
         }
+        if (p1.compare("Rainfall base name")==0) {
+            RainSatFileName = p; // this is the base name so not a filename that can be checked
+            RainSatFileDir = RainFileDir;
+            E_rainsatName->setText(RainSatFileDir + RainSatFileName);
+        }
 
         if (p1.compare("ET Directory")==0) ETFileDir = CheckDir(p);
         if (p1.compare("ET file")==0)
@@ -513,6 +518,10 @@ void lisemqt::ParseInputData()
                 E_ETName->setText(ETFileDir + p);
             }
         }
+        if (p1.compare("ET base name")==0) {
+            ETSatFileName = p; // this is the base name so not a filename that can be checked
+            ETSatFileDir = ETFileDir;
+            E_ETsatName->setText(ETSatFileDir + ETSatFileName);        }
 
         if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
         if (p1.compare("Discharge inflow file")==0)
@@ -579,6 +588,8 @@ void lisemqt::ParseInputData()
             E_SwatreTableName->setText(SwatreTableName);
         }
     }
+
+    qDebug()<< "hier" << RainFileDir << RainFileName << RainSatFileName;
 
     on_checkIncludeChannel_clicked();
     on_checkMaterialDepth_clicked();
@@ -836,10 +847,18 @@ void lisemqt::updateModelData()
         if (p1.compare("Total series file")==0) namelist[j].value = E_SeriesTotals->text();
         if (p1.compare("Filename point output")==0) namelist[j].value = E_PointResults->text();
      //   if (p1.compare("Filename landunit output")==0) namelist[j].value = E_LandunitResults->text();
+
         if (p1.compare("Rainfall Directory")==0) namelist[j].value = RainFileDir;
         if (p1.compare("Rainfall file")==0) namelist[j].value = RainFileName;
+        if (p1.compare("Rainfall base name")==0) namelist[j].value = RainSatFileName;
+
+        if (p1.compare("ET Directory")==0) namelist[j].value = ETFileDir;
+        if (p1.compare("ET file")==0) namelist[j].value = ETFileName;
+        if (p1.compare("ET base name")==0) namelist[j].value = ETSatFileName;
+
         if (p1.compare("Snowmelt Directory")==0) namelist[j].value = SnowmeltFileDir;
         if (p1.compare("Snowmelt file")==0) namelist[j].value = SnowmeltFileName;
+
         if (p1.compare("satImage Directory")==0) namelist[j].value = satImageFileDir;
         if (p1.compare("satImage file")==0) namelist[j].value = satImageFileName;
         if (p1.compare("Advanced Options")==0) namelist[j].value.setNum((int)checkAdvancedOptions->isChecked());

@@ -484,8 +484,10 @@ public:
     QString timestamp;
 
     QString rainFileName;
+    QString rainBaseFileName;
     QString rainFileDir;
     QString ETFileName;
+    QString ETBaseFileName;
     QString ETFileDir;
     QString dischargeinFileName;
     QString dischargeinFileDir;

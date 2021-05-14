@@ -2485,7 +2485,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>3</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -4071,7 +4071,7 @@ p, li { white-space: pre-wrap; }
                  <widget class="QWidget" name="tab_infil">
                   <attribute name="icon">
                    <iconset resource="../resources/openlisem.qrc">
-                    <normaloff>:/soil3bw.png</normaloff>:/soil3bw.png</iconset>
+                    <normaloff>:/soil4.png</normaloff>:/soil4.png</iconset>
                   </attribute>
                   <attribute name="title">
                    <string/>

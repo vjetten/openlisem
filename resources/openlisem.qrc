@@ -58,12 +58,11 @@
         <file>erosc.png</file>
         <file>Plant-iconc.png</file>
         <file>rainc.png</file>
-        <file>soil3c.png</file>
         <file>waterc.png</file>
         <file>eros1bw.png</file>
-        <file>soil3bw.png</file>
         <file>2X/advanced.png</file>
         <file>2X/settings2.png</file>
+        <file>soil4.png</file>
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>

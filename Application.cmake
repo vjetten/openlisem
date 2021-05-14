@@ -61,6 +61,7 @@ SET(APP_SOURCES
     lisOverlandflow
     lisPesticide
     lisRainintc
+    lisDischargein
     lisReportfile
     lisRunfile
     lisSnowmelt

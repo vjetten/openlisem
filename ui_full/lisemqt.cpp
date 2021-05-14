@@ -83,8 +83,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     op.runfilename.clear();
     E_runFileList->clear();
 
-    checkEventBased->setChecked(true);
-
     //TODO: check all options and default values
     resetAll();
     // all options and mapnames are reset to their default names and values
@@ -1474,6 +1472,8 @@ void lisemqt::on_E_runFileList_currentIndexChanged(int)
     GetRunfile();   // get the nrunfile and fill namelist
     ParseInputData(); // fill interface with namelist data and fill mapList
     // also update DEFmaps for map tree view in interface
+
+    qDebug() << checkEventBased->isChecked();
     initMapTree();  // fill the tree strcuture on page 2 with DEFmaps
     RunAllChecks(); // activate the maps in the tree parts in response to checks
 }
@@ -1744,6 +1744,9 @@ void lisemqt::resetAll()
     E_satImageName->setText("");
     checksatImage->setChecked(false);
     checkAdvancedOptions->setChecked(false);
+
+
+    checkEventBased->setChecked(true);
 
     checkSeparateOutput->setChecked(false);
     E_DigitsOut->setValue(3);
@@ -2136,7 +2139,6 @@ QString lisemqt::getFileorDir(QString inputdir,QString title, QStringList filter
             dirout = QFileInfo(dirout).fileName();
         if (doFile == 2)
             dirout = QFileInfo(dirout).absoluteFilePath();
-        qDebug() << dirout;
     } else {
         dirout = dialog.selectedUrls().at(0).path();
         dirout.remove(0,1);
@@ -2163,16 +2165,18 @@ void lisemqt::on_checkEventBased_clicked(bool checked)
 
 void lisemqt::on_toolButton_rainsatName_clicked()
 {
-    if (!QFileInfo(RainSatFileDir).exists() || RainSatFileDir.isEmpty())
-        RainSatFileDir = RainFileDir;
+    RainSatFileDir = RainFileDir;
     if (!QFileInfo(RainSatFileDir).exists() || RainSatFileDir.isEmpty())
         RainSatFileDir = currentDir;
+
     QStringList filters({"PCRaster maps (*.map)","Any files (*)"});
     QString sss = getFileorDir(RainSatFileDir,"Select the first rainfall map", filters, 2);
 
+    RainSatFileDir = QFileInfo(sss).absolutePath()+"/";
     RainSatFileName = QFileInfo(sss).baseName();
 
-    E_rainsatName->setText(RainSatFileName);
+    E_rainsatName->setText(RainSatFileDir + RainSatFileName);
+    RainFileDir = RainSatFileDir;
 }
 
 
@@ -2192,6 +2196,8 @@ void lisemqt::on_toolButton_ETName_clicked()
 
 void lisemqt::on_toolButton_ETsatName_clicked()
 {
+    ETSatFileDir = ETFileDir;
+
     if (!QFileInfo(ETSatFileDir).exists() || ETSatFileDir.isEmpty())
         ETSatFileDir = RainSatFileDir;
     if (!QFileInfo(ETSatFileDir).exists() || ETSatFileDir.isEmpty())
@@ -2200,12 +2206,15 @@ void lisemqt::on_toolButton_ETsatName_clicked()
 
     QString sss = getFileorDir(ETSatFileDir,"Select the first ET map", filters, 2);
 
+    ETSatFileDir = QFileInfo(sss).absolutePath()+"/";
     ETSatFileName = QFileInfo(sss).baseName();
-    E_ETsatName->setText(ETSatFileName);
+    E_ETsatName->setText(ETSatFileDir + ETSatFileName);
+
+    ETFileDir = ETSatFileDir;
+
 }
 
 void lisemqt::on_checkIncludeET_toggled(bool checked)
 {
     radioGroupET->setEnabled(checked);
-
 }
