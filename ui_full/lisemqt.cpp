@@ -2169,11 +2169,11 @@ void lisemqt::on_toolButton_rainsatName_clicked()
     if (!QFileInfo(RainSatFileDir).exists() || RainSatFileDir.isEmpty())
         RainSatFileDir = currentDir;
 
-    QStringList filters({"PCRaster maps (*.map)","Any files (*)"});
-    QString sss = getFileorDir(RainSatFileDir,"Select the first rainfall map", filters, 2);
+    QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
+    QString sss = getFileorDir(RainSatFileDir,"Select rainfall map list table", filters, 2);
 
     RainSatFileDir = QFileInfo(sss).absolutePath()+"/";
-    RainSatFileName = QFileInfo(sss).baseName();
+    RainSatFileName = QFileInfo(sss).fileName(); //baseName();
 
     E_rainsatName->setText(RainSatFileDir + RainSatFileName);
     RainFileDir = RainSatFileDir;
@@ -2186,7 +2186,7 @@ void lisemqt::on_toolButton_ETName_clicked()
         ETFileDir = RainFileDir;
     if (!QFileInfo(ETFileDir).exists() || ETFileDir.isEmpty())
         ETFileDir = currentDir;
-    QStringList filters({"Text file (*.tbl *.txt)","Any files (*)"});
+    QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
 
     ETFileName = getFileorDir(ETFileDir,"Select ET stations file", filters, 2);
 
@@ -2202,12 +2202,12 @@ void lisemqt::on_toolButton_ETsatName_clicked()
         ETSatFileDir = RainSatFileDir;
     if (!QFileInfo(ETSatFileDir).exists() || ETSatFileDir.isEmpty())
         ETSatFileDir = currentDir;
-    QStringList filters({"PCRaster maps (*.map)","Any files (*)"});
+    QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
 
-    QString sss = getFileorDir(ETSatFileDir,"Select the first ET map", filters, 2);
+    QString sss = getFileorDir(ETSatFileDir,"Select ET map list table", filters, 2);
 
     ETSatFileDir = QFileInfo(sss).absolutePath()+"/";
-    ETSatFileName = QFileInfo(sss).baseName();
+    ETSatFileName = QFileInfo(sss).fileName(); //baseName();
     E_ETsatName->setText(ETSatFileDir + ETSatFileName);
 
     ETFileDir = ETSatFileDir;

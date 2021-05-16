@@ -142,8 +142,8 @@ void TWorld::DoModel()
             double btm = getvaluedouble("Begin time");
             double etd = getvaluedouble("End time day");
             double etm = getvaluedouble("End time");
-            BeginTime = btd*1440+btm;
-            BeginTime = etd*1440+etm;
+            BeginTime = (btd*1440+btm)*60; //in sec
+            EndTime = (etd*1440+etm)*60;   //in sec
         }
 
         _dt = getvaluedouble("Timestep");
@@ -168,18 +168,27 @@ void TWorld::DoModel()
         SwitchSnowmelt = false;
         if (SwitchRainfall)
         {
-            DEBUG("GetRainfallData()");
-            GetRainfallData(rainFileName);
+            DEBUG("Get Rainfall Data Information");
+            if (SwitchRainfallSatellite)
+                GetSpatialMeteoData(rainSatFileName, 0);
+            else
+                GetRainfallData(rainFileName);
         }
         if (SwitchIncludeET)
         {
-            DEBUG("GetETData()");
-            GetRainfallData(ETFileName);
+            DEBUG("Get ET Data Information");
+            if (SwitchETSatellite)
+                GetSpatialMeteoData(ETSatFileName, 1);
+            else
+                GetRainfallData(ETFileName);
         }
         if (SwitchSnowmelt)
         {
-            DEBUG("GetSnowmeltData()");
-            GetSnowmeltData(snowmeltFileName);
+            DEBUG("Get Snowmelt Data Information");
+            if (SwitchSnowmeltSatellite)
+                GetSpatialMeteoData(SnowmeltSatFileName, 2);
+            else
+                GetSnowmeltData(snowmeltFileName);
         }
 
 
@@ -283,8 +292,9 @@ void TWorld::DoModel()
 
 void TWorld::CellProcesses()
 {
-    RainfallMap();         // get rainfall from table or mpas
-    SnowmeltMap();         // get snowmelt
+    GetRainfallMap();         // get rainfall from table or mpas
+    GetETMap();         // get rainfall from table or mpas
+    GetSnowmeltMap();         // get snowmelt
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {

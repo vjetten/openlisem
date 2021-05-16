@@ -243,8 +243,8 @@ void TWorld::cell_Interception(int r, int c)
 
 void TWorld::do_CellProcesses()
 {
-      RainfallMap();         // get rainfall from table or mpas
-      SnowmeltMap();         // get snowmelt
+      GetRainfallMap();         // get rainfall from table or mpas
+      GetSnowmeltMap();         // get snowmelt
 
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {

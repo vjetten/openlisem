@@ -241,11 +241,14 @@ typedef struct vec4 { double v[4]; } vec4;
 /// Strunture to store rain station values of rainfile mapnames
 typedef struct RAIN_LIST {
     double time;
-    //double *intensity;
     QVector <double> intensity;
-    bool isMap;
-    QString name;
 } RAIN_LIST;
+//---------------------------------------------------------------------------
+/// Strunture to store rain station values of rainfile mapnames
+typedef struct METEO_LIST {
+    double time;
+    QString name;
+} METEO_LIST;
 //---------------------------------------------------------------------------
 /// Strunture to store rain station values of rainfile mapnames
 typedef struct Q_LIST {
@@ -321,7 +324,7 @@ public:
 */
 
     bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelInflow,
-    SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchRainfall, SwitchEventbased,
+    SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite, SwitchRainfall, SwitchEventbased,
     SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
@@ -434,11 +437,17 @@ public:
     /// timeseries variables and output strings
     int nrDischargeseries;
     int nrRainfallseries;
-    int nrSnowmeltseries;
     int nrETseries;
+    int nrSnowmeltseries;
+    int currentRainfallrow;
+    int currentETrow;
+    int currentSnowmeltrow;
     QVector <RAIN_LIST> RainfallSeriesM;  // rainfall vector of records
     QVector <RAIN_LIST> ETSeriesM;
     QVector <RAIN_LIST> SnowmeltSeriesM;
+    QVector <METEO_LIST> RainfallSeriesMaps;  // rainfall vector of records
+    QVector <METEO_LIST> ETSeriesMaps;  // rainfall vector of records
+    QVector <METEO_LIST> SnowmeltSeriesMaps;  // rainfall vector of records
     QVector <Q_LIST> DischargeInSeries;
     QVector <LDD_COORloc> crQin_;
     QVector <int> locationnnrsrec;
@@ -484,11 +493,14 @@ public:
     QString timestamp;
 
     QString rainFileName;
-    QString rainBaseFileName;
+    QString rainSatFileName;
     QString rainFileDir;
     QString ETFileName;
-    QString ETBaseFileName;
+    QString ETSatFileName;
     QString ETFileDir;
+    QString SnowmeltFileName;
+    QString SnowmeltSatFileName;
+    QString SnowmeltFileDir;
     QString dischargeinFileName;
     QString dischargeinFileDir;
     QString snowmeltFileName;
@@ -738,15 +750,16 @@ public:
     //input timeseries
     void GetDischargeData(QString name);
     void GetRainfallData(QString name);   // get input timeseries
+    void GetSpatialMeteoData(QString name, int type);   // get input timeseries
     void GetETData(QString name);   // get input timeseries
     void GetSnowmeltData(QString name);   // get input timeseries
     double getTimefromString(QString sss);
     /// convert rainfall of a timestep into a map
-    void RainfallMap(void);
+    void GetRainfallMap(void);
     /// convert ET of a timestep into a map
-    void ETMap(void);
+    void GetETMap(void);
     /// convert snowmelt of a timestep into a map
-    void SnowmeltMap(void);
+    void GetSnowmeltMap(void);
     void DischargeInflow(void);
     /// interception of vegetation canopy resulting in rainnet
     void Interception();

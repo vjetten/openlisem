@@ -34,63 +34,207 @@ functions: \n
 #include <memory>
 #include "io.h"
 #include "model.h"
-
+#include "operation.h"
 
 //---------------------------------------------------------------------------
-/**
- snowmelt intensity read is that reported with the next line: example
- 0 0\n
- 5 2.3   ->from 0 to 5 minutes intensity is 2.3\n
- 7.5 4.5 ->from 5 to 7.5 minutes intensity is 4.5\n
- etc. */
-void TWorld::SnowmeltMap(void)
+void TWorld::GetSnowmeltData(QString name)
 {
-   double timeminprev = (time-_dt) / 60; //prev time in minutes
-   int  place;
-   double tt = 3600000.0;
+    RAIN_LIST rl;
+    QFile fff(name);
+    QFileInfo fi(name);
+    QString S;
+    QStringList rainRecs;
+    QStringList SL;
+    bool ok;
+    int nrStations = 0;
+    int nrSeries = 0;
+    int skiprows = 0;
+    double time = 0.0;
+    bool oldformat = true;
 
-   if (!SwitchSnowmelt)
-      return;
+    if (!SwitchSnowmelt)
+        return;
 
-   for (place = 0; place < nrSnowmeltseries; place++)
-      if (timeminprev < SnowmeltSeriesM[place].time)
-         break;
+    if (!fi.exists())
+    {
+        ErrorString = "SnowMelt file not found: " + name;
+        throw 1;
+    }
 
-   if (SnowmeltSeriesM[place].isMap)
-   {
-      auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(
-          SnowmeltSeriesM[place].name)));
+    nrSnowmeltseries = 0;
 
-      #pragma omp parallel for num_threads(userCores)
-      FOR_ROW_COL_MV_L {
-          if (pcr::isMV(_M->Drc)) {
-              QString sr, sc;
-              sr.setNum(r); sc.setNum(c);
-              ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+SnowmeltSeriesM[place].name;
-              throw 1;
-          }
-          else
-          Snowmelt->Drc = _M->Drc *_dt/tt;
-      }}
-   }
-   else
-   {
-#pragma omp parallel for num_threads(userCores)
-      FOR_ROW_COL_MV_L {
-         Snowmelt->Drc = SnowmeltSeriesM[place].intensity[(int) SnowmeltZone->Drc-1]*_dt/tt;
-         // Rain in m per timestep from mm/h, rtecord nr corresponds map nID value -1
-      }}
-   }
-#pragma omp parallel for num_threads(userCores)
-   FOR_ROW_COL_MV_L
-   {
-       Snowmeltc->Drc = Snowmelt->Drc * _dx/DX->Drc;
-       // correction for slope dx/DX, water spreads out over larger area
-       SnowmeltCum->Drc += Snowmeltc->Drc;
-       // cumulative rainfall corrected for slope, used in interception
-       //RainNet->Drc = Rainc->Drc;
-       // net rainfall in case of interception
+    fff.open(QIODevice::ReadOnly | QIODevice::Text);
 
-   }}
+    while (!fff.atEnd())
+    {
+        S = fff.readLine();
+        if (S.contains("\n"))
+            S.remove(S.count()-1,1); // readLine also reads \n as a character on an empty line!
+        if (!S.trimmed().isEmpty())
+            rainRecs << S.trimmed();
+    }
+    fff.close();
+
+    // check first if PCRaster graph format is present: header, number of vars, columns equal vars
+    int count = rainRecs[1].toInt(&ok, 10);
+    // header
+    // second line is only an integer
+    if (ok)
+    {
+        SL = rainRecs[count+2].split(QRegExp("\\s+"));
+        if (count == SL.count())
+            oldformat = false;
+        //if the number of columns equals the integer then new format
+        nrStations = count-1;
+        // nr stations is count-1 for time as forst column
+    }
+
+    if (rainRecs[0].contains("RUU"))
+        oldformat = true;
+
+    if (oldformat)
+    {
+        QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
+        // get first line, white space character as split for header
+
+        nrStations = SL[SL.size()-1].toInt(&ok, 10);
+        // read nr stations from last value in old style header
+        // failure gives 0
+        SL = rainRecs[rainRecs.count()-1].split(QRegExp("\\s+"));
+        oldformat = (nrStations == SL.count()-1);
+    }
+
+    //check if nr stations found equals nr columns-1, 1st column is time
+    if (oldformat)
+        skiprows = 1;
+    else
+        skiprows = 3;
+
+    int nrmap = 0;
+    nrmap = countUnits(*SnowmeltZone);
+
+    if (nrmap > nrStations)
+    {
+        ErrorString = QString("Number of stations in Snowmelt file (%1) < nr of rainfall zones in SNOWID map (%2)").arg(nrStations).arg(nrmap);
+        throw 1;
+    }
+    nrSeries = rainRecs.size() - nrStations - skiprows;
+    // count rainfall or snowmelt records
+
+    if (nrSeries <= 1)
+    {
+        ErrorString = "Snowmelt records <= 1, must at least have one interval with 2 rows: a begin and end time.";
+        throw 1;
+    }
+
+    for(int r = 0; r < nrSeries; r++)
+    {
+        // initialize rainfall record structure
+        rl.time = 0;
+        rl.intensity.clear();
+
+        // split rainfall record row with whitespace
+        QStringList SL = rainRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+
+        // read date time string and convert to time in minutes
+        rl.time = getTimefromString(SL[0]);
+
+        if (r == 0)
+            time = rl.time;
+
+
+        if (r > 0 && rl.time <= time)
+        {
+            ErrorString = QString("Snowmelt records at time %1 has unreadable value.").arg(rl.time);
+            throw 1;
+        }
+        else
+            time = rl.time;
+
+        // check if record has characters, then filename assumed
+
+        // record is a assumed to be a double
+        for (int i = 1; i <= nrStations; i++)
+        {
+            bool ok = false;
+            rl.intensity << SL[i].toDouble(&ok);
+            if (!ok)
+            {
+                ErrorString = QString(" records at time %1 has unreadable value.").arg(SL[0]);
+                throw 1;
+            }
+        }
+
+        SnowmeltSeriesM << rl;
+    }
+
+    nrSeries++;
+    rl.time = rl.time+1440;
+
+    for (int i = 1; i < nrStations; i++)
+        rl.intensity << 0.0;
+
+    SnowmeltSeriesM << rl;
+
+    nrSnowmeltseries = nrSeries;
+}
+//---------------------------------------------------------------------------
+void TWorld::GetSnowmeltMap(void)
+{
+    double currenttime = (time)/60;
+    int  Snowmeltplace;
+    double tt = 3600000.0;
+    bool noSnowmelt = false;
+    bool sameSnowmelt= false;
+
+    if (!SwitchSnowmelt)
+        return;
+    if (!SwitchSnowmeltSatellite)
+        return;
+
+    // from time t to t+1 the Snowmelt is the Snowmelt of t
+
+    // where are we in the series
+    int currentrow = 0;
+    // if time is outside records then use map with zeros
+    if (currenttime < SnowmeltSeriesMaps[0].time)
+        noSnowmelt = true;
+    if (currenttime > SnowmeltSeriesMaps[nrSnowmeltseries].time)
+        noSnowmelt = true;
+
+    if (noSnowmelt) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            Snowmelt->Drc = 0;
+        }}
+    } else {
+        // find current record
+        for (Snowmeltplace = currentSnowmeltrow; Snowmeltplace < nrSnowmeltseries-1; Snowmeltplace++) {
+            if (currenttime > SnowmeltSeriesMaps[Snowmeltplace].time && currenttime <= SnowmeltSeriesMaps[Snowmeltplace+1].time)
+                currentrow = Snowmeltplace;
+        }
+
+        if (currentrow == currentRainfallrow && Snowmeltplace > 0)
+            sameSnowmelt = true;
+        else
+            currentSnowmeltrow = currentrow;
+
+        // gSnowmelt the next map from file
+        if (!sameSnowmelt) {
+            auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(SnowmeltSeriesMaps[Snowmeltplace].name)));
+
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                if (pcr::isMV(_M->Drc)) {
+                    QString sr, sc;
+                    sr.setNum(r); sc.setNum(c);
+                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+SnowmeltSeriesMaps[Snowmeltplace].name;
+                    throw 1;
+                } else {
+                    Snowmelt->Drc = _M->Drc *_dt/tt;
+                }
+            }}
+        }
+    }
 }
 //---------------------------------------------------------------------------
