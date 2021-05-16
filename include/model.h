@@ -756,7 +756,9 @@ public:
     double getTimefromString(QString sss);
     /// convert rainfall of a timestep into a map
     void GetRainfallMap(void);
+    void GetRainfallSatMap(void);
     /// convert ET of a timestep into a map
+    void GetETSatMap(void);
     void GetETMap(void);
     /// convert snowmelt of a timestep into a map
     void GetSnowmeltMap(void);

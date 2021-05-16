@@ -431,15 +431,16 @@ void lisemqt::ParseInputData()
         E_WorkDir = dir.absolutePath()+"/";
     // workdir is now parent of runfile directory
 
+    QString daystart, minstart, dayend, minend;
     for (j = 0; j < nrnamelist; j++)
     {
         QString p1 = namelist[j].name;
         QString p = namelist[j].value;
 
-        if (p1.compare("Begin time day")==0) E_BeginTimeDay->setText(p);
-        if (p1.compare("Begin time")==0) E_BeginTimeMin->setText(p);
-        if (p1.compare("End time day")==0)   E_EndTimeDay->setText(p);
-        if (p1.compare("End time")==0)   E_EndTimeMin->setText(p);
+        if (p1.compare("Begin time day")==0) daystart = p;//E_BeginTimeDay->setText(p);
+        if (p1.compare("Begin time")==0) minstart = p;//E_BeginTimeMin->setText(p);
+        if (p1.compare("End time day")==0)   dayend = p;//E_EndTimeDay->setText(p);
+        if (p1.compare("End time")==0)   minend = p;//E_EndTimeMin->setText(p);
         if (p1.compare("Timestep")==0) E_Timestep->setText(p);
 
         // input ourput dirs and file names
@@ -591,6 +592,27 @@ void lisemqt::ParseInputData()
 
     qDebug()<< "hier" << RainFileDir << RainFileName << RainSatFileName;
 
+
+    int days = daystart.toInt();
+    int mins = minstart.toInt();
+    int daye = dayend.toInt();
+    int mine = minend.toInt();
+
+    days = std::max(1,std::min(days, 366));
+    daye = std::max(1,std::min(daye, 366));
+//qDebug() << days << mins << daye << mine;
+    if (mins > 1440) {
+       days = mins/1440 + 1;
+       mins = mins % 1440;
+    }
+    if (mine > 1440) {
+        daye = mine/1440 + 1;
+        mine = mine % 1440;
+    }
+
+    E_BeginTimeDay->setText(QString("%1:%2").arg(days,3, 10, QLatin1Char('0')).arg(mins,4, 10, QLatin1Char('0')));
+    E_EndTimeDay->setText(QString("%1:%2").arg(daye,3, 10, QLatin1Char('0')).arg(mine,4, 10, QLatin1Char('0')));
+
     on_checkIncludeChannel_clicked();
     on_checkMaterialDepth_clicked();
     //****====------====****//
@@ -680,6 +702,21 @@ void lisemqt::updateModelData()
 //    if(!checkRainfall->isChecked() && !checkSnowmelt->isChecked())
 //        QMessageBox::warning(this,"openLISEM","No rainfall or snowmelt, running on empty!");
 
+
+    int days = E_BeginTimeDay->text().split(":")[0].toInt();
+    int mins = E_BeginTimeDay->text().split(":")[1].toInt();
+    int daye = E_EndTimeDay->text().split(":")[0].toInt();
+    int mine = E_EndTimeDay->text().split(":")[1].toInt();
+    qDebug() << days << mins << daye << mine;
+    if (mins > 1440) {
+       days = mins/1440 + 1;
+       mins = mins % 1440;
+    }
+    if (mine > 1440) {
+        daye = mine/1440 + 1;
+        mine = mine % 1440;
+    }
+    qDebug() << days << mins << daye << mine;
 
     for (int j = 0; j < nrnamelist; j++)
     {
@@ -835,10 +872,10 @@ void lisemqt::updateModelData()
         }
         if (p1.compare("KE time based")==0)      namelist[j].value.setNum((int)checkKETimebased->isChecked());
 
-        if (p1.compare("Begin time day")==0) namelist[j].value = E_BeginTimeDay->text();
-        if (p1.compare("Begin time")==0) namelist[j].value = E_BeginTimeMin->text();
-        if (p1.compare("End time day")==0)   namelist[j].value = E_EndTimeDay->text();
-        if (p1.compare("End time")==0)   namelist[j].value = E_EndTimeMin->text();
+        if (p1.compare("Begin time day")==0) namelist[j].value = QString("%1").arg(days,3,10, QLatin1Char('0'));//E_BeginTimeDay->text();
+        if (p1.compare("Begin time")==0) namelist[j].value = QString("%1").arg(mins,4,10, QLatin1Char('0'));//E_BeginTimeMin->text();
+        if (p1.compare("End time day")==0)   namelist[j].value = QString("%1").arg(daye,3,10, QLatin1Char('0'));//E_EndTimeDay->text();
+        if (p1.compare("End time")==0)   namelist[j].value = QString("%1").arg(mine,4,10, QLatin1Char('0'));//E_EndTimeMin->text();
         if (p1.compare("Timestep")==0)   namelist[j].value = E_Timestep->text();
         if (p1.compare("Work Directory")==0)    namelist[j].value = E_WorkDir;//->text();
         if (p1.compare("Map Directory")==0)    namelist[j].value = E_MapDir->text();

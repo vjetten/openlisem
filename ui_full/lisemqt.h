@@ -337,6 +337,8 @@ public:
     void doCheckRainfall(bool);
 
     void setErosionTab();
+    void showTextfile(QString name);
+
 
 public slots:
     // functions linked to actions
@@ -511,6 +513,15 @@ private slots:
     void on_toolButton_ETsatName_clicked();
 
     void on_checkIncludeET_toggled(bool checked);
+
+    void on_toolButton_ETShow_clicked();
+
+    void on_toolButton_RainmapShow_clicked();
+
+    void on_toolButton_ETmapShow_clicked();
+
+    void on_E_EndTimeDay_returnPressed();
+    void on_E_BeginTimeDay_returnPressed();
 
 private:
 

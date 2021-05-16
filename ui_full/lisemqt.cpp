@@ -1225,48 +1225,6 @@ void lisemqt::on_toolButton_satImageName_clicked()
 //    file.close();
 //}
 //--------------------------------------------------------------------
-
-void lisemqt::on_toolButton_RainfallShow_clicked()
-{
-
-    QFile file(RainFileDir + RainFileName);
-    if (!file.open(QFile::ReadWrite | QFile::Text))
-    {
-        QMessageBox::warning(this, QString("openLISEM"),
-                             QString("Cannot read file %1:\n%2.")
-                             .arg(RainFileDir + RainFileName)
-                             .arg(file.errorString()));
-        return;
-    }
-
-    QString modifiedContents;
-    QTextStream in(&file);
-
-    QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
-    view->setWindowTitle(RainFileName);
-    view->setMinimumWidth(400);
-    view->setMinimumHeight(500);
-    view->setAttribute(Qt::WA_DeleteOnClose);
-    view->show();
-    if (view->document()->isModified())
-    {
-        int ret =
-                QMessageBox::question(this, QString("openLISEM"),
-                                      QString("You have modified the contents of this file.\n"
-                                              "Do you want to save it?"),
-                                      QMessageBox::Ok |QMessageBox::Cancel,QMessageBox::Cancel);
-        if (ret == QMessageBox::Ok)
-        {
-            // Don't take the address of a temporary!
-            // in.setString(&view->toPlainText());
-            modifiedContents = view->toPlainText();
-            in.setString(&modifiedContents);
-        }
-    }
-
-    file.close();
-}
-//--------------------------------------------------------------------
 void lisemqt::savefileas()
 {
     if (op.runfilename.isEmpty())
@@ -1473,7 +1431,6 @@ void lisemqt::on_E_runFileList_currentIndexChanged(int)
     ParseInputData(); // fill interface with namelist data and fill mapList
     // also update DEFmaps for map tree view in interface
 
-    qDebug() << checkEventBased->isChecked();
     initMapTree();  // fill the tree strcuture on page 2 with DEFmaps
     RunAllChecks(); // activate the maps in the tree parts in response to checks
 }
@@ -1746,7 +1703,7 @@ void lisemqt::resetAll()
     checkAdvancedOptions->setChecked(false);
 
 
-    checkEventBased->setChecked(true);
+ //   checkEventBased->setChecked(true);
 
     checkSeparateOutput->setChecked(false);
     E_DigitsOut->setValue(3);
@@ -2152,15 +2109,21 @@ QString lisemqt::getFileorDir(QString inputdir,QString title, QStringList filter
 
 void lisemqt::on_checkEventBased_clicked(bool checked)
 {
+    /*
     E_BeginTimeDay->setDisabled(checked);
     E_EndTimeDay->setDisabled(checked);
     if (checked) {
         label_6->setText("Begin time (min)");
         label_7->setText("End time (min)");
+        E_BeginTimeDay->setInputMask("9999;0");
+        E_EndTimeDay->setInputMask("9999;0");
     } else {
-        label_6->setText("Begin time (DDD:MMMM)");
-        label_7->setText("End time (DDD:MMMM)");
+        label_6->setText("Begin time (daynr:minnr)");
+        label_7->setText("End time (daynr:minnr)");
+        E_BeginTimeDay->setInputMask("999:9999;0");
+        E_EndTimeDay->setInputMask("999:9999;0");
     }
+*/
 }
 
 void lisemqt::on_toolButton_rainsatName_clicked()
@@ -2213,8 +2176,100 @@ void lisemqt::on_toolButton_ETsatName_clicked()
     ETFileDir = ETSatFileDir;
 
 }
-
+//--------------------------------------------------------------------
 void lisemqt::on_checkIncludeET_toggled(bool checked)
 {
     radioGroupET->setEnabled(checked);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_ETShow_clicked()
+{
+    showTextfile(ETFileDir + ETFileName);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_RainfallShow_clicked()
+{
+    showTextfile(RainFileDir + RainFileName);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_RainmapShow_clicked()
+{
+    showTextfile(RainSatFileDir + RainSatFileName);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_ETmapShow_clicked()
+{
+    showTextfile(ETSatFileDir + ETSatFileName);
+}
+//--------------------------------------------------------------------
+void lisemqt::showTextfile(QString name)
+{
+
+    QFile file(name);
+    if (!file.open(QFile::ReadWrite | QFile::Text))
+    {
+        QMessageBox::warning(this, QString("openLISEM"),
+                             QString("Cannot read file %1:\n%2.")
+                             .arg(name)
+                             .arg(file.errorString()));
+        return;
+    }
+
+    QString modifiedContents;
+    QTextStream in(&file);
+
+    QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
+    view->setWindowTitle(RainFileName);
+    view->setMinimumWidth(400);
+    view->setMinimumHeight(500);
+    view->setAttribute(Qt::WA_DeleteOnClose);
+    view->show();
+    if (view->document()->isModified())
+    {
+        int ret =
+                QMessageBox::question(this, QString("openLISEM"),
+                                      QString("You have modified the contents of this file.\n"
+                                              "Do you want to save it?"),
+                                      QMessageBox::Ok |QMessageBox::Cancel,QMessageBox::Cancel);
+        if (ret == QMessageBox::Ok)
+        {
+            // Don't take the address of a temporary!
+            // in.setString(&view->toPlainText());
+            modifiedContents = view->toPlainText();
+            in.setString(&modifiedContents);
+        }
+    }
+
+    file.close();
+}
+
+void lisemqt::on_E_EndTimeDay_returnPressed()
+{
+ //   qDebug() << "hier" << E_EndTimeDay->text() << E_EndTimeDay->text().split(":")[1];
+    int daye = E_EndTimeDay->text().split(":")[0].toInt();
+    int mine = E_EndTimeDay->text().split(":")[1].toInt();
+ //   qDebug() << daye << mine;
+    daye = std::max(1,std::min(daye, 366));
+    if (mine > 1440) {
+        daye = mine/1440 + 1;
+        mine = mine % 1440;
+    }
+  //  qDebug() << daye << mine;
+    E_EndTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
+}
+
+
+void lisemqt::on_E_BeginTimeDay_returnPressed()
+{
+    //   qDebug() << "hier" << E_EndTimeDay->text() << E_EndTimeDay->text().split(":")[1];
+       int daye = E_BeginTimeDay->text().split(":")[0].toInt();
+       int mine = E_BeginTimeDay->text().split(":")[1].toInt();
+    //   qDebug() << daye << mine;
+       daye = std::max(1,std::min(daye, 366));
+       if (mine > 1440) {
+           daye = mine/1440 + 1;
+           mine = mine % 1440;
+       }
+     //  qDebug() << daye << mine;
+       E_BeginTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
 }

@@ -379,14 +379,14 @@ void TWorld::ParseRunfileData(void)
         if (SwitchRainfall)
         {
             if (p1.compare("Rainfall Directory")==0) rainFileDir = CheckDir(p);
-            if (p1.compare("Rainfall file")==0) rainFileName = rainFileDir + "/" + p;
+            if (p1.compare("Rainfall file")==0) rainFileName = p; //rainFileDir + "/" + p;
             if (SwitchRainfallSatellite)
                 if (p1.compare("Rainfall maplist name")==0) rainSatFileName = rainFileDir + "/" + p;
         }
         if (SwitchIncludeET)
         {
             if (p1.compare("ET Directory")==0) ETFileDir = CheckDir(p);
-            if (p1.compare("ET file")==0) ETFileName = ETFileDir + "/" + p;
+            if (p1.compare("ET file")==0) ETFileName = p;
             if (SwitchETSatellite)
                 if (p1.compare("ET base name")==0) ETSatFileName = ETFileDir + "/" + p;
         }
@@ -471,10 +471,22 @@ void TWorld::ParseRunfileData(void)
 
     }
 
-    if(SwitchSnowmelt) {
-        SwitchRainfall = false;
-        snowmeltFileName = rainFileName;
+
+    if (SwitchRainfallSatellite)
+        rainSatFileName = rainFileDir+rainSatFileName;
+    else
+        rainFileName = rainFileDir+rainFileName;
+
+    if (SwitchIncludeET) {
+        if (SwitchETSatellite)
+            ETSatFileName = ETFileDir + ETSatFileName;
+        else
+            ETFileName = ETFileDir + ETFileName;
     }
+
+//    if(SwitchSnowmelt) {
+//        snowmeltFileName = rainFileName;
+//    }
 
     SwitchResultDatetime = getvalueint("Result datetime") == 1;
     SwitchOutputTimestamp = getvalueint("Add timestamp") == 1;

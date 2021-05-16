@@ -54,6 +54,7 @@ SET(APP_SOURCES
     lisErosion
     lisExtendedChannel
     lisFlowBarriers
+    lisEvaporation
     lisInfiltration
     lisInterception
     lisKinematic

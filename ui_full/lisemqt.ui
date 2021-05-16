@@ -112,7 +112,7 @@
         <item row="1" column="1">
          <widget class="QGroupBox" name="groupBoxOutput">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -604,8 +604,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>842</width>
-                <height>654</height>
+                <width>1155</width>
+                <height>676</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
@@ -2270,7 +2270,7 @@
         <item row="1" column="0">
          <widget class="QGroupBox" name="groupBoxInput">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -2447,7 +2447,7 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1523</width>
+                <width>1140</width>
                 <height>860</height>
                </rect>
               </property>
@@ -2485,7 +2485,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>7</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -3159,6 +3159,25 @@
                       <item row="0" column="0">
                        <widget class="QFrame" name="radioGroupRain">
                         <layout class="QGridLayout" name="gridLayout_50">
+                         <item row="0" column="1" colspan="3">
+                          <widget class="QLineEdit" name="E_RainfallName">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                          </widget>
+                         </item>
                          <item row="0" column="0">
                           <widget class="QRadioButton" name="radioRainFile">
                            <property name="sizePolicy">
@@ -3181,6 +3200,19 @@
                            </property>
                            <property name="checked">
                             <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="3">
+                          <widget class="QLineEdit" name="E_rainsatName">
+                           <property name="enabled">
+                            <bool>false</bool>
+                           </property>
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
                            </property>
                           </widget>
                          </item>
@@ -3236,41 +3268,6 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="1" column="0" colspan="3">
-                          <widget class="QRadioButton" name="radioRainSatFile">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Rainfall map base name (e.g. rain.DDD.MMMM.map)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="1" column="3">
-                          <widget class="QLineEdit" name="E_rainsatName">
-                           <property name="enabled">
-                            <bool>false</bool>
-                           </property>
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                          </widget>
-                         </item>
                          <item row="1" column="4">
                           <widget class="QToolButton" name="toolButton_rainsatName">
                            <property name="enabled">
@@ -3294,33 +3291,8 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="2" column="0">
-                          <widget class="QLabel" name="label_9">
-                           <property name="enabled">
-                            <bool>false</bool>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>     time interval maps (min)</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="2" column="1">
-                          <widget class="QLineEdit" name="E_rainSatTimeInterval">
-                           <property name="enabled">
-                            <bool>false</bool>
-                           </property>
+                         <item row="1" column="0" colspan="3">
+                          <widget class="QRadioButton" name="radioRainSatFile">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                              <horstretch>0</horstretch>
@@ -3336,48 +3308,24 @@
                              <kerning>true</kerning>
                             </font>
                            </property>
-                           <property name="inputMask">
-                            <string>9999</string>
+                           <property name="text">
+                            <string>Rainfall map file list</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="5">
+                          <widget class="QToolButton" name="toolButton_RainmapShow">
+                           <property name="enabled">
+                            <bool>false</bool>
                            </property>
                            <property name="text">
-                            <string>30</string>
+                            <string>...</string>
                            </property>
-                           <property name="alignment">
-                            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="0" column="1" colspan="3">
-                          <widget class="QLineEdit" name="E_RainfallName">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
+                           <property name="icon">
+                            <iconset resource="../resources/openlisem.qrc">
+                             <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
                            </property>
                           </widget>
-                         </item>
-                         <item row="2" column="2" colspan="4">
-                          <spacer name="horizontalSpacer_13">
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
-                           </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>40</width>
-                             <height>20</height>
-                            </size>
-                           </property>
-                          </spacer>
                          </item>
                         </layout>
                        </widget>
@@ -3404,10 +3352,16 @@
                          <bool>true</bool>
                         </property>
                         <layout class="QGridLayout" name="gridLayout_47">
-                         <item row="0" column="0" colspan="2">
+                         <item row="0" column="0">
                           <widget class="QRadioButton" name="radioETfile">
                            <property name="enabled">
                             <bool>true</bool>
+                           </property>
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
                            </property>
                            <property name="font">
                             <font>
@@ -3426,7 +3380,7 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="0" column="2" colspan="3">
+                         <item row="0" column="1" colspan="2">
                           <widget class="QLineEdit" name="E_ETName">
                            <property name="enabled">
                             <bool>true</bool>
@@ -3448,7 +3402,7 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="0" column="5">
+                         <item row="0" column="3">
                           <widget class="QToolButton" name="toolButton_ETName">
                            <property name="enabled">
                             <bool>true</bool>
@@ -3471,7 +3425,7 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="0" column="6">
+                         <item row="0" column="4">
                           <widget class="QToolButton" name="toolButton_ETShow">
                            <property name="enabled">
                             <bool>true</bool>
@@ -3494,7 +3448,7 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="1" column="0" colspan="3">
+                         <item row="1" column="0" colspan="2">
                           <widget class="QRadioButton" name="radioETsatfile">
                            <property name="enabled">
                             <bool>true</bool>
@@ -3515,11 +3469,11 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>ET map base name (et.DDD.MMMM.map)</string>
+                            <string>ET map file list</string>
                            </property>
                           </widget>
                          </item>
-                         <item row="1" column="3" colspan="2">
+                         <item row="1" column="2">
                           <widget class="QLineEdit" name="E_ETsatName">
                            <property name="enabled">
                             <bool>false</bool>
@@ -3532,7 +3486,7 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="1" column="5">
+                         <item row="1" column="3">
                           <widget class="QToolButton" name="toolButton_ETsatName">
                            <property name="enabled">
                             <bool>false</bool>
@@ -3546,77 +3500,19 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="2" column="0">
-                          <widget class="QLabel" name="label_10">
+                         <item row="1" column="4">
+                          <widget class="QToolButton" name="toolButton_ETmapShow">
                            <property name="enabled">
-                            <bool>false</bool>
-                           </property>
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
+                            <bool>true</bool>
                            </property>
                            <property name="text">
-                            <string>    time interval maps (min)</string>
+                            <string>...</string>
                            </property>
-                           <property name="alignment">
-                            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="2" column="1" colspan="3">
-                          <widget class="QLineEdit" name="E_ETSatTimeInterval">
-                           <property name="enabled">
-                            <bool>false</bool>
-                           </property>
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="inputMask">
-                            <string>9999</string>
-                           </property>
-                           <property name="text">
-                            <string>60</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                           <property name="icon">
+                            <iconset resource="../resources/openlisem.qrc">
+                             <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
                            </property>
                           </widget>
-                         </item>
-                         <item row="2" column="4">
-                          <spacer name="horizontalSpacer_15">
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
-                           </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>454</width>
-                             <height>20</height>
-                            </size>
-                           </property>
-                          </spacer>
                          </item>
                         </layout>
                        </widget>
@@ -10300,6 +10196,105 @@ p, li { white-space: pre-wrap; }
                     </item>
                    </layout>
                   </widget>
+                  <widget class="QCheckBox" name="checkEventBased">
+                   <property name="geometry">
+                    <rect>
+                     <x>550</x>
+                     <y>40</y>
+                     <width>103</width>
+                     <height>21</height>
+                    </rect>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                     <underline>false</underline>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Event based</string>
+                   </property>
+                   <property name="checked">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                  <widget class="QLineEdit" name="E_BeginTimeMin">
+                   <property name="geometry">
+                    <rect>
+                     <x>550</x>
+                     <y>70</y>
+                     <width>172</width>
+                     <height>23</height>
+                    </rect>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                     <underline>false</underline>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="inputMask">
+                    <string>xxxx</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                  <widget class="QLineEdit" name="E_EndTimeMin">
+                   <property name="geometry">
+                    <rect>
+                     <x>550</x>
+                     <y>100</y>
+                     <width>172</width>
+                     <height>23</height>
+                    </rect>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                     <underline>false</underline>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="inputMask">
+                    <string>xxxx</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
                  </widget>
                 </widget>
                </item>
@@ -10310,7 +10305,7 @@ p, li { white-space: pre-wrap; }
            <item row="1" column="0">
             <widget class="QGroupBox" name="groupBoxTime">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -10326,122 +10321,8 @@ p, li { white-space: pre-wrap; }
               <string>Simulation times</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_43">
-              <item row="0" column="4">
-               <widget class="QLineEdit" name="E_BeginTimeDay">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="inputMask">
-                 <string/>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="maxLength">
-                 <number>32767</number>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="8">
-               <widget class="QLineEdit" name="E_EndTimeDay">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="inputMask">
-                 <string/>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="cursorPosition">
-                 <number>0</number>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="11">
-               <spacer name="horizontalSpacer_16">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="0" column="2">
+              <item row="0" column="1">
                <widget class="QLineEdit" name="E_Timestep">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="inputMask">
-                 <string/>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="maxLength">
-                 <number>32767</number>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="5">
-               <widget class="QLabel" name="label_11">
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QCheckBox" name="checkEventBased">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -10455,16 +10336,22 @@ p, li { white-space: pre-wrap; }
                   <bold>false</bold>
                  </font>
                 </property>
-                <property name="text">
-                 <string>Event based</string>
+                <property name="inputMask">
+                 <string>9999</string>
                 </property>
-                <property name="checked">
-                 <bool>false</bool>
+                <property name="text">
+                 <string>20</string>
+                </property>
+                <property name="maxLength">
+                 <number>4</number>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
-              <item row="0" column="10">
-               <widget class="QLineEdit" name="E_EndTimeMin">
+              <item row="0" column="2">
+               <widget class="QLabel" name="label_6">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -10479,37 +10366,14 @@ p, li { white-space: pre-wrap; }
                  </font>
                 </property>
                 <property name="text">
-                 <string/>
+                 <string>Begin time (day:min)</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
-              <item row="0" column="6">
-               <widget class="QLineEdit" name="E_BeginTimeMin">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
+              <item row="0" column="0">
                <widget class="QLabel" name="label_8">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -10532,22 +10396,8 @@ p, li { white-space: pre-wrap; }
                 </property>
                </widget>
               </item>
-              <item row="0" column="9">
-               <widget class="QLabel" name="label_12">
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>:</string>
-                </property>
-               </widget>
-              </item>
               <item row="0" column="3">
-               <widget class="QLabel" name="label_6">
+               <widget class="QLineEdit" name="E_BeginTimeDay">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -10561,15 +10411,21 @@ p, li { white-space: pre-wrap; }
                   <bold>false</bold>
                  </font>
                 </property>
+                <property name="inputMask">
+                 <string>999:9999</string>
+                </property>
                 <property name="text">
-                 <string>Begin time (DDD:MMMM)</string>
+                 <string>000:0000</string>
+                </property>
+                <property name="maxLength">
+                 <number>8</number>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
-              <item row="0" column="7">
+              <item row="0" column="4">
                <widget class="QLabel" name="label_7">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -10585,15 +10441,44 @@ p, li { white-space: pre-wrap; }
                  </font>
                 </property>
                 <property name="text">
-                 <string>End time (DDD:MMMM)</string>
+                 <string>End time (day:min)</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
-              <item row="0" column="12">
-               <spacer name="horizontalSpacer_17">
+              <item row="0" column="5">
+               <widget class="QLineEdit" name="E_EndTimeDay">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="inputMask">
+                 <string>999:9999</string>
+                </property>
+                <property name="text">
+                 <string>000:1200</string>
+                </property>
+                <property name="cursorPosition">
+                 <number>8</number>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="6">
+               <spacer name="horizontalSpacer_13">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
@@ -10645,8 +10530,8 @@ p, li { white-space: pre-wrap; }
               <property name="verticalSpacing">
                <number>4</number>
               </property>
-              <item row="1" column="0" rowspan="2">
-               <widget class="QLabel" name="label_2">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_1">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                   <horstretch>0</horstretch>
@@ -10664,7 +10549,7 @@ p, li { white-space: pre-wrap; }
                  <enum>Qt::RightToLeft</enum>
                 </property>
                 <property name="text">
-                 <string>Map directory </string>
+                 <string>Run file(s) </string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -10697,8 +10582,48 @@ p, li { white-space: pre-wrap; }
                 </property>
                </widget>
               </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_1">
+              <item row="1" column="3">
+               <widget class="QToolButton" name="toolButton_MapDir">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Select a map directory, this is appended to all maps</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
+                </property>
+                <property name="autoRaise">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="3">
+               <widget class="QToolButton" name="toolButton_ResultDir">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" rowspan="2">
+               <widget class="QLabel" name="label_2">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                   <horstretch>0</horstretch>
@@ -10716,7 +10641,7 @@ p, li { white-space: pre-wrap; }
                  <enum>Qt::RightToLeft</enum>
                 </property>
                 <property name="text">
-                 <string>Run file(s) </string>
+                 <string>Map directory </string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -10742,6 +10667,49 @@ p, li { white-space: pre-wrap; }
                   <normaloff>:/2X/File-Delete-icon.png</normaloff>:/2X/File-Delete-icon.png</iconset>
                 </property>
                 <property name="autoRaise">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" rowspan="2" colspan="2">
+               <widget class="QLineEdit" name="E_MapDir">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" colspan="2">
+               <widget class="QComboBox" name="E_runFileList">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+                <property name="duplicatesEnabled">
                  <bool>false</bool>
                 </property>
                </widget>
@@ -10772,63 +10740,6 @@ p, li { white-space: pre-wrap; }
                 </property>
                </widget>
               </item>
-              <item row="3" column="3">
-               <widget class="QToolButton" name="toolButton_ResultDir">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="4" colspan="2">
-               <widget class="QCheckBox" name="checkAddDatetime">
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Make a subdirectory under the result directory with a date-time stamp&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string>Add time</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="3">
-               <widget class="QToolButton" name="toolButton_MapDir">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>Select a map directory, this is appended to all maps</string>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
-                </property>
-                <property name="autoRaise">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
               <item row="0" column="4">
                <widget class="QToolButton" name="toolButton_ShowRunfile">
                 <property name="enabled">
@@ -10855,49 +10766,6 @@ p, li { white-space: pre-wrap; }
                 </property>
                </widget>
               </item>
-              <item row="0" column="1" colspan="2">
-               <widget class="QComboBox" name="E_runFileList">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-                <property name="duplicatesEnabled">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1" rowspan="2" colspan="2">
-               <widget class="QLineEdit" name="E_MapDir">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string/>
-                </property>
-               </widget>
-              </item>
               <item row="3" column="1" colspan="2">
                <widget class="QLineEdit" name="E_ResultDir">
                 <property name="sizePolicy">
@@ -10912,6 +10780,23 @@ p, li { white-space: pre-wrap; }
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="4" colspan="2">
+               <widget class="QCheckBox" name="checkAddDatetime">
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Make a subdirectory under the result directory with a date-time stamp&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Add time</string>
                 </property>
                </widget>
               </item>
@@ -14387,12 +14272,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>454</y>
+     <x>222</x>
+     <y>498</y>
     </hint>
     <hint type="destinationlabel">
-     <x>149</x>
-     <y>479</y>
+     <x>247</x>
+     <y>523</y>
     </hint>
    </hints>
   </connection>
@@ -14403,12 +14288,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>454</y>
+     <x>222</x>
+     <y>498</y>
     </hint>
     <hint type="destinationlabel">
-     <x>149</x>
-     <y>504</y>
+     <x>247</x>
+     <y>548</y>
     </hint>
    </hints>
   </connection>
@@ -14419,12 +14304,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>454</y>
+     <x>222</x>
+     <y>498</y>
     </hint>
     <hint type="destinationlabel">
-     <x>149</x>
-     <y>529</y>
+     <x>247</x>
+     <y>573</y>
     </hint>
    </hints>
   </connection>
@@ -14435,8 +14320,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>371</y>
+     <x>222</x>
+     <y>415</y>
     </hint>
     <hint type="destinationlabel">
      <x>115</x>
@@ -14451,12 +14336,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>454</y>
+     <x>222</x>
+     <y>498</y>
     </hint>
     <hint type="destinationlabel">
-     <x>132</x>
-     <y>556</y>
+     <x>230</x>
+     <y>600</y>
     </hint>
    </hints>
   </connection>
@@ -14467,12 +14352,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>454</y>
+     <x>222</x>
+     <y>498</y>
     </hint>
     <hint type="destinationlabel">
-     <x>259</x>
-     <y>555</y>
+     <x>484</x>
+     <y>601</y>
     </hint>
    </hints>
   </connection>
@@ -14483,12 +14368,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>454</y>
+     <x>222</x>
+     <y>498</y>
     </hint>
     <hint type="destinationlabel">
-     <x>667</x>
-     <y>554</y>
+     <x>693</x>
+     <y>603</y>
     </hint>
    </hints>
   </connection>
@@ -14531,7 +14416,7 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>312</x>
+     <x>262</x>
      <y>387</y>
     </hint>
     <hint type="destinationlabel">
@@ -14547,11 +14432,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>330</x>
+     <x>262</x>
      <y>387</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1441</x>
+     <x>1394</x>
      <y>390</y>
     </hint>
    </hints>
@@ -14583,7 +14468,7 @@ p, li { white-space: pre-wrap; }
      <y>354</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1441</x>
+     <x>1394</x>
      <y>357</y>
     </hint>
    </hints>
@@ -14599,7 +14484,7 @@ p, li { white-space: pre-wrap; }
      <y>354</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1475</x>
+     <x>1428</x>
      <y>357</y>
     </hint>
    </hints>
@@ -14611,12 +14496,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>263</x>
-     <y>456</y>
+     <x>344</x>
+     <y>426</y>
     </hint>
     <hint type="destinationlabel">
-     <x>312</x>
-     <y>571</y>
+     <x>393</x>
+     <y>511</y>
     </hint>
    </hints>
   </connection>
@@ -14659,12 +14544,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>244</x>
-     <y>520</y>
+     <x>237</x>
+     <y>497</y>
     </hint>
     <hint type="destinationlabel">
-     <x>459</x>
-     <y>524</y>
+     <x>778</x>
+     <y>498</y>
     </hint>
    </hints>
   </connection>
@@ -14675,76 +14560,44 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>206</x>
-     <y>511</y>
+     <x>237</x>
+     <y>497</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1425</x>
-     <y>517</y>
+     <x>1394</x>
+     <y>500</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>radioETsatfile</sender>
    <signal>toggled(bool)</signal>
-   <receiver>E_ETSatTimeInterval</receiver>
+   <receiver>toolButton_ETmapShow</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>219</x>
-     <y>511</y>
+     <x>215</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
-     <x>377</x>
-     <y>546</y>
+     <x>1419</x>
+     <y>489</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>radioRainSatFile</sender>
    <signal>toggled(bool)</signal>
-   <receiver>E_rainSatTimeInterval</receiver>
+   <receiver>toolButton_RainmapShow</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>419</x>
-     <y>379</y>
+     <x>231</x>
+     <y>376</y>
     </hint>
     <hint type="destinationlabel">
-     <x>440</x>
-     <y>406</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioRainSatFile</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_9</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>221</x>
+     <x>1415</x>
      <y>378</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>222</x>
-     <y>407</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioETsatfile</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_10</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>147</x>
-     <y>514</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>168</x>
-     <y>541</y>
     </hint>
    </hints>
   </connection>

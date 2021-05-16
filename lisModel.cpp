@@ -134,22 +134,26 @@ void TWorld::DoModel()
 
         //BeginTime = getTimefromString(bt)*60; // in seconds!
         //EndTime = getTimefromString(et)*60;
-        if (SwitchEventbased) {
-            BeginTime = getvaluedouble("Begin time");
-            EndTime = getvaluedouble("End time");
-        } else {
+//        if (SwitchEventbased) {
+//            BeginTime = getvaluedouble("Begin time");
+//            EndTime = getvaluedouble("End time");
+//        } else {
             double btd = getvaluedouble("Begin time day");
             double btm = getvaluedouble("Begin time");
             double etd = getvaluedouble("End time day");
             double etm = getvaluedouble("End time");
             BeginTime = (btd*1440+btm)*60; //in sec
             EndTime = (etd*1440+etm)*60;   //in sec
-        }
-
+            qDebug() << "time" << btd << btm << etd << etm;
+  //      }
         _dt = getvaluedouble("Timestep");
         op.BeginTime = BeginTime/60; // for graph drawing
         op.EndTime = EndTime/60;// for graph drawing
         //VJ get time here else combomaps goes wrong for rainfall intensity
+
+//        currentRainfallrow = 0;
+//        currentETrow = 0;
+//        currentSnowmeltrow = 0;
 
         //time vraiables in sec
         DEBUG("GetInputData()");
@@ -292,8 +296,17 @@ void TWorld::DoModel()
 
 void TWorld::CellProcesses()
 {
-    GetRainfallMap();         // get rainfall from table or mpas
-    GetETMap();         // get rainfall from table or mpas
+    if (SwitchRainfallSatellite)
+        GetRainfallSatMap();         // get rainfall from table
+    else
+        GetRainfallMap();         // get rainfall from maps
+
+    if (SwitchIncludeET) {
+        if (SwitchETSatellite)
+            GetETSatMap();
+    }
+
+
     GetSnowmeltMap();         // get snowmelt
 
     #pragma omp parallel for num_threads(userCores)

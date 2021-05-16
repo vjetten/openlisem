@@ -203,6 +203,8 @@ void TWorld::GetRainfallData(QString name)
     }
 
     nrRainfallseries = 0;
+    RainfallSeriesM.clear();
+    currentRainfallrow = 0;
 
     // read rainfall text file
     fff.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -289,7 +291,7 @@ void TWorld::GetRainfallData(QString name)
 
         if (r > 0 && rl.time <= time)
         {
-            qDebug() << r << time << rl.time;
+            qDebug() <<"e"<< r << time << rl.time;
             ErrorString = QString("Rainfall records at time %1 has unreadable value.").arg(rl.time);
             throw 1;
         }
@@ -320,18 +322,94 @@ void TWorld::GetRainfallData(QString name)
     }
 
     //add a zero at the end
-    nrSeries++;
-    rl.time = rl.time+1440;
+//    nrSeries++;
+//    rl.time = RainfallSeriesM[nrSeries-1].time+1440;
 
-    for (int i = 1; i < nrStations; i++)
-        rl.intensity << 0.0;
+//    for (int i = 1; i < nrStations; i++)
+//        rl.intensity << 0.0;
 
-    RainfallSeriesM << rl;
+  //  RainfallSeriesM << rl;
 
-    nrRainfallseries = nrSeries;
+    nrRainfallseries = RainfallSeriesM.size();//nrSeries;
 }
 //---------------------------------------------------------------------------
 void TWorld::GetRainfallMap(void)
+{
+    double currenttime = (time)/60;
+    int  rainplace;
+    double tt = 3600000.0;
+    bool norain = false;
+    bool samerain = false;
+
+    if (!SwitchRainfall)
+        return;
+    if (SwitchRainfallSatellite)
+        return;
+
+    // from time t to t+1 the rain is the rain of t
+
+    // where are we in the series
+    int currentrow = 0;
+    // if time is outside records then use map with zeros
+    if (currenttime < RainfallSeriesM[0].time || currenttime > RainfallSeriesM[nrRainfallseries-1].time)
+        norain = true;
+ //   qDebug() << norain << currenttime << RainfallSeriesM[0].time << RainfallSeriesM[nrRainfallseries-1].time;
+
+    if (norain) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            Rain->Drc = 0;
+        }}
+    } else {
+        // find current record
+        for (rainplace = currentRainfallrow; rainplace < nrRainfallseries-1; rainplace++) {
+    //qDebug() << currenttime << RainfallSeriesM[rainplace].time << RainfallSeriesM[rainplace+1].time;
+            if (currenttime >= RainfallSeriesM[rainplace].time && currenttime < RainfallSeriesM[rainplace+1].time) {
+                currentrow = rainplace;                
+                break;
+            }
+        }
+        if (currentrow == currentRainfallrow && rainplace > 0)
+            samerain = true;
+        else
+            currentRainfallrow = currentrow;
+
+        // get the next map from file
+        if (!samerain) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
+            }}
+        }
+    }
+
+    // find start time of rainfall, for flood peak and rain peak
+    if (!rainStarted) {
+        FOR_ROW_COL_MV {
+            if(Rain->Drc > 0) {
+                rainStarted = true;
+                break;
+            }
+        }
+    }
+    if (rainStarted && RainstartTime == -1)
+        RainstartTime = time;
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L
+    {
+        Rainc->Drc = Rain->Drc * _dx/DX->Drc;
+        // correction for slope dx/DX, water spreads out over larger area
+        RainCumFlat->Drc += Rain->Drc;
+        // cumulative rainfall
+        RainCum->Drc += Rainc->Drc;
+        // cumulative rainfall corrected for slope, used in interception
+        RainNet->Drc = Rainc->Drc;
+        // net rainfall in case of interception
+    }}
+}
+//---------------------------------------------------------------------------
+void TWorld::GetRainfallSatMap(void)
 {
     double currenttime = (time)/60;
     int  rainplace;
@@ -349,9 +427,7 @@ void TWorld::GetRainfallMap(void)
     // where are we in the series
     int currentrow = 0;
     // if time is outside records then use map with zeros
-    if (currenttime < RainfallSeriesMaps[0].time)
-        norain = true;
-    if (currenttime > RainfallSeriesMaps[nrRainfallseries].time)
+    if (currenttime < RainfallSeriesM[0].time || currenttime > RainfallSeriesM[nrRainfallseries-1].time)
         norain = true;
 
     if (norain) {
@@ -362,10 +438,11 @@ void TWorld::GetRainfallMap(void)
     } else {
         // find current record
         for (rainplace = currentRainfallrow; rainplace < nrRainfallseries-1; rainplace++) {
-            if (currenttime > RainfallSeriesMaps[rainplace].time && currenttime <= RainfallSeriesMaps[rainplace+1].time)
+            if (currenttime >= RainfallSeriesM[rainplace].time && currenttime < RainfallSeriesM[rainplace+1].time) {
                 currentrow = rainplace;
+                break;
+            }
         }
-
         if (currentrow == currentRainfallrow && rainplace > 0)
             samerain = true;
         else
@@ -414,341 +491,7 @@ void TWorld::GetRainfallMap(void)
         // net rainfall in case of interception
     }}
 }
-//---------------------------------------------------------------------------
-void TWorld::GetETData(QString name)
-{
-    RAIN_LIST rl;
-    QFile fff(name);
-    QFileInfo fi(name);
-    QString S;
-    QStringList ETRecs;
-    QStringList SL;
-    bool ok;
-    int nrStations = 0;
-    int nrSeries = 0;
-    int skiprows = 0;
-    double time = 0.0;
-    bool oldformat = true;
 
-    if (!fi.exists())
-    {
-        ErrorString = "ET file not found: " + name;
-        throw 1;
-    }
-
-    nrETseries = 0;
-
-    // read ET text file
-    fff.open(QIODevice::ReadOnly | QIODevice::Text);
-    while (!fff.atEnd())
-    {
-        S = fff.readLine();
-        if (S.contains("\n"))
-            S.remove(S.count()-1,1);
-        if (!S.trimmed().isEmpty())
-            ETRecs << S.trimmed();
-    }
-    fff.close();
-
-    // check first if PCRaster graph format is present: header, number of vars, columns equal vars
-    int count = ETRecs[1].toInt(&ok, 10);
-    // header
-    // second line is only an integer
-    if (ok)
-    {
-        SL = ETRecs[count+2].split(QRegExp("\\s+"));
-        if (count == SL.count())
-            oldformat = false;
-        //if the number of columns equals the integer then new format
-        nrStations = count-1;
-        // nr stations is count-1 for time as forst column
-    }
-
-    if (ETRecs[0].contains("RUU"))
-        oldformat = true;
-
-    if (oldformat)
-    {
-        QStringList SL = ETRecs[0].split(QRegExp("\\s+"));
-        // get first line, white space character as split for header
-
-        nrStations = SL[SL.size()-1].toInt(&ok, 10);
-        // read nr stations from last value in old style header
-        // failure gives 0
-        SL = ETRecs[ETRecs.count()-1].split(QRegExp("\\s+"));
-        oldformat = (nrStations == SL.count()-1);
-    }
-
-    //check if nr stations found equals nr columns-1, 1st column is time
-    if (oldformat)
-        skiprows = 1;
-    else
-        skiprows = 3;
-
-    // count gauge areas in the ID.map
-    int nrmap = 0;
-    nrmap = countUnits(*ETZone);
-
-    if (nrmap > nrStations)
-    {
-        ErrorString = QString("Number of stations in ET file (%1) < nr of ET zones in ID map (%2)").arg(nrStations).arg(nrmap);
-        throw 1;
-    }
-
-    nrSeries = ETRecs.size() - nrStations - skiprows;
-    // count ET or snowmelt records
-
-    if (nrSeries <= 1)
-    {
-        ErrorString = "ET records <= 1, must at least have one interval with 2 rows: a begin and end time.";
-        throw 1;
-    }
-
-    for(int r = 0; r < nrSeries; r++)
-    {
-        // initialize ET record structure
-        rl.time = 0;
-        rl.intensity.clear();
-
-        // split ET record row with whitespace
-        QStringList SL = ETRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
-
-        // read date time string and convert to time in minutes
-        rl.time = getTimefromString(SL[0]);
-
-        if (r == 0)
-            time = rl.time;
-
-        if (r > 0 && rl.time <= time)
-        {
-            qDebug() << r << time << rl.time;
-            ErrorString = QString("ET records at time %1 has unreadable value.").arg(rl.time);
-            throw 1;
-        }
-        else
-            time = rl.time;
-
-        // record is a assumed to be a double
-        for (int i = 1; i <= nrStations; i++)
-        {
-            bool ok = false;
-            rl.intensity << SL[i].toDouble(&ok);
-            if (!ok)
-            {
-                ErrorString = QString("ET records at time %1 has unreadable value.").arg(SL[0]);
-                throw 1;
-            }
-        }
-
-        ETSeriesM << rl;
-    }
-
-    // sometimes not an increasing timeseries
-    for(int i = 1; i < nrSeries; i++){
-        if (ETSeriesM [i].time <= ETSeriesM[i-1].time) {
-            ErrorString = QString("ET records time is not increasing at row %1.").arg(i);
-            throw 1;
-        }
-    }
-
-    //add a zero at the end
-    nrSeries++;
-    rl.time = rl.time+1440;
-
-    for (int i = 1; i < nrStations; i++)
-        rl.intensity << 0.0;
-
-    ETSeriesM << rl;
-
-    nrETseries = nrSeries;
-    /*
-    RAIN_LIST rl;
-    QFile fff(name);
-    QFileInfo fi(name);
-    QString S;
-    QStringList ETRecs;
-    QStringList SL;
-    bool ok;
-    int nrStations = 0;
-    int nrSeries = 0;
-    int skiprows = 0;
-    double time = 0.0;
-
-    if (!SwitchIncludeET)
-        return;
-
-    if (!fi.exists())
-    {
-        ErrorString = "ET file not found: " + name;
-        throw 1;
-    }
-
-    nrETseries = 0;
-
-    fff.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    // get all rainfall records without empty lines
-    while (!fff.atEnd())
-    {
-        S = fff.readLine();
-        if (S.contains("\n"))
-            S.remove(S.count()-1,1);
-        if (!S.trimmed().isEmpty())
-            ETRecs << S.trimmed();
-    }
-    fff.close();
-
-    // check first if PCRaster graph format is present: header, number of vars, columns equal vars
-    int cols = ETRecs[1].toInt(&ok, 10); // nr of columns specified in file
-
-    // header
-    // second line is only an integer
-    bool oldformat = true;
-    if (ok)
-    {
-        SL = ETRecs[cols+2].split(QRegExp("\\s+"));  // get first data row and split in cols
-        if (cols == SL.count())
-            oldformat = false;
-        //if the number of columns equals the integer then new format
-        nrStations = cols-1;
-        // nr stations is cols-2 with day/hour/min as first column
-    }
-    if (ETRecs[0].contains("RUU"))
-        oldformat = true;
-
-    if(oldformat) {
-        ErrorString = "old style rainfall/ET records no longer supported";
-        throw 1;
-    }
-
-    //check if nr stations found equals nr columns-1, 1st column is time
-    skiprows = 3;
-
-    int nrmap = 0;
-    nrmap = countUnits(*ETZone);
-
-    if (nrmap > nrStations)
-    {
-        ErrorString = QString("Number of stations in ET file (%1) < nr of rainfall zones in ETID map (%2)").arg(nrStations).arg(nrmap);
-        throw 1;
-    }
-
-    nrSeries = ETRecs.size() - nrStations - skiprows;
-    // count nr data records
-
-    if (nrSeries <= 1)
-    {
-        ErrorString = "ET data records <= 1, must at least have one interval with 2 rows: a begin and end time.";
-        throw 1;
-    }
-
-    for(int r = 0; r < nrSeries; r++)
-    {
-        // initialize rainfall record structure
-        rl.time = 0;
-        rl.intensity.clear();
-
-        // split rainfall record row with whitespace
-        QStringList SL = ETRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
-
-        // read date time string and convert to time in minutes
-        rl.time = getTimefromString(SL[0]);
-
-        if (r == 0)
-            time = rl.time;
-
-        if (r > 0 && rl.time <= time)
-        {
-            ErrorString = QString("ET records at time %1 has unreadable value.").arg(rl.time);
-            throw 1;
-        }
-        else
-            time = rl.time;
-
-        // check if record has characters, then filename assumed
-        for (int i = 1; i <= nrStations; i++)
-        {
-            bool ok = false;
-            rl.intensity << SL[i].toDouble(&ok);
-            if (!ok)
-            {
-                ErrorString = QString("ET records at time %1 has unreadable value.").arg(SL[0]);
-                throw 1;
-            }
-        }
-        ETSeriesM << rl;
-    }
-
-    if(!SwitchETSatellite) {
-        nrSeries++;
-        rl.time = rl.time+1440;
-        for (int i = 1; i < nrStations; i++)
-            rl.intensity << 0.0;
-        ETSeriesM << rl;
-    }
-
-    nrETseries = nrSeries;
-    */
-}
-//---------------------------------------------------------------------------
-void TWorld::GetETMap(void)
-{
-    double currenttime = (time)/60;
-    int  ETplace;
-    double tt = 3600000.0;
-    bool noET = false;
-    bool sameET= false;
-
-    if (!SwitchIncludeET)
-        return;
-    if (!SwitchETSatellite)
-        return;
-
-    // from time t to t+1 the ET is the ET of t
-
-    // where are we in the series
-    int currentrow = 0;
-    // if time is outside records then use map with zeros
-    if (currenttime < ETSeriesMaps[0].time)
-        noET = true;
-    if (currenttime > ETSeriesMaps[nrETseries].time)
-        noET = true;
-
-    if (noET) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            ETa->Drc = 0;
-        }}
-    } else {
-        // find current record
-        for (ETplace = currentETrow; ETplace < nrETseries-1; ETplace++) {
-            if (currenttime > ETSeriesMaps[ETplace].time && currenttime <= ETSeriesMaps[ETplace+1].time)
-                currentrow = ETplace;
-        }
-
-        if (currentrow == currentRainfallrow && ETplace > 0)
-            sameET = true;
-        else
-            currentETrow = currentrow;
-
-        // get the next map from file
-        if (!sameET) {
-            auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(ETSeriesMaps[ETplace].name)));
-
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                if (pcr::isMV(_M->Drc)) {
-                    QString sr, sc;
-                    sr.setNum(r); sc.setNum(c);
-                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+ETSeriesMaps[ETplace].name;
-                    throw 1;
-                } else {
-                    ETa->Drc = _M->Drc *_dt/tt;
-                }
-            }}
-        }
-    }
-}
 //---------------------------------------------------------------------------
 double TWorld::getTimefromString(QString sss)
 {
@@ -771,7 +514,7 @@ double TWorld::getTimefromString(QString sss)
             min = DHM.at(2).toDouble();
         }
 
-        return((day-1)*1440+hour*60+min);
+        return(day*1440+hour*60+min);
     }
 }
 //---------------------------------------------------------------------------
