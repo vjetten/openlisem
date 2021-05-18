@@ -69,7 +69,7 @@ void lisemqt::SetupnewPlot()
         PQSchart->addSeries(CGraphN);
     }
 
-    PQSchart->setTitle("Simple example");
+    PQSchart->setTitle("Hydrograph");
 
     axisX = new QValueAxis;
     axisX->setTickCount(10);

@@ -277,7 +277,6 @@ void lisemqt::killPlot()
 void lisemqt::GetPlotData()
 {   
     QtileData << op.Qtile;
-//    PData << op.Pmm*qPow(10.0, multiplierRain->value());
     TData << op.time;
 
     for(int i = 0; i < OutletIndices.length(); i++)
@@ -299,15 +298,7 @@ void lisemqt::GetPlotData()
     OutletQtot.append(op.OutletQtot);
     OutletQstot.append(op.OutletQstot);
     timestep = op.timestep;
-
-//    double mf = 0;
-//     for(int i = 0; i < 6; i++) {
-//         mf = (double)i;
-//         if(op.Rainpeak*qPow(10.0, mf) > op.OutletQpeak.at(0))
-//             break;
-//     }
-//     mf -= 1.0;
-     PData << op.Pmm*mult;//qPow(10.0, mf);
+    PData << op.Pmm;
 }
 
 //---------------------------------------------------------------------------

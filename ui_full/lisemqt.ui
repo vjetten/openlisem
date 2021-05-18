@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2416</width>
+    <width>1827</width>
     <height>1021</height>
    </rect>
   </property>
@@ -80,7 +80,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_55">
-    <item row="0" column="0">
+    <item row="2" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="enabled">
        <bool>true</bool>
@@ -102,7 +102,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -604,8 +604,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1155</width>
-                <height>676</height>
+                <width>842</width>
+                <height>654</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
@@ -2447,7 +2447,7 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1140</width>
+                <width>1046</width>
                 <height>860</height>
                </rect>
               </property>
@@ -14148,7 +14148,7 @@ p, li { white-space: pre-wrap; }
                <string/>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_16">
-               <item row="3" column="0" colspan="4">
+               <item row="3" column="0" colspan="3">
                 <widget class="QPlainTextEdit" name="textGraph">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -14164,7 +14164,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="2" column="0" colspan="4">
+               <item row="2" column="0" colspan="3">
                 <widget class="QLabel" name="label_88">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -14193,29 +14193,8 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="0" column="0" colspan="4">
-                <widget class="QFrame" name="frame">
-                 <property name="frameShape">
-                  <enum>QFrame::NoFrame</enum>
-                 </property>
-                 <layout class="QHBoxLayout" name="layout_Plot">
-                  <property name="spacing">
-                   <number>0</number>
-                  </property>
-                  <property name="leftMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="rightMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>0</number>
-                  </property>
-                 </layout>
-                </widget>
+               <item row="0" column="0" colspan="3">
+                <layout class="QVBoxLayout" name="verticalLayout_2"/>
                </item>
               </layout>
              </widget>
@@ -14279,11 +14258,17 @@ p, li { white-space: pre-wrap; }
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QGridLayout" name="gridLayout_65">
-           <item row="0" column="0">
-            <layout class="QVBoxLayout" name="verticalLayout_2"/>
-           </item>
-          </layout>
+          <widget class="QWidget" name="verticalLayoutWidget">
+           <property name="geometry">
+            <rect>
+             <x>140</x>
+             <y>30</y>
+             <width>751</width>
+             <height>431</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="layout_Plot"/>
+          </widget>
          </widget>
         </item>
        </layout>
