@@ -102,7 +102,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -14128,7 +14128,7 @@ p, li { white-space: pre-wrap; }
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <property name="iconSize">
               <size>
@@ -14260,6 +14260,28 @@ p, li { white-space: pre-wrap; }
               <string>%p% (%v-%m)</string>
              </property>
             </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_graph">
+       <attribute name="title">
+        <string>trial</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_64">
+        <item row="0" column="0">
+         <widget class="QFrame" name="frame_3">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_65">
+           <item row="0" column="0">
+            <layout class="QVBoxLayout" name="verticalLayout_2"/>
            </item>
           </layout>
          </widget>

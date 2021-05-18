@@ -109,6 +109,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     // do some style things
 
     setupPlot();
+    SetupnewPlot();
     // set up the discharge graphs
 
     setupMapPlot();
@@ -127,6 +128,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     doBatchmode = doBatch; // save in iface for later use
     batchRunname = runname;
     doCheckRainfall(true); // ???????? why here
+
 
     if(doBatch)
     {

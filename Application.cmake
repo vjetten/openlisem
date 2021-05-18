@@ -39,6 +39,7 @@ SET(APP_SOURCES
     ui_full/LisUIDefaultNames
     ui_full/lisemqt
     ui_full/LisUIplot
+    ui_full/LisUIplot2
     ui_full/LisUImapplot
     swatre/swatstep
     swatre/swatinit
@@ -189,5 +190,5 @@ add_executable(Lisem WIN32
     ${PCR_SOURCES}
 )
 # Use the Widgets module from Qt 5.
-TARGET_LINK_LIBRARIES(Lisem Qt5::Widgets Qt5::Gui Qt5::Core ${LISEM_EXTERNAL_LIBRARIES})
+TARGET_LINK_LIBRARIES(Lisem Qt5::Widgets Qt5::Gui Qt5::Core Qt5::Charts ${LISEM_EXTERNAL_LIBRARIES})
 

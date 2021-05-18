@@ -319,7 +319,7 @@ void TWorld::GetRainfallMap(void)
 {
     double currenttime = (time)/60;
     int  rainplace;
-    double tt = 3600000.0;
+    double tt = _dt/3600000.0;
     bool norain = false;
     bool samerain = false;
 
@@ -356,7 +356,7 @@ void TWorld::GetRainfallMap(void)
         if (!samerain) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                Rain->Drc = RainfallSeriesM[currentrow].intensity[(int) RainZone->Drc-1]*_dt/tt;
+                Rain->Drc = RainfallSeriesM[currentrow].intensity[(int) RainZone->Drc-1]*tt;
             }}
         }
     }
@@ -392,7 +392,7 @@ void TWorld::GetRainfallSatMap(void)
 {
     double currenttime = (time)/60;
     int  rainplace;
-    double tt = _dt/3600000.0;
+    double tt = _dt/3600000.0; // mm/h to m -> mm/h = mm X/3600*_dt -> X*0.0001
     bool norain = false;
     bool samerain = false;
 

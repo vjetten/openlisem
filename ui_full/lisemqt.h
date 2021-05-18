@@ -35,6 +35,14 @@
 #include <QtWidgets>
 #include <QSystemTrayIcon>
 
+#include <QtCharts>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QXYSeries>
+#include <QtCharts/QAreaSeries>
+
+using namespace QtCharts;
+
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_grid.h>
@@ -136,6 +144,27 @@ public:
     void savefile(QString name);
     void SetConnections();
     QStringList runfilelist;
+
+
+    void newPlot();
+    void SetupnewPlot();
+
+    QLineSeries *QGraphN;
+    QLineSeries *QsGraphN;
+    QLineSeries *CGraphN;
+    QLineSeries *PGraphN;
+
+    QChart *PQSchart;
+    QChartView *chartView;
+    QValueAxis *axisX;
+    QValueAxis *axisYQ;
+    QValueAxis *axisYP;
+    QValueAxis *axisYQs;
+    QValueAxis *axisYC;
+    QList <QPointF> dataRain;
+    QList <QPointF> dataQ;
+    QList <QPointF> dataQs;
+    QList <QPointF> dataC;
 
     // structure output
     void initOP();
@@ -270,8 +299,6 @@ public:
     bool doHouse;
     double yas, yasP, y2as;
     QVector <double> QData;
-    QVector <double> QData1;
-    QVector <double> QData2;
     QVector <double> QtileData;
     QVector <double> QsData;
     QVector <double> CData;

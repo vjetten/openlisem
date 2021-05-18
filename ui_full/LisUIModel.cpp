@@ -216,7 +216,9 @@ void lisemqt::worldShow(bool showall)
 
     SetTextHydrographs(); // show text hydrograph data
 
-    showPlot(); // show main plot for point X
+    //showPlot(); // show main plot for point X
+
+    newPlot();
 
     showBaseMap(); // show shaded relief base map, only once, set startplot to false
 

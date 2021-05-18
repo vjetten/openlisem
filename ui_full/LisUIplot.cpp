@@ -268,8 +268,6 @@ void lisemqt::killPlot()
     PData.clear();
     TData.clear();
     QData.clear();
-    QData1.clear();
-    QData2.clear();
     QtileData.clear();
     QsData.clear();
     CData.clear();
@@ -284,16 +282,6 @@ void lisemqt::GetPlotData()
 
     for(int i = 0; i < OutletIndices.length(); i++)
     {
-//        OutletQ.at(i)->clear();
-//        OutletQs.at(i)->clear();
-//        OutletC.at(i)->clear();
-//        OutletChannelWH.at(i)->clear();
-
-//        OutletQ.at(i)->append(*op.OutletQ.at(i));
-//        OutletQs.at(i)->append(*op.OutletQs.at(i));
-//        OutletC.at(i)->append(*op.OutletC.at(i));
-//        OutletChannelWH.at(i)->append(*op.OutletChannelWH.at(i));
-
         OutletQ[i] = op.OutletQ[i];
         OutletQs[i] = op.OutletQs[i];
         OutletC[i] = op.OutletC[i];
