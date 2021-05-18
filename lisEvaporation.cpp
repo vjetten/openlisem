@@ -187,7 +187,7 @@ void TWorld::GetETMap(void)
     // where are we in the series
     int currentrow = 0;
     // if time is outside records then use map with zeros
-    if (currenttime < ETSeriesMaps[0].time || currenttime > ETSeriesMaps[nrETseries-1].time)
+    if (currenttime < ETSeriesM[0].time || currenttime > ETSeriesM[nrETseries-1].time)
         noET = true;
 
     if (noET) {
@@ -197,35 +197,25 @@ void TWorld::GetETMap(void)
         }}
     } else {
         // find current record
-        for (ETplace = currentETrow; ETplace < nrETseries-1; ETplace++) {
-            if (currenttime >= ETSeriesMaps[ETplace].time && currenttime < ETSeriesMaps[ETplace+1].time) {
+        for (ETplace = 0; ETplace < nrETseries-1; ETplace++) {
+            if (currenttime >= ETSeriesM[ETplace].time && currenttime < ETSeriesM[ETplace+1].time) {
                 currentrow = ETplace;
                 break;
             }
         }
 
-        if (currentrow == currentRainfallrow && ETplace > 0)
+        if (currentrow == currentETrow && ETplace > 0)
             sameET = true;
-        else
-            currentETrow = currentrow;
 
         // get the next map from file
         if (!sameET) {
-            auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(ETSeriesMaps[ETplace].name)));
-
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                if (pcr::isMV(_M->Drc)) {
-                    QString sr, sc;
-                    sr.setNum(r); sc.setNum(c);
-                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+ETSeriesMaps[ETplace].name;
-                    throw 1;
-                } else {
-                    ETa->Drc = _M->Drc *_dt/tt;
-                }
+                ETa->Drc = ETSeriesM[currentrow].intensity[(int) ETZone->Drc-1]*_dt/tt;
             }}
         }
     }
+    currentETrow = currentrow;
 }
 //---------------------------------------------------------------------------
 void TWorld::GetETSatMap(void)
@@ -246,8 +236,10 @@ void TWorld::GetETSatMap(void)
     // where are we in the series
     int currentrow = 0;
     // if time is outside records then use map with zeros
-    if (currenttime < ETSeriesMaps[0].time || currenttime > ETSeriesMaps[nrETseries-1].time)
+    if (currenttime < ETSeriesMaps[0].time || currenttime > ETSeriesMaps[nrETseries-1].time) {
         noET = true;
+        DEBUG("run time outside rainfall records");
+    }
 
     if (noET) {
         #pragma omp parallel for num_threads(userCores)
@@ -256,17 +248,15 @@ void TWorld::GetETSatMap(void)
         }}
     } else {
         // find current record
-        for (ETplace = currentETrow; ETplace < nrETseries-1; ETplace++) {
+        for (ETplace = 0; ETplace < nrETseries-1; ETplace++) {
             if (currenttime >= ETSeriesMaps[ETplace].time && currenttime < ETSeriesMaps[ETplace+1].time) {
                 currentrow = ETplace;
                 break;
             }
         }
 
-        if (currentrow == currentRainfallrow && ETplace > 0)
+        if (currentrow == currentETrow && ETplace > 0)
             sameET = true;
-        else
-            currentETrow = currentrow;
 
         // get the next map from file
         if (!sameET) {
@@ -285,8 +275,9 @@ void TWorld::GetETSatMap(void)
             }}
         }
     }
+    currentETrow = currentrow;
 }
-
+//---------------------------------------------------------------------------
 void TWorld::doETa()
 {
     #pragma omp parallel for num_threads(userCores)

@@ -173,10 +173,12 @@ void TWorld::DoModel()
         if (SwitchRainfall)
         {
             DEBUG("Get Rainfall Data Information");
-            if (SwitchRainfallSatellite)
+            if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
+            }
             else
                 GetRainfallData(rainFileName);
+            op.maxRainaxis = getmaxRainfall();
         }
         if (SwitchIncludeET)
         {

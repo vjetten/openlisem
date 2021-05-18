@@ -376,7 +376,7 @@ void lisemqt::showPlot()
     QGraph->setSamples(TData,QData);
 
     yas = std::max(0.01,qmax.at(index));
-    yasP = std::max(yasP, op.Pmm*mult);
+  //  yasP = std::max(yasP, op.Pmm*mult);
 
     PGraph->setSamples(TData,PData);
 
@@ -389,11 +389,11 @@ void lisemqt::showPlot()
         y2as = std::max(0.1,std::max(qsmax.at(index), cmax.at(index)));
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
 
-        yas = std::max(0.1,std::max(yas, op.Pmm*mult));
+        yas = op.maxRainaxis;//std::max(0.1,std::max(yas, op.Pmm*mult));
     }
     else
     {
-        y2as = std::max(0.1,std::max(y2as, op.Pmm*mult));
+        y2as = op.maxRainaxis;//std::max(0.1,std::max(y2as, op.Pmm*mult));
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
     }
 
@@ -578,8 +578,15 @@ void lisemqt::showOutputData()
     label_dx->setText(format.arg(QString::number(op.dx,'f',dig)));
     //label_dx->setText(QString::number(op.dx,'f',dig));
     label_area->setText(format.arg(QString::number(op.CatchmentArea/1000000,'f',dig)));
-    label_time->setText(format.arg(QString::number(op.time,'f',dig)));
-    label_endtime->setText(format.arg(QString::number(op.EndTime,'f',dig)));
+
+    int days = op.time/1440;
+    int mins = long(op.time) % 1440;
+    QString ts = QString("%1:%2").arg(days,3,10,QLatin1Char('0')).arg(mins,4,10,QLatin1Char('0'));
+    label_time->setText(ts);//format.arg(QString::number(op.time,'f',dig)));
+    days = op.EndTime/1440;
+    mins = long(op.EndTime) % 1440;
+    ts = QString("%1:%2").arg(days,3,10,QLatin1Char('0')).arg(mins,4,10,QLatin1Char('0'));
+    label_endtime->setText(ts);//format.arg(QString::number(op.EndTime,'f',dig)));
     label_runtime->setText(format.arg(QString::number(op.t,'f',dig)));
     label_endruntime->setText(format.arg(QString::number(op.maxtime,'f',dig)));
 

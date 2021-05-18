@@ -51,9 +51,8 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
     QString S;
     QStringList rainRecs;
     QStringList SL;
-    int skip = 2;
+    int skip = 3;
     int nrSeries = 0;
-    double time = 0.0;
 
     if (!fi.exists())
     {
@@ -110,7 +109,6 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
     currentETrow = 0;
     currentSnowmeltrow = 0;
 
-
     QString dirname;
     if (type == 0)
         dirname = rainFileDir;
@@ -131,21 +129,6 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
 
-        qDebug() << rl.time << SL[0];
-
-        if (r == 0)
-            time = rl.time;
-
-        //??????????????????? what does this check???
-        if (r > 0 && rl.time <= time)
-        {
-            qDebug() << r << time << rl.time;
-            ErrorString = QString("Rainfall records at time %1 has unreadable value.").arg(rl.time);
-            throw 1;
-        }
-        else
-            time = rl.time;
-
         // check if filename exists
         QFileInfo fi(QDir(dirname), SL[1]);
             // asume second record is name
@@ -159,7 +142,6 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
                 ErrorString = QString("Snowmelt map %1 not found. Rainfall maps must be in the rainfall directory.").arg(SL[1]);
             throw 1;
         }
-
         rl.name = fi.absoluteFilePath();
 
         // add the record to the list
@@ -353,7 +335,6 @@ void TWorld::GetRainfallMap(void)
     // if time is outside records then use map with zeros
     if (currenttime < RainfallSeriesM[0].time || currenttime > RainfallSeriesM[nrRainfallseries-1].time)
         norain = true;
- //   qDebug() << norain << currenttime << RainfallSeriesM[0].time << RainfallSeriesM[nrRainfallseries-1].time;
 
     if (norain) {
         #pragma omp parallel for num_threads(userCores)
@@ -363,25 +344,23 @@ void TWorld::GetRainfallMap(void)
     } else {
         // find current record
         for (rainplace = currentRainfallrow; rainplace < nrRainfallseries-1; rainplace++) {
-    //qDebug() << currenttime << RainfallSeriesM[rainplace].time << RainfallSeriesM[rainplace+1].time;
             if (currenttime >= RainfallSeriesM[rainplace].time && currenttime < RainfallSeriesM[rainplace+1].time) {
                 currentrow = rainplace;                
                 break;
             }
         }
-        if (currentrow == currentRainfallrow && rainplace > 0)
+        if (currentrow == currentRainfallrow && currentrow > 0)
             samerain = true;
-        else
-            currentRainfallrow = currentrow;
 
         // get the next map from file
         if (!samerain) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
+                Rain->Drc = RainfallSeriesM[currentrow].intensity[(int) RainZone->Drc-1]*_dt/tt;
             }}
         }
     }
+    currentRainfallrow = currentrow;
 
     // find start time of rainfall, for flood peak and rain peak
     if (!rainStarted) {
@@ -413,7 +392,7 @@ void TWorld::GetRainfallSatMap(void)
 {
     double currenttime = (time)/60;
     int  rainplace;
-    double tt = 3600000.0;
+    double tt = _dt/3600000.0;
     bool norain = false;
     bool samerain = false;
 
@@ -427,8 +406,10 @@ void TWorld::GetRainfallSatMap(void)
     // where are we in the series
     int currentrow = 0;
     // if time is outside records then use map with zeros
-    if (currenttime < RainfallSeriesM[0].time || currenttime > RainfallSeriesM[nrRainfallseries-1].time)
+    if (currenttime < RainfallSeriesMaps[0].time || currenttime > RainfallSeriesMaps[nrRainfallseries-1].time) {
         norain = true;
+        DEBUG("run time outside rainfall records");
+    }
 
     if (norain) {
         #pragma omp parallel for num_threads(userCores)
@@ -437,34 +418,35 @@ void TWorld::GetRainfallSatMap(void)
         }}
     } else {
         // find current record
-        for (rainplace = currentRainfallrow; rainplace < nrRainfallseries-1; rainplace++) {
-            if (currenttime >= RainfallSeriesM[rainplace].time && currenttime < RainfallSeriesM[rainplace+1].time) {
+        for (rainplace = 0; rainplace < nrRainfallseries-1; rainplace++) {
+            if (currenttime >= RainfallSeriesMaps[rainplace].time && currenttime < RainfallSeriesMaps[rainplace+1].time) {
                 currentrow = rainplace;
                 break;
             }
         }
-        if (currentrow == currentRainfallrow && rainplace > 0)
+
+        if (currentrow == currentRainfallrow)// && currentrow > 0)
             samerain = true;
-        else
-            currentRainfallrow = currentrow;
 
         // get the next map from file
         if (!samerain) {
-            auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[rainplace].name)));
+//    qDebug() << RainfallSeriesMaps[currentrow].name << currentRainfallrow << currentrow;
+            auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
 
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (pcr::isMV(_M->Drc)) {
-                        QString sr, sc;
-                        sr.setNum(r); sc.setNum(c);
-                        ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[rainplace].name;
-                        throw 1;
+                    QString sr, sc;
+                    sr.setNum(r); sc.setNum(c);
+                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[rainplace].name;
+                    throw 1;
                 } else {
-                  Rain->Drc = _M->Drc *_dt/tt;
+                    Rain->Drc = _M->Drc * tt;
                 }
             }}
         }
     }
+    currentRainfallrow = currentrow;
 
     // find start time of rainfall, for flood peak and rain peak
     if (!rainStarted) {
@@ -491,7 +473,29 @@ void TWorld::GetRainfallSatMap(void)
         // net rainfall in case of interception
     }}
 }
+//---------------------------------------------------------------------------
+double TWorld::getmaxRainfall()
+{
+    double maxv = 0;
+    if (SwitchRainfallSatellite) {
+        for (int i = 0; i < nrRainfallseries-1; i++) {
+            auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[i].name)));
 
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                if (!pcr::isMV(_M->Drc)) {
+                    maxv = std::max(maxv, _M->Drc);
+                }
+            }}
+        }
+    } else {
+        for (int i = 0; i < nrRainfallseries-1; i++) {
+            for (int j = 0; j < RainfallSeriesM[i].intensity.size(); j++)
+                maxv = std::max(maxv, RainfallSeriesM[i].intensity[j]);
+        }
+    }
+    return (maxv);
+}
 //---------------------------------------------------------------------------
 double TWorld::getTimefromString(QString sss)
 {

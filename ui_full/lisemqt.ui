@@ -2485,7 +2485,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>7</number>
+                  <number>1</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -3137,25 +3137,7 @@
                      <property name="title">
                       <string>Rainfall and Evapotranspiration</string>
                      </property>
-                     <layout class="QGridLayout" name="gridLayout_49">
-                      <property name="leftMargin">
-                       <number>8</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>4</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>8</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>4</number>
-                      </property>
-                      <property name="horizontalSpacing">
-                       <number>8</number>
-                      </property>
-                      <property name="verticalSpacing">
-                       <number>4</number>
-                      </property>
+                     <layout class="QGridLayout" name="gridLayout_60">
                       <item row="0" column="0">
                        <widget class="QFrame" name="radioGroupRain">
                         <layout class="QGridLayout" name="gridLayout_50">
@@ -3213,6 +3195,15 @@
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
                            </property>
                           </widget>
                          </item>
@@ -3346,12 +3337,162 @@
                         </property>
                        </widget>
                       </item>
+                      <item row="4" column="0">
+                       <widget class="QFrame" name="radioGroupSnowmelt">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
+                        <layout class="QGridLayout" name="gridLayout_49">
+                         <property name="leftMargin">
+                          <number>8</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>4</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>8</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>4</number>
+                         </property>
+                         <property name="horizontalSpacing">
+                          <number>8</number>
+                         </property>
+                         <property name="verticalSpacing">
+                          <number>4</number>
+                         </property>
+                         <item row="2" column="3">
+                          <widget class="QToolButton" name="toolButton_SnowmeltmapShow">
+                           <property name="text">
+                            <string>...</string>
+                           </property>
+                           <property name="icon">
+                            <iconset resource="../resources/openlisem.qrc">
+                             <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="2">
+                          <widget class="QToolButton" name="toolButton_SnowmeltName">
+                           <property name="text">
+                            <string>...</string>
+                           </property>
+                           <property name="icon">
+                            <iconset resource="../resources/openlisem.qrc">
+                             <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="0">
+                          <widget class="QRadioButton" name="radioButton_10">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Snowmelt map file list</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QRadioButton" name="radioButton">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Snowmelt Station file</string>
+                           </property>
+                           <property name="checked">
+                            <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="1">
+                          <widget class="QLineEdit" name="E_SnowmeltSatName">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="2">
+                          <widget class="QToolButton" name="toolButton_SnowmeltSatName">
+                           <property name="text">
+                            <string>...</string>
+                           </property>
+                           <property name="icon">
+                            <iconset resource="../resources/openlisem.qrc">
+                             <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="1">
+                          <widget class="QLineEdit" name="E_SnowmeltName">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="3">
+                          <widget class="QToolButton" name="toolButton_SnowmeltShow">
+                           <property name="text">
+                            <string>...</string>
+                           </property>
+                           <property name="icon">
+                            <iconset resource="../resources/openlisem.qrc">
+                             <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
                       <item row="2" column="0">
                        <widget class="QFrame" name="radioGroupET">
                         <property name="enabled">
                          <bool>true</bool>
                         </property>
                         <layout class="QGridLayout" name="gridLayout_47">
+                         <property name="leftMargin">
+                          <number>8</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>4</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>8</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>4</number>
+                         </property>
+                         <property name="horizontalSpacing">
+                          <number>8</number>
+                         </property>
+                         <property name="verticalSpacing">
+                          <number>4</number>
+                         </property>
                          <item row="0" column="0">
                           <widget class="QRadioButton" name="radioETfile">
                            <property name="enabled">
@@ -3484,6 +3625,15 @@
                              <verstretch>0</verstretch>
                             </sizepolicy>
                            </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
                           </widget>
                          </item>
                          <item row="1" column="3">
@@ -3503,7 +3653,7 @@
                          <item row="1" column="4">
                           <widget class="QToolButton" name="toolButton_ETmapShow">
                            <property name="enabled">
-                            <bool>true</bool>
+                            <bool>false</bool>
                            </property>
                            <property name="text">
                             <string>...</string>
@@ -3515,6 +3665,25 @@
                           </widget>
                          </item>
                         </layout>
+                       </widget>
+                      </item>
+                      <item row="3" column="0">
+                       <widget class="QCheckBox" name="checkSnowmelt">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Snowmelt</string>
+                        </property>
                        </widget>
                       </item>
                      </layout>
@@ -14436,8 +14605,8 @@ p, li { white-space: pre-wrap; }
      <y>387</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1394</x>
-     <y>390</y>
+     <x>1055</x>
+     <y>397</y>
     </hint>
    </hints>
   </connection>
@@ -14468,8 +14637,8 @@ p, li { white-space: pre-wrap; }
      <y>354</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1394</x>
-     <y>357</y>
+     <x>1055</x>
+     <y>364</y>
     </hint>
    </hints>
   </connection>
@@ -14484,8 +14653,8 @@ p, li { white-space: pre-wrap; }
      <y>354</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1428</x>
-     <y>357</y>
+     <x>1089</x>
+     <y>364</y>
     </hint>
    </hints>
   </connection>
@@ -14500,8 +14669,8 @@ p, li { white-space: pre-wrap; }
      <y>426</y>
     </hint>
     <hint type="destinationlabel">
-     <x>393</x>
-     <y>511</y>
+     <x>477</x>
+     <y>507</y>
     </hint>
    </hints>
   </connection>
@@ -14512,12 +14681,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>120</x>
-     <y>248</y>
+     <x>645</x>
+     <y>348</y>
     </hint>
     <hint type="destinationlabel">
-     <x>669</x>
-     <y>252</y>
+     <x>625</x>
+     <y>258</y>
     </hint>
    </hints>
   </connection>
@@ -14528,12 +14697,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>243</y>
+     <x>645</x>
+     <y>348</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1160</x>
-     <y>247</y>
+     <x>929</x>
+     <y>258</y>
     </hint>
    </hints>
   </connection>
@@ -14564,8 +14733,8 @@ p, li { white-space: pre-wrap; }
      <y>497</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1394</x>
-     <y>500</y>
+     <x>1057</x>
+     <y>503</y>
     </hint>
    </hints>
   </connection>
@@ -14580,8 +14749,8 @@ p, li { white-space: pre-wrap; }
      <y>484</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1419</x>
-     <y>489</y>
+     <x>1092</x>
+     <y>503</y>
     </hint>
    </hints>
   </connection>
@@ -14596,8 +14765,24 @@ p, li { white-space: pre-wrap; }
      <y>376</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1415</x>
-     <y>378</y>
+     <x>1089</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkSnowmelt</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>radioGroupSnowmelt</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>185</x>
+     <y>525</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>545</y>
     </hint>
    </hints>
   </connection>

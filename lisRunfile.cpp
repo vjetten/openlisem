@@ -381,14 +381,14 @@ void TWorld::ParseRunfileData(void)
             if (p1.compare("Rainfall Directory")==0) rainFileDir = CheckDir(p);
             if (p1.compare("Rainfall file")==0) rainFileName = p; //rainFileDir + "/" + p;
             if (SwitchRainfallSatellite)
-                if (p1.compare("Rainfall maplist name")==0) rainSatFileName = rainFileDir + "/" + p;
+                if (p1.compare("Rainfall maplist name")==0) rainSatFileName = p;//rainFileDir +p;
         }
         if (SwitchIncludeET)
         {
             if (p1.compare("ET Directory")==0) ETFileDir = CheckDir(p);
             if (p1.compare("ET file")==0) ETFileName = p;
             if (SwitchETSatellite)
-                if (p1.compare("ET base name")==0) ETSatFileName = ETFileDir + "/" + p;
+                if (p1.compare("ET base name")==0) ETSatFileName = p;//ETFileDir + p;
         }
         if (SwitchChannelInflow)
         {

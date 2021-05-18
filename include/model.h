@@ -419,6 +419,7 @@ public:
     double BulkDens;
     double nrCells, CatchmentArea, nrFloodedCells;
     double LitterSmax, ETaTot, ETaTotmm;
+    double maxRainaxis;
 
     ///pesticides
     double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;
@@ -754,6 +755,7 @@ public:
     void GetETData(QString name);   // get input timeseries
     void GetSnowmeltData(QString name);   // get input timeseries
     double getTimefromString(QString sss);
+    double getmaxRainfall();
     /// convert rainfall of a timestep into a map
     void GetRainfallMap(void);
     void GetRainfallSatMap(void);
