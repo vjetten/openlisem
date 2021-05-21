@@ -114,21 +114,22 @@ void TWorld::DestroyData(void)
             maplistCTMap[i].m = nullptr;
         }
     }
+
     DEBUG("clear rainfall structure");
-    if (nrRainfallseries > 1)
-    {
-        for (int r=0; r < nrRainfallseries; r++)
-            RainfallSeriesM[r].intensity.clear();
-        RainfallSeriesM.clear();
-    }
-    if (nrSnowmeltseries > 1)
-    {
-        for (int r=0; r < nrSnowmeltseries; r++)
-        {
-            SnowmeltSeriesM[r].intensity.clear();
-        }
+
+    // clear() calls the destruction of all elements in the sturcture
+    RainfallSeriesM.clear();
+    RainfallSeriesMaps.clear();
+
+    if (SwitchSnowmelt) {
         SnowmeltSeriesM.clear();
+        SnowmeltSeriesMaps.clear();
     }
+    if (SwitchIncludeET) {
+        ETSeriesM.clear();
+        ETSeriesMaps.clear();
+    }
+
     DEBUG("kill swatre structure");
 
     if (InfilMethod == INFIL_SWATRE && initSwatreStructure)

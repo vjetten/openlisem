@@ -146,8 +146,10 @@ public:
     QStringList runfilelist;
 
 
-    void newPlot();
-    void SetupnewPlot();
+    bool doNewPlot;
+    void newPlot(bool refresh);
+    void setupNewPlot();
+    void initNewPlot();
 
     QLineSeries *QGraphN;
     QLineSeries *QsGraphN;
@@ -168,14 +170,15 @@ public:
 
     // structure output
     void initOP();
+
     // graph functions
     void setupPlot();
     void startPlots();
-    void SetPlotsData();
     void showPlot();
     void GetPlotData();
     void initPlot();
     void killPlot();
+
     void initOutputData();
     void showOutputData();
     void SetTextHydrographs();

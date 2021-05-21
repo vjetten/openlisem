@@ -80,7 +80,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_55">
-    <item row="2" column="0">
+    <item row="1" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="enabled">
        <bool>true</bool>
@@ -14148,23 +14148,7 @@ p, li { white-space: pre-wrap; }
                <string/>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_16">
-               <item row="3" column="0" colspan="3">
-                <widget class="QPlainTextEdit" name="textGraph">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="verticalScrollBarPolicy">
-                  <enum>Qt::ScrollBarAlwaysOn</enum>
-                 </property>
-                 <property name="readOnly">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0" colspan="3">
+               <item row="2" column="0" colspan="2">
                 <widget class="QLabel" name="label_88">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -14193,8 +14177,24 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="0" column="0" colspan="3">
-                <layout class="QVBoxLayout" name="verticalLayout_2"/>
+               <item row="3" column="0" colspan="2">
+                <widget class="QPlainTextEdit" name="textGraph">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="verticalScrollBarPolicy">
+                  <enum>Qt::ScrollBarAlwaysOn</enum>
+                 </property>
+                 <property name="readOnly">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0" colspan="2">
+                <layout class="QVBoxLayout" name="layout_Plot"/>
                </item>
               </layout>
              </widget>
@@ -14241,34 +14241,6 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
           </layout>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab_graph">
-       <attribute name="title">
-        <string>trial</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_64">
-        <item row="0" column="0">
-         <widget class="QFrame" name="frame_3">
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <widget class="QWidget" name="verticalLayoutWidget">
-           <property name="geometry">
-            <rect>
-             <x>140</x>
-             <y>30</y>
-             <width>751</width>
-             <height>431</height>
-            </rect>
-           </property>
-           <layout class="QVBoxLayout" name="layout_Plot"/>
-          </widget>
          </widget>
         </item>
        </layout>

@@ -477,22 +477,21 @@ void TWorld::GetRainfallSatMap(void)
 double TWorld::getmaxRainfall()
 {
     double maxv = 0;
+    double avg = 0;
+    double tt = _dt/3600000.0;
     if (SwitchRainfallSatellite) {
         for (int i = 0; i < nrRainfallseries-1; i++) {
             auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[i].name)));
-
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                if (!pcr::isMV(_M->Drc)) {
-                    maxv = std::max(maxv, _M->Drc);
-                }
-            }}
+            avg = MapTotal(*_M)/nrCells;
+            maxv = std::max(avg, maxv);
         }
     } else {
+        avg = 0;
         for (int i = 0; i < nrRainfallseries-1; i++) {
             for (int j = 0; j < RainfallSeriesM[i].intensity.size(); j++)
-                maxv = std::max(maxv, RainfallSeriesM[i].intensity[j]);
+                avg = avg + RainfallSeriesM[i].intensity[j]*tt;
         }
+        maxv = std::max(maxv, avg);
     }
     return (maxv);
 }

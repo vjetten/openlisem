@@ -162,15 +162,19 @@ void lisemqt::onOutletChanged(int point)
         {
             outletpoint = 0;
             spinBoxPointtoShow->setValue(1);
-
-            showPlot();
+qDebug() << "hie1";
             SetTextHydrographs();
-
-            HPlot->setTitle(QString("Catchment outlet(s)"));
             outletgroup->setTitle(QString("Catchment outlet(s)"));
-            //HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
-            //outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
 
+            if (doNewPlot)
+                newPlot(false);
+            else {
+                showPlot(); // show main plot for point X
+
+                HPlot->setTitle(QString("Catchment outlet(s)"));
+                //HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
+                //outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
+            }
         }else
         {
             if(point > outletpoint)
@@ -184,23 +188,29 @@ void lisemqt::onOutletChanged(int point)
             outletpoint = OutletIndices.at(index);
             spinBoxPointtoShow->setValue(outletpoint);
 
-            showPlot();
             SetTextHydrographs();
-
             if (outletpoint > 0)
-            {
                 outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
-                HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
-            }
             else
-            {
                 outletgroup->setTitle(QString("Catchment outflow"));
-                HPlot->setTitle(QString("Hydrograph all outflow"));
+
+
+            if (doNewPlot)
+                newPlot(true);
+            else {
+                showPlot(); // show main plot for point X
+
+
+                if (outletpoint > 0)
+                {
+                    HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
+                }
+                else
+                {
+                    HPlot->setTitle(QString("Hydrograph all outflow"));
+                }
             }
-
         }
-
-
     }
 }
 //---------------------------------------------------------------------------
@@ -208,7 +218,6 @@ void lisemqt::onOutletChanged(int point)
 void lisemqt::initPlot()
 {
     HPlot->setTitle("Hydrograph Outlet");
-    // VJ 110630 show hydrograph for selected output point
 
     if(checkIncludeTiledrains->isChecked())
         QtileGraph->attach(HPlot);
@@ -244,6 +253,10 @@ void lisemqt::initPlot()
         HPlot->setAxisTitle(HPlot->yRight, "P (mm/h)");
     }
 
+    QwtLegend *legend = new QwtLegend(HPlot);
+    legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
+    HPlot->insertLegend(legend, QwtPlot::BottomLegend);
+    //legend
 
 }
 //---------------------------------------------------------------------------
@@ -277,6 +290,7 @@ void lisemqt::killPlot()
 void lisemqt::GetPlotData()
 {   
     QtileData << op.Qtile;
+
     TData << op.time;
 
     for(int i = 0; i < OutletIndices.length(); i++)
@@ -299,6 +313,7 @@ void lisemqt::GetPlotData()
     OutletQstot.append(op.OutletQstot);
     timestep = op.timestep;
     PData << op.Pmm;
+
 }
 
 //---------------------------------------------------------------------------
@@ -330,6 +345,9 @@ void lisemqt::showPlot()
     CData.clear();
     PData.clear();
 
+
+    HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
+
     int index = OutletIndices.indexOf(this->outletpoint);
 
     for(int i = 0; i < OutletQ[index]->length();i++)
@@ -341,8 +359,10 @@ void lisemqt::showPlot()
 
         PData << Rainfall.at(i)*mult;
         QData << OutletQ.at(index)->at(i);
-        QsData <<OutletQs.at(index)->at(i);
-        CData << OutletC.at(index)->at(i);
+        if (checkDoErosion->isChecked()){
+            QsData <<OutletQs.at(index)->at(i);
+            CData << OutletC.at(index)->at(i);
+        }
 
         qmax[index] = std::max(qmax[index], OutletQ[index]->at(i));
         qsmax[index] = std::max(qsmax[index], OutletQs[index]->at(i));
@@ -401,12 +421,12 @@ void lisemqt::startPlots()
     killPlot();
     // clear() plot data
 
-    HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
+//    HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
 
-    QwtLegend *legend = new QwtLegend(HPlot);
-    legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
-    HPlot->insertLegend(legend, QwtPlot::BottomLegend);
-    //legend
+//    QwtLegend *legend = new QwtLegend(HPlot);
+//    legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
+//    HPlot->insertLegend(legend, QwtPlot::BottomLegend);
+//    //legend
 
     OutletIndices.append(op.OutletIndices);
     OutletLocationX.append(op.OutletLocationX);
@@ -433,12 +453,18 @@ void lisemqt::startPlots()
     if (outletpoint > 0)
     {
         outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
-        HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
+        if (doNewPlot)
+            PQSchart->setTitle(QString("Hydrograph point %1").arg(outletpoint));
+        else
+            HPlot->setTitle(QString("Hydrograph point %1").arg(outletpoint));
     }
     else
     {
-        outletgroup->setTitle(QString("Catchment outflow"));
-        HPlot->setTitle(QString("Hydrograph all outflow"));
+        outletgroup->setTitle(QString("Total domain outflow"));
+        if (doNewPlot)
+            PQSchart->setTitle("Combined hydrograph domain outflow");
+        else
+            HPlot->setTitle(QString("Combined hydrograph domain outflow"));
     }
     // VJ 110630 show hydrograph for selected output point
 

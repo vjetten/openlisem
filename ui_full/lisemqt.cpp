@@ -108,8 +108,11 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     SetStyleUI();
     // do some style things
 
-    setupPlot();
-    SetupnewPlot();
+    doNewPlot = true;
+    if(doNewPlot)
+        setupNewPlot();
+    else
+        setupPlot();
     // set up the discharge graphs
 
     setupMapPlot();
@@ -129,7 +132,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     batchRunname = runname;
     doCheckRainfall(true); // ???????? why here
 
-
     if(doBatch)
     {
         runfilelist.clear();
@@ -143,7 +145,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
         initMapTree();  // fill the tree strcuture on page 2 with DEFmaps
         RunAllChecks(); // activate the maps in the tree parts in response to checks
         E_runFileList->insertItem(0, batchRunname);
-
 
         stopAct->setChecked(false);
         runAct->setChecked(true);
@@ -2247,31 +2248,25 @@ void lisemqt::showTextfile(QString name)
 
 void lisemqt::on_E_EndTimeDay_returnPressed()
 {
- //   qDebug() << "hier" << E_EndTimeDay->text() << E_EndTimeDay->text().split(":")[1];
     int daye = E_EndTimeDay->text().split(":")[0].toInt();
     int mine = E_EndTimeDay->text().split(":")[1].toInt();
- //   qDebug() << daye << mine;
     daye = std::max(1,std::min(daye, 366));
     if (mine > 1440) {
         daye = mine/1440 + 1;
         mine = mine % 1440;
     }
-  //  qDebug() << daye << mine;
     E_EndTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
 }
 
 
 void lisemqt::on_E_BeginTimeDay_returnPressed()
 {
-    //   qDebug() << "hier" << E_EndTimeDay->text() << E_EndTimeDay->text().split(":")[1];
        int daye = E_BeginTimeDay->text().split(":")[0].toInt();
        int mine = E_BeginTimeDay->text().split(":")[1].toInt();
-    //   qDebug() << daye << mine;
        daye = std::max(1,std::min(daye, 366));
        if (mine > 1440) {
            daye = mine/1440 + 1;
            mine = mine % 1440;
        }
-     //  qDebug() << daye << mine;
        E_BeginTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
 }

@@ -31,8 +31,18 @@
 
 //QT_CHARTS_USE_NAMESPACE
 
+void lisemqt::initNewPlot()
+{
+    QGraphN->clear();
+    PGraphN->clear();
+    if (checkDoErosion->isChecked()) {
+        QsGraphN->clear();
+        CGraphN->clear();
+    }
+}
 
-void lisemqt::SetupnewPlot()
+
+void lisemqt::setupNewPlot()
 {
     QGraphN = new QLineSeries();
     PGraphN = new QLineSeries();
@@ -109,55 +119,88 @@ void lisemqt::SetupnewPlot()
     QGraphN->attachAxis(axisX);
     QGraphN->attachAxis(axisYQ);
 
-
     chartView = new QChartView(PQSchart);
-    //chartView->setRenderHint(QPainter::Antialiasing);
-    verticalLayout_2->insertWidget(0, chartView,1);
+    //chartView->setRenderHint(QPainter::Antialiasing); very slow
+    layout_Plot->insertWidget(0, chartView,1);
+
 }
 
 
-void lisemqt::newPlot()
-{
+void lisemqt::newPlot(bool refresh)
+{    
+    int index = OutletIndices.indexOf(this->outletpoint);
 
-      PQSchart->axes(Qt::Horizontal).first()->setRange(op.BeginTime,op.EndTime);
+    if (refresh) {
+        // fill everything with a new index point and replace entire series
+        dataRain.clear();
+        dataQ.clear();
+        qmax.clear();
+        qsmax.clear();
+        cmax.clear();
+        qmax.append(0);
+        qsmax.append(0);
+        cmax.append(0);
 
-      int index = OutletIndices.indexOf(this->outletpoint);
+        for(int i = 0; i < OutletQ[index]->length()-1;i++)
+        {
+            QPointF _P = QPointF(TData.at(i), Rainfall.at(i));
+            QPointF _Q = QPointF(TData.at(i), OutletQ[index]->at(i));
+            qmax[index] = std::max(qmax[index], OutletQ[index]->at(i));
+            dataRain << _P;
+            dataQ << _Q;
 
-    //  dataRain.clear();
-    //  dataQ.clear();
+            if(checkDoErosion->isChecked()) {
+                QPointF _Qs = QPointF(TData.at(i),OutletQs.at(index)->at(i));
+                QPointF _C = QPointF(TData.at(i),OutletC.at(index)->at(i));
+                qsmax[index] = std::max(qsmax[index], OutletQs[index]->at(i));
+                cmax[index] = std::max(cmax[index], OutletC[index]->at(i));
+                dataQs << _Qs;
+                dataC << _C;
+            }
+        //qDebug() << _P << _Q << i << OutletQ[index]->length();
+        }
+        PGraphN->replace(dataRain);
+        QGraphN->replace(dataQ);
 
-   //   for(int i = 0; i < OutletQ[index]->length();i++)
-    //  {
-      int i = std::max(0,OutletQ[index]->length()-1);
-          if(checkDoErosion->isChecked()) {
-              QPointF _Qs;
-              QPointF _C;
-              _Qs.setX(TData.at(i));
-              _Qs.setY(OutletQs.at(index)->at(i));
-              _C.setX(TData.at(i));
-              _C.setY(OutletC.at(index)->at(i));
-              qsmax[index] = std::max(qsmax[index], OutletQs[index]->at(i));
-              cmax[index] = std::max(cmax[index], OutletC[index]->at(i));
-         }
+
+        if(checkDoErosion->isChecked()) {
+            QsGraphN->replace(dataQs);
+            CGraphN->replace(dataC);
+        }
+    } else {
+        //add to the last point
+
+          int i = std::max(0,OutletQ[index]->length()-1);
+
           QPointF _P = QPointF(TData.at(i), Rainfall.at(i));
           QPointF _Q = QPointF(TData.at(i), OutletQ.at(index)->at(i));
-//          dataRain << _P;
-  //        dataQ << _Q;
           qmax[index] = std::max(qmax[index], OutletQ[index]->at(i));
-
-
-      //PGraphN->replace(dataRain);
-      //QGraphN->replace(dataQ);
           PGraphN->append(_P);
           QGraphN->append(_Q);
-      axisYP->setRange(0.0,op.maxRainaxis);
-      axisYQ->setRange(0.0,qmax[index]*1.1);
 
-      if(checkDoErosion->isChecked()) {
-          axisYQs->setMax(qsmax[index]);
-          axisYC->setMax(cmax[index]);
+          if(checkDoErosion->isChecked()) {
+              QPointF _Qs = QPointF(TData.at(i),OutletQs.at(index)->at(i));
+              QPointF _C = QPointF(TData.at(i),OutletC.at(index)->at(i));
+              qsmax[index] = std::max(qsmax[index], OutletQs[index]->at(i));
+              cmax[index] = std::max(cmax[index], OutletC[index]->at(i));
+
+              QsGraphN->append(_Qs);
+              CGraphN->append(_C);
+          }
+
+          double step = floor(log10(qmax[index]))+1.0;
+          axisYQ->setTickCount(int(step)*2);
+          axisYQ->setRange(0.0,pow(10.0,step));//qmax[index]*1.1);
+
+          step = floor(log10(op.maxRainaxis))+1.0;
+          axisYP->setTickCount(int(step)*2);
+          axisYP->setRange(0.0,pow(10.0,step));
+
+          if(checkDoErosion->isChecked()) {
+              axisYQs->setMax(qsmax[index]);
+              axisYC->setMax(cmax[index]);
+          }
       }
-
-      chartView->update();
-
+    PQSchart->axes(Qt::Horizontal).first()->setRange(op.BeginTime,op.EndTime);
+    chartView->update();
 }

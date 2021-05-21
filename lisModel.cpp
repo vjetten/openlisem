@@ -144,7 +144,7 @@ void TWorld::DoModel()
             double etm = getvaluedouble("End time");
             BeginTime = (btd*1440+btm)*60; //in sec
             EndTime = (etd*1440+etm)*60;   //in sec
-            qDebug() << "time" << btd << btm << etd << etm;
+           // qDebug() << "time" << btd << btm << etd << etm;
   //      }
         _dt = getvaluedouble("Timestep");
         op.BeginTime = BeginTime/60; // for graph drawing
@@ -244,7 +244,7 @@ void TWorld::DoModel()
             }
             // check if user wants to quit or pause
 
-           CellProcesses();
+            CellProcesses();
          //   do_CellProcesses();
 
             ToTiledrain();         // fraction going into tiledrain directly from surface

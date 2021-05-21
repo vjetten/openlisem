@@ -590,9 +590,6 @@ void lisemqt::ParseInputData()
         }
     }
 
-    qDebug()<< "hier" << RainFileDir << RainFileName << RainSatFileName;
-
-
     int days = daystart.toInt();
     int mins = minstart.toInt();
     int daye = dayend.toInt();
