@@ -89,22 +89,28 @@ void lisemqt::setupPlot()
     pen5.setColor(col);
     pen5.setCosmetic(false);
 
+    axisYL1 = new QwtAxisId(QwtPlot::yLeft,0);
+    axisYL2 = new QwtAxisId(QwtPlot::yLeft,1);
+    axisYR1 = new QwtAxisId(QwtPlot::yRight,0);
+    axisYR2 = new QwtAxisId(QwtPlot::yRight,1);
+
+    HPlot->setAxesCount(QwtPlot::yLeft, 2);
+    HPlot->setAxesCount(QwtPlot::yRight, 2);
+
     QGraph->setPen(pen1);
-    QGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
-    //QGraph->setXAxis(HPlot->xBottom);
-    //QGraph->setYAxis(QwtAxisId(QwtAxis::yLeft, 0));
+    QGraph->setAxes(HPlot->xBottom, *axisYL1);// HPlot->yLeft);
 
     PGraph->setPen(pen2);
-    PGraph->setAxes(HPlot->xBottom, HPlot->yRight);
+    PGraph->setAxes(HPlot->xBottom, *axisYR1);// HPlot->yRight);
 
     QtileGraph->setPen(pen3);
-    QtileGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
+    QtileGraph->setAxes(HPlot->xBottom, *axisYL1);
 
     QsGraph->setPen(pen4);
-    QsGraph->setAxes(HPlot->xBottom, HPlot->yRight);
+    QsGraph->setAxes(HPlot->xBottom, *axisYR1);//HPlot->yRight);
 
     CGraph->setPen(pen5);
-    CGraph->setAxes(HPlot->xBottom, HPlot->yRight);
+    CGraph->setAxes(HPlot->xBottom, *axisYR2);//HPlot->yRight);
 
     PGraph->setStyle(QwtPlotCurve::Steps);
     QGraph->setStyle(QwtPlotCurve::Lines);
@@ -112,11 +118,11 @@ void lisemqt::setupPlot()
     QsGraph->setStyle(QwtPlotCurve::Lines);
     CGraph->setStyle(QwtPlotCurve::Lines);
 
-    PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-    QGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-    QtileGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-    QsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
-    CGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+//    PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+//    QGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+//    QtileGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+//    QsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
+//    CGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
 
     HPlot->setCanvasBackground(QBrush(Qt::white));
 
@@ -126,14 +132,17 @@ void lisemqt::setupPlot()
     HPlot->enableAxis(HPlot->xBottom,true);
     HPlot->setAxisTitle(HPlot->xBottom, "time (min)");
 
-    HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
-    HPlot->setAxisTitle(HPlot->yRight, "P (mm/h)");
+    HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
+    HPlot->setAxisTitle(*axisYR1, "P (mm/h)");
     multiplierRain->setValue(0);
 
-    HPlot->setAxisScale(HPlot->yRight, 0, 1);
-    HPlot->setAxisScale(HPlot->yLeft, 0, 1);
-    HPlot->setAxisScale(HPlot->xBottom, 0, 100);
-
+//    HPlot->setAxisScale(HPlot->yRight, 0, 1);
+//    HPlot->setAxisScale(HPlot->yLeft, 0, 1);
+//    HPlot->setAxisScale(HPlot->xBottom, 0, 100);
+    HPlot->setAxisAutoScale(*axisYL1,true);
+    HPlot->setAxisAutoScale(*axisYL2,true);
+    HPlot->setAxisAutoScale(*axisYR1,true);
+    HPlot->setAxisAutoScale(*axisYR2,true);
     // set gridlines
     QwtPlotGrid *grid = new QwtPlotGrid();
     col.setRgb( 180,180,180,180 );
@@ -228,29 +237,44 @@ void lisemqt::initPlot()
     {
         QsGraph->attach(HPlot);
         CGraph->attach(HPlot);
+//        PGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
+//        QsGraph->setAxes(HPlot->xBottom, HPlot->yRight);
+//        CGraph->setAxes(HPlot->xBottom, HPlot->yRight);
+//        HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s) - P (mm/h)");
+//        HPlot->setAxisTitle(HPlot->yRight, "Qs (kg/s) - C (g/l)");
+        HPlot->setAxesCount(QwtPlot::yLeft, 2);
+        HPlot->setAxesCount(QwtPlot::yRight, 2);
+
+//        HPlot->enableAxis(*axisYL1,true);
+//        HPlot->enableAxis(*axisYL2,true);
+//        HPlot->enableAxis(*axisYR1,true);
+//        HPlot->enableAxis(*axisYR2,true);
+
+        QGraph->setAxes(HPlot->xBottom, *axisYL1);
+        PGraph->setAxes(HPlot->xBottom, *axisYL2);
+        QsGraph->setAxes(HPlot->xBottom, *axisYR1);
+        CGraph->setAxes(HPlot->xBottom, *axisYR2);
+
+        HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
+        HPlot->setAxisTitle(*axisYL2, "P (mm/h)");
+        HPlot->setAxisTitle(*axisYR1, "Qs (kg/s)");
+        HPlot->setAxisTitle(*axisYR2, "C (g/l)");
     }
     else
     {
         QsGraph->detach();
         CGraph->detach();
-        //       sQsGraph->detach();
-    }
+    //    PGraph->setAxes(HPlot->xBottom, HPlot->yRight);
+    //    HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
+//        QsGraph->setAxes(HPlot->xBottom, *axisYR1);
+//        CGraph->setAxes(HPlot->xBottom, *axisYR2);
 
-    if(checkDoErosion->isChecked())
-    {
-        PGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
-        QsGraph->setAxes(HPlot->xBottom, HPlot->yRight);
-        CGraph->setAxes(HPlot->xBottom, HPlot->yRight);
-
-        HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s) - P (mm/h)");
-        HPlot->setAxisTitle(HPlot->yRight, "Qs (kg/s) - C (g/l)");
-    }
-    else
-    {
-        PGraph->setAxes(HPlot->xBottom, HPlot->yRight);
-
-        HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
-        HPlot->setAxisTitle(HPlot->yRight, "P (mm/h)");
+        QGraph->setAxes(HPlot->xBottom, *axisYL1);
+        PGraph->setAxes(HPlot->xBottom, *axisYR1);
+        HPlot->setAxesCount(QwtPlot::yLeft, 1);
+        HPlot->setAxesCount(QwtPlot::yRight, 1);
+        HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
+        HPlot->setAxisTitle(*axisYR1, "P (mm/h)");
     }
 
     QwtLegend *legend = new QwtLegend(HPlot);
@@ -271,57 +295,22 @@ void lisemqt::on_multiplierRain_valueChanged(double)
 //---------------------------------------------------------------------------
 void lisemqt::showPlot()
 {
-    mult = 1;
-//    int i;
-//   double mf[6] ={1,10,100,1000,10000,1000000};
-//     for(i = 0; i < 6; i++) {
-//         if(op.Rainpeak*mf[i] > op.OutletQpeak.at(0)) {
-//             break;
-//         }
-//     }
-//     mult = mf[i-1]*0.5;
-//  //   qDebug() << mult << i << op.Rainpeak*mult << op.OutletQpeak.at(0);
-
     HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
     int index = OutletIndices.indexOf(this->outletpoint);
 
-    for(int i = 0; i < op.OutletQ[index]->length();i++)
-    {
-        qmax[index] = std::max(qmax[index], op.OutletQ[index]->at(i));
-    }
-
-    QGraph->setSamples(op.Time,*op.OutletQ[index]);//QData);
-    yas = std::max(0.01,qmax.at(index));
-    HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);
-    yasP = std::max(yasP, op.Rainpeak);//op.Pmm*mult);
+    QGraph->setSamples(op.Time,*op.OutletQ[index]);
     PGraph->setSamples(op.Time,op.Pmm);
 
     if(checkDoErosion->isChecked())
     {
-        for(int i = 0; i < op.OutletQ[index]->length();i++)
-        {
-            qsmax[index] = std::max(qsmax[index], op.OutletQs[index]->at(i));
-            cmax[index] = std::max(cmax[index], op.OutletC[index]->at(i));
-        }
-
         QsGraph->setSamples(op.Time,*op.OutletQs[index]);
         CGraph->setSamples(op.Time,*op.OutletC[index]);
-        y2as = std::max(0.1,std::max(qsmax.at(index), cmax.at(index)));
-        HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
-
-        yas = op.Rainpeak; //maxRainaxis;//std::max(0.1,std::max(yas, op.Pmm*mult));
-    }
-    else
-    {
-        y2as = op.Rainpeak; //maxRainaxis;//std::max(0.1,std::max(y2as, op.Pmm*mult));
-        HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
     }
 
     if(checkIncludeTiledrains->isChecked())
             QtileGraph->setSamples(op.Time,op.Qtile);
 
     HPlot->replot();
-
 }
 //---------------------------------------------------------------------------
 // initializes plot with world data, called in worldshow, done once
@@ -334,29 +323,25 @@ void lisemqt::startPlots()
     yasP = 0;
     y2as = 0.1;
 
-    qmax.clear();
-    qsmax.clear();
-    cmax.clear();
+    if (doNewPlot) {
+        qmax.clear();
+        qsmax.clear();
+        cmax.clear();
+        // to start the max finding
+        for(int i =0; i < OutletIndices.length(); i++)
+        {
+            qmax.append(0);
+            qsmax.append(0);
+            cmax.append(0);
+        }
+    }
     OutletIndices.clear();
     OutletLocationX.clear();
     OutletLocationY.clear();
 
-    //killPlot();
-    // clear() plot data
-
     OutletIndices.append(op.OutletIndices);
     OutletLocationX.append(op.OutletLocationX);
     OutletLocationY.append(op.OutletLocationY);
-    //OutletQtot.append(op.OutletQtot);
-    //OutletQstot.append(op.OutletQstot);
-
-    // to start the max finding
-    for(int i =0; i < OutletIndices.length(); i++)
-    {
-        qmax.append(0);
-        qsmax.append(0);
-        cmax.append(0);
-    }
 
     outletpoint = 1;
     spinBoxPointtoShow->setValue(1);
@@ -415,8 +400,8 @@ void lisemqt::SetTextHydrographs()
         double Pmm = op.Pmm.at(i); //Rainfall.at(i);
         double QPlot = op.OutletQ.at(j)->at(i);
         double ChannelWH = op.OutletChannelWH.at(j)->at(i);
-        double Qsplot = op.OutletQs.at(j)->at(i);
-        double Cplot = op.OutletC.at(j)->at(i);
+        double Qsplot = checkDoErosion->isChecked() ? op.OutletQs.at(j)->at(i) : 0;
+        double Cplot = checkDoErosion->isChecked() ? op.OutletC.at(j)->at(i) : 0;
 
         QString outS;
 

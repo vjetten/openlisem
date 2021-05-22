@@ -62,7 +62,7 @@ using namespace QtCharts;
 #include <qwt_plot_zoomer.h>
 #include <qwt_picker.h>
 #include <qwt_symbol.h>
-//#include <qwt_axis_id.h>
+#include <qwt_axis_id.h>
 
 #include "version.h"
 #include "ui_lisemqt.h"
@@ -227,6 +227,10 @@ public:
     QwtMatrixRasterData *RDf;
     QwtMatrixRasterData *RImage;
     QList<double> contourLevels;
+    QwtAxisId *axisYL1;
+    QwtAxisId *axisYL2;
+    QwtAxisId *axisYR1;
+    QwtAxisId *axisYR2;
 
     QList <QVector <double>> Xa;
     QList <QVector <double>> Ya;
