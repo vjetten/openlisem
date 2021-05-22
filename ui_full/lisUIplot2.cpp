@@ -141,19 +141,19 @@ void lisemqt::newPlot(bool refresh)
         qsmax.append(0);
         cmax.append(0);
 
-        for(int i = 0; i < OutletQ[index]->length()-1;i++)
+        for(int i = 0; i < op.OutletQ[index]->length()-1;i++)
         {
-            QPointF _P = QPointF(TData.at(i), Rainfall.at(i));
-            QPointF _Q = QPointF(TData.at(i), OutletQ[index]->at(i));
-            qmax[index] = std::max(qmax[index], OutletQ[index]->at(i));
+            QPointF _P = QPointF(op.Time.at(i), op.Pmm.at(i));
+            QPointF _Q = QPointF(op.Time.at(i), op.OutletQ[index]->at(i));
+            qmax[index] = std::max(qmax[index], op.OutletQ[index]->at(i));
             dataRain << _P;
             dataQ << _Q;
 
             if(checkDoErosion->isChecked()) {
-                QPointF _Qs = QPointF(TData.at(i),OutletQs.at(index)->at(i));
-                QPointF _C = QPointF(TData.at(i),OutletC.at(index)->at(i));
-                qsmax[index] = std::max(qsmax[index], OutletQs[index]->at(i));
-                cmax[index] = std::max(cmax[index], OutletC[index]->at(i));
+                QPointF _Qs = QPointF(op.Time.at(i),op.OutletQs.at(index)->at(i));
+                QPointF _C = QPointF(op.Time.at(i),op.OutletC.at(index)->at(i));
+                qsmax[index] = std::max(qsmax[index], op.OutletQs[index]->at(i));
+                cmax[index] = std::max(cmax[index], op.OutletC[index]->at(i));
                 dataQs << _Qs;
                 dataC << _C;
             }
@@ -170,19 +170,19 @@ void lisemqt::newPlot(bool refresh)
     } else {
         //add to the last point
 
-          int i = std::max(0,OutletQ[index]->length()-1);
+          int i = std::max(0,op.OutletQ[index]->length()-1);
 
-          QPointF _P = QPointF(TData.at(i), Rainfall.at(i));
-          QPointF _Q = QPointF(TData.at(i), OutletQ.at(index)->at(i));
-          qmax[index] = std::max(qmax[index], OutletQ[index]->at(i));
+          QPointF _P = QPointF(op.Time.at(i), op.Pmm.at(i));
+          QPointF _Q = QPointF(op.Time.at(i), op.OutletQ.at(index)->at(i));
+          qmax[index] = std::max(qmax[index], op.OutletQ[index]->at(i));
           PGraphN->append(_P);
           QGraphN->append(_Q);
 
           if(checkDoErosion->isChecked()) {
-              QPointF _Qs = QPointF(TData.at(i),OutletQs.at(index)->at(i));
-              QPointF _C = QPointF(TData.at(i),OutletC.at(index)->at(i));
-              qsmax[index] = std::max(qsmax[index], OutletQs[index]->at(i));
-              cmax[index] = std::max(cmax[index], OutletC[index]->at(i));
+              QPointF _Qs = QPointF(op.Time.at(i),op.OutletQs.at(index)->at(i));
+              QPointF _C = QPointF(op.Time.at(i),op.OutletC.at(index)->at(i));
+              qsmax[index] = std::max(qsmax[index], op.OutletQs[index]->at(i));
+              cmax[index] = std::max(cmax[index], op.OutletC[index]->at(i));
 
               QsGraphN->append(_Qs);
               CGraphN->append(_C);

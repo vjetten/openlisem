@@ -47,12 +47,11 @@ void lisemqt::setupPlot()
     QwtText title;
     title.setText("Hydrograph outlet");
     title.setFont(QFont("MS Shell Dlg 2",12));
-    HPlot = new QwtPlot(title, this);
+    HPlot = new QwtPlot(title);
     layout_Plot->insertWidget(0, HPlot, 1);
-    //HPlot->canvas()->setFrameStyle( QFrame::StyledPanel);//QFrame::Box | QFrame::Plain );
-
- //   HPlot->setStyleSheet(QString("* { background-color: %1 }").arg("#555555"));
-   // HPlot->setStyleSheet(QString("* { color: %1 }").arg("#000000"));
+//    enableAxis( QwtPlot::yRight );
+//    setAxesCount( QwtAxis::yLeft, 2 );
+//    setAxesCount( QwtAxis::yRight, 2 );
 
     // panning with the left mouse button
     (void) new QwtPlotPanner( HPlot->canvas() );
@@ -69,7 +68,6 @@ void lisemqt::setupPlot()
     PGraph->attach(HPlot);
     QGraph->attach(HPlot);
     // order determines order of display in Legend
-    //VJ 101223 changed for qwt 6.0.0
 
     QPen pen1, pen2, pen3, pen4, pen5;
     pen1.setWidth(2);
@@ -93,6 +91,8 @@ void lisemqt::setupPlot()
 
     QGraph->setPen(pen1);
     QGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
+    //QGraph->setXAxis(HPlot->xBottom);
+    //QGraph->setYAxis(QwtAxisId(QwtAxis::yLeft, 0));
 
     PGraph->setPen(pen2);
     PGraph->setAxes(HPlot->xBottom, HPlot->yRight);
@@ -162,7 +162,7 @@ void lisemqt::onOutletChanged(int point)
         {
             outletpoint = 0;
             spinBoxPointtoShow->setValue(1);
-qDebug() << "hie1";
+
             SetTextHydrographs();
             outletgroup->setTitle(QString("Catchment outlet(s)"));
 
@@ -260,63 +260,6 @@ void lisemqt::initPlot()
 
 }
 //---------------------------------------------------------------------------
-/// free data structures graph
-void lisemqt::killPlot()
-{
-    OutletQ.clear();
-    OutletQs.clear();
-    OutletC.clear();
-    OutletChannelWH.clear();
-
-    OutletIndices.clear();
-    OutletLocationX.clear();
-    OutletLocationY.clear();
-
-    Rainfall.clear();
-    OutletQpeak.clear();
-    OutletQpeaktime.clear();
-    OutletQtot.clear();
-    OutletQstot.clear();
-
-    PData.clear();
-    TData.clear();
-    QData.clear();
-    QtileData.clear();
-    QsData.clear();
-    CData.clear();
-
-}
-
-void lisemqt::GetPlotData()
-{   
-    QtileData << op.Qtile;
-
-    TData << op.time;
-
-    for(int i = 0; i < OutletIndices.length(); i++)
-    {
-        OutletQ[i] = op.OutletQ[i];
-        OutletQs[i] = op.OutletQs[i];
-        OutletC[i] = op.OutletC[i];
-        OutletChannelWH[i] = op.OutletChannelWH[i];
-    }
-
-    Rainfall.append(op.Pmm);
-
-    OutletQpeak.clear();
-    OutletQpeaktime.clear();
-    OutletQpeak.append(op.OutletQpeak);
-    OutletQpeaktime.append(op.OutletQpeaktime);
-    OutletQtot.clear();
-    OutletQstot.clear();
-    OutletQtot.append(op.OutletQtot);
-    OutletQstot.append(op.OutletQstot);
-    timestep = op.timestep;
-    PData << op.Pmm;
-
-}
-
-//---------------------------------------------------------------------------
 void lisemqt::on_multiplierRain_valueChanged(double)
 {
     double mult = qPow(10.0, multiplierRain->value());
@@ -328,77 +271,54 @@ void lisemqt::on_multiplierRain_valueChanged(double)
 //---------------------------------------------------------------------------
 void lisemqt::showPlot()
 {
-  //  double mult = qPow(10.0, multiplierRain->value());
     mult = 1;
-    int i;
-   double mf[6] ={1,10,100,1000,10000,1000000};
-     for(i = 0; i < 6; i++) {
-         if(op.Rainpeak*mf[i] > op.OutletQpeak.at(0)) {
-             break;
-         }
-     }
-     mult = mf[i-1]*0.5;
-  //   qDebug() << mult << i << op.Rainpeak*mult << op.OutletQpeak.at(0);
-
-    QData.clear();
-    QsData.clear();
-    CData.clear();
-    PData.clear();
-
+//    int i;
+//   double mf[6] ={1,10,100,1000,10000,1000000};
+//     for(i = 0; i < 6; i++) {
+//         if(op.Rainpeak*mf[i] > op.OutletQpeak.at(0)) {
+//             break;
+//         }
+//     }
+//     mult = mf[i-1]*0.5;
+//  //   qDebug() << mult << i << op.Rainpeak*mult << op.OutletQpeak.at(0);
 
     HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
-
     int index = OutletIndices.indexOf(this->outletpoint);
 
-    for(int i = 0; i < OutletQ[index]->length();i++)
+    for(int i = 0; i < op.OutletQ[index]->length();i++)
     {
-//        PData << Rainfall[i]*mult;
-//        QData << OutletQ[index][i];
-//        QsData <<OutletQs[index][i];
-//        CData << OutletC[index][i];
-
-        PData << Rainfall.at(i)*mult;
-        QData << OutletQ.at(index)->at(i);
-        if (checkDoErosion->isChecked()){
-            QsData <<OutletQs.at(index)->at(i);
-            CData << OutletC.at(index)->at(i);
-        }
-
-        qmax[index] = std::max(qmax[index], OutletQ[index]->at(i));
-        qsmax[index] = std::max(qsmax[index], OutletQs[index]->at(i));
-        cmax[index] = std::max(cmax[index], OutletC[index]->at(i));
-        //qmax.replace(index,OutletQ.at(index)->at(i) > qmax.at(index)? OutletQ.at(index)->at(i) : qmax.at(index));
-        //qsmax.replace(index,OutletQs.at(index)->at(i) > qsmax.at(index)? OutletQs.at(index)->at(i) : qsmax.at(index));
-        //cmax.replace(index,OutletC.at(index)->at(i) > cmax.at(index)? OutletC.at(index)->at(i) : cmax.at(index));
+        qmax[index] = std::max(qmax[index], op.OutletQ[index]->at(i));
     }
 
-    QGraph->setSamples(TData,QData);
-
+    QGraph->setSamples(op.Time,*op.OutletQ[index]);//QData);
     yas = std::max(0.01,qmax.at(index));
-  //  yasP = std::max(yasP, op.Pmm*mult);
-
-    PGraph->setSamples(TData,PData);
-
     HPlot->setAxisScale(HPlot->yLeft, 0, yas*1.05);
+    yasP = std::max(yasP, op.Rainpeak);//op.Pmm*mult);
+    PGraph->setSamples(op.Time,op.Pmm);
 
     if(checkDoErosion->isChecked())
     {
-        QsGraph->setSamples(TData,QsData);
-        CGraph->setSamples(TData,CData);
+        for(int i = 0; i < op.OutletQ[index]->length();i++)
+        {
+            qsmax[index] = std::max(qsmax[index], op.OutletQs[index]->at(i));
+            cmax[index] = std::max(cmax[index], op.OutletC[index]->at(i));
+        }
+
+        QsGraph->setSamples(op.Time,*op.OutletQs[index]);
+        CGraph->setSamples(op.Time,*op.OutletC[index]);
         y2as = std::max(0.1,std::max(qsmax.at(index), cmax.at(index)));
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
 
-        yas = op.maxRainaxis;//std::max(0.1,std::max(yas, op.Pmm*mult));
+        yas = op.Rainpeak; //maxRainaxis;//std::max(0.1,std::max(yas, op.Pmm*mult));
     }
     else
     {
-        y2as = op.maxRainaxis;//std::max(0.1,std::max(y2as, op.Pmm*mult));
+        y2as = op.Rainpeak; //maxRainaxis;//std::max(0.1,std::max(y2as, op.Pmm*mult));
         HPlot->setAxisScale(HPlot->yRight, 0, y2as*1.05);
     }
 
-
     if(checkIncludeTiledrains->isChecked())
-        QtileGraph->setSamples(TData,QtileData);
+            QtileGraph->setSamples(op.Time,op.Qtile);
 
     HPlot->replot();
 
@@ -417,29 +337,22 @@ void lisemqt::startPlots()
     qmax.clear();
     qsmax.clear();
     cmax.clear();
+    OutletIndices.clear();
+    OutletLocationX.clear();
+    OutletLocationY.clear();
 
-    killPlot();
+    //killPlot();
     // clear() plot data
-
-//    HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
-
-//    QwtLegend *legend = new QwtLegend(HPlot);
-//    legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
-//    HPlot->insertLegend(legend, QwtPlot::BottomLegend);
-//    //legend
 
     OutletIndices.append(op.OutletIndices);
     OutletLocationX.append(op.OutletLocationX);
     OutletLocationY.append(op.OutletLocationY);
-    OutletQtot.append(op.OutletQtot);
-    OutletQstot.append(op.OutletQstot);
+    //OutletQtot.append(op.OutletQtot);
+    //OutletQstot.append(op.OutletQstot);
 
+    // to start the max finding
     for(int i =0; i < OutletIndices.length(); i++)
     {
-        OutletQ.append(new QVector<double>);
-        OutletQs.append(new QVector<double>);
-        OutletC.append(new QVector<double>);
-        OutletChannelWH.append(new QVector<double>);
         qmax.append(0);
         qsmax.append(0);
         cmax.append(0);
@@ -486,76 +399,71 @@ void lisemqt::SetTextHydrographs()
 {
     textGraph->clear();
 
-    if(OutletQ.length() == 0)
+    if(op.OutletQ.length() == 0)
     {
         return;
     }
 
     int j = OutletIndices.indexOf(this->outletpoint);
 
-//    int dig = E_DigitsOut->value(); //DIGITS;
-
-//    label_qpeaksub->setText(QString::number(OutletQpeak.at(j),'e',dig));
-//    label_qpeaktime->setText(QString::number(OutletQpeaktime.at(j),'e',dig));
-//    label_qtotm3sub->setText(QString::number(OutletQtot.at(j),'e',dig));
-//    label_dischargesub->setText(QString::number(OutletQ.at(j)->at(OutletQ.at(j)->length()-1),'e',dig));
-
-//    if(checkDoErosion->isChecked())
-//        label_soillosssub->setText(QString::number(OutletQstot.at(j),'f',dig));
-
-    int steps = OutletQ.at(0)->length();
-    for(int i = 0; i < steps; i++)
+    int steps = op.OutletQ.at(0)->length();
+    for(int i = std::max(0,steps-12); i < steps; i++)
     {
-        double time = timestep* i;
-        double Pmm = Rainfall.at(i);
-        double QPlot = OutletQ.at(j)->at(i);
-        double ChannelWH = OutletChannelWH.at(j)->at(i);
-        double Qsplot = OutletQs.at(j)->at(i);
-        double Cplot = OutletC.at(j)->at(i);
+        //double time = op.time/60.0;
+        int days = op.time/1440;
+        int mins = long(op.time) % 1440;
+        double Pmm = op.Pmm.at(i); //Rainfall.at(i);
+        double QPlot = op.OutletQ.at(j)->at(i);
+        double ChannelWH = op.OutletChannelWH.at(j)->at(i);
+        double Qsplot = op.OutletQs.at(j)->at(i);
+        double Cplot = op.OutletC.at(j)->at(i);
 
-        if(checkDoErosion->isChecked())
-        {
-            if(!checkIncludeTiledrains->isChecked())
-                textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6")
-                                           .arg(time,15,'f',3,' ')
-                                           .arg(Pmm,15,'f',3,' ')
-                                           .arg(QPlot,15,'f',3,' ')
-                                           .arg(ChannelWH,15,'f',3,' ')
-                                           .arg(Qsplot,12,'f',3)
-                                           .arg(Cplot,15,'f',3,' '));
-            else
-                textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7")
-                                           .arg(time,15,'f',3,' ')
-                                           .arg(Pmm,15,'f',3,' ')
-                                           .arg(QPlot,15,'f',3,' ')
-                                           .arg(ChannelWH,15,'f',3,' ')
-                                           .arg(Qsplot,12,'f',3)
-                                           .arg(Cplot,15,'f',3,' ')
-                                           .arg(0.0,15,'f',3,' '));
-        }
-        else
-        {
-            double dummy = 0.0;
-            if(!checkIncludeTiledrains->isChecked())
-                textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6")
-                                           .arg(time,15,'f',3,' ')
-                                           .arg(Pmm,15,'f',3,' ')
-                                           .arg(QPlot,15,'f',3,' ')
-                                           .arg(ChannelWH,15,'f',3,' ')
-                                           .arg(dummy,15,'f',3,' ')
-                                           .arg(dummy,15,'f',3,' ')
+        QString outS;
+
+        // total outflow
+        if (j == 0) {
+            label_headerTextGraph->setText(QString("%1 %2 %3 %4 %5 %6")
+                                           .arg("Total ")
+                                           .arg("Time (day:min)   ")
+                                           .arg("   Rain (mm)  ")
+                                           .arg("      Q (l/s)    ")
+                                           .arg("  Qs (kg/s)     ")
+                                           .arg("Conc (g/l)    ")
                                            );
-            else
-                textGraph->appendPlainText(QString("%1 %2 %3 %4 %5 %6 %7")
-                                           .arg(time,15,'f',3,' ')
-                                           .arg(Pmm,15,'f',3,' ')
-                                           .arg(QPlot,15,'f',3,' ')
-                                           .arg(ChannelWH,15,'f',3,' ')
-                                           .arg(0.0,15,'f',3,' ')
-                                           .arg(dummy,15,'f',3,' ')
-                                           .arg(dummy,15,'f',3,' ')
-                                           );
+
+            outS = QString("%1        %2:%3 %4 %5 %6 %7")
+                                       .arg(j,6)
+                                       .arg(days,3,10,QLatin1Char('0'))
+                                       .arg(mins,4,10,QLatin1Char('0'))
+                                       .arg(Pmm,15,'f',3,' ')
+                                       .arg(QPlot,15,'f',3,' ')
+                                       .arg(Qsplot,15,'f',3)
+                                       .arg(Cplot,15,'f',3,' ')
+                                        ;
+        } else {
+            // point outflow
+            label_headerTextGraph->setText(QString("%1 %2 %3 %4 %5 %6 %7")
+                                           .arg("Point ")
+                                           .arg("Time (day:min)   ")
+                                           .arg("   Rain (mm)  ")
+                                           .arg("      Q (l/s)    ")
+                                           .arg("  ChanWH (m)   ")
+                                           .arg("  Qs (kg/s)     ")
+                                           .arg("Conc (g/l)    ")
+                                            );
+
+            outS = QString("%1        %2:%3 %4 %5 %6 %7 %8")
+                                       .arg(j,6)
+                                       .arg(days,3,10,QLatin1Char('0'))
+                                       .arg(mins,4,10,QLatin1Char('0'))
+                                       .arg(Pmm,15,'f',3,' ')
+                                       .arg(QPlot,15,'f',3,' ')
+                                       .arg(ChannelWH,15,'f',3,' ')
+                                       .arg(Qsplot,15,'f',3)
+                                       .arg(Cplot,15,'f',3,' ')
+                                        ;
         }
+        textGraph->appendPlainText(outS);
     }
 }
 //---------------------------------------------------------------------------
@@ -569,7 +477,7 @@ void lisemqt::showOutputData()
 
     int dig = E_DigitsOut->value();//DIGITS;
 
-    if(OutletQ.length() == 0)
+    if(op.OutletQ.length() == 0)
     {
         return;
     }
@@ -622,10 +530,10 @@ void lisemqt::showOutputData()
         label_MB->setText(" "+label_MB->text());
 
     int j = OutletIndices.indexOf(this->outletpoint);
-    label_qpeaksub->setText(format.arg(QString::number(OutletQpeak.at(j),'f',2)));
-    label_qpeaktime->setText(format.arg(QString::number(OutletQpeaktime.at(j),'f',2)));
-    label_qtotm3sub->setText(format.arg(QString::number(OutletQtot.at(j),'f',2)));
-    label_dischargesub->setText(format.arg(QString::number(OutletQ.at(j)->at(OutletQ.at(j)->length()-1),'f',2)));
+    label_qpeaksub->setText(format.arg(QString::number(op.OutletQpeak.at(j),'f',2)));
+    label_qpeaktime->setText(format.arg(QString::number(op.OutletQpeaktime.at(j),'f',2)));
+    label_qtotm3sub->setText(format.arg(QString::number(op.OutletQtot.at(j),'f',2)));
+    label_dischargesub->setText(format.arg(QString::number(op.OutletQ.at(j)->at(op.OutletQ.at(j)->length()-1),'f',2)));
 
     label_soillosssub->setEnabled(checkDoErosion->isChecked());
     label_94->setEnabled(checkDoErosion->isChecked());
@@ -637,7 +545,7 @@ void lisemqt::showOutputData()
         if (op.MBs > 0)
             label_MBs->setText(" "+label_MBs->text());
 
-        label_soillosssub->setText(format.arg(QString::number(OutletQstot.at(j),'f',dig)));
+        label_soillosssub->setText(format.arg(QString::number(op.OutletQstot.at(j),'f',dig)));
         label_splashdet->setText(format.arg(QString::number(op.DetTotSplash,'f',dig)));
         label_flowdet->setText(format.arg(QString::number(op.DetTotFlow+op.FloodDetTot,'f',dig)));
         label_sedvol->setText(format.arg(QString::number(op.SedTot+op.FloodSedTot,'f',dig)));

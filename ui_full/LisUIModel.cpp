@@ -59,10 +59,6 @@ void lisemqt::runmodel()
     rivers.clear();
     culverts.clear();
     outlets.clear();
-//    op.ChanDataX.clear();
-//    op.ChanDataY.clear();
-//    op.Chanbranch.clear();
-//    op.branches.clear();
 
     //NOTE op.runfilename is set in function openRunFile()
     if (op.runfilename.isEmpty())
@@ -205,11 +201,8 @@ void lisemqt::stopmodel()
 //---------------------------------------------------------------------------
 void lisemqt::worldShow(bool showall)
 {
-
     progressBar->setMaximum(op.maxstep);
     progressBar->setValue(op.runstep);
-
-
 
     startPlots(); // called once using bool startplot
 
@@ -217,8 +210,6 @@ void lisemqt::worldShow(bool showall)
 
     if (!showall)
         return;
-
-    GetPlotData(); // get the plot data from the output structure
 
     SetTextHydrographs(); // show text hydrograph data
 
@@ -300,6 +291,9 @@ void lisemqt::worldDebug(const QString &results)
 //---------------------------------------------------------------------------
 void lisemqt::initOP()
 {
+    op.Pmm.clear();
+    op.Time.clear();
+    op.Qtile.clear();
     op.OutletIndices.clear();
     op.OutletLocationX.clear();
     op.OutletLocationY.clear();
@@ -357,7 +351,7 @@ void lisemqt::initOP()
     op.BeginTime = 0;
     op.MB = 0;
     op.Qtot = 0;
-    op.Qtile = 0;
+    //op.Qtile = 0;
     op.Qtiletot = 0;
     op.RainpeakTime = 0;
     op.RunoffFraction = 0;
@@ -366,7 +360,6 @@ void lisemqt::initOP()
     op.BaseFlowtotmm = 0;
     op.IntercLitterTotmm = 0;
     op.WaterVolTotchannelmm = 0;
-    op.Pmm = 0;
     op.Qtotmm = 0;
     op.IntercTotmm = 0;
     op.IntercHouseTotmm = 0;

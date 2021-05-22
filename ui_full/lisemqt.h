@@ -62,7 +62,7 @@ using namespace QtCharts;
 #include <qwt_plot_zoomer.h>
 #include <qwt_picker.h>
 #include <qwt_symbol.h>
-
+//#include <qwt_axis_id.h>
 
 #include "version.h"
 #include "ui_lisemqt.h"
@@ -175,9 +175,7 @@ public:
     void setupPlot();
     void startPlots();
     void showPlot();
-    void GetPlotData();
     void initPlot();
-    void killPlot();
 
     void initOutputData();
     void showOutputData();
@@ -220,7 +218,7 @@ public:
     QwtPlotSpectrogram *imageMap;
     QwtPlotSpectrogram *outletMap;
     QwtPlot *MPlot;               // plot in which the raster map is drawn
-    QwtMatrixRasterData *RD;
+    QwtMatrixRasterData *RD;      // data for thematic raster maps
     QwtMatrixRasterData *RDb;
     QwtMatrixRasterData *RDbb;
     QwtMatrixRasterData *RDc;
@@ -260,24 +258,24 @@ public:
     QList<int> OutletIndices;
     QList<int> OutletLocationX;
     QList<int> OutletLocationY;
-    QPolygonF samplep;
-    QList<QVector<double>*> OutletQ;
-    QList<QVector<double>*> OutletQs;
-    QList<QVector<double>*> OutletC;
-    QList<QVector<double>*> OutletChannelWH;
-    QVector<double> OutletQpeak;
-    QVector<double> OutletQpeaktime;
-    QVector<double> OutletQtot;
-    QVector<double> OutletQstot;
-    QVector<double> Rainfall;
-    double timestep;
+//    QList<QVector<double>*> OutletQ;
+//    QList<QVector<double>*> OutletQs;
+//    QList<QVector<double>*> OutletC;
+//    QList<QVector<double>*> OutletChannelWH;
+//    QVector<double> OutletQpeak;
+//    QVector<double> OutletQpeaktime;
+//    QVector<double> OutletQtot;
+//    QVector<double> OutletQstot;
+    //QVector<double> Rainfall;
+//    double timestep;
     double mult;
 
     int outletpoint = 1;
 
-    QList<double> qmax;
-    QList<double> qsmax;
-    QList<double> cmax;
+    //max va;ues for each outlet point
+    QVector<double> qmax;
+    QVector<double> qsmax;
+    QVector<double> cmax;
 
     //Map display options
     QList<QwtComboColorMap *> ColorMapList;
@@ -301,13 +299,13 @@ public:
     bool stopplot;
     bool doHouse;
     double yas, yasP, y2as;
-    QVector <double> QData;
-    QVector <double> QtileData;
-    QVector <double> QsData;
-    QVector <double> CData;
-    QVector <double> PData;
-    QVector <double> TData;
-    long stepP;
+//    QVector <double> QData;
+ //   QVector <double> QtileData;
+//    QVector <double> QsData;
+//    QVector <double> CData;
+//    QVector <double> PData;
+//    QVector <double> TData;
+//    long stepP;
 
     bool oldRunfile; // check is old runfile for ksat calibration
     bool saveRunFileOnce; // check is old runfile for ksat calibration

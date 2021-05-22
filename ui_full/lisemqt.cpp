@@ -108,7 +108,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     SetStyleUI();
     // do some style things
 
-    doNewPlot = true;
+    doNewPlot = false;
     if(doNewPlot)
         setupNewPlot();
     else

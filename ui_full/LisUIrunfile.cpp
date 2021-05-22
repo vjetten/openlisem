@@ -699,12 +699,11 @@ void lisemqt::updateModelData()
 //    if(!checkRainfall->isChecked() && !checkSnowmelt->isChecked())
 //        QMessageBox::warning(this,"openLISEM","No rainfall or snowmelt, running on empty!");
 
-
     int days = E_BeginTimeDay->text().split(":")[0].toInt();
     int mins = E_BeginTimeDay->text().split(":")[1].toInt();
     int daye = E_EndTimeDay->text().split(":")[0].toInt();
     int mine = E_EndTimeDay->text().split(":")[1].toInt();
-    qDebug() << days << mins << daye << mine;
+   // qDebug() << days << mins << daye << mine;
     if (mins > 1440) {
        days = mins/1440 + 1;
        mins = mins % 1440;
@@ -713,7 +712,7 @@ void lisemqt::updateModelData()
         daye = mine/1440 + 1;
         mine = mine % 1440;
     }
-    qDebug() << days << mins << daye << mine;
+ //   qDebug() << days << mins << daye << mine;
 
     for (int j = 0; j < nrnamelist; j++)
     {
@@ -724,7 +723,6 @@ void lisemqt::updateModelData()
         if (p1.compare("Include ET")==0)               namelist[j].value.setNum((int)checkIncludeET->isChecked());
         if (p1.compare("Use ET maps")==0)              namelist[j].value.setNum((int)radioETsatfile->isChecked());
         //if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
-
 
         if (p1.compare("Nr user Cores")==0) namelist[j].value.setNum(nrUserCores->value());
         // erosion
@@ -738,7 +736,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkChannelInflow->isChecked());
 
         if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkFlowBarriers->isChecked());
-        if (p1.compare("Include buffers")==0)          namelist[j].value.setNum((int) checkBuffers->isChecked());
+        if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int) checkBuffers->isChecked());
         if (p1.compare("Flow barrier table filename")==0)    namelist[j].value = line_FlowBarriers->text();
 
         if (p1.compare("Include litter interception")==0)    namelist[j].value.setNum((int)checkIncludeLitter->isChecked());
@@ -750,10 +748,10 @@ void lisemqt::updateModelData()
             if (checkOverlandFlow2Ddyn->isChecked())  namelist[j].value = "3";
             if (checkOverlandFlow2Dkindyn->isChecked())  namelist[j].value = "4";
         }
-        if (p1.compare("Flow Boundary 2D")==0)        namelist[j].value = E_FlowBoundary->text();
+        if (p1.compare("Flow Boundary 2D")==0)               namelist[j].value = E_FlowBoundary->text();
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
-        if (p1.compare("Use gravity flow")==0)           namelist[j].value = E_gravityToChannel->text();
-        if (p1.compare("Angle flow to channel")==0)      namelist[j].value = E_angleToChannel->text();
+        if (p1.compare("Use gravity flow")==0)               namelist[j].value = E_gravityToChannel->text();
+        if (p1.compare("Angle flow to channel")==0)          namelist[j].value = E_angleToChannel->text();
         if (p1.compare("Include diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();

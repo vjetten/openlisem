@@ -14149,7 +14149,7 @@ p, li { white-space: pre-wrap; }
               </attribute>
               <layout class="QGridLayout" name="gridLayout_16">
                <item row="2" column="0" colspan="2">
-                <widget class="QLabel" name="label_88">
+                <widget class="QLabel" name="label_headerTextGraph">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -14158,6 +14158,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="font">
                   <font>
+                   <family>Consolas</family>
                    <pointsize>8</pointsize>
                    <weight>50</weight>
                    <bold>false</bold>
@@ -14167,7 +14168,7 @@ p, li { white-space: pre-wrap; }
                   <bool>false</bool>
                  </property>
                  <property name="text">
-                  <string>  time (min)        P (mm/h)      Q (l/s)         ChanWH (m)    Qsed (kg/s)     Conc (g/l)</string>
+                  <string>Point      time (min)        P (mm/h)      Q (l/s)         ChanWH (m)    Qsed (kg/s)     Conc (g/l)</string>
                  </property>
                  <property name="margin">
                   <number>0</number>
@@ -14184,6 +14185,14 @@ p, li { white-space: pre-wrap; }
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Consolas</family>
+                   <pointsize>8</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
                  </property>
                  <property name="verticalScrollBarPolicy">
                   <enum>Qt::ScrollBarAlwaysOn</enum>

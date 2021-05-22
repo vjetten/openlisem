@@ -75,9 +75,10 @@ void TWorld::OutputUI(void)
 
     op.timestep = this->_dt/60.0;
 
-    op.t = time_ms.elapsed()*0.001/60.0;
+    op.t = time_ms.elapsed()*0.001/60.0;    
     op.t = omp_get_wtime()/60.0 - startTime;
     op.time = time/60;
+    op.Time.append(time/60);
     op.maxtime = op.t/runstep * op.maxstep;
     op.dx = _dx;
     op.runstep = runstep;
@@ -85,7 +86,7 @@ void TWorld::OutputUI(void)
     op.EndTime = EndTime/60.0;
     op.CatchmentArea = CatchmentArea;
 
-    op.Pmm = (RainAvgmm + SnowAvgmm)*3600/_dt;
+    op.Pmm.append((RainAvgmm + SnowAvgmm)*3600/_dt);
     op.RainTotmm = RainTotmm + SnowTotmm;
     op.RainpeakTime = RainpeakTime/60;
     op.Rainpeak = Rainpeak;
@@ -115,59 +116,64 @@ void TWorld::OutputUI(void)
     op.Qtot = Qtot; // all outflow through channel and runoff for all open and outlets boundaries
 
     op.floodBoundaryTot = floodBoundaryTot;
-    op.Qtile = QTiletot*1000.0/_dt;  //average tile output over all tile outlets as a flox in l/s
+    if (SwitchIncludeStormDrains || SwitchIncludeTile)
+        op.Qtile.append(QTiletot*1000.0/_dt);  //average tile output over all tile outlets as a flox in l/s
     op.Qtiletot = QTiletot;  //average tile output over all tile outlets as a flux in m3/s
     op.MB = MB;
 
-    op.MBs = MBs;
-    op.DetTotSplash = DetSplashTot*0.001; // convert from kg to ton per cell
-    op.DetTotFlow = DetFlowTot*0.001;// + FloodDetTot*0.001; // convert from kg to ton
-    op.DepTot = DepTot*0.001;// + FloodDepTot*0.001; // convert from kg to ton
-    op.SedTot = SedTot*0.001;// + FloodSedTot*0.001; // convert from kg to ton
+    if (SwitchErosion) {
+        op.MBs = MBs;
+        op.DetTotSplash = DetSplashTot*0.001; // convert from kg to ton per cell
+        op.DetTotFlow = DetFlowTot*0.001;// + FloodDetTot*0.001; // convert from kg to ton
+        op.DepTot = DepTot*0.001;// + FloodDepTot*0.001; // convert from kg to ton
+        op.SedTot = SedTot*0.001;// + FloodSedTot*0.001; // convert from kg to ton
 
-    op.ChannelDetTot = ChannelDetTot*0.001; // convert from kg to ton
-    op.ChannelDepTot = ChannelDepTot*0.001; // convert from kg to ton
-    op.ChannelSedTot = ChannelSedTot*0.001; // convert from kg to ton
+        op.ChannelDetTot = ChannelDetTot*0.001; // convert from kg to ton
+        op.ChannelDepTot = ChannelDepTot*0.001; // convert from kg to ton
+        op.ChannelSedTot = ChannelSedTot*0.001; // convert from kg to ton
 
-    op.FloodDepTot = FloodDepTot*0.001;
-    op.FloodDetTot = FloodDetTot*0.001;
-    op.FloodSedTot = FloodSedTot*0.001;
-    op.SoilLossTot = (SoilLossTot)*0.001; // convert from kg to ton
-    op.floodBoundarySedTot = floodBoundarySedTot; // not used
+        op.FloodDepTot = FloodDepTot*0.001;
+        op.FloodDetTot = FloodDetTot*0.001;
+        op.FloodSedTot = FloodSedTot*0.001;
+        op.SoilLossTot = (SoilLossTot)*0.001; // convert from kg to ton
+        op.floodBoundarySedTot = floodBoundarySedTot; // not used
 
-//    if (noInterface)
-//        return;
+        op.OutletQs.at(0)->append(SoilLossTotT);
+        op.OutletC.at(0)->append(QtotT > MIN_FLUX? SoilLossTotT/QtotT : 0);
+        op.OutletQstot.replace(0,SoilLossTot/1000.0);
+    }
     //hydrographs
 
+    // outlet 0 all flow
     op.OutletQ.at(0)->append(QtotT * 1000.0/_dt); //QtotT is in m3
-    op.OutletQs.at(0)->append(SoilLossTotT);
-    op.OutletC.at(0)->append(QtotT > MIN_FLUX? SoilLossTotT/QtotT : 0);
     op.OutletQtot.replace(0,Qtot);
-    op.OutletQstot.replace(0,SoilLossTot/1000.0);
+    // total channel waterheightt? makes no sense
+//    double channelwh = 0;
+//    if(SwitchIncludeChannel) {
+//        FOR_ROW_COL_LDDCH5 {
+//                channelwh += ChannelWH->Drc;
+//        }}
+//    }
+    op.OutletChannelWH.at(0)->append(0);
 
-
-    double channelwh = 0;
-    if(SwitchIncludeChannel) {
-        FOR_ROW_COL_LDDCH5 {
-                channelwh += ChannelWH->Drc;
-        }}
-    }
-    op.OutletChannelWH.at(0)->append(channelwh);
     for(int j = 1; j < op.OutletIndices.length(); j++)
     {
         int r = op.OutletLocationX.at(j);
         int c = op.OutletLocationY.at(j);
         double discharge = Qoutput->Drc; //sum of current Qn, ChannelQn, Qflood in l/s, not Tile!
-        double sedimentdischarge = SwitchErosion? Qsoutput->Drc  : 0.0; // in kg/s   * _dt
-        double sedimentconcentration = SwitchErosion? TotalConc->Drc : 0.0;
         double channelwh = SwitchIncludeChannel? ChannelWH->Drc : 0.0;
+        op.OutletChannelWH.at(j)->append(std::isnan(channelwh)?0.0:channelwh);
 
         op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * discharge/1000.0); //cumulative in m3/s
-        op.OutletQstot.replace(j,op.OutletQstot.at(j) + sedimentdischarge/1000.0);
         op.OutletQ.at(j)->append(discharge);
-        op.OutletQs.at(j)->append(sedimentdischarge);
-        op.OutletC.at(j)->append(sedimentconcentration);
-        op.OutletChannelWH.at(j)->append(std::isnan(channelwh)?0.0:channelwh);
+
+        if (SwitchErosion) {
+            double sedimentdischarge = SwitchErosion? Qsoutput->Drc  : 0.0; // in kg/s   * _dt
+            double sedimentconcentration = SwitchErosion? TotalConc->Drc : 0.0;
+            op.OutletQstot.replace(j,op.OutletQstot.at(j) + sedimentdischarge/1000.0);
+            op.OutletQs.at(j)->append(sedimentdischarge);
+            op.OutletC.at(j)->append(sedimentconcentration);
+        }
 
     }
 

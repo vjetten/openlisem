@@ -58,6 +58,9 @@ struct output{
     QVector<double> OutletQpeaktime;
     QVector<double> OutletQtot;
     QVector<double> OutletQstot;
+    QVector<double> Pmm;
+    QVector<double> Time;
+    QVector <double> Qtile;
 
 //    QVector <double> ChanDataX;
 //    QVector <double> ChanDataY;
@@ -73,9 +76,9 @@ struct output{
 
     double
     // water
-    MB, Qtot,  Qtile, Qtiletot, RunoffFraction, RainpeakTime, Rainpeak,
+    MB, Qtot,  Qtiletot, RunoffFraction, RainpeakTime, Rainpeak,
     Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm,InfilTotmm,StormDrainTotmm,
-    RainTotmm, SurfStormm, InfilKWTotmm, Pmm, BaseFlowtotmm,IntercLitterTotmm,WaterVolTotchannelmm,
+    RainTotmm, SurfStormm, InfilKWTotmm,  BaseFlowtotmm,IntercLitterTotmm,WaterVolTotchannelmm,
     floodBoundaryTot, floodBoundarySedTot,
     // channel
     ChannelVolTotmm, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH,
