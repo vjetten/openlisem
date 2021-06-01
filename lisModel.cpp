@@ -49,6 +49,18 @@ TWorld::~TWorld()
 {
 }
 //---------------------------------------------------------------------------
+void TWorld::run()
+{
+    QTimer::singleShot(0, this, SLOT(DoModel()));
+    exec();
+}
+//---------------------------------------------------------------------------
+void TWorld::stop()
+{
+    QMutexLocker locker(&mutex);
+    stopRequested = true;
+}
+//---------------------------------------------------------------------------
 void TWorld::saveMBerror2file(bool doError, bool start)
 {
     if (doError && start) {
@@ -97,7 +109,6 @@ void TWorld::saveMBerror2file(bool doError, bool start)
     }
 
 }
-
 //---------------------------------------------------------------------------
 // the actual model with the main loop
 void TWorld::DoModel()
@@ -286,21 +297,29 @@ void TWorld::DoModel()
 //        }
     }
 }
-
+//---------------------------------------------------------------------------
 void TWorld::CellProcesses()
 {
     if (SwitchRainfallSatellite)
-        GetRainfallSatMap();         // get rainfall from table
+        GetRainfallSatMap();         // get rainfall from maps
     else
-        GetRainfallMap();         // get rainfall from maps
+        GetRainfallMap();         // get rainfall from stations
 
     if (SwitchIncludeET) {
         if (SwitchETSatellite)
-            GetETSatMap();
+            GetETSatMap(); // get rainfall from maps
+        else
+            GetETMap();   // get rainfall from stations
+    }
+    if (SwitchSnowmelt) {
+        if (SwitchSnowmeltSatellite)
+            ; //TODO snowmelt satellite
+        else
+            GetSnowmeltMap();  // get snowmelt from stations
     }
 
-
-    GetSnowmeltMap();         // get snowmelt
+    if (SwitchIncludeET)
+        doETa(); // ETa is subtracted from canopy, soil water surfaces
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -379,8 +398,7 @@ void TWorld::CellProcesses()
 //    SplashDetachment();    // splash detachment
 
 }
-
-
+//---------------------------------------------------------------------------
 // these are all non-threaded
 void TWorld::OrderedProcesses()
 {
@@ -395,6 +413,5 @@ void TWorld::OrderedProcesses()
     TileFlow();          // tile drain flow kin wave
 
     StormDrainFlow();    // storm drain flow kin wave
-
 }
 

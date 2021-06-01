@@ -66,7 +66,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setMinimumSize(1280,800);
     showMaximized();
 
-    darkLISEM = false;
+    darkLISEM = false;//true;
 
     nrUserCores->setMaximum(omp_get_max_threads());
 

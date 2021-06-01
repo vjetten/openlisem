@@ -173,7 +173,7 @@ void TWorld::GetETMap(void)
 {
     double currenttime = (time)/60;
     int  ETplace;
-    double tt = 3600000.0;
+    double tt = _dt/3600000.0;  //mm/h =>m/timestep
     bool noET = false;
     bool sameET= false;
 
@@ -211,7 +211,7 @@ void TWorld::GetETMap(void)
         if (!sameET) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                ETa->Drc = ETSeriesM[currentrow].intensity[(int) ETZone->Drc-1]*_dt/tt;
+                ETa->Drc = ETSeriesM[currentrow].intensity[(int) ETZone->Drc-1]*tt;
             }}
         }
     }
@@ -222,7 +222,7 @@ void TWorld::GetETSatMap(void)
 {
     double currenttime = (time)/60;
     int  ETplace;
-    double tt = 3600000.0;
+    double tt = _dt/3600000.0;
     bool noET = false;
     bool sameET= false;
 
@@ -238,7 +238,7 @@ void TWorld::GetETSatMap(void)
     // if time is outside records then use map with zeros
     if (currenttime < ETSeriesMaps[0].time || currenttime > ETSeriesMaps[nrETseries-1].time) {
         noET = true;
-        DEBUG("run time outside rainfall records");
+        DEBUG("run time outside ET records");
     }
 
     if (noET) {
@@ -270,7 +270,7 @@ void TWorld::GetETSatMap(void)
                     ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+ETSeriesMaps[ETplace].name;
                     throw 1;
                 } else {
-                    ETa->Drc = _M->Drc *_dt/tt;
+                    ETa->Drc = _M->Drc *tt;
                 }
             }}
         }
@@ -280,11 +280,29 @@ void TWorld::GetETSatMap(void)
 //---------------------------------------------------------------------------
 void TWorld::doETa()
 {
+
+    if (SwitchDailyET) {
+        //double PI = 3.14159;
+        double ETafactor = 0;
+        double day = trunc(time/(86400));
+        double hour = time/3600.0-day*24.0;
+        double declination = -23.45 * PI/180.0 * cos(2*M_PI*(day+10)/365.0);
+        double Ld = 24.0/M_PI*(acos(-tan(declination)*tan(latitude/180.0*M_PI)));  // daylength in hour
+
+        ETafactor = std::max(0.,sin((-0.5-hour/Ld)*M_PI)) / Ld*_dt/3600.0*M_PI*0.5;
+            //<= this ensures that the sum of all steps in a day amounts to the daily ET, regardless of _dt
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            ETa->Drc *= ETafactor;
+        }}
+    }
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double tot = 0;
         double tmp = 0;
-        double ETp = 5.0/(12.0*3600.0) * 0.001 *_dt;  //5m/day in m per dt
+        double ETp = ETa->Drc;
         ETp = Rain->Drc > 0 ? 0.0 : ETp;
 
         double ETa_soil = hmxWH->Drc > 0 ? 0.0: ThetaI1->Drc/ThetaS1->Drc * ETp;
@@ -336,3 +354,22 @@ void TWorld::doETa()
     }}
 }
 
+
+// declination = -23.45 * PI/180 * cos(2*PI*(day+10)/365);
+//# day length Ld in hours
+//Ld = 24/PI*scalar(acos(-tan(declination)*tan(latitude/180*PI)));
+
+
+//0.0000
+//0.1022
+//0.1975
+//0.2793
+//0.3420
+//0.3815
+//0.3950
+//0.3815
+//0.3420
+//0.2793
+//0.1975
+//0.1022
+//0.0000

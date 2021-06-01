@@ -99,6 +99,8 @@ void lisemqt::setupPlot()
 
     QGraph->setPen(pen1);
     QGraph->setAxes(HPlot->xBottom, *axisYL1);// HPlot->yLeft);
+    QGraph->setAxes(HPlot->xBottom, *axisYL1);// HPlot->yLeft);
+
 
     PGraph->setPen(pen2);
     PGraph->setAxes(HPlot->xBottom, *axisYR1);// HPlot->yRight);
@@ -124,8 +126,6 @@ void lisemqt::setupPlot()
 //    QsGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
 //    CGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
 
-    HPlot->setCanvasBackground(QBrush(Qt::white));
-
     // set axes
     HPlot->enableAxis(HPlot->yRight,true);
     HPlot->enableAxis(HPlot->yLeft,true);
@@ -134,15 +134,16 @@ void lisemqt::setupPlot()
 
     HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
     HPlot->setAxisTitle(*axisYR1, "P (mm/h)");
-    multiplierRain->setValue(0);
 
-//    HPlot->setAxisScale(HPlot->yRight, 0, 1);
-//    HPlot->setAxisScale(HPlot->yLeft, 0, 1);
-//    HPlot->setAxisScale(HPlot->xBottom, 0, 100);
     HPlot->setAxisAutoScale(*axisYL1,true);
     HPlot->setAxisAutoScale(*axisYL2,true);
     HPlot->setAxisAutoScale(*axisYR1,true);
     HPlot->setAxisAutoScale(*axisYR2,true);
+
+    if (darkLISEM)
+        HPlot->setCanvasBackground(QBrush("#777777"));
+    else
+        HPlot->setCanvasBackground(QBrush(Qt::white));
     // set gridlines
     QwtPlotGrid *grid = new QwtPlotGrid();
     col.setRgb( 180,180,180,180 );
@@ -237,18 +238,9 @@ void lisemqt::initPlot()
     {
         QsGraph->attach(HPlot);
         CGraph->attach(HPlot);
-//        PGraph->setAxes(HPlot->xBottom, HPlot->yLeft);
-//        QsGraph->setAxes(HPlot->xBottom, HPlot->yRight);
-//        CGraph->setAxes(HPlot->xBottom, HPlot->yRight);
-//        HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s) - P (mm/h)");
-//        HPlot->setAxisTitle(HPlot->yRight, "Qs (kg/s) - C (g/l)");
+
         HPlot->setAxesCount(QwtPlot::yLeft, 2);
         HPlot->setAxesCount(QwtPlot::yRight, 2);
-
-//        HPlot->enableAxis(*axisYL1,true);
-//        HPlot->enableAxis(*axisYL2,true);
-//        HPlot->enableAxis(*axisYR1,true);
-//        HPlot->enableAxis(*axisYR2,true);
 
         QGraph->setAxes(HPlot->xBottom, *axisYL1);
         PGraph->setAxes(HPlot->xBottom, *axisYL2);
@@ -264,10 +256,6 @@ void lisemqt::initPlot()
     {
         QsGraph->detach();
         CGraph->detach();
-    //    PGraph->setAxes(HPlot->xBottom, HPlot->yRight);
-    //    HPlot->setAxisTitle(HPlot->yLeft, "Q (l/s)");
-//        QsGraph->setAxes(HPlot->xBottom, *axisYR1);
-//        CGraph->setAxes(HPlot->xBottom, *axisYR2);
 
         QGraph->setAxes(HPlot->xBottom, *axisYL1);
         PGraph->setAxes(HPlot->xBottom, *axisYR1);
@@ -277,20 +265,12 @@ void lisemqt::initPlot()
         HPlot->setAxisTitle(*axisYR1, "P (mm/h)");
     }
 
+    // redraw legend with nr of variables
     QwtLegend *legend = new QwtLegend(HPlot);
     legend->setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
     HPlot->insertLegend(legend, QwtPlot::BottomLegend);
     //legend
 
-}
-//---------------------------------------------------------------------------
-void lisemqt::on_multiplierRain_valueChanged(double)
-{
-    double mult = qPow(10.0, multiplierRain->value());
-    if(multiplierRain->value() > 0)
-        HPlot->setAxisTitle(HPlot->yLeft, QString("Q (l/s) - P (%1 mm/h)").arg(1/mult));
-    else
-        HPlot->setAxisTitle(HPlot->yLeft, QString("Q (l/s) - P (mm/h)"));
 }
 //---------------------------------------------------------------------------
 void lisemqt::showPlot()
@@ -319,10 +299,6 @@ void lisemqt::startPlots()
     if (!startplot)
         return;
 
-    yas = 0.1;
-    yasP = 0;
-    y2as = 0.1;
-
     if (doNewPlot) {
         qmax.clear();
         qsmax.clear();
@@ -346,7 +322,7 @@ void lisemqt::startPlots()
     outletpoint = 1;
     spinBoxPointtoShow->setValue(1);
     spinBoxPointtoShow->setMaximum(OutletIndices.at(OutletIndices.length()-1));
-    label_hydroCount->setText(QString("Hydrograph Point (0, 1-%1)").arg(OutletIndices.count()-1));
+    label_hydroCount->setText(QString("Output all (0) or point (1-%1)").arg(OutletIndices.count()-1));
 
     if (outletpoint > 0)
     {
@@ -364,8 +340,6 @@ void lisemqt::startPlots()
         else
             HPlot->setTitle(QString("Combined hydrograph domain outflow"));
     }
-    // VJ 110630 show hydrograph for selected output point
-
 }
 
 //---------------------------------------------------------------------------

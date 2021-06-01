@@ -157,6 +157,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use Rainfall maps")==0)             Rainmaps = check;
         if (p1.compare("Include ET")==0)                    checkIncludeET->setChecked(check);
         if (p1.compare("Use ET maps")==0)                   ETmaps = check;
+        if (p1.compare("Daily ET")==0)                      checkIncludeET->setChecked(check);
         //if (p1.compare("Include Snowmelt")==0)               checkSnowmelt->setChecked(check);
 
         if (p1.compare("Nr user Cores")==0) nrUserCores->setValue(iii);
@@ -722,6 +723,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Use Rainfall maps")==0)        namelist[j].value.setNum((int)radioRainSatFile->isChecked());
         if (p1.compare("Include ET")==0)               namelist[j].value.setNum((int)checkIncludeET->isChecked());
         if (p1.compare("Use ET maps")==0)              namelist[j].value.setNum((int)radioETsatfile->isChecked());
+        if (p1.compare("Daily ET")==0)                 namelist[j].value.setNum((int)checkIncludeET->isChecked());
         //if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
 
         if (p1.compare("Nr user Cores")==0) namelist[j].value.setNum(nrUserCores->value());

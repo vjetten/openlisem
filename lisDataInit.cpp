@@ -432,6 +432,7 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
     qDebug() << time_ms.elapsed()*0.001/60;
 */
 
+    // get calibration parameters
     gsizeCalibration = getvaluedouble("Grain Size calibration");
     ksatCalibration = getvaluedouble("Ksat calibration");
     nCalibration = getvaluedouble("N calibration");

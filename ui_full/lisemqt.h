@@ -302,14 +302,6 @@ public:
     bool startplot = true;
     bool stopplot;
     bool doHouse;
-    double yas, yasP, y2as;
-//    QVector <double> QData;
- //   QVector <double> QtileData;
-//    QVector <double> QsData;
-//    QVector <double> CData;
-//    QVector <double> PData;
-//    QVector <double> TData;
-//    long stepP;
 
     bool oldRunfile; // check is old runfile for ksat calibration
     bool saveRunFileOnce; // check is old runfile for ksat calibration
@@ -461,7 +453,6 @@ public slots:
     void on_ComboMaxSpinBox_valueChanged(double);
     void on_ComboMinSpinBox2_valueChanged(double);
     void on_ComboMaxSpinBox2_valueChanged(double);
-    void on_multiplierRain_valueChanged(double);
     void onImageToggled(bool b);
 
     void setErosionMapOutput(bool doit);

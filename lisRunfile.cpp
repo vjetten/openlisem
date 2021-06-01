@@ -188,6 +188,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use Rainfall maps")==0)        SwitchRainfallSatellite = iii == 1;
         if (p1.compare("Include ET")==0)               SwitchIncludeET = iii == 1;
         if (p1.compare("Use ET maps")==0)              SwitchETSatellite = iii == 1;
+        if (p1.compare("Daily ET")==0)                 SwitchDailyET = iii == 1;
 
        // qDebug() << p1 << p << iii;
         //options in the main code, order is not important

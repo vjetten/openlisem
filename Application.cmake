@@ -65,6 +65,7 @@ SET(APP_SOURCES
     lisRainintc
     lisDischargein
     lisReportfile
+    lisReportmaps
     lisRunfile
     lisSnowmelt
     lisSurfstor
