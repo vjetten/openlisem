@@ -895,6 +895,9 @@ void lisemqt::SetStyleUI()
     checkDoErosion->setStyleSheet("QCheckBox {color: #4477aa;}");
     checkSed2Phase->setStyleSheet("QCheckBox {color: #4477aa;}");
     label_55->setStyleSheet("QLabel {color: #4477aa;}");
+    label_9->setStyleSheet("QLabel {color: #4477aa;}");
+    label_10->setStyleSheet("QLabel {color: #4477aa;}");
+    label_11->setStyleSheet("QLabel {color: #4477aa;}");
 
     // interface elements that are not visible for now
     frameSpare->setVisible(false);
@@ -2003,6 +2006,11 @@ void lisemqt::on_toolButton_help8_clicked()
     on_toolButton_help(8);
 }
 //---------------------------------------------------------------
+void lisemqt::on_toolButton_help1a_clicked()
+{
+    on_toolButton_help(6);
+}
+//---------------------------------------------------------------
 void lisemqt::on_toolButton_help(int page)
 {
     QString filename;
@@ -2011,7 +2019,7 @@ void lisemqt::on_toolButton_help(int page)
     if (page == 3) filename=":/help3.html";
     if (page == 4) filename=":/help4.html";
     if (page == 5) filename=":/help5.html";
-    //if (page == 6) filename=":/help6.html";
+    if (page == 6) filename=":/help6.html";
     if (page == 7) filename=":/help7.html";
     if (page == 8) filename=":/help8.html";
     QFile file(filename);
@@ -2270,3 +2278,5 @@ void lisemqt::on_E_BeginTimeDay_returnPressed()
        }
        E_BeginTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
 }
+
+

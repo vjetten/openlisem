@@ -908,9 +908,9 @@ void TWorld::ReportMapSeries(void)
 
     if (SwitchOutTheta) {
         if (InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE) {
-            report(*ThetaI1, OutTheta1); //in l/s
+            report(*ThetaI1, OutTheta1);
             if (SwitchTwoLayer)
-                report(*ThetaI2, OutTheta2); //in l/s
+                report(*ThetaI2, OutTheta2);
         }
     }
 
@@ -1220,13 +1220,13 @@ void TWorld::setupHydrographData()
 
 void TWorld::ClearHydrographData()
 {
-    for(int i =op.OutletIndices.length() - 1; i >-1 ; i--)
-    {
-        delete op.OutletQ.at(i);
-        delete op.OutletQs.at(i);
-        delete op.OutletC.at(i);
-        delete op.OutletChannelWH.at(i);
-    }
+//    for(int i =op.OutletIndices.length() - 1; i >-1 ; i--)
+//    {
+//        delete op.OutletQ.at(i);
+//        delete op.OutletQs.at(i);
+//        delete op.OutletC.at(i);
+//        delete op.OutletChannelWH.at(i);
+//    }
 
     op.OutletIndices.clear();
     op.OutletLocationX.clear();

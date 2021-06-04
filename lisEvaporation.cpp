@@ -193,7 +193,7 @@ void TWorld::GetETMap(void)
     if (noET) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            ETa->Drc = 0;
+            ETp->Drc = 0;
         }}
     } else {
         // find current record
@@ -211,7 +211,7 @@ void TWorld::GetETMap(void)
         if (!sameET) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                ETa->Drc = ETSeriesM[currentrow].intensity[(int) ETZone->Drc-1]*tt;
+                ETp->Drc = ETSeriesM[currentrow].intensity[(int) ETZone->Drc-1]*tt;
             }}
         }
     }
@@ -222,14 +222,14 @@ void TWorld::GetETSatMap(void)
 {
     double currenttime = (time)/60;
     int  ETplace;
-    double tt = _dt/3600000.0;
+    double tt = _dt/86400.0*0.001; // mm/day to m / timestep
     bool noET = false;
     bool sameET= false;
 
-    if (!SwitchIncludeET)
-        return;
-    if (!SwitchETSatellite)
-        return;
+//    if (!SwitchIncludeET)
+//        return;
+//    if (!SwitchETSatellite)
+//        return;
 
     // from time t to t+1 the ET is the ET of t
 
@@ -244,7 +244,7 @@ void TWorld::GetETSatMap(void)
     if (noET) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            ETa->Drc = 0;
+            ETp->Drc = 0;
         }}
     } else {
         // find current record
@@ -257,9 +257,9 @@ void TWorld::GetETSatMap(void)
 
         if (currentrow == currentETrow && ETplace > 0)
             sameET = true;
-
         // get the next map from file
         if (!sameET) {
+
             auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(ETSeriesMaps[ETplace].name)));
 
             #pragma omp parallel for num_threads(userCores)
@@ -270,7 +270,7 @@ void TWorld::GetETSatMap(void)
                     ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+ETSeriesMaps[ETplace].name;
                     throw 1;
                 } else {
-                    ETa->Drc = _M->Drc *tt;
+                    ETp->Drc = _M->Drc *tt;
                 }
             }}
         }
@@ -280,96 +280,100 @@ void TWorld::GetETSatMap(void)
 //---------------------------------------------------------------------------
 void TWorld::doETa()
 {
-
+    double ETafactor = 1;
+    double Ld = 12;
     if (SwitchDailyET) {
-        //double PI = 3.14159;
-        double ETafactor = 0;
         double day = trunc(time/(86400));
         double hour = time/3600.0-day*24.0;
         double declination = -23.45 * PI/180.0 * cos(2*M_PI*(day+10)/365.0);
-        double Ld = 24.0/M_PI*(acos(-tan(declination)*tan(latitude/180.0*M_PI)));  // daylength in hour
-
+        Ld = 24.0/M_PI*(acos(-tan(declination)*tan(latitude/180.0*M_PI)));  // daylength in hour
         ETafactor = std::max(0.,sin((-0.5-hour/Ld)*M_PI)) / Ld*_dt/3600.0*M_PI*0.5;
             //<= this ensures that the sum of all steps in a day amounts to the daily ET, regardless of _dt
-
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            ETa->Drc *= ETafactor;
-        }}
     }
+    // sum of ETafactor during Ld is always 1, so ETp is devided with a sine curve over daylength Ld
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double tot = 0;
         double tmp = 0;
-        double ETp = ETa->Drc;
-        ETp = Rain->Drc > 0 ? 0.0 : ETp;
+        double _ETp = ETp->Drc * ETafactor*24/Ld;
+        double _Cover = Cover->Drc;
+        bool ponded = hmxWH->Drc > 0;
+        double _hardsurf = 0;
 
-        double ETa_soil = hmxWH->Drc > 0 ? 0.0: ThetaI1->Drc/ThetaS1->Drc * ETp;
-        ETa_soil *= Cover->Drc;
-        double moist = ThetaI1->Drc * SoilDepth1->Drc;
+        // no ET on hardsurfaces
+        if (SwitchHardsurface)
+            _hardsurf = HardSurface->Drc;
+        if (SwitchHouses)
+            _hardsurf += HouseCover->Drc;
+        if (SwitchRoadsystem)
+            _hardsurf += RoadWidthDX->Drc/_dx;
+        _hardsurf = std::min(1.0,_hardsurf);
+
+        // soil moisture transpiration covered surface
+        double theta_e = Thetaeff->Drc/ThetaS1->Drc;
+        double f = 1+qPow(theta_e/0.5,6.0);
+        //qDebug() << 1-1/f << _ETp << theta_e;
+        double ETa_soil1 = ponded ? 0.0: (1.0-1.0/f) * _ETp  * _Cover;
+        //double ETa_soil1 = ponded ? 0.0: theta_e * _ETp  * _Cover;
+        double ETa_soil2 = ponded ? 0.0: theta_e * _ETp * (1-_Cover);
+
+        tma->Drc = ETa_soil1;
+        tmb->Drc = ETa_soil2;
+
+        // soil moisture evaporation bare surface
+        double moist = Thetaeff->Drc * SoilDepth1->Drc;
         tmp = moist;
-        moist = std::max(0.0, moist - ETa_soil);
+      //  qDebug() << moist << ETa_soil1 << _ETp << "a";
+        moist = std::max(0.0, moist - (ETa_soil1 + ETa_soil2)*(1.0-_hardsurf));
+     //   qDebug() << moist << "b";
         tmp = tmp - moist;
-        ThetaI1->Drc = moist/SoilDepth1->Drc;
+        Thetaeff->Drc = moist/SoilDepth1->Drc;
         tot = tot + tmp;
 
-        double ETa_int = Cover->Drc * ETp;
-        tmp = CStor->Drc;
-        CStor->Drc = std::max(0.0, CStor->Drc-ETa_int);
-        RainCum->Drc = std::max(0.0, RainCum->Drc-ETa_int);
-        tmp = tmp - CStor->Drc;
-        Interc->Drc =  Cover->Drc * CStor->Drc * SoilWidthDX->Drc * DX->Drc;
-        tot = tot + tmp;
-
-        double ETa_pond = hmxWH->Drc > 0 ? ETp : 0.0;
-        if (FloodDomain->Drc > 0) {
-            tmp = hmx->Drc;
-            hmx->Drc = std::max(0.0, hmx->Drc-ETa_pond );
-            tmp = tmp - hmx->Drc;
-//            FloodWaterVol->Drc = hmx->Drc*CHAdjDX->Drc;
-//            hmxWH->Drc = hmx->Drc;   //hmxWH is all water
-//            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+        // interception decrease, drying out canopy
+        if (_Cover > 0) {
+            double ETa_int = _Cover * _ETp;
+            tmp = CStor->Drc;
+            CStor->Drc = std::max(0.0, CStor->Drc-ETa_int);
+            RainCum->Drc = std::max(0.0, RainCum->Drc-ETa_int);
+            tmp = tmp - CStor->Drc;
+          //  Interc->Drc = _Cover * CStor->Drc * SoilWidthDX->Drc * DX->Drc;
+            tot = tot + tmp;
         }
-        else {
-            tmp = WHrunoff->Drc;
-            WHrunoff->Drc = std::max(0.0, WHrunoff->Drc-ETa_pond );
-            tmp = tmp - WHrunoff->Drc;
-            WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-            WHroad->Drc = WHrunoff->Drc;
-            //WHGrass->Drc = WHrunoff->Drc;
-            WH->Drc = WHrunoff->Drc + WHstore->Drc;
-//            hmxWH->Drc = WH->Drc;
-//            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
-//            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
-        }
-        tot = tot + tmp;
 
+        // ETa = ETp for ponded surfaces
+//        if (ponded) {
+//            double ETa_pond = _ETp;
+//            if (FloodDomain->Drc > 0) {
+//                tmp = hmx->Drc;
+//                hmx->Drc = std::max(0.0, hmx->Drc-ETa_pond );
+//                tmp = tmp - hmx->Drc;
+//            }
+//            else {
+//                tmp = WHrunoff->Drc;
+//                double _WHRunoff = WHrunoff->Drc;
+//                double FPA = 1.0;
+//                if (RR->Drc > 0.1)
+//                    FPA =  1-exp(-1.875*(_WHRunoff/(0.01*RR->Drc)));
+//                _WHRunoff = std::max(0.0, _WHRunoff-ETa_pond*FPA);
+//                tmp = tmp - _WHRunoff;
+//                WaterVolall->Drc = _WHRunoff*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+//                WHroad->Drc = _WHRunoff;
+//                //WHGrass->Drc = WHrunoff->Drc;
+//                WH->Drc = _WHRunoff + WHstore->Drc;
+//                WHrunoff->Drc = _WHRunoff;
+//            }
+//            tot = tot + tmp;
+//        }
+
+        // put total Eta in Eta map
         ETa->Drc = tot;
         ETaCum->Drc += tot;
-
-//TODO fpa
-
-
     }}
+//    report(*Thetaeff,"ti");
+//    report(*tma,"ta");
+//    report(*tmb,"tb");
+//    report(*ETp,"ETp");
 }
 
-
-// declination = -23.45 * PI/180 * cos(2*PI*(day+10)/365);
-//# day length Ld in hours
-//Ld = 24/PI*scalar(acos(-tan(declination)*tan(latitude/180*PI)));
-
-
-//0.0000
-//0.1022
-//0.1975
-//0.2793
-//0.3420
-//0.3815
-//0.3950
-//0.3815
-//0.3420
-//0.2793
-//0.1975
-//0.1022
-//0.0000

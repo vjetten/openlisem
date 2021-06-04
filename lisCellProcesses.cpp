@@ -243,55 +243,13 @@ void TWorld::cell_Interception(int r, int c)
 
 void TWorld::do_CellProcesses()
 {
-      GetRainfallMap();         // get rainfall from table or mpas
+      GetRainfallMapfromStations();         // get rainfall from table or mpas
       GetSnowmeltMap();         // get snowmelt
 
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
         if (SwitchRainfall) {
-//            double timeminprev = (time-_dt) / 60; //prev time in minutes
-//            int  rainplace;
-//            double tt = 3600000.0;
-
-//            for (rainplace = 0; rainplace < nrRainfallseries; rainplace++)
-//                if (timeminprev < RainfallSeriesM[rainplace].time)
-//                    break;
-
-//            if (RainfallSeriesM[rainplace].isMap)
-//            {
-//                auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesM[rainplace].name)));
-//                if (pcr::isMV(_M->Drc))
-//                {
-//                    QString sr, sc;
-//                    sr.setNum(r); sc.setNum(c);
-//                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesM[rainplace].name;
-//                    throw 1;
-//                }
-//                else
-//                    Rain->Drc = _M->Drc *_dt/tt;
-//            }
-//            else
-//            {
-//                Rain->Drc = RainfallSeriesM[rainplace].intensity[(int) RainZone->Drc-1]*_dt/tt;
-//            }
-
-//            if (!rainStarted) {
-//                if(Rain->Drc > 0)
-//                    rainStarted = true;
-//            }
-//            if (rainStarted && RainstartTime == -1)
-//                RainstartTime = time;
-
-//            Rainc->Drc = Rain->Drc * _dx/DX->Drc;
-//            // correction for slope dx/DX, water spreads out over larger area
-//            RainCumFlat->Drc += Rain->Drc;
-//            // cumulative rainfall
-//            RainCum->Drc += Rainc->Drc;
-//            // cumulative rainfall corrected for slope, used in interception
-//            RainNet->Drc = Rainc->Drc;
-//            // net rainfall in case of interception
-
             if (Rainc->Drc > 0)
                 cell_Interception(r,c);
         }
@@ -351,7 +309,6 @@ void TWorld::do_CellProcesses()
         }
 
     }}
-report(*Lw, "lw");
 
 }
 
@@ -437,3 +394,76 @@ void TWorld::cell_ETa(int r, int c)
     ETa->Drc = tot;
     ETaCum->Drc += tot;
 }
+
+/*
+ *        //double PI = 3.14159;
+        double ETafactor = 0;
+        double day = trunc(time/(86400));
+        double hour = time/3600.0-day*24.0;
+        double declination = -23.45 * PI/180.0 * cos(2*M_PI*(day+10)/365.0);
+        double Ld = 24.0/M_PI*(acos(-tan(declination)*tan(latitude/180.0*M_PI)));  // daylength in hour
+
+        ETafactor = std::max(0.,sin((-0.5-hour/Ld)*M_PI)) / Ld*_dt/3600.0*M_PI*0.5;
+            //<= this ensures that the sum of all steps in a day amounts to the daily ET, regardless of _dt
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            ETa->Drc *= ETafactor;
+        }}
+    }
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        double tot = 0;
+        double tmp = 0;
+        double ETp = ETa->Drc;
+        ETp = Rain->Drc > 0 ? 0.0 : ETp;
+
+        double ETa_soil = hmxWH->Drc > 0 ? 0.0: ThetaI1->Drc/ThetaS1->Drc * ETp;
+        ETa_soil *= Cover->Drc;
+        double moist = ThetaI1->Drc * SoilDepth1->Drc;
+        tmp = moist;
+        moist = std::max(0.0, moist - ETa_soil);
+        tmp = tmp - moist;
+        ThetaI1->Drc = moist/SoilDepth1->Drc;
+        tot = tot + tmp;
+
+        double ETa_int = Cover->Drc * ETp;
+        tmp = CStor->Drc;
+        CStor->Drc = std::max(0.0, CStor->Drc-ETa_int);
+        RainCum->Drc = std::max(0.0, RainCum->Drc-ETa_int);
+        tmp = tmp - CStor->Drc;
+        Interc->Drc =  Cover->Drc * CStor->Drc * SoilWidthDX->Drc * DX->Drc;
+        tot = tot + tmp;
+
+        double ETa_pond = hmxWH->Drc > 0 ? ETp : 0.0;
+        if (FloodDomain->Drc > 0) {
+            tmp = hmx->Drc;
+            hmx->Drc = std::max(0.0, hmx->Drc-ETa_pond );
+            tmp = tmp - hmx->Drc;
+//            FloodWaterVol->Drc = hmx->Drc*CHAdjDX->Drc;
+//            hmxWH->Drc = hmx->Drc;   //hmxWH is all water
+//            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+        }
+        else {
+            tmp = WHrunoff->Drc;
+            WHrunoff->Drc = std::max(0.0, WHrunoff->Drc-ETa_pond );
+            tmp = tmp - WHrunoff->Drc;
+            WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+            WHroad->Drc = WHrunoff->Drc;
+            //WHGrass->Drc = WHrunoff->Drc;
+            WH->Drc = WHrunoff->Drc + WHstore->Drc;
+//            hmxWH->Drc = WH->Drc;
+//            hmx->Drc = std::max(0.0, WH->Drc - minReportFloodHeight);
+//            hmxflood->Drc = hmxWH->Drc < minReportFloodHeight ? 0.0 : hmxWH->Drc;
+        }
+        tot = tot + tmp;
+
+        ETa->Drc = tot;
+        ETaCum->Drc += tot;
+
+//TODO fpa
+
+
+    }}
+    */

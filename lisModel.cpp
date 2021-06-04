@@ -188,7 +188,7 @@ void TWorld::DoModel()
             if (SwitchETSatellite)
                 GetSpatialMeteoData(ETSatFileName, 1);
             else
-                GetRainfallData(ETFileName);
+                GetETData(ETFileName);
         }
         if (SwitchSnowmelt)
         {
@@ -224,10 +224,21 @@ void TWorld::DoModel()
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
 
-        DEBUG("Running...");
-        for (time = BeginTime; time < EndTime; time += _dt)
-        {
+        _dt_user = _dt;
 
+        DEBUG("Running...");
+        time = BeginTime;
+//        for (time = BeginTime; time < EndTime; time += _dt)
+        while (time < EndTime)
+        {            
+            double wht = MapTotal(*WH);
+            double pt = MapTotal(*Rain);
+
+            _dt = _dt*2;
+            _dt = std::min(1800.0, _dt);
+            if (wht > 0 || pt > 0)
+                _dt = _dt_user;
+qDebug() <<_dt;
             if (runstep > 0 && runstep % printinterval == 0)
                 printstep++;
             runstep++;
@@ -246,14 +257,45 @@ void TWorld::DoModel()
             }
             // check if user wants to quit or pause
 
+            // get meteo data
+            if (SwitchRainfallSatellite)
+                GetRainfallSatMap();         // get rainfall from maps
+            else
+                GetRainfallMapfromStations();         // get rainfall from stations
+
+            if (SwitchIncludeET) {
+                if (SwitchETSatellite)
+                    GetETSatMap(); // get rainfall from maps
+                else
+                    GetETMap();   // get rainfall from stations
+            }
+
+            if (SwitchSnowmelt) {
+                if (SwitchSnowmeltSatellite)
+                    ; //TODO snowmelt satellite
+                else
+                    GetSnowmeltMap();  // get snowmelt from stations
+            }
+
             CellProcesses();
          //   do_CellProcesses();
 
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
-            OverlandFlow();        // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
+            int loop = 1;
+            double dttmp = _dt;
+            if (_dt > _dt_user) {
+                loop = int(_dt/_dt_user);
+                _dt = _dt_user;
+            }
 
-            OrderedProcesses();    // do ordered LDD solutions channel, tiles, drains, non threaded
+            for (int i = 0; i < loop; i++) {
+                OverlandFlow();        // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
+
+                OrderedProcesses();    // do ordered LDD solutions channel, tiles, drains, non threaded
+            }
+            _dt = dttmp;
+
 
             Totals();            // calculate all totals and cumulative values
 
@@ -267,8 +309,10 @@ void TWorld::DoModel()
 
             saveMBerror2file(saveMBerror, false);
 
+            time += _dt;
+
             if(stopRequested)
-                time = EndTime;
+                time = EndTime;                       
         }
 
         if (SwitchEndRun)
@@ -300,31 +344,12 @@ void TWorld::DoModel()
 //---------------------------------------------------------------------------
 void TWorld::CellProcesses()
 {
-    if (SwitchRainfallSatellite)
-        GetRainfallSatMap();         // get rainfall from maps
-    else
-        GetRainfallMap();         // get rainfall from stations
-
-    if (SwitchIncludeET) {
-        if (SwitchETSatellite)
-            GetETSatMap(); // get rainfall from maps
-        else
-            GetETMap();   // get rainfall from stations
-    }
-    if (SwitchSnowmelt) {
-        if (SwitchSnowmeltSatellite)
-            ; //TODO snowmelt satellite
-        else
-            GetSnowmeltMap();  // get snowmelt from stations
-    }
-
-    if (SwitchIncludeET)
-        doETa(); // ETa is subtracted from canopy, soil water surfaces
-
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
+
         if (Rainc->Drc > 0)
             cell_Interception(r,c);
+
         if (FloodDomain->Drc > 0) {
             hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
         } else {
@@ -349,9 +374,9 @@ void TWorld::CellProcesses()
 
         }
 
-        if (SwitchIncludeET) {
-            cell_ETa(r, c);
-        }
+//        if (SwitchIncludeET) {
+//            cell_ETa(r, c);
+//        }
 
         double wh = WH->Drc;
         double SW = SoilWidthDX->Drc;
@@ -379,24 +404,9 @@ void TWorld::CellProcesses()
 
 
     }}
-//    Interception();        // vegetation interception
-//    InterceptionLitter();  // litter interception
-//    InterceptionHouses();  // urban interception
 
-//    addRainfallWH();       // adds rainfall to runoff water height or flood water height
-
-//    Infiltration();        // infil of overland flow/flood water, decrease WH
-
-//    SoilWater();           // simple soil water balance, percolation from lower boundary
-
-//    SurfaceStorage();      // surface storage and flow width, split WH in WHrunoff and WHstore
-
-//    doETa();
-
-//    Pestmobilisation();         // experimental
-
-//    SplashDetachment();    // splash detachment
-
+    if (SwitchIncludeET)
+        doETa(); // ETa is subtracted from canopy, soil water surfaces
 }
 //---------------------------------------------------------------------------
 // these are all non-threaded

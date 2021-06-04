@@ -118,10 +118,10 @@ double TWorld::GetSV(double d)
     }
 }
 //---------------------------------------------------------------------------
-void TWorld::cell_SplashDetachment(int r, int c, double WH)
+void TWorld::cell_SplashDetachment(int r, int c, double _WH)
 {
     DETSplash->Drc = 0;
-    if(WH > 0.0001)// || hmx->Drc > 0.0001)
+    if(_WH > 0.001)// || hmx->Drc > 0.0001)
     {
         double DetDT1 = 0, DetDT2 = 0, DetLD1, DetLD2;
         double g_to_kg = 0.001;
@@ -135,9 +135,9 @@ void TWorld::cell_SplashDetachment(int r, int c, double WH)
 
         switch (KEequationType)
         {
-        case KE_EXPFUNCTION: KE_DT = KEParamater_a1*(1-(KEParamater_b1*exp(-KEParamater_c1*Int))); break;
-        case KE_LOGFUNCTION: KE_DT = (Int > 1 ? KEParamater_a2 + KEParamater_b2*log10(Int) : 0); break;
-        case KE_POWERFUNCTION: KE_DT = KEParamater_a3*pow(Int, KEParamater_b3); break;
+            case KE_EXPFUNCTION: KE_DT = KEParamater_a1*(1-(KEParamater_b1*exp(-KEParamater_c1*Int))); break;
+            case KE_LOGFUNCTION: KE_DT = (Int > 1 ? KEParamater_a2 + KEParamater_b2*log10(Int) : 0); break;
+            case KE_POWERFUNCTION: KE_DT = KEParamater_a3*pow(Int, KEParamater_b3); break;
             // kin energy in J/m2/mm
         }
         //VJ 110706  KE equations
@@ -152,7 +152,7 @@ void TWorld::cell_SplashDetachment(int r, int c, double WH)
         // leaf drip in mm, is calculated as plant leaf drip in interception function so mult cover
         // VJ 110206 stemflow is also accounted for
 
-        double WH0 = exp(-1.48*hmxWH->Drc*1000);
+        double WH0 = exp(-1.48*_WH*1000); //hmxWH->Drc*1000);
         // water buffer effect on surface, WH in mm in this empirical equation from Torri ?
 
         if(SwitchUseMaterialDepth)
@@ -167,12 +167,12 @@ void TWorld::cell_SplashDetachment(int r, int c, double WH)
 
         double FPA = 1.0;
         if (RR->Drc > 0.1)
-            FPA =  1-exp(-1.875*(WH/(0.01*RR->Drc)));
+            FPA =  1-exp(-1.875*(_WH/(0.01*RR->Drc)));
 
         // Between plants, directrain is already with 1-cover
         DetDT1 = g_to_kg * FPA*(strength*KE_DT+b)*WH0 * directrain;
         //ponded areas, kg/m2/mm * mm = kg/m2
-        DetDT2 = hmxWH->Drc > 0 ? g_to_kg * (1-FPA)*(strength*KE_DT+b) * directrain * SplashDelivery : 0.0;
+        DetDT2 = _WH > 0 ? g_to_kg * (1-FPA)*(strength*KE_DT+b) * directrain * SplashDelivery : 0.0;
         //dry areas, kg/m2/mm * mm = kg/m2
 
         if (SwitchKETimebased)

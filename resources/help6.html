@@ -1,13 +1,18 @@
-<p><strong>Advanced Sediment options</strong></p>
-<p><strong>Two phase transport</strong>: sediment is simulated in two layers: suspended and bedload. Transport capacities can be different for each layer, see below. The water depth is divided into a bedload layer depth and a suspended layer depth. Suspended transport is based on the D50 (median) value of the grainsize distribution, bedload on the upper D90 (upper 90% grainsize). Detachment and deposition are reported as the sum of the two.</p>
-<p><strong>Multiple grainsize classes (not active for now):</strong> the sediment grainsize is divided into multiple classes, which are either estimated form the D50 and D90 maps, or used defined class boundaries are given. When this is selected, iption 3 for transport capacity will be chosen (see below)</p>
-<p><strong>Channel and surface flow</strong></p>
-<p>For the channel and the surface flow (overland flow and flood) the transport cvapacities and turbulence parameters can be selected separately.</p>
-<p><strong>Bed load</strong> transport capacity equation:<br />1-Van Rijn Simplified (2007)<br />2-Van Rijn Full (1984)<br />3-Wu, Wang &amp; Jia (wil be used with multiple grain size distribution)</p>
-<p><strong>Suspended load</strong> transport capacity:<br />0-Govers<br />1-Van Rijn Simple<br />2-Van Rijn Full<br />3-Wu, Wang &amp; Jia (wil be used with multiple grain size distribution)</p>
-<p><strong>Turbulent Prandtl-Schmidt Number</strong> (p):<br />A coefficient influencing the sediment diffusion in flood water (def.=0.5). <br />Influence is inversly linear (Diffusion *= 1/p)</p>
-<p><strong>Grain size distribution (not active for now)<br /></strong></p>
+<p><strong>Meteorological input</strong></p>
+<p>Meteorollogical data is given in a separate folder. Default name is 'rain'. The data is given per tyime interval which is indicated by "ddd:mmmm", Julian day number (1-366) followed by the mninutre in the day (0-1440) (note that 0 = 1440 = midnight).&nbsp;</p>
+<p><strong>Rainfall data</strong></p>
 <ul>
-<li>Estimate the distribution using a Log-normal function and the D50 and D90 values.</li>
-<li>&nbsp;Provide a custom distribution trough a list of maps</li>
+<li><em>Rainfall gauging stations</em>. Values are geven in mm/h and the timeinterval should hourly or shorter. LISEM will work with larger time intervals (daily, weekly) but the results will be nonsense. Using raingauges needs a map ID.map with areas to which the raingauge corrersponds, using non-zero consequtive integer numbers (characters not allowed). Number 1 corresponds to the first gauge in the rainfall file, number 2 to the second The raingauge data is given as:</li>
 </ul>
+<p><code># some header, rainfall source</code><br /><code>4</code><br /><code>time</code><br /><code>gauge 1</code><br /><code>gauge 2</code><br /><code>gauge 3</code><br /><code>100:0230&nbsp;&nbsp; 20.0&nbsp; 4.3&nbsp; 17.2</code><br /><code>100:0240&nbsp;&nbsp; 10.0&nbsp; 14.3&nbsp; 7.2</code><br /><code>100:0251&nbsp;&nbsp; 11.2&nbsp; 8.3&nbsp; 87.2</code><br /><code>etc</code></p>
+<p><code></code></p>
+<ul>
+<li><em>Rainfall maps (pcraster format)</em>. Values are geven in mm/h and the map format and size must be exactly the same as all other maps in the database. The map ID.map is not used. The source can be satellite images or interpolated stations. The rainfall maps are stored in the rain folder and can have any name. The rainfall file looks like this:</li>
+</ul>
+<p><code># some header, rainfall source</code><br /><code>2</code><br /><code>time</code><br /><code>maps</code><br /><code></code><code>100:0180&nbsp;&nbsp; rainfal.1.map</code><br /><code>100:0210 &nbsp; rainfal.2.map</code><br /><code>100:0240 &nbsp; </code><code>rainfal.3.map</code><br /><code>etc</code></p>
+<p><strong>Evapotranspiration data</strong></p>
+<p>The format of the input files is exactly the same as for rainfall, either station data with a map (ETID.map) or a series of ETp maps are used.</p>
+<p>If the timeinterval is less than 1 day,&nbsp; the values are assumed to be in mm/h.</p>
+<p>If the interval is 1 day or more, the values are assumed to be in mm/day. In that case select the option "ET has daily or larger timesteps", and supply the average latitude (in degrees, e.g. 22.5) of the area. This will be used to calculate the sun engle and day length. The ETp provided in mm/d (in the gauges or maps files) is assumed to represent the daylight period and the instantaneous ETp per timestep is calculated according to a sine curve between sunrise and sunset.</p>
+<p>If the time interval is longer than a day (e.g. derived MODIS 8 daily values), you still have to provide average daily ETp in mm/day, and the daily ETp is simply repeated for the 8 days until the next timestep is found in the input file.</p>
+<p>&nbsp;</p>

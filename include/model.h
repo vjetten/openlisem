@@ -377,6 +377,9 @@ public:
     double KEParamater_a2, KEParamater_b2;
     double KEParamater_a3, KEParamater_b3;
 
+
+    double totetafac;
+
     /// calibration parameters
     double gsizeCalibration;
     double ksatCalibration;
@@ -432,6 +435,7 @@ public:
     /// time and dx parameters
     double time, BeginTime, EndTime;
     double _dt, _dx;
+    double _dt_user;
     long runstep, printstep, printinterval;
 
     QString mapFormat;
@@ -758,7 +762,7 @@ public:
     double getTimefromString(QString sss);
     double getmaxRainfall();
     /// convert rainfall of a timestep into a map
-    void GetRainfallMap(void);
+    void GetRainfallMapfromStations(void);
     void GetRainfallSatMap(void);
     /// convert ET of a timestep into a map
     void GetETSatMap(void);

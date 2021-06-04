@@ -546,6 +546,8 @@ private slots:
     void on_E_EndTimeDay_returnPressed();
     void on_E_BeginTimeDay_returnPressed();
 
+    void on_toolButton_help1a_clicked();
+
 private:
 
     QSystemTrayIcon *trayIcon;

@@ -599,17 +599,17 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         throw 1;
     }
 
-    if (SwitchRainfall)
+    if (SwitchRainfall && !SwitchRainfallSatellite)
     {
         RainZone = ReadMap(LDD,getvaluename("ID"));
     }
-    if (SwitchIncludeET)
+    if (SwitchIncludeET && !SwitchETSatellite)
     {
         ETZone = ReadMap(LDD,getvaluename("ETID"));
     }
 
     Snowcover = NewMap(0);
-    if (SwitchSnowmelt)
+    if (SwitchSnowmelt && !SwitchSnowmeltSatellite)
     {
         SnowmeltZone = ReadMap(LDD,getvaluename("SnowID"));
         FOR_ROW_COL_MV
@@ -1864,7 +1864,8 @@ void TWorld::IntializeData(void)
         {
             switch (InterceptionLAIType)
             {
-            case 0: CanopyStorage->Drc = 0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
+            case 0: CanopyStorage->Drc = 0.4376 * LAI->Drc + 1.0356;break; // gives identical results
+                        //0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
             case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
             case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
             case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;

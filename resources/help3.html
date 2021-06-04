@@ -1,18 +1,12 @@
 <p><strong>Infiltration options</strong></p>
 <ul>
 <li>No infiltration = catchment is impermeable</li>
-<li>SWATRE = 1D finite difference multilayer scheme for soil water balance based on the SWATRE model (Richards equations), needs complex database setup</li>
-<li>Green and Ampt = 1 or 2 layer infiltration based on simplified Darcy equation (Kutilek and Nielsen solution, no iteration)</li>
-<li>Smith and Parlange = 1 or 2 layer infiltration based on exponential solution of the Darcy equation.</li>
+<li>SWATRE = 1D finite difference multilayer scheme for soil water balance based on the SWATRE model (Richards equations, multilayer Darcy equation solution), needs complex database setup</li>
+<li>Green and Ampt = 1 or 2 layer infiltration based on a simplified solution for the Darcy equation (no iteration)</li>
+<li>Smith and Parlange = 1 or 2 layer infiltration based on an exponential solution of the Darcy equation</li>
 </ul>
-<p><strong>Impermeable</strong>: lower soil boundary is impermeable and soil can fill up, or else there is drainage from the bottom of the soil profile and the soil is infinitely large. When SWATRE is used the drainage is the flux from the bottom node, when G&amp;&amp;A or S&amp;&amp;P are used, the drainage is the estimated unsaturated conductivity (using the Brooks-Corey equation).</p>
-<p><strong>2 layer</strong> (Green and Ampt or Smith and Parlange): <strong>u</strong>se a two layer infiltration system, all infiltration maps needed for layer 1 and 2 (ksat1.map and ksat2.map etc)</p>
+<p><strong>Impermeable</strong>: the lower soil boundary is impermeable and the soil profile can fill up with water and overflow to create runoff. When impermeable is witched off, there is drainage from the bottom of the soil profile and the soil is infinitely large.</p>
+<p>When SWATRE is used the drainage is the Darcy flux from the bottom node, when G&amp;A or S&amp;P are used, the drainage is the estimated unsaturated conductivity (using the Brooks-Corey equation), assuming a hydraulic gradient dH/dz of 1.</p>
+<p><strong>2 layer</strong> (Green and Ampt or Smith and Parlange): use a two layer infiltration system, all infiltration maps needed for layer 1 and 2 (ksat1.map and ksat2.map etc). Note that the soildep1 is the depth of the first layer, soildep2 is the depth from the surface to the bottom of the profile (soildep2 <em>contains</em> soildep1). Both are in <em>mm</em>.</p>
 <p><strong>Compacted areas</strong><br />Cells which have a fraction of compacted area (compfrac.map) use the value in the maps ksatcomp.map (mm/h) and porosity porecomp.map (-) to affect infiltration in the top layer.</p>
 <p><strong>Crusts</strong><br />Cells which have a fraction of crusted area (crustfrac.map) use the value in the map ksatcrust.map (mm/h) and crust porosity porecrust.map (-) to affect infiltration in the top layers.</p>
-<p><strong>SWATRE options</strong></p>
-<ul>
-<li>Tile drains connect to the surface and transport water as subsurface flow. Uses kinematic wave.</li>
-<li>Geometric average: calculate the average ksat between to layers as geometric sqrt(k1*k2), <br />else calculate as plain average 0.5(k1+k2)</li>
-<li>Profile table: text file with soil layer definitions, pointing to textfiles with soil physical properties (profile.inp)</li>
-<li>Table dir: directory with tables with theta, h and k for different soil types.</li>
-</ul>

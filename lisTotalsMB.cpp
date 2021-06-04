@@ -73,6 +73,13 @@ void TWorld::Totals(void)
             RainpeakTime = time;
     }
 
+    if (SwitchIncludeET) {
+        double ETtot = MapTotal(*ETa);
+       // ETaTot += ETtot;
+
+
+    }
+
     if (SwitchSnowmelt)
     {
         SnowAvgmm = MapTotal(*Snowmelt)*1000.0/nrCells;
@@ -260,7 +267,7 @@ void TWorld::Totals(void)
             calc2Maps(*tm, *TileDrainSoil, *TileWidth, MUL); //in m3
             calcMap(*tm, *TileDX, MUL); //in m3
             // tm->calcV(_dx, MUL); //in m3 ??? or DX?
-            TileVolTot += mapTotal(*tm); // in m3
+            TileVolTot += MapTotal(*tm); // in m3
 
             FOR_ROW_COL_MV_TILE
                     if (LDDTile->Drc == 5)

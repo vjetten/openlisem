@@ -101,21 +101,23 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
     }
 
     // initalize
-    RainfallSeriesMaps.clear();
-    ETSeriesMaps.clear();
-    SnowmeltSeriesMaps.clear();
-
-    currentRainfallrow = 0;
-    currentETrow = 0;
-    currentSnowmeltrow = 0;
 
     QString dirname;
-    if (type == 0)
+    if (type == 0) {
+        RainfallSeriesMaps.clear();
         dirname = rainFileDir;
-    if (type == 1)
+        currentRainfallrow = 0;
+    }
+    if (type == 1) {
+        ETSeriesMaps.clear();
         dirname = ETFileDir;
-    if (type == 2)
+        currentETrow = 0;
+    }
+    if (type == 2) {
+        SnowmeltSeriesMaps.clear();
         dirname = snowmeltFileDir;
+        currentSnowmeltrow = 0;
+    }
 
     for(int r = 0; r < nrSeries; r++)
     {
@@ -157,9 +159,9 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
     if (type == 0)
         nrRainfallseries = nrSeries;
     if (type == 1)
-        nrSnowmeltseries = nrSeries;
-    if (type == 2)
         nrETseries = nrSeries;
+    if (type == 2)
+        nrSnowmeltseries = nrSeries;
 }
 
 //---------------------------------------------------------------------------
@@ -315,7 +317,7 @@ void TWorld::GetRainfallData(QString name)
     nrRainfallseries = RainfallSeriesM.size();//nrSeries;
 }
 //---------------------------------------------------------------------------
-void TWorld::GetRainfallMap(void)
+void TWorld::GetRainfallMapfromStations(void)
 {
     double currenttime = (time)/60;
     int  rainplace;
@@ -382,7 +384,7 @@ void TWorld::GetRainfallMap(void)
         RainCumFlat->Drc += Rain->Drc;
         // cumulative rainfall
         RainCum->Drc += Rainc->Drc;
-        // cumulative rainfall corrected for slope, used in interception
+        // cumulative rainfall corrected for slope, used only in interception
         RainNet->Drc = Rainc->Drc;
         // net rainfall in case of interception
     }}
@@ -396,10 +398,10 @@ void TWorld::GetRainfallSatMap(void)
     bool norain = false;
     bool samerain = false;
 
-    if (!SwitchRainfall)
-        return;
-    if (!SwitchRainfallSatellite)
-        return;
+//    if (!SwitchRainfall)
+//        return;
+//    if (!SwitchRainfallSatellite)
+//        return;
 
     // from time t to t+1 the rain is the rain of t
 
@@ -433,7 +435,7 @@ void TWorld::GetRainfallSatMap(void)
 //    qDebug() << RainfallSeriesMaps[currentrow].name << currentRainfallrow << currentrow;
             auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
 
-            #pragma omp parallel for num_threads(userCores)
+         //   #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (pcr::isMV(_M->Drc)) {
                     QString sr, sc;
@@ -472,6 +474,7 @@ void TWorld::GetRainfallSatMap(void)
         RainNet->Drc = Rainc->Drc;
         // net rainfall in case of interception
     }}
+
 }
 //---------------------------------------------------------------------------
 double TWorld::getmaxRainfall()
