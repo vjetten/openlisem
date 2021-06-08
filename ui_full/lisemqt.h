@@ -277,6 +277,7 @@ public:
     int outletpoint = 1;
 
     //max va;ues for each outlet point
+    double pmax;
     QVector<double> qmax;
     QVector<double> qsmax;
     QVector<double> cmax;

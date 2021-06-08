@@ -101,7 +101,6 @@ void lisemqt::setupPlot()
     QGraph->setAxes(HPlot->xBottom, *axisYL1);// HPlot->yLeft);
     QGraph->setAxes(HPlot->xBottom, *axisYL1);// HPlot->yLeft);
 
-
     PGraph->setPen(pen2);
     PGraph->setAxes(HPlot->xBottom, *axisYR1);// HPlot->yRight);
 
@@ -140,11 +139,16 @@ void lisemqt::setupPlot()
     HPlot->setAxisAutoScale(*axisYR1,true);
     HPlot->setAxisAutoScale(*axisYR2,true);
 
+    HPlot->setAxisScale(*axisYL1, 0.0, 1.0 );
+    HPlot->setAxisScale(*axisYL2, 0.0, 1.0 );
+    HPlot->setAxisScale(*axisYR1, 0.0, 1.0 );
+    HPlot->setAxisScale(*axisYR2, 0.0, 1.0 );
+
     if (darkLISEM)
         HPlot->setCanvasBackground(QBrush("#777777"));
     else
-        HPlot->setCanvasBackground(QBrush(Qt::white));
-    // set gridlines
+        HPlot->setCanvasBackground(QBrush(Qt::white));   // set gridlines
+
     QwtPlotGrid *grid = new QwtPlotGrid();
     col.setRgb( 180,180,180,180 );
     grid->setMajorPen(QPen(col, 0, Qt::DashLine));
@@ -281,10 +285,28 @@ void lisemqt::showPlot()
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
     PGraph->setSamples(op.Time,op.Pmm);
 
+    int _j = op.OutletQ[index]->count()-1;
+//    if (qmax[index] < op.OutletQ[index]->at(_j))
+//        qmax[index] = op.OutletQ[index]->at(_j);
+
+    qmax[index] = std::max(qmax[index] , 1.1*op.OutletQ[index]->at(_j));
+    pmax = std::max(pmax, 1.1*op.Pmm[_j]);
+
     if(checkDoErosion->isChecked())
     {
+        qsmax[index] = std::max(qsmax[index] , 1.1*op.OutletQs[index]->at(_j));
+        cmax[index] = std::max(cmax[index] , 1.1*op.OutletC[index]->at(_j));
+
         QsGraph->setSamples(op.Time,*op.OutletQs[index]);
         CGraph->setSamples(op.Time,*op.OutletC[index]);
+
+        HPlot->setAxisScale(*axisYL1, 0.0, qmax[index] );
+        HPlot->setAxisScale(*axisYL2, 0.0, pmax );
+        HPlot->setAxisScale(*axisYR1, 0.0, qsmax[index] );
+        HPlot->setAxisScale(*axisYR2, 0.0, cmax[index] );
+    } else {
+        HPlot->setAxisScale(*axisYL1, 0.0, qmax[index] );
+        HPlot->setAxisScale(*axisYR1, 0.0, pmax );
     }
 
     if(checkIncludeTiledrains->isChecked())
@@ -299,18 +321,19 @@ void lisemqt::startPlots()
     if (!startplot)
         return;
 
-    if (doNewPlot) {
+  //  if (doNewPlot) {
         qmax.clear();
         qsmax.clear();
         cmax.clear();
+        pmax = 1.0;
         // to start the max finding
-        for(int i =0; i < OutletIndices.length(); i++)
+        for(int i =0; i < op.OutletIndices.length(); i++)
         {
-            qmax.append(0);
-            qsmax.append(0);
-            cmax.append(0);
+            qmax.append(1.0);
+            qsmax.append(1.0);
+            cmax.append(1.0);
         }
-    }
+    //}
     OutletIndices.clear();
     OutletLocationX.clear();
     OutletLocationY.clear();

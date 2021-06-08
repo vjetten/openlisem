@@ -310,62 +310,71 @@ void TWorld::doETa()
             _hardsurf += RoadWidthDX->Drc/_dx;
         _hardsurf = std::min(1.0,_hardsurf);
 
-        // soil moisture transpiration covered surface
-        double theta_e = Thetaeff->Drc/ThetaS1->Drc;
-        double f = 1+qPow(theta_e/0.5,6.0);
-        //qDebug() << 1-1/f << _ETp << theta_e;
-        double ETa_soil1 = ponded ? 0.0: (1.0-1.0/f) * _ETp  * _Cover;
-        //double ETa_soil1 = ponded ? 0.0: theta_e * _ETp  * _Cover;
-        double ETa_soil2 = ponded ? 0.0: theta_e * _ETp * (1-_Cover);
-
-        tma->Drc = ETa_soil1;
-        tmb->Drc = ETa_soil2;
-
-        // soil moisture evaporation bare surface
-        double moist = Thetaeff->Drc * SoilDepth1->Drc;
-        tmp = moist;
-      //  qDebug() << moist << ETa_soil1 << _ETp << "a";
-        moist = std::max(0.0, moist - (ETa_soil1 + ETa_soil2)*(1.0-_hardsurf));
-     //   qDebug() << moist << "b";
-        tmp = tmp - moist;
-        Thetaeff->Drc = moist/SoilDepth1->Drc;
-        tot = tot + tmp;
-
         // interception decrease, drying out canopy
-        if (_Cover > 0) {
+        double Smax = CanopyStorage->Drc;
+        if (Smax > 0) {
             double ETa_int = _Cover * _ETp;
-            tmp = CStor->Drc;
-            CStor->Drc = std::max(0.0, CStor->Drc-ETa_int);
-            RainCum->Drc = std::max(0.0, RainCum->Drc-ETa_int);
-            tmp = tmp - CStor->Drc;
-          //  Interc->Drc = _Cover * CStor->Drc * SoilWidthDX->Drc * DX->Drc;
+            //tmp = CStor->Drc;
+            double RainCum_ = RainCum->Drc;
+            tmp = RainCum_;
+           // CStor->Drc = std::max(0.0, CStor->Drc-ETa_int);
+            RainCum_ = std::max(0.0, RainCum_-ETa_int);
+            CStor->Drc = Smax*(1-exp(-kLAI->Drc*RainCum_/Smax));
+            tmp = tmp - RainCum_;
+            Interc->Drc = _Cover * CStor->Drc * SoilWidthDX->Drc * DX->Drc;
             tot = tot + tmp;
+            RainCum->Drc = RainCum_;
+        }
+
+
+        if (!ponded) {
+            // soil moisture transpiration covered surface
+            double theta_e = Thetaeff->Drc/ThetaS1->Drc;
+            double f = 1+qPow(theta_e/0.5,6.0);
+            double ETa_soil1 = (1.0-1.0/f) * _ETp  * _Cover;  //Transpiration
+            double ETa_soil2 = theta_e * _ETp * (1-_Cover);   //Evaporation
+
+            // there is an infiltration front
+            if (Lw->Drc > 0) {
+                tmp = Lw->Drc;
+                Lw->Drc = std::max(0.0, Lw->Drc - ETa_soil1+ETa_soil2);
+                tmp = tmp - Lw->Drc;
+                tot = tot + tmp;
+            } else {
+                // soil moisture evaporation bare surface
+                double moist = Thetaeff->Drc * SoilDepth1->Drc;
+                tmp = moist;
+                moist = std::max(0.0, moist - (ETa_soil1 + ETa_soil2)*(1.0-_hardsurf));
+                tmp = tmp - moist;
+                Thetaeff->Drc = moist/SoilDepth1->Drc;
+                tot = tot + tmp;
+                // !!!!!!!!!! because soil moisture is not in MB
+            }
         }
 
         // ETa = ETp for ponded surfaces
-//        if (ponded) {
-//            double ETa_pond = _ETp;
-//            if (FloodDomain->Drc > 0) {
-//                tmp = hmx->Drc;
-//                hmx->Drc = std::max(0.0, hmx->Drc-ETa_pond );
-//                tmp = tmp - hmx->Drc;
-//            }
-//            else {
-//                tmp = WHrunoff->Drc;
-//                double _WHRunoff = WHrunoff->Drc;
-//                double FPA = 1.0;
-//                if (RR->Drc > 0.1)
-//                    FPA =  1-exp(-1.875*(_WHRunoff/(0.01*RR->Drc)));
-//                _WHRunoff = std::max(0.0, _WHRunoff-ETa_pond*FPA);
-//                tmp = tmp - _WHRunoff;
-//                WaterVolall->Drc = _WHRunoff*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-//                WHroad->Drc = _WHRunoff;
-//                //WHGrass->Drc = WHrunoff->Drc;
-//                WH->Drc = _WHRunoff + WHstore->Drc;
-//                WHrunoff->Drc = _WHRunoff;
-//            }
-//            tot = tot + tmp;
-//        }
+        if (ponded) {
+            double ETa_pond = std::max(0.0,_ETp-tot);
+            if (FloodDomain->Drc > 0) {
+                tmp = hmx->Drc;
+                hmx->Drc = std::max(0.0, hmx->Drc-ETa_pond );
+                tmp = tmp - hmx->Drc;
+            } else {
+                double _WHRunoff = WHrunoff->Drc;
+                double FPA = 1.0;
+                if (RR->Drc > 0.1)
+                    FPA =  1-exp(-1.875*(_WHRunoff/(0.01*RR->Drc)));
+                tmp = _WHRunoff;
+                _WHRunoff = std::max(0.0, _WHRunoff-ETa_pond*FPA);
+                tmp = tmp - _WHRunoff;
+                WHroad->Drc = _WHRunoff;
+                //WHGrass->Drc = WHrunoff->Drc;
+                WH->Drc = _WHRunoff + WHstore->Drc;
+                WHrunoff->Drc = _WHRunoff;
+            }
+            tot = tot + tmp;
+            WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
+        }
 
         // put total Eta in Eta map
         ETa->Drc = tot;

@@ -74,8 +74,8 @@ void TWorld::Totals(void)
     }
 
     if (SwitchIncludeET) {
-        double ETtot = MapTotal(*ETa);
-       // ETaTot += ETtot;
+       // double ETtot = MapTotal(*ETa);
+     //   ETaTot = MapTotal(*ETaCum);
 
 
     }

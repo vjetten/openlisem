@@ -238,7 +238,7 @@ void TWorld::DoModel()
             _dt = std::min(1800.0, _dt);
             if (wht > 0 || pt > 0)
                 _dt = _dt_user;
-qDebug() <<_dt;
+//qDebug() <<_dt;
             if (runstep > 0 && runstep % printinterval == 0)
                 printstep++;
             runstep++;
