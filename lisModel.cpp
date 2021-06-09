@@ -231,13 +231,13 @@ void TWorld::DoModel()
 //        for (time = BeginTime; time < EndTime; time += _dt)
         while (time < EndTime)
         {            
-            double wht = MapTotal(*WH)/nrCells;
-            double pt = MapTotal(*Rain);
+//            double wht = MapTotal(*WH)/nrCells;
+//            double pt = MapTotal(*Rain);
 
-            _dt = _dt*2;
-            _dt = std::min(600.0, _dt);
-            if (wht > 0.0001 || pt > 0)
-                _dt = _dt_user;
+//          //  _dt = _dt*2;
+//            _dt = std::min(600.0, _dt);
+//            if (wht > 0.0001 || pt > 0)
+//                _dt = _dt_user;
 //qDebug() <<_dt;
             if (runstep > 0 && runstep % printinterval == 0)
                 printstep++;
@@ -282,20 +282,20 @@ void TWorld::DoModel()
 
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
-            int loop = 1;
-            double dttmp = _dt;
-            double dtkin = 60.0;//_dt_user
-            if (_dt > dtkin) {
-                loop = int(_dt/dtkin);
-                _dt = dtkin;
-            }
-qDebug() << loop << _dt << dttmp;
-            for (int i = 0; i < loop; i++) {
+//            int loop = 1;
+//            double dttmp = _dt;
+//            double dtkin = _dt;//60.0;//_dt_user
+//            if (_dt > dtkin) {
+//                loop = int(_dt/dtkin);
+//                _dt = dtkin;
+//            }
+//qDebug() << loop << _dt << dttmp;
+//            for (int i = 0; i < loop; i++) {
                 OverlandFlow();        // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
                 OrderedProcesses();    // do ordered LDD solutions channel, tiles, drains, non threaded
-            }
-            _dt = dttmp;
+//            }
+//            _dt = dttmp;
 
 
             Totals();            // calculate all totals and cumulative values

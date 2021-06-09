@@ -46,6 +46,7 @@ cTMap
 *RainZone,                   //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *ETZone,                     //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *Rain,                       //!< map with rain from tis time intervall [m]
+*RainSat,                       //!< map with rain from tis time intervall [m]
 //*noRain,
 *Rainc,                      //!< map with rain from tis time intervall, spread over the surface (corrected or slope) [m]
 *RainCum,                    //!< cumulative rainfall, as spreadoutover slope [m]

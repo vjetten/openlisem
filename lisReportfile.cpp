@@ -82,7 +82,7 @@ void TWorld::OutputUI(void)
     op.maxtime = op.t/runstep * op.maxstep;
     op.dx = _dx;
     op.runstep = runstep;
-    op.maxstep = (int) ((EndTime-BeginTime)/_dt_user);
+    op.maxstep = (int) ((EndTime-BeginTime)/_dt);
     op.EndTime = EndTime/60.0;
     op.CatchmentArea = CatchmentArea;
 

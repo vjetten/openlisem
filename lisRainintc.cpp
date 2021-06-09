@@ -430,23 +430,28 @@ void TWorld::GetRainfallSatMap(void)
 
         if (currentrow == currentRainfallrow)// && currentrow > 0)
             samerain = true;
-
         // get the next map from file
         if (!samerain) {
-//    qDebug() << RainfallSeriesMaps[currentrow].name << currentRainfallrow << currentrow;
+    qDebug() << RainfallSeriesMaps[currentrow].name << currentRainfallrow << currentrow;
             auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
-
+          //  cTMap *_M = new cTMap(readRaster(RainfallSeriesMaps[currentrow].name));
+            qDebug() << "hoi" << _nrRows << _nrCols;
          //   #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
+           //   FOR_ROW_COL_MV {
                 if (pcr::isMV(_M->Drc)) {
+                    qDebug() << r << c;
                     QString sr, sc;
                     sr.setNum(r); sc.setNum(c);
                     ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[rainplace].name;
                     throw 1;
+                    Rain->Drc = 0;
                 } else {
+                 //   qDebug() << r << c << _M->Drc;
                     Rain->Drc = _M->Drc * tt;
                 }
             }}
+         //   delete _M;
         }
     }
     currentRainfallrow = currentrow;

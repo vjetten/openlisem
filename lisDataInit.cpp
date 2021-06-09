@@ -1825,6 +1825,7 @@ void TWorld::IntializeData(void)
     Snowpeak = 0;
     SnowpeakTime = 0;
     Rain = NewMap(0);
+    //RainSat = NewMap(0);
     Rainc = NewMap(0);
     RainCum = NewMap(0);
     RainCumFlat = NewMap(0);
