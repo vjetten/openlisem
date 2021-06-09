@@ -231,12 +231,12 @@ void TWorld::DoModel()
 //        for (time = BeginTime; time < EndTime; time += _dt)
         while (time < EndTime)
         {            
-            double wht = MapTotal(*WH);
+            double wht = MapTotal(*WH)/nrCells;
             double pt = MapTotal(*Rain);
 
             _dt = _dt*2;
-            _dt = std::min(1800.0, _dt);
-            if (wht > 0 || pt > 0)
+            _dt = std::min(600.0, _dt);
+            if (wht > 0.0001 || pt > 0)
                 _dt = _dt_user;
 //qDebug() <<_dt;
             if (runstep > 0 && runstep % printinterval == 0)
@@ -284,11 +284,12 @@ void TWorld::DoModel()
 
             int loop = 1;
             double dttmp = _dt;
-            if (_dt > _dt_user) {
-                loop = int(_dt/_dt_user);
-                _dt = _dt_user;
+            double dtkin = 60.0;//_dt_user
+            if (_dt > dtkin) {
+                loop = int(_dt/dtkin);
+                _dt = dtkin;
             }
-
+qDebug() << loop << _dt << dttmp;
             for (int i = 0; i < loop; i++) {
                 OverlandFlow();        // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 

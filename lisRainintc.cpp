@@ -51,7 +51,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
     QString S;
     QStringList rainRecs;
     QStringList SL;
-    int skip = 3;
+    int skip = 4;
     int nrSeries = 0;
 
     if (!fi.exists())
@@ -127,7 +127,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
 
         // split rainfall record row with whitespace
         QStringList SL = rainRecs[r+skip].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
-
+//qDebug() << SL;
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
 
@@ -145,6 +145,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
             throw 1;
         }
         rl.name = fi.absoluteFilePath();
+        qDebug() << rl.time << rl.name;
 
         // add the record to the list
         if (type == 0)

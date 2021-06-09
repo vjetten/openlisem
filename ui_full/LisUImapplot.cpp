@@ -510,7 +510,7 @@ void lisemqt::showComboMap(int i)
     if(mi > ma)
         ma = mi;
     //   qDebug() << mi << ma << MinV << MaxV;
-
+mi=std::max(1e-6,mi);
     if (op.ComboSymColor.at(i)) // symetric coloring for soilloss
     {
 

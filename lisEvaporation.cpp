@@ -296,6 +296,7 @@ void TWorld::doETa()
     FOR_ROW_COL_MV_L {
         double tot = 0;
         double tmp = 0;
+        double eta = 0;
         double _ETp = ETp->Drc * ETafactor*24/Ld;
         double _Cover = Cover->Drc;
         bool ponded = hmxWH->Drc > 0;
@@ -320,9 +321,9 @@ void TWorld::doETa()
            // CStor->Drc = std::max(0.0, CStor->Drc-ETa_int);
             RainCum_ = std::max(0.0, RainCum_-ETa_int);
             CStor->Drc = Smax*(1-exp(-kLAI->Drc*RainCum_/Smax));
-            tmp = tmp - RainCum_;
+            eta = tmp - RainCum_;
             Interc->Drc = _Cover * CStor->Drc * SoilWidthDX->Drc * DX->Drc;
-            tot = tot + tmp;
+            tot = tot + eta;
             RainCum->Drc = RainCum_;
         }
 
@@ -337,42 +338,39 @@ void TWorld::doETa()
             // there is an infiltration front
             if (Lw->Drc > 0) {
                 tmp = Lw->Drc;
-                Lw->Drc = std::max(0.0, Lw->Drc - ETa_soil1+ETa_soil2);
-                tmp = tmp - Lw->Drc;
-                tot = tot + tmp;
+                Lw->Drc = std::max(0.0, Lw->Drc - ETa_soil1-ETa_soil2);
+                eta = tmp - Lw->Drc;
+                tot = tot + eta;
             } else {
                 // soil moisture evaporation bare surface
                 double moist = Thetaeff->Drc * SoilDepth1->Drc;
                 tmp = moist;
                 moist = std::max(0.0, moist - (ETa_soil1 + ETa_soil2)*(1.0-_hardsurf));
-                tmp = tmp - moist;
+                eta = tmp - moist;
                 Thetaeff->Drc = moist/SoilDepth1->Drc;
-                tot = tot + tmp;
+                tot = tot + eta;
                 // !!!!!!!!!! because soil moisture is not in MB
             }
         }
 
         // ETa = ETp for ponded surfaces
         if (ponded) {
-            double ETa_pond = std::max(0.0,_ETp-tot);
+            double ETa_pond = _ETp;
             if (FloodDomain->Drc > 0) {
                 tmp = hmx->Drc;
                 hmx->Drc = std::max(0.0, hmx->Drc-ETa_pond );
-                tmp = tmp - hmx->Drc;
+                eta = tmp - hmx->Drc;
             } else {
                 double _WHRunoff = WHrunoff->Drc;
-                double FPA = 1.0;
-                if (RR->Drc > 0.1)
-                    FPA =  1-exp(-1.875*(_WHRunoff/(0.01*RR->Drc)));
                 tmp = _WHRunoff;
-                _WHRunoff = std::max(0.0, _WHRunoff-ETa_pond*FPA);
-                tmp = tmp - _WHRunoff;
+                _WHRunoff = std::max(0.0, _WHRunoff-ETa_pond);
+                eta = tmp - _WHRunoff;
                 WHroad->Drc = _WHRunoff;
                 //WHGrass->Drc = WHrunoff->Drc;
                 WH->Drc = _WHRunoff + WHstore->Drc;
                 WHrunoff->Drc = _WHRunoff;
             }
-            tot = tot + tmp;
+            tot = tot + eta;
             WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
         }
 
