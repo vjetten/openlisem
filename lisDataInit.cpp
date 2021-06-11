@@ -500,7 +500,7 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         F_pitValue = _dx/100;
         //Switch2DDiagonalFlow = true;
         //SwitchErosionInsideLoop = true;
-        SwitchLinkedList = false;
+        SwitchLinkedList = true;
     }
 
     SwitchKinematic2D = getvalueint("Routing Kin Wave 2D");

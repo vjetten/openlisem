@@ -215,14 +215,13 @@ void TWorld::ChannelAddBaseandRain(void)
 
         if(SwitchChannelBaseflow)
         {
-            //qDebug()
             if(!addedbaseflow)
             {
                 ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
                 //BaseFlowTot += BaseFlowInitialVolume->Drc;
             }
             ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
-            BaseFlowTot += BaseFlowInflow->Drc * _dt;
+            //BaseFlowTot += BaseFlowInflow->Drc * _dt;
         }
 
         ChannelFlowWidth->Drc = ChannelWidth->Drc;
@@ -262,28 +261,6 @@ void TWorld::ChannelFlow(void)
     // velocity, alpha, Q
 #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-
-//        if (ChannelMaxQ->Drc <= 0)
-//            ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthMax->Drc*DX->Drc;
-
-//        // subtract infiltration
-//        if (SwitchChannelInfil) {
-//            double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
-//            inf = std::min(ChannelWaterVol->Drc, inf);
-//            ChannelWaterVol->Drc -= inf;
-//            ChannelInfilVol->Drc += inf;
-//        }
-
-//        if(SwitchChannelBaseflow)
-//        {
-//            if(!addedbaseflow)
-//            {
-//                ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
-//                BaseFlowTot += BaseFlowInitialVolume->Drc;
-//            }
-//            ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
-//            BaseFlowTot += BaseFlowInflow->Drc * _dt;
-//        }
 
         // calc velocity and Q
         ChannelFlowWidth->Drc = ChannelWidth->Drc;
@@ -335,25 +312,57 @@ void TWorld::ChannelFlow(void)
 
     }}
 
-//    if (!addedbaseflow)
-//        addedbaseflow = true;
-
     if (SwitchChannelKinWave) {
 
-        if (SwitchLinkedList) {
-
-            ChannelQn->setAllMV();
-            // route water 1D and sediment
-            FOR_ROW_COL_LDDCH5 {
-                Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
-            }}
-            cover(*ChannelQn, *LDD, 0);
-
-        } else {
-            KinematicExplicit(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
+        bool do_avg = false;
+        int loop = 1;
+        double dtkin = 60.0;
+        if (_dt > dtkin) {
+            loop = int(_dt/dtkin);
+            _dt = dtkin;
         }
 
-#pragma omp parallel for num_threads(userCores)
+        if (do_avg) {
+            fill(*tma,0);
+            fill(*tmb,0);
+        }
+
+        for (int i = 0; i < loop; i++) {
+
+
+            if (SwitchLinkedList) {
+
+                ChannelQn->setAllMV();
+                // route water 1D and sediment
+                FOR_ROW_COL_LDDCH5 {
+                    Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
+                }}
+                cover(*ChannelQn, *LDD, 0);
+
+            } else {
+                KinematicExplicit(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
+            }
+
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                if (do_avg) {
+                   tma->Drc += ChannelQn->Drc;
+                   tmb->Drc += QinKW->Drc;
+                }
+                ChannelQ->Drc = ChannelQn->Drc;
+            }}
+        }
+        _dt = _dt_user;
+
+        if (do_avg) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                ChannelQn->Drc = tma->Drc/(double) loop;
+                QinKW->Drc = tmb->Drc/(double) loop;
+            }}
+        }
+
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             ChannelWaterVol->Drc = ChannelWaterVol->Drc + QinKW->Drc*_dt - ChannelQn->Drc*_dt ;
             //mass balance
@@ -371,13 +380,13 @@ void TWorld::ChannelFlow(void)
             ChannelFlowWidth->Drc = ChannelWidth->Drc;
 
         }}
+
     } else {
 
         ChannelSWOFopen();
 
     }
     // get the maximum for output
-
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL
     {

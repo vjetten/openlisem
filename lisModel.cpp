@@ -234,11 +234,11 @@ void TWorld::DoModel()
 //            double wht = MapTotal(*WH)/nrCells;
 //            double pt = MapTotal(*Rain);
 
-//          //  _dt = _dt*2;
+          //  _dt = _dt*2;
 //            _dt = std::min(600.0, _dt);
 //            if (wht > 0.0001 || pt > 0)
 //                _dt = _dt_user;
-//qDebug() <<_dt;
+
             if (runstep > 0 && runstep % printinterval == 0)
                 printstep++;
             runstep++;
@@ -278,25 +278,15 @@ void TWorld::DoModel()
             }
 
             CellProcesses();
-         //   do_CellProcesses();
 
             ToTiledrain();         // fraction going into tiledrain directly from surface
 
-//            int loop = 1;
-//            double dttmp = _dt;
-//            double dtkin = _dt;//60.0;//_dt_user
-//            if (_dt > dtkin) {
-//                loop = int(_dt/dtkin);
-//                _dt = dtkin;
-//            }
-//qDebug() << loop << _dt << dttmp;
-//            for (int i = 0; i < loop; i++) {
-                OverlandFlow();        // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
+            OverlandFlow();
 
-                OrderedProcesses();    // do ordered LDD solutions channel, tiles, drains, non threaded
-//            }
-//            _dt = dttmp;
+            ChannelAddBaseandRain();  // add baseflow o, subtract infil, add rainfall
 
+            OrderedProcesses();    // do ordered LDD solutions channel, tiles, drains, non threaded
+                // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
             Totals();            // calculate all totals and cumulative values
 
@@ -415,7 +405,7 @@ void TWorld::OrderedProcesses()
 {
     SwitchChannelKinWave = true;// set to false for experimental swof in channel
 
-    ChannelAddBaseandRain();  // add baseflow o, subtract infil, add rainfall
+    //ChannelAddBaseandRain();  // add baseflow o, subtract infil, add rainfall
 
     ChannelFlow();            //channel kin wave for water and sediment
 

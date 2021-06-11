@@ -75,7 +75,7 @@ void TWorld::Totals(void)
 
     if (SwitchIncludeET) {
        // double ETtot = MapTotal(*ETa);
-     //   ETaTot = MapTotal(*ETaCum);
+        ETaTot = MapTotal(*ETaCum);
 
 
     }
@@ -203,6 +203,8 @@ void TWorld::Totals(void)
     {
         ChannelVolTot = MapTotal(*ChannelWaterVol); //m3
         // add channel vol to total
+        if (SwitchChannelBaseflow)
+            BaseFlowTot += MapTotal(*BaseFlowInflow) * _dt;
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
     }
@@ -492,11 +494,11 @@ void TWorld::MassBalance()
   //  if (RainTot + SnowTot > 0)
     {
 
-        double waterin = RainTot + SnowTot + WaterVolSoilTot + BaseFlowTot + WHinitVolTot;
+        double waterin = RainTot + SnowTot + WaterVolSoilTot + WHinitVolTot;
         double waterout = ETaTot;
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot;
-        double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;
-
+        double waterflow = WaterVolTot + ChannelVolTot - BaseFlowTot + StormDrainVolTot + Qtot;
+qDebug() << ChannelVolTot << BaseFlowTot;
 
         MB = waterin > 0 ? (waterin - waterout - waterstore - waterflow)/waterin *100 : 0;
      //   qDebug() << MB << waterin << waterstore << waterflow;

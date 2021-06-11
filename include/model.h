@@ -863,8 +863,6 @@ public:
     //LDD_COOR *_crlinked_
     QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
 
-    void do_CellProcesses();
-
     // kinematic 2D
     double K2DQOutBoun;
     double K2DQSOutBoun;
