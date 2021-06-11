@@ -500,17 +500,20 @@ void lisemqt::showComboMap(int i)
     // get spinbox values, can be 0
     double mi = op.userMinV.at(i);
     double ma = op.userMaxV.at(i);
+    bool domin = true;
 
     if (ma == 0)
         ma = MaxV; // use map max when ma = 0
-    if (mi == 0)
+    if (mi == 0) {
         mi = MinV;
+        domin = false;
+    }
     if(mi == ma) // because of they are equal nothing is displayed (raincum)
         mi = 0;
     if(mi > ma)
         ma = mi;
     //   qDebug() << mi << ma << MinV << MaxV;
-mi=std::max(1e-6,mi);
+
     if (op.ComboSymColor.at(i)) // symetric coloring for soilloss
     {
 
@@ -531,7 +534,7 @@ mi=std::max(1e-6,mi);
                                                  QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),
                                                  op.ComboColorMap.at(i),op.ComboColors.at(i));
 
-    cm->thresholduse = true;
+    cm->thresholduse = domin;
     cmL->thresholduse = true;
     cm->thresholdmin = mi;
     cmL->thresholdmin = mi;

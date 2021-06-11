@@ -442,7 +442,8 @@ void TWorld::GetRainfallSatMap(void)
                     QString sr, sc;
                     sr.setNum(r); sc.setNum(c);
                     ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[rainplace].name;
-                    throw 1;
+    //                throw 1;
+                    Rain->Drc = 0;
                 } else {
                     Rain->Drc = _M->Drc * tt;
                 }

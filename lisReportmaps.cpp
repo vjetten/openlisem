@@ -156,7 +156,7 @@ void TWorld::setLegendColors()
     LegendMap << Colormap;
 
     Colormap.clear();
-    Colormap.append(0.0);
+    Colormap.append(0.001);
     Colormap.append(0.5);
     Colormap.append(1.0);
     Colors.clear();
@@ -317,7 +317,8 @@ void TWorld::GetComboMaps()
     cl = 4;
     double factor = 3600000.0/_dt; //from m to mm/h
 
-    AddComboMap(0,"ETa Cumulative","mm",ETaCum,LegendMap[3],Legend[3],false,false,1000.0,0.1);
+    if (SwitchIncludeET)
+        AddComboMap(0,"ETa Cumulative","mm",ETaCum,LegendMap[3],Legend[3],false,false,1000.0,0.1);
     AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,LegendMap[cl],Legend[cl],false,false,1000.0,0.1);
     AddComboMap(0,"Rainfall Intensity","mm/h",Rain,LegendMap[cl],Legend[cl],false,false,factor,0.1);
   //  AddComboMap(0,"ETa cumulative","mm",ETa,LegendMap[cl],Legend[cl],false,false,1000.0,0.1);

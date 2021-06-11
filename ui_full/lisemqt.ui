@@ -3297,6 +3297,12 @@
                      <layout class="QGridLayout" name="gridLayout_60">
                       <item row="0" column="0">
                        <widget class="QFrame" name="radioGroupRain">
+                        <property name="frameShape">
+                         <enum>QFrame::Box</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Sunken</enum>
+                        </property>
                         <layout class="QGridLayout" name="gridLayout_50">
                          <item row="0" column="0">
                           <widget class="QRadioButton" name="radioRainFile">
@@ -3499,6 +3505,12 @@
                         <property name="enabled">
                          <bool>false</bool>
                         </property>
+                        <property name="frameShape">
+                         <enum>QFrame::Box</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Sunken</enum>
+                        </property>
                         <layout class="QGridLayout" name="gridLayout_49">
                          <property name="leftMargin">
                           <number>8</number>
@@ -3630,6 +3642,12 @@
                        <widget class="QFrame" name="radioGroupET">
                         <property name="enabled">
                          <bool>true</bool>
+                        </property>
+                        <property name="frameShape">
+                         <enum>QFrame::Box</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Sunken</enum>
                         </property>
                         <layout class="QGridLayout" name="gridLayout_47">
                          <property name="leftMargin">

@@ -96,10 +96,10 @@ class QwtComboColorMap: public QwtLinearColorMap
             }
         }else
         {
-            /*if ( value <= interval.minValue() )
+            if ( value <= -1e20 )
             {
                 return qRgba( 0, 0, 0, 0 );
-            }*/
+            }
         }
         return QwtLinearColorMap::rgb( interval, value );
     }
