@@ -145,7 +145,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
             throw 1;
         }
         rl.name = fi.absoluteFilePath();
-        qDebug() << rl.time << rl.name;
+      //  qDebug() << rl.time << rl.name;
 
         // add the record to the list
         if (type == 0)
@@ -442,7 +442,7 @@ void TWorld::GetRainfallSatMap(void)
                     sr.setNum(r); sc.setNum(c);
                     ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[rainplace].name;
     //                throw 1;
-                   Rain->Drc = 0;
+                    Rain->Drc = 0;
                 } else {
                     Rain->Drc = _M->Drc * tt;
                 }

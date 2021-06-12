@@ -333,6 +333,7 @@ public:
     SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide,
     SwitchTimeavgV, Switch2DDiagonalFlow, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
+    SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle;
 
     int SwitchKinematic2D;
@@ -435,7 +436,7 @@ public:
     /// time and dx parameters
     double time, BeginTime, EndTime;
     double _dt, _dx;
-    double _dt_user;
+    double _dt_user, _dtCHkin;
     long runstep, printstep, printinterval;
 
     QString mapFormat;

@@ -487,6 +487,7 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
         SwitchLinkedList = getvalueint("Use Linked List") == 1;
+        _dtCHkin = getvaluedouble("Channel Kinwave dt");
     } else {
         mixing_coefficient = 2.0;
         runoff_partitioning = 1.0;
@@ -501,6 +502,7 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         //Switch2DDiagonalFlow = true;
         //SwitchErosionInsideLoop = true;
         SwitchLinkedList = true;
+        _dtCHkin = _dt_user;
     }
 
     SwitchKinematic2D = getvalueint("Routing Kin Wave 2D");
@@ -1195,13 +1197,14 @@ void TWorld::InitFlood(void)
     if (Switch2DDiagonalFlow) {
         FOR_ROW_COL_MV_L {
             tma->Drc= 0;
+            tmb->Drc= 0;
 
             double Z = DEM->Drc;
             double z_x1 =  c > 0 && !MV(r,c-1)         ? DEM->data[r][c-1] : Z;
             double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? DEM->data[r][c+1] : Z;
             double z_y1 =  r > 0 && !MV(r-1,c)         ? DEM->data[r-1][c] : Z;
             double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? DEM->data[r+1][c] : Z;
-            /*
+
 
             double z_x11 =  c > 0 && r > 0 && !MV(r-1,c-1)         ? DEM->data[r-1][c-1] : Z;
             double z_x21 =  c > 0 && r < _nrRows-1 && !MV(r+1,c-1) ? DEM->data[r+1][c-1] : Z;
@@ -1230,10 +1233,6 @@ void TWorld::InitFlood(void)
                 }
                 if(z1) tma->Drc = 9;
                 if(z2) tma->Drc = 3;
-//                if(z_y11 < Z+F_pitValue)
-//                  tma->Drc = 9;
-//                if(z_y21 < Z+F_pitValue)
-//                  tma->Drc = 3;
             }
             // upper blockage
             if (z_y1 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
@@ -1245,10 +1244,6 @@ void TWorld::InitFlood(void)
                 }
                 if(z1) tma->Drc = 7;
                 if(z2) tma->Drc = 9;
-//                if(z_x11 < Z+F_pitValue)
-//                  tma->Drc = 7;
-//                if(z_x21 < Z+F_pitValue)
-//                  tma->Drc = 9;
             }
             //lower blockage
             if (z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
@@ -1260,37 +1255,35 @@ void TWorld::InitFlood(void)
                 }
                 if(z1) tma->Drc = 1;
                 if(z2) tma->Drc = 3;
-
-//                if(z_x21 < Z+F_pitValue)
-//                  tma->Drc = 1;
-//                if(z_y21 < Z+F_pitValue)
-//                  tma->Drc = 3;
             }
-*/
+
 // ldd map based:
             int ldd = (int) LDD->Drc;
             if (z_x1 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
                 if (ldd == 1 || ldd == 7)
-                    tma->Drc = ldd;
+                    tmb->Drc = ldd;
             }
             if (z_x2 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
                 if (ldd == 3 || ldd == 9)
-                    tma->Drc = ldd;
+                    tmb->Drc = ldd;
             }
             if (z_y1 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
                 if (ldd == 7 || ldd == 9)
-                    tma->Drc = ldd;
+                    tmb->Drc = ldd;
             }
             if (z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
                 if (ldd == 1 || ldd == 3)
-                    tma->Drc = ldd;
+                    tmb->Drc = ldd;
             }
 
   //          DEMdz->Drc = tma->Drc;
             // do not include channels, channels will do the outflow
-            if(SwitchIncludeChannel && ChannelWidth->Drc > 0)
+            if(SwitchIncludeChannel && ChannelWidth->Drc > 0) {
                 tma->Drc = 0;
+                tmb->Drc = 0;
+            }
 
+            // make a list of pits
             if (tma->Drc > 0) {
                 LDD_COORi dclrc;
                 dclrc.r = r;
@@ -1299,7 +1292,8 @@ void TWorld::InitFlood(void)
                 dcr_ << dclrc;
             }
         }}
-        report(*tma,"pits.map");
+        report(*tma,"pitsa.map");
+        report(*tmb,"pitsb.map");
     }
 
     if (!SwitchSWOFopen) {
@@ -2363,6 +2357,7 @@ void TWorld::IntializeOptions(void)
     SwitchLinkedList = false;
     SwitchChannelKinWave = true;
     SwitchTimeavgV = true;
+    SwitchChannelKinwaveDt = false;
     Switch2DDiagonalFlow = true;
     SwitchSWOFopen = true;
     SwitchMUSCL = false;

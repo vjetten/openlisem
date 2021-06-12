@@ -131,7 +131,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 //        FOR_ROW_COL_MV_L {
 //           FloodDT->Drc = dt_max;
 //        }}
-
+fill(*tmc,0);
         do {
             // bool SwitchLimitSWOFVelocity = true;
             //double vmax = 100000;
@@ -143,7 +143,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 vxs->Drc = vx->Drc;
                 vys->Drc = vy->Drc;
                 FloodDT->Drc = dt_max;
-
+                tmc->Drc = h->Drc*sqrt(vx->Drc*vx->Drc+vy->Drc*vy->Drc);
                 tmb->Drc = 0;
             }}
 
@@ -360,6 +360,12 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         vxn = 0;
                     if (fabs(vyn) <= ve_ca)
                         vyn = 0;
+
+                    if (fabs(vxn) > 20 && hn < 0.01)
+                        vxn = (vxn < 0 ? -1.0 : 1.0) * pow(hn,2.0/3.0)*sqrtGrad->Drc/N->Drc;
+                    if (fabs(vyn) > 20 && hn < 0.01)
+                        vyn = (vyn < 0 ? -1.0 : 1.0) * pow(hn,2.0/3.0)*sqrtGrad->Drc/N->Drc;
+
 
                     h->Drc = hn;
                     vx->Drc = vxn;

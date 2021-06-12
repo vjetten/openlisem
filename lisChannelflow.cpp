@@ -312,17 +312,14 @@ void TWorld::ChannelFlow(void)
 
     }}
 
-    if (SwitchChannelKinWave) {
-
-        bool do_avg = false;
+    if (SwitchChannelKinWave) {        
         int loop = 1;
-        double dtkin = 60.0;
-        if (_dt > dtkin) {
-            loop = int(_dt/dtkin);
-            _dt = dtkin;
+        if (_dt > _dtCHkin) {
+            loop = int(_dt/_dtCHkin);
+            _dt = _dtCHkin;
         }
 
-        if (do_avg) {
+        if (SwitchChannelKinwaveAvg) {
             fill(*tma,0);
             fill(*tmb,0);
         }
@@ -337,7 +334,7 @@ void TWorld::ChannelFlow(void)
                 FOR_ROW_COL_LDDCH5 {
                     Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
                 }}
-                cover(*ChannelQn, *LDD, 0);
+                cover(*ChannelQn, *LDD, 0); // check this!!!!
 
             } else {
                 KinematicExplicit(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
@@ -345,7 +342,7 @@ void TWorld::ChannelFlow(void)
 
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_CHL {
-                if (do_avg) {
+                if (SwitchChannelKinwaveAvg) {
                    tma->Drc += ChannelQn->Drc;
                    tmb->Drc += QinKW->Drc;
                 }
@@ -354,7 +351,7 @@ void TWorld::ChannelFlow(void)
         }
         _dt = _dt_user;
 
-        if (do_avg) {
+        if (SwitchChannelKinwaveAvg) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_CHL {
                 ChannelQn->Drc = tma->Drc/(double) loop;

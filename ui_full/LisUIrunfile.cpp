@@ -364,6 +364,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use gravity flow")==0)               E_gravityToChannel->setValue(iii);
         if (p1.compare("Angle flow to channel")==0)          E_angleToChannel->setValue(valc);
         if (p1.compare("Use fixed angle")==0)                checkFixedAngle->setChecked(check);
+        if (p1.compare("Use Channel Kinwave dt")==0)         checkKinWaveChannel->setChecked(check);
+        if (p1.compare("Use Avg Channel Kinwave")==0)        checkKinWaveChannelAvg->setChecked(check);
+        if (p1.compare("Channel KinWave dt")==0)             E_ChannelKinWaveDt->setValue(valc);
 
         //CALIBRATION
         if (p1.compare("Ksat calibration")==0)         E_CalibrateKsat->setValue(valc);
@@ -765,6 +768,10 @@ void lisemqt::updateModelData()
         if (p1.compare("Pit Value")==0)                      namelist[j].value = E_pitValue->text();
         if (p1.compare("Calculate erosion inside 2D loop")==0) namelist[j].value.setNum((int)checkErosionInsideLoop->isChecked());
         if (p1.compare("Use linked list")==0)                namelist[j].value.setNum((int)checkLinkedList->isChecked());
+        if (p1.compare("Use Channel Kinwave dt")==0)         namelist[j].value.setNum((int)checkKinWaveChannel->isChecked());
+        if (p1.compare("Use Avg Channel Kinwave")==0)        namelist[j].value.setNum((int)checkKinWaveChannelAvg->isChecked());
+        if (p1.compare("Channel KinWave dt")==0)             namelist[j].value = E_ChannelKinWaveDt->text();
+
 
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
         if (p1.compare("Timestep flood")==0)           namelist[j].value = E_TimestepMinFlood->text();

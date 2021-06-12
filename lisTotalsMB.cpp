@@ -203,8 +203,8 @@ void TWorld::Totals(void)
     {
         ChannelVolTot = MapTotal(*ChannelWaterVol); //m3
         // add channel vol to total
-        if (SwitchChannelBaseflow)
-            BaseFlowTot += MapTotal(*BaseFlowInflow) * _dt;
+      //  if (SwitchChannelBaseflow)
+       //     BaseFlowTot = MapTotal(*BaseFlowInflow) * _dt;
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
     }
