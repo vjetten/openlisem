@@ -1019,20 +1019,33 @@ void TWorld::InitChannel(void)
         cover(*ChannelWidth, *LDD, 0);
         //     ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
         //ChannelWidth->checkMap(SMALLEREQUAL, 0, "Channel width must be larger than 0 in channel cells");
-
+        ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
+        cover(*ChannelWidth, *LDD,0);
+        cover(*ChannelDepth, *LDD,0);
+        bool correct = false;
         FOR_ROW_COL_MV_CH
         {
-            ChannelWidth->Drc = std::min(ChannelWidth->Drc, 0.95*_dx);
+            double factor  = 1.0;
+            if (SwitchChannelAdjustCHW && ChannelWidth->Drc  > _dx) {
+                factor = ChannelWidth->Drc /(0.95*_dx);
+                ChannelWidth->Drc = 0.95*_dx;
+                ChannelDepth->Drc *= factor;
+                correct = true;
+            } else {
+                ChannelWidth->Drc = std::min(ChannelWidth->Drc, 0.95*_dx);
+            }
+
             if (ChannelWidth->Drc <= 0)
             {
                 ErrorString = QString("Map %1 contains channel cells with width = 0").arg(getvaluename("chanwidth"));
                 throw 1;
             }
         }
-
-        ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
-        cover(*ChannelDepth, *LDD,0);
-
+        if (correct) {
+            DEBUG("channel width and depth adjusted!");
+            report(*ChannelWidth,"chanwidthcorr.map");
+            report(*ChannelDepth,"chandepthcorr.map");
+        }
         ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
 
         ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
@@ -1043,7 +1056,6 @@ void TWorld::InitChannel(void)
 
         cover(*ChannelGrad, *LDD, 0);
         cover(*ChannelSide, *LDD, 0);
-        cover(*ChannelWidth, *LDD, 0);
         cover(*ChannelN, *LDD, 0);
 
         calcValue(*ChannelN, ChnCalibration, MUL);

@@ -179,8 +179,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("[Input]");
     namelist[i++].name = QString("Work Directory");
     namelist[i++].name = QString("Map Directory");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("Event based");
+ //   namelist[i].value = QString("1");
+ //   namelist[i++].name = QString("Event based");
     namelist[i++].name = QString("Rainfall file");
     namelist[i++].name = QString("Rainfall Directory");
     namelist[i].value = QString("0");

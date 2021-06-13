@@ -153,7 +153,7 @@ void lisemqt::ParseInputData()
         bool check = iii == 1;
         if (p1.contains("["))
             continue;
-        if (p1.compare("Event based")==0)                   checkEventBased->setChecked(check);
+       // if (p1.compare("Event based")==0)                   checkEventBased->setChecked(check);
         if (p1.compare("Use Rainfall maps")==0)             Rainmaps = check;
         if (p1.compare("Include ET")==0)                    checkIncludeET->setChecked(check);
         if (p1.compare("Use ET maps")==0)                   ETmaps = check;
@@ -187,6 +187,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
+        if (p1.compare("Adjust channel crossection")==0)     checkChannelAdjustCHW->setChecked(check);
+
         if (p1.compare("Include channel culverts")==0)       checkChannelCulverts->setChecked(check);
         if (p1.compare("Include channel inflow")==0)         checkChannelInflow->setChecked(check);
         if (p1.compare("Include Erosion simulation")==0)     checkDoErosion->setChecked(check);
@@ -722,7 +724,7 @@ void lisemqt::updateModelData()
     {
         QString p1 = namelist[j].name;
 
-        if (p1.compare("Event based")==0)              namelist[j].value.setNum((int)checkEventBased->isChecked());
+       // if (p1.compare("Event based")==0)              namelist[j].value.setNum((int)checkEventBased->isChecked());
         if (p1.compare("Use Rainfall maps")==0)        namelist[j].value.setNum((int)radioRainSatFile->isChecked());
         if (p1.compare("Include ET")==0)               namelist[j].value.setNum((int)checkIncludeET->isChecked());
         if (p1.compare("Use ET maps")==0)              namelist[j].value.setNum((int)radioETsatfile->isChecked());
@@ -737,6 +739,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
         if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
+        if (p1.compare("Adjust channel crossection")==0)       namelist[j].value.setNum((int)checkChannelAdjustCHW->isChecked());
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkChannelInflow->isChecked());
 

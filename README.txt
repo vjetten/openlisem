@@ -177,7 +177,7 @@ Because of diffusive runoff the range of resolutions can now be larger, LISEM is
 1) The openLISEM model 
 ======================
 
-This is the event based spatial runoff and erosion model openLISEM. Thank you 
+This is the spatial runoff, flooding and erosion model openLISEM. Thank you
 for downloading. openLISEM simulates the spatial dynamics of surface runoff and 
 erosion for catchments of 1 ha to 500 km2. It is based on the LISEM model that 
 is available here: www.itc.nl/lisem. Details about the theory and dataset for 

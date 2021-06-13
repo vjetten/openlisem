@@ -103,6 +103,10 @@
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
 {int r = cr_[i_].r; int c = cr_[i_].c;
 
+#define FOR_ROW_COL_MV_LWS for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
+{int r = crws_[i_].r; int c = cr_[i_].c;
+
+
 #define FOR_ROW_COL_LDD5 for(long i_ = nrValidCellsLDD5-1; i_ >= 0; i_--)\
 {int r = crldd5_[i_].r; int c = crldd5_[i_].c;
 
@@ -300,6 +304,7 @@ public:
     QVector <LDD_COOR> crldd5_;
     QVector <LDD_COOR> crlddch5_;
     QVector <LDD_COOR> cr_;
+    QVector <LDD_COOR> crws_;
     QVector <LDD_COORi> dcr_;
     QVector <LDD_COOR> crch_;
     QVector <LDD_COORIN> crlinkedldd_;
@@ -323,8 +328,8 @@ public:
  int SwitchFlood1D2DCoupling;SwitchPercolation, SwitchInfilGA2, SwitchCompactPresent, SwitchNutrients, SwitchPestout, SwitchDrainage,
 */
 
-    bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelInflow,
-    SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite, SwitchRainfall, SwitchEventbased,
+    bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelInflow, SwitchChannelAdjustCHW,
+    SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite, SwitchRainfall, //SwitchEventbased,
     SwitchDailyET, SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
@@ -582,6 +587,7 @@ public:
 
     double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
+    double fullSWOF2openWS(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     void ChannelSWOFopen();
 
     void KinematicSWOFopen(cTMap *_h, cTMap *_V);
@@ -852,8 +858,10 @@ public:
     double mixing_coefficient, runoff_partitioning;
     double minReportFloodHeight;
     void correctMassBalance(double sum1, cTMap *M, double th);
+    void correctMassBalanceWS(double sum1, cTMap *M, double th);
     void correctMassBalanceSed(double sum1, cTMap *M, double th);
     double getMass(cTMap *M, double th);
+    double getMassWS(cTMap *M, double th);
     double getMassSed(cTMap *M, double th);
     void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha, cTMap *_DX, cTMap *_Vol);
     double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double maxQ);
