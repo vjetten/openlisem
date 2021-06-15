@@ -72,7 +72,7 @@ struct output{
     QVector <double> EndPointY;
     QVector <LDD_COORIN> lddch_;
 
-    double timestep, CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;
+    double timestep, CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;     
 
     double
     // water

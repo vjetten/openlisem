@@ -114,7 +114,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     double dt_max = std::min(_dt, _dx*0.5);
     int count = 0;
     double sumh = 0;
-    double sumS = 0;
     bool stop;
     double dt_req_min = dt_max;
     int step = 0;
@@ -414,7 +413,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     return(count > 0 ? _dt/count : _dt);
 }
 
-double TWorld::fullSWOF2openWS(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
+double TWorld::fullSWOF2openWS(int nr_, cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 {
     double timesum = 0;
     double dt_max = std::min(_dt, _dx*0.5);
@@ -428,7 +427,7 @@ double TWorld::fullSWOF2openWS(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     if (startFlood)
     {
 
-        sumh = getMassWS(h, 0);
+        sumh = getMassWS(nr_, h, 0);
 
         do {
             // bool SwitchLimitSWOFVelocity = true;
@@ -436,7 +435,7 @@ double TWorld::fullSWOF2openWS(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             // if (SwitchLimitSWOFVelocity)
             //      vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
             #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_LWS {
+            FOR_ROW_COL_MV_LWS(nr_) {
                 hs->Drc = h->Drc;
                 vxs->Drc = vx->Drc;
                 vys->Drc = vy->Drc;
@@ -445,7 +444,8 @@ double TWorld::fullSWOF2openWS(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             }}
 
             #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_LWS {
+            FOR_ROW_COL_MV_LWS(nr_) {
+
                 if (hs->Drc > 0) {
                     tmb->Drc = 1;
                     if (c > 0 && !MV(r,c-1)        ) tmb->data[r][c-1] = 1;
@@ -462,7 +462,7 @@ double TWorld::fullSWOF2openWS(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
             //do all flow and state calculations
             #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_LWS {
+            FOR_ROW_COL_MV_LWS(nr_) {
             if (tmb->Drc > 0) {
 
                 double dt = dt_req_min;
@@ -620,11 +620,12 @@ double TWorld::fullSWOF2openWS(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     if (fabs(vyn) <= ve_ca)
                         vyn = 0;
 
-                    if (fabs(vxn) > 20 && hn < 0.01)
-                        vxn = (vxn < 0 ? -1.0 : 1.0) * pow(hn,2.0/3.0)*sqrtGrad->Drc/N->Drc;
-                    if (fabs(vyn) > 20 && hn < 0.01)
-                        vyn = (vyn < 0 ? -1.0 : 1.0) * pow(hn,2.0/3.0)*sqrtGrad->Drc/N->Drc;
-
+                    double vxabs = fabs(vxn);
+                    double vyabs = fabs(vyn);
+                    if (vxabs > 20)
+                        vxn = (vxn < 0 ? -1.0 : 1.0) * (20+(pow(vxabs,0.3)));
+                    if (vyabs > 20)
+                        vyn = (vyn < 0 ? -1.0 : 1.0) * (20+(pow(vyabs,0.3)));
 
                     h->Drc = hn;
                     vx->Drc = vxn;
@@ -635,7 +636,7 @@ double TWorld::fullSWOF2openWS(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
             // find smallest domain dt
             #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
-            FOR_ROW_COL_MV_LWS {
+            FOR_ROW_COL_MV_LWS(nr_) {
                 dt_req_min = std::min(dt_req_min, FloodDT->Drc);
             }}
             dt_req_min = std::min(dt_req_min, _dt-timesum);
@@ -663,7 +664,7 @@ double TWorld::fullSWOF2openWS(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
         } while (!stop);
 
-        correctMassBalanceWS(sumh, h, 0);
+       correctMassBalanceWS(nr_, sumh, h, 0);
 
     } // if floodstart
 

@@ -278,19 +278,43 @@ void TWorld::InitStandardInput(void)
         nrValidCells++;
     }
 
-//    cr_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCells);
+    // Qvector is faster but if Qt prefers QList...?
+    //cr_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCells);
+    //long i = 0;
+    //FOR_ROW_COL_MV {
+    //        cr_[i].r = r;
+    //        cr_[i].c = c;
+    //        i++;
+    //}
 
- //   long i = 0;
     FOR_ROW_COL_MV {
         LDD_COOR newcr;
         newcr.r = r;
         newcr.c = c;
         cr_ << newcr;
-//        cr_[i].r = r;
-//        cr_[i].c = c;
-//        i++;
     }
-//    nrValidCells = cr_.size();
+
+    if (SwitchSWOFWatersheds) {
+        WaterSheds = ReadMap(LDD,getvaluename("wsheds"));
+        nrWatersheds = countUnits(*WaterSheds);
+
+        long nrc = 0;
+        WScr.clear();
+        for (int i = 0; i <= nrWatersheds; i++){
+            crws_.clear();
+            FOR_ROW_COL_MV {
+                if (WaterSheds->Drc == i) {
+                    LDD_COOR newcr;
+                    newcr.r = r;
+                    newcr.c = c;
+                    crws_ << newcr;
+                }
+            }
+            WScr.append(crws_);
+            nrc += WScr.at(i).size();
+            qDebug() << WScr.size() << WScr.at(i).size() << i << nrc << nrValidCells;
+        }
+    }
 
     FOR_ROW_COL_MV {
         if (LDD->Drc == 5) {
@@ -482,9 +506,9 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
         F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
         // SwitchHeun = false;// (getvalueint("Use Heun") == 1);
-        F_AddGravity = getvalueint("Use gravity flow");
-        F_Angle = getvaluedouble("Angle flow to channel");
-        SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);
+        //F_AddGravity = getvalueint("Use gravity flow");
+       // F_Angle = getvaluedouble("Angle flow to channel");
+        //SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
         SwitchLinkedList = getvalueint("Use Linked List") == 1;
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
@@ -495,9 +519,9 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         F_fluxLimiter = 1; //minmax, vanleer, albeda
         F_scheme = 4;   //Rusanov HLL HLL2 HLL2c
         //  SwitchHeun = false;
-        SwitchFixedAngle = false;
+        //SwitchFixedAngle = false;
         F_AddGravity = 1;
-        F_Angle = 0.02;
+        //F_Angle = 0.02;
         F_pitValue = _dx/100;
         //Switch2DDiagonalFlow = true;
         //SwitchErosionInsideLoop = true;
@@ -2377,7 +2401,8 @@ void TWorld::IntializeOptions(void)
     SwitchFlowBarriers = false;
     SwitchBuffers = false;
     SwitchHeun = false;
-    SwitchFixedAngle = false;
+    //SwitchFixedAngle = false;
+
 
     SwitchErosion = false;
     SwitchUse2Phase = false;
@@ -2810,13 +2835,13 @@ void TWorld::FindChannelAngles()
     avggrad /= nn;
 
     FOR_ROW_COL_MV_CH {
-        if (SwitchFixedAngle)
-            ChannelPAngle->Drc = F_Angle;
-        else
+//        if (SwitchFixedAngle)
+//            ChannelPAngle->Drc = F_Angle;
+//        else
             ChannelPAngle->Drc = 0.5*ChannelPAngle->Drc + 0.5*avggrad;
         //std::min(ChannelPAngle->Drc, F_Angle);
     }
-    //report(*ChannelPAngle,"cpa.map");
+    report(*ChannelPAngle,"cpa.map");
 }
 //---------------------------------------------------------------------------
 void TWorld::InitImages()

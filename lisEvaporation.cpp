@@ -136,7 +136,7 @@ void TWorld::GetETData(QString name)
 
         if (r > 0 && rl.time <= time)
         {
-            qDebug() << r << time << rl.time;
+            //qDebug() << r << time << rl.time;
             ErrorString = QString("ET records at time %1 has unreadable value.").arg(rl.time);
             throw 1;
         }

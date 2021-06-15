@@ -1795,6 +1795,7 @@ void lisemqt::resetAll()
     checkChannelInfil->setChecked(false);
     checkChannelBaseflow->setChecked(false);
     checkChannelInflow->setChecked(false);
+    checkChannelAdjustCHW->setChecked(false);
 
     checkRoadsystem->setChecked(false);
     checkHouses->setChecked(false);

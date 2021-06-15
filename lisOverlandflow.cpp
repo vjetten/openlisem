@@ -301,8 +301,22 @@ void TWorld::OverlandFlow2Ddyn(void)
         }
     }
 
-    if (SwitchSWOFopen)
-        dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
+    if (SwitchSWOFopen) {
+        if (SwitchSWOFWatersheds) {
+            double dtofavg = 0;
+            for (int i = 1; i < WScr.size(); i++) {
+                dtOF = fullSWOF2openWS(i, WHrunoff, Uflood, Vflood, DEM);
+                dtofavg += dtOF;
+
+                qDebug() << dtOF << i;
+            }
+            dtOF = dtofavg/(double)WScr.size();
+            iter_n = (int) _dt_user/dtOF;
+        } else {
+            dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
+        }
+
+    }
     else
         dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
     //VJ new average flux over lisem timestep, else last Qn is used

@@ -23,11 +23,11 @@ double TWorld::getMass(cTMap *M, double th)
     return sum2;
 }
 
-double TWorld::getMassWS(cTMap *M, double th)
+double TWorld::getMassWS(int nr_, cTMap *M, double th)
 {
     double sum2 = 0;
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
-    FOR_ROW_COL_MV_LWS {
+    FOR_ROW_COL_MV_LWS(nr_) {
         if(M->Drc > th)
             sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
     }}
@@ -72,13 +72,13 @@ void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
     }}
 }
 
-void TWorld::correctMassBalanceWS(double sum1, cTMap *M, double th)
+void TWorld::correctMassBalanceWS(int nr_, double sum1, cTMap *M, double th)
 {
     double sum2 = 0;
     double n = 0;
 
 #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
-    FOR_ROW_COL_MV_LWS {
+    FOR_ROW_COL_MV_LWS(nr_) {
         if(M->Drc > th)
         {
             sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
@@ -89,7 +89,7 @@ void TWorld::correctMassBalanceWS(double sum1, cTMap *M, double th)
     double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
 
 #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_LWS {
+    FOR_ROW_COL_MV_LWS(nr_) {
         if(M->Drc > th)
         {
             M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h

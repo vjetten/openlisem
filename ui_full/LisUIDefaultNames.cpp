@@ -40,7 +40,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("0;Rainfall");
     DEFmaps.append("2;ID;ID.map;Raingauge zone ID numbers, correspond to columns (1,2,...) in rainfall file;ID");
     DEFmaps.append("2;ET ID;ETID.map;ET zone ID numbers, correspond to columns (1,2,...) in EvapoTranspiration file;ETID");
-//    DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
+    DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
 
     DEFmaps.append("0;Catchment");
     DEFmaps.append("2;DEM;dem.map;Digital elevation model (m);dem");
@@ -49,6 +49,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;LDD;ldd.map;Local surface Drainage Direction network;ldd");
     DEFmaps.append("2;Outlet;outlet.map;Main catchment outlet corresponding to LDD map;outlet");
     DEFmaps.append("2;Points;outpoint.map;Reporting points for hydrograph/sedigraph (1,2,3,...);outpoint");
+    DEFmaps.append("2;Watersheds;watersheds.map;sub-catchments numbered (1,2,3,...);wsheds");
 
     DEFmaps.append("0;Landuse");
     DEFmaps.append("2;Units;landunit.map;Classified land unit map (integers 0-n) for output of erosion values;landunit");
@@ -303,6 +304,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel baseflow");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Adjust channel crosssection");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel culverts");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel inflow");
@@ -398,6 +401,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Use 2D Diagonal flow");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use SWOF watersheds");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood solution");
     //###
     namelist[i++].name = QString("");
@@ -414,10 +419,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding runoff partitioning");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Use gravity flow");
-    namelist[i].value = QString("0.02");
-    namelist[i++].name = QString("Angle flow to channel");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use fixed angle");
+//    namelist[i].value = QString("0.02");
+//    namelist[i++].name = QString("Angle flow to channel");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Use fixed angle");
     namelist[i].value = QString("10.0");
     namelist[i++].name = QString("Pit Value");
     namelist[i].value = QString("0");

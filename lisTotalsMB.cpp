@@ -498,7 +498,7 @@ void TWorld::MassBalance()
         double waterout = ETaTot;
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot;
         double waterflow = WaterVolTot + ChannelVolTot - BaseFlowTot + StormDrainVolTot + Qtot;
-qDebug() << ChannelVolTot << BaseFlowTot;
+//qDebug() << ChannelVolTot << BaseFlowTot;
 
         MB = waterin > 0 ? (waterin - waterout - waterstore - waterflow)/waterin *100 : 0;
      //   qDebug() << MB << waterin << waterstore << waterflow;

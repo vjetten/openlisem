@@ -314,14 +314,16 @@ void TWorld::ChannelFlow(void)
 
     if (SwitchChannelKinWave) {        
         int loop = 1;
-        if (_dt > _dtCHkin) {
-            loop = int(_dt/_dtCHkin);
-            _dt = _dtCHkin;
-        }
-
-        if (SwitchChannelKinwaveAvg) {
-            fill(*tma,0);
-            fill(*tmb,0);
+        if (SwitchChannelKinwaveDt) {
+            if (_dt > _dtCHkin) {
+                loop = int(_dt/_dtCHkin);
+                _dt = _dtCHkin;
+            }
+            if (SwitchChannelKinwaveAvg) {
+                fill(*tma,0);
+                fill(*tmb,0);
+            }
+            qDebug() << loop;
         }
 
         for (int i = 0; i < loop; i++) {
@@ -342,7 +344,7 @@ void TWorld::ChannelFlow(void)
 
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_CHL {
-                if (SwitchChannelKinwaveAvg) {
+                if (SwitchChannelKinwaveDt && SwitchChannelKinwaveAvg) {
                    tma->Drc += ChannelQn->Drc;
                    tmb->Drc += QinKW->Drc;
                 }
@@ -351,7 +353,7 @@ void TWorld::ChannelFlow(void)
         }
         _dt = _dt_user;
 
-        if (SwitchChannelKinwaveAvg) {
+        if (SwitchChannelKinwaveDt && SwitchChannelKinwaveAvg) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_CHL {
                 ChannelQn->Drc = tma->Drc/(double) loop;

@@ -269,14 +269,14 @@ void TWorld::GetRainfallData(QString name)
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
 
-        qDebug() << rl.time << SL[0];
+        //qDebug() << rl.time << SL[0];
 
         if (r == 0)
             time = rl.time;
 
         if (r > 0 && rl.time <= time)
         {
-            qDebug() <<"e"<< r << time << rl.time;
+            //qDebug() <<"e"<< r << time << rl.time;
             ErrorString = QString("Rainfall records at time %1 has unreadable value.").arg(rl.time);
             throw 1;
         }

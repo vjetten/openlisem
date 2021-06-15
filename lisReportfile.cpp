@@ -52,7 +52,7 @@ void TWorld::reportAll(void)
 
     ReportTotalSeries();
 
- //   ReportTimeseriesNew();
+    ReportTimeseriesNew();
     // report hydrographs ande sedigraphs at all points in outpoint.map
 
     if (!SwitchEndRun) {
@@ -711,7 +711,7 @@ void TWorld::ReportTotalsNew(void)
     out.setFieldWidth(16);
     out.setRealNumberNotation(QTextStream::FixedNotation);
     out << "\"LISEM run with:\"," << op.runfilename << "\n";
-    out << "\"LISEM results at time (min):\"," << op.time <<"\n";
+    out << "\"LISEM results at time (day:min):\"," << op.time/1440 << ":" << long(op.time) % 1440 <<"\n";
     out << "\"Catchment area (ha):\"," << op.CatchmentArea/10000.0<< "\n";
     out << "\"Total Precipitation (mm):\"," << op.RainTotmm<< "\n";
     out << "\"Total interception(mm):\"," << op.IntercTotmm<< "\n";
@@ -870,7 +870,8 @@ void TWorld::ReportMapSeries(void)
         report(*InterceptionmmCum, OutInt);
     // velovity m/s
     if (SwitchOutvelo)
-        report(*COMBO_VOFCH, Outvelo);
+        report(*V, Outvelo);
+//        report(*COMBO_VOFCH, Outvelo);
 
     // infiltration mm
     if (SwitchOutinf)
@@ -1128,7 +1129,8 @@ void TWorld::ChannelFloodStatistics(void)
     out.setRealNumberNotation(QTextStream::FixedNotation);
 
     out << "\"LISEM run with:," << op.runfilename << "\"" << "\n";
-    out << "\"results at time (min):\"" << op.time << "\n";
+    out << "\"results at time (day:min):\"" << op.time/1440 << ":" << long(op.time) % 1440 <<"\n";
+    // "\"results at time (min):\"" << op.time << "\n";
     out << "class,Depth,Area,Volume,Duration,Start,Structures,Roads\n";
     out << "#,m,m2,m3,h,h,m2,m2\n";
     out << "total" << ",>0.05," << totarea << "," << totvol << ",,," << totbuild << "," << totroad <<"\n";

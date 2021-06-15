@@ -102,9 +102,9 @@
 
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
 {int r = cr_[i_].r; int c = cr_[i_].c;
-
-#define FOR_ROW_COL_MV_LWS for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
-{int r = crws_[i_].r; int c = cr_[i_].c;
+//nrValidCellsWS
+#define FOR_ROW_COL_MV_LWS(nr_) for(long i_ = WScr.at(nr_).size()-1; i_ >= 0; i_--)\
+{int r = WScr.at(nr_)[i_].r; int c = WScr.at(nr_)[i_].c;
 
 
 #define FOR_ROW_COL_LDD5 for(long i_ = nrValidCellsLDD5-1; i_ >= 0; i_--)\
@@ -297,6 +297,8 @@ public:
     long nrValidCellsCH;
     long nrValidCellsLDD5;
     long nrValidCellsLDDCH5;
+    long nrValidCellsWS;
+    int nrWatersheds;
     //LDD_COOR *cr_;
     //LDD_COOR *crch_;
     //LDD_COOR *crlinkedldd_;
@@ -305,6 +307,7 @@ public:
     QVector <LDD_COOR> crlddch5_;
     QVector <LDD_COOR> cr_;
     QVector <LDD_COOR> crws_;
+    QList< QVector <LDD_COOR> > WScr;
     QVector <LDD_COORi> dcr_;
     QVector <LDD_COOR> crch_;
     QVector <LDD_COORIN> crlinkedldd_;
@@ -338,7 +341,7 @@ public:
     SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide,
     SwitchTimeavgV, Switch2DDiagonalFlow, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
-    SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,
+    SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle;
 
     int SwitchKinematic2D;
@@ -587,7 +590,7 @@ public:
 
     double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
-    double fullSWOF2openWS(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
+    double fullSWOF2openWS(int nr_, cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     void ChannelSWOFopen();
 
     void KinematicSWOFopen(cTMap *_h, cTMap *_V);
@@ -858,10 +861,10 @@ public:
     double mixing_coefficient, runoff_partitioning;
     double minReportFloodHeight;
     void correctMassBalance(double sum1, cTMap *M, double th);
-    void correctMassBalanceWS(double sum1, cTMap *M, double th);
+    void correctMassBalanceWS(int nr_, double sum1, cTMap *M, double th);
     void correctMassBalanceSed(double sum1, cTMap *M, double th);
     double getMass(cTMap *M, double th);
-    double getMassWS(cTMap *M, double th);
+    double getMassWS(int nr_, cTMap *M, double th);
     double getMassSed(cTMap *M, double th);
     void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha, cTMap *_DX, cTMap *_Vol);
     double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double maxQ);

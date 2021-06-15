@@ -196,6 +196,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include main channels")==0)             SwitchIncludeChannel =   iii == 1;
         if (p1.compare("Include channel infil")==0)             SwitchChannelInfil     = iii == 1;
         if (p1.compare("Include channel baseflow")==0)          SwitchChannelBaseflow  = iii == 1;
+        if (p1.compare("Adjust channel crosssection")==0)       SwitchChannelAdjustCHW  = iii == 1;
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
         if (p1.compare("Include channel inflow")==0)            SwitchChannelInflow  = iii == 1;
 
@@ -203,8 +204,10 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
         if (p1.compare("Use Channel Kinwave dt")==0)            SwitchChannelKinwaveDt = iii == 1;
         if (p1.compare("Use Avg Channel Kinwave")==0)           SwitchChannelKinwaveAvg = iii == 1;
+        if (p1.compare("Use gravity flow")==0)                  SwitchGravityToChannel = iii == 1;
 
         if (p1.compare("Use 2D Diagonal flow")==0)              Switch2DDiagonalFlow = iii == 1;
+        if (p1.compare("Use SWOF watersheds")==0)               SwitchSWOFWatersheds = iii == 1;
         if (p1.compare("Flow Boundary 2D")==0)                  FlowBoundaryType = iii;
         if (p1.compare("Advanced Options")==0)                  SwitchAdvancedOptions = iii == 1;
 

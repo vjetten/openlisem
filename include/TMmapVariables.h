@@ -42,6 +42,7 @@ cTMap
 *Outlet,                     //!< main outlet of the catchment, value 5 in LDD map [-]
 *PointMap,                   //!< map with output points, values > 0 [-]
 *FlowBoundary,               //!< map with open boundary fior diffusive runoff (1) or closed boundary (0)
+*WaterSheds,                 //!< map with numbered siubcatchments, must be 1,2,3 ... n
 
 *RainZone,                   //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *ETZone,                     //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]

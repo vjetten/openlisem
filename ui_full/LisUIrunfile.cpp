@@ -187,7 +187,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
-        if (p1.compare("Adjust channel crossection")==0)     checkChannelAdjustCHW->setChecked(check);
+        if (p1.compare("Adjust channel crosssection")==0)     checkChannelAdjustCHW->setChecked(check);
 
         if (p1.compare("Include channel culverts")==0)       checkChannelCulverts->setChecked(check);
         if (p1.compare("Include channel inflow")==0)         checkChannelInflow->setChecked(check);
@@ -270,6 +270,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Pit Value")==0)                      E_pitValue->setValue(valc);
         if (p1.compare("Flood initial level map")==0)        checkFloodInitial->setChecked(check);
         if (p1.compare("Timestep flood")==0)                 E_TimestepMinFlood->setValue(valc);
+        if (p1.compare("Use SWOF watersheds")==0)            checkSWOFWatersheds->setChecked(check);
 
 
         // EROSION
@@ -363,8 +364,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(valc);
         if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(valc);
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(iii);
-        if (p1.compare("Use gravity flow")==0)               E_gravityToChannel->setValue(iii);
-        if (p1.compare("Angle flow to channel")==0)          E_angleToChannel->setValue(valc);
+        if (p1.compare("Use gravity flow")==0)               checkGravityToChannel->setChecked(check);
+     //   if (p1.compare("Angle flow to channel")==0)          E_angleToChannel->setValue(valc);
         if (p1.compare("Use fixed angle")==0)                checkFixedAngle->setChecked(check);
         if (p1.compare("Use Channel Kinwave dt")==0)         checkKinWaveChannel->setChecked(check);
         if (p1.compare("Use Avg Channel Kinwave")==0)        checkKinWaveChannelAvg->setChecked(check);
@@ -739,7 +740,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
         if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
-        if (p1.compare("Adjust channel crossection")==0)       namelist[j].value.setNum((int)checkChannelAdjustCHW->isChecked());
+        if (p1.compare("Adjust channel crosssection")==0)       namelist[j].value.setNum((int)checkChannelAdjustCHW->isChecked());
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkChannelInflow->isChecked());
 
@@ -758,8 +759,8 @@ void lisemqt::updateModelData()
         }
         if (p1.compare("Flow Boundary 2D")==0)               namelist[j].value = E_FlowBoundary->text();
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
-        if (p1.compare("Use gravity flow")==0)               namelist[j].value = E_gravityToChannel->text();
-        if (p1.compare("Angle flow to channel")==0)          namelist[j].value = E_angleToChannel->text();
+        if (p1.compare("Use gravity flow")==0)               namelist[j].value.setNum((int)checkGravityToChannel->isChecked());
+      //  if (p1.compare("Angle flow to channel")==0)          namelist[j].value = E_angleToChannel->text();
         if (p1.compare("Include diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
@@ -780,8 +781,9 @@ void lisemqt::updateModelData()
         if (p1.compare("Timestep flood")==0)           namelist[j].value = E_TimestepMinFlood->text();
         if (p1.compare("Use time avg V")==0)    namelist[j].value.setNum((int) checkTimeavgV->isChecked());
         if (p1.compare("Use 2D Diagonal flow")==0)               namelist[j].value.setNum((int) check2DDiagonalFlow->isChecked());
+        if (p1.compare("Use SWOF watersheds")==0)             namelist[j].value.setNum((int) checkSWOFWatersheds->isChecked());
 
-        if (p1.compare("Use fixed angle")==0)                namelist[j].value.setNum((int) checkFixedAngle->isChecked());
+    //    if (p1.compare("Use fixed angle")==0)                namelist[j].value.setNum((int) checkFixedAngle->isChecked());
         if (p1.compare("Variable Timestep")==0)        namelist[j].value.setNum((int) checkVariableTimestep->isChecked());
 
         if (p1.compare("Flood solution")==0)
