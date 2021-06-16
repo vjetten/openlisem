@@ -231,13 +231,13 @@ void TWorld::DoModel()
 //        for (time = BeginTime; time < EndTime; time += _dt)
         while (time < EndTime)
         {            
-            double wht = MapTotal(*WH)/nrCells;
-            double pt = MapTotal(*Rain);
+//            double wht = MapTotal(*WH)/nrCells;
+//            double pt = MapTotal(*Rain);
 
-            _dt = _dt*2;
-            _dt = std::min(600.0, _dt);
-            if (wht > 0.0001 || pt > 0)
-                _dt = _dt_user;
+//            _dt = _dt*2;
+//            _dt = std::min(600.0, _dt);
+//            if (wht > 0.0001 || pt > 0)
+//                _dt = _dt_user;
 
             if (runstep > 0 && runstep % printinterval == 0)
                 printstep++;
