@@ -358,7 +358,10 @@ public:
     void resetTabErosion();
     void resetTabFlow();
     void resetTabCalibration();
+    void resetTabAdvanced();
     void resetTabSediment();
+    void resetTabInterception();
+    void resetTabInfiltration();
     void doCheckRainfall(bool);
 
     void setErosionTab();
@@ -548,6 +551,12 @@ private slots:
     void on_E_BeginTimeDay_returnPressed();
 
     void on_toolButton_help1a_clicked();
+
+    void on_toolButton_resetAdvanced_clicked();
+
+    void on_toolButton_resetInfiltration_clicked();
+
+    void on_toolButton_resetInterception_clicked();
 
 private:
 

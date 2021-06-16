@@ -526,7 +526,7 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         //Switch2DDiagonalFlow = true;
         //SwitchErosionInsideLoop = true;
         SwitchLinkedList = true;
-        _dtCHkin = _dt_user;
+        _dtCHkin = 60.0;//_dt_user;
     }
 
     SwitchKinematic2D = getvalueint("Routing Kin Wave 2D");

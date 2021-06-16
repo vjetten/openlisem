@@ -303,6 +303,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 
     if (SwitchSWOFopen) {
         if (SwitchSWOFWatersheds) {
+            double hh = getMass(WHrunoff, 0);
             double dtofavg = 0;
             for (int i = 1; i < WScr.size(); i++) {
                 dtOF = fullSWOF2openWS(i, WHrunoff, Uflood, Vflood, DEM);
@@ -310,6 +311,8 @@ void TWorld::OverlandFlow2Ddyn(void)
 
                 qDebug() << dtOF << i;
             }
+            correctMassBalance(hh, WHrunoff, 0);
+
             dtOF = dtofavg/(double)WScr.size();
             iter_n = (int) _dt_user/dtOF;
         } else {

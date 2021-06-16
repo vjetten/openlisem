@@ -1588,37 +1588,45 @@ void lisemqt::resetTabCalibration()
     E_CalibrateGS->setValue(1.0);
     E_CalibrateCHCOH->setValue(1.0);
 }
+
+
+void lisemqt::resetTabInterception()
+{
+    radioButton_1->setChecked(true); //<= crops interception
+    E_CanopyOpeness->setValue(0.45);
+    //    E_StemflowFraction->setValue(0.054);
+    checkIncludeLitter->setChecked(false);
+    E_LitterSmax->setValue(1.0);
+}
+
+void lisemqt::resetTabInfiltration()
+{
+    //infiltration
+    checkInfilCompact->setChecked(false);
+    checkInfilCrust->setChecked(false);
+    checkInfil2layer->setChecked(false);
+    checkInfilImpermeable->setChecked(false);
+    checkIncludeTiledrains->setChecked(false);
+    checkGeometric->setChecked(true);
+    E_SWATREDtsecFraction->setValue(0.2);
+    E_SwatreTableName->setText("profile.inp");
+    E_SwatreTableDir->setText("");
+}
 //--------------------------------------------------------------------
 void lisemqt::resetTabFlow()
 {
-    checkFlowBarriers->setChecked(false);
-    line_FlowBarriers->setText("flowbarriers.txt");
     E_FlowBoundary->setValue(1);
-    //E_TimestepMin->setValue(0.2);
-    E_TimestepMinFlood->setValue(0.2);
-    //E_CourantFactorKin->setValue(0.2);
-    E_mixingFactor->setValue(2.0);
-    E_pitValue->setValue(10.0);
-    E_runoffPartitioning->setValue(1.0);
-    E_FloodMaxIter->setValue(200);
-    E_FloodReconstruction->setValue(3);  //HLL2 etc
-    E_FloodFluxLimiter->setValue(1);     //minmod etc
-    E_courantFactorSed->setValue(0.2);
-    //E_concentrateFlow->setValue(1.0);
-    E_courantFactor->setValue(0.2);
-
-    checkVariableTimestep->setChecked(false);
-    checkHeun->setChecked(false);
-    //checkMuscl->setChecked(false);
-    //checkSWOFomp->setChecked(true);
-    checkTimeavgV->setChecked(true);
-    check2DDiagonalFlow->setChecked(true);
-
     E_floodMinHeight->setValue(0.05);
     checkFloodInitial->setChecked(false);
-
-    E_gravityToChannel->setValue(0);
-    E_angleToChannel->setValue(0.02);
+    checkFlowBarriers->setChecked(false);
+    line_FlowBarriers->setText("flowbarriers.txt");
+    checkBuffers->setChecked(false);
+    check2DDiagonalFlow->setChecked(true);
+    E_pitValue->setValue(1.0);
+    checkSWOFWatersheds->setChecked(false);
+    rb_swof2->setChecked(true);
+    E_TimestepMinFlood->setValue(0.2);
+    E_courantFactor->setValue(0.2);
 }
 //--------------------------------------------------------------------
 void lisemqt::resetTabSediment()
@@ -1643,6 +1651,9 @@ void lisemqt::resetTabSediment()
 
     checkDiffusion->setChecked(true);
     //checkRDiffusion->setChecked(true);
+
+    checkSed2Phase->setChecked(false);
+
 }
 //--------------------------------------------------------------------
 void lisemqt::resetTabErosion()
@@ -1680,6 +1691,26 @@ void lisemqt::resetTabErosion()
     resetTabSediment();
 }
 
+void lisemqt::resetTabAdvanced()
+{
+    E_mixingFactor->setValue(2.0);
+    E_runoffPartitioning->setValue(1.0);
+    E_FloodMaxIter->setValue(200);
+    E_FloodReconstruction->setValue(4);  //HLL2 etc
+    E_FloodFluxLimiter->setValue(1);     //minmod etc
+    E_courantFactorSed->setValue(0.2);
+    checkVariableTimestep->setChecked(false);
+    checkHeun->setChecked(false);
+    checkTimeavgV->setChecked(true);
+    checkLinkedList->setChecked(false);
+    checkErosionInsideLoop->setChecked(true);
+    checkGravityToChannel->setChecked(false);
+    checkKinWaveChannel->setChecked(true);
+    E_ChannelKinWaveDt->setValue(60.0);
+    checkKinWaveChannelAvg->setChecked(false);
+    nrUserCores->setValue(0);
+}
+
 void lisemqt::resetAll()
 {
     W = nullptr;
@@ -1708,8 +1739,7 @@ void lisemqt::resetAll()
     checksatImage->setChecked(false);
     checkAdvancedOptions->setChecked(false);
 
-
- //   checkEventBased->setChecked(true);
+    //   checkEventBased->setChecked(true);
 
     checkSeparateOutput->setChecked(false);
     E_DigitsOut->setValue(3);
@@ -1803,24 +1833,10 @@ void lisemqt::resetAll()
     checkRaindrum->setChecked(false);
     checkStormDrains->setChecked(false);
 
-    // interception
 
-    radioButton_1->setChecked(true); //<= crops interception
-    E_CanopyOpeness->setValue(0.45);
-    //    E_StemflowFraction->setValue(0.054);
-    checkIncludeLitter->setChecked(false);
-    E_LitterSmax->setValue(1.0);
+    resetTabInterception();
 
-    //infiltration
-    checkInfilCompact->setChecked(false);
-    checkInfilCrust->setChecked(false);
-    checkInfil2layer->setChecked(false);
-    checkInfilImpermeable->setChecked(false);
-    checkIncludeTiledrains->setChecked(false);
-    checkGeometric->setChecked(true);
-    E_SWATREDtsecFraction->setValue(0.2);
-    E_SwatreTableName->setText("profile.inp");
-    E_SwatreTableDir->setText("");
+    resetTabInfiltration();
 
     //flow
     resetTabFlow();
@@ -1828,13 +1844,10 @@ void lisemqt::resetAll()
     //erosion
     resetTabErosion();
 
-    //sediment
-    resetTabSediment();
-    checkSed2Phase->setChecked(false);
-    //checkSedMultiGrain->setChecked(false);
-
     //calibration
     resetTabCalibration();
+    resetTabAdvanced();
+
 
     checkVariableTimestep->setChecked(false);
     checkHeun->setChecked(false);
@@ -1850,8 +1863,8 @@ void lisemqt::resetAll()
     checkFloodInitial->setChecked(false);
     E_FloodMaxIter->setValue(200);
 
-    E_gravityToChannel->setValue(0);
-    E_angleToChannel->setValue(0.02);
+    //E_gravityToChannel->setValue(0);
+    //E_angleToChannel->setValue(0.02);
 
     tabWidget->setCurrentIndex(0);
     tabWidget_out->setCurrentIndex(1);
@@ -2281,3 +2294,18 @@ void lisemqt::on_E_BeginTimeDay_returnPressed()
 }
 
 
+
+void lisemqt::on_toolButton_resetInfiltration_clicked()
+{
+    resetTabInfiltration();
+}
+
+void lisemqt::on_toolButton_resetInterception_clicked()
+{
+    resetTabInterception();
+}
+
+void lisemqt::on_toolButton_resetAdvanced_clicked()
+{
+    resetTabAdvanced();
+}

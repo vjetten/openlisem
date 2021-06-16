@@ -392,8 +392,8 @@ void lisemqt::SetTextHydrographs()
     for(int i = std::max(0,steps-12); i < steps; i++)
     {
         //double time = op.time/60.0;
-        int days = op.time/1440;
-        int mins = long(op.time) % 1440;
+        int days = trunc(op.time/1440.0);
+        double mins = op.time - days*1440.0;//long(op.time) % 1440;
         double Pmm = op.Pmm.at(i); //Rainfall.at(i);
         double QPlot = op.OutletQ.at(j)->at(i);
         double ChannelWH = op.OutletChannelWH.at(j)->at(i);
@@ -416,7 +416,8 @@ void lisemqt::SetTextHydrographs()
             outS = QString("%1        %2:%3 %4 %5 %6 %7")
                                        .arg(j,6)
                                        .arg(days,3,10,QLatin1Char('0'))
-                                       .arg(mins,4,10,QLatin1Char('0'))
+                                       .arg(mins,8,'f',3,'0')//QLatin1Char('0'))
+//                    .arg(mins,4,10,QLatin1Char('0'))
                                        .arg(Pmm,15,'f',3,' ')
                                        .arg(QPlot,15,'f',3,' ')
                                        .arg(Qsplot,15,'f',3)
@@ -437,7 +438,8 @@ void lisemqt::SetTextHydrographs()
             outS = QString("%1        %2:%3 %4 %5 %6 %7 %8")
                                        .arg(j,6)
                                        .arg(days,3,10,QLatin1Char('0'))
-                                       .arg(mins,4,10,QLatin1Char('0'))
+                                       .arg(mins,8,'f',3,'0')//QLatin1Char('0'))
+                                       //.arg(mins,4,10,QLatin1Char('0'))
                                        .arg(Pmm,15,'f',3,' ')
                                        .arg(QPlot,15,'f',3,' ')
                                        .arg(ChannelWH,15,'f',3,' ')

@@ -711,7 +711,7 @@ void TWorld::ReportTotalsNew(void)
     out.setFieldWidth(16);
     out.setRealNumberNotation(QTextStream::FixedNotation);
     out << "\"LISEM run with:\"," << op.runfilename << "\n";
-    out << "\"LISEM results at time (day:min):\"," << op.time/1440 << ":" << long(op.time) % 1440 <<"\n";
+    out << "\"LISEM results at time (day:min):\"," << trunc(op.time/1440) << ":" << long(op.time) % 1440 <<"\n";
     out << "\"Catchment area (ha):\"," << op.CatchmentArea/10000.0<< "\n";
     out << "\"Total Precipitation (mm):\"," << op.RainTotmm<< "\n";
     out << "\"Total interception(mm):\"," << op.IntercTotmm<< "\n";

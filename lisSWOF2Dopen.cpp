@@ -445,7 +445,6 @@ double TWorld::fullSWOF2openWS(int nr_, cTMap *h, cTMap *vx, cTMap *vy, cTMap *z
 
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_LWS(nr_) {
-
                 if (hs->Drc > 0) {
                     tmb->Drc = 1;
                     if (c > 0 && !MV(r,c-1)        ) tmb->data[r][c-1] = 1;
@@ -458,6 +457,12 @@ double TWorld::fullSWOF2openWS(int nr_, cTMap *h, cTMap *vx, cTMap *vy, cTMap *z
                     if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) tmb->data[r-1][c+1]=1;
                     if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) tmb->data[r+1][c-1]=1;
                 }
+            }}
+
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                if (tmb->Drc == 1 && WaterSheds->Drc != (double) nr_)
+                    tmb = 0;
             }}
 
             //do all flow and state calculations
