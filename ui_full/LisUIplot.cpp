@@ -321,6 +321,8 @@ void lisemqt::startPlots()
     if (!startplot)
         return;
 
+    times.clear();
+
   //  if (doNewPlot) {
         qmax.clear();
         qsmax.clear();
@@ -380,6 +382,7 @@ void lisemqt::initOutputData()
 void lisemqt::SetTextHydrographs()
 {
     textGraph->clear();
+    QStringList SL;
 
     if(op.OutletQ.length() == 0)
     {
@@ -387,13 +390,12 @@ void lisemqt::SetTextHydrographs()
     }
 
     int j = OutletIndices.indexOf(this->outletpoint);
-
     int steps = op.OutletQ.at(0)->length();
-    for(int i = std::max(0,steps-12); i < steps; i++)
+    times << op.time;
+    for(int i = std::max(0,steps-6); i < steps; i++)
     {
-        //double time = op.time/60.0;
-        int days = trunc(op.time/1440.0);
-        double mins = op.time - days*1440.0;//long(op.time) % 1440;
+        int days = trunc(times.at(i)/1440.0);
+        double mins = times.at(i) - (double)days*1440.0;//long(op.time) % 1440;
         double Pmm = op.Pmm.at(i); //Rainfall.at(i);
         double QPlot = op.OutletQ.at(j)->at(i);
         double ChannelWH = op.OutletChannelWH.at(j)->at(i);
@@ -413,8 +415,8 @@ void lisemqt::SetTextHydrographs()
                                            .arg("Conc (g/l)    ")
                                            );
 
-            outS = QString("%1        %2:%3 %4 %5 %6 %7")
-                                       .arg(j,6)
+            outS = QString("%1    %2:%3 %4 %5 %6 %7")
+                                       .arg(j,5)
                                        .arg(days,3,10,QLatin1Char('0'))
                                        .arg(mins,8,'f',3,'0')//QLatin1Char('0'))
 //                    .arg(mins,4,10,QLatin1Char('0'))
@@ -435,8 +437,8 @@ void lisemqt::SetTextHydrographs()
                                            .arg("Conc (g/l)    ")
                                             );
 
-            outS = QString("%1        %2:%3 %4 %5 %6 %7 %8")
-                                       .arg(j,6)
+            outS = QString("%1    %2:%3 %4 %5 %6 %7 %8")
+                                       .arg(j,5)
                                        .arg(days,3,10,QLatin1Char('0'))
                                        .arg(mins,8,'f',3,'0')//QLatin1Char('0'))
                                        //.arg(mins,4,10,QLatin1Char('0'))
@@ -447,8 +449,9 @@ void lisemqt::SetTextHydrographs()
                                        .arg(Cplot,15,'f',3,' ')
                                         ;
         }
-        textGraph->appendPlainText(outS);
+        SL << outS;
     }
+    textGraph->appendPlainText(SL.join('\n'));
 }
 //---------------------------------------------------------------------------
 

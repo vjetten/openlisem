@@ -303,6 +303,7 @@ public:
     bool startplot = true;
     bool stopplot;
     bool doHouse;
+    QVector <double> times;
 
     bool oldRunfile; // check is old runfile for ksat calibration
     bool saveRunFileOnce; // check is old runfile for ksat calibration
