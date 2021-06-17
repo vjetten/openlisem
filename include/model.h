@@ -200,7 +200,6 @@ typedef struct LDD_COORIN {
     int c;
     int nr;
     int ldd;
-  //  QVector <LDD_COOR> in;
     LDD_COOR *inn;
 }  LDD_COORIN;
 //---------------------------------------------------------------------------
@@ -210,6 +209,13 @@ typedef struct LDD_COORloc {
     int loc;
     int nr;
 }  LDD_COORloc;
+//---------------------------------------------------------------------------
+typedef struct LDD_COORout {
+    int r;
+    int c;
+    int nr;
+    QString code;
+}  LDD_COORout;
 //---------------------------------------------------------------------------list
 
 /// linked list structure for network in kin wave
@@ -312,6 +318,7 @@ public:
     QVector <LDD_COOR> crch_;
     QVector <LDD_COORIN> crlinkedldd_;
     QVector <LDD_COORIN> crlinkedlddch_;
+    QVector <LDD_COORout> crout_;
 
     /// map management structure, automatic adding and deleting of all cTMap variables
     MapListStruct maplistCTMap[NUMNAMES];

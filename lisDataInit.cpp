@@ -620,6 +620,12 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         }
     }
 
+    if (found) {
+
+        //QVector <LDD_COORout> crout_;
+
+    }
+
     if(!found)
     {
         ErrorString = QString("Outpoint.map has no values above 0");
@@ -1329,8 +1335,8 @@ void TWorld::InitFlood(void)
                 dcr_ << dclrc;
             }
         }}
-        report(*tma,"pitsa.map");
-        report(*tmb,"pitsb.map");
+     //   report(*tma,"pitsa.map");
+     //   report(*tmb,"pitsb.map");
     }
 
     if (!SwitchSWOFopen) {
