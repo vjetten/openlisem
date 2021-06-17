@@ -619,6 +619,7 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
             //  break;
         }
     }
+
     if(!found)
     {
         ErrorString = QString("Outpoint.map has no values above 0");
@@ -2069,7 +2070,8 @@ void TWorld::IntializeData(void)
 
     WHinitVolTot = 0;
     if (SwitchFloodInitial) {
-        hmxInit = ReadMap(LDD, getvaluename("hmxinit"));
+        hmxInit = ReadMap(LDD, getvaluename("whinit"));
+        report(*hmxInit,"whi.map");
     }
 
     SwatreSoilModel = nullptr;

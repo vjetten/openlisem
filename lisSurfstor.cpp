@@ -66,7 +66,20 @@ void TWorld::GridCell()
 
         SoilWidthDX->Drc = dxa;  //excluding roads, including houses, hard surface
         //houses are assumed to be permeable but with high mannings n
+
     }}
+
+    if (SwitchFloodInitial) {
+        WHinitVolTot = 0;
+        FOR_ROW_COL_MV_L {
+            if(SwitchKinematic2D == K2D_METHOD_DYN)
+                WH->Drc = hmxInit->Drc;
+            else
+                hmx->Drc = hmxInit->Drc;
+
+            WHinitVolTot += hmxInit->Drc * DX->Drc * ChannelAdj->Drc;
+        }}
+    }
 }
 //---------------------------------------------------------------------------
 /// Adds new rainfall afterinterception to runoff water nheight or flood waterheight

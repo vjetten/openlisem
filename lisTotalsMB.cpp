@@ -156,13 +156,13 @@ void TWorld::Totals(void)
 
     //TODO: check init WH
     //ONLY ONCE?
-    if (SwitchFloodInitial) {
-        WHinitVolTot = 0;
-#pragma omp parallel for reduction(+:WHinitVolTot) num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            WHinitVolTot = hmxInit->Drc * DX->Drc * ChannelAdj->Drc;
-        }}
-    }
+//    if (SwitchFloodInitial) {
+//        WHinitVolTot = 0;
+//#pragma omp parallel for reduction(+:WHinitVolTot) num_threads(userCores)
+//        FOR_ROW_COL_MV_L {
+//            WHinitVolTot = hmxInit->Drc * DX->Drc * ChannelAdj->Drc;
+//        }}
+//    }
 
     //=== surface flow ===//
     WaterVolTot = MapTotal(*WaterVolall);//m3
@@ -494,10 +494,10 @@ void TWorld::MassBalance()
   //  if (RainTot + SnowTot > 0)
     {
 
-        double waterin = RainTot + SnowTot + WaterVolSoilTot + WHinitVolTot;
+        double waterin = RainTot + SnowTot + WaterVolSoilTot + WHinitVolTot + BaseFlowTot;
         double waterout = ETaTot;
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot;
-        double waterflow = WaterVolTot + ChannelVolTot - BaseFlowTot + StormDrainVolTot + Qtot;
+        double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;
 //qDebug() << ChannelVolTot << BaseFlowTot;
 
         MB = waterin > 0 ? (waterin - waterout - waterstore - waterflow)/waterin *100 : 0;

@@ -381,7 +381,8 @@ void lisemqt::initOutputData()
 // max 6 line text output below hydrographs
 void lisemqt::SetTextHydrographs()
 {
-    textGraph->clear();
+
+   // textGraph->clear();
     QStringList SL;
 
     if(op.OutletQ.length() == 0)
@@ -390,9 +391,9 @@ void lisemqt::SetTextHydrographs()
     }
 
     int j = OutletIndices.indexOf(this->outletpoint);
-    int steps = op.OutletQ.at(0)->length();
+    int steps = op.OutletQ.at(0)->size();
     times << op.time;
-    for(int i = std::max(0,steps-12); i < steps; i++)
+    for(int i = std::max(0,steps-6); i < steps; i++)
     {
         int days = trunc(times.at(i)/1440.0);
         double mins = times.at(i) - (double)days*1440.0;//long(op.time) % 1440;
@@ -451,7 +452,8 @@ void lisemqt::SetTextHydrographs()
         }
         SL << outS;
     }
-    textGraph->appendPlainText(SL.join('\n'));
+ //   textGraph->appendPlainText(SL.join('\n'));
+
 }
 //---------------------------------------------------------------------------
 

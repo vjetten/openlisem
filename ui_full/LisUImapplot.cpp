@@ -624,14 +624,18 @@ void lisemqt::hideChannelVector(bool yes)
         return;
     if(rivers.isEmpty())
         return;
-    if (checkChannelCulverts->isChecked() && culverts.isEmpty())
-        return;
+//    if (checkChannelCulverts->isChecked() && culverts.isEmpty())
+//        return;
     if (!yes) {
         for (int i = 0; i < rivers.length(); i++)
             rivers[i]->detach();
-        if (checkChannelCulverts->isChecked() && culverts.length() > 0)
+
+        if (checkChannelCulverts->isChecked() && !culverts.isEmpty()) {
+        if (culverts.length() > 0)
             for (int i = 0; i < culverts.length(); i++)
                 culverts[i]->detach();
+        }
+
         for (int i = 0; i < outlets.length(); i++)
             outlets[i]->detach();
     } else {
@@ -646,15 +650,17 @@ void lisemqt::hideChannelVector(bool yes)
             rivers[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
         }
 
-        for (int i = 0; i < culverts.length(); i++) {
-            int dxi = spinCulvertSize->value();
+        if (checkChannelCulverts->isChecked() && !culverts.isEmpty()) {
+            for (int i = 0; i < culverts.length(); i++) {
+                int dxi = spinCulvertSize->value();
 
-            QwtSymbol *greendot = new QwtSymbol( QwtSymbol::Ellipse, Qt::green, QPen( Qt::black ), QSize( dxi,dxi ));
+                QwtSymbol *greendot = new QwtSymbol( QwtSymbol::Ellipse, Qt::green, QPen( Qt::black ), QSize( dxi,dxi ));
 
-            culverts[i]->setSymbol(greendot);
-            culverts[i]->setStyle( QwtPlotCurve::NoCurve );
-            culverts[i]->attach( MPlot );
-            culverts[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
+                culverts[i]->setSymbol(greendot);
+                culverts[i]->setStyle( QwtPlotCurve::NoCurve );
+                culverts[i]->attach( MPlot );
+                culverts[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
+            }
         }
         for (int i = 0; i < outlets.length(); i++) {
             int dxi = spinCulvertSize->value();

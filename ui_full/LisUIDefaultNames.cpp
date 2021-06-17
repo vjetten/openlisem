@@ -123,7 +123,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
     DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
     DEFmaps.append("2;Dscharge input;QinPoints.map;Locations in channel network where discharge is added from a text record. Unique nr > 0;qinpoints");
-    DEFmaps.append("2;hmxInit;WHinit.map;Initial floodlevel (m);hmxinit");
+    DEFmaps.append("2;WHInit;WHinit.map;Initial floodlevel (m);whinit");
     DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh");
     DEFmaps.append("2;Channelmaterial;chandetmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);chandetmat");
     DEFmaps.append("2;ChannelMixingDepth;chansedmixdepth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");

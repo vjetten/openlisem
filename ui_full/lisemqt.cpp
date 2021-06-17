@@ -240,32 +240,32 @@ void lisemqt::setFormatMaps(bool check)
     E_stormDrainMap->setText(QFileInfo(E_stormDrainMap->text()).baseName() + ext);
 }
 //--------------------------------------------------------------------
-void lisemqt::resizeEvent(QResizeEvent* event)
-{
-    QMainWindow::resizeEvent(event);
-    groupBox_drawMap->setEnabled(tabWidget_out->currentIndex() == 1);
+//void lisemqt::resizeEvent(QResizeEvent* event)
+//{
+//    QMainWindow::resizeEvent(event);
+//    groupBox_drawMap->setEnabled(tabWidget_out->currentIndex() == 1);
 
-    int h = QApplication::desktop()->height(); //event->size().height()
-    if (h > 800)
-    {
-        groupBox_drawMap->setVisible(true);
-        groupBox_info->setVisible(true);
-    }
-    else
-    {
-        if (tabWidget_out->currentIndex() == 0)
-        {
-            groupBox_drawMap->setVisible(false);
-            groupBox_info->setVisible(true);
-        }
-        else
-        {
-            groupBox_drawMap->setVisible(true);
-            groupBox_info->setVisible(false);
-        }
+//    int h = QApplication::desktop()->height(); //event->size().height()
+//    if (h > 800)
+//    {
+//        groupBox_drawMap->setVisible(true);
+//        groupBox_info->setVisible(true);
+//    }
+//    else
+//    {
+//        if (tabWidget_out->currentIndex() == 0)
+//        {
+//            groupBox_drawMap->setVisible(false);
+//            groupBox_info->setVisible(true);
+//        }
+//        else
+//        {
+//            groupBox_drawMap->setVisible(true);
+//            groupBox_info->setVisible(false);
+//        }
 
-    }
-}
+//    }
+//}
 //--------------------------------------------------------------------
 void lisemqt::on_tabWidget_out_currentChanged(int index)
 {
@@ -2005,10 +2005,10 @@ void lisemqt::on_toolButton_help5_clicked()
     on_toolButton_help(5);
 }
 //---------------------------------------------------------------
-void lisemqt::on_toolButton_help6_clicked()
-{
-    on_toolButton_help(6);
-}
+//void lisemqt::on_toolButton_help6_clicked()
+//{
+//    on_toolButton_help(6);
+//}
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_help7_clicked()
 {

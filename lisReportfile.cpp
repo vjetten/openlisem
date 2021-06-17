@@ -50,10 +50,11 @@ void TWorld::reportAll(void)
     ReportTotalsNew();
     // report totals to a text file
 
-    ReportTotalSeries();
-
     ReportTimeseriesNew();
     // report hydrographs ande sedigraphs at all points in outpoint.map
+
+    ReportTotalSeries();
+
 
     if (!SwitchEndRun) {
         ReportMaps();
@@ -635,7 +636,7 @@ void TWorld::ReportTimeseriesNew(void)
                 if (SwitchWritePCRtimeplot)
                     out << runstep;
                 else
-                    out << time/60;
+                    out << (time/60)/1440.0;
 
                 if (SwitchRainfall) out << sep << RainIntavg;
                 if (SwitchSnowmelt) out << sep << SnowIntavg;
@@ -662,12 +663,10 @@ void TWorld::ReportTimeseriesNew(void)
         out.setFieldWidth(width);
         out.setRealNumberNotation(QTextStream::FixedNotation);
 
-
-
         if (SwitchWritePCRtimeplot)
             out << runstep;
         else
-            out << time/60;
+            out << (time/60)/1440.0;
 
         if (SwitchRainfall) out << sep << RainIntavg;
         if (SwitchSnowmelt) out << sep << SnowIntavg;

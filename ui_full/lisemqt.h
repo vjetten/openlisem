@@ -116,7 +116,7 @@ public:
     QHBoxLayout *helpLayout;
 
     QProgressBar *pb;
-    void resizeEvent(QResizeEvent* event);
+  //  void resizeEvent(QResizeEvent* event);
 
     bool darkLISEM;
     bool doBatchmode;
@@ -407,7 +407,7 @@ public slots:
     void on_toolButton_help3_clicked();
     void on_toolButton_help4_clicked();
     void on_toolButton_help5_clicked();
-    void on_toolButton_help6_clicked();
+   // void on_toolButton_help6_clicked();
     void on_toolButton_help7_clicked();
     void on_toolButton_help8_clicked();
 
