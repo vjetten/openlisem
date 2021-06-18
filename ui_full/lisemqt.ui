@@ -664,7 +664,7 @@
                  <string>...</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
+                 <iconset>
                   <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
                 </property>
                </widget>
@@ -1839,7 +1839,7 @@
                       <string/>
                      </property>
                      <property name="pixmap">
-                      <pixmap resource="../resources/openlisem.qrc">:/ITC logo.png</pixmap>
+                      <pixmap>:/ITC logo.png</pixmap>
                      </property>
                      <property name="scaledContents">
                       <bool>false</bool>
@@ -2603,7 +2603,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>-276</y>
+                <y>0</y>
                 <width>1048</width>
                 <height>943</height>
                </rect>
@@ -2642,7 +2642,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>6</number>
+                  <number>7</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -2652,7 +2652,7 @@
                  </property>
                  <widget class="QWidget" name="tab_6">
                   <attribute name="icon">
-                   <iconset resource="../resources/openlisem.qrc">
+                   <iconset>
                     <normaloff>:/2X/settings2.png</normaloff>:/2X/settings2.png</iconset>
                   </attribute>
                   <attribute name="title">
@@ -2874,7 +2874,7 @@
                          <string>...</string>
                         </property>
                         <property name="icon">
-                         <iconset resource="../resources/openlisem.qrc">
+                         <iconset>
                           <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
                         </property>
                        </widget>
@@ -3059,7 +3059,7 @@
                       <string/>
                      </property>
                      <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
+                      <iconset>
                        <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
                      </property>
                      <property name="shortcut">
@@ -3289,7 +3289,7 @@
                  </widget>
                  <widget class="QWidget" name="tab_global">
                   <attribute name="icon">
-                   <iconset resource="../resources/openlisem.qrc">
+                   <iconset>
                     <normaloff>:/rain.png</normaloff>:/rain.png</iconset>
                   </attribute>
                   <attribute name="title">
@@ -3385,7 +3385,7 @@
                             <string>...</string>
                            </property>
                            <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
+                            <iconset>
                              <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
                            </property>
                            <property name="autoRaise">
@@ -3411,7 +3411,7 @@
                             <string>...</string>
                            </property>
                            <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
+                            <iconset>
                              <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
                            </property>
                            <property name="autoRaise">
@@ -3437,7 +3437,7 @@
                             <string>...</string>
                            </property>
                            <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
+                            <iconset>
                              <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
                            </property>
                           </widget>
@@ -3473,7 +3473,7 @@
                             <string>...</string>
                            </property>
                            <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
+                            <iconset>
                              <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
                            </property>
                           </widget>
@@ -3552,7 +3552,7 @@
                             <string>...</string>
                            </property>
                            <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
+                            <iconset>
                              <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
                            </property>
                           </widget>
@@ -3563,7 +3563,7 @@
                             <string>...</string>
                            </property>
                            <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
+                            <iconset>
                              <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
                            </property>
                           </widget>
@@ -3622,7 +3622,7 @@
                             <string>...</string>
                            </property>
                            <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
+                            <iconset>
                              <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
                            </property>
                           </widget>
@@ -3646,7 +3646,7 @@
                             <string>...</string>
                            </property>
                            <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
+                            <iconset>
                              <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
                            </property>
                           </widget>
@@ -3702,7 +3702,7 @@
                             <string>...</string>
                            </property>
                            <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
+                            <iconset>
                              <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
                            </property>
                           </widget>
@@ -3757,7 +3757,7 @@
                             <string>...</string>
                            </property>
                            <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
+                            <iconset>
                              <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
                            </property>
                           </widget>
@@ -3771,7 +3771,7 @@
                             <string>...</string>
                            </property>
                            <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
+                            <iconset>
                              <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
                            </property>
                           </widget>
@@ -3841,7 +3841,7 @@
                             <string>...</string>
                            </property>
                            <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
+                            <iconset>
                              <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
                            </property>
                           </widget>
@@ -3946,7 +3946,7 @@
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
+                      <iconset>
                        <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
                      </property>
                     </widget>
@@ -3994,7 +3994,7 @@
                  </widget>
                  <widget class="QWidget" name="tab_interc">
                   <attribute name="icon">
-                   <iconset resource="../resources/openlisem.qrc">
+                   <iconset>
                     <normaloff>:/Plant-icon.png</normaloff>:/Plant-icon.png</iconset>
                   </attribute>
                   <attribute name="title">
@@ -4353,7 +4353,7 @@ p, li { white-space: pre-wrap; }
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
+                      <iconset>
                        <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
                      </property>
                     </widget>
@@ -4364,7 +4364,7 @@ p, li { white-space: pre-wrap; }
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
+                      <iconset>
                        <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
                      </property>
                     </widget>
@@ -4399,7 +4399,7 @@ p, li { white-space: pre-wrap; }
                  </widget>
                  <widget class="QWidget" name="tab_infil">
                   <attribute name="icon">
-                   <iconset resource="../resources/openlisem.qrc">
+                   <iconset>
                     <normaloff>:/soil4.png</normaloff>:/soil4.png</iconset>
                   </attribute>
                   <attribute name="title">
@@ -4536,7 +4536,7 @@ p, li { white-space: pre-wrap; }
                             <string>...</string>
                            </property>
                            <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
+                            <iconset>
                              <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
                            </property>
                           </widget>
@@ -4550,7 +4550,7 @@ p, li { white-space: pre-wrap; }
                             <string>...</string>
                            </property>
                            <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
+                            <iconset>
                              <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
                            </property>
                           </widget>
@@ -4593,7 +4593,7 @@ p, li { white-space: pre-wrap; }
                             <string>...</string>
                            </property>
                            <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
+                            <iconset>
                              <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
                            </property>
                           </widget>
@@ -4757,7 +4757,7 @@ p, li { white-space: pre-wrap; }
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
+                      <iconset>
                        <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
                      </property>
                     </widget>
@@ -4768,7 +4768,7 @@ p, li { white-space: pre-wrap; }
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
+                      <iconset>
                        <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
                      </property>
                     </widget>
@@ -4803,7 +4803,7 @@ p, li { white-space: pre-wrap; }
                  </widget>
                  <widget class="QWidget" name="tab_flooding">
                   <attribute name="icon">
-                   <iconset resource="../resources/openlisem.qrc">
+                   <iconset>
                     <normaloff>:/water.png</normaloff>:/water.png</iconset>
                   </attribute>
                   <attribute name="title">
@@ -4819,7 +4819,7 @@ p, li { white-space: pre-wrap; }
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
+                      <iconset>
                        <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
                      </property>
                     </widget>
@@ -5118,7 +5118,7 @@ p, li { white-space: pre-wrap; }
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
+                      <iconset>
                        <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
                      </property>
                     </widget>
@@ -5530,7 +5530,7 @@ p, li { white-space: pre-wrap; }
                  </widget>
                  <widget class="QWidget" name="tab_erosion">
                   <attribute name="icon">
-                   <iconset resource="../resources/openlisem.qrc">
+                   <iconset>
                     <normaloff>:/eros1bw.png</normaloff>:/eros1bw.png</iconset>
                   </attribute>
                   <attribute name="title">
@@ -5543,7 +5543,7 @@ p, li { white-space: pre-wrap; }
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
+                      <iconset>
                        <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
                      </property>
                     </widget>
@@ -7821,7 +7821,7 @@ p, li { white-space: pre-wrap; }
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
+                      <iconset>
                        <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
                      </property>
                     </widget>
@@ -7843,7 +7843,7 @@ p, li { white-space: pre-wrap; }
                  </widget>
                  <widget class="QWidget" name="tab_calib">
                   <attribute name="icon">
-                   <iconset resource="../resources/openlisem.qrc">
+                   <iconset>
                     <normaloff>:/2X/advanced.png</normaloff>:/2X/advanced.png</iconset>
                   </attribute>
                   <attribute name="title">
@@ -8300,7 +8300,7 @@ p, li { white-space: pre-wrap; }
                          <string>...</string>
                         </property>
                         <property name="icon">
-                         <iconset resource="../resources/openlisem.qrc">
+                         <iconset>
                           <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
                         </property>
                        </widget>
@@ -8311,7 +8311,7 @@ p, li { white-space: pre-wrap; }
                          <string>...</string>
                         </property>
                         <property name="icon">
-                         <iconset resource="../resources/openlisem.qrc">
+                         <iconset>
                           <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
                         </property>
                        </widget>
@@ -9274,7 +9274,7 @@ p, li { white-space: pre-wrap; }
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
+                      <iconset>
                        <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
                      </property>
                     </widget>
@@ -9314,7 +9314,7 @@ p, li { white-space: pre-wrap; }
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
+                      <iconset>
                        <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
                      </property>
                     </widget>
@@ -11136,7 +11136,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
+                 <iconset>
                   <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
                 </property>
                 <property name="autoRaise">
@@ -11159,7 +11159,7 @@ p, li { white-space: pre-wrap; }
                  <string>...</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
+                 <iconset>
                   <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
                 </property>
                 <property name="autoRaise">
@@ -11179,7 +11179,7 @@ p, li { white-space: pre-wrap; }
                  <string>...</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
+                 <iconset>
                   <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
                 </property>
                </widget>
@@ -11225,7 +11225,7 @@ p, li { white-space: pre-wrap; }
                  <string>...</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
+                 <iconset>
                   <normaloff>:/2X/File-Delete-icon.png</normaloff>:/2X/File-Delete-icon.png</iconset>
                 </property>
                 <property name="autoRaise">
@@ -11320,7 +11320,7 @@ p, li { white-space: pre-wrap; }
                  <string>...</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
+                 <iconset>
                   <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
                 </property>
                 <property name="autoRaise">
@@ -11469,7 +11469,7 @@ p, li { white-space: pre-wrap; }
               <string>...</string>
              </property>
              <property name="icon">
-              <iconset resource="../resources/openlisem.qrc">
+              <iconset>
                <normaloff>:/2X/settings.png</normaloff>:/2X/settings.png</iconset>
              </property>
             </widget>
@@ -14479,7 +14479,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <widget class="QWidget" name="tab_1">
               <attribute name="icon">
-               <iconset resource="../resources/openlisem.qrc">
+               <iconset>
                 <normaloff>:/2X/chart-line-stacked-iconBW2X.png</normaloff>:/2X/chart-line-stacked-iconBW2X.png</iconset>
               </attribute>
               <attribute name="title">
@@ -14547,7 +14547,7 @@ p, li { white-space: pre-wrap; }
              </widget>
              <widget class="QWidget" name="tab_2">
               <attribute name="icon">
-               <iconset resource="../resources/openlisem.qrc">
+               <iconset>
                 <normaloff>:/2X/map2X.png</normaloff>:/2X/map2X.png</iconset>
               </attribute>
               <attribute name="title">
@@ -14676,9 +14676,7 @@ p, li { white-space: pre-wrap; }
  <tabstops>
   <tabstop>E_MapDir</tabstop>
  </tabstops>
- <resources>
-  <include location="../resources/openlisem.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>checkMapChannels</sender>

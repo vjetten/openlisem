@@ -621,13 +621,16 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
     }
 
     if (found) {
-
-        //QVector <LDD_COORout> crout_;
-
-    }
-
-    if(!found)
-    {
+        crout_.clear();
+        FOR_ROW_COL_MV {
+            if(PointMap->Drc > 0) {
+                LDD_COORout newcr;
+                newcr.r = r;
+                newcr.c = c;
+                crout_ << newcr;
+            }
+        }
+    } else {
         ErrorString = QString("Outpoint.map has no values above 0");
         throw 1;
     }

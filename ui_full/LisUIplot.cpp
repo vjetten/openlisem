@@ -61,13 +61,19 @@ void lisemqt::setupPlot()
 
     PGraph = new QwtPlotCurve("Rainfall");
     QGraph = new QwtPlotCurve("Discharge");
-    QsGraph = new QwtPlotCurve("Sediment discharge");
-    CGraph = new QwtPlotCurve("Concentration");
-    QtileGraph = new QwtPlotCurve("Tile drain");
+
+    if(checkDoErosion->isChecked()) {
+        QsGraph = new QwtPlotCurve("Sediment discharge");
+        CGraph = new QwtPlotCurve("Concentration");
+    }
+    if(checkIncludeTiledrains->isChecked())
+        QtileGraph = new QwtPlotCurve("Tile drain");
 
     PGraph->attach(HPlot);
     QGraph->attach(HPlot);
-    // order determines order of display in Legend
+    // order of attaching determines order of display in Legend
+    PGraph->setStyle(QwtPlotCurve::Steps);
+    QGraph->setStyle(QwtPlotCurve::Lines);
 
     QPen pen1, pen2, pen3, pen4, pen5;
     pen1.setWidth(2);
@@ -104,20 +110,20 @@ void lisemqt::setupPlot()
     PGraph->setPen(pen2);
     PGraph->setAxes(HPlot->xBottom, *axisYR1);// HPlot->yRight);
 
-    QtileGraph->setPen(pen3);
-    QtileGraph->setAxes(HPlot->xBottom, *axisYL1);
+    if(checkIncludeTiledrains->isChecked()) {
+        QtileGraph->setPen(pen3);
+        QtileGraph->setAxes(HPlot->xBottom, *axisYL1);
+        QtileGraph->setStyle(QwtPlotCurve::Lines);
+    }
+    if(checkDoErosion->isChecked()) {
+        QsGraph->setPen(pen4);
+        QsGraph->setAxes(HPlot->xBottom, *axisYR1);//HPlot->yRight);
 
-    QsGraph->setPen(pen4);
-    QsGraph->setAxes(HPlot->xBottom, *axisYR1);//HPlot->yRight);
-
-    CGraph->setPen(pen5);
-    CGraph->setAxes(HPlot->xBottom, *axisYR2);//HPlot->yRight);
-
-    PGraph->setStyle(QwtPlotCurve::Steps);
-    QGraph->setStyle(QwtPlotCurve::Lines);
-    QtileGraph->setStyle(QwtPlotCurve::Lines);
-    QsGraph->setStyle(QwtPlotCurve::Lines);
-    CGraph->setStyle(QwtPlotCurve::Lines);
+        CGraph->setPen(pen5);
+        CGraph->setAxes(HPlot->xBottom, *axisYR2);//HPlot->yRight);
+        QsGraph->setStyle(QwtPlotCurve::Lines);
+        CGraph->setStyle(QwtPlotCurve::Lines);
+    }
 
 //    PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
 //    QGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
@@ -233,10 +239,11 @@ void lisemqt::initPlot()
 {
     HPlot->setTitle("Hydrograph Outlet");
 
-    if(checkIncludeTiledrains->isChecked())
+    if(checkIncludeTiledrains->isChecked()) {
         QtileGraph->attach(HPlot);
-    else
-        QtileGraph->detach();
+//    else
+  //      QtileGraph->detach();
+    }
 
     if(checkDoErosion->isChecked())
     {
@@ -258,8 +265,8 @@ void lisemqt::initPlot()
     }
     else
     {
-        QsGraph->detach();
-        CGraph->detach();
+//        QsGraph->detach();
+//        CGraph->detach();
 
         QGraph->setAxes(HPlot->xBottom, *axisYL1);
         PGraph->setAxes(HPlot->xBottom, *axisYR1);
@@ -323,19 +330,18 @@ void lisemqt::startPlots()
 
     times.clear();
 
-  //  if (doNewPlot) {
-        qmax.clear();
-        qsmax.clear();
-        cmax.clear();
-        pmax = 1.0;
-        // to start the max finding
-        for(int i =0; i < op.OutletIndices.length(); i++)
-        {
-            qmax.append(1.0);
-            qsmax.append(1.0);
-            cmax.append(1.0);
-        }
-    //}
+    qmax.clear();
+    qsmax.clear();
+    cmax.clear();
+    pmax = 1.0;
+    // to start the max finding
+    for(int i =0; i < op.OutletIndices.length(); i++)
+    {
+        qmax.append(1.0);
+        qsmax.append(1.0);
+        cmax.append(1.0);
+    }
+
     OutletIndices.clear();
     OutletLocationX.clear();
     OutletLocationY.clear();
@@ -375,6 +381,9 @@ void lisemqt::initOutputData()
     textGraph->setWordWrapMode(QTextOption::NoWrap);
     textGraph->setMaximumHeight(80);
     textGraph->clear();
+
+    textGraph->setVisible(false);
+    label_headerTextGraph->setVisible(false);
 }
 
 //---------------------------------------------------------------------------

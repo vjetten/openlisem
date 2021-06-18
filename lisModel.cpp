@@ -296,6 +296,7 @@ void TWorld::DoModel()
 
             reportAll();
 
+#pragma omp barrier
             emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
 
             saveMBerror2file(saveMBerror, false);

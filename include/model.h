@@ -116,6 +116,10 @@
 #define FOR_ROW_COL_MV_CHL for(long i_ = nrValidCellsCH-1; i_ >= 0; i_--)\
 {int r = crch_[i_].r; int c = crch_[i_].c;
 
+#define FOR_ROW_COL_MV_OUTL for(int i_ = 0; i_ < crout_.size(); i_++)\
+{int r = crout_[i_].r; int c = crout_[i_].c;
+
+
 #define FOR_GRAIN_CLASSES for(int d  = 0 ; d < numgrainclasses;d++)
 
 /// shortcut for channel row and col loop

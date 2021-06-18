@@ -434,74 +434,69 @@ void TWorld::ReportTimeseriesNew(void)
         SwitchWriteHeaders = false;
         if (SwitchSeparateOutput) // each point separate file
         {
-            FOR_ROW_COL_MV
-            {
-                if ( PointMap->Drc > 0 )
+            FOR_ROW_COL_MV_OUTL {
+                newname1 = fi.path() + "/" + fi.baseName() + "_" + QString::number((int)PointMap->Drc) + "." +  fi.suffix();
+
+                // make filename using point number
+
+                QFile fout(newname1);
+                fout.open(QIODevice::WriteOnly | QIODevice::Text);
+                QTextStream out(&fout);
+                out.setRealNumberPrecision(DIG);
+                out.setFieldWidth(width);
+                out.setRealNumberNotation(QTextStream::FixedNotation);
+
+                // HEADERS for the 3 types
+                if (SwitchWritePCRtimeplot)  //PCRaster timeplot format, cannot be SOBEK !
                 {
-                    newname1 = fi.path() + "/" + fi.baseName() + "_" + QString::number((int)PointMap->Drc) + "." +  fi.suffix();
+                    pnr.setNum((int)PointMap->Drc);
+                    out << "#LISEM flow and sed output file for point #" << pnr << "\n";
 
-                    // make filename using point number
+                    // nr columns is time + rain (+ maybe snow) + Q + (maybe Qs + C)
+                    int nrs = 4 + (SwitchErosion ? 3 : 0);
+                    if (SwitchRainfall) nrs++;
+                    if (SwitchSnowmelt) nrs++;
+                    if (SwitchIncludeTile) nrs++;
+                    pnr.setNum(nrs);
+                    out << pnr << "\n";
 
-                    QFile fout(newname1);
-                    fout.open(QIODevice::WriteOnly | QIODevice::Text);
-                    QTextStream out(&fout);
-                    out.setRealNumberPrecision(DIG);
-                    out.setFieldWidth(width);
-                    out.setRealNumberNotation(QTextStream::FixedNotation);
+                    out << "run step\n";
+                    if (SwitchRainfall) out << "Pavg (mm/h)\n";
+                    if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
+                    out << "Qall (l/s)\n";
+                    if (SwitchIncludeChannel) out << "Qoutlet (l/s)\n" << "chanWH (m)\n";
+                    if (SwitchIncludeTile) out << "Qdrain (l/s)\n";
+                    if (SwitchErosion) out << "Qsall (kg/s)\n" << "Qs (kg/s)\n" << "C (g/l)\n";
 
-                    // HEADERS for the 3 types
-                    if (SwitchWritePCRtimeplot)  //PCRaster timeplot format, cannot be SOBEK !
-                    {
-                        pnr.setNum((int)PointMap->Drc);
-                        out << "#LISEM flow and sed output file for point #" << pnr << "\n";
-
-                        // nr columns is time + rain (+ maybe snow) + Q + (maybe Qs + C)
-                        int nrs = 4 + (SwitchErosion ? 3 : 0);
-                        if (SwitchRainfall) nrs++;
-                        if (SwitchSnowmelt) nrs++;
-                        if (SwitchIncludeTile) nrs++;
-                        pnr.setNum(nrs);
-                        out << pnr << "\n";
-
-                        out << "run step\n";
-                        if (SwitchRainfall) out << "Pavg (mm/h)\n";
-                        if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
-                        out << "Qall (l/s)\n";
-                        if (SwitchIncludeChannel) out << "Qoutlet (l/s)\n" << "chanWH (m)\n";
-                        if (SwitchIncludeTile) out << "Qdrain (l/s)\n";
-                        if (SwitchErosion) out << "Qsall (kg/s)\n" << "Qs (kg/s)\n" << "C (g/l)\n";
-
-                    }
-                    else // flat format, comma delimited
-                    {
-                        pnr.setNum((int)PointMap->Drc);
-                        out << "LISEM total flow and sed output file for point " << pnr << "\n";
-
-                        out << "Time";
-                        if (SwitchRainfall) out << ",Pavg";
-                        if (SwitchSnowmelt) out << ",Snowavg";
-                        out << ",Qall";
-                        if (SwitchIncludeChannel) out << ",Q" << ",chanWH";
-                        if (SwitchIncludeTile) out << ",Qtile";
-                        if (SwitchErosion) out << ",Qsall,Qs,C";
-                        out << "\n";
-
-                        out << "min";
-                        if (SwitchRainfall) out << ",mm/h";
-                        if (SwitchSnowmelt) out << ",mm/h";
-                        out << ",l/s";
-                        if (SwitchIncludeChannel) out  << ",l/s" << ",m";
-                        if (SwitchIncludeTile) out << ",l/s";
-                        if (SwitchErosion) out << ",kg/s,kg/s,g/l";
-                        out << "\n";
-                    }
-                    fout.close();
                 }
-            }
+                else // flat format, comma delimited
+                {
+                    pnr.setNum((int)PointMap->Drc);
+                    out << "LISEM total flow and sed output file for point " << pnr << "\n";
+
+                    out << "Time";
+                    if (SwitchRainfall) out << ",Pavg";
+                    if (SwitchSnowmelt) out << ",Snowavg";
+                    out << ",Qall";
+                    if (SwitchIncludeChannel) out << ",Q" << ",chanWH";
+                    if (SwitchIncludeTile) out << ",Qtile";
+                    if (SwitchErosion) out << ",Qsall,Qs,C";
+                    out << "\n";
+
+                    out << "min";
+                    if (SwitchRainfall) out << ",mm/h";
+                    if (SwitchSnowmelt) out << ",mm/h";
+                    out << ",l/s";
+                    if (SwitchIncludeChannel) out  << ",l/s" << ",m";
+                    if (SwitchIncludeTile) out << ",l/s";
+                    if (SwitchErosion) out << ",kg/s,kg/s,g/l";
+                    out << "\n";
+                }
+                fout.close();
+            }}
         }  // separate
         else   // HEADERS: all points in one file
         {
-
             newname1 = resultDir + outflowFileName;
 
             QFile fout(newname1);
@@ -514,8 +509,9 @@ void TWorld::ReportTimeseriesNew(void)
             if (SwitchWritePCRtimeplot)   //PCRaster timeplot format
             {
                 // count nr of points
-                FOR_ROW_COL_MV
-                        if ( PointMap->Drc > 0 ) nr++;
+//                FOR_ROW_COL_MV
+//                        if ( PointMap->Drc > 0 ) nr++;
+                nr = crout_.size();
 
                 // nr columns is time + rain (+ maybe snow) + nr points*(Q + Qs + C)
                 int nrs = 1; // runstep
@@ -534,23 +530,19 @@ void TWorld::ReportTimeseriesNew(void)
                 if (SwitchRainfall) out << "Pavg (mm/h)\n";
                 if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
                 out << "Qall (l/s)\n";
-                FOR_ROW_COL_MV
-                        if ( PointMap->Drc > 0 )
-                {
+                FOR_ROW_COL_MV_OUTL {
                     pnr.setNum((int)PointMap->Drc);
                     out << "Q #" << pnr <<  "(l/s)\n";
                     if (SwitchIncludeChannel) out << "chanWH #" << pnr <<  "(m)\n";
                     if (SwitchIncludeTile) out << "Qtile #" << pnr <<  "(l/s)\n";
-                }
+                }}
                 if (SwitchErosion)
                 {
                     out << "Qsall (kg/s)\n";
-                    FOR_ROW_COL_MV
-                            if ( PointMap->Drc > 0 )
-                    {
+                    FOR_ROW_COL_MV_OUTL {
                         pnr.setNum((int)PointMap->Drc);
                         out << "Qs #"<< pnr << "(kg/s)\n" << "C #"<< pnr << "(g/l)\n";
-                    }
+                    }}
                 }
             }
             else // flat CSV format, comma delimited
@@ -565,24 +557,20 @@ void TWorld::ReportTimeseriesNew(void)
                 // total flow over the bundary
                 out << ",Qall";
                 // for all points in outpoint.map
-                FOR_ROW_COL_MV
-                        if ( PointMap->Drc > 0 )
-                {
+                FOR_ROW_COL_MV_OUTL {
                     pnr.setNum((int)PointMap->Drc);
                     out << ",Q #" << pnr;
                     if (SwitchIncludeChannel) out << ",chanWH #" << pnr;
                     if (SwitchIncludeTile) out << ",Qtile #" << pnr;
-                }
+                }}
                 // sediment
                 if (SwitchErosion)
                 {
                     out << ",Qsall";
-                    FOR_ROW_COL_MV
-                            if ( PointMap->Drc > 0 )
-                    {
+                    FOR_ROW_COL_MV_OUTL {
                         pnr.setNum((int)PointMap->Drc);
                         out << ",Qs #" << pnr << ",C #" << pnr;
-                    }
+                    }}
                 }
                 out << "\n";
 
@@ -591,23 +579,19 @@ void TWorld::ReportTimeseriesNew(void)
                 if (SwitchRainfall) out << ",mm/h";
                 if (SwitchSnowmelt) out << ",mm/h";
                 out << ",l/s";
-                FOR_ROW_COL_MV
-                        if ( PointMap->Drc > 0 )
-                {
+                FOR_ROW_COL_MV_OUTL {
                     pnr.setNum((int)PointMap->Drc);
                     out << ",l/s #" << pnr;
                     if (SwitchIncludeChannel) out << ",m #" << pnr;
                     if (SwitchIncludeTile) out << ",l/s #" << pnr;
-                }
+                }}
                 if (SwitchErosion)
                 {
                     out << ",kg/s";
-                    FOR_ROW_COL_MV
-                            if ( PointMap->Drc > 0 )
-                    {
+                    FOR_ROW_COL_MV_OUTL {
                         pnr.setNum((int)PointMap->Drc);
                         out << ",kg/s #" << pnr << ",g/l #" << pnr;
-                    }
+                    }}
                 }
                 out << "\n";
             }
