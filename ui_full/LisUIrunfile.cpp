@@ -97,29 +97,29 @@ void lisemqt::GetRunfile()
     }
 
     // what is this doing here? runtime options to the namelist? why?
-    if (optionList.count() > 0)
-    {
-        for (i=0; i< optionList.count(); i++)
-        {
-            //qDebug() << optionList.at(i);
-            if (optionList[i].contains("="))
-            {
-                QString S = optionList[i];
-                S.remove('[');
-                S.remove(']');
-                QStringList SL = S.split(QRegExp("="));
+//    if (optionList.count() > 0)
+//    {
+//        for (i=0; i< optionList.count(); i++)
+//        {
+//            //qDebug() << optionList.at(i);
+//            if (optionList[i].contains("="))
+//            {
+//                QString S = optionList[i];
+//                S.remove('[');
+//                S.remove(']');
+//                QStringList SL = S.split(QRegExp("="));
 
-                for (int j = 0; j < nrnamelist; j++)
-                {
-                    if (namelist[j].name == SL[0].trimmed())
-                    {
-                        namelist[j].value = SL[1].trimmed();
-                        break;
-                    }
-                }
-            }
-        }
-    }
+//                for (int j = 0; j < nrnamelist; j++)
+//                {
+//                    if (namelist[j].name == SL[0].trimmed())
+//                    {
+//                        namelist[j].value = SL[1].trimmed();
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//    }
 
 
 
@@ -135,13 +135,20 @@ void lisemqt::ParseInputData()
     resetAll();
     bool ETmaps = false;
     bool Rainmaps = false;
-
+//    QLocale curLocale(QLocale::English);
+//    QLocale::setDefault(curLocale);
     for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
     {
-        int iii = namelist[j].value.toInt();
-        double val = namelist[j].value.toDouble();
-        QString p1 = namelist[j].name;
+
         QString p = namelist[j].value;
+        QString p1 = namelist[j].name;
+        bool ok;
+
+//        int iii = uk.toInt(p);
+//        double val = uk.toDouble(p);
+        int iii = namelist[j].value.toInt();
+        double val = namelist[j].value.toDouble(&ok);
+
         double valc = val;
         if (p.contains(",")) {
             QString p2 = p;
@@ -149,7 +156,8 @@ void lisemqt::ParseInputData()
             valc = p2.toDouble();
         }
 
-  //      qDebug() << p1 <<  p  << iii << val << valc;
+      qDebug() << p1 <<  p  << iii << val << valc;
+
         bool check = iii == 1;
         if (p1.contains("["))
             continue;

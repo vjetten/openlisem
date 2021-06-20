@@ -142,7 +142,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                if (hs->Drc > 0) {// && FloodT->Drc < _dt) {
+                if (hs->Drc > 1e-5) {// 0) {
                     tmb->Drc = 1;
                     if (c > 0 && !MV(r,c-1)        ) tmb->data[r][c-1] = 1;
                     if (c < _nrCols-1 && !MV(r,c+1)) tmb->data[r][c+1] = 1;
@@ -316,7 +316,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         // mass balance
 
                         // momentum balance for cells with water
-                        if(hn > he_ca) {
+                        if(hn > 1e-5) { //he_ca) {
                             // SWOF solution, delzc1 = 0 when not MUSCL
                             //  GRAV*0.5*((h1g_-h1l_)*(h1g_+h1l_) + (h1r_-h1d_)*(h1r_+h1d_) + (h1l_+h1r_)*delzc1->Drc));
                             double gflow_x = GRAV*0.5*( (H_l-H)*(H_l+H)+(H-H_r)*(H+H_r) );
@@ -354,15 +354,21 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
                         double vxabs = fabs(vxn);
                         double vyabs = fabs(vyn);
-                        if (vxabs <= ve_ca)
-                            vxn = 0;
-                        if (vyabs <= ve_ca)
-                            vyn = 0;
+                        double signx = (vxn < 0 ? -1.0 : 1.0);
+                        double signy = (vyn < 0 ? -1.0 : 1.0);
+//                        if (vxabs <= ve_ca)
+//                            vxn = 0;
+//                        if (vyabs <= ve_ca)
+//                            vyn = 0;
+                        if (vxabs < 0.01)
+                            vxn = signx * 0.01;
+                        if (vyabs > 0.01)
+                            vyn = signy * 0.01;
 
                         if (vxabs > 20)
-                            vxn = (vxn < 0 ? -1.0 : 1.0) * (20+(pow(vxabs,0.3)));
+                            vxn = signx * (20+(pow(vxabs,0.3)));
                         if (vyabs > 20)
-                            vyn = (vyn < 0 ? -1.0 : 1.0) * (20+(pow(vyabs,0.3)));
+                            vyn = signy * (20+(pow(vyabs,0.3)));
 
 
                         h->Drc = hn;

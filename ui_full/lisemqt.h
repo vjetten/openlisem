@@ -34,6 +34,7 @@
 #include <QApplication>
 #include <QtWidgets>
 #include <QSystemTrayIcon>
+#include <QTranslator>
 
 #include <QtCharts>
 #include <QtCharts/QChartView>
