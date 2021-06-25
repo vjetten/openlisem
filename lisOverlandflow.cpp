@@ -374,7 +374,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 
     FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
 
-    debug(QString("Average dynamic timestep (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));
+    TIMEDB(QString("Average dynamic timestep (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));
     // some screen error reporting
 }
 

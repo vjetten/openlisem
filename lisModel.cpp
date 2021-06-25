@@ -130,16 +130,16 @@ void TWorld::DoModel()
 
     try
     {
-        DEBUG("reading and initializing data");
+       // DEBUG("reading and initializing data");
 
         IntializeOptions(); // reset all options
 
         InitMapList();
         // map structure to destroy data automatically
 
-        DEBUG("GetRunFile()");
+   //     DEBUG("GetRunFile()");
         GetRunFile();
-        DEBUG("ParseRunfileData()");
+        DEBUG("Parse Runfile");
         ParseRunfileData();
         // get and parse runfile
 
@@ -149,24 +149,34 @@ void TWorld::DoModel()
         double btm = getvaluedouble("Begin time");
         double etd = getvaluedouble("End time day");
         double etm = getvaluedouble("End time");
+        if (SwitchEventbased) {
+            btd = 0;
+            etd = 0;
+            DEBUG("Day in start and end time is ignored.");
+        }
         BeginTime = (btd*1440+btm)*60; //in sec
         EndTime = (etd*1440+etm)*60;   //in sec
            // qDebug() << "time" << btd << btm << etd << etm;
         _dt = getvaluedouble("Timestep");
-        op.BeginTime = BeginTime/60; // for graph drawing
-        op.EndTime = EndTime/60;// for graph drawing
+        if (SwitchEventbased) {
+            op.BeginTime = BeginTime/60; // for graph drawing
+            op.EndTime = EndTime/60;// for graph drawing
+        } else {
+            op.BeginTime = BeginTime/86400; // /60; // for graph drawing
+            op.EndTime = EndTime/86400; //60;// for graph drawing
+        }
         //VJ get time here else combomaps goes wrong for rainfall intensity
 
         //time vraiables in sec
-        DEBUG("GetInputData()");
+//        DEBUG("Get Input Data");
         GetInputData();
-        DEBUG("IntializeData()");
+        DEBUG("Intialize Input Data()");
         IntializeData();
 
-        DEBUG("GetComboMaps()");
+   //     DEBUG("GetComboMaps()");
         GetComboMaps();
 
-        DEBUG("setupDisplayMaps()");
+    //    DEBUG("setupDisplayMaps()");
         setupDisplayMaps();
         // reset all display output maps for new job
         // must be done after Initialize Data because then we know how large the map is
@@ -214,7 +224,7 @@ void TWorld::DoModel()
         runstep = 0; //  runstep is used to initialize graph!
         printstep = 1; // printstep determines report frquency
 
-        DEBUG("setupHydrographData()");
+      //  DEBUG("setupHydrographData()");
         setupHydrographData();
 
         bool saveMBerror = false;

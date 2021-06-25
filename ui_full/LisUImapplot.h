@@ -33,13 +33,14 @@ public:
         //layer 0 is dem, layer 1 is shade, layer 3 is thematic
         QwtPlotItemList list = plot()->itemList(QwtPlotItem::Rtti_PlotSpectrogram);
         QwtPlotSpectrogram * sp2 = static_cast<QwtPlotSpectrogram *> (list.at(3));
+        if (sp2->data() == nullptr)
+            return QwtText(txt);
+
         QwtPlotSpectrogram * sp0 = static_cast<QwtPlotSpectrogram *> (list.at(0));
 //        // elevation info
         QwtPlotSpectrogram * sp3 = static_cast<QwtPlotSpectrogram *> (list.at(7));
 //        // outlet info
 
-        if (sp2->data() == nullptr)
-            return QwtText(txt);
         double z2 = sp2->data()->value(pos.x(), pos.y());
         double z0 = sp0->data()->value(pos.x(), pos.y());
         int z3 = 0;
@@ -52,9 +53,9 @@ public:
             if (z0 < 1.0)
                 dig = 4;
             if (fabs(z2) < 1.0)
-                txt = (QString("%1 ")/* + unit*/ + QString(" [%2m]")).arg(z2,0,'g',3).arg(z0,0,'f',dig);
+                txt = (QString("%1 ") + QString(" [%2m]")).arg(z2,0,'g',3).arg(z0,0,'f',dig);
             else
-                txt = (QString("%1 ")/* + unit */+ QString(" [%2m]")).arg(z2,0,'f',3).arg(z0,0,'f',dig);
+                txt = (QString("%1 ") + QString(" [%2m]")).arg(z2,0,'f',3).arg(z0,0,'f',dig);
         }
         if (z3 > 0) txt = txt + QString(" (Outlet %1)").arg(z3);
 

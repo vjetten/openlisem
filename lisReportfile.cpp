@@ -79,12 +79,15 @@ void TWorld::OutputUI(void)
     op.t = time_ms.elapsed()*0.001/60.0;    
     op.t = omp_get_wtime()/60.0 - startTime;
     op.time = time/60;
-    op.Time.append(time/60);
+    if (SwitchEventbased)
+        op.Time.append(time/60);
+    else
+        op.Time.append(time/86400);
     op.maxtime = op.t/runstep * op.maxstep;
     op.dx = _dx;
     op.runstep = runstep;
     op.maxstep = (int) ((EndTime-BeginTime)/_dt);
-    op.EndTime = EndTime/60.0;
+    //op.EndTime = EndTime/60.0;
     op.CatchmentArea = CatchmentArea;
 
     op.Pmm.append((RainAvgmm + SnowAvgmm)*3600/_dt);

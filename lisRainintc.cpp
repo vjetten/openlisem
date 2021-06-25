@@ -505,19 +505,25 @@ double TWorld::getTimefromString(QString sss)
 {
     // read date time string and convert to time in minutes
 
+    if (SwitchEventbased) {
+        double min = sss.toDouble();
+        return(min);
+    }
+
     if (!sss.contains(QRegExp("[-:/]"))) {
         return(sss.toDouble());
-
     } else {
         // DDD/HH/MM or DDD-HH-MM or DDD:HH:MM
         QStringList DHM = sss.split(QRegExp("[-:/]"));
         bool nohour = (DHM.count() == 2);
-        double day = DHM.at(0).toDouble();
+        double day = 0;
         double hour = 0;
         double min = 0;
-        if (nohour)
+        if (nohour) {
+            day = DHM.at(0).toDouble();
             min = DHM.at(1).toDouble();
-        else {
+        } else {
+            day = DHM.at(0).toDouble();
             hour = DHM.at(1).toDouble();
             min = DHM.at(2).toDouble();
         }

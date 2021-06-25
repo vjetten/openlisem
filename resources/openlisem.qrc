@@ -63,6 +63,7 @@
         <file>2X/advanced.png</file>
         <file>2X/settings2.png</file>
         <file>soil4.png</file>
+        <file>2X/noinfo.png</file>
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>

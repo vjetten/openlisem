@@ -502,9 +502,10 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
     if (SwitchAdvancedOptions) {
         mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
         runoff_partitioning = getvaluedouble("Flooding runoff partitioning");
-        F_MaxIter = getvalueint("Flood max Iterations");
+        F_MaxIter = getvalueint("Flood max iterations");
         F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
         F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
+        F_minWH = getvaluedouble("Min WH flow");   //HLL HLL2 Rusanov
         // SwitchHeun = false;// (getvalueint("Use Heun") == 1);
         //F_AddGravity = getvalueint("Use gravity flow");
        // F_Angle = getvaluedouble("Angle flow to channel");
@@ -516,6 +517,7 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         mixing_coefficient = 2.0;
         runoff_partitioning = 1.0;
         F_MaxIter = 200;
+        F_minWH = 0.0001;
         F_fluxLimiter = 1; //minmax, vanleer, albeda
         F_scheme = 4;   //Rusanov HLL HLL2 HLL2c
         //  SwitchHeun = false;
@@ -2054,6 +2056,7 @@ void TWorld::IntializeData(void)
     Alpha = NewMap(0);
     Q = NewMap(0);
     Qn = NewMap(0);
+    flowmask = NewMap(0);
 
     K2DOutlets = NewMap(0);
     K2DQ = NewMap(0);

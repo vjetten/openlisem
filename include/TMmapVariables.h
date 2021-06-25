@@ -85,6 +85,7 @@ cTMap
 *WHstore,                    //!< water heigth stored in micro depressions [m]
 *WaterVolall,                //!< water volume total (incl surface storage) [m^3]
 *WaterVolin,                 //!< water volume total before kin wave (after tochannel) [m^3]
+*flowmask,
 //*WaterVolRunoff,                //!< water volume for runoff [m^3]
 
 *FlowWidth,                  //!< width of the flow overland, based on ponded area/roughness, +roads etc [m]

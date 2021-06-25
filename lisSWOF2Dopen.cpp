@@ -137,31 +137,34 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 vys->Drc = vy->Drc;
                 FloodDT->Drc = dt_max;
                 FloodT->Drc = 0;
-                tmb->Drc = 0;
+                flowmask->Drc = 0;
             }}
 
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                if (hs->Drc > 1e-5) {// 0) {
-                    tmb->Drc = 1;
-                    if (c > 0 && !MV(r,c-1)        ) tmb->data[r][c-1] = 1;
-                    if (c < _nrCols-1 && !MV(r,c+1)) tmb->data[r][c+1] = 1;
-                    if (r > 0 && !MV(r-1,c)        ) tmb->data[r-1][c] = 1;
-                    if (r < _nrRows-1 && !MV(r+1,c)) tmb->data[r+1][c] = 1;
+                if (hs->Drc > F_minWH) {// || !(hs->Drc > 5 && vq < 0.0001)) {
+                    flowmask->Drc = 1;
+                    if (c > 0 && !MV(r,c-1)        ) flowmask->data[r][c-1] = 1;
+                    if (c < _nrCols-1 && !MV(r,c+1)) flowmask->data[r][c+1] = 1;
+                    if (r > 0 && !MV(r-1,c)        ) flowmask->data[r-1][c] = 1;
+                    if (r < _nrRows-1 && !MV(r+1,c)) flowmask->data[r+1][c] = 1;
 
-                    if (c > 0 && r > 0 && !MV(r-1,c-1)                ) tmb->data[r-1][c-1]=1;
-                    if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) tmb->data[r+1][c+1]=1;
-                    if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) tmb->data[r-1][c+1]=1;
-                    if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) tmb->data[r+1][c-1]=1;
+                    if (c > 0 && r > 0 && !MV(r-1,c-1)                ) flowmask->data[r-1][c-1]=1;
+                    if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) flowmask->data[r+1][c+1]=1;
+                    if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) flowmask->data[r-1][c+1]=1;
+                    if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) flowmask->data[r+1][c-1]=1;
                 }
             }}
 
             //do all flow and state calculations
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                if (tmb->Drc > 0) {
+//                double vq = sqrt(vxs->Drc*vxs->Drc + vys->Drc*vys->Drc);
+//                if (hs->Drc > 5 && vq < 0.0001)
+//                    flowmask->Drc = 0;
 
-                    //double dt = FloodDT->Drc; //dt_req_min;
+                if (flowmask->Drc > 0) {
+                        //double dt = FloodDT->Drc; //dt_req_min;
                     double dt = dt_req_min;
                     double vxn, vyn;
                     //  double vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
@@ -352,30 +355,14 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                             vyn = 0;
                         }
 
-                        double vxabs = fabs(vxn);
-                        double vyabs = fabs(vyn);
-                        double signx = (vxn < 0 ? -1.0 : 1.0);
-                        double signy = (vyn < 0 ? -1.0 : 1.0);
-//                        if (vxabs <= ve_ca)
-//                            vxn = 0;
-//                        if (vyabs <= ve_ca)
-//                            vyn = 0;
-                        if (vxabs < 0.01)
-                            vxn = signx * 0.01;
-                        if (vyabs > 0.01)
-                            vyn = signy * 0.01;
-
-                        if (vxabs > 20)
-                            vxn = signx * (20+(pow(vxabs,0.3)));
-                        if (vyabs > 20)
-                            vyn = signy * (20+(pow(vyabs,0.3)));
-
+                        vxn = checkforMinMaxV(vxn);
+                        vyn = checkforMinMaxV(vyn);
 
                         h->Drc = hn;
                         vx->Drc = vxn;
                         vy->Drc = vyn;
                     } // step > 0
-                } // tmb > 0, active cells + 1
+                } // flowmask > 0, active cells + 1
             }}
 
             // find smallest domain dt

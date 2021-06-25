@@ -184,7 +184,7 @@ void TWorld::ParseRunfileData(void)
         QString p = runnamelist[j].value;
 
         //if (p1.compare("Include Snowmelt")==0)                  SwitchSnowmelt =         iii == 1
-      //  if (p1.compare("Event based")==0)              SwitchEventbased = iii == 1;
+        if (p1.compare("Event based")==0)              SwitchEventbased = iii == 1;
         if (p1.compare("Use Rainfall maps")==0)        SwitchRainfallSatellite = iii == 1;
         if (p1.compare("Include ET")==0)               SwitchIncludeET = iii == 1;
         if (p1.compare("Use ET maps")==0)              SwitchETSatellite = iii == 1;

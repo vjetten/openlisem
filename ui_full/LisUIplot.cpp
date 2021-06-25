@@ -105,10 +105,9 @@ void lisemqt::setupPlot()
 
     QGraph->setPen(pen1);
     QGraph->setAxes(HPlot->xBottom, *axisYL1);// HPlot->yLeft);
-    QGraph->setAxes(HPlot->xBottom, *axisYL1);// HPlot->yLeft);
 
     PGraph->setPen(pen2);
-    PGraph->setAxes(HPlot->xBottom, *axisYR1);// HPlot->yRight);
+    PGraph->setAxes(HPlot->xBottom, *axisYL2);// HPlot->yRight);
 
     if(checkIncludeTiledrains->isChecked()) {
         QtileGraph->setPen(pen3);
@@ -135,10 +134,10 @@ void lisemqt::setupPlot()
     HPlot->enableAxis(HPlot->yRight,true);
     HPlot->enableAxis(HPlot->yLeft,true);
     HPlot->enableAxis(HPlot->xBottom,true);
-    HPlot->setAxisTitle(HPlot->xBottom, "time (min)");
+    HPlot->setAxisTitle(HPlot->xBottom, "time (day)");
 
     HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
-    HPlot->setAxisTitle(*axisYR1, "P (mm/h)");
+    HPlot->setAxisTitle(*axisYL2, "P (mm/h)");
 
     HPlot->setAxisAutoScale(*axisYL1,true);
     HPlot->setAxisAutoScale(*axisYL2,true);
@@ -183,7 +182,7 @@ void lisemqt::onOutletChanged(int point)
             outletpoint = 0;
             spinBoxPointtoShow->setValue(1);
 
-            SetTextHydrographs();
+            //SetTextHydrographs();
             outletgroup->setTitle(QString("Catchment outlet(s)"));
 
             if (doNewPlot)
@@ -195,20 +194,18 @@ void lisemqt::onOutletChanged(int point)
                 //HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
                 //outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
             }
-        }else
-        {
+        } else {
             if(point > outletpoint)
             {
                 index = oldindex + 1;
-            }else
-            {
+            } else {
                 index = oldindex - 1;
             }
 
             outletpoint = OutletIndices.at(index);
             spinBoxPointtoShow->setValue(outletpoint);
 
-            SetTextHydrographs();
+            //SetTextHydrographs();
             if (outletpoint > 0)
                 outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
             else
@@ -253,28 +250,28 @@ void lisemqt::initPlot()
         HPlot->setAxesCount(QwtPlot::yLeft, 2);
         HPlot->setAxesCount(QwtPlot::yRight, 2);
 
-        QGraph->setAxes(HPlot->xBottom, *axisYL1);
-        PGraph->setAxes(HPlot->xBottom, *axisYL2);
+//        QGraph->setAxes(HPlot->xBottom, *axisYL1);
+//        PGraph->setAxes(HPlot->xBottom, *axisYL2);
         QsGraph->setAxes(HPlot->xBottom, *axisYR1);
         CGraph->setAxes(HPlot->xBottom, *axisYR2);
 
-        HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
-        HPlot->setAxisTitle(*axisYL2, "P (mm/h)");
+//        HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
+//        HPlot->setAxisTitle(*axisYL2, "P (mm/h)");
         HPlot->setAxisTitle(*axisYR1, "Qs (kg/s)");
         HPlot->setAxisTitle(*axisYR2, "C (g/l)");
     }
-    else
-    {
+//    else
+//    {
 //        QsGraph->detach();
 //        CGraph->detach();
 
-        QGraph->setAxes(HPlot->xBottom, *axisYL1);
-        PGraph->setAxes(HPlot->xBottom, *axisYR1);
-        HPlot->setAxesCount(QwtPlot::yLeft, 1);
-        HPlot->setAxesCount(QwtPlot::yRight, 1);
-        HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
-        HPlot->setAxisTitle(*axisYR1, "P (mm/h)");
-    }
+//        QGraph->setAxes(HPlot->xBottom, *axisYL1);
+//        PGraph->setAxes(HPlot->xBottom, *axisYL2);
+//        HPlot->setAxesCount(QwtPlot::yLeft, 1);
+//        HPlot->setAxesCount(QwtPlot::yRight, 1);
+//        HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
+//        HPlot->setAxisTitle(*axisYL2, "P (mm/h)");
+//    }
 
     // redraw legend with nr of variables
     QwtLegend *legend = new QwtLegend(HPlot);
@@ -313,7 +310,7 @@ void lisemqt::showPlot()
         HPlot->setAxisScale(*axisYR2, 0.0, cmax[index] );
     } else {
         HPlot->setAxisScale(*axisYL1, 0.0, qmax[index] );
-        HPlot->setAxisScale(*axisYR1, 0.0, pmax );
+        HPlot->setAxisScale(*axisYL2, 0.0, pmax );
     }
 
     if(checkIncludeTiledrains->isChecked())
@@ -377,6 +374,7 @@ void lisemqt::startPlots()
 // max 6 line text output below hydrographs
 void lisemqt::initOutputData()
 {
+
     //textGraph->setMaximumBlockCount(4);
     textGraph->setWordWrapMode(QTextOption::NoWrap);
     textGraph->setMaximumHeight(80);

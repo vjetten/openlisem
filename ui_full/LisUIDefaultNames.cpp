@@ -180,8 +180,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("[Input]");
     namelist[i++].name = QString("Work Directory");
     namelist[i++].name = QString("Map Directory");
- //   namelist[i].value = QString("1");
- //   namelist[i++].name = QString("Event based");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Event based");
     namelist[i++].name = QString("Rainfall file");
     namelist[i++].name = QString("Rainfall Directory");
     namelist[i].value = QString("0");
@@ -412,7 +412,9 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1"); //minmod
     namelist[i++].name = QString("Flooding SWOF flux limiter");
     namelist[i].value = QString("200");
-    namelist[i++].name = QString("Flood Max Iterations");
+    namelist[i++].name = QString("Flood max iterations");
+    namelist[i].value = QString("0.0001");
+    namelist[i++].name = QString("Min WH flow");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Flooding mixing coefficient");
     namelist[i].value = QString("2.0");

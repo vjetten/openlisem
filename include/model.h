@@ -57,6 +57,7 @@
 #define HMIN 1e-6
 
 #define DEBUG(s) emit debug(QString(s))
+#define TIMEDB(s) emit timedb(QString(s))
 
 //#define mwrite(name) writeRaster(QString(resultDir+name))
 #define report(raster, name) WriteMapSeries(raster, resultDir,QString(name), printstep, mapFormat)
@@ -343,7 +344,7 @@ public:
 */
 
     bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelInflow, SwitchChannelAdjustCHW,
-    SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite, SwitchRainfall, //SwitchEventbased,
+    SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite, SwitchRainfall, SwitchEventbased,
     SwitchDailyET, SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
@@ -592,7 +593,7 @@ public:
     //FLOOD according to FULLSWOF2D
     double Flood_DTMIN;
     int F_scheme, F_fluxLimiter, F_MaxIter, F_AddGravity;
-    double F_Angle;
+    double F_Angle, F_minWH;
    // double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl, HLL_tmp;
     double F_pitValue;
     bool prepareFlood, startFlood;
@@ -610,6 +611,7 @@ public:
     void setFloodMask(cTMap * h);
     void setFloodMaskDT(cTMap * DT);
     void setFloodDT(cTMap * h);
+    double checkforMinMaxV(double Ves1);
 
     double limiter(double a, double b);
     vec4 F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
@@ -960,6 +962,7 @@ public:
     bool stopRequested;
     bool waitRequested;
     bool noInterface;
+    bool noInfo;
     bool noOutput;
     bool batchmode;
     QMutex mutex;
@@ -1005,6 +1008,7 @@ protected:
 signals:
     void done(const QString &results);
     void debug(const QString &results);
+    void timedb(const QString &results);
     void show(bool showall); //use the output structure "op" declared in global.h and LisUIoutput.h
 
 private slots:   //note, was private loop but dixygen does not recognize that

@@ -191,7 +191,6 @@ public:
 
     void showBaseMap();
     void getOutletMap();
-    void showChannelVector();
     void showChannelVectorNew();
 
     QwtPlotCurve *rivera;
@@ -357,6 +356,7 @@ public:
 
     void setDisplayComboBoxes();
     void on_toolButton_help(int page);
+    void resetTabOptions();
     void resetTabErosion();
     void resetTabFlow();
     void resetTabCalibration();
@@ -386,6 +386,7 @@ public slots:
     void resetAll();
     void showMapSettings();
     void setOutputScreen();
+    void setOutputInfo();
 
     void onOutletChanged(int);
     void editMapname(QModelIndex topLeft, QModelIndex bottomRight );
@@ -522,6 +523,7 @@ private slots:
     void worldShow(bool showall);
     void worldDone(const QString &results);
     void worldDebug(const QString &results);
+    void worldTimedb(const QString &results);
 
 
     void on_check2DDiagonalFlow_toggled(bool checked);
@@ -531,9 +533,6 @@ private slots:
     void on_checkHouses_toggled(bool checked);
 
     void on_toolButton_DischargeInName_clicked();
-
-
-    void on_checkEventBased_clicked(bool checked);
 
     void on_toolButton_rainsatName_clicked();
 
@@ -560,6 +559,8 @@ private slots:
 
     void on_toolButton_resetInterception_clicked();
 
+    void on_toolButton_resetOptions_clicked();
+
 private:
 
     QSystemTrayIcon *trayIcon;
@@ -576,6 +577,7 @@ private:
     QAction *aboutActI;
     QAction *restartAct;
     QAction *showAllAct;
+    QAction *showInfoAct;
 
     QAction *fontAct;
     QAction *fontIncreaseAct;

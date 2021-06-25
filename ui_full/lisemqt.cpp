@@ -686,6 +686,15 @@ void lisemqt::setOutputScreen()
   }
 }
 
+void lisemqt::setOutputInfo()
+{
+    if (W) {
+      W->noInfo = !W->noInfo;
+      picker->setEnabled(W->noInfo);
+    }
+}
+
+
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputPCR(bool /* doit */)
 {
@@ -761,6 +770,11 @@ void lisemqt::SetToolBar()
     showAllAct->setCheckable(true);
     connect(showAllAct, SIGNAL(triggered()), this, SLOT(setOutputScreen()));
     toolBar->addAction(showAllAct);
+
+    showInfoAct = new QAction(QIcon(":/2X/noinfo.png"), "&no info under cursor", this);
+    showInfoAct->setCheckable(true);
+    connect(showInfoAct, SIGNAL(triggered()), this, SLOT(setOutputInfo()));
+    toolBar->addAction(showInfoAct);
 
     toolBar->addSeparator();
     runAct = new QAction(QIcon(":/2X/play-icon.png"), "Run model...", this);
@@ -1560,10 +1574,10 @@ void lisemqt::aboutQT()
 void lisemqt::aboutInfo()
 {
     QMessageBox::information ( this, "openLISEM",
-                               QString("openLISEM verion %8 (%9) is created wih:\n\n%1\n%2\n%3\n%4\n%5\n%6\n%7\n%8")
+                               QString("openLISEM verion %9 (%10) is created by Victor Jetten and Bastian van de Bout with:\n\n%1\n%2\n%3\n%4\n%5\n%6\n%7\n%8")
                                .arg("- MSYS2 with MingW64, Qt and CMake (http://qt.nokia.com/).")
                                .arg("- Qwt technical application widgets for Qt (http://qwt.sf.net)")
-                               .arg("- Flood source code partly based on fullSWOF2D (http://www.univ-orleans.fr/mapmo/soft/FullSWOF/)")
+                               .arg("- Flood source code derived from fullSWOF2D (http://www.univ-orleans.fr/mapmo/soft/FullSWOF/)")
                                .arg("- Using openMP for parallel processing (https://www.openmp.org/)")
                                .arg("- Using GDAL for map handling (https://gdal.org/)")
                                .arg("- PCRaster lib map functions: http://pcraster.geo.uu.nl/")
@@ -1572,6 +1586,27 @@ void lisemqt::aboutInfo()
                                .arg(VERSIONNR)
                                .arg(DATE)
                                );
+}
+
+//--------------------------------------------------------------------
+void lisemqt::resetTabOptions()
+{
+    checkOverlandFlow1D->setChecked(false);
+    checkOverlandFlow2Ddyn->setChecked(true);
+    checkOverlandFlow2Dkindyn->setChecked(false);
+    checkDoErosion->setChecked(false);
+
+    checkIncludeChannel->setChecked(true);
+    checkChannelInfil->setChecked(false);
+    checkChannelBaseflow->setChecked(false);
+    checkChannelInflow->setChecked(false);
+    checkChannelAdjustCHW->setChecked(false);
+
+    checkRoadsystem->setChecked(false);
+    checkHouses->setChecked(false);
+    checkHardsurface->setChecked(false);
+    checkRaindrum->setChecked(false);
+    checkStormDrains->setChecked(false);
 }
 //--------------------------------------------------------------------
 void lisemqt::resetTabCalibration()
@@ -1696,6 +1731,7 @@ void lisemqt::resetTabAdvanced()
     E_mixingFactor->setValue(2.0);
     E_runoffPartitioning->setValue(1.0);
     E_FloodMaxIter->setValue(200);
+    E_minWHflow->setText("0.0001");
     E_FloodReconstruction->setValue(4);  //HLL2 etc
     E_FloodFluxLimiter->setValue(1);     //minmod etc
     E_courantFactorSed->setValue(0.2);
@@ -1805,34 +1841,8 @@ void lisemqt::resetAll()
 
     progressBar->setValue(0);
 
-    //checkSnowmelt->setChecked(false);
-    //checkRainfall->setChecked(true);
-
-    //main
-    checkOverlandFlow1D->setChecked(false);
-  //  checkOverlandFlow2D->setChecked(false);
-    checkOverlandFlow2Ddyn->setChecked(true);
-    checkOverlandFlow2Dkindyn->setChecked(false);
-    //frame_diffwave->setEnabled(checkOverlandFlow2D->isChecked());
-    //frame_dynwave->setEnabled(checkOverlandFlow2Ddyn->isChecked());
-    //groupBox_coupling->setEnabled(!checkOverlandFlow2Ddyn->isChecked());
-
-    checkDoErosion->setChecked(false);
-    //checkAdvancedSediment->setChecked(false);
-
-    checkIncludeChannel->setChecked(true);
-    //checkChannelFlood->setChecked(true);
-    checkChannelInfil->setChecked(false);
-    checkChannelBaseflow->setChecked(false);
-    checkChannelInflow->setChecked(false);
-    checkChannelAdjustCHW->setChecked(false);
-
-    checkRoadsystem->setChecked(false);
-    checkHouses->setChecked(false);
-    checkHardsurface->setChecked(false);
-    checkRaindrum->setChecked(false);
-    checkStormDrains->setChecked(false);
-
+   //main
+    resetTabOptions();
 
     resetTabInterception();
 
@@ -1846,25 +1856,9 @@ void lisemqt::resetAll()
 
     //calibration
     resetTabCalibration();
+
+    // advanced hidden options
     resetTabAdvanced();
-
-
-    checkVariableTimestep->setChecked(false);
-    checkHeun->setChecked(false);
-    //checkSWOFomp->setChecked(true);
-    //checkMuscl->setChecked(true);
-    check2DDiagonalFlow->setChecked(true);
-    E_courantFactor->setValue(0.2);
-    //   if (p1.compare("Flooding courant factor diffusive")==0)        E_courantFactorSed->setValue(valc);
-
-    E_floodMinHeight->setValue(0.05);
-    E_mixingFactor->setValue(2.0);
-    E_runoffPartitioning->setValue(1.0);
-    checkFloodInitial->setChecked(false);
-    E_FloodMaxIter->setValue(200);
-
-    //E_gravityToChannel->setValue(0);
-    //E_angleToChannel->setValue(0.02);
 
     tabWidget->setCurrentIndex(0);
     tabWidget_out->setCurrentIndex(1);
@@ -2131,26 +2125,6 @@ QString lisemqt::getFileorDir(QString inputdir,QString title, QStringList filter
     return dirout;
 }
 
-
-void lisemqt::on_checkEventBased_clicked(bool checked)
-{
-    /*
-    E_BeginTimeDay->setDisabled(checked);
-    E_EndTimeDay->setDisabled(checked);
-    if (checked) {
-        label_6->setText("Begin time (min)");
-        label_7->setText("End time (min)");
-        E_BeginTimeDay->setInputMask("9999;0");
-        E_EndTimeDay->setInputMask("9999;0");
-    } else {
-        label_6->setText("Begin time (daynr:minnr)");
-        label_7->setText("End time (daynr:minnr)");
-        E_BeginTimeDay->setInputMask("999:9999;0");
-        E_EndTimeDay->setInputMask("999:9999;0");
-    }
-*/
-}
-
 void lisemqt::on_toolButton_rainsatName_clicked()
 {
     RainSatFileDir = RainFileDir;
@@ -2308,4 +2282,9 @@ void lisemqt::on_toolButton_resetInterception_clicked()
 void lisemqt::on_toolButton_resetAdvanced_clicked()
 {
     resetTabAdvanced();
+}
+
+void lisemqt::on_toolButton_resetOptions_clicked()
+{
+    resetTabOptions();
 }

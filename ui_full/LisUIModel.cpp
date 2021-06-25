@@ -59,6 +59,7 @@ void lisemqt::runmodel()
     rivers.clear();
     culverts.clear();
     outlets.clear();
+    label_debug->text().clear();
 
     //NOTE op.runfilename is set in function openRunFile()
     if (op.runfilename.isEmpty())
@@ -124,9 +125,10 @@ void lisemqt::runmodel()
     W = new TWorld();
     // make the model world !!!
 
-    connect(W, SIGNAL(show(bool)),this, SLOT(worldShow(bool)),Qt::BlockingQueuedConnection);//Qt::QueuedConnection);
+    connect(W, SIGNAL(show(bool)),this, SLOT(worldShow(bool)),Qt::BlockingQueuedConnection);
     connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
     connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
+    connect(W, SIGNAL(timedb(QString)),this, SLOT(worldTimedb(QString)),Qt::QueuedConnection);
     // connect emitted signals from the model thread to the interface routines that handle them
 
     WhasStopped = false;
@@ -211,7 +213,7 @@ void lisemqt::worldShow(bool showall)
     if (!showall)
         return;
 
-    SetTextHydrographs(); // show text hydrograph data
+    //SetTextHydrographs(); // show text hydrograph data
 
     if (doNewPlot)
         newPlot(false);
@@ -221,8 +223,8 @@ void lisemqt::worldShow(bool showall)
     showBaseMap(); // show shaded relief base map, only once, set startplot to false
 
     getOutletMap();
-//    showChannelVector(); // show channel map
-    showChannelVectorNew(); // show channel map
+
+    showChannelVectorNew(); // make channel vectors once
 
     showRoadMap(); // show road map
 
@@ -233,7 +235,7 @@ void lisemqt::worldShow(bool showall)
 
     startplot = false;
 
-    showMap(); // show map with delected data
+    showMap(); // show map with selected data
 
     if (doShootScreens)
        shootScreen();
@@ -285,7 +287,15 @@ void lisemqt::worldDone(const QString &results)
 // this function is linked to the debug signal emitted from the model world
 void lisemqt::worldDebug(const QString &results)
 {
-    label_debug->setText(results);
+    QString sss = label_debug->text() + results + " - ";
+    label_debug->setText(sss);
+    // show messages from the World model on the screen
+}
+//---------------------------------------------------------------------------
+// this function is linked to the debug signal emitted from the model world
+void lisemqt::worldTimedb(const QString &results)
+{
+    label_realtime->setText(results);
     // show messages from the World model on the screen
 }
 //---------------------------------------------------------------------------

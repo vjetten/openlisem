@@ -233,7 +233,7 @@ void lisemqt::setupMapPlot()
     // exclude right axis legend from panning
 
     picker = new MyPicker( (QwtPlotCanvas *) MPlot->canvas() );
-
+    picker->setEnabled(false);
     maxAxis1 = -1e20;
     maxAxis2 = -1e20;
     maxAxis3 = -1e20;
@@ -572,12 +572,12 @@ void lisemqt::showBaseMap()
         return;
 
 
-    nrValidCells = 0;
-    for(int r = 0; r < op.baseMapDEM->nrRows(); r++)
-        for(int c=0; c < op.baseMapDEM->nrCols(); c++)
-        {
-            mapData << (double)-1e20;
-        }
+//    nrValidCells = 0; ?????????
+//    for(int r = 0; r < op.baseMapDEM->nrRows(); r++)
+//        for(int c=0; c < op.baseMapDEM->nrCols(); c++)
+//        {
+//            mapData << (double)-1e20;
+//        }
 
     double res = fillDrawMapData(op.baseMap, RDb);
     if (res == -1e20)
@@ -622,10 +622,13 @@ void lisemqt::hideChannelVector(bool yes)
 {
     if (!checkIncludeChannel->isChecked())
         return;
+
     if(rivers.isEmpty())
         return;
+
 //    if (checkChannelCulverts->isChecked() && culverts.isEmpty())
 //        return;
+
     if (!yes) {
         for (int i = 0; i < rivers.length(); i++)
             rivers[i]->detach();
@@ -677,113 +680,6 @@ void lisemqt::hideChannelVector(bool yes)
     MPlot->replot();
 }
 //---------------------------------------------------------------------------
-void lisemqt::showChannelVector()
-{
-    /*
-    if (!checkIncludeChannel->isChecked())
-        return;
-    if (op.Chanbranch.isEmpty())
-        return;
-    qDebug() << op.Chanbranch.length();
-    if (startplot) {
-        QVector <double> X;
-        QVector <double> Y;
-        checkMapChannels->setChecked(true);
-
-        double xend, yend;
-        double dx = op.channelMap->cellSize();
-        int nrRows = op.channelMap->nrRows();
-
-        int start = 1;//op.Chanbranch.at(0); // debug gives an assert error here!
-
-        for(int i = 1; i < op.Chanbranch.length(); i++) {
-            if(op.Chanbranch.at(i) == op.Chanbranch.at(i-1)) {
-                if (op.Chanbranch.at(i) == start) {
-                    X << op.ChanDataX.at(i);
-                    Y << op.ChanDataY.at(i);
-                    xend = op.ChanDataX.at(i);
-                    yend = op.ChanDataY.at(i);
-
-                } else {
-                    start = op.Chanbranch.at(i);
-
-                    // find connecting cell
-                    int _dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-                    int _dy[10] = {0, -1,-1,-1,  0, 0, 0,  1, 1, 1};
-
-                    int c = int(xend/dx);//-0.5*dx
-                    int r = nrRows-1-int(yend/dx);//-0.5*dx
-                    double ldd = !pcr::isMV(op.channelMap->Drc) ? op.channelMap->Drc : 0;
-
-                    //     qDebug() << i<< dx << yend << xend << r << c << ldd;
-                    Y << yend + _dy[(int)ldd]*dx;
-                    X << xend + _dx[(int)ldd]*dx;
-                    //
-
-                    Xa.push_back(X);
-                    Ya.push_back(Y);
-                    X.clear();
-                    Y.clear();
-                    //break;
-                }
-                Xa.push_back(X);
-                Ya.push_back(Y);
-            }
-        }
-        QPen pen1;
-        pen1.setWidth(spinChannelSize->value());//showRiverSize->value());
-        pen1.setColor(QColor("#000000"));
-        pen1.setCosmetic(false);
-        for (int i = 0; i < Xa.length(); i++) {
-            rivera = new QwtPlotCurve();
-            rivers << rivera;
-
-            rivera->setPen(pen1);
-            rivera->attach( MPlot );
-            rivera->setAxes(MPlot->xBottom, MPlot->yLeft);
-            rivera->setSamples(Xa.at(i),Ya.at(i));
-        }
-
-        int dxi = (int) (op.channelMap->cellSize()*0.4);
-        dxi = std::min(5,dxi);
-        spinCulvertSize->setValue(dxi);
-
-        QwtPlotCurve *outlet = new QwtPlotCurve();
-        QwtSymbol *whitedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi ));
-        outlets << outlet;
-        outlet->setSymbol(whitedot);
-        outlet->setStyle( QwtPlotCurve::NoCurve );
-        outlet->attach( MPlot );
-        outlet->setAxes(MPlot->xBottom, MPlot->yLeft);
-        outlet->setSamples(op.EndPointX,op.EndPointY);
-
-        // clear here for the next run of a different area
-        op.EndPointX.clear();
-        op.EndPointY.clear();
-        Xa.clear();
-        Ya.clear();
-        op.ChanDataX.clear();
-        op.ChanDataY.clear();
-        op.Chanbranch.clear();
-
-        QwtSymbol *greendot = new QwtSymbol( QwtSymbol::Ellipse, Qt::green,QPen( Qt::black ), QSize( dxi, dxi ) );
-
-        if (checkChannelCulverts->isChecked()) {
-            culvert = new QwtPlotCurve();
-            culverts << culvert;
-            culvert->setSymbol(greendot);
-            culvert->setStyle( QwtPlotCurve::NoCurve );
-            culvert->attach( MPlot );
-            culvert->setAxes(MPlot->xBottom, MPlot->yLeft);
-            culvert->setSamples(op.CulvertX,op.CulvertY);
-        }
-
-        op.CulvertX.clear();
-        op.CulvertY.clear();
-    }
-    */
-}
-//---------------------------------------------------------------------------
 void lisemqt::showChannelVectorNew()
 {
     if (!checkIncludeChannel->isChecked())
@@ -827,45 +723,6 @@ void lisemqt::showChannelVectorNew()
         X.clear();
         Y.clear();
 
-/*
-
-        double xend, yend;
-        double dx = op.channelMap->cellSize();
-
-        for(int i = 0; i < op.CHData.length(); i++) {
-            qDebug() << i << op.CHData.length() << op.CHData[i].length();
-            for(int j = 0; j < op.CHData[i].length(); j++)  {
-
-//                if (j == 0) {
-//                    X <<  op.CHData[i].at(j).c*dx + 0.5*dx;
-//                    Y <<  op.CHData[i].at(j).r*dx + 0.5*dx;
-//                }
-                xend = op.CHData[i].at(j).c*dx + 0.5*dx;
-                yend = op.CHData[i].at(j).r*dx + 0.5*dx;
-                //               cr.r = (_nrRows-r-1)*_dx + 0.5*_dx;
-                //               cr.c = c*_dx + 0.5*_dx;
-
-                // find connecting cell
-                int _dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-                int _dy[10] = {0, -1,-1,-1,  0, 0, 0,  1, 1, 1};
-
-                int c = op.CHData[i].at(j).c;
-                int r = op.CHData[i].at(j).r;
-                double ldd = !pcr::isMV(op.channelMap->Drc) ? op.channelMap->Drc : 0;
-
-                Y << yend + _dy[(int)ldd]*dx;
-                X << xend + _dx[(int)ldd]*dx;
-
-            }
-            Xa.push_back(X);
-            Ya.push_back(Y);
-            X.clear();
-            Y.clear();
-
-        }
-
-        */
-
         QPen pen1;
         pen1.setWidth(spinChannelSize->value());//showRiverSize->value());
         pen1.setColor(QColor("#000000"));
@@ -898,9 +755,6 @@ void lisemqt::showChannelVectorNew()
         op.EndPointY.clear();
         Xa.clear();
         Ya.clear();
-//        op.ChanDataX.clear();
-//        op.ChanDataY.clear();
-//        op.Chanbranch.clear();
 
         QwtSymbol *greendot = new QwtSymbol( QwtSymbol::Ellipse, Qt::green,QPen( Qt::black ), QSize( dxi, dxi ) );
 

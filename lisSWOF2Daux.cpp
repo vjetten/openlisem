@@ -125,6 +125,20 @@ void TWorld::correctMassBalanceSed(double sum1, cTMap *M, double th)
     }}
 }
 
+double TWorld::checkforMinMaxV(double Ves1)
+{
+    double Vv = Ves1;
+    double vxabs = fabs(Ves1);
+
+    double signx = (Ves1 < 0 ? -1.0 : 1.0);
+
+//    if (vxabs < 0.01)
+//        Vv = signx * 0.01;
+
+    if (vxabs > 20)
+        Vv = signx * (20+(pow(vxabs,0.3)));
+    return Vv;
+}
 //---------------------------------------------------------------------------
 // used in datainit, done once
 void TWorld::prepareFloodZ(cTMap *z)
@@ -918,6 +932,9 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
             Ves2 = 0;
             Hes = 0;
         }
+
+        Ves1 = checkforMinMaxV(Ves1);
+        Ves2 = checkforMinMaxV(Ves2);
 
         hes->Drc = Hes;
         ves1->Drc = Ves1;
