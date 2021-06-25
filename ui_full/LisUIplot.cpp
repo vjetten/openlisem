@@ -49,9 +49,6 @@ void lisemqt::setupPlot()
     title.setFont(QFont("MS Shell Dlg 2",12));
     HPlot = new QwtPlot(title);
     layout_Plot->insertWidget(0, HPlot, 1);
-//    enableAxis( QwtPlot::yRight );
-//    setAxesCount( QwtAxis::yLeft, 2 );
-//    setAxesCount( QwtAxis::yRight, 2 );
 
     // panning with the left mouse button
     (void) new QwtPlotPanner( HPlot->canvas() );
@@ -104,10 +101,10 @@ void lisemqt::setupPlot()
     HPlot->setAxesCount(QwtPlot::yRight, 2);
 
     QGraph->setPen(pen1);
-    QGraph->setAxes(HPlot->xBottom, *axisYL1);// HPlot->yLeft);
+    QGraph->setAxes(HPlot->xBottom, *axisYL1);
 
     PGraph->setPen(pen2);
-    PGraph->setAxes(HPlot->xBottom, *axisYL2);// HPlot->yRight);
+    PGraph->setAxes(HPlot->xBottom, *axisYR1);// HPlot->yRight);
 
     if(checkIncludeTiledrains->isChecked()) {
         QtileGraph->setPen(pen3);
@@ -116,10 +113,10 @@ void lisemqt::setupPlot()
     }
     if(checkDoErosion->isChecked()) {
         QsGraph->setPen(pen4);
-        QsGraph->setAxes(HPlot->xBottom, *axisYR1);//HPlot->yRight);
+        QsGraph->setAxes(HPlot->xBottom, *axisYR1);
 
         CGraph->setPen(pen5);
-        CGraph->setAxes(HPlot->xBottom, *axisYR2);//HPlot->yRight);
+        CGraph->setAxes(HPlot->xBottom, *axisYR2);
         QsGraph->setStyle(QwtPlotCurve::Lines);
         CGraph->setStyle(QwtPlotCurve::Lines);
     }
@@ -134,10 +131,13 @@ void lisemqt::setupPlot()
     HPlot->enableAxis(HPlot->yRight,true);
     HPlot->enableAxis(HPlot->yLeft,true);
     HPlot->enableAxis(HPlot->xBottom,true);
-    HPlot->setAxisTitle(HPlot->xBottom, "time (day)");
+    if (checkEventBased->isChecked())
+        HPlot->setAxisTitle(HPlot->xBottom, "time (min)");
+    else
+        HPlot->setAxisTitle(HPlot->xBottom, "time (day)");
 
     HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
-    HPlot->setAxisTitle(*axisYL2, "P (mm/h)");
+    HPlot->setAxisTitle(*axisYR1, "P (mm/h)");
 
     HPlot->setAxisAutoScale(*axisYL1,true);
     HPlot->setAxisAutoScale(*axisYL2,true);
@@ -236,6 +236,12 @@ void lisemqt::initPlot()
 {
     HPlot->setTitle("Hydrograph Outlet");
 
+
+    if (checkEventBased->isChecked())
+        HPlot->setAxisTitle(HPlot->xBottom, "time (min)");
+    else
+        HPlot->setAxisTitle(HPlot->xBottom, "time (day)");
+
     if(checkIncludeTiledrains->isChecked()) {
         QtileGraph->attach(HPlot);
 //    else
@@ -250,28 +256,28 @@ void lisemqt::initPlot()
         HPlot->setAxesCount(QwtPlot::yLeft, 2);
         HPlot->setAxesCount(QwtPlot::yRight, 2);
 
-//        QGraph->setAxes(HPlot->xBottom, *axisYL1);
-//        PGraph->setAxes(HPlot->xBottom, *axisYL2);
+        QGraph->setAxes(HPlot->xBottom, *axisYL1);
+        PGraph->setAxes(HPlot->xBottom, *axisYL2);
         QsGraph->setAxes(HPlot->xBottom, *axisYR1);
         CGraph->setAxes(HPlot->xBottom, *axisYR2);
 
-//        HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
-//        HPlot->setAxisTitle(*axisYL2, "P (mm/h)");
+        HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
+        HPlot->setAxisTitle(*axisYL2, "P (mm/h)");
         HPlot->setAxisTitle(*axisYR1, "Qs (kg/s)");
         HPlot->setAxisTitle(*axisYR2, "C (g/l)");
     }
-//    else
-//    {
-//        QsGraph->detach();
-//        CGraph->detach();
+    else
+    {
+        //        QsGraph->detach();
+        //        CGraph->detach();
 
-//        QGraph->setAxes(HPlot->xBottom, *axisYL1);
-//        PGraph->setAxes(HPlot->xBottom, *axisYL2);
-//        HPlot->setAxesCount(QwtPlot::yLeft, 1);
-//        HPlot->setAxesCount(QwtPlot::yRight, 1);
-//        HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
-//        HPlot->setAxisTitle(*axisYL2, "P (mm/h)");
-//    }
+        QGraph->setAxes(HPlot->xBottom, *axisYL1);
+        PGraph->setAxes(HPlot->xBottom, *axisYR1);
+        HPlot->setAxesCount(QwtPlot::yLeft, 1);
+        HPlot->setAxesCount(QwtPlot::yRight, 1);
+        HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
+        HPlot->setAxisTitle(*axisYR1, "P (mm/h)");
+    }
 
     // redraw legend with nr of variables
     QwtLegend *legend = new QwtLegend(HPlot);
@@ -310,7 +316,7 @@ void lisemqt::showPlot()
         HPlot->setAxisScale(*axisYR2, 0.0, cmax[index] );
     } else {
         HPlot->setAxisScale(*axisYL1, 0.0, qmax[index] );
-        HPlot->setAxisScale(*axisYL2, 0.0, pmax );
+        HPlot->setAxisScale(*axisYR1, 0.0, pmax );
     }
 
     if(checkIncludeTiledrains->isChecked())
