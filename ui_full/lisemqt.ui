@@ -14536,7 +14536,7 @@ p, li { white-space: pre-wrap; }
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <property name="iconSize">
               <size>
@@ -14873,8 +14873,8 @@ p, li { white-space: pre-wrap; }
      <y>498</y>
     </hint>
     <hint type="destinationlabel">
-     <x>231</x>
-     <y>573</y>
+     <x>305</x>
+     <y>708</y>
     </hint>
    </hints>
   </connection>
@@ -14985,7 +14985,7 @@ p, li { white-space: pre-wrap; }
      <y>396</y>
     </hint>
     <hint type="destinationlabel">
-     <x>406</x>
+     <x>698</x>
      <y>397</y>
     </hint>
    </hints>
@@ -15001,7 +15001,7 @@ p, li { white-space: pre-wrap; }
      <y>396</y>
     </hint>
     <hint type="destinationlabel">
-     <x>959</x>
+     <x>732</x>
      <y>399</y>
     </hint>
    </hints>
@@ -15017,7 +15017,7 @@ p, li { white-space: pre-wrap; }
      <y>363</y>
     </hint>
     <hint type="destinationlabel">
-     <x>399</x>
+     <x>698</x>
      <y>364</y>
     </hint>
    </hints>
@@ -15033,7 +15033,7 @@ p, li { white-space: pre-wrap; }
      <y>363</y>
     </hint>
     <hint type="destinationlabel">
-     <x>959</x>
+     <x>732</x>
      <y>366</y>
     </hint>
    </hints>
@@ -15049,7 +15049,7 @@ p, li { white-space: pre-wrap; }
      <y>363</y>
     </hint>
     <hint type="destinationlabel">
-     <x>993</x>
+     <x>766</x>
      <y>366</y>
     </hint>
    </hints>
@@ -15061,8 +15061,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>217</x>
-     <y>440</y>
+     <x>301</x>
+     <y>468</y>
     </hint>
     <hint type="destinationlabel">
      <x>217</x>
@@ -15077,12 +15077,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>227</x>
-     <y>506</y>
+     <x>239</x>
+     <y>534</y>
     </hint>
     <hint type="destinationlabel">
-     <x>456</x>
-     <y>507</y>
+     <x>699</x>
+     <y>535</y>
     </hint>
    </hints>
   </connection>
@@ -15093,12 +15093,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>227</x>
-     <y>506</y>
+     <x>239</x>
+     <y>534</y>
     </hint>
     <hint type="destinationlabel">
-     <x>961</x>
-     <y>509</y>
+     <x>734</x>
+     <y>537</y>
     </hint>
    </hints>
   </connection>
@@ -15109,12 +15109,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>227</x>
-     <y>506</y>
+     <x>239</x>
+     <y>534</y>
     </hint>
     <hint type="destinationlabel">
-     <x>996</x>
-     <y>509</y>
+     <x>769</x>
+     <y>537</y>
     </hint>
    </hints>
   </connection>
@@ -15129,7 +15129,7 @@ p, li { white-space: pre-wrap; }
      <y>396</y>
     </hint>
     <hint type="destinationlabel">
-     <x>993</x>
+     <x>766</x>
      <y>399</y>
     </hint>
    </hints>
@@ -15141,8 +15141,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>217</x>
-     <y>595</y>
+     <x>301</x>
+     <y>623</y>
     </hint>
     <hint type="destinationlabel">
      <x>217</x>
@@ -15157,12 +15157,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>227</x>
-     <y>476</y>
+     <x>321</x>
+     <y>504</y>
     </hint>
     <hint type="destinationlabel">
-     <x>456</x>
-     <y>477</y>
+     <x>699</x>
+     <y>505</y>
     </hint>
    </hints>
   </connection>
@@ -15173,12 +15173,44 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>227</x>
-     <y>534</y>
+     <x>321</x>
+     <y>562</y>
     </hint>
     <hint type="destinationlabel">
-     <x>448</x>
-     <y>561</y>
+     <x>520</x>
+     <y>589</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checksatImage</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_satImageName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1191</x>
+     <y>206</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1275</x>
+     <y>212</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checksatImage</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>toolButton_satImageName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1106</x>
+     <y>209</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1889</x>
+     <y>214</y>
     </hint>
    </hints>
   </connection>

@@ -370,6 +370,7 @@ void lisemqt::showMapd(double)
 // not how they are done here!
 void lisemqt::showMap()
 {
+    //initialize and plot at the start
     if(op.comboboxset == false)
     {
         op.comboboxset = true;
@@ -431,10 +432,16 @@ void lisemqt::showMap()
 
         DisplayComboBox->setMaxVisibleItems(IndexList.count());
         DisplayComboBox2->setMaxVisibleItems(IndexList1.count());
+
+        MPlot->replot();
+
     }
 
     // needed if user clicks while nothing is running:
     if (IndexList.count() == 0)
+        return;
+
+    if (tabWidget_out->currentIndex() < 1)
         return;
 
     if (ActiveList == 0)

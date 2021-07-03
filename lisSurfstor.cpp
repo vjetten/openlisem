@@ -46,15 +46,18 @@ void TWorld::GridCell()
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double dxa = _dx;
-        if(SwitchIncludeChannel && ChannelWidthMax->Drc > 0)
+        if(SwitchIncludeChannel && ChannelWidthMax->Drc > 0) {
             dxa = std::max(0.05, _dx - ChannelWidthMax->Drc);
-//        dxa = std::max(0.05, _dx - ChannelWidthExtended->Drc);
+            //        dxa = std::max(0.05, _dx - ChannelWidthExtended->Drc);
 
-        if (SwitchCulverts && ChannelMaxQ->Drc > 0)
-            dxa = _dx;
+            if (SwitchCulverts)
+                dxa = _dx;   //als culvert dan geen channelwidth want channel ondergonds
+        }
+
 
         ChannelAdj->Drc = dxa;
         CHAdjDX->Drc = dxa*DX->Drc;
+
 
         RoadWidthHSDX->Drc = std::min(dxa, RoadWidthHSDX->Drc);
         dxa = std::max(0.0, dxa - RoadWidthHSDX->Drc);

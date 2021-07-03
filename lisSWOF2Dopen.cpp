@@ -451,7 +451,7 @@ double TWorld::fullSWOF2openWS(int nr_, cTMap *h, cTMap *vx, cTMap *vy, cTMap *z
 
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_LWS(nr_) {
-                if (hs->Drc > 0) {
+                if (hs->Drc > F_minWH) {
                     tmb->Drc = 1;
                     if (c > 0 && !MV(r,c-1)        ) tmb->data[r][c-1] = 1;
                     if (c < _nrCols-1 && !MV(r,c+1)) tmb->data[r][c+1] = 1;
