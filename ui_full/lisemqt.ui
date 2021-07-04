@@ -2602,8 +2602,8 @@
              <widget class="QWidget" name="scrollAreaWidgetContents">
               <property name="geometry">
                <rect>
-                <x>0</x>
-                <y>0</y>
+                <x>-27</x>
+                <y>-288</y>
                 <width>961</width>
                 <height>970</height>
                </rect>
@@ -2642,7 +2642,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>6</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -8928,7 +8928,7 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="title">
-                         <string>Connecting overland flow to channel</string>
+                         <string>Flow between channel and adjacent surface</string>
                         </property>
                         <layout class="QFormLayout" name="formLayout">
                          <property name="horizontalSpacing">
@@ -8961,8 +8961,8 @@ p, li { white-space: pre-wrap; }
                             </font>
                            </property>
                            <property name="text">
-                            <string>[ ] - Use overlandflow V for flow to and from channel (def.);
-[v] - use gravity flow from channel and kin V to channel;</string>
+                            <string>[ ] - Use overlandflow Velocity (default);
+[v] - use pressure from channel and kin V to channel;</string>
                            </property>
                           </widget>
                          </item>
@@ -9205,7 +9205,7 @@ p, li { white-space: pre-wrap; }
                             </font>
                            </property>
                            <property name="text">
-                            <string>Time average velocity</string>
+                            <string>Time average velocity in 2D flow (def. V)</string>
                            </property>
                            <property name="checked">
                             <bool>true</bool>

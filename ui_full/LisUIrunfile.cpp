@@ -156,7 +156,7 @@ void lisemqt::ParseInputData()
             valc = p2.toDouble();
         }
 
-      qDebug() << p1 <<  p  << iii << val << valc;
+      //qDebug() << p1 <<  p  << iii << val << valc;
 
         bool check = iii == 1;
         if (p1.contains("["))

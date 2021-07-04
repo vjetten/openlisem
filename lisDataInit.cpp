@@ -115,7 +115,7 @@ void TWorld::DestroyData(void)
         }
     }
 
-    DEBUG("clear rainfall structure");
+    DEBUG("clear meteo structures");
 
     // clear() calls the destruction of all elements in the sturcture
     RainfallSeriesM.clear();
@@ -130,10 +130,10 @@ void TWorld::DestroyData(void)
         ETSeriesMaps.clear();
     }
 
-    DEBUG("kill swatre structure");
-
     if (InfilMethod == INFIL_SWATRE && initSwatreStructure)
     {
+        DEBUG("clear swatre structure");
+
         FreeSwatreInfo();
         if (SwatreSoilModel)
             CloseSwatre(SwatreSoilModel);
@@ -219,8 +219,16 @@ cTMap *TWorld::InitMaskTiledrain(QString name)
 //---------------------------------------------------------------------------
 void TWorld::GetInputData(void)
 {
+    InitParameters();
+
     InitStandardInput();
     //## Basic data start of map list etc.
+
+    InitLULCInput();
+    //## surface related variables
+
+    InitSoilInput();
+    //## soil/infiltration data
 
     InitErosion();
     //extended sediment stuff
@@ -244,217 +252,12 @@ void TWorld::GetInputData(void)
     //## get flow barriers;
     InitFlowBarriers();
 
-    InitChanNetwork();
+    InitScreenChanNetwork();
 
 }
-
-//double calcje(int r, int c, double h)
-//{
-//    double V;
-//    V = h + 1.0;
-//    V -= 0.34;
-//    V  = pow(V, 0.34);
-//    V  = sqrt(V);
-//    return(V);
-
-//}
 //---------------------------------------------------------------------------
-void TWorld::InitStandardInput(void)
+void TWorld::InitParameters(void)
 {
-    //## catchment data
-    LDD = InitMask(getvaluename("ldd"));
-    // THIS SHOULD BE THE FIRST MAP
-    // LDD is also mask and reference file, everthing has to fit LDD
-    // channels use channel LDD as mask
-
-    tm = NewMap(0); // temp map for aux calculations
-    tma = NewMap(0); // temp map for aux calculations
-    tmb = NewMap(0); // temp map for aux calculations
-    tmc = NewMap(0); // temp map for aux calculations
-    tmd = NewMap(0); // temp map for aux calculations
-
-    nrValidCells = 0;
-    FOR_ROW_COL_MV {
-        nrValidCells++;
-    }
-
-    // Qvector is faster but if Qt prefers QList...?
-    //cr_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCells);
-    //long i = 0;
-    //FOR_ROW_COL_MV {
-    //        cr_[i].r = r;
-    //        cr_[i].c = c;
-    //        i++;
-    //}
-
-    FOR_ROW_COL_MV {
-        LDD_COOR newcr;
-        newcr.r = r;
-        newcr.c = c;
-        cr_ << newcr;
-    }
-
-    if (SwitchSWOFWatersheds) {
-        WaterSheds = ReadMap(LDD,getvaluename("wsheds"));
-        nrWatersheds = countUnits(*WaterSheds);
-
-        long nrc = 0;
-        WScr.clear();
-        for (int i = 0; i <= nrWatersheds; i++){
-            crws_.clear();
-            FOR_ROW_COL_MV {
-                if (WaterSheds->Drc == i) {
-                    LDD_COOR newcr;
-                    newcr.r = r;
-                    newcr.c = c;
-                    crws_ << newcr;
-                }
-            }
-            WScr.append(crws_);
-            nrc += WScr.at(i).size();
-            qDebug() << WScr.size() << WScr.at(i).size() << i << nrc << nrValidCells;
-        }
-    }
-
-    FOR_ROW_COL_MV {
-        if (LDD->Drc == 5) {
-        LDD_COOR newcr;
-        newcr.r = r;
-        newcr.c = c;
-        crldd5_ << newcr;
-        }
-    }
-    nrValidCellsLDD5 = crldd5_.size();
-
-     crlinkedldd_ = MakeLinkedList(LDD);
-//    crlinkedldd_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCells);
-//    QVector <LDD_COOR> temp = MakeLinkedList(LDD);
-//    for (long i=0; i < temp.size(); i++) {
-//        crlinkedldd_[i].r = temp[i].r;
-//        crlinkedldd_[i].c = temp[i].c;
-//    }
-//    temp.clear();
-
-    userCores = getvalueint("Nr user Cores");
-    int cores = omp_get_max_threads();
-    if (userCores == 0 || userCores > cores)
-        userCores = cores;
-
-   // qDebug() << "using:" << userCores << "cores";
-
-    /*
-
-    time_ms.start();
-    for (int i = 0 ; i < 1000; i++)
-    {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            double V = 0;
-            bool a = true, b = true, c = true;
-            if (a) {
-                tm->Drc=calcje(r,c,tm->Drc);
-            }
-            if (b) {
-                tm->Drc=calcje(r,c,tm->Drc);
-            }
-            if (c) {
-                tm->Drc=calcje(r,c,tm->Drc);
-            }
-        }}
-    }
-    qDebug() << time_ms.elapsed()*0.001/60;
-
-    time_ms.start();
-    for (int i = 0 ; i < 1000; i++)
-    {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            double V = 0;
-            bool a = true, b = true, c = true;
-            if (a) {
-                V = tm->Drc + 1.0;
-                V -= 0.34;
-                V  = pow(V, 0.34);
-                V  = sqrt(V);
-                tm->Drc = V;
-            }
-            if (b) {
-                V = tm->Drc + 1.0;
-                V -= 0.34;
-                V  = pow(V, 0.34);
-                V  = sqrt(V);
-                tm->Drc = V;
-            }
-            if (c) {
-                V = tm->Drc + 1.0;
-                V -= 0.34;
-                V  = pow(V, 0.34);
-                V  = sqrt(V);
-                tm->Drc = V;
-            }
-        }}
-    }
-    qDebug() << time_ms.elapsed()*0.001/60;
-
-    time_ms.start();
-    for (int i = 0 ; i < 1000; i++)
-    {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            double V = 0;
-                V = tm->Drc + 1.0;
-                V -= 0.34;
-                V  = pow(V, 0.34);
-                V  = sqrt(V);
-                tm->Drc = V;
-            }}
-#pragma omp parallel for num_threads(userCores)
-FOR_ROW_COL_MV_L {
-    double V = 0;
-        V = tm->Drc + 1.0;
-        V -= 0.34;
-        V  = pow(V, 0.34);
-        V  = sqrt(V);
-        tm->Drc = V;
-    }}
-#pragma omp parallel for num_threads(userCores)
-FOR_ROW_COL_MV_L {
-    double V = 0;
-        V = tm->Drc + 1.0;
-        V -= 0.34;
-        V  = pow(V, 0.34);
-        V  = sqrt(V);
-        tm->Drc = V;
-    }}
-    }
-    qDebug() << time_ms.elapsed()*0.001/60;
-
-
-    double *mem = (double*)malloc(_nrRows*_nrCols* sizeof(double));
-    double **A = (double**)malloc(_nrRows* sizeof(double*));
-    for(int i = 0; i < _nrRows; i++)
-       A[i] = mem + _nrCols*i;
-
-    time_ms.start();
-    for (int i = 0 ; i < 10000; i++)
-    {
-        #pragma omp parallel for num_threads(userCores)
-        //FOR_ROW_COL_MV_L {
-for(long i_ = nrValidCells-1; i_ >= 0; i_--){
-          //  long ii = r*_nrCols+c;
-    long ii = i_;
-            double V = 0;
-            V = mem[ii] + 1.0;
-            V -= 0.34;
-            V  = pow(V, 0.34);
-            V  = sqrt(V);
-            mem[ii] = V;
-
-
-        }
-    }
-    qDebug() << time_ms.elapsed()*0.001/60;
-*/
 
     // get calibration parameters
     gsizeCalibration = getvaluedouble("Grain Size calibration");
@@ -532,40 +335,89 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
     }
 
     SwitchKinematic2D = getvalueint("Routing Kin Wave 2D");
-    // flood maps
+
+    userCores = getvalueint("Nr user Cores");
+    int cores = omp_get_max_threads();
+    if (userCores == 0 || userCores > cores)
+        userCores = cores;
+}
+//---------------------------------------------------------------------------
+void TWorld::InitStandardInput(void)
+{   
+    //## catchment data
+    LDD = InitMask(getvaluename("ldd"));
+    // THIS SHOULD BE THE FIRST MAP
+    // LDD is also mask and reference file, everthing has to fit LDD
+    // channels use channel LDD as mask
+
+    tm = NewMap(0); // temp map for aux calculations
+    tma = NewMap(0); // temp map for aux calculations
+    tmb = NewMap(0); // temp map for aux calculations
+    tmc = NewMap(0); // temp map for aux calculations
+    tmd = NewMap(0); // temp map for aux calculations
+
+    nrValidCells = 0;
+    FOR_ROW_COL_MV {
+        nrValidCells++;
+    }
+
+    FOR_ROW_COL_MV {
+        LDD_COOR newcr;
+        newcr.r = r;
+        newcr.c = c;
+        cr_ << newcr;
+    }
+
+    if (SwitchSWOFWatersheds) {
+        WaterSheds = ReadMap(LDD,getvaluename("wsheds"));
+        nrWatersheds = countUnits(*WaterSheds);
+
+        long nrc = 0;
+        WScr.clear();
+        for (int i = 0; i <= nrWatersheds; i++){
+            crws_.clear();
+            FOR_ROW_COL_MV {
+                if (WaterSheds->Drc == i) {
+                    LDD_COOR newcr;
+                    newcr.r = r;
+                    newcr.c = c;
+                    crws_ << newcr;
+                }
+            }
+            WScr.append(crws_);
+            nrc += WScr.at(i).size();
+            qDebug() << WScr.size() << WScr.at(i).size() << i << nrc << nrValidCells;
+        }
+    }
+
+    FOR_ROW_COL_MV {
+        if (LDD->Drc == 5) {
+        LDD_COOR newcr;
+        newcr.r = r;
+        newcr.c = c;
+        crldd5_ << newcr;
+        }
+    }
+    nrValidCellsLDD5 = crldd5_.size();
+
+    if (SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
+        crlinkedldd_ = MakeLinkedList(LDD);
+
     DEM = ReadMap(LDD, getvaluename("dem"));
+
     if (SwitchBuffers) {
         Buffers = ReadMap(LDD, getvaluename("buffers"));
         cover(*Buffers, *LDD,0);
         calcMap(*DEM, *Buffers, ADD);
     } 
-    //    else
-    //        Buffers = NewMap(0);
 
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
-    checkMap(*Grad, LARGER, 1.0, "Gradient must be SINE of slope angle (not TAN)");
-    // calcValue(*Grad, 0.001, MAX);
-    // VJ 170210 better to check the code where grad is 0, there q = 0, alpha = 0, so v = 0
+    checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
+
     sqrtGrad = NewMap(0);
     FOR_ROW_COL_MV {
         sqrtGrad->Drc = sqrt(Grad->Drc);
     }
-
-//    Outlet = ReadMap(LDD, getvaluename("outlet"));
-//    cover(*Outlet, *LDD, 0);
-//    bool check = false;
-//    FOR_ROW_COL_MV
-//    {
-//        if (Outlet->Drc > 0) {
-//            check = true;
-//            //break;
-//        }
-//    }
-//    if (!check)
-//    {
-//        ErrorString = "No outlet points (values >= 1) defined in outlet.map.";
-//        throw 1;
-//    }
 
     int cnt = 0;
     Outlet = NewMap(0);
@@ -575,40 +427,6 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
             Outlet->Drc = cnt;
         }
     }
-    //    if (!SwitchIncludeChannel && (SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN))
-    //    {
-    //        FOR_ROW_COL_MV
-    //        {
-    //            if(Outlet->Drc > 0 && LDD->Drc != 5)
-    //            {
-    //                //qDebug() << r << c << LDD->Drc;
-    //                ErrorString = "Outlet points (outlet.map) do not coincide with LDD endpoints.";
-    //                throw 1;
-    //            }
-    //        }
-    //    }
-
-
-    // USER defined outlet points. these are leading.
-
-    //VJ 170211 revamped. Logic:
-    // when 2D flow and channel, lddchannel->pits are leading, should coincide with user outlet
-    // when 1D flow and channel, channel is leading
-    // Checked in initchannel
-    // when 2D and no channel, just do what user wants, don't check!
-    // when 1D flow and no channel, outlet should be ldd->pits
-//    if (!SwitchIncludeChannel && (SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN))
-//    {
-//        FOR_ROW_COL_MV
-//        {
-//            if(Outlet->Drc > 0 && LDD->Drc != 5)
-//            {
-//                //qDebug() << r << c << LDD->Drc;
-//                ErrorString = "Outlet points (outlet.map) do not coincide with LDD endpoints.";
-//                throw 1;
-//            }
-//        }
-//    }
 
     // points are user observation points. they should include outlet points
     PointMap = ReadMap(LDD,getvaluename("outpoint"));
@@ -618,7 +436,6 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
     FOR_ROW_COL_MV {
         if(PointMap->Drc > 0) {
             found = true;
-            //  break;
         }
     }
 
@@ -633,7 +450,7 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
             }
         }
     } else {
-        ErrorString = QString("Outpoint.map has no values above 0");
+        ErrorString = QString("Outpoint.map has no values above 0. Copy at least outlet(s).");
         throw 1;
     }
 
@@ -655,9 +472,11 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
             Snowcover->Drc = (SnowmeltZone->Drc == 0 ? 0 : 1.0);
         }
     }
-
-    //## landuse and surface data
-
+}
+//---------------------------------------------------------------------------
+//## landuse and surface data
+void TWorld::InitLULCInput(void)
+{
     N = ReadMap(LDD,getvaluename("manning"));
     Norg = NewMap(0);
     calcValue(*N, nCalibration, MUL); //VJ 110112 moved
@@ -709,8 +528,6 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         CohGrass = NewMap(0);
     }
 
-    // WheelWidth  = ReadMap(LDD,getvaluename("wheelwidth"));
-
     if (SwitchRoadsystem)
     {
         RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
@@ -735,6 +552,10 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
         N->Drc = N->Drc * (1-frac) + 0.0025*frac;
 //        N->Drc = N->Drc * (1-RoadWidthHSDX->Drc) + 0.0025*frac;
     }
+}
+//---------------------------------------------------------------------------
+void TWorld::InitSoilInput(void)
+{
 
     //## infiltration data
     if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
@@ -789,12 +610,6 @@ for(long i_ = nrValidCells-1; i_ >= 0; i_--){
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
-//            FOR_ROW_COL_MV {
-//                SoilDepth2->Drc = std::min(0.01,SoilDepth2->Drc - SoilDepth1->Drc);
-//            }
-
-
-            //VJ 101213 fixed bug: convert from mm to m
 
 //            copy(*ThetaI3, *ThetaI2);
 //            copy(*ThetaS3, *ThetaS2);
@@ -1019,6 +834,8 @@ void TWorld::InitChannel(void)
           //  i++;
         }
         crlinkedlddch_= MakeLinkedList(LDDChannel);
+        qDebug() << nrValidCellsCH << crlinkedlddch_.size();
+
     //   crlinkedlddch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
     //        QVector <LDD_COOR> temp = MakeLinkedList(LDDChannel);
 
@@ -3047,7 +2864,7 @@ void TWorld::InitShade(void)
 }
 //---------------------------------------------------------------------------
 // for drawing onscreen
-void TWorld::InitChanNetwork()
+void TWorld::InitScreenChanNetwork()
 {
     if(!SwitchIncludeChannel)
         return;

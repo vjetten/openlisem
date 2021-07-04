@@ -135,6 +135,8 @@ void TWorld::fromChannelWHtoVol(int r, int c)
 
 // V, alpha and Q in the channel, called after overland flow vol to channel
 // called after flood and uses new channel flood water height
+
+//OBSOLETE
 void TWorld::CalcVelDischChannel()
 {
     if (!SwitchIncludeChannel)
@@ -202,7 +204,9 @@ void TWorld::ChannelAddBaseandRain(void)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
 
-        if (ChannelMaxQ->Drc <= 0)
+        if (SwitchCulverts && ChannelMaxQ->Drc > 0)
+            ChannelWaterVol->Drc += 0;
+        else
             ChannelWaterVol->Drc += Rainc->Drc*ChannelWidthMax->Drc*DX->Drc;
 
         // subtract infiltration
@@ -312,7 +316,7 @@ void TWorld::ChannelFlow(void)
 
     }}
 
-    if (SwitchChannelKinWave) {        
+    if (SwitchChannelKinWave) {
         int loop = 1;
         if (SwitchChannelKinwaveDt) {
             if (_dt > _dtCHkin) {
@@ -323,6 +327,7 @@ void TWorld::ChannelFlow(void)
                 fill(*tma,0);
                 fill(*tmb,0);
             }
+         //Faverage dynamix
             qDebug() << loop;
         }
 
@@ -339,7 +344,7 @@ void TWorld::ChannelFlow(void)
                 cover(*ChannelQn, *LDD, 0); // check this!!!!
 
             } else {
-                KinematicExplicit(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
+                KinematicExplicit(crlinkedlddch_, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
             }
 
             #pragma omp parallel for num_threads(userCores)

@@ -173,9 +173,8 @@
 #define RWUWANGJIA 3
 
 #define K2D_METHOD_KIN   1
-#define K2D_METHOD_DIFF  2
+#define K2D_METHOD_KINDYN  2
 #define K2D_METHOD_DYN   3
-#define K2D_METHOD_KINDYN  4
 
 
 //---------------------------------------------------------------------------
@@ -206,6 +205,7 @@ typedef struct LDD_COORIN {
     int nr;
     int ldd;
     LDD_COOR *inn;
+    //QVector <LDD_COOR> in;
 }  LDD_COORIN;
 //---------------------------------------------------------------------------
 typedef struct LDD_COORloc {
@@ -305,15 +305,11 @@ public:
     int _nrCols;
 
     long nrValidCells;
-    long nrValidCellsCH;
     long nrValidCellsLDD5;
+    long nrValidCellsCH;
     long nrValidCellsLDDCH5;
     long nrValidCellsWS;
     int nrWatersheds;
-    //LDD_COOR *cr_;
-    //LDD_COOR *crch_;
-    //LDD_COOR *crlinkedldd_;
-    //LDD_COOR *crlinkedlddch_;
     QVector <LDD_COOR> crldd5_;
     QVector <LDD_COOR> crlddch5_;
     QVector <LDD_COOR> cr_;
@@ -570,11 +566,14 @@ public:
     void InitImages(void);
     void InitErosion(void); //VJ 110511
     void GetInputData(void);      // get and make input maps
+    void InitParameters(void);
     void IntializeData(void);     // make all non-input maps
     void IntializeOptions(void);  // set all options to false etc
-    void InitStandardInput(void); //VJ 170211
+    void InitStandardInput(void);
+    void InitLULCInput(void);
+    void InitSoilInput(void);
     void InitFlood(void);
-    void InitChanNetwork();
+    void InitScreenChanNetwork();
     void FindChannelAngles();
     void AddZero(cTMap *M);
 
@@ -808,6 +807,7 @@ public:
     void cell_Percolation(int r, int c);
     void cell_SplashDetachment(int r, int c, double WH);
     void cell_ETa(int r, int c);
+    void cell_SurfaceStorage(int r, int c);
 
 
     void InfilEffectiveKsat();
@@ -882,7 +882,7 @@ public:
     void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha, cTMap *_DX, cTMap *_Vol);
     double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double maxQ);
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
-    void KinematicExplicit(QVector<LDD_COORIN> _crlinked, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
+    void KinematicExplicit(QVector<LDD_COORIN> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
     void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
 
     //LDD_COOR *_crlinked_

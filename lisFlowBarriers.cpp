@@ -364,21 +364,18 @@ double TWorld::DEMFB(int r, int c, int rd, int cd, bool addwh)
 //---------------------------------------------------------------------------
 void TWorld::InitFlowBarriers(void)
 {
-
-    FlowBarrier = NewMap(0);
-
     FlowBarrierN = NewMap(0);
     FlowBarrierW = NewMap(0);
     FlowBarrierS = NewMap(0);
     FlowBarrierE = NewMap(0);
 
-    FlowBarrierNT = NewMap(-1);
-    FlowBarrierWT = NewMap(-1);
-    FlowBarrierST = NewMap(-1);
-    FlowBarrierET = NewMap(-1);
-
     if(SwitchFlowBarriers)
-    {
+    {   
+        FlowBarrierNT = NewMap(-1);
+        FlowBarrierWT = NewMap(-1);
+        FlowBarrierST = NewMap(-1);
+        FlowBarrierET = NewMap(-1);
+
         QString filename = getvaluename("Flow barrier table filename");
 
         GetFlowBarrierData(filename);

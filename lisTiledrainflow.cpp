@@ -78,7 +78,7 @@ void TWorld::CalcVelDischTile()
     double Perim, Area;
     const double beta = 0.6;
     const double _23 = 2.0/3.0;
-    double beta1 = 1/beta;
+   // double beta1 = 1/beta;
 
    FOR_ROW_COL_MV_TILE
    {

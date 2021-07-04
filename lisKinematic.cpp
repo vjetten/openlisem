@@ -208,41 +208,21 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
 
 //---------------------------------------------------------------------------
 /*LDD_COOR *_crlinked_*/
-void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax)
+void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax)
 {   
-   //int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-   //int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_L {
         _Qn->Drc = 0;
         QinKW->Drc = 0;
     }}
 
-    for(long i_ =  0; i_ < nrcells; i_++) //_crlinked_.size()
+    for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     {
         int r = _crlinked_[i_].r;
         int c = _crlinked_[i_].c;
         double Qin = 0;
 
-//        for (int i = 1; i <= 9; i++)
-//        {
-//            if (i != 5) {
-
-//                int ldd = 0;
-//                int rr = r+dy[i];
-//                int cr = c+dx[i];
-
-//                if (INSIDE(rr, cr) && !pcr::isMV(_LDD->Drcr)) {
-//                    ldd = (int) _LDD->Drcr;
-//                    // if the cells flow into
-//                    if (FLOWS_TO(ldd, rr,cr,r,c)) {
-//                        Qin += _Qn->Drcr;
-//                    }
-//                }
-//            }
-//        }
-
+        // get inflow
         if (_crlinked_[i_].nr >0) {
             for(int j = 0; j < _crlinked_[i_].nr; j++) {
                 int rr = _crlinked_[i_].inn[j].r;

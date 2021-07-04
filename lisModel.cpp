@@ -237,18 +237,9 @@ void TWorld::DoModel()
         _dt_user = _dt;
 
         DEBUG("Running...");
-        time = BeginTime;
-//        for (time = BeginTime; time < EndTime; time += _dt)
-        while (time < EndTime)
+
+        for (time = BeginTime; time < EndTime; time += _dt)
         {            
-//            double wht = MapTotal(*WH)/nrCells;
-//            double pt = MapTotal(*Rain);
-
-//            _dt = _dt*2;
-//            _dt = std::min(600.0, _dt);
-//            if (wht > 0.0001 || pt > 0)
-//                _dt = _dt_user;
-
             if (runstep > 0 && runstep % printinterval == 0)
                 printstep++;
             runstep++;
@@ -287,16 +278,16 @@ void TWorld::DoModel()
                     GetSnowmeltMap();  // get snowmelt from stations
             }
 
-            CellProcesses();
+            CellProcesses();  // hydrological processes in one loop, incl splash
 
-            ToTiledrain();         // fraction going into tiledrain directly from surface
+            ToTiledrain();   // fraction going into tiledrain directly from surface
 
-            OverlandFlow();
+            OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
             ChannelAddBaseandRain();  // add baseflow o, subtract infil, add rainfall
 
             OrderedProcesses();    // do ordered LDD solutions channel, tiles, drains, non threaded
-                // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
+
 
             Totals();            // calculate all totals and cumulative values
 
@@ -307,11 +298,10 @@ void TWorld::DoModel()
             reportAll();
 
 #pragma omp barrier
+
             emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
 
             saveMBerror2file(saveMBerror, false);
-
-            time += _dt;
 
             if(stopRequested)
                 time = EndTime;                       
@@ -351,19 +341,20 @@ void TWorld::CellProcesses()
 
         if (Rainc->Drc > 0)
             cell_Interception(r,c);
+        // all interception on plants, houses, litter
+        // result is rainnet (and leafdrip for erosion)
 
         if (FloodDomain->Drc > 0) {
             hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
         } else {
             WH->Drc += RainNet->Drc + Snowmeltc->Drc;
-            // add net to water rainfall on soil surface (in m)
-
-            //    if (SwitchGrassStrip && GrassWidthDX->Drc > 0)
-            //        WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
-            // net rainfall on grass strips, infil is calculated separately for grassstrips
         }
+        // add net to water rainfall on soil surface (in m)
+        // when kin wave and flooded hmx exists else always WH
+
         if (RoadWidthHSDX->Drc > 0)
             WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
+        // tarred roads have no interception
 
         if (InfilMethod == INFIL_SWATRE) {
            cell_InfilSwatre(r, c);
@@ -371,52 +362,30 @@ void TWorld::CellProcesses()
         else
         if (InfilMethod != INFIL_NONE) {
            cell_InfilMethods(r, c);
+
            if (!SwitchImpermeable)
                cell_Percolation(r, c);
-
         }
+        // infiltration by SWATRE of G&A+percolation
 
-//        if (SwitchIncludeET) {
-//            cell_ETa(r, c);
-//        }
-
-        double wh = WH->Drc;
-        double SW = SoilWidthDX->Drc;
-        double RW = RoadWidthHSDX->Drc;
-        double WHr = WHroad->Drc;
-        double WHs;
-        //### surface storage on rough surfaces
-        WHs = std::min(wh, MDS->Drc*(1-exp(-1.875*(wh/std::max(0.01,0.01*RR->Drc)))));
-        // non-linear release fo water from depression storage
-        // resemles curves from GIS surface tests, unpublished
-        double FW = std::min(ChannelAdj->Drc, SW + RW);
-        // calculate flowwidth by fpa*surface + road, excludes channel already
-
-        WHrunoff->Drc = ((wh - WHs)*SW + WHr*RW)/FW;
-        FlowWidth->Drc = FW;
-
-        WaterVolall->Drc = DX->Drc*(wh*SW + WHr*RW);
-        // all water in the cell incl storage
-        WHstore->Drc = WHs;
+        cell_SurfaceStorage(r, c);
 
         if (SwitchErosion) {
             double wh = FloodDomain->Drc == 0 ? WH->Drc : hmx->Drc;
             cell_SplashDetachment(r,c,wh);
         }
-
-
     }}
 
     if (SwitchIncludeET)
-        doETa(); // ETa is subtracted from canopy, soil water surfaces
+        doETa();
+    // ETa is subtracted from canopy, soil water surfaces
+    // divided over 12 hours in a day with sine curve
 }
 //---------------------------------------------------------------------------
 // these are all non-threaded
 void TWorld::OrderedProcesses()
 {
     SwitchChannelKinWave = true;// set to false for experimental swof in channel
-
-    //ChannelAddBaseandRain();  // add baseflow o, subtract infil, add rainfall
 
     ChannelFlow();            //channel kin wave for water and sediment
 

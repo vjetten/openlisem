@@ -149,3 +149,25 @@ void TWorld::SurfaceStorage()
     }}
 }
 //---------------------------------------------------------------------------
+void TWorld::cell_SurfaceStorage(int r, int c)
+{
+    double wh = WH->Drc;
+    double SW = SoilWidthDX->Drc;
+    double RW = RoadWidthHSDX->Drc;
+    double WHr = WHroad->Drc;
+    double WHs;
+    //### surface storage on rough surfaces
+    WHs = std::min(wh, MDS->Drc*(1-exp(-1.875*(wh/std::max(0.01,0.01*RR->Drc)))));
+    // non-linear release fo water from depression storage
+    // resemles curves from GIS surface tests, unpublished
+    double FW = std::min(ChannelAdj->Drc, SW + RW);
+    // calculate flowwidth by fpa*surface + road, excludes channel already
+
+    WHrunoff->Drc = ((wh - WHs)*SW + WHr*RW)/FW;
+    FlowWidth->Drc = FW;
+
+    WaterVolall->Drc = DX->Drc*(wh*SW + WHr*RW);
+    // all water in the cell incl storage
+    WHstore->Drc = WHs;
+}
+//---------------------------------------------------------------------------
