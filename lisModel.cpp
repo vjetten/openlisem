@@ -149,21 +149,22 @@ void TWorld::DoModel()
         double btm = getvaluedouble("Begin time");
         double etd = getvaluedouble("End time day");
         double etm = getvaluedouble("End time");
+        qDebug() << btd << btm << etd << etm;
         if (SwitchEventbased) {
-            btd = 0;
-            etd = 0;
             DEBUG("Day in start and end time is ignored.");
         }
-        BeginTime = (btd*1440+btm)*60; //in sec
-        EndTime = (etd*1440+etm)*60;   //in sec
            // qDebug() << "time" << btd << btm << etd << etm;
         _dt = getvaluedouble("Timestep");
         if (SwitchEventbased) {
-            op.BeginTime = BeginTime/60; // for graph drawing
-            op.EndTime = EndTime/60;// for graph drawing
+            BeginTime = (btm)*60; //for running in sec
+            EndTime = (etm)*60;   //in sec
+            op.BeginTime = BeginTime/60; // for graph drawing in min
+            op.EndTime = EndTime/60;
         } else {
-            op.BeginTime = BeginTime/86400; // /60; // for graph drawing
-            op.EndTime = EndTime/86400; //60;// for graph drawing
+            BeginTime = (btd*1440+btm)*60; //for eunning in sec
+            EndTime = (etd*1440+etm)*60;   //in sec
+            op.BeginTime = BeginTime/60;// for graph drawing in min
+            op.EndTime = EndTime/60;
         }
         //VJ get time here else combomaps goes wrong for rainfall intensity
 
@@ -288,7 +289,6 @@ void TWorld::DoModel()
 
             OrderedProcesses();    // do ordered LDD solutions channel, tiles, drains, non threaded
 
-
             Totals();            // calculate all totals and cumulative values
 
             MassBalance();       // check water and sed mass balance
@@ -311,7 +311,7 @@ void TWorld::DoModel()
             ReportMaps();
 
         DestroyData();  // destroy all maps automatically        
-        DEBUG("Data destroyed");
+        DEBUG("Data structures freed");
 
         emit done("finished");
 
@@ -380,6 +380,7 @@ void TWorld::CellProcesses()
         doETa();
     // ETa is subtracted from canopy, soil water surfaces
     // divided over 12 hours in a day with sine curve
+
 }
 //---------------------------------------------------------------------------
 // these are all non-threaded

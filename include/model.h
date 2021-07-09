@@ -831,9 +831,9 @@ public:
 
     void ChannelAddBaseandRain();
     void ChannelWaterHeightFromVolume();
-    void ToChannel(int r, int c);
+    void ToChannel();//int r, int c);
     void ToFlood();
-    void CalcVelDisch(int r, int c);
+    void CalcVelDisch(); //(int r, int c);
     void CalcVelDischChannel();
     void fromChannelVoltoWH(int r, int c);
     double channelVoltoWH(double vol, int r, int c);

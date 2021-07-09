@@ -107,9 +107,9 @@ void TWorld::InfilEffectiveKsat(void)
             // percolation coefficient
         }}
     }
-//report(*Ksateff,"ksateff1.map");
-//report(*Poreeff,"poreeff1.map");
-//report(*Thetaeff,"thetaeff1.map");
+report(*Ksateff,"ksateff1.map");
+report(*Poreeff,"poreeff1.map");
+report(*Thetaeff,"thetaeff1.map");
 }
 //---------------------------------------------------------------------------
 /*!

@@ -340,6 +340,7 @@ void TWorld::InitParameters(void)
     int cores = omp_get_max_threads();
     if (userCores == 0 || userCores > cores)
         userCores = cores;
+    qDebug() << userCores;
 }
 //---------------------------------------------------------------------------
 void TWorld::InitStandardInput(void)

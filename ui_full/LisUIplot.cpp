@@ -289,7 +289,7 @@ void lisemqt::initPlot()
 //---------------------------------------------------------------------------
 void lisemqt::showPlot()
 {
-    HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
+    HPlot->setAxisScale(HPlot->xBottom, op.BeginTime/1440, op.EndTime/1440);
     int index = OutletIndices.indexOf(this->outletpoint);
 
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
@@ -501,6 +501,9 @@ void lisemqt::showOutputData()
     days = op.EndTime/1440;
     mins = long(op.EndTime) % 1440;
     ts = QString("%1:%2").arg(days,3,10,QLatin1Char('0')).arg(mins,4,10,QLatin1Char('0'));
+
+    qDebug() << op.time << op.BeginTime << op.EndTime << days << mins << ts;
+
     label_endtime->setText(ts);//format.arg(QString::number(op.EndTime,'f',dig)));
     label_runtime->setText(format.arg(QString::number(op.t,'f',dig)));
     label_endruntime->setText(format.arg(QString::number(op.maxtime,'f',dig)));
