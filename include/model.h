@@ -441,6 +441,7 @@ public:
     double LitterSmax, ETaTot, ETaTotmm;
     double maxRainaxis;
     double latitude;
+    double CulvertWidth, CulvertHeight, CulvertN, CulvertS;
 
     ///pesticides
     double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;
@@ -829,6 +830,8 @@ public:
     void OverlandFlow1D(void);
     void ChannelFlow();
 
+    double getMassCH(cTMap *M);
+    void correctMassBalanceCH(double sum1, cTMap *M);
     void ChannelAddBaseandRain();
     void ChannelWaterHeightFromVolume();
     void ToChannel();//int r, int c);

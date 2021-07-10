@@ -490,21 +490,20 @@ void lisemqt::showOutputData()
     else
         format= QString("<font color=#000000>%2</font>");
 
-    label_dx->setText(format.arg(QString::number(op.dx,'f',dig)));
-    //label_dx->setText(QString::number(op.dx,'f',dig));
-    label_area->setText(format.arg(QString::number(op.CatchmentArea/1000000,'f',dig)));
+    if (startplot) {
+        label_dx->setText(format.arg(QString::number(op.dx,'f',dig)));
+        label_area->setText(format.arg(QString::number(op.CatchmentArea/1000000,'f',dig)));
+        int days = op.EndTime/1440;
+        int mins = long(op.EndTime) % 1440;
+        QString ts = QString("%1:%2").arg(days,3,10,QLatin1Char('0')).arg(mins,4,10,QLatin1Char('0'));
+        label_endtime->setText(ts);//format.arg(QString::number(op.EndTime,'f',dig)));
+    }
 
     int days = op.time/1440;
     int mins = long(op.time) % 1440;
     QString ts = QString("%1:%2").arg(days,3,10,QLatin1Char('0')).arg(mins,4,10,QLatin1Char('0'));
     label_time->setText(ts);//format.arg(QString::number(op.time,'f',dig)));
-    days = op.EndTime/1440;
-    mins = long(op.EndTime) % 1440;
-    ts = QString("%1:%2").arg(days,3,10,QLatin1Char('0')).arg(mins,4,10,QLatin1Char('0'));
 
-    qDebug() << op.time << op.BeginTime << op.EndTime << days << mins << ts;
-
-    label_endtime->setText(ts);//format.arg(QString::number(op.EndTime,'f',dig)));
     label_runtime->setText(format.arg(QString::number(op.t,'f',dig)));
     label_endruntime->setText(format.arg(QString::number(op.maxtime,'f',dig)));
 

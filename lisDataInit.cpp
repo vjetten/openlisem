@@ -928,6 +928,10 @@ void TWorld::InitChannel(void)
         } else
             ChannelMaxQ = NewMap(0);
 
+        CulvertWidth = 2.0;
+        CulvertHeight = 1.0;
+        CulvertS = 0.005;
+        CulvertN = 0.012;
 
         FOR_ROW_COL_MV_CH
         {

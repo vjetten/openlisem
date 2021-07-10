@@ -197,10 +197,11 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
         dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  /* Current k */
         Qkx   -= fQkx / dfQkx;                                /* Next k */
 
-        Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);
-        Qkx = std::min(Qkx, Qmax);
+        Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);        
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
+
+    Qkx = std::min(Qkx, Qmax);
 
     itercount = count;
     return Qkx;
