@@ -44,7 +44,8 @@ void lisemqt::DefaultMapnames()
 
     DEFmaps.append("0;Catchment");
     DEFmaps.append("2;DEM;dem.map;Digital elevation model (m);dem");
-    DEFmaps.append("2;Buffers;buffers.map;Flood bariers and obstacles (taluts, dikes, in m);buffers");
+    DEFmaps.append("2;Buffers;buffers.map;Dams (negative) and bariers and obstacles (positive) in m;buffers");
+  //  DEFmaps.append("2;BufferID;buffernr.map;Unique postive number for each buffer or daam (1,2..n);buffernr");
     DEFmaps.append("2;Gradient;grad.map;Sine of slope gradient in direction of flow;grad");
     DEFmaps.append("2;LDD;ldd.map;Local surface Drainage Direction network;ldd");
     DEFmaps.append("2;Outlet;outlet.map;Main catchment outlet corresponding to LDD map;outlet");

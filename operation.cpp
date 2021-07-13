@@ -24,8 +24,7 @@ void copy(
 }
 
 
-int countUnits(
-    cTMap const& raster)
+int countUnits(cTMap const& raster)
 {
     QList <long> list;
     for (int r = 0; r < raster.nrRows(); r++)

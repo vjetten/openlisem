@@ -338,6 +338,7 @@ cTMap
 *hmxflood,
 *FloodDomain,                //!<
 *Buffers,                    //!<
+*BufferNr,                    //!<
 *ChannelMaxQ,                //!<
 //*ChannelLevee,                //!<
 *FloodWaterVol,                //!<

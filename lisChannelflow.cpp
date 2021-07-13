@@ -511,3 +511,33 @@ void TWorld::ChannelFlow(void)
     }
 }
 
+void TWorld::ChannelFillDam(void)
+{
+    if (!SwitchIncludeChannel)
+        return;
+    if (!SwitchBuffers)
+        return;
+
+    for (int i = 0; i < nrBuffers; i++)
+        bufferarea[i].h = 0;
+
+    FOR_ROW_COL_MV_L {
+         double Qout = 0;
+        if (LDDChannel->Drc == 5 && BufferNr->Drc > 0) {
+            Qout = ChannelQn->Drc * _dt;
+            int i = (int)BufferNr->Drc;
+            bufferarea[i].h += Qout/bufferarea[i].area;
+            ChannelQn->Drc = 0;
+            qDebug() << i << Qout << bufferarea[i].h << bufferarea[i].area << bufferarea[i].ID;
+        }
+    }}
+
+    FOR_ROW_COL_MV_L {
+    if (BufferNr->Drc > 0) {
+        int i = (int)BufferNr->Drc;
+        WHrunoff->Drc += bufferarea[i].h;
+    }
+}}
+
+
+}

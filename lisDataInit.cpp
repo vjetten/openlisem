@@ -408,8 +408,26 @@ void TWorld::InitStandardInput(void)
 
     if (SwitchBuffers) {
         Buffers = ReadMap(LDD, getvaluename("buffers"));
-        cover(*Buffers, *LDD,0);
+//        BufferNr = ReadMap(LDD, getvaluename("buffernr"));
+//        nrBuffers = countUnits(*BufferNr) - 1; // non zero
+
+//        //QVector <double> bufferarea;
+//        bufferarea.clear();
+//        for(int i = 1; i <= nrBuffers; i++) {
+//            double area = 0;
+//            BUFFER_LIST bl;
+//            FOR_ROW_COL_MV {
+//                if (i == (int)BufferNr->Drc)
+//                    area += _dx*_dx;
+//            }
+//            bl.area = area;
+//            bl.ID = i;
+//            bl.h = 0;
+//            bufferarea << bl;
+//        }
+ //       cover(*Buffers, *LDD,0);
         calcMap(*DEM, *Buffers, ADD);
+
     } 
 
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
@@ -901,7 +919,6 @@ void TWorld::InitChannel(void)
             report(*ChannelDepth,"chandepthcorr.map");
         }
         ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
-
         ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
         checkMap(*ChannelGrad, LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
         //calcValue(*ChannelGrad, 0.001, MAX);

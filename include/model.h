@@ -253,24 +253,29 @@ typedef struct UNIT_LIST {
 /// vec4 used for HLL
 typedef struct vec4 { double v[4]; } vec4;
 //---------------------------------------------------------------------------
-/// Strunture to store rain station values of rainfile mapnames
+/// Structure to store rain station values of rainfile mapnames
 typedef struct RAIN_LIST {
     double time;
     QVector <double> intensity;
 } RAIN_LIST;
 //---------------------------------------------------------------------------
-/// Strunture to store rain station values of rainfile mapnames
+/// Structure to store rain station values of rainfile mapnames
 typedef struct METEO_LIST {
     double time;
     QString name;
 } METEO_LIST;
 //---------------------------------------------------------------------------
-/// Strunture to store rain station values of rainfile mapnames
+/// Structure to store rain station values of rainfile mapnames
 typedef struct Q_LIST {
     double time;
     QVector <double> Qin;
 } Q_LIST;
 //---------------------------------------------------------------------------
+typedef struct BUFFER_LIST {
+    double area;
+    double h;
+    int ID;
+} BUFFER_LIST;
 
 typedef struct ExtCH {
     QList <int> childRow;
@@ -829,6 +834,7 @@ public:
 
     void OverlandFlow1D(void);
     void ChannelFlow();
+    void ChannelFillDam();
 
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
@@ -959,7 +965,8 @@ public:
     void CountLandunits(void); //VJ 110107 report erosion stats per land unit
     void saveMBerror2file(bool doError, bool start);
 
-
+    int nrBuffers;
+    QVector <BUFFER_LIST> bufferarea;
     double itercount;
     // thread management variables
     bool stopRequested;

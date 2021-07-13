@@ -297,7 +297,7 @@ void TWorld::DoModel()
 
             reportAll();
 
-#pragma omp barrier
+//#pragma omp barrier
 
             emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
 
@@ -389,6 +389,8 @@ void TWorld::OrderedProcesses()
     SwitchChannelKinWave = true;// set to false for experimental swof in channel
 
     ChannelFlow();            //channel kin wave for water and sediment
+
+    //ChannelFillDam();
 
     ChannelFlowDetachmentNew();  //detachment, deposition for SS and BL
 
