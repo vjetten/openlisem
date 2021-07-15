@@ -894,9 +894,17 @@ void TWorld::InitChannel(void)
         ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
         cover(*ChannelWidth, *LDD,0);
         cover(*ChannelDepth, *LDD,0);
+
+        //ChannelWidthO = NewMap(0);
+       // ChannelDepthO = NewMap(0);
+
+
         bool correct = false;
         FOR_ROW_COL_MV_CH
         {
+       //     ChannelWidthO->Drc = ChannelWidth->Drc;
+       //     ChannelDepthO->Drc = ChannelDepth->Drc;
+
             double factor  = 1.0;
             if (SwitchChannelAdjustCHW && ChannelWidth->Drc  > _dx) {
                 factor = ChannelWidth->Drc /(0.95*_dx);
@@ -912,6 +920,7 @@ void TWorld::InitChannel(void)
                 ErrorString = QString("Map %1 contains channel cells with width = 0").arg(getvaluename("chanwidth"));
                 throw 1;
             }
+           // ChannelWidthO->Drc = ChannelWidth->Drc;
         }
         if (correct) {
             DEBUG("channel width and depth adjusted!");

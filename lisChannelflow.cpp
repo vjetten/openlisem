@@ -290,7 +290,7 @@ void TWorld::ChannelFlow(void)
     if (!SwitchIncludeChannel)
         return;
 
-    double sumch = getMassCH(ChannelWH);
+   // double sumch = getMassCH(ChannelWH);
 
     // velocity, alpha, Q
 #pragma omp parallel num_threads(userCores)
@@ -301,24 +301,27 @@ void TWorld::ChannelFlow(void)
         ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
         ChannelV->Drc = 0;
         ChannelQ->Drc = 0;
+
         double MaxQ = ChannelMaxQ->Drc;
 
-        if (SwitchCulverts && MaxQ > 0) {
-            ChannelWaterVol->Drc = std::min(ChannelWaterVol->Drc, CulvertWidth*CulvertHeight*ChannelDX->Drc);
-            ChannelWH->Drc = std::min(ChannelWH->Drc, CulvertHeight);
-            ChannelWidth->Drc = CulvertWidth;
-            ChannelFlowWidth->Drc = CulvertWidth;
-            ChannelN->Drc = CulvertN;
-            ChannelGrad->Drc = CulvertS;
-        }
+        //        if (SwitchCulverts && MaxQ > 0) {
+        //            ChannelWaterVol->Drc = std::min(ChannelWaterVol->Drc, CulvertWidth*CulvertHeight*ChannelDX->Drc);
+        //            ChannelWH->Drc = std::min(ChannelWH->Drc, CulvertHeight);
+        //            ChannelWidth->Drc = CulvertWidth;
+        //            ChannelFlowWidth->Drc = CulvertWidth;
+        //            ChannelN->Drc = CulvertN;
+        //            ChannelGrad->Drc = CulvertS;
+        //        }
 
         double wh = ChannelWH->Drc;
 
-        if (wh > 1e-10) {
+        // calc channel V and Q, using original width
+        if (wh > 1e-6) {
             double Perim, Radius, Area;
             double sqrtgrad = sqrt(ChannelGrad->Drc);
             double N = ChannelN->Drc;
-            double FW = ChannelWidth->Drc;
+
+            double FW = ChannelWidth->Drc; // !!
 
             Perim = FW + 2.0*wh;
             Area = FW*wh;
@@ -331,14 +334,13 @@ void TWorld::ChannelFlow(void)
 
                 if (SwitchCulverts) {
                     if (MaxQ > 0 && ChannelQ->Drc > MaxQ){
-                        wh = std::min(wh, CulvertHeight);
-                        ChannelAlpha->Drc = FW*wh/std::pow(MaxQ, 0.6);
-                                //std::pow(std::pow(ChannelAlpha->Drc, 1.0/0.6)*sqrtgrad/N,3.0/2.0);
-                        //wh = Perim/FW;
-                        Radius = (wh*FW)/(2*wh+FW);
+//                        wh = std::min(wh, CulvertHeight);
+                        ChannelAlpha->Drc = Area/std::pow(MaxQ, 0.6);
+//                                //std::pow(std::pow(ChannelAlpha->Drc, 1.0/0.6)*sqrtgrad/N,3.0/2.0);
+//                        //wh = Perim/FW;
+//                        Radius = (wh*FW)/(2*wh+FW);
                         ChannelQ->Drc = MaxQ;
-                        ChannelWH->Drc = wh;
-                        ChannelV->Drc = MaxQ/(FW*wh);
+                        ChannelV->Drc = MaxQ/Area;
                     }
                 }
             }
@@ -410,22 +412,27 @@ void TWorld::ChannelFlow(void)
             }}
         }
 
+        // calc V and WH back from Qn
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
+
             ChannelWaterVol->Drc = ChannelWaterVol->Drc + QinKW->Drc*_dt - ChannelQn->Drc*_dt ;
-            //mass balance
+            //water vol from mass balance, includes any errors
 
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
-            // new channel WH
+            // new channel WH, use dapated channelWidth
+
             double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
-            double R = ChannelArea/(ChannelWidth->Drc + 2*ChannelWH->Drc);
-           // ChannelV->Drc = (ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0);
-            ChannelV->Drc = pow(R, 2.0/3.0) * sqrt(ChannelGrad->Drc)/ChannelN->Drc;
+        //    double R = ChannelArea/(ChannelWidthO->Drc + 2*ChannelWH->Drc);
+            // V based on org width
+
+            ChannelV->Drc = (ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0);
+          //  ChannelV->Drc = pow(R, 2.0/3.0) * sqrt(ChannelGrad->Drc)/ChannelN->Drc;
 
             if (SwitchCulverts) {
                 double MaxQ = ChannelMaxQ->Drc;
                 if (MaxQ > 0 && ChannelQn->Drc > MaxQ) {
-                    ChannelWH->Drc = std::min(ChannelWH->Drc, CulvertHeight);
+//                    ChannelWH->Drc = std::min(ChannelWH->Drc, CulvertHeight);
                     double area = ChannelWidth->Drc*ChannelWH->Drc;
                     ChannelAlpha->Drc = area/std::pow(MaxQ, 0.6);
                             //std::pow(std::pow(ChannelAlpha->Drc, 1.0/0.6)*sqrtgrad/N,3.0/2.0);
@@ -511,6 +518,8 @@ void TWorld::ChannelFlow(void)
     }
 }
 
+
+        // NOT USED!
 void TWorld::ChannelFillDam(void)
 {
     if (!SwitchIncludeChannel)

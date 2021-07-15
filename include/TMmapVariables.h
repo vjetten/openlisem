@@ -269,6 +269,8 @@ cTMap
 *SwatreOutput,
 
 *LDDChannel,                 //!<
+*ChannelWidthO,               //!<
+*ChannelDepthO,               //!<
 *ChannelWidth,               //!<
 *ChannelSide,                //!<
 *ChannelQ,                   //!<

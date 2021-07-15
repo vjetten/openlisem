@@ -614,13 +614,15 @@ void lisemqt::ParseInputData()
     days = std::max(1,std::min(days, 366));
     daye = std::max(1,std::min(daye, 366));
 //qDebug() << days << mins << daye << mine;
-    if (mins > 1440) {
-       days = mins/1440 + 1;
-       mins = mins % 1440;
-    }
-    if (mine > 1440) {
-        daye = mine/1440 + 1;
-        mine = mine % 1440;
+    if (!checkEventBased->isChecked()) {
+        if (mins > 1440) {
+           days = mins/1440 + 1;
+           mins = mins % 1440;
+        }
+        if (mine > 1440) {
+            daye = mine/1440 + 1;
+            mine = mine % 1440;
+        }
     }
 
     E_BeginTimeDay->setText(QString("%1:%2").arg(days,3, 10, QLatin1Char('0')).arg(mins,4, 10, QLatin1Char('0')));
@@ -720,6 +722,8 @@ void lisemqt::updateModelData()
     int daye = E_EndTimeDay->text().split(":")[0].toInt();
     int mine = E_EndTimeDay->text().split(":")[1].toInt();
    // qDebug() << days << mins << daye << mine;
+
+    if (!checkEventBased->isChecked()) {
     if (mins > 1440) {
        days = mins/1440 + 1;
        mins = mins % 1440;
@@ -727,6 +731,7 @@ void lisemqt::updateModelData()
     if (mine > 1440) {
         daye = mine/1440 + 1;
         mine = mine % 1440;
+    }
     }
  //   qDebug() << days << mins << daye << mine;
 

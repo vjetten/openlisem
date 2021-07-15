@@ -102,7 +102,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -2642,7 +2642,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>6</number>
+                  <number>0</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -15211,6 +15211,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>1889</x>
      <y>214</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkIncludeChannel</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>checkChannelAdjustCHW</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>155</x>
+     <y>485</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>186</x>
+     <y>564</y>
     </hint>
    </hints>
   </connection>

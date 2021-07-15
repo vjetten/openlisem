@@ -289,7 +289,10 @@ void lisemqt::initPlot()
 //---------------------------------------------------------------------------
 void lisemqt::showPlot()
 {
-    HPlot->setAxisScale(HPlot->xBottom, op.BeginTime/1440, op.EndTime/1440);
+    if (!checkEventBased->isChecked())
+        HPlot->setAxisScale(HPlot->xBottom, op.BeginTime/1440, op.EndTime/1440);
+    else
+        HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
     int index = OutletIndices.indexOf(this->outletpoint);
 
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
