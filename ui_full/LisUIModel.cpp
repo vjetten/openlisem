@@ -128,7 +128,8 @@ void lisemqt::runmodel()
     connect(W, SIGNAL(show(bool)),this, SLOT(worldShow(bool)),Qt::BlockingQueuedConnection);
     connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
     connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
-    connect(W, SIGNAL(timedb(QString)),this, SLOT(worldTimedb(QString)),Qt::QueuedConnection);
+//    connect(W, SIGNAL(timedb(QString)),this, SLOT(worldTimedb(QString)),Qt::QueuedConnection);
+    connect(W, SIGNAL(timedb(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
     // connect emitted signals from the model thread to the interface routines that handle them
 
     WhasStopped = false;
@@ -287,7 +288,7 @@ void lisemqt::worldDone(const QString &results)
 // this function is linked to the debug signal emitted from the model world
 void lisemqt::worldDebug(const QString &results)
 {
-    QString sss = label_debug->text() + results + " - ";
+    QString sss = results; //label_debug->text() + results + " - ";
     label_debug->setText(sss);
     // show messages from the World model on the screen
 }
@@ -295,7 +296,7 @@ void lisemqt::worldDebug(const QString &results)
 // this function is linked to the debug signal emitted from the model world
 void lisemqt::worldTimedb(const QString &results)
 {
-    label_realtime->setText(results);
+   // label_realtime->setText(results);
     // show messages from the World model on the screen
 }
 //---------------------------------------------------------------------------

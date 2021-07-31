@@ -108,6 +108,10 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     SetStyleUI();
     // do some style things
 
+    scrollAreaResults->setFixedWidth(500);
+  //  toolShowMapDisplay->setVisible(false);
+    //this->adjustSize();
+
     doNewPlot = false;
     if(doNewPlot)
         setupNewPlot();
@@ -119,7 +123,8 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     // set up the raster map drawing
 
 //    QSplitter *splitter = new QSplitter(tabWidget->widget(2));
-//    splitter->addWidget(tabWidget_out);
+  //  splitter->addWidget(tabWidget_out);
+    //splitter->addWidget(scrollAreaResults);
 //    splitter->addWidget(widgetMB);
 
     Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
@@ -270,6 +275,9 @@ void lisemqt::setFormatMaps(bool check)
 void lisemqt::on_tabWidget_out_currentChanged(int index)
 {
     groupBox_drawMap->setEnabled(index == 1);
+    groupBox_drawMap->setVisible(true);
+    groupBox_info->setVisible(true);
+/*
     if (this->height() > 800)
     {
         groupBox_drawMap->setVisible(true);
@@ -289,6 +297,7 @@ void lisemqt::on_tabWidget_out_currentChanged(int index)
             groupBox_info->setVisible(false);
         }
     }
+    */
 }
 //--------------------------------------------------------------------
 // bad programming, checkboxes as radiobuttons, but needed to be square buttons!
@@ -828,15 +837,15 @@ void lisemqt::SetToolBar()
     //connect(showRiverSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
     connect(spinChannelSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
     connect(spinCulvertSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannelOutlet(int)));
-    connect(toolShowMapDisplay, SIGNAL(pressed()),this,SLOT(showMapSettings()));
+  //  connect(toolShowMapDisplay, SIGNAL(pressed()),this,SLOT(showMapSettings()));
 }
 //---------------------------------------------------------------------------
 void lisemqt::showMapSettings()
 {
-    if(groupBox_drawMap->isVisible())
-        groupBox_drawMap->setVisible(false);
-    else
-        groupBox_drawMap->setVisible(true);
+//    if(groupBox_drawMap->isVisible())
+//        groupBox_drawMap->setVisible(false);
+//    else
+//        groupBox_drawMap->setVisible(true);
 }
 //---------------------------------------------------------------------------
 int lisemqt::SetStyleUISize()
