@@ -56,7 +56,7 @@ void TWorld::InfilEffectiveKsat(void)
         FOR_ROW_COL_MV_L {
             Ksateff->Drc = Ksat1->Drc;
             Poreeff->Drc = ThetaS1->Drc;
-            Thetaeff->Drc = ThetaI1->Drc;
+            Thetaeff->Drc = std::max(0.025*Poreeff->Drc,ThetaI1->Drc);
 
             // affected surfaces
             if (SwitchInfilCompact) {
@@ -100,10 +100,9 @@ void TWorld::InfilEffectiveKsat(void)
           //  Ksateff->Drc *= ksatCalibration;
             // apply runfile/iface calibration factor
 
+            bca1->Drc = 5.55*qPow(Ksateff->Drc,-0.114);
             if(SwitchTwoLayer)
-                bca->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
-            else
-                bca->Drc = 5.55*qPow(Ksateff->Drc,-0.114);
+                bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
             // percolation coefficient
         }}
     }

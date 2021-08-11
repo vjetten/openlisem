@@ -518,10 +518,16 @@ void lisemqt::ParseInputData()
                 E_RainfallName->setText(RainFileDir + p);
             }
         }
+
+        if (p1.compare("Rainfall Map Directory")==0) RainSatFileDir = CheckDir(p);
         if (p1.compare("Rainfall maplist name")==0) {
-            RainSatFileName = p; // this is the base name so not a filename that can be checked
-            RainSatFileDir = RainFileDir;
+            RainSatFileName = p;
             E_rainsatName->setText(RainSatFileDir + RainSatFileName);
+            if (!QFileInfo(E_rainsatName->text()).exists())
+            {
+                RainSatFileDir = QString(E_WorkDir + "rain/");
+                E_RainfallName->setText(RainSatFileDir + p);
+            }
         }
 
         if (p1.compare("ET Directory")==0) ETFileDir = CheckDir(p);
@@ -912,6 +918,7 @@ void lisemqt::updateModelData()
 
         if (p1.compare("Rainfall Directory")==0) namelist[j].value = RainFileDir;
         if (p1.compare("Rainfall file")==0) namelist[j].value = RainFileName;
+        if (p1.compare("Rainfall Map Directory")==0) namelist[j].value = RainSatFileDir;
         if (p1.compare("Rainfall maplist name")==0) namelist[j].value = RainSatFileName;
 
         if (p1.compare("ET Directory")==0) namelist[j].value = ETFileDir;

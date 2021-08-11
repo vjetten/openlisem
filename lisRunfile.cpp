@@ -386,8 +386,10 @@ void TWorld::ParseRunfileData(void)
         {
             if (p1.compare("Rainfall Directory")==0) rainFileDir = CheckDir(p);
             if (p1.compare("Rainfall file")==0) rainFileName = p; //rainFileDir + "/" + p;
-            if (SwitchRainfallSatellite)
+            if (SwitchRainfallSatellite) {
+                if (p1.compare("Rainfall Map Directory")==0) rainSatFileDir = CheckDir(p);
                 if (p1.compare("Rainfall maplist name")==0) rainSatFileName = p;//rainFileDir +p;
+            }
         }
         if (SwitchIncludeET)
         {
@@ -479,7 +481,7 @@ void TWorld::ParseRunfileData(void)
 
 
     if (SwitchRainfallSatellite)
-        rainSatFileName = rainFileDir+rainSatFileName;
+        rainSatFileName = rainSatFileDir+rainSatFileName;
     else
         rainFileName = rainFileDir+rainFileName;
 

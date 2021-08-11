@@ -173,14 +173,14 @@ void TWorld::GetETMap(void)
 {
     double currenttime = (time)/60;
     int  ETplace;
-    double tt = _dt/3600000.0;  //mm/h =>m/timestep
+    double tt = _dt/86400.0*0.001; // mm/day to m / timestep
     bool noET = false;
     bool sameET= false;
 
-    if (!SwitchIncludeET)
-        return;
-    if (SwitchETSatellite)
-        return;
+//    if (!SwitchIncludeET)
+//        return;
+//    if (SwitchETSatellite)
+//        return;
 
     // from time t to t+1 the ET is the ET of t
 
@@ -209,11 +209,25 @@ void TWorld::GetETMap(void)
 
         // get the next map from file
         if (!sameET) {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                ETp->Drc = ETSeriesM[currentrow].intensity[(int) ETZone->Drc-1]*tt;
-            }}
-        }
+                #pragma omp parallel for num_threads(userCores)
+                FOR_ROW_COL_MV_L {
+                    ETp->Drc = ETSeriesM[currentrow].intensity[(int) ETZone->Drc-1]*tt;
+                }}
+//            } else {
+//                auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(ETSeriesMaps[ETplace].name)));
+//                #pragma omp parallel for num_threads(userCores)
+//                FOR_ROW_COL_MV_L {
+//                    ETp->Drc = _M->Drc *tt;
+//                    if (pcr::isMV(ETp->Drc)) {
+//                        QString sr, sc;
+//                        sr.setNum(r); sc.setNum(c);
+//                        ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+ETSeriesMaps[ETplace].name;
+//                        //throw 1;
+//                        ETp->Drc = 0;
+//                    }
+//                }}
+
+        } //sameET
     }
     currentETrow = currentrow;
 }

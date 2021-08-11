@@ -1174,25 +1174,6 @@ void lisemqt::on_toolButton_SwatreTableShow_clicked()
 
     file.close();
 }
-
-//--------------------------------------------------------------------
-void lisemqt::on_toolButton_RainfallName_clicked()
-{
-    QString path;
-
-    RainFileDir = findValidDir(RainFileDir, false);
-
-    path = QFileDialog::getOpenFileName(this,
-                                        QString("Select rainfall file"),
-                                        RainFileDir);
-    if(!path.isEmpty())
-    {
-        QFileInfo fi(path);
-        RainFileName = fi.fileName();
-        RainFileDir = CheckDir(fi.absolutePath());//Dir().path());
-        E_RainfallName->setText( RainFileDir + RainFileName );
-    }
-}
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_satImageName_clicked()
 {
@@ -2055,12 +2036,14 @@ void lisemqt::on_toolButton_help(int page)
 
     view->show();
 }
+//--------------------------------------------------------------------
 
 void lisemqt::on_check2DDiagonalFlow_toggled(bool checked)
 {
     E_pitValue->setEnabled(checked);
     label_135->setEnabled(checked);
 }
+//--------------------------------------------------------------------
 
 void lisemqt::on_checkDiffusion_toggled(bool checked)
 {
@@ -2068,13 +2051,14 @@ void lisemqt::on_checkDiffusion_toggled(bool checked)
     label_101->setEnabled(checked);
     label_139->setEnabled(checked);
 }
+//--------------------------------------------------------------------
 
 void lisemqt::on_checkHouses_toggled(bool checked)
 {
     checkRaindrum->setEnabled(checked);
     label_157->setEnabled(checked);
 }
-
+//--------------------------------------------------------------------
 
 void lisemqt::on_toolButton_DischargeInName_clicked()
 {
@@ -2093,6 +2077,7 @@ void lisemqt::on_toolButton_DischargeInName_clicked()
         E_DischargeInName->setText( RainFileDir + DischargeinFileName  );
     }
 }
+//--------------------------------------------------------------------
 
 // select a file or directory
 // doFile = 0: select a directory;
@@ -2133,10 +2118,13 @@ QString lisemqt::getFileorDir(QString inputdir,QString title, QStringList filter
 
     return dirout;
 }
+//--------------------------------------------------------------------
 
 void lisemqt::on_toolButton_rainsatName_clicked()
 {
-    RainSatFileDir = RainFileDir;
+    //RainSatFileDir = RainFileDir;
+    if (!QFileInfo(RainSatFileDir).exists() || RainSatFileDir.isEmpty())
+        RainSatFileDir = RainFileDir;
     if (!QFileInfo(RainSatFileDir).exists() || RainSatFileDir.isEmpty())
         RainSatFileDir = currentDir;
 
@@ -2147,9 +2135,42 @@ void lisemqt::on_toolButton_rainsatName_clicked()
     RainSatFileName = QFileInfo(sss).fileName(); //baseName();
 
     E_rainsatName->setText(RainSatFileDir + RainSatFileName);
-    RainFileDir = RainSatFileDir;
+    //RainFileDir = RainSatFileDir;
 }
 
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_RainfallName_clicked()
+{
+    /*
+    QString path;
+
+    RainFileDir = findValidDir(RainFileDir, false);
+
+    path = QFileDialog::getOpenFileName(this,
+                                        QString("Select rainfall file"),
+                                        RainFileDir);
+    if(!path.isEmpty())
+    {
+        QFileInfo fi(path);
+        RainFileName = fi.fileName();
+        RainFileDir = CheckDir(fi.absolutePath());//Dir().path());
+        E_RainfallName->setText( RainFileDir + RainFileName );
+    }
+    */
+
+    if (!QFileInfo(RainFileDir).exists() || RainFileDir.isEmpty())
+        RainSatFileDir = currentDir;
+
+    QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
+    QString sss = getFileorDir(RainSatFileDir,"Select rainfall station table", filters, 2);
+
+    RainFileDir = QFileInfo(sss).absolutePath()+"/";
+    RainFileName = QFileInfo(sss).fileName(); //baseName();
+
+    E_RainfallName->setText(RainFileDir + RainFileName);
+
+}
+//--------------------------------------------------------------------
 
 void lisemqt::on_toolButton_ETName_clicked()
 {
@@ -2163,7 +2184,7 @@ void lisemqt::on_toolButton_ETName_clicked()
 
     E_ETName->setText(ETFileName);
 }
-
+//--------------------------------------------------------------------
 
 void lisemqt::on_toolButton_ETsatName_clicked()
 {

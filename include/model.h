@@ -521,9 +521,10 @@ public:
     QString tileQmaxfilename;
     QString timestamp;
 
-    QString rainFileName;
-    QString rainSatFileName;
     QString rainFileDir;
+    QString rainFileName;
+    QString rainSatFileDir;
+    QString rainSatFileName;
     QString ETFileName;
     QString ETSatFileName;
     QString ETFileDir;
@@ -791,7 +792,7 @@ public:
     double getmaxRainfall();
     /// convert rainfall of a timestep into a map
     void GetRainfallMapfromStations(void);
-    void GetRainfallSatMap(void);
+    void GetRainfallMap(void);
     /// convert ET of a timestep into a map
     void GetETSatMap(void);
     void GetETMap(void);
@@ -811,8 +812,8 @@ public:
 
     void cell_Interception(int r, int c);
     void cell_Percolation(int r, int c);
+    void cell_Redistribution(int r, int c);
     void cell_SplashDetachment(int r, int c, double WH);
-    void cell_ETa(int r, int c);
     void cell_SurfaceStorage(int r, int c);
 
 

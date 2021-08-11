@@ -188,6 +188,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Use Rainfall maps");
     namelist[i++].name = QString("Rainfall maplist name");
+    namelist[i++].name = QString("Rainfall Map Directory");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include ET");
     namelist[i].value = QString("0");

@@ -105,7 +105,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
     QString dirname;
     if (type == 0) {
         RainfallSeriesMaps.clear();
-        dirname = rainFileDir;
+        dirname = rainSatFileDir;
         currentRainfallrow = 0;
     }
     if (type == 1) {
@@ -326,10 +326,10 @@ void TWorld::GetRainfallMapfromStations(void)
     bool norain = false;
     bool samerain = false;
 
-    if (!SwitchRainfall)
-        return;
-    if (SwitchRainfallSatellite)
-        return;
+//    if (!SwitchRainfall)
+//        return;
+//    if (SwitchRainfallSatellite)
+//        return;
 
     // from time t to t+1 the rain is the rain of t
 
@@ -391,7 +391,7 @@ void TWorld::GetRainfallMapfromStations(void)
     }}
 }
 //---------------------------------------------------------------------------
-void TWorld::GetRainfallSatMap(void)
+void TWorld::GetRainfallMap(void)
 {
     double currenttime = (time)/60;
     int  rainplace;
@@ -427,28 +427,39 @@ void TWorld::GetRainfallSatMap(void)
                 break;
             }
         }
-
-        if (currentrow == currentRainfallrow)// && currentrow > 0)
+//qDebug() << currentrow << currenttime;
+        if (currentrow == currentRainfallrow && currentrow > 0)
             samerain = true;
         // get the next map from file
         if (!samerain) {
-            auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
-          //  cTMap *_M = new cTMap(readRaster(RainfallSeriesMaps[currentrow].name));
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                if (pcr::isMV(_M->Drc)) {
-                    qDebug() << r << c;
-                    QString sr, sc;
-                    sr.setNum(r); sc.setNum(c);
-                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[rainplace].name;
-    //                throw 1;
-                    Rain->Drc = 0;
-                } else {
+
+//            if (!SwitchRainfallSatellite) {
+//                // read from the stations file
+//                #pragma omp parallel for num_threads(userCores)
+//                FOR_ROW_COL_MV_L {
+//                    Rain->Drc = RainfallSeriesM[currentrow].intensity[(int) RainZone->Drc-1]*tt;
+//                }}
+//            } else {
+                // read a map
+                auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
+             //  cTMap *_M = new cTMap(readRaster(RainfallSeriesMaps[currentrow].name));
+                #pragma omp parallel for num_threads(userCores)
+                FOR_ROW_COL_MV_L {
                     Rain->Drc = _M->Drc * tt;
-                }
-            }}
-         //   delete _M;
-        }
+                    if (pcr::isMV(Rain->Drc)) {
+                        qDebug() << r << c;
+                        QString sr, sc;
+                        sr.setNum(r); sc.setNum(c);
+                        ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[rainplace].name;
+        //                throw 1;
+                        Rain->Drc = 0;
+                    }
+                    if (Rain->Drc < 0)
+                        Rain->Drc = 0;
+                }}
+               // delete _M;
+          //  }
+        } //samerain
     }
     currentRainfallrow = currentrow;
 

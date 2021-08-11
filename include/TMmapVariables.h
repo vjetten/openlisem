@@ -245,7 +245,8 @@ cTMap
 *Ksateff,                    //!< effective saturated hydraulic conductivity (input is in mm/h) [m/s]
 *Poreeff,
 *Thetaeff,
-*bca,
+*bca1,
+*bca2,
 *Perc,
 *PercmmCum,
 *factgr,                     //!< actual infiltration rate fo grassstrip [m/s]

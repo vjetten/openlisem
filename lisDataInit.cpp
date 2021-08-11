@@ -1856,7 +1856,8 @@ void TWorld::IntializeData(void)
     Ksateff = NewMap(0);
     Poreeff = NewMap(0);
     Thetaeff = NewMap(0);
-    bca = NewMap(0);
+    bca1 = NewMap(0);
+    bca2 = NewMap(0);
     FSurplus = NewMap(0);
     FFull = NewMap(0);
     Perc = NewMap(0);
