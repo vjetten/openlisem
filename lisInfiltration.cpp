@@ -346,7 +346,7 @@ void TWorld::InfilSwatre()
 
     if (SwitchInfilCompact)
     {
-#pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L
         {
             tm->Drc = WHbef->Drc;
@@ -359,7 +359,7 @@ void TWorld::InfilSwatre()
         }}
 
 
-#pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L
         {
             if (FloodDomain->Drc == 0)
@@ -380,7 +380,7 @@ void TWorld::InfilSwatre()
 
     if (SwitchGrassStrip)
     {
-#pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L
         {
             tm->Drc = WHbef->Drc;//WHGrass->Drc;
@@ -392,7 +392,7 @@ void TWorld::InfilSwatre()
                 SwatreStep(op.runstep, r, c, SwatreSoilModelGrass, tm, tma, tmb, tmc);//, GrassFraction);
         }}
 
-#pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L
         {
             if (FloodDomain->Drc == 0)
@@ -450,7 +450,7 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
         double SoilDep2 = SoilDepth2->Drc;
         double SoilLayer2 = SoilDep2 - SoilDep1;
         double dtheta2 = ThetaS2->Drc-ThetaI2->Drc;
-        double dfact1 = SoilDep1*dtheta1;
+        double dfact1 = SoilDep1*dtheta1; // m space
         double dfact2 = 0;
 
         if (SwitchImpermeable && L > SoilDep2 - 1e-6) {
@@ -464,13 +464,16 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
                 dfact2 = fact_in - dfact1;
             } else {
                 // still in SD1
-                L = L + fact_in/std::max(0.01,dtheta1);
+                if (dtheta1 > 0)
+                    L = L + fact_in/dtheta1;
+
              //   Lw->Drc = L;
                 fact_out = fact_in;
             }
         } else {
             //L already in layer 2
-            L = L + fact_in/std::max(0.01,dtheta2);
+            if (dtheta2 > 0)
+                L = L + fact_in/dtheta2;
             if (L > SoilDep2) {
                 fact_out = (SoilLayer2 - Lp) * dtheta2;
                 L = SoilDep2;
@@ -582,7 +585,7 @@ void TWorld::cell_InfilMethods(int r, int c)
         if (fact > 0)
             fact = IncreaseInfiltrationDepthNew(fact, r, c);
         // adjust fact and increase Lw, for twolayer, impermeable etc
-
+if(fact < 0) qDebug() << fact;
         if (fwh < fact)
         {
             fact = fwh;

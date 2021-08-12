@@ -374,7 +374,7 @@ void TWorld::ChannelFlow(void)
                 fill(*tmb,0);
             }
          //Faverage dynamix
-            qDebug() << loop;
+          //  qDebug() << loop;
         }
 
         for (int i = 0; i < loop; i++) {

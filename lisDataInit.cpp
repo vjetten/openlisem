@@ -2704,7 +2704,7 @@ void TWorld::FindChannelAngles()
             ChannelPAngle->Drc = 0.5*ChannelPAngle->Drc + 0.5*avggrad;
         //std::min(ChannelPAngle->Drc, F_Angle);
     }
-    report(*ChannelPAngle,"cpa.map");
+  //  report(*ChannelPAngle,"cpa.map");
 }
 //---------------------------------------------------------------------------
 void TWorld::InitImages()

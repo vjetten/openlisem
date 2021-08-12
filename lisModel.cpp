@@ -334,6 +334,10 @@ void TWorld::DoModel()
 //---------------------------------------------------------------------------
 void TWorld::CellProcesses()
 {
+#pragma omp parallel for num_threads(userCores)
+FOR_ROW_COL_MV_L {
+    tmd->Drc = 0;
+}}
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
@@ -361,7 +365,7 @@ void TWorld::CellProcesses()
         if (InfilMethod != INFIL_NONE) {
            cell_InfilMethods(r, c);
 
-         //  cell_Redistribution(r, c);
+           cell_Redistribution(r, c);
            if (!SwitchImpermeable)
                cell_Percolation(r, c);
         }
@@ -379,9 +383,11 @@ void TWorld::CellProcesses()
         doETa();
     // ETa is subtracted from canopy, soil water surfaces
     // divided over 12 hours in a day with sine curve
-report(*Lw,"lw");
-report(*Thetaeff,"te");
-report(*ThetaI2,"t2i");
+//report(*Lw,"lw");
+//report(*Thetaeff,"te");
+//report(*ThetaI2,"t2i");
+//report(*Perc,"perc");
+//report(*tmd,"tmd");
 }
 //---------------------------------------------------------------------------
 // these are all non-threaded

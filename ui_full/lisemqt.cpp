@@ -108,9 +108,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     SetStyleUI();
     // do some style things
 
-    scrollAreaResults->setFixedWidth(500);
-  //  toolShowMapDisplay->setVisible(false);
-    //this->adjustSize();
+//    scrollAreaResults->setFixedWidth(500);
+//  //  toolShowMapDisplay->setVisible(false);
+//    //this->adjustSize();
 
     doNewPlot = false;
     if(doNewPlot)

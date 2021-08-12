@@ -124,6 +124,7 @@ void TWorld::Totals(void)
 
     //=== infiltration ===//
     InfilTot += MapTotal(*InfilVol) + MapTotal(*InfilVolKinWave);
+report(*InfilVol,"iv");
     if (SwitchIncludeChannel && SwitchChannelInfil) {
         InfilTot += MapTotal(*ChannelInfilVol); //m3
     }

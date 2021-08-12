@@ -305,7 +305,7 @@ void TWorld::GetComboMaps()
         AddComboMap(0,"Interception","mm",InterceptionmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         AddComboMap(0,"Infiltration","mm",InfilmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         if (InfilMethod > 1)
-            AddComboMap(0,"Depth wetting front","m",Lw,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+            AddComboMap(0,"Depth wetting front","mm",Lw,LegendMap[cl],Legend[cl],false,false,1000.0,1.0);
 
         if (InfilMethod != INFIL_SWATRE) {
             AddComboMap(0,"Moisture content 1","-",Thetaeff,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
