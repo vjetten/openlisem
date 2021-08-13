@@ -537,7 +537,7 @@ void TWorld::ChannelFillDam(void)
             int i = (int)BufferNr->Drc;
             bufferarea[i].h += Qout/bufferarea[i].area;
             ChannelQn->Drc = 0;
-            qDebug() << i << Qout << bufferarea[i].h << bufferarea[i].area << bufferarea[i].ID;
+            //qDebug() << i << Qout << bufferarea[i].h << bufferarea[i].area << bufferarea[i].ID;
         }
     }}
 

@@ -340,7 +340,7 @@ void TWorld::InitParameters(void)
     int cores = omp_get_max_threads();
     if (userCores == 0 || userCores > cores)
         userCores = cores;
-    qDebug() << userCores;
+
 }
 //---------------------------------------------------------------------------
 void TWorld::InitStandardInput(void)
@@ -387,7 +387,7 @@ void TWorld::InitStandardInput(void)
             }
             WScr.append(crws_);
             nrc += WScr.at(i).size();
-            qDebug() << WScr.size() << WScr.at(i).size() << i << nrc << nrValidCells;
+            //qDebug() << WScr.size() << WScr.at(i).size() << i << nrc << nrValidCells;
         }
     }
 
@@ -853,7 +853,7 @@ void TWorld::InitChannel(void)
           //  i++;
         }
         crlinkedlddch_= MakeLinkedList(LDDChannel);
-        qDebug() << nrValidCellsCH << crlinkedlddch_.size();
+        //qDebug() << nrValidCellsCH << crlinkedlddch_.size();
 
     //   crlinkedlddch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
     //        QVector <LDD_COOR> temp = MakeLinkedList(LDDChannel);
@@ -881,7 +881,7 @@ void TWorld::InitChannel(void)
         {
             if(Outlet->Drc > 0 && LDDChannel->Drc != 5)
             {
-                qDebug() << r << c << LDDChannel->Drc;
+                //qDebug() << r << c << LDDChannel->Drc;
                 ErrorString = "Outlet points (outlet.map) do not coincide with Channel LDD endpoints.";
                 throw 1;
             }

@@ -112,7 +112,7 @@ void TWorld::GetDischargeData(QString name)
 
     for (int i = 3; i < nrStations+3; i++)
             locationnnrsrec << QRecs[i].toInt(&ok, 10);
-qDebug() << locationnnrsrec;
+
     if(locationnnrsmap != locationnnrsrec) {
         ErrorString = QString("Discharge input location numbers in timeseries and map are not the same.").arg(err).arg(name);
         throw 1;

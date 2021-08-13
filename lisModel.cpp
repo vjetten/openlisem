@@ -126,8 +126,6 @@ void TWorld::DoModel()
     // get time to calc run length
     startTime=omp_get_wtime()/60.0;
 
-    //qDebug() << SwitchErosion << Switch2DDiagonalFlow << F_pitValue;
-
     try
     {
        // DEBUG("reading and initializing data");
@@ -149,11 +147,9 @@ void TWorld::DoModel()
         double btm = getvaluedouble("Begin time");
         double etd = getvaluedouble("End time day");
         double etm = getvaluedouble("End time");
-        qDebug() << btd << btm << etd << etm;
         if (SwitchEventbased) {
             DEBUG("Day in start and end time is ignored.");
         }
-           // qDebug() << "time" << btd << btm << etd << etm;
         _dt = getvaluedouble("Timestep");
         if (SwitchEventbased) {
             BeginTime = (btm)*60; //for running in sec
@@ -365,7 +361,7 @@ FOR_ROW_COL_MV_L {
         if (InfilMethod != INFIL_NONE) {
            cell_InfilMethods(r, c);
 
-           cell_Redistribution(r, c);
+           //cell_Redistribution(r, c);
            if (!SwitchImpermeable)
                cell_Percolation(r, c);
         }
@@ -383,11 +379,10 @@ FOR_ROW_COL_MV_L {
         doETa();
     // ETa is subtracted from canopy, soil water surfaces
     // divided over 12 hours in a day with sine curve
-//report(*Lw,"lw");
-//report(*Thetaeff,"te");
-//report(*ThetaI2,"t2i");
-//report(*Perc,"perc");
-//report(*tmd,"tmd");
+report(*Lw,"lw");
+report(*Thetaeff,"te");
+report(*ThetaI2,"t2i");
+
 }
 //---------------------------------------------------------------------------
 // these are all non-threaded

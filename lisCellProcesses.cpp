@@ -67,7 +67,7 @@ void TWorld::cell_Redistribution1(int r, int c)
 // percolation is done after this
 void TWorld::cell_Redistribution(int r, int c)
 {
-    double Percolation, dL, pore, theta, thetar, theta_E;
+    double Percolation, pore, theta, thetar, theta_E;
     double Lw_ = Lw->Drc;
     double SoilDep1 = SoilDepth1->Drc;
 
@@ -75,7 +75,9 @@ void TWorld::cell_Redistribution(int r, int c)
     thetar = 0.025 * pore;
     theta = Thetaeff->Drc;
     Percolation = 0;
-    double factor = 0.5;
+    double factor = 0.2;
+    double dth = (pore-thetar) * factor;
+    double FC = 0.7867*exp(-0.012*Ksateff->Drc)*pore;
 
     if (Lw_ == 0)
        return;
@@ -88,31 +90,36 @@ void TWorld::cell_Redistribution(int r, int c)
     }
 
     if(SwitchTwoLayer && Lw_ < SoilDep1) {
-        // ======= one layer ============
-        // or wetting front is not yet in second layer
+
         double SoilDep2 = SoilDepth2->Drc;
 
         theta_E = (theta-thetar)/(pore-thetar);
         Percolation = Ksateff->Drc*_dt/3600000.0 * pow(theta_E, bca1->Drc); // m/timestep
-        Percolation = 0.5*(Percolation + (Ksateff->Drc*_dt/3600000.0));
+        Percolation = sqrt(Percolation * (Ksateff->Drc*_dt/3600000.0));
         //flux across boundary is ks+ke/2, average after Swatre
 
-        double moistw = Lw_ * (pore-thetar) * factor;
+        double moistw = Lw_ * dth; //available moisture
         Percolation = std::min(moistw, Percolation);
-        moistw -= Percolation;
-        Lw_ = moistw/(pore-thetar);
-        // moisture above wettingfront, remove redistribution water
+        moistw -= Percolation; // decrease moistw with percolation, can be 0
 
+        double Lwo = Lw_;
+        Lw_ = moistw/dth;
+        // factor*moisture above wettingfront, redistribution water
 
-        // add Percolation to unsat part
-        double m1 = (SoilDep1 - Lw_) * theta; // moisture below wettingfront
-        double m2 = (SoilDep2 - SoilDep1) * ThetaI2->Drc; // moisture below wettingfront
+        // add Percolation to total unsat part
+        double m0 = (Lwo-Lw_)*dth;        // moisture in part that was evacuated
+        double m1 = (SoilDep1 - Lwo) * theta; // moisture below org wettingfront
+        double m2 = (SoilDep2 - SoilDep1) * ThetaI2->Drc; // moisture below wettingfront in Layer 2
 
-        m1 += m1/(m1+m2)*Percolation;
-        m2 += m2/(m1+m2)*Percolation;
+        m0 += m0/(m0+m1+m2)*Percolation;
+        m1 += m1/(m0+m1+m2)*Percolation;
+        m2 += m2/(m0+m1+m2)*Percolation;
 
-        Thetaeff->Drc = m1/(SoilDep1-Lw_);
+        Thetaeff->Drc = (m0+m1)/(SoilDep1-Lw_);
         ThetaI2->Drc = m2/(SoilDep2-SoilDep1);
+
+if (Thetaeff->Drc > Poreeff->Drc) qDebug() << Thetaeff->Drc;
+
         Lw->Drc = Lw_;
     }
 
@@ -123,45 +130,52 @@ void TWorld::cell_Redistribution(int r, int c)
         double thetar2 = 0.025 * pore2;
         double theta2 = ThetaI2->Drc;
         double SoilDep2 = SoilDepth2->Drc;
+        double dth2 = (pore2-thetar2) * factor;
+        double FC2 = 0.7867*exp(-0.012*Ksat2->Drc)*pore2;
+        //double TT2 = (pore2-FC2)*(SoilDep2-Lw_)/Ksat2->Drc;
 
+        // get the potential flux in m
         theta_E = (theta2-thetar2)/(pore2-thetar2);
         Percolation = Ksat2->Drc*_dt/3600000.0 * pow(theta_E, bca2->Drc); // m/timestep
-        Percolation = 0.5*(Percolation + (Ksat2->Drc*_dt/3600000.0));
+        Percolation = sqrt(Percolation * (Ksat2->Drc*_dt/3600000.0));
         //flux across boundary is (ks+ke)/2, average after Swatre
 
-        double moist1 = SoilDep1 * (pore-thetar) * factor; // moisture above wettingfront in layer 2
-        double moist2 = (Lw_-SoilDep1) * (pore2-thetar2) * factor; // moisture above wettingfront in layer 2
+        //get the available moisture*factor above the wet front in m
+        // factor is to avoid that the moisture goes back to thetar suddenly
+        double moist1 = SoilDep1 * dth; // moisture above wettingfront in layer 1
+        double moist2 = (Lw_-SoilDep1) * dth2; // moisture above wettingfront in layer 2
 
         Percolation = std::min(Percolation, moist1+moist2);
-        //cannot have more redistribution than water
+        //cannot have more flux than total water
 
         double perc2 = std::min(Percolation, moist2); // part taken from layer 2
         double perc1 = std::max(0.0, Percolation-perc2); // part taken from layer 1, can be 0
 
+        // drain moist2 first, can be 0
         moist2 -= perc2;
-        Lw_ = moist2/(pore2-thetar2) + SoilDep1;
+        // Lw_ is now at soildep1 or lower
+        double Lwo = Lw_;
+        Lw_ = moist2/dth2 + SoilDep1;
+        double m0 = (Lwo-Lw_)*dth2;        // moisture in part that was evacuated
+        double m2 = (SoilDep2 - Lwo) * theta2; //old moisture below in L2        
+        theta2 = (m2+m0+perc2)/(SoilDep2-Lw_);  //total new moisture below new Lw
+        theta2 = std::min(theta2, pore2);
+        // if redistribution moves Lw into layer 1
         if (perc1 > 0) {
+            // moist2 is 0 and Lw_ is soildep1
             moist1 -= perc1;
-            Lw_ = moist1/(pore-thetar);
+            Lwo = Lw_;
+            Lw_ = moist1/dth; // new Lw_
+            m0 = (Lwo-Lw_)*dth;        // moisture in part that was veacuated
+            theta = (m0+perc1)/(SoilDep1-Lw_);
+            theta = std::min(pore,theta);
         }
 
-        if (Lw_ > SoilDep1) {
-            double m1 = (SoilDep2 - Lw_) * theta2;
-            m1 += Percolation;
-            ThetaI2->Drc = m1/(SoilDep2-Lw_);
-        } else {
-            // add Percolation to unsat part
-            double m1 = (SoilDep1 - Lw_) * theta; // moisture below wettingfront
-            double m2 = (SoilDep2 - SoilDep1) * ThetaI2->Drc; // moisture below wettingfront
+        Thetaeff->Drc = theta;
+        ThetaI2->Drc = theta2;
+    }
+    Lw->Drc = Lw_;
 
-            m1 += m1/(m1+m2)*Percolation;
-            m2 += m2/(m1+m2)*Percolation;
-
-            Thetaeff->Drc = m1/(SoilDep1-Lw_);
-            ThetaI2->Drc = m2/(SoilDep2-SoilDep1);
-        }
-        Lw->Drc = Lw_;
-    } // two layer
 }
 
 //---------------------------------------------------------------------------
@@ -190,21 +204,22 @@ void TWorld::cell_Percolation(int r, int c)
             else
                 dL = SoilDep2 - SoilDep1;
             // if Wet Fr still in first layer percolation only make 2nd drier
-if (dL < 0) qDebug() << "oei";
-            double moisture = dL*(theta-thetar);
 
-            if (Lw_ < SoilDep2-0.05) {
+            double moisture = std::max(0.0, dL*(theta-thetar));
+
+            if (Lw_ < SoilDep2-0.01) {
                 // decrease thetaeff because of percolation
                 Percolation = Ksat2->Drc*_dt/3600000 * pow(theta_E, bca2->Drc);
                 Percolation = std::min(Percolation, moisture);
                 moisture -= Percolation;
-                theta = moisture/dL+thetar;
+                theta = moisture/dL;//+thetar;
             } else {
-                //qDebug() << "here";
+
                 // wetting front = soildepth2, dL = 0, moisture = 0
                 // assume theta goes back to 0.7 pore and decrease the wetting fornt
                 Percolation = Ksat2->Drc*_dt/3600000;
-                theta = 0.7*pore;//(pore - thetar);
+                double FC2 = 0.7867*exp(-0.012*Ksat2->Drc)*pore;
+                theta = FC2;//(pore - thetar);
                 Lw_ -= std::max(0.0, Percolation/(pore - theta));
             }
             ThetaI2->Drc = theta;
@@ -229,7 +244,9 @@ if (dL < 0) qDebug() << "oei";
             } else {
                 // wetting front = soildepth1, dL = 0, moisture = 0
                 // assume tehta goes back to 0.7 pore and decrease the wetting fornt
-                theta = 0.7*(pore - thetar);
+                double FC = 0.7867*exp(-0.012*Ksateff->Drc)*pore;
+                theta = FC;//(pore - thetar);
+                //theta = 0.7*(pore - thetar);
                 Lw_ -= std::max(0.0, Percolation/(pore - theta));
             }
             Thetaeff->Drc = theta;

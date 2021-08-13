@@ -385,7 +385,6 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
 //                                        newcr.in << incr;
                                         newcr.inn[j].r = rr;
                                         newcr.inn[j].c = cr;
-                                       // qDebug() << rr<< cr << j;
 
                                         j++;
                                     }
@@ -409,7 +408,6 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
 
         }
     }
-   // qDebug() << _crlinked_.size();
     return(_crlinked_);
 }
 

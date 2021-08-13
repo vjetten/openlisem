@@ -327,8 +327,7 @@ void TWorld::ParseRunfileData(void)
 //#define INFIL_MOREL 21
 //#define INFIL_SMITH 22
 //#define INFIL_SMITH2 23
-    //SwitchUserCores = userCores > 0;
-    //qDebug() << userCores;
+
 
     // check a few things
 
