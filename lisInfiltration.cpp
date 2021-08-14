@@ -441,78 +441,102 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
     double dtheta1 = Poreeff->Drc-Thetaeff->Drc; // space in the top layer
     double L = Lw->Drc;
     double SoilDep1 = SoilDepth1->Drc;
-    double Lp = L;
     double fact_out = 0;
     bool passing = false;
 
     if (SwitchTwoLayer) {
 
         double SoilDep2 = SoilDepth2->Drc;
-        double SoilLayer2 = SoilDep2 - SoilDep1;
         double dtheta2 = ThetaS2->Drc-ThetaI2->Drc;
-        double dfact1 = SoilDep1*dtheta1; // m space
         double dfact2 = 0;
 
         if (SwitchImpermeable && L > SoilDep2 - 1e-6) {
             Lw->Drc = SoilDep2;
             return 0;
         }                
+        if (SwitchImpermeable && dtheta2 < 1e-6) {
+            Lw->Drc = SoilDep2;
+            return 0;
+        }
 
         if (L < SoilDep1) {
-            if(fact_in > dfact1) {
+            double space = (SoilDep1-L)*dtheta1;
+            if(fact_in > (SoilDep1-L)*space) {
                 passing = true;
-                dfact2 = fact_in - dfact1;
+                dfact2 = fact_in - space;
             } else {
                 // still in SD1
-                if (dtheta1 > 0)
+                if (dtheta1 > 0.001) {
                     L = L + fact_in/dtheta1;
-
-             //   Lw->Drc = L;
+                }
                 fact_out = fact_in;
             }
         } else {
             //L already in layer 2
-            if (dtheta2 > 0)
+            double space2 = (SoilDep2-L)*dtheta2;
+            if (dtheta2 > 0.001)
                 L = L + fact_in/dtheta2;
-            if (L > SoilDep2) {
-                fact_out = (SoilLayer2 - Lp) * dtheta2;
+            else
                 L = SoilDep2;
-            } else
-                fact_out = fact_in; // everything fitted
-           // Lw->Drc = L;
+
+            if (L > SoilDep2-0.001) {
+                fact_out = space2;
+                L = SoilDep2;                
+            } else {
+                fact_out = fact_in;
+                // everything fitted
+            }
+
         }
 
         if (passing) {
-            L = SoilDep1 + dfact2/std::max(0.01,dtheta2); // increase L with remaining fact
+            double space2 = (SoilDep2-SoilDep1)*dtheta2;
+            dfact2 = std::min(dfact2, space2);
+            if (dtheta2 > 0.001)
+                L = SoilDep1 + dfact2/dtheta2; // increase L with remaining fact
+            else
+                L = SoilDep2;
 
-            if (L > SoilDep2) {
-                fact_out = (SoilLayer2 - Lp) * dtheta2;
+            if (L > SoilDep2-0.001) {
+                fact_out = space2;
                 L = SoilDep2;
             } else
                 fact_out = fact_in; // everything fitted
         }
 
         Lw->Drc = L;
-        return fact_out;
+        return std::max(0.0,fact_out);
+
     } else {
-//single layer
+
+        //===== single layer =====
+
         if (SwitchImpermeable && L > SoilDep1 - 1e-6) {
+            Lw->Drc = SoilDep1;
+            return 0;
+        }
+        if (SwitchImpermeable && dtheta1 < 1e-6) {
             Lw->Drc = SoilDep1;
             return 0;
         }
 
         if(L < SoilDep1) {
             // not full
-            L = L + fact_in/std::max(0.01,dtheta1); // increase wetting front
-            if (L > SoilDep1) {
-                fact_out = (SoilDep1 - Lp) * dtheta1;
+            double space1 = (SoilDep1 - L)*dtheta1;
+            if (dtheta1 > 0.001)
+                L = L + fact_in/dtheta1; // increase wetting front
+            else
+                L = SoilDep1;
+
+            if (L > SoilDep1-0.001) {
+                fact_out = space1;
                 L = SoilDep1;
             } else
                 fact_out = fact_in;
         }
 
         Lw->Drc = L;
-        return fact_out;
+        return std::max(0.0, fact_out);
     }
 
     return 0;
@@ -540,8 +564,8 @@ void TWorld::cell_InfilMethods(int r, int c)
         double Psi = Psi1->Drc/100; // in m
         double fwh = 0;
         double SW = 0;
-        double fpot = 0;
-        double fact = 0;// = fact->Drc;
+        double fpot_ = 0;
+        double fact_ = 0;// = fact->Drc;
         double SoilDep1 = SoilDepth1->Drc;
 
         if (FloodDomain->Drc == 0) {
@@ -567,32 +591,34 @@ void TWorld::cell_InfilMethods(int r, int c)
         }
 
         if (InfilMethod == INFIL_GREENAMPT)
-            fpot = Ks*(1.0+(Psi+fwh)/std::max(1e-4, Lw->Drc));
+            fpot_ = Ks*(1.0+(Psi+fwh)/std::max(1e-4, Lw->Drc));
         else {
             double space = SwitchTwoLayer ? std::max(ThetaS2->Drc-ThetaI2->Drc, 0.0) :
                                             std::max(Poreeff->Drc-Thetaeff->Drc, 0.0);
             double B = (fwh + Psi)*space;
             if (B > 0.01) {
-                fpot = Ks*exp(Fcum->Drc/B)/(exp(Fcum->Drc/B)-1);
+                fpot_ = Ks*exp(Fcum->Drc/B)/(exp(Fcum->Drc/B)-1);
             } else
-                fpot = Ks;
+                fpot_ = Ks;
         }
 
-        fact = std::min(fpot, fwh);
-        if (fact < 1e-10) fact = 0;
+        fact_ = std::min(fpot_, fwh);
+        if (fact_ < 1e-10)
+            fact_ = 0;
         // actual infil in m, cannot have more infil than water on the surface
 
-        if (fact > 0)
-            fact = IncreaseInfiltrationDepthNew(fact, r, c);
+
+        if (fact_ > 0)
+            fact_ = IncreaseInfiltrationDepthNew(fact_, r, c);
         // adjust fact and increase Lw, for twolayer, impermeable etc
-if(fact < 0) qDebug() << fact;
-        if (fwh < fact)
+
+        if (fwh < fact_)
         {
-            fact = fwh;
+            fact_ = fwh;
             fwh = 0;
         }
         else
-            fwh -= fact;
+            fwh -= fact_;
 
         // adjust the WH in the correct domain with new fact
         if(FloodDomain->Drc == 0)
@@ -600,10 +626,11 @@ if(fact < 0) qDebug() << fact;
         else
             hmx->Drc = fwh;
 
-        Fcum->Drc += fact; // for Smith and Parlange
+        Fcum->Drc += fact_; // for Smith and Parlange
+        fact->Drc = fact_;
 
         // increase cumulative infil in m
-        InfilVol->Drc = fact*SW*DX->Drc;
+        InfilVol->Drc = fact_*SW*DX->Drc;
         // calc infiltrated volume for mass balance
 
         // calc surplus infiltration (negative in m) for kin wave
@@ -616,7 +643,7 @@ if(fact < 0) qDebug() << fact;
                     space = (SoilDepth2->Drc - Lw->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
             }
 
-            FSurplus->Drc = -1.0 * std::min(space, fact);//std::max(0.0, fpot_-fact_));
+            FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
             // negative and smallest of space or fpot-fact ???
         }
  //   }}
@@ -642,87 +669,7 @@ void TWorld::SoilWater()
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         cell_Percolation(r, c);
-        /*
-        double Percolation, dL, pore, theta, thetar, theta_E, Ks;
 
-        Percolation = 0;
-
-        if(SwitchTwoLayer) {
-            thetar = 0.025 * ThetaS2->Drc;
-            pore = ThetaS2->Drc;
-            theta = ThetaI2->Drc;
-            Ks = Ksat2->Drc*_dt/3600000.0;
-
-            if(theta > thetar) {
-                theta_E = (theta-thetar)/(pore-thetar);
-                Percolation = Ks* pow(theta_E, bca->Drc);
-                // percolation in m
-
-                if (Lw->Drc > SoilDepth1->Drc)
-                    dL = SoilDepth2->Drc - Lw->Drc;
-                else
-                    dL = SoilDepth2->Drc - SoilDepth1->Drc;
-                // if Wet Fr still in first layer percolation only make 2nd drier
-
-                double moisture = dL*(theta-thetar);
-
-                if (moisture > Percolation) {
-                    // decrease thetaeff because of percolation
-                    moisture -= Percolation;
-                    theta = moisture/dL+thetar;
-                } else {
-                    // wetting front = soildepth1, dL = 0, moisture = 0
-                    // assume theta goes back to 0.7 pore and decrease the wetting fornt
-                    theta = 0.7*(pore - thetar);
-                    Lw->Drc -= std::max(0.0, Percolation/(pore - theta));
-                }
-                ThetaI2->Drc = theta;
-            }
-        } else {
-            // one layer
-            thetar = 0.025 * Poreeff->Drc;
-            double pore = Poreeff->Drc;
-            double theta = Thetaeff->Drc;
-
-            if(theta > thetar) {
-                theta_E = (theta-thetar)/(pore-thetar);
-                Percolation = Ksateff->Drc*_dt/3600000.0 * pow(theta_E, bca->Drc);
-            }
-
-            if (Percolation > 0) {
-                dL = std::max(0.0, SoilDepth1->Drc - Lw->Drc);
-                double moisture = dL*(theta-thetar);
-                if (moisture > Percolation) {
-                    // wetting front has not reached bottom, make soil drier
-                    // decrease thetaeff because of percolation
-                    moisture -= Percolation;
-                    theta = moisture/dL+thetar;
-                } else {
-                    // wetting front = soildepth1, dL = 0, moisture = 0
-                    // assume tehta goes back to half pore and decrease the wetting fornt
-                    theta = 0.7*(pore - thetar);
-                    Lw->Drc -= std::max(0.0, Percolation/(pore - theta));
-                }
-                Thetaeff->Drc = theta;
-            }
-        }
-
-        if (Percolation > 0) {
-            double moisture = dL*(theta-thetar);
-            if (moisture > Percolation) {
-                // wetting front has not reached bottom, make soil drier
-                // decrease thetaeff because of percolation
-                moisture -= Percolation;
-                theta = moisture/dL+thetar;
-            } else {
-                // wetting front = soildepth1, dL = 0, moisture = 0
-                // assume tehta goes back to half pore and decrease the wetting fornt
-                theta = 0.7*(pore - thetar);
-                Lw->Drc -= std::max(0.0, Percolation/(pore - theta));
-            }
-        }
-        Perc->Drc = Percolation;
-        */
     }}
 }
 //---------------------------------------------------------------------------

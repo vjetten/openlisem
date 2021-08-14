@@ -361,7 +361,7 @@ FOR_ROW_COL_MV_L {
         if (InfilMethod != INFIL_NONE) {
            cell_InfilMethods(r, c);
 
-           //cell_Redistribution(r, c);
+           cell_Redistribution1(r, c);
            if (!SwitchImpermeable)
                cell_Percolation(r, c);
         }
