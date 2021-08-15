@@ -75,7 +75,7 @@ void TWorld::Totals(void)
 
     if (SwitchIncludeET) {
        // double ETtot = MapTotal(*ETa);
-        ETaTot = MapTotal(*ETaCum);
+        ETaTot = 0;//MapTotal(*ETaCum);
 
 
     }
@@ -98,6 +98,12 @@ void TWorld::Totals(void)
     //=== interception ===//
     IntercTot = MapTotal(*Interc);
     IntercTotmm = IntercTot*catchmentAreaFlatMM;
+    // currently in canopy
+
+    IntercETaTot = MapTotal(*IntercETa);
+    IntercETaTotmm = IntercETaTot*catchmentAreaFlatMM;
+    // cumulative evaporated from canopy
+
     // interception in mm and m3
     //Litter
     if (SwitchLitter) {
@@ -112,7 +118,7 @@ void TWorld::Totals(void)
     }
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        InterceptionmmCum->Drc = (Interc->Drc + IntercHouse->Drc + LInterc->Drc)*1000.0/CellArea->Drc;
+        InterceptionmmCum->Drc = (IntercETa->Drc + Interc->Drc + IntercHouse->Drc + LInterc->Drc)*1000.0/CellArea->Drc;
         // for screen and file output
     }}
 

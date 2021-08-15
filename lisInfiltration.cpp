@@ -438,7 +438,7 @@ void TWorld::InfilSwatre()
 
 double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, double fact, double *L1p, double *L2p, double *FFullp)
 {
-    double dtheta1 = Poreeff->Drc-Thetaeff->Drc; // space in the top layer
+    double dtheta1 = std::max(0.0,Poreeff->Drc-Thetaeff->Drc); // space in the top layer
     double L = Lw->Drc;
     double SoilDep1 = SoilDepth1->Drc;
     double fact_out = 0;
@@ -447,7 +447,7 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
     if (SwitchTwoLayer) {
 
         double SoilDep2 = SoilDepth2->Drc;
-        double dtheta2 = ThetaS2->Drc-ThetaI2->Drc;
+        double dtheta2 = std::max(0.0,ThetaS2->Drc-ThetaI2->Drc);
         double dfact2 = 0;
 
         if (SwitchImpermeable && L > SoilDep2 - 1e-6) {
@@ -503,7 +503,7 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
             } else
                 fact_out = fact_in; // everything fitted
         }
-
+        L = std::min(SoilDep2,std::max(0.0, L));
         Lw->Drc = L;
         return std::max(0.0,fact_out);
 
@@ -535,6 +535,7 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
                 fact_out = fact_in;
         }
 
+        L = std::min(SoilDep1,std::max(0.0, L));
         Lw->Drc = L;
         return std::max(0.0, fact_out);
     }

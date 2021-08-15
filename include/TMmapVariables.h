@@ -56,6 +56,7 @@ cTMap
 *LeafDrain,                  //!< drainge from canopy, storage overflow [m]
 *CStor,                      //!< actual canopy storage [m]
 *Interc,                     //!< actual canopy storage volume, corrected for surfaces without vegetation (like roads) [m^3]
+*IntercETa,                     //!< actual canopy storage volume, corrected for surfaces without vegetation (like roads) [m^3]
 *LCStor,                     //!< actual Litter storage [m]
 *LInterc,                    //!< actual Litter storage volume, corrected for surfaces without vegetation (like roads) [m^3]
 *DStor,                      //!< actual drum storage of rainwater [m^3]
@@ -249,8 +250,8 @@ cTMap
 *bca2,
 *Perc,
 *PercmmCum,
-*factgr,                     //!< actual infiltration rate fo grassstrip [m/s]
-*fpotgr,                     //!< potential infiltration rate fo grassstrip [m/s]
+//*factgr,                     //!< actual infiltration rate fo grassstrip [m/s]
+//*fpotgr,                     //!< potential infiltration rate fo grassstrip [m/s]
 //*WHGrass,                    //!< water level on a grassstrip [m]
 *GrassFraction,              //!< fraction of grasstrip in a cell [-]
 *SedimentFilter,             //!< sediment deposited in the sediment trap in kg/m2
@@ -258,10 +259,10 @@ cTMap
 *GrassWidthDX,               //!< width of grasstrip in [m]
 *thetaTop,                   //!< average theta of node 0 and 1 for water repelency and nutrients
 
-*ThetaI3,
-*ThetaS3,
-*Ksat3,
-*Psi3,
+//*ThetaI3,
+//*ThetaS3,
+//*Ksat3,
+//*Psi3,
 
 *ProfileID,                  //!< SWATRE profile unit number map
 *ProfileIDCrust,             //!< SWATRE profile unit number map for crusted areas

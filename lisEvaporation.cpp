@@ -173,7 +173,8 @@ void TWorld::GetETMap(void)
 {
     double currenttime = (time)/60;
     int  ETplace;
-    double tt = _dt/86400.0*0.001; // mm/day to m / timestep
+    double tt = 0.001; //mm/day to m/day
+            //_dt/86400.0*0.001; // mm/day to m / timestep
     bool noET = false;
     bool sameET= false;
 
@@ -209,24 +210,10 @@ void TWorld::GetETMap(void)
 
         // get the next map from file
         if (!sameET) {
-                #pragma omp parallel for num_threads(userCores)
-                FOR_ROW_COL_MV_L {
-                    ETp->Drc = ETSeriesM[currentrow].intensity[(int) ETZone->Drc-1]*tt;
-                }}
-//            } else {
-//                auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(ETSeriesMaps[ETplace].name)));
-//                #pragma omp parallel for num_threads(userCores)
-//                FOR_ROW_COL_MV_L {
-//                    ETp->Drc = _M->Drc *tt;
-//                    if (pcr::isMV(ETp->Drc)) {
-//                        QString sr, sc;
-//                        sr.setNum(r); sc.setNum(c);
-//                        ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+ETSeriesMaps[ETplace].name;
-//                        //throw 1;
-//                        ETp->Drc = 0;
-//                    }
-//                }}
-
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                ETp->Drc = ETSeriesM[currentrow].intensity[(int) ETZone->Drc-1]*tt;
+            }}
         } //sameET
     }
     currentETrow = currentrow;
@@ -236,7 +223,9 @@ void TWorld::GetETSatMap(void)
 {
     double currenttime = (time)/60;
     int  ETplace;
-    double tt = _dt/86400.0*0.001; // mm/day to m / timestep
+    double tt = 0.001; //mm/day to m/day
+            //_dt/86400.0*0.001; // mm/day to m / timestep
+
     bool noET = false;
     bool sameET= false;
 
@@ -296,6 +285,8 @@ void TWorld::doETa()
 {
     double ETafactor = 1;
     double Ld = 12;
+
+    SwitchDailyET = true;
     if (SwitchDailyET) {
         double day = trunc(time/(86400));
         double hour = time/3600.0-day*24.0;
@@ -308,89 +299,97 @@ void TWorld::doETa()
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        double tot = 0;
-        double tmp = 0;
-        double eta = 0;
-        double _ETp = ETp->Drc * ETafactor*24/Ld;
-        double _Cover = Cover->Drc;
-        bool ponded = hmxWH->Drc > 0;
-        double _hardsurf = 0;
 
-        // no ET on hardsurfaces
-        if (SwitchHardsurface)
-            _hardsurf = HardSurface->Drc;
-        if (SwitchHouses)
-            _hardsurf += HouseCover->Drc;
-        if (SwitchRoadsystem)
-            _hardsurf += RoadWidthDX->Drc/_dx;
-        _hardsurf = std::min(1.0,_hardsurf);
+        if (Rain->Drc > 0)
+            ETp->Drc = 0;
 
-        // interception decrease, drying out canopy
-        double Smax = CanopyStorage->Drc;
-        if (Smax > 0) {
-            double ETa_int = _Cover * _ETp;
-            //tmp = CStor->Drc;
-            double RainCum_ = RainCum->Drc;
-            tmp = RainCum_;
-           // CStor->Drc = std::max(0.0, CStor->Drc-ETa_int);
-            RainCum_ = std::max(0.0, RainCum_-ETa_int);
-            CStor->Drc = Smax*(1-exp(-kLAI->Drc*RainCum_/Smax));
-            eta = tmp - RainCum_;
-            Interc->Drc = _Cover * CStor->Drc * SoilWidthDX->Drc * DX->Drc;
-            tot = tot + eta;
-            RainCum->Drc = RainCum_;
-        }
+        double ETp_ = ETp->Drc * ETafactor;
+        // ETp->Drc is assumed to be in m/day, etfactor does the rest
 
+        if (ETp_ > 0) {
+            double tot = 0;
+            double tmp = 0;
+            double eta = 0;
+            double Cover_ = Cover->Drc;
 
-        if (!ponded) {
-            // soil moisture transpiration covered surface
-            double theta_e = Thetaeff->Drc/ThetaS1->Drc;
-            double f = 1+qPow(theta_e/0.5,6.0);
-            double ETa_soil1 = (1.0-1.0/f) * _ETp  * _Cover;  //Transpiration
-            double ETa_soil2 = theta_e * _ETp * (1-_Cover);   //Evaporation
+            // interception decrease, drying out canopy
+            double CStor_  = CStor->Drc;
+            if (CStor_ > 0) {
+                double ETa_int = ETp_;
 
-            // there is an infiltration front
-            if (Lw->Drc > 0) {
-                tmp = Lw->Drc;
-                Lw->Drc = std::max(0.0, Lw->Drc - ETa_soil1-ETa_soil2);
-                eta = tmp - Lw->Drc;
+                tmp = CStor_;
+                ETa_int = std::min(ETa_int, CStor_);
+                CStor_ = CStor_- ETa_int;
+
+                if (CStor_ == 0)
+                    RainCum->Drc = 0;
+                // restart the cumulative process when CStor is dried out
+
+                eta = tmp - CStor_; // actual eta is store before-after
                 tot = tot + eta;
-            } else {
-                // soil moisture evaporation bare surface
-                double moist = Thetaeff->Drc * SoilDepth1->Drc;
-                tmp = moist;
-                moist = std::max(0.0, moist - (ETa_soil1 + ETa_soil2)*(1.0-_hardsurf));
-                eta = tmp - moist;
-                Thetaeff->Drc = moist/SoilDepth1->Drc;
-                tot = tot + eta;
-                // !!!!!!!!!! because soil moisture is not in MB
-            }
-        }
 
-        // ETa = ETp for ponded surfaces
-        if (ponded) {
-            double ETa_pond = _ETp;
-            if (FloodDomain->Drc > 0) {
-                tmp = hmx->Drc;
-                hmx->Drc = std::max(0.0, hmx->Drc-ETa_pond );
-                eta = tmp - hmx->Drc;
-            } else {
-                double _WHRunoff = WHrunoff->Drc;
-                tmp = _WHRunoff;
-                _WHRunoff = std::max(0.0, _WHRunoff-ETa_pond);
-                eta = tmp - _WHRunoff;
-                WHroad->Drc = _WHRunoff;
-                //WHGrass->Drc = WHrunoff->Drc;
-                WH->Drc = _WHRunoff + WHstore->Drc;
-                WHrunoff->Drc = _WHRunoff;
-            }
-            tot = tot + eta;
-            WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
-        }
+                Interc->Drc = Cover_ * CStor_ * SoilWidthDX->Drc * DX->Drc;
+                IntercETa->Drc += Cover_ * eta * SoilWidthDX->Drc * DX->Drc;
+                CStor->Drc = CStor_;
 
-        // put total Eta in Eta map
-        ETa->Drc = tot;
-        ETaCum->Drc += tot;
+
+            }
+
+            //        bool ponded = hmxWH->Drc > 0;
+            //        if (!ponded) {
+            //            // soil moisture transpiration covered surface
+            //            double theta_e = Thetaeff->Drc/ThetaS1->Drc;
+            //            double f = 1+qPow(theta_e/0.5,6.0);
+            //            double ETa_soil1 = (1.0-1.0/f) * ETp_  * Cover_;  //Transpiration
+            //            double ETa_soil2 = theta_e * ETp_ * (1-Cover_);   //Evaporation
+
+            //            // there is an infiltration front
+            //            if (Lw->Drc > 0) {
+            //                tmp = Lw->Drc;
+            //                Lw->Drc = std::max(0.0, Lw->Drc - ETa_soil1-ETa_soil2);
+            //                eta = tmp - Lw->Drc;
+            //                tot = tot + eta;
+            //            } else {
+            //                // soil moisture evaporation bare surface
+            //                double moist = Thetaeff->Drc * SoilDepth1->Drc;
+            //                tmp = moist;
+            //                moist = std::max(0.0, moist - (ETa_soil1 + ETa_soil2);
+            //                eta = tmp - moist;
+            //                Thetaeff->Drc = moist/SoilDepth1->Drc;
+            //                tot = tot + eta;
+            //                // !!!!!!!!!! because soil moisture is not in MB
+            //            }
+            //        }
+
+            //        // ETa = ETp for any ponded surfaces
+            //        if (ponded) {
+            //            double ETa_pond = ETp_;
+            //            if (FloodDomain->Drc > 0) {
+            //                ETa_pond = std::min(ETa_pond, hmx->Drc);
+            //                tmp = hmx->Drc;
+            //                hmx->Drc = hmx->Drc-ETa_pond;
+            //                eta = tmp - hmx->Drc;
+            //            } else {
+            //                double WHRunoff_ = WHrunoff->Drc;
+            //                ETa_pond = std::min(ETa_pond, WHRunoff_);
+            //                tmp = WHRunoff_;
+            //                WHRunoff_ = WHRunoff_-ETa_pond;
+            //                eta = tmp - WHRunoff_;
+            //                WHroad->Drc = WHRunoff_;
+            //                WH->Drc = WHRunoff_ + WHstore->Drc;
+            //                WHrunoff->Drc = WHRunoff_;
+            //            }
+            //            tot = tot + eta;
+            //            WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
+            //        }
+
+            // put total Eta in Eta map
+            ETa->Drc = tot;
+            ETaCum->Drc += tot;
+        }
+        if(r==100&&c==200)
+            qDebug()<< "e" << ETp->Drc << CStor->Drc << Rainc->Drc << RainCum->Drc << ETa->Drc << InterceptionmmCum->Drc;
+
     }}
 //    report(*Thetaeff,"ti");
 //    report(*tma,"ta");

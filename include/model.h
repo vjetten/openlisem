@@ -426,7 +426,7 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, MBeM3, Qtot,QtotT,QTiletot, IntercTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot,BaseFlowTot,Qfloodout,QfloodoutTot;
+    double MB, MBeM3, Qtot,QtotT,QTiletot, IntercTot, IntercETaTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot,BaseFlowTot,Qfloodout,QfloodoutTot;
     double floodBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
     double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
@@ -434,7 +434,7 @@ public:
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot,SoilLossTotT, SedTot,
            FloodDetTot, FloodDepTot, FloodSedTot;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
-    double RainTotmm, SnowTotmm, IntercTotmm, WaterVolTotmm,WaterVolRunoffmm, FloodBoundarymm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, WaterVolRunoffmm_F;
+    double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm,WaterVolRunoffmm, FloodBoundarymm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, WaterVolRunoffmm_F;
     double StormDrainTotmm, floodVolTotmm, floodTotmmInit;
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;

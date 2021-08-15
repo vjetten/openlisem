@@ -1725,6 +1725,7 @@ void TWorld::IntializeData(void)
 
     CStor = NewMap(0);
     Interc = NewMap(0);
+    IntercETa = NewMap(0);
     // litter
     LCStor = NewMap(0);
     LInterc = NewMap(0);
@@ -1819,6 +1820,7 @@ void TWorld::IntializeData(void)
     InfilTotmm = 0;
     InfilKWTot = 0;
     IntercTot = 0;
+    IntercETaTot = 0;
     IntercTotmm = 0;
     ETaTot = 0;
     ETaTotmm = 0;
@@ -1851,8 +1853,8 @@ void TWorld::IntializeData(void)
     InfilVolCum = NewMap(0);
     fact = NewMap(0);
     fpot = NewMap(0);
-    factgr = NewMap(0);
-    fpotgr = NewMap(0);
+  //  factgr = NewMap(0);
+  //  fpotgr = NewMap(0);
     Ksateff = NewMap(0);
     Poreeff = NewMap(0);
     Thetaeff = NewMap(0);
@@ -1864,7 +1866,7 @@ void TWorld::IntializeData(void)
     PercmmCum = NewMap(0);
     runoffTotalCell = NewMap(0);
     Fcum = NewMap(0);
-    //L1 = NewMap(0);
+  //  L1 = NewMap(0);
   //  L2 = NewMap(0);
     Lw = NewMap(0);
 

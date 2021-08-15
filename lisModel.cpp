@@ -330,10 +330,7 @@ void TWorld::DoModel()
 //---------------------------------------------------------------------------
 void TWorld::CellProcesses()
 {
-#pragma omp parallel for num_threads(userCores)
-FOR_ROW_COL_MV_L {
-    tmd->Drc = 0;
-}}
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
@@ -362,8 +359,11 @@ FOR_ROW_COL_MV_L {
            cell_InfilMethods(r, c);
 
            cell_Redistribution1(r, c);
+
            if (!SwitchImpermeable)
                cell_Percolation(r, c);
+//           if (r == 200 && c == 200)
+//               qDebug() << "b" << Thetaeff->Drc<< ThetaI2->Drc << Lw->Drc;
         }
         // infiltration by SWATRE of G&A+percolation
 
@@ -379,9 +379,9 @@ FOR_ROW_COL_MV_L {
         doETa();
     // ETa is subtracted from canopy, soil water surfaces
     // divided over 12 hours in a day with sine curve
-report(*Lw,"lw");
-report(*Thetaeff,"te");
-report(*ThetaI2,"t2i");
+//report(*Lw,"lw");
+//report(*Thetaeff,"te");
+//report(*ThetaI2,"t2i");
 
 }
 //---------------------------------------------------------------------------

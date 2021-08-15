@@ -100,7 +100,7 @@ void TWorld::OutputUI(void)
 
     op.SurfStormm = SurfStoremm;
 
-    op.IntercTotmm = IntercTotmm;
+    op.IntercTotmm = IntercTotmm + IntercETaTotmm;
     op.IntercLitterTotmm = IntercLitterTotmm;
     op.IntercHouseTotmm = IntercHouseTotmm;
 

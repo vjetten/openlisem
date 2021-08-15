@@ -102,7 +102,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -3912,6 +3912,9 @@
                          </item>
                          <item row="3" column="0" colspan="3">
                           <widget class="QCheckBox" name="checkDailyET">
+                           <property name="enabled">
+                            <bool>false</bool>
+                           </property>
                            <property name="font">
                             <font>
                              <pointsize>8</pointsize>
@@ -3925,7 +3928,7 @@
                             <string>ET data has a daily or larger timestep, sine distribution between sunrise and sunset is used</string>
                            </property>
                            <property name="checked">
-                            <bool>false</bool>
+                            <bool>true</bool>
                            </property>
                           </widget>
                          </item>
@@ -8657,7 +8660,7 @@ p, li { white-space: pre-wrap; }
                             <string>Loop kin wave when timestep (sec) &gt;</string>
                            </property>
                            <property name="checked">
-                            <bool>true</bool>
+                            <bool>false</bool>
                            </property>
                           </widget>
                          </item>

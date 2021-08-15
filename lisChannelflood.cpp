@@ -561,8 +561,7 @@ void TWorld::ChannelFlood(void)
 
         hmxflood->Drc = std::max(0.0, WHrunoff->Drc + hmx->Drc - minReportFloodHeight);
 
-        WaterVolall->Drc = DX->Drc * (WHrunoff->Drc*ChannelAdj->Drc + hmx->Drc * ChannelAdj->Drc
-                                      + WHstore->Drc*SoilWidthDX->Drc);
+        WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
         // all water on surface
 
         FloodWaterVol->Drc = hmxflood->Drc * CHAdjDX->Drc;
