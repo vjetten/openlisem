@@ -386,8 +386,9 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
 
                 }
 
-                fromChannelWHtoVol(rr, cr);
+                //fromChannelWHtoVol(rr, cr);
                 // do not recalc floodvol, MB errors
+                ChannelWaterVol->Drcr = ChannelWidth->Drcr * ChannelWH->Drcr * ChannelDX->Drcr;
 
                 // recalc channel water vol else big MB error
                 if(SwitchErosion) {

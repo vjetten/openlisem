@@ -149,7 +149,8 @@ void TWorld::OutputUI(void)
     //hydrographs
 
     // outlet 0 all flow
-    op.OutletQ.at(0)->append(QtotT * 1000.0/_dt); //QtotT is in m3
+    double factor = QUnits == 1 ? 1.0 : 1000.0;
+    op.OutletQ.at(0)->append(QtotT * factor/_dt); //QtotT is in m3
     op.OutletQtot.replace(0,Qtot);
     // total channel waterheightt? makes no sense
 //    double channelwh = 0;
@@ -164,11 +165,11 @@ void TWorld::OutputUI(void)
     {
         int r = op.OutletLocationX.at(j);
         int c = op.OutletLocationY.at(j);
-        double discharge = Qoutput->Drc; //sum of current Qn, ChannelQn, Qflood in l/s, not Tile!
+        double discharge = Qoutput->Drc;// sum of current Qn, ChannelQn, Qflood in l/s or m3/s, not Tile!
         double channelwh = SwitchIncludeChannel? ChannelWH->Drc : 0.0;
         op.OutletChannelWH.at(j)->append(std::isnan(channelwh)?0.0:channelwh);
 
-        op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * discharge/1000.0); //cumulative in m3/s
+        op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * discharge/(QUnits == 0 ? 1000.0 : 1.0)); //cumulative in m3/s
         op.OutletQ.at(j)->append(discharge);
 
         if (SwitchErosion) {
@@ -424,7 +425,8 @@ void TWorld::ReportTimeseriesNew(void)
     int width = (!SwitchWritePCRtimeplot ? 0 : 3+DIG-3);
     // NOTE if SwitchWriteCommaDelimited = true then SwitchWritePCRtimeplot = false
 
-    double QALL = QtotT * 1000.0/_dt; // total outflow on all sides in l/s, same as point 0 in interface
+
+    double QALL = QtotT * (QUnits == 1 ?  1.0 : 1000.0)/_dt; // total outflow on all sides in l/s, same as point 0 in interface
     double QSALL = SoilLossTotT;
 
     QFileInfo fi(resultDir + outflowFileName);
@@ -603,7 +605,7 @@ void TWorld::ReportTimeseriesNew(void)
     }  // opening files and writing header
 
     //######  open files and append values #####//
-
+    double factor = (QUnits == 1 ?  1.0 : 1000.0);
     if (SwitchSeparateOutput)
     {
        // #pragma omp parallel for num_threads(userCores)
@@ -631,7 +633,7 @@ void TWorld::ReportTimeseriesNew(void)
                 out << sep << QALL << sep << Qoutput->Drc;  //Qoutput is sum channel, of, tile
 
                 if (SwitchIncludeChannel) out << sep << ChannelWH->Drc;
-                if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
+                if (SwitchIncludeTile) out << sep << TileQn->Drc*factor;
                 if (SwitchErosion) out << sep << QSALL << sep << Qsoutput->Drc << sep << TotalConc->Drc;
                 out << "\n";
                 fout.close();

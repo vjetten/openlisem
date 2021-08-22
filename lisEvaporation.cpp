@@ -310,6 +310,7 @@ void TWorld::doETa()
             double tot = 0;
             double tmp = 0;
             double eta = 0;
+            double etanet = 0;
             double Cover_ = Cover->Drc;
 
             // interception decrease, drying out canopy
@@ -326,7 +327,8 @@ void TWorld::doETa()
                 // restart the cumulative process when CStor is dried out
 
                 eta = tmp - CStor_; // actual eta is store before-after
-                tot = tot + eta;
+                tot = tot + Cover_*eta;
+                etanet = Cover_*eta;
 
                 Interc->Drc = Cover_ * CStor_ * SoilWidthDX->Drc * DX->Drc;
                 IntercETa->Drc += Cover_ * eta * SoilWidthDX->Drc * DX->Drc;
@@ -335,60 +337,64 @@ void TWorld::doETa()
 
             }
 
-            //        bool ponded = hmxWH->Drc > 0;
-            //        if (!ponded) {
-            //            // soil moisture transpiration covered surface
-            //            double theta_e = Thetaeff->Drc/ThetaS1->Drc;
-            //            double f = 1+qPow(theta_e/0.5,6.0);
-            //            double ETa_soil1 = (1.0-1.0/f) * ETp_  * Cover_;  //Transpiration
-            //            double ETa_soil2 = theta_e * ETp_ * (1-Cover_);   //Evaporation
+            bool ponded = hmxWH->Drc > 0;
+            if (!ponded) {
+                double pore = Poreeff->Drc;
+                double theta = Thetaeff->Drc;
+                double thetar = 0.025*pore;
+                double Lw_ = Lw->Drc;
+                // soil moisture transpiration covered surface
+                double theta_e = (theta-thetar)/(pore-thetar);
+                double f = 1+qPow(theta_e/0.5,6.0);
+                double ETa_soil1 = (1.0-1.0/f) * etanet;//ETp_  * Cover_;  //Transpiration
+                double ETa_soil2 = theta_e * ETp_ * (1-Cover_);   //Evaporation
 
-            //            // there is an infiltration front
-            //            if (Lw->Drc > 0) {
-            //                tmp = Lw->Drc;
-            //                Lw->Drc = std::max(0.0, Lw->Drc - ETa_soil1-ETa_soil2);
-            //                eta = tmp - Lw->Drc;
-            //                tot = tot + eta;
-            //            } else {
-            //                // soil moisture evaporation bare surface
-            //                double moist = Thetaeff->Drc * SoilDepth1->Drc;
-            //                tmp = moist;
-            //                moist = std::max(0.0, moist - (ETa_soil1 + ETa_soil2);
-            //                eta = tmp - moist;
-            //                Thetaeff->Drc = moist/SoilDepth1->Drc;
-            //                tot = tot + eta;
-            //                // !!!!!!!!!! because soil moisture is not in MB
-            //            }
-            //        }
+                // there is an infiltration front
+                if (Lw_ > 0) {
+                    double moist = Lw_ * (pore-thetar);
+                    eta = std::min(moist, ETa_soil1-ETa_soil2);
 
-            //        // ETa = ETp for any ponded surfaces
-            //        if (ponded) {
-            //            double ETa_pond = ETp_;
-            //            if (FloodDomain->Drc > 0) {
-            //                ETa_pond = std::min(ETa_pond, hmx->Drc);
-            //                tmp = hmx->Drc;
-            //                hmx->Drc = hmx->Drc-ETa_pond;
-            //                eta = tmp - hmx->Drc;
-            //            } else {
-            //                double WHRunoff_ = WHrunoff->Drc;
-            //                ETa_pond = std::min(ETa_pond, WHRunoff_);
-            //                tmp = WHRunoff_;
-            //                WHRunoff_ = WHRunoff_-ETa_pond;
-            //                eta = tmp - WHRunoff_;
-            //                WHroad->Drc = WHRunoff_;
-            //                WH->Drc = WHRunoff_ + WHstore->Drc;
-            //                WHrunoff->Drc = WHRunoff_;
-            //            }
-            //            tot = tot + eta;
-            //            WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
-            //        }
+                    moist = moist - eta;
+                    Lw->Drc = moist/(pore-thetar);
+                    tot = tot + eta;
+                } else {
+                    // soil moisture evaporation bare surface
+                    double moist = (theta-thetar) * SoilDepth1->Drc;
+                    eta = std::min(moist, ETa_soil1-ETa_soil2);
+                    moist = moist - eta;
+                    Thetaeff->Drc = moist/SoilDepth1->Drc + thetar;
+                    tot = tot + eta;
+                }
+            }
+
+            // ETa = ETp for any ponded surfaces
+//            if (ponded) {
+//                double ETa_pond = ETp_;
+//                if (FloodDomain->Drc > 0) {
+//                    ETa_pond = std::min(ETa_pond, hmx->Drc);
+//                    tmp = hmx->Drc;
+//                    hmx->Drc = hmx->Drc-ETa_pond;
+//                    eta = tmp - hmx->Drc;
+//                } else {
+//                    double WHRunoff_ = WHrunoff->Drc;
+//                    ETa_pond = std::min(ETa_pond, WHRunoff_);
+//                    tmp = WHRunoff_;
+//                    WHRunoff_ = WHRunoff_-ETa_pond;
+//                    eta = tmp - WHRunoff_;
+//                    WHroad->Drc = WHRunoff_;
+//                    WH->Drc = WHRunoff_ + WHstore->Drc;
+//                    WHrunoff->Drc = WHRunoff_;
+//                }
+//                tot = tot + eta;
+//                WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
+//            }
 
             // put total Eta in Eta map
             ETa->Drc = tot;
             ETaCum->Drc += tot;
         }
-        if(r==100&&c==200)
-            qDebug()<< "e" << ETp->Drc << CStor->Drc << Rainc->Drc << RainCum->Drc << ETa->Drc << InterceptionmmCum->Drc;
+   //     if(r==100&&c==200)
+    //        qDebug()<< "e" << ETp->Drc << CStor->Drc << Rainc->Drc << RainCum->Drc << ETa->Drc << InterceptionmmCum->Drc;
 
     }}
 //    report(*Thetaeff,"ti");

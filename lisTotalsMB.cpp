@@ -75,7 +75,7 @@ void TWorld::Totals(void)
 
     if (SwitchIncludeET) {
        // double ETtot = MapTotal(*ETa);
-        ETaTot = 0;//MapTotal(*ETaCum);
+        ETaTot = MapTotal(*ETaCum);
 
 
     }
@@ -294,10 +294,14 @@ void TWorld::Totals(void)
     QtotT += K2DQOutBoun*_dt;
 
     // output fluxes for reporting to file and screen in l/s!]
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
-        Qoutput->Drc = 1000.0*(Qn->Drc + (SwitchIncludeChannel ? ChannelQn->Drc : 0.0) + Qflood->Drc);// in l/s
+        double factor = 1000.0;
+        if (QUnits == 1)
+            factor = 1.0;
+        Qoutput->Drc = factor*(Qn->Drc + (SwitchIncludeChannel ? ChannelQn->Drc : 0.0) + Qflood->Drc);// in l/s
+       // Qoutput->Drc += factor*ChannelQb->Drc;
         Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;
     }}
 
@@ -320,7 +324,7 @@ void TWorld::Totals(void)
     if (SwitchErosion)
     {
         SedTot = 0;
-#pragma omp parallel for reduction(+:DetSplashTot,DetFlowTot,DepTot,SedTot) num_threads(userCores)
+        #pragma omp parallel for reduction(+:DetSplashTot,DetFlowTot,DepTot,SedTot) num_threads(userCores)
         FOR_ROW_COL_MV_L {
         // Dep and Detflow are zero if 2Ddyn
             DetSplashTot += DETSplash->Drc;
@@ -332,7 +336,7 @@ void TWorld::Totals(void)
 
         DetTot = DetFlowTot + DetSplashTot;
 
-#pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             DETSplashCum->Drc += DETSplash->Drc;
             DETFlowCum->Drc += DETFlow->Drc;

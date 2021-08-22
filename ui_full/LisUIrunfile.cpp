@@ -173,6 +173,15 @@ void lisemqt::ParseInputData()
         if (p1.compare("Timeplot as PCRaster")==0)           checkWritePCRaster->setChecked(!check);
         if (p1.compare("Report point output separate")==0)   checkSeparateOutput->setChecked(check);
         //       if (p1.compare("Report point output for SOBEK")==0)  checkWriteSOBEK->setChecked(check);
+        if (p1.compare("Report discharge units")==0)
+        {
+            int units = p.toInt();
+            if (units == 0)
+                checkUnits_ls->setChecked(true);
+            if (units == 1)
+                checkUnits_m3s->setChecked(true);
+        }
+
         if (p1.compare("Report digits out")==0)              E_DigitsOut->setValue(iii);
         if (p1.compare("Report format GTiff")==0)            checkFormatGtiff->setChecked(check);
         if (p1.compare("End run report")==0)                 checkEndRunReport->setChecked(check);
@@ -1005,6 +1014,14 @@ void lisemqt::updateModelData()
         if (p1.compare("Water Repellency B")==0)        namelist[j].value.setNum(E_waterRep_b->value(),'g',6);
         if (p1.compare("Water Repellency C")==0)        namelist[j].value.setNum(E_waterRep_c->value(),'g',6);
         if (p1.compare("Water Repellency D")==0)        namelist[j].value.setNum(E_waterRep_d->value(),'g',6);
+
+        if (p1.compare("Report discharge units")==0)
+        {
+            if (checkUnits_ls->isChecked())
+                namelist[j].value.setNum(0);
+            if (checkUnits_m3s->isChecked())
+                namelist[j].value.setNum(1);
+        }
 
         if (p1.compare("Erosion map units (0/1/2)")==0)
         {

@@ -35,166 +35,7 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
-/* not used */
-double TWorld::channelVoltoWH(double vol, int r, int c)
-{
-    double cwh = 0;
-    if (vol == 0) {
-        return 0;
-    } else {
-        if (ChannelSide->Drc == 0) {
-            return(vol/(ChannelWidth->Drc*ChannelDX->Drc));
-        } else {
-            double maxvol = ChannelDX->Drc * (ChannelDepth->Drc*(ChannelFlowWidth->Drc+ChannelWidth->Drc)/2.0);
 
-            if (vol < maxvol) {
-                // water below surface, WH from abc rule
-                double aa = ChannelSide->Drc;  //=tan(a)
-                double bb = ChannelWidth->Drc; //=w
-                double cc = - vol/ChannelDX->Drc; //=area
-
-                cwh = std::max(0.0,(-bb+sqrt(bb*bb - 4.0*cc*aa))/(2.0*aa));
-                if (cwh < 0) {
-                    ErrorString = QString("Channel water height is negative at row %1, col %2").arg(r).arg(c);
-                    throw 1;
-                }
-            } else {
-                // water above surface, WH is depth + part sticking out
-                cwh = ChannelDepth->Drc + (ChannelWaterVol->Drc - maxvol)/(ChannelDX->Drc*ChannelFlowWidth->Drc);
-            }
-        }
-    }
-    return (cwh);
-}
-
-void TWorld::fromChannelVoltoWH(int r, int c)
-{
-
-    //    non-rectangular, ABC fornula
-    //            dw      w       dw
-    //         __|   |            |   |__ surface, above water becomes rectangular
-    //            \  |            |  /
-    //             \ |          h |a/  <= tan(a) is channelside = tan angle of side wall
-    //              \|____________|/
-    //            area = h*w + h*dw
-    //            tan(a) = dw/h, dw = h*tan(a) = h*side
-    //            area =volume/DX
-    //            tan(a)h^2 + w*h - area = 0
-    //            aa (h2)   +   bb(h) +  cc = 0
-
-    if (ChannelWaterVol->Drc == 0) {
-        ChannelWH->Drc = 0;
-        ChannelFlowWidth->Drc = 0;
-    } else {
-        if (ChannelSide->Drc == 0) {
-            ChannelFlowWidth->Drc = ChannelWidth->Drc;
-            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
-        } else {
-            double maxvol = ChannelDX->Drc * (ChannelDepth->Drc*(ChannelFlowWidth->Drc+ChannelWidth->Drc)/2.0);
-
-            if (ChannelWaterVol->Drc < maxvol) {
-                // water below surface, WH from abc rule
-                double aa = ChannelSide->Drc;  //=tan(a)
-                double bb = ChannelWidth->Drc; //=w
-                double cc = - ChannelWaterVol->Drc/ChannelDX->Drc; //=area
-
-                ChannelWH->Drc = std::max(0.0,(-bb+sqrt(bb*bb - 4.0*cc*aa))/(2.0*aa));
-                if (ChannelWH->Drc < 0) {
-                    ErrorString = QString("Channel water height is negative at row %1, col %2").arg(r).arg(c);
-                    throw 1;
-                }
-                ChannelFlowWidth->Drc = std::min(ChannelWidthMax->Drc, ChannelWidth->Drc + 2.0*ChannelSide->Drc * ChannelWH->Drc);
-            } else {
-                // water above surface, WH is depth + part sticking out
-                ChannelFlowWidth->Drc = ChannelWidthMax->Drc;
-                ChannelWH->Drc = ChannelDepth->Drc + (ChannelWaterVol->Drc - maxvol)/(ChannelDX->Drc*ChannelFlowWidth->Drc);
-            }
-        }
-    }
-}
-//---------------------------------------------------------------------------
-void TWorld::fromChannelWHtoVol(int r, int c)
-{
-    if (ChannelSide->Drc == 0) {
-        ChannelWaterVol->Drc = ChannelWidth->Drc * ChannelWH->Drc * ChannelDX->Drc;
-        ChannelFlowWidth->Drc = ChannelWidth->Drc;
-        return;
-    }
-    if (ChannelWH->Drc > ChannelDepth->Drc) {
-        ChannelFlowWidth->Drc = ChannelWidthMax->Drc;
-        ChannelWaterVol->Drc = (ChannelWidth->Drc + ChannelFlowWidth->Drc)*0.5 * ChannelDepth->Drc * ChannelDX->Drc +
-                (ChannelWH->Drc - ChannelDepth->Drc)*ChannelWidthMax->Drc;
-    } else {
-        ChannelFlowWidth->Drc = ChannelWidth->Drc + ChannelWH->Drc*ChannelSide->Drc*2.0;
-        ChannelWaterVol->Drc = (ChannelWidth->Drc + ChannelFlowWidth->Drc)*0.5 * ChannelWH->Drc * ChannelDX->Drc;
-    }
-
-}
-//---------------------------------------------------------------------------
-/* NOT USED */
-
-// V, alpha and Q in the channel, called after overland flow vol to channel
-// called after flood and uses new channel flood water height
-
-//OBSOLETE
-void TWorld::CalcVelDischChannel()
-{
-    if (!SwitchIncludeChannel)
-        return;
-    if(!SwitchChannelKinWave)
-        return;
-
-    /*
-    dw      FW      dw
-   \  |            |  /
-    \ |         wh | /
-     \|____________|/
-  */
-#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_CHL  {
-        double Perim, Radius, Area;
-        double grad = sqrt(ChannelGrad->Drc);
-
-        ChannelFlowWidth->Drc = ChannelWidth->Drc;
-        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
-
-        double wh = ChannelWH->Drc;
-        double FW = ChannelFlowWidth->Drc;
-
-        if (ChannelSide->Drc > 0)
-        {
-            double dw = ChannelSide->Drc * wh;
-            Perim = FW + 2.0*wh/cos(atan(ChannelSide->Drc));
-            Area = FW*wh + wh*dw;
-        }
-        else
-        {
-            Perim = FW + 2.0*wh;
-            Area = FW*wh;
-        }
-
-        Radius = (Perim > 0 ? Area/Perim : 0);
-
-        if (grad > MIN_SLOPE)
-            ChannelAlpha->Drc = std::pow(ChannelN->Drc/grad * std::pow(Perim, 2.0/3.0),0.6);
-        else
-            ChannelAlpha->Drc = 0;
-
-        if (ChannelAlpha->Drc > 0) {
-            ChannelQ->Drc = std::pow(Area/ChannelAlpha->Drc, 1.0/0.6);
-            if (SwitchCulverts) {
-                if (ChannelMaxQ->Drc > 0 && ChannelQ->Drc > ChannelMaxQ->Drc){
-                    ChannelAlpha->Drc = Area/std::pow(ChannelMaxQ->Drc, 0.6);
-                    ChannelQ->Drc = ChannelMaxQ->Drc;
-                }
-            }
-        }
-        else
-            ChannelQ->Drc = 0;
-
-        ChannelV->Drc = std::pow(Radius, 2.0/3.0)*grad/ChannelN->Drc;
-    }}
-}
 //---------------------------------------------------------------------------
 void TWorld::ChannelAddBaseandRain(void)
 {
@@ -244,42 +85,13 @@ void TWorld::ChannelWaterHeightFromVolume()
     if(!SwitchIncludeChannel)
         return;
 
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(!pcr::isMV(LDDChannel->Drc)) {
             ChannelFlowWidth->Drc = ChannelWidth->Drc;
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 //            fromChannelVoltoWH(r, c);
         }
-    }}
-}
-
-double TWorld::getMassCH(cTMap *M)
-{
-    double sum2 = 0;
-    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
-        sum2 += M->Drc*ChannelDX->Drc*ChannelWidth->Drc;
-    }}
-    return sum2;
-}
-void TWorld::correctMassBalanceCH(double sum1, cTMap *M)
-{
-    double sum2 = 0;
-    double n = 0;
-
-#pragma omp parallel for reduction(+:sum2) num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
-        sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
-        n += 1;
-    }}
-    // total and cells active for M
-    double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
-
-#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
-        M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
-        M->Drc = std::max(M->Drc , 0.0);
     }}
 }
 //---------------------------------------------------------------------------
@@ -293,7 +105,7 @@ void TWorld::ChannelFlow(void)
    // double sumch = getMassCH(ChannelWH);
 
     // velocity, alpha, Q
-#pragma omp parallel num_threads(userCores)
+    #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
 
         // calc velocity and Q
@@ -303,15 +115,6 @@ void TWorld::ChannelFlow(void)
         ChannelQ->Drc = 0;
 
         double MaxQ = ChannelMaxQ->Drc;
-
-        //        if (SwitchCulverts && MaxQ > 0) {
-        //            ChannelWaterVol->Drc = std::min(ChannelWaterVol->Drc, CulvertWidth*CulvertHeight*ChannelDX->Drc);
-        //            ChannelWH->Drc = std::min(ChannelWH->Drc, CulvertHeight);
-        //            ChannelWidth->Drc = CulvertWidth;
-        //            ChannelFlowWidth->Drc = CulvertWidth;
-        //            ChannelN->Drc = CulvertN;
-        //            ChannelGrad->Drc = CulvertS;
-        //        }
 
         double wh = ChannelWH->Drc;
 
@@ -325,6 +128,12 @@ void TWorld::ChannelFlow(void)
 
             Perim = FW + 2.0*wh;
             Area = FW*wh;
+
+            if (SwitchChannelAdjustCHW) {
+                double whn = wh * (ChannelDepth->Drc/ChannelDepthO->Drc);
+                Area = ChannelWidthO->Drc*whn;
+                Perim = ChannelWidthO->Drc + whn*2;
+            }
             Radius = (Perim > 0 ? Area/Perim : 0);
 
             if (sqrtgrad > MIN_SLOPE) {
@@ -344,6 +153,7 @@ void TWorld::ChannelFlow(void)
                     }
                 }
             }
+            //ChannelQb->Drc = 0.01 * ChannelQ->Drc;
         }
 
         ChannelQsn->Drc = 0;
@@ -519,34 +329,33 @@ void TWorld::ChannelFlow(void)
 }
 
 
-        // NOT USED!
-void TWorld::ChannelFillDam(void)
+/* not used */
+double TWorld::getMassCH(cTMap *M)
 {
-    if (!SwitchIncludeChannel)
-        return;
-    if (!SwitchBuffers)
-        return;
-
-    for (int i = 0; i < nrBuffers; i++)
-        bufferarea[i].h = 0;
-
-    FOR_ROW_COL_MV_L {
-         double Qout = 0;
-        if (LDDChannel->Drc == 5 && BufferNr->Drc > 0) {
-            Qout = ChannelQn->Drc * _dt;
-            int i = (int)BufferNr->Drc;
-            bufferarea[i].h += Qout/bufferarea[i].area;
-            ChannelQn->Drc = 0;
-            //qDebug() << i << Qout << bufferarea[i].h << bufferarea[i].area << bufferarea[i].ID;
-        }
+    double sum2 = 0;
+    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        sum2 += M->Drc*ChannelDX->Drc*ChannelWidth->Drc;
     }}
+    return sum2;
+}
+/* not used */
+void TWorld::correctMassBalanceCH(double sum1, cTMap *M)
+{
+    double sum2 = 0;
+    double n = 0;
 
-    FOR_ROW_COL_MV_L {
-    if (BufferNr->Drc > 0) {
-        int i = (int)BufferNr->Drc;
-        WHrunoff->Drc += bufferarea[i].h;
-    }
-}}
+    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
+        n += 1;
+    }}
+    // total and cells active for M
+    double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
 
-
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
+        M->Drc = std::max(M->Drc , 0.0);
+    }}
 }

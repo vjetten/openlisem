@@ -255,35 +255,13 @@ void TWorld::DoModel()
             }
             // check if user wants to quit or pause
 
-            // get meteo data
-            if (SwitchRainfallSatellite)
-                GetRainfallMap();         // get rainfall from maps
-            else
-                GetRainfallMapfromStations();         // get rainfall from stations
+            GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
 
-            if (SwitchIncludeET) {
-                if (SwitchETSatellite)
-                    GetETSatMap(); // get rainfall from maps
-                else
-                    GetETMap();   // get rainfall from stations
-            }
-
-            if (SwitchSnowmelt) {
-                if (SwitchSnowmeltSatellite)
-                    ; //TODO snowmelt satellite
-                else
-                    GetSnowmeltMap();  // get snowmelt from stations
-            }
-
-            CellProcesses();  // hydrological processes in one loop, incl splash
-
-            ToTiledrain();   // fraction going into tiledrain directly from surface
+            HydrologyProcesses();  // hydrological processes in one loop, incl splash
 
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
-            ChannelAddBaseandRain();  // add baseflow o, subtract infil, add rainfall
-
-            OrderedProcesses();    // do ordered LDD solutions channel, tiles, drains, non threaded
+            ChannelandTileflow();    // do ordered LDD solutions channel, tiles, drains, non threaded
 
             Totals();            // calculate all totals and cumulative values
 
@@ -291,7 +269,7 @@ void TWorld::DoModel()
 
             OutputUI();          // fill the "op" structure for screen output and calc some output maps
 
-            reportAll();
+            reportAll();         // report maps and files to screen and disk
 
             emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
 
@@ -304,31 +282,48 @@ void TWorld::DoModel()
         if (SwitchEndRun)
             ReportMaps();
 
-        DestroyData();  // destroy all maps automatically        
-        DEBUG("Data structures freed");
+        DEBUG("Free data structure memory");
+        DestroyData();  // destroy all maps automatically
 
         emit done("finished");
 
         //???????????
-        if(batchmode)
-            QApplication::quit();
+//        if(batchmode)
+//            QApplication::quit();
     }
     catch(...)  // if an error occurred
     {
         DestroyData();
 
-//        if (!noInterface)
-            emit done("ERROR STOP: "+ErrorString);
-//        else
-//        {
-//            qDebug() << "ERROR STOP: "+ErrorString;
-//          if(batchmode)
-//                QApplication::quit();
-//        }
+        emit done("ERROR STOP: "+ErrorString);
     }
 }
 //---------------------------------------------------------------------------
-void TWorld::CellProcesses()
+void TWorld::GetInputTimeseries()
+{
+    // get meteo data
+    if (SwitchRainfallSatellite)
+        GetRainfallMap();         // get rainfall from maps
+    else
+        GetRainfallMapfromStations();         // get rainfall from stations
+
+    if (SwitchIncludeET) {
+        if (SwitchETSatellite)
+            GetETSatMap(); // get rainfall from maps
+        else
+            GetETMap();   // get rainfall from stations
+    }
+
+    if (SwitchSnowmelt) {
+        if (SwitchSnowmeltSatellite)
+            ; //TODO snowmelt satellite
+        else
+            GetSnowmeltMap();  // get snowmelt from stations
+    }
+
+}
+//---------------------------------------------------------------------------
+void TWorld::HydrologyProcesses()
 {
 
     #pragma omp parallel for num_threads(userCores)
@@ -386,9 +381,11 @@ void TWorld::CellProcesses()
 }
 //---------------------------------------------------------------------------
 // these are all non-threaded
-void TWorld::OrderedProcesses()
+void TWorld::ChannelandTileflow()
 {
     SwitchChannelKinWave = true;// set to false for experimental swof in channel
+
+    ChannelAddBaseandRain();  // add baseflow o, subtract infil, add rainfall
 
     ChannelFlow();            //channel kin wave for water and sediment
 

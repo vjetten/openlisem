@@ -262,8 +262,12 @@ void TWorld::GetComboMaps()
     setLegendColors();
 
     int cl = 0;
-    AddComboMap(0,"Total Discharge","l/s",Qoutput,LegendMap[cl],Legend[cl],true,false,1.0, 1.0);
-  //  if (FlowBoundaryType > 0)
+    if (QUnits == 0)
+        AddComboMap(0,"Total Discharge","l/s",Qoutput,LegendMap[cl],Legend[cl],true,false,1.0, 1.0);
+    else
+        AddComboMap(0,"Total Discharge","m3/s",Qoutput,LegendMap[cl],Legend[cl],true,false,1.0, 0.001);
+
+    //  if (FlowBoundaryType > 0)
   //  AddComboMap(0,"Boundary Discharge","l/s",K2DQ,LegendMap[cl],Legend[cl],true,false,1000.0, 1.0);
 
     cl = 2;
@@ -285,7 +289,10 @@ void TWorld::GetComboMaps()
 //        setColor(2);
 //        AddComboMap(0,"Channel Velocity","m/s",extVCH,Colormap,Colors,false,false,1.0,0.01);
         cl = 0;
-        AddComboMap(0,"Channel Discharge","l/s",ChannelQn,LegendMap[cl],Legend[cl],true,false,1000.0, 1.0);
+        if (QUnits == 0)
+            AddComboMap(0,"Channel Discharge","l/s",ChannelQn,LegendMap[cl],Legend[cl],true,false,1000.0, 1.0);
+        else
+            AddComboMap(0,"Channel Discharge","m3/s",ChannelQn,LegendMap[cl],Legend[cl],true,false,1.0, 0.001);
         cl = 2;
         AddComboMap(0,"Channel Water Height","m",ChannelWH,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
         cl = 1;

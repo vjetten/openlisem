@@ -45,20 +45,19 @@
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow(void)
 {
+    ToTiledrain();   // fraction going into tiledrain directly from surface
 
     if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
 
         CalcVelDisch();        // overland flow velocity, discharge and alpha
 
         if (SwitchErosion) {
-#pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L  {
-
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L  {
                 cell_FlowDetachment(r, c);   // flow detachment
-
-            //ToChannel(r, c);           // overland flow water and sed flux going into or out of channel, in channel cells
-        }}
-    }
+                //ToChannel(r, c);           // overland flow water and sed flux going into or out of channel, in channel cells
+            }}
+        }
 
         ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
         OverlandFlow1D();   // kinematic wave
@@ -91,11 +90,6 @@ void TWorld::ToChannel() //(int r, int c)
     if (ChannelWidth->Drc > 0 && WHrunoff->Drc > HMIN && hmx->Drc < HMIN)
     {
         double fractiontochannel;
-
-//        if (WHrunoff->Drc < HMIN)
-//            return;
-//        if (hmx->Drc > HMIN)
-//            return;
 
         double VtoChan = V->Drc;
    //     if (F_AddGravity == 1)

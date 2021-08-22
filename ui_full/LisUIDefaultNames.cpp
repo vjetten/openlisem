@@ -226,6 +226,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Add timestamp");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("report discharge units");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Timeplot as PCRaster");
     namelist[i].value = QString("3");
     namelist[i++].name = QString("Report digits out");

@@ -391,6 +391,9 @@ public:
     /// erosion units in output: to/ha; kg/cell; kg/m2
     int ErosionUnits;
 
+    /// discharge units in output: l/s or m3/s
+    int QUnits;
+
     /// type of kinetic energy equation;
     int KEequationType;
 
@@ -783,6 +786,7 @@ public:
 
     // 1D hydro processes
     //input timeseries
+    void GetInputTimeseries();
     void GetDischargeData(QString name);
     void GetRainfallData(QString name);   // get input timeseries
     void GetSpatialMeteoData(QString name, int type);   // get input timeseries
@@ -817,7 +821,6 @@ public:
     void cell_SplashDetachment(int r, int c, double WH);
     void cell_SurfaceStorage(int r, int c);
 
-
     void InfilEffectiveKsat();
     void Infiltration();
     void InfilSwatre();
@@ -833,6 +836,9 @@ public:
     void OverlandFlow();
     void OverlandFlow2D();
     void correctWH(cTMap *_WH);
+
+    void HydrologyProcesses();
+    void ChannelandTileflow();
 
     void OverlandFlow1D(void);
     void ChannelFlow();
@@ -922,7 +928,6 @@ public:
     ZONE *zone;
     double precision;
     int tnode; //VJ 110122 node nr in profile with tile drains
-
     SOIL_MODEL *InitSwatre(cTMap *profileMap);//, QString initHeadMaps, cTMap *tiledepthMap, double dtMin);
     void SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta);//, cTMap *where);
     void CloseSwatre(SOIL_MODEL *s);
@@ -939,7 +944,6 @@ public:
     void ReadSwatreInputNew(void);
     ZONE *ReadNodeDefinitionNew(void);
     PROFILE *ReadProfileDefinitionNew(int pos, ZONE *z);
-
     HORIZON *ReadHorizon(const char *tablePath,	const  char *tableName);
     double *ReadSoilTable(const char *fileName, int *nrRows);
     void ReadCols(const char *fileName, double *inLut, const char *buf, int   n);
@@ -951,6 +955,7 @@ public:
                         double precParam, double dtMin, double dtMax);
     void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
                          double drainfraction, double *repel, double *Theta, SOIL_MODEL *s);
+
 
     double MapTotal(cTMap &M);
     void Totals(void);
@@ -988,11 +993,6 @@ public:
     QList<double> TSList_h;
     QList<double> TSList_qs;
     QList<double> TSList_c;
-
-
-    void CellProcesses();
-    void CellProcesses2();
-    void OrderedProcesses();
 
 protected:
     void run();
