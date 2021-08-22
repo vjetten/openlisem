@@ -282,7 +282,6 @@ void lisemqt::worldDone(const QString &results)
 
     if (doBatchmode)
         close();
-
 }
 //---------------------------------------------------------------------------
 // this function is linked to the debug signal emitted from the model world

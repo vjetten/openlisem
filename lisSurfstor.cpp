@@ -46,8 +46,9 @@ void TWorld::GridCell()
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double dxa = _dx;
-        if(SwitchIncludeChannel && ChannelWidthMax->Drc > 0) {
-            dxa = std::max(0.05, _dx - ChannelWidthMax->Drc);
+        if(SwitchIncludeChannel && ChannelWidth->Drc > 0) {
+            dxa = std::max(0.05, _dx - ChannelWidth->Drc);
+            // use adjusted chnnelwidth here to avoid negative adj
             //        dxa = std::max(0.05, _dx - ChannelWidthExtended->Drc);
 
             if (SwitchCulverts)

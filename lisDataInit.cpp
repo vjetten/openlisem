@@ -807,7 +807,7 @@ void TWorld::InitChannel(void)
         return;
 
     //SedToChannel = NewMap(0);
-    ChannelFlowWidth = NewMap(0);
+    //ChannelFlowWidth = NewMap(0);
     ChannelWidthMax = NewMap(0);
     ChannelWaterVol = NewMap(0);
     //ChannelBLWaterVol = NewMap(0);
@@ -896,12 +896,8 @@ void TWorld::InitChannel(void)
         cover(*ChannelWidth, *LDD,0);
         cover(*ChannelDepth, *LDD,0);
 
-
-
-        if (SwitchChannelAdjustCHW) {
-            ChannelWidthO = NewMap(0);
-            ChannelDepthO = NewMap(0);
-        }
+        ChannelWidthO = NewMap(0);
+        ChannelDepthO = NewMap(0);
 
         bool correct = false;
         FOR_ROW_COL_MV_CH
@@ -912,8 +908,6 @@ void TWorld::InitChannel(void)
             double factor  = 1.0;
             if (SwitchChannelAdjustCHW && ChannelWidth->Drc  > 0.95* _dx) {
 
-                ChannelWidthO->Drc = ChannelWidth->Drc;
-                ChannelDepthO->Drc = ChannelDepth->Drc;
                 factor = ChannelWidth->Drc /(0.95*_dx);
                 ChannelWidth->Drc = 0.95*_dx;
                 ChannelDepth->Drc *= factor;                                
@@ -921,6 +915,7 @@ void TWorld::InitChannel(void)
                 correct = true;
             } else {
                 ChannelWidth->Drc = std::min(ChannelWidth->Drc, 0.95*_dx);
+                ChannelWidthO->Drc = ChannelWidth->Drc;
             }
 
             if (ChannelWidth->Drc <= 0)
@@ -969,30 +964,13 @@ void TWorld::InitChannel(void)
 
         FOR_ROW_COL_MV_CH
         {
-//            if (ChannelSide->Drc > 0) {
-//                double w = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc;
-//                if (w > 0.95*_dx) {
-//                    ChannelSide->Drc = 0.025*_dx/ChannelDepth->Drc;
-//                    w = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc;
-//                }
-//                ChannelWidth->Drc  = 0.5*(w + ChannelWidth->Drc);
-//                ChannelSide->Drc = 0;
-//            } else
-            ChannelWidthMax->Drc = ChannelWidth->Drc;
+            ChannelWidthMax->Drc = ChannelWidth->Drc; // not used!
             // make always a rectangular channel
-
-            // top width
-            //            ChannelWidthMax->Drc = ChannelWidth->Drc + ChannelDepth->Drc * 2.0 * ChannelSide->Drc;
-            //            if (ChannelWidthMax->Drc > 0.95*_dx && ChannelSide->Drc > 0) {
-            //               ChannelSide->Drc = 0.025*_dx/ChannelDepth->Drc;
-            //               ChannelWidthMax->Drc = 0.95*_dx;
-            //            }
-            // can be more than _dx
             ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
         }
 
-        copy(*ChannelFlowWidth, *ChannelWidth); // actual width related to water height in channel
-        cover(*ChannelFlowWidth, *LDD, 0);
+        //copy(*ChannelFlowWidth, *ChannelWidth); // actual width related to water height in channel
+        //cover(*ChannelFlowWidth, *LDD, 0);
 
         if(SwitchErosion) {
             TotalChanDetMap = NewMap(0);
@@ -2523,7 +2501,7 @@ void TWorld::FindBaseFlow()
                                     double P,R;
                                     double wh = h;
                                     double FW = ChannelWidth->Drc;
-                                    double dw = (ChannelFlowWidth->Drc - FW); // extra width when non-rectamgular
+                                    double dw = (ChannelWidth->Drc - FW); // extra width when non-rectamgular
                                     //double dww = dw;
 
                                     if (dw > 0)

@@ -113,7 +113,7 @@ void TWorld::ToChannel() //(int r, int c)
             // water diverted to the channel
             ChannelWaterVol->Drc += dwh* FlowWidth->Drc * DX->Drc;
             //  fromChannelVoltoWH(rr, cr);
-            ChannelFlowWidth->Drc = ChannelWidth->Drc;
+            //ChannelFlowWidth->Drc = ChannelWidth->Drc;
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 
             WHrunoff->Drc -= dwh ;
@@ -318,7 +318,7 @@ void TWorld::OverlandFlow2Ddyn(void)
     //VJ new average flux over lisem timestep, else last Qn is used
 
     //  infilInWave(WHrunoff, _dt);
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
         Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
@@ -327,7 +327,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 
     Boundary2Ddyn();//WHrunoff, Qn, Uflood, Vflood);  // do the domain boundaries
 
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double WHR = WHrunoff->Drc;
 

@@ -79,13 +79,13 @@ void TWorld::ChannelFlowDetachmentNew()
         RiverSedimentLayerDepth(r,c);
         //creates ChannelBLDepth and ChannelSSDepth, if 1 layer ChannelBLDepth = 0
 
-        double sswatervol = ChannelSSDepth->Drc*DX->Drc*ChannelFlowWidth->Drc;
-        double ssdischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelSSDepth->Drc;
+        double sswatervol = ChannelSSDepth->Drc*DX->Drc*ChannelWidth->Drc;
+        double ssdischarge = ChannelV->Drc * ChannelWidth->Drc * ChannelSSDepth->Drc;
         double blwatervol = 0;
         double bldischarge = 0;
         if (SwitchUse2Phase) {
-            blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelFlowWidth->Drc;
-            bldischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelBLDepth->Drc;
+            blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelWidth->Drc;
+            bldischarge = ChannelV->Drc * ChannelWidth->Drc * ChannelBLDepth->Drc;
         }
 
         //get transport capacity for bed/suspended load for a specific cell and grain size class
@@ -161,11 +161,11 @@ void TWorld::ChannelFlowDetachmentNew()
             } else {
 
                 //  detachment
-                TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelFlowWidth->Drc;
+                TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
                 TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
                 // use discharge because standing water has no erosion
 
-                //NB ChannelFlowWidth and ChannelWidth the same woith rect channel
+                //NB ChannelWidth and ChannelWidth the same woith rect channel
                 detachment = maxTC * TransportFactor;
                 // cannot have more detachment than remaining capacity in flow
 
@@ -206,7 +206,7 @@ void TWorld::ChannelFlowDetachmentNew()
 
                     if (maxTC > 0) {
                         //### detachment
-                        TransportFactor = _dt*TSettlingVelocityBL * ChannelDX->Drc * ChannelFlowWidth->Drc;
+                        TransportFactor = _dt*TSettlingVelocityBL * ChannelDX->Drc * ChannelWidth->Drc;
                         TransportFactor = std::min(TransportFactor, bldischarge*_dt);
 
                         // units s * m/s * m * m = m3
@@ -265,13 +265,13 @@ void TWorld::ChannelFlowDetachment()
         RiverSedimentLayerDepth(r,c);
         //creates ChannelBLDepth and ChannelSSDepth, if 1 layer ChannelBLDepth = 0
 
-        double sswatervol = ChannelSSDepth->Drc*DX->Drc*ChannelFlowWidth->Drc;
-        double ssdischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelSSDepth->Drc;
+        double sswatervol = ChannelSSDepth->Drc*DX->Drc*ChannelWidth->Drc;
+        double ssdischarge = ChannelV->Drc * ChannelWidth->Drc * ChannelSSDepth->Drc;
         double blwatervol = 0;
         double bldischarge = 0;
         if (SwitchUse2Phase) {
-            blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelFlowWidth->Drc;
-            bldischarge = ChannelV->Drc * ChannelFlowWidth->Drc * ChannelBLDepth->Drc;
+            blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelWidth->Drc;
+            bldischarge = ChannelV->Drc * ChannelWidth->Drc * ChannelBLDepth->Drc;
         }
 
         //iterator is number of grain classes
@@ -453,12 +453,12 @@ void TWorld::ChannelFlowDetachment()
                     //    if (maxTC > 0) {
 
                     //  detachment
-                    TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelFlowWidth->Drc;
+                    TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
                     TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
                     //TransportFactor = ssdischarge*_dt;
                     // use discharge because standing water has no erosion
 
-                    //NB ChannelFlowWidth and ChannelWidth the same woith rect channel
+                    //NB ChannelWidth and ChannelWidth the same woith rect channel
                     detachment = TW->Drc * maxTC * TransportFactor;
                     // cannot have more detachment than remaining capacity in flow
 
@@ -502,7 +502,7 @@ void TWorld::ChannelFlowDetachment()
 
                         if (maxTC > 0) {
                             //### detachment
-                            TransportFactor = _dt*TSettlingVelocityBL * ChannelDX->Drc * ChannelFlowWidth->Drc;
+                            TransportFactor = _dt*TSettlingVelocityBL * ChannelDX->Drc * ChannelWidth->Drc;
                             //              TransportFactor = std::min(TransportFactor, bldischarge*_dt);
                             //              TransportFactor = bldischarge*_dt;
 
@@ -572,8 +572,8 @@ void TWorld::ChannelFlowDetachment()
             //                }
             //                ChannelSSSed->Drc += RSS_D.Drcd;
 
-            //                RBLC_D.Drcd = MaxConcentration(ChannelFlowWidth->Drc*DX->Drc*RBLD_D.Drcd, &RBL_D.Drcd, &ChannelDep->Drc);
-            //                sssmax = MAXCONCBL * DX->Drc *ChannelFlowWidth->Drc*RBLD_D.Drcd;
+            //                RBLC_D.Drcd = MaxConcentration(ChannelWidth->Drc*DX->Drc*RBLD_D.Drcd, &RBL_D.Drcd, &ChannelDep->Drc);
+            //                sssmax = MAXCONCBL * DX->Drc *ChannelWidth->Drc*RBLD_D.Drcd;
             //                if(sssmax < BL_D.Drcd) {
             //                    ChannelDep->Drc -= (RBL_D.Drcd - sssmax);
             //                    RBL_D.Drcd = sssmax;

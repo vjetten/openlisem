@@ -170,6 +170,8 @@ lisemqt::~lisemqt()
 {
     if (!doBatchmode)
         StorePath();
+    qDebug() << "here7";
+
 }
 //--------------------------------------------------------------------
 // NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)

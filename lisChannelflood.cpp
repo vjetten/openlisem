@@ -52,7 +52,6 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
 //    if (!SwitchChannelKinWave)
 //        return;
 
-
     cTMap *_SS;
     cTMap *_SSC;
     if (SwitchErosion) {
@@ -103,7 +102,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
             double fracC = std::min(1.0, _dt*VfromChan/(0.5*ChannelAdj->Drc));
             // fraction from channel to surrounding based on overflow height and manning
 
-            double cwa = ChannelAdj->Drc > 0 ? ChannelWidthMax->Drc/ChannelAdj->Drc : 0;
+            double cwa = ChannelAdj->Drc > 0 ? ChannelWidth->Drc/ChannelAdj->Drc : 0;
 
             bool dosimpel = false;
 
@@ -120,7 +119,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                     ChannelWH->Drc -= dwh;
 
                     if(SwitchErosion) {
-                        double sed = ChannelWH->Drc > 0 ? dwh/ChannelWH->Drc * ChannelSSSed->Drc : 0; //* ChannelDX->Drc * ChannelWidthMax->Drc * ChannelSSConc->Drc;
+                        double sed = ChannelWH->Drc > 0 ? dwh/ChannelWH->Drc * ChannelSSSed->Drc : 0;
                         ChannelSSSed->Drc -= sed;
                         _SS->Drc += sed;
                     }
@@ -147,7 +146,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
             // instantaneous waterlevel exquilibrium acccross channel and adjacent
             if (dosimpel)
             {
-                double fc = ChannelWidthMax->Drc/_dx;
+                double fc = ChannelWidthO->Drc/_dx;
                 // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
                 double whlevel = (ChannelWH->Drc-chdepth)*fc + _h->Drc*(1-fc);
                 // equilibrium water level = weighed values of channel surplus level + _h
@@ -273,7 +272,7 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
                 double fracC = std::min(1.0, _dt*VfromChan/(0.5*_dx));
                 // fraction from channel to surrounding based on overflow height and manning
 
-                double cwa = ChannelAdj->Drc > 0 ? ChannelWidthMax->Drcr/ChannelAdj->Drc : 0;
+                double cwa = ChannelAdj->Drc > 0 ? ChannelWidthO->Drcr/ChannelAdj->Drc : 0;
 
                 bool dosimpel = false;
 
@@ -289,9 +288,7 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
                         ChannelWH->Drcr -= dwh;
 
                         if(SwitchErosion) {
-                            //double sed = fracC*ChannelSSSed->Drcr;
                             double sed = dwh/ChannelWH->Drc * ChannelSSSed->Drcr;//
-                            //double sed = dwh * ChannelDX->Drcr * ChannelWidthMax->Drcr * ChannelSSConc->Drcr;
                             ChannelSSSed->Drcr -= sed;
                             _SS->Drcr += sed;
                         }
@@ -342,7 +339,7 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
                 // instantaneous waterlevel exquilibrium acccross channel and adjacent
                 if (dosimpel)
                 {
-                    double fc = ChannelWidthMax->Drcr/_dx;
+                    double fc = ChannelWidthO->Drcr/_dx;
 //                    double totvol = ChannelWaterVol->Drc + _h->Drc*ChannelAdj->Drc*DX->Drc;
 //                    double chvol = totvol*fc;
 //                    double ofvol = totvol*(1-fc);

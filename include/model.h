@@ -847,7 +847,6 @@ public:
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
     void ChannelAddBaseandRain();
-    void ChannelWaterHeightFromVolume();
     void ToChannel();//int r, int c);
     void ToFlood();
     void CalcVelDisch(); //(int r, int c);
