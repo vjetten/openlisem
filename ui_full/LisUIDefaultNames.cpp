@@ -50,7 +50,8 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;LDD;ldd.map;Local surface Drainage Direction network;ldd");
     DEFmaps.append("2;Outlet;outlet.map;Main catchment outlet corresponding to LDD map;outlet");
     DEFmaps.append("2;Points;outpoint.map;Reporting points for hydrograph/sedigraph (1,2,3,...);outpoint");
-    DEFmaps.append("2;Watersheds;watersheds.map;sub-catchments numbered (1,2,3,...);wsheds");
+   // DEFmaps.append("2;Watersheds;watersheds.map;sub-catchments numbered (1,2,3,...);wsheds");
+    DEFmaps.append("2;Baseflow reach;basereach.map;Distance to river (m);basereach");
 
     DEFmaps.append("0;Landuse");
     DEFmaps.append("2;Units;landunit.map;Classified land unit map (integers 0-n) for output of erosion values;landunit");
@@ -408,6 +409,12 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Use SWOF watersheds");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood solution");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("GW recharge factor");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("GW flow factor");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("GW slope factor");
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Advanced]");
@@ -520,6 +527,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("[Calibration]");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Grain Size calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Smax calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Ksat calibration");
     namelist[i].value = QString("1.0");

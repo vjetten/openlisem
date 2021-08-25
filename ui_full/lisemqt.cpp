@@ -170,8 +170,6 @@ lisemqt::~lisemqt()
 {
     if (!doBatchmode)
         StorePath();
-    qDebug() << "here7";
-
 }
 //--------------------------------------------------------------------
 // NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
@@ -1594,6 +1592,7 @@ void lisemqt::resetTabOptions()
     checkChannelInflow->setChecked(false);
     checkChannelAdjustCHW->setChecked(false);
 
+
     checkRoadsystem->setChecked(false);
     checkHouses->setChecked(false);
     checkHardsurface->setChecked(false);
@@ -1604,6 +1603,7 @@ void lisemqt::resetTabOptions()
 void lisemqt::resetTabCalibration()
 {
     //calibration
+    E_CalibrateSmax->setValue(1.0);
     E_CalibrateKsat->setValue(1.0);
     E_CalibrateN->setValue(1.0);
     E_CalibrateTheta->setValue(1.0);
@@ -1654,6 +1654,9 @@ void lisemqt::resetTabFlow()
     rb_swof2->setChecked(true);
     E_TimestepMinFlood->setValue(0.2);
     E_courantFactor->setValue(0.2);
+    GW_recharge->setValue(1.0);
+    GW_flow->setValue(1.0);
+    GW_slope->setValue(1.0);
 }
 //--------------------------------------------------------------------
 void lisemqt::resetTabSediment()

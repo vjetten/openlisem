@@ -403,10 +403,15 @@ public:
     double KEParamater_a3, KEParamater_b3;
 
 
+    double GW_recharge;
+    double GW_flow;
+    double GW_slope;
+
     double totetafac;
 
     /// calibration parameters
     double gsizeCalibration;
+    double SmaxCalibration;
     double ksatCalibration;
     double nCalibration;
     double thetaCalibration;
@@ -847,6 +852,7 @@ public:
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
     void ChannelAddBaseandRain();
+    void accuflux(cTMap *M);
     void ToChannel();//int r, int c);
     void ToFlood();
     void CalcVelDisch(); //(int r, int c);
@@ -900,7 +906,7 @@ public:
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
     void KinematicExplicit(QVector<LDD_COORIN> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
     void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
-
+    void Accuflux(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
     //LDD_COOR *_crlinked_
     QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
 

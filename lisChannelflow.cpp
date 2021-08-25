@@ -35,6 +35,7 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
+#define cell(r,c,a,b,e,d) qDebug()<<a->data[r][c]<<b->data[r][c]<<e->data[r][c]<<d->data[r][c]
 
 //---------------------------------------------------------------------------
 void TWorld::ChannelAddBaseandRain(void)
@@ -60,13 +61,14 @@ void TWorld::ChannelAddBaseandRain(void)
 
         if(SwitchChannelBaseflow)
         {
-            if(!addedbaseflow)
-            {
-                ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
-                //BaseFlowTot += BaseFlowInitialVolume->Drc;
-            }
-            ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
-            //BaseFlowTot += BaseFlowInflow->Drc * _dt;
+//            if(!addedbaseflow)
+//            {
+//                ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
+//                //BaseFlowTot += BaseFlowInitialVolume->Drc;
+//            }
+//            ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
+//            //BaseFlowTot += BaseFlowInflow->Drc * _dt;
+
         }
 
         ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
@@ -75,6 +77,64 @@ void TWorld::ChannelAddBaseandRain(void)
     }}
     if (!addedbaseflow)
         addedbaseflow = true;
+
+
+if(SwitchChannelBaseflow) {
+    if(SwitchTwoLayer) {
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            double GWrecharge = 0;
+           // double FC2 = 0.5 * 0.7867*exp(-0.012*Ksat2->Drc)*ThetaS2->Drc;
+            double FC2 = (-0.115*log(Ksat2->Drc) + 0.611)*ThetaS2->Drc; // wilting point
+
+            if (ThetaI2->Drc > FC2) {
+                double pore = ThetaS2->Drc;
+                double thetar = 0.025 * pore;
+                double theta = ThetaI2->Drc;
+                double theta_E = 0;
+                double SoilDep2 = SoilDepth2->Drc;
+                double SoilDep1 = SoilDepth1->Drc;
+                theta_E = (theta-thetar)/(pore-thetar);
+                double Percolation = GW_recharge * Ksat2->Drc*_dt/3600000 * pow(theta_E, bca2->Drc);
+                double dL = 0;
+                if (Lw->Drc > SoilDep1)
+                    dL = SoilDep2 - Lw->Drc;
+                else
+                    dL = SoilDep2 - SoilDep1;
+                double moisture = std::max(0.0, dL*(theta-FC2));
+                Percolation = std::min(Percolation, moisture*0.5);
+                moisture = moisture - Percolation;
+                ThetaI2->Drc = std::min(pore, moisture /std::max(0.01,dL) + FC2);
+                GWrecharge = ThetaI2->Drc > FC2 ? Percolation*CellArea->Drc : 0.0;   //m3
+            }
+
+            tma->Drc = GW_flow*1000*CellArea->Drc*(Ksat2->Drc*_dt/3600000.0)/pow(BaseflowL->Drc,GW_slope)*(WHQb->Drc*_dx);
+            // ksat * (dx*dx/L2) *crosssection of flow dh*dx
+            tma->Drc = std::min(tma->Drc, VolQb->Drc+GWrecharge);
+            tmb->Drc = GWrecharge;
+
+            VolQb->Drc = VolQb->Drc + GWrecharge-tma->Drc; //m3
+
+
+            WHQb->Drc = VolQb->Drc/CellArea->Drc;
+        }}
+
+        Accuflux(crlinkedldd_, tma, Qb);
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            Qb->Drc *= ChannelWidth->Drc/_dx;
+            ChannelQ->Drc += Qb->Drc;
+        }}
+//    report(*tma,"gwout");
+//    report(*tmb,"rech");
+//    report(*Qb,"qb");
+//   // report(*ThetaI2,"ti");
+//    report(*WHQb,"whqb");
+    }
+}
+
+ //   cell(150,150,tma,tmc,Qb,WHQb);
 }
 
 //---------------------------------------------------------------------------
@@ -217,7 +277,7 @@ void TWorld::ChannelFlow(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
 
-            ChannelWaterVol->Drc = ChannelWaterVol->Drc + QinKW->Drc*_dt - ChannelQn->Drc*_dt ;
+            ChannelWaterVol->Drc = ChannelWaterVol->Drc + Channelq->Drc * _dt + QinKW->Drc*_dt - ChannelQn->Drc*_dt ;
             //water vol from mass balance, includes any errors
 
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
@@ -336,4 +396,9 @@ void TWorld::correctMassBalanceCH(double sum1, cTMap *M)
         M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
         M->Drc = std::max(M->Drc , 0.0);
     }}
+}
+
+void TWorld::accuflux(cTMap *M)
+{
+
 }

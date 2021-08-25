@@ -278,14 +278,12 @@ void TWorld::DoModel()
             if(stopRequested)
                 time = EndTime;                       
         }
-qDebug() << "here1";
+
         if (SwitchEndRun)
             ReportMaps();
-        qDebug() << "here2";
 
         DEBUG("Free data structure memory");
         DestroyData();  // destroy all maps automatically
-        qDebug() << "here3";
 
         emit done("finished");
 

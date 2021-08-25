@@ -205,6 +205,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
         if (p1.compare("Adjust channel crosssection")==0)     checkChannelAdjustCHW->setChecked(check);
+        if (p1.compare("GW recharge factor")==0)           GW_recharge->setValue(valc);
+        if (p1.compare("GW flow factor")==0)           GW_flow->setValue(valc);
+        if (p1.compare("GW slope factor")==0)           GW_slope->setValue(valc);
 
         if (p1.compare("Include channel culverts")==0)       checkChannelCulverts->setChecked(check);
         if (p1.compare("Include channel inflow")==0)         checkChannelInflow->setChecked(check);
@@ -390,6 +393,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Channel KinWave dt")==0)             E_ChannelKinWaveDt->setValue(valc);
 
         //CALIBRATION
+        if (p1.compare("Smax calibration")==0)         E_CalibrateSmax->setValue(valc);
         if (p1.compare("Ksat calibration")==0)         E_CalibrateKsat->setValue(valc);
         if (p1.compare("Grain Size calibration")==0)   E_CalibrateGS->setValue(valc);
         if (p1.compare("N calibration")==0)            E_CalibrateN->setValue(valc);
@@ -769,9 +773,12 @@ void lisemqt::updateModelData()
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
         if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
-        if (p1.compare("Adjust channel crosssection")==0)       namelist[j].value.setNum((int)checkChannelAdjustCHW->isChecked());
+        if (p1.compare("Adjust channel crosssection")==0)    namelist[j].value.setNum((int)checkChannelAdjustCHW->isChecked());
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkChannelInflow->isChecked());
+        if (p1.compare("GW recharge factor")==0)             namelist[j].value = GW_recharge->text();
+        if (p1.compare("GW flow factor")==0)                 namelist[j].value = GW_flow->text();
+        if (p1.compare("GW slope factor")==0)                namelist[j].value = GW_slope->text();
 
         if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkFlowBarriers->isChecked());
         if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int) checkBuffers->isChecked());
@@ -967,6 +974,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel deposition map")==0) namelist[j].value = E_ChanDepositionMap->text();
 
         if (p1.compare("Grain Size calibration")==0)   namelist[j].value = E_CalibrateGS->text();
+        if (p1.compare("Smax calibration")==0) namelist[j].value = E_CalibrateSmax->text();
         if (p1.compare("Ksat calibration")==0) namelist[j].value = E_CalibrateKsat->text();
         if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();
         if (p1.compare("Theta calibration")==0) namelist[j].value = E_CalibrateTheta->text();

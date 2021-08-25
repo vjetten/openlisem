@@ -258,10 +258,14 @@ void TWorld::GetInputData(void)
 //---------------------------------------------------------------------------
 void TWorld::InitParameters(void)
 {
+    GW_recharge = getvaluedouble("GW recharge factor");
+    GW_flow = getvaluedouble("GW flow factor");
+    GW_slope = getvaluedouble("GW slope factor");
 
     // get calibration parameters
     gsizeCalibration = getvaluedouble("Grain Size calibration");
     ksatCalibration = getvaluedouble("Ksat calibration");
+    SmaxCalibration = getvaluedouble("Smax calibration");
     nCalibration = getvaluedouble("N calibration");
     if (nCalibration == 0)
     {
@@ -401,7 +405,7 @@ void TWorld::InitStandardInput(void)
     }
     nrValidCellsLDD5 = crldd5_.size();
 
-    if (SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
+  //  if (SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
         crlinkedldd_ = MakeLinkedList(LDD);
 
     DEM = ReadMap(LDD, getvaluename("dem"));
@@ -824,7 +828,7 @@ void TWorld::InitChannel(void)
     ChannelWH = NewMap(0);
     Channelq = NewMap(0);//
     ChannelAlpha = NewMap(0);//
-    ChannelPerimeter = NewMap(0); //VJ 110109 added for channel infil
+    //ChannelPerimeter = NewMap(0); //VJ 110109 added for channel infil
     ChannelDX = NewMap(0);
     ChannelInfilVol = NewMap(0);
 
@@ -971,6 +975,9 @@ void TWorld::InitChannel(void)
 
         //copy(*ChannelFlowWidth, *ChannelWidth); // actual width related to water height in channel
         //cover(*ChannelFlowWidth, *LDD, 0);
+
+        BaseflowL = ReadMap(LDDChannel, getvaluename("basereach")); // bottom width in m
+
 
         if(SwitchErosion) {
             TotalChanDetMap = NewMap(0);
@@ -1763,6 +1770,7 @@ void TWorld::IntializeData(void)
             LAI->Drc = (log(std::max(0.01,1-Cover->Drc))/-0.4);// /std::max(0.1,Cover->Drc);
         }
     }
+    calcValue(*CanopyStorage, SmaxCalibration, MUL);
 
     // openness coefficient k
     kLAI = NewMap(0);
@@ -1893,6 +1901,9 @@ void TWorld::IntializeData(void)
     Alpha = NewMap(0);
     Q = NewMap(0);
     Qn = NewMap(0);
+    Qb = NewMap(0);
+    VolQb = NewMap(0);
+    WHQb = NewMap(0);
     flowmask = NewMap(0);
 
     K2DOutlets = NewMap(0);
