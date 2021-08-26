@@ -892,6 +892,13 @@ void TWorld::InitChannel(void)
             }
         }
 
+        if(SwitchChannelBaseflow) {
+            LDDbaseflow = ReadMap(LDD, getvaluename("lddbase"));
+            crlinkedlddbase_= MakeLinkedList(LDDbaseflow);
+        }
+
+
+
         ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth")); // bottom width in m
         cover(*ChannelWidth, *LDD, 0);
         //     ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
@@ -977,7 +984,9 @@ void TWorld::InitChannel(void)
         //cover(*ChannelFlowWidth, *LDD, 0);
 
         BaseflowL = ReadMap(LDDChannel, getvaluename("basereach")); // bottom width in m
-
+        FOR_ROW_COL_MV_L {
+            BaseflowL->Drc = pow(_dx/BaseflowL->Drc,GW_slope);
+        }}
 
         if(SwitchErosion) {
             TotalChanDetMap = NewMap(0);
@@ -1901,11 +1910,15 @@ void TWorld::IntializeData(void)
     Alpha = NewMap(0);
     Q = NewMap(0);
     Qn = NewMap(0);
-    Qb = NewMap(0);
-    VolQb = NewMap(0);
-    WHQb = NewMap(0);
-    flowmask = NewMap(0);
+    if (SwitchChannelBaseflow) {
+        Qbin = NewMap(0);
+        Qbase = NewMap(0);
+        VolQb = NewMap(0);
+        VolGW = NewMap((1.0*_dx*_dx));
+        WHGW = NewMap(0);
+    }
 
+    flowmask = NewMap(0);
     K2DOutlets = NewMap(0);
     K2DQ = NewMap(0);
 

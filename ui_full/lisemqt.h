@@ -295,6 +295,7 @@ public:
     // graph variables
     QwtPlot *HPlot;
     QwtPlotCurve *QGraph;
+    QwtPlotCurve *QbGraph;
     QwtPlotCurve *QsGraph;
     QwtPlotCurve *CGraph;
     QwtPlotCurve *PGraph;

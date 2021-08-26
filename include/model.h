@@ -324,6 +324,7 @@ public:
     QVector <LDD_COOR> crch_;
     QVector <LDD_COORIN> crlinkedldd_;
     QVector <LDD_COORIN> crlinkedlddch_;
+    QVector <LDD_COORIN> crlinkedlddbase_;
     QVector <LDD_COORout> crout_;
 
     /// map management structure, automatic adding and deleting of all cTMap variables
@@ -851,8 +852,7 @@ public:
 
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
-    void ChannelAddBaseandRain();
-    void accuflux(cTMap *M);
+    void ChannelAddBaseandRain();    
     void ToChannel();//int r, int c);
     void ToFlood();
     void CalcVelDisch(); //(int r, int c);

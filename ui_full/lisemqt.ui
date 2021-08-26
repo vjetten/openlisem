@@ -4996,7 +4996,7 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="text">
-                         <string>Distance to river contribution factor (1 = linear)</string>
+                         <string>Distance to river contribution factor (1 = linear, max 2)</string>
                         </property>
                        </widget>
                       </item>
@@ -5013,6 +5013,9 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="minimum">
                          <double>1.000000000000000</double>
+                        </property>
+                        <property name="maximum">
+                         <double>2.000000000000000</double>
                         </property>
                        </widget>
                       </item>

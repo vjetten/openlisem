@@ -58,6 +58,8 @@ void lisemqt::setupPlot()
 
     PGraph = new QwtPlotCurve("Rainfall");
     QGraph = new QwtPlotCurve("Discharge");
+//    if (checkChannelBaseflow->isChecked())
+        QbGraph = new QwtPlotCurve("Baseflow");
 
     if(checkDoErosion->isChecked()) {
         QsGraph = new QwtPlotCurve("Sediment discharge");
@@ -68,6 +70,7 @@ void lisemqt::setupPlot()
 
     PGraph->attach(HPlot);
     QGraph->attach(HPlot);
+
     // order of attaching determines order of display in Legend
     PGraph->setStyle(QwtPlotCurve::Steps);
     QGraph->setStyle(QwtPlotCurve::Lines);
@@ -77,16 +80,20 @@ void lisemqt::setupPlot()
     col.setRgb( 60,60,200,255 );
     pen1.setColor(col);
     pen1.setCosmetic(true);
-    pen2.setWidth(2);
+
+    pen2.setWidth(1);
     pen2.setColor("#000000");
     pen2.setCosmetic(false);
-    col.setRgb( 0,160,160,255 );
+
+    col.setRgb( 80,160,230,255 );
     pen3.setWidth(2);
-    pen3.setColor(col);
+    pen3.setColor(Qt::darkCyan);
     pen3.setCosmetic(true);
+
     pen4.setWidth(2);
     pen4.setColor(Qt::red);
     pen4.setCosmetic(false);
+
     col.setRgb( 200,0,0,255 ); // darkred
     pen5.setWidth(2);
     pen5.setColor(col);
@@ -106,6 +113,11 @@ void lisemqt::setupPlot()
     PGraph->setPen(pen2);
     PGraph->setAxes(HPlot->xBottom, *axisYR1);// HPlot->yRight);
 
+  //  if(checkChannelBaseflow->isChecked()) {
+        QbGraph->setPen(pen3);
+        QbGraph->setAxes(HPlot->xBottom, *axisYL1);
+        QbGraph->setStyle(QwtPlotCurve::Lines);
+  //  }
     if(checkIncludeTiledrains->isChecked()) {
         QtileGraph->setPen(pen3);
         QtileGraph->setAxes(HPlot->xBottom, *axisYL1);
@@ -242,11 +254,14 @@ void lisemqt::initPlot()
     else
         HPlot->setAxisTitle(HPlot->xBottom, "time (day)");
 
+  //  if (checkChannelBaseflow->isChecked()) {
+        QbGraph->attach(HPlot);
+  //  }
+
     if(checkIncludeTiledrains->isChecked()) {
         QtileGraph->attach(HPlot);
-//    else
-  //      QtileGraph->detach();
     }
+
 
     if(checkDoErosion->isChecked())
     {
@@ -297,6 +312,8 @@ void lisemqt::showPlot()
 
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
     PGraph->setSamples(op.Time,op.Pmm);
+   // if (checkChannelBaseflow->isChecked())
+        QbGraph->setSamples(op.Time,*op.OutletQb[index]);
 
     int _j = op.OutletQ[index]->count()-1;
 //    if (qmax[index] < op.OutletQ[index]->at(_j))

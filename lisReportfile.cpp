@@ -152,25 +152,24 @@ void TWorld::OutputUI(void)
     double factor = QUnits == 1 ? 1.0 : 1000.0;
     op.OutletQ.at(0)->append(QtotT * factor/_dt); //QtotT is in m3
     op.OutletQtot.replace(0,Qtot);
-    // total channel waterheightt? makes no sense
-//    double channelwh = 0;
-//    if(SwitchIncludeChannel) {
-//        FOR_ROW_COL_LDDCH5 {
-//                channelwh += ChannelWH->Drc;
-//        }}
-//    }
     op.OutletChannelWH.at(0)->append(0);
+    op.OutletQb.at(0)->append(0); //QtotT is in m3
 
     for(int j = 1; j < op.OutletIndices.length(); j++)
     {
         int r = op.OutletLocationX.at(j);
         int c = op.OutletLocationY.at(j);
         double discharge = Qoutput->Drc;// sum of current Qn, ChannelQn, Qflood in l/s or m3/s, not Tile!
+        double dischargeQb = Qbase->Drc;// sum of current Qn, ChannelQn, Qflood in l/s or m3/s, not Tile!
         double channelwh = SwitchIncludeChannel? ChannelWH->Drc : 0.0;
         op.OutletChannelWH.at(j)->append(std::isnan(channelwh)?0.0:channelwh);
 
         op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * discharge/(QUnits == 0 ? 1000.0 : 1.0)); //cumulative in m3/s
         op.OutletQ.at(j)->append(discharge);
+        if (SwitchChannelBaseflow)
+            op.OutletQb.at(j)->append(dischargeQb/(QUnits == 0 ? 1000.0 : 1.0));
+         else
+            op.OutletQb.at(j)->append(0);
 
         if (SwitchErosion) {
             double sedimentdischarge = SwitchErosion? Qsoutput->Drc  : 0.0; // in kg/s   * _dt
@@ -641,7 +640,7 @@ void TWorld::ReportTimeseriesNew(void)
                 out << sep << QALL << sep << Qoutput->Drc;  //Qoutput is sum channel, of, tile
 
                 if (SwitchIncludeChannel) out << sep << ChannelWH->Drc;
-                if (SwitchChannelBaseflow) out << sep << Qb->Drc;
+                if (SwitchChannelBaseflow) out << sep << Qbase->Drc;
                 if (SwitchIncludeTile) out << sep << TileQn->Drc*factor;
                 if (SwitchErosion) out << sep << QSALL << sep << Qsoutput->Drc << sep << TotalConc->Drc;
                 out << "\n";
@@ -677,7 +676,7 @@ void TWorld::ReportTimeseriesNew(void)
             {
                 out << sep << Qoutput->Drc;
                 if (SwitchIncludeChannel) out << sep << ChannelWH->Drc;
-                if (SwitchChannelBaseflow) out << sep << Qb->Drc;
+                if (SwitchChannelBaseflow) out << sep << Qbase->Drc;
                 if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
             }
         }}
@@ -1163,6 +1162,7 @@ void TWorld::setupHydrographData()
     op.OutletLocationX.append(0);
     op.OutletLocationY.append(0);
     op.OutletQ.append(new QVector<double>);
+    op.OutletQb.append(new QVector<double>);
     op.OutletQs.append(new QVector<double>);
     op.OutletC.append(new QVector<double>);
     op.OutletChannelWH.append(new QVector<double>);
@@ -1180,6 +1180,7 @@ void TWorld::setupHydrographData()
             op.OutletLocationX.append(r);
             op.OutletLocationY.append(c);
             op.OutletQ.append(new QVector<double>);
+            op.OutletQb.append(new QVector<double>);
             op.OutletQs.append(new QVector<double>);
             op.OutletC.append(new QVector<double>);
             op.OutletChannelWH.append(new QVector<double>);
@@ -1232,6 +1233,7 @@ void TWorld::ClearHydrographData()
     op.OutletLocationX.clear();
     op.OutletLocationY.clear();
     op.OutletQ.clear();
+    op.OutletQb.clear();
     op.OutletQs.clear();
     op.OutletC.clear();
     op.OutletQpeak.clear();
