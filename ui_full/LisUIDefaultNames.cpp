@@ -53,6 +53,7 @@ void lisemqt::DefaultMapnames()
    // DEFmaps.append("2;Watersheds;watersheds.map;sub-catchments numbered (1,2,3,...);wsheds");
     DEFmaps.append("2;Baseflow network;lddbaseflow.map;LDD perpendicular to the river;lddbase");
     DEFmaps.append("2;Baseflow reach;basereach.map;Distance to river (m);basereach");
+    DEFmaps.append("2;Initial level;gwlevel.map;Initial groundwater level (m);gwlevel");
 
     DEFmaps.append("0;Landuse");
     DEFmaps.append("2;Units;landunit.map;Classified land unit map (integers 0-n) for output of erosion values;landunit");
@@ -123,9 +124,9 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Gradient;changrad.map;Slope gradient of channel bed (-);changrad");
     DEFmaps.append("2;N;chanman.map;Mannings n of channel bed (-);chanman");
     DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
-    DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
+//    DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
     DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
-    DEFmaps.append("2;Dscharge input;QinPoints.map;Locations in channel network where discharge is added from a text record. Unique nr > 0;qinpoints");
+   // DEFmaps.append("2;Dscharge input;QinPoints.map;Locations in channel network where discharge is added from a text record. Unique nr > 0;qinpoints");
     DEFmaps.append("2;WHInit;WHinit.map;Initial floodlevel (m);whinit");
     DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh");
     DEFmaps.append("2;Channelmaterial;chandetmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);chandetmat");

@@ -160,7 +160,9 @@ void TWorld::OutputUI(void)
         int r = op.OutletLocationX.at(j);
         int c = op.OutletLocationY.at(j);
         double discharge = Qoutput->Drc;// sum of current Qn, ChannelQn, Qflood in l/s or m3/s, not Tile!
-        double dischargeQb = Qbase->Drc;// sum of current Qn, ChannelQn, Qflood in l/s or m3/s, not Tile!
+        double dischargeQb = 0;// sum of current Qn, ChannelQn, Qflood in l/s or m3/s, not Tile!
+        if (SwitchChannelBaseflow)
+            dischargeQb = Qbase->Drc;// sum of current Qn, ChannelQn, Qflood in l/s or m3/s, not Tile!
         double channelwh = SwitchIncludeChannel? ChannelWH->Drc : 0.0;
         op.OutletChannelWH.at(j)->append(std::isnan(channelwh)?0.0:channelwh);
 

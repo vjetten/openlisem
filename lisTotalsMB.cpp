@@ -212,7 +212,7 @@ void TWorld::Totals(void)
       //  if (SwitchChannelBaseflow)
        //     BaseFlowTot = MapTotal(*BaseFlowInflow) * _dt;
         if (SwitchChannelBaseflow)
-            BaseFlowTot = MapTotal(*Qbase) * _dt;
+            BaseFlowTot = MapTotal(*Qbin);//*catchmentAreaFlatMM; // total inflow in m3
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
     }
@@ -251,7 +251,7 @@ void TWorld::Totals(void)
             FOR_ROW_COL_LDDCH5 {
                 QtotT += ChannelQn->Drc*_dt; //m3
             }}
-#pragma omp parallel for num_threads(userCores)
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_CHL {
                 ChannelQntot->Drc += ChannelQn->Drc*_dt;
                 //cumulative m3 spatial for .map output
@@ -259,7 +259,6 @@ void TWorld::Totals(void)
       //  }
         // add channel outflow (in m3) to total for all pits
     }
-
 
     if(SwitchIncludeStormDrains) {
         FOR_ROW_COL_MV_TILE

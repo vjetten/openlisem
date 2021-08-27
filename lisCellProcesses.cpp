@@ -497,7 +497,9 @@ void TWorld::cell_Interception(int r, int c)
             }
         }
     }
+
     RainNet->Drc = RainNet_;
+
 }
 
 //---------------------------------------------------------------------------
