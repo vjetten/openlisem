@@ -64,7 +64,7 @@ void TWorld::Totals(void)
         RainTotmm += RainAvgmm;
         // spatial avg area rainfall in mm
 
-        rainfall = RainAvgmm/1000.0*_dx*_dx*nrCells;
+        rainfall = RainAvgmm/catchmentAreaFlatMM;
         RainTot += rainfall; // in m3
 
         oldrainpeak  = Rainpeak;
@@ -86,7 +86,7 @@ void TWorld::Totals(void)
 
         SnowTotmm += SnowAvgmm;
 
-        snowmelt = SnowAvgmm/1000.0*_dx*_dx*nrCells;
+        snowmelt = SnowAvgmm/catchmentAreaFlatMM;
         SnowTot += snowmelt; // in m3
 
         oldsnowpeak = Snowpeak;

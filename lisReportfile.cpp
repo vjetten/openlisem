@@ -462,7 +462,7 @@ void TWorld::ReportTimeseriesNew(void)
                     int nrs = 4 + (SwitchErosion ? 3 : 0);
                     if (SwitchRainfall) nrs++;
                     if (SwitchSnowmelt) nrs++;
-                    if (SwitchChannelBaseflow) nrs++;
+                    //if (SwitchChannelBaseflow) nrs++;
                     if (SwitchIncludeTile) nrs++;
                     pnr.setNum(nrs);
                     out << pnr << "\n";
@@ -472,7 +472,7 @@ void TWorld::ReportTimeseriesNew(void)
                     if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
                     out << "Qall (l/s)\n";
                     if (SwitchIncludeChannel) out << "Qoutlet (l/s)\n" << "chanWH (m)\n";
-                    if (SwitchChannelBaseflow) out << ",Qb (l/s)";
+                   // if (SwitchChannelBaseflow) out << ",Qb (l/s)";
                     if (SwitchIncludeTile) out << "Qdrain (l/s)\n";
                     if (SwitchErosion) out << "Qsall (kg/s)\n" << "Qs (kg/s)\n" << "C (g/l)\n";
 
@@ -487,7 +487,7 @@ void TWorld::ReportTimeseriesNew(void)
                     if (SwitchSnowmelt) out << ",Snowavg";
                     out << ",Qall";
                     if (SwitchIncludeChannel) out << ",Q" << ",chanWH";
-                    if (SwitchChannelBaseflow) out << ",Qb";
+                   // if (SwitchChannelBaseflow) out << ",Qb";
                     if (SwitchIncludeTile) out << ",Qtile";
                     if (SwitchErosion) out << ",Qsall,Qs,C";
                     out << "\n";
@@ -497,7 +497,7 @@ void TWorld::ReportTimeseriesNew(void)
                     if (SwitchSnowmelt) out << ",mm/h";
                     out << ",l/s";
                     if (SwitchIncludeChannel) out  << ",l/s" << ",m";
-                    if (SwitchChannelBaseflow) out << ",l/s";
+                  //  if (SwitchChannelBaseflow) out << ",l/s";
                     if (SwitchIncludeTile) out << ",l/s";
                     if (SwitchErosion) out << ",kg/s,kg/s,g/l";
                     out << "\n";
@@ -545,7 +545,7 @@ void TWorld::ReportTimeseriesNew(void)
                     pnr.setNum((int)PointMap->Drc);
                     out << "Q #" << pnr <<  "(l/s)\n";
                     if (SwitchIncludeChannel) out << "chanWH #" << pnr <<  "(m)\n";
-                    if (SwitchChannelBaseflow) out << "chanQb #" << pnr <<  "(l/s)\n";
+                 //   if (SwitchChannelBaseflow) out << "chanQb #" << pnr <<  "(l/s)\n";
                     if (SwitchIncludeTile) out << "Qtile #" << pnr <<  "(l/s)\n";
                 }}
                 if (SwitchErosion)
@@ -573,7 +573,7 @@ void TWorld::ReportTimeseriesNew(void)
                     pnr.setNum((int)PointMap->Drc);
                     out << ",Q #" << pnr;
                     if (SwitchIncludeChannel) out << ",chanWH #" << pnr;
-                    if (SwitchChannelBaseflow) out << ",chanQb #" << pnr;
+                    //if (SwitchChannelBaseflow) out << ",chanQb #" << pnr;
                     if (SwitchIncludeTile) out << ",Qtile #" << pnr;
                 }}
                 // sediment
@@ -596,7 +596,7 @@ void TWorld::ReportTimeseriesNew(void)
                     pnr.setNum((int)PointMap->Drc);
                     out << ",l/s #" << pnr;
                     if (SwitchIncludeChannel) out << ",m #" << pnr;
-                    if (SwitchChannelBaseflow) out << ",l/s #" << pnr;
+                   // if (SwitchChannelBaseflow) out << ",l/s #" << pnr;
                     if (SwitchIncludeTile) out << ",l/s #" << pnr;
                 }}
                 if (SwitchErosion)
@@ -642,7 +642,7 @@ void TWorld::ReportTimeseriesNew(void)
                 out << sep << QALL << sep << Qoutput->Drc;  //Qoutput is sum channel, of, tile
 
                 if (SwitchIncludeChannel) out << sep << ChannelWH->Drc;
-                if (SwitchChannelBaseflow) out << sep << Qbase->Drc;
+                //if (SwitchChannelBaseflow) out << sep << Qbase->Drc;
                 if (SwitchIncludeTile) out << sep << TileQn->Drc*factor;
                 if (SwitchErosion) out << sep << QSALL << sep << Qsoutput->Drc << sep << TotalConc->Drc;
                 out << "\n";
@@ -678,7 +678,7 @@ void TWorld::ReportTimeseriesNew(void)
             {
                 out << sep << Qoutput->Drc;
                 if (SwitchIncludeChannel) out << sep << ChannelWH->Drc;
-                if (SwitchChannelBaseflow) out << sep << Qbase->Drc;
+                //if (SwitchChannelBaseflow) out << sep << Qbase->Drc;
                 if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
             }
         }}

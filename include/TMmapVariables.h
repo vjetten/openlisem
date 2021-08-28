@@ -94,11 +94,12 @@ cTMap
 *Alpha,                      //!< alpha in A = alphaQ^b
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
 *Qbin,
-*Qbase,
-*VolQb,
-*VolGW,
-*WHGW,
+//*Qbase,
+//*VolQb,
+*GWVol,
+//*WHGW,
 *GWrec,
+*GWout,
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
 *Qdiag,
 *VH,
@@ -309,7 +310,7 @@ cTMap
 *ChannelAdj,                //!<
 *CHAdjDX,                //!<
 *BaseflowL,
-*GWlevel,
+//*GWlevel,
 
 //*ChannelPerimeter,           //!<
 *ChannelDX,                  //!<

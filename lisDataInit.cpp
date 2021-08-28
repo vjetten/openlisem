@@ -986,19 +986,20 @@ void TWorld::InitChannel(void)
                 BaseflowL->Drc = pow(_dx/BaseflowL->Drc,GW_slope);
             }}
 
-            GWlevel = ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
+            GWVol = ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
             Qbin = NewMap(0);
-            Qbase = NewMap(0);
-            VolQb = NewMap(0);
-            VolGW = NewMap(0);
-            WHGW = NewMap(0);
+            //Qbase = NewMap(0);
+            //VolQb = NewMap(0);
+            GWVol = NewMap(0);
+            //WHGW = NewMap(0);
             GWrec = NewMap(0);
+            GWout = NewMap(0);
 
             FOR_ROW_COL_MV_L {
-                VolGW->Drc = GWlevel->Drc * _dx * _dx;;
+                GWVol->Drc *= _dx*_dx;
             }}
 
-    }
+        }
 
         if(SwitchErosion) {
             TotalChanDetMap = NewMap(0);
