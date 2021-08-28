@@ -212,7 +212,7 @@ void TWorld::Totals(void)
       //  if (SwitchChannelBaseflow)
        //     BaseFlowTot = MapTotal(*BaseFlowInflow) * _dt;
         if (SwitchChannelBaseflow)
-            BaseFlowTot = MapTotal(*Qbin);//*catchmentAreaFlatMM; // total inflow in m3
+            BaseFlowTot += MapTotal(*Qbin);//*catchmentAreaFlatMM; // total inflow in m3
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
     }
@@ -504,8 +504,7 @@ void TWorld::MassBalance()
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
   //  if (RainTot + SnowTot > 0)
     {
-
-        double waterin = RainTot + SnowTot + WaterVolSoilTot + WHinitVolTot;// + BaseFlowTot;
+        double waterin = RainTot + SnowTot + WaterVolSoilTot + WHinitVolTot + BaseFlowTot;
         double waterout = ETaTot;
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot;
         double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;

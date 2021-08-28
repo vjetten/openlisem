@@ -238,7 +238,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
     }
 }
 //---------------------------------------------------------------------------
-void TWorld::Accuflux(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn)
+void TWorld::AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW)
 {
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -257,7 +257,7 @@ void TWorld::Accuflux(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn)
             for(int j = 0; j < _crlinked_[i_].nr; j++) {
                 int rr = _crlinked_[i_].inn[j].r;
                 int cr = _crlinked_[i_].inn[j].c;
-                Qin += (ChannelWidth->Drcr > 0 ? 0.0 : _Qn->Drcr);//_Qn->Drcr;
+                Qin += (_CW->Drcr > 0 ? 0.0 : _Qn->Drcr);//_Qn->Drcr;
             }
         }
         QinKW->Drc = Qin;

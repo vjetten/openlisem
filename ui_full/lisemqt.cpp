@@ -1589,6 +1589,8 @@ void lisemqt::resetTabOptions()
     checkIncludeChannel->setChecked(true);
     checkChannelInfil->setChecked(false);
     checkChannelBaseflow->setChecked(false);
+    BaseflowParams->setEnabled(false);
+
     checkChannelInflow->setChecked(false);
     checkChannelAdjustCHW->setChecked(false);
 
@@ -2322,4 +2324,16 @@ void lisemqt::on_toolButton_resetAdvanced_clicked()
 void lisemqt::on_toolButton_resetOptions_clicked()
 {
     resetTabOptions();
+}
+
+void lisemqt::on_checkChannelBaseflow_toggled(bool checked)
+{
+    BaseflowParams->setEnabled(checked);
+    if (checked) checkChannelInfil->setChecked(false);
+}
+
+void lisemqt::on_checkChannelInfil_toggled(bool checked)
+{
+    BaseflowParams->setEnabled(!checked);
+    if (checked) checkChannelBaseflow->setChecked(false);
 }

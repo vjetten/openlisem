@@ -407,6 +407,7 @@ public:
     double GW_recharge;
     double GW_flow;
     double GW_slope;
+    double GW_lag;
 
     double totetafac;
 
@@ -906,7 +907,7 @@ public:
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
     void KinematicExplicit(QVector<LDD_COORIN> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
     void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
-    void Accuflux(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
+    void AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
     //LDD_COOR *_crlinked_
     QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
 

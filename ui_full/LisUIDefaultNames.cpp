@@ -415,8 +415,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("GW recharge factor");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW flow factor");
-    namelist[i].value = QString("1.0");
+    namelist[i].value = QString("2.0");
     namelist[i++].name = QString("GW slope factor");
+    namelist[i].value = QString("0.01");
+    namelist[i++].name = QString("GW lag factor");
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Advanced]");

@@ -110,7 +110,7 @@ void TWorld::ChannelAddBaseandRain(void)
                 }
                 double GWVol_ = GWVol->Drc;
                 // GW outflow m3
-                double GWout_ = GW_flow * ksat * BaseflowL->Drc * (GWVol_/DX->Drc*pore);
+                double GWout_ = _dx*GW_flow * ksat * BaseflowL->Drc * (GWVol_/DX->Drc*pore);
                 //m3:  ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx
 
                 GWout_ = std::min(GWout_, GWVol_+GWrec_);
@@ -118,81 +118,75 @@ void TWorld::ChannelAddBaseandRain(void)
                 GWVol_ = GWVol_ + GWrec_ - GWout_; //m3
                 // update
 
-                GWout->Drc = GWout->Drc;
+                GWout->Drc = GWout_;
                 GWVol->Drc = GWVol_;
                 GWrec->Drc = GWrec_;
             }}
         } else {
-                #pragma omp parallel for num_threads(userCores)
-                FOR_ROW_COL_MV_L {
-                    double pore = Poreeff->Drc;
-                    double thetar = 0.025 * pore;
-                    double theta = Thetaeff->Drc;
-                    double ksat = Ksateff->Drc*_dt/3600000.0;
-                    double GWrec_ = 0;
-                    // GW recharge m3
-                    if (theta > thetar) {
-                        double SoilDep1 = SoilDepth1->Drc;
-                        double Percolation = GW_recharge * ksat * pow((theta-thetar)/(pore-thetar), bca1->Drc);
-                        double dL = SoilDep1 - Lw->Drc;
-                        if (Lw->Drc > SoilDep1-001)
-                            dL = SoilDep1;
-                        double moisture = std::max(0.0, dL*(theta-thetar));
-                        Percolation = std::min(Percolation, moisture*0.9);
-                        moisture = moisture - Percolation;
-                        Thetaeff->Drc = std::min(pore, moisture /std::max(0.01,dL) + thetar);
-                        GWrec_ = Thetaeff->Drc > thetar ? Percolation*CellArea->Drc : 0.0;   //m3
-                    }
-                    double GWVol_ = GWVol->Drc;
-                    //outflow m3
-                    double GWout_ = GW_flow * ksat * BaseflowL->Drc * (GWVol_/DX->Drc*pore);
-                    //m3:  ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx
-                    GWout_ = std::min(GWout_, GWVol_+GWrec_);
-                    // cannot be mmoore than there is
-                    GWVol_ = GWVol_ + GWrec_ - GWout_; //m3
-                    //update
-                    GWout->Drc = GWout->Drc;
-                    GWVol->Drc = GWVol_;
-                    GWrec->Drc = GWrec_;
-               }}
-            }
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                double pore = Poreeff->Drc;
+                double thetar = 0.025 * pore;
+                double theta = Thetaeff->Drc;
+                double ksat = Ksateff->Drc*_dt/3600000.0;
+                double GWrec_ = 0;
+                // GW recharge m3
+                if (theta > thetar) {
+                    double SoilDep1 = SoilDepth1->Drc;
+                    double Percolation = GW_recharge * ksat * pow((theta-thetar)/(pore-thetar), bca1->Drc);
+                    double dL = SoilDep1 - Lw->Drc;
+                    if (Lw->Drc > SoilDep1-001)
+                        dL = SoilDep1;
+                    double moisture = std::max(0.0, dL*(theta-thetar));
+                    Percolation = std::min(Percolation, moisture*0.9);
+                    moisture = moisture - Percolation;
+                    Thetaeff->Drc = std::min(pore, moisture /std::max(0.01,dL) + thetar);
+                    GWrec_ = Thetaeff->Drc > thetar ? Percolation*CellArea->Drc : 0.0;   //m3
+                }
+                double GWVol_ = GWVol->Drc;
+                //outflow m3
+                double GWout_ = _dx*GW_flow * ksat * BaseflowL->Drc * (GWVol_/DX->Drc*pore);
+                //m3:  ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx
+                GWout_ = std::min(GWout_, GWVol_+GWrec_);
+                // cannot be mmoore than there is
+                GWVol_ = GWVol_ + GWrec_ - GWout_; //m3
+                //update
+                GWout->Drc = GWout_;
+                GWVol->Drc = GWVol_;
+                GWrec->Drc = GWrec_;
+           }}
+        }
 
-//            // calc gw flow out and update GW vol
-//            #pragma omp parallel for num_threads(userCores)
-//            FOR_ROW_COL_MV_L {
-//                double GWVol_ = GWVol->Drc;
-//                double GWout_ = GW_flow * (Ksat2->Drc*_dt/3600000.0)*BaseflowL->Drc * (GWVol_/DX->Drc*ThetaS2->Drc);
-//                //m3:  ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx
-//                GWout_ = std::min(GWout_, GWVol_+GWrec->Drc);
-//                // cannot be mmoore than there is
-//                GWVol_ = GWVol_ + GWrec->Drc - GWout_; //m3
-//                GWout->Drc = GWout->Drc;
-//                GWVol->Drc = GWVol_;
-//            }}
 
-        Accuflux(crlinkedlddbase_, tma, Qbin);
+        AccufluxGW(crlinkedlddbase_, GWout, Qbin, ChannelWidthO);
         //move the gw flow to the channel, Qb is inflow to the channel from the surrounding cellsm in m3 per timestep
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            Qbin->Drc *= ChannelWidth->Drc/_dx;
+            Qbin->Drc *= ChannelWidthO->Drc/_dx;
 
-            if (ChannelQn->Drc < 1)
+            if (ChannelQn->Drc < 1) {
                 Qbin->Drc *= ChannelQn->Drc/1;
+                Qbase->Drc = 0;
+            } else {
+                Qbase->Drc = GW_lag * sqrt(ChannelQn->Drc*_dt);
+                Qbase->Drc = std::min(ChannelWaterVol->Drc, Qbase->Drc);
+                Qbin->Drc += Qbase->Drc;
+            }
 
             ChannelWaterVol->Drc += Qbin->Drc;
 
-
+//Qbase->Drc = pow(Qbin->Drc/(ChannelWidth->Drc*ChannelDX->Drc),2/3)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
+        //Qbin->Drc/_dt;
 //            //double Area = (VolQb->Drc+1.0)/_dx;
-//            double Area = std::max(VolQb->Drc/ChannelWidth->Drc,ChannelWidth->Drc*0.1); //assume min 0.5 m baseflow
+//            double Area = Qbin->Drc/ChannelDX->Drc;
 //            tma->Drc = Qbin->Drc/_dt;
-//            tmb->Drc = Area/std::pow(Qbin->Drc/_dt, 0.6); //alpha
-//            //ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
+//            tmb->Drc = ChannelAlpha->Drc;//Area/std::pow(Qbin->Drc/_dt, 0.6); //alpha
 //            tmc->Drc = 0;  //q
 //            tmd->Drc = -1; //qmax
         }}
 
-//        KinematicExplicit(crlinkedlddch_, tma, Qbase, tmc, tmb, ChannelDX, tmd);
+  //      KinematicExplicit(crlinkedlddch_, tma, Qbase, tmc, tmb, ChannelDX, tmd);
 
 //        #pragma omp parallel for num_threads(userCores)
 //        FOR_ROW_COL_MV_CHL {
@@ -200,13 +194,10 @@ void TWorld::ChannelAddBaseandRain(void)
 //            VolQb->Drc = VolQb->Drc + QinKW->Drc*_dt - Qbase->Drc*_dt ;
 //        }}
 
-        cell(135,246,GWVol,GWrec,ChannelQn,Qbin);
-        //  report(*tma,"tma");
-        //  report(*Qbin,"qbin");
-//    report(*tma,"gwout");
-//    report(*tmb,"rech");
-//   // report(*ThetaI2,"ti");
- //       report(*Qbase,"qb");
+        cell(48,190,GWrec,ChannelQn,Qbin,Qbase);
+       // report(*GWVol,"GWvol");
+       // report(*GWout,"GWout");
+       // report(*Qbase,"qbase");
     }
 }
 
