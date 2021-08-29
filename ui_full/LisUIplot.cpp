@@ -56,17 +56,12 @@ void lisemqt::setupPlot()
     // zoom in/out with the wheel
     (void) new QwtPlotMagnifier( HPlot->canvas() );
 
-    PGraph = new QwtPlotCurve("Rainfall");
+    PGraph = new QwtPlotCurve("Rainfall intensity");
     QGraph = new QwtPlotCurve("Discharge");
-  //  if (checkChannelBaseflow->isChecked())
-        QbGraph = new QwtPlotCurve("Baseflow");
-
-//    if(checkDoErosion->isChecked()) {
-        QsGraph = new QwtPlotCurve("Sediment discharge");
-        CGraph = new QwtPlotCurve("Concentration");
-//    }
-//    if(checkIncludeTiledrains->isChecked())
-        QtileGraph = new QwtPlotCurve("Tile drain");
+    QbGraph = new QwtPlotCurve("Baseflow (estimated)");
+    QsGraph = new QwtPlotCurve("Sediment discharge");
+    CGraph = new QwtPlotCurve("Concentration");
+    QtileGraph = new QwtPlotCurve("Tile drain");
 
     PGraph->attach(HPlot);
     QGraph->attach(HPlot);
@@ -250,6 +245,10 @@ void lisemqt::initPlot()
 {
     HPlot->setTitle("Hydrograph Outlet");
 
+    QbGraph->detach();
+    QsGraph->detach();
+    CGraph->detach();
+    QtileGraph->detach();
 
     if (checkEventBased->isChecked())
         HPlot->setAxisTitle(HPlot->xBottom, "time (min)");
@@ -314,6 +313,7 @@ void lisemqt::showPlot()
 
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
     PGraph->setSamples(op.Time,op.Pmm);
+
     if (checkChannelBaseflow->isChecked())
         QbGraph->setSamples(op.Time,*op.OutletQb[index]);
 

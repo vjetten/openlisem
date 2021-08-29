@@ -344,7 +344,7 @@ void TWorld::HydrologyProcesses()
 
         if (RoadWidthHSDX->Drc > 0)
             WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
-        // tarred roads have no interception
+        // tarred roads have no interception ?
 
         if (InfilMethod == INFIL_SWATRE) {
            cell_InfilSwatre(r, c);
@@ -355,10 +355,9 @@ void TWorld::HydrologyProcesses()
 
            cell_Redistribution1(r, c);
 
-           if (!SwitchImpermeable)
-               cell_Percolation(r, c);
-//           if (r == 200 && c == 200)
-//               qDebug() << "b" << Thetaeff->Drc<< ThetaI2->Drc << Lw->Drc;
+           if (!SwitchImpermeable && !SwitchChannelBaseflow)
+               Perc->Drc = cell_Percolation(r, c);
+           // if basweflow this already does percollation, no need to do this twice
         }
         // infiltration by SWATRE of G&A+percolation
 
@@ -374,9 +373,6 @@ void TWorld::HydrologyProcesses()
         doETa();
     // ETa is subtracted from canopy, soil water surfaces
     // divided over 12 hours in a day with sine curve
-//report(*Lw,"lw");
-//report(*Thetaeff,"te");
-//report(*ThetaI2,"t2i");
 
 }
 //---------------------------------------------------------------------------

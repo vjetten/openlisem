@@ -904,20 +904,15 @@ void TWorld::InitChannel(void)
         ChannelWidthO = NewMap(0);
         ChannelDepthO = NewMap(0);
 
-        bool correct = false;
         FOR_ROW_COL_MV_CH
         {
             ChannelWidthO->Drc = ChannelWidth->Drc;
             ChannelDepthO->Drc = ChannelDepth->Drc;
 
-            double factor  = 1.0;
+            SwitchChannelAdjustCHW = true;
             if (SwitchChannelAdjustCHW && ChannelWidth->Drc  > 0.95* _dx) {
-
-                factor = ChannelWidth->Drc /(0.95*_dx);
                 ChannelWidth->Drc = 0.95*_dx;
-                ChannelDepth->Drc *= factor;                                
-
-                correct = true;
+                ChannelDepth->Drc *= ChannelWidth->Drc /(0.95*_dx);
             } else {
                 ChannelWidth->Drc = std::min(ChannelWidth->Drc, 0.95*_dx);
                 ChannelWidthO->Drc = ChannelWidth->Drc;
@@ -928,13 +923,8 @@ void TWorld::InitChannel(void)
                 ErrorString = QString("Map %1 contains channel cells with width = 0").arg(getvaluename("chanwidth"));
                 throw 1;
             }
-           // ChannelWidthO->Drc = ChannelWidth->Drc;
         }
-        if (correct) {
-            DEBUG("channel width and depth adjusted!");
-            report(*ChannelWidth,"chanwidthcorr.map");
-            report(*ChannelDepth,"chandepthcorr.map");
-        }
+
         ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
         ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
         checkMap(*ChannelGrad, LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
@@ -973,9 +963,6 @@ void TWorld::InitChannel(void)
             // make always a rectangular channel
             ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
         }
-
-        //copy(*ChannelFlowWidth, *ChannelWidth); // actual width related to water height in channel
-        //cover(*ChannelFlowWidth, *LDD, 0);
 
         if (SwitchChannelBaseflow) {
 
@@ -1051,6 +1038,7 @@ void TWorld::InitChannel(void)
 
     }
 
+    // OBSOLETE
    // SwitchChannelExtended = ExtendChannelNew();
     //   ExtendChannel();
 

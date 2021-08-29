@@ -73,17 +73,16 @@ void TWorld::InfilEffectiveKsat(void)
                 Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
                 Poreeff->Drc = ThetaS1->Drc*(1-GrassFraction->Drc) + PoreGrass->Drc*GrassFraction->Drc;
             }
+            if (SwitchHouses) {
+                Ksateff->Drc *= (1-HouseCover->Drc);
+                Poreeff->Drc *= (1-HouseCover->Drc);
+            }
 
             // impermeable surfaces
 //            if (SwitchHardsurface) {
 //                Ksateff->Drc *= (1-HardSurface->Drc);
 //                Poreeff->Drc *= (1-HardSurface->Drc);
 //            }
-
-            if (SwitchHouses) {
-                Ksateff->Drc *= (1-HouseCover->Drc);
-                Poreeff->Drc *= (1-HouseCover->Drc);
-            }
 
 //            if (SwitchRoadsystem) {
 //                Ksateff->Drc *= (1-RoadWidthDX->Drc/_dx);
@@ -94,21 +93,15 @@ void TWorld::InfilEffectiveKsat(void)
             Ksateff->Drc = std::max(0.0, Ksateff->Drc);
             Poreeff->Drc = std::max(0.35, Poreeff->Drc);
             Thetaeff->Drc = std::min(1.0,Poreeff->Drc/ThetaS1->Drc) * ThetaI1->Drc;
-                    //std::min(Thetaeff->Drc, Poreeff->Drc);
-            // prob unneccessary
-
-          //  Ksateff->Drc *= ksatCalibration;
-            // apply runfile/iface calibration factor
-
             bca1->Drc = 5.55*qPow(Ksateff->Drc,-0.114);
             if(SwitchTwoLayer)
                 bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
             // percolation coefficient
         }}
     }
-report(*Ksateff,"ksateff1.map");
-report(*Poreeff,"poreeff1.map");
-report(*Thetaeff,"thetaeff1.map");
+//report(*Ksateff,"ksateff1.map");
+//report(*Poreeff,"poreeff1.map");
+//report(*Thetaeff,"thetaeff1.map");
 }
 //---------------------------------------------------------------------------
 /*!

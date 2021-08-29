@@ -1592,7 +1592,7 @@ void lisemqt::resetTabOptions()
     BaseflowParams->setEnabled(false);
 
     checkChannelInflow->setChecked(false);
-    checkChannelAdjustCHW->setChecked(false);
+    checkChannelAdjustCHW->setChecked(true);
 
 
     checkRoadsystem->setChecked(false);

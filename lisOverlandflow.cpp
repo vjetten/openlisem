@@ -45,27 +45,31 @@
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow(void)
 {
-    ToTiledrain();   // fraction going into tiledrain directly from surface
+    ToTiledrain();   // fraction going into tiledrain directly from surface, for 1D and 2D flow
 
+    // kinematic wave or kin wave with overflow
     if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
 
-        CalcVelDisch();        // overland flow velocity, discharge and alpha
+        CalcVelDisch();
+        // overland flow velocity, discharge and alpha
 
         if (SwitchErosion) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L  {
-                cell_FlowDetachment(r, c);   // flow detachment
-                //ToChannel(r, c);           // overland flow water and sed flux going into or out of channel, in channel cells
+                cell_FlowDetachment(r, c);
+                // kine wave based flow detachment
             }}
         }
 
         ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
-        OverlandFlow1D();   // kinematic wave
+        OverlandFlow1D();   // kinematic wave of wter and sediment
 
         if(SwitchKinematic2D == K2D_METHOD_KINDYN)
-            ChannelFlood(); // st venant channel 2D flooding from channel, only for kyn wave, partly parallel
+            ChannelFlood();
+            // st venant channel 2D flooding from channel, only for kyn wave, partly parallel
     }
 
+    // dynamic wave overland flow, erosion is included
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
         OverlandFlow2Ddyn();
     }
