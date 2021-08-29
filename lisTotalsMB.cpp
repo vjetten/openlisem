@@ -209,10 +209,10 @@ void TWorld::Totals(void)
     {
         ChannelVolTot = MapTotal(*ChannelWaterVol); //m3
         // add channel vol to total
-      //  if (SwitchChannelBaseflow)
-       //     BaseFlowTot = MapTotal(*BaseFlowInflow) * _dt;
         if (SwitchChannelBaseflow)
-            BaseFlowTot += MapTotal(*Qbin);//*catchmentAreaFlatMM; // total inflow in m3
+            BaseFlowTot += MapTotal(*Qbin); // total inflow in m3
+        //BaseFlowTot += MapTotal(*Qbase)*_dt; // total inflow in m3
+        //OBSOLETE     BaseFlowTot = MapTotal(*BaseFlowInflow) * _dt;
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
     }
@@ -232,7 +232,6 @@ void TWorld::Totals(void)
     Qfloodout = 0;
     if(SwitchKinematic2D == K2D_METHOD_KINDYN)
     {
-//#pragma omp parallel for reduction(+:Qfloodout) num_threads(userCores)
         FOR_ROW_COL_LDD5 {
             Qfloodout += Qflood->Drc * _dt;
         }}
@@ -243,11 +242,6 @@ void TWorld::Totals(void)
     // add channel outflow
     if (SwitchIncludeChannel)
     {
-   //     FOR_ROW_COL_MV_CH
-     //   {
-       //     if (LDDChannel->Drc == 5) {
-
-//#pragma omp parallel for reduction(+:QtotT) num_threads(userCores)
             FOR_ROW_COL_LDDCH5 {
                 QtotT += ChannelQn->Drc*_dt; //m3
             }}
@@ -256,7 +250,7 @@ void TWorld::Totals(void)
                 ChannelQntot->Drc += ChannelQn->Drc*_dt;
                 //cumulative m3 spatial for .map output
             }}
-      //  }
+
         // add channel outflow (in m3) to total for all pits
     }
 

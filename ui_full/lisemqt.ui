@@ -102,7 +102,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -2603,7 +2603,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>-367</y>
+                <y>0</y>
                 <width>961</width>
                 <height>1022</height>
                </rect>
@@ -2642,7 +2642,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>6</number>
+                  <number>4</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -4838,7 +4838,7 @@ p, li { white-space: pre-wrap; }
                          <double>10.000000000000000</double>
                         </property>
                         <property name="value">
-                         <double>2.000000000000000</double>
+                         <double>1.000000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -4949,10 +4949,13 @@ p, li { white-space: pre-wrap; }
                          <double>0.000000000000000</double>
                         </property>
                         <property name="maximum">
-                         <double>10.000000000000000</double>
+                         <double>1.000000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>0.010000000000000</double>
                         </property>
                         <property name="value">
-                         <double>1.000000000000000</double>
+                         <double>0.200000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -4968,7 +4971,7 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="text">
-                         <string>Baseflow lag factor</string>
+                         <string>Baseflow recession factor</string>
                         </property>
                        </widget>
                       </item>
