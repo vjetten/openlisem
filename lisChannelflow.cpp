@@ -153,7 +153,7 @@ void TWorld::ChannelAddBaseandRain(void)
 //            VolQb->Drc = std::max(0.0, VolQb->Drc);
 //        }}
 
-        cell(48,190,VolQb,tmb,tma,Qbase);
+       // cell(48,190,VolQb,tmb,tma,Qbase);
        // report(*GWVol,"GWvol");
        // report(*GWout,"GWout");
        // report(*Qbase,"qbase");
@@ -311,9 +311,10 @@ void TWorld::ChannelFlow(void)
                    // ChannelWaterVol->Drc = ChannelArea*ChannelDX->Drc;
                 }
              }
-
-            Qbase->Drc = Qbin->Drc/_dt + sqrt(ChannelQn->Drc);
-                    //ase->Drc + ChannelQn->Drc*0.00001;
+            //for display, does not work
+//            if(SwitchChannelBaseflow)
+//                Qbase->Drc = Qbin->Drc/_dt + sqrt(ChannelQn->Drc);
+                    //Base->Drc + ChannelQn->Drc*0.00001;
         }}
 
     } else {
