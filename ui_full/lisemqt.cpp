@@ -918,6 +918,7 @@ void lisemqt::SetStyleUI()
     checkDoErosion->setStyleSheet("QCheckBox {color: #4477aa;}");
     checkSed2Phase->setStyleSheet("QCheckBox {color: #4477aa;}");
     label_55->setStyleSheet("QLabel {color: #4477aa;}");
+    label_88->setStyleSheet("QLabel {color: #4477aa;}");
     label_9->setStyleSheet("QLabel {color: #4477aa;}");
     label_10->setStyleSheet("QLabel {color: #4477aa;}");
     label_11->setStyleSheet("QLabel {color: #4477aa;}");
@@ -925,7 +926,7 @@ void lisemqt::SetStyleUI()
     // interface elements that are not visible for now
     frameSpare->setVisible(false);
     tabWidgetOptions->removeTab(8);
-    tabWidgetOptions->removeTab(7);
+    //tabWidgetOptions->removeTab(7);
     //frameNumerical->setVisible(false);
 
     //tabWidget_erosion->setCurrentIndex(0);

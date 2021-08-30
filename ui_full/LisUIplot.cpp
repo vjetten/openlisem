@@ -58,7 +58,7 @@ void lisemqt::setupPlot()
 
     PGraph = new QwtPlotCurve("Rainfall intensity");
     QGraph = new QwtPlotCurve("Discharge");
-    QbGraph = new QwtPlotCurve("Baseflow (estimated)");
+    //QbGraph = new QwtPlotCurve("Baseflow (estimated)");
     QsGraph = new QwtPlotCurve("Sediment discharge");
     CGraph = new QwtPlotCurve("Concentration");
     QtileGraph = new QwtPlotCurve("Tile drain");
@@ -111,9 +111,9 @@ void lisemqt::setupPlot()
     PGraph->setAxes(HPlot->xBottom, *axisYR1);// HPlot->yRight);
 
   //  if(checkChannelBaseflow->isChecked()) {
-        QbGraph->setPen(pen3);
-        QbGraph->setAxes(HPlot->xBottom, *axisYL1);
-        QbGraph->setStyle(QwtPlotCurve::Lines);
+//        QbGraph->setPen(pen3);
+//        QbGraph->setAxes(HPlot->xBottom, *axisYL1);
+//        QbGraph->setStyle(QwtPlotCurve::Lines);
  //   }
  //   if(checkIncludeTiledrains->isChecked()) {
         QtileGraph->setPen(pen3);
@@ -245,7 +245,7 @@ void lisemqt::initPlot()
 {
     HPlot->setTitle("Hydrograph Outlet");
 
-    QbGraph->detach();
+   // QbGraph->detach();
     QsGraph->detach();
     CGraph->detach();
     QtileGraph->detach();
@@ -255,9 +255,9 @@ void lisemqt::initPlot()
     else
         HPlot->setAxisTitle(HPlot->xBottom, "time (day)");
 
-    if (checkChannelBaseflow->isChecked()) {
-        QbGraph->attach(HPlot);
-    }
+//    if (checkChannelBaseflow->isChecked()) {
+//       QbGraph->attach(HPlot);
+//    }
 
     if(checkIncludeTiledrains->isChecked()) {
         QtileGraph->attach(HPlot);
@@ -314,8 +314,8 @@ void lisemqt::showPlot()
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
     PGraph->setSamples(op.Time,op.Pmm);
 
-    if (checkChannelBaseflow->isChecked())
-        QbGraph->setSamples(op.Time,*op.OutletQb[index]);
+   // if (checkChannelBaseflow->isChecked())
+    //    QbGraph->setSamples(op.Time,*op.OutletQb[index]);
 
     int _j = op.OutletQ[index]->count()-1;
 //    if (qmax[index] < op.OutletQ[index]->at(_j))

@@ -50,20 +50,15 @@
         <file>black.qss</file>
         <file>calibr.png</file>
         <file>Plant-icon.png</file>
-        <file>soil2.png</file>
         <file>water.png</file>
         <file>rain.png</file>
-        <file>eros.png</file>
-        <file>soil3.png</file>
-        <file>erosc.png</file>
-        <file>Plant-iconc.png</file>
-        <file>rainc.png</file>
-        <file>waterc.png</file>
         <file>eros1bw.png</file>
         <file>2X/advanced.png</file>
         <file>2X/settings2.png</file>
         <file>soil4.png</file>
         <file>2X/noinfo.png</file>
+        <file>2X/settings1.png</file>
+        <file>soil5.png</file>
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>

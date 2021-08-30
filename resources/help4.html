@@ -1,10 +1,17 @@
-en using 2D dynamic flow there is no difference between runoff and flooding. In order to avoid spurious flood levels reported as "flood" a threshold level (in m, default 0.05) can be set to distinguish between a flood and non-hazardous surface flow or runoff.</p>
-<p>&nbsp;</p>
+<p><strong>Flow boundary and barriers (for 2D flow)</strong></p>
+<p>0 - outflow not allowed except in outflow points in outlet.map. Water can pool at the edges if the DEM is not perfect.<br />1 - outflow to all sides possible of flood and overland flow. Outlets always allow outflow. (default)<br />2 - a user defined map (flowboundary.map) allows 2D outflow where the value is 1, and a closed boundary where the value = 0. A map filled with 1 is the same as unchecked, free outflow.</p>
+<p><strong>Flood threshold</strong></p>
+<p>When using 2D dynamic flow there is no difference between runoff and flooding. In order to avoid spurious flood levels reported as "flood" a threshold level (in m, default 0.05) can be set to distinguish between a real flood and non-hazardous flow.</p>
 <p><strong>Initial water level</strong></p>
 <p>A simulation can be started with an initial water level: supply a map called whinit.map which has water initial levels (in m).</p>
 <p><strong>Buffers</strong></p>
 <p>Buffers.map is a map added to the DEM, works only for 2D flow. Positive values (in meters) are gridcells added to the DEM (creating dikes), negative values are values that are subtracted from the DEM (creating depressions). Units are in meters.</p>
 <p><strong>Flow Barriers between cells</strong><br />Barriers up to a given height (m) to disconnect flow between cells (only for 2D flow). The barriers are assumed to be on the cell boundary and have no physical thickness, only a height. Cells can be disconnected in the 4 directions NESW. This needs flowbarrier.map with codes 0 (no barrier), and 1, 2, 3 ... n. The numbers correspond to the text file flowbarriers.txt where the height of the barriers are given.</p>
+<p><strong>Baseflow parameters</strong></p>
+<p>Baseflow is generated following principles of SWAT (2009). Three additional masp are needed: a map that gives the distance to the channel (basedistance.map), an LDD map giving the flow direction towards the channel (lddbase.map), and an intial groundwater level map (gwlevel.map, in m). Three parameters can be set, all are relative calibration paraters:</p>
+<p>- Recharge of the groundwater from the soil profile, based on the unsaturated Ksat and soil moisture content, multiplication factor (0-100, def 1.0)</p>
+<p>- Grounrwater flow towards the channel cells, based on Ksat, porosity and inverse distance to the channel: multiplication factor (0-100, def 1.0)</p>
+<p>- Baseflow recession factor, weiging the inflow of the previous timestep and the current timestep (0-1, def 0.2). 0 Means only current timstep is used, 1 means only previous timestep is used.</p>
 <p><strong>2D dynamic wave parameters</strong><br />The SD Shallow Water Overland Flow (SWOF) equations are a semi-implicite finite volume solution, using progressively smaller timesteps to solve the St Venant flood equations, using a Riemann Solver and a Flux Limiter. Fluxes and states can be estimated at the cell boundaries or from the cell centers.</p>
 <ul>
 <li>SWOF 2.0: Simplified and very fast SWOF solution, using cell center values and a flux limiter only for the hydraulic pressure differences.</li>

@@ -13,8 +13,7 @@
 <p>The channel system can be switched off entirely in which case only overland flow is considered. Channels are 1D networks using a kinematic wave for flow.</p>
 <ul>
 <li>Channel infiltration: assumed to be saturated infiltration, the flux equals ChannelKsat (mm/h). If not checked the channel is assumed impermeable. Mutually exclusive with baseflow.</li>
-<li>Channel baseflow: the baseflow discharge at the outlet(s) is given in m3/s in the map baseflow.map. This discharge is iterated over the entire channel, so that the kinematic wave gives the stated baseflow at the outlet. Mutually exclusive with channel infiltration.</li>
-<li>Channel Culverts: these are cells in the channel that constrain the discharge a maximum flow in m3/s (specified in ChanMaxQ.map). It is a simple bottleneck; no pipe flow physics are used.</li>
+<li>Channel baseflow: baseflow is generated from a groundwater layer assuming a distance related contribution of cells surounding the channel. See Flow options. Mutually exclusive with channel infiltration</li>
 </ul>
 <p><strong>Infrastructure</strong></p>
 <p>Switch on or off the effect of buildings and infrastructure:</p>
@@ -22,6 +21,6 @@
 <li>Buildings have interception storage, are impermeable, obstruct flow and are non-erodible. They can have storage drums for rainwater (interception from roof goes into the drum). Buildings can be smaller than the girdcell in which case the characteristics of the soil and vegetation are used.</li>
 <li>Roads have no interception, are impermeable, smooth, have no detachment of sediment but can have deposition. Roads can be smaller than the girdcell in which case the characteristics of the soil and vegetation are used.</li>
 <li>Hard Surfaces (parking lots, courtyards, airstrips), have no interception, are impermeable, smooth, have no detachment of sediment but can have deposition. They behave the same as roads but are a separate class because they are often in a different land use class.</li>
-</ul>
+<li>Channel Culverts: these are cells in the channel that constrain the discharge a maximum flow in m3/s (specified in ChanMaxQ.map). It is a simple bottleneck; no pipe flow physics are used.</li></ul>
 <p>Storm drains (tile drains) are networks of circular subsurface pipes with regular inlets. A kinematic wave transports water along this system. The maximum flow is determined by the diameter, gradient and Manning's n. Can be used for urban drains or agricultural tile drains.</p>
 

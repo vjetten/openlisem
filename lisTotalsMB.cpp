@@ -116,7 +116,7 @@ void TWorld::Totals(void)
         IntercHouseTotmm = IntercHouseTot*catchmentAreaFlatMM;
         // interception in mm and m3
     }
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         InterceptionmmCum->Drc = (IntercETa->Drc + Interc->Drc + IntercHouse->Drc + LInterc->Drc)*1000.0/CellArea->Drc;
         // for screen and file output

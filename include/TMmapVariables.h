@@ -95,9 +95,8 @@ cTMap
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
 *Qbin,
 *Qbase,
-//*VolQb,
+*VolQb,
 *GWVol,
-//*WHGW,
 *GWrec,
 *GWout,
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]

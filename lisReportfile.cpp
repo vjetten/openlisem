@@ -162,7 +162,7 @@ void TWorld::OutputUI(void)
         double discharge = Qoutput->Drc;// sum of current Qn, ChannelQn, Qflood in l/s or m3/s, not Tile!
         double dischargeQb = 0;// sum of current Qn, ChannelQn, Qflood in l/s or m3/s, not Tile!
         if (SwitchChannelBaseflow)
-            dischargeQb = ChannelWaterVol->Drc > 0 ? (Qbin->Drc/ChannelWaterVol->Drc) * ChannelQn->Drc * 1000.0 : 0; //  in m3 or l
+            dischargeQb = Qbase->Drc * 1000;//ChannelWaterVol->Drc > 0 ? ((Qbin->Drc/ChannelWaterVol->Drc) * ChannelQn->Drc + sqrt(ChannelQn->Drc) * (1-exp(-GW_lag)) * 1000.0) : 0; //  in m3 or l
             //dischargeQb = ChannelQn->Drc > 0 ? (Qbase->Drc/ChannelQn->Drc) * ChannelWaterVol->Drc * (QUnits == 0 ? 1000.0 : 1.0) : 0; //  in m3 or l
         double channelwh = SwitchIncludeChannel? ChannelWH->Drc : 0.0;
         op.OutletChannelWH.at(j)->append(std::isnan(channelwh)?0.0:channelwh);

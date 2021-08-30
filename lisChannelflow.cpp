@@ -98,7 +98,6 @@ void TWorld::ChannelAddBaseandRain(void)
             //outflow m3
             double GWout_ = _dx*GW_flow * ksat * BaseflowL->Drc * (GWVol_/DX->Drc*pore);
             //m3:  ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx*porosity
-          //  GWout_ = GWVol_ <= 0.01*_dx*_dx ? 0.0 : GWVol_;
             GWout_ = GWout_ * exp(-5*GWVol_/CellArea->Drc);
             //stop outflow when some minimum GW level, 2.4.2.10 in SWAT
             // replaced here with decay function exp(-10 * GW WH)
@@ -110,6 +109,9 @@ void TWorld::ChannelAddBaseandRain(void)
             GWout->Drc = GWout_;
             GWVol->Drc = GWVol_;
             GWrec->Drc = GWrec_;
+            tma->Drc = Qbin->Drc;
+            Qbin->Drc = 0;
+            //Qbase->Drc = ChannelQn->Drc;
         }}
 
         //store qbin prev timestep
@@ -117,27 +119,41 @@ void TWorld::ChannelAddBaseandRain(void)
         //move the gw flow to the channel,
         // Qbin is inflow to the channel from the surrounding cellsm in m3 per timestep
 
+        double factor = exp(-GW_lag);
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             Qbin->Drc *= ChannelWidthO->Drc/_dx;
             // proportion of Wbin flowing into channel
-            double Qprev = ChannelQn->Drc > 1 ? sqrt(ChannelQn->Drc*_dt) * (1-exp(-GW_lag)) : 0.0;
-            Qbin->Drc = Qbin->Drc *exp(-GW_lag) + Qprev;
-            // flow according to SWATRE 2009, page 174 manual, eq 2.4.2.8
+//          double Qprev = ChannelQn->Drc > 1 ? sqrt(ChannelQn->Drc) * (factor) : 0.0;
+            Qbin->Drc = Qbin->Drc*(1-factor) + tma->Drc*factor;
+//            Qbin->Drc = Qbin->Drc*(1-factor) + sqrt(ChannelQn->Drc*_dt)*(factor);
+            // flow according to SWAT 2009, page 174 manual, eq 2.4.2.8
 
             ChannelWaterVol->Drc += Qbin->Drc;
             //finally add baseflow input to the current channel water volume
         }}
+
 //        #pragma omp parallel for num_threads(userCores)
 //        FOR_ROW_COL_MV_CHL {
-//           tma->Drc = Qbin->Drc/_dt;
-//           tmb->Drc = std::pow(ChannelN->Drc/sqrt(ChannelGrad->Drc) * std::pow(ChannelWidth->Drc, 2.0/3.0), 0.6);
-//           tmc->Drc = 0;
+//           Qbase->Drc = 0;
+//          // VolQb->Drc += Qbin->Drc;
+//           double wh = (VolQb->Drc+Qbin->Drc)/(ChannelWidth->Drc*ChannelDX->Drc);
+//           double Sn = ChannelN->Drc/sqrt(ChannelGrad->Drc);
+//           double cw = ChannelWidth->Drc;
+//           tma->Drc = std::pow(wh,2.0/3.0)/Sn * wh * ChannelWidth->Drc;
+//           //tmb->Drc = std::pow(Sn * std::pow(cw+2*wh, 2.0/3.0), 0.6);
+//           tmb->Drc = (wh*cw)/std::pow(tma->Drc, 0.6);
+//           tmc->Drc = 0;//Qbin->Drc/ChannelDX->Drc;
 //           tmd->Drc = -1;
 //        }}
 //        KinematicExplicit(crlinkedlddch_, tma, Qbase, tmc, tmb, ChannelDX, tmd);
+//        #pragma omp parallel for num_threads(userCores)
+//        FOR_ROW_COL_MV_CHL {
+//            VolQb->Drc = VolQb->Drc + QinKW->Drc*_dt - Qbase->Drc*_dt;
+//            VolQb->Drc = std::max(0.0, VolQb->Drc);
+//        }}
 
-//        cell(48,190,GWrec,tmb,tma,Qbase);
+        cell(48,190,VolQb,tmb,tma,Qbase);
        // report(*GWVol,"GWvol");
        // report(*GWout,"GWout");
        // report(*Qbase,"qbase");
@@ -251,7 +267,6 @@ void TWorld::ChannelFlow(void)
                 FOR_ROW_COL_LDDCH5 {
                     Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
                 }}
-                //cover(*ChannelQn, *LDD, 0);
                 #pragma omp parallel for num_threads(userCores)
                 FOR_ROW_COL_MV_L {
                     if (pcr::isMV(ChannelQn->Drc))
@@ -262,14 +277,6 @@ void TWorld::ChannelFlow(void)
                 KinematicExplicit(crlinkedlddch_, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
             }
 
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_CHL {
-                //                if (SwitchChannelKinwaveDt && SwitchChannelKinwaveAvg) {
-                //                   tma->Drc += ChannelQn->Drc;
-                //                   tmb->Drc += QinKW->Drc;
-                //                }
-                ChannelQ->Drc = ChannelQn->Drc;
-            }}
         } //loop
 //        _dt = _dt_user;
 
@@ -284,7 +291,7 @@ void TWorld::ChannelFlow(void)
         // calc V and WH back from Qn (original width and depth)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            ChannelWaterVol->Drc += (Channelq->Drc + QinKW->Drc)*_dt;
+            ChannelWaterVol->Drc += (Channelq->Drc + QinKW->Drc)*_dt; // channel is in m2/s!
             ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelWaterVol->Drc/_dt);
             ChannelWaterVol->Drc -= ChannelQn->Drc*_dt ;
             //water vol from mass balance, includes any errors
@@ -304,6 +311,9 @@ void TWorld::ChannelFlow(void)
                    // ChannelWaterVol->Drc = ChannelArea*ChannelDX->Drc;
                 }
              }
+
+            Qbase->Drc = Qbin->Drc/_dt + sqrt(ChannelQn->Drc);
+                    //ase->Drc + ChannelQn->Drc*0.00001;
         }}
 
     } else {
@@ -338,15 +348,13 @@ void TWorld::ChannelFlow(void)
                     routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn,
                                    ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed);
                 }}
-              //  cover(*ChannelQBLsn, *LDD, 0);
-            }
+               }
             ChannelQSSsn->setAllMV();
             //route water 1D and sediment
             FOR_ROW_COL_LDDCH5 {
                routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
                               ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed);
             }}
-           // cover(*ChannelQSSsn, *LDD, 0);
         } else {
 
             KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);

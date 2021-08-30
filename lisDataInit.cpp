@@ -977,9 +977,8 @@ void TWorld::InitChannel(void)
             GWVol = ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
             Qbin = NewMap(0);
             Qbase = NewMap(0);
-            //VolQb = NewMap(0);
+            VolQb = NewMap(0);
             GWVol = NewMap(0);
-            //WHGW = NewMap(0);
             GWrec = NewMap(0);
             GWout = NewMap(0);
 
