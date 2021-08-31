@@ -334,7 +334,8 @@ void TWorld::HydrologyProcesses()
         // all interception on plants, houses, litter
         // result is rainnet (and leafdrip for erosion)
         if (SwitchChannelBaseflow) {
-            RainNet->Drc = (1-GW_bypass) * RainNet->Drc;
+          //  GW_bypassO = (RainNet->Drc > 0.5)? GW_bypass : 0;
+          //  RainNet->Drc = (1-GW_bypassO) * RainNet->Drc;
         }
 
         if (FloodDomain->Drc > 0) {
@@ -360,11 +361,28 @@ void TWorld::HydrologyProcesses()
 
            if (!SwitchImpermeable && !SwitchChannelBaseflow)
                Perc->Drc = cell_Percolation(r, c, 1.0);
-           // if basweflow this already does percollation, no need to do this twice
+            // if baseflow this already does percollation, no need to do this twice
         }
         // infiltration by SWATRE of G&A+percolation
 
         cell_SurfaceStorage(r, c);
+
+//        if (SwitchChannelBaseflow) {
+//            // bypass flow for GW
+//            double bpflow = WHrunoff->Drc > 0.01 ? WHrunoff->Drc*GW_bypass : 0;
+//            if (WHrunoff->Drc == 0 && RainNet->Drc > 0) {
+//                bpflow += RainNet->Drc*GW_bypass;
+//                RainNet->Drc *= (1-GW_bypass);
+//            }
+
+//            if (bpflow > 0) {
+//                WHrunoff->Drc -= bpflow;
+//                WHroad->Drc -= bpflow;
+//                WH->Drc -= bpflow;
+//                WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+//            }
+//            GWbp->Drc = bpflow*CellArea->Drc;
+//        }
 
         if (SwitchErosion) {
             double wh = FloodDomain->Drc == 0 ? WH->Drc : hmx->Drc;

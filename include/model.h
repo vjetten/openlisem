@@ -409,7 +409,7 @@ public:
     double GW_slope;
     double GW_lag;
     double GW_bypass;
-    double GW_bypassO;
+    double GW_threshold;
 
     double totetafac;
 

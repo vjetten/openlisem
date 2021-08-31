@@ -263,6 +263,7 @@ void TWorld::InitParameters(void)
     GW_slope = getvaluedouble("GW slope factor");
     GW_lag = getvaluedouble("GW lag factor");
     GW_bypass = getvaluedouble("GW bypass factor");
+    GW_threshold = getvaluedouble("GW threshold factor");
 
     // get calibration parameters
     gsizeCalibration = getvaluedouble("Grain Size calibration");
@@ -975,15 +976,16 @@ void TWorld::InitChannel(void)
                 BaseflowL->Drc = pow(_dx/BaseflowL->Drc,GW_slope);
             }}
 
-            GWVol = NewMap(0.01); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
+            GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
             Qbin = NewMap(0);
             Qbase = NewMap(0);
             VolQb = NewMap(0);
             GWrec = NewMap(0);
             GWout = NewMap(0);
+            GWbp = NewMap(0);
 
             FOR_ROW_COL_MV_L {
-                GWVol->Drc *= _dx*_dx;
+                GWVol->Drc = 0.001*_dx*_dx;
             }}
 
         }
