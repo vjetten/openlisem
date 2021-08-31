@@ -52,7 +52,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Points;outpoint.map;Reporting points for hydrograph/sedigraph (1,2,3,...);outpoint");
    // DEFmaps.append("2;Watersheds;watersheds.map;sub-catchments numbered (1,2,3,...);wsheds");
     DEFmaps.append("2;Baseflow network;lddbaseflow.map;LDD perpendicular to the river;lddbase");
-    DEFmaps.append("2;Baseflow reach;basereach.map;Distance to river (m);basereach");
+    DEFmaps.append("2;Baseflow contrib. area;basedistance.map;Distance to river (m);basereach");
     DEFmaps.append("2;Initial level;gwlevel.map;Initial groundwater level (m);gwlevel");
 
     DEFmaps.append("0;Landuse");
@@ -415,10 +415,12 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("GW recharge factor");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW flow factor");
-    namelist[i].value = QString("2.0");
+    namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW slope factor");
-    namelist[i].value = QString("0.01");
+    namelist[i].value = QString("0.2");
     namelist[i++].name = QString("GW lag factor");
+    namelist[i].value = QString("0.0");
+    namelist[i++].name = QString("GW bypass factor");
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Advanced]");

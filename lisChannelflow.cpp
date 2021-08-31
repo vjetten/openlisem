@@ -81,7 +81,8 @@ void TWorld::ChannelAddBaseandRain(void)
         // GW recharge and GW outflow
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            double GWrec_ = cell_Percolation(r, c);
+            double GWrec_ = cell_Percolation(r, c, GW_recharge);
+            GWrec_ += GW_bypass*RainNet->Drc;
             GWrec_ = GWrec_ * CellArea->Drc;
             // GW recharge same principle as percolation, in m3
 
@@ -96,9 +97,9 @@ void TWorld::ChannelAddBaseandRain(void)
 
             double GWVol_ = GWVol->Drc;
             //outflow m3
-            double GWout_ = _dx*GW_flow * ksat * BaseflowL->Drc * (GWVol_/DX->Drc*pore);
-            //m3:  ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx*porosity
-            GWout_ = GWout_ * exp(-5*GWVol_/CellArea->Drc);
+            double GWout_ = _dx*GW_flow * ksat * BaseflowL->Drc * (GWVol_/DX->Drc)/pore;
+            //m3:  ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx; //*porosity
+            GWout_ = GWout_ * (1-exp(-6*(GWVol_/CellArea->Drc)/pore));
             //stop outflow when some minimum GW level, 2.4.2.10 in SWAT
             // replaced here with decay function exp(-10 * GW WH)
 
@@ -112,6 +113,7 @@ void TWorld::ChannelAddBaseandRain(void)
             tma->Drc = Qbin->Drc;
             Qbin->Drc = 0;
             //Qbase->Drc = ChannelQn->Drc;
+            tmb->Drc = GWVol->Drc/CellArea->Drc/pore;
         }}
 
         //store qbin prev timestep
@@ -153,10 +155,11 @@ void TWorld::ChannelAddBaseandRain(void)
 //            VolQb->Drc = std::max(0.0, VolQb->Drc);
 //        }}
 
-       // cell(48,190,VolQb,tmb,tma,Qbase);
-       // report(*GWVol,"GWvol");
+        cell(48,190,GWVol,GWrec,GWout,Qbin);
+        report(*tmb,"GWhw");
+        // report(*GWVol,"GWvol");
        // report(*GWout,"GWout");
-       // report(*Qbase,"qbase");
+        report(*Qbin,"qbin");
     }  // switch baseflow
 }
 

@@ -290,7 +290,7 @@ void TWorld::cell_Redistribution(int r, int c)
 
 //---------------------------------------------------------------------------
 // percolation from the bottom of the soil profile
-double TWorld::cell_Percolation(int r, int c)
+double TWorld::cell_Percolation(int r, int c, double factor)
 {
     double Percolation, dL, pore, theta, thetar, theta_E;
     double Lw_ = Lw->Drc;
@@ -301,11 +301,12 @@ double TWorld::cell_Percolation(int r, int c)
         thetar = 0.025 * pore;
         theta = ThetaI2->Drc;
         double SoilDep2 = SoilDepth2->Drc;
+        double ksat = factor*Ksat2->Drc*_dt/3600000;
 
         if(theta > thetar) {
             // percolation in m per timestep
             theta_E = (theta-thetar)/(pore-thetar);
-            Percolation = Ksat2->Drc*_dt/3600000 * pow(theta_E, bca2->Drc);
+            Percolation = ksat * pow(theta_E, bca2->Drc);
 
             if (Lw->Drc > SoilDepth1->Drc)
                 dL = SoilDep2 - Lw_;
@@ -323,7 +324,7 @@ double TWorld::cell_Percolation(int r, int c)
             } else {
                 // wetting front = soildepth2, dL = 0, moisture = 0
                 // assume theta goes back to 0.7 pore and decrease the wetting fornt
-                Percolation = sqrt(Ksat2->Drc*_dt/3600000 * Percolation);  //k = sqrt(ks*k)
+                Percolation = sqrt(ksat * Percolation);  //k = sqrt(ks*k)
                 double FC2 = 0.7867*exp(-0.012*Ksat2->Drc)*pore;
                 theta = FC2;
                 double Lwo = Lw_;
@@ -340,10 +341,11 @@ double TWorld::cell_Percolation(int r, int c)
         double pore = Poreeff->Drc;
         thetar = 0.025 * pore;
         double theta = Thetaeff->Drc;
+        double ksat = factor*Ksateff->Drc*_dt/3600000;
 
         if (theta > thetar) {
             theta_E = (theta-thetar)/(pore-thetar);
-            Percolation = Ksateff->Drc*_dt/3600000.0 * pow(theta_E, bca1->Drc);
+            Percolation = ksat * pow(theta_E, bca1->Drc);
             if (Lw_ < SoilDep1) {
                 // wetting front has not reached bottom, make soil drier
                 // decrease thetaeff because of percolation

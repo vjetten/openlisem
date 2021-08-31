@@ -1657,9 +1657,12 @@ void lisemqt::resetTabFlow()
     rb_swof2->setChecked(true);
     E_TimestepMinFlood->setValue(0.2);
     E_courantFactor->setValue(0.2);
+
     GW_recharge->setValue(1.0);
     GW_flow->setValue(1.0);
     GW_slope->setValue(1.0);
+    GW_lag->setValue(0.2);
+    GW_bypass->setValue(0.0);
 }
 //--------------------------------------------------------------------
 void lisemqt::resetTabSediment()

@@ -662,7 +662,7 @@ void TWorld::SoilWater()
 
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        cell_Percolation(r, c);
+        cell_Percolation(r, c, 1.0);
 
     }}
 }
