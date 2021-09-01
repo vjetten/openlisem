@@ -346,7 +346,7 @@ public:
 */
 
     bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelInflow, SwitchChannelAdjustCHW,
-    SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite, SwitchRainfall, SwitchEventbased,
+    SwitchChannelBaseflowStationary, SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite, SwitchRainfall, SwitchEventbased,
     SwitchDailyET, SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
@@ -778,7 +778,7 @@ public:
 
 
     void FindBaseFlow(); //search for channel inflow from groundwater
-    bool addedbaseflow = false;
+    bool addedbaseflow;
 
     void Pestmobilisation(void);
 //    void TransPesticide(int pitRowNr, int pitColNr,cTMap *_LDD,cTMap *_Qn, cTMap *_Vup, cTMap *_Vupold,cTMap *_WHoutavg,
@@ -851,11 +851,12 @@ public:
 
     void OverlandFlow1D(void);
     void ChannelFlow();
+    void ChannelBaseflow();
+    void ChannelRainandInfil();
     void ChannelFillDam();
 
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
-    void ChannelAddBaseandRain();    
     void ToChannel();//int r, int c);
     void ToFlood();
     void CalcVelDisch(); //(int r, int c);

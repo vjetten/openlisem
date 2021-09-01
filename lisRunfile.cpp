@@ -350,7 +350,7 @@ void TWorld::ParseRunfileData(void)
     if (!SwitchIncludeChannel)
     {
         SwitchChannelBaseflow = false;
-        //SwitchChannelFlood = false;
+        SwitchChannelBaseflowStationary = false;
         SwitchChannelInfil = false;
     }
 

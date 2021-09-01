@@ -333,15 +333,16 @@ void TWorld::HydrologyProcesses()
             cell_Interception(r,c);
         // all interception on plants, houses, litter
         // result is rainnet (and leafdrip for erosion)
-        if (SwitchChannelBaseflow) {
-          //  GW_bypassO = (RainNet->Drc > 0.5)? GW_bypass : 0;
-          //  RainNet->Drc = (1-GW_bypassO) * RainNet->Drc;
-        }
 
         if (FloodDomain->Drc > 0) {
             hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
         } else {
             WH->Drc += RainNet->Drc + Snowmeltc->Drc;
+//            if (WH->Drc > 0 && Lw->Drc > 0.2) {
+//                double gwbp = WH->Drc*GW_bypass;
+//                WH->Drc -= gwbp;
+//                GWbp->Drc = gwbp * CellArea->Drc;
+//            }
         }
         // add net to water rainfall on soil surface (in m)
         // when kin wave and flooded hmx exists else always WH
@@ -367,23 +368,6 @@ void TWorld::HydrologyProcesses()
 
         cell_SurfaceStorage(r, c);
 
-//        if (SwitchChannelBaseflow) {
-//            // bypass flow for GW
-//            double bpflow = WHrunoff->Drc > 0.01 ? WHrunoff->Drc*GW_bypass : 0;
-//            if (WHrunoff->Drc == 0 && RainNet->Drc > 0) {
-//                bpflow += RainNet->Drc*GW_bypass;
-//                RainNet->Drc *= (1-GW_bypass);
-//            }
-
-//            if (bpflow > 0) {
-//                WHrunoff->Drc -= bpflow;
-//                WHroad->Drc -= bpflow;
-//                WH->Drc -= bpflow;
-//                WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-//            }
-//            GWbp->Drc = bpflow*CellArea->Drc;
-//        }
-
         if (SwitchErosion) {
             double wh = FloodDomain->Drc == 0 ? WH->Drc : hmx->Drc;
             cell_SplashDetachment(r,c,wh);
@@ -402,7 +386,9 @@ void TWorld::ChannelandTileflow()
 {
     SwitchChannelKinWave = true;// set to false for experimental swof in channel
 
-    ChannelAddBaseandRain();  // add baseflow o, subtract infil, add rainfall
+    ChannelRainandInfil();   // subtract infil, add rainfall
+
+    ChannelBaseflow();       // calculate baseflow
 
     ChannelFlow();            //channel kin wave for water and sediment
 

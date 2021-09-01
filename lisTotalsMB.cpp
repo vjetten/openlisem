@@ -130,6 +130,8 @@ void TWorld::Totals(void)
 
     //=== infiltration ===//
     InfilTot += MapTotal(*InfilVol) + MapTotal(*InfilVolKinWave);
+//    if (SwitchChannelBaseflow && GW_bypass > 0)
+//        InfilTot += MapTotal(*GWbp);
     if (SwitchIncludeChannel && SwitchChannelInfil) {
         InfilTot += MapTotal(*ChannelInfilVol); //m3
     }
@@ -210,9 +212,10 @@ void TWorld::Totals(void)
         ChannelVolTot = MapTotal(*ChannelWaterVol); //m3
         // add channel vol to total
         if (SwitchChannelBaseflow)
-            BaseFlowTot += MapTotal(*Qbin); // total inflow in m3
-        //BaseFlowTot += MapTotal(*Qbase)*_dt; // total inflow in m3
-        //OBSOLETE     BaseFlowTot = MapTotal(*BaseFlowInflow) * _dt;
+            BaseFlowTot = MapTotal(*Qbin); // total inflow in m3
+//            BaseFlowTot += MapTotal(*Qbin); // total inflow in m3
+        if (SwitchChannelBaseflowStationary)
+            BaseFlowTot = MapTotal(*BaseFlowInflow) * _dt;
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
     }

@@ -94,9 +94,10 @@ cTMap
 *Alpha,                      //!< alpha in A = alphaQ^b
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
 *Qbin,
-*Qbase,
-*VolQb,
+//*Qbase,
+//*VolQb,
 *GWVol,
+*GWWH,
 *GWrec,
 *GWout,
 *GWbp,

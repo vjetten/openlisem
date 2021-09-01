@@ -38,7 +38,93 @@ functions: \n
 #define cell(r,c,a,b,e,d) qDebug()<<a->data[r][c]<<b->data[r][c]<<e->data[r][c]<<d->data[r][c]
 
 //---------------------------------------------------------------------------
-void TWorld::ChannelAddBaseandRain(void)
+void TWorld::ChannelBaseflow(void)
+{
+    if(!SwitchChannelBaseflow)
+        return;
+
+    // GW recharge and GW outflow
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+
+        //=== GW recharge
+        double GWrec_ = cell_Percolation(r, c, GW_recharge);
+        GWrec_ = GWrec_ * CellArea->Drc;
+        // GW recharge same principle as percolation, in m3
+
+//       //=== bypass flow
+        double bpflow = 0;
+        if (GW_bypass > 0 && Lw->Drc > GW_bypass && Lw->Drc < SoilDepth1->Drc) {
+            bpflow = Lw->Drc * GW_bypass * (Poreeff->Drc-Thetaeff->Drc);
+            Lw->Drc *= (1-GW_bypass);
+        }
+        if (GW_bypass > 0 && Lw->Drc > SoilDepth1->Drc+GW_bypass) {
+            double dL = std::min(SoilDepth1->Drc, Lw->Drc * GW_bypass);
+            bpflow = dL * (ThetaS2->Drc-ThetaI2->Drc);
+            Lw->Drc -= dL;
+        }
+        GWbp->Drc = bpflow*CellArea->Drc;
+
+
+        //=== lateral GW outflow
+        double pore, ksat;
+        if (SwitchTwoLayer) {
+            pore = ThetaS2->Drc;
+            ksat = Ksat2->Drc*_dt/3600000.0;
+        } else {
+            pore = Poreeff->Drc;
+            ksat = Ksateff->Drc*_dt/3600000.0;
+        }
+
+        double GWVol_ = GWVol->Drc;
+        //outflow m3
+        double wh = GWVol_/CellArea->Drc;
+        double GWout_ = _dx*GW_flow * ksat * BaseflowL->Drc;// * (wh*_dx);//pore;
+        //m3:  ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx; //*porosity
+        GWout_ = GWout_ * _dx*std::max(0.0,wh-GW_threshold) * (1-exp(-6*std::max(0.0,wh-GW_threshold)));
+        //stop outflow when some minimum GW level, 2.4.2.10 in SWAT
+        // decay function exp(-6 * GW WH) for smooth transition
+
+        // ==== update GW level
+        GWout_ = std::min(GWout_, GWVol_+GWrec_);
+        // cannot be more than there is
+        GWVol_ = GWVol_ + GWbp->Drc + GWrec_ - GWout_; //m3
+        //update GW volume
+
+        GWout->Drc = GWout_;
+        GWVol->Drc = GWVol_;
+        GWrec->Drc = GWrec_;
+        GWWH->Drc = GWVol_/CellArea->Drc;  //for display
+
+        tma->Drc = Qbin->Drc; // prev timestep Qbin
+        Qbin->Drc = 0;
+        //Qbase->Drc = ChannelQn->Drc;
+    }}
+
+    //store qbin prev timestep
+    AccufluxGW(crlinkedlddbase_, GWout, Qbin, ChannelWidthO);
+    //move the gw flow to the channel,
+    // Qbin is inflow to the channel from the surrounding cellsm in m3 per timestep
+
+    double factor = exp(-GW_lag);
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        Qbin->Drc *= ChannelWidthO->Drc/_dx;
+        // proportion of Wbin flowing into channel
+        Qbin->Drc = Qbin->Drc*(1-factor) + tma->Drc*factor;
+        // flow according to SWAT 2009, page 174 manual, eq 2.4.2.8
+
+        ChannelWaterVol->Drc += Qbin->Drc;
+        //finally add baseflow input to the current channel water volume
+    }}
+
+//     cell(48,190,GWVol,GWrec,GWout,GWbp);
+//    report(*tmb,"GWhw");
+// report(*GWVol,"GWvol");
+// report(*GWbp,"bp");
+}
+//---------------------------------------------------------------------------
+void TWorld::ChannelRainandInfil(void)
 {
     if (!SwitchIncludeChannel)
         return;
@@ -50,7 +136,7 @@ void TWorld::ChannelAddBaseandRain(void)
             ChannelWaterVol->Drc += 0;
         else
             ChannelWaterVol->Drc += Rainc->Drc*ChannelWidth->Drc*DX->Drc;
-        // add rainfall to channel
+        // add rainfall to channel, assume no interception
 
         // subtract infiltration
         if (SwitchChannelInfil) {
@@ -60,108 +146,25 @@ void TWorld::ChannelAddBaseandRain(void)
             // cannot be more than there is
             ChannelWaterVol->Drc -= inf;
             ChannelInfilVol->Drc += inf;
-        }
+        }        
     }}
-        // OBSOLETE
-        //        if(SwitchChannelBaseflow)
-        //        {
-        //            if(!addedbaseflow)
-        //            {
-        //                ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
-        //                //BaseFlowTot += BaseFlowInitialVolume->Drc;
-        //            }
-        //            ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
-        //            //BaseFlowTot += BaseFlowInflow->Drc * _dt;
-        //        }
-        //}}
-        //    if (!addedbaseflow)
-        //        addedbaseflow = true;
 
-    if(SwitchChannelBaseflow) {
-        // GW recharge and GW outflow
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
+    if(SwitchChannelBaseflowStationary)
+    {
+        if(!addedbaseflow) {
+           #pragma omp parallel for num_threads(userCores)
+           FOR_ROW_COL_MV_CHL {
+                ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
+           }}
+            addedbaseflow = true;
+        }
 
-           //=== GW recharge
-           double GWrec_ = cell_Percolation(r, c, GW_recharge);
-           GWrec_ = GWrec_ * CellArea->Drc;
-           // GW recharge same principle as percolation, in m3
-
-           //=== bypass flow
-           double bpflow = 0;
-           if (SwitchTwoLayer) {
-               if (Lw->Drc > SoilDepth1->Drc+GW_bypass*Lw->Drc) {
-                   double dL = std::min(SoilDepth1->Drc, Lw->Drc * GW_bypass);
-                   bpflow = dL * (ThetaS2->Drc-ThetaI2->Drc);
-                   Lw->Drc -= dL;
-               }
-           } else {
-               if (Lw->Drc > GW_bypass) {
-                   bpflow = Lw->Drc * GW_bypass * (Poreeff->Drc-Thetaeff->Drc);
-                   Lw->Drc *= (1-GW_bypass);
-               }
-           }
-
-           GWbp->Drc = bpflow * CellArea->Drc;
-
-            //=== lateral GW outflow
-            double pore, ksat;
-            if (SwitchTwoLayer) {
-                pore = ThetaS2->Drc;
-                ksat = Ksat2->Drc*_dt/3600000.0;
-            } else {
-                pore = Poreeff->Drc;
-                ksat = Ksateff->Drc*_dt/3600000.0;
-            }
-
-            double GWVol_ = GWVol->Drc;
-            //outflow m3
-            double wh = GWVol_/CellArea->Drc;
-            double GWout_ = _dx*GW_flow * ksat * BaseflowL->Drc;// * (wh*_dx);//pore;
-            //m3:  ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx; //*porosity
-            GWout_ = GWout_ * _dx*std::max(0.0,wh-GW_threshold) * (1-exp(-6*std::max(0.0,wh-GW_threshold)));
-            //stop outflow when some minimum GW level, 2.4.2.10 in SWAT
-            // decay function exp(-6 * GW WH) for smooth transition
-
-            // ==== update GW level
-            GWout_ = std::min(GWout_, GWVol_+GWrec_);
-            // cannot be more than there is
-            GWVol_ = GWVol_ + GWbp->Drc + GWrec_ - GWout_; //m3
-            //update GW volume
-            GWout->Drc = GWout_;
-            GWVol->Drc = GWVol_;
-            GWrec->Drc = GWrec_;
-            tma->Drc = Qbin->Drc; // prev timestep Qbin
-            Qbin->Drc = 0;
-            //Qbase->Drc = ChannelQn->Drc;
-        }}
-
-        //store qbin prev timestep
-        AccufluxGW(crlinkedlddbase_, GWout, Qbin, ChannelWidthO);
-        //move the gw flow to the channel,
-        // Qbin is inflow to the channel from the surrounding cellsm in m3 per timestep
-
-        double factor = exp(-GW_lag);
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            Qbin->Drc *= ChannelWidthO->Drc/_dx;
-            // proportion of Wbin flowing into channel
-            Qbin->Drc = Qbin->Drc*(1-factor) + tma->Drc*factor;
-            // flow according to SWAT 2009, page 174 manual, eq 2.4.2.8
-
-            ChannelWaterVol->Drc += Qbin->Drc;
-            //finally add baseflow input to the current channel water volume
+            ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
         }}
-
-  //     cell(48,190,GWVol,GWrec,GWout,GWbp);
-    //    report(*tmb,"GWhw");
-        // report(*GWVol,"GWvol");
-       // report(*GWbp,"bp");
-    }  // switch baseflow
+    }
 }
-
-
-
 //---------------------------------------------------------------------------
 //! calc channelflow, ChannelDepth, kin wave
 //! channel WH and V and Q are clculated before

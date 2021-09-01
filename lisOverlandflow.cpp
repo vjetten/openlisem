@@ -464,7 +464,7 @@ void TWorld::OverlandFlow1D(void)
         double WaterVolout = std::max(0.0, QinKW->Drc*_dt + WaterVolin->Drc  - Qn->Drc*_dt);
 
         // new water vol is mass bal diff
-        WHrunoff->Drc = ChannelAdj->Drc > 0 ? WaterVolout/(ChannelAdj->Drc*DX->Drc) : 0.0;
+        WHrunoff->Drc = ChannelAdj->Drc > 0 ? WaterVolout/CHAdjDX->Drc : 0.0;
         // runoff based on water vol out
         // NOTE route substance is already an explicit solution
 

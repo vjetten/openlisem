@@ -314,7 +314,7 @@ void TWorld::GetComboMaps()
         if (InfilMethod > 1)
             AddComboMap(0,"Depth wetting front","mm",Lw,LegendMap[cl],Legend[cl],false,false,1000.0,1.0);
         if (SwitchChannelBaseflow)
-            AddComboMap(0,"Bypass flow","m3",GWbp,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+            AddComboMap(0,"GW level","m",GWWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
 
         if (InfilMethod != INFIL_SWATRE) {
             AddComboMap(0,"Moisture content 1","-",Thetaeff,LegendMap[cl],Legend[cl],false,false,1.0,1.0);

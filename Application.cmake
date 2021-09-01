@@ -46,8 +46,7 @@ SET(APP_SOURCES
     swatre/soillut
     swatre/lutio
     swatre/lookup
-    swatre/swatinp
-    LisCellProcesses
+    swatre/swatinp    
     lisChannelErosion
     lisChannelflood
     lisChannelflow
@@ -62,6 +61,7 @@ SET(APP_SOURCES
     lisModel
     lisOverlandflow
     lisPesticide
+	lisPercolation
     lisRainintc
     lisDischargein
     lisReportfile

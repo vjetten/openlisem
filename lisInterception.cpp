@@ -34,72 +34,50 @@ functions: \n
 #include <algorithm>
 #include "model.h"
 
+
+
 //---------------------------------------------------------------------------
-/// Interception()
-/// - interception seen as rigid storage SMax filling up and overflowing\n
-/// - overflow flux is identical to rainfall flux in intensity\n
-/// - SMax is the storage of the plants inside the gridcell, not the average storage of the gridcell\n
-/// - so if a single tree inside a cell has an SMax of 2mm even if it covers 10%, the Smax of that cell is 2\n
-/// - therefore the same goes for LAI: the LAI of the plants inside the gridcell\n
-/// - this is also easier to observe. The LAI from a satellite image is the average LAI of a cell, must be divided by Cover
-void TWorld::Interception()
+void TWorld::cell_Interception(int r, int c)
 {
     // all variables are in m
-    if (!SwitchRainfall)
-        return;
+    double Cv = Cover->Drc;
+    double Rainc_ = Rainc->Drc;
+    double RainCum_ = RainCum->Drc;
+    double AreaSoil = SoilWidthDX->Drc * DX->Drc;
+    double RainNet_ = Rainc_;
 
-#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
+    if (Cv > 0)
+    {
+        double CS = CStor->Drc;
+        //actual canopy storage in m
+        double Smax = CanopyStorage->Drc;
+        //max canopy storage in m
 
-        double Rainc_ = Rainc->Drc;
-        RainNet->Drc = Rainc_;
-        double Cv = Cover->Drc;
-        if (Cv > 0)// && Rainc->Drc > 0)
-        {
-            double CS = CStor->Drc;
-            //actual canopy storage in m
-            double Smax = CanopyStorage->Drc;
-            //max canopy storage in m
-
-            if (Smax > 0)
-            {
-                //double k = 1-exp(-CanopyOpeness*LAI->Drc);
-                //a dense canopy has a low openess factor, so little direct throughfall and high CS
-
-                CS = Smax*(1-exp(-kLAI->Drc*RainCum->Drc/Smax));
-            }
-            else
-                CS = 0;
-
-            LeafDrain->Drc = std::max(0.0, (Rainc_ - (CS - CStor->Drc)));
-            // diff between new and old strage is subtracted from rainfall
-
-            CStor->Drc = CS;
-            // put new storage back in map
-            Interc->Drc =  Cv * CS * SoilWidthDX->Drc * DX->Drc;
-           // Interc->Drc =  Cv * CS * _dx * DX->Drc;
-            // WHY: cvover already takes care of this, trees can be above a road or channel
-
-            RainNet->Drc = Cv*LeafDrain->Drc + (1-Cv)*Rainc_;
-            // net rainfall is direct rainfall + drainage
-            // rainfall that falls on the soil, used in infiltration
+        if (Smax > 0) {
+            CS = Smax*(1-exp(-kLAI->Drc*RainCum_/Smax));
         }
-   }}
-}
-//---------------------------------------------------------------------------
-void TWorld::InterceptionLitter()
-{
-    // all variables are in m
-    if (!SwitchLitter)
-        return;
 
-    if (!SwitchRainfall)
-        return;
-#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
+        LeafDrain->Drc = std::max(0.0, Cv*(Rainc_ - (CS - CStor->Drc)));
+        // diff between new and old strage is subtracted from rainfall
+        // rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
+        // note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
+
+//        if(r==100&&c==200)
+//            qDebug()<< CS << Smax << RainCum_ << exp(-kLAI->Drc*RainCum_/Smax);
+        CStor->Drc = CS;
+        // put new storage back in map
+        Interc->Drc =  Cv * CS * AreaSoil;
+        // Interc->Drc =  Cv * CS * _dx * DX->Drc;
+        // WHY: cvover already takes care of this, trees can be above a road or channel
+
+        RainNet_ = LeafDrain->Drc + (1-Cv)*Rainc_;
+        // net rainfall is direct rainfall + drainage
+        // rainfall that falls on the soil, used in infiltration
+    }
+
+    if (SwitchLitter) {
         double CvL = Litter->Drc;
-        double RainNet_ = RainNet->Drc;
-        if (hmx->Drc == 0 && WH->Drc == 0 && CvL > 0 && RainNet->Drc > 0)
+        if (hmx->Drc == 0 && WH->Drc == 0 && CvL > 0 && RainNet_ > 0)
         {
 
             double Smax = LitterSmax/1000.0;
@@ -117,28 +95,19 @@ void TWorld::InterceptionLitter()
             LCStor->Drc = LCS;
             // put new storage back in map for next dt
 
-            LInterc->Drc =  Litter->Drc * LCS * SoilWidthDX->Drc * DX->Drc;
+            LInterc->Drc =  CvL * LCS * AreaSoil;
             // only on soil surface, not channels or roads, in m3
 
-            RainNet->Drc = drain + (1-CvL)*RainNet_;// + (1-Cover->Drc)*Rainc->Drc;
+            RainNet_ = drain + (1-CvL)*RainNet_;
             //recalc
         }
-    }}
-}
-//---------------------------------------------------------------------------
-void TWorld::InterceptionHouses()
-{
-    // all variables are in m
-    if (!SwitchHouses)
-        return;
+    }
 
-    if (!SwitchRainfall)
-        return;
-#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
+    // all variables are in m
+    if (SwitchHouses)
+    {
         double CvH = HouseCover->Drc;
-        double RainNet_ = RainNet->Drc;
-        if (CvH > 0 &&  Rainc->Drc > 0)
+        if (CvH > 0 &&  RainNet_ > 0)
         {
             //house on cell in m2
             double HS = HStor->Drc;
@@ -155,8 +124,8 @@ void TWorld::InterceptionHouses()
             HStor->Drc = HS;
             // put new storage back in maps in m
 
-            double roofsurface = (SoilWidthDX->Drc * DX->Drc * CvH); // m2
-           // double roofsurface = (_dx * DX->Drc * CvH); // m2
+            double roofsurface = (AreaSoil * CvH); // m2
+            // double roofsurface = (_dx * DX->Drc * CvH); // m2
             // user should assure housecover is correct with respect to channel and roads
             IntercHouse->Drc =  roofsurface * HS;
             // total interception in m3,exclude roads, channels
@@ -189,6 +158,25 @@ void TWorld::InterceptionHouses()
                 RainNet_ = drumdrain + (1-CvH)*RainNet_;
             }
         }
-        RainNet->Drc = RainNet_;
+    }
+
+    RainNet->Drc = RainNet_;
+
+}
+//---------------------------------------------------------------------------
+/// Interception()
+/// - interception seen as rigid storage SMax filling up and overflowing\n
+/// - overflow flux is identical to rainfall flux in intensity\n
+/// - SMax is the storage of the plants inside the gridcell, not the average storage of the gridcell\n
+/// - also includes interception by roofs and interception by litter
+
+// this function is not used !!!
+void TWorld::Interception()
+{
+    FOR_ROW_COL_MV_L {
+        if (Rainc->Drc > 0)
+           cell_Interception(r, c);
     }}
 }
+
+

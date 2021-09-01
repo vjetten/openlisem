@@ -978,8 +978,9 @@ void TWorld::InitChannel(void)
 
             GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
             Qbin = NewMap(0);
-            Qbase = NewMap(0);
-            VolQb = NewMap(0);
+            //Qbase = NewMap(0);
+            //VolQb = NewMap(0);
+            GWWH = NewMap(0.001);
             GWrec = NewMap(0);
             GWout = NewMap(0);
             GWbp = NewMap(0);
@@ -2175,8 +2176,8 @@ void TWorld::IntializeData(void)
 
     }
 
-//    if (SwitchChannelBaseflow)
-//        FindBaseFlow();
+    if (SwitchChannelBaseflowStationary)
+        FindBaseFlow();
 
     if (SwitchChannelInflow) {
         Qinflow = NewMap(0);
@@ -2273,8 +2274,6 @@ void TWorld::IntializeOptions(void)
     SwitchBuffers = false;
     SwitchHeun = false;
     //SwitchFixedAngle = false;
-
-
     SwitchErosion = false;
     SwitchUse2Phase = false;
     SwitchUseGrainSizeDistribution = false;
@@ -2288,6 +2287,7 @@ void TWorld::IntializeOptions(void)
 
     SwitchIncludeChannel = false;
     SwitchChannelBaseflow = false;
+    SwitchChannelBaseflowStationary = false;
     SwitchChannelInfil = false;
     SwitchCulverts = false;
     SwitchChannelInflow = false;
@@ -2311,6 +2311,7 @@ void TWorld::IntializeOptions(void)
     SwitchPesticide = false;
     Switchheaderpest = true;
 
+    addedbaseflow = false;
 }
 //---------------------------------------------------------------------------
 void TWorld::FindBaseFlow()

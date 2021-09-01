@@ -461,7 +461,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
     FOR_ROW_COL_MV_L {
 
     double chadj = ChannelAdj->Drc;
-    double chadjdx = ChannelAdj->Drc*DX->Drc;
+    double chadjdx = CHAdjDX->Drc;
     double BLTC = 0;
     double SSTC = 0;
     double BLDepth = BLDepthFlood->Drc;

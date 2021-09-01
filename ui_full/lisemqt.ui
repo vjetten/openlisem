@@ -485,7 +485,7 @@
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_40">
-               <item row="0" column="0">
+               <item row="2" column="0">
                 <widget class="QTabWidget" name="tabWidgetOptions">
                  <property name="enabled">
                   <bool>true</bool>
@@ -2667,51 +2667,7 @@ p, li { white-space: pre-wrap; }
                       <property name="verticalSpacing">
                        <number>2</number>
                       </property>
-                      <item row="3" column="1">
-                       <widget class="QDoubleSpinBox" name="GW_lag">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="decimals">
-                         <number>2</number>
-                        </property>
-                        <property name="minimum">
-                         <double>0.000000000000000</double>
-                        </property>
-                        <property name="maximum">
-                         <double>1.000000000000000</double>
-                        </property>
-                        <property name="singleStep">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="value">
-                         <double>0.200000000000000</double>
-                        </property>
-                       </widget>
-                      </item>
                       <item row="4" column="0">
-                       <widget class="QLabel" name="label_102">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Bypass: fraction infiltration directly to groundwater</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="0">
                        <widget class="QLabel" name="label">
                         <property name="font">
                          <font>
@@ -2724,41 +2680,6 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="text">
                          <string>Baseflow recession factor</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="label_83">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Calibration groundwater flow towards the channel</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="1">
-                       <widget class="QDoubleSpinBox" name="GW_bypass">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="maximum">
-                         <double>1.000000000000000</double>
-                        </property>
-                        <property name="singleStep">
-                         <double>0.010000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -2778,21 +2699,8 @@ p, li { white-space: pre-wrap; }
                         </property>
                        </widget>
                       </item>
-                      <item row="0" column="2">
-                       <spacer name="horizontalSpacer_23">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item row="1" column="1">
-                       <widget class="QDoubleSpinBox" name="GW_flow">
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="label_83">
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
@@ -2802,14 +2710,24 @@ p, li { white-space: pre-wrap; }
                           <kerning>true</kerning>
                          </font>
                         </property>
-                        <property name="minimum">
-                         <double>0.000000000000000</double>
+                        <property name="text">
+                         <string>Calibration groundwater flow towards the channel</string>
                         </property>
-                        <property name="singleStep">
-                         <double>0.010000000000000</double>
+                       </widget>
+                      </item>
+                      <item row="5" column="0">
+                       <widget class="QLabel" name="label_102">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
                         </property>
-                        <property name="value">
-                         <double>1.000000000000000</double>
+                        <property name="text">
+                         <string>Bypass: fraction infiltration directly to groundwater</string>
                         </property>
                        </widget>
                       </item>
@@ -2841,7 +2759,48 @@ p, li { white-space: pre-wrap; }
                         </property>
                        </widget>
                       </item>
-                      <item row="2" column="0">
+                      <item row="5" column="1">
+                       <widget class="QDoubleSpinBox" name="GW_bypass">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="maximum">
+                         <double>1.000000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>0.010000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="QDoubleSpinBox" name="GW_flow">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="minimum">
+                         <double>0.000000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>1.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="0">
                        <widget class="QLabel" name="label_108">
                         <property name="font">
                          <font>
@@ -2857,7 +2816,7 @@ p, li { white-space: pre-wrap; }
                         </property>
                        </widget>
                       </item>
-                      <item row="2" column="1">
+                      <item row="3" column="1">
                        <widget class="QDoubleSpinBox" name="GW_threshold">
                         <property name="font">
                          <font>
@@ -2869,13 +2828,92 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="maximum">
-                         <double>2.000000000000000</double>
+                         <double>10.000000000000000</double>
                         </property>
                         <property name="singleStep">
                          <double>0.010000000000000</double>
                         </property>
                         <property name="value">
                          <double>0.200000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="2">
+                       <spacer name="horizontalSpacer_23">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item row="4" column="1">
+                       <widget class="QDoubleSpinBox" name="GW_lag">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="decimals">
+                         <number>2</number>
+                        </property>
+                        <property name="minimum">
+                         <double>0.000000000000000</double>
+                        </property>
+                        <property name="maximum">
+                         <double>1.000000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>0.200000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="6" column="1">
+                       <widget class="QDoubleSpinBox" name="GW_slope">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="minimum">
+                         <double>1.000000000000000</double>
+                        </property>
+                        <property name="maximum">
+                         <double>10.000000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>1.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="6" column="0">
+                       <widget class="QLabel" name="label_85">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Distance to river contribution coeff. a: ((dx/L)^a)</string>
                         </property>
                        </widget>
                       </item>
@@ -3170,7 +3208,7 @@ p, li { white-space: pre-wrap; }
                           <number>8</number>
                          </property>
                          <property name="verticalSpacing">
-                          <number>4</number>
+                          <number>2</number>
                          </property>
                          <item row="0" column="0" colspan="2">
                           <widget class="QRadioButton" name="rb_swof2">
@@ -7513,44 +7551,6 @@ p, li { white-space: pre-wrap; }
                             </size>
                            </property>
                           </spacer>
-                         </item>
-                         <item row="3" column="0">
-                          <widget class="QLabel" name="label_85">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Baseflow: Distance to river contribution factor (1 = linear, max 2)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="3" column="1">
-                          <widget class="QDoubleSpinBox" name="GW_slope">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="minimum">
-                            <double>1.000000000000000</double>
-                           </property>
-                           <property name="maximum">
-                            <double>10.000000000000000</double>
-                           </property>
-                           <property name="value">
-                            <double>1.000000000000000</double>
-                           </property>
-                          </widget>
                          </item>
                         </layout>
                        </widget>

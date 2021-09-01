@@ -443,14 +443,20 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
         double dtheta2 = std::max(0.0,ThetaS2->Drc-ThetaI2->Drc);
         double dfact2 = 0;
 
-        if (SwitchImpermeable && L > SoilDep2 - 1e-6) {
+        if (SwitchImpermeable && L > SoilDep2 - 0.001) {
             Lw->Drc = SoilDep2;
             return 0;
         }                
-        if (SwitchImpermeable && dtheta2 < 1e-6) {
+        if (SwitchImpermeable && dtheta2 < 0.001) {
             Lw->Drc = SoilDep2;
             return 0;
         }
+
+//        if (SwitchChannelBaseflow && GW_bypass > 0 && L > GW_bypass) {
+//            double gwbp = fact_in*GW_bypass;
+//            fact_in -= gwbp;
+//            GWbp->Drc = gwbp*CHAdjDX->Drc;
+//        }
 
         if (L < SoilDep1) {
             double space = (SoilDep1-L)*dtheta1;
@@ -459,9 +465,9 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
                 dfact2 = fact_in - space;
             } else {
                 // still in SD1
-                if (dtheta1 > 0.001) {
+                if (dtheta1 > 0.001)
                     L = L + fact_in/dtheta1;
-                }
+
                 fact_out = fact_in;
             }
         } else {
@@ -504,16 +510,16 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
 
         //===== single layer =====
 
-        if (SwitchImpermeable && L > SoilDep1 - 1e-6) {
+        if (SwitchImpermeable && L > SoilDep1 - 0.001) {
             Lw->Drc = SoilDep1;
             return 0;
         }
-        if (SwitchImpermeable && dtheta1 < 1e-6) {
+        if (SwitchImpermeable && dtheta1 < 0.001) {
             Lw->Drc = SoilDep1;
             return 0;
         }
 
-        if(L < SoilDep1) {
+        if(L < SoilDep1-0.001) {
             // not full
             double space1 = (SoilDep1 - L)*dtheta1;
             if (dtheta1 > 0.001)
@@ -568,7 +574,7 @@ void TWorld::cell_InfilMethods(int r, int c)
             // hard surf are already in ksaeff, so infil is affected
         } else {
             fwh = hmx->Drc; // flood
-            SW = ChannelAdj->Drc;
+            SW = SoilWidthDX->Drc;//ChannelAdj->Drc; // why? infiktration surface is soils anyway
         }
         // select the appropriate domain water height for overpressure
 
@@ -587,8 +593,9 @@ void TWorld::cell_InfilMethods(int r, int c)
         if (InfilMethod == INFIL_GREENAMPT)
             fpot_ = Ks*(1.0+(Psi+fwh)/std::max(1e-4, Lw->Drc));
         else {
-            double space = SwitchTwoLayer ? std::max(ThetaS2->Drc-ThetaI2->Drc, 0.0) :
-                                            std::max(Poreeff->Drc-Thetaeff->Drc, 0.0);
+            double space = Poreeff->Drc-Thetaeff->Drc;
+            if (Lw->Drc > SoilDepth1->Drc)
+                space = ThetaS2->Drc-ThetaI2->Drc;
             double B = (fwh + Psi)*space;
             if (B > 0.01) {
                 fpot_ = Ks*exp(Fcum->Drc/B)/(exp(Fcum->Drc/B)-1);
@@ -600,7 +607,6 @@ void TWorld::cell_InfilMethods(int r, int c)
         if (fact_ < 1e-10)
             fact_ = 0;
         // actual infil in m, cannot have more infil than water on the surface
-
 
         if (fact_ > 0)
             fact_ = IncreaseInfiltrationDepthNew(fact_, r, c);
@@ -641,30 +647,6 @@ void TWorld::cell_InfilMethods(int r, int c)
             // negative and smallest of space or fpot-fact ???
         }
  //   }}
-}
-//---------------------------------------------------------------------------
-
-/*!
- \brief Calculates changes in soilwater with percolation from the bottom of the profile.
-
-  Calculates changes in soilwater with percolation from the bottom of the profile, \n
-  resulting in the soil becoming dryer. Based on BrooksCorey type of percolation: \n
-  percolation = ksat*(theta/pore)*bca, where bca = 5.55*qPow(Ksat2->Drc,-0.114); \n
-  This is completely undocumented. The soil is either impermeable or has percolation. \n
-*/
-
-void TWorld::SoilWater()
-{
-    if (InfilMethod == INFIL_SWATRE || InfilMethod == INFIL_NONE)
-        return;
-    if (SwitchImpermeable)
-        return;
-
-#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        cell_Percolation(r, c, 1.0);
-
-    }}
 }
 //---------------------------------------------------------------------------
 // NOT USED
