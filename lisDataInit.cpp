@@ -915,10 +915,11 @@ void TWorld::InitChannel(void)
             if (SwitchChannelAdjustCHW && ChannelWidth->Drc  > 0.95* _dx) {
                 ChannelWidth->Drc = 0.95*_dx;
                 ChannelDepth->Drc *= ChannelWidth->Drc /(0.95*_dx);
-            } else {
-                ChannelWidth->Drc = std::min(ChannelWidth->Drc, 0.95*_dx);
-                ChannelWidthO->Drc = ChannelWidth->Drc;
             }
+//            } else {
+//                ChannelWidth->Drc = std::min(ChannelWidth->Drc, 0.95*_dx);
+//                ChannelWidthO->Drc = ChannelWidth->Drc;
+//            }
 
             if (ChannelWidth->Drc <= 0)
             {
@@ -978,7 +979,7 @@ void TWorld::InitChannel(void)
 
             GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
             Qbin = NewMap(0);
-            //Qbase = NewMap(0);
+            Qbase = NewMap(0);
             //VolQb = NewMap(0);
             GWWH = NewMap(0.001);
             GWrec = NewMap(0);

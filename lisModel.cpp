@@ -338,11 +338,6 @@ void TWorld::HydrologyProcesses()
             hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
         } else {
             WH->Drc += RainNet->Drc + Snowmeltc->Drc;
-//            if (WH->Drc > 0 && Lw->Drc > 0.2) {
-//                double gwbp = WH->Drc*GW_bypass;
-//                WH->Drc -= gwbp;
-//                GWbp->Drc = gwbp * CellArea->Drc;
-//            }
         }
         // add net to water rainfall on soil surface (in m)
         // when kin wave and flooded hmx exists else always WH
@@ -390,8 +385,17 @@ void TWorld::ChannelandTileflow()
 
     ChannelBaseflow();       // calculate baseflow
 
-    ChannelFlow();            //channel kin wave for water and sediment
+    if (SwitchChannelKinwaveDt) {
+        if (_dt_user > _dtCHkin) {
+            double n = _dt_user/_dtCHkin;
+            _dt = _dt_user/n;
+        }
+    }
 
+    for (double t = 0; t < _dt_user; t+=_dt) {
+        ChannelFlow();            //channel kin wave for water and sediment
+    }
+    _dt=_dt_user;
     //ChannelFillDam();
 
     ChannelFlowDetachmentNew();  //detachment, deposition for SS and BL

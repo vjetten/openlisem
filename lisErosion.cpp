@@ -143,7 +143,7 @@ void TWorld::cell_SplashDetachment(int r, int c, double _WH)
         //VJ 110706  KE equations
 
         double directrain = (1-Lc) * (1-Cv)*Rainc->Drc * 1000;
-        // Added litter also to directrain, assme it covers the entire cell, not only under the plant
+        // Added litter also to directrain, assume it covers the entire cell, not only under the plant
         // rainfall between plants in mm
 
         double KE_LD = std::max(15.3*sqrt(PlantHeight->Drc)-5.87, 0.0);

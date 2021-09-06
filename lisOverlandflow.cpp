@@ -405,57 +405,23 @@ void TWorld::OverlandFlow1D(void)
         }
     }}
 
-    int loop = 1;
-    if (SwitchChannelKinwaveDt) {
-        if (_dt > _dtCHkin) {
-            loop = int(_dt/_dtCHkin);
-            _dt = _dtCHkin;
-        }
-        if (SwitchChannelKinwaveAvg) {
-            fill(*tma,0);
-            fill(*tmb,0);
-        }
-    //    qDebug() << loop;
-    }
-
-    for (int i = 0; i < loop; i++) {
-        // route water
-        if (SwitchLinkedList) {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                pcr::setMV(Qn->Drc);
-                QinKW->Drc = 0;
-            }}
-
-            FOR_ROW_COL_LDD5 {
-                Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);
-                // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
-            }}
-        } else {
-
-            KinematicExplicit(crlinkedldd_, Q, Qn, q, Alpha,DX, tm);
-
-            //KinematicSWOFopen(WHrunoff, V);
-        }
-
+    // route water
+    if (SwitchLinkedList) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            if (SwitchChannelKinwaveDt && SwitchChannelKinwaveAvg) {
-               tma->Drc += Qn->Drc;
-               tmb->Drc += QinKW->Drc;
-            }
-            Q->Drc = Qn->Drc;
+            pcr::setMV(Qn->Drc);
+            QinKW->Drc = 0;
         }}
-    } // loop
-    _dt = _dt_user;
 
-    if (SwitchChannelKinwaveDt && SwitchChannelKinwaveAvg) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            Qn->Drc = tma->Drc/(double) loop;
-            QinKW->Drc = tmb->Drc/(double) loop;
+        FOR_ROW_COL_LDD5 {
+            Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);
+            // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
         }}
+    } else {
+
+        KinematicExplicit(crlinkedldd_, Q, Qn, q, Alpha,DX, tm);
     }
+
 
     //convert calculate Qn back to WH and volume for next loop
     #pragma omp parallel for num_threads(userCores)

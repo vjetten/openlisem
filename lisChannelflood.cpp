@@ -74,7 +74,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
 
             RiverSedimentMaxC(r, c);
         }
-
+// note channel width and depth are adjusted < 0.95*dx
         if (ChannelWidth->Drc > 0 && ChannelMaxQ->Drc <= 0)
         {
             double chdepth = ChannelDepth->Drc;
@@ -97,12 +97,13 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
             double fracA = std::min(1.0, _dt*VtoChan/(0.5*ChannelAdj->Drc));
             // fraction from _h to channel based on average flood velocity
 
-            double VfromChan = sqrt(2*9.81*dH); //Bernoulli
+            double VfromChan = sqrt(2*9.804*dH); //Bernoulli
+            //see https://www.engineeringtoolbox.com/velocity-head-d_916.html
 //            double fracC = std::min(1.0, _dt*VfromChan/(0.5*_dx));
             double fracC = std::min(1.0, _dt*VfromChan/(0.5*ChannelAdj->Drc));
-            // fraction from channel to surrounding based on overflow height and manning
+            // fraction from channel to surrounding
 
-            double cwa = ChannelAdj->Drc > 0 ? ChannelWidth->Drc/ChannelAdj->Drc : 0;
+            double cwa = ChannelWidth->Drc/ChannelAdj->Drc;
 
             bool dosimpel = false;
 
@@ -146,7 +147,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
             // instantaneous waterlevel exquilibrium acccross channel and adjacent
             if (dosimpel)
             {
-                double fc = ChannelWidthO->Drc/_dx;
+                double fc = ChannelWidth->Drc/_dx;
                 // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
                 double whlevel = (ChannelWH->Drc-chdepth)*fc + _h->Drc*(1-fc);
                 // equilibrium water level = weighed values of channel surplus level + _h

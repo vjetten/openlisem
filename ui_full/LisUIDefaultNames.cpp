@@ -452,8 +452,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Use Channel Kinwave dt");
     namelist[i].value = QString("60.0");
     namelist[i++].name = QString("Channel KinWave dt");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use Avg Channel KinWave");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Use Avg Channel KinWave");
 //    namelist[i].value = QString("0");
 //    namelist[i++].name = QString("Minimum Timestep Method");
 

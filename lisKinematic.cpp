@@ -233,8 +233,11 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
         }
 
         QinKW->Drc = Qin;
-        if (Qin > 0 || _Q->Drc > 0)
+        if (Qin > 0 || _Q->Drc > 0) {
+            itercount = 0;
            _Qn->Drc = IterateToQnew(Qin,_Q->Drc, _q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc);
+           tmb->Drc = itercount;
+        }
     }
 }
 //---------------------------------------------------------------------------
