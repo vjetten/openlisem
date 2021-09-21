@@ -43,6 +43,24 @@ void TWorld::ChannelBaseflow(void)
     if(!SwitchChannelBaseflow)
         return;
 
+    // add a stationary part
+    if(SwitchChannelBaseflowStationary)
+    {
+        if(!addedbaseflow) {
+           #pragma omp parallel for num_threads(userCores)
+           FOR_ROW_COL_MV_CHL {
+                ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
+                //BaseFlowTot += MapTotal(*BaseFlowInitialVolume);
+           }}
+            addedbaseflow = true;
+        }
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
+        }}
+    }
+
     // GW recharge and GW outflow
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -72,8 +90,8 @@ void TWorld::ChannelBaseflow(void)
             pore = ThetaS2->Drc;
             ksat = Ksat2->Drc*_dt/3600000.0;
         } else {
-            pore = Poreeff->Drc;
-            ksat = Ksateff->Drc*_dt/3600000.0;
+            pore = ThetaS1->Drc;
+            ksat = Ksat1->Drc*_dt/3600000.0;
         }
 
         double GWVol_ = GWVol->Drc;
@@ -104,33 +122,19 @@ void TWorld::ChannelBaseflow(void)
     //store qbin prev timestep
     AccufluxGW(crlinkedlddbase_, GWout, Qbin, ChannelWidthO);
     //move the gw flow to the channel,
-    // Qbin is inflow to the channel from the surrounding cellsm in m3 per timestep
+    // Qbin is inflow to the channel from the surrounding cells in m3 per timestep
+
     double factor = exp(-GW_lag);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         Qbin->Drc *= ChannelWidthO->Drc/_dx;
-        double tmp = ChannelWaterVol->Drc;
-        ChannelWaterVol->Drc += (Qbin->Drc*(1-factor) + tma->Drc*factor);
+        Qbase->Drc = Qbin->Drc;//*(1-factor) + tma->Drc*factor;
+        ChannelWaterVol->Drc += Qbin->Drc*(1-factor) + tma->Drc*factor;//Qbase->Drc;
         // flow according to SWAT 2009, page 174 manual, eq 2.4.2.8
-        Qbase->Drc = ChannelWaterVol->Drc - tmp - GWbp->Drc;
+        //Qbase->Drc = tmp;//ChannelWaterVol->Drc - tmp - GWbp->Drc;
     }}
 
-//    #pragma omp parallel for num_threads(userCores)
-//    FOR_ROW_COL_MV_CHL {
-// //       Qbin->Drc *= ChannelWidthO->Drc/_dx;
-// //       Qbase->Drc = Qbin->Drc;
-//        // proportion of Wbin flowing into channel
-//        Qbin->Drc = Qbin->Drc*(1-factor) + tma->Drc*factor;
-//        // flow according to SWAT 2009, page 174 manual, eq 2.4.2.8
 
-//        ChannelWaterVol->Drc += Qbin->Drc;
-//        //finally add baseflow input to the current channel water volume
-//    }}
-
-//     cell(48,190,GWVol,GWrec,GWout,GWbp);
-//    report(*tmb,"GWhw");
-// report(*GWVol,"GWvol");
-// report(*GWbp,"bp");
 }
 //---------------------------------------------------------------------------
 void TWorld::ChannelRainandInfil(void)
@@ -158,21 +162,6 @@ void TWorld::ChannelRainandInfil(void)
         }        
     }}
 
-    if(SwitchChannelBaseflowStationary)
-    {
-        if(!addedbaseflow) {
-           #pragma omp parallel for num_threads(userCores)
-           FOR_ROW_COL_MV_CHL {
-                ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
-           }}
-            addedbaseflow = true;
-        }
-
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL {
-            ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
-        }}
-    }
 }
 //---------------------------------------------------------------------------
 //! calc channelflow, ChannelDepth, kin wave
@@ -254,51 +243,33 @@ void TWorld::ChannelFlow(void)
 
     // ChannelV and Q and alpha now based on original width and depth, channel vol is always the same
 
- //   if (SwitchChannelKinWave) {
+    if (SwitchLinkedList) {
 
-//    if (SwitchChannelKinwaveDt) {
-//        if (_dt_user > 120.0) {
-//            double n = _dt_user/120.0;
-//            _dt = _dt_user/n;
-//        }
-//    }
-//int i = 0;
-//    for (double t = 0; t < _dt_user; t+=_dt) {
-//i++;
-        if (SwitchLinkedList) {
+        ChannelQn->setAllMV();
 
-            ChannelQn->setAllMV();
-
-            FOR_ROW_COL_LDDCH5 {
-                Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
-            }}
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                if (pcr::isMV(ChannelQn->Drc))
-                    ChannelQn->Drc = 0;
-            }}
-
-        } else {
-            KinematicExplicit(crlinkedlddch_, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
-        }
-report(*tmb,"iter");
-        // calc V and WH back from Qn (original width and depth)
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL {
-            double chqn = ChannelQn->Drc;
-            ChannelWaterVol->Drc += (QinKW->Drc - chqn)*_dt;
-           // ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelWaterVol->Drc/_dt);
-            if (ChannelQn->Drc < 0) qDebug() << "OEI" << chqn;
-            ChannelQ->Drc = chqn;
-            ChannelAlpha->Drc = (ChannelWaterVol->Drc/ChannelDX->Drc)/std::pow(chqn, 0.6);
+        FOR_ROW_COL_LDDCH5 {
+            Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
         }}
-            //water vol from mass balance, includes any errors
-//    } //loop
- //   qDebug() << i << _dt;
-//    _dt = _dt_user;
-    //correctMassBalanceCH(sumvol, ChannelWaterVol);
-//double sumvol1 = getMassCH(ChannelWaterVol);
-//qDebug() << sumvol << sumvol1;
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            if (pcr::isMV(ChannelQn->Drc))
+                ChannelQn->Drc = 0;
+        }}
+
+    } else {
+        KinematicExplicit(crlinkedlddch_, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
+    }
+
+    // calc V and WH back from Qn (original width and depth)
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        double chqn = ChannelQn->Drc;
+        ChannelWaterVol->Drc += (QinKW->Drc - chqn)*_dt;
+       // ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelWaterVol->Drc/_dt);
+        ChannelQ->Drc = chqn;
+        ChannelAlpha->Drc = (ChannelWaterVol->Drc/ChannelDX->Drc)/std::pow(chqn, 0.6);
+    }}
+    //water vol from mass balance, includes any errors
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
@@ -319,12 +290,6 @@ report(*tmb,"iter");
          }
     }}
 
-
-//    } else {
-
-//        ChannelSWOFopen();
-
-//    }
 
     // get the maximum for output
     #pragma omp parallel for num_threads(userCores)

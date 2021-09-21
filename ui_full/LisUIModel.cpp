@@ -106,10 +106,7 @@ void lisemqt::runmodel()
     checkMapRoads->setEnabled(checkRoadsystem->isChecked());
 
     // initialize output graphs
-    if(doNewPlot)
-        initNewPlot();
-    else
-        initPlot();
+    initPlot();
 
     initMapPlot();
 
@@ -216,10 +213,7 @@ void lisemqt::worldShow(bool showall)
 
     //SetTextHydrographs(); // show text hydrograph data
 
-    if (doNewPlot)
-        newPlot(false);
-    else
-        showPlot(); // show main plot for point X
+    showPlot(); // show main plot for point X
 
     showBaseMap(); // show shaded relief base map, only once, set startplot to false
 

@@ -33,150 +33,150 @@
 
 void lisemqt::initNewPlot()
 {
-    QGraphN->clear();
-    PGraphN->clear();
-    if (checkDoErosion->isChecked()) {
-        QsGraphN->clear();
-        CGraphN->clear();
-    }
+//    QGraphN->clear();
+//    PGraphN->clear();
+//    if (checkDoErosion->isChecked()) {
+//        QsGraphN->clear();
+//        CGraphN->clear();
+//    }
 }
 
 
 void lisemqt::setupNewPlot()
 {
-    QGraphN = new QLineSeries();
-    PGraphN = new QLineSeries();
+//    QGraphN = new QLineSeries();
+//    PGraphN = new QLineSeries();
 
-    QGraphN->setName("Discharge");
-    QPen pen("#4444DD");
-    pen.setWidth(3);
-    QGraphN->setPen(pen);
+//    QGraphN->setName("Discharge");
+//    QPen pen("#4444DD");
+//    pen.setWidth(3);
+//    QGraphN->setPen(pen);
 
-    PGraphN->setName("Rain intensity");
-    pen.setColor("#111111");
-    pen.setWidth(3);
-    PGraphN->setPen(pen);
+//    PGraphN->setName("Rain intensity");
+//    pen.setColor("#111111");
+//    pen.setWidth(3);
+//    PGraphN->setPen(pen);
 
-    PQSchart = new QChart();
+//    PQSchart = new QChart();
 
-    PQSchart->addSeries(PGraphN);
-    PQSchart->addSeries(QGraphN);
+//    PQSchart->addSeries(PGraphN);
+//    PQSchart->addSeries(QGraphN);
 
-    if (checkDoErosion->isChecked()) {
-        QsGraphN = new QLineSeries();
-        QsGraphN->setName("Sediment discharge");
-        pen.setColor("#FF1111");
-        pen.setWidth(3);
-        QsGraphN->setPen(pen);
+//    if (checkDoErosion->isChecked()) {
+//        QsGraphN = new QLineSeries();
+//        QsGraphN->setName("Sediment discharge");
+//        pen.setColor("#FF1111");
+//        pen.setWidth(3);
+//        QsGraphN->setPen(pen);
 
-        CGraphN = new QLineSeries();
-        CGraphN->setName("Sediment concentration");
-        pen.setColor("#cc0000");
-        pen.setWidth(3);
-        CGraphN->setPen(pen);
+//        CGraphN = new QLineSeries();
+//        CGraphN->setName("Sediment concentration");
+//        pen.setColor("#cc0000");
+//        pen.setWidth(3);
+//        CGraphN->setPen(pen);
 
-        PQSchart->addSeries(QsGraphN);
-        PQSchart->addSeries(CGraphN);
-    }
+//        PQSchart->addSeries(QsGraphN);
+//        PQSchart->addSeries(CGraphN);
+//    }
 
-    PQSchart->setTitle("Hydrograph");
+//    PQSchart->setTitle("Hydrograph");
 
-    axisX = new QValueAxis;
-    axisX->setTickCount(10);
-    axisX->setTitleText("Time (min)");
+//    axisX = new QValueAxis;
+//    axisX->setTickCount(10);
+//    axisX->setTitleText("Time (min)");
 
-    axisYQ = new QValueAxis;
-    axisYQ->setTickCount(10);
-    axisYQ->setTitleText("Q (l/s)");
+//    axisYQ = new QValueAxis;
+//    axisYQ->setTickCount(10);
+//    axisYQ->setTitleText("Q (l/s)");
 
-    axisYP = new QValueAxis;
-    axisYP->setTickCount(10);
-    axisYP->setTitleText("P (mm/h)");
+//    axisYP = new QValueAxis;
+//    axisYP->setTickCount(10);
+//    axisYP->setTitleText("P (mm/h)");
 
-    PQSchart->addAxis(axisX, Qt::AlignBottom);
-    PQSchart->addAxis(axisYQ, Qt::AlignLeft);
-    PQSchart->legend()->setAlignment(Qt::AlignBottom);
+//    PQSchart->addAxis(axisX, Qt::AlignBottom);
+//    PQSchart->addAxis(axisYQ, Qt::AlignLeft);
+//    PQSchart->legend()->setAlignment(Qt::AlignBottom);
 
-   if(checkDoErosion->isChecked()) {
-        PQSchart->addAxis(axisYP, Qt::AlignLeft);
-        axisYQs = new QValueAxis;
-        axisYC = new QValueAxis;
-        axisYQs->setTitleText("Q (kg)");
-        axisYQs->setTitleText("Q (g/l)");
-        QsGraphN->attachAxis(axisX);
-        QsGraphN->attachAxis(axisYQs);
-        CGraphN->attachAxis(axisX);
-        CGraphN->attachAxis(axisYC);
-        PQSchart->addAxis(axisYQs, Qt::AlignRight);
-        PQSchart->addAxis(axisYC, Qt::AlignRight);
-    }
-    else
-        PQSchart->addAxis(axisYP, Qt::AlignRight);
+//   if(checkDoErosion->isChecked()) {
+//        PQSchart->addAxis(axisYP, Qt::AlignLeft);
+//        axisYQs = new QValueAxis;
+//        axisYC = new QValueAxis;
+//        axisYQs->setTitleText("Q (kg)");
+//        axisYQs->setTitleText("Q (g/l)");
+//        QsGraphN->attachAxis(axisX);
+//        QsGraphN->attachAxis(axisYQs);
+//        CGraphN->attachAxis(axisX);
+//        CGraphN->attachAxis(axisYC);
+//        PQSchart->addAxis(axisYQs, Qt::AlignRight);
+//        PQSchart->addAxis(axisYC, Qt::AlignRight);
+//    }
+//    else
+//        PQSchart->addAxis(axisYP, Qt::AlignRight);
 
-    PGraphN->attachAxis(axisX);
-    PGraphN->attachAxis(axisYP);
+//    PGraphN->attachAxis(axisX);
+//    PGraphN->attachAxis(axisYP);
 
-    QGraphN->attachAxis(axisX);
-    QGraphN->attachAxis(axisYQ);
+//    QGraphN->attachAxis(axisX);
+//    QGraphN->attachAxis(axisYQ);
 
-    chartView = new QChartView(PQSchart);
-    chartView->chart()->setTheme(QChart::ChartThemeDark);
-    //chartView->setRenderHint(QPainter::Antialiasing); very slow
-    layout_Plot->insertWidget(0, chartView,1);
+//    chartView = new QChartView(PQSchart);
+//    chartView->chart()->setTheme(QChart::ChartThemeDark);
+//    //chartView->setRenderHint(QPainter::Antialiasing); very slow
+//    layout_Plot->insertWidget(0, chartView,1);
 
 }
 
 
 void lisemqt::newPlot(bool refresh)
 {    
-    int index = OutletIndices.indexOf(this->outletpoint);
+//    int index = OutletIndices.indexOf(this->outletpoint);
 
-    if (refresh) {
-        // fill everything with a new index point and replace entire series
-        dataRain.clear();
-        dataQ.clear();
-        qmax.clear();
-        qsmax.clear();
-        cmax.clear();
-        qmax.append(0);
-        qsmax.append(0);
-        cmax.append(0);
+//    if (refresh) {
+//        // fill everything with a new index point and replace entire series
+//        dataRain.clear();
+//        dataQ.clear();
+//        qmax.clear();
+//        qsmax.clear();
+//        cmax.clear();
+//        qmax.append(0);
+//        qsmax.append(0);
+//        cmax.append(0);
 
-        for(int i = 0; i < op.OutletQ[index]->length()-1;i++)
-        {
-            QPointF _P = QPointF(op.Time.at(i), op.Pmm.at(i));
-            QPointF _Q = QPointF(op.Time.at(i), op.OutletQ[index]->at(i));
-            qmax[index] = std::max(qmax[index], op.OutletQ[index]->at(i));
-            dataRain << _P;
-            dataQ << _Q;
+//        for(int i = 0; i < op.OutletQ[index]->length()-1;i++)
+//        {
+//            QPointF _P = QPointF(op.Time.at(i), op.Pmm.at(i));
+//            QPointF _Q = QPointF(op.Time.at(i), op.OutletQ[index]->at(i));
+//            qmax[index] = std::max(qmax[index], op.OutletQ[index]->at(i));
+//            dataRain << _P;
+//            dataQ << _Q;
 
-            if(checkDoErosion->isChecked()) {
-                QPointF _Qs = QPointF(op.Time.at(i),op.OutletQs.at(index)->at(i));
-                QPointF _C = QPointF(op.Time.at(i),op.OutletC.at(index)->at(i));
-                qsmax[index] = std::max(qsmax[index], op.OutletQs[index]->at(i));
-                cmax[index] = std::max(cmax[index], op.OutletC[index]->at(i));
-                dataQs << _Qs;
-                dataC << _C;
-            }
-        //qDebug() << _P << _Q << i << OutletQ[index]->length();
-        }
-        PGraphN->replace(dataRain);
-        QGraphN->replace(dataQ);
+//            if(checkDoErosion->isChecked()) {
+//                QPointF _Qs = QPointF(op.Time.at(i),op.OutletQs.at(index)->at(i));
+//                QPointF _C = QPointF(op.Time.at(i),op.OutletC.at(index)->at(i));
+//                qsmax[index] = std::max(qsmax[index], op.OutletQs[index]->at(i));
+//                cmax[index] = std::max(cmax[index], op.OutletC[index]->at(i));
+//                dataQs << _Qs;
+//                dataC << _C;
+//            }
+//        //qDebug() << _P << _Q << i << OutletQ[index]->length();
+//        }
+//        PGraphN->replace(dataRain);
+//        QGraphN->replace(dataQ);
 
 
-        if(checkDoErosion->isChecked()) {
-            QsGraphN->replace(dataQs);
-            CGraphN->replace(dataC);
-        }
-    } else {
-        //add to the last point
+//        if(checkDoErosion->isChecked()) {
+//            QsGraphN->replace(dataQs);
+//            CGraphN->replace(dataC);
+//        }
+//    } else {
+//        //add to the last point
 
-          int i = std::max(0,op.OutletQ[index]->length()-1);
+//          int i = std::max(0,op.OutletQ[index]->length()-1);
 
-          QPointF _P = QPointF(op.Time.at(i), op.Pmm.at(i));
-          QPointF _Q = QPointF(op.Time.at(i), op.OutletQ.at(index)->at(i));
-          PGraphN->append(_P);
-          QGraphN->append(_Q);
+//          QPointF _P = QPointF(op.Time.at(i), op.Pmm.at(i));
+//          QPointF _Q = QPointF(op.Time.at(i), op.OutletQ.at(index)->at(i));
+//          PGraphN->append(_P);
+//          QGraphN->append(_Q);
 
 //          qmax[index] = std::max(qmax[index], op.OutletQ[index]->at(i));
 //          if(checkDoErosion->isChecked()) {
@@ -201,7 +201,7 @@ void lisemqt::newPlot(bool refresh)
 //              axisYQs->setMax(qsmax[index]);
 //              axisYC->setMax(cmax[index]);
 //          }
-      }
-    PQSchart->axes(Qt::Horizontal).first()->setRange(op.BeginTime,op.EndTime);
-    chartView->update();
+//      }
+//    PQSchart->axes(Qt::Horizontal).first()->setRange(op.BeginTime,op.EndTime);
+//    chartView->update();
 }

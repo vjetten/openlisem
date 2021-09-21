@@ -3,7 +3,7 @@ openLISEM: Quick guideline for code development
 Download MSYS2.0 and install Qt: https://wiki.qt.io/MSYS2 (except for the static Qt build)
 
 OR if you understand MSYS2.0, basically do:
-install msys and open window
+install msys and open the msys window
 pacman -Sy
 pacman --needed -S bash pacman pacman-mirrors msys2-runtime
 pacman -Su
@@ -14,7 +14,7 @@ NOTE: info on pacman options: https://devhints.io/pacman
 
 addtionally install qtcreator and libs for lisem
 pacman -S mingw-w64-i686-qt-creator mingw-w64-x86_64-qt-creator
-pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-qwt mingw-w64-x86_64-gdal mingw-w64-x86_64-clang
+pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-qwt-qt5 mingw-w64-x86_64-gdal mingw-w64-x86_64-clang
 
 
 Lisem code:

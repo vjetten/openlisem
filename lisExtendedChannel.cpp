@@ -324,11 +324,11 @@ bool TWorld::ExtendChannelNew()
         }
     }
 
-    report(*tma,"tma.map");
-    report (*ChannelWidthExtended,"chwe.map");
+    //report(*tma,"tma.map");
+    //report (*ChannelWidthExtended,"chwe.map");
     copy(*ChannelDepthExtended, *ChannelDepth);
-    report (*ChannelSourceXExtended,"chmx.map");
-    report (*ChannelSourceYExtended,"chmy.map");
+   // report (*ChannelSourceXExtended,"chmx.map");
+   // report (*ChannelSourceYExtended,"chmy.map");
 
     return true;
 }

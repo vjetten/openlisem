@@ -36,13 +36,6 @@
 #include <QSystemTrayIcon>
 #include <QTranslator>
 
-#include <QtCharts>
-#include <QtCharts/QChartView>
-#include <QtCharts/QLineSeries>
-#include <QtCharts/QXYSeries>
-#include <QtCharts/QAreaSeries>
-
-using namespace QtCharts;
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -147,23 +140,11 @@ public:
     QStringList runfilelist;
 
 
-    bool doNewPlot;
-    void newPlot(bool refresh);
-    void setupNewPlot();
-    void initNewPlot();
+//    bool doNewPlot;
+//    void newPlot(bool refresh);
+//    void setupNewPlot();
+//    void initNewPlot();
 
-    QLineSeries *QGraphN;
-    QLineSeries *QsGraphN;
-    QLineSeries *CGraphN;
-    QLineSeries *PGraphN;
-
-    QChart *PQSchart;
-    QChartView *chartView;
-    QValueAxis *axisX;
-    QValueAxis *axisYQ;
-    QValueAxis *axisYP;
-    QValueAxis *axisYQs;
-    QValueAxis *axisYC;
     QList <QPointF> dataRain;
     QList <QPointF> dataQ;
     QList <QPointF> dataQs;

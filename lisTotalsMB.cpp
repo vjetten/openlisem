@@ -214,7 +214,7 @@ void TWorld::Totals(void)
         if (SwitchChannelBaseflow)
             BaseFlowTot += MapTotal(*Qbase); // total inflow in m3
         if (SwitchChannelBaseflowStationary)
-            BaseFlowTot = MapTotal(*BaseFlowInflow) * _dt;
+            BaseFlowTot += MapTotal(*BaseFlowInflow) * _dt;
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
     }

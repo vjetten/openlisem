@@ -112,11 +112,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 //  //  toolShowMapDisplay->setVisible(false);
 //    //this->adjustSize();
 
-    doNewPlot = false;
-    if(doNewPlot)
-        setupNewPlot();
-    else
-        setupPlot();
+    setupPlot();
     // set up the discharge graphs
 
     setupMapPlot();

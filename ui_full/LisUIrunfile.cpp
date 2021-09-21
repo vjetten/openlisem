@@ -204,6 +204,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
+        if (p1.compare("Include stationary baseflow")==0)       checkStationaryBaseflow->setChecked(check);
         if (p1.compare("Adjust channel crosssection")==0)     checkChannelAdjustCHW->setChecked(check);
         if (p1.compare("GW recharge factor")==0)           GW_recharge->setValue(valc);
         if (p1.compare("GW flow factor")==0)           GW_flow->setValue(valc);
@@ -776,6 +777,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
         if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
+        if (p1.compare("Include stationary baseflow")==0)       namelist[j].value.setNum((int)checkStationaryBaseflow->isChecked());
         if (p1.compare("Adjust channel crosssection")==0)    namelist[j].value.setNum((int)checkChannelAdjustCHW->isChecked());
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkChannelInflow->isChecked());

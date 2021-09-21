@@ -51,9 +51,6 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Outlet;outlet.map;Main catchment outlet corresponding to LDD map;outlet");
     DEFmaps.append("2;Points;outpoint.map;Reporting points for hydrograph/sedigraph (1,2,3,...);outpoint");
    // DEFmaps.append("2;Watersheds;watersheds.map;sub-catchments numbered (1,2,3,...);wsheds");
-    DEFmaps.append("2;Baseflow network;lddbaseflow.map;LDD perpendicular to the river;lddbase");
-    DEFmaps.append("2;Baseflow contrib. area;basedistance.map;Distance to river (m);basereach");
-    DEFmaps.append("2;Initial level;gwlevel.map;Initial groundwater level (m);gwlevel");
 
     DEFmaps.append("0;Landuse");
     DEFmaps.append("2;Units;landunit.map;Classified land unit map (integers 0-n) for output of erosion values;landunit");
@@ -133,6 +130,10 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;ChannelMixingDepth;chansedmixdepth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
 //    DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
 //    DEFmaps.append("2;floodZone;floodzone.map;potential flood zone to limit calculations (1 = in, 0 = out);floodzone");
+    DEFmaps.append("2;Stationary baseflow;baseflow.map;Stationary baseflow maintained in the run (m3/s at the outlet);baseflow");
+    DEFmaps.append("2;Baseflow network;lddbaseflow.map;LDD perpendicular to the river;lddbase");
+    DEFmaps.append("2;Baseflow contrib. area;basedistance.map;Distance to river (m);basereach");
+    DEFmaps.append("2;Initial level;gwlevel.map;Initial groundwater level (m);gwlevel");
 
     DEFmaps.append("0;Conservation");
     DEFmaps.append("2;Grass strips;grasswid.map;Width of grass strips (m);grasswidth");
@@ -310,6 +311,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include channel infil");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel baseflow");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include stationary baseflow");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Adjust channel crosssection");
     namelist[i].value = QString("0");

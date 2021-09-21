@@ -194,15 +194,11 @@ void lisemqt::onOutletChanged(int point)
             //SetTextHydrographs();
             outletgroup->setTitle(QString("Catchment outlet(s)"));
 
-            if (doNewPlot)
-                newPlot(false);
-            else {
-                showPlot(); // show main plot for point X
+            showPlot(); // show main plot for point X
 
-                HPlot->setTitle(QString("Catchment outlet(s)"));
+            HPlot->setTitle(QString("Catchment outlet(s)"));
                 //HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
                 //outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
-            }
         } else {
             if(point > outletpoint)
             {
@@ -221,24 +217,20 @@ void lisemqt::onOutletChanged(int point)
                 outletgroup->setTitle(QString("Catchment outflow"));
 
 
-            if (doNewPlot)
-                newPlot(true);
-            else {
-                showPlot(); // show main plot for point X
+            showPlot(); // show main plot for point X
 
-
-                if (outletpoint > 0)
-                {
-                    HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
-                }
-                else
-                {
-                    HPlot->setTitle(QString("Hydrograph all outflow"));
-                }
+            if (outletpoint > 0)
+            {
+                HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
+            }
+            else
+            {
+                HPlot->setTitle(QString("Hydrograph all outflow"));
             }
         }
     }
 }
+
 //---------------------------------------------------------------------------
 /// initialize graph before plotting at the start of a run
 void lisemqt::initPlot()
@@ -338,7 +330,8 @@ void lisemqt::showPlot()
         HPlot->setAxisScale(*axisYR2, 0.0, cmax[index] );
     } else {
         HPlot->setAxisScale(*axisYL1, 0.0, qmax[index] );
-        HPlot->setAxisScale(*axisYR1, 0.0, pmax );
+//        HPlot->setAxisScale(*axisYR1, 0.0, pmax );
+        HPlot->setAxisScale(*axisYR1, pmax,0.0 );
     }
 
     if(checkIncludeTiledrains->isChecked())
@@ -383,18 +376,12 @@ void lisemqt::startPlots()
     if (outletpoint > 0)
     {
         outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
-        if (doNewPlot)
-            PQSchart->setTitle(QString("Hydrograph point %1").arg(outletpoint));
-        else
-            HPlot->setTitle(QString("Hydrograph point %1").arg(outletpoint));
+        HPlot->setTitle(QString("Hydrograph point %1").arg(outletpoint));
     }
     else
     {
         outletgroup->setTitle(QString("Total domain outflow"));
-        if (doNewPlot)
-            PQSchart->setTitle("Combined hydrograph domain outflow");
-        else
-            HPlot->setTitle(QString("Combined hydrograph domain outflow"));
+        HPlot->setTitle(QString("Combined hydrograph domain outflow"));
     }
 }
 

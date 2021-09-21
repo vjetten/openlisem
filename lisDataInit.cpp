@@ -2177,7 +2177,7 @@ void TWorld::IntializeData(void)
 
     }
 
-    if (SwitchChannelBaseflowStationary)
+    if (SwitchChannelBaseflow && SwitchChannelBaseflowStationary)
         FindBaseFlow();
 
     if (SwitchChannelInflow) {
@@ -2340,23 +2340,20 @@ void TWorld::FindBaseFlow()
                 {
 
                     int ncells = 0;
-                    double infiltration = 0;
                     double inflow = 0;
                     double baseflow = BaseFlowDischarges->data[ro][co];
 
-                    /// Linked list of cells in order of LDD flow network, ordered from pit upwards
                     LDD_LINKEDLIST *list = nullptr, *temp = nullptr;
                     list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
 
                     list->prev = nullptr;
-                    /// start gridcell: outflow point of area
                     list->rowNr = ro;
                     list->colNr = co;
 
                     while (list != nullptr)
                     {
                         int i = 0;
-                        bool  subCachDone = true; // are sub-catchment cells done ?
+                        bool  subCachDone = true;
                         int rowNr = list->rowNr;
                         int colNr = list->colNr;
 
@@ -2410,7 +2407,7 @@ void TWorld::FindBaseFlow()
                     } /* eowhile list != nullptr */
 
 
-                    inflow = (baseflow + infiltration)/ ncells;
+                    inflow = baseflow/ ncells;
 
                     list = nullptr;
                     temp = nullptr;
@@ -2573,9 +2570,6 @@ void TWorld::FindBaseFlow()
     FOR_ROW_COL_MV_CH
     {
         tmc->Drc = 0;
-    }
-    FOR_ROW_COL_MV_CH
-    {
         tmd->Drc = 0;
     }
 
