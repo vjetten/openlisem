@@ -897,12 +897,8 @@ void lisemqt::SetStyleUI()
     trayIcon->show();
     tabWidgetOptions->tabBar()->setExpanding(true);
 
-    QFont font = qApp->font();
-    genfontsize=std::max(10,font.pointSize());
-    int x = SetStyleUISize();
-    genfontsize += x;
-    font.setPointSize(genfontsize);
-//    qApp->setFont(font);
+    genfontsize = 8+SetStyleUISize();
+    setfontSize();
 
     toolBar_2->setMovable( false);
     toolBar->setMovable( false);
@@ -1922,7 +1918,17 @@ void lisemqt::fontIncrease()
 void lisemqt::setfontSize()
 {
    // int x = SetStyleUISize();
-    int fs = genfontsize;
+    //int fs = genfontsize;
+   // qDebug() << genfontsize;
+
+    const QWidgetList allWidgets = QApplication::allWidgets();
+    for (QWidget *widget : allWidgets) {
+        QFont font = widget->font();
+        font.setPointSize(genfontsize);
+        widget->setFont(font);
+        widget->update();
+    }
+/*
 
     qApp->setStyleSheet(QString("QLabel {font-size: %1px}\
                                 QCheckBox::indicator {width: %1px; height: %1px}\
@@ -1953,7 +1959,7 @@ void lisemqt::setfontSize()
 
     S = QString("QToolBox::tab {background-color: #1b6fb5}");
     //tabWidget_erosion->setStyleSheet(S);
-
+*/
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetCalibration_clicked()
