@@ -836,24 +836,17 @@ void lisemqt::SetToolBar()
   //  connect(toolShowMapDisplay, SIGNAL(pressed()),this,SLOT(showMapSettings()));
 }
 //---------------------------------------------------------------------------
-void lisemqt::showMapSettings()
-{
-//    if(groupBox_drawMap->isVisible())
-//        groupBox_drawMap->setVisible(false);
-//    else
-//        groupBox_drawMap->setVisible(true);
-}
-//---------------------------------------------------------------------------
 int lisemqt::SetStyleUISize()
 {
     QRect rect = QGuiApplication::primaryScreen()->availableGeometry();
     //qDebug() << rect << QGuiApplication::primaryScreen()->availableVirtualGeometry();
     int _H = rect.height();
-    int disp = 1;
-    if (abs(_H-800) > abs(_H-1080)) disp = 1;
-    if (abs(_H-1080) > abs(_H-1200)) disp = 2;
-    if (abs(_H-1200) > abs(_H-1440)) disp = 3;
-      if (abs(_H-1440) > abs(_H-1600)) disp = 4;
+    qDebug() << _H;
+    int disp = 0;
+    if (abs(_H-800) > abs(_H-1080)) disp = 0;
+    if (abs(_H-1080) > abs(_H-1200)) disp = 1;
+    if (abs(_H-1200) > abs(_H-1440)) disp = 2;
+      if (abs(_H-1440) > abs(_H-1600)) disp = 3;
     //qDebug() << disp << _H << abs(_H-800) << abs(_H-1080) << abs(_H-1200) << abs(_H-1440) << genfontsize;
 
     tabWidgetOptions->tabBar()->setExpanding(true);
@@ -2096,7 +2089,7 @@ void lisemqt::on_toolButton_DischargeInName_clicked()
 // select a file or directory
 // doFile = 0: select a directory;
 // dofile = 1 select a file and return file name only;
-// dofile = 2 return filename wioth full path
+// dofile = 2 return filename with full path
 QString lisemqt::getFileorDir(QString inputdir,QString title, QStringList filters, int doFile)
 {
     QFileDialog dialog;
@@ -2133,7 +2126,6 @@ QString lisemqt::getFileorDir(QString inputdir,QString title, QStringList filter
     return dirout;
 }
 //--------------------------------------------------------------------
-
 void lisemqt::on_toolButton_rainsatName_clicked()
 {
     //RainSatFileDir = RainFileDir;
@@ -2151,27 +2143,29 @@ void lisemqt::on_toolButton_rainsatName_clicked()
     E_rainsatName->setText(RainSatFileDir + RainSatFileName);
     //RainFileDir = RainSatFileDir;
 }
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_ETsatName_clicked()
+{
+  //  ETSatFileDir = ETFileDir;
+
+    if (!QFileInfo(ETSatFileDir).exists() || ETSatFileDir.isEmpty())
+        ETSatFileDir = RainSatFileDir;
+    if (!QFileInfo(ETSatFileDir).exists() || ETSatFileDir.isEmpty())
+        ETSatFileDir = currentDir;
+    QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
+
+    QString sss = getFileorDir(ETSatFileDir,"Select ET map list table", filters, 2);
+
+    ETSatFileDir = QFileInfo(sss).absolutePath()+"/";
+    ETSatFileName = QFileInfo(sss).fileName(); //baseName();
+    E_ETsatName->setText(ETSatFileDir + ETSatFileName);
+
+ //   ETFileDir = ETSatFileDir;
+}
 
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_RainfallName_clicked()
 {
-    /*
-    QString path;
-
-    RainFileDir = findValidDir(RainFileDir, false);
-
-    path = QFileDialog::getOpenFileName(this,
-                                        QString("Select rainfall file"),
-                                        RainFileDir);
-    if(!path.isEmpty())
-    {
-        QFileInfo fi(path);
-        RainFileName = fi.fileName();
-        RainFileDir = CheckDir(fi.absolutePath());//Dir().path());
-        E_RainfallName->setText( RainFileDir + RainFileName );
-    }
-    */
-
     if (!QFileInfo(RainFileDir).exists() || RainFileDir.isEmpty())
         RainSatFileDir = currentDir;
 
@@ -2188,36 +2182,18 @@ void lisemqt::on_toolButton_RainfallName_clicked()
 
 void lisemqt::on_toolButton_ETName_clicked()
 {
-    if (!QFileInfo(ETFileDir).exists() || ETFileDir.isEmpty())
-        ETFileDir = RainFileDir;
+//    if (!QFileInfo(ETFileDir).exists() || ETFileDir.isEmpty())
+//        ETFileDir = RainFileDir;
     if (!QFileInfo(ETFileDir).exists() || ETFileDir.isEmpty())
         ETFileDir = currentDir;
+
     QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
 
-    ETFileName = getFileorDir(ETFileDir,"Select ET stations file", filters, 2);
+    QString sss = getFileorDir(ETFileDir,"Select ET stations file", filters, 2);
 
-    E_ETName->setText(ETFileName);
-}
-//--------------------------------------------------------------------
-
-void lisemqt::on_toolButton_ETsatName_clicked()
-{
-    ETSatFileDir = ETFileDir;
-
-    if (!QFileInfo(ETSatFileDir).exists() || ETSatFileDir.isEmpty())
-        ETSatFileDir = RainSatFileDir;
-    if (!QFileInfo(ETSatFileDir).exists() || ETSatFileDir.isEmpty())
-        ETSatFileDir = currentDir;
-    QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
-
-    QString sss = getFileorDir(ETSatFileDir,"Select ET map list table", filters, 2);
-
-    ETSatFileDir = QFileInfo(sss).absolutePath()+"/";
-    ETSatFileName = QFileInfo(sss).fileName(); //baseName();
-    E_ETsatName->setText(ETSatFileDir + ETSatFileName);
-
-    ETFileDir = ETSatFileDir;
-
+    ETFileDir = QFileInfo(sss).absolutePath()+"/";
+    ETFileName = QFileInfo(sss).fileName(); //baseName();
+    E_ETName->setText(ETFileDir + ETFileName);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeET_toggled(bool checked)
@@ -2227,6 +2203,7 @@ void lisemqt::on_checkIncludeET_toggled(bool checked)
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_ETShow_clicked()
 {
+    //qDebug() <<ETFileDir + ETFileName;
     showTextfile(ETFileDir + ETFileName);
 }
 //--------------------------------------------------------------------

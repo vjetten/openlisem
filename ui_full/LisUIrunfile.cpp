@@ -267,11 +267,11 @@ void lisemqt::ParseInputData()
         if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setText(p);
 
         //VJ 111120 water repellency
-        if (p1.compare("Use Water Repellency")==0)      checkWaterRepellency->setChecked(check);
-        if (p1.compare("Water Repellency A")==0)        E_waterRep_a->setValue(valc);
-        if (p1.compare("Water Repellency B")==0)        E_waterRep_b->setValue(valc);
-        if (p1.compare("Water Repellency C")==0)        E_waterRep_c->setValue(valc);
-        if (p1.compare("Water Repellency D")==0)        E_waterRep_d->setValue(valc);
+//        if (p1.compare("Use Water Repellency")==0)      checkWaterRepellency->setChecked(check);
+//        if (p1.compare("Water Repellency A")==0)        E_waterRep_a->setValue(valc);
+//        if (p1.compare("Water Repellency B")==0)        E_waterRep_b->setValue(valc);
+//        if (p1.compare("Water Repellency C")==0)        E_waterRep_c->setValue(valc);
+//        if (p1.compare("Water Repellency D")==0)        E_waterRep_d->setValue(valc);
 
 
         // FLOW
@@ -463,6 +463,7 @@ void lisemqt::ParseInputData()
     if (dir.cdUp())
         E_WorkDir = dir.absolutePath()+"/";
     // workdir is now parent of runfile directory
+   // qDebug() << E_WorkDir;
 
     QString daystart, minstart, dayend, minend;
     for (j = 0; j < nrnamelist; j++)
@@ -476,32 +477,31 @@ void lisemqt::ParseInputData()
         if (p1.compare("End time")==0)   minend = p;//E_EndTimeMin->setText(p);
         if (p1.compare("Timestep")==0) E_Timestep->setText(p);
 
-        // input ourput dirs and file names
-        if (p1.compare("Work Directory")==0)
-        {
-            QString S = E_WorkDir;
-            E_WorkDir = CheckDir(p);
-            if (!QFileInfo(E_WorkDir).exists())
-                E_WorkDir = S;
-        }
+        // input output dirs and file names
+//        if (p1.compare("Work Directory")==0)
+//        {
+//            QString S = E_WorkDir;
+//            E_WorkDir = CheckDir(p);
+//            if (!QFileInfo(E_WorkDir).exists())
+//                E_WorkDir = S;
+//        }
 
         if (p1.compare("Map Directory")==0)
         {
             E_MapDir->setText(CheckDir(p));
 
-            if (!p.isEmpty() && E_WorkDir.isEmpty())
+            if (QFileInfo(E_MapDir->text()).exists())
             {
                 E_WorkDir = E_MapDir->text();
                 QDir dir(E_WorkDir);
                 if (dir.cdUp())
                     E_WorkDir = dir.absolutePath()+"/";
                 // workdir is now parent of maps directory
-
             }
 
-            if (E_MapDir->text().isEmpty() && !E_WorkDir.isEmpty())
+            if (E_MapDir->text().isEmpty() && QFileInfo(E_WorkDir).exists())
             {
-                E_MapDir->setText(E_WorkDir+"maps/");
+                E_MapDir->setText(E_WorkDir);
                 if (!QFileInfo(E_MapDir->text()).exists())
                     E_MapDir->setText(E_WorkDir);
             }
@@ -513,7 +513,7 @@ void lisemqt::ParseInputData()
                 E_ResultDir->setText(CheckDir(p, true));
             else
                 E_ResultDir->setText(CheckDir(p, false));
-            if (!QFileInfo(E_ResultDir->text()).exists())
+            if (!QFileInfo(E_ResultDir->text()).exists() && QFileInfo(E_WorkDir).exists())
                 E_ResultDir->setText(E_WorkDir + "res/");
 
         }
@@ -535,7 +535,6 @@ void lisemqt::ParseInputData()
                 E_RainfallName->setText(RainFileDir + p);
             }
         }
-
         if (p1.compare("Rainfall Map Directory")==0) RainSatFileDir = CheckDir(p);
         if (p1.compare("Rainfall maplist name")==0) {
             RainSatFileName = p;
@@ -558,10 +557,16 @@ void lisemqt::ParseInputData()
                 E_ETName->setText(ETFileDir + p);
             }
         }
-        if (p1.compare("ET base name")==0) {
-            ETSatFileName = p; // this is the base name so not a filename that can be checked
-            ETSatFileDir = ETFileDir;
-            E_ETsatName->setText(ETSatFileDir + ETSatFileName);        }
+        if (p1.compare("ET Map Directory")==0) ETSatFileDir = CheckDir(p);
+        if (p1.compare("ET maplist name")==0) {
+            ETSatFileName = p;
+            E_ETsatName->setText(ETSatFileDir + ETSatFileName);
+            if (!QFileInfo(E_ETsatName->text()).exists())
+            {
+                ETSatFileDir = QString(E_WorkDir + "rain/");
+                E_ETsatName->setText(ETSatFileDir + p);
+            }
+        }
 
         if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
         if (p1.compare("Discharge inflow file")==0)
@@ -932,7 +937,7 @@ void lisemqt::updateModelData()
         if (p1.compare("End time day")==0)   namelist[j].value = QString("%1").arg(daye,3,10, QLatin1Char('0'));//E_EndTimeDay->text();
         if (p1.compare("End time")==0)   namelist[j].value = QString("%1").arg(mine,4,10, QLatin1Char('0'));//E_EndTimeMin->text();
         if (p1.compare("Timestep")==0)   namelist[j].value = E_Timestep->text();
-        if (p1.compare("Work Directory")==0)    namelist[j].value = E_WorkDir;//->text();
+     //   if (p1.compare("Work Directory")==0)    namelist[j].value = E_WorkDir;//->text();
         if (p1.compare("Map Directory")==0)    namelist[j].value = E_MapDir->text();
         if (p1.compare("Result Directory")==0) namelist[j].value = E_ResultDir->text();
         if (p1.compare("Main results file")==0) namelist[j].value = E_MainTotals->text();
@@ -940,12 +945,12 @@ void lisemqt::updateModelData()
         if (p1.compare("Filename point output")==0) namelist[j].value = E_PointResults->text();
      //   if (p1.compare("Filename landunit output")==0) namelist[j].value = E_LandunitResults->text();
 
-        if (p1.compare("Rainfall Directory")==0) namelist[j].value = RainFileDir;
+      //  if (p1.compare("Rainfall Directory")==0) namelist[j].value = RainFileDir;
         if (p1.compare("Rainfall file")==0) namelist[j].value = RainFileName;
         if (p1.compare("Rainfall Map Directory")==0) namelist[j].value = RainSatFileDir;
         if (p1.compare("Rainfall maplist name")==0) namelist[j].value = RainSatFileName;
 
-        if (p1.compare("ET Directory")==0) namelist[j].value = ETFileDir;
+      //  if (p1.compare("ET Directory")==0) namelist[j].value = ETFileDir;
         if (p1.compare("ET file")==0) namelist[j].value = ETFileName;
         if (p1.compare("ET base name")==0) namelist[j].value = ETSatFileName;
 

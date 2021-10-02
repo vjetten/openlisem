@@ -366,7 +366,6 @@ public slots:
     void aboutQT();
     void aboutInfo();
     void resetAll();
-    void showMapSettings();
     void setOutputScreen();
     void setOutputInfo();
 

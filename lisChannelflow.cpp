@@ -55,10 +55,11 @@ void TWorld::ChannelBaseflow(void)
             addedbaseflow = true;
         }
 
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL {
-            ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
-        }}
+//        #pragma omp parallel for num_threads(userCores)
+//        FOR_ROW_COL_MV_CHL {
+//            //ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
+//            tma->Drc = BaseFlowInflow->Drc * _dt;
+//        }}
     }
 
     // GW recharge and GW outflow
@@ -114,7 +115,7 @@ void TWorld::ChannelBaseflow(void)
         GWrec->Drc = GWrec_;
         GWWH->Drc = GWVol_/CellArea->Drc;  //for display
 
-        tma->Drc = Qbin->Drc; // prev timestep Qbin
+        tma->Drc = Qbin->Drc+BaseFlowInflow->Drc * _dt; // prev timestep Qbin
         Qbin->Drc = 0;
         //Qbase->Drc = ChannelQn->Drc;
     }}
@@ -128,8 +129,8 @@ void TWorld::ChannelBaseflow(void)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         Qbin->Drc *= ChannelWidthO->Drc/_dx;
-        Qbase->Drc = Qbin->Drc;//*(1-factor) + tma->Drc*factor;
-        ChannelWaterVol->Drc += Qbin->Drc*(1-factor) + tma->Drc*factor;//Qbase->Drc;
+        Qbase->Drc = Qbin->Drc+BaseFlowInflow->Drc * _dt;//*(1-factor) + tma->Drc*factor;
+        ChannelWaterVol->Drc += Qbase->Drc*(1-factor) + tma->Drc*factor;//Qbase->Drc;
         // flow according to SWAT 2009, page 174 manual, eq 2.4.2.8
         //Qbase->Drc = tmp;//ChannelWaterVol->Drc - tmp - GWbp->Drc;
     }}

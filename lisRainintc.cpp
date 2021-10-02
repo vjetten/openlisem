@@ -538,7 +538,7 @@ double TWorld::getTimefromString(QString sss)
             hour = DHM.at(1).toDouble();
             min = DHM.at(2).toDouble();
         }
-
+//qDebug() << day << hour << min;
         return(day*1440+hour*60+min);
     }
 }

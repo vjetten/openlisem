@@ -183,7 +183,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("");
     //###
     namelist[i++].name = QString("[Input]");
-    namelist[i++].name = QString("Work Directory");
+   // namelist[i++].name = QString("Work Directory");
     namelist[i++].name = QString("Map Directory");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Event based");
@@ -197,11 +197,13 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include ET");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Daily ET");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use ET maps");
     namelist[i++].name = QString("ET file");
     namelist[i++].name = QString("ET Directory");
-    namelist[i++].name = QString("ET base name");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use ET maps");
+    namelist[i++].name = QString("ET maplist name");
+    namelist[i++].name = QString("ET Map Directory");
+   // namelist[i++].name = QString("ET base name");
     //    namelist[i].value = QString("0");
 //    namelist[i++].name = QString("Include Snowmelt");
     namelist[i].value = QString("0");

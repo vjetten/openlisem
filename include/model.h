@@ -538,6 +538,7 @@ public:
     QString rainSatFileDir;
     QString rainSatFileName;
     QString ETFileName;
+    QString ETSatFileDir;
     QString ETSatFileName;
     QString ETFileDir;
     QString SnowmeltFileName;

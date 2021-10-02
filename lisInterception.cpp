@@ -66,8 +66,8 @@ void TWorld::cell_Interception(int r, int c)
 //            qDebug()<< CS << Smax << RainCum_ << exp(-kLAI->Drc*RainCum_/Smax);
         CStor->Drc = CS;
         // put new storage back in map
-        Interc->Drc =  Cv * CS * AreaSoil;
-        // Interc->Drc =  Cv * CS * _dx * DX->Drc;
+       // Interc->Drc =  Cv * CS * AreaSoil;
+        Interc->Drc =  Cv * CS * CHAdjDX->Drc;
         // WHY: cvover already takes care of this, trees can be above a road or channel
 
         RainNet_ = LeafDrain->Drc + (1-Cv)*Rainc_;
@@ -124,8 +124,8 @@ void TWorld::cell_Interception(int r, int c)
             HStor->Drc = HS;
             // put new storage back in maps in m
 
-            double roofsurface = (AreaSoil * CvH); // m2
-            // double roofsurface = (_dx * DX->Drc * CvH); // m2
+            //double roofsurface = (AreaSoil * CvH); // m2
+            double roofsurface = (_dx * DX->Drc * CvH); // m2
             // user should assure housecover is correct with respect to channel and roads
             IntercHouse->Drc =  roofsurface * HS;
             // total interception in m3,exclude roads, channels

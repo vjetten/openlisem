@@ -401,8 +401,11 @@ void TWorld::ParseRunfileData(void)
         {
             if (p1.compare("ET Directory")==0) ETFileDir = CheckDir(p);
             if (p1.compare("ET file")==0) ETFileName = p;
-            if (SwitchETSatellite)
-                if (p1.compare("ET base name")==0) ETSatFileName = p;//ETFileDir + p;
+            if (SwitchETSatellite) {
+                if (p1.compare("ET Map Directory")==0) ETSatFileDir = CheckDir(p);
+                if (p1.compare("ET maplist name")==0) ETSatFileName = p;//rainFileDir +p;
+            }
+
         }
         if (SwitchChannelInflow)
         {

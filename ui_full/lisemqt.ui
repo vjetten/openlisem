@@ -790,8 +790,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>937</width>
-                <height>756</height>
+                <width>911</width>
+                <height>732</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_40">
@@ -828,7 +828,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>1</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -1497,25 +1497,6 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="0" column="2" colspan="2">
-                          <widget class="QLineEdit" name="E_RainfallName">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                          </widget>
-                         </item>
                          <item row="1" column="3">
                           <widget class="QLineEdit" name="E_rainsatName">
                            <property name="enabled">
@@ -1603,10 +1584,29 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="2" column="0">
+                         <item row="0" column="3">
+                          <widget class="QLineEdit" name="E_RainfallName">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="0" colspan="5">
                           <widget class="QCheckBox" name="checkEventBased">
                            <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
@@ -1841,7 +1841,7 @@
                          <item row="4" column="1" colspan="2">
                           <widget class="QLineEdit" name="E_latitude">
                            <property name="enabled">
-                            <bool>false</bool>
+                            <bool>true</bool>
                            </property>
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1998,7 +1998,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Eavapotranspiration station file</string>
+                            <string>ET station file</string>
                            </property>
                            <property name="checked">
                             <bool>true</bool>
@@ -2008,7 +2008,7 @@
                          <item row="3" column="0" colspan="3">
                           <widget class="QCheckBox" name="checkDailyET">
                            <property name="enabled">
-                            <bool>false</bool>
+                            <bool>true</bool>
                            </property>
                            <property name="font">
                             <font>
@@ -10011,8 +10011,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>934</width>
-                <height>678</height>
+                <width>926</width>
+                <height>621</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">

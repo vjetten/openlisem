@@ -501,7 +501,7 @@ void TWorld::MassBalance()
   //  if (RainTot + SnowTot > 0)
     {
         double waterin = RainTot + SnowTot + WaterVolSoilTot + WHinitVolTot + BaseFlowTot;
-        double waterout = ETaTot;
+        double waterout = 0;//ETaTot;
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot;
         double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;
 //qDebug() << ChannelVolTot << BaseFlowTot;

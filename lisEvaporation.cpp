@@ -43,7 +43,6 @@ void TWorld::GetETData(QString name)
     int nrSeries = 0;
     int skiprows = 0;
     double time = 0.0;
-    bool oldformat = true;
 
     if (!fi.exists())
     {
@@ -72,33 +71,11 @@ void TWorld::GetETData(QString name)
     if (ok)
     {
         SL = ETRecs[count+2].split(QRegExp("\\s+"));
-        if (count == SL.count())
-            oldformat = false;
-        //if the number of columns equals the integer then new format
         nrStations = count-1;
-        // nr stations is count-1 for time as forst column
+        // nr stations is count-1 for time as first column
     }
 
-    if (ETRecs[0].contains("RUU"))
-        oldformat = true;
-
-    if (oldformat)
-    {
-        QStringList SL = ETRecs[0].split(QRegExp("\\s+"));
-        // get first line, white space character as split for header
-
-        nrStations = SL[SL.size()-1].toInt(&ok, 10);
-        // read nr stations from last value in old style header
-        // failure gives 0
-        SL = ETRecs[ETRecs.count()-1].split(QRegExp("\\s+"));
-        oldformat = (nrStations == SL.count()-1);
-    }
-
-    //check if nr stations found equals nr columns-1, 1st column is time
-    if (oldformat)
-        skiprows = 1;
-    else
-        skiprows = 3;
+    skiprows = 3;
 
     // count gauge areas in the ID.map
     int nrmap = 0;
@@ -111,7 +88,7 @@ void TWorld::GetETData(QString name)
     }
 
     nrSeries = ETRecs.size() - nrStations - skiprows;
-    // count ET or snowmelt records
+    // count ET records
 
     if (nrSeries <= 1)
     {
@@ -136,8 +113,7 @@ void TWorld::GetETData(QString name)
 
         if (r > 0 && rl.time <= time)
         {
-            //qDebug() << r << time << rl.time;
-            ErrorString = QString("ET records at time %1 has unreadable value.").arg(rl.time);
+            ErrorString = QString("ET records at row %1 has unreadable value.").arg(r);
             throw 1;
         }
         else
@@ -286,14 +262,15 @@ void TWorld::doETa()
     double ETafactor = 1;
     double Ld = 12;
 
-    SwitchDailyET = true;
+   // SwitchDailyET = true;
     if (SwitchDailyET) {
         double day = trunc(time/(86400));
         double hour = time/3600.0-day*24.0;
-        double declination = -23.45 * PI/180.0 * cos(2*M_PI*(day+10)/365.0);
+        double declination = -23.45 * M_PI/180.0 * cos(2*M_PI*(day+10)/365.0);
         Ld = 24.0/M_PI*(acos(-tan(declination)*tan(latitude/180.0*M_PI)));  // daylength in hour
         ETafactor = std::max(0.,sin((-0.5-hour/Ld)*M_PI)) / Ld*_dt/3600.0*M_PI*0.5;
             //<= this ensures that the sum of all steps in a day amounts to the daily ET, regardless of _dt
+        //qDebug() << ETafactor << Ld << declination;
     }
     // sum of ETafactor during Ld is always 1, so ETp is devided with a sine curve over daylength Ld
 
@@ -302,9 +279,10 @@ void TWorld::doETa()
 
         if (Rain->Drc > 0)
             ETp->Drc = 0;
-
         double ETp_ = ETp->Drc * ETafactor;
         // ETp->Drc is assumed to be in m/day, etfactor does the rest
+   //     if (r==200 && c == 200)
+    //       qDebug() << ETp->Drc << ETp_ << ETafactor << Rain->Drc;
 
         if (ETp_ > 0) {
             double tot = 0;
@@ -326,16 +304,16 @@ void TWorld::doETa()
                     RainCum->Drc = 0;
                 // restart the cumulative process when CStor is dried out
 
-                eta = tmp - CStor_; // actual eta is store before-after
+                eta = ETa_int; // actual eta is store before-after
                 tot = tot + Cover_*eta;
                 etanet = Cover_*eta;
 
                 Interc->Drc = Cover_ * CStor_ * SoilWidthDX->Drc * DX->Drc;
                 IntercETa->Drc += Cover_ * eta * SoilWidthDX->Drc * DX->Drc;
                 CStor->Drc = CStor_;
-
-
             }
+//            if (r==96 && c == 164)
+//                qDebug() << ETp_ << CStor_ << RainCum->Drc << Interc->Drc;
 
             bool ponded = hmxWH->Drc > 0;
             if (!ponded) {
@@ -368,26 +346,26 @@ void TWorld::doETa()
             }
 
             // ETa = ETp for any ponded surfaces
-//            if (ponded) {
-//                double ETa_pond = ETp_;
-//                if (FloodDomain->Drc > 0) {
-//                    ETa_pond = std::min(ETa_pond, hmx->Drc);
-//                    tmp = hmx->Drc;
-//                    hmx->Drc = hmx->Drc-ETa_pond;
-//                    eta = tmp - hmx->Drc;
-//                } else {
-//                    double WHRunoff_ = WHrunoff->Drc;
-//                    ETa_pond = std::min(ETa_pond, WHRunoff_);
-//                    tmp = WHRunoff_;
-//                    WHRunoff_ = WHRunoff_-ETa_pond;
-//                    eta = tmp - WHRunoff_;
-//                    WHroad->Drc = WHRunoff_;
-//                    WH->Drc = WHRunoff_ + WHstore->Drc;
-//                    WHrunoff->Drc = WHRunoff_;
-//                }
-//                tot = tot + eta;
-//                WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
-//            }
+            if (ponded) {
+                double ETa_pond = ETp_;
+                if (FloodDomain->Drc > 0) {
+                    ETa_pond = std::min(ETa_pond, hmx->Drc);
+                    tmp = hmx->Drc;
+                    hmx->Drc = hmx->Drc-ETa_pond;
+                    eta = tmp - hmx->Drc;
+                } else {
+                    double WHRunoff_ = WHrunoff->Drc;
+                    ETa_pond = std::min(ETa_pond, WHRunoff_);
+                    tmp = WHRunoff_;
+                    WHRunoff_ = WHRunoff_-ETa_pond;
+                    eta = tmp - WHRunoff_;
+                    WHroad->Drc = WHRunoff_;
+                    WH->Drc = WHRunoff_ + WHstore->Drc;
+                    WHrunoff->Drc = WHRunoff_;
+                }
+                tot = tot + eta;
+                WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
+            }
 
             // put total Eta in Eta map
             ETa->Drc = tot;
