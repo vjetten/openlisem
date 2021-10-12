@@ -828,7 +828,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>2</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -1426,36 +1426,10 @@
                          <enum>QFrame::Sunken</enum>
                         </property>
                         <layout class="QGridLayout" name="gridLayout_50">
-                         <item row="0" column="5">
-                          <widget class="QToolButton" name="toolButton_RainfallShow">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
+                         <item row="4" column="0" colspan="5">
+                          <widget class="QCheckBox" name="checkEventBased">
                            <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="toolTip">
-                            <string>Show current rainfall file</string>
-                           </property>
-                           <property name="text">
-                            <string>...</string>
-                           </property>
-                           <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
-                             <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
-                           </property>
-                           <property name="autoRaise">
-                            <bool>false</bool>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="1" column="0" colspan="3">
-                          <widget class="QRadioButton" name="radioRainSatFile">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
@@ -1470,7 +1444,10 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Rainfall map file list</string>
+                            <string>Event based (days in all time indicatiion are ignored)</string>
+                           </property>
+                           <property name="checked">
+                            <bool>false</bool>
                            </property>
                           </widget>
                          </item>
@@ -1519,6 +1496,73 @@
                            </property>
                           </widget>
                          </item>
+                         <item row="0" column="3">
+                          <widget class="QLineEdit" name="E_RainfallName">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="5">
+                          <widget class="QToolButton" name="toolButton_RainfallShow">
+                           <property name="enabled">
+                            <bool>true</bool>
+                           </property>
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="toolTip">
+                            <string>Show current rainfall file</string>
+                           </property>
+                           <property name="text">
+                            <string>...</string>
+                           </property>
+                           <property name="icon">
+                            <iconset resource="../resources/openlisem.qrc">
+                             <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
+                           </property>
+                           <property name="autoRaise">
+                            <bool>false</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="0" colspan="3">
+                          <widget class="QRadioButton" name="radioRainSatFile">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Rainfall map file list</string>
+                           </property>
+                          </widget>
+                         </item>
                          <item row="0" column="4">
                           <widget class="QToolButton" name="toolButton_RainfallName">
                            <property name="enabled">
@@ -1542,6 +1586,20 @@
                            </property>
                            <property name="autoRaise">
                             <bool>false</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="5">
+                          <widget class="QToolButton" name="toolButton_RainmapShow">
+                           <property name="enabled">
+                            <bool>false</bool>
+                           </property>
+                           <property name="text">
+                            <string>...</string>
+                           </property>
+                           <property name="icon">
+                            <iconset resource="../resources/openlisem.qrc">
+                             <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
                            </property>
                           </widget>
                          </item>
@@ -1570,24 +1628,10 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="1" column="5">
-                          <widget class="QToolButton" name="toolButton_RainmapShow">
-                           <property name="enabled">
-                            <bool>false</bool>
-                           </property>
-                           <property name="text">
-                            <string>...</string>
-                           </property>
-                           <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
-                             <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="0" column="3">
-                          <widget class="QLineEdit" name="E_RainfallName">
+                         <item row="2" column="3">
+                          <widget class="QDoubleSpinBox" name="E_biasCorrectionP">
                            <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
@@ -1601,16 +1645,16 @@
                              <kerning>true</kerning>
                             </font>
                            </property>
+                           <property name="minimum">
+                            <double>0.010000000000000</double>
+                           </property>
+                           <property name="value">
+                            <double>1.000000000000000</double>
+                           </property>
                           </widget>
                          </item>
-                         <item row="2" column="0" colspan="5">
-                          <widget class="QCheckBox" name="checkEventBased">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
+                         <item row="2" column="0">
+                          <widget class="QLabel" name="label_121">
                            <property name="font">
                             <font>
                              <pointsize>8</pointsize>
@@ -1621,10 +1665,10 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Event based (days in all time indicatiion are ignored)</string>
+                            <string>Bias correction factor</string>
                            </property>
-                           <property name="checked">
-                            <bool>false</bool>
+                           <property name="alignment">
+                            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                            </property>
                           </widget>
                          </item>

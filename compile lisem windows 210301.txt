@@ -9,12 +9,16 @@ pacman --needed -S bash pacman pacman-mirrors msys2-runtime
 pacman -Su
 pacman -S base-devel git mercurial cvs wget p7zip
 pacman -S perl ruby python mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain
+pacman -S mingw-w64-i686-qt-creator mingw-w64-x86_64-qt-creator
+pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-qwt-qt5 mingw-w64-x86_64-gdal mingw-w64-x86_64-clang
 
 NOTE: info on pacman options: https://devhints.io/pacman
 
-addtionally install qtcreator and libs for lisem
-pacman -S mingw-w64-i686-qt-creator mingw-w64-x86_64-qt-creator
-pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-qwt-qt5 mingw-w64-x86_64-gdal mingw-w64-x86_64-clang
+add to the windows path:
+c:\[your path\msys64\mingw64 
+c:\[your path\msys64\mingw64\bin
+
+for cmake-gui to work 
 
 
 Lisem code:
@@ -52,7 +56,7 @@ IF(WIN32)
  SET(GDAL_BUILD_DIR "c:\\qt\\msys64\\mingw64")
 ENDIF()
 
-to the path wehre you have instaled msys64
+to the path where you have installed msys64
 
 You should be able to compile now...
 

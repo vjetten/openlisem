@@ -167,6 +167,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use ET maps")==0)                   ETmaps = check;
         if (p1.compare("Daily ET")==0)                      checkDailyET->setChecked(check);
         //if (p1.compare("Include Snowmelt")==0)               checkSnowmelt->setChecked(check);
+        if (p1.compare("Bias Correction Rainfall")==0)           E_biasCorrectionP->setValue(valc);
+
 
         if (p1.compare("Nr user Cores")==0) nrUserCores->setValue(iii);
         if (p1.compare("Result datetime")==0) checkAddDatetime->setChecked(check);
@@ -949,6 +951,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Rainfall file")==0) namelist[j].value = RainFileName;
         if (p1.compare("Rainfall Map Directory")==0) namelist[j].value = RainSatFileDir;
         if (p1.compare("Rainfall maplist name")==0) namelist[j].value = RainSatFileName;
+        if (p1.compare("Bias Correction Rainfall")==0) namelist[j].value = E_biasCorrectionP->text();
+
 
       //  if (p1.compare("ET Directory")==0) namelist[j].value = ETFileDir;
         if (p1.compare("ET file")==0) namelist[j].value = ETFileName;

@@ -258,6 +258,8 @@ void TWorld::GetInputData(void)
 //---------------------------------------------------------------------------
 void TWorld::InitParameters(void)
 {
+    PBiasCorrection = getvaluedouble("Bias Correction Rainfall");
+
     GW_recharge = getvaluedouble("GW recharge factor");
     GW_flow = getvaluedouble("GW flow factor");
     GW_slope = getvaluedouble("GW slope factor");

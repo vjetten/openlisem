@@ -403,6 +403,7 @@ public:
     double KEParamater_a2, KEParamater_b2;
     double KEParamater_a3, KEParamater_b3;
 
+    double PBiasCorrection;
 
     double GW_recharge;
     double GW_flow;

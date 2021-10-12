@@ -395,7 +395,7 @@ void TWorld::GetRainfallMap(void)
 {
     double currenttime = (time)/60;
     int  rainplace;
-    double tt = _dt/3600000.0; // mm/h to m -> mm/h = mm X/3600*_dt -> X*0.0001
+    double tt = _dt/3600000.0 * PBiasCorrection; // mm/h to m -> mm/h = mm X/3600*_dt -> X*0.0001
     bool norain = false;
     bool samerain = false;
 
