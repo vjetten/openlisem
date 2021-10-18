@@ -92,6 +92,7 @@ void TWorld::OutputUI(void)
 
     op.Pmm.append((RainAvgmm + SnowAvgmm)*3600/_dt);
     op.RainTotmm = RainTotmm + SnowTotmm;
+    op.ETaTotmm = ETaTotmm;
     op.RainpeakTime = RainpeakTime/60;
     op.Rainpeak = Rainpeak;
 

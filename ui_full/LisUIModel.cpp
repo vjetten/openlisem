@@ -372,6 +372,7 @@ void lisemqt::initOP()
     op.StormDrainTotmm = 0;
     op.InfilTotmm = 0;
     op.RainTotmm = 0;
+    op.ETaTotmm = 0;
     op.SurfStormm = 0;
     op.InfilKWTotmm = 0;
     op.WHflood = 0;

@@ -314,7 +314,7 @@ void lisemqt::showPlot()
 //        qmax[index] = op.OutletQ[index]->at(_j);
 
     qmax[index] = std::max(qmax[index] , 1.1*op.OutletQ[index]->at(_j));
-    pmax = std::max(pmax, 1.1*op.Pmm[_j]);
+    pmax = std::max(pmax, 1.5*op.Pmm[_j]);
 
     if(checkDoErosion->isChecked())
     {
@@ -517,6 +517,7 @@ void lisemqt::showOutputData()
     label_endruntime->setText(format.arg(QString::number(op.maxtime,'f',dig)));
 
     // mm output
+    label_ETatot->setText(format.arg(QString::number(op.ETaTotmm,'f',dig)));
     label_raintot->setText(format.arg(QString::number(op.RainTotmm,'f',dig)));
     label_watervoltot->setText(format.arg(QString::number(op.WaterVolTotmm,'f',dig)));
     label_stormdraintot->setText(format.arg(QString::number(op.StormDrainTotmm,'f',dig)));
@@ -545,7 +546,10 @@ void lisemqt::showOutputData()
     int j = OutletIndices.indexOf(this->outletpoint);
     label_qpeaksub->setText(format.arg(QString::number(op.OutletQpeak.at(j),'f',2)));
     label_qpeaktime->setText(format.arg(QString::number(op.OutletQpeaktime.at(j),'f',2)));
-    label_qtotm3sub->setText(format.arg(QString::number(op.OutletQtot.at(j),'f',2)));
+    if (op.OutletQtot.at(j) < 1000)
+        label_qtotm3sub->setText(format.arg(QString::number(op.OutletQtot.at(j),'f',2)));
+    else
+        label_qtotm3sub->setText(format.arg(QString::number(op.OutletQtot.at(j),'e',3)));
     label_dischargesub->setText(format.arg(QString::number(op.OutletQ.at(j)->at(op.OutletQ.at(j)->length()-1),'f',2)));
 
     label_soillosssub->setEnabled(checkDoErosion->isChecked());

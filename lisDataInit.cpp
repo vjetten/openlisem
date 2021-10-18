@@ -258,7 +258,7 @@ void TWorld::GetInputData(void)
 //---------------------------------------------------------------------------
 void TWorld::InitParameters(void)
 {
-    PBiasCorrection = getvaluedouble("Bias Correction Rainfall");
+    PBiasCorrection = getvaluedouble("Rainfall Bias Correction");
 
     GW_recharge = getvaluedouble("GW recharge factor");
     GW_flow = getvaluedouble("GW flow factor");
@@ -1825,6 +1825,7 @@ void TWorld::IntializeData(void)
         N->Drc = N->Drc * (1-HouseCover->Drc) + 0.25*HouseCover->Drc;
     }
 
+    SoilETMBcorrection = 0;
     //### infiltration maps
     InfilTot = 0;
     InfilTotmm = 0;
@@ -1834,6 +1835,7 @@ void TWorld::IntializeData(void)
     IntercTotmm = 0;
     ETaTot = 0;
     ETaTotmm = 0;
+    ETaTotVol = 0;
     //houses
     IntercHouseTot = 0;
     IntercHouseTotmm = 0;

@@ -76,8 +76,11 @@ void TWorld::Totals(void)
     if (SwitchIncludeET) {
        // double ETtot = MapTotal(*ETa);
         ETaTot = MapTotal(*ETaCum);
+        ETaTotmm = ETaTot * 1000.0/(double)nrValidCells;
 
-
+        ETaTotVol = (ETaTot-SoilETMBcorrection)/catchmentAreaFlatMM; //m3
+        // correct for soil water because that is not in the mass balance
+qDebug() << ETaTot << SoilETMBcorrection;
     }
 
     if (SwitchSnowmelt)
@@ -102,7 +105,7 @@ void TWorld::Totals(void)
 
     IntercETaTot = MapTotal(*IntercETa);
     IntercETaTotmm = IntercETaTot*catchmentAreaFlatMM;
-    // cumulative evaporated from canopy
+    // cumulative evaporated from canopy    
 
     // interception in mm and m3
     //Litter
@@ -129,9 +132,9 @@ void TWorld::Totals(void)
     // interception in mm and m3
 
     //=== infiltration ===//
+
     InfilTot += MapTotal(*InfilVol) + MapTotal(*InfilVolKinWave);
-//    if (SwitchChannelBaseflow && GW_bypass > 0)
-//        InfilTot += MapTotal(*GWbp);
+
     if (SwitchIncludeChannel && SwitchChannelInfil) {
         InfilTot += MapTotal(*ChannelInfilVol); //m3
     }
@@ -142,7 +145,7 @@ void TWorld::Totals(void)
 
     // flood infil
     // used for reporting only
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc;// + InfilVolFlood->Drc;
         if (SwitchIncludeChannel)
@@ -213,8 +216,9 @@ void TWorld::Totals(void)
         // add channel vol to total
         if (SwitchChannelBaseflow)
             BaseFlowTot += MapTotal(*Qbase); // total inflow in m3
-        if (SwitchChannelBaseflowStationary)
+        if (SwitchChannelBaseflowStationary) {
             BaseFlowTot += MapTotal(*BaseFlowInflow) * _dt;
+        }
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
     }
@@ -501,7 +505,7 @@ void TWorld::MassBalance()
   //  if (RainTot + SnowTot > 0)
     {
         double waterin = RainTot + SnowTot + WaterVolSoilTot + WHinitVolTot + BaseFlowTot;
-        double waterout = 0;//ETaTot;
+        double waterout = ETaTotVol;
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot;
         double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;
 //qDebug() << ChannelVolTot << BaseFlowTot;

@@ -948,6 +948,7 @@ void lisemqt::SetStyleUI()
     label_time->setMinimumSize(w,h);
     label_endtime->setMinimumSize(w,h);
     label_raintot->setMinimumSize(w,h);
+    label_ETatot->setMinimumSize(w,h);
     label_watervoltot->setMinimumSize(w,h);
     label_stormdraintot->setMinimumSize(w,h);
     label_qtot->setMinimumSize(w,h);
@@ -990,6 +991,7 @@ void lisemqt::SetStyleUI()
         label_time->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
         label_endtime->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
         label_raintot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_ETatot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
         label_watervoltot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
         label_stormdraintot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
         label_qtot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));

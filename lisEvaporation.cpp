@@ -296,7 +296,6 @@ void TWorld::doETa()
             if (CStor_ > 0) {
                 double ETa_int = ETp_;
 
-                tmp = CStor_;
                 ETa_int = std::min(ETa_int, CStor_);
                 CStor_ = CStor_- ETa_int;
 
@@ -304,12 +303,12 @@ void TWorld::doETa()
                     RainCum->Drc = 0;
                 // restart the cumulative process when CStor is dried out
 
-                eta = ETa_int; // actual eta is store before-after
-                tot = tot + Cover_*eta;
-                etanet = Cover_*eta;
+                eta = ETa_int;
+                //tot = tot + Cover_*eta;
+                etanet = std::max(0.0, ETp_ - eta);
 
                 Interc->Drc = Cover_ * CStor_ * SoilWidthDX->Drc * DX->Drc;
-                IntercETa->Drc += Cover_ * eta * SoilWidthDX->Drc * DX->Drc;
+                IntercETa->Drc += Cover_ * ETa_int * SoilWidthDX->Drc * DX->Drc;
                 CStor->Drc = CStor_;
             }
 //            if (r==96 && c == 164)
@@ -321,16 +320,14 @@ void TWorld::doETa()
                 double theta = Thetaeff->Drc;
                 double thetar = 0.025*pore;
                 double Lw_ = Lw->Drc;
-                // soil moisture transpiration covered surface
                 double theta_e = (theta-thetar)/(pore-thetar);
                 double f = 1+qPow(theta_e/0.5,6.0);
-                double ETa_soil1 = (1.0-1.0/f) * etanet;//ETp_  * Cover_;  //Transpiration
-                double ETa_soil2 = theta_e * ETp_ * (1-Cover_);   //Evaporation
+                double ETa_soil = (1.0-1.0/f)*etanet*Cover_ + theta_e*ETp_*(1-Cover_);   //Transpiration + Evaporation
 
                 // there is an infiltration front
                 if (Lw_ > 0) {
                     double moist = Lw_ * (pore-thetar);
-                    eta = std::min(moist, ETa_soil1-ETa_soil2);
+                    eta = std::min(moist, ETa_soil);
 
                     moist = moist - eta;
                     Lw->Drc = moist/(pore-thetar);
@@ -338,11 +335,12 @@ void TWorld::doETa()
                 } else {
                     // soil moisture evaporation bare surface
                     double moist = (theta-thetar) * SoilDepth1->Drc;
-                    eta = std::min(moist, ETa_soil1-ETa_soil2);
+                    eta = std::min(moist, ETa_soil);
                     moist = moist - eta;
                     Thetaeff->Drc = moist/SoilDepth1->Drc + thetar;
                     tot = tot + eta;
                 }
+                SoilETMBcorrection += tot; // ET water coming from the soil
             }
 
             // ETa = ETp for any ponded surfaces
@@ -350,15 +348,13 @@ void TWorld::doETa()
                 double ETa_pond = ETp_;
                 if (FloodDomain->Drc > 0) {
                     ETa_pond = std::min(ETa_pond, hmx->Drc);
-                    tmp = hmx->Drc;
                     hmx->Drc = hmx->Drc-ETa_pond;
-                    eta = tmp - hmx->Drc;
+                    eta = ETa_pond;
                 } else {
                     double WHRunoff_ = WHrunoff->Drc;
                     ETa_pond = std::min(ETa_pond, WHRunoff_);
-                    tmp = WHRunoff_;
                     WHRunoff_ = WHRunoff_-ETa_pond;
-                    eta = tmp - WHRunoff_;
+                    eta = ETa_pond;
                     WHroad->Drc = WHRunoff_;
                     WH->Drc = WHRunoff_ + WHstore->Drc;
                     WHrunoff->Drc = WHRunoff_;
@@ -376,8 +372,8 @@ void TWorld::doETa()
 
     }}
 //    report(*Thetaeff,"ti");
-//    report(*tma,"ta");
-//    report(*tmb,"tb");
+    report(*ETa,"eta");
+    report(*ETaCum,"etac");
 //    report(*ETp,"ETp");
 }
 

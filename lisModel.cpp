@@ -368,7 +368,7 @@ void TWorld::HydrologyProcesses()
             cell_SplashDetachment(r,c,wh);
         }
     }}
-report(*CStor,"cstor");
+
     if (SwitchIncludeET)
         doETa();
     // ETa is subtracted from canopy, soil water surfaces

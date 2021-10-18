@@ -404,6 +404,7 @@ public:
     double KEParamater_a3, KEParamater_b3;
 
     double PBiasCorrection;
+    double SoilETMBcorrection;
 
     double GW_recharge;
     double GW_flow;
@@ -456,7 +457,8 @@ public:
     double ETstartTime;
     double BulkDens;
     double nrCells, CatchmentArea, nrFloodedCells;
-    double LitterSmax, ETaTot, ETaTotmm;
+    double LitterSmax, ETaTot, ETaTotmm, ETaTotVol;
+;
     double maxRainaxis;
     double latitude;
     double CulvertWidth, CulvertHeight, CulvertN, CulvertS;
