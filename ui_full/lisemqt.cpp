@@ -893,6 +893,9 @@ void lisemqt::SetStyleUI()
     genfontsize = 8+SetStyleUISize();
     setfontSize();
 
+    label_baseflowtot->setVisible(false);
+    label_195->setVisible(false);
+
     toolBar_2->setMovable( false);
     toolBar->setMovable( false);
 
@@ -963,7 +966,7 @@ void lisemqt::SetStyleUI()
     label_floodVolmm->setMinimumSize(w,h);
     label_watervolchannel->setMinimumSize(w,h);
     //   label_litterstore->setMinimumSize(w,h);
-    label_baseflowtot->setMinimumSize(w,h);
+    //label_baseflowtot->setMinimumSize(w,h);
 
     label_qtotm3sub->setMinimumSize(w,h);
     label_dischargesub->setMinimumSize(w,h);
@@ -1006,7 +1009,7 @@ void lisemqt::SetStyleUI()
         label_floodVolmm->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
         label_watervolchannel->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
         //   label_litterstore->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_baseflowtot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        //label_baseflowtot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
 
         label_qtotm3sub->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
         label_dischargesub->setStyleSheet(QString("* { background-color: %1 }").arg(ly));

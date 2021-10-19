@@ -111,8 +111,8 @@ void lisemqt::on_checkChannelBaseflow_clicked()
 //    checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
     on_checkIncludeChannel_clicked();
 
-    label_195->setEnabled(checkChannelBaseflow->isChecked());
-    label_baseflowtot->setEnabled(checkChannelBaseflow->isChecked());
+    //label_195->setEnabled(checkChannelBaseflow->isChecked());
+    //label_baseflowtot->setEnabled(checkChannelBaseflow->isChecked());
 
     if (checkChannelInfil->isChecked())
         checkChannelInfil->setChecked(false);

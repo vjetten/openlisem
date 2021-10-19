@@ -50,7 +50,7 @@ void TWorld::ChannelBaseflow(void)
            #pragma omp parallel for num_threads(userCores)
            FOR_ROW_COL_MV_CHL {
                 ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
-                BaseFlowTot += MapTotal(*BaseFlowInitialVolume); //???
+               // BaseFlowTot += MapTotal(*BaseFlowInitialVolume); //???
            }}
             addedbaseflow = true;
         }
@@ -134,6 +134,7 @@ void TWorld::ChannelBaseflow(void)
         if (SwitchChannelBaseflowStationary)
             ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
     }}
+
 
 
 }
@@ -268,7 +269,7 @@ void TWorld::ChannelFlow(void)
         ChannelWaterVol->Drc += (QinKW->Drc - chqn)*_dt;
        // ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelWaterVol->Drc/_dt);
         ChannelQ->Drc = chqn;
-        ChannelAlpha->Drc = (ChannelWaterVol->Drc/ChannelDX->Drc)/std::pow(chqn, 0.6);
+        ChannelAlpha->Drc = chqn > 1e-6 ? (ChannelWaterVol->Drc/ChannelDX->Drc)/std::pow(chqn, 0.6) : 0.0;
     }}
     //water vol from mass balance, includes any errors
 

@@ -322,7 +322,8 @@ void TWorld::doETa()
                 double Lw_ = Lw->Drc;
                 double theta_e = (theta-thetar)/(pore-thetar);
                 double f = 1+qPow(theta_e/0.5,6.0);
-                double ETa_soil = (1.0-1.0/f)*etanet*Cover_ + theta_e*ETp_*(1-Cover_);   //Transpiration + Evaporation
+//                double ETa_soil = (1.0-1.0/f)*etanet*Cover_ + theta_e*ETp_*(1-Cover_);   //Transpiration + Evaporation
+                double ETa_soil = (1.0-1.0/f)*ETp_*Cover_ + theta_e*ETp_*(1-Cover_);   //Transpiration + Evaporation
 
                 // there is an infiltration front
                 if (Lw_ > 0) {
@@ -372,8 +373,37 @@ void TWorld::doETa()
 
     }}
 //    report(*Thetaeff,"ti");
-    report(*ETa,"eta");
-    report(*ETaCum,"etac");
+//    report(*ETa,"eta");
+//    report(*ETaCum,"etac");
 //    report(*ETp,"ETp");
+}
+
+// calc average soil moisture content for output to screen and folder
+void TWorld::avgTheta()
+{
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        double Lw_ = Lw->Drc;
+        double SoilDep1 = SoilDepth1->Drc;
+        ThetaI1a->Drc = Thetaeff->Drc;
+
+        if (Lw_ > 0 && Lw_ < SoilDep1 - 1e-3) {
+            double f = Lw_/SoilDep1;
+            ThetaI1a->Drc = f * ThetaS1->Drc + (1-f) *Thetaeff->Drc;
+        }
+        if (Lw_ > SoilDep1 - 1e-3)
+            ThetaI1a->Drc = ThetaS1->Drc;
+
+        if (SwitchTwoLayer) {
+            double SoilDep2 = SoilDepth2->Drc;
+            ThetaI2a->Drc = ThetaI2->Drc;
+            if (Lw_ > SoilDep1 && Lw_ < SoilDep2 - 1e-3) {
+                double f = (Lw_-SoilDep1)/(SoilDep1-SoilDep1);
+                ThetaI2a->Drc = f * ThetaS2->Drc + (1-f) *ThetaI2->Drc;
+            }
+            if (Lw_ > SoilDep2 - 1e-3)
+                ThetaI2a->Drc = ThetaS2->Drc;
+        }
+    }}
 }
 

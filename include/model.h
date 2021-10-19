@@ -440,7 +440,8 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, MBeM3, Qtot,QtotT,QTiletot, IntercTot, IntercETaTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, SurfStoremm, InfilKWTot,BaseFlowTot,Qfloodout,QfloodoutTot;
+    double MB, MBeM3, Qtot,QtotT,QTiletot, IntercTot, IntercETaTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot;
+    double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowTotmm, Qfloodout,QfloodoutTot;
     double floodBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
     double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
@@ -846,6 +847,7 @@ public:
     void cell_InfilMethods(int r, int c);
     void SurfaceStorage();
     void doETa();
+    void avgTheta();
     void OverlandFlow();
     void OverlandFlow2D();
     void correctWH(cTMap *_WH);

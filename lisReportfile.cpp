@@ -111,7 +111,7 @@ void TWorld::OutputUI(void)
     op.WaterVolTotmm = WaterVolRunoffmm;
     op.StormDrainTotmm = StormDrainTotmm;
     op.ChannelVolTotmm = ChannelVolTotmm;
-    op.BaseFlowtotmm = BaseFlowTot * 1000.0/(_dx*_dx*nrCells);
+    op.BaseFlowtotmm = BaseFlowTotmm;
     op.volFloodmm = floodVolTotmm;
     op.FloodTotMax = floodVolTotMax;
     op.FloodAreaMax = floodAreaMax;
@@ -910,9 +910,9 @@ void TWorld::ReportMapSeries(void)
 
     if (SwitchOutTheta) {
         if (InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE) {
-            report(*ThetaI1, OutTheta1);
+            report(*ThetaI1a, OutTheta1);
             if (SwitchTwoLayer)
-                report(*ThetaI2, OutTheta2);
+                report(*ThetaI2a, OutTheta2);
         }
     }
 

@@ -606,6 +606,7 @@ void TWorld::InitSoilInput(void)
 
         ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
         ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
+        ThetaI1a = NewMap(0);
         calcValue(*ThetaI1, thetaCalibration, MUL); //VJ 110712 calibration of theta
         calcMap(*ThetaI1, *ThetaS1, MIN); //VJ 110712 cannot be more than porosity
         Psi1 = ReadMap(LDD,getvaluename("psi1"));
@@ -625,6 +626,7 @@ void TWorld::InitSoilInput(void)
         {
             ThetaS2 = ReadMap(LDD,getvaluename("thetaS2"));
             ThetaI2 = ReadMap(LDD,getvaluename("thetaI2"));
+            ThetaI2a = NewMap(0);
             calcValue(*ThetaI2, thetaCalibration, MUL); //VJ 110712 calibration of theta
             calcMap(*ThetaI2, *ThetaS2, MIN); //VJ 110712 cannot be more than porosity
 

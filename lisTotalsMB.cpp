@@ -80,7 +80,7 @@ void TWorld::Totals(void)
 
         ETaTotVol = (ETaTot-SoilETMBcorrection)/catchmentAreaFlatMM; //m3
         // correct for soil water because that is not in the mass balance
-qDebug() << ETaTot << SoilETMBcorrection;
+//qDebug() << ETaTot << SoilETMBcorrection;
     }
 
     if (SwitchSnowmelt)
@@ -214,11 +214,12 @@ qDebug() << ETaTot << SoilETMBcorrection;
     {
         ChannelVolTot = MapTotal(*ChannelWaterVol); //m3
         // add channel vol to total
-        if (SwitchChannelBaseflow)
-            BaseFlowTot += MapTotal(*Qbase); // total inflow in m3
-        if (SwitchChannelBaseflowStationary) {
+        if (SwitchChannelBaseflow) {
+            BaseFlowTot = MapTotal(*Qbase); // total inflow in m3
+        if (SwitchChannelBaseflowStationary)
             BaseFlowTot += MapTotal(*BaseFlowInflow) * _dt;
         }
+        BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
     }
@@ -505,7 +506,7 @@ void TWorld::MassBalance()
   //  if (RainTot + SnowTot > 0)
     {
         double waterin = RainTot + SnowTot + WaterVolSoilTot + WHinitVolTot + BaseFlowTot;
-        double waterout = ETaTotVol;
+        double waterout = 0;//ETaTotVol;
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot;
         double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;
 //qDebug() << ChannelVolTot << BaseFlowTot;

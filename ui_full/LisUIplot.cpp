@@ -531,7 +531,7 @@ void lisemqt::showOutputData()
         label_floodVolmm->setText(format.arg(QString::number(op.volFloodmm,'f',dig)));
 
     label_watervolchannel->setText(format.arg(QString::number(op.ChannelVolTotmm,'f',dig)));
-    label_baseflowtot->setText(format.arg(QString::number(op.BaseFlowtotmm,'f',dig)));
+    //label_baseflowtot->setText(format.arg(QString::number(op.BaseFlowtotmm,'f',dig)));
     //  label_litterstore->setText(QString::number(op.LitterStorageTotmm,'f',dig));
 
     // peak time
@@ -544,13 +544,31 @@ void lisemqt::showOutputData()
         label_MB->setText(" "+label_MB->text());
 
     int j = OutletIndices.indexOf(this->outletpoint);
-    label_qpeaksub->setText(format.arg(QString::number(op.OutletQpeak.at(j),'f',2)));
+    double vv = op.OutletQpeak.at(j);
+    if (vv < 10000) {
+        label_82->setText("Qpeak (l/s)");
+        label_qpeaksub->setText(format.arg(QString::number(vv,'f',2)));
+    } else {
+        vv = vv/1000.0;
+        label_82->setText("Qpeak (m3/s)");
+        label_qpeaksub->setText(format.arg(QString::number(vv,'f',3)));
+    }
+
     label_qpeaktime->setText(format.arg(QString::number(op.OutletQpeaktime.at(j),'f',2)));
-    if (op.OutletQtot.at(j) < 1000)
+    if (op.OutletQtot.at(j) < 10000)
         label_qtotm3sub->setText(format.arg(QString::number(op.OutletQtot.at(j),'f',2)));
     else
         label_qtotm3sub->setText(format.arg(QString::number(op.OutletQtot.at(j),'e',3)));
-    label_dischargesub->setText(format.arg(QString::number(op.OutletQ.at(j)->at(op.OutletQ.at(j)->length()-1),'f',2)));
+
+    vv = op.OutletQ.at(j)->at(op.OutletQ.at(j)->length()-1);
+    if (vv < 10000) {
+        label_54->setText("Qpeak (l/s)");
+        label_dischargesub->setText(format.arg(QString::number(vv,'f',2)));
+    } else {
+        vv = vv/1000.0;
+        label_54->setText("Q (m3/s)");
+        label_dischargesub->setText(format.arg(QString::number(vv,'f',3)));
+    }
 
     label_soillosssub->setEnabled(checkDoErosion->isChecked());
     label_94->setEnabled(checkDoErosion->isChecked());
