@@ -154,6 +154,11 @@ void TWorld::Totals(void)
         PercmmCum->Drc += Perc->Drc*1000.0;
     }}
 
+    theta1tot = MapTotal(*ThetaI1a)/(double)nrCells;
+    if (SwitchTwoLayer)
+        theta2tot = MapTotal(*ThetaI2a)/(double)nrCells;
+
+
     //=== surf store ===//
 
     double SStot = 0;

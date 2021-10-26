@@ -95,34 +95,6 @@ void lisemqt::GetRunfile()
         if (!namelist[i].value.isEmpty() && !namelist[i].gotit)
             saveRunFileOnce = true;
     }
-
-    // what is this doing here? runtime options to the namelist? why?
-//    if (optionList.count() > 0)
-//    {
-//        for (i=0; i< optionList.count(); i++)
-//        {
-//            //qDebug() << optionList.at(i);
-//            if (optionList[i].contains("="))
-//            {
-//                QString S = optionList[i];
-//                S.remove('[');
-//                S.remove(']');
-//                QStringList SL = S.split(QRegExp("="));
-
-//                for (int j = 0; j < nrnamelist; j++)
-//                {
-//                    if (namelist[j].name == SL[0].trimmed())
-//                    {
-//                        namelist[j].value = SL[1].trimmed();
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//    }
-
-
-
 }
 //---------------------------------------------------------------------------
 //! ParseInputData : interpret runfile text and fill interface variables
@@ -135,8 +107,11 @@ void lisemqt::ParseInputData()
     resetAll();
     bool ETmaps = false;
     bool Rainmaps = false;
-//    QLocale curLocale(QLocale::English);
-//    QLocale::setDefault(curLocale);
+
+    QLocale loc = QLocale::system(); // current locale
+    loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
+    QLocale::setDefault(loc); // set as default
+
     for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
     {
 
@@ -144,17 +119,15 @@ void lisemqt::ParseInputData()
         QString p1 = namelist[j].name;
         bool ok;
 
-//        int iii = uk.toInt(p);
-//        double val = uk.toDouble(p);
         int iii = namelist[j].value.toInt();
         double val = namelist[j].value.toDouble(&ok);
 
         double valc = val;
-        if (p.contains(",")) {
-            QString p2 = p;
-            p2.replace(QString(","),QString("."));
-            valc = p2.toDouble();
-        }
+//        if (p.contains(",")) {
+//            QString p2 = p;
+//            p2.replace(QString(","),QString("."));
+//            valc = p2.toDouble();
+//        }
 
       //qDebug() << p1 <<  p  << iii << val << valc;
 

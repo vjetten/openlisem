@@ -100,6 +100,8 @@ void TWorld::OutputUI(void)
 
     op.InfilTotmm = InfilTotmm;
     op.InfilKWTotmm = InfilKWTot; // infil part in kin wave not used
+    op.Theta1 = theta1tot;
+    op.Theta2 = theta2tot;
 
     op.SurfStormm = SurfStoremm;
 

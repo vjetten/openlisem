@@ -1839,6 +1839,9 @@ void TWorld::IntializeData(void)
     ETaTotmm = 0;
     ETaTotVol = 0;
     GWlevel = 0;
+    theta1tot = 0;
+    theta2tot = 0;
+
     //houses
     IntercHouseTot = 0;
     IntercHouseTotmm = 0;
