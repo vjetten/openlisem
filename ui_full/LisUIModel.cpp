@@ -373,6 +373,10 @@ void lisemqt::initOP()
     op.InfilTotmm = 0;
     op.RainTotmm = 0;
     op.ETaTotmm = 0;
+    op.GWlevel = 0;
+    op.BaseFlowTotmm = 0;
+    op.Theta1 = 0;
+    op.Theta2 = 0;
     op.SurfStormm = 0;
     op.InfilKWTotmm = 0;
     op.WHflood = 0;

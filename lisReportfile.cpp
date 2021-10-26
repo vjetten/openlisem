@@ -93,6 +93,8 @@ void TWorld::OutputUI(void)
     op.Pmm.append((RainAvgmm + SnowAvgmm)*3600/_dt);
     op.RainTotmm = RainTotmm + SnowTotmm;
     op.ETaTotmm = ETaTotmm;
+    op.GWlevel = GWlevel;
+    op.BaseFlowTotmm = BaseFlowTotmm;
     op.RainpeakTime = RainpeakTime/60;
     op.Rainpeak = Rainpeak;
 
@@ -311,6 +313,7 @@ void TWorld::ReportTotalSeries(void)
 
     if (SwitchWriteHeaders) //  make file at first timestep
     {
+        SwitchWriteHeaders = false;
         QFile fout(newname1);
         fout.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream out(&fout);
@@ -321,8 +324,17 @@ void TWorld::ReportTotalSeries(void)
             out << sep << "Ic(litter)(mm)";
         if (SwitchHouses)
             out << sep << "Ic(roof)(mm)";
-        out << sep << "Inf(mm)";
         out << sep << "SS(mm)";
+        if(SwitchIncludeET)
+            out << sep << "ETa(mm)";
+        out << sep << "Inf(mm)";
+        out << sep << "Theta1 (-)";
+        if (SwitchTwoLayer)
+            out << sep << "Theta2 (-)";
+        if (SwitchChannelBaseflow) {
+            out << sep << "GWlevel (m)";
+            out << sep << "Baseflow in (mm)";
+        }
         if (SwitchIncludeStormDrains)
             out << sep << "StormDrain(mm)";
         out << sep << "Runoff(mm)";
@@ -363,10 +375,19 @@ void TWorld::ReportTotalSeries(void)
         out << sep << op.IntercLitterTotmm;
     if (SwitchHouses)
         out << sep << op.IntercHouseTotmm;
-    out << sep << op.InfilTotmm;
     out << sep << op.SurfStormm;
+    if(SwitchIncludeET)
+        out << sep << op.ETaTotmm;
+    out << sep << op.InfilTotmm;
+    out << sep << op.Theta1;
+    if (SwitchTwoLayer)
+        out << sep << op.Theta2;
+    if (SwitchChannelBaseflow) {
+        out << sep << op.GWlevel;
+        out << sep << op.BaseFlowTotmm;
+    }
     if (SwitchIncludeStormDrains)
-    out << sep << op.StormDrainTotmm;
+        out << sep << op.StormDrainTotmm;
     out << sep << op.WaterVolTotmm;
     out << sep << op.volFloodmm;
     out << sep << op.FloodArea;
@@ -439,7 +460,7 @@ void TWorld::ReportTimeseriesNew(void)
     //PCRaster and flat format are mutually exclusive
     if (SwitchWriteHeaders) //  make file at first timestep
     {
-        SwitchWriteHeaders = false;
+        //SwitchWriteHeaders = false;
         if (SwitchSeparateOutput) // each point separate file
         {
             FOR_ROW_COL_MV_OUTL {

@@ -325,7 +325,8 @@ void lisemqt::showPlot()
         CGraph->setSamples(op.Time,*op.OutletC[index]);
 
         HPlot->setAxisScale(*axisYL1, 0.0, qmax[index] );
-        HPlot->setAxisScale(*axisYL2, 0.0, pmax );
+        HPlot->setAxisScale(*axisYR1, pmax,0.0 );
+//        HPlot->setAxisScale(*axisYL2, 0.0, pmax );
         HPlot->setAxisScale(*axisYR1, 0.0, qsmax[index] );
         HPlot->setAxisScale(*axisYR2, 0.0, cmax[index] );
     } else {
@@ -562,7 +563,7 @@ void lisemqt::showOutputData()
 
     vv = op.OutletQ.at(j)->at(op.OutletQ.at(j)->length()-1);
     if (vv < 10000) {
-        label_54->setText("Qpeak (l/s)");
+        label_54->setText("Q (l/s)");
         label_dischargesub->setText(format.arg(QString::number(vv,'f',2)));
     } else {
         vv = vv/1000.0;

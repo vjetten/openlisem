@@ -458,7 +458,7 @@ public:
     double ETstartTime;
     double BulkDens;
     double nrCells, CatchmentArea, nrFloodedCells;
-    double LitterSmax, ETaTot, ETaTotmm, ETaTotVol;
+    double LitterSmax, ETaTot, ETaTotmm, ETaTotVol, GWlevel;
 ;
     double maxRainaxis;
     double latitude;

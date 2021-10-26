@@ -222,6 +222,7 @@ void TWorld::Totals(void)
         BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
+        GWlevel = MapTotal(*GWWH)/(double)nrValidCells;
     }
 
     //=== all discharges ===//
