@@ -113,6 +113,12 @@ void TWorld::saveMBerror2file(bool doError, bool start)
 // the actual model with the main loop
 void TWorld::DoModel()
 {
+
+    loc = QLocale::system(); // current locale
+    loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
+    QLocale::setDefault(loc); // set as default
+    //QLocale somel;
+
     if (!op.doBatchmode)
         temprunname = QString(op.LisemDir+"openlisemtmp.run");
     else

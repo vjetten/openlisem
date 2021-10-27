@@ -89,7 +89,11 @@ double TWorld::getvaluedouble(QString vname)
         if(vname.toUpper() == runnamelist[i].name.toUpper())
         {
             //            return runnamelist[i].value.replace(",",".").toDouble();
-            return runnamelist[i].value.toDouble();
+           // QString s = runnamelist[i].value.replace(',','.');
+           // qDebug() << runnamelist[i].name << runnamelist[i].value.toDouble() << s;
+            QString s = runnamelist[i].value;
+
+            return loc.toDouble(s);//runnamelist[i].value.toDouble();
         }
 
     ErrorString = QString("Variable ID: \"%1\" not found! You could be using an old runfile,\nor a variable has been added that is not present.").arg(vname);

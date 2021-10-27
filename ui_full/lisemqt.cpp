@@ -841,13 +841,12 @@ int lisemqt::SetStyleUISize()
     QRect rect = QGuiApplication::primaryScreen()->availableGeometry();
     //qDebug() << rect << QGuiApplication::primaryScreen()->availableVirtualGeometry();
     int _H = rect.height();
-    qDebug() << _H;
     int disp = 0;
     if (abs(_H-800) > abs(_H-1080)) disp = 0;
     if (abs(_H-1080) > abs(_H-1200)) disp = 1;
     if (abs(_H-1200) > abs(_H-1440)) disp = 2;
       if (abs(_H-1440) > abs(_H-1600)) disp = 3;
-    //qDebug() << disp << _H << abs(_H-800) << abs(_H-1080) << abs(_H-1200) << abs(_H-1440) << genfontsize;
+    qDebug() << disp << _H << abs(_H-800) << abs(_H-1080) << abs(_H-1200) << abs(_H-1440) << genfontsize;
 
     tabWidgetOptions->tabBar()->setExpanding(true);
   //  tabWidget_out->setIconSize(QSize(24, 24));
@@ -1605,7 +1604,8 @@ void lisemqt::resetTabCalibration()
     E_CalibrateChN->setValue(1.0);
     E_CalibrateAS->setValue(1.0);
     E_CalibrateCOH->setValue(1.0);
-    E_CalibrateGS->setValue(1.0);
+    E_CalibrateD50->setValue(1.0);
+    E_CalibrateD90->setValue(1.0);
     E_CalibrateCHCOH->setValue(1.0);
 }
 

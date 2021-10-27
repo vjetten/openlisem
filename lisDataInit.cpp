@@ -268,7 +268,8 @@ void TWorld::InitParameters(void)
     GW_threshold = getvaluedouble("GW threshold factor");
 
     // get calibration parameters
-    gsizeCalibration = getvaluedouble("Grain Size calibration");
+    gsizeCalibrationD50 = getvaluedouble("Grain Size calibration D50");
+    gsizeCalibrationD90 = getvaluedouble("Grain Size calibration D90");
     ksatCalibration = getvaluedouble("Ksat calibration");
     SmaxCalibration = getvaluedouble("Smax calibration");
     nCalibration = getvaluedouble("N calibration");
@@ -1306,10 +1307,10 @@ void TWorld::InitErosion(void)
 
     FOR_ROW_COL_MV
     {
-        D50->Drc = D50->Drc *gsizeCalibration;
+        D50->Drc = D50->Drc *gsizeCalibrationD50;
         if(SwitchUse2Phase && !SwitchUseGrainSizeDistribution)
         {
-            D90->Drc = D90->Drc *gsizeCalibration;
+            D90->Drc = D90->Drc * gsizeCalibrationD90;
         }
     }
 

@@ -305,6 +305,8 @@ public:
     TWorld(QObject *parent = nullptr);
     ~TWorld();
 
+    QLocale loc;
+
     /// copy of overall rows and columns, set in initmask
     int _nrRows;
     int _nrCols;
@@ -416,7 +418,8 @@ public:
     double totetafac;
 
     /// calibration parameters
-    double gsizeCalibration;
+    double gsizeCalibrationD50;
+    double gsizeCalibrationD90;
     double SmaxCalibration;
     double ksatCalibration;
     double nCalibration;

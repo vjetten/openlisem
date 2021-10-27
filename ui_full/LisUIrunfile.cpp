@@ -90,8 +90,8 @@ void lisemqt::GetRunfile()
     }
 
     for (int i = 0; i < nrnamelist; i++) {
-       if (!namelist[i].value.isEmpty() && !namelist[i].gotit)
-        //qDebug() << namelist[i].name << namelist[i].value << namelist[i].gotit;
+ //      if (!namelist[i].value.isEmpty() && namelist[i].gotit)
+   //       qDebug() << namelist[i].name << namelist[i].value << namelist[i].gotit;
         if (!namelist[i].value.isEmpty() && !namelist[i].gotit)
             saveRunFileOnce = true;
     }
@@ -120,9 +120,8 @@ void lisemqt::ParseInputData()
         bool ok;
 
         int iii = namelist[j].value.toInt();
-        double val = namelist[j].value.toDouble(&ok);
-
-        double valc = val;
+        double valc = loc.toDouble(p,&ok); //namelist[j].value.toDouble(&ok);
+        //double valc = val;
 //        if (p.contains(",")) {
 //            QString p2 = p;
 //            p2.replace(QString(","),QString("."));
@@ -279,9 +278,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("KE parameters EQ1")==0)
         {
             QStringList param;
-            if (p.contains(",")){
-                p.replace(",",";");
-            }
+//            if (p.contains(",")){
+//                p.replace(",",";");
+//            }
             param = p.split(";",Qt::SkipEmptyParts);
             //qDebug() << p << param;
             if (param.count() > 4) {
@@ -299,9 +298,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("KE parameters EQ2")==0)
         {
             QStringList param;
-            if (p.contains(",")){
-                p.replace(",",";");
-            }
+//            if (p.contains(",")){
+//                p.replace(",",";");
+//            }
             param = p.split(";",Qt::SkipEmptyParts);
             if (param.count() > 3) {
                 bool ok;
@@ -317,9 +316,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("KE parameters EQ3")==0)
         {
             QStringList param;
-            if (p.contains(",")){
-                p.replace(",",";");
-            }
+//            if (p.contains(",")){
+//                p.replace(",",";");
+//            }
             param = p.split(";",Qt::SkipEmptyParts);
             if (param.count() > 3) {
                 bool ok;
@@ -374,7 +373,8 @@ void lisemqt::ParseInputData()
         //CALIBRATION
         if (p1.compare("Smax calibration")==0)         E_CalibrateSmax->setValue(valc);
         if (p1.compare("Ksat calibration")==0)         E_CalibrateKsat->setValue(valc);
-        if (p1.compare("Grain Size calibration")==0)   E_CalibrateGS->setValue(valc);
+        if (p1.compare("Grain Size calibration D50")==0)   E_CalibrateD50->setValue(valc);
+        if (p1.compare("Grain Size calibration D90")==0)   E_CalibrateD90->setValue(valc);
         if (p1.compare("N calibration")==0)            E_CalibrateN->setValue(valc);
         if (p1.compare("Theta calibration")==0)        E_CalibrateTheta->setValue(valc);
         if (p1.compare("Psi calibration")==0)          E_CalibratePsi->setValue(valc);
@@ -963,7 +963,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel detachment map")==0) namelist[j].value = E_ChanDetachmentMap->text();
         if (p1.compare("Channel deposition map")==0) namelist[j].value = E_ChanDepositionMap->text();
 
-        if (p1.compare("Grain Size calibration")==0)   namelist[j].value = E_CalibrateGS->text();
+        if (p1.compare("Grain Size calibration D50")==0)   namelist[j].value = E_CalibrateD50->text();
+        if (p1.compare("Grain Size calibration D90")==0)   namelist[j].value = E_CalibrateD90->text();
         if (p1.compare("Smax calibration")==0) namelist[j].value = E_CalibrateSmax->text();
         if (p1.compare("Ksat calibration")==0) namelist[j].value = E_CalibrateKsat->text();
         if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();
