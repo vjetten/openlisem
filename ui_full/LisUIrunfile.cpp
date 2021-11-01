@@ -517,7 +517,7 @@ void lisemqt::ParseInputData()
             if (!QFileInfo(E_rainsatName->text()).exists())
             {
                 RainSatFileDir = QString(E_WorkDir + "rain/");
-                E_RainfallName->setText(RainSatFileDir + p);
+                E_rainsatName->setText(RainSatFileDir + p);
             }
         }
 
@@ -920,19 +920,19 @@ void lisemqt::updateModelData()
         if (p1.compare("Filename point output")==0) namelist[j].value = E_PointResults->text();
      //   if (p1.compare("Filename landunit output")==0) namelist[j].value = E_LandunitResults->text();
 
-      //  if (p1.compare("Rainfall Directory")==0) namelist[j].value = RainFileDir;
         if (p1.compare("Rainfall file")==0) namelist[j].value = RainFileName;
-        if (p1.compare("Rainfall Map Directory")==0) namelist[j].value = RainSatFileDir;
+        if (p1.compare("Rainfall Directory")==0) namelist[j].value = RainFileDir;
         if (p1.compare("Rainfall maplist name")==0) namelist[j].value = RainSatFileName;
+        if (p1.compare("Rainfall Map Directory")==0) namelist[j].value = RainSatFileDir;
         if (p1.compare("Rainfall Bias Correction")==0) namelist[j].value = E_biasCorrectionP->text();
 
+        if (p1.compare("ET file") ==0)        namelist[j].value = ETFileName;
+        if (p1.compare("ET Directory") ==0)   namelist[j].value = ETFileDir;
+        if (p1.compare("ET maplist name") ==0) namelist[j].value = ETSatFileName;
+        if (p1.compare("ET Map Directory") ==0) namelist[j].value = ETSatFileDir;
 
-      //  if (p1.compare("ET Directory")==0) namelist[j].value = ETFileDir;
-        if (p1.compare("ET file")==0) namelist[j].value = ETFileName;
-        if (p1.compare("ET base name")==0) namelist[j].value = ETSatFileName;
-
-        if (p1.compare("Snowmelt Directory")==0) namelist[j].value = SnowmeltFileDir;
-        if (p1.compare("Snowmelt file")==0) namelist[j].value = SnowmeltFileName;
+      //  if (p1.compare("Snowmelt Directory")==0) namelist[j].value = SnowmeltFileDir;
+      //  if (p1.compare("Snowmelt file")==0) namelist[j].value = SnowmeltFileName;
 
         if (p1.compare("satImage Directory")==0) namelist[j].value = satImageFileDir;
         if (p1.compare("satImage file")==0) namelist[j].value = satImageFileName;

@@ -500,7 +500,7 @@ void TWorld::ParseRunfileData(void)
 
     if (SwitchIncludeET) {
         if (SwitchETSatellite)
-            ETSatFileName = ETFileDir + ETSatFileName;
+            ETSatFileName = ETSatFileDir + ETSatFileName;
         else
             ETFileName = ETFileDir + ETFileName;
     }

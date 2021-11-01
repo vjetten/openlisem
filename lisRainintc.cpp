@@ -74,6 +74,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
             S.remove(S.count()-1,1);
         if (!S.trimmed().isEmpty())
             rainRecs << S.trimmed();
+     //   qDebug() << S;
     }
     fff.close();
 
@@ -88,7 +89,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
 
     nrSeries = rainRecs.size() - skip;
     // count records
-
+qDebug() << "recs" << rainRecs.size() << skip;
     if (nrSeries <= 1)
     {
         if (type == 0)

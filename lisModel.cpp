@@ -187,6 +187,7 @@ void TWorld::DoModel()
         SwitchSnowmelt = false;
         if (SwitchRainfall)
         {
+            qDebug() << rainSatFileName << rainFileName;
             DEBUG("Get Rainfall Data Information");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
@@ -197,6 +198,7 @@ void TWorld::DoModel()
         }
         if (SwitchIncludeET)
         {
+                        qDebug() << ETSatFileName << ETFileName;
             DEBUG("Get ET Data Information");
             if (SwitchETSatellite)
                 GetSpatialMeteoData(ETSatFileName, 1);
