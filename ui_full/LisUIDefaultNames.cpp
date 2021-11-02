@@ -205,9 +205,15 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Use ET maps");
     namelist[i++].name = QString("ET maplist name");
     namelist[i++].name = QString("ET Map Directory");
-   // namelist[i++].name = QString("ET base name");
     //    namelist[i].value = QString("0");
 //    namelist[i++].name = QString("Include Snowmelt");
+    // add snowmelt stuff
+//    namelist[i++].name = QString("Snowmelt file");
+//    namelist[i++].name = QString("Snowmelt Directory");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Use Snowmelt maps");
+//    namelist[i++].name = QString("Snowmelt maplist name");
+//    namelist[i++].name = QString("Snowmelt Map Directory");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Result datetime");
     namelist[i].value = QString("0");

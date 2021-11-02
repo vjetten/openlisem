@@ -209,7 +209,7 @@ void TWorld::DoModel()
         {
             DEBUG("Get Snowmelt Data Information");
             if (SwitchSnowmeltSatellite)
-                GetSpatialMeteoData(SnowmeltSatFileName, 2);
+                GetSpatialMeteoData(snowmeltSatFileName, 2);
             else
                 GetSnowmeltData(snowmeltFileName);
         }

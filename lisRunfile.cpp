@@ -401,6 +401,7 @@ void TWorld::ParseRunfileData(void)
                 if (p1.compare("Rainfall maplist name")==0) rainSatFileName = p;//rainFileDir +p;
             }
         }
+
         if (SwitchIncludeET)
         {
             if (p1.compare("ET Directory")==0) ETFileDir = CheckDir(p);
@@ -411,17 +412,24 @@ void TWorld::ParseRunfileData(void)
             }
 
         }
+
+        if (SwitchSnowmelt)
+        {
+            if (p1.compare("Snowmelt Directory")==0) snowmeltFileDir = CheckDir(p);
+            if (p1.compare("Snowmelt file")==0) snowmeltFileName = p;
+            if (SwitchSnowmeltSatellite) {
+                if (p1.compare("Snowmelt Map Directory")==0) snowmeltSatFileDir = CheckDir(p);
+                if (p1.compare("Snowmelt maplist name")==0) snowmeltSatFileName = p;//rainFileDir +p;
+            }
+
+        }
+
         if (SwitchChannelInflow)
         {
             if (p1.compare("Discharge inflow Directory")==0) dischargeinFileDir = CheckDir(p);
             if (p1.compare("Discharge inflow file")==0) dischargeinFileName = dischargeinFileDir + "/" + p;
         }
 
-        //        if (SwitchSnowmelt)
-        //        {
-        //            if (p1.compare("Snowmelt Directory")==0) snowmeltFileDir = CheckDir(p);
-        //            if (p1.compare("Snowmelt file")==0) snowmeltFileName = snowmeltFileDir+ "/" + p;
-        //        }
         if (SwitchImage)
         {
             if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
@@ -505,9 +513,12 @@ void TWorld::ParseRunfileData(void)
             ETFileName = ETFileDir + ETFileName;
     }
 
-//    if(SwitchSnowmelt) {
-//        snowmeltFileName = rainFileName;
-//    }
+    if(SwitchSnowmelt) {
+        if (SwitchSnowmeltSatellite)
+            snowmeltSatFileName = snowmeltSatFileDir+snowmeltSatFileName;
+        else
+            snowmeltFileName = snowmeltFileDir+snowmeltFileName;
+    }
 
     SwitchResultDatetime = getvalueint("Result datetime") == 1;
     SwitchOutputTimestamp = getvalueint("Add timestamp") == 1;

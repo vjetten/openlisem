@@ -543,6 +543,28 @@ void lisemqt::ParseInputData()
             }
         }
 
+        if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
+        if (p1.compare("Snowmelt file")==0)
+        {
+            E_ETName->setText(SnowmeltFileDir + p);
+            ETFileName = p;
+            if (!QFileInfo(E_SnowmeltName->text()).exists())
+            {
+                SnowmeltFileDir = QString(E_WorkDir + "rain/");
+                E_SnowmeltName->setText(ETFileDir + p);
+            }
+        }
+//        if (p1.compare("Snowmelt Map Directory")==0) SnowmeltSatFileDir = CheckDir(p);
+//        if (p1.compare("Snowmelt maplist name")==0) {
+//            SnowmeltSatFileName = p;
+//            E_SnowmeltSatName->setText(SnowmeltSatFileDir + SnowmeltSatFileName);
+//            if (!QFileInfo(E_SnowmeltSatName->text()).exists())
+//            {
+//                SnowmeltSatFileDir = QString(E_WorkDir + "rain/");
+//                E_SnowmeltSatName->setText(SnowmeltSatFileDir + p);
+//            }
+//        }
+
         if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
         if (p1.compare("Discharge inflow file")==0)
         {
@@ -554,7 +576,6 @@ void lisemqt::ParseInputData()
                 E_DischargeInName->setText(DischargeinDir + p);
             }
         }
-
 
         if (checksatImage->isChecked()) {
             if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);

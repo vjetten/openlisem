@@ -111,7 +111,7 @@ qDebug() << "recs" << rainRecs.size() << skip;
     }
     if (type == 1) {
         ETSeriesMaps.clear();
-        dirname = ETFileDir;
+        dirname = ETSatFileDir;
         currentETrow = 0;
     }
     if (type == 2) {

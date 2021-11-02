@@ -2238,10 +2238,16 @@ void TWorld::IntializeOptions(void)
 
     rainFileName.clear();
     rainFileDir.clear();
+    rainSatFileName.clear();
+    rainSatFileDir.clear();
     ETFileName.clear();
     ETFileDir.clear();
+    ETSatFileName.clear();
+    ETSatFileDir.clear();
     snowmeltFileName.clear();
     snowmeltFileDir.clear();
+    snowmeltSatFileName.clear();
+    snowmeltSatFileDir.clear();
     SwatreTableDir.clear();
     SwatreTableName = QString("profile.inp");//.clear();
     resultFileName.clear();

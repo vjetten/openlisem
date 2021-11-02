@@ -2112,11 +2112,12 @@ QString lisemqt::getFileorDir(QString inputdir,QString title, QStringList filter
 
     dialog.setLabelText(QFileDialog::LookIn,title);
     dialog.exec();
+    if (dialog.selectedFiles().isEmpty())
+        dirout = inputdir;
+    else
+        dirout = dialog.selectedFiles().at(0);
 
     if (doFile > 0) {
-        dirout = "";
-        if (dialog.selectedFiles().count() > 0)
-            dirout = dialog.selectedFiles().at(0);
         if (doFile == 1)
             dirout = QFileInfo(dirout).fileName();
         if (doFile == 2)
@@ -2160,7 +2161,7 @@ void lisemqt::on_toolButton_ETsatName_clicked()
     QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
 
     QString sss = getFileorDir(ETSatFileDir,"Select ET map list table", filters, 2);
-
+qDebug() << sss;
     ETSatFileDir = QFileInfo(sss).absolutePath()+"/";
     ETSatFileName = QFileInfo(sss).fileName(); //baseName();
     E_ETsatName->setText(ETSatFileDir + ETSatFileName);

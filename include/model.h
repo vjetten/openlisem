@@ -548,13 +548,12 @@ public:
     QString ETSatFileDir;
     QString ETSatFileName;
     QString ETFileDir;
-    QString SnowmeltFileName;
-    QString SnowmeltSatFileName;
-    QString SnowmeltFileDir;
+    QString snowmeltFileName;
+    QString snowmeltSatFileName;
+    QString snowmeltFileDir;
+    QString snowmeltSatFileDir;
     QString dischargeinFileName;
     QString dischargeinFileDir;
-    QString snowmeltFileName;
-    QString snowmeltFileDir;
     QString resultFileName;
     QString temprunname;
     /// standard names of output map series
