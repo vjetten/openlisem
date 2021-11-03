@@ -221,13 +221,15 @@ void TWorld::Totals(void)
         // add channel vol to total
         if (SwitchChannelBaseflow) {
             BaseFlowTot = MapTotal(*Qbase); // total inflow in m3
-        if (SwitchChannelBaseflowStationary)
-            BaseFlowTot += MapTotal(*BaseFlowInflow) * _dt;
+            if (SwitchChannelBaseflowStationary)
+                BaseFlowTot += MapTotal(*BaseFlowInflow) * _dt;
+            GWlevel = MapTotal(*GWWH)/(double)nrValidCells;
+            BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
         }
-        BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
+
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
-        GWlevel = MapTotal(*GWWH)/(double)nrValidCells;
+
     }
 
     //=== all discharges ===//
