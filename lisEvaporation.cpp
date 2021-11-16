@@ -276,7 +276,8 @@ void TWorld::doETa()
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-
+        double eta = 0;
+        double AreaSoil = SoilWidthDX->Drc * DX->Drc;
         if (Rain->Drc > 0)
             ETp->Drc = 0;
         double ETp_ = ETp->Drc * ETafactor;
@@ -286,8 +287,6 @@ void TWorld::doETa()
 
         if (ETp_ > 0) {
             double tot = 0;
-            double tmp = 0;
-            double eta = 0;
             double etanet = 0;
             double Cover_ = Cover->Drc;
 
@@ -299,18 +298,41 @@ void TWorld::doETa()
                 ETa_int = std::min(ETa_int, CStor_);
                 CStor_ = CStor_- ETa_int;
 
-                if (CStor_ == 0)
+                if (CStor_ < 1e-5)
                     RainCum->Drc = 0;
                 // restart the cumulative process when CStor is dried out
 
-                eta = ETa_int;
-                //tot = tot + Cover_*eta;
-                etanet = std::max(0.0, ETp_ - eta);
+                etanet = std::max(0.0, ETp_ - ETa_int);
 
-                Interc->Drc = Cover_ * CStor_ * SoilWidthDX->Drc * DX->Drc;
-                IntercETa->Drc += Cover_ * ETa_int * SoilWidthDX->Drc * DX->Drc;
+                Interc->Drc = Cover_ * CStor_ * AreaSoil;
+                IntercETa->Drc += Cover_ * ETa_int * AreaSoil;
                 CStor->Drc = CStor_;
             }
+
+
+            if (SwitchLitter) {
+                double CvL = Litter->Drc;
+                double LCS = LCStor->Drc;
+
+                double ETa_int = std::min(etanet, LCS);
+                etanet = std::max(0.0, ETp_ - ETa_int);
+                LCStor->Drc = LCS- ETa_int;
+                IntercETa->Drc += CvL * ETa_int * AreaSoil;
+                LInterc->Drc =  CvL * LCS * AreaSoil;
+            }
+            if (SwitchHouses)
+            {
+                double CvH = HouseCover->Drc;
+                double HS = HStor->Drc;
+
+                double ETa_int = std::min(etanet, HS);
+                etanet = std::max(0.0, ETp_ - ETa_int);
+                HStor->Drc = HS - ETa_int;
+                IntercETa->Drc += CvH * ETa_int * AreaSoil;
+                double roofsurface = (_dx * DX->Drc * CvH); // m2
+                IntercHouse->Drc =  roofsurface * HS;
+            }
+
 //            if (r==96 && c == 164)
 //                qDebug() << ETp_ << CStor_ << RainCum->Drc << Interc->Drc;
 
@@ -321,18 +343,24 @@ void TWorld::doETa()
                 double thetar = 0.025*pore;
                 double Lw_ = Lw->Drc;
                 double theta_e = (theta-thetar)/(pore-thetar);
-                double f = 1+qPow(theta_e/0.5,6.0);
-//                double ETa_soil = (1.0-1.0/f)*etanet*Cover_ + theta_e*ETp_*(1-Cover_);   //Transpiration + Evaporation
-                double ETa_soil = (1.0-1.0/f)*ETp_*Cover_ + theta_e*ETp_*(1-Cover_);   //Transpiration + Evaporation
+                double f = 1.0/(1.0+qPow(theta_e/0.5,6.0));
+                double ETa_soil = (1.0-f)*etanet*Cover_ + theta_e*ETp_*(1-Cover_);   //Transpiration + Evaporation
 
                 // there is an infiltration front
                 if (Lw_ > 0) {
-                    double moist = Lw_ * (pore-thetar);
-                    eta = std::min(moist, ETa_soil);
-
-                    moist = moist - eta;
-                    Lw->Drc = moist/(pore-thetar);
-                    tot = tot + eta;
+                    if(Lw_ < SoilDepth1->Drc) {
+                        double moist = Lw_ * (pore-thetar);
+                        eta = std::min(moist, ETa_soil);
+                        moist = moist - eta;
+                        Lw->Drc = moist/(pore-thetar);
+                        tot = tot + eta;
+                    } else {
+                        double moist = (Lw_-SoilDepth1->Drc) * (ThetaS2->Drc*0.975);
+                        eta = std::min(moist, ETa_soil);
+                        moist = moist - eta;
+                        Lw->Drc = moist/(ThetaS2->Drc*0.975)+SoilDepth1->Drc;
+                        tot = tot + eta;
+                    }
                 } else {
                     // soil moisture evaporation bare surface
                     double moist = (theta-thetar) * SoilDepth1->Drc;
@@ -347,19 +375,27 @@ void TWorld::doETa()
             // ETa = ETp for any ponded surfaces
             if (ponded) {
                 double ETa_pond = ETp_;
+                // if kin wave + overflow is used
                 if (FloodDomain->Drc > 0) {
                     ETa_pond = std::min(ETa_pond, hmx->Drc);
                     hmx->Drc = hmx->Drc-ETa_pond;
                     eta = ETa_pond;
-                } else {
-                    double WHRunoff_ = WHrunoff->Drc;
-                    ETa_pond = std::min(ETa_pond, WHRunoff_);
-                    WHRunoff_ = WHRunoff_-ETa_pond;
-                    eta = ETa_pond;
-                    WHroad->Drc = WHRunoff_;
-                    WH->Drc = WHRunoff_ + WHstore->Drc;
-                    WHrunoff->Drc = WHRunoff_;
+
+                    hmxflood->Drc = std::max(0.0, WHrunoff->Drc + hmx->Drc - minReportFloodHeight);
+
+                    FloodWaterVol->Drc = hmxflood->Drc * CHAdjDX->Drc;
+                    double WHrunoffOutput = std::min(WHrunoff->Drc + hmx->Drc, minReportFloodHeight);
+                    RunoffWaterVol->Drc = WHrunoffOutput * CHAdjDX->Drc;
                 }
+
+                double WHRunoff_ = WHrunoff->Drc;
+                ETa_pond = std::min(ETa_pond, WHRunoff_);
+                WHRunoff_ = WHRunoff_-ETa_pond;
+                eta = ETa_pond;
+                WHroad->Drc = WHRunoff_;
+                WH->Drc = WHRunoff_ + WHstore->Drc;
+                WHrunoff->Drc = WHRunoff_;
+
                 tot = tot + eta;
                 WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
             }
@@ -368,14 +404,7 @@ void TWorld::doETa()
             ETa->Drc = tot;
             ETaCum->Drc += tot;
         }
-   //     if(r==100&&c==200)
-    //        qDebug()<< "e" << ETp->Drc << CStor->Drc << Rainc->Drc << RainCum->Drc << ETa->Drc << InterceptionmmCum->Drc;
-
     }}
-//    report(*Thetaeff,"ti");
-//    report(*ETa,"eta");
-//    report(*ETaCum,"etac");
-//    report(*ETp,"ETp");
 }
 
 // calc average soil moisture content for output to screen and folder

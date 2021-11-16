@@ -124,7 +124,6 @@ void TWorld::cell_Interception(int r, int c)
             HStor->Drc = HS;
             // put new storage back in maps in m
 
-            //double roofsurface = (AreaSoil * CvH); // m2
             double roofsurface = (_dx * DX->Drc * CvH); // m2
             // user should assure housecover is correct with respect to channel and roads
             IntercHouse->Drc =  roofsurface * HS;
