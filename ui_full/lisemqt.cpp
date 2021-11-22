@@ -663,10 +663,10 @@ void lisemqt::setErosionTab()
 
 }
 //--------------------------------------------------------------------
-void lisemqt::setRunoffTab(bool)
-{
-    tabWidgetOptions->setTabEnabled(3, true);//checkChannelFlood->isChecked() || checkOverlandFlow2D->isChecked()  || checkOverlandFlow2Ddyn->isChecked());
-}
+//void lisemqt::setRunoffTab(bool)
+//{
+//    tabWidgetOptions->setTabEnabled(3, true);//checkChannelFlood->isChecked() || checkOverlandFlow2D->isChecked()  || checkOverlandFlow2Ddyn->isChecked());
+//}
 
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputSOBEK(bool doit)
@@ -1803,6 +1803,9 @@ void lisemqt::resetAll()
     E_EndTimeDay->setText("1");
   //  E_EndTimeMin->setText("120");
     E_Timestep->setText("20");
+
+    checkWritePCRaster->setChecked(true);
+
 
     checkBox_OutRunoff->setChecked(false);
     checkBox_OutConc->setChecked(false);

@@ -325,13 +325,11 @@ void lisemqt::showPlot()
         CGraph->setSamples(op.Time,*op.OutletC[index]);
 
         HPlot->setAxisScale(*axisYL1, 0.0, qmax[index] );
-        HPlot->setAxisScale(*axisYR1, pmax,0.0 );
-//        HPlot->setAxisScale(*axisYL2, 0.0, pmax );
+        HPlot->setAxisScale(*axisYL2, pmax, 0.0 );
         HPlot->setAxisScale(*axisYR1, 0.0, qsmax[index] );
         HPlot->setAxisScale(*axisYR2, 0.0, cmax[index] );
     } else {
         HPlot->setAxisScale(*axisYL1, 0.0, qmax[index] );
-//        HPlot->setAxisScale(*axisYR1, 0.0, pmax );
         HPlot->setAxisScale(*axisYR1, pmax,0.0 );
     }
 

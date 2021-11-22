@@ -199,7 +199,7 @@ void TWorld::GetETSatMap(void)
 {
     double currenttime = (time)/60;
     int  ETplace;
-    double tt = 0.001; //mm/day to m/day
+    double tt = 0.001*ETBiasCorrection; //mm/day to m/day
             //_dt/86400.0*0.001; // mm/day to m / timestep
 
     bool noET = false;

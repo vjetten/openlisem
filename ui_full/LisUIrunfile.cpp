@@ -140,6 +140,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Daily ET")==0)                      checkDailyET->setChecked(check);
         //if (p1.compare("Include Snowmelt")==0)               checkSnowmelt->setChecked(check);
         if (p1.compare("Rainfall Bias Correction")==0)           E_biasCorrectionP->setValue(valc);
+        if (p1.compare("ET Bias Correction")==0)           E_biasCorrectionET->setValue(valc);
 
 
         if (p1.compare("Nr user Cores")==0) nrUserCores->setValue(iii);
@@ -159,7 +160,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Report digits out")==0)              E_DigitsOut->setValue(iii);
         if (p1.compare("Report format GTiff")==0)            checkFormatGtiff->setChecked(check);
         if (p1.compare("End run report")==0)                 checkEndRunReport->setChecked(check);
-        if (p1.compare("Add timestamp")==0)                  checkOutputTimestamp->setChecked(check);
+      //  if (p1.compare("Add timestamp")==0)                  checkOutputTimestamp->setChecked(check);
         if (p1.compare("Variable Timestep")==0)              checkVariableTimestep->setChecked(check);
         if (p1.compare("Include Satellite Image")==0)        checksatImage->setChecked(check);
         if (p1.compare("Output interval")==0)                printinterval->setValue(std::max(1,iii));
@@ -431,6 +432,7 @@ void lisemqt::ParseInputData()
     checkOverlandFlow2Ddyn->setChecked(dummykinwave == 3);
     checkOverlandFlow2Dkindyn->setChecked(dummykinwave == 4);
     setFloodTab(dummykinwave > 1);
+    setErosionTab();
 
     // first guess
     E_WorkDir = QFileInfo(E_runFileList->currentText()).dir().absolutePath();
@@ -951,6 +953,7 @@ void lisemqt::updateModelData()
         if (p1.compare("ET Directory") ==0)   namelist[j].value = ETFileDir;
         if (p1.compare("ET maplist name") ==0) namelist[j].value = ETSatFileName;
         if (p1.compare("ET Map Directory") ==0) namelist[j].value = ETSatFileDir;
+        if (p1.compare("ET Bias Correction")==0) namelist[j].value = E_biasCorrectionET->text();
 
       //  if (p1.compare("Snowmelt Directory")==0) namelist[j].value = SnowmeltFileDir;
       //  if (p1.compare("Snowmelt file")==0) namelist[j].value = SnowmeltFileName;
@@ -1077,7 +1080,7 @@ void lisemqt::updateModelData()
         if (p1.compare("OutSedBL")==0)     namelist[j].value.setNum((int)checkBox_OutSedBL->isChecked());
 
         if (p1.compare("Result datetime")==0) namelist[j].value.setNum((int)checkAddDatetime->isChecked());
-        if (p1.compare("Add timestamp")==0)   namelist[j].value.setNum((int)checkOutputTimestamp->isChecked());
+     //   if (p1.compare("Add timestamp")==0)   namelist[j].value.setNum((int)checkOutputTimestamp->isChecked());
 
     }
     //get all actual mapnames from the mapList structure

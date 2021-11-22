@@ -247,6 +247,7 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD)
 {
     double maxV = -1e20;
     mapData.clear();  //QVector double
+    double sum = 0;
 
     if (_M == nullptr)
         return (maxV);
@@ -260,6 +261,7 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD)
             {
                 mapData << _M->Drc;
                 maxV = std::max(maxV, _M->Drc);
+                sum += _M->Drc;
             }
             else
                 mapData << (double)-1e20;
@@ -294,6 +296,8 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD)
     _RD->setInterval( Qt::XAxis, QwtInterval( 0, (double)_M->nrCols()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
     _RD->setInterval( Qt::YAxis, QwtInterval( 0, (double)_M->nrRows()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
     // set x/y axis intervals
+    qDebug() << sum << maxV;
+    if (sum == 0) maxV = -1e-20;
     return maxV;
 }
 //---------------------------------------------------------------------------

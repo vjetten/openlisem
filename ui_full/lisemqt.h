@@ -479,7 +479,7 @@ public slots:
 
     //void setFloodErosion();
     void setFloodTab(bool);
-    void setRunoffTab(bool);
+    //void setRunoffTab(bool);
 
     void fontSelect();
     void fontDecrease();
