@@ -214,7 +214,7 @@ void lisemqt::on_checkMaterialDepth_clicked()
     label_130->setEnabled(yes);
     //label_190->setEnabled(yes);
     //matdepthparams->setEnabled(yes);
-    label_105->setEnabled(yes);
+    //label_105->setEnabled(yes);
 }
 //--------------------------------------------------------------------
 //void lisemqt::on_E_BulkDens2_editingFinished()

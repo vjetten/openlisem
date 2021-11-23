@@ -299,7 +299,7 @@ void lisemqt::on_tabWidget_out_currentChanged(int index)
 // bad programming, checkboxes as radiobuttons, but needed to be square buttons!
 void lisemqt::on_checkOverlandFlow1D_clicked()
 {
-    tabWidgetOptions->setTabEnabled(3, true);
+   // tabWidgetOptions->setTabEnabled(3, true);
 }
 
 //--------------------------------------------------------------------
@@ -582,7 +582,7 @@ void lisemqt::setFloodTab(bool yes)
         yes = false;
     }
 
-    tabWidgetOptions->setTabEnabled(3, yes);
+   // tabWidgetOptions->setTabEnabled(5, yes);
     //frame_diffwave->setEnabled(checkOverlandFlow2D->isChecked());
     FloodParams->setEnabled(yes);
 
@@ -604,7 +604,7 @@ void lisemqt::setFloodTab(bool yes)
 //--------------------------------------------------------------------
 void lisemqt::setErosionTab()
 {
-    tabWidgetOptions->setTabEnabled(4, checkDoErosion->isChecked());
+ //   tabWidgetOptions->setTabEnabled(4, checkDoErosion->isChecked());
 
     int i1 = E_RBLMethod->value();
     int i2 = E_RSSMethod->value();
@@ -1920,7 +1920,7 @@ void lisemqt::setfontSize()
 {
    // int x = SetStyleUISize();
     //int fs = genfontsize;
-   // qDebug() << genfontsize;
+    qDebug() << genfontsize;
 
     const QWidgetList allWidgets = QApplication::allWidgets();
     for (QWidget *widget : allWidgets) {

@@ -431,7 +431,7 @@ void lisemqt::ParseInputData()
     checkOverlandFlow1D->setChecked(dummykinwave == 1);
     checkOverlandFlow2Ddyn->setChecked(dummykinwave == 3);
     checkOverlandFlow2Dkindyn->setChecked(dummykinwave == 4);
-    setFloodTab(dummykinwave > 1);
+    setFloodTab(true);//dummykinwave > 1);
     setErosionTab();
 
     // first guess
