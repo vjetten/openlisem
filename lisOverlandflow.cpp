@@ -58,6 +58,14 @@ void TWorld::OverlandFlow(void)
             FOR_ROW_COL_MV_L  {
                 cell_FlowDetachment(r, c);
                 // kine wave based flow detachment
+//                if(WH->Drc < 0.001 && Sed->Drc > 0) {
+//                    DEP->Drc -= Sed->Drc;
+//                    Sed->Drc = 0;
+//                    Conc->Drc = 0;
+//                    TC->Drc = 0;
+//                }
+
+
             }}
         }
 
@@ -364,6 +372,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         if (SwitchErosion) {
             double sed = (SSFlood->Drc + BLFlood->Drc);
             Conc->Drc =  MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, &sed, &DepFlood->Drc);
+//TODO: check why conc here, because sum of SS and BL? but what about SSCFlood then
             Qsn->Drc = Conc->Drc*Qn->Drc;
         }
 

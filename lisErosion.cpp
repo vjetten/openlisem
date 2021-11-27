@@ -121,7 +121,7 @@ double TWorld::GetSV(double d)
 void TWorld::cell_SplashDetachment(int r, int c, double _WH)
 {
     DETSplash->Drc = 0;
-    if(_WH > 0.001)// || hmx->Drc > 0.0001)
+    if(WHrunoff->Drc > 0.00001)// || hmx->Drc > 0.0001)
     {
         double DetDT1 = 0, DetDT2 = 0, DetLD1, DetLD2;
         double g_to_kg = 0.001;
@@ -223,7 +223,7 @@ void TWorld::cell_SplashDetachment(int r, int c, double _WH)
         if (SwitchSnowmelt)
             DETSplash_ = (1-Snowcover->Drc)*DETSplash_;
         // no splash on snow deck
-
+//DETSplash_ = 0;
         if(SwitchUseMaterialDepth)
         {
             //check wat we can detach from the top and bottom layer of present material
@@ -255,13 +255,18 @@ void TWorld::cell_SplashDetachment(int r, int c, double _WH)
         }
 
 
-        if (hmx->Drc > 0) {
+        if(SwitchKinematic2D == K2D_METHOD_DYN) {
             SSFlood->Drc += DETSplash_;
-            SSCFlood->Drc = MaxConcentration(CHAdjDX->Drc * hmx->Drc, &SSFlood->Drc, &DepFlood->Drc);
-
+            SSCFlood->Drc = MaxConcentration(WaterVolall->Drc, &SSFlood->Drc, &DepFlood->Drc);
         } else {
-            Sed->Drc += DETSplash_;
-            Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
+            if (FloodDomain->Drc > 0) {
+                SSFlood->Drc += DETSplash_;
+                SSCFlood->Drc = MaxConcentration(CHAdjDX->Drc * hmx->Drc, &SSFlood->Drc, &DepFlood->Drc);
+
+            } else {
+                Sed->Drc += DETSplash_;
+                Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
+            }
         }
 
         DETSplash->Drc = DETSplash_;
@@ -1027,7 +1032,9 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
     double ps = 2650.0; //2400.0;
     double pw = 1000.0;
     double d50m = (D50->Drc/1000000.0);
-    double d90m = (D90->Drc/1000000.0);
+    if (type == 0)
+        d50m = D50CH/1000000.0;
+    //double d90m = (D90->Drc/1000000.0);
     double tc = 0;
 
     if(method == FSHAIRSINEROSE)
@@ -1053,7 +1060,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                 //https://www.leovanrijn-sediment.com/papers/Formulaesandtransport.pdf
                 double ucr;
                 //  double kinvis = 1e-6;
-                if( d50m < 0.0005)
+                if( d50m < 0.0005) // 500 mu, so always the first one!
                     ucr = 0.19 * pow(d50m, 0.1) * log10(2.0* h/d50m); //p5
                 else
                     ucr = 8.5  * pow(d50m, 0.6) * log10(2.0* h/d50m);
@@ -1065,7 +1072,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                 double qs = 0.03 * ps*U*d50m * me*me * pow(ds, -0.6); // kg/s/m
                 // van rijn 2007?, p 17, eq 6.4
 
-                tc =  qs/ (U * h); // kg/m3   => WH or WHs
+                tc =  5* qs/ (U * h); // kg/m3   => WH or WHs
 
             }else
                 if(method == FSRIJNFULL)
@@ -1084,7 +1091,8 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                     //van Rijn full (1984) following page 1632
                     double kinvis = 1e-6;
                     double ds = d50m * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
-                    double chezy = 18 * log10(4 * R/d90m);
+                    //double chezy = 18 * log10(4 * R/d90m);
+                    double chezy = 18 * log10(4 * R/d50m);
                     double uc = U * sqrt(GRAV)/chezy;
 
                     //shields functions
@@ -1199,6 +1207,11 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double U
     double pw = 1000.0;
     double d50m = (D50->Drc/1000000.0);
     double d90m = (D90->Drc/1000000.0);
+    if (type == 0) {
+        d90m = D90CH/1000000.0;
+        d50m = D50CH/1000000.0;
+    }
+
     double tc = 0;
 
     if(method == FSRIJN)

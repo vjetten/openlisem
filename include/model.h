@@ -463,10 +463,11 @@ public:
     double BulkDens;
     double nrCells, CatchmentArea, nrFloodedCells;
     double LitterSmax, ETaTot, ETaTotmm, ETaTotVol, GWlevel;
-;
+
     double maxRainaxis;
     double latitude;
     double CulvertWidth, CulvertHeight, CulvertN, CulvertS;
+    double D50CH, D90CH;
 
     ///pesticides
     double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;

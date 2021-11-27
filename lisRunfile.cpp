@@ -85,7 +85,7 @@ QString TWorld::getvaluename(QString vname)
 //---------------------------------------------------------------------------
 double TWorld::getvaluedouble(QString vname)
 {
-    for (int i = 0; i < nrrunnamelist; i++)
+    for (int i = 0; i < nrrunnamelist; i++) {
         if(vname.toUpper() == runnamelist[i].name.toUpper())
         {
             //            return runnamelist[i].value.replace(",",".").toDouble();
@@ -95,8 +95,9 @@ double TWorld::getvaluedouble(QString vname)
 
             return loc.toDouble(s);//runnamelist[i].value.toDouble();
         }
+    }
 
-    ErrorString = QString("Variable ID: \"%1\" not found! You could be using an old runfile,\nor a variable has been added that is not present.").arg(vname);
+    ErrorString = QString("Variable double ID: \"%1\" not found! You could be using an old runfile,\nor a variable has been added that is not present.").arg(vname);
     throw 3;
 }
 //---------------------------------------------------------------------------
@@ -108,7 +109,7 @@ QString TWorld::getvaluestring(QString vname)
             return runnamelist[i].value;
         }
 
-    ErrorString = QString("Variable ID: \"%1\" not found! You could be using an old runfile,\nor a variable has been added that is not present.").arg(vname);
+    ErrorString = QString("Variable string ID: \"%1\" not found! You could be using an old runfile,\nor a variable has been added that is not present.").arg(vname);
     throw 3;
 }
 //---------------------------------------------------------------------------
@@ -120,7 +121,7 @@ int TWorld::getvalueint(QString vname)
             return runnamelist[i].value.toInt();
         }
 
-    ErrorString = QString("Variable ID: \"%1\" not found! You could be using an old runfile,\nor a variable has been added that is not present.").arg(vname);
+    ErrorString = QString("Variable int ID: \"%1\" not found! You could be using an old runfile,\nor a variable has been added that is not present.").arg(vname);
     throw 3;
 }
 //---------------------------------------------------------------------------

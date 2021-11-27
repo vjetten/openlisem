@@ -261,7 +261,6 @@ cTRGBMap *readRasterImage(
             }
             av = av/n;
 
-            //qDebug() << av << min << max;
             for(int i =0; i < nr_rows; i++)
             {
                 for(int j = 0; j < nr_cols; j++)

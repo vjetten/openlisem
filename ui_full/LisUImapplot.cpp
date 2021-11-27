@@ -296,7 +296,7 @@ double lisemqt::fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD)
     _RD->setInterval( Qt::XAxis, QwtInterval( 0, (double)_M->nrCols()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
     _RD->setInterval( Qt::YAxis, QwtInterval( 0, (double)_M->nrRows()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
     // set x/y axis intervals
-    qDebug() << sum << maxV;
+    //qDebug() << sum << maxV;
     if (sum == 0) maxV = -1e-20;
     return maxV;
 }
@@ -491,7 +491,7 @@ void lisemqt::showComboMap(int i)
     MPlot->setTitle(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
     // fill vector RD with matrix data and find the new max value
     double MaxV = fillDrawMapData(op.ComboMapsSafe.at(i), RD);
-    if (MaxV ==-1e20)
+    if (MaxV <=-1e20)
         return;
 
     double MinV = mapMinimum(*op.ComboMapsSafe.at(i));

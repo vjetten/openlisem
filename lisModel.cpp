@@ -187,7 +187,7 @@ void TWorld::DoModel()
         SwitchSnowmelt = false;
         if (SwitchRainfall)
         {
-            qDebug() << rainSatFileName << rainFileName;
+           // qDebug() << rainSatFileName << rainFileName;
             DEBUG("Get Rainfall Data Information");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
@@ -198,7 +198,7 @@ void TWorld::DoModel()
         }
         if (SwitchIncludeET)
         {
-                        qDebug() << ETSatFileName << ETFileName;
+                   //     qDebug() << ETSatFileName << ETFileName;
             DEBUG("Get ET Data Information");
             if (SwitchETSatellite)
                 GetSpatialMeteoData(ETSatFileName, 1);
@@ -342,7 +342,7 @@ void TWorld::HydrologyProcesses()
         // all interception on plants, houses, litter
         // result is rainnet (and leafdrip for erosion)
 
-        if (FloodDomain->Drc > 0) {
+        if (FloodDomain->Drc > 0) {            
             hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
         } else {
             WH->Drc += RainNet->Drc + Snowmeltc->Drc;
@@ -367,6 +367,38 @@ void TWorld::HydrologyProcesses()
                Perc->Drc = cell_Percolation(r, c, 1.0);
             // if baseflow this already does percollation, no need to do this twice
         }
+
+        if(SwitchKinematic2D == K2D_METHOD_DYN) {
+            if(WH->Drc < 1e-6) {
+                DepFlood->Drc -= SSFlood->Drc;
+                SSFlood->Drc = 0;
+                SSCFlood->Drc = 0;
+                SSTCFlood->Drc = 0;
+                if (SwitchUse2Phase) {
+                    DepFlood->Drc -= BLFlood->Drc;
+                    BLFlood->Drc = 0;
+                    BLCFlood->Drc = 0;
+                    BLTCFlood->Drc = 0;
+                }
+                Conc->Drc = 0; // after dynwave conc is sum of SS and BL!
+            }
+        } else {
+            if (FloodDomain->Drc > 0) {
+                if(hmx->Drc < 1e-6) {
+                    DepFlood->Drc -= SSFlood->Drc;
+                    SSFlood->Drc = 0;
+                    SSCFlood->Drc = 0;
+                }
+
+            } else {
+                if(WH->Drc < 1e-6) {
+                    DEP->Drc -= Sed->Drc;
+                    Sed->Drc = 0;
+                    Conc->Drc = 0;
+                }
+            }
+        }
+
         // infiltration by SWATRE of G&A+percolation
 
         cell_SurfaceStorage(r, c);

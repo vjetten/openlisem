@@ -37,12 +37,14 @@ functions: \n
 
 
 //---------------------------------------------------------------------------
+// diff between new and old strage is subtracted from rainfall
+// rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
+// note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
 void TWorld::cell_Interception(int r, int c)
 {
     // all variables are in m
     double Cv = Cover->Drc;
     double Rainc_ = Rainc->Drc;
-    double RainCum_ = RainCum->Drc;
     double AreaSoil = SoilWidthDX->Drc * DX->Drc;
     double RainNet_ = Rainc_;
 
@@ -54,16 +56,18 @@ void TWorld::cell_Interception(int r, int c)
         //max canopy storage in m
 
         if (Smax > 0) {
-            CS = Smax*(1-exp(-kLAI->Drc*RainCum_/Smax));
+            CS = Smax*(1-exp(-kLAI->Drc*RainCum->Drc/Smax));
         }
 
         LeafDrain->Drc = std::max(0.0, Cv*(Rainc_ - (CS - CStor->Drc)));
-        // diff between new and old strage is subtracted from rainfall
-        // rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
-        // note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
+        if (CS > 0.5*Smax) {
+            double ds = 0.01*CS;
+            LeafDrain->Drc += Cv*ds;
+            CS -= ds;
+            RainCum->Drc -= ds;
+        }
 
-//        if(r==100&&c==200)
-//            qDebug()<< CS << Smax << RainCum_ << exp(-kLAI->Drc*RainCum_/Smax);
+
         CStor->Drc = CS;
         // put new storage back in map
        // Interc->Drc =  Cv * CS * AreaSoil;

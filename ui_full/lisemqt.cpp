@@ -108,6 +108,10 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     SetStyleUI();
     // do some style things
 
+   // label_25->setVisible(false);
+   // label_sedvol->setVisible(false);
+
+
 //    scrollAreaResults->setFixedWidth(500);
 //  //  toolShowMapDisplay->setVisible(false);
 //    //this->adjustSize();
@@ -846,7 +850,7 @@ int lisemqt::SetStyleUISize()
     if (abs(_H-1080) > abs(_H-1200)) disp = 1;
     if (abs(_H-1200) > abs(_H-1440)) disp = 2;
       if (abs(_H-1440) > abs(_H-1600)) disp = 3;
-    qDebug() << disp << _H << abs(_H-800) << abs(_H-1080) << abs(_H-1200) << abs(_H-1440) << genfontsize;
+    //qDebug() << disp << _H << abs(_H-800) << abs(_H-1080) << abs(_H-1200) << abs(_H-1440) << genfontsize;
 
     tabWidgetOptions->tabBar()->setExpanding(true);
   //  tabWidget_out->setIconSize(QSize(24, 24));
@@ -1920,7 +1924,7 @@ void lisemqt::setfontSize()
 {
    // int x = SetStyleUISize();
     //int fs = genfontsize;
-    qDebug() << genfontsize;
+    //qDebug() << genfontsize;
 
     const QWidgetList allWidgets = QApplication::allWidgets();
     for (QWidget *widget : allWidgets) {
@@ -2164,7 +2168,7 @@ void lisemqt::on_toolButton_ETsatName_clicked()
     QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
 
     QString sss = getFileorDir(ETSatFileDir,"Select ET map list table", filters, 2);
-qDebug() << sss;
+
     ETSatFileDir = QFileInfo(sss).absolutePath()+"/";
     ETSatFileName = QFileInfo(sss).fileName(); //baseName();
     E_ETsatName->setText(ETSatFileDir + ETSatFileName);

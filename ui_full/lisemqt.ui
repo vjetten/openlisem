@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1415</width>
+    <width>1693</width>
     <height>1036</height>
    </rect>
   </property>
@@ -724,8 +724,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>681</width>
-                <height>638</height>
+                <width>761</width>
+                <height>621</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
@@ -3079,10 +3079,10 @@
              <widget class="QWidget" name="scrollAreaWidgetContents">
               <property name="geometry">
                <rect>
-                <x>-156</x>
+                <x>0</x>
                 <y>0</y>
-                <width>811</width>
-                <height>740</height>
+                <width>959</width>
+                <height>752</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_40">
@@ -8531,7 +8531,7 @@ p, li { white-space: pre-wrap; }
                          <number>2</number>
                         </property>
                         <property name="minimum">
-                         <double>0.010000000000000</double>
+                         <double>0.000000000000000</double>
                         </property>
                         <property name="maximum">
                          <double>1.000000000000000</double>

@@ -741,8 +741,10 @@ void TWorld::ReportTotalsNew(void)
     out << "\"Total interception(mm):\"," << op.IntercTotmm<< "\n";
     out << "\"Total Litter interception (mm):\"," << op.IntercLitterTotmm<< "\n";
     out << "\"Total House interception (mm):\"," << op.IntercHouseTotmm<< "\n";
-    out << "\"Total infiltration (mm):\"," << op.InfilTotmm<< "\n";
     out << "\"Surface storage (mm):\"," << op.SurfStormm<< "\n";
+    out << "\"Total infiltration (mm):\"," << op.InfilTotmm<< "\n";
+    out << "\"Total ETa (mm):\"," << op.ETaTotmm<< "\n";
+
     out << "\"Storm Drain (mm):\"," << op.StormDrainTotmm<< "\n";
     if (SwitchKinematic2D == K2D_METHOD_KIN) {
         out << "\"Water in overland flow (mm):\"," << op.WaterVolTotmm<< "\n";

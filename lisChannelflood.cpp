@@ -45,6 +45,7 @@ functions: \n
 //! Instantaneous mixing of flood water and channel water in channel cells
 //! note: ChannelDepth lets you also control which channels flood:
 //! those that are 0 react as usual (infinite capacity)
+//doOF is always false!!!
 void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
 {
     if (!SwitchIncludeChannel)

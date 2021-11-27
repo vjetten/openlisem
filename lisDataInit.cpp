@@ -271,6 +271,7 @@ void TWorld::InitParameters(void)
     // get calibration parameters
     gsizeCalibrationD50 = getvaluedouble("Grain Size calibration D50");
     gsizeCalibrationD90 = getvaluedouble("Grain Size calibration D90");
+
     ksatCalibration = getvaluedouble("Ksat calibration");
     SmaxCalibration = getvaluedouble("Smax calibration");
     nCalibration = getvaluedouble("N calibration");
@@ -1022,6 +1023,10 @@ void TWorld::InitChannel(void)
             ChannelTC = NewMap(0);
             ChannelY = NewMap(0);
 
+            D50CH = mapAverage(*D50);
+            if (SwitchUse2Phase)
+                D90CH = mapAverage(*D90);
+
             ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
             COHCHCalibration = getvaluedouble("Cohesion Channel calibration");
             calcValue(*ChannelCohesion, COHCHCalibration, MUL);
@@ -1040,11 +1045,11 @@ void TWorld::InitChannel(void)
                 if (ChannelCohesion->Drc < 0)
                     ChannelY->Drc = 0;
                 //VJ 170308 NEW: if cohesion is negative no erosion, but sedimentation
+                ChannelY->Drc = std::min(1.0, 0.79*exp(-0.85*fabs(ChannelCohesion->Drc)));
 
-                //VJ 170308 bug: channelcohesion instead of soil cohesion, introduced when three cohesion functions
+                //VJ 170308 bug: channel instead of soil , introduced when three  functions
             }
         }
-
     }
 
     // OBSOLETE
@@ -1290,13 +1295,11 @@ void TWorld::InitErosion(void)
 
     COHCalibration = getvaluedouble("Cohesion calibration");
     Cohesion = ReadMap(LDD,getvaluename("coh"));
- //   calcValue(*Cohesion, COHCalibration, MUL);
 
     RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
 
     ASCalibration = getvaluedouble("Aggregate stability calibration");
     AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
-   // calcValue(*AggrStab, ASCalibration, MUL);
 
 
     D50 = ReadMap(LDD,getvaluename("D50"));
@@ -1395,7 +1398,7 @@ void TWorld::InitErosion(void)
     FOR_ROW_COL_MV
     {
 
-        CohesionSoil->Drc = COHCalibration*Cohesion->Drc + Cover->Drc*RootCohesion->Drc;
+        CohesionSoil->Drc = COHCalibration*(Cohesion->Drc + Cover->Drc*RootCohesion->Drc);
         // soil cohesion everywhere, plantcohesion only where plants
         if (SwitchGrassStrip)
             CohesionSoil->Drc = CohesionSoil->Drc  *(1-GrassFraction->Drc) + GrassFraction->Drc * CohGrass->Drc;
@@ -1414,16 +1417,17 @@ void TWorld::InitErosion(void)
 
 
         // empirical analysis based on Limburg data, dating 1989
-        if (AggrStab->Drc > 0)
-        {
-            AggrStab->Drc = 2.82/std::max(ASCalibration*AggrStab->Drc, 1.0);
-            splashb->Drc = 2.96;
-        }
-        else
-        {
-            AggrStab->Drc = 0.1033/std::max(ASCalibration*Cohesion->Drc,1.0);
-            splashb->Drc = 3.58;
-        }
+//        if (AggrStab->Drc > 0)
+//        {
+              AggrStab->Drc = ASCalibration*AggrStab->Drc;
+//            AggrStab->Drc = 2.82/std::max(ASCalibration*AggrStab->Drc, 1.0);
+//            splashb->Drc = 2.96;
+//        }
+//        else
+//        {
+//            AggrStab->Drc = 0.1033/std::max(ASCalibration*CohesionSoil->Drc,1.0);
+//            splashb->Drc = 3.58;
+//        }
 
 
     }

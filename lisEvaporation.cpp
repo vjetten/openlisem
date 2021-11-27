@@ -278,12 +278,15 @@ void TWorld::doETa()
     FOR_ROW_COL_MV_L {
         double eta = 0;
         double AreaSoil = SoilWidthDX->Drc * DX->Drc;
-        if (Rain->Drc > 0)
-            ETp->Drc = 0;
+        double rf = 1-std::min(1.0,(Rain->Drc* 3600000.0/_dt)/20.0);
+        //if (Rain->Drc* 3600000.0/_dt > 1)
+        ETp->Drc *= rf;
+
         double ETp_ = ETp->Drc * ETafactor;
+        ETp_ = ETp_ < 1e-8 ? 0.0 : ETp_;
         // ETp->Drc is assumed to be in m/day, etfactor does the rest
-   //     if (r==200 && c == 200)
-    //       qDebug() << ETp->Drc << ETp_ << ETafactor << Rain->Drc;
+      //  if (r==200 && c == 200)
+        //   qDebug() << ETp->Drc << ETp_ << ETafactor << Rain->Drc*3600000.0/_dt;
 
         if (ETp_ > 0) {
             double tot = 0;
@@ -298,8 +301,10 @@ void TWorld::doETa()
                 ETa_int = std::min(ETa_int, CStor_);
                 CStor_ = CStor_- ETa_int;
 
+                RainCum->Drc = std::max(0.0, RainCum->Drc-ETa_int);
                 if (CStor_ < 1e-5)
-                    RainCum->Drc = 0;
+                   RainCum->Drc = 0;
+
                 // restart the cumulative process when CStor is dried out
 
                 etanet = std::max(0.0, ETp_ - ETa_int);
@@ -308,7 +313,6 @@ void TWorld::doETa()
                 IntercETa->Drc += Cover_ * ETa_int * AreaSoil;
                 CStor->Drc = CStor_;
             }
-
 
             if (SwitchLitter) {
                 double CvL = Litter->Drc;
@@ -320,6 +324,7 @@ void TWorld::doETa()
                 IntercETa->Drc += CvL * ETa_int * AreaSoil;
                 LInterc->Drc =  CvL * LCS * AreaSoil;
             }
+
             if (SwitchHouses)
             {
                 double CvH = HouseCover->Drc;
@@ -335,16 +340,16 @@ void TWorld::doETa()
 
 //            if (r==96 && c == 164)
 //                qDebug() << ETp_ << CStor_ << RainCum->Drc << Interc->Drc;
-
             bool ponded = hmxWH->Drc > 0;
+
             if (!ponded) {
                 double pore = Poreeff->Drc;
                 double theta = Thetaeff->Drc;
                 double thetar = 0.025*pore;
                 double Lw_ = Lw->Drc;
-                double theta_e = (theta-thetar)/(pore-thetar);
-                double f = 1.0/(1.0+qPow(theta_e/0.5,6.0));
-                double ETa_soil = (1.0-f)*etanet*Cover_ + theta_e*ETp_*(1-Cover_);   //Transpiration + Evaporation
+                //double theta_e = theta/pore; //(theta-thetar)/(pore-thetar);
+                //double f = 1.0/(1.0+qPow(theta_e/0.5,6.0));
+                double ETa_soil = theta/pore*ETp_; //(1.0-f)*etanet*Cover_ + theta_e*ETp_*(1-Cover_);   //Transpiration + Evaporation
 
                 // there is an infiltration front
                 if (Lw_ > 0) {
@@ -355,11 +360,13 @@ void TWorld::doETa()
                         Lw->Drc = moist/(pore-thetar);
                         tot = tot + eta;
                     } else {
-                        double moist = (Lw_-SoilDepth1->Drc) * (ThetaS2->Drc*0.975);
-                        eta = std::min(moist, ETa_soil);
-                        moist = moist - eta;
-                        Lw->Drc = moist/(ThetaS2->Drc*0.975)+SoilDepth1->Drc;
-                        tot = tot + eta;
+                        if (SwitchTwoLayer){
+                            double moist = (Lw_-SoilDepth1->Drc) * (ThetaS2->Drc*0.975);
+                            eta = std::min(moist, ETa_soil);
+                            moist = moist - eta;
+                            Lw->Drc = moist/(ThetaS2->Drc*0.975)+SoilDepth1->Drc;
+                            tot = tot + eta;
+                        }
                     }
                 } else {
                     // soil moisture evaporation bare surface
@@ -373,7 +380,7 @@ void TWorld::doETa()
             }
 
             // ETa = ETp for any ponded surfaces
-            if (ponded) {
+            if (WHrunoff->Drc > 0.001) {
                 double ETa_pond = ETp_;
                 // if kin wave + overflow is used
                 if (FloodDomain->Drc > 0) {
