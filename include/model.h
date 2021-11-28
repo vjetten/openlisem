@@ -775,7 +775,6 @@ public:
     void SplashDetachment();
     void cell_FlowDetachment(int r, int c);
     double MaxConcentration(double watvol, double *sedvol, double *dep);
-    void ChannelFlowDetachment();
     void ChannelFlowDetachmentNew();
 
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);

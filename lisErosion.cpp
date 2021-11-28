@@ -406,11 +406,11 @@ void TWorld::cell_FlowDetachment(int r, int c)
 
                 TransportFactor = _dt*SettlingVelocitySS->Drc * DX->Drc * SoilWidthDX->Drc; //fpa->Drc*
                 // soilwidth is erodible surface
-                 TransportFactor = std::min(TransportFactor, Q->Drc*_dt);
+                // TransportFactor = std::min(TransportFactor, Q->Drc*_dt);
                 // detachment can only come from soil, not roads (so do not use flowwidth)
                 // units s * m/s * m * m = m3
 
-                detachment = maxTC * TransportFactor;
+                detachment = maxTC * std::min(TransportFactor, erosionwv);
                 // unit = kg/m3 * m3 = kg (/cell)
 
                 // exceptions
@@ -1068,11 +1068,12 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                 double me = std::max((U - ucr)/sqrt(GRAV * d50m * (ps/pw - 1)),0.0); //p15
                 double ds = d50m * 25296; //pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0)); // let op: D* = 25296*D50m! R2 = 1
 
-                //        double qs = 0.008 * ps*U*d50m * pow(me, 2.4) * pow(ds, -0.6);
-                double qs = 0.03 * ps*U*d50m * me*me * pow(ds, -0.6); // kg/s/m
+                double qs = 0.008 * ps*U*d50m * pow(me, 2.4) * pow(ds, -0.6);
+                //double qs = 0.03 * ps*U*d50m * me*me * pow(ds, -0.6); // kg/s/m
                 // van rijn 2007?, p 17, eq 6.4
+                //ChannelQsr->Drc = qs;
+                tc =  qs/ (U * h); //kg/s/m / (m2/s) =  kg/m3   => WH or WHs
 
-                tc =  qs/ (U * h); // kg/m3   => WH or WHs
 
             }else
                 if(method == FSRIJNFULL)

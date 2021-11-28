@@ -234,7 +234,9 @@ void TWorld::ChannelFlow(void)
 
         if (SwitchErosion) {
             double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
-            ChannelQSSs->Drc = ChannelQ_ * concss;
+            ChannelQSSs->Drc = ChannelQ_ * concss; // m3/s *kg/m3 = kg/s
+        //    ChannelQSSs->Drc = std::min(ChannelSSSed->Drc/_dt, ChannelQsr->Drc*ChannelWH->Drc*ChannelWidth->Drc); // kg/m/s m3/s *kg/m3 = kg/s
+
 
             if(SwitchUse2Phase) {
                 double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);

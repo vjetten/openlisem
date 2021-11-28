@@ -205,7 +205,7 @@ void TWorld::Totals(void)
 
     // runoff fraction per cell calc as in-out/rainfall, indication of sinks and sources of runoff
     // exclude channel cells
-        #pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         runoffTotalCell->Drc += (Qn->Drc +Qflood->Drc)* _dt * catchmentAreaFlatMM; // in mm !!!!
     }}
@@ -333,10 +333,6 @@ void TWorld::Totals(void)
 
     if (SwitchErosion)
     {
-        report (*Sed,"sed.map");
-        report (*DETFlow,"DETFlow.map");
-        report (*DEP,"dep.map");
-
         SedTot = 0;
            // #pragma omp parallel for reduction(+:DetFlowTot,DepTot,SedTot) num_threads(userCores)
         FOR_ROW_COL_MV_L {
