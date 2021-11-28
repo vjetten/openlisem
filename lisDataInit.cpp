@@ -903,7 +903,7 @@ void TWorld::InitChannel(void)
         }
 
         ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth")); // bottom width in m
-        cover(*ChannelWidth, *LDD, 0);
+
         //     ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
         //ChannelWidth->checkMap(SMALLEREQUAL, 0, "Channel width must be larger than 0 in channel cells");
         ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
@@ -923,10 +923,6 @@ void TWorld::InitChannel(void)
                 ChannelWidth->Drc = 0.95*_dx;
                 ChannelDepth->Drc *= ChannelWidth->Drc /(0.95*_dx);
             }
-//            } else {
-//                ChannelWidth->Drc = std::min(ChannelWidth->Drc, 0.95*_dx);
-//                ChannelWidthO->Drc = ChannelWidth->Drc;
-//            }
 
             if (ChannelWidth->Drc <= 0)
             {

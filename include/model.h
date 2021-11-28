@@ -903,7 +903,7 @@ public:
     void ChannelFlood(void);
     void FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold);
     void ChannelFloodStatistics(void);
-    void ChannelOverflow(cTMap *_h, cTMap *_V, bool doOF);
+    void ChannelOverflow(cTMap *_h, cTMap *_V);
     void ChannelOverflowNew(cTMap *_h, cTMap *_V, bool doOF);
 
     double courant_factor;

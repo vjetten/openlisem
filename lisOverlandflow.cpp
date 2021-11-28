@@ -236,7 +236,8 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
         //direction of velocity is in the direction of + and -
         // U is EW and V is NS
         // find which outlets on the boundary are directed to the outside based on sign U and V
-        #pragma omp parallel for reduction(+:K2DQSOutBoun,K2DQOutBoun) num_threads(userCores)
+        //#pragma omp parallel for reduction(+:K2DQSOutBoun,K2DQOutBoun) num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 0.0)
             {
@@ -260,7 +261,7 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
         }}
     }
 
-        #pragma omp parallel for reduction(+:K2DQSOutBoun,K2DQOutBoun) num_threads(userCores)
+      //  #pragma omp parallel for reduction(+:K2DQSOutBoun,K2DQOutBoun) num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (tma->Drc == 1) {
 
@@ -294,7 +295,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 {
     double dtOF = 0;
 
-    ChannelOverflow(WHrunoff, V, false);
+    ChannelOverflow(WHrunoff, V);
         // false means flood sediment maps are used
 
     startFlood = false;

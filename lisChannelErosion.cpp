@@ -154,6 +154,8 @@ void TWorld::ChannelFlowDetachmentNew()
 
             if (minTC < 0) {
                 TransportFactor = (1-exp(-_dt*TSettlingVelocitySS/ChannelWH->Drc)) * sswatervol;
+               // TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
+                TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
 
                 deposition = std::max(TransportFactor * minTC,-SS); // in kg
                 // not more than SS present

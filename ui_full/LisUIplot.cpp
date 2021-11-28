@@ -87,11 +87,13 @@ void lisemqt::setupPlot()
     pen3.setStyle(Qt::DashLine);
 
 
+    col.setRgb( 220,0,0,255 );
     pen4.setWidth(2);
-    pen4.setColor(Qt::red);
+    pen4.setColor(col);//Qt::red);
     pen4.setCosmetic(false);
 
-    col.setRgb( 200,0,0,255 ); // darkred
+    //col.setRgb( 200,0,0,255 ); // darkred
+    col.setRgb( 255,155,0,255 ); // darkred
     pen5.setWidth(2);
     pen5.setColor(col);
     pen5.setCosmetic(false);
@@ -314,7 +316,7 @@ void lisemqt::showPlot()
 //        qmax[index] = op.OutletQ[index]->at(_j);
 
     qmax[index] = std::max(qmax[index] , 1.1*op.OutletQ[index]->at(_j));
-    pmax = std::max(pmax, 1.5*op.Pmm[_j]);
+    pmax = std::max(pmax, 2.0*op.Pmm[_j]);
 
     if(checkDoErosion->isChecked())
     {

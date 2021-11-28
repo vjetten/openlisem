@@ -537,6 +537,8 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
         if (minTC < 0) {
             //NOTE use entire depth h for deposition of SS
             TransportFactor = (1-exp(-dt*TSettlingVelocitySS/h->Drc)) * sswatervol;
+          //  TransportFactor = dt * TSettlingVelocitySS * DX->Drc * SoilWidthDX->Drc;
+            TransportFactor = std::min(dt * TSettlingVelocitySS * DX->Drc * SoilWidthDX->Drc, ssdischarge*dt);
 
             deposition  = std::max(TransportFactor * minTC,-SS);
 

@@ -1072,7 +1072,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                 double qs = 0.03 * ps*U*d50m * me*me * pow(ds, -0.6); // kg/s/m
                 // van rijn 2007?, p 17, eq 6.4
 
-                tc =  5* qs/ (U * h); // kg/m3   => WH or WHs
+                tc =  qs/ (U * h); // kg/m3   => WH or WHs
 
             }else
                 if(method == FSRIJNFULL)

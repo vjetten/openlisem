@@ -333,10 +333,14 @@ void TWorld::Totals(void)
 
     if (SwitchErosion)
     {
+        report (*Sed,"sed.map");
+        report (*DETFlow,"DETFlow.map");
+        report (*DEP,"dep.map");
+
         SedTot = 0;
-        #pragma omp parallel for reduction(+:DetSplashTot,DetFlowTot,DepTot,SedTot) num_threads(userCores)
+           // #pragma omp parallel for reduction(+:DetFlowTot,DepTot,SedTot) num_threads(userCores)
         FOR_ROW_COL_MV_L {
-        // Dep and Detflow are zero if 2Ddyn
+             // Dep and Detflow are zero if 2Ddyn
             DetSplashTot += DETSplash->Drc;
             DetFlowTot += DETFlow->Drc;
             DepTot += DEP->Drc;
@@ -346,6 +350,7 @@ void TWorld::Totals(void)
 
         DetTot = DetFlowTot + DetSplashTot;
 
+        // these maps combine kin wave OF and all 2D flow and channelflow
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             DETSplashCum->Drc += DETSplash->Drc;
@@ -379,20 +384,10 @@ void TWorld::Totals(void)
 //            FOR_ROW_COL_MV_CH
 //            {
 //                if (LDDChannel->Drc == 5)
-           // #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
+          //  #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
             FOR_ROW_COL_LDDCH5 {
-                    SoilLossTotT += ChannelQsn->Drc * _dt;
+                SoilLossTotT += ChannelQsn->Drc * _dt;
             }}
-
-            // units here in kg, conversion to ton in report functions
-//#pragma omp parallel for reduction(+:DetSplashTot,DetFlowTot,DepTot,SedTot) num_threads(userCores)
-//        FOR_ROW_COL_MV_L {
-//        // Dep and Detflow are zero if 2Ddyn
-//            DetSplashTot += DETSplash->Drc;
-//            DetFlowTot += DETFlow->Drc;
-//            DepTot += DEP->Drc;
-//            SedTot += Sed->Drc;
-//        }}
 
             ChannelDetTot += MapTotal(*ChannelDetFlow);
             ChannelDepTot += MapTotal(*ChannelDep);
@@ -428,10 +423,6 @@ void TWorld::Totals(void)
         // for reporting
         if (SwitchIncludeChannel)
         {
-//            fill(*tma,0.0);
-//            DistributeOverExtendedChannel(ChannelDetFlow,tma);
-//            fill(*tmb,0.0);
-//            DistributeOverExtendedChannel(ChannelDep,tmb);
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_CHL
             {
@@ -533,86 +524,12 @@ void TWorld::MassBalance()
         double detachment = DetTot + ChannelDetTot + FloodDetTot;
         double deposition = DepTot + ChannelDepTot + FloodDepTot;
         double sediment = SedTot + ChannelSedTot + FloodSedTot + SoilLossTot;
-        //already in soiloss: + floodBoundarySedTot;
+        //already in SoilLossTot: + floodBoundarySedTot;
 
       //  qDebug() << "S" << DetTot<< ChannelDetTot << FloodDetTot;
       //  qDebug() << DepTot << ChannelDepTot << FloodDepTot;
       //  qDebug() << SedTot << ChannelSedTot << FloodSedTot << SoilLossTot;
 
-/*
-        if( SwitchKinematic2D == K2D_METHOD_KINDYN)
-        {
-            // distribute sed errors over dep or det
-
-            double dsed = detachment + deposition  - sediment;
-            double count = 0;
-            //subtract old totals
-            DepTot -= mapTotal(*DEP);
-            DetFlowTot -= mapTotal(*DETFlow);
-            FloodDetTot -= mapTotal(*SSDetFlood);
-            FloodDepTot -= mapTotal(*DepFlood);
-
-            // more deposition than detachment
-            if(dsed < 0){
-                FOR_ROW_COL_MV {
-                    if (DEP->Drc < 0)
-                        count += 1.0;
-                    if (DepFlood->Drc < 0)
-                        count += 1.0;
-                }
-                FOR_ROW_COL_MV {
-                    if (DEP->Drc < 0)
-                        DEP->Drc -= dsed/count;
-                    if (DEP->Drc > 0) {
-                        DETFlow->Drc += DEP->Drc;
-                        DEP->Drc = 0;
-                    }
-                    if (DepFlood->Drc < 0)
-                        DepFlood->Drc -= dsed/count;
-                    if (DepFlood->Drc > 0) {
-                        SSDetFlood->Drc += DepFlood->Drc;
-                        DepFlood->Drc = 0;
-                    }
-                }
-
-            }
-
-            // more detachment than deposition
-            if(dsed > 0){
-                count = 0;
-                FOR_ROW_COL_MV {
-                    if (DETFlow->Drc > 0)
-                        count += 1.0;
-                    if (SSDetFlood->Drc > 0)
-                        count += 1.0;
-                }
-
-                FOR_ROW_COL_MV {
-                    if (DETFlow->Drc > 0)
-                        DETFlow->Drc -= dsed/count;
-                    if (DETFlow->Drc < 0) {
-                        DEP->Drc -= DETFlow->Drc;
-                        DETFlow->Drc = 0;
-                    }
-                    if (SSDetFlood->Drc > 0)
-                        SSDetFlood->Drc -= dsed/count;
-                    if (SSDetFlood->Drc < 0) {
-                        DepFlood->Drc -= SSDetFlood->Drc;
-                        SSDetFlood->Drc = 0;
-                    }
-                }
-            }
-
-            // add new totals
-            DetFlowTot += mapTotal(*DETFlow);
-            DepTot += mapTotal(*DEP);
-            FloodDetTot += mapTotal(*SSDetFlood);
-            FloodDepTot += mapTotal(*DepFlood);
-            DetTot = DetFlowTot + DetSplashTot;
-            detachment = DetTot + ChannelDetTot + FloodDetTot;
-            deposition = DepTot + ChannelDepTot + FloodDepTot;
-        }
-*/
         MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
     }
 

@@ -40,42 +40,25 @@ functions: \n
 #include "operation.h"
 #include "global.h"
 
+
 //---------------------------------------------------------------------------
 //! Get flood level in channel from 1D kin wave channel
 //! Instantaneous mixing of flood water and channel water in channel cells
 //! note: ChannelDepth lets you also control which channels flood:
 //! those that are 0 react as usual (infinite capacity)
 //doOF is always false!!!
-void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
+void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 {
     if (!SwitchIncludeChannel)
         return;
-//    if (!SwitchChannelKinWave)
-//        return;
-
-    cTMap *_SS;
-    cTMap *_SSC;
-    if (SwitchErosion) {
-        if (doOF) {
-            _SS = Sed;
-            _SSC = Conc;
-        } else {
-            _SS = SSFlood;
-            _SSC = SSCFlood;
-        }
-    }
 
     //#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         if (SwitchErosion) {
-            if (doOF)
-                Conc->Drc = MaxConcentration(CHAdjDX->Drc*_h->Drc, &Sed->Drc, &DEP->Drc);
-            else
-                SWOFSedimentSetConcentration(r,c, _h);
-
+            SWOFSedimentSetConcentration(r,c, _h);
             RiverSedimentMaxC(r, c);
         }
-// note channel width and depth are adjusted < 0.95*dx
+
         if (ChannelWidth->Drc > 0 && ChannelMaxQ->Drc <= 0)
         {
             double chdepth = ChannelDepth->Drc;
@@ -94,13 +77,11 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
             double VtoChan = V->Drc;
             if (SwitchGravityToChannel)
                 VtoChan = std::pow(_h->Drc, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drc;
-//            double fracA = std::min(1.0, _dt*VtoChan/(0.5*_dx));
             double fracA = std::min(1.0, _dt*VtoChan/(0.5*ChannelAdj->Drc));
             // fraction from _h to channel based on average flood velocity
 
             double VfromChan = sqrt(2*9.804*dH); //Bernoulli
             //see https://www.engineeringtoolbox.com/velocity-head-d_916.html
-//            double fracC = std::min(1.0, _dt*VfromChan/(0.5*_dx));
             double fracC = std::min(1.0, _dt*VfromChan/(0.5*ChannelAdj->Drc));
             // fraction from channel to surrounding
 
@@ -123,7 +104,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                     if(SwitchErosion) {
                         double sed = ChannelWH->Drc > 0 ? dwh/ChannelWH->Drc * ChannelSSSed->Drc : 0;
                         ChannelSSSed->Drc -= sed;
-                        _SS->Drc += sed;
+                        SSFlood->Drc += sed;
                     }
                 }
             }
@@ -138,9 +119,9 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                     _h->Drc -= dwh;
                     ChannelWH->Drc += (dwh/cwa);
                     if(SwitchErosion) {
-                        double sed = fracA*_SS->Drc;
+                        double sed = fracA*SSFlood->Drc;
                         ChannelSSSed->Drc += sed;
-                        _SS->Drc -= sed;
+                        SSFlood->Drc -= sed;
                     }
                 }
             }
@@ -155,27 +136,43 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
                 // can be negative if channelwh is below channel depth and low _h level
                 if(whlevel > 0)
                 {
+                    double sedch = 0;
+                    double sed = 0;
+                    if (SwitchErosion) {
+                       sedch = ChannelSSSed->Drc;
+                       sed = SSFlood->Drc;
+                    }
+                    double oldchwh = ChannelWH->Drc;
+                    double oldwh = _h->Drc;
                     ChannelWH->Drc = whlevel + chdepth;
                     _h->Drc = whlevel;
 
                     // new equilibrium levels
-                    if(SwitchErosion)
-                    {
+                    if (SwitchErosion) {
+                       // double sed_ = SSFlood->Drc + ChannelSSSed->Drc;
+                        if (oldchwh > ChannelWH->Drc) {
+                            double sed = (oldchwh-ChannelWH->Drc)*ChannelWidth->Drc*ChannelDX->Drc * ChannelSSConc->Drc;
+                            ChannelSSSed->Drc -= sed;
+                            SSFlood->Drc += sed;
+                        } else {
+                            double sed = (oldwh-_h->Drc)*CHAdjDX->Drc * SSCFlood->Drc;
+                            SSFlood->Drc -=sed;
+                            ChannelSSSed->Drc += sed;
+                        }
+//                        double sed_2 = SSFlood->Drc + ChannelSSSed->Drc;
+//                        qDebug() << sed_ << sed_2 << sed_-sed_2;
 
-                        RiverSedimentLayerDepth(r,c);
-                        //SWOFSedimentLayerDepth(rr, cr, _h->Drc, V->Drc);
+//                        RiverSedimentLayerDepth(r,c);
+//                        double _sed = ChannelSSSed->Drc + SSFlood->Drc;
+//                        double volch = ChannelSSDepth->Drc*ChannelWidth->Drc*ChannelDX->Drc;
+//                        double volof = _h->Drc*CHAdjDX->Drc;
+//                        double _concavg = _sed/(volch+volof);
 
-                        double _sed = ChannelSSSed->Drc + _SS->Drc;
-                        double volch = ChannelSSDepth->Drc*ChannelWidth->Drc*ChannelDX->Drc;
-                        double volof = _h->Drc*CHAdjDX->Drc;
-                        double _concavg = _sed/(volch+volof);
+//                        ChannelSSSed->Drc = _concavg * volch;
+//                        ChannelSed->Drc = (SwitchUse2Phase ? ChannelBLSed->Drc : 0.0) + ChannelSSSed->Drc;
 
-                        ChannelSSSed->Drc = _concavg * volch;
-                        ChannelSed->Drc = (SwitchUse2Phase ? ChannelBLSed->Drc : 0.0) + ChannelSSSed->Drc;
-
-                        _SS->Drc = _concavg * volof;
-                        _SSC->Drc = _concavg;
-
+//                        SSFlood->Drc = _concavg * volof;
+//                        SSCFlood->Drc = _concavg;
                     }
 
                 }
@@ -194,12 +191,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V, bool doOF)
             // recalc channel water vol else big MB error
             if(SwitchErosion)
             {
-                if (doOF)
-                    Conc->Drc = MaxConcentration(CHAdjDX->Drc*_h->Drc, &_SS->Drc, &DEP->Drc);
-                else {
-                    SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
-                    SWOFSedimentSetConcentration(r,c, _h);
-                }
+                SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
+                SWOFSedimentSetConcentration(r,c, _h);
 
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r, c);
@@ -483,7 +476,7 @@ void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
     floodArea = 0;
     double area = _dx*_dx;
 
-    #pragma omp parallel for reduction(+:floodVolTotMax,floodArea) num_threads(userCores)
+   // #pragma omp parallel for reduction(+:floodVolTotMax,floodArea) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (floodHmxMax->Drc > threshold) {
             floodVolTotMax += floodHmxMax->Drc*area;
@@ -506,7 +499,7 @@ void TWorld::ChannelFlood(void)
     if (!SwitchIncludeChannel)
         return;
 
-    ChannelOverflow(hmx, V, false);
+    ChannelOverflow(hmx, V);
     // determine overflow water => hmx
 
     ToFlood();
