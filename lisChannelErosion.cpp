@@ -179,6 +179,12 @@ void TWorld::ChannelFlowDetachmentNew()
     //                    detachment = std::max(0.0, MAXCONC * sswatervol - SS);
                 }
 
+//            double sedtrans=ChannelQsr->Drc*_dt*ChannelWidth->Drc; //kg/m/s * s * m = kg
+//            if (SS < sedtrans)
+//                detachment = 0;//ChannelY->Drc *(sedtrans-SS);
+//            else
+//                deposition = (sedtrans-SS)*(1-exp(-_dt*TSettlingVelocitySS/ChannelWH->Drc));
+
             //### sediment balance add suspended
             SS += detachment;
             SS += deposition;

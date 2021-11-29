@@ -1004,16 +1004,12 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
         S = ChannelGrad->Drc;
         w = ChannelWidth->Drc;
         R = (w*h)/(2*h+w);
-//        if (SwitchMulticlass)
-//            Wd = RW_D.at(_d);
     } else
         if (type == 1) {
             hs = SSDepthFlood->Drc;
             S = Grad->Drc;
             w = ChannelAdj->Drc;
             R = (w*h)/(2*h+w);
-//            if (SwitchMulticlass)
-//                Wd = W_D.at(_d);
         } else
             if (type == 2) {
                 hs = WHrunoff->Drc;
@@ -1071,9 +1067,9 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                 double qs = 0.008 * ps*U*d50m * pow(me, 2.4) * pow(ds, -0.6);
                 //double qs = 0.03 * ps*U*d50m * me*me * pow(ds, -0.6); // kg/s/m
                 // van rijn 2007?, p 17, eq 6.4
-                //ChannelQsr->Drc = qs;
+                ChannelQsr->Drc = qs;
                 tc =  qs/ (U * h); //kg/s/m / (m2/s) =  kg/m3   => WH or WHs
-
+                //tc = qs * dt/(w*dx);
 
             }else
                 if(method == FSRIJNFULL)

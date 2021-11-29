@@ -244,6 +244,14 @@ void lisemqt::worldDone(const QString &results)
 
     tabWidget->setCurrentIndex(2);
     shootScreen();
+    tabWidget->setCurrentIndex(0);
+    tabWidgetOptions->setCurrentIndex(6);
+    shootScreen();
+    tabWidgetOptions->setCurrentIndex(5);
+    shootScreen();
+    tabWidgetOptions->setCurrentIndex(4);
+    shootScreen();
+
 
     // arrive here after model emits done signal
     if (W)

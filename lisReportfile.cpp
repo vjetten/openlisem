@@ -1074,7 +1074,7 @@ void TWorld::ReportLandunits(void)
 
 
     QString name;
-    name = resultDir + QFileInfo(totalLandunitFileName).baseName()+"-"+op.timeStartRun+".csv";
+    name = resultDir + totalLandunitFileName;//QFileInfo(totalLandunitFileName).baseName()+"-"+op.timeStartRun+".csv";
     QFile fout(name);
     fout.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream out(&fout);

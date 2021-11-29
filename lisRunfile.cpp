@@ -450,7 +450,6 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Filename point output")==0)
             outflowFileName = checkOutputMapName(p, "hydrograph file(s)", 1);
         if (p1.compare("Filename landunit output")==0) {
-           // totalLandunitFileName = checkOutputMapName(p, "Landunit stats output file",1);
             totalLandunitFileName = QString("totlandunit.csv");
         }
 
@@ -522,7 +521,7 @@ void TWorld::ParseRunfileData(void)
     }
 
     SwitchResultDatetime = getvalueint("Result datetime") == 1;
-    SwitchOutputTimestamp = getvalueint("Add timestamp") == 1;
+    SwitchOutputTimestamp = SwitchResultDatetime;//getvalueint("Add timestamp") == 1;
 
     if (SwitchResultDatetime) {
         QDir(resultDir).mkpath(QString("res"+op.timeStartRun+"/"));

@@ -89,7 +89,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
 
     nrSeries = rainRecs.size() - skip;
     // count records
-qDebug() << "recs" << rainRecs.size() << skip;
+
     if (nrSeries <= 1)
     {
         if (type == 0)

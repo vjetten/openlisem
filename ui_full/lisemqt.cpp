@@ -1523,7 +1523,12 @@ void lisemqt::shootScreen()
     }
     else
     {
-        originalPixmap = tabWidget->currentWidget()->grab(); //QPixmap::grabWidget(tabWidget->currentWidget());
+        if (tabWidget->currentIndex() == 0) {
+            originalPixmap = tabWidgetOptions->currentWidget()->grab();
+            name = QString("input_%1").arg(tabWidgetOptions->currentIndex());
+            number = "";
+        } else
+            originalPixmap = tabWidget->currentWidget()->grab();
 
         if (tabWidget->currentIndex() == 1)
             name = "inputmaps";
@@ -1544,8 +1549,9 @@ void lisemqt::shootScreen()
                 }
             }
         }
+
         fileName = screenShotDir + fi.baseName()+ name + number  + ".png";
-                 //qDebug() << fileName;
+        qDebug() << fileName;
         originalPixmap.save(fileName, format.toLatin1());
     }
 }
