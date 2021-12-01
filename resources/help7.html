@@ -1,12 +1,16 @@
-<p><strong>Calibration parameters</p></strong>
-
-A value of 1.0 means that all input maps are used as they are. The value is a multiplication factor, larger than 1 increasees the map value, smaller than 1 decreases the map value. This has different effects:
+<p><strong>Calibration parameters</strong></p>
+<p>A value of 1.0 means that all input maps are used as they are. The value is a multiplication factor, larger than 1 increasees the map value, smaller than 1 decreases the map value.The effect is a matter of trial and error, a complex landscaope can behave in different ways, and scale is also important. In general</p>
 <ul>
-    <li>Ksat slope and channel: increase means more infiltration, less runoff.</li>
-    <li>Theta: increase means a wetter soil and less infiltration, more runoff.</li>
-    <li>Psi: increase means a drier soil with more suction, less runoff.</li>
-    <li>Manning N slope and Channel: increase means more friction, slower runoff.</li>
-    <li>Cohesion and Aggregate stability: increase means a stronger soil and less detachment.</li>
-    <li>NOTE: Channel cohesion can be set to -1, in which case there is no flow detachment (but there is transport and deposition). This can be used for concrete channels for instance.</li>
+<li>Ksat slope and channel: increase means more infiltration, less runoff.</li>
+<li>Theta: increase means a wetter soil and less infiltration, more runoff.</li>
+<li>Psi: increase means a drier soil with more suction, less runoff.</li>
+<li>Manning N slope and Channel: increase means more friction, slower runoff and channel response.</li>
+<li>Cohesion and Aggregate stability: increase means a stronger soil and less detachment.
+<ul>
+<li>NOTE: Channel cohesion can be set to -1, in which case there is no flow detachment (but there is transport and deposition). This can be used for concrete channels for instance.</li>
 </ul>
-Note: less runoff means less erosion.
+</li>
+<li>D50: median grainsize for suspended matter. Influences the transport capacity and deposition. A larger value generally means a higher sediment flux, but also faster deposition</li>
+<li>D90, the same as D50 but for bedload sediment tarsnport</li>
+</ul>
+<p>Note: less runoff means less erosion.</p>

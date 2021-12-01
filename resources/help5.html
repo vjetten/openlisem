@@ -1,30 +1,27 @@
 <p><strong>Erosion options</strong></p>
-
 <p><strong>Splash detachment</strong></p>
-<p><strong>Rainfall kinetic energy </strong></p>
-<p>The equations describe non-linear relations between rainfall intensity (mm/h) and kinetic energy (J/mm):</p>
+<p>Rainfall kinetic energy: the equations describe non-linear relations between rainfall intensity (mm/h) and kinetic energy (J/mm):</p>
 <ul>
 <li>A negative exponential equation with average global parameters (van Dijk 2002). values are a= 28.3, b =0.52, c=0.042.</li>
 <li>A USLE type erquation with paraneters as found in the EUROSEM model (Morgan et al., 1998). a = 8.950, b=8.440</li>
 <li>A decreasing power law (Sanchez, 2012). a = 7.6, b = 0.22, This equation is available in an nintensity based and timebased version.</li>
 </ul>
-<p><strong>Splash delivery</strong> is the fraction of sediment splashed from dry parts in a cell to ponded areas in a cell. The division of dry and ponded parts is calculated from the surface roughness and water height.</p>
-
+<p><strong>Splash delivery</strong> is the fraction of sediment splashed from dry parts in a cell to ponded areas in a cell. The division of dry and ponded parts is calculated from the surface roughness and water height. For large gridcells use a small value to prevent overestimation of this effect (splash distances are 50 cm at most).</p>
 <p><strong>Flow detachment</strong></p>
-<p><strong>Detachment efficiency</strong> <strong>based on soil cohesion (in kPa)</strong></p>
-<p>Efficiency is a value from 0 - 1 multiplied with the detachment rate (depends on soil cohesion in kPa). 0 gives no flow detachment, 1 gives max flow detachment. openLLISEM is very sensitive to the efficiency. Generally 1 gives the most detachment&nbsp; and 2 the lowest detachment.</p>
+<p>Detachment efficiency based on soil cohesion (in kPa): efficiency is a value from 0 - 1 multiplied with the detachment rate (depends on soil cohesion in kPa). 0 gives no flow detachment, 1 gives max flow detachment. openLLISEM is very sensitive to the efficiency. Generally 1 gives the most detachment&nbsp; and 2 the lowest detachment.</p>
 <ol>
 <li>Y = 1.0/(0.89+0.56*Cohesion)&nbsp; (original LISEM model, for silty loams)</li>
 <li>Y = 0.79*exp(-0.85*Cohesion) (EUROSEM model)</li>
 <li>Y = 1.0/(2.0*Cohesion) (Morgan, Morgan and Finney model)</li>
 </ol>
+<p>NOTE: eq 1 gives the highest flow detachment and is for fine material eq 2 the lowest, eq 3 in between the two.</p>
 <p>NOTE: a negative cohesion value in coh.map or chancoh.map gives zero detachment (useful for concrete channels for instance)</p>
 <p><strong>Two phase sediment transport</strong></p>
 <p>Sediment is simulated in two layers: suspended and bedload. Transport capacities can be different for each layer, see below. The water depth is divided into a bedload layer depth and a suspended layer depth. Suspended transport is based on the D50 (median) value of the grainsize distribution, bedload on the upper D90 (upper 90% grainsize). Detachment and deposition are reported as the sum of the two.</p>
 <p>For the channel and the surface flow (overland flow and flood) the transport cvapacities and turbulence parameters can be selected separately.</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp; <i>Bed load</i> transport capacity equation:<br />&nbsp;&nbsp;&nbsp;&nbsp; 1-Van Rijn Simplified (2007)<br />&nbsp;&nbsp;&nbsp;&nbsp; 2-Van Rijn Full (1984)</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp; <i>Suspended load</i> transport capacity:<br />&nbsp;&nbsp;&nbsp;&nbsp; 0-Govers et al. (1990)<br />&nbsp;&nbsp;&nbsp;&nbsp; 1-Van Rijn Simplified (2007)<br />&nbsp;&nbsp;&nbsp;&nbsp; 2-Van Rijn Full (1984)</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp; <i>Turbulent Prandtl-Schmidt Number</i> (p): a coefficient influencing the sediment diffusion in flood water (def.=0.5). Influence is inversly linear (Diffusion *= 1/p).
+<p>&nbsp;&nbsp;&nbsp;&nbsp; <em>Bed load</em> transport capacity equation:<br />&nbsp;&nbsp;&nbsp;&nbsp; 1-Van Rijn Simplified (2007)<br />&nbsp;&nbsp;&nbsp;&nbsp; 2-Van Rijn Full (1984)</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; <em>Suspended load</em> transport capacity:<br />&nbsp;&nbsp;&nbsp;&nbsp; 0-Govers et al. (1990)<br />&nbsp;&nbsp;&nbsp;&nbsp; 1-Van Rijn Simplified (2007)<br />&nbsp;&nbsp;&nbsp;&nbsp; 2-Van Rijn Full (1984)</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; <em>Turbulent Prandtl-Schmidt Number</em> (p): a coefficient influencing the sediment diffusion in flood water (def.=0.5). Influence is inversly linear (Diffusion *= 1/p).</p>
 <p><strong>Conservation measures</strong></p>
 <p><strong>Sediment trap</strong>: cells that trap all sediment (to simulate e.g. hedgerows or sediment traps) but not water. This uses the map "sedretmax.map", which has the maximum sediemnt retention in m3. The bulk density value is used to convert kg deposition to m3). There is no splash and flow detachment, and the water is slowed down by the mannings n factor given in the interface. When the trap is full the Mannings n returns to normal.</p>
 <p><strong>Grass strip: </strong>defined as cells with the width of a grass strip. Be aware of diagonal LDD conncentions crossing corners of the grass strip when using te kinematic wave! The Mannings n of a grass strip slows down the water, 0.2 is a high value for long grass. It is assumed that grass strips have no detachment but only sedimentation.</p>

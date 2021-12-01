@@ -1020,9 +1020,31 @@ void TWorld::InitChannel(void)
             ChannelTC = NewMap(0);
             ChannelY = NewMap(0);
 
-            D50CH = mapAverage(*D50);
-            if (SwitchUse2Phase)
-                D90CH = mapAverage(*D90);
+            D50CH = NewMap(0);            
+            if(SwitchD50CHavg) {
+                double D50ch = mapAverage(*D50);
+                FOR_ROW_COL_MV_CHL {
+                    D50CH->Drc = D50ch;
+                }}
+            } else {
+                FOR_ROW_COL_MV_CHL {
+                    D50CH->Drc = D50->Drc;
+                }}
+            }
+
+            if (SwitchUse2Phase) {
+                D90CH = NewMap(0);
+                if(SwitchD50CHavg) {
+                    double D90ch = mapAverage(*D90);
+                    FOR_ROW_COL_MV_CHL {
+                        D90CH->Drc = D90ch;
+                    }}
+                } else {
+                    FOR_ROW_COL_MV_CHL {
+                        D90CH->Drc = D90->Drc;
+                    }}
+                }
+            }
 
             ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
             COHCHCalibration = getvaluedouble("Cohesion Channel calibration");
@@ -1366,7 +1388,7 @@ void TWorld::InitErosion(void)
     DepTot = 0;
     DetTot = 0;
     SoilLossTot = 0;
-    SoilLossTotT= 0;
+    SoilLossOutlet= 0;
     SedTot = 0;
 
     TotalDetMap = NewMap(0);
@@ -1416,7 +1438,7 @@ void TWorld::InitErosion(void)
         // empirical analysis based on Limburg data, dating 1989
 //        if (AggrStab->Drc > 0)
 //        {
-              AggrStab->Drc = ASCalibration*AggrStab->Drc;
+              AggrStab->Drc = 1/(ASCalibration+0.01)*AggrStab->Drc;
 //            AggrStab->Drc = 2.82/std::max(ASCalibration*AggrStab->Drc, 1.0);
 //            splashb->Drc = 2.96;
 //        }

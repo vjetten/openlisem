@@ -354,6 +354,7 @@ void TWorld::HydrologyProcesses()
             WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
         // tarred roads have no interception ?
 
+        // infiltration by SWATRE of G&A+percolation
         if (InfilMethod == INFIL_SWATRE) {
            cell_InfilSwatre(r, c);
         }
@@ -368,6 +369,7 @@ void TWorld::HydrologyProcesses()
             // if baseflow this already does percollation, no need to do this twice
         }
 
+        // deposit all sediment still in flow when infiltration causes WH to become minimum
         if(SwitchKinematic2D == K2D_METHOD_DYN) {
             if(WH->Drc < 1e-6) {
                 DepFlood->Drc -= SSFlood->Drc;
@@ -398,8 +400,6 @@ void TWorld::HydrologyProcesses()
                 }
             }
         }
-
-        // infiltration by SWATRE of G&A+percolation
 
         cell_SurfaceStorage(r, c);
 

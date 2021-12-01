@@ -147,6 +147,8 @@ cTMap
 *splashb,                   //!< aggregate stability, median of drops in lowe test [-]
 *D50,                        //!< median of grainsize distribution [mu]
 *D90,                        //!< 90 % of grainsize distribution is below this value [mu]
+*D50CH,                        //!< median of grainsize distribution [mu]
+*D90CH,                        //!< 90 % of grainsize distribution is below this value [mu]
 *DETSplash,                  //!< splash detachment [kg/cell]
 *DETSplashCum,
 *DETFlow,                    //!< flow detachment [kg/cell]

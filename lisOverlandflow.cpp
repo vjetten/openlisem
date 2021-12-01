@@ -198,6 +198,9 @@ void TWorld::CalcVelDisch()//(int r, int c)
 // DO NOT MAKE PARALLEL
 void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
 {
+    if (FlowBoundaryType == 0)
+        return;
+
     cTMap *h = WHrunoff;
     cTMap *Q = Qn;
     cTMap *_U = Uflood;
@@ -217,19 +220,17 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
         K2DOutlets->Drc = 0;
     }}
 
-    FOR_ROW_COL_LDD5 {
-        tma->Drc = 1;
-    }}
+//    FOR_ROW_COL_LDD5 {
+//        tma->Drc = 1;
+//    }}
 
-    if(SwitchIncludeChannel) {
-        //FOR_ROW_COL_MV_CH {
-        //  if(LDDChannel->Drc == 5)
-        FOR_ROW_COL_LDDCH5 {
-            tma->Drc = 1;
-        }}
-    }
+//    if(SwitchIncludeChannel) {
+//        FOR_ROW_COL_LDDCH5 {
+//            tma->Drc = 1;
+//        }}
+//    }
+
 // CHECK should flow boundary be at the start?
-    if (FlowBoundaryType > 0) {
         // find oulets based on DEM and WHrunoff
         dynOutflowPoints();
         //find K2DOutlets = 1
@@ -239,7 +240,7 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
         //#pragma omp parallel for reduction(+:K2DQSOutBoun,K2DQOutBoun) num_threads(userCores)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 0.0)
+            if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 0.01)
             {
                 if (c > 0 && MV(r,c-1))
                     if (_U->Drc < 0) {
@@ -259,7 +260,7 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
                     }
             }
         }}
-    }
+
 
       //  #pragma omp parallel for reduction(+:K2DQSOutBoun,K2DQOutBoun) num_threads(userCores)
         FOR_ROW_COL_MV_L {
@@ -338,7 +339,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         Q->Drc = Qn->Drc; // just to be sure
     }}
 
-    Boundary2Ddyn();//WHrunoff, Qn, Uflood, Vflood);  // do the domain boundaries
+    Boundary2Ddyn();  // do the domain boundaries
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {

@@ -60,13 +60,13 @@ void TWorld::cell_Interception(int r, int c)
         }
 
         LeafDrain->Drc = std::max(0.0, Cv*(Rainc_ - (CS - CStor->Drc)));
-        if (CS > 0.5*Smax) {
-            double ds = 0.01*CS;
-if(r == 200 && c == 200) qDebug() << ds;
-            LeafDrain->Drc += Cv*ds;
-            CS -= ds;
-            RainCum->Drc -= ds;
-        }
+//        if (CS > 0.5*Smax) {
+//            double ds = 0.1*CS;
+//            LeafDrain->Drc += Cv*ds;
+//            CS -= ds;
+//            RainCum->Drc -= ds;
+//            if(r == 110 && c == 150) qDebug() << ds << CS << Smax << RainCum->Drc;
+//        }
 
 
         CStor->Drc = CS;

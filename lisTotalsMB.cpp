@@ -329,7 +329,7 @@ void TWorld::Totals(void)
     // DetSplashTot, DetFlowTot and DepTot are for output in file and screen
     // DetTot and DepTot are for MB
 
-    SoilLossTotT = 0;
+    SoilLossOutlet = 0;
 
     if (SwitchErosion)
     {
@@ -359,30 +359,18 @@ void TWorld::Totals(void)
         //outflow from domain/channel
         if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
         {
-//            FOR_ROW_COL_MV
-//            {
-//                if (LDD->Drc == 5)
-//                    SoilLossTotT += Qsn->Drc * _dt;
-//            }
-
            // #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
             FOR_ROW_COL_LDD5 {
-                SoilLossTotT += Qsn->Drc * _dt;
+                SoilLossOutlet += Qsn->Drc * _dt;
             }}
 
         }
-//            else {
-//            SoilLossTotT += K2DQSOut; // for dyn wave this is the boundary outflow
-//        }
 
         if (SwitchIncludeChannel)
         {
-//            FOR_ROW_COL_MV_CH
-//            {
-//                if (LDDChannel->Drc == 5)
           //  #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
             FOR_ROW_COL_LDDCH5 {
-                SoilLossTotT += ChannelQsn->Drc * _dt;
+                SoilLossOutlet += ChannelQsn->Drc * _dt;
             }}
 
             ChannelDetTot += MapTotal(*ChannelDetFlow);
@@ -391,7 +379,8 @@ void TWorld::Totals(void)
         }
 
         floodBoundarySedTot += K2DQSOutBoun;
-        SoilLossTotT += K2DQSOutBoun;
+        SoilLossOutlet += K2DQSOutBoun;
+
         //FloodBoundarySedmm = floodBoundarySedTot*catchmentAreaFlatMM;
         // flood boundary losses are done separately in MB
 
@@ -429,7 +418,6 @@ void TWorld::Totals(void)
             }}
         }
 
-
         // with all det and dep calculate the soil loss, excl channel
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L
@@ -450,11 +438,12 @@ void TWorld::Totals(void)
             // set to zero for next loop
             DepFlood->Drc = 0;
             BLDetFlood->Drc = 0;
+
             SSDetFlood->Drc = 0;
 
         }}
 
-        SoilLossTot += SoilLossTotT;
+        SoilLossTot += SoilLossOutlet;
         // total sediment outflow from outlets and domain boundaries
 
     }

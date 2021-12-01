@@ -147,8 +147,8 @@ void TWorld::OutputUI(void)
         op.SoilLossTot = (SoilLossTot)*0.001; // convert from kg to ton
         op.floodBoundarySedTot = floodBoundarySedTot; // not used
 
-        op.OutletQs.at(0)->append(SoilLossTotT);
-        op.OutletC.at(0)->append(QtotT > MIN_FLUX? SoilLossTotT/QtotT : 0);
+        op.OutletQs.at(0)->append(SoilLossOutlet);
+        op.OutletC.at(0)->append(QtotT > MIN_FLUX? SoilLossOutlet/QtotT : 0);
         op.OutletQstot.replace(0,SoilLossTot/1000.0);
     }
     //hydrographs
@@ -453,7 +453,7 @@ void TWorld::ReportTimeseriesNew(void)
 
 
     double QALL = QtotT * (QUnits == 1 ?  1.0 : 1000.0)/_dt; // total outflow on all sides in l/s, same as point 0 in interface
-    double QSALL = SoilLossTotT;
+    double QSALL = SoilLossOutlet;
 
     QFileInfo fi(resultDir + outflowFileName);
 

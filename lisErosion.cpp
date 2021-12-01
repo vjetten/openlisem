@@ -165,15 +165,18 @@ void TWorld::cell_SplashDetachment(int r, int c, double _WH)
             b = b * fac2 + 3.58 * fac1;
         }
 
+        // fraction ponded area
         double FPA = 1.0;
         if (RR->Drc > 0.1)
             FPA =  1-exp(-1.875*(_WH/(0.01*RR->Drc)));
+        double sd = SplashDelivery;//*std::min(1.0,1.0/(FPA*_dx));
 
         // Between plants, directrain is already with 1-cover
         DetDT1 = g_to_kg * FPA*(strength*KE_DT+b)*WH0 * directrain;
         //ponded areas, kg/m2/mm * mm = kg/m2
-        DetDT2 = _WH > 0 ? g_to_kg * (1-FPA)*(strength*KE_DT+b) * directrain * SplashDelivery : 0.0;
+        DetDT2 = _WH > 0 ? g_to_kg * (1-FPA)*(strength*KE_DT+b) * directrain * sd: 0.0;
         //dry areas, kg/m2/mm * mm = kg/m2
+
 
         if (SwitchKETimebased)
         {
@@ -181,7 +184,7 @@ void TWorld::cell_SplashDetachment(int r, int c, double _WH)
             {
                 DetDT1 = g_to_kg * FPA*(strength*KE_DT+b)*WH0 * _dt/3600;
                 //ponded areas, kg/m2/sec * sec = kg/m2
-                DetDT2 = g_to_kg * (1-FPA)*(strength*KE_DT+b) * _dt/3600 * SplashDelivery;
+                DetDT2 = g_to_kg * (1-FPA)*(strength*KE_DT+b) * _dt/3600 * sd;
                 //dry areas, kg/m2/sec * sec = kg/m2
             }
         }
@@ -190,7 +193,7 @@ void TWorld::cell_SplashDetachment(int r, int c, double _WH)
         // Under plants, throughfall is already with cover
         DetLD1 = g_to_kg * FPA*(strength*KE_LD+b)*WH0 * throughfall;
         //ponded areas, kg/m2/mm * mm = kg/m2
-        DetLD2 = g_to_kg * (1-FPA)*(strength*KE_LD+b) * throughfall * SplashDelivery;
+        DetLD2 = g_to_kg * (1-FPA)*(strength*KE_LD+b) * throughfall * sd;
         //dry areas, kg/m2/mm * mm = kg/m2
 
         DETSplash_ = DetLD1 + DetLD2 + DetDT1 + DetDT2;
@@ -1029,7 +1032,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
     double pw = 1000.0;
     double d50m = (D50->Drc/1000000.0);
     if (type == 0)
-        d50m = D50CH/1000000.0;
+        d50m = D50CH->Drc/1000000.0;
     //double d90m = (D90->Drc/1000000.0);
     double tc = 0;
 
@@ -1205,8 +1208,8 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double U
     double d50m = (D50->Drc/1000000.0);
     double d90m = (D90->Drc/1000000.0);
     if (type == 0) {
-        d90m = D90CH/1000000.0;
-        d50m = D50CH/1000000.0;
+        d90m = D90CH->Drc/1000000.0;
+        d50m = D50CH->Drc/1000000.0;
     }
 
     double tc = 0;

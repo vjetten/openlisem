@@ -450,7 +450,7 @@ public:
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
     double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
     /// Sediment totals for mass balance and output (in kg)
-    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot,SoilLossTotT, SedTot,
+    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot,SoilLossOutlet, SedTot,
            FloodDetTot, FloodDepTot, FloodSedTot;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
     double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm,WaterVolRunoffmm, FloodBoundarymm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, WaterVolRunoffmm_F;
@@ -467,7 +467,7 @@ public:
     double maxRainaxis;
     double latitude;
     double CulvertWidth, CulvertHeight, CulvertN, CulvertS;
-    double D50CH, D90CH;
+    //double D50CH, D90CH;
 
     ///pesticides
     double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;
@@ -677,7 +677,8 @@ public:
 
     //int GrainSizeDistributionType;
 
-    bool SwitchAdvancedSed, SwitchUseMaterialDepth,SwitchNoBoundarySed, SwitchUse2Phase,SwitchUseGrainSizeDistribution, SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution;
+    bool SwitchAdvancedSed, SwitchUseMaterialDepth,SwitchNoBoundarySed, SwitchUse2Phase,SwitchUseGrainSizeDistribution,
+        SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution, SwitchD50CHavg;
 
     int numgrainclasses;
     QString GrainMaps;
