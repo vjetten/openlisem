@@ -58,7 +58,7 @@ void lisemqt::setupPlot()
 
     PGraph = new QwtPlotCurve("Rainfall intensity");
     QGraph = new QwtPlotCurve("Discharge");
-    //QbGraph = new QwtPlotCurve("Baseflow (estimated)");
+    QbGraph = new QwtPlotCurve("Baseflow");
     QsGraph = new QwtPlotCurve("Sediment discharge");
     CGraph = new QwtPlotCurve("Concentration");
     QtileGraph = new QwtPlotCurve("Tile drain");
@@ -113,10 +113,10 @@ void lisemqt::setupPlot()
     PGraph->setAxes(HPlot->xBottom, *axisYR1);// HPlot->yRight);
 
   //  if(checkChannelBaseflow->isChecked()) {
-//        QbGraph->setPen(pen3);
-//        QbGraph->setAxes(HPlot->xBottom, *axisYL1);
-//        QbGraph->setStyle(QwtPlotCurve::Lines);
- //   }
+        QbGraph->setPen(pen3);
+        QbGraph->setAxes(HPlot->xBottom, *axisYL1);
+        QbGraph->setStyle(QwtPlotCurve::Lines);
+   // }
  //   if(checkIncludeTiledrains->isChecked()) {
         QtileGraph->setPen(pen3);
         QtileGraph->setAxes(HPlot->xBottom, *axisYL1);
@@ -223,7 +223,7 @@ void lisemqt::onOutletChanged(int point)
 
             if (outletpoint > 0)
             {
-                HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
+                HPlot->setTitle(QString("Hydrograph outlet %1").arg(outletpoint));
             }
             else
             {
@@ -249,9 +249,9 @@ void lisemqt::initPlot()
     else
         HPlot->setAxisTitle(HPlot->xBottom, "time (day)");
 
-//    if (checkChannelBaseflow->isChecked()) {
-//       QbGraph->attach(HPlot);
-//    }
+    if (checkChannelBaseflow->isChecked()) {
+       QbGraph->attach(HPlot);
+    }
 
     if(checkIncludeTiledrains->isChecked()) {
         QtileGraph->attach(HPlot);
@@ -303,20 +303,21 @@ void lisemqt::showPlot()
         HPlot->setAxisScale(HPlot->xBottom, op.BeginTime/1440, op.EndTime/1440);
     else
         HPlot->setAxisScale(HPlot->xBottom, op.BeginTime, op.EndTime);
+
     int index = OutletIndices.indexOf(this->outletpoint);
 
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
     PGraph->setSamples(op.Time,op.Pmm);
 
-   // if (checkChannelBaseflow->isChecked())
-    //    QbGraph->setSamples(op.Time,*op.OutletQb[index]);
+    if (checkChannelBaseflow->isChecked())
+        QbGraph->setSamples(op.Time,*op.OutletQb[index]);
 
     int _j = op.OutletQ[index]->count()-1;
-//    if (qmax[index] < op.OutletQ[index]->at(_j))
-//        qmax[index] = op.OutletQ[index]->at(_j);
 
     qmax[index] = std::max(qmax[index] , 1.1*op.OutletQ[index]->at(_j));
     pmax = std::max(pmax, 2.0*op.Pmm[_j]);
+
+    //qDebug() << op.OutletQ[index]->at(_j) << index << _j << qmax[index];
 
     if(checkDoErosion->isChecked())
     {
@@ -536,7 +537,7 @@ void lisemqt::showOutputData()
     //  label_litterstore->setText(QString::number(op.LitterStorageTotmm,'f',dig));
 
     // peak time
-    label_QPfrac->setText(format.arg(QString::number((op.RainTotmm > 0 ? op.Qtotmm/op.RainTotmm*100 : 0),'f',dig)));
+    label_QPfrac->setText(format.arg(QString::number((op.RainTotmm > 0 ? std::max(0.0,op.Qtotmm-op.BaseFlowtotmm)/op.RainTotmm*100 : 0),'f',dig)));
     label_ppeaktime->setText(format.arg(QString::number(op.RainpeakTime,'f',2)));
 
     // mass balance

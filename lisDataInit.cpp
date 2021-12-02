@@ -1740,6 +1740,7 @@ void TWorld::IntializeData(void)
 
     //### rainfall and interception maps
     BaseFlowTot = 0;
+    BaseFlowInit = 0;
     RainTot = 0;
     RainTotmm = 0;
     Rainpeak = 0;
@@ -2386,6 +2387,7 @@ void TWorld::FindBaseFlow()
                     int ncells = 0;
                     double inflow = 0;
                     double baseflow = BaseFlowDischarges->data[ro][co];
+                    // in m3/s
 
                     LDD_LINKEDLIST *list = nullptr, *temp = nullptr;
                     list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
@@ -2508,7 +2510,7 @@ void TWorld::FindBaseFlow()
                             int r = list->rowNr;
                             int c = list->colNr;
                             tmb->Drc = 0;
-                            BaseFlowInflow->Drc = inflow; // will be added in baseflow every timestep
+                            BaseFlowInflow->Drc = inflow; // will be added in baseflow every timestep is in m3/s!
 
                             tmc->Drc += 1;
 
@@ -2594,7 +2596,11 @@ void TWorld::FindBaseFlow()
         tmc->Drc = 0;
         tmd->Drc = 0;
     }
+    report(*BaseFlowInitialVolume,"baseflowinitm3s.map");
+    report(*BaseFlowInflow,"baseinflow.map");
 
+
+    BaseFlowInit = MapTotal(*BaseFlowInitialVolume);
 
 }
 

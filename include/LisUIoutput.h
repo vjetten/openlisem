@@ -51,7 +51,7 @@ struct output{
     QList<int> OutletLocationX;
     QList<int> OutletLocationY;
     QList<QVector<double>*> OutletQ;
-    //QList<QVector<double>*> OutletQb;
+    QList<QVector<double>*> OutletQb;
     QList<QVector<double>*> OutletQs;  //current kg/s
     QList<QVector<double>*> OutletC;   // avg concetration
     QList<QVector<double>*> OutletChannelWH;

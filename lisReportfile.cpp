@@ -94,7 +94,6 @@ void TWorld::OutputUI(void)
     op.RainTotmm = RainTotmm + SnowTotmm;
     op.ETaTotmm = ETaTotmm;
     op.GWlevel = GWlevel;
-    op.BaseFlowTotmm = BaseFlowTotmm;
     op.RainpeakTime = RainpeakTime/60;
     op.Rainpeak = Rainpeak;
 
@@ -157,7 +156,7 @@ void TWorld::OutputUI(void)
 
     // outlet 0 all flow
     double factor = QUnits == 1 ? 1.0 : 1000.0;
-    op.OutletQ.at(0)->append(Qtot_dt * factor/_dt); //QtotT is in m3
+    op.OutletQ.at(0)->append(Qtot_dt * factor/_dt); //Qtot_dt is in m3
     op.OutletQtot.replace(0,Qtot);
     op.OutletChannelWH.at(0)->append(0);
 
@@ -178,11 +177,16 @@ void TWorld::OutputUI(void)
 //            op.OutletC.at(j)->append(TotalConc->Drc);  // questionable, abverage conc OF and channel
 //        }
         if (SwitchIncludeChannel) {
-            op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * ChannelQn->Drc/(QUnits == 0 ? 1000.0 : 1.0)); //cumulative in m3/s
-            op.OutletQ.at(j)->append(ChannelQn->Drc);
+            op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * ChannelQn->Drc); //cumulative in m3/s
+            op.OutletQ.at(j)->append(ChannelQn->Drc*factor);
+            if (SwitchChannelBaseflow) {
+
+                op.OutletQb.at(j)->append((Qbase->Drc/_dt+BaseFlowInflow->Drc+std::min(BaseFlowDischarges->Drc,ChannelQn->Drc))*factor);
+            }
+
         } else {
-            op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * Qn->Drc/(QUnits == 0 ? 1000.0 : 1.0)); //cumulative in m3/s
-            op.OutletQ.at(j)->append(Qn->Drc);
+            op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * Qn->Drc); //cumulative in m3/s
+            op.OutletQ.at(j)->append(Qn->Drc*factor);
         }
 
         if (SwitchErosion) {
@@ -735,8 +739,8 @@ void TWorld::ReportTotalsNew(void)
     out << "\"Water in channels (mm):\"," << op.ChannelVolTotmm<< "\n";
     out << "\"Total outflow (all flows) (mm):\"," << op.Qtotmm<< "\n";
     out << "\n";
-    out << "\"Total channel+OF discharg (m3):\"," << op.Qtot<< "\n";
-    out << "\"Total flood discharge (m3):\"," << op.floodBoundaryTot<< "\n";
+    out << "\"Total outflow (overland+channel+boundaries+drains) (m3):\"," << op.Qtot<< "\n";
+   // out << "\"Total flood discharge (m3):\"," << op.floodBoundaryTot<< "\n";
     out << "\"Total storm drain discharge (m3):\"," << op.Qtiletot<< "\n";
     out << "\"Peak time precipitation (min):\"," << op.RainpeakTime<< "\n";
     out << "\"Total discharge/Precipitation (%):\"," << op.RunoffFraction*100<< "\n";
@@ -1170,7 +1174,7 @@ void TWorld::setupHydrographData()
     op.OutletLocationX.append(0);
     op.OutletLocationY.append(0);
     op.OutletQ.append(new QVector<double>);
-    //op.OutletQb.append(new QVector<double>);
+    op.OutletQb.append(new QVector<double>);
     op.OutletQs.append(new QVector<double>);
     op.OutletC.append(new QVector<double>);
     op.OutletChannelWH.append(new QVector<double>);
@@ -1188,7 +1192,7 @@ void TWorld::setupHydrographData()
             op.OutletLocationX.append(r);
             op.OutletLocationY.append(c);
             op.OutletQ.append(new QVector<double>);
-            //op.OutletQb.append(new QVector<double>);
+            op.OutletQb.append(new QVector<double>);
             op.OutletQs.append(new QVector<double>);
             op.OutletC.append(new QVector<double>);
             op.OutletChannelWH.append(new QVector<double>);
@@ -1241,7 +1245,7 @@ void TWorld::ClearHydrographData()
     op.OutletLocationX.clear();
     op.OutletLocationY.clear();
     op.OutletQ.clear();
-    //op.OutletQb.clear();
+    op.OutletQb.clear();
     op.OutletQs.clear();
     op.OutletC.clear();
     op.OutletQpeak.clear();
