@@ -179,10 +179,10 @@ void TWorld::OutputUI(void)
         if (SwitchIncludeChannel) {
             op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * ChannelQn->Drc); //cumulative in m3/s
             op.OutletQ.at(j)->append(ChannelQn->Drc*factor);
-            if (SwitchChannelBaseflow) {
-
-                op.OutletQb.at(j)->append((Qbase->Drc/_dt+BaseFlowInflow->Drc+std::min(BaseFlowDischarges->Drc,ChannelQn->Drc))*factor);
-            }
+//            if (SwitchChannelBaseflow) {
+//                op.OutletQb.at(j)->append((Qbase->Drc/_dt+std::min(BaseFlowDischarges->Drc,ChannelQn->Drc))*factor);
+//                // not possible, Qbase moves towards outl;et so is not only Qbase->Drc
+//            }
 
         } else {
             op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * Qn->Drc); //cumulative in m3/s
@@ -719,7 +719,10 @@ void TWorld::ReportTotalsNew(void)
     out.setRealNumberNotation(QTextStream::FixedNotation);
     out << "\"LISEM run with:\"," << op.runfilename << "\n";
     out << "\"LISEM results at time (day:min):\"," << trunc(op.time/1440) << ":" << long(op.time) % 1440 <<"\n";
-    out << "\"Catchment area (ha):\"," << op.CatchmentArea/10000.0<< "\n";
+    if (op.CatchmentArea > 1e6)
+        out << "\"Catchment area (km2):\"," << op.CatchmentArea/1e6<< "\n";
+    else
+        out << "\"Catchment area (m2):\"," << op.CatchmentArea<< "\n";
     out << "\"Total Precipitation (mm):\"," << op.RainTotmm<< "\n";
     out << "\"Total interception(mm):\"," << op.IntercTotmm<< "\n";
     out << "\"Total Litter interception (mm):\"," << op.IntercLitterTotmm<< "\n";
@@ -762,11 +765,11 @@ void TWorld::ReportTotalsNew(void)
         out << "\"Average soil loss (kg/ha):\"," << (op.SoilLossTot*1000.0)/(op.CatchmentArea/10000.0)<< "\n";
         out << "\n";
     }
-    for(int i = 0; i< op.OutletQpeak.length();i++)
+    for(int i = 1; i< op.OutletQpeak.length();i++)
     {
         out << "\"Peak discharge for outlet " + QString::number(i) +" (l/s):\"," << op.OutletQpeak.at(i)<< "\n";
     }
-    for(int i = 0; i< op.OutletQpeak.length();i++)
+    for(int i = 1; i< op.OutletQpeak.length();i++)
     {
         out << "\"Peak time discharge for outlet " + QString::number(i) +" (min):\"," << op.OutletQpeaktime.at(i)<< "\n";
     }
@@ -1174,7 +1177,7 @@ void TWorld::setupHydrographData()
     op.OutletLocationX.append(0);
     op.OutletLocationY.append(0);
     op.OutletQ.append(new QVector<double>);
-    op.OutletQb.append(new QVector<double>);
+  // op.OutletQb.append(new QVector<double>);
     op.OutletQs.append(new QVector<double>);
     op.OutletC.append(new QVector<double>);
     op.OutletChannelWH.append(new QVector<double>);
@@ -1192,7 +1195,7 @@ void TWorld::setupHydrographData()
             op.OutletLocationX.append(r);
             op.OutletLocationY.append(c);
             op.OutletQ.append(new QVector<double>);
-            op.OutletQb.append(new QVector<double>);
+           // op.OutletQb.append(new QVector<double>);
             op.OutletQs.append(new QVector<double>);
             op.OutletC.append(new QVector<double>);
             op.OutletChannelWH.append(new QVector<double>);
@@ -1245,7 +1248,7 @@ void TWorld::ClearHydrographData()
     op.OutletLocationX.clear();
     op.OutletLocationY.clear();
     op.OutletQ.clear();
-    op.OutletQb.clear();
+  //  op.OutletQb.clear();
     op.OutletQs.clear();
     op.OutletC.clear();
     op.OutletQpeak.clear();

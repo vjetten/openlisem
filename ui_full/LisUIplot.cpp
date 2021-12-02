@@ -58,7 +58,7 @@ void lisemqt::setupPlot()
 
     PGraph = new QwtPlotCurve("Rainfall intensity");
     QGraph = new QwtPlotCurve("Discharge");
-    QbGraph = new QwtPlotCurve("Baseflow");
+   // QbGraph = new QwtPlotCurve("Baseflow");
     QsGraph = new QwtPlotCurve("Sediment discharge");
     CGraph = new QwtPlotCurve("Concentration");
     QtileGraph = new QwtPlotCurve("Tile drain");
@@ -112,25 +112,23 @@ void lisemqt::setupPlot()
     PGraph->setPen(pen2);
     PGraph->setAxes(HPlot->xBottom, *axisYR1);// HPlot->yRight);
 
-  //  if(checkChannelBaseflow->isChecked()) {
-        QbGraph->setPen(pen3);
-        QbGraph->setAxes(HPlot->xBottom, *axisYL1);
-        QbGraph->setStyle(QwtPlotCurve::Lines);
-   // }
- //   if(checkIncludeTiledrains->isChecked()) {
-        QtileGraph->setPen(pen3);
-        QtileGraph->setAxes(HPlot->xBottom, *axisYL1);
-        QtileGraph->setStyle(QwtPlotCurve::Lines);
-  //  }
- //   if(checkDoErosion->isChecked()) {
-        QsGraph->setPen(pen4);
-        QsGraph->setAxes(HPlot->xBottom, *axisYR1);
+        //QbGraph->setPen(pen3);
+      //  QbGraph->setAxes(HPlot->xBottom, *axisYL1);
+      //  QbGraph->setStyle(QwtPlotCurve::Lines);
 
-        CGraph->setPen(pen5);
-        CGraph->setAxes(HPlot->xBottom, *axisYR2);
-        QsGraph->setStyle(QwtPlotCurve::Lines);
-        CGraph->setStyle(QwtPlotCurve::Lines);
- //   }
+    QtileGraph->setPen(pen3);
+    QtileGraph->setAxes(HPlot->xBottom, *axisYL1);
+    QtileGraph->setStyle(QwtPlotCurve::Lines);
+
+
+    QsGraph->setPen(pen4);
+    QsGraph->setAxes(HPlot->xBottom, *axisYR1);
+
+    CGraph->setPen(pen5);
+    CGraph->setAxes(HPlot->xBottom, *axisYR2);
+    QsGraph->setStyle(QwtPlotCurve::Lines);
+    CGraph->setStyle(QwtPlotCurve::Lines);
+
 
 //    PGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
 //    QGraph->setRenderHint(QwtPlotItem::RenderAntialiased);
@@ -249,13 +247,13 @@ void lisemqt::initPlot()
     else
         HPlot->setAxisTitle(HPlot->xBottom, "time (day)");
 
-    if (checkChannelBaseflow->isChecked()) {
-       QbGraph->attach(HPlot);
-    }
+//    if (checkChannelBaseflow->isChecked()) {
+//       QbGraph->attach(HPlot);
+//    }
 
-    if(checkIncludeTiledrains->isChecked()) {
-        QtileGraph->attach(HPlot);
-    }
+//    if(checkIncludeTiledrains->isChecked()) {
+//        QtileGraph->attach(HPlot);
+//    }
 
 
     if(checkDoErosion->isChecked())
@@ -309,8 +307,8 @@ void lisemqt::showPlot()
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
     PGraph->setSamples(op.Time,op.Pmm);
 
-    if (checkChannelBaseflow->isChecked())
-        QbGraph->setSamples(op.Time,*op.OutletQb[index]);
+   // if (checkChannelBaseflow->isChecked())
+    //    QbGraph->setSamples(op.Time,*op.OutletQb[index]);
 
     int _j = op.OutletQ[index]->count()-1;
 
