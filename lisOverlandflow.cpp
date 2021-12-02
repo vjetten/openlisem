@@ -211,24 +211,14 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
         h = hmx;
     }
 
-    K2DQOutBoun = 0;
-    K2DQSOutBoun = 0;
+    BoundaryQ = 0;
+    BoundaryQs = 0;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         tma->Drc = 0;
-        K2DQ->Drc = 0;
+        //K2DQ->Drc = 0;
         K2DOutlets->Drc = 0;
     }}
-
-//    FOR_ROW_COL_LDD5 {
-//        tma->Drc = 1;
-//    }}
-
-//    if(SwitchIncludeChannel) {
-//        FOR_ROW_COL_LDDCH5 {
-//            tma->Drc = 1;
-//        }}
-//    }
 
 // CHECK should flow boundary be at the start?
         // find oulets based on DEM and WHrunoff
@@ -237,7 +227,6 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
         //direction of velocity is in the direction of + and -
         // U is EW and V is NS
         // find which outlets on the boundary are directed to the outside based on sign U and V
-        //#pragma omp parallel for reduction(+:K2DQSOutBoun,K2DQOutBoun) num_threads(userCores)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 0.01)
@@ -272,18 +261,18 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
                 double dh = frac*h->Drc;
                 double _q = dh*DX->Drc*ChannelAdj->Drc;
 
-                K2DQOutBoun += _q/_dt;
+                BoundaryQ += _q/_dt;
                 h->Drc -= dh;
-                K2DQ->Drc = _q/_dt;
+                //K2DQ->Drc = _q/_dt;
                 Q->Drc -= _q/_dt;
 
                 if (SwitchErosion) {
                     double ds = frac * SSFlood->Drc;
-                    K2DQSOutBoun += ds;
+                    BoundaryQs += ds/_dt; //in kg
                     SSFlood->Drc -= ds;
                     if (SwitchUse2Phase) {
                         ds = frac * BLFlood->Drc;
-                        K2DQSOutBoun += ds;
+                        BoundaryQs += ds/_dt;
                         BLFlood->Drc -= ds;
                     }
                 }
@@ -300,12 +289,10 @@ void TWorld::OverlandFlow2Ddyn(void)
         // false means flood sediment maps are used
 
     startFlood = false;
-//#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV {
-        if (WHrunoff->Drc > HMIN){
+        if (WHrunoff->Drc > HMIN)
             startFlood = true;
-            break;
-        }
     }
 
     if (SwitchSWOFopen) {
@@ -374,7 +361,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         if (SwitchErosion) {
             double sed = (SSFlood->Drc + BLFlood->Drc);
             Conc->Drc =  MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, &sed, &DepFlood->Drc);
-//TODO: check why conc here, because sum of SS and BL? but what about SSCFlood then
+            //TODO: conc here also because of output
             Qsn->Drc = Conc->Drc*Qn->Drc;
         }
 
@@ -519,11 +506,6 @@ void TWorld::OverlandFlow1D(void)
 // all points that flow outward of the domain by slope and water pressure
 void TWorld::dynOutflowPoints()
 {
-//    #pragma omp parallel for num_threads(userCores)
-//    FOR_ROW_COL_MV_L {
-//        K2DOutlets->Drc = 0;
-//    }}
-
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double Dhx = 0;

@@ -294,10 +294,6 @@ void TWorld::DoModel()
         DestroyData();  // destroy all maps automatically
 
         emit done("finished");
-
-        //???????????
-//        if(batchmode)
-//            QApplication::quit();
     }
     catch(...)  // if an error occurred
     {
@@ -370,33 +366,35 @@ void TWorld::HydrologyProcesses()
         }
 
         // deposit all sediment still in flow when infiltration causes WH to become minimum
-        if(SwitchKinematic2D == K2D_METHOD_DYN) {
-            if(WH->Drc < 1e-6) {
-                DepFlood->Drc -= SSFlood->Drc;
-                SSFlood->Drc = 0;
-                SSCFlood->Drc = 0;
-                SSTCFlood->Drc = 0;
-                if (SwitchUse2Phase) {
-                    DepFlood->Drc -= BLFlood->Drc;
-                    BLFlood->Drc = 0;
-                    BLCFlood->Drc = 0;
-                    BLTCFlood->Drc = 0;
-                }
-                Conc->Drc = 0; // after dynwave conc is sum of SS and BL!
-            }
-        } else {
-            if (FloodDomain->Drc > 0) {
-                if(hmx->Drc < 1e-6) {
+        if(SwitchErosion) {
+            if(SwitchKinematic2D == K2D_METHOD_DYN) {
+                if(WH->Drc < 1e-6) {
                     DepFlood->Drc -= SSFlood->Drc;
                     SSFlood->Drc = 0;
                     SSCFlood->Drc = 0;
+                    SSTCFlood->Drc = 0;
+                    if (SwitchUse2Phase) {
+                        DepFlood->Drc -= BLFlood->Drc;
+                        BLFlood->Drc = 0;
+                        BLCFlood->Drc = 0;
+                        BLTCFlood->Drc = 0;
+                    }
+                    Conc->Drc = 0; // after dynwave conc is sum of SS and BL!
                 }
-
             } else {
-                if(WH->Drc < 1e-6) {
-                    DEP->Drc -= Sed->Drc;
-                    Sed->Drc = 0;
-                    Conc->Drc = 0;
+                if (FloodDomain->Drc > 0) {
+                    if(hmx->Drc < 1e-6) {
+                        DepFlood->Drc -= SSFlood->Drc;
+                        SSFlood->Drc = 0;
+                        SSCFlood->Drc = 0;
+                    }
+
+                } else {
+                    if(WH->Drc < 1e-6) {
+                        DEP->Drc -= Sed->Drc;
+                        Sed->Drc = 0;
+                        Conc->Drc = 0;
+                    }
                 }
             }
         }

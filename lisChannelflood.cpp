@@ -204,6 +204,9 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
     }}
 }
 //---------------------------------------------------------------------------
+
+// NOT USED!
+
 //! Get flood level in channel from 1D kin wave channel
 //! Instantaneous mixing of flood water and channel water in channel cells
 //! note: ChannelDepth lets you also control which channels flood:
@@ -533,7 +536,7 @@ void TWorld::ChannelFlood(void)
             FloodDomain->Drc = 0;
     }
 
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         Qflood->Drc = 0;
         if (FloodDomain->Drc > 0) {
@@ -545,7 +548,7 @@ void TWorld::ChannelFlood(void)
     Boundary2Ddyn();
     // boundary flow
 
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         hmxWH->Drc = WH->Drc + hmx->Drc;
 
@@ -571,38 +574,15 @@ void TWorld::ChannelFlood(void)
     {
         //calculate concentration and new sediment discharge
         //WHrunoff and Qn are adapted in case of 2D routing
-    //    if(!SwitchUseGrainSizeDistribution)
-      //  {
-#pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                if (FloodDomain->Drc  > 0) {
-                    double sed = SSFlood->Drc + BLFlood->Drc;
-                    Conc->Drc =  MaxConcentration(FloodWaterVol->Drc, &sed, &DepFlood->Drc);
-                    Qsn->Drc += Conc->Drc*Qflood->Drc;
-                }
-            }}
-        //}
-     //   else
-//        {
-            //calculate total sediment from induvidual grain classes,
-            //and calculate concentration and new sediment discharge
-            //            FOR_ROW_COL_MV
-            //            {
-            //                Sed->Drc = 0;
-            //                Conc->Drc = 0;
-            //            }
-            //            FOR_ROW_COL_MV
-            //            {
-            //                FOR_GRAIN_CLASSES
-            //                {
-            //                    Sed->Drc += Sed_D.Drcd;
-            //                    Conc_D.Drcd = MaxConcentration(FloodWaterVol->Drc, Sed_D.Drcd);
-            //                    Conc->Drc += Conc_D.Drcd;
-            //                }
-            //                Qsn->Drc = Conc->Drc*Qn->Drc;
-            //            }
-  //      }
-    }
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            if (FloodDomain->Drc  > 0) {
+                double sed = SSFlood->Drc + BLFlood->Drc;
+                Conc->Drc =  MaxConcentration(FloodWaterVol->Drc, &sed, &DepFlood->Drc);
+                Qsn->Drc += Conc->Drc*Qflood->Drc;
+            }
+        }}
+     }
 
     double area = nrFloodedCells*_dx*_dx;
     if (area > 0)

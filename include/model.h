@@ -444,16 +444,16 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, MBeM3, Qtot,QtotT,QTiletot, IntercTot, IntercETaTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
+    double MB, MBeM3, Qtot, Qtot_dt, QTiletot, IntercTot, IntercETaTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
     double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowTotmm, Qfloodout,QfloodoutTot;
     double floodBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
     double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
     /// Sediment totals for mass balance and output (in kg)
-    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot,SoilLossOutlet, SedTot,
+    double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTot_dt, SedTot,
            FloodDetTot, FloodDepTot, FloodSedTot;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
-    double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm,WaterVolRunoffmm, FloodBoundarymm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, WaterVolRunoffmm_F;
+    double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm, WaterVolRunoffmm, FloodBoundarymm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, WaterVolRunoffmm_F;
     double StormDrainTotmm, floodVolTotmm, floodTotmmInit;
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
@@ -525,7 +525,7 @@ public:
     QString rainfallMapFileName;
     QString interceptionMapFileName;
     QString infiltrationMapFileName;
-    QString runoffMapFileName;
+   // QString runoffMapFileName;
    // QString runoffFractionMapFileName;
     QString channelDischargeMapFileName;
 
@@ -925,8 +925,8 @@ public:
     QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
 
     // kinematic 2D
-    double K2DQOutBoun;
-    double K2DQSOutBoun;
+    double BoundaryQ;
+    double BoundaryQs;
     double TimestepfloodMin, TimestepfloodLast;
     //SWATRE
     /// filenames for Swatre soil information

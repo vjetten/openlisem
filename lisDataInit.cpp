@@ -741,8 +741,8 @@ void TWorld::InitSoilInput(void)
 void TWorld::InitBoundary(void)
 {
 
-    K2DQOutBoun = 0;
-    K2DQSOutBoun = 0;
+    BoundaryQ = 0;
+    BoundaryQs = 0;
 
     // make a 1 cell edge around the domain, used to determine flood at the edge
     DomainEdge = NewMap(0);
@@ -1052,21 +1052,20 @@ void TWorld::InitChannel(void)
 
             FOR_ROW_COL_MV_CH
             {
-                if (SwitchEfficiencyDET == 1)
-                    ChannelY->Drc = std::min(1.0, 1.0/(0.89+0.56*fabs(ChannelCohesion->Drc)));
-                else
-                    if (SwitchEfficiencyDET == 2)
-                        ChannelY->Drc = std::min(1.0, 0.79*exp(-0.85*fabs(ChannelCohesion->Drc)));
+                if (ChannelCohesion->Drc == 0)
+                    ChannelY->Drc = 1.0;
+                else {
+                    if (SwitchEfficiencyDET == 1)
+                        ChannelY->Drc = std::min(1.0, 1.0/(0.89+0.56*fabs(ChannelCohesion->Drc)));
                     else
-                        if (SwitchEfficiencyDET == 3)
-                            ChannelY->Drc = std::min(1.0, 1.0/(2.0*fabs(ChannelCohesion->Drc)));
-
+                        if (SwitchEfficiencyDET == 2)
+                            ChannelY->Drc = std::min(1.0, 0.79*exp(-0.85*fabs(ChannelCohesion->Drc)));
+                        else
+                            if (SwitchEfficiencyDET == 3)
+                                ChannelY->Drc = std::min(1.0, 1.0/(2.0*fabs(ChannelCohesion->Drc)));
+                }
                 if (ChannelCohesion->Drc < 0)
                     ChannelY->Drc = 0;
-                //VJ 170308 NEW: if cohesion is negative no erosion, but sedimentation
-                ChannelY->Drc = std::min(1.0, 0.79*exp(-0.85*fabs(ChannelCohesion->Drc)));
-
-                //VJ 170308 bug: channel instead of soil , introduced when three  functions
             }
         }
     }
@@ -1388,7 +1387,7 @@ void TWorld::InitErosion(void)
     DepTot = 0;
     DetTot = 0;
     SoilLossTot = 0;
-    SoilLossOutlet= 0;
+    SoilLossTot_dt = 0;
     SedTot = 0;
 
     TotalDetMap = NewMap(0);
@@ -1422,15 +1421,18 @@ void TWorld::InitErosion(void)
         if (SwitchGrassStrip)
             CohesionSoil->Drc = CohesionSoil->Drc  *(1-GrassFraction->Drc) + GrassFraction->Drc * CohGrass->Drc;
 
-        if (SwitchEfficiencyDET == 1)
-            Y->Drc = std::min(1.0, 1.0/(0.89+0.56*fabs(CohesionSoil->Drc)));
-        else
-            if (SwitchEfficiencyDET == 2)
-                Y->Drc = std::min(1.0, 0.79*exp(-0.85*fabs(CohesionSoil->Drc)));
+        if (CohesionSoil->Drc == 0)
+            Y->Drc = 1.0;
+        else {
+            if (SwitchEfficiencyDET == 1)
+                Y->Drc = std::min(1.0, 1.0/(0.89+0.56*fabs(CohesionSoil->Drc)));
             else
-                if (SwitchEfficiencyDET == 3)
-                    Y->Drc = std::min(1.0, 1.0/(2.0*fabs(CohesionSoil->Drc)));
-
+                if (SwitchEfficiencyDET == 2)
+                    Y->Drc = std::min(1.0, 0.79*exp(-0.85*fabs(CohesionSoil->Drc)));
+                else
+                    if (SwitchEfficiencyDET == 3)
+                        Y->Drc = std::min(1.0, 1.0/(2.0*fabs(CohesionSoil->Drc)));
+        }
         if (CohesionSoil->Drc < 0)
             Y->Drc = 0; // to force max strength
 
@@ -1438,7 +1440,8 @@ void TWorld::InitErosion(void)
         // empirical analysis based on Limburg data, dating 1989
 //        if (AggrStab->Drc > 0)
 //        {
-              AggrStab->Drc = 1/(ASCalibration+0.01)*AggrStab->Drc;
+              if(ASCalibration > 0)
+                 AggrStab->Drc = (1/ASCalibration)*AggrStab->Drc;
 //            AggrStab->Drc = 2.82/std::max(ASCalibration*AggrStab->Drc, 1.0);
 //            splashb->Drc = 2.96;
 //        }
@@ -1907,7 +1910,7 @@ void TWorld::IntializeData(void)
     FFull = NewMap(0);
     Perc = NewMap(0);
     PercmmCum = NewMap(0);
-    runoffTotalCell = NewMap(0);
+    //runoffTotalCell = NewMap(0);
     Fcum = NewMap(0);
   //  L1 = NewMap(0);
   //  L2 = NewMap(0);
@@ -1928,7 +1931,7 @@ void TWorld::IntializeData(void)
 
     //### runoff maps
     Qtot = 0;
-    QtotT = 0;
+    Qtot_dt = 0;
     QTiletot = 0;
     QfloodoutTot = 0;
     Qfloodout = 0;
@@ -1953,7 +1956,7 @@ void TWorld::IntializeData(void)
 
     flowmask = NewMap(0);
     K2DOutlets = NewMap(0);
-    K2DQ = NewMap(0);
+    //K2DQ = NewMap(0);
 
     if(SwitchPesticide)
     {
@@ -2247,7 +2250,7 @@ void TWorld::IntializeOptions(void)
     rainfallMapFileName = QString("rainfall.map");
     interceptionMapFileName = QString("interception.map");
     infiltrationMapFileName = QString("infiltration.map");
-    runoffMapFileName = QString("runoff.map");
+    //runoffMapFileName = QString("runoff.map");
     channelDischargeMapFileName = QString("chandism3.map");
     floodMaxQFileName = QString("chanmaxq.map");
     floodMaxChanWHFileName = QString("chanmaxwh.map");
@@ -2505,7 +2508,7 @@ void TWorld::FindBaseFlow()
                             int r = list->rowNr;
                             int c = list->colNr;
                             tmb->Drc = 0;
-                            BaseFlowInflow->Drc = inflow;
+                            BaseFlowInflow->Drc = inflow; // will be added in baseflow every timestep
 
                             tmc->Drc += 1;
 
@@ -2540,12 +2543,10 @@ void TWorld::FindBaseFlow()
                             double q = (tmc->Drc * inflow - tmd->Drc);
 
                             double h, h1;
-                            double w = ChannelWidth->Drc;
                             h = 1;
                             // first guess new h with old alpha
                             h1 = h;
                             double A = 0;
-                            double dww = 0;
 
                             // newton raphson iteration
                             if (q > 0)
@@ -2559,31 +2560,11 @@ void TWorld::FindBaseFlow()
                                         break;
 
                                     double P,R;
-                                    double wh = h;
                                     double FW = ChannelWidth->Drc;
-                                    double dw = (ChannelWidth->Drc - FW); // extra width when non-rectamgular
-                                    //double dww = dw;
-
-                                    if (dw > 0)
-                                    {
-                                        //Perim = FW + 2*sqrt(wh*wh + dw*dw);
-                                        P = FW + 2.0*wh/cos(atan(ChannelSide->Drc));
-                                        // channelside is tan(angle), dw/wh = tan angle; wh/diagonal = cos angle, dw/diagonal = sin angle
-                                        //      dw
-                                        //     |  /
-                                        //   wh| /diagonal
-                                        //  ___|/
-                                        A = FW*wh + wh*dw;
-                                    }
-                                    else
-                                    {
-                                        P = FW + 2.0*wh;
-                                        A = FW*wh;
-                                    }
-
-                                    R = A/P;
-                                    F = std::max(0.0, 1.0 - q/(sqrt(ChannelGrad->Drc)/ChannelN->Drc*A*pow(R,2.0/3.0)));
-                                    dF = (5.0*w+6.0*h)/(3.0*h*P);
+                                    P = FW + 2.0*h;
+                                    A = FW*h;
+                                    F = std::max(0.0, 1.0 - q/(sqrt(ChannelGrad->Drc)/ChannelN->Drc*A*pow(A/P,2.0/3.0)));
+                                    dF = (5.0*FW+6.0*h)/(3.0*h*P);
                                     h1 = h - F/dF;
                                     // function divided by derivative
                                     count++;
@@ -2592,7 +2573,7 @@ void TWorld::FindBaseFlow()
 
                             if (h > ChannelDepth->data[list->rowNr][list->colNr]) {
                                 h = ChannelDepth->data[list->rowNr][list->colNr];
-                                A = ChannelWidth->Drc*h + h*dww;
+                                A = ChannelWidth->Drc*h;
                             }
                             BaseFlowInitialVolume->data[list->rowNr][list->colNr] = A*DX->Drc;
 
@@ -2614,9 +2595,11 @@ void TWorld::FindBaseFlow()
         tmd->Drc = 0;
     }
 
-    report(*BaseFlowInitialVolume,"baseflowinitm3s.map");
-    report(*BaseFlowInflow,"baseinflow.map");
+
 }
+
+
+
 //---------------------------------------------------------------------------
 void TWorld::FindChannelAngles()
 {

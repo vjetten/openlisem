@@ -811,7 +811,7 @@
                       </font>
                      </property>
                      <property name="title">
-                      <string>Hydraulics maps</string>
+                      <string>Flow maps</string>
                      </property>
                      <layout class="QGridLayout" name="gridLayout_74">
                       <property name="leftMargin">
@@ -2997,8 +2997,8 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>0</y>
-                <width>959</width>
+                <y>-29</y>
+                <width>812</width>
                 <height>752</height>
                </rect>
               </property>
@@ -3036,7 +3036,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>8</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -10205,123 +10205,63 @@ p, li { white-space: pre-wrap; }
                    <string>Page</string>
                   </attribute>
                   <layout class="QGridLayout" name="gridLayout_65">
-                   <item row="6" column="0" colspan="2">
-                    <widget class="QGroupBox" name="groupBox_3">
+                   <item row="3" column="0" colspan="2">
+                    <widget class="QCheckBox" name="checkVariableTimestep">
                      <property name="enabled">
                       <bool>false</bool>
                      </property>
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
+                     <property name="palette">
+                      <palette>
+                       <active>
+                        <colorrole role="WindowText">
+                         <brush brushstyle="SolidPattern">
+                          <color alpha="255">
+                           <red>0</red>
+                           <green>0</green>
+                           <blue>0</blue>
+                          </color>
+                         </brush>
+                        </colorrole>
+                       </active>
+                       <inactive>
+                        <colorrole role="WindowText">
+                         <brush brushstyle="SolidPattern">
+                          <color alpha="255">
+                           <red>0</red>
+                           <green>0</green>
+                           <blue>0</blue>
+                          </color>
+                         </brush>
+                        </colorrole>
+                       </inactive>
+                       <disabled>
+                        <colorrole role="WindowText">
+                         <brush brushstyle="SolidPattern">
+                          <color alpha="255">
+                           <red>122</red>
+                           <green>122</green>
+                           <blue>122</blue>
+                          </color>
+                         </brush>
+                        </colorrole>
+                       </disabled>
+                      </palette>
                      </property>
                      <property name="font">
                       <font>
                        <pointsize>8</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
+                       <weight>50</weight>
+                       <bold>false</bold>
                        <underline>false</underline>
                        <kerning>true</kerning>
                       </font>
                      </property>
-                     <property name="title">
-                      <string>Channel flow</string>
+                     <property name="text">
+                      <string>Spatially variable timestep</string>
                      </property>
-                     <layout class="QGridLayout" name="gridLayout_62">
-                      <item row="4" column="0">
-                       <widget class="QRadioButton" name="rb_Channel_KinWave">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>1D Kinematic Wave over LDD network</string>
-                        </property>
-                        <property name="checked">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="0">
-                       <widget class="QCheckBox" name="checkKinWaveChannelAvg">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Average fluxes for lisem dt</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="5" column="0">
-                       <widget class="QRadioButton" name="rb_Channel_DynWave">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>2D Dynamic Wave over LDD network</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QCheckBox" name="checkChannelAdjustCHW">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Adjust cross section if width &gt; cell size</string>
-                        </property>
-                        <property name="checked">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="0">
-                       <widget class="QLineEdit" name="E_DischargeInName">
-                        <property name="enabled">
-                         <bool>false</bool>
-                        </property>
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
+                     <property name="checked">
+                      <bool>false</bool>
+                     </property>
                     </widget>
                    </item>
                    <item row="4" column="0" colspan="3">
@@ -11399,6 +11339,19 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
+                   <item row="7" column="2">
+                    <spacer name="horizontalSpacer_21">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
                    <item row="1" column="2">
                     <widget class="QDoubleSpinBox" name="E_angleToChannel">
                      <property name="sizePolicy">
@@ -11421,92 +11374,123 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="6" column="2">
-                    <spacer name="horizontalSpacer_21">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item row="3" column="0" colspan="2">
-                    <widget class="QCheckBox" name="checkVariableTimestep">
+                   <item row="7" column="0" colspan="2">
+                    <widget class="QGroupBox" name="groupBox_3">
                      <property name="enabled">
                       <bool>false</bool>
                      </property>
-                     <property name="palette">
-                      <palette>
-                       <active>
-                        <colorrole role="WindowText">
-                         <brush brushstyle="SolidPattern">
-                          <color alpha="255">
-                           <red>0</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </brush>
-                        </colorrole>
-                       </active>
-                       <inactive>
-                        <colorrole role="WindowText">
-                         <brush brushstyle="SolidPattern">
-                          <color alpha="255">
-                           <red>0</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </brush>
-                        </colorrole>
-                       </inactive>
-                       <disabled>
-                        <colorrole role="WindowText">
-                         <brush brushstyle="SolidPattern">
-                          <color alpha="255">
-                           <red>122</red>
-                           <green>122</green>
-                           <blue>122</blue>
-                          </color>
-                         </brush>
-                        </colorrole>
-                       </disabled>
-                      </palette>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
                      </property>
                      <property name="font">
                       <font>
                        <pointsize>8</pointsize>
-                       <weight>50</weight>
-                       <bold>false</bold>
+                       <weight>75</weight>
+                       <bold>true</bold>
                        <underline>false</underline>
                        <kerning>true</kerning>
                       </font>
                      </property>
-                     <property name="text">
-                      <string>Spatially variable timestep</string>
+                     <property name="title">
+                      <string>Channel flow</string>
                      </property>
-                     <property name="checked">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="9" column="1">
-                    <widget class="QCheckBox" name="checkNoSedBoundary">
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <weight>50</weight>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>No detachment/deposition at domain boundary</string>
-                     </property>
+                     <layout class="QGridLayout" name="gridLayout_62">
+                      <item row="4" column="0">
+                       <widget class="QRadioButton" name="rb_Channel_KinWave">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>1D Kinematic Wave over LDD network</string>
+                        </property>
+                        <property name="checked">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="0">
+                       <widget class="QCheckBox" name="checkKinWaveChannelAvg">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Average fluxes for lisem dt</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="5" column="0">
+                       <widget class="QRadioButton" name="rb_Channel_DynWave">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>2D Dynamic Wave over LDD network</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QCheckBox" name="checkChannelAdjustCHW">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Adjust cross section if width &gt; cell size</string>
+                        </property>
+                        <property name="checked">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="0">
+                       <widget class="QLineEdit" name="E_DischargeInName">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </widget>
                    </item>
                    <item row="2" column="0" colspan="2">
@@ -11571,7 +11555,7 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="5" column="0">
+                   <item row="6" column="0">
                     <layout class="QGridLayout" name="gridLayout_51">
                      <item row="4" column="0" colspan="2">
                       <widget class="QLabel" name="label_130">
@@ -11717,6 +11701,22 @@ p, li { white-space: pre-wrap; }
                       </widget>
                      </item>
                     </layout>
+                   </item>
+                   <item row="5" column="0">
+                    <widget class="QCheckBox" name="checkNoSedBoundary">
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>No detachment/deposition at domain boundary</string>
+                     </property>
+                    </widget>
                    </item>
                   </layout>
                  </widget>
@@ -14159,6 +14159,43 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="text">
                  <string>Q/P (%)</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QLabel" name="label_Qssub">
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="text">
+                 <string>0</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_105">
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Sed. Flux (kg/s)</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

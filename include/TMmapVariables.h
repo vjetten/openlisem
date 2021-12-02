@@ -129,7 +129,7 @@ cTMap
 *RepellencyFraction,         //!< fraction of water repellency of node 1 in Swatre [-]
 *RepellencyCell,             //!< Cell included in water repellency in Swatre [-]
 *HardSurface,                //!< value 1 if 'hard' surface: no interception, infiltration, detachment [-]
-*runoffTotalCell,
+//*runoffTotalCell,
 
 *PlantHeight,                //!< height of vegetation/crops [m]
 *Cover,                      //!< vegetation canopy cover fraction [-]
@@ -215,7 +215,7 @@ cTMap
 *K2DPCN,                          //!<
 
 *K2DOutlets,                    //!<
-*K2DQ,                          //!<
+//*K2DQ,                          //!<
 
 // infiltration
 *Fcum,                       //!< cumulative infiltration [m]

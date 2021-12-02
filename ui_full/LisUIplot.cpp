@@ -545,6 +545,7 @@ void lisemqt::showOutputData()
         label_MB->setText(" "+label_MB->text());
 
     int j = OutletIndices.indexOf(this->outletpoint);
+
     double vv = op.OutletQpeak.at(j);
     if (vv < 10000) {
         label_82->setText("Qpeak (l/s)");
@@ -561,7 +562,8 @@ void lisemqt::showOutputData()
     else
         label_qtotm3sub->setText(format.arg(QString::number(op.OutletQtot.at(j),'e',3)));
 
-    vv = op.OutletQ.at(j)->at(op.OutletQ.at(j)->length()-1);
+    int len = op.OutletQ.at(j)->length()-1;
+    vv = op.OutletQ.at(j)->at(len);
     if (vv < 10000) {
         label_54->setText("Q (l/s)");
         label_dischargesub->setText(format.arg(QString::number(vv,'f',2)));
@@ -573,6 +575,8 @@ void lisemqt::showOutputData()
 
     label_soillosssub->setEnabled(checkDoErosion->isChecked());
     label_94->setEnabled(checkDoErosion->isChecked());
+    label_Qssub->setEnabled(checkDoErosion->isChecked());
+    label_105->setEnabled(checkDoErosion->isChecked());
 
     if(checkDoErosion->isChecked())
     {
@@ -582,6 +586,7 @@ void lisemqt::showOutputData()
             label_MBs->setText(" "+label_MBs->text());
 
         label_soillosssub->setText(format.arg(QString::number(op.OutletQstot.at(j),'f',dig)));
+        label_Qssub->setText(format.arg(QString::number(op.OutletQs.at(j)->at(len),'f',dig)));
         label_splashdet->setText(format.arg(QString::number(op.DetTotSplash,'f',dig)));
         label_flowdet->setText(format.arg(QString::number(op.DetTotFlow+op.FloodDetTot,'f',dig)));
         label_sedvol->setText(format.arg(QString::number(op.SedTot+op.FloodSedTot,'f',dig)));

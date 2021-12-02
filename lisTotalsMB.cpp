@@ -205,10 +205,10 @@ void TWorld::Totals(void)
 
     // runoff fraction per cell calc as in-out/rainfall, indication of sinks and sources of runoff
     // exclude channel cells
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        runoffTotalCell->Drc += (Qn->Drc +Qflood->Drc)* _dt * catchmentAreaFlatMM; // in mm !!!!
-    }}
+//    #pragma omp parallel for num_threads(userCores)
+//    FOR_ROW_COL_MV_L {
+//        runoffTotalCell->Drc += (Qn->Drc /*+ Qflood->Drc*/)* _dt * catchmentAreaFlatMM; // in mm !!!!
+//    }}
 
     //=== storm drain flow ===//
     StormDrainVolTot = MapTotal(*TileWaterVol);
@@ -222,7 +222,7 @@ void TWorld::Totals(void)
         if (SwitchChannelBaseflow) {
             BaseFlowTot = MapTotal(*Qbase); // total inflow in m3
             if (SwitchChannelBaseflowStationary)
-                BaseFlowTot += MapTotal(*BaseFlowInflow) * _dt;
+                BaseFlowTot += MapTotal(*BaseFlowInflow);
             GWlevel = MapTotal(*GWWH)/(double)nrValidCells;
             BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
         }
@@ -233,20 +233,20 @@ void TWorld::Totals(void)
     }
 
     //=== all discharges ===//
-    QtotT = 0;
+    Qtot_dt = 0;
     // sum all outflow in m3 for this timestep, Qtot is for all timesteps!
 
     // Add overland flow, do this even for 2D dyn wave
     if(SwitchKinematic2D != K2D_METHOD_DYN) {
         FOR_ROW_COL_LDD5 {
-            QtotT += Qn->Drc*_dt;
+            Qtot_dt += Qn->Drc*_dt;
         }}
 
     }
 
-    Qfloodout = 0;
     if(SwitchKinematic2D == K2D_METHOD_KINDYN)
     {
+        Qfloodout = 0;
         FOR_ROW_COL_LDD5 {
             Qfloodout += Qflood->Drc * _dt;
         }}
@@ -258,7 +258,7 @@ void TWorld::Totals(void)
     if (SwitchIncludeChannel)
     {
             FOR_ROW_COL_LDDCH5 {
-                QtotT += ChannelQn->Drc*_dt; //m3
+                Qtot_dt += ChannelQn->Drc*_dt; //m3
             }}
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_CHL {
@@ -273,7 +273,7 @@ void TWorld::Totals(void)
         FOR_ROW_COL_MV_TILE
                 if (LDDTile->Drc == 5)
         {
-            QtotT += TileQn->Drc * _dt;
+            Qtot_dt += TileQn->Drc * _dt;
             QTiletot += TileQn->Drc * _dt;
         }
     } else {
@@ -290,7 +290,7 @@ void TWorld::Totals(void)
             FOR_ROW_COL_MV_TILE
                     if (LDDTile->Drc == 5)
             {
-                QtotT += TileQn->Drc * _dt;
+                Qtot_dt += TileQn->Drc * _dt;
                 QTiletot += TileQn->Drc * _dt;
             }
 
@@ -298,10 +298,10 @@ void TWorld::Totals(void)
         }
     }
 
-    floodBoundaryTot += K2DQOutBoun*_dt;
+    floodBoundaryTot += BoundaryQ*_dt;
     FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
     // 2D boundary losses, ALWAYS INCLUDES LDD=5 and channelLDD=5
-    QtotT += K2DQOutBoun*_dt;
+    Qtot_dt += BoundaryQ*_dt;
 
     // output fluxes for reporting to file and screen in l/s!]
     #pragma omp parallel for num_threads(userCores)
@@ -311,15 +311,14 @@ void TWorld::Totals(void)
         if (QUnits == 1)
             factor = 1.0;
         Qoutput->Drc = factor*(Qn->Drc + (SwitchIncludeChannel ? ChannelQn->Drc : 0.0) + Qflood->Drc);// in l/s
-       // Qoutput->Drc += factor*ChannelQb->Drc;
         Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;
     }}
 
     // Total outflow in m3 for all timesteps
     // does NOT include flood water leaving domain (floodBoundaryTot)
 
-    Qtot += QtotT;
-    // add timestep total to run total
+    Qtot += Qtot_dt;
+    // add timestep total to run total in m3
     Qtotmm = Qtot*catchmentAreaFlatMM;
     // recalc to mm for screen output
 
@@ -329,7 +328,7 @@ void TWorld::Totals(void)
     // DetSplashTot, DetFlowTot and DepTot are for output in file and screen
     // DetTot and DepTot are for MB
 
-    SoilLossOutlet = 0;
+    SoilLossTot_dt = 0;
 
     if (SwitchErosion)
     {
@@ -361,7 +360,7 @@ void TWorld::Totals(void)
         {
            // #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
             FOR_ROW_COL_LDD5 {
-                SoilLossOutlet += Qsn->Drc * _dt;
+                SoilLossTot_dt += Qsn->Drc * _dt;
             }}
 
         }
@@ -370,7 +369,7 @@ void TWorld::Totals(void)
         {
           //  #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
             FOR_ROW_COL_LDDCH5 {
-                SoilLossOutlet += ChannelQsn->Drc * _dt;
+                SoilLossTot_dt += ChannelQsn->Drc * _dt;
             }}
 
             ChannelDetTot += MapTotal(*ChannelDetFlow);
@@ -378,12 +377,10 @@ void TWorld::Totals(void)
             ChannelSedTot = (SwitchUse2Phase ? MapTotal(*ChannelBLSed) : 0.0) + MapTotal(*ChannelSSSed);
         }
 
-        floodBoundarySedTot += K2DQSOutBoun;
-        SoilLossOutlet += K2DQSOutBoun;
-
-        //FloodBoundarySedmm = floodBoundarySedTot*catchmentAreaFlatMM;
-        // flood boundary losses are done separately in MB
-
+        floodBoundarySedTot += BoundaryQs*_dt; // not used
+        SoilLossTot_dt += BoundaryQs*_dt;
+        // boundary sediment losses (kg) in cells that are not outlet, if open boundary else 0
+        // calc as cells with velocity U and V directed outwards
 
         // used for mass balance and screen output
         FloodDetTot += (SwitchUse2Phase ? MapTotal(*BLDetFlood) : 0.0) + MapTotal(*SSDetFlood);
@@ -399,10 +396,11 @@ void TWorld::Totals(void)
         }}
         // SPATIAL totals for output overland flow all in kg/cell
         // variables are valid for both 1D and 2D flow dyn and diff
-        FOR_ROW_COL_MV_L
-        {
-            Qsoutput->Drc = Qsn->Drc + (SwitchIncludeChannel ? ChannelQsn->Drc : 0.0) + K2DQ->Drc;  // in kg/s
+
+        FOR_ROW_COL_MV_L {
+            Qsoutput->Drc = Qsn->Drc + (SwitchIncludeChannel ? ChannelQsn->Drc : 0.0);
             // for reporting sed discharge screen
+            // in kg/s, sum of overland flow and channel flow
         }}
 
         // for reporting
@@ -443,8 +441,10 @@ void TWorld::Totals(void)
 
         }}
 
-        SoilLossTot += SoilLossOutlet;
+        SoilLossTot += SoilLossTot_dt;
         // total sediment outflow from outlets and domain boundaries
+        // this is the value reported in the screen for total soil loss (/1000 for ton)
+        // so this is the total loos through the outlets and boundaries
 
     }
 

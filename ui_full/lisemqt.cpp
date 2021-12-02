@@ -658,6 +658,7 @@ void lisemqt::setErosionTab()
         label_soillosskgha->setText(QString::number(0,'f',dig));
         label_SDR->setText(QString::number(0,'f',dig));
         label_soillosssub->setText(QString::number(0,'f',dig));
+        label_Qssub->setText(QString::number(0,'f',dig));
     }
     sedgroup->setEnabled(checkDoErosion->isChecked());
 
@@ -975,6 +976,7 @@ void lisemqt::SetStyleUI()
     label_dischargesub->setMinimumSize(w,h);
     label_qpeaksub->setMinimumSize(w,h);
     label_soillosssub->setMinimumSize(w,h);
+    label_Qssub->setMinimumSize(w,h);
 
     label_splashdet->setMinimumSize(w,h);
     label_flowdet->setMinimumSize(w,h);
@@ -1018,6 +1020,7 @@ void lisemqt::SetStyleUI()
         label_dischargesub->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
         label_qpeaksub->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
         label_soillosssub->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
+        label_Qssub->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
 
         label_splashdet->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
         label_flowdet->setStyleSheet(QString("* { background-color: %1 }").arg(ly));

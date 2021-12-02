@@ -147,46 +147,55 @@ void TWorld::OutputUI(void)
         op.SoilLossTot = (SoilLossTot)*0.001; // convert from kg to ton
         op.floodBoundarySedTot = floodBoundarySedTot; // not used
 
-        op.OutletQs.at(0)->append(SoilLossOutlet);
-        op.OutletC.at(0)->append(QtotT > MIN_FLUX? SoilLossOutlet/QtotT : 0);
-        op.OutletQstot.replace(0,SoilLossTot/1000.0);
+        op.OutletQs.at(0)->append(SoilLossTot_dt); //timestep output in kg! SoilLossOutlet = sum of Qs*dt and channelQs*dt and boundaryQs
+        op.OutletC.at(0)->append(Qtot_dt > MIN_FLUX? SoilLossTot_dt/Qtot_dt : 0);
+        op.OutletQstot.replace(0,SoilLossTot*0.001);
     }
+
+
     //hydrographs
 
     // outlet 0 all flow
     double factor = QUnits == 1 ? 1.0 : 1000.0;
-    op.OutletQ.at(0)->append(QtotT * factor/_dt); //QtotT is in m3
+    op.OutletQ.at(0)->append(Qtot_dt * factor/_dt); //QtotT is in m3
     op.OutletQtot.replace(0,Qtot);
     op.OutletChannelWH.at(0)->append(0);
-    op.OutletQb.at(0)->append(0); //QtotT is in m3
 
     for(int j = 1; j < op.OutletIndices.length(); j++)
     {
         int r = op.OutletLocationX.at(j);
         int c = op.OutletLocationY.at(j);
-        double discharge = Qoutput->Drc;// sum of current Qn, ChannelQn, Qflood in l/s or m3/s, not Tile!
-        double dischargeQb = 0;// sum of current Qn, ChannelQn, Qflood in l/s or m3/s, not Tile!
-     //   if (SwitchChannelBaseflow)
-       //     dischargeQb = Qbase->Drc * 1000;//ChannelWaterVol->Drc > 0 ? ((Qbin->Drc/ChannelWaterVol->Drc) * ChannelQn->Drc + sqrt(ChannelQn->Drc) * (1-exp(-GW_lag)) * 1000.0) : 0; //  in m3 or l
-            //dischargeQb = ChannelQn->Drc > 0 ? (Qbase->Drc/ChannelQn->Drc) * ChannelWaterVol->Drc * (QUnits == 0 ? 1000.0 : 1.0) : 0; //  in m3 or l
+
         double channelwh = SwitchIncludeChannel? ChannelWH->Drc : 0.0;
-        op.OutletChannelWH.at(j)->append(std::isnan(channelwh)?0.0:channelwh);
+        op.OutletChannelWH.at(j)->append(std::isnan(channelwh)?0.0:channelwh); //? why nan
 
-        op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * discharge/(QUnits == 0 ? 1000.0 : 1.0)); //cumulative in m3/s
-        op.OutletQ.at(j)->append(discharge);
-        if (SwitchChannelBaseflow)
-            op.OutletQb.at(j)->append(dischargeQb);
-         else
-            op.OutletQb.at(j)->append(0);
+//        op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * Qoutput->Drc/(QUnits == 0 ? 1000.0 : 1.0)); //cumulative in m3/s
+//        op.OutletQ.at(j)->append(Qoutput->Drc);
 
-        if (SwitchErosion) {
-            double sedimentdischarge = SwitchErosion? Qsoutput->Drc  : 0.0; // in kg/s   * _dt
-            double sedimentconcentration = SwitchErosion? TotalConc->Drc : 0.0;
-            op.OutletQstot.replace(j,op.OutletQstot.at(j) + sedimentdischarge/1000.0);
-            op.OutletQs.at(j)->append(sedimentdischarge);
-            op.OutletC.at(j)->append(sedimentconcentration);
+//        if (SwitchErosion) {
+//            op.OutletQstot.replace(j,op.OutletQstot.at(j) + Qsoutput->Drc*_dt/1000.0); // sum in kg of OF + channel
+//            op.OutletQs.at(j)->append(Qsoutput->Drc);  // in kg/s
+//            op.OutletC.at(j)->append(TotalConc->Drc);  // questionable, abverage conc OF and channel
+//        }
+        if (SwitchIncludeChannel) {
+            op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * ChannelQn->Drc/(QUnits == 0 ? 1000.0 : 1.0)); //cumulative in m3/s
+            op.OutletQ.at(j)->append(ChannelQn->Drc);
+        } else {
+            op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * Qn->Drc/(QUnits == 0 ? 1000.0 : 1.0)); //cumulative in m3/s
+            op.OutletQ.at(j)->append(Qn->Drc);
         }
 
+        if (SwitchErosion) {
+            if (SwitchIncludeChannel) {
+                op.OutletQstot.replace(j,op.OutletQstot.at(j) + ChannelQsn->Drc*_dt/1000.0); // sum in kg of OF + channel
+                op.OutletQs.at(j)->append(ChannelQsn->Drc);  // in kg/s
+                op.OutletC.at(j)->append(ChannelConc->Drc);  // in kg/m3 or g/l
+            } else {
+                op.OutletQstot.replace(j,op.OutletQstot.at(j) + Qsn->Drc*_dt/1000.0); // sum in kg of OF + channel
+                op.OutletQs.at(j)->append(Qsn->Drc);  // in kg/s
+                op.OutletC.at(j)->append(Conc->Drc);  // in kg/m3 or g/l
+            }
+        }
     }
 
     for(int j = 0; j < op.OutletIndices.length(); j++)
@@ -196,42 +205,13 @@ void TWorld::OutputUI(void)
         {
             op.OutletQpeak.replace(j,op.OutletQ.at(j)->at(op.OutletQ.at(j)->length()-1));
             op.OutletQpeaktime.replace(j,time/60);
-
         }
     }
 
     //output maps
-/*
-    if(SwitchIncludeChannel)
-    {
-        if (SwitchChannelExtended)
-        {
-            fill(*extQCH,0.0);
-            DistributeOverExtendedChannel(ChannelQn,extQCH);
-            fill(*extWHCH,0.0);
-            DistributeOverExtendedChannel(ChannelWH,extWHCH);
-            fill(*extVCH,0.0);
-            DistributeOverExtendedChannel(ChannelV,extVCH);
-        } else {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                extQCH->Drc = ChannelQn->Drc;
-                extWHCH->Drc = ChannelWH->Drc;
-                extVCH->Drc = ChannelV->Drc;
-            }}
-        }
-    }
-*/
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-//        COMBO_VOFCH->Drc = V->Drc;
-//        if (SwitchIncludeChannel) {
-//            if (ChannelFlowWidth->Drc > 0)
-//                COMBO_VOFCH->Drc = extVCH->Drc;
-//        }
-//        if(COMBO_VOFCH->Drc < 1e-6)
-//            COMBO_VOFCH->Drc = 0;
-
         VH->Drc = V->Drc * hmxWH->Drc;
     }}
 
@@ -293,8 +273,7 @@ void TWorld::OutputUI(void)
         if(SwitchFlowBarriers)
         {
             fill(*tma,0.0);
-            FOR_ROW_COL_MV
-            {
+            FOR_ROW_COL_MV {
                 tma->Drc = std::max(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),FlowBarrierW->Drc),FlowBarrierS->Drc);
             }
             copy(*op.flowbarriersMap,*tma);
@@ -452,8 +431,8 @@ void TWorld::ReportTimeseriesNew(void)
     // NOTE if SwitchWriteCommaDelimited = true then SwitchWritePCRtimeplot = false
 
 
-    double QALL = QtotT * (QUnits == 1 ?  1.0 : 1000.0)/_dt; // total outflow on all sides in l/s, same as point 0 in interface
-    double QSALL = SoilLossOutlet;
+    double QALL = Qtot_dt * (QUnits == 1 ?  1.0 : 1000.0)/_dt; // total outflow on all sides in l/s, same as point 0 in interface
+    double QSALL = SoilLossTot_dt/_dt; //total sed loss in kg/s from all outlets, surface and boundary
 
     QFileInfo fi(resultDir + outflowFileName);
 
@@ -806,7 +785,7 @@ void TWorld::ReportMaps(void)
 
     report(*InfilmmCum, infiltrationMapFileName);
 
-    report(*runoffTotalCell, runoffMapFileName); // in mm, total runoff from cell (but there is also runon!)
+    //report(*runoffTotalCell, runoffMapFileName); // in mm, total runoff from cell (but there is also runon!)
 
     report(*WHmax, floodWHmaxFileName);
     // report(*floodHmxMax, floodWHmaxFileName);  // BOTH overland flow and flood for all combinations
@@ -1191,7 +1170,7 @@ void TWorld::setupHydrographData()
     op.OutletLocationX.append(0);
     op.OutletLocationY.append(0);
     op.OutletQ.append(new QVector<double>);
-    op.OutletQb.append(new QVector<double>);
+    //op.OutletQb.append(new QVector<double>);
     op.OutletQs.append(new QVector<double>);
     op.OutletC.append(new QVector<double>);
     op.OutletChannelWH.append(new QVector<double>);
@@ -1209,7 +1188,7 @@ void TWorld::setupHydrographData()
             op.OutletLocationX.append(r);
             op.OutletLocationY.append(c);
             op.OutletQ.append(new QVector<double>);
-            op.OutletQb.append(new QVector<double>);
+            //op.OutletQb.append(new QVector<double>);
             op.OutletQs.append(new QVector<double>);
             op.OutletC.append(new QVector<double>);
             op.OutletChannelWH.append(new QVector<double>);
@@ -1262,7 +1241,7 @@ void TWorld::ClearHydrographData()
     op.OutletLocationX.clear();
     op.OutletLocationY.clear();
     op.OutletQ.clear();
-    op.OutletQb.clear();
+    //op.OutletQb.clear();
     op.OutletQs.clear();
     op.OutletC.clear();
     op.OutletQpeak.clear();

@@ -50,9 +50,9 @@ void TWorld::ChannelBaseflow(void)
            #pragma omp parallel for num_threads(userCores)
            FOR_ROW_COL_MV_CHL {
                 ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
-               // BaseFlowTot += MapTotal(*BaseFlowInitialVolume); //???
+                BaseFlowTot += MapTotal(*BaseFlowInitialVolume);
            }}
-            addedbaseflow = true;
+           addedbaseflow = true;
         }
     }
 
@@ -111,13 +111,10 @@ void TWorld::ChannelBaseflow(void)
 
         tma->Drc = Qbin->Drc;// prev timestep Qbin
 
-//        if(SwitchChannelBaseflowStationary)
-//            tma->Drc += BaseFlowInflow->Drc * _dt;
-
         Qbin->Drc = 0;
     }}
 
-    //store qbin prev timestep
+    // new qbin
     AccufluxGW(crlinkedlddbase_, GWout, Qbin, ChannelWidthO);
     //move the gw flow to the channel,
     // Qbin is inflow to the channel from the surrounding cells in m3 per timestep
@@ -126,7 +123,7 @@ void TWorld::ChannelBaseflow(void)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         Qbin->Drc *= ChannelWidthO->Drc/_dx;
-        Qbase->Drc = Qbin->Drc*_dt;//*(1-factor) + tma->Drc*factor;
+        Qbase->Drc = Qbin->Drc;//*_dt;  //should not be * dt, this is just a volume in m3 not a flux
         ChannelWaterVol->Drc += Qbin->Drc*(1-factor) + tma->Drc*factor;
         // flow according to SWAT 2009, page 174 manual, eq 2.4.2.8
         //Qbase->Drc = tmp;//ChannelWaterVol->Drc - tmp - GWbp->Drc;

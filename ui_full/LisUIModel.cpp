@@ -310,7 +310,7 @@ void lisemqt::initOP()
     op.OutletLocationX.clear();
     op.OutletLocationY.clear();
     op.OutletQ.clear();
-    op.OutletQb.clear();
+    //op.OutletQb.clear();
     op.OutletQs.clear();
     op.OutletC.clear();
     op.OutletQpeak.clear();
