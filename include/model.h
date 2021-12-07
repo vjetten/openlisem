@@ -415,6 +415,7 @@ public:
     double GW_lag;
     double GW_bypass;
     double GW_threshold;
+    double GW_initlevel;
 
     double totetafac;
 

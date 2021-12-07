@@ -267,6 +267,7 @@ void TWorld::InitParameters(void)
     GW_lag = getvaluedouble("GW lag factor");
     GW_bypass = getvaluedouble("GW bypass factor");
     GW_threshold = getvaluedouble("GW threshold factor");
+    GW_initlevel = getvaluedouble("GW initial level");
 
     // get calibration parameters
     gsizeCalibrationD50 = getvaluedouble("Grain Size calibration D50");
@@ -991,7 +992,7 @@ void TWorld::InitChannel(void)
             GWbp = NewMap(0);
 
             FOR_ROW_COL_MV_L {
-                GWVol->Drc = 0.001*_dx*_dx;
+                GWVol->Drc = (GW_initlevel+0.001)*_dx*_dx;
             }}
 
         }

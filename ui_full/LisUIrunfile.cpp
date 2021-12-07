@@ -187,6 +187,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("GW lag factor")==0)           GW_lag->setValue(valc);
         if (p1.compare("GW bypass factor")==0)           GW_bypass->setValue(valc);
         if (p1.compare("GW threshold factor")==0)           GW_threshold->setValue(valc);
+        if (p1.compare("GW initial level")==0)           GW_initlevel->setValue(valc);
 
         if (p1.compare("Include channel culverts")==0)       checkChannelCulverts->setChecked(check);
         if (p1.compare("Include channel inflow")==0)         checkChannelInflow->setChecked(check);
@@ -780,16 +781,17 @@ void lisemqt::updateModelData()
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
         if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
-        if (p1.compare("Include stationary baseflow")==0)       namelist[j].value.setNum((int)checkStationaryBaseflow->isChecked());
+        if (p1.compare("Include stationary baseflow")==0)    namelist[j].value.setNum((int)checkStationaryBaseflow->isChecked());
         if (p1.compare("Adjust channel crosssection")==0)    namelist[j].value.setNum((int)checkChannelAdjustCHW->isChecked());
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkChannelInflow->isChecked());
         if (p1.compare("GW recharge factor")==0)             namelist[j].value = GW_recharge->text();
         if (p1.compare("GW flow factor")==0)                 namelist[j].value = GW_flow->text();
         if (p1.compare("GW slope factor")==0)                namelist[j].value = GW_slope->text();
-        if (p1.compare("GW lag factor")==0)                namelist[j].value = GW_lag->text();
-        if (p1.compare("GW bypass factor")==0)                namelist[j].value = GW_bypass->text();
-        if (p1.compare("GW threshold factor")==0)                namelist[j].value = GW_threshold->text();
+        if (p1.compare("GW lag factor")==0)                  namelist[j].value = GW_lag->text();
+        if (p1.compare("GW bypass factor")==0)               namelist[j].value = GW_bypass->text();
+        if (p1.compare("GW threshold factor")==0)            namelist[j].value = GW_threshold->text();
+        if (p1.compare("GW initial level")==0)               namelist[j].value = GW_initlevel->text();
 
         if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkFlowBarriers->isChecked());
         if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int) checkBuffers->isChecked());
