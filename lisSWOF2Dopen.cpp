@@ -370,6 +370,13 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             FOR_ROW_COL_MV_L {
                 dt_req_min = std::min(dt_req_min, FloodDT->Drc);
             }}
+
+#pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
+FOR_ROW_COL_MV_L {
+    if (dt_req_min == FloodDT->Drc)
+        FloodT->Drc = 1;
+}}
+
             dt_req_min = std::min(dt_req_min, _dt-timesum);
 
 //            #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)

@@ -346,6 +346,7 @@ void TWorld::GetComboMaps()
         AddComboMap(0,"Flood Start Time","min",floodTimeStart,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         cl = 6;
         AddComboMap(0,"Flood duration","min",floodTime,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+        AddComboMap(0,"cells with min dt","-",FloodT,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         cl = 5;
         if (SwitchVariableTimestep) {
             AddComboMap(0,"Timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0,0.01);

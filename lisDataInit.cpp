@@ -456,6 +456,7 @@ void TWorld::InitStandardInput(void)
     FOR_ROW_COL_MV {
         if(LDD->Drc == 5) {
             cnt++;
+            qDebug() << "ldd" << r << c << cnt;
             Outlet->Drc = cnt;
         }
     }
@@ -898,7 +899,7 @@ void TWorld::InitChannel(void)
         {
             if(Outlet->Drc > 0 && LDDChannel->Drc != 5)
             {
-                //qDebug() << r << c << LDDChannel->Drc;
+                qDebug() << r << c << LDDChannel->Drc << Outlet->Drc;
                 ErrorString = "Outlet points (outlet.map) do not coincide with Channel LDD endpoints.";
                 throw 1;
             }
