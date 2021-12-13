@@ -1,6 +1,6 @@
 openLISEM
 ============
-Date: 201201
+Date: 211019
 ============
 
 For questions contact v.g.jetten AD utwente.nl
@@ -9,17 +9,40 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu)
 NOTE: since version 6 it is fully parallel and developed with MSYS2.0, and openmp
 
-version 6.62-6.64beta
-- added timeseries output of theta for layers 1 and 2
-- added channel inflow from files
-- fixed bug in screen drawing of large channel networks
+version 6.77-6.80 beta
+- re-evaluated Splash equations and added Eurosem method. In Eurosem the aggr stab is in fact the splash delivery in g/J
+- Fixed baseflow mass balance as far as possible, Mass balance for ETa might still be off
+- Fixed QSall in output which was in kg and not kg/s
+- Fixed all consistency problems between output of outlets and total for water and sediment. Outlets give only outlet values, 
+  Qall and Qsall (hydrograph 0) give the sum of channel outlet, overland flow, boundary flow and storm drains
 
-version 6.61-6.62beta
-- fixed small bug when using culverts (add rain to overland flow and not channel when culvert)
-- fixed error in infiltration, seems to work now
-- ksat calibration for the whole column, not only first layer
-- added depth wetting front (m) to screen output
-- add optional timestamp tot output text files
+version 6.7-6.77 beta
+- corrected ETa, added to screen
+- Thetai1 and 2 in display and reported are now average of the soil layers
+- baseflow according to SWAT added with stationary baseflow
+- mass balance shows error bercause water from ETa and baseflow is not from rainfall 
+- added check on river cross section: when the width is > cell size the depth and widt are adjusted so that the hydraulic radius is maintained 
+- added a maximum timestep of 60 sec for the river kinematic wave
+
+version 6.69beta
+- fixed output timeseries
+- blocked output of hydrograoh values for now, memory leak suspected
+- fixed interface errors: reset values for option tabs 
+
+version 6.68beta
+- known bug: output timeseries not working byb accident
+
+version 6.67beta
+- started continuous modelling
+- enable reading of long timeseries of gauges or maps with day:minute indication
+- added ET calculations => needs testing
+- bug fixes, there is still a small bug in the combination kinematic wave and 2 layer Green and Ampt
+- updated graph drawing internally elimination redundant datastructures
+- updated the interface
+
+version 6.61beta
+- updated libraries
+- fixed bug in infiltration causing sometimes to ignore impermeable option
 
 version 6.5-6.6
 - SWOF sediment changed fully parallel computing
@@ -177,7 +200,7 @@ Because of diffusive runoff the range of resolutions can now be larger, LISEM is
 1) The openLISEM model 
 ======================
 
-This is the spatial runoff, flooding and erosion model openLISEM. Thank you
+This is the event based spatial runoff and erosion model openLISEM. Thank you 
 for downloading. openLISEM simulates the spatial dynamics of surface runoff and 
 erosion for catchments of 1 ha to 500 km2. It is based on the LISEM model that 
 is available here: www.itc.nl/lisem. Details about the theory and dataset for 
