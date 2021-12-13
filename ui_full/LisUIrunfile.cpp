@@ -277,6 +277,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Detachment efficiency")==0)          E_EfficiencyDET->setValue(iii);
         if (p1.compare("Settling Velocity")==0)          E_settlingVelocity->setValue(iii);
         if (p1.compare("Include Sediment traps")==0)         checkSedtrap->setChecked(check);
+        if (p1.compare("Splash equation")==0)          E_splashEquation->setValue(iii);
         if (p1.compare("KE parameters EQ1")==0)
         {
             QStringList param;
@@ -851,6 +852,7 @@ void lisemqt::updateModelData()
 
         if (p1.compare("Detachment efficiency")==0)          namelist[j].value = E_EfficiencyDET->text();
         if (p1.compare("Settling Velocity")==0)              namelist[j].value = E_settlingVelocity->text();
+        if (p1.compare("Splash equation")==0)                namelist[j].value = E_splashEquation->text();
 
         if (p1.compare("Use material depth")==0)             namelist[j].value.setNum((int)checkMaterialDepth->isChecked());
         if (p1.compare("No detachment boundary")==0)         namelist[j].value.setNum((int)checkNoSedBoundary->isChecked());

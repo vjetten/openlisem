@@ -68,7 +68,7 @@ QString TWorld::getvaluename(QString vname)
                 QFileInfo info(inputDir + runnamelist[i].value);
                 if (!info.exists())
                 {
-                    ErrorString = "Filename not found for map \"<I>"+runnamelist[i].name + "\" - " + info.fileName();
+                    ErrorString = "Filename not found for map (VAR NAME: " +runnamelist[i].value+ ")\"<I>"+runnamelist[i].name + "\" - " + info.fileName();
                     throw 1;
                 }
                 else
@@ -218,6 +218,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Advanced Options")==0)                  SwitchAdvancedOptions = iii == 1;
 
         if (p1.compare("Detachment efficiency")==0)             SwitchEfficiencyDET = iii;
+        if (p1.compare("Splash equation")==0)                   SwitchSplashEQ = iii;
         if (p1.compare("SettlingVelocity")==0)                  SwitchSV = iii;
         if (p1.compare("Use material depth")==0)                SwitchUseMaterialDepth  = iii == 1;
         if (p1.compare("No detachment boundary")==0)            SwitchNoBoundarySed  = iii == 1;

@@ -92,7 +92,7 @@ cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
                 QString sr, sc;
                 sr.setNum(r); sc.setNum(c);
                 ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+name+".\n \
-                        This is a cell on a flow network (either LDD, Channel LDD, tile drain LDD).";
+                        This is a cell with missing values where a flow network esists (either LDD, Channel LDD, tile drain LDD).";
                         throw 1;
             }
 
@@ -1321,7 +1321,6 @@ void TWorld::InitErosion(void)
     ASCalibration = getvaluedouble("Aggregate stability calibration");
     AggrStab = ReadMap(LDD,getvaluename("AggrStab"));
 
-
     D50 = ReadMap(LDD,getvaluename("D50"));
     //SwitchNeedD90 = SwitchErosion && (SwitchChannelFlood || (SwitchUse2Phase && !R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution);
     if(SwitchUse2Phase && !SwitchUseGrainSizeDistribution)
@@ -1413,7 +1412,7 @@ void TWorld::InitErosion(void)
     SettlingVelocityBL = NewMap(0);
     CohesionSoil = NewMap(0);
     Y = NewMap(0);
-    splashb = NewMap(0);
+    //splashb = NewMap(0);
 
     FOR_ROW_COL_MV
     {
@@ -1438,22 +1437,33 @@ void TWorld::InitErosion(void)
         if (CohesionSoil->Drc < 0)
             Y->Drc = 0; // to force max strength
 
-
+        SplashStrength = NewMap(0);
         // empirical analysis based on Limburg data, dating 1989
-//        if (AggrStab->Drc > 0)
-//        {
-              if(ASCalibration > 0)
-                 AggrStab->Drc = (1/ASCalibration)*AggrStab->Drc;
-//            AggrStab->Drc = 2.82/std::max(ASCalibration*AggrStab->Drc, 1.0);
-//            splashb->Drc = 2.96;
-//        }
-//        else
-//        {
-//            AggrStab->Drc = 0.1033/std::max(ASCalibration*CohesionSoil->Drc,1.0);
-//            splashb->Drc = 3.58;
-//        }
+        // aggr stab is Lowe test median drops to halve an aggregate
+        if (SwitchSplashEQ == 1) {
+            if (AggrStab->Drc > 0)
+            {
+                //SplashStrength->Drc = 2.82/std::max(ASCalibration*AggrStab->Drc, 1.0);
+                //splashb = 2.96;
+                //y = 5.3361x-0.238  excell
+                SplashStrength->Drc = 5.331*pow(std::max(ASCalibration*AggrStab->Drc, 1.0),-0.238);
+            }
+            else
+            {
+                SplashStrength->Drc = 5.331*pow(std::max(ASCalibration*CohesionSoil->Drc,1.0),-0.238);
+                //SplashStrength->Drc = 0.1033/std::max(ASCalibration*CohesionSoil->Drc,1.0);
+                //splashb = 3.58;
+            }
+        }
 
-
+        // Eurosem method, aggr stab is not strength but sed delivery so the opposite
+        if (SwitchSplashEQ == 2) {
+           SplashStrength->Drc = (1/ASCalibration)*std::max(AggrStab->Drc, 1.0);
+           splashb = 3.58;
+        }
+        if (AggrStab->Drc < 0)
+            SplashStrength->Drc = 0;
+        // negative values give no splash
     }
 
     FOR_ROW_COL_MV

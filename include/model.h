@@ -362,11 +362,12 @@ public:
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
+    int SwitchSplashEQ; //use lisem (1) or eurosem (1)
     int ReportDigitsOut;
     int FlowBoundaryType; // open, closed
     int userCores;
     int SwitchSV; //ettling velocity
-    double stengthb; // splash strength,
+    double splashb; // splash strength coef b limburg equtions,
 
     // flow bloundaries
     QList<int> FBid;

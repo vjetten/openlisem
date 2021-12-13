@@ -127,8 +127,7 @@ void TWorld::cell_SplashDetachment(int r, int c, double _WH)
         double g_to_kg = 0.001;
         double Lc = Litter->Drc;
         double Cv = Cover->Drc;
-        double strength = AggrStab->Drc;
-        double b = 0;//splashb->Drc;
+        double strength = SplashStrength->Drc;
         double Int = Rain->Drc * 3600/_dt * 1000; // intensity in mm/h, Rain is in m
         double KE_DT = 0.0;
         double DETSplash_;
@@ -162,19 +161,18 @@ void TWorld::cell_SplashDetachment(int r, int c, double _WH)
             double fac2 = 1.0 - fac1;
 
             strength = strength * fac2 + (0.1033/DepositedCohesion) * fac1;
-            b = b * fac2 + 3.58 * fac1;
+            //b = b * fac2 + 3.58 * fac1;
         }
 
         // fraction ponded area
         double FPA = 1.0;
         if (RR->Drc > 0.1)
             FPA =  1-exp(-1.875*(_WH/(0.01*RR->Drc)));
-        double sd = SplashDelivery;//*std::min(1.0,1.0/(FPA*_dx));
 
         // Between plants, directrain is already with 1-cover
-        DetDT1 = g_to_kg * FPA*(strength*KE_DT+b)*WH0 * directrain;
+        DetDT1 = g_to_kg * FPA*strength*KE_DT*WH0 * directrain;
         //ponded areas, kg/m2/mm * mm = kg/m2
-        DetDT2 = _WH > 0 ? g_to_kg * (1-FPA)*(strength*KE_DT+b) * directrain * sd: 0.0;
+        DetDT2 = _WH > 0 ? g_to_kg * (1-FPA)*strength*KE_DT * directrain * SplashDelivery: 0.0;
         //dry areas, kg/m2/mm * mm = kg/m2
 
 
@@ -182,18 +180,18 @@ void TWorld::cell_SplashDetachment(int r, int c, double _WH)
         {
             if (directrain > 0)
             {
-                DetDT1 = g_to_kg * FPA*(strength*KE_DT+b)*WH0 * _dt/3600;
+                DetDT1 = g_to_kg * FPA*strength*KE_DT*WH0 * _dt/3600;
                 //ponded areas, kg/m2/sec * sec = kg/m2
-                DetDT2 = g_to_kg * (1-FPA)*(strength*KE_DT+b) * _dt/3600 * sd;
+                DetDT2 = g_to_kg * (1-FPA)*strength*KE_DT * _dt/3600 * SplashDelivery;
                 //dry areas, kg/m2/sec * sec = kg/m2
             }
         }
         //based on work by Juan Sanchez
 
         // Under plants, throughfall is already with cover
-        DetLD1 = g_to_kg * FPA*(strength*KE_LD+b)*WH0 * throughfall;
+        DetLD1 = g_to_kg * FPA*(strength*KE_LD)*WH0 * throughfall;
         //ponded areas, kg/m2/mm * mm = kg/m2
-        DetLD2 = g_to_kg * (1-FPA)*(strength*KE_LD+b) * throughfall * sd;
+        DetLD2 = g_to_kg * (1-FPA)*(strength*KE_LD) * throughfall * SplashDelivery;
         //dry areas, kg/m2/mm * mm = kg/m2
 
         DETSplash_ = DetLD1 + DetLD2 + DetDT1 + DetDT2;
@@ -226,7 +224,7 @@ void TWorld::cell_SplashDetachment(int r, int c, double _WH)
         if (SwitchSnowmelt)
             DETSplash_ = (1-Snowcover->Drc)*DETSplash_;
         // no splash on snow deck
-//DETSplash_ = 0;
+
         if(SwitchUseMaterialDepth)
         {
             //check wat we can detach from the top and bottom layer of present material

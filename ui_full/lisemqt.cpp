@@ -1700,6 +1700,7 @@ void lisemqt::resetTabErosion()
     //checkLimitTC->setChecked(false);
     checkSedtrap->setChecked(false);
     E_EfficiencyDET->setValue(1);
+    E_splashEquation->setValue(1);
     checkMaterialDepth->setChecked(false);
     E_DepositedCohesion->setValue(0.5);
     E_BulkDens->setText("1500.00");
