@@ -124,7 +124,7 @@ void TWorld::SWOFSedimentDiffusion(double dt, cTMap *h,cTMap *u,cTMap *v, cTMap 
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        double courant = 1.0*this->courant_factor; // why *0.1
+       // double courant = this->courant_factorSed;
 
         //cell sizes
         double cdx = DX->Drc;
@@ -173,7 +173,7 @@ void TWorld::SWOFSedimentDiffusion(double dt, cTMap *h,cTMap *u,cTMap *v, cTMap 
             {
                 //diffusion coefficient eta
                 double coeff = SSDepthFlood->Drc > 0 ? dt * eta * std::min(1.0, SSDepthFlood->Drcr/SSDepthFlood->Drc) : 0.0;
-                coeff = std::min(coeff, courant);
+                coeff = std::min(coeff, courant_factorSed);
                 flux[i] = coeff*_SS->Drc;
                 if (i == 0) tma->Drcr += flux[i];
                 if (i == 1) tmb->Drcr += flux[i];
@@ -233,19 +233,19 @@ void TWorld::SWOFSedimentFlowInterpolation(double dt, cTMap *h, cTMap *u,cTMap *
         double yn = signf(v_);
         double xn = signf(u_);
 
-        double vel = sqrt(u_*u_ + v_*v_);
+        double velocity = sqrt(u_*u_ + v_*v_);
 
-        if(vel > he_ca && h->Drc > he_ca) {
-            double courant = this->courant_factor; // why *0.1
-            // flooding courant factor
+        if(velocity > he_ca && h->Drc > he_ca) {
+           // double courant = this->courant_factorSed; // why *0.1
 
-            double qss = dt*vel*ChannelAdj->Drc *SSDepthFlood->Drc * _SSC->Drc;
-            if(qss > courant * _SS->Drc)
-                qss = courant *  _SS->Drc;
+            double dss = dt*velocity*ChannelAdj->Drc *SSDepthFlood->Drc * _SSC->Drc;
+            // s*m/s*m*m*kg/m3 = kg
+            if(dss > courant_factorSed * _SS->Drc)
+                dss = courant_factorSed *  _SS->Drc;
 
             //should not travel more distance than cell size
-            double dsx = xn*std::min(fabs(u_)/vel,1.0);
-            double dsy = yn*std::min(fabs(v_)/vel,1.0);
+            double dsx = xn*std::min(fabs(u_)/velocity,1.0);
+            double dsy = yn*std::min(fabs(v_)/velocity,1.0);
 
             //cell directions
             int dx[4] = {0, 1, 1, 0};
@@ -265,25 +265,28 @@ void TWorld::SWOFSedimentFlowInterpolation(double dt, cTMap *h, cTMap *u,cTMap *
                 //the distribution is inverly proportional to the squared distance
                 double weight = fabs(wdx) * fabs(wdy);
 
-                if(INSIDE(rr,cr)) {
-                    if( !pcr::isMV(LDD->Drcr) && h->Drcr > he_ca)
+                if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr)) {
+                    if(h->Drcr > he_ca) {
                         w[i] = weight;
+                    }
                 }
             }
 
             //normalize: sum of the 4 weights is equal to 1
-            double wt = 0.0;
-            for (int i=0; i<4; i++)
-                wt += w[i];
+            double wt = w[0];
+            wt += w[1];
+            wt += w[2];
+            wt += w[3];
 
             if(wt == 0) {
                 w[3] = 1.0;
                 wt = 1.0;
             }
 
-            for (int i=0; i<4; i++)
-                w[i] = w[i]/wt;
-
+            w[0] = w[0]/wt;
+            w[1] = w[1]/wt;
+            w[2] = w[2]/wt;
+            w[3] = w[3]/wt;
 
             double flux[4] = {0.0,0.0,0.0,0.0};
 
@@ -295,7 +298,7 @@ void TWorld::SWOFSedimentFlowInterpolation(double dt, cTMap *h, cTMap *u,cTMap *
                 {
                     if(h->Drcr > he_ca)
                     {
-                        flux[i] = w[i]*qss;
+                        flux[i] = w[i]*dss;
 
                         if (i == 0) tma->Drcr += flux[i];
                         if (i == 1) tmb->Drcr += flux[i];
@@ -304,14 +307,44 @@ void TWorld::SWOFSedimentFlowInterpolation(double dt, cTMap *h, cTMap *u,cTMap *
                     }
                 }
             }
-
-            _SS->Drc -= (flux[0]+flux[1]+flux[2]+flux[3]);
+            /*
+            int rr;
+            int cr;
+            rr = r+(int)yn;
+            cr = c;
+            if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr))
+            {
+                flux[0] = w[0]*dss;
+                tma->Drcr += flux[0];
+            }
+            rr = r;
+            cr = c+(int)xn;
+            if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr))
+            {
+                flux[1] = w[1]*dss;
+                tmb->Drcr += flux[1];
+            }
+            rr = r+(int)yn;
+            cr = c+(int)xn;
+            if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr))
+            {
+                flux[2] = w[2]*dss;
+                tmc->Drcr += flux[2];
+            }
+            //rr = r;
+            //cr = c;
+            flux[3] = w[3]*dss;
+            tmc->Drc += flux[3];
+*/
+            // subtract the four fluxes from each cell
+            _SS->Drc -= (flux[0]+flux[1]+flux[2]+flux[3]); // flux is in kg!
         } // v en h > ha
     }}
 
+    // update SS with new values in 4 cells that have changed
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        _SS->Drc = _SS->Drc + tma->Drc + tmb->Drc+tmc->Drc+tmd->Drc;
+        _SS->Drc = _SS->Drc + tma->Drc + tmb->Drc + tmc->Drc + tmd->Drc;
     }}
 
 }

@@ -212,6 +212,7 @@ void TWorld::ParseRunfileData(void)
      //   if (p1.compare("Use Avg Channel Kinwave")==0)           SwitchChannelKinwaveAvg = iii == 1;
         if (p1.compare("Use gravity flow")==0)                  SwitchGravityToChannel = iii == 1;
 
+        if (p1.compare("Correct DEM")==0)                       SwitchCorrectDEM = iii == 1;
         if (p1.compare("Use 2D Diagonal flow")==0)              Switch2DDiagonalFlow = iii == 1;
         if (p1.compare("Use SWOF watersheds")==0)               SwitchSWOFWatersheds = iii == 1;
         if (p1.compare("Flow Boundary 2D")==0)                  FlowBoundaryType = iii;

@@ -355,7 +355,7 @@ public:
     SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
     SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide,
-    SwitchTimeavgV, Switch2DDiagonalFlow, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
+    SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle;
@@ -605,7 +605,9 @@ public:
     void InitFlood(void);
     void InitScreenChanNetwork();
     void FindChannelAngles();
-    void AddZero(cTMap *M);
+    void CorrectDEM(cTMap *h, cTMap * g);
+    void DiagonalFlowDEM();
+
 
     // functions in lisRunfile.cpp
     QString getvaluename(QString vname);
@@ -688,7 +690,6 @@ public:
     QList<double> settlingvelocities;
     double distD50;
     double distD90;
-
     double LogNormalDist(double d50,double sigma, double d);
     double DetachMaterial(int r,int c, int d,bool channel,bool flood,bool bl, double detachment);
     void SedimentSetMaterialDistribution();//(int r,int c);
@@ -909,6 +910,7 @@ public:
     void ChannelOverflowNew(cTMap *_h, cTMap *_V, bool doOF);
 
     double courant_factor;
+    double courant_factorSed;
     double mixing_coefficient, runoff_partitioning;
     double minReportFloodHeight;
     void correctMassBalance(double sum1, cTMap *M, double th);

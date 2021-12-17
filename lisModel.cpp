@@ -176,9 +176,6 @@ void TWorld::DoModel()
         DEBUG("Intialize Input Data()");
         IntializeData();
 
-   //     DEBUG("GetComboMaps()");
-        GetComboMaps();
-
     //    DEBUG("setupDisplayMaps()");
         setupDisplayMaps();
         // reset all display output maps for new job
@@ -242,6 +239,8 @@ void TWorld::DoModel()
         _dt_user = _dt;
 
         DEBUG("Running...");
+
+        GetComboMaps(); // moved to outside timeloop!
 
         for (time = BeginTime; time < EndTime; time += _dt)
         {            

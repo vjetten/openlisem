@@ -161,6 +161,7 @@ public:
 
     void initOutputData();
     void showOutputData();
+    void showOutputDataZero();
     void SetTextHydrographs();
     // Map drawing variable
     void setupMapPlot();
@@ -183,8 +184,8 @@ public:
     void showHouseMap();
     void showFlowBarriersMap();
     void showImageMap();
-    double fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD);//, double type);
-    double fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterData *_RD);
+    double fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD);//, double type);
+    double fillDrawMapDataRGB(cTMap * base,  cTRGBMap *_M, QwtMatrixRasterData *_RD);
     double transvalue;
 
     QwtText title;

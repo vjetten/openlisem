@@ -270,7 +270,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
                     // determine smallest dt in x and y for each cell
                     double dtx = dx/std::max(hll_x1.v[3],hll_x2.v[3]);
-                    double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]);
+                    double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]); // v[3] is max U and V in x and y
                     double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
                     FloodDT->Drc = dt_req;
 
@@ -368,23 +368,17 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             // find smallest domain dt
             #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
             FOR_ROW_COL_MV_L {
+                sqrtUV->Drc = qSqrt(vx->Drc * vx->Drc + vy->Drc*vy->Drc);
                 dt_req_min = std::min(dt_req_min, FloodDT->Drc);
             }}
 
-#pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
-FOR_ROW_COL_MV_L {
-    if (dt_req_min == FloodDT->Drc)
-        FloodT->Drc = 1;
-}}
+//#pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
+//FOR_ROW_COL_MV_L {
+//    if (dt_req_min == FloodDT->Drc)
+//        FloodT->Drc = FloodDT->Drc;
+//}}
 
             dt_req_min = std::min(dt_req_min, _dt-timesum);
-
-//            #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
-//            FOR_ROW_COL_MV_L {
-//                FloodDT->Drc;
-//            }}
-
-
 
             if (step > 0) {
 

@@ -88,13 +88,10 @@ void lisemqt::runmodel()
     checkBoxComboMaps2->setChecked(false);
 
     checkMapImage->setChecked(false);
-    //transparencyBarrier->setEnabled(checkFlowBarriers->isChecked());
-    //checkMapFlowBarriers->setEnabled(checkFlowBarriers->isChecked());
     transparencyImage->setEnabled(checksatImage->isChecked());
     checkMapImage->setEnabled(checksatImage->isChecked());
 
     checkMapChannels->setChecked(false);
-  //  transparencyChannel->setEnabled(checkIncludeChannel->isChecked());
     checkMapChannels->setEnabled(checkIncludeChannel->isChecked());
 
     checkMapBuildings->setChecked(false);
@@ -210,8 +207,6 @@ void lisemqt::worldShow(bool showall)
 
     if (!showall)
         return;
-
-    //SetTextHydrographs(); // show text hydrograph data
 
     showPlot(); // show main plot for point X
 

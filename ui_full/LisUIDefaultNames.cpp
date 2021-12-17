@@ -421,6 +421,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Timestep flood");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Use time avg V");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Correct DEM");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Use 2D Diagonal flow");
     namelist[i].value = QString("0");

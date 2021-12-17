@@ -250,13 +250,13 @@ void TWorld::OutputUI(void)
     }
 
     //output maps for combo box
-    for(int i = 0; i < op.ComboMapsSafe.length(); i++)
-    {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            op.ComboMapsSafe[i]->Drc = op.ComboMaps[i]->Drc * op.ComboScaling.at(i);
-        }}
-    }
+//    for(int i = 0; i < op.ComboMapsSafe.length(); i++)
+//    {
+//        #pragma omp parallel for num_threads(userCores)
+//        FOR_ROW_COL_MV_L {
+//            op.ComboMapsSafe[i]->Drc = op.ComboMaps[i]->Drc * op.ComboScaling.at(i);
+//        }}
+//    }
 
     // ONLY ONCE
     if (runstep <= 1) {

@@ -457,6 +457,8 @@ void TWorld::GetRainfallMap(void)
                     }
                     if (Rain->Drc < 0)
                         Rain->Drc = 0;
+                    if(Rain->Drc > 0)
+                       rainStarted = true;
                 }}
                // delete _M;
           //  }
@@ -465,32 +467,33 @@ void TWorld::GetRainfallMap(void)
     currentRainfallrow = currentrow;
 
     // find start time of rainfall, for flood peak and rain peak
-    if (!rainStarted) {
-        FOR_ROW_COL_MV {
-            if(Rain->Drc > 0) {
-                rainStarted = true;
-                break;
-            }
-        }
-    }
+//    if (!rainStarted) {
+//        FOR_ROW_COL_MV {
+//            if(Rain->Drc > 0) {
+//                rainStarted = true;
+//                break;
+//            }
+//        }
+//    }
     if (rainStarted && RainstartTime == -1)
         RainstartTime = time;
 
     #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
-        Rainc->Drc = Rain->Drc * _dx/DX->Drc;
+    FOR_ROW_COL_MV_L {
+        double Rainc_ = Rain->Drc * _dx/DX->Drc;
         // correction for slope dx/DX, water spreads out over larger area
         RainCumFlat->Drc += Rain->Drc;
         // cumulative rainfall
-        RainCum->Drc += Rainc->Drc;
+        RainCum->Drc += Rainc_;
         // cumulative rainfall corrected for slope, used in interception
-        RainNet->Drc = Rainc->Drc;
+        RainNet->Drc = Rainc_;
         // net rainfall in case of interception
+        Rainc->Drc = Rainc_;
     }}
 
 }
 //---------------------------------------------------------------------------
+    // not used
 double TWorld::getmaxRainfall()
 {
     double maxv = 0;

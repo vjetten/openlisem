@@ -307,6 +307,7 @@ void TWorld::InitParameters(void)
     // VJ 170923 moved all 2D switches here
     minReportFloodHeight = getvaluedouble("Minimum reported flood height");
     courant_factor = getvaluedouble("Flooding courant factor");
+    courant_factorSed = std::min(0.2,courant_factor);
     // courant_factor_sed = getvaluedouble("Flooding courant factor diffusive");
     TimestepfloodMin = getvaluedouble("Timestep flood");
     F_SWOFSolution = getvalueint("Flood Solution");
@@ -418,6 +419,16 @@ void TWorld::InitStandardInput(void)
         crlinkedldd_ = MakeLinkedList(LDD);
 
     DEM = ReadMap(LDD, getvaluename("dem"));
+    Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
+    checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
+
+    sqrtGrad = NewMap(0);
+    FOR_ROW_COL_MV {
+        sqrtGrad->Drc = sqrt(Grad->Drc);
+    }
+
+    if (SwitchCorrectDEM)
+        CorrectDEM(DEM, Grad);
 
     if (SwitchBuffers) {
         Buffers = ReadMap(LDD, getvaluename("buffers"));
@@ -443,20 +454,12 @@ void TWorld::InitStandardInput(void)
 
     } 
 
-    Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
-    checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
-
-    sqrtGrad = NewMap(0);
-    FOR_ROW_COL_MV {
-        sqrtGrad->Drc = sqrt(Grad->Drc);
-    }
-
     int cnt = 0;
     Outlet = NewMap(0);
     FOR_ROW_COL_MV {
         if(LDD->Drc == 5) {
             cnt++;
-            qDebug() << "ldd" << r << c << cnt;
+            //qDebug() << "ldd" << r << c << cnt;
             Outlet->Drc = cnt;
         }
     }
@@ -1080,15 +1083,6 @@ void TWorld::InitChannel(void)
     FindChannelAngles();
 }
 //---------------------------------------------------------------------------
-void TWorld::AddZero(cTMap *M)
-{
-    for(int r = 0; r < _nrRows; r++)
-        for (int c = 0; c < _nrCols; c++)
-        {
-            M->data[r][c] = 0;
-        }
-}
-//---------------------------------------------------------------------------
 void TWorld::InitFlood(void)
 {
     FloodSedTot = 0;
@@ -1109,7 +1103,7 @@ void TWorld::InitFlood(void)
     vys = NewMap(0);
     Uflood = NewMap(0);
     Vflood = NewMap(0);
-    //   Iflood = NewMap(0);
+    sqrtUV = NewMap(0);
     hmx = NewMap(0);
     hmxflood = NewMap(0);
     FloodDomain = NewMap(0);
@@ -1121,114 +1115,13 @@ void TWorld::InitFlood(void)
     floodVHMax = NewMap(0);//
     floodTime = NewMap(0);//
     FloodDT = NewMap(0);
-    //    FloodDTr = NewMap(0);
     FloodT = NewMap(0);
 
     iter_n = 0;
-  //  DEMdz = NewMap(0);
 
     dcr_.clear();
-    if (Switch2DDiagonalFlow) {
-        FOR_ROW_COL_MV_L {
-            tma->Drc= 0;
-            tmb->Drc= 0;
-
-            double Z = DEM->Drc;
-            double z_x1 =  c > 0 && !MV(r,c-1)         ? DEM->data[r][c-1] : Z;
-            double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? DEM->data[r][c+1] : Z;
-            double z_y1 =  r > 0 && !MV(r-1,c)         ? DEM->data[r-1][c] : Z;
-            double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? DEM->data[r+1][c] : Z;
-
-
-            double z_x11 =  c > 0 && r > 0 && !MV(r-1,c-1)         ? DEM->data[r-1][c-1] : Z;
-            double z_x21 =  c > 0 && r < _nrRows-1 && !MV(r+1,c-1) ? DEM->data[r+1][c-1] : Z;
-            double z_y11 =  r > 0 && c < _nrCols-1 && !MV(r-1,c+1)         ? DEM->data[r-1][c+1] : Z;
-            double z_y21 =  r < _nrRows-1 && c < _nrCols-1 && !MV(r+1,c+1) ? DEM->data[r+1][c+1] : Z;
-            //note: true blockage if the diagonal cells are higher than the centrer cell will not be flagged
-            // left blockage
-            if (z_x1 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-                bool z1 = z_x11 < Z+F_pitValue;
-                bool z2 = z_y11 < Z+F_pitValue;
-                if (z1 && z2) {
-                    if (z_x11 < z_y11)
-                        z2 = false;
-                }
-
-                if(z1) tma->Drc = 7;
-                if(z2) tma->Drc = 1;
-            }
-            // right blockage
-            if (z_x2 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-                bool z1 = z_y11 < Z+F_pitValue;
-                bool z2 = z_y21 < Z+F_pitValue;
-                if (z1 && z2) {
-                    if (z_y11 < z_y21)
-                        z2 = false;
-                }
-                if(z1) tma->Drc = 9;
-                if(z2) tma->Drc = 3;
-            }
-            // upper blockage
-            if (z_y1 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-                bool z1 = z_x11 < Z+F_pitValue;
-                bool z2 = z_x21 < Z+F_pitValue;
-                if (z1 && z2) {
-                    if (z_x11 < z_x21)
-                        z2 = false;
-                }
-                if(z1) tma->Drc = 7;
-                if(z2) tma->Drc = 9;
-            }
-            //lower blockage
-            if (z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-                bool z1 = z_x21 < Z+F_pitValue;
-                bool z2 = z_y21 < Z+F_pitValue;
-                if (z1 && z2) {
-                    if (z_x21 < z_y21)
-                        z2 = false;
-                }
-                if(z1) tma->Drc = 1;
-                if(z2) tma->Drc = 3;
-            }
-
-// ldd map based:
-            int ldd = (int) LDD->Drc;
-            if (z_x1 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-                if (ldd == 1 || ldd == 7)
-                    tmb->Drc = ldd;
-            }
-            if (z_x2 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-                if (ldd == 3 || ldd == 9)
-                    tmb->Drc = ldd;
-            }
-            if (z_y1 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-                if (ldd == 7 || ldd == 9)
-                    tmb->Drc = ldd;
-            }
-            if (z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-                if (ldd == 1 || ldd == 3)
-                    tmb->Drc = ldd;
-            }
-
-  //          DEMdz->Drc = tma->Drc;
-            // do not include channels, channels will do the outflow
-            if(SwitchIncludeChannel && ChannelWidth->Drc > 0) {
-                tma->Drc = 0;
-                tmb->Drc = 0;
-            }
-
-            // make a list of pits
-            if (tma->Drc > 0) {
-                LDD_COORi dclrc;
-                dclrc.r = r;
-                dclrc.c = c;
-                dclrc.ldd = (int) tma->Drc;
-                dcr_ << dclrc;
-            }
-        }}
-     //   report(*tma,"pitsa.map");
-     //   report(*tmb,"pitsb.map");
-    }
+    if (Switch2DDiagonalFlow)
+        DiagonalFlowDEM();
 
     if (!SwitchSWOFopen) {
         //hsa = NewMap(0);
@@ -1291,6 +1184,148 @@ void TWorld::InitFlood(void)
         SSDetFlood = NewMap(0);
         DepFlood = NewMap(0);
     }
+}
+//---------------------------------------------------------------------------
+void TWorld::DiagonalFlowDEM()
+{
+    fill(*tma,0);
+    fill(*tmb,0);
+    FOR_ROW_COL_MV_L {
+        double Z = DEM->Drc;
+        double z_x1 =  c > 0 && !MV(r,c-1)         ? DEM->data[r][c-1] : Z;
+        double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? DEM->data[r][c+1] : Z;
+        double z_y1 =  r > 0 && !MV(r-1,c)         ? DEM->data[r-1][c] : Z;
+        double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? DEM->data[r+1][c] : Z;
+
+
+        double z_x11 =  c > 0 && r > 0 && !MV(r-1,c-1)         ? DEM->data[r-1][c-1] : Z;
+        double z_x21 =  c > 0 && r < _nrRows-1 && !MV(r+1,c-1) ? DEM->data[r+1][c-1] : Z;
+        double z_y11 =  r > 0 && c < _nrCols-1 && !MV(r-1,c+1)         ? DEM->data[r-1][c+1] : Z;
+        double z_y21 =  r < _nrRows-1 && c < _nrCols-1 && !MV(r+1,c+1) ? DEM->data[r+1][c+1] : Z;
+
+/*
+        //note: true blockage if the diagonal cells are higher than the centre cell will not be flagged
+        // left blockage
+        if (z_x1 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
+            bool z1 = z_x11 < Z+F_pitValue;
+            bool z2 = z_y11 < Z+F_pitValue;
+            if (z1 && z2) {
+                if (z_x11 < z_y11)
+                    z2 = false;
+            }
+
+            if(z1) tma->Drc = 7;
+            if(z2) tma->Drc = 1;
+        }
+        // right blockage
+        if (z_x2 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
+            bool z1 = z_y11 < Z+F_pitValue;
+            bool z2 = z_y21 < Z+F_pitValue;
+            if (z1 && z2) {
+                if (z_y11 < z_y21)
+                    z2 = false;
+            }
+            if(z1) tma->Drc = 9;
+            if(z2) tma->Drc = 3;
+        }
+        // upper blockage
+        if (z_y1 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
+            bool z1 = z_x11 < Z+F_pitValue;
+            bool z2 = z_x21 < Z+F_pitValue;
+            if (z1 && z2) {
+                if (z_x11 < z_x21)
+                    z2 = false;
+            }
+            if(z1) tma->Drc = 7;
+            if(z2) tma->Drc = 9;
+        }
+        //lower blockage
+        if (z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
+            bool z1 = z_x21 < Z+F_pitValue;
+            bool z2 = z_y21 < Z+F_pitValue;
+            if (z1 && z2) {
+                if (z_x21 < z_y21)
+                    z2 = false;
+            }
+            if(z1) tma->Drc = 1;
+            if(z2) tma->Drc = 3;
+        }
+
+// ldd map based:
+        int ldd = (int) LDD->Drc;
+        if (z_x1 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
+            if (ldd == 1 || ldd == 7)
+                tmb->Drc = ldd;
+        }
+        if (z_x2 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
+            if (ldd == 3 || ldd == 9)
+                tmb->Drc = ldd;
+        }
+        if (z_y1 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
+            if (ldd == 7 || ldd == 9)
+                tmb->Drc = ldd;
+        }
+        if (z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
+            if (ldd == 1 || ldd == 3)
+                tmb->Drc = ldd;
+        }
+*/
+        int ldd = (int) LDD->Drc;
+        if (z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
+            if (ldd == 1 || ldd == 3 || ldd == 7 || ldd == 9)
+                tma->Drc = ldd;
+        }
+
+//          DEMdz->Drc = tma->Drc;
+        // do not include channels, channels will do the outflow
+        if(SwitchIncludeChannel && ChannelWidth->Drc > 0) {
+            tma->Drc = 0;
+            tmb->Drc = 0;
+        }
+
+        // make a list of pits
+        if (tma->Drc > 0) {
+            LDD_COORi dclrc;
+            dclrc.r = r;
+            dclrc.c = c;
+            dclrc.ldd = (int) tma->Drc;
+            dcr_ << dclrc;
+        }
+    }}
+    report(*tma,"diagflow.map");
+}
+//---------------------------------------------------------------------------
+void TWorld::CorrectDEM(cTMap *h, cTMap * g)
+{
+    QList <double> zmin;
+    fill(*tma,-9999);
+    fill(*tmb,0);
+    FOR_ROW_COL_MV_L {
+        double Z = h->Drc;
+        double z_x1 =  c > 0 && !MV(r,c-1)         ? h->data[r][c-1] : Z;
+        double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? h->data[r][c+1] : Z;
+        double z_y1 =  r > 0 && !MV(r-1,c)         ? h->data[r-1][c] : Z;
+        double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? h->data[r+1][c] : Z;
+        double z_x11 =  c > 0 && r > 0 && !MV(r-1,c-1)         ? h->data[r-1][c-1] : Z;
+        double z_x21 =  c > 0 && r < _nrRows-1 && !MV(r+1,c-1) ? h->data[r+1][c-1] : Z;
+        double z_y11 =  r > 0 && c < _nrCols-1 && !MV(r-1,c+1)         ? h->data[r-1][c+1] : Z;
+        double z_y21 =  r < _nrRows-1 && c < _nrCols-1 && !MV(r+1,c+1) ? h->data[r+1][c+1] : Z;
+
+        zmin.clear();
+        zmin << z_x1 << z_x2 << z_y1 << z_y2 << z_x11 << z_y11 << z_x21 << z_y21;
+        std::sort(zmin.begin(), zmin.end());
+        if (Z < zmin.at(0)) {
+           tma->Drc = zmin.at(0);
+        }
+    }}
+    FOR_ROW_COL_MV_L {
+        if (tma->Drc > -9999) {
+            tmb->Drc = tma->Drc - h->Drc + 0.001*_dx;
+            h->Drc = tma->Drc-0.001*_dx;
+            g->Drc = 0.001;
+        }
+    }}
+    report(*tmb, "dempits.map");
 }
 //---------------------------------------------------------------------------
 double TWorld::LogNormalDist(double d50,double s, double d)
@@ -1414,6 +1449,8 @@ void TWorld::InitErosion(void)
     Y = NewMap(0);
     //splashb = NewMap(0);
 
+    SplashStrength = NewMap(0);
+
     FOR_ROW_COL_MV
     {
 
@@ -1437,7 +1474,6 @@ void TWorld::InitErosion(void)
         if (CohesionSoil->Drc < 0)
             Y->Drc = 0; // to force max strength
 
-        SplashStrength = NewMap(0);
         // empirical analysis based on Limburg data, dating 1989
         // aggr stab is Lowe test median drops to halve an aggregate
         if (SwitchSplashEQ == 1) {
@@ -1710,8 +1746,7 @@ void TWorld::IntializeData(void)
     MB = 0;
     MBs = 0;
     nrCells = 0;
-    FOR_ROW_COL_MV
-    {
+    FOR_ROW_COL_MV {
         nrCells+=1;
     }
 
@@ -1725,15 +1760,10 @@ void TWorld::IntializeData(void)
     CatchmentArea = mapTotal(*CellArea);
 
     SoilWidthDX = NewMap(0);
-    // not implemented
-    // WheelWidth = NewMap(0);
-    // WheelWidthDX = NewMap(0);
-    // GullyWidthDX = NewMap(0);
 
     // surface storage
     MDS = NewMap(0);
-    FOR_ROW_COL_MV
-    {
+    FOR_ROW_COL_MV {
         double RRmm = 10 * RR->Drc;
         MDS->Drc = std::max(0.0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
         MDS->Drc /= 1000; // convert to m
@@ -1772,7 +1802,6 @@ void TWorld::IntializeData(void)
     RainCum = NewMap(0);
     RainCumFlat = NewMap(0);
     RainNet = NewMap(0);
- //   noRain = NewMap(0);
     LeafDrain = NewMap(0);
 
     CStor = NewMap(0);

@@ -346,12 +346,11 @@ void TWorld::GetComboMaps()
         AddComboMap(0,"Flood Start Time","min",floodTimeStart,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         cl = 6;
         AddComboMap(0,"Flood duration","min",floodTime,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-        AddComboMap(0,"cells with min dt","-",FloodT,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         cl = 5;
-        if (SwitchVariableTimestep) {
+//        if (SwitchVariableTimestep) {
             AddComboMap(0,"Timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
             AddComboMap(0,"Steps pr cell","-",FloodT,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-        }
+ //       }
     }
 
     if(SwitchErosion)
@@ -447,3 +446,15 @@ void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList
 
     op.comboboxset = false;
 }
+
+//void TWorld::ReplaceComboMaps()
+//{
+//    for(int i = 0; i < op.ComboMapsSafe.length(); i++)
+//    {
+//        #pragma omp parallel for num_threads(userCores)
+//        FOR_ROW_COL_MV_L {
+//            op.ComboMapsSafe[i]->Drc = op.ComboMaps[i]->Drc * op.ComboScaling.at(i);
+//        }}
+//    }
+
+//}

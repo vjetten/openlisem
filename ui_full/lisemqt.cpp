@@ -642,6 +642,7 @@ void lisemqt::setErosionTab()
 
     if (!checkDoErosion->isChecked())
     {
+        sedgroup->setEnabled(true);
         int dig = E_DigitsOut->value();
         label_MBs->setText(QString::number(0,'e',dig));
         label_splashdet->setText(QString::number(0,'f',dig));
@@ -668,9 +669,27 @@ void lisemqt::setErosionTab()
 
 }
 //--------------------------------------------------------------------
-//void lisemqt::setRunoffTab(bool)
+//void lisemqt::InitScreenOutput()
 //{
-//    tabWidgetOptions->setTabEnabled(3, true);//checkChannelFlood->isChecked() || checkOverlandFlow2D->isChecked()  || checkOverlandFlow2Ddyn->isChecked());
+//    sedgroup->setEnabled(true);
+//    int dig = E_DigitsOut->value();
+//    label_MBs->setText(QString::number(0,'e',dig));
+//    label_splashdet->setText(QString::number(0,'f',dig));
+//    label_flowdet->setText(QString::number(0,'f',dig));
+//    label_sedvol->setText(QString::number(0,'f',dig));
+//    label_dep->setText(QString::number(0,'f',dig));
+//    label_detch->setText(QString::number(0,'f',dig));
+//    label_depch->setText(QString::number(0,'f',dig));
+//    label_sedvolch->setText(QString::number(0,'f',dig));
+//    label_soilloss->setText(QString::number(0,'f',dig));
+//    label_soillosskgha->setText(QString::number(0,'f',dig));
+//    label_SDR->setText(QString::number(0,'f',dig));
+//    label_soillosssub->setText(QString::number(0,'f',dig));
+//    label_Qssub->setText(QString::number(0,'f',dig));
+//    sedgroup->setEnabled(checkDoErosion->isChecked());
+
+
+
 //}
 
 //--------------------------------------------------------------------
@@ -1654,6 +1673,7 @@ void lisemqt::resetTabFlow()
     line_FlowBarriers->setText("flowbarriers.txt");
     checkBuffers->setChecked(false);
     check2DDiagonalFlow->setChecked(true);
+    checkCorrectDem->setChecked(false);
     E_pitValue->setValue(1.0);
     checkSWOFWatersheds->setChecked(false);
     rb_swof2->setChecked(true);

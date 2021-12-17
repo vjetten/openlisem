@@ -186,6 +186,7 @@ void lisemqt::onOutletChanged(int point)
         {
             return;
         }
+
         if(oldindex == -1)
         {
             outletpoint = 0;
@@ -579,7 +580,7 @@ void lisemqt::showOutputData()
 
     if(checkDoErosion->isChecked())
     {
-        int dig = E_DigitsOut->value();//DIGITS;
+        dig = E_DigitsOut->value();//DIGITS;
         label_MBs->setText(QString::number(op.MBs,'e',dig));
         if (op.MBs > 0)
             label_MBs->setText(" "+label_MBs->text());
@@ -602,5 +603,89 @@ void lisemqt::showOutputData()
         SDR = (SDR > 0? 100*op.SoilLossTot/(SDR) : 0);
         SDR = std::min(SDR ,100.0);
         label_SDR->setText(format.arg(QString::number(SDR,'f',dig)));
+    } else {
+        QString zero = QString::number(0,'f',E_DigitsOut->value());
+        label_MBs->setText(zero);
+
+        label_soillosssub->setText(zero);
+        label_Qssub->setText(zero);
+        label_splashdet->setText(zero);
+        label_flowdet->setText(zero);
+        label_sedvol->setText(zero);
+        label_dep->setText(zero);
+
+        label_detch->setText(zero);
+        label_depch->setText(zero);
+        label_sedvolch->setText(zero);
+
+        label_soilloss->setText(zero);
+        label_soillosskgha->setText(zero);
+        label_SDR->setText(zero);
     }
+}
+
+void lisemqt::showOutputDataZero()
+{
+    if(op.OutletQ.length() == 0)
+    {
+        return;
+    }
+
+    QString format;
+    if(darkLISEM)
+        format = QString("<font color=#ffffaa>%2</font>");
+    else
+        format= QString("<font color=#000000>%2</font>");
+
+    QString zero = QString::number(0,'f',E_DigitsOut->value());
+
+    label_dx->setText(zero);
+    label_area->setText(zero);
+    label_endtime->setText(zero);
+    label_time->setText(zero);
+
+    label_runtime->setText(zero);
+    label_endruntime->setText(zero);
+
+    // mm output
+    label_ETatot->setText(zero);
+    label_raintot->setText(zero);
+    label_watervoltot->setText(zero);
+    label_stormdraintot->setText(zero);
+    label_qtot->setText(zero);
+    label_infiltot->setText(zero);
+    label_surfstor->setText(zero);
+    label_interctot->setText(zero);
+    label_floodVolmm->setText(zero);
+
+    label_watervolchannel->setText(zero);
+
+    // peak time
+    label_QPfrac->setText(zero);
+    label_ppeaktime->setText(zero);
+
+    // mass balance
+    label_MB->setText(zero);
+    label_qpeaksub->setText(zero);
+    label_qpeaktime->setText(zero);
+    label_qtotm3sub->setText(zero);
+    label_dischargesub->setText(zero);
+
+    label_MBs->setText(zero);
+
+    label_soillosssub->setText(zero);
+    label_Qssub->setText(zero);
+    label_splashdet->setText(zero);
+    label_flowdet->setText(zero);
+    label_sedvol->setText(zero);
+    label_dep->setText(zero);
+
+    label_detch->setText(zero);
+    label_depch->setText(zero);
+    label_sedvolch->setText(zero);
+
+    label_soilloss->setText(zero);
+    label_soillosskgha->setText(zero);
+    label_SDR->setText(zero);
+
 }
