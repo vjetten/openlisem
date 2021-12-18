@@ -419,6 +419,14 @@ void TWorld::GetRainfallMap(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             Rain->Drc = 0;
+            //RainCumFlat->Drc += Rain->Drc;
+            // cumulative rainfall
+            //RainCum->Drc += Rainc_;
+            // cumulative rainfall corrected for slope, used in interception
+            RainNet->Drc = 0;
+            // net rainfall in case of interception
+            Rainc->Drc = 0;
+
         }}
     } else {
         // find current record
@@ -428,68 +436,58 @@ void TWorld::GetRainfallMap(void)
                 break;
             }
         }
-//qDebug() << currentrow << currenttime;
         if (currentrow == currentRainfallrow && currentrow > 0)
             samerain = true;
         // get the next map from file
         if (!samerain) {
+            // read a map
+            auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
 
-//            if (!SwitchRainfallSatellite) {
-//                // read from the stations file
-//                #pragma omp parallel for num_threads(userCores)
-//                FOR_ROW_COL_MV_L {
-//                    Rain->Drc = RainfallSeriesM[currentrow].intensity[(int) RainZone->Drc-1]*tt;
-//                }}
-//            } else {
-                // read a map
-                auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
-             //  cTMap *_M = new cTMap(readRaster(RainfallSeriesMaps[currentrow].name));
-                #pragma omp parallel for num_threads(userCores)
-                FOR_ROW_COL_MV_L {
-                    Rain->Drc = _M->Drc * tt;
-                    if (pcr::isMV(Rain->Drc)) {
-                        qDebug() << r << c;
-                        QString sr, sc;
-                        sr.setNum(r); sc.setNum(c);
-                        ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[rainplace].name;
-        //                throw 1;
-                        Rain->Drc = 0;
-                    }
-                    if (Rain->Drc < 0)
-                        Rain->Drc = 0;
-                    if(Rain->Drc > 0)
-                       rainStarted = true;
-                }}
-               // delete _M;
-          //  }
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                double rain_ = 0;
+                if (pcr::isMV(_M->Drc)) {
+                    QString sr, sc;
+                    sr.setNum(r); sc.setNum(c);
+                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[rainplace].name;
+                } else
+                    rain_ = _M->Drc * tt;
+                //Rain->Drc = _M->Drc * tt;
+                if (rain_ < 0)
+                    rain_ = 0;
+                if(rain_ > 0)
+                    rainStarted = true;
+
+                double Rainc_ = rain_ * _dx/DX->Drc;
+                // correction for slope dx/DX, water spreads out over larger area
+                Rain->Drc = rain_;
+                RainCumFlat->Drc += rain_;
+                // cumulative rainfall
+                RainCum->Drc += Rainc_;
+                // cumulative rainfall corrected for slope, used in interception
+                RainNet->Drc = Rainc_;
+                // net rainfall in case of interception
+                Rainc->Drc = Rainc_;
+            }}
         } //samerain
     }
     currentRainfallrow = currentrow;
 
-    // find start time of rainfall, for flood peak and rain peak
-//    if (!rainStarted) {
-//        FOR_ROW_COL_MV {
-//            if(Rain->Drc > 0) {
-//                rainStarted = true;
-//                break;
-//            }
-//        }
-//    }
     if (rainStarted && RainstartTime == -1)
         RainstartTime = time;
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        double Rainc_ = Rain->Drc * _dx/DX->Drc;
-        // correction for slope dx/DX, water spreads out over larger area
-        RainCumFlat->Drc += Rain->Drc;
-        // cumulative rainfall
-        RainCum->Drc += Rainc_;
-        // cumulative rainfall corrected for slope, used in interception
-        RainNet->Drc = Rainc_;
-        // net rainfall in case of interception
-        Rainc->Drc = Rainc_;
-    }}
+//    #pragma omp parallel for num_threads(userCores)
+//    FOR_ROW_COL_MV_L {
+//        double Rainc_ = Rain->Drc * _dx/DX->Drc;
+//        // correction for slope dx/DX, water spreads out over larger area
+//        RainCumFlat->Drc += Rain->Drc;
+//        // cumulative rainfall
+//        RainCum->Drc += Rainc_;
+//        // cumulative rainfall corrected for slope, used in interception
+//        RainNet->Drc = Rainc_;
+//        // net rainfall in case of interception
+//        Rainc->Drc = Rainc_;
+//    }}
 
 }
 //---------------------------------------------------------------------------

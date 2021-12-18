@@ -91,17 +91,17 @@ void TWorld::InfilEffectiveKsat(void)
 //DO NOT INCLUDE ROADS AND HARDSURF HERE BECUAE SOILWIDTH ALREADY EXCLUDES THOSE (but not houses!)
 
             Ksateff->Drc = std::max(0.0, Ksateff->Drc);
-            Poreeff->Drc = std::max(0.35, Poreeff->Drc);
+            Poreeff->Drc = std::max(0.3, Poreeff->Drc);
             Thetaeff->Drc = std::min(1.0,Poreeff->Drc/ThetaS1->Drc) * ThetaI1->Drc;
             bca1->Drc = 5.55*qPow(Ksateff->Drc,-0.114);
-            if(SwitchTwoLayer)
+            Ksateff->Drc *= _dt/3600000;
+            if(SwitchTwoLayer) {
                 bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
+                Ksat2->Drc *= _dt/3600000;
+            }
             // percolation coefficient
         }}
     }
-//report(*Ksateff,"ksateff1.map");
-//report(*Poreeff,"poreeff1.map");
-//report(*Thetaeff,"thetaeff1.map");
 }
 //---------------------------------------------------------------------------
 /*!
@@ -560,7 +560,7 @@ void TWorld::cell_InfilMethods(int r, int c)
 //    #pragma omp parallel for num_threads(userCores)
 //    FOR_ROW_COL_MV_L {
         // default vars are first layer vars
-        double Ks = Ksateff->Drc*_dt/3600000.0;  //in m
+        double Ks = Ksateff->Drc;//*_dt/3600000.0;  //in m
         double Psi = Psi1->Drc/100; // in m
         double fwh = 0;
         double SW = 0;
@@ -584,7 +584,7 @@ void TWorld::cell_InfilMethods(int r, int c)
             // if wetting front in second layer set those vars
             if (Lw->Drc > SoilDep1)
             {
-                Ks = std::min(Ks, Ksat2->Drc*_dt/3600000.0);
+                Ks = std::min(Ks, Ksat2->Drc);//*_dt/3600000.0);
                 // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
                 Psi = Psi2->Drc/100;
             }

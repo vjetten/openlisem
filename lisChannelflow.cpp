@@ -62,6 +62,7 @@ void TWorld::ChannelBaseflow(void)
 
         //=== GW recharge
         double GWrec_ = cell_Percolation1(r, c, GW_recharge);
+        Perc->Drc = GWrec_;
         GWrec_ = GWrec_ * CellArea->Drc;
         // GW recharge same principle as percolation, in m3
 
@@ -83,10 +84,10 @@ void TWorld::ChannelBaseflow(void)
         double pore, ksat;
         if (SwitchTwoLayer) {
             pore = ThetaS2->Drc;
-            ksat = Ksat2->Drc*_dt/3600000.0;
+            ksat = Ksat2->Drc;//*_dt/3600000.0;
         } else {
-            pore = ThetaS1->Drc;
-            ksat = Ksat1->Drc*_dt/3600000.0;
+            pore = Poreeff->Drc;//ThetaS1->Drc;
+            ksat = Ksateff->Drc;//Ksat1->Drc*_dt/3600000.0;
         }
 
         double GWVol_ = GWVol->Drc;

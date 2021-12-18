@@ -361,7 +361,7 @@ void TWorld::HydrologyProcesses()
 
            if (!SwitchImpermeable && !SwitchChannelBaseflow)
                Perc->Drc = cell_Percolation1(r, c, 1.0);
-            // if baseflow this already does percollation, no need to do this twice
+            // if baseflow is active percollation is done there, so do not do it here
         }
 
         // deposit all sediment still in flow when infiltration causes WH to become minimum

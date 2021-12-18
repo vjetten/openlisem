@@ -321,7 +321,7 @@ void TWorld::GetComboMaps()
             AddComboMap(0,"Avg Moisture content layer 1","-",ThetaI1a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
             if (SwitchTwoLayer)
                 AddComboMap(0,"Avg Moisture content layer 2","-",ThetaI2a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-            if (!SwitchImpermeable)
+           // if (!SwitchImpermeable)
                 AddComboMap(0,"Percolation","mm",PercmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         }
     }
@@ -349,7 +349,7 @@ void TWorld::GetComboMaps()
         cl = 5;
 //        if (SwitchVariableTimestep) {
             AddComboMap(0,"Timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
-            AddComboMap(0,"Steps pr cell","-",FloodT,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+           // AddComboMap(0,"Steps pr cell","-",FloodT,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
  //       }
     }
 
