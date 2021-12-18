@@ -403,15 +403,15 @@ void TWorld::GetComboMaps()
 void TWorld::ClearComboMaps()
 {
 
-    for(int i =op.ComboMapsSafe.length() - 1; i >-1 ; i--)
-    {
-        delete op.ComboMapsSafe.at(i);
-    }
-    op.ComboMapsSafe.clear();
+//    for(int i =op.ComboMapsSafe.length() - 1; i >-1 ; i--)
+//    {
+//        delete op.ComboMapsSafe.at(i);
+//    }
+//    op.ComboMapsSafe.clear();
 
     op.ComboLists.clear();
     op.ComboMaps.clear();
-    op.ComboMapsSafe.clear();
+//    op.ComboMapsSafe.clear();
     op.ComboColorMap.clear();
     op.ComboColors.clear();
     op.ComboLogaritmic.clear();
@@ -431,8 +431,8 @@ void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList
 {
     op.ComboLists.append(listn);
     op.ComboMaps.append(map);
-    op.ComboMapsSafe.append(new cTMap());
-    op.ComboMapsSafe.at(op.ComboMapsSafe.length()-1)->MakeMap(LDD,0.0);
+  //  op.ComboMapsSafe.append(new cTMap());
+  //  op.ComboMapsSafe.at(op.ComboMapsSafe.length()-1)->MakeMap(LDD,0.0);
     op.ComboColorMap.append(ColorMap);
     op.ComboColors.append(Colors);
     op.ComboLogaritmic.append(log);

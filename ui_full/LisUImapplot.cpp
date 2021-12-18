@@ -396,7 +396,7 @@ void lisemqt::showMap()
         IndexList.clear();
         IndexList1.clear();
 
-        for(int i = 0; i < op.ComboMapsSafe.length(); i++)
+        for(int i = 0; i < op.ComboMaps.length(); i++)
         {
             QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
 
@@ -411,7 +411,7 @@ void lisemqt::showMap()
         QStringList S;
         QStringList S1;
 
-        for(int i = 0; i < op.ComboMapsSafe.length(); i++)
+        for(int i = 0; i < op.ComboMaps.length(); i++)
         {
 
             if(op.ComboLists.at(i) == 0)

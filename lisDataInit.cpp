@@ -621,6 +621,11 @@ void TWorld::InitSoilInput(void)
         calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
         calcValue(*Psi1, 0.01, MUL); // convert to meter
 
+        ThetaR1 = NewMap(0);
+        FOR_ROW_COL_MV_L {
+            ThetaR1->Drc = 0.025*ThetaS1->Drc;
+        }}
+
 //        Ksat3 = NewMap(0);
 //        ThetaI3 = NewMap(0);
 //        ThetaS3 = NewMap(0);
@@ -637,6 +642,10 @@ void TWorld::InitSoilInput(void)
             ThetaI2a = NewMap(0);
             calcValue(*ThetaI2, thetaCalibration, MUL); //VJ 110712 calibration of theta
             calcMap(*ThetaI2, *ThetaS2, MIN); //VJ 110712 cannot be more than porosity
+            ThetaR2 = NewMap(0);
+            FOR_ROW_COL_MV_L {
+                ThetaR2->Drc = 0.025*ThetaS2->Drc;
+            }}
 
             //VJ 101221 all infil maps are needed except psi
             Psi2 = ReadMap(LDD,getvaluename("psi2"));

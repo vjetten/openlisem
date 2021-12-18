@@ -345,7 +345,7 @@ void TWorld::doETa()
             if (!ponded) {
                 double pore = Poreeff->Drc;
                 double theta = Thetaeff->Drc;
-                double thetar = 0.025*pore;
+                double thetar = ThetaR1->Drc;
                 double Lw_ = Lw->Drc;
                 //double theta_e = theta/pore; //(theta-thetar)/(pore-thetar);
                 //double f = 1.0/(1.0+qPow(theta_e/0.5,6.0));

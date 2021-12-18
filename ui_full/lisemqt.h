@@ -317,7 +317,7 @@ public:
     double swatreDT;
     QString screenShotDir;
 
-    QList<cTMap *> ComboMapsSafe;
+ //   QList<cTMap *> ComboMapsSafe;
 
     MAP_LIST mapList[NUMMAPS]; /// structure for current map names, can be edited by user
     int nrmaplist;

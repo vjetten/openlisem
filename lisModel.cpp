@@ -357,7 +357,7 @@ void TWorld::HydrologyProcesses()
         if (InfilMethod != INFIL_NONE) {
            cell_InfilMethods(r, c);
 
-           cell_Redistribution1(r, c);
+           cell_Redistribution(r, c);
 
            if (!SwitchImpermeable && !SwitchChannelBaseflow)
                Perc->Drc = cell_Percolation(r, c, 1.0);
