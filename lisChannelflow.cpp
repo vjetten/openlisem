@@ -61,7 +61,7 @@ void TWorld::ChannelBaseflow(void)
     FOR_ROW_COL_MV_L {
 
         //=== GW recharge
-        double GWrec_ = cell_Percolation(r, c, GW_recharge);
+        double GWrec_ = cell_Percolation1(r, c, GW_recharge);
         GWrec_ = GWrec_ * CellArea->Drc;
         // GW recharge same principle as percolation, in m3
 

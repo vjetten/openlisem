@@ -336,6 +336,52 @@ double TWorld::cell_Percolation(int r, int c, double factor)
 }
 //---------------------------------------------------------------------------
 
+double TWorld::cell_Percolation1(int r, int c, double factor)
+{
+    double Percolation = 0;
+    double Lw_ = Lw->Drc;
+    double SoilDep1 = SoilDepth1->Drc;
+
+    if(SwitchTwoLayer) {
+
+        double thetar2 = ThetaR2->Drc;
+        double theta = ThetaI2->Drc;
+        double SoilDep2 = SoilDepth2->Drc;
+        double ksat = factor*Ksat2->Drc*_dt/3600000;
+        Percolation = ksat * pow((theta-thetar2)/(ThetaS2->Drc-thetar2), bca2->Drc);
+        // percolation in m per timestep
+
+        // the available moisture
+        if (Lw_< SoilDep1) Lw_ = SoilDep1;
+        double m = (SoilDep2 - Lw_) * (theta - thetar2); // moisture below  wettingfront
+        Percolation = std::min(m, Percolation);
+
+        double tn = (m-Percolation)/(SoilDep2-Lw_);
+        if (tn >= thetar2) {
+            ThetaI2->Drc = tn;
+            return(Percolation);
+        }
+
+    } else {
+        // one layer
+        double thetar = ThetaR1->Drc;
+        double theta = Thetaeff->Drc;
+        double ksat = factor*Ksateff->Drc*_dt/3600000;
+        Percolation = ksat * pow((theta-thetar)/(Poreeff->Drc-thetar), bca1->Drc);
+
+        double m = (SoilDep1 - Lw_) * (theta - thetar); // moisture above wettingfront in layer 2
+        Percolation = std::min(m, Percolation);
+
+        double tn = (m-Percolation)/(SoilDep1-Lw_);
+        if (tn >= thetar) {
+            Thetaeff->Drc = tn;
+            return(Percolation);
+        }
+    }
+    return(0);
+}
+//---------------------------------------------------------------------------
+
 /*!
  \brief Calculates changes in soilwater with percolation from the bottom of the profile.
 
