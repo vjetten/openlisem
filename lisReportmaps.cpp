@@ -321,7 +321,7 @@ void TWorld::GetComboMaps()
             AddComboMap(0,"Avg Moisture content layer 1","-",ThetaI1a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
             if (SwitchTwoLayer)
                 AddComboMap(0,"Avg Moisture content layer 2","-",ThetaI2a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-           // if (!SwitchImpermeable)
+            if (!SwitchImpermeable || SwitchChannelBaseflow)
                 AddComboMap(0,"Percolation","mm",PercmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         }
     }
@@ -333,24 +333,24 @@ void TWorld::GetComboMaps()
         AddComboMap(0,"ETa Cumulative","mm",ETaCum,LegendMap[3],Legend[3],false,false,1000.0,0.1);
     AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,LegendMap[cl],Legend[cl],false,false,1000.0,0.1);
     AddComboMap(0,"Rainfall Intensity","mm/h",Rain,LegendMap[cl],Legend[cl],false,false,factor,0.1);
-  //  AddComboMap(0,"ETa cumulative","mm",ETa,LegendMap[cl],Legend[cl],false,false,1000.0,0.1);
+    //  AddComboMap(0,"ETa cumulative","mm",ETa,LegendMap[cl],Legend[cl],false,false,1000.0,0.1);
 
     if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
         cl = 2;
         QString txt = QString("Max flood Height (h>%1m)").arg(minReportFloodHeight);
 
-//        AddComboMap(0,txt,"m",hmxflood,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
-//        setColor(3);
+        //        AddComboMap(0,txt,"m",hmxflood,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
+        //        setColor(3);
         AddComboMap(0,txt,"m",floodHmxMax,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
         cl = 5;
         AddComboMap(0,"Flood Start Time","min",floodTimeStart,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         cl = 6;
         AddComboMap(0,"Flood duration","min",floodTime,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         cl = 5;
-//        if (SwitchVariableTimestep) {
-            AddComboMap(0,"Timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
-           // AddComboMap(0,"Steps pr cell","-",FloodT,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
- //       }
+        //        if (SwitchVariableTimestep) {
+        AddComboMap(0,"Timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
+        // AddComboMap(0,"Steps pr cell","-",FloodT,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+        //       }
     }
 
     if(SwitchErosion)
