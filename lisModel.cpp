@@ -113,6 +113,8 @@ void TWorld::saveMBerror2file(bool doError, bool start)
 // the actual model with the main loop
 void TWorld::DoModel()
 {
+    DestroyData();
+    // destroy data previous run
 
     loc = QLocale::system(); // current locale
     loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
@@ -134,14 +136,14 @@ void TWorld::DoModel()
 
     try
     {
-       // DEBUG("reading and initializing data");
+        DEBUG("reading and initializing data");
 
         IntializeOptions(); // reset all options
 
         InitMapList();
         // map structure to destroy data automatically
 
-   //     DEBUG("GetRunFile()");
+        DEBUG("GetRunFile()");
         GetRunFile();
         DEBUG("Parse Runfile");
         ParseRunfileData();
@@ -289,8 +291,8 @@ void TWorld::DoModel()
         if (SwitchEndRun)
             ReportMaps();
 
-        DEBUG("Free data structure memory");
-        DestroyData();  // destroy all maps automatically
+        //DEBUG("Free data structure memory");
+        //DestroyData();  // destroy all maps automatically
 
         emit done("finished");
     }

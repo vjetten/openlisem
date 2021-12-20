@@ -168,7 +168,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
     // if C < 0 than all infiltrates, return 0, if all fluxes 0 then return
     if (C < 0)
     {
-        itercount = -2;
+        //itercount = -2;
         return(0);
     }
     if (Qmax <= 0)
@@ -203,7 +203,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
 
     Qkx = std::min(Qkx, Qmax);
 
-    itercount = count;
+   // itercount = count;
     return Qkx;
 }
 
@@ -211,33 +211,63 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
 /*LDD_COOR *_crlinked_*/
 void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax)
 {   
-    #pragma omp parallel num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         _Qn->Drc = 0;
         QinKW->Drc = 0;
     }}
 
-    for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
+//        #pragma omp parallel for ordered num_threads(userCores)
+//        for(long i_ =  0; i_ < _crlinked_.size(); i_++) {
+//            int r = _crlinked_.at(i_).r;
+//            int c = _crlinked_.at(i_).c;
+
+//            #pragma omp ordered
+//            if (_crlinked_[i_].nr > 0) {
+//                for(int j = 0; j < _crlinked_[i_].nr; j++) {
+//                    int rr = _crlinked_[i_].inn[j].r;
+//                    int cr = _crlinked_[i_].inn[j].c;
+//                    QinKW->Drc += _Q->Drcr;
+//                }
+//            }
+//        }
+
+//        #pragma omp parallel for ordered num_threads(userCores)
+//        for(long i_ =  0; i_ < _crlinked_.size(); i_++) {
+//            int r = _crlinked_.at(i_).r;
+//            int c = _crlinked_.at(i_).c;
+
+//            #pragma omp ordered
+//            if (QinKW->Drc > 0 || _Q->Drc > 0) {
+//               _Qn->Drc = IterateToQnew(QinKW->Drc,_Q->Drc, _q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc);
+//            }
+//        }
+
+ //   #pragma omp parallel for ordered num_threads(userCores)
+    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
     {
-        int r = _crlinked_[i_].r;
-        int c = _crlinked_[i_].c;
+        int r = _crlinked_.at(i_).r;
+        int c = _crlinked_.at(i_).c;
         double Qin = 0;
 
-        // get inflow
-        if (_crlinked_[i_].nr >0) {
-            for(int j = 0; j < _crlinked_[i_].nr; j++) {
-                int rr = _crlinked_[i_].inn[j].r;
-                int cr = _crlinked_[i_].inn[j].c;
-                Qin += _Qn->Drcr;
+   //     #pragma omp critical
+    //    {
+            if (_crlinked_.at(i_).nr > 0) {
+                for(int j = 0; j < _crlinked_.at(i_).nr; j++) {
+                    int rr = _crlinked_.at(i_).inn[j].r;
+                    int cr = _crlinked_.at(i_).inn[j].c;
+                    Qin += _Qn->Drcr;
+                }
             }
-        }
+            QinKW->Drc = Qin;
 
-        QinKW->Drc = Qin;
-        if (Qin > 0 || _Q->Drc > 0) {
-            itercount = 0;
-           _Qn->Drc = IterateToQnew(Qin,_Q->Drc, _q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc);
-           tmb->Drc = itercount;
-        }
+         //   #pragma omp ordered
+            if (Qin > 0 || _Q->Drc > 0) {
+                itercount = 0;
+                _Qn->Drc = IterateToQnew(Qin,_Q->Drc, _q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc);
+               // tmb->Drc = itercount;
+            }
+       // }
     }
 }
 //---------------------------------------------------------------------------

@@ -29,6 +29,7 @@
 // out[put is new Lw and new Thetaeff and ThetaI2
 void TWorld::cell_Redistribution1(int r, int c)
 {
+    /*
     double Percolation, pore, theta, thetar, theta_E;
     double SoilDep2, pore2, theta2, thetar2, FC, FC2;
     double Lw_ = Lw->Drc;
@@ -181,6 +182,7 @@ void TWorld::cell_Redistribution1(int r, int c)
         ThetaI2->Drc = theta2;
         Lw->Drc = Lw_;
     } // SwitchTwoLayer
+    */
 }
 //---------------------------------------------------------------------------
 // redistribution of water from the wetting front to the layer below. Lw decreases and thetai increases
@@ -193,7 +195,6 @@ void TWorld::cell_Redistribution(int r, int c)
     double SoilDep2 = (SwitchTwoLayer ? SoilDepth2->Drc : 0);
     double Perc12 = 0;
 
-    double factor = 0.5;
 
     if (SwitchImpermeable && !SwitchChannelBaseflow) {
         if (SwitchTwoLayer && Lw_ > SoilDep2-0.01)
@@ -201,6 +202,8 @@ void TWorld::cell_Redistribution(int r, int c)
         if (!SwitchTwoLayer && Lw_ > SoilDep1-0.01)
             return;
     }
+
+    double factor = std::min(0.05, Ksateff->Drc/SoilDep1);
 
 
     if (SwitchTwoLayer) {
@@ -269,7 +272,31 @@ void TWorld::cell_Redistribution(int r, int c)
 
     } else {
         // todo 1 layer redistribution
+        double pore = Poreeff->Drc;
+        double thetar = ThetaR1->Drc;
+        double theta = Thetaeff->Drc;
+        double ks = Ksateff->Drc;//*_dt/3600000.0;
+        if (theta < pore)
+            ks = ks * pow((theta-thetar)/(pore-thetar), bca1->Drc);
 
+        if (Lw_ < SoilDep1-0.01) {
+            double PercLw1 = sqrt(Perc12 * ks);
+            // flux from sat zone above Lw_ to unsat zone layer 1, sqrt of ks*kunsat
+            double moistLw = (pore-thetar)*Lw_;
+            PercLw1 = std::min(moistLw*factor, PercLw1);
+            // not more than Lw water available
+            PercLw1 = std::min(PercLw1, (pore - theta)*(SoilDep1-Lw_));
+            //not more than space in unsat layer 1
+            moistLw -= PercLw1;
+            double moist = (theta-thetar)*(SoilDep1-Lw_) + PercLw1;
+
+            Lw_ = moistLw/(pore-thetar);
+            // decrease Lw_
+            Thetaeff->Drc = moist/(SoilDep1-Lw_) + thetar;
+            // update soil moisture layer 1
+            Lw->Drc = Lw_;
+            // update Lw
+        }
     }
 }
 
@@ -421,6 +448,6 @@ void TWorld::SoilWater()
     FOR_ROW_COL_MV_L {
         cell_Redistribution(r, c);
 
-        Perc->Drc = cell_Percolation(r, c, 1.0);
+        Perc->Drc = cell_Percolation1(r, c, 1.0);
     }}
 }

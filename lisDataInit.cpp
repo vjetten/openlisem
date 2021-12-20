@@ -165,12 +165,6 @@ void TWorld::DestroyData(void)
             free(crlinkedlddch_[i_].inn);
     }
     crlinkedlddch_.clear();
-
-    // DEBUG("kill display data");
-    // ClearComboMaps();
-    // ClearHydrographData();
-    // leave it so we can still see stuff after run, clean at the start of a run
-
 }
 //---------------------------------------------------------------------------
 /// separate networks need their own InitMask: LDD, ChannelLDD, TileLDD
@@ -883,7 +877,7 @@ void TWorld::InitChannel(void)
           //  i++;
         }
         crlinkedlddch_= MakeLinkedList(LDDChannel);
-        //qDebug() << nrValidCellsCH << crlinkedlddch_.size();
+        //qDebug() << "nrcells" << nrValidCellsCH << crlinkedlddch_.size();
 
     //   crlinkedlddch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
     //        QVector <LDD_COOR> temp = MakeLinkedList(LDDChannel);

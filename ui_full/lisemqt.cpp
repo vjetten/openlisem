@@ -1265,10 +1265,12 @@ void lisemqt::savefileas()
                                                     op.runfilename,
                                                     QString("Text Files (*.run);;All Files (*)"),
                                                     &selectedFilter);
-    //options);
+
     if (!fileName.isEmpty()) {
         updateModelData();
         savefile(fileName);
+        E_runFileList->insertItem(0,fileName);
+        E_runFileList->setCurrentIndex(0);
     }
 
 }
