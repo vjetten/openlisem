@@ -61,7 +61,7 @@ void TWorld::ChannelBaseflow(void)
     FOR_ROW_COL_MV_L {
 
         //=== GW recharge
-        double GWrec_ = cell_Percolation1(r, c, GW_recharge);
+        double GWrec_ = cell_Percolation(r, c, GW_recharge);
         Perc->Drc = GWrec_;
         GWrec_ = GWrec_ * CellArea->Drc;
         // GW recharge same principle as percolation, in m3
@@ -232,7 +232,8 @@ void TWorld::ChannelFlow(void)
         if (SwitchErosion) {
             double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
             ChannelQSSs->Drc = ChannelQ_ * concss; // m3/s *kg/m3 = kg/s
-        //    ChannelQSSs->Drc = std::min(ChannelSSSed->Drc/_dt, ChannelQsr->Drc*ChannelWH->Drc*ChannelWidth->Drc); // kg/m/s m3/s *kg/m3 = kg/s
+          //  ChannelQSSs->Drc = ChannelQsr->Drc*ChannelQ_; //kg/m/s *m
+
 
 
             if(SwitchUse2Phase) {
@@ -325,7 +326,7 @@ void TWorld::ChannelFlow(void)
                 KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
             }
         }
-        if (SwitchIncludeDiffusion) {
+        if (SwitchIncludeRiverDiffusion) {
             RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
             // note SSsed goes in and out, SSconc is recalculated inside
         }

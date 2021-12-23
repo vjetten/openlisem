@@ -219,12 +219,13 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Advanced Options")==0)                  SwitchAdvancedOptions = iii == 1;
 
         if (p1.compare("Detachment efficiency")==0)             SwitchEfficiencyDET = iii;
+        if (p1.compare("Detachment efficiency channel")==0)             SwitchEfficiencyDETCH = iii;
         if (p1.compare("Splash equation")==0)                   SwitchSplashEQ = iii;
         if (p1.compare("SettlingVelocity")==0)                  SwitchSV = iii;
         if (p1.compare("Use material depth")==0)                SwitchUseMaterialDepth  = iii == 1;
         if (p1.compare("No detachment boundary")==0)            SwitchNoBoundarySed  = iii == 1;
         if (p1.compare("Use 2 phase flow")==0)                  SwitchUse2Phase = iii;
-//        if (p1.compare("Include River diffusion")==0)           SwitchIncludeRiverDiffusion = iii == 1;
+        if (p1.compare("Include River diffusion")==0)           SwitchIncludeRiverDiffusion = iii == 1;
         if (p1.compare("Include diffusion")==0)                 SwitchIncludeDiffusion = iii == 1;
 //        if (p1.compare("Use grain size distribution")==0)       SwitchMulticlass = iii == 1;
 //        if (p1.compare("Estimate grain size distribution")==0)  SwitchEstimateGrainSizeDistribution = iii == 1;

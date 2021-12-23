@@ -99,10 +99,12 @@
 //{long _i_ = cri_[i_]; int r = (int)(_i_/_nrCols); int c = (int)(_i_ % _nrCols);
 
 // fastest, QVector stores all elements in the same consequtive memory!
-//for(long i_ = 0; i_< nrValidCells; i_++)
+//#define FOR_ROW_COL_MV_L for(long i_ = 0; i_< nrValidCells; i_++)\
+//{int r = cr_[i_].r; int c = cr_[i_].c;
 
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
 {int r = cr_[i_].r; int c = cr_[i_].c;
+
 //nrValidCellsWS
 #define FOR_ROW_COL_MV_LWS(nr_) for(long i_ = WScr.at(nr_).size()-1; i_ >= 0; i_--)\
 {int r = WScr.at(nr_)[i_].r; int c = WScr.at(nr_)[i_].c;
@@ -362,6 +364,7 @@ public:
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
+    int SwitchEfficiencyDETCH; // channel detachment efficiency
     int SwitchSplashEQ; //use lisem (1) or eurosem (1)
     int ReportDigitsOut;
     int FlowBoundaryType; // open, closed
@@ -677,7 +680,7 @@ public:
 
     int R_SS_Method;
     int R_BL_Method;
-//    double R_SigmaDiffusion;
+    double R_SigmaDiffusion;
 
     //int GrainSizeDistributionType;
 
@@ -867,7 +870,6 @@ public:
     void ChannelFlow();
     void ChannelBaseflow();
     void ChannelRainandInfil();
-    void ChannelFillDam();
 
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);

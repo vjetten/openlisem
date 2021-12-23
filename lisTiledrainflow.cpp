@@ -36,6 +36,8 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
+//TODO convert flow to linked list
+
 //---------------------------------------------------------------------------
 //fraction of water and sediment flowing from the surface to the tiledrain system
 void TWorld::ToTiledrain()//int thread)
@@ -80,6 +82,7 @@ void TWorld::CalcVelDischTile()
     const double _23 = 2.0/3.0;
    // double beta1 = 1/beta;
 
+   #pragma omp parallel for num_threads(userCores)
    FOR_ROW_COL_MV_TILE
    {
       double wh = TileWH->Drc;
@@ -105,6 +108,7 @@ void TWorld::TileFlow(void)
    if (!SwitchIncludeTile)
       return;
 
+   #pragma omp parallel for num_threads(userCores)
    FOR_ROW_COL_MV_TILE
    {
       /*---- Water ----*/
@@ -143,6 +147,7 @@ void TWorld::TileFlow(void)
 
    cover(*TileQn, *LDD, 0); // avoid missing values around Tile for adding to Qn for output
 
+   #pragma omp parallel for num_threads(userCores)
    FOR_ROW_COL_MV_TILE
    {
        TileWaterVol->Drc = TileWaterVol->Drc + _dt*(QinKW->Drc - TileQn->Drc);
@@ -165,6 +170,7 @@ void TWorld::TileFlow(void)
 // Neweton iteration to derive drain water height
 void TWorld::CalcVelDischDrain()
 {
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_TILE {
 
         double gradN = sqrt(TileGrad->Drc)/TileN->Drc;
@@ -205,6 +211,7 @@ void TWorld::StormDrainFlow(void)
 {
    if (!SwitchIncludeStormDrains)
       return;
+   #pragma omp parallel for num_threads(userCores)
    FOR_ROW_COL_MV {
          TileWaterVol->Drc += RunoffVolinToTile->Drc;
       // add water from the surface
@@ -223,7 +230,7 @@ void TWorld::StormDrainFlow(void)
    }
 
    cover(*TileQn, *LDD, 0); // avoid missing values around Tile for adding to Qn for output
-
+   #pragma omp parallel for num_threads(userCores)
    FOR_ROW_COL_MV_TILE
    {
       TileWaterVol->Drc = TileWaterVol->Drc + _dt*(QinKW->Drc - TileQn->Drc);

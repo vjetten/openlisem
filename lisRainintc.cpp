@@ -430,12 +430,14 @@ void TWorld::GetRainfallMap(void)
         }}
     } else {
         // find current record
+        #pragma omp parallel for ordered num_threads(userCores)
         for (rainplace = 0; rainplace < nrRainfallseries-1; rainplace++) {
             if (currenttime >= RainfallSeriesMaps[rainplace].time && currenttime < RainfallSeriesMaps[rainplace+1].time) {
                 currentrow = rainplace;
-                break;
+                //break;
             }
         }
+
         if (currentrow == currentRainfallrow && currentrow > 0)
             samerain = true;
         // get the next map from file

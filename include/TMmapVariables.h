@@ -150,6 +150,8 @@ cTMap
 *D90,                        //!< 90 % of grainsize distribution is below this value [mu]
 *D50CH,                        //!< median of grainsize distribution [mu]
 *D90CH,                        //!< 90 % of grainsize distribution is below this value [mu]
+*cgovers,
+*dgovers,
 *DETSplash,                  //!< splash detachment [kg/cell]
 *DETSplashCum,
 *DETFlow,                    //!< flow detachment [kg/cell]

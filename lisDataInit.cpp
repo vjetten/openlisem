@@ -1,4 +1,4 @@
-/*************************************************************************
+﻿/*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
 **  Copyright (C) 2010,2011, 2020  Victor Jetten
 **  contact: v.g.jetten AD utwente DOT nl
@@ -106,12 +106,14 @@ cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
 void TWorld::DestroyData(void)
 {
     DEBUG("clear all maps");
-    for (int i = 0; i < maplistnr; i++)
-    {
-        if (maplistCTMap[i].m != nullptr)
+    if (op.nrMapsCreated > 0) {
+        for (int i = 0; i < op.nrMapsCreated; i++)
         {
-            delete maplistCTMap[i].m;
-            maplistCTMap[i].m = nullptr;
+            if (maplistCTMap[i].m != nullptr)
+            {
+                delete maplistCTMap[i].m;
+                maplistCTMap[i].m = nullptr;
+            }
         }
     }
 
@@ -165,6 +167,7 @@ void TWorld::DestroyData(void)
             free(crlinkedlddch_[i_].inn);
     }
     crlinkedlddch_.clear();
+
 }
 //---------------------------------------------------------------------------
 /// separate networks need their own InitMask: LDD, ChannelLDD, TileLDD
@@ -1056,23 +1059,25 @@ void TWorld::InitChannel(void)
 
             ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
             COHCHCalibration = getvaluedouble("Cohesion Channel calibration");
-            calcValue(*ChannelCohesion, COHCHCalibration, MUL);
+            //calcValue(*ChannelCohesion, COHCHCalibration, MUL);
 
             FOR_ROW_COL_MV_CH
             {
+                ChannelCohesion->Drc *= COHCHCalibration;
                 if (ChannelCohesion->Drc == 0)
                     ChannelY->Drc = 1.0;
                 else {
-                    if (SwitchEfficiencyDET == 1)
+                    if (SwitchEfficiencyDETCH == 1)
                         ChannelY->Drc = std::min(1.0, 1.0/(0.89+0.56*fabs(ChannelCohesion->Drc)));
                     else
-                        if (SwitchEfficiencyDET == 2)
+                        if (SwitchEfficiencyDETCH == 2)
                             ChannelY->Drc = std::min(1.0, 0.79*exp(-0.85*fabs(ChannelCohesion->Drc)));
                         else
-                            if (SwitchEfficiencyDET == 3)
+                            if (SwitchEfficiencyDETCH == 3)
                                 ChannelY->Drc = std::min(1.0, 1.0/(2.0*fabs(ChannelCohesion->Drc)));
                 }
-                if (ChannelCohesion->Drc < 0)
+
+                if (ChannelCohesion->Drc < 0 || COHCHCalibration < 0)
                     ChannelY->Drc = 0;
             }
         }
@@ -1375,6 +1380,13 @@ void TWorld::InitErosion(void)
         }
     }
 
+    cgovers = NewMap(0);
+    dgovers = NewMap(0);
+    FOR_ROW_COL_MV {
+        cgovers->Drc = pow((D50->Drc+5)/0.32, -0.6);
+        dgovers->Drc = pow((D50->Drc+5)/300, 0.25);
+    }
+
     SedimentFilter = NewMap(0);
     if (SwitchSedtrap)
     {
@@ -1392,7 +1404,7 @@ void TWorld::InitErosion(void)
 
     //default
     R_BL_Method = FSRIJN;
-    R_SS_Method = FSGOVERS;
+    R_SS_Method = FSRIJN;
     FS_BL_Method = FSRIJN;
     FS_SS_Method = FSGOVERS;
 
@@ -1401,20 +1413,22 @@ void TWorld::InitErosion(void)
     R_SS_Method  = getvalueint("River SS method");
     R_BL_Method  = getvalueint("River BL method");
 
+
     FS_SigmaDiffusion = getvaluedouble("Sigma diffusion");
-    //R_SigmaDiffusion = getvaluedouble("River Sigma diffusion");
+    R_SigmaDiffusion = getvaluedouble("Sigma diffusion"); // same diffusion for river and OF
     if (SwitchUse2Phase && SwitchUseGrainSizeDistribution) {
         R_BL_Method = FSWUWANGJIA;
         R_SS_Method = FSWUWANGJIA;  // ignore because it has to be 3 when 2 layer and graisizedist
         FS_BL_Method = FSWUWANGJIA;
         FS_SS_Method = FSWUWANGJIA;
-    } else
-        if(!SwitchUse2Phase && !SwitchUseGrainSizeDistribution) {
-            R_BL_Method = FSRIJN;     // if single layer and no grainsize = simple erosion, then govers
-            R_SS_Method = FSGOVERS;
-            FS_BL_Method = FSRIJN;
-            FS_SS_Method = FSGOVERS;
-        }
+    }
+//    else
+//        if(!SwitchUse2Phase && !SwitchUseGrainSizeDistribution) {
+//            R_BL_Method = FSRIJN;     // if single layer and no grainsize = simple erosion, then govers
+//            R_SS_Method = FSGOVERS;
+//            FS_BL_Method = FSRIJN;
+//            FS_SS_Method = FSGOVERS;
+//        }
 
     unity = NewMap(1.0);
 
@@ -2371,6 +2385,7 @@ void TWorld::IntializeOptions(void)
     SwitchSedtrap = false;
     SwitchMulticlass = false;
     SwitchEfficiencyDET = 1;
+    SwitchEfficiencyDETCH = 2;
     SwitchKETimebased = false;
     SwitchIncludeDiffusion = false;
     SwitchIncludeRiverDiffusion = false;

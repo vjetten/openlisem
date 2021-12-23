@@ -108,14 +108,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     SetStyleUI();
     // do some style things
 
-   // label_25->setVisible(false);
-   // label_sedvol->setVisible(false);
-
-
-//    scrollAreaResults->setFixedWidth(500);
-//  //  toolShowMapDisplay->setVisible(false);
-//    //this->adjustSize();
-
     setupPlot();
     // set up the discharge graphs
 
@@ -136,19 +128,21 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     doBatchmode = doBatch; // save in iface for later use
     batchRunname = runname;
     doCheckRainfall(true); // ???????? why here
+    op.doBatchmode = doBatch;  //?????
+    op.hasrunonce = false;
+    op.nrMapsCreated = 0;
 
     if(doBatch)
     {
         runfilelist.clear();
-        runfilelist << runname;//.split(';');
+        runfilelist << runname;
 
-//        for (int n = 0; n < runfilelist.size(); n++) {
         op.runfilename = runname;
-        GetRunfile();   // get the nrunfile and fill namelist
+        GetRunfile();     // get the nrunfile and fill namelist
         ParseInputData(); // fill interface with namelist data and fill mapList
-        // also update DEFmaps for map tree view in interface
-        initMapTree();  // fill the tree strcuture on page 2 with DEFmaps
-        RunAllChecks(); // activate the maps in the tree parts in response to checks
+                          // also update DEFmaps for map tree view in interface
+        initMapTree();    // fill the tree strcuture on page 2 with DEFmaps
+        RunAllChecks();   // activate the maps in the tree parts in response to checks
         E_runFileList->insertItem(0, batchRunname);
 
         stopAct->setChecked(false);
@@ -497,82 +491,6 @@ void lisemqt::on_DisplayComboBox2_currentIndexChanged(int j)
     ComboMinSpinBox2->setValue(op.userMinV.at(i));
     this->showMap();
 }
-/*
-void lisemqt::setSedimentText(int i, int j, int k)
-{
-    // i = TC, j= river or surface, k = BL or SS
-    if (j == 0) {
-        if ( k == 0) {
-            if (i==1) label_RTBL->setText("Channel Bedload TC Van Rijn (simplified)");
-            if (i==2) label_RTBL->setText("Channel Bedload TC Van Rijn (full)");
-            if (i==3) label_RTBL->setText("Channel Bedload TC Wu, Wang & Jia (multiclass)");
-        } else {
-            if (i==0) label_RTSS->setText("Channel Suspended TC Govers");
-            if (i==1) label_RTSS->setText("Channel Suspended TC Van Rijn (simplified)");
-            if (i==2) label_RTSS->setText("Channel Suspended TC Van Rijn (full)");
-            if (i==3) label_RTSS->setText("Channel Suspended TC Wu, Wang & Jia (multiclass)");
-        }
-    } else {
-        if ( k == 0) {
-            if (i==1) label_STBL->setText("Overland flow Bedload TC Van Rijn (simplified)");
-            if (i==2) label_STBL->setText("Overland flow Bedload TC Van Rijn (full)");
-            if (i==3) label_STBL->setText("Overland flow Bedload TC Wu, Wang & Jia (multiclass)");
-        } else {
-            if (i==0) label_STSS->setText("Overland flow Suspended TC Govers");
-            if (i==1) label_STSS->setText("Overland flow Suspended TC Van Rijn (simplified)");
-            if (i==2) label_STSS->setText("Overland flow Suspended TC Van Rijn (full)");
-            if (i==3) label_STSS->setText("Overland flow Suspended TC Wu, Wang & Jia (multiclass)");
-        }
-    }
-}
-//--------------------------------------------------------------------
-void lisemqt::on_E_RBLMethod_valueChanged(int i)
-{
-  //  setSedimentText(i, 0, 0);
-}
-//--------------------------------------------------------------------
-void lisemqt::on_E_RSSMethod_valueChanged(int i)
-{
-    //setSedimentText(i, 0, 1);
-}
-//--------------------------------------------------------------------
-void lisemqt::on_E_BLMethod_valueChanged(int i)
-{
-//    setSedimentText(i, 1, 0);
-}
-//--------------------------------------------------------------------
-void lisemqt::on_E_SSMethod_valueChanged(int i)
-{
-  //  setSedimentText(i, 1, 1);
-}
-*/
-//--------------------------------------------------------------------
-void lisemqt::on_checkSed2Phase_toggled(bool v)
-{
-      sedbox3->setEnabled(v);
-      E_RBLMethod->setEnabled(v);
-      E_BLMethod->setEnabled(v);
-}
-//--------------------------------------------------------------------
-
-//void lisemqt::on_checkSedMultiGrain_toggled(bool v)
-//{
-//    if(v) {
-//        checkSed2Phase->setChecked(false);
-//     //   sedbox1->setEnabled(true);
-//        sedbox2->setEnabled(true);
-//        sedbox3->setEnabled(true);
-//        E_RBLMethod->setValue(3);
-//        E_RSSMethod->setValue(4);
-//        E_BLMethod->setValue(3);
-//        E_SSMethod->setValue(4);
-//        E_RBLMethod->setEnabled(false);
-//        E_RSSMethod->setEnabled(false);
-//        E_BLMethod->setEnabled(false);
-//        E_SSMethod->setEnabled(false);
-
-//    }
-//}
 //--------------------------------------------------------------------
 void lisemqt::setFloodTab(bool yes)
 {
@@ -610,22 +528,25 @@ void lisemqt::setErosionTab()
 {
  //   tabWidgetOptions->setTabEnabled(4, checkDoErosion->isChecked());
 
-    int i1 = E_RBLMethod->value();
-    int i2 = E_RSSMethod->value();
-    int i3 = E_BLMethod->value();
-    int i4 = E_SSMethod->value();
+//    int i1 = E_RBLMethod->value(); //river
+//    int i2 = E_RSSMethod->value();
 
-    E_RBLMethod->setValue(0);
-    E_RSSMethod->setValue(0);
-    E_BLMethod->setValue(0);
-    E_SSMethod->setValue(0);
-    E_RBLMethod->setValue(i1);
-    E_RSSMethod->setValue(i2);
-    E_BLMethod->setValue(i3);
-    E_SSMethod->setValue(i4);
+//    int i3 = E_BLMethod->value(); //OF
+//    int i4 = E_SSMethod->value();
+
+//    E_RBLMethod->setValue(0);
+//    E_RSSMethod->setValue(0);
+//    E_BLMethod->setValue(0);
+//    E_SSMethod->setValue(0);
+
+//    E_RBLMethod->setValue(i1);
+//    E_RSSMethod->setValue(i2);
+//    E_BLMethod->setValue(i3);
+//    E_SSMethod->setValue(i4);
 
     //  yes = checkDoErosion->isChecked();
     outputMapsSediment->setEnabled(checkDoErosion->isChecked());
+
     checkBox_OutConc->setEnabled(checkDoErosion->isChecked());
     checkBox_OutDet->setEnabled(checkDoErosion->isChecked());
     checkBox_OutDep->setEnabled(checkDoErosion->isChecked());
@@ -640,6 +561,7 @@ void lisemqt::setErosionTab()
     ComboMaxSpinBox2->setEnabled(checkDoErosion->isChecked());
     DisplayComboBox2->setEnabled(checkDoErosion->isChecked());
 
+    // reset output to 0
     if (!checkDoErosion->isChecked())
     {
         sedgroup->setEnabled(true);
@@ -919,15 +841,21 @@ void lisemqt::SetStyleUI()
     label_baseflowtot->setVisible(false);
     label_195->setVisible(false);
 
+    GW_initlevel->setVisible(false);
+    label_61->setVisible(false);
+
     toolBar_2->setMovable( false);
-    toolBar->setMovable( false);
+    toolBar->setMovable( false);   
+    //    scrollAreaResults->setFixedWidth(500);
+    //  //  toolShowMapDisplay->setVisible(false);
+    //    //this->adjustSize();
 
     QString flat("QToolButton { background-color: white; border: none; }");
 
     groupBoxInput->setStyleSheet("QGroupBox::title{color: #4477aa;}");
     groupBoxOutput->setStyleSheet("QGroupBox::title{color: #4477aa;}");
     checkDoErosion->setStyleSheet("QCheckBox {color: #4477aa;}");
-    checkSed2Phase->setStyleSheet("QCheckBox {color: #4477aa;}");
+    //checkSed2Phase->setStyleSheet("QCheckBox {color: #4477aa;}");
     label_55->setStyleSheet("QLabel {color: #4477aa;}");
     label_88->setStyleSheet("QLabel {color: #4477aa;}");
     label_9->setStyleSheet("QLabel {color: #4477aa;}");
@@ -1615,7 +1543,7 @@ void lisemqt::resetTabOptions()
     BaseflowParams->setEnabled(false);
 
     checkChannelInflow->setChecked(false);
-    checkChannelAdjustCHW->setChecked(true);
+    //checkChannelAdjustCHW->setChecked(true);
 
 
     checkRoadsystem->setChecked(false);
@@ -1763,14 +1691,12 @@ void lisemqt::resetTabAdvanced()
     E_FloodFluxLimiter->setValue(1);     //minmod etc
     E_courantFactorSed->setValue(0.2);
     checkVariableTimestep->setChecked(false);
-    checkHeun->setChecked(false);
     checkTimeavgV->setChecked(true);
     checkLinkedList->setChecked(false);
-    checkErosionInsideLoop->setChecked(true);
+    //checkErosionInsideLoop->setChecked(true);
     checkGravityToChannel->setChecked(false);
     checkKinWaveChannel->setChecked(true);
     E_ChannelKinWaveDt->setValue(60.0);
-    checkKinWaveChannelAvg->setChecked(false);
     nrUserCores->setValue(0);
 }
 
@@ -2095,12 +2021,12 @@ void lisemqt::on_check2DDiagonalFlow_toggled(bool checked)
 }
 //--------------------------------------------------------------------
 
-void lisemqt::on_checkDiffusion_toggled(bool checked)
-{
-    E_SigmaDiffusion->setEnabled(checked);
-    label_101->setEnabled(checked);
-    label_139->setEnabled(checked);
-}
+//void lisemqt::on_checkDiffusion_toggled(bool checked)
+//{
+//    E_SigmaDiffusion->setEnabled(checked);
+//    label_101->setEnabled(checked);
+//    label_139->setEnabled(checked);
+//}
 //--------------------------------------------------------------------
 
 void lisemqt::on_checkHouses_toggled(bool checked)

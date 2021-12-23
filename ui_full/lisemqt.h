@@ -409,15 +409,6 @@ public slots:
     void on_toolButton_SwatreTableShow_clicked();
     void on_E_floodMinHeight_valueChanged(double);
 
-  //  void on_checkBox_SedSingleSingle_toggled(bool v);
-    void on_checkSed2Phase_toggled(bool v);
-//    void on_checkSedMultiGrain_toggled(bool v);
-
-//    void on_E_RBLMethod_valueChanged(int);
-//    void on_E_RSSMethod_valueChanged(int);
-//    void on_E_BLMethod_valueChanged(int);
-//    void on_E_SSMethod_valueChanged(int);
-
     void on_DisplayComboBox_currentIndexChanged(int);
     void on_DisplayComboBox2_currentIndexChanged(int);
 
@@ -510,7 +501,7 @@ private slots:
 
     void on_check2DDiagonalFlow_toggled(bool checked);
 
-    void on_checkDiffusion_toggled(bool checked);
+    //void on_checkDiffusion_toggled(bool checked);
 
     void on_checkHouses_toggled(bool checked);
 

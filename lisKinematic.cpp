@@ -217,57 +217,27 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
         QinKW->Drc = 0;
     }}
 
-//        #pragma omp parallel for ordered num_threads(userCores)
-//        for(long i_ =  0; i_ < _crlinked_.size(); i_++) {
-//            int r = _crlinked_.at(i_).r;
-//            int c = _crlinked_.at(i_).c;
-
-//            #pragma omp ordered
-//            if (_crlinked_[i_].nr > 0) {
-//                for(int j = 0; j < _crlinked_[i_].nr; j++) {
-//                    int rr = _crlinked_[i_].inn[j].r;
-//                    int cr = _crlinked_[i_].inn[j].c;
-//                    QinKW->Drc += _Q->Drcr;
-//                }
-//            }
-//        }
-
-//        #pragma omp parallel for ordered num_threads(userCores)
-//        for(long i_ =  0; i_ < _crlinked_.size(); i_++) {
-//            int r = _crlinked_.at(i_).r;
-//            int c = _crlinked_.at(i_).c;
-
-//            #pragma omp ordered
-//            if (QinKW->Drc > 0 || _Q->Drc > 0) {
-//               _Qn->Drc = IterateToQnew(QinKW->Drc,_Q->Drc, _q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc);
-//            }
-//        }
-
- //   #pragma omp parallel for ordered num_threads(userCores)
+ //  #pragma omp parallel for ordered num_threads(userCores)
     for(long i_ =  0; i_ < _crlinked_.size(); i_++)
     {
         int r = _crlinked_.at(i_).r;
         int c = _crlinked_.at(i_).c;
         double Qin = 0;
 
-   //     #pragma omp critical
-    //    {
-            if (_crlinked_.at(i_).nr > 0) {
-                for(int j = 0; j < _crlinked_.at(i_).nr; j++) {
-                    int rr = _crlinked_.at(i_).inn[j].r;
-                    int cr = _crlinked_.at(i_).inn[j].c;
-                    Qin += _Qn->Drcr;
-                }
+        if (_crlinked_.at(i_).nr > 0) {
+            for(int j = 0; j < _crlinked_.at(i_).nr; j++) {
+                int rr = _crlinked_.at(i_).inn[j].r;
+                int cr = _crlinked_.at(i_).inn[j].c;
+                Qin += _Qn->Drcr;
             }
-            QinKW->Drc = Qin;
+        }
+        QinKW->Drc = Qin;
 
-         //   #pragma omp ordered
-            if (Qin > 0 || _Q->Drc > 0) {
-                itercount = 0;
-                _Qn->Drc = IterateToQnew(Qin,_Q->Drc, _q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc);
-               // tmb->Drc = itercount;
-            }
-       // }
+        if (Qin > 0 || _Q->Drc > 0) {
+            itercount = 0;
+            _Qn->Drc = IterateToQnew(Qin,_Q->Drc, _q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc);
+           // tmb->Drc = itercount;
+        }
     }
 }
 //---------------------------------------------------------------------------
@@ -304,9 +274,9 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_,long nrcells, cT
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
-#   pragma omp parallel num_threads(userCores)
+    #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        _Qsn->Drc = 0;
+       // _Qsn->Drc = 0;
         QinKW->Drc = 0;
     }}
 
@@ -347,14 +317,14 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_,long nrcells, cT
 
         QinKW->Drc = Sin;
 
-        //if (Sin > 0 || _Qs->Drc > 0) {
-            _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
-            _Qsn->Drc = std::min(_Qsn->Drc, QinKW->Drc+_Sed->Drc/_dt);
+        _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
+        _Qsn->Drc = std::min(_Qsn->Drc, QinKW->Drc+_Sed->Drc/_dt);
             // no more sediment outflow than total sed in cell
-            _Sed->Drc = std::max(0.0, QinKW->Drc*_dt + _Sed->Drc - _Qsn->Drc*_dt);
+        _Sed->Drc = std::max(0.0, QinKW->Drc*_dt + _Sed->Drc - _Qsn->Drc*_dt);
             // new sed volume based on all fluxes and org sed present
-       // }
     }
+
+
 }
 //---------------------------------------------------------------------------
 QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)

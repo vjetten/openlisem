@@ -399,7 +399,6 @@ void lisemqt::initOP()
     op.FloodDepTot = 0;
     op.FloodDetTot = 0;
     op.volFloodmm = 0;
-
     op.format = "PCRaster";
 
 }

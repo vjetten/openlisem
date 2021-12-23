@@ -284,7 +284,7 @@ void TWorld::OutputUI(void)
         }
     }
     // MAP DISPLAY VARIABLES
-
+    avgTheta();
 }
 //---------------------------------------------------------------------------
 void TWorld::ReportTotalSeries(void)

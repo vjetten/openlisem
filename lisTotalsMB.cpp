@@ -304,16 +304,22 @@ void TWorld::Totals(void)
     Qtot_dt += BoundaryQ*_dt;
 
     // output fluxes for reporting to file and screen in l/s!]
+    double factor = 1000.0;
+    if (QUnits == 1)
+        factor = 1.0;
+    if(SwitchIncludeChannel) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            Qoutput->Drc = factor*ChannelQn->Drc;
+        }}
+    }
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
-        double factor = 1000.0;
-        if (QUnits == 1)
-            factor = 1.0;
-        Qoutput->Drc = factor*(Qn->Drc + (SwitchIncludeChannel ? ChannelQn->Drc : 0.0) + Qflood->Drc);// in l/s
+        Qoutput->Drc += factor*(Qn->Drc + Qflood->Drc);// in l/s or m3/s
         Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;
     }}
-
     // Total outflow in m3 for all timesteps
     // does NOT include flood water leaving domain (floodBoundaryTot)
 
@@ -333,7 +339,7 @@ void TWorld::Totals(void)
     if (SwitchErosion)
     {
         SedTot = 0;
-           // #pragma omp parallel for reduction(+:DetFlowTot,DepTot,SedTot) num_threads(userCores)
+        //#pragma omp parallel for reduction(+:DetSplashTot,DetFlowTot,DepTot,SedTot) num_threads(userCores)
         FOR_ROW_COL_MV_L {
              // Dep and Detflow are zero if 2Ddyn
             DetSplashTot += DETSplash->Drc;
@@ -352,6 +358,13 @@ void TWorld::Totals(void)
             DETFlowCum->Drc += DETFlow->Drc;
             DEPCum->Drc += DEP->Drc;
         }}
+//        DetSplashTot = MapTotal(*DETSplashCum);
+//        DetFlowTot = MapTotal(*DETFlowCum);
+//        DepTot = MapTotal(*DEPCum);
+//        SedTot = MapTotal(*Sed);
+//        DetTot = DetFlowTot + DetSplashTot;
+
+
         // DEP is set to 0 each timestep
         // for total soil loss calculation: TotalSoillossMap
 
@@ -369,7 +382,7 @@ void TWorld::Totals(void)
         {
           //  #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
             FOR_ROW_COL_LDDCH5 {
-                SoilLossTot_dt += ChannelQsn->Drc * _dt;
+                SoilLossTot_dt += ChannelQsn->Drc * _dt;               
             }}
 
             ChannelDetTot += MapTotal(*ChannelDetFlow);
@@ -384,13 +397,17 @@ void TWorld::Totals(void)
 
         // used for mass balance and screen output
         FloodDetTot += (SwitchUse2Phase ? MapTotal(*BLDetFlood) : 0.0) + MapTotal(*SSDetFlood);
-        FloodDepTot += mapTotal(*DepFlood);
+        FloodDepTot += MapTotal(*DepFlood);
         FloodSedTot = (SwitchUse2Phase ? MapTotal(*BLFlood) : 0.0) + MapTotal(*SSFlood);
 
+        if (SwitchUse2Phase) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                DETFlowCum->Drc += BLDetFlood->Drc;
+            }}
+        }
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            if (SwitchUse2Phase)
-                DETFlowCum->Drc += BLDetFlood->Drc;
             DETFlowCum->Drc += SSDetFlood->Drc;
             DEPCum->Drc += DepFlood->Drc;
         }}

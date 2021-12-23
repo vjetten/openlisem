@@ -496,7 +496,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
     if(!SwitchUseMaterialDepth)
     {
         if(channel)
-            return detachment * ChannelY->Drc;
+            return detachment *= ChannelY->Drc;
         else
             return detachment *= Y->Drc;
     }
@@ -999,20 +999,27 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
 {
     double R=0, hs=0, S = 0, w = 0;
     cTMap *Wd = nullptr;
+    double d50m;
 
     if (type == 0) {
+        // river
+        d50m = D50CH->Drc/1000000.0;
         hs = ChannelSSDepth->Drc;
         S = ChannelGrad->Drc;
         w = ChannelWidth->Drc;
         R = (w*h)/(2*h+w);
+
     } else
         if (type == 1) {
+            // flood
+            d50m = D50->Drc/1000000.0;
             hs = SSDepthFlood->Drc;
             S = Grad->Drc;
             w = ChannelAdj->Drc;
             R = (w*h)/(2*h+w);
         } else
             if (type == 2) {
+                // kin wave
                 hs = WHrunoff->Drc;
                 S = Grad->Drc;
                 w = FlowWidth->Drc;
@@ -1028,10 +1035,6 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
 
     double ps = 2650.0; //2400.0;
     double pw = 1000.0;
-    double d50m = (D50->Drc/1000000.0);
-    if (type == 0)
-        d50m = D50CH->Drc/1000000.0;
-    //double d90m = (D90->Drc/1000000.0);
     double tc = 0;
 
     if(method == FSHAIRSINEROSE)
@@ -1047,30 +1050,39 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
             //### Calc transport capacity
             double uc = 100.0*U*S; //in cm/s  in this formula assuming grad is SINE
             double ucr = 0.4;   // critical unit streampower in cm/s
-            double cg = pow((D50->Drc+5)/0.32, -0.6);
-            double dg = pow((D50->Drc+5)/300, 0.25);
+            double cg = cgovers->Drc;//pow((d50m+5)/0.32, -0.6);
+            double dg = dgovers->Drc;//pow((d50m+5)/300, 0.25);
             tc = ps * cg * pow(std::max(0.0, uc-ucr), dg); // kg/m3
 
         } else
             if(method == FSRIJN)
             {
                 //https://www.leovanrijn-sediment.com/papers/Formulaesandtransport.pdf
+                //double kinvis = 1e-6;
+                //double Ds = d50m * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0)); //dimensionless sed size
+                //cr,suspension = 0.3/(1+ D*) + 0.1 [1-exp(-0.05D*)
+                // critical shields parameter
+                //double cs = 0.3/(1+Ds)+0.1*(1-exp(-0.05*Ds));
+                // Ucritical, suspension= 5.75 [log(12h/(6D50))] [cr,suspension (s-1) g D50]0.5
                 double ucr;
-                //  double kinvis = 1e-6;
+               // ucr = 5.75*(log10(12*hs/(6.0*d50m))*qSqrt(cs*1.650*GRAV*d50m); //1.650 = s-1
+
                 if( d50m < 0.0005) // 500 mu, so always the first one!
                     ucr = 0.19 * pow(d50m, 0.1) * log10(2.0* h/d50m); //p5
                 else
                     ucr = 8.5  * pow(d50m, 0.6) * log10(2.0* h/d50m);
 
-                double me = std::max((U - ucr)/sqrt(GRAV * d50m * (ps/pw - 1)),0.0); //p15
+                double me = 0;
+                if (U > ucr)
+                    me =(U - ucr)/sqrt(GRAV * d50m * 1.65); //p15 mobility parameter
                 double ds = d50m * 25296; //pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0)); // let op: D* = 25296*D50m! R2 = 1
 
-                double qs = 0.008 * ps*U*d50m * pow(me, 2.4) * pow(ds, -0.6);
-                //double qs = 0.03 * ps*U*d50m * me*me * pow(ds, -0.6); // kg/s/m
+                //double qs = 0.008 * ps*U*d50m * pow(me, 2.4) * pow(ds, -0.6);
+                double qs = U > ucr ? 0.03 * ps*U*d50m * me*me * pow(ds, -0.6) : 0; // kg/s/m
                 // van rijn 2007?, p 17, eq 6.4
                 ChannelQsr->Drc = qs;
+                //qDebug() << qs;
                 tc =  qs/ (U * h); //kg/s/m / (m2/s) =  kg/m3   => WH or WHs
-                //tc = qs * dt/(w*dx);
 
             }else
                 if(method == FSRIJNFULL)
@@ -1088,7 +1100,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                 */
                     //van Rijn full (1984) following page 1632
                     double kinvis = 1e-6;
-                    double ds = d50m * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0));
+                    double ds = d50m * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0)); //
                     //double chezy = 18 * log10(4 * R/d90m);
                     double chezy = 18 * log10(4 * R/d50m);
                     double uc = U * sqrt(GRAV)/chezy;

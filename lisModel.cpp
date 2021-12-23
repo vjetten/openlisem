@@ -113,7 +113,8 @@ void TWorld::saveMBerror2file(bool doError, bool start)
 // the actual model with the main loop
 void TWorld::DoModel()
 {
-    DestroyData();
+//    if(op.hasrunonce)
+  //      DestroyData();
     // destroy data previous run
 
     loc = QLocale::system(); // current locale
@@ -292,12 +293,14 @@ void TWorld::DoModel()
             ReportMaps();
 
         //DEBUG("Free data structure memory");
-        //DestroyData();  // destroy all maps automatically
-
+        op.hasrunonce = true;
+        DestroyData();  // destroy all maps automatically
+        op.nrMapsCreated = maplistnr;
         emit done("finished");
     }
     catch(...)  // if an error occurred
     {
+        op.nrMapsCreated = maplistnr;
         DestroyData();
 
         emit done("ERROR STOP: "+ErrorString);
@@ -359,10 +362,10 @@ void TWorld::HydrologyProcesses()
         if (InfilMethod != INFIL_NONE) {
            cell_InfilMethods(r, c);
 
-           cell_Redistribution(r, c);
+           cell_Redistribution1(r, c);
 
            if (!SwitchImpermeable && !SwitchChannelBaseflow)
-               Perc->Drc = cell_Percolation1(r, c, 1.0);
+               Perc->Drc = cell_Percolation(r, c, 1.0);
             // if baseflow is active percollation is done there, so do not do it here
         }
 
@@ -413,7 +416,7 @@ void TWorld::HydrologyProcesses()
     // ETa is subtracted from canopy, soil water surfaces
     // divided over 12 hours in a day with sine curve
 
-    avgTheta();
+   // avgTheta();
 
 }
 //---------------------------------------------------------------------------
@@ -437,7 +440,6 @@ void TWorld::ChannelandTileflow()
         ChannelFlow();            //channel kin wave for water and sediment
     }
     _dt=_dt_user;
-    //ChannelFillDam();
 
     ChannelFlowDetachmentNew();  //detachment, deposition for SS and BL
 

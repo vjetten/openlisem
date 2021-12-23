@@ -73,7 +73,7 @@ void TWorld::ChannelFlowDetachmentNew()
     if (!SwitchErosion)
         return;
 
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
 
         RiverSedimentLayerDepth(r,c);
@@ -153,7 +153,8 @@ void TWorld::ChannelFlowDetachmentNew()
             minTC = std::min(SSTC - SSC, 0.0);
 
             if (minTC < 0) {
-                TransportFactor = (1-exp(-_dt*TSettlingVelocitySS/ChannelWH->Drc)) * sswatervol;
+                //TransportFactor = (1-exp(-_dt*TSettlingVelocitySS/ChannelWH->Drc)) * sswatervol;
+                TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
                // TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
                 //TransportFactor = std::min(TransportFactor, ssdischarge * _dt);
 
@@ -172,7 +173,7 @@ void TWorld::ChannelFlowDetachmentNew()
                     detachment = maxTC * std::min(TransportFactor, sswatervol);
                     // cannot have more detachment than remaining capacity in flow
 
-                    detachment = DetachMaterial(r,c,1,true,false,false, detachment);
+                    detachment *= ChannelY->Drc;//DetachMaterial(r,c,1,true,false,false, detachment);
                     // multiply by Y
 
     //                if(MAXCONC * sswatervol < SS + detachment)
@@ -405,7 +406,7 @@ FOR_ROW_COL_MV_CH {
     //diffusion coefficient according to J.Smagorinski (1964)
     double eddyvs = cdx * dux;
     //and devide by turbulent prandtl-smidth number, def 1.0
-    double eta = eddyvs/FS_SigmaDiffusion;
+    double eta = eddyvs/R_SigmaDiffusion;
 
     //add diffusive fluxes to previous cell in channel.
     if(foundp)

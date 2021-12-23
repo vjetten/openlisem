@@ -29,7 +29,7 @@
 // out[put is new Lw and new Thetaeff and ThetaI2
 void TWorld::cell_Redistribution1(int r, int c)
 {
-    /*
+
     double Percolation, pore, theta, thetar, theta_E;
     double SoilDep2, pore2, theta2, thetar2, FC, FC2;
     double Lw_ = Lw->Drc;
@@ -182,8 +182,7 @@ void TWorld::cell_Redistribution1(int r, int c)
         ThetaI2->Drc = theta2;
         Lw->Drc = Lw_;
     } // SwitchTwoLayer
-    */
-}
+  }
 //---------------------------------------------------------------------------
 // redistribution of water from the wetting front to the layer below. Lw decreases and thetai increases
 // percolation is done after this

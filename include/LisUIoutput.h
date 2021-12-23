@@ -125,6 +125,8 @@ struct output{
     QString datestamp;
 
     bool doBatchmode;
+    bool hasrunonce;
+    int nrMapsCreated;
 };
 
 
