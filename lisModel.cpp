@@ -195,6 +195,7 @@ void TWorld::DoModel()
             else
                 GetRainfallData(rainFileName);
           //  op.maxRainaxis = getmaxRainfall();
+            rainplace = 0;
         }
         if (SwitchIncludeET)
         {

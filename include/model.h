@@ -497,6 +497,7 @@ public:
     int currentRainfallrow;
     int currentETrow;
     int currentSnowmeltrow;
+    int rainplace;
     QVector <RAIN_LIST> RainfallSeriesM;  // rainfall vector of records
     QVector <RAIN_LIST> ETSeriesM;
     QVector <RAIN_LIST> SnowmeltSeriesM;

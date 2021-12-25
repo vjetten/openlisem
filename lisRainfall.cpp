@@ -23,20 +23,6 @@
 **
 *************************************************************************/
 
-/*!
-  \file lisRainintc.cpp
-  \brief Get rainfall, make a rainfall map
-  \brief Get ET, make a ETa map
-
-functions: \n
-- void TWorld::GetSpatialMeteoData(QString name, int type) \n
-- void TWorld::GetRainfallData(void) \n
-- void TWorld::GetETData(QString name) \n
-- void TWorld::GetRainfallMap(void) \n
-- void TWorld::GetETMap(void) \n
-- double TWorld::getTimefromString(QString sss) \n
- */
-
 #include <memory>
 #include "io.h"
 #include "model.h"
@@ -327,11 +313,6 @@ void TWorld::GetRainfallMapfromStations(void)
     bool norain = false;
     bool samerain = false;
 
-//    if (!SwitchRainfall)
-//        return;
-//    if (SwitchRainfallSatellite)
-//        return;
-
     // from time t to t+1 the rain is the rain of t
 
     // where are we in the series
@@ -360,50 +341,39 @@ void TWorld::GetRainfallMapfromStations(void)
         if (!samerain) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                Rain->Drc = RainfallSeriesM[currentrow].intensity[(int) RainZone->Drc-1]*tt;
+                double rain_ = RainfallSeriesM[currentrow].intensity[(int) RainZone->Drc-1]*tt;
+                if (rain_ > 0)
+                    rainStarted = true;
+
+                double rainc_ = rain_ * _dx/DX->Drc;
+                // correction for slope dx/DX, water spreads out over larger area
+                RainCumFlat->Drc += rain_;
+                // cumulative rainfall
+                RainCum->Drc += rainc_;
+                // cumulative rainfall corrected for slope, used only in interception
+                RainNet->Drc = rainc_;
+                // net rainfall in case of interception
+                Rain->Drc = rain_;
+                Rainc->Drc = rainc_;
+
             }}
         }
     }
     currentRainfallrow = currentrow;
 
     // find start time of rainfall, for flood peak and rain peak
-    if (!rainStarted) {
-        FOR_ROW_COL_MV {
-            if(Rain->Drc > 0) {
-                rainStarted = true;
-                break;
-            }
-        }
-    }
     if (rainStarted && RainstartTime == -1)
         RainstartTime = time;
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
-        Rainc->Drc = Rain->Drc * _dx/DX->Drc;
-        // correction for slope dx/DX, water spreads out over larger area
-        RainCumFlat->Drc += Rain->Drc;
-        // cumulative rainfall
-        RainCum->Drc += Rainc->Drc;
-        // cumulative rainfall corrected for slope, used only in interception
-        RainNet->Drc = Rainc->Drc;
-        // net rainfall in case of interception
-    }}
 }
 //---------------------------------------------------------------------------
 void TWorld::GetRainfallMap(void)
 {
     double currenttime = (time)/60;
-    int  rainplace;
+//    int  rainplace;
     double tt = _dt/3600000.0 * PBiasCorrection; // mm/h to m -> mm/h = mm X/3600*_dt -> X*0.0001
     bool norain = false;
     bool samerain = false;
-
-//    if (!SwitchRainfall)
-//        return;
-//    if (!SwitchRainfallSatellite)
-//        return;
 
     // from time t to t+1 the rain is the rain of t
 
@@ -426,18 +396,25 @@ void TWorld::GetRainfallMap(void)
             RainNet->Drc = 0;
             // net rainfall in case of interception
             Rainc->Drc = 0;
-
         }}
     } else {
         // find current record
-        #pragma omp parallel for ordered num_threads(userCores)
-        for (rainplace = 0; rainplace < nrRainfallseries-1; rainplace++) {
-            if (currenttime >= RainfallSeriesMaps[rainplace].time && currenttime < RainfallSeriesMaps[rainplace+1].time) {
+
+//        for (rainplace = 0; rainplace < nrRainfallseries-1; rainplace++) {
+//            if (currenttime >= RainfallSeriesMaps[rainplace].time && currenttime < RainfallSeriesMaps[rainplace+1].time) {
+//                currentrow = rainplace;
+//                break;
+//            }
+//        }
+
+            while ((rainplace < nrRainfallseries-1) &&
+                (currenttime >= RainfallSeriesMaps[rainplace].time &&
+                 currenttime < RainfallSeriesMaps[rainplace+1].time))
+            {
                 currentrow = rainplace;
-                //break;
+                rainplace++;
             }
         }
-
         if (currentrow == currentRainfallrow && currentrow > 0)
             samerain = true;
         // get the next map from file
@@ -454,10 +431,10 @@ void TWorld::GetRainfallMap(void)
                     ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[rainplace].name;
                 } else
                     rain_ = _M->Drc * tt;
-                //Rain->Drc = _M->Drc * tt;
+
                 if (rain_ < 0)
                     rain_ = 0;
-                if(rain_ > 0)
+                if (rain_ > 0)
                     rainStarted = true;
 
                 double Rainc_ = rain_ * _dx/DX->Drc;
@@ -472,24 +449,11 @@ void TWorld::GetRainfallMap(void)
                 Rainc->Drc = Rainc_;
             }}
         } //samerain
-    }
+   // }
     currentRainfallrow = currentrow;
 
     if (rainStarted && RainstartTime == -1)
         RainstartTime = time;
-
-//    #pragma omp parallel for num_threads(userCores)
-//    FOR_ROW_COL_MV_L {
-//        double Rainc_ = Rain->Drc * _dx/DX->Drc;
-//        // correction for slope dx/DX, water spreads out over larger area
-//        RainCumFlat->Drc += Rain->Drc;
-//        // cumulative rainfall
-//        RainCum->Drc += Rainc_;
-//        // cumulative rainfall corrected for slope, used in interception
-//        RainNet->Drc = Rainc_;
-//        // net rainfall in case of interception
-//        Rainc->Drc = Rainc_;
-//    }}
 
 }
 //---------------------------------------------------------------------------

@@ -154,11 +154,6 @@ void TWorld::GetETMap(void)
     bool noET = false;
     bool sameET= false;
 
-//    if (!SwitchIncludeET)
-//        return;
-//    if (SwitchETSatellite)
-//        return;
-
     // from time t to t+1 the ET is the ET of t
 
     // where are we in the series
@@ -204,11 +199,6 @@ void TWorld::GetETSatMap(void)
 
     bool noET = false;
     bool sameET= false;
-
-//    if (!SwitchIncludeET)
-//        return;
-//    if (!SwitchETSatellite)
-//        return;
 
     // from time t to t+1 the ET is the ET of t
 
