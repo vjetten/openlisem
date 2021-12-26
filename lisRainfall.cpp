@@ -175,7 +175,7 @@ void TWorld::GetRainfallData(QString name)
     }
 
     nrRainfallseries = 0;
-    RainfallSeriesM.clear();
+    RainfallSeries.clear();
     currentRainfallrow = 0;
 
     // read rainfall text file
@@ -282,35 +282,24 @@ void TWorld::GetRainfallData(QString name)
             }
         }
 
-        RainfallSeriesM << rl;
+        RainfallSeries << rl;
     }
 
     // sometimes not an increasing timeseries
     for(int i = 1; i < nrSeries; i++){
-        if (RainfallSeriesM [i].time <= RainfallSeriesM[i-1].time) {
+        if (RainfallSeries[i].time <= RainfallSeries[i-1].time) {
             ErrorString = QString("Rainfall records time is not increasing at row %1.").arg(i);
             throw 1;
         }
     }
 
-    //add a zero at the end
-//    nrSeries++;
-//    rl.time = RainfallSeriesM[nrSeries-1].time+1440;
-
-//    for (int i = 1; i < nrStations; i++)
-//        rl.intensity << 0.0;
-
-  //  RainfallSeriesM << rl;
-
-    nrRainfallseries = RainfallSeriesM.size();//nrSeries;
+    nrRainfallseries = RainfallSeries.size();//nrSeries;
 }
 //---------------------------------------------------------------------------
 void TWorld::GetRainfallMapfromStations(void)
 {
     double currenttime = (time)/60;
-    int  rainplace;
     double tt = _dt/3600000.0;
-    bool norain = false;
     bool samerain = false;
 
     // from time t to t+1 the rain is the rain of t
@@ -318,47 +307,52 @@ void TWorld::GetRainfallMapfromStations(void)
     // where are we in the series
     int currentrow = 0;
     // if time is outside records then use map with zeros
-    if (currenttime < RainfallSeriesM[0].time || currenttime > RainfallSeriesM[nrRainfallseries-1].time)
-        norain = true;
-
-    if (norain) {
+    if (currenttime < RainfallSeries[0].time || currenttime > RainfallSeries[nrRainfallseries-1].time)
+    {
+        DEBUG("run time outside rainfall records");
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             Rain->Drc = 0;
+            Rainc->Drc = 0;
+            RainNet->Drc = 0;
         }}
-    } else {
-        // find current record
-        for (rainplace = currentRainfallrow; rainplace < nrRainfallseries-1; rainplace++) {
-            if (currenttime >= RainfallSeriesM[rainplace].time && currenttime < RainfallSeriesM[rainplace+1].time) {
-                currentrow = rainplace;                
-                break;
-            }
-        }
-        if (currentrow == currentRainfallrow && currentrow > 0)
-            samerain = true;
-
-        // get the next map from file
-        if (!samerain) {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                double rain_ = RainfallSeriesM[currentrow].intensity[(int) RainZone->Drc-1]*tt;
-                if (rain_ > 0)
-                    rainStarted = true;
-
-                double rainc_ = rain_ * _dx/DX->Drc;
-                // correction for slope dx/DX, water spreads out over larger area
-                RainCumFlat->Drc += rain_;
-                // cumulative rainfall
-                RainCum->Drc += rainc_;
-                // cumulative rainfall corrected for slope, used only in interception
-                RainNet->Drc = rainc_;
-                // net rainfall in case of interception
-                Rain->Drc = rain_;
-                Rainc->Drc = rainc_;
-
-            }}
-        }
+        return;
     }
+
+    // find current record
+    while (currenttime >= RainfallSeries[rainplace].time
+           && currenttime < RainfallSeries[rainplace+1].time)
+    {
+        currentrow = rainplace;
+       // qDebug() << rainplace << currentrow << currenttime << RainfallSeriesMaps[rainplace].time;
+        rainplace++;
+    }
+
+    if (currentrow == currentRainfallrow && currentrow > 0)
+        samerain = true;
+
+    // get the next map from file
+    if (!samerain) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            Rain->Drc = RainfallSeries[currentrow].intensity[(int) RainZone->Drc-1]*tt;
+            if (Rain->Drc > 0)
+                rainStarted = true;
+        }}
+    }
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        Rainc->Drc = Rain->Drc * _dx/DX->Drc;
+        // correction for slope dx/DX, water spreads out over larger area
+        RainCumFlat->Drc += Rain->Drc;
+        // cumulative rainfall
+        RainCum->Drc += Rainc->Drc;
+        // cumulative rainfall corrected for slope, used in interception
+        RainNet->Drc = Rainc->Drc;
+        // net rainfall in case of interception
+    }}
+
     currentRainfallrow = currentrow;
 
     // find start time of rainfall, for flood peak and rain peak
@@ -370,9 +364,7 @@ void TWorld::GetRainfallMapfromStations(void)
 void TWorld::GetRainfallMap(void)
 {
     double currenttime = (time)/60;
-//    int  rainplace;
     double tt = _dt/3600000.0 * PBiasCorrection; // mm/h to m -> mm/h = mm X/3600*_dt -> X*0.0001
-    bool norain = false;
     bool samerain = false;
 
     // from time t to t+1 the rain is the rain of t
@@ -381,81 +373,69 @@ void TWorld::GetRainfallMap(void)
     int currentrow = 0;
     // if time is outside records then use map with zeros
     if (currenttime < RainfallSeriesMaps[0].time || currenttime > RainfallSeriesMaps[nrRainfallseries-1].time) {
-        norain = true;
         DEBUG("run time outside rainfall records");
-    }
-
-    if (norain) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             Rain->Drc = 0;
-            //RainCumFlat->Drc += Rain->Drc;
-            // cumulative rainfall
-            //RainCum->Drc += Rainc_;
-            // cumulative rainfall corrected for slope, used in interception
             RainNet->Drc = 0;
-            // net rainfall in case of interception
             Rainc->Drc = 0;
         }}
-    } else {
-        // find current record
+        return;
+    }
 
-//        for (rainplace = 0; rainplace < nrRainfallseries-1; rainplace++) {
-//            if (currenttime >= RainfallSeriesMaps[rainplace].time && currenttime < RainfallSeriesMaps[rainplace+1].time) {
-//                currentrow = rainplace;
-//                break;
-//            }
-//        }
+    // find current record
+    while (currenttime >= RainfallSeriesMaps[rainplace].time
+           && currenttime < RainfallSeriesMaps[rainplace+1].time)
+    {
+        currentrow = rainplace;
+       // qDebug() << rainplace << currentrow << currenttime << RainfallSeriesMaps[rainplace].time;
+        rainplace++;
+    }
 
-            while ((rainplace < nrRainfallseries-1) &&
-                (currenttime >= RainfallSeriesMaps[rainplace].time &&
-                 currenttime < RainfallSeriesMaps[rainplace+1].time))
-            {
-                currentrow = rainplace;
-                rainplace++;
-            }
-        }
-        if (currentrow == currentRainfallrow && currentrow > 0)
-            samerain = true;
-        // get the next map from file
-        if (!samerain) {
-            // read a map
-            auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
+    if (currentrow == currentRainfallrow && currentrow > 0)
+        samerain = true;
+    // get the next map from file
+    if (!samerain) {
+        // read a map
+        auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
 
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                double rain_ = 0;
-                if (pcr::isMV(_M->Drc)) {
-                    QString sr, sc;
-                    sr.setNum(r); sc.setNum(c);
-                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[rainplace].name;
-                } else
-                    rain_ = _M->Drc * tt;
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            double rain_ = 0;
+            if (pcr::isMV(_M->Drc)) {
+                QString sr, sc;
+                sr.setNum(r); sc.setNum(c);
+                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[rainplace].name;
+            } else
+                rain_ = _M->Drc * tt;
 
-                if (rain_ < 0)
-                    rain_ = 0;
-                if (rain_ > 0)
-                    rainStarted = true;
+            if (rain_ < 0)
+                rain_ = 0;
+            if (rain_ > 0)
+                rainStarted = true;
+            Rain->Drc = rain_;
+        }}
+    } //samerain
 
-                double Rainc_ = rain_ * _dx/DX->Drc;
-                // correction for slope dx/DX, water spreads out over larger area
-                Rain->Drc = rain_;
-                RainCumFlat->Drc += rain_;
-                // cumulative rainfall
-                RainCum->Drc += Rainc_;
-                // cumulative rainfall corrected for slope, used in interception
-                RainNet->Drc = Rainc_;
-                // net rainfall in case of interception
-                Rainc->Drc = Rainc_;
-            }}
-        } //samerain
-   // }
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        Rainc->Drc = Rain->Drc * _dx/DX->Drc;
+        // correction for slope dx/DX, water spreads out over larger area
+        RainCumFlat->Drc += Rain->Drc;
+        // cumulative rainfall
+        RainCum->Drc += Rainc->Drc;
+        // cumulative rainfall corrected for slope, used in interception
+        RainNet->Drc = Rainc->Drc;
+        // net rainfall in case of interception
+    }}
+
     currentRainfallrow = currentrow;
 
     if (rainStarted && RainstartTime == -1)
         RainstartTime = time;
 
 }
+
 //---------------------------------------------------------------------------
     // not used
 double TWorld::getmaxRainfall()
@@ -472,8 +452,8 @@ double TWorld::getmaxRainfall()
     } else {
         avg = 0;
         for (int i = 0; i < nrRainfallseries-1; i++) {
-            for (int j = 0; j < RainfallSeriesM[i].intensity.size(); j++)
-                avg = avg + RainfallSeriesM[i].intensity[j]*tt;
+            for (int j = 0; j < RainfallSeries[i].intensity.size(); j++)
+                avg = avg + RainfallSeries[i].intensity[j]*tt;
         }
         maxv = std::max(maxv, avg);
     }

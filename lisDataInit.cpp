@@ -120,15 +120,15 @@ void TWorld::DestroyData(void)
     DEBUG("clear meteo structures");
 
     // clear() calls the destruction of all elements in the sturcture
-    RainfallSeriesM.clear();
+    RainfallSeries.clear();
     RainfallSeriesMaps.clear();
 
     if (SwitchSnowmelt) {
-        SnowmeltSeriesM.clear();
+        SnowmeltSeries.clear();
         SnowmeltSeriesMaps.clear();
     }
     if (SwitchIncludeET) {
-        ETSeriesM.clear();
+        ETSeries.clear();
         ETSeriesMaps.clear();
     }
 

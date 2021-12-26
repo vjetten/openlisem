@@ -67,14 +67,11 @@ void TWorld::ChannelSWOFopen()
     }
 
 
-#pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            ChannelQn = 0;
-            tmb->Drc = 0;
-}}
-
-//    fill(*ChannelQn, 0);
-//    fill(*tmb, 0);
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        ChannelQn = 0;
+        tmb->Drc = 0;
+    }}
 
     do {
         stop = false;
@@ -83,7 +80,7 @@ void TWorld::ChannelSWOFopen()
         //fill(*tma, -1);
         dt_req = dt_max;
 
-#pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             double Dx = ChannelDX->Drc;
             double tx = dt/Dx;
@@ -95,7 +92,7 @@ void TWorld::ChannelSWOFopen()
             double W = ChannelWidth->Drc;
             double N = ChannelN->Drc;
             double ch_height = ChannelDepth->Drc;
-            double Hmx = hmx->Drc;
+            double Hmx = hmx->Drc; //?
 
             // new H and V
             double Hn = H;
@@ -134,42 +131,14 @@ void TWorld::ChannelSWOFopen()
                 Zo = DEM->Drcr;
                 Wo = ChannelWidth->Drcr;
 
-                // float3 hll_x1 = F_HLL2(ch_h,ch_v,0,chn_h,chn_v,0);
-                // float ch_q = (dt/dx)*(max(ch_width,chn_width)/dx)*((dx * 0.5*(chn_width +ch_width)) *hll_x1.x);
-                // ch_q = min(0.25f * ch_vol,ch_q);
-                // ch_q = max(-0.25f * chn_vol,ch_q);
-                // ch_q = ch_q * 0.5;
-                // float ch_slope = (z + ch_h - chn_z - chn_h)/dx;
-                // ch_vadd = ch_vadd + dt * 0.5 * GRAV * max(-1.0f,min(1.0f,(float)(ch_slope)));
-                // if(ch_q < 0)
-                // {
-                //         float new_ch_vol = chhn*(ch_width*dx);
-                //         chvn = (chvn * new_ch_vol - chn_v *(ch_q))/max(0.01f,new_ch_vol - ch_q);
-                // }
-                // chhn = chhn - ch_q/(ch_width * dx);
-                // flux_chx2 = flux_chx2 + ch_q;
-
                 hll_out = F_Riemann(H,V,0, Ho,Vo,0);
-                // 1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
-                double Q = tx * hll_out.v[0] * (std::max(W,Wo)/Dx * (Dx*0.5*(W+Wo)));
-                // s/m * m2/s * relatieve breedte (waarom max) * channel oppervlakte = volume
-                double Volo = Wo*Dx*Ho;
-                double Vol = W*Dx*H;
-                Q = std::max(-C*Volo, std::min(Q, C*Vol));
-                if(Q < 0) {
-                    Vn = (Vn*Vol - Vo*Q)/std::max(0.01,Vol - Q);
-                }
-                double s_zh_out = std::min(B, std::max(-B, (H + Z - Zo - Ho)/Dx));
-                ch_vadd = ch_vadd + dt * 0.5 * GRAV * s_zh_out;
-                // gravity pressure deel
-                Hn = Hn - Q/(W*Dx);
-                flux_out = flux_out + Q; //note m3? must be m3/s for use as Qn
-
+                double gflow_out = std::min(B, std::max(-B, (H + Z - Zo - Ho)/Dx));//GRAV*0.5*(Ho-H)*(Ho+H);
+                flux_out = hll_out.v[0]/(0.5*(W+Wo)) + gflow_out;
             }
 
             // ===== weighed sum inflow from upstream cells =====
             double flux_in = 0;
-            double ch_vaddw = 0.5;
+            double ch_vaddw = 0;
             for (int i = 1; i <= 9; i++)
             {
                 int rr, cr, ldd = 0;
@@ -193,23 +162,17 @@ void TWorld::ChannelSWOFopen()
                     double Wi = ChannelWidth->Drcr;
 
                     vec4 hll_in = F_Riemann(Hi,Vi,0, H,V,0);
-                    double Q = tx * hll_in.v[0] * (std::max(W,Wi)/Dx * (Dx*0.5*(W+Wi)) );
-                    double Voli = Wi*Dx*Hi;
-                    double Vol = H*W*Dx;
-                    Q = std::max(-C*Vol,std::min(C*Voli,Q));
-                    if(Q > 0) {
-                        double Voln = Hn*W*Dx;
-                        Vn = (Vn*Voln + Vi*Q)/std::max(0.01,Voln + Q);
-                    }
+                    double Q = hll_in.v[0]/(0.5*(W+Wi));
+//                    double Voli = Wi*Dx*Hi;
+//                    double Vol = H*W*Dx;
+//                    Q = std::max(-C*Vol,std::min(C*Voli,Q));
 
                     // gravity + pressure part
                     double s_zh_in = std::min(B, std::max(-B, (Hi + Zi - Z - H)/Dx));
                     ch_vadd = ch_vadd + dt * 0.5 * GRAV * s_zh_in;
                     ch_vaddw = ch_vaddw + 0.5 * Wi/W;
 
-                    Hn = Hn + Q/(W * Dx);
-
-                    flux_in = flux_in + Q;
+                    flux_in = flux_in + Q + ch_vadd;
                 }
             }
 
@@ -217,7 +180,9 @@ void TWorld::ChannelSWOFopen()
                 ch_vadd = ch_vadd/ch_vaddw;
             }
 
-            Hn = std::max(Hn, 0.0);
+            Hn = std::max(0.0, H + dt*(flux_out + flux_in));
+            // mass balance
+           // Hn = std::max(Hn, 0.0);
             if (Hn > he_ca) {
                 Vn = Vn + ch_vadd;
                 double qv = sqrt(Vn*Vn);

@@ -131,27 +131,24 @@ void TWorld::GetETData(QString name)
             }
         }
 
-        ETSeriesM << rl;
+        ETSeries << rl;
     }
 
     // sometimes not an increasing timeseries
     for(int i = 1; i < nrSeries; i++){
-        if (ETSeriesM [i].time <= ETSeriesM[i-1].time) {
+        if (ETSeries [i].time <= ETSeries[i-1].time) {
             ErrorString = QString("ET records time is not increasing at row %1.").arg(i);
             throw 1;
         }
     }
 
-    nrETseries = ETSeriesM.size();//nrSeries;
+    nrETseries = ETSeries.size();//nrSeries;
 }
 //---------------------------------------------------------------------------
 void TWorld::GetETMap(void)
 {
     double currenttime = (time)/60;
-    int  ETplace;
     double tt = 0.001; //mm/day to m/day
-            //_dt/86400.0*0.001; // mm/day to m / timestep
-    bool noET = false;
     bool sameET= false;
 
     // from time t to t+1 the ET is the ET of t
@@ -159,44 +156,41 @@ void TWorld::GetETMap(void)
     // where are we in the series
     int currentrow = 0;
     // if time is outside records then use map with zeros
-    if (currenttime < ETSeriesM[0].time || currenttime > ETSeriesM[nrETseries-1].time)
-        noET = true;
-
-    if (noET) {
+    if (currenttime < ETSeriesMaps[0].time || currenttime > ETSeriesMaps[nrETseries-1].time) {
+        DEBUG("run time outside ET records");
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             ETp->Drc = 0;
         }}
-    } else {
-        // find current record
-        for (ETplace = 0; ETplace < nrETseries-1; ETplace++) {
-            if (currenttime >= ETSeriesM[ETplace].time && currenttime < ETSeriesM[ETplace+1].time) {
-                currentrow = ETplace;
-                break;
-            }
-        }
-
-        if (currentrow == currentETrow && ETplace > 0)
-            sameET = true;
-
-        // get the next map from file
-        if (!sameET) {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                ETp->Drc = ETSeriesM[currentrow].intensity[(int) ETZone->Drc-1]*tt;
-            }}
-        } //sameET
+        return;
     }
+
+    // find current record
+    while (currenttime >= ETSeries[ETplace].time
+           && currenttime < ETSeries[ETplace+1].time)
+    {
+        currentrow = ETplace;
+        ETplace++;
+    }
+
+    if (currentrow == currentETrow && ETplace > 0)
+        sameET = true;
+
+    // get the next map from file
+    if (!sameET) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            ETp->Drc = ETSeries[currentrow].intensity[(int) ETZone->Drc-1]*tt;
+        }}
+    } //sameET
+
     currentETrow = currentrow;
 }
 //---------------------------------------------------------------------------
 void TWorld::GetETSatMap(void)
 {
     double currenttime = (time)/60;
-    int  ETplace;
     double tt = 0.001*ETBiasCorrection; //mm/day to m/day
-            //_dt/86400.0*0.001; // mm/day to m / timestep
-
     bool noET = false;
     bool sameET= false;
 
@@ -206,44 +200,42 @@ void TWorld::GetETSatMap(void)
     int currentrow = 0;
     // if time is outside records then use map with zeros
     if (currenttime < ETSeriesMaps[0].time || currenttime > ETSeriesMaps[nrETseries-1].time) {
-        noET = true;
         DEBUG("run time outside ET records");
-    }
-
-    if (noET) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             ETp->Drc = 0;
         }}
-    } else {
-        // find current record
-        for (ETplace = 0; ETplace < nrETseries-1; ETplace++) {
-            if (currenttime >= ETSeriesMaps[ETplace].time && currenttime < ETSeriesMaps[ETplace+1].time) {
-                currentrow = ETplace;
-                break;
-            }
-        }
-
-        if (currentrow == currentETrow && ETplace > 0)
-            sameET = true;
-        // get the next map from file
-        if (!sameET) {
-
-            auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(ETSeriesMaps[ETplace].name)));
-
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                if (pcr::isMV(_M->Drc)) {
-                    QString sr, sc;
-                    sr.setNum(r); sc.setNum(c);
-                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+ETSeriesMaps[ETplace].name;
-                    throw 1;
-                } else {
-                    ETp->Drc = _M->Drc *tt;
-                }
-            }}
-        }
+        return;
     }
+
+    // find current record
+    while (currenttime >= ETSeriesMaps[ETplace].time
+           && currenttime < ETSeriesMaps[ETplace+1].time)
+    {
+        currentrow = ETplace;
+        ETplace++;
+    }
+
+    if (currentrow == currentETrow && ETplace > 0)
+        sameET = true;
+    // get the next map from file
+    if (!sameET) {
+
+        auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(ETSeriesMaps[ETplace].name)));
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            if (pcr::isMV(_M->Drc)) {
+                QString sr, sc;
+                sr.setNum(r); sc.setNum(c);
+                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+ETSeriesMaps[ETplace].name;
+                throw 1;
+            } else {
+                ETp->Drc = _M->Drc *tt;
+            }
+        }}
+    }
+
     currentETrow = currentrow;
 }
 //---------------------------------------------------------------------------

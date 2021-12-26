@@ -51,6 +51,7 @@ void TWorld::ToTiledrain()//int thread)
             RunoffVolinToTile->Drc = 0;
         }}
 
+       //#pragma omp parallel for collapse(2) num_threads(userCores)
         FOR_ROW_COL_MV_TILE {
             if(TileSinkhole->Drc > 0)
             {

@@ -165,7 +165,7 @@ void TWorld::GetSnowmeltData(QString name)
             }
         }
 
-        SnowmeltSeriesM << rl;
+        SnowmeltSeries << rl;
     }
 
     nrSeries++;
@@ -174,7 +174,7 @@ void TWorld::GetSnowmeltData(QString name)
     for (int i = 1; i < nrStations; i++)
         rl.intensity << 0.0;
 
-    SnowmeltSeriesM << rl;
+    SnowmeltSeries << rl;
 
     nrSnowmeltseries = nrSeries;
 }
@@ -182,59 +182,51 @@ void TWorld::GetSnowmeltData(QString name)
 void TWorld::GetSnowmeltMap(void)
 {
     double currenttime = (time)/60;
-    int  Snowmeltplace;
-    double tt = 3600000.0;
-    bool noSnowmelt = false;
-    bool sameSnowmelt= false;
+    double tt = 0.001; //mm/day to m/day
+    bool same = false;
 
-    if (!SwitchSnowmelt)
-        return;
-    if (!SwitchSnowmeltSatellite)
-        return;
-
-    // from time t to t+1 the Snowmelt is the Snowmelt of t
+    // from time t to t+1 the ET is the ET of t
 
     // where are we in the series
     int currentrow = 0;
     // if time is outside records then use map with zeros
-    if (currenttime < SnowmeltSeriesMaps[0].time)
-        noSnowmelt = true;
-    if (currenttime > SnowmeltSeriesMaps[nrSnowmeltseries].time)
-        noSnowmelt = true;
-
-    if (noSnowmelt) {
+    if (currenttime < SnowmeltSeriesMaps[0].time || currenttime > SnowmeltSeriesMaps[nrSnowmeltseries-1].time) {
+        DEBUG("run time outside ET records");
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             Snowmelt->Drc = 0;
         }}
-    } else {
-        // find current record
-        for (Snowmeltplace = currentSnowmeltrow; Snowmeltplace < nrSnowmeltseries-1; Snowmeltplace++) {
-            if (currenttime > SnowmeltSeriesMaps[Snowmeltplace].time && currenttime <= SnowmeltSeriesMaps[Snowmeltplace+1].time)
-                currentrow = Snowmeltplace;
-        }
-
-        if (currentrow == currentRainfallrow && Snowmeltplace > 0)
-            sameSnowmelt = true;
-        else
-            currentSnowmeltrow = currentrow;
-
-        // gSnowmelt the next map from file
-        if (!sameSnowmelt) {
-            auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(SnowmeltSeriesMaps[Snowmeltplace].name)));
-
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                if (pcr::isMV(_M->Drc)) {
-                    QString sr, sc;
-                    sr.setNum(r); sc.setNum(c);
-                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+SnowmeltSeriesMaps[Snowmeltplace].name;
-                    throw 1;
-                } else {
-                    Snowmelt->Drc = _M->Drc *_dt/tt;
-                }
-            }}
-        }
+        return;
     }
+
+    // find current record
+    while (currenttime >= SnowmeltSeriesMaps[ETplace].time
+           && currenttime < SnowmeltSeriesMaps[ETplace+1].time)
+    {
+        currentrow = snowmeltplace;
+        snowmeltplace++;
+    }
+
+    if (currentrow == currentSnowmeltrow && snowmeltplace > 0)
+        same = true;
+
+    // get the next map from file
+    if (!same) {
+        auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(SnowmeltSeriesMaps[snowmeltplace].name)));
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            if (pcr::isMV(_M->Drc)) {
+                QString sr, sc;
+                sr.setNum(r); sc.setNum(c);
+                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+SnowmeltSeriesMaps[snowmeltplace].name;
+                throw 1;
+            } else {
+                Snowmelt->Drc = _M->Drc *_dt/tt;
+            }
+        }}
+    }
+
+    currentSnowmeltrow = currentrow;
 }
 //---------------------------------------------------------------------------

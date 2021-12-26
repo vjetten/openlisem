@@ -103,7 +103,11 @@
 //{int r = cr_[i_].r; int c = cr_[i_].c;
 
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
-{int r = cr_[i_].r; int c = cr_[i_].c;
+ {int r = cr_[i_].r; int c = cr_[i_].c;
+
+//#define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < _nrCols*_nrRows; i_++)\
+//{int r = i_/_nrCols; int c=i_%_nrCols;\
+//if(!pcr::isMV(LDD->data[r][c]))
 
 //nrValidCellsWS
 #define FOR_ROW_COL_MV_LWS(nr_) for(long i_ = WScr.at(nr_).size()-1; i_ >= 0; i_--)\
@@ -498,9 +502,11 @@ public:
     int currentETrow;
     int currentSnowmeltrow;
     int rainplace;
-    QVector <RAIN_LIST> RainfallSeriesM;  // rainfall vector of records
-    QVector <RAIN_LIST> ETSeriesM;
-    QVector <RAIN_LIST> SnowmeltSeriesM;
+    int ETplace;
+    int snowmeltplace;
+    QVector <RAIN_LIST> RainfallSeries;  // rainfall vector of records
+    QVector <RAIN_LIST> ETSeries;
+    QVector <RAIN_LIST> SnowmeltSeries;
     QVector <METEO_LIST> RainfallSeriesMaps;  // rainfall vector of records
     QVector <METEO_LIST> ETSeriesMaps;  // rainfall vector of records
     QVector <METEO_LIST> SnowmeltSeriesMaps;  // rainfall vector of records

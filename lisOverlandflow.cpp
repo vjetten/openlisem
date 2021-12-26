@@ -251,7 +251,7 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
         }}
 
 
-      //  #pragma omp parallel for reduction(+:K2DQSOutBoun,K2DQOutBoun) num_threads(userCores)
+        #pragma omp parallel for reduction(+:BoundaryQ,BoundaryQs) num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (tma->Drc == 1) {
 
@@ -277,8 +277,8 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
                     }
                 }
             }
-        }}
-    //}
+     }}
+
 }
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow2Ddyn(void)

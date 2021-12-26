@@ -45,36 +45,23 @@ void TWorld::cell_Interception(int r, int c)
     // all variables are in m
     double Cv = Cover->Drc;
     double Rainc_ = Rainc->Drc;
-    double AreaSoil = SoilWidthDX->Drc * DX->Drc;
     double RainNet_ = Rainc_;
 
-    if (Cv > 0)
+    if (Cv > 0 && Rainc_ > 0)
     {
         double CS = CStor->Drc;
         //actual canopy storage in m
         double Smax = CanopyStorage->Drc;
         //max canopy storage in m
 
-        if (Smax > 0) {
+        if (Smax > 0)
             CS = Smax*(1-exp(-kLAI->Drc*RainCum->Drc/Smax));
-        }
-        double store = (CS - CStor->Drc) < 1e-6 ? 0 : (CS - CStor->Drc);
-        LeafDrain->Drc = std::max(0.0, Cv*(Rainc_ - store));
 
-//        if (CS > Smax*0.5) {
-//            double ds = 0.1*CS;
-//            LeafDrain->Drc += Cv*ds;
-//            CS -= ds;
-//            RainCum->Drc -= ds;
-//            //if(r == 110 && c == 150) qDebug() << ds << CS << Smax << RainCum->Drc;
-//        }
-
+        LeafDrain->Drc = std::max(0.0, Cv*(Rainc_ - (CS - CStor->Drc)));
 
         CStor->Drc = CS;
         // put new storage back in map
-       // Interc->Drc =  Cv * CS * AreaSoil;
         Interc->Drc =  Cv * CS * CHAdjDX->Drc;
-        // WHY: cvover already takes care of this, trees can be above a road or channel
 
         RainNet_ = LeafDrain->Drc + (1-Cv)*Rainc_;
         // net rainfall is direct rainfall + drainage
@@ -85,7 +72,6 @@ void TWorld::cell_Interception(int r, int c)
         double CvL = Litter->Drc;
         if (hmx->Drc == 0 && WH->Drc == 0 && CvL > 0 && RainNet_ > 0)
         {
-
             double Smax = LitterSmax/1000.0;
             // assume simply that the cover linearly scales between 0 and LtterSmax of storage
 
@@ -101,7 +87,7 @@ void TWorld::cell_Interception(int r, int c)
             LCStor->Drc = LCS;
             // put new storage back in map for next dt
 
-            LInterc->Drc =  CvL * LCS * AreaSoil;
+            LInterc->Drc =  CvL * LCS * SoilWidthDX->Drc * DX->Drc;
             // only on soil surface, not channels or roads, in m3
 
             RainNet_ = drain + (1-CvL)*RainNet_;

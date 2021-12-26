@@ -39,11 +39,10 @@ functions: \n
 #define tiny 1e-8
 
 
-
 //---------------------------------------------------------------------------
 void TWorld::GridCell()
 {
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double dxa = _dx;
         if(SwitchIncludeChannel && ChannelWidth->Drc > 0) {
@@ -55,10 +54,8 @@ void TWorld::GridCell()
                 dxa = _dx;   //als culvert dan geen channelwidth want channel ondergonds
         }
 
-
         ChannelAdj->Drc = dxa;
         CHAdjDX->Drc = dxa*DX->Drc;
-
 
         RoadWidthHSDX->Drc = std::min(dxa, RoadWidthHSDX->Drc);
         dxa = std::max(0.0, dxa - RoadWidthHSDX->Drc);
@@ -87,6 +84,7 @@ void TWorld::GridCell()
 }
 //---------------------------------------------------------------------------
 /// Adds new rainfall afterinterception to runoff water nheight or flood waterheight
+// not used
 void TWorld::addRainfallWH()
 {
         #pragma omp parallel for num_threads(userCores)
@@ -113,40 +111,12 @@ void TWorld::addRainfallWH()
 
 }
 //---------------------------------------------------------------------------
+// not used
 void TWorld::SurfaceStorage()
 {
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        double wh = WH->Drc;
-        //double WaterVolrunoff;
-        double SW = SoilWidthDX->Drc;
-        double RW = RoadWidthHSDX->Drc;
-        double WHr = WHroad->Drc;
-        double WHs;
-
-        //### surface storage on rough surfaces
-        WHs = std::min(wh, MDS->Drc*(1-exp(-1.875*(wh/std::max(0.01,0.01*RR->Drc)))));
-        // non-linear release fo water from depression storage
-        // resemles curves from GIS surface tests, unpublished
-
-        double FW = std::min(ChannelAdj->Drc, SW + RW);
-        // calculate flowwidth by fpa*surface + road, excludes channel already
-
-    //    if (FW > 0) {
-          //  WaterVolrunoff = DX->Drc*( whflow*SoilWidthDX->Drc + WHroad->Drc*RoadWidthHSDX->Drc);
-            // runoff volume available for flow, surface + road + hard surfaces
-            // soil surface excludes houses and roads and channels and hard surfaces
-           // WHrunoff->Drc = WaterVolrunoff/(DX->Drc*FW);
-        WHrunoff->Drc = ((wh - WHs)*SW + WHr*RW)/FW;
-      //  } else
-        //    WHrunoff->Drc = 0;
-        // average WHrunoff from soil surface + roads, because kin wave can only do one discharge
-        // this now takes care of ponded area, so water height is adjusted
-        FlowWidth->Drc = FW;
-
-        WaterVolall->Drc = DX->Drc*(wh*SW + WHr*RW);
-        // all water in the cell incl storage
-        WHstore->Drc = WHs;
+        cell_SurfaceStorage(r, c);
     }}
 }
 //---------------------------------------------------------------------------

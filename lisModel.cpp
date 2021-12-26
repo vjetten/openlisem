@@ -184,37 +184,59 @@ void TWorld::DoModel()
         // reset all display output maps for new job
         // must be done after Initialize Data because then we know how large the map is
 
-        SwitchSnowmelt = false;
         if (SwitchRainfall)
         {
            // qDebug() << rainSatFileName << rainFileName;
             DEBUG("Get Rainfall Data Information");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
+                rainplace = 0;
+                while (BeginTime/60 >= RainfallSeriesMaps[rainplace].time && rainplace < nrRainfallseries)
+                    rainplace++;
+
             }
-            else
+            else {
                 GetRainfallData(rainFileName);
+                rainplace = 0;
+                while (BeginTime/60 >= RainfallSeries[rainplace].time && rainplace < nrRainfallseries)
+                    rainplace++;
+            }
           //  op.maxRainaxis = getmaxRainfall();
-            rainplace = 0;
+
         }
+
         if (SwitchIncludeET)
         {
-                   //     qDebug() << ETSatFileName << ETFileName;
             DEBUG("Get ET Data Information");
-            if (SwitchETSatellite)
+            if (SwitchETSatellite) {
                 GetSpatialMeteoData(ETSatFileName, 1);
-            else
+                ETplace = 0;
+                while (BeginTime/60 >= ETSeriesMaps[ETplace].time && ETplace < nrETseries)
+                    ETplace++;
+            } else {
                 GetETData(ETFileName);
+                ETplace = 0;
+                while (BeginTime/60 >= ETSeries[ETplace].time && ETplace < nrETseries)
+                    ETplace++;
+            }
         }
+
+        SwitchSnowmelt = false;
         if (SwitchSnowmelt)
         {
             DEBUG("Get Snowmelt Data Information");
-            if (SwitchSnowmeltSatellite)
+            if (SwitchSnowmeltSatellite) {
                 GetSpatialMeteoData(snowmeltSatFileName, 2);
-            else
+            snowmeltplace = 0;
+            while (BeginTime/60 >= SnowmeltSeriesMaps[snowmeltplace].time && snowmeltplace < nrSnowmeltseries)
+                snowmeltplace++;
+            } else {
                 GetSnowmeltData(snowmeltFileName);
+                snowmeltplace = 0;
+                while (BeginTime/60 >= SnowmeltSeries[snowmeltplace].time && snowmeltplace < nrSnowmeltseries)
+                    snowmeltplace++;
+            }
         }
-
 
         if (SwitchChannelInflow)
         {
@@ -334,12 +356,11 @@ void TWorld::GetInputTimeseries()
 //---------------------------------------------------------------------------
 void TWorld::HydrologyProcesses()
 {
-
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
         if (Rainc->Drc > 0)
-            cell_Interception(r,c);
+           cell_Interception(r,c);
         // all interception on plants, houses, litter
         // result is rainnet (and leafdrip for erosion)
 
@@ -353,7 +374,6 @@ void TWorld::HydrologyProcesses()
 
         if (RoadWidthHSDX->Drc > 0)
             WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
-        // tarred roads have no interception ?
 
         // infiltration by SWATRE of G&A+percolation
         if (InfilMethod == INFIL_SWATRE) {

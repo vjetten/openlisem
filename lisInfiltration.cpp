@@ -452,12 +452,6 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
             return 0;
         }
 
-//        if (SwitchChannelBaseflow && GW_bypass > 0 && L > GW_bypass) {
-//            double gwbp = fact_in*GW_bypass;
-//            fact_in -= gwbp;
-//            GWbp->Drc = gwbp*CHAdjDX->Drc;
-//        }
-
         if (L < SoilDep1) {
             double space = (SoilDep1-L)*dtheta1;
             if(fact_in > (SoilDep1-L)*space) {
@@ -556,97 +550,92 @@ then calls IncreaseInfiltrationDepth to increase the wetting front.
 
 void TWorld::cell_InfilMethods(int r, int c)
 {
+    // default vars are first layer vars
+    double Ks = Ksateff->Drc;//*_dt/3600000.0;  //in m
+    double Psi = Psi1->Drc/100; // in m
+    double fwh = 0;
+    double SW = 0;
+    double fpot_ = 0;
+    double fact_ = 0;// = fact->Drc;
+    double SoilDep1 = SoilDepth1->Drc;
 
-//    #pragma omp parallel for num_threads(userCores)
-//    FOR_ROW_COL_MV_L {
-        // default vars are first layer vars
-        double Ks = Ksateff->Drc;//*_dt/3600000.0;  //in m
-        double Psi = Psi1->Drc/100; // in m
-        double fwh = 0;
-        double SW = 0;
-        double fpot_ = 0;
-        double fact_ = 0;// = fact->Drc;
-        double SoilDep1 = SoilDepth1->Drc;
+    if (FloodDomain->Drc == 0) {
+        fwh = WH->Drc; //runoff in kinwave or dyn wave
+        SW = SoilWidthDX->Drc; //runoff in kinwave or dyn wave
+    } else {
+        fwh = hmx->Drc; // flood in kin wave
+        SW = SoilWidthDX->Drc; // flood in kin wave
+    }
+    // select the appropriate domain water height for overpressure
 
-        if (FloodDomain->Drc == 0) {
-            fwh = WH->Drc; //runoff
-            SW = SoilWidthDX->Drc; //runoff
-            // hard surf are already in ksaeff, so infil is affected
-        } else {
-            fwh = hmx->Drc; // flood
-            SW = SoilWidthDX->Drc;//ChannelAdj->Drc; // why? infiktration surface is soils anyway
-        }
-        // select the appropriate domain water height for overpressure
+    //calculate potential infiltration rate fpot
+    if (SwitchTwoLayer ) {
 
-        //calculate potential insiltration rate fpot
-        if (SwitchTwoLayer ) {
-
-            // if wetting front in second layer set those vars
-            if (Lw->Drc > SoilDep1)
-            {
-                Ks = std::min(Ks, Ksat2->Drc);//*_dt/3600000.0);
-                // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
-                Psi = Psi2->Drc/100;
-            }
-        }
-
-        if (InfilMethod == INFIL_GREENAMPT)
-            fpot_ = Ks*(1.0+(Psi+fwh)/std::max(1e-4, Lw->Drc));
-        else {
-            double space = Poreeff->Drc-Thetaeff->Drc;
-            if (Lw->Drc > SoilDepth1->Drc)
-                space = ThetaS2->Drc-ThetaI2->Drc;
-            double B = (fwh + Psi)*space;
-            if (B > 0.01) {
-                fpot_ = Ks*exp(Fcum->Drc/B)/(exp(Fcum->Drc/B)-1);
-            } else
-                fpot_ = Ks;
-        }
-
-        fact_ = std::min(fpot_, fwh);
-        if (fact_ < 1e-10)
-            fact_ = 0;
-        // actual infil in m, cannot have more infil than water on the surface
-
-        if (fact_ > 0)
-            fact_ = IncreaseInfiltrationDepthNew(fact_, r, c);
-        // adjust fact and increase Lw, for twolayer, impermeable etc
-
-        if (fwh < fact_)
+        // if wetting front in second layer set those vars
+        if (Lw->Drc > SoilDep1)
         {
-            fact_ = fwh;
-            fwh = 0;
+            Ks = std::min(Ks, Ksat2->Drc);//*_dt/3600000.0);
+            // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
+            Psi = Psi2->Drc/100;
         }
-        else
-            fwh -= fact_;
+    }
 
-        // adjust the WH in the correct domain with new fact
-        if(FloodDomain->Drc == 0)
-            WH->Drc = fwh;
-        else
-            hmx->Drc = fwh;
+    if (InfilMethod == INFIL_GREENAMPT)
+        fpot_ = Ks*(1.0+(Psi+fwh)/std::max(1e-4, Lw->Drc));
+    else {
+        double space = Poreeff->Drc-Thetaeff->Drc;
+        if (Lw->Drc > SoilDepth1->Drc)
+            space = ThetaS2->Drc-ThetaI2->Drc;
+        double B = (fwh + Psi)*space;
+        if (B > 0.01) {
+            fpot_ = Ks*exp(Fcum->Drc/B)/(exp(Fcum->Drc/B)-1);
+        } else
+            fpot_ = Ks;
+    }
 
-        Fcum->Drc += fact_; // for Smith and Parlange
-        fact->Drc = fact_;
+    fact_ = std::min(fpot_, fwh);
+    if (fact_ < 1e-10)
+        fact_ = 0;
+    // actual infil in m, cannot have more infil than water on the surface
 
-        // increase cumulative infil in m
-        InfilVol->Drc = fact_*SW*DX->Drc;
-        // calc infiltrated volume for mass balance
+    if (fact_ > 0)
+        fact_ = IncreaseInfiltrationDepthNew(fact_, r, c);
+    // adjust fact and increase Lw, for twolayer, impermeable etc
 
-        // calc surplus infiltration (negative in m) for kin wave
-        if(SwitchKinematic2D != K2D_METHOD_DYN) {
-            double space = 0;
-            if (Lw->Drc < SoilDep1)
-                space = (SoilDep1 - Lw->Drc)*(Poreeff->Drc-Thetaeff->Drc);
-            if (SwitchTwoLayer) {
-                if (Lw->Drc > SoilDep1 && Lw->Drc < SoilDepth2->Drc)
-                    space = (SoilDepth2->Drc - Lw->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
-            }
+    if (fwh < fact_)
+    {
+        fact_ = fwh;
+        fwh = 0;
+    }
+    else
+        fwh -= fact_;
 
-            FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
-            // negative and smallest of space or fpot-fact ???
+    // adjust the WH in the correct domain with new fact
+    if(FloodDomain->Drc == 0)
+        WH->Drc = fwh;
+    else
+        hmx->Drc = fwh;
+
+    Fcum->Drc += fact_; // for Smith and Parlange
+    fact->Drc = fact_;
+
+    // increase cumulative infil in m
+    InfilVol->Drc = fact_*SW*DX->Drc;
+    // calc infiltrated volume for mass balance
+
+    // calc surplus infiltration (negative in m) for kin wave
+    if(SwitchKinematic2D != K2D_METHOD_DYN) {
+        double space = 0;
+        if (Lw->Drc < SoilDep1)
+            space = (SoilDep1 - Lw->Drc)*(Poreeff->Drc-Thetaeff->Drc);
+        if (SwitchTwoLayer) {
+            if (Lw->Drc > SoilDep1 && Lw->Drc < SoilDepth2->Drc)
+                space = (SoilDepth2->Drc - Lw->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
         }
- //   }}
+
+        FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
+        // negative and smallest of space or fpot-fact ???
+    }
 }
 //---------------------------------------------------------------------------
 // NOT USED
@@ -654,7 +643,7 @@ void TWorld::infilInWave(cTMap *_h, double dt1)
 {
     if (InfilMethod == INFIL_SWATRE || InfilMethod == INFIL_NONE)
         return;
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(FFull->Drc==0) {
             double cdx = DX->Drc;
