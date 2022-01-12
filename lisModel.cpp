@@ -190,16 +190,25 @@ void TWorld::DoModel()
             DEBUG("Get Rainfall Data Information");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
+
                 rainplace = 0;
-                while (BeginTime/60 >= RainfallSeriesMaps[rainplace].time && rainplace < nrRainfallseries)
+                while (BeginTime/60 >= RainfallSeriesMaps[rainplace].time && rainplace < nrRainfallseries) {
+                  //  qDebug() << "this" << BeginTime/60  << rainplace << RainfallSeries[rainplace].time;
                     rainplace++;
+                }
+                rainplace--;
+          //     qDebug() << "this" << BeginTime/60  << rainplace << RainfallSeries[rainplace].time;
 
             }
             else {
                 GetRainfallData(rainFileName);
                 rainplace = 0;
-                while (BeginTime/60 >= RainfallSeries[rainplace].time && rainplace < nrRainfallseries)
+                while (BeginTime/60 >= RainfallSeries[rainplace].time && rainplace < nrRainfallseries) {
+
                     rainplace++;
+                }
+                rainplace--;
+
             }
           //  op.maxRainaxis = getmaxRainfall();
 

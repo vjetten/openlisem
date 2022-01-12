@@ -184,9 +184,10 @@ public:
     void showHouseMap();
     void showFlowBarriersMap();
     void showImageMap();
-    double fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD);//, double type);
+    void changeSize();
+    //double fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD);//, double type);
+    double fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD, double *minv, double *maxv);
     double fillDrawMapDataRGB(cTMap * base,  cTRGBMap *_M, QwtMatrixRasterData *_RD);
-    double transvalue;
 
     QwtText title;
     QwtPlotSpectrogram *drawMap;  // raster map drawing

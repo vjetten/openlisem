@@ -46,6 +46,7 @@ struct output{
     int runstep;
     int printstep;
     int maxstep;
+    int cores;
 
     QList<int> OutletIndices;
     QList<int> OutletLocationX;

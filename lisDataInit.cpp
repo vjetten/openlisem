@@ -264,7 +264,7 @@ void TWorld::InitParameters(void)
     GW_lag = getvaluedouble("GW lag factor");
     GW_bypass = getvaluedouble("GW bypass factor");
     GW_threshold = getvaluedouble("GW threshold factor");
-    GW_initlevel = getvaluedouble("GW initial level");
+    GW_initlevel = 0;//getvaluedouble("GW initial level");
 
     // get calibration parameters
     gsizeCalibrationD50 = getvaluedouble("Grain Size calibration D50");
@@ -351,6 +351,7 @@ void TWorld::InitParameters(void)
     int cores = omp_get_max_threads();
     if (userCores == 0 || userCores > cores)
         userCores = cores;
+    op.cores = userCores;
 
 }
 //---------------------------------------------------------------------------
@@ -827,6 +828,7 @@ void TWorld::InitChannel(void)
     ChannelSedTot = 0;
     ChannelDepTot = 0;
     ChannelDetTot = 0;
+    BaseFlowTotmm = 0;
 
     if(!SwitchIncludeChannel)
         return;

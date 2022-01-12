@@ -120,8 +120,6 @@ void lisemqt::initMapPlot()
 // called at the start of openLisem, creates structures to hold maps
 void lisemqt::setupMapPlot()
 {
-    transvalue = 1.0;
-
     title.setText("Runoff (l/s)");
     title.setFont(QFont("MS Shell Dlg 2",12));
 
@@ -178,9 +176,10 @@ void lisemqt::setupMapPlot()
     // road map
 
     // 6
-    imageMap = new QwtPlotSpectrogram();
-    imageMap->setRenderThreadCount( 0 );
-    imageMap->attach( MPlot );
+    //imageMap = new QwtPlotSpectrogram();
+    //imageMap->setRenderThreadCount( 0 );
+    //imageMap->attach( MPlot );
+    // flow barriers?
 
     //7
     outletMap = new QwtPlotSpectrogram();
@@ -225,8 +224,11 @@ void lisemqt::setupMapPlot()
     magnifier = new QwtPlotMagnifier( MPlot->canvas() );
     magnifier->setAxisEnabled( MPlot->yRight, false );
     // exclude right axis legend from rescaling
-    magnifier->setZoomInKey((int)Qt::Key_Plus, Qt::NoModifier );//Qt::ShiftModifier);
-    magnifier->setZoomOutKey((int)Qt::Key_Minus, Qt::NoModifier );
+    magnifier->setZoomInKey(Qt::Key_Plus, Qt::ShiftModifier);
+    magnifier->setZoomOutKey(Qt::Key_Minus, Qt::NoModifier );
+    magnifier->setZoomInKey(Qt::Key_Plus, Qt::KeypadModifier);
+    magnifier->setZoomOutKey(Qt::Key_Minus, Qt::KeypadModifier);
+
 
     panner = new QwtPlotPanner( MPlot->canvas() );
     panner->setAxisEnabled( MPlot->yRight, false );
@@ -243,9 +245,10 @@ void lisemqt::setupMapPlot()
 }
 //---------------------------------------------------------------------------
 // fill the current raster data structure with new data, called each run step
-double lisemqt::fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD)
-{
+//double lisemqt::fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD)
+double lisemqt::fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD, double *minv, double *maxv){
     double maxV = -1e20;
+    double minV = 1e20;
     mapData.clear();  //QVector double
     double sum = 0;
 
@@ -262,33 +265,12 @@ double lisemqt::fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_R
                 double v =_M->Drc*scale;
                 mapData << v;
                 maxV = std::max(maxV, v);
+                minV = std::min(minV, v);
                 sum += v;
             }
             else
                 mapData << (double)-1e20;
         }
-
-    //    // faster to fill a QVector than to create it each time
-    //    long i_=0;
-    //    //reduction(max:maxV)
-    //    #pragma omp parallel for collapse(2)
-    //    long all = _M->nrCols()*_M->nrRows();
-    //      for(int r = 0; r < _M->nrRows(); r++)
-    //        for(int c = 0; c < _M->nrCols(); c++)
-    //        {
-    //            i_= all - ((_M->nrCols()-c-1)+_M->nrCols()*r);
-    //            if(!pcr::isMV(_M->Drc))
-    //            {
-    //                mapData[i_] = _M->Drc;
-    //                maxV = std::max(maxV, _M->Drc);
-    //            }
-    //            else
-    //                mapData[i_] = (double)-1e20;
-    //        }
-
-    //#pragma omp parallel for reduction(max:maxV)
-    //      for (i_ = 0; i_ < all; i_++)
-    //          maxV = std::max(maxV, mapData[i_]);
 
     // set intervals for rasterdata, x,y,z min and max
     _RD->setValueMatrix( mapData, _M->nrCols() );
@@ -299,6 +281,8 @@ double lisemqt::fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_R
     // set x/y axis intervals
     //qDebug() << sum << maxV;
     if (sum == 0) maxV = -1e-20;
+    *maxv = maxV;
+    *minv = minV;
     return maxV;
 }
 //---------------------------------------------------------------------------
@@ -484,18 +468,17 @@ void lisemqt::showMap()
 //---------------------------------------------------------------------------
 void lisemqt::showComboMap(int i)
 {
-//    if( i < 0 || i >= op.ComboMapsSafe.length())
     if( i < 0 || i >= op.ComboMaps.length())
         return;
 
     MPlot->setTitle(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
     // fill vector RD with matrix data and find the new max value
-    double MaxV = fillDrawMapData(op.ComboMaps.at(i), op.ComboScaling.at(i), RD);
-    if (MaxV <=-1e20)
+    double MinV;
+    double MaxV;
+    double res = fillDrawMapData(op.ComboMaps.at(i), op.ComboScaling.at(i), RD, &MinV, &MaxV);
+    if (res <=-1e20)
         return;
-
-    double MinV = mapMinimum(*op.ComboMaps.at(i));
-//    double MinV = mapMinimum(*op.ComboMapsSafe.at(i));
+    //double MinV = mapMinimum(*op.ComboMaps.at(i));
 
     // set stepsize
     if(op.ComboLists.at(i) == 0)
@@ -534,7 +517,7 @@ void lisemqt::showComboMap(int i)
             ComboMinSpinBox2->setValue(mi);
 
     }
-    //  qDebug() << mi << ma << MinV << MaxV;
+   // qDebug() << mi << ma << MinV << MaxV;
 
 
     RD->setInterval( Qt::ZAxis, QwtInterval( mi, ma));
@@ -582,52 +565,48 @@ void lisemqt::showBaseMap()
 {
     if (!startplot)
         return;
+    // only done once
 
-
-//    nrValidCells = 0; ?????????
-//    for(int r = 0; r < op.baseMapDEM->nrRows(); r++)
-//        for(int c=0; c < op.baseMapDEM->nrCols(); c++)
-//        {
-//            mapData << (double)-1e20;
-//        }
-
-    double res = fillDrawMapData(op.baseMap, 1.0, RDb);
+    double m1, m2;
+    double res = fillDrawMapData(op.baseMap, 1.0, RDb, &m1, &m2);
     if (res == -1e20)
         return;
 
     baseMap->setAlpha(transparency->value());
     baseMap->setColorMap(new colorMapGray());
-    RDb->setInterval( Qt::ZAxis, QwtInterval( 0,res));
+    RDb->setInterval( Qt::ZAxis, QwtInterval( 0, m2));
     baseMap->setData(RDb);
     // setdata sets a pointer to DRb to the private QWT d_data Qvector
 
-    res = fillDrawMapData(op.baseMapDEM, 1.0, RDbb);
+    res = fillDrawMapData(op.baseMapDEM, 1.0, RDbb, &m1, &m2);
     if (res == -1e20)
         return;
-    double mindem = mapMinimum(*op.baseMapDEM);
-    contourmax = mapMaximum(*op.baseMapDEM);
-    contourmin = mindem;
+    //double mindem = mapMinimum(*op.baseMapDEM);
+    contourmax = m2;//mapMaximum(*op.baseMapDEM);
+    contourmin = m1;//mindem;
 
     baseMapDEM->setAlpha(checkMapImage->isChecked() ? 0 : 255);
     baseMapDEM->setColorMap(new colorMapElevation());
-    RDbb->setInterval( Qt::ZAxis, QwtInterval( mindem,res));
+    RDbb->setInterval( Qt::ZAxis, QwtInterval( m1, m2));
     baseMapDEM->setData(RDbb);
 
     contourDEM->setAlpha(255);
     contourDEM->setColorMap(new colorMapTransparent());
-    RDbb->setInterval( Qt::ZAxis, QwtInterval( mindem,res));
+    RDbb->setInterval( Qt::ZAxis, QwtInterval( m1, m2));
     contourDEM->setData(RDbb);
 
-    double nrCols = (double)op.baseMap->nrCols()*op.baseMap->cellSize();
-    double nrRows = (double)op.baseMap->nrRows()*op.baseMap->cellSize();
-    double dx = std::max(nrCols,nrRows)/20;
+  //  double nrCols = (double)op.baseMap->nrCols()*op.baseMap->cellSize();
+  //  double nrRows = (double)op.baseMap->nrRows()*op.baseMap->cellSize();
+  //  double dx = std::max(nrCols,nrRows)/20;
     // reset the axes to the correct rows/cols,
     // do only once because resets zooming and panning
 
-    MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols, dx);
-    MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
-    MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows, dx);
-    MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
+  //  MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols*dx, dx*10);
+   // MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
+  //  MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows*dx, dx*10);
+  //  MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
+
+    changeSize();
 }
 //---------------------------------------------------------------------------
 void lisemqt::hideChannelVector(bool yes)
@@ -792,7 +771,8 @@ void lisemqt::getOutletMap()
 
     if (startplot)
     {
-        double res = fillDrawMapData(op.outletMap, 1.0, RDc);
+        double m1, m2;
+        double res = fillDrawMapData(op.outletMap, 1.0, RDc, &m1, &m2);
         if (res ==-1e20)
             return;
         RDc->setInterval( Qt::ZAxis, QwtInterval( 0,1.0));
@@ -806,7 +786,8 @@ void lisemqt::showRoadMap()
 {
     if (startplot)
     {
-        double res = fillDrawMapData(op.roadMap,1.0, RDd);
+        double m1, m2;
+        double res = fillDrawMapData(op.roadMap,1.0, RDd, &m1, &m2);
         if (res ==-1e20)
             return;
         RDd->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
@@ -825,11 +806,13 @@ void lisemqt::showHouseMap()
 {
     if (startplot)
     {
-        double res = fillDrawMapData(op.houseMap,1.0, RDe);
+        double m1, m2;
+        double res = fillDrawMapData(op.houseMap,1.0, RDe, &m1, &m2);
 
         if (res ==-1e20)
             return;
-        RDe->setInterval( Qt::ZAxis, QwtInterval( 0.0,1.0));
+
+        RDe->setInterval( Qt::ZAxis, QwtInterval( m1, m2));
         houseMap->setData(RDe);
         doHouse = false;
     }
@@ -846,12 +829,12 @@ void lisemqt::showFlowBarriersMap()
 
     if (startplot)
     {
-
+        double m1, m2;
         // set intervals for rasterdata, x,y,z min and max
-        double res = fillDrawMapData(op.flowbarriersMap,1.0, RDf);
+        double res = fillDrawMapData(op.flowbarriersMap,1.0, RDf, &m1, &m2);
         if (res ==-1e20)
             return;
-        RDf->setInterval( Qt::ZAxis, QwtInterval( 0.0, res));
+        RDf->setInterval( Qt::ZAxis, QwtInterval( m1, m2));
         imageMap->setData(RDf);
     }
 
@@ -882,4 +865,29 @@ void lisemqt::showImageMap()
 
     baseMapImage->setColorMap(new colorMapRGB());
 }
+//---------------------------------------------------------------------------
+void lisemqt::changeSize()
+{
+    int h = MPlot->height();
+    int w = MPlot->width();
+    double _nrCols = (double)op.baseMap->nrCols();
+    double _nrRows = (double)op.baseMap->nrRows();
+    double _dx = (double)op.baseMap->cellSize();
 
+    if (_nrRows > _nrCols) {
+        double nr = _nrRows*_dx*(double)w/h;
+        MPlot->setAxisScale(MPlot->xBottom,0,nr,10*_dx);
+        MPlot->setAxisScale(MPlot->yLeft,0,nr,10*_dx);
+     } else {
+        double nc = _nrCols*_dx*(double)h/w;
+        MPlot->setAxisScale(MPlot->xBottom,0,nc,10*_dx);
+        MPlot->setAxisScale(MPlot->yLeft,0,nc,10*_dx);
+    }
+
+    MPlot->replot();
+    int h1 = this->height();
+    int w1 = this->width();
+    resize(w1 - 1,h1);
+    resize(w1,h1);
+    
+}

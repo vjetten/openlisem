@@ -38,7 +38,7 @@ public:
 
         QwtPlotSpectrogram * sp0 = static_cast<QwtPlotSpectrogram *> (list.at(0));
 //        // elevation info
-        QwtPlotSpectrogram * sp3 = static_cast<QwtPlotSpectrogram *> (list.at(7));
+        QwtPlotSpectrogram * sp3 = static_cast<QwtPlotSpectrogram *> (list.at(6));
 //        // outlet info
 
         double z2 = sp2->data()->value(pos.x(), pos.y());
@@ -112,9 +112,6 @@ public:
                       QList<QString> colors,
         QwtLinearColorMap::Format = QwtColorMap::RGB ):QwtLinearColorMap( from, to)
     {
-       //     thresholdmin = 0;
-       //     thresholduse = false;
-
             setColorInterval(from,to);
 
             for(int j = 1; j < colors.length()-1; j++)

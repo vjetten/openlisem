@@ -292,6 +292,8 @@ void TWorld::GetRainfallData(QString name)
             throw 1;
         }
     }
+//    for(int i = 0; i < nrSeries; i++)
+//        qDebug() << RainfallSeries[i].time << RainfallSeries[i].intensity.at(0);
 
     nrRainfallseries = RainfallSeries.size();//nrSeries;
 }
@@ -304,8 +306,6 @@ void TWorld::GetRainfallMapfromStations(void)
 
     // from time t to t+1 the rain is the rain of t
 
-    // where are we in the series
-    int currentrow = 0;
     // if time is outside records then use map with zeros
     if (currenttime < RainfallSeries[0].time || currenttime > RainfallSeries[nrRainfallseries-1].time)
     {
@@ -319,15 +319,15 @@ void TWorld::GetRainfallMapfromStations(void)
         return;
     }
 
+    // where are we in the series
+    int currentrow = rainplace;
     // find current record
-    while (currenttime >= RainfallSeries[rainplace].time
-           && currenttime < RainfallSeries[rainplace+1].time)
+    while (currenttime >= RainfallSeries[rainplace].time && currenttime < RainfallSeries[rainplace+1].time)
     {
         currentrow = rainplace;
-       // qDebug() << rainplace << currentrow << currenttime << RainfallSeriesMaps[rainplace].time;
         rainplace++;
     }
-
+//qDebug() << currenttime << rainplace << currentrow  << RainfallSeries[currentrow].time << RainfallSeries[currentrow].intensity[0];
     if (currentrow == currentRainfallrow && currentrow > 0)
         samerain = true;
 
@@ -370,7 +370,6 @@ void TWorld::GetRainfallMap(void)
     // from time t to t+1 the rain is the rain of t
 
     // where are we in the series
-    int currentrow = 0;
     // if time is outside records then use map with zeros
     if (currenttime < RainfallSeriesMaps[0].time || currenttime > RainfallSeriesMaps[nrRainfallseries-1].time) {
         DEBUG("run time outside rainfall records");
@@ -383,17 +382,18 @@ void TWorld::GetRainfallMap(void)
         return;
     }
 
+    int currentrow = rainplace;
     // find current record
-    while (currenttime >= RainfallSeriesMaps[rainplace].time
-           && currenttime < RainfallSeriesMaps[rainplace+1].time)
+    while (currenttime >= RainfallSeriesMaps[rainplace].time && currenttime < RainfallSeriesMaps[rainplace+1].time)
     {
         currentrow = rainplace;
-       // qDebug() << rainplace << currentrow << currenttime << RainfallSeriesMaps[rainplace].time;
         rainplace++;
     }
 
     if (currentrow == currentRainfallrow && currentrow > 0)
         samerain = true;
+   // qDebug() << currentrow << currenttime << currentRainfallrow << samerain;
+
     // get the next map from file
     if (!samerain) {
         // read a map

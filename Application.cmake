@@ -83,7 +83,6 @@ SET(APP_SOURCES
     include/global.h
     include/io.h
     include/LisUIoutput.h
-    include/LisUIoutput.h
     include/masked_raster.h
     include/mmath.h
     include/model.h

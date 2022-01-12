@@ -60,7 +60,7 @@ void TWorld::Totals(void)
     if (SwitchRainfall)
     {
         RainAvgmm = MapTotal(*Rain)*1000.0/(double)nrValidCells;
-
+//qDebug() << RainAvgmm;
         RainTotmm += RainAvgmm;
         // spatial avg area rainfall in mm
 
