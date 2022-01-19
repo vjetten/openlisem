@@ -1472,8 +1472,11 @@ void TWorld::InitErosion(void)
 
     FOR_ROW_COL_MV
     {
+        if (RootCohesion->Drc < 0) // root cohesion can be used to avoid surface erosion base don land use
+            CohesionSoil->Drc = -1;
+        else
+            CohesionSoil->Drc = COHCalibration*(Cohesion->Drc + Cover->Drc*RootCohesion->Drc);
 
-        CohesionSoil->Drc = COHCalibration*(Cohesion->Drc + Cover->Drc*RootCohesion->Drc);
         // soil cohesion everywhere, plantcohesion only where plants
         if (SwitchGrassStrip)
             CohesionSoil->Drc = CohesionSoil->Drc  *(1-GrassFraction->Drc) + GrassFraction->Drc * CohGrass->Drc;
@@ -1498,10 +1501,13 @@ void TWorld::InitErosion(void)
         if (SwitchSplashEQ == 1) {
             if (AggrStab->Drc > 0)
             {
+                if (RootCohesion->Drc < 0)
+                    SplashStrength->Drc = -1;
+                else
+                    SplashStrength->Drc = 5.331*pow(std::max(ASCalibration*AggrStab->Drc, 1.0),-0.238);
                 //SplashStrength->Drc = 2.82/std::max(ASCalibration*AggrStab->Drc, 1.0);
                 //splashb = 2.96;
                 //y = 5.3361x-0.238  excell
-                SplashStrength->Drc = 5.331*pow(std::max(ASCalibration*AggrStab->Drc, 1.0),-0.238);
             }
             else
             {
@@ -1821,6 +1827,7 @@ void TWorld::IntializeData(void)
     RainCum = NewMap(0);
     RainCumFlat = NewMap(0);
     RainNet = NewMap(0);
+    //RainNetCum = NewMap(0);
     LeafDrain = NewMap(0);
 
     CStor = NewMap(0);
@@ -1971,7 +1978,7 @@ void TWorld::IntializeData(void)
     FFull = NewMap(0);
     Perc = NewMap(0);
     PercmmCum = NewMap(0);
-    //runoffTotalCell = NewMap(0);
+    runoffTotalCell = NewMap(0);
     Fcum = NewMap(0);
   //  L1 = NewMap(0);
   //  L2 = NewMap(0);
@@ -2311,7 +2318,7 @@ void TWorld::IntializeOptions(void)
     rainfallMapFileName = QString("rainfall.map");
     interceptionMapFileName = QString("interception.map");
     infiltrationMapFileName = QString("infiltration.map");
-    //runoffMapFileName = QString("runoff.map");
+    runoffMapFileName = QString("runoff.map");
     channelDischargeMapFileName = QString("chandism3.map");
     floodMaxQFileName = QString("chanmaxq.map");
     floodMaxChanWHFileName = QString("chanmaxwh.map");

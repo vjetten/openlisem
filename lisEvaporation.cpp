@@ -153,8 +153,6 @@ void TWorld::GetETMap(void)
 
     // from time t to t+1 the ET is the ET of t
 
-    // where are we in the series
-    int currentrow = 0;
     // if time is outside records then use map with zeros
     if (currenttime < ETSeriesMaps[0].time || currenttime > ETSeriesMaps[nrETseries-1].time) {
         DEBUG("run time outside ET records");
@@ -165,6 +163,8 @@ void TWorld::GetETMap(void)
         return;
     }
 
+    // where are we in the series
+    int currentrow = ETplace;
     // find current record
     while (currenttime >= ETSeries[ETplace].time
            && currenttime < ETSeries[ETplace+1].time)
@@ -173,7 +173,7 @@ void TWorld::GetETMap(void)
         ETplace++;
     }
 
-    if (currentrow == currentETrow && ETplace > 0)
+    if (currentrow == currentETrow && currentrow > 0)
         sameET = true;
 
     // get the next map from file
@@ -196,8 +196,6 @@ void TWorld::GetETSatMap(void)
 
     // from time t to t+1 the ET is the ET of t
 
-    // where are we in the series
-    int currentrow = 0;
     // if time is outside records then use map with zeros
     if (currenttime < ETSeriesMaps[0].time || currenttime > ETSeriesMaps[nrETseries-1].time) {
         DEBUG("run time outside ET records");
@@ -208,6 +206,8 @@ void TWorld::GetETSatMap(void)
         return;
     }
 
+// where are we in the series
+    int currentrow = ETplace;
     // find current record
     while (currenttime >= ETSeriesMaps[ETplace].time
            && currenttime < ETSeriesMaps[ETplace+1].time)
@@ -216,7 +216,7 @@ void TWorld::GetETSatMap(void)
         ETplace++;
     }
 
-    if (currentrow == currentETrow && ETplace > 0)
+    if (currentrow == currentETrow && currentrow > 0)
         sameET = true;
     // get the next map from file
     if (!sameET) {
@@ -231,7 +231,7 @@ void TWorld::GetETSatMap(void)
                 ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+ETSeriesMaps[ETplace].name;
                 throw 1;
             } else {
-                ETp->Drc = _M->Drc *tt;
+                ETp->Drc = std::max(0.0,_M->Drc *tt);
             }
         }}
     }

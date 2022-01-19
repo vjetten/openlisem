@@ -322,7 +322,8 @@ void TWorld::GetRainfallMapfromStations(void)
     // where are we in the series
     int currentrow = rainplace;
     // find current record
-    while (currenttime >= RainfallSeries[rainplace].time && currenttime < RainfallSeries[rainplace+1].time)
+    while (currenttime >= RainfallSeries[rainplace].time
+        && currenttime < RainfallSeries[rainplace+1].time)
     {
         currentrow = rainplace;
         rainplace++;
@@ -350,6 +351,7 @@ void TWorld::GetRainfallMapfromStations(void)
         RainCum->Drc += Rainc->Drc;
         // cumulative rainfall corrected for slope, used in interception
         RainNet->Drc = Rainc->Drc;
+        //RainNetCum->Drc += RainNet->Drc;
         // net rainfall in case of interception
     }}
 
@@ -384,7 +386,8 @@ void TWorld::GetRainfallMap(void)
 
     int currentrow = rainplace;
     // find current record
-    while (currenttime >= RainfallSeriesMaps[rainplace].time && currenttime < RainfallSeriesMaps[rainplace+1].time)
+    while (currenttime >= RainfallSeriesMaps[rainplace].time
+        && currenttime < RainfallSeriesMaps[rainplace+1].time)
     {
         currentrow = rainplace;
         rainplace++;

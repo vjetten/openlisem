@@ -792,7 +792,7 @@ void TWorld::ReportMaps(void)
 
     report(*InfilmmCum, infiltrationMapFileName);
 
-    //report(*runoffTotalCell, runoffMapFileName); // in mm, total runoff from cell (but there is also runon!)
+    report(*runoffTotalCell, runoffMapFileName); // in mm, total runoff from cell (but there is also runon!)
 
     report(*WHmax, floodWHmaxFileName);
     // report(*floodHmxMax, floodWHmaxFileName);  // BOTH overland flow and flood for all combinations

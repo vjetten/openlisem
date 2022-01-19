@@ -121,7 +121,7 @@ double TWorld::GetSV(double d)
 void TWorld::cell_SplashDetachment(int r, int c, double _WH)
 {
     DETSplash->Drc = 0;
-    if(WHrunoff->Drc > 0.00001)// || hmx->Drc > 0.0001)
+    if(WHrunoff->Drc > 0.00001 && SplashStrength->Drc >= 0)
     {
         double DetDT1 = 0, DetDT2 = 0, DetLD1, DetLD2;
         double g_to_kg = 0.001;
@@ -130,7 +130,7 @@ void TWorld::cell_SplashDetachment(int r, int c, double _WH)
         double strength = SplashStrength->Drc;
         double Int = Rain->Drc * 3600/_dt * 1000; // intensity in mm/h, Rain is in m
         double KE_DT = 0.0;
-        double DETSplash_;
+        double DETSplash_;               
 
         switch (KEequationType)
         {

@@ -205,10 +205,11 @@ void TWorld::Totals(void)
 
     // runoff fraction per cell calc as in-out/rainfall, indication of sinks and sources of runoff
     // exclude channel cells
-//    #pragma omp parallel for num_threads(userCores)
-//    FOR_ROW_COL_MV_L {
-//        runoffTotalCell->Drc += (Qn->Drc /*+ Qflood->Drc*/)* _dt * catchmentAreaFlatMM; // in mm !!!!
-//    }}
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        //runoffTotalCell->Drc += (Qn->Drc /*+ Qflood->Drc*/)* _dt * catchmentAreaFlatMM; // in mm !!!!
+        runoffTotalCell->Drc = std::max(0.0, RainCumFlat->Drc*1000-InterceptionmmCum->Drc-InfilmmCum->Drc);
+    }}
 
     //=== storm drain flow ===//
     StormDrainVolTot = MapTotal(*TileWaterVol);

@@ -885,6 +885,7 @@ void lisemqt::changeSize()
     }
 
     MPlot->replot();
+
     int h1 = this->height();
     int w1 = this->width();
     resize(w1 - 1,h1);

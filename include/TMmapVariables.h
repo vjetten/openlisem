@@ -53,6 +53,7 @@ cTMap
 *RainCum,                    //!< cumulative rainfall, as spreadoutover slope [m]
 *RainCumFlat,                //!< cumulative rainfall [m]
 *RainNet,                    //!< net rainfall after interception [m]
+//*RainNetCum,                    //!< net rainfall after interception [m]
 *LeafDrain,                  //!< drainge from canopy, storage overflow [m]
 *CStor,                      //!< actual canopy storage [m]
 *Interc,                     //!< actual canopy storage volume, corrected for surfaces without vegetation (like roads) [m^3]
@@ -129,7 +130,7 @@ cTMap
 *RepellencyFraction,         //!< fraction of water repellency of node 1 in Swatre [-]
 *RepellencyCell,             //!< Cell included in water repellency in Swatre [-]
 *HardSurface,                //!< value 1 if 'hard' surface: no interception, infiltration, detachment [-]
-//*runoffTotalCell,
+*runoffTotalCell,
 
 *PlantHeight,                //!< height of vegetation/crops [m]
 *Cover,                      //!< vegetation canopy cover fraction [-]

@@ -462,8 +462,8 @@ void TWorld::ParseRunfileData(void)
             interceptionMapFileName = checkOutputMapName(p, "interception map", 0);
         if (p1.compare("Infiltration map")==0)
             infiltrationMapFileName = checkOutputMapName(p, "infiltration map", 0);
-//        if (p1.compare("Runoff map")==0)
-//            runoffMapFileName = checkOutputMapName(p, "runoff map", 0);
+        if (p1.compare("Runoff map")==0)
+            runoffMapFileName = checkOutputMapName(p, "runoff map", 0);
         if (p1.compare("WH max level map")==0)
             floodWHmaxFileName = checkOutputMapName(p, "WH max level map",0);
         if (p1.compare("Max Velocity")==0)

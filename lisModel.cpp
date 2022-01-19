@@ -222,11 +222,13 @@ void TWorld::DoModel()
                 ETplace = 0;
                 while (BeginTime/60 >= ETSeriesMaps[ETplace].time && ETplace < nrETseries)
                     ETplace++;
+                ETplace--;
             } else {
                 GetETData(ETFileName);
                 ETplace = 0;
                 while (BeginTime/60 >= ETSeries[ETplace].time && ETplace < nrETseries)
                     ETplace++;
+                ETplace--;
             }
         }
 
