@@ -193,12 +193,9 @@ void TWorld::DoModel()
 
                 rainplace = 0;
                 while (BeginTime/60 >= RainfallSeriesMaps[rainplace].time && rainplace < nrRainfallseries) {
-                  //  qDebug() << "this" << BeginTime/60  << rainplace << RainfallSeries[rainplace].time;
                     rainplace++;
                 }
-                rainplace--;
-          //     qDebug() << "this" << BeginTime/60  << rainplace << RainfallSeries[rainplace].time;
-
+                if (rainplace > 0) rainplace--;
             }
             else {
                 GetRainfallData(rainFileName);
@@ -207,8 +204,7 @@ void TWorld::DoModel()
 
                     rainplace++;
                 }
-                rainplace--;
-
+                if (rainplace > 0) rainplace--;
             }
           //  op.maxRainaxis = getmaxRainfall();
 
@@ -222,13 +218,13 @@ void TWorld::DoModel()
                 ETplace = 0;
                 while (BeginTime/60 >= ETSeriesMaps[ETplace].time && ETplace < nrETseries)
                     ETplace++;
-                ETplace--;
+                if (ETplace > 0) ETplace--;
             } else {
                 GetETData(ETFileName);
                 ETplace = 0;
                 while (BeginTime/60 >= ETSeries[ETplace].time && ETplace < nrETseries)
                     ETplace++;
-                ETplace--;
+                if (ETplace > 0) ETplace--;
             }
         }
 

@@ -886,9 +886,17 @@ void lisemqt::changeSize()
 
     MPlot->replot();
 
+//    bool fs = windowState()&Qt::WindowFullScreen;
+  //  bool ms = windowState()&Qt::WindowMaximized;
     int h1 = this->height();
     int w1 = this->width();
+//    resize(w1,h1);
+//showFullScreen();
+//    showNormal();
     resize(w1 - 1,h1);
     resize(w1,h1);
-    
+ //   if (fs) showFullScreen();
+    //if (ms)
+    showMaximized();
+
 }
