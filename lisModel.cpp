@@ -190,20 +190,16 @@ void TWorld::DoModel()
             DEBUG("Get Rainfall Data Information");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
-
                 rainplace = 0;
-                while (BeginTime/60 >= RainfallSeriesMaps[rainplace].time && rainplace < nrRainfallseries) {
+                while (BeginTime/60 >= RainfallSeriesMaps[rainplace].time && rainplace < nrRainfallseries)
                     rainplace++;
-                }
                 if (rainplace > 0) rainplace--;
             }
             else {
                 GetRainfallData(rainFileName);
                 rainplace = 0;
-                while (BeginTime/60 >= RainfallSeries[rainplace].time && rainplace < nrRainfallseries) {
-
-                    rainplace++;
-                }
+                while (BeginTime/60 >= RainfallSeries[rainplace].time && rainplace < nrRainfallseries)
+                    rainplace++;                
                 if (rainplace > 0) rainplace--;
             }
           //  op.maxRainaxis = getmaxRainfall();
@@ -352,12 +348,12 @@ void TWorld::GetInputTimeseries()
             GetETMap();   // get rainfall from stations
     }
 
-    if (SwitchSnowmelt) {
-        if (SwitchSnowmeltSatellite)
-            ; //TODO snowmelt satellite
-        else
-            GetSnowmeltMap();  // get snowmelt from stations
-    }
+//    if (SwitchSnowmelt) {
+//        if (SwitchSnowmeltSatellite)
+//            ; //TODO snowmelt satellite
+//        else
+//            GetSnowmeltMap();  // get snowmelt from stations
+//    }
 
 }
 //---------------------------------------------------------------------------
@@ -439,8 +435,9 @@ void TWorld::HydrologyProcesses()
         }
     }}
 
-    if (SwitchIncludeET)
+    if (SwitchIncludeET) {
         doETa();
+}
     // ETa is subtracted from canopy, soil water surfaces
     // divided over 12 hours in a day with sine curve
 

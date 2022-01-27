@@ -254,9 +254,10 @@ void TWorld::GetInputData(void)
 }
 //---------------------------------------------------------------------------
 void TWorld::InitParameters(void)
-{
+{       
     PBiasCorrection = getvaluedouble("Rainfall Bias Correction");
     ETBiasCorrection = getvaluedouble("ET Bias Correction");
+    rainfallETa_threshold = getvaluedouble("Rainfall ET threshold");
 
     GW_recharge = getvaluedouble("GW recharge factor");
     GW_flow = getvaluedouble("GW flow factor");
@@ -1847,6 +1848,7 @@ void TWorld::IntializeData(void)
         ETa = NewMap(0);
         ETaCum = NewMap(0);
         ETp = NewMap(0);
+        ETpCum = NewMap(0);
     }
 
     Snowmelt = NewMap(0);

@@ -207,6 +207,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("ET Map Directory");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("ET Bias Correction");
+    namelist[i].value = QString("2.0");
+    namelist[i++].name = QString("Rainfall ET threshold");
 
     //    namelist[i].value = QString("0");
 //    namelist[i++].name = QString("Include Snowmelt");
@@ -243,7 +245,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Add timestamp");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("report discharge units");
+    namelist[i++].name = QString("Report discharge units");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Timeplot as PCRaster");
     namelist[i].value = QString("3");

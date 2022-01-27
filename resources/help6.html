@@ -12,7 +12,7 @@
 <p><code># some header, rainfall source</code><br /><code>2</code><br /><code>time</code><br /><code>maps</code><br /><code></code><code>100:0180&nbsp;&nbsp; rainfal.1.map</code><br /><code>100:0210 &nbsp; rainfal.2.map</code><br /><code>100:0240 &nbsp; </code><code>rainfal.3.map</code><br /><code>etc</code></p>
 <p><strong>Evapotranspiration data</strong></p>
 <p>The format of the input files is exactly the same as for rainfall, either station data with a map (ETID.map) or a series of ETp maps are used.</p>
-<p>If the timeinterval is less than 1 day,&nbsp; the values are assumed to be in mm/h.</p>
+<p>If the timeinterval is less than 1 day (e.g. hourly),&nbsp; the values are assumed to be in mm per timeintervall. Please make sure that the nighttime ET is zero.</p>
 <p>If the interval is 1 day or more, the values are assumed to be in mm/day. In that case select the option "ET has daily or larger timesteps", and supply the average latitude (in degrees, e.g. 22.5) of the area. This will be used to calculate the sun engle and day length. The ETp provided in mm/d (in the gauges or maps files) is assumed to represent the daylight period and the instantaneous ETp per timestep is calculated according to a sine curve between sunrise and sunset.</p>
 <p>If the time interval is longer than a day (e.g. derived MODIS 8 daily values), you still have to provide average daily ETp in mm/day, and the daily ETp is simply repeated for the 8 days until the next timestep is found in the input file.</p>
 <p>&nbsp;</p>

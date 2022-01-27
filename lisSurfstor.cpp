@@ -135,10 +135,12 @@ void TWorld::cell_SurfaceStorage(int r, int c)
     // calculate flowwidth by fpa*surface + road, excludes channel already
 
     WHrunoff->Drc = ((wh - WHs)*SW + WHr*RW)/FW;
+    // avg runoff above microstorage of soil and road
     FlowWidth->Drc = FW;
 
     WaterVolall->Drc = DX->Drc*(wh*SW + WHr*RW);
     // all water in the cell incl storage
     WHstore->Drc = WHs;
+    // microstorage
 }
 //---------------------------------------------------------------------------

@@ -52,7 +52,7 @@ void TWorld::Totals(void)
 {
     double rainfall, snowmelt;
     double oldrainpeak, oldsnowpeak;
-    double catchmentAreaFlatMM = 1000.0/(_dx*_dx*nrCells);
+    double catchmentAreaFlatMM = (1000.0/(_dx*_dx*nrCells));
 
     /***** WATER *****/
 
@@ -78,14 +78,14 @@ void TWorld::Totals(void)
         ETaTot = MapTotal(*ETaCum);
         ETaTotmm = ETaTot * 1000.0/(double)nrValidCells;
 
-        ETaTotVol = (ETaTot-SoilETMBcorrection)/catchmentAreaFlatMM; //m3
+        ETaTotVol = (ETaTot-SoilETMBcorrection)*_dx*_dx; //m3
         // correct for soil water because that is not in the mass balance
-//qDebug() << ETaTot << SoilETMBcorrection;
+        //qDebug() << ETaTot << SoilETMBcorrection;
     }
 
     if (SwitchSnowmelt)
     {
-        SnowAvgmm = MapTotal(*Snowmelt)*1000.0/nrCells;
+        SnowAvgmm = MapTotal(*Snowmelt)*1000.0/(double)nrValidCells;
 
         SnowTotmm += SnowAvgmm;
 
@@ -110,8 +110,8 @@ void TWorld::Totals(void)
     // interception in mm and m3
     //Litter
     if (SwitchLitter) {
-        IntercLitterTot = MapTotal(*LInterc);
-        IntercLitterTotmm = IntercLitterTot*catchmentAreaFlatMM;
+        IntercLitterTot = MapTotal(*LInterc); // in m
+        IntercLitterTotmm = IntercLitterTot*catchmentAreaFlatMM; // *1000/total cellarea
     }
 
     if (SwitchHouses) {
@@ -508,8 +508,8 @@ void TWorld::MassBalance()
   //  if (RainTot + SnowTot > 0)
     {
         double waterin = RainTot + SnowTot + WaterVolSoilTot + WHinitVolTot + BaseFlowTot + BaseFlowInit;
-        double waterout = 0;//ETaTotVol;
-        double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot;
+        double waterout = ETaTotVol;
+        double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot + IntercETaTot;
         double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;
 
         MB = waterin > 0 ? (waterin - waterout - waterstore - waterflow)/waterin *100 : 0;

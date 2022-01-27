@@ -145,7 +145,10 @@ void lisemqt::setupPlot()
     else
         HPlot->setAxisTitle(HPlot->xBottom, "time (day)");
 
-    HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
+    if (checkUnits_ls->isChecked())
+        HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
+    else
+        HPlot->setAxisTitle(*axisYL1, "Q (m3/s)");
     HPlot->setAxisTitle(*axisYR1, "P (mm/h)");
 
     HPlot->setAxisAutoScale(*axisYL1,true);
@@ -270,7 +273,10 @@ void lisemqt::initPlot()
         QsGraph->setAxes(HPlot->xBottom, *axisYR1);
         CGraph->setAxes(HPlot->xBottom, *axisYR2);
 
-        HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
+        if (checkUnits_ls->isChecked())
+            HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
+        else
+            HPlot->setAxisTitle(*axisYL1, "Q (m3/s)");
         HPlot->setAxisTitle(*axisYL2, "P (mm/h)");
         HPlot->setAxisTitle(*axisYR1, "Qs (kg/s)");
         HPlot->setAxisTitle(*axisYR2, "C (g/l)");
@@ -284,7 +290,10 @@ void lisemqt::initPlot()
         PGraph->setAxes(HPlot->xBottom, *axisYR1);
         HPlot->setAxesCount(QwtPlot::yLeft, 1);
         HPlot->setAxesCount(QwtPlot::yRight, 1);
-        HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
+        if (checkUnits_ls->isChecked())
+            HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
+        else
+            HPlot->setAxisTitle(*axisYL1, "Q (m3/s)");
         HPlot->setAxisTitle(*axisYR1, "P (mm/h)");
     }
 
@@ -547,11 +556,12 @@ void lisemqt::showOutputData()
     int j = OutletIndices.indexOf(this->outletpoint);
 
     double vv = op.OutletQpeak.at(j);
-    if (vv < 10000) {
+    if (checkUnits_ls->isChecked()) {
+    //if (vv < 10000) {
         label_82->setText("Qpeak (l/s)");
         label_qpeaksub->setText(format.arg(QString::number(vv,'f',2)));
     } else {
-        vv = vv/1000.0;
+       // vv = vv/1000.0;
         label_82->setText("Qpeak (m3/s)");
         label_qpeaksub->setText(format.arg(QString::number(vv,'f',3)));
     }
@@ -564,11 +574,10 @@ void lisemqt::showOutputData()
 
     int len = op.OutletQ.at(j)->length()-1;
     vv = op.OutletQ.at(j)->at(len);
-    if (vv < 10000) {
+    if (checkUnits_ls->isChecked()) {
         label_54->setText("Q (l/s)");
         label_dischargesub->setText(format.arg(QString::number(vv,'f',2)));
     } else {
-        vv = vv/1000.0;
         label_54->setText("Q (m3/s)");
         label_dischargesub->setText(format.arg(QString::number(vv,'f',3)));
     }

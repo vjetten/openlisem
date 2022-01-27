@@ -141,6 +141,8 @@ void lisemqt::ParseInputData()
         //if (p1.compare("Include Snowmelt")==0)               checkSnowmelt->setChecked(check);
         if (p1.compare("Rainfall Bias Correction")==0)           E_biasCorrectionP->setValue(valc);
         if (p1.compare("ET Bias Correction")==0)           E_biasCorrectionET->setValue(valc);
+        if (p1.compare("Rainfall ET threshold")==0)           E_rainfallETA_threshold->setValue(valc);
+
 
 
         if (p1.compare("Nr user Cores")==0) nrUserCores->setValue(iii);
@@ -963,6 +965,7 @@ void lisemqt::updateModelData()
         if (p1.compare("ET maplist name") ==0) namelist[j].value = ETSatFileName;
         if (p1.compare("ET Map Directory") ==0) namelist[j].value = ETSatFileDir;
         if (p1.compare("ET Bias Correction")==0) namelist[j].value = E_biasCorrectionET->text();
+        if (p1.compare("Rainfall ET threshold")==0) namelist[j].value = E_rainfallETA_threshold->text();
 
       //  if (p1.compare("Snowmelt Directory")==0) namelist[j].value = SnowmeltFileDir;
       //  if (p1.compare("Snowmelt file")==0) namelist[j].value = SnowmeltFileName;

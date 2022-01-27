@@ -318,7 +318,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OutSedBL")==0)          SwitchOutSedBL = iii == 1;
 
         if (p1.compare("Erosion map units (0/1/2)")==0)  ErosionUnits = iii;
-        if (p1.compare("Report discharhe units")==0)  QUnits = iii;
+        if (p1.compare("Report discharge units")==0) QUnits = iii;
     }// first loop of runnamelist
 
     //##########################

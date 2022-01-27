@@ -309,7 +309,6 @@ void TWorld::GetRainfallMapfromStations(void)
     // if time is outside records then use map with zeros
     if (currenttime < RainfallSeries[0].time || currenttime > RainfallSeries[nrRainfallseries-1].time)
     {
-        qDebug() << "hier";
         DEBUG("run time outside rainfall records");
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {

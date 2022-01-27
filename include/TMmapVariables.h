@@ -71,6 +71,7 @@ cTMap
 *ETa,
 *ETaCum,
 *ETp,
+*ETpCum,
 
 *SnowmeltZone,               //!< snowmelt zone map, values corrspond to snowmelt gauge numbers [-]
 *Snowcover,                  //!< snowmelt cover map, value 1.0 if there is snowcover, 0 without [-]

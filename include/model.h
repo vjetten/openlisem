@@ -425,6 +425,8 @@ public:
     double GW_threshold;
     double GW_initlevel;
 
+    double rainfallETa_threshold;
+
     double totetafac;
 
     /// calibration parameters
