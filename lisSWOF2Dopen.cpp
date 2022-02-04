@@ -39,6 +39,7 @@
 // force flow when a diagonal solution exists and a DEM blockage is present
 void TWorld::SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
 {
+	
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         tma->Drc = 0;
