@@ -186,12 +186,12 @@ void TWorld::DoModel()
         //VJ get time here else combomaps goes wrong for rainfall intensity
 
         //time vraiables in sec
-//        DEBUG("Get Input Data");
+        //        DEBUG("Get Input Data");
         GetInputData();
         DEBUG("Intialize Input Data()");
         IntializeData();
 
-    //    DEBUG("setupDisplayMaps()");
+        //    DEBUG("setupDisplayMaps()");
         setupDisplayMaps();
         // reset all display output maps for new job
         // must be done after Initialize Data because then we know how large the map is

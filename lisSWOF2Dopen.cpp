@@ -39,10 +39,7 @@
 // force flow when a diagonal solution exists and a DEM blockage is present
 void TWorld::SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
 {
-#pragma omp parallel
-{
-
-    #pragma omp for
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         tma->Drc = 0;
         tmb->Drc = 0;
@@ -51,7 +48,7 @@ void TWorld::SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *
 
     bool doit = false;
 
-    #pragma omp for
+    #pragma omp parallel for num_threads(userCores)
     for(long i_= 0; i_ < dcr_.size(); i_++) {
 
         int r = dcr_[i_].r;
@@ -94,20 +91,19 @@ void TWorld::SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *
 
     if (doit) {
 
-        #pragma omp for
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             h->Drc += tmc->Drc;
         }}
 
         if (SwitchErosion) {
-            #pragma omp for
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 SSFlood->Drc += tma->Drc;
                 if (SwitchUse2Phase)
                     BLFlood->Drc += tmb->Drc;
             }}
         }
-    }
     }
 }
 
