@@ -378,7 +378,7 @@ void lisemqt::startPlots()
     OutletLocationX.append(op.OutletLocationX);
     OutletLocationY.append(op.OutletLocationY);
 
-    outletpoint = 1;
+    outletpoint = op.OutletIndices.at(1);//1;
     spinBoxPointtoShow->setValue(1);
     spinBoxPointtoShow->setMaximum(OutletIndices.at(OutletIndices.length()-1));
     label_hydroCount->setText(QString("Output all (0) or point (1-%1)").arg(OutletIndices.count()-1));
@@ -572,7 +572,9 @@ void lisemqt::showOutputData()
     else
         label_qtotm3sub->setText(format.arg(QString::number(op.OutletQtot.at(j),'e',3)));
 
+
     int len = op.OutletQ.at(j)->length()-1;
+
     vv = op.OutletQ.at(j)->at(len);
     if (checkUnits_ls->isChecked()) {
         label_54->setText("Q (l/s)");

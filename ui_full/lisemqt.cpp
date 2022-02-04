@@ -1603,6 +1603,7 @@ void lisemqt::resetTabFlow()
     line_FlowBarriers->setText("flowbarriers.txt");
     checkBuffers->setChecked(false);
     check2DDiagonalFlow->setChecked(true);
+    check2DDiagonalFlowNew->setChecked(false);
     checkCorrectDem->setChecked(false);
     E_pitValue->setValue(1.0);
     checkSWOFWatersheds->setChecked(false);

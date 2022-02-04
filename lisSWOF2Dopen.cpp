@@ -35,6 +35,81 @@
 
 #define GRAV 9.8067
 
+//-------------------------------------------------------------------------------------------------
+// force flow when a diagonal solution exists and a DEM blockage is present
+void TWorld::SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
+{
+#pragma omp parallel
+{
+
+    #pragma omp for
+    FOR_ROW_COL_MV_L {
+        tma->Drc = 0;
+        tmb->Drc = 0;
+        tmc->Drc = 0;
+    }}
+
+    bool doit = false;
+
+    #pragma omp for
+    for(long i_= 0; i_ < dcr_.size(); i_++) {
+
+        int r = dcr_[i_].r;
+        int c = dcr_[i_].c;
+
+        if (h->Drc > F_pitValue) {
+            int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
+            int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
+            doit = true;
+
+            vec4 rec;
+            int ldd = dcr_[i_].ldd;
+            int rr = r+dy[ldd];
+            int cr = c+dx[ldd];
+
+            // h downstream cannot be updated inside parallel loop!
+            // save these values and add later
+            if (h->Drcr < h->Drc) {
+                // 1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
+                rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->Drcr, vx->Drcr, vy->Drcr);
+                double flux = std::abs(rec.v[0]);
+                double dH = std::min(h->Drc *0.9, flux*dt_req_min/_dx);
+
+                h->Drc -= dH;
+                tmc->Drcr += dH;
+
+                if (SwitchErosion) {
+                    double dS = std::min(0.9*SSFlood->Drc, dH*CHAdjDX->Drc*SSCFlood->Drc);
+                    SSFlood->Drc -= dS;
+                    tma->Drcr += dS;
+                    if (SwitchUse2Phase) {
+                        double dBL = std::min(0.9*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
+                        BLFlood->Drc -= dBL;
+                        tmb->Drcr += dBL;
+                    }
+                }
+            }
+        }
+    }
+
+    if (doit) {
+
+        #pragma omp for
+        FOR_ROW_COL_MV_L {
+            h->Drc += tmc->Drc;
+        }}
+
+        if (SwitchErosion) {
+            #pragma omp for
+            FOR_ROW_COL_MV_L {
+                SSFlood->Drc += tma->Drc;
+                if (SwitchUse2Phase)
+                    BLFlood->Drc += tmb->Drc;
+            }}
+        }
+    }
+    }
+}
 
 //-------------------------------------------------------------------------------------------------
 // force flow when a diagonal solution exists and a DEM blockage is present
@@ -372,11 +447,11 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 dt_req_min = std::min(dt_req_min, FloodDT->Drc);
             }}
 
-//#pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
-//FOR_ROW_COL_MV_L {
-//    if (dt_req_min == FloodDT->Drc)
-//        FloodT->Drc = FloodDT->Drc;
-//}}
+        //#pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
+        //FOR_ROW_COL_MV_L {
+        //    if (dt_req_min == FloodDT->Drc)
+        //        FloodT->Drc = FloodDT->Drc;
+        //}}
 
             dt_req_min = std::min(dt_req_min, _dt-timesum);
 
@@ -387,7 +462,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 }
 
                 if (Switch2DDiagonalFlow) {
-                    SWOFDiagonalFlow(dt_req_min, h, vx, vy);
+                    if (Switch2DDiagonalFlowNew)
+                        SWOFDiagonalFlowNew(dt_req_min, h, vx, vy);
+                    else
+                        SWOFDiagonalFlow(dt_req_min, h, vx, vy);
                 }
 
 

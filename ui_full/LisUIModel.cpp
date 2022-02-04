@@ -316,7 +316,7 @@ void lisemqt::initOP()
     op.Image = nullptr;
 
     op.ComboMaps.clear();
-  //  op.ComboMapsSafe.clear();
+    op.ComboMapsSafe.clear();
     op.ComboColorMap.clear();
     op.ComboColors.clear();
     op.ComboLogaritmic.clear();

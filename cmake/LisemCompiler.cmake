@@ -14,9 +14,13 @@ ENDIF()
 IF(WIN32)
     SET(GDAL_INCLUDE_DIRS "${GDAL_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${GDAL_BUILD_DIR}/lib/libgdal.dll.a")
+
     #SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/qwt") # qwt build outside msys
-    SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")  # qwt build outside msys
+    #SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
+
+    SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
+
     SET(OMP_INCLUDE_DIRS "${QWT_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32/11.2.0/include")
 ENDIF()
 

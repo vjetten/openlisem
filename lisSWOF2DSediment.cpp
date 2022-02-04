@@ -72,23 +72,26 @@ functions: \n
 
 void TWorld::SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v)
 {
-    //sediment detachment or deposition
-    SWOFSedimentDetNew(dt, h,u,v);
+    #pragma omp parallel num_threads(userCores)
+    {
+        //sediment detachment or deposition
+        SWOFSedimentDetNew(dt, h,u,v);
 
-    // susponded matter
-    SWOFSedimentFlowInterpolation(dt, h,u,v, SSFlood, SSCFlood);
+        // susponded matter
+        SWOFSedimentFlowInterpolation(dt, h,u,v, SSFlood, SSCFlood);
 
-    // Include Bedload
-    if (SwitchUse2Phase)
-       SWOFSedimentFlowInterpolation(dt, h,u,v, BLFlood, BLCFlood);
+        // Include Bedload
+        if (SwitchUse2Phase)
+           SWOFSedimentFlowInterpolation(dt, h,u,v, BLFlood, BLCFlood);
 
-    if (SwitchIncludeDiffusion)
-        SWOFSedimentDiffusion(dt, h,u,v, SSFlood, SSCFlood);
+        if (SwitchIncludeDiffusion)
+            SWOFSedimentDiffusion(dt, h,u,v, SSFlood, SSCFlood);
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        SWOFSedimentSetConcentration(r,c,h);
-    }}
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            SWOFSedimentSetConcentration(r,c,h);
+        }}
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -114,82 +117,85 @@ void TWorld::SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v)
 
 void TWorld::SWOFSedimentDiffusion(double dt, cTMap *h,cTMap *u,cTMap *v, cTMap *_SS, cTMap *_SSC)
 {
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        tma->Drc = 0;
-        tmb->Drc = 0;
-        tmc->Drc = 0;
-        tmd->Drc = 0;
-    }}
+//    #pragma omp parallel num_threads(userCores)
+//    {
+        #pragma omp for
+        FOR_ROW_COL_MV_L {
+            tma->Drc = 0;
+            tmb->Drc = 0;
+            tmc->Drc = 0;
+            tmd->Drc = 0;
+        }}
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-       // double courant = this->courant_factorSed;
+        #pragma omp for
+        FOR_ROW_COL_MV_L {
+           // double courant = this->courant_factorSed;
 
-        //cell sizes
-        double cdx = DX->Drc;
-        double cdy = _dx;
-        //here it is about spacing, not flow width, so use _dx instead of ChannelAdj->Drc
+            //cell sizes
+            double cdx = DX->Drc;
+            double cdy = _dx;
+            //here it is about spacing, not flow width, so use _dx instead of ChannelAdj->Drc
 
-        //mixing coefficient
-        //double sigma = 1;
-        bool bc1 = c > 0 && !MV(r,c-1)        ;
-        bool bc2 = c < _nrCols-1 && !MV(r,c+1);
-        bool br1 = r > 0 && !MV(r-1,c)        ;
-        bool br2 = r < _nrRows-1 && !MV(r+1,c);
+            //mixing coefficient
+            //double sigma = 1;
+            bool bc1 = c > 0 && !MV(r,c-1)        ;
+            bool bc2 = c < _nrCols-1 && !MV(r,c+1);
+            bool br1 = r > 0 && !MV(r-1,c)        ;
+            bool br2 = r < _nrRows-1 && !MV(r+1,c);
 
-        double dux1 = bc1 ? std::abs(u->Drc - u->data[r][c-1]) : 0;
-        double dvy1 = br1 ? std::abs(v->Drc - v->data[r-1][c]) : 0;
-        double dvx1 = bc1 ? std::abs(v->Drc - v->data[r][c-1]) : 0;
-        double duy1 = br1 ? std::abs(u->Drc - u->data[r-1][c]) : 0;
-        double dux2 = bc2 ? std::abs(u->data[r][c+1] - u->Drc) : 0;
-        double dvy2 = br2 ? std::abs(v->data[r+1][c] - v->Drc) : 0;
-        double dvx2 = bc2 ? std::abs(v->data[r][c+1] - v->Drc) : 0;
-        double duy2 = br2 ? std::abs(u->data[r+1][c] - u->Drc) : 0;
+            double dux1 = bc1 ? std::abs(u->Drc - u->data[r][c-1]) : 0;
+            double dvy1 = br1 ? std::abs(v->Drc - v->data[r-1][c]) : 0;
+            double dvx1 = bc1 ? std::abs(v->Drc - v->data[r][c-1]) : 0;
+            double duy1 = br1 ? std::abs(u->Drc - u->data[r-1][c]) : 0;
+            double dux2 = bc2 ? std::abs(u->data[r][c+1] - u->Drc) : 0;
+            double dvy2 = br2 ? std::abs(v->data[r+1][c] - v->Drc) : 0;
+            double dvx2 = bc2 ? std::abs(v->data[r][c+1] - v->Drc) : 0;
+            double duy2 = br2 ? std::abs(u->data[r+1][c] - u->Drc) : 0;
 
-        double dux = std::max(dux1,dux2);
-        double dvy = std::max(dvy1,dvy2);
-        double dvx = std::max(dvx1,dvx2);
-        double duy = std::max(duy1,duy2);
+            double dux = std::max(dux1,dux2);
+            double dvy = std::max(dvy1,dvy2);
+            double dvx = std::max(dvx1,dvx2);
+            double duy = std::max(duy1,duy2);
 
-        //diffusion coefficient according to J.Smagorinski (1964)
-        double eddyvs = cdx * cdy * sqrt(dux*dux + dvy*dvy +  0.5 * (dvx +duy)*(dvx +duy));
-        double eta = eddyvs/FS_SigmaDiffusion;
+            //diffusion coefficient according to J.Smagorinski (1964)
+            double eddyvs = cdx * cdy * sqrt(dux*dux + dvy*dvy +  0.5 * (dvx +duy)*(dvx +duy));
+            double eta = eddyvs/FS_SigmaDiffusion;
 
-        //cell directions
-        int dx[4] = {0, 1, -1, 0};
-        int dy[4] = {1, 0, 0, -1};
-        double flux[4] = {0.0,0.0,0.0,0.0};
+            //cell directions
+            int dx[4] = {0, 1, -1, 0};
+            int dy[4] = {1, 0, 0, -1};
+            double flux[4] = {0.0,0.0,0.0,0.0};
 
-        //use the calculated weights to distribute flow
-        for (int i=0; i<4; i++)
-        {
-            //must multiply the cell directions by the sign of the slope vector components
-            int rr = r+dy[i];
-            int cr = c+dx[i];
-
-            //add fluxes to cells
-            if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr))
+            //use the calculated weights to distribute flow
+            for (int i=0; i<4; i++)
             {
-                //diffusion coefficient eta
-                double coeff = SSDepthFlood->Drc > 0 ? dt * eta * std::min(1.0, SSDepthFlood->Drcr/SSDepthFlood->Drc) : 0.0;
-                coeff = std::min(coeff, courant_factorSed);
-                flux[i] = coeff*_SS->Drc;
-                if (i == 0) tma->Drcr += flux[i];
-                if (i == 1) tmb->Drcr += flux[i];
-                if (i == 2) tmc->Drcr += flux[i];
-                if (i == 3) tmd->Drcr += flux[i];
+                //must multiply the cell directions by the sign of the slope vector components
+                int rr = r+dy[i];
+                int cr = c+dx[i];
+
+                //add fluxes to cells
+                if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr))
+                {
+                    //diffusion coefficient eta
+                    double coeff = SSDepthFlood->Drc > 0 ? dt * eta * std::min(1.0, SSDepthFlood->Drcr/SSDepthFlood->Drc) : 0.0;
+                    coeff = std::min(coeff, courant_factorSed);
+                    flux[i] = coeff*_SS->Drc;
+                    if (i == 0) tma->Drcr += flux[i];
+                    if (i == 1) tmb->Drcr += flux[i];
+                    if (i == 2) tmc->Drcr += flux[i];
+                    if (i == 3) tmd->Drcr += flux[i];
+                }
             }
-        }
 
-        _SS->Drc -= (flux[0]+flux[1]+flux[2]+flux[3]);
-    }}
+            _SS->Drc -= (flux[0]+flux[1]+flux[2]+flux[3]);
+        }}
 
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        _SS->Drc = _SS->Drc + tma->Drc + tmb->Drc+tmc->Drc+tmd->Drc;
-    }}
+        #pragma omp for
+        FOR_ROW_COL_MV_L {
+            _SS->Drc = _SS->Drc + tma->Drc + tmb->Drc+tmc->Drc+tmd->Drc;
+        }}
+ //   }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -215,140 +221,143 @@ void TWorld::SWOFSedimentDiffusion(double dt, cTMap *h,cTMap *u,cTMap *v, cTMap 
 
 void TWorld::SWOFSedimentFlowInterpolation(double dt, cTMap *h, cTMap *u,cTMap *v,cTMap *_SS, cTMap *_SSC)
 {
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        tma->Drc = 0;
-        tmb->Drc = 0;
-        tmc->Drc = 0;
-        tmd->Drc = 0;
-    }}
+ //   #pragma omp parallel num_threads(userCores)
+ //   {
+        #pragma omp for
+        FOR_ROW_COL_MV_L {
+            tma->Drc = 0;
+            tmb->Drc = 0;
+            tmc->Drc = 0;
+            tmd->Drc = 0;
+        }}
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        //first calculate the weights for the cells that are closest to location that flow is advected to
-        double u_ = u->Drc;
-        double v_ = v->Drc;
+        #pragma omp for
+        FOR_ROW_COL_MV_L {
+            //first calculate the weights for the cells that are closest to location that flow is advected to
+            double u_ = u->Drc;
+            double v_ = v->Drc;
 
-        //the sign of the x and y direction of flow
-        double yn = signf(v_);
-        double xn = signf(u_);
+            //the sign of the x and y direction of flow
+            double yn = signf(v_);
+            double xn = signf(u_);
 
-        double velocity = sqrt(u_*u_ + v_*v_);
+            double velocity = sqrt(u_*u_ + v_*v_);
 
-        if(velocity > he_ca && h->Drc > he_ca) {
-           // double courant = this->courant_factorSed; // why *0.1
+            if(velocity > he_ca && h->Drc > he_ca) {
+               // double courant = this->courant_factorSed; // why *0.1
 
-            double dss = dt*velocity*ChannelAdj->Drc *SSDepthFlood->Drc * _SSC->Drc;
-            // s*m/s*m*m*kg/m3 = kg
-            if(dss > courant_factorSed * _SS->Drc)
-                dss = courant_factorSed *  _SS->Drc;
+                double dss = dt*velocity*ChannelAdj->Drc *SSDepthFlood->Drc * _SSC->Drc;
+                // s*m/s*m*m*kg/m3 = kg
+                if(dss > courant_factorSed * _SS->Drc)
+                    dss = courant_factorSed *  _SS->Drc;
 
-            //should not travel more distance than cell size
-            double dsx = xn*std::min(fabs(u_)/velocity,1.0);
-            double dsy = yn*std::min(fabs(v_)/velocity,1.0);
+                //should not travel more distance than cell size
+                double dsx = xn*std::min(fabs(u_)/velocity,1.0);
+                double dsy = yn*std::min(fabs(v_)/velocity,1.0);
 
-            //cell directions
-            int dx[4] = {0, 1, 1, 0};
-            int dy[4] = {1, 0, 1, 0};
+                //cell directions
+                int dx[4] = {0, 1, 1, 0};
+                int dy[4] = {1, 0, 1, 0};
 
-            double w[4] = {0.0,0.0,0.0,0.0};
-            for (int i=0; i<4; i++)
-            {
-                //must multiply the cell directions by the sign of the slope vector components
-                int rr = r+(int)yn*dy[i];
-                int cr = c+(int)xn*dx[i];
+                double w[4] = {0.0,0.0,0.0,0.0};
+                for (int i=0; i<4; i++)
+                {
+                    //must multiply the cell directions by the sign of the slope vector components
+                    int rr = r+(int)yn*dy[i];
+                    int cr = c+(int)xn*dx[i];
 
-                // distance we want is equal to: 1 - distance from the advected location to the neighbouring cell
-                double wdx = ((double)1.0) - fabs( xn * ((double)dx[i]) - dsx);
-                double wdy = ((double)1.0) - fabs( yn * ((double)dy[i]) - dsy);
+                    // distance we want is equal to: 1 - distance from the advected location to the neighbouring cell
+                    double wdx = ((double)1.0) - fabs( xn * ((double)dx[i]) - dsx);
+                    double wdy = ((double)1.0) - fabs( yn * ((double)dy[i]) - dsy);
 
-                //the distribution is inverly proportional to the squared distance
-                double weight = fabs(wdx) * fabs(wdy);
+                    //the distribution is inverly proportional to the squared distance
+                    double weight = fabs(wdx) * fabs(wdy);
 
-                if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr)) {
-                    if(h->Drcr > he_ca) {
-                        w[i] = weight;
+                    if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr)) {
+                        if(h->Drcr > he_ca) {
+                            w[i] = weight;
+                        }
                     }
                 }
-            }
 
-            //normalize: sum of the 4 weights is equal to 1
-            double wt = w[0];
-            wt += w[1];
-            wt += w[2];
-            wt += w[3];
+                //normalize: sum of the 4 weights is equal to 1
+                double wt = w[0];
+                wt += w[1];
+                wt += w[2];
+                wt += w[3];
 
-            if(wt == 0) {
-                w[3] = 1.0;
-                wt = 1.0;
-            }
+                if(wt == 0) {
+                    w[3] = 1.0;
+                    wt = 1.0;
+                }
 
-            w[0] = w[0]/wt;
-            w[1] = w[1]/wt;
-            w[2] = w[2]/wt;
-            w[3] = w[3]/wt;
+                w[0] = w[0]/wt;
+                w[1] = w[1]/wt;
+                w[2] = w[2]/wt;
+                w[3] = w[3]/wt;
 
-            double flux[4] = {0.0,0.0,0.0,0.0};
+                double flux[4] = {0.0,0.0,0.0,0.0};
 
-            for (int i=0; i<4; i++) {
+                for (int i=0; i<4; i++) {
 
-                int rr = r+(int)yn*dy[i];
-                int cr = c+(int)xn*dx[i];
+                    int rr = r+(int)yn*dy[i];
+                    int cr = c+(int)xn*dx[i];
+                    if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr))
+                    {
+                        if(h->Drcr > he_ca)
+                        {
+                            flux[i] = w[i]*dss;
+
+                            if (i == 0) tma->Drcr += flux[i];
+                            if (i == 1) tmb->Drcr += flux[i];
+                            if (i == 2) tmc->Drcr += flux[i];
+                            if (i == 3) tmd->Drcr += flux[i];
+                        }
+                    }
+                }
+                /*
+                int rr;
+                int cr;
+                rr = r+(int)yn;
+                cr = c;
                 if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr))
                 {
-                    if(h->Drcr > he_ca)
-                    {
-                        flux[i] = w[i]*dss;
-
-                        if (i == 0) tma->Drcr += flux[i];
-                        if (i == 1) tmb->Drcr += flux[i];
-                        if (i == 2) tmc->Drcr += flux[i];
-                        if (i == 3) tmd->Drcr += flux[i];
-                    }
+                    flux[0] = w[0]*dss;
+                    tma->Drcr += flux[0];
                 }
-            }
-            /*
-            int rr;
-            int cr;
-            rr = r+(int)yn;
-            cr = c;
-            if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr))
-            {
-                flux[0] = w[0]*dss;
-                tma->Drcr += flux[0];
-            }
-            rr = r;
-            cr = c+(int)xn;
-            if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr))
-            {
-                flux[1] = w[1]*dss;
-                tmb->Drcr += flux[1];
-            }
-            rr = r+(int)yn;
-            cr = c+(int)xn;
-            if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr))
-            {
-                flux[2] = w[2]*dss;
-                tmc->Drcr += flux[2];
-            }
-            //rr = r;
-            //cr = c;
-            flux[3] = w[3]*dss;
-            tmc->Drc += flux[3];
-*/
-            // subtract the four fluxes from each cell
-            _SS->Drc -= (flux[0]+flux[1]+flux[2]+flux[3]); // flux is in kg!
-        } // v en h > ha
-    }}
+                rr = r;
+                cr = c+(int)xn;
+                if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr))
+                {
+                    flux[1] = w[1]*dss;
+                    tmb->Drcr += flux[1];
+                }
+                rr = r+(int)yn;
+                cr = c+(int)xn;
+                if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr))
+                {
+                    flux[2] = w[2]*dss;
+                    tmc->Drcr += flux[2];
+                }
+                //rr = r;
+                //cr = c;
+                flux[3] = w[3]*dss;
+                tmc->Drc += flux[3];
+    */
+                // subtract the four fluxes from each cell
+                _SS->Drc -= (flux[0]+flux[1]+flux[2]+flux[3]); // flux is in kg!
+            } // v en h > ha
+        }}
 
-    // update SS with new values in 4 cells that have changed
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        _SS->Drc = _SS->Drc + tma->Drc + tmb->Drc + tmc->Drc + tmd->Drc;
-    }}
-
+        // update SS with new values in 4 cells that have changed
+        #pragma omp for
+        FOR_ROW_COL_MV_L {
+            _SS->Drc = _SS->Drc + tma->Drc + tmb->Drc + tmc->Drc + tmd->Drc;
+        }}
+    //}
 }
 //--------------------------------------------------------------------------------------------
+        // OBSOLETE
 /**
  * @fn void TWorld::SWOFSedimentSetConcentration(int r, int c)
  * @brief Deposits all sediment when the water height is zero
@@ -490,7 +499,8 @@ void TWorld::SWOFSedimentLayerDepth(int r , int c, double h, double velocity)
 
 void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
 {
-#pragma omp parallel for num_threads(userCores)
+    //#pragma omp parallel for num_threads(userCores)
+    #pragma omp for
     FOR_ROW_COL_MV_L {
 
     double chadj = ChannelAdj->Drc;

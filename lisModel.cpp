@@ -114,8 +114,20 @@ void TWorld::saveMBerror2file(bool doError, bool start)
 void TWorld::DoModel()
 {
 //    if(op.hasrunonce)
-  //      DestroyData();
+//        DestroyData();
     // destroy data previous run
+//    qDebug() << op.nrMapsCreated;
+//    if (op.nrMapsCreated > 0) {
+//        for (int i = 0; i < op.nrMapsCreated; i++)
+//        {
+//            qDebug() << maplistCTMap[i].m << i;
+//            if (maplistCTMap[i].m != nullptr)
+//            {
+//                delete maplistCTMap[i].m;
+//                maplistCTMap[i].m = nullptr;
+//            }
+//        }
+//    }
 
     loc = QLocale::system(); // current locale
     loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
@@ -183,9 +195,12 @@ void TWorld::DoModel()
         setupDisplayMaps();
         // reset all display output maps for new job
         // must be done after Initialize Data because then we know how large the map is
+        // clear() calls the destruction of all elements in the sturcture
 
         if (SwitchRainfall)
         {
+            RainfallSeries.clear();
+            RainfallSeriesMaps.clear();
            // qDebug() << rainSatFileName << rainFileName;
             DEBUG("Get Rainfall Data Information");
             if (SwitchRainfallSatellite) {
@@ -208,6 +223,8 @@ void TWorld::DoModel()
 
         if (SwitchIncludeET)
         {
+            ETSeries.clear();
+            ETSeriesMaps.clear();
             DEBUG("Get ET Data Information");
             if (SwitchETSatellite) {
                 GetSpatialMeteoData(ETSatFileName, 1);
@@ -227,6 +244,8 @@ void TWorld::DoModel()
         SwitchSnowmelt = false;
         if (SwitchSnowmelt)
         {
+            SnowmeltSeries.clear();
+            SnowmeltSeriesMaps.clear();
             DEBUG("Get Snowmelt Data Information");
             if (SwitchSnowmeltSatellite) {
                 GetSpatialMeteoData(snowmeltSatFileName, 2);

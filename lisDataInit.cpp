@@ -82,7 +82,6 @@ cTMap *TWorld::NewMap(double value)
 //---------------------------------------------------------------------------
 cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
 {
-
     cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
 
     for (int r = 0; r < _nrRows; r++)
@@ -122,7 +121,6 @@ void TWorld::DestroyData(void)
     // clear() calls the destruction of all elements in the sturcture
     RainfallSeries.clear();
     RainfallSeriesMaps.clear();
-
     if (SwitchSnowmelt) {
         SnowmeltSeries.clear();
         SnowmeltSeriesMaps.clear();
