@@ -238,6 +238,7 @@ void TWorld::DoModel()
                 while (BeginTime/60 >= ETSeries[ETplace].time && ETplace < nrETseries)
                     ETplace++;
                 if (ETplace > 0) ETplace--;
+                qDebug() << ETplace;
             }
         }
 

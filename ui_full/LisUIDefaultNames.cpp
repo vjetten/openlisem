@@ -428,8 +428,6 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Use 2D Diagonal flow");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use 2D Diagonal flow new");
-    namelist[i].value = QString("0");
     namelist[i++].name = QString("Use SWOF watersheds");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood solution");

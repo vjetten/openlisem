@@ -1499,30 +1499,18 @@ void TWorld::InitErosion(void)
         // aggr stab is Lowe test median drops to halve an aggregate
         if (SwitchSplashEQ == 1) {
             if (AggrStab->Drc > 0)
-            {
-                if (RootCohesion->Drc < 0)
-                    SplashStrength->Drc = -1;
-                else
-                    SplashStrength->Drc = 5.331*pow(std::max(ASCalibration*AggrStab->Drc, 1.0),-0.238);
+                SplashStrength->Drc = 5.331*pow(std::max(ASCalibration*AggrStab->Drc, 1.0),-0.238);
                 //SplashStrength->Drc = 2.82/std::max(ASCalibration*AggrStab->Drc, 1.0);
                 //splashb = 2.96;
-                //y = 5.3361x-0.238  excell
-            }
-            else
-            {
-                SplashStrength->Drc = 5.331*pow(std::max(ASCalibration*CohesionSoil->Drc,1.0),-0.238);
-                //SplashStrength->Drc = 0.1033/std::max(ASCalibration*CohesionSoil->Drc,1.0);
-                //splashb = 3.58;
-            }
+                //redone as y = 5.3361x^-0.238  excell
         }
 
         // Eurosem method, aggr stab is not strength but sed delivery so the opposite
-        if (SwitchSplashEQ == 2) {
-           SplashStrength->Drc = (1/ASCalibration)*std::max(AggrStab->Drc, 1.0);
-           splashb = 3.58;
+        if (SwitchSplashEQ == 2) {                      
+           SplashStrength->Drc = (1/ASCalibration)*AggrStab->Drc;
         }
-        if (AggrStab->Drc < 0)
-            SplashStrength->Drc = 0;
+        if (AggrStab->Drc < 0 || RootCohesion->Drc < 0)
+                SplashStrength->Drc = -1;
         // negative values give no splash
     }
 

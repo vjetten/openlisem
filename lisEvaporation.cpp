@@ -324,7 +324,7 @@ void TWorld::doETa()
 
 //            if (r==96 && c == 164)
 //                qDebug() << ETp_ << CStor_ << RainCum->Drc << Interc->Drc;
-            bool ponded = hmxWH->Drc > 0;
+            bool ponded = hmxWH->Drc > 0.01;
 
             if (!ponded) {
                 double pore = Poreeff->Drc;
