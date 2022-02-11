@@ -270,7 +270,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flow Boundary 2D")==0)               E_FlowBoundary->setValue(iii);
         if (p1.compare("Correct DEM")==0)                    checkCorrectDem->setChecked(check);
         if (p1.compare("Use 2D Diagonal flow")==0)           check2DDiagonalFlow->setChecked(check);
-        if (p1.compare("Use 2D Diagonal flow new")==0)           check2DDiagonalFlowNew->setChecked(check);
+        if (p1.compare("Use 2D Diagonal flow new")==0)       check2DDiagonalFlowNew->setChecked(check);
         if (p1.compare("Pit Value")==0)                      E_pitValue->setValue(valc);
         if (p1.compare("Flood initial level map")==0)        checkFloodInitial->setChecked(check);
         if (p1.compare("Timestep flood")==0)                 E_TimestepMinFlood->setValue(valc);
@@ -840,7 +840,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Use time avg V")==0)                 namelist[j].value.setNum((int) checkTimeavgV->isChecked());
         if (p1.compare("Correct DEM")==0)                    namelist[j].value.setNum((int) checkCorrectDem->isChecked());
         if (p1.compare("Use 2D Diagonal flow")==0)           namelist[j].value.setNum((int) check2DDiagonalFlow->isChecked());
-        if (p1.compare("Use 2D Diagonal flow New")==0)           namelist[j].value.setNum((int) check2DDiagonalFlowNew->isChecked());
+        if (p1.compare("Use 2D Diagonal flow new")==0)       namelist[j].value.setNum((int) check2DDiagonalFlowNew->isChecked());
+
         if (p1.compare("Use SWOF watersheds")==0)            namelist[j].value.setNum((int) checkSWOFWatersheds->isChecked());
 
     //    if (p1.compare("Use fixed angle")==0)                namelist[j].value.setNum((int) checkFixedAngle->isChecked());

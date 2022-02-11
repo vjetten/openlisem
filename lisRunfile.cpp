@@ -65,7 +65,7 @@ QString TWorld::getvaluename(QString vname)
             }
             else
             {
-                qDebug() << runnamelist[i].value << runnamelist[i].name ;
+                //qDebug() << runnamelist[i].value << runnamelist[i].name ;
                 QFileInfo info(inputDir + runnamelist[i].value);
                 if (runnamelist[i].value.isEmpty() || !info.exists())
                 {
