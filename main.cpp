@@ -51,18 +51,22 @@ int main(int argc, char *argv[])
 #endif
 
     Fixture fixture; // <= necessary for GDAL
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+ //   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
     QApplication app(argc, argv);
 
     app.setWindowIcon(QIcon(":/openlisem.ico"));
 
-   app.setStyle(QStyleFactory::create("Fusion"));
+    app.setStyle(QStyleFactory::create("Fusion"));
    //  app.setStyle(QStyleFactory::create("Windows"));
 
+    //    QFont font = qApp->font();
+    //    font.setPixelSize(11);
+    //    qApp->setFont(font);
        // increase font size for better reading
-       QFont defaultFont = QApplication::font();
-       defaultFont.setPointSize(defaultFont.pointSize()+2);
-       qApp->setFont(defaultFont);
+//       QFont defaultFont = QApplication::font();
+//       defaultFont.setPointSize(defaultFont.pointSize()+2);
+//       qApp->setFont(defaultFont);
        // modify palette to dark
 
 

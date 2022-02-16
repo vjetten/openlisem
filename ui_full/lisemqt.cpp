@@ -774,7 +774,7 @@ void lisemqt::SetToolBar()
   //  connect(transparencyChannel, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaChannel(int)));
     connect(transparencyRoad, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaRoad(int)));
     connect(transparencyHouse, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaHouse(int)));
-    connect(transparencyImage, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaBarrier(int))); // barrier is use for image
+   // connect(transparencyImage, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaBarrier(int))); // barrier is use for image
     connect(transparencyMap, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaMap(int)));
     //connect(showRiverSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
     connect(spinChannelSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
@@ -838,8 +838,8 @@ void lisemqt::SetStyleUI()
     genfontsize = 8+SetStyleUISize();
     setfontSize();
 
-    label_baseflowtot->setVisible(false);
-    label_195->setVisible(false);
+//    label_baseflowtot->setVisible(false);
+//    label_195->setVisible(false);
 
     GW_initlevel->setVisible(false);
     label_61->setVisible(false);
@@ -860,7 +860,7 @@ void lisemqt::SetStyleUI()
     label_88->setStyleSheet("QLabel {color: #4477aa;}");
     label_9->setStyleSheet("QLabel {color: #4477aa;}");
     label_10->setStyleSheet("QLabel {color: #4477aa;}");
-    label_11->setStyleSheet("QLabel {color: #4477aa;}");
+    //label_11->setStyleSheet("QLabel {color: #4477aa;}");
 
     // interface elements that are not visible for now
     frameSpare->setVisible(false);

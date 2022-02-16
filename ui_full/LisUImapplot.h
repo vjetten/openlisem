@@ -78,6 +78,7 @@ public:
     virtual ~QwtLinearColorMapVJ();
 
     double thresholdLCM;
+    int alphav;
 
     void setThreshold(double v);
 
@@ -179,7 +180,7 @@ public:
     { }
 };
 //---------------------------------------------------------------------------
-/// flow barrier map
+// flow barrier map
 class colorMapImage: public QwtLinearColorMap
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
@@ -205,44 +206,17 @@ class colorMapElevation: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-//        if ( value < -1e19 )
-//            return qRgba( 228, 228, 228, 255 );
         if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
         return QwtLinearColorMap::rgb( interval, value );
     }
 public:
     colorMapElevation():
-//        QwtLinearColorMap( QColor("#B17142"),QColor("#FFDFC7"))
-//              QwtLinearColorMap( QColor("#8d5524"),QColor("#ffdbac").lighter())
- //                           QwtLinearColorMap( QColor("#D7191C"),QColor("#ffffbf"))
-  QwtLinearColorMapVJ( QColor(141,116,94),QColor(255,251,244)) //skincolor
-  //     QwtLinearColorMap( QColor(188,170,39),QColor(20,129,2))
-   //     QwtLinearColorMap( QColor("#279400").lighter(),QColor("#F3EEC4").lighter())//kurt arcgis
+    QwtLinearColorMapVJ( QColor(141,116,94),QColor(255,251,244)) //skincolor
     {
-//        addColorStop(0.000,QColor("#B17142"));
-//        addColorStop(0.250,QColor("#C48C63"));
-//        addColorStop(0.500,QColor("#D8A885"));
-//        addColorStop(0.750,QColor("#ECC4A6"));
-//        addColorStop(1.000,QColor("#FFDFC7"));
-
-//        addColorStop(0.250,QColor("#c68642"));
-//        addColorStop(0.500,QColor("#e0ac69"));
-//        addColorStop(0.750,QColor("#ECC4A6"));
-
-//      addColorStop(0.500,QColor("#fdae61"));
-
-
         addColorStop(0.250,QColor(198,164,136)); // "skincolor"
         addColorStop(0.500,QColor(224,201,173));
         addColorStop(0.750,QColor(236,226,214));
-
-//addColorStop(0.250,QColor(119,14,11));
-//addColorStop(0.500,QColor(245,251,91));
-//addColorStop(0.750,QColor(20,129,2));
-
-//        addColorStop(0.5,QColor("#EAD49A"));
-
     }
 };
 //---------------------------------------------------------------------------
@@ -251,14 +225,42 @@ class colorMapGray: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-        if ( value <= thresholdLCM )
+        if ( value < thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
+
         return QwtLinearColorMap::rgb( interval, value );
     }
 public:
     colorMapGray():
-        QwtLinearColorMapVJ( QColor("#555555"),QColor("#ffffff"))
-    {   }
+      //  QwtLinearColorMapVJ( QColor(0,0,0,255), QColor(255,255,255,255))
+      QwtLinearColorMapVJ( QColor("#555555"),QColor("#ffffff"))
+    {
+//        addColorStop(0.0,QColor(0,0,0,255));
+//        addColorStop(0.1,QColor(25,25,25,176));
+//        addColorStop(0.2,QColor(50,50,50,105));
+//        addColorStop(0.3,QColor(75,75,75,49));
+//        addColorStop(0.4,QColor(100,100,100,12));
+//        addColorStop(0.5,QColor(125,125,125,0));
+//        addColorStop(0.6,QColor(150,150,150,12));
+//        addColorStop(0.7,QColor(175,175,175,49));
+//        addColorStop(0.8,QColor(200,200,200,105));
+//        addColorStop(0.9,QColor(225,225,225,176));
+//        addColorStop(1.0,QColor(250,250,250,255));
+
+//        addColorStop(0.0,QColor(  0,  0,  0,255));
+//        addColorStop(0.1,QColor( 25, 25, 25,122));
+//        addColorStop(0.2,QColor( 50, 50, 50,43 ));
+//        addColorStop(0.3,QColor( 75, 75, 75,9  ));
+//        addColorStop(0.4,QColor(100,100,100,1  ));
+//        addColorStop(0.5,QColor(125,125,125,0  ));
+//        addColorStop(0.6,QColor(150,150,150,1  ));
+//        addColorStop(0.7,QColor(175,175,175,9));
+//        addColorStop(0.8,QColor(200,200,200,43));
+//        addColorStop(0.9,QColor(225,225,225,122));
+//        addColorStop(1.0,QColor(250,250,250,255));
+
+
+    }
 };
 //---------------------------------------------------------------------------
 // /// Gray scale legend for shaded relief map display
@@ -276,7 +278,7 @@ public:
 //    colorMapGrayGap():
 //        QwtLinearColorMapVJ( QColor("#111111"),QColor("#ffffff"))
 //    {
-////        addColorStop(0.000,QColor("#111111"));
+// //        addColorStop(0.000,QColor("#111111"));
 //    }
 //};
 //---------------------------------------------------------------------------
@@ -285,9 +287,6 @@ class colorMapRoads3: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-//        if ( value < -1e19 )
-//            return qRgba( 228, 228, 228, 255 );
-
         if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
 
@@ -306,9 +305,6 @@ class colorMapRoads: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-//        if ( value < -1e19 )
-//            return qRgba( 228, 228, 228, 255 );
-
         if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
 
@@ -327,9 +323,6 @@ class colorMapRoads2: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-//        if ( value < -1e19 )
-//            return qRgba( 228, 228, 228, 255 );
-
         if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
 
@@ -348,8 +341,6 @@ class colorMapWaterLog: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-//        if ( value < -1e19 )
-//            return qRgba( 228, 228, 228, 255 );
         if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
 
@@ -374,8 +365,6 @@ class colorMapWater: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-//        if ( value < -1e19 )
-//            return qRgba( 228, 228, 228, 255 );
         if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
 
@@ -396,9 +385,6 @@ class colorMapFlood: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value) const
     {
-//        if ( value < -1e19 )
-//            return qRgba( 228, 228, 228, 255 );
-
         if ( value <= thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
 
@@ -418,11 +404,8 @@ class colorMapSed: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-//        if ( value < -1e19 )
-//            return qRgba( 228, 228, 228, 255 );
-
-                if ( value < thresholdLCM && value > -thresholdLCM)
-                    return qRgba( 0, 0, 0, 0 );
+        if ( value < thresholdLCM && value > -thresholdLCM)
+            return qRgba( 0, 0, 0, 0 );
         return QwtLinearColorMap::rgb( interval, value );
     }
 public:
@@ -441,9 +424,6 @@ class colorMapSedB: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-//        if ( value < -1e19 )
-//            return qRgba( 228, 228, 228, 255 );
-
         if ( value < thresholdLCM && value > -thresholdLCM)
             return qRgba( 0, 0, 0, 0 );
         return QwtLinearColorMap::rgb( interval, value );
@@ -463,9 +443,6 @@ class colorMapFloodV: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-//        if ( value < -1e19 )
-//            return qRgba( 228, 228, 228, 255 );
-
         if ( value < thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
 
@@ -506,9 +483,6 @@ class colorMapFEW: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
-//        if ( value < -1e19 )
-//            return qRgba( 228, 228, 228, 255 );
-
         if ( value < thresholdLCM )
             return qRgba( 0, 0, 0, 0 );
 

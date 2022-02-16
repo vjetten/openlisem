@@ -374,7 +374,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Min WH flow")==0)                    E_minWHflow->setText(p);
         if (p1.compare("Use gravity flow")==0)               checkGravityToChannel->setChecked(check);
      //   if (p1.compare("Angle flow to channel")==0)          E_angleToChannel->setValue(valc);
-        if (p1.compare("Use fixed angle")==0)                checkFixedAngle->setChecked(check);
+       // if (p1.compare("Use fixed angle")==0)                checkFixedAngle->setChecked(check);
         if (p1.compare("Use Channel Kinwave dt")==0)         checkKinWaveChannel->setChecked(check);
         if (p1.compare("Channel KinWave dt")==0)             E_ChannelKinWaveDt->setValue(valc);
 

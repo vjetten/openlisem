@@ -33,20 +33,20 @@ public:
     cTRGBMap();
 
     cTRGBMap (MaskedRaster<char>&& dataR,
-              //MaskedRaster<char>&& dataA,
+         //     MaskedRaster<char>&& dataA,
            QString const& projection,
            QString const& mapName);
 
     cTRGBMap (MaskedRaster<char>&& dataR,
               MaskedRaster<char>&& dataG,
-            //  MaskedRaster<char>&& dataA,
+       //       MaskedRaster<char>&& dataA,
            QString const& projection,
            QString const& mapName);
 
     cTRGBMap (MaskedRaster<char>&& dataR,
               MaskedRaster<char>&& dataG,
               MaskedRaster<char>&& dataB,
-            //  MaskedRaster<char>&& dataA,
+       //       MaskedRaster<char>&& dataA,
            QString const& projection,
            QString const& mapName);
 
@@ -59,7 +59,7 @@ public:
     //! The actual raster.
     MaskedRaster<char> dataB; //BAND 3
 
- //   MaskedRaster<char> dataA; //shade
+//    MaskedRaster<char> dataA; //shade
 
     int bands  = 0;
 

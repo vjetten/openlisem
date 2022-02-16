@@ -296,23 +296,36 @@ double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterDa
 
     // copy map data into vector for the display structure
     for(int r = _M->nrRows()-1; r >= 0; r--)
-        //      for(int r = 0; r < _M->nrRows(); r++)
         for(int c=0; c < _M->nrCols(); c++)
         {
 
-            if(true)//!pcr::isMV(_M->dataR[r][c]))
+            if(true)// !pcr::isMV(_M->dataR[r][c]))
             {
                 double value = 0;
                 char * valuechar = ((char*)(&value));
-                valuechar[0] = _M->dataR[r][c];
+
+//                char r = (_M->dataR[r][c]);
+//                char g = (_M->dataG[r][c]);
+//                char b = (_M->dataB[r][c]);
+
+
+//                char rc[1];
+//                char rg[1];
+//                char rb[1];
+//                itoa(r,rc,10);
+//                itoa(g,rg,10);
+//                itoa(b,rb,10);
+                valuechar[0] = _M->dataR[r][c];//*rc;//(*base->data[r][c]);
                 if(_M->bands > 1)
                 {
-                    valuechar[1] = _M->dataG[r][c];
-                    valuechar[2] = _M->dataB[r][c];
+                    valuechar[1] = _M->dataG[r][c];//*rg;
+                    valuechar[2] = _M->dataB[r][c];//*rb;
+                 //   valuechar[3] = base->data[r][c]*255;
                 }else
                 {
                     valuechar[1] = _M->dataR[r][c];
                     valuechar[2] = _M->dataR[r][c];
+                  //  valuechar[3] = base->data[r][c]*255;
                 }
 
                 RGBData << value;
@@ -448,7 +461,7 @@ void lisemqt::showMap()
 
     // imageMap->setAlpha(0);  // flow barriers for now not used, sat image instead
     if (checksatImage->isChecked()){
-        baseMapImage->setAlpha(checkMapImage->isChecked() ? transparencyImage->value() : 0);
+        baseMapImage->setAlpha(checkMapImage->isChecked() ? 255 /*transparencyImage->value()*/ : 0);
     }
 
     baseMapDEM->setAlpha(checkMapImage->isChecked() ? 0 : 255);
@@ -459,8 +472,8 @@ void lisemqt::showMap()
         for ( double level = contourmin; level < contourmax; level += (contourmax-contourmin)/nrcontourlevels->value() )
             contourLevels += level;
         contourDEM->setContourLevels( contourLevels );
+        contourDEM->setDisplayMode( QwtPlotSpectrogram::ContourMode, nrcontourlevels->value() > 0 );
     }
-    contourDEM->setDisplayMode( QwtPlotSpectrogram::ContourMode, nrcontourlevels->value() > 0 );
 
     MPlot->replot();
 }
@@ -570,7 +583,7 @@ void lisemqt::showBaseMap()
     double res = fillDrawMapData(op.baseMap, 1.0, RDb, &m1, &m2);
     if (res == -1e20)
         return;
-
+qDebug() << "shade" << m1 << m2;
     baseMap->setAlpha(transparency->value());
     baseMap->setColorMap(new colorMapGray());
     RDb->setInterval( Qt::ZAxis, QwtInterval( 0, m2));
@@ -826,23 +839,23 @@ void lisemqt::showHouseMap()
 void lisemqt::showFlowBarriersMap()
 {
 
-    if (startplot)
-    {
-        double m1, m2;
-        // set intervals for rasterdata, x,y,z min and max
-        double res = fillDrawMapData(op.flowbarriersMap,1.0, RDf, &m1, &m2);
-        if (res ==-1e20)
-            return;
-        RDf->setInterval( Qt::ZAxis, QwtInterval( m1, m2));
-        imageMap->setData(RDf);
-    }
+//    if (startplot)
+//    {
+//        double m1, m2;
+//        // set intervals for rasterdata, x,y,z min and max
+//        double res = fillDrawMapData(op.flowbarriersMap,1.0, RDf, &m1, &m2);
+//        if (res ==-1e20)
+//            return;
+//        RDf->setInterval( Qt::ZAxis, QwtInterval( m1, m2));
+//        imageMap->setData(RDf);
+//    }
 
-    if (checkMapImage->isChecked())
-        imageMap->setAlpha(transparencyImage->value());
-    else
-        imageMap->setAlpha(0);
+//    if (checkMapImage->isChecked())
+//        imageMap->setAlpha(transparencyImage->value());
+//    else
+//        imageMap->setAlpha(0);
 
-    imageMap->setColorMap(new colorMapImage());
+//    imageMap->setColorMap(new colorMapImage());
 
 }
 //---------------------------------------------------------------------------
@@ -852,13 +865,14 @@ void lisemqt::showImageMap()
     if (startplot && checksatImage->isChecked())
     {
         // set intervals for rasterdata, x,y,z min and max
-        double res = fillDrawMapDataRGB(op.baseMapDEM,op.Image, RImage);
+//        double res = fillDrawMapDataRGB(op.baseMapDEM,op.Image, RImage);
+        double res = fillDrawMapDataRGB(op.baseMap,op.Image, RImage);
         RImage->setInterval( Qt::ZAxis, QwtInterval( 0.0, 1.0));
         baseMapImage->setData(RImage);
     }
 
     if (checksatImage->isChecked())
-        baseMapImage->setAlpha(transparencyImage->value());
+        baseMapImage->setAlpha(255);//transparencyImage->value());
     else
         baseMapImage->setAlpha(0);
 

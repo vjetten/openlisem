@@ -2789,6 +2789,7 @@ void TWorld::InitImages()
 {
     if(SwitchImage)
     {
+        DEBUG("Reading background satellite inage");
         cTRGBMap *image = readRasterImage(satImageFileName);
         //        qDebug() << "sat image" <<  image->cellSize()  << image->nrCols() << image->nrRows();
         this->RGB_Image = image;
@@ -2968,6 +2969,14 @@ void TWorld::InitShade(void)
         Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
         // VJ add a bit of elevation for enhanced effect
         Shade->Drc = 0.8*Shade->Drc+0.2*(DEM->Drc - minDem)/(maxDem-minDem);
+        //ShadeBW->Drc = Shade->Drc;
+    }
+    MaxV = mapMaximum(*Shade);
+    MinV = mapMinimum(*Shade);
+    FOR_ROW_COL_MV
+    {
+        Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
+        // VJ add a bit of elevation for enhanced effect
         ShadeBW->Drc = Shade->Drc;
     }
 

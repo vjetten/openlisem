@@ -88,7 +88,7 @@ void lisemqt::runmodel()
     checkBoxComboMaps2->setChecked(false);
 
     checkMapImage->setChecked(false);
-    transparencyImage->setEnabled(checksatImage->isChecked());
+    //transparencyImage->setEnabled(checksatImage->isChecked());
     checkMapImage->setEnabled(checksatImage->isChecked());
 
     checkMapChannels->setChecked(false);
@@ -101,6 +101,10 @@ void lisemqt::runmodel()
     checkMapRoads->setChecked(false);
     transparencyRoad->setEnabled(checkRoadsystem->isChecked());
     checkMapRoads->setEnabled(checkRoadsystem->isChecked());
+
+    if (!checkDoErosion->isChecked()) {
+        sedgroup->setVisible(false);
+    }
 
     // initialize output graphs
     initPlot();
