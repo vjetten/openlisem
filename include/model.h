@@ -171,6 +171,7 @@
 #define FSRIJNFULL 2
 #define FSHAIRSINEROSE 3
 #define FSWUWANGJIA 4
+#define FENGELUND 5
 //#define FSWUWANGJIABL 3
 
 #define RGOVERS 0

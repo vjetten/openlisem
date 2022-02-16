@@ -513,13 +513,13 @@ void lisemqt::setFloodTab(bool yes)
     label_107->setEnabled(yes);
 
     if (checkOverlandFlow2Ddyn->isChecked() || checkOverlandFlow2Dkindyn->isChecked()) {
-        label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
-        label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
+        label_107->setText(QString("Flood,h>%1)").arg(E_floodMinHeight->value()*1000));
+        label_40->setText(QString("Runoff,h<%1)").arg(E_floodMinHeight->value()*1000));
     }
     else
     {
-        label_107->setText("Flood mm");
-        label_40->setText("Runoff mm");
+        label_107->setText("Flood");
+        label_40->setText("Runoff");
     }
 
 }

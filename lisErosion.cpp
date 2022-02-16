@@ -1132,6 +1132,20 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                     double F = (pow(ad,Zs) - pow(ad,1.2))/(pow(1.0-ad,Zs)* (1.2 - Zs));
                     double qs =  F * U * h * ca;
                     tc = ps * qs/ (U * h);
+                } else
+                    if(method == FENGELUND)
+                    {
+                        //https://www.hec.usace.army.mil/confluence/rasdocs/rassed1d/1d-sediment-transport-technical-reference-manual/computing-transport-capacity/sediment-transport-potential/engelund-hansen
+                        double C = 5.75*log10(2*h/D50m); //*sqrt(GRAV)
+                        double U2 = U*U;
+                        double Tb = pw*U2/(C*C);  //*GRAV
+                        double shields = Tb/((ps-pw)*GRAV*D50m);
+
+                        //double qs = U2*pow(Tb/((ps-pw)*d50m), 1.5)*sqrt(d50m/(GRAV*(ps/p-1)));
+                        double qs = U2*pow(shields, 1.5)*sqrt(d50m/(GRAV*1.65));
+
+                        ChannelQsr->Drc = qs;
+                        tc =  qs/ (U * h); //kg/s/m / (m2/s) =  kg/m3   => WH or WHs
 
                 }else if(method == FSWUWANGJIA)
                 {
