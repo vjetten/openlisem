@@ -170,7 +170,7 @@ lisemqt::~lisemqt()
 // works automatically. if included here may be executed twice!!! not sure...
 void lisemqt::SetConnections()
 {
-    connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
+    //connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
 
     connect(toolButton_fileOpen, SIGNAL(clicked()), this, SLOT(openRunFile()));
     connect(toolButton_deleteRun, SIGNAL(clicked()), this, SLOT(deleteRunFileList()));
@@ -1568,6 +1568,7 @@ void lisemqt::resetTabCalibration()
     E_CalibrateD50->setValue(1.0);
     E_CalibrateD90->setValue(1.0);
     E_CalibrateCHCOH->setValue(1.0);
+    E_CalibrateCHUcr->setValue(1.0);
 }
 
 
@@ -1619,49 +1620,9 @@ void lisemqt::resetTabFlow()
     GW_threshold->setValue(0.2);
 }
 //--------------------------------------------------------------------
-void lisemqt::resetTabSediment()
-{
-    //sediment
-    checkSed2Phase->setChecked(false);
-//    checkSedMultiGrain->setChecked(false);
-
-    E_RBLMethod->setValue(1);
-    E_RSSMethod->setValue(0);
-    E_BLMethod->setValue(1);
-    E_SSMethod->setValue(0);
-
-    E_SigmaDiffusion->setValue(0.5);
-//    E_RSigmaDiffusion->setValue(0.5);
-
-//    checkEstimateGrainSizeDistribution->setChecked(false); // if multiclass, estimate from D50 and D90
-//    checkReadGrainSizeDistribution->setChecked(false); // if multiclass, calculate from user series
-
-//    E_NumberClasses->setValue(6);
-//    E_GrainSizes->setText("2;20;50;125;150;500");
-
-    checkDiffusion->setChecked(true);
-    //checkRDiffusion->setChecked(true);
-
-    checkSed2Phase->setChecked(false);
-
-}
-//--------------------------------------------------------------------
 void lisemqt::resetTabErosion()
 {
-    //checkLimitTC->setChecked(false);
-    checkSedtrap->setChecked(false);
-    E_EfficiencyDET->setValue(1);
     E_splashEquation->setValue(1);
-    checkMaterialDepth->setChecked(false);
-    E_DepositedCohesion->setValue(0.5);
-    E_BulkDens->setText("1500.00");
-    E_BulkDens2->setText("1500.00");
-
-    E_SplashDelibery->setValue(0.1);
-    checkInfilGrass->setChecked(false);
-    E_GrassStripN->setText("0.2");
-
-
     radioButtonKE1->setChecked(true);
     spinKEparameterA1->setValue(28.3);
     spinKEparameterB1->setValue(0.52);
@@ -1674,12 +1635,42 @@ void lisemqt::resetTabErosion()
     spinKEparameterB3->setValue(0.22);
 
     checkKETimebased->setChecked(false);
-    //checkFloodSedimentInterpolation->setChecked(true);
+
+    E_EfficiencyDET->setCurrentIndex(1);
+    E_EfficiencyDETCH->setCurrentIndex(1);
+
+    E_RBLMethod->setCurrentIndex(1);
+    E_RSSMethod->setCurrentIndex(1);
+    E_SSMethod->setCurrentIndex(0);
+    E_BLMethod->setCurrentIndex(1);
+
+    E_SigmaDiffusion->setValue(0.5);
+
+//    checkSedMultiGrain->setChecked(false);
+//    checkEstimateGrainSizeDistribution->setChecked(false); // if multiclass, estimate from D50 and D90
+//    checkReadGrainSizeDistribution->setChecked(false); // if multiclass, calculate from user series
+
+//    E_NumberClasses->setValue(6);
+//    E_GrainSizes->setText("2;20;50;125;150;500");
+
+    checkDiffusion->setChecked(false);
+    checkDiffusionCH->setChecked(false);
+
+    checkSed2Phase->setChecked(false);
+
+    checkSedtrap->setChecked(false);
+
+    checkMaterialDepth->setChecked(false);
+    E_DepositedCohesion->setValue(0.5);
+    E_BulkDens->setText("1500.00");
+    E_BulkDens2->setText("1500.00");
+
+    E_SplashDelibery->setValue(0.1);
+    checkInfilGrass->setChecked(false);
+    E_GrassStripN->setText("0.2");
 
     E_SedTrapN->setText("0.8");
     E_GrassStripN->setText("0.2");
-
-    resetTabSediment();
 }
 
 void lisemqt::resetTabAdvanced()

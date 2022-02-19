@@ -47,6 +47,7 @@ void TWorld::ChannelBaseflow(void)
     if(SwitchChannelBaseflowStationary)
     {
         if(!addedbaseflow) {
+            qDebug() <<"stat";
            #pragma omp parallel for num_threads(userCores)
            FOR_ROW_COL_MV_CHL {
                 ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
@@ -170,178 +171,197 @@ void TWorld::ChannelFlow(void)
     if (!SwitchIncludeChannel)
         return;
 
-    //double sumvol = getMassCH(ChannelWaterVol);
-
-    // velocity, alpha, Q
-    #pragma omp parallel num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
-
-        // calc velocity and Q
-        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
-
-        double MaxQ = ChannelMaxQ->Drc;
-        double wh = ChannelWH->Drc;
-        double ChannelQ_ = 0;
-        double ChannelV_ = 0;
-        double ChannelAlpha_ = 0;
-
-        // calc channel V and Q, using original width
-        if (wh > 1e-6) {
-            double Perim, Radius, Area;
-            double sqrtgrad = sqrt(ChannelGrad->Drc);
-            double N = ChannelN->Drc;
-
-            double FW = ChannelWidth->Drc;
-            double FWO = ChannelWidthO->Drc;
-
-            Perim = FW + 2.0*wh;
-            Area = FW*wh;
-
-            if (SwitchChannelAdjustCHW) {
-                double whn = wh * (FW/FWO);
-                Perim = FWO + whn*2; //original dimensions, wider than cell size
-                Area = FWO * whn;
-                // shallow width perim Area
-            }
-
-            Radius = (Perim > 0 ? Area/Perim : 0);
-
-            if (sqrtgrad > MIN_SLOPE) {
-                //ChannelAlpha->Drc = std::pow(N/sqrtgrad * std::pow(Perim, 2.0/3.0), 0.6);
-                //ChannelQ->Drc = std::pow(Area/ChannelAlpha->Drc, 1.0/0.6);
-                ChannelV_ = std::pow(Radius, 2.0/3.0)*sqrtgrad/N;
-                ChannelQ_ = ChannelV_ * Area;
-                if (SwitchCulverts) {
-                    if (MaxQ > 0 && ChannelQ_ > MaxQ){
-                        ChannelQ_ = MaxQ;
-                        ChannelV_ = MaxQ/Area;
-                    }
-                }
-                ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
-            }
+    if (SwitchChannelKinwaveDt) {
+        if (_dt_user > _dtCHkin) {
+            double n = _dt_user/_dtCHkin;
+            _dt = _dt_user/n;
         }
-
-        ChannelAlpha->Drc = ChannelAlpha_;
-        ChannelQ->Drc = ChannelQ_;
-        ChannelV->Drc = ChannelV_;
-
-        ChannelQsn->Drc = 0;
-        Channelq->Drc = 0;
-        QinKW->Drc = 0;
-
-        if (SwitchErosion) {
-            double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
-            ChannelQSSs->Drc = ChannelQ_ * concss; // m3/s *kg/m3 = kg/s
-          //  ChannelQSSs->Drc = ChannelQsr->Drc*ChannelQ_; //kg/m/s *m
-
-
-
-            if(SwitchUse2Phase) {
-                double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
-                ChannelQBLs->Drc = ChannelQ_ * concbl;
-            }
-        }
-    }}
-
-    // ChannelV and Q and alpha now based on original width and depth, channel vol is always the same
-
-    if (SwitchLinkedList) {
-
-        ChannelQn->setAllMV();
-
-        FOR_ROW_COL_LDDCH5 {
-            Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
-        }}
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            if (pcr::isMV(ChannelQn->Drc))
-                ChannelQn->Drc = 0;
-        }}
-
-    } else {
-        KinematicExplicit(crlinkedlddch_, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
     }
 
-    // calc V and WH back from Qn (original width and depth)
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
-        double chqn = ChannelQn->Drc;
-        ChannelWaterVol->Drc += (QinKW->Drc - chqn)*_dt;
-       // ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelWaterVol->Drc/_dt);
-        ChannelQ->Drc = chqn;
-        ChannelAlpha->Drc = chqn > 1e-6 ? (ChannelWaterVol->Drc/ChannelDX->Drc)/std::pow(chqn, 0.6) : 0.0;
-    }}
-    //water vol from mass balance, includes any errors
+    for (double t = 0; t < _dt_user; t+=_dt)
+    {
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
-        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
-        // new channel WH, use adjusted channelWidth
+        //double sumvol = getMassCH(ChannelWaterVol);
 
-        double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
-        ChannelV->Drc = (ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0);
+        // velocity, alpha, Q
+        #pragma omp parallel num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
 
-        if (SwitchCulverts) {
-            //TO DO ?????????????????????
+            // calc velocity and Q
+            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+
             double MaxQ = ChannelMaxQ->Drc;
-            if (MaxQ > 0 && ChannelQn->Drc > MaxQ) {
-                ChannelQn->Drc = MaxQ;
-                ChannelV->Drc = MaxQ/ChannelArea;
-               // ChannelWaterVol->Drc = ChannelArea*ChannelDX->Drc;
+            double wh = ChannelWH->Drc;
+            double ChannelQ_ = 0;
+            double ChannelV_ = 0;
+            double ChannelAlpha_ = 0;
+
+            // calc channel V and Q, using original width
+            if (wh > 1e-6) {
+                double Perim, Radius, Area;
+                double sqrtgrad = sqrt(ChannelGrad->Drc);
+                double N = ChannelN->Drc;
+
+                double FW = ChannelWidth->Drc;
+                double FWO = ChannelWidthO->Drc;
+
+                Perim = FW + 2.0*wh;
+                Area = FW*wh;
+
+                if (SwitchChannelAdjustCHW) {
+                    double whn = wh * (FW/FWO);
+                    Perim = FWO + whn*2; //original dimensions, wider than cell size
+                    Area = FWO * whn;
+                    // shallow width perim Area
+                }
+
+                Radius = (Perim > 0 ? Area/Perim : 0);
+
+                if (sqrtgrad > MIN_SLOPE) {
+                    //ChannelAlpha->Drc = std::pow(N/sqrtgrad * std::pow(Perim, 2.0/3.0), 0.6);
+                    //ChannelQ->Drc = std::pow(Area/ChannelAlpha->Drc, 1.0/0.6);
+                    ChannelV_ = std::pow(Radius, 2.0/3.0)*sqrtgrad/N;
+                    ChannelQ_ = ChannelV_ * Area;
+                    if (SwitchCulverts) {
+                        if (MaxQ > 0 && ChannelQ_ > MaxQ){
+                            ChannelQ_ = MaxQ;
+                            ChannelV_ = MaxQ/Area;
+                        }
+                    }
+                    ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
+                }
             }
-         }
-    }}
+
+            ChannelAlpha->Drc = ChannelAlpha_;
+            ChannelQ->Drc = ChannelQ_;
+            ChannelV->Drc = ChannelV_;
+
+            ChannelQsn->Drc = 0;
+            Channelq->Drc = 0;
+            QinKW->Drc = 0;
+
+            if (SwitchErosion) {
+                double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
+                ChannelQSSs->Drc = ChannelQ_ * concss; // m3/s *kg/m3 = kg/s
+              //  ChannelQSSs->Drc = ChannelQsr->Drc*ChannelQ_; //kg/m/s *m
 
 
-    // get the maximum for output
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_CHL
-    {
-        maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
-        maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
-    }}
+                if(SwitchUse2Phase) {
+                    double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
+                    ChannelQBLs->Drc = ChannelQ_ * concbl;
+                }
+            }
+        }}
 
-    if (SwitchErosion)
-    {
+        // ChannelV and Q and alpha now based on original width and depth, channel vol is always the same
+
         if (SwitchLinkedList) {
 
-            if(SwitchUse2Phase) {
-                ChannelQBLsn->setAllMV();
-                FOR_ROW_COL_LDDCH5 {
-                    routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn,
-                                   ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed);
-                }}
-               }
-            ChannelQSSsn->setAllMV();
-            //route water 1D and sediment
+            ChannelQn->setAllMV();
+
             FOR_ROW_COL_LDDCH5 {
-               routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
-                              ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed);
+                Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
             }}
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                if (pcr::isMV(ChannelQn->Drc))
+                    ChannelQn->Drc = 0;
+            }}
+
         } else {
-
-            KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
-
-            if(SwitchUse2Phase) {
-                KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
-            }
+            KinematicExplicit(crlinkedlddch_, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
         }
-        if (SwitchIncludeRiverDiffusion) {
-            RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
-            // note SSsed goes in and out, SSconc is recalculated inside
-        }
+
+        // calc V and WH back from Qn (original width and depth)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            RiverSedimentLayerDepth(r,c);
-            RiverSedimentMaxC(r,c);
-            ChannelQsn->Drc = ChannelQSSsn->Drc;
-            ChannelSed->Drc = ChannelSSSed->Drc;
-            if(SwitchUse2Phase) {
-                ChannelQsn->Drc += ChannelQBLsn->Drc;
-                ChannelSed->Drc += ChannelBLSed->Drc;
-            }
+            double chqn = ChannelQn->Drc;
+            ChannelWaterVol->Drc += (QinKW->Drc - chqn)*_dt;
+           // ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelWaterVol->Drc/_dt);
+            ChannelQ->Drc = chqn;
+            ChannelAlpha->Drc = chqn > 1e-6 ? (ChannelWaterVol->Drc/ChannelDX->Drc)/std::pow(chqn, 0.6) : 0.0;
         }}
+        //water vol from mass balance, includes any errors
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+            // new channel WH, use adjusted channelWidth
+
+            double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
+            ChannelV->Drc = (ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0);
+
+            if (SwitchCulverts) {
+                //TO DO ?????????????????????
+                double MaxQ = ChannelMaxQ->Drc;
+                if (MaxQ > 0 && ChannelQn->Drc > MaxQ) {
+                    ChannelQn->Drc = MaxQ;
+                    ChannelV->Drc = MaxQ/ChannelArea;
+                   // ChannelWaterVol->Drc = ChannelArea*ChannelDX->Drc;
+                }
+             }
+        }}
+
+
+        // get the maximum for output
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL
+        {
+            maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
+            maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
+        }}
+
+        if (SwitchErosion)
+        {
+            if (SwitchLinkedList) {
+
+                if(SwitchUse2Phase) {
+                    ChannelQBLsn->setAllMV();
+                    FOR_ROW_COL_LDDCH5 {
+                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn,
+                                       ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed);
+                    }}
+                }
+                ChannelQSSsn->setAllMV();
+                //route water 1D and sediment
+                FOR_ROW_COL_LDDCH5 {
+                   routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
+                                  ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed);
+                }}
+            } else {
+
+                KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
+
+                if(SwitchUse2Phase) {
+                    KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
+                }
+            }
+
+            if (SwitchIncludeRiverDiffusion) {
+                RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
+                // note SSsed goes in and out, SSconc is recalculated inside
+            }
+
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                RiverSedimentLayerDepth(r,c);
+                RiverSedimentMaxC(r,c);
+                ChannelQsn->Drc = ChannelQSSsn->Drc;
+                ChannelSed->Drc = ChannelSSSed->Drc;
+            }}
+
+            if(SwitchUse2Phase) {
+                #pragma omp parallel for num_threads(userCores)
+                FOR_ROW_COL_MV_CHL {
+                    ChannelQsn->Drc += ChannelQBLsn->Drc;
+                    ChannelSed->Drc += ChannelBLSed->Drc;
+                }}
+            }
+
+        }
+
     }
+    _dt=_dt_user;
 }
 
 

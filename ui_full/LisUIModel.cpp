@@ -102,9 +102,7 @@ void lisemqt::runmodel()
     transparencyRoad->setEnabled(checkRoadsystem->isChecked());
     checkMapRoads->setEnabled(checkRoadsystem->isChecked());
 
-    if (!checkDoErosion->isChecked()) {
-        sedgroup->setVisible(false);
-    }
+    sedgroup->setVisible(checkDoErosion->isChecked());
 
     // initialize output graphs
     initPlot();

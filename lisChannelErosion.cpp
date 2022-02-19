@@ -283,7 +283,7 @@ void TWorld::RiverSedimentMaxC(int r, int c)
     cTMap * _SSC = ChannelSSConc;
 
     //fromChannelWHtoVol(r, c);
-    ChannelWaterVol->Drc = ChannelWidth->Drc * ChannelWH->Drc * ChannelDX->Drc;
+   // ChannelWaterVol->Drc = ChannelWidth->Drc * ChannelWH->Drc * ChannelDX->Drc;
 
     double frac = ChannelSSDepth->Drc/ChannelWH->Drc;
     //maximum concentration

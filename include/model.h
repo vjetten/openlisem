@@ -169,9 +169,10 @@
 #define FSGOVERS 0
 #define FSRIJN 1
 #define FSRIJNFULL 2
-#define FSHAIRSINEROSE 3
-#define FSWUWANGJIA 4
-#define FENGELUND 5
+#define FENGELUND 3
+
+#define FSHAIRSINEROSE 11
+#define FSWUWANGJIA 10
 //#define FSWUWANGJIABL 3
 
 #define RGOVERS 0
@@ -442,6 +443,8 @@ public:
     double ChKsatCalibration;
     double COHCalibration;
     double COHCHCalibration;
+    double UcrCHCalibration;
+    double SVCHCalibration;
     double ASCalibration;
     double SplashDelivery;
     double DepositedCohesion;

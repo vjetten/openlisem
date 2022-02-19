@@ -345,7 +345,6 @@ public:
     void resetTabFlow();
     void resetTabCalibration();
     void resetTabAdvanced();
-    void resetTabSediment();
     void resetTabInterception();
     void resetTabInfiltration();
     void doCheckRainfall(bool);

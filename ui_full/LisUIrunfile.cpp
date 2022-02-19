@@ -278,11 +278,11 @@ void lisemqt::ParseInputData()
 
 
         // EROSION
-        if (p1.compare("Detachment efficiency")==0)          E_EfficiencyDET->setValue(iii);
-        if (p1.compare("Detachment efficiency channel")==0)          E_EfficiencyDETCH->setValue(iii);
-        if (p1.compare("Settling Velocity")==0)          E_settlingVelocity->setValue(iii);
+        if (p1.compare("Splash equation")==0)                E_splashEquation->setValue(iii);
+        if (p1.compare("Detachment efficiency")==0)          E_EfficiencyDET->setCurrentIndex(iii-1);
+        if (p1.compare("Detachment efficiency channel")==0)  E_EfficiencyDETCH->setCurrentIndex(iii-1);
+        if (p1.compare("Settling Velocity")==0)              E_settlingVelocity->setCurrentIndex(iii-1);
         if (p1.compare("Include Sediment traps")==0)         checkSedtrap->setChecked(check);
-        if (p1.compare("Splash equation")==0)          E_splashEquation->setValue(iii);
         if (p1.compare("KE parameters EQ1")==0)
         {
             QStringList param;
@@ -344,12 +344,12 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use material depth")==0)              checkMaterialDepth->setChecked(check);
         if (p1.compare("No detachment boundary")==0)          checkNoSedBoundary->setChecked(check);
         if (p1.compare("Use 2 phase flow")==0)                checkSed2Phase->setChecked(check);
-        if (p1.compare("River BL method")==0)                 E_RBLMethod->setValue(iii);
-        if (p1.compare("River SS method")==0)                 E_RSSMethod->setValue(iii);
-        if (p1.compare("Flooding BL method")==0)              E_BLMethod->setValue(iii);
-        if (p1.compare("Flooding SS method")==0)              E_SSMethod->setValue(iii);
-        if (p1.compare("Include diffusion")==0)               checkDiffusion->setChecked(check);
+        if (p1.compare("River BL method")==0)                 E_RBLMethod->setCurrentIndex(iii-1);
+        if (p1.compare("River SS method")==0)                 E_RSSMethod->setCurrentIndex(iii-1);
         if (p1.compare("Include River diffusion")==0)         checkDiffusionCH->setChecked(check);
+        if (p1.compare("Flooding BL method")==0)              E_BLMethod->setCurrentIndex(iii-1);
+        if (p1.compare("Flooding SS method")==0)              E_SSMethod->setCurrentIndex(iii-1);
+        if (p1.compare("Include diffusion")==0)               checkDiffusion->setChecked(check);
         if (p1.compare("Sigma diffusion")==0)                 E_SigmaDiffusion->setValue(valc);
 
 //        if (p1.compare("Use grain size distribution")==0)     checkSedMultiGrain->setChecked(check);
@@ -390,6 +390,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(valc);
         if (p1.compare("Cohesion calibration")==0)     E_CalibrateCOH->setValue(valc);
         if (p1.compare("Cohesion Channel calibration")==0)    E_CalibrateCHCOH->setValue(valc);
+        if (p1.compare("Ucr Channel calibration")==0)    E_CalibrateCHUcr->setValue(valc);
+        if (p1.compare("SV Channel calibration")==0)    E_CalibrateCHSV->setValue(valc);
         if (p1.compare("Aggregate stability calibration")==0)    E_CalibrateAS->setValue(valc);
         if (p1.compare("Splash Delivery Ratio")==0)    E_SplashDelibery->setValue(valc);
         if (p1.compare("Particle Cohesion of Deposited Layer")==0) E_DepositedCohesion->setValue(valc);
@@ -856,20 +858,21 @@ void lisemqt::updateModelData()
             namelist[j].value.setNum(i);
         }
 
-        if (p1.compare("Use 2 phase flow")==0)              namelist[j].value.setNum((int) checkSed2Phase->isChecked());
-
-        if (p1.compare("Detachment efficiency")==0)          namelist[j].value = E_EfficiencyDET->text();
-        if (p1.compare("Detachment efficiency channel")==0)          namelist[j].value = E_EfficiencyDETCH->text();
-        if (p1.compare("Settling Velocity")==0)              namelist[j].value = E_settlingVelocity->text();
         if (p1.compare("Splash equation")==0)                namelist[j].value = E_splashEquation->text();
+        if (p1.compare("Detachment efficiency")==0)          namelist[j].value = QString::number(E_EfficiencyDET->currentIndex()+1);
+        if (p1.compare("Detachment efficiency channel")==0)  namelist[j].value = QString::number(E_EfficiencyDETCH->currentIndex()+1);
+        if (p1.compare("Settling Velocity")==0)              namelist[j].value = QString::number(E_settlingVelocity->currentIndex()+1);
+
+        if (p1.compare("Use 2 phase flow")==0)              namelist[j].value.setNum((int) checkSed2Phase->isChecked());
 
         if (p1.compare("Use material depth")==0)             namelist[j].value.setNum((int)checkMaterialDepth->isChecked());
         if (p1.compare("No detachment boundary")==0)         namelist[j].value.setNum((int)checkNoSedBoundary->isChecked());
 
-        if (p1.compare("Flooding BL method")==0)             namelist[j].value = E_BLMethod->text();
-        if (p1.compare("Flooding SS method")==0)             namelist[j].value = E_SSMethod->text();
-        if (p1.compare("River BL method")==0)                namelist[j].value = E_RBLMethod->text();
-        if (p1.compare("River SS method")==0)                namelist[j].value = E_RSSMethod->text();
+        if (p1.compare("Flooding BL method")==0)             namelist[j].value = QString::number(E_BLMethod->currentIndex()+1);
+        if (p1.compare("Flooding SS method")==0)             namelist[j].value = QString::number(E_SSMethod->currentIndex()+1);
+        if (p1.compare("River BL method")==0)                namelist[j].value = QString::number(E_RBLMethod->currentIndex()+1);
+        if (p1.compare("River SS method")==0)                namelist[j].value = QString::number(E_RSSMethod->currentIndex()+1);
+
 //        if (p1.compare("Use grain size distribution")==0)    namelist[j].value.setNum((int)checkSedMultiGrain->isChecked());
 //        if (p1.compare("Estimate grain size distribution")==0)namelist[j].value.setNum((int)checkEstimateGrainSizeDistribution->isChecked());
 //        if (p1.compare("Read grain distribution maps")==0)    namelist[j].value.setNum((int)checkReadGrainSizeDistribution->isChecked());
@@ -1013,6 +1016,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
         if (p1.compare("Cohesion calibration")==0) namelist[j].value = E_CalibrateCOH->text();
         if (p1.compare("Cohesion Channel calibration")==0) namelist[j].value = E_CalibrateCHCOH->text();
+        if (p1.compare("Ucr Channel calibration")==0) namelist[j].value = E_CalibrateCHUcr->text();
+        if (p1.compare("SV Channel calibration")==0) namelist[j].value = E_CalibrateCHSV->text();
         if (p1.compare("Aggregate stability calibration")==0) namelist[j].value = E_CalibrateAS->text();
         if (p1.compare("Splash Delivery Ratio")==0) namelist[j].value = E_SplashDelibery->text();
         if (p1.compare("Particle Cohesion of Deposited Layer")==0) namelist[j].value = E_DepositedCohesion->text();

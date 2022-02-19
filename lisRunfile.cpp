@@ -369,7 +369,7 @@ void TWorld::ParseRunfileData(void)
         if (!SwitchChannelBaseflow)
             SwitchChannelBaseflowStationary = false;
     }
-
+qDebug() << SwitchChannelBaseflow;
     // next get the main input directory
     for (j = 0; j < nrrunnamelist; j++)
     {

@@ -1058,9 +1058,13 @@ void TWorld::InitChannel(void)
                 }
             }
 
+           // COHCHCalibration = 1.0;
+           // UcrCHCalibration = 1.0;
+           // SVCHCalibration = 1.0;
             ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
             COHCHCalibration = getvaluedouble("Cohesion Channel calibration");
-            //calcValue(*ChannelCohesion, COHCHCalibration, MUL);
+            UcrCHCalibration = getvaluedouble("Ucr Channel calibration");
+            SVCHCalibration = getvaluedouble("SV Channel calibration");
 
             FOR_ROW_COL_MV_CH
             {
@@ -1413,16 +1417,16 @@ void TWorld::InitErosion(void)
     FS_BL_Method = getvalueint("Flooding BL method");
     R_SS_Method  = getvalueint("River SS method");
     R_BL_Method  = getvalueint("River BL method");
-
+qDebug() << R_SS_Method;
 
     FS_SigmaDiffusion = getvaluedouble("Sigma diffusion");
     R_SigmaDiffusion = getvaluedouble("Sigma diffusion"); // same diffusion for river and OF
-    if (SwitchUse2Phase && SwitchUseGrainSizeDistribution) {
-        R_BL_Method = FSWUWANGJIA;
-        R_SS_Method = FSWUWANGJIA;  // ignore because it has to be 3 when 2 layer and graisizedist
-        FS_BL_Method = FSWUWANGJIA;
-        FS_SS_Method = FSWUWANGJIA;
-    }
+//    if (SwitchUse2Phase && SwitchUseGrainSizeDistribution) {
+//        R_BL_Method = FSWUWANGJIA;
+//        R_SS_Method = FSWUWANGJIA;  // ignore because it has to be 3 when 2 layer and graisizedist
+//        FS_BL_Method = FSWUWANGJIA;
+//        FS_SS_Method = FSWUWANGJIA;
+//    }
 //    else
 //        if(!SwitchUse2Phase && !SwitchUseGrainSizeDistribution) {
 //            R_BL_Method = FSRIJN;     // if single layer and no grainsize = simple erosion, then govers

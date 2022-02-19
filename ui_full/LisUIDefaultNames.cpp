@@ -523,6 +523,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding BL method");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Include diffusion");
+  //  namelist[i].value = QString("1");
+  //  namelist[i++].name = QString("Settling Velocity channel");
     namelist[i].value = QString("2");
     namelist[i++].name = QString("Detachment efficiency channel");
     namelist[i].value = QString("1");
@@ -584,6 +586,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Cohesion Channel calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Aggregate stability calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Ucr Channel calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("SV Channel calibration");
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Output maps]");

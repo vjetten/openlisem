@@ -101,21 +101,20 @@ double TWorld::GetSV(double d)
 {
     if (SwitchSV == 2) {
         double dm = d / 1e6;
-        double ds = dm * pow((2650.0/1000.0 - 1.0)*GRAV/(1e-6*1e-6),(1.0/3.0));
-        return 1e-6/dm*(ds*ds*ds)*pow(38.1+0.93*pow(ds,12.0/7.0), -7.0/8.0);
+        double ds = dm * pow(1.65*GRAV/1e-12,0.333333);
+        return SVCHCalibration*1e-6/dm*(ds*ds*ds)*pow(38.1+0.93*pow(ds,12.0/7.0), -7.0/8.0);
         //    // zhiyao et al, 2008
     } else {
-        if(d < 100)
-        {
-            return 2*(2650.0-1000.0)*GRAV*pow(d/2000000.0, 2)/(9*0.001);
+        if(d < 100) {
+            return SVCHCalibration*2*(2650.0-1000.0)*GRAV*pow(d/2000000.0, 2)/(9*0.001);
             //Stokes range settling velocity
-        }else
-        {
+        } else {
             double dm = d/1000.0;
-            return 10.0 *(sqrt(1.0 + 0.01 *((2650.0-1000.0)/1000.0)* GRAV *dm*dm*dm )-1.0)/(dm);
+            return SVCHCalibration*10.0 *sqrt(1.0 + 0.01 *(1.65* GRAV *dm*dm*dm )-1.0)/dm;
             //Settling velocity by Zanke (1977)
         }
     }
+
 }
 //---------------------------------------------------------------------------
 void TWorld::cell_SplashDetachment(int r, int c, double _WH)
@@ -997,7 +996,7 @@ void TWorld::SedimentSetMaterialDistribution()
  */
 double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double U, int type)
 {
-    double R=0, hs=0, S = 0, w = 0;
+    double R=0, hs=0, S = 0, w = 0, man = 0.01;
     cTMap *Wd = nullptr;
     double d50m;
 
@@ -1008,6 +1007,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
         S = ChannelGrad->Drc;
         w = ChannelWidth->Drc;
         R = (w*h)/(2*h+w);
+        man = ChannelN->Drc;
 
     } else
         if (type == 1) {
@@ -1059,26 +1059,34 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
             {
                 //https://www.leovanrijn-sediment.com/papers/Formulaesandtransport.pdf
                 //double kinvis = 1e-6;
-                //double Ds = d50m * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0)); //dimensionless sed size
+                //double Ds = d50m * pow(1.65*GRAV/1e-12,1.0/3.0); //dimensionless sed size
                 //cr,suspension = 0.3/(1+ D*) + 0.1 [1-exp(-0.05D*)
                 // critical shields parameter
                 //double cs = 0.3/(1+Ds)+0.1*(1-exp(-0.05*Ds));
                 // Ucritical, suspension= 5.75 [log(12h/(6D50))] [cr,suspension (s-1) g D50]0.5
-                double ucr;
+
+                // double ucr;
                // ucr = 5.75*(log10(12*hs/(6.0*d50m))*qSqrt(cs*1.650*GRAV*d50m); //1.650 = s-1
 
-                if( d50m < 0.0005) // 500 mu, so always the first one!
-                    ucr = 0.19 * pow(d50m, 0.1) * log10(2.0* h/d50m); //p5
-                else
-                    ucr = 8.5  * pow(d50m, 0.6) * log10(2.0* h/d50m);
+//                if( d50m < 0.0005) // 500 mu, so always the first one!
+//                    ucr = 0.19 * pow(d50m, 0.1) * log10(2.0* h/d50m); //p5
+//                else
+//                    ucr = 8.5  * pow(d50m, 0.6) * log10(2.0* h/d50m);
+//                // set in motion critical U
+                double Ds = d50m * 25296; //pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0)); // let op: D* = 25296*D50m! R2 = 1
+              //  double shields = 0.3/(1+Ds)+0.1*(1-exp(-0.05*DS));
+              //  double ucr = 5.75*log10(2*h/d50m)*sqrt(shields*1.65*GRAV*d50m);
 
-                double me = 0;
-                if (U > ucr)
-                    me =(U - ucr)/sqrt(GRAV * d50m * 1.65); //p15 mobility parameter
-                double ds = d50m * 25296; //pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0)); // let op: D* = 25296*D50m! R2 = 1
+                double ucr = UcrCHCalibration*2.8*pow(h/d50m,0.1)*sqrt(1.65*GRAV*d50m);
+//                // suspension critical U
 
-                //double qs = 0.008 * ps*U*d50m * pow(me, 2.4) * pow(ds, -0.6);
-                double qs = U > ucr ? 0.03 * ps*U*d50m * me*me * pow(ds, -0.6) : 0; // kg/s/m
+               //page 5
+qDebug() << "ucr" << UcrCHCalibration;
+
+                double me = std::max(0.0,U - ucr)/sqrt(GRAV * d50m * 1.65);
+                //p15 mobility parameter
+
+                double qs = 0.03 * ps*U*d50m * me*me * pow(Ds, -0.6); // kg/s/m
                 // van rijn 2007?, p 17, eq 6.4
                 ChannelQsr->Drc = qs;
                 //qDebug() << qs;
@@ -1100,9 +1108,9 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                 */
                     //van Rijn full (1984) following page 1632
                     double kinvis = 1e-6;
-                    double ds = d50m * pow((ps/pw-1)*GRAV/(kinvis*kinvis),(1.0/3.0)); //
+                    double ds = d50m * pow(1.65*GRAV/(kinvis*kinvis),(1.0/3.0)); //
                     //double chezy = 18 * log10(4 * R/d90m);
-                    double chezy = 18 * log10(4 * R/d50m);
+                    double chezy = 1/man*pow(R,1/6);
                     double uc = U * sqrt(GRAV)/chezy;
 
                     //shields functions
@@ -1115,7 +1123,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                         uscr = 0.14*pow(ds,-0.64);
                     if(ds <4)
                         uscr = 0.24*pow(ds,-1);
-                    uscr = sqrt(uscr * (ps/pw - 1)*GRAV * d50m);
+                    uscr = UcrCHCalibration*sqrt(uscr * 1.65*GRAV * d50m);
 
                     double T = std::max(((uc*uc)/(uscr*uscr) - 1),0.0);  //transport stage parameter
                     double bsv = sqrt(GRAV * h * S); // bed shear velocity
@@ -1136,17 +1144,21 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                     if(method == FENGELUND)
                     {
                         //https://www.hec.usace.army.mil/confluence/rasdocs/rassed1d/1d-sediment-transport-technical-reference-manual/computing-transport-capacity/sediment-transport-potential/engelund-hansen
-                        double C = 5.75*log10(2*h/D50m); //*sqrt(GRAV)
                         double U2 = U*U;
-                        double Tb = pw*U2/(C*C);  //*GRAV
-                        double shields = Tb/((ps-pw)*GRAV*D50m);
-
-                        //double qs = U2*pow(Tb/((ps-pw)*d50m), 1.5)*sqrt(d50m/(GRAV*(ps/p-1)));
+                        double C = 1/man*pow(R,1/6);  //Chezy
+                        //double Tb = pw*U2*GRAV/(C*C);
+                        //double shields = Tb/((ps-pw)*GRAV*d50m);
+                        double shields = U2/(C*C*1.65*d50m);
                         double qs = U2*pow(shields, 1.5)*sqrt(d50m/(GRAV*1.65));
 
+                        //http://ponce.sdsu.edu/onlineengelundhansen.php
+                        //double shields1 = h*S/(1.65*d50m);
+                        //double qs = 0.001*(U2/(2*GRAV*S*h))*pow(shields1,2.5)*dw*sqrt(1.65*GRAV*d50m*d50m*d50m);
+                        //0.001 is ton to kg
+                        // gives almost the same value
                         ChannelQsr->Drc = qs;
-                        tc =  qs/ (U * h); //kg/s/m / (m2/s) =  kg/m3   => WH or WHs
 
+                        tc =  qs/ (U * h); //kg/s/m / (m2/s) =  kg/m3   => WH or WHs
                 }else if(method == FSWUWANGJIA)
                 {
                     double phk = 0;

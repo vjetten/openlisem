@@ -474,19 +474,9 @@ void TWorld::ChannelandTileflow()
 
     ChannelBaseflow();       // calculate baseflow
 
-    if (SwitchChannelKinwaveDt) {
-        if (_dt_user > _dtCHkin) {
-            double n = _dt_user/_dtCHkin;
-            _dt = _dt_user/n;
-        }
-    }
-
-    for (double t = 0; t < _dt_user; t+=_dt) {
-        ChannelFlow();            //channel kin wave for water and sediment
-    }
-    _dt=_dt_user;
-
     ChannelFlowDetachmentNew();  //detachment, deposition for SS and BL
+    ChannelFlow();            //channel kin wave for water and sediment
+
 
     TileFlow();          // tile drain flow kin wave
 
