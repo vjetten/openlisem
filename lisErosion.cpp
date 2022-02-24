@@ -997,7 +997,7 @@ void TWorld::SedimentSetMaterialDistribution()
 double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double U, int type)
 {
     double R=0, hs=0, S = 0, w = 0, man = 0.01;
-    cTMap *Wd = nullptr;
+   // cTMap *Wd = nullptr;
     double d50m;
 
     if (type == 0) {
@@ -1033,16 +1033,18 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
     if(U < MIN_FLUX)
         return 0;
 
-    double ps = 2650.0; //2400.0;
+    double ps = 2650.0;
     double pw = 1000.0;
     double tc = 0;
 
     if(method == FSHAIRSINEROSE)
     {
-        //        tc =  d50m * 1.0/SettlingVelocity->Drc * 0.013/GRAV * ps/(ps-pw) * ( std::max(0.0, (om - omcr))/h) ;
+        //tc =  d50m * 1.0/SettlingVelocitySS->Drc * 0.013/GRAV * ps/(ps-pw) * ( std::max(0.0, (om - omcr))/h) ;
         double om =  U*S;
         double omcr = 0.004;
-        tc =  Wd->Drc * (1.0/settlingvelocities.at(_d))*(0.013/GRAV) * (2650.0/(2650.0 - 1000.0)) * ( std::max(0.0, (om - omcr))/h) ;
+     //   tc =  Wd->Drc * (1.0/settlingvelocities.at(_d))*(0.013/GRAV) * 1.650 * ( std::max(0.0, (om - omcr))/h) ;
+        tc =  d50m/SettlingVelocitySS->Drc* 0.013/GRAV * 1.650 * std::max(0.0, om - omcr)/h ;
+//    m/ (m/s)* m/s /m  dimensionless?
 
     } else
         if(method == FSGOVERS)
@@ -1067,7 +1069,6 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
 
                 // double ucr;
                // ucr = 5.75*(log10(12*hs/(6.0*d50m))*qSqrt(cs*1.650*GRAV*d50m); //1.650 = s-1
-
 //                if( d50m < 0.0005) // 500 mu, so always the first one!
 //                    ucr = 0.19 * pow(d50m, 0.1) * log10(2.0* h/d50m); //p5
 //                else
@@ -1081,7 +1082,6 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
 //                // suspension critical U
 
                //page 5
-qDebug() << "ucr" << UcrCHCalibration;
 
                 double me = std::max(0.0,U - ucr)/sqrt(GRAV * d50m * 1.65);
                 //p15 mobility parameter
@@ -1091,7 +1091,7 @@ qDebug() << "ucr" << UcrCHCalibration;
                 ChannelQsr->Drc = qs;
                 //qDebug() << qs;
                 tc =  qs/ (U * h); //kg/s/m / (m2/s) =  kg/m3   => WH or WHs
-
+//qDebug() << ucr << tc << U << qs;
             }else
                 if(method == FSRIJNFULL)
                 {

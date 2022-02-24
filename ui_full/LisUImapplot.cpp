@@ -583,7 +583,7 @@ void lisemqt::showBaseMap()
     double res = fillDrawMapData(op.baseMap, 1.0, RDb, &m1, &m2);
     if (res == -1e20)
         return;
-qDebug() << "shade" << m1 << m2;
+
     baseMap->setAlpha(transparency->value());
     baseMap->setColorMap(new colorMapGray());
     RDb->setInterval( Qt::ZAxis, QwtInterval( 0, m2));
@@ -901,13 +901,13 @@ void lisemqt::changeSize()
 
 //    bool fs = windowState()&Qt::WindowFullScreen;
   //  bool ms = windowState()&Qt::WindowMaximized;
-    int h1 = this->height();
-    int w1 = this->width();
+  //  int h1 = this->height();
+  //  int w1 = this->width();
 //    resize(w1,h1);
 //showFullScreen();
 //    showNormal();
-    resize(w1 - 1,h1);
-    resize(w1,h1);
+ //   resize(w1 - 1,h1);
+  //  resize(w1,h1);
  //   if (fs) showFullScreen();
     //if (ms)
     showMaximized();

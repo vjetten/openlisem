@@ -69,7 +69,8 @@ int main(int argc, char *argv[])
 //       qApp->setFont(defaultFont);
        // modify palette to dark
 
-
+    //qputenv("QT_SCALE_FACTOR", "1.0");
+qputenv("QT_AUTO_SCREEN_SCALE_FACTOR","1");
     op.LisemDir = QCoreApplication::applicationDirPath()+"/";
     // exe path, used for ini file
 

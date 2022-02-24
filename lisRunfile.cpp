@@ -215,15 +215,16 @@ void TWorld::ParseRunfileData(void)
 
         if (p1.compare("Correct DEM")==0)                       SwitchCorrectDEM = iii == 1;
         if (p1.compare("Use 2D Diagonal flow")==0)              Switch2DDiagonalFlow = iii == 1;
-        if (p1.compare("Use 2D Diagonal flow new")==0)              Switch2DDiagonalFlowNew = iii == 1;
+        if (p1.compare("Use 2D Diagonal flow new")==0)          Switch2DDiagonalFlowNew = iii == 1;
         if (p1.compare("Use SWOF watersheds")==0)               SwitchSWOFWatersheds = iii == 1;
         if (p1.compare("Flow Boundary 2D")==0)                  FlowBoundaryType = iii;
         if (p1.compare("Advanced Options")==0)                  SwitchAdvancedOptions = iii == 1;
 
         if (p1.compare("Detachment efficiency")==0)             SwitchEfficiencyDET = iii;
-        if (p1.compare("Detachment efficiency channel")==0)             SwitchEfficiencyDETCH = iii;
+        if (p1.compare("Detachment efficiency channel")==0)     SwitchEfficiencyDETCH = iii;
+        //if (p1.compare("Direct efficiency channel")==0)     SwitchEfficiencyDETCH = iii;
         if (p1.compare("Splash equation")==0)                   SwitchSplashEQ = iii;
-        if (p1.compare("SettlingVelocity")==0)                  SwitchSV = iii;
+        if (p1.compare("SettlingVelocity")==0)                  SwitchSV = iii-1;
         if (p1.compare("Use material depth")==0)                SwitchUseMaterialDepth  = iii == 1;
         if (p1.compare("No detachment boundary")==0)            SwitchNoBoundarySed  = iii == 1;
         if (p1.compare("Use 2 phase flow")==0)                  SwitchUse2Phase = iii;
@@ -259,7 +260,7 @@ void TWorld::ParseRunfileData(void)
 
         if (p1.compare("Matric head files")==0)                 SwitchDumphead =         iii == 1;
         if (p1.compare("Geometric mean Ksat")==0)               SwitchGeometric =        iii == 1;
-        if (p1.compare("Use Water Repellency")==0)              SwitchWaterRepellency  = iii == 1;
+     //   if (p1.compare("Use Water Repellency")==0)              SwitchWaterRepellency  = iii == 1;
         if (p1.compare("Timeplot as PCRaster")==0) {
             SwitchWritePCRtimeplot = iii == 1;
             SwitchWriteCommaDelimited = iii < 1;
@@ -369,7 +370,7 @@ void TWorld::ParseRunfileData(void)
         if (!SwitchChannelBaseflow)
             SwitchChannelBaseflowStationary = false;
     }
-qDebug() << SwitchChannelBaseflow;
+
     // next get the main input directory
     for (j = 0; j < nrrunnamelist; j++)
     {

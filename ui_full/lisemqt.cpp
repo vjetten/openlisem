@@ -1291,6 +1291,7 @@ void lisemqt::GetStorePath()
 {
     runfilelist.clear();
     QFile fff(op.LisemDir + "openlisem.ini");
+
     if (!fff.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
     //   QString S = fff.readLine();
@@ -1327,6 +1328,7 @@ void lisemqt::GetStorePath()
         }
     }
     E_runFileList->addItems(runfilelist);
+
 }
 //---------------------------------------------------------------------------
 void lisemqt::StorePath()
@@ -1384,6 +1386,7 @@ void lisemqt::on_E_runFileList_currentIndexChanged(int)
     //RunFileNames.at(CurrentRunFile);
 
     GetRunfile();   // get the nrunfile and fill namelist
+
     ParseInputData(); // fill interface with namelist data and fill mapList
     // also update DEFmaps for map tree view in interface
 
@@ -2282,4 +2285,9 @@ void lisemqt::on_checkChannelInfil_toggled(bool checked)
 {
     BaseflowParams->setEnabled(!checked);
     if (checked) checkChannelBaseflow->setChecked(false);
+}
+
+void lisemqt::on_E_EfficiencyDETCH_currentIndexChanged(int index)
+{
+    E_EfficiencyDirect->setEnabled(index == 3);
 }

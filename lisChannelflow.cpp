@@ -38,6 +38,25 @@ functions: \n
 #define cell(r,c,a,b,e,d) qDebug()<<a->data[r][c]<<b->data[r][c]<<e->data[r][c]<<d->data[r][c]
 
 //---------------------------------------------------------------------------
+void TWorld::ChannelFlowandErosion()
+{
+    if (!SwitchIncludeChannel)
+        return;
+
+    SwitchChannelKinWave = true;// set to false for experimental swof in channel
+
+    ChannelRainandInfil();   // subtract infil, add rainfall
+
+    ChannelBaseflow();       // calculate baseflow
+
+    ChannelFlow();            //channel kin wave for water and sediment
+
+    ChannelFlowDetachmentNew();  //detachment, deposition for SS and BL
+
+    ChannelSedimentFlow();
+
+}
+//---------------------------------------------------------------------------
 void TWorld::ChannelBaseflow(void)
 {
     if(!SwitchChannelBaseflow)
@@ -47,7 +66,6 @@ void TWorld::ChannelBaseflow(void)
     if(SwitchChannelBaseflowStationary)
     {
         if(!addedbaseflow) {
-            qDebug() <<"stat";
            #pragma omp parallel for num_threads(userCores)
            FOR_ROW_COL_MV_CHL {
                 ChannelWaterVol->Drc += BaseFlowInitialVolume->Drc;
@@ -139,9 +157,6 @@ void TWorld::ChannelBaseflow(void)
 //---------------------------------------------------------------------------
 void TWorld::ChannelRainandInfil(void)
 {
-    if (!SwitchIncludeChannel)
-        return;
-
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
 
@@ -168,9 +183,6 @@ void TWorld::ChannelRainandInfil(void)
 //! channel WH and V and Q are clculated before
 void TWorld::ChannelFlow(void)
 {
-    if (!SwitchIncludeChannel)
-        return;
-
     if (SwitchChannelKinwaveDt) {
         if (_dt_user > _dtCHkin) {
             double n = _dt_user/_dtCHkin;
@@ -240,17 +252,17 @@ void TWorld::ChannelFlow(void)
             Channelq->Drc = 0;
             QinKW->Drc = 0;
 
-            if (SwitchErosion) {
-                double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
-                ChannelQSSs->Drc = ChannelQ_ * concss; // m3/s *kg/m3 = kg/s
-              //  ChannelQSSs->Drc = ChannelQsr->Drc*ChannelQ_; //kg/m/s *m
+//            if (SwitchErosion) {
+//                double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
+//                ChannelQSSs->Drc = ChannelQ_ * concss; // m3/s *kg/m3 = kg/s
+//              //  ChannelQSSs->Drc = ChannelQsr->Drc*ChannelQ_; //kg/m/s *m
 
 
-                if(SwitchUse2Phase) {
-                    double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
-                    ChannelQBLs->Drc = ChannelQ_ * concbl;
-                }
-            }
+//                if(SwitchUse2Phase) {
+//                    double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
+//                    ChannelQBLs->Drc = ChannelQ_ * concbl;
+//                }
+//            }
         }}
 
         // ChannelV and Q and alpha now based on original width and depth, channel vol is always the same
@@ -311,58 +323,111 @@ void TWorld::ChannelFlow(void)
             maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
         }}
 
-        if (SwitchErosion)
-        {
-            if (SwitchLinkedList) {
+//        if (SwitchErosion)
+//        {
+//            if (SwitchLinkedList) {
 
-                if(SwitchUse2Phase) {
-                    ChannelQBLsn->setAllMV();
-                    FOR_ROW_COL_LDDCH5 {
-                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn,
-                                       ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed);
-                    }}
-                }
-                ChannelQSSsn->setAllMV();
-                //route water 1D and sediment
-                FOR_ROW_COL_LDDCH5 {
-                   routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
-                                  ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed);
-                }}
-            } else {
+//                if(SwitchUse2Phase) {
+//                    ChannelQBLsn->setAllMV();
+//                    FOR_ROW_COL_LDDCH5 {
+//                        routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn,
+//                                       ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelBLSed);
+//                    }}
+//                }
+//                ChannelQSSsn->setAllMV();
+//                //route water 1D and sediment
+//                FOR_ROW_COL_LDDCH5 {
+//                   routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn,
+//                                  ChannelAlpha, ChannelDX, ChannelWaterVol, ChannelSSSed);
+//                }}
+//            } else {
 
-                KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
+//                KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
 
-                if(SwitchUse2Phase) {
-                    KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
-                }
-            }
+//                if(SwitchUse2Phase) {
+//                    KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
+//                }
+//            }
 
-            if (SwitchIncludeRiverDiffusion) {
-                RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
-                // note SSsed goes in and out, SSconc is recalculated inside
-            }
+//            if (SwitchIncludeRiverDiffusion) {
+//                RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
+//                // note SSsed goes in and out, SSconc is recalculated inside
+//            }
 
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_CHL {
-                RiverSedimentLayerDepth(r,c);
-                RiverSedimentMaxC(r,c);
-                ChannelQsn->Drc = ChannelQSSsn->Drc;
-                ChannelSed->Drc = ChannelSSSed->Drc;
-            }}
+//            #pragma omp parallel for num_threads(userCores)
+//            FOR_ROW_COL_MV_CHL {
+//                RiverSedimentLayerDepth(r,c);
+//                RiverSedimentMaxC(r,c);
+//                ChannelQsn->Drc = ChannelQSSsn->Drc;
+//                ChannelSed->Drc = ChannelSSSed->Drc;
+//            }}
 
-            if(SwitchUse2Phase) {
-                #pragma omp parallel for num_threads(userCores)
-                FOR_ROW_COL_MV_CHL {
-                    ChannelQsn->Drc += ChannelQBLsn->Drc;
-                    ChannelSed->Drc += ChannelBLSed->Drc;
-                }}
-            }
+//            if(SwitchUse2Phase) {
+//                #pragma omp parallel for num_threads(userCores)
+//                FOR_ROW_COL_MV_CHL {
+//                    ChannelQsn->Drc += ChannelQBLsn->Drc;
+//                    ChannelSed->Drc += ChannelBLSed->Drc;
+//                }}
+//            }
 
-        }
+//        }
 
     }
     _dt=_dt_user;
 }
+
+void TWorld::ChannelSedimentFlow()
+{
+    if (!SwitchErosion)
+        return;
+
+    //double sumvol = getMassCH(ChannelWaterVol);
+
+    #pragma omp parallel num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
+        ChannelQSSs->Drc = ChannelQ->Drc * concss; // m3/s *kg/m3 = kg/s
+      //  ChannelQSSs->Drc = ChannelQsr->Drc*ChannelQ_; //kg/m/s *m
+    }}
+
+    if(SwitchUse2Phase) {
+        #pragma omp parallel num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
+            ChannelQBLs->Drc = ChannelQ->Drc * concbl;
+        }}
+    }
+
+
+    KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
+
+    if(SwitchUse2Phase) {
+        KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
+    }
+
+    if (SwitchIncludeRiverDiffusion) {
+        RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
+        // note SSsed goes in and out, SSconc is recalculated inside
+    }
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        RiverSedimentLayerDepth(r,c);
+        RiverSedimentMaxC(r,c);
+        ChannelQsn->Drc = ChannelQSSsn->Drc;
+        ChannelSed->Drc = ChannelSSSed->Drc;
+    }}
+
+    if(SwitchUse2Phase) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            ChannelQsn->Drc += ChannelQBLsn->Drc;
+            ChannelSed->Drc += ChannelBLSed->Drc;
+        }}
+    }
+}
+
+
 
 
 /* not used */

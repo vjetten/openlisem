@@ -212,6 +212,7 @@ void TWorld::StormDrainFlow(void)
 {
    if (!SwitchIncludeStormDrains)
       return;
+
    #pragma omp parallel for num_threads(userCores)
    FOR_ROW_COL_MV {
          TileWaterVol->Drc += RunoffVolinToTile->Drc;

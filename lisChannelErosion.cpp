@@ -67,10 +67,7 @@ functions: \n
  */
 void TWorld::ChannelFlowDetachmentNew()
 {
-    if (!SwitchIncludeChannel)
-        return;
-
-    if (!SwitchErosion)
+        if (!SwitchErosion)
         return;
 
     #pragma omp parallel for num_threads(userCores)
@@ -80,7 +77,7 @@ void TWorld::ChannelFlowDetachmentNew()
         //creates ChannelBLDepth and ChannelSSDepth, if 1 layer ChannelBLDepth = 0
 
         double sswatervol = ChannelSSDepth->Drc*DX->Drc*ChannelWidth->Drc;
-        double ssdischarge = ChannelV->Drc * ChannelWidth->Drc * ChannelSSDepth->Drc;
+        //double ssdischarge = ChannelV->Drc * ChannelWidth->Drc * ChannelSSDepth->Drc;
         double blwatervol = 0;
         double bldischarge = 0;
         if (SwitchUse2Phase) {
@@ -98,7 +95,7 @@ void TWorld::ChannelFlowDetachmentNew()
         //find transport capacity for bed and suspended layer
 
         ChannelSSTC->Drc = SSTC;
-        double SSDepth = ChannelSSDepth->Drc;
+        //double SSDepth = ChannelSSDepth->Drc;
         double SSC = ChannelSSConc->Drc;
         double SS = ChannelSSSed->Drc;
         double TSettlingVelocitySS = SettlingVelocitySS->Drc;
@@ -153,8 +150,8 @@ void TWorld::ChannelFlowDetachmentNew()
             minTC = std::min(SSTC - SSC, 0.0);
 
             if (minTC < 0) {
-                //TransportFactor = (1-exp(-_dt*TSettlingVelocitySS/ChannelWH->Drc)) * sswatervol;
-                TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
+                TransportFactor = (1-exp(-_dt*TSettlingVelocitySS/ChannelWH->Drc)) * sswatervol;
+             //   TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
                // TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
                 //TransportFactor = std::min(TransportFactor, ssdischarge * _dt);
 
@@ -164,8 +161,11 @@ void TWorld::ChannelFlowDetachmentNew()
             } else
                 if(ChannelY->Drc > 0){
                 //  detachment
+                   // TransportFactor = (1-exp(-_dt*TSettlingVelocitySS/ChannelWH->Drc)) * sswatervol;
 
                     TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
+
+
                     //TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
                     // use discharge because standing water has no erosion
 

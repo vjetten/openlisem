@@ -652,7 +652,7 @@ void TWorld::ReportTimeseriesNew(void)
                 if (SwitchIncludeChannel) out << sep << ChannelWH->Drc;
                 //if (SwitchChannelBaseflow) out << sep << Qbase->Drc;
                 if (SwitchIncludeTile) out << sep << TileQn->Drc*factor;
-                if (SwitchErosion) out << sep << QSALL << sep << Qsoutput->Drc << sep << TotalConc->Drc;
+                if (SwitchErosion) out << sep << QSALL << sep << Qsoutput->Drc << sep << ChannelConc->Drc;//TotalConc->Drc ;
                 out << "\n";
                 fout.close();
             }

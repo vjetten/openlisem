@@ -390,16 +390,16 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Matric head files");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Geometric mean Ksat");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use Water Repellency");
-    namelist[i].value = QString("1.20");
-    namelist[i++].name = QString("Water Repellency A");
-    namelist[i].value = QString("0.3");
-    namelist[i++].name = QString("Water Repellency B");
-    namelist[i].value = QString("0.12");
-    namelist[i++].name = QString("Water Repellency C");
-    namelist[i].value = QString("1.00");
-    namelist[i++].name = QString("Water Repellency D");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Use Water Repellency");
+//    namelist[i].value = QString("1.20");
+//    namelist[i++].name = QString("Water Repellency A");
+//    namelist[i].value = QString("0.3");
+//    namelist[i++].name = QString("Water Repellency B");
+//    namelist[i].value = QString("0.12");
+//    namelist[i++].name = QString("Water Repellency C");
+//    namelist[i].value = QString("1.00");
+//    namelist[i++].name = QString("Water Repellency D");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include tile drains");
     //###
@@ -527,6 +527,8 @@ void lisemqt::defaultRunFile()
   //  namelist[i++].name = QString("Settling Velocity channel");
     namelist[i].value = QString("2");
     namelist[i++].name = QString("Detachment efficiency channel");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Direct efficiency channel");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("River SS method");
     namelist[i].value = QString("0");
@@ -589,7 +591,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Ucr Channel calibration");
     namelist[i].value = QString("1.0");
-    namelist[i++].name = QString("SV Channel calibration");
+    namelist[i++].name = QString("SV calibration");
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Output maps]");

@@ -53,6 +53,7 @@ void lisemqt::GetRunfile()
                              .arg(fin.errorString()));
         return;
     }
+
     //   currentDir = QFileInfo(op.runfilename).path();//absoluteFilePath();
     //   QDir::setCurrent(currentDir);
 
@@ -281,6 +282,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Splash equation")==0)                E_splashEquation->setValue(iii);
         if (p1.compare("Detachment efficiency")==0)          E_EfficiencyDET->setCurrentIndex(iii-1);
         if (p1.compare("Detachment efficiency channel")==0)  E_EfficiencyDETCH->setCurrentIndex(iii-1);
+        if (p1.compare("Direct efficiency channel")==0)      E_EfficiencyDirect->setValue(valc);
         if (p1.compare("Settling Velocity")==0)              E_settlingVelocity->setCurrentIndex(iii-1);
         if (p1.compare("Include Sediment traps")==0)         checkSedtrap->setChecked(check);
         if (p1.compare("KE parameters EQ1")==0)
@@ -391,7 +393,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Cohesion calibration")==0)     E_CalibrateCOH->setValue(valc);
         if (p1.compare("Cohesion Channel calibration")==0)    E_CalibrateCHCOH->setValue(valc);
         if (p1.compare("Ucr Channel calibration")==0)    E_CalibrateCHUcr->setValue(valc);
-        if (p1.compare("SV Channel calibration")==0)    E_CalibrateCHSV->setValue(valc);
+        if (p1.compare("SV calibration")==0)    E_CalibrateCHSV->setValue(valc);
         if (p1.compare("Aggregate stability calibration")==0)    E_CalibrateAS->setValue(valc);
         if (p1.compare("Splash Delivery Ratio")==0)    E_SplashDelibery->setValue(valc);
         if (p1.compare("Particle Cohesion of Deposited Layer")==0) E_DepositedCohesion->setValue(valc);
@@ -456,7 +458,7 @@ void lisemqt::ParseInputData()
     {
         QString p1 = namelist[j].name;
         QString p = namelist[j].value;
-
+//qDebug() << j << namelist[j].name << namelist[j].value;
         if (p1.compare("Begin time day")==0) daystart = p;//E_BeginTimeDay->setText(p);
         if (p1.compare("Begin time")==0) minstart = p;//E_BeginTimeMin->setText(p);
         if (p1.compare("End time day")==0)   dayend = p;//E_EndTimeDay->setText(p);
@@ -528,6 +530,7 @@ void lisemqt::ParseInputData()
             if (!QFileInfo(E_rainsatName->text()).exists())
             {
                 RainSatFileDir = QString(E_WorkDir + "rain/");
+               // qDebug() << E_WorkDir<< RainSatFileDir;
                 E_rainsatName->setText(RainSatFileDir + p);
             }
         }
@@ -576,17 +579,17 @@ void lisemqt::ParseInputData()
 //            }
 //        }
 
-        if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
-        if (p1.compare("Discharge inflow file")==0)
-        {
-            E_DischargeInName->setText(DischargeinDir + p);
-            DischargeinFileName = p;
-            if (!QFileInfo(E_DischargeInName->text()).exists())
-            {
-                DischargeinDir = QString(E_WorkDir + "rain/");
-                E_DischargeInName->setText(DischargeinDir + p);
-            }
-        }
+//        if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
+//        if (p1.compare("Discharge inflow file")==0)
+//        {
+//            E_DischargeInName->setText(DischargeinDir + p);
+//            DischargeinFileName = p;
+//            if (!QFileInfo(E_DischargeInName->text()).exists())
+//            {
+//                DischargeinDir = QString(E_WorkDir + "rain/");
+//                E_DischargeInName->setText(DischargeinDir + p);
+//            }
+//        }
 
         if (checksatImage->isChecked()) {
             if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
@@ -632,7 +635,7 @@ void lisemqt::ParseInputData()
             E_SwatreTableDir->setText(SwatreTableDir);
         }
 
-        if (p1.compare("Table File")==0)
+        if (uiInfilMethod == 1 && p1.compare("Table File")==0)
         {
             SwatreTableName = p;
             if (SwatreTableName.isEmpty())
@@ -861,6 +864,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Splash equation")==0)                namelist[j].value = E_splashEquation->text();
         if (p1.compare("Detachment efficiency")==0)          namelist[j].value = QString::number(E_EfficiencyDET->currentIndex()+1);
         if (p1.compare("Detachment efficiency channel")==0)  namelist[j].value = QString::number(E_EfficiencyDETCH->currentIndex()+1);
+        if (p1.compare("Direct efficiency channel")==0)      namelist[j].value = E_EfficiencyDirect->text();
         if (p1.compare("Settling Velocity")==0)              namelist[j].value = QString::number(E_settlingVelocity->currentIndex()+1);
 
         if (p1.compare("Use 2 phase flow")==0)              namelist[j].value.setNum((int) checkSed2Phase->isChecked());
@@ -1017,7 +1021,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Cohesion calibration")==0) namelist[j].value = E_CalibrateCOH->text();
         if (p1.compare("Cohesion Channel calibration")==0) namelist[j].value = E_CalibrateCHCOH->text();
         if (p1.compare("Ucr Channel calibration")==0) namelist[j].value = E_CalibrateCHUcr->text();
-        if (p1.compare("SV Channel calibration")==0) namelist[j].value = E_CalibrateCHSV->text();
+        if (p1.compare("SV calibration")==0) namelist[j].value = E_CalibrateCHSV->text();
         if (p1.compare("Aggregate stability calibration")==0) namelist[j].value = E_CalibrateAS->text();
         if (p1.compare("Splash Delivery Ratio")==0) namelist[j].value = E_SplashDelibery->text();
         if (p1.compare("Particle Cohesion of Deposited Layer")==0) namelist[j].value = E_DepositedCohesion->text();
@@ -1052,11 +1056,11 @@ void lisemqt::updateModelData()
         }
 
         //VJ 111120 water repellency
-        if (p1.compare("Use Water Repellency")==0)      namelist[j].value.setNum((int)checkWaterRepellency->isChecked());
-        if (p1.compare("Water Repellency A")==0)        namelist[j].value.setNum(E_waterRep_a->value(),'g',6);
-        if (p1.compare("Water Repellency B")==0)        namelist[j].value.setNum(E_waterRep_b->value(),'g',6);
-        if (p1.compare("Water Repellency C")==0)        namelist[j].value.setNum(E_waterRep_c->value(),'g',6);
-        if (p1.compare("Water Repellency D")==0)        namelist[j].value.setNum(E_waterRep_d->value(),'g',6);
+//        if (p1.compare("Use Water Repellency")==0)      namelist[j].value.setNum((int)checkWaterRepellency->isChecked());
+//        if (p1.compare("Water Repellency A")==0)        namelist[j].value.setNum(E_waterRep_a->value(),'g',6);
+//        if (p1.compare("Water Repellency B")==0)        namelist[j].value.setNum(E_waterRep_b->value(),'g',6);
+//        if (p1.compare("Water Repellency C")==0)        namelist[j].value.setNum(E_waterRep_c->value(),'g',6);
+//        if (p1.compare("Water Repellency D")==0)        namelist[j].value.setNum(E_waterRep_d->value(),'g',6);
 
         if (p1.compare("Report discharge units")==0)
         {

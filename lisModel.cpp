@@ -201,6 +201,7 @@ void TWorld::DoModel()
         {
             RainfallSeries.clear();
             RainfallSeriesMaps.clear();
+            calibRainfallinFile = false;
            // qDebug() << rainSatFileName << rainFileName;
             DEBUG("Get Rainfall Data Information");
             if (SwitchRainfallSatellite) {
@@ -317,7 +318,13 @@ void TWorld::DoModel()
 
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
-            ChannelandTileflow();    // do ordered LDD solutions channel, tiles, drains, non threaded
+            // these are all non-threaded
+            ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
+
+            TileFlow();          // tile drain flow kin wave
+
+            StormDrainFlow();    // storm drain flow kin wave
+            // these are all non-threaded
 
             Totals();            // calculate all totals and cumulative values
 
@@ -381,9 +388,7 @@ void TWorld::HydrologyProcesses()
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-
-        if (Rainc->Drc > 0)
-           cell_Interception(r,c);
+        cell_Interception(r,c);
         // all interception on plants, houses, litter
         // result is rainnet (and leafdrip for erosion)
 
@@ -413,8 +418,7 @@ void TWorld::HydrologyProcesses()
             // if baseflow is active percollation is done there, so do not do it here
         }
 
-        // deposit all sediment still in flow when infiltration causes WH to become minimum
-        if(SwitchErosion) {
+        if (SwitchErosion) {
             if(SwitchKinematic2D == K2D_METHOD_DYN) {
                 if(WH->Drc < 1e-6) {
                     DepFlood->Drc -= SSFlood->Drc;
@@ -446,18 +450,19 @@ void TWorld::HydrologyProcesses()
                 }
             }
         }
+        // deposit all sediment still in flow when infiltration causes WH to become minimum
 
         cell_SurfaceStorage(r, c);
 
         if (SwitchErosion) {
-            double wh = FloodDomain->Drc == 0 ? WH->Drc : hmx->Drc;
+             double wh = FloodDomain->Drc == 0 ? WH->Drc : hmx->Drc;
             cell_SplashDetachment(r,c,wh);
         }
     }}
 
     if (SwitchIncludeET) {
         doETa();
-}
+    }
     // ETa is subtracted from canopy, soil water surfaces
     // divided over 12 hours in a day with sine curve
 
@@ -465,21 +470,5 @@ void TWorld::HydrologyProcesses()
 
 }
 //---------------------------------------------------------------------------
-// these are all non-threaded
-void TWorld::ChannelandTileflow()
-{
-    SwitchChannelKinWave = true;// set to false for experimental swof in channel
 
-    ChannelRainandInfil();   // subtract infil, add rainfall
-
-    ChannelBaseflow();       // calculate baseflow
-
-    ChannelFlowDetachmentNew();  //detachment, deposition for SS and BL
-    ChannelFlow();            //channel kin wave for water and sediment
-
-
-    TileFlow();          // tile drain flow kin wave
-
-    StormDrainFlow();    // storm drain flow kin wave
-}
 

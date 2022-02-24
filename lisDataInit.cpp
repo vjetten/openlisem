@@ -121,6 +121,7 @@ void TWorld::DestroyData(void)
     // clear() calls the destruction of all elements in the sturcture
     RainfallSeries.clear();
     RainfallSeriesMaps.clear();
+    calibRainfallinFile = false;
     if (SwitchSnowmelt) {
         SnowmeltSeries.clear();
         SnowmeltSeriesMaps.clear();
@@ -295,10 +296,10 @@ void TWorld::InitParameters(void)
     CanopyOpeness = getvaluedouble("Canopy Openess");
 
     //VJ 110829 water repellency
-    waterRep_a = getvaluedouble("Water Repellency A");
-    waterRep_b = getvaluedouble("Water Repellency B");
-    waterRep_c = getvaluedouble("Water Repellency C");
-    waterRep_d = getvaluedouble("Water Repellency D");
+//    waterRep_a = getvaluedouble("Water Repellency A");
+//    waterRep_b = getvaluedouble("Water Repellency B");
+//    waterRep_c = getvaluedouble("Water Repellency C");
+//    waterRep_d = getvaluedouble("Water Repellency D");
 
     // VJ 170923 moved all 2D switches here
     minReportFloodHeight = getvaluedouble("Minimum reported flood height");
@@ -836,8 +837,6 @@ void TWorld::InitChannel(void)
     //ChannelFlowWidth = NewMap(0);
     ChannelWidthMax = NewMap(0);
     ChannelWaterVol = NewMap(0);
-    //ChannelBLWaterVol = NewMap(0);
-    //ChannelSSWaterVol = NewMap(0);
     ChannelQ = NewMap(0);
     ChannelQb = NewMap(0); //baseflow
     ChannelQn = NewMap(0);
@@ -851,40 +850,37 @@ void TWorld::InitChannel(void)
     ChannelWH = NewMap(0);
     Channelq = NewMap(0);//
     ChannelAlpha = NewMap(0);//
-    //ChannelPerimeter = NewMap(0); //VJ 110109 added for channel infil
     ChannelDX = NewMap(0);
     ChannelInfilVol = NewMap(0);
 
     maxChannelflow = NewMap(0);//
     maxChannelWH = NewMap(0);//
 
-    if (SwitchIncludeChannel)
-    {
-        //## channel maps
-        LDDChannel = InitMaskChannel(getvaluename("lddchan"));
-        // LDDChannel is the mask for channels
+    //## channel maps
+    LDDChannel = InitMaskChannel(getvaluename("lddchan"));
+    // LDDChannel is the mask for channels
 
-        nrValidCellsCH = 0;
-        FOR_ROW_COL_MV_CH {
-            nrValidCellsCH++;
-        }
-        //crch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
-        //long i = 0;
-        FOR_ROW_COL_MV_CH {
-            LDD_COOR newcr;
-            newcr.r = r;
-            newcr.c = c;
-            crch_ << newcr;
+    nrValidCellsCH = 0;
+    FOR_ROW_COL_MV_CH {
+        nrValidCellsCH++;
+    }
+    //crch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
+    //long i = 0;
+    FOR_ROW_COL_MV_CH {
+        LDD_COOR newcr;
+        newcr.r = r;
+        newcr.c = c;
+        crch_ << newcr;
 
-          //  crch_[i].r = r;
-          //  crch_[i].c = c;
-          //  i++;
-        }
-        crlinkedlddch_= MakeLinkedList(LDDChannel);
-        //qDebug() << "nrcells" << nrValidCellsCH << crlinkedlddch_.size();
+      //  crch_[i].r = r;
+      //  crch_[i].c = c;
+      //  i++;
+    }
+    crlinkedlddch_= MakeLinkedList(LDDChannel);
+    //qDebug() << "nrcells" << nrValidCellsCH << crlinkedlddch_.size();
 
-    //   crlinkedlddch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
-    //        QVector <LDD_COOR> temp = MakeLinkedList(LDDChannel);
+//   crlinkedlddch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
+//        QVector <LDD_COOR> temp = MakeLinkedList(LDDChannel);
 
 //        for (long i=0; i < temp.size(); i++) {
 //            crlinkedlddch_[i].r = temp[i].r;
@@ -892,202 +888,206 @@ void TWorld::InitChannel(void)
 //        }
 //        temp.clear();
 
-        crlddch5_.clear();
-        FOR_ROW_COL_MV_CH {
-            if (LDDChannel->Drc == 5) {
-                LDD_COOR newcr;
-                newcr.r = r;
-                newcr.c = c;
-                crlddch5_ << newcr;
-            }
+    crlddch5_.clear();
+    FOR_ROW_COL_MV_CH {
+        if (LDDChannel->Drc == 5) {
+            LDD_COOR newcr;
+            newcr.r = r;
+            newcr.c = c;
+            crlddch5_ << newcr;
         }
-        nrValidCellsLDDCH5 = crlddch5_.size();
+    }
+    nrValidCellsLDDCH5 = crlddch5_.size();
 
 
-        // for 1D or 2D overland flow: channel outlet points are checked, leading
-        FOR_ROW_COL_MV_CH
+    // for 1D or 2D overland flow: channel outlet points are checked, leading
+    FOR_ROW_COL_MV_CH
+    {
+        if(Outlet->Drc > 0 && LDDChannel->Drc != 5)
         {
-            if(Outlet->Drc > 0 && LDDChannel->Drc != 5)
-            {
-                qDebug() << r << c << LDDChannel->Drc << Outlet->Drc;
-                ErrorString = "Outlet points (outlet.map) do not coincide with Channel LDD endpoints.";
-                throw 1;
-            }
-        }
-
-        ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth")); // bottom width in m
-
-        //     ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
-        //ChannelWidth->checkMap(SMALLEREQUAL, 0, "Channel width must be larger than 0 in channel cells");
-        ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
-        cover(*ChannelWidth, *LDD,0);
-        cover(*ChannelDepth, *LDD,0);
-
-        ChannelWidthO = NewMap(0);
-        ChannelDepthO = NewMap(0);
-
-        FOR_ROW_COL_MV_CH
-        {
-            ChannelWidthO->Drc = ChannelWidth->Drc;
-            ChannelDepthO->Drc = ChannelDepth->Drc;
-
-            SwitchChannelAdjustCHW = true;
-            if (SwitchChannelAdjustCHW && ChannelWidth->Drc  > 0.95* _dx) {
-                ChannelWidth->Drc = 0.95*_dx;
-                ChannelDepth->Drc *= ChannelWidth->Drc /(0.95*_dx);
-            }
-
-            if (ChannelWidth->Drc <= 0)
-            {
-                ErrorString = QString("Map %1 contains channel cells with width = 0").arg(getvaluename("chanwidth"));
-                throw 1;
-            }
-        }
-
-        ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
-        ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
-        checkMap(*ChannelGrad, LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
-        //calcValue(*ChannelGrad, 0.001, MAX);
-        //VJ 171002 better to check and set Q to 0 in the code
-        ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));
-
-        cover(*ChannelGrad, *LDD, 0);
-        cover(*ChannelSide, *LDD, 0);
-        cover(*ChannelN, *LDD, 0);
-
-        calcValue(*ChannelN, ChnCalibration, MUL);
-        if (SwitchChannelInfil)
-        {
-            ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
-            cover(*ChannelKsat, *LDD, 0);
-            calcValue(*ChannelKsat, ChKsatCalibration, MUL);
-            // ChannelStore = NewMap(0.050); // 10 cm deep * 0.5 porosity
-            // store not used?
-        }
-
-        if (SwitchCulverts) {
-            ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
-            cover(*ChannelMaxQ, *LDD,0);
-        } else
-            ChannelMaxQ = NewMap(0);
-
-        CulvertWidth = 2.0;
-        CulvertHeight = 1.0;
-        CulvertS = 0.005;
-        CulvertN = 0.012;
-
-        FOR_ROW_COL_MV_CH
-        {
-            ChannelWidthMax->Drc = ChannelWidth->Drc; // not used!
-            // make always a rectangular channel
-            ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
-        }
-
-        if (SwitchChannelBaseflow) {
-
-            LDDbaseflow = ReadMap(LDD, getvaluename("lddbase"));
-            crlinkedlddbase_= MakeLinkedList(LDDbaseflow);
-
-            BaseflowL = ReadMap(LDDChannel, getvaluename("basereach")); // bottom width in m
-            FOR_ROW_COL_MV_L {
-                BaseflowL->Drc = pow(_dx/BaseflowL->Drc,GW_slope);
-            }}
-
-            GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
-            Qbin = NewMap(0);
-            Qbase = NewMap(0);
-            //VolQb = NewMap(0);
-            GWWH = NewMap(0.001);
-            GWrec = NewMap(0);
-            GWout = NewMap(0);
-            GWbp = NewMap(0);
-
-            FOR_ROW_COL_MV_L {
-                GWVol->Drc = (GW_initlevel+0.001)*_dx*_dx;
-            }}
-
-        }
-
-        if(SwitchErosion) {
-            TotalChanDetMap = NewMap(0);
-            TotalChanDepMap = NewMap(0);
-            ChannelDetFlow = NewMap(0);
-            ChannelDep = NewMap(0);
-            ChannelSSSed = NewMap(0);
-            ChannelSSConc = NewMap(0);
-            ChannelSSTC = NewMap(0);
-            ChannelSSDepth = NewMap(0);
-            ChannelQSSs = NewMap(0);
-            ChannelQSSsn = NewMap(0);
-            if (SwitchUse2Phase) {
-                ChannelBLSed = NewMap(0);
-                ChannelBLConc = NewMap(0);
-                ChannelBLTC = NewMap(0);
-                ChannelBLDepth = NewMap(0);
-                ChannelQBLs = NewMap(0);
-                ChannelQBLsn = NewMap(0);
-            }
-
-            ChannelConc = NewMap(0);
-            ChannelTC = NewMap(0);
-            ChannelY = NewMap(0);
-
-            D50CH = NewMap(0);            
-            if(SwitchD50CHavg) {
-                double D50ch = mapAverage(*D50);
-                FOR_ROW_COL_MV_CHL {
-                    D50CH->Drc = D50ch;
-                }}
-            } else {
-                FOR_ROW_COL_MV_CHL {
-                    D50CH->Drc = D50->Drc;
-                }}
-            }
-
-            if (SwitchUse2Phase) {
-                D90CH = NewMap(0);
-                if(SwitchD50CHavg) {
-                    double D90ch = mapAverage(*D90);
-                    FOR_ROW_COL_MV_CHL {
-                        D90CH->Drc = D90ch;
-                    }}
-                } else {
-                    FOR_ROW_COL_MV_CHL {
-                        D90CH->Drc = D90->Drc;
-                    }}
-                }
-            }
-
-           // COHCHCalibration = 1.0;
-           // UcrCHCalibration = 1.0;
-           // SVCHCalibration = 1.0;
-            ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
-            COHCHCalibration = getvaluedouble("Cohesion Channel calibration");
-            UcrCHCalibration = getvaluedouble("Ucr Channel calibration");
-            SVCHCalibration = getvaluedouble("SV Channel calibration");
-
-            FOR_ROW_COL_MV_CH
-            {
-                ChannelCohesion->Drc *= COHCHCalibration;
-                if (ChannelCohesion->Drc == 0)
-                    ChannelY->Drc = 1.0;
-                else {
-                    if (SwitchEfficiencyDETCH == 1)
-                        ChannelY->Drc = std::min(1.0, 1.0/(0.89+0.56*fabs(ChannelCohesion->Drc)));
-                    else
-                        if (SwitchEfficiencyDETCH == 2)
-                            ChannelY->Drc = std::min(1.0, 0.79*exp(-0.85*fabs(ChannelCohesion->Drc)));
-                        else
-                            if (SwitchEfficiencyDETCH == 3)
-                                ChannelY->Drc = std::min(1.0, 1.0/(2.0*fabs(ChannelCohesion->Drc)));
-                }
-
-                if (ChannelCohesion->Drc < 0 || COHCHCalibration < 0)
-                    ChannelY->Drc = 0;
-            }
+            qDebug() << r << c << LDDChannel->Drc << Outlet->Drc;
+            ErrorString = "Outlet points (outlet.map) do not coincide with Channel LDD endpoints.";
+            throw 1;
         }
     }
 
+    ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth")); // bottom width in m
+
+    //     ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
+    //ChannelWidth->checkMap(SMALLEREQUAL, 0, "Channel width must be larger than 0 in channel cells");
+    ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
+    cover(*ChannelWidth, *LDD,0);
+    cover(*ChannelDepth, *LDD,0);
+
+    ChannelWidthO = NewMap(0);
+    ChannelDepthO = NewMap(0);
+
+    FOR_ROW_COL_MV_CH
+    {
+        ChannelWidthO->Drc = ChannelWidth->Drc;
+        ChannelDepthO->Drc = ChannelDepth->Drc;
+
+        SwitchChannelAdjustCHW = true;
+        if (SwitchChannelAdjustCHW && ChannelWidth->Drc  > 0.95* _dx) {
+            ChannelWidth->Drc = 0.95*_dx;
+            ChannelDepth->Drc *= ChannelWidth->Drc /(0.95*_dx);
+        }
+
+        if (ChannelWidth->Drc <= 0)
+        {
+            ErrorString = QString("Map %1 contains channel cells with width = 0").arg(getvaluename("chanwidth"));
+            throw 1;
+        }
+    }
+
+    ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
+    ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
+    checkMap(*ChannelGrad, LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
+    //calcValue(*ChannelGrad, 0.001, MAX);
+    //VJ 171002 better to check and set Q to 0 in the code
+    ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));
+
+    cover(*ChannelGrad, *LDD, 0);
+    cover(*ChannelSide, *LDD, 0);
+    cover(*ChannelN, *LDD, 0);
+
+    calcValue(*ChannelN, ChnCalibration, MUL);
+    if (SwitchChannelInfil)
+    {
+        ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
+        cover(*ChannelKsat, *LDD, 0);
+        calcValue(*ChannelKsat, ChKsatCalibration, MUL);
+        // ChannelStore = NewMap(0.050); // 10 cm deep * 0.5 porosity
+        // store not used?
+    }
+
+    if (SwitchCulverts) {
+        ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
+        cover(*ChannelMaxQ, *LDD,0);
+    } else
+        ChannelMaxQ = NewMap(0);
+
+    CulvertWidth = 2.0;
+    CulvertHeight = 1.0;
+    CulvertS = 0.005;
+    CulvertN = 0.012;
+
+    FOR_ROW_COL_MV_CH
+    {
+        ChannelWidthMax->Drc = ChannelWidth->Drc; // not used!
+        // make always a rectangular channel
+        ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
+    }
+
+    if (SwitchChannelBaseflow) {
+
+        LDDbaseflow = ReadMap(LDD, getvaluename("lddbase"));
+        crlinkedlddbase_= MakeLinkedList(LDDbaseflow);
+
+        BaseflowL = ReadMap(LDDChannel, getvaluename("basereach")); // bottom width in m
+        FOR_ROW_COL_MV_L {
+            BaseflowL->Drc = pow(_dx/BaseflowL->Drc,GW_slope);
+        }}
+
+        GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
+        Qbin = NewMap(0);
+        Qbase = NewMap(0);
+        //VolQb = NewMap(0);
+        GWWH = NewMap(0.001);
+        GWrec = NewMap(0);
+        GWout = NewMap(0);
+        GWbp = NewMap(0);
+
+        FOR_ROW_COL_MV_L {
+            GWVol->Drc = (GW_initlevel+0.001)*_dx*_dx;
+        }}
+
+    }
+
+    if(SwitchErosion) {
+        TotalChanDetMap = NewMap(0);
+        TotalChanDepMap = NewMap(0);
+        ChannelDetFlow = NewMap(0);
+        ChannelDep = NewMap(0);
+        ChannelSSSed = NewMap(0);
+        ChannelSSConc = NewMap(0);
+        ChannelSSTC = NewMap(0);
+        ChannelSSDepth = NewMap(0);
+        ChannelQSSs = NewMap(0);
+        ChannelQSSsn = NewMap(0);
+        if (SwitchUse2Phase) {
+            ChannelBLSed = NewMap(0);
+            ChannelBLConc = NewMap(0);
+            ChannelBLTC = NewMap(0);
+            ChannelBLDepth = NewMap(0);
+            ChannelQBLs = NewMap(0);
+            ChannelQBLsn = NewMap(0);
+        }
+
+        ChannelConc = NewMap(0);
+        ChannelTC = NewMap(0);
+        ChannelY = NewMap(0);
+
+        D50CH = NewMap(0);
+        SwitchD50CHavg = false;
+        if(SwitchD50CHavg) {
+            double D50ch = mapAverage(*D50);
+            FOR_ROW_COL_MV_CHL {
+                D50CH->Drc = D50ch;
+            }}
+        } else {
+            FOR_ROW_COL_MV_CHL {
+                D50CH->Drc = D50->Drc;
+            }}
+        }
+
+        if (SwitchUse2Phase) {
+            D90CH = NewMap(0);
+            if(SwitchD50CHavg) {
+                double D90ch = mapAverage(*D90);
+                FOR_ROW_COL_MV_CHL {
+                    D90CH->Drc = D90ch;
+                }}
+            } else {
+                FOR_ROW_COL_MV_CHL {
+                    D90CH->Drc = D90->Drc;
+                }}
+            }
+        }
+
+        COHCHCalibration = 1.0;
+        UcrCHCalibration = 1.0;
+
+        ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
+        COHCHCalibration = getvaluedouble("Cohesion Channel calibration");
+        UcrCHCalibration = getvaluedouble("Ucr Channel calibration");
+        DirectEfficiency = getvaluedouble("Direct efficiency channel");
+
+//qDebug() << COHCHCalibration << UcrCHCalibration << SVCHCalibration;
+        qDebug() << "SwitchEfficiencyDETCH"<< SwitchEfficiencyDETCH;
+        FOR_ROW_COL_MV_CHL {
+            ChannelCohesion->Drc *= COHCHCalibration;
+
+            if (ChannelCohesion->Drc < 0)
+                ChannelY->Drc = 0;
+
+            if (ChannelCohesion->Drc == 0) {
+                ChannelY->Drc = 1.0;
+            } else {
+                if (SwitchEfficiencyDETCH == 1)
+                    ChannelY->Drc = std::min(1.0, 1.0/(0.89+0.56*fabs(ChannelCohesion->Drc)));
+                else
+                    if (SwitchEfficiencyDETCH == 2)
+                        ChannelY->Drc = std::min(1.0, 0.79*exp(-0.85*fabs(ChannelCohesion->Drc)));
+                    else
+                        if (SwitchEfficiencyDETCH == 3)
+                            ChannelY->Drc = std::min(1.0, 1.0/(2.0*fabs(ChannelCohesion->Drc)));
+                        else
+                            if (SwitchEfficiencyDETCH == 4)
+                                ChannelY->Drc = DirectEfficiency;
+               }
+        }}
+    }
     // OBSOLETE
    // SwitchChannelExtended = ExtendChannelNew();
     //   ExtendChannel();
@@ -1413,14 +1413,18 @@ void TWorld::InitErosion(void)
     FS_BL_Method = FSRIJN;
     FS_SS_Method = FSGOVERS;
 
-    FS_SS_Method = getvalueint("Flooding SS method");
-    FS_BL_Method = getvalueint("Flooding BL method");
-    R_SS_Method  = getvalueint("River SS method");
-    R_BL_Method  = getvalueint("River BL method");
-qDebug() << R_SS_Method;
+    FS_SS_Method = getvalueint("Flooding SS method")-1;
+    FS_BL_Method = getvalueint("Flooding BL method")-1;
+    R_SS_Method  = getvalueint("River SS method")-1;
+    R_BL_Method  = getvalueint("River BL method")-1;
 
     FS_SigmaDiffusion = getvaluedouble("Sigma diffusion");
     R_SigmaDiffusion = getvaluedouble("Sigma diffusion"); // same diffusion for river and OF
+
+    SVCHCalibration = 1.0;
+    SVCHCalibration = getvaluedouble("SV calibration");
+
+
 //    if (SwitchUse2Phase && SwitchUseGrainSizeDistribution) {
 //        R_BL_Method = FSWUWANGJIA;
 //        R_SS_Method = FSWUWANGJIA;  // ignore because it has to be 3 when 2 layer and graisizedist
@@ -1473,6 +1477,8 @@ qDebug() << R_SS_Method;
 
     SplashStrength = NewMap(0);
 
+    qDebug() << "SwitchEfficiencyDET" <<SwitchEfficiencyDET;
+
     FOR_ROW_COL_MV
     {
         if (RootCohesion->Drc < 0) // root cohesion can be used to avoid surface erosion base don land use
@@ -1518,9 +1524,10 @@ qDebug() << R_SS_Method;
         // negative values give no splash
     }
 
+
     FOR_ROW_COL_MV
     {
-        SettlingVelocitySS->Drc = GetSV(D50->Drc);
+        SettlingVelocitySS->Drc = GetSV(D50->Drc);        
         if (SwitchUse2Phase)
             SettlingVelocityBL->Drc = GetSV(D90->Drc);
     }

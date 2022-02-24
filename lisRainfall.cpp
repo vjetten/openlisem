@@ -111,6 +111,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
         // initialize record structure
         rl.time = 0;
         rl.name = "";
+        rl.calib = 1.0;
 
         // split rainfall record row with whitespace
         QStringList SL = rainRecs[r+skip].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
@@ -121,6 +122,13 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
         // check if filename exists
         QFileInfo fi(QDir(dirname), SL[1]);
             // asume second record is name
+        if (SL.count() > 2) {
+            bool ok;
+            double v = SL[2].toDouble(&ok);
+            if (ok)
+                rl.calib = v;
+        }
+
         if (!fi.exists())
         {
             if (type == 0)
@@ -399,6 +407,7 @@ void TWorld::GetRainfallMap(void)
 
     // get the next map from file
     if (!samerain) {
+        qDebug() << currentrow << RainfallSeriesMaps[currentrow].name;
         // read a map
         auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
 
@@ -410,7 +419,7 @@ void TWorld::GetRainfallMap(void)
                 sr.setNum(r); sc.setNum(c);
                 ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[rainplace].name;
             } else
-                rain_ = _M->Drc * tt;
+                rain_ = _M->Drc * tt * RainfallSeriesMaps[currentrow].calib;
 
             if (rain_ < 0)
                 rain_ = 0;

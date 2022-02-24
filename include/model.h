@@ -271,6 +271,7 @@ typedef struct RAIN_LIST {
 typedef struct METEO_LIST {
     double time;
     QString name;
+    double calib;
 } METEO_LIST;
 //---------------------------------------------------------------------------
 /// Structure to store rain station values of rainfile mapnames
@@ -450,6 +451,7 @@ public:
     double DepositedCohesion;
     double StripN, SedTrapN;
     double StemflowFraction;
+    double DirectEfficiency;
 
     double CanopyOpeness; // VJ 110209 added Aston factor as user input
     double waterRep_a;
@@ -514,6 +516,7 @@ public:
     QVector <RAIN_LIST> ETSeries;
     QVector <RAIN_LIST> SnowmeltSeries;
     QVector <METEO_LIST> RainfallSeriesMaps;  // rainfall vector of records
+    bool calibRainfallinFile;
     QVector <METEO_LIST> ETSeriesMaps;  // rainfall vector of records
     QVector <METEO_LIST> SnowmeltSeriesMaps;  // rainfall vector of records
     QVector <Q_LIST> DischargeInSeries;
@@ -884,6 +887,8 @@ public:
     void ChannelFlow();
     void ChannelBaseflow();
     void ChannelRainandInfil();
+    void ChannelSedimentFlow();
+    void ChannelFlowandErosion();
 
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
