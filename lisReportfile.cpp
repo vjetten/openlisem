@@ -497,7 +497,7 @@ void TWorld::ReportTimeseriesNew(void)
                     if (SwitchIncludeChannel) out << ",Q" << ",chanWH";
                    // if (SwitchChannelBaseflow) out << ",Qb";
                     if (SwitchIncludeTile) out << ",Qtile";
-                    if (SwitchErosion) out << ",Qsall,Qs,C";
+                    if (SwitchErosion) out << ",Qsall" << ",Qs" << ",C";
                     out << "\n";
 
                     out << "min";
@@ -507,7 +507,7 @@ void TWorld::ReportTimeseriesNew(void)
                     if (SwitchIncludeChannel) out  << ",l/s" << ",m";
                   //  if (SwitchChannelBaseflow) out << ",l/s";
                     if (SwitchIncludeTile) out << ",l/s";
-                    if (SwitchErosion) out << ",kg/s,kg/s,g/l";
+                    if (SwitchErosion) out << ",kg/s"<< ",kg/s" << ",g/l";
                     out << "\n";
                 }
                 fout.close();
@@ -541,7 +541,7 @@ void TWorld::ReportTimeseriesNew(void)
                 if (SwitchErosion)
                     nrs += (1 + 2*nr); // all sed points
 
-                pnr.setNum(nrs);
+                pnr.setNum(nrs);  // nr of columnsin file
 
                 out << "#LISEM total flow and sed output file for all reporting points\n";
                 out <<  pnr << "\n";
@@ -550,7 +550,7 @@ void TWorld::ReportTimeseriesNew(void)
                 if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
                 out << "Qall (l/s)\n";
                 FOR_ROW_COL_MV_OUTL {
-                    pnr.setNum((int)PointMap->Drc);
+                    pnr.setNum(crout_[i_].nr);//(int)PointMap->Drc);
                     out << "Q #" << pnr <<  "(l/s)\n";
                     if (SwitchIncludeChannel) out << "chanWH #" << pnr <<  "(m)\n";
                  //   if (SwitchChannelBaseflow) out << "chanQb #" << pnr <<  "(l/s)\n";
@@ -560,8 +560,8 @@ void TWorld::ReportTimeseriesNew(void)
                 {
                     out << "Qsall (kg/s)\n";
                     FOR_ROW_COL_MV_OUTL {
-                        pnr.setNum((int)PointMap->Drc);
-                        out << "Qs #"<< pnr << "(kg/s)\n" << "C #"<< pnr << "(g/l)\n";
+                        pnr.setNum(crout_[i_].nr);//(int)PointMap->Drc);
+                        out << "Qs #"<< pnr << "(kg/s)\n" << pnr << "C #"<< pnr << "(g/l)\n";
                     }}
                 }
             }
@@ -578,10 +578,9 @@ void TWorld::ReportTimeseriesNew(void)
                 out << ",Qall";
                 // for all points in outpoint.map
                 FOR_ROW_COL_MV_OUTL {
-                    pnr.setNum((int)PointMap->Drc);
+                    pnr.setNum(crout_[i_].nr);//(int)PointMap->Drc);
                     out << ",Q #" << pnr;
                     if (SwitchIncludeChannel) out << ",chanWH #" << pnr;
-                    //if (SwitchChannelBaseflow) out << ",chanQb #" << pnr;
                     if (SwitchIncludeTile) out << ",Qtile #" << pnr;
                 }}
                 // sediment
@@ -589,7 +588,7 @@ void TWorld::ReportTimeseriesNew(void)
                 {
                     out << ",Qsall";
                     FOR_ROW_COL_MV_OUTL {
-                        pnr.setNum((int)PointMap->Drc);
+                        pnr.setNum(crout_[i_].nr);//(int)PointMap->Drc);
                         out << ",Qs #" << pnr << ",C #" << pnr;
                     }}
                 }
@@ -601,17 +600,16 @@ void TWorld::ReportTimeseriesNew(void)
                 if (SwitchSnowmelt) out << ",mm/h";
                 out << ",l/s";
                 FOR_ROW_COL_MV_OUTL {
-                    pnr.setNum((int)PointMap->Drc);
+                    pnr.setNum(crout_[i_].nr);//(int)PointMap->Drc);
                     out << ",l/s #" << pnr;
                     if (SwitchIncludeChannel) out << ",m #" << pnr;
-                   // if (SwitchChannelBaseflow) out << ",l/s #" << pnr;
                     if (SwitchIncludeTile) out << ",l/s #" << pnr;
                 }}
                 if (SwitchErosion)
                 {
                     out << ",kg/s";
                     FOR_ROW_COL_MV_OUTL {
-                        pnr.setNum((int)PointMap->Drc);
+                        pnr.setNum(crout_[i_].nr);//(int)PointMap->Drc);
                         out << ",kg/s #" << pnr << ",g/l #" << pnr;
                     }}
                 }
@@ -625,37 +623,33 @@ void TWorld::ReportTimeseriesNew(void)
     double factor = (QUnits == 1 ?  1.0 : 1000.0);
     if (SwitchSeparateOutput)
     {
-       // #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L
+        FOR_ROW_COL_MV_OUTL
         {
-            if ( PointMap->Drc > 0 ) // all points in separate files
-            {
-                newname1 = fi.path() + "/" + fi.baseName() + "_" + QString::number((int)PointMap->Drc) + "." +  fi.suffix();
+            newname1 = fi.path() + "/" + fi.baseName() + "_" + QString::number((int)PointMap->Drc) + "." +  fi.suffix();
 
-                QFile fout(newname1);
-                fout.open(QIODevice::Append | QIODevice::Text);
+            QFile fout(newname1);
+            fout.open(QIODevice::Append | QIODevice::Text);
 
-                QTextStream out(&fout);
-                out.setRealNumberPrecision(DIG);
-                out.setFieldWidth(width);
-                out.setRealNumberNotation(QTextStream::FixedNotation);
-                if (SwitchWritePCRtimeplot)
-                    out << runstep;
-                else
-                    out << (time/60)/1440.0;
+            QTextStream out(&fout);
+            out.setRealNumberPrecision(DIG);
+            out.setFieldWidth(width);
+            out.setRealNumberNotation(QTextStream::FixedNotation);
+            if (SwitchWritePCRtimeplot)
+                out << runstep;
+            else
+                out << (time/60)/1440.0;
 
-                if (SwitchRainfall) out << sep << RainIntavg;
-                if (SwitchSnowmelt) out << sep << SnowIntavg;
+            if (SwitchRainfall) out << sep << RainIntavg;
+            if (SwitchSnowmelt) out << sep << SnowIntavg;
 
-                out << sep << QALL << sep << Qoutput->Drc;  //Qoutput is sum channel, of, tile
+            out << sep << QALL << sep << Qoutput->Drc;  //Qoutput is sum channel, of, tile
 
-                if (SwitchIncludeChannel) out << sep << ChannelWH->Drc;
-                //if (SwitchChannelBaseflow) out << sep << Qbase->Drc;
-                if (SwitchIncludeTile) out << sep << TileQn->Drc*factor;
-                if (SwitchErosion) out << sep << QSALL << sep << Qsoutput->Drc << sep << ChannelConc->Drc;//TotalConc->Drc ;
-                out << "\n";
-                fout.close();
-            }
+            if (SwitchIncludeChannel) out << sep << ChannelWH->Drc;
+            //if (SwitchChannelBaseflow) out << sep << Qbase->Drc;
+            if (SwitchIncludeTile) out << sep << TileQn->Drc*factor;
+            if (SwitchErosion) out << sep << QSALL << sep << Qsoutput->Drc << sep << ChannelConc->Drc;//TotalConc->Drc ;
+            out << "\n";
+            fout.close();
         }}
     } //switch separate
     else
@@ -679,26 +673,22 @@ void TWorld::ReportTimeseriesNew(void)
         if (SwitchSnowmelt) out << sep << SnowIntavg;
 
         out << sep << QALL;
-//#pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L
+
+        FOR_ROW_COL_MV_OUTL
         {
-            if ( PointMap->Drc > 0 )
-            {
-                out << sep << Qoutput->Drc;
-                if (SwitchIncludeChannel) out << sep << ChannelWH->Drc;
-                //if (SwitchChannelBaseflow) out << sep << Qbase->Drc;
-                if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
-            }
+            out << sep << Qoutput->Drc;  //if not channel this is only overlandflow
+            if (SwitchIncludeChannel) out << sep << ChannelWH->Drc;
+            //if (SwitchChannelBaseflow) out << sep << Qbase->Drc;
+            if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
         }}
 
         if (SwitchErosion)
         {
             out << sep << QSALL;
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L
+            //#pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_OUTL
             {
-                if ( PointMap->Drc > 0 )
-                    out << sep << Qsoutput->Drc << sep << TotalConc->Drc;
+                out << sep << Qsoutput->Drc << sep << ChannelConc->Drc;//TotalConc->Drc;
             }}
         }
         out << "\n";

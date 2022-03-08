@@ -127,7 +127,7 @@ public:
     }
 
     double thresholdmin;
-    bool thresholduse;
+    bool thresholduse = true;
 };
 //---------------------------------------------------------------------------
 class colorMapRGB: public QwtLinearColorMap

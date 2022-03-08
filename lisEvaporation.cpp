@@ -177,12 +177,14 @@ void TWorld::GetETMap(void)
 
     // get the next map from file
     if (!sameET) {
+      //  qDebug() << currentrow << ETSeries[currentrow].intensity[0];
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             ETp->Drc = ETSeries[currentrow].intensity[(int) ETZone->Drc-1]*tt;
 
         }}
     } //sameET
+   // report(*ETp,"etp");
     currentETrow = currentrow;
 }
 //---------------------------------------------------------------------------
@@ -246,13 +248,16 @@ void TWorld::doETa()
 
    // SwitchDailyET = true;
     if (SwitchDailyET) {
-        double day = trunc(time/(86400));
-        double hour = time/3600.0-day*24.0;
+        double day = trunc(time/86400.0);
+        double hour = std::min(24.0,std::max(0.0, time/3600.0-day*24.0));
+       // qDebug() << day << hour;
         double declination = -23.45 * M_PI/180.0 * cos(2*M_PI*(day+10)/365.0);
         Ld = 24.0/M_PI*(acos(-tan(declination)*tan(latitude/180.0*M_PI)));  // daylength in hour
+        if (std::isnan(Ld))
+            Ld = 12.0;
         ETafactor = std::max(0.,sin((-0.5-hour/Ld)*M_PI)) / Ld*_dt/3600.0*M_PI*0.5;
             //<= this ensures that the sum of all steps in a day amounts to the daily ET, regardless of _dt
-        //qDebug() << ETafactor << Ld << declination;
+        //qDebug() << day << hour <<  ETafactor << Ld << declination;
     }
     // sum of ETafactor during Ld is always 1, so ETp is devided with a sine curve over daylength Ld
 
@@ -264,10 +269,10 @@ void TWorld::doETa()
             ETp->Drc = 0;
         }
 
-      //  if (r==200 && c == 200)
-        //   qDebug() << time/60 << ETp->Drc << ETafactor << Rain->Drc*3600000.0/_dt;
+  //      if (r==200 && c == 200)
+    //       qDebug() << time/60 << ETp->Drc << ETafactor << Rain->Drc*3600000.0/_dt;
 
-        if (ETp->Drc > 0) {
+        if (ETp->Drc*ETafactor > 0) {
             double eta = 0;
             double AreaSoil = SoilWidthDX->Drc * DX->Drc;
             double tot = 0;
@@ -345,14 +350,25 @@ void TWorld::doETa()
                         Lw->Drc = moist/(pore-thetar);
                         tot = tot + eta;
                         tma->Drc += eta;
+                        double dL = std::max(0.0,Lw_-Lw->Drc);
+                        double m1= (SoilDepth1->Drc-Lw_)*(Thetaeff->Drc-thetar);
+                        double m2 = dL*thetar;
+                        Thetaeff->Drc = (m1+m2)/(SoilDepth1->Drc - Lw->Drc)+thetar;
+//                        if(c == 200 && r == 200)
+//                            qDebug() << "m" << m1 << m2 << Thetaeff->Drc << Lw->Drc << dL;
                     } else {
                         if (SwitchTwoLayer){
-                            double moist = (Lw_-SoilDepth1->Drc) * (ThetaS2->Drc-ThetaR2->Drc);
+                            thetar = ThetaR2->Drc;
+                            double moist = (Lw_-SoilDepth1->Drc) * (ThetaS2->Drc-thetar);
                             eta = std::min(moist, ETa_soil);
                             moist = moist - eta;
-                            Lw->Drc = moist/(ThetaS2->Drc-ThetaR2->Drc)+SoilDepth1->Drc;
+                            Lw->Drc = moist/(ThetaS2->Drc-thetar)+SoilDepth1->Drc;
                             tot = tot + eta;
                             tma->Drc += eta;
+                            double dL = std::max(0.0,Lw_-Lw->Drc);
+                            double m1= (SoilDepth2->Drc-Lw_)*(ThetaI2->Drc-thetar);
+                            double m2 = dL*thetar;
+                            ThetaI2->Drc = (m1+m2)/(SoilDepth2->Drc - Lw->Drc) + thetar;
                         }
                     }
                 } else {
@@ -364,8 +380,9 @@ void TWorld::doETa()
                     tot = tot + eta;
                     tma->Drc += eta;
                 }
+              //  if(c == 200 && r == 200)
+                //    qDebug() << Thetaeff->Drc << ThetaI2->Drc << Lw->Drc << SoilDepth1->Drc;
             }
-
             // ETa = ETp for any ponded surfaces
             if (WHrunoff->Drc > 0.01) {
                 double ETa_pond = ETp_;

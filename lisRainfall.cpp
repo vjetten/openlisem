@@ -407,10 +407,11 @@ void TWorld::GetRainfallMap(void)
 
     // get the next map from file
     if (!samerain) {
-        qDebug() << currentrow << RainfallSeriesMaps[currentrow].name;
+      //  qDebug() << currentrow << RainfallSeriesMaps[currentrow].name;
         // read a map
-        auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
-
+        //auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
+        cTMap *_M = new cTMap(readRaster(RainfallSeriesMaps[currentrow].name));
+        double calibration = RainfallSeriesMaps[currentrow].calib;
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             double rain_ = 0;
@@ -419,14 +420,15 @@ void TWorld::GetRainfallMap(void)
                 sr.setNum(r); sc.setNum(c);
                 ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[rainplace].name;
             } else
-                rain_ = _M->Drc * tt * RainfallSeriesMaps[currentrow].calib;
+                rain_ = _M->Drc * tt; // * RainfallSeriesMaps[currentrow].calib;
 
             if (rain_ < 0)
                 rain_ = 0;
             if (rain_ > 0)
                 rainStarted = true;
-            Rain->Drc = rain_;
+            Rain->Drc = rain_ * calibration;
         }}
+        delete _M;
     } //samerain
 
     #pragma omp parallel for num_threads(userCores)
@@ -475,22 +477,23 @@ double TWorld::getmaxRainfall()
 double TWorld::getTimefromString(QString sss)
 {
     // read date time string and convert to time in minutes
-
+    double day = 0;
+    double hour = 0;
+    double min = 0;
     if (SwitchEventbased) {
-        double min = sss.toDouble();
+        min = sss.toDouble();
         return(min);
     }
 
     if (!sss.contains(QRegExp("[-:/]"))) {
-        return(sss.toDouble());
+        //return(sss.toDouble());
+        day = sss.toDouble();
+        min = 0.0;
     } else {
         // DDD/HH/MM or DDD-HH-MM or DDD:HH:MM
         QStringList DHM = sss.split(QRegExp("[-:/]"));
-        bool nohour = (DHM.count() == 2);
-        double day = 0;
-        double hour = 0;
-        double min = 0;
-        if (nohour) {
+
+        if (DHM.count() == 2) {
             day = DHM.at(0).toDouble();
             min = DHM.at(1).toDouble();
         } else {

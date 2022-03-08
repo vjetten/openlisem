@@ -320,29 +320,40 @@ void lisemqt::showPlot()
    // if (checkChannelBaseflow->isChecked())
     //    QbGraph->setSamples(op.Time,*op.OutletQb[index]);
 
-    int _j = op.OutletQ[index]->count()-1;
+    int _j = op.OutletQ[index]->count()-1; // last value index
 
-    qmax[index] = std::max(qmax[index] , 1.1*op.OutletQ[index]->at(_j));
+   // qmax[index] = std::max(qmax[index] , 1.1*op.OutletQ[index]->at(_j));
+
+    for (int i = 0; i < OutletIndices.count(); i++)  {
+        qmax[i] = std::max(qmax[i] , 1.1*op.OutletQ[i]->at(_j));
+        if (checkDoErosion->isChecked()) {
+            qsmax[i] = std::max(qsmax[i] , 1.1*op.OutletQs[i]->at(_j));
+            cmax[i] = std::max(cmax[i] , 1.1*op.OutletC[i]->at(_j));
+        }
+    }
+
     pmax = std::max(pmax, 2.0*op.Pmm[_j]);
 
     //qDebug() << op.OutletQ[index]->at(_j) << index << _j << qmax[index];
 
+
+    HPlot->setAxisScale(*axisYL1, 0.0, qmax[index] );
+
     if(checkDoErosion->isChecked())
     {
-        qsmax[index] = std::max(qsmax[index] , 1.1*op.OutletQs[index]->at(_j));
-        cmax[index] = std::max(cmax[index] , 1.1*op.OutletC[index]->at(_j));
+//        qsmax[index] = std::max(qsmax[index] , 1.1*op.OutletQs[index]->at(_j));
+//        cmax[index] = std::max(cmax[index] , 1.1*op.OutletC[index]->at(_j));
 
         QsGraph->setSamples(op.Time,*op.OutletQs[index]);
         CGraph->setSamples(op.Time,*op.OutletC[index]);
 
-        HPlot->setAxisScale(*axisYL1, 0.0, qmax[index] );
+        //HPlot->setAxisScale(*axisYL1, 0.0, qmax[index] );
         HPlot->setAxisScale(*axisYL2, pmax, 0.0 );
         HPlot->setAxisScale(*axisYR1, 0.0, qsmax[index] );
         HPlot->setAxisScale(*axisYR2, 0.0, cmax[index] );
-    } else {
-        HPlot->setAxisScale(*axisYL1, 0.0, qmax[index] );
+    } else
         HPlot->setAxisScale(*axisYR1, pmax,0.0 );
-    }
+
 
     if(checkIncludeTiledrains->isChecked())
             QtileGraph->setSamples(op.Time,op.Qtile);

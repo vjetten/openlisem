@@ -375,12 +375,12 @@ void lisemqt::showMap()
     if(op.comboboxset == false)
     {
         op.comboboxset = true;
-        for(int i = ColorMapList.length() - 1; i >-1 ; i--)
-        {
-            delete ColorMapList.at(i);
+//        for(int i = ColorMapList.length() - 1; i >-1 ; i--)
+//        {
+//            delete ColorMapList.at(i);
 
-        }
-        ColorMapList.clear();
+//        }
+//        ColorMapList.clear();
         DisplayComboBox->clear();
         DisplayComboBox2->clear();
         NameList.clear();
@@ -394,9 +394,13 @@ void lisemqt::showMap()
 
         for(int i = 0; i < op.ComboMaps.length(); i++)
         {
-            QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
+         //   QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
+            QwtComboColorMap *cm1 = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
+            QwtComboColorMap *cm2 = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
+            cmMap.append(cm1);
+            cmLeg.append(cm2);
 
-            ColorMapList.append(cm);
+         //   ColorMapList.append(cm);
             NameList.append(op.ComboMapNames.at(i));
             UnitList.append(op.ComboUnits.at(i));
             SymList.append(op.ComboSymColor.at(i)); // symetric colors
@@ -410,15 +414,14 @@ void lisemqt::showMap()
         for(int i = 0; i < op.ComboMaps.length(); i++)
         {
 
-            if(op.ComboLists.at(i) == 0)
-            {
+            if(op.ComboLists.at(i) == 0) {
                 S << QString(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList.append(i);
-            }else
-            {
+            } else {
                 S1 << QString(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
                 IndexList1.append(i);
             }
+
         }
         DisplayComboBox->addItems(S);
         DisplayComboBox2->addItems(S1);
@@ -482,7 +485,7 @@ void lisemqt::showComboMap(int i)
 {
     if( i < 0 || i >= op.ComboMaps.length())
         return;
-
+   // qDebug() << i << op.ComboMapNames.at(i);
     MPlot->setTitle(op.ComboMapNames.at(i) + " (" + op.ComboUnits.at(i) + ")");
     // fill vector RD with matrix data and find the new max value
     double MinV;
@@ -491,6 +494,11 @@ void lisemqt::showComboMap(int i)
     if (res <=-1e20)
         return;
     //double MinV = mapMinimum(*op.ComboMaps.at(i));
+    if ( i < 20 && MaxV < 1e-10)
+       return;
+    if ( i > 20 && MaxV < 1e-10 && MinV > -1e-10)
+       return;
+
 
     // set stepsize
     if(op.ComboLists.at(i) == 0)
@@ -540,7 +548,6 @@ void lisemqt::showComboMap(int i)
     QwtComboColorMap *cmL = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),
                                                  QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),
                                                  op.ComboColorMap.at(i),op.ComboColors.at(i));
-
     cm->thresholduse = domin;
     cmL->thresholduse = true;
     cm->thresholdmin = mi;
@@ -549,12 +556,20 @@ void lisemqt::showComboMap(int i)
         cm->thresholdmin = MinV;
         cmL->thresholdmin = mi;
     }
+//    cmMap.at(i)->thresholduse = domin;
+//    cmLeg.at(i)->thresholduse = true;
+//    cmMap.at(i)->thresholdmin = mi;
+//    cmLeg.at(i)->thresholdmin = mi;
+//    if (op.ComboSymColor.at(i)) {
+//        cmMap.at(i)->thresholdmin = MinV;
+//        cmLeg.at(i)->thresholdmin = mi;
+//    }
 
     drawMap->setData(RD);
-    drawMap->setColorMap(cm);
+    drawMap->setColorMap(cm);//Map.at(i));
     drawMap->setAlpha(transparencyMap->value());
 
-    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), cmL);
+    rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), cmL);//eg.at(i));
 
     if(op.ComboLogaritmic.at(i))
     {
@@ -571,6 +586,7 @@ void lisemqt::showComboMap(int i)
         MPlot->setAxisScale( MPlot->yRight, mi, ma);
         MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
     }
+
 }
 //---------------------------------------------------------------------------
 void lisemqt::showBaseMap()
@@ -641,6 +657,11 @@ void lisemqt::hideChannelVector(bool yes)
             for (int i = 0; i < culverts.length(); i++)
                 culverts[i]->detach();
         }
+        if (!obspoints.isEmpty()) {
+        if (obspoints.length() > 0)
+            for (int i = 0; i < obspoints.length(); i++)
+                obspoints[i]->detach();
+        }
 
         for (int i = 0; i < outlets.length(); i++)
             outlets[i]->detach();
@@ -656,18 +677,17 @@ void lisemqt::hideChannelVector(bool yes)
             rivers[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
         }
 
-        if (checkChannelCulverts->isChecked() && !culverts.isEmpty()) {
-            for (int i = 0; i < culverts.length(); i++) {
-                int dxi = spinCulvertSize->value();
+        for (int i = 0; i < obspoints.length(); i++) {
+            int dxi = spinCulvertSize->value();
 
-                QwtSymbol *greendot = new QwtSymbol( QwtSymbol::Ellipse, Qt::green, QPen( Qt::black ), QSize( dxi,dxi ));
+            QwtSymbol *bluedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::cyan, QPen( Qt::black ), QSize( dxi,dxi ));
 
-                culverts[i]->setSymbol(greendot);
-                culverts[i]->setStyle( QwtPlotCurve::NoCurve );
-                culverts[i]->attach( MPlot );
-                culverts[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
-            }
+            obspoints[i]->setSymbol(bluedot);
+            obspoints[i]->setStyle( QwtPlotCurve::NoCurve );
+            obspoints[i]->attach( MPlot );
+            obspoints[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
         }
+
         for (int i = 0; i < outlets.length(); i++) {
             int dxi = spinCulvertSize->value();
 
@@ -770,6 +790,16 @@ void lisemqt::showChannelVectorNew()
             culvert->setAxes(MPlot->xBottom, MPlot->yLeft);
             culvert->setSamples(op.CulvertX,op.CulvertY);
         }
+
+        QwtSymbol *bluedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::cyan,QPen( Qt::black ), QSize( dxi, dxi ) );
+
+            obspoint = new QwtPlotCurve();
+            obspoints << obspoint;
+            obspoint->setSymbol(bluedot);
+            obspoint->setStyle( QwtPlotCurve::NoCurve );
+            obspoint->attach( MPlot );
+            obspoint->setAxes(MPlot->xBottom, MPlot->yLeft);
+            obspoint->setSamples(op.ObsPointX,op.ObsPointY);
 
         op.CulvertX.clear();
         op.CulvertY.clear();

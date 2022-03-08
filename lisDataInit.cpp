@@ -480,6 +480,7 @@ void TWorld::InitStandardInput(void)
                 LDD_COORout newcr;
                 newcr.r = r;
                 newcr.c = c;
+                newcr.nr = (int)PointMap->Drc ;
                 crout_ << newcr;
             }
         }
@@ -3006,11 +3007,19 @@ void TWorld::InitScreenChanNetwork()
     op.CulvertY.clear();
     op.EndPointX.clear();
     op.EndPointY.clear();
+    op.ObsPointX.clear();
+    op.ObsPointY.clear();
 
     FOR_ROW_COL_MV_CH {
         if (LDDChannel->Drc == 5){
             op.EndPointX << c*_dx + 0.5*_dx;
             op.EndPointY << (_nrRows-r-1)*_dx + 0.5*_dx;
+        }
+    }
+    FOR_ROW_COL_MV_CH {
+        if (PointMap->Drc > 0){
+            op.ObsPointX << c*_dx + 0.5*_dx;
+            op.ObsPointY << (_nrRows-r-1)*_dx + 0.5*_dx;
         }
     }
 

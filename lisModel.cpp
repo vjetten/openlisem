@@ -219,7 +219,7 @@ void TWorld::DoModel()
                 if (rainplace > 0) rainplace--;
             }
           //  op.maxRainaxis = getmaxRainfall();
-
+          //qDebug() << "rain" << rainplace;
         }
 
         if (SwitchIncludeET)
@@ -239,8 +239,8 @@ void TWorld::DoModel()
                 while (BeginTime/60 >= ETSeries[ETplace].time && ETplace < nrETseries)
                     ETplace++;
                 if (ETplace > 0) ETplace--;
-                qDebug() << ETplace;
             }
+          //qDebug() << "et" << ETplace;
         }
 
         SwitchSnowmelt = false;

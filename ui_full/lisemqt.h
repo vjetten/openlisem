@@ -177,8 +177,10 @@ public:
 
     QwtPlotCurve *rivera;
     QwtPlotCurve *culvert;
+    QwtPlotCurve *obspoint;
     QList<QwtPlotCurve*> rivers;
     QList<QwtPlotCurve*> culverts;
+    QList<QwtPlotCurve*> obspoints;
     QList<QwtPlotCurve*> outlets;
     void showRoadMap();
     void showHouseMap();
@@ -266,6 +268,9 @@ public:
     QVector<double> cmax;
 
     //Map display options
+
+    QList <QwtComboColorMap*> cmMap;
+    QList <QwtComboColorMap*> cmLeg;
     QList<QwtComboColorMap *> ColorMapList;
     QList<QString> NameList;
     QList<QString> UnitList;

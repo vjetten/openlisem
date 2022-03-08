@@ -347,6 +347,8 @@ void lisemqt::initOP()
     op.CulvertY.clear();
     op.EndPointX.clear();
     op.EndPointY.clear();
+    op.ObsPointX.clear();
+    op.ObsPointY.clear();
 
     op.runstep = 0;
     op.printstep = 0;
