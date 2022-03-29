@@ -306,13 +306,15 @@ void TWorld::GetComboMaps()
         AddComboMap(0,"Storm Drain Volume","m3",TileWaterVol,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         AddComboMap(0,"Storm Drain Discharge","l/s",TileQn,LegendMap[cl],Legend[cl],false,false,1000.0,1.0);
     }
+
+    cl = 3;
+    AddComboMap(0,"Interception","mm",InterceptionmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+
     if(InfilMethod != INFIL_NONE)
     {
-        cl = 3;
-        AddComboMap(0,"Interception","mm",InterceptionmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         AddComboMap(0,"Infiltration","mm",InfilmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         if (InfilMethod > 1)
-            AddComboMap(0,"Depth wetting front","mm",Lw,LegendMap[cl],Legend[cl],false,false,1000.0,1.0);
+            AddComboMap(0,"Depth wetting front","mm",Lw,LegendMap[cl],Legend[cl],false,false,1000.0,1.0);  // swatre?
         if (SwitchChannelBaseflow)
             AddComboMap(0,"GW level","m",GWWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
 

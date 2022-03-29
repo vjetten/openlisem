@@ -401,6 +401,7 @@ public:
 
     /// infiltration method
     int InfilMethod;
+    bool SwitchNoInfil;
 
     /// erosion units in output: to/ha; kg/cell; kg/m2
     int ErosionUnits;

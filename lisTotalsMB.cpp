@@ -60,7 +60,7 @@ void TWorld::Totals(void)
     if (SwitchRainfall)
     {
         RainAvgmm = MapTotal(*Rain)*1000.0/(double)nrValidCells;
-//qDebug() << RainAvgmm;
+
         RainTotmm += RainAvgmm;
         // spatial avg area rainfall in mm
 
@@ -132,32 +132,32 @@ void TWorld::Totals(void)
     // interception in mm and m3
 
     //=== infiltration ===//
+    if(InfilMethod != INFIL_NONE) {
+        InfilTot += MapTotal(*InfilVol) + MapTotal(*InfilVolKinWave);
 
-    InfilTot += MapTotal(*InfilVol) + MapTotal(*InfilVolKinWave);
+        if (SwitchIncludeChannel && SwitchChannelInfil) {
+            InfilTot += MapTotal(*ChannelInfilVol); //m3
+        }
 
-    if (SwitchIncludeChannel && SwitchChannelInfil) {
-        InfilTot += MapTotal(*ChannelInfilVol); //m3
+        InfilKWTot += MapTotal(*InfilVolKinWave); // not really used, available for output when needed
+        InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
+        // infiltration mm and m3
+
+        // flood infil
+        // used for reporting only
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc;// + InfilVolFlood->Drc;
+            if (SwitchIncludeChannel)
+                InfilVolCum->Drc += ChannelInfilVol->Drc;
+            InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));
+            PercmmCum->Drc += Perc->Drc*1000.0;
+        }}
+
+        theta1tot = MapTotal(*ThetaI1a)/(double)nrCells;
+        if (SwitchTwoLayer)
+            theta2tot = MapTotal(*ThetaI2a)/(double)nrCells;
     }
-
-    InfilKWTot += MapTotal(*InfilVolKinWave); // not really used, available for output when needed
-    InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
-    // infiltration mm and m3
-
-    // flood infil
-    // used for reporting only
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc;// + InfilVolFlood->Drc;
-        if (SwitchIncludeChannel)
-            InfilVolCum->Drc += ChannelInfilVol->Drc;
-        InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));
-        PercmmCum->Drc += Perc->Drc*1000.0;
-    }}
-
-    theta1tot = MapTotal(*ThetaI1a)/(double)nrCells;
-    if (SwitchTwoLayer)
-        theta2tot = MapTotal(*ThetaI2a)/(double)nrCells;
-
 
     //=== surf store ===//
 
@@ -511,7 +511,6 @@ void TWorld::MassBalance()
         double waterout = ETaTotVol;
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot + IntercETaTot;
         double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;
-
         MB = waterin > 0 ? (waterin - waterout - waterstore - waterflow)/waterin *100 : 0;
      //   qDebug() << MB << BaseFlowTot << ChannelVolTot <<  Qtot;
      //   qDebug() << MB << WaterVolTot << ChannelVolTot << Qtot << floodBoundaryTot;

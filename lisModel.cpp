@@ -211,7 +211,8 @@ void TWorld::DoModel()
                     rainplace++;
                 if (rainplace > 0) rainplace--;
             }
-            else {
+            else
+            {
                 GetRainfallData(rainFileName);
                 rainplace = 0;
                 while (BeginTime/60 >= RainfallSeries[rainplace].time && rainplace < nrRainfallseries)
@@ -219,7 +220,7 @@ void TWorld::DoModel()
                 if (rainplace > 0) rainplace--;
             }
           //  op.maxRainaxis = getmaxRainfall();
-          //qDebug() << "rain" << rainplace;
+          qDebug() << "rain" << rainplace;
         }
 
         if (SwitchIncludeET)
@@ -465,8 +466,6 @@ void TWorld::HydrologyProcesses()
     }
     // ETa is subtracted from canopy, soil water surfaces
     // divided over 12 hours in a day with sine curve
-
-   // avgTheta();
 
 }
 //---------------------------------------------------------------------------

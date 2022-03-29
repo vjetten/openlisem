@@ -59,6 +59,10 @@ void TWorld::GridCell()
 
         RoadWidthHSDX->Drc = std::min(dxa, RoadWidthHSDX->Drc);
         dxa = std::max(0.0, dxa - RoadWidthHSDX->Drc);
+        if (dxa == 0) {
+            dxa = 0.1;
+            RoadWidthHSDX->Drc = _dx-dxa;
+        }
 
         HouseWidthDX->Drc = std::min(dxa*0.95, HouseWidthDX->Drc);
         HouseCover->Drc = HouseWidthDX->Drc/_dx;

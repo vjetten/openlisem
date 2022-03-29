@@ -148,7 +148,7 @@ void TWorld::GetETData(QString name)
 void TWorld::GetETMap(void)
 {
     double currenttime = (time)/60; //time in min
-    double tt = 0.001; //mm to m
+    double tt = 0.001*ETBiasCorrection; //mm to m
     bool sameET= false;
     // from time t to t+1 the ET is the ET of t
 

@@ -317,7 +317,7 @@ void TWorld::GetRainfallMapfromStations(void)
     // if time is outside records then use map with zeros
     if (currenttime < RainfallSeries[0].time || currenttime > RainfallSeries[nrRainfallseries-1].time)
     {
-        DEBUG("run time outside rainfall records");
+        //DEBUG("run time outside rainfall records");
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             Rain->Drc = 0;
@@ -328,17 +328,27 @@ void TWorld::GetRainfallMapfromStations(void)
     }
 
     // where are we in the series
-    int currentrow = rainplace;
+    int currentrow = 0;// rainplace;
     // find current record
-    while (currenttime >= RainfallSeries[rainplace].time
-        && currenttime < RainfallSeries[rainplace+1].time)
-    {
-        currentrow = rainplace;
-        rainplace++;
+//    while (currenttime >= RainfallSeries[rainplace].time
+//        && currenttime < RainfallSeries[rainplace+1].time)
+//    {
+//        currentrow = rainplace;
+//        rainplace++;
+//    }
+//qDebug() << time/86400 << currenttime << rainplace << currentrow  << RainfallSeries[currentrow].time << RainfallSeries[currentrow].intensity[0];
+//    if (currentrow == currentRainfallrow && currentrow > 0)
+//        samerain = true;
+
+    for (int j = 0; j < RainfallSeries.count(); j++) {
+        if (currenttime >= RainfallSeries[j].time && currenttime < RainfallSeries[j+1].time) {
+            currentrow = j;
+            break;
+        }
     }
-//qDebug() << currenttime << rainplace << currentrow  << RainfallSeries[currentrow].time << RainfallSeries[currentrow].intensity[0];
     if (currentrow == currentRainfallrow && currentrow > 0)
         samerain = true;
+
 
     // get the next map from file
     if (!samerain) {
@@ -394,16 +404,26 @@ void TWorld::GetRainfallMap(void)
 
     int currentrow = rainplace;
     // find current record
-    while (currenttime >= RainfallSeriesMaps[rainplace].time
-        && currenttime < RainfallSeriesMaps[rainplace+1].time)
-    {
-        currentrow = rainplace;
-        rainplace++;
+//    while (currenttime >= RainfallSeriesMaps[rainplace].time
+//        && currenttime < RainfallSeriesMaps[rainplace+1].time)
+//    {
+//        currentrow = rainplace;
+//        rainplace++;
+//    }
+
+
+
+
+    for (int j = 0; j < RainfallSeriesMaps.count(); j++) {
+        if (currenttime >= RainfallSeriesMaps[j].time && currenttime < RainfallSeriesMaps[j+1].time) {
+            currentrow = j;
+            break;
+        }
     }
 
     if (currentrow == currentRainfallrow && currentrow > 0)
         samerain = true;
-   // qDebug() << currentrow << currenttime << currentRainfallrow << samerain;
+    qDebug() << currentrow << currenttime << currentRainfallrow << samerain;
 
     // get the next map from file
     if (!samerain) {

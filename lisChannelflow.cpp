@@ -43,15 +43,15 @@ void TWorld::ChannelFlowandErosion()
     if (!SwitchIncludeChannel)
         return;
 
-    SwitchChannelKinWave = true;// set to false for experimental swof in channel
+    SwitchChannelKinWave = true;    // set to false for experimental swof in channel
 
-    ChannelRainandInfil();   // subtract infil, add rainfall
+    ChannelRainandInfil();          // subtract infil, add rainfall
 
-    ChannelBaseflow();       // calculate baseflow
+    ChannelBaseflow();              // calculate baseflow
 
-    ChannelFlow();            //channel kin wave for water and sediment
+    ChannelFlow();                  // channel kin wave for water and sediment
 
-    ChannelFlowDetachmentNew();  //detachment, deposition for SS and BL
+    ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
 
     ChannelSedimentFlow();
 
@@ -113,7 +113,7 @@ void TWorld::ChannelBaseflow(void)
         //outflow m3
         double wh = GWVol_/CellArea->Drc;
         double GWout_ = GW_flow * CellArea->Drc * ksat * BaseflowL->Drc;
-        //m3:  ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx; //*porosity
+        //m3:  GW_flow*ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx; //*porosity
         GWout_ = GWout_ * std::max(0.0,wh -GW_threshold)/pore * (1-exp(-6*std::max(0.0,wh/*-GW_threshold*/)));
         // stop outflow when some minimum GW level, 2.4.2.10 in SWAT
         // decay function exp(-6 * GW WH) for smooth transition

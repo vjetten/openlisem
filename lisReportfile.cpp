@@ -284,7 +284,8 @@ void TWorld::OutputUI(void)
         }
     }
     // MAP DISPLAY VARIABLES
-    avgTheta();
+    if(InfilMethod != INFIL_SWATRE && InfilMethod !=INFIL_NONE)
+        avgTheta();
 }
 //---------------------------------------------------------------------------
 void TWorld::ReportTotalSeries(void)
@@ -647,7 +648,13 @@ void TWorld::ReportTimeseriesNew(void)
             if (SwitchIncludeChannel) out << sep << ChannelWH->Drc;
             //if (SwitchChannelBaseflow) out << sep << Qbase->Drc;
             if (SwitchIncludeTile) out << sep << TileQn->Drc*factor;
-            if (SwitchErosion) out << sep << QSALL << sep << Qsoutput->Drc << sep << ChannelConc->Drc;//TotalConc->Drc ;
+            if (SwitchErosion) {
+                out << sep << QSALL << sep << Qsoutput->Drc;
+                if (SwitchIncludeChannel)
+                    out << sep << ChannelConc->Drc;
+                else
+                    out << sep << TotalConc->Drc ;
+            }
             out << "\n";
             fout.close();
         }}
@@ -688,7 +695,11 @@ void TWorld::ReportTimeseriesNew(void)
             //#pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_OUTL
             {
-                out << sep << Qsoutput->Drc << sep << ChannelConc->Drc;//TotalConc->Drc;
+                out << sep << Qsoutput->Drc;
+                if (SwitchIncludeChannel)
+                    out << sep << ChannelConc->Drc;
+                else
+                    out << sep << TotalConc->Drc ;
             }}
         }
         out << "\n";

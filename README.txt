@@ -1,6 +1,6 @@
 openLISEM
 ============
-Date: 211019
+Date: 220318
 ============
 
 For questions contact v.g.jetten AD utwente.nl
@@ -8,6 +8,13 @@ For questions contact v.g.jetten AD utwente.nl
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu)
 NOTE: since version 6 it is fully parallel and developed with MSYS2.0, and openmp
+
+version 6.80-6.845 beta
+- added Engelund and Hansen for river sediment transport (after Hecras)
+- added direct transport factor for river transport (skipping bed erosion)
+- fixed bugs in channel concentration output to file
+- fixed bug when first outlet nr > 1
+- experimental dynamic diaginal flow in advanced options
 
 version 6.77-6.80 beta
 - re-evaluated Splash equations and added Eurosem method. In Eurosem the aggr stab is in fact the splash delivery in g/J
