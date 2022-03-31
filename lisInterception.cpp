@@ -111,7 +111,7 @@ void TWorld::cell_Interception(int r, int c)
 
             HS = std::min(HS + RainNet_, Hmax);
 
-            double housedrain = std::max(0.0, CvH * (RainNet_ - (HS - HStor->Drc)));
+            double housedrain = std::max(0.0, (RainNet_ - (HS - HStor->Drc)));
             // overflow in m3/m2 of house
 
             HStor->Drc = HS;
@@ -122,7 +122,7 @@ void TWorld::cell_Interception(int r, int c)
             IntercHouse->Drc =  roofsurface * HS;
             // total interception in m3,exclude roads, channels
 
-            RainNet_ = housedrain + (1-CvH)*RainNet_;
+            RainNet_ = CvH *housedrain + (1-CvH)*RainNet_;
             // net rainfall is direct rainfall + drainage
             // rainfall that falls on the soil, used in infiltration
 

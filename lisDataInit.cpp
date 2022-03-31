@@ -1919,7 +1919,8 @@ void TWorld::IntializeData(void)
     {
         HouseWidthDX->Drc = std::min(_dx,  HouseCover->Drc *_dx);
         // assume there is always space next to house
-        N->Drc = N->Drc * (1-HouseCover->Drc) + 0.25*HouseCover->Drc;
+        //N->Drc = N->Drc * (1-HouseCover->Drc) + 0.25*HouseCover->Drc;
+        // moved to cell
     }
 
     SoilETMBcorrection = 0;
