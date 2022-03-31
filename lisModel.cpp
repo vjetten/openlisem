@@ -129,9 +129,9 @@ void TWorld::DoModel()
 //        }
 //    }
 
-    loc = QLocale::system(); // current locale
-    loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
-    QLocale::setDefault(loc); // set as default
+//    loc = QLocale::system(); // current locale
+//    loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
+//    QLocale::setDefault(loc); // set as default
     //QLocale somel;
 
     if (!op.doBatchmode)

@@ -112,6 +112,8 @@ void lisemqt::ParseInputData()
     QLocale loc = QLocale::system(); // current locale
     loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
     QLocale::setDefault(loc); // set as default
+    QChar pnt = loc.decimalPoint() ;
+    qDebug() << pnt;
 
     for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
     {
@@ -121,13 +123,15 @@ void lisemqt::ParseInputData()
         bool ok;
 
         int iii = namelist[j].value.toInt();
-        double valc = loc.toDouble(p,&ok); //namelist[j].value.toDouble(&ok);
-        //double valc = val;
-//        if (p.contains(",")) {
-//            QString p2 = p;
-//            p2.replace(QString(","),QString("."));
-//            valc = p2.toDouble();
-//        }
+      //  double valc = loc.toDouble(p,&ok); //namelist[j].value.toDouble(&ok);
+
+        double valc = 0;
+        if (pnt == ',' && p.contains(",")) {
+            QString p2 = p.replace(",",".");
+            valc = p2.toDouble();
+            qDebug() << namelist[j].name << namelist[j].value << p2 << valc;
+        }
+
 
       //qDebug() << p1 <<  p  << iii << val << valc;
 
@@ -243,7 +247,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Two layer")==0)                      checkInfil2layer->setChecked(check);
         if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
         //	  if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
-        if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setText(p);
+        if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setValue(valc);
 
         //VJ 111120 water repellency
 //        if (p1.compare("Use Water Repellency")==0)      checkWaterRepellency->setChecked(check);

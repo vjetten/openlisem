@@ -1572,6 +1572,7 @@ void lisemqt::resetTabCalibration()
     E_CalibrateD90->setValue(1.0);
     E_CalibrateCHCOH->setValue(1.0);
     E_CalibrateCHUcr->setValue(1.0);
+    E_CalibrateCHSV->setValue(1.0);
 }
 
 
@@ -1672,7 +1673,7 @@ void lisemqt::resetTabErosion()
     checkInfilGrass->setChecked(false);
     E_GrassStripN->setText("0.2");
 
-    E_SedTrapN->setText("0.8");
+    E_SedTrapN->setValue(0.8);
     E_GrassStripN->setText("0.2");
 }
 
@@ -1693,6 +1694,7 @@ void lisemqt::resetTabAdvanced()
     checkKinWaveChannel->setChecked(true);
     E_ChannelKinWaveDt->setValue(60.0);
     nrUserCores->setValue(0);
+
 }
 
 void lisemqt::resetAll()

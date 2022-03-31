@@ -78,6 +78,11 @@ int main(int argc, char *argv[])
 
     QStringList args=QCoreApplication::arguments();
 
+    QLocale loc = QLocale::system(); // current locale
+    loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
+    QLocale::setDefault(loc);
+
+
     if (argc <= 1)
     {
         lisemqt iface;
