@@ -220,7 +220,7 @@ void TWorld::DoModel()
                 if (rainplace > 0) rainplace--;
             }
           //  op.maxRainaxis = getmaxRainfall();
-          qDebug() << "rain" << rainplace;
+          //qDebug() << "rain" << rainplace;
         }
 
         if (SwitchIncludeET)
@@ -297,6 +297,7 @@ void TWorld::DoModel()
         {            
             if (runstep > 0 && runstep % printinterval == 0)
                 printstep++;
+            //TODO this does nothing????
             runstep++;
 
             if(stopRequested) {
@@ -320,11 +321,11 @@ void TWorld::DoModel()
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
             // these are all non-threaded
-            ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
+              ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
 
-            TileFlow();          // tile drain flow kin wave
+              TileFlow();          // tile drain flow kin wave
 
-            StormDrainFlow();    // storm drain flow kin wave
+              StormDrainFlow();    // storm drain flow kin wave
             // these are all non-threaded
 
             Totals();            // calculate all totals and cumulative values
@@ -400,65 +401,33 @@ void TWorld::HydrologyProcesses()
         }
         // add net to water rainfall on soil surface (in m)
         // when kin wave and flooded hmx exists else always WH
-
-        if (RoadWidthHSDX->Drc > 0)
-            WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
+        if (SwitchRoadsystem || SwitchHardsurface) {
+            if (RoadWidthHSDX->Drc > 0)
+                WHroad->Drc += RainNet->Drc + Snowmeltc->Drc;
+        }
 
         // infiltration by SWATRE of G&A+percolation
         if (InfilMethod == INFIL_SWATRE) {
            cell_InfilSwatre(r, c);
-        }
-        else
-        if (InfilMethod != INFIL_NONE) {
-           cell_InfilMethods(r, c);
+        } else {
+            if (InfilMethod != INFIL_NONE) {
+               cell_InfilMethods(r, c);
 
-           cell_Redistribution1(r, c);
+               cell_Redistribution1(r, c);
 
-           if (!SwitchImpermeable && !SwitchChannelBaseflow)
-               Perc->Drc = cell_Percolation(r, c, 1.0);
-            // if baseflow is active percollation is done there, so do not do it here
-        }
-
-        if (SwitchErosion) {
-            if(SwitchKinematic2D == K2D_METHOD_DYN) {
-                if(WH->Drc < 1e-6) {
-                    DepFlood->Drc -= SSFlood->Drc;
-                    SSFlood->Drc = 0;
-                    SSCFlood->Drc = 0;
-                    SSTCFlood->Drc = 0;
-                    if (SwitchUse2Phase) {
-                        DepFlood->Drc -= BLFlood->Drc;
-                        BLFlood->Drc = 0;
-                        BLCFlood->Drc = 0;
-                        BLTCFlood->Drc = 0;
-                    }
-                    Conc->Drc = 0; // after dynwave conc is sum of SS and BL!
-                }
-            } else {
-                if (FloodDomain->Drc > 0) {
-                    if(hmx->Drc < 1e-6) {
-                        DepFlood->Drc -= SSFlood->Drc;
-                        SSFlood->Drc = 0;
-                        SSCFlood->Drc = 0;
-                    }
-
-                } else {
-                    if(WH->Drc < 1e-6) {
-                        DEP->Drc -= Sed->Drc;
-                        Sed->Drc = 0;
-                        Conc->Drc = 0;
-                    }
-                }
+               if (!SwitchImpermeable && !SwitchChannelBaseflow)
+                   Perc->Drc = cell_Percolation(r, c, 1.0);
+                // if baseflow is active percollation is done there, so do not do it here
             }
         }
+
+        cell_depositInfil(r,c);
         // deposit all sediment still in flow when infiltration causes WH to become minimum
 
         cell_SurfaceStorage(r, c);
+        //calc surf storage and total watervol and WHrunoff
 
-        if (SwitchErosion) {
-             double wh = FloodDomain->Drc == 0 ? WH->Drc : hmx->Drc;
-            cell_SplashDetachment(r,c,wh);
-        }
+        cell_SplashDetachment(r,c);
     }}
 
     if (SwitchIncludeET) {

@@ -51,11 +51,44 @@ functions: \n
 #define he_ca 1e-12
 #define ve_ca 1e-12
 #define GRAV 9.81
-//#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
-//    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
+//---------------------------------------------------------------------------
+// deposit all sediment still in flow when infiltration causes WH to become minimum
+void TWorld::cell_depositInfil(int r, int c)
+{
+    if (!SwitchErosion)
+        return;
 
-
+    if(SwitchKinematic2D == K2D_METHOD_DYN) {
+        if(WH->Drc < 1e-6) {
+            DepFlood->Drc -= SSFlood->Drc;
+            SSFlood->Drc = 0;
+            SSCFlood->Drc = 0;
+            SSTCFlood->Drc = 0;
+            if (SwitchUse2Phase) {
+                DepFlood->Drc -= BLFlood->Drc;
+                BLFlood->Drc = 0;
+                BLCFlood->Drc = 0;
+                BLTCFlood->Drc = 0;
+            }
+            Conc->Drc = 0; // after dynwave conc is sum of SS and BL!
+        }
+    } else {
+        if (FloodDomain->Drc > 0) {
+            if(hmx->Drc < 1e-6) {
+                DepFlood->Drc -= SSFlood->Drc;
+                SSFlood->Drc = 0;
+                SSCFlood->Drc = 0;
+            }
+        } else {
+            if(WH->Drc < 1e-6) {
+                DEP->Drc -= Sed->Drc;
+                Sed->Drc = 0;
+                Conc->Drc = 0;
+            }
+        }
+    }
+}
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::MaxConcentration(double watvol, double sedvol)
@@ -71,11 +104,12 @@ double TWorld::MaxConcentration(double watvol, double *sedvol, double *dep)
 {
     double conc = 0;
     // when if activate, MBs error in KINDYN !!! Bizarre
-    if (watvol > 0)
-        conc = std::min(*sedvol/(watvol+0.001), MAXCONC);   // 1e-6 is 1 ml/m2 !!
+    if (watvol > 1e-6)
+        conc = std::min(*sedvol/watvol, MAXCONC);   // 1e-6 is 1 ml/m2 !!
     else
         conc = 0;
-    if (conc < 1e-10) conc = 0;
+    if (conc < 1e-10)
+        conc = 0;
     //      conc = MAXCONC;
     // *dep -= *sedvol;
     //*sedvol = 0;
@@ -117,10 +151,16 @@ double TWorld::GetSV(double d)
 
 }
 //---------------------------------------------------------------------------
-void TWorld::cell_SplashDetachment(int r, int c, double _WH)
+void TWorld::cell_SplashDetachment(int r, int c)
 {
+    if (!SwitchErosion)
+        return;
+
+    double _WH = FloodDomain->Drc == 0 ? WH->Drc : hmx->Drc;
+
     DETSplash->Drc = 0;
-    if(WHrunoff->Drc > 0.00001 && SplashStrength->Drc >= 0)
+
+    if(_WH > 0.00001 && SplashStrength->Drc >= 0)
     {
         double DetDT1 = 0, DetDT2 = 0, DetLD1, DetLD2;
         double g_to_kg = 0.001;
@@ -290,13 +330,10 @@ void TWorld::cell_SplashDetachment(int r, int c, double _WH)
  */
 void TWorld::SplashDetachment()
 {
-    if (SwitchErosion) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            double wh = FloodDomain->Drc == 0 ? WH->Drc : hmx->Drc;
-            cell_SplashDetachment(r,c,wh);
-        }}
-    }
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+            cell_SplashDetachment(r,c);
+     }}
 }
 
 //---------------------------------------------------------------------------

@@ -45,9 +45,10 @@ void TWorld::GridCell()
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double dxa = _dx;
+
         if(SwitchIncludeChannel && ChannelWidth->Drc > 0) {
             dxa = std::max(0.05, _dx - ChannelWidth->Drc);
-            // use adjusted chnnelwidth here to avoid negative adj
+            // use adjusted channelwidth here to avoid negative adj
             //        dxa = std::max(0.05, _dx - ChannelWidthExtended->Drc);
 
             if (SwitchCulverts)
@@ -57,20 +58,23 @@ void TWorld::GridCell()
         ChannelAdj->Drc = dxa;
         CHAdjDX->Drc = dxa*DX->Drc;
 
+        // adjust roads+hardsurf to cell with channels
         RoadWidthHSDX->Drc = std::min(dxa, RoadWidthHSDX->Drc);
-        dxa = std::max(0.0, dxa - RoadWidthHSDX->Drc);
-        if (dxa == 0) {
-            dxa = 0.1;
-            RoadWidthHSDX->Drc = _dx-dxa;
-        }
+        SoilWidthDX->Drc = dxa-RoadWidthHSDX->Drc;  //excluding roads+hardsurf, excl channels, including houses
 
         HouseWidthDX->Drc = std::min(dxa*0.95, HouseWidthDX->Drc);
         HouseCover->Drc = HouseWidthDX->Drc/_dx;
-        if (Cover->Drc + HouseCover->Drc > 1.0)
-            Cover->Drc = 1.0-HouseCover->Drc;
+        //houses are impermeable in infil function and with high mannings n, but allow flow
 
-        SoilWidthDX->Drc = dxa;  //excluding roads, including houses, hard surface
-        //houses are assumed to be permeable but with high mannings n
+//        if (Cover->Drc + HouseCover->Drc > 1.0)
+//            Cover->Drc = 1.0-HouseCover->Drc;
+        //???????????
+
+//        if (Cover->Drc+RoadWidthHSDX->Drc/_dx > 1)
+//            Cover->Drc = 1-RoadWidthHSDX->Drc/_dx;
+
+
+        FlowWidth->Drc = ChannelAdj->Drc;//is the same as SoilWidthDX->Drc + RoadWidthHSDX->Drc;
 
     }}
 
@@ -88,7 +92,7 @@ void TWorld::GridCell()
 }
 //---------------------------------------------------------------------------
 /// Adds new rainfall afterinterception to runoff water nheight or flood waterheight
-// not used
+// OBSOLETE not used
 void TWorld::addRainfallWH()
 {
         #pragma omp parallel for num_threads(userCores)
@@ -130,21 +134,18 @@ void TWorld::cell_SurfaceStorage(int r, int c)
     double SW = SoilWidthDX->Drc;
     double RW = RoadWidthHSDX->Drc;
     double WHr = WHroad->Drc;
-    double WHs;
-    //### surface storage on rough surfaces
-    WHs = std::min(wh, MDS->Drc*(1-exp(-1.875*(wh/std::max(0.01,0.01*RR->Drc)))));
+    double WHs = std::min(wh, MDS->Drc*(1-exp(-1.875*(wh/std::max(0.005,0.01*RR->Drc)))));
+    //surface storage on rough surfaces
     // non-linear release fo water from depression storage
     // resemles curves from GIS surface tests, unpublished
-    double FW = std::min(ChannelAdj->Drc, SW + RW);
-    // calculate flowwidth by fpa*surface + road, excludes channel already
 
-    WHrunoff->Drc = ((wh - WHs)*SW + WHr*RW)/FW;
-    // avg runoff above microstorage of soil and road
-    FlowWidth->Drc = FW;
+    WHrunoff->Drc = ((wh - WHs)*SW + WHr*RW)/(SW+RW);
+    // moving overlandflow above surface storage
+
+    WHstore->Drc = WHs;
+    // non moving microstorage
 
     WaterVolall->Drc = DX->Drc*(wh*SW + WHr*RW);
     // all water in the cell incl storage
-    WHstore->Drc = WHs;
-    // microstorage
 }
 //---------------------------------------------------------------------------

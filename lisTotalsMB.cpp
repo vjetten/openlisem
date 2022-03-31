@@ -302,7 +302,7 @@ void TWorld::Totals(void)
     floodBoundaryTot += BoundaryQ*_dt;
     FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
     // 2D boundary losses, ALWAYS INCLUDES LDD=5 and channelLDD=5
-    Qtot_dt += BoundaryQ*_dt;
+    //Qtot_dt += BoundaryQ*_dt;
 
     // output fluxes for reporting to file and screen in l/s!]
     double factor = 1000.0;

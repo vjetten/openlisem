@@ -369,7 +369,6 @@ void TWorld::GetRainfallMapfromStations(void)
         RainCum->Drc += Rainc->Drc;
         // cumulative rainfall corrected for slope, used in interception
         RainNet->Drc = Rainc->Drc;
-        //RainNetCum->Drc += RainNet->Drc;
         // net rainfall in case of interception
     }}
 
@@ -506,9 +505,7 @@ double TWorld::getTimefromString(QString sss)
     }
 
     if (!sss.contains(QRegExp("[-:/]"))) {
-        //return(sss.toDouble());
         day = sss.toDouble();
-        min = 0.0;
     } else {
         // DDD/HH/MM or DDD-HH-MM or DDD:HH:MM
         QStringList DHM = sss.split(QRegExp("[-:/]"));
@@ -521,9 +518,8 @@ double TWorld::getTimefromString(QString sss)
             hour = DHM.at(1).toDouble();
             min = DHM.at(2).toDouble();
         }
-//qDebug() << day << hour << min;
-        return(day*1440+hour*60+min);
     }
+    return(day*1440+hour*60+min);
 }
 //---------------------------------------------------------------------------
 

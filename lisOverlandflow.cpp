@@ -351,8 +351,6 @@ void TWorld::OverlandFlow2Ddyn(void)
         hmxflood->Drc = std::max(0.0, WHR - minReportFloodHeight);
 
         FloodWaterVol->Drc = hmxflood->Drc*CHAdjDX->Drc;
-        //WHrunoffOutput->Drc = std::min(WHrunoff->Drc, minReportFloodHeight);
-        //RunoffWaterVol->Drc = WHrunoffOutput->Drc*ChannelAdj->Drc*DX->Drc;
         RunoffWaterVol->Drc = std::min(WHR, minReportFloodHeight)*CHAdjDX->Drc;
         // used for screen output
 
@@ -470,14 +468,13 @@ void TWorld::OverlandFlow1D(void)
         if (SwitchLinkedList) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-               // QinKW->Drc = 0;
                 pcr::setMV(Qsn->Drc);//Qsn->setAllMV();
             }}
             FOR_ROW_COL_LDD5 {
-                  routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, WaterVolin, Sed);
+                  routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
             }}
         } else {
-            KinematicSubstance(crlinkedldd_,nrValidCells,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
+            KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
         }
     }
 
@@ -490,7 +487,7 @@ void TWorld::OverlandFlow1D(void)
            Qp->Drc =  Qn->Drc * C->Drc;
         }}
 
-        KinematicSubstance(crlinkedldd_, nrValidCells, LDD, Q, Qn, Qp, Qpn, Alpha, DX, Pest);
+        KinematicSubstance(crlinkedldd_, LDD, Q, Qn, Qp, Qpn, Alpha, DX, Pest);
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {

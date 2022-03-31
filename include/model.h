@@ -787,7 +787,7 @@ public:
 
     void routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                                 cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
-                                cTMap *_Alpha, cTMap *_DX, cTMap*_Vol, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
+                                cTMap *_Alpha, cTMap *_DX, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
 
   //  double K2DSolvebyInterpolationSed( cTMap *M, cTMap *MC);
 
@@ -798,9 +798,9 @@ public:
     double GetTotalDW(int r, int c,QList<cTMap *> *M);
     double GetSV(double d);
     void SplashDetachment();
-    void cell_FlowDetachment(int r, int c);
     double MaxConcentration(double watvol, double *sedvol, double *dep);
     void ChannelFlowDetachmentNew();
+
 
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentLayerDepth(int r , int c);
@@ -861,19 +861,21 @@ public:
     double cell_Percolation1(int r, int c, double factor);
     void cell_Redistribution(int r, int c);
     void cell_Redistribution1(int r, int c);
-    void cell_SplashDetachment(int r, int c, double WH);
     void cell_SurfaceStorage(int r, int c);
+    void cell_InfilMethods(int r, int c);
+    void cell_InfilSwatre(int r, int c);
+    void cell_depositInfil(int r, int c);
+    void cell_SplashDetachment(int r, int c);
+    void cell_FlowDetachment(int r, int c);
 
     void InfilEffectiveKsat();
     void Infiltration();
     void InfilSwatre();
-    void cell_InfilSwatre(int r, int c);
 
     double IncreaseInfiltrationDepthNew(double fact_, int r, int c);
 
     void SoilWater();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
-    void cell_InfilMethods(int r, int c);
     void SurfaceStorage();
     void doETa();
     void avgTheta();
@@ -946,7 +948,7 @@ public:
     double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double maxQ);
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
     void KinematicExplicit(QVector<LDD_COORIN> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
-    void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
+    void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
     void AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
     //LDD_COOR *_crlinked_
     QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);

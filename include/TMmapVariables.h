@@ -53,7 +53,6 @@ cTMap
 *RainCum,                    //!< cumulative rainfall, as spreadoutover slope [m]
 *RainCumFlat,                //!< cumulative rainfall [m]
 *RainNet,                    //!< net rainfall after interception [m]
-//*RainNetCum,                    //!< net rainfall after interception [m]
 *LeafDrain,                  //!< drainge from canopy, storage overflow [m]
 *CStor,                      //!< actual canopy storage [m]
 *Interc,                     //!< actual canopy storage volume, corrected for surfaces without vegetation (like roads) [m^3]

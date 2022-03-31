@@ -46,24 +46,25 @@ void TWorld::cell_Interception(int r, int c)
     double Cv = Cover->Drc;
     double Rainc_ = Rainc->Drc;
     double RainNet_ = Rainc_;
+    double Smax = CanopyStorage->Drc;
 
-    if (Cv > 0 && Rainc_ > 0)
+    if (Cv > 0 && Rainc_ > 0 && Smax > 0)
     {
         double CS = CStor->Drc;
         //actual canopy storage in m
-        double Smax = CanopyStorage->Drc;
-        //max canopy storage in m
 
-        if (Smax > 0)
-            CS = Smax*(1-exp(-kLAI->Drc*RainCum->Drc/Smax));
+        CS = Smax*(1-exp(-kLAI->Drc*RainCum->Drc/Smax));
+        // new store of a canopy, not cell
 
-        LeafDrain->Drc = std::max(0.0, Cv*(Rainc_ - (CS - CStor->Drc)));
+        LeafDrain->Drc = std::max(0.0, (Rainc_ - (CS - CStor->Drc)));
+        // canopy leaf drain, overflow of rain - dS, not cell
 
         CStor->Drc = CS;
-        // put new storage back in map
-        Interc->Drc =  Cv * CS * CHAdjDX->Drc;
 
-        RainNet_ = LeafDrain->Drc + (1-Cv)*Rainc_;
+        Interc->Drc =  Cv * CS * CHAdjDX->Drc;
+        // storage in cell in m3
+
+        RainNet_ = Cv*LeafDrain->Drc + (1-Cv)*Rainc_;
         // net rainfall is direct rainfall + drainage
         // rainfall that falls on the soil, used in infiltration
     }
@@ -81,7 +82,7 @@ void TWorld::cell_Interception(int r, int c)
             LCS = std::min(LCS + RainNet_, Smax);
             // add water to the storage, not more than max
 
-            double drain = std::max(0.0, CvL*(RainNet_ - (LCS - LCStor->Drc)));
+            double drain = CvL*  std::max(0.0, (RainNet_ - (LCS - LCStor->Drc)));
             // diff between new and old storage is subtracted from leafdrip
 
             LCStor->Drc = LCS;

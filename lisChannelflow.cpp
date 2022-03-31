@@ -399,11 +399,34 @@ void TWorld::ChannelSedimentFlow()
     }
 
 
-    KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
+    if (SwitchLinkedList) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            pcr::setMV(ChannelQSSsn->Drc);
+        }}
 
-    if(SwitchUse2Phase) {
-        KinematicSubstance(crlinkedlddch_, nrValidCellsCH, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
+        FOR_ROW_COL_LDD5 {
+              routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
+        }}
+
+        if(SwitchUse2Phase) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                pcr::setMV(ChannelQBLsn->Drc);
+            }}
+
+            FOR_ROW_COL_LDD5 {
+                routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
+            }}
+        }
+
+    } else {
+        KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
+        if(SwitchUse2Phase) {
+            KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
+        }
     }
+
 
     if (SwitchIncludeRiverDiffusion) {
         RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);

@@ -269,7 +269,7 @@ void TWorld::AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, 
 }
 //---------------------------------------------------------------------------
 /*LDD_COOR *_crlinked_*/
-void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_,long nrcells, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
+void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
 {
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -281,7 +281,7 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_,long nrcells, cT
     }}
 
 //#pragma omp parallel for reduction(+:Qin) num_threads(userCores)
-    for(long i_ =  0; i_ < nrcells; i_++) //n_crlinked_.size()
+    for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     {
         int r = _crlinked_[i_].r;
         int c = _crlinked_[i_].c;
@@ -603,7 +603,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
  */
 void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                             cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
-                            cTMap *_Alpha, cTMap *_DX, cTMap*  _Vol , cTMap *_Sed)
+                            cTMap *_Alpha, cTMap *_DX, cTMap *_Sed)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -683,15 +683,9 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                     Sin += _Qsn->Drc;
                 }
             }
-        //    QinKW->data[rowNr][colNr] = Sin; //reuse
 
-
-     //       bool complex = true;
-     //       if (complex)
-                _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
+            _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
                                                           Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _DX->data[rowNr][colNr]);
-     //       else
-     //           _Qsn->data[rowNr][colNr] = simpleSedCalc(_Qn->data[rowNr][colNr], Qin, Sin, _Vol->data[rowNr][colNr], _Sed->data[rowNr][colNr]);
 
             _Qsn->data[rowNr][colNr] = std::min(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
             // no more sediment outflow than total sed in cell
