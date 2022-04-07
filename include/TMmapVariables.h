@@ -166,7 +166,8 @@ cTMap
 //*DG,                         //!< parameter Govers in TC equation
 *SettlingVelocitySS,           //!< settling velocity according to Stokes [m/s]
 *SettlingVelocityBL,           //!< settling velocity according to Stokes [m/s]
-*PCA,                        //!< applied dose [kg/m2]
+// Pesticides
+*PCA,                        //!< applied dose [kg/m2] - MC - how used??
 *epsil,                      //!< mixing layer depth (m]
 *KD,                         //!< soil water partition coefficient [m3/kg]
 *kr,                         //!< rate at which solute desorb [min-1]
@@ -174,52 +175,52 @@ cTMap
 *C,                          //!< Pesticide concentration in dissolved form in runoff water [kg/m3]
 *CM,                         //!< Pesticide concentration in dissolved form in the mixing zone [kg/m3]
 *CS,                         //!< Pesticide concentration in sorbed form in the mixing zone [kg/m3]
-*C_N,
-*CM_N,
-*CS_N,
-*C_K,
-*C_Kold,
-*CM_K,
-*CS_K,
-*Qp,
-*Qpn,
-*C_Kn,
-*K1,
-*Kfilm,
-*pestiinf,
-*pestiinfold,
-*poro,
-*AX,
-*Fkold,
-*Fk,
-*Fmk,
-*flagpest,
-*PMassApplied,
-*PRunoffSpatial,
-*PDisMixing,
-*PSorMixing,
-*PInfilt,
-*PStorage,
-*PRunoffSpatialex,
-*PDisMixingex,
-*PSorMixingex,
-*PInfiltex,
-*Qin,
-*Sin,
-*Pest,
-*Fin,
-*Pdetach,
-*PCinfilt,
-*PCfilmexit,
-*K2DQP,                         //!<
-*K2DQPX,                         //!<
-*K2DQPY,                         //!<
-*K2DP,                          //!<
-*K2DPC,                          //!<
-*K2DPCN,                          //!<
+*C_N,                        //!<
+*CM_N,                       //!<
+*CS_N,                       //!<
+*C_K,                        //!<
+*C_Kold,                     //!<
+*CM_K,                       //!<
+*CS_K,                       //!<
+*Qp,                         //!<
+*Qpn,                        //!<
+*C_Kn,                       //!<
+*K1,                         //!<
+*Kfilm,                      //!<
+*pestiinf,                   //!<
+*pestiinfold,                //!<
+*poro,                       //!<
+*AX,                         //!< MC - only pointer and Newmap - no use found
+*Fkold,                      //!< MC - only pointer and Newmap - no use found
+*Fk,                         //!< MC - only pointer and Newmap - no use found
+*Fmk,                        //!< MC - only pointer and Newmap - no use found
+*flagpest,                   //!< MC - only pointer and Newmap - no use found
+*PMassApplied,               //!< Total pesticide applied in catchment - how are pesticide applications used????
+*PRunoffSpatial,             //!<
+*PDisMixing,                 //!<
+*PSorMixing,                 //!<
+*PInfilt,                    //!<
+*PStorage,                   //!<
+*PRunoffSpatialex,           //!<
+*PDisMixingex,               //!<
+*PSorMixingex,               //!<
+*PInfiltex,                  //!<
+*Qin,                        //!<
+*Sin,                        //!<
+*Pest,                       //!<
+*Fin,                        //!<
+*Pdetach,                    //!<
+*PCinfilt,                   //!<
+*PCfilmexit,                 //!<
+*K2DQP,                      //!< MC - only pointer and Newmap - no use found
+*K2DQPX,                     //!< MC - only pointer and Newmap - no use found
+*K2DQPY,                     //!< MC - only pointer and Newmap - no use found
+*K2DP,                       //!< MC - only pointer and Newmap - no use found
+*K2DPC,                      //!< MC - only pointer and Newmap - no use found
+*K2DPCN,                     //!< MC - only pointer and Newmap - no use found
 
-*K2DOutlets,                    //!<
-//*K2DQ,                          //!<
+*K2DOutlets,                 //!<
+//*K2DQ,                     //!<
 
 // infiltration
 *Fcum,                       //!< cumulative infiltration [m]

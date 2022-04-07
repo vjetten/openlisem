@@ -58,7 +58,7 @@ void TWorld :: Pestmobilisation(void)
     {
         pestiinf->Drc = (InfilVol->Drc)/(_dt*_dx*_dx); //DX->Drc);
         //if (WaterVolall->Drc < dx*DX->Drc*1e-6)
-        if (Q->Drc < 1e-6)//< 1e-6) //reflexion a avoir sur la def de ruissellement
+        if (Q->Drc < 1e-6)//< 1e-6) //reflect on the definition of runoff -- reflexion a avoir sur la def de ruissellement
         {
             C->Drc=0.0;
             C_N->Drc=0.0;
@@ -70,22 +70,22 @@ void TWorld :: Pestmobilisation(void)
 
             if (pestiinf->Drc <= 1e-6)
             {
-      //          qDebug() << "no inf";
+      //          qDebug() << "no infiltration";
                 // mise à l'équilibre: pas de ruissellement ni d'infiltration
                 CM->Drc=(poro->Drc*CM_N->Drc+rhob->Drc*CS_N->Drc)/(rhob->Drc*KD->Drc+poro->Drc);
                 CS->Drc=KD->Drc*CM_N->Drc;
             }
             else
             {
-        //        qDebug() << "no runoff but inf";
-                // calcul de CM et CS avec Kfilm=0
+        //        qDebug() << "no runoff but infiltration";
+                // calculate the CM and CS with Kfilm=0
                 CM->Drc=cmx_analytique(_dt,0.0,pestiinf->Drc,epsil->Drc,rhob->Drc,kr->Drc,KD->Drc,poro->Drc,
                                        CM_N->Drc,CS_N->Drc,C_N->Drc);
                 CS->Drc=csx_analytique(_dt,0.0,pestiinf->Drc,epsil->Drc,rhob->Drc,kr->Drc,KD->Drc,poro->Drc,
                                        CM_N->Drc,CS_N->Drc,C_N->Drc);
             }
         }
-        else // ruissellement
+        else // runoff
         {
             //qDebug() << "yes runoff";
 
@@ -178,7 +178,7 @@ double TWorld::ConcentrationP(double watvol, double pest)
 }
 //---------------------------------------------------------------------------
 //n*eps*diff(CM(t),t)-K*(C-CM(t))-f*(C-CM(t))+eps*rho*kr*(kd*CM(t)-CS(t));
-//Solution analytique from Maxima : Philippe Ackerer
+//Analytical solution from Maxima : Philippe Ackerer
 
 double TWorld::cmx_analytique(double t,double dKfi,double dpestiinf,double depsil,double drhob,double dkr,double dKD,double dn, double CM0,double CS0, double Cr)
 
@@ -215,7 +215,7 @@ double TWorld::cmx_analytique(double t,double dKfi,double dpestiinf,double depsi
 
     //qDebug()<< "C2" << c2;
 
-    // solutions particulières constante
+    // solutions particulières constante -- specific constant solution or solution for a specific variable
     CmX = exp(-(sqrt(pow(d,2)-2*a*d+4*b*c+pow(a,2))*t/2))*((a*c2*d-b*c*c2)*exp(sqrt(pow(d,2)-2*a*d+4*b*c+pow(a,2))*t+d*t/2+a*t/2)+(a*c1*d-b*c*c1)*exp(d*t/2+a*t/2)
                                                            -d*e*exp(sqrt(pow(d,2)-2*a*d+4*b*c+pow(a,2))*t/2))/(a*d-b*c);
 
@@ -235,7 +235,7 @@ double TWorld::cmx_analytique(double t,double dKfi,double dpestiinf,double depsi
 
 //--------------------------------------------------------------------------------------------------------------------------------------
 //diff(CS(t),t)-kr*(kd*CM(t)-CS(t));
-//Solution analytique from Maxima : Philippe Ackerer
+//Analytical solution Maxima : Philippe Ackerer
 
 double TWorld::csx_analytique(double t, double dKfi,double dpestiinf,double depsil,double drhob,double dkr,double dKD,double dn, double CM0,double CS0,double Cr)
 {
