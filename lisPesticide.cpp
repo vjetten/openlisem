@@ -71,7 +71,7 @@ void TWorld :: Pestmobilisation(void)
             if (pestiinf->Drc <= 1e-6)
             {
       //          qDebug() << "no inf";
-                // mise à l'équilibre: pas de ruissellement ni d'infiltration
+                // mise Ã  l'Ã©quilibre: pas de ruissellement ni d'infiltration
                 CM->Drc=(poro->Drc*CM_N->Drc+rhob->Drc*CS_N->Drc)/(rhob->Drc*KD->Drc+poro->Drc);
                 CS->Drc=KD->Drc*CM_N->Drc;
             }
@@ -215,7 +215,7 @@ double TWorld::cmx_analytique(double t,double dKfi,double dpestiinf,double depsi
 
     //qDebug()<< "C2" << c2;
 
-    // solutions particulières constante
+    // solutions particuliÃ¨res constante
     CmX = exp(-(sqrt(pow(d,2)-2*a*d+4*b*c+pow(a,2))*t/2))*((a*c2*d-b*c*c2)*exp(sqrt(pow(d,2)-2*a*d+4*b*c+pow(a,2))*t+d*t/2+a*t/2)+(a*c1*d-b*c*c1)*exp(d*t/2+a*t/2)
                                                            -d*e*exp(sqrt(pow(d,2)-2*a*d+4*b*c+pow(a,2))*t/2))/(a*d-b*c);
 
@@ -256,7 +256,7 @@ double TWorld::csx_analytique(double t, double dKfi,double dpestiinf,double deps
             /(2*a*d*sqrt(pow(d,2)-2*a*d+4*b*c+pow(a,2))-2*b*c*sqrt(pow(d,2)-2*a*d+4*b*c+pow(a,2)));
 
 
-    // solutions particulières constante
+    // solutions particuliÃ¨res constante
     CsX =exp(-(sqrt(pow(d,2)-2*a*d+4*b*c+pow(a,2))*t/2))*(sqrt(pow(d,2)-2*a*d+4*b*c+pow(a,2))*((a*c2*d-b*c*c2)*exp(sqrt(pow(d,2)-2*a*d+4*b*c+pow(a,2))*t+d*t/2+a*t/2)+(b*c*c1-a*c1*d)
                                                                                                *exp(d*t/2+a*t/2))+(a*c2*pow(d,2)+(-b*c-pow(a,2))*c2*d+a*b*c*c2)*exp(sqrt(pow(d,2)-2*a*d+4*b*c+pow(a,2))*t+d*t/2+a*t/2)+(a*c1*pow(d,2)+(-b*c-pow(a,2))*c1*d+a*b*c*c1)
                                                           *exp(d*t/2+a*t/2)+2*b*c*e*exp(sqrt(pow(d,2)-2*a*d+4*b*c+pow(a,2))*t/2))/(2*a*b*d-2*pow(b,2)*c);
