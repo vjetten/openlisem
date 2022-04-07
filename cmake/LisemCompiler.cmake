@@ -18,8 +18,8 @@ IF(WIN32)
     #SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/qwt") # qwt build outside msys
     #SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
 
-    SET(QWT_INCLUDE_DIRS "C:Qwt61ma/src")
-    SET(QWT_LIBRARIES "C:Qwt61ma/lib/libqwt.dll.a")
+    SET(QWT_INCLUDE_DIRS "C:/Qwt61ma/qwt-6.1-ma/src")
+    SET(QWT_LIBRARIES "C:/Qwt61ma/qwt-6.1-ma/lib/libqwt.dll.a")
 
     SET(OMP_INCLUDE_DIRS "C:/msys/mingw64/lib/gcc/x86_64-w64-mingw32/11.2.0/include")
 ENDIF()

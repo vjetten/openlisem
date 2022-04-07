@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8.11)
 # path qwt and gdal build directories on local machine
 # following windows MSYS2.0 installation
 IF(WIN32)
- SET(QWT_BUILD_DIR "C:/msys/mingw64") #"c:/qt/qwtma")
+ SET(QWT_BUILD_DIR "C:/Qwt61ma/qwt-6.1-ma") #"c:/qt/qwtma")
  SET(GDAL_BUILD_DIR "C:/msys/mingw64")
 ENDIF()
 
