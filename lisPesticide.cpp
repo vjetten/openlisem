@@ -63,7 +63,7 @@ void TWorld :: Pestmobilisation(void)
             C->Drc=0.0;
             C_N->Drc=0.0;
             Pest->Drc = 0.0;
-            // gaat niet goed, pest moet toch ergens blijven, kan niet zomaar verdwijnen?
+            // this is tricky, the pest cannot disapear, has to go somewhere?
             PCinfilt->Drc = 0.0;
             PCfilmexit->Drc = 0.0;
             Pdetach->Drc = 0.0;
