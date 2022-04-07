@@ -2422,7 +2422,7 @@ void TWorld::IntializeOptions(void)
     SwitchDumpTheta = false;
     SwitchDumpK = false;
 
-    SwitchPesticide = false;
+    SwitchPesticide = true;
     Switchheaderpest = true;
 
     addedbaseflow = false;
