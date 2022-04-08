@@ -386,6 +386,7 @@ void TWorld::GetInputTimeseries()
 
 }
 //---------------------------------------------------------------------------
+// all hydrologuical processes in one big parallel loop for speed
 void TWorld::HydrologyProcesses()
 {
     #pragma omp parallel for num_threads(userCores)

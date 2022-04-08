@@ -189,19 +189,19 @@ void lisemqt::SetConnections()
 
     connect(checkFormatGtiff, SIGNAL(toggled(bool)), this, SLOT(setFormatMaps(bool)));
 
-    connect(E_BulkDens2,SIGNAL(editingFinished()),this, SLOT(updateBulkDens()));
-    connect(E_BulkDens,SIGNAL(editingFinished()),this, SLOT(updateBulkDens2()));
+  //  connect(E_BulkDens2,SIGNAL(editingFinished()),this, SLOT(updateBulkDens()));
+  //  connect(E_BulkDens,SIGNAL(editingFinished()),this, SLOT(updateBulkDens2()));
 
 }
 void lisemqt::updateBulkDens()
 {
-    QString txt = E_BulkDens2->text();
-    E_BulkDens->setText(txt);
+ //   QString txt = E_BulkDens2->text();
+  //  E_BulkDens->setText(txt);
 }
 void lisemqt::updateBulkDens2()
 {
-    QString txt = E_BulkDens->text();
-    E_BulkDens2->setText(txt);
+   // QString txt = E_BulkDens->text();
+    //E_BulkDens2->setText(txt);
 }
 //--------------------------------------------------------------------
 void lisemqt::setFormatMaps(bool check)
@@ -1666,15 +1666,14 @@ void lisemqt::resetTabErosion()
 
     checkMaterialDepth->setChecked(false);
     E_DepositedCohesion->setValue(0.5);
-    E_BulkDens->setText("1500.00");
-    E_BulkDens2->setText("1500.00");
+    E_BulkDens->setValue(1500);
+    //E_BulkDens2->setText("1500.00");
 
     E_SplashDelibery->setValue(0.1);
     checkInfilGrass->setChecked(false);
-    E_GrassStripN->setText("0.2");
-
+    E_GrassStripN->setValue(0.2);
     E_SedTrapN->setValue(0.8);
-    E_GrassStripN->setText("0.2");
+
 }
 
 void lisemqt::resetTabAdvanced()

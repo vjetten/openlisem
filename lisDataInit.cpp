@@ -416,6 +416,8 @@ void TWorld::InitStandardInput(void)
   //  if (SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
         crlinkedldd_ = MakeLinkedList(LDD);
 
+
+
     DEM = ReadMap(LDD, getvaluename("dem"));
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
@@ -424,6 +426,7 @@ void TWorld::InitStandardInput(void)
     FOR_ROW_COL_MV {
         sqrtGrad->Drc = sqrt(Grad->Drc);
     }
+
 
     if (SwitchCorrectDEM)
         CorrectDEM(DEM, Grad);
@@ -906,7 +909,7 @@ void TWorld::InitChannel(void)
     {
         if(Outlet->Drc > 0 && LDDChannel->Drc != 5)
         {
-            qDebug() << r << c << LDDChannel->Drc << Outlet->Drc;
+            //qDebug() << r << c << LDDChannel->Drc << Outlet->Drc;
             ErrorString = "Outlet points (outlet.map) do not coincide with Channel LDD endpoints.";
             throw 1;
         }
@@ -999,8 +1002,11 @@ void TWorld::InitChannel(void)
         GWout = NewMap(0);
         GWbp = NewMap(0);
 
+
         FOR_ROW_COL_MV_L {
-            GWVol->Drc = (GW_initlevel+0.001)*_dx*_dx;
+          //  GWWH->Drc = 0.1*SoilDepth2->Drc;
+            GWVol->Drc = GWWH->Drc*_dx*_dx;
+//            GWVol->Drc = (GW_initlevel+0.001)*_dx*_dx;
         }}
 
     }
@@ -1065,7 +1071,7 @@ void TWorld::InitChannel(void)
         DirectEfficiency = getvaluedouble("Direct efficiency channel");
 
 //qDebug() << COHCHCalibration << UcrCHCalibration << SVCHCalibration;
-        qDebug() << "SwitchEfficiencyDETCH"<< SwitchEfficiencyDETCH;
+        //qDebug() << "SwitchEfficiencyDETCH"<< SwitchEfficiencyDETCH;
         FOR_ROW_COL_MV_CHL {
             ChannelCohesion->Drc *= COHCHCalibration;
 
@@ -1931,6 +1937,7 @@ void TWorld::IntializeData(void)
     IntercTot = 0;
     IntercETaTot = 0;
     IntercTotmm = 0;
+    IntercETaTotmm = 0;
     ETaTot = 0;
     ETaTotmm = 0;
     ETaTotVol = 0;
@@ -2811,6 +2818,8 @@ void TWorld::InitImages()
 // read and Intiialize all Tile drain variables and maps
 void TWorld::InitTiledrains(void)
 {
+    if (SwitchIncludeTile || SwitchIncludeStormDrains)
+    {
     // channel vars and maps that must be there even if channel is switched off
     TileVolTot = 0;
     TileWaterVol = NewMap(0);
@@ -2842,8 +2851,8 @@ void TWorld::InitTiledrains(void)
     //TileY = NewMap(0);
     //SedToTile = NewMap(0);
 
-    if (SwitchIncludeTile || SwitchIncludeStormDrains)
-    {
+  //  if (SwitchIncludeTile || SwitchIncludeStormDrains)
+    //{
         //## Tile maps
         LDDTile = InitMaskTiledrain(getvaluename("lddtile"));
         // must be first" LDDTile is the mask for tile drains

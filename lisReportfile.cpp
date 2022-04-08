@@ -1234,7 +1234,7 @@ void TWorld::setupHydrographData()
     op.OutletIndices.append(nr);
 
 }
-
+//---------------------------------------------------------------------------
 void TWorld::ClearHydrographData()
 {
 //    for(int i =op.OutletIndices.length() - 1; i >-1 ; i--)
@@ -1263,4 +1263,60 @@ void TWorld::ClearHydrographData()
         op.Image = RGB_Image;
     }
 }
+//---------------------------------------------------------------------------
+// include all totals!!!
 
+void TWorld::ReportDump(void)
+{
+    dumpDir = inputDir + "/Dump/";
+    if (!QFileInfo(dumpDir).exists()){
+        QDir().mkdir(dumpDir);
+    }
+
+    report(*RainCum,dumpDir+"raincum.map");
+  //  report(*Rainpeak,dumpDir+"rainpeak.map");
+
+    if (SwitchIncludeET) {
+        report(*ETaCum,dumpDir+"ETaCum.map");
+        report(*IntercETa,dumpDir+"IntercETa.map");
+    }
+
+    report(*Interc,dumpDir+"Interc.map");
+    report(*CStor,dumpDir+"CStor.map");
+    if (SwitchLitter)
+        report(*LInterc,dumpDir+"LInterc.map");
+    if (SwitchHouses)
+        report(*IntercHouse,dumpDir+"IntercHouse.map");
+
+    if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE) {
+        report(*ThetaI1,dumpDir+"ThetaI1.map");
+        if (SwitchTwoLayer)
+            report(*ThetaI2,dumpDir+"ThetaI2.map");
+
+       report(*InfilVol,dumpDir+"InfilVol.map");
+    }
+
+    report(*WHstore,dumpDir+"WHstore.map");
+    report(*WH,dumpDir+"WH.map");
+    report(*WHrunoff,dumpDir+"WHrunoff.map");
+    report(*WHroad,dumpDir+"WHroad.map");
+
+    report(*WaterVolall,dumpDir+"WaterVolall.map");
+    report(*FloodWaterVol,dumpDir+"FloodWaterVol.map");
+    report(*WaterVolall,dumpDir+"WaterVolall.map");
+
+    if (SwitchIncludeChannel)
+    {
+        report(*ChannelWaterVol,dumpDir+"ChannelWaterVol.map");
+        report(*ChannelWH,dumpDir+"ChannelWH.map");
+        if (SwitchChannelBaseflow) {
+            report(*Qbase,dumpDir+"Qbase.map");
+            report(*GWWH,dumpDir+"GWWH.map");
+        }
+    }
+
+
+
+
+
+}

@@ -110,10 +110,13 @@ void lisemqt::ParseInputData()
     bool Rainmaps = false;
 
     QLocale loc = QLocale::system(); // current locale
-    loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
-    QLocale::setDefault(loc); // set as default
-    QChar pnt = loc.decimalPoint() ;
-    qDebug() << pnt;
+//    loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
+ //   QLocale::setDefault(loc); // set as default
+    QChar pnt = loc.decimalPoint();
+//    qDebug() << pnt;
+//    if (pnt == ',')
+//        loc = QLocale::Dutch;
+
 
     for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
     {
@@ -122,18 +125,18 @@ void lisemqt::ParseInputData()
         QString p1 = namelist[j].name;
         bool ok;
 
-        int iii = namelist[j].value.toInt();
-      //  double valc = loc.toDouble(p,&ok); //namelist[j].value.toDouble(&ok);
-
-        double valc = 0;
-        if (pnt == ',' && p.contains(",")) {
+        int iii = loc.toInt(p);
+        double valc = loc.toDouble(p,&ok); //namelist[j].value.toDouble(&ok);
+        if (!ok && pnt == ',') {
             QString p2 = p.replace(",",".");
             valc = p2.toDouble();
-            qDebug() << namelist[j].name << namelist[j].value << p2 << valc;
+        }
+        if (!ok && pnt == '.') {
+            QString p2 = p.replace(",",".");
+            valc = p2.toDouble();
         }
 
-
-      //qDebug() << p1 <<  p  << iii << val << valc;
+    //  qDebug() << p1 <<  p  << iii <<  valc;
 
         bool check = iii == 1;
         if (p1.contains("["))
@@ -241,7 +244,7 @@ void lisemqt::ParseInputData()
 
         if (p1.compare("Include compacted")==0)              checkInfilCompact->setChecked(check);
         if (p1.compare("Include grass strips")==0)           checkInfilGrass->setChecked(check);
-        if (p1.compare("Grassstrip Mannings n")==0)           E_GrassStripN->setText(p);
+        if (p1.compare("Grassstrip Mannings n")==0)           E_GrassStripN->setValue(valc);
         if (p1.compare("Include crusts")==0)                 checkInfilCrust->setChecked(check);
         if (p1.compare("Impermeable sublayer")==0)           checkInfilImpermeable->setChecked(check);
         if (p1.compare("Two layer")==0)                      checkInfil2layer->setChecked(check);
@@ -401,7 +404,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Aggregate stability calibration")==0)    E_CalibrateAS->setValue(valc);
         if (p1.compare("Splash Delivery Ratio")==0)    E_SplashDelibery->setValue(valc);
         if (p1.compare("Particle Cohesion of Deposited Layer")==0) E_DepositedCohesion->setValue(valc);
-        if (p1.compare("Sediment bulk density")==0)          E_BulkDens->setText(p);
+        if (p1.compare("Sediment bulk density")==0)          E_BulkDens->setValue(valc);
 
 
         // STANDARD OUTPUT FILES
