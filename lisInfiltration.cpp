@@ -93,10 +93,10 @@ void TWorld::InfilEffectiveKsat(void)
             Ksateff->Drc = std::max(0.0, Ksateff->Drc);
             Poreeff->Drc = std::max(0.3, Poreeff->Drc);
             Thetaeff->Drc = std::min(1.0,Poreeff->Drc/ThetaS1->Drc) * ThetaI1->Drc;
-            bca1->Drc = 5.55*qPow(Ksateff->Drc,-0.114);
+//            bca1->Drc = 5.55*qPow(Ksateff->Drc,-0.114);
             Ksateff->Drc *= _dt/3600000;
             if(SwitchTwoLayer) {
-                bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
+//                bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
                 Ksat2->Drc *= _dt/3600000;
             }
             // percolation coefficient

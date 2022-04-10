@@ -319,7 +319,7 @@ double TWorld::cell_Percolation(int r, int c, double factor)
         if(theta > thetar) {
             // percolation in m per timestep
             theta_E = (theta-thetar)/(pore-thetar);
-            Percolation = ksat * pow(theta_E, bca2->Drc);
+            Percolation = ksat * pow(theta_E, 2*bca2->Drc);
 
             if (Lw->Drc > SoilDepth1->Drc)
                 dL = SoilDep2 - Lw_;
@@ -327,13 +327,16 @@ double TWorld::cell_Percolation(int r, int c, double factor)
                 dL = SoilDep2 - SoilDep1;
             // if Wet Fr still in first layer percolation only make 2nd drier
 
+            double FC2 = 0.7867*exp(-0.012*Ksat2->Drc)*pore;
             double moisture = std::max(0.0, dL*(theta-thetar));
             if (Lw_ < SoilDep2-0.001) {
                 // decrease thetaeff because of percolation
-                Percolation = std::min(Percolation, moisture*0.5);
+//                if ( theta < FC2/2)
+//                    return(0);
+                Percolation = std::min(Percolation, moisture);//*0.5);
                 moisture -= Percolation;
                 theta = moisture/dL + thetar;
-                theta = std::max(thetar, theta);
+                //theta = std::max(thetar, theta);
             } else {
                 // wetting front = soildepth2, dL = 0, moisture = 0
                 // assume theta goes back to 0.7 pore and decrease the wetting fornt

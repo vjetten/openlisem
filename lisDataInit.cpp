@@ -599,6 +599,10 @@ void TWorld::InitSoilInput(void)
     if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
     {
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
+        bca1 = NewMap(0);
+        FOR_ROW_COL_MV_L {
+            bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);
+        }}
         calcValue(*Ksat1, ksatCalibration, MUL);
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
@@ -655,6 +659,12 @@ void TWorld::InitSoilInput(void)
             calcValue(*Psi2, 0.01, MUL);
 
             Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
+            bca2 = NewMap(0);
+            FOR_ROW_COL_MV_L {
+                bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
+            }}
+            report(*bca1,"bca1.map");
+            report(*bca2,"bca2.map");
             calcValue(*Ksat2, ksatCalibration, MUL);
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
@@ -1979,8 +1989,6 @@ void TWorld::IntializeData(void)
     Ksateff = NewMap(0);
     Poreeff = NewMap(0);
     Thetaeff = NewMap(0);
-    bca1 = NewMap(0);
-    bca2 = NewMap(0);
     FSurplus = NewMap(0);
     FFull = NewMap(0);
     Perc = NewMap(0);
