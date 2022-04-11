@@ -261,7 +261,7 @@ void TWorld::ChannelSWOFopen()
         }
         double dhtot = sum2 > 0 ? ((sum1-qout) - sum2)/sum2 : 0;
         double sum3 = 0;
-        qDebug() << sum1-sum2 << sum1-sum2-qout;
+        //qDebug() << sum1-sum2 << sum1-sum2-qout;
 
         FOR_ROW_COL_MV_CH {
             if(ChannelWH->Drc > 0) {
@@ -434,7 +434,7 @@ void TWorld::KinematicSWOFopen(cTMap *_h, cTMap *_V)
             stop = true;
 
     } while (!stop);
-qDebug() << count;
+//qDebug() << count;
 
 
 

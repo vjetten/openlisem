@@ -401,7 +401,6 @@ public:
 
     /// infiltration method
     int InfilMethod;
-    bool SwitchNoInfil;
 
     /// erosion units in output: to/ha; kg/cell; kg/m2
     int ErosionUnits;
@@ -534,6 +533,7 @@ public:
     // file and directory names
     QString resultDir;
     QString inputDir;
+    QString dumpDir;
     QString outflowFileName;
     QString totalSeriesFileName;
     QString totalErosionFileName;
@@ -1014,6 +1014,7 @@ public:
     void ReportTotalSeries(void);
 
     void ReportMaps(void);
+    void ReportDump(void);
     void ReportMapSeries(void);
     void ReportTotalsNew(void);
     void ReportLandunits(void); //VJ 110107 report erosion stats per land unit
