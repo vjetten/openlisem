@@ -100,7 +100,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -2358,7 +2358,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>7</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -5597,15 +5597,9 @@ p, li { white-space: pre-wrap; }
                          </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="E_BulkDens">
+                         <widget class="QDoubleSpinBox" name="E_BulkDens">
                           <property name="enabled">
                            <bool>false</bool>
-                          </property>
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
                           </property>
                           <property name="font">
                            <font>
@@ -5615,17 +5609,20 @@ p, li { white-space: pre-wrap; }
                             <kerning>true</kerning>
                            </font>
                           </property>
-                          <property name="inputMask">
-                           <string>9999.9</string>
+                          <property name="decimals">
+                           <number>1</number>
                           </property>
-                          <property name="text">
-                           <string>1500.0</string>
+                          <property name="minimum">
+                           <double>800.000000000000000</double>
                           </property>
-                          <property name="maxLength">
-                           <number>6</number>
+                          <property name="maximum">
+                           <double>2650.000000000000000</double>
                           </property>
-                          <property name="cursorPosition">
-                           <number>6</number>
+                          <property name="singleStep">
+                           <double>0.100000000000000</double>
+                          </property>
+                          <property name="value">
+                           <double>1500.000000000000000</double>
                           </property>
                          </widget>
                         </item>
@@ -5796,15 +5793,9 @@ p, li { white-space: pre-wrap; }
                          </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="E_GrassStripN">
+                         <widget class="QDoubleSpinBox" name="E_GrassStripN">
                           <property name="enabled">
                            <bool>false</bool>
-                          </property>
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
                           </property>
                           <property name="font">
                            <font>
@@ -5814,11 +5805,17 @@ p, li { white-space: pre-wrap; }
                             <kerning>true</kerning>
                            </font>
                           </property>
-                          <property name="inputMask">
-                           <string>9.99</string>
+                          <property name="minimum">
+                           <double>0.010000000000000</double>
                           </property>
-                          <property name="text">
-                           <string>0.1</string>
+                          <property name="maximum">
+                           <double>10.000000000000000</double>
+                          </property>
+                          <property name="singleStep">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="value">
+                           <double>0.200000000000000</double>
                           </property>
                          </widget>
                         </item>
@@ -5952,15 +5949,9 @@ p, li { white-space: pre-wrap; }
                          </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="E_SedTrapN">
+                         <widget class="QDoubleSpinBox" name="E_SedTrapN">
                           <property name="enabled">
                            <bool>false</bool>
-                          </property>
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
                           </property>
                           <property name="font">
                            <font>
@@ -5970,11 +5961,14 @@ p, li { white-space: pre-wrap; }
                             <kerning>true</kerning>
                            </font>
                           </property>
-                          <property name="inputMask">
-                           <string>9.99</string>
+                          <property name="minimum">
+                           <double>0.010000000000000</double>
                           </property>
-                          <property name="text">
-                           <string>0.8</string>
+                          <property name="singleStep">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="value">
+                           <double>0.800000000000000</double>
                           </property>
                          </widget>
                         </item>
@@ -8742,10 +8736,13 @@ p, li { white-space: pre-wrap; }
                             </font>
                            </property>
                            <property name="minimum">
-                            <double>1.000000000000000</double>
+                            <double>0.100000000000000</double>
                            </property>
                            <property name="maximum">
                             <double>10.000000000000000</double>
+                           </property>
+                           <property name="singleStep">
+                            <double>0.100000000000000</double>
                            </property>
                            <property name="value">
                             <double>1.000000000000000</double>

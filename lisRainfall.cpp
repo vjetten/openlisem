@@ -422,7 +422,7 @@ void TWorld::GetRainfallMap(void)
 
     if (currentrow == currentRainfallrow && currentrow > 0)
         samerain = true;
-    qDebug() << currentrow << currenttime << currentRainfallrow << samerain;
+    //qDebug() << currentrow << currenttime << currentRainfallrow << samerain;
 
     // get the next map from file
     if (!samerain) {

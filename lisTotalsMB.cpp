@@ -73,16 +73,6 @@ void TWorld::Totals(void)
             RainpeakTime = time;
     }
 
-    if (SwitchIncludeET) {
-       // double ETtot = MapTotal(*ETa);
-        ETaTot = MapTotal(*ETaCum);
-        ETaTotmm = ETaTot * 1000.0/(double)nrValidCells;
-
-        ETaTotVol = (ETaTot-SoilETMBcorrection)*_dx*_dx; //m3
-        // correct for soil water because that is not in the mass balance
-        //qDebug() << ETaTot << SoilETMBcorrection;
-    }
-
     if (SwitchSnowmelt)
     {
         SnowAvgmm = MapTotal(*Snowmelt)*1000.0/(double)nrValidCells;
@@ -103,9 +93,19 @@ void TWorld::Totals(void)
     IntercTotmm = IntercTot*catchmentAreaFlatMM;
     // currently in canopy
 
-    IntercETaTot = MapTotal(*IntercETa);
-    IntercETaTotmm = IntercETaTot*catchmentAreaFlatMM;
-    // cumulative evaporated from canopy    
+    if (SwitchIncludeET) {
+       // double ETtot = MapTotal(*ETa);
+        ETaTot = MapTotal(*ETaCum);
+        ETaTotmm = ETaTot * 1000.0/(double)nrValidCells;
+
+        ETaTotVol = (ETaTot-SoilETMBcorrection)*_dx*_dx; //m3
+        // correct for soil water because that is not in the mass balance
+
+        IntercETaTot = MapTotal(*IntercETa);
+        IntercETaTotmm = IntercETaTot*catchmentAreaFlatMM;
+        // cumulative evaporated from canopy
+    }
+
 
     // interception in mm and m3
     //Litter
@@ -211,9 +211,9 @@ void TWorld::Totals(void)
         runoffTotalCell->Drc = std::max(0.0, RainCumFlat->Drc*1000-InterceptionmmCum->Drc-InfilmmCum->Drc);
     }}
 
-    //=== storm drain flow ===//
-    StormDrainVolTot = MapTotal(*TileWaterVol);
-    StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
+//    //=== storm drain flow ===//
+//    StormDrainVolTot = MapTotal(*TileWaterVol);
+//    StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
 
     //=== channel flow ===//
     if (SwitchIncludeChannel)
@@ -268,6 +268,12 @@ void TWorld::Totals(void)
             }}
 
         // add channel outflow (in m3) to total for all pits
+    }
+
+            //=== storm drain flow ===//
+    if (SwitchIncludeTile || SwitchIncludeStormDrains) {
+        StormDrainVolTot = MapTotal(*TileWaterVol);
+        StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
     }
 
     if(SwitchIncludeStormDrains) {

@@ -496,7 +496,6 @@ private slots:
     void showMapd(double);
     void hideChannelVector(bool);
 
-
     // functions that interact with the world thread signals
     void worldShow(bool showall);
     void worldDone(const QString &results);
