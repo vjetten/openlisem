@@ -112,9 +112,10 @@ void TWorld::ChannelBaseflow(void)
         double GWVol_ = GWVol->Drc;
         //outflow m3
         double wh = GWVol_/CellArea->Drc;
-        double GWout_ = GW_flow * CellArea->Drc * ksat * BaseflowL->Drc;
+        double GWout_ = GW_flow * CellArea->Drc * ksat * BaseflowL->Drc; // volume from every cell
         //m3:  GW_flow*ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx; //*porosity
-       GWout_ = GWout_ * std::max(0.0,wh -GW_threshold)/pore * (1-exp(-6*std::max(0.0,wh)));
+       //GWout_ = GWout_ * std::max(0.0,wh -GW_threshold)/pore * (1-exp(-6*std::max(0.0,wh)));
+       GWout_ = wh > GW_threshold ?  GWout_ * (wh -GW_threshold)/pore * (1-exp(-6*std::max(0.0,wh))) : 0.0;
        //  GWout_ = GWout_ * wh/pore;
         // stop outflow when some minimum GW level, 2.4.2.10 in SWAT
         // decay function exp(-6 * GW WH) for smooth transition
