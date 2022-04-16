@@ -78,58 +78,57 @@ void TWorld::ChannelBaseflow(void)
     // GW recharge and GW outflow
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
+        double CellArea_ = CellArea->Drc;
 
         //=== GW recharge
-        double GWrec_ = cell_Percolation(r, c, GW_recharge);
-        Perc->Drc = GWrec_;
-        GWrec_ = GWrec_ * CellArea->Drc;
+        Perc->Drc = cell_Percolation(r, c, GW_recharge); // in m
+        double GWrec_ = Perc->Drc * CellArea_; // m3
         // GW recharge same principle as percolation, in m3
 
          //=== bypass flow
-        double bpflow = 0;
-        if (GW_bypass > 0 && Lw->Drc > GW_bypass && Lw->Drc < SoilDepth1->Drc) {
-            bpflow = Lw->Drc * GW_bypass * (Poreeff->Drc-Thetaeff->Drc);
-            Lw->Drc *= (1-GW_bypass);
-        }
-        if (GW_bypass > 0 && Lw->Drc > SoilDepth1->Drc+GW_bypass) {
-            double dL = std::min(SoilDepth1->Drc, Lw->Drc * GW_bypass);
-            bpflow = dL * (ThetaS2->Drc-ThetaI2->Drc);
-            Lw->Drc -= dL;
-        }
-        GWbp->Drc = bpflow*CellArea->Drc;
+        //obsolete
+//        double bpflow = 0;
+//        if (GW_bypass > 0 && Lw->Drc > GW_bypass && Lw->Drc < SoilDepth1->Drc) {
+//            bpflow = Lw->Drc * GW_bypass * (Poreeff->Drc-Thetaeff->Drc);
+//            Lw->Drc *= (1-GW_bypass);
+//        }
+//        if (GW_bypass > 0 && Lw->Drc > SoilDepth1->Drc+GW_bypass) {
+//            double dL = std::min(SoilDepth1->Drc, Lw->Drc * GW_bypass);
+//            bpflow = dL * (ThetaS2->Drc-ThetaI2->Drc);
+//            Lw->Drc -= dL;
+//        }
+//        GWbp->Drc = bpflow*CellArea_;
 
 
         //=== lateral GW outflow
         double pore, ksat;
         if (SwitchTwoLayer) {
             pore = ThetaS2->Drc;
-            ksat = Ksat2->Drc;//*_dt/3600000.0;
+            ksat = Ksat2->Drc;
         } else {
-            pore = Poreeff->Drc;//ThetaS1->Drc;
-            ksat = Ksateff->Drc;//Ksat1->Drc*_dt/3600000.0;
+            pore = Poreeff->Drc;
+            ksat = Ksateff->Drc;
         }
 
-        double GWVol_ = GWVol->Drc;
-        //outflow m3
-        double wh = GWVol_/CellArea->Drc;
-        double GWout_ = GW_flow * CellArea->Drc * ksat * BaseflowL->Drc; // volume from every cell
+        double GWVol_ = GWVol->Drc;//outflow m3
+        double wh = GWVol_/CellArea_;
+        double GWout_ = GW_flow * CellArea_ * ksat * BaseflowL->Drc; // volume from every cell
         //m3:  GW_flow*ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx; //*porosity
-       //GWout_ = GWout_ * std::max(0.0,wh -GW_threshold)/pore * (1-exp(-6*std::max(0.0,wh)));
-       GWout_ = wh > GW_threshold ?  GWout_ * (wh -GW_threshold)/pore * (1-exp(-6*std::max(0.0,wh))) : 0.0;
-       //  GWout_ = GWout_ * wh/pore;
+        GWout_ = wh > GW_threshold ?  GWout_ * (wh -GW_threshold)/pore * (1-exp(-6*wh)) : 0.0;
+        //  GWout_ = GWout_ * wh/pore;
         // stop outflow when some minimum GW level, 2.4.2.10 in SWAT
         // decay function exp(-6 * GW WH) for smooth transition
 
         // ==== update GW level
         GWout_ = std::min(GWout_, GWVol_+GWrec_);
         // cannot be more than there is
-        GWVol_ = GWVol_ + GWbp->Drc + GWrec_ - GWout_; //m3
+        GWVol_ = GWVol_  + GWrec_ - GWout_; //m3 + GWbp->Drc
         //update GW volume
 
         GWout->Drc = GWout_;
         GWVol->Drc = GWVol_;
-        GWrec->Drc = GWrec_;
-        GWWH->Drc = GWVol_/CellArea->Drc;  //for display
+       // GWrec->Drc = GWrec_;
+        GWWH->Drc = GWVol_/CellArea_;  //for display
 
         tma->Drc = ChannelWidth->Drc > 0 ? Qbin->Drc : 0;// prev timestep Qbin
 
@@ -137,14 +136,14 @@ void TWorld::ChannelBaseflow(void)
     }}
 
     // new qbin
-    AccufluxGW(crlinkedlddbase_, GWout, Qbin, ChannelWidthO); // LDDbase, Qin, Qout, chanwidth used as flag
+    AccufluxGW(crlinkedlddbase_, GWout, Qbin, ChannelWidth); // LDDbase, Qin, Qout, chanwidth used as flag
     //move the gw flow to the channel,
     // Qbin is inflow to the channel from the surrounding cells in m3 per timestep
 
     double factor = exp(-GW_lag);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        Qbin->Drc *= ChannelWidthO->Drc/_dx;
+        Qbin->Drc *= ChannelWidth->Drc/_dx;
         Qbase->Drc = Qbin->Drc*(1-factor) + tma->Drc*factor;  //m3 added per timestep, for MB
         ChannelWaterVol->Drc += Qbin->Drc*(1-factor) + tma->Drc*factor;
         // flow according to SWAT 2009, page 174 manual, eq 2.4.2.8
@@ -152,8 +151,6 @@ void TWorld::ChannelBaseflow(void)
         if (SwitchChannelBaseflowStationary)
             ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
     }}
-
-
 
 }
 //---------------------------------------------------------------------------
