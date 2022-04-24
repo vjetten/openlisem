@@ -271,6 +271,7 @@ void TWorld::InitParameters(void)
     gsizeCalibrationD90 = getvaluedouble("Grain Size calibration D90");
 
     ksatCalibration = getvaluedouble("Ksat calibration");
+    ksat2Calibration = getvaluedouble("Ksat2 calibration");
     SmaxCalibration = getvaluedouble("Smax calibration");
     nCalibration = getvaluedouble("N calibration");
     if (nCalibration == 0)
@@ -630,6 +631,7 @@ void TWorld::InitSoilInput(void)
         ThetaR1 = NewMap(0);
         FOR_ROW_COL_MV_L {
             ThetaR1->Drc = 0.025*ThetaS1->Drc;
+            thetai1tot += ThetaI1->Drc * SoilDepth1->Drc*CHAdjDX->Drc;
         }}
 
 //        Ksat3 = NewMap(0);
@@ -649,8 +651,11 @@ void TWorld::InitSoilInput(void)
             calcValue(*ThetaI2, thetaCalibration, MUL); //VJ 110712 calibration of theta
             calcMap(*ThetaI2, *ThetaS2, MIN); //VJ 110712 cannot be more than porosity
             ThetaR2 = NewMap(0);
+
+            thetai2tot = 0;
             FOR_ROW_COL_MV_L {
                 ThetaR2->Drc = 0.025*ThetaS2->Drc;
+                thetai2tot += ThetaI2->Drc * (SoilDepth1->Drc-SoilDepth2->Drc)*CHAdjDX->Drc;
             }}
 
             //VJ 101221 all infil maps are needed except psi
@@ -663,9 +668,9 @@ void TWorld::InitSoilInput(void)
             FOR_ROW_COL_MV_L {
                 bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
             }}
-            report(*bca1,"bca1.map");
-            report(*bca2,"bca2.map");
-            calcValue(*Ksat2, ksatCalibration, MUL);
+            //report(*bca1,"bca1.map");
+            //report(*bca2,"bca2.map");
+            calcValue(*Ksat2, ksatCalibration2, MUL);
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
@@ -1322,7 +1327,7 @@ void TWorld::DiagonalFlowDEM()
             dcr_ << dclrc;
         }
     }}
-    report(*tma,"diagflow.map");
+    //report(*tma,"diagflow.map");
 }
 //---------------------------------------------------------------------------
 void TWorld::CorrectDEM(cTMap *h, cTMap * g)
@@ -1355,7 +1360,7 @@ void TWorld::CorrectDEM(cTMap *h, cTMap * g)
             g->Drc = 0.001;
         }
     }}
-    report(*tmb, "dempits.map");
+    //report(*tmb, "dempits.map");
 }
 //---------------------------------------------------------------------------
 double TWorld::LogNormalDist(double d50,double s, double d)
@@ -1954,6 +1959,10 @@ void TWorld::IntializeData(void)
     GWlevel = 0;
     theta1tot = 0;
     theta2tot = 0;
+    thetai1tot = 0;
+    thetai2tot = 0;
+    thetai1cur = 0;
+    thetai2cur = 0;
 
     //houses
     IntercHouseTot = 0;

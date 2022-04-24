@@ -390,6 +390,7 @@ void lisemqt::ParseInputData()
         //CALIBRATION
         if (p1.compare("Smax calibration")==0)         E_CalibrateSmax->setValue(valc);
         if (p1.compare("Ksat calibration")==0)         E_CalibrateKsat->setValue(valc);
+        if (p1.compare("Ksat2 calibration")==0)         E_CalibrateKsat2->setValue(valc);
         if (p1.compare("Grain Size calibration D50")==0)   E_CalibrateD50->setValue(valc);
         if (p1.compare("Grain Size calibration D90")==0)   E_CalibrateD90->setValue(valc);
         if (p1.compare("N calibration")==0)            E_CalibrateN->setValue(valc);
@@ -1020,6 +1021,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Grain Size calibration D90")==0)   namelist[j].value = E_CalibrateD90->text();
         if (p1.compare("Smax calibration")==0) namelist[j].value = E_CalibrateSmax->text();
         if (p1.compare("Ksat calibration")==0) namelist[j].value = E_CalibrateKsat->text();
+        if (p1.compare("Ksat2 calibration")==0) namelist[j].value = E_CalibrateKsat2->text();
         if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();
         if (p1.compare("Theta calibration")==0) namelist[j].value = E_CalibrateTheta->text();
         if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();

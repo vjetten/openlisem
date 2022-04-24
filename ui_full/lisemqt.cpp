@@ -1561,6 +1561,7 @@ void lisemqt::resetTabCalibration()
     //calibration
     E_CalibrateSmax->setValue(1.0);
     E_CalibrateKsat->setValue(1.0);
+    E_CalibrateKsat2->setValue(1.0);
     E_CalibrateN->setValue(1.0);
     E_CalibrateTheta->setValue(1.0);
     E_CalibratePsi->setValue(1.0);
@@ -1744,7 +1745,7 @@ void lisemqt::resetAll()
     E_ChanDepositionMap->setText("chandep.map");
     E_WHmaxMap->setText("whmax.map");
     E_FloodTimeMap->setText("floodtime.map");
-    E_FloodStats->setText("floodstats.txt");
+    E_FloodStats->setText("floodstats.csv");
     E_ChannelMaxQ->setText("chanmaxq.map");
     E_ChannelMaxWH->setText("chanmaxwh.map");
     E_FloodFEW->setText("floodstart.map");

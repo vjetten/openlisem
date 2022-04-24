@@ -437,6 +437,8 @@ public:
     double gsizeCalibrationD90;
     double SmaxCalibration;
     double ksatCalibration;
+    double ksatCalibration2;
+    double ksat2Calibration;
     double nCalibration;
     double thetaCalibration;
     double psiCalibration;
@@ -480,6 +482,7 @@ public:
     double BulkDens;
     double nrCells, CatchmentArea, nrFloodedCells;
     double LitterSmax, ETaTot, ETaTotmm, ETaTotVol, GWlevel;
+    double thetai1tot, thetai2tot, thetai1cur, thetai2cur;
 
     double maxRainaxis;
     double latitude;
