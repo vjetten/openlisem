@@ -110,15 +110,9 @@ void lisemqt::ParseInputData()
     bool Rainmaps = false;
 
     QLocale loc = QLocale::system(); // current locale
-//    loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
- //   QLocale::setDefault(loc); // set as default
     QChar pnt = loc.decimalPoint();
-//    qDebug() << pnt;
-//    if (pnt == ',')
-//        loc = QLocale::Dutch;
 
-
-    for (j = 0; j < nrnamelist; j++)  //VJ 110107 changed to nrnamelist
+    for (j = 0; j < nrnamelist; j++)
     {
 
         QString p = namelist[j].value;
@@ -474,14 +468,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("Timestep")==0) E_Timestep->setText(p);
 
         // input output dirs and file names
-//        if (p1.compare("Work Directory")==0)
-//        {
-//            QString S = E_WorkDir;
-//            E_WorkDir = CheckDir(p);
-//            if (!QFileInfo(E_WorkDir).exists())
-//                E_WorkDir = S;
-//        }
-
         if (p1.compare("Map Directory")==0)
         {
             E_MapDir->setText(CheckDir(p));
@@ -521,61 +507,20 @@ void lisemqt::ParseInputData()
         // resultDir is added in report operation
 
         if (p1.compare("Rainfall Directory")==0) RainFileDir = CheckDir(p);
-        if (p1.compare("Rainfall file")==0)
-        {
-            E_RainfallName->setText(RainFileDir + p);
-            RainFileName = p;
-            if (!QFileInfo(E_RainfallName->text()).exists())
-            {
-                RainFileDir = QString(E_WorkDir + "rain/");
-                E_RainfallName->setText(RainFileDir + p);
-            }
-        }
+        if (p1.compare("Rainfall file")==0)  RainFileName = p;
+
         if (p1.compare("Rainfall Map Directory")==0) RainSatFileDir = CheckDir(p);
-        if (p1.compare("Rainfall maplist name")==0) {
-            RainSatFileName = p;
-            E_rainsatName->setText(RainSatFileDir + RainSatFileName);
-            if (!QFileInfo(E_rainsatName->text()).exists())
-            {
-                RainSatFileDir = QString(E_WorkDir + "rain/");
-               // qDebug() << E_WorkDir<< RainSatFileDir;
-                E_rainsatName->setText(RainSatFileDir + p);
-            }
-        }
+        if (p1.compare("Rainfall maplist name")==0)             RainSatFileName = p;
 
         if (p1.compare("ET Directory")==0) ETFileDir = CheckDir(p);
-        if (p1.compare("ET file")==0)
-        {
-            E_ETName->setText(ETFileDir + p);
-            ETFileName = p;
-            if (!QFileInfo(E_ETName->text()).exists())
-            {
-                ETFileDir = QString(E_WorkDir + "rain/");
-                E_ETName->setText(ETFileDir + p);
-            }
-        }
+        if (p1.compare("ET file")==0) ETFileName = p;
+
         if (p1.compare("ET Map Directory")==0) ETSatFileDir = CheckDir(p);
-        if (p1.compare("ET maplist name")==0) {
-            ETSatFileName = p;
-            E_ETsatName->setText(ETSatFileDir + ETSatFileName);
-            if (!QFileInfo(E_ETsatName->text()).exists())
-            {
-                ETSatFileDir = QString(E_WorkDir + "rain/");
-                E_ETsatName->setText(ETSatFileDir + p);
-            }
-        }
+        if (p1.compare("ET maplist name")==0) ETSatFileName = p;
 
         if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
-        if (p1.compare("Snowmelt file")==0)
-        {
-            E_ETName->setText(SnowmeltFileDir + p);
-            ETFileName = p;
-            if (!QFileInfo(E_SnowmeltName->text()).exists())
-            {
-                SnowmeltFileDir = QString(E_WorkDir + "rain/");
-                E_SnowmeltName->setText(ETFileDir + p);
-            }
-        }
+        if (p1.compare("Snowmelt file")==0) SnowmeltFileName = p;
+
 //        if (p1.compare("Snowmelt Map Directory")==0) SnowmeltSatFileDir = CheckDir(p);
 //        if (p1.compare("Snowmelt maplist name")==0) {
 //            SnowmeltSatFileName = p;
@@ -599,19 +544,9 @@ void lisemqt::ParseInputData()
 //            }
 //        }
 
-        if (checksatImage->isChecked()) {
-            if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
-            if (p1.compare("satImage file")==0)
-            {
-                E_satImageName->setText(satImageFileDir + p);
-                satImageFileName = p;
-                if (!QFileInfo(E_satImageName->text()).exists())
-                {
-                    satImageFileDir = QString(E_WorkDir + "maps/");
-                    E_satImageName->setText(satImageFileDir + p);
-                }
-            }
-        }
+        if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
+        if (p1.compare("satImage file")==0) satImageFileName = p;
+
         if (p1.compare("Rainfall map")==0) E_RainfallMap->setText(p);
         if (p1.compare("Interception map")==0) E_InterceptionMap->setText(p);
         if (p1.compare("Infiltration map")==0) E_InfiltrationMap->setText(p);
@@ -651,6 +586,47 @@ void lisemqt::ParseInputData()
             E_SwatreTableName->setText(SwatreTableName);
         }
     }
+
+    E_rainsatName->setText(RainSatFileDir + RainSatFileName);
+    qDebug() << RainSatFileName << RainSatFileDir;
+    if (!QFileInfo(E_rainsatName->text()).exists())
+    {
+        RainSatFileDir = QString(E_WorkDir + "rain/");
+        E_rainsatName->setText(RainSatFileDir + RainSatFileName);
+    }
+    E_RainfallName->setText(RainFileDir + RainFileName);
+    if (!QFileInfo(E_RainfallName->text()).exists())
+    {
+        RainFileDir = QString(E_WorkDir + "rain/");
+        E_RainfallName->setText(RainFileDir + RainFileName);
+    }
+
+    E_ETName->setText(ETFileDir + ETFileName);
+    if (!QFileInfo(E_ETName->text()).exists())
+    {
+        ETFileDir = QString(E_WorkDir + "rain/");
+        E_ETName->setText(ETFileDir + ETFileName);
+    }
+        qDebug() << ETFileDir << ETFileName;
+    E_ETsatName->setText(ETSatFileDir + ETSatFileName);
+    if (!QFileInfo(E_ETsatName->text()).exists())
+    {
+        ETSatFileDir = QString(E_WorkDir + "rain/");
+        E_ETsatName->setText(ETSatFileDir + ETSatFileName);
+    }
+    E_SnowmeltName->setText(SnowmeltFileDir + SnowmeltFileName);
+    if (!QFileInfo(E_SnowmeltName->text()).exists())
+    {
+        SnowmeltFileDir = QString(E_WorkDir + "rain/");
+        E_SnowmeltName->setText(ETFileDir + SnowmeltFileName);
+    }
+    E_satImageName->setText(satImageFileDir +satImageFileName);
+    if (!QFileInfo(E_satImageName->text()).exists())
+    {
+        satImageFileDir = QString(E_WorkDir + "maps/");
+        E_satImageName->setText(satImageFileDir + satImageFileName);
+    }
+
 
     int days = daystart.toInt();
     int mins = minstart.toInt();

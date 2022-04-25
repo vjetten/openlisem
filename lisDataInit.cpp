@@ -271,7 +271,7 @@ void TWorld::InitParameters(void)
     gsizeCalibrationD90 = getvaluedouble("Grain Size calibration D90");
 
     ksatCalibration = getvaluedouble("Ksat calibration");
-    ksat2Calibration = getvaluedouble("Ksat2 calibration");
+    ksatCalibration2 = getvaluedouble("Ksat2 calibration");
     SmaxCalibration = getvaluedouble("Smax calibration");
     nCalibration = getvaluedouble("N calibration");
     if (nCalibration == 0)
@@ -604,6 +604,7 @@ void TWorld::InitSoilInput(void)
         FOR_ROW_COL_MV_L {
             bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);
         }}
+    qDebug() << ksatCalibration;
         calcValue(*Ksat1, ksatCalibration, MUL);
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
@@ -629,9 +630,10 @@ void TWorld::InitSoilInput(void)
         calcValue(*Psi1, 0.01, MUL); // convert to meter
 
         ThetaR1 = NewMap(0);
+        thetai1tot = 0;
         FOR_ROW_COL_MV_L {
             ThetaR1->Drc = 0.025*ThetaS1->Drc;
-            thetai1tot += ThetaI1->Drc * SoilDepth1->Drc*CHAdjDX->Drc;
+            //thetai1tot += ThetaI1->Drc * SoilDepth1->Drc*CHAdjDX->Drc;
         }}
 
 //        Ksat3 = NewMap(0);
@@ -652,10 +654,10 @@ void TWorld::InitSoilInput(void)
             calcMap(*ThetaI2, *ThetaS2, MIN); //VJ 110712 cannot be more than porosity
             ThetaR2 = NewMap(0);
 
-            thetai2tot = 0;
+           // thetai2tot = 0;
             FOR_ROW_COL_MV_L {
                 ThetaR2->Drc = 0.025*ThetaS2->Drc;
-                thetai2tot += ThetaI2->Drc * (SoilDepth1->Drc-SoilDepth2->Drc)*CHAdjDX->Drc;
+               // thetai2tot += ThetaI2->Drc * (SoilDepth1->Drc-SoilDepth2->Drc)*CHAdjDX->Drc;
             }}
 
             //VJ 101221 all infil maps are needed except psi
@@ -668,9 +670,9 @@ void TWorld::InitSoilInput(void)
             FOR_ROW_COL_MV_L {
                 bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
             }}
-            //report(*bca1,"bca1.map");
-            //report(*bca2,"bca2.map");
+
             calcValue(*Ksat2, ksatCalibration2, MUL);
+            qDebug() << ksatCalibration2;
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
@@ -1499,7 +1501,7 @@ void TWorld::InitErosion(void)
 
     SplashStrength = NewMap(0);
 
-    qDebug() << "SwitchEfficiencyDET" <<SwitchEfficiencyDET;
+   // qDebug() << "SwitchEfficiencyDET" <<SwitchEfficiencyDET;
 
     FOR_ROW_COL_MV
     {
@@ -1549,9 +1551,9 @@ void TWorld::InitErosion(void)
 
     FOR_ROW_COL_MV
     {
-        SettlingVelocitySS->Drc = GetSV(D50->Drc);        
+        SettlingVelocitySS->Drc = GetSV(D50->Drc/gsizeCalibrationD50);
         if (SwitchUse2Phase)
-            SettlingVelocityBL->Drc = GetSV(D90->Drc);
+            SettlingVelocityBL->Drc = GetSV(D90->Drc/gsizeCalibrationD90);
     }
 
     if(SwitchMulticlass)

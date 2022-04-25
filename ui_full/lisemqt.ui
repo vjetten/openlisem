@@ -7795,7 +7795,7 @@ p, li { white-space: pre-wrap; }
                          <string notr="true"/>
                         </property>
                         <property name="text">
-                         <string>Soil Cohesion (flow detachment: coh.map)</string>
+                         <string>Soil Cohesion (flow detachment: coh.map and cohadd.map)</string>
                         </property>
                        </widget>
                       </item>
@@ -8423,7 +8423,7 @@ p, li { white-space: pre-wrap; }
                          <double>0.010000000000000</double>
                         </property>
                         <property name="maximum">
-                         <double>1.000000000000000</double>
+                         <double>99.000000000000000</double>
                         </property>
                         <property name="singleStep">
                          <double>0.010000000000000</double>
