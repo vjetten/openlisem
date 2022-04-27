@@ -25,9 +25,29 @@
 #include "lisemqt.h"
 #include "model.h"
 
+
+void TWorld::MoistureContent()
+{
+    thetai1cur = 0;
+    #pragma omp parallel for  num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        double Lw_ = std::max(SoilDepth1->Drc - Lw->Drc,0.0);
+        thetai1cur += Lw_*ThetaI1->Drc*CHAdjDX->Drc;
+    }}
+
+    if (SwitchTwoLayer) {
+        thetai2cur = 0;
+        #pragma omp parallel for  num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            double Lw_ = Lw->Drc < SoilDepth1->Drc ? SoilDepth1->Drc : Lw->Drc;
+            thetai2cur += (SoilDepth2->Drc - Lw_)*ThetaI2->Drc*CHAdjDX->Drc;
+        }}
+    }
+}
+
 // redistribution of soilwater after infiltration
 // out[put is new Lw and new Thetaeff and ThetaI2
-void TWorld::cell_Redistribution1(int r, int c)
+void TWorld::cell_Redistribution(int r, int c)
 {
 
     double Percolation, pore, theta, thetar, theta_E;
@@ -316,7 +336,7 @@ void TWorld::SoilWater()
 
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        cell_Redistribution1(r, c);
+        cell_Redistribution(r, c);
 
         Perc->Drc = cell_Percolation(r, c, 1.0);
     }}

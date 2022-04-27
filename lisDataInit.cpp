@@ -604,7 +604,7 @@ void TWorld::InitSoilInput(void)
         FOR_ROW_COL_MV_L {
             bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);
         }}
-    qDebug() << ksatCalibration;
+
         calcValue(*Ksat1, ksatCalibration, MUL);
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
@@ -630,10 +630,8 @@ void TWorld::InitSoilInput(void)
         calcValue(*Psi1, 0.01, MUL); // convert to meter
 
         ThetaR1 = NewMap(0);
-        thetai1tot = 0;
         FOR_ROW_COL_MV_L {
             ThetaR1->Drc = 0.025*ThetaS1->Drc;
-            //thetai1tot += ThetaI1->Drc * SoilDepth1->Drc*CHAdjDX->Drc;
         }}
 
 //        Ksat3 = NewMap(0);
@@ -654,10 +652,8 @@ void TWorld::InitSoilInput(void)
             calcMap(*ThetaI2, *ThetaS2, MIN); //VJ 110712 cannot be more than porosity
             ThetaR2 = NewMap(0);
 
-           // thetai2tot = 0;
             FOR_ROW_COL_MV_L {
                 ThetaR2->Drc = 0.025*ThetaS2->Drc;
-               // thetai2tot += ThetaI2->Drc * (SoilDepth1->Drc-SoilDepth2->Drc)*CHAdjDX->Drc;
             }}
 
             //VJ 101221 all infil maps are needed except psi
@@ -1972,7 +1968,7 @@ void TWorld::IntializeData(void)
     IntercLitterTot = 0;
     IntercLitterTotmm = 0;
     WaterVolTot = 0;
-    WaterVolSoilTot = 0;
+    WaterVolSoilTileTot = 0;
     WaterVolTotmm = 0;
     WaterVolRunoffmm = 0;
     StormDrainTotmm = 0;
