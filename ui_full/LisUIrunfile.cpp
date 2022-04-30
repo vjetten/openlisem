@@ -588,7 +588,7 @@ void lisemqt::ParseInputData()
     }
 
     E_rainsatName->setText(RainSatFileDir + RainSatFileName);
-    qDebug() << RainSatFileName << RainSatFileDir;
+    //qDebug() << RainSatFileName << RainSatFileDir;
     if (!QFileInfo(E_rainsatName->text()).exists())
     {
         RainSatFileDir = QString(E_WorkDir + "rain/");
@@ -601,25 +601,29 @@ void lisemqt::ParseInputData()
         E_RainfallName->setText(RainFileDir + RainFileName);
     }
 
-    E_ETName->setText(ETFileDir + ETFileName);
-    if (!QFileInfo(E_ETName->text()).exists())
-    {
-        ETFileDir = QString(E_WorkDir + "rain/");
+  //  if (checkIncludeET->isChecked()) {
         E_ETName->setText(ETFileDir + ETFileName);
-    }
-        qDebug() << ETFileDir << ETFileName;
-    E_ETsatName->setText(ETSatFileDir + ETSatFileName);
-    if (!QFileInfo(E_ETsatName->text()).exists())
-    {
-        ETSatFileDir = QString(E_WorkDir + "rain/");
+        if (!QFileInfo(E_ETName->text()).exists() && !E_ETName->text().isEmpty())
+        {
+            ETFileDir = QString(E_WorkDir + "rain/");
+            E_ETName->setText(ETFileDir + ETFileName);
+        }
+
         E_ETsatName->setText(ETSatFileDir + ETSatFileName);
-    }
-    E_SnowmeltName->setText(SnowmeltFileDir + SnowmeltFileName);
-    if (!QFileInfo(E_SnowmeltName->text()).exists())
-    {
-        SnowmeltFileDir = QString(E_WorkDir + "rain/");
-        E_SnowmeltName->setText(ETFileDir + SnowmeltFileName);
-    }
+        if (!QFileInfo(E_ETsatName->text()).exists() && !E_ETsatName->text().isEmpty())
+        {
+            ETSatFileDir = QString(E_WorkDir + "rain/");
+            E_ETsatName->setText(ETSatFileDir + ETSatFileName);
+        }
+//    }
+
+//    E_SnowmeltName->setText(SnowmeltFileDir + SnowmeltFileName);
+//    if (!QFileInfo(E_SnowmeltName->text()).exists())
+//    {
+//        SnowmeltFileDir = QString(E_WorkDir + "rain/");
+//        E_SnowmeltName->setText(ETFileDir + SnowmeltFileName);
+//    }
+
     E_satImageName->setText(satImageFileDir +satImageFileName);
     if (!QFileInfo(E_satImageName->text()).exists())
     {
