@@ -283,6 +283,7 @@ void TWorld::InitParameters(void)
     thetaCalibration = getvaluedouble("Theta calibration");
     psiCalibration = getvaluedouble("Psi calibration");
     ChnCalibration = getvaluedouble("Channel N calibration");
+    ChnTortuosity = getvaluedouble("Channel tortuosity");
     if (ChnCalibration == 0)
     {
         ErrorString = QString("Calibration: the calibration factor for Mannings n for channels cannot be zero.");

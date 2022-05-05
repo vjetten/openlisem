@@ -38,8 +38,8 @@
 
 #include <QtGui>
 #include <QMutex>
-//#include "C:\\Qt\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\10.3.0\\include\\omp.h"
-#include <omp.h>
+#include "C:\\Qt\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\10.3.0\\include\\omp.h"
+//#include <omp.h>
 
 #include "CsfMap.h"
 #include "io.h"
@@ -443,6 +443,7 @@ public:
     double thetaCalibration;
     double psiCalibration;
     double ChnCalibration;
+    double ChnTortuosity;
     double ChKsatCalibration;
     double COHCalibration;
     double COHCHCalibration;

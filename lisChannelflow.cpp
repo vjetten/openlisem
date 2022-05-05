@@ -216,7 +216,7 @@ void TWorld::ChannelFlow(void)
                 double FW = ChannelWidth->Drc;
                 double FWO = ChannelWidthO->Drc;
 
-                Perim = FW + 2.0*wh;
+                Perim = (FW + 2.0*wh);
                 Area = FW*wh;
 
                 if (SwitchChannelAdjustCHW) {
@@ -225,7 +225,7 @@ void TWorld::ChannelFlow(void)
                     Area = FWO * whn;
                     // shallow width perim Area
                 }
-
+                Perim *= ChnTortuosity;
                 Radius = (Perim > 0 ? Area/Perim : 0);
 
                 if (sqrtgrad > MIN_SLOPE) {

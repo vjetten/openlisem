@@ -392,6 +392,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Psi calibration")==0)          E_CalibratePsi->setValue(valc);
         if (p1.compare("Channel Ksat calibration")==0) E_CalibrateChKsat->setValue(valc);
         if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(valc);
+        if (p1.compare("Channel tortuosity")==0)    E_CalibrateChTor->setValue(valc);
         if (p1.compare("Cohesion calibration")==0)     E_CalibrateCOH->setValue(valc);
         if (p1.compare("Cohesion Channel calibration")==0)    E_CalibrateCHCOH->setValue(valc);
         if (p1.compare("Ucr Channel calibration")==0)    E_CalibrateCHUcr->setValue(valc);
@@ -1007,6 +1008,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
         if (p1.compare("Channel Ksat calibration")==0) namelist[j].value = E_CalibrateChKsat->text();
         if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
+        if (p1.compare("Channel tortuosity")==0) namelist[j].value = E_CalibrateChTor->text();
         if (p1.compare("Cohesion calibration")==0) namelist[j].value = E_CalibrateCOH->text();
         if (p1.compare("Cohesion Channel calibration")==0) namelist[j].value = E_CalibrateCHCOH->text();
         if (p1.compare("Ucr Channel calibration")==0) namelist[j].value = E_CalibrateCHUcr->text();

@@ -585,6 +585,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Channel N calibration");
     namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Channel tortuosity");
+    namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Cohesion calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Cohesion Channel calibration");

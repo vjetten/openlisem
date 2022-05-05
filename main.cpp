@@ -42,6 +42,23 @@ QStringList optionList;
 
 int main(int argc, char *argv[])
 {
+    QApplication* temp = new QApplication(argc, argv);
+    double width = QApplication::desktop()->width();
+    double height = QApplication::desktop()->height();
+
+    if (height < 1080) {
+        // assumes that the default desktop resolution is 720p (scale of 1)
+        int minWidth = 1280;
+
+
+        double scale = width / minWidth;
+        std::string scaleAsString = std::to_string(scale);
+        QByteArray scaleAsQByteArray(scaleAsString.c_str(), scaleAsString.length());
+       // qputenv("QT_SCALE_FACTOR", scaleAsQByteArray);
+      //  qputenv("QT_AUTO_SCREEN_SCALE_FACTOR",scaleAsQByteArray);
+       // qDebug() <<scaleAsQByteArray << height << width;
+    }
+        delete temp;
     // open console but only if run from cmd.exe in win
 #ifdef _WIN32
     if (AttachConsole(ATTACH_PARENT_PROCESS)) {
@@ -52,6 +69,10 @@ int main(int argc, char *argv[])
 
     Fixture fixture; // <= necessary for GDAL
  //   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+  //  argc += 2;
+
+  //  argv[] = {(char*)"Appname", (char*)"--platform", (char*)"windows:dpiawareness=0"};
+
 
     QApplication app(argc, argv);
 
@@ -60,18 +81,11 @@ int main(int argc, char *argv[])
     app.setStyle(QStyleFactory::create("Fusion"));
    //  app.setStyle(QStyleFactory::create("Windows"));
 
-    //    QFont font = qApp->font();
-    //    font.setPixelSize(11);
-    //    qApp->setFont(font);
-       // increase font size for better reading
-//       QFont defaultFont = QApplication::font();
-//       defaultFont.setPointSize(defaultFont.pointSize()+2);
-//       qApp->setFont(defaultFont);
-       // modify palette to dark
+     // modify palette to dark
 
     //qputenv("QT_SCALE_FACTOR", "1.0");
 
-    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR","1");
+  //  qputenv("QT_AUTO_SCREEN_SCALE_FACTOR","1");
 
     op.LisemDir = QCoreApplication::applicationDirPath()+"/";
     // exe path, used for ini file

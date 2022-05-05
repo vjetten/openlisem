@@ -50,6 +50,7 @@ update of the runfile before running:
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
+#include "C:/Qt/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/10.3.0/include/omp.h"
 
 output op;
 // declaration of variable structure between model and interface.
@@ -68,7 +69,8 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     darkLISEM = false;//true;
 
-    nrUserCores->setMaximum(omp_get_max_threads());
+    int ompt = omp_get_max_threads();
+    nrUserCores->setMaximum(ompt);//omp_get_max_threads());
 
     helpbox = new QDialog();
     helpbox->resize(1080, 600);
@@ -785,15 +787,22 @@ void lisemqt::SetToolBar()
 int lisemqt::SetStyleUISize()
 {
     QRect rect = QGuiApplication::primaryScreen()->availableGeometry();
-    //qDebug() << rect << QGuiApplication::primaryScreen()->availableVirtualGeometry();
-    int _H = rect.height();
-    int disp = 0;
-    if (abs(_H-800) > abs(_H-1080)) disp = 0;
-    if (abs(_H-1080) > abs(_H-1200)) disp = 1;
-    if (abs(_H-1200) > abs(_H-1440)) disp = 2;
-      if (abs(_H-1440) > abs(_H-1600)) disp = 3;
-    //qDebug() << disp << _H << abs(_H-800) << abs(_H-1080) << abs(_H-1200) << abs(_H-1440) << genfontsize;
+    int _H = QApplication::desktop()->height();//rect.height();
 
+    int disp = 3;
+//    if (abs(_H-700) > abs(_H-800)) disp = -1;
+//    if (abs(_H-800) > abs(_H-1080)) disp = 0;
+//    if (abs(_H-1080) > abs(_H-1200)) disp = 1;
+//    if (abs(_H-1200) > abs(_H-1440)) disp = 2;
+//    if (abs(_H-1440) > abs(_H-1600)) disp = 3;
+
+    if(_H < 2000) disp = 4;
+    if(_H < 1600) disp = 3;
+    if(_H < 1400) disp = 2;
+    if(_H < 1200) disp = 1;
+    if(_H < 1080) disp = 0;
+  //  if(_H < 800) disp = -1;
+qDebug() << _H << disp;
     tabWidgetOptions->tabBar()->setExpanding(true);
   //  tabWidget_out->setIconSize(QSize(24, 24));
 
@@ -806,11 +815,17 @@ int lisemqt::SetStyleUISize()
         iSize = QSize(16,16);
 
     }
-    if (disp == 2 || disp == 3) {
-        tabWidget_out->setIconSize(QSize(32, 32));
+    if (disp == 2) {// || disp == 3) {
+        tabWidget_out->setIconSize(QSize(48, 48));
         tabWidget_out->setStyleSheet("QTabBar::tab { height: 64px; width: 48px}");
         this->setStyleSheet(QString("QToolButton * {icon-size: 24px 24px}"));
         iSize = QSize(24,24);
+    }
+    if (disp == 3) {
+        tabWidget_out->setIconSize(QSize(32, 32));
+        tabWidget_out->setStyleSheet("QTabBar::tab { height: 64px; width: 48px}");
+        this->setStyleSheet(QString("QToolButton * {icon-size: 24px 24px}"));
+        iSize = QSize(32,32);
     }
     if (disp > 3) {
         tabWidget_out->setIconSize(QSize(48, 48));
@@ -824,7 +839,7 @@ int lisemqt::SetStyleUISize()
     toolBar->setIconSize(iSize);
     toolBar_2->setIconSize(iSize);
 
-    return disp;
+    return disp-1;
 }
 //---------------------------------------------------------------------------
 /// make some labels yellow
@@ -843,6 +858,12 @@ void lisemqt::SetStyleUI()
 
     GW_initlevel->setVisible(false);
     label_61->setVisible(false);
+    nrcontourlevels->setVisible(false);
+    label_92->setText("Relief ");
+    label_44->setVisible(false);
+    label_45->setVisible(false);
+    label_MB->setVisible(false);
+    label_MBs->setVisible(false);
 
     toolBar_2->setMovable( false);
     toolBar->setMovable( false);   
@@ -1567,6 +1588,7 @@ void lisemqt::resetTabCalibration()
     E_CalibratePsi->setValue(1.0);
     E_CalibrateChKsat->setValue(1.0);
     E_CalibrateChN->setValue(1.0);
+    E_CalibrateChTor->setValue(1.0);
     E_CalibrateAS->setValue(1.0);
     E_CalibrateCOH->setValue(1.0);
     E_CalibrateD50->setValue(1.0);
@@ -1878,7 +1900,7 @@ void lisemqt::setfontSize()
 {
    // int x = SetStyleUISize();
     //int fs = genfontsize;
-    //qDebug() << genfontsize;
+    qDebug() << genfontsize;
 
     const QWidgetList allWidgets = QApplication::allWidgets();
     for (QWidget *widget : allWidgets) {
@@ -1887,6 +1909,7 @@ void lisemqt::setfontSize()
         widget->setFont(font);
         widget->update();
     }
+
 /*
 
     qApp->setStyleSheet(QString("QLabel {font-size: %1px}\

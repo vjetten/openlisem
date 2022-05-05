@@ -91,21 +91,21 @@ void TWorld::GridCell()
         }}
     }
 
-//    thetai1tot = 0;
-//    #pragma omp parallel for num_threads(userCores)
-//    FOR_ROW_COL_MV_L {
-//        thetai1tot += ThetaI1->Drc * SoilDepth1->Drc*CHAdjDX->Drc;
-//    }}
-//    thetai1cur = thetai1tot;
+    thetai1tot = 0;
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        thetai1tot += ThetaI1->Drc * SoilDepth1->Drc*DX->Drc * ChannelAdj->Drc;
+    }}
+    thetai1cur = thetai1tot;
 
-//    if (SwitchTwoLayer) {
-//        thetai2tot = 0;
-//        #pragma omp parallel for num_threads(userCores)
-//        FOR_ROW_COL_MV_L {
-//            thetai2tot += ThetaI2->Drc * (SoilDepth2->Drc-SoilDepth1->Drc)*CHAdjDX->Drc;
-//        }}
-//        thetai2cur = thetai2tot;
-//    }
+    if (SwitchTwoLayer) {
+        thetai2tot = 0;
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            thetai2tot += ThetaI2->Drc * (SoilDepth2->Drc-SoilDepth1->Drc)*DX->Drc * ChannelAdj->Drc;
+        }}
+        thetai2cur = thetai2tot;
+    }
 
 
 

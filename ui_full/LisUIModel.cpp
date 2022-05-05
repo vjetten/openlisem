@@ -97,10 +97,16 @@ void lisemqt::runmodel()
     checkMapBuildings->setChecked(false);
     transparencyHouse->setEnabled(checkHouses->isChecked());
     checkMapBuildings->setEnabled(checkHouses->isChecked());
+    checkMapBuildings->setVisible(checkHouses->isChecked());
+    transparencyHouse->setVisible(checkHouses->isChecked());
+    checkMapBuildings->setVisible(checkHouses->isChecked());
 
     checkMapRoads->setChecked(false);
     transparencyRoad->setEnabled(checkRoadsystem->isChecked());
     checkMapRoads->setEnabled(checkRoadsystem->isChecked());
+    checkMapRoads->setVisible(checkRoadsystem->isChecked());
+    transparencyRoad->setVisible(checkRoadsystem->isChecked());
+    checkMapRoads->setVisible(checkRoadsystem->isChecked());
 
     sedgroup->setVisible(checkDoErosion->isChecked());
 
