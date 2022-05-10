@@ -796,15 +796,18 @@ int lisemqt::SetStyleUISize()
 //    if (abs(_H-1200) > abs(_H-1440)) disp = 2;
 //    if (abs(_H-1440) > abs(_H-1600)) disp = 3;
 
-    if(_H < 2000) disp = 4;
+//    if(_H < 2000) disp = 4;
     if(_H < 1600) disp = 3;
     if(_H < 1400) disp = 2;
     if(_H < 1200) disp = 1;
     if(_H < 1080) disp = 0;
   //  if(_H < 800) disp = -1;
-qDebug() << _H << disp;
-    tabWidgetOptions->tabBar()->setExpanding(true);
+//qDebug() << _H << disp;
+   // tabWidgetOptions->tabBar()->setExpanding(true);
   //  tabWidget_out->setIconSize(QSize(24, 24));
+    tabWidgetOptions->setMinimumSize(QSize(600, 500));
+    scrollArea->setWidgetResizable(true);
+    //scrollArea->setWidget(tabWidgetOptions);
 
     // do a bit of size tweaking for large displays
     QSize iSize = QSize(16,16);
@@ -860,10 +863,10 @@ void lisemqt::SetStyleUI()
     label_61->setVisible(false);
     nrcontourlevels->setVisible(false);
     label_92->setText("Relief ");
-    label_44->setVisible(false);
-    label_45->setVisible(false);
-    label_MB->setVisible(false);
-    label_MBs->setVisible(false);
+//    label_44->setVisible(false);
+//    label_45->setVisible(false);
+//    label_MB->setVisible(false);
+//    label_MBs->setVisible(false);
 
     toolBar_2->setMovable( false);
     toolBar->setMovable( false);   
