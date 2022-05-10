@@ -573,6 +573,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Ksat calibration");
     namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Ksat2 calibration");
+    namelist[i].value = QString("1.0");
     namelist[i++].name = QString("N calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Theta calibration");

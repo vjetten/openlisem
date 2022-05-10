@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 2.9)
 
 # path qwt and gdal build directories on local machine
 # following windows MSYS2.0 installation

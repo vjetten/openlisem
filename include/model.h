@@ -437,6 +437,8 @@ public:
     double gsizeCalibrationD90;
     double SmaxCalibration;
     double ksatCalibration;
+    double ksatCalibration2;
+    double ksat2Calibration;
     double nCalibration;
     double thetaCalibration;
     double psiCalibration;
@@ -461,7 +463,7 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, MBeM3, Qtot, Qtot_dt, QTiletot, IntercTot, IntercETaTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
+    double MB, MBeM3, Qtot, Qtot_dt, QTiletot, IntercTot, IntercETaTot, WaterVolTot, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
     double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowTotmm, Qfloodout,QfloodoutTot;
     double floodBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
@@ -480,6 +482,7 @@ public:
     double BulkDens;
     double nrCells, CatchmentArea, nrFloodedCells;
     double LitterSmax, ETaTot, ETaTotmm, ETaTotVol, GWlevel;
+    double thetai1tot, thetai2tot, thetai1cur, thetai2cur;
 
     double maxRainaxis;
     double latitude;
@@ -860,13 +863,13 @@ public:
     double cell_Percolation(int r, int c, double factor);
     double cell_Percolation1(int r, int c, double factor);
     void cell_Redistribution(int r, int c);
-    void cell_Redistribution1(int r, int c);
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
     void cell_InfilSwatre(int r, int c);
     void cell_depositInfil(int r, int c);
     void cell_SplashDetachment(int r, int c);
     void cell_FlowDetachment(int r, int c);
+    void MoistureContent();
 
     void InfilEffectiveKsat();
     void Infiltration();

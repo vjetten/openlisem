@@ -271,6 +271,7 @@ void TWorld::InitParameters(void)
     gsizeCalibrationD90 = getvaluedouble("Grain Size calibration D90");
 
     ksatCalibration = getvaluedouble("Ksat calibration");
+    ksatCalibration2 = getvaluedouble("Ksat2 calibration");
     SmaxCalibration = getvaluedouble("Smax calibration");
     nCalibration = getvaluedouble("N calibration");
     if (nCalibration == 0)
@@ -603,6 +604,7 @@ void TWorld::InitSoilInput(void)
         FOR_ROW_COL_MV_L {
             bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);
         }}
+
         calcValue(*Ksat1, ksatCalibration, MUL);
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
@@ -649,6 +651,7 @@ void TWorld::InitSoilInput(void)
             calcValue(*ThetaI2, thetaCalibration, MUL); //VJ 110712 calibration of theta
             calcMap(*ThetaI2, *ThetaS2, MIN); //VJ 110712 cannot be more than porosity
             ThetaR2 = NewMap(0);
+
             FOR_ROW_COL_MV_L {
                 ThetaR2->Drc = 0.025*ThetaS2->Drc;
             }}
@@ -663,9 +666,9 @@ void TWorld::InitSoilInput(void)
             FOR_ROW_COL_MV_L {
                 bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
             }}
-            report(*bca1,"bca1.map");
-            report(*bca2,"bca2.map");
-            calcValue(*Ksat2, ksatCalibration, MUL);
+
+            calcValue(*Ksat2, ksatCalibration2, MUL);
+            qDebug() << ksatCalibration2;
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
@@ -1322,7 +1325,7 @@ void TWorld::DiagonalFlowDEM()
             dcr_ << dclrc;
         }
     }}
-    report(*tma,"diagflow.map");
+    //report(*tma,"diagflow.map");
 }
 //---------------------------------------------------------------------------
 void TWorld::CorrectDEM(cTMap *h, cTMap * g)
@@ -1355,7 +1358,7 @@ void TWorld::CorrectDEM(cTMap *h, cTMap * g)
             g->Drc = 0.001;
         }
     }}
-    report(*tmb, "dempits.map");
+    //report(*tmb, "dempits.map");
 }
 //---------------------------------------------------------------------------
 double TWorld::LogNormalDist(double d50,double s, double d)
@@ -1494,7 +1497,7 @@ void TWorld::InitErosion(void)
 
     SplashStrength = NewMap(0);
 
-    qDebug() << "SwitchEfficiencyDET" <<SwitchEfficiencyDET;
+   // qDebug() << "SwitchEfficiencyDET" <<SwitchEfficiencyDET;
 
     FOR_ROW_COL_MV
     {
@@ -1544,9 +1547,9 @@ void TWorld::InitErosion(void)
 
     FOR_ROW_COL_MV
     {
-        SettlingVelocitySS->Drc = GetSV(D50->Drc);        
+        SettlingVelocitySS->Drc = GetSV(D50->Drc/gsizeCalibrationD50);
         if (SwitchUse2Phase)
-            SettlingVelocityBL->Drc = GetSV(D90->Drc);
+            SettlingVelocityBL->Drc = GetSV(D90->Drc/gsizeCalibrationD90);
     }
 
     if(SwitchMulticlass)
@@ -1954,6 +1957,10 @@ void TWorld::IntializeData(void)
     GWlevel = 0;
     theta1tot = 0;
     theta2tot = 0;
+    thetai1tot = 0;
+    thetai2tot = 0;
+    thetai1cur = 0;
+    thetai2cur = 0;
 
     //houses
     IntercHouseTot = 0;
@@ -1961,7 +1968,7 @@ void TWorld::IntializeData(void)
     IntercLitterTot = 0;
     IntercLitterTotmm = 0;
     WaterVolTot = 0;
-    WaterVolSoilTot = 0;
+    WaterVolSoilTileTot = 0;
     WaterVolTotmm = 0;
     WaterVolRunoffmm = 0;
     StormDrainTotmm = 0;

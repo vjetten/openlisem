@@ -1561,6 +1561,7 @@ void lisemqt::resetTabCalibration()
     //calibration
     E_CalibrateSmax->setValue(1.0);
     E_CalibrateKsat->setValue(1.0);
+    E_CalibrateKsat2->setValue(1.0);
     E_CalibrateN->setValue(1.0);
     E_CalibrateTheta->setValue(1.0);
     E_CalibratePsi->setValue(1.0);
@@ -1744,7 +1745,7 @@ void lisemqt::resetAll()
     E_ChanDepositionMap->setText("chandep.map");
     E_WHmaxMap->setText("whmax.map");
     E_FloodTimeMap->setText("floodtime.map");
-    E_FloodStats->setText("floodstats.txt");
+    E_FloodStats->setText("floodstats.csv");
     E_ChannelMaxQ->setText("chanmaxq.map");
     E_ChannelMaxWH->setText("chanmaxwh.map");
     E_FloodFEW->setText("floodstart.map");
@@ -2099,12 +2100,14 @@ void lisemqt::on_toolButton_rainsatName_clicked()
         RainSatFileDir = RainFileDir;
     if (!QFileInfo(RainSatFileDir).exists() || RainSatFileDir.isEmpty())
         RainSatFileDir = currentDir;
+    qDebug() << RainSatFileDir << RainSatFileName ;
 
     QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
     QString sss = getFileorDir(RainSatFileDir,"Select rainfall map list table", filters, 2);
 
     RainSatFileDir = QFileInfo(sss).absolutePath()+"/";
     RainSatFileName = QFileInfo(sss).fileName(); //baseName();
+    qDebug() << RainSatFileDir << RainSatFileName ;
 
     E_rainsatName->setText(RainSatFileDir + RainSatFileName);
     //RainFileDir = RainSatFileDir;

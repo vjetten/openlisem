@@ -298,8 +298,10 @@ void TWorld::doETa()
 
                 etanet = std::max(0.0, ETp_ - ETa_int);
 
-                Interc->Drc = Cover_ * CStor_ * AreaSoil;
-                IntercETa->Drc += Cover_ * ETa_int * AreaSoil;
+                Interc->Drc = Cover_ * CStor_ * CHAdjDX->Drc; //????
+                IntercETa->Drc += Cover_ * ETa_int * CHAdjDX->Drc;
+//                Interc->Drc = Cover_ * CStor_ * AreaSoil; //????
+//                IntercETa->Drc += Cover_ * ETa_int * AreaSoil;
                 CStor->Drc = CStor_;
             }
 

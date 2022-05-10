@@ -575,7 +575,7 @@
                 </property>
                </widget>
               </item>
-           <item row="3" column="0">
+              <item row="3" column="0">
                <widget class="QCheckBox" name="checksatImage">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -701,8 +701,6 @@
                 <y>0</y>
                 <width>768</width>
                 <height>619</height>
-                <width>800</width>
-                <height>778</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
@@ -2218,211 +2216,6 @@
                  </widget>
                 </widget>
                </item>
-               <item row="0" column="0">
-                <widget class="QGroupBox" name="outputGraphsTables">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>8</pointsize>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="title">
-                  <string>Graphs and tabels</string>
-                 </property>
-                 <layout class="QGridLayout" name="gridLayout_34">
-                  <property name="leftMargin">
-                   <number>8</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>4</number>
-                  </property>
-                  <property name="rightMargin">
-                   <number>8</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>4</number>
-                  </property>
-                  <property name="horizontalSpacing">
-                   <number>8</number>
-                  </property>
-                  <property name="verticalSpacing">
-                   <number>4</number>
-                  </property>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_22">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="layoutDirection">
-                     <enum>Qt::LeftToRight</enum>
-                    </property>
-                    <property name="text">
-                     <string>Catchment and outlet totals: </string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="E_MainTotals">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string>Text file with totals at the outlet</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_110">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Totals per timestep:</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="E_SeriesTotals">
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="label_20">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
-                    </property>
-                    <property name="text">
-                     <string>Sample point Hydrographs: </string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QLineEdit" name="E_PointResults">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string>Text file(s) with hydrographs and sedigraphs</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QCheckBox" name="checksatImage">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Background satellite image:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="1">
-                   <widget class="QLineEdit" name="E_satImageName">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="2">
-                   <widget class="QToolButton" name="toolButton_satImageName">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="text">
-                     <string>...</string>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="../resources/openlisem.qrc">
-                      <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
               </layout>
              </widget>
             </widget>
@@ -2530,12 +2323,10 @@
                 <y>0</y>
                 <width>890</width>
                 <height>727</height>
-                <width>805</width>
-                <height>719</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_51">
-               <item row="0" column="0">
+               <item row="2" column="0">
                 <widget class="QTabWidget" name="tabWidgetOptions">
                  <property name="enabled">
                   <bool>true</bool>
@@ -2567,8 +2358,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
-                  <number>8</number>
+                  <number>6</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -2587,58 +2377,6 @@
                   <layout class="QGridLayout" name="gridLayout_38">
                    <item row="0" column="0">
                     <widget class="QLabel" name="label_55">
-                   <item row="1" column="3">
-                    <widget class="QToolButton" name="toolButton_resetOptions">
-                     <property name="text">
-                      <string>...</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
-                       <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="4">
-                    <widget class="QToolButton" name="toolButton_help1">
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
-                       <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
-                     </property>
-                     <property name="shortcut">
-                      <string>F1</string>
-                     </property>
-                     <property name="checkable">
-                      <bool>false</bool>
-                     </property>
-                     <property name="popupMode">
-                      <enum>QToolButton::DelayedPopup</enum>
-                     </property>
-                     <property name="toolButtonStyle">
-                      <enum>Qt::ToolButtonIconOnly</enum>
-                     </property>
-                     <property name="arrowType">
-                      <enum>Qt::NoArrow</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="4" rowspan="6">
-                    <spacer name="verticalSpacer_14">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>24</width>
-                       <height>675</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QCheckBox" name="checkDoErosion">
                      <property name="font">
                       <font>
                        <pointsize>8</pointsize>
@@ -2649,27 +2387,11 @@
                      </property>
                      <property name="text">
                       <string>General process options</string>
-                      <string>Erosion processes</string>
                      </property>
                     </widget>
                    </item>
                    <item row="5" column="0" colspan="2">
                     <widget class="QGroupBox" name="groupInfrastructrure">
-                   <item row="1" column="5">
-                    <spacer name="horizontalSpacer_7">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item row="1" column="0" rowspan="2" colspan="2">
-                    <widget class="QGroupBox" name="groupSurfaceflow">
                      <property name="font">
                       <font>
                        <pointsize>8</pointsize>
@@ -2680,10 +2402,8 @@
                      </property>
                      <property name="title">
                       <string>Infrastructure</string>
-                      <string>Surface flow</string>
                      </property>
                      <layout class="QGridLayout" name="gridLayout_30">
-                     <layout class="QGridLayout" name="gridLayout_8">
                       <property name="leftMargin">
                        <number>8</number>
                       </property>
@@ -2735,8 +2455,6 @@
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
-                      <item row="0" column="0">
-                       <widget class="QCheckBox" name="checkOverlandFlow1D">
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
@@ -2747,8 +2465,6 @@
                         </property>
                         <property name="text">
                          <string>Include hard surfaces</string>
-                        <property name="toolTip">
-                         <string/>
                         </property>
                        </widget>
                       </item>
@@ -2773,7 +2489,6 @@
                         </property>
                         <property name="text">
                          <string>Include rainwater storage by drums</string>
-                         <string>1D Kinematic wave for overland flow (using LDD flow network) </string>
                         </property>
                        </widget>
                       </item>
@@ -2786,8 +2501,6 @@
                           <underline>false</underline>
                           <kerning>true</kerning>
                          </font>
-                        <property name="checked">
-                         <bool>false</bool>
                         </property>
                         <property name="text">
                          <string>Include subsurface storm drains</string>
@@ -2802,8 +2515,6 @@
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
-                      <item row="2" column="0">
-                       <widget class="QCheckBox" name="checkOverlandFlow2Ddyn">
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
@@ -2814,11 +2525,9 @@
                         </property>
                         <property name="text">
                          <string>Include road system ------------</string>
-                         <string>2D Dynamic wave for overland flow and flood (using DEM)</string>
                         </property>
                         <property name="checked">
                          <bool>false</bool>
-                         <bool>true</bool>
                         </property>
                        </widget>
                       </item>
@@ -2830,8 +2539,6 @@
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
-                      <item row="1" column="0">
-                       <widget class="QCheckBox" name="checkOverlandFlow2Dkindyn">
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
@@ -2842,7 +2549,6 @@
                         </property>
                         <property name="text">
                          <string>Include buildings ------------</string>
-                         <string>1D kinematic overland flow and 2D dyn. flood from channel (channel must be active)</string>
                         </property>
                        </widget>
                       </item>
@@ -2851,26 +2557,19 @@
                         <property name="enabled">
                          <bool>true</bool>
                         </property>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item row="0" column="0">
-                    <widget class="QLabel" name="label_55">
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
                           <bold>false</bold>
-                       <bold>true</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
                          <string>Use Culverts in Channels</string>
-                      <string>General process options</string>
-                     </property>
-                    </widget>
-                   </item>
+                        </property>
+                       </widget>
+                      </item>
                      </layout>
                     </widget>
                    </item>
@@ -3027,8 +2726,34 @@
                    </item>
                    <item row="3" column="0">
                     <widget class="QCheckBox" name="checkDoErosion">
-                   <item row="5" column="0" rowspan="2" colspan="2">
-                    <widget class="QGroupBox" name="groupInfrastructrure">
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>true</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Erosion processes</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="4" rowspan="5">
+                    <spacer name="verticalSpacer_14">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>24</width>
+                       <height>675</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item row="1" column="0" rowspan="2" colspan="2">
+                    <widget class="QGroupBox" name="groupSurfaceflow">
                      <property name="font">
                       <font>
                        <pointsize>8</pointsize>
@@ -3038,223 +2763,80 @@
                       </font>
                      </property>
                      <property name="title">
-                      <string>Infrastructure</string>
-                     </property>
-                     <widget class="QLabel" name="label_157">
-                      <property name="enabled">
-                       <bool>true</bool>
-                      </property>
-                      <property name="geometry">
-                       <rect>
-                        <x>11</x>
-                        <y>53</y>
-                        <width>16</width>
-                        <height>16</height>
-                       </rect>
-                      </property>
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="text">
-                      <string>Erosion processes</string>
-                       <string>&amp;#8226</string>
-                      </property>
-                      <property name="textFormat">
-                       <enum>Qt::RichText</enum>
-                      </property>
-                      <property name="scaledContents">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                   </item>
-                   <item row="2" column="4" rowspan="5">
-                    <spacer name="verticalSpacer_14">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
-                     <widget class="QCheckBox" name="checkHardsurface">
-                      <property name="enabled">
-                       <bool>true</bool>
-                      </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>24</width>
-                       <height>675</height>
-                      </size>
-                      <property name="geometry">
-                       <rect>
-                        <x>371</x>
-                        <y>25</y>
-                        <width>135</width>
-                        <height>21</height>
-                       </rect>
-                      </property>
-                    </spacer>
-                   </item>
-                   <item row="1" column="0" rowspan="2" colspan="2">
-                    <widget class="QGroupBox" name="groupSurfaceflow">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                       <bold>true</bold>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
-                     <property name="title">
                       <string>Surface flow</string>
-                      <property name="text">
-                       <string>Include hard surfaces</string>
-                      </property>
+                     </property>
                      <layout class="QGridLayout" name="gridLayout_8">
                       <property name="leftMargin">
                        <number>8</number>
-                     </widget>
-                     <widget class="QCheckBox" name="checkRaindrum">
-                      <property name="enabled">
-                       <bool>true</bool>
                       </property>
                       <property name="topMargin">
                        <number>4</number>
-                      <property name="geometry">
-                       <rect>
-                        <x>24</x>
-                        <y>50</y>
-                        <width>207</width>
-                        <height>21</height>
-                       </rect>
                       </property>
                       <property name="rightMargin">
                        <number>8</number>
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
                       </property>
                       <property name="bottomMargin">
                        <number>4</number>
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
                       </property>
                       <property name="horizontalSpacing">
                        <number>8</number>
-                      <property name="text">
-                       <string>Include rainwater storage by drums</string>
                       </property>
                       <property name="verticalSpacing">
                        <number>4</number>
-                     </widget>
-                     <widget class="QCheckBox" name="checkStormDrains">
-                      <property name="geometry">
-                       <rect>
-                        <x>11</x>
-                        <y>100</y>
-                        <width>189</width>
-                        <height>21</height>
-                       </rect>
                       </property>
                       <item row="0" column="0">
                        <widget class="QCheckBox" name="checkOverlandFlow1D">
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
                         <property name="toolTip">
                          <string/>
                         </property>
-                      <property name="text">
+                        <property name="text">
                          <string>1D Kinematic wave for overland flow (using LDD flow network) </string>
-                       <string>Include subsurface storm drains</string>
-                      </property>
+                        </property>
                         <property name="checked">
                          <bool>false</bool>
-                     </widget>
-                     <widget class="QCheckBox" name="checkRoadsystem">
-                      <property name="geometry">
-                       <rect>
-                        <x>185</x>
-                        <y>25</y>
-                        <width>178</width>
-                        <height>21</height>
-                       </rect>
-                      </property>
+                        </property>
                        </widget>
                       </item>
                       <item row="2" column="0">
                        <widget class="QCheckBox" name="checkOverlandFlow2Ddyn">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
-                      <property name="text">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
                          <string>2D Dynamic wave for overland flow and flood (using DEM)</string>
-                       <string>Include road system ------------</string>
-                      </property>
-                      <property name="checked">
+                        </property>
+                        <property name="checked">
                          <bool>true</bool>
-                       <bool>false</bool>
-                      </property>
-                     </widget>
+                        </property>
+                       </widget>
                       </item>
                       <item row="1" column="0">
                        <widget class="QCheckBox" name="checkOverlandFlow2Dkindyn">
-                     <widget class="QCheckBox" name="checkHouses">
-                      <property name="geometry">
-                       <rect>
-                        <x>11</x>
-                        <y>25</y>
-                        <width>166</width>
-                        <height>21</height>
-                       </rect>
-                      </property>
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
-                      <property name="text">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
                          <string>1D kinematic overland flow and 2D dyn. flood from channel (channel must be active)</string>
-                       <string>Include buildings ------------</string>
-                      </property>
-                     </widget>
+                        </property>
+                       </widget>
                       </item>
                      </layout>
                     </widget>
@@ -3263,35 +2845,18 @@
                     <widget class="QToolButton" name="toolButton_resetOptions">
                      <property name="text">
                       <string>...</string>
-                     <widget class="QCheckBox" name="checkChannelCulverts">
-                      <property name="enabled">
-                       <bool>true</bool>
-                      </property>
+                     </property>
                      <property name="icon">
                       <iconset resource="../resources/openlisem.qrc">
                        <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
-                      <property name="geometry">
-                       <rect>
-                        <x>11</x>
-                        <y>75</y>
-                        <width>152</width>
-                        <height>21</height>
-                       </rect>
-                      </property>
+                     </property>
                     </widget>
                    </item>
                    <item row="6" column="1">
                     <spacer name="verticalSpacer_4">
                      <property name="orientation">
                       <enum>Qt::Vertical</enum>
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
+                     </property>
                      <property name="sizeHint" stdset="0">
                       <size>
                        <width>20</width>
@@ -3302,91 +2867,28 @@
                    </item>
                    <item row="1" column="4">
                     <widget class="QToolButton" name="toolButton_help1">
-                      <property name="text">
+                     <property name="text">
                       <string/>
-                       <string>Use Culverts in Channels</string>
-                      </property>
+                     </property>
                      <property name="icon">
                       <iconset resource="../resources/openlisem.qrc">
                        <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
-                     </widget>
-                     <widget class="QCheckBox" name="checkPesticides">
-                      <property name="enabled">
-                       <bool>true</bool>
-                      </property>
+                     </property>
                      <property name="shortcut">
                       <string>F1</string>
-                      <property name="geometry">
-                       <rect>
-                        <x>10</x>
-                        <y>130</y>
-                        <width>317</width>
-                        <height>21</height>
-                       </rect>
-                      </property>
+                     </property>
                      <property name="checkable">
                       <bool>false</bool>
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
+                     </property>
                      <property name="popupMode">
                       <enum>QToolButton::DelayedPopup</enum>
-                      <property name="palette">
-                       <palette>
-                        <active>
-                         <colorrole role="WindowText">
-                          <brush brushstyle="SolidPattern">
-                           <color alpha="255">
-                            <red>0</red>
-                            <green>0</green>
-                            <blue>0</blue>
-                           </color>
-                          </brush>
-                         </colorrole>
-                        </active>
-                        <inactive>
-                         <colorrole role="WindowText">
-                          <brush brushstyle="SolidPattern">
-                           <color alpha="255">
-                            <red>0</red>
-                            <green>0</green>
-                            <blue>0</blue>
-                           </color>
-                          </brush>
-                         </colorrole>
-                        </inactive>
-                        <disabled>
-                         <colorrole role="WindowText">
-                          <brush brushstyle="SolidPattern">
-                           <color alpha="255">
-                            <red>122</red>
-                            <green>122</green>
-                            <blue>122</blue>
-                           </color>
-                          </brush>
-                         </colorrole>
-                        </disabled>
-                       </palette>
-                      </property>
+                     </property>
                      <property name="toolButtonStyle">
                       <enum>Qt::ToolButtonIconOnly</enum>
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
+                     </property>
                      <property name="arrowType">
                       <enum>Qt::NoArrow</enum>
-                      <property name="text">
-                       <string>Include Pesticides</string>
-                      </property>
-                     </widget>
+                     </property>
                     </widget>
                    </item>
                    <item row="1" column="5">
@@ -3635,7 +3137,7 @@
                          <item row="2" column="3">
                           <widget class="QDoubleSpinBox" name="E_biasCorrectionP">
                            <property name="enabled">
-                            <bool>false</bool>
+                            <bool>true</bool>
                            </property>
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -3665,7 +3167,7 @@
                          <item row="2" column="0">
                           <widget class="QLabel" name="label_121">
                            <property name="enabled">
-                            <bool>false</bool>
+                            <bool>true</bool>
                            </property>
                            <property name="font">
                             <font>
@@ -5369,27 +4871,6 @@ p, li { white-space: pre-wrap; }
                         </property>
                        </widget>
                       </item>
-                      <item row="7" column="1">
-                       <widget class="QDoubleSpinBox" name="GW_bypass">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="decimals">
-                         <number>3</number>
-                        </property>
-                        <property name="maximum">
-                         <double>1.000000000000000</double>
-                        </property>
-                        <property name="singleStep">
-                         <double>0.001000000000000</double>
-                        </property>
-                       </widget>
-                      </item>
                       <item row="4" column="1">
                        <widget class="QDoubleSpinBox" name="GW_threshold">
                         <property name="font">
@@ -5436,21 +4917,6 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="text">
                          <string>Add a stationary baseflow level (map: baseflow.map)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="7" column="0">
-                       <widget class="QLabel" name="label_102">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Bypass: fraction infiltration directly to groundwater</string>
                         </property>
                        </widget>
                       </item>
@@ -6095,15 +5561,9 @@ p, li { white-space: pre-wrap; }
                          </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="E_BulkDens">
+                         <widget class="QDoubleSpinBox" name="E_BulkDens">
                           <property name="enabled">
                            <bool>false</bool>
-                          </property>
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
                           </property>
                           <property name="font">
                            <font>
@@ -6113,17 +5573,20 @@ p, li { white-space: pre-wrap; }
                             <kerning>true</kerning>
                            </font>
                           </property>
-                          <property name="inputMask">
-                           <string>9999.9</string>
+                          <property name="decimals">
+                           <number>1</number>
                           </property>
-                          <property name="text">
-                           <string>1500.0</string>
+                          <property name="minimum">
+                           <double>800.000000000000000</double>
                           </property>
-                          <property name="maxLength">
-                           <number>6</number>
+                          <property name="maximum">
+                           <double>2650.000000000000000</double>
                           </property>
-                          <property name="cursorPosition">
-                           <number>6</number>
+                          <property name="singleStep">
+                           <double>0.100000000000000</double>
+                          </property>
+                          <property name="value">
+                           <double>1500.000000000000000</double>
                           </property>
                          </widget>
                         </item>
@@ -6294,15 +5757,9 @@ p, li { white-space: pre-wrap; }
                          </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="E_GrassStripN">
+                         <widget class="QDoubleSpinBox" name="E_GrassStripN">
                           <property name="enabled">
                            <bool>false</bool>
-                          </property>
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
                           </property>
                           <property name="font">
                            <font>
@@ -6312,11 +5769,17 @@ p, li { white-space: pre-wrap; }
                             <kerning>true</kerning>
                            </font>
                           </property>
-                          <property name="inputMask">
-                           <string>9.99</string>
+                          <property name="minimum">
+                           <double>0.010000000000000</double>
                           </property>
-                          <property name="text">
-                           <string>0.1</string>
+                          <property name="maximum">
+                           <double>10.000000000000000</double>
+                          </property>
+                          <property name="singleStep">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="value">
+                           <double>0.200000000000000</double>
                           </property>
                          </widget>
                         </item>
@@ -6450,15 +5913,9 @@ p, li { white-space: pre-wrap; }
                          </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="E_SedTrapN">
+                         <widget class="QDoubleSpinBox" name="E_SedTrapN">
                           <property name="enabled">
                            <bool>false</bool>
-                          </property>
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
                           </property>
                           <property name="font">
                            <font>
@@ -6468,11 +5925,14 @@ p, li { white-space: pre-wrap; }
                             <kerning>true</kerning>
                            </font>
                           </property>
-                          <property name="inputMask">
-                           <string>9.99</string>
+                          <property name="minimum">
+                           <double>0.010000000000000</double>
                           </property>
-                          <property name="text">
-                           <string>0.8</string>
+                          <property name="singleStep">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="value">
+                           <double>0.800000000000000</double>
                           </property>
                          </widget>
                         </item>
@@ -8335,7 +7795,7 @@ p, li { white-space: pre-wrap; }
                          <string notr="true"/>
                         </property>
                         <property name="text">
-                         <string>Soil Cohesion (flow detachment: coh.map)</string>
+                         <string>Soil Cohesion (flow detachment: coh.map and cohadd.map)</string>
                         </property>
                        </widget>
                       </item>
@@ -8621,7 +8081,7 @@ p, li { white-space: pre-wrap; }
                          <string notr="true"/>
                         </property>
                         <property name="text">
-                         <string>Ksat slopes (hydraulic conductivity: ksat1.map &amp; ksat2.map))</string>
+                         <string>Ksat soil layer 1 (hydraulic conductivity: ksat1.map)</string>
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -8963,13 +8423,46 @@ p, li { white-space: pre-wrap; }
                          <double>0.010000000000000</double>
                         </property>
                         <property name="maximum">
-                         <double>1.000000000000000</double>
+                         <double>99.000000000000000</double>
                         </property>
                         <property name="singleStep">
                          <double>0.010000000000000</double>
                         </property>
                         <property name="value">
                          <double>1.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="5" column="1">
+                       <widget class="QDoubleSpinBox" name="E_CalibrateKsat2">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="minimum">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>1.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="5" column="0">
+                       <widget class="QLabel" name="label_86">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Ksat soil layer 2 (hydraulic conductivity: ksat2.map)</string>
                         </property>
                        </widget>
                       </item>
@@ -9240,10 +8733,13 @@ p, li { white-space: pre-wrap; }
                             </font>
                            </property>
                            <property name="minimum">
-                            <double>1.000000000000000</double>
+                            <double>0.100000000000000</double>
                            </property>
                            <property name="maximum">
                             <double>10.000000000000000</double>
+                           </property>
+                           <property name="singleStep">
+                            <double>0.100000000000000</double>
                            </property>
                            <property name="value">
                             <double>1.000000000000000</double>
@@ -9629,21 +9125,6 @@ p, li { white-space: pre-wrap; }
                            </property>
                           </widget>
                          </item>
-                         <item row="9" column="0" colspan="4">
-                          <widget class="QCheckBox" name="check2DDiagonalFlowNew">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Dynamic diagonal flow</string>
-                           </property>
-                          </widget>
-                         </item>
                          <item row="0" column="0" colspan="4">
                           <widget class="QFrame" name="frame_SWOF_2">
                            <layout class="QGridLayout" name="gridLayout_67">
@@ -9997,160 +9478,6 @@ p, li { white-space: pre-wrap; }
                    <string>Page</string>
                   </attribute>
                   <layout class="QGridLayout" name="gridLayout_65">
-                   <item row="7" column="0">
-                    <widget class="QLabel" name="label_61">
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Groundwater initial level (m)</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QCheckBox" name="checkErosionInsideLoop">
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Calculate erosion inside iteration loop for 2D flow (slower)</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="0">
-                    <widget class="QComboBox" name="E_BLMethod">
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <italic>false</italic>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="currentText">
-                      <string>2 - Van Rijn Simplified</string>
-                     </property>
-                     <property name="currentIndex">
-                      <number>1</number>
-                     </property>
-                     <property name="maxVisibleItems">
-                      <number>4</number>
-                     </property>
-                     <item>
-                      <property name="text">
-                       <string>1 - Govers</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>2 - Van Rijn Simplified</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>3 - Van Rijn Full</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>4 - Engelund and Hansen</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                   <item row="5" column="0" colspan="2">
-                    <widget class="QCheckBox" name="checkVariableTimestep">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active>
-                        <colorrole role="WindowText">
-                         <brush brushstyle="SolidPattern">
-                          <color alpha="255">
-                           <red>0</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </brush>
-                        </colorrole>
-                       </active>
-                       <inactive>
-                        <colorrole role="WindowText">
-                         <brush brushstyle="SolidPattern">
-                          <color alpha="255">
-                           <red>0</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </brush>
-                        </colorrole>
-                       </inactive>
-                       <disabled>
-                        <colorrole role="WindowText">
-                         <brush brushstyle="SolidPattern">
-                          <color alpha="255">
-                           <red>122</red>
-                           <green>122</green>
-                           <blue>122</blue>
-                          </color>
-                         </brush>
-                        </colorrole>
-                       </disabled>
-                      </palette>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Spatially variable timestep</string>
-                     </property>
-                     <property name="checked">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="14" column="0">
-                    <widget class="QCheckBox" name="checkSWOFWatersheds">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Solve SWOF 2.0 per watershed (needs watersheds.map)</string>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="1" column="0">
                     <widget class="QCheckBox" name="checkKETimebased">
                      <property name="enabled">
@@ -10206,11 +9533,146 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="12" column="0" colspan="2">
+                   <item row="2" column="0">
+                    <widget class="QCheckBox" name="checkErosionInsideLoop">
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Calculate erosion inside iteration loop for 2D flow (slower)</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="16" column="1">
+                    <widget class="QDoubleSpinBox" name="GW_bypass">
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="decimals">
+                      <number>3</number>
+                     </property>
+                     <property name="maximum">
+                      <double>1.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.001000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="7" column="2">
+                    <widget class="QDoubleSpinBox" name="GW_initlevel">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="maximum">
+                      <double>10.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.010000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="19" column="2">
+                    <spacer name="verticalSpacer_15">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item row="16" column="0">
+                    <widget class="QLabel" name="label_102">
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Bypass: fraction infiltration directly to groundwater</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0" colspan="4">
+                    <widget class="QLabel" name="label_129">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>true</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>SPARE PAGE, DELETED AT RUNTIME!!! for near obsolete options</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="15" column="0">
+                    <widget class="QCheckBox" name="checkMaterialDepth">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Use sediment material depth (needs det. material and sed. mix. depth maps)</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="12" column="0" colspan="3">
                     <widget class="QFrame" name="frameSpare">
                      <property name="enabled">
                       <bool>false</bool>
-                      <bool>true</bool>
                      </property>
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -10235,8 +9697,6 @@ p, li { white-space: pre-wrap; }
                      <layout class="QGridLayout" name="gridLayout_59">
                       <item row="3" column="3">
                        <widget class="QDoubleSpinBox" name="E_courantFactorSed">
-                      <item row="2" column="3">
-                       <widget class="QDoubleSpinBox" name="E_StemflowFraction">
                         <property name="enabled">
                          <bool>false</bool>
                         </property>
@@ -10256,41 +9716,30 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="minimum">
                          <double>0.010000000000000</double>
-                        <property name="decimals">
-                         <number>3</number>
                         </property>
                         <property name="maximum">
                          <double>1.000000000000000</double>
                         </property>
                         <property name="singleStep">
                          <double>0.010000000000000</double>
-                         <double>0.001000000000000</double>
                         </property>
                         <property name="value">
                          <double>0.100000000000000</double>
-                         <double>0.054000000000000</double>
                         </property>
                        </widget>
                       </item>
                       <item row="3" column="0">
                        <widget class="QLabel" name="label_132">
-                      <item row="6" column="0">
-                       <widget class="QCheckBox" name="checkChannelInflow">
-                        <property name="enabled">
-                         <bool>false</bool>
-                        </property>
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
                           <bold>false</bold>
                           <underline>false</underline>
                           <kerning>true</kerning>
-                          <kerning>false</kerning>
                          </font>
                         </property>
                         <property name="text">
                          <string>Courant factor for sediment diffusion in river and flood water</string>
-                         <string>Channel inflow:</string>
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -10298,7 +9747,6 @@ p, li { white-space: pre-wrap; }
                        </widget>
                       </item>
                       <item row="1" column="0" colspan="3">
-                      <item row="2" column="0" colspan="3">
                        <widget class="QLabel" name="label_59">
                         <property name="enabled">
                          <bool>false</bool>
@@ -10388,14 +9836,11 @@ p, li { white-space: pre-wrap; }
                       </item>
                       <item row="0" column="0" colspan="3">
                        <widget class="QCheckBox" name="checkPesticides">
-                      <item row="9" column="3">
-                       <widget class="QDoubleSpinBox" name="E_SWATREDtsecFraction">
                         <property name="enabled">
                          <bool>false</bool>
                         </property>
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
                           <verstretch>0</verstretch>
                          </sizepolicy>
@@ -10447,21 +9892,11 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="text">
                          <string>Include Pesticides</string>
-                        <property name="maximum">
-                         <double>1.000000000000000</double>
-                        </property>
-                        <property name="singleStep">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="value">
-                         <double>0.200000000000000</double>
                         </property>
                        </widget>
                       </item>
                       <item row="6" column="0">
                        <widget class="QLineEdit" name="E_DischargeInName">
-                      <item row="4" column="3">
-                       <widget class="QDoubleSpinBox" name="E_courantFactorSed">
                         <property name="enabled">
                          <bool>false</bool>
                         </property>
@@ -10479,24 +9914,10 @@ p, li { white-space: pre-wrap; }
                           <kerning>true</kerning>
                          </font>
                         </property>
-                        <property name="minimum">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="maximum">
-                         <double>1.000000000000000</double>
-                        </property>
-                        <property name="singleStep">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="value">
-                         <double>0.100000000000000</double>
-                        </property>
                        </widget>
                       </item>
                       <item row="1" column="3">
                        <widget class="QDoubleSpinBox" name="E_StemflowFraction">
-                      <item row="7" column="0">
-                       <widget class="QLineEdit" name="E_DischargeInName">
                         <property name="enabled">
                          <bool>false</bool>
                         </property>
@@ -10516,48 +9937,19 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="decimals">
                          <number>3</number>
-                       </widget>
-                      </item>
-                      <item row="7" column="3">
-                       <widget class="QToolButton" name="toolButton_DischargeInName">
-                        <property name="enabled">
-                         <bool>false</bool>
                         </property>
                         <property name="maximum">
                          <double>1.000000000000000</double>
-                        <property name="text">
-                         <string>...</string>
                         </property>
                         <property name="singleStep">
                          <double>0.001000000000000</double>
-                        <property name="icon">
-                         <iconset resource="../resources/openlisem.qrc">
-                          <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
                         </property>
                         <property name="value">
                          <double>0.054000000000000</double>
-                       </widget>
-                      </item>
-                      <item row="4" column="0">
-                       <widget class="QLabel" name="label_132">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Courant factor for sediment diffusion in river and flood water</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                         </property>
                        </widget>
                       </item>
                       <item row="8" column="0">
-                      <item row="9" column="0">
                        <widget class="QLabel" name="label_14">
                         <property name="enabled">
                          <bool>false</bool>
@@ -10647,11 +10039,8 @@ p, li { white-space: pre-wrap; }
                       </item>
                       <item row="5" column="0">
                        <widget class="QCheckBox" name="checkChannelInflow">
-                      <item row="1" column="0">
-                       <widget class="QCheckBox" name="checkPesticides_1">
                         <property name="enabled">
                          <bool>false</bool>
-                         <bool>true</bool>
                         </property>
                         <property name="font">
                          <font>
@@ -10687,47 +10076,9 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                           <horstretch>0</horstretch>
                           <verstretch>0</verstretch>
                          </sizepolicy>
-                        </property>
-                        <property name="palette">
-                         <palette>
-                          <active>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </active>
-                          <inactive>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>0</red>
-                              <green>0</green>
-                              <blue>0</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </inactive>
-                          <disabled>
-                           <colorrole role="WindowText">
-                            <brush brushstyle="SolidPattern">
-                             <color alpha="255">
-                              <red>122</red>
-                              <green>122</green>
-                              <blue>122</blue>
-                             </color>
-                            </brush>
-                           </colorrole>
-                          </disabled>
-                         </palette>
                         </property>
                         <property name="font">
                          <font>
@@ -10739,8 +10090,6 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="maximum">
                          <double>1.000000000000000</double>
-                        <property name="text">
-                         <string>Include Pesticides</string>
                         </property>
                         <property name="singleStep">
                          <double>0.010000000000000</double>
@@ -10753,7 +10102,116 @@ p, li { white-space: pre-wrap; }
                      </layout>
                     </widget>
                    </item>
-                   <item row="16" column="0">
+                   <item row="4" column="0">
+                    <widget class="QComboBox" name="E_BLMethod">
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <italic>false</italic>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="currentText">
+                      <string>2 - Van Rijn Simplified</string>
+                     </property>
+                     <property name="currentIndex">
+                      <number>1</number>
+                     </property>
+                     <property name="maxVisibleItems">
+                      <number>4</number>
+                     </property>
+                     <item>
+                      <property name="text">
+                       <string>1 - Govers</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>2 - Van Rijn Simplified</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>3 - Van Rijn Full</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>4 - Engelund and Hansen</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="7" column="0">
+                    <widget class="QLabel" name="label_61">
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Groundwater initial level (m)</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="15" column="1">
+                    <widget class="QLineEdit" name="E_BulkDens2">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="inputMask">
+                      <string>9999.9</string>
+                     </property>
+                     <property name="text">
+                      <string>1500.0</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="9" column="0">
+                    <widget class="QLabel" name="label_101">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <italic>false</italic>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Turbulent Prandtl-Schmidt number</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="18" column="0">
                     <widget class="QLabel" name="label_130">
                      <property name="enabled">
                       <bool>false</bool>
@@ -10780,16 +10238,47 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="15" column="0">
-                    <widget class="QCheckBox" name="checkMaterialDepth">
+                   <item row="5" column="0" colspan="3">
+                    <widget class="QCheckBox" name="checkVariableTimestep">
                      <property name="enabled">
-                      <bool>true</bool>
+                      <bool>false</bool>
                      </property>
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
+                     <property name="palette">
+                      <palette>
+                       <active>
+                        <colorrole role="WindowText">
+                         <brush brushstyle="SolidPattern">
+                          <color alpha="255">
+                           <red>0</red>
+                           <green>0</green>
+                           <blue>0</blue>
+                          </color>
+                         </brush>
+                        </colorrole>
+                       </active>
+                       <inactive>
+                        <colorrole role="WindowText">
+                         <brush brushstyle="SolidPattern">
+                          <color alpha="255">
+                           <red>0</red>
+                           <green>0</green>
+                           <blue>0</blue>
+                          </color>
+                         </brush>
+                        </colorrole>
+                       </inactive>
+                       <disabled>
+                        <colorrole role="WindowText">
+                         <brush brushstyle="SolidPattern">
+                          <color alpha="255">
+                           <red>122</red>
+                           <green>122</green>
+                           <blue>122</blue>
+                          </color>
+                         </brush>
+                        </colorrole>
+                       </disabled>
+                      </palette>
                      </property>
                      <property name="font">
                       <font>
@@ -10800,11 +10289,14 @@ p, li { white-space: pre-wrap; }
                       </font>
                      </property>
                      <property name="text">
-                      <string>Use sediment material depth (needs det. material and sed. mix. depth maps)</string>
+                      <string>Spatially variable timestep</string>
+                     </property>
+                     <property name="checked">
+                      <bool>false</bool>
                      </property>
                     </widget>
                    </item>
-                   <item row="9" column="1">
+                   <item row="9" column="2">
                     <widget class="QDoubleSpinBox" name="E_SigmaDiffusion">
                      <property name="enabled">
                       <bool>false</bool>
@@ -10838,104 +10330,7 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="0" column="0" colspan="3">
-                    <widget class="QLabel" name="label_129">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>true</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>SPARE PAGE, DELETED AT RUNTIME!!! for near obsolete options</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="15" column="1">
-                    <widget class="QLineEdit" name="E_BulkDens2">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="inputMask">
-                      <string>9999.9</string>
-                     </property>
-                     <property name="text">
-                      <string>1500.0</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="7" column="1">
-                    <widget class="QDoubleSpinBox" name="GW_initlevel">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="maximum">
-                      <double>10.000000000000000</double>
-                     </property>
-                     <property name="singleStep">
-                      <double>0.010000000000000</double>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="9" column="0">
-                    <widget class="QLabel" name="label_101">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <italic>false</italic>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Turbulent Prandtl-Schmidt number</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="16" column="1">
+                   <item row="18" column="1">
                     <widget class="QDoubleSpinBox" name="E_DepositedCohesion">
                      <property name="enabled">
                       <bool>false</bool>
@@ -10974,18 +10369,44 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="17" column="1">
-                    <spacer name="verticalSpacer_15">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
+                   <item row="14" column="0">
+                    <widget class="QCheckBox" name="checkSWOFWatersheds">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
                      </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>40</height>
-                      </size>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
                      </property>
-                    </spacer>
+                     <property name="text">
+                      <string>Solve SWOF 2.0 per watershed (needs watersheds.map)</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="13" column="0">
+                    <widget class="QCheckBox" name="check2DDiagonalFlowNew">
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Dynamic diagonal flow</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
                    </item>
                   </layout>
                  </widget>
@@ -14649,12 +14070,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>457</x>
-     <y>500</y>
+     <x>130</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
-     <x>519</x>
-     <y>526</y>
+     <x>137</x>
+     <y>510</y>
     </hint>
    </hints>
   </connection>
@@ -14665,12 +14086,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>457</x>
-     <y>500</y>
+     <x>130</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
-     <x>519</x>
-     <y>552</y>
+     <x>137</x>
+     <y>536</y>
     </hint>
    </hints>
   </connection>
@@ -14681,12 +14102,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>457</x>
-     <y>500</y>
+     <x>130</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>660</y>
+     <x>116</x>
+     <y>644</y>
     </hint>
    </hints>
   </connection>
@@ -14697,12 +14118,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>457</x>
-     <y>500</y>
+     <x>130</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
-     <x>440</x>
-     <y>625</y>
+     <x>130</x>
+     <y>604</y>
     </hint>
    </hints>
   </connection>
@@ -14713,12 +14134,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>457</x>
-     <y>500</y>
+     <x>130</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
-     <x>254</x>
-     <y>656</y>
+     <x>130</x>
+     <y>634</y>
     </hint>
    </hints>
   </connection>
@@ -14729,12 +14150,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>457</x>
-     <y>500</y>
+     <x>130</x>
+     <y>484</y>
     </hint>
     <hint type="destinationlabel">
-     <x>522</x>
-     <y>658</y>
+     <x>508</x>
+     <y>633</y>
     </hint>
    </hints>
   </connection>
@@ -14745,12 +14166,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>321</y>
+     <x>176</x>
+     <y>300</y>
     </hint>
     <hint type="destinationlabel">
-     <x>361</x>
-     <y>781</y>
+     <x>176</x>
+     <y>329</y>
     </hint>
    </hints>
   </connection>
@@ -15001,12 +14422,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>457</x>
-     <y>415</y>
+     <x>128</x>
+     <y>399</y>
     </hint>
     <hint type="destinationlabel">
-     <x>164</x>
-     <y>410</y>
+     <x>115</x>
+     <y>393</y>
     </hint>
    </hints>
   </connection>
@@ -15017,76 +14438,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>357</x>
-     <y>488</y>
+     <x>115</x>
+     <y>472</y>
     </hint>
     <hint type="destinationlabel">
-     <x>502</x>
-     <y>489</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioRainSatFile</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_121</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>270</x>
-     <y>398</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>283</x>
-     <y>430</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioRainSatFile</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>E_biasCorrectionP</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>270</x>
-     <y>398</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>361</x>
-     <y>430</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioETsatfile</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_126</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>242</x>
-     <y>573</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>235</x>
-     <y>605</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioETsatfile</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>E_biasCorrectionET</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>242</x>
-     <y>573</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>335</x>
-     <y>605</y>
+     <x>366</x>
+     <y>472</y>
     </hint>
    </hints>
   </connection>
@@ -15097,12 +14454,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>293</x>
-     <y>795</y>
+     <x>115</x>
+     <y>772</y>
     </hint>
     <hint type="destinationlabel">
-     <x>606</x>
-     <y>795</y>
+     <x>327</x>
+     <y>772</y>
     </hint>
    </hints>
   </connection>

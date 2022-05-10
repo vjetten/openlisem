@@ -414,7 +414,7 @@ void TWorld::HydrologyProcesses()
             if (InfilMethod != INFIL_NONE) {
                cell_InfilMethods(r, c);
 
-               cell_Redistribution1(r, c);
+               cell_Redistribution(r, c);
 
                if (!SwitchImpermeable && !SwitchChannelBaseflow)
                    Perc->Drc = cell_Percolation(r, c, 1.0);
@@ -436,6 +436,8 @@ void TWorld::HydrologyProcesses()
     }
     // ETa is subtracted from canopy, soil water surfaces
     // divided over 12 hours in a day with sine curve
+
+    //MoistureContent();
 
 }
 //---------------------------------------------------------------------------

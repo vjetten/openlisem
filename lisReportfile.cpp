@@ -114,7 +114,7 @@ void TWorld::OutputUI(void)
     op.WaterVolTotmm = WaterVolRunoffmm;
     op.StormDrainTotmm = StormDrainTotmm;
     op.ChannelVolTotmm = ChannelVolTotmm;
-    op.BaseFlowtotmm = BaseFlowTotmm;
+    op.BaseFlowtotmm = BaseFlowTotmm; // not used!
     op.volFloodmm = floodVolTotmm;
     op.FloodTotMax = floodVolTotMax;
     op.FloodAreaMax = floodAreaMax;
