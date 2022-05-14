@@ -352,12 +352,14 @@ void TWorld::GetRainfallMapfromStations(void)
 
     // get the next map from file
     if (!samerain) {
+
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             Rain->Drc = RainfallSeries[currentrow].intensity[(int) RainZone->Drc-1]*tt;
             if (Rain->Drc > 0)
                 rainStarted = true;
         }}
+
     }
 
     #pragma omp parallel for num_threads(userCores)
@@ -409,9 +411,6 @@ void TWorld::GetRainfallMap(void)
 //        currentrow = rainplace;
 //        rainplace++;
 //    }
-
-
-
 
     for (int j = 0; j < RainfallSeriesMaps.count(); j++) {
         if (currenttime >= RainfallSeriesMaps[j].time && currenttime < RainfallSeriesMaps[j+1].time) {
@@ -521,5 +520,37 @@ double TWorld::getTimefromString(QString sss)
     }
     return(day*1440+hour*60+min);
 }
+//---------------------------------------------------------------------------
+void TWorld::IDInterpolation(QVector <IDI_POINT> *pointlist, double IDIpower)
+{
+
+
+    double dx2 = _dx*_dx;
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        double w_total = 0.0;
+        double val_total = 0.0;
+
+        for(int i = 0; i < pointlist->size(); i++)
+        {
+            IDI_POINT p = pointlist->at(i);
+            double dx2 = (r-p.r) * (r-p.r) * dx2;
+            double dy2 = (c-p.c) * (c-p.c) * dx2;
+
+            //double distancew = std::pow(dx*dx + dy*dy,-0.5 * IDIpower);
+            double distancew = std::pow(dx2 + dy2,-1.0 * IDIpower);
+            val_total += p.V * distancew;
+            w_total += distancew;
+            //std::cout << r << "  " << c << "  " << w_total << "  " << val_total << " " << std::endl;
+        }
+
+        if(w_total > 0.0)
+            Rain->Drc = val_total/w_total;
+        else
+            Rain->Drc = 0.0;
+    }}
+}
+
 //---------------------------------------------------------------------------
 

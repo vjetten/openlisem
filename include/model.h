@@ -196,6 +196,12 @@ typedef struct MapListStruct {
     cTMap *m;
 }  MapListStruct;
 //---------------------------------------------------------------------------list
+typedef struct IDI_POINT {
+    int r;
+    int c;
+    double V;
+}  IDI_POINT;
+//---------------------------------------------------------------------------list
 typedef struct LDD_COOR {
     int r;
     int c;
@@ -357,7 +363,8 @@ public:
 */
 
     bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelInflow, SwitchChannelAdjustCHW,
-    SwitchChannelBaseflowStationary, SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite, SwitchRainfall, SwitchEventbased,
+    SwitchChannelBaseflowStationary, SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite,
+    SwitchRainfall, SwitchEventbased, SwitchInverseDistanceRainfall,
     SwitchDailyET, SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
@@ -840,6 +847,7 @@ public:
     void GetSnowmeltData(QString name);   // get input timeseries
     double getTimefromString(QString sss);
     double getmaxRainfall();
+    void IDInterpolation(QVector <IDI_POINT> *pointlist, double IDIpower);
     /// convert rainfall of a timestep into a map
     void GetRainfallMapfromStations(void);
     void GetRainfallMap(void);
