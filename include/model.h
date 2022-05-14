@@ -102,6 +102,7 @@
 //#define FOR_ROW_COL_MV_L for(long i_ = 0; i_< nrValidCells; i_++)\
 //{int r = cr_[i_].r; int c = cr_[i_].c;
 
+
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
  {int r = cr_[i_].r; int c = cr_[i_].c;
 
