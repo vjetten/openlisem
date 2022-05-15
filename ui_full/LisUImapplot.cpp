@@ -548,6 +548,8 @@ void lisemqt::showComboMap(int i)
     QwtComboColorMap *cmL = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),
                                                  QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),
                                                  op.ComboColorMap.at(i),op.ComboColors.at(i));
+//    cm->setMode(cm->FixedColors);
+//    cmL->setMode(cm->FixedColors);
     cm->thresholduse = domin;
     cmL->thresholduse = true;
     cm->thresholdmin = mi;

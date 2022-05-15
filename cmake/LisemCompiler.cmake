@@ -21,7 +21,7 @@ IF(WIN32)
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
 
-    SET(OMP_INCLUDE_DIRS "${QWT_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32/11.2.0/include")
+    SET(OMP_INCLUDE_DIRS "${GDAL_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32/11.3.0/include")
 ENDIF()
 
 

@@ -202,9 +202,11 @@ void TWorld::GetRainfallData(QString name)
     int count = rainRecs[1].toInt(&ok, 10);
     // header
     // second line is only an integer
+
     if (ok)
     {
         SL = rainRecs[count+2].split(QRegExp("\\s+"));
+
         if (count == SL.count())
             oldformat = false;
         //if the number of columns equals the integer then new format
@@ -215,6 +217,7 @@ void TWorld::GetRainfallData(QString name)
     if (rainRecs[0].contains("RUU"))
         oldformat = true;
 
+    skiprows = 3;
     if (oldformat)
     {
         QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
@@ -225,22 +228,36 @@ void TWorld::GetRainfallData(QString name)
         // failure gives 0
         SL = rainRecs[rainRecs.count()-1].split(QRegExp("\\s+"));
         oldformat = (nrStations == SL.count()-1);
+        skiprows = 1;
+      //  SwitchIDinterpolation = false;
     }
 
-    //check if nr stations found equals nr columns-1, 1st column is time
-    if (oldformat)
-        skiprows = 1;
-    else
-        skiprows = 3;
+    if (SwitchIDinterpolation) {
+        IDIpointsRC.clear();
 
-    // count gauge areas in the ID.map
-    int nrmap = 0;
-    nrmap = countUnits(*RainZone);
+        for (int i = 0; i < nrStations; i++) {
+            LDD_COOR p;
+            SL = rainRecs[i+3].split(QRegExp("\\s+"));
+            if (SL.count() < 3)
+                break;
+            p.r = SL[1].toInt();
+            p.c = SL[2].toInt();
+            IDIpointsRC << p;
 
-    if (nrmap > nrStations)
-    {
-        ErrorString = QString("Number of stations in rainfall file (%1) < nr of rainfall zones in ID map (%2)").arg(nrStations).arg(nrmap);
-        throw 1;
+           //qDebug() << i << nrStations << SL << p.r << p.c << IDIpointsRC.at(i).r << IDIpointsRC.at(i).c;
+        }
+        IDIweight(rainIDIfactor);
+
+    }  else {
+        // count gauge areas in the ID.map
+        int nrmap = 0;
+        nrmap = countUnits(*RainZone);
+
+        if (nrmap > nrStations)
+        {
+            ErrorString = QString("Number of stations in rainfall file (%1) < nr of rainfall zones in ID map (%2)").arg(nrStations).arg(nrmap);
+            throw 1;
+        }
     }
 
     nrSeries = rainRecs.size() - nrStations - skiprows;
@@ -352,16 +369,25 @@ void TWorld::GetRainfallMapfromStations(void)
 
     // get the next map from file
     if (!samerain) {
+        if (SwitchIDinterpolation) {
 
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            Rain->Drc = RainfallSeries[currentrow].intensity[(int) RainZone->Drc-1]*tt;
-            if (Rain->Drc > 0)
-                rainStarted = true;
-        }}
+            IDIpointsV.clear();
+            for (int j = 0; j < IDIpointsRC.size(); j++) {
+                IDIpointsV << RainfallSeries[currentrow].intensity[j]*tt;
+            }
 
+            IDInterpolation(rainIDIfactor);
+        } else {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                Rain->Drc = RainfallSeries[currentrow].intensity[(int) RainZone->Drc-1]*tt;
+                if (Rain->Drc > 0)
+                    rainStarted = true;
+            }}
+        }
     }
-
+    //qDebug() <<  MapTotal(*Rain)<< currentrow << currentRainfallrow << currenttime << RainfallSeries[currentrow].time;
+    //report(*Rain,"rain");
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         Rainc->Drc = Rain->Drc * _dx/DX->Drc;
@@ -521,29 +547,28 @@ double TWorld::getTimefromString(QString sss)
     return(day*1440+hour*60+min);
 }
 //---------------------------------------------------------------------------
-void TWorld::IDInterpolation(QVector <IDI_POINT> *pointlist, double IDIpower)
+void TWorld::IDInterpolation(double IDIpower)
 {
-
-
-    double dx2 = _dx*_dx;
-
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double w_total = 0.0;
         double val_total = 0.0;
 
-        for(int i = 0; i < pointlist->size(); i++)
+        for(int i = 0; i < IDIpointsV.size(); i++)
         {
-            IDI_POINT p = pointlist->at(i);
-            double dx2 = (r-p.r) * (r-p.r) * dx2;
-            double dy2 = (c-p.c) * (c-p.c) * dx2;
+            double dx = (r-IDIpointsRC.at(i).r) * _dx;
+            double dy = (c-IDIpointsRC.at(i).c) * _dx;
 
-            //double distancew = std::pow(dx*dx + dy*dy,-0.5 * IDIpower);
-            double distancew = std::pow(dx2 + dy2,-1.0 * IDIpower);
-            val_total += p.V * distancew;
-            w_total += distancew;
-            //std::cout << r << "  " << c << "  " << w_total << "  " << val_total << " " << std::endl;
+            double distancew = std::pow(dx*dx + dy*dy,0.5 * IDIpower);
+
+            val_total += IDIpointsV.at(i) * distancew;//IDIw->Drc;
+            w_total += distancew;//IDIw->Drc;
+
+//            val_total += IDIpointsV.at(i) * IDIw->Drc;
+//            w_total += IDIw->Drc;
         }
+    //    if (val_total > 0)
+    //    qDebug() << w_total << val_total << val_total/w_total;
 
         if(w_total > 0.0)
             Rain->Drc = val_total/w_total;
@@ -551,6 +576,32 @@ void TWorld::IDInterpolation(QVector <IDI_POINT> *pointlist, double IDIpower)
             Rain->Drc = 0.0;
     }}
 }
+//---------------------------------------------------------------------------
+void TWorld::IDIweight(double IDIpower)
+{
+//    fill(*tma,0);
+//    for(int i = 0; i < IDIpointsRC.size(); i++)
+//    {
+//        tma->data[IDIpointsRC.at(i).r][IDIpointsRC.at(i).c] = i;
+//    }
+//    report(*tma,"points.map");
 
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        double w_total = 0.0;
+
+        for(int i = 0; i < IDIpointsRC.size(); i++)
+        {
+            double dx = (r-IDIpointsRC.at(i).r) * _dx;
+            double dy = (c-IDIpointsRC.at(i).c) * _dx;
+
+            double distancew = std::pow(dx*dx + dy*dy,0.5 * IDIpower);
+            w_total += distancew;
+        }
+        //qDebug() << r << c << w_total;
+        IDIw->Drc = w_total;
+    }}
+    report(*IDIw,"idiw.map");
+}
 //---------------------------------------------------------------------------
 

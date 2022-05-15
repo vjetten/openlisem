@@ -38,8 +38,8 @@
 
 #include <QtGui>
 #include <QMutex>
-#include "C:\\Qt\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\11.2.0\\include\\omp.h"
-//#include <omp.h>
+//#include "C:\\Qt\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\11.3.0\\include\\omp.h"
+#include <omp.h>
 
 #include "CsfMap.h"
 #include "io.h"
@@ -345,6 +345,11 @@ public:
     QVector <LDD_COORIN> crlinkedlddbase_;
     QVector <LDD_COORout> crout_;
 
+    QVector <IDI_POINT> IDIpoints;
+    QVector <LDD_COOR> IDIpointsRC;
+    QVector <double> IDIpointsV;
+
+
     /// map management structure, automatic adding and deleting of all cTMap variables
     MapListStruct maplistCTMap[NUMNAMES];
     int maplistnr;
@@ -365,8 +370,7 @@ public:
 
     bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelInflow, SwitchChannelAdjustCHW,
     SwitchChannelBaseflowStationary, SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite,
-    SwitchRainfall, SwitchEventbased, SwitchInverseDistanceRainfall,
-    SwitchDailyET, SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
+    SwitchRainfall, SwitchEventbased, SwitchIDinterpolation, SwitchDailyET, SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
@@ -437,6 +441,7 @@ public:
     double GW_initlevel;
 
     double rainfallETa_threshold;
+    double rainIDIfactor;
 
     double totetafac;
 
@@ -848,7 +853,8 @@ public:
     void GetSnowmeltData(QString name);   // get input timeseries
     double getTimefromString(QString sss);
     double getmaxRainfall();
-    void IDInterpolation(QVector <IDI_POINT> *pointlist, double IDIpower);
+    void IDInterpolation(double IDIpower);
+    void IDIweight(double IDIpower);
     /// convert rainfall of a timestep into a map
     void GetRainfallMapfromStations(void);
     void GetRainfallMap(void);

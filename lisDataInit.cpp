@@ -257,6 +257,7 @@ void TWorld::InitParameters(void)
     PBiasCorrection = getvaluedouble("Rainfall Bias Correction");
     ETBiasCorrection = getvaluedouble("ET Bias Correction");
     rainfallETa_threshold = getvaluedouble("Rainfall ET threshold");
+    rainIDIfactor = getvaluedouble("IDI factor");
 
     GW_recharge = getvaluedouble("GW recharge factor");
     GW_flow = getvaluedouble("GW flow factor");
@@ -1841,6 +1842,7 @@ void TWorld::IntializeData(void)
     Snowpeak = 0;
     SnowpeakTime = 0;
     Rain = NewMap(0);
+    IDIw = NewMap(0);
     //RainSat = NewMap(0);
     Rainc = NewMap(0);
     RainCum = NewMap(0);

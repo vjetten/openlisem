@@ -7,10 +7,6 @@ if(OpenMP_CXX_FOUND)
     target_link_libraries(OpenMP::OpenMP_CXX)
 endif()
 
-FIND_PATH(OMP_INCLUDE_DIRS
-    NAMES omp.h
-)
-
 MARK_AS_ADVANCED(
     OMP_INCLUDE_DIRS
 )
