@@ -286,7 +286,7 @@ void TWorld::Totals(void)
     } else {
         if (SwitchIncludeTile)
         {
-            WaterVolSoilTot = MapTotal(*TileWaterVolSoil);
+            WaterVolSoilTileTot = MapTotal(*TileWaterVolSoil);
             // input for mass balance, is the water seeping from the soil, input
             // this is the water before the kin wave
             calc2Maps(*tm, *TileDrainSoil, *TileWidth, MUL); //in m3
@@ -513,9 +513,10 @@ void TWorld::MassBalance()
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
   //  if (RainTot + SnowTot > 0)
     {
-        double waterin = RainTot + SnowTot + WaterVolSoilTot + WHinitVolTot + BaseFlowTot + BaseFlowInit;
+        double waterin = RainTot + SnowTot + WaterVolSoilTileTot + WHinitVolTot + BaseFlowTot + BaseFlowInit;
+                //qDebug() << RainTot << thetai1tot - thetai1cur << thetai2tot - thetai2cur;
         double waterout = ETaTotVol;
-        double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot + IntercETaTot;
+        double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot + IntercETaTot;// + (thetai1cur - thetai1tot) + (thetai2cur - thetai2tot);
         double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;
         MB = waterin > 0 ? (waterin - waterout - waterstore - waterflow)/waterin *100 : 0;
      //   qDebug() << MB << BaseFlowTot << ChannelVolTot <<  Qtot;

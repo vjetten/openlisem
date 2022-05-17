@@ -38,7 +38,7 @@
 
 #include <QtGui>
 #include <QMutex>
-//#include "C:\\Qt\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\10.3.0\\include\\omp.h"
+//#include "C:\\Qt\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\11.3.0\\include\\omp.h"
 #include <omp.h>
 
 #include "CsfMap.h"
@@ -101,6 +101,7 @@
 // fastest, QVector stores all elements in the same consequtive memory!
 //#define FOR_ROW_COL_MV_L for(long i_ = 0; i_< nrValidCells; i_++)\
 //{int r = cr_[i_].r; int c = cr_[i_].c;
+
 
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
  {int r = cr_[i_].r; int c = cr_[i_].c;
@@ -195,6 +196,12 @@ ReadMap(cTMap *Mask, QString name) put a map on this list
 typedef struct MapListStruct {
     cTMap *m;
 }  MapListStruct;
+//---------------------------------------------------------------------------list
+typedef struct IDI_POINT {
+    int r;
+    int c;
+    double V;
+}  IDI_POINT;
 //---------------------------------------------------------------------------list
 typedef struct LDD_COOR {
     int r;
@@ -338,6 +345,11 @@ public:
     QVector <LDD_COORIN> crlinkedlddbase_;
     QVector <LDD_COORout> crout_;
 
+    QVector <IDI_POINT> IDIpoints;
+    QVector <LDD_COOR> IDIpointsRC;
+    QVector <double> IDIpointsV;
+
+
     /// map management structure, automatic adding and deleting of all cTMap variables
     MapListStruct maplistCTMap[NUMNAMES];
     int maplistnr;
@@ -357,8 +369,8 @@ public:
 */
 
     bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelInflow, SwitchChannelAdjustCHW,
-    SwitchChannelBaseflowStationary, SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite, SwitchRainfall, SwitchEventbased,
-    SwitchDailyET, SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
+    SwitchChannelBaseflowStationary, SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite,
+    SwitchRainfall, SwitchEventbased, SwitchIDinterpolation, SwitchDailyET, SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
@@ -429,6 +441,7 @@ public:
     double GW_initlevel;
 
     double rainfallETa_threshold;
+    double rainIDIfactor;
 
     double totetafac;
 
@@ -437,10 +450,13 @@ public:
     double gsizeCalibrationD90;
     double SmaxCalibration;
     double ksatCalibration;
+    double ksatCalibration2;
+    double ksat2Calibration;
     double nCalibration;
     double thetaCalibration;
     double psiCalibration;
     double ChnCalibration;
+    double ChnTortuosity;
     double ChKsatCalibration;
     double COHCalibration;
     double COHCHCalibration;
@@ -461,7 +477,7 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, MBeM3, Qtot, Qtot_dt, QTiletot, IntercTot, IntercETaTot, WaterVolTot, WaterVolSoilTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
+    double MB, MBeM3, Qtot, Qtot_dt, QTiletot, IntercTot, IntercETaTot, WaterVolTot, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
     double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowTotmm, Qfloodout,QfloodoutTot;
     double floodBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
@@ -480,6 +496,7 @@ public:
     double BulkDens;
     double nrCells, CatchmentArea, nrFloodedCells;
     double LitterSmax, ETaTot, ETaTotmm, ETaTotVol, GWlevel;
+    double thetai1tot, thetai2tot, thetai1cur, thetai2cur;
 
     double maxRainaxis;
     double latitude;
@@ -836,6 +853,8 @@ public:
     void GetSnowmeltData(QString name);   // get input timeseries
     double getTimefromString(QString sss);
     double getmaxRainfall();
+    void IDInterpolation(double IDIpower);
+    void IDIweight(double IDIpower);
     /// convert rainfall of a timestep into a map
     void GetRainfallMapfromStations(void);
     void GetRainfallMap(void);
@@ -860,13 +879,13 @@ public:
     double cell_Percolation(int r, int c, double factor);
     double cell_Percolation1(int r, int c, double factor);
     void cell_Redistribution(int r, int c);
-    void cell_Redistribution1(int r, int c);
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
     void cell_InfilSwatre(int r, int c);
     void cell_depositInfil(int r, int c);
     void cell_SplashDetachment(int r, int c);
     void cell_FlowDetachment(int r, int c);
+    void MoistureContent();
 
     void InfilEffectiveKsat();
     void Infiltration();
