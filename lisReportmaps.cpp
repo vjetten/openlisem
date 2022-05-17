@@ -331,13 +331,13 @@ void TWorld::GetComboMaps()
     cl = 4;
     double factor = 3600000.0/_dt; //from m to mm/h
 
+    AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,LegendMap[cl],Legend[cl],false,false,1000.0,0.1);
+    AddComboMap(0,"Rainfall Intensity","mm/h",Rain,LegendMap[cl],Legend[cl],false,false,factor,0.1);
+    //  AddComboMap(0,"ETa cumulative","mm",ETa,LegendMap[cl],Legend[cl],false,false,1000.0,0.1);
     if (SwitchIncludeET) {
         AddComboMap(0,"ETa Cumulative","mm",ETaCum,LegendMap[3],Legend[3],false,false,1000.0,0.1);
        // AddComboMap(0,"ETp Cumulative","mm",ETpCum,LegendMap[3],Legend[3],false,false,1000.0,0.1);
        }
-    AddComboMap(0,"Rainfall Cumulative","mm",RainCumFlat,LegendMap[cl],Legend[cl],false,false,1000.0,0.1);
-    AddComboMap(0,"Rainfall Intensity","mm/h",Rain,LegendMap[cl],Legend[cl],false,false,factor,0.1);
-    //  AddComboMap(0,"ETa cumulative","mm",ETa,LegendMap[cl],Legend[cl],false,false,1000.0,0.1);
 
     if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
         cl = 2;

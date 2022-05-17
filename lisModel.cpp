@@ -437,7 +437,7 @@ void TWorld::HydrologyProcesses()
     // ETa is subtracted from canopy, soil water surfaces
     // divided over 12 hours in a day with sine curve
 
-    //MoistureContent();
+    MoistureContent();
 
 }
 //---------------------------------------------------------------------------
