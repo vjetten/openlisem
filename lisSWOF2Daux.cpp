@@ -18,7 +18,7 @@ double TWorld::getMass(cTMap *M, double th)
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
-            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
+            sum2 += M->Drc*CHAdjDX->Drc;
     }}
     return sum2;
 }
@@ -29,7 +29,7 @@ double TWorld::getMassWS(int nr_, cTMap *M, double th)
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_LWS(nr_) {
         if(M->Drc > th)
-            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
+            sum2 += M->Drc*CHAdjDX->Drc;
     }}
     return sum2;
 }
@@ -55,7 +55,7 @@ void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
         {
-            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
+            sum2 += M->Drc*CHAdjDX->Drc;
             n += 1;
         }
     }}
@@ -81,7 +81,7 @@ void TWorld::correctMassBalanceWS(int nr_, double sum1, cTMap *M, double th)
     FOR_ROW_COL_MV_LWS(nr_) {
         if(M->Drc > th)
         {
-            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
+            sum2 += M->Drc* CHAdjDX->Drc;
             n += 1;
         }
     }}
@@ -910,11 +910,11 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
                         GRAV*0.5*((h2g_-h2l_)*(h2g_+h2l_) + (h2r_-h2d_)*(h2r_+h2d_) + (h2l_+h2r_)*delzc2->Drc));
 
             double sqUV = qSqrt(ve1_*ve1_+ve2_*ve2_);
-            double nsq1 = (0.001+N->Drc)*(0.001+N->Drc)*GRAV/qPow(Hes,4.0/3.0);   //std::max(0.01, qPow(Hes,4.0/3.0));
+            double nsq1 = (0.001+N->Drc)*(0.001+N->Drc)*GRAV/std::max(0.01, qPow(Hes,4.0/3.0));
             double nsq = nsq1*sqUV*dt;
 
-            Ves1 = std::min(1000.0,(qes1/(1.0+nsq))/Hes);
-            Ves2 = std::min(1000.0,(qes2/(1.0+nsq))/Hes);
+            Ves1 = (qes1/(1.0+nsq))/Hes;
+            Ves2 = (qes2/(1.0+nsq))/Hes;
 
             if (SwitchTimeavgV) {
                 double fac = 0;

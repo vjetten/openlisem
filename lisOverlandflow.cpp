@@ -195,7 +195,6 @@ void TWorld::CalcVelDisch()//(int r, int c)
 }
 
 //---------------------------------------------------------------------------
-// DO NOT MAKE PARALLEL
 void TWorld::Boundary2Ddyn()
 {
     cTMap *h = WHrunoff;
@@ -227,7 +226,7 @@ void TWorld::Boundary2Ddyn()
         FOR_ROW_COL_MV_L {
             if (K2DOutlets->Drc == 1)// && h->Drc > 0.001)
             {
-                if (c > 0 && MV(r,c-1))
+                if (c > 0 && MV(r,c-1)) // U = x; V = y
                     if (_U->Drc < 0) {
                         tma->Drc = 1;
                     }
@@ -255,15 +254,33 @@ void TWorld::Boundary2Ddyn()
 
     #pragma omp parallel for reduction(+:BoundaryQ, BoundaryQs) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (tma->Drc == 1) {
+        if (tma->Drc == 1 && h->Drc > 1e-6) {
 
-            //double _UV = qSqrt(_U->Drc * _U->Drc + _V->Drc*_V->Drc);
-            double dh = std::min(_dt*V->Drc*h->Drc*ChannelAdj->Drc, h->Drc);
-            double _q = dh/_dt;
+            double dh = 0;
+            double Qavg = 0;
+            for (int i = 0 ; i < Qout.size(); i++) {
+                //dh += Qout[i];
+                Qavg += Qout[i];
+            }
+            Qavg /= Qout.size();
+            //dh = 0.5*(Qout[0]+Qout.last())/CHAdjDX->Drc;
+
+            double alpha = Grad->Drc > MIN_SLOPE ? pow(N->Drc/sqrtGrad->Drc * pow(ChannelAdj->Drc, 2.0/3.0),0.6) : 0.0;
+            double _q = IterateToQnew(0, Q->Drc, 0, alpha,_dt, DX->Drc, 0);
+            dh = _q*_dt/CHAdjDX->Drc;
+            h->Drc = std::max(0.0,h->Drc-dh);
+
+            double Vold = V->Drc;
+            V->Drc = pow(h->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
+           // V->Drc = _q/(h->Drc*ChannelAdj->Drc);
+            if (Vold > 1e-6) {
+                _U->Drc *= V->Drc/Vold;
+                _V->Drc *= V->Drc/Vold;
+            }
 
             BoundaryQ += _q;
-            h->Drc -= dh;
-            //Q->Drc -= _q;
+
+            Q->Drc = _q;
 
             if (SwitchErosion) {
                 double ds = std::min(SSFlood->Drc, SSCFlood->Drc*_q*_dt);
@@ -334,7 +351,7 @@ void TWorld::OverlandFlow2Ddyn(void)
     FOR_ROW_COL_MV_L {
         double WHR = WHrunoff->Drc;
 
-        Qn->Drc = V->Drc*(WHR*ChannelAdj->Drc);
+        //Qn->Drc = V->Drc*(WHR*ChannelAdj->Drc);
         //Q->Drc = Qn->Drc; // just to be sure
 
         WHroad->Drc = WHR;

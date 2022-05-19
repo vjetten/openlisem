@@ -189,9 +189,11 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     bool stop;
     double dt_req_min = dt_max;
     int step = 0;
+    double QOUT = 0;
 
     if (startFlood)
     {
+Qout.clear();
 
         sumh = getMass(h, 0);
 //        if (SwitchErosion)
@@ -227,9 +229,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             //do all flow and state calculations
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-//                double vq = sqrt(vxs->Drc*vxs->Drc + vys->Drc*vys->Drc);
-//                if (hs->Drc > 5 && vq < 0.0001)
-//                    flowmask->Drc = 0;
 
                 if (flowmask->Drc > 0) {
                         //double dt = FloodDT->Drc; //dt_req_min;
@@ -292,45 +291,57 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double dz_y2 = (z_y2 - Z);
 
                     // muscl
-                    //SwitchMUSCL = true;
+                    SwitchMUSCL = false;
                     double delzcy = 0;
                     double delzcx = 0;
+                    double dhx   = limiter(H-h_x1, h_x2-H);
+                    double dz_hx = limiter(H-h_x1 + dz_x1, h_x2-H + dz_x2);
+                    delzcx = dz_hx - dhx;
+                    double dhy   = limiter(H-h_y1, h_y2-H);
+                    double dz_hy = limiter(H-h_y1 + dz_y1, h_y2-H + dz_y2);
+                    delzcy = dz_hy - dhy;
+                    // //z+0.5*dz_h-0.5*dh -z -0.5*dh + 0.5*dz_h = dz_h -dh;
+
                     if (SwitchMUSCL) {
-                        double dhx   = 0.5*limiter(H-h_x1, h_x2-H);
-                        double dz_hx = 0.5*limiter(H-h_x1 + dz_x1, h_x2-H + dz_x2);
-                        double _zxr = Z+(dz_hx-dhx);
-                        double _zxl = Z+(dz_hx-dhx);
-                        delzcx = _zxr-_zxl;
+                        double dhx   = limiter(H-h_x1, h_x2-H);
+                        double dz_hx = limiter(H-h_x1 + dz_x1, h_x2-H + dz_x2);
+                        double du = limiter(Vx-vx_x1, vx_x2-Vx);
+                        double dv = limiter(Vy-vy_x1, vy_x2-Vy);
+
+                        delzcx = dz_hx - dhx;
+
 
                         double hlh = 1.0;
                         double hrh = 1.0;
                         if (H > he_ca) {
-                            hlh = (H + dhx)/H;
-                            hrh = (H - dhx)/H;
+                            hlh = (H + 0.5*dhx)/H;
+                            hrh = (H - 0.5*dhx)/H;
                         }
-                        vx_x1 = Vx + hlh * 0.5*limiter(Vx-vx_x1, vx_x2-Vx);
-                        vx_x2 = Vx - hrh * 0.5*limiter(Vx-vx_x1, vx_x2-Vx);
-                        vy_x1 = Vy + hlh * 0.5*limiter(Vy-vy_x1, vy_x2-Vy);
-                        vy_x2 = Vy - hrh * 0.5*limiter(Vy-vy_x1, vy_x2-Vy);
+
+                        vx_x1 = Vx + hlh * 0.5*du;
+                        vx_x2 = Vx - hrh * 0.5*du;
+                        vy_x1 = Vy + hlh * 0.5*dv;
+                        vy_x2 = Vy - hrh * 0.5*dv;
 
 
-                        double dhy   = 0.5*limiter(H-h_y1, h_y2-H);
-                        double dz_hy = 0.5*limiter(H-h_y1 + dz_y1, h_y2-H + dz_y2);
-                        double _zyr = Z+(dz_hy-dhy);
-                        double _zyl = Z+(dz_hy-dhy);
-                        delzcy = _zyr-_zyl;
+                        double dhy   = limiter(H-h_y1, h_y2-H);
+                        double dz_hy = limiter(H-h_y1 + dz_y1, h_y2-H + dz_y2);
+                        du = limiter(Vx-vx_y1, vx_y2-Vx);
+                        dv = limiter(Vy-vy_y1, vy_y2-Vy);
+
+                        delzcy = dz_hy - dhy;
+
                         hlh = 1.0;
                         hrh = 1.0;
                         if (H > he_ca) {
-                            hlh = (H + dhy)/H;
-                            hrh = (H-dhy)/H;
+                            hlh = (H + 0.5*dhy)/H;
+                            hrh = (H - 0.5*dhy)/H;
                         }
 
-                        vx_y1 = Vx + hlh * 0.5*limiter(Vx-vx_y1, vx_y2-Vx);
-                        vx_y2 = Vx - hrh * 0.5*limiter(Vx-vx_y1, vx_y2-Vx);
-                        vy_y1 = Vy + hlh * 0.5*limiter(Vy-vy_y1, vy_y2-Vy);
-                        vy_y2 = Vy - hrh * 0.5*limiter(Vy-vy_y1, vy_y2-Vy);
-
+                        vx_y1 = Vx + hlh * 0.5*du;
+                        vx_y2 = Vx - hrh * 0.5*du;
+                        vy_y1 = Vy + hlh * 0.5*dv;
+                        vy_y2 = Vy - hrh * 0.5*dv;
 
                     }
 
@@ -368,9 +379,9 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double h_y1d = std::max(0.0, h_y1 - std::max(0.0,  dz_y1 + fb_y1));
                     double H_u   = std::max(0.0, H    - std::max(0.0, -dz_y1 + fb_y1));
                     if (br1)
-                        hll_y1 = F_Riemann(h_y1d,vy_y1,vx_y1, H_u,Vx,Vy); // r-1 and r
+                        hll_y1 = F_Riemann(h_y1d,vy_y1,vx_y1, H_u,Vy,Vx); // r-1 and r
                     else
-                        hll_y1 = F_Riemann(0,0,0, H_u,Vx,Vy);
+                        hll_y1 = F_Riemann(0,0,0, H_u,Vy,Vx);
 
                     double H_d   = std::max(0.0, H    - std::max(0.0,  dz_y2 + fb_y2));
                     double h_y2u = std::max(0.0, h_y2 - std::max(0.0, -dz_y2 + fb_y2));
@@ -398,10 +409,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         double flux_y2 = -hll_y2.v[0]/_dx;
 
                         // if cell drops < 0 then adjust timestep
-                       // double tot = dt*(flux_x1 + flux_x2 + flux_y1 + flux_y2);
+                        //double tot = dt*(flux_x1 + flux_x2 + flux_y1 + flux_y2);
 //                        if (H+tot < 0) {
-//                            dt = H/-tot*dt;
-//                            // qDebug() << "oei" << H-tot;
+//                            //dt = H/-tot*dt;
+//                             qDebug() << "oei" << H+tot;
 //                        }
 
                         double hn = std::max(0.0, H + dt*(flux_x1 + flux_x2 + flux_y1 + flux_y2));
@@ -412,28 +423,21 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                             // SWOF solution, delzc1 = 0 when not MUSCL
                             //  GRAV*0.5*((h1g_-h1l_)*(h1g_+h1l_) + (h1r_-h1d_)*(h1r_+h1d_) + (h1l_+h1r_)*delzc1->Drc));
 
-//                            float f_centre_x = 0.5 * GRAV*(h)*(((h - h_corr_x2) - (h - h_corr_x1)) > 0.0? 1.0:-1.0)*fcabs((h - h_corr_x2) - (h - h_corr_x1));
-//                            float f_centre_y = 0.5 * GRAV*(h)*(((h - h_corr_y2) - (h - h_corr_y1)) > 0.0? 1.0:-1.0)*fcabs((h - h_corr_y2) - (h - h_corr_y1));
+
                             double gflow_x = GRAV*0.5*( (H_l-H)*(H_l+H)+(H-H_r)*(H+H_r) + delzcx*(H_l+H_r) );
                             double gflow_y = GRAV*0.5*( (H_u-H)*(H_u+H)+(H-H_d)*(H+H_d) + delzcy*(H_u+H_d) );
 
                             double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
                             double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
-                            //float f_centre_x = 0.5 * GRAV*(h)*(((h - h_corr_x2) - (h - h_corr_x1)) > 0.0? 1.0:-1.0)*fcabs((h - h_corr_x2) - (h - h_corr_x1));
-                            //float f_centre_y = 0.5 * GRAV*(h)*(((h - h_corr_y2) - (h - h_corr_y1)) > 0.0? 1.0:-1.0)*fcabs((h - h_corr_y2) - (h - h_corr_y1));
-//                            float qxn = h * vx - tx*(fluxor_x2 *hll_x2.y - fluxor_x1 *hll_x1.y + f_centre_x)
-                            //- tx*(fluxor_y2*hll_y2.z - fluxor_y1*hll_y1.z);
-//                            float qyn = h * vy - tx*(fluxor_x2 *hll_x2.z - fluxor_x1 *hll_x1.z) - tx*(fluxor_y2 *hll_y2.y - fluxor_y1 *hll_y1.y + f_centre_y);// + fluxmc_x1y + fluxmc_x2y + fluxmc_y1y + fluxmc_y2y ;//- 0.5 * GRAV *hn*sy_z * dt
 
                             double vsq = sqrt(Vx * Vx + Vy * Vy);
-
-                            double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.01,pow(hn,4.0/3.0)); //pow(hn,4.0/3.0);//
+                            double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.001,pow(hn,4.0/3.0)); //pow(hn,4.0/3.0);//
                             double nsq = nsq1*vsq*dt;
 
-                            vxn = (qxn/(1.0+nsq))/std::max(0.01,hn);
-                            vyn = (qyn/(1.0+nsq))/std::max(0.01,hn);
-                            //vxn = std::min(1000.0,(qxn/(1.0+nsq))/hn);//std::max(0.01,hn);
-                            //vyn = std::min(1000.0,(qyn/(1.0+nsq))/hn);//std::max(0.01,hn);
+                            vxn = (qxn/(1.0+nsq))/std::max(0.001,hn);
+                            vyn = (qyn/(1.0+nsq))/std::max(0.001,hn);
+                         //   vxn = std::min(1000.0,(qxn/(1.0+nsq))/hn);//std::max(0.01,hn);
+                         //   vyn = std::min(1000.0,(qyn/(1.0+nsq))/hn);//std::max(0.01,hn);
 
                             if (SwitchTimeavgV) {
                                 double fac = 0.5+0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
@@ -455,12 +459,19 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                             vyn = 0;
                         }
 
-                        //vxn = checkforMinMaxV(vxn);
-                        //vyn = checkforMinMaxV(vyn);
+                       // vxn = checkforMinMaxV(vxn);
+                       // vyn = checkforMinMaxV(vyn);
 
                         h->Drc = hn;
                         vx->Drc = vxn;
                         vy->Drc = vyn;
+
+                        if (LDD->Drc == 5) {
+                            double Qq = qSqrt(vxn*vxn+vyn*vyn)*(hn*ChannelAdj->Drc);
+                            Qout << Qq*dt_req_min;
+
+                        }
+
                     } // step > 0
                 } // flowmask > 0, active cells + 1
             }}
@@ -481,7 +492,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             dt_req_min = std::min(dt_req_min, _dt-timesum);
 
             if (step > 0) {
-
+ //correctMassBalance(sumh, h, 0);
                 if (SwitchErosion) {
                     SWOFSediment(dt_req_min, h,vx,vy);
                 }
@@ -512,6 +523,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
   //          correctMassBalanceSed(sumS, SSFlood, 0);
 
         //            double sumh1 = getMass(h, 0);
+
         //            qDebug() << sumh << sumh1 << (sumh-sumh1)/sumh;
 //        if (SwitchErosion && !SwitchErosionInsideLoop) {
 //            SWOFSediment(_dt, h,vx,vy);

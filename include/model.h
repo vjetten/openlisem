@@ -349,6 +349,8 @@ public:
     QVector <LDD_COOR> IDIpointsRC;
     QVector <double> IDIpointsV;
 
+    QVector <double> Qout;
+    QVector <double> Tout;
 
     /// map management structure, automatic adding and deleting of all cTMap variables
     MapListStruct maplistCTMap[NUMNAMES];

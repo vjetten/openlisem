@@ -87,14 +87,14 @@ void TWorld::GridCell()
             else
                 hmx->Drc = hmxInit->Drc;
 
-            WHinitVolTot += hmxInit->Drc * DX->Drc * ChannelAdj->Drc;
+            WHinitVolTot += hmxInit->Drc * CHAdjDX->Drc;
         }}
     }
 
 //    thetai1tot = 0;
 //    #pragma omp parallel for reduction(+:thetai1tot) num_threads(userCores)
 //    FOR_ROW_COL_MV_L {
-//        thetai1tot += ThetaI1->Drc * SoilDepth1->Drc*DX->Drc * ChannelAdj->Drc;
+//        thetai1tot += ThetaI1->Drc * SoilDepth1->Drc*CHAdjDX->Drc;
 //    }}
 //    thetai1cur = thetai1tot;
 
@@ -102,7 +102,7 @@ void TWorld::GridCell()
 //        thetai2tot = 0;
 //        #pragma omp parallel for reduction(+:thetai2tot) num_threads(userCores)
 //        FOR_ROW_COL_MV_L {
-//            thetai2tot += ThetaI2->Drc * (SoilDepth2->Drc-SoilDepth1->Drc)*DX->Drc * ChannelAdj->Drc;
+//            thetai2tot += ThetaI2->Drc * (SoilDepth2->Drc-SoilDepth1->Drc)*CHAdjDX->Drc;
 //        }}
 //        thetai2cur = thetai2tot;
 //    }
