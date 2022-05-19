@@ -549,24 +549,30 @@ double TWorld::getTimefromString(QString sss)
 //---------------------------------------------------------------------------
 void TWorld::IDInterpolation(double IDIpower)
 {
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double w_total = 0.0;
         double val_total = 0.0;
 
-        for(int i = 0; i < IDIpointsV.size(); i++)
+        for(int i = 0; i < IDIpointsRC.size(); i++)
         {
-            double dx = (r-IDIpointsRC.at(i).r) * _dx;
-            double dy = (c-IDIpointsRC.at(i).c) * _dx;
+            int rr = IDIpointsRC.at(i).r;
+            int rc = IDIpointsRC.at(i).c;
+            //if (rr >= 0 && rr < _nrRows && rc >= 0 && rc < _nrCols) {
+            if (INSIDE(rr,rc)) {
+                double dx = (r-rc) * _dx;
+                double dy = (c-rr) * _dx;
 
-            double distancew = std::pow(dx*dx + dy*dy,0.5 * IDIpower);
+                double distancew = std::pow(dx*dx + dy*dy,0.5 * IDIpower);
 
-            val_total += IDIpointsV.at(i) * distancew;//IDIw->Drc;
-            w_total += distancew;//IDIw->Drc;
+                val_total += IDIpointsV.at(i) * distancew;
+                w_total += distancew;
 
-//            val_total += IDIpointsV.at(i) * IDIw->Drc;
-//            w_total += IDIw->Drc;
-        }
+//                val_total += IDIpointsV.at(i) * IDIw->Drc;
+//                w_total += IDIw->Drc;
+            }
+       }
     //    if (val_total > 0)
     //    qDebug() << w_total << val_total << val_total/w_total;
 
@@ -579,24 +585,35 @@ void TWorld::IDInterpolation(double IDIpower)
 //---------------------------------------------------------------------------
 void TWorld::IDIweight(double IDIpower)
 {
-//    fill(*tma,0);
-//    for(int i = 0; i < IDIpointsRC.size(); i++)
-//    {
-//        tma->data[IDIpointsRC.at(i).r][IDIpointsRC.at(i).c] = i;
-//    }
-//    report(*tma,"points.map");
-
-    #pragma omp parallel for num_threads(userCores)
+    fill(*tma,0);
+    for(int i = 0; i < IDIpointsRC.size(); i++)
+    {
+       // qDebug() << IDIpointsRC.at(i).r << IDIpointsRC.at(i).c;
+        int r = IDIpointsRC.at(i).r;
+        int c = IDIpointsRC.at(i).c;
+        //if (r >= 0 && r < _nrRows && c >= 0 && c < _nrCols) {
+        if (INSIDE(r,c)) {
+            qDebug() << i<< r,c;
+            tma->Drc = i;
+        }
+    }
+    report(*tma,"idipoints.map");
+return;
+    //#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double w_total = 0.0;
 
         for(int i = 0; i < IDIpointsRC.size(); i++)
         {
-            double dx = (r-IDIpointsRC.at(i).r) * _dx;
-            double dy = (c-IDIpointsRC.at(i).c) * _dx;
+            int rr = IDIpointsRC.at(i).r;
+            int rc = IDIpointsRC.at(i).c;
+            if (rr >= 0 && rr < _nrRows && rc >= 0 && rc < _nrCols) {
+                double dx = (r-rr) * _dx;
+                double dy = (c-rc) * _dx;
 
-            double distancew = std::pow(dx*dx + dy*dy,0.5 * IDIpower);
-            w_total += distancew;
+                double distancew = std::pow(dx*dx + dy*dy,0.5 * IDIpower);
+                w_total += distancew;
+            }
         }
         //qDebug() << r << c << w_total;
         IDIw->Drc = w_total;
