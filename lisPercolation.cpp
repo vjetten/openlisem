@@ -29,7 +29,7 @@
 void TWorld::MoistureContent()
 {
     thetai1cur = 0;
-    #pragma omp parallel for  num_threads(userCores)
+    #pragma omp parallel for reduction(+:thetai2cur) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double Lw_ = std::max(SoilDepth1->Drc - Lw->Drc,0.0);
         thetai1cur += Lw_*ThetaI1->Drc*CHAdjDX->Drc;
@@ -37,7 +37,7 @@ void TWorld::MoistureContent()
 
     if (SwitchTwoLayer) {
         thetai2cur = 0;
-        #pragma omp parallel for  num_threads(userCores)
+        #pragma omp parallel for reduction(+:thetai2cur) num_threads(userCores)
         FOR_ROW_COL_MV_L {
             double Lw_ = Lw->Drc < SoilDepth1->Drc ? SoilDepth1->Drc : Lw->Drc;
             thetai2cur += (SoilDepth2->Drc - Lw_)*ThetaI2->Drc*CHAdjDX->Drc;

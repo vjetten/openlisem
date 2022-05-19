@@ -630,8 +630,10 @@ void lisemqt::ParseInputData()
     E_satImageName->setText(satImageFileDir +satImageFileName);
     if (!QFileInfo(E_satImageName->text()).exists())
     {
-        satImageFileDir = QString(E_WorkDir + "maps/");
-        E_satImageName->setText(satImageFileDir + satImageFileName);
+        satImageFileDir = "";//QString(E_WorkDir + "maps/");
+        satImageFileName = "";
+        E_satImageName->setText("");
+        //E_satImageName->setText(satImageFileDir + satImageFileName);
     }
 
 
