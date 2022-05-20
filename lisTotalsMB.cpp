@@ -242,9 +242,13 @@ void TWorld::Totals(void)
     // 2D boundary losses, ALWAYS INCLUDES LDD=5 and channelLDD=5
 
     // Add outlet overland flow, for all flow methods
-    FOR_ROW_COL_LDD5 {
-        Qtot_dt += Qn->Drc*_dt;
-    }}
+  //  if(SwitchKinematic2D != K2D_METHOD_DYN) {
+        FOR_ROW_COL_LDD5 {
+            Qtot_dt += Qn->Drc*_dt;
+        }}
+//    } else {
+  //      Qtot_dt += Qout*_dt;
+    //}
 
 
     // for this flow method, flooding and overland flow are separated, so add the flood outflow separately

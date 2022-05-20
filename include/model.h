@@ -974,6 +974,10 @@ public:
     double BoundaryQ;
     double BoundaryQs;
     double TimestepfloodMin, TimestepfloodLast;
+    //double Qout;
+    QVector <double> Qout;
+
+
     //SWATRE
     /// filenames for Swatre soil information
     QString SwatreTableDir;
@@ -1051,14 +1055,6 @@ public:
     QMutex mutex;
     QWaitCondition condition;
     void stop();
-
-//    QList<double> TSList_point;
-//    QList<double> TSList_rainav;
-//    QList<double> TSList_snowav;
-//    QList<double> TSList_q;
-//    QList<double> TSList_h;
-//    QList<double> TSList_qs;
-//    QList<double> TSList_c;
 
 protected:
     void run();
