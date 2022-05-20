@@ -189,11 +189,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     bool stop;
     double dt_req_min = dt_max;
     int step = 0;
-    double QOUT = 0;
 
     if (startFlood)
     {
-Qout.clear();
+
 
         sumh = getMass(h, 0);
 //        if (SwitchErosion)
@@ -292,23 +291,18 @@ Qout.clear();
 
                     // muscl
                     SwitchMUSCL = false;
-                    double delzcy = 0;
-                    double delzcx = 0;
-                    double dhx   = limiter(H-h_x1, h_x2-H);
-                    double dz_hx = limiter(H-h_x1 + dz_x1, h_x2-H + dz_x2);
-                    delzcx = dz_hx - dhx;
-                    double dhy   = limiter(H-h_y1, h_y2-H);
-                    double dz_hy = limiter(H-h_y1 + dz_y1, h_y2-H + dz_y2);
-                    delzcy = dz_hy - dhy;
-                    // //z+0.5*dz_h-0.5*dh -z -0.5*dh + 0.5*dz_h = dz_h -dh;
-
+                    double delzcx =0;
+                    double delzcy =0;
                     if (SwitchMUSCL) {
                         double dhx   = limiter(H-h_x1, h_x2-H);
                         double dz_hx = limiter(H-h_x1 + dz_x1, h_x2-H + dz_x2);
-                        double du = limiter(Vx-vx_x1, vx_x2-Vx);
-                        double dv = limiter(Vy-vy_x1, vy_x2-Vy);
 
-                        delzcx = dz_hx - dhx;
+                        double dux = limiter(Vx-vx_x1, vx_x2-Vx);
+                        double dvx = limiter(Vy-vy_x1, vy_x2-Vy);
+
+                        double z1r_ = Z+(dz_hx-dhx);
+                        double z1l_ = Z+(dhx-dz_hx);
+                        delzcx = z1r_-z1l_;
 
 
                         double hlh = 1.0;
@@ -318,18 +312,19 @@ Qout.clear();
                             hrh = (H - 0.5*dhx)/H;
                         }
 
-                        vx_x1 = Vx + hlh * 0.5*du;
-                        vx_x2 = Vx - hrh * 0.5*du;
-                        vy_x1 = Vy + hlh * 0.5*dv;
-                        vy_x2 = Vy - hrh * 0.5*dv;
-
+                        vx_x1 = Vx + hlh * 0.5*dux;
+                        vx_x2 = Vx - hrh * 0.5*dux;
+                        vy_x1 = Vy + hlh * 0.5*dvx;
+                        vy_x2 = Vy - hrh * 0.5*dvx;
 
                         double dhy   = limiter(H-h_y1, h_y2-H);
                         double dz_hy = limiter(H-h_y1 + dz_y1, h_y2-H + dz_y2);
-                        du = limiter(Vx-vx_y1, vx_y2-Vx);
-                        dv = limiter(Vy-vy_y1, vy_y2-Vy);
+                        double duy = limiter(Vx-vx_y1, vx_y2-Vx);
+                        double dvy = limiter(Vy-vy_y1, vy_y2-Vy);
 
-                        delzcy = dz_hy - dhy;
+                        double z2r_ = Z+(dz_hy-dhy);
+                        double z2l_ = Z+(dhy-dz_hy);
+                        delzcy = z2r_-z2l_;
 
                         hlh = 1.0;
                         hrh = 1.0;
@@ -338,10 +333,10 @@ Qout.clear();
                             hrh = (H - 0.5*dhy)/H;
                         }
 
-                        vx_y1 = Vx + hlh * 0.5*du;
-                        vx_y2 = Vx - hrh * 0.5*du;
-                        vy_y1 = Vy + hlh * 0.5*dv;
-                        vy_y2 = Vy - hrh * 0.5*dv;
+                        vx_y1 = Vx + hlh * 0.5*duy;
+                        vx_y2 = Vx - hrh * 0.5*duy;
+                        vy_y1 = Vy + hlh * 0.5*dvy;
+                        vy_y2 = Vy - hrh * 0.5*dvy;
 
                     }
 
@@ -403,27 +398,12 @@ Qout.clear();
                         double tx = dt/dx;
                         double ty = dt/dy;
 
-                        double flux_x1 = +hll_x1.v[0]/_dx;
-                        double flux_x2 = -hll_x2.v[0]/_dx;
-                        double flux_y1 = +hll_y1.v[0]/_dx;
-                        double flux_y2 = -hll_y2.v[0]/_dx;
-
-                        // if cell drops < 0 then adjust timestep
-                        //double tot = dt*(flux_x1 + flux_x2 + flux_y1 + flux_y2);
-//                        if (H+tot < 0) {
-//                            //dt = H/-tot*dt;
-//                             qDebug() << "oei" << H+tot;
-//                        }
-
-                        double hn = std::max(0.0, H + dt*(flux_x1 + flux_x2 + flux_y1 + flux_y2));
+                        double hn = std::max(0.0, H + dt/_dx*(hll_x1.v[0]-hll_x2.v[0] + hll_y1.v[0]-hll_y2.v[0]));
                         // mass balance
 
                         // momentum balance for cells with water
                         if(hn > he_ca) {
                             // SWOF solution, delzc1 = 0 when not MUSCL
-                            //  GRAV*0.5*((h1g_-h1l_)*(h1g_+h1l_) + (h1r_-h1d_)*(h1r_+h1d_) + (h1l_+h1r_)*delzc1->Drc));
-
-
                             double gflow_x = GRAV*0.5*( (H_l-H)*(H_l+H)+(H-H_r)*(H+H_r) + delzcx*(H_l+H_r) );
                             double gflow_y = GRAV*0.5*( (H_u-H)*(H_u+H)+(H-H_d)*(H+H_d) + delzcy*(H_u+H_d) );
 
@@ -436,8 +416,6 @@ Qout.clear();
 
                             vxn = (qxn/(1.0+nsq))/std::max(0.001,hn);
                             vyn = (qyn/(1.0+nsq))/std::max(0.001,hn);
-                         //   vxn = std::min(1000.0,(qxn/(1.0+nsq))/hn);//std::max(0.01,hn);
-                         //   vyn = std::min(1000.0,(qyn/(1.0+nsq))/hn);//std::max(0.01,hn);
 
                             if (SwitchTimeavgV) {
                                 double fac = 0.5+0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
@@ -466,12 +444,6 @@ Qout.clear();
                         vx->Drc = vxn;
                         vy->Drc = vyn;
 
-                        if (LDD->Drc == 5) {
-                            double Qq = qSqrt(vxn*vxn+vyn*vyn)*(hn*ChannelAdj->Drc);
-                            Qout << Qq*dt_req_min;
-
-                        }
-
                     } // step > 0
                 } // flowmask > 0, active cells + 1
             }}
@@ -479,7 +451,6 @@ Qout.clear();
             // find smallest domain dt
             #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                sqrtUV->Drc = qSqrt(vx->Drc * vx->Drc + vy->Drc*vy->Drc);
                 dt_req_min = std::min(dt_req_min, FloodDT->Drc);
             }}
 
@@ -492,7 +463,7 @@ Qout.clear();
             dt_req_min = std::min(dt_req_min, _dt-timesum);
 
             if (step > 0) {
- //correctMassBalance(sumh, h, 0);
+
                 if (SwitchErosion) {
                     SWOFSediment(dt_req_min, h,vx,vy);
                 }

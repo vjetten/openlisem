@@ -257,14 +257,6 @@ void TWorld::Boundary2Ddyn()
         if (tma->Drc == 1 && h->Drc > 1e-6) {
 
             double dh = 0;
-            double Qavg = 0;
-            for (int i = 0 ; i < Qout.size(); i++) {
-                //dh += Qout[i];
-                Qavg += Qout[i];
-            }
-            Qavg /= Qout.size();
-            //dh = 0.5*(Qout[0]+Qout.last())/CHAdjDX->Drc;
-
             double alpha = Grad->Drc > MIN_SLOPE ? pow(N->Drc/sqrtGrad->Drc * pow(ChannelAdj->Drc, 2.0/3.0),0.6) : 0.0;
             double _q = IterateToQnew(0, Q->Drc, 0, alpha,_dt, DX->Drc, 0);
             dh = _q*_dt/CHAdjDX->Drc;

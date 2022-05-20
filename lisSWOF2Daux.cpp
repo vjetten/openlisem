@@ -498,11 +498,6 @@ void TWorld::simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v)
         h2l->Drc = _h->Drc;
         u2l->Drc = _u->Drc;
         v2l->Drc = _v->Drc;
-
-//        if(c < _nrCols-1 && !MV(r,c+1))
-//            delzc1->Drc = limiter(delz1->data[r][c+1],delz1->Drc);
-//        if(r < _nrRows-1 && !MV(r+1, c))
-//            delzc2->Drc = limiter(delz2->data[r+1][c],delz2->Drc);
     }}
 }
 
@@ -582,11 +577,10 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
             double _z1r = zx+(dz_h-dh);
             double _z1l = zx+(dh-dz_h);
 
-            double _delzc1 = _z1r-_z1l; // boils down to limiter(dz1, dz2) !?
-            //zx+(dz_h-dh)- zx -(dh-dz_h) = 2dh_z - 2dh =limiter(h+z)-limiter(h)
+            double _delzc1 = _z1r-_z1l;
 
-            double hlh = _h1l/hx;
-            double hrh = _h1r/hx;
+            double hlh = hx > he_ca ? _h1l/hx : 1.0;
+            double hrh = hx > he_ca ? _h1r/hx : 1.0;
 
             double _u1r = ux + hlh * du;
             double _u1l = ux - hrh * du;
@@ -605,7 +599,7 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
         }
     }}
 
-//#pragma omp parallel for collapse(2) num_threads(userCores)
+//#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (_h->Drc > he_ca) {
             if (c > 0 && !MV(r,c-1))
@@ -663,8 +657,8 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
 
             double _delzc2 = _z2r-_z2l;
 
-            double hlh = _h2l/hx;
-            double hrh = _h2r/hx;
+            double hlh = hx > he_ca ? _h2l/hx : 1.0;
+            double hrh = hx > he_ca ? _h2r/hx : 1.0;
 
             double _u2r = ux + hlh * du;
             double _u2l = ux - hrh * du;
@@ -683,7 +677,7 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
         }
     }}
 
-//#pragma omp parallel for collapse(2) num_threads(userCores)
+//#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (_h->Drc > he_ca) {
             if(r > 0 && !MV(r-1,c))
@@ -910,11 +904,11 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
                         GRAV*0.5*((h2g_-h2l_)*(h2g_+h2l_) + (h2r_-h2d_)*(h2r_+h2d_) + (h2l_+h2r_)*delzc2->Drc));
 
             double sqUV = qSqrt(ve1_*ve1_+ve2_*ve2_);
-            double nsq1 = (0.001+N->Drc)*(0.001+N->Drc)*GRAV/std::max(0.01, qPow(Hes,4.0/3.0));
+            double nsq1 = (0.001+N->Drc)*(0.001+N->Drc)*GRAV/std::max(0.001, qPow(Hes,4.0/3.0));
             double nsq = nsq1*sqUV*dt;
 
-            Ves1 = (qes1/(1.0+nsq))/Hes;
-            Ves2 = (qes2/(1.0+nsq))/Hes;
+            Ves1 = (qes1/(1.0+nsq))/std::max(0.001,Hes);
+            Ves2 = (qes2/(1.0+nsq))/std::max(0.001,Hes);
 
             if (SwitchTimeavgV) {
                 double fac = 0;
