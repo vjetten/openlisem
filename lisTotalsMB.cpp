@@ -237,13 +237,18 @@ void TWorld::Totals(void)
     Qtot_dt = 0;
     // sum all outflow in m3 for this timestep, Qtot is for all timesteps!
 
-    // Add overland flow, do this even for 2D dyn wave
-    if(SwitchKinematic2D != K2D_METHOD_DYN) {
+    floodBoundaryTot += BoundaryQ*_dt;
+    FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
+    // 2D boundary losses, ALWAYS INCLUDES LDD=5 and channelLDD=5
+   // Qtot_dt += BoundaryQ*_dt;
+
+    // Add outlet overland flow, do this even for 2D dyn wave
+   // if(SwitchKinematic2D != K2D_METHOD_DYN) {
         FOR_ROW_COL_LDD5 {
             Qtot_dt += Qn->Drc*_dt;
+            //qDebug() << Qtot_dt;
         }}
-
-    }
+   // }
 
     if(SwitchKinematic2D == K2D_METHOD_KINDYN)
     {
@@ -304,11 +309,6 @@ void TWorld::Totals(void)
             // add tile outflow (in m3) to total for all pits
         }
     }
-
-    floodBoundaryTot += BoundaryQ*_dt;
-    FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
-    // 2D boundary losses, ALWAYS INCLUDES LDD=5 and channelLDD=5
-    //Qtot_dt += BoundaryQ*_dt;
 
     // output fluxes for reporting to file and screen in l/s!]
     double factor = 1000.0;

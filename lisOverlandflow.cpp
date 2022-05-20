@@ -195,12 +195,8 @@ void TWorld::CalcVelDisch()//(int r, int c)
 }
 
 //---------------------------------------------------------------------------
-// DO NOT MAKE PARALLEL
-void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
+void TWorld::Boundary2Ddyn()
 {
-    if (FlowBoundaryType == 0)
-        return;
-
     cTMap *h = WHrunoff;
     cTMap *Q = Qn;
     cTMap *_U = Uflood;
@@ -216,22 +212,21 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         tma->Drc = 0;
-        //K2DQ->Drc = 0;
         K2DOutlets->Drc = 0;
     }}
 
-// CHECK should flow boundary be at the start?
-        // find oulets based on DEM and WHrunoff
+    // direction of velocity is in the direction of + and -
+    // U is EW and V is NS
+    // find which outlets on the boundary are directed to the outside based on sign U and V
+    if (FlowBoundaryType > 0) {
+
         dynOutflowPoints();
-        //find K2DOutlets = 1
-        //direction of velocity is in the direction of + and -
-        // U is EW and V is NS
-        // find which outlets on the boundary are directed to the outside based on sign U and V
+
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            if (K2DOutlets->Drc == 1 && FlowBoundary->Drc == 1 && h->Drc > 0.01)
+            if (K2DOutlets->Drc == 1)// && h->Drc > 0.001)
             {
-                if (c > 0 && MV(r,c-1))
+                if (c > 0 && MV(r,c-1)) // U = x; V = y
                     if (_U->Drc < 0) {
                         tma->Drc = 1;
                     }
@@ -249,36 +244,49 @@ void TWorld::Boundary2Ddyn()//cTMap* h, cTMap* Q, cTMap *_U, cTMap *_V)
                     }
             }
         }}
+    } else {
+        //boundary 0 only ldd pits regardless of pressure
+        FOR_ROW_COL_LDD5 {
+            K2DOutlets->Drc = 1;
+            tma->Drc = 1;
+        }}
+    }
 
+    #pragma omp parallel for reduction(+:BoundaryQ, BoundaryQs) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (tma->Drc == 1 && h->Drc > 1e-6) {
 
-        #pragma omp parallel for reduction(+:BoundaryQ,BoundaryQs) num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            if (tma->Drc == 1) {
+            double dh = 0;
+            double alpha = Grad->Drc > MIN_SLOPE ? pow(N->Drc/sqrtGrad->Drc * pow(ChannelAdj->Drc, 2.0/3.0),0.6) : 0.0;
+            double _q = IterateToQnew(0, Q->Drc, 0, alpha,_dt, DX->Drc, 0);
+            dh = _q*_dt/CHAdjDX->Drc;
+            h->Drc = std::max(0.0,h->Drc-dh);
 
-                double UV = qSqrt(_U->Drc * _U->Drc + _V->Drc*_V->Drc);
-                double frac = UV*_dt/DX->Drc;
-                frac = std::max(0.0, std::min(frac, 0.9));
-                double dh = frac*h->Drc;
-                double _q = dh*DX->Drc*ChannelAdj->Drc;
-
-                BoundaryQ += _q/_dt;
-                h->Drc -= dh;
-                //K2DQ->Drc = _q/_dt;
-                Q->Drc -= _q/_dt;
-
-                if (SwitchErosion) {
-                    double ds = frac * SSFlood->Drc;
-                    BoundaryQs += ds/_dt; //in kg
-                    SSFlood->Drc -= ds;
-                    if (SwitchUse2Phase) {
-                        ds = frac * BLFlood->Drc;
-                        BoundaryQs += ds/_dt;
-                        BLFlood->Drc -= ds;
-                    }
-                }
+            double Vold = V->Drc;
+            V->Drc = pow(h->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
+           // V->Drc = _q/(h->Drc*ChannelAdj->Drc);
+            if (Vold > 1e-6) {
+                _U->Drc *= V->Drc/Vold;
+                _V->Drc *= V->Drc/Vold;
             }
-     }}
 
+            BoundaryQ += _q;
+
+            Q->Drc = _q;
+
+            if (SwitchErosion) {
+                double ds = std::min(SSFlood->Drc, SSCFlood->Drc*_q*_dt);
+                BoundaryQs += ds/_dt; //in kg/s
+                SSFlood->Drc -= ds;
+                if (SwitchUse2Phase) {
+                    ds = std::min(BLFlood->Drc, BLCFlood->Drc*_q*_dt);
+                    BoundaryQs += ds/_dt;
+                    BLFlood->Drc -= ds;
+                }
+                //SWOFSedimentSetConcentration(r, c, h);
+            }
+        }
+    }}
 }
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow2Ddyn(void)
@@ -296,22 +304,22 @@ void TWorld::OverlandFlow2Ddyn(void)
     }
 
     if (SwitchSWOFopen) {
-        if (SwitchSWOFWatersheds) {
-            double hh = getMass(WHrunoff, 0);
-            double dtofavg = 0;
-            for (int i = 1; i < WScr.size(); i++) {
-                dtOF = fullSWOF2openWS(i, WHrunoff, Uflood, Vflood, DEM);
-                dtofavg += dtOF;
+//        if (SwitchSWOFWatersheds) {
+//            double hh = getMass(WHrunoff, 0);
+//            double dtofavg = 0;
+//            for (int i = 1; i < WScr.size(); i++) {
+//                dtOF = fullSWOF2openWS(i, WHrunoff, Uflood, Vflood, DEM);
+//                dtofavg += dtOF;
 
-                qDebug() << dtOF << i;
-            }
-            correctMassBalance(hh, WHrunoff, 0);
+//                qDebug() << dtOF << i;
+//            }
+//            correctMassBalance(hh, WHrunoff, 0);
 
-            dtOF = dtofavg/(double)WScr.size();
-            iter_n = (int) _dt_user/dtOF;
-        } else {
+//            dtOF = dtofavg/(double)WScr.size();
+//            iter_n = (int) _dt_user/dtOF;
+//        } else {
             dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
-        }
+//        }
 
     }
     else
@@ -319,21 +327,24 @@ void TWorld::OverlandFlow2Ddyn(void)
     //VJ new average flux over lisem timestep, else last Qn is used
 
     //  infilInWave(WHrunoff, _dt);
+
+    // calc discharge flux
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
         Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
-        Q->Drc = Qn->Drc; // just to be sure
+        //Q->Drc = Qn->Drc; // just to be sure
     }}
 
     Boundary2Ddyn();  // do the domain boundaries
 
+    // calc discharge flux after boundary
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double WHR = WHrunoff->Drc;
 
-        Qn->Drc = V->Drc*(WHR*ChannelAdj->Drc);
-       // Q->Drc = Qn->Drc; // just to be sure
+        //Qn->Drc = V->Drc*(WHR*ChannelAdj->Drc);
+        //Q->Drc = Qn->Drc; // just to be sure
 
         WHroad->Drc = WHR;
         // set road to average outflowing wh, no surface storage.
@@ -503,6 +514,16 @@ void TWorld::OverlandFlow1D(void)
 // all points that flow outward of the domain by slope and water pressure
 void TWorld::dynOutflowPoints()
 {
+    //if boundary = 0 only outflow on pits
+//    if (FlowBoundaryType == 0) {
+//        #pragma omp parallel for num_threads(userCores)
+//        FOR_ROW_COL_LDD5 {
+//            K2DOutlets->Drc = 1;
+//        }}
+//        return;
+//    }
+
+    // for boundary 1 or 2, find all outflow points
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double Dhx = 0;
@@ -600,11 +621,11 @@ void TWorld::dynOutflowPoints()
         }
     }}
 
-    //VJ use flowboundary map, type 1 is open flow, else use the map
-    if (FlowBoundaryType != 1) {
+    //flowboundary 2 use the map
+    if (FlowBoundaryType == 2) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            K2DOutlets->Drc *= FlowBoundary->Drc;  //copy 1 is 2
+            K2DOutlets->Drc *= FlowBoundary->Drc;
         }}
     }
 }

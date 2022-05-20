@@ -801,7 +801,7 @@ void TWorld::InitBoundary(void)
     }
 
     FlowBoundary = NewMap(0);
-    if (FlowBoundaryType == 0) // no outflow as flood or overland flow, only channel
+    if (FlowBoundaryType == 0) // no outflow as flood or overland flow, only pits
     {
         if (!SwitchIncludeChannel) {
             FOR_ROW_COL_MV
@@ -819,7 +819,7 @@ void TWorld::InitBoundary(void)
         }
     }
     else
-        if(FlowBoundaryType == 1) // outflow everywhere
+        if(FlowBoundaryType == 1) // potential outflow everywhere
         {
             // determine dynamically in function K2DDEMA
             // for flood DomainEdge is used
@@ -1138,7 +1138,6 @@ void TWorld::InitFlood(void)
     vys = NewMap(0);
     Uflood = NewMap(0);
     Vflood = NewMap(0);
-    sqrtUV = NewMap(0);
     hmx = NewMap(0);
     hmxflood = NewMap(0);
     FloodDomain = NewMap(0);

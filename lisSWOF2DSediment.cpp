@@ -607,7 +607,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
 
         } else
             if (Y->Drc > 0) {
-                TransportFactor = dt * TSettlingVelocitySS * DX->Drc * ChannelAdj->Drc;//SoilWidthDX->Drc;
+                TransportFactor = dt * TSettlingVelocitySS * CHAdjDX->Drc;//SoilWidthDX->Drc;
                 // only erosion on soilwidth
 
                 detachment = maxTC * std::min(TransportFactor, sswatervol);

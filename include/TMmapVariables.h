@@ -386,7 +386,6 @@ cTMap
 //*FloodHC,
 *VRO, *URO, *iro,
 *Uflood,*Vflood,
-*sqrtUV,
 *hs, *vs, *us,
 *vxs, *vys,
 
