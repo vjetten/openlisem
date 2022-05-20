@@ -346,7 +346,7 @@ void TWorld::ChannelSedimentFlow()
             pcr::setMV(ChannelQSSsn->Drc);
         }}
 
-        FOR_ROW_COL_LDD5 {
+        FOR_ROW_COL_LDDCH5 {
               routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
         }}
 
@@ -356,7 +356,7 @@ void TWorld::ChannelSedimentFlow()
                 pcr::setMV(ChannelQBLsn->Drc);
             }}
 
-            FOR_ROW_COL_LDD5 {
+            FOR_ROW_COL_LDDCH5 {
                 routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
             }}
         }

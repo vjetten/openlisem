@@ -479,7 +479,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 timesum += dt_req_min;
                 count++; // nr loops
             }
-
+correctMassBalance(sumh, h, 0);
             step += 1; // now we have a good dt min, do the real calculations
 
             stop = timesum > _dt-0.001;

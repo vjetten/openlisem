@@ -58,14 +58,6 @@ void TWorld::OverlandFlow(void)
             FOR_ROW_COL_MV_L  {
                 cell_FlowDetachment(r, c);
                 // kine wave based flow detachment
-//                if(WH->Drc < 0.001 && Sed->Drc > 0) {
-//                    DEP->Drc -= Sed->Drc;
-//                    Sed->Drc = 0;
-//                    Conc->Drc = 0;
-//                    TC->Drc = 0;
-//                }
-
-
             }}
         }
 
@@ -81,6 +73,8 @@ void TWorld::OverlandFlow(void)
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
         OverlandFlow2Ddyn();
     }
+
+    FloodMaxandTiming();
 
 }
 //--------------------------------------------------------------------------------------------
@@ -254,12 +248,11 @@ void TWorld::Boundary2Ddyn()
 
     #pragma omp parallel for reduction(+:BoundaryQ, BoundaryQs) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (tma->Drc == 1 && h->Drc > 1e-6) {
+        if (tma->Drc == 1 && h->Drc > 1e-8) {
 
-            double dh = 0;
-            double alpha = Grad->Drc > MIN_SLOPE ? pow(N->Drc/sqrtGrad->Drc * pow(ChannelAdj->Drc, 2.0/3.0),0.6) : 0.0;
-            double _q = IterateToQnew(0, Q->Drc, 0, alpha,_dt, DX->Drc, 0);
-            dh = _q*_dt/CHAdjDX->Drc;
+            //double alpha = Grad->Drc > MIN_SLOPE ? pow(N->Drc/sqrtGrad->Drc * pow(ChannelAdj->Drc, 2.0/3.0),0.6) : 0.0;
+            double _q = Q->Drc;             //IterateToQnew(0, Q->Drc, 0, alpha,_dt, DX->Drc, 0);
+            double dh = _q*_dt/CHAdjDX->Drc;
             h->Drc = std::max(0.0,h->Drc-dh);
 
             double Vold = V->Drc;
@@ -303,25 +296,8 @@ void TWorld::OverlandFlow2Ddyn(void)
             startFlood = true;
     }
 
-    if (SwitchSWOFopen) {
-//        if (SwitchSWOFWatersheds) {
-//            double hh = getMass(WHrunoff, 0);
-//            double dtofavg = 0;
-//            for (int i = 1; i < WScr.size(); i++) {
-//                dtOF = fullSWOF2openWS(i, WHrunoff, Uflood, Vflood, DEM);
-//                dtofavg += dtOF;
-
-//                qDebug() << dtOF << i;
-//            }
-//            correctMassBalance(hh, WHrunoff, 0);
-
-//            dtOF = dtofavg/(double)WScr.size();
-//            iter_n = (int) _dt_user/dtOF;
-//        } else {
-            dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
-//        }
-
-    }
+    if (SwitchSWOFopen)
+        dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
     else
         dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
     //VJ new average flux over lisem timestep, else last Qn is used
@@ -365,8 +341,6 @@ void TWorld::OverlandFlow2Ddyn(void)
         RunoffWaterVol->Drc = std::min(WHR, minReportFloodHeight)*CHAdjDX->Drc;
         // used for screen output
 
-        WHmax->Drc = std::max(WHmax->Drc, hmxWH->Drc);
-
         if (SwitchErosion) {
             double sed = (SSFlood->Drc + BLFlood->Drc);
             Conc->Drc =  MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, &sed, &DepFlood->Drc);
@@ -376,7 +350,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 
     }}
 
-    FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
+   // FloodMaxandTiming(hmxWH, minReportFloodHeight);
 
     TIMEDB(QString("Average dynamic timestep in flooded cells (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));
     // some screen error reporting
@@ -482,7 +456,7 @@ void TWorld::OverlandFlow1D(void)
                 pcr::setMV(Qsn->Drc);//Qsn->setAllMV();
             }}
             FOR_ROW_COL_LDD5 {
-                  routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
+                routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
             }}
         } else {
             KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
@@ -490,8 +464,7 @@ void TWorld::OverlandFlow1D(void)
     }
 
     // route other stuff
-    if (SwitchPesticide)
-    {
+    if (SwitchPesticide) {
         // calc pesticide flux going in kin wave as Qp = Q*C
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
@@ -508,7 +481,7 @@ void TWorld::OverlandFlow1D(void)
             //qDebug()<< "ds overlandflow"<< C->Drc;
             //qDebug()<< "ds overlandflow"<< Pest->Drc;
         }}
-    }
+    }   
 }
 //---------------------------------------------------------------------------
 // all points that flow outward of the domain by slope and water pressure
