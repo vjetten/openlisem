@@ -890,6 +890,8 @@ void TWorld::ReportMapSeries(void)
     if (SwitchOutinf)
         report(*InfilmmCum, Outinf);
 
+    report(*InfilVol,resultDir+"InfilVol.map");
+
     if (SwitchOutss)
     {
         //calcMapValue(*tm, *WHstore, 1000, MUL);// in mm

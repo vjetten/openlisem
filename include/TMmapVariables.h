@@ -491,7 +491,19 @@ cTMap
 *FlowBarrierNT,              //!< Flow barriers end timing North of cell
 *FlowBarrierWT,              //!< Flow barriers end timing West of cell
 *FlowBarrierST,              //!< Flow barriers end timing South of cell
-*FlowBarrierET               //!< Flow barriers end timing East of cell
+*FlowBarrierET,               //!< Flow barriers end timing East of cell
+
+// maps for sediment and water fluxes for each timestep
+*SedFlux1_out,
+*SedFlux2_out,
+*SedFlux3_out,
+*SedFlux4_out,
+*SedFlux5_out,
+*SedFlux6_out,
+*SedFlux7_out,
+*SedFlux8_out,
+*SedFlux9_out,
+*SedFluxB_out
 
 ;
 

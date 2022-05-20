@@ -806,8 +806,10 @@ public:
                                 cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                                 cTMap *_Alpha, cTMap *_DX, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
 
-  //  double K2DSolvebyInterpolationSed( cTMap *M, cTMap *MC);
+    // MC - function to export sediment fluxes for each timestep
+    // double K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C, QList<cTMap * >fluxlist);
 
+  //  double K2DSolvebyInterpolationSed( cTMap *M, cTMap *MC);
 
     double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
     double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
