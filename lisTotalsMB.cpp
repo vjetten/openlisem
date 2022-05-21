@@ -240,16 +240,18 @@ void TWorld::Totals(void)
     floodBoundaryTot += BoundaryQ*_dt;
     FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
     // 2D boundary losses, ALWAYS INCLUDES LDD=5 and channelLDD=5
-   // Qtot_dt += BoundaryQ*_dt;
 
-    // Add outlet overland flow, do this even for 2D dyn wave
-   // if(SwitchKinematic2D != K2D_METHOD_DYN) {
+    // Add outlet overland flow, for all flow methods
+  //  if(SwitchKinematic2D != K2D_METHOD_DYN) {
         FOR_ROW_COL_LDD5 {
             Qtot_dt += Qn->Drc*_dt;
-            //qDebug() << Qtot_dt;
         }}
-   // }
+//    } else {
+  //      Qtot_dt += Qout*_dt;
+    //}
 
+
+    // for this flow method, flooding and overland flow are separated, so add the flood outflow separately
     if(SwitchKinematic2D == K2D_METHOD_KINDYN)
     {
         Qfloodout = 0;

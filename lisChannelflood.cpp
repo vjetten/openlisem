@@ -461,19 +461,21 @@ void TWorld::ToFlood()
 }
 //---------------------------------------------------------------------------
 // DO NOT MAKE PARALLEL
-void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
+void TWorld::FloodMaxandTiming()
 {
     // floodwater volume and max flood map
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (_h->Drc > threshold) {
+        if (hmxWH->Drc > minReportFloodHeight) {
             floodTime->Drc += _dt/60;
-            floodHmxMax->Drc = std::max(floodHmxMax->Drc, _h->Drc);
+            floodHmxMax->Drc = std::max(floodHmxMax->Drc, hmxWH->Drc);
             // for output
-            floodVMax->Drc = std::max(floodVMax->Drc, _UV->Drc);
-            floodVHMax->Drc = std::max(floodVHMax->Drc, _UV->Drc*_h->Drc);
-            // max velocity
         }
+
+        floodVMax->Drc = std::max(floodVMax->Drc, V->Drc);
+        floodVHMax->Drc = std::max(floodVHMax->Drc, V->Drc*hmxWH->Drc);
+        // max velocity
+        WHmax->Drc = std::max(WHmax->Drc, hmxWH->Drc);
     }}
     floodVolTotMax = 0;
     floodArea = 0;
@@ -481,14 +483,14 @@ void TWorld::FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold)
 
    // #pragma omp parallel for reduction(+:floodVolTotMax,floodArea) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (floodHmxMax->Drc > threshold) {
+        if (floodHmxMax->Drc > minReportFloodHeight) {
             floodVolTotMax += floodHmxMax->Drc*area;
         }
-        if (_h->Drc > threshold && floodTimeStart->Drc == 0)  {
+        if (hmxWH->Drc > minReportFloodHeight && floodTimeStart->Drc == 0)  {
             floodTimeStart->Drc = (time - RainstartTime)/60.0;
             // time since first pixel received rainfall
         }
-        if (_h->Drc > threshold) {
+        if (hmxWH->Drc > minReportFloodHeight) {
             floodArea += area;
         }
     }}
@@ -564,14 +566,9 @@ void TWorld::ChannelFlood(void)
         double WHrunoffOutput = std::min(WHrunoff->Drc + hmx->Drc, minReportFloodHeight);
         RunoffWaterVol->Drc = WHrunoffOutput * CHAdjDX->Drc;
 
-        WHmax->Drc = std::max(WHmax->Drc, hmxWH->Drc);
     }}
 
-    FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
-
-
-    if(SwitchErosion)
-    {
+    if(SwitchErosion) {
         //calculate concentration and new sediment discharge
         //WHrunoff and Qn are adapted in case of 2D routing
         #pragma omp parallel for num_threads(userCores)

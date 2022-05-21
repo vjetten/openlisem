@@ -51,7 +51,7 @@ void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
     double sum2 = 0;
     double n = 0;
 
-#pragma omp parallel for reduction(+:sum2) num_threads(userCores)
+    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
         {
@@ -59,10 +59,11 @@ void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
             n += 1;
         }
     }}
+    sum2 = std::max(0.0, sum2);
     // total and cells active for M
     double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
 
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
         {
@@ -565,27 +566,27 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
                 dz2 = zx2 - zx;
             }
 
-            double dh   = 0.5*limiter(delta_h1, delta_h2);
-            double dz_h = 0.5*limiter(delta_h1 + dz1, delta_h2 + dz2);
+            double dh   = limiter(delta_h1, delta_h2);
+            double dz_h = limiter(delta_h1 + dz1, delta_h2 + dz2);
 
-            double du   = 0.5*limiter(delta_u1, delta_u2);
-            double dv   = 0.5*limiter(delta_v1, delta_v2);
+            double du   = limiter(delta_u1, delta_u2);
+            double dv   = limiter(delta_v1, delta_v2);
 
-            double _h1r = hx+dh;
-            double _h1l = hx-dh;
+            double _h1r = hx+dh*0.5;
+            double _h1l = hx-dh*0.5;
 
-            double _z1r = zx+(dz_h-dh);
-            double _z1l = zx+(dh-dz_h);
+            double _z1r = zx+0.5*(dz_h-dh);
+            double _z1l = zx+0.5*(dh-dz_h);
 
             double _delzc1 = _z1r-_z1l;
 
             double hlh = hx > he_ca ? _h1l/hx : 1.0;
             double hrh = hx > he_ca ? _h1r/hx : 1.0;
 
-            double _u1r = ux + hlh * du;
-            double _u1l = ux - hrh * du;
-            double _v1r = vx + hlh * dv;
-            double _v1l = vx - hrh * dv;
+            double _u1r = ux + hlh * 0.5*du;
+            double _u1l = ux - hrh * 0.5*du;
+            double _v1r = vx + hlh * 0.5*dv;
+            double _v1l = vx - hrh * 0.5*dv;
 
             h1r->Drc = _h1r;
             h1l->Drc = _h1l;
@@ -644,26 +645,26 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
                 delta_v2 = vx2 - vx;
                 dz2 = zx2 - zx;
             }
-            double dh   = 0.5*limiter(delta_h1, delta_h2);
-            double dz_h = 0.5*limiter(delta_h1+dz2,delta_h2+dz2);
-            double du   = 0.5*limiter(delta_u1, delta_u2);
-            double dv   = 0.5*limiter(delta_v1, delta_v2);
+            double dh   = limiter(delta_h1, delta_h2);
+            double dz_h = limiter(delta_h1+dz2,delta_h2+dz2);
+            double du   = limiter(delta_u1, delta_u2);
+            double dv   = limiter(delta_v1, delta_v2);
 
-            double _h2r = hx+dh;
-            double _h2l = hx-dh;
+            double _h2r = hx+0.5*dh;
+            double _h2l = hx-0.5*dh;
 
-            double _z2r = zx+(dz_h-dh);
-            double _z2l = zx+(dh-dz_h);
+            double _z2r = zx+0.5*(dz_h-dh);
+            double _z2l = zx+0.5*(dh-dz_h);
 
-            double _delzc2 = _z2r-_z2l;
+            double _delzc2 = _z2r-_z2l; //dz_h -dh;
 
             double hlh = hx > he_ca ? _h2l/hx : 1.0;
             double hrh = hx > he_ca ? _h2r/hx : 1.0;
 
-            double _u2r = ux + hlh * du;
-            double _u2l = ux - hrh * du;
-            double _v2r = vx + hlh * dv;
-            double _v2l = vx - hrh * dv;
+            double _u2r = ux + hlh * 0.5*du;
+            double _u2l = ux - hrh * 0.5*du;
+            double _v2r = vx + hlh * 0.5*dv;
+            double _v2l = vx - hrh * 0.5*dv;
 
             h2r->Drc = _h2r;
             h2l->Drc = _h2l;

@@ -101,19 +101,18 @@
 // fastest, QVector stores all elements in the same consequtive memory!
 //#define FOR_ROW_COL_MV_L for(long i_ = 0; i_< nrValidCells; i_++)\
 //{int r = cr_[i_].r; int c = cr_[i_].c;
+// slower
+//#define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < _nrCols*_nrRows; i_++)\
+//{int r = i_/_nrCols; int c=i_%_nrCols;\
+//if(!pcr::isMV(LDD->data[r][c]))
 
 
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
  {int r = cr_[i_].r; int c = cr_[i_].c;
 
-//#define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < _nrCols*_nrRows; i_++)\
-//{int r = i_/_nrCols; int c=i_%_nrCols;\
-//if(!pcr::isMV(LDD->data[r][c]))
-
-//nrValidCellsWS
+//not used
 #define FOR_ROW_COL_MV_LWS(nr_) for(long i_ = WScr.at(nr_).size()-1; i_ >= 0; i_--)\
 {int r = WScr.at(nr_)[i_].r; int c = WScr.at(nr_)[i_].c;
-
 
 #define FOR_ROW_COL_LDD5 for(long i_ = nrValidCellsLDD5-1; i_ >= 0; i_--)\
 {int r = crldd5_[i_].r; int c = crldd5_[i_].c;
@@ -947,7 +946,7 @@ public:
     long nrGridcells;
     long nrFloodcells;
     void ChannelFlood(void);
-    void FloodMaxandTiming(cTMap *_h, cTMap *_UV, double threshold);
+    void FloodMaxandTiming();
     void ChannelFloodStatistics(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
     void ChannelOverflowNew(cTMap *_h, cTMap *_V, bool doOF);
@@ -975,6 +974,10 @@ public:
     double BoundaryQ;
     double BoundaryQs;
     double TimestepfloodMin, TimestepfloodLast;
+    //double Qout;
+    QVector <double> Qout;
+
+
     //SWATRE
     /// filenames for Swatre soil information
     QString SwatreTableDir;
@@ -1052,14 +1055,6 @@ public:
     QMutex mutex;
     QWaitCondition condition;
     void stop();
-
-//    QList<double> TSList_point;
-//    QList<double> TSList_rainav;
-//    QList<double> TSList_snowav;
-//    QList<double> TSList_q;
-//    QList<double> TSList_h;
-//    QList<double> TSList_qs;
-//    QList<double> TSList_c;
 
 protected:
     void run();

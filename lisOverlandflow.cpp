@@ -58,14 +58,6 @@ void TWorld::OverlandFlow(void)
             FOR_ROW_COL_MV_L  {
                 cell_FlowDetachment(r, c);
                 // kine wave based flow detachment
-//                if(WH->Drc < 0.001 && Sed->Drc > 0) {
-//                    DEP->Drc -= Sed->Drc;
-//                    Sed->Drc = 0;
-//                    Conc->Drc = 0;
-//                    TC->Drc = 0;
-//                }
-
-
             }}
         }
 
@@ -81,6 +73,8 @@ void TWorld::OverlandFlow(void)
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
         OverlandFlow2Ddyn();
     }
+
+    FloodMaxandTiming();
 
 }
 //--------------------------------------------------------------------------------------------
@@ -193,101 +187,6 @@ void TWorld::CalcVelDisch()//(int r, int c)
 
     }}
 }
-
-//---------------------------------------------------------------------------
-void TWorld::Boundary2Ddyn()
-{
-    cTMap *h = WHrunoff;
-    cTMap *Q = Qn;
-    cTMap *_U = Uflood;
-    cTMap *_V = Vflood;
-
-    if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
-        Q = Qflood;
-        h = hmx;
-    }
-
-    BoundaryQ = 0;
-    BoundaryQs = 0;
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        tma->Drc = 0;
-        K2DOutlets->Drc = 0;
-    }}
-
-    // direction of velocity is in the direction of + and -
-    // U is EW and V is NS
-    // find which outlets on the boundary are directed to the outside based on sign U and V
-    if (FlowBoundaryType > 0) {
-
-        dynOutflowPoints();
-
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            if (K2DOutlets->Drc == 1)// && h->Drc > 0.001)
-            {
-                if (c > 0 && MV(r,c-1)) // U = x; V = y
-                    if (_U->Drc < 0) {
-                        tma->Drc = 1;
-                    }
-                if (c < _nrCols-1 && MV(r,c+1))
-                    if (_U->Drc > 0) {
-                        tma->Drc = 1;
-                    }
-                if (r > 0 && MV(r-1,c))
-                    if (_V->Drc < 0) {
-                        tma->Drc = 1;
-                    }
-                if (r < _nrRows-1 && MV(r+1,c))
-                    if (_V->Drc > 0) {
-                        tma->Drc = 1;
-                    }
-            }
-        }}
-    } else {
-        //boundary 0 only ldd pits regardless of pressure
-        FOR_ROW_COL_LDD5 {
-            K2DOutlets->Drc = 1;
-            tma->Drc = 1;
-        }}
-    }
-
-    #pragma omp parallel for reduction(+:BoundaryQ, BoundaryQs) num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (tma->Drc == 1 && h->Drc > 1e-6) {
-
-            double dh = 0;
-            double alpha = Grad->Drc > MIN_SLOPE ? pow(N->Drc/sqrtGrad->Drc * pow(ChannelAdj->Drc, 2.0/3.0),0.6) : 0.0;
-            double _q = IterateToQnew(0, Q->Drc, 0, alpha,_dt, DX->Drc, 0);
-            dh = _q*_dt/CHAdjDX->Drc;
-            h->Drc = std::max(0.0,h->Drc-dh);
-
-            double Vold = V->Drc;
-            V->Drc = pow(h->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
-           // V->Drc = _q/(h->Drc*ChannelAdj->Drc);
-            if (Vold > 1e-6) {
-                _U->Drc *= V->Drc/Vold;
-                _V->Drc *= V->Drc/Vold;
-            }
-
-            BoundaryQ += _q;
-
-            Q->Drc = _q;
-
-            if (SwitchErosion) {
-                double ds = std::min(SSFlood->Drc, SSCFlood->Drc*_q*_dt);
-                BoundaryQs += ds/_dt; //in kg/s
-                SSFlood->Drc -= ds;
-                if (SwitchUse2Phase) {
-                    ds = std::min(BLFlood->Drc, BLCFlood->Drc*_q*_dt);
-                    BoundaryQs += ds/_dt;
-                    BLFlood->Drc -= ds;
-                }
-                //SWOFSedimentSetConcentration(r, c, h);
-            }
-        }
-    }}
-}
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow2Ddyn(void)
 {
@@ -303,25 +202,8 @@ void TWorld::OverlandFlow2Ddyn(void)
             startFlood = true;
     }
 
-    if (SwitchSWOFopen) {
-//        if (SwitchSWOFWatersheds) {
-//            double hh = getMass(WHrunoff, 0);
-//            double dtofavg = 0;
-//            for (int i = 1; i < WScr.size(); i++) {
-//                dtOF = fullSWOF2openWS(i, WHrunoff, Uflood, Vflood, DEM);
-//                dtofavg += dtOF;
-
-//                qDebug() << dtOF << i;
-//            }
-//            correctMassBalance(hh, WHrunoff, 0);
-
-//            dtOF = dtofavg/(double)WScr.size();
-//            iter_n = (int) _dt_user/dtOF;
-//        } else {
-            dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
-//        }
-
-    }
+    if (SwitchSWOFopen)
+        dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
     else
         dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
     //VJ new average flux over lisem timestep, else last Qn is used
@@ -365,8 +247,6 @@ void TWorld::OverlandFlow2Ddyn(void)
         RunoffWaterVol->Drc = std::min(WHR, minReportFloodHeight)*CHAdjDX->Drc;
         // used for screen output
 
-        WHmax->Drc = std::max(WHmax->Drc, hmxWH->Drc);
-
         if (SwitchErosion) {
             double sed = (SSFlood->Drc + BLFlood->Drc);
             Conc->Drc =  MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, &sed, &DepFlood->Drc);
@@ -376,7 +256,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 
     }}
 
-    FloodMaxandTiming(hmxWH, V, minReportFloodHeight);
+   // FloodMaxandTiming(hmxWH, minReportFloodHeight);
 
     TIMEDB(QString("Average dynamic timestep in flooded cells (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));
     // some screen error reporting
@@ -482,7 +362,7 @@ void TWorld::OverlandFlow1D(void)
                 pcr::setMV(Qsn->Drc);//Qsn->setAllMV();
             }}
             FOR_ROW_COL_LDD5 {
-                  routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
+                routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
             }}
         } else {
             KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
@@ -490,8 +370,7 @@ void TWorld::OverlandFlow1D(void)
     }
 
     // route other stuff
-    if (SwitchPesticide)
-    {
+    if (SwitchPesticide) {
         // calc pesticide flux going in kin wave as Qp = Q*C
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
@@ -508,20 +387,15 @@ void TWorld::OverlandFlow1D(void)
             //qDebug()<< "ds overlandflow"<< C->Drc;
             //qDebug()<< "ds overlandflow"<< Pest->Drc;
         }}
-    }
+    }   
 }
 //---------------------------------------------------------------------------
 // all points that flow outward of the domain by slope and water pressure
 void TWorld::dynOutflowPoints()
 {
     //if boundary = 0 only outflow on pits
-//    if (FlowBoundaryType == 0) {
-//        #pragma omp parallel for num_threads(userCores)
-//        FOR_ROW_COL_LDD5 {
-//            K2DOutlets->Drc = 1;
-//        }}
-//        return;
-//    }
+    if (FlowBoundaryType == 0)
+        return;
 
     // for boundary 1 or 2, find all outflow points
     #pragma omp parallel for num_threads(userCores)
@@ -628,4 +502,128 @@ void TWorld::dynOutflowPoints()
             K2DOutlets->Drc *= FlowBoundary->Drc;
         }}
     }
+}
+//---------------------------------------------------------------------------
+void TWorld::Boundary2Ddyn()
+{
+    cTMap *h = WHrunoff;
+    cTMap *Q = Qn;
+    cTMap *_U = Uflood;
+    cTMap *_V = Vflood;
+
+    if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
+        Q = Qflood;
+        h = hmx;
+    }
+
+    BoundaryQ = 0;
+    BoundaryQs = 0;
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        tma->Drc = 0;
+        K2DOutlets->Drc = 0;
+    }}
+
+   // if (FlowBoundaryType == 0) {
+        FOR_ROW_COL_LDD5 {
+            double _q = Qout.at(i_);
+            double dh = _q*_dt/CHAdjDX->Drc;
+            h->Drc = std::max(0.0,h->Drc-dh);
+
+            double Vold = V->Drc;
+            //V->Drc = pow(h->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
+            V->Drc = pow(h->Drc, 2.0/3.0) * qSqrt(h->Drc/_dx + Grad->Drc)/N->Drc;
+            if (Vold > 1e-6) {
+                _U->Drc *= V->Drc/Vold;
+                _V->Drc *= V->Drc/Vold;
+            }
+            Q->Drc = _q;
+
+            if (SwitchErosion) {
+                double ds = std::min(SSFlood->Drc, SSCFlood->Drc*_q*_dt);
+                SSFlood->Drc -= ds;
+                if (SwitchUse2Phase) {
+                    ds = std::min(BLFlood->Drc, BLCFlood->Drc*_q*_dt);
+                    BLFlood->Drc -= ds;
+                }
+            }
+
+        }}
+
+        if (FlowBoundaryType == 0)
+            return;
+//    }
+
+
+    // direction of velocity is in the direction of + and -
+    // U is EW and V is NS
+    // find which outlets on the boundary are directed to the outside based on sign U and V
+   // if (FlowBoundaryType > 0) {
+
+        dynOutflowPoints();
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            if (K2DOutlets->Drc == 1)// && h->Drc > 0.001)
+            {
+                if (c > 0 && MV(r,c-1)) // U = x; V = y
+                    if (_U->Drc < 0) {
+                        tma->Drc = 1;
+                    }
+                if (c < _nrCols-1 && MV(r,c+1))
+                    if (_U->Drc > 0) {
+                        tma->Drc = 1;
+                    }
+                if (r > 0 && MV(r-1,c))
+                    if (_V->Drc < 0) {
+                        tma->Drc = 1;
+                    }
+                if (r < _nrRows-1 && MV(r+1,c))
+                    if (_V->Drc > 0) {
+                        tma->Drc = 1;
+                    }
+            }
+        }}
+//    } else {
+//        //boundary 0 only ldd pits regardless of pressure
+//        FOR_ROW_COL_LDD5 {
+//            K2DOutlets->Drc = 1;
+//            tma->Drc = 1;
+//        }}
+//    }
+
+    #pragma omp parallel for reduction(+:BoundaryQ, BoundaryQs) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (tma->Drc == 1 && h->Drc > 1e-8) {
+
+            double _q = Q->Drc;
+            double dh = _q*_dt/CHAdjDX->Drc;
+            h->Drc = std::max(0.0,h->Drc-dh);
+
+            double Vold = V->Drc;
+            //V->Drc = pow(h->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
+            V->Drc = pow(h->Drc, 2.0/3.0) * qSqrt(h->Drc/_dx + Grad->Drc)/N->Drc;
+            if (Vold > 1e-6) {
+                _U->Drc *= V->Drc/Vold;
+                _V->Drc *= V->Drc/Vold;
+            }
+
+            BoundaryQ += _q;
+
+            Q->Drc = _q;
+
+            if (SwitchErosion) {
+                double ds = std::min(SSFlood->Drc, SSCFlood->Drc*_q*_dt);
+                BoundaryQs += ds/_dt; //in kg/s
+                SSFlood->Drc -= ds;
+                if (SwitchUse2Phase) {
+                    ds = std::min(BLFlood->Drc, BLCFlood->Drc*_q*_dt);
+                    BoundaryQs += ds/_dt;
+                    BLFlood->Drc -= ds;
+                }
+                //SWOFSedimentSetConcentration(r, c, h);
+            }
+        }
+    }}
+    qDebug() << "bound" << BoundaryQ;
 }

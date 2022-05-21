@@ -190,6 +190,12 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     double dt_req_min = dt_max;
     int step = 0;
 
+    Qout.clear();
+    FOR_ROW_COL_LDD5 {
+       Qout << 0.0;
+    }}
+
+
     if (startFlood)
     {
 
@@ -411,11 +417,11 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                             double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
 
                             double vsq = sqrt(Vx * Vx + Vy * Vy);
-                            double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.001,pow(hn,4.0/3.0)); //pow(hn,4.0/3.0);//
+                            double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.0001,pow(hn,4.0/3.0)); //pow(hn,4.0/3.0);//
                             double nsq = nsq1*vsq*dt;
 
-                            vxn = (qxn/(1.0+nsq))/std::max(0.001,hn);
-                            vyn = (qyn/(1.0+nsq))/std::max(0.001,hn);
+                            vxn = (qxn/(1.0+nsq))/std::max(0.0001,hn);
+                            vyn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
 
                             if (SwitchTimeavgV) {
                                 double fac = 0.5+0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
@@ -454,15 +460,19 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 dt_req_min = std::min(dt_req_min, FloodDT->Drc);
             }}
 
-        //#pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
-        //FOR_ROW_COL_MV_L {
-        //    if (dt_req_min == FloodDT->Drc)
-        //        FloodT->Drc = FloodDT->Drc;
-        //}}
-
             dt_req_min = std::min(dt_req_min, _dt-timesum);
 
             if (step > 0) {
+
+                // get the outflow for all outlets, do not decrease the level here because of the mass balance correction
+                FOR_ROW_COL_LDD5 {
+                   double Vv =pow(h->Drc, 2.0/3.0)*qSqrt(h->Drc/_dx*Grad->Drc)/N->Drc;
+                   double dh = Vv*h->Drc/DX->Drc*dt_req_min; // *H*dx / dx *DX
+                   if (h->Drc-dh < 0)
+                       dh = h->Drc;
+                   double q = Qout.at(i_) + dh/dt_req_min;
+                   Qout.replace(i_,q);
+                }}
 
                 if (SwitchErosion) {
                     SWOFSediment(dt_req_min, h,vx,vy);
@@ -508,6 +518,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
 double TWorld::fullSWOF2openWS(int nr_, cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 {
+    /*
     double timesum = 0;
     double dt_max = std::min(_dt, _dx*0.5);
     int count = 0;
@@ -713,17 +724,6 @@ double TWorld::fullSWOF2openWS(int nr_, cTMap *h, cTMap *vx, cTMap *vy, cTMap *z
                         vyn = 0;
                     }
 
-                    double vxabs = fabs(vxn);
-                    double vyabs = fabs(vyn);
-                    if (vxabs <= ve_ca)
-                        vxn = 0;
-                    if (vyabs <= ve_ca)
-                        vyn = 0;
-
-                    if (vxabs > 20)
-                        vxn = (vxn < 0 ? -1.0 : 1.0) * (20+(pow(vxabs,0.3)));
-                    if (vyabs > 20)
-                        vyn = (vyn < 0 ? -1.0 : 1.0) * (20+(pow(vyabs,0.3)));
 
                     h->Drc = hn;
                     vx->Drc = vxn;
@@ -769,6 +769,7 @@ double TWorld::fullSWOF2openWS(int nr_, cTMap *h, cTMap *vx, cTMap *vy, cTMap *z
     //qDebug() << _dt/count << count << dt_req_min;
     iter_n = std::max(1,count);
     return(count > 0 ? _dt/count : _dt);
+    */
 }
 
 
