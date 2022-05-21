@@ -890,7 +890,7 @@ void TWorld::ReportMapSeries(void)
     if (SwitchOutinf)
         report(*InfilmmCum, Outinf);
 
-    report(*InfilVol,resultDir+"InfilVol.map");
+    report(*InfilVol, Outinfilvol);
 
     if (SwitchOutss)
     {

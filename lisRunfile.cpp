@@ -564,6 +564,7 @@ void TWorld::ParseRunfileData(void)
     Outdepo   = "dep";
     Outvelo   = "v";
     Outinf    = "inf";
+    Outinfilvol = "ivol";
     Outss     = "sstor";
     Outchvol  = "";
     OutTiledrain = "Qtile";
