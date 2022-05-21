@@ -85,6 +85,7 @@ void TWorld::MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
             z1l->Drc = _z->Drc+(dh-dz_h);
 
             delzc1->Drc = z1r->Drc-z1l->Drc;
+            // ?
             if (c > 0 && !MV(r,c-1))
                 delz1->data[r][c-1] = z1l->Drc - z1r->data[r][c-1];
 

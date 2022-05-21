@@ -2172,7 +2172,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>1145</width>
-                <height>85</height>
+                <height>86</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_22"/>
@@ -2697,7 +2697,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>4</number>
              </property>
              <property name="iconSize">
               <size>

@@ -18,7 +18,7 @@ double TWorld::getMass(cTMap *M, double th)
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
-            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
+            sum2 += M->Drc*CHAdjDX->Drc;
     }}
     return sum2;
 }
@@ -29,7 +29,7 @@ double TWorld::getMassWS(int nr_, cTMap *M, double th)
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_LWS(nr_) {
         if(M->Drc > th)
-            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
+            sum2 += M->Drc*CHAdjDX->Drc;
     }}
     return sum2;
 }
@@ -51,18 +51,19 @@ void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
     double sum2 = 0;
     double n = 0;
 
-#pragma omp parallel for reduction(+:sum2) num_threads(userCores)
+    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
         {
-            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
+            sum2 += M->Drc*CHAdjDX->Drc;
             n += 1;
         }
     }}
+    sum2 = std::max(0.0, sum2);
     // total and cells active for M
     double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
 
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
         {
@@ -81,7 +82,7 @@ void TWorld::correctMassBalanceWS(int nr_, double sum1, cTMap *M, double th)
     FOR_ROW_COL_MV_LWS(nr_) {
         if(M->Drc > th)
         {
-            sum2 += M->Drc*DX->Drc*ChannelAdj->Drc;
+            sum2 += M->Drc* CHAdjDX->Drc;
             n += 1;
         }
     }}
@@ -498,11 +499,6 @@ void TWorld::simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v)
         h2l->Drc = _h->Drc;
         u2l->Drc = _u->Drc;
         v2l->Drc = _v->Drc;
-
-//        if(c < _nrCols-1 && !MV(r,c+1))
-//            delzc1->Drc = limiter(delz1->data[r][c+1],delz1->Drc);
-//        if(r < _nrRows-1 && !MV(r+1, c))
-//            delzc2->Drc = limiter(delz2->data[r+1][c],delz2->Drc);
     }}
 }
 
@@ -528,7 +524,7 @@ void TWorld::setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v)
 void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
 {
 
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (_h->Drc > he_ca)
         {
@@ -570,28 +566,27 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
                 dz2 = zx2 - zx;
             }
 
-            double dh   = 0.5*limiter(delta_h1, delta_h2);
-            double dz_h = 0.5*limiter(delta_h1 + dz1, delta_h2 + dz2);
+            double dh   = limiter(delta_h1, delta_h2);
+            double dz_h = limiter(delta_h1 + dz1, delta_h2 + dz2);
 
-            double du   = 0.5*limiter(delta_u1, delta_u2);
-            double dv   = 0.5*limiter(delta_v1, delta_v2);
+            double du   = limiter(delta_u1, delta_u2);
+            double dv   = limiter(delta_v1, delta_v2);
 
-            double _h1r = hx+dh;
-            double _h1l = hx-dh;
+            double _h1r = hx+dh*0.5;
+            double _h1l = hx-dh*0.5;
 
-            double _z1r = zx+(dz_h-dh);
-            double _z1l = zx+(dh-dz_h);
+            double _z1r = zx+0.5*(dz_h-dh);
+            double _z1l = zx+0.5*(dh-dz_h);
 
-            double _delzc1 = _z1r-_z1l; // boils down to limiter(dz1, dz2) !?
-            //zx+(dz_h-dh)- zx -(dh-dz_h) = 2dh_z - 2dh =limiter(h+z)-limiter(h)
+            double _delzc1 = _z1r-_z1l;
 
-            double hlh = _h1l/hx;
-            double hrh = _h1r/hx;
+            double hlh = hx > he_ca ? _h1l/hx : 1.0;
+            double hrh = hx > he_ca ? _h1r/hx : 1.0;
 
-            double _u1r = ux + hlh * du;
-            double _u1l = ux - hrh * du;
-            double _v1r = vx + hlh * dv;
-            double _v1l = vx - hrh * dv;
+            double _u1r = ux + hlh * 0.5*du;
+            double _u1l = ux - hrh * 0.5*du;
+            double _v1r = vx + hlh * 0.5*dv;
+            double _v1l = vx - hrh * 0.5*dv;
 
             h1r->Drc = _h1r;
             h1l->Drc = _h1l;
@@ -605,15 +600,15 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
         }
     }}
 
-//#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV {
+//#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         if (_h->Drc > he_ca) {
             if (c > 0 && !MV(r,c-1))
                 delz1->data[r][c-1] = z1l->Drc - z1r->data[r][c-1];
         }
-    }
+    }}
 
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (_h->Drc > he_ca)
         {
@@ -650,26 +645,26 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
                 delta_v2 = vx2 - vx;
                 dz2 = zx2 - zx;
             }
-            double dh   = 0.5*limiter(delta_h1, delta_h2);
-            double dz_h = 0.5*limiter(delta_h1+dz2,delta_h2+dz2);
-            double du   = 0.5*limiter(delta_u1, delta_u2);
-            double dv   = 0.5*limiter(delta_v1, delta_v2);
+            double dh   = limiter(delta_h1, delta_h2);
+            double dz_h = limiter(delta_h1+dz2,delta_h2+dz2);
+            double du   = limiter(delta_u1, delta_u2);
+            double dv   = limiter(delta_v1, delta_v2);
 
-            double _h2r = hx+dh;
-            double _h2l = hx-dh;
+            double _h2r = hx+0.5*dh;
+            double _h2l = hx-0.5*dh;
 
-            double _z2r = zx+(dz_h-dh);
-            double _z2l = zx+(dh-dz_h);
+            double _z2r = zx+0.5*(dz_h-dh);
+            double _z2l = zx+0.5*(dh-dz_h);
 
-            double _delzc2 = _z2r-_z2l;
+            double _delzc2 = _z2r-_z2l; //dz_h -dh;
 
-            double hlh = _h2l/hx;
-            double hrh = _h2r/hx;
+            double hlh = hx > he_ca ? _h2l/hx : 1.0;
+            double hrh = hx > he_ca ? _h2r/hx : 1.0;
 
-            double _u2r = ux + hlh * du;
-            double _u2l = ux - hrh * du;
-            double _v2r = vx + hlh * dv;
-            double _v2l = vx - hrh * dv;
+            double _u2r = ux + hlh * 0.5*du;
+            double _u2l = ux - hrh * 0.5*du;
+            double _v2r = vx + hlh * 0.5*dv;
+            double _v2l = vx - hrh * 0.5*dv;
 
             h2r->Drc = _h2r;
             h2l->Drc = _h2l;
@@ -683,13 +678,13 @@ void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
         }
     }}
 
-//#pragma omp parallel for collapse(2) num_threads(userCores)
-    FOR_ROW_COL_MV {
+//#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         if (_h->Drc > he_ca) {
             if(r > 0 && !MV(r-1,c))
                 delz2->data[r-1][c] = z2l->Drc - z2r->data[r-1][c];
         }
-    }
+    }}
 }
 //---------------------------------------------------------------------------
 double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
@@ -701,7 +696,7 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
     cTMap *fbn = FlowBarrierN;
     cTMap *fbs = FlowBarrierS;
 
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         f1->Drc = 0;
         f2->Drc = 0;
@@ -842,7 +837,7 @@ double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
 
 void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2)
 {
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L  {
         double Hes, Ves1, Ves2;
         double tx = dt/_dx;//ChannelAdj->Drc;
@@ -896,6 +891,7 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
             //Solution of the equation of momentum (Second and third equation of Saint-venant)
             double qes1;
             double qes2;
+// note
 //            f1->Drc =   rec.v[0];
 //            f2->Drc =   rec.v[1];
 //            f3->Drc =   rec.v[2];
@@ -909,11 +905,11 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
                         GRAV*0.5*((h2g_-h2l_)*(h2g_+h2l_) + (h2r_-h2d_)*(h2r_+h2d_) + (h2l_+h2r_)*delzc2->Drc));
 
             double sqUV = qSqrt(ve1_*ve1_+ve2_*ve2_);
-            double nsq1 = (0.001+N->Drc)*(0.001+N->Drc)*GRAV/std::max(0.01, qPow(Hes,4.0/3.0));
+            double nsq1 = (0.001+N->Drc)*(0.001+N->Drc)*GRAV/std::max(0.001, qPow(Hes,4.0/3.0));
             double nsq = nsq1*sqUV*dt;
 
-            Ves1 = (qes1/(1.0+nsq))/std::max(0.01, Hes);
-            Ves2 = (qes2/(1.0+nsq))/std::max(0.01, Hes);
+            Ves1 = (qes1/(1.0+nsq))/std::max(0.001,Hes);
+            Ves2 = (qes2/(1.0+nsq))/std::max(0.001,Hes);
 
             if (SwitchTimeavgV) {
                 double fac = 0;
@@ -923,22 +919,6 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
                 Ves2 = fac * ve2_ + (1.0-fac) *Ves2;
             }
 
-//            double threshold = 0.001 * _dx;
-//            if(Hes < threshold) {
-//                double h23 = pow(Hes, 2.0/3.0);//Hes*sqrt(Hes);
-//                double kinfac = std::max(0.0,(threshold - Hes) / (0.025 * _dx));
-//                double sx_zh = delz1->Drc;
-//                double sy_zh = delz2->Drc;
-//                double v_kin = (sx_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sx_zh > 0 ? sx_zh : -sx_zh))/(0.001+N->Drc);
-//                Ves1 = kinfac * v_kin + Ves1*(1.0-kinfac);
-//                v_kin = (sy_zh>0?1:-1) * h23 * std::max(0.001, sqrt(sy_zh > 0 ? sy_zh : -sy_zh))/(0.001+N->Drc);
-//                Ves2 = kinfac * v_kin + Ves2*(1.0-kinfac);
-//            }
-
-//            double vmax = 0.25*_dx/dt;
-//            Ves1 = std::max(-vmax, std::min(vmax, Ves1));
-//            Ves2 = std::max(-vmax, std::min(vmax, Ves2));
-            //tmd->Drc = sqrt(qes1*qes1+qes2*qes2);
         }
         else
         {
@@ -977,7 +957,7 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
     if (startFlood)
     {
-        sumh = getMass(h, 0);
+       // sumh = getMass(h, 0);
         if (SwitchErosion)
             sumS = getMass(SSFlood, 0);
 
@@ -992,13 +972,6 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             if (SwitchMUSCL)
                 MUSCLOF(h,u,v,z);
 
-            // non openmp version
-            //if (SwitchMUSCL)
-            //MUSCL(h,u,v,z);
-         //   dt1 = maincalcflux(h, dt1, dt_max);
-            //dt1 = std::min(dt1, _dt-timesum);
-            //maincalcscheme(dt1, h,u,v, hs,us,vs);
-
             // riemann solvers
             dt1 = maincalcfluxOF(h, dt1, dt_max);
             dt1 = std::min(dt1, _dt-timesum);
@@ -1007,17 +980,14 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
             setZeroOF(hs, us, vs);
 
-            // for erosion
-//            #pragma omp parallel for num_threads(userCores)
-//            FOR_ROW_COL_MV_L {
-//                FloodDT->Drc = dt1;
-//            }}
-
             if (SwitchErosion)// && SwitchErosionInsideLoop)
                 SWOFSediment(dt1, hs,us,vs);
 
-            if(Switch2DDiagonalFlow) {
-                SWOFDiagonalFlow(dt1, hs, us, vs);
+            if (Switch2DDiagonalFlow) {
+                if (Switch2DDiagonalFlowNew)
+                    SWOFDiagonalFlowNew(dt1, hs, us, vs);
+                else
+                    SWOFDiagonalFlow(dt1, hs, us, vs);
             }
 
             #pragma omp parallel for num_threads(userCores)
@@ -1026,8 +996,6 @@ double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 u->Drc = us->Drc;
                 v->Drc = vs->Drc;
             }}
-
-
 
             timesum = timesum + dt1;
             stop = timesum  > _dt-1e-6;
