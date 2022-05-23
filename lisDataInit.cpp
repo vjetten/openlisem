@@ -286,6 +286,7 @@ void TWorld::InitParameters(void)
     thetaCalibration = getvaluedouble("Theta calibration");
     psiCalibration = getvaluedouble("Psi calibration");
     ChnCalibration = getvaluedouble("Channel N calibration");
+    ChnTortuosity = 1.0;
     ChnTortuosity = getvaluedouble("Channel tortuosity");
     if (ChnCalibration == 0)
     {

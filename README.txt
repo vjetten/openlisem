@@ -1,6 +1,6 @@
 openLISEM
 ============
-Date: 220331
+Date: 220523
 ============
 
 For questions contact v.g.jetten AD utwente.nl
@@ -8,6 +8,14 @@ For questions contact v.g.jetten AD utwente.nl
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, and openmp
+
+version 6.847-6.84.13 beta
+- enabled inverse distance interpolation from station rainfall
+- map draw now with real ccoordinates
+- fixed boundary outflow when there is no channel
+- fixed small bugs in percolation nand redistribution of water
+- separate calibration for ksat2, to have better control over subsoil and GW
+- experimental: channel tortuosity in calibration factors to account for non-rectangular channel
 
 version 6.846-6.848 beta
 - fixed a mass balance bug when adding water to roads
