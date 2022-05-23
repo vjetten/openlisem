@@ -513,6 +513,7 @@ public:
     double _dt, _dx;
     double _dt_user, _dtCHkin;
     long runstep, printstep, printinterval;
+    double _llx, _lly;
 
     QString mapFormat;
 

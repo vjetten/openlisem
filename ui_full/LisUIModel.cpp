@@ -33,12 +33,11 @@
 
 
 #include "lisemqt.h"
-//#include "model.h"
 #include "global.h"
 
 //---------------------------------------------------------------------------
 /** Run the model:
-Save the current inyerface as a temporari run file, read by the model
+Save the current interface as a temporary run file, read by the model
 Make the model world and run it
 */
 void lisemqt::runmodel()
@@ -97,18 +96,20 @@ void lisemqt::runmodel()
     checkMapBuildings->setChecked(false);
     transparencyHouse->setEnabled(checkHouses->isChecked());
     checkMapBuildings->setEnabled(checkHouses->isChecked());
-    checkMapBuildings->setVisible(checkHouses->isChecked());
-    transparencyHouse->setVisible(checkHouses->isChecked());
-    checkMapBuildings->setVisible(checkHouses->isChecked());
+//    checkMapBuildings->setVisible(checkHouses->isChecked());
+//    transparencyHouse->setVisible(checkHouses->isChecked());
+//    checkMapBuildings->setVisible(checkHouses->isChecked());
 
     checkMapRoads->setChecked(false);
     transparencyRoad->setEnabled(checkRoadsystem->isChecked());
     checkMapRoads->setEnabled(checkRoadsystem->isChecked());
-    checkMapRoads->setVisible(checkRoadsystem->isChecked());
-    transparencyRoad->setVisible(checkRoadsystem->isChecked());
-    checkMapRoads->setVisible(checkRoadsystem->isChecked());
+//    checkMapRoads->setVisible(checkRoadsystem->isChecked());
+//    transparencyRoad->setVisible(checkRoadsystem->isChecked());
+//    checkMapRoads->setVisible(checkRoadsystem->isChecked());
 
-    sedgroup->setVisible(checkDoErosion->isChecked());
+//    checkMapImage->setVisible(checksatImage->isChecked());
+
+//    sedgroup->setVisible(checkDoErosion->isChecked());
 
     // initialize output graphs
     initPlot();
@@ -362,7 +363,11 @@ void lisemqt::initOP()
     op.printstep = 0;
     op.maxstep = 0;
     op.CatchmentArea = 1.0;
-    op.dx = 0;
+    op._dx = 1.0;
+    op._llx = 0;
+    op._lly = 0;
+    op._nrRows = 10;
+    op._nrCols = 10;
     op.t = 0;
     op.time = 0;
     op.maxtime = 0;

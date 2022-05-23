@@ -521,7 +521,7 @@ void lisemqt::showOutputData()
         format= QString("<font color=#000000>%2</font>");
 
     if (startplot) {
-        label_dx->setText(format.arg(QString::number(op.dx,'f',dig)));
+        label_dx->setText(format.arg(QString::number(op._dx,'f',dig)));
         label_area->setText(format.arg(QString::number(op.CatchmentArea/1000000,'f',dig)));
         int days = op.EndTime/1440;
         int mins = long(op.EndTime) % 1440;
