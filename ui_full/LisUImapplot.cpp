@@ -69,13 +69,13 @@ void lisemqt::ssetAlphaMap(int v)
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaChannelOutlet(int v)
 {
-    //if (showRiverSize->value() > 0)
     if (spinChannelSize->value() > 0)
         hideChannelVector(true);
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaChannel(int v)
 {
+    hideChannelVector(false);
     hideChannelVector(v > 0);
 }
 //---------------------------------------------------------------------------
@@ -130,8 +130,10 @@ void lisemqt::setupMapPlot()
   //  MPlot->setStyleSheet(QString("* { background-color: %1 }").arg("#555555"));
     // put it on screen
     MPlot->enableAxis( MPlot->yRight );
-    MPlot->setAxisTitle(HPlot->xBottom, "m");
-    MPlot->setAxisTitle(HPlot->yLeft, "m");
+    MPlot->setAxisTitle(MPlot->xBottom, "m");
+    MPlot->setAxisTitle(MPlot->yLeft, "m");
+    MPlot->setAxisLabelRotation(MPlot->yLeft, 270);
+    MPlot->setAxisLabelAlignment(MPlot->yLeft, Qt::AlignVCenter);
 
     // attach plot to widget in UI
 
@@ -179,7 +181,7 @@ void lisemqt::setupMapPlot()
     //imageMap = new QwtPlotSpectrogram();
     //imageMap->setRenderThreadCount( 0 );
     //imageMap->attach( MPlot );
-    // flow barriers?
+
 
     //7
     outletMap = new QwtPlotSpectrogram();
@@ -274,9 +276,8 @@ double lisemqt::fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_R
     // set intervals for rasterdata, x,y,z min and max
     _RD->setValueMatrix( mapData, _M->nrCols() );
     // set column number to divide vector into rows
-
-    _RD->setInterval( Qt::XAxis, QwtInterval( 0, (double)_M->nrCols()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
-    _RD->setInterval( Qt::YAxis, QwtInterval( 0, (double)_M->nrRows()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
+    _RD->setInterval( Qt::XAxis, QwtInterval( op._llx,op._llx+(double)op._nrCols*op._dx, QwtInterval::ExcludeMaximum ) );
+    _RD->setInterval( Qt::YAxis, QwtInterval( op._lly,op._lly+(double)op._nrRows*op._dx, QwtInterval::ExcludeMaximum ) );
     // set x/y axis intervals
     //qDebug() << sum << maxV;
     if (sum == 0) maxV = -1e-20;
@@ -341,14 +342,8 @@ double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterDa
     _RD->setValueMatrix( RGBData, _M->nrCols() );
     // set column number to divide vector into rows
 
-    /*
-    qDebug() << "referencing";
-    qDebug() << _M->north() << base->north() << _M->nrRows() * _M->cellSize() << base->nrRows()*base->cellSize();
-    qDebug() << _M->west() << base->west();
-*/
-
-    double cy = (_M->north()-base->north())+(-_M->nrRows()*_M->cellSize() +base->nrRows()*base->cellSize());
-    double cx = (_M->west()-base->west());
+    double cy = op._lly;
+    double cx = op._llx;
 
     _RD->setInterval( Qt::XAxis, QwtInterval( cx,cx+ (double)_M->nrCols()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
     _RD->setInterval( Qt::YAxis, QwtInterval( cy,cy+ (double)_M->nrRows()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
@@ -375,12 +370,6 @@ void lisemqt::showMap()
     if(op.comboboxset == false)
     {
         op.comboboxset = true;
-//        for(int i = ColorMapList.length() - 1; i >-1 ; i--)
-//        {
-//            delete ColorMapList.at(i);
-
-//        }
-//        ColorMapList.clear();
         DisplayComboBox->clear();
         DisplayComboBox2->clear();
         NameList.clear();
@@ -394,13 +383,11 @@ void lisemqt::showMap()
 
         for(int i = 0; i < op.ComboMaps.length(); i++)
         {
-         //   QwtComboColorMap *cm = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
             QwtComboColorMap *cm1 = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
             QwtComboColorMap *cm2 = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),op.ComboColorMap.at(i),op.ComboColors.at(i));
             cmMap.append(cm1);
             cmLeg.append(cm2);
 
-         //   ColorMapList.append(cm);
             NameList.append(op.ComboMapNames.at(i));
             UnitList.append(op.ComboUnits.at(i));
             SymList.append(op.ComboSymColor.at(i)); // symetric colors
@@ -625,18 +612,38 @@ void lisemqt::showBaseMap()
     RDbb->setInterval( Qt::ZAxis, QwtInterval( m1, m2));
     contourDEM->setData(RDbb);
 
-  //  double nrCols = (double)op.baseMap->nrCols()*op.baseMap->cellSize();
-  //  double nrRows = (double)op.baseMap->nrRows()*op.baseMap->cellSize();
-  //  double dx = std::max(nrCols,nrRows)/20;
     // reset the axes to the correct rows/cols,
     // do only once because resets zooming and panning
 
-  //  MPlot->setAxisScale( MPlot->xBottom, 0.0, nrCols*dx, dx*10);
-   // MPlot->setAxisMaxMinor( MPlot->xBottom, 0 );
-  //  MPlot->setAxisScale( MPlot->yLeft, 0.0, nrRows*dx, dx*10);
-  //  MPlot->setAxisMaxMinor( MPlot->yLeft, 0 );
+    // fit into screen first time
+
+    //MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*10);
+  //  MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx, op._dx*10);
+
+//    int h = MPlot->height();
+//    int w = MPlot->width();
+//    double asp = (double)w/(double)h;
+//    int i = 0;
+
+//    MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*10);
+//    MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx, op._dx*10);
+
+//    if(op._nrCols/op._nrRows > asp) {
+//        MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*10);
+//        MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrCols*op._dx, op._dx*10);
+//        i = 1;
+//    } else
+//        if(op._nrRows > op._nrCols)
+//        {
+//            MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrRows*op._dx*asp, op._dx*10);
+//            MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx*asp, op._dx*10);
+//            i = 2;
+//        }
+//    MPlot->replot();
 
     changeSize();
+
+
 }
 //---------------------------------------------------------------------------
 void lisemqt::hideChannelVector(bool yes)
@@ -647,10 +654,8 @@ void lisemqt::hideChannelVector(bool yes)
     if(rivers.isEmpty())
         return;
 
-//    if (checkChannelCulverts->isChecked() && culverts.isEmpty())
-//        return;
-
     if (!yes) {
+
         for (int i = 0; i < rivers.length(); i++)
             rivers[i]->detach();
 
@@ -720,6 +725,8 @@ void lisemqt::showChannelVectorNew()
         double xend, yend;
         double dx = op.channelMap->cellSize();
         double _nrRows = op.channelMap->nrRows();
+        double cy = op.channelMap->north()-_nrRows*dx;
+        double cx = op.channelMap->west();
 
         for(long i_ =  0; i_ < op.lddch_.size(); i_++)
         {
@@ -727,8 +734,8 @@ void lisemqt::showChannelVectorNew()
             int c = op.lddch_[i_].c;
             double ldd = op.lddch_[i_].ldd;
 
-            xend = c*dx + 0.5*dx;
-            yend = r*dx + 0.5*dx;
+            xend = cx+c*dx + 0.5*dx;
+            yend = cy+r*dx + 0.5*dx;
             if (op.lddch_[i_].nr == 0) {
                 Y << yend;
                 X << xend;
@@ -749,7 +756,7 @@ void lisemqt::showChannelVectorNew()
         Y.clear();
 
         QPen pen1;
-        pen1.setWidth(spinChannelSize->value());//showRiverSize->value());
+        pen1.setWidth(spinChannelSize->value());
         pen1.setColor(QColor("#000000"));
         pen1.setCosmetic(false);
         for (int i = 0; i < Xa.length(); i++) {
@@ -762,7 +769,7 @@ void lisemqt::showChannelVectorNew()
             rivera->setSamples(Xa.at(i),Ya.at(i));
         }
 
-        int dxi = (int) (op.channelMap->cellSize()*0.4);
+        int dxi = (int) (op.channelMap->cellSize()*0.5);
         dxi = std::min(5,dxi);
         spinCulvertSize->setValue(dxi);
 
@@ -795,13 +802,13 @@ void lisemqt::showChannelVectorNew()
 
         QwtSymbol *bluedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::cyan,QPen( Qt::black ), QSize( dxi, dxi ) );
 
-            obspoint = new QwtPlotCurve();
-            obspoints << obspoint;
-            obspoint->setSymbol(bluedot);
-            obspoint->setStyle( QwtPlotCurve::NoCurve );
-            obspoint->attach( MPlot );
-            obspoint->setAxes(MPlot->xBottom, MPlot->yLeft);
-            obspoint->setSamples(op.ObsPointX,op.ObsPointY);
+        obspoint = new QwtPlotCurve();
+        obspoints << obspoint;
+        obspoint->setSymbol(bluedot);
+        obspoint->setStyle( QwtPlotCurve::NoCurve );
+        obspoint->attach( MPlot );
+        obspoint->setAxes(MPlot->xBottom, MPlot->yLeft);
+        obspoint->setSamples(op.ObsPointX,op.ObsPointY);
 
         op.CulvertX.clear();
         op.CulvertY.clear();
@@ -867,7 +874,7 @@ void lisemqt::showHouseMap()
     houseMap->setColorMap(new colorMapHouse());
 }
 //---------------------------------------------------------------------------
-// NOT USED FOR NOW barrier for image
+// NOT USED FOR NOW
 void lisemqt::showFlowBarriersMap()
 {
 
@@ -891,7 +898,6 @@ void lisemqt::showFlowBarriersMap()
 
 }
 //---------------------------------------------------------------------------
-// NOTE HIGHJACKING barrier for image
 void lisemqt::showImageMap()
 {
     if (startplot && checksatImage->isChecked())
@@ -911,37 +917,28 @@ void lisemqt::showImageMap()
     baseMapImage->setColorMap(new colorMapRGB());
 }
 //---------------------------------------------------------------------------
+
 void lisemqt::changeSize()
 {
     int h = MPlot->height();
     int w = MPlot->width();
-    double _nrCols = (double)op.baseMap->nrCols();
-    double _nrRows = (double)op.baseMap->nrRows();
-    double _dx = (double)op.baseMap->cellSize();
+    double asp = (double)w/(double)h;
+    int i = 0;
 
-    if (_nrRows > _nrCols) {
-        double nr = _nrRows*_dx*(double)w/h;
-        MPlot->setAxisScale(MPlot->xBottom,0,nr,10*_dx);
-        MPlot->setAxisScale(MPlot->yLeft,0,nr,10*_dx);
-     } else {
-        double nc = _nrCols*_dx*(double)h/w;
-        MPlot->setAxisScale(MPlot->xBottom,0,nc,10*_dx);
-        MPlot->setAxisScale(MPlot->yLeft,0,nc,10*_dx);
+    if(op._nrCols/op._nrRows > asp) {
+        MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*10);
+        MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrCols*op._dx, op._dx*10);
+        i = 1;
+    } else {
+        if(op._nrRows > op._nrCols) {
+            MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrRows*op._dx*asp, op._dx*10);
+            MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx*asp, op._dx*10);
+            i = 2;
+        } else {
+            MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*10);
+            MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx, op._dx*10);
+        }
     }
 
     MPlot->replot();
-
-//    bool fs = windowState()&Qt::WindowFullScreen;
-  //  bool ms = windowState()&Qt::WindowMaximized;
-  //  int h1 = this->height();
-  //  int w1 = this->width();
-//    resize(w1,h1);
-//showFullScreen();
-//    showNormal();
- //   resize(w1 - 1,h1);
-  //  resize(w1,h1);
- //   if (fs) showFullScreen();
-    //if (ms)
-    showMaximized();
-
 }

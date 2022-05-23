@@ -182,6 +182,8 @@ cTMap *TWorld::InitMask(QString name)
     _dx = _M->cellSize()*1.0000000;
     _nrRows = _M->nrRows();
     _nrCols = _M->nrCols();
+    _llx =  _M->west();
+    _lly = _M->north() - (double)_nrRows * _dx;
 
     return(_M);
 
@@ -3038,135 +3040,27 @@ void TWorld::InitScreenChanNetwork()
 
     FOR_ROW_COL_MV_CH {
         if (LDDChannel->Drc == 5){
-            op.EndPointX << c*_dx + 0.5*_dx;
-            op.EndPointY << (_nrRows-r-1)*_dx + 0.5*_dx;
+            op.EndPointX << _llx + c*_dx + 0.5*_dx;
+            op.EndPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
         }
     }
     FOR_ROW_COL_MV_CH {
         if (PointMap->Drc > 0){
-            op.ObsPointX << c*_dx + 0.5*_dx;
-            op.ObsPointY << (_nrRows-r-1)*_dx + 0.5*_dx;
+            op.ObsPointX << _llx + c*_dx + 0.5*_dx;
+            op.ObsPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
         }
     }
 
     if(SwitchCulverts) {
         FOR_ROW_COL_MV {
             if (ChannelMaxQ->Drc > 0) {
-                op.CulvertX << c*_dx + 0.5*_dx;
-                op.CulvertY << (_nrRows-r-1)*_dx + 0.5*_dx;
+                op.CulvertX << _llx + c*_dx + 0.5*_dx;
+                op.CulvertY << _llx + (_nrRows-r-1)*_dx + 0.5*_dx;
             }
 
         }
     }
 
-
-/*
-    int branchnr = 0;
-    op.branches.clear();
-    op.branches << 0;
-    op.ChanDataX.clear();
-    op.ChanDataY.clear();
-    op.Chanbranch.clear();
-
-    if(!SwitchIncludeChannel)
-        return;
-
-    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-
-    fill(*tma, 0); // flag if cell is done
-
-    for (int  rr = 0; rr < _nrRows; rr++)
-        for (int  cc = 0; cc < _nrCols; cc++)
-            if(LDDChannel->data[rr][cc] == 5) {
-                LDD_LINKEDLIST *list = nullptr, *temp = nullptr;
-                list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-
-                list->prev = nullptr;
-                list->rowNr = rr;
-                list->colNr = cc;
-                int len = 0;
-
-                while (list != nullptr)
-                {
-                    int i = 0;
-                    bool  subCachDone = true;
-
-                    int rowNr = list->rowNr;
-                    int colNr = list->colNr;
-
-                    for (i=1; i<=9; i++)
-                    {
-                        int r, c;
-                        int ldd = 0;
-
-                        // this is the current cell
-                        if (i==5)
-                            continue;
-
-                        r = rowNr+dy[i];
-                        c = colNr+dx[i];
-
-                        if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
-                            ldd = (int) LDDChannel->Drc;
-                        else
-                            continue;
-
-                        if (tma->Drc == 0 &&
-                                FLOWS_TO(ldd, r, c, rowNr, colNr) &&
-                                INSIDE(r, c))
-                        {
-                            temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-                            temp->prev = list;
-                            list = temp;
-                            list->rowNr = r;
-                            list->colNr = c;
-                            subCachDone = false;
-                            len++;
-                        }
-                    }
-
-                    if (subCachDone)
-                    {
-                        int r = list->rowNr;
-                        int c = list->colNr;
-
-                        // new branch nr is needed, first number = 0
-                        if (len != op.branches.last()) {
-                            branchnr++;
-                            op.branches << len;
-                        }
-
-                        tma->Drc = branchnr; // flag done
-                        op.Chanbranch << branchnr;
-                        op.ChanDataX << c*_dx + 0.5*_dx;
-                        op.ChanDataY << (_nrRows-r-1)*_dx + 0.5*_dx;
-
-                        temp=list;
-                        list=list->prev;
-                        free(temp);
-                    }
-
-                }
-            }  //pit 5
-
-    FOR_ROW_COL_MV_CH {
-        if (LDDChannel->Drc == 5){
-            op.EndPointX << c*_dx + 0.5*_dx;
-            op.EndPointY << (_nrRows-r-1)*_dx + 0.5*_dx;
-        }
-    }
-
-    if(SwitchCulverts) {
-        FOR_ROW_COL_MV {
-            if (ChannelMaxQ->Drc > 0) {
-                op.CulvertX << c*_dx + 0.5*_dx;
-                op.CulvertY << (_nrRows-r-1)*_dx + 0.5*_dx;
-            }
-
-        }
-    }
-*/
 }
 
 //---------------------------------------------------------------------------

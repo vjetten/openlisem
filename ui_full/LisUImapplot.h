@@ -9,6 +9,20 @@
 //http://www.color-hex.com/color/
 //http://www.colorschemer.com/schemes/index.php?tag=nature
 
+
+class QwtAbstractScaleDrawVJ : public QwtAbstractScaleDraw
+{
+    public:
+        virtual ~QwtAbstractScaleDrawVJ();
+
+    virtual QwtText label( double value ) const
+    {
+        return QLocale().toString( value, 'f', 2 );
+    }
+};
+
+
+
 //---------------------------------------------------------------------------
 /// Shows value on cursor in map window
 class MyPicker: public QwtPlotPicker
@@ -497,6 +511,11 @@ public:
         addColorStop( 0.75, Qt::green);
     }
 };
+
+
+
+
+
 
 #endif // LISUIMAPCOLOR_H
 
