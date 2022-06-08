@@ -167,6 +167,20 @@ cTMap
 //*DG,                         //!< parameter Govers in TC equation
 *SettlingVelocitySS,           //!< settling velocity according to Stokes [m/s]
 *SettlingVelocityBL,           //!< settling velocity according to Stokes [m/s]
+
+// all fluxes out
+// maps for sediment and water fluxes for each timestep
+*SedFlux1_out,
+*SedFlux2_out,
+*SedFlux3_out,
+*SedFlux4_out,
+*SedFlux5_out,
+*SedFlux6_out,
+*SedFlux7_out,
+*SedFlux8_out,
+*SedFlux9_out,
+*SedFluxB_out,
+
 // Pesticides
 *PCA,                        //!< applied dose [kg/m2] - MC - how used??
 *epsil,                      //!< mixing layer depth (m]
@@ -230,7 +244,7 @@ cTMap
 *fact,                       //!< actual infiltration rate [m/s]
 *fpot,                       //!< potential infiltration rate [m/s]
 *InfilVolKinWave,            //!< volume infiltrated in the kin wave (slope and channel) in this timestep [m^3]
-*InfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
+*InfilVol,                   //!< volume of water infiltrated in this timestep [m^3] - without kin wave
 *ChannelInfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
 
 *InfilVolCum,                //!< cumulative infiltration volume for mass balance and map report [m^3]
@@ -490,20 +504,6 @@ cTMap
 *FlowBarrierNT,              //!< Flow barriers end timing North of cell
 *FlowBarrierWT,              //!< Flow barriers end timing West of cell
 *FlowBarrierST,              //!< Flow barriers end timing South of cell
-*FlowBarrierET,               //!< Flow barriers end timing East of cell
-
-// maps for sediment and water fluxes for each timestep
-*SedFlux1_out,
-*SedFlux2_out,
-*SedFlux3_out,
-*SedFlux4_out,
-*SedFlux5_out,
-*SedFlux6_out,
-*SedFlux7_out,
-*SedFlux8_out,
-*SedFlux9_out,
-*SedFluxB_out
-
-;
+*FlowBarrierET;               //!< Flow barriers end timing East of cell
 
 cTRGBMap * RGB_Image;

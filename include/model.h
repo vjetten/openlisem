@@ -596,7 +596,7 @@ public:
     QString resultFileName;
     QString temprunname;
     /// standard names of output map series
-    QString Outrunoff, Outconc, Outwh, Outrwh, Outvelo, Outinf, Outinfilvol, Outss, Outchvol,
+    QString Outrunoff, Outconc, Outwh, Outrwh, Outvelo, Outinf, Outinfilvol, Outss, Outchvol, //OutinfilvolKinWave,
     Outtc, Outeros, Outdepo, OutSL, OutSed, OutInt,OutSedSS, OutSedBL,
     OutTiledrain, OutTileVol,OutTileV, OutHmx, OutVf, OutQf, OutHmxWH, OutTheta1, OutTheta2;
     bool  SwitchOutrunoff, SwitchOutconc, SwitchOutwh, SwitchOutrwh, SwitchOutvelo, SwitchOutinf, SwitchOutss, SwitchOutchvol,

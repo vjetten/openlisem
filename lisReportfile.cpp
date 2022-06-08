@@ -889,8 +889,9 @@ void TWorld::ReportMapSeries(void)
     // infiltration mm
     if (SwitchOutinf)
         report(*InfilmmCum, Outinf);
-
+    // infiltration for each timestep part of all-fuxes-out
     report(*InfilVol, Outinfilvol);
+//    report(*InfilVolKinWave, OutinfilvolKinWave);
 
     if (SwitchOutss)
     {

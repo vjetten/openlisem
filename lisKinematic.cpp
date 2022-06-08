@@ -103,6 +103,7 @@ double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol,
 double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i, double Sji1, double alpha, double dx)
 {
     double Sj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C, s = 0;
+    double Qsn = 0;
     const double beta = 0.6;
 // Qj1i1 = Qn and Qj1i = Qin and Qji1 = Q
 
@@ -124,18 +125,18 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
         Sj1i1 = (dx*_dt*s+A+C+B)/(_dt+dx*aQb/Qj1i1);
     else
         Sj1i1 = 0;
-
+    Qsn = std::max(0.0 ,Sj1i1);
     return std::max(0.0 ,Sj1i1);
 }
 //---------------------------------------------------------------------------
 /**
- * @fn double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i, double Sji1, double alpha, double dt,double dx)
+ * @fn double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double Qmax)
  * @brief Calculation of new discharge in a cell
  *
  * Newton Rapson iteration for new water flux in cell, based on Ven Te Chow 1987
  *
  * @param Qin : summed Q new from upstream
- * @param Qold : current discharge in the cell  Qin in LISEM
+ * @param Qold : current discharge in the cell Qin in LISEM
  * @param q : infiltration surplus flux (in m2/s), has value <= 0
  * @param alpha : alpha calculated in LISEM from before kinematic wave
  * @param deltaT : dt, timestep
