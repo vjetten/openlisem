@@ -878,7 +878,7 @@ void TWorld::ReportMapSeries(void)
     // discharge per timestep and cell - part of all-fluxes-out
     report(*Q, OutQ);
     report(*Qn, OutQn);
-    report(*Qin, OutQin);
+    //report(*Qin, OutQin);
     // water height m
     if (SwitchOutwh)
         report(*hmxWH, Outwh);
