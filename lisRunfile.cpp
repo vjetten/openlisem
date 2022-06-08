@@ -555,6 +555,9 @@ void TWorld::ParseRunfileData(void)
    }
 
     Outrunoff = "ro";
+    OutQ      = "q";
+    OutQn     = "qn";
+    OutQin    = "qin";
     Outconc   = "conc";
     Outwh     = "wh";
     Outrwh    = "";
