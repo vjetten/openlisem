@@ -2074,6 +2074,7 @@ void TWorld::IntializeData(void)
     }
 
     QinKW = NewMap(0);
+    QinAFO = NewMap(0);
     //    QKW = NewMap(0);
     Qoutput = NewMap(0);
     Qsoutput = NewMap(0);

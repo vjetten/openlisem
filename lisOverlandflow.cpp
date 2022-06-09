@@ -37,7 +37,7 @@
  * @brief Calls the kinematic wave or diffusive wave functions and calculates new discharge, water height and sediment presence
  *
  * Calls the kinematic, diffusive or dynamic wave functions and calculates new discharge, water height and sediment presence
- * During this process, surpluss potential infilration is subtracted from the water content.
+ * During this process, surpluss potential infiltration is subtracted from the water content.
  * Based on the options in the run file, either the 1D or 2D kinematic wave is used.
  * Sediment transport in overland flow is automatically taken into accaunt.
  */
@@ -62,7 +62,7 @@ void TWorld::OverlandFlow(void)
         }
 
         ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
-        OverlandFlow1D();   // kinematic wave of wter and sediment
+        OverlandFlow1D();   // kinematic wave of water and sediment
 
         if(SwitchKinematic2D == K2D_METHOD_KINDYN)
             ChannelFlood();
@@ -276,7 +276,7 @@ void TWorld::OverlandFlow1D(void)
         //volume runoff into the kin wave, needed to determine infil in kin wave
         // WaterVolin total water volume in m3 before kin wave, WHrunoff may be adjusted in tochannel
         q->Drc = FSurplus->Drc*SoilWidthDX->Drc/_dt;
-        // infil flux in kin wave (<= 0)negative value), in m2/s, in kiv wave DX is used
+        // infil flux in kin wave (<= 0)negative value), in m2/s, in kin wave DX is used
         // surplus related to infiltrating surfaces
         QinKW->Drc = 0; // store for incoming water in a cell
         tm->Drc = -1;

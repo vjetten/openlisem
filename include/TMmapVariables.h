@@ -110,6 +110,7 @@ cTMap
 *Qinflow,
 //*Qoutflow,                   //!< new discharge after kin wave at outflow point [m^3/s]
 *QinKW,
+*QinAFO,                     //!< MC - The Q entering a cell, used for all - fluxes out. [m^3/s]
 *QKW,
 *Qoutput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
 *Qs,                         //!< sediment discharge before kin wave [kg/s]

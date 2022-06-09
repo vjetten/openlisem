@@ -216,6 +216,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
     FOR_ROW_COL_MV_L {
         _Qn->Drc = 0;
         QinKW->Drc = 0;
+        QinAFO->Drc = 0;
     }}
 
  //  #pragma omp parallel for ordered num_threads(userCores)
@@ -233,6 +234,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
             }
         }
         QinKW->Drc = Qin;
+        QinAFO->Drc = Qin; // write QIN to mapseries for all fluxes out
 
         if (Qin > 0 || _Q->Drc > 0) {
             itercount = 0;
