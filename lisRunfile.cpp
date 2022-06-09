@@ -584,6 +584,8 @@ void TWorld::ParseRunfileData(void)
     OutSed  = "sed";
     OutSedSS  = "sedSS";
     OutSedBL  = "sedBL";
+    OutSn    = "sn";
+    OutSin   = "sin";
 
 }
 //------------------------------------------------------------------------------

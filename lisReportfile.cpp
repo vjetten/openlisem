@@ -879,6 +879,8 @@ void TWorld::ReportMapSeries(void)
     // report(*Q, OutQ); // MC - not needed for all - fluxes out.
     report(*Qn, OutQn);
     report(*QinAFO, OutQinKW);
+    report(*Qsn, OutSn);
+    report(*SinAFO, OutSin);
     // water height m
     if (SwitchOutwh)
         report(*hmxWH, Outwh);
@@ -951,6 +953,7 @@ void TWorld::ReportMapSeries(void)
                 tm->Drc =std::max(0.0,TotalSoillossMap->Drc)*factor;
             }}
             report(*tm, Outeros); // in units
+
         }
 
         // all deposition combined

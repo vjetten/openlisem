@@ -281,6 +281,7 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
     FOR_ROW_COL_MV_L {
        // _Qsn->Drc = 0;
         QinKW->Drc = 0;
+        SinAFO -> Drc = 0;
     }}
 
 //#pragma omp parallel for reduction(+:Qin) num_threads(userCores)
@@ -290,7 +291,7 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
         int c = _crlinked_[i_].c;
 
         double Qin = 0;
-        double Sin = 0;
+        double Sin = 0;   
 
         for (int i = 1; i <= 9; i++)
         {
@@ -310,6 +311,7 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
             }
         }
 
+
 // NOT FASTER !!!
 //        for(int j = 0; j < _crlinked_[i_].in.size(); j++) {
 //           int rr = _crlinked_[i_].in[j].r;
@@ -319,15 +321,15 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
 //        }
 
         QinKW->Drc = Sin;
+        SinAFO->Drc = Sin; // save sediment influx for all-fluxes-out.
 
         _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
         _Qsn->Drc = std::min(_Qsn->Drc, QinKW->Drc+_Sed->Drc/_dt);
             // no more sediment outflow than total sed in cell
         _Sed->Drc = std::max(0.0, QinKW->Drc*_dt + _Sed->Drc - _Qsn->Drc*_dt);
             // new sed volume based on all fluxes and org sed present
+
     }
-
-
 }
 //---------------------------------------------------------------------------
 QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
