@@ -102,7 +102,7 @@ double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol,
  */
 double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i, double Sji1, double alpha, double dx)
 {
-    double Sj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C, s = 1; // set s = 1, test to make _Qsn work.
+    double Sj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C, s = 0;
     double Qsn = 0;
     const double beta = 0.6;
 // Qj1i1 = Qn and Qj1i = Qin and Qji1 = Q , MC -

@@ -328,7 +328,7 @@ cTMap
 //*ChannelFlowWidth,           //!<
 *ChannelWidthMax,           //!<
 *ChannelAdj,                //!<
-*CHAdjDX,                //!<
+*CHAdjDX,                //!< MC - channel adjusted DX??
 *BaseflowL,
 //*GWlevel,
 

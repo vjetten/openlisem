@@ -374,8 +374,8 @@ void TWorld::cell_FlowDetachment(int r, int c)
 
 //#pragma omp parallel for num_threads(userCores)
   //  FOR_ROW_COL_MV_L {
-        double erosionwh = WHrunoff->Drc;
-        double erosionwv = WHrunoff->Drc*CHAdjDX->Drc;
+        double erosionwh = WHrunoff->Drc; // MC - water height for erosion
+        double erosionwv = WHrunoff->Drc*CHAdjDX->Drc; // MC - water volume for erosion
 
         if (erosionwh < HMIN) {
             DEP->Drc += -Sed->Drc;
@@ -1028,7 +1028,7 @@ void TWorld::SedimentSetMaterialDistribution()
  *
  * @param _d : The grain class (only needed when grain size distribution is used)
  * @param method : the TC method used
- * @param U : velicty can be channel of overland or flood
+ * @param U : velocity can be channel of overland or flood
  * @param type : channel (0) or flood (1) or overland (2)
  */
 double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double U, int type)

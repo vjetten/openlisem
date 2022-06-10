@@ -879,6 +879,7 @@ void TWorld::ReportMapSeries(void)
     // report(*Q, OutQ); // MC - not needed for all - fluxes out.
     report(*Qn, OutQn);
     report(*QinAFO, OutQinKW);
+    report(*Qs, OutS);
     report(*Qsn, OutSn);
     report(*SinAFO, OutSin);
     // water height m
