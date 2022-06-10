@@ -89,9 +89,9 @@ double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol,
  * Complex calculation of sediment outflux from a cell based on a explicit solution of the time/space matrix,
  * j = time and i = place: j1i1 is the new output, j1i is the new flux at the upstream 'entrance' flowing into the gridcell
  *
- * @param Qj1i1 : result kin wave for this cell ( Qj+1,i+1 )  ;j = time, i = place )
- * @param Qj1i : sum of all upstreamwater from kin wave ( Qj+1,i )
- * @param Qji1 : incoming Q for kinematic wave (t=j) in this cell, map Qin in LISEM (Qj,i+1)
+ * @param Qj1i1 : result kin wave for this cell ( Qj+1,i+1 )  ;j = time, i = place - MC Qn
+ * @param Qj1i : sum of all upstreamwater from kin wave ( Qj+1,i ), - MC this should be Qin
+ * @param Qji1 : incoming Q for kinematic wave (t=j) in this cell, map Qin in LISEM (Qj,i+1) - and this Q?? see also line 108
  * @param Sj1i : sum of all upstream sediment (Sj+1,i)
  * @param Sji1 : incoming Sed for kinematic wave (t=j) in this cell, map Qsin in LISEM (Si,j+1)
  * @param alpha : alpha calculated in LISEM from before kinematic wave
@@ -102,10 +102,10 @@ double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol,
  */
 double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i, double Sji1, double alpha, double dx)
 {
-    double Sj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C, s = 0;
+    double Sj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C, s = 1; // set s = 1, test to make _Qsn work.
     double Qsn = 0;
     const double beta = 0.6;
-// Qj1i1 = Qn and Qj1i = Qin and Qji1 = Q
+// Qj1i1 = Qn and Qj1i = Qin and Qji1 = Q , MC -
 
     if (Qj1i1 < MIN_FLUX)
         return (0);
@@ -122,10 +122,9 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
     B = -dx*Cavg*abQb_1*(Qj1i1-Qji1);
     C = (Qji1 <= MIN_FLUX ? 0 : dx*aQb*Sji1/Qji1);
     if (Qj1i1 > MIN_FLUX)
-        Sj1i1 = (dx*_dt*s+A+C+B)/(_dt+dx*aQb/Qj1i1);
+        Sj1i1 = (dx*_dt*s+A+C+B)/(_dt+dx*aQb/Qj1i1); // MC - why add s = 0 here?
     else
         Sj1i1 = 0;
-    Qsn = std::max(0.0 ,Sj1i1);
     return std::max(0.0 ,Sj1i1);
 }
 //---------------------------------------------------------------------------
@@ -324,6 +323,7 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
         SinAFO->Drc = Sin; // save sediment influx for all-fluxes-out.
 
         _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
+        Scomp = _Qsn;
         _Qsn->Drc = std::min(_Qsn->Drc, QinKW->Drc+_Sed->Drc/_dt);
             // no more sediment outflow than total sed in cell
         _Sed->Drc = std::max(0.0, QinKW->Drc*_dt + _Sed->Drc - _Qsn->Drc*_dt);

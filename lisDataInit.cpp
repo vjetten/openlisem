@@ -1465,6 +1465,7 @@ void TWorld::InitErosion(void)
     Qs = NewMap(0);
     Qsn = NewMap(0);
     SinAFO = NewMap(0);
+    Scomp = NewMap(0);
 
     DetSplashTot = 0;
     DetFlowTot = 0;
@@ -1490,19 +1491,6 @@ void TWorld::InitErosion(void)
     Sed = NewMap(0);
     TC = NewMap(0);
     Conc = NewMap(0);
-
-    // MC - maps to store sediment flux for each timestep
-
-    SedFlux1_out = NewMap(0);
-    SedFlux2_out = NewMap(0);
-    SedFlux3_out = NewMap(0);
-    SedFlux4_out = NewMap(0);
-    SedFlux5_out = NewMap(0);
-    SedFlux6_out = NewMap(0);
-    SedFlux7_out = NewMap(0);
-    SedFlux8_out = NewMap(0);
-    SedFlux9_out = NewMap(0);
-    SedFluxB_out = NewMap(0);
 
     SettlingVelocitySS = NewMap(0);
     SettlingVelocityBL = NewMap(0);

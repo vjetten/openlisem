@@ -880,7 +880,7 @@ void TWorld::ReportMapSeries(void)
     report(*Qn, OutQn);
     report(*QinAFO, OutQinKW);
     report(*Qsn, OutSn);
-    report(*SinAFO, OutSin);
+    report(*Scomp, OutSin);
     // water height m
     if (SwitchOutwh)
         report(*hmxWH, Outwh);

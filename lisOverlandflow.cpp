@@ -310,7 +310,7 @@ void TWorld::OverlandFlow1D(void)
     }
 
 
-    //convert calculate Qn back to WH and volume for next loop
+    //convert calculated Qn back to WH and volume for next loop
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double InfilKWact = 0;

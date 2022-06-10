@@ -172,16 +172,7 @@ cTMap
 
 // all fluxes out
 // maps for sediment and water fluxes for each timestep
-*SedFlux1_out,
-*SedFlux2_out,
-*SedFlux3_out,
-*SedFlux4_out,
-*SedFlux5_out,
-*SedFlux6_out,
-*SedFlux7_out,
-*SedFlux8_out,
-*SedFlux9_out,
-*SedFluxB_out,
+*Scomp,                     //!< test map to understand sediment flux calculations - MC
 
 // Pesticides
 *PCA,                        //!< applied dose [kg/m2] - MC - how used??

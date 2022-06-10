@@ -37,7 +37,7 @@ functions: \n
 
 
 //---------------------------------------------------------------------------
-// diff between new and old strage is subtracted from rainfall
+// diff between new and old storage is subtracted from rainfall
 // rest reaches the soil surface. ASSUMPTION: with the same intensity as the rainfall!
 // note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
 void TWorld::cell_Interception(int r, int c)

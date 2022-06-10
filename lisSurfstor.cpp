@@ -155,7 +155,7 @@ void TWorld::cell_SurfaceStorage(int r, int c)
     double WHs = std::min(wh, MDS->Drc*(1-exp(-1.875*(wh/std::max(0.005,0.01*RR->Drc)))));
     //surface storage on rough surfaces
     // non-linear release fo water from depression storage
-    // resemles curves from GIS surface tests, unpublished
+    // resembles curves from GIS surface tests, unpublished
 
     WHrunoff->Drc = ((wh - WHs)*SW + WHr*RW)/(SW+RW);
     // moving overlandflow above surface storage
