@@ -111,12 +111,14 @@ cTMap
 //*Qoutflow,                   //!< new discharge after kin wave at outflow point [m^3/s]
 *QinKW,                      //!< new Q kinematic wave
 *QinAFO,                     //!< MC - The Q entering a cell, used for all - fluxes out. [m^3/s]
+*WHAFO,                      //!< MC - WaterHeight at start of timestep - all-fluxes-out.
 *QKW,
 *Qoutput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
 *Qs,                         //!< sediment discharge before kin wave [kg/s]
 *Qsn,                        //!< new sediment discharge after kin wave [kg/s]
 *SinKW,                      //!< New Sed flux kinematic wave
 *SinAFO,                     //!< MC - The sed discharge entering a cell, used for all fluxes out.
+*SedAFO,                     //!< MC - The sediment available at the start of timestep - all-fluxes-out
 *Qsoutput,                   //!< sediment outflow for screen/file output, sum of overland flow and channel [kg/s]
 *q,                          //!< infiltration surplus going in kin wave (<= 0) [m2/s]
 *R,                          //!< hydraulic radius overland flow [m]
@@ -171,10 +173,6 @@ cTMap
 *SettlingVelocitySS,           //!< settling velocity according to Stokes [m/s]
 *SettlingVelocityBL,           //!< settling velocity according to Stokes [m/s]
 
-// all fluxes out
-// maps for sediment and water fluxes for each timestep
-*Scomp1,                     //!< test map to understand sediment flux calculations - MC
-*Scomp2,                     //!< test map to understand sediment flux calculations - MC
 // Pesticides
 *PCA,                        //!< applied dose [kg/m2] - MC - how used??
 *epsil,                      //!< mixing layer depth (m]
