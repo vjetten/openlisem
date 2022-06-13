@@ -293,21 +293,21 @@ void TWorld::OverlandFlow1D(void)
     }}
 
     // route water
-    if (SwitchLinkedList) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            pcr::setMV(Qn->Drc);
-            QinKW->Drc = 0;
-        }}
+//    if (SwitchLinkedList) {
+//        #pragma omp parallel for num_threads(userCores)
+//        FOR_ROW_COL_MV_L {
+//            pcr::setMV(Qn->Drc);
+//            QinKW->Drc = 0;
+//        }}
 
-        FOR_ROW_COL_LDD5 {
-            Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);
-            // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
-        }}
-    } else {
+//        FOR_ROW_COL_LDD5 {
+//            Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);
+//            // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
+//        }}
+//    } else {
 
         KinematicExplicit(crlinkedldd_, Q, Qn, q, Alpha,DX, tm);
-    }
+//    }
 
 
     //convert calculated Qn back to WH and volume for next loop

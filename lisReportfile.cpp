@@ -876,14 +876,14 @@ void TWorld::ReportMapSeries(void)
     if (SwitchOutrunoff)
         report(*Qoutput, Outrunoff);
     // discharge per timestep and cell - part of all-fluxes-out
-    // report(*Q, OutQ); // MC - not needed for all - fluxes out.
+    report(*Q, OutQ); // MC - not needed for all - fluxes out.
     report(*Qn, OutQn);
     report(*QinAFO, OutQinKW);
     report(*Qs, OutS);
     report(*Qsn, OutSn);
     report(*SinAFO, OutSin);
-    report(*Scomp1, OutComp1);
-    report(*Scomp2, OutComp2);
+  //  report(*Scomp1, OutComp1);
+  //  report(*Scomp2, OutComp2);
 
     // water height m
     if (SwitchOutwh)
