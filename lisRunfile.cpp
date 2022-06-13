@@ -587,6 +587,8 @@ void TWorld::ParseRunfileData(void)
     OutSn    = "sn";
     OutSin   = "sin";
     OutS     = "s";
+    OutComp1 = "sca";
+    OutComp2 = "scb";
 
 }
 //------------------------------------------------------------------------------

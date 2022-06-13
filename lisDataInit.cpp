@@ -1465,7 +1465,8 @@ void TWorld::InitErosion(void)
     Qs = NewMap(0);
     Qsn = NewMap(0);
     SinAFO = NewMap(0);
-    Scomp = NewMap(0);
+    Scomp1 = NewMap(0);
+    Scomp2 = NewMap(0);
 
     DetSplashTot = 0;
     DetFlowTot = 0;

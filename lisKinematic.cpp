@@ -280,7 +280,9 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
     FOR_ROW_COL_MV_L {
        // _Qsn->Drc = 0;
         QinKW->Drc = 0;
-        SinAFO -> Drc = 0;
+      //  SinAFO -> Drc = 0;
+      //  Scomp1 -> Drc = 0;
+      //  Scomp2 -> Drc = 0;
     }}
 
 //#pragma omp parallel for reduction(+:Qin) num_threads(userCores)
@@ -320,14 +322,15 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
 //        }
 
         QinKW->Drc = Sin;
-        SinAFO->Drc = Sin; // save sediment influx for all-fluxes-out.
+        SinAFO->Drc = Sin; // save sediment influx for all-fluxes-out. ??? Sin seems to be 0 always?
 
         _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
-       // Scomp = _Qsn;
         _Qsn->Drc = std::min(_Qsn->Drc, QinKW->Drc+_Sed->Drc/_dt);
+        Scomp1 = _Qsn;
             // no more sediment outflow than total sed in cell
         _Sed->Drc = std::max(0.0, QinKW->Drc*_dt + _Sed->Drc - _Qsn->Drc*_dt);
             // new sed volume based on all fluxes and org sed present
+        Scomp2 = _Sed;
 
     }
 }
