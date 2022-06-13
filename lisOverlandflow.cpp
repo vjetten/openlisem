@@ -354,20 +354,20 @@ void TWorld::OverlandFlow1D(void)
     }}
 
     //      routing of substances add here!
-    if (SwitchErosion)
-    {
-        if (SwitchLinkedList) {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                pcr::setMV(Qsn->Drc);//Qsn->setAllMV();
-            }}
-            FOR_ROW_COL_LDD5 {
-                routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
-            }}
-        } else {
+//    if (SwitchErosion)
+//    {
+//        if (SwitchLinkedList) {
+//            #pragma omp parallel for num_threads(userCores)
+//            FOR_ROW_COL_MV_L {
+//                pcr::setMV(Qsn->Drc);//Qsn->setAllMV();
+//            }}
+//            FOR_ROW_COL_LDD5 {
+//                routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
+//            }}
+//        } else {
             KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
-        }
-    }
+       // }
+  //  }
 
     // route other stuff
     if (SwitchPesticide) {
