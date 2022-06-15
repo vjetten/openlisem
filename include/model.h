@@ -599,7 +599,7 @@ public:
     QString Outrunoff, Outconc, Outwh, Outrwh, Outvelo, Outinf, Outinfilvol, Outss, Outchvol, //OutinfilvolKinWave,
     Outtc, Outeros, Outdepo, OutSL, OutSed, OutInt,OutSedSS, OutSedBL,
     OutTiledrain, OutTileVol,OutTileV, OutHmx, OutVf, OutQf, OutHmxWH, OutTheta1, OutTheta2,
-    OutQ, OutQn, OutQinKW, OutS, OutSn, OutSin, OutSAFO, OutWHAFO;
+    OutQ, OutQn, OutQinKW, OutS, OutSn, OutSin, OutSAFO, OutWHAFO, OutFW, OutSS, Outerosion;
     bool  SwitchOutrunoff, SwitchOutconc, SwitchOutwh, SwitchOutrwh, SwitchOutvelo, SwitchOutinf, SwitchOutss, SwitchOutchvol,
     SwitchOutConc, SwitchOutTC, SwitchOutDet, SwitchOutDep, SwitchOutSL, SwitchOutSed, SwitchOutInt, SwitchOutSedSS, SwitchOutSedBL,
     SwitchOutTiledrain, SwitchOutTileVol, SwitchOutHmx, SwitchOutVf, SwitchOutQf, SwitchOutHmxWH, SwitchOutTheta;

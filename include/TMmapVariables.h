@@ -119,6 +119,7 @@ cTMap
 *SinKW,                      //!< New Sed flux kinematic wave
 *SinAFO,                     //!< MC - The sed discharge entering a cell, used for all fluxes out.
 *SedAFO,                     //!< MC - The sediment available at the start of timestep - all-fluxes-out
+*ErosionAFO,                 //!< MC - Erosion per timestep [kg] - all-fluxes-out
 *Qsoutput,                   //!< sediment outflow for screen/file output, sum of overland flow and channel [kg/s]
 *q,                          //!< infiltration surplus going in kin wave (<= 0) [m2/s]
 *R,                          //!< hydraulic radius overland flow [m]

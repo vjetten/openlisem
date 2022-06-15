@@ -167,13 +167,14 @@ void TWorld::CalcVelDisch()//(int r, int c)
     double alpha;
     double WHr = WHrunoff->Drc;
     double FW = FlowWidth->Drc;
+    double P = FW + (2 * WHr); // MC - wetted perimeter for manning formula
 
     if (SwitchKinematic2D == K2D_METHOD_KINDYN && SwitchIncludeChannel && hmx->Drc > 0.001)
         NN = N->Drc * (2.0-qExp(-mixing_coefficient*hmx->Drc));
     // slow down water in flood zone, if hmx = 0 then factor = 1
 
     if (Grad->Drc > MIN_SLOPE)
-        alpha = pow(NN/sqrtGrad->Drc * pow(FW, 2.0/3.0),0.6);
+        alpha = pow(NN/sqrtGrad->Drc * pow(FW, 2.0/3.0),0.6); // MC - FW as wetted perimeter, because water height is very small??
     else
         alpha = 0;
 
@@ -182,7 +183,7 @@ void TWorld::CalcVelDisch()//(int r, int c)
     else
         Q->Drc = 0;
 
-    V->Drc = pow(WHr, 2.0/3.0) * sqrtGrad->Drc/NN;
+    V->Drc = pow(WHr, 2.0/3.0) * sqrtGrad->Drc/NN; // MC - Does the assumption always hold that WHr = Rh?? If WHr becomes to large??
     Alpha->Drc = alpha;
 
     }}
@@ -371,6 +372,9 @@ void TWorld::OverlandFlow1D(void)
 //        } else {
             KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
             SinAFO = SinKW; // save sediment influx for all-fluxes-out.
+           FOR_ROW_COL_MV_L{
+                ErosionAFO->Drc =(Qsn->Drc*_dt) - (SinKW->Drc*_dt);
+           }}
 //        }
 //    }
 

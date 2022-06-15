@@ -884,6 +884,9 @@ void TWorld::ReportMapSeries(void)
     report(*SinAFO, OutSin);
     report(*WHAFO, OutWHAFO);
     report(*SedAFO, OutSAFO);
+    report(*FlowWidth, OutFW);
+    report(*Sed, OutSS);
+    report(*ErosionAFO, Outerosion);
 
     // water height m
     if (SwitchOutwh)
