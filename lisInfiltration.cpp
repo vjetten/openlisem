@@ -582,6 +582,7 @@ void TWorld::cell_InfilMethods(int r, int c)
 
     if (InfilMethod == INFIL_GREENAMPT)
         fpot_ = Ks*(1.0+(Psi+fwh)/std::max(1e-4, Lw->Drc));
+        //fpot_ = Ks; // infiltration bugs at lower _dt
     else {
         double space = Poreeff->Drc-Thetaeff->Drc;
         if (Lw->Drc > SoilDepth1->Drc)
