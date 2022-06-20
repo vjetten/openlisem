@@ -45,6 +45,7 @@ functions: \n
 
 
 #define TINY 0.0001
+#define ss_space 0.000001
 
 //---------------------------------------------------------------------------
 // Done outside timeloop, move inside when crusting is made dynamic!
@@ -443,11 +444,11 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
         double dtheta2 = std::max(0.0,ThetaS2->Drc-ThetaI2->Drc);
         double dfact2 = 0;
 
-        if (SwitchImpermeable && L > SoilDep2 - 0.001) {
+        if (SwitchImpermeable && L > SoilDep2 - ss_space) {
             Lw->Drc = SoilDep2;
             return 0;
         }                
-        if (SwitchImpermeable && dtheta2 < 0.001) {
+        if (SwitchImpermeable && dtheta2 < ss_space) {
             Lw->Drc = SoilDep2;
             return 0;
         }
@@ -504,24 +505,24 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
 
         //===== single layer =====
 
-        if (SwitchImpermeable && L > SoilDep1 - 0.001) {
+        if (SwitchImpermeable && L > SoilDep1 - ss_space) {
             Lw->Drc = SoilDep1;
             return 0;
         }
-        if (SwitchImpermeable && dtheta1 < 0.001) {
+        if (SwitchImpermeable && dtheta1 < ss_space) {
             Lw->Drc = SoilDep1;
             return 0;
         }
 
-        if(L < SoilDep1-0.001) {
+        if(L < SoilDep1- ss_space) {
             // not full
             double space1 = (SoilDep1 - L)*dtheta1;
-            if (dtheta1 > 0.001)
+            if (dtheta1 > ss_space)
                 L = L + fact_in/dtheta1; // increase wetting front
             else
                 L = SoilDep1;
 
-            if (L > SoilDep1-0.001) {
+            if (L > SoilDep1- ss_space) {
                 fact_out = space1;
                 L = SoilDep1;
             } else
@@ -582,7 +583,6 @@ void TWorld::cell_InfilMethods(int r, int c)
 
     if (InfilMethod == INFIL_GREENAMPT)
         fpot_ = Ks*(1.0+(Psi+fwh)/std::max(1e-4, Lw->Drc));
-        //fpot_ = Ks; // infiltration bugs at lower _dt
     else {
         double space = Poreeff->Drc-Thetaeff->Drc;
         if (Lw->Drc > SoilDepth1->Drc)

@@ -25,6 +25,7 @@
 #include "lisemqt.h"
 #include "model.h"
 
+#define ss_space 0.000001
 
 void TWorld::MoistureContent()
 {
@@ -203,7 +204,7 @@ void TWorld::cell_Redistribution(int r, int c)
     } else {
         // not SwitchTwoLayer
         if (Lw_ > 0.1) {
-            if (Lw_ < SoilDep1-0.001) {
+            if (Lw_ < SoilDep1- ss_space) {
                 theta_E = (theta-thetar)/(pore-thetar);
                 Percolation = Ksateff->Drc * pow(theta_E, bca1->Drc); // m/timestep
                 //  Percolation = sqrt(Percolation * Ksateff->Drc);
@@ -212,7 +213,7 @@ void TWorld::cell_Redistribution(int r, int c)
 
                 double moisture = Lw_ * (pore-thetar); //available sat moisture above Lw_
                 double dm = (pore-FC)*Lw_ * factor;
-                Percolation = std::min(dm, Percolation);
+                Percolation = std::min(dm, Percolation); // MC - percolation cannot reduce soil moisture below FC
 
                 moisture -= Percolation;
                 Lw_ = moisture/(pore-thetar); // new Lw_
@@ -261,7 +262,7 @@ double TWorld::cell_Percolation(int r, int c, double factor)
                 dL = SoilDep2 - SoilDep1;
             // if Wet Fr still in first layer percolation only make 2nd drier
 
-            if (Lw_ < SoilDep2-0.001) {
+            if (Lw_ < SoilDep2- ss_space) {
                 // decrease thetaeff because of percolation
                 double moisture = dL*(theta-thetar);//*0.5);
                 Percolation = std::min(Percolation, moisture);
@@ -292,7 +293,7 @@ double TWorld::cell_Percolation(int r, int c, double factor)
             theta_E = (theta-thetar)/(pore-thetar);
             Percolation = ksat * pow(theta_E, bca1->Drc);
 
-            if (Lw_ < SoilDep1-0.001) {
+            if (Lw_ < SoilDep1- ss_space) {
                 // wetting front has not reached bottom, make soil drier
                 // decrease thetaeff because of percolation
                 double moisture = (SoilDep1 - Lw_)*(theta-thetar);
