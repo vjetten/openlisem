@@ -879,14 +879,16 @@ void TWorld::ReportMapSeries(void)
     report(*Q, OutQ); // MC - not needed for all - fluxes out.
     report(*Qn, OutQn);
     report(*QinAFO, OutQinKW);
-    report(*Qs, OutS);
-    report(*Qsn, OutSn);
-    report(*SinAFO, OutSin);
+//    report(*Qs, OutS);
+//    report(*Qsn, OutSn);
+//    report(*SinAFO, OutSin);
     report(*WHAFO, OutWHAFO);
-    report(*SedAFO, OutSAFO);
-    report(*FlowWidth, OutFW);
-    report(*Sed, OutSS);
-    report(*ErosionAFO, Outerosion);
+//    report(*SedAFO, OutSAFO);
+//    report(*FlowWidth, OutFW);
+//    report(*Sed, OutSS);
+//    report(*ErosionAFO, Outerosion);
+    report(*thetacheck, Outchtheta);
+    report(*lwcheck, Outchlw);
 
     // water height m
     if (SwitchOutwh)

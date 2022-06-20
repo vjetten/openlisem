@@ -592,6 +592,8 @@ void TWorld::ParseRunfileData(void)
     OutFW = "fw";
     OutSS = "ss";
     Outerosion = "me";
+    Outchtheta = "cht";
+    Outchlw = "chlw";
 
 }
 //------------------------------------------------------------------------------

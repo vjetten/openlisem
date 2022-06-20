@@ -2071,6 +2071,8 @@ void TWorld::IntializeData(void)
     Qoutput = NewMap(0);
     Qsoutput = NewMap(0);
     q = NewMap(0);
+    thetacheck = NewMap(0);
+    lwcheck = NewMap(0);
 
     WaterVolin = NewMap(0);
     WaterVolall = NewMap(0);

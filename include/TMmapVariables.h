@@ -253,6 +253,8 @@ cTMap
 *SoilDepth1,                 //!< depth to end soil layer 1 (input is in mm) [m]
 //*L1,                         //!< depth of wetting front in layer 1 [m]
 *Lw,
+*thetacheck,                    //!< MC - check what theta does after cell_percolation formula
+*lwcheck,                       //!< MC - MC check what Lw does.
 *Soilwater,                  //!< actual soil water content [-]
 *ThetaS2,                    //!< porosity soil layer 2 [-]
 *ThetaI2,                    //!< initial moisture content soil layer 2 [-]

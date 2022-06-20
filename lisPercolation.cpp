@@ -25,7 +25,7 @@
 #include "lisemqt.h"
 #include "model.h"
 
-#define ss_space 0.000001
+#define ss_space 0.001
 
 void TWorld::MoistureContent()
 {
@@ -47,7 +47,7 @@ void TWorld::MoistureContent()
 }
 
 // redistribution of soilwater after infiltration
-// out[put is new Lw and new Thetaeff and ThetaI2
+// output is new Lw and new Thetaeff and ThetaI2
 void TWorld::cell_Redistribution(int r, int c)
 {
 
@@ -204,22 +204,23 @@ void TWorld::cell_Redistribution(int r, int c)
     } else {
         // not SwitchTwoLayer
         if (Lw_ > 0.1) {
-            if (Lw_ < SoilDep1- ss_space) {
-                theta_E = (theta-thetar)/(pore-thetar);
+            if (Lw_ < SoilDep1 - ss_space) {
+                //theta_E = (theta-thetar)/(pore-thetar); // percolation depends on the difference between the two zones
+                theta_E = 1; // MC - this percolation is from saturated zone to unsaturated - so theta_E = 1
                 Percolation = Ksateff->Drc * pow(theta_E, bca1->Drc); // m/timestep
                 //  Percolation = sqrt(Percolation * Ksateff->Drc);
                 Percolation = 0.5*(Percolation + Ksateff->Drc);
                 //flux across boundary is ks+ke/2, average after Swatre
 
                 double moisture = Lw_ * (pore-thetar); //available sat moisture above Lw_
-                double dm = (pore-FC)*Lw_ * factor;
+                double dm = (pore-FC)*Lw_ * factor; // max moisture to be transported from zone above Lw_
                 Percolation = std::min(dm, Percolation); // MC - percolation cannot reduce soil moisture below FC
 
                 moisture -= Percolation;
                 Lw_ = moisture/(pore-thetar); // new Lw_
 
                 double store = (SoilDep1 - Lw_) * (pore-theta); // space in SD1 under Lw_
-                Percolation = std::min(Percolation, store);
+                Percolation = std::min(Percolation, store); // MC - if store < Percolation, should the left over percolation not be added to percolation out of the system??
 
                 // if percolation fits in store layer 1 under the Lw
                 double m1 = (theta-thetar)*(SoilDep1-Lw_) + Percolation;
@@ -231,6 +232,8 @@ void TWorld::cell_Redistribution(int r, int c)
                 }
             } // Lw < SD1
         } //Lw_ > 0.1
+        Thetaeff->Drc= theta;
+        Lw->Drc = Lw_;
     }// 1 layer
 }
 //---------------------------------------------------------------------------
@@ -296,10 +299,14 @@ double TWorld::cell_Percolation(int r, int c, double factor)
             if (Lw_ < SoilDep1- ss_space) {
                 // wetting front has not reached bottom, make soil drier
                 // decrease thetaeff because of percolation
-                double moisture = (SoilDep1 - Lw_)*(theta-thetar);
-                Percolation = std::min(Percolation, moisture);
-                moisture -= Percolation;
-                theta = moisture/(SoilDep1 - Lw_) + thetar;
+                // MC - only decrease soil moisture if it is > FC
+                double FC = 0.7867*exp(-0.012*Ksateff->Drc)*pore;
+                if (theta > FC) {
+                    double moisture = (SoilDep1 - Lw_)*(theta-thetar);
+                    Percolation = std::min(Percolation, moisture);
+                    moisture -= Percolation;
+                    theta = moisture/(SoilDep1 - Lw_) + thetar;
+                }
             } else {
                 // wetting front = soildepth1, dL = 0, moisture = 0
                 // assume theta goes back to FC and decrease the wetting fornt
@@ -308,9 +315,11 @@ double TWorld::cell_Percolation(int r, int c, double factor)
                 double Lwo = Lw_;
                 Lw_ = std::max(0.0, Lw_ - ksat/(pore - theta));
                 Percolation = (Lwo-Lw_)*(pore-theta);
-            }
+             }
             Thetaeff->Drc = theta;
+            thetacheck = Thetaeff;
             Lw->Drc = Lw_;
+            lwcheck = Lw;
             return(Percolation);
         }
     }

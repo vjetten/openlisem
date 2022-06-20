@@ -45,7 +45,7 @@ functions: \n
 
 
 #define TINY 0.0001
-#define ss_space 0.000001
+#define ss_space 0.001
 
 //---------------------------------------------------------------------------
 // Done outside timeloop, move inside when crusting is made dynamic!
@@ -517,7 +517,7 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
         if(L < SoilDep1- ss_space) {
             // not full
             double space1 = (SoilDep1 - L)*dtheta1;
-            if (dtheta1 > ss_space)
+            if (dtheta1 > 0.001)
                 L = L + fact_in/dtheta1; // increase wetting front
             else
                 L = SoilDep1;
@@ -531,6 +531,7 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
 
         L = std::min(SoilDep1,std::max(0.0, L));
         Lw->Drc = L;
+        fact_out = fact_in; // MC - no 0 or reduced infiltration with full profile
         return std::max(0.0, fact_out);
     }
 
@@ -634,7 +635,8 @@ void TWorld::cell_InfilMethods(int r, int c)
                 space = (SoilDepth2->Drc - Lw->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
         }
 
-        FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
+        FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_)); fpot_ - fact_; //
+        //MC - using space causes fluctuations when Lw reaches SD1
         // negative and smallest of space or fpot-fact ???
     }
 }
