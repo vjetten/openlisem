@@ -84,7 +84,11 @@ void TWorld::OutputUI(void)
     else
         op.Time.append(time/86400);
     op.maxtime = op.t/runstep * op.maxstep;
-    op.dx = _dx;
+    op._dx = _dx;
+    op._llx = _llx;
+    op._lly = _lly;
+    op._nrCols = _nrCols;
+    op._nrRows = _nrRows;
     op.runstep = runstep;
     op.maxstep = (int) ((EndTime-BeginTime)/_dt);
     //op.EndTime = EndTime/60.0;

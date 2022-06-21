@@ -862,8 +862,8 @@ void lisemqt::SetStyleUI()
 
     GW_initlevel->setVisible(false);
     label_61->setVisible(false);
-    nrcontourlevels->setVisible(false);
-    label_92->setText("Relief ");
+    //nrcontourlevels->setVisible(false);
+//    label_92->setText("Relief ");
 //    label_44->setVisible(false);
 //    label_45->setVisible(false);
 //    label_MB->setVisible(false);

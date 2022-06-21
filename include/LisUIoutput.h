@@ -76,7 +76,9 @@ struct output{
     QVector <double> ObsPointY;
     QVector <LDD_COORIN> lddch_;
 
-    double timestep, CatchmentArea, dx, t,time, maxtime, EndTime, BeginTime;     
+    double timestep, CatchmentArea, t,time, maxtime, EndTime, BeginTime;
+    double _llx, _lly, _dx;
+    int _nrRows, _nrCols;
 
     double
     // water
