@@ -457,7 +457,7 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
             double space = (SoilDep1-L)*dtheta1;
             if(fact_in > (SoilDep1-L)*space) {
                 passing = true;
-                dfact2 = fact_in - space; // Why? The soil is permeable so a full profile should not slow down infiltration.
+                dfact2 = fact_in - space;
             } else {
                 // still in SD1
                 if (dtheta1 > 0.001)
@@ -474,7 +474,7 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
                 L = SoilDep2;
 
             if (L > SoilDep2-0.001) {
-                fact_out = space2; // Why? The soil is permeable so a full profile should not slow down infiltration.
+                fact_out = space2; // MC - Why? The soil is permeable so a full profile should not slow down infiltration.
                 L = SoilDep2;                
             } else {
                 fact_out = fact_in;
@@ -534,12 +534,10 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
 
         L = std::min(SoilDep1,std::max(0.0, L));
         Lw->Drc = L;
-        return fact_out;
-        //return std::max(0.0, fact_out);
+        return std::max(0.0, fact_out);
     }
     fact_out = fact_in;
     return fact_out;
-    //return 0;
 }
 
 //---------------------------------------------------------------------------
@@ -607,7 +605,6 @@ void TWorld::cell_InfilMethods(int r, int c)
     if (fact_ > 0)
         fact_ = IncreaseInfiltrationDepthNew(fact_, r, c);
     // adjust fact and increase Lw, for twolayer, impermeable etc
-    fact->Drc = fact_;
 
     if (fwh < fact_)
     {
@@ -624,7 +621,7 @@ void TWorld::cell_InfilMethods(int r, int c)
         hmx->Drc = fwh;
 
     Fcum->Drc += fact_; // for Smith and Parlange
-    //fact->Drc = fact_;
+    fact->Drc = fact_;
 
     // increase cumulative infil in m
     InfilVol->Drc = fact_*SW*DX->Drc;
