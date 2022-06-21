@@ -202,9 +202,10 @@ void TWorld::cell_Redistribution(int r, int c)
 
     } else {
         // not SwitchTwoLayer
-        if (Lw_ > 0.1) {
+        if (Lw_ > 0.05) {
             if (Lw_ < SoilDep1-0.001) {
-                theta_E = (theta-thetar)/(pore-thetar);
+                theta_E = (theta-thetar)/(pore-thetar);// MC - percolation should depend on the difference between the two zones??
+                //theta_E = 1; // MC - this percolation is from saturated zone to unsaturated - so theta_E = 1 ???
                 Percolation = Ksateff->Drc * pow(theta_E, bca1->Drc); // m/timestep
                 //  Percolation = sqrt(Percolation * Ksateff->Drc);
                 Percolation = 0.5*(Percolation + Ksateff->Drc);
@@ -230,6 +231,8 @@ void TWorld::cell_Redistribution(int r, int c)
                 }
             } // Lw < SD1
         } //Lw_ > 0.1
+        Thetaeff->Drc= theta;
+        Lw->Drc= Lw_;
     }// 1 layer
 }
 //---------------------------------------------------------------------------

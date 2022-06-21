@@ -522,18 +522,19 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
                 L = SoilDep1;
 
             if (L > SoilDep1-0.001) {
-                fact_out = space1;
+                fact_out = fact_in; // MC - no 0 or reduced infiltration with full profile
                 L = SoilDep1;
             } else
                 fact_out = fact_in;
-        }
+        } else
+            fact_out = fact_in; // MC - no 0 or reduced infiltration with full profile
 
         L = std::min(SoilDep1,std::max(0.0, L));
         Lw->Drc = L;
         return std::max(0.0, fact_out);
     }
-
-    return 0;
+    fact_out = fact_in;
+    return fact_out;
 }
 
 //---------------------------------------------------------------------------
@@ -633,7 +634,9 @@ void TWorld::cell_InfilMethods(int r, int c)
                 space = (SoilDepth2->Drc - Lw->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
         }
 
-        FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
+        //FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
+        //MC - using space causes fluctuations when Lw reaches SD1 when soil is not impermeable always use fact_
+        FSurplus->Drc = -1.0 * fact_;
         // negative and smallest of space or fpot-fact ???
     }
 }
