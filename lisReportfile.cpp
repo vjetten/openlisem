@@ -889,6 +889,7 @@ void TWorld::ReportMapSeries(void)
 //    report(*ErosionAFO, Outerosion);
     report(*thetacheck, Outchtheta);
     report(*lwcheck, Outchlw);
+    report(*fact, "fact");
 
     // water height m
     if (SwitchOutwh)
