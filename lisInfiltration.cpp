@@ -531,7 +531,7 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
 
         L = std::min(SoilDep1,std::max(0.0, L));
         Lw->Drc = L;
-        fact_out = fact_in; // MC - no 0 or reduced infiltration with full profile
+        //fact_out = fact_in; // MC - no 0 or reduced infiltration with full profile
         return std::max(0.0, fact_out);
     }
 
