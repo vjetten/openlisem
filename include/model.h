@@ -806,9 +806,6 @@ public:
                                 cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                                 cTMap *_Alpha, cTMap *_DX, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
 
-    // MC - function to export sediment fluxes for each timestep
-    // double K2DSolvebyInterpolationSed(double dt, cTMap *_S ,cTMap *_C, QList<cTMap * >fluxlist);
-
   //  double K2DSolvebyInterpolationSed( cTMap *M, cTMap *MC);
 
     double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
@@ -844,6 +841,9 @@ public:
     double *Solve(int n,int m, double **A_LU, double *B);
     double Implicitscheme(double Qj1i1, double Qj1i, double Qji1,double Pj1i, double Pji1, double alpha, double dt,double dx, double Kfilm, double CMi1j1);
     double ConcentrationP(double watvol, double pest);
+
+    //Pesticides MC
+    void simplePestConc(double Crw_old, double Crw_n, double Sj1i, double vol, double sed);
 
     // 1D hydro processes
     //input timeseries

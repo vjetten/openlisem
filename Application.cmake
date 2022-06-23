@@ -60,6 +60,7 @@ SET(APP_SOURCES
     lisModel
     lisOverlandflow
     lisPesticide
+    lisPesticide_MC
     lisPercolation
     lisRainfall
     lisDischargein
