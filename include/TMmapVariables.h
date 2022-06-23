@@ -230,6 +230,22 @@ cTMap
 *K2DOutlets,                 //!<
 //*K2DQ,                     //!<
 
+// Pesticides - MC
+*PMmw,                      //!< Map with mass of pesticides in soil part of mixing zone [mg]
+*PMms,                      //!< Map with mass of pesticides in soil part of mixing zone [mg]
+*PMrw,                      //!< mass of pesticide in runoff water [mg]
+*PMrs,                      //!< mass of pesticide in runoff sediment [mg]
+*PMsoil,                    //!< mass of pesticide in the soil layer without mixing zone [mg]
+*PCrw,                      //!< concentration of pesticide in runoff water [mg/L]
+*PCrs,                      //!< concentration of pesticide in runoff sediment [mg/kg]
+*PCms,                      //!< concentration of pesticide in soil of mizing zone [mg/kg]
+*PCmw,                      //!< concentration of pesticide in water of mixing zone [mg/L]
+*PQrw,                      //!< flux of pesticide in runoff water [mg/sec]
+*PQrs,                      //!< flux of pesticide in runoff sediment [mg/sec]
+*PQinf,                     //!< flux of pesticide in infiltrating water [mg/sec]
+*zm,                        //!< depth of the mixing layer [m]
+*zs,                        //!< depth of the soil layer containing pesticides [m]
+
 // infiltration
 *Fcum,                       //!< cumulative infiltration [m]
 *FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]

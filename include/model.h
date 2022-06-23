@@ -843,7 +843,11 @@ public:
     double ConcentrationP(double watvol, double pest);
 
     //Pesticides MC
-    void simplePestConc(double Crw_old, double Crw_n, double Sj1i, double vol, double sed);
+    void simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double Qinf, double zm, double kr, double Kd,
+                        double Crs_old, double Cms_old, double Ez, double Me, double A, double pore,
+                      double Crw_n, double Crs_n, double Cmw_n, double Cms_n, double Cinf_n);
+    double MassPest(double WaterVolall, double Sed, double Qsn, double Qn, double Qinf, double PMtotI);
+    double MassPestInitial(double dx, cTMap *Cms, cTMap *Cmw, cTMap *zm, cTMap *zs, cTMap *ThetaI1);
 
     // 1D hydro processes
     //input timeseries

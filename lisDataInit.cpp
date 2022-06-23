@@ -2096,7 +2096,7 @@ void TWorld::IntializeData(void)
         thetaTop = NewMap(0);
 
         precision = 5.0;
-        // note "5" is a precision factor dewtermining next timestep, set to 5 in old lisem
+        // note "5" is a precision factor determining next timestep, set to 5 in old lisem
 
         // VJ 110420 added tiledrain depth for all profiles, is all used in infiltration
         SwatreSoilModel = InitSwatre(ProfileID);//, initheadName, TileDepth, swatreDT);
@@ -2273,6 +2273,22 @@ void TWorld::IntializeData(void)
             out << "\n";
         }
     }
+
+    //Maps for pesticide_MC
+    PMmw = NewMap(0);
+    PMms = NewMap(0);
+    PMrw = NewMap(0);
+    PMrs = NewMap(0);
+    PMsoil = NewMap(0);
+    PCrw = NewMap(0);
+    PCrs = NewMap(0);
+    PCms = NewMap(0);
+    PCmw = NewMap(0);
+    PQrw = NewMap(0);
+    PQrs = NewMap(0);
+    PQinf = NewMap(0);
+    zm = NewMap(0);
+    zs = NewMap(0);
 
 //    if(SwitchErosion) {
 //        maxDetachment = ReadMap(LDD, getvaluename("maxdet"));
