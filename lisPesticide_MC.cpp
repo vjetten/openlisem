@@ -31,7 +31,7 @@ functions: \n
 - double TWorld::MassPest(double WaterVolall, double Sed, double Qsn, double Qn, double Qinf, double PMtotI) \n
 - double TWorld::MassPestInitial(cTMap *PCms, cTMap *PCmw, cTMap *zm, cTMap *zs, cTMap *ThetaI1) \n
 - void TWorld::KinematicPestMC() \n
--
+- void TWorld::InitPesticideMC(void) \n
 */
 
 #include "model.h"
@@ -268,17 +268,21 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 
 //---------------------------------------------------------------------------
 /**
-* @fn void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Qn, cTMap *_Qsn,
-                             cTMap *_Qpn, cTMap *_Qpsn, cTMap *_PCmw, cTMap *_PCms, cTMap *_PCrw, cTMap *_PCrs,
-                             cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
-* @brief Adaptation of kinematic wave routing for pesticides.
-* @return Concentrations, fluxes and new mass states of the pesticides in the different domains.
-*
+* @fn void TWorld::InitPesticideMC(void)
+* @brief Initialize constants and maps for pesticide-MC
 */
 void TWorld::InitPesticideMC(void)
 {
+    // get constant from runfile
     KdPestMC = getvaluedouble("Kd pesticide");
     KfilmPestMC = getvaluedouble("Kfilm pesticide");
     KrPestMC = getvaluedouble("Kr pesticide");
     PestName = getvaluestring("Pesticide name");
+
+    // load maps
+    PCms = ReadMap(LDD,getvaluename("pcmixsoil"));
+    PCmw = ReadMap(LDD,getvaluename("pcmixwat"));
+    zm = ReadMap(LDD,getvaluename("pestmixdep"));
+    zs = ReadMap(LDD,getvaluename("pestsoildep"));
+
 }

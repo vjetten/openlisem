@@ -161,6 +161,13 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;FlowBarrierIndex;flowbarrierindex.map;An index value, indicating which flow barrier properties will be used (-);flowbarrierindex");
     DEFmaps.append("2;FlowBoundary;flowboundary.map;A value of 1 at the domain boundary means free outflow, a 0 means no flow (-);flowboundary");
 
+    //Pest-MC
+    DEFmaps.append("0;Pesticide-MC");
+    DEFmaps.append("2;Pest Mixing Soil;pcmixsoil.map;Initial concentration of pesticide in soil of mixing zone;pcmixsoil");
+    DEFmaps.append("2;Pest Mixing Water;pcmixwat.map;Initial concentration of pesticide in water of mixing zone;pcmixwat");
+    DEFmaps.append("2;Pest Mixing Depth;pestmixdep.map;Thickness of the mixing layer [m];pestmixdep");
+    DEFmaps.append("2;Pest Soil Depth;pestsoildep.map;Initial thickness of soil layer containing pesticides [m];pestsoildep");
+
     // example
     //   DEFmaps.append("0;Pesticides");
     //   DEFmaps.append("2;Pest Initial;pestinit.map;Inital content bla bla;pestini");
