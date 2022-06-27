@@ -508,6 +508,11 @@ public:
     double Maxsolubility;
     double MaxVup;
 
+    ///pesticides-MC
+    double PMtot, PMerr;
+    double Pestinf, PestOutW, PestOutS;
+    double PQrw_dt, PQrs_dt;
+
     /// time and dx parameters
     double time, BeginTime, EndTime;
     double _dt, _dx;
@@ -846,9 +851,12 @@ public:
     void simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double Qinf, double zm, double kr, double Kd,
                         double Crs_old, double Cms_old, double Ez, double Me, double A, double pore,
                         double Crw_in, double Crs_in,
-                        double Crw_n, double Crs_n, double Cmw_n, double Cms_n, double Cinf_n);
-    double MassPest(double WaterVolall, double Sed, double Qsn, double Qn, double Qinf, double PMtotI);
+                        double &Crw_n, double &Crs_n, double &Cmw_n, double &Cms_n, double &Cinf_n);
+    void MassPest(cTMap *PMrw, cTMap *PMrs, cTMap *PMms, cTMap *PMmw, cTMap *PMsoil, double PMtotI, double &PMerr, double &PMtot);
     double MassPestInitial(cTMap *Cms, cTMap *Cmw, cTMap *zm, cTMap *zs, cTMap *ThetaI1);
+    void KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Qn, cTMap *_Qsn,
+                                 cTMap *_Qpn, cTMap *_Qpsn, cTMap *_PCmw, cTMap *_PCms, cTMap *_PCrw, cTMap *_PCrs,
+                                 cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
 
     // 1D hydro processes
     //input timeseries

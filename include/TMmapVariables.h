@@ -203,7 +203,7 @@ cTMap
 *Fk,                         //!< MC - only pointer and Newmap - no use found
 *Fmk,                        //!< MC - only pointer and Newmap - no use found
 *flagpest,                   //!< MC - only pointer and Newmap - no use found
-*PMassApplied,               //!< Total pesticide applied in catchment - how are pesticide applications used????
+*PMassApplied,               //!< MC - Total pesticide applied in catchment - how are pesticide applications used????
 *PRunoffSpatial,             //!<
 *PDisMixing,                 //!<
 *PSorMixing,                 //!<
@@ -238,18 +238,17 @@ cTMap
 *PMsoil,                    //!< mass of pesticide in the soil layer without mixing zone [mg]
 *PCrw,                      //!< concentration of pesticide in runoff water [mg/L]
 *PCrs,                      //!< concentration of pesticide in runoff sediment [mg/kg]
-*PCms,                      //!< concentration of pesticide in soil of mizing zone [mg/kg]
+*PCms,                      //!< concentration of pesticide in soil of mixing zone [mg/kg]
 *PCmw,                      //!< concentration of pesticide in water of mixing zone [mg/L]
 *PQrw,                      //!< flux of pesticide in runoff water [mg/sec]
 *PQrs,                      //!< flux of pesticide in runoff sediment [mg/sec]
 *PQinf,                     //!< flux of pesticide in infiltrating water [mg/sec]
 *zm,                        //!< depth of the mixing layer [m]
 *zs,                        //!< depth of the soil layer containing pesticides [m]
-*Pestinf,                   //!< total pesticide mass transported by infiltration [mg]
-*PestOutS,                  //!< total pesticide mass transported with runoff sediment [mg]
-*PestOutW,                  //!< total pesticide mass transported with runoff water [mg]
 *SpinKW,                    //!< sum upstream influx Qpsn [mg/sec]
 *QpinKW,                    //!< sum upstream influx Qpn [mg/sec]
+*Ez,                        //!< erosion depth [m] - negative is deposition
+*PCs,                       //!< concentration of pesticide in soil [mg/kg] - same as initial PCms
 
 
 // infiltration

@@ -2283,12 +2283,19 @@ void TWorld::IntializeData(void)
     PCrw = NewMap(0);
     PCrs = NewMap(0);
     PCms = NewMap(0);
+    PCs = NewMap(0);
+    PCs = PCms;
     PCmw = NewMap(0);
     PQrw = NewMap(0);
     PQrs = NewMap(0);
     PQinf = NewMap(0);
     zm = NewMap(0);
     zs = NewMap(0);
+    Ez = NewMap(0);
+    // total masses
+    double PestOutW = 0;
+    double PestOutS = 0;
+    double Pestinf = 0;
 
 //    if(SwitchErosion) {
 //        maxDetachment = ReadMap(LDD, getvaluename("maxdet"));

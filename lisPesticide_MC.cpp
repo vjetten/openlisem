@@ -28,26 +28,26 @@
 
 functions: \n
 - void TWorld::SimplePestConc() \n
+- double TWorld::MassPest(double WaterVolall, double Sed, double Qsn, double Qn, double Qinf, double PMtotI) \n
+- double TWorld::MassPestInitial(cTMap *PCms, cTMap *PCmw, cTMap *zm, cTMap *zs, cTMap *ThetaI1) \n
+- void TWorld::KinematicPestMC() \n
 -
 */
 
 #include "model.h"
 #include "operation.h"
-#include <tuple>
 
 // check if cell From flows to To
 //#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
 //    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
-
 //---------------------------------------------------------------------------
 /**
- * @fn double TWorld::simplePestCalc(double Crw_old, double Cmw_old, double Kfilm, double Qinf, double zm, double kr, double Kd,
-                              double Crs_old, double Cms_old, double Ez, double Me, double A)
+ * @fn void TWorld::simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double Qinf, double zm, double kr, double Kd,
+                            double Crs_old, double Cms_old, double Ez, double Me, double A, double pore,
+                            double Crw_in, double Crs_in,
+                            double &Crw_n, double &Crs_n, double &Cmw_n, double &Cms_n, double &Cinf_n)
  * @brief Simple calculation of pesticide concentrations in a cell in both water and sediment
- * Simple calculation of pesticide concentrations in a cell in both water and sediment,
-//update part below
- * @param  sed : current mass of sediment in cell
  * @return five concentrations for pesticides in sediment, water of runoff and mixing zone and infiltration
  *
  *
@@ -109,14 +109,23 @@ void TWorld::simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double
  * @return sediment outflow in next timestep
  *
  */
-double TWorld::MassPest(double WaterVolall, double Sed, double Qsn, double Qn, double Qinf, double PMtotI)
+void TWorld::MassPest(cTMap *PMrw, cTMap *PMrs, cTMap *PMms, cTMap *PMmw, cTMap *PMsoil, double PMtotI, double &PMerr, double &PMtot)
 {
-    double PMtot = 0;
-    double PMerr = 0;
 
-    PMtot = Pestinf + PestOutS + PestOutW + PMsoil + PMrw + PMrs + PMmw + PMms;
+    // totals of outfluxes
+    // at the moment only overland flow is accounted for. is channels etc must be included build that later.
+    Pestinf += MapTotal(*PQinf) * _dt;
+    FOR_ROW_COL_LDD5 {
+        PQrw_dt += PQrw->Drc * _dt;
+        PQrs_dt += PQrs->Drc * _dt;
+    }}
+
+    PestOutW += PQrw_dt;
+    PestOutS += PQrs_dt;
+
+    PMtot = Pestinf + PestOutS + PestOutW + MapTotal(*PMsoil) + MapTotal(*PMrw) + MapTotal(*PMrs) + MapTotal(*PMmw) + MapTotal(*PMms);
+
     PMerr = 1 - (PMtot/PMtotI);
-
 
 }
 
@@ -152,15 +161,11 @@ double TWorld::MassPestInitial(cTMap *PCms, cTMap *PCmw, cTMap *zm, cTMap *zs, c
 
 //---------------------------------------------------------------------------
 /**
-* @fn double TWorld::MassPestInitial(double dx, cTMap *Cms, cTMap *Cmw, cTMap *zm, cTMap *zs, cTMap *ThetaI1)
-* @brief Calculation total pesticide mass initial in system.
-* @param dx: cell resolution [m]
-* @param Cms: map with initial pesticide concentration of soil in mixing zone
-* @param Cmw: map with initial pesticide concentration of water in mixing zone
-* @param zm: map with thickness of mixing layer [m]
-* @param zm: map with thickness of soil layer with pesticides [m]
-* @param ThetaI1: map with initial soil moisture of the first soil layer.
-* @return PMtotI
+* @fn void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Qn, cTMap *_Qsn,
+                             cTMap *_Qpn, cTMap *_Qpsn, cTMap *_PCmw, cTMap *_PCms, cTMap *_PCrw, cTMap *_PCrs,
+                             cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
+* @brief Adaptation of kinematic wave routing for pesticides.
+* @return Concentrations, fluxes and new mass states of the pesticides in the different domains.
 *
 */
 /*LDD_COOR *_crlinked_*/
@@ -224,11 +229,14 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
             PMsoil_out = -Ez->Drc * PCs->Drc * _dx * _dx;
         }
         // declare output vars for simplePestConc()
+        double Kd = 1000;
+        double Kfilm = 100;
+        double Kr = 10;
         double Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n = 0;
-        // update the fomulas below (in simplePestCalc) to include the pesticide influx in the cells!!
-        simplePestConc(_PCrw->Drc, _PCmw->Drc, Kfilm, Qinf, zm, kr, Kd, _PCrs->Drc, _PCms-Drc, Ez, Me, A, pore,
+        simplePestConc(_PCrw->Drc, _PCmw->Drc, Kfilm, InfilVol->Drc, zm->Drc, Kr, Kd, _PCrs->Drc, _PCms->Drc, Ez->Drc, Sed->Drc, CHAdjDX->Drc, ThetaS1->Drc,
                        Crw_in, Crs_in,
                        Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n);
+        // MC - do we use A = dx^2 or A = dx * flowwidth
 
         // The four new concentrations
         PCrw->Drc = Crw_n;
@@ -249,10 +257,11 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         // new mass based on all fluxes and original pesticide present
         PMrw->Drc = std::max(0.0, PMrw->Drc - (PQrw->Drc * _dt) + (QpinKW->Drc * _dt));
         PMrs->Drc = std::max(0.0, PMrs->Drc + (SpinKW->Drc * _dt) - (PQrs->Drc * _dt));
-        PMmw->Drc = PCmw->Drc * _dx * _dx * zm->Drc * pore->Drc;
+        PMmw->Drc = PCmw->Drc * _dx * _dx * zm->Drc * ThetaS1->Drc;
         // assuming the mixing zone is always saturated
         PMms->Drc = PCms->Drc * _dx * _dx * zm->Drc * rho;
         PMsoil->Drc = PMsoil->Drc + PMsoil_out;
+
 
     }
 }
