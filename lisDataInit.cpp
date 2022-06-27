@@ -2273,29 +2273,39 @@ void TWorld::IntializeData(void)
             out << "\n";
         }
     }
+    // load data for pesticide-MC
+    if(SwitchPestMC){
+        // get constant from runfile
+        KdPestMC = getvaluedouble("Kd pesticide");
+        KfilmPestMC = getvaluedouble("Kfilm pesticide");
+        KrPestMC = getvaluedouble("Kr pesticide");
+        PestName = getvaluestring("Pesticide name");
 
-    //Maps for pesticide_MC
-    PMmw = NewMap(0);
-    PMms = NewMap(0);
-    PMrw = NewMap(0);
-    PMrs = NewMap(0);
-    PMsoil = NewMap(0);
-    PCrw = NewMap(0);
-    PCrs = NewMap(0);
-    PCms = NewMap(0);
-    PCs = NewMap(0);
-    PCs = PCms;
-    PCmw = NewMap(0);
-    PQrw = NewMap(0);
-    PQrs = NewMap(0);
-    PQinf = NewMap(0);
-    zm = NewMap(0);
-    zs = NewMap(0);
-    Ez = NewMap(0);
-    // total masses
-    double PestOutW = 0;
-    double PestOutS = 0;
-    double Pestinf = 0;
+        // load maps
+        PCms = ReadMap(LDD,getvaluename("pcmixsoil"));
+        PCmw = ReadMap(LDD,getvaluename("pcmixwat"));
+        zm = ReadMap(LDD,getvaluename("pestmixdep"));
+        zs = ReadMap(LDD,getvaluename("pestsoildep"));
+
+        //Maps for pesticide_MC
+        PMmw = NewMap(0);
+        PMms = NewMap(0);
+        PMrw = NewMap(0);
+        PMrs = NewMap(0);
+        PMsoil = NewMap(0);
+        PCrw = NewMap(0);
+        PCrs = NewMap(0);
+        PCs = NewMap(0);
+        PCs = PCms;
+        PQrw = NewMap(0);
+        PQrs = NewMap(0);
+        PQinf = NewMap(0);
+        Ez = NewMap(0);
+        // total masses
+        double PestOutW = 0;
+        double PestOutS = 0;
+        double Pestinf = 0;
+    }
 
 //    if(SwitchErosion) {
 //        maxDetachment = ReadMap(LDD, getvaluename("maxdet"));

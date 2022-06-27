@@ -31,7 +31,7 @@ functions: \n
 - double TWorld::MassPest(double WaterVolall, double Sed, double Qsn, double Qn, double Qinf, double PMtotI) \n
 - double TWorld::MassPestInitial(cTMap *PCms, cTMap *PCmw, cTMap *zm, cTMap *zs, cTMap *ThetaI1) \n
 - void TWorld::KinematicPestMC() \n
-- void TWorld::InitPesticideMC(void) \n
+-
 */
 
 #include "model.h"
@@ -229,9 +229,9 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
             PMsoil_out = -Ez->Drc * PCs->Drc * _dx * _dx;
         }
         // declare output vars for simplePestConc()
-        double Kd = 1000;
-        double Kfilm = 100;
-        double Kr = 10;
+        double Kd = KdPestMC;
+        double Kfilm = KfilmPestMC;
+        double Kr = KrPestMC;
         double Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n = 0;
         simplePestConc(_PCrw->Drc, _PCmw->Drc, Kfilm, InfilVol->Drc, zm->Drc, Kr, Kd, _PCrs->Drc, _PCms->Drc, Ez->Drc, Sed->Drc, CHAdjDX->Drc, ThetaS1->Drc,
                        Crw_in, Crs_in,
@@ -264,25 +264,4 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 
 
     }
-}
-
-//---------------------------------------------------------------------------
-/**
-* @fn void TWorld::InitPesticideMC(void)
-* @brief Initialize constants and maps for pesticide-MC
-*/
-void TWorld::InitPesticideMC(void)
-{
-    // get constant from runfile
-    KdPestMC = getvaluedouble("Kd pesticide");
-    KfilmPestMC = getvaluedouble("Kfilm pesticide");
-    KrPestMC = getvaluedouble("Kr pesticide");
-    PestName = getvaluestring("Pesticide name");
-
-    // load maps
-    PCms = ReadMap(LDD,getvaluename("pcmixsoil"));
-    PCmw = ReadMap(LDD,getvaluename("pcmixwat"));
-    zm = ReadMap(LDD,getvaluename("pestmixdep"));
-    zs = ReadMap(LDD,getvaluename("pestsoildep"));
-
 }
