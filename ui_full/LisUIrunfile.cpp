@@ -72,7 +72,7 @@ void lisemqt::GetRunfile()
 
         if (i == 0 && !S.contains("openLISEM"))
             oldRunfile = true;
-        if (i == 0 && !S.contains("[openLISEM runfile version 6.0]"))
+        if (i == 0 && !S.contains("[openLISEM-pestmc runfile version 6.0.1]"))
             saveRunFileOnce = true;
 
         i++;

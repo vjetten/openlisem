@@ -280,5 +280,5 @@ void TWorld::InitPesticideMC(void)
     KdPestMC = getvaluedouble("Kd pesticide");
     KfilmPestMC = getvaluedouble("Kfilm pesticide");
     KrPestMC = getvaluedouble("Kr pesticide");
-    PestName = getvaluestring("Pesticide Name");
+    PestName = getvaluestring("Pesticide name");
 }

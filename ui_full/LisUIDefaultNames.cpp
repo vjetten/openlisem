@@ -179,7 +179,7 @@ void lisemqt::defaultRunFile()
     }
 
     i = 0;
-    namelist[i++].name = QString("[openLISEM runfile version 6.0]");
+    namelist[i++].name = QString("[openLISEM-pestmc runfile version 6.0.1]");
     namelist[i++].name = QString("");
     //###
     namelist[i++].name = QString("[Input]");
@@ -511,6 +511,18 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include Sediment traps");
     namelist[i].value = QString("0.8");
     namelist[i++].name = QString("Sediment Trap Mannings n");
+
+    //### Pest-MC pesticide data
+    namelist[i++].name = QString("");
+    namelist[i++].name = QString("[Pesticides-MC]");
+    namelist[i].value = QString("test");
+    namelist[i++].name = QString("Pesticide name");
+    namelist[i].value = QString("0.0");
+    namelist[i++].name = QString("Kd pesticide");
+    namelist[i].value = QString("0.0");
+    namelist[i++].name = QString("Kfilm pesticide");
+    namelist[i].value = QString("0.0");
+    namelist[i++].name = QString("Kr pesticide");
 
     //###
     namelist[i++].name = QString("");
