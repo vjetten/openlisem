@@ -171,7 +171,7 @@ double TWorld::MassPestInitial(cTMap *PCms, cTMap *PCmw, cTMap *zm, cTMap *zs, c
 /*LDD_COOR *_crlinked_*/
 void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Qn, cTMap *_Qsn,
                              cTMap *_Qpn, cTMap *_Qpsn, cTMap *_PCmw, cTMap *_PCms, cTMap *_PCrw, cTMap *_PCrs,
-                             cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
+                             cTMap *_Alpha, double _dx, cTMap *_Sed)
 {
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -212,21 +212,23 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
                     }
                 }
             }
-        }
+        } 
         // calculate concentrations for Crw_in and Crs_in
         double Crw_in = Qpin/Qin;
         double Crs_in = Spin/Sin;
 
         SpinKW->Drc = Spin;
         QpinKW->Drc = Qpin;
+        // calculate erosion depth
+        Ez->Drc = _Sed->Drc;
         // change of mass pesticide in soil under mixing layer
         double PMsoil_out = 0;
         if (Ez->Drc < 0) {
             //deposition
-            PMsoil_out = Ez->Drc * PCms->Drc * _dx * _dx * rho;
+            PMsoil_out = Ez->Drc * PCms->Drc * FlowWidth->Drc * _dx * rho;
         } else {
             // erosion
-            PMsoil_out = -Ez->Drc * PCs->Drc * _dx * _dx;
+            PMsoil_out = -Ez->Drc * PCs->Drc * SoilWidthDX->Drc * _dx;
         }
         // declare output vars for simplePestConc()
         double Kd = KdPestMC;
@@ -236,7 +238,9 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         simplePestConc(_PCrw->Drc, _PCmw->Drc, Kfilm, InfilVol->Drc, zm->Drc, Kr, Kd, _PCrs->Drc, _PCms->Drc, Ez->Drc, Sed->Drc, CHAdjDX->Drc, ThetaS1->Drc,
                        Crw_in, Crs_in,
                        Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n);
-        // MC - do we use A = dx^2 or A = dx * flowwidth
+        // MC - do we use A = dx^2 or A = dx * flowwidth or A = dx * SoilWidth
+        // Dx = cellsize, SoilWidth = width of soil (mixing soil interaction and option for erosion),
+        // FlowWidth = SoilWidth + Roads and hard surface, water flows over this area, but for hardsurface no interaction with mixing layer. Deposition on this area.
 
         // The four new concentrations
         PCrw->Drc = Crw_n;
@@ -257,9 +261,9 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         // new mass based on all fluxes and original pesticide present
         PMrw->Drc = std::max(0.0, PMrw->Drc - (PQrw->Drc * _dt) + (QpinKW->Drc * _dt));
         PMrs->Drc = std::max(0.0, PMrs->Drc + (SpinKW->Drc * _dt) - (PQrs->Drc * _dt));
-        PMmw->Drc = PCmw->Drc * _dx * _dx * zm->Drc * ThetaS1->Drc;
+        PMmw->Drc = PCmw->Drc * _dx * SoilWidthDX->Drc * zm->Drc * ThetaS1->Drc;
         // assuming the mixing zone is always saturated
-        PMms->Drc = PCms->Drc * _dx * _dx * zm->Drc * rho;
+        PMms->Drc = PCms->Drc * _dx * SoilWidthDX->Drc * zm->Drc * rho;
         PMsoil->Drc = PMsoil->Drc + PMsoil_out;
 
 

@@ -857,8 +857,8 @@ public:
     void MassPest(cTMap *PMrw, cTMap *PMrs, cTMap *PMms, cTMap *PMmw, cTMap *PMsoil, double PMtotI, double &PMerr, double &PMtot);
     double MassPestInitial(cTMap *Cms, cTMap *Cmw, cTMap *zm, cTMap *zs, cTMap *ThetaI1);
     void KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Qn, cTMap *_Qsn,
-                                 cTMap *_Qpn, cTMap *_Qpsn, cTMap *_PCmw, cTMap *_PCms, cTMap *_PCrw, cTMap *_PCrs,
-                                 cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
+                         cTMap *_Qpn, cTMap *_Qpsn, cTMap *_PCmw, cTMap *_PCms, cTMap *_PCrw, cTMap *_PCrs,
+                         cTMap *_Alpha, double _dx, cTMap *_Sed);
     void InitPesticideMC(void);
 
     // 1D hydro processes
