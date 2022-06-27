@@ -50,10 +50,28 @@ functions: \n
  * @param  sed : current mass of sediment in cell
  * @return five concentrations for pesticides in sediment, water of runoff and mixing zone and infiltration
  *
+ *
+ * Layout of space (i) and time (j) towards next value
+ *
+ * Cj1i > > >  Cj1i1
+ *  \            ^
+ *  \            ^  ^time^
+ *  \            ^
+ * Cji -------- Cji1
+ *     <-space->
+ *
+ * Cji = the concentration 1 cell upstream previous timestep
+ * Cji1 = the concentration in current cell previous timestep
+ * Cj1i = the concentration 1 cell upstream this timestep, we know it already because we calculate from
+ *        upstream to downstream
+ * Cj1i1 = the concentration in current cell this timestep - we want to calculate this.
+ *
+ * For flux calculations we use the average concentration of Cj1i and Cji1 to go to Cj1i1.
  */
 void TWorld::simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double Qinf, double zm, double kr, double Kd,
-                              double Crs_old, double Cms_old, double Ez, double Me, double A, double pore,
-                            double Crw_n, double Crs_n, double Cmw_n, double Cms_n, double Cinf_n) // MC - this are the target values to be returned
+                            double Crs_old, double Cms_old, double Ez, double Me, double A, double pore,
+                            double Crw_in, double Crs_in,
+                            double &Crw_n, double &Crs_n, double &Cmw_n, double &Cms_n, double &Cinf_n) // MC - this are the target values to be returned
 {
     Crw_n = 0;
     Cinf_n = 0;
@@ -61,19 +79,24 @@ void TWorld::simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double
     Cms_n = 0;
     Crs_n = 0;
     double rho = 2650;
+    // calculate average between C of fluxes
+    double Crw_avg = 0.5 * (Crw_old + Crw_in);
+    double Crs_avg = 0.5 * (Crs_old + Crs_in);
 
-    Crw_n = Crw_old + _dt * (Kfilm * (Cmw_old - Crw_old));
-    Cmw_n = Cmw_old + _dt * ((Kfilm * (Crw_old - Cmw_old) + Qinf * (Crw_old - Cmw_old) - zm * rho * kr * (Kd * Cmw_old - Cms_old))/ pore * zm);
+    Crw_n = Crw_old + _dt * (Kfilm * (Cmw_old - Crw_avg));
+    Cmw_n = Cmw_old + _dt * ((Kfilm * (Crw_avg - Cmw_old) + Qinf * (Crw_avg - Cmw_old) - zm * rho * kr * (Kd * Cmw_old - Cms_old))/ pore * zm);
 
     if (Ez > 0 ) {
+        //erosion
         Cms_n = Cms_old + _dt * (kr * (Kd * Cmw_old - Cms_old));
-        Crs_n = Crs_old + _dt * (((Crs_old * Me) + (Cms_old * Ez * rho * A))/(Me + (Ez * rho * A)));
+        Crs_n = Crs_old + _dt * (((Crs_avg * Me) + (Cms_old * Ez * rho * A))/(Me + (Ez * rho * A)));
     } else {
+        //deposition
         Cms_n = Cms_old + _dt * (kr * (Kd * Cmw_old - Cms_old) + (((zm + Ez * Cms_old) - Crs_old * Ez)/ zm));
-        Crs_n = Crs_old;
+        Crs_n = Crs_avg; // or Crs_old??
     }
 
-    Cinf_n = 0.5 * (Crw_old + Crw_n);
+    Cinf_n = 0.5 * (Crw_old + Crw_n); //Or Crw_avg??
 }
 
 //---------------------------------------------------------------------------
@@ -105,23 +128,24 @@ double TWorld::MassPest(double WaterVolall, double Sed, double Qsn, double Qn, d
  * @param Cms: map with initial pesticide concentration of soil in mixing zone
  * @param Cmw: map with initial pesticide concentration of water in mixing zone
  * @param zm: map with thickness of mixing layer [m]
- * @param zm: map with thickness of soil layer with pesticides [m]
+ * @param zs: map with thickness of soil layer with pesticides [m]
  * @param ThetaI1: map with initial soil moisture of the first soil layer.
  * @return PMtotI
  *
  */
-double TWorld::MassPestInitial(double dx, cTMap *PCms, cTMap *PCmw, cTMap *zm, cTMap *zs, cTMap *ThetaI1)
+double TWorld::MassPestInitial(cTMap *PCms, cTMap *PCmw, cTMap *zm, cTMap *zs, cTMap *ThetaI1)
 {
     double PMtotI = 0;
     double rho = 2650;
     // PMtotI = PMsoil + PMmw + PMms
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
-        PMms->Drc = PCms->Drc * dx * dx * rho * zm->Drc;
-        PMmw->Drc = PCmw->Drc * ThetaI1->Drc * zm->Drc * dx * dx;
+        PMms->Drc = PCms->Drc * _dx * _dx * rho * zm->Drc;
+        PMmw->Drc = PCmw->Drc * ThetaI1->Drc * zm->Drc * _dx * _dx;
+        PMsoil->Drc = PCms->Drc * _dx * _dx * zs->Drc;
     }}
 
-    PMtotI = MapTotal(*PMmw) + MapTotal(*PMms);
+    PMtotI = MapTotal(*PMmw) + MapTotal(*PMms) + MapTotal(*PMsoil);
     return(PMtotI);
 }
 
@@ -140,8 +164,9 @@ double TWorld::MassPestInitial(double dx, cTMap *PCms, cTMap *PCmw, cTMap *zm, c
 *
 */
 /*LDD_COOR *_crlinked_*/
-void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
-                             cTMap *_Alpha,cTMap *_DX, cTMap *_Sed, cTMap *_Qpn, cTMap *_Qpsn)
+void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Qn, cTMap *_Qsn,
+                             cTMap *_Qpn, cTMap *_Qpsn, cTMap *_PCmw, cTMap *_PCms, cTMap *_PCrw, cTMap *_PCrs,
+                             cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
 {
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -149,7 +174,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_L {
         SpinKW->Drc = 0;
-      //  QpinKW->Drc = 0;
+        QpinKW->Drc = 0;
     }}
 
 //#pragma omp parallel for reduction(+:Qin) num_threads(userCores)
@@ -162,6 +187,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         double Sin = 0;
         double Qpin = 0;
         double Spin = 0;
+        double rho = 2650;
 
         for (int i = 1; i <= 9; i++)
         {
@@ -182,13 +208,27 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
                 }
             }
         }
-
+        // calculate concentrations for Crw_in and Crs_in
+        double Crw_in = Qpin/Qin;
+        double Crs_in = Spin/Sin;
 
         SpinKW->Drc = Spin;
         QpinKW->Drc = Qpin;
-// update the fomulas below (in simplePestCalc) to include the pesticide influx in the cells!!
-        simplePestConc(Crw_old, Cmw_old, Kfilm, Qinf, zm, kr, Kd, Crs_old, Cms_old, Ez, Me, A, pore,
-                     Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n);
+        // change of mass pesticide in soil under mixing layer
+        double PMsoil_out = 0;
+        if (Ez->Drc < 0) {
+            //deposition
+            PMsoil_out = Ez->Drc * PCms->Drc * _dx * _dx * rho;
+        } else {
+            // erosion
+            PMsoil_out = -Ez->Drc * PCs->Drc * _dx * _dx;
+        }
+        // declare output vars for simplePestConc()
+        double Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n = 0;
+        // update the fomulas below (in simplePestCalc) to include the pesticide influx in the cells!!
+        simplePestConc(_PCrw->Drc, _PCmw->Drc, Kfilm, Qinf, zm, kr, Kd, _PCrs->Drc, _PCms-Drc, Ez, Me, A, pore,
+                       Crw_in, Crs_in,
+                       Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n);
 
         // The four new concentrations
         PCrw->Drc = Crw_n;
@@ -198,20 +238,21 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 
         // The new fluxes
         // no more outflow than total pesticide in domain
-        PQrs->Drc = std::min(PCrs->Drc * Qsn->Drc, SpinKW->Drc + PMrw->Drc/_dt);
+        PQrs->Drc = std::min(PCrs->Drc * Qsn->Drc, SpinKW->Drc + PMrs->Drc/_dt);
         // for water first substract infiltration than runoff - TODO!!
-        PQinf->Drc = Cinf_n * Qinf;
-        PQrw->Drc = PCrw->Drc * Qn->Drc;
+        double Qinf = InfilVol->Drc;
+        PQinf->Drc = std::min(Cinf_n * Qinf, QpinKW->Drc + PMrw->Drc/_dt);
+        PMrw->Drc = std::max(0.0, PMrw->Drc - (PQinf->Drc * _dt) + (QpinKW->Drc * _dt));
+        PQrw->Drc = std::min(PCrw->Drc * Qn->Drc, QpinKW->Drc + PMrw->Drc/_dt);
 
         // The new masses
-
-
-        _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
-        _Qsn->Drc = std::min(_Qsn->Drc, SinKW->Drc+_Sed->Drc/_dt);
-        // no more sediment outflow than total sed in cell
-
-        _Sed->Drc = std::max(0.0, SinKW->Drc*_dt + _Sed->Drc - _Qsn->Drc*_dt);
-        // new sed volume based on all fluxes and org sed present
+        // new mass based on all fluxes and original pesticide present
+        PMrw->Drc = std::max(0.0, PMrw->Drc - (PQrw->Drc * _dt) + (QpinKW->Drc * _dt));
+        PMrs->Drc = std::max(0.0, PMrs->Drc + (SpinKW->Drc * _dt) - (PQrs->Drc * _dt));
+        PMmw->Drc = PCmw->Drc * _dx * _dx * zm->Drc * pore->Drc;
+        // assuming the mixing zone is always saturated
+        PMms->Drc = PCms->Drc * _dx * _dx * zm->Drc * rho;
+        PMsoil->Drc = PMsoil->Drc + PMsoil_out;
 
     }
 }

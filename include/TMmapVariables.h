@@ -245,6 +245,12 @@ cTMap
 *PQinf,                     //!< flux of pesticide in infiltrating water [mg/sec]
 *zm,                        //!< depth of the mixing layer [m]
 *zs,                        //!< depth of the soil layer containing pesticides [m]
+*Pestinf,                   //!< total pesticide mass transported by infiltration [mg]
+*PestOutS,                  //!< total pesticide mass transported with runoff sediment [mg]
+*PestOutW,                  //!< total pesticide mass transported with runoff water [mg]
+*SpinKW,                    //!< sum upstream influx Qpsn [mg/sec]
+*QpinKW,                    //!< sum upstream influx Qpn [mg/sec]
+
 
 // infiltration
 *Fcum,                       //!< cumulative infiltration [m]
