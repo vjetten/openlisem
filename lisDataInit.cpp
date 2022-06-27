@@ -2481,7 +2481,9 @@ void TWorld::IntializeOptions(void)
     SwitchDumpK = false;
 
     SwitchPesticide = false;
-    Switchheaderpest = true;
+    Switchheaderpest = false;
+    SwitchPestMC = false;
+    SwitchPestMCoutfile = false;
 
     addedbaseflow = false;
 }

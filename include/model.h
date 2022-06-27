@@ -373,7 +373,7 @@ public:
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
-    SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide,
+    SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide, SwitchPestMC, SwitchPestMCoutfile,
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
@@ -512,6 +512,8 @@ public:
     double PMtot, PMerr;
     double Pestinf, PestOutW, PestOutS;
     double PQrw_dt, PQrs_dt;
+    double KdPestMC, KfilmPestMC, KrPestMC;
+    QString PestName;
 
     /// time and dx parameters
     double time, BeginTime, EndTime;
@@ -857,6 +859,7 @@ public:
     void KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Qn, cTMap *_Qsn,
                                  cTMap *_Qpn, cTMap *_Qpsn, cTMap *_PCmw, cTMap *_PCms, cTMap *_PCrw, cTMap *_PCrs,
                                  cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
+    void InitPesticideMC(void);
 
     // 1D hydro processes
     //input timeseries

@@ -265,3 +265,20 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 
     }
 }
+
+//---------------------------------------------------------------------------
+/**
+* @fn void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Qn, cTMap *_Qsn,
+                             cTMap *_Qpn, cTMap *_Qpsn, cTMap *_PCmw, cTMap *_PCms, cTMap *_PCrw, cTMap *_PCrs,
+                             cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
+* @brief Adaptation of kinematic wave routing for pesticides.
+* @return Concentrations, fluxes and new mass states of the pesticides in the different domains.
+*
+*/
+void TWorld::InitPesticideMC(void)
+{
+    KdPestMC = getvaluedouble("Kd pesticide");
+    KfilmPestMC = getvaluedouble("Kfilm pesticide");
+    KrPestMC = getvaluedouble("Kr pesticide");
+    PestName = getvaluestring("Pesticide Name");
+}
