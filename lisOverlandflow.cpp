@@ -291,7 +291,7 @@ void TWorld::OverlandFlow1D(void)
         if (SwitchErosion) {
             // calc seediment flux going in kin wave as Qs = Q*C
             Qsn->Drc = 0.0;
-            Conc->Drc = MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, &Sed->Drc, &DEP->Drc);
+            Conc->Drc = MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, &Sed->Drc, &DEP->Drc); // MC - Nothing new since flowdetachment??
             Qs->Drc =  Q->Drc * Conc->Drc;
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
         }
@@ -377,6 +377,8 @@ void TWorld::OverlandFlow1D(void)
            }}
 //        }
 //    }
+
+            // MC - Sed is updated by kinematicSubstance, should conc also be updated? now the conc is still based on the Sed before KW
 
     // route other stuff
     if (SwitchPesticide) {
