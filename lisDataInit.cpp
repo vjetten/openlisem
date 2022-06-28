@@ -2305,6 +2305,33 @@ void TWorld::IntializeData(void)
         double PestOutW = 0;
         double PestOutS = 0;
         double Pestinf = 0;
+        if(SwitchPestMCoutfile)
+        {
+            SwitchPestMCoutfile=false;
+            QFile fout("massbalanceMC.txt");
+            fout.open(QIODevice::WriteOnly | QIODevice::Text);
+            QTextStream out(&fout);
+            out.setRealNumberPrecision(3);
+            out.setFieldWidth(0);
+            out.setRealNumberNotation(QTextStream::FixedNotation);
+            out << "time" << " " << "PestMassApplied" << " " << "PestDisMixing" << " " << "PestSorMixing" << " " << "PestLossTotOutlet" << " " << "PestRunoffSpatial"
+                << " " << "PestInfilt" << " " << "MBp" << " "
+                << "RainTot" << " " << "WaterVolSoilTot" << " " << "IntercTot" << " " << "InfilTot" << " " << "Qtot*1000*1000" << " "
+                << "flux1" << " " << "flux2" << " "<< "flux3" << " "<< "flux4" << " "<< "flux5" << " "<< "flux6" <<" "<< "pestiinf*pow(10.0,9)"<<" "<<"CM*pow(10.0,6)"<<" "
+                << "CS*pow(10.0,6"<<" "<< "fact*1000"<< " "<< "InfilVol*1000*1000"<<" "<<"Qn*pow(10.0,6)" << " "<< "PDisMixing" << " "<< "poro"
+                << " "<< "epsil"<< " "<< "DX" << " "<< "switchrunoff" << " "<< "K1"<< " "<< "Q*pow(10.0,6)"<< " "<< "C*pow(10.0,10)"<< " "<< "iterconv"
+                << " "<< "WHoutavg" << " "<< "WHoutavgold"<< " " << "MBpex" << " " << "InfilVol"<< " " << "InfilVolold";
+            out << "\n";
+
+            out << "EI" << " " << PestMassApplied << " " << PestDisMixing << " " << PestSorMixing << " " << "PestLossTotOutlet" << " " << "PestRunoffSpatial"
+                << " " << "PestInfilt" << " " << PestMassApplied-PestDisMixing-PestSorMixing << " "
+                << "RainTot" << " " << "WaterVolSoilTot" << " " << "IntercTot" << " " << "InfilTot" << " " << "Qtot*1000*1000" << " "
+                << "flux1" << " " << "flux2" << " "<< "flux3" << " "<< "flux4" << " "<< "flux5" << " "<< "flux6" <<" "<< "pestiinf"<< " "<<"CM"<<" "
+                << "CS"<<" "<< "fact"<< " "<< "InfilVol"<<" "<<"Qn" << " "<< "PDisMixing" << " "<< "poro"
+                << " "<< "epsil"<< " "<< "DX" << " "<< "switchrunoff" << " "<< "K1"<< " "<< "Q*pow(10.0,6)"<< " "<< "C*pow(10.0,10)" << " "<< "iterconv"
+                << " "<< "WHoutavg" << " "<< "WHoutavgold" << " " << "MBpex"<< " " << "InfilVol"<< " " << "InfilVolold"<< " " << "Vup" << " " << "Vup_old" << " "<< "Cold";
+            out << "\n";
+        }
     }
 
 //    if(SwitchErosion) {
@@ -2398,6 +2425,8 @@ void TWorld::IntializeOptions(void)
     floodWHmaxFileName= QString("WHmax.map");
     tileWaterVolfilename= QString("drainvol.map");
     tileQmaxfilename= QString("drainqmax.map");
+    //Pest-MC
+    resultPestFile= QString("pestmc.csv");
 
     rainFileName.clear();
     rainFileDir.clear();

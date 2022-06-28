@@ -154,6 +154,13 @@ void TWorld::OutputUI(void)
         op.OutletC.at(0)->append(Qtot_dt > MIN_FLUX? SoilLossTot_dt/Qtot_dt : 0);
         op.OutletQstot.replace(0,SoilLossTot*0.001);
     }
+    if (SwitchPestMC) {
+        op.PQrw = PQrw_dt;
+        op.PQrs = PQrs_dt;
+        op.PMOutW = PestOutW;
+        op.PMOutS = PestOutS;
+        op.PMerr = PMerr;
+    }
 
 
     //hydrographs
@@ -345,6 +352,13 @@ void TWorld::ReportTotalSeries(void)
             out << sep << "FloodSed(ton)";
             out << sep << "SoilLoss(ton)";
         }
+        if (SwitchPestMC) {
+            out << sep << "PQrw";
+            out << sep << "PQrs";
+            out << sep << "PMOutW";
+            out << sep << "PMOutS";
+            out << sep << "PMerr";
+        }
         out << "\n";
         fout.flush();
         fout.close();
@@ -395,6 +409,13 @@ void TWorld::ReportTotalSeries(void)
         out << sep << op.FloodDepTot;
         out << sep << op.FloodSedTot;
         out << sep << op.SoilLossTot;
+    }
+    if (SwitchPestMC) {
+        out << sep << op.PQrw;
+        out << sep << op.PQrs;
+        out << sep << op.PMOutW;
+        out << sep << op.PMOutS;
+        out << sep << op.PMerr;
     }
     out << "\n";
 
@@ -781,6 +802,45 @@ void TWorld::ReportTotalsNew(void)
     fp.flush();
     fp.close();
 }
+
+//---------------------------------------------------------------------------
+/// Report totals of the main outlet nd general values for the catchment to a comma delimited text file
+void TWorld::ReportTotalsPestMC(void)
+{
+    QFile fp(resultDir + resultPestFile);
+    if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
+
+    QTextStream out(&fp);
+    out.setRealNumberPrecision(9);
+    out.setFieldWidth(16);
+    out.setRealNumberNotation(QTextStream::FixedNotation);
+    out << "\"LISEM run with:\"," << op.runfilename << "\n";
+    out << "\"LISEM results at time (day:min):\"," << trunc(op.time/1440) << ":" << long(op.time) % 1440 <<"\n";
+    if (op.CatchmentArea > 1e6)
+        out << "\"Catchment area (km2):\"," << op.CatchmentArea/1e6<< "\n";
+    else
+        out << "\"Catchment area (m2):\"," << op.CatchmentArea<< "\n";
+    out << "\"Total Precipitation (mm):\"," << op.RainTotmm<< "\n";
+    out << "\"Total infiltration (mm):\"," << op.InfilTotmm<< "\n";
+    out << "\"Total outflow (all flows) (mm):\"," << op.Qtotmm<< "\n";
+    out << "\n";
+    if (SwitchErosion) {
+        out << "\n";
+        out << "\"Flow detachment (land) (ton):\"," << op.DetTotFlow+op.FloodDetTot<< "\n";
+        out << "\"Total soil loss (ton):\"," << op.SoilLossTot<< "\n";
+        out << "\"Average soil loss (kg/ha):\"," << (op.SoilLossTot*1000.0)/(op.CatchmentArea/10000.0)<< "\n";
+        out << "\n";
+    }
+    if (SwitchPestMC) {
+        out << "\n";
+        out << "\"Pesticides are cool :)\",";
+    }
+
+    fp.flush();
+    fp.close();
+}
+
 //---------------------------------------------------------------------------
 /// Report maps for totals and mapseries (like report in PCRaster)
 /// output filenames are fixed, cannot be changed by the user
@@ -1015,6 +1075,17 @@ void TWorld::ReportMapSeries(void)
                 report(*tm, OutSedBL);      // in user units
             }
         }
+        if (SwitchPestMC) {
+                 report(*PCms, "pcms");
+                 report(*PCmw, "pcmw");
+                 report(*PCrs, "pcrs");
+                 report(*PCrw, "pcrw");
+                 report(*PMsoil, "pmsoil");
+                 report(*PMms, "pmms");
+                 report(*PMmw, "pmmw");
+                 report(*PMrs, "pmrs");
+                 report(*PMrw, "pmrw");
+                }
     }
 }
 //---------------------------------------------------------------------------

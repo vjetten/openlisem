@@ -193,6 +193,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         double Qpin = 0;
         double Spin = 0;
         double rho = 2650;
+        Ez->Drc = 0;
 
         for (int i = 1; i <= 9; i++)
         {
@@ -220,14 +221,16 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         SpinKW->Drc = Spin;
         QpinKW->Drc = Qpin;
         // calculate erosion depth
-        Ez->Drc = _Sed->Drc;
+        Ez->Drc = (DEP->Drc + DETFlow->Drc + DETSplash->Drc);
         // change of mass pesticide in soil under mixing layer
         double PMsoil_out = 0;
         if (Ez->Drc < 0) {
             //deposition
+            Ez->Drc = Ez->Drc / rho * _dx * FlowWidth->Drc;
             PMsoil_out = Ez->Drc * PCms->Drc * FlowWidth->Drc * _dx * rho;
         } else {
             // erosion
+            Ez->Drc = Ez->Drc / rho * _dx * SoilWidthDX->Drc;
             PMsoil_out = -Ez->Drc * PCs->Drc * SoilWidthDX->Drc * _dx;
         }
         // declare output vars for simplePestConc()

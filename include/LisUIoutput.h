@@ -92,7 +92,10 @@ struct output{
     FloodTotMax, FloodAreaMax, FloodArea, WHflood, Qflood, volFloodmm,
     FloodDetTot, FloodDepTot, FloodSedTot,
     // sediment
-    MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot, maxRainaxis;
+    MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot, maxRainaxis,
+    //Pesticide-MC
+    PCrw, PCrs, PQrw, PQrs, PMrw, PMrs, PCmw, PCms, PQinf, PMmw, PMms, PMOutW, PMOutS, PMerr;
+
 
     // map pointers for display
     cTMap *baseMap;

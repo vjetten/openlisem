@@ -603,6 +603,7 @@ public:
     QString dischargeinFileDir;
     QString resultFileName;
     QString temprunname;
+    QString resultPestFile;
     /// standard names of output map series
     QString Outrunoff, Outconc, Outwh, Outrwh, Outvelo, Outinf, Outinfilvol, Outss, Outchvol, //OutinfilvolKinWave,
     Outtc, Outeros, Outdepo, OutSL, OutSed, OutInt,OutSedSS, OutSedBL,
@@ -1058,6 +1059,7 @@ public:
     void ReportDump(void);
     void ReportMapSeries(void);
     void ReportTotalsNew(void);
+    void ReportTotalsPestMC(void); //MC 220628 initial setup pesticide report
     void ReportLandunits(void); //VJ 110107 report erosion stats per land unit
     void CountLandunits(void); //VJ 110107 report erosion stats per land unit
     void saveMBerror2file(bool doError, bool start);
