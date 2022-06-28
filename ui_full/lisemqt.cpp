@@ -117,6 +117,12 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setupMapPlot();
     // set up the raster map drawing
 
+    int h = MPlot->height();
+    int w = MPlot->width();
+    Masp = (double)w/(double)h;
+    qDebug() << Masp;
+
+
 //    QSplitter *splitter = new QSplitter(tabWidget->widget(2));
   //  splitter->addWidget(tabWidget_out);
     //splitter->addWidget(scrollAreaResults);
@@ -640,6 +646,7 @@ void lisemqt::setOutputScreen()
   }
 }
 
+
 void lisemqt::setOutputInfo()
 {
     if (W) {
@@ -720,6 +727,10 @@ void lisemqt::SetToolBar()
     toolBar->addAction(fontDecreaseAct);
 
     toolBar->addSeparator();
+    resizeAct = new QAction(QIcon(":/2X/adjustsize.png"), "&Fit map to display", this);
+    connect(resizeAct, SIGNAL(triggered()), this, SLOT(resizeMap()));
+    toolBar->addAction(resizeAct);
+
     showAllAct = new QAction(QIcon(":/2X/noscreen.png"), "&no output to screen", this);
     showAllAct->setCheckable(true);
     connect(showAllAct, SIGNAL(triggered()), this, SLOT(setOutputScreen()));
@@ -1872,6 +1883,12 @@ QString lisemqt::findValidDir(QString path, bool up)
         path = currentDir;
 
     return (path);
+}
+//---------------------------------------------------------------
+void lisemqt::resizeMap()
+{
+      if (W && tabWidget_out->currentIndex() == 1)
+          changeSize();
 }
 //---------------------------------------------------------------
 void lisemqt::fontSelect()

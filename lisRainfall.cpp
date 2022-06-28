@@ -593,7 +593,7 @@ void TWorld::IDIweight(double IDIpower)
         int c = IDIpointsRC.at(i).c;
         //if (r >= 0 && r < _nrRows && c >= 0 && c < _nrCols) {
         if (INSIDE(r,c)) {
-            qDebug() << i<< r,c;
+        //    qDebug() << i<< r,c;
             tma->Drc = i;
         }
     }
