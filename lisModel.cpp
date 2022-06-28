@@ -268,6 +268,9 @@ void TWorld::DoModel()
             DEBUG("GetDischargeData()");
             GetDischargeData(dischargeinFileName);
         }
+        if (SwitchPestMCtest) {
+            PMtotI = MassPestInitial();     // MC calculate mass in system outside time loop
+        }
 
         // get all input data and create and initialize all maps and variables
 

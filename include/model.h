@@ -373,7 +373,7 @@ public:
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
-    SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide, SwitchPestMC, SwitchPestMCoutfile,
+    SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide, SwitchPestMC, SwitchPestMCtest,
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
@@ -509,7 +509,7 @@ public:
     double MaxVup;
 
     ///pesticides-MC
-    double PMtot, PMerr;
+    double PMtot, PMerr, PMtotI;
     double Pestinf, PestOutW, PestOutS;
     double PQrw_dt, PQrs_dt;
     double KdPestMC, KfilmPestMC, KrPestMC;
@@ -855,11 +855,11 @@ public:
                         double Crs_old, double Cms_old, double Ez, double Me, double A, double pore,
                         double Crw_in, double Crs_in,
                         double &Crw_n, double &Crs_n, double &Cmw_n, double &Cms_n, double &Cinf_n);
-    void MassPest(cTMap *PMrw, cTMap *PMrs, cTMap *PMms, cTMap *PMmw, cTMap *PMsoil, double PMtotI, double &PMerr, double &PMtot);
-    double MassPestInitial(cTMap *Cms, cTMap *Cmw, cTMap *zm, cTMap *zs, cTMap *ThetaI1);
+    void MassPest(double PMtotI, double &PMerr, double &PMtot);
+    double MassPestInitial(void);
     void KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Qn, cTMap *_Qsn,
                          cTMap *_Qpn, cTMap *_Qpsn, cTMap *_PCmw, cTMap *_PCms, cTMap *_PCrw, cTMap *_PCrs,
-                         cTMap *_Alpha, double _dx, cTMap *_Sed);
+                         double _dx, cTMap *_Sed);
     void InitPesticideMC(void);
 
     // 1D hydro processes

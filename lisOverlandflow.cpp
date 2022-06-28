@@ -398,7 +398,11 @@ void TWorld::OverlandFlow1D(void)
             //qDebug()<< "ds overlandflow"<< C->Drc;
             //qDebug()<< "ds overlandflow"<< Pest->Drc;
         }}
-    }   
+    }
+    if (SwitchPestMC) {
+            KinematicPestMC(crlinkedldd_, LDD, Qn, Qsn, PQrw, PQrs, PCmw, PCms, PCrw, PCrs, _dx, Sed);
+
+        }
 }
 //---------------------------------------------------------------------------
 // all points that flow outward of the domain by slope and water pressure

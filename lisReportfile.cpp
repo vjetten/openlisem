@@ -154,12 +154,12 @@ void TWorld::OutputUI(void)
         op.OutletC.at(0)->append(Qtot_dt > MIN_FLUX? SoilLossTot_dt/Qtot_dt : 0);
         op.OutletQstot.replace(0,SoilLossTot*0.001);
     }
-    if (SwitchPestMC) {
-        op.PQrw = PQrw_dt;
-        op.PQrs = PQrs_dt;
-        op.PMOutW = PestOutW;
-        op.PMOutS = PestOutS;
-        op.PMerr = PMerr;
+    if (SwitchPestMCtest) {
+        //op.PQrw = PQrw_dt;
+        //op.PQrs = PQrs_dt;
+        //op.PMOutW = PestOutW;
+        //op.PMOutS = PestOutS;
+        op.PMerr = PMtotI;
     }
 
 
@@ -352,7 +352,7 @@ void TWorld::ReportTotalSeries(void)
             out << sep << "FloodSed(ton)";
             out << sep << "SoilLoss(ton)";
         }
-        if (SwitchPestMC) {
+        if (SwitchPestMCtest) {
             out << sep << "PQrw";
             out << sep << "PQrs";
             out << sep << "PMOutW";
@@ -410,11 +410,11 @@ void TWorld::ReportTotalSeries(void)
         out << sep << op.FloodSedTot;
         out << sep << op.SoilLossTot;
     }
-    if (SwitchPestMC) {
-        out << sep << op.PQrw;
-        out << sep << op.PQrs;
-        out << sep << op.PMOutW;
-        out << sep << op.PMOutS;
+    if (SwitchPestMCtest) {
+        //out << sep << op.PQrw;
+        //out << sep << op.PQrs;
+        //out << sep << op.PMOutW;
+        //out << sep << op.PMOutS;
         out << sep << op.PMerr;
     }
     out << "\n";

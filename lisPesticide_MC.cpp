@@ -109,7 +109,7 @@ void TWorld::simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double
  * @return sediment outflow in next timestep
  *
  */
-void TWorld::MassPest(cTMap *PMrw, cTMap *PMrs, cTMap *PMms, cTMap *PMmw, cTMap *PMsoil, double PMtotI, double &PMerr, double &PMtot)
+void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
 {
 
     // totals of outfluxes
@@ -142,7 +142,7 @@ void TWorld::MassPest(cTMap *PMrw, cTMap *PMrs, cTMap *PMms, cTMap *PMmw, cTMap 
  * @return PMtotI
  *
  */
-double TWorld::MassPestInitial(cTMap *PCms, cTMap *PCmw, cTMap *zm, cTMap *zs, cTMap *ThetaI1)
+double TWorld::MassPestInitial(void)
 {
     double PMtotI = 0;
     double rho = 2650;
@@ -170,8 +170,7 @@ double TWorld::MassPestInitial(cTMap *PCms, cTMap *PCmw, cTMap *zm, cTMap *zs, c
 */
 /*LDD_COOR *_crlinked_*/
 void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Qn, cTMap *_Qsn,
-                             cTMap *_Qpn, cTMap *_Qpsn, cTMap *_PCmw, cTMap *_PCms, cTMap *_PCrw, cTMap *_PCrs,
-                             cTMap *_Alpha, double _dx, cTMap *_Sed)
+                             cTMap *_Qpn, cTMap *_Qpsn, cTMap *_PCmw, cTMap *_PCms, cTMap *_PCrw, cTMap *_PCrs, double _dx, cTMap *_Sed)
 {
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -217,7 +216,8 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         // calculate concentrations for Crw_in and Crs_in
         double Crw_in = Qpin/Qin;
         double Crs_in = Spin/Sin;
-
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L{
         SpinKW->Drc = Spin;
         QpinKW->Drc = Qpin;
         // calculate erosion depth
@@ -238,6 +238,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         double Kfilm = KfilmPestMC;
         double Kr = KrPestMC;
         double Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n = 0;
+
         simplePestConc(_PCrw->Drc, _PCmw->Drc, Kfilm, InfilVol->Drc, zm->Drc, Kr, Kd, _PCrs->Drc, _PCms->Drc, Ez->Drc, Sed->Drc, CHAdjDX->Drc, ThetaS1->Drc,
                        Crw_in, Crs_in,
                        Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n);
@@ -268,6 +269,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         // assuming the mixing zone is always saturated
         PMms->Drc = PCms->Drc * _dx * SoilWidthDX->Drc * zm->Drc * rho;
         PMsoil->Drc = PMsoil->Drc + PMsoil_out;
+        }}
 
 
     }

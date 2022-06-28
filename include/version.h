@@ -35,11 +35,11 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define VERSIONNR "6.84.13 all-fluxes-out"
-#define DATE "2022/06/15"
+#define VERSIONNR "6.84.13 pm0.1"
+#define DATE "2022/06/28"
 
 
-#define VERSION QString("openLISEM version %1 - %2").arg(VERSIONNR).arg(DATE)
+#define VERSION QString("openLISEM pest-mc version %1 - %2").arg(VERSIONNR).arg(DATE)
 
 
 #endif /* VERSION_H_ */
