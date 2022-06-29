@@ -851,10 +851,10 @@ public:
     double ConcentrationP(double watvol, double pest);
 
     //Pesticides MC
+    template <typename... T>
     void simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double Qinf, double zm, double kr, double Kd,
                         double Crs_old, double Cms_old, double Ez, double Me, double A, double pore,
-                        double Crw_in, double Crs_in,
-                        double &Crw_n, double &Crs_n, double &Cmw_n, double &Cms_n, double &Cinf_n);
+                        double Crw_in, double Crs_in, std::tuple<T...> all_conc);
     void MassPest(double PMtotI, double &PMerr, double &PMtot);
     double MassPestInitial(void);
     void KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Qn, cTMap *_Qsn,

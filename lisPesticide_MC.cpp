@@ -36,6 +36,7 @@ functions: \n
 
 #include "model.h"
 #include "operation.h"
+#include <tuple>
 
 // check if cell From flows to To
 //#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
@@ -68,20 +69,16 @@ functions: \n
  *
  * For flux calculations we use the average concentration of Cj1i and Cji1 to go to Cj1i1.
  */
+template <typename... T>
 void TWorld::simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double Qinf, double zm, double kr, double Kd,
                             double Crs_old, double Cms_old, double Ez, double Me, double A, double pore,
-                            double Crw_in, double Crs_in,
-                            double &Crw_n, double &Crs_n, double &Cmw_n, double &Cms_n, double &Cinf_n) // MC - this are the target values to be returned
+                            double Crw_in, double Crs_in, std::tuple<T...> all_conc) // MC - this are the target values to be returned
 {
-    Crw_n = 0;
-    Cinf_n = 0;
-    Cmw_n = 0;
-    Cms_n = 0;
-    Crs_n = 0;
     double rho = 2650;
     // calculate average between C of fluxes
     double Crw_avg = 0.5 * (Crw_old + Crw_in);
     double Crs_avg = 0.5 * (Crs_old + Crs_in);
+    double Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n = 0;
 
     Crw_n = Crw_old + _dt * (Kfilm * (Cmw_old - Crw_avg));
     Cmw_n = Cmw_old + _dt * ((Kfilm * (Crw_avg - Cmw_old) + Qinf * (Crw_avg - Cmw_old) - zm * rho * kr * (Kd * Cmw_old - Cms_old))/ pore * zm);
@@ -97,6 +94,7 @@ void TWorld::simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double
     }
 
     Cinf_n = 0.5 * (Crw_old + Crw_n); //Or Crw_avg??
+    all_conc = std::make_tuple(Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n);
 }
 
 //---------------------------------------------------------------------------
@@ -237,26 +235,25 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         double Kd = KdPestMC;
         double Kfilm = KfilmPestMC;
         double Kr = KrPestMC;
-        double Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n = 1;
+        std::tuple <double, double, double, double, double> all_conc;
 
-//        simplePestConc(_PCrw->Drc, _PCmw->Drc, Kfilm, InfilVol->Drc, zm->Drc, Kr, Kd, _PCrs->Drc, _PCms->Drc, Ez->Drc, Sed->Drc, CHAdjDX->Drc, ThetaS1->Drc,
-//                       Crw_in, Crs_in,
-//                       Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n);
+        simplePestConc(PCrw->Drc, PCmw->Drc, Kfilm, InfilVol->Drc, zm->Drc, Kr, Kd, PCrs->Drc, PCms->Drc, Ez->Drc, Sed->Drc, CHAdjDX->Drc, ThetaS1->Drc,
+                       Crw_in, Crs_in, all_conc);
         // MC - do we use A = dx^2 or A = dx * flowwidth or A = dx * SoilWidth
         // Dx = cellsize, SoilWidth = width of soil (mixing soil interaction and option for erosion),
         // FlowWidth = SoilWidth + Roads and hard surface, water flows over this area, but for hardsurface no interaction with mixing layer. Deposition on this area.
-
+        // layout of tuple = all_conc = std::make_tuple(Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n);
         // The four new concentrations
-        PCrw->Drc = Crw_n;
-        PCrs->Drc = Crs_n;
-        PCmw->Drc = Cmw_n;
-        PCms->Drc = Cms_n;
+        PCrw->Drc = std::get<0>(all_conc);
+        PCrs->Drc = std::get<1>(all_conc);
+        PCmw->Drc = std::get<2>(all_conc);
+        PCms->Drc = std::get<3>(all_conc);
 
         // The new fluxes
         // no more outflow than total pesticide in domain
         PQrs->Drc = std::min(PCrs->Drc * Qsn->Drc, SpinKW->Drc + PMrs->Drc/_dt);
         double Qinf = InfilVol->Drc;
-        PQinf->Drc = std::min(Cinf_n * Qinf, QpinKW->Drc + PMrw->Drc/_dt);
+        PQinf->Drc = std::min(std::get<4>(all_conc) * Qinf, QpinKW->Drc + PMrw->Drc/_dt);
         PMrw->Drc = std::max(0.0, PMrw->Drc - (PQinf->Drc * _dt) + (QpinKW->Drc * _dt));
         PQrw->Drc = std::min(PCrw->Drc * Qn->Drc, QpinKW->Drc + PMrw->Drc/_dt);
 
@@ -267,7 +264,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         PMmw->Drc = PCmw->Drc * _dx * SoilWidthDX->Drc * zm->Drc * ThetaS1->Drc;
         // assuming the mixing zone is always saturated
         PMms->Drc = PCms->Drc * _dx * SoilWidthDX->Drc * zm->Drc * rho;
-        PMsoil->Drc += PMsoil_out + 1;
+        PMsoil->Drc += PMsoil_out;
         }}
 
 
