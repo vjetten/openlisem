@@ -179,6 +179,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
     FOR_ROW_COL_MV_L {
         SpinKW->Drc = 0;
         QpinKW->Drc = 0;
+        Ez->Drc = 0;
     }}
 
 //#pragma omp parallel for reduction(+:Qin) num_threads(userCores)
@@ -192,7 +193,6 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         double Qpin = 0;
         double Spin = 0;
         double rho = 2650;
-        Ez->Drc = 0;
 
         for (int i = 1; i <= 9; i++)
         {
@@ -212,7 +212,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
                     }
                 }
             }
-        } 
+        }
         // calculate concentrations for Crw_in and Crs_in
         double Crw_in = Qpin/Qin;
         double Crs_in = Spin/Sin;
@@ -237,11 +237,11 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         double Kd = KdPestMC;
         double Kfilm = KfilmPestMC;
         double Kr = KrPestMC;
-        double Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n = 0;
+        double Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n = 1;
 
-        simplePestConc(_PCrw->Drc, _PCmw->Drc, Kfilm, InfilVol->Drc, zm->Drc, Kr, Kd, _PCrs->Drc, _PCms->Drc, Ez->Drc, Sed->Drc, CHAdjDX->Drc, ThetaS1->Drc,
-                       Crw_in, Crs_in,
-                       Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n);
+//        simplePestConc(_PCrw->Drc, _PCmw->Drc, Kfilm, InfilVol->Drc, zm->Drc, Kr, Kd, _PCrs->Drc, _PCms->Drc, Ez->Drc, Sed->Drc, CHAdjDX->Drc, ThetaS1->Drc,
+//                       Crw_in, Crs_in,
+//                       Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n);
         // MC - do we use A = dx^2 or A = dx * flowwidth or A = dx * SoilWidth
         // Dx = cellsize, SoilWidth = width of soil (mixing soil interaction and option for erosion),
         // FlowWidth = SoilWidth + Roads and hard surface, water flows over this area, but for hardsurface no interaction with mixing layer. Deposition on this area.
@@ -255,7 +255,6 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         // The new fluxes
         // no more outflow than total pesticide in domain
         PQrs->Drc = std::min(PCrs->Drc * Qsn->Drc, SpinKW->Drc + PMrs->Drc/_dt);
-        // for water first substract infiltration than runoff - TODO!!
         double Qinf = InfilVol->Drc;
         PQinf->Drc = std::min(Cinf_n * Qinf, QpinKW->Drc + PMrw->Drc/_dt);
         PMrw->Drc = std::max(0.0, PMrw->Drc - (PQinf->Drc * _dt) + (QpinKW->Drc * _dt));
@@ -268,7 +267,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         PMmw->Drc = PCmw->Drc * _dx * SoilWidthDX->Drc * zm->Drc * ThetaS1->Drc;
         // assuming the mixing zone is always saturated
         PMms->Drc = PCms->Drc * _dx * SoilWidthDX->Drc * zm->Drc * rho;
-        PMsoil->Drc = PMsoil->Drc + PMsoil_out;
+        PMsoil->Drc += PMsoil_out + 1;
         }}
 
 

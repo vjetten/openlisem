@@ -399,7 +399,7 @@ void TWorld::OverlandFlow1D(void)
             //qDebug()<< "ds overlandflow"<< Pest->Drc;
         }}
     }
-    if (SwitchPestMC) {
+    if (SwitchPestMCtest) {
             KinematicPestMC(crlinkedldd_, LDD, Qn, Qsn, PQrw, PQrs, PCmw, PCms, PCrw, PCrs, _dx, Sed);
 
         }

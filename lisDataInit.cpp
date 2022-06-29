@@ -2302,6 +2302,8 @@ void TWorld::IntializeData(void)
         PQrs = NewMap(0);
         PQinf = NewMap(0);
         Ez = NewMap(0);
+        SpinKW = NewMap(0);
+        QpinKW = NewMap(0);
         // total masses
         double PestOutW = 0;
         double PestOutS = 0;
