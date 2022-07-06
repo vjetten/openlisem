@@ -75,26 +75,26 @@ void TWorld::simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double
                             double Crw_in, double Crs_in, std::tuple<T...> all_conc) // MC - this are the target values to be returned
 {
     double rho = 2650;
-    // calculate average between C of fluxes
-    double Crw_avg = 0.5 * (Crw_old + Crw_in);
-    double Crs_avg = 0.5 * (Crs_old + Crs_in);
-    double Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n = 0;
+        // calculate average between C of fluxes
+        double Crw_avg = 0.5 * (Crw_old + Crw_in);
+        double Crs_avg = 0.5 * (Crs_old + Crs_in);
+        double Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n = 0;
 
-    Crw_n = Crw_old + _dt * (Kfilm * (Cmw_old - Crw_avg));
-    Cmw_n = Cmw_old + _dt * ((Kfilm * (Crw_avg - Cmw_old) + Qinf * (Crw_avg - Cmw_old) - zm * rho * kr * (Kd * Cmw_old - Cms_old))/ pore * zm);
+        Crw_n = Crw_old + _dt * (Kfilm * (Cmw_old - Crw_avg));
+        Cmw_n = Cmw_old + _dt * ((Kfilm * (Crw_avg - Cmw_old) + Qinf * (Crw_avg - Cmw_old) - zm * rho * kr * (Kd * Cmw_old - Cms_old))/ pore * zm);
 
-    if (Ez > 0 ) {
-        //erosion
-        Cms_n = Cms_old + _dt * (kr * (Kd * Cmw_old - Cms_old));
-        Crs_n = Crs_old + _dt * (((Crs_avg * Me) + (Cms_old * Ez * rho * A))/(Me + (Ez * rho * A)));
-    } else {
-        //deposition
-        Cms_n = Cms_old + _dt * (kr * (Kd * Cmw_old - Cms_old) + (((zm + Ez * Cms_old) - Crs_old * Ez)/ zm));
-        Crs_n = Crs_avg; // or Crs_old??
-    }
+        if (Ez > 0 ) {
+            //erosion
+            Cms_n = Cms_old + _dt * (kr * (Kd * Cmw_old - Cms_old));
+            Crs_n = Crs_old + _dt * (((Crs_avg * Me) + (Cms_old * Ez * rho * A))/(Me + (Ez * rho * A)));
+        } else {
+            //deposition
+            Cms_n = Cms_old + _dt * (kr * (Kd * Cmw_old - Cms_old) + (((zm + Ez * Cms_old) - Crs_old * Ez)/ zm));
+            Crs_n = Crs_avg; // or Crs_old??
+        }
 
-    Cinf_n = 0.5 * (Crw_old + Crw_n); //Or Crw_avg??
-    all_conc = std::make_tuple(Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n);
+        Cinf_n = 0.5 * (Crw_old + Crw_n); //Or Crw_avg??
+        all_conc = std::make_tuple(Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n);
 }
 
 //---------------------------------------------------------------------------
@@ -170,6 +170,8 @@ double TWorld::MassPestInitial(void)
 void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Qn, cTMap *_Qsn,
                              cTMap *_Qpn, cTMap *_Qpsn, cTMap *_PCmw, cTMap *_PCms, cTMap *_PCrw, cTMap *_PCrs, double _dx, cTMap *_Sed)
 {
+   //MC - change the function to use the map DX - which is _dx adjusted for slope.
+
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
@@ -211,9 +213,6 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
                 }
             }
         }
-        // calculate concentrations for Crw_in and Crs_in
-        double Crw_in = Qpin/Qin;
-        double Crs_in = Spin/Sin;
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L{
         SpinKW->Drc = Spin;
@@ -235,38 +234,75 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         double Kd = KdPestMC;
         double Kfilm = KfilmPestMC;
         double Kr = KrPestMC;
-        std::tuple <double, double, double, double, double> all_conc;
+//        std::tuple <double, double, double, double, double> all_conc;
+//
+//        simplePestConc(PCrw->Drc, PCmw->Drc, Kfilm, InfilVol->Drc, zm->Drc, Kr, Kd, PCrs->Drc, PCms->Drc, Ez->Drc, Sed->Drc, CHAdjDX->Drc, ThetaS1->Drc,
+//                       Crw_in, Crs_in, all_conc);
 
-        simplePestConc(PCrw->Drc, PCmw->Drc, Kfilm, InfilVol->Drc, zm->Drc, Kr, Kd, PCrs->Drc, PCms->Drc, Ez->Drc, Sed->Drc, CHAdjDX->Drc, ThetaS1->Drc,
-                       Crw_in, Crs_in, all_conc);
         // MC - do we use A = dx^2 or A = dx * flowwidth or A = dx * SoilWidth
         // Dx = cellsize, SoilWidth = width of soil (mixing soil interaction and option for erosion),
         // FlowWidth = SoilWidth + Roads and hard surface, water flows over this area, but for hardsurface no interaction with mixing layer. Deposition on this area.
-        // layout of tuple = all_conc = std::make_tuple(Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n);
-        // The four new concentrations
-        PCrw->Drc = std::get<0>(all_conc);
-        PCrs->Drc = std::get<1>(all_conc);
-        PCmw->Drc = std::get<2>(all_conc);
-        PCms->Drc = std::get<3>(all_conc);
 
-        // The new fluxes
-        // no more outflow than total pesticide in domain
-        PQrs->Drc = std::min(PCrs->Drc * Qsn->Drc, SpinKW->Drc + PMrs->Drc/_dt);
+        // alternative to simplePestConc calculation. Instead of concentration calculate masses
+        // per timestep there are 2 mass change processes: 1. exchange between domains and 2. influx and outflux.
+
+        // 1. exchange between domains
+        // calculate the correct C's based on the Qin and Qold etc.
+        double Crw_avg, Crs_avg = 0;
+        Crw_avg = (PMrw->Drc + (Qpin * _dt)) /((Qn->Drc + Qin) * _dt);
+        Crs_avg = (PMrs->Drc + (Spin * _dt)) /((Qsn->Drc + Sin) * _dt);
+
+        // calculate the mass redistributions
         double Qinf = InfilVol->Drc;
-        PQinf->Drc = std::min(std::get<4>(all_conc) * Qinf, QpinKW->Drc + PMrw->Drc/_dt);
-        PMrw->Drc = std::max(0.0, PMrw->Drc - (PQinf->Drc * _dt) + (QpinKW->Drc * _dt));
-        PQrw->Drc = std::min(PCrw->Drc * Qn->Drc, QpinKW->Drc + PMrw->Drc/_dt);
+        double Mmw_ex, Mms_ex, Mrw_ex, Mrs_ex = 0; // exchange mass (negative is reduction, positive is increase)
+        // units : mg = mg - (m * sec-1 * (mg * m-3) * m * m * sec
+        Mmw_ex -= ((zm->Drc * rho * Kr * (Kd * PCmw->Drc - PCms->Drc))/ (ThetaS1->Drc * zm->Drc)) *_dt * SoilWidthDX->Drc * _dx // exchange with soil in mixing (mg)
+                 - (Kfilm*(PCmw->Drc - Crw_avg)* SoilWidthDX->Drc * _dx * _dt); // exchange between mixing water and runoff water (mg)
+
+        // m * - * m * sec-1 * ( kg * m -3) / - * m
+        // zm * rho * kr * (Kd * Cmw_old - Cms_old))/ pore * zm)
+        Mrw_ex = (Kfilm*(PCmw->Drc - Crw_avg)* SoilWidthDX->Drc * _dx * _dt); // exchange with mixing layer water
+
+        if (Ez->Drc > 0 ) {
+            //erosion
+            Mms_ex = ((zm->Drc * rho * Kr * (Kd * PCmw->Drc - PCms->Drc))/ (ThetaS1->Drc * zm->Drc)) *_dt * SoilWidthDX->Drc * _dx // mixing layer
+                    - (PCms->Drc * Ez->Drc * rho * _dx * SoilWidthDX->Drc); // loss by erosion
+            Mrs_ex = (PCms->Drc * Ez->Drc * rho * _dx * SoilWidthDX->Drc); // added by erosion
+        } else {
+            //deposition
+            Mms_ex = ((zm->Drc * rho * Kr * (Kd * PCmw->Drc - PCms->Drc))/ (ThetaS1->Drc * zm->Drc)) *_dt * SoilWidthDX->Drc * _dx // exchange between soil water in mixing zone
+                    - (Crs_avg * Ez->Drc * rho * _dx * FlowWidth->Drc); // added by deposition. problem with dep on roads!!!
+            Mrs_ex = (Crs_avg * (Ez->Drc * rho * _dx * FlowWidth->Drc)); // loss by deposition
+        }
+
+        // 2. influx and outflux
+        double Mrw_inf, Mmw_inf, Mrs_out, Mrw_out = 0;
+        Mrw_inf -= Qinf * Crw_avg; // loss through infiltration from runoff
+        Mmw_inf = Qinf * (Crw_avg - PCmw->Drc); // net loss through infiltration from mixing layer (mg)
+
+        // no more outflow than total pesticide in domain
+        PQrs->Drc = std::min(PCrs->Drc * Qsn->Drc, Spin + (PMrs->Drc - Mrs_ex)/_dt);
+        PQrw->Drc = std::min(PCrw->Drc * Qn->Drc, Qpin + PMrw->Drc / _dt);
+        Mrs_out = PQrs->Drc * _dt;
+        Mrw_out = PQrw->Drc * _dt;
 
         // The new masses
         // new mass based on all fluxes and original pesticide present
-        PMrw->Drc = std::max(0.0, PMrw->Drc - (PQrw->Drc * _dt) + (QpinKW->Drc * _dt));
-        PMrs->Drc = std::max(0.0, PMrs->Drc + (SpinKW->Drc * _dt) - (PQrs->Drc * _dt));
-        PMmw->Drc = PCmw->Drc * _dx * SoilWidthDX->Drc * zm->Drc * ThetaS1->Drc;
+        PMrw->Drc = std::max(0.0, PMrw->Drc + Mrw_ex - Mrw_out - Mmw_inf + (Qpin * _dt));
+        PMrs->Drc = std::max(0.0, PMrs->Drc + Mrs_ex - Mrs_out + (Spin * _dt));
+        PMmw->Drc = std::max(0.0, PMmw->Drc + Mmw_ex + Mmw_inf);
         // assuming the mixing zone is always saturated
-        PMms->Drc = PCms->Drc * _dx * SoilWidthDX->Drc * zm->Drc * rho;
+        PMms->Drc = std::max(0.0, PMms->Drc + Mms_ex);
         PMsoil->Drc += PMsoil_out;
+
+        // The four new concentrations
+        double Volmw, Massms = 0;
+        Volmw = zm->Drc * _dx * SoilWidthDX->Drc * ThetaS1->Drc;
+        Massms = zm->Drc * _dx * SoilWidthDX->Drc * rho * (1-ThetaS1->Drc);
+        PCrw->Drc = PMrw->Drc / WaterVolall->Drc;
+        PCrs->Drc = PMrs->Drc / Sed->Drc;
+        PCmw->Drc = PMmw->Drc / Volmw;
+        PCms->Drc = PMms->Drc / Massms;
         }}
-
-
     }
 }
