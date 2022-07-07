@@ -268,9 +268,6 @@ void TWorld::DoModel()
             DEBUG("GetDischargeData()");
             GetDischargeData(dischargeinFileName);
         }
-        if (SwitchPestMCtest) {
-            PMtotI = MassPestInitial();     // MC calculate mass in system outside time loop
-        }
 
         // get all input data and create and initialize all maps and variables
 
@@ -289,7 +286,9 @@ void TWorld::DoModel()
         InfilEffectiveKsat();  // calc effective ksat from all surfaces once
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
-
+        if (SwitchPestMCtest) {
+            PMtotI = MassPestInitial();     // MC calculate mass in system outside time loop
+        }
         _dt_user = _dt;
 
         DEBUG("Running...");

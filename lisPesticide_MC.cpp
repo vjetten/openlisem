@@ -69,6 +69,7 @@ functions: \n
  *
  * For flux calculations we use the average concentration of Cj1i and Cji1 to go to Cj1i1.
  */
+// NOT USED ANY MORE
 template <typename... T>
 void TWorld::simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double Qinf, double zm, double kr, double Kd,
                             double Crs_old, double Cms_old, double Ez, double Me, double A, double pore,
@@ -147,9 +148,9 @@ double TWorld::MassPestInitial(void)
     // PMtotI = PMsoil + PMmw + PMms
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
-        PMms->Drc = PCms->Drc * _dx * _dx * rho * zm->Drc;
-        PMmw->Drc = PCmw->Drc * ThetaI1->Drc * zm->Drc * _dx * _dx;
-        PMsoil->Drc = PCms->Drc * _dx * _dx * zs->Drc;
+        PMms->Drc = PCms->Drc * SoilWidthDX->Drc * _dx * rho * zm->Drc;
+        PMmw->Drc = PCmw->Drc * ThetaI1->Drc * zm->Drc * SoilWidthDX->Drc * _dx;
+        PMsoil->Drc = PCms->Drc * SoilWidthDX->Drc * _dx * zs->Drc;
     }}
 
     PMtotI = MapTotal(*PMmw) + MapTotal(*PMms) + MapTotal(*PMsoil);
@@ -217,23 +218,10 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         FOR_ROW_COL_MV_L{
         SpinKW->Drc = Spin;
         QpinKW->Drc = Qpin;
-        // calculate erosion depth
-        Ez->Drc = (DEP->Drc + DETFlow->Drc + DETSplash->Drc);
-        // change of mass pesticide in soil under mixing layer
-        double PMsoil_out = 0;
-        if (Ez->Drc < 0) {
-            //deposition
-            Ez->Drc = Ez->Drc / rho * _dx * FlowWidth->Drc;
-            PMsoil_out = Ez->Drc * PCms->Drc * FlowWidth->Drc * _dx * rho;
-        } else {
-            // erosion
-            Ez->Drc = Ez->Drc / rho * _dx * SoilWidthDX->Drc;
-            PMsoil_out = -Ez->Drc * PCs->Drc * SoilWidthDX->Drc * _dx;
-        }
-        // declare output vars for simplePestConc()
         double Kd = KdPestMC;
         double Kfilm = KfilmPestMC;
         double Kr = KrPestMC;
+
 //        std::tuple <double, double, double, double, double> all_conc;
 //
 //        simplePestConc(PCrw->Drc, PCmw->Drc, Kfilm, InfilVol->Drc, zm->Drc, Kr, Kd, PCrs->Drc, PCms->Drc, Ez->Drc, Sed->Drc, CHAdjDX->Drc, ThetaS1->Drc,
@@ -249,8 +237,13 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         // 1. exchange between domains
         // calculate the correct C's based on the Qin and Qold etc.
         double Crw_avg, Crs_avg = 0;
+        if (Qn->Drc + Qin > 0) {
         Crw_avg = (PMrw->Drc + (Qpin * _dt)) /((Qn->Drc + Qin) * _dt);
+        }
+
+        if (Qsn->Drc + Sin > 0) {
         Crs_avg = (PMrs->Drc + (Spin * _dt)) /((Qsn->Drc + Sin) * _dt);
+        }
 
         // calculate the mass redistributions
         double Qinf = InfilVol->Drc;
@@ -263,17 +256,26 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         // zm * rho * kr * (Kd * Cmw_old - Cms_old))/ pore * zm)
         Mrw_ex = (Kfilm*(PCmw->Drc - Crw_avg)* SoilWidthDX->Drc * _dx * _dt); // exchange with mixing layer water
 
-        if (Ez->Drc > 0 ) {
-            //erosion
-            Mms_ex = ((zm->Drc * rho * Kr * (Kd * PCmw->Drc - PCms->Drc))/ (ThetaS1->Drc * zm->Drc)) *_dt * SoilWidthDX->Drc * _dx // mixing layer
-                    - (PCms->Drc * Ez->Drc * rho * _dx * SoilWidthDX->Drc); // loss by erosion
-            Mrs_ex = (PCms->Drc * Ez->Drc * rho * _dx * SoilWidthDX->Drc); // added by erosion
-        } else {
+        // calculate erosion depth
+        Ez->Drc = (DEP->Drc + DETFlow->Drc + DETSplash->Drc);
+        // change of mass pesticide in soil under mixing layer
+        double PMsoil_out = 0;
+        if (Ez->Drc < 0) {
             //deposition
+            Ez->Drc = Ez->Drc / rho * _dx * FlowWidth->Drc;
+            PMsoil_out = Ez->Drc * PCms->Drc * FlowWidth->Drc * _dx * rho;
             Mms_ex = ((zm->Drc * rho * Kr * (Kd * PCmw->Drc - PCms->Drc))/ (ThetaS1->Drc * zm->Drc)) *_dt * SoilWidthDX->Drc * _dx // exchange between soil water in mixing zone
                     - (Crs_avg * Ez->Drc * rho * _dx * FlowWidth->Drc); // added by deposition. problem with dep on roads!!!
             Mrs_ex = (Crs_avg * (Ez->Drc * rho * _dx * FlowWidth->Drc)); // loss by deposition
+        } else {
+            // erosion
+            Ez->Drc = Ez->Drc / rho * _dx * SoilWidthDX->Drc;
+            PMsoil_out = -Ez->Drc * PCs->Drc * SoilWidthDX->Drc * _dx;
+            Mms_ex = ((zm->Drc * rho * Kr * (Kd * PCmw->Drc - PCms->Drc))/ (ThetaS1->Drc * zm->Drc)) *_dt * SoilWidthDX->Drc * _dx // mixing layer
+                    - (PCms->Drc * Ez->Drc * rho * _dx * SoilWidthDX->Drc); // loss by erosion
+            Mrs_ex = (PCms->Drc * Ez->Drc * rho * _dx * SoilWidthDX->Drc); // added by erosion
         }
+
 
         // 2. influx and outflux
         double Mrw_inf, Mmw_inf, Mrs_out, Mrw_out = 0;
