@@ -159,7 +159,7 @@ void TWorld::OutputUI(void)
         op.PQrs = PQrs_dt;
         op.PMOutW = PestOutW;
         op.PMOutS = PestOutS;
-        op.PMerr = PMtotI;
+        op.PMerr = PMerr;
     }
 
 

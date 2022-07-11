@@ -189,11 +189,11 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         int r = _crlinked_[i_].r;
         int c = _crlinked_[i_].c;
 
-        double Qin = 0;
-        double Sin = 0;
-        double Qpin = 0;
-        double Spin = 0;
-        double rho = 2650;
+        double Qin = 0; //m3 * sec-1
+        double Sin = 0; //kg * sec-1
+        double Qpin = 0; //mg * sec-1
+        double Spin = 0; //mg * sec-1
+        double rho = 2650; //kg * m3-1
 
         for (int i = 1; i <= 9; i++)
         {
@@ -218,9 +218,9 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         FOR_ROW_COL_MV_L{
         SpinKW->Drc = Spin;
         QpinKW->Drc = Qpin;
-        double Kd = KdPestMC;
-        double Kfilm = KfilmPestMC;
-        double Kr = KrPestMC;
+        double Kd = KdPestMC; // -
+        double Kfilm = KfilmPestMC; // m/sec
+        double Kr = KrPestMC; // sec
 
 //        std::tuple <double, double, double, double, double> all_conc;
 //
@@ -236,21 +236,25 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 
         // 1. exchange between domains
         // calculate the correct C's based on the Qin and Qold etc.
-        double Crw_avg, Crs_avg = 0;
+        double Crw_avg, Crs_avg = 0; // mg/L
         if (Qn->Drc + Qin > 0) {
-        Crw_avg = (PMrw->Drc + (Qpin * _dt)) /((Qn->Drc + Qin) * _dt);
+            // mg * L-1 = (mg + (mg sec-1 * sec)) / m3 * sec-1 * sec * 1000(m3 -> L)
+            Crw_avg = (PMrw->Drc + (Qpin * _dt)) /((Qn->Drc + Qin) * _dt * 1000);
         }
 
         if (Qsn->Drc + Sin > 0) {
-        Crs_avg = (PMrs->Drc + (Spin * _dt)) /((Qsn->Drc + Sin) * _dt);
+            // mg * kg-1 = (mg + (mg * sec-1 * sec)) / kg * sec-1 * sec
+            Crs_avg = (PMrs->Drc + (Spin * _dt)) /((Qsn->Drc + Sin) * _dt);
         }
 
         // calculate the mass redistributions
-        double Qinf = InfilVol->Drc;
-        double Mmw_ex, Mms_ex, Mrw_ex, Mrs_ex = 0; // exchange mass (negative is reduction, positive is increase)
-        // units : mg = mg - (m * sec-1 * (mg * m-3) * m * m * sec
-        Mmw_ex -= ((zm->Drc * rho * Kr * (Kd * PCmw->Drc - PCms->Drc))/ (ThetaS1->Drc * zm->Drc)) *_dt * SoilWidthDX->Drc * _dx // exchange with soil in mixing (mg)
-                 - (Kfilm*(PCmw->Drc - Crw_avg)* SoilWidthDX->Drc * _dx * _dt); // exchange between mixing water and runoff water (mg)
+        double Qinf = InfilVol->Drc; // m3 (per timestep)
+        double Mmw_ex, Mms_ex, Mrw_ex, Mrs_ex = 0; // exchange mass (negative is reduction, positive is increase) - mg
+        // mg = (m * g * kg-1 * sec-1 * (mg * L-1)/ m * m * m * sec
+        Mmw_ex = ((zm->Drc * rho * Kr * (Kd * PCmw->Drc - PCms->Drc))/ (ThetaS1->Drc * zm->Drc)) *_dt * SoilWidthDX->Drc * _dx // exchange with soil in mixing (mg)
+                // conc = mg * L-1 * sec-1 = ((m * sec-1 * (mg * L-1 - mg * L-1)) /  m * -
+                // mass = mg = (((m * sec-1 * (mg * L-1 - mg * L-1)) / m * - ) / sec -1 * m * m * m * sec *  1000(m3 -> L)
+                 - (((Kfilm*(PCmw->Drc - Crw_avg))/zm->Drc) / (SoilWidthDX->Drc * _dx * _dt * zm->Drc * ThetaS1->Drc * 1000)); // exchange between mixing water and runoff water (mg)
 
         // m * - * m * sec-1 * ( kg * m -3) / - * m
         // zm * rho * kr * (Kd * Cmw_old - Cms_old))/ pore * zm)
@@ -279,7 +283,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 
         // 2. influx and outflux
         double Mrw_inf, Mmw_inf, Mrs_out, Mrw_out = 0;
-        Mrw_inf -= Qinf * Crw_avg; // loss through infiltration from runoff
+        Mrw_inf = Qinf * Crw_avg; // loss through infiltration from runoff
         Mmw_inf = Qinf * (Crw_avg - PCmw->Drc); // net loss through infiltration from mixing layer (mg)
 
         // no more outflow than total pesticide in domain
@@ -290,9 +294,9 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 
         // The new masses
         // new mass based on all fluxes and original pesticide present
-        PMrw->Drc = std::max(0.0, PMrw->Drc + Mrw_ex - Mrw_out - Mmw_inf + (Qpin * _dt));
+        PMrw->Drc = std::max(0.0, PMrw->Drc + Mrw_ex - Mrw_out - Mrw_inf + (Qpin * _dt));
         PMrs->Drc = std::max(0.0, PMrs->Drc + Mrs_ex - Mrs_out + (Spin * _dt));
-        PMmw->Drc = std::max(0.0, PMmw->Drc + Mmw_ex + Mmw_inf);
+        PMmw->Drc = std::max(0.0, PMmw->Drc - Mmw_ex + Mmw_inf);
         // assuming the mixing zone is always saturated
         PMms->Drc = std::max(0.0, PMms->Drc + Mms_ex);
         PMsoil->Drc += PMsoil_out;
