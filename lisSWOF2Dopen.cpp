@@ -770,6 +770,7 @@ double TWorld::fullSWOF2openWS(int nr_, cTMap *h, cTMap *vx, cTMap *vy, cTMap *z
     iter_n = std::max(1,count);
     return(count > 0 ? _dt/count : _dt);
     */
+    return 0;
 }
 
 

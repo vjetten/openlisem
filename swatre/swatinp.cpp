@@ -55,7 +55,7 @@ profile node setup:
 */
 
 #include <algorithm>
-#include "error.h"
+#include "lerror.h"
 #include "model.h"
 
 #define LIST_INC	20

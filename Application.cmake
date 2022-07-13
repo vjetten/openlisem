@@ -1,5 +1,14 @@
 cmake_minimum_required(VERSION 2.9)
 
+#============================
+# <= give your own folder names here:
+IF(WIN32)
+    SET(QWT_BUILD_DIR "c:/qt/qwt-6.1-ma")
+    SET(GDAL_BUILD_DIR "c:/qt/msys64/mingw64")
+ENDIF()
+
+#============================
+
 # linux ubuntu, qwt installation should be in usr if you followed the instructions, version nr may be different
 IF(UNIX AND NOT CYGWIN)
     SET(QWT_BUILD_DIR "/usr/local/qwt-6.1.4")
@@ -15,16 +24,13 @@ ENDIF()
 # path qwt and gdal build directories on local machine
 # following windows MSYS2.0 installation
 IF(WIN32)
-
-    SET(QWT_BUILD_DIR "c:/qt/qwt-6.1-ma") # <= give your own names here
-    SET(GDAL_BUILD_DIR "c:/qt/msys64/mingw64")
-
     SET(GDAL_INCLUDE_DIRS "${GDAL_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${GDAL_BUILD_DIR}/lib/libgdal.dll.a")
 
 #   SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/qwt-qt5") # standard MSYS install
+#   SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
+
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
-    #   SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
     SET(QWT_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/qwtlib/libqwt.dll.a")  # add my own version of the lib itself
 
     SET(OMP_INCLUDE_DIRS "${GDAL_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32/11.3.0/include")
@@ -40,12 +46,15 @@ IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL 
     ENDIF()
 ENDIF()
 
-
-
-
-INCLUDE(LisemExternal)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(OpenMP::OpenMP_CXX)
+endif()
 
 INCLUDE_DIRECTORIES(
+    ${GDAL_INCLUDE_DIRS}
+    ${QWT_INCLUDE_DIRS}
+    ${OMP_INCLUDE_DIRS}
+    SYSTEM
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/ui_full
     ${CMAKE_CURRENT_BINARY_DIR}/.
@@ -107,7 +116,7 @@ SET(APP_SOURCES
     include/array.h
     include/CsfMap.h
     include/CsfRGBMap.h
-    include/error.h
+    include/lerror.h
     include/fixture.h
     include/global.h
     include/io.h
@@ -218,5 +227,5 @@ add_executable(Lisem WIN32
     ${PCR_SOURCES}
 )
 # Use the Widgets module from Qt 5.
-TARGET_LINK_LIBRARIES(Lisem Qt5::Widgets Qt5::Gui Qt5::Core  ${LISEM_EXTERNAL_LIBRARIES})
+TARGET_LINK_LIBRARIES(Lisem Qt5::Widgets Qt5::Gui Qt5::Core ${GDAL_LIBRARIES} ${QWT_LIBRARIES})
 #Qt5::Charts

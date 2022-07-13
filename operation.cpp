@@ -3,7 +3,7 @@
 #include <QList>
 #include <qmath.h>
 #include "CsfMap.h"
-#include "error.h"
+#include "lerror.h"
 
 
 void copy(

@@ -32,7 +32,7 @@
 #include "csf.h"
 #include "CsfMap.h"
 #include "CsfRGBMap.h"
-#include "error.h"
+#include "lerror.h"
 #include "QDebug"
 
 

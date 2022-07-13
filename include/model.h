@@ -43,7 +43,7 @@
 
 #include "CsfMap.h"
 #include "io.h"
-#include "error.h"
+#include "lerror.h"
 #include "swatre_p.h"
 #include "swatre_g.h"
 
