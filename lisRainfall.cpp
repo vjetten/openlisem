@@ -198,51 +198,82 @@ void TWorld::GetRainfallData(QString name)
     }
     fff.close();
 
+    if (rainRecs[0].contains("RUU"))
+        oldformat = true;
+    // original very old format
+    if (oldformat) {
+        ErrorString = "The old RUU rainfall file format is not longer supported.";
+        throw 1;
+    }
+
     // check first if PCRaster graph format is present: header, number of vars, columns equal vars
-    int count = rainRecs[1].toInt(&ok, 10);
+    int count = rainRecs[1].toInt(&ok, 10); // nr of cols in file
     // header
     // second line is only an integer
 
     if (ok)
     {
         SL = rainRecs[count+2].split(QRegExp("\\s+"));
+        // check nr of columns in file
 
-        if (count == SL.count())
-            oldformat = false;
+        if (count == SL.count()) {
+            ErrorString = "Rainfall file error: The nr of columns in the rainfall file does not equal the number on the second row.";
+            throw 1;
+        }
+
         //if the number of columns equals the integer then new format
         nrStations = count-1;
         // nr stations is count-1 for time as forst column
     }
 
-    if (rainRecs[0].contains("RUU"))
-        oldformat = true;
-
     skiprows = 3;
-    if (oldformat)
-    {
-        QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
-        // get first line, white space character as split for header
 
-        nrStations = SL[SL.size()-1].toInt(&ok, 10);
-        // read nr stations from last value in old style header
-        // failure gives 0
-        SL = rainRecs[rainRecs.count()-1].split(QRegExp("\\s+"));
-        oldformat = (nrStations == SL.count()-1);
-        skiprows = 1;
-      //  SwitchIDinterpolation = false;
+    // get station numbers from header
+    stationID.clear();
+    for (int i = 0; i < nrStations; i++) {
+        SL = rainRecs[i+3].split(QRegExp("\\s+"));
+        stationID << SL[SL.count()].toInt();
     }
+    qDebug() << stationID;
+
+
+//    if (oldformat)
+//    {
+//        QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
+//        // get first line, white space character as split for header
+
+//        nrStations = SL[SL.size()-1].toInt(&ok, 10);
+//        // read nr stations from last value in old style header
+//        // failure gives 0
+//        SL = rainRecs[rainRecs.count()-1].split(QRegExp("\\s+"));
+//        oldformat = (nrStations == SL.count()-1);
+//        skiprows = 1;
+//      //  SwitchIDinterpolation = false;
+//    }
 
     if (SwitchIDinterpolation) {
         IDIpointsRC.clear();
 
+        FOR_ROW_COL_MV_L {
+            if (IDRainPoints->Drc > 0) {
+                IDI_POINT p;
+                p.r = r;
+                p.c = c;
+                p.V = IDRainPoints->Drc;
+                IDIpointsRC << p;
+            }
+        }}
+
         for (int i = 0; i < nrStations; i++) {
-            LDD_COOR p;
             SL = rainRecs[i+3].split(QRegExp("\\s+"));
-            if (SL.count() < 3)
-                break;
-            p.r = SL[1].toInt();
-            p.c = SL[2].toInt();
-            IDIpointsRC << p;
+//            if (SL.count() < 3)
+//                break;
+//            IDI_POINT p;
+//            p.r = SL[1].toInt();
+//            p.c = SL[2].toInt();
+//            p.V = i;
+//            IDIpointsRC << p;
+
 
            //qDebug() << i << nrStations << SL << p.r << p.c << IDIpointsRC.at(i).r << IDIpointsRC.at(i).c;
         }
@@ -451,11 +482,11 @@ void TWorld::GetRainfallMap(void)
 
     // get the next map from file
     if (!samerain) {
-      //  qDebug() << currentrow << RainfallSeriesMaps[currentrow].name;
-        // read a map
-        //auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
-        cTMap *_M = new cTMap(readRaster(RainfallSeriesMaps[currentrow].name));
+        // create an empty map and read the file
+       auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
+        // cTMap *_M = new cTMap(readRaster(RainfallSeriesMaps[currentrow].name));
         double calibration = RainfallSeriesMaps[currentrow].calib;
+
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             double rain_ = 0;
@@ -472,7 +503,7 @@ void TWorld::GetRainfallMap(void)
                 rainStarted = true;
             Rain->Drc = rain_ * calibration;
         }}
-        delete _M;
+    //    delete _M;
     } //samerain
 
     #pragma omp parallel for num_threads(userCores)
@@ -495,7 +526,7 @@ void TWorld::GetRainfallMap(void)
 }
 
 //---------------------------------------------------------------------------
-    // not used
+// not used
 double TWorld::getmaxRainfall()
 {
     double maxv = 0;
@@ -555,6 +586,7 @@ void TWorld::IDInterpolation(double IDIpower)
         double w_total = 0.0;
         double val_total = 0.0;
 
+        // IDIpointsRC is the list with coordinates for the gauges
         for(int i = 0; i < IDIpointsRC.size(); i++)
         {
             int rr = IDIpointsRC.at(i).r;

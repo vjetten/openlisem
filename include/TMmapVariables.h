@@ -44,6 +44,7 @@ cTMap
 *FlowBoundary,               //!< map with open boundary fior diffusive runoff (1) or closed boundary (0)
 *WaterSheds,                 //!< map with numbered siubcatchments, must be 1,2,3 ... n
 
+*IDRainPoints,                   //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *RainZone,                   //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *ETZone,                     //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *Rain,                       //!< map with rain from tis time intervall [m]

@@ -345,7 +345,8 @@ public:
     QVector <LDD_COORout> crout_;
 
     QVector <IDI_POINT> IDIpoints;
-    QVector <LDD_COOR> IDIpointsRC;
+    QVector <IDI_POINT> IDIpointsRC;
+    QList <int> stationID;
     QVector <double> IDIpointsV;
 
     /// map management structure, automatic adding and deleting of all cTMap variables

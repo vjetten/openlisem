@@ -30,7 +30,7 @@
 functions: \n
 - int main(int argc, char *argv[]) \n
  */
-
+#include <stdlib.h>
 #include <QtGui>
 #include <QApplication>
 

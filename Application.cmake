@@ -1,19 +1,48 @@
 cmake_minimum_required(VERSION 2.9)
 
+# linux ubuntu, qwt installation should be in usr if you followed the instructions, version nr may be different
+IF(UNIX AND NOT CYGWIN)
+    SET(QWT_BUILD_DIR "/usr/local/qwt-6.1.4")
+    SET(CMAKE_SKIP_BUILD_RPATH FALSE)
+    SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+    SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+
+    SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.so")
+    SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/")
+ENDIF()
+
 # path qwt and gdal build directories on local machine
 # following windows MSYS2.0 installation
 IF(WIN32)
- SET(QWT_BUILD_DIR "c:/qt/qwt-6.1-ma")
- SET(GDAL_BUILD_DIR "c:/qt/msys64/mingw64")
+
+    SET(QWT_BUILD_DIR "c:/qt/qwt-6.1-ma") # <= give your own names here
+    SET(GDAL_BUILD_DIR "c:/qt/msys64/mingw64")
+
+    SET(GDAL_INCLUDE_DIRS "${GDAL_BUILD_DIR}/include")
+    SET(GDAL_LIBRARIES "${GDAL_BUILD_DIR}/lib/libgdal.dll.a")
+
+#   SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/qwt-qt5") # standard MSYS install
+    SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
+    #   SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
+    SET(QWT_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/qwtlib/libqwt.dll.a")  # add my own version of the lib itself
+
+    SET(OMP_INCLUDE_DIRS "${GDAL_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32/11.3.0/include")
 ENDIF()
 
-# linux ubuntu, qwt installation is a bit messy,
-# should be in usr if you followed the instructions
-IF(UNIX)
- SET(QWT_BUILD_DIR "/usr/local/qwt-6.1.4")
+INCLUDE(CheckCXXCompilerFlag)
+
+IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -std=c++11 -fopenmp")
+    IF(UNIX)
+       SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wl,-rpath=${ORIGIN}./lib")
+       # extra flags for thread and looking for so libs in ./lib
+    ENDIF()
 ENDIF()
 
-INCLUDE(LisemCompiler)
+
+
+
 INCLUDE(LisemExternal)
 
 INCLUDE_DIRECTORIES(
@@ -23,58 +52,58 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(APP_SOURCES
-    main
-    CsfMap
-    CsfRGBMap
-    error
-    fixture
-    io
-    operation
-    ui_full/LisUItreecheck
-    ui_full/LisUIModel
-    ui_full/LisUIrunfile
-    ui_full/LisUImapnames
-    ui_full/LisUItreeitem
-    ui_full/LisUItreemodel
-    ui_full/LisUIDefaultNames
-    ui_full/lisemqt
-    ui_full/LisUIplot
-    ui_full/LisUImapplot
-    swatre/swatstep
-    swatre/swatinit
-    swatre/soillut
-    swatre/lutio
-    swatre/lookup
-    swatre/swatinp    
-    lisChannelErosion
-    lisChannelflood
-    lisChannelflow
-    lisDataInit
-    lisErosion
-    lisExtendedChannel
-    lisFlowBarriers
-    lisEvaporation
-    lisInfiltration
-    lisInterception
-    lisKinematic
-    lisModel
-    lisOverlandflow
-    lisPesticide
-    lisPercolation
-    lisRainfall
-    lisDischargein
-    lisReportfile
-    lisReportmaps
-    lisRunfile
-    lisSnowmelt
-    lisSurfstor
-    lisSWOF2D
-    lisSWOF2Daux
-    lisSWOF2Dopen
-    lisSWOF2DSediment
-    lisSWOF2DChannel
-    lisTiledrainflow
-    lisTotalsMB
+    main.cpp
+    CsfMap.cpp
+    CsfRGBMap.cpp
+    error.cpp
+    fixture.cpp
+    io.cpp
+    operation.cpp
+    ui_full/LisUItreecheck.cpp
+    ui_full/LisUIModel.cpp
+    ui_full/LisUIrunfile.cpp
+    ui_full/LisUImapnames.cpp
+    ui_full/LisUItreeitem.cpp
+    ui_full/LisUItreemodel.cpp
+    ui_full/LisUIDefaultNames.cpp
+    ui_full/lisemqt.cpp
+    ui_full/LisUIplot.cpp
+    ui_full/LisUImapplot.cpp
+    swatre/swatstep.cpp
+    swatre/swatinit.cpp
+    swatre/soillut.cpp
+    swatre/lutio.cpp
+    swatre/lookup.cpp
+    swatre/swatinp.cpp    
+    lisChannelErosion.cpp
+    lisChannelflood.cpp
+    lisChannelflow.cpp
+    lisDataInit.cpp
+    lisErosion.cpp
+    lisExtendedChannel.cpp
+    lisFlowBarriers.cpp
+    lisEvaporation.cpp
+    lisInfiltration.cpp
+    lisInterception.cpp
+    lisKinematic.cpp
+    lisModel.cpp
+    lisOverlandflow.cpp
+    lisPesticide.cpp
+    lisPercolation.cpp
+    lisRainfall.cpp
+    lisDischargein.cpp
+    lisReportfile.cpp
+    lisReportmaps.cpp
+    lisRunfile.cpp
+    lisSnowmelt.cpp
+    lisSurfstor.cpp
+    lisSWOF2D.cpp
+    lisSWOF2Daux.cpp
+    lisSWOF2Dopen.cpp
+    lisSWOF2DSediment.cpp
+    lisSWOF2DChannel.cpp
+    lisTiledrainflow.cpp
+    lisTotalsMB.cpp
     include/array.h
     include/CsfMap.h
     include/CsfRGBMap.h

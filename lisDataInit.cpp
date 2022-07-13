@@ -387,6 +387,7 @@ void TWorld::InitStandardInput(void)
         cr_ << newcr;
     }
 
+    // OBSOLETE
     if (SwitchSWOFWatersheds) {
         WaterSheds = ReadMap(LDD,getvaluename("wsheds"));
         nrWatersheds = countUnits(*WaterSheds);
@@ -501,6 +502,9 @@ void TWorld::InitStandardInput(void)
     if (SwitchRainfall && !SwitchRainfallSatellite)
     {
         RainZone = ReadMap(LDD,getvaluename("ID"));
+        if (SwitchIDinterpolation) {
+            IDRainPoints = ReadMap(LDD,getvaluename("IDGauges"));
+        }
     }
     if (SwitchIncludeET && !SwitchETSatellite)
     {
