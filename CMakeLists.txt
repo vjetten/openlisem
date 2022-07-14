@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.9)
 
 project(Lisem)
 
-# `ind includes in corresponding build directories
-#set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# ind includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 

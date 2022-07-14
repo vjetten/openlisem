@@ -38,7 +38,6 @@
 
 #include <QtGui>
 #include <QMutex>
-//#include "C:\\Qt\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\11.3.0\\include\\omp.h"
 #include <omp.h>
 
 #include "CsfMap.h"
@@ -199,6 +198,7 @@ typedef struct MapListStruct {
 typedef struct IDI_POINT {
     int r;
     int c;
+    int nr;
     double V;
 }  IDI_POINT;
 //---------------------------------------------------------------------------list
@@ -269,7 +269,8 @@ typedef struct vec4 { double v[4]; } vec4;
 //---------------------------------------------------------------------------
 /// Structure to store rain station values of rainfile mapnames
 typedef struct RAIN_LIST {
-    double time;
+    double time;    
+    QList <int> stationnr;
     QVector <double> intensity;
 } RAIN_LIST;
 //---------------------------------------------------------------------------
@@ -344,7 +345,7 @@ public:
     QVector <LDD_COORIN> crlinkedlddbase_;
     QVector <LDD_COORout> crout_;
 
-    QVector <IDI_POINT> IDIpoints;
+  //  QVector <IDI_POINT> IDIpoints;
     QVector <IDI_POINT> IDIpointsRC;
     QList <int> stationID;
     QVector <double> IDIpointsV;
@@ -621,6 +622,7 @@ public:
     void InitMapList(void);
     cTMap *NewMap(double value);
     cTMap *ReadMap(cTMap *Mask, QString name);
+    cTMap *ReadFullMap(QString name);
     void DestroyData(void);
     cTMap *InitMask(QString name);
     cTMap *InitMaskChannel(QString name);
@@ -853,8 +855,7 @@ public:
     void GetSnowmeltData(QString name);   // get input timeseries
     double getTimefromString(QString sss);
     double getmaxRainfall();
-    void IDInterpolation(double IDIpower);
-    void IDIweight(double IDIpower);
+    void IDInterpolation();
     /// convert rainfall of a timestep into a map
     void GetRainfallMapfromStations(void);
     void GetRainfallMap(void);

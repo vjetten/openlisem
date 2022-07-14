@@ -308,7 +308,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
                         double z1r_ = Z+(dz_hx-dhx);
                         double z1l_ = Z+(dhx-dz_hx);
-                        delzcx = z1r_-z1l_;
+                        delzcx = z1r_-z1l_; // ???? this is in fact  => 2.0*(dz_hx - dhx)
 
 
                         double hlh = 1.0;

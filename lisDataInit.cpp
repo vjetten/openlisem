@@ -80,6 +80,29 @@ cTMap *TWorld::NewMap(double value)
     return(_M);
 }
 //---------------------------------------------------------------------------
+cTMap *TWorld::ReadFullMap(QString name)
+{
+    cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
+
+    for (int r = 0; r < _nrRows; r++)
+        for (int c = 0; c < _nrCols; c++)
+            if (pcr::isMV(_M->Drc))
+            {
+//                QString sr, sc;
+//                sr.setNum(r); sc.setNum(c);
+//                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+name+".\n \
+//                        All cells in this map should be non-MV";
+//                        throw 1;
+                _M->Drc = 0;
+            }
+
+    maplistCTMap[maplistnr].m = _M;
+    maplistnr++;
+
+    return(_M);
+
+}
+//---------------------------------------------------------------------------
 cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
 {
     cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
@@ -390,7 +413,8 @@ void TWorld::InitStandardInput(void)
     // OBSOLETE
     if (SwitchSWOFWatersheds) {
         WaterSheds = ReadMap(LDD,getvaluename("wsheds"));
-        nrWatersheds = countUnits(*WaterSheds);
+        QList <int> tmp = countUnits(*WaterSheds);
+        nrWatersheds = tmp.count();
 
         long nrc = 0;
         WScr.clear();
@@ -503,7 +527,7 @@ void TWorld::InitStandardInput(void)
     {
         RainZone = ReadMap(LDD,getvaluename("ID"));
         if (SwitchIDinterpolation) {
-            IDRainPoints = ReadMap(LDD,getvaluename("IDGauges"));
+            IDRainPoints = ReadFullMap(getvaluename("IDGauges"));
         }
     }
     if (SwitchIncludeET && !SwitchETSatellite)
@@ -677,7 +701,6 @@ void TWorld::InitSoilInput(void)
             }}
 
             calcValue(*Ksat2, ksatCalibration2, MUL);
-            qDebug() << ksatCalibration2;
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
@@ -1848,8 +1871,7 @@ void TWorld::IntializeData(void)
     Snowpeak = 0;
     SnowpeakTime = 0;
     Rain = NewMap(0);
-    IDIw = NewMap(0);
-    //RainSat = NewMap(0);
+    //IDIw = NewMap(0);
     Rainc = NewMap(0);
     RainCum = NewMap(0);
     RainCumFlat = NewMap(0);

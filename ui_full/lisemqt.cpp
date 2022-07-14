@@ -50,7 +50,6 @@ update of the runfile before running:
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
-//#include "C:\\Qt\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\11.3.0\\include\\omp.h"
 #include <omp.h>
 
 output op;

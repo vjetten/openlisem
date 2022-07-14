@@ -24,9 +24,9 @@ void copy(
 }
 
 
-int countUnits(cTMap const& raster)
+QList <int> countUnits(cTMap const& raster)
 {
-    QList <long> list;
+    QList <int> list;
     for (int r = 0; r < raster.nrRows(); r++)
         for (int c = 0; c < raster.nrCols(); c++)
             if (!pcr::isMV(raster.data[r][c]))
@@ -35,7 +35,7 @@ int countUnits(cTMap const& raster)
                     list.append((long)raster.data[r][c]);
             }
 
-    return(list.count());
+    return(list);
 }
 
 
