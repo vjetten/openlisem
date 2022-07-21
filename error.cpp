@@ -21,8 +21,8 @@
 **  website, information and code: http://lisem.sourceforge.net
 **
 *************************************************************************/
-#include "error.h"
-
+#include "lerror.h"
+#include <QtCore>
 
 QString ErrorString;    // declare here, referenced by error.h
 

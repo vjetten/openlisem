@@ -37,7 +37,9 @@
 */
 
 #include "swatresoillut.h"
-#include "error.h"
+#include "lerror.h"
+#include <QtCore>
+
 
 static int keyCol;
 

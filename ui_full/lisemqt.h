@@ -187,6 +187,7 @@ public:
     void showFlowBarriersMap();
     void showImageMap();
     void changeSize();
+    double Masp;
     //double fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD);//, double type);
     double fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD, double *minv, double *maxv);
     double fillDrawMapDataRGB(cTMap * base,  cTRGBMap *_M, QwtMatrixRasterData *_RD);
@@ -478,6 +479,7 @@ public slots:
     void setFloodTab(bool);
     //void setRunoffTab(bool);
 
+    void resizeMap();
     void fontSelect();
     void fontDecrease();
     void fontIncrease();
@@ -561,6 +563,7 @@ private:
     QAction *restartAct;
     QAction *showAllAct;
     QAction *showInfoAct;
+    QAction *resizeAct;
 
     QAction *fontAct;
     QAction *fontIncreaseAct;

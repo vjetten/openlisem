@@ -15,6 +15,7 @@ FIND_PATH(OMP_INCLUDE_DIRS
     NAMES omp.h
 )
 
+
 #===== QWT =====
 
 FIND_LIBRARY(QWT_LIBRARIES
@@ -41,7 +42,6 @@ FIND_PATH(QWT_INCLUDE_DIRS
 FIND_LIBRARY(QWT_LIBRARIES
     NAMES qwt
 )
-
 
 # Configure project. -----------------------------------------------------------
 

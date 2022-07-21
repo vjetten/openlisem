@@ -113,26 +113,6 @@ void TWorld::saveMBerror2file(bool doError, bool start)
 // the actual model with the main loop
 void TWorld::DoModel()
 {
-//    if(op.hasrunonce)
-//        DestroyData();
-    // destroy data previous run
-//    qDebug() << op.nrMapsCreated;
-//    if (op.nrMapsCreated > 0) {
-//        for (int i = 0; i < op.nrMapsCreated; i++)
-//        {
-//            qDebug() << maplistCTMap[i].m << i;
-//            if (maplistCTMap[i].m != nullptr)
-//            {
-//                delete maplistCTMap[i].m;
-//                maplistCTMap[i].m = nullptr;
-//            }
-//        }
-//    }
-
-//    loc = QLocale::system(); // current locale
-//    loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
-//    QLocale::setDefault(loc); // set as default
-    //QLocale somel;
 
     if (!op.doBatchmode)
         temprunname = QString(op.LisemDir+"openlisemtmp.run");

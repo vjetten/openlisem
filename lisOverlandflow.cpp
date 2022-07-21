@@ -627,5 +627,5 @@ void TWorld::Boundary2Ddyn()
             }
         }
     }}
-    qDebug() << "bound" << BoundaryQ;
+    //qDebug() << "bound" << BoundaryQ;
 }
