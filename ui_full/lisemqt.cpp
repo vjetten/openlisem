@@ -119,7 +119,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     int h = MPlot->height();
     int w = MPlot->width();
     Masp = (double)w/(double)h;
-    qDebug() << Masp;
+    //qDebug() << Masp;
 
 
 //    QSplitter *splitter = new QSplitter(tabWidget->widget(2));
@@ -1920,7 +1920,7 @@ void lisemqt::setfontSize()
 {
    // int x = SetStyleUISize();
     //int fs = genfontsize;
-    qDebug() << genfontsize;
+    //qDebug() << genfontsize;
 
     const QWidgetList allWidgets = QApplication::allWidgets();
     for (QWidget *widget : allWidgets) {
@@ -2143,14 +2143,14 @@ void lisemqt::on_toolButton_rainsatName_clicked()
         RainSatFileDir = RainFileDir;
     if (!QFileInfo(RainSatFileDir).exists() || RainSatFileDir.isEmpty())
         RainSatFileDir = currentDir;
-    qDebug() << RainSatFileDir << RainSatFileName ;
+  //  qDebug() << RainSatFileDir << RainSatFileName ;
 
     QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
     QString sss = getFileorDir(RainSatFileDir,"Select rainfall map list table", filters, 2);
 
     RainSatFileDir = QFileInfo(sss).absolutePath()+"/";
     RainSatFileName = QFileInfo(sss).fileName(); //baseName();
-    qDebug() << RainSatFileDir << RainSatFileName ;
+  //  qDebug() << RainSatFileDir << RainSatFileName ;
 
     E_rainsatName->setText(RainSatFileDir + RainSatFileName);
     //RainFileDir = RainSatFileDir;

@@ -237,7 +237,7 @@ void TWorld::GetRainfallData(QString name)
             stationID << i+1;
     }  
 
-   // qDebug() << "stations" << stationID;
+    qDebug() << "stations" << stationID;
 
     if (stationID.count() == 1) {
         SwitchIDinterpolation = false;
@@ -277,14 +277,18 @@ void TWorld::GetRainfallData(QString name)
             }
         }
 
+//        for (int i = 0; i < stationID.count(); i++) {
+//            SL = rainRecs[i+3].split(QRegExp("\\s+"));
 //            if (SL.count() < 3)
 //                break;
 //            IDI_POINT p;
-//            p.r = SL[1].toInt();
-//            p.c = SL[2].toInt();
-//            p.V = i;
+//            p.r = SL[0].toInt();
+//            p.c = SL[1].toInt();
+//            p.nr = SL[2].toInt();
+//            p.V = 0;
+//            qDebug() << p.r << p.c << p.V;
 //            IDIpointsRC << p;
-
+//        }
 
 
     }  else {
@@ -517,18 +521,24 @@ void TWorld::GetRainfallMap(void)
 
     if (currentrow == currentRainfallrow && currentrow > 0)
         samerain = true;
-    //qDebug() << currentrow << currenttime << currentRainfallrow << samerain;
+  //  qDebug() << currentrow << currenttime << currentRainfallrow << samerain;
 
     // get the next map from file
     if (!samerain) {
         // create an empty map and read the file
-       auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
-        // cTMap *_M = new cTMap(readRaster(RainfallSeriesMaps[currentrow].name));
+        auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
+       //  cTMap *_M = new cTMap(readRaster(RainfallSeriesMaps[currentrow].name));
         double calibration = RainfallSeriesMaps[currentrow].calib;
+
+        if (_M->nrCols() != _nrCols || _M->nrRows() != _nrRows) {
+            ErrorString = "Nr of rows or Cols in the rainfall map does not match the database";
+            throw 1;
+        }
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             double rain_ = 0;
+
             if (pcr::isMV(_M->Drc)) {
                 QString sr, sc;
                 sr.setNum(r); sc.setNum(c);
@@ -542,7 +552,8 @@ void TWorld::GetRainfallMap(void)
                 rainStarted = true;
             Rain->Drc = rain_ * calibration;
         }}
-    //    delete _M;
+
+      //  delete _M;
     } //samerain
 
     #pragma omp parallel for num_threads(userCores)
@@ -659,8 +670,6 @@ void TWorld::IDInterpolation()
             }
         }
     }
-report(*Rain,"rain");
-
 }
 
 //---------------------------------------------------------------------------

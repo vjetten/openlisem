@@ -202,7 +202,7 @@ void TWorld::cell_Redistribution(int r, int c)
 
     } else {
         // not SwitchTwoLayer
-        if (Lw_ > 0.1) {
+        if (Lw_ > 0.1) { //?????
             if (Lw_ < SoilDep1-0.001) {
                 theta_E = (theta-thetar)/(pore-thetar);
                 Percolation = Ksateff->Drc * pow(theta_E, bca1->Drc); // m/timestep
