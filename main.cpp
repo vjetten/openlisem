@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
         if (ag.contains("-r")) {
             QStringList sl = ag.split("-r");
             name = sl[1].simplified();
-            qDebug() << "running: " << name;
+            //qDebug() << "running: " << name;
 
             lisemqt iface(0, true, name);
             iface.setWindowTitle(VERSION);

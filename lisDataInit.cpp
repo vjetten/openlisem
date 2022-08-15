@@ -528,7 +528,10 @@ void TWorld::InitStandardInput(void)
         RainZone = ReadMap(LDD,getvaluename("ID"));
         if (SwitchIDinterpolation) {
             IDRainPoints = ReadFullMap(getvaluename("IDGauges"));
+        } else {
+            IDRainPoints = NewMap();
         }
+
     }
     if (SwitchIncludeET && !SwitchETSatellite)
     {
