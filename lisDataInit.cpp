@@ -529,7 +529,7 @@ void TWorld::InitStandardInput(void)
         if (SwitchIDinterpolation) {
             IDRainPoints = ReadFullMap(getvaluename("IDGauges"));
         } else {
-            IDRainPoints = NewMap();
+            IDRainPoints = NewMap(0);
         }
 
     }

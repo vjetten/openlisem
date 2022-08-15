@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 3.9)
 IF(WIN32)
  SET(QWT_BUILD_DIR "C:/Qwt61ma/qwt-6.1-ma") #"c:/qt/qwtma")
  SET(GDAL_BUILD_DIR "C:/msys/mingw64")
+ SET(MINGW_BUILD_DIR "C:/msys/mingw64")
 
     SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
