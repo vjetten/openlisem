@@ -109,6 +109,7 @@ SET(APP_SOURCES
     lisModel.cpp
     lisOverlandflow.cpp
     lisPesticide.cpp
+    lisPesticide_MC.cpp
     lisPercolation.cpp
     lisRainfall.cpp
     lisDischargein.cpp
