@@ -532,14 +532,14 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
 
 
             if (L > SoilDep1-0.001) {
-                if (SwitchImpermeable)
+                if (SwitchImpermeable) // MC - impermeable hebben we hierboven al opgelost toch?
                     // if impermeable remaining space is infiltration
-                    fact_out = space1;
-					//fact_out = fact_in; // MC - no 0 or reduced infiltration with full profile
+                    //fact_out = space1;
+                    fact_out = fact_in; // MC - no 0 or reduced infiltration with full profile
                 else
-                    fact_out = Perc->Drc; //fact_in;
+                   // fact_out = Perc->Drc;
+                    fact_out = fact_in;
                 // L does not go deeper than SD1 but if not impermeable fact_out = fact_in
-
                 L = SoilDep1;
             } else
                 fact_out = fact_in;
@@ -651,11 +651,11 @@ void TWorld::cell_InfilMethods(int r, int c)
                 space = (SoilDepth2->Drc - Lw->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
         }
 
-        FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
+        //FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
       
         //FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
         //MC - using space causes fluctuations when Lw reaches SD1 when soil is not impermeable always use fact_
-        //FSurplus->Drc = -1.0 * std::max(0.0, fpot_-fact_);
+        FSurplus->Drc = -1.0 * std::max(0.0, fpot_-fact_);
         // negative and smallest of space or fpot-fact ???
     }
 }
