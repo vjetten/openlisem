@@ -43,7 +43,6 @@
         <file>2X/map2XBWa.png</file>
         <file>../COPYRIGHT</file>
         <file>../INSTALL</file>
-        <file>../compile lisem windows 210301.txt</file>
         <file>../ubuntu compile.txt</file>
         <file>2X/Folder-Open-icon.png</file>
         <file>darcula.css</file>
@@ -59,6 +58,8 @@
         <file>2X/noinfo.png</file>
         <file>2X/settings1.png</file>
         <file>soil5.png</file>
+        <file>2X/adjustsize.png</file>
+        <file>../compile lisem windows 220713.txt</file>
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>

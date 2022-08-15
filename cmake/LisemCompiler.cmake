@@ -15,8 +15,8 @@ IF(WIN32)
     SET(GDAL_INCLUDE_DIRS "${GDAL_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${GDAL_BUILD_DIR}/lib/libgdal.dll.a")
 
-    #SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/qwt") # qwt build outside msys
-    #SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
+#    SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/qwt-qt5") # standard MSYS install
+#    SET(QWT_LIBRARIES "./qwtlib/libqwt.dll.a")  # add my own version of the lib itself
 
     SET(QWT_INCLUDE_DIRS "C:/Qwt61ma/qwt-6.1-ma/src")
     SET(QWT_LIBRARIES "C:/Qwt61ma/qwt-6.1-ma/lib/libqwt.dll.a")

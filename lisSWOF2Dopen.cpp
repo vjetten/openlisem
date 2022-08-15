@@ -308,7 +308,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
                         double z1r_ = Z+(dz_hx-dhx);
                         double z1l_ = Z+(dhx-dz_hx);
-                        delzcx = z1r_-z1l_;
+                        delzcx = z1r_-z1l_; // ???? this is in fact  => 2.0*(dz_hx - dhx)
 
 
                         double hlh = 1.0;
@@ -482,7 +482,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     if (Switch2DDiagonalFlowNew)
                         SWOFDiagonalFlowNew(dt_req_min, h, vx, vy);
                     else
-                        SWOFDiagonalFlow(dt_req_min, h, vx, vy);
+                        SWOFDiagonalFlow(dt_req_min, h, vx, vy); //old, not used
                 }
 
 
@@ -770,6 +770,7 @@ double TWorld::fullSWOF2openWS(int nr_, cTMap *h, cTMap *vx, cTMap *vy, cTMap *z
     iter_n = std::max(1,count);
     return(count > 0 ? _dt/count : _dt);
     */
+    return 0;
 }
 
 

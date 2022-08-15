@@ -372,6 +372,9 @@ void TWorld::ParseRunfileData(void)
             SwitchChannelBaseflowStationary = false;
     }
 
+    if (SwitchChannelBaseflow)
+        SwitchImpermeable = false; //!!!!!!!!!!!!!
+
     // next get the main input directory
     for (j = 0; j < nrrunnamelist; j++)
     {

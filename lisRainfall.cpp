@@ -198,60 +198,105 @@ void TWorld::GetRainfallData(QString name)
     }
     fff.close();
 
+    oldformat = (rainRecs[0].contains("RUU"));
+    // original very old format
+    if (oldformat) {
+        ErrorString = "The old RUU rainfall file format is not longer supported.";
+        throw 1;
+    }
+
     // check first if PCRaster graph format is present: header, number of vars, columns equal vars
-    int count = rainRecs[1].toInt(&ok, 10);
+    int count = rainRecs[1].toInt(&ok, 10); // nr of cols in file
     // header
     // second line is only an integer
 
     if (ok)
     {
         SL = rainRecs[count+2].split(QRegExp("\\s+"));
+        // check nr of columns in file
+        if (count != SL.count()) {
+            ErrorString = "Rainfall file error: The nr of columns in the rainfall file does not equal the number on the second row.";
+            throw 1;
+        }
 
-        if (count == SL.count())
-            oldformat = false;
         //if the number of columns equals the integer then new format
         nrStations = count-1;
         // nr stations is count-1 for time as forst column
     }
 
-    if (rainRecs[0].contains("RUU"))
-        oldformat = true;
-
     skiprows = 3;
-    if (oldformat)
-    {
-        QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
-        // get first line, white space character as split for header
 
-        nrStations = SL[SL.size()-1].toInt(&ok, 10);
-        // read nr stations from last value in old style header
-        // failure gives 0
-        SL = rainRecs[rainRecs.count()-1].split(QRegExp("\\s+"));
-        oldformat = (nrStations == SL.count()-1);
-        skiprows = 1;
-      //  SwitchIDinterpolation = false;
+    // get station numbers from header, or fill in 1,2 ... n
+    stationID.clear();
+    for (int i = 0; i < nrStations; i++) {
+        SL = rainRecs[i+3].split(QRegExp("\\s+"));
+        int tmp = SL.last().toInt(&ok, 10);
+        if (ok)
+            stationID << tmp;
+        else
+            stationID << i+1;
+    }  
+
+    qDebug() << "stations" << stationID;
+
+    if (stationID.count() == 1) {
+        SwitchIDinterpolation = false;
+        DEBUG("Only one rain station found, Inverse distance interpolation not done.");
     }
 
     if (SwitchIDinterpolation) {
+
         IDIpointsRC.clear();
 
-        for (int i = 0; i < nrStations; i++) {
-            LDD_COOR p;
-            SL = rainRecs[i+3].split(QRegExp("\\s+"));
-            if (SL.count() < 3)
-                break;
-            p.r = SL[1].toInt();
-            p.c = SL[2].toInt();
-            IDIpointsRC << p;
-
-           //qDebug() << i << nrStations << SL << p.r << p.c << IDIpointsRC.at(i).r << IDIpointsRC.at(i).c;
+        // read points in the IDgauge.map and check if a corresponding number exists in the rainfall file
+        // allow points outside MV mask of LDD
+        for(int r = 0; r < _nrRows; r++) {
+            for (int c = 0; c < _nrCols; c++) {
+                if (!pcr::isMV(IDRainPoints->Drc) && IDRainPoints->Drc > 0) {
+                    IDI_POINT p;
+                    p.r = r;
+                    p.c = c;
+                    p.nr = IDRainPoints->Drc;
+                    p.V = 0;
+                    IDIpointsRC << p;
+                }
+            }
         }
-        IDIweight(rainIDIfactor);
+
+        // check if station nrs correspond to map nrs
+        for (int i = 0; i < stationID.count(); i++) {
+            bool found = false;
+
+            for (int j = 0; j < IDIpointsRC.count(); j++) {
+                if (IDIpointsRC.at(j).nr == stationID.at(i))
+                    found = true;
+            }
+            if (!found) {
+                ErrorString = "Gauge ID number(s) in IDgauge.map not present in the rainfall input file";
+                throw 1;
+            }
+        }
+
+//        for (int i = 0; i < stationID.count(); i++) {
+//            SL = rainRecs[i+3].split(QRegExp("\\s+"));
+//            if (SL.count() < 3)
+//                break;
+//            IDI_POINT p;
+//            p.r = SL[0].toInt();
+//            p.c = SL[1].toInt();
+//            p.nr = SL[2].toInt();
+//            p.V = 0;
+//            qDebug() << p.r << p.c << p.V;
+//            IDIpointsRC << p;
+//        }
+
 
     }  else {
         // count gauge areas in the ID.map
-        int nrmap = 0;
-        nrmap = countUnits(*RainZone);
+
+        QList <int> tmp;
+        tmp = countUnits(*RainZone);
+        int nrmap = tmp.count();
 
         if (nrmap > nrStations)
         {
@@ -274,15 +319,13 @@ void TWorld::GetRainfallData(QString name)
         // initialize rainfall record structure
         rl.time = 0;
         rl.intensity.clear();
+        rl.stationnr.clear();
 
         // split rainfall record row with whitespace
         QStringList SL = rainRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
 
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
-
-        //qDebug() << rl.time << SL[0];
-
         if (r == 0)
             time = rl.time;
 
@@ -295,7 +338,7 @@ void TWorld::GetRainfallData(QString name)
         else
             time = rl.time;
 
-        // record is a assumed to be a double
+        // rainfall values
         for (int i = 1; i <= nrStations; i++)
         {
             bool ok = false;
@@ -305,6 +348,7 @@ void TWorld::GetRainfallData(QString name)
                 ErrorString = QString("Rainfall records at time %1 has unreadable value.").arg(SL[0]);
                 throw 1;
             }
+            rl.stationnr << stationID.at(i-1);
         }
 
         RainfallSeries << rl;
@@ -317,8 +361,6 @@ void TWorld::GetRainfallData(QString name)
             throw 1;
         }
     }
-//    for(int i = 0; i < nrSeries; i++)
-//        qDebug() << RainfallSeries[i].time << RainfallSeries[i].intensity.at(0);
 
     nrRainfallseries = RainfallSeries.size();//nrSeries;
 }
@@ -370,17 +412,49 @@ void TWorld::GetRainfallMapfromStations(void)
     // get the next map from file
     if (!samerain) {
         if (SwitchIDinterpolation) {
+//            for (int j = 0; j < IDIpointsRC.size(); j++) {
+//                IDI_POINT p;
+//                p.r = IDIpointsRC.at(j).c;
+//                p.c = IDIpointsRC.at(j).r;
+//                p.nr = IDIpointsRC.at(j).nr;
+//                p.V = RainfallSeries[currentrow].intensity[j]*tt;
+//                IDIpointsRC.replace(j,p);
+//               // qDebug() << j << IDIpointsRC.at(j).nr << IDIpointsRC.at(j).V;
+//            }
 
-            IDIpointsV.clear();
+            bool found = false;
             for (int j = 0; j < IDIpointsRC.size(); j++) {
-                IDIpointsV << RainfallSeries[currentrow].intensity[j]*tt;
+                // select the right station nr
+                for (int k = 0; k < IDIpointsRC.size(); k++) {
+                //    qDebug() << j << k << IDIpointsRC.at(j).nr << RainfallSeries[currentrow].stationnr.at(k);
+                    if (IDIpointsRC.at(j).nr == RainfallSeries[currentrow].stationnr.at(k)) {
+                        IDI_POINT p;
+                        p.r = IDIpointsRC.at(j).c;
+                        p.c = IDIpointsRC.at(j).r;
+                        p.nr = IDIpointsRC.at(j).nr;
+                        p.V = RainfallSeries[currentrow].intensity[k]*tt;
+                        IDIpointsRC.replace(j,p);
+                        found = true;
+                    }
+                }
+            }
+            if (!found) {
+                ErrorString = "IDI value not found";
+                throw 1;
             }
 
-            IDInterpolation(rainIDIfactor);
+            IDInterpolation();
+
         } else {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                Rain->Drc = RainfallSeries[currentrow].intensity[(int) RainZone->Drc-1]*tt;
+                double value = -1;
+                for (int k = 0; k < stationID.size(); k++) {
+                    if ((int) RainZone->Drc == RainfallSeries[currentrow].stationnr.at(k))
+                        value = RainfallSeries[currentrow].intensity[k]*tt;
+                }
+                Rain->Drc = value;
+
                 if (Rain->Drc > 0)
                     rainStarted = true;
             }}
@@ -447,18 +521,24 @@ void TWorld::GetRainfallMap(void)
 
     if (currentrow == currentRainfallrow && currentrow > 0)
         samerain = true;
-    //qDebug() << currentrow << currenttime << currentRainfallrow << samerain;
+  //  qDebug() << currentrow << currenttime << currentRainfallrow << samerain;
 
     // get the next map from file
     if (!samerain) {
-      //  qDebug() << currentrow << RainfallSeriesMaps[currentrow].name;
-        // read a map
-        //auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
-        cTMap *_M = new cTMap(readRaster(RainfallSeriesMaps[currentrow].name));
+        // create an empty map and read the file
+        auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
+       //  cTMap *_M = new cTMap(readRaster(RainfallSeriesMaps[currentrow].name));
         double calibration = RainfallSeriesMaps[currentrow].calib;
+
+        if (_M->nrCols() != _nrCols || _M->nrRows() != _nrRows) {
+            ErrorString = "Nr of rows or Cols in the rainfall map does not match the database";
+            throw 1;
+        }
+
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             double rain_ = 0;
+
             if (pcr::isMV(_M->Drc)) {
                 QString sr, sc;
                 sr.setNum(r); sc.setNum(c);
@@ -472,7 +552,8 @@ void TWorld::GetRainfallMap(void)
                 rainStarted = true;
             Rain->Drc = rain_ * calibration;
         }}
-        delete _M;
+
+      //  delete _M;
     } //samerain
 
     #pragma omp parallel for num_threads(userCores)
@@ -495,7 +576,7 @@ void TWorld::GetRainfallMap(void)
 }
 
 //---------------------------------------------------------------------------
-    // not used
+// not used
 double TWorld::getmaxRainfall()
 {
     double maxv = 0;
@@ -547,78 +628,49 @@ double TWorld::getTimefromString(QString sss)
     return(day*1440+hour*60+min);
 }
 //---------------------------------------------------------------------------
-void TWorld::IDInterpolation(double IDIpower)
+void TWorld::IDInterpolation()
 {
+    #pragma omp parallel for collapse(2) num_threads(userCores)
+    for(int r = 0; r < _nrRows; r++) {
+        for (int c = 0; c < _nrCols; c++) {
+            double w_total = 0.0;
+            double val_total = 0.0;
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        double w_total = 0.0;
-        double val_total = 0.0;
+            for(int i = 0; i < IDIpointsRC.size(); i++)
+            {
+                int rr = IDIpointsRC.at(i).r;
+                int rc = IDIpointsRC.at(i).c;
 
-        for(int i = 0; i < IDIpointsRC.size(); i++)
-        {
-            int rr = IDIpointsRC.at(i).r;
-            int rc = IDIpointsRC.at(i).c;
-            //if (rr >= 0 && rr < _nrRows && rc >= 0 && rc < _nrCols) {
-            if (INSIDE(rr,rc)) {
-                double dx = (r-rc) * _dx;
-                double dy = (c-rr) * _dx;
+                if (rr >= 0 && rr < _nrRows && rc >= 0 && rc < _nrCols) {
+                    //calc distance factor
+                    double dx = (r-rr) * _dx;
+                    double dy = (c-rc) * _dx;
 
-                double distancew = std::pow(dx*dx + dy*dy,0.5 * IDIpower);
+                    if(dx == 0 && dy == 0) {
+                        val_total = IDIpointsRC.at(i).V;
+                        w_total = 1.0;
+                    } else {
 
-                val_total += IDIpointsV.at(i) * distancew;
-                w_total += distancew;
+                        double distancew = qSqrt(dx*dx + dy*dy);
+                        if (rainIDIfactor > 1)
+                            distancew = std::pow(distancew,rainIDIfactor);
 
-//                val_total += IDIpointsV.at(i) * IDIw->Drc;
-//                w_total += IDIw->Drc;
+                        w_total += 1.0/distancew;
+                        val_total += IDIpointsRC.at(i).V * 1.0/distancew;
+
+                    }
+                }
             }
-       }
-    //    if (val_total > 0)
-    //    qDebug() << w_total << val_total << val_total/w_total;
 
-        if(w_total > 0.0)
-            Rain->Drc = val_total/w_total;
-        else
-            Rain->Drc = 0.0;
-    }}
-}
-//---------------------------------------------------------------------------
-void TWorld::IDIweight(double IDIpower)
-{
-    fill(*tma,0);
-    for(int i = 0; i < IDIpointsRC.size(); i++)
-    {
-       // qDebug() << IDIpointsRC.at(i).r << IDIpointsRC.at(i).c;
-        int r = IDIpointsRC.at(i).r;
-        int c = IDIpointsRC.at(i).c;
-        //if (r >= 0 && r < _nrRows && c >= 0 && c < _nrCols) {
-        if (INSIDE(r,c)) {
-            qDebug() << i<< r,c;
-            tma->Drc = i;
+            if (!pcr::isMV(Rain->Drc)) {
+                //if(w_total > 0.0)
+                    Rain->Drc = val_total/w_total;
+                //else
+                  //  Rain->Drc = 0.0;
+            }
         }
     }
-    report(*tma,"idipoints.map");
-return;
-    //#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        double w_total = 0.0;
-
-        for(int i = 0; i < IDIpointsRC.size(); i++)
-        {
-            int rr = IDIpointsRC.at(i).r;
-            int rc = IDIpointsRC.at(i).c;
-            if (rr >= 0 && rr < _nrRows && rc >= 0 && rc < _nrCols) {
-                double dx = (r-rr) * _dx;
-                double dy = (c-rc) * _dx;
-
-                double distancew = std::pow(dx*dx + dy*dy,0.5 * IDIpower);
-                w_total += distancew;
-            }
-        }
-        //qDebug() << r << c << w_total;
-        IDIw->Drc = w_total;
-    }}
-    report(*IDIw,"idiw.map");
 }
+
 //---------------------------------------------------------------------------
 

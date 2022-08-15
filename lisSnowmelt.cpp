@@ -110,8 +110,9 @@ void TWorld::GetSnowmeltData(QString name)
     else
         skiprows = 3;
 
-    int nrmap = 0;
-    nrmap = countUnits(*SnowmeltZone);
+    QList < int> tmp;
+    tmp = countUnits(*SnowmeltZone);
+    int nrmap = tmp.count();
 
     if (nrmap > nrStations)
     {

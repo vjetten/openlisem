@@ -116,6 +116,28 @@ void lisemqt::initMapPlot()
     pstep = 0;
 }
 
+void lisemqt::changeSize()
+{
+    int i = 0;
+
+    MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*100);
+    MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx, op._dx*100);
+
+    if(op._nrCols/op._nrRows > Masp) {
+        MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*100);
+        MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrCols*op._dx, op._dx*100);
+        i = 1;
+    } else
+        if(op._nrRows > op._nrCols)
+        {
+            MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrRows*op._dx*Masp, op._dx*100);
+            MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx*Masp, op._dx*100);
+            i = 2;
+        }
+
+    MPlot->replot();
+}
+
 //---------------------------------------------------------------------------
 // called at the start of openLisem, creates structures to hold maps
 void lisemqt::setupMapPlot()
@@ -144,36 +166,36 @@ void lisemqt::setupMapPlot()
     // NOTE the order in which these are attached is the order displayed.
     // 0
     baseMapDEM = new QwtPlotSpectrogram();
-    baseMapDEM->setRenderThreadCount( 0 );
+    baseMapDEM->setRenderThreadCount( 2 );
     baseMapDEM->attach( MPlot );
     // dem
     // 1
     baseMapImage = new QwtPlotSpectrogram();
-    baseMapImage->setRenderThreadCount( 0 );
+    baseMapImage->setRenderThreadCount( 2 );
     baseMapImage->attach( MPlot );
     //image
 
     // 2
     baseMap = new QwtPlotSpectrogram();
-    baseMap->setRenderThreadCount( 0 );
+    baseMap->setRenderThreadCount( 2 );
     baseMap->attach( MPlot );
     // shaded relief
 
     // 3 data
     drawMap = new QwtPlotSpectrogram();
-    drawMap->setRenderThreadCount( 0 );
+    drawMap->setRenderThreadCount( 2 );
     drawMap->attach( MPlot );
     //map for runoff, infil, flood etc
 
     // 4
     houseMap = new QwtPlotSpectrogram();
-    houseMap->setRenderThreadCount( 0 );
+    houseMap->setRenderThreadCount( 2 );
     houseMap->attach( MPlot );
     // building structure map
 
     // 5
     roadMap = new QwtPlotSpectrogram();
-    roadMap->setRenderThreadCount( 0 );
+    roadMap->setRenderThreadCount( 2 );
     roadMap->attach( MPlot );
     // road map
 
@@ -185,13 +207,13 @@ void lisemqt::setupMapPlot()
 
     //7
     outletMap = new QwtPlotSpectrogram();
-    outletMap->setRenderThreadCount( 0 );
+    outletMap->setRenderThreadCount( 2 );
     outletMap->attach( MPlot );
     // channel map-
 
     //8
     contourDEM = new QwtPlotSpectrogram();
-    contourDEM->setRenderThreadCount( 0 );
+    contourDEM->setRenderThreadCount( 2 );
     contourDEM->attach( MPlot );
     // contours
 
@@ -212,17 +234,6 @@ void lisemqt::setupMapPlot()
     rightAxis->setColorBarWidth( 20 );
     // legend to the right of the plot
 
-    mapRescaler = new QwtPlotRescaler( MPlot->canvas() );
-    //  mapRescaler->setReferenceAxis( QwtPlot::yLeft );
-    //NOT resets the plot all the time after checking another map !!!
-    mapRescaler->setAspectRatio( QwtPlot::xBottom, 1.0 );
-    mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
-    mapRescaler->setAspectRatio( QwtPlot::xTop, 0.0 );
-    //      mapRescaler->setRescalePolicy( QwtPlotRescaler::Fitting ); // every tmestep fits map to lower boundary, position not maintained
-    mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
-    //mapRescaler->setEnabled( true );
-    // rescaling fixed to avoid deformation
-
     magnifier = new QwtPlotMagnifier( MPlot->canvas() );
     magnifier->setAxisEnabled( MPlot->yRight, false );
     // exclude right axis legend from rescaling
@@ -238,6 +249,18 @@ void lisemqt::setupMapPlot()
 
     picker = new MyPicker( (QwtPlotCanvas *) MPlot->canvas() );
     picker->setEnabled(false);
+
+    mapRescaler = new QwtPlotRescaler( MPlot->canvas() );
+ //   mapRescaler->setReferenceAxis( QwtPlot::xBottom );
+    mapRescaler->setAspectRatio( QwtPlot::xBottom, 1.0 );
+    mapRescaler->setAspectRatio( QwtPlot::yLeft, 1.0 );
+    mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
+    mapRescaler->setAspectRatio( QwtPlot::xTop, 1.0 );
+    mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
+    //mapRescaler->setRescalePolicy( QwtPlotRescaler::Fixed );
+
+    MPlot->replot();
+
     maxAxis1 = -1e20;
     maxAxis2 = -1e20;
     maxAxis3 = -1e20;
@@ -342,11 +365,8 @@ double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterDa
     _RD->setValueMatrix( RGBData, _M->nrCols() );
     // set column number to divide vector into rows
 
-    double cy = op._lly;
-    double cx = op._llx;
-
-    _RD->setInterval( Qt::XAxis, QwtInterval( cx,cx+ (double)_M->nrCols()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
-    _RD->setInterval( Qt::YAxis, QwtInterval( cy,cy+ (double)_M->nrRows()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
+    _RD->setInterval( Qt::XAxis, QwtInterval( op._llx,op._llx + (double)_M->nrCols()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
+    _RD->setInterval( Qt::YAxis, QwtInterval( op._lly,op._lly + (double)_M->nrRows()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
     // set x/y axis intervals
     return maxV;
 }
@@ -616,14 +636,19 @@ void lisemqt::showBaseMap()
     // do only once because resets zooming and panning
 
     // fit into screen first time
+    tabWidget_out->setCurrentIndex(1);
+ //   MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*10);
+ //   MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx, op._dx*10);
 
-    //MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*10);
-  //  MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx, op._dx*10);
 
-//    int h = MPlot->height();
-//    int w = MPlot->width();
-//    double asp = (double)w/(double)h;
-//    int i = 0;
+    //    int h = MPlot->height();
+    //    int w = MPlot->width();
+    //    double asp = (double)w/(double)h;
+    //    int i = 0;
+
+    //tabWidget_out->setCurrentIndex(1);
+
+    changeSize();
 
 //    MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*10);
 //    MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx, op._dx*10);
@@ -639,10 +664,8 @@ void lisemqt::showBaseMap()
 //            MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx*asp, op._dx*10);
 //            i = 2;
 //        }
-//    MPlot->replot();
 
-    changeSize();
-
+ //   tabWidget_out->setCurrentIndex(0);
 
 }
 //---------------------------------------------------------------------------
@@ -917,28 +940,3 @@ void lisemqt::showImageMap()
     baseMapImage->setColorMap(new colorMapRGB());
 }
 //---------------------------------------------------------------------------
-
-void lisemqt::changeSize()
-{
-    int h = MPlot->height();
-    int w = MPlot->width();
-    double asp = (double)w/(double)h;
-    int i = 0;
-
-    if(op._nrCols/op._nrRows > asp) {
-        MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*10);
-        MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrCols*op._dx, op._dx*10);
-        i = 1;
-    } else {
-        if(op._nrRows > op._nrCols) {
-            MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrRows*op._dx*asp, op._dx*10);
-            MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx*asp, op._dx*10);
-            i = 2;
-        } else {
-            MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*10);
-            MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx, op._dx*10);
-        }
-    }
-
-    MPlot->replot();
-}

@@ -23,7 +23,7 @@
 *************************************************************************/
 #include <cassert>
 #include "CsfMap.h"
-#include "error.h"
+#include "lerror.h"
 #include <gdal.h>
 /*!
     @brief      Constructor.

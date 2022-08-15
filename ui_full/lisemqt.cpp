@@ -50,7 +50,6 @@ update of the runfile before running:
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
-//#include "C:\\Qt\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\11.3.0\\include\\omp.h"
 #include <omp.h>
 
 output op;
@@ -116,6 +115,12 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     setupMapPlot();
     // set up the raster map drawing
+
+    int h = MPlot->height();
+    int w = MPlot->width();
+    Masp = (double)w/(double)h;
+    //qDebug() << Masp;
+
 
 //    QSplitter *splitter = new QSplitter(tabWidget->widget(2));
   //  splitter->addWidget(tabWidget_out);
@@ -640,6 +645,7 @@ void lisemqt::setOutputScreen()
   }
 }
 
+
 void lisemqt::setOutputInfo()
 {
     if (W) {
@@ -720,6 +726,10 @@ void lisemqt::SetToolBar()
     toolBar->addAction(fontDecreaseAct);
 
     toolBar->addSeparator();
+    resizeAct = new QAction(QIcon(":/2X/adjustsize.png"), "&Fit map to display", this);
+    connect(resizeAct, SIGNAL(triggered()), this, SLOT(resizeMap()));
+    toolBar->addAction(resizeAct);
+
     showAllAct = new QAction(QIcon(":/2X/noscreen.png"), "&no output to screen", this);
     showAllAct->setCheckable(true);
     connect(showAllAct, SIGNAL(triggered()), this, SLOT(setOutputScreen()));
@@ -1874,6 +1884,12 @@ QString lisemqt::findValidDir(QString path, bool up)
     return (path);
 }
 //---------------------------------------------------------------
+void lisemqt::resizeMap()
+{
+      if (W && tabWidget_out->currentIndex() == 1)
+          changeSize();
+}
+//---------------------------------------------------------------
 void lisemqt::fontSelect()
 {
     // bool ok;
@@ -1904,7 +1920,7 @@ void lisemqt::setfontSize()
 {
    // int x = SetStyleUISize();
     //int fs = genfontsize;
-    qDebug() << genfontsize;
+    //qDebug() << genfontsize;
 
     const QWidgetList allWidgets = QApplication::allWidgets();
     for (QWidget *widget : allWidgets) {
@@ -2127,14 +2143,14 @@ void lisemqt::on_toolButton_rainsatName_clicked()
         RainSatFileDir = RainFileDir;
     if (!QFileInfo(RainSatFileDir).exists() || RainSatFileDir.isEmpty())
         RainSatFileDir = currentDir;
-    qDebug() << RainSatFileDir << RainSatFileName ;
+  //  qDebug() << RainSatFileDir << RainSatFileName ;
 
     QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
     QString sss = getFileorDir(RainSatFileDir,"Select rainfall map list table", filters, 2);
 
     RainSatFileDir = QFileInfo(sss).absolutePath()+"/";
     RainSatFileName = QFileInfo(sss).fileName(); //baseName();
-    qDebug() << RainSatFileDir << RainSatFileName ;
+  //  qDebug() << RainSatFileDir << RainSatFileName ;
 
     E_rainsatName->setText(RainSatFileDir + RainSatFileName);
     //RainFileDir = RainSatFileDir;

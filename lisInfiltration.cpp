@@ -474,7 +474,10 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
                 L = SoilDep2;
 
             if (L > SoilDep2-0.001) {
+                if (SwitchImpermeable)
                 fact_out = space2; // MC - Why? The soil is permeable so a full profile should not slow down infiltration.
+                else
+                    fact_out = Perc->Drc;
                 L = SoilDep2;                
             } else {
                 fact_out = fact_in;
@@ -492,30 +495,35 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
                 L = SoilDep2;
 
             if (L > SoilDep2-0.001) {
+                if (SwitchImpermeable)
                 fact_out = space2;
+                else
+                    fact_out = Perc->Drc;
                 L = SoilDep2;
             } else
                 fact_out = fact_in; // everything fitted
         }
         L = std::min(SoilDep2,std::max(0.0, L));
         Lw->Drc = L;
-        //fact_out = fact_in;
         return std::max(0.0,fact_out);
 
     } else {
 
         //===== single layer =====
 
-        if (SwitchImpermeable && L > SoilDep1 - ss_space) {
+        // impermeable and L reached SD1, no more infil
+        if (SwitchImpermeable && L > SoilDep1 - 0.001) {
             Lw->Drc = SoilDep1;
             return 0;
         }
-        if (SwitchImpermeable && dtheta1 < ss_space) {
+        // impermeable and no more room, no more infil
+        if (SwitchImpermeable && dtheta1 < 0.001) {
             Lw->Drc = SoilDep1;
             return 0;
         }
 
-        if(L < SoilDep1- ss_space) {
+        // fact_out = 0 initially
+        if(L < SoilDep1-0.001) {
             // not full
             double space1 = (SoilDep1 - L)*dtheta1;
             if (dtheta1 > 0.001)
@@ -523,8 +531,16 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
             else
                 L = SoilDep1;
 
+
             if (L > SoilDep1-0.001) {
+                if (SwitchImpermeable) // MC - impermeable hebben we hierboven al opgelost toch?
+                    // if impermeable remaining space is infiltration
+                    //fact_out = space1;
                 fact_out = fact_in; // MC - no 0 or reduced infiltration with full profile
+                else
+                   // fact_out = Perc->Drc;
+                    fact_out = fact_in;
+                // L does not go deeper than SD1 but if not impermeable fact_out = fact_in
                 L = SoilDep1;
             } else
                 fact_out = fact_in;
@@ -636,6 +652,7 @@ void TWorld::cell_InfilMethods(int r, int c)
                 space = (SoilDepth2->Drc - Lw->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
         }
 
+        //FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
       
         //FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
         //MC - using space causes fluctuations when Lw reaches SD1 when soil is not impermeable always use fact_

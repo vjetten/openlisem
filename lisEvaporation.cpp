@@ -78,8 +78,10 @@ void TWorld::GetETData(QString name)
     skiprows = 3;
 
     // count gauge areas in the ID.map
-    int nrmap = 0;
-    nrmap = countUnits(*ETZone);
+    QList < int> tmp;
+    tmp = countUnits(*ETZone);
+    int nrmap = tmp.count();
+
 
     if (nrmap > nrStations)
     {

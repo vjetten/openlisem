@@ -23,7 +23,7 @@ class cTMap;
 void               copy                (cTMap& raster,
                                         cTMap const& other);
 
-int                countUnits          (cTMap const& raster);
+QList <int>        countUnits          (cTMap const& raster);
 
 void               fill                (cTMap& raster,
                                         double value);

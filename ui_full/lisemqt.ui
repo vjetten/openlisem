@@ -70,7 +70,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -2697,7 +2697,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>6</number>
+              <number>1</number>
              </property>
              <property name="iconSize">
               <size>
@@ -3543,7 +3543,7 @@
                         <enum>Qt::LeftToRight</enum>
                        </property>
                        <property name="text">
-                        <string>Inverse distance interpolation stations</string>
+                        <string>Inverse distance interpolation stations (needs gaugeID.map)</string>
                        </property>
                       </widget>
                      </item>
@@ -3595,8 +3595,17 @@
                          <kerning>true</kerning>
                         </font>
                        </property>
+                       <property name="decimals">
+                        <number>1</number>
+                       </property>
+                       <property name="maximum">
+                        <double>9.000000000000000</double>
+                       </property>
+                       <property name="singleStep">
+                        <double>0.100000000000000</double>
+                       </property>
                        <property name="value">
-                        <double>2.000000000000000</double>
+                        <double>1.000000000000000</double>
                        </property>
                       </widget>
                      </item>
