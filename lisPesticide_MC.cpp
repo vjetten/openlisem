@@ -230,6 +230,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         // MC - do we use A = dx^2 or A = dx * flowwidth or A = dx * SoilWidth
         // Dx = cellsize, SoilWidth = width of soil (mixing soil interaction and option for erosion),
         // FlowWidth = SoilWidth + Roads and hard surface, water flows over this area, but for hardsurface no interaction with mixing layer. Deposition on this area.
+        // MC - 220815 - Used A = SoilWidthDX->Drc * _dx for now, can also include DX (adjusted for slope).
 
         // alternative to simplePestConc calculation. Instead of concentration calculate masses
         // per timestep there are 2 mass change processes: 1. exchange between domains and 2. influx and outflux.
@@ -238,23 +239,25 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         // calculate the correct C's based on the Qin and Qold etc.
         double Crw_avg, Crs_avg = 0; // mg/L
         if (Qn->Drc + Qin > 0) {
-            // mg * L-1 = (mg + (mg sec-1 * sec)) / m3 * sec-1 * sec * 1000(m3 -> L)
+            // mg L-1 = (mg + (mg sec-1 * sec)) / m3 sec-1 * sec * 1000(m3 -> L)
             Crw_avg = (PMrw->Drc + (Qpin * _dt)) /((Qn->Drc + Qin) * _dt * 1000);
         }
 
         if (Qsn->Drc + Sin > 0) {
-            // mg * kg-1 = (mg + (mg * sec-1 * sec)) / kg * sec-1 * sec
+            // mg kg-1 = (mg + (mg sec-1 * sec)) / kg sec-1 * sec
             Crs_avg = (PMrs->Drc + (Spin * _dt)) /((Qsn->Drc + Sin) * _dt);
         }
 
+        // unclear how exchange between sediment and water in mixing zone works for units. for now the assumption is made that the resulting unit of
+        // Kr * (Kd * PCmw->Drc - PCms->Drc) is mg * kg-1 * sec-1 !!!
         // calculate the mass redistributions
         double Qinf = InfilVol->Drc; // m3 (per timestep)
         double Mmw_ex, Mms_ex, Mrw_ex, Mrs_ex = 0; // exchange mass (negative is reduction, positive is increase) - mg
-        // mg = (m * g * kg-1 * sec-1 * (mg * L-1)/ m * m * m * sec
-        Mmw_ex = ((zm->Drc * rho * Kr * (Kd * PCmw->Drc - PCms->Drc))/ (ThetaS1->Drc * zm->Drc)) *_dt * SoilWidthDX->Drc * _dx // exchange with soil in mixing (mg)
+        // mg = mg kg-1 sec-1  * kg m-3 * m * m * m * sec
+        Mmw_ex = -(Kr * (Kd * PCmw->Drc - PCms->Drc) * (1 - ThetaS1->Drc) * rho * _dt * SoilWidthDX->Drc * _dx * zm->Drc) // exchange with soil in mixing (mg)
                 // conc = mg * L-1 * sec-1 = ((m * sec-1 * (mg * L-1 - mg * L-1)) /  m * -
-                // mass = mg = (((m * sec-1 * (mg * L-1 - mg * L-1)) / m * - ) / sec -1 * m * m * m * sec *  1000(m3 -> L)
-                 - (((Kfilm*(PCmw->Drc - Crw_avg))/zm->Drc) / (SoilWidthDX->Drc * _dx * _dt * zm->Drc * ThetaS1->Drc * 1000)); // exchange between mixing water and runoff water (mg)
+                // mass = mg = (((m sec-1 * (mg L-1 - mg L-1)) / m * - ) * ( m * m * m * sec * 1000(m3 -> L)
+                 - (((Kfilm*(PCmw->Drc - Crw_avg))/zm->Drc) * (SoilWidthDX->Drc * _dx * zm->Drc * _dt * ThetaS1->Drc * 1000)); // exchange between mixing water and runoff water (mg)
 
         // m * - * m * sec-1 * ( kg * m -3) / - * m
         // zm * rho * kr * (Kd * Cmw_old - Cms_old))/ pore * zm)
