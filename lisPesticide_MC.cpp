@@ -259,9 +259,12 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
                 // mass = mg = (((m sec-1 * (mg L-1 - mg L-1)) / m * - ) * ( m * m * m * sec * 1000(m3 -> L)
                  - (((Kfilm*(PCmw->Drc - Crw_avg))/zm->Drc) * (SoilWidthDX->Drc * _dx * zm->Drc * _dt * ThetaS1->Drc * 1000)); // exchange between mixing water and runoff water (mg)
 
-        // m * - * m * sec-1 * ( kg * m -3) / - * m
+        // m * - * m * sec-1 * ( kg * m -3) / - * m - OLD Code ...
         // zm * rho * kr * (Kd * Cmw_old - Cms_old))/ pore * zm)
-        Mrw_ex = (Kfilm*(PCmw->Drc - Crw_avg)* SoilWidthDX->Drc * _dx * _dt); // exchange with mixing layer water
+
+        // should we add zm in the next function? Or is Kfilm dependend on the depth of the mixing layer
+        // mg = ((sec-1 * m * (mg L-1) / m) * m * m * m * sec * 1000 (m3 -> L)
+        Mrw_ex = ((Kfilm *(PCmw->Drc - Crw_avg) / zm->Drc) * zm->Drc * SoilWidthDX->Drc * _dx * _dt * 1000); // exchange with mixing layer water
 
         // calculate erosion depth
         Ez->Drc = (DEP->Drc + DETFlow->Drc + DETSplash->Drc);
