@@ -262,12 +262,14 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         // calculate the mass redistributions
         double Qinf = InfilVol->Drc; // m3 (per timestep)
         double Mmw_ex, Mms_ex, Mrw_ex, Mrs_ex = 0; // exchange mass (negative is reduction, positive is increase) - mg
+        // test
+//        double a, b = 0;
+//        a = -(Kr * (Kd * PCmw->Drc - PCms->Drc) * (1 - ThetaS1->Drc) * rho * _dt * SoilWidthDX->Drc * _dx * zm->Drc); // exchange with soil in mixing (mg)
+//                // conc = mg * L-1 * sec-1 = ((m * sec-1 * (mg * L-1 - mg * L-1)) /  m * -
+//                // mass = mg = (((m sec-1 * (mg L-1 - mg L-1)) / m * - ) * ( m * m * m * sec * 1000(m3 -> L)
+//        b = - (((Kfilm *(PCmw->Drc - Crw_avg))/zm->Drc) * (SoilWidthDX->Drc * _dx * zm->Drc * _dt * ThetaS1->Drc * 1000)); // exchange between mixing water and runoff water (mg)
+//        Mmw_ex = a + b;
         // mg = mg kg-1 sec-1  * kg m-3 * m * m * m * sec
-        double a, b = 0;
-        a = -(Kr * (Kd * PCmw->Drc - PCms->Drc) * (1 - ThetaS1->Drc) * rho * _dt * SoilWidthDX->Drc * _dx * zm->Drc); // exchange with soil in mixing (mg)
-                // conc = mg * L-1 * sec-1 = ((m * sec-1 * (mg * L-1 - mg * L-1)) /  m * -
-                // mass = mg = (((m sec-1 * (mg L-1 - mg L-1)) / m * - ) * ( m * m * m * sec * 1000(m3 -> L)
-        b = - (((Kfilm *(PCmw->Drc - Crw_avg))/zm->Drc) * (SoilWidthDX->Drc * _dx * zm->Drc * _dt * ThetaS1->Drc * 1000)); // exchange between mixing water and runoff water (mg)
         Mmw_ex = -(Kr * (Kd * PCmw->Drc - PCms->Drc) * (1 - ThetaS1->Drc) * rho * _dt * SoilWidthDX->Drc * _dx * zm->Drc) // exchange with soil in mixing (mg)
         // conc = mg * L-1 * sec-1 = ((m * sec-1 * (mg * L-1 - mg * L-1)) /  m * -
         // mass = mg = (((m sec-1 * (mg L-1 - mg L-1)) / m * - ) * ( m * m * m * sec * 1000(m3 -> L)
@@ -278,7 +280,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 
         // should we add zm in the next function?
         // mg = ((sec-1 * m * (mg L-1) / m) * m * m * m * sec * 1000 (m3 -> L)
-        Mrw_ex = ((Kfilm *(PCmw->Drc - Crw_avg) / zm->Drc) * zm->Drc * SoilWidthDX->Drc * _dx * _dt * 1000); // exchange with mixing layer water
+        Mrw_ex = (((Kfilm*(PCmw->Drc - Crw_avg))/zm->Drc) * (SoilWidthDX->Drc * _dx * zm->Drc * _dt * ThetaS1->Drc * 1000)); // exchange with mixing layer water
 
         // calculate erosion depth, no time component in this formulas, this is already covered by Ez
         Ez->Drc = (DEP->Drc + DETFlow->Drc + DETSplash->Drc);
