@@ -150,7 +150,7 @@ double TWorld::MassPestInitial(void)
     FOR_ROW_COL_MV_L{
         PMms->Drc = PCms->Drc * SoilWidthDX->Drc * _dx * rho * zm->Drc;
         PMmw->Drc = PCmw->Drc * ThetaI1->Drc * zm->Drc * SoilWidthDX->Drc * _dx;
-        PMsoil->Drc = PCms->Drc * SoilWidthDX->Drc * _dx * zs->Drc;
+        PMsoil->Drc = PCms->Drc * SoilWidthDX->Drc * _dx * (zs->Drc - zm->Drc) * rho;
     }}
 
     PMtotI = MapTotal(*PMmw) + MapTotal(*PMms) + MapTotal(*PMsoil);
@@ -295,21 +295,30 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 
         // 2. influx and outflux
         double Mrw_inf, Mmw_inf, Mrs_out, Mrw_out = 0;
-        Mrw_inf = Qinf * Crw_avg; // loss through infiltration from runoff
-        Mmw_inf = Qinf * (Crw_avg - PCmw->Drc); // net loss through infiltration from mixing layer (mg)
+        // mg = m3 * 1000 (L->m3) * mg L-1
+        Mrw_inf = Qinf * 1000 * Crw_avg; // loss through infiltration from runoff
+        // mg = m3 * 1000 * (mg L-1)
+        Mmw_inf = Qinf * 1000 * (Crw_avg - PCmw->Drc); // net loss through infiltration from mixing layer (mg)
 
         // no more outflow than total pesticide in domain
-        PQrs->Drc = std::min(PCrs->Drc * Qsn->Drc, Spin + (PMrs->Drc - Mrs_ex)/_dt);
-        PQrw->Drc = std::min(PCrw->Drc * Qn->Drc, Qpin + PMrw->Drc / _dt);
+        // mg sec-1 = mg kg-1 * kg sec-1, mg sec-1 + mg / sec
+        PQrs->Drc = std::min(PCrs->Drc * Qsn->Drc, Spin + (PMrs->Drc - Mrs_ex)/ _dt);
+        // mg sec-1 = mg L-1 * m3 sec-1 * 1000, mg sec-1 + mg / sec -- ??? already substract Mrw_ex here ???
+        PQrw->Drc = std::min(PCrw->Drc * Qn->Drc * 1000, Qpin + (PMrw->Drc - Mrw_ex)/ _dt);
+        // mg = mg sec-1 * sec
         Mrs_out = PQrs->Drc * _dt;
         Mrw_out = PQrw->Drc * _dt;
 
         // The new masses
         // new mass based on all fluxes and original pesticide present
+        //mg = mg + mg - mg - mg + (mg sec-1 * sec)
         PMrw->Drc = std::max(0.0, PMrw->Drc + Mrw_ex - Mrw_out - Mrw_inf + (Qpin * _dt));
+        // mg = mg + mg - mg + (mg sec-1 * sec)
         PMrs->Drc = std::max(0.0, PMrs->Drc + Mrs_ex - Mrs_out + (Spin * _dt));
+        // mg = mg - mg + mg
         PMmw->Drc = std::max(0.0, PMmw->Drc - Mmw_ex + Mmw_inf);
         // assuming the mixing zone is always saturated
+        // mg = mg + mg
         PMms->Drc = std::max(0.0, PMms->Drc + Mms_ex);
         PMsoil->Drc += PMsoil_out;
 
