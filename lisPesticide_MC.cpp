@@ -124,7 +124,8 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
 
     PMtot = Pestinf + PestOutS + PestOutW + MapTotal(*PMsoil) + MapTotal(*PMrw) + MapTotal(*PMrs) + MapTotal(*PMmw) + MapTotal(*PMms);
 
-    PMerr = 1 - (PMtot/PMtotI);
+    //PMerr = 1 - (PMtot/PMtotI);
+    PMerr = PMtotI;
 
 }
 
@@ -148,10 +149,18 @@ double TWorld::MassPestInitial(void)
     // PMtotI = PMsoil + PMmw + PMms
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
+        // mg = mg kg-1 * m * m * kg m-3 * m
         PMms->Drc = PCms->Drc * SoilWidthDX->Drc * _dx * rho * zm->Drc;
-        PMmw->Drc = PCmw->Drc * ThetaI1->Drc * zm->Drc * SoilWidthDX->Drc * _dx;
+        // mg = mg L-1 * m * m * m * 1000
+        PMmw->Drc = PCmw->Drc * ThetaI1->Drc * zm->Drc * SoilWidthDX->Drc * _dx * 1000;
+        // mg = mg kg-1 * m * m * m * kg m-3
         PMsoil->Drc = PCms->Drc * SoilWidthDX->Drc * _dx * (zs->Drc - zm->Drc) * rho;
     }}
+//    double a, b, c = 0;
+//    a = MapTotal(*PMmw);
+//    b = MapTotal(*PMms);
+//    c = MapTotal(*PMsoil);
+//    PMtotI = a + b + c;
 
     PMtotI = MapTotal(*PMmw) + MapTotal(*PMms) + MapTotal(*PMsoil);
     return(PMtotI);
@@ -254,10 +263,15 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         double Qinf = InfilVol->Drc; // m3 (per timestep)
         double Mmw_ex, Mms_ex, Mrw_ex, Mrs_ex = 0; // exchange mass (negative is reduction, positive is increase) - mg
         // mg = mg kg-1 sec-1  * kg m-3 * m * m * m * sec
-        Mmw_ex = -(Kr * (Kd * PCmw->Drc - PCms->Drc) * (1 - ThetaS1->Drc) * rho * _dt * SoilWidthDX->Drc * _dx * zm->Drc) // exchange with soil in mixing (mg)
+        double a, b = 0;
+        a = -(Kr * (Kd * PCmw->Drc - PCms->Drc) * (1 - ThetaS1->Drc) * rho * _dt * SoilWidthDX->Drc * _dx * zm->Drc); // exchange with soil in mixing (mg)
                 // conc = mg * L-1 * sec-1 = ((m * sec-1 * (mg * L-1 - mg * L-1)) /  m * -
                 // mass = mg = (((m sec-1 * (mg L-1 - mg L-1)) / m * - ) * ( m * m * m * sec * 1000(m3 -> L)
-                 - (((Kfilm*(PCmw->Drc - Crw_avg))/zm->Drc) * (SoilWidthDX->Drc * _dx * zm->Drc * _dt * ThetaS1->Drc * 1000)); // exchange between mixing water and runoff water (mg)
+        b = - (((Kfilm *(PCmw->Drc - Crw_avg))/zm->Drc) * (SoilWidthDX->Drc * _dx * zm->Drc * _dt * ThetaS1->Drc * 1000)); // exchange between mixing water and runoff water (mg)
+        Mmw_ex = -(Kr * (Kd * PCmw->Drc - PCms->Drc) * (1 - ThetaS1->Drc) * rho * _dt * SoilWidthDX->Drc * _dx * zm->Drc) // exchange with soil in mixing (mg)
+        // conc = mg * L-1 * sec-1 = ((m * sec-1 * (mg * L-1 - mg * L-1)) /  m * -
+        // mass = mg = (((m sec-1 * (mg L-1 - mg L-1)) / m * - ) * ( m * m * m * sec * 1000(m3 -> L)
+                - (((Kfilm*(PCmw->Drc - Crw_avg))/zm->Drc) * (SoilWidthDX->Drc * _dx * zm->Drc * _dt * ThetaS1->Drc * 1000)); // exchange between mixing water and runoff water (mg)
 
         // m * - * m * sec-1 * ( kg * m -3) / - * m - OLD Code ...
         // zm * rho * kr * (Kd * Cmw_old - Cms_old))/ pore * zm)

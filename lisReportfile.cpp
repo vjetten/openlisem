@@ -912,14 +912,14 @@ void TWorld::ReportMapSeries(void)
 //    report(*Qs, OutS);
 //    report(*Qsn, OutSn);
 //    report(*SinAFO, OutSin);
-    report(*WHAFO, OutWHAFO);
+//    report(*WHAFO, OutWHAFO);
 //    report(*SedAFO, OutSAFO);
 //    report(*FlowWidth, OutFW);
 //    report(*Sed, OutSS);
 //    report(*ErosionAFO, Outerosion);
-    report(*thetacheck, Outchtheta);
-    report(*lwcheck, Outchlw);
-    report(*fact, "fact");
+//    report(*thetacheck, Outchtheta);
+//    report(*lwcheck, Outchlw);
+//    report(*fact, "fact");
 
     // water height m
     if (SwitchOutwh)
