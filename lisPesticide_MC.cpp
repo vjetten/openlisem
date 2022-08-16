@@ -262,27 +262,33 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         // m * - * m * sec-1 * ( kg * m -3) / - * m - OLD Code ...
         // zm * rho * kr * (Kd * Cmw_old - Cms_old))/ pore * zm)
 
-        // should we add zm in the next function? Or is Kfilm dependend on the depth of the mixing layer
+        // should we add zm in the next function?
         // mg = ((sec-1 * m * (mg L-1) / m) * m * m * m * sec * 1000 (m3 -> L)
         Mrw_ex = ((Kfilm *(PCmw->Drc - Crw_avg) / zm->Drc) * zm->Drc * SoilWidthDX->Drc * _dx * _dt * 1000); // exchange with mixing layer water
 
-        // calculate erosion depth
+        // calculate erosion depth, no time component in this formulas, this is already covered by Ez
         Ez->Drc = (DEP->Drc + DETFlow->Drc + DETSplash->Drc);
         // change of mass pesticide in soil under mixing layer
         double PMsoil_out = 0;
         if (Ez->Drc < 0) {
             //deposition
-            Ez->Drc = Ez->Drc / rho * _dx * FlowWidth->Drc;
+            Ez->Drc = Ez->Drc / rho * _dx * FlowWidth->Drc; // also on road surface
             PMsoil_out = Ez->Drc * PCms->Drc * FlowWidth->Drc * _dx * rho;
-            Mms_ex = ((zm->Drc * rho * Kr * (Kd * PCmw->Drc - PCms->Drc))/ (ThetaS1->Drc * zm->Drc)) *_dt * SoilWidthDX->Drc * _dx // exchange between soil water in mixing zone
+            // mg = mg kg-1 sec-1  * kg m-3 * m * m * m * sec
+            Mms_ex = (Kr * (Kd * PCmw->Drc - PCms->Drc) * (1 - ThetaS1->Drc) * rho * _dt * SoilWidthDX->Drc * _dx * zm->Drc) // exchange between soil water in mixing zone
+                    // - (mg kg-1 * kg m-3 * -m * m * m)
                     - (Crs_avg * Ez->Drc * rho * _dx * FlowWidth->Drc); // added by deposition. problem with dep on roads!!!
+            // mg = mg kg-1 * (-m * kg m-3 * m * m)
             Mrs_ex = (Crs_avg * (Ez->Drc * rho * _dx * FlowWidth->Drc)); // loss by deposition
         } else {
             // erosion
-            Ez->Drc = Ez->Drc / rho * _dx * SoilWidthDX->Drc;
+            Ez->Drc = Ez->Drc / rho * _dx * SoilWidthDX->Drc; // only on soil surface
             PMsoil_out = -Ez->Drc * PCs->Drc * SoilWidthDX->Drc * _dx;
-            Mms_ex = ((zm->Drc * rho * Kr * (Kd * PCmw->Drc - PCms->Drc))/ (ThetaS1->Drc * zm->Drc)) *_dt * SoilWidthDX->Drc * _dx // mixing layer
+            // mg = mg kg-1 sec-1  * kg m-3 * m * m * m * sec
+            Mms_ex = (Kr * (Kd * PCmw->Drc - PCms->Drc) * (1 - ThetaS1->Drc) * rho * _dt * SoilWidthDX->Drc * _dx * zm->Drc) // mixing layer
+                    // (mg kg-1 * +m * kg m-3 * m * m)
                     - (PCms->Drc * Ez->Drc * rho * _dx * SoilWidthDX->Drc); // loss by erosion
+            // mg = (mg kg-1 * +m + kg m-3 * m * m)
             Mrs_ex = (PCms->Drc * Ez->Drc * rho * _dx * SoilWidthDX->Drc); // added by erosion
         }
 
