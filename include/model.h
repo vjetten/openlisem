@@ -514,7 +514,7 @@ public:
     double PMtot, PMerr, PMtotI;
     double Pestinf, PestOutW, PestOutS;
     double PQrw_dt, PQrs_dt;
-    double KdPestMC, KfilmPestMC, KrPestMC;
+    double KdPestMC, KfilmPestMC, KrPestMC, rhoPestMC;
     QString PestName;
 
     /// time and dx parameters

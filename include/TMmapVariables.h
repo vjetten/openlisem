@@ -249,6 +249,8 @@ cTMap
 *QpinKW,                    //!< sum upstream influx Qpn [mg/sec]
 *Ez,                        //!< erosion depth [m] - negative is deposition
 *PCs,                       //!< concentration of pesticide in soil [mg/kg] - same as initial PCms
+*Theta_mix,                 //!< the soil moisture content of the mixing layer [m3/m3]
+*Theta_mix_out,             //!< mass lost by drying of mixing layer, when runoff and infiltration stops [mg]
 
 
 // infiltration

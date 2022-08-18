@@ -2309,6 +2309,7 @@ void TWorld::IntializeData(void)
         KdPestMC = getvaluedouble("Kd pesticide");
         KfilmPestMC = getvaluedouble("Kfilm pesticide");
         KrPestMC = getvaluedouble("Kr pesticide");
+        rhoPestMC = getvaluedouble("Rho mixing layer");
         PestName = getvaluestring("Pesticide name");
 
         // load maps
@@ -2333,6 +2334,9 @@ void TWorld::IntializeData(void)
         Ez = NewMap(0);
         SpinKW = NewMap(0);
         QpinKW = NewMap(0);
+        Theta_mix_out = NewMap(0);
+        Theta_mix = NewMap(0);
+
         // total masses
         double PestOutW = 0;
         double PestOutS = 0;

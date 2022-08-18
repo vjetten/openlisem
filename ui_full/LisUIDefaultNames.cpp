@@ -531,6 +531,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Kfilm pesticide");
     namelist[i].value = QString("0.0");
     namelist[i++].name = QString("Kr pesticide");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Rho mixing layer");
 
     //###
     namelist[i++].name = QString("");

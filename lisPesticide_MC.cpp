@@ -113,7 +113,7 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
 
     // totals of outfluxes
     // at the moment only overland flow is accounted for. is channels etc must be included build that later.
-    Pestinf += MapTotal(*PQinf) * _dt;
+    Pestinf += MapTotal(*PQinf) * _dt;// + MapTotal(*Theta_mix_out);
     FOR_ROW_COL_LDD5 {
         PQrw_dt += PQrw->Drc * _dt;
         PQrs_dt += PQrs->Drc * _dt;
@@ -124,8 +124,8 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
 
     PMtot = Pestinf + PestOutS + PestOutW + MapTotal(*PMsoil) + MapTotal(*PMrw) + MapTotal(*PMrs) + MapTotal(*PMmw) + MapTotal(*PMms);
 
-    PMerr = 1 - (PMtot/PMtotI);
-    //PMerr = PMtotI;
+  //  PMerr = 1 - (PMtot/PMtotI);
+    PMerr = PMtot;
 
 }
 
@@ -145,7 +145,7 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
 double TWorld::MassPestInitial(void)
 {
     double PMtotI = 0;
-    double rho = 2650;
+    double rho = rhoPestMC;
     // PMtotI = PMsoil + PMmw + PMms
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
@@ -154,18 +154,11 @@ double TWorld::MassPestInitial(void)
         // mg = mg L-1 * m * m * m * 1000
         PMmw->Drc = PCmw->Drc * ThetaI1->Drc * zm->Drc * SoilWidthDX->Drc * _dx * 1000;
         // mg = mg kg-1 * m * m * m * kg m-3
-        PMsoil->Drc = PCms->Drc * SoilWidthDX->Drc * _dx * (zs->Drc - zm->Drc) * rho;
+        PMsoil->Drc = PCms->Drc * SoilWidthDX->Drc * _dx * (zs->Drc - zm->Drc) * rho;      
     }}
-//    double a, b, c = 0;
-//    a = MapTotal(*PMmw);
-//    b = MapTotal(*PMms);
-//    c = MapTotal(*PMsoil);
-//    PMtotI = a + b + c;
-
     PMtotI = MapTotal(*PMmw) + MapTotal(*PMms) + MapTotal(*PMsoil);
     return(PMtotI);
 }
-
 
 //---------------------------------------------------------------------------
 /**
@@ -199,7 +192,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         }
         double Sin = 0; //kg * sec-1
         double Spin = 0; //mg * sec-1
-        double rho = 1440; //kg * m3-1
+        double rho = rhoPestMC; //kg * m3-1
 
         for (int i = 1; i <= 9; i++)
         {
@@ -254,106 +247,122 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         // Kr * (Kd * PCmw->Drc - PCms->Drc) is mg * kg-1 * sec-1 !!!
         double Mda_ex = 0; // mg - mass dissolved - absorbed exchange
         double Mmw_ex, Mms_ex, Mrw_ex, Mrs_ex, a, b = 0; // exchange mass (negative is reduction, positive is increase) - mg
+        double Mrw_inf, Mmw_inf, Mrs_out, Mrw_out = 0; // influx and outflux
+        //double Theta_mix_diff = 0; // the theta of the mixing layer in situation 1 - thetaeff, in 2,3,4 = ThetaS
+//        double Theta_mix_o = Theta_mix->Drc;
+//        double Theta_mix_n = Thetaeff->Drc;
+
+        //      loss by percolation
+        // new_mass = PCmw * newvolume
+        // mass_diff = PMmw - new_mass
+
         // positive adds to absorbed, negative to dissolved.
         // mg = mg kg-1 sec-1  * kg m-3 * m * m * m * sec
-        Mda_ex = (Kr * (Kd * PCmw->Drc - PCms->Drc) * (1 - ThetaS1->Drc) * rho * _dt * SoilWidthDX->Drc * _dx * zm->Drc);
+        Mda_ex = (Kr * (Kd * PCmw->Drc - PCms->Drc) * rho * _dt * SoilWidthDX->Drc * _dx * zm->Drc);
 
-        // influx and outflux
-        double Mrw_inf, Mmw_inf, Mrs_out, Mrw_out = 0;
+//        // 2. no runoff, no erosion, infiltration
+//        if (InfilVol->Drc > 1e-6) {
+//        //infiltration
+//        double Qinf = InfilVol->Drc; // m3 (per timestep)
+//        double Crw_avg, Crs_avg = 0; // mg/L - no runoff, so concentration will be 0
+//        // mg = m3 * 1000 (L->m3) * mg L-1
+//        Mrw_inf = Qinf * 1000 * Crw_avg; // loss through infiltration from runoff
+//        // mg = m3 * 1000 * (mg L-1)
+//        Mmw_inf = Qinf * 1000 * (PCmw->Drc - Crw_avg); // net loss through infiltration from mixing layer (mg)
 
-        // 2. no runoff, no erosion, infiltration
-        if (InfilVol->Drc > 1e-6) {
-        //infiltration
-        double Qinf = InfilVol->Drc; // m3 (per timestep)
-        // mg = m3 * 1000 (L->m3) * mg L-1
-        Mrw_inf = Qinf * 1000 * Crw_avg; // loss through infiltration from runoff
-        // mg = m3 * 1000 * (mg L-1)
-        Mmw_inf = Qinf * 1000 * (PCmw->Drc - Crw_avg); // net loss through infiltration from mixing layer (mg)
+//        // 3. runoff, no erosion, infiltration
+//        // calculate the correct C's based on the Qin and Qold etc.
+//        if (Qn->Drc + Qin > 1e-6) { // more than 1 ml - what is best definition of runoff?
+//            // mg L-1 = (mg + (mg sec-1 * sec)) / m3 sec-1 * sec * 1000(m3 -> L)
+//            Crw_avg = (PMrw->Drc + (Qpin * _dt)) /((Qn->Drc + Qin) * _dt * 1000);
 
-        // 3. runoff, no erosion, infiltration
-        // calculate the correct C's based on the Qin and Qold etc.
-        double Crw_avg, Crs_avg = 0; // mg/L
-        if (Qn->Drc + Qin > 1e-6) { // more than 1 ml - what is best definition of runoff?
-            // mg L-1 = (mg + (mg sec-1 * sec)) / m3 sec-1 * sec * 1000(m3 -> L)
-            Crw_avg = (PMrw->Drc + (Qpin * _dt)) /((Qn->Drc + Qin) * _dt * 1000);
+//            // only exchange with runoff water when there is a significant amount
+//            if (WH->Drc > 0.0001) { // more than 0.1 mm
+//            // should we add zm in the next function?
+//            // mg = ((sec-1 * m * (mg L-1) / m) * m * m * m * sec * 1000 (m3 -> L)
+//            Mrw_ex = (((Kfilm*(PCmw->Drc - Crw_avg))/zm->Drc) * (SoilWidthDX->Drc * _dx * zm->Drc * _dt * ThetaS1->Drc * 1000)); // exchange with mixing layer water
+//            // conc = mg * L-1 * sec-1 = ((m * sec-1 * (mg * L-1 - mg * L-1)) /  m * -
+//            // mass = mg = (((m sec-1 * (mg L-1 - mg L-1)) / m * - ) * ( m * m * m * sec * 1000(m3 -> L)
+//            b = - (((Kfilm *(PCmw->Drc - Crw_avg))/zm->Drc) * (SoilWidthDX->Drc * _dx * zm->Drc * _dt * ThetaS1->Drc * 1000)); // exchange between mixing water and runoff water (mg)
+//            } // runoff occurs
+//        // 4. runoff, erosion and infiltration
+//        if (SwitchErosion) {
+//            if (Qsn->Drc + Sin > 0.0001) { // more than 0.1 gram
+//            // mg kg-1 = (mg + (mg sec-1 * sec)) / kg sec-1 * sec
+//            Crs_avg = (PMrs->Drc + (Spin * _dt)) /((Qsn->Drc + Sin) * _dt);
 
-            // only exchange with runoff water when there is a significant amount
-            if (WH->Drc > 0.0001) { // more than 0.1 mm
-            // should we add zm in the next function?
-            // mg = ((sec-1 * m * (mg L-1) / m) * m * m * m * sec * 1000 (m3 -> L)
-            Mrw_ex = (((Kfilm*(PCmw->Drc - Crw_avg))/zm->Drc) * (SoilWidthDX->Drc * _dx * zm->Drc * _dt * ThetaS1->Drc * 1000)); // exchange with mixing layer water
-            // conc = mg * L-1 * sec-1 = ((m * sec-1 * (mg * L-1 - mg * L-1)) /  m * -
-            // mass = mg = (((m sec-1 * (mg L-1 - mg L-1)) / m * - ) * ( m * m * m * sec * 1000(m3 -> L)
-            b = - (((Kfilm *(PCmw->Drc - Crw_avg))/zm->Drc) * (SoilWidthDX->Drc * _dx * zm->Drc * _dt * ThetaS1->Drc * 1000)); // exchange between mixing water and runoff water (mg)
-            } // runoff occurs
-        // 4. runoff, erosion and infiltration
-        if (SwitchErosion) {
-            if (Qsn->Drc + Sin > 0.0001) { // more than 0.1 gram
-            // mg kg-1 = (mg + (mg sec-1 * sec)) / kg sec-1 * sec
-            Crs_avg = (PMrs->Drc + (Spin * _dt)) /((Qsn->Drc + Sin) * _dt);
-
-            // calculate erosion depth, no time component in this formulas, this is already covered by Ez
-            Ez->Drc = (DEP->Drc + DETFlow->Drc + DETSplash->Drc);
-            // change of mass pesticide in soil under mixing layer
-            double PMsoil_out = 0;
-            if (Ez->Drc < -0.00001) { //close to zero no calculations are done
-                //deposition
-                Ez->Drc = Ez->Drc / rho * _dx * FlowWidth->Drc; // also on road surface
-                PMsoil_out = Ez->Drc * PCms->Drc * FlowWidth->Drc * _dx * rho;
-                // - (mg kg-1 * kg m-3 * -m * m * m)
-                a = - (Crs_avg * Ez->Drc * rho * _dx * FlowWidth->Drc) + PMsoil_out; // added by deposition. problem with dep on roads!!!
-                // mg = mg kg-1 * (-m * kg m-3 * m * m)
-                Mrs_ex = (Crs_avg * (Ez->Drc * rho * _dx * FlowWidth->Drc)); // loss by deposition
-            } else if (Ez->Drc > 0.00001){
-                // erosion
-                Ez->Drc = Ez->Drc / rho * _dx * SoilWidthDX->Drc; // only on soil surface
-                PMsoil_out = -Ez->Drc * PCs->Drc * SoilWidthDX->Drc * _dx * rho;
-                // (mg kg-1 * +m * kg m-3 * m * m)
-                a = - (PCms->Drc * Ez->Drc * rho * _dx * SoilWidthDX->Drc) + PMsoil_out; // loss by erosion
-                // mg = (mg kg-1 * +m + kg m-3 * m * m)
-                Mrs_ex = (PCms->Drc * Ez->Drc * rho * _dx * SoilWidthDX->Drc); // added by erosion
-            }
-            // mg = mg + mg - mg + (mg sec-1 * sec)
-            PMrs->Drc = std::max(0.0, PMrs->Drc + Mrs_ex - Mrs_out + (Spin * _dt));
-            } // erosion occurs
-        } //switch erosion
-        //mg = mg + mg - mg - mg + (mg sec-1 * sec)
-        PMrw->Drc = std::max(0.0, PMrw->Drc + Mrw_ex - Mrw_out - Mrw_inf + (Qpin * _dt));
-        } // runoff occurs
-        } // infiltration occurs
+//            // calculate erosion depth, no time component in this formulas, this is already covered by Ez
+//            Ez->Drc = (DEP->Drc + DETFlow->Drc + DETSplash->Drc);
+//            // change of mass pesticide in soil under mixing layer
+//            double PMsoil_out = 0;
+//            if (Ez->Drc < -0.00001) { //close to zero no calculations are done
+//                //deposition
+//                Ez->Drc = Ez->Drc / rho * _dx * FlowWidth->Drc; // also on road surface
+//                PMsoil_out = Ez->Drc * PCms->Drc * FlowWidth->Drc * _dx * rho;
+//                // - (mg kg-1 * kg m-3 * -m * m * m)
+//                a = - (Crs_avg * Ez->Drc * rho * _dx * FlowWidth->Drc) + PMsoil_out; // added by deposition. problem with dep on roads!!!
+//                // mg = mg kg-1 * (-m * kg m-3 * m * m)
+//                Mrs_ex = (Crs_avg * (Ez->Drc * rho * _dx * FlowWidth->Drc)); // loss by deposition
+//            } else if (Ez->Drc > 0.00001){
+//                // erosion
+//                Ez->Drc = Ez->Drc / rho * _dx * SoilWidthDX->Drc; // only on soil surface
+//                PMsoil_out = -Ez->Drc * PCs->Drc * SoilWidthDX->Drc * _dx * rho;
+//                // (mg kg-1 * +m * kg m-3 * m * m)
+//                a = - (PCms->Drc * Ez->Drc * rho * _dx * SoilWidthDX->Drc) + PMsoil_out; // loss by erosion
+//                // mg = (mg kg-1 * +m + kg m-3 * m * m)
+//                Mrs_ex = (PCms->Drc * Ez->Drc * rho * _dx * SoilWidthDX->Drc); // added by erosion
+//            }
+//            // mg = mg + mg - mg + (mg sec-1 * sec)
+//            PMrs->Drc = std::max(0.0, PMrs->Drc + Mrs_ex - Mrs_out + (Spin * _dt));
+//            PMsoil->Drc += PMsoil_out;
+//            } // erosion occurs
+//        } //switch erosion
+//        //mg = mg + mg - mg - mg + (mg sec-1 * sec)
+//        PMrw->Drc = std::max(0.0, PMrw->Drc + Mrw_ex - Mrw_out - Mrw_inf + (Qpin * _dt));
+//        // no more outflow than total pesticide in domain
+//        // mg sec-1 = mg kg-1 * kg sec-1, mg sec-1 + mg / sec
+//        PQrs->Drc = std::min(PCrs->Drc * Qsn->Drc, Spin + (PMrs->Drc + Mrs_ex)/ _dt);
+//        // mg sec-1 = mg L-1 * m3 sec-1 * 1000, mg sec-1 + mg / sec -- ??? already substract Mrw_ex here ???
+//        PQrw->Drc = std::min(PCrw->Drc * Qn->Drc * 1000, Qpin + (PMrw->Drc + Mrw_ex)/ _dt);
+//        // mg = mg sec-1 * sec
+//        Mrs_out = PQrs->Drc * _dt;
+//        Mrw_out = PQrw->Drc * _dt;
+//        } // runoff occurs
+//        // The four new concentrations
+//        PCrw->Drc = PMrw->Drc / WaterVolall->Drc;
+//        PCrs->Drc = PMrs->Drc / Sed->Drc;
+//        } // infiltration occurs
 
         // calculate the mass redistributions
-        Mmw_ex = a + b;
-        // mg = mg kg-1 sec-1  * kg m-3 * m * m * m * sec
-        b = (Kr * (Kd * PCmw->Drc - PCms->Drc) * (1 - ThetaS1->Drc) * rho * _dt * SoilWidthDX->Drc * _dx * zm->Drc); // exchange between soil water in mixing zone
-        Mms_ex = a + b;
+//        Mmw_ex = a + b;
+//        Mms_ex = a + b;
 
-        // no more outflow than total pesticide in domain
-        // mg sec-1 = mg kg-1 * kg sec-1, mg sec-1 + mg / sec
-        PQrs->Drc = std::min(PCrs->Drc * Qsn->Drc, Spin + (PMrs->Drc + Mrs_ex)/ _dt);
-        // mg sec-1 = mg L-1 * m3 sec-1 * 1000, mg sec-1 + mg / sec -- ??? already substract Mrw_ex here ???
-        PQrw->Drc = std::min(PCrw->Drc * Qn->Drc * 1000, Qpin + (PMrw->Drc + Mrw_ex)/ _dt);
-        // mg = mg sec-1 * sec
-        Mrs_out = PQrs->Drc * _dt;
-        Mrw_out = PQrw->Drc * _dt;
+        // we assume that the mixing zone will be saturated if there is infiltration and/or runoff.
+        //Theta_mix_diff = Theta_mix->Drc - Thetaeff->Drc;
+        //Theta_mix_out->Drc = Theta_mix_diff;
+        // mg = -- * m * m * m * mg L-1 * 1000
+       // Theta_mix_out->Drc = Theta_mix_diff * zm->Drc * _dx * SoilWidthDX->Drc * PCmw->Drc * 1000;
 
-        // The new masses
-        // new mass based on all fluxes and original pesticide present
-        // mg = mg - mg + mg
-        PMmw->Drc = std::max(0.0, PMmw->Drc + Mmw_ex - Mmw_inf);
+        //Theta_mix->Drc = Thetaeff->Drc;
+        // mg = mg - mg - mg
+        PMmw->Drc = std::max(0.0, PMmw->Drc - Mda_ex - Theta_mix_out->Drc); // add infiltration
         // assuming the mixing zone is always saturated
         // mg = mg + mg
-        PMms->Drc = std::max(0.0, PMms->Drc + Mms_ex);
-        PMsoil->Drc += PMsoil_out;
+        PMms->Drc = std::max(0.0, PMms->Drc + Mda_ex);
 
-        // The four new concentrations
         double Volmw, Massms = 0;
-        Volmw = zm->Drc * _dx * SoilWidthDX->Drc * ThetaS1->Drc;
-        Massms = zm->Drc * _dx * SoilWidthDX->Drc * rho * (1-ThetaS1->Drc);
-        PCrw->Drc = PMrw->Drc / WaterVolall->Drc;
-        PCrs->Drc = PMrs->Drc / Sed->Drc;
+        // L = m * m * m * -- * 1000
+        Volmw = zm->Drc * _dx * SoilWidthDX->Drc * Thetaeff->Drc * 1000;
+        Theta_mix_out->Drc = Theta_mix->Drc - Volmw;
+        Theta_mix->Drc = Volmw;
+        // kg = m * m * m * kg m_3 * --
+        Massms = zm->Drc * _dx * SoilWidthDX->Drc * rho;
+        //mg L-1 = mg / L
         PCmw->Drc = PMmw->Drc / Volmw;
+        //mg kg-1 = mg / kg
         PCms->Drc = PMms->Drc / Massms;
         }}
-    }
+    } // end loop over ldd
+report(*Theta_mix_out, "vdif");
+report(*Theta_mix, "volmw");
 }
