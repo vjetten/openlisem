@@ -556,7 +556,7 @@ void lisemqt::showOutputData()
     //  label_litterstore->setText(QString::number(op.LitterStorageTotmm,'f',dig));
 
     // peak time
-    label_QPfrac->setText(format.arg(QString::number((op.RainTotmm > 0 ? std::max(0.0,op.Qtotmm-op.BaseFlowtotmm)/op.RainTotmm*100 : 0),'f',dig)));
+    label_QPfrac->setText(format.arg(QString::number((op.RainTotmm > 0 ? std::max(0.0,op.Qtotmm-op.BaseFlowTotmm)/op.RainTotmm*100 : 0),'f',dig)));
     label_ppeaktime->setText(format.arg(QString::number(op.RainpeakTime,'f',2)));
 
     // mass balance

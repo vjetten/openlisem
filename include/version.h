@@ -36,7 +36,7 @@
 #define VERSION_H_
 
 #define VERSIONNR "6.86 beta"
-#define DATE "2022/07/15"
+#define DATE "2022/08/13"
 
 
 #define VERSION QString("openLISEM version %1 - %2").arg(VERSIONNR).arg(DATE)

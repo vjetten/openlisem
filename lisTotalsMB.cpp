@@ -226,6 +226,7 @@ void TWorld::Totals(void)
                 BaseFlowTot += MapTotal(*BaseFlowInflow)*_dt; // stationary base inflow
             GWlevel = MapTotal(*GWWH)/(double)nrValidCells;
             BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
+            //qDebug() << BaseFlowTotmm;
         }
 
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
