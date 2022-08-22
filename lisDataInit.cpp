@@ -645,16 +645,8 @@ void TWorld::InitSoilInput(void)
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
-        //VJ 101213 fixed bug: convert from mm to m
-        // can be zero for outcrops
-        FOR_ROW_COL_MV
-        {
-            if (SoilDepth1->Drc < 0)
-            {
-                ErrorString = QString("SoilDepth values < 0 at row %1, col %2").arg(r).arg(c);
-                throw 1;
-            }
-        }
+        SoilDepth1init = NewMap(0);
+        copy(*SoilDepth1init, *SoilDepth1);
 
         ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
         ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
@@ -669,15 +661,6 @@ void TWorld::InitSoilInput(void)
         FOR_ROW_COL_MV_L {
             ThetaR1->Drc = 0.025*ThetaS1->Drc;
         }}
-
-//        Ksat3 = NewMap(0);
-//        ThetaI3 = NewMap(0);
-//        ThetaS3 = NewMap(0);
-//        Psi3 = NewMap(0);
-//        copy(*ThetaI3, *ThetaI1);
-//        copy(*ThetaS3, *ThetaS1);
-//        copy(*Ksat3, *Ksat1);
-//        copy(*Psi3, *Psi1);
 
         if (SwitchTwoLayer)
         {
@@ -707,11 +690,8 @@ void TWorld::InitSoilInput(void)
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
-
-//            copy(*ThetaI3, *ThetaI2);
-//            copy(*ThetaS3, *ThetaS2);
-//            copy(*Ksat3, *Ksat2);
-//            copy(*Psi3, *Psi2);
+            SoilDepth2init = NewMap(0);
+            copy(*SoilDepth2init, *SoilDepth2);
 
             FOR_ROW_COL_MV
             {
@@ -1046,7 +1026,7 @@ void TWorld::InitChannel(void)
         Qbase = NewMap(0);
         //VolQb = NewMap(0);
         GWWH = NewMap(0.001);
-        GWrec = NewMap(0);
+        //GWrec = NewMap(0);
         GWout = NewMap(0);
         GWbp = NewMap(0);
 

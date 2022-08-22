@@ -114,11 +114,12 @@ void TWorld::OutputUI(void)
 
     op.RunoffFraction = 0;
     if (op.RainTotmm > 0)
-        op.RunoffFraction = std::max(0.0, (op.Qtotmm - op.BaseFlowtotmm)/op.RainTotmm);
+        op.RunoffFraction = std::max(0.0, (op.Qtotmm - op.BaseFlowTotmm)/op.RainTotmm);
     op.WaterVolTotmm = WaterVolRunoffmm;
     op.StormDrainTotmm = StormDrainTotmm;
     op.ChannelVolTotmm = ChannelVolTotmm;
-    op.BaseFlowtotmm = BaseFlowTotmm; // not used!
+    op.BaseFlowTotmm = BaseFlowTotmm;
+
     op.volFloodmm = floodVolTotmm;
     op.FloodTotMax = floodVolTotMax;
     op.FloodAreaMax = floodAreaMax;
@@ -750,6 +751,8 @@ void TWorld::ReportTotalsNew(void)
     else
         out << "\"Catchment area (m2):\"," << op.CatchmentArea<< "\n";
     out << "\"Total Precipitation (mm):\"," << op.RainTotmm<< "\n";
+    out << "\"Total baseflow inflow (mm):\"," << op.BaseFlowTotmm << "\n"; // not used!
+
     out << "\"Total interception(mm):\"," << op.IntercTotmm<< "\n";
     out << "\"Total Litter interception (mm):\"," << op.IntercLitterTotmm<< "\n";
     out << "\"Total House interception (mm):\"," << op.IntercHouseTotmm<< "\n";
