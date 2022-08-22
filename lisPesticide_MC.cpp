@@ -37,6 +37,7 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 #include <tuple>
+#include "iostream"
 
 // check if cell From flows to To
 //#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
@@ -112,8 +113,8 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
 {
 
     // totals of outfluxes
-    // at the moment only overland flow is accounted for. is channels etc must be included build that later.
-    Pestinf += MapTotal(*PQinf) * _dt;// + MapTotal(*Theta_mix_out);
+    // at the moment only overland flow is accounted for. is channels etc must be included, build that later.
+    Pestinf += MapTotal(*PQinf) * _dt + MapTotal(*perc_out);
     FOR_ROW_COL_LDD5 {
         PQrw_dt += PQrw->Drc * _dt;
         PQrs_dt += PQrs->Drc * _dt;
@@ -217,6 +218,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         }
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L{
+        double mw_old = PMmw->Drc;
         QpinKW->Drc = 0;
         QpinKW->Drc = Qpin;
         if (SwitchErosion) {
@@ -248,13 +250,17 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         double Mda_ex = 0; // mg - mass dissolved - absorbed exchange
         double Mmw_ex, Mms_ex, Mrw_ex, Mrs_ex, a, b = 0; // exchange mass (negative is reduction, positive is increase) - mg
         double Mrw_inf, Mmw_inf, Mrs_out, Mrw_out = 0; // influx and outflux
-        //double Theta_mix_diff = 0; // the theta of the mixing layer in situation 1 - thetaeff, in 2,3,4 = ThetaS
-//        double Theta_mix_o = Theta_mix->Drc;
-//        double Theta_mix_n = Thetaeff->Drc;
 
-        //      loss by percolation
-        // new_mass = PCmw * newvolume
-        // mass_diff = PMmw - new_mass
+        // loss by percolation
+        double pmmw_n, volmw_n, mass_perc = 0;
+        // L = m * m * m * -- * 1000
+        volmw_n = zm->Drc * _dx * SoilWidthDX->Drc * Thetaeff->Drc * 1000; // new water volume in mixing layer - due to loss by percolation
+        pmmw_n = PCmw->Drc * volmw_n; // new pest mass based on old concentration and new volume
+
+        // these two values (mw_old - pmmw_n) are the same all the time?
+        mass_perc = mw_old - pmmw_n; // pesticide mass lost by percolation
+        test_map->Drc = mw_old;
+        perc_out->Drc = mass_perc; // store specific value in map
 
         // positive adds to absorbed, negative to dissolved.
         // mg = mg kg-1 sec-1  * kg m-3 * m * m * m * sec
@@ -338,31 +344,22 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 //        Mms_ex = a + b;
 
         // we assume that the mixing zone will be saturated if there is infiltration and/or runoff.
-        //Theta_mix_diff = Theta_mix->Drc - Thetaeff->Drc;
-        //Theta_mix_out->Drc = Theta_mix_diff;
-        // mg = -- * m * m * m * mg L-1 * 1000
-       // Theta_mix_out->Drc = Theta_mix_diff * zm->Drc * _dx * SoilWidthDX->Drc * PCmw->Drc * 1000;
-
-        //Theta_mix->Drc = Thetaeff->Drc;
         // mg = mg - mg - mg
-        PMmw->Drc = std::max(0.0, PMmw->Drc - Mda_ex - Theta_mix_out->Drc); // add infiltration
-        // assuming the mixing zone is always saturated
+        PMmw->Drc = std::max(0.0, PMmw->Drc - Mda_ex - mass_perc); // add infiltration
         // mg = mg + mg
         PMms->Drc = std::max(0.0, PMms->Drc + Mda_ex);
-
         double Volmw, Massms = 0;
         // L = m * m * m * -- * 1000
-        Volmw = zm->Drc * _dx * SoilWidthDX->Drc * Thetaeff->Drc * 1000;
-        Theta_mix_out->Drc = Theta_mix->Drc - Volmw;
-        Theta_mix->Drc = Volmw;
+        Volmw = zm->Drc * _dx * SoilWidthDX->Drc * Thetaeff->Drc * 1000;        
         // kg = m * m * m * kg m_3 * --
         Massms = zm->Drc * _dx * SoilWidthDX->Drc * rho;
         //mg L-1 = mg / L
         PCmw->Drc = PMmw->Drc / Volmw;
         //mg kg-1 = mg / kg
         PCms->Drc = PMms->Drc / Massms;
-        }}
+       }}
     } // end loop over ldd
-report(*Theta_mix_out, "vdif");
-report(*Theta_mix, "volmw");
+report(*perc_out, "perc");
+report(*Thetaeff, "theta");
+report(*test_map, "test_old");
 }
