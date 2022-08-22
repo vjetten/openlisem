@@ -100,7 +100,7 @@ cTMap
 //*VolQb,
 *GWVol,
 *GWWH,
-*GWrec,
+//*GWrec,
 *GWout,
 *GWbp,
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
@@ -244,7 +244,7 @@ cTMap
 *ThetaR1,
 *Ksat1,                      //!< saturated hydraulic conductivity soil layer 1 (input is in mm/h) [m/s]
 *SoilDepth1,                 //!< depth to end soil layer 1 (input is in mm) [m]
-//*L1,                         //!< depth of wetting front in layer 1 [m]
+*SoilDepth1init,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *Lw,
 *Soilwater,                  //!< actual soil water content [-]
 *ThetaS2,                    //!< porosity soil layer 2 [-]
@@ -254,7 +254,7 @@ cTMap
 *Psi2,                       //!< intial suction head wetting front soil layer 2 (input map is in cm) [m]
 *Ksat2,                      //!< saturated hydraulic conductivity soil layer 2 (input is in mm/h) [m/s]
 *SoilDepth2,                 //!< depth to end soil layer 2 (input is in mm) [m]
-//*L2,                         //!< depth of wetting front in layer 2 [m]
+*SoilDepth2init,                 //!< depth to end soil layer 2 (input is in mm) [m]
 *Soilwater2,                  //!< actual soil water content layer 2 [-]
 *KsatCrust,                  //!< saturated hydraulic conductivity crusted soil surface (input is in mm/h) [m/s]
 *PoreCrust,                //!< saturated hydraulic conductivity compacted soil surface (input is in mm/h) [m/s]
@@ -278,11 +278,6 @@ cTMap
 *SedMaxVolume,               //!< maxvol of sediment in that can be trapped in m3
 *GrassWidthDX,               //!< width of grasstrip in [m]
 *thetaTop,                   //!< average theta of node 0 and 1 for water repelency and nutrients
-
-//*ThetaI3,
-//*ThetaS3,
-//*Ksat3,
-//*Psi3,
 
 *ProfileID,                  //!< SWATRE profile unit number map
 *ProfileIDCrust,             //!< SWATRE profile unit number map for crusted areas

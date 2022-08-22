@@ -381,7 +381,7 @@ void lisemqt::initOP()
     op.RunoffFraction = 0;
     op.FloodTotMax = 0;
     op.FloodAreaMax = 0;
-    op.BaseFlowtotmm = 0;
+    op.BaseFlowTotmm = 0;
     op.IntercLitterTotmm = 0;
     op.WaterVolTotchannelmm = 0;
     op.Qtotmm = 0;
@@ -392,8 +392,7 @@ void lisemqt::initOP()
     op.InfilTotmm = 0;
     op.RainTotmm = 0;
     op.ETaTotmm = 0;
-    op.GWlevel = 0;
-    op.BaseFlowTotmm = 0;
+    op.GWlevel = 0;    
     op.Theta1 = 0;
     op.Theta2 = 0;
     op.SurfStormm = 0;
