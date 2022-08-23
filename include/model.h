@@ -512,7 +512,7 @@ public:
 
     ///pesticides-MC
     double PMtot, PMerr, PMtotI;
-    double Pestinf, PestOutW, PestOutS;
+    double Pestinf, PestOutW, PestOutS, PestPerc;
     double PQrw_dt, PQrs_dt;
     double KdPestMC, KfilmPestMC, KrPestMC, rhoPestMC;
     QString PestName;
@@ -861,7 +861,7 @@ public:
     void MassPest(double PMtotI, double &PMerr, double &PMtot);
     double MassPestInitial(void);
     void KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Qn, cTMap *_Qsn,
-                         cTMap *_Qpn, cTMap *_Qpsn, cTMap *_PCmw, cTMap *_PCms, cTMap *_PCrw, cTMap *_PCrs,
+                         cTMap *_Qpn, cTMap *_Qpsn,
                          double _dx, cTMap *_Sed);
     void InitPesticideMC(void);
 
