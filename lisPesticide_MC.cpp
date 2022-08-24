@@ -76,11 +76,11 @@ void TWorld::simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double
                             double Crs_old, double Cms_old, double Ez, double Me, double A, double pore,
                             double Crw_in, double Crs_in, std::tuple<T...> all_conc) // MC - this are the target values to be returned
 {
-    double rho = 2650;
+    double rho {1400};
         // calculate average between C of fluxes
         double Crw_avg = 0.5 * (Crw_old + Crw_in);
         double Crs_avg = 0.5 * (Crs_old + Crs_in);
-        double Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n = 0;
+        double Crw_n {0}, Crs_n {0} , Cmw_n {0}, Cms_n {0}, Cinf_n {0};
 
         Crw_n = Crw_old + _dt * (Kfilm * (Cmw_old - Crw_avg));
         Cmw_n = Cmw_old + _dt * ((Kfilm * (Crw_avg - Cmw_old) + Qinf * (Crw_avg - Cmw_old) - zm * rho * kr * (Kd * Cmw_old - Cms_old))/ pore * zm);
@@ -146,9 +146,8 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
  */
 double TWorld::MassPestInitial(void)
 {
-    double PMtotI = 0.0;
+    double pmtot_i {0.0};
     double rho = rhoPestMC;
-    Pestinf = 0.0;
     // PMtotI = PMsoil + PMmw + PMms
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
@@ -159,8 +158,8 @@ double TWorld::MassPestInitial(void)
         // mg = mg kg-1 * m * m * m * kg m-3
         PMsoil->Drc = PCms->Drc * SoilWidthDX->Drc * _dx * (zs->Drc - zm->Drc) * rho;      
     }}
-    PMtotI = MapTotal(*PMmw) + MapTotal(*PMms) + MapTotal(*PMsoil);
-    return(PMtotI);
+    pmtot_i = MapTotal(*PMmw) + MapTotal(*PMms) + MapTotal(*PMsoil);
+    return(pmtot_i);
 }
 
 //---------------------------------------------------------------------------
@@ -187,14 +186,14 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         int r = _crlinked_[i_].r;
         int c = _crlinked_[i_].c;
 
-        double Qin = 0; //m3 * sec-1
-        double Qpin = 0; //mg * sec-1
+        double Qin {0}; //m3 * sec-1
+        double Qpin {0}; //mg * sec-1
         if (SwitchErosion) {
-            double Sin = 0; //kg * sec-1
-            double Spin = 0; //mg * sec-1
+            double Sin {0}; //kg * sec-1
+            double Spin {0}; //mg * sec-1
         }
-        double Sin = 0; //kg * sec-1
-        double Spin = 0; //mg * sec-1
+        double Sin {0}; //kg * sec-1
+        double Spin {0}; //mg * sec-1
         double rho = rhoPestMC; //kg * m3-1
 
         for (int i = 1; i <= 9; i++)
@@ -248,10 +247,10 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         // exchange between adsorbed and dissolved in mixing zone
         // unclear how exchange between sediment and water in mixing zone works for units. for now the assumption is made that the resulting unit of
         // Kr * (Kd * PCmw->Drc - PCms->Drc) is mg * kg-1 * sec-1 !!!
-        double Mda_ex = 0.0; // mg - mass dissolved - absorbed exchange
-        double Mmw_ex, Mms_ex, Mrw_ex, Mrs_ex, a, b = 0.0; // exchange mass (negative is reduction, positive is increase) - mg
-        double Mrw_inf, Mmw_inf, Mrs_out, Mrw_out = 0.0; // influx and outflux
-        double Theta_mix = 0.0; // depending on the situation theta_mix is thetaeff or thetas
+        double Mda_ex {0.0}; // mg - mass dissolved - absorbed exchange
+        double Mmw_ex {0.0}, Mms_ex {0.0}, Mrw_ex {0.0}, Mrs_ex {0.0}, a {0.0}, b {0.0}; // exchange mass (negative is reduction, positive is increase) - mg
+        double Mrw_inf {0.0}, Mmw_inf {0.0}, Mrs_out {0.0}, Mrw_out {0.0}; // influx and outflux
+        double Theta_mix {0.0}; // depending on the situation theta_mix is thetaeff or thetas
 
         // positive adds to absorbed, negative to dissolved.
         // mg = mg kg-1 sec-1  * kg m-3 * m * m * m * sec
@@ -261,19 +260,19 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         perc_out->Drc = 0.0; // when there is infiltration percolation is neglected.
         if (InfilVol->Drc < 1e-6) {
             Theta_mix = Thetaeff->Drc;
-            double pmmw_n, volmw_n, mass_perc = 0.0;
+            double pmmw_n {0.0}, volmw_n {0.0}, mass_perc {0.0};
             // L = m * m * m * -- * 1000
             volmw_n = zm->Drc * _dx * SoilWidthDX->Drc * Thetaeff->Drc * 1000; // new water volume in mixing layer - due to loss by percolation
             pmmw_n = PCmw->Drc * volmw_n; // new pest mass based on old concentration and new volume
             perc_out->Drc = PMmw->Drc - pmmw_n; // pesticide mass lost by percolation - dit heeft wel een waarde, al is de kaart na report 0???
-            //test_map->Drc = PMmw->Drc; // Because PMmw is not yet updated this value should be i-1
+            test_map->Drc = PMmw->Drc; // Because PMmw is not yet updated this value should be i-1
         }
         // 2. no runoff, no erosion, infiltration
         if (InfilVol->Drc > 1e-6) {
         //infiltration
         double Qinf = InfilVol->Drc; // m3 (per timestep)
         Theta_mix = ThetaS1->Drc;
-        double Crw_avg = 0; // mg/L - no runoff, so concentration will be 0
+        double Crw_avg {0.0}; // mg/L - no runoff, so concentration will be 0
         // mg = m3 * 1000 (L->m3) * mg L-1
         Mrw_inf = Qinf * 1000 * Crw_avg; // loss through infiltration from runoff
         // mg = m3 * 1000 * (mg L-1)
@@ -346,14 +345,14 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         //sum all new masse
         // mg/sec = mg
         PMinf->Drc = Mmw_inf;
-        Pestinf = Pestinf + Mmw_inf;
+        Pestinf = Pestinf + Mmw_inf; // this gives a higher (but not correct) value compared to Pestinf += MapTotal(*PMinf)???
         // we assume that the mixing zone will be saturated if there is infiltration and/or runoff.
         // mg = mg - mg - mg
         PMmw->Drc = std::max(0.0, PMmw->Drc - Mda_ex - perc_out->Drc - Mmw_inf); // dit lijkt goed te werken (update PMmw to i)
         PestPerc = PestPerc + perc_out->Drc; // hier is mass_perc minder dan in de regel erboven met een random variatie??
         // mg = mg + mg
         PMms->Drc = std::max(0.0, PMms->Drc + Mda_ex);
-        double Volmw, Massms = 0.0;
+        double Volmw {0.0}, Massms {0.0};
         // L = m * m * m * -- * 1000
         Volmw = zm->Drc * _dx * SoilWidthDX->Drc * Theta_mix * 1000;
         // kg = m * m * m * kg m_3 * --
@@ -366,6 +365,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
     } // end loop over ldd
 // some maps for testing
 report(*PMinf, "pinf");
-//report(*Thetaeff, "theta");
-//report(*test_map, "test_old");
+report(*Thetaeff, "theta");
+report(*test_map, "test_old");
+report(*perc_out, "perc");
 }

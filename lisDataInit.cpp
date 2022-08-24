@@ -2318,10 +2318,15 @@ void TWorld::IntializeData(void)
         test_map = NewMap(0.0);
 
         // total masses
-        double PestOutW = 0;
-        double PestOutS = 0;
-        double Pestinf = 0;
-        double PestPerc = 0;
+        PestOutW = 0;
+        PestOutS = 0;
+        Pestinf = 0;
+        PestPerc = 0;
+        PMtot = 0;
+        PMerr = 0;
+        PMtotI = 0;
+        PQrw_dt = 0;
+        PQrs_dt = 0;
     }
 
 
