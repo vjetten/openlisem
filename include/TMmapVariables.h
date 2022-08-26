@@ -243,13 +243,13 @@ cTMap
 *PQrw,                      //!< flux of pesticide in runoff water [mg/sec]
 *PQrs,                      //!< flux of pesticide in runoff sediment [mg/sec]
 *PMinf,                     //!< mass of pesticide in infiltrating water [mg]
+*PMperc,                    //!< mass of pesticide in percolating water [mg]
 *zm,                        //!< depth of the mixing layer [m]
 *zs,                        //!< depth of the soil layer containing pesticides [m]
 *SpinKW,                    //!< sum upstream influx Qpsn [mg/sec]
 *QpinKW,                    //!< sum upstream influx Qpn [mg/sec]
 *Ez,                        //!< erosion depth [m] - negative is deposition
 *PCs,                       //!< concentration of pesticide in soil [mg/kg] - same as initial PCms
-*perc_out,                  //!< mass lost by drying of mixing layer, when runoff and infiltration stops [mg]
 *test_map,
 
 

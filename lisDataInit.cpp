@@ -2311,10 +2311,10 @@ void TWorld::IntializeData(void)
         PQrw = NewMap(0);
         PQrs = NewMap(0);
         PMinf = NewMap(0);
+        PMperc = NewMap(0);
         Ez = NewMap(0);
         SpinKW = NewMap(0);
         QpinKW = NewMap(0);
-        perc_out = NewMap(0.0);
         test_map = NewMap(0.0);
 
         // total masses

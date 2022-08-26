@@ -161,6 +161,8 @@ void TWorld::OutputUI(void)
         op.PMOutW = PestOutW;
         op.PMOutS = PestOutS;
         op.PMerr = PMerr;
+        op.PMinf = Pestinf;
+        op.PMperc = PestPerc;
     }
 
 
@@ -359,6 +361,8 @@ void TWorld::ReportTotalSeries(void)
             out << sep << "PMOutW";
             out << sep << "PMOutS";
             out << sep << "PMerr";
+            out << sep << "PestPerc";
+            out << sep << "Pestinf";
         }
         out << "\n";
         fout.flush();
@@ -417,6 +421,9 @@ void TWorld::ReportTotalSeries(void)
         out << sep << op.PMOutW;
         out << sep << op.PMOutS;
         out << sep << op.PMerr;
+        out << sep << op.PMperc;
+        out << sep << op.PMinf;
+
     }
     out << "\n";
 
@@ -1054,6 +1061,11 @@ void TWorld::ReportMapSeries(void)
                  report(*PMmw, "pmmw");
                  report(*PMrs, "pmrs");
                  report(*PMrw, "pmrw");
+                 report(*PMinf, "pinf");
+                 report(*PMperc, "prc");
+                 //report(*Thetaeff, "theta");
+                 report(*test_map, "MWold");
+                 report(*Perc, "perc");
                 }
     }
 }
