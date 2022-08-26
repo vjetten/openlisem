@@ -112,19 +112,19 @@ void TWorld::simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double
 void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
 {
 
-    // totals of outfluxes
-    // at the moment only overland flow is accounted for. is channels etc must be included, build that later.
-   // Pestinf += MapTotal(*PMinf);
-
-    FOR_ROW_COL_LDD5 {
+   // totals of outfluxes
+   // at the moment only overland flow is accounted for. is channels etc must be included, build that later.
+   FOR_ROW_COL_LDD5 {
         PQrw_dt += PQrw->Drc * _dt;
         PQrs_dt += PQrs->Drc * _dt;
     }}
 
+    // Pestinf += MapTotal(*PMinf);
     PestOutW += PQrw_dt;
     PestOutS += PQrs_dt;
 
-    PMtot = Pestinf + PestOutS + PestOutW + MapTotal(*PMsoil) + MapTotal(*PMrw) + MapTotal(*PMrs) + MapTotal(*PMmw) + MapTotal(*PMms) + PestPerc;
+    PMtot = Pestinf + PestOutS + PestOutW + MapTotal(*PMsoil) + MapTotal(*PMrw)
+            + MapTotal(*PMrs) + MapTotal(*PMmw) + MapTotal(*PMms) + PestPerc;
 
   //  PMerr = 1 - (PMtot/PMtotI);
     PMerr = PMtot;
