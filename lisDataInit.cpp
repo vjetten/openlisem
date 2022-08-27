@@ -1026,6 +1026,7 @@ void TWorld::InitChannel(void)
         Qbase = NewMap(0);
         //VolQb = NewMap(0);
         GWWH = NewMap(0.001);
+        GWWHmax = NewMap(0);
         //GWrec = NewMap(0);
         GWout = NewMap(0);
         GWbp = NewMap(0);

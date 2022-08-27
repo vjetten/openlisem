@@ -100,6 +100,7 @@ cTMap
 //*VolQb,
 *GWVol,
 *GWWH,
+*GWWHmax,
 //*GWrec,
 *GWout,
 *GWbp,

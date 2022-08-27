@@ -149,9 +149,10 @@ void TWorld::ChannelBaseflow(void)
             }
             GWVol->Drc = pore*GWWH->Drc * CellArea_;
         }
+        GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
 
     }}
-
+//report(*GWWH,"gwwh");
     // new qbin
     AccufluxGW(crlinkedlddbase_, GWout, Qbin, ChannelWidth);
     // LDDbase, Qin, Qout, chanwidth used as flag, move the gw flow to the channel,
