@@ -222,6 +222,7 @@ void TWorld::cell_Redistribution(int r, int c)
                 double store = (SoilDep1 - Lw_) * (pore-theta); // space in SD1 under Lw_
                 Percolation = std::min(Percolation, store);
 
+
                 // if percolation fits in store layer 1 under the Lw
                 double m1 = (theta-thetar)*(SoilDep1-Lw_) + Percolation;
                 theta = m1/(SoilDep1-Lw_) + thetar;

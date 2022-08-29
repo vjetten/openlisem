@@ -300,7 +300,7 @@ cTMap
 *Thetaeff,
 *bca1,
 *bca2,
-*Perc,
+*Perc,                      //!< Percolation per timestep [m]
 *PercmmCum,
 //*factgr,                     //!< actual infiltration rate fo grassstrip [m/s]
 //*fpotgr,                     //!< potential infiltration rate fo grassstrip [m/s]
