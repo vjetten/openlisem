@@ -928,7 +928,7 @@ void TWorld::ReportMapSeries(void)
 //    report(*Sed, OutSS);
 //    report(*ErosionAFO, Outerosion);
 //    report(*thetacheck, Outchtheta);
-    report(*lwcheck, Outchlw);
+//    report(*lwcheck, Outchlw);
 //    report(*fact, "fact");
 
     // water height m
@@ -1061,11 +1061,11 @@ void TWorld::ReportMapSeries(void)
                  report(*PMmw, "pmmw");
                  report(*PMrs, "pmrs");
                  report(*PMrw, "pmrw");
-                 report(*PMinf, "pinf");
-                 report(*PMperc, "prc");
-                 report(*Thetaeff, "theta");
-                 report(*test_map, "MWold");
-                 report(*Perc, "perc");
+                 //report(*PMinf, "pinf");
+                 //report(*PMperc, "prc");
+                 //report(*Thetaeff, "theta");
+                 //report(*test_map, "test");
+                 //report(*Perc, "perc");
                 }
     }
 }

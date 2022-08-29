@@ -181,25 +181,6 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
-   // Wat gebeurt er met cTMaps
-   // Het doel is om een kaart te hebben met massa = i-1 om daarmee het verschil te berekenen
-   // PMmw wordt aan het einde van deze functie geupdatet dus hier zou PMmw nog op i-1 moeten staan.
-   // 1
-   //test_map = PMmw; // dit levert een test_map massa = i op (4.49322)
-   // waarbij het bijzondere is, dat de massa balans klopt en mass_perc dus wel goed berekend wordt,
-   // maar als 0 wordt weggeschreven in een kaart?
-   // 2
-//   copy(*test_map, *PMmw); // dit levert een situatie op waar test_map ~10.8 is???
-   // 3
-//   FOR_ROW_COL_MV_L{
-//       test_map->Drc = PMmw->Drc;
-//    }} // zelfde resultaat als 2
-      //Hier is het vreemde dat dezelfde regel code in de functie beneden (regel 285), het gedrag van sitautie 1 oplevert
-   // 4
-//   cTMap *pmmw_old = PMmw;
-   // zelfde resultaat als situatie 1
-
-
 //#pragma omp parallel for reduction(+:Qin) num_threads(userCores)
     for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     {
@@ -285,14 +266,9 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
             perc_rat = Perc->Drc /(SoilDepth1->Drc - Lw->Drc);
             // L = (m * m * m * 1000)
             perc_vol = zm->Drc * _dx * SoilWidthDX->Drc * perc_rat * 1000;
-            Theta_mix = Thetaeff->Drc;
-            double pmmw_n {0.0}, volmw_n {0.0};
-            // L = m * m * m * -- * 1000
-            volmw_n = zm->Drc * _dx * SoilWidthDX->Drc * Thetaeff->Drc * 1000; // new water volume in mixing layer - due to loss by percolation
-            pmmw_n = PCmw->Drc * volmw_n; // new pest mass based on old concentration and new volume
-            test_map->Drc = perc_rat + Thetaeff->Drc; // Because PMmw is not yet updated this value should be i-1, but is i.
             mass_perc = perc_vol * PCmw->Drc;
-            //mass_perc = test_map->Drc - pmmw_n; // pesticide mass lost by percolation - dit heeft wel een waarde, al is de kaart na report 0???
+
+            Theta_mix = Thetaeff->Drc; //assign percolation related theta to mixing layer
 
         }
         // 2. no runoff, no erosion, infiltration
@@ -374,11 +350,10 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 
 
         // write infiltration and percolation to map and sum for mass balance
-        // MC 220826 -- the mass balance is correct now. But the map is still strange. The correct data is written to cTMap-PMinf
-        //              but the cTMap-perc_out still gives all 0? how is that possible?? The PMinf map works fine.
+        // MC 220826 -- the mass balance is correct now. Percolation and soilmosture are not exactly stable - for now not problematic.
         PMinf->Drc = Mmw_inf;
         Pestinf += Mmw_inf;
-        PMperc->Drc = mass_perc; //this map is always 0? why
+        PMperc->Drc = mass_perc; //map with percolation losses
         PestPerc += mass_perc;
 
         // mg = mg - mg - mg
