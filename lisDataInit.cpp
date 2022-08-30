@@ -2302,24 +2302,25 @@ void TWorld::IntializeData(void)
         PMmw = NewMap(0);
         PMms = NewMap(0);
         PMrw = NewMap(0);
-        PMrs = NewMap(0);
         PMsoil = NewMap(0);
         PCrw = NewMap(0);
-        PCrs = NewMap(0);
         PCs = NewMap(0);
         PCs = PCms;
         PQrw = NewMap(0);
-        PQrs = NewMap(0);
         PMinf = NewMap(0);
         PMperc = NewMap(0);
         Ez = NewMap(0);
         SpinKW = NewMap(0);
         QpinKW = NewMap(0);
         test_map = NewMap(0.0);
+        if (SwitchErosion) {
+            PQrs = NewMap(0);
+            PCrs = NewMap(0);
+            PMrs = NewMap(0);
+        }
 
         // total masses
         PestOutW = 0;
-        PestOutS = 0;
         Pestinf = 0;
         PestPerc = 0;
         PMtot = 0;
@@ -2327,6 +2328,8 @@ void TWorld::IntializeData(void)
         PMtotI = 0;
         PQrw_dt = 0;
         PQrs_dt = 0;
+        PestOutS = 0;
+
     }
 
 

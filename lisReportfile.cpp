@@ -157,12 +157,14 @@ void TWorld::OutputUI(void)
     }
     if (SwitchPestMCtest) {
         op.PQrw = PQrw_dt;
-        op.PQrs = PQrs_dt;
         op.PMOutW = PestOutW;
-        op.PMOutS = PestOutS;
         op.PMerr = PMerr;
         op.PMinf = Pestinf;
         op.PMperc = PestPerc;
+        if (SwitchErosion) {
+            op.PMOutS = PestOutS;
+            op.PQrs = PQrs_dt;
+        }
     }
 
 
@@ -357,12 +359,14 @@ void TWorld::ReportTotalSeries(void)
         }
         if (SwitchPestMCtest) {
             out << sep << "PQrw";
-            out << sep << "PQrs";
             out << sep << "PMOutW";
-            out << sep << "PMOutS";
             out << sep << "PMerr";
             out << sep << "PestPerc";
             out << sep << "Pestinf";
+            if (SwitchErosion) {
+                out << sep << "PQrs";
+                out << sep << "PMOutS";
+            }
         }
         out << "\n";
         fout.flush();
@@ -417,12 +421,14 @@ void TWorld::ReportTotalSeries(void)
     }
     if (SwitchPestMCtest) {
         out << sep << op.PQrw;
-        out << sep << op.PQrs;
         out << sep << op.PMOutW;
-        out << sep << op.PMOutS;
         out << sep << op.PMerr;
         out << sep << op.PMperc;
         out << sep << op.PMinf;
+        if (SwitchErosion) {
+            out << sep << op.PQrs;
+            out << sep << op.PMOutS;
+        }
 
     }
     out << "\n";
@@ -919,13 +925,15 @@ void TWorld::ReportMapSeries(void)
     report(*Q, OutQ); // MC - not needed for all - fluxes out.
     report(*Qn, OutQn);
     report(*QinAFO, OutQinKW);
-//    report(*Qs, OutS);
-//    report(*Qsn, OutSn);
-//    report(*SinAFO, OutSin);
+    if (SwitchErosion) {
+        report(*Qs, OutS);
+        report(*Qsn, OutSn);
+        report(*SinAFO, OutSin);
+        //    report(*SedAFO, OutSAFO);
+        //    report(*Sed, OutSS);
+    }
 //    report(*WHAFO, OutWHAFO);
-//    report(*SedAFO, OutSAFO);
 //    report(*FlowWidth, OutFW);
-//    report(*Sed, OutSS);
 //    report(*ErosionAFO, Outerosion);
 //    report(*thetacheck, Outchtheta);
 //    report(*lwcheck, Outchlw);
@@ -1052,21 +1060,23 @@ void TWorld::ReportMapSeries(void)
             }
         }
         if (SwitchPestMCtest) {
-                 report(*PCms, "pcms");
-                 report(*PCmw, "pcmw");
-                 report(*PCrs, "pcrs");
-                 report(*PCrw, "pcrw");
-                 report(*PMsoil, "pmsoil");
-                 report(*PMms, "pmms");
-                 report(*PMmw, "pmmw");
-                 report(*PMrs, "pmrs");
-                 report(*PMrw, "pmrw");
-                 //report(*PMinf, "pinf");
-                 //report(*PMperc, "prc");
-                 //report(*Thetaeff, "theta");
-                 //report(*test_map, "test");
-                 //report(*Perc, "perc");
-                }
+            report(*PCms, "pcms");
+            report(*PCmw, "pcmw");
+            report(*PCrw, "pcrw");
+            report(*PMsoil, "pmsoil");
+            report(*PMms, "pmms");
+            report(*PMmw, "pmmw");
+            report(*PMrw, "pmrw");
+            //report(*PMinf, "pinf");
+            //report(*PMperc, "prc");
+            //report(*Thetaeff, "theta");
+            //report(*test_map, "test");
+            //report(*Perc, "perc");
+            if (SwitchErosion) {
+                report(*PCrs, "pcrs");
+                report(*PMrs, "pmrs");
+            }
+        }
     }
 }
 //---------------------------------------------------------------------------

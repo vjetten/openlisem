@@ -60,18 +60,24 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
    // totals of outfluxes
    // at the moment only overland flow is accounted for. if channels etc must be included, build that later.
    FOR_ROW_COL_LDD5 {
-        PQrw_dt += PQrw->Drc * _dt;
-        PQrs_dt += PQrs->Drc * _dt;
+        PQrw_dt = PQrw->Drc * _dt;
+       if (SwitchErosion) {
+            PQrs_dt = PQrs->Drc * _dt;
+       }
     }}
 
     PestOutW += PQrw_dt;
     PestOutS += PQrs_dt;
+    double PMerosion {0.0};
+    if (SwitchErosion) {
+        PMerosion = mapTotal(*PMrs) + PestOutS;
+    }
 
-    PMtot = Pestinf + PestOutS + PestOutW + mapTotal(*PMsoil) + mapTotal(*PMrw)
-            + mapTotal(*PMrs) + mapTotal(*PMmw) + mapTotal(*PMms) + PestPerc;
+    PMtot = Pestinf + PestOutW + mapTotal(*PMsoil) + mapTotal(*PMrw)
+            + mapTotal(*PMmw) + mapTotal(*PMms) + PestPerc + PMerosion;
 
   //  PMerr = 1 - (PMtot/PMtotI);
-    PMerr = PMtot;
+    PMerr = PMtotI - PMtot;
 
 }
 
@@ -214,6 +220,14 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         }
 
 // 2. no runoff, no erosion, infiltration
+        //no runoff - add leftover of mass in runoff water to mixing layer
+        if (Qn->Drc + Qin < 1e-6) {
+            PCrw->Drc = 0.0;        //concentration = 0
+            PMmw->Drc += PMrw->Drc; //add any leftover mass to mixing layer
+            PMrw->Drc = 0.0;        // mass = 0
+            PQrw->Drc = 0.0;        // discharge = 0
+        }
+
         if (InfilVol->Drc > 1e-6) {
         double Qinf = InfilVol->Drc; // m3 (per timestep)
         double Crw_avg {0.0}; // mg/L - no runoff, so concentration will be 0
@@ -221,6 +235,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
         Theta_mix = ThetaS1->Drc;     
         // mg = m3 * 1000 * (mg L-1)
         Mmw_inf = Qinf * 1000 * (PCmw->Drc - Crw_avg); // net loss through infiltration from mixing layer (mg)
+
 
 /* RUNOFF and SEDIMENT CALCULATIONS
  * Layout of space (i) and time (j) towards next value

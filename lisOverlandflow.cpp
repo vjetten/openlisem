@@ -359,8 +359,8 @@ void TWorld::OverlandFlow1D(void)
     }}
 
     //      routing of substances add here!
-//    if (SwitchErosion)
-//    {
+   if (SwitchErosion)
+   {
 //        if (SwitchLinkedList) {
 //            #pragma omp parallel for num_threads(userCores)
 //            FOR_ROW_COL_MV_L {
@@ -376,7 +376,7 @@ void TWorld::OverlandFlow1D(void)
                 ErosionAFO->Drc =(Qsn->Drc*_dt) - (SinKW->Drc*_dt);
            }}
 //        }
-//    }
+   }
 
             // MC - Sed is updated by kinematicSubstance, should conc also be updated? now the conc is still based on the Sed before KW
 
