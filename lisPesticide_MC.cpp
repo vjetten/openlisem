@@ -60,7 +60,7 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
    // totals of outfluxes
    // at the moment only overland flow is accounted for. if channels etc must be included, build that later.
    FOR_ROW_COL_LDD5 {
-        PQrw_dt = PQrw->Drc * _dt;
+       PQrw_dt = PQrw->Drc * _dt;
        if (SwitchErosion) {
             PQrs_dt = PQrs->Drc * _dt;
        }
@@ -77,7 +77,7 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
             + mapTotal(*PMmw) + mapTotal(*PMms) + PestPerc + PMerosion;
 
   //  PMerr = 1 - (PMtot/PMtotI);
-    PMerr = PMtotI - PMtot;
+    PMerr = PMtot - PMtotI;
 
 }
 
@@ -175,15 +175,19 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
             Ez->Drc = 0;
             SpinKW->Drc = Spin;
         }
-        double Kd = KdPestMC; // -
+        double Kd = KdPestMC;       // -
         double Kfilm = KfilmPestMC; // m sec-1
-        double Kr = KrPestMC; // sec
-        double Mda_ex {0.0}; // mg - mass dissolved - absorbed exchange
-        double Mwrm_ex {0.0}; // mg - exchange between runoff water and mixing layer water
+        double Kr = KrPestMC;       // sec
+        double Mda_ex {0.0};        // mg - exchange mixing layer
+        double Mwrm_ex {0.0};       // mg - exchange runoff water - mixing layer water
+        double mass_perc {0.0};     // mg - mass lost by percolation
+        double Mrw_inf {0.0};       // mg - mass of infiltration from runoff
+        double Mmw_inf {0.0};       // mg - mass of infiltration from mixing layer
+        double Theta_mix {0.0};     // m/m - soil moisture mixing layer
+
         double Mms_ex {0.0}, Mrs_ex {0.0}; // exchange mass (negative is reduction, positive is increase) - mg
-        double Mrw_inf {0.0}, Mmw_inf {0.0}, Mrs_out {0.0}, Mrw_out {0.0}; // influx and outflux
-        double Theta_mix {0.0}; // depending on the situation theta_mix is thetaeff or thetas
-        double mass_perc {0.0};
+        double Mrs_out {0.0}, Mrw_out {0.0}; // influx and outflux
+
 
         // MC - do we use A = dx^2 or A = dx * flowwidth or A = dx * SoilWidth
         // Dx = cellsize, SoilWidth = width of soil (mixing soil interaction and option for erosion),
@@ -202,12 +206,11 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 
         //Exchange in mixing layer
         // positive adds to absorbed, negative to dissolved.
-        // mg = mg kg-1 sec-1  * kg m-3 * m * m * m * sec
+        // mg = mg kg-1 sec-1 * kg m-3 * m * m * m * sec
         Mda_ex = (Kr * (Kd * PCmw->Drc - PCms->Drc) * rho * _dt
                   * SoilWidthDX->Drc * _dx * zm->Drc);
 
         // loss by percolation
-        //perc_out->Drc = 0.0; // when there is infiltration percolation is neglected.
         if (InfilVol->Drc < 1e-6) {
             // calculate volume of percolated water from mixing layer
             double perc_vol {0.0}, perc_rat {0.0};
@@ -230,12 +233,11 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 
         if (InfilVol->Drc > 1e-6) {
         double Qinf = InfilVol->Drc; // m3 (per timestep)
-        double Crw_avg {0.0}; // mg/L - no runoff, so concentration will be 0
-        // we assume that the mixing zone will be saturated if there is infiltration and/or runoff.
+        double Crw_avg {0.0};        // mg/L - no runoff; concentration = 0
+        // assume the mixing layer is saturated during infiltration or runoff.
         Theta_mix = ThetaS1->Drc;     
         // mg = m3 * 1000 * (mg L-1)
-        Mmw_inf = Qinf * 1000 * (PCmw->Drc - Crw_avg); // net loss through infiltration from mixing layer (mg)
-
+        Mmw_inf = Qinf * 1000 * PCmw->Drc; // infiltration from mixing layer (mg)
 
 /* RUNOFF and SEDIMENT CALCULATIONS
  * Layout of space (i) and time (j) towards next value
@@ -259,8 +261,9 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 // 3. runoff, no erosion, infiltration
         if (Qn->Drc + Qin > 1e-6) { // more than 1 ml - what is best definition of runoff?
             // calculate the correct C's based on the Qin and Qold etc.
-            // mg L-1 = (mg + (mg sec-1 * sec)) / m3 sec-1 * sec * 1000(m3 -> L)
-            Crw_avg = (PMrw->Drc + (Qpin * _dt)) / ((WaterVolall->Drc + Qin) * _dt * 1000);
+            // mg L-1 = (mg + (mg sec-1 * sec)) / (m3 + (m3 sec-1 * sec)) * 1000(m3 -> L)
+            Crw_avg = (PMrw->Drc + (Qpin * _dt))
+                      / ((WaterVolall->Drc + (Qin * _dt)) * 1000);
             // only exchange with runoff water when there is a significant amount
             if (WH->Drc > 0.0001) { // more than 0.1 mm
                 // positive adds to runoff, negative to mixing layer.
@@ -317,7 +320,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
             PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
             // mg sec-1 = mg L-1 * m3 sec-1 * 1000, mg sec-1 + mg / sec
             PQrw->Drc = std::min(PCrw->Drc * Qn->Drc * 1000,
-                                 Qpin + (PMrw->Drc)/ _dt);
+                                 Qpin + (PMrw->Drc / _dt));
             //substract runoff losses
             //mg = mg - (mg sec-1 * sec)
             PMrw->Drc = std::max(0.0, PMrw->Drc - (PQrw->Drc * _dt));
@@ -334,7 +337,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 
         // mg = mg - mg - mg
         PMmw->Drc = std::max(0.0, PMmw->Drc - Mda_ex - mass_perc
-                                      - Mmw_inf - Mwrm_ex);
+                                      - Mmw_inf + Mrw_inf - Mwrm_ex);
         // mg = mg + mg
         PMms->Drc = std::max(0.0, PMms->Drc + Mda_ex);
         double Volmw {0.0}, Massms {0.0};

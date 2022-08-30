@@ -1058,26 +1058,28 @@ void TWorld::ReportMapSeries(void)
                 }}
                 report(*tm, OutSedBL);      // in user units
             }
-        }
-        if (SwitchPestMCtest) {
-            report(*PCms, "pcms");
-            report(*PCmw, "pcmw");
-            report(*PCrw, "pcrw");
-            report(*PMsoil, "pmsoil");
-            report(*PMms, "pmms");
-            report(*PMmw, "pmmw");
-            report(*PMrw, "pmrw");
-            //report(*PMinf, "pinf");
-            //report(*PMperc, "prc");
-            //report(*Thetaeff, "theta");
-            //report(*test_map, "test");
-            //report(*Perc, "perc");
-            if (SwitchErosion) {
-                report(*PCrs, "pcrs");
-                report(*PMrs, "pmrs");
-            }
+        }       
+    }
+    if (SwitchPestMCtest) {
+        report(*PCms, "pcms");
+        report(*PCmw, "pcmw");
+        report(*PCrw, "pcrw");
+        report(*PMsoil, "pmsoil");
+        report(*PMms, "pmms");
+        report(*PMmw, "pmmw");
+        report(*PMrw, "pmrw");
+        report(*PQrw, "pqrw");
+        //report(*PMinf, "pinf");
+        //report(*PMperc, "prc");
+        //report(*Thetaeff, "theta");
+        //report(*test_map, "test");
+        //report(*Perc, "perc");
+        if (SwitchErosion) {
+            report(*PCrs, "pcrs");
+            report(*PMrs, "pmrs");
         }
     }
+
 }
 //---------------------------------------------------------------------------
 /// Land unit statistics: count nr land units in classifiedfile
