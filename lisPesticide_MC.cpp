@@ -313,17 +313,17 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap
 //            Mrs_out = PQrs->Drc * _dt;
 //            } // erosion occurs
 //        } //switch erosion
-            //substract infiltration and mixing layer exchange add inflowing mass
+            //substract infiltration and mixing layer exchange
             //mg = mg + mg - mg - mg + (mg sec-1 * sec)
-            PMrw->Drc = std::max(0.0, PMrw->Drc + Mwrm_ex - Mrw_inf + Qpin * _dt);
+            PMrw->Drc = std::max(0.0, PMrw->Drc + Mwrm_ex - Mrw_inf);
             // calculate concentration for new outflux
             PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
             // mg sec-1 = mg L-1 * m3 sec-1 * 1000, mg sec-1 + mg / sec
             PQrw->Drc = std::min(PCrw->Drc * Qn->Drc * 1000,
                                  Qpin + (PMrw->Drc / _dt));
-            //substract runoff losses
+            //substract and add runoff
             //mg = mg - (mg sec-1 * sec)
-            PMrw->Drc = std::max(0.0, PMrw->Drc - (PQrw->Drc * _dt));
+            PMrw->Drc = std::max(0.0, PMrw->Drc - (PQrw->Drc * _dt) + (Qpin * _dt));
         } // runoff occurs
         } // infiltration occurs
 
