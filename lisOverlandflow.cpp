@@ -402,7 +402,7 @@ void TWorld::OverlandFlow1D(void)
     if (SwitchPestMCtest) {
         FOR_ROW_COL_MV_L {
             // mg/sec = m3 sec-1  * 1000 * mg L-1
-            Qpw->Drc =  Q->Drc * 1000 * PCrw->Drc;
+            //Qpw->Drc =  Q->Drc * 1000 * PCrw->Drc;
             if (SwitchErosion) {
             // mg/sec = kg sec-1 * mg kg-1
             Qps->Drc = Qs->Drc * PCrs->Drc;

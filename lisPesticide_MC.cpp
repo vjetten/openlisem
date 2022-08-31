@@ -141,10 +141,6 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
 
         double Qin {0}; //m3 * sec-1
         double Qpin {0}; //mg * sec-1
-        if (SwitchErosion) {
-            double Sin {0}; //kg * sec-1
-            double Spin {0}; //mg * sec-1
-        }
         double Sin {0}; //kg * sec-1
         double Spin {0}; //mg * sec-1
         double rho = rhoPestMC; //kg * m3-1
@@ -189,8 +185,8 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
         double Mmw_inf {0.0};       // mg - mass of infiltration from mixing layer
         double Theta_mix {0.0};     // m/m - soil moisture mixing layer
 
-        double Mms_ex {0.0}, Mrs_ex {0.0}; // exchange mass (negative is reduction, positive is increase) - mg
-        double Mrs_out {0.0}, Mrw_out {0.0}; // influx and outflux
+       // double Mms_ex {0.0}, Mrs_ex {0.0}; // exchange mass (negative is reduction, positive is increase) - mg
+       // double Mrs_out {0.0}, Mrw_out {0.0}; // influx and outflux
 
 
         // MC - do we use A = dx^2 or A = dx * flowwidth or A = dx * SoilWidth
@@ -216,13 +212,17 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
 
         // loss by percolation
         if (InfilVol->Drc < 1e-6) {
+            if (Perc->Drc < 1e-7) {
+                mass_perc = 0;
+            } else {
+
             // calculate volume of percolated water from mixing layer
             double perc_vol {0.0}, perc_rat {0.0};
             perc_rat = Perc->Drc /(SoilDepth1->Drc - Lw->Drc);
             // L = (m * m * m * 1000)
             perc_vol = zm->Drc * _DX->Drc * SoilWidthDX->Drc * perc_rat * 1000;
             mass_perc = perc_vol * PCmw->Drc;
-
+            }
             Theta_mix = Thetaeff->Drc; //percolation related theta mixing layer
         }
 
@@ -234,15 +234,13 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
             PMrw->Drc = 0.0;        // mass = 0
             PQrw->Drc = 0.0;        // discharge = 0
         }
-
-        if (InfilVol->Drc > 1e-6) {
-        double Qinf = InfilVol->Drc; // m3 (per timestep)
         double Crw_avg {0.0};        // mg/L - no runoff; concentration = 0
+        double Qinf = InfilVol->Drc; // m3 (per timestep)
+        if (InfilVol->Drc > 1e-6) {
         // assume the mixing layer is saturated during infiltration or runoff.
         Theta_mix = ThetaS1->Drc;     
         // mg = m3 * 1000 * (mg L-1)
         Mmw_inf = Qinf * 1000 * PCmw->Drc; // infiltration mixing layer (mg)
-
 /* RUNOFF and SEDIMENT CALCULATIONS
  * Layout of space (i) and time (j) towards next value
  *
@@ -261,7 +259,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
  *
  * For flux calculations we use the average concentration of Cj1i and Cji1 to go to Cj1i1.
  */
-
+        } // infiltration occurs
 // 3. runoff, no erosion, infiltration
         if (Qn->Drc + Qin > 1e-6) { // more than 1 ml - what is best definition of runoff?
             // calculate the correct C's based on the Qin and Qold etc.
@@ -274,10 +272,10 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
                 // mg = ((sec-1 * m * (mg L-1) / m) * m * m * m * sec * 1000 (m3 -> L)
                 Mwrm_ex = (((Kfilm*(PCmw->Drc - Crw_avg))/zm->Drc)
                            * (SoilWidthDX->Drc * _DX->Drc * zm->Drc * _dt
-                              * ThetaS1->Drc * 1000));
+                           * ThetaS1->Drc * 1000));
+                // mg = m3 * 1000 (L->m3) * mg L-1
+                Mrw_inf = Qinf * 1000 * Crw_avg; // loss through infiltration from runoff
             } // there is significant runoff
-            // mg = m3 * 1000 (L->m3) * mg L-1
-            Mrw_inf = Qinf * 1000 * Crw_avg; // loss through infiltration from runoff
 //        // 4. runoff, erosion and infiltration
 //        Crs_avg = 0;
 //        if (SwitchErosion) {
@@ -318,8 +316,12 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
 //            } // erosion occurs
 //        } //switch erosion
 
-//            // calculate concentration for new outflux
-//            PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
+            //substract infiltration and mixing layer exchange
+            //mg = mg + mg - mg - mg + (mg sec-1 * sec)
+            PMrw->Drc = std::max(0.0, PMrw->Drc + Mwrm_ex - Mrw_inf);
+            // calculate concentration for new outflux
+            PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
+            _Qpw->Drc = _Q->Drc * 1000 * PCrw->Drc;
 //            // mg sec-1 = mg L-1 * m3 sec-1 * 1000, mg sec-1 + mg / sec
 //            PQrw->Drc = std::min(PCrw->Drc * Qn->Drc * 1000,
 //                                 Qpin + (PMrw->Drc / _dt));
@@ -328,18 +330,13 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
             _Qpwn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Qpin, _Qpw->Drc,
                                         _Alpha->Drc,_DX->Drc); //mg/sec
             _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc+ PMrw->Drc/_dt);
-
-            //substract infiltration and mixing layer exchange
-            //mg = mg + mg - mg - mg + (mg sec-1 * sec)
-            PMrw->Drc = std::max(0.0, PMrw->Drc + Mwrm_ex - Mrw_inf);
             //substract all masses
             //mg = mg - (mg sec-1 * sec)
             PMrw->Drc = std::max(0.0, PMrw->Drc - (_Qpwn->Drc * _dt)
                                           + (QpinKW->Drc * _dt));
-            // calculate concentration for new outflux
+            // calculate new concentration
             PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
-        } // runoff occurs
-        } // infiltration occurs
+         } // runoff occurs
 
         // write infiltration and percolation to map and sum for mass balance
         // MC 220826 -- the mass balance is correct now. Percolation and soil
@@ -363,7 +360,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
         PCmw->Drc = PMmw->Drc / Volmw;
         //mg kg-1 = mg / kg
         PCms->Drc = PMms->Drc / Massms;
-       }}
+       }}   
     } // end loop over ldd
 }
 
