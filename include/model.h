@@ -860,9 +860,10 @@ public:
                         double Crw_in, double Crs_in, std::tuple<T...> all_conc);
     void MassPest(double PMtotI, double &PMerr, double &PMtot);
     double MassPestInitial(void);
-    void KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Qn, cTMap *_Qsn,
-                         cTMap *_Qpn, cTMap *_Qpsn,
-                         double _dx, cTMap *_Sed);
+    void KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
+                         cTMap *_Qn, cTMap *_Qsn, cTMap *_Qpwn, cTMap *_Qpsn,
+                         cTMap *_DX, cTMap *_Alpha, cTMap *_Sed,
+                         cTMap *_Q, cTMap *_Qs, cTMap *_Qpw, cTMap *_Qps);
     void InitPesticideMC(void);
 
     // 1D hydro processes

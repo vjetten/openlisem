@@ -2307,6 +2307,7 @@ void TWorld::IntializeData(void)
         PCs = NewMap(0);
         PCs = PCms;
         PQrw = NewMap(0);
+        Qpw = NewMap(0);
         PMinf = NewMap(0);
         PMperc = NewMap(0);
         Ez = NewMap(0);
@@ -2317,6 +2318,7 @@ void TWorld::IntializeData(void)
             PQrs = NewMap(0);
             PCrs = NewMap(0);
             PMrs = NewMap(0);
+            Qps = NewMap(0);
         }
 
         // total masses

@@ -110,10 +110,9 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
     if (Qj1i1 < MIN_FLUX)
         return (0);
 
-    Qavg = 0.5*(Qji1+Qj1i);
+    Qavg = 0.5*(Qji1+Qj1i); //m3/s
     if (Qavg <= MIN_FLUX)
         return (0);
-
     Cavg = (Sj1i+Sji1)/(Qj1i+Qji1);
     aQb = alpha*pow(Qavg,beta);
     abQb_1 = alpha*beta*pow(Qavg,beta-1);

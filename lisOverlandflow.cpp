@@ -400,9 +400,21 @@ void TWorld::OverlandFlow1D(void)
         }}
     }
     if (SwitchPestMCtest) {
-            KinematicPestMC(crlinkedldd_, LDD, Qn, Qsn, PQrw, PQrs, _dx, Sed);
-
-        }
+        FOR_ROW_COL_MV_L {
+            // mg/sec = m3 sec-1  * 1000 * mg L-1
+            Qpw->Drc =  Q->Drc * 1000 * PCrw->Drc;
+            if (SwitchErosion) {
+            // mg/sec = kg sec-1 * mg kg-1
+            Qps->Drc = Qs->Drc * PCrs->Drc;
+            }
+        }}
+        //              (-, -, m3/sec, kg/sec, mg/sec, mg/sec,
+        KinematicPestMC(crlinkedldd_, LDD, Qn, Qsn, PQrw, PQrs,
+        //          m, ??, kg,
+                    DX, Alpha, Sed,
+        //          m3/sec, kg/sec, mg/sec, mg/sec)
+                    Q, Qs, Qpw, Qps);
+     }
 }
 //---------------------------------------------------------------------------
 // all points that flow outward of the domain by slope and water pressure
