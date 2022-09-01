@@ -284,7 +284,7 @@ void TWorld::OverlandFlow1D(void)
         // flag for confined fow in channel culverts
         tot = tot + WaterVolin->Drc;
 
-        //Save WHrunoff and Sed as start state for  all-fluxes-out
+        //Save WHrunoff and Sed as start state for all-fluxes-out
         WHAFO = WHrunoff;
         SedAFO = Sed;
 
@@ -373,7 +373,7 @@ void TWorld::OverlandFlow1D(void)
             KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
             SinAFO = SinKW; // save sediment influx for all-fluxes-out.
            FOR_ROW_COL_MV_L{
-                ErosionAFO->Drc =(Qsn->Drc*_dt) - (SinKW->Drc*_dt);
+                ErosionAFO->Drc = (Qsn->Drc*_dt) - (SinKW->Drc*_dt); //??
            }}
 //        }
    }

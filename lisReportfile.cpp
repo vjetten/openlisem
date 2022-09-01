@@ -932,12 +932,6 @@ void TWorld::ReportMapSeries(void)
         //    report(*SedAFO, OutSAFO);
         //    report(*Sed, OutSS);
     }
-//    report(*WHAFO, OutWHAFO);
-//    report(*FlowWidth, OutFW);
-//    report(*ErosionAFO, Outerosion);
-//    report(*thetacheck, Outchtheta);
-//    report(*lwcheck, Outchlw);
-//    report(*fact, "fact");
 
     // water height m
     if (SwitchOutwh)
@@ -1078,6 +1072,10 @@ void TWorld::ReportMapSeries(void)
             report(*PCrs, "pcrs");
             report(*PMrs, "pmrs");
         }
+        report(*WaterVolall, "wall");
+        report(*WaterVolin, "win");
+        report(*Qpw, "qpw");
+        report(*QpinKW, "qpin");
     }
 
 }

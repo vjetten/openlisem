@@ -43,7 +43,6 @@ functions: \n
 //#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
 //    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
-
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::MassPest(double WaterVolall, double Sed, double Qsn, double Qn, double Qinf)
@@ -56,7 +55,6 @@ functions: \n
  */
 void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
 {
-
    // totals of outfluxes
    // at the moment only overland flow is accounted for. add channels etc later.
    FOR_ROW_COL_LDD5 {
@@ -78,12 +76,11 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
 
   //  PMerr = 1 - (PMtot/PMtotI);
     PMerr = PMtot - PMtotI;
-
 }
 
 //---------------------------------------------------------------------------
 /**
- * @fn double TWorld::MassPestInitial(double dx, cTMap *Cms, cTMap *Cmw, cTMap *zm, cTMap *zs, cTMap *ThetaI1)
+ * @fn double TWorld::MassPestInitial(void)
  * @brief Calculation total pesticide mass initial in system.
  * @param dx: cell resolution [m]
  * @param Cms: map with initial pesticide concentration of soil in mixing zone
@@ -116,9 +113,10 @@ double TWorld::MassPestInitial(void)
 
 //---------------------------------------------------------------------------
 /**
-* @fn void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Qn, cTMap *_Qsn,
-                             cTMap *_Qpn, cTMap *_Qpsn, cTMap *_PCmw, cTMap *_PCms, cTMap *_PCrw, cTMap *_PCrs,
-                             cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
+* @fn void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
+                             cTMap *_Qn, cTMap *_Qsn, cTMap *_Qpwn, cTMap *_Qpsn,
+                             cTMap *_DX, cTMap *_Alpha, cTMap *_Sed,
+                             cTMap *_Q, cTMap *_Qs, cTMap *_Qpw, cTMap *_Qps)
 * @brief Adaptation of kinematic wave routing for pesticides.
 * @return Concentrations, fluxes and new mass states of the pesticides in the different domains.
 *
@@ -133,17 +131,21 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
+   FOR_ROW_COL_MV_L {
+       _Qpwn->Drc = 0;
+       QpinKW->Drc = 0;
+   }}
+
 //#pragma omp parallel for reduction(+:Qin) num_threads(userCores)
     for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     {
         int r = _crlinked_[i_].r;
         int c = _crlinked_[i_].c;
 
-        double Qin {0}; //m3 * sec-1
-        double Qpin {0}; //mg * sec-1
-        double Sin {0}; //kg * sec-1
-        double Spin {0}; //mg * sec-1
-        double rho = rhoPestMC; //kg * m3-1
+        double Qin {0}; //m3 sec-1
+        double Qpin {0}; //mg sec-1
+        double Sin {0}; //kg sec-1
+        double Spin {0}; //mg sec-1
 
         for (int i = 1; i <= 9; i++)
         {
@@ -156,10 +158,10 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
                     ldd = (int) _LDD->Drcr;
                     // if the cells flow into
                     if (FLOWS_TO(ldd, rr,cr,r,c)) {
-                        Qin += _Qn->Drcr;
+                        Qin += _Qn->Drcr; // can be removed?
                         Qpin += _Qpwn->Drcr;
                          if (SwitchErosion) {
-                            Sin += _Qsn->Drcr;
+                            Sin += _Qsn->Drcr; //can be removed?
                             Spin += _Qpsn->Drcr;
                          }
                     }
@@ -167,14 +169,13 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
             }
         }
         //#pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L{
-        QpinKW->Drc = 0;
         QpinKW->Drc = Qpin;
         if (SwitchErosion) {
             SpinKW->Drc = 0;
             Ez->Drc = 0;
             SpinKW->Drc = Spin;
         }
+        double rho = rhoPestMC;     //kg m-3
         double Kd = KdPestMC;       // -
         double Kfilm = KfilmPestMC; // m sec-1
         double Kr = KrPestMC;       // sec
@@ -183,7 +184,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
         double mass_perc {0.0};     // mg - mass lost by percolation
         double Mrw_inf {0.0};       // mg - mass of infiltration from runoff
         double Mmw_inf {0.0};       // mg - mass of infiltration from mixing layer
-        double Theta_mix {0.0};     // m/m - soil moisture mixing layer
+        double Theta_mix {0.0};     // m3/m3 - soil moisture mixing layer
 
        // double Mms_ex {0.0}, Mrs_ex {0.0}; // exchange mass (negative is reduction, positive is increase) - mg
        // double Mrs_out {0.0}, Mrw_out {0.0}; // influx and outflux
@@ -215,10 +216,9 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
             if (Perc->Drc < 1e-7) {
                 mass_perc = 0;
             } else {
-
             // calculate volume of percolated water from mixing layer
             double perc_vol {0.0}, perc_rat {0.0};
-            perc_rat = Perc->Drc /(SoilDepth1->Drc - Lw->Drc);
+            perc_rat = Perc->Drc / (SoilDepth1->Drc - Lw->Drc);
             // L = (m * m * m * 1000)
             perc_vol = zm->Drc * _DX->Drc * SoilWidthDX->Drc * perc_rat * 1000;
             mass_perc = perc_vol * PCmw->Drc;
@@ -241,6 +241,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
         Theta_mix = ThetaS1->Drc;     
         // mg = m3 * 1000 * (mg L-1)
         Mmw_inf = Qinf * 1000 * PCmw->Drc; // infiltration mixing layer (mg)
+        } // infiltration occurs
 /* RUNOFF and SEDIMENT CALCULATIONS
  * Layout of space (i) and time (j) towards next value
  *
@@ -259,7 +260,6 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
  *
  * For flux calculations we use the average concentration of Cj1i and Cji1 to go to Cj1i1.
  */
-        } // infiltration occurs
 // 3. runoff, no erosion, infiltration
         if (Qn->Drc + Qin > 1e-6) { // more than 1 ml - what is best definition of runoff?
             // calculate the correct C's based on the Qin and Qold etc.
@@ -267,7 +267,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
             Crw_avg = (PMrw->Drc + (Qpin * _dt))
                       / ((WaterVolall->Drc + (Qin * _dt)) * 1000);
             // only exchange with runoff water when there is a significant amount
-            if (WH->Drc > 0.0001) { // more than 0.1 mm
+            if (WH->Drc > 0.00001) { // more than 0.1 mm - slaat dit ergens op?
                 // positive adds to runoff, negative to mixing layer.
                 // mg = ((sec-1 * m * (mg L-1) / m) * m * m * m * sec * 1000 (m3 -> L)
                 Mwrm_ex = (((Kfilm*(PCmw->Drc - Crw_avg))/zm->Drc)
@@ -322,14 +322,16 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
             // calculate concentration for new outflux
             PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
             _Qpw->Drc = _Q->Drc * 1000 * PCrw->Drc;
+// OPTION 1 - very simple extrapolation
 //            // mg sec-1 = mg L-1 * m3 sec-1 * 1000, mg sec-1 + mg / sec
-//            PQrw->Drc = std::min(PCrw->Drc * Qn->Drc * 1000,
-//                                 Qpin + (PMrw->Drc / _dt));
-
+//            _Qpwn->Drc = std::min(PCrw->Drc * _Qn->Drc * 1000,
+//                                  QpinKW->Drc + (PMrw->Drc / _dt));
+// OPTION 2 - use complexSedCalc explicit method
             //use the Sediment explicit approach for concentration in water
             _Qpwn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Qpin, _Qpw->Drc,
-                                        _Alpha->Drc,_DX->Drc); //mg/sec
-            _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc+ PMrw->Drc/_dt);
+                                        _Alpha->Drc, _DX->Drc); //mg/sec
+            _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc + PMrw->Drc / _dt);
+
             //substract all masses
             //mg = mg - (mg sec-1 * sec)
             PMrw->Drc = std::max(0.0, PMrw->Drc - (_Qpwn->Drc * _dt)
@@ -360,7 +362,6 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
         PCmw->Drc = PMmw->Drc / Volmw;
         //mg kg-1 = mg / kg
         PCms->Drc = PMms->Drc / Massms;
-       }}   
     } // end loop over ldd
 }
 
