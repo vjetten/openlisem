@@ -24,20 +24,20 @@
 
 /*!
   \file lisPesticide_MC.cpp
-  \brief Transport and partitioning of pesticides with Euler forward method
+  \brief Transport and partitioning of pesticides with explicit method
 
 functions: \n
-- void TWorld::SimplePestConc() \n
-- double TWorld::MassPest(double WaterVolall, double Sed, double Qsn, double Qn, double Qinf, double PMtotI) \n
-- double TWorld::MassPestInitial(cTMap *PCms, cTMap *PCmw, cTMap *zm, cTMap *zs, cTMap *ThetaI1) \n
-- void TWorld::KinematicPestMC() \n
--
+- double TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot) \n
+- double TWorld::MassPestInitial(void) \n
+- void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
+                             cTMap *_Qn, cTMap *_Qsn, cTMap *_Qpwn, cTMap *_Qpsn,
+                             cTMap *_DX, cTMap *_Alpha, cTMap *_Sed,
+                             cTMap *_Q, cTMap *_Qs, cTMap *_Qpw, cTMap *_Qps) \n
+- void TWorld::SimplePestConc() -- NOT USED ANYMORE--\n
 */
 
 #include "model.h"
 #include "operation.h"
-#include <tuple>
-#include "iostream"
 
 // check if cell From flows to To
 //#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
@@ -47,10 +47,11 @@ functions: \n
 /**
  * @fn double TWorld::MassPest(double WaterVolall, double Sed, double Qsn, double Qn, double Qinf)
  * @brief Calculation of pesticide mass at the end of each timestep.
-//update part below
- * Simple calculation of pesticide concentrations in a cell in both water and sediment,
- * @param  sed : current mass of sediment in cell
- * @return sediment outflow in next timestep
+ * Add all sinks and dynamic sources together to calculate total mass in the system.
+ * @param  PMtotI: pesticide mass initially in the system - mg
+ * @param  PMerr: the error of the mass balance - mg OR %
+ * @param  PMtot: the total mass of pesticides in the system - this timestep - mg
+ * @return updates PestOutW, PestOutS, PMtot and PMerr
  *
  */
 void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
@@ -66,6 +67,8 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
 
     PestOutW += PQrw_dt;
     PestOutS += PQrs_dt;
+    Pestinf += mapTotal(*PMinf);
+    PestPerc += mapTotal(*PMperc);
     double PMerosion {0.0};
     if (SwitchErosion) {
         PMerosion = mapTotal(*PMrs) + PestOutS;
@@ -82,12 +85,12 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
 /**
  * @fn double TWorld::MassPestInitial(void)
  * @brief Calculation total pesticide mass initial in system.
- * @param dx: cell resolution [m]
- * @param Cms: map with initial pesticide concentration of soil in mixing zone
- * @param Cmw: map with initial pesticide concentration of water in mixing zone
+ * @param DX: cell length adjusted for slope [m]
+ * @param PCms: map with initial pesticide concentration of soil in mixing zone - mg kg-1
+ * @param PCmw: map with initial pesticide concentration of water in mixing zone - mg L-1
  * @param zm: map with thickness of mixing layer [m]
  * @param zs: map with thickness of soil layer with pesticides [m]
- * @param ThetaI1: map with initial soil moisture of the first soil layer.
+ * @param ThetaI1: map with initial soil moisture of the first soil layer. - L L-1
  * @return PMtotI
  *
  */
@@ -117,8 +120,14 @@ double TWorld::MassPestInitial(void)
                              cTMap *_Qn, cTMap *_Qsn, cTMap *_Qpwn, cTMap *_Qpsn,
                              cTMap *_DX, cTMap *_Alpha, cTMap *_Sed,
                              cTMap *_Q, cTMap *_Qs, cTMap *_Qpw, cTMap *_Qps)
-* @brief Adaptation of kinematic wave routing for pesticides.
-* @return Concentrations, fluxes and new mass states of the pesticides in the different domains.
+* @brief Do all the calculations for pesticide dynamics
+* This includes:
+*   - exchange of mass in the mixing layer
+*   - infiltration and percolation
+*   - discharge dissolved in water or adsorbed to sediment
+* Kinamtic wave is solved with complexSedCalc()
+* @return Concentrations, fluxes and new mass states of the
+* pesticides in the different domains.
 *
 */
 /*LDD_COOR *_crlinked_*/
@@ -189,14 +198,12 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
        // double Mms_ex {0.0}, Mrs_ex {0.0}; // exchange mass (negative is reduction, positive is increase) - mg
        // double Mrs_out {0.0}, Mrw_out {0.0}; // influx and outflux
 
-
         // MC - do we use A = dx^2 or A = dx * flowwidth or A = dx * SoilWidth
         // Dx = cellsize, SoilWidth = width of soil (mixing soil interaction and option for erosion),
         // FlowWidth = SoilWidth + Roads and hard surface, water flows over this area, b
         // but for hardsurface no interaction with mixing layer. Deposition on this area.
-        // MC - 220815 - Used A = SoilWidthDX->Drc * _DX->Drc for now, can also include DX (adjusted for slope).
+        // MC - 220815 - Used A = SoilWidthDX->Drc * _DX->Drc for now.
 
-        // alternative to simplePestConc calculation. Instead of concentration calculate masses
         // complexity is increased in situations (1 - 4)
 
 // 1. no runoff, no erosion, no infiltration - only equilibrium in mixing zone
@@ -242,6 +249,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
         // mg = m3 * 1000 * (mg L-1)
         Mmw_inf = Qinf * 1000 * PCmw->Drc; // infiltration mixing layer (mg)
         } // infiltration occurs
+
 /* RUNOFF and SEDIMENT CALCULATIONS
  * Layout of space (i) and time (j) towards next value
  *
@@ -260,6 +268,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
  *
  * For flux calculations we use the average concentration of Cj1i and Cji1 to go to Cj1i1.
  */
+
 // 3. runoff, no erosion, infiltration
         if (Qn->Drc + Qin > 1e-6) { // more than 1 ml - what is best definition of runoff?
             // calculate the correct C's based on the Qin and Qold etc.
@@ -276,7 +285,8 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
                 // mg = m3 * 1000 (L->m3) * mg L-1
                 Mrw_inf = Qinf * 1000 * Crw_avg; // loss through infiltration from runoff
             } // there is significant runoff
-//        // 4. runoff, erosion and infiltration
+
+// 4. runoff, erosion and infiltration
 //        Crs_avg = 0;
 //        if (SwitchErosion) {
 //            if (Qsn->Drc + Sin > 0.0001) { // more than 0.1 gram
@@ -322,7 +332,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
             // calculate concentration for new outflux
             PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
             _Qpw->Drc = _Q->Drc * 1000 * PCrw->Drc;
-// OPTION 1 - very simple extrapolation
+// OPTION 1 - simple extrapolation
 //            // mg sec-1 = mg L-1 * m3 sec-1 * 1000, mg sec-1 + mg / sec
 //            _Qpwn->Drc = std::min(PCrw->Drc * _Qn->Drc * 1000,
 //                                  QpinKW->Drc + (PMrw->Drc / _dt));
@@ -340,13 +350,9 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
             PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
          } // runoff occurs
 
-        // write infiltration and percolation to map and sum for mass balance
-        // MC 220826 -- the mass balance is correct now. Percolation and soil
-        // moisture are not exactly stable - for now not problematic.
+        // write infiltration and percolation to map
         PMinf->Drc = Mmw_inf;
-        Pestinf += Mmw_inf;
-        PMperc->Drc = mass_perc; //map with percolation losses
-        PestPerc += mass_perc;
+        PMperc->Drc = mass_perc;
 
         // mg = mg - mg - mg
         PMmw->Drc = std::max(0.0, PMmw->Drc - Mda_ex - mass_perc
@@ -367,6 +373,7 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
 
 
 //---------------------------------------------------------------------------
+// NOT USED ANY MORE
 /**
  * @fn void TWorld::simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double Qinf, double zm, double kr, double Kd,
                             double Crs_old, double Cms_old, double Ez, double Me, double A, double pore,
@@ -417,7 +424,6 @@ void TWorld::simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double
         Cms_n = Cms_old + _dt * (kr * (Kd * Cmw_old - Cms_old) + (((zm + Ez * Cms_old) - Crs_old * Ez)/ zm));
         Crs_n = Crs_avg; // or Crs_old??
     }
-
     Cinf_n = 0.5 * (Crw_old + Crw_n); //Or Crw_avg??
     all_conc = std::make_tuple(Crw_n, Crs_n, Cmw_n, Cms_n, Cinf_n);
 }

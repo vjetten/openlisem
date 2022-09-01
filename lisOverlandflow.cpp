@@ -399,7 +399,7 @@ void TWorld::OverlandFlow1D(void)
             //qDebug()<< "ds overlandflow"<< Pest->Drc;
         }}
     }
-    if (SwitchPestMCtest) {
+    if (SwitchPestMC) {
         FOR_ROW_COL_MV_L {
             // mg/sec = m3 sec-1  * 1000 * mg L-1
             //Qpw->Drc =  Q->Drc * 1000 * PCrw->Drc;

@@ -2283,8 +2283,8 @@ void TWorld::IntializeData(void)
         }
     }
     // load data for pesticide-MC
-    SwitchPestMCtest = true;
-    if(SwitchPestMCtest){
+    SwitchPestMC = true;
+    if(SwitchPestMC){
         // get constant from runfile
         KdPestMC = getvaluedouble("Kd pesticide");
         KfilmPestMC = getvaluedouble("Kfilm pesticide");

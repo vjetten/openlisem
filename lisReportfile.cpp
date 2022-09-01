@@ -155,15 +155,13 @@ void TWorld::OutputUI(void)
         op.OutletC.at(0)->append(Qtot_dt > MIN_FLUX? SoilLossTot_dt/Qtot_dt : 0);
         op.OutletQstot.replace(0,SoilLossTot*0.001);
     }
-    if (SwitchPestMCtest) {
-        op.PQrw = PQrw_dt;
+    if (SwitchPestMC) {
         op.PMOutW = PestOutW;
         op.PMerr = PMerr;
         op.PMinf = Pestinf;
         op.PMperc = PestPerc;
         if (SwitchErosion) {
             op.PMOutS = PestOutS;
-            op.PQrs = PQrs_dt;
         }
     }
 
@@ -357,14 +355,12 @@ void TWorld::ReportTotalSeries(void)
             out << sep << "FloodSed(ton)";
             out << sep << "SoilLoss(ton)";
         }
-        if (SwitchPestMCtest) {
-            out << sep << "PQrw";
+        if (SwitchPestMC) {
             out << sep << "PMOutW";
             out << sep << "PMerr";
             out << sep << "PestPerc";
             out << sep << "Pestinf";
             if (SwitchErosion) {
-                out << sep << "PQrs";
                 out << sep << "PMOutS";
             }
         }
@@ -419,7 +415,7 @@ void TWorld::ReportTotalSeries(void)
         out << sep << op.FloodSedTot;
         out << sep << op.SoilLossTot;
     }
-    if (SwitchPestMCtest) {
+    if (SwitchPestMC) {
         out << sep << op.PQrw;
         out << sep << op.PMOutW;
         out << sep << op.PMerr;
@@ -632,6 +628,7 @@ void TWorld::ReportTimeseriesNew(void)
                         out << ",Qs #" << pnr << ",C #" << pnr;
                     }}
                 }
+                if (SwitchPestMC) out << ",PQw";
                 out << "\n";
 
                 //line 2 units
@@ -653,6 +650,7 @@ void TWorld::ReportTimeseriesNew(void)
                         out << ",kg/s #" << pnr << ",g/l #" << pnr;
                     }}
                 }
+                if (SwitchPestMC) out << ",mg/s";
                 out << "\n";
             }
             fout.close();
@@ -741,6 +739,7 @@ void TWorld::ReportTimeseriesNew(void)
                     out << sep << TotalConc->Drc ;
             }}
         }
+        if (SwitchPestMC) out << sep << (PQrw_dt / _dt);
         out << "\n";
         fout.close();
     }
@@ -815,7 +814,7 @@ void TWorld::ReportTotalsNew(void)
     {
         out << "\"Peak time discharge for outlet " + QString::number(i) +" (min):\"," << op.OutletQpeaktime.at(i)<< "\n";
     }
-    if (SwitchPestMCtest) {
+    if (SwitchPestMC) {
         out << "\n";
         out << "\"Pesticides are cool :)\",";
     }
@@ -1054,7 +1053,7 @@ void TWorld::ReportMapSeries(void)
             }
         }       
     }
-    if (SwitchPestMCtest) {
+    if (SwitchPestMC) {
         report(*PCms, "pcms");
         report(*PCmw, "pcmw");
         report(*PCrw, "pcrw");
@@ -1065,12 +1064,11 @@ void TWorld::ReportMapSeries(void)
         report(*PQrw, "pqrw");
         //report(*PMinf, "pinf");
         //report(*PMperc, "prc");
-        //report(*Thetaeff, "theta");
         //report(*test_map, "test");
-        //report(*Perc, "perc");
         if (SwitchErosion) {
             report(*PCrs, "pcrs");
             report(*PMrs, "pmrs");
+            report(*PQrs, "pqrs");
         }
         report(*WaterVolall, "wall");
         report(*WaterVolin, "win");
