@@ -94,7 +94,8 @@ struct output{
     // sediment
     MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot, maxRainaxis,
     //Pesticide-MC
-    PCrw, PCrs, PQrw, PQrs, PMrw, PMrs, PCmw, PCms, PMinf, PMmw, PMms, PMOutW, PMOutS, PMerr, PMperc;
+    PCrw, PCrs, PQrw, PQrs, PMrw, PMrs, PCmw, PCms, PMinf, PMmw, PMms, PMOutW,
+    PMOutS, PMerr, PMperc, PestOutW, PestOutS;
 
 
     // map pointers for display

@@ -72,7 +72,7 @@ void TWorld::saveMBerror2file(bool doError, bool start)
         eout << "2\n";
         eout << "run step\n";
         eout << "error\n";
-        //  eout << "runtime\n";
+        eout << "runtime\n";
         efout.flush();
         efout.close();
 
@@ -94,7 +94,7 @@ void TWorld::saveMBerror2file(bool doError, bool start)
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::Append | QIODevice::Text);
         QTextStream eout(&efout);
-        eout << " " << runstep << " " << MB << /*" " << op.t <<*/ "\n";
+        eout << " " << runstep << " " << MB << " " << op.t << "\n";
         efout.flush();
         efout.close();
 
@@ -260,7 +260,7 @@ void TWorld::DoModel()
       //  DEBUG("setupHydrographData()");
         setupHydrographData();
 
-        bool saveMBerror = false;
+        bool saveMBerror = true;
         saveMBerror2file(saveMBerror, true);
 
         InfilEffectiveKsat();  // calc effective ksat from all surfaces once

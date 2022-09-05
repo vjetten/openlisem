@@ -416,13 +416,11 @@ void TWorld::ReportTotalSeries(void)
         out << sep << op.SoilLossTot;
     }
     if (SwitchPestMC) {
-        out << sep << op.PQrw;
         out << sep << op.PMOutW;
         out << sep << op.PMerr;
         out << sep << op.PMperc;
         out << sep << op.PMinf;
         if (SwitchErosion) {
-            out << sep << op.PQrs;
             out << sep << op.PMOutS;
         }
 
@@ -628,7 +626,11 @@ void TWorld::ReportTimeseriesNew(void)
                         out << ",Qs #" << pnr << ",C #" << pnr;
                     }}
                 }
-                if (SwitchPestMC) out << ",PQw";
+                if (SwitchPestMC)
+                {
+                    out << ",PQw";
+                    if (SwitchErosion) out << ",PQs";
+                }
                 out << "\n";
 
                 //line 2 units
@@ -650,7 +652,11 @@ void TWorld::ReportTimeseriesNew(void)
                         out << ",kg/s #" << pnr << ",g/l #" << pnr;
                     }}
                 }
-                if (SwitchPestMC) out << ",mg/s";
+                if (SwitchPestMC)
+                {
+                    out << ",mg/s";
+                    if (SwitchErosion) out << ",mg/s";
+                }
                 out << "\n";
             }
             fout.close();
@@ -739,7 +745,11 @@ void TWorld::ReportTimeseriesNew(void)
                     out << sep << TotalConc->Drc ;
             }}
         }
-        if (SwitchPestMC) out << sep << (PQrw_dt / _dt);
+        if (SwitchPestMC)
+        {
+            out << sep << (PQrw_dt / _dt);
+            if (SwitchErosion) out << sep << (PQrs_dt / _dt);
+        }
         out << "\n";
         fout.close();
     }
@@ -816,8 +826,10 @@ void TWorld::ReportTotalsNew(void)
     }
     if (SwitchPestMC) {
         out << "\n";
-        out << "\"Pesticides are cool :)\",";
+        out << "\"Total dissolved pesticide transport (mg):\"," << op.PestOutW<< "\n";
+        if (SwitchErosion) out << "\"Total particulate pesticide transport (mg):\"," << op.PestOutS<< "\n";
     }
+    out << "\n";
     fp.flush();
     fp.close();
 }
@@ -921,7 +933,7 @@ void TWorld::ReportMapSeries(void)
     if (SwitchOutrunoff)
         report(*Qoutput, Outrunoff);
     // discharge per timestep and cell - part of all-fluxes-out
-    report(*Q, OutQ); // MC - not needed for all - fluxes out.
+    report(*Q, OutQ);
     report(*Qn, OutQn);
     report(*QinAFO, OutQinKW);
     if (SwitchErosion) {
@@ -929,7 +941,7 @@ void TWorld::ReportMapSeries(void)
         report(*Qsn, OutSn);
         report(*SinAFO, OutSin);
         //    report(*SedAFO, OutSAFO);
-        //    report(*Sed, OutSS);
+        report(*Sed, OutSS);
     }
 
     // water height m
@@ -1053,6 +1065,8 @@ void TWorld::ReportMapSeries(void)
             }
         }       
     }
+
+    //===== PESTICIDES =====
     if (SwitchPestMC) {
         report(*PCms, "pcms");
         report(*PCmw, "pcmw");
@@ -1069,11 +1083,15 @@ void TWorld::ReportMapSeries(void)
             report(*PCrs, "pcrs");
             report(*PMrs, "pmrs");
             report(*PQrs, "pqrs");
+            report(*SpinKW, "spin");
+            report(*PCs, "pcs");
         }
-        report(*WaterVolall, "wall");
-        report(*WaterVolin, "win");
+        //report(*WaterVolall, "wall");
+        //report(*WaterVolin, "win");
+        report(*WH, "wh");
         report(*Qpw, "qpw");
         report(*QpinKW, "qpin");
+        report(*Ez, "ez");
     }
 
 }
