@@ -342,3 +342,50 @@ void TWorld::SoilWater()
         Perc->Drc = cell_Percolation(r, c, 1.0);
     }}
 }
+
+
+void TWorld::cell_SlopeStability(int r, int c)
+{
+
+//    grad = slope(DEM)+0.005;
+//    cosS = cos(atan(grad));
+//    sinS = sin(atan(grad));
+
+//    bulk_w = 9.8;
+//    # bulk density water in kN/m3
+
+//    Mu = GWDepth/1000;
+//    # pore pressure in m
+//    report D = soildepth/1000;
+//    # soil depth in m
+//    report S = (coh+(D*bulk - Mu*bulk_w)*(cosS**2)*TanPhi);
+//    # shear strength
+//    report T = D*bulk*sinS*cosS;
+
+
+//    F = S/T;
+//    #safety factor, strength/stress, F >=1 means stable
+//    F = if(outcrop, 2, F);
+//    # no instability on outcrops
+//    report F = min(2,F);
+//    #Safety Factor based on Coulomb, cut off at <= 2 for display
+//    report FDays = FDays + if (F lt 1, 1, 0);
+//    # cumulative days in year when unstable
+//    report FdayTot = FDays;
+//    # report the last timestep, cumulative unstable days
+
+    double F = 0;
+    if (CohesionSoil->Drc > 0) {
+        double cosGrad_ = cosGrad->Drc;
+   //  qDebug() << cosGrad_;
+     double soilbulk = SoilDepth2->Drc*BulkDensity->Drc;
+        double S = CohesionSoil->Drc + (soilbulk - GWWH->Drc * 1000.0)*(cosGrad_*cosGrad_)*AngleFriction->Drc; // shear strength kPa
+
+           double T = soilbulk *Grad->Drc*cosGrad_;// shear stress kPa
+      //  qDebug() << S << soilbulk << Grad->Drc << cosGrad_; //T;
+        F = Grad->Drc > 0.01 ? S/T : 0.0;
+    }
+
+   FSlope->Drc = F;
+
+}

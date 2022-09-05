@@ -250,45 +250,45 @@ void TWorld::GetRainfallData(QString name)
 
         // read points in the IDgauge.map and check if a corresponding number exists in the rainfall file
         // allow points outside MV mask of LDD
-        for(int r = 0; r < _nrRows; r++) {
-            for (int c = 0; c < _nrCols; c++) {
-                if (!pcr::isMV(IDRainPoints->Drc) && IDRainPoints->Drc > 0) {
-                    IDI_POINT p;
-                    p.r = r;
-                    p.c = c;
-                    p.nr = IDRainPoints->Drc;
-                    p.V = 0;
-                    IDIpointsRC << p;
-                }
-            }
-        }
+//        for(int r = 0; r < _nrRows; r++) {
+//            for (int c = 0; c < _nrCols; c++) {
+//                if (!pcr::isMV(IDRainPoints->Drc) && IDRainPoints->Drc > 0) {
+//                    IDI_POINT p;
+//                    p.r = r;
+//                    p.c = c;
+//                    p.nr = IDRainPoints->Drc;
+//                    p.V = 0;
+//                    IDIpointsRC << p;
+//                }
+//            }
+//        }
 
         // check if station nrs correspond to map nrs
-        for (int i = 0; i < stationID.count(); i++) {
-            bool found = false;
-
-            for (int j = 0; j < IDIpointsRC.count(); j++) {
-                if (IDIpointsRC.at(j).nr == stationID.at(i))
-                    found = true;
-            }
-            if (!found) {
-                ErrorString = "Gauge ID number(s) in IDgauge.map not present in the rainfall input file";
-                throw 1;
-            }
-        }
-
 //        for (int i = 0; i < stationID.count(); i++) {
-//            SL = rainRecs[i+3].split(QRegExp("\\s+"));
-//            if (SL.count() < 3)
-//                break;
-//            IDI_POINT p;
-//            p.r = SL[0].toInt();
-//            p.c = SL[1].toInt();
-//            p.nr = SL[2].toInt();
-//            p.V = 0;
-//            qDebug() << p.r << p.c << p.V;
-//            IDIpointsRC << p;
+//            bool found = false;
+
+//            for (int j = 0; j < IDIpointsRC.count(); j++) {
+//                if (IDIpointsRC.at(j).nr == stationID.at(i))
+//                    found = true;
+//            }
+//            if (!found) {
+//                ErrorString = "Gauge ID number(s) in IDgauge.map not present in the rainfall input file";
+//                throw 1;
+//            }
 //        }
+
+        for (int i = 0; i < stationID.count(); i++) {
+            SL = rainRecs[i+3].split(QRegExp("\\s+"));
+            if (SL.count() < 3)
+                break;
+            IDI_POINT p;
+            p.r = SL[0].toInt();
+            p.c = SL[1].toInt();
+            p.nr = SL[2].toInt();
+            p.V = 0;
+            qDebug() << p.r << p.c << p.V;
+            IDIpointsRC << p;
+        }
 
 
     }  else {
@@ -523,6 +523,7 @@ void TWorld::GetRainfallMap(void)
         samerain = true;
   //  qDebug() << currentrow << currenttime << currentRainfallrow << samerain;
 
+    SwitchdoRrainAverage = false;
     // get the next map from file
     if (!samerain) {
         // create an empty map and read the file
@@ -538,6 +539,7 @@ void TWorld::GetRainfallMap(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             double rain_ = 0;
+            //tma->Drc = 0;
 
             if (pcr::isMV(_M->Drc)) {
                 QString sr, sc;
@@ -550,8 +552,18 @@ void TWorld::GetRainfallMap(void)
                 rain_ = 0;
             if (rain_ > 0)
                 rainStarted = true;
-            Rain->Drc = rain_ * calibration;
+         if (!SwitchdoRrainAverage)
+            Rain->Drc= rain_ * calibration;
+         else
+            tma->Drc = rain_ * calibration;
         }}
+    if (SwitchdoRrainAverage) {
+        double avg = mapAverage(*tma);
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            Rain->Drc = avg;
+        }}
+    }
 
       //  delete _M;
     } //samerain

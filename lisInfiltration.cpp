@@ -604,7 +604,7 @@ void TWorld::cell_InfilMethods(int r, int c)
     // actual infil in m, cannot have more infil than water on the surface
 
     if (fact_ > 0)
-        fact_ = IncreaseInfiltrationDepthNew(fact_, r, c);
+        fact_ = IncreaseInfiltrationDepthNew0(fact_, r, c);
     // adjust fact and increase Lw, for twolayer, impermeable etc
 
     if (fwh < fact_)
@@ -697,7 +697,7 @@ double TWorld::IncreaseInfiltrationDepthNew0(double fact_in, int r, int c) //, d
 
         if (L < SoilDep1) {
             double space = (SoilDep1-L)*dtheta1;
-            if(fact_in > (SoilDep1-L)*space) {
+            if(fact_in > space) {
                 passing = true;
                 dfact2 = fact_in - space;
             } else {

@@ -452,10 +452,28 @@ void TWorld::InitStandardInput(void)
     DEM = ReadMap(LDD, getvaluename("dem"));
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
-
     sqrtGrad = NewMap(0);
     FOR_ROW_COL_MV {
         sqrtGrad->Drc = sqrt(Grad->Drc);
+    }
+
+    SwitchSlopeStability = false;
+    if (SwitchSlopeStability) {
+        tanGrad = NewMap(0);
+        cosGrad = NewMap(0);
+        BulkDensity = NewMap(1400);
+        AngleFriction = NewMap(1.0);  // tan phi = 45 degrees
+
+        FSlope = NewMap(0);
+
+        FOR_ROW_COL_MV {
+            // grad = grad = sin(atan(slope(DEMm)))
+            double at = asin(Grad->Drc);
+            tanGrad->Drc = tan(at);
+            cosGrad->Drc = cos(at);
+        }
+        report(*cosGrad,"cosgrad.map");
+        report(*tanGrad,"tangrad.map");
     }
 
 
@@ -1386,6 +1404,22 @@ double TWorld::LogNormalDist(double d50,double s, double d)
 //---------------------------------------------------------------------------
 void TWorld::InitErosion(void)
 {
+//qDebug() << "hoi"; //SwitchSlopeStability ||
+//if (SwitchErosion) {
+//        COHCalibration = getvaluedouble("Cohesion calibration");
+//        Cohesion = ReadMap(LDD,getvaluename("coh"));
+//        RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
+//        FOR_ROW_COL_MV_L {
+//            if (RootCohesion->Drc < 0) // root cohesion can be used to avoid surface erosion base don land use
+//                CohesionSoil->Drc = -1;
+//            else
+//                CohesionSoil->Drc = COHCalibration*(Cohesion->Drc + Cover->Drc*RootCohesion->Drc);
+//            if (SwitchGrassStrip)
+//                CohesionSoil->Drc = CohesionSoil->Drc  *(1-GrassFraction->Drc) + GrassFraction->Drc * CohGrass->Drc;
+//        }}
+//    }
+
+
     if (!SwitchErosion)
         return;
 

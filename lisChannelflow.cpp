@@ -152,6 +152,7 @@ void TWorld::ChannelBaseflow(void)
         GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
 
     }}
+    report(*GWWHmax,"gwmax.map");
 //report(*GWWH,"gwwh");
     // new qbin
     AccufluxGW(crlinkedlddbase_, GWout, Qbin, ChannelWidth);

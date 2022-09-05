@@ -320,6 +320,10 @@ void TWorld::GetComboMaps()
             AddComboMap(0,"Groundwater level max","m",GWWHmax,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
             AddComboMap(0,"SD2","m",SoilDepth2,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
         }
+        cl = 6;
+        if (SwitchSlopeStability)
+            AddComboMap(0,"Slope Stability","m",FSlope,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+
 
         if (InfilMethod != INFIL_SWATRE) {
             //AddComboMap(0,"Avg Moisture content layer 1","-",Thetaeff,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
