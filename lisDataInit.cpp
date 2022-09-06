@@ -2283,7 +2283,7 @@ void TWorld::IntializeData(void)
         }
     }
     // load data for pesticide-MC
-    SwitchPestMC = true;
+    //SwitchPestMC = true;
     if(SwitchPestMC){
         // get constant from runfile
         KdPestMC = getvaluedouble("Kd pesticide");
@@ -2522,7 +2522,7 @@ void TWorld::IntializeOptions(void)
 
     SwitchPesticide = false;
     Switchheaderpest = false;
-    SwitchPestMC = true;
+    SwitchPestMC = false;
 
     addedbaseflow = false;
 }

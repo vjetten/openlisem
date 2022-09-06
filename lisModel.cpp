@@ -121,7 +121,8 @@ void TWorld::DoModel()
 
     mapFormat = "PCRaster";
 
-    errorFileName = QString(resultDir + "error-"+ op.timeStartRun +".txt");
+    //errorFileName = QString(resultDir + "error-"+ op.timeStartRun +".txt");
+    errorFileName = QString(resultDir + "error_file.txt");
     errorSedFileName = QString(resultDir + "errorsed-"+ op.timeStartRun +".txt");
     time_ms.start();
     // get time to calc run length
