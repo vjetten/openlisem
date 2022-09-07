@@ -261,8 +261,8 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         }
     }
     QpinKW->Drc = Qpin;
-    //end ldd loop here start new FOR.. loop after
-
+    //end ldd loop here start new FOR_ROW_COL_MV_L loop after
+    // does not seem faster creates MBerror
     //#pragma omp parallel for num_threads(userCores)
     double mwrm_ex {0.0};   //mg
     double mrw_inf {0.0};   //mg
@@ -318,7 +318,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         volmw = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
         PCmw->Drc = PMmw->Drc / volmw; //
        } //runoff occurs
-    }//end loop over ldd
+    }//end ldd loop
 }
 
 //---------------------------------------------------------------------------
@@ -368,7 +368,9 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         }
     }
     SpinKW->Drc = Spin;
+    //} // end ldd loop
     //#pragma omp parallel for num_threads(userCores)
+    //FOR_ROW_COL_MV_L {
     double Crs_avg {0.0};
     double msoil_ex {0.0};
     double msrm_ex {0.0};
@@ -429,7 +431,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         //mg kg-1 = mg / kg
         PCms->Drc = PMms->Drc / massms;
         } // erosion occurs
-    } //end ldd loop
+    }//} //end for_row_col_mv_l
 }
 
 //NOT USED ANY MORE
