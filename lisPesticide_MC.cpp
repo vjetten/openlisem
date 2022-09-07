@@ -396,6 +396,32 @@ void TWorld::KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
 
 
 //---------------------------------------------------------------------------
+/**
+* @fn void TWorld::PesticideDynamicsMC(void)
+* @brief Do all the calculations for pesticide dynamics
+* This includes:
+*   call functions for specific dynamics
+*
+*/
+
+void TWorld::PesticideDynamicsMC(void)
+{
+  //percolation
+
+  //infiltration
+
+  //runoff
+
+  //erosion
+  if(SwitchErosion){
+
+  }
+
+  //update masses
+}
+
+
+//---------------------------------------------------------------------------
 // NOT USED ANY MORE
 /**
  * @fn void TWorld::simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double Qinf, double zm, double kr, double Kd,
