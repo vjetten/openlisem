@@ -400,12 +400,8 @@ void TWorld::OverlandFlow1D(void)
         }}
     }
     if (SwitchPestMC) {
-        //              (-, -, m3/sec, kg/sec, mg/sec, mg/sec,
-        KinematicPestMC(crlinkedldd_, LDD, Qn, Qsn, PQrw, PQrs,
-        //          m, ??, kg,
-                    DX, Alpha, Sed,
-        //          m3/sec, kg/sec, mg/sec, mg/sec)
-                    Q, Qs, Qpw, Qps);
+        //this function takes care of all pesticide dynamics
+        PesticideDynamicsMC();
      }
 }
 //---------------------------------------------------------------------------

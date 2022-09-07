@@ -2313,6 +2313,7 @@ void TWorld::IntializeData(void)
         Ez = NewMap(0);
         SpinKW = NewMap(0);
         QpinKW = NewMap(0);
+        Theta_mix = NewMap(0);
         test_map = NewMap(0.0);
         if (SwitchErosion) {
             PQrs = NewMap(0);

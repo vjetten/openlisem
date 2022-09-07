@@ -252,6 +252,7 @@ cTMap
 *Qps,                       //!< pesticide sediment flux based on Qs [mg/sec]
 *Ez,                        //!< erosion depth [m] - negative is deposition
 *PCs,                       //!< concentration of pesticide in soil [mg/kg] - same as initial PCms
+*Theta_mix,                 //!< theta of the mixing layer [-]
 *test_map,
 
 
