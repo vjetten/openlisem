@@ -173,9 +173,18 @@ void TWorld::PesticideDynamicsMC(void)
            PMinf->Drc = InfilVol->Drc * 1000 * PCmw->Drc; // infiltration mixing layer (mg)
        }
 
+       PMmw->Drc = std::max(0.0, PMmw->Drc - mda_ex);
+
+       // adjust masses if outflow if more than available mass.
+       if (PMmw->Drc < PMinf->Drc + PMperc->Drc) {
+           double tot = PMinf->Drc + PMperc->Drc;
+           PMinf->Drc = (PMinf->Drc/tot) * PMmw->Drc;
+           PMperc->Drc = (PMperc->Drc/tot) * PMmw->Drc;
+           PCmw->Drc = 0;
+       }
        // update mass after percolation and infiltration
        // mg = mg - mg - mg
-       PMmw->Drc = std::max(0.0, PMmw->Drc - PMinf->Drc - PMperc->Drc - mda_ex);
+       PMmw->Drc = std::max(0.0, PMmw->Drc - PMinf->Drc - PMperc->Drc);
        // mg = mg + mg
        PMms->Drc = std::max(0.0, PMms->Drc + mda_ex);
     }}
@@ -183,12 +192,26 @@ void TWorld::PesticideDynamicsMC(void)
     //runoff
     KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw,
                         Kfilm);
+
     //erosion
     if(SwitchErosion){
         KinematicPestAdsorbed(crlinkedldd_, LDD, Qsn, PQrs, DX, Alpha, Sed,
                               Qs, Qps, rho);
     }
+    // calculate new concentration
+    FOR_ROW_COL_MV_L{
+    double volmw {0.0};     //L - volume of water in mixing layer
+    double massms {0.0};        // kg - mass of sediment in mixing layer
+    PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
+    // L = m * m * m * -- * 1000
+    volmw = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
+    PCmw->Drc = PMmw->Drc / volmw; //
 
+    // kg = m * m * m * kg m_3 * --
+    massms = zm->Drc * DX->Drc * SoilWidthDX->Drc * rho;
+    //mg kg-1 = mg / kg
+    PCms->Drc = PMms->Drc / massms;
+    }}
 }
 
 //---------------------------------------------------------------------------
@@ -262,11 +285,10 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     }
     QpinKW->Drc = Qpin;
     //end ldd loop here start new FOR_ROW_COL_MV_L loop after
-    // does not seem faster creates MBerror
+    // does not seem faster and creates MBerror
     //#pragma omp parallel for num_threads(userCores)
     double mwrm_ex {0.0};   //mg
     double mrw_inf {0.0};   //mg
-    double volmw {0.0};     //L - volume of water in mixing layer
     double Crw_avg {0.0};   // mg/L - no runoff; concentration = 0
     //no runoff - add leftover of mass in runoff water to mixing layer
     if (Qn->Drc + QinKW->Drc < 1e-6) {
@@ -312,11 +334,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         PMrw->Drc = std::max(0.0, PMrw->Drc - (_Qpwn->Drc * _dt)
                                       + (QpinKW->Drc * _dt));
         PMmw->Drc = std::max(0.0, PMmw->Drc - mwrm_ex + mrw_inf);
-        // calculate new concentration
-        PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
-        // L = m * m * m * -- * 1000
-        volmw = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
-        PCmw->Drc = PMmw->Drc / volmw; //
        } //runoff occurs
     }//end ldd loop
 }
@@ -374,7 +391,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     double Crs_avg {0.0};
     double msoil_ex {0.0};
     double msrm_ex {0.0};
-    double massms {0.0};        // kg - mass of sediment in mixing layer
 
     if (_Sed->Drc > 1e-6) { // more than 0.01 gram _Qsn->Drc + Sin
         // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
@@ -426,12 +442,8 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         PCs->Drc = PMsoil->Drc
                    / (zs->Drc * rho * _DX->Drc * SoilWidthDX->Drc);
         PMms->Drc = std::max(0.0, PMms->Drc - msrm_ex + msoil_ex);
-        // kg = m * m * m * kg m_3 * --
-        massms = zm->Drc * DX->Drc * SoilWidthDX->Drc * rho;
-        //mg kg-1 = mg / kg
-        PCms->Drc = PMms->Drc / massms;
         } // erosion occurs
-    }//} //end for_row_col_mv_l
+    }// end ldd loop
 }
 
 //NOT USED ANY MORE

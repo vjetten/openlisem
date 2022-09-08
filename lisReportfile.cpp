@@ -1076,8 +1076,8 @@ void TWorld::ReportMapSeries(void)
         report(*PMmw, "pmmw");
         report(*PMrw, "pmrw");
         report(*PQrw, "pqrw");
-        //report(*PMinf, "pinf");
-        //report(*PMperc, "prc");
+        report(*PMinf, "pinf");
+        report(*PMperc, "prc");
         //report(*test_map, "test");
         if (SwitchErosion) {
             report(*PCrs, "pcrs");
@@ -1085,13 +1085,14 @@ void TWorld::ReportMapSeries(void)
             report(*PQrs, "pqrs");
             report(*SpinKW, "spin");
             report(*PCs, "pcs");
+            report(*Ez, "ez");
         }
         //report(*WaterVolall, "wall");
         //report(*WaterVolin, "win");
-        report(*WH, "wh");
+        //report(*WH, "wh");
         report(*Qpw, "qpw");
         report(*QpinKW, "qpin");
-        report(*Ez, "ez");
+
     }
 
 }
