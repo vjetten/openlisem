@@ -865,7 +865,7 @@ public:
                          cTMap *_DX, cTMap *_Alpha, cTMap *_Sed,
                          cTMap *_Q, cTMap *_Qs, cTMap *_Qpw, cTMap *_Qps);
     void InitPesticideMC(void);
-    void TWorld::PesticideDynamicsMC(void);
+    void PesticideDynamicsMC(void);
 
     // 1D hydro processes
     //input timeseries
