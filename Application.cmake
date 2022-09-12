@@ -30,7 +30,7 @@ ENDIF()
 
 # linux ubuntu, qwt installation should be in usr if you followed the instructions, version nr may be different
 IF(UNIX AND NOT CYGWIN)
- SET(QWT_BUILD_DIR "/home/meindert/Programs/qwt-6.1-ma")
+ SET(QWT_BUILD_DIR "/home/meindert/Programs/qwt-6.1-ma") #point to correct folder
  SET(GDAL_INCLUDE_DIRS "/usr/include/gdal")
  SET(GDAL_LIBRARIES "/usr/lib/libgdal.so")
     SET(CMAKE_SKIP_BUILD_RPATH FALSE)
@@ -39,7 +39,6 @@ IF(UNIX AND NOT CYGWIN)
     SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.so")
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
-    #SET(OMP_INCLUDE_DIRS "/usr/lib/gcc/x86_64-linux-gnu/11/include")
     SET(OpenMP_CXX_INCLUDE_DIRS "/usr/lib/gcc/x86_64-linux-gnu/11/include")
 ENDIF()
 
@@ -48,7 +47,6 @@ ENDIF()
 INCLUDE_DIRECTORIES(
     ${GDAL_INCLUDE_DIRS}
     ${QWT_INCLUDE_DIRS}
-    #${OMP_INCLUDE_DIRS}
     ${OpenMP_CXX_INCLUDE_DIRS}
     SYSTEM
     ${CMAKE_CURRENT_SOURCE_DIR}/include

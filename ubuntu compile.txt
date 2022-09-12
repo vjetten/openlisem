@@ -1,12 +1,14 @@
-Install the newest ubuntu
+Install the newest ubuntu (22.04 LST)
 
-sudo apt install cmake cmake-gui gcc g++ git libboost-all-dev libgdal-dev libncurses5-dev libpython-dev libqwt-qt5-dev libxerces-c-dev libxml2 libxml2-utils libxslt1-dev python-numpy qtbase5-dev python-docopt
+-install packages:
+sudo apt install cmake cmake-gui gcc g++ git libboost-all-dev libgdal-dev libncurses5-dev libpython3-dev libqwt-qt5-dev libxerces-c-dev libxml2 libxml2-utils libxslt1-dev python3-numpy qtbase5-dev python3-docopt
 
 - opengl:
-sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
+sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev build-essential
 
-compilation is done in qtcreator, so install qt:
+-compilation is done in qtcreator, so install qt:
 https://wiki.qt.io/Install_Qt_5_on_Ubuntu 
+sudo apt-get install qtcreator
 
 - install pcraster 4.3 via (mini)conda:
 https://pcraster.geo.uu.nl/pcraster/4.3.0/documentation/pcraster_project/install.html
@@ -20,9 +22,16 @@ Not sure about this:
 export CPLUS_INCLUDE_PATH=/usr/include/gdal
 export C_INCLUDE_PATH=/usr/include/gdal
 
-
 - get the lisem code via github:
 https://github.com/vjetten/openlisem.git
+
+This LISEM build uses a custom QWT library (qwt-6.1-ma), this can be obtained from
+google drive - contact V. Jetten for this.
+
+The qwt library must be compiled for linux - remove the makefiles from the /src folder.
+After that follow the instructions on: https://qwt.sourceforge.io/qwtinstall.html
+
+-adjust the paths in Application.cmake in the Linux section
 
 open cmake-gui and add the folder with the code as the first folder
 and the folder where the executable is going as the second folder
