@@ -291,12 +291,12 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     double mrw_inf {0.0};   //mg
     double Crw_avg {0.0};   // mg/L - no runoff; concentration = 0
     //no runoff - add leftover of mass in runoff water to mixing layer
-//    if (Qn->Drc + QinKW->Drc < 1e-6) {
-//        PCrw->Drc = 0.0;        //concentration = 0
-//        PMmw->Drc += PMrw->Drc; //add any leftover mass to mixing layer
-//        PMrw->Drc = 0.0;        // mass = 0
-//        PQrw->Drc = 0.0;        // discharge = 0
-//    }
+    if (Qn->Drc + QinKW->Drc < 1e-6) {
+        PCrw->Drc = 0.0;        //concentration = 0
+        PMmw->Drc += PMrw->Drc; //add any leftover mass to mixing layer
+        PMrw->Drc = 0.0;        // mass = 0
+        PQrw->Drc = 0.0;        // discharge = 0
+    }
     if (_Qn->Drc + QinKW->Drc > 1e-6) { // more than 1 ml - what is best definition of runoff?
         // calculate the correct C's based on the Qin and Qold etc.
         // mg L-1 = (mg + (mg sec-1 * sec)) / (m3 + (m3 sec-1 * sec)) * 1000(m3 -> L)
