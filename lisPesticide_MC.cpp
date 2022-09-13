@@ -202,7 +202,9 @@ void TWorld::PesticideDynamicsMC(void)
     FOR_ROW_COL_MV_L{
     double volmw {0.0};     //L - volume of water in mixing layer
     double massms {0.0};        // kg - mass of sediment in mixing layer
+    if (WaterVolall->Drc > 0) {
     PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
+    } else PCrw->Drc = 0.0;
     // L = m * m * m * -- * 1000
     volmw = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
     PCmw->Drc = PMmw->Drc / volmw; //
