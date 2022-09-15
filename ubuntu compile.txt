@@ -32,7 +32,7 @@ The qwt library must be compiled for linux - remove the makefiles from the /src 
 - coment out (#) the QTSVG option in the qwtconfig.pri file
 After that follow the instructions on: https://qwt.sourceforge.io/qwtinstall.html
 
--adjust the paths in Application.cmake in the Linux section
+-adjust the path in Application.cmake in the Linux section to the qwt installation if needed
 
 open cmake-gui and add the folder with the code as the first folder
 and the folder where the executable is going as the second folder
