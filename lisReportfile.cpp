@@ -51,7 +51,7 @@ void TWorld::reportAll(void)
     // report totals to a text file
 
     ReportTimeseriesNew();
-    // report hydrographs ande sedigraphs at all points in outpoint.map
+    // report hydrographs and sedigraphs at all points in outpoint.map
 
     ReportTotalSeries();
 
@@ -63,7 +63,7 @@ void TWorld::reportAll(void)
     // report all maps and mapseries
 
     ReportLandunits();
-    // reportc stats per landunit class
+    // report stats per landunit class
 
     ChannelFloodStatistics();
     // report buildings submerged in flood level classes in 5cm intervals
@@ -826,8 +826,8 @@ void TWorld::ReportTotalsNew(void)
     }
     if (SwitchPestMC) {
         out << "\n";
-        out << "\"Total dissolved pesticide transport (mg):\"," << op.PestOutW<< "\n";
-        if (SwitchErosion) out << "\"Total particulate pesticide transport (mg):\"," << op.PestOutS<< "\n";
+        out << "\"Total dissolved pesticide transport (mg):\"," << op.PMOutW<< "\n";
+        if (SwitchErosion) out << "\"Total particulate pesticide transport (mg):\"," << op.PMOutS<< "\n";
     }
     out << "\n";
     fp.flush();
@@ -1067,7 +1067,7 @@ void TWorld::ReportMapSeries(void)
     }
 
     //===== PESTICIDES =====
-    if (SwitchPestMC) {
+    if (SwitchReportPestMC) {
         report(*PCms, "pcms");
         report(*PCmw, "pcmw");
         report(*PCrw, "pcrw");

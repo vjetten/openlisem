@@ -2524,6 +2524,7 @@ void TWorld::IntializeOptions(void)
     SwitchPesticide = false;
     Switchheaderpest = false;
     SwitchPestMC = false;
+    SwitchReportPestMC = false;
 
     addedbaseflow = false;
 }

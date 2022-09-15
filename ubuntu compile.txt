@@ -29,6 +29,7 @@ This LISEM build uses a custom QWT library (qwt-6.1-ma), this can be obtained fr
 google drive - contact V. Jetten for this.
 
 The qwt library must be compiled for linux - remove the makefiles from the /src folder.
+- coment out (#) the QTSVG option in the qwtconfig.pri file
 After that follow the instructions on: https://qwt.sourceforge.io/qwtinstall.html
 
 -adjust the paths in Application.cmake in the Linux section

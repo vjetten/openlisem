@@ -87,8 +87,14 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
     PMtot = Pestinf + PestOutW + mapTotal(*PMsoil) + mapTotal(*PMrw)
             + mapTotal(*PMmw) + mapTotal(*PMms) + PestPerc + PMerosion;
 
-  //  PMerr = 1 - (PMtot/PMtotI);
-    PMerr = PMtot - PMtotI;
+    // divide the mass balance error by the active pesticide mass to get a %
+    double PMactive {0.0};
+    if (SwitchErosion) {
+    PMactive = PestOutS + mapTotal(*PMrs);
+    }
+    PMactive += PestOutW + mapTotal(*PMrw);
+
+    PMerr = (PMtot - PMtotI) / PMactive * 100;
 }
 
 //---------------------------------------------------------------------------

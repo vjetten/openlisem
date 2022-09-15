@@ -72,7 +72,7 @@ void TWorld::saveMBerror2file(bool doError, bool start)
         eout << "2\n";
         eout << "run step\n";
         eout << "error\n";
-        eout << "runtime\n";
+        //eout << "runtime\n";
         efout.flush();
         efout.close();
 
@@ -86,6 +86,22 @@ void TWorld::saveMBerror2file(bool doError, bool start)
             esout << "MBs error\n";
             esfout.flush();
             esfout.close();
+        }
+
+        if (SwitchPestMC) {
+            QFile efout(resultDir+errorPestFileName);
+            efout.open(QIODevice::WriteOnly | QIODevice::Text);
+            QTextStream eout(&efout);
+            eout << "#pesticide mass balance error (%)\n";
+            eout << "4\n";
+            eout << "run step\n";
+            eout << "WMerr\n";
+            if (SwitchErosion) {eout << "SMerr\n";}
+            eout << "PMerr\n";
+            eout << "runtime\n";
+            efout.flush();
+            efout.close();
+
         }
     }
 
@@ -106,6 +122,21 @@ void TWorld::saveMBerror2file(bool doError, bool start)
             esfout.flush();
             esfout.close();
         }
+
+        if (SwitchPestMC) {
+            QFile efout(resultDir+errorPestFileName);
+            efout.open(QIODevice::Append | QIODevice::Text);
+            QTextStream eout(&efout);
+            eout << " " << runstep << " " << MB;
+            if (!SwitchErosion) {
+                eout << " " << runstep << " " << MB << " " << MBs << " " << PMerr << " " << op.t << "\n";
+            } else {
+                eout << " " << runstep << " " << MB << " " << PMerr << " " << op.t << "\n";
+            }
+            eout << " " << op.t << "\n";
+            efout.flush();
+            efout.close();
+        }
     }
 
 }
@@ -121,9 +152,9 @@ void TWorld::DoModel()
 
     mapFormat = "PCRaster";
 
-    //errorFileName = QString(resultDir + "error-"+ op.timeStartRun +".txt");
-    errorFileName = QString(resultDir + "error_file.txt");
+    errorFileName = QString(resultDir + "error-"+ op.timeStartRun +".txt");
     errorSedFileName = QString(resultDir + "errorsed-"+ op.timeStartRun +".txt");
+    errorPestFileName = QString(resultDir + "error_pest.txt");
     time_ms.start();
     // get time to calc run length
     startTime=omp_get_wtime()/60.0;
@@ -256,7 +287,7 @@ void TWorld::DoModel()
         //VJ 110110 for output totals per landunit
 
         runstep = 0; //  runstep is used to initialize graph!
-        printstep = 1; // printstep determines report frquency
+        printstep = 1; // printstep determines report frequency
 
       //  DEBUG("setupHydrographData()");
         setupHydrographData();
