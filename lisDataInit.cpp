@@ -930,6 +930,8 @@ void TWorld::InitChannel(void)
       //  i++;
     }
     crlinkedlddch_= MakeLinkedList(LDDChannel);
+
+
     //qDebug() << "nrcells" << nrValidCellsCH << crlinkedlddch_.size();
 
 //   crlinkedlddch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
@@ -1020,10 +1022,15 @@ void TWorld::InitChannel(void)
     } else
         ChannelMaxQ = NewMap(0);
 
-    CulvertWidth = 2.0;
-    CulvertHeight = 1.0;
-    CulvertS = 0.005;
-    CulvertN = 0.012;
+    for (int i = 0; i < crlinkedlddch_.size(); i++) {
+        int c = crlinkedlddch_.at(i).c;
+        int r = crlinkedlddch_.at(i).r;
+        if (ChannelMaxQ->Drc > 0) {
+            LDD_COORIN hoi = crlinkedlddch_.at(i);
+            hoi.ldd *= -1;
+            crlinkedlddch_.replace(i, hoi) ;
+        }
+    }
 
     FOR_ROW_COL_MV_CH
     {

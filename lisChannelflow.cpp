@@ -273,7 +273,7 @@ void TWorld::ChannelFlow(void)
             QinKW->Drc = 0;
 
         }}
-report(*ChannelV,"cv");
+
         // ChannelV and Q and alpha now based on original width and depth, channel vol is always the same
 
         if (SwitchLinkedList) {
@@ -324,16 +324,6 @@ report(*ChannelV,"cv");
             else
                 ChannelV->Drc = 0;
 
-            if (SwitchCulverts) {
-//                //TO DO ?????????????????????
-//                double MaxQ = ChannelMaxQ->Drc;
-//                if (MaxQ > 0 && ChannelQn->Drc > MaxQ) {
-//                    ChannelQn->Drc = MaxQ;
-//                    ChannelV->Drc = MaxQ/ChannelArea;
-
-//                   // ChannelWaterVol->Drc = ChannelArea*ChannelDX->Drc;
-//                }
-             }
         }}
 
 

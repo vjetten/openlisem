@@ -274,18 +274,26 @@ void TWorld::OutputUI(void)
         copy(*op.outletMap, *PointMap);
 
         if (SwitchRoadsystem) {
-            copy(*op.roadMap, *RoadWidthDX);
+            FOR_ROW_COL_MV_L {
+                if (RoadWidthDX->Drc > 0.2*_dx)
+                    op.roadMap->Drc = RoadWidthDX->Drc;
+                else
+                    op.roadMap->Drc = 0;
+                //copy(*op.roadMap, *RoadWidthDX);
+            }}
         }
         if (SwitchHouses)
             copy(*op.houseMap, *HouseCover);
 
+        if(SwitchCulverts)
+            copy(*op.flowbarriersMap,*ChannelMaxQ);
+
         if(SwitchFlowBarriers)
         {
-            fill(*tma,0.0);
-            FOR_ROW_COL_MV {
-                tma->Drc = std::max(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),FlowBarrierW->Drc),FlowBarrierS->Drc);
-            }
-            copy(*op.flowbarriersMap,*tma);
+//            fill(*tma,0.0);
+//            FOR_ROW_COL_MV {
+//                tma->Drc = std::max(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),FlowBarrierW->Drc),FlowBarrierS->Drc);
+//            }
         }
     }
     // MAP DISPLAY VARIABLES

@@ -53,7 +53,6 @@ void lisemqt::runmodel()
 
     startplot = true;
     stopplot = false;
-    doHouse = true;
 
     rivers.clear();
     culverts.clear();
@@ -231,6 +230,7 @@ void lisemqt::worldShow(bool showall)
     showHouseMap(); // show building structures map
 
     //showFlowBarriersMap();
+
     showImageMap();
 
     startplot = false;

@@ -219,7 +219,6 @@ typedef struct LDD_COORIN {
     int nr;
     int ldd;
     LDD_COOR *inn;
-    //QVector <LDD_COOR> in;
 }  LDD_COORIN;
 //---------------------------------------------------------------------------
 typedef struct LDD_COORloc {
@@ -501,7 +500,7 @@ public:
 
     double maxRainaxis;
     double latitude;
-    double CulvertWidth, CulvertHeight, CulvertN, CulvertS;
+
     //double D50CH, D90CH;
 
     ///pesticides
