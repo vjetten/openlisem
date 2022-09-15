@@ -248,48 +248,51 @@ void TWorld::GetRainfallData(QString name)
 
         IDIpointsRC.clear();
 
-        // read points in the IDgauge.map and check if a corresponding number exists in the rainfall file
-        // allow points outside MV mask of LDD
-//        for(int r = 0; r < _nrRows; r++) {
-//            for (int c = 0; c < _nrCols; c++) {
-//                if (!pcr::isMV(IDRainPoints->Drc) && IDRainPoints->Drc > 0) {
-//                    IDI_POINT p;
-//                    p.r = r;
-//                    p.c = c;
-//                    p.nr = IDRainPoints->Drc;
-//                    p.V = 0;
-//                    IDIpointsRC << p;
-//                }
-//            }
-//        }
 
-        // check if station nrs correspond to map nrs
-//        for (int i = 0; i < stationID.count(); i++) {
-//            bool found = false;
+        if (SwitchUseIDmap) {
+            // read points in the IDgauge.map and check if a corresponding number exists in the rainfall file
+            // allow points outside MV mask of LDD
+            for(int r = 0; r < _nrRows; r++) {
+                for (int c = 0; c < _nrCols; c++) {
+                    if (!pcr::isMV(IDRainPoints->Drc) && IDRainPoints->Drc > 0) {
+                        IDI_POINT p;
+                        p.r = r;
+                        p.c = c;
+                        p.nr = IDRainPoints->Drc;
+                        p.V = 0;
+                        IDIpointsRC << p;
+                    }
+                }
+            }
 
-//            for (int j = 0; j < IDIpointsRC.count(); j++) {
-//                if (IDIpointsRC.at(j).nr == stationID.at(i))
-//                    found = true;
-//            }
-//            if (!found) {
-//                ErrorString = "Gauge ID number(s) in IDgauge.map not present in the rainfall input file";
-//                throw 1;
-//            }
-//        }
+            // check if station nrs correspond to map nrs
+            for (int i = 0; i < stationID.count(); i++) {
+                bool found = false;
 
-        for (int i = 0; i < stationID.count(); i++) {
-            SL = rainRecs[i+3].split(QRegExp("\\s+"));
-            if (SL.count() < 3)
-                break;
-            IDI_POINT p;
-            p.r = SL[0].toInt();
-            p.c = SL[1].toInt();
-            p.nr = SL[2].toInt();
-            p.V = 0;
-            qDebug() << p.r << p.c << p.V;
-            IDIpointsRC << p;
+                for (int j = 0; j < IDIpointsRC.count(); j++) {
+                    if (IDIpointsRC.at(j).nr == stationID.at(i))
+                        found = true;
+                }
+                if (!found) {
+                    ErrorString = "Gauge ID number(s) in IDgauge.map not present in the rainfall input file";
+                    throw 1;
+                }
+            }
+        } else {
+
+            for (int i = 0; i < stationID.count(); i++) {
+                SL = rainRecs[i+3].split(QRegExp("\\s+"));
+                if (SL.count() < 3)
+                    break;
+                IDI_POINT p;
+                p.r = SL[0].toInt();
+                p.c = SL[1].toInt();
+                p.nr = SL[2].toInt();
+                p.V = 0;
+                qDebug() << p.r << p.c << p.V;
+                IDIpointsRC << p;
+            }
         }
-
 
     }  else {
         // count gauge areas in the ID.map

@@ -58,6 +58,8 @@ void lisemqt::runmodel()
     rivers.clear();
     culverts.clear();
     outlets.clear();
+    obspoints.clear();
+
     label_debug->text().clear();
 
     //NOTE op.runfilename is set in function openRunFile()
@@ -348,10 +350,6 @@ void lisemqt::initOP()
     op.flowbarriersMap = nullptr;
     op.Image = nullptr;
 
-//    op.ChanDataX.clear();
-//    op.ChanDataY.clear();
-//    op.Chanbranch.clear();
-//    op.branches.clear();
     op.CulvertX.clear();
     op.CulvertY.clear();
     op.EndPointX.clear();

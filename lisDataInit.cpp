@@ -310,7 +310,7 @@ void TWorld::InitParameters(void)
     psiCalibration = getvaluedouble("Psi calibration");
     ChnCalibration = getvaluedouble("Channel N calibration");
     ChnTortuosity = 1.0;
-    ChnTortuosity = getvaluedouble("Channel tortuosity");
+    //ChnTortuosity = getvaluedouble("Channel tortuosity");
     if (ChnCalibration == 0)
     {
         ErrorString = QString("Calibration: the calibration factor for Mannings n for channels cannot be zero.");
@@ -540,17 +540,20 @@ void TWorld::InitStandardInput(void)
         ErrorString = QString("Outpoint.map has no values above 0. Copy at least outlet(s).");
         throw 1;
     }
-
+SwitchUseIDmap = false;
     if (SwitchRainfall && !SwitchRainfallSatellite)
     {
         RainZone = ReadMap(LDD,getvaluename("ID"));
         if (SwitchIDinterpolation) {
-            IDRainPoints = ReadFullMap(getvaluename("IDGauges"));
-        } else {
-            IDRainPoints = NewMap(0);
+            if (SwitchUseIDmap){
+                IDRainPoints = ReadFullMap(getvaluename("IDGauges"));
+            } else {
+                IDRainPoints = NewMap(0);
+            }
         }
-
     }
+
+
     if (SwitchIncludeET && !SwitchETSatellite)
     {
         ETZone = ReadMap(LDD,getvaluename("ETID"));
@@ -3085,24 +3088,27 @@ void TWorld::InitScreenChanNetwork()
 
     FOR_ROW_COL_MV_CH {
         if (LDDChannel->Drc == 5){
+             qDebug() << c << r;
             op.EndPointX << _llx + c*_dx + 0.5*_dx;
             op.EndPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
         }
     }
     FOR_ROW_COL_MV_CH {
         if (PointMap->Drc > 0){
+        //    if (ChannelMaxQ->Drc > 0) {
             op.ObsPointX << _llx + c*_dx + 0.5*_dx;
             op.ObsPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
+
         }
     }
 
     if(SwitchCulverts) {
-        FOR_ROW_COL_MV {
+        FOR_ROW_COL_MV_CH {
+ //           if (PointMap->Drc > 0){
             if (ChannelMaxQ->Drc > 0) {
                 op.CulvertX << _llx + c*_dx + 0.5*_dx;
                 op.CulvertY << _llx + (_nrRows-r-1)*_dx + 0.5*_dx;
             }
-
         }
     }
 

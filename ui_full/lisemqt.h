@@ -496,7 +496,7 @@ private slots:
 
     void showMapb(bool);
     void showMapd(double);
-    void hideChannelVector(bool);
+    void showChannelVector(bool);
 
     // functions that interact with the world thread signals
     void worldShow(bool showall);

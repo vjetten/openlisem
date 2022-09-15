@@ -380,7 +380,7 @@ public:
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle,
-    SwitchSlopeStability, SwitchdoRrainAverage;
+    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap;
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
