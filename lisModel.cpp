@@ -127,13 +127,11 @@ void TWorld::saveMBerror2file(bool doError, bool start)
             QFile efout(resultDir+errorPestFileName);
             efout.open(QIODevice::Append | QIODevice::Text);
             QTextStream eout(&efout);
-            eout << " " << runstep << " " << MB;
             if (!SwitchErosion) {
                 eout << " " << runstep << " " << MB << " " << MBs << " " << PMerr << " " << op.t << "\n";
             } else {
                 eout << " " << runstep << " " << MB << " " << PMerr << " " << op.t << "\n";
             }
-            eout << " " << op.t << "\n";
             efout.flush();
             efout.close();
         }
