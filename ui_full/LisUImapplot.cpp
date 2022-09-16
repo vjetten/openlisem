@@ -707,7 +707,7 @@ void lisemqt::showChannelVector(bool yes)
 
         // culverts get green channel color
         QPen pen2;
-        pen2.setWidth(spinChannelSize->value());
+        pen2.setWidth(spinChannelSize->value()+1);
         pen2.setColor(QColor("#FFFFFF")); //66FF00"));
         pen2.setCosmetic(true);
         for (int i = 0; i < culverts.length(); i++) {
@@ -795,39 +795,42 @@ void lisemqt::showChannelVectorNew()
 
         // culvert parts of channel network
         if (checkChannelCulverts->isChecked()) {
-
+            bool first = true;
+            int count = 0;
             for(long i_ =  0; i_ < op.lddch_.size(); i_++) {
 
                 if(op.lddch_[i_].ldd < 0) {
                     int r,c,ldd;
 
-                    if (i_ > 0) {
-                        r = _nrRows-op.lddch_[i_-1].r-1;
-                        c = op.lddch_[i_-1].c;
+                    if (first) {
+                        r = _nrRows-op.lddch_[i_].r-1;
+                        c = op.lddch_[i_].c;
                         xend = cx+c*dx + 0.5*dx;
                         yend = cy+r*dx + 0.5*dx;
                         Y << yend;
                         X << xend;
+                        first = false;
                     }
                     r = _nrRows-op.lddch_[i_].r-1;
                     c = op.lddch_[i_].c;
-                    ldd = std::abs(op.lddch_[i_].ldd);
-
                     xend = cx+c*dx + 0.5*dx;
                     yend = cy+r*dx + 0.5*dx;
-                    if (op.lddch_[i_].nr == 0) {
-                        Y << yend;
-                        X << xend;
-                    }
-                    Y << yend + _dy[ldd]*dx;
-                    X << xend + _dx[ldd]*dx;
+                    Y << yend;
+                    X << xend;
+                    count++;
 
                     if (i_ < op.lddch_.size() -1 && (op.lddch_[i_+1].ldd > 0)) {
+                        if (count == 1) {
+                            ldd = std::abs(op.lddch_[i_].ldd);
+                            Y << yend + _dy[ldd]*dx;
+                            X << xend + _dx[ldd]*dx;
+                        }
                         Xc.push_back(X);
                         Yc.push_back(Y);
                         X.clear();
                         Y.clear();
-                        qDebug() << "next";
+                        first = true;
+                        count = 0;
                     }
                 }
             }
