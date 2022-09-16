@@ -276,7 +276,7 @@ void TWorld::OutputUI(void)
         if (SwitchRoadsystem) {
             FOR_ROW_COL_MV_L {
                 if (RoadWidthDX->Drc > 0.2*_dx)
-                    op.roadMap->Drc = RoadWidthDX->Drc;
+                    op.roadMap->Drc = RoadWidthHSDX->Drc; //RoadWidthDX->Drc;
                 else
                     op.roadMap->Drc = 0;
                 //copy(*op.roadMap, *RoadWidthDX);
