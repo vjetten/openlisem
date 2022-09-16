@@ -193,7 +193,7 @@ public:
     QList<QwtPlotCurve*> outlets;
     void showRoadMap();
     void showHouseMap();
-    void showFlowBarriersMap();
+    void showHardSurfaceMap();
     void showImageMap();
     void changeSize();
     double Masp;
@@ -207,7 +207,7 @@ public:
     QwtPlotSpectrogram *baseMapDEM;  // raster map drawing
     QwtPlotSpectrogram *baseMapImage;  // raster map drawing
     QwtPlotSpectrogram *contourDEM;  // raster map drawing
-    QwtPlotSpectrogram *channelMap;  // raster map drawing
+    QwtPlotSpectrogram *hardsurfMap;  // raster map drawing
     QwtPlotSpectrogram *roadMap;  // raster map drawing
     QwtPlotSpectrogram *houseMap;  // raster map drawing
     QwtPlotSpectrogram *imageMap;
@@ -478,7 +478,7 @@ public slots:
     void ssetAlphaChannelOutlet(int v);
     void ssetAlphaRoad(int v);
     void ssetAlphaHouse(int v);
-    void ssetAlphaBarrier(int v);
+    void ssetAlphaHardSurface(int v);
     void ssetAlphaMap(int v);
 
     void setWriteOutputSOBEK(bool);

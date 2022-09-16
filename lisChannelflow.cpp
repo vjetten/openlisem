@@ -258,7 +258,6 @@ void TWorld::ChannelFlow(void)
                             ChannelN->Drc = ChannelQ_/MaxQ *ChannelN->Drc;
                             ChannelV_ = MaxQ/Area;
                             ChannelQ_ = MaxQ;
-                            qDebug() << ChannelV_ << Area << MaxQ;
                         }
                     }
                     ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);

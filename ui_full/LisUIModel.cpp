@@ -95,22 +95,17 @@ void lisemqt::runmodel()
     checkMapChannels->setEnabled(checkIncludeChannel->isChecked());
 
     checkMapBuildings->setChecked(false);
-    transparencyHouse->setEnabled(checkHouses->isChecked());
     checkMapBuildings->setEnabled(checkHouses->isChecked());
-//    checkMapBuildings->setVisible(checkHouses->isChecked());
-//    transparencyHouse->setVisible(checkHouses->isChecked());
-//    checkMapBuildings->setVisible(checkHouses->isChecked());
+    transparencyHouse->setVisible(false);
 
     checkMapRoads->setChecked(false);
-    transparencyRoad->setEnabled(checkRoadsystem->isChecked());
     checkMapRoads->setEnabled(checkRoadsystem->isChecked());
-//    checkMapRoads->setVisible(checkRoadsystem->isChecked());
-//    transparencyRoad->setVisible(checkRoadsystem->isChecked());
-//    checkMapRoads->setVisible(checkRoadsystem->isChecked());
+    transparencyRoad->setVisible(false);
 
-//    checkMapImage->setVisible(checksatImage->isChecked());
+    checkMapHardSurface->setChecked(false);
+    checkMapHardSurface->setEnabled(checkHardsurface->isChecked());
+    transparencyHardSurface->setVisible(false);
 
-//    sedgroup->setVisible(checkDoErosion->isChecked());
 
     // initialize output graphs
     initPlot();
@@ -229,7 +224,7 @@ void lisemqt::worldShow(bool showall)
 
     showHouseMap(); // show building structures map
 
-    //showFlowBarriersMap();
+    showHardSurfaceMap(); // show parking lots etc
 
     showImageMap();
 
@@ -347,7 +342,7 @@ void lisemqt::initOP()
     op.outletMap = nullptr;
     op.roadMap = nullptr;
     op.houseMap = nullptr;
-    op.flowbarriersMap = nullptr;
+    op.hardsurfaceMap = nullptr;
     op.Image = nullptr;
 
     op.CulvertX.clear();

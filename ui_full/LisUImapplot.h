@@ -328,7 +328,6 @@ public:
     colorMapRoads():
         QwtLinearColorMapVJ( QColor("#53db00"), QColor("#7dfe2f"))
     {
-        //addColorStop(0.0, QColor("#00CC00"));
     }
 };
 //---------------------------------------------------------------------------
@@ -346,7 +345,6 @@ public:
     colorMapRoads2():
         QwtLinearColorMapVJ( QColor("#f9fb44"), QColor("#f9fb44")  )
     {
-        addColorStop( 0.0, QColor("#f9fb44") );
     }
 };
 //---------------------------------------------------------------------------

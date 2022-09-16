@@ -276,7 +276,7 @@ void TWorld::OutputUI(void)
         if (SwitchRoadsystem) {
             FOR_ROW_COL_MV_L {
                 if (RoadWidthDX->Drc > 0.2*_dx)
-                    op.roadMap->Drc = RoadWidthHSDX->Drc; //RoadWidthDX->Drc;
+                    op.roadMap->Drc = RoadWidthDX->Drc;
                 else
                     op.roadMap->Drc = 0;
                 //copy(*op.roadMap, *RoadWidthDX);
@@ -285,8 +285,8 @@ void TWorld::OutputUI(void)
         if (SwitchHouses)
             copy(*op.houseMap, *HouseCover);
 
-//        if(SwitchCulverts)
-//            copy(*op.flowbarriersMap,*ChannelMaxQ);
+        if(SwitchHardsurface)
+            copy(*op.hardsurfaceMap,*HardSurface);
 
         if(SwitchFlowBarriers)
         {

@@ -89,19 +89,15 @@ void lisemqt::ssetAlphaRoad(int v)
 void lisemqt::ssetAlphaHouse(int v)
 {
     houseMap->setAlpha(v);
-    //    transvalue = ((double) v)/256.0;
-    //    doHouse = true;
-    //    showHouseMap();
     if (v > 0 && checkMapBuildings->isChecked())
         MPlot->replot();
 }
 //---------------------------------------------------------------------------
-void lisemqt::ssetAlphaBarrier(int v)
+void lisemqt::ssetAlphaHardSurface(int v)
 {
-    channelMap->setAlpha(v);
-    if (v > 0 && checkChannelCulverts->isChecked())
-        MPlot->replot();
-    // flowbarrier is now sat image, highjacked!
+    hardsurfMap->setAlpha(v);
+    if (v > 0 && checkHardsurface->isChecked())
+        MPlot->replot();    
 }
 
 //---------------------------------------------------------------------------
@@ -187,12 +183,6 @@ void lisemqt::setupMapPlot()
     drawMap->attach( MPlot );
     //map for runoff, infil, flood etc
 
-    // 4
-    houseMap = new QwtPlotSpectrogram();
-    houseMap->setRenderThreadCount( 0 );
-    houseMap->attach( MPlot );
-    // building structure map
-
     // 5
     roadMap = new QwtPlotSpectrogram();
     roadMap->setRenderThreadCount( 0 );
@@ -200,9 +190,15 @@ void lisemqt::setupMapPlot()
     // road map
 
     // 6
-//    channelMap = new QwtPlotSpectrogram();
-//    channelMap->setRenderThreadCount( 0 );
-//    channelMap->attach( MPlot );
+    hardsurfMap = new QwtPlotSpectrogram();
+    hardsurfMap->setRenderThreadCount( 0 );
+    hardsurfMap->attach( MPlot );
+
+    // 4
+    houseMap = new QwtPlotSpectrogram();
+    houseMap->setRenderThreadCount( 0 );
+    houseMap->attach( MPlot );
+    // building structure map
 
 
     //7
@@ -468,6 +464,7 @@ void lisemqt::showMap()
     //channelMap->setAlpha(checkMapChannels->isChecked() ? transparencyChannel->value() : 0);
     roadMap->setAlpha(checkMapRoads->isChecked() ? transparencyRoad->value() : 0);
     houseMap->setAlpha(checkMapBuildings->isChecked() ? transparencyHouse->value() : 0);
+    hardsurfMap->setAlpha(checkMapHardSurface->isChecked() ? transparencyHardSurface->value() : 0);
 
     // imageMap->setAlpha(0);  // flow barriers for now not used, sat image instead
     if (checksatImage->isChecked()){
@@ -708,11 +705,10 @@ void lisemqt::showChannelVector(bool yes)
             rivers[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
         }
 
-
         // culverts get green channel color
         QPen pen2;
         pen2.setWidth(spinChannelSize->value());
-        pen2.setColor(QColor("#66FF00"));
+        pen2.setColor(QColor("#FFFFFF")); //66FF00"));
         pen2.setCosmetic(true);
         for (int i = 0; i < culverts.length(); i++) {
             culverts[i]->setPen(pen2);
@@ -768,7 +764,7 @@ void lisemqt::showChannelVectorNew()
 
             int r = _nrRows-op.lddch_[i_].r-1;
             int c = op.lddch_[i_].c;
-            double ldd = std::abs(op.lddch_[i_].ldd);
+            int ldd = std::abs(op.lddch_[i_].ldd);
 
             xend = cx+c*dx + 0.5*dx;
             yend = cy+r*dx + 0.5*dx;
@@ -776,10 +772,10 @@ void lisemqt::showChannelVectorNew()
                 Y << yend;
                 X << xend;
             }
-            Y << yend + _dy[(int)ldd]*dx;
-            X << xend + _dx[(int)ldd]*dx;
+            Y << yend + _dy[ldd]*dx;
+            X << xend + _dx[ldd]*dx;
 
-            if (i_ < op.lddch_.size() -1 && op.lddch_[i_+1].nr == 0) {
+            if (i_ < op.lddch_.size()-1 && op.lddch_[i_+1].nr == 0) {
                 Xa.push_back(X);
                 Ya.push_back(Y);
                 X.clear();
@@ -799,13 +795,23 @@ void lisemqt::showChannelVectorNew()
 
         // culvert parts of channel network
         if (checkChannelCulverts->isChecked()) {
+
             for(long i_ =  0; i_ < op.lddch_.size(); i_++) {
-                int r = _nrRows-op.lddch_[i_].r-1;
-                int c = op.lddch_[i_].c;
 
                 if(op.lddch_[i_].ldd < 0) {
+                    int r,c,ldd;
 
-                    double ldd = std::abs(op.lddch_[i_].ldd);
+                    if (i_ > 0) {
+                        r = _nrRows-op.lddch_[i_-1].r-1;
+                        c = op.lddch_[i_-1].c;
+                        xend = cx+c*dx + 0.5*dx;
+                        yend = cy+r*dx + 0.5*dx;
+                        Y << yend;
+                        X << xend;
+                    }
+                    r = _nrRows-op.lddch_[i_].r-1;
+                    c = op.lddch_[i_].c;
+                    ldd = std::abs(op.lddch_[i_].ldd);
 
                     xend = cx+c*dx + 0.5*dx;
                     yend = cy+r*dx + 0.5*dx;
@@ -813,17 +819,19 @@ void lisemqt::showChannelVectorNew()
                         Y << yend;
                         X << xend;
                     }
-                    Y << yend + _dy[(int)ldd]*dx;
-                    X << xend + _dx[(int)ldd]*dx;
+                    Y << yend + _dy[ldd]*dx;
+                    X << xend + _dx[ldd]*dx;
 
                     if (i_ < op.lddch_.size() -1 && (op.lddch_[i_+1].ldd > 0)) {
                         Xc.push_back(X);
                         Yc.push_back(Y);
                         X.clear();
                         Y.clear();
+                        qDebug() << "next";
                     }
                 }
             }
+
             Xc.push_back(X);
             Yc.push_back(Y);
             X.clear();
@@ -834,7 +842,6 @@ void lisemqt::showChannelVectorNew()
                 culvert->setSamples(Xc.at(i),Yc.at(i));
                 culverts << culvert;
             }
-
         }
 
         // dot size
@@ -926,6 +933,7 @@ void lisemqt::showHouseMap()
         RDe->setInterval( Qt::ZAxis, QwtInterval( m1, m2));
         houseMap->setData(RDe);
     }
+
     if (checkMapBuildings->isChecked())
         houseMap->setAlpha(transparencyHouse->value());
     else
@@ -933,29 +941,26 @@ void lisemqt::showHouseMap()
     houseMap->setColorMap(new colorMapHouse());
 }
 //---------------------------------------------------------------------------
-// NOT USED FOR NOW
-void lisemqt::showFlowBarriersMap()
+void lisemqt::showHardSurfaceMap()
 {
 
     if (startplot)
     {
         double m1, m2;
         // set intervals for rasterdata, x,y,z min and max
-        double res = fillDrawMapData(op.flowbarriersMap,1.0, RDf, &m1, &m2);
+        double res = fillDrawMapData(op.hardsurfaceMap,1.0, RDf, &m1, &m2);
         if (res ==-1e20)
             return;
 
         RDf->setInterval( Qt::ZAxis, QwtInterval( m1, m2));
-        channelMap->setData(RDf);
+        hardsurfMap->setData(RDf);
     }
 
-    if (checkChannelCulverts->isChecked())
-        channelMap->setAlpha(255);
+    if (checkHardsurface->isChecked())
+        hardsurfMap->setAlpha(transparencyHardSurface->value());
     else
-        channelMap->setAlpha(0);
-
-    channelMap->setColorMap(new colorMapRoads());
-
+        hardsurfMap->setAlpha(0);
+    hardsurfMap->setColorMap(new colorMapRoads());
 }
 //---------------------------------------------------------------------------
 void lisemqt::showImageMap()

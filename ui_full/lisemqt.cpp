@@ -776,6 +776,7 @@ void lisemqt::SetToolBar()
     connect(checkMapRoads, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
     connect(checkMapChannels, SIGNAL(clicked(bool)), this, SLOT(showChannelVector(bool)));
     connect(checkMapImage, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
+    connect(checkMapHardSurface, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
 
     connect(ComboMaxSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
     connect(ComboMinSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
@@ -783,15 +784,12 @@ void lisemqt::SetToolBar()
     connect(ComboMinSpinBox2,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
 
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
-  //  connect(transparencyChannel, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaChannel(int)));
     connect(transparencyRoad, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaRoad(int)));
-    connect(transparencyHouse, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaHouse(int)));
-   // connect(transparencyImage, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaBarrier(int))); // barrier is use for image
+    connect(transparencyHardSurface, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaRoad(int)));
+    connect(transparencyHouse, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaHardSurface(int)));
     connect(transparencyMap, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaMap(int)));
-    //connect(showRiverSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
     connect(spinChannelSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
     connect(spinCulvertSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannelOutlet(int)));
-  //  connect(toolShowMapDisplay, SIGNAL(pressed()),this,SLOT(showMapSettings()));
 }
 //---------------------------------------------------------------------------
 int lisemqt::SetStyleUISize()

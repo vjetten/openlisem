@@ -60,7 +60,7 @@ void TWorld::setupDisplayMaps()
         delete op.outletMap;
         delete op.roadMap;
         delete op.houseMap;
-        delete op.flowbarriersMap;
+        delete op.hardsurfaceMap;
     }
 
     op.baseMap = new cTMap();
@@ -69,7 +69,7 @@ void TWorld::setupDisplayMaps()
     op.outletMap = new cTMap();
     op.roadMap = new cTMap();
     op.houseMap = new cTMap();
-    op.flowbarriersMap = new cTMap();
+    op.hardsurfaceMap = new cTMap();
 
     op.baseMap->MakeMap(LDD, 0);
     op.baseMapDEM->MakeMap(LDD, 0);
@@ -77,7 +77,7 @@ void TWorld::setupDisplayMaps()
     op.outletMap->MakeMap(LDD, 0);
     op.roadMap->MakeMap(LDD, 0);
     op.houseMap->MakeMap(LDD, 0);
-    op.flowbarriersMap->MakeMap(LDD, 0);
+    op.hardsurfaceMap->MakeMap(LDD, 0);
 }
 //---------------------------------------------------------------------------
 void TWorld::setLegendColors()
