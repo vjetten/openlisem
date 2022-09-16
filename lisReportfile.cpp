@@ -285,8 +285,8 @@ void TWorld::OutputUI(void)
         if (SwitchHouses)
             copy(*op.houseMap, *HouseCover);
 
-        if(SwitchCulverts)
-            copy(*op.flowbarriersMap,*ChannelMaxQ);
+//        if(SwitchCulverts)
+//            copy(*op.flowbarriersMap,*ChannelMaxQ);
 
         if(SwitchFlowBarriers)
         {
@@ -294,6 +294,7 @@ void TWorld::OutputUI(void)
 //            FOR_ROW_COL_MV {
 //                tma->Drc = std::max(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),FlowBarrierW->Drc),FlowBarrierS->Drc);
 //            }
+    //        copy(*op.flowbarriersMap,*tma);
         }
     }
     // MAP DISPLAY VARIABLES

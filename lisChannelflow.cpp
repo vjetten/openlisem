@@ -255,9 +255,10 @@ void TWorld::ChannelFlow(void)
                     ChannelQ_ = ChannelV_ * Area;
                     if (SwitchCulverts) {
                         if (MaxQ > 0 && ChannelQ_ > MaxQ){
-                            ChannelQ_ = MaxQ;
+                            ChannelN->Drc = ChannelQ_/MaxQ *ChannelN->Drc;
                             ChannelV_ = MaxQ/Area;
-                         //   qDebug() << ChannelV_ << Area << MaxQ;
+                            ChannelQ_ = MaxQ;
+                            qDebug() << ChannelV_ << Area << MaxQ;
                         }
                     }
                     ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
@@ -297,11 +298,11 @@ void TWorld::ChannelFlow(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
 
-            if (SwitchCulverts) {
-                double MaxQ = ChannelMaxQ->Drc;
-                if (MaxQ > 0 && ChannelQn->Drc > MaxQ)
-                    ChannelQn->Drc = MaxQ;
-            }
+//            if (SwitchCulverts) {
+//                double MaxQ = ChannelMaxQ->Drc;
+//                if (MaxQ > 0 && ChannelQn->Drc > MaxQ)
+//                    ChannelQn->Drc = MaxQ;
+//            }
 
             double chqn = ChannelQn->Drc;
             ChannelWaterVol->Drc += (QinKW->Drc - chqn)*_dt;

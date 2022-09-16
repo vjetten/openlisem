@@ -1019,18 +1019,21 @@ void TWorld::InitChannel(void)
     if (SwitchCulverts) {
         ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
         cover(*ChannelMaxQ, *LDD,0);
+
+        for (int i = 0; i < crlinkedlddch_.size(); i++) {
+            int c = crlinkedlddch_.at(i).c;
+            int r = crlinkedlddch_.at(i).r;
+            if (ChannelMaxQ->Drc > 0) {
+                LDD_COORIN hoi = crlinkedlddch_.at(i);
+                hoi.ldd *= -1;
+                crlinkedlddch_.replace(i, hoi) ;
+                ChannelGrad->Drc = 0.0001;
+            }
+        }
     } else
         ChannelMaxQ = NewMap(0);
 
-    for (int i = 0; i < crlinkedlddch_.size(); i++) {
-        int c = crlinkedlddch_.at(i).c;
-        int r = crlinkedlddch_.at(i).r;
-        if (ChannelMaxQ->Drc > 0) {
-            LDD_COORIN hoi = crlinkedlddch_.at(i);
-            hoi.ldd *= -1;
-            crlinkedlddch_.replace(i, hoi) ;
-        }
-    }
+
 
     FOR_ROW_COL_MV_CH
     {
@@ -3109,15 +3112,14 @@ void TWorld::InitScreenChanNetwork()
         }
     }
 
-    if(SwitchCulverts) {
-        FOR_ROW_COL_MV_CH {
- //           if (PointMap->Drc > 0){
-            if (ChannelMaxQ->Drc > 0) {
-                op.CulvertX << _llx + c*_dx + 0.5*_dx;
-                op.CulvertY << _llx + (_nrRows-r-1)*_dx + 0.5*_dx;
-            }
-        }
-    }
+//    if(SwitchCulverts) {
+//        FOR_ROW_COL_MV_CH {
+//            if (ChannelMaxQ->Drc > 0) {
+//                op.CulvertX << _llx + c*_dx + 0.5*_dx;
+//                op.CulvertY << _llx + (_nrRows-r-1)*_dx + 0.5*_dx;
+//            }
+//        }
+//    }
 
 }
 
