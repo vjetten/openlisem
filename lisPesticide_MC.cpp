@@ -87,14 +87,19 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
     PMtot = Pestinf + PestOutW + mapTotal(*PMsoil) + mapTotal(*PMrw)
             + mapTotal(*PMmw) + mapTotal(*PMms) + PestPerc + PMerosion;
 
-    // divide the mass balance error by the active pesticide mass to get a %
+    // mass balance for active adsorbed, active dissolved and combined.
     double PMactive {0.0};
+    double PMdep {0.0};
+    double PMdet {0.0};
     if (SwitchErosion) {
     PMactive = PestOutS + mapTotal(*PMrs);
     }
     PMactive += PestOutW + mapTotal(*PMrw);
+    PMdep = mapTotal(*pmdep);
+    PMdet = mapTotal(*pmdet);
 
-    PMerr = (PMtot - PMtotI) / PMactive * 100;
+    PMerr = PMdet > 0 ? (PMdet + PMdep - PMactive) / PMdet * 100 : 0;
+    //PMerr = PMactive > 0 ? (PMtot - PMtotI) / PMactive * 100 : 0;
 }
 
 //---------------------------------------------------------------------------
@@ -417,12 +422,14 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
             msoil_ex = eMass * PCms->Drc; // what happens with pesticides on roads??
             // mg = mg kg-1 * kg
             msrm_ex = Crs_avg * eMass; // loss by deposition
+            pmdep->Drc += msrm_ex; //total detatched pesticide in cell
         } else if (eMass > 1e-6){
             // erosion
             Ez->Drc = eMass / (rho * _DX->Drc * SoilWidthDX->Drc); // only on soil surface
             msoil_ex = eMass * PCs->Drc; // * SoilWidthDX->Drc * _DX->Drc * rho;
             // mg = mg kg-1  kg
             msrm_ex = PCms->Drc * eMass; // * rho * _DX->Drc * SoilWidthDX->Drc); // added by erosion
+            pmdet->Drc += msrm_ex; //total detatched pesticide in cell
         }
         // adjust mass for erosion or deposition
         // no more transport than mass in cell

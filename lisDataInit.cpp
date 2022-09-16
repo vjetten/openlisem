@@ -2311,6 +2311,8 @@ void TWorld::IntializeData(void)
         PMinf = NewMap(0);
         PMperc = NewMap(0);
         Ez = NewMap(0);
+        pmdet = NewMap(0);
+        pmdep = NewMap(0);
         SpinKW = NewMap(0);
         QpinKW = NewMap(0);
         Theta_mix = NewMap(0);
