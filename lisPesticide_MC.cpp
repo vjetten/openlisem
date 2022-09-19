@@ -92,13 +92,11 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMser
     // mass balance for active adsorbed
     PMserr = 0;
     if (SwitchErosion) {
-    double PMsactive {0.0};
     double PMsdep {0.0};
     double PMsdet {0.0};
-    PMsactive = PestOutS + mapTotal(*PMrs);
     PMsdep = mapTotal(*pmsdep);
     PMsdet = mapTotal(*pmsdet);
-    PMserr = PMsdet > 0 ? (PMsdet + PMsdep - PMsactive) / PMsdet * 100 : 0;
+    PMserr = PMsdet > 0 ? (PMsdet + PMsdep - PMerosion) / PMsdet * 100 : 0;
     }
 
     // mass balance active dissolved
@@ -316,31 +314,31 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     if (Qn->Drc + QinKW->Drc < 1e-6) {
         PCrw->Drc = 0.0;        //concentration = 0
         PMmw->Drc += PMrw->Drc; //add any leftover mass to mixing layer
+        pmwdep->Drc -= PMrw->Drc;
         PMrw->Drc = 0.0;        // mass = 0
         PQrw->Drc = 0.0;        // discharge = 0
+
     }
     if (_Qn->Drc + QinKW->Drc > 1e-6) { // more than 1 ml - what is best definition of runoff?
         // calculate the correct C's based on the Qin and Qold etc.
         // mg L-1 = (mg + (mg sec-1 * sec)) / (m3 + (m3 sec-1 * sec)) * 1000(m3 -> L)
         Crw_avg = (PMrw->Drc + (QpinKW->Drc * _dt))
                   / ((WaterVolall->Drc + (QinKW->Drc * _dt)) * 1000);
-        // only exchange with runoff water when there is a significant amount
-        if (WH->Drc > 1e-6) { // more than 0.01 mm - slaat dit ergens op?
-            // positive adds to runoff, negative to mixing layer.
-            // mg = ((sec-1 * m * (mg L-1) / m) * m * m * m * sec * 1000 (m3 -> L)
-            mwrm_ex = (((_kfilm * (PCmw->Drc - Crw_avg))/zm->Drc)
-                       * (SoilWidthDX->Drc * _DX->Drc * zm->Drc * _dt
-                       * ThetaS1->Drc * 1000));
-            // mg = m3 * 1000 (L->m3) * mg L-1
-            mrw_inf = InfilVol->Drc * 1000 * Crw_avg; // loss through infiltration from runoff
-        } // significant runoff
+        // positive adds to runoff, negative to mixing layer.
+        // mg = ((sec-1 * m * (mg L-1) / m) * m * m * m * sec * 1000 (m3 -> L)
+        mwrm_ex = (((_kfilm * (PCmw->Drc - Crw_avg))/zm->Drc)
+                   * (SoilWidthDX->Drc * _DX->Drc * zm->Drc * _dt
+                   * ThetaS1->Drc * 1000));
+        // mg = m3 * 1000 (L->m3) * mg L-1
+        mrw_inf = InfilVol->Drc * 1000 * Crw_avg; // loss through infiltration from runoff
         // adjust masses if outflow if more than available mass.
         if (PMrw->Drc < mrw_inf - mwrm_ex) {
             double tot = mrw_inf - mwrm_ex;
             mrw_inf = (mrw_inf/tot) * PMrw->Drc;
             mwrm_ex = (mwrm_ex/tot) * PMrw->Drc;
         }
-        mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex - mrw_inf;
+        mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
+        pmwdep->Drc -= mrw_inf;
         //substract infiltration and mixing layer exchange
         //mg = mg + mg - mg - mg + (mg sec-1 * sec)
         PMrw->Drc = std::max(0.0, PMrw->Drc + mwrm_ex - mrw_inf);
@@ -414,6 +412,16 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     double Crs_avg {0.0};
     double msoil_ex {0.0};
     double msrm_ex {0.0};
+
+    //no erosion - add leftover of mass to mixing layer
+    if (Sed->Drc < 1e-6) {
+        PCrs->Drc = 0.0;        //concentration = 0
+        PMms->Drc += PMrs->Drc; //add any leftover mass to mixing layer
+        pmsdep->Drc -= PMrs->Drc;
+        PMrs->Drc = 0.0;        // mass = 0
+        PQrs->Drc = 0.0;        // discharge = 0
+
+    }
 
     if (_Sed->Drc > 1e-6) { // more than 0.01 gram _Qsn->Drc + Sin
         // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)

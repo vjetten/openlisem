@@ -93,7 +93,8 @@ void TWorld::saveMBerror2file(bool doError, bool start)
             efout.open(QIODevice::WriteOnly | QIODevice::Text);
             QTextStream eout(&efout);
             eout << "#pesticide mass balance error (%)\n";
-            eout << "6\n";
+            if (SwitchErosion) eout << "7\n";
+            if (!SwitchErosion) eout << "5\n";
             eout << "run step\n";
             eout << "WMerr\n";
             if (SwitchErosion) {eout << "SMerr\n";}
