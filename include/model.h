@@ -219,7 +219,6 @@ typedef struct LDD_COORIN {
     int nr;
     int ldd;
     LDD_COOR *inn;
-    //QVector <LDD_COOR> in;
 }  LDD_COORIN;
 //---------------------------------------------------------------------------
 typedef struct LDD_COORloc {
@@ -379,7 +378,8 @@ public:
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
-    SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle;
+    SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle,
+    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap;
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
@@ -500,7 +500,7 @@ public:
 
     double maxRainaxis;
     double latitude;
-    double CulvertWidth, CulvertHeight, CulvertN, CulvertS;
+
     //double D50CH, D90CH;
 
     ///pesticides
@@ -907,6 +907,7 @@ public:
     void cell_Interception(int r, int c);
     double cell_Percolation(int r, int c, double factor);
     double cell_Percolation1(int r, int c, double factor);
+    void cell_SlopeStability(int r, int c);
     void cell_Redistribution(int r, int c);
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
@@ -921,6 +922,9 @@ public:
     void InfilSwatre();
 
     double IncreaseInfiltrationDepthNew(double fact_, int r, int c);
+
+    double IncreaseInfiltrationDepthNew0(double fact_, int r, int c);
+    //OBSOLETE CONTAINS ERRORS
 
     void SoilWater();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);

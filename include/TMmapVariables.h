@@ -100,6 +100,7 @@ cTMap
 //*VolQb,
 *GWVol,
 *GWWH,
+*GWWHmax,
 //*GWrec,
 *GWout,
 *GWbp,
@@ -357,7 +358,13 @@ cTMap
 *ChannelAdj,                //!<
 *CHAdjDX,                //!< MC - channel adjusted DX??
 *BaseflowL,
-//*GWlevel,
+
+*cosGrad,
+*tanGrad,
+*BulkDensity,
+*AngleFriction,
+*FSlope,
+
 
 //*ChannelPerimeter,           //!<
 *ChannelDX,                  //!<
@@ -375,7 +382,6 @@ cTMap
 *ChannelBLConc,                //!<
 *ChannelSSConc,                //!<
 *ChannelTC,                  //!<
-//*SedToChannel,               //!<
 *ChannelCohesion,            //!<
 *ChannelY,                   //!<
 *ChannelDepth,               //!<
@@ -411,13 +417,7 @@ cTMap
 //*FloodZonePotential,                //!<
 *DomainEdge,                //!<
 *FloodDT,
-//*FloodDTr,
 *FloodT,
-//*FloodHMaskDer,
-//*FloodDTR,
-//*FloodDTC,
-//*FloodHR,
-//*FloodHC,
 *VRO, *URO, *iro,
 *Uflood,*Vflood,
 *hs, *vs, *us,

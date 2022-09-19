@@ -310,7 +310,7 @@ void TWorld::InitParameters(void)
     psiCalibration = getvaluedouble("Psi calibration");
     ChnCalibration = getvaluedouble("Channel N calibration");
     ChnTortuosity = 1.0;
-    ChnTortuosity = getvaluedouble("Channel tortuosity");
+    //ChnTortuosity = getvaluedouble("Channel tortuosity");
     if (ChnCalibration == 0)
     {
         ErrorString = QString("Calibration: the calibration factor for Mannings n for channels cannot be zero.");
@@ -452,10 +452,28 @@ void TWorld::InitStandardInput(void)
     DEM = ReadMap(LDD, getvaluename("dem"));
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
-
     sqrtGrad = NewMap(0);
     FOR_ROW_COL_MV {
         sqrtGrad->Drc = sqrt(Grad->Drc);
+    }
+
+    SwitchSlopeStability = false;
+    if (SwitchSlopeStability) {
+        tanGrad = NewMap(0);
+        cosGrad = NewMap(0);
+        BulkDensity = NewMap(1400);
+        AngleFriction = NewMap(1.0);  // tan phi = 45 degrees
+
+        FSlope = NewMap(0);
+
+        FOR_ROW_COL_MV {
+            // grad = grad = sin(atan(slope(DEMm)))
+            double at = asin(Grad->Drc);
+            tanGrad->Drc = tan(at);
+            cosGrad->Drc = cos(at);
+        }
+        report(*cosGrad,"cosgrad.map");
+        report(*tanGrad,"tangrad.map");
     }
 
 
@@ -522,17 +540,20 @@ void TWorld::InitStandardInput(void)
         ErrorString = QString("Outpoint.map has no values above 0. Copy at least outlet(s).");
         throw 1;
     }
-
+SwitchUseIDmap = false;
     if (SwitchRainfall && !SwitchRainfallSatellite)
     {
         RainZone = ReadMap(LDD,getvaluename("ID"));
         if (SwitchIDinterpolation) {
-            IDRainPoints = ReadFullMap(getvaluename("IDGauges"));
-        } else {
-            IDRainPoints = NewMap(0);
+            if (SwitchUseIDmap){
+                IDRainPoints = ReadFullMap(getvaluename("IDGauges"));
+            } else {
+                IDRainPoints = NewMap(0);
+            }
         }
-
     }
+
+
     if (SwitchIncludeET && !SwitchETSatellite)
     {
         ETZone = ReadMap(LDD,getvaluename("ETID"));
@@ -909,6 +930,8 @@ void TWorld::InitChannel(void)
       //  i++;
     }
     crlinkedlddch_= MakeLinkedList(LDDChannel);
+
+
     //qDebug() << "nrcells" << nrValidCellsCH << crlinkedlddch_.size();
 
 //   crlinkedlddch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
@@ -996,13 +1019,21 @@ void TWorld::InitChannel(void)
     if (SwitchCulverts) {
         ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
         cover(*ChannelMaxQ, *LDD,0);
+
+        for (int i = 0; i < crlinkedlddch_.size(); i++) {
+            int c = crlinkedlddch_.at(i).c;
+            int r = crlinkedlddch_.at(i).r;
+            if (ChannelMaxQ->Drc > 0) {
+                LDD_COORIN hoi = crlinkedlddch_.at(i);
+                hoi.ldd *= -1;
+                crlinkedlddch_.replace(i, hoi) ;
+                ChannelGrad->Drc = 0.0001;
+            }
+        }
     } else
         ChannelMaxQ = NewMap(0);
 
-    CulvertWidth = 2.0;
-    CulvertHeight = 1.0;
-    CulvertS = 0.005;
-    CulvertN = 0.012;
+
 
     FOR_ROW_COL_MV_CH
     {
@@ -1026,6 +1057,7 @@ void TWorld::InitChannel(void)
         Qbase = NewMap(0);
         //VolQb = NewMap(0);
         GWWH = NewMap(0.001);
+        GWWHmax = NewMap(0);
         //GWrec = NewMap(0);
         GWout = NewMap(0);
         GWbp = NewMap(0);
@@ -1385,6 +1417,22 @@ double TWorld::LogNormalDist(double d50,double s, double d)
 //---------------------------------------------------------------------------
 void TWorld::InitErosion(void)
 {
+//qDebug() << "hoi"; //SwitchSlopeStability ||
+//if (SwitchErosion) {
+//        COHCalibration = getvaluedouble("Cohesion calibration");
+//        Cohesion = ReadMap(LDD,getvaluename("coh"));
+//        RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
+//        FOR_ROW_COL_MV_L {
+//            if (RootCohesion->Drc < 0) // root cohesion can be used to avoid surface erosion base don land use
+//                CohesionSoil->Drc = -1;
+//            else
+//                CohesionSoil->Drc = COHCalibration*(Cohesion->Drc + Cover->Drc*RootCohesion->Drc);
+//            if (SwitchGrassStrip)
+//                CohesionSoil->Drc = CohesionSoil->Drc  *(1-GrassFraction->Drc) + GrassFraction->Drc * CohGrass->Drc;
+//        }}
+//    }
+
+
     if (!SwitchErosion)
         return;
 
@@ -3121,26 +3169,28 @@ void TWorld::InitScreenChanNetwork()
 
     FOR_ROW_COL_MV_CH {
         if (LDDChannel->Drc == 5){
+             qDebug() << c << r;
             op.EndPointX << _llx + c*_dx + 0.5*_dx;
             op.EndPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
         }
     }
     FOR_ROW_COL_MV_CH {
         if (PointMap->Drc > 0){
+        //    if (ChannelMaxQ->Drc > 0) {
             op.ObsPointX << _llx + c*_dx + 0.5*_dx;
             op.ObsPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
-        }
-    }
-
-    if(SwitchCulverts) {
-        FOR_ROW_COL_MV {
-            if (ChannelMaxQ->Drc > 0) {
-                op.CulvertX << _llx + c*_dx + 0.5*_dx;
-                op.CulvertY << _llx + (_nrRows-r-1)*_dx + 0.5*_dx;
-            }
 
         }
     }
+
+//    if(SwitchCulverts) {
+//        FOR_ROW_COL_MV_CH {
+//            if (ChannelMaxQ->Drc > 0) {
+//                op.CulvertX << _llx + c*_dx + 0.5*_dx;
+//                op.CulvertY << _llx + (_nrRows-r-1)*_dx + 0.5*_dx;
+//            }
+//        }
+//    }
 
 }
 

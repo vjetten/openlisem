@@ -355,6 +355,7 @@ void TWorld::doETa()
                         tot = tot + eta;
                         tma->Drc += eta;
                         double dL = std::max(0.0,Lw_-Lw->Drc);
+                        //get the eta from the entore profile because it includes transpiration
                         double m1= (SoilDepth1->Drc-Lw_)*(Thetaeff->Drc-thetar);
                         double m2 = dL*thetar;
                         Thetaeff->Drc = (m1+m2)/(SoilDepth1->Drc - Lw->Drc)+thetar;

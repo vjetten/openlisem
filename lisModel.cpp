@@ -443,7 +443,11 @@ void TWorld::HydrologyProcesses()
         cell_SurfaceStorage(r, c);
         //calc surf storage and total watervol and WHrunoff
 
-        cell_SplashDetachment(r,c);
+        if (SwitchErosion)
+            cell_SplashDetachment(r, c);
+
+        if (SwitchSlopeStability)
+            cell_SlopeStability(r, c);
     }}
 
     if (SwitchIncludeET) {
