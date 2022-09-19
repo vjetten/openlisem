@@ -551,8 +551,8 @@ void TWorld::MassBalance()
         //(PestMassApplied-PestLossTotOutlet-PestRunoffSpatial-PestDisMixing-PestSorMixing-PestInfilt-PestStorage)*100/PestMassApplied
         debug(QString("mbp: %1").arg(MBp));
     }
-    if (SwitchPestMCtest) {
-        MassPest(PMtotI, PMerr, PMtot);
+    if (SwitchPestMC) {
+        MassPest(PMtotI, PMerr, PMtot, PMserr, PMwerr);
 
     }
 }

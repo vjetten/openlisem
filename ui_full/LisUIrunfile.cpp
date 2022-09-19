@@ -204,6 +204,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include house storage")==0)          checkHouses->setChecked(check);
         if (p1.compare("Include raindrum storage")==0)       checkRaindrum->setChecked(check);
         if (p1.compare("Include tile drains")==0)            checkIncludeTiledrains->setChecked(check);
+        //if (p1.compare("Include Pesticide MC")==0)         // add here if added to UI
 
         // INTERCEPTION
         if (p1.compare("Canopy storage equation")==0)

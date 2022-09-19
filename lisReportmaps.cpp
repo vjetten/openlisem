@@ -44,7 +44,7 @@ functions: \n
 #include "global.h"
 
 //---------------------------------------------------------------------------
-// Make the maps to bedrawn in the interface as a copy in the op starcture
+// Make the maps to bedrawn in the interface as a copy in the op structure
 // reason is that all pointers are destroyed after the run so when lisem finishes
 // the information on the output screen points to an empty pointer
 // by copying the info remains available

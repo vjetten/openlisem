@@ -375,7 +375,7 @@ public:
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
-    SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide, SwitchPestMC, SwitchPestMCtest,
+    SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide, SwitchPestMC, SwitchReportPestMC,
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
@@ -511,7 +511,7 @@ public:
     double MaxVup;
 
     ///pesticides-MC
-    double PMtot, PMerr, PMtotI;
+    double PMtot, PMerr, PMtotI, PMwerr, PMserr;
     double Pestinf, PestOutW, PestOutS, PestPerc;
     double PQrw_dt, PQrs_dt;
     double KdPestMC, KfilmPestMC, KrPestMC, rhoPestMC;
@@ -616,6 +616,7 @@ public:
     SwitchOutTiledrain, SwitchOutTileVol, SwitchOutHmx, SwitchOutVf, SwitchOutQf, SwitchOutHmxWH, SwitchOutTheta;
     QString errorFileName;
     QString errorSedFileName;
+    QString errorPestFileName;
     QString satImageFileName;
     QString satImageFileDir;
 
@@ -854,17 +855,23 @@ public:
     double ConcentrationP(double watvol, double pest);
 
     //Pesticides MC
-    template <typename... T>
-    void simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double Qinf, double zm, double kr, double Kd,
-                        double Crs_old, double Cms_old, double Ez, double Me, double A, double pore,
-                        double Crw_in, double Crs_in, std::tuple<T...> all_conc);
-    void MassPest(double PMtotI, double &PMerr, double &PMtot);
+    void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
     double MassPestInitial(void);
     void KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
                          cTMap *_Qn, cTMap *_Qsn, cTMap *_Qpwn, cTMap *_Qpsn,
                          cTMap *_DX, cTMap *_Alpha, cTMap *_Sed,
                          cTMap *_Q, cTMap *_Qs, cTMap *_Qpw, cTMap *_Qps);
     void InitPesticideMC(void);
+    void PesticideDynamicsMC(void);
+    double PesticidePercolation(double perc, double soildep, double lw,
+                                double zm, double dx, double swdx, double pcmw);
+    void KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
+                           cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
+                           cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, double _kfilm);
+    void KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
+                           cTMap *_LDD, cTMap *_Qsn, cTMap *_Qpsn, cTMap *_DX,
+                           cTMap *_Alpha, cTMap *_Sed, cTMap *_Qs, cTMap *_Qps,
+                           double rho);
 
     // 1D hydro processes
     //input timeseries

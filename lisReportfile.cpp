@@ -51,7 +51,7 @@ void TWorld::reportAll(void)
     // report totals to a text file
 
     ReportTimeseriesNew();
-    // report hydrographs ande sedigraphs at all points in outpoint.map
+    // report hydrographs and sedigraphs at all points in outpoint.map
 
     ReportTotalSeries();
 
@@ -63,7 +63,7 @@ void TWorld::reportAll(void)
     // report all maps and mapseries
 
     ReportLandunits();
-    // reportc stats per landunit class
+    // report stats per landunit class
 
     ChannelFloodStatistics();
     // report buildings submerged in flood level classes in 5cm intervals
@@ -155,15 +155,13 @@ void TWorld::OutputUI(void)
         op.OutletC.at(0)->append(Qtot_dt > MIN_FLUX? SoilLossTot_dt/Qtot_dt : 0);
         op.OutletQstot.replace(0,SoilLossTot*0.001);
     }
-    if (SwitchPestMCtest) {
-        op.PQrw = PQrw_dt;
+    if (SwitchPestMC) {
         op.PMOutW = PestOutW;
         op.PMerr = PMerr;
         op.PMinf = Pestinf;
         op.PMperc = PestPerc;
         if (SwitchErosion) {
             op.PMOutS = PestOutS;
-            op.PQrs = PQrs_dt;
         }
     }
 
@@ -357,14 +355,12 @@ void TWorld::ReportTotalSeries(void)
             out << sep << "FloodSed(ton)";
             out << sep << "SoilLoss(ton)";
         }
-        if (SwitchPestMCtest) {
-            out << sep << "PQrw";
+        if (SwitchPestMC) {
             out << sep << "PMOutW";
             out << sep << "PMerr";
             out << sep << "PestPerc";
             out << sep << "Pestinf";
             if (SwitchErosion) {
-                out << sep << "PQrs";
                 out << sep << "PMOutS";
             }
         }
@@ -419,14 +415,12 @@ void TWorld::ReportTotalSeries(void)
         out << sep << op.FloodSedTot;
         out << sep << op.SoilLossTot;
     }
-    if (SwitchPestMCtest) {
-        out << sep << op.PQrw;
+    if (SwitchPestMC) {
         out << sep << op.PMOutW;
         out << sep << op.PMerr;
         out << sep << op.PMperc;
         out << sep << op.PMinf;
         if (SwitchErosion) {
-            out << sep << op.PQrs;
             out << sep << op.PMOutS;
         }
 
@@ -632,6 +626,11 @@ void TWorld::ReportTimeseriesNew(void)
                         out << ",Qs #" << pnr << ",C #" << pnr;
                     }}
                 }
+                if (SwitchPestMC)
+                {
+                    out << ",PQw";
+                    if (SwitchErosion) out << ",PQs";
+                }
                 out << "\n";
 
                 //line 2 units
@@ -652,6 +651,11 @@ void TWorld::ReportTimeseriesNew(void)
                         pnr.setNum(crout_[i_].nr);//(int)PointMap->Drc);
                         out << ",kg/s #" << pnr << ",g/l #" << pnr;
                     }}
+                }
+                if (SwitchPestMC)
+                {
+                    out << ",mg/s";
+                    if (SwitchErosion) out << ",mg/s";
                 }
                 out << "\n";
             }
@@ -741,6 +745,11 @@ void TWorld::ReportTimeseriesNew(void)
                     out << sep << TotalConc->Drc ;
             }}
         }
+        if (SwitchPestMC)
+        {
+            out << sep << (PQrw_dt / _dt);
+            if (SwitchErosion) out << sep << (PQrs_dt / _dt);
+        }
         out << "\n";
         fout.close();
     }
@@ -815,10 +824,12 @@ void TWorld::ReportTotalsNew(void)
     {
         out << "\"Peak time discharge for outlet " + QString::number(i) +" (min):\"," << op.OutletQpeaktime.at(i)<< "\n";
     }
-    if (SwitchPestMCtest) {
+    if (SwitchPestMC) {
         out << "\n";
-        out << "\"Pesticides are cool :)\",";
+        out << "\"Total dissolved pesticide transport (mg):\"," << op.PMOutW<< "\n";
+        if (SwitchErosion) out << "\"Total particulate pesticide transport (mg):\"," << op.PMOutS<< "\n";
     }
+    out << "\n";
     fp.flush();
     fp.close();
 }
@@ -922,7 +933,7 @@ void TWorld::ReportMapSeries(void)
     if (SwitchOutrunoff)
         report(*Qoutput, Outrunoff);
     // discharge per timestep and cell - part of all-fluxes-out
-    report(*Q, OutQ); // MC - not needed for all - fluxes out.
+    report(*Q, OutQ);
     report(*Qn, OutQn);
     report(*QinAFO, OutQinKW);
     if (SwitchErosion) {
@@ -930,7 +941,7 @@ void TWorld::ReportMapSeries(void)
         report(*Qsn, OutSn);
         report(*SinAFO, OutSin);
         //    report(*SedAFO, OutSAFO);
-        //    report(*Sed, OutSS);
+        report(*Sed, OutSS);
     }
 
     // water height m
@@ -1054,7 +1065,9 @@ void TWorld::ReportMapSeries(void)
             }
         }       
     }
-    if (SwitchPestMCtest) {
+
+    //===== PESTICIDES =====
+    if (SwitchReportPestMC) {
         report(*PCms, "pcms");
         report(*PCmw, "pcmw");
         report(*PCrw, "pcrw");
@@ -1063,19 +1076,27 @@ void TWorld::ReportMapSeries(void)
         report(*PMmw, "pmmw");
         report(*PMrw, "pmrw");
         report(*PQrw, "pqrw");
-        //report(*PMinf, "pinf");
-        //report(*PMperc, "prc");
-        //report(*Thetaeff, "theta");
+        report(*PMinf, "pinf");
+        report(*PMperc, "prc");
+        report(*pmwdet, "wdet");
+        report(*pmwdep, "wdep");
         //report(*test_map, "test");
-        //report(*Perc, "perc");
         if (SwitchErosion) {
             report(*PCrs, "pcrs");
             report(*PMrs, "pmrs");
+            report(*PQrs, "pqrs");
+            report(*SpinKW, "spin");
+            report(*PCs, "pcs");
+            report(*Ez, "ez");
+            report(*pmsdet, "sdet");
+            report(*pmsdep, "sdep");
         }
-        report(*WaterVolall, "wall");
-        report(*WaterVolin, "win");
+        //report(*WaterVolall, "wall");
+        //report(*WaterVolin, "win");
+        //report(*WH, "wh");
         report(*Qpw, "qpw");
         report(*QpinKW, "qpin");
+
     }
 
 }
