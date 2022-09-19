@@ -154,6 +154,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
     double dfQkx;  //derivative
     const double _epsilon = 1e-12;
     const double beta = 0.6;
+    Qmax = 1e20; //!!!!!!!!!
 
     /* common terms */
      // ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
@@ -390,6 +391,7 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
                     newcr.r = rowNr;
                     newcr.c = colNr;
                     newcr.ldd = (int) _LDD->data[rowNr][colNr];
+
                   //  newcr.in.clear();
                     newcr.inn = (LDD_COOR*) malloc(sizeof(LDD_COOR)*9);
                     newcr.nr = 0;

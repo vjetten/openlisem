@@ -69,14 +69,14 @@ void lisemqt::ssetAlphaMap(int v)
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaChannelOutlet(int v)
 {
-    if (spinChannelSize->value() > 0)
-        hideChannelVector(true);
+    showChannelVector(false);
+    showChannelVector(true);
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaChannel(int v)
 {
-    hideChannelVector(false);
-    hideChannelVector(v > 0);
+    showChannelVector(false);
+    showChannelVector(true);
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaRoad(int v)
@@ -98,8 +98,8 @@ void lisemqt::ssetAlphaHouse(int v)
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaBarrier(int v)
 {
-    imageMap->setAlpha(v);
-    if (v > 0 && checkMapImage->isChecked())
+    channelMap->setAlpha(v);
+    if (v > 0 && checkChannelCulverts->isChecked())
         MPlot->replot();
     // flowbarrier is now sat image, highjacked!
 }
@@ -166,54 +166,54 @@ void lisemqt::setupMapPlot()
     // NOTE the order in which these are attached is the order displayed.
     // 0
     baseMapDEM = new QwtPlotSpectrogram();
-    baseMapDEM->setRenderThreadCount( 2 );
+    baseMapDEM->setRenderThreadCount( 0 );
     baseMapDEM->attach( MPlot );
     // dem
     // 1
     baseMapImage = new QwtPlotSpectrogram();
-    baseMapImage->setRenderThreadCount( 2 );
+    baseMapImage->setRenderThreadCount( 0 );
     baseMapImage->attach( MPlot );
     //image
 
     // 2
     baseMap = new QwtPlotSpectrogram();
-    baseMap->setRenderThreadCount( 2 );
+    baseMap->setRenderThreadCount( 0);
     baseMap->attach( MPlot );
     // shaded relief
 
     // 3 data
     drawMap = new QwtPlotSpectrogram();
-    drawMap->setRenderThreadCount( 2 );
+    drawMap->setRenderThreadCount( 0 );
     drawMap->attach( MPlot );
     //map for runoff, infil, flood etc
 
     // 4
     houseMap = new QwtPlotSpectrogram();
-    houseMap->setRenderThreadCount( 2 );
+    houseMap->setRenderThreadCount( 0 );
     houseMap->attach( MPlot );
     // building structure map
 
     // 5
     roadMap = new QwtPlotSpectrogram();
-    roadMap->setRenderThreadCount( 2 );
+    roadMap->setRenderThreadCount( 0 );
     roadMap->attach( MPlot );
     // road map
 
     // 6
-    //imageMap = new QwtPlotSpectrogram();
-    //imageMap->setRenderThreadCount( 0 );
-    //imageMap->attach( MPlot );
+//    channelMap = new QwtPlotSpectrogram();
+//    channelMap->setRenderThreadCount( 0 );
+//    channelMap->attach( MPlot );
 
 
     //7
     outletMap = new QwtPlotSpectrogram();
-    outletMap->setRenderThreadCount( 2 );
+    outletMap->setRenderThreadCount( 0 );
     outletMap->attach( MPlot );
-    // channel map-
+    // outlet map used for outlet number when hovering (?)
 
     //8
     contourDEM = new QwtPlotSpectrogram();
-    contourDEM->setRenderThreadCount( 2 );
+    contourDEM->setRenderThreadCount( 0 );
     contourDEM->attach( MPlot );
     // contours
 
@@ -669,7 +669,7 @@ void lisemqt::showBaseMap()
 
 }
 //---------------------------------------------------------------------------
-void lisemqt::hideChannelVector(bool yes)
+void lisemqt::showChannelVector(bool yes)
 {
     if (!checkIncludeChannel->isChecked())
         return;
@@ -679,50 +679,59 @@ void lisemqt::hideChannelVector(bool yes)
 
     if (!yes) {
 
-        for (int i = 0; i < rivers.length(); i++)
-            rivers[i]->detach();
-
-        if (checkChannelCulverts->isChecked() && !culverts.isEmpty()) {
-        if (culverts.length() > 0)
+        if (checkChannelCulverts->isChecked() && !culverts.isEmpty() && culverts.length() > 0) {
             for (int i = 0; i < culverts.length(); i++)
                 culverts[i]->detach();
         }
-        if (!obspoints.isEmpty()) {
-        if (obspoints.length() > 0)
+
+        if (obspoints.length() > 0 && !obspoints.isEmpty()) {
             for (int i = 0; i < obspoints.length(); i++)
                 obspoints[i]->detach();
         }
 
         for (int i = 0; i < outlets.length(); i++)
             outlets[i]->detach();
+
+        for (int i = 0; i < rivers.length(); i++)
+            rivers[i]->detach();
+
     } else {
+        int dxi = spinCulvertSize->value();
+
         QPen pen1;
-        pen1.setWidth(spinChannelSize->value());//showRiverSize->value());
+        pen1.setWidth(spinChannelSize->value());
         pen1.setColor(QColor("#000000"));
         pen1.setCosmetic(true);
-
         for (int i = 0; i < rivers.length(); i++) {
-            rivers[i]->setPen(pen1);
+                rivers[i]->setPen(pen1);
             rivers[i]->attach( MPlot );
             rivers[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
         }
 
-        for (int i = 0; i < obspoints.length(); i++) {
-            int dxi = spinCulvertSize->value();
 
-            QwtSymbol *bluedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::cyan, QPen( Qt::black ), QSize( dxi,dxi ));
-
-            obspoints[i]->setSymbol(bluedot);
-            obspoints[i]->setStyle( QwtPlotCurve::NoCurve );
-            obspoints[i]->attach( MPlot );
-            obspoints[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
+        // culverts get green channel color
+        QPen pen2;
+        pen2.setWidth(spinChannelSize->value());
+        pen2.setColor(QColor("#66FF00"));
+        pen2.setCosmetic(true);
+        for (int i = 0; i < culverts.length(); i++) {
+            culverts[i]->setPen(pen2);
+            culverts[i]->attach( MPlot );
+            culverts[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
         }
 
+        if (!obspoints.isEmpty() && obspoints.length() > 0) {
+            QwtSymbol *bluedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::cyan, QPen( Qt::black ), QSize( dxi,dxi ));
+            for (int i = 0; i < obspoints.length()-1; i++) {
+                obspoints[i]->setSymbol(bluedot);
+                obspoints[i]->setStyle( QwtPlotCurve::NoCurve );
+                obspoints[i]->attach( MPlot );
+                obspoints[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
+            }
+        }
+
+        QwtSymbol *whitedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi ));
         for (int i = 0; i < outlets.length(); i++) {
-            int dxi = spinCulvertSize->value();
-
-            QwtSymbol *whitedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi ));
-
             outlets[i]->setSymbol(whitedot);
             outlets[i]->setStyle( QwtPlotCurve::NoCurve );
             outlets[i]->attach( MPlot );
@@ -738,7 +747,11 @@ void lisemqt::showChannelVectorNew()
     if (!checkIncludeChannel->isChecked())
         return;
 
+    // fill the line and dot structures once at startplot
+    // draw once with showChannelVector(true);
     if (startplot) {
+
+        // Channel network
         QVector <double> X;
         QVector <double> Y;
         checkMapChannels->setChecked(true);
@@ -751,11 +764,11 @@ void lisemqt::showChannelVectorNew()
         double cy = op.channelMap->north()-_nrRows*dx;
         double cx = op.channelMap->west();
 
-        for(long i_ =  0; i_ < op.lddch_.size(); i_++)
-        {
+        for(long i_ =  0; i_ < op.lddch_.size(); i_++) {
+
             int r = _nrRows-op.lddch_[i_].r-1;
             int c = op.lddch_[i_].c;
-            double ldd = op.lddch_[i_].ldd;
+            double ldd = std::abs(op.lddch_[i_].ldd);
 
             xend = cx+c*dx + 0.5*dx;
             yend = cy+r*dx + 0.5*dx;
@@ -778,64 +791,88 @@ void lisemqt::showChannelVectorNew()
         X.clear();
         Y.clear();
 
-        QPen pen1;
-        pen1.setWidth(spinChannelSize->value());
-        pen1.setColor(QColor("#000000"));
-        pen1.setCosmetic(false);
         for (int i = 0; i < Xa.length(); i++) {
             rivera = new QwtPlotCurve();
-            rivers << rivera;
-
-            rivera->setPen(pen1);
-            rivera->attach( MPlot );
-            rivera->setAxes(MPlot->xBottom, MPlot->yLeft);
             rivera->setSamples(Xa.at(i),Ya.at(i));
+            rivers << rivera;
         }
 
-        int dxi = (int) (op.channelMap->cellSize()*0.5);
-        dxi = std::min(5,dxi);
+        // culvert parts of channel network
+        if (checkChannelCulverts->isChecked()) {
+            for(long i_ =  0; i_ < op.lddch_.size(); i_++) {
+                int r = _nrRows-op.lddch_[i_].r-1;
+                int c = op.lddch_[i_].c;
+
+                if(op.lddch_[i_].ldd < 0) {
+
+                    double ldd = std::abs(op.lddch_[i_].ldd);
+
+                    xend = cx+c*dx + 0.5*dx;
+                    yend = cy+r*dx + 0.5*dx;
+                    if (op.lddch_[i_].nr == 0) {
+                        Y << yend;
+                        X << xend;
+                    }
+                    Y << yend + _dy[(int)ldd]*dx;
+                    X << xend + _dx[(int)ldd]*dx;
+
+                    if (i_ < op.lddch_.size() -1 && (op.lddch_[i_+1].ldd > 0)) {
+                        Xc.push_back(X);
+                        Yc.push_back(Y);
+                        X.clear();
+                        Y.clear();
+                    }
+                }
+            }
+            Xc.push_back(X);
+            Yc.push_back(Y);
+            X.clear();
+            Y.clear();
+
+            for (int i = 0; i < Xc.length(); i++) {
+                culvert = new QwtPlotCurve();
+                culvert->setSamples(Xc.at(i),Yc.at(i));
+                culverts << culvert;
+            }
+
+        }
+
+        // dot size
+        //int dxi = (int) (op.channelMap->cellSize()*0.5);
+        int dxi = MPlot->invTransform(MPlot->xBottom,dx*1.66);
+        dxi = dxi - MPlot->invTransform(MPlot->xBottom,dx);
         spinCulvertSize->setValue(dxi);
 
-        QwtPlotCurve *outlet = new QwtPlotCurve();
-        QwtSymbol *whitedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi ));
-        outlets << outlet;
-        outlet->setSymbol(whitedot);
-        outlet->setStyle( QwtPlotCurve::NoCurve );
-        outlet->attach( MPlot );
-        outlet->setAxes(MPlot->xBottom, MPlot->yLeft);
-        outlet->setSamples(op.EndPointX,op.EndPointY);
-
-        // clear here for the next run of a different area
-        op.EndPointX.clear();
-        op.EndPointY.clear();
-        Xa.clear();
-        Ya.clear();
-
-        QwtSymbol *greendot = new QwtSymbol( QwtSymbol::Ellipse, Qt::green,QPen( Qt::black ), QSize( dxi, dxi ) );
-
-        if (checkChannelCulverts->isChecked()) {
-            culvert = new QwtPlotCurve();
-            culverts << culvert;
-            culvert->setSymbol(greendot);
-            culvert->setStyle( QwtPlotCurve::NoCurve );
-            culvert->attach( MPlot );
-            culvert->setAxes(MPlot->xBottom, MPlot->yLeft);
-            culvert->setSamples(op.CulvertX,op.CulvertY);
+        // outlets
+        for (int i = 0; i < op.EndPointX.length(); i++) {
+            QwtPlotCurve *outlet = new QwtPlotCurve();
+            outlet->setSamples(op.EndPointX,op.EndPointY);
+            outlets << outlet;
         }
 
-        QwtSymbol *bluedot = new QwtSymbol( QwtSymbol::Ellipse, Qt::cyan,QPen( Qt::black ), QSize( dxi, dxi ) );
+        // outpoints
+        for (int i = 0; i < op.ObsPointX.length(); i++) {
+            obspoint = new QwtPlotCurve();
+            obspoint->setSamples(op.ObsPointX,op.ObsPointY);
+            obspoints << obspoint;
+        }
 
-        obspoint = new QwtPlotCurve();
-        obspoints << obspoint;
-        obspoint->setSymbol(bluedot);
-        obspoint->setStyle( QwtPlotCurve::NoCurve );
-        obspoint->attach( MPlot );
-        obspoint->setAxes(MPlot->xBottom, MPlot->yLeft);
-        obspoint->setSamples(op.ObsPointX,op.ObsPointY);
-
+        // clear all structures here for the next run of a different area
+        Xa.clear();
+        Ya.clear();
+        Xc.clear();
+        Yc.clear();
         op.CulvertX.clear();
         op.CulvertY.clear();
-    }
+        op.ObsPointX.clear();
+        op.ObsPointY.clear();
+        op.EndPointX.clear();
+        op.EndPointY.clear();
+
+        // draw once
+        showChannelVector(true);
+
+    } // startplot
 }
 
 void lisemqt::getOutletMap()
@@ -888,7 +925,6 @@ void lisemqt::showHouseMap()
 
         RDe->setInterval( Qt::ZAxis, QwtInterval( m1, m2));
         houseMap->setData(RDe);
-        doHouse = false;
     }
     if (checkMapBuildings->isChecked())
         houseMap->setAlpha(transparencyHouse->value());
@@ -901,23 +937,24 @@ void lisemqt::showHouseMap()
 void lisemqt::showFlowBarriersMap()
 {
 
-//    if (startplot)
-//    {
-//        double m1, m2;
-//        // set intervals for rasterdata, x,y,z min and max
-//        double res = fillDrawMapData(op.flowbarriersMap,1.0, RDf, &m1, &m2);
-//        if (res ==-1e20)
-//            return;
-//        RDf->setInterval( Qt::ZAxis, QwtInterval( m1, m2));
-//        imageMap->setData(RDf);
-//    }
+    if (startplot)
+    {
+        double m1, m2;
+        // set intervals for rasterdata, x,y,z min and max
+        double res = fillDrawMapData(op.flowbarriersMap,1.0, RDf, &m1, &m2);
+        if (res ==-1e20)
+            return;
 
-//    if (checkMapImage->isChecked())
-//        imageMap->setAlpha(transparencyImage->value());
-//    else
-//        imageMap->setAlpha(0);
+        RDf->setInterval( Qt::ZAxis, QwtInterval( m1, m2));
+        channelMap->setData(RDf);
+    }
 
-//    imageMap->setColorMap(new colorMapImage());
+    if (checkChannelCulverts->isChecked())
+        channelMap->setAlpha(255);
+    else
+        channelMap->setAlpha(0);
+
+    channelMap->setColorMap(new colorMapRoads());
 
 }
 //---------------------------------------------------------------------------

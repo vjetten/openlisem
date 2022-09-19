@@ -54,6 +54,7 @@ void TWorld::cell_Redistribution(int r, int c)
     double SoilDep2, pore2, theta2, thetar2, FC, FC2, DL2;
     double Lw_ = Lw->Drc;
     double SoilDep1 = SoilDepth1->Drc;
+    double L_min = 0.05; // minimum L before eprcolation starts
 
     pore = Poreeff->Drc;
     thetar = ThetaR1->Drc;
@@ -82,10 +83,10 @@ void TWorld::cell_Redistribution(int r, int c)
 
     if(SwitchTwoLayer) {
         // no redistrib of Lw when too little
-        if (Lw_ > 0.05) {
+        if (Lw_ > L_min) {
             if (Lw_ < SoilDep1) {
 
-                // percolation flux
+                // percolation flux, avg K from L into unsat SD1
                 theta_E = (theta-thetar)/(pore-thetar);
                 Percolation = Ksateff->Drc * pow(theta_E, bca1->Drc); // m/timestep
                 //   Percolation = sqrt(Percolation * Ksateff->Drc);
@@ -94,6 +95,7 @@ void TWorld::cell_Redistribution(int r, int c)
                 double moistw = Lw_ * (pore-thetar); //available sat moisture above Lw_
                 double dm = (pore-FC)*Lw_ * factor;
                 Percolation = std::min(dm, Percolation);
+                // not more percolation than putting moisture content at field capacity
 
                 moistw -= Percolation; // decrease moistw with percolation, can be 0
 
@@ -105,6 +107,7 @@ void TWorld::cell_Redistribution(int r, int c)
                     double m1 = (theta-thetar)*(SoilDep1-Lw_) + Percolation;
                     theta = m1/(SoilDep1-Lw_) + thetar;
 
+                    // should never happen
                     if (theta >= pore) {
                         theta = pore;
                         Lw_= SoilDep1;
@@ -175,7 +178,7 @@ void TWorld::cell_Redistribution(int r, int c)
             Thetaeff->Drc = theta;
             ThetaI2->Drc = theta2;
             Lw->Drc = Lw_;
-        } // Lw_ > 0.1
+        } // Lw_ > L_min
 
         // redistribute the unsat zone between SD1 and SD2
         if (Lw_ < SoilDep1) { // && theta > theta2) {
@@ -202,7 +205,7 @@ void TWorld::cell_Redistribution(int r, int c)
 
     } else {
         // not SwitchTwoLayer
-        if (Lw_ > 0.1) { //?????
+        if (Lw_ > L_min) {
             if (Lw_ < SoilDep1-0.001) {
                 theta_E = (theta-thetar)/(pore-thetar);// MC - percolation should depend on the difference between the two zones??
                 //theta_E = 1; // MC - this percolation is from saturated zone to unsaturated - so theta_E = 1 ???
@@ -229,10 +232,8 @@ void TWorld::cell_Redistribution(int r, int c)
                     theta = pore;
                     Lw_= SoilDep1;
                 }
-            } // Lw < SD1
-        } //Lw_ > 0.1
-        Thetaeff->Drc= theta;
-        Lw->Drc= Lw_;
+            }
+        } //Lw_ > L_min
     }// 1 layer
 }
 //---------------------------------------------------------------------------
@@ -262,22 +263,20 @@ double TWorld::cell_Percolation(int r, int c, double factor)
                 dL = SoilDep2 - Lw_;
             else
                 dL = SoilDep2 - SoilDep1;
-            // if Wet Fr still in first layer percolation only make 2nd drier
+            // assumption: if Wet Fr still in first layer percolation only make 2nd drier
 
             if (Lw_ < SoilDep2-0.001) {
                 // decrease thetaeff because of percolation
-                double moisture = dL*(theta-thetar);//*0.5);
+                double moisture = dL*(theta-thetar);
                 Percolation = std::min(Percolation, moisture);
                 moisture -= Percolation;
                 theta = moisture/dL + thetar;
-                //theta = std::max(thetar, theta);
             } else {
                 // wetting front = soildepth2, dL = 0, moisture = 0
                 // assume theta goes back to FC2 and decrease the wetting fornt
-                Percolation = ksat;
                 theta = FC2;
                 double Lwo = Lw_;
-                Lw_ = std::max(0.0, Lw_ - Percolation/(pore - theta));
+                Lw_ = std::max(0.0, Lw_ - ksat/(pore - theta));
                 Percolation = (Lwo-Lw_)*(pore-theta);
             }
             ThetaI2->Drc = theta;
@@ -343,4 +342,51 @@ void TWorld::SoilWater()
 
         Perc->Drc = cell_Percolation(r, c, 1.0);
     }}
+}
+
+
+void TWorld::cell_SlopeStability(int r, int c)
+{
+
+//    grad = slope(DEM)+0.005;
+//    cosS = cos(atan(grad));
+//    sinS = sin(atan(grad));
+
+//    bulk_w = 9.8;
+//    # bulk density water in kN/m3
+
+//    Mu = GWDepth/1000;
+//    # pore pressure in m
+//    report D = soildepth/1000;
+//    # soil depth in m
+//    report S = (coh+(D*bulk - Mu*bulk_w)*(cosS**2)*TanPhi);
+//    # shear strength
+//    report T = D*bulk*sinS*cosS;
+
+
+//    F = S/T;
+//    #safety factor, strength/stress, F >=1 means stable
+//    F = if(outcrop, 2, F);
+//    # no instability on outcrops
+//    report F = min(2,F);
+//    #Safety Factor based on Coulomb, cut off at <= 2 for display
+//    report FDays = FDays + if (F lt 1, 1, 0);
+//    # cumulative days in year when unstable
+//    report FdayTot = FDays;
+//    # report the last timestep, cumulative unstable days
+
+    double F = 0;
+    if (CohesionSoil->Drc > 0) {
+        double cosGrad_ = cosGrad->Drc;
+   //  qDebug() << cosGrad_;
+     double soilbulk = SoilDepth2->Drc*BulkDensity->Drc;
+        double S = CohesionSoil->Drc + (soilbulk - GWWH->Drc * 1000.0)*(cosGrad_*cosGrad_)*AngleFriction->Drc; // shear strength kPa
+
+           double T = soilbulk *Grad->Drc*cosGrad_;// shear stress kPa
+      //  qDebug() << S << soilbulk << Grad->Drc << cosGrad_; //T;
+        F = Grad->Drc > 0.01 ? S/T : 0.0;
+    }
+
+   FSlope->Drc = F;
+
 }

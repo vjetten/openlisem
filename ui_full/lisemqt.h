@@ -91,6 +91,15 @@ typedef struct MAP_LIST {
     int varnr;
 } MAP_LIST;
 
+//class myPlotMagnifier : public QwtPlotMagnifier
+//{
+//    int dxi = MPlot->invTransform(MPlot->xBottom,dx*1.5);
+//    dxi = dxi - MPlot->invTransform(MPlot->xBottom,dx);
+//    spinCulvertSize->setValue(dxi);
+
+
+//};
+
 
 /// Exteneded interface class
 class lisemqt : public QMainWindow, private Ui::lisemqtClass
@@ -220,6 +229,8 @@ public:
 
     QList <QVector <double>> Xa;
     QList <QVector <double>> Ya;
+    QList <QVector <double>> Xc;
+    QList <QVector <double>> Yc;
 
     double contourmin, contourmax;
     //   double drawNrCols;
@@ -292,7 +303,6 @@ public:
     QwtPlotCurve *outPoints;
     bool startplot = true;
     bool stopplot;
-    bool doHouse;
     QVector <double> times;
 
     bool oldRunfile; // check is old runfile for ksat calibration
@@ -496,7 +506,7 @@ private slots:
 
     void showMapb(bool);
     void showMapd(double);
-    void hideChannelVector(bool);
+    void showChannelVector(bool);
 
     // functions that interact with the world thread signals
     void worldShow(bool showall);

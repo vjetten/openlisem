@@ -1,3 +1,5 @@
+
+
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
 **  Copyright (C) 2010,2011, 2020  Victor Jetten
@@ -442,69 +444,67 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
         double SoilDep2 = SoilDepth2->Drc;
         double dtheta2 = std::max(0.0,ThetaS2->Drc-ThetaI2->Drc);
         double dfact2 = 0;
+        double space = 0;
 
         if (SwitchImpermeable && L > SoilDep2 - 0.001) {
             Lw->Drc = SoilDep2;
             return 0;
-        }                
+        }
         if (SwitchImpermeable && dtheta2 < 0.001) {
             Lw->Drc = SoilDep2;
             return 0;
         }
 
+        // L still in SD1
         if (L < SoilDep1) {
-            double space = (SoilDep1-L)*dtheta1;
-            if(fact_in > (SoilDep1-L)*space) {
+            space = (SoilDep1-L)*dtheta1;
+            if(fact_in > space) {
+                // too much for SD1, going partly into SD2
                 passing = true;
                 dfact2 = fact_in - space;
             } else {
                 // still in SD1
-                if (dtheta1 > 0.001)
-                    L = L + fact_in/dtheta1;
-
+                L = L + fact_in/std::max(0.01,dtheta1);
                 fact_out = fact_in;
             }
         } else {
-            //L already in layer 2
-            double space2 = (SoilDep2-L)*dtheta2;
-            if (dtheta2 > 0.001)
-                L = L + fact_in/dtheta2;
-            else
-                L = SoilDep2;
-
-            if (L > SoilDep2-0.001) {
-                if (SwitchImpermeable)
-                fact_out = space2;
-                else
-                    fact_out = Perc->Drc;
-                L = SoilDep2;                
+            // L in SD2
+            if (L < SoilDep2) {
+                //L already in layer 2
+                double space2 = (SoilDep2-L)*dtheta2;
+                if(fact_in < space2) {
+                    // everything fits
+                    L = L + fact_in/std::max(0.01,dtheta2);
+                    fact_out = fact_in;
+                } else {
+                    //too much
+                    L = SoilDep2;
+                    fact_out = std::min(fact_in, space2 + Perc->Drc);
+                }
             } else {
-                fact_out = fact_in;
-                // everything fitted
+                // soil is full
+                L = SoilDep2;
+                fact_out = std::min(fact_in, Perc->Drc);
             }
-
         }
 
+        // going from SL1 into SL2
         if (passing) {
             double space2 = (SoilDep2-SoilDep1)*dtheta2;
-            dfact2 = std::min(dfact2, space2);
-            if (dtheta2 > 0.001)
-                L = SoilDep1 + dfact2/dtheta2; // increase L with remaining fact
-            else
-                L = SoilDep2;
 
-            if (L > SoilDep2-0.001) {
-                if (SwitchImpermeable)
-                fact_out = space2;
-                else
-                    fact_out = Perc->Drc;
+            if (dfact2 < space2) {
+                // everything fits
+                L = SoilDep1 + dfact2/std::max(0.01,dtheta2);
+                fact_out = fact_in;
+            } else {
+                // it is also too much for SD2
                 L = SoilDep2;
-            } else
-                fact_out = fact_in; // everything fitted
+                fact_out = std::min(fact_in, space + space2 + Perc->Drc);
+            }
         }
-        L = std::min(SoilDep2,std::max(0.0, L));
-        Lw->Drc = L;
-        return std::max(0.0,fact_out);
+
+        Lw->Drc  = L;
+        return fact_out;
 
     } else {
 
@@ -521,37 +521,24 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
             return 0;
         }
 
-        // fact_out = 0 initially
-        if(L < SoilDep1-0.001) {
-            // not full
-            double space1 = (SoilDep1 - L)*dtheta1;
-            if (dtheta1 > 0.001)
-                L = L + fact_in/dtheta1; // increase wetting front
-            else
-                L = SoilDep1;
+        double space = (SoilDep1-L)*dtheta1; // room in the soil
+        if (fact_in < space) {
+            // verything fits
+            L = L + fact_in/std::min(dtheta1,0.01); // increase wetting front
+           fact_out = fact_in;
+        } else {
+            // layer is filled completely, so infiltration is space in the layer plus percolation at the bottom
+            // percolation becomes Ksateff when saturated
+            L = SoilDep1;
+            fact_out = std::min(fact_in, space+Perc->Drc);
+        }
 
-
-            if (L > SoilDep1-0.001) {
-                if (SwitchImpermeable)
-                    // if impermeable remaining space is infiltration
-                    fact_out = space1;
-					//fact_out = fact_in; // MC - no 0 or reduced infiltration with full profile
-                else
-                    fact_out = Perc->Drc; //fact_in;
-                // L does not go deeper than SD1 but if not impermeable fact_out = fact_in
-
-                L = SoilDep1;
-            } else
-                fact_out = fact_in;
-        } else
-            fact_out = fact_in; // MC - no 0 or reduced infiltration with full profile
-
-        L = std::min(SoilDep1,std::max(0.0, L));
         Lw->Drc = L;
-        return std::max(0.0, fact_out);
+        return fact_out;
     }
-    fact_out = fact_in;
-    return fact_out;
+
+    return 0;
+
 }
 
 //---------------------------------------------------------------------------
@@ -617,7 +604,7 @@ void TWorld::cell_InfilMethods(int r, int c)
     // actual infil in m, cannot have more infil than water on the surface
 
     if (fact_ > 0)
-        fact_ = IncreaseInfiltrationDepthNew(fact_, r, c);
+        fact_ = IncreaseInfiltrationDepthNew0(fact_, r, c);
     // adjust fact and increase Lw, for twolayer, impermeable etc
 
     if (fwh < fact_)
@@ -688,4 +675,127 @@ void TWorld::infilInWave(cTMap *_h, double dt1)
     }}
 }
 //---------------------------------------------------------------------------
+
+double TWorld::IncreaseInfiltrationDepthNew0(double fact_in, int r, int c) //, double fact, double *L1p, double *L2p, double *FFullp)
+{
+    double dtheta1 = std::max(0.0,Poreeff->Drc-Thetaeff->Drc); // space in the top layer
+    double L = Lw->Drc;
+    double SoilDep1 = SoilDepth1->Drc;
+    double fact_out = 0;
+    bool passing = false;
+
+    if (SwitchTwoLayer) {
+
+        double SoilDep2 = SoilDepth2->Drc;
+        double dtheta2 = std::max(0.0,ThetaS2->Drc-ThetaI2->Drc);
+        double dfact2 = 0;
+
+        if (SwitchImpermeable && L > SoilDep2 - 0.001) {
+            Lw->Drc = SoilDep2;
+            return 0;
+        }
+        if (SwitchImpermeable && dtheta2 < 0.001) {
+            Lw->Drc = SoilDep2;
+            return 0;
+        }
+
+        if (L < SoilDep1) {
+            double space = (SoilDep1-L)*dtheta1;
+            if(fact_in > space) {
+                passing = true;
+                dfact2 = fact_in - space;
+            } else {
+                // still in SD1
+                if (dtheta1 > 0.01)
+                    L = L + fact_in/std::max(0.01,dtheta1);
+                fact_out = fact_in;
+            }
+        } else {
+            //L already in layer 2
+            double space2 = (SoilDep2-L)*dtheta2;
+            if (dtheta2 > 0.01)
+                L = L + fact_in/std::max(0.01,dtheta2);
+//            else
+//                L = SoilDep2;
+
+            if (L > SoilDep2-0.001) {
+                if (SwitchImpermeable)
+                    fact_out = space2;
+                else
+                    fact_out = Perc->Drc;
+                L = SoilDep2;
+            } else {
+                fact_out = fact_in;
+                // everything fitted
+            }
+
+        }
+
+        if (passing) {
+            // second layer still at initial
+            double space2 = (SoilDep2-SoilDep1)*dtheta2;
+            dfact2 = std::min(dfact2, space2);
+            if (dtheta2 > 0.01)
+                L = SoilDep1 + dfact2/std::max(0.01,dtheta2); // increase L with remaining fact
+            else
+                L = SoilDep2;
+
+            if (L > SoilDep2-0.001) {
+                if (SwitchImpermeable)
+                    fact_out = space2;
+                else
+                    fact_out = Perc->Drc;
+                L = SoilDep2;
+            } else
+                fact_out = fact_in; // everything fitted
+        }
+        L = std::min(SoilDep2,std::max(0.0, L));
+        Lw->Drc = L;
+        return std::max(0.0,fact_out);
+
+    } else {
+
+        //===== single layer =====
+
+        // impermeable and L reached SD1, no more infil
+        if (SwitchImpermeable && L > SoilDep1 - 0.001) {
+            Lw->Drc = SoilDep1;
+            return 0;
+        }
+        // impermeable and no more room, no more infil
+        if (SwitchImpermeable && dtheta1 < 0.001) {
+            Lw->Drc = SoilDep1;
+            return 0;
+        }
+
+        // fact_out = 0 initially
+        if(L < SoilDep1-0.001) {
+            // not full
+            double space1 = (SoilDep1 - L)*dtheta1;
+            if (dtheta1 > 0.01)
+                L = L + fact_in/std::max(dtheta1,0.01); // increase wetting front
+            else
+                L = SoilDep1;
+
+
+            if (L > SoilDep1-0.001) {
+                if (SwitchImpermeable)
+                    // if impermeable remaining space is infiltration
+                    fact_out = space1;
+                else
+                    fact_out = Perc->Drc; //fact_in;
+                // L does not go deeper than SD1 but if not impermeable fact_out = fact_in
+
+                L = SoilDep1;
+            } else
+                fact_out = fact_in;
+        }
+
+        L = std::min(SoilDep1,std::max(0.0, L));
+        Lw->Drc = L;
+        return std::max(0.0, fact_out);
+    }
+
+    return 0;
+}
 

@@ -153,9 +153,6 @@ double TWorld::GetSV(double d)
 //---------------------------------------------------------------------------
 void TWorld::cell_SplashDetachment(int r, int c)
 {
-    if (!SwitchErosion)
-        return;
-
     double _WH = FloodDomain->Drc == 0 ? WH->Drc : hmx->Drc;
 
     DETSplash->Drc = 0;
