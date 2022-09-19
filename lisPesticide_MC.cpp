@@ -105,7 +105,7 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMser
     double PMwactive {0.0};
     double PMwdep {0.0};
     double PMwdet {0.0};
-    PMwactive += PestOutW + mapTotal(*PMrw);
+    PMwactive = PestOutW + mapTotal(*PMrw);
     PMwdep = mapTotal(*pmwdep);
     PMwdet = mapTotal(*pmwdet);
     PMwerr = PMwdet > 0 ? (PMwdet + PMwdep - PMwactive) / PMwdet * 100 : 0;
