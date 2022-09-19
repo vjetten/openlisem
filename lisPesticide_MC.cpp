@@ -64,7 +64,7 @@ functions: \n
  * @return updates PestOutW, PestOutS, PMtot and PMerr
  *
  */
-void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
+void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr)
 {
    // totals of outfluxes
    // at the moment only overland flow is accounted for. add channels etc later.
@@ -84,22 +84,31 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot)
         PMerosion = mapTotal(*PMrs) + PestOutS;
     }
 
+    // all pesticide mass in system current timestep
     PMtot = Pestinf + PestOutW + mapTotal(*PMsoil) + mapTotal(*PMrw)
             + mapTotal(*PMmw) + mapTotal(*PMms) + PestPerc + PMerosion;
+    PMerr = (PMtot - PMtotI) / PMtotI * 100;
 
-    // mass balance for active adsorbed, active dissolved and combined.
-    double PMactive {0.0};
-    double PMdep {0.0};
-    double PMdet {0.0};
+    // mass balance for active adsorbed
+    PMserr = 0;
     if (SwitchErosion) {
-    PMactive = PestOutS + mapTotal(*PMrs);
+    double PMsactive {0.0};
+    double PMsdep {0.0};
+    double PMsdet {0.0};
+    PMsactive = PestOutS + mapTotal(*PMrs);
+    PMsdep = mapTotal(*pmsdep);
+    PMsdet = mapTotal(*pmsdet);
+    PMserr = PMsdet > 0 ? (PMsdet + PMsdep - PMsactive) / PMsdet * 100 : 0;
     }
-    PMactive += PestOutW + mapTotal(*PMrw);
-    PMdep = mapTotal(*pmdep);
-    PMdet = mapTotal(*pmdet);
 
-    PMerr = PMdet > 0 ? (PMdet + PMdep - PMactive) / PMdet * 100 : 0;
-    //PMerr = PMactive > 0 ? (PMtot - PMtotI) / PMactive * 100 : 0;
+    // mass balance active dissolved
+    double PMwactive {0.0};
+    double PMwdep {0.0};
+    double PMwdet {0.0};
+    PMwactive += PestOutW + mapTotal(*PMrw);
+    PMwdep = mapTotal(*pmwdep);
+    PMwdet = mapTotal(*pmwdet);
+    PMwerr = PMwdet > 0 ? (PMwdet + PMwdep - PMwactive) / PMwdet * 100 : 0;
 }
 
 //---------------------------------------------------------------------------
@@ -331,6 +340,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
             mrw_inf = (mrw_inf/tot) * PMrw->Drc;
             mwrm_ex = (mwrm_ex/tot) * PMrw->Drc;
         }
+        mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex - mrw_inf;
         //substract infiltration and mixing layer exchange
         //mg = mg + mg - mg - mg + (mg sec-1 * sec)
         PMrw->Drc = std::max(0.0, PMrw->Drc + mwrm_ex - mrw_inf);
@@ -421,15 +431,13 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
             Ez->Drc = eMass / (rho * _DX->Drc * FlowWidth->Drc); // also on road surface
             msoil_ex = eMass * PCms->Drc; // what happens with pesticides on roads??
             // mg = mg kg-1 * kg
-            msrm_ex = Crs_avg * eMass; // loss by deposition
-            pmdep->Drc += msrm_ex; //total detatched pesticide in cell
+            msrm_ex = Crs_avg * eMass; // loss by deposition            
         } else if (eMass > 1e-6){
             // erosion
             Ez->Drc = eMass / (rho * _DX->Drc * SoilWidthDX->Drc); // only on soil surface
             msoil_ex = eMass * PCs->Drc; // * SoilWidthDX->Drc * _DX->Drc * rho;
             // mg = mg kg-1  kg
-            msrm_ex = PCms->Drc * eMass; // * rho * _DX->Drc * SoilWidthDX->Drc); // added by erosion
-            pmdet->Drc += msrm_ex; //total detatched pesticide in cell
+            msrm_ex = PCms->Drc * eMass; // * rho * _DX->Drc * SoilWidthDX->Drc); // added by erosion            
         }
         // adjust mass for erosion or deposition
         // no more transport than mass in cell
@@ -437,6 +445,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
             msrm_ex = -PMrs->Drc;
         }
         PMrs->Drc = std::max(0.0, PMrs->Drc + msrm_ex);
+        eMass < 0 ? pmsdep->Drc += msrm_ex: pmsdet->Drc += msrm_ex;
 
         // concentration for outflux
         PCrs->Drc = PMrs->Drc / _Sed->Drc;

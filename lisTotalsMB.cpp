@@ -552,7 +552,7 @@ void TWorld::MassBalance()
         debug(QString("mbp: %1").arg(MBp));
     }
     if (SwitchPestMC) {
-        MassPest(PMtotI, PMerr, PMtot);
+        MassPest(PMtotI, PMerr, PMtot, PMserr, PMwerr);
 
     }
 }

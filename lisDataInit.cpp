@@ -2311,8 +2311,8 @@ void TWorld::IntializeData(void)
         PMinf = NewMap(0);
         PMperc = NewMap(0);
         Ez = NewMap(0);
-        pmdet = NewMap(0);
-        pmdep = NewMap(0);
+        pmwdet = NewMap(0);
+        pmwdep = NewMap(0);
         SpinKW = NewMap(0);
         QpinKW = NewMap(0);
         Theta_mix = NewMap(0);
@@ -2322,6 +2322,8 @@ void TWorld::IntializeData(void)
             PCrs = NewMap(0);
             PMrs = NewMap(0);
             Qps = NewMap(0);
+            pmsdet = NewMap(0);
+            pmsdep = NewMap(0);
         }
 
         // total masses
@@ -2331,6 +2333,8 @@ void TWorld::IntializeData(void)
         PMtot = 0;
         PMerr = 0;
         PMtotI = 0;
+        PMwerr = 0;
+        PMserr = 0;
         PQrw_dt = 0;
         PQrs_dt = 0;
         PestOutS = 0;

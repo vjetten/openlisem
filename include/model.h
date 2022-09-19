@@ -511,7 +511,7 @@ public:
     double MaxVup;
 
     ///pesticides-MC
-    double PMtot, PMerr, PMtotI;
+    double PMtot, PMerr, PMtotI, PMwerr, PMserr;
     double Pestinf, PestOutW, PestOutS, PestPerc;
     double PQrw_dt, PQrs_dt;
     double KdPestMC, KfilmPestMC, KrPestMC, rhoPestMC;
@@ -855,7 +855,7 @@ public:
     double ConcentrationP(double watvol, double pest);
 
     //Pesticides MC
-    void MassPest(double PMtotI, double &PMerr, double &PMtot);
+    void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
     double MassPestInitial(void);
     void KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
                          cTMap *_Qn, cTMap *_Qsn, cTMap *_Qpwn, cTMap *_Qpsn,
