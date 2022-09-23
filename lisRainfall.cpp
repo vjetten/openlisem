@@ -237,7 +237,7 @@ void TWorld::GetRainfallData(QString name)
             stationID << i+1;
     }  
 
-    qDebug() << "stations" << stationID;
+   // qDebug() << "stations" << stationID;
 
     if (stationID.count() == 1) {
         SwitchIDinterpolation = false;

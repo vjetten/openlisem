@@ -540,7 +540,8 @@ void TWorld::InitStandardInput(void)
         ErrorString = QString("Outpoint.map has no values above 0. Copy at least outlet(s).");
         throw 1;
     }
-SwitchUseIDmap = false;
+SwitchUseIDmap = true;
+/// TODO   !!!!!!!!!!!!!!!
     if (SwitchRainfall && !SwitchRainfallSatellite)
     {
         RainZone = ReadMap(LDD,getvaluename("ID"));

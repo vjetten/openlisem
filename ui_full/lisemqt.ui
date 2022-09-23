@@ -70,7 +70,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -2146,526 +2146,7 @@
            <property name="verticalSpacing">
             <number>4</number>
            </property>
-           <item row="9" column="0">
-            <widget class="QScrollArea" name="scrollArea">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
-             </property>
-             <property name="horizontalScrollBarPolicy">
-              <enum>Qt::ScrollBarAsNeeded</enum>
-             </property>
-             <property name="sizeAdjustPolicy">
-              <enum>QAbstractScrollArea::AdjustToContents</enum>
-             </property>
-             <property name="widgetResizable">
-              <bool>true</bool>
-             </property>
-             <widget class="QWidget" name="scrollAreaWidgetContents">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>1145</width>
-                <height>85</height>
-               </rect>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_22"/>
-             </widget>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QGroupBox" name="groupBoxTime">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>8</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="title">
-              <string>Simulation times</string>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_43">
-              <item row="0" column="2">
-               <widget class="QLabel" name="label_6">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Begin time (day:min)</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="4">
-               <widget class="QLabel" name="label_7">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>End time (day:min)</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="3">
-               <widget class="QLineEdit" name="E_BeginTimeDay">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="inputMask">
-                 <string>999:9999</string>
-                </property>
-                <property name="text">
-                 <string>000:0000</string>
-                </property>
-                <property name="maxLength">
-                 <number>8</number>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="5">
-               <widget class="QLineEdit" name="E_EndTimeDay">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="inputMask">
-                 <string>999:9999</string>
-                </property>
-                <property name="text">
-                 <string>000:1200</string>
-                </property>
-                <property name="cursorPosition">
-                 <number>8</number>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="6">
-               <spacer name="horizontalSpacer_13">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_8">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Timestep (sec)</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="E_Timestep">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="inputMask">
-                 <string>9999</string>
-                </property>
-                <property name="text">
-                 <string>20</string>
-                </property>
-                <property name="maxLength">
-                 <number>4</number>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QGroupBox" name="groupBox_dbase">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>8</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="title">
-              <string>Database</string>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_7">
-              <property name="leftMargin">
-               <number>8</number>
-              </property>
-              <property name="topMargin">
-               <number>2</number>
-              </property>
-              <property name="rightMargin">
-               <number>8</number>
-              </property>
-              <property name="bottomMargin">
-               <number>8</number>
-              </property>
-              <property name="horizontalSpacing">
-               <number>8</number>
-              </property>
-              <property name="verticalSpacing">
-               <number>4</number>
-              </property>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_1">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="layoutDirection">
-                 <enum>Qt::RightToLeft</enum>
-                </property>
-                <property name="text">
-                 <string>Run file(s) </string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="3">
-               <widget class="QToolButton" name="toolButton_fileOpen">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>Select run file</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
-                </property>
-                <property name="autoRaise">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="3">
-               <widget class="QToolButton" name="toolButton_MapDir">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>Select a map directory, this is appended to all maps</string>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
-                </property>
-                <property name="autoRaise">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="3">
-               <widget class="QToolButton" name="toolButton_ResultDir">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0" rowspan="2">
-               <widget class="QLabel" name="label_2">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="layoutDirection">
-                 <enum>Qt::RightToLeft</enum>
-                </property>
-                <property name="text">
-                 <string>Map directory </string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="5">
-               <widget class="QToolButton" name="toolButton_deleteRun">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>Delete current run file from list</string>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/File-Delete-icon.png</normaloff>:/2X/File-Delete-icon.png</iconset>
-                </property>
-                <property name="autoRaise">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1" rowspan="2" colspan="2">
-               <widget class="QLineEdit" name="E_MapDir">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1" colspan="2">
-               <widget class="QComboBox" name="E_runFileList">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-                <property name="duplicatesEnabled">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="label_3">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="layoutDirection">
-                 <enum>Qt::RightToLeft</enum>
-                </property>
-                <property name="text">
-                 <string>   Result directory </string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="4">
-               <widget class="QToolButton" name="toolButton_ShowRunfile">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>Show current run file</string>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
-                </property>
-                <property name="autoRaise">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1" colspan="2">
-               <widget class="QLineEdit" name="E_ResultDir">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="4" colspan="2">
-               <widget class="QCheckBox" name="checkAddDatetime">
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Make a subdirectory under the result directory with a date-time stamp&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string>Add time</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item row="4" column="0">
+           <item row="8" column="0">
             <widget class="QTabWidget" name="tabWidgetOptions">
              <property name="enabled">
               <bool>true</bool>
@@ -7499,30 +6980,8 @@ p, li { white-space: pre-wrap; }
                   <property name="verticalSpacing">
                    <number>4</number>
                   </property>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_140">
-                    <property name="text">
-                     <string>Hydrology</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="16" column="0">
-                   <widget class="QLabel" name="label_cald50">
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Median texture D50 (transp.suspended, deposition: d50.map)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="20" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateCHSV">
+                  <item row="18" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateD90">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -7532,7 +6991,6 @@ p, li { white-space: pre-wrap; }
                     <property name="font">
                      <font>
                       <pointsize>8</pointsize>
-                      <italic>false</italic>
                       <bold>false</bold>
                       <underline>false</underline>
                       <kerning>true</kerning>
@@ -7541,8 +6999,29 @@ p, li { white-space: pre-wrap; }
                     <property name="minimum">
                      <double>0.010000000000000</double>
                     </property>
-                    <property name="maximum">
-                     <double>99.000000000000000</double>
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="19" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateCHCOH">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                      <bold>false</bold>
+                      <underline>false</underline>
+                      <kerning>true</kerning>
+                     </font>
+                    </property>
+                    <property name="minimum">
+                     <double>-1.000000000000000</double>
                     </property>
                     <property name="singleStep">
                      <double>0.010000000000000</double>
@@ -7552,47 +7031,8 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateSmax">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
-                    <property name="minimum">
-                     <double>0.010000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>1.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="20" column="0">
-                   <widget class="QLabel" name="label_139">
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Settling Velocity</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="15" column="0">
-                   <widget class="QLabel" name="label_calcoh">
+                   <widget class="QLabel" name="label_calas">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
@@ -7614,7 +7054,49 @@ p, li { white-space: pre-wrap; }
                      <string notr="true"/>
                     </property>
                     <property name="text">
-                     <string>Soil Cohesion (flow detachment: coh.map and cohadd.map)</string>
+                     <string>Aggregate Stability (splash detachment: aggrstab.map)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="18" column="0">
+                   <widget class="QLabel" name="label_69">
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                      <bold>false</bold>
+                      <underline>false</underline>
+                      <kerning>true</kerning>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Texture 90% quantile D90 ((transp. bedload, deposition: d90.map)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="17" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateD50">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                      <bold>false</bold>
+                      <underline>false</underline>
+                      <kerning>true</kerning>
+                     </font>
+                    </property>
+                    <property name="maximum">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>1.000000000000000</double>
                     </property>
                    </widget>
                   </item>
@@ -7648,8 +7130,23 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="6" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateTheta">
+                  <item row="13" column="0">
+                   <widget class="QLabel" name="label_87">
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                      <bold>false</bold>
+                      <underline>false</underline>
+                      <kerning>true</kerning>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Channel perimeter totuosity</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibratePsi">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -7681,8 +7178,11 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="19" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateCHUcr">
+                  <item row="15" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateAS">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -7692,14 +7192,13 @@ p, li { white-space: pre-wrap; }
                     <property name="font">
                      <font>
                       <pointsize>8</pointsize>
-                      <italic>false</italic>
                       <bold>false</bold>
                       <underline>false</underline>
                       <kerning>true</kerning>
                      </font>
                     </property>
-                    <property name="maximum">
-                     <double>1.000000000000000</double>
+                    <property name="minimum">
+                     <double>0.010000000000000</double>
                     </property>
                     <property name="singleStep">
                      <double>0.010000000000000</double>
@@ -7709,8 +7208,23 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="8" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateChKsat">
+                  <item row="17" column="0">
+                   <widget class="QLabel" name="label_cald50">
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                      <bold>false</bold>
+                      <underline>false</underline>
+                      <kerning>true</kerning>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Median texture D50 (transp.suspended, deposition: d50.map)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateSmax">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -7725,16 +7239,7 @@ p, li { white-space: pre-wrap; }
                       <kerning>true</kerning>
                      </font>
                     </property>
-                    <property name="decimals">
-                     <number>2</number>
-                    </property>
                     <property name="minimum">
-                     <double>0.010000000000000</double>
-                    </property>
-                    <property name="maximum">
-                     <double>100.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
                      <double>0.010000000000000</double>
                     </property>
                     <property name="value">
@@ -7769,177 +7274,17 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="17" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateD90">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
-                    <property name="minimum">
-                     <double>0.010000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>1.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_68">
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <italic>true</italic>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>This factor is directly multiplied with the input maps</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="6" column="0">
-                   <widget class="QLabel" name="label_calth">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string notr="true"/>
-                    </property>
-                    <property name="text">
-                     <string>Theta (initial moisture: thetai1.map &amp; thetai2.map)</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="13" column="0">
+                  <item row="14" column="0">
                    <widget class="QLabel" name="label_127">
                     <property name="text">
                      <string>Erosion</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="16" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateD50">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
-                    <property name="maximum">
-                     <double>100.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.010000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>1.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="17" column="0">
-                   <widget class="QLabel" name="label_69">
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_140">
                     <property name="text">
-                     <string>Texture 90% quantile D90 ((transp. bedload, deposition: d90.map)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="0">
-                   <widget class="QLabel" name="label_86">
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Ksat soil layer 2 (hydraulic conductivity: ksat2.map)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="6" column="2">
-                   <widget class="QLabel" name="label_78">
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <italic>true</italic>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>not used with SWATRE</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="8" column="0">
-                   <widget class="QLabel" name="label_calchks">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string notr="true"/>
-                    </property>
-                    <property name="text">
-                     <string>Ksat Channel (channel bed infil: chanksat.mapchanksat.map)</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                     <string>Hydrology</string>
                     </property>
                    </widget>
                   </item>
@@ -7973,11 +7318,47 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="14" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateAS">
-                    <property name="enabled">
-                     <bool>true</bool>
+                  <item row="13" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateChTor">
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                      <bold>false</bold>
+                      <underline>false</underline>
+                      <kerning>true</kerning>
+                     </font>
                     </property>
+                    <property name="minimum">
+                     <double>0.500000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>2.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="label_86">
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                      <bold>false</bold>
+                      <underline>false</underline>
+                      <kerning>true</kerning>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Ksat soil layer 2 (hydraulic conductivity: ksat2.map)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="0">
+                   <widget class="QLabel" name="label_calth">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -7992,14 +7373,14 @@ p, li { white-space: pre-wrap; }
                       <kerning>true</kerning>
                      </font>
                     </property>
-                    <property name="minimum">
-                     <double>0.010000000000000</double>
+                    <property name="toolTip">
+                     <string notr="true"/>
                     </property>
-                    <property name="singleStep">
-                     <double>0.010000000000000</double>
+                    <property name="text">
+                     <string>Theta (initial moisture: thetai1.map &amp; thetai2.map)</string>
                     </property>
-                    <property name="value">
-                     <double>1.000000000000000</double>
+                    <property name="alignment">
+                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -8030,109 +7411,6 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="9" column="0">
-                   <widget class="QLabel" name="label_134">
-                    <property name="text">
-                     <string>Flow</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="18" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateCHCOH">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
-                    <property name="minimum">
-                     <double>-1.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.010000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>1.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="19" column="0">
-                   <widget class="QLabel" name="label_118">
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Critical velocity Ucr in Channel Sediment Transport </string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="11" column="0">
-                   <widget class="QLabel" name="label_calchn">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string notr="true"/>
-                    </property>
-                    <property name="text">
-                     <string>Manning N Channel (Channel flow resistance: chanman.map)</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="14" column="0">
-                   <widget class="QLabel" name="label_calas">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string notr="true"/>
-                    </property>
-                    <property name="text">
-                     <string>Aggregate Stability (splash detachment: aggrstab.map)</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="10" column="0">
                    <widget class="QLabel" name="label_calN">
                     <property name="sizePolicy">
@@ -8160,17 +7438,23 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="15" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateCOH">
-                    <property name="enabled">
-                     <bool>true</bool>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_76">
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                      <bold>false</bold>
+                      <underline>false</underline>
+                      <kerning>true</kerning>
+                     </font>
                     </property>
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
+                    <property name="text">
+                     <string>Interception storage canopy (Smax.map)</string>
                     </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateKsat2">
                     <property name="font">
                      <font>
                       <pointsize>8</pointsize>
@@ -8180,9 +7464,6 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="minimum">
-                     <double>0.010000000000000</double>
-                    </property>
-                    <property name="singleStep">
                      <double>0.010000000000000</double>
                     </property>
                     <property name="value">
@@ -8220,8 +7501,8 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="18" column="0">
-                   <widget class="QLabel" name="label_calchcoh">
+                  <item row="11" column="0">
+                   <widget class="QLabel" name="label_calchn">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -8240,45 +7521,38 @@ p, li { white-space: pre-wrap; }
                      <string notr="true"/>
                     </property>
                     <property name="text">
-                     <string>Channel bed Cohesion (channel detachment: chancoh.map)</string>
+                     <string>Manning N Channel (Channel flow resistance: chanman.map)</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="label_76">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_68">
                     <property name="font">
                      <font>
                       <pointsize>8</pointsize>
+                      <italic>true</italic>
                       <bold>false</bold>
                       <underline>false</underline>
                       <kerning>true</kerning>
                      </font>
                     </property>
                     <property name="text">
-                     <string>Interception storage canopy (Smax.map)</string>
+                     <string>This factor is directly multiplied with the input maps</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateKsat2">
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                      <bold>false</bold>
-                      <underline>false</underline>
-                      <kerning>true</kerning>
-                     </font>
-                    </property>
-                    <property name="minimum">
-                     <double>0.010000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>1.000000000000000</double>
+                  <item row="9" column="0">
+                   <widget class="QLabel" name="label_134">
+                    <property name="text">
+                     <string>Flow</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="7" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibratePsi">
+                  <item row="6" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateTheta">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -8310,8 +7584,17 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="12" column="0">
-                   <widget class="QLabel" name="label_87">
+                  <item row="16" column="0">
+                   <widget class="QLabel" name="label_calcoh">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="font">
                      <font>
                       <pointsize>8</pointsize>
@@ -8320,13 +7603,49 @@ p, li { white-space: pre-wrap; }
                       <kerning>true</kerning>
                      </font>
                     </property>
+                    <property name="toolTip">
+                     <string notr="true"/>
+                    </property>
                     <property name="text">
-                     <string>Channel perimeter totuosity</string>
+                     <string>Soil Cohesion (flow detachment: coh.map and cohadd.map)</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="12" column="1">
-                   <widget class="QDoubleSpinBox" name="E_CalibrateChTor">
+                  <item row="19" column="0">
+                   <widget class="QLabel" name="label_calchcoh">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                      <bold>false</bold>
+                      <underline>false</underline>
+                      <kerning>true</kerning>
+                     </font>
+                    </property>
+                    <property name="toolTip">
+                     <string notr="true"/>
+                    </property>
+                    <property name="text">
+                     <string>Channel bed Cohesion (channel detachment: chancoh.map)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="16" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateCOH">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="font">
                      <font>
                       <pointsize>8</pointsize>
@@ -8336,10 +7655,83 @@ p, li { white-space: pre-wrap; }
                      </font>
                     </property>
                     <property name="minimum">
-                     <double>0.500000000000000</double>
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="2">
+                   <widget class="QLabel" name="label_78">
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                      <italic>true</italic>
+                      <bold>false</bold>
+                      <underline>false</underline>
+                      <kerning>true</kerning>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>not used with SWATRE</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="12" column="0">
+                   <widget class="QLabel" name="label_calchks">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                      <bold>false</bold>
+                      <underline>false</underline>
+                      <kerning>true</kerning>
+                     </font>
+                    </property>
+                    <property name="toolTip">
+                     <string notr="true"/>
+                    </property>
+                    <property name="text">
+                     <string>Ksat Channel (channel bed infil: chanksat.map)</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="12" column="1">
+                   <widget class="QDoubleSpinBox" name="E_CalibrateChKsat">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                      <bold>false</bold>
+                      <underline>false</underline>
+                      <kerning>true</kerning>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>2</number>
+                    </property>
+                    <property name="minimum">
+                     <double>0.010000000000000</double>
                     </property>
                     <property name="maximum">
-                     <double>2.000000000000000</double>
+                     <double>100.000000000000000</double>
                     </property>
                     <property name="singleStep">
                      <double>0.010000000000000</double>
@@ -9308,39 +8700,8 @@ p, li { white-space: pre-wrap; }
                <string>Page</string>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_65">
-               <item row="1" column="0">
-                <widget class="QCheckBox" name="checkKETimebased">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="palette">
-                  <palette>
-                   <active/>
-                   <inactive/>
-                   <disabled/>
-                  </palette>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>8</pointsize>
-                   <bold>false</bold>
-                   <underline>false</underline>
-                   <kerning>true</kerning>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>time based</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="17" column="0">
-                <widget class="QCheckBox" name="checkSWOFWatersheds">
+               <item row="24" column="0">
+                <widget class="QDoubleSpinBox" name="GW_bypass">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -9355,12 +8716,18 @@ p, li { white-space: pre-wrap; }
                    <kerning>true</kerning>
                   </font>
                  </property>
-                 <property name="text">
-                  <string>Solve SWOF 2.0 per watershed (needs watersheds.map)</string>
+                 <property name="decimals">
+                  <number>3</number>
+                 </property>
+                 <property name="maximum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.001000000000000</double>
                  </property>
                 </widget>
                </item>
-               <item row="22" column="0">
+               <item row="25" column="0">
                 <widget class="QDoubleSpinBox" name="E_DepositedCohesion">
                  <property name="enabled">
                   <bool>false</bool>
@@ -9399,8 +8766,8 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="2" column="0">
-                <widget class="QCheckBox" name="checkErosionInsideLoop">
+               <item row="18" column="0">
+                <widget class="QPlainTextEdit" name="textGraph">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -9415,21 +8782,97 @@ p, li { white-space: pre-wrap; }
                    <kerning>true</kerning>
                   </font>
                  </property>
-                 <property name="text">
-                  <string>Calculate erosion inside iteration loop for 2D flow (slower)</string>
+                 <property name="verticalScrollBarPolicy">
+                  <enum>Qt::ScrollBarAlwaysOn</enum>
                  </property>
-                 <property name="checked">
-                  <bool>true</bool>
+                 <property name="readOnly">
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
-               <item row="10" column="0">
-                <widget class="QLabel" name="label_101">
+               <item row="26" column="0">
+                <widget class="QLabel" name="label_130">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
                  <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <bold>false</bold>
+                   <underline>false</underline>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Particle cohesion of deposited layer: </string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="checkKETimebased">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="palette">
+                  <palette>
+                   <active/>
+                   <inactive/>
+                   <disabled/>
+                  </palette>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <bold>false</bold>
+                   <underline>false</underline>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>time based</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0" colspan="4">
+                <widget class="QLabel" name="label_129">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <bold>true</bold>
+                   <underline>false</underline>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>SPARE PAGE, DELETED AT RUNTIME!!! for near obsolete options</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="13" column="0">
+                <widget class="QDoubleSpinBox" name="E_CalibrateCHUcr">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
@@ -9443,8 +8886,14 @@ p, li { white-space: pre-wrap; }
                    <kerning>true</kerning>
                   </font>
                  </property>
-                 <property name="text">
-                  <string>Turbulent Prandtl-Schmidt number</string>
+                 <property name="maximum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.010000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>1.000000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -9469,243 +8918,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="15" column="0">
-                <widget class="QPlainTextEdit" name="textGraph">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>8</pointsize>
-                   <bold>false</bold>
-                   <underline>false</underline>
-                   <kerning>true</kerning>
-                  </font>
-                 </property>
-                 <property name="verticalScrollBarPolicy">
-                  <enum>Qt::ScrollBarAlwaysOn</enum>
-                 </property>
-                 <property name="readOnly">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="21" column="0">
-                <widget class="QDoubleSpinBox" name="GW_bypass">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>8</pointsize>
-                   <bold>false</bold>
-                   <underline>false</underline>
-                   <kerning>true</kerning>
-                  </font>
-                 </property>
-                 <property name="decimals">
-                  <number>3</number>
-                 </property>
-                 <property name="maximum">
-                  <double>1.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.001000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="19" column="0">
-                <widget class="QLabel" name="label_102">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>8</pointsize>
-                   <bold>false</bold>
-                   <underline>false</underline>
-                   <kerning>true</kerning>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Bypass: fraction infiltration directly to groundwater</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0">
-                <widget class="QComboBox" name="E_BLMethod">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>8</pointsize>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                   <underline>false</underline>
-                   <kerning>true</kerning>
-                  </font>
-                 </property>
-                 <property name="currentText">
-                  <string>2 - Van Rijn Simplified</string>
-                 </property>
-                 <property name="currentIndex">
-                  <number>1</number>
-                 </property>
-                 <property name="maxVisibleItems">
-                  <number>4</number>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>1 - Govers</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>2 - Van Rijn Simplified</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>3 - Van Rijn Full</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>4 - Engelund and Hansen</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="18" column="0">
-                <widget class="QCheckBox" name="checkMaterialDepth">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>8</pointsize>
-                   <bold>false</bold>
-                   <underline>false</underline>
-                   <kerning>true</kerning>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Use sediment material depth (needs det. material and sed. mix. depth maps)</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="0">
-                <widget class="QCheckBox" name="checkVariableTimestep">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="palette">
-                  <palette>
-                   <active/>
-                   <inactive/>
-                   <disabled/>
-                  </palette>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>8</pointsize>
-                   <bold>false</bold>
-                   <underline>false</underline>
-                   <kerning>true</kerning>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Spatially variable timestep</string>
-                 </property>
-                 <property name="checked">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="0">
-                <widget class="QDoubleSpinBox" name="GW_initlevel">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>8</pointsize>
-                   <bold>false</bold>
-                   <underline>false</underline>
-                   <kerning>true</kerning>
-                  </font>
-                 </property>
-                 <property name="maximum">
-                  <double>10.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.010000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="11" column="0">
-                <widget class="QDoubleSpinBox" name="E_SigmaDiffusion">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>8</pointsize>
-                   <italic>false</italic>
-                   <bold>false</bold>
-                   <underline>false</underline>
-                   <kerning>true</kerning>
-                  </font>
-                 </property>
-                 <property name="minimum">
-                  <double>0.200000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>1.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.050000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>0.500000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="13" column="0">
+               <item row="16" column="0">
                 <widget class="QFrame" name="frameSpare">
                  <property name="enabled">
                   <bool>false</bool>
@@ -9994,7 +9207,175 @@ p, li { white-space: pre-wrap; }
                  </layout>
                 </widget>
                </item>
+               <item row="4" column="0">
+                <widget class="QComboBox" name="E_BLMethod">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                   <underline>false</underline>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="currentText">
+                  <string>2 - Van Rijn Simplified</string>
+                 </property>
+                 <property name="currentIndex">
+                  <number>1</number>
+                 </property>
+                 <property name="maxVisibleItems">
+                  <number>4</number>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>1 - Govers</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>2 - Van Rijn Simplified</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>3 - Van Rijn Full</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>4 - Engelund and Hansen</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="22" column="0">
+                <widget class="QLabel" name="label_102">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <bold>false</bold>
+                   <underline>false</underline>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Bypass: fraction infiltration directly to groundwater</string>
+                 </property>
+                </widget>
+               </item>
                <item row="20" column="0">
+                <widget class="QCheckBox" name="checkSWOFWatersheds">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <bold>false</bold>
+                   <underline>false</underline>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Solve SWOF 2.0 per watershed (needs watersheds.map)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="12" column="0">
+                <widget class="QLabel" name="label_118">
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <bold>false</bold>
+                   <underline>false</underline>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Critical velocity Ucr in Channel Sediment Transport </string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="checkErosionInsideLoop">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <bold>false</bold>
+                   <underline>false</underline>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Calculate erosion inside iteration loop for 2D flow (slower)</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="19" column="0">
+                <widget class="QCheckBox" name="check2DDiagonalFlowNew">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <bold>false</bold>
+                   <underline>false</underline>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Dynamic diagonal flow</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="14" column="0">
+                <widget class="QLabel" name="label_139">
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <bold>false</bold>
+                   <underline>false</underline>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Settling Velocity</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="23" column="0">
                 <widget class="QLineEdit" name="E_BulkDens2">
                  <property name="enabled">
                   <bool>false</bool>
@@ -10021,8 +9402,11 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="0" column="0" colspan="4">
-                <widget class="QLabel" name="label_129">
+               <item row="10" column="0">
+                <widget class="QLabel" name="label_101">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -10032,47 +9416,58 @@ p, li { white-space: pre-wrap; }
                  <property name="font">
                   <font>
                    <pointsize>8</pointsize>
-                   <bold>true</bold>
-                   <underline>false</underline>
-                   <kerning>true</kerning>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>SPARE PAGE, DELETED AT RUNTIME!!! for near obsolete options</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="16" column="0">
-                <widget class="QCheckBox" name="check2DDiagonalFlowNew">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>8</pointsize>
+                   <italic>false</italic>
                    <bold>false</bold>
                    <underline>false</underline>
                    <kerning>true</kerning>
                   </font>
                  </property>
                  <property name="text">
-                  <string>Dynamic diagonal flow</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
+                  <string>Turbulent Prandtl-Schmidt number</string>
                  </property>
                 </widget>
                </item>
-               <item row="23" column="0">
-                <widget class="QLabel" name="label_130">
+               <item row="5" column="0">
+                <widget class="QCheckBox" name="checkVariableTimestep">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="palette">
+                  <palette>
+                   <active/>
+                   <inactive/>
+                   <disabled/>
+                  </palette>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <bold>false</bold>
+                   <underline>false</underline>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Spatially variable timestep</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="21" column="0">
+                <widget class="QCheckBox" name="checkMaterialDepth">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
@@ -10086,14 +9481,69 @@ p, li { white-space: pre-wrap; }
                   </font>
                  </property>
                  <property name="text">
-                  <string>Particle cohesion of deposited layer: </string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                  <string>Use sediment material depth (needs det. material and sed. mix. depth maps)</string>
                  </property>
                 </widget>
                </item>
-               <item row="14" column="0">
+               <item row="6" column="0">
+                <widget class="QDoubleSpinBox" name="GW_initlevel">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <bold>false</bold>
+                   <underline>false</underline>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="maximum">
+                  <double>10.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.010000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="0">
+                <widget class="QDoubleSpinBox" name="E_SigmaDiffusion">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                   <underline>false</underline>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="minimum">
+                  <double>0.200000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.050000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>0.500000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="17" column="0">
                 <widget class="QLabel" name="label_headerTextGraph">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -10123,8 +9573,558 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
+               <item row="15" column="0">
+                <widget class="QDoubleSpinBox" name="E_CalibrateCHSV">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>8</pointsize>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                   <underline>false</underline>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="minimum">
+                  <double>0.010000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>99.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.010000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>1.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </widget>
+            </widget>
+           </item>
+           <item row="13" column="0">
+            <widget class="QScrollArea" name="scrollArea">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="horizontalScrollBarPolicy">
+              <enum>Qt::ScrollBarAsNeeded</enum>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QAbstractScrollArea::AdjustToContents</enum>
+             </property>
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>1145</width>
+                <height>85</height>
+               </rect>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_22"/>
+             </widget>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QGroupBox" name="groupBoxTime">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="title">
+              <string>Simulation times</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_43">
+              <item row="0" column="2">
+               <widget class="QLabel" name="label_6">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Begin time (day:min)</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="4">
+               <widget class="QLabel" name="label_7">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>End time (day:min)</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QLineEdit" name="E_BeginTimeDay">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="inputMask">
+                 <string>999:9999</string>
+                </property>
+                <property name="text">
+                 <string>000:0000</string>
+                </property>
+                <property name="maxLength">
+                 <number>8</number>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="5">
+               <widget class="QLineEdit" name="E_EndTimeDay">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="inputMask">
+                 <string>999:9999</string>
+                </property>
+                <property name="text">
+                 <string>000:1200</string>
+                </property>
+                <property name="cursorPosition">
+                 <number>8</number>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="6">
+               <spacer name="horizontalSpacer_13">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_8">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Timestep (sec)</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="E_Timestep">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="inputMask">
+                 <string>9999</string>
+                </property>
+                <property name="text">
+                 <string>20</string>
+                </property>
+                <property name="maxLength">
+                 <number>4</number>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QGroupBox" name="groupBox_dbase">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="title">
+              <string>Database</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_7">
+              <property name="leftMargin">
+               <number>8</number>
+              </property>
+              <property name="topMargin">
+               <number>2</number>
+              </property>
+              <property name="rightMargin">
+               <number>8</number>
+              </property>
+              <property name="bottomMargin">
+               <number>8</number>
+              </property>
+              <property name="horizontalSpacing">
+               <number>8</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>4</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_1">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::RightToLeft</enum>
+                </property>
+                <property name="text">
+                 <string>Run file(s) </string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QToolButton" name="toolButton_fileOpen">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Select run file</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
+                </property>
+                <property name="autoRaise">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QToolButton" name="toolButton_MapDir">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Select a map directory, this is appended to all maps</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
+                </property>
+                <property name="autoRaise">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="3">
+               <widget class="QToolButton" name="toolButton_ResultDir">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" rowspan="2">
+               <widget class="QLabel" name="label_2">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::RightToLeft</enum>
+                </property>
+                <property name="text">
+                 <string>Map directory </string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="5">
+               <widget class="QToolButton" name="toolButton_deleteRun">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Delete current run file from list</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/2X/File-Delete-icon.png</normaloff>:/2X/File-Delete-icon.png</iconset>
+                </property>
+                <property name="autoRaise">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" rowspan="2" colspan="2">
+               <widget class="QLineEdit" name="E_MapDir">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" colspan="2">
+               <widget class="QComboBox" name="E_runFileList">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+                <property name="duplicatesEnabled">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_3">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::RightToLeft</enum>
+                </property>
+                <property name="text">
+                 <string>   Result directory </string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="4">
+               <widget class="QToolButton" name="toolButton_ShowRunfile">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Show current run file</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
+                </property>
+                <property name="autoRaise">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" colspan="2">
+               <widget class="QLineEdit" name="E_ResultDir">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="4" colspan="2">
+               <widget class="QCheckBox" name="checkAddDatetime">
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Make a subdirectory under the result directory with a date-time stamp&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Add time</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
