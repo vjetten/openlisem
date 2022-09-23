@@ -104,7 +104,8 @@ void lisemqt::runmodel()
 
     checkMapHardSurface->setChecked(false);
     checkMapHardSurface->setEnabled(checkHardsurface->isChecked());
-    transparencyHardSurface->setVisible(false);
+    transparencyHardSurface->setEnabled(checkHouses->isChecked() || checkRoadsystem->isChecked() || checkHardsurface->isChecked());
+    //transparencyHardSurface->setVisible(false);
 
 
     // initialize output graphs

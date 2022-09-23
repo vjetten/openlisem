@@ -42,7 +42,8 @@ double TWorld::MapTotal(cTMap &M)
     double total = 0;
     #pragma omp parallel for reduction(+:total) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-       total = total + M.Drc;
+        if (!pcr::isMV(M->Drc))
+            total = total + M.Drc;
     }}
     return (total);
 }

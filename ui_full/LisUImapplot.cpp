@@ -95,9 +95,15 @@ void lisemqt::ssetAlphaHouse(int v)
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaHardSurface(int v)
 {
-    hardsurfMap->setAlpha(v);
+    bool doit = (checkHouses->isChecked() || checkHardsurface->isChecked() || checkRoadsystem->isChecked());
+    if (v > 0 && checkHouses->isChecked())
+        houseMap->setAlpha(v);
     if (v > 0 && checkHardsurface->isChecked())
-        MPlot->replot();    
+        hardsurfMap->setAlpha(v);
+    if (v > 0 && checkRoadsystem->isChecked())
+        roadMap->setAlpha(v);
+    if (v > 0 && doit)
+        MPlot->replot();
 }
 
 //---------------------------------------------------------------------------
@@ -461,9 +467,8 @@ void lisemqt::showMap()
             showComboMap(IndexList1.at(DisplayComboBox2->currentIndex()));
         }
 
-    //channelMap->setAlpha(checkMapChannels->isChecked() ? transparencyChannel->value() : 0);
-    roadMap->setAlpha(checkMapRoads->isChecked() ? transparencyRoad->value() : 0);
-    houseMap->setAlpha(checkMapBuildings->isChecked() ? transparencyHouse->value() : 0);
+    roadMap->setAlpha(checkMapRoads->isChecked() ? transparencyHardSurface->value() : 0);
+    houseMap->setAlpha(checkMapBuildings->isChecked() ? transparencyHardSurface->value() : 0);
     hardsurfMap->setAlpha(checkMapHardSurface->isChecked() ? transparencyHardSurface->value() : 0);
 
     // imageMap->setAlpha(0);  // flow barriers for now not used, sat image instead
@@ -916,7 +921,7 @@ void lisemqt::showRoadMap()
     }
 
     if (checkMapRoads->isChecked())
-        roadMap->setAlpha(transparencyRoad->value());
+        roadMap->setAlpha(transparencyHardSurface->value());
     else
         roadMap->setAlpha(0);
 
@@ -938,7 +943,7 @@ void lisemqt::showHouseMap()
     }
 
     if (checkMapBuildings->isChecked())
-        houseMap->setAlpha(transparencyHouse->value());
+        houseMap->setAlpha(transparencyHardSurface->value());
     else
         houseMap->setAlpha(0);
     houseMap->setColorMap(new colorMapHouse());

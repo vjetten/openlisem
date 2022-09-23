@@ -1986,11 +1986,18 @@ void TWorld::IntializeData(void)
             FOR_ROW_COL_MV {
                 if (GrassWidthDX->Drc != 0)
                     HouseCover->Drc = HouseCover->Drc*(1-GrassFraction->Drc);
-            }}
+            }
+        }
         RoofStore = ReadMap(LDD,getvaluename("roofstore"));
         calcValue(*RoofStore, 0.001, MUL);
         // from mm to m
         DrumStore = ReadMap(LDD,getvaluename("drumstore"));
+        if (SwitchHardsurface) {
+            FOR_ROW_COL_MV {
+                if (HouseCover->Drc == 1)
+                    HardSurface->Drc = 0;
+            }
+        }
     }
     else
         HouseCover = NewMap(0);

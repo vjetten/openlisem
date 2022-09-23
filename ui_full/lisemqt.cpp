@@ -784,9 +784,9 @@ void lisemqt::SetToolBar()
     connect(ComboMinSpinBox2,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
 
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
-    connect(transparencyRoad, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaRoad(int)));
-    connect(transparencyHardSurface, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaRoad(int)));
-    connect(transparencyHouse, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaHardSurface(int)));
+//    connect(transparencyRoad, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaRoad(int)));
+    connect(transparencyHardSurface, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaHardSurface(int)));
+   // connect(transparencyHouse, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaHouse(int)));
     connect(transparencyMap, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaMap(int)));
     connect(spinChannelSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
     connect(spinCulvertSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannelOutlet(int)));
