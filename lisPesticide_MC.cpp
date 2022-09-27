@@ -326,7 +326,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         Crw_avg = (PMrw->Drc + (QpinKW->Drc * _dt))
                   / ((WaterVolall->Drc + (QinKW->Drc * _dt)) * 1000);
         // positive adds to runoff, negative to mixing layer.
-        // mg = ((sec-1 * m * (mg L-1) / m) * m * m * m * sec * 1000 (m3 -> L)
+        // mg = ((sec-1 * m-1 * (mg L-1) / m) * m * m * m * sec * 1000 (m3 -> L)
         mwrm_ex = (((_kfilm * (PCmw->Drc - Crw_avg))/zm->Drc)
                    * (SoilWidthDX->Drc * _DX->Drc * zm->Drc * _dt
                    * ThetaS1->Drc * 1000));
@@ -557,8 +557,8 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         double Cji1 = PMrw->Drc / WaterVolall->Drc; //mg/m3
         double dx = DX->Drc; // m
         double Cmw = PCmw->Drc * 1000; // mg/m3
-        double A {0}, B {0}, C {0}, D {0}, E {0}, F{0}, G{0}, H{0}; // aux vars
-        double I {0}, J {0}, K {0}, L {0}; // aux vars
+        double A {0}, B {0}, C {0}, D {0}, E {0}, F{0}; // aux vars
+        double G {0}, H {0}, I {0}, J {0}; // aux vars
 
         // calculate averages
         // mg m-3 = (mg + (mg sec-1 * sec)) / (m3 + (m3 sec-1 * sec))
@@ -566,22 +566,22 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
                   / (WaterVolall->Drc + (QinKW->Drc * _dt));
         Q_avg = (Qj1i + Qji1) / 2; // m3/sec
         // calculate all parts of formula
-        A = -Cp_avg * Qj1i1;
-        B = Qj1i * _dt;
-        C = Cp_avg * alpha * beta * pow(Q_avg, beta-1) * Qj1i1;
-        D = Qji1 * _dt;
+        A = -Cp_avg * Qj1i1 - Qj1i * _dt;
+        B = Cp_avg * alpha * beta * pow(Q_avg, beta-1) * Qj1i1;
+        C = Qji1 * _dt;
         E = Q_avg * Cj1i * _dt;
         F = alpha * pow(Q_avg, beta) * Cji1 * dx;
         G = SoilWidthDX->Drc * dx * ThetaS1->Drc * _kfilm * Cmw
                 * dx * _dt;
-        H = InfilVol->Drc * Cmw * dx * _dt;
-        I = Q_avg * _dt;
-        J = alpha * pow(Q_avg, beta) * dx;
-        K = SoilWidthDX->Drc * dx * _dt;
-        L = InfilVol->Drc * dx * _dt;
+        H = fact->Drc * Cmw * dx * _dt; // m/sec
+        //
+        G = Q_avg * _dt * zm->Drc;
+        H = alpha * pow(Q_avg, beta) * dx * zm->Drc;
+        I = _kfilm * dx * _dt;
+        J = fact->Drc * dx * _dt;
 
         // calculate new C - mg / L
-        Cj1i1 = ((A-B-C-D+E+F+G-H) / (I+J-K-L)) / 1000;
+        Cj1i1 = ((A-B+C+D+E-F) / (G+H-I-J)) / 1000;
 
         //calculate new masses
 
