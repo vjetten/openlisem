@@ -566,14 +566,13 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
                   / (WaterVolall->Drc + (QinKW->Drc * _dt));
         Q_avg = (Qj1i + Qji1) / 2; // m3/sec
         // calculate all parts of formula
-        A = -Cp_avg * Qj1i1 - Qj1i * _dt;
-        B = Cp_avg * alpha * beta * pow(Q_avg, beta-1) * Qj1i1;
-        C = Qji1 * _dt;
-        E = Q_avg * Cj1i * _dt;
-        F = alpha * pow(Q_avg, beta) * Cji1 * dx;
-        G = SoilWidthDX->Drc * dx * ThetaS1->Drc * _kfilm * Cmw
-                * dx * _dt;
-        H = fact->Drc * Cmw * dx * _dt; // m/sec
+        A = -Cp_avg * (Qj1i1 - Qj1i) * _dt * zm->Drc;
+        B = Cp_avg * alpha * beta * pow(Q_avg, beta-1) * (Qj1i1 - Qji1)
+                * dx * zm->Drc;
+        C = Q_avg * Cj1i * _dt * zm->Drc;
+        D = alpha * pow(Q_avg, beta) * Cji1 * dx * zm->Drc;
+        E = _kfilm * Cmw * dx * _dt;
+        F = fact->Drc * Cmw * dx * _dt;
         //
         G = Q_avg * _dt * zm->Drc;
         H = alpha * pow(Q_avg, beta) * dx * zm->Drc;
