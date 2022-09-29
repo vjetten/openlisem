@@ -241,6 +241,7 @@ cTMap
 *PCrs,                      //!< concentration of pesticide in runoff sediment [mg/kg]
 *PCms,                      //!< concentration of pesticide in soil of mixing zone [mg/kg]
 *PCmw,                      //!< concentration of pesticide in water of mixing zone [mg/L]
+*Crwn,                      //!< new dissolved concentration in runoff water [mg/L]
 *PQrw,                      //!< flux of pesticide in runoff water [mg/sec]
 *PQrs,                      //!< flux of pesticide in runoff sediment [mg/sec]
 *PMinf,                     //!< mass of pesticide in infiltrating water [mg]
@@ -258,6 +259,7 @@ cTMap
 *pmsdep,                     //!< mass of deposited pesticide [mg]
 *pmwdep,                    //!< mass of deposited pesticide [mg]
 *pmwdet,                     //!< mass of detatched pesticide [mg]
+*WVji1,                     //!< water volume in cell at j, i+1 [m3]
 *test_map,
 
 
