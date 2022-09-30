@@ -524,6 +524,55 @@ double TWorld::QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i, d
         Pj1i1 = 0;
     return std::max(0.0 ,Pj1i1);
 }
+
+//---------------------------------------------------------------------------
+/**
+ * @fn double TWorld::QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i, double Pji1, double alpha, double dx)
+ * @brief Explicit backward calculation of dissolved pesticide outflux from a cell
+ *
+ * Calculation of dissolved pesticide outflux from a cell based on a explicit solution of the time/space matrix,
+ * j = time and i = place: j1i1 is the new output, j1i is the new flux at the upstream 'entrance' flowing into the gridcell
+ *
+ * @param Qj1i1 : result kin wave for this cell ( Qj+1,i+1 )
+ * @param Qj1i : sum of all upstreamwater from kin wave ( Qj+1,i ),
+ * @param Qji1 : incoming Q for kinematic wave (t=j) in this cell, map Q in LISEM (Qj,i+1)
+ * @param Pj1i : sum of all upstream pesticide (Pj+1,i)
+ * @param Pji1 : incoming dissolved pesticide for kinematic wave (t=j) in this cell, map Qpw in LISEM (Si,j+1)
+ * @param alpha : alpha calculated in LISEM from before kinematic wave
+ * @param dt : timestep
+ * @param dx : length of the cell, corrected for slope (DX map in LISEM)
+ * @return dissolved pesticide outflow in next timestep
+ *
+ */
+double TWorld::QpwInfExCombined(double Qj1i1, double Qj1i, double Qji1,
+                                double Pj1i, double Pji1, double alpha,
+                                double dx, double zm, double kfilm, double qinf,
+                                double cmw)
+{
+    double Pj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C;
+    double Qsn = 0;
+    const double beta = 0.6;
+
+    if (Qj1i1 < MIN_FLUX)
+        return (0);
+
+    Qavg = 0.5*(Qji1+Qj1i); //m3/sec
+    if (Qavg <= MIN_FLUX)
+        return (0);
+    Cavg = (Pj1i+Pji1)/(Qj1i+Qji1); //mg/m3
+    aQb = alpha*pow(Qavg,beta);
+    abQb_1 = alpha*beta*pow(Qavg,beta-1);
+
+    A = _dt*Pj1i;
+    B = -Cavg*abQb_1*(Qj1i1-Qji1)*dx;
+    C = (Qji1 <= MIN_FLUX ? 0 : aQb*Pji1/Qji1)*dx;
+    if (Qj1i1 > MIN_FLUX)
+        Pj1i1 = (A+C+B)/(_dt+aQb*dx/Qj1i1);
+    else
+        Pj1i1 = 0;
+    return std::max(0.0 ,Pj1i1);
+}
+
 //---------------------------------------------------------------------------
 /**
 * @fn double TWorld::KinematicPestDissolved(double perc, double soildep,
