@@ -211,7 +211,7 @@ void TWorld::PesticideDynamicsMC(void)
 
     //runoff
 
-    KinematicPestDissolvedComplex(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw,
+    KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw,
                         Kfilm);
 
     //erosion
@@ -348,7 +348,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
         _Qpw->Drc = _Q->Drc * 1000 * PCrw->Drc;
         // use complexSedCalc explicit method
-        _Qpwn->Drc = complexSedCalc(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, _Qpw->Drc,
+        _Qpwn->Drc = QpwSeparate(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, _Qpw->Drc,
                                     _Alpha->Drc, _DX->Drc); //mg/sec
         _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc + PMrw->Drc / _dt);
 
@@ -480,7 +480,50 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     }// end ldd loop
 }
 
+//---------------------------------------------------------------------------
+/**
+ * @fn double TWorld::QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i, double Pji1, double alpha, double dx)
+ * @brief Explicit backward calculation of dissolved pesticide outflux from a cell
+ *
+ * Calculation of dissolved pesticide outflux from a cell based on a explicit solution of the time/space matrix,
+ * j = time and i = place: j1i1 is the new output, j1i is the new flux at the upstream 'entrance' flowing into the gridcell
+ *
+ * @param Qj1i1 : result kin wave for this cell ( Qj+1,i+1 )
+ * @param Qj1i : sum of all upstreamwater from kin wave ( Qj+1,i ),
+ * @param Qji1 : incoming Q for kinematic wave (t=j) in this cell, map Q in LISEM (Qj,i+1)
+ * @param Pj1i : sum of all upstream pesticide (Pj+1,i)
+ * @param Pji1 : incoming dissolved pesticide for kinematic wave (t=j) in this cell, map Qpw in LISEM (Si,j+1)
+ * @param alpha : alpha calculated in LISEM from before kinematic wave
+ * @param dt : timestep
+ * @param dx : length of the cell, corrected for slope (DX map in LISEM)
+ * @return dissolved pesticide outflow in next timestep
+ *
+ */
+double TWorld::QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i, double Pji1, double alpha, double dx)
+{
+    double Pj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C;
+    double Qsn = 0;
+    const double beta = 0.6;
 
+    if (Qj1i1 < MIN_FLUX)
+        return (0);
+
+    Qavg = 0.5*(Qji1+Qj1i); //m3/sec
+    if (Qavg <= MIN_FLUX)
+        return (0);
+    Cavg = (Pj1i+Pji1)/(Qj1i+Qji1); //mg/m3
+    aQb = alpha*pow(Qavg,beta);
+    abQb_1 = alpha*beta*pow(Qavg,beta-1);
+
+    A = _dt*Pj1i;
+    B = -Cavg*abQb_1*(Qj1i1-Qji1)*dx;
+    C = (Qji1 <= MIN_FLUX ? 0 : aQb*Pji1/Qji1)*dx;
+    if (Qj1i1 > MIN_FLUX)
+        Pj1i1 = (A+C+B)/(_dt+aQb*dx/Qj1i1);
+    else
+        Pj1i1 = 0;
+    return std::max(0.0 ,Pj1i1);
+}
 //---------------------------------------------------------------------------
 /**
 * @fn double TWorld::KinematicPestDissolved(double perc, double soildep,
@@ -590,7 +633,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         mwrm_ex = (((_kfilm * (PCmw->Drc - Cj1i1))/zm->Drc)
                    * (SoilWidthDX->Drc * _DX->Drc * zm->Drc * _dt
                    * ThetaS1->Drc * 1000));
-        PMrw->Drc = Cj1i1 * WaterVolall->Drc;
         PMrw->Drc = std::max(0.0, PMrw->Drc + mwrm_ex);
         // mg = m3 * 1000 (L->m3) * mg L-1
         mrw_inf = InfilVol->Drc * 1000 * Cj1i1; // loss through infiltration

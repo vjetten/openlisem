@@ -875,6 +875,8 @@ public:
     void KinematicPestDissolvedComplex(QVector <LDD_COORIN> _crlinked_,
                    cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
                    cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, double _kfilm);
+    double QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
+                       double Pji1, double alpha, double dx);
 
     // 1D hydro processes
     //input timeseries
