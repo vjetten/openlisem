@@ -854,8 +854,9 @@ void lisemqt::showChannelVectorNew()
 
         // dot size
         //int dxi = (int) (op.channelMap->cellSize()*0.5);
-        int dxi = MPlot->invTransform(MPlot->xBottom,dx*1.66);
+        int dxi = MPlot->invTransform(MPlot->xBottom,dx*1.5);
         dxi = dxi - MPlot->invTransform(MPlot->xBottom,dx);
+        dxi = std::min(9,dxi);
         spinCulvertSize->setValue(dxi);
 
         // outlets

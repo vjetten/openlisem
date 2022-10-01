@@ -288,7 +288,7 @@ void TWorld::InitParameters(void)
     GW_flow = getvaluedouble("GW flow factor");
     GW_slope = getvaluedouble("GW slope factor");
     GW_lag = getvaluedouble("GW lag factor");
-    GW_bypass = getvaluedouble("GW bypass factor");
+   // GW_bypass = getvaluedouble("GW bypass factor");
     GW_threshold = getvaluedouble("GW threshold factor");
     GW_initlevel = 0;//getvaluedouble("GW initial level");
 
@@ -410,7 +410,7 @@ void TWorld::InitStandardInput(void)
         cr_ << newcr;
     }
 
-    // OBSOLETE
+    /* OBSOLETE
     if (SwitchSWOFWatersheds) {
         WaterSheds = ReadMap(LDD,getvaluename("wsheds"));
         QList <int> tmp = countUnits(*WaterSheds);
@@ -433,7 +433,7 @@ void TWorld::InitStandardInput(void)
             //qDebug() << WScr.size() << WScr.at(i).size() << i << nrc << nrValidCells;
         }
     }
-
+    */
     FOR_ROW_COL_MV {
         if (LDD->Drc == 5) {
         LDD_COOR newcr;

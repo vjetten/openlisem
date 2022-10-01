@@ -167,7 +167,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Report format GTiff")==0)            checkFormatGtiff->setChecked(check);
         if (p1.compare("End run report")==0)                 checkEndRunReport->setChecked(check);
       //  if (p1.compare("Add timestamp")==0)                  checkOutputTimestamp->setChecked(check);
-        if (p1.compare("Variable Timestep")==0)              checkVariableTimestep->setChecked(check);
+      //  if (p1.compare("Variable Timestep")==0)              checkVariableTimestep->setChecked(check);
         if (p1.compare("Include Satellite Image")==0)        checksatImage->setChecked(check);
         if (p1.compare("Output interval")==0)                printinterval->setValue(std::max(1,iii));
         if (p1.compare("Erosion map units (0/1/2)")==0)
@@ -191,7 +191,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("GW flow factor")==0)           GW_flow->setValue(valc);
         if (p1.compare("GW slope factor")==0)           GW_slope->setValue(valc);
         if (p1.compare("GW lag factor")==0)           GW_lag->setValue(valc);
-        if (p1.compare("GW bypass factor")==0)           GW_bypass->setValue(valc);
+     //   if (p1.compare("GW bypass factor")==0)           GW_bypass->setValue(valc);
         if (p1.compare("GW threshold factor")==0)           GW_threshold->setValue(valc);
         if (p1.compare("GW initial level")==0)           GW_initlevel->setValue(valc);
 
@@ -278,7 +278,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Pit Value")==0)                      E_pitValue->setValue(valc);
         if (p1.compare("Flood initial level map")==0)        checkFloodInitial->setChecked(check);
         if (p1.compare("Timestep flood")==0)                 E_TimestepMinFlood->setValue(valc);
-        if (p1.compare("Use SWOF watersheds")==0)            checkSWOFWatersheds->setChecked(check);
+    //    if (p1.compare("Use SWOF watersheds")==0)            checkSWOFWatersheds->setChecked(check);
 
 
         // EROSION
@@ -796,7 +796,7 @@ void lisemqt::updateModelData()
         if (p1.compare("GW flow factor")==0)                 namelist[j].value = GW_flow->text();
         if (p1.compare("GW slope factor")==0)                namelist[j].value = GW_slope->text();
         if (p1.compare("GW lag factor")==0)                  namelist[j].value = GW_lag->text();
-        if (p1.compare("GW bypass factor")==0)               namelist[j].value = GW_bypass->text();
+   //     if (p1.compare("GW bypass factor")==0)               namelist[j].value = GW_bypass->text();
         if (p1.compare("GW threshold factor")==0)            namelist[j].value = GW_threshold->text();
         if (p1.compare("GW initial level")==0)               namelist[j].value = GW_initlevel->text();
 
@@ -842,10 +842,10 @@ void lisemqt::updateModelData()
         if (p1.compare("Use 2D Diagonal flow")==0)           namelist[j].value.setNum((int) check2DDiagonalFlow->isChecked());
         if (p1.compare("Use 2D Diagonal flow new")==0)       namelist[j].value.setNum((int) check2DDiagonalFlowNew->isChecked());
 
-        if (p1.compare("Use SWOF watersheds")==0)            namelist[j].value.setNum((int) checkSWOFWatersheds->isChecked());
+    //    if (p1.compare("Use SWOF watersheds")==0)            namelist[j].value.setNum((int) checkSWOFWatersheds->isChecked());
 
     //    if (p1.compare("Use fixed angle")==0)                namelist[j].value.setNum((int) checkFixedAngle->isChecked());
-        if (p1.compare("Variable Timestep")==0)              namelist[j].value.setNum((int) checkVariableTimestep->isChecked());
+     //   if (p1.compare("Variable Timestep")==0)              namelist[j].value.setNum((int) checkVariableTimestep->isChecked());
 
         if (p1.compare("Flood solution")==0)
         {
@@ -1023,7 +1023,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Aggregate stability calibration")==0) namelist[j].value = E_CalibrateAS->text();
         if (p1.compare("Splash Delivery Ratio")==0) namelist[j].value = E_SplashDelibery->text();
         if (p1.compare("Particle Cohesion of Deposited Layer")==0) namelist[j].value = E_DepositedCohesion->text();
-        if (p1.compare("Stemflow fraction")==0) namelist[j].value = E_StemflowFraction->text();
+     //   if (p1.compare("Stemflow fraction")==0) namelist[j].value = E_StemflowFraction->text();
         if (p1.compare("Canopy Openess")==0) namelist[j].value = E_CanopyOpeness->text();
         // VJ 110209 canopy openess, factor Aston as user input
 

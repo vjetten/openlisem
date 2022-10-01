@@ -895,9 +895,8 @@ void lisemqt::SetStyleUI()
     //label_11->setStyleSheet("QLabel {color: #4477aa;}");
 
     // interface elements that are not visible for now
-    frameSpare->setVisible(false);
+    //frameSpare->setVisible(false);
     tabWidgetOptions->removeTab(8);
-    //tabWidgetOptions->removeTab(7);
     //frameNumerical->setVisible(false);
 
     //tabWidget_erosion->setCurrentIndex(0);
@@ -1645,7 +1644,7 @@ void lisemqt::resetTabFlow()
     check2DDiagonalFlowNew->setChecked(false);
     checkCorrectDem->setChecked(false);
     E_pitValue->setValue(1.0);
-    checkSWOFWatersheds->setChecked(false);
+    //checkSWOFWatersheds->setChecked(false);
     rb_swof2->setChecked(true);
     E_TimestepMinFlood->setValue(0.2);
     E_courantFactor->setValue(0.2);
@@ -1654,7 +1653,7 @@ void lisemqt::resetTabFlow()
     GW_flow->setValue(1.0);
     GW_slope->setValue(1.0);
     GW_lag->setValue(0.2);
-    GW_bypass->setValue(0.0);
+  //  GW_bypass->setValue(0.0);
     GW_threshold->setValue(0.2);
 }
 //--------------------------------------------------------------------
@@ -1719,7 +1718,7 @@ void lisemqt::resetTabAdvanced()
     E_FloodReconstruction->setValue(4);  //HLL2 etc
     E_FloodFluxLimiter->setValue(1);     //minmod etc
     E_courantFactorSed->setValue(0.2);
-    checkVariableTimestep->setChecked(false);
+    //checkVariableTimestep->setChecked(false);
     checkTimeavgV->setChecked(true);
     checkLinkedList->setChecked(false);
     //checkErosionInsideLoop->setChecked(true);

@@ -225,6 +225,7 @@ void TWorld::Totals(void)
             BaseFlowTot += MapTotal(*Qbase); // total inflow in m3
             if (SwitchChannelBaseflowStationary)
                 BaseFlowTot += MapTotal(*BaseFlowInflow)*_dt; // stationary base inflow
+
             GWlevel = MapTotal(*GWWH)/(double)nrValidCells;
             BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
             //qDebug() << BaseFlowTotmm;

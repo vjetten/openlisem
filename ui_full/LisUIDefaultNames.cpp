@@ -416,8 +416,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Correct DEM");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Use 2D Diagonal flow");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use SWOF watersheds");
+//    namelist[i].value = QString("0");
+ //   namelist[i++].name = QString("Use SWOF watersheds");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood solution");
     namelist[i].value = QString("1.0");
@@ -432,8 +432,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("GW slope factor");
     namelist[i].value = QString("0.2");
     namelist[i++].name = QString("GW lag factor");
-    namelist[i].value = QString("0.0");
-    namelist[i++].name = QString("GW bypass factor");
+//   namelist[i].value = QString("0.0");
+  //  namelist[i++].name = QString("GW bypass factor");
 
     //###
     namelist[i++].name = QString("");
@@ -613,8 +613,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Use gravity flow");
     namelist[i].value = QString("10.0");
     namelist[i++].name = QString("Pit Value");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Variable Timestep");
+ //  namelist[i].value = QString("0");
+ //   namelist[i++].name = QString("Variable Timestep");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Use Channel Kinwave dt");
     namelist[i].value = QString("60.0");
