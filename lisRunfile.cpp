@@ -211,6 +211,7 @@ void TWorld::ParseRunfileData(void)
       //  if (p1.compare("Variable Timestep")==0)                 SwitchVariableTimestep = iii == 1;
         if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
         if (p1.compare("Use Channel Kinwave dt")==0)            SwitchChannelKinwaveDt = iii == 1;
+        if (p1.compare("Use Channel Max GV")==0)                SwitchChannelMaxV = iii == 1;
      //   if (p1.compare("Use Avg Channel Kinwave")==0)           SwitchChannelKinwaveAvg = iii == 1;
         if (p1.compare("Use gravity flow")==0)                  SwitchGravityToChannel = iii == 1;
 

@@ -69,13 +69,13 @@ void lisemqt::ssetAlphaMap(int v)
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaChannelOutlet(int v)
 {
-    showChannelVector(false);
+    //showChannelVector(false);
     showChannelVector(true);
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaChannel(int v)
 {
-    showChannelVector(false);
+ //   showChannelVector(false);
     showChannelVector(true);
 }
 //---------------------------------------------------------------------------

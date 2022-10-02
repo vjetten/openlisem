@@ -152,7 +152,7 @@ void TWorld::ChannelBaseflow(void)
         GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
 
     }}
-    report(*GWWHmax,"gwmax.map");
+ //   report(*GWWHmax,"gwmax.map");
 //report(*GWWH,"gwwh");
     // new qbin
     AccufluxGW(crlinkedlddbase_, GWout, Qbin, ChannelWidth);
@@ -230,7 +230,7 @@ void TWorld::ChannelFlow(void)
             // calc channel V and Q, using original width
             if (wh > 1e-6) {
                 double Perim, Radius, Area;
-                double sqrtgrad = sqrt(ChannelGrad->Drc);
+                double sqrtgrad = std::max(sqrt(ChannelGrad->Drc), 0.001);
                 double N = ChannelN->Drc;
 
                 double FW = ChannelWidth->Drc;
@@ -248,10 +248,11 @@ void TWorld::ChannelFlow(void)
                 Perim *= ChnTortuosity;
                 Radius = (Perim > 0 ? Area/Perim : 0);
 
-                if (sqrtgrad > MIN_SLOPE) {
+              //  if (sqrtgrad > MIN_SLOPE) {
                     //ChannelAlpha->Drc = std::pow(N/sqrtgrad * std::pow(Perim, 2.0/3.0), 0.6);
                     //ChannelQ->Drc = std::pow(Area/ChannelAlpha->Drc, 1.0/0.6);
-                    ChannelV_ = std::min(10.0,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
+                    ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
+
                     ChannelQ_ = ChannelV_ * Area;
                     if (SwitchCulverts) {
                         if (MaxQ > 0 && ChannelQ_ > MaxQ){
@@ -261,9 +262,8 @@ void TWorld::ChannelFlow(void)
                         }
                     }
                     ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
-                }
+             //   }
             }
-
             ChannelAlpha->Drc = ChannelAlpha_;
             ChannelQ->Drc = ChannelQ_;
             ChannelV->Drc = ChannelV_;
@@ -304,9 +304,10 @@ void TWorld::ChannelFlow(void)
 //            }
 
             double chqn = ChannelQn->Drc;
+
             ChannelWaterVol->Drc += (QinKW->Drc - chqn)*_dt;
            // ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelWaterVol->Drc/_dt);
-            ChannelQ->Drc = chqn;
+          //  ChannelQ->Drc = chqn;
             ChannelAlpha->Drc = chqn > 1e-6 ? (ChannelWaterVol->Drc/ChannelDX->Drc)/std::pow(chqn, 0.6) : 0.0;
         }}
         //water vol from mass balance, includes any errors
@@ -315,7 +316,9 @@ void TWorld::ChannelFlow(void)
         FOR_ROW_COL_MV_CHL {
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
             // new channel WH, use adjusted channelWidth
-
+//            if (PointMap->Drc == 3) {
+//                qDebug() << ChannelWH->Drc  << ChannelQn->Drc;
+//            }
             double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
             double P = 2*ChannelWH->Drc+ChannelWidth->Drc;
 
@@ -384,6 +387,7 @@ void TWorld::ChannelSedimentFlow()
         }
 
     } else {
+            //NOTE: this is the new channel alpha, not good!
         KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
         if(SwitchUse2Phase) {
             KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);

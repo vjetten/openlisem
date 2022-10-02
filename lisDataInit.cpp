@@ -373,6 +373,9 @@ void TWorld::InitParameters(void)
         SwitchLinkedList = true;
         _dtCHkin = 60.0;//_dt_user;
     }
+    _CHMaxV = 100.0;
+    if (SwitchChannelMaxV)
+       _CHMaxV =  getvaluedouble("Channel Max V");
 
     SwitchKinematic2D = getvalueint("Routing Kin Wave 2D");
 
@@ -1028,7 +1031,7 @@ void TWorld::InitChannel(void)
                 LDD_COORIN hoi = crlinkedlddch_.at(i);
                 hoi.ldd *= -1;
                 crlinkedlddch_.replace(i, hoi) ;
-                ChannelGrad->Drc = 0.0001;
+                ChannelGrad->Drc = 0.001;
             }
         }
     } else
@@ -2471,6 +2474,7 @@ void TWorld::IntializeOptions(void)
     SwitchChannelKinWave = true;
     SwitchTimeavgV = true;
     SwitchChannelKinwaveDt = false;
+    SwitchChannelMaxV = true;
     Switch2DDiagonalFlow = true;
     SwitchSWOFopen = true;
     SwitchMUSCL = false;

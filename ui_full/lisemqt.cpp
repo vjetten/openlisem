@@ -1723,9 +1723,10 @@ void lisemqt::resetTabAdvanced()
     checkLinkedList->setChecked(false);
     //checkErosionInsideLoop->setChecked(true);
     checkGravityToChannel->setChecked(false);
-    checkKinWaveChannel->setChecked(true);
+    checkKinWaveChannel->setChecked(false);
     E_ChannelKinWaveDt->setValue(60.0);
     nrUserCores->setValue(0);
+    checkChanMaxVelocity->setChecked(true);
 
 }
 

@@ -48,9 +48,10 @@ void lisemqt::runmodel()
             pausemodel();
         return;
     }
-    MPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true);
-    MPlot->detachItems(QwtPlotItem::Rtti_PlotMarker, true);
-
+    qDebug() << "hier1";
+   // MPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true);
+   // MPlot->detachItems(QwtPlotItem::Rtti_PlotMarker, true);
+    qDebug() << "hier2";
     startplot = true;
     stopplot = false;
 

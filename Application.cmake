@@ -3,14 +3,15 @@ cmake_minimum_required(VERSION 3.9)
 #============ WIN ========================
 
 IF(WIN32)
-
+   # NOTE: a branch of QWT is used for double axis display:
+   # https://sourceforge.net/p/qwt/code/HEAD/tree/branches/qwt-6.1-multiaxes/
     SET(QWT_BUILD_DIR "c:/qt/qwt-6.1-ma")          # <= give your own folder names here
     SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # <= give your own folder names here
 
     SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
 
-    # QW{T standard MSYS install
+    # QWT standard MSYS install
     #   SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/qwt-qt5")
     #   SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
 
@@ -72,6 +73,7 @@ ENDIF()
 #============ sourcecode files ===============
 
 SET(APP_SOURCES
+    fixesandbugs.txt
     main.cpp
     CsfMap.cpp
     CsfRGBMap.cpp
