@@ -211,7 +211,7 @@ void TWorld::PesticideDynamicsMC(void)
 
     //runoff
 
-    KinematicPestDissolvedCombined(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw,
+    KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw,
                         Kfilm);
 
     //erosion
