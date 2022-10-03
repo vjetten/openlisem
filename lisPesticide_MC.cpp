@@ -226,7 +226,6 @@ void TWorld::PesticideDynamicsMC(void)
     if (WaterVolall->Drc > 0) {
     PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
     } else PCrw->Drc = 0.0;
-    WVji1->Drc = WaterVolall->Drc; //store WV for net timestep
     // L = m * m * m * -- * 1000
     volmw = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
     PCmw->Drc = PMmw->Drc / volmw; //
@@ -313,7 +312,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     double mrw_inf {0.0};   //mg
     double Crw_avg {0.0};   // mg/L - no runoff; concentration = 0
     //no runoff - add leftover of mass in runoff water to mixing layer
-    if (Qn->Drc + QinKW->Drc < 1e-6) {
+    if (Qn->Drc + QinKW->Drc <= 1e-6) {
         PCrw->Drc = 0.0;        //concentration = 0
         PMmw->Drc += PMrw->Drc; //add any leftover mass to mixing layer
         pmwdep->Drc -= PMrw->Drc;
@@ -345,14 +344,14 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         //mg = mg + mg - mg - mg + (mg sec-1 * sec)
         PMrw->Drc = std::max(0.0, PMrw->Drc + mwrm_ex - mrw_inf);
         // calculate concentration for new outflux
-        PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
+        PCrw->Drc = PMrw->Drc / (WaterVolin->Drc * 1000);
         _Qpw->Drc = _Q->Drc * 1000 * PCrw->Drc;
-        // use complexSedCalc explicit method
+        // use explicit backwards method from Chow
         _Qpwn->Drc = QpwSeparate(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, _Qpw->Drc,
                                     _Alpha->Drc, _DX->Drc); //mg/sec
         _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc + PMrw->Drc / _dt);
 
-        //substract all masses
+        //substract discharge
         //mg = mg - (mg sec-1 * sec)
         PMrw->Drc = std::max(0.0, PMrw->Drc - (_Qpwn->Drc * _dt)
                                       + (QpinKW->Drc * _dt));
@@ -502,7 +501,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 double TWorld::QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i, double Pji1, double alpha, double dx)
 {
     double Pj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C;
-    double Qsn = 0;
     const double beta = 0.6;
 
     if (Qj1i1 < MIN_FLUX)
@@ -549,27 +547,29 @@ double TWorld::QpwInfExCombined(double Qj1i1, double Qj1i, double Qji1,
                                 double dx, double zm, double kfilm, double qinf,
                                 double cmw)
 {
-    double Pj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C;
-    double Qsn = 0;
+    double Pj1i1 {0}, Cp_avg {0}, Q_avg {0};
+    double A {0}, B {0}, C {0}, D {0}; // aux vars
+    double E {0}, F {0}, G {0}, H {0}; // aux vars
     const double beta = 0.6;
+    cmw = cmw * 1000; // mg/L -> mg/m3
 
-    if (Qj1i1 < MIN_FLUX)
+    Q_avg = 0.5*(Qji1+Qj1i); //m3/sec
+    if (Q_avg <= MIN_FLUX)
         return (0);
+    Cp_avg = (Pj1i+Pji1)/(Qj1i+Qji1); //mg/m3
+    // calculate all parts of formula
+    A = Pj1i * _dt;
+    B = alpha * pow(Q_avg, beta) * dx * Pji1 / Qji1;
+    C = alpha * beta * pow(Q_avg, beta-1) * (Qj1i1 - Qji1) * dx;
+    D = kfilm * cmw * zm * dx * _dt;
+    //
+    E = _dt;
+    F = alpha * pow(Q_avg, beta) * dx / Qj1i1;
+    G = kfilm * zm * dx * _dt / Qj1i1;
+    H = qinf * dx * _dt * zm / Qj1i1;
 
-    Qavg = 0.5*(Qji1+Qj1i); //m3/sec
-    if (Qavg <= MIN_FLUX)
-        return (0);
-    Cavg = (Pj1i+Pji1)/(Qj1i+Qji1); //mg/m3
-    aQb = alpha*pow(Qavg,beta);
-    abQb_1 = alpha*beta*pow(Qavg,beta-1);
-
-    A = _dt*Pj1i;
-    B = -Cavg*abQb_1*(Qj1i1-Qji1)*dx;
-    C = (Qji1 <= MIN_FLUX ? 0 : aQb*Pji1/Qji1)*dx;
-    if (Qj1i1 > MIN_FLUX)
-        Pj1i1 = (A+C+B)/(_dt+aQb*dx/Qj1i1);
-    else
-        Pj1i1 = 0;
+    // calculate new Qp - mg/sec
+    Pj1i1 = (A+B-C-D) / (E+F-G-H);
     return std::max(0.0 ,Pj1i1);
 }
 
@@ -581,7 +581,7 @@ double TWorld::QpwInfExCombined(double Qj1i1, double Qj1i, double Qji1,
 * with infiltration, exchange and runoff in same implicit solution.
 */
 
-void TWorld::KinematicPestDissolvedComplex(QVector <LDD_COORIN> _crlinked_,
+void TWorld::KinematicPestDissolvedCombined(QVector <LDD_COORIN> _crlinked_,
                cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
                cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, double _kfilm)
 {
@@ -627,7 +627,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     double mrw_q {0.0};     //mg - mass new outflux
 
     //no runoff - add leftover of mass in runoff water to mixing layer
-    if (Qn->Drc + QinKW->Drc < 1e-6) {
+    if (Qn->Drc + QinKW->Drc <= 1e-6) {
         PCrw->Drc = 0.0;        //concentration = 0
         PMmw->Drc += PMrw->Drc; //add any leftover mass to mixing layer
         pmwdep->Drc -= PMrw->Drc;
@@ -636,72 +636,39 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 
     }
     if (Qn->Drc + QinKW->Drc > 1e-6) { // more than 1 ml - what is best definition of runoff?
-        // vars for implicit calculation - calculate in mg/m3!!!
-        double Cj1i1 {0.0};     // new dissolved pesticide concentration
-        double Cp_avg {0.0};    // mg/m3 - average over dx and dt
-        double Qj1i1 = Qn->Drc; // m3/sec - water discharge
-        double Qj1i = QinKW->Drc; // m3/sec - upstream water influx
-        double alpha = Alpha->Drc; // unit??
-        const double beta = 0.6; //from mannings equation (Chow)
-        double Q_avg {0.0};     // m3/sec average over dx and dt
-        double Qji1 = Q->Drc;   // m3/sec old flux this cell
-        double Cj1i = {0.0};    // mg/m3
-        double Cji1 = PMrw->Drc / WaterVolin->Drc; //mg/m3
-        double dx = DX->Drc; // m
-        double Cmw = PCmw->Drc * 1000; // mg/m3
-        double A {0}, B {0}, C {0}, D {0}, E {0}, F{0}; // aux vars
-        double G {0}, H {0}, I {0}, J {0}; // aux vars
-
-        // calculate averages
-        // mg m-3 = (mg + (mg sec-1 * sec)) / (m3 + (m3 sec-1 * sec))
-        Cp_avg = (PMrw->Drc + (QpinKW->Drc * _dt))
-                  / (WaterVolin->Drc + (QinKW->Drc * _dt));
-        Q_avg = (Qj1i + Qji1) / 2; // m3/sec
-        Cj1i = QinKW->Drc == 0 ? 0 : Qpin / QinKW->Drc; //mg/m3 -> 0/0 first timestep!!!
-        // calculate all parts of formula
-        A = -Cp_avg * (Qj1i1 - Qj1i) * _dt;
-        B = Cp_avg * alpha * beta * pow(Q_avg, beta-1) * (Qj1i1 - Qji1) * dx;
-        C = Q_avg * Cj1i * _dt;
-        D = alpha * pow(Q_avg, beta) * Cji1 * dx;
-        E = _kfilm * Cmw * dx * _dt * zm->Drc;
-        F = fact->Drc * Cmw * dx * _dt * zm->Drc;
-        //
-        G = Q_avg * _dt;
-        H = alpha * pow(Q_avg, beta) * dx;
-        I = _kfilm * dx * _dt * zm->Drc;
-        J = fact->Drc * dx * _dt * zm->Drc;
-
-        // calculate new C - mg / L
-        Cj1i1 = ((A-B+C+D-E+F-PMrw->Drc) / (G+H-I+J-WaterVolall->Drc)) / 1000; //  )
-        Crwn->Drc = Cj1i1;
+        Qpw->Drc = PCrw->Drc * 1000 * Q->Drc;
+        // calculate new Qp
+        _Qpwn->Drc = QpwInfExCombined(Qn->Drc, QinKW->Drc, Q->Drc,
+                         QpinKW->Drc, Qpw->Drc, Alpha->Drc,
+                         DX->Drc, zm->Drc, KfilmPestMC, fact->Drc,
+                         PCmw->Drc);
+        Crwn->Drc = _Qpwn->Drc / (Qn->Drc * 1000); // mg/L
 
         //calculate new masses
 
         // positive adds to runoff, negative to mixing layer.
         // mg = ((sec-1 * m * (mg L-1) / m) * m * m * m * sec * 1000 (m3 -> L)
-        mwrm_ex = (((_kfilm * (PCmw->Drc - Cj1i1))/zm->Drc)
+        mwrm_ex = (((_kfilm * (PCmw->Drc - Crwn->Drc))/zm->Drc)
                    * (SoilWidthDX->Drc * _DX->Drc * zm->Drc * _dt
                    * ThetaS1->Drc * 1000));
-        PMrw->Drc = std::max(0.0, PMrw->Drc + mwrm_ex);
         // mg = m3 * 1000 (L->m3) * mg L-1
-        mrw_inf = InfilVol->Drc * 1000 * Cj1i1; // loss through infiltration
+        mrw_inf = InfilVol->Drc * 1000 * Crwn->Drc; // loss through infiltration
         // mg = mg/L * L/sec * sec
-        mrw_q = Cj1i1 * Qn->Drc * 1000 * _dt;
+        mrw_q = PQrw->Drc * _dt;
 
         // adjust masses if outflow is more than available mass.
-        if (PMrw->Drc < mrw_inf + mrw_q) {
+        PMrw->Drc = std::max(0.0, PMrw->Drc + mwrm_ex);
+        if (PMrw->Drc + QpinKW->Drc * _dt < mrw_inf + mrw_q) {
             double tot = mrw_inf + mrw_q;
             mrw_inf = (mrw_inf/tot) * PMrw->Drc;
             mrw_q = (mrw_q/tot) * PMrw->Drc;
         }
         mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
         pmwdep->Drc -= mrw_inf;
-        //substract infiltration and mixing layer exchange
+        PQrw->Drc = mrw_q / _dt;
+        //substract infiltration and discharge
         //mg = mg + mg - mg - mg + (mg sec-1 * sec)
-        PMrw->Drc = std::max(0.0, PMrw->Drc - mrw_inf - mrw_q);
-
-        _Qpwn->Drc = mrw_q / _dt;
-
+        PMrw->Drc = std::max(0.0, PMrw->Drc - mrw_inf - mrw_q + QpinKW->Drc * _dt);
         PMmw->Drc = std::max(0.0, PMmw->Drc - mwrm_ex + mrw_inf);
        } //runoff occurs
     }//end ldd loop
