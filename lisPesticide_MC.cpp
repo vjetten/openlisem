@@ -211,7 +211,7 @@ void TWorld::PesticideDynamicsMC(void)
 
     //runoff
 
-    KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw,
+    KinematicPestDissolvedCombined(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw,
                         Kfilm);
 
     //erosion
@@ -642,7 +642,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
                          QpinKW->Drc, Qpw->Drc, Alpha->Drc,
                          DX->Drc, zm->Drc, KfilmPestMC, fact->Drc,
                          PCmw->Drc);
-        Crwn->Drc = _Qpwn->Drc / (Qn->Drc * 1000); // mg/L
+        Crwn->Drc = Qn->Drc > 0 ? _Qpwn->Drc / (Qn->Drc * 1000) : 0; // mg/L
 
         //calculate new masses
 
@@ -657,18 +657,25 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         mrw_q = PQrw->Drc * _dt;
 
         // adjust masses if outflow is more than available mass.
-        PMrw->Drc = std::max(0.0, PMrw->Drc + mwrm_ex);
-        if (PMrw->Drc + QpinKW->Drc * _dt < mrw_inf + mrw_q) {
-            double tot = mrw_inf + mrw_q;
+        if (PMrw->Drc < mrw_inf - mwrm_ex) {
+            double tot = mrw_inf - mwrm_ex;
             mrw_inf = (mrw_inf/tot) * PMrw->Drc;
-            mrw_q = (mrw_q/tot) * PMrw->Drc;
+            mwrm_ex = (mwrm_ex/tot) * PMrw->Drc;
         }
         mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
         pmwdep->Drc -= mrw_inf;
-        PQrw->Drc = mrw_q / _dt;
+//        if (PMrw->Drc + QpinKW->Drc * _dt < mrw_inf + mrw_q) {
+//            double tot = mrw_inf + mrw_q;
+//            mrw_inf = (mrw_inf/tot) * PMrw->Drc;
+//            mrw_q = (mrw_q/tot) * PMrw->Drc;
+//        }
+//        PQrw->Drc = mrw_q / _dt;
+        PMrw->Drc = std::max(0.0, PMrw->Drc - mrw_inf + mwrm_ex);
+        PQrw->Drc = std::min(PQrw->Drc, QpinKW->Drc + PMrw->Drc / _dt);
+
         //substract infiltration and discharge
         //mg = mg + mg - mg - mg + (mg sec-1 * sec)
-        PMrw->Drc = std::max(0.0, PMrw->Drc - mrw_inf - mrw_q + QpinKW->Drc * _dt);
+        PMrw->Drc = std::max(0.0, PMrw->Drc - PQrw->Drc * _dt + QpinKW->Drc * _dt);
         PMmw->Drc = std::max(0.0, PMmw->Drc - mwrm_ex + mrw_inf);
        } //runoff occurs
     }//end ldd loop
