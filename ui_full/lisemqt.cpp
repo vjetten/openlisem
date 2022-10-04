@@ -774,8 +774,7 @@ void lisemqt::SetToolBar()
 
     connect(checkMapBuildings, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
     connect(checkMapRoads, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
-  //  connect(checkMapChannels, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
-    connect(checkMapChannels, SIGNAL(clicked(bool)), this, SLOT(hideChannelVector(bool)));
+    connect(checkMapChannels, SIGNAL(clicked(bool)), this, SLOT(showChannelVector(bool)));
     connect(checkMapImage, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
 
     connect(ComboMaxSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));

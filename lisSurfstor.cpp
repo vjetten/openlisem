@@ -51,8 +51,9 @@ void TWorld::GridCell()
             // use adjusted channelwidth here to avoid negative adj
             //        dxa = std::max(0.05, _dx - ChannelWidthExtended->Drc);
 
-            if (SwitchCulverts)
-                dxa = _dx;   //als culvert dan geen channelwidth want channel ondergonds
+           // if (SwitchCulverts)
+             //   dxa = _dx;   //als culvert dan geen channelwidth want channel ondergonds
+            // gives maybe large mass balance error ????
         }
 
         ChannelAdj->Drc = dxa;

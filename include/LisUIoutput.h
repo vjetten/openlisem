@@ -64,10 +64,6 @@ struct output{
     QVector<double> Time;
     QVector <double> Qtile;
 
-//    QVector <double> ChanDataX;
-//    QVector <double> ChanDataY;
-//    QVector<int> Chanbranch;
-//    QList <int> branches;
     QVector <double> CulvertX;
     QVector <double> CulvertY;
     QVector <double> EndPointX;

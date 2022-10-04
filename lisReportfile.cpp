@@ -51,7 +51,7 @@ void TWorld::reportAll(void)
     // report totals to a text file
 
     ReportTimeseriesNew();
-    // report hydrographs ande sedigraphs at all points in outpoint.map
+    // report hydrographs and sedigraphs at all points in outpoint.map
 
     ReportTotalSeries();
 
@@ -63,7 +63,7 @@ void TWorld::reportAll(void)
     // report all maps and mapseries
 
     ReportLandunits();
-    // reportc stats per landunit class
+    // report stats per landunit class
 
     ChannelFloodStatistics();
     // report buildings submerged in flood level classes in 5cm intervals
@@ -283,18 +283,27 @@ void TWorld::OutputUI(void)
         copy(*op.outletMap, *PointMap);
 
         if (SwitchRoadsystem) {
-            copy(*op.roadMap, *RoadWidthDX);
+            FOR_ROW_COL_MV_L {
+                if (RoadWidthDX->Drc > 0.2*_dx)
+                    op.roadMap->Drc = RoadWidthDX->Drc;
+                else
+                    op.roadMap->Drc = 0;
+                //copy(*op.roadMap, *RoadWidthDX);
+            }}
         }
         if (SwitchHouses)
             copy(*op.houseMap, *HouseCover);
 
+//        if(SwitchCulverts)
+//            copy(*op.flowbarriersMap,*ChannelMaxQ);
+
         if(SwitchFlowBarriers)
         {
-            fill(*tma,0.0);
-            FOR_ROW_COL_MV {
-                tma->Drc = std::max(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),FlowBarrierW->Drc),FlowBarrierS->Drc);
-            }
-            copy(*op.flowbarriersMap,*tma);
+//            fill(*tma,0.0);
+//            FOR_ROW_COL_MV {
+//                tma->Drc = std::max(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),FlowBarrierW->Drc),FlowBarrierS->Drc);
+//            }
+    //        copy(*op.flowbarriersMap,*tma);
         }
     }
     // MAP DISPLAY VARIABLES
@@ -826,8 +835,8 @@ void TWorld::ReportTotalsNew(void)
     }
     if (SwitchPestMC) {
         out << "\n";
-        out << "\"Total dissolved pesticide transport (mg):\"," << op.PestOutW<< "\n";
-        if (SwitchErosion) out << "\"Total particulate pesticide transport (mg):\"," << op.PestOutS<< "\n";
+        out << "\"Total dissolved pesticide transport (mg):\"," << op.PMOutW<< "\n";
+        if (SwitchErosion) out << "\"Total particulate pesticide transport (mg):\"," << op.PMOutS<< "\n";
     }
     out << "\n";
     fp.flush();
@@ -1067,7 +1076,7 @@ void TWorld::ReportMapSeries(void)
     }
 
     //===== PESTICIDES =====
-    if (SwitchPestMC) {
+    if (SwitchReportPestMC) {
         report(*PCms, "pcms");
         report(*PCmw, "pcmw");
         report(*PCrw, "pcrw");
@@ -1076,8 +1085,10 @@ void TWorld::ReportMapSeries(void)
         report(*PMmw, "pmmw");
         report(*PMrw, "pmrw");
         report(*PQrw, "pqrw");
-        //report(*PMinf, "pinf");
-        //report(*PMperc, "prc");
+        report(*PMinf, "pinf");
+        report(*PMperc, "prc");
+        report(*pmwdet, "wdet");
+        report(*pmwdep, "wdep");
         //report(*test_map, "test");
         if (SwitchErosion) {
             report(*PCrs, "pcrs");
@@ -1085,13 +1096,16 @@ void TWorld::ReportMapSeries(void)
             report(*PQrs, "pqrs");
             report(*SpinKW, "spin");
             report(*PCs, "pcs");
+            report(*Ez, "ez");
+            report(*pmsdet, "sdet");
+            report(*pmsdep, "sdep");
         }
         //report(*WaterVolall, "wall");
         //report(*WaterVolin, "win");
-        report(*WH, "wh");
+        //report(*WH, "wh");
         report(*Qpw, "qpw");
         report(*QpinKW, "qpin");
-        report(*Ez, "ez");
+
     }
 
 }

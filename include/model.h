@@ -219,7 +219,6 @@ typedef struct LDD_COORIN {
     int nr;
     int ldd;
     LDD_COOR *inn;
-    //QVector <LDD_COOR> in;
 }  LDD_COORIN;
 //---------------------------------------------------------------------------
 typedef struct LDD_COORloc {
@@ -375,11 +374,12 @@ public:
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
-    SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide, SwitchPestMC,
+    SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide, SwitchPestMC, SwitchReportPestMC,
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
-    SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle;
+    SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle,
+    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap;
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
@@ -500,7 +500,7 @@ public:
 
     double maxRainaxis;
     double latitude;
-    double CulvertWidth, CulvertHeight, CulvertN, CulvertS;
+
     //double D50CH, D90CH;
 
     ///pesticides
@@ -511,7 +511,7 @@ public:
     double MaxVup;
 
     ///pesticides-MC
-    double PMtot, PMerr, PMtotI;
+    double PMtot, PMerr, PMtotI, PMwerr, PMserr;
     double Pestinf, PestOutW, PestOutS, PestPerc;
     double PQrw_dt, PQrs_dt;
     double KdPestMC, KfilmPestMC, KrPestMC, rhoPestMC;
@@ -616,6 +616,7 @@ public:
     SwitchOutTiledrain, SwitchOutTileVol, SwitchOutHmx, SwitchOutVf, SwitchOutQf, SwitchOutHmxWH, SwitchOutTheta;
     QString errorFileName;
     QString errorSedFileName;
+    QString errorPestFileName;
     QString satImageFileName;
     QString satImageFileDir;
 
@@ -854,11 +855,7 @@ public:
     double ConcentrationP(double watvol, double pest);
 
     //Pesticides MC
-    template <typename... T>
-    void simplePestConc(double Crw_old, double Cmw_old, double Kfilm, double Qinf, double zm, double kr, double Kd,
-                        double Crs_old, double Cms_old, double Ez, double Me, double A, double pore,
-                        double Crw_in, double Crs_in, std::tuple<T...> all_conc);
-    void MassPest(double PMtotI, double &PMerr, double &PMtot);
+    void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
     double MassPestInitial(void);
     void KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
                          cTMap *_Qn, cTMap *_Qsn, cTMap *_Qpwn, cTMap *_Qpsn,
@@ -866,6 +863,15 @@ public:
                          cTMap *_Q, cTMap *_Qs, cTMap *_Qpw, cTMap *_Qps);
     void InitPesticideMC(void);
     void PesticideDynamicsMC(void);
+    double PesticidePercolation(double perc, double soildep, double lw,
+                                double zm, double dx, double swdx, double pcmw);
+    void KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
+                           cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
+                           cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, double _kfilm);
+    void KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
+                           cTMap *_LDD, cTMap *_Qsn, cTMap *_Qpsn, cTMap *_DX,
+                           cTMap *_Alpha, cTMap *_Sed, cTMap *_Qs, cTMap *_Qps,
+                           double rho);
 
     // 1D hydro processes
     //input timeseries
@@ -901,6 +907,7 @@ public:
     void cell_Interception(int r, int c);
     double cell_Percolation(int r, int c, double factor);
     double cell_Percolation1(int r, int c, double factor);
+    void cell_SlopeStability(int r, int c);
     void cell_Redistribution(int r, int c);
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
@@ -915,6 +922,9 @@ public:
     void InfilSwatre();
 
     double IncreaseInfiltrationDepthNew(double fact_, int r, int c);
+
+    double IncreaseInfiltrationDepthNew0(double fact_, int r, int c);
+    //OBSOLETE CONTAINS ERRORS
 
     void SoilWater();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
