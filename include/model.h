@@ -872,6 +872,15 @@ public:
                            cTMap *_LDD, cTMap *_Qsn, cTMap *_Qpsn, cTMap *_DX,
                            cTMap *_Alpha, cTMap *_Sed, cTMap *_Qs, cTMap *_Qps,
                            double rho);
+    void KinematicPestDissolvedCombined(QVector <LDD_COORIN> _crlinked_,
+                   cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
+                   cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, double _kfilm);
+    double QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
+                       double Pji1, double alpha, double dx);
+    double QpwInfExCombined(double Qj1i1, double Qj1i, double Qji1,
+                                    double Pj1i, double Pji1, double alpha,
+                                    double dx, double zm, double kfilm, double qinf,
+                                    double cmw);
 
     // 1D hydro processes
     //input timeseries

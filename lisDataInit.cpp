@@ -2352,6 +2352,7 @@ void TWorld::IntializeData(void)
         PMrw = NewMap(0);
         PMsoil = NewMap(0);
         PCrw = NewMap(0);
+        Crwn = NewMap(0);
         PCs = NewMap(0);
         PCs = PCms;
         PQrw = NewMap(0);
@@ -2361,6 +2362,7 @@ void TWorld::IntializeData(void)
         Ez = NewMap(0);
         pmwdet = NewMap(0);
         pmwdep = NewMap(0);
+        WVji1 = NewMap(0);
         SpinKW = NewMap(0);
         QpinKW = NewMap(0);
         Theta_mix = NewMap(0);
