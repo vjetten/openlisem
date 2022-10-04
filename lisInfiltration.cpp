@@ -470,15 +470,15 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
         } else {
             // L in SD2
             if (L < SoilDep2) {
-            //L already in layer 2
-            double space2 = (SoilDep2-L)*dtheta2;
+                //L already in layer 2
+                double space2 = (SoilDep2-L)*dtheta2;
                 if(fact_in < space2) {
                     // everything fits
                     L = L + fact_in/std::max(0.01,dtheta2);
                     fact_out = fact_in;
                 } else {
                     //too much
-                L = SoilDep2;
+                    L = SoilDep2;
                     fact_out = std::min(fact_in, space2 + Perc->Drc);
                 }
             } else {
@@ -500,10 +500,10 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
                 // it is also too much for SD2
                 L = SoilDep2;
                 fact_out = std::min(fact_in, space + space2 + Perc->Drc);
-        }
+            }
         }
 
-        Lw->Drc = L;
+        Lw->Drc  = L;
         return fact_out;
 
     } else {
@@ -529,7 +529,7 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
         } else {
             // layer is filled completely, so infiltration is space in the layer plus percolation at the bottom
             // percolation becomes Ksateff when saturated
-                L = SoilDep1;
+            L = SoilDep1;
             fact_out = std::min(fact_in, space+Perc->Drc);
         }
 
@@ -639,10 +639,6 @@ void TWorld::cell_InfilMethods(int r, int c)
         }
 
         FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
-      
-        //FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
-        //MC - using space causes fluctuations when Lw reaches SD1 when soil is not impermeable always use fact_
-        //FSurplus->Drc = -1.0 * std::max(0.0, fpot_-fact_);
         // negative and smallest of space or fpot-fact ???
     }
 }
