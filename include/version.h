@@ -35,8 +35,8 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define VERSIONNR "6.86 pm0.3"
-#define DATE "2022/09/19"
+#define VERSIONNR "6.86 pm0.4"
+#define DATE "2022/10/04"
 
 
 #define VERSION QString("openLISEM pest-mc version %1 - %2").arg(VERSIONNR).arg(DATE)

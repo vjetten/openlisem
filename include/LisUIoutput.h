@@ -92,6 +92,7 @@ struct output{
     //Pesticide-MC
     PCrw, PCrs, PQrw, PQrs, PMrw, PMrs, PCmw, PCms, PMinf, PMmw, PMms, PMOutW,
     PMOutS, PMerr, PMperc, PestOutW, PestOutS;
+    QString PestName;
 
 
     // map pointers for display

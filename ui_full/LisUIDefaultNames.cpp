@@ -527,7 +527,7 @@ void lisemqt::defaultRunFile()
     //### Pest-MC pesticide data
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Pesticides-MC]");
-    namelist[i].value = QString("test");
+    namelist[i].value = QString("foobicide");
     namelist[i++].name = QString("Pesticide name");
     namelist[i].value = QString("0.0");
     namelist[i++].name = QString("Kd pesticide");
