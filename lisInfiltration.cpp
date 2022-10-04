@@ -640,7 +640,7 @@ void TWorld::cell_InfilMethods(int r, int c)
         }
 
         FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
-
+        // negative and smallest of space or fpot-fact ???
     }
 }
 //---------------------------------------------------------------------------
