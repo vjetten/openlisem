@@ -531,14 +531,13 @@ double TWorld::IncreaseInfiltrationDepthNew(double fact_in, int r, int c) //, do
             // percolation becomes Ksateff when saturated
                 L = SoilDep1;
             fact_out = std::min(fact_in, space+Perc->Drc);
-        } else
-            fact_out = fact_in; // MC - no 0 or reduced infiltration with full profile
+        }
 
         Lw->Drc = L;
         return fact_out;
     }
-    fact_out = fact_in;
-    return fact_out;
+
+    return 0;
 
 }
 

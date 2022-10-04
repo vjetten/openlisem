@@ -235,8 +235,6 @@ void TWorld::cell_Redistribution(int r, int c)
                 }
             }
         } //Lw_ > L_min
-        Thetaeff->Drc= theta;
-        Lw->Drc= Lw_;
     }// 1 layer
 }
 //---------------------------------------------------------------------------
