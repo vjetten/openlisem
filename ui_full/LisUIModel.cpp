@@ -48,17 +48,9 @@ void lisemqt::runmodel()
             pausemodel();
         return;
     }
-    qDebug() << "hier1";
-   // MPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true);
-   // MPlot->detachItems(QwtPlotItem::Rtti_PlotMarker, true);
-    qDebug() << "hier2";
+
     startplot = true;
     stopplot = false;
-
-    rivers.clear();
-    culverts.clear();
-    outlets.clear();
-    obspoints.clear();
 
     label_debug->text().clear();
 
@@ -108,6 +100,7 @@ void lisemqt::runmodel()
     transparencyHardSurface->setEnabled(checkHouses->isChecked() || checkRoadsystem->isChecked() || checkHardsurface->isChecked());
     //transparencyHardSurface->setVisible(false);
 
+    sedgroup->setVisible(checkDoErosion->isChecked());
 
     // initialize output graphs
     initPlot();

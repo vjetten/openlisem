@@ -91,6 +91,7 @@ SET(APP_SOURCES
     ui_full/lisemqt.cpp
     ui_full/LisUIplot.cpp
     ui_full/LisUImapplot.cpp
+    ui_full/LisUImapplot.h
     swatre/swatstep.cpp
     swatre/swatinit.cpp
     swatre/soillut.cpp

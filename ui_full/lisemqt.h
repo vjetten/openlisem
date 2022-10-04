@@ -183,24 +183,16 @@ public:
     void showBaseMap();
     void getOutletMap();
     void showChannelVectorNew();
-
-    QwtPlotCurve *rivera;
-    QwtPlotCurve *culvert;
-    QwtPlotCurve *obspoint;
-    QList<QwtPlotCurve*> rivers;
-    QList<QwtPlotCurve*> culverts;
-    QList<QwtPlotCurve*> obspoints;
-    QList<QwtPlotCurve*> outlets;
     void showRoadMap();
     void showHouseMap();
     void showHardSurfaceMap();
     void showImageMap();
     void changeSize();
     double Masp;
-    //double fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD);//, double type);
     double fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD, double *minv, double *maxv);
     double fillDrawMapDataRGB(cTMap * base,  cTRGBMap *_M, QwtMatrixRasterData *_RD);
 
+    QwtPlot *MPlot;               // plot in which the raster map is drawn
     QwtText title;
     QwtPlotSpectrogram *drawMap;  // raster map drawing
     QwtPlotSpectrogram *baseMap;  // raster map drawing
@@ -212,7 +204,6 @@ public:
     QwtPlotSpectrogram *houseMap;  // raster map drawing
     QwtPlotSpectrogram *imageMap;
     QwtPlotSpectrogram *outletMap;
-    QwtPlot *MPlot;               // plot in which the raster map is drawn
     QwtMatrixRasterData *RD;      // data for thematic raster maps
     QwtMatrixRasterData *RDb;
     QwtMatrixRasterData *RDbb;
@@ -226,15 +217,21 @@ public:
     QwtAxisId *axisYL2;
     QwtAxisId *axisYR1;
     QwtAxisId *axisYR2;
-
     QList <QVector <double>> Xa;
     QList <QVector <double>> Ya;
     QList <QVector <double>> Xc;
     QList <QVector <double>> Yc;
+    QwtPlotCurve *river;
+    QwtPlotCurve *culvert;
+    QwtPlotCurve *obspoint;
+    QwtPlotCurve *outlet;
+    QList<QwtPlotCurve*> rivers; // black river
+    QList<QwtPlotCurve*> culverts;  //white culvert part in river
+    QList<QwtPlotCurve*> obspoints;
+    QList<QwtPlotCurve*> outlets;
+
 
     double contourmin, contourmax;
-    //   double drawNrCols;
-    //   double drawNrRows;
     // vars for store map display in runfile
     int MapDisplayMapSelection, MapDisplayBuilding, MapDisplayRoads, MapDisplayChannels, MapDisplayHydrology;
     double MapDisplayRunoffMax, MapDisplayInfiltrationMax, MapDisplaySoillossMax, MapDisplayFlooddepthMax;
@@ -259,16 +256,6 @@ public:
     QList<int> OutletIndices;
     QList<int> OutletLocationX;
     QList<int> OutletLocationY;
-//    QList<QVector<double>*> OutletQ;
-//    QList<QVector<double>*> OutletQs;
-//    QList<QVector<double>*> OutletC;
-//    QList<QVector<double>*> OutletChannelWH;
-//    QVector<double> OutletQpeak;
-//    QVector<double> OutletQpeaktime;
-//    QVector<double> OutletQtot;
-//    QVector<double> OutletQstot;
-    //QVector<double> Rainfall;
-//    double timestep;
     double mult;
 
     int outletpoint = 1;
@@ -300,7 +287,7 @@ public:
     QwtPlotCurve *CGraph;
     QwtPlotCurve *PGraph;
     QwtPlotCurve *QtileGraph;
-    QwtPlotCurve *outPoints;
+
     bool startplot = true;
     bool stopplot;
     QVector <double> times;

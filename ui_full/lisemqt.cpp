@@ -598,29 +598,6 @@ void lisemqt::setErosionTab()
     label_SDR->setEnabled(checkDoErosion->isChecked());
 
 }
-//--------------------------------------------------------------------
-//void lisemqt::InitScreenOutput()
-//{
-//    sedgroup->setEnabled(true);
-//    int dig = E_DigitsOut->value();
-//    label_MBs->setText(QString::number(0,'e',dig));
-//    label_splashdet->setText(QString::number(0,'f',dig));
-//    label_flowdet->setText(QString::number(0,'f',dig));
-//    label_sedvol->setText(QString::number(0,'f',dig));
-//    label_dep->setText(QString::number(0,'f',dig));
-//    label_detch->setText(QString::number(0,'f',dig));
-//    label_depch->setText(QString::number(0,'f',dig));
-//    label_sedvolch->setText(QString::number(0,'f',dig));
-//    label_soilloss->setText(QString::number(0,'f',dig));
-//    label_soillosskgha->setText(QString::number(0,'f',dig));
-//    label_SDR->setText(QString::number(0,'f',dig));
-//    label_soillosssub->setText(QString::number(0,'f',dig));
-//    label_Qssub->setText(QString::number(0,'f',dig));
-//    sedgroup->setEnabled(checkDoErosion->isChecked());
-
-
-
-//}
 
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputSOBEK(bool doit)

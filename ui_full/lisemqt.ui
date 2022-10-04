@@ -70,7 +70,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -2182,7 +2182,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>7</number>
+                  <number>0</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -10199,6 +10199,21 @@ p, li { white-space: pre-wrap; }
            </sizepolicy>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <property name="leftMargin">
+            <number>8</number>
+           </property>
+           <property name="topMargin">
+            <number>8</number>
+           </property>
+           <property name="rightMargin">
+            <number>8</number>
+           </property>
+           <property name="bottomMargin">
+            <number>8</number>
+           </property>
            <item>
             <layout class="QVBoxLayout" name="verticalLayout">
              <item>
@@ -10240,7 +10255,7 @@ p, li { white-space: pre-wrap; }
                 <item row="0" column="3">
                  <widget class="QLabel" name="label_endtime">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -10271,7 +10286,7 @@ p, li { white-space: pre-wrap; }
                 <item row="2" column="3">
                  <widget class="QLabel" name="label_area">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -10302,7 +10317,7 @@ p, li { white-space: pre-wrap; }
                 <item row="0" column="1">
                  <widget class="QLabel" name="label_time">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -10332,6 +10347,12 @@ p, li { white-space: pre-wrap; }
                 </item>
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_29">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="font">
                    <font>
                     <pointsize>8</pointsize>
@@ -10349,7 +10370,7 @@ p, li { white-space: pre-wrap; }
                 <item row="2" column="1">
                  <widget class="QLabel" name="label_dx">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -10379,6 +10400,12 @@ p, li { white-space: pre-wrap; }
                 </item>
                 <item row="2" column="0">
                  <widget class="QLabel" name="label_46">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="font">
                    <font>
                     <pointsize>8</pointsize>
@@ -10395,6 +10422,12 @@ p, li { white-space: pre-wrap; }
                 </item>
                 <item row="0" column="2">
                  <widget class="QLabel" name="label_38">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="font">
                    <font>
                     <pointsize>8</pointsize>
@@ -10411,6 +10444,12 @@ p, li { white-space: pre-wrap; }
                 </item>
                 <item row="2" column="2">
                  <widget class="QLabel" name="label_48">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="font">
                    <font>
                     <pointsize>8</pointsize>

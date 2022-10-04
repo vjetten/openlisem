@@ -116,6 +116,14 @@ void lisemqt::initMapPlot()
     maxAxis4 = -1e20;
     maxAxis5 = -1e20;
     pstep = 0;
+
+    showChannelVector(false);
+
+    rivers.clear();
+    culverts.clear();
+    outlets.clear();
+    obspoints.clear();
+
 }
 
 void lisemqt::changeSize()
@@ -329,18 +337,6 @@ double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterDa
             {
                 double value = 0;
                 char * valuechar = ((char*)(&value));
-
-//                char r = (_M->dataR[r][c]);
-//                char g = (_M->dataG[r][c]);
-//                char b = (_M->dataB[r][c]);
-
-
-//                char rc[1];
-//                char rg[1];
-//                char rb[1];
-//                itoa(r,rc,10);
-//                itoa(g,rg,10);
-//                itoa(b,rb,10);
                 valuechar[0] = _M->dataR[r][c];//*rc;//(*base->data[r][c]);
                 if(_M->bands > 1)
                 {
@@ -705,7 +701,7 @@ void lisemqt::showChannelVector(bool yes)
         pen1.setColor(QColor("#000000"));
         pen1.setCosmetic(true);
         for (int i = 0; i < rivers.length(); i++) {
-                rivers[i]->setPen(pen1);
+            rivers[i]->setPen(pen1);
             rivers[i]->attach( MPlot );
             rivers[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
         }
@@ -793,9 +789,9 @@ void lisemqt::showChannelVectorNew()
         Y.clear();
 
         for (int i = 0; i < Xa.length(); i++) {
-            rivera = new QwtPlotCurve();
-            rivera->setSamples(Xa.at(i),Ya.at(i));
-            rivers << rivera;
+            river = new QwtPlotCurve();
+            river->setSamples(Xa.at(i),Ya.at(i));
+            rivers << river;
         }
 
         // culvert parts of channel network
@@ -853,7 +849,6 @@ void lisemqt::showChannelVectorNew()
         }
 
         // dot size
-        //int dxi = (int) (op.channelMap->cellSize()*0.5);
         int dxi = MPlot->invTransform(MPlot->xBottom,dx*1.5);
         dxi = dxi - MPlot->invTransform(MPlot->xBottom,dx);
         dxi = std::min(9,dxi);
@@ -861,7 +856,7 @@ void lisemqt::showChannelVectorNew()
 
         // outlets
         for (int i = 0; i < op.EndPointX.length(); i++) {
-            QwtPlotCurve *outlet = new QwtPlotCurve();
+            outlet = new QwtPlotCurve();
             outlet->setSamples(op.EndPointX,op.EndPointY);
             outlets << outlet;
         }
