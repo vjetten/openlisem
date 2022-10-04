@@ -326,9 +326,9 @@ class colorMapRoads: public QwtLinearColorMapVJ
     }
 public:
     colorMapRoads():
-        QwtLinearColorMapVJ( QColor("#277e00"), QColor("#277e00"))
+        QwtLinearColorMapVJ( QColor("#53db00"), QColor("#7dfe2f"))
     {
-        addColorStop(0.0, QColor("#277e00"));
+        //addColorStop(0.0, QColor("#00CC00"));
     }
 };
 //---------------------------------------------------------------------------
