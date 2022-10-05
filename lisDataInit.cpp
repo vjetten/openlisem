@@ -3101,8 +3101,8 @@ void TWorld::InitScreenChanNetwork()
     op.lddch_.clear();
     op.lddch_.append(crlinkedlddch_);
 
-    op.CulvertX.clear();
-    op.CulvertY.clear();
+ //   op.CulvertX.clear();
+ //   op.CulvertY.clear();
     op.EndPointX.clear();
     op.EndPointY.clear();
     op.ObsPointX.clear();
@@ -3110,29 +3110,17 @@ void TWorld::InitScreenChanNetwork()
 
     FOR_ROW_COL_MV_CH {
         if (LDDChannel->Drc == 5){
-             qDebug() << c << r;
             op.EndPointX << _llx + c*_dx + 0.5*_dx;
             op.EndPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
         }
     }
     FOR_ROW_COL_MV_CH {
         if (PointMap->Drc > 0){
-        //    if (ChannelMaxQ->Drc > 0) {
             op.ObsPointX << _llx + c*_dx + 0.5*_dx;
             op.ObsPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
 
         }
     }
-
-//    if(SwitchCulverts) {
-//        FOR_ROW_COL_MV_CH {
-//            if (ChannelMaxQ->Drc > 0) {
-//                op.CulvertX << _llx + c*_dx + 0.5*_dx;
-//                op.CulvertY << _llx + (_nrRows-r-1)*_dx + 0.5*_dx;
-//            }
-//        }
-//    }
-
 }
 
 //---------------------------------------------------------------------------

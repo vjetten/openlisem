@@ -64,8 +64,8 @@ struct output{
     QVector<double> Time;
     QVector <double> Qtile;
 
-    QVector <double> CulvertX;
-    QVector <double> CulvertY;
+ //   QVector <double> CulvertX;
+ //   QVector <double> CulvertY;
     QVector <double> EndPointX;
     QVector <double> EndPointY;
     QVector <double> ObsPointX;

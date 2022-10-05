@@ -110,6 +110,7 @@ void lisemqt::ssetAlphaHardSurface(int v)
 // called when a model run is started
 void lisemqt::initMapPlot()
 {  
+
     maxAxis1 = -1e20;
     maxAxis2 = -1e20;
     maxAxis3 = -1e20;
@@ -117,6 +118,8 @@ void lisemqt::initMapPlot()
     maxAxis5 = -1e20;
     pstep = 0;
 
+    // maps structures do not have to be deleted. every run has the same maps, and the content is filled ynamically
+    // the rivers and culverts etc are really recreated and need to be deleted
     showChannelVector(false);
 
     rivers.clear();
@@ -128,22 +131,13 @@ void lisemqt::initMapPlot()
 
 void lisemqt::changeSize()
 {
-    int i = 0;
+//    MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*100);
+//    MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx, op._dx*100);
 
-    MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*100);
-    MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx, op._dx*100);
-
-    if(op._nrCols/op._nrRows > Masp) {
-        MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*100);
-        MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrCols*op._dx, op._dx*100);
-        i = 1;
-    } else
-        if(op._nrRows > op._nrCols)
-        {
-            MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrRows*op._dx*Masp, op._dx*100);
-            MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx*Masp, op._dx*100);
-            i = 2;
-        }
+    double h = MPlot->height();
+    double w = MPlot->width();
+    MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrRows*op._dx*w/h, op._dx*100);
+    MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx*w/h, op._dx*100);
 
     MPlot->replot();
 }
@@ -252,6 +246,10 @@ void lisemqt::setupMapPlot()
     magnifier->setZoomInKey(Qt::Key_Plus, Qt::KeypadModifier);
     magnifier->setZoomOutKey(Qt::Key_Minus, Qt::KeypadModifier);
 
+//    zoomer = new QwtPlotZoomer( MPlot->canvas() );
+//    zoomer->setKeyPattern( QwtEventPattern::KeyRedo, Qt::Key_I, Qt::ShiftModifier );
+//    zoomer->setKeyPattern( QwtEventPattern::KeyUndo, Qt::Key_O, Qt::ShiftModifier );
+//    zoomer->setKeyPattern( QwtEventPattern::KeyHome, Qt::Key_Home );
 
     panner = new QwtPlotPanner( MPlot->canvas() );
     panner->setAxisEnabled( MPlot->yRight, false );
@@ -630,40 +628,10 @@ void lisemqt::showBaseMap()
     RDbb->setInterval( Qt::ZAxis, QwtInterval( m1, m2));
     contourDEM->setData(RDbb);
 
-    // reset the axes to the correct rows/cols,
-    // do only once because resets zooming and panning
-
-    // fit into screen first time
     tabWidget_out->setCurrentIndex(1);
- //   MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*10);
- //   MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx, op._dx*10);
 
-
-    //    int h = MPlot->height();
-    //    int w = MPlot->width();
-    //    double asp = (double)w/(double)h;
-    //    int i = 0;
-
-    //tabWidget_out->setCurrentIndex(1);
-
+    // fit into screen
     changeSize();
-
-//    MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*10);
-//    MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx, op._dx*10);
-
-//    if(op._nrCols/op._nrRows > asp) {
-//        MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrCols*op._dx, op._dx*10);
-//        MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrCols*op._dx, op._dx*10);
-//        i = 1;
-//    } else
-//        if(op._nrRows > op._nrCols)
-//        {
-//            MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrRows*op._dx*asp, op._dx*10);
-//            MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx*asp, op._dx*10);
-//            i = 2;
-//        }
-
- //   tabWidget_out->setCurrentIndex(0);
 
 }
 //---------------------------------------------------------------------------
@@ -677,7 +645,7 @@ void lisemqt::showChannelVector(bool yes)
 
     if (!yes) {
 
-        if (checkChannelCulverts->isChecked() && !culverts.isEmpty() && culverts.length() > 0) {
+        if (/*checkChannelCulverts->isChecked() && */ !culverts.isEmpty() && culverts.length() > 0) {
             for (int i = 0; i < culverts.length(); i++)
                 culverts[i]->detach();
         }
@@ -687,11 +655,15 @@ void lisemqt::showChannelVector(bool yes)
                 obspoints[i]->detach();
         }
 
-        for (int i = 0; i < outlets.length(); i++)
-            outlets[i]->detach();
+        if (outlets.length() > 0 && !outlets.isEmpty()) {
+            for (int i = 0; i < outlets.length(); i++)
+                outlets[i]->detach();
+        }
 
-        for (int i = 0; i < rivers.length(); i++)
-            rivers[i]->detach();
+        if (rivers.length() > 0 && !rivers.isEmpty()) {
+            for (int i = 0; i < rivers.length(); i++)
+                rivers[i]->detach();
+        }
 
     } else {
         int dxi = spinCulvertSize->value();
@@ -873,8 +845,8 @@ void lisemqt::showChannelVectorNew()
         Ya.clear();
         Xc.clear();
         Yc.clear();
-        op.CulvertX.clear();
-        op.CulvertY.clear();
+     //   op.CulvertX.clear();
+     //   op.CulvertY.clear();
         op.ObsPointX.clear();
         op.ObsPointY.clear();
         op.EndPointX.clear();

@@ -283,9 +283,6 @@ void lisemqt::initPlot()
     }
     else
     {
-        //        QsGraph->detach();
-        //        CGraph->detach();
-
         QGraph->setAxes(HPlot->xBottom, *axisYL1);
         PGraph->setAxes(HPlot->xBottom, *axisYR1);
         HPlot->setAxesCount(QwtPlot::yLeft, 1);

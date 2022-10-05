@@ -340,8 +340,8 @@ void lisemqt::initOP()
     op.hardsurfaceMap = nullptr;
     op.Image = nullptr;
 
-    op.CulvertX.clear();
-    op.CulvertY.clear();
+ //   op.CulvertX.clear();
+ //   op.CulvertY.clear();
     op.EndPointX.clear();
     op.EndPointY.clear();
     op.ObsPointX.clear();

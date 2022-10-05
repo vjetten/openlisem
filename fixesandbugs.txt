@@ -4,3 +4,5 @@
 - ChannelQ set to channelQn BEFORE erosion, should not be done
 - potential bug: sediment in channel is routed with new alpha instead of old alpha
 - changed detach of MPlot before runmodel, now in inimapplot
+- op.culvertx and y no longer needed
+- fixed aspect ratio of map and deleted resize option
