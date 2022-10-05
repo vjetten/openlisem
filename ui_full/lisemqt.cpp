@@ -1,6 +1,6 @@
 ﻿/*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011,2020  Victor Jetten
+**  Copyright (C) 2010,2011,2022  Victor Jetten
 **  contact:
 **
 **  This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -1521,13 +1521,13 @@ void lisemqt::aboutInfo()
 {
     QMessageBox::information ( this, "openLISEM",
                                QString("openLISEM verion %9 (%10) is created by Victor Jetten and Bastian van de Bout with:\n\n%1\n%2\n%3\n%4\n%5\n%6\n%7\n%8")
-                               .arg("- MSYS2 with MingW64, Qt and CMake (http://qt.nokia.com/).")
+                               .arg("- MSYS2 with MingW64, Qt and CMake (https://www.msys2.org/,http://qt.nokia.com/,https://cmake.org/)")
                                .arg("- Qwt technical application widgets for Qt (http://qwt.sf.net)")
                                .arg("- Flood source code derived from fullSWOF2D (http://www.univ-orleans.fr/mapmo/soft/FullSWOF/)")
                                .arg("- Using openMP for parallel processing (https://www.openmp.org/)")
                                .arg("- Using GDAL for map handling (https://gdal.org/)")
                                .arg("- PCRaster lib map functions: http://pcraster.geo.uu.nl/")
-                               .arg("Details can be found at: http://lisem.sourceforge.net")
+                               .arg("Details can be found here: https://github.com/vjetten/openlisem")
                                .arg("This software is made available under GNU CPLv3.0")
                                .arg(VERSIONNR)
                                .arg(DATE)
