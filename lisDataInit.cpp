@@ -288,7 +288,7 @@ void TWorld::InitParameters(void)
     GW_flow = getvaluedouble("GW flow factor");
     GW_slope = getvaluedouble("GW slope factor");
     GW_lag = getvaluedouble("GW lag factor");
-   // GW_bypass = getvaluedouble("GW bypass factor");
+    GW_deep = getvaluedouble("GW deep percolation");
     GW_threshold = getvaluedouble("GW threshold factor");
     GW_initlevel = 0;//getvaluedouble("GW initial level");
 
@@ -1010,7 +1010,11 @@ void TWorld::InitChannel(void)
     cover(*ChannelSide, *LDD, 0);
     cover(*ChannelN, *LDD, 0);
 
+    ChannelNcul = NewMap(0);
+
     calcValue(*ChannelN, ChnCalibration, MUL);
+    copy(*ChannelNcul, *ChannelN);
+
     if (SwitchChannelInfil)
     {
         ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
@@ -1062,7 +1066,7 @@ void TWorld::InitChannel(void)
         //VolQb = NewMap(0);
         GWWH = NewMap(0.001);
         GWWHmax = NewMap(0);
-        //GWrec = NewMap(0);
+        GWdeep = NewMap(0);
         GWout = NewMap(0);
         GWbp = NewMap(0);
 
@@ -2895,7 +2899,8 @@ void TWorld::FindChannelAngles()
 //---------------------------------------------------------------------------
 void TWorld::InitImages()
 {
-    if(SwitchImage)
+    if(SwitchImage && QFileInfo(satImageFileName).exists())
+
     {
         DEBUG("Reading background satellite inage");
         cTRGBMap *image = readRasterImage(satImageFileName);

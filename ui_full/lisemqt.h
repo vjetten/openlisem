@@ -221,14 +221,10 @@ public:
     QList <QVector <double>> Ya;
     QList <QVector <double>> Xc;
     QList <QVector <double>> Yc;
-    QwtPlotCurve *river;
-    QwtPlotCurve *culvert;
-    QwtPlotCurve *obspoint;
-    QwtPlotCurve *outlet;
     QList<QwtPlotCurve*> rivers; // black river
     QList<QwtPlotCurve*> culverts;  //white culvert part in river
-    QList<QwtPlotCurve*> obspoints;
-    QList<QwtPlotCurve*> outlets;
+    QwtPlotCurve obspoints;
+    QwtPlotCurve outlets;
 
 
     double contourmin, contourmax;

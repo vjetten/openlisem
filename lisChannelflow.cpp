@@ -118,14 +118,20 @@ void TWorld::ChannelBaseflow(void)
         //m3:  GW_flow*ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx; //*porosity
        // GWout_ *= (1+Grad->Drc);
 
+
+
         //  GWout_ = GWout_ * wh/pore;
         // stop outflow when some minimum GW level, 2.4.2.10 in SWAT
         // decay function exp(-6 * GW WH) for smooth transition
 
         // ==== update GW level
         GWout_ = std::min(GWout_, GWVol_+GWrecharge);
+
+        GWdeep->Drc = 0;//GW_deep * _dt/(86400000)*CellArea_; //*qSqrt(GWWH->Drc)
+
         // cannot be more than there is
-        GWVol_ = GWVol_  + GWrecharge - GWout_; //m3
+        GWVol_ = GWVol_  + GWrecharge - GWout_ - GWdeep->Drc; //m3
+        GWVol_ = std::max(GWVol_, 0.0);
         //update GW volume
 
         GWout->Drc = GWout_;
@@ -251,14 +257,21 @@ void TWorld::ChannelFlow(void)
               //  if (sqrtgrad > MIN_SLOPE) {
                     //ChannelAlpha->Drc = std::pow(N/sqrtgrad * std::pow(Perim, 2.0/3.0), 0.6);
                     //ChannelQ->Drc = std::pow(Area/ChannelAlpha->Drc, 1.0/0.6);
-                    ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
 
+                    ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
                     ChannelQ_ = ChannelV_ * Area;
                     if (SwitchCulverts) {
-                        if (MaxQ > 0 && ChannelQ_ > MaxQ){
-                            ChannelN->Drc = ChannelQ_/MaxQ *ChannelN->Drc;
-                            ChannelV_ = MaxQ/Area;
-                            ChannelQ_ = MaxQ;
+                        if (MaxQ > 0 ) {
+                            ChannelNcul->Drc = (1.0+ChannelQ_/MaxQ) * ChannelN->Drc; //ChannelN->Drc;//
+                            ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/ChannelNcul->Drc);
+
+                            if (ChannelQ_ > MaxQ){
+                                ChannelV_ = MaxQ/Area;
+                                ChannelQ_ = MaxQ;
+                            }
+                            else {
+                                ChannelNcul->Drc  = ChannelN->Drc;
+                            }
                         }
                     }
                     ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
@@ -290,40 +303,35 @@ void TWorld::ChannelFlow(void)
             }}
 
         } else {
+            // default
             KinematicExplicit(crlinkedlddch_, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
         }
 
         // calc V and WH back from Qn (original width and depth)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-
-//            if (SwitchCulverts) {
-//                double MaxQ = ChannelMaxQ->Drc;
-//                if (MaxQ > 0 && ChannelQn->Drc > MaxQ)
-//                    ChannelQn->Drc = MaxQ;
-//            }
-
             double chqn = ChannelQn->Drc;
-
+           // ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelWaterVol->Drc/_dt+QinKW->Drc);
             ChannelWaterVol->Drc += (QinKW->Drc - chqn)*_dt;
+
+            // vol is previous + in - out
            // ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelWaterVol->Drc/_dt);
-          //  ChannelQ->Drc = chqn;
+          //  ChannelQ->Drc = chqn;  // NOT because needed in erosion!
             ChannelAlpha->Drc = chqn > 1e-6 ? (ChannelWaterVol->Drc/ChannelDX->Drc)/std::pow(chqn, 0.6) : 0.0;
         }}
         //water vol from mass balance, includes any errors
 
+        // get new WH and velocity
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
             // new channel WH, use adjusted channelWidth
-//            if (PointMap->Drc == 3) {
-//                qDebug() << ChannelWH->Drc  << ChannelQn->Drc;
-//            }
+
             double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
             double P = 2*ChannelWH->Drc+ChannelWidth->Drc;
 
             if (P > 0)
-                ChannelV->Drc = std::pow(ChannelArea/P,2/3)*sqrtGrad->Drc/ChannelN->Drc;
+                ChannelV->Drc = std::pow(ChannelArea/P,2/3)*sqrtGrad->Drc/ChannelNcul->Drc;
             else
                 ChannelV->Drc = 0;
 

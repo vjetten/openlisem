@@ -101,7 +101,7 @@ cTMap
 *GWVol,
 *GWWH,
 *GWWHmax,
-//*GWrec,
+*GWdeep,
 *GWout,
 *GWbp,
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
@@ -306,6 +306,7 @@ cTMap
 *ChannelV,                   //!<
 *ChannelU,                   //!<
 *ChannelN,                   //!<
+*ChannelNcul,                   //!<
 *ChannelWH,                  //!<
 *ChannelWHExtended,                  //!<
 *ChannelVolExtended,                  //!<

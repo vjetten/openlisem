@@ -191,7 +191,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("GW flow factor")==0)           GW_flow->setValue(valc);
         if (p1.compare("GW slope factor")==0)           GW_slope->setValue(valc);
         if (p1.compare("GW lag factor")==0)           GW_lag->setValue(valc);
-     //   if (p1.compare("GW bypass factor")==0)           GW_bypass->setValue(valc);
+        if (p1.compare("GW deep percolation")==0)           GW_deep->setValue(valc);
         if (p1.compare("GW threshold factor")==0)           GW_threshold->setValue(valc);
         if (p1.compare("GW initial level")==0)           GW_initlevel->setValue(valc);
 
@@ -515,7 +515,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Rainfall file")==0)  RainFileName = p;
 
         if (p1.compare("Rainfall Map Directory")==0) RainSatFileDir = CheckDir(p);
-        if (p1.compare("Rainfall maplist name")==0)             RainSatFileName = p;
+        if (p1.compare("Rainfall maplist name")==0)  RainSatFileName = p;
 
         if (p1.compare("ET Directory")==0) ETFileDir = CheckDir(p);
         if (p1.compare("ET file")==0) ETFileName = p;
@@ -663,6 +663,7 @@ void lisemqt::ParseInputData()
 
     on_checkIncludeChannel_clicked();
     on_checkMaterialDepth_clicked();
+
     //****====------====****//
 
     // get all map names, DEFmaps contains default map names and descriptions
@@ -798,7 +799,7 @@ void lisemqt::updateModelData()
         if (p1.compare("GW flow factor")==0)                 namelist[j].value = GW_flow->text();
         if (p1.compare("GW slope factor")==0)                namelist[j].value = GW_slope->text();
         if (p1.compare("GW lag factor")==0)                  namelist[j].value = GW_lag->text();
-   //     if (p1.compare("GW bypass factor")==0)               namelist[j].value = GW_bypass->text();
+        if (p1.compare("GW deep percolation")==0)            namelist[j].value = GW_deep->text();
         if (p1.compare("GW threshold factor")==0)            namelist[j].value = GW_threshold->text();
         if (p1.compare("GW initial level")==0)               namelist[j].value = GW_initlevel->text();
 

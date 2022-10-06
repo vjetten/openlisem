@@ -431,8 +431,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("GW slope factor");
     namelist[i].value = QString("0.2");
     namelist[i++].name = QString("GW lag factor");
-//   namelist[i].value = QString("0.0");
-  //  namelist[i++].name = QString("GW bypass factor");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("GW deep percolation");
 
     //###
     namelist[i++].name = QString("");

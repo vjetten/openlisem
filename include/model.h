@@ -436,7 +436,7 @@ public:
     double GW_flow;
     double GW_slope;
     double GW_lag;
-    double GW_bypass;
+    double GW_deep;
     double GW_threshold;
     double GW_initlevel;
 

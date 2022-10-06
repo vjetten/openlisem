@@ -697,9 +697,9 @@ void lisemqt::SetToolBar()
     toolBar->addAction(fontDecreaseAct);
 
     toolBar->addSeparator();
-//    resizeAct = new QAction(QIcon(":/2X/adjustsize.png"), "&Fit map to display", this);
-//    connect(resizeAct, SIGNAL(triggered()), this, SLOT(resizeMap()));
-//    toolBar->addAction(resizeAct);
+    resizeAct = new QAction(QIcon(":/2X/resetmap.png"), "&Fit map to display", this);
+    connect(resizeAct, SIGNAL(triggered()), this, SLOT(resizeMap()));
+    toolBar->addAction(resizeAct);
 
     showAllAct = new QAction(QIcon(":/2X/noscreen.png"), "&no output to screen", this);
     showAllAct->setCheckable(true);
@@ -1020,9 +1020,13 @@ void lisemqt::setMapDir()
                                              //QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks |
 //    path = QFileDialog::getOpenFileName(this,QString("Select maps directory"),
 //                                        pathin,"maps (*.map)");
-
-    if(!path.isEmpty())
+    if(!path.isEmpty()) {
+        if (path.count("/") > 0 && path.lastIndexOf("/") != path.count())
+            path = path + "/";
+        if (path.count("\\") > 0 && path.lastIndexOf("\\") != path.count())
+            path = path + "\\";
         E_MapDir->setText( path );
+    }
 }
 //--------------------------------------------------------------------
 void lisemqt::setWorkDir()
@@ -1053,8 +1057,13 @@ void lisemqt::setResultDir()
                                              pathin,
                                              QFileDialog::ShowDirsOnly
                                              | QFileDialog::DontResolveSymlinks);
-    if(!path.isEmpty())
+    if(!path.isEmpty()) {
+        if (path.count("/") > 0 && path.lastIndexOf("/") != path.count())
+            path = path + "/";
+        if (path.count("\\") > 0 && path.lastIndexOf("\\") != path.count())
+            path = path + "\\";
         E_ResultDir->setText( path );
+    }
 }
 
 //--------------------------------------------------------------------
@@ -1330,7 +1339,6 @@ void lisemqt::GetStorePath()
         }
     }
     E_runFileList->addItems(runfilelist);
-
 }
 //---------------------------------------------------------------------------
 void lisemqt::StorePath()
@@ -1624,7 +1632,7 @@ void lisemqt::resetTabFlow()
     GW_flow->setValue(1.0);
     GW_slope->setValue(1.0);
     GW_lag->setValue(0.2);
-  //  GW_bypass->setValue(0.0);
+    GW_deep->setValue(0.010);
     GW_threshold->setValue(0.2);
 }
 //--------------------------------------------------------------------
@@ -1849,16 +1857,22 @@ QString lisemqt::findValidDir(QString path, bool up)
     if (!QFileInfo(path).exists() || path.isEmpty())
         path = currentDir;
 
+    qDebug() << path;
+    if (path.indexOf("/",1) > 0)
+        path.replace("\\","/");
+    else
+        if (path.indexOf("\\",1) > 0)
+            path.replace("/","\\");
+    qDebug() << path;
+
     return (path);
 }
 //---------------------------------------------------------------
 void lisemqt::resizeMap()
 {
-      if (W && tabWidget_out->currentIndex() == 1) {
+      if (W && tabWidget_out->currentIndex() == 1)
+            changeSize();
 
-//          zoomer->zoom(0);
-//          MPlot->replot();
-      }
 }
 //---------------------------------------------------------------
 void lisemqt::fontSelect()
@@ -2073,7 +2087,9 @@ void lisemqt::on_toolButton_DischargeInName_clicked()
 QString lisemqt::getFileorDir(QString inputdir,QString title, QStringList filters, int doFile)
 {
     QFileDialog dialog;
+
     QString dirout = inputdir;
+
     if (doFile > 0) {
         dialog.setNameFilters(filters);
         dialog.setDirectory(QFileInfo(inputdir).absoluteDir());
@@ -2114,17 +2130,15 @@ void lisemqt::on_toolButton_rainsatName_clicked()
         RainSatFileDir = RainFileDir;
     if (!QFileInfo(RainSatFileDir).exists() || RainSatFileDir.isEmpty())
         RainSatFileDir = currentDir;
-  //  qDebug() << RainSatFileDir << RainSatFileName ;
+  //  qDebug() << RainSatFileDir << RainSatFileName << currentDir;
 
     QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
     QString sss = getFileorDir(RainSatFileDir,"Select rainfall map list table", filters, 2);
 
     RainSatFileDir = QFileInfo(sss).absolutePath()+"/";
     RainSatFileName = QFileInfo(sss).fileName(); //baseName();
-  //  qDebug() << RainSatFileDir << RainSatFileName ;
 
     E_rainsatName->setText(RainSatFileDir + RainSatFileName);
-    //RainFileDir = RainSatFileDir;
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_ETsatName_clicked()
@@ -2141,19 +2155,18 @@ void lisemqt::on_toolButton_ETsatName_clicked()
 
     ETSatFileDir = QFileInfo(sss).absolutePath()+"/";
     ETSatFileName = QFileInfo(sss).fileName(); //baseName();
-    E_ETsatName->setText(ETSatFileDir + ETSatFileName);
 
- //   ETFileDir = ETSatFileDir;
+    E_ETsatName->setText(ETSatFileDir + ETSatFileName);
 }
 
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_RainfallName_clicked()
 {
     if (!QFileInfo(RainFileDir).exists() || RainFileDir.isEmpty())
-        RainSatFileDir = currentDir;
+        RainFileDir = currentDir;
 
     QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
-    QString sss = getFileorDir(RainSatFileDir,"Select rainfall station table", filters, 2);
+    QString sss = getFileorDir(RainFileDir,"Select rainfall station table", filters, 2);
 
     RainFileDir = QFileInfo(sss).absolutePath()+"/";
     RainFileName = QFileInfo(sss).fileName(); //baseName();
@@ -2165,8 +2178,6 @@ void lisemqt::on_toolButton_RainfallName_clicked()
 
 void lisemqt::on_toolButton_ETName_clicked()
 {
-//    if (!QFileInfo(ETFileDir).exists() || ETFileDir.isEmpty())
-//        ETFileDir = RainFileDir;
     if (!QFileInfo(ETFileDir).exists() || ETFileDir.isEmpty())
         ETFileDir = currentDir;
 

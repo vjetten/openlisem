@@ -46,13 +46,13 @@ public:
 
         //layer 0 is dem, layer 1 is shade, layer 3 is thematic
         QwtPlotItemList list = plot()->itemList(QwtPlotItem::Rtti_PlotSpectrogram);
-        QwtPlotSpectrogram * sp2 = static_cast<QwtPlotSpectrogram *> (list.at(3));
+        QwtPlotSpectrogram * sp2 = static_cast<QwtPlotSpectrogram *> (list.at(6));
         if (sp2->data() == nullptr)
             return QwtText(txt);
 
         QwtPlotSpectrogram * sp0 = static_cast<QwtPlotSpectrogram *> (list.at(0));
 //        // elevation info
-        QwtPlotSpectrogram * sp3 = static_cast<QwtPlotSpectrogram *> (list.at(6));
+        QwtPlotSpectrogram * sp3 = static_cast<QwtPlotSpectrogram *> (list.at(7));
 //        // outlet info
 
         double z2 = sp2->data()->value(pos.x(), pos.y());
