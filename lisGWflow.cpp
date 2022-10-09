@@ -120,7 +120,7 @@ void TWorld::GroundwaterFlow(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
 
-            Qbin->Drc = 2 * GW_flow * ksat->Drc * _dx*GWWH->Drc; // 2 is form two sides into the channel in the middle
+            Qbin->Drc = 2 * GW_inflow * ksat->Drc * _dx*GWWH->Drc; // 2 is form two sides into the channel in the middle
 
             //Qbin->Drc = GWVol->Drc * ChannelWidth->Drc /_dx;
 
@@ -213,14 +213,14 @@ void TWorld::GWFlow2D(void)
             double v_y1 =  br1 ?vol->data[r-1][c] : V;
             double v_y2 =  br2 ?vol->data[r+1][c] : V;
 
-//            double dh_x1 = (h_x1 + z_x1) - (H+Z);
-//            double dh_x2 = (h_x2 + z_x2) - (H+Z);
-//            double dh_y1 = (h_y1 + z_y1) - (H+Z);
-//            double dh_y2 = (h_y2 + z_y2) - (H+Z);
-            double dh_x1 = (z_x1) - (Z);
-            double dh_x2 = (z_x2) - (Z);
-            double dh_y1 = (z_y1) - (Z);
-            double dh_y2 = (z_y2) - (Z);
+            double dh_x1 = (h_x1 + z_x1) - (H+Z);
+            double dh_x2 = (H+Z) - (h_x2 + z_x2);
+            double dh_y1 = (h_y1 + z_y1) - (H+Z);
+            double dh_y2 = (H+Z) - (h_y2 + z_y2);
+//            dh_x1 = 0.5*((z_x1 - (Z))+dh_x1);
+//            dh_x2 = 0.5*((z_x2 - (Z))+dh_y1);
+//            dh_y1 = 0.5*((z_y1 - (Z))+dh_x2);
+//            dh_y2 = 0.5*((z_y2 - (Z))+dh_y2);
             double df_x1 = GW_flow * ksat->Drc * (h_x1 * _dx) * dh_x1/_dx * pore->Drc;  // ksat has already dt
             double df_y1 = GW_flow * ksat->Drc * (h_y1 * _dx) * dh_y1/_dx * pore->Drc;
             double df_x2 = GW_flow * ksat->Drc * (h_x2 * _dx) * dh_x2/_dx * pore->Drc;

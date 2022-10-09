@@ -341,7 +341,7 @@ void TWorld::doETa()
                 double thetar = ThetaR1->Drc;
                 double Lw_ = Lw->Drc;
                 double theta_e = (theta-thetar)/(pore-thetar);
-                double f = 1.0/(1.0+qPow(theta_e/0.5,6.0));
+                double f = 1.0/(1.0+qPow(theta_e/0.4,8.0));
                 //double ETa_soil = theta_e*ETp_;
                 double ETa_soil = (1.0-f)*etanet*Cover_ + theta_e*ETp_*(1-Cover_);   //Transpiration + Evaporation
 

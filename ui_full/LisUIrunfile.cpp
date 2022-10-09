@@ -190,7 +190,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("GW flow explicit")==0)       checkGWflowexplicit->setChecked(check);
         if (p1.compare("GW recharge factor")==0)           GW_recharge->setValue(valc);
         if (p1.compare("GW flow factor")==0)           GW_flow->setValue(valc);
-        if (p1.compare("GW river inflow factor")==0)           GW_flow->setValue(valc);
+        if (p1.compare("GW river inflow factor")==0)           GW_inflow->setValue(valc);
         if (p1.compare("GW slope factor")==0)           GW_slope->setValue(valc);
      //   if (p1.compare("GW lag factor")==0)           GW_lag->setValue(valc);
         if (p1.compare("GW deep percolation")==0)           GW_deep->setValue(valc);
@@ -800,7 +800,7 @@ void lisemqt::updateModelData()
         if (p1.compare("GW flow explicit")==0)               namelist[j].value.setNum((int)checkGWflowexplicit->isChecked());
         if (p1.compare("GW recharge factor")==0)             namelist[j].value = GW_recharge->text();
         if (p1.compare("GW flow factor")==0)                 namelist[j].value = GW_flow->text();
-        if (p1.compare("GW river inflow factor")==0)                 namelist[j].value = GW_flow->text();
+        if (p1.compare("GW river inflow factor")==0)                 namelist[j].value = GW_inflow->text();
         if (p1.compare("GW slope factor")==0)                namelist[j].value = GW_slope->text();
    //     if (p1.compare("GW lag factor")==0)                  namelist[j].value = GW_lag->text();
         if (p1.compare("GW deep percolation")==0)            namelist[j].value = GW_deep->text();

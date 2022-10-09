@@ -425,14 +425,16 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("GW recharge factor");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW flow factor");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("GW river inflow factor");
     namelist[i].value = QString("0.2");
     namelist[i++].name = QString("GW threshold factor");
-    namelist[i].value = QString("0.0");
-    namelist[i++].name = QString("GW initial level");
+//    namelist[i].value = QString("0.0");
+//    namelist[i++].name = QString("GW initial level");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW slope factor");
-    namelist[i].value = QString("0.2");
-    namelist[i++].name = QString("GW lag factor");
+//    namelist[i].value = QString("0.2");
+//    namelist[i++].name = QString("GW lag factor");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW deep percolation");
 

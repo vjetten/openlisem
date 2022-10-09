@@ -288,10 +288,10 @@ void TWorld::InitParameters(void)
     GW_flow = getvaluedouble("GW flow factor");
     GW_inflow = getvaluedouble("GW river inflow factor");
     GW_slope = getvaluedouble("GW slope factor");
-    GW_lag = getvaluedouble("GW lag factor");
+   // GW_lag = getvaluedouble("GW lag factor");
     GW_deep = getvaluedouble("GW deep percolation");
     GW_threshold = getvaluedouble("GW threshold factor");
-    GW_initlevel = 0;//getvaluedouble("GW initial level");
+  //  GW_initlevel = 0;//getvaluedouble("GW initial level");
 
     // get calibration parameters
     gsizeCalibrationD50 = getvaluedouble("Grain Size calibration D50");
