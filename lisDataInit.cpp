@@ -670,8 +670,8 @@ void TWorld::InitSoilInput(void)
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
-        SoilDepth1init = NewMap(0);
-        copy(*SoilDepth1init, *SoilDepth1);
+        //SoilDepth1init = NewMap(0);
+        //copy(*SoilDepth1init, *SoilDepth1);
 
         ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
         ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
@@ -715,8 +715,8 @@ void TWorld::InitSoilInput(void)
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
-            SoilDepth2init = NewMap(0);
-            copy(*SoilDepth2init, *SoilDepth2);
+            //SoilDepth2init = NewMap(0);
+            //copy(*SoilDepth2init, *SoilDepth2);
 
             FOR_ROW_COL_MV
             {

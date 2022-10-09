@@ -25,31 +25,24 @@
 
 #include "model.h"
 
-// GW recharge
-void TWorld::GroundwaterRecharge(void)
-{
-
-}
 
 // results in a new Qbin (Qbase in for channel flow)
 void TWorld::GroundwaterFlow(void)
 {
-    GroundwaterRecharge();
-
     cTMap *pore;
     cTMap *ksat;
-    cTMap *SoilDepthinit;
-    cTMap *SoilDepth;
+//    cTMap *SoilDepthinit;
+//    cTMap *SoilDepth;
     if (SwitchTwoLayer) {
         pore = ThetaS2;
         ksat = Ksat2;
-        SoilDepthinit = SoilDepth2init;
-        SoilDepth = SoilDepth2;
+    //    SoilDepthinit = SoilDepth2init;
+     //   SoilDepth = SoilDepth2;
     } else {
         pore = Poreeff;
         ksat = Ksateff;
-        SoilDepthinit = SoilDepth1init;
-        SoilDepth = SoilDepth1;
+     //   SoilDepthinit = SoilDepth1init;
+     //   SoilDepth = SoilDepth1;
     }
 
     if (!SwitchExplicitGWflow) {
@@ -85,25 +78,27 @@ void TWorld::GroundwaterFlow(void)
             // cannot be more than there is
             GWVol_ = GWVol_ + GWrecharge - GWout_ - GWdeep_; //m3
             GWVol_ = std::max(GWVol_, 0.0);
-            //update GW volume
+            double sd = SwitchTwoLayer ? (SoilDepth2->Drc-SoilDepth1->Drc)-0.1 : SoilDepth1->Drc-0.1;
+            GWVol_ = std::min(GWVol_, sd*CellArea_);
 
+            GWWH->Drc = GWVol->Drc/CellArea_/pore->Drc;
+            //update GW volume
             GWout->Drc = GWout_;
             GWVol->Drc = GWVol_;
-            GWWH->Drc = GWVol_/CellArea_/pore->Drc;  //for display
 
             Qbin->Drc = 0;
 
             // change soildepth2 with GW changes
-            if (GWWH->Drc > 0) {
-                if (GWWH->Drc > 0) {
-                    double dh = std::max(0.1,SoilDepthinit->Drc - GWWH->Drc);
-                    SoilDepth->Drc = dh;
-                    GWWH->Drc = SoilDepthinit->Drc - dh;
-                    GWVol->Drc = pore->Drc*GWWH->Drc * CellArea->Drc;
-                }
+//            if (GWWH->Drc > 0) {
+//                if (GWWH->Drc > 0) {
+//                    double dh = std::max(0.1,SoilDepthinit->Drc - GWWH->Drc);
+//                    SoilDepth->Drc = dh;
+//                    GWWH->Drc = SoilDepthinit->Drc - dh;
+//                    GWVol->Drc = pore->Drc*GWWH->Drc * CellArea->Drc;
+//                }
 
-                GWVol->Drc = pore->Drc*GWWH->Drc * CellArea_;
-            }
+//                GWVol->Drc = pore->Drc*GWWH->Drc * CellArea_;
+//            }
             GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
 
         }}
@@ -199,7 +194,7 @@ void TWorld::GWFlow2D(void)
 {
     cTMap *pore;
     cTMap *ksat;
-    cTMap *SoilDepthinit;
+//    cTMap *SoilDepthinit;
     cTMap *SoilDepth;
     cTMap *z = DEM;
     cTMap *h = GWWH;
@@ -207,12 +202,12 @@ void TWorld::GWFlow2D(void)
     if (SwitchTwoLayer) {
         pore = ThetaS2;
         ksat = Ksat2;
-        SoilDepthinit = SoilDepth2init;
+//        SoilDepthinit = SoilDepth2init;
         SoilDepth = SoilDepth2;
     } else {
         pore = Poreeff;
         ksat = Ksateff;
-        SoilDepthinit = SoilDepth1init;
+//        SoilDepthinit = SoilDepth1init;
         SoilDepth = SoilDepth1;
     }
 
@@ -223,7 +218,7 @@ void TWorld::GWFlow2D(void)
         Perc->Drc = cell_Percolation(r, c, GW_recharge); // in m
         GWrecharge->Drc = Perc->Drc * CellArea->Drc; // m3
 
-        GWVol->Drc += GWrecharge->Drc;
+        GWVol->Drc += GWrecharge->Drc;// - GWdeep->Drc;
         GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
         GWout->Drc = 0;
         tma->Drc = 0;
@@ -304,17 +299,19 @@ void TWorld::GWFlow2D(void)
         double CellArea_ = CellArea->Drc;
 
         //update GW volume
+        double sd = SwitchTwoLayer ? (SoilDepth2->Drc-SoilDepth1->Drc)-0.1 : SoilDepth1->Drc-0.1;
         GWVol->Drc = std::max(GWVol->Drc + GWout->Drc,0.0);
+        GWVol->Drc = std::min(GWVol->Drc + GWout->Drc, sd*CellArea_);
 
         GWWH->Drc = GWVol->Drc/CellArea_/pore->Drc;
 
-        // change soildepth2 with GW changes
-        if (GWWH->Drc > 0) {
-            double dh = std::max(0.1,SoilDepthinit->Drc - GWWH->Drc);
-            SoilDepth->Drc = dh;
-            GWWH->Drc = SoilDepthinit->Drc - dh;
-            GWVol->Drc = pore->Drc*GWWH->Drc * CellArea_;
-        }
+//        // change soildepth2 with GW changes
+//        if (GWWH->Drc > 0) {
+//            double dh = std::max(0.1,SoilDepthinit->Drc - GWWH->Drc);
+//            SoilDepth->Drc = dh;
+//            GWWH->Drc = SoilDepthinit->Drc - dh;
+//            GWVol->Drc = pore->Drc*GWWH->Drc * CellArea_;
+//        }
         GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
     }}
 

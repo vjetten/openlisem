@@ -246,7 +246,7 @@ cTMap
 *ThetaR1,
 *Ksat1,                      //!< saturated hydraulic conductivity soil layer 1 (input is in mm/h) [m/s]
 *SoilDepth1,                 //!< depth to end soil layer 1 (input is in mm) [m]
-*SoilDepth1init,                 //!< depth to end soil layer 1 (input is in mm) [m]
+//*SoilDepth1init,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *Lw,
 *Soilwater,                  //!< actual soil water content [-]
 *ThetaS2,                    //!< porosity soil layer 2 [-]
@@ -256,7 +256,7 @@ cTMap
 *Psi2,                       //!< intial suction head wetting front soil layer 2 (input map is in cm) [m]
 *Ksat2,                      //!< saturated hydraulic conductivity soil layer 2 (input is in mm/h) [m/s]
 *SoilDepth2,                 //!< depth to end soil layer 2 (input is in mm) [m]
-*SoilDepth2init,                 //!< depth to end soil layer 2 (input is in mm) [m]
+//*SoilDepth2init,                 //!< depth to end soil layer 2 (input is in mm) [m]
 *Soilwater2,                  //!< actual soil water content layer 2 [-]
 *KsatCrust,                  //!< saturated hydraulic conductivity crusted soil surface (input is in mm/h) [m/s]
 *PoreCrust,                //!< saturated hydraulic conductivity compacted soil surface (input is in mm/h) [m/s]
