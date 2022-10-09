@@ -13,3 +13,6 @@ this file is a list of changes per major commit
 - on_toolButton_RainfallName_clicked() pointed to rainsatfile dir instead of rainfiledir
 221006 - v6.873
 - outlets and obspoints and drawing of rivers fixed now, no more sigdev
+221009 - branch lisemgw1
+- GW flow with upstream attempt
+- changed threshold from exp(-6wh) to exp(-threshold*wh)

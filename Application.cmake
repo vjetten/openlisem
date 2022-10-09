@@ -106,6 +106,7 @@ SET(APP_SOURCES
     lisExtendedChannel.cpp
     lisFlowBarriers.cpp
     lisEvaporation.cpp
+    lisGWflow.cpp
     lisInfiltration.cpp
     lisInterception.cpp
     lisKinematic.cpp

@@ -1067,6 +1067,7 @@ void TWorld::InitChannel(void)
         GWWH = NewMap(0.001);
         GWWHmax = NewMap(0);
         GWdeep = NewMap(0);
+        GWrecharge = NewMap(0);
         GWout = NewMap(0);
         GWbp = NewMap(0);
 

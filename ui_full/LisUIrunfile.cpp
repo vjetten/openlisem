@@ -187,6 +187,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
         if (p1.compare("Include stationary baseflow")==0)       checkStationaryBaseflow->setChecked(check);
       //  if (p1.compare("Adjust channel crosssection")==0)     checkChannelAdjustCHW->setChecked(check);
+        if (p1.compare("GW flow explicit")==0)       checkGWflowexplicit->setChecked(check);
         if (p1.compare("GW recharge factor")==0)           GW_recharge->setValue(valc);
         if (p1.compare("GW flow factor")==0)           GW_flow->setValue(valc);
         if (p1.compare("GW slope factor")==0)           GW_slope->setValue(valc);
@@ -795,6 +796,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkChannelInflow->isChecked());
         // groundwater
+        if (p1.compare("GW flow explicit")==0)               namelist[j].value.setNum((int)checkGWflowexplicit->isChecked());
         if (p1.compare("GW recharge factor")==0)             namelist[j].value = GW_recharge->text();
         if (p1.compare("GW flow factor")==0)                 namelist[j].value = GW_flow->text();
         if (p1.compare("GW slope factor")==0)                namelist[j].value = GW_slope->text();

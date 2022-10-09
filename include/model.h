@@ -379,7 +379,7 @@ public:
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle,
-    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV;
+    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchExplicitGWflow;
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
@@ -917,6 +917,10 @@ public:
     void ChannelSedimentFlow();
     void ChannelFlowandErosion();
 
+    void GroundwaterRecharge();
+    void GroundwaterFlow();
+    void GWFlow2D();
+
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
     void ToChannel();//int r, int c);
@@ -974,7 +978,8 @@ public:
     void KinematicExplicit(QVector<LDD_COORIN> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
     void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
     void AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
-    //LDD_COOR *_crlinked_
+    void UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
+
     QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
 
     // kinematic 2D

@@ -31,11 +31,9 @@ functions: \n
 - void TWorld::ChannelFlow(void) calculate channelflow, ChannelDepth, do kinematic wave \n
 */
 
-#include <algorithm>
+//#include <algorithm>
 #include "model.h"
-#include "operation.h"
-
-#define cell(r,c,a,b,e,d) qDebug()<<a->data[r][c]<<b->data[r][c]<<e->data[r][c]<<d->data[r][c]
+//#include "operation.h"
 
 //---------------------------------------------------------------------------
 void TWorld::ChannelFlowandErosion()
@@ -75,104 +73,21 @@ void TWorld::ChannelBaseflow(void)
         }
     }
 
-    // GW recharge and GW outflow
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        double CellArea_ = CellArea->Drc;
+  //  GroundwaterFlow();
+    GWFlow2D();
 
-        //=== GW recharge
-        Perc->Drc = cell_Percolation(r, c, GW_recharge); // in m
-        double GWrecharge = Perc->Drc * CellArea_; // m3
-        // GW recharge same principle as percolation, in m3
-
-         //=== bypass flow
-        //obsolete
-//        double bpflow = 0;
-//        if (GW_bypass > 0 && Lw->Drc > GW_bypass && Lw->Drc < SoilDepth1->Drc) {
-//            bpflow = Lw->Drc * GW_bypass * (Poreeff->Drc-Thetaeff->Drc);
-//            Lw->Drc *= (1-GW_bypass);
-//        }
-//        if (GW_bypass > 0 && Lw->Drc > SoilDepth1->Drc+GW_bypass) {
-//            double dL = std::min(SoilDepth1->Drc, Lw->Drc * GW_bypass);
-//            bpflow = dL * (ThetaS2->Drc-ThetaI2->Drc);
-//            Lw->Drc -= dL;
-//        }
-//        GWbp->Drc = bpflow*CellArea_;
-
-
-        //=== lateral GW outflow
-        // ksat is already in m per timestep
-        double pore, ksat;
-        if (SwitchTwoLayer) {
-            pore = ThetaS2->Drc;
-            ksat = Ksat2->Drc;
-        } else {
-            pore = Poreeff->Drc;
-            ksat = Ksateff->Drc;
-        }
-
-        double GWVol_ = GWVol->Drc;//outflow m3
-        double wh = GWVol_/CellArea_/pore;
-        double GWout_ = GW_flow * CellArea_ * ksat * BaseflowL->Drc; // m3 volume out from every cell
-        GWout_ = wh > GW_threshold ?  GWout_ * (wh - GW_threshold)*pore * (1-exp(-6*wh)) : 0.0;
-        //m3:  GW_flow*ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx; //*porosity
-       // GWout_ *= (1+Grad->Drc);
-
-
-
-        //  GWout_ = GWout_ * wh/pore;
-        // stop outflow when some minimum GW level, 2.4.2.10 in SWAT
-        // decay function exp(-6 * GW WH) for smooth transition
-
-        // ==== update GW level
-        GWout_ = std::min(GWout_, GWVol_+GWrecharge);
-
-        GWdeep->Drc = 0;//GW_deep * _dt/(86400000)*CellArea_; //*qSqrt(GWWH->Drc)
-
-        // cannot be more than there is
-        GWVol_ = GWVol_  + GWrecharge - GWout_ - GWdeep->Drc; //m3
-        GWVol_ = std::max(GWVol_, 0.0);
-        //update GW volume
-
-        GWout->Drc = GWout_;
-        GWVol->Drc = GWVol_;
-        GWWH->Drc = GWVol_/CellArea_/pore;  //for display
-
-        tma->Drc = ChannelWidth->Drc > 0 ? Qbin->Drc : 0;// prev timestep Qbin
-
-        Qbin->Drc = 0;
-
-        // change soildepth2 with GW changes
-        if (GWWH->Drc > 0) {
-            if (SwitchTwoLayer) {
-                double dh = std::max(0.1,SoilDepth2init->Drc - GWWH->Drc);
-                SoilDepth2->Drc = dh;
-                GWWH->Drc = SoilDepth2init->Drc - dh;
-            } else {
-                double dh = std::max(0.1,SoilDepth1init->Drc - GWWH->Drc);
-                SoilDepth1->Drc = dh;
-                GWWH->Drc = SoilDepth1init->Drc - dh;
-            }
-            GWVol->Drc = pore*GWWH->Drc * CellArea_;
-        }
-        GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
-
-    }}
- //   report(*GWWHmax,"gwmax.map");
-//report(*GWWH,"gwwh");
-    // new qbin
-    AccufluxGW(crlinkedlddbase_, GWout, Qbin, ChannelWidth);
-    // LDDbase, Qin, Qout, chanwidth used as flag, move the gw flow to the channel,
-    // Qbin is inflow to the channel from the surrounding cells in m3 per timestep
-
-    double factor = exp(-GW_lag);
+   //double factor = exp(-GW_lag);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        Qbin->Drc *= ChannelWidth->Drc/_dx;
+        Qbase->Drc = Qbin->Drc*ChannelWidth->Drc/_dx; //Qbin->Drc*(1-factor) + tma->Drc*factor;  //m3 added per timestep, for MB
         // do this or not? for very small channel a lot of water is added but what haoppens to the rest
-        Qbase->Drc = Qbin->Drc*(1-factor) + tma->Drc*factor;  //m3 added per timestep, for MB
-        ChannelWaterVol->Drc += Qbin->Drc*(1-factor) + tma->Drc*factor;
+        ChannelWaterVol->Drc += Qbase->Drc;//*(1-factor) + tma->Drc*factor;
         // flow according to SWAT 2009, page 174 manual, eq 2.4.2.8
+
+      //  GWVol->Drc = std::max(0.0 ,GWVol->Drc - Qbase->Drc);
+      //  GWWH->Drc = GWVol->Drc/CellArea->Drc/ThetaS2->Drc;
+
+        // mix with baseflow previous timestep does not do anything for 10 min timesteps
 
         if (SwitchChannelBaseflowStationary)
             ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;

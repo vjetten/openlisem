@@ -207,6 +207,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Adjust channel crosssection")==0)       SwitchChannelAdjustCHW  = iii == 1;
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
         if (p1.compare("Include channel inflow")==0)            SwitchChannelInflow  = iii == 1;
+        if (p1.compare("GW flow explicit")==0)                  SwitchExplicitGWflow  = iii == 1;
 
       //  if (p1.compare("Variable Timestep")==0)                 SwitchVariableTimestep = iii == 1;
         if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
@@ -232,6 +233,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use 2 phase flow")==0)                  SwitchUse2Phase = iii;
         if (p1.compare("Include River diffusion")==0)           SwitchIncludeRiverDiffusion = iii == 1;
         if (p1.compare("Include diffusion")==0)                 SwitchIncludeDiffusion = iii == 1;
+
 //        if (p1.compare("Use grain size distribution")==0)       SwitchMulticlass = iii == 1;
 //        if (p1.compare("Estimate grain size distribution")==0)  SwitchEstimateGrainSizeDistribution = iii == 1;
 //        if (p1.compare("Read grain distribution maps")==0)      SwitchReadGrainSizeDistribution    = iii == 1;
