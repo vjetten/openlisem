@@ -54,6 +54,8 @@ void TWorld::GroundwaterFlow(void)
 
     if (!SwitchExplicitGWflow) {
 
+        // SWAT method, no flow but ditrect contribution to baseflow from perpendicular network
+
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             double CellArea_ = CellArea->Drc;
@@ -105,15 +107,44 @@ void TWorld::GroundwaterFlow(void)
             GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
 
         }}
-    //   report(*GWWHmax,"gwmax.map");
-    //   report(*GWWH,"gwwh");
 
         AccufluxGW(crlinkedlddbase_, GWout, Qbin, ChannelWidth);
         // LDDbase, Qin, Qout, chanwidth used as flag, move the gw flow to the channel,
         // Qbin is inflow to the channel from the surrounding cells in m3 per timestep
 
+        //double factor = exp(-GW_lag);
+         #pragma omp parallel for num_threads(userCores)
+         FOR_ROW_COL_MV_CHL {
+             Qbase->Drc = Qbin->Drc * ChannelWidth->Drc/_dx;//m3 added per timestep, for MB
+             // do this or not? for very small channel a lot of water is added but what haoppens to the rest
+             ChannelWaterVol->Drc += Qbase->Drc;
+             // flow according to SWAT 2009, page 174 manual, eq 2.4.2.8
+
+             GWVol->Drc -= Qbase->Drc;
+             GWWH->Drc = GWVol->Drc/CellArea->Drc/ThetaS2->Drc;
+         }}
+
     } else {
 
+        // 2D eplicit flow method based on H+Z differences
+
+        GWFlow2D();
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+
+            Qbin->Drc = 2 * ksat->Drc * _dx*GWWH->Drc; // 2 is form two sides into the channel in the middle
+
+            Qbase->Drc = Qbin->Drc;//m3 added per timestep, for MB
+            // do this or not? for very small channel a lot of water is added but what haoppens to the rest
+            ChannelWaterVol->Drc += Qbase->Drc;
+
+            GWVol->Drc -= Qbin->Drc;
+            GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
+        }}
+
+
+/* upstream ovvver baseLDD, fdoes not work very well
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             double CellArea_ = CellArea->Drc;
@@ -128,7 +159,7 @@ void TWorld::GroundwaterFlow(void)
 
             double GWVol_ = GWVol->Drc;//outflow m3
             double wh = GWVol_/CellArea_/pore->Drc;
-            double GWout_ = 10* GW_flow * _dx * wh * ksat->Drc * (1+Grad->Drc + 0.01); //* pore->Drc
+            double GWout_ = GW_flow * _dx * wh * ksat->Drc * (1+Grad->Drc + 0.01); //* pore->Drc
             // m3 volume out from every cell, grad is the sinus is seen as the pressure
             GWout_ = wh > GW_threshold ?  GWout_ * (wh - GW_threshold) * (1-exp(-GW_threshold*wh)) : 0.0;
             // apply a smooth threshold
@@ -160,7 +191,7 @@ void TWorld::GroundwaterFlow(void)
 
         }}
 
-
+*/
     }
 }
 
@@ -192,17 +223,31 @@ void TWorld::GWFlow2D(void)
         Perc->Drc = cell_Percolation(r, c, GW_recharge); // in m
         GWrecharge->Drc = Perc->Drc * CellArea->Drc; // m3
 
-
         GWVol->Drc += GWrecharge->Drc;
         GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
         GWout->Drc = 0;
+        tma->Drc = 0;
     }}
-report(*GWWH,"gwwh");
-
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(GWWH->Drc > 0.1) {
+        if (GWWH->Drc > GW_threshold) {
+            tma->Drc = 1;
+            if (c > 0 && !MV(r,c-1)        ) tma->data[r][c-1] = 1;
+            if (c < _nrCols-1 && !MV(r,c+1)) tma->data[r][c+1] = 1;
+            if (r > 0 && !MV(r-1,c)        ) tma->data[r-1][c] = 1;
+            if (r < _nrRows-1 && !MV(r+1,c)) tma->data[r+1][c] = 1;
+
+            if (c > 0 && r > 0 && !MV(r-1,c-1)                ) tma->data[r-1][c-1]=1;
+            if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) tma->data[r+1][c+1]=1;
+            if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) tma->data[r-1][c+1]=1;
+            if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) tma->data[r+1][c-1]=1;
+        }
+    }}
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if(tma->Drc > 0) {
             double H = GWWH->Drc;
             double Z = z->Drc;
             double V = vol->Drc;
@@ -232,10 +277,10 @@ report(*GWWH,"gwwh");
             double dh_y1 = (h_y1 + z_y1) - (H+Z);
             double dh_y2 = (h_y2 + z_y2) - (H+Z);
 
-            double df_x1 = GW_flow * ksat->Drc * (h_x1 * _dx) * _dt * dh_x1/_dx * pore->Drc;
-            double df_y1 = GW_flow * ksat->Drc * (h_y1 * _dx) * _dt * dh_y1/_dx * pore->Drc;
-            double df_x2 = GW_flow * ksat->Drc * (h_x2 * _dx) * _dt * dh_x2/_dx * pore->Drc;
-            double df_y2 = GW_flow * ksat->Drc * (h_y2 * _dx) * _dt * dh_y2/_dx * pore->Drc;
+            double df_x1 = GW_flow * ksat->Drc * (h_x1 * _dx) * dh_x1/_dx * pore->Drc;  // ksat has already dt
+            double df_y1 = GW_flow * ksat->Drc * (h_y1 * _dx) * dh_y1/_dx * pore->Drc;
+            double df_x2 = GW_flow * ksat->Drc * (h_x2 * _dx) * dh_x2/_dx * pore->Drc;
+            double df_y2 = GW_flow * ksat->Drc * (h_y2 * _dx) * dh_y2/_dx * pore->Drc;
 
             double sign_x1 = df_x1 < 0 ? -1.0 : 1.0;
             double sign_y1 = df_y1 < 0 ? -1.0 : 1.0;
@@ -253,8 +298,8 @@ report(*GWWH,"gwwh");
 
         }}
     }
-report(*GWout,"gwout");
-//    #pragma omp parallel for num_threads(userCores)
+
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double CellArea_ = CellArea->Drc;
 
@@ -264,15 +309,13 @@ report(*GWout,"gwout");
         GWWH->Drc = GWVol->Drc/CellArea_/pore->Drc;
 
         // change soildepth2 with GW changes
-//        if (GWWH->Drc > 0) {
-//            double dh = std::max(0.1,SoilDepthinit->Drc - GWWH->Drc);
-//            SoilDepth->Drc = dh;
-//            GWWH->Drc = SoilDepthinit->Drc - dh;
-//            GWVol->Drc = pore->Drc*GWWH->Drc * CellArea_;
-//        }
+        if (GWWH->Drc > 0) {
+            double dh = std::max(0.1,SoilDepthinit->Drc - GWWH->Drc);
+            SoilDepth->Drc = dh;
+            GWWH->Drc = SoilDepthinit->Drc - dh;
+            GWVol->Drc = pore->Drc*GWWH->Drc * CellArea_;
+        }
         GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
-        Qbin->Drc = GWout->Drc;
-
     }}
 
 }

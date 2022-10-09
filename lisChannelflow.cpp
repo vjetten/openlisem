@@ -63,6 +63,7 @@ void TWorld::ChannelBaseflow(void)
     // add a stationary part
     if(SwitchChannelBaseflowStationary)
     {
+        // first time
         if(!addedbaseflow) {
            #pragma omp parallel for num_threads(userCores)
            FOR_ROW_COL_MV_CHL {
@@ -71,27 +72,16 @@ void TWorld::ChannelBaseflow(void)
 
            addedbaseflow = true;
         }
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
+        }}
     }
 
-  //  GroundwaterFlow();
-    GWFlow2D();
-
-   //double factor = exp(-GW_lag);
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
-        Qbase->Drc = Qbin->Drc*ChannelWidth->Drc/_dx; //Qbin->Drc*(1-factor) + tma->Drc*factor;  //m3 added per timestep, for MB
-        // do this or not? for very small channel a lot of water is added but what haoppens to the rest
-        ChannelWaterVol->Drc += Qbase->Drc;//*(1-factor) + tma->Drc*factor;
-        // flow according to SWAT 2009, page 174 manual, eq 2.4.2.8
-
-      //  GWVol->Drc = std::max(0.0 ,GWVol->Drc - Qbase->Drc);
-      //  GWWH->Drc = GWVol->Drc/CellArea->Drc/ThetaS2->Drc;
-
-        // mix with baseflow previous timestep does not do anything for 10 min timesteps
-
-        if (SwitchChannelBaseflowStationary)
-            ChannelWaterVol->Drc += BaseFlowInflow->Drc * _dt;
-    }}
+    if (SwitchChannelBaseflow)
+        GroundwaterFlow();
+    // move groundwater and add baseflow to channel
 
 }
 //---------------------------------------------------------------------------
