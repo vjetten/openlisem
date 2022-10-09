@@ -31,18 +31,18 @@ void TWorld::GroundwaterFlow(void)
 {
     cTMap *pore;
     cTMap *ksat;
-//    cTMap *SoilDepthinit;
-//    cTMap *SoilDepth;
+    cTMap *SoilDepthinit;
+    cTMap *SoilDepth;
     if (SwitchTwoLayer) {
         pore = ThetaS2;
         ksat = Ksat2;
-    //    SoilDepthinit = SoilDepth2init;
-     //   SoilDepth = SoilDepth2;
+        SoilDepthinit = SoilDepth2init;
+        SoilDepth = SoilDepth2;
     } else {
         pore = Poreeff;
         ksat = Ksateff;
-     //   SoilDepthinit = SoilDepth1init;
-     //   SoilDepth = SoilDepth1;
+        SoilDepthinit = SoilDepth1init;
+        SoilDepth = SoilDepth1;
     }
 
     if (!SwitchExplicitGWflow) {
@@ -88,17 +88,9 @@ void TWorld::GroundwaterFlow(void)
 
             Qbin->Drc = 0;
 
-            // change soildepth2 with GW changes
-//            if (GWWH->Drc > 0) {
-//                if (GWWH->Drc > 0) {
-//                    double dh = std::max(0.1,SoilDepthinit->Drc - GWWH->Drc);
-//                    SoilDepth->Drc = dh;
-//                    GWWH->Drc = SoilDepthinit->Drc - dh;
-//                    GWVol->Drc = pore->Drc*GWWH->Drc * CellArea->Drc;
-//                }
-
-//                GWVol->Drc = pore->Drc*GWWH->Drc * CellArea_;
-//            }
+            if (GWWH->Drc > 0) {
+                SoilDepth->Drc = SoilDepthinit->Drc - GWWH->Drc;
+            }
             GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
 
         }}
@@ -128,7 +120,9 @@ void TWorld::GroundwaterFlow(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
 
-            Qbin->Drc = 2 * ksat->Drc * _dx*GWWH->Drc; // 2 is form two sides into the channel in the middle
+            Qbin->Drc = 2 * GW_flow * ksat->Drc * _dx*GWWH->Drc; // 2 is form two sides into the channel in the middle
+
+            //Qbin->Drc = GWVol->Drc * ChannelWidth->Drc /_dx;
 
             Qbase->Drc = Qbin->Drc;//m3 added per timestep, for MB
             // do this or not? for very small channel a lot of water is added but what haoppens to the rest
@@ -139,54 +133,6 @@ void TWorld::GroundwaterFlow(void)
         }}
 
 
-/* upstream ovvver baseLDD, fdoes not work very well
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            double CellArea_ = CellArea->Drc;
-
-            //=== GW recharge
-            Perc->Drc = cell_Percolation(r, c, GW_recharge); // in m
-            GWrecharge->Drc = Perc->Drc * CellArea_; // m3
-            // GW recharge same principle as percolation, in m3        //=== lateral GW outflow
-
-            GWdeep->Drc = 0;//GW_deep * _dt/(86400000)*CellArea_; //*qSqrt(GWWH->Drc)
-            // percolation from GW to deeper level, to cause decline in dry periods
-
-            double GWVol_ = GWVol->Drc;//outflow m3
-            double wh = GWVol_/CellArea_/pore->Drc;
-            double GWout_ = GW_flow * _dx * wh * ksat->Drc * (1+Grad->Drc + 0.01); //* pore->Drc
-            // m3 volume out from every cell, grad is the sinus is seen as the pressure
-            GWout_ = wh > GW_threshold ?  GWout_ * (wh - GW_threshold) * (1-exp(-GW_threshold*wh)) : 0.0;
-            // apply a smooth threshold
-            GWout_ = std::min(GWout_, GWVol_+ GWrecharge->Drc - GWdeep->Drc);
-
-            GWout->Drc = GWout_;
-        }}
-
-        UpstreamGW(crlinkedlddbase_, GWout, Qbin);
-        // explicit GW flow from cell to cell
-
-        // ==== update GW level
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            // cannot be more than there is
-            GWVol->Drc = std::max(0.0, GWVol->Drc  + GWrecharge->Drc + Qbin->Drc - GWout->Drc - GWdeep->Drc); //m3
-            //update GW volume
-
-            GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;  //for display
-
-            // change soildepth2 with GW changes
-            if (GWWH->Drc > 0) {
-                double dh = std::max(0.1,SoilDepthinit->Drc - GWWH->Drc);
-                SoilDepth->Drc = dh;
-                GWWH->Drc = SoilDepthinit->Drc - dh;
-                GWVol->Drc = pore->Drc*GWWH->Drc * CellArea->Drc;
-            }
-            GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
-
-        }}
-
-*/
     }
 }
 
@@ -194,7 +140,7 @@ void TWorld::GWFlow2D(void)
 {
     cTMap *pore;
     cTMap *ksat;
-//    cTMap *SoilDepthinit;
+    cTMap *SoilDepthinit;
     cTMap *SoilDepth;
     cTMap *z = DEM;
     cTMap *h = GWWH;
@@ -202,12 +148,12 @@ void TWorld::GWFlow2D(void)
     if (SwitchTwoLayer) {
         pore = ThetaS2;
         ksat = Ksat2;
-//        SoilDepthinit = SoilDepth2init;
+        SoilDepthinit = SoilDepth2init;
         SoilDepth = SoilDepth2;
     } else {
         pore = Poreeff;
         ksat = Ksateff;
-//        SoilDepthinit = SoilDepth1init;
+        SoilDepthinit = SoilDepth1init;
         SoilDepth = SoilDepth1;
     }
 
@@ -267,52 +213,107 @@ void TWorld::GWFlow2D(void)
             double v_y1 =  br1 ?vol->data[r-1][c] : V;
             double v_y2 =  br2 ?vol->data[r+1][c] : V;
 
-            double dh_x1 = (h_x1 + z_x1) - (H+Z);
-            double dh_x2 = (h_x2 + z_x2) - (H+Z);
-            double dh_y1 = (h_y1 + z_y1) - (H+Z);
-            double dh_y2 = (h_y2 + z_y2) - (H+Z);
-
+//            double dh_x1 = (h_x1 + z_x1) - (H+Z);
+//            double dh_x2 = (h_x2 + z_x2) - (H+Z);
+//            double dh_y1 = (h_y1 + z_y1) - (H+Z);
+//            double dh_y2 = (h_y2 + z_y2) - (H+Z);
+            double dh_x1 = (z_x1) - (Z);
+            double dh_x2 = (z_x2) - (Z);
+            double dh_y1 = (z_y1) - (Z);
+            double dh_y2 = (z_y2) - (Z);
             double df_x1 = GW_flow * ksat->Drc * (h_x1 * _dx) * dh_x1/_dx * pore->Drc;  // ksat has already dt
             double df_y1 = GW_flow * ksat->Drc * (h_y1 * _dx) * dh_y1/_dx * pore->Drc;
             double df_x2 = GW_flow * ksat->Drc * (h_x2 * _dx) * dh_x2/_dx * pore->Drc;
             double df_y2 = GW_flow * ksat->Drc * (h_y2 * _dx) * dh_y2/_dx * pore->Drc;
+            // m3 = m/s * s * (m*m) * m/m
 
             double sign_x1 = df_x1 < 0 ? -1.0 : 1.0;
             double sign_y1 = df_y1 < 0 ? -1.0 : 1.0;
             double sign_x2 = df_x2 < 0 ? -1.0 : 1.0;
             double sign_y2 = df_y2 < 0 ? -1.0 : 1.0;
 
-            df_x1 = std::min(v_x1,abs(df_x1))*sign_x1;
-            df_y1 = std::min(v_y1,abs(df_y1))*sign_y1;
-            df_x2 = std::min(v_x2,abs(df_x2))*sign_x2;
-            df_y2 = std::min(v_y2,abs(df_y2))*sign_y2;
+            df_x1 = std::min(v_x1,abs(df_x1)) * sign_x1;
+            df_y1 = std::min(v_y1,abs(df_y1)) * sign_y1;
+            df_x2 = std::min(v_x2,abs(df_x2)) * sign_x2;
+            df_y2 = std::min(v_y2,abs(df_y2)) * sign_y2;
 
             double dflux = (df_x1 + df_x2 + df_y1 + df_y2);
-            // m3 = m/s * s * (m*m) * m/m
+
             GWout->Drc = dflux;
 
         }}
     }
-
+//report(*GWout,"gwout");
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double CellArea_ = CellArea->Drc;
 
         //update GW volume
         double sd = SwitchTwoLayer ? (SoilDepth2->Drc-SoilDepth1->Drc)-0.1 : SoilDepth1->Drc-0.1;
-        GWVol->Drc = std::max(GWVol->Drc + GWout->Drc,0.0);
-        GWVol->Drc = std::min(GWVol->Drc + GWout->Drc, sd*CellArea_);
+        GWVol->Drc += GWout->Drc;
+        GWVol->Drc = std::max(GWVol->Drc,0.0);
+        GWVol->Drc = std::min(GWVol->Drc, sd*CellArea_);
 
         GWWH->Drc = GWVol->Drc/CellArea_/pore->Drc;
 
-//        // change soildepth2 with GW changes
-//        if (GWWH->Drc > 0) {
-//            double dh = std::max(0.1,SoilDepthinit->Drc - GWWH->Drc);
-//            SoilDepth->Drc = dh;
-//            GWWH->Drc = SoilDepthinit->Drc - dh;
-//            GWVol->Drc = pore->Drc*GWWH->Drc * CellArea_;
-//        }
+        // change soildepth2 with GW changes
+        if (GWWH->Drc > 0) {
+            SoilDepth->Drc = SoilDepthinit->Drc - GWWH->Drc;
+        }
+
         GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
     }}
-
+//report(*GWWH,"gwwh");
 }
+
+
+
+
+    /* upstream ovvver baseLDD, fdoes not work very well
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                double CellArea_ = CellArea->Drc;
+
+                //=== GW recharge
+                Perc->Drc = cell_Percolation(r, c, GW_recharge); // in m
+                GWrecharge->Drc = Perc->Drc * CellArea_; // m3
+                // GW recharge same principle as percolation, in m3        //=== lateral GW outflow
+
+                GWdeep->Drc = 0;//GW_deep * _dt/(86400000)*CellArea_; //*qSqrt(GWWH->Drc)
+                // percolation from GW to deeper level, to cause decline in dry periods
+
+                double GWVol_ = GWVol->Drc;//outflow m3
+                double wh = GWVol_/CellArea_/pore->Drc;
+                double GWout_ = GW_flow * _dx * wh * ksat->Drc * (1+Grad->Drc + 0.01); //* pore->Drc
+                // m3 volume out from every cell, grad is the sinus is seen as the pressure
+                GWout_ = wh > GW_threshold ?  GWout_ * (wh - GW_threshold) * (1-exp(-GW_threshold*wh)) : 0.0;
+                // apply a smooth threshold
+                GWout_ = std::min(GWout_, GWVol_+ GWrecharge->Drc - GWdeep->Drc);
+
+                GWout->Drc = GWout_;
+            }}
+
+            UpstreamGW(crlinkedlddbase_, GWout, Qbin);
+            // explicit GW flow from cell to cell
+
+            // ==== update GW level
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                // cannot be more than there is
+                GWVol->Drc = std::max(0.0, GWVol->Drc  + GWrecharge->Drc + Qbin->Drc - GWout->Drc - GWdeep->Drc); //m3
+                //update GW volume
+
+                GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;  //for display
+
+                // change soildepth2 with GW changes
+                if (GWWH->Drc > 0) {
+                    double dh = std::max(0.1,SoilDepthinit->Drc - GWWH->Drc);
+                    SoilDepth->Drc = dh;
+                    GWWH->Drc = SoilDepthinit->Drc - dh;
+                    GWVol->Drc = pore->Drc*GWWH->Drc * CellArea->Drc;
+                }
+                GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
+
+            }}
+
+    */

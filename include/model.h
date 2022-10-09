@@ -434,6 +434,7 @@ public:
 
     double GW_recharge;
     double GW_flow;
+    double GW_inflow;
     double GW_slope;
     double GW_lag;
     double GW_deep;
