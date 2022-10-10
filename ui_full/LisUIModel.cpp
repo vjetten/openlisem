@@ -125,6 +125,8 @@ void lisemqt::runmodel()
     connect(W, SIGNAL(timedb(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
     // connect emitted signals from the model thread to the interface routines that handle them
 
+    W->noInfo = true;
+
     WhasStopped = false;
     W->stopRequested = false;
     // stoprequested is used to stop the thread with the interface

@@ -921,6 +921,7 @@ public:
     void GroundwaterRecharge();
     void GroundwaterFlow();
     void GWFlow2D();
+    void GWFlowLDD();
 
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
