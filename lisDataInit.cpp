@@ -288,7 +288,7 @@ void TWorld::InitParameters(void)
     GW_flow = getvaluedouble("GW flow factor");
     GW_inflow = getvaluedouble("GW river inflow factor");
     GW_slope = getvaluedouble("GW slope factor");
-   // GW_lag = getvaluedouble("GW lag factor");
+    GW_lag = 0.8; //getvaluedouble("GW lag factor");
     GW_deep = getvaluedouble("GW deep percolation");
     GW_threshold = getvaluedouble("GW threshold factor");
   //  GW_initlevel = 0;//getvaluedouble("GW initial level");
@@ -1065,7 +1065,7 @@ void TWorld::InitChannel(void)
         GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
         Qbin = NewMap(0);
         Qbase = NewMap(0);
-        //VolQb = NewMap(0);
+        Qbaseprev = NewMap(0);
         GWWH = NewMap(0.001);
         GWWHmax = NewMap(0);
         GWdeep = NewMap(0);

@@ -97,7 +97,7 @@ cTMap
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
 *Qbin,
 *Qbase,
-//*VolQb,
+*Qbaseprev,
 *GWVol,
 *GWWH,
 *GWWHmax,

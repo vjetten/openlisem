@@ -192,10 +192,10 @@ void lisemqt::ParseInputData()
         if (p1.compare("GW flow factor")==0)           GW_flow->setValue(valc);
         if (p1.compare("GW river inflow factor")==0)           GW_inflow->setValue(valc);
         if (p1.compare("GW slope factor")==0)           GW_slope->setValue(valc);
-     //   if (p1.compare("GW lag factor")==0)           GW_lag->setValue(valc);
+        if (p1.compare("GW lag factor")==0)           GW_lag->setValue(valc);
         if (p1.compare("GW deep percolation")==0)           GW_deep->setValue(valc);
         if (p1.compare("GW threshold factor")==0)           GW_threshold->setValue(valc);
-    //    if (p1.compare("GW initial level")==0)           GW_initlevel->setValue(valc);
+        if (p1.compare("GW initial level")==0)           GW_initlevel->setValue(valc);
 
         if (p1.compare("Include channel culverts")==0)       checkChannelCulverts->setChecked(check);
         if (p1.compare("Include channel inflow")==0)         checkChannelInflow->setChecked(check);

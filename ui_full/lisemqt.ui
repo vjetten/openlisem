@@ -2150,7 +2150,7 @@
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
-               <item row="0" column="0">
+               <item row="2" column="0">
                 <widget class="QTabWidget" name="tabWidgetOptions">
                  <property name="enabled">
                   <bool>true</bool>
@@ -4469,8 +4469,8 @@ p, li { white-space: pre-wrap; }
                       <property name="verticalSpacing">
                        <number>2</number>
                       </property>
-                      <item row="5" column="1">
-                       <widget class="QDoubleSpinBox" name="GW_threshold">
+                      <item row="7" column="0">
+                       <widget class="QLabel" name="label">
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
@@ -4479,14 +4479,23 @@ p, li { white-space: pre-wrap; }
                           <kerning>true</kerning>
                          </font>
                         </property>
-                        <property name="maximum">
-                         <double>10.000000000000000</double>
+                        <property name="text">
+                         <string>Baseflow recession factor</string>
                         </property>
-                        <property name="singleStep">
-                         <double>0.010000000000000</double>
+                       </widget>
+                      </item>
+                      <item row="6" column="0">
+                       <widget class="QLabel" name="label_108">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
                         </property>
-                        <property name="value">
-                         <double>0.200000000000000</double>
+                        <property name="text">
+                         <string>Groundwater threshold level for outfow (m)</string>
                         </property>
                        </widget>
                       </item>
@@ -4505,8 +4514,56 @@ p, li { white-space: pre-wrap; }
                         </property>
                        </widget>
                       </item>
-                      <item row="6" column="1">
+                      <item row="3" column="1">
+                       <widget class="QDoubleSpinBox" name="GW_flow">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="minimum">
+                         <double>0.000000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>1.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="4" column="0">
+                       <widget class="QLabel" name="label_144">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Calibration factor river inflow in channel cells</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="8" column="1">
                        <widget class="QDoubleSpinBox" name="GW_deep">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
@@ -4532,8 +4589,8 @@ p, li { white-space: pre-wrap; }
                         </property>
                        </widget>
                       </item>
-                      <item row="5" column="0">
-                       <widget class="QLabel" name="label_108">
+                      <item row="1" column="0">
+                       <widget class="QCheckBox" name="checkGWflowexplicit">
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
@@ -4543,12 +4600,25 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="text">
-                         <string>Groundwater threshold level for outfow (m)</string>
+                         <string>GW flow according to SWAT [ ], or explicit cell to cell flow [v]</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="2" column="0">
-                       <widget class="QLabel" name="label_77">
+                      <item row="2" column="2">
+                       <spacer name="horizontalSpacer_23">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item row="8" column="0">
+                       <widget class="QLabel" name="label_102">
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
@@ -4558,12 +4628,18 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="text">
-                         <string>Calibration factor recharge soil profile to groundwater </string>
+                         <string>Groundwater loss to deep percolation (mm/day)</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="3" column="0">
-                       <widget class="QLabel" name="label_83">
+                      <item row="4" column="1">
+                       <widget class="QDoubleSpinBox" name="GW_inflow">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
@@ -4572,8 +4648,11 @@ p, li { white-space: pre-wrap; }
                           <kerning>true</kerning>
                          </font>
                         </property>
-                        <property name="text">
-                         <string>Calibration factor groundwater flow towards the channel</string>
+                        <property name="singleStep">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>1.000000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -4604,21 +4683,8 @@ p, li { white-space: pre-wrap; }
                         </property>
                        </widget>
                       </item>
-                      <item row="2" column="2">
-                       <spacer name="horizontalSpacer_23">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item row="3" column="1">
-                       <widget class="QDoubleSpinBox" name="GW_flow">
+                      <item row="2" column="0">
+                       <widget class="QLabel" name="label_77">
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
@@ -4626,78 +4692,84 @@ p, li { white-space: pre-wrap; }
                           <underline>false</underline>
                           <kerning>true</kerning>
                          </font>
+                        </property>
+                        <property name="text">
+                         <string>Calibration factor recharge soil profile to groundwater </string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="6" column="1">
+                       <widget class="QDoubleSpinBox" name="GW_threshold">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="maximum">
+                         <double>10.000000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>0.200000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="0">
+                       <widget class="QLabel" name="label_83">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Calibration factor groundwater flow towards the channel</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="7" column="1">
+                       <widget class="QDoubleSpinBox" name="GW_lag">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="decimals">
+                         <number>2</number>
                         </property>
                         <property name="minimum">
                          <double>0.000000000000000</double>
                         </property>
-                        <property name="singleStep">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="value">
+                        <property name="maximum">
                          <double>1.000000000000000</double>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="6" column="0">
-                       <widget class="QLabel" name="label_102">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Groundwater loss to deep percolation (mm/day)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QCheckBox" name="checkGWflowexplicit">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>GW flow according to SWAT [ ], or explicit cell to cell flow [v]</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="1">
-                       <widget class="QDoubleSpinBox" name="GW_inflow">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
                         </property>
                         <property name="singleStep">
                          <double>0.010000000000000</double>
                         </property>
                         <property name="value">
-                         <double>1.000000000000000</double>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="0">
-                       <widget class="QLabel" name="label_144">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Calibration factor river inflow in channel cells</string>
+                         <double>0.200000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -9679,66 +9751,6 @@ p, li { white-space: pre-wrap; }
                      <underline>false</underline>
                      <kerning>true</kerning>
                     </font>
-                   </property>
-                   <property name="maximum">
-                    <double>1.000000000000000</double>
-                   </property>
-                   <property name="singleStep">
-                    <double>0.010000000000000</double>
-                   </property>
-                   <property name="value">
-                    <double>0.200000000000000</double>
-                   </property>
-                  </widget>
-                  <widget class="QLabel" name="label">
-                   <property name="geometry">
-                    <rect>
-                     <x>10</x>
-                     <y>180</y>
-                     <width>171</width>
-                     <height>18</height>
-                    </rect>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Baseflow recession factor</string>
-                   </property>
-                  </widget>
-                  <widget class="QDoubleSpinBox" name="GW_lag">
-                   <property name="geometry">
-                    <rect>
-                     <x>190</x>
-                     <y>180</y>
-                     <width>51</width>
-                     <height>23</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="decimals">
-                    <number>2</number>
-                   </property>
-                   <property name="minimum">
-                    <double>0.000000000000000</double>
                    </property>
                    <property name="maximum">
                     <double>1.000000000000000</double>

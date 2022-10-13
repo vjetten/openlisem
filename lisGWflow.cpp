@@ -59,15 +59,13 @@ void TWorld::GroundwaterFlow(void)
         GWout->Drc = 0;
     }}
 
-    if (!SwitchExplicitGWflow) {
-        // GW contribution to baseflow according to SWAT
-        GWFlowLDD();
 
-    } else {
+    //  GWFlowLDD();
+          // GW contribution to baseflow according to SWAT
+      if (SwitchExplicitGWflow)
+         GWFlow2D();
         // 2D eplicit flow method based on H+Z differences
-        GWFlow2D();
-       // GWFlowLDD();
-    }
+
 
     // change the soil depth with GWWH
     #pragma omp parallel for num_threads(userCores)
@@ -86,16 +84,32 @@ void TWorld::GroundwaterFlow(void)
     // do the baseflow
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        Qbase->Drc = 0;//Qbin->Drc * ChannelWidth->Drc/_dx;//m3 added per timestep, for MB
+        // fast component from LDD
+        Qbase->Drc = Qbin->Drc * ChannelWidth->Drc/_dx;//m3 added per timestep, for MB
 
-        if (SwitchExplicitGWflow)
-            Qbase->Drc += 2 * GW_inflow * ksat->Drc * _dx*std::max(0.0, GWWH->Drc-GW_threshold);   // * sqrt(9.81*GWWH->Drc); // from 2D flow
+        //add the 2D flow
+        if (SwitchExplicitGWflow) {
+            double GWWH_ = GWWH->Drc;
+            Qbase->Drc += 2 * GW_inflow * ksat->Drc * _dx*GWWH_;// * (1-exp(-4*GWWH_));
+            // assumption is a DARCY pressure gradient of hH/dL = 1.0
+            // not this: makes it deped on cell size which is not what we want* (GWWH_/(ChannelAdj->Drc/2));
+        }
+        // sort of Darcy with the pressure term as the GW height over half the distance to the channel
+        // do not add pore because Ksat is already the permeability of the matrix, not just the pores in the matrix
         // 2 is form two sides into the channel in the middle
 
-        ChannelWaterVol->Drc += Qbase->Drc;
+        if (GWVol->Drc*0.9 - Qbase->Drc < 0)
+            Qbase->Drc = GWVol->Drc*0.9;
 
-        GWVol->Drc -= Qbase->Drc;
+        double qb = (1-GW_lag)*Qbase->Drc + GW_lag*Qbaseprev->Drc;
+
+        GWVol->Drc -= qb;//Qbase->Drc;
+
+        ChannelWaterVol->Drc += qb;//Qbase->Drc;
+
         GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
+
+        Qbaseprev->Drc = Qbase->Drc;
     }}
 }
 
@@ -121,8 +135,11 @@ void TWorld::GWFlowLDD(void)
         double GWWH_ = GWWH->Drc;
 
         double GWout_ = GW_flow * CellArea_ * ksat->Drc * BaseflowL->Drc; // m3 volume out from every cell
-        //m3:  GW_flow*ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx;
-        // DO NOT include [pore, ksat is already a flux from a porous soil
+ //       double GWout_ = GW_flow * _dx * GWWH->Drc * ksat->Drc * BaseflowL->Drc;
+        //m3:  GW_flow* ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx;
+        //NOTE cross section changed to cellarea!?
+
+        // DO NOT include pore, ksat is already a flux from a porous soil and includes dt
 
         GWout_ = GWWH_ > GW_threshold ?  GWout_ * (GWWH_ - GW_threshold) * (1-exp(-GW_threshold*GWWH_)) : 0.0;
         // stop outflow when some minimum GW level, 2.4.2.10 in SWAT
@@ -264,6 +281,7 @@ void TWorld::GWFlow2D(void)
 
             GWout->Drc = dflux;
             vol->Drc += dflux;
+            =vol->Drc = std::max(0.0, vol->Drc);
             h->Drc = vol->Drc/CellArea->Drc/pore->Drc;
 
         }}
