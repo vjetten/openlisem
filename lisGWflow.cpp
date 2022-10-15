@@ -60,7 +60,8 @@ void TWorld::GroundwaterFlow(void)
     }}
 
 
-    GWFlowLDD();
+    if (SwitchSWATGWflow)
+        GWFlowLDD();
     // GW contribution to baseflow according to SWAT
     // do this always
 
@@ -75,7 +76,7 @@ void TWorld::GroundwaterFlow(void)
         GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
 
         // change soildepth2 with GW changes
-        if (GWWH->Drc > 0) {
+        if (SwitchImpermeable && GWWH->Drc > 0) {
             SoilDepth->Drc = SoilDepthinit->Drc - GWWH->Drc;
         }
 
@@ -103,15 +104,15 @@ void TWorld::GroundwaterFlow(void)
         if (GWVol->Drc*0.9 - Qbase->Drc < 0)
             Qbase->Drc = GWVol->Drc*0.9;
 
-        double qb = (1-GW_lag)*Qbase->Drc + GW_lag*Qbaseprev->Drc;
+        //double qb = (1-GW_lag)*Qbase->Drc + GW_lag*Qbaseprev->Drc;
 
-        GWVol->Drc -= qb;//Qbase->Drc;
+        GWVol->Drc -= Qbase->Drc;
 
-        ChannelWaterVol->Drc += qb;//Qbase->Drc;
+        ChannelWaterVol->Drc += Qbase->Drc;
 
         GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
 
-        Qbaseprev->Drc = Qbase->Drc;
+        //Qbaseprev->Drc = Qbase->Drc;
     }}
 }
 

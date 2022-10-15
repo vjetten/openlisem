@@ -57,11 +57,11 @@ void TWorld::ChannelFlowandErosion()
 //---------------------------------------------------------------------------
 void TWorld::ChannelBaseflow(void)
 {
-    if(!SwitchChannelBaseflow)
-        return;
+//    if(!SwitchChannelBaseflow)
+//        return;
 
     // add a stationary part
-    if(SwitchChannelBaseflowStationary)
+    if(SwitchChannelBaseflow && SwitchChannelBaseflowStationary)
     {
         // first time
         if(!addedbaseflow) {
@@ -79,7 +79,7 @@ void TWorld::ChannelBaseflow(void)
         }}
     }
 
-    if (SwitchChannelBaseflow)
+    if (SwitchChannelBaseflow && (SwitchSWATGWflow || SwitchExplicitGWflow))
         GroundwaterFlow();
     // move groundwater and add baseflow to channel
 

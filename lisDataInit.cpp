@@ -454,6 +454,7 @@ void TWorld::InitStandardInput(void)
 
 
     DEM = ReadMap(LDD, getvaluename("dem"));
+
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
     sqrtGrad = NewMap(0);
@@ -715,7 +716,7 @@ void TWorld::InitSoilInput(void)
             calcValue(*Ksat2, ksatCalibration2, MUL);
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
-            fill(*SoilDepth2,6000);
+
             calcValue(*SoilDepth2, 1000, DIV);
             SoilDepth2init = NewMap(0);
             copy(*SoilDepth2init, *SoilDepth2);
@@ -1065,7 +1066,7 @@ void TWorld::InitChannel(void)
         GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
         Qbin = NewMap(0);
         Qbase = NewMap(0);
-        Qbaseprev = NewMap(0);
+        //Qbaseprev = NewMap(0);
         GWWH = NewMap(0.001);
         GWWHmax = NewMap(0);
         GWdeep = NewMap(0);
@@ -2009,6 +2010,14 @@ void TWorld::IntializeData(void)
                     HardSurface->Drc = 0;
             }
         }
+
+        if (SwitchAddBuildingsDEM) {
+            FOR_ROW_COL_MV {
+                DEM->Drc += HouseCover->Drc*10;
+            }
+            InitShade();
+        }
+
     }
     else
         HouseCover = NewMap(0);
@@ -2385,7 +2394,7 @@ void TWorld::IntializeData(void)
 
     }
 
-    if (SwitchChannelBaseflow && SwitchChannelBaseflowStationary)
+    if (/* SwitchChannelBaseflow && */ SwitchChannelBaseflowStationary)
         FindBaseFlow();
 
     if (SwitchChannelInflow) {
