@@ -163,7 +163,8 @@ void TWorld::ChannelFlow(void)
                 ChannelQ_ = ChannelV_ * Area;
                 if (SwitchCulverts) {
                     if (MaxQ > 0 ) {
-                        ChannelNcul->Drc = (0.1+ChannelQ_/MaxQ) * 0.01; //0.01 is assumed to be the N of a concrete tube
+                        ChannelNcul->Drc = (0.1+ChannelQ_/MaxQ) * 0.015; //0.015 is assumed to be the N of a concrete tube
+                        //https://plainwater.com/water/circular-pipe-mannings-n/
                         // resistance increases with discharge, tube is getting fuller
                         ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/ChannelNcul->Drc);
                         ChannelQ_ = ChannelV_ * Area;

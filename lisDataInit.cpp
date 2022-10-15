@@ -650,7 +650,7 @@ void TWorld::InitLULCInput(void)
     FOR_ROW_COL_MV {
         double frac = std::min(1.0,(HardSurface->Drc*_dx + RoadWidthDX->Drc)/_dx);
         RoadWidthHSDX->Drc = std::min(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
-        N->Drc = N->Drc * (1-frac) + 0.0025*frac;
+        N->Drc = N->Drc * (1-frac) + 0.015*frac;
     }
 
 }
