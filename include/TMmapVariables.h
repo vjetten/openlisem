@@ -312,11 +312,8 @@ cTMap
 *ChannelWHExtended,                  //!<
 *ChannelVolExtended,                  //!<
 *ChannelWaterVol,            //!<
-//*ChannelBLWaterVol,            //!<
-//*ChannelSSWaterVol,            //!<
 *Channelq,                   //!<
 *ChannelAlpha,               //!<
-//*ChannelFlowWidth,           //!<
 *ChannelWidthMax,           //!<
 *ChannelAdj,                //!<
 *CHAdjDX,                //!<

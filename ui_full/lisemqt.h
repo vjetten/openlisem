@@ -71,14 +71,14 @@
 #define CATCHMENTMAPS 1
 #define LANDUSEMAPS 2
 #define SURFACEMAPS 3
-#define EROSIONMAPS 4
-#define INFILTRATIONMAPS 5
-#define CHANNELMAPS 6
+#define INFILTRATIONMAPS 4
+#define CHANNELMAPS 5
+#define HOUSESMAPS 6
+#define EROSIONMAPS 7
 #define CONSERVATIONMAPS 7
 #define TILEDRAINMAPS 8
-#define HOUSESMAPS 9
-//#define NUTRIENTSMAPS 13
-#define BARRIERMAPS 10
+#define TILEMAPS 10
+#define PESTMAPS 11
 
 
 //---------------------------------------------------------------------------

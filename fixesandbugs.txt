@@ -16,3 +16,8 @@ this file is a list of changes per major commit
 221009 - branch lisemgw1
 - GW flow with upstream attempt
 - changed threshold from exp(-6wh) to exp(-threshold*wh)
+- changed culvert flow calculation to better increasing mannings n with water level, ChannelFlow(void), see excel
+- fixed bug in calculation of avg soil moisture for display, function avgTheta()
+- no channel infil in culverts
+- set max V in channel to 20 m/s, was 100
+- fixed bug in tree with map names, second tab, caused by changing positions

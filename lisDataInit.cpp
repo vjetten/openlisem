@@ -374,7 +374,7 @@ void TWorld::InitParameters(void)
         SwitchLinkedList = true;
         _dtCHkin = 60.0;//_dt_user;
     }
-    _CHMaxV = 100.0;
+    _CHMaxV = 20.0;
     if (SwitchChannelMaxV)
        _CHMaxV =  getvaluedouble("Channel Max V");
 
@@ -2559,6 +2559,10 @@ void TWorld::FindBaseFlow()
                     double inflow = 0;
                     double baseflow = BaseFlowDischarges->data[ro][co];
                     // in m3/s
+                    if (BaseFlowDischarges->data[ro][co] == 0)
+                        break;
+                    qDebug() << BaseFlowDischarges->data[ro][co];
+
 
                     LDD_LINKEDLIST *list = nullptr, *temp = nullptr;
                     list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));

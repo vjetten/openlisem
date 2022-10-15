@@ -60,11 +60,13 @@ void TWorld::GroundwaterFlow(void)
     }}
 
 
-    //  GWFlowLDD();
-          // GW contribution to baseflow according to SWAT
-      if (SwitchExplicitGWflow)
-         GWFlow2D();
-        // 2D eplicit flow method based on H+Z differences
+    GWFlowLDD();
+    // GW contribution to baseflow according to SWAT
+    // do this always
+
+    if (SwitchExplicitGWflow)
+       GWFlow2D();
+    // 2D eplicit flow method based on H+Z differences
 
 
     // change the soil depth with GWWH
@@ -281,7 +283,7 @@ void TWorld::GWFlow2D(void)
 
             GWout->Drc = dflux;
             vol->Drc += dflux;
-            =vol->Drc = std::max(0.0, vol->Drc);
+            vol->Drc = std::max(0.0, vol->Drc);
             h->Drc = vol->Drc/CellArea->Drc/pore->Drc;
 
         }}

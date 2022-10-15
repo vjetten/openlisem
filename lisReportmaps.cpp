@@ -277,18 +277,9 @@ void TWorld::GetComboMaps()
     cl = 1;
     AddComboMap(0,"Flow Velocity","m/s",V /*COMBO_VOFCH*/,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     AddComboMap(0,"Flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.01); //VH
-   // AddComboMap(0,"flow calc","",flowmask,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
-   // AddComboMap(0,"flow calc","",WHstore,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
 
     if(SwitchIncludeChannel)
     {
-//        setColor(1);
-//        AddComboMap(0,"Channel Discharge","l/s",extQCH,Colormap,Colors,true,false,1000.0, 1.0);
-//        setColor(3);
-//        AddComboMap(0,"Channel Water Height","m",extWHCH,Colormap,Colors,false,false,1.0,0.01);
-//        setColor(2);
-//        AddComboMap(0,"Channel Velocity","m/s",extVCH,Colormap,Colors,false,false,1.0,0.01);
-
         cl = 0;
         if (QUnits == 0)
             AddComboMap(0,"Channel Discharge","l/s",ChannelQn,LegendMap[cl],Legend[cl],true,false,1000.0, 1.0);
@@ -327,6 +318,7 @@ void TWorld::GetComboMaps()
 
 
         if (InfilMethod != INFIL_SWATRE) {
+            cl = 3;
             //AddComboMap(0,"Avg Moisture content layer 1","-",Thetaeff,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
             AddComboMap(0,"Avg Moisture content layer 1","-",ThetaI1a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
             if (SwitchTwoLayer)

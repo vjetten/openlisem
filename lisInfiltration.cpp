@@ -573,6 +573,9 @@ void TWorld::cell_InfilMethods(int r, int c)
     }
     // select the appropriate domain water height for overpressure
 
+    if (SW == 0)
+        return; //????????
+
     //calculate potential infiltration rate fpot
     if (SwitchTwoLayer ) {
 

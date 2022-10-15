@@ -96,8 +96,8 @@ void TWorld::ChannelRainandInfil(void)
             ChannelWaterVol->Drc += Rainc->Drc*ChannelWidth->Drc*DX->Drc;
         // add rainfall to channel, assume no interception
 
-        // subtract infiltration
-        if (SwitchChannelInfil) {
+        // subtract infiltration, no infil in culverts
+        if (SwitchChannelInfil && ChannelMaxQ->Drc <= 0) {
             double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
             // hsat based through entire wet cross section
             inf = std::min(ChannelWaterVol->Drc, inf);
@@ -159,29 +159,27 @@ void TWorld::ChannelFlow(void)
                 Perim *= ChnTortuosity;
                 Radius = (Perim > 0 ? Area/Perim : 0);
 
-              //  if (sqrtgrad > MIN_SLOPE) {
-                    //ChannelAlpha->Drc = std::pow(N/sqrtgrad * std::pow(Perim, 2.0/3.0), 0.6);
-                    //ChannelQ->Drc = std::pow(Area/ChannelAlpha->Drc, 1.0/0.6);
+                ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
+                ChannelQ_ = ChannelV_ * Area;
+                if (SwitchCulverts) {
+                    if (MaxQ > 0 ) {
+                        ChannelNcul->Drc = (0.1+ChannelQ_/MaxQ) * 0.01; //0.01 is assumed to be the N of a concrete tube
+                        // resistance increases with discharge, tube is getting fuller
+                        ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/ChannelNcul->Drc);
+                        ChannelQ_ = ChannelV_ * Area;
 
-                    ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
-                    ChannelQ_ = ChannelV_ * Area;
-                    if (SwitchCulverts) {
-                        if (MaxQ > 0 ) {
-                            ChannelNcul->Drc = (1.0+ChannelQ_/MaxQ) * ChannelN->Drc; //ChannelN->Drc;//
-                            ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/ChannelNcul->Drc);
-
-                            if (ChannelQ_ > MaxQ){
-                                ChannelV_ = MaxQ/Area;
-                                ChannelQ_ = MaxQ;
-                            }
-                            else {
-                                ChannelNcul->Drc  = ChannelN->Drc;
-                            }
+                        if (ChannelQ_ > MaxQ){
+                            ChannelV_ = MaxQ/Area;
+                            ChannelQ_ = MaxQ;
+                        }
+                        else {
+                            ChannelNcul->Drc  = ChannelN->Drc;
                         }
                     }
-                    ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
-             //   }
+                }
+                ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
             }
+
             ChannelAlpha->Drc = ChannelAlpha_;
             ChannelQ->Drc = ChannelQ_;
             ChannelV->Drc = ChannelV_;
