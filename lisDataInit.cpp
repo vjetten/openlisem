@@ -715,7 +715,6 @@ void TWorld::InitSoilInput(void)
             calcValue(*Ksat2, ksatCalibration2, MUL);
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
-            fill(*SoilDepth2,6000);
             calcValue(*SoilDepth2, 1000, DIV);
             SoilDepth2init = NewMap(0);
             copy(*SoilDepth2init, *SoilDepth2);
