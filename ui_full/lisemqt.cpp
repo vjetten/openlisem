@@ -1561,6 +1561,7 @@ void lisemqt::resetTabOptions()
 
     checkRoadsystem->setChecked(false);
     checkHouses->setChecked(false);
+    checkAddBuildingDEM->setChecked(false);
     checkHardsurface->setChecked(false);
     checkRaindrum->setChecked(false);
     checkStormDrains->setChecked(false);

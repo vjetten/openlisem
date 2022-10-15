@@ -396,7 +396,7 @@ void TWorld::HydrologyProcesses()
 
                cell_Redistribution(r, c);
 
-               if (!SwitchImpermeable && !SwitchChannelBaseflow)
+               if (!SwitchImpermeable)// && !SwitchChannelBaseflow)
                    Perc->Drc = cell_Percolation(r, c, 1.0);
                 // if baseflow is active percollation is done there, so do not do it here
             }

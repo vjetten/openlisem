@@ -21,3 +21,5 @@ this file is a list of changes per major commit
 - no channel infil in culverts
 - set max V in channel to 20 m/s, was 100
 - fixed bug in tree with map names, second tab, caused by changing positions
+- add buildings to DEM options
+- 2 options for GW flow and baseflow stationary. GWflow 2D can only be done if soil impermeable
