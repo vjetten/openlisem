@@ -2012,7 +2012,10 @@ void TWorld::IntializeData(void)
 
         if (SwitchAddBuildingsDEM) {
             FOR_ROW_COL_MV {
-                DEM->Drc += HouseCover->Drc*10;
+                double dem = DEM->Drc;
+                dem += HouseCover->Drc > 0.2  ? HouseCover->Drc*10 : 0.0;
+                dem = RoadWidthDX->Drc > 0.2 ? DEM->Drc : dem;
+                DEM->Drc = dem;
             }
             InitShade();
         }
