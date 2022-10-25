@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -48,16 +48,9 @@ void lisemqt::runmodel()
             pausemodel();
         return;
     }
-    MPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true);
-    MPlot->detachItems(QwtPlotItem::Rtti_PlotMarker, true);
 
     startplot = true;
     stopplot = false;
-
-    rivers.clear();
-    culverts.clear();
-    outlets.clear();
-    obspoints.clear();
 
     label_debug->text().clear();
 
@@ -95,22 +88,19 @@ void lisemqt::runmodel()
     checkMapChannels->setEnabled(checkIncludeChannel->isChecked());
 
     checkMapBuildings->setChecked(false);
-    transparencyHouse->setEnabled(checkHouses->isChecked());
     checkMapBuildings->setEnabled(checkHouses->isChecked());
-//    checkMapBuildings->setVisible(checkHouses->isChecked());
-//    transparencyHouse->setVisible(checkHouses->isChecked());
-//    checkMapBuildings->setVisible(checkHouses->isChecked());
+    transparencyHouse->setVisible(false);
 
     checkMapRoads->setChecked(false);
-    transparencyRoad->setEnabled(checkRoadsystem->isChecked());
     checkMapRoads->setEnabled(checkRoadsystem->isChecked());
-//    checkMapRoads->setVisible(checkRoadsystem->isChecked());
-//    transparencyRoad->setVisible(checkRoadsystem->isChecked());
-//    checkMapRoads->setVisible(checkRoadsystem->isChecked());
+    transparencyRoad->setVisible(false);
 
-//    checkMapImage->setVisible(checksatImage->isChecked());
+    checkMapHardSurface->setChecked(false);
+    checkMapHardSurface->setEnabled(checkHardsurface->isChecked());
+    transparencyHardSurface->setEnabled(checkHouses->isChecked() || checkRoadsystem->isChecked() || checkHardsurface->isChecked());
+    //transparencyHardSurface->setVisible(false);
 
-//    sedgroup->setVisible(checkDoErosion->isChecked());
+    sedgroup->setVisible(checkDoErosion->isChecked());
 
     // initialize output graphs
     initPlot();
@@ -134,6 +124,8 @@ void lisemqt::runmodel()
     connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
     connect(W, SIGNAL(timedb(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
     // connect emitted signals from the model thread to the interface routines that handle them
+
+    W->noInfo = true;
 
     WhasStopped = false;
     W->stopRequested = false;
@@ -229,7 +221,7 @@ void lisemqt::worldShow(bool showall)
 
     showHouseMap(); // show building structures map
 
-    //showFlowBarriersMap();
+    showHardSurfaceMap(); // show parking lots etc
 
     showImageMap();
 
@@ -347,11 +339,11 @@ void lisemqt::initOP()
     op.outletMap = nullptr;
     op.roadMap = nullptr;
     op.houseMap = nullptr;
-    op.flowbarriersMap = nullptr;
+    op.hardsurfaceMap = nullptr;
     op.Image = nullptr;
 
-    op.CulvertX.clear();
-    op.CulvertY.clear();
+ //   op.CulvertX.clear();
+ //   op.CulvertY.clear();
     op.EndPointX.clear();
     op.EndPointY.clear();
     op.ObsPointX.clear();

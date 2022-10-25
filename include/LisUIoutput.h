@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -64,8 +64,8 @@ struct output{
     QVector<double> Time;
     QVector <double> Qtile;
 
-    QVector <double> CulvertX;
-    QVector <double> CulvertY;
+ //   QVector <double> CulvertX;
+ //   QVector <double> CulvertY;
     QVector <double> EndPointX;
     QVector <double> EndPointY;
     QVector <double> ObsPointX;
@@ -102,7 +102,7 @@ struct output{
     cTMap *outletMap;
     cTMap *roadMap;
     cTMap *houseMap;
-    cTMap *flowbarriersMap;
+    cTMap *hardsurfaceMap;
     cTRGBMap *Image;
 
     QList<double> graindiameters;

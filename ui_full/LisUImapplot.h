@@ -46,13 +46,13 @@ public:
 
         //layer 0 is dem, layer 1 is shade, layer 3 is thematic
         QwtPlotItemList list = plot()->itemList(QwtPlotItem::Rtti_PlotSpectrogram);
-        QwtPlotSpectrogram * sp2 = static_cast<QwtPlotSpectrogram *> (list.at(3));
+        QwtPlotSpectrogram * sp2 = static_cast<QwtPlotSpectrogram *> (list.at(6));
         if (sp2->data() == nullptr)
             return QwtText(txt);
 
         QwtPlotSpectrogram * sp0 = static_cast<QwtPlotSpectrogram *> (list.at(0));
 //        // elevation info
-        QwtPlotSpectrogram * sp3 = static_cast<QwtPlotSpectrogram *> (list.at(6));
+        QwtPlotSpectrogram * sp3 = static_cast<QwtPlotSpectrogram *> (list.at(7));
 //        // outlet info
 
         double z2 = sp2->data()->value(pos.x(), pos.y());
@@ -246,34 +246,8 @@ class colorMapGray: public QwtLinearColorMapVJ
     }
 public:
     colorMapGray():
-      //  QwtLinearColorMapVJ( QColor(0,0,0,255), QColor(255,255,255,255))
       QwtLinearColorMapVJ( QColor("#555555"),QColor("#ffffff"))
     {
-//        addColorStop(0.0,QColor(0,0,0,255));
-//        addColorStop(0.1,QColor(25,25,25,176));
-//        addColorStop(0.2,QColor(50,50,50,105));
-//        addColorStop(0.3,QColor(75,75,75,49));
-//        addColorStop(0.4,QColor(100,100,100,12));
-//        addColorStop(0.5,QColor(125,125,125,0));
-//        addColorStop(0.6,QColor(150,150,150,12));
-//        addColorStop(0.7,QColor(175,175,175,49));
-//        addColorStop(0.8,QColor(200,200,200,105));
-//        addColorStop(0.9,QColor(225,225,225,176));
-//        addColorStop(1.0,QColor(250,250,250,255));
-
-//        addColorStop(0.0,QColor(  0,  0,  0,255));
-//        addColorStop(0.1,QColor( 25, 25, 25,122));
-//        addColorStop(0.2,QColor( 50, 50, 50,43 ));
-//        addColorStop(0.3,QColor( 75, 75, 75,9  ));
-//        addColorStop(0.4,QColor(100,100,100,1  ));
-//        addColorStop(0.5,QColor(125,125,125,0  ));
-//        addColorStop(0.6,QColor(150,150,150,1  ));
-//        addColorStop(0.7,QColor(175,175,175,9));
-//        addColorStop(0.8,QColor(200,200,200,43));
-//        addColorStop(0.9,QColor(225,225,225,122));
-//        addColorStop(1.0,QColor(250,250,250,255));
-
-
     }
 };
 //---------------------------------------------------------------------------
@@ -326,9 +300,9 @@ class colorMapRoads: public QwtLinearColorMapVJ
     }
 public:
     colorMapRoads():
-        QwtLinearColorMapVJ( QColor("#53db00"), QColor("#7dfe2f"))
+        QwtLinearColorMapVJ( QColor("#cccccc"), QColor("#cccccc"))
+//      QwtLinearColorMapVJ( QColor("#53db00"), QColor("#7dfe2f"))
     {
-        //addColorStop(0.0, QColor("#00CC00"));
     }
 };
 //---------------------------------------------------------------------------
@@ -346,7 +320,6 @@ public:
     colorMapRoads2():
         QwtLinearColorMapVJ( QColor("#f9fb44"), QColor("#f9fb44")  )
     {
-        addColorStop( 0.0, QColor("#f9fb44") );
     }
 };
 //---------------------------------------------------------------------------

@@ -19,7 +19,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -237,7 +237,7 @@ void TWorld::GetRainfallData(QString name)
             stationID << i+1;
     }  
 
-    qDebug() << "stations" << stationID;
+   // qDebug() << "stations" << stationID;
 
     if (stationID.count() == 1) {
         SwitchIDinterpolation = false;

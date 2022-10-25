@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 /*!
@@ -431,7 +431,7 @@ void TWorld::HydrologyProcesses()
 
                cell_Redistribution(r, c);
 
-               if (!SwitchImpermeable && !SwitchChannelBaseflow)
+               if (!SwitchImpermeable)// && !SwitchChannelBaseflow)
                    Perc->Drc = cell_Percolation(r, c, 1.0);
                 // if baseflow is active percollation is done there, so do not do it here
             }
