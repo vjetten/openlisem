@@ -642,10 +642,6 @@ void TWorld::cell_InfilMethods(int r, int c)
         }
 
         FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
-      
-        //FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
-        //MC - using space causes fluctuations when Lw reaches SD1 when soil is not impermeable always use fact_
-        //FSurplus->Drc = -1.0 * std::max(0.0, fpot_-fact_);
         // negative and smallest of space or fpot-fact ???
     }
 }
