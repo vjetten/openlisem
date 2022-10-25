@@ -20,7 +20,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 /*!
@@ -572,6 +572,9 @@ void TWorld::cell_InfilMethods(int r, int c)
         SW = SoilWidthDX->Drc; // flood in kin wave
     }
     // select the appropriate domain water height for overpressure
+
+//    if (SW == 0)
+//        return; //????????
 
     //calculate potential infiltration rate fpot
     if (SwitchTwoLayer ) {

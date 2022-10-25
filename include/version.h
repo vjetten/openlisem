@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -27,16 +27,16 @@
  \brief version information, add your name here if you contribute to the development
 
   Auhtors maintaining code: \n
- - VJ = Victor Jetten, Dept of Earth Systems Analysis, ITC, twente University, v.g.jetten@utwente.nl\n
- - BB = Bastian van den Bout, Dept of Earth Systems Analysis, ITC, twente University, b.vandenbout@utwente.nl\n
+ - VJ = Victor Jetten, Dept of Earth Systems Analysis, ITC, Twente University, v.g.jetten@utwente.nl\n
+ - BB = Bastian van den Bout, Dept of Earth Systems Analysis, ITC, Twente University, b.vandenbout@utwente.nl\n
  - XX = <name, affiliation, email>\n
  */
 
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define VERSIONNR "6.86 beta"
-#define DATE "2022/08/13"
+#define VERSIONNR "6.873 GW"
+#define DATE "2022/10/10"
 
 
 #define VERSION QString("openLISEM version %1 - %2").arg(VERSIONNR).arg(DATE)

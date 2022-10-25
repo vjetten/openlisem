@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -286,11 +286,12 @@ void TWorld::InitParameters(void)
 
     GW_recharge = getvaluedouble("GW recharge factor");
     GW_flow = getvaluedouble("GW flow factor");
+    GW_inflow = getvaluedouble("GW river inflow factor");
     GW_slope = getvaluedouble("GW slope factor");
-    GW_lag = getvaluedouble("GW lag factor");
-    GW_bypass = getvaluedouble("GW bypass factor");
+    GW_lag = 0.8; //getvaluedouble("GW lag factor");
+    GW_deep = getvaluedouble("GW deep percolation");
     GW_threshold = getvaluedouble("GW threshold factor");
-    GW_initlevel = 0;//getvaluedouble("GW initial level");
+  //  GW_initlevel = 0;//getvaluedouble("GW initial level");
 
     // get calibration parameters
     gsizeCalibrationD50 = getvaluedouble("Grain Size calibration D50");
@@ -373,6 +374,9 @@ void TWorld::InitParameters(void)
         SwitchLinkedList = true;
         _dtCHkin = 60.0;//_dt_user;
     }
+    _CHMaxV = 20.0;
+    if (SwitchChannelMaxV)
+       _CHMaxV =  getvaluedouble("Channel Max V");
 
     SwitchKinematic2D = getvalueint("Routing Kin Wave 2D");
 
@@ -410,7 +414,7 @@ void TWorld::InitStandardInput(void)
         cr_ << newcr;
     }
 
-    // OBSOLETE
+    /* OBSOLETE
     if (SwitchSWOFWatersheds) {
         WaterSheds = ReadMap(LDD,getvaluename("wsheds"));
         QList <int> tmp = countUnits(*WaterSheds);
@@ -433,7 +437,7 @@ void TWorld::InitStandardInput(void)
             //qDebug() << WScr.size() << WScr.at(i).size() << i << nrc << nrValidCells;
         }
     }
-
+    */
     FOR_ROW_COL_MV {
         if (LDD->Drc == 5) {
         LDD_COOR newcr;
@@ -450,6 +454,7 @@ void TWorld::InitStandardInput(void)
 
 
     DEM = ReadMap(LDD, getvaluename("dem"));
+
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
     sqrtGrad = NewMap(0);
@@ -540,7 +545,8 @@ void TWorld::InitStandardInput(void)
         ErrorString = QString("Outpoint.map has no values above 0. Copy at least outlet(s).");
         throw 1;
     }
-SwitchUseIDmap = false;
+SwitchUseIDmap = true;
+/// TODO   !!!!!!!!!!!!!!!
     if (SwitchRainfall && !SwitchRainfallSatellite)
     {
         RainZone = ReadMap(LDD,getvaluename("ID"));
@@ -645,7 +651,7 @@ void TWorld::InitLULCInput(void)
     FOR_ROW_COL_MV {
         double frac = std::min(1.0,(HardSurface->Drc*_dx + RoadWidthDX->Drc)/_dx);
         RoadWidthHSDX->Drc = std::min(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
-        N->Drc = N->Drc * (1-frac) + 0.0025*frac;
+        N->Drc = N->Drc * (1-frac) + 0.015*frac;
     }
 
 }
@@ -1006,7 +1012,11 @@ void TWorld::InitChannel(void)
     cover(*ChannelSide, *LDD, 0);
     cover(*ChannelN, *LDD, 0);
 
+    ChannelNcul = NewMap(0);
+
     calcValue(*ChannelN, ChnCalibration, MUL);
+    copy(*ChannelNcul, *ChannelN);
+
     if (SwitchChannelInfil)
     {
         ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
@@ -1027,7 +1037,7 @@ void TWorld::InitChannel(void)
                 LDD_COORIN hoi = crlinkedlddch_.at(i);
                 hoi.ldd *= -1;
                 crlinkedlddch_.replace(i, hoi) ;
-                ChannelGrad->Drc = 0.0001;
+                ChannelGrad->Drc = 0.001;
             }
         }
     } else
@@ -1055,10 +1065,11 @@ void TWorld::InitChannel(void)
         GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
         Qbin = NewMap(0);
         Qbase = NewMap(0);
-        //VolQb = NewMap(0);
+        //Qbaseprev = NewMap(0);
         GWWH = NewMap(0.001);
         GWWHmax = NewMap(0);
-        //GWrec = NewMap(0);
+        GWdeep = NewMap(0);
+        GWrecharge = NewMap(0);
         GWout = NewMap(0);
         GWbp = NewMap(0);
 
@@ -1986,11 +1997,29 @@ void TWorld::IntializeData(void)
             FOR_ROW_COL_MV {
                 if (GrassWidthDX->Drc != 0)
                     HouseCover->Drc = HouseCover->Drc*(1-GrassFraction->Drc);
-            }}
+            }
+        }
         RoofStore = ReadMap(LDD,getvaluename("roofstore"));
         calcValue(*RoofStore, 0.001, MUL);
         // from mm to m
         DrumStore = ReadMap(LDD,getvaluename("drumstore"));
+        if (SwitchHardsurface) {
+            FOR_ROW_COL_MV {
+                if (HouseCover->Drc == 1)
+                    HardSurface->Drc = 0;
+            }
+        }
+
+        if (SwitchAddBuildingsDEM) {
+            FOR_ROW_COL_MV {
+                double dem = DEM->Drc;
+                dem += HouseCover->Drc > 0.2  ? HouseCover->Drc*10 : 0.0;
+                dem = RoadWidthDX->Drc > 0.2 ? DEM->Drc : dem;
+                DEM->Drc = dem;
+            }
+            InitShade();
+        }
+
     }
     else
         HouseCover = NewMap(0);
@@ -2367,7 +2396,7 @@ void TWorld::IntializeData(void)
 
     }
 
-    if (SwitchChannelBaseflow && SwitchChannelBaseflowStationary)
+    if (/* SwitchChannelBaseflow && */ SwitchChannelBaseflowStationary)
         FindBaseFlow();
 
     if (SwitchChannelInflow) {
@@ -2463,6 +2492,7 @@ void TWorld::IntializeOptions(void)
     SwitchChannelKinWave = true;
     SwitchTimeavgV = true;
     SwitchChannelKinwaveDt = false;
+    SwitchChannelMaxV = true;
     Switch2DDiagonalFlow = true;
     SwitchSWOFopen = true;
     SwitchMUSCL = false;
@@ -2540,6 +2570,10 @@ void TWorld::FindBaseFlow()
                     double inflow = 0;
                     double baseflow = BaseFlowDischarges->data[ro][co];
                     // in m3/s
+                    if (BaseFlowDischarges->data[ro][co] == 0)
+                        break;
+                    qDebug() << BaseFlowDischarges->data[ro][co];
+
 
                     LDD_LINKEDLIST *list = nullptr, *temp = nullptr;
                     list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
@@ -2883,7 +2917,8 @@ void TWorld::FindChannelAngles()
 //---------------------------------------------------------------------------
 void TWorld::InitImages()
 {
-    if(SwitchImage)
+    if(SwitchImage && QFileInfo(satImageFileName).exists())
+
     {
         DEBUG("Reading background satellite inage");
         cTRGBMap *image = readRasterImage(satImageFileName);
@@ -3089,8 +3124,8 @@ void TWorld::InitScreenChanNetwork()
     op.lddch_.clear();
     op.lddch_.append(crlinkedlddch_);
 
-    op.CulvertX.clear();
-    op.CulvertY.clear();
+ //   op.CulvertX.clear();
+ //   op.CulvertY.clear();
     op.EndPointX.clear();
     op.EndPointY.clear();
     op.ObsPointX.clear();
@@ -3098,29 +3133,17 @@ void TWorld::InitScreenChanNetwork()
 
     FOR_ROW_COL_MV_CH {
         if (LDDChannel->Drc == 5){
-             qDebug() << c << r;
             op.EndPointX << _llx + c*_dx + 0.5*_dx;
             op.EndPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
         }
     }
     FOR_ROW_COL_MV_CH {
         if (PointMap->Drc > 0){
-        //    if (ChannelMaxQ->Drc > 0) {
             op.ObsPointX << _llx + c*_dx + 0.5*_dx;
             op.ObsPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
 
         }
     }
-
-//    if(SwitchCulverts) {
-//        FOR_ROW_COL_MV_CH {
-//            if (ChannelMaxQ->Drc > 0) {
-//                op.CulvertX << _llx + c*_dx + 0.5*_dx;
-//                op.CulvertY << _llx + (_nrRows-r-1)*_dx + 0.5*_dx;
-//            }
-//        }
-//    }
-
 }
 
 //---------------------------------------------------------------------------

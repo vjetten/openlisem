@@ -1,0 +1,25 @@
+this file is a list of changes per major commit
+
+221001 - v6.871
+- blocked curve detach when starting run and show channel false qwhen changing culvert size
+- changed order of default maps in 2nd screen, roads and hard surfaces now with buildings
+- ChannelQ set to channelQn BEFORE erosion, should not be done
+- potential bug: sediment in channel is routed with new alpha instead of old alpha
+- changed detach of MPlot before runmodel, now in inimapplot
+- op.culvertx and y no longer needed
+- fixed aspect ratio of map and deleted resize option
+221005 - v6.872
+- experimental deep percoaltion from GW for continuous loss, not active
+- on_toolButton_RainfallName_clicked() pointed to rainsatfile dir instead of rainfiledir
+221006 - v6.873
+- outlets and obspoints and drawing of rivers fixed now, no more sigdev
+221009 - branch lisemgw1
+- GW flow with upstream attempt
+- changed threshold from exp(-6wh) to exp(-threshold*wh)
+- changed culvert flow calculation to better increasing mannings n with water level, ChannelFlow(void), see excel
+- fixed bug in calculation of avg soil moisture for display, function avgTheta()
+- no channel infil in culverts
+- set max V in channel to 20 m/s, was 100
+- fixed bug in tree with map names, second tab, caused by changing positions
+- add buildings to DEM options
+- 2 options for GW flow and baseflow stationary. GWflow 2D can only be done if soil impermeable

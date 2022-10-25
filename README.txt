@@ -1,7 +1,9 @@
 openLISEM
 ============
-Date: 220523
+Date: 221019
 ============
+
+This software is subject to a DISCLAIMER and released under the copyright model GPLv3
 
 For questions contact v.g.jetten AD utwente.nl
 
@@ -9,7 +11,31 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, and openmp
 
-version 6.847-6.84.13 beta
+version 6.873
+- experimental: added 2D GW flow
+- KNOWN BUG: when using ET mass balance is not correct (calculations are)
+- changed behaviour of flow to culverts, gradual increase of mannings n until Q < Qmax
+- fixed bug in display of avg soil moisture in Map screen
+- interface: fixed bug when changing river size in map screen
+- interface: fixed bug in tree display of maps
+
+version 6.872
+- fixed interface bugs that crashed LISEM
+- fixed zize of output dot
+- fixed map display aspect ratio
+
+version 6.87
+- Fixed some problems with culvert flow (chanmaxq.map)
+- Better display of culverts in the map (white on black)
+- show hard surfaces in the map
+
+version 6.86 beta
+- More rigorous checking of rainfall station ID versus map ID
+- Inverse distance interpolation of rainfall, fixed bug and linked to IDgauges.map
+- code: rewrite of application.cmake
+- new dlll libs with the lates version of MSYS (13 aug 2022)
+
+version 6.84.9-6.85 beta
 - enabled inverse distance interpolation from station rainfall
 - map draw now with real ccoordinates
 - fixed boundary outflow when there is no channel
@@ -17,11 +43,11 @@ version 6.847-6.84.13 beta
 - separate calibration for ksat2, to have better control over subsoil and GW
 - experimental: channel tortuosity in calibration factors to account for non-rectangular channel
 
-version 6.846-6.848 beta
+version 6.84.6-6.84.8 beta
 - fixed a mass balance bug when adding water to roads
 - fixed a mass balance bug when activating ET
 
-version 6.80-6.846 beta
+version 6.80-6.84.6 beta
 - added Engelund and Hansen for river sediment transport (after Hecras)
 - added direct transport factor for river transport (skipping bed erosion)
 - fixed bugs in channel concentration output to file

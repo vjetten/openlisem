@@ -3,14 +3,16 @@ cmake_minimum_required(VERSION 3.9)
 #============ WIN ========================
 
 IF(WIN32)
- SET(QWT_BUILD_DIR "C:/Qwt61ma/qwt-6.1-ma") #"c:/qt/qwtma")
- SET(GDAL_BUILD_DIR "C:/msys/mingw64")
- SET(MINGW_BUILD_DIR "C:/msys/mingw64")
+   # NOTE: a branch of QWT is used for double axis display:
+   # https://sourceforge.net/p/qwt/code/HEAD/tree/branches/qwt-6.1-multiaxes/
+     SET(QWT_BUILD_DIR "C:/Qwt61ma/qwt-6.1-ma")
+ 	 SET(GDAL_BUILD_DIR "C:/msys/mingw64")
+ 	 SET(MINGW_BUILD_DIR "C:/msys/mingw64")
 
     SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
 
-    # QW{T standard MSYS install
+    # QWT standard MSYS install
     #   SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/qwt-qt5")
     #   SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
 
@@ -74,6 +76,7 @@ ENDIF()
 #============ sourcecode files ===============
 
 SET(APP_SOURCES
+    fixesandbugs.txt
     main.cpp
     CsfMap.cpp
     CsfRGBMap.cpp
@@ -91,6 +94,7 @@ SET(APP_SOURCES
     ui_full/lisemqt.cpp
     ui_full/LisUIplot.cpp
     ui_full/LisUImapplot.cpp
+    ui_full/LisUImapplot.h
     swatre/swatstep.cpp
     swatre/swatinit.cpp
     swatre/soillut.cpp
@@ -105,6 +109,7 @@ SET(APP_SOURCES
     lisExtendedChannel.cpp
     lisFlowBarriers.cpp
     lisEvaporation.cpp
+    lisGWflow.cpp
     lisInfiltration.cpp
     lisInterception.cpp
     lisKinematic.cpp

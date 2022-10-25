@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -283,9 +283,6 @@ void lisemqt::initPlot()
     }
     else
     {
-        //        QsGraph->detach();
-        //        CGraph->detach();
-
         QGraph->setAxes(HPlot->xBottom, *axisYL1);
         PGraph->setAxes(HPlot->xBottom, *axisYR1);
         HPlot->setAxesCount(QwtPlot::yLeft, 1);

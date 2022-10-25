@@ -19,7 +19,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -341,7 +341,7 @@ void TWorld::doETa()
                 double thetar = ThetaR1->Drc;
                 double Lw_ = Lw->Drc;
                 double theta_e = (theta-thetar)/(pore-thetar);
-                double f = 1.0/(1.0+qPow(theta_e/0.5,6.0));
+                double f = 1.0/(1.0+qPow(theta_e/0.4,8.0));
                 //double ETa_soil = theta_e*ETp_;
                 double ETa_soil = (1.0-f)*etanet*Cover_ + theta_e*ETp_*(1-Cover_);   //Transpiration + Evaporation
 
@@ -446,16 +446,18 @@ void TWorld::avgTheta()
 
         if (Lw_ > 0 && Lw_ < SoilDep1 - 1e-3) {
             double f = Lw_/SoilDep1;
-            ThetaI1a->Drc = f * ThetaS1->Drc + (1-f) *Thetaeff->Drc;
+            //ThetaI1a->Drc = f * ThetaS1->Drc + (1-f) *Thetaeff->Drc;
+            ThetaI1a->Drc = f * Poreeff->Drc + (1-f) *Thetaeff->Drc;
         }
         if (Lw_ > SoilDep1 - 1e-3)
-            ThetaI1a->Drc = ThetaS1->Drc;
+            ThetaI1a->Drc = Poreeff->Drc;
+            //ThetaI1a->Drc = ThetaS1->Drc;
 
         if (SwitchTwoLayer) {
             double SoilDep2 = SoilDepth2->Drc;
             ThetaI2a->Drc = ThetaI2->Drc;
             if (Lw_ > SoilDep1 && Lw_ < SoilDep2 - 1e-3) {
-                double f = (Lw_-SoilDep1)/(SoilDep1-SoilDep1);
+                double f = (Lw_-SoilDep1)/(SoilDep2-SoilDep1);
                 ThetaI2a->Drc = f * ThetaS2->Drc + (1-f) *ThetaI2->Drc;
             }
             if (Lw_ > SoilDep2 - 1e-3)

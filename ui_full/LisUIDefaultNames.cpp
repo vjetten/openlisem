@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -59,7 +59,6 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Litter;litter.map;Fraction of surface cover by litter/herbs under trees (-);litter");
     DEFmaps.append("2;LAI;lai.map;Leaf area index of the plant cover in a gridcell (m2/m2);lai");
     DEFmaps.append("2;Height;ch.map;Plant height (m);ch");
-    DEFmaps.append("2;Road width;roadwidt.map;Width of impermeable roads (m);road");
     DEFmaps.append("2;Canopy storage;smax.map;Maximum canopy storage (mm);smax");
 
     DEFmaps.append("0;Surface");
@@ -68,17 +67,6 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Stoniness;stonefrc.map;Fraction covered by stones (affects only splash det.) (-);stonefrc");
     DEFmaps.append("2;Crust;crustfrc.map;Fraction of gridcell covered with Crust (-) (see also ksat crust);crustfrc");
     DEFmaps.append("2;Compacted;compfrc.map;Fraction of gridcell compacted (e.g. wheeltracks)(-) (see also ksat compacted);compfrc");
-    DEFmaps.append("2;Hard Surface;hardsurf.map;No interception/infiltration/detachment (fraction 0-1);hardsurf");
-
-    DEFmaps.append("0;Erosion");
-    DEFmaps.append("2;Cohesion;coh.map;Cohesion (kPa);coh");
-    DEFmaps.append("2;Cohesion;cohadd.map;Extra cohesion factor by e.g. plant roots (kPa);cohadd");
-    DEFmaps.append("2;Aggregates;aggrstab.map;Aggregate stability for splash erosion (-);aggrstab");
-    DEFmaps.append("2;D50;d50.map;Median of the texture of the suspendeed matter (mu);d50");
-    DEFmaps.append("2;D90;d90.map;90% quartile of the texture of the suspendeed matter (mu);d90");
-    DEFmaps.append("2;Max material;detmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);detmat");
-    DEFmaps.append("2;MixingDepth;sedmixdepth.map; Mixing depth for deposited sediment (m);sedmixdepth");
-    //DEFmaps.append("2;MaxDepth;maxdetdepth.map; Maximum depth for detachment (m)(-1 = infinite);maxdet");
 
     DEFmaps.append("0;Infiltration");
     DEFmaps.append("1;Swatre");
@@ -118,30 +106,49 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;LDD;lddchan.map;LDD of main channel (must be 1 branch connected to the outlet);lddchan");
     DEFmaps.append("2;Width;chanwidt.map;Channel width (m);chanwidth");
     DEFmaps.append("2;Depth;chandepth.map;Channel depth, zero (0) depth is considered infinite (m);chandepth");
-    DEFmaps.append("2;Side angle;chanside.map;Channel side angle (tan angle  channel side and surface: 0 is rectangular);chanside");
     DEFmaps.append("2;Gradient;changrad.map;Slope gradient of channel bed (-);changrad");
+    DEFmaps.append("2;Side angle;chanside.map;Channel side angle (tan angle  channel side and surface: 0 is rectangular);chanside");
     DEFmaps.append("2;N;chanman.map;Mannings n of channel bed (-);chanman");
     DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
-//    DEFmaps.append("2;BaseFlow;baseflow.map; base flow discharges (m3/s);baseflow");
     DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
-   // DEFmaps.append("2;Dscharge input;QinPoints.map;Locations in channel network where discharge is added from a text record. Unique nr > 0;qinpoints");
-    DEFmaps.append("2;WHInit;WHinit.map;Initial floodlevel (m);whinit");
     DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh");
-    DEFmaps.append("2;Channelmaterial;chandetmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);chandetmat");
-    DEFmaps.append("2;ChannelMixingDepth;chansedmixdepth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
-//    DEFmaps.append("2;ChannelLevee;chanlevee.map;Height of small channel levee on both sides of the channel (m);chanlevee");
-//    DEFmaps.append("2;floodZone;floodzone.map;potential flood zone to limit calculations (1 = in, 0 = out);floodzone");
     DEFmaps.append("2;Stationary baseflow;baseflow.map;Stationary baseflow maintained in the run (m3/s at the outlet);baseflow");
     DEFmaps.append("2;Baseflow network;lddbaseflow.map;LDD perpendicular to the river;lddbase");
     DEFmaps.append("2;Baseflow contrib. area;basedistance.map;Distance to river (m);basereach");
-    DEFmaps.append("2;Initial level;gwlevel.map;Initial groundwater level (m);gwlevel");
+    DEFmaps.append("2;WHInit;WHinit.map;Initial floodlevel (m);whinit");
+//    DEFmaps.append("2;Initial level;gwlevel.map;Initial groundwater level (m);gwlevel");
 
-    DEFmaps.append("0;Conservation");
+    // DEFmaps.append("2;Dscharge input;QinPoints.map;Locations in channel network where discharge is added from a text record. Unique nr > 0;qinpoints");
+    //    DEFmaps.append("2;Channelmaterial;chandetmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);chandetmat");
+    //    DEFmaps.append("2;ChannelMixingDepth;chansedmixdepth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
+
+    //houses
+    DEFmaps.append("0;Buildings and roads");
+    DEFmaps.append("2;Road width;roadwidt.map;Width of impermeable roads (m);road");
+    DEFmaps.append("2;Building Cover;housecover.map;Fraction of hard roof surface per cell (-);housecover");
+    DEFmaps.append("2;Roof Storage;roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
+    DEFmaps.append("2;Drum Store;drumstore.map;Size of storage of rainwater drums (m3);drumstore");
+    DEFmaps.append("2;Hard Surface (e.g. parking lots, airstrips);hardsurf.map;No interception/infiltration/detachment (fraction 0-1);hardsurf");
+
+    DEFmaps.append("0;Erosion");
+    DEFmaps.append("2;Cohesion;coh.map;Cohesion (kPa);coh");
+    DEFmaps.append("2;Cohesion;cohadd.map;Extra cohesion factor by e.g. plant roots (kPa);cohadd");
+    DEFmaps.append("2;Aggregates;aggrstab.map;Aggregate stability for splash erosion (-);aggrstab");
+    DEFmaps.append("2;D50;d50.map;Median of the texture of the suspendeed matter (mu);d50");
+    DEFmaps.append("2;D90;d90.map;90% quartile of the texture of the suspendeed matter (mu);d90");
+    //DEFmaps.append("2;Max material;detmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);detmat");
+    //DEFmaps.append("2;MixingDepth;sedmixdepth.map; Mixing depth for deposited sediment (m);sedmixdepth");
+    //DEFmaps.append("2;MaxDepth;maxdetdepth.map; Maximum depth for detachment (m)(-1 = infinite);maxdet");
+
+    DEFmaps.append("0;Mitigation");
     DEFmaps.append("2;Grass strips;grasswid.map;Width of grass strips (m);grasswidth");
     DEFmaps.append("2;Sediment traps;sedretmax.map;Max sediment volume in m2 per cell that can be trapped;sedretmax");
     DEFmaps.append("2;Ksat Grass;ksatgras.map;Ksat of grassstrips (all models except SWATRE) (mm/h);ksatgras");
     DEFmaps.append("2;Porosity Grass;poregras.map;Porosity of grasstrips (all models except SWATRE) (-);poregras");
     DEFmaps.append("2;Cohesion Grass;cohgras.map;Porosity of grasstrips (all models except SWATRE) (-);cohgras");
+//    DEFmaps.append("0;FlowBarriers");
+    DEFmaps.append("2;FlowBarrierIndex;flowbarrierindex.map;An index value, indicating which flow barrier properties will be used (-);flowbarrierindex");
+    DEFmaps.append("2;FlowBoundary;flowboundary.map;A value of 1 at the domain boundary means free outflow, a 0 means no flow (-);flowboundary");
 
     DEFmaps.append("0;Storm/Tile drains");
     DEFmaps.append("2;LDD;lddtile.map;LDD of tile drain system (must be one system connected to the outlet);lddtile");
@@ -152,15 +159,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Depth;tiledepth.map;Tile drain pipe depth below surface (m);tiledepth");
     DEFmaps.append("2;Gradient;tilegrad.map;Slope gradient of the tile drains (-);tilegrad");
     DEFmaps.append("2;N;tileman.map;Mannings n of the tile drains (-);tileman");
-    //houses
-    DEFmaps.append("0;Houses");
-    DEFmaps.append("2;House Cover;housecover.map;Fraction of hard roof surface per cell (-);housecover");
-    DEFmaps.append("2;Roof Storage;roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
-    DEFmaps.append("2;Drum Store;drumstore.map;Size of storage of rainwater drums (m3);drumstore");
 
-    DEFmaps.append("0;FlowBarriers");
-    DEFmaps.append("2;FlowBarrierIndex;flowbarrierindex.map;An index value, indicating which flow barrier properties will be used (-);flowbarrierindex");
-    DEFmaps.append("2;FlowBoundary;flowboundary.map;A value of 1 at the domain boundary means free outflow, a 0 means no flow (-);flowboundary");
 
     // example
     //   DEFmaps.append("0;Pesticides");
@@ -302,7 +301,9 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Include road system");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include house storage");
+    namelist[i++].name = QString("Include buildings");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Add buildings to DEM");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include raindrum storage");
     namelist[i].value = QString("0");
@@ -416,24 +417,30 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Correct DEM");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Use 2D Diagonal flow");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use SWOF watersheds");
+//    namelist[i].value = QString("0");
+ //   namelist[i++].name = QString("Use SWOF watersheds");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood solution");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("GW flow SWAT");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("GW flow explicit");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW recharge factor");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW flow factor");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("GW river inflow factor");
     namelist[i].value = QString("0.2");
     namelist[i++].name = QString("GW threshold factor");
-    namelist[i].value = QString("0.0");
-    namelist[i++].name = QString("GW initial level");
+//    namelist[i].value = QString("0.0");
+//    namelist[i++].name = QString("GW initial level");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW slope factor");
-    namelist[i].value = QString("0.2");
-    namelist[i++].name = QString("GW lag factor");
-    namelist[i].value = QString("0.0");
-    namelist[i++].name = QString("GW bypass factor");
+//    namelist[i].value = QString("0.2");
+//    namelist[i++].name = QString("GW lag factor");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("GW deep percolation");
 
     //###
     namelist[i++].name = QString("");
@@ -613,12 +620,16 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Use gravity flow");
     namelist[i].value = QString("10.0");
     namelist[i++].name = QString("Pit Value");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Variable Timestep");
+ //  namelist[i].value = QString("0");
+ //   namelist[i++].name = QString("Variable Timestep");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Use Channel Kinwave dt");
     namelist[i].value = QString("60.0");
     namelist[i++].name = QString("Channel KinWave dt");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Use Channel Max V");
+    namelist[i].value = QString("10.0");
+    namelist[i++].name = QString("Channel Max V");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Use 2D Diagonal flow new");
     namelist[i].value = QString("0");

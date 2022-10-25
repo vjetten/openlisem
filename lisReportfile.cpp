@@ -19,7 +19,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -285,8 +285,8 @@ void TWorld::OutputUI(void)
         if (SwitchHouses)
             copy(*op.houseMap, *HouseCover);
 
-//        if(SwitchCulverts)
-//            copy(*op.flowbarriersMap,*ChannelMaxQ);
+        if(SwitchHardsurface)
+            copy(*op.hardsurfaceMap,*HardSurface);
 
         if(SwitchFlowBarriers)
         {
