@@ -104,7 +104,7 @@ double TWorld::MaxConcentration(double watvol, double *sedvol, double *dep)
 {
     double conc = 0;
     // when if activate, MBs error in KINDYN !!! Bizarre
-    if (watvol > 1e-6)
+    if (watvol > tiny)
         conc = std::min(*sedvol/watvol, MAXCONC);   // 1e-6 is 1 ml/m2 !!
     else
         conc = 0;

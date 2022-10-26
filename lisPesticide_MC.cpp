@@ -184,7 +184,7 @@ void TWorld::PesticideDynamicsMC(void)
 
        //infiltration from mixing layer to deeper soil
        PMinf->Drc = 0.0; //does not need to be a map...
-       if (InfilVol->Drc > 1e-6) {
+       if (InfilVol->Drc > tiny) {
            // assume the mixing layer is saturated during infiltration or runoff.
            Theta_mix->Drc = ThetaS1->Drc;
            // mg = m3 * 1000 * (mg L-1)
@@ -248,7 +248,7 @@ double TWorld::PesticidePercolation(double perc, double soildep, double lw,
                 double zm, double dx, double swdx, double pcmw)
 {
     double mass_perc {0.0}; // mg
-    if (perc < 1e-7) {
+    if (perc < tiny) {
         mass_perc = 0;
     } else {
         // calculate volume of percolated water from mixing layer
@@ -312,7 +312,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     double mrw_inf {0.0};   //mg
     double Crw_avg {0.0};   // mg/L - no runoff; concentration = 0
     //no runoff - add leftover of mass in runoff water to mixing layer
-    if (Qn->Drc + QinKW->Drc <= 1e-6) {
+    if (Qn->Drc + QinKW->Drc <= MIN_FLUX) {
         PCrw->Drc = 0.0;        //concentration = 0
         PMmw->Drc += PMrw->Drc; //add any leftover mass to mixing layer
         pmwdep->Drc -= PMrw->Drc;
@@ -320,7 +320,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         PQrw->Drc = 0.0;        // discharge = 0
 
     }
-    if (Qn->Drc + QinKW->Drc > 1e-6) { // more than 1 ml - what is best definition of runoff?
+    if (Qn->Drc + QinKW->Drc > MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
         // calculate the correct C's based on the Qin and Qold etc.
         // mg L-1 = (mg + (mg sec-1 * sec)) / (m3 + (m3 sec-1 * sec)) * 1000(m3 -> L)
         Crw_avg = (PMrw->Drc + (QpinKW->Drc * _dt))
@@ -415,7 +415,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     double msrm_ex {0.0};
 
     //no erosion - add leftover of mass to mixing layer
-    if (Sed->Drc < 1e-6) {
+    if (Sed->Drc < tiny) {
         PCrs->Drc = 0.0;        //concentration = 0
         PMms->Drc += PMrs->Drc; //add any leftover mass to mixing layer
         pmsdep->Drc -= PMrs->Drc;
@@ -424,7 +424,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 
     }
 
-    if (_Sed->Drc > 1e-6) { // more than 0.01 gram _Qsn->Drc + Sin
+    if (_Sed->Drc > tiny) { // more than 0.01 gram _Qsn->Drc + Sin
         // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
         Crs_avg = (PMrs->Drc + (SpinKW->Drc * _dt))
                   / (_Sed->Drc + (SinKW->Drc * _dt));
@@ -434,14 +434,14 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         // option 1 - all deposition on roads add directly to sink
         // option 2 - deposition on roads can be eroded and added into the system...
         double eMass = (DEP->Drc + DETFlow->Drc + DETSplash->Drc); //kg/cell - sediment BulkDensity is part of runfile Conservation
-        if (eMass < -1e-6) { //close to zero no calculations are done
+        if (eMass < -tiny) { //close to zero no calculations are done
             //deposition
             // m = kg / kg m-3 * m * m
             Ez->Drc = eMass / (rho * _DX->Drc * FlowWidth->Drc); // also on road surface
             msoil_ex = eMass * PCms->Drc; // what happens with pesticides on roads??
             // mg = mg kg-1 * kg
             msrm_ex = Crs_avg * eMass; // loss by deposition            
-        } else if (eMass > 1e-6){
+        } else if (eMass > tiny){
             // erosion
             Ez->Drc = eMass / (rho * _DX->Drc * SoilWidthDX->Drc); // only on soil surface
             msoil_ex = eMass * PCs->Drc; // * SoilWidthDX->Drc * _DX->Drc * rho;
@@ -627,7 +627,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     double mrw_q {0.0};     //mg - mass new outflux
 
     //no runoff - add leftover of mass in runoff water to mixing layer
-    if (Qn->Drc + QinKW->Drc <= 1e-6) {
+    if (Qn->Drc + QinKW->Drc <= MIN_FLUX) {
         PCrw->Drc = 0.0;        //concentration = 0
         PMmw->Drc += PMrw->Drc; //add any leftover mass to mixing layer
         pmwdep->Drc -= PMrw->Drc;
@@ -635,7 +635,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         PQrw->Drc = 0.0;        // discharge = 0
 
     }
-    if (Qn->Drc + QinKW->Drc > 1e-6) { // more than 1 ml - what is best definition of runoff?
+    if (Qn->Drc + QinKW->Drc > MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
         Qpw->Drc = PCrw->Drc * 1000 * Q->Drc;
         // calculate new Qp
         _Qpwn->Drc = QpwInfExCombined(Qn->Drc, QinKW->Drc, Q->Drc,

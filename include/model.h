@@ -53,7 +53,7 @@
 
 #define PI 3.14159265
 
-#define HMIN 1e-6
+#define HMIN 1e-8
 
 #define DEBUG(s) emit debug(QString(s))
 #define TIMEDB(s) emit timedb(QString(s))
@@ -141,11 +141,12 @@
 #define NRUNITS 512  /// \def max number of landunits or depth classes in flooding
 #define NUMNAMES 512   /// \def NUMNAMES runfile namelist max
 #define NUMMAPS 512    /// \def max nr maps
-#define MIN_FLUX 1e-6 /// \def minimum flux (m3/s) in kinematic wave
+#define MIN_FLUX 1e-8 /// \def minimum flux (m3/s) in kinematic wave
 #define MIN_HEIGHT 1e-6 /// \def minimum water height (m) for transport of sediment
 #define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MAXCONCBL 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MIN_SLOPE 1e-6
+#define tiny 1e-8
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
