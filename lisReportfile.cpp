@@ -161,6 +161,7 @@ void TWorld::OutputUI(void)
         op.PMinf = Pestinf;
         op.PMperc = PestPerc;
         op.PestName = PestName;
+        op.PMtotI = PMtotI;
         if (SwitchErosion) {
             op.PMOutS = PestOutS;
         }
@@ -837,6 +838,7 @@ void TWorld::ReportTotalsNew(void)
     if (SwitchPestMC) {
         out << "\n";
         out << "\"Pesticide simulated:\"," << op.PestName << "\n";
+        out << "\"Initial pesticide mass in system (mg) \", " << op.PMtotI << "\n";
         out << "\"Total dissolved pesticide transport (mg):\"," << op.PMOutW<< "\n";
         if (SwitchErosion) out << "\"Total particulate pesticide transport (mg):\"," << op.PMOutS<< "\n";
     }

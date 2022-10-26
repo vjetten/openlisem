@@ -91,7 +91,7 @@ struct output{
     MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot, maxRainaxis,
     //Pesticide-MC
     PCrw, PCrs, PQrw, PQrs, PMrw, PMrs, PCmw, PCms, PMinf, PMmw, PMms, PMOutW,
-    PMOutS, PMerr, PMperc, PestOutW, PestOutS;
+    PMOutS, PMerr, PMperc, PestOutW, PestOutS, PMtotI;
     QString PestName;
 
 
