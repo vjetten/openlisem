@@ -4489,7 +4489,7 @@ p, li { white-space: pre-wrap; }
                       <bool>true</bool>
                      </property>
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -6567,7 +6567,20 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="2" colspan="4">
+                   <item row="0" column="6">
+                    <spacer name="horizontalSpacer_12">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item row="3" column="2" colspan="7">
                     <spacer name="horizontalSpacer_21">
                      <property name="orientation">
                       <enum>Qt::Horizontal</enum>
@@ -6580,10 +6593,10 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </spacer>
                    </item>
-                   <item row="7" column="0" colspan="10">
+                   <item row="7" column="0" colspan="9">
                     <widget class="QGroupBox" name="groupBoxConservation">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -6985,19 +6998,6 @@ p, li { white-space: pre-wrap; }
                      </layout>
                     </widget>
                    </item>
-                   <item row="0" column="6">
-                    <spacer name="horizontalSpacer_12">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
                   </layout>
                  </widget>
                  <widget class="QWidget" name="tab_calib">
@@ -7041,7 +7041,7 @@ p, li { white-space: pre-wrap; }
                    <item row="1" column="0" colspan="2">
                     <widget class="QGroupBox" name="groupBoxCalibration">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -7927,6 +7927,12 @@ p, li { white-space: pre-wrap; }
                         <property name="enabled">
                          <bool>true</bool>
                         </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
@@ -7977,6 +7983,12 @@ p, li { white-space: pre-wrap; }
                       </item>
                       <item row="7" column="0" colspan="2">
                        <widget class="QGroupBox" name="groupBox">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
@@ -8208,6 +8220,12 @@ p, li { white-space: pre-wrap; }
                         <property name="enabled">
                          <bool>true</bool>
                         </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
@@ -8384,7 +8402,7 @@ p, li { white-space: pre-wrap; }
                          <bool>true</bool>
                         </property>
                         <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                           <horstretch>0</horstretch>
                           <verstretch>0</verstretch>
                          </sizepolicy>
@@ -10409,7 +10427,7 @@ p, li { white-space: pre-wrap; }
              <item>
               <widget class="QGroupBox" name="groupTime">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -10660,7 +10678,7 @@ p, li { white-space: pre-wrap; }
              <item>
               <widget class="QGroupBox" name="watergroup">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -11273,7 +11291,7 @@ p, li { white-space: pre-wrap; }
              <item>
               <widget class="QGroupBox" name="sedgroup">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -11850,7 +11868,7 @@ p, li { white-space: pre-wrap; }
              <item>
               <widget class="QGroupBox" name="outletgroup">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -12296,7 +12314,7 @@ p, li { white-space: pre-wrap; }
               <bool>true</bool>
              </property>
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -12871,7 +12889,7 @@ p, li { white-space: pre-wrap; }
            <item>
             <widget class="QGroupBox" name="groupBox_info">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>

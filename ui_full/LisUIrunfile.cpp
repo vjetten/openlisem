@@ -499,7 +499,6 @@ void lisemqt::ParseInputData()
                     E_MapDir->setText(E_WorkDir);
             }
         }
-
         if (p1.compare("Result Directory")==0)
         {
             if (doBatchmode)
@@ -508,7 +507,6 @@ void lisemqt::ParseInputData()
                 E_ResultDir->setText(CheckDir(p, false));
             if (!QFileInfo(E_ResultDir->text()).exists() && QFileInfo(E_WorkDir).exists())
                 E_ResultDir->setText(E_WorkDir + "res/");
-
         }
 
         if (p1.compare("Main results file")==0) E_MainTotals->setText(p);
@@ -612,7 +610,8 @@ void lisemqt::ParseInputData()
         E_RainfallName->setText(RainFileDir + RainFileName);
     }
 
-  //  if (checkIncludeET->isChecked()) {
+
+    if (checkIncludeET->isChecked()) {
         E_ETName->setText(ETFileDir + ETFileName);
         if (!QFileInfo(E_ETName->text()).exists() && !E_ETName->text().isEmpty())
         {
@@ -626,7 +625,7 @@ void lisemqt::ParseInputData()
             ETSatFileDir = QString(E_WorkDir + "rain/");
             E_ETsatName->setText(ETSatFileDir + ETSatFileName);
         }
-//    }
+    }
 
 //    E_SnowmeltName->setText(SnowmeltFileDir + SnowmeltFileName);
 //    if (!QFileInfo(E_SnowmeltName->text()).exists())
@@ -643,7 +642,6 @@ void lisemqt::ParseInputData()
         E_satImageName->setText("");
         //E_satImageName->setText(satImageFileDir + satImageFileName);
     }
-
 
     int days = daystart.toInt();
     int mins = minstart.toInt();
@@ -724,7 +722,7 @@ QString lisemqt::CheckDir(QString p, bool makeit)
     /* TODO mulitplatform: fromNativeSeparators etc*/
     QString path;
 
-    if (p.isEmpty())
+    if (p.isEmpty() || p == "/")
         return(p);
 
     path = QDir(p).fromNativeSeparators(p);
