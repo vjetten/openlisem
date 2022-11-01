@@ -162,17 +162,34 @@ void TWorld::PesticideDynamicsMC(void)
     FOR_ROW_COL_MV_L{
        // no runoff, no erosion
        double mda_ex {0.0};        // mg - exchange mixing layer
+       double mda_tot {0.0};       // mg - total mass in both phases
+       double eql_ads {0.0};       // mg - adsorbed mass in equilibrium
+       double eql_diss {0.0};      // mg - dissolved mass in equilibrium
+       double m_diff {0.0};        // mg - current mass - eql mass
+       double vol_w {0.0};         // l - volume water in mixing layer
+       double mass_s {0.0};        // kg - mass sediment in mixing layer
 
        // exchange between adsorbed and dissolved in mixing zone
 
        // for now the assumption is made that the resulting unit of
        // Kr * (Kd * PCmw->Drc - PCms->Drc) is mg * kg-1 * sec-1
-       // this hold if 1L water = 1kg
+       // this holds if 1L water = 1kg
 
        // positive adds to absorbed, negative to dissolved.
        // mg = mg kg-1 sec-1 * kg m-3 * m * m * m * sec
        mda_ex = (kr * (Kd * PCmw->Drc - PCms->Drc) * rho * _dt
                  * SoilWidthDX->Drc * DX->Drc * zm->Drc);
+
+       // calculate equilibrium mass division
+       mda_tot = PMmw->Drc + PMms->Drc;
+       vol_w = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
+       mass_s = zm->Drc * DX->Drc * SoilWidthDX->Drc * rho;
+       eql_diss = mda_tot / (1 + (Kd / vol_w * mass_s));
+       eql_ads = mda_tot - eql_diss;
+       // mda_ex can not be larger than m_diff
+       m_diff = eql_ads - PMms->Drc;
+
+       mda_ex = std::abs(mda_ex) > std::abs(m_diff) ? m_diff : mda_ex;
 
        //percolation
        PMperc->Drc = 0.0; //does not need to be a map...
@@ -191,18 +208,17 @@ void TWorld::PesticideDynamicsMC(void)
            PMinf->Drc = InfilVol->Drc * 1000 * PCmw->Drc; // infiltration mixing layer (mg)
        }
 
-       PMmw->Drc = std::max(0.0, PMmw->Drc - mda_ex);
-
        // adjust masses if outflow if more than available mass.
-       if (PMmw->Drc < PMinf->Drc + PMperc->Drc) {
-           double tot = PMinf->Drc + PMperc->Drc;
+       if (PMmw->Drc < PMinf->Drc + PMperc->Drc + mda_ex) {
+           double tot = PMinf->Drc + PMperc->Drc + mda_ex;
            PMinf->Drc = (PMinf->Drc/tot) * PMmw->Drc;
            PMperc->Drc = (PMperc->Drc/tot) * PMmw->Drc;
+           mda_ex = (mda_ex/tot) * PMmw->Drc;
            PCmw->Drc = 0;
        }
        // update mass after percolation and infiltration
        // mg = mg - mg - mg
-       PMmw->Drc = std::max(0.0, PMmw->Drc - PMinf->Drc - PMperc->Drc);
+       PMmw->Drc = std::max(0.0, PMmw->Drc - PMinf->Drc - PMperc->Drc - mda_ex);
        // mg = mg + mg
        PMms->Drc = std::max(0.0, PMms->Drc + mda_ex);
        // update PCmw before dissolved
