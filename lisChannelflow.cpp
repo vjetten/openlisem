@@ -113,17 +113,17 @@ void TWorld::ChannelRainandInfil(void)
 //! channel WH and V and Q are clculated before
 void TWorld::ChannelFlow(void)
 {
-//    if (SwitchChannelKinwaveDt) {
-//        if (_dt_user > _dtCHkin) {
-//            double n = _dt_user/_dtCHkin;
-//            _dt = _dt_user/n;
-//        }
-//    }
+    if (SwitchChannelKinwaveDt) {
+        if (_dt_user > _dtCHkin) {
+            double n = _dt_user/_dtCHkin;
+            _dt = _dt_user/n;
+        }
+    }
 
- //   for (double t = 0; t < _dt_user; t+=_dt)
-   // {
+    for (double t = 0; t < _dt_user; t+=_dt)
+    {
 
-        double sumvol = getMassCH(ChannelWaterVol);
+       // double sumvol = getMassCH(ChannelWaterVol);
 
         // velocity, alpha, Q
         #pragma omp parallel num_threads(userCores)
@@ -158,76 +158,42 @@ void TWorld::ChannelFlow(void)
                 }
                 Perim *= ChnTortuosity;
                 Radius = (Perim > 0 ? Area/Perim : 0);
-
                 ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
                 ChannelQ_ = ChannelV_ * Area;
                 ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
                 ChannelNcul->Drc  = ChannelN->Drc;
 
                 if (SwitchCulverts) {
-                    // in culvert cells
-                    double MaxQ = ChannelMaxQ->Drc;
 
-                    if (MaxQ > 0 ) {
-                        double ChannelQ1 = ChannelQ_;
-                        double v1 = ChannelV_;
+                    if (ChannelMaxQ->Drc > 0 ) {
 
-                        ChannelNcul->Drc = (0.1+ChannelQ_/MaxQ) * 0.015; //0.015 is assumed to be the N of a concrete tube
+                        ChannelNcul->Drc = (0.05+ChannelQ_/MaxQ) * 0.015; //0.015 is assumed to be the N of a concrete tube
                         //https://plainwater.com/water/circular-pipe-mannings-n/
                         // resistance increases with discharge, tube is getting fuller
-                        double v2 = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/ChannelNcul->Drc);
-                        double ChannelQ2 = v2 * Area;
 
-                        ChannelQ_ = std::min(ChannelQ1, ChannelQ2);
-                        ChannelV_ = std::min(v1, v2);
-                        ChannelNcul->Drc  = std::min(ChannelNcul->Drc,ChannelN->Drc);
-                        //qDebug() << ChannelQ1 << ChannelQ2 << MaxQ;
+                        double v2 = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/ChannelNcul->Drc);
+                        //max velocity not to exceed MaxQ, see excel
+                        ChannelV_ = std::min(ChannelV_, v2);
+                        ChannelNcul->Drc = std::min(ChannelNcul->Drc,ChannelN->Drc);
+                        ChannelQ_ = ChannelV_ * Area;
 
                         if (ChannelQ_ > MaxQ){
                             ChannelV_ = MaxQ/Area;
                             ChannelQ_ = MaxQ;
                             ChannelAlpha_ = Area/std::pow(MaxQ,0.6);
                         }
-//                        else {
-//                            ChannelNcul->Drc  = ChannelN->Drc;
-//                        }
+                        ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
                     }
                 }
-            }
 
-            ChannelAlpha->Drc = ChannelAlpha_;
-            ChannelQ->Drc = ChannelQ_;
-            ChannelV->Drc = ChannelV_;
+                ChannelAlpha->Drc = ChannelAlpha_;
+                ChannelQ->Drc = ChannelQ_;
+                ChannelV->Drc = ChannelV_;
 
-            ChannelQsn->Drc = 0;
-            Channelq->Drc = 0;
-            QinKW->Drc = 0;
+                ChannelQsn->Drc = 0;
+                Channelq->Drc = 0;
+                QinKW->Drc = 0;
 
-        }}
-
-        // ChannelV and Q and alpha now based on original width and depth, channel vol is always the same
-
-        if (SwitchLinkedList) {
-
-            ChannelQn->setAllMV();
-
-            FOR_ROW_COL_LDDCH5 {
-                Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX);//, ChannelMaxQ);
-            }}
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                if (pcr::isMV(ChannelQn->Drc))
-                    ChannelQn->Drc = 0;
-            }}
-
-        } else {
-            // default
-            KinematicExplicit(crlinkedlddch_, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX);//, ChannelMaxQ);
-        }
-
-        // calc V and WH back from Qn (original width and depth)
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL {
 
             if (SwitchCulverts && ChannelMaxQ->Drc > 0) {
                 double chqn = ChannelQn->Drc;
@@ -264,6 +230,38 @@ void TWorld::ChannelFlow(void)
 
    // }
   // _dt=_dt_user;
+
+            //  ChannelQ->Drc = ChannelQn->Drc;  // NOT because needed in erosion!
+
+//                // q = va = C*R^2/3 *hw ~ Cw* h^5/3  C = sqrt(S)/n
+//                //H = (q/Cw)^3/5
+//                double wh = std::pow(ChannelQn->Drc/(ChannelWidth->Drc*sqrt(ChannelGrad->Drc)/ChannelNcul->Drc),3.0/5.0);
+//                ChannelWaterVol->Drc = wh*ChannelWidth->Drc*ChannelDX->Drc;
+
+            ChannelWaterVol->Drc += (QinKW->Drc - ChannelQn->Drc)*_dt;
+            ChannelWaterVol->Drc = std::max(0.0,ChannelWaterVol->Drc);
+            // vol is previous + in - out
+            ChannelAlpha->Drc = ChannelQn->Drc > 1e-6 ? (ChannelWaterVol->Drc/ChannelDX->Drc)/std::pow(ChannelQn->Drc, 0.6) : ChannelAlpha->Drc;
+
+            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+            // new channel WH, use adjusted channelWidth
+
+            double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
+            double P = 2*ChannelWH->Drc+ChannelWidth->Drc;
+
+            if (P > 0)
+                ChannelV->Drc = std::pow(ChannelArea/P,2/3)*sqrtGrad->Drc/ChannelNcul->Drc;
+            else
+                ChannelV->Drc = 0;
+
+            // get the maximum for output
+            maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
+            maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
+        }}
+       // correctMassBalanceCH(sumvol,ChannelWaterVol);
+    }
+    _dt=_dt_user;
+>>>>>>> main_C30oct
 }
 
 void TWorld::ChannelSedimentFlow()

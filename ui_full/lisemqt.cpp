@@ -615,8 +615,9 @@ void lisemqt::setOutputScreen()
 void lisemqt::setOutputInfo(bool check)
 {
     if (W) {
-      W->noInfo = check;//!W->noInfo;
-      picker->setEnabled(check);//W->noInfo);
+
+      W->noInfo = check;
+      picker->setEnabled(check);
     }
 }
 
