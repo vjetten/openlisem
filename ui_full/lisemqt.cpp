@@ -612,10 +612,10 @@ void lisemqt::setOutputScreen()
 }
 
 
-void lisemqt::setOutputInfo()
+void lisemqt::setOutputInfo(bool check)
 {
     if (W) {
-      W->noInfo = !W->noInfo;
+      W->noInfo = check;// !W->noInfo;
       picker->setEnabled(W->noInfo);
     }
 }
@@ -703,7 +703,7 @@ void lisemqt::SetToolBar()
 
     showInfoAct = new QAction(QIcon(":/2X/noinfo.png"), "&no info under cursor", this);
     showInfoAct->setCheckable(true);
-    connect(showInfoAct, SIGNAL(triggered()), this, SLOT(setOutputInfo()));
+    connect(showInfoAct, SIGNAL(triggered(bool)), this, SLOT(setOutputInfo(bool)));
     toolBar->addAction(showInfoAct);
 
     toolBar->addSeparator();
