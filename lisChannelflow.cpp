@@ -161,21 +161,31 @@ void TWorld::ChannelFlow(void)
 
                 ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
                 ChannelQ_ = ChannelV_ * Area;
+
                 if (SwitchCulverts) {
+                    // in culvert cells
+
                     if (MaxQ > 0 ) {
+                        qDebug() << MaxQ;
+                        double ChannelQ1 = ChannelQ_;
+                        double v1 = ChannelV_;
                         ChannelNcul->Drc = (0.1+ChannelQ_/MaxQ) * 0.015; //0.015 is assumed to be the N of a concrete tube
                         //https://plainwater.com/water/circular-pipe-mannings-n/
                         // resistance increases with discharge, tube is getting fuller
-                        ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/ChannelNcul->Drc);
-                        ChannelQ_ = ChannelV_ * Area;
+                        double v2 = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/ChannelNcul->Drc);
+                        double ChannelQ2 = v2 * Area;
+                        ChannelQ_ = std::min(ChannelQ1, ChannelQ2);
+                        ChannelV_ = std::min(v1, v2);
+                        ChannelNcul->Drc  = std::min(ChannelNcul->Drc,ChannelN->Drc);
+                        qDebug() << ChannelQ1 << ChannelQ2 << MaxQ;
 
                         if (ChannelQ_ > MaxQ){
                             ChannelV_ = MaxQ/Area;
                             ChannelQ_ = MaxQ;
                         }
-                        else {
-                            ChannelNcul->Drc  = ChannelN->Drc;
-                        }
+//                        else {
+//                            ChannelNcul->Drc  = ChannelN->Drc;
+//                        }
                     }
                 }
                 ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
@@ -190,7 +200,7 @@ void TWorld::ChannelFlow(void)
             QinKW->Drc = 0;
 
         }}
-
+//report(*ChannelQ,"chlQ");
         // ChannelV and Q and alpha now based on original width and depth, channel vol is always the same
 
         if (SwitchLinkedList) {
