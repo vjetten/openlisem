@@ -113,17 +113,17 @@ void TWorld::ChannelRainandInfil(void)
 //! channel WH and V and Q are clculated before
 void TWorld::ChannelFlow(void)
 {
-    if (SwitchChannelKinwaveDt) {
-        if (_dt_user > _dtCHkin) {
-            double n = _dt_user/_dtCHkin;
-            _dt = _dt_user/n;
-        }
-    }
+//    if (SwitchChannelKinwaveDt) {
+//        if (_dt_user > _dtCHkin) {
+//            double n = _dt_user/_dtCHkin;
+//            _dt = _dt_user/n;
+//        }
+//    }
 
-    for (double t = 0; t < _dt_user; t+=_dt)
-    {
+ //   for (double t = 0; t < _dt_user; t+=_dt)
+   // {
 
-        //double sumvol = getMassCH(ChannelWaterVol);
+        double sumvol = getMassCH(ChannelWaterVol);
 
         // velocity, alpha, Q
         #pragma omp parallel num_threads(userCores)
@@ -132,13 +132,13 @@ void TWorld::ChannelFlow(void)
             // calc velocity and Q
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 
-            double MaxQ = ChannelMaxQ->Drc;
             double wh = ChannelWH->Drc;
             double ChannelQ_ = 0;
             double ChannelV_ = 0;
             double ChannelAlpha_ = 0;
 
             // calc channel V and Q, using original width
+
             if (wh > 1e-6) {
                 double Perim, Radius, Area;
                 double sqrtgrad = std::max(sqrt(ChannelGrad->Drc), 0.001);
@@ -161,34 +161,38 @@ void TWorld::ChannelFlow(void)
 
                 ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
                 ChannelQ_ = ChannelV_ * Area;
+                ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
+                ChannelNcul->Drc  = ChannelN->Drc;
 
                 if (SwitchCulverts) {
                     // in culvert cells
+                    double MaxQ = ChannelMaxQ->Drc;
 
                     if (MaxQ > 0 ) {
-                        qDebug() << MaxQ;
                         double ChannelQ1 = ChannelQ_;
                         double v1 = ChannelV_;
+
                         ChannelNcul->Drc = (0.1+ChannelQ_/MaxQ) * 0.015; //0.015 is assumed to be the N of a concrete tube
                         //https://plainwater.com/water/circular-pipe-mannings-n/
                         // resistance increases with discharge, tube is getting fuller
                         double v2 = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/ChannelNcul->Drc);
                         double ChannelQ2 = v2 * Area;
+
                         ChannelQ_ = std::min(ChannelQ1, ChannelQ2);
                         ChannelV_ = std::min(v1, v2);
                         ChannelNcul->Drc  = std::min(ChannelNcul->Drc,ChannelN->Drc);
-                        qDebug() << ChannelQ1 << ChannelQ2 << MaxQ;
+                        //qDebug() << ChannelQ1 << ChannelQ2 << MaxQ;
 
                         if (ChannelQ_ > MaxQ){
                             ChannelV_ = MaxQ/Area;
                             ChannelQ_ = MaxQ;
+                            ChannelAlpha_ = Area/std::pow(MaxQ,0.6);
                         }
 //                        else {
 //                            ChannelNcul->Drc  = ChannelN->Drc;
 //                        }
                     }
                 }
-                ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
             }
 
             ChannelAlpha->Drc = ChannelAlpha_;
@@ -200,7 +204,7 @@ void TWorld::ChannelFlow(void)
             QinKW->Drc = 0;
 
         }}
-//report(*ChannelQ,"chlQ");
+
         // ChannelV and Q and alpha now based on original width and depth, channel vol is always the same
 
         if (SwitchLinkedList) {
@@ -208,7 +212,7 @@ void TWorld::ChannelFlow(void)
             ChannelQn->setAllMV();
 
             FOR_ROW_COL_LDDCH5 {
-                Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
+                Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX);//, ChannelMaxQ);
             }}
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
@@ -218,50 +222,48 @@ void TWorld::ChannelFlow(void)
 
         } else {
             // default
-            KinematicExplicit(crlinkedlddch_, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX, ChannelMaxQ);
+            KinematicExplicit(crlinkedlddch_, ChannelQ, ChannelQn, Channelq, ChannelAlpha, ChannelDX);//, ChannelMaxQ);
         }
 
         // calc V and WH back from Qn (original width and depth)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            double chqn = ChannelQn->Drc;
-           // ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelWaterVol->Drc/_dt+QinKW->Drc);
-            ChannelWaterVol->Drc += (QinKW->Drc - chqn)*_dt;
 
-            // vol is previous + in - out
-           // ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelWaterVol->Drc/_dt);
-          //  ChannelQ->Drc = chqn;  // NOT because needed in erosion!
-            ChannelAlpha->Drc = chqn > 1e-6 ? (ChannelWaterVol->Drc/ChannelDX->Drc)/std::pow(chqn, 0.6) : 0.0;
+            if (SwitchCulverts && ChannelMaxQ->Drc > 0) {
+                double chqn = ChannelQn->Drc;
+                ChannelAlpha->Drc = -0.0001*std::pow(chqn,4.0) + 0.0027*std::pow(chqn,3)-0.0245*chqn*chqn + 0.1487*chqn +0.8955;
+                //y =-0.0001x4 + 0.0027x3 - 0.0245x2 + 0.1487x + 0.8955 up to 10 m3/s R2 = 0.9994
+                // fit aplha of new Q with polynomial up to 10 m3/s
+                ChannelWaterVol->Drc = ChannelAlpha->Drc * std::pow(chqn,0.6)*ChannelDX->Drc;
+                ChannelWaterVol->Drc = std::max(0.0,ChannelWaterVol->Drc);
+            } else {
+                ChannelWaterVol->Drc += (QinKW->Drc - ChannelQn->Drc)*_dt;
+                ChannelWaterVol->Drc = std::max(0.0,ChannelWaterVol->Drc);
+            }
+
+            //ChannelQ->Drc = chqn;  // NOT because needed in erosion!
         }}
-        //water vol from mass balance, includes any errors
-
-        // get new WH and velocity
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL {
-            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
-            // new channel WH, use adjusted channelWidth
-
-            double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
-            double P = 2*ChannelWH->Drc+ChannelWidth->Drc;
-
-            if (P > 0)
-                ChannelV->Drc = std::pow(ChannelArea/P,2/3)*sqrtGrad->Drc/ChannelNcul->Drc;
-            else
-                ChannelV->Drc = 0;
-
-        }}
-
+        correctMassBalanceCH(sumvol,ChannelWaterVol);
 
         // get the maximum for output
         #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL
-        {
+        FOR_ROW_COL_MV_CHL {
+            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*ChannelWidth->Drc);
+            double Area = ChannelWH->Drc*ChannelWidth->Drc;
+            double P = 2*ChannelWH->Drc+ChannelWidth->Drc;
+
+            if (P > 0)
+                ChannelV->Drc = std::pow(Area/P,2/3)*sqrtGrad->Drc/ChannelNcul->Drc;
+            else
+                ChannelV->Drc = 0;
+
+
             maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
             maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
         }}
 
-    }
-    _dt=_dt_user;
+   // }
+  // _dt=_dt_user;
 }
 
 void TWorld::ChannelSedimentFlow()
@@ -348,7 +350,8 @@ double TWorld::getMassCH(cTMap *M)
     double sum2 = 0;
    // #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        sum2 += M->Drc;
+        if (ChannelMaxQ->Drc <= 0)
+            sum2 += M->Drc;
     }}
     return sum2;
 }
@@ -360,7 +363,8 @@ void TWorld::correctMassBalanceCH(double sum1, cTMap *M)
 
   //  #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        sum2 += M->Drc;
+        if (ChannelMaxQ->Drc <= 0)
+            sum2 += M->Drc;
   //      n += 1;
     }}
     // total and cells active for M
@@ -369,8 +373,10 @@ void TWorld::correctMassBalanceCH(double sum1, cTMap *M)
     if (dhtot > 0) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
-            M->Drc = std::max(M->Drc , 0.0);
+            if (ChannelMaxQ->Drc <= 0) {
+                M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
+                M->Drc = std::max(M->Drc , 0.0);
+            }
         }}
     }
 }

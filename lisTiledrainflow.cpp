@@ -94,7 +94,7 @@ void TWorld::CalcVelDischTile()
       TileAlpha->Drc = qPow(TileN->Drc/grad * powl(Perim, _23),beta);
       TileV->Drc = powl(Area/Perim,_23) * grad/TileN->Drc;
       TileQ->Drc = Area*TileV->Drc;
-
+//DO TILE MAX HERE!!
    }
    else
    {
@@ -143,7 +143,7 @@ void TWorld::TileFlow(void)
    FOR_ROW_COL_MV_TILE
    {
       if (LDDTile->Drc == 5)
-         Kinematic(r,c, LDDTile, TileQ, TileQn, Tileq, TileAlpha, TileDX, TileMaxQ);
+         Kinematic(r,c, LDDTile, TileQ, TileQn, Tileq, TileAlpha, TileDX);//, TileMaxQ);
    }
 
    cover(*TileQn, *LDD, 0); // avoid missing values around Tile for adding to Qn for output
@@ -228,7 +228,7 @@ void TWorld::StormDrainFlow(void)
    FOR_ROW_COL_MV_TILE
    {
       if (LDDTile->Drc == 5)
-         Kinematic(r,c, LDDTile, TileQ, TileQn, Tileq, TileAlpha, TileDX, TileMaxQ);
+         Kinematic(r,c, LDDTile, TileQ, TileQn, Tileq, TileAlpha, TileDX);//, TileMaxQ);
    }
 
    cover(*TileQn, *LDD, 0); // avoid missing values around Tile for adding to Qn for output

@@ -263,7 +263,7 @@ void TWorld::DoModel()
         bool saveMBerror = false;
         saveMBerror2file(saveMBerror, true);
 
-        InfilEffectiveKsat();  // calc effective ksat from all surfaces once
+      //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
 
@@ -295,6 +295,8 @@ void TWorld::DoModel()
             // check if user wants to quit or pause
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
+
+            InfilEffectiveKsat();
 
             HydrologyProcesses();  // hydrological processes in one loop, incl splash
 

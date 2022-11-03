@@ -658,6 +658,7 @@ void TWorld::InitLULCInput(void)
 //---------------------------------------------------------------------------
 void TWorld::InitSoilInput(void)
 {
+    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
 
     //## infiltration data
     if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
@@ -1027,6 +1028,7 @@ void TWorld::InitChannel(void)
     }
 
     if (SwitchCulverts) {
+
         ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
         cover(*ChannelMaxQ, *LDD,0);
 
@@ -1452,7 +1454,7 @@ void TWorld::InitErosion(void)
 
     StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
 
-    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
+  //  LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
 
     COHCalibration = getvaluedouble("Cohesion calibration");
     Cohesion = ReadMap(LDD,getvaluename("coh"));

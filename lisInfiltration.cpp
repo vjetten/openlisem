@@ -57,6 +57,14 @@ void TWorld::InfilEffectiveKsat(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             Ksateff->Drc = Ksat1->Drc;
+            if (SwitchInfilCrust && LandUnit->Drc == 520) {
+                //double KSc = Ksat1->Drc * (0.3+0.7*exp(-0.05*RainCum->Drc*1000));
+                double ksatdiff = Ksat1->Drc - KsatCrust->Drc;
+                double KSc = KsatCrust->Drc + ksatdiff * exp(-0.05*RainCum->Drc*1000);
+                // exponential decline until crust value
+                Ksateff->Drc = (1-Cover->Drc) * KSc + Cover->Drc * Ksat1->Drc;
+                // only on bare fraction of soil
+            }
             Poreeff->Drc = ThetaS1->Drc;
             Thetaeff->Drc = std::max(0.025*Poreeff->Drc,ThetaI1->Drc);
 
@@ -95,15 +103,15 @@ void TWorld::InfilEffectiveKsat(void)
             Ksateff->Drc = std::max(0.0, Ksateff->Drc);
             Poreeff->Drc = std::max(0.3, Poreeff->Drc);
             Thetaeff->Drc = std::min(1.0,Poreeff->Drc/ThetaS1->Drc) * ThetaI1->Drc;
-//            bca1->Drc = 5.55*qPow(Ksateff->Drc,-0.114);
+            tma->Drc =  Ksateff->Drc;
             Ksateff->Drc *= _dt/3600000;
             if(SwitchTwoLayer) {
-//                bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
                 Ksat2->Drc *= _dt/3600000;
             }
             // percolation coefficient
         }}
     }
+//report(*tma,"kse");
 }
 //---------------------------------------------------------------------------
 /*!
