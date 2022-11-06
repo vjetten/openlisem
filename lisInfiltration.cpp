@@ -57,13 +57,14 @@ void TWorld::InfilEffectiveKsat(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             Ksateff->Drc = Ksat1->Drc;
-            if (SwitchInfilCrust && LandUnit->Drc == 520) {
+            if (SwitchInfilCrust) {
                 //double KSc = Ksat1->Drc * (0.3+0.7*exp(-0.05*RainCum->Drc*1000));
-                double ksatdiff = Ksat1->Drc - KsatCrust->Drc;
+                double ksatdiff = std::max(0.0,Ksat1->Drc - KsatCrust->Drc);
                 double KSc = KsatCrust->Drc + ksatdiff * exp(-0.05*RainCum->Drc*1000);
                 // exponential decline until crust value
                 Ksateff->Drc = (1-Cover->Drc) * KSc + Cover->Drc * Ksat1->Drc;
                 // only on bare fraction of soil
+                Poreeff->Drc = ThetaS1->Drc*(1-CrustFraction->Drc) + PoreCrust->Drc*CrustFraction->Drc;
             }
             Poreeff->Drc = ThetaS1->Drc;
             Thetaeff->Drc = std::max(0.025*Poreeff->Drc,ThetaI1->Drc);
@@ -74,10 +75,9 @@ void TWorld::InfilEffectiveKsat(void)
                 Poreeff->Drc = Poreeff->Drc*(1-CompactFraction->Drc) + PoreCompact->Drc*CompactFraction->Drc;
             }
 
-            if (SwitchInfilCrust) {
-                Ksateff->Drc = Ksateff->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
-                Poreeff->Drc = ThetaS1->Drc*(1-CrustFraction->Drc) + PoreCrust->Drc*CrustFraction->Drc;
-            }
+//            if (SwitchInfilCrust) {
+//                Ksateff->Drc = Ksateff->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
+//            }
 
             if (SwitchGrassStrip) {
                 Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;

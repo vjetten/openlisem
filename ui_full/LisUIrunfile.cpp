@@ -187,29 +187,30 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
         if (p1.compare("Include stationary baseflow")==0)       checkStationaryBaseflow->setChecked(check);
       //  if (p1.compare("Adjust channel crosssection")==0)     checkChannelAdjustCHW->setChecked(check);
-        if (p1.compare("GW flow explicit")==0)       checkGWflowexplicit->setChecked(check);
-        if (p1.compare("GW flow SWAT")==0)       checkGWflowSWAT->setChecked(check);
-        if (p1.compare("GW recharge factor")==0)           GW_recharge->setValue(valc);
-        if (p1.compare("GW flow factor")==0)           GW_flow->setValue(valc);
+        if (p1.compare("GW flow explicit")==0)              checkGWflowexplicit->setChecked(check);
+        if (p1.compare("GW flow SWAT")==0)                  checkGWflowSWAT->setChecked(check);
+        if (p1.compare("GW recharge factor")==0)            GW_recharge->setValue(valc);
+        if (p1.compare("GW flow factor")==0)                GW_flow->setValue(valc);
         if (p1.compare("GW river inflow factor")==0)           GW_inflow->setValue(valc);
-        if (p1.compare("GW slope factor")==0)           GW_slope->setValue(valc);
-      //  if (p1.compare("GW lag factor")==0)           GW_lag->setValue(valc);
+        if (p1.compare("GW slope factor")==0)               GW_slope->setValue(valc);
+      //  if (p1.compare("GW lag factor")==0)               GW_lag->setValue(valc);
         if (p1.compare("GW deep percolation")==0)           GW_deep->setValue(valc);
         if (p1.compare("GW threshold factor")==0)           GW_threshold->setValue(valc);
-        if (p1.compare("GW initial level")==0)           GW_initlevel->setValue(valc);
+        if (p1.compare("GW initial level")==0)              GW_initlevel->setValue(valc);
 
-        if (p1.compare("Include channel culverts")==0)       checkChannelCulverts->setChecked(check);
-        if (p1.compare("Include channel inflow")==0)         checkChannelInflow->setChecked(check);
-        if (p1.compare("Include Erosion simulation")==0)     checkDoErosion->setChecked(check);
-        if (p1.compare("Include road system")==0)            checkRoadsystem->setChecked(check);
-        if (p1.compare("Include storm drains")==0)           checkStormDrains->setChecked(check);
-        if (p1.compare("Hard Surfaces")==0)                  checkHardsurface->setChecked(check);
-        if (p1.compare("Include house storage")==0)          checkHouses->setChecked(check);
-        if (p1.compare("Include buildings")==0)          checkHouses->setChecked(check);
+        if (p1.compare("Include channel culverts")==0)      checkChannelCulverts->setChecked(check);
+        if (p1.compare("Include channel inflow")==0)        checkChannelInflow->setChecked(check);
+        if (p1.compare("Include Erosion simulation")==0)    checkDoErosion->setChecked(check);
+        if (p1.compare("Include road system")==0)           checkRoadsystem->setChecked(check);
+        if (p1.compare("Include storm drains")==0)          checkStormDrains->setChecked(check);
+        if (p1.compare("Hard Surfaces")==0)                 checkHardsurface->setChecked(check);
+        if (p1.compare("Include house storage")==0)         checkHouses->setChecked(check);
+        if (p1.compare("Include buildings")==0)             checkHouses->setChecked(check);
 
-        if (p1.compare("Add buildings to DEM")==0)           checkAddBuildingDEM->setChecked(check);
-        if (p1.compare("Include raindrum storage")==0)       checkRaindrum->setChecked(check);
-        if (p1.compare("Include tile drains")==0)            checkIncludeTiledrains->setChecked(check);
+        if (p1.compare("Add buildings to DEM")==0)          checkAddBuildingDEM->setChecked(check);
+        if (p1.compare("Add building fraction")==0)         E_AddBuildingFraction->setValue(valc);
+        if (p1.compare("Include raindrum storage")==0)      checkRaindrum->setChecked(check);
+        if (p1.compare("Include tile drains")==0)           checkIncludeTiledrains->setChecked(check);
 
         // INTERCEPTION
         if (p1.compare("Canopy storage equation")==0)
@@ -896,6 +897,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include house storage")==0)          namelist[j].value.setNum((int)checkHouses->isChecked());
         if (p1.compare("Include buildings")==0)          namelist[j].value.setNum((int)checkHouses->isChecked());
         if (p1.compare("Add buildings to DEM")==0)           namelist[j].value.setNum((int)checkAddBuildingDEM->isChecked());
+        if (p1.compare("Add building fraction")==0)           namelist[j].value = E_AddBuildingFraction->text();
         if (p1.compare("Include raindrum storage")==0)       namelist[j].value.setNum((int)checkRaindrum->isChecked());
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
         if (p1.compare("Hard Surfaces")==0)                  namelist[j].value.setNum((int)checkHardsurface->isChecked());

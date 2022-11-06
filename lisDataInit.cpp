@@ -1039,7 +1039,7 @@ void TWorld::InitChannel(void)
                 LDD_COORIN hoi = crlinkedlddch_.at(i);
                 hoi.ldd *= -1;
                 crlinkedlddch_.replace(i, hoi) ;
-                ChannelGrad->Drc = 0.001;
+               // ChannelGrad->Drc = 0.001;
             }
         }
     } else
@@ -2012,11 +2012,13 @@ void TWorld::IntializeData(void)
             }
         }
 
+        AddBuildingFraction = 0;
         if (SwitchAddBuildingsDEM) {
+            AddBuildingFraction = getvaluedouble("Add Building fraction");
             FOR_ROW_COL_MV {
                 double dem = DEM->Drc;
-                dem += HouseCover->Drc > 0.2  ? HouseCover->Drc*10 : 0.0;
-                dem = RoadWidthDX->Drc > 0.2 ? DEM->Drc : dem;
+                dem += HouseCover->Drc > AddBuildingFraction  ? HouseCover->Drc*10 : 0.0;
+                dem = RoadWidthDX->Drc > 0.1 ? DEM->Drc : dem;
                 DEM->Drc = dem;
             }
             InitShade();
@@ -2574,8 +2576,6 @@ void TWorld::FindBaseFlow()
                     // in m3/s
                     if (BaseFlowDischarges->data[ro][co] == 0)
                         break;
-                    qDebug() << BaseFlowDischarges->data[ro][co];
-
 
                     LDD_LINKEDLIST *list = nullptr, *temp = nullptr;
                     list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));

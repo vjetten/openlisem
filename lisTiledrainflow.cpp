@@ -115,7 +115,7 @@ void TWorld::TileFlow(void)
       /*---- Water ----*/
 
       TileQsn->Drc = 0;
-      Tileq->Drc = 0;
+      //Tileq->Drc = 0;
       //TileQoutflow->Drc = 0;
 
       //TileDrainSoil->Drc = std::min(TileDrainSoil->Drc, TileHeight->Drc );
@@ -143,7 +143,7 @@ void TWorld::TileFlow(void)
    FOR_ROW_COL_MV_TILE
    {
       if (LDDTile->Drc == 5)
-         Kinematic(r,c, LDDTile, TileQ, TileQn, Tileq, TileAlpha, TileDX);//, TileMaxQ);
+         Kinematic(r,c, LDDTile, TileQ, TileQn, TileAlpha, TileDX);
    }
 
    cover(*TileQn, *LDD, 0); // avoid missing values around Tile for adding to Qn for output
@@ -228,7 +228,7 @@ void TWorld::StormDrainFlow(void)
    FOR_ROW_COL_MV_TILE
    {
       if (LDDTile->Drc == 5)
-         Kinematic(r,c, LDDTile, TileQ, TileQn, Tileq, TileAlpha, TileDX);//, TileMaxQ);
+         Kinematic(r,c, LDDTile, TileQ, TileQn, TileAlpha, TileDX);
    }
 
    cover(*TileQn, *LDD, 0); // avoid missing values around Tile for adding to Qn for output
