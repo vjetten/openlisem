@@ -1630,7 +1630,7 @@ void lisemqt::resetTabFlow()
     GW_flow->setValue(1.0);
     GW_slope->setValue(1.0);
     GW_lag->setValue(0.5);
-    GW_deep->setValue(0.010);
+    GW_deep->setValue(0.0);
     GW_threshold->setValue(0.2);
 }
 //--------------------------------------------------------------------

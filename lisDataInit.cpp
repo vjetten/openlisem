@@ -299,6 +299,7 @@ void TWorld::InitParameters(void)
 
     ksatCalibration = getvaluedouble("Ksat calibration");
     ksatCalibration2 = getvaluedouble("Ksat2 calibration");
+
     SmaxCalibration = getvaluedouble("Smax calibration");
     nCalibration = getvaluedouble("N calibration");
     if (nCalibration == 0)

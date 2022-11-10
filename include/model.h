@@ -891,7 +891,7 @@ public:
     void cell_FlowDetachment(int r, int c);
     void MoistureContent();
 
-    void InfilEffectiveKsat();
+    void InfilEffectiveKsat(bool first);
     void Infiltration();
     void InfilSwatre();
 

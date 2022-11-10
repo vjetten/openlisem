@@ -273,6 +273,8 @@ void TWorld::DoModel()
 
         GetComboMaps(); // moved to outside timeloop!
 
+        InfilEffectiveKsat(true);
+
         for (time = BeginTime; time < EndTime; time += _dt)
         {            
             if (runstep > 0 && runstep % printinterval == 0)
@@ -296,7 +298,7 @@ void TWorld::DoModel()
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
 
-            InfilEffectiveKsat();
+            InfilEffectiveKsat(false);
 
             HydrologyProcesses();  // hydrological processes in one loop, incl splash
 
