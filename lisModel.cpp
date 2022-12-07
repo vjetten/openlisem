@@ -296,7 +296,7 @@ void TWorld::DoModel()
         bool saveMBerror = true;
         saveMBerror2file(saveMBerror, true);
 
-        InfilEffectiveKsat();  // calc effective ksat from all surfaces once
+      //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
         if (SwitchPestMC) {
@@ -307,6 +307,8 @@ void TWorld::DoModel()
         DEBUG("Running...");
 
         GetComboMaps(); // moved to outside timeloop!
+
+        InfilEffectiveKsat(true);
 
         for (time = BeginTime; time < EndTime; time += _dt)
         {            
@@ -330,6 +332,8 @@ void TWorld::DoModel()
             // check if user wants to quit or pause
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
+
+            InfilEffectiveKsat(false);
 
             HydrologyProcesses();  // hydrological processes in one loop, incl splash
 

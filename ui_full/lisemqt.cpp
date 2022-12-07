@@ -116,11 +116,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setupMapPlot();
     // set up the raster map drawing
 
-//    QSplitter *splitter = new QSplitter(tabWidget->widget(2));
-  //  splitter->addWidget(tabWidget_out);
-    //splitter->addWidget(scrollAreaResults);
-//    splitter->addWidget(widgetMB);
-
     Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
     // put the progress bar into the statusbar
 
@@ -617,11 +612,12 @@ void lisemqt::setOutputScreen()
 }
 
 
-void lisemqt::setOutputInfo()
+void lisemqt::setOutputInfo(bool check)
 {
     if (W) {
-      W->noInfo = !W->noInfo;
-      picker->setEnabled(W->noInfo);
+
+      W->noInfo = check;
+      picker->setEnabled(check);
     }
 }
 
@@ -708,7 +704,7 @@ void lisemqt::SetToolBar()
 
     showInfoAct = new QAction(QIcon(":/2X/noinfo.png"), "&no info under cursor", this);
     showInfoAct->setCheckable(true);
-    connect(showInfoAct, SIGNAL(triggered()), this, SLOT(setOutputInfo()));
+    connect(showInfoAct, SIGNAL(triggered(bool)), this, SLOT(setOutputInfo(bool)));
     toolBar->addAction(showInfoAct);
 
     toolBar->addSeparator();
@@ -1339,6 +1335,7 @@ void lisemqt::GetStorePath()
         }
     }
     E_runFileList->addItems(runfilelist);
+
 }
 //---------------------------------------------------------------------------
 void lisemqt::StorePath()
@@ -1633,7 +1630,7 @@ void lisemqt::resetTabFlow()
     GW_flow->setValue(1.0);
     GW_slope->setValue(1.0);
     GW_lag->setValue(0.5);
-    GW_deep->setValue(0.010);
+    GW_deep->setValue(0.0);
     GW_threshold->setValue(0.2);
 }
 //--------------------------------------------------------------------

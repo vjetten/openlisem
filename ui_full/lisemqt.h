@@ -367,7 +367,7 @@ public slots:
     void aboutInfo();
     void resetAll();
     void setOutputScreen();
-    void setOutputInfo();
+    void setOutputInfo(bool check);
 
     void onOutletChanged(int);
     void editMapname(QModelIndex topLeft, QModelIndex bottomRight );

@@ -244,9 +244,9 @@ void TWorld::ParseRunfileData(void)
         //   if (p1.compare("Grain size class maps")==0)     GrainMaps  = p;
 
         if (p1.compare("Flood initial level map")==0)           SwitchFloodInitial     = iii == 1;
-        if (p1.compare("Include house storage")==0)             SwitchHouses    =   iii == 1;
-        if (p1.compare("Include buildings")==0)             SwitchHouses    =   iii == 1;
-        if (p1.compare("Add buildings to DEM")==0)              SwitchAddBuildingsDEM    =   iii == 1;
+        if (p1.compare("Include house storage")==0)             SwitchHouses =   iii == 1;
+        if (p1.compare("Include buildings")==0)                 SwitchHouses =   iii == 1;
+        if (p1.compare("Add buildings to DEM")==0)              SwitchAddBuildingsDEM    =   iii == 1;        
         if (p1.compare("Include raindrum storage")==0)          SwitchRaindrum  =   iii == 1;
 
         if (p1.compare("Include Satellite Image")==0)           SwitchImage =            iii == 1;

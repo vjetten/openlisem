@@ -1394,7 +1394,7 @@ void TWorld::ReportDump(void)
         QDir().mkdir(dumpDir);
     }
 
-    report(*RainCum,dumpDir+"raincum.map");
+    report(*RainCumFlat,dumpDir+"raincum.map"); //!
   //  report(*Rainpeak,dumpDir+"rainpeak.map");
 
     if (SwitchIncludeET) {

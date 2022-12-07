@@ -251,6 +251,8 @@ double TWorld::limiter(double a, double b)
 /// U_n+1 = U_n + dt/dx* [flux]  when flux is calculated by HLL, HLL2, Rusanov
 /// HLL = Harten, Lax, van Leer numerical solution
 
+
+
 vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
     vec4 hll;
@@ -400,30 +402,6 @@ vec4 TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
     hll.v[1] = ((u_L*q_L)+(u_R*q_R))*0.5-cd*(q_R-q_L);
     hll.v[2] = (q_L*v_L+q_R*v_R)*0.5-cd*(h_R*v_R-h_L*v_L);
     hll.v[3] = c;
-    //timestep
-
-//    double f1, f2, f3, cfl;
-//    double c;
-//    if (h_L<=0. && h_R<=0.){
-//        c = 0.;
-//        f1 = 0.;
-//        f2 = 0.;
-//        f3 = 0.;
-//        cfl = 0.;
-//    }else{
-//        c = std::max(fabs(u_L)+sqrt(GRAV*h_L),fabs(u_R)+sqrt(GRAV*h_R));
-//        double cd = c*0.5;
-//        double q_R = u_R*h_R;
-//        double q_L = u_L*h_L;
-//        f1 = (q_L+q_R)*0.5-cd*(h_R-h_L); //m*m/s
-//        f2 = ((u_L*q_L)+(GRAV*0.5*h_L*h_L)+(u_R*q_R)+(GRAV*0.5*h_R*h_R))*0.5-cd*(q_R-q_L); //m/s*m2/s
-//        f3 = (q_L*v_L+q_R*v_R)*0.5-cd*(h_R*v_R-h_L*v_L);
-//        cfl = c;//*tx;
-//    }
-//    hll.v[0] = f1;
-//    hll.v[1] = f2;
-//    hll.v[2] = f3;
-//    hll.v[3] = cfl;
     return hll;
 }
 

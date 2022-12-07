@@ -299,6 +299,7 @@ void TWorld::InitParameters(void)
 
     ksatCalibration = getvaluedouble("Ksat calibration");
     ksatCalibration2 = getvaluedouble("Ksat2 calibration");
+
     SmaxCalibration = getvaluedouble("Smax calibration");
     nCalibration = getvaluedouble("N calibration");
     if (nCalibration == 0)
@@ -658,6 +659,7 @@ void TWorld::InitLULCInput(void)
 //---------------------------------------------------------------------------
 void TWorld::InitSoilInput(void)
 {
+    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
 
     //## infiltration data
     if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
@@ -1027,6 +1029,7 @@ void TWorld::InitChannel(void)
     }
 
     if (SwitchCulverts) {
+
         ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
         cover(*ChannelMaxQ, *LDD,0);
 
@@ -1037,7 +1040,7 @@ void TWorld::InitChannel(void)
                 LDD_COORIN hoi = crlinkedlddch_.at(i);
                 hoi.ldd *= -1;
                 crlinkedlddch_.replace(i, hoi) ;
-                ChannelGrad->Drc = 0.001;
+               // ChannelGrad->Drc = 0.001;
             }
         }
     } else
@@ -1452,7 +1455,7 @@ void TWorld::InitErosion(void)
 
     StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
 
-    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
+  //  LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
 
     COHCalibration = getvaluedouble("Cohesion calibration");
     Cohesion = ReadMap(LDD,getvaluename("coh"));
@@ -2015,11 +2018,13 @@ void TWorld::IntializeData(void)
             }
         }
 
+        AddBuildingFraction = 0;
         if (SwitchAddBuildingsDEM) {
+            AddBuildingFraction = getvaluedouble("Add Building fraction");
             FOR_ROW_COL_MV {
                 double dem = DEM->Drc;
-                dem += HouseCover->Drc > 0.2  ? HouseCover->Drc*10 : 0.0;
-                dem = RoadWidthDX->Drc > 0.2 ? DEM->Drc : dem;
+                dem += HouseCover->Drc > AddBuildingFraction  ? HouseCover->Drc*10 : 0.0;
+                dem = RoadWidthDX->Drc > 0.1 ? DEM->Drc : dem;
                 DEM->Drc = dem;
             }
             InitShade();
@@ -2645,8 +2650,6 @@ void TWorld::FindBaseFlow()
                     // in m3/s
                     if (BaseFlowDischarges->data[ro][co] == 0)
                         break;
-                    qDebug() << BaseFlowDischarges->data[ro][co];
-
 
                     LDD_LINKEDLIST *list = nullptr, *temp = nullptr;
                     list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));

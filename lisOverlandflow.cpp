@@ -29,7 +29,7 @@
 #include <algorithm>
 #include "model.h"
 #include "operation.h"
-#define tiny 1e-6
+#define tiny 1e-8
 
 //--------------------------------------------------------------------------------------------
 /**
@@ -167,14 +167,13 @@ void TWorld::CalcVelDisch()//(int r, int c)
     double alpha;
     double WHr = WHrunoff->Drc;
     double FW = FlowWidth->Drc;
-    double P = FW + (2 * WHr); // MC - wetted perimeter for manning formula
 
     if (SwitchKinematic2D == K2D_METHOD_KINDYN && SwitchIncludeChannel && hmx->Drc > 0.001)
         NN = N->Drc * (2.0-qExp(-mixing_coefficient*hmx->Drc));
     // slow down water in flood zone, if hmx = 0 then factor = 1
 
     if (Grad->Drc > MIN_SLOPE)
-        alpha = pow(NN/sqrtGrad->Drc * pow(FW, 2.0/3.0),0.6); // MC - FW as wetted perimeter, because water height is very small??
+        alpha = pow(NN/sqrtGrad->Drc * pow(FW, 2.0/3.0),0.6);
     else
         alpha = 0;
 
@@ -183,7 +182,7 @@ void TWorld::CalcVelDisch()//(int r, int c)
     else
         Q->Drc = 0;
 
-    V->Drc = pow(WHr, 2.0/3.0) * sqrtGrad->Drc/NN; // MC - Does the assumption always hold that WHr = Rh?? If WHr becomes to large??
+    V->Drc = pow(WHr, 2.0/3.0) * sqrtGrad->Drc/NN;
     Alpha->Drc = alpha;
 
     }}
@@ -298,21 +297,21 @@ void TWorld::OverlandFlow1D(void)
     }}
 
     // route water
-//    if (SwitchLinkedList) {
-//        #pragma omp parallel for num_threads(userCores)
-//        FOR_ROW_COL_MV_L {
-//            pcr::setMV(Qn->Drc);
-//            QinKW->Drc = 0;
-//        }}
+    if (SwitchLinkedList) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            pcr::setMV(Qn->Drc);
+            QinKW->Drc = 0;
+        }}
 
-//        FOR_ROW_COL_LDD5 {
-//            Kinematic(r,c, LDD, Q, Qn, q, Alpha, DX, tm);
-//            // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
-//        }}
-//    } else {
+        FOR_ROW_COL_LDD5 {
+            Kinematic(r,c, LDD, Q, Qn,  Alpha, DX);
+            // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
+        }}
+    } else {
 
-        KinematicExplicit(crlinkedldd_, Q, Qn, q, Alpha,DX, tm);
-//    }
+        KinematicExplicit(crlinkedldd_, Q, Qn, Alpha,DX);
+    }
 
 
     //convert calculated Qn back to WH and volume for next loop
@@ -359,17 +358,17 @@ void TWorld::OverlandFlow1D(void)
     }}
 
     //      routing of substances add here!
-   if (SwitchErosion)
-   {
-//        if (SwitchLinkedList) {
-//            #pragma omp parallel for num_threads(userCores)
-//            FOR_ROW_COL_MV_L {
-//                pcr::setMV(Qsn->Drc);//Qsn->setAllMV();
-//            }}
-//            FOR_ROW_COL_LDD5 {
-//                routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
-//            }}
-//        } else {
+    if (SwitchErosion)
+    {
+        if (SwitchLinkedList) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                pcr::setMV(Qsn->Drc);//Qsn->setAllMV();
+            }}
+            FOR_ROW_COL_LDD5 {
+                routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
+            }}
+        } else {
             KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
             SinAFO = SinKW; // save sediment influx for all-fluxes-out.
            FOR_ROW_COL_MV_L{
