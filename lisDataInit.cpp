@@ -598,7 +598,7 @@ void TWorld::InitLULCInput(void)
     else
         Litter = NewMap(0);
     LitterSmax = getvaluedouble("Litter interception storage");
-    checkMap(*RR, SMALLER, 0.0, "Raindom roughness RR must be >= 0");
+    checkMap(*RR, SMALLER, 0.0, "Random roughness RR must be >= 0");
     checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
     checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");
     checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
