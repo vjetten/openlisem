@@ -29,7 +29,7 @@
 #include <algorithm>
 #include "model.h"
 #include "operation.h"
-#define tiny 1e-8
+//#define tiny 1e-8
 
 //--------------------------------------------------------------------------------------------
 /**
@@ -402,6 +402,7 @@ void TWorld::OverlandFlow1D(void)
         //this function takes care of all pesticide dynamics
         PesticideDynamicsMC();
      }
+}
 }
 //---------------------------------------------------------------------------
 // all points that flow outward of the domain by slope and water pressure
