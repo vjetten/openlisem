@@ -71,7 +71,7 @@ public:
             else
                 txt = (QString("%1 ") + QString(" [%2m]")).arg(z2,0,'f',3).arg(z0,0,'f',dig);
         }
-        if (z3 > 0) txt = txt + QString(" (Outlet %1)").arg(z3);
+        if (z3 > 0) txt = txt + QString(" (Point %1)").arg(z3);
 
         QwtText text = QwtText(txt);
         text.setColor(Qt::black);

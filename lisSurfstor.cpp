@@ -75,7 +75,7 @@ void TWorld::GridCell()
         HouseCover->Drc = HouseWidthDX->Drc/_dx;
         //houses are impermeable in ksateff so do have to be done here, with high mannings n, but allow flow
 
-        N->Drc = N->Drc * (1-HouseCover->Drc) + 0.5*HouseCover->Drc;
+        N->Drc = N->Drc * (1-HouseCover->Drc) + 1.0*HouseCover->Drc; // N is 1 for a house, very high resistance
         // adjust man N
 
         FlowWidth->Drc = ChannelAdj->Drc;//is the same as SoilWidthDX->Drc + RoadWidthHSDX->Drc;

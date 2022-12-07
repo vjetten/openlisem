@@ -390,6 +390,7 @@ public:
     int userCores;
     int SwitchSV; //ettling velocity
     double splashb; // splash strength coef b limburg equtions,
+    double AddBuildingFraction;
 
     // flow bloundaries
     QList<int> FBid;
@@ -890,7 +891,7 @@ public:
     void cell_FlowDetachment(int r, int c);
     void MoistureContent();
 
-    void InfilEffectiveKsat();
+    void InfilEffectiveKsat(bool first);
     void Infiltration();
     void InfilSwatre();
 
@@ -974,10 +975,10 @@ public:
     double getMass(cTMap *M, double th);
     double getMassWS(int nr_, cTMap *M, double th);
     double getMassSed(cTMap *M, double th);
-    void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha, cTMap *_DX, cTMap *_Vol);
-    double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double maxQ);
+    void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX);//, cTMap *_Vol);
+    double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX);
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
-    void KinematicExplicit(QVector<LDD_COORIN> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
+    void KinematicExplicit(QVector<LDD_COORIN> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX);//, cTMap *_Qmax);
     void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
     void AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
     void UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);

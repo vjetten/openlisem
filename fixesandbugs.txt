@@ -23,3 +23,9 @@ this file is a list of changes per major commit
 - fixed bug in tree with map names, second tab, caused by changing positions
 - add buildings to DEM options
 - 2 options for GW flow and baseflow stationary. GWflow 2D can only be done if soil impermeable
+221105 - v6.88
+- merged GW, pressure based and pref flow as in SWAT
+- Ksat crust exponential decline from kssat1 to ksatcrust, porosity untouched for problems waterbalance(?)
+- better behaviour culverts
+- buildings can be added to the dem form a fraction onward (def 0.3)
+- show runfile name on screen en save runfile to result dir
