@@ -1460,8 +1460,7 @@ void lisemqt::shootScreen()
             return;
 
         tabWidget_out->setCurrentIndex(0);
-        originalPixmap = tabWidget->widget(2)->grab(); //QPixmap::grabWidget(tabWidget->widget(2));
-        // originalPixmap = QPixmap::grabWidget(tabWidget_out->widget(0));
+        originalPixmap = tabWidget->widget(2)->grab();
         fileName = screenShotDir + fi.baseName()+ "_Q" + number + ".png";
 
         originalPixmap.save(fileName, format.toLatin1());

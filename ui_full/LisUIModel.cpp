@@ -61,10 +61,18 @@ void lisemqt::runmodel()
         return;
     }
 
-    label_runfilename->setText(QFileInfo(op.runfilename).fileName());
-    QString S = E_ResultDir->text() + QFileInfo(op.runfilename).fileName();
-    savefile(S);
-    //show runfile name on screen en save runfile to result dir
+//    label_runfilename->setText(QFileInfo(op.runfilename).fileName());
+    label_runfilename->setText(E_MainTotals->text());
+
+//    QString S = E_ResultDir->text() + QFileInfo(op.runfilename).fileName();
+//    if (checkAddDatetime->isChecked()) {
+//        S = E_ResultDir->text() + QString("res"+op.timeStartRun+"/");
+//        if (!QFileInfo(S).exists())
+//            QDir(S).mkpath(S);
+//        S = S + QFileInfo(op.runfilename).fileName();
+//    }
+//    savefile(S);
+//    //show runfile name on screen en save runfile to result dir
 
     updateModelData();
     QFile f(QString(op.LisemDir+"openlisemtmp.run"));
@@ -241,16 +249,16 @@ void lisemqt::worldDone(const QString &results)
     if (results.contains("ERROR"))
         QMessageBox::critical(this,QString("openLISEM"), results, QMessageBox::Ok );
 
-    tabWidget->setCurrentIndex(2);
-    shootScreen();
     tabWidget->setCurrentIndex(0);
-    tabWidgetOptions->setCurrentIndex(6);
+    for (int i = 0; i < 9; i++) {
+        tabWidgetOptions->setCurrentIndex(i);
+        shootScreen();
+    }
+
+    tabWidget->setCurrentIndex(2);
+    tabWidget_out->setCurrentIndex(0);
     shootScreen();
-    tabWidgetOptions->setCurrentIndex(5);
-    shootScreen();
-    tabWidgetOptions->setCurrentIndex(4);
-    shootScreen();
-    tabWidgetOptions->setCurrentIndex(1);
+    tabWidget_out->setCurrentIndex(1);
     shootScreen();
 
 

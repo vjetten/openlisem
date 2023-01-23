@@ -265,7 +265,9 @@ void TWorld::GetComboMaps()
     if (QUnits == 0)
         AddComboMap(0,"Total Discharge","l/s",Qoutput,LegendMap[cl],Legend[cl],true,false,1.0, 1.0);
     else
-        AddComboMap(0,"Total Discharge","m3/s",Qoutput,LegendMap[cl],Legend[cl],true,false,1.0, 0.001);
+        AddComboMap(0,"Total Discharge","m3/s",Qoutput,LegendMap[cl],Legend[cl],true,false,1.0, 1.0);//0.001);
+    //factor is already done in Qoutput, so that reportfile is also done, not only screen
+    // the only thing that needs to change here is the text "m3/s"
 
     //  if (FlowBoundaryType > 0)
   //  AddComboMap(0,"Boundary Discharge","l/s",K2DQ,LegendMap[cl],Legend[cl],true,false,1000.0, 1.0);
