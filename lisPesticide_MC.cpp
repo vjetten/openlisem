@@ -677,7 +677,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         // mg = m3 * 1000 (L->m3) * mg L-1
         mrw_inf = InfilVol->Drc * 1000 * Crwn->Drc; // loss through infiltration
         // mg = mg/L * L/sec * sec
-        mrw_q = Crwn->Drc * Qn->Drc * _dt;
+        mrw_q = Crwn->Drc * Qn->Drc * 1000 * _dt;
         //mrw_q = PQrw->Drc * _dt; //??????
 
         // adjust masses if outflow is more than available mass.
