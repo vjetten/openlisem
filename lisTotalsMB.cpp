@@ -325,9 +325,6 @@ void TWorld::Totals(void)
             Qoutput->Drc = factor*ChannelQn->Drc;
         }}
     }
-    //report(*WHrunoff,"whr");
-    //report(*Qn,"qn");
-    //report(*V,"v");
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L
