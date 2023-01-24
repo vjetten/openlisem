@@ -348,12 +348,14 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
                    * ThetaS1->Drc * 1000));
         // mg = m3 * 1000 (L->m3) * mg L-1
         mrw_inf = InfilVol->Drc * 1000 * Crw_avg; // loss through infiltration from runoff
-        // adjust masses if outflow if more than available mass.
+        // adjust masses if outflow is more than available mass.
         if (PMrw->Drc < mrw_inf - mwrm_ex) {
             double tot = mrw_inf - mwrm_ex;
             mrw_inf = (mrw_inf/tot) * PMrw->Drc;
             mwrm_ex = (mwrm_ex/tot) * PMrw->Drc;
         }
+        // also adjust masses if chemical exchange is more than mass
+        // in mixing layer!!!
         mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
         pmwdep->Drc -= mrw_inf;
         //substract infiltration and mixing layer exchange
@@ -445,7 +447,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         Crs_avg = (PMrs->Drc + (SpinKW->Drc * _dt))
                   / (_Sed->Drc + (SinKW->Drc * _dt));
         // calculate erosion depth, no time component, per timestep
-        // For now only use SoilWidth in formulas. Check what is doen with deposition on roads.
+        // For now only use SoilWidth in formulas. Check what is done with deposition on roads.
         // Can this be eroded after deposition or not?
         // option 1 - all deposition on roads add directly to sink
         // option 2 - deposition on roads can be eroded and added into the system...
@@ -465,9 +467,12 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
             msrm_ex = PCms->Drc * eMass; // * rho * _DX->Drc * SoilWidthDX->Drc); // added by erosion            
         }
         // adjust mass for erosion or deposition
-        // no more transport than mass in cell
+        // no more transport than mass in cell domain
         if (PMrs->Drc + msrm_ex < 0) {
             msrm_ex = -PMrs->Drc;
+        }
+        if (PMms->Drc + msoil_ex < msrm_ex) {
+            msrm_ex = PMms->Drc + msoil_ex;
         }
         PMrs->Drc = std::max(0.0, PMrs->Drc + msrm_ex);
         eMass < 0 ? pmsdep->Drc += msrm_ex: pmsdet->Drc += msrm_ex;
@@ -653,6 +658,8 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     }
     if (Qn->Drc + QinKW->Drc > MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
         Qpw->Drc = PCrw->Drc * 1000 * Q->Drc;
+        // calculate average but limit on available mass
+
         // calculate new Qp
         _Qpwn->Drc = QpwInfExCombined(Qn->Drc, QinKW->Drc, Q->Drc,
                          QpinKW->Drc, Qpw->Drc, Alpha->Drc,
@@ -670,7 +677,8 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         // mg = m3 * 1000 (L->m3) * mg L-1
         mrw_inf = InfilVol->Drc * 1000 * Crwn->Drc; // loss through infiltration
         // mg = mg/L * L/sec * sec
-        mrw_q = PQrw->Drc * _dt;
+        mrw_q = Crwn->Drc * Qn->Drc * _dt;
+        //mrw_q = PQrw->Drc * _dt; //??????
 
         // adjust masses if outflow is more than available mass.
         if (PMrw->Drc < mrw_inf - mwrm_ex) {
@@ -678,6 +686,14 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
             mrw_inf = (mrw_inf/tot) * PMrw->Drc;
             mwrm_ex = (mwrm_ex/tot) * PMrw->Drc;
         }
+
+        // adjust masses for PMMW
+        if (PMmw->Drc < mwrm_ex - mrw_inf) {
+            double tot = mwrm_ex - mrw_inf;
+            mrw_inf = (mrw_inf/tot) * PMmw->Drc;
+            mwrm_ex = (mwrm_ex/tot) * PMmw->Drc;
+        }
+
         mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
         pmwdep->Drc -= mrw_inf;
 //        if (PMrw->Drc + QpinKW->Drc * _dt < mrw_inf + mrw_q) {
