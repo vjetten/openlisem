@@ -518,6 +518,7 @@ public:
     double Pestinf, PestOutW, PestOutS, PestPerc;
     double PQrw_dt, PQrs_dt;
     double KdPestMC, KfilmPestMC, KrPestMC, rhoPestMC;
+    double Cr_max, dt_int_min;
     QString PestName;
 
     /// time and dx parameters
@@ -883,7 +884,7 @@ public:
     double QpwInfExCombined(double Qj1i1, double Qj1i, double Qji1,
                                     double Pj1i, double Pji1, double alpha,
                                     double dx, double zm, double kfilm, double qinf,
-                                    double cmw);
+                                    double cmw, double dt);
 
     // 1D hydro processes
     //input timeseries

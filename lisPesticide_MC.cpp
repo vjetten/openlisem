@@ -433,7 +433,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     double msrm_ex {0.0};
 
     //no erosion - add leftover of mass to mixing layer
-    if (Sed->Drc < tiny) {
+    if (_Sed->Drc < tiny) {
         PCrs->Drc = 0.0;        //concentration = 0
         PMms->Drc += PMrs->Drc; //add any leftover mass to mixing layer
         pmsdep->Drc -= PMrs->Drc;
@@ -452,14 +452,14 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         // option 1 - all deposition on roads add directly to sink
         // option 2 - deposition on roads can be eroded and added into the system...
         double eMass = (DEP->Drc + DETFlow->Drc + DETSplash->Drc); //kg/cell - sediment BulkDensity is part of runfile Conservation
-        if (eMass < -tiny) { //close to zero no calculations are done
+        if (eMass < 0) { //
             //deposition
             // m = kg / kg m-3 * m * m
             Ez->Drc = eMass / (rho * _DX->Drc * FlowWidth->Drc); // also on road surface
             msoil_ex = eMass * PCms->Drc; // what happens with pesticides on roads??
             // mg = mg kg-1 * kg
             msrm_ex = Crs_avg * eMass; // loss by deposition            
-        } else if (eMass > tiny){
+        } else if (eMass > 0){
             // erosion
             Ez->Drc = eMass / (rho * _DX->Drc * SoilWidthDX->Drc); // only on soil surface
             msoil_ex = eMass * PCs->Drc; // * SoilWidthDX->Drc * _DX->Drc * rho;
@@ -566,7 +566,7 @@ double TWorld::QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i, d
 double TWorld::QpwInfExCombined(double Qj1i1, double Qj1i, double Qji1,
                                 double Pj1i, double Pji1, double alpha,
                                 double dx, double zm, double kfilm, double qinf,
-                                double cmw)
+                                double cmw, double dt)
 {
     double Pj1i1 {0}, Cp_avg {0}, Q_avg {0};
     double A {0}, B {0}, C {0}, D {0}; // aux vars
@@ -579,15 +579,15 @@ double TWorld::QpwInfExCombined(double Qj1i1, double Qj1i, double Qji1,
         return (0);
     Cp_avg = (Pj1i+Pji1)/(Qj1i+Qji1); //mg/m3
     // calculate all parts of formula
-    A = Pj1i * _dt;
+    A = Pj1i * dt;
     B = alpha * pow(Q_avg, beta) * dx * Pji1 / Qji1;
     C = alpha * beta * pow(Q_avg, beta-1) * (Qj1i1 - Qji1) * dx;
-    D = kfilm * cmw * zm * dx * _dt;
+    D = kfilm * cmw * zm * dx * dt;
     //
-    E = _dt;
+    E = dt;
     F = alpha * pow(Q_avg, beta) * dx / Qj1i1;
-    G = kfilm * zm * dx * _dt / Qj1i1;
-    H = qinf * dx * _dt * zm / Qj1i1;
+    G = kfilm * zm * dx * dt / Qj1i1;
+    H = qinf * dx * dt * zm / Qj1i1;
 
     // calculate new Qp - mg/sec
     Pj1i1 = (A+B-C-D) / (E+F-G-H);
@@ -660,11 +660,13 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         Qpw->Drc = PCrw->Drc * 1000 * Q->Drc;
         // calculate average but limit on available mass
 
+        // qinf[m sec-1] = fact[m] / _dt[sec]
+        double qinf = fact->Drc / _dt;
         // calculate new Qp
         _Qpwn->Drc = QpwInfExCombined(Qn->Drc, QinKW->Drc, Q->Drc,
                          QpinKW->Drc, Qpw->Drc, Alpha->Drc,
-                         DX->Drc, zm->Drc, KfilmPestMC, fact->Drc,
-                         PCmw->Drc);
+                         DX->Drc, zm->Drc, KfilmPestMC, qinf,
+                         PCmw->Drc, _dt);
         Crwn->Drc = Qn->Drc > 0 ? _Qpwn->Drc / (Qn->Drc * 1000) : 0; // mg/L
 
         //calculate new masses
@@ -676,32 +678,106 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
                    * ThetaS1->Drc * 1000));
         // mg = m3 * 1000 (L->m3) * mg L-1
         mrw_inf = InfilVol->Drc * 1000 * Crwn->Drc; // loss through infiltration
-        // mg = mg/L * L/sec * sec
-        mrw_q = Crwn->Drc * Qn->Drc * 1000 * _dt;
-        //mrw_q = PQrw->Drc * _dt; //??????
+        // mg = mg/sec * sec
+        mrw_q = PQrw->Drc * _dt; //PQrw and _Qpwn are the same... NOT USED
 
-        // adjust masses if outflow is more than available mass.
-        if (PMrw->Drc < mrw_inf - mwrm_ex) {
-            double tot = mrw_inf - mwrm_ex;
-            mrw_inf = (mrw_inf/tot) * PMrw->Drc;
-            mwrm_ex = (mwrm_ex/tot) * PMrw->Drc;
-        }
+        // insert internal timeloop here
 
-        // adjust masses for PMMW
-        if (PMmw->Drc < mwrm_ex - mrw_inf) {
-            double tot = mwrm_ex - mrw_inf;
-            mrw_inf = (mrw_inf/tot) * PMmw->Drc;
-            mwrm_ex = (mwrm_ex/tot) * PMmw->Drc;
-        }
+        //calculate courant number of standard timestep
+        double Cr_rw {0.0};
+        double Cr_mw {0.0};
+        //double Cr_max = 0.8; // max Courant number
+        //double dt_int_min = 0.1; // minimal timestep
+        // runoff water
+        if (PMrw->Drc > 0)
+        {Cr_rw = ((_Qpwn->Drc * _dt) + mrw_inf - mwrm_ex + QpinKW->Drc * _dt) / PMrw->Drc;}
+        if (PMmw->Drc > 0)
+        {Cr_mw = mwrm_ex / PMmw->Drc;}
+
+        //start loop if one of the Cr's > Cr_max
+        if (Cr_rw > Cr_max | Cr_mw > Cr_max) {
+            // calculate stepd and internal timestep
+            double steps {0.0};
+            double dt_int {0.0};
+
+            steps = std::min(std::ceil(std::max(Cr_rw,Cr_mw)*(2/Cr_max)), _dt/dt_int_min);
+            dt_int = _dt / steps;
+            // fill intermediate concentrations and masses
+            double int_Qpw, int_Qpwn, int_Cmw, int_Crwn; // int_CPavg, int_Crw,
+            double int_Mrw, int_Mmw, int_mwrm_ex, int_mrw_inf; //int_mrw_q
+            double sum_int_mwrm_ex {0.0}, sum_int_Qpwn {0.0}, sum_int_mrw_inf {0.0};
+
+            int_Qpw = Qpw->Drc;
+            int_Cmw = PCmw->Drc;
+            int_Mrw = PMrw->Drc;
+            int_Mmw = PMmw->Drc;
+
+
+            // make loop
+            double count = 0;
+            while (count < steps) {
+                count++;
+                // calculate Qpwn
+                int_Qpwn = QpwInfExCombined(Qn->Drc, QinKW->Drc, Q->Drc,
+                                            QpinKW->Drc, int_Qpw, Alpha->Drc,
+                                            DX->Drc, zm->Drc, KfilmPestMC, qinf,
+                                            int_Cmw, dt_int);
+                int_Crwn = Qn->Drc > 0 ? int_Qpwn / (Qn->Drc * 1000) : 0; // mg/L
+                // calculate mrwm_ex
+                int_mwrm_ex = (((_kfilm * (int_Cmw - int_Crwn))/zm->Drc)
+                           * (SoilWidthDX->Drc * _DX->Drc * zm->Drc * dt_int
+                              * ThetaS1->Drc * 1000));
+                // calculate mrw_inf
+                int_mrw_inf = qinf * dt_int * DX->Drc * DX->Drc * 1000 * int_Crwn; // loss through infiltration
+
+                // add & substract all masses and update concentrations
+                int_Mrw = std::max(0.0, int_Mrw - int_mrw_inf + int_mwrm_ex);
+                int_Qpwn = std::min(int_Qpwn, QpinKW->Drc + int_Mrw / dt_int);
+
+                //substract infiltration and discharge
+                //mg = mg + mg - mg - mg + (mg sec-1 * sec)
+                int_Mrw = std::max(0.0, int_Mrw - int_Qpwn * dt_int + QpinKW->Drc * dt_int);
+                int_Mmw = std::max(0.0, int_Mmw - int_mwrm_ex + int_mrw_inf);
+
+                // for next internal loop Qpw = current Qpwn
+                int_Qpw = int_Qpwn;
+                // L = m * m * m * -- * 1000
+                double volmw {0.0};
+                volmw = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
+                int_Cmw = int_Mmw / volmw;
+
+                // mean Q and total exchange and infiltration
+                sum_int_Qpwn += int_Qpwn;
+                sum_int_mwrm_ex += int_mwrm_ex;
+                sum_int_mrw_inf += int_mrw_inf;
+
+            } // end internal time loop
+
+            // calculate final concentrations and masses
+            _Qpwn->Drc = sum_int_Qpwn / steps;
+            mwrm_ex = sum_int_mwrm_ex;
+            mrw_inf = sum_int_mrw_inf;
+
+        } // end if Cr > Cr_max
+
+
+//        // adjust masses if outflow is more than available mass.
+//        if (PMrw->Drc < mrw_inf - mwrm_ex) {
+//            double tot = mrw_inf - mwrm_ex;
+//            mrw_inf = (mrw_inf/tot) * PMrw->Drc;
+//            mwrm_ex = (mwrm_ex/tot) * PMrw->Drc;
+//        }
+
+//        // adjust masses for PMMW
+//        if (PMmw->Drc < mwrm_ex - mrw_inf) {
+//            double tot = mwrm_ex - mrw_inf;
+//            mrw_inf = (mrw_inf/tot) * PMmw->Drc;
+//            mwrm_ex = (mwrm_ex/tot) * PMmw->Drc;
+//        }
 
         mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
         pmwdep->Drc -= mrw_inf;
-//        if (PMrw->Drc + QpinKW->Drc * _dt < mrw_inf + mrw_q) {
-//            double tot = mrw_inf + mrw_q;
-//            mrw_inf = (mrw_inf/tot) * PMrw->Drc;
-//            mrw_q = (mrw_q/tot) * PMrw->Drc;
-//        }
-//        PQrw->Drc = mrw_q / _dt;
+
         PMrw->Drc = std::max(0.0, PMrw->Drc - mrw_inf + mwrm_ex);
         PQrw->Drc = std::min(PQrw->Drc, QpinKW->Drc + PMrw->Drc / _dt);
 
