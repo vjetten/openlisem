@@ -368,18 +368,18 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         // mg = m3 * 1000 (L->m3) * mg L-1
         mrw_inf = InfilVol->Drc * 1000 * Crw_avg; // loss through infiltration from runoff
 
-        // adjust masses if outflow is more than available mass.
-        if (PMrw->Drc < mrw_inf - mwrm_ex) {
-            double tot = mrw_inf - mwrm_ex;
-            mrw_inf = (mrw_inf/tot) * PMrw->Drc;
-            mwrm_ex = (mwrm_ex/tot) * PMrw->Drc;
-        }        
-        // adjust masses for PMMW
-        if (PMmw->Drc < mwrm_ex - mrw_inf) {
-            double tot = mwrm_ex - mrw_inf;
-            mrw_inf = (mrw_inf/tot) * PMmw->Drc;
-            mwrm_ex = (mwrm_ex/tot) * PMmw->Drc;
-        }
+//        // adjust masses if outflow is more than available mass.
+//        if (PMrw->Drc < mrw_inf - mwrm_ex) {
+//            double tot = mrw_inf - mwrm_ex;
+//            mrw_inf = (mrw_inf/tot) * PMrw->Drc;
+//            mwrm_ex = (mwrm_ex/tot) * PMrw->Drc;
+//        }
+//        // adjust masses for PMMW
+//        if (PMmw->Drc < mwrm_ex - mrw_inf) {
+//            double tot = mwrm_ex - mrw_inf;
+//            mrw_inf = (mrw_inf/tot) * PMmw->Drc;
+//            mwrm_ex = (mwrm_ex/tot) * PMmw->Drc;
+//        }
 
         mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
         pmwdep->Drc -= mrw_inf;
@@ -393,6 +393,9 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         _Qpwn->Drc = QpwSeparate(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, _Qpw->Drc,
                                     _Alpha->Drc, _DX->Drc); //mg/sec
         _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc + PMrw->Drc / _dt);
+
+
+        // insert internal time loop...
 
         //substract discharge
         //mg = mg - (mg sec-1 * sec)
