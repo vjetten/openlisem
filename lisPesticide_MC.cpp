@@ -599,7 +599,7 @@ double TWorld::QpwInfExCombined(double Qj1i1, double Qj1i, double Qji1,
 * @fn double TWorld::KinematicPestDissolved(double perc, double soildep,
 *               double lw, double zm, double dx, double swdx, double pcmw)
 * @brief Calculate dissolved concentration of pesticides in runoff water
-* with infiltration, exchange and runoff in same implicit solution.
+* with infiltration, exchange and runoff in same explicit backward solution.
 */
 
 void TWorld::KinematicPestDissolvedCombined(QVector <LDD_COORIN> _crlinked_,
