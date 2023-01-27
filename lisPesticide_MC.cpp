@@ -170,25 +170,25 @@ void TWorld::PesticideDynamicsMC(void)
        double mass_s {0.0};        // kg - mass sediment in mixing layer
 
        // exchange between adsorbed and dissolved in mixing zone
-
+       // kg = m * m * m * kg L-1 * 1000
+       vol_w = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
+       // kg = m * m * m * kg m-3
+       mass_s = zm->Drc * DX->Drc * SoilWidthDX->Drc * rho;
        // for now the assumption is made that the resulting unit of
        // Kr * (Kd * PCmw->Drc - PCms->Drc) is mg * kg-1 * sec-1
        // this holds if 1L water = 1kg
 
        // positive adds to absorbed, negative to dissolved.
-       // mg = mg kg-1 sec-1 * kg m-3 * m * m * m * sec
-       mda_ex = (kr * (Kd * PCmw->Drc - PCms->Drc) * rho * _dt
-                 * SoilWidthDX->Drc * DX->Drc * zm->Drc);
+       // mg = mg kg-1 sec-1 *  sec * kg
+       mda_ex = kr * (Kd * PCmw->Drc - PCms->Drc) * _dt
+                * std::min(vol_w, mass_s);
 
        // calculate equilibrium mass division
        mda_tot = PMmw->Drc + PMms->Drc;
-       vol_w = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
-       mass_s = zm->Drc * DX->Drc * SoilWidthDX->Drc * rho;
        eql_diss = mda_tot / (1 + (Kd / vol_w * mass_s));
        eql_ads = mda_tot - eql_diss;
        // mda_ex can not be larger than m_diff
        m_diff = eql_ads - PMms->Drc;
-
        mda_ex = std::abs(mda_ex) > std::abs(m_diff) ? m_diff : mda_ex;
 
        //percolation
@@ -208,7 +208,7 @@ void TWorld::PesticideDynamicsMC(void)
            PMinf->Drc = InfilVol->Drc * 1000 * PCmw->Drc; // infiltration mixing layer (mg)
        }
 
-       // adjust masses if outflow if more than available mass.
+       // adjust masses if outflow is more than available mass.
        if (PMmw->Drc < PMinf->Drc + PMperc->Drc + mda_ex) {
            double tot = PMinf->Drc + PMperc->Drc + mda_ex;
            PMinf->Drc = (PMinf->Drc/tot) * PMmw->Drc;
@@ -221,13 +221,14 @@ void TWorld::PesticideDynamicsMC(void)
        PMmw->Drc = std::max(0.0, PMmw->Drc - PMinf->Drc - PMperc->Drc - mda_ex);
        // mg = mg + mg
        PMms->Drc = std::max(0.0, PMms->Drc + mda_ex);
-       // update PCmw before dissolved
-       PCmw->Drc = PMmw->Drc / (zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000);
+       // update PCmw before dissolved & PCms before adsorbed
+       PCmw->Drc = PMmw->Drc / vol_w;
+       PCms->Drc = PMms->Drc / mass_s;
     }}
 
     //runoff
 
-    KinematicPestDissolvedCombined(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw,
+    KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw,
                         Kfilm);
 
     //erosion
@@ -337,25 +338,49 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 
     }
     if (Qn->Drc + QinKW->Drc > MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
+        double vol_mw {0.0};    // volume of water in mixing layer [L]
+        double vol_rw {0.0};    // volume of water in runoff [L]
+
         // calculate the correct C's based on the Qin and Qold etc.
         // mg L-1 = (mg + (mg sec-1 * sec)) / (m3 + (m3 sec-1 * sec)) * 1000(m3 -> L)
         Crw_avg = (PMrw->Drc + (QpinKW->Drc * _dt))
                   / ((WaterVolin->Drc + (QinKW->Drc * _dt)) * 1000);
+
         // positive adds to runoff, negative to mixing layer.
-        // mg = ((sec-1 * m-1 * (mg L-1) / m) * m * m * m * sec * 1000 (m3 -> L)
-        mwrm_ex = (((_kfilm * (PCmw->Drc - Crw_avg))/zm->Drc)
-                   * (SoilWidthDX->Drc * _DX->Drc * zm->Drc * _dt
-                   * ThetaS1->Drc * 1000));
+        vol_mw = zm->Drc * Theta_mix->Drc * DX->Drc * SoilWidthDX->Drc * 1000;
+        vol_rw = WaterVolin->Drc * 1000;
+
+        // mg = ((sec-1 * m-1 * (mg L-1) / m) * sec * L
+        mwrm_ex = ((_kfilm * (PCmw->Drc - Crw_avg))/(zm->Drc + WHrunoff->Drc))
+                   * _dt * std::min(vol_mw, vol_rw);
+
+        double c_eql {0.0};
+        double eql_mw {0.0};
+        double m_diff {0.0};
+        // equilibrium check
+        // calculate equilibrium mass division
+        c_eql = (PMmw->Drc + PMrw->Drc) / (vol_mw + vol_rw);
+        eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
+        // mwrm_ex can not be larger than m_diff
+        m_diff = eql_mw - PMmw->Drc;
+        mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
+
         // mg = m3 * 1000 (L->m3) * mg L-1
         mrw_inf = InfilVol->Drc * 1000 * Crw_avg; // loss through infiltration from runoff
+
         // adjust masses if outflow is more than available mass.
         if (PMrw->Drc < mrw_inf - mwrm_ex) {
             double tot = mrw_inf - mwrm_ex;
             mrw_inf = (mrw_inf/tot) * PMrw->Drc;
             mwrm_ex = (mwrm_ex/tot) * PMrw->Drc;
+        }        
+        // adjust masses for PMMW
+        if (PMmw->Drc < mwrm_ex - mrw_inf) {
+            double tot = mwrm_ex - mrw_inf;
+            mrw_inf = (mrw_inf/tot) * PMmw->Drc;
+            mwrm_ex = (mwrm_ex/tot) * PMmw->Drc;
         }
-        // also adjust masses if chemical exchange is more than mass
-        // in mixing layer!!!
+
         mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
         pmwdep->Drc -= mrw_inf;
         //substract infiltration and mixing layer exchange
@@ -543,6 +568,9 @@ double TWorld::QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i, d
         Pj1i1 = 0;
     return std::max(0.0 ,Pj1i1);
 }
+
+
+//NOT USED ANY MORE - OBSOLETE !!!!!!!!
 
 //---------------------------------------------------------------------------
 /**
