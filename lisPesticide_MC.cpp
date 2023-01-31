@@ -600,15 +600,9 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 //        if (PMms->Drc + msoil_ex < msrm_ex) {
 //            msrm_ex = PMms->Drc + msoil_ex;
 //        }
-        double Mrs_n {0.0}; // intermediate mass runoff sediment
-        Mrs_n = std::max(0.0, PMrs->Drc + msrm_ex);
 
-
-        // concentration for outflux
-        PCrs->Drc = Mrs_n / _Sed->Drc;
-        _Qps->Drc = PCrs->Drc * _Qs->Drc;
         // - simple extrapolation
-        double totpests = Mrs_n + (SpinKW->Drc * _dt);
+        double totpests = std::max(0.0, PMrs->Drc + (SpinKW->Drc * _dt) + msrm_ex);
         double totsed = _Sed->Drc + (SinKW->Drc * _dt);
         _Qpsn->Drc = std::min(totpests/_dt,
                                   _Qsn->Drc * (totpests / totsed));
@@ -634,12 +628,11 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
             dt_int = _dt / steps;
 
             // fill intermediate concentrations and masses
-            double int_Qps, int_Qpsn, int_Cms, int_Crs, int_Crs_avg; //
+            double int_Qpsn, int_Cms, int_Crs, int_Crs_avg; //
             double int_Mrs, int_Mms, int_msrm_ex, int_msoil_ex; //
             double sum_int_msrm_ex {0.0}, sum_int_Qpsn {0.0}, sum_int_msoil_ex {0.0};
             double int_Ez, int_eMass, int_Cs, int_zs, int_Msoil;
 
-            int_Qps = _Qps->Drc;
             int_Cms = PCms->Drc;
             int_Mrs = PMrs->Drc;
             int_Mms = PMms->Drc;
@@ -657,7 +650,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
                 // Crs
                 // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
                 int_Crs_avg = (int_Mrs + (SpinKW->Drc * dt_int))
-                          / (_Sed->Drc + (SinKW->Drc * dt_int));
+                              / (_Sed->Drc - eMass + (SinKW->Drc * dt_int));
                 // erosion or deposition
                 if (int_eMass < 0) {
                     //deposition
@@ -673,24 +666,18 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
                     // mg = mg kg-1  kg
                     int_msrm_ex = int_Cms * int_eMass; // added by erosion
                 }
-                // msoil_ex msrm_ex
 
-                int_Mrs = std::max(0.0, int_Mrs + int_msrm_ex);
-
-
-                // concentration for outflux
-                int_Crs = int_Mrs / _Sed->Drc;
                 // - simple extrapolation
-                double totpests = int_Mrs + (SpinKW->Drc * dt_int);
+                double totpests = std::max(0.0, int_Mrs + int_msrm_ex +
+                                           (SpinKW->Drc * dt_int));
                 double totsed = _Sed->Drc + (SinKW->Drc * dt_int);
                 int_Qpsn = std::min(totpests/dt_int,
                                       _Qsn->Drc * (totpests / totsed));
 
 
                // update for next loop
-               int_Qps = int_Qpsn;
                int_Mrs = std::max(0.0, int_Mrs - (int_Qpsn * dt_int)
-                                           + (SpinKW->Drc * dt_int));
+                                           + (SpinKW->Drc * dt_int) + int_msrm_ex);
                int_Mms = std::max(0.0, int_Mms - int_msrm_ex + int_msoil_ex);
                int_Cms = int_Mms / (zm->Drc * rho * _DX->Drc * SoilWidthDX->Drc);
                int_zs -= int_Ez;
