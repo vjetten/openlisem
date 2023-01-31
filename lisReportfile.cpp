@@ -945,17 +945,19 @@ void TWorld::ReportMapSeries(void)
     //discharge l/s
     if (SwitchOutrunoff)
         report(*Qoutput, Outrunoff);
-    // discharge per timestep and cell - part of all-fluxes-out
-    report(*Q, OutQ);
-    report(*Qn, OutQn);
-    report(*QinAFO, OutQinKW);
-    if (SwitchErosion) {
-        report(*Qs, OutS);
-        report(*Qsn, OutSn);
-        report(*SinAFO, OutSin);
-        //    report(*SedAFO, OutSAFO);
-        report(*Sed, OutSS);
-    }
+//    // discharge per timestep and cell - part of all-fluxes-out
+//    report(*Q, OutQ);
+//    report(*Qn, OutQn);
+//    report(*QinAFO, OutQinKW);
+//    // infiltration for each timestep part of all-fuxes-out
+//    report(*InfilVol, Outinfilvol);
+//    if (SwitchErosion) {
+//        report(*Qs, OutS);
+//        report(*Qsn, OutSn);
+//        report(*SinAFO, OutSin);
+//        //    report(*SedAFO, OutSAFO);
+//        report(*Sed, OutSS);
+//    }
 
     // water height m
     if (SwitchOutwh)
@@ -970,9 +972,7 @@ void TWorld::ReportMapSeries(void)
 
     // infiltration mm
     if (SwitchOutinf)
-        report(*InfilmmCum, Outinf);
-    // infiltration for each timestep part of all-fuxes-out
-    report(*InfilVol, Outinfilvol);
+        report(*InfilmmCum, Outinf);    
 //    report(*InfilVolKinWave, OutinfilvolKinWave);
 
     if (SwitchOutss)

@@ -137,7 +137,7 @@ double TWorld::MassPestInitial(void)
         PMmw->Drc = PCmw->Drc * ThetaI1->Drc * zm->Drc * SoilWidthDX->Drc
                     * DX->Drc * 1000;
         // mg = mg kg-1 * m * m * m * kg m-3
-        PMsoil->Drc = PCms->Drc * SoilWidthDX->Drc * DX->Drc
+        PMsoil->Drc = PCs->Drc * SoilWidthDX->Drc * DX->Drc
                       * zs->Drc * rho;
     }}
     pmtot_i = mapTotal(*PMmw) + mapTotal(*PMms) + mapTotal(*PMsoil);
@@ -565,15 +565,19 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     }
 
     if (_Sed->Drc > tiny) { // more than 0.01 gram _Qsn->Drc + Sin
+        // positive = erosion, negative = deposition
+        double eMass = (DEP->Drc + DETFlow->Drc + DETSplash->Drc); //kg/cell
+
         // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
         Crs_avg = (PMrs->Drc + (SpinKW->Drc * _dt))
-                  / (_Sed->Drc + (SinKW->Drc * _dt));
+                  / (_Sed->Drc - eMass + (SinKW->Drc * _dt));
+        // substract eMass from _Sed for a more accurate concentration.
         // calculate erosion depth, no time component, per timestep
         // For now only use SoilWidth in formulas. Check what is done with deposition on roads.
         // Can this be eroded after deposition or not?
         // option 1 - all deposition on roads add directly to sink
         // option 2 - deposition on roads can be eroded and added into the system...
-        double eMass = (DEP->Drc + DETFlow->Drc + DETSplash->Drc); //kg/cell
+
         if (eMass < 0) {
             //deposition
             // m = kg / kg m-3 * m * m
@@ -602,6 +606,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 
         // concentration for outflux
         PCrs->Drc = Mrs_n / _Sed->Drc;
+        _Qps->Drc = PCrs->Drc * _Qs->Drc;
         // - simple extrapolation
         double totpests = Mrs_n + (SpinKW->Drc * _dt);
         double totsed = _Sed->Drc + (SinKW->Drc * _dt);
@@ -689,7 +694,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
                int_Mms = std::max(0.0, int_Mms - int_msrm_ex + int_msoil_ex);
                int_Cms = int_Mms / (zm->Drc * rho * _DX->Drc * SoilWidthDX->Drc);
                int_zs -= int_Ez;
-               int_Msoil -= int_msoil_ex;
+               int_Msoil = std::max(0.0, int_Msoil - int_msoil_ex);
                int_Cs  = int_Msoil / (int_zs * rho * _DX->Drc * SoilWidthDX->Drc);
 
                //sum for final values
@@ -714,7 +719,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
                                       + (SpinKW->Drc * _dt) + msrm_ex);
         PCrs->Drc = PMrs->Drc / _Sed->Drc;
         // adjust lower soil layer
-        PMsoil->Drc -= msoil_ex;
+        PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);
         zs->Drc -= Ez->Drc;
         PCs->Drc = PMsoil->Drc
                    / (zs->Drc * rho * _DX->Drc * SoilWidthDX->Drc);

@@ -2380,11 +2380,9 @@ void TWorld::IntializeData(void)
         PCms = ReadMap(LDD,getvaluename("pcmixsoil"));
         PCmw = ReadMap(LDD,getvaluename("pcmixwat"));
         zm = ReadMap(LDD,getvaluename("pestmixdep"));
-        zs = ReadMap(LDD,getvaluename("pestsoildep"));
-        FOR_ROW_COL_MV
-        {  //adjust zs for depth of mixing layer
-            zs->Drc = zs->Drc - zm->Drc;
-        }
+        zs = ReadMap(LDD,getvaluename("pestsoildep1"));
+        PCs = ReadMap(LDD,getvaluename("pcsoil1"));
+
         //Maps for pesticide_MC
         PMmw = NewMap(0);
         PMms = NewMap(0);
@@ -2392,8 +2390,6 @@ void TWorld::IntializeData(void)
         PMsoil = NewMap(0);
         PCrw = NewMap(0);
         Crwn = NewMap(0);
-        PCs = NewMap(0);
-        PCs = PCms;
         PQrw = NewMap(0);
         Qpw = NewMap(0);
         PMinf = NewMap(0);

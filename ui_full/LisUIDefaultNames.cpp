@@ -166,7 +166,8 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Pest Mixing Soil;pcmixsoil.map;Initial concentration of pesticide in soil of mixing zone;pcmixsoil");
     DEFmaps.append("2;Pest Mixing Water;pcmixwat.map;Initial concentration of pesticide in water of mixing zone;pcmixwat");
     DEFmaps.append("2;Pest Mixing Depth;pestmixdep.map;Thickness of the mixing layer [m];pestmixdep");
-    DEFmaps.append("2;Pest Soil Depth;pestsoildep.map;Initial thickness of soil layer containing pesticides [m];pestsoildep");
+    DEFmaps.append("2;Pest Soil Depth;pestsoildep1.map;Initial thickness of soil layer 1 containing pesticides [m];pestsoildep1");
+    DEFmaps.append("2;Pest Soil Conc;pcsoil1.map;Initial concentrstion of soil layer 1 containing pesticides [m];pcsoil1");
 
     // example
     //   DEFmaps.append("0;Pesticides");

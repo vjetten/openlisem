@@ -254,7 +254,7 @@ cTMap
 *Qpw,                       //!< dissolved pesticide flux based on Qp [mg/sec]
 *Qps,                       //!< pesticide sediment flux based on Qs [mg/sec]
 *Ez,                        //!< erosion depth [m] - negative is deposition
-*PCs,                       //!< concentration of pesticide in soil [mg/kg] - same as initial PCms
+*PCs,                       //!< concentration of pesticide in pesticide soil layer 1 [mg/kg]
 *Theta_mix,                 //!< theta of the mixing layer [-]
 *pmsdet,                     //!< mass of detached pesticide [mg]
 *pmsdep,                     //!< mass of deposited pesticide [mg]
