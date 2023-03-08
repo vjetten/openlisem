@@ -1,4 +1,4 @@
-/*************************************************************************
+﻿/*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
 **  Copyright (C) 2010,2011, 2020  Victor Jetten
 **  contact: v.g.jetten AD utwente DOT nl
@@ -93,6 +93,7 @@ void cTMap::setAllMV()
 
 
 // make a new map according to dup as a mask and filled with value
+// dup is the duplicate map (LDD is mostly used as refrence)
 void cTMap::MakeMap(
     cTMap *dup,
     REAL8 value)
