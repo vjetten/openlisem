@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -374,12 +374,12 @@ public:
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
-    SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide,
+    SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide, SwitchAddBuildingsDEM,
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle,
-    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap;
+    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchExplicitGWflow,SwitchSWATGWflow;
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
@@ -390,6 +390,7 @@ public:
     int userCores;
     int SwitchSV; //ettling velocity
     double splashb; // splash strength coef b limburg equtions,
+    double AddBuildingFraction;
 
     // flow bloundaries
     QList<int> FBid;
@@ -434,9 +435,10 @@ public:
 
     double GW_recharge;
     double GW_flow;
+    double GW_inflow;
     double GW_slope;
     double GW_lag;
-    double GW_bypass;
+    double GW_deep;
     double GW_threshold;
     double GW_initlevel;
 
@@ -513,7 +515,7 @@ public:
     /// time and dx parameters
     double time, BeginTime, EndTime;
     double _dt, _dx;
-    double _dt_user, _dtCHkin;
+    double _dt_user, _dtCHkin, _CHMaxV;
     long runstep, printstep, printinterval;
     double _llx, _lly;
 
@@ -889,7 +891,7 @@ public:
     void cell_FlowDetachment(int r, int c);
     void MoistureContent();
 
-    void InfilEffectiveKsat();
+    void InfilEffectiveKsat(bool first);
     void Infiltration();
     void InfilSwatre();
 
@@ -916,6 +918,11 @@ public:
     void ChannelRainandInfil();
     void ChannelSedimentFlow();
     void ChannelFlowandErosion();
+
+    void GroundwaterRecharge();
+    void GroundwaterFlow();
+    void GWFlow2D();
+    void GWFlowLDD();
 
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
@@ -968,13 +975,14 @@ public:
     double getMass(cTMap *M, double th);
     double getMassWS(int nr_, cTMap *M, double th);
     double getMassSed(cTMap *M, double th);
-    void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha, cTMap *_DX, cTMap *_Vol);
-    double IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double maxQ);
+    void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX);//, cTMap *_Vol);
+    double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX);
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
-    void KinematicExplicit(QVector<LDD_COORIN> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax);
+    void KinematicExplicit(QVector<LDD_COORIN> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX);//, cTMap *_Qmax);
     void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
     void AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
-    //LDD_COOR *_crlinked_
+    void UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
+
     QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
 
     // kinematic 2D

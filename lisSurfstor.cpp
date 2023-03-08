@@ -19,7 +19,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -63,8 +63,10 @@ void TWorld::GridCell()
 
         // adjust roads+hardsurf to cell with channels
         RoadWidthHSDX->Drc = std::min(dxa-HouseWidthDX->Drc, RoadWidthHSDX->Drc);
+        // decrease roadwidth if roads + houses > dx-channel
         SoilWidthDX->Drc = dxa-RoadWidthHSDX->Drc;
-        //soil is pixel - roads+hardsurf - channels but including houses
+        //soil is dx - roads+hardsurf - channels but including houses
+        //water can infiltrate over soilwidth,
 
 
         //HouseWidthDX->Drc = std::min(dxa*0.95, HouseWidthDX->Drc);
@@ -73,7 +75,7 @@ void TWorld::GridCell()
         HouseCover->Drc = HouseWidthDX->Drc/_dx;
         //houses are impermeable in ksateff so do have to be done here, with high mannings n, but allow flow
 
-        N->Drc = N->Drc * (1-HouseCover->Drc) + 0.5*HouseCover->Drc;
+        N->Drc = N->Drc * (1-HouseCover->Drc) + 1.0*HouseCover->Drc; // N is 1 for a house, very high resistance
         // adjust man N
 
         FlowWidth->Drc = ChannelAdj->Drc;//is the same as SoilWidthDX->Drc + RoadWidthHSDX->Drc;

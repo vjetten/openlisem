@@ -71,14 +71,14 @@
 #define CATCHMENTMAPS 1
 #define LANDUSEMAPS 2
 #define SURFACEMAPS 3
-#define EROSIONMAPS 4
-#define INFILTRATIONMAPS 5
-#define CHANNELMAPS 6
+#define INFILTRATIONMAPS 4
+#define CHANNELMAPS 5
+#define HOUSESMAPS 6
+#define EROSIONMAPS 7
 #define CONSERVATIONMAPS 7
 #define TILEDRAINMAPS 8
-#define HOUSESMAPS 9
-//#define NUTRIENTSMAPS 13
-#define BARRIERMAPS 10
+#define TILEMAPS 10
+#define PESTMAPS 11
 
 
 //---------------------------------------------------------------------------
@@ -183,36 +183,27 @@ public:
     void showBaseMap();
     void getOutletMap();
     void showChannelVectorNew();
-
-    QwtPlotCurve *rivera;
-    QwtPlotCurve *culvert;
-    QwtPlotCurve *obspoint;
-    QList<QwtPlotCurve*> rivers;
-    QList<QwtPlotCurve*> culverts;
-    QList<QwtPlotCurve*> obspoints;
-    QList<QwtPlotCurve*> outlets;
     void showRoadMap();
     void showHouseMap();
-    void showFlowBarriersMap();
+    void showHardSurfaceMap();
     void showImageMap();
     void changeSize();
     double Masp;
-    //double fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD);//, double type);
     double fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD, double *minv, double *maxv);
     double fillDrawMapDataRGB(cTMap * base,  cTRGBMap *_M, QwtMatrixRasterData *_RD);
 
+    QwtPlot *MPlot;               // plot in which the raster map is drawn
     QwtText title;
     QwtPlotSpectrogram *drawMap;  // raster map drawing
     QwtPlotSpectrogram *baseMap;  // raster map drawing
     QwtPlotSpectrogram *baseMapDEM;  // raster map drawing
     QwtPlotSpectrogram *baseMapImage;  // raster map drawing
     QwtPlotSpectrogram *contourDEM;  // raster map drawing
-    QwtPlotSpectrogram *channelMap;  // raster map drawing
+    QwtPlotSpectrogram *hardsurfMap;  // raster map drawing
     QwtPlotSpectrogram *roadMap;  // raster map drawing
     QwtPlotSpectrogram *houseMap;  // raster map drawing
     QwtPlotSpectrogram *imageMap;
     QwtPlotSpectrogram *outletMap;
-    QwtPlot *MPlot;               // plot in which the raster map is drawn
     QwtMatrixRasterData *RD;      // data for thematic raster maps
     QwtMatrixRasterData *RDb;
     QwtMatrixRasterData *RDbb;
@@ -226,15 +217,17 @@ public:
     QwtAxisId *axisYL2;
     QwtAxisId *axisYR1;
     QwtAxisId *axisYR2;
-
     QList <QVector <double>> Xa;
     QList <QVector <double>> Ya;
     QList <QVector <double>> Xc;
     QList <QVector <double>> Yc;
+    QList<QwtPlotCurve*> rivers; // black river
+    QList<QwtPlotCurve*> culverts;  //white culvert part in river
+    QwtPlotCurve obspoints;
+    QwtPlotCurve outlets;
+
 
     double contourmin, contourmax;
-    //   double drawNrCols;
-    //   double drawNrRows;
     // vars for store map display in runfile
     int MapDisplayMapSelection, MapDisplayBuilding, MapDisplayRoads, MapDisplayChannels, MapDisplayHydrology;
     double MapDisplayRunoffMax, MapDisplayInfiltrationMax, MapDisplaySoillossMax, MapDisplayFlooddepthMax;
@@ -259,16 +252,6 @@ public:
     QList<int> OutletIndices;
     QList<int> OutletLocationX;
     QList<int> OutletLocationY;
-//    QList<QVector<double>*> OutletQ;
-//    QList<QVector<double>*> OutletQs;
-//    QList<QVector<double>*> OutletC;
-//    QList<QVector<double>*> OutletChannelWH;
-//    QVector<double> OutletQpeak;
-//    QVector<double> OutletQpeaktime;
-//    QVector<double> OutletQtot;
-//    QVector<double> OutletQstot;
-    //QVector<double> Rainfall;
-//    double timestep;
     double mult;
 
     int outletpoint = 1;
@@ -300,7 +283,7 @@ public:
     QwtPlotCurve *CGraph;
     QwtPlotCurve *PGraph;
     QwtPlotCurve *QtileGraph;
-    QwtPlotCurve *outPoints;
+
     bool startplot = true;
     bool stopplot;
     QVector <double> times;
@@ -384,7 +367,7 @@ public slots:
     void aboutInfo();
     void resetAll();
     void setOutputScreen();
-    void setOutputInfo();
+    void setOutputInfo(bool check);
 
     void onOutletChanged(int);
     void editMapname(QModelIndex topLeft, QModelIndex bottomRight );
@@ -478,7 +461,7 @@ public slots:
     void ssetAlphaChannelOutlet(int v);
     void ssetAlphaRoad(int v);
     void ssetAlphaHouse(int v);
-    void ssetAlphaBarrier(int v);
+    void ssetAlphaHardSurface(int v);
     void ssetAlphaMap(int v);
 
     void setWriteOutputSOBEK(bool);

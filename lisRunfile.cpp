@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -207,17 +207,20 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Adjust channel crosssection")==0)       SwitchChannelAdjustCHW  = iii == 1;
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
         if (p1.compare("Include channel inflow")==0)            SwitchChannelInflow  = iii == 1;
+        if (p1.compare("GW flow explicit")==0)                  SwitchExplicitGWflow  = iii == 1;
+        if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
 
-        if (p1.compare("Variable Timestep")==0)                 SwitchVariableTimestep = iii == 1;
+      //  if (p1.compare("Variable Timestep")==0)                 SwitchVariableTimestep = iii == 1;
         if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
         if (p1.compare("Use Channel Kinwave dt")==0)            SwitchChannelKinwaveDt = iii == 1;
+        if (p1.compare("Use Channel Max GV")==0)                SwitchChannelMaxV = iii == 1;
      //   if (p1.compare("Use Avg Channel Kinwave")==0)           SwitchChannelKinwaveAvg = iii == 1;
         if (p1.compare("Use gravity flow")==0)                  SwitchGravityToChannel = iii == 1;
 
         if (p1.compare("Correct DEM")==0)                       SwitchCorrectDEM = iii == 1;
         if (p1.compare("Use 2D Diagonal flow")==0)              Switch2DDiagonalFlow = iii == 1;
         if (p1.compare("Use 2D Diagonal flow new")==0)          Switch2DDiagonalFlowNew = iii == 1;
-        if (p1.compare("Use SWOF watersheds")==0)               SwitchSWOFWatersheds = iii == 1;
+  //      if (p1.compare("Use SWOF watersheds")==0)               SwitchSWOFWatersheds = iii == 1;
         if (p1.compare("Flow Boundary 2D")==0)                  FlowBoundaryType = iii;
         if (p1.compare("Advanced Options")==0)                  SwitchAdvancedOptions = iii == 1;
 
@@ -231,6 +234,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use 2 phase flow")==0)                  SwitchUse2Phase = iii;
         if (p1.compare("Include River diffusion")==0)           SwitchIncludeRiverDiffusion = iii == 1;
         if (p1.compare("Include diffusion")==0)                 SwitchIncludeDiffusion = iii == 1;
+
 //        if (p1.compare("Use grain size distribution")==0)       SwitchMulticlass = iii == 1;
 //        if (p1.compare("Estimate grain size distribution")==0)  SwitchEstimateGrainSizeDistribution = iii == 1;
 //        if (p1.compare("Read grain distribution maps")==0)      SwitchReadGrainSizeDistribution    = iii == 1;
@@ -238,7 +242,9 @@ void TWorld::ParseRunfileData(void)
         //   if (p1.compare("Grain size class maps")==0)     GrainMaps  = p;
 
         if (p1.compare("Flood initial level map")==0)           SwitchFloodInitial     = iii == 1;
-        if (p1.compare("Include house storage")==0)             SwitchHouses    =   iii == 1;
+        if (p1.compare("Include house storage")==0)             SwitchHouses =   iii == 1;
+        if (p1.compare("Include buildings")==0)                 SwitchHouses =   iii == 1;
+        if (p1.compare("Add buildings to DEM")==0)              SwitchAddBuildingsDEM    =   iii == 1;        
         if (p1.compare("Include raindrum storage")==0)          SwitchRaindrum  =   iii == 1;
 
         if (p1.compare("Include Satellite Image")==0)           SwitchImage =            iii == 1;

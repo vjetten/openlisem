@@ -19,7 +19,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -60,7 +60,7 @@ void TWorld::setupDisplayMaps()
         delete op.outletMap;
         delete op.roadMap;
         delete op.houseMap;
-        delete op.flowbarriersMap;
+        delete op.hardsurfaceMap;
     }
 
     op.baseMap = new cTMap();
@@ -69,7 +69,7 @@ void TWorld::setupDisplayMaps()
     op.outletMap = new cTMap();
     op.roadMap = new cTMap();
     op.houseMap = new cTMap();
-    op.flowbarriersMap = new cTMap();
+    op.hardsurfaceMap = new cTMap();
 
     op.baseMap->MakeMap(LDD, 0);
     op.baseMapDEM->MakeMap(LDD, 0);
@@ -77,7 +77,7 @@ void TWorld::setupDisplayMaps()
     op.outletMap->MakeMap(LDD, 0);
     op.roadMap->MakeMap(LDD, 0);
     op.houseMap->MakeMap(LDD, 0);
-    op.flowbarriersMap->MakeMap(LDD, 0);
+    op.hardsurfaceMap->MakeMap(LDD, 0);
 }
 //---------------------------------------------------------------------------
 void TWorld::setLegendColors()
@@ -265,7 +265,9 @@ void TWorld::GetComboMaps()
     if (QUnits == 0)
         AddComboMap(0,"Total Discharge","l/s",Qoutput,LegendMap[cl],Legend[cl],true,false,1.0, 1.0);
     else
-        AddComboMap(0,"Total Discharge","m3/s",Qoutput,LegendMap[cl],Legend[cl],true,false,1.0, 0.001);
+        AddComboMap(0,"Total Discharge","m3/s",Qoutput,LegendMap[cl],Legend[cl],true,false,1.0, 1.0);//0.001);
+    //factor is already done in Qoutput, so that reportfile is also done, not only screen
+    // the only thing that needs to change here is the text "m3/s"
 
     //  if (FlowBoundaryType > 0)
   //  AddComboMap(0,"Boundary Discharge","l/s",K2DQ,LegendMap[cl],Legend[cl],true,false,1000.0, 1.0);
@@ -277,17 +279,9 @@ void TWorld::GetComboMaps()
     cl = 1;
     AddComboMap(0,"Flow Velocity","m/s",V /*COMBO_VOFCH*/,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     AddComboMap(0,"Flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.01); //VH
-   // AddComboMap(0,"flow calc","",flowmask,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
-   // AddComboMap(0,"flow calc","",WHstore,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
 
     if(SwitchIncludeChannel)
     {
-//        setColor(1);
-//        AddComboMap(0,"Channel Discharge","l/s",extQCH,Colormap,Colors,true,false,1000.0, 1.0);
-//        setColor(3);
-//        AddComboMap(0,"Channel Water Height","m",extWHCH,Colormap,Colors,false,false,1.0,0.01);
-//        setColor(2);
-//        AddComboMap(0,"Channel Velocity","m/s",extVCH,Colormap,Colors,false,false,1.0,0.01);
         cl = 0;
         if (QUnits == 0)
             AddComboMap(0,"Channel Discharge","l/s",ChannelQn,LegendMap[cl],Legend[cl],true,false,1000.0, 1.0);
@@ -326,6 +320,7 @@ void TWorld::GetComboMaps()
 
 
         if (InfilMethod != INFIL_SWATRE) {
+            cl = 3;
             //AddComboMap(0,"Avg Moisture content layer 1","-",Thetaeff,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
             AddComboMap(0,"Avg Moisture content layer 1","-",ThetaI1a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
             if (SwitchTwoLayer)

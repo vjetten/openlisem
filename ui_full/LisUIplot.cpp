@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -283,9 +283,6 @@ void lisemqt::initPlot()
     }
     else
     {
-        //        QsGraph->detach();
-        //        CGraph->detach();
-
         QGraph->setAxes(HPlot->xBottom, *axisYL1);
         PGraph->setAxes(HPlot->xBottom, *axisYR1);
         HPlot->setAxesCount(QwtPlot::yLeft, 1);
@@ -594,6 +591,11 @@ void lisemqt::showOutputData()
         label_54->setText("Q (m3/s)");
         label_dischargesub->setText(format.arg(QString::number(vv,'f',3)));
     }
+
+    if (checkUnits_ls->isChecked())
+        checkBox_OutRunoff->setText("ro - runoff + channel discharge (l/s)");
+    else
+        checkBox_OutRunoff->setText("ro - runoff + channel discharge (m3/s)");
 
     label_soillosssub->setEnabled(checkDoErosion->isChecked());
     label_94->setEnabled(checkDoErosion->isChecked());

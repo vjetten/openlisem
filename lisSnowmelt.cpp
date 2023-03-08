@@ -19,7 +19,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -133,24 +133,35 @@ void TWorld::GetSnowmeltData(QString name)
         // initialize rainfall record structure
         rl.time = 0;
         rl.intensity.clear();
+        int r_ = r+nrStations+skiprows;
 
-        // split rainfall record row with whitespace
-        QStringList SL = rainRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+        // split snowmelt record row with whitespace
+        QStringList SL = rainRecs[r_].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
 
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
+        time = rl.time;
 
-        if (r == 0)
-            time = rl.time;
-
-
-        if (r > 0 && rl.time <= time)
-        {
-            ErrorString = QString("Snowmelt records at time %1 has unreadable value.").arg(rl.time);
-            throw 1;
+        // check is time is increasing with next row
+        if (r+1 < nrSeries) {
+            QStringList SL1 = rainRecs[r_+1].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+            int time1 = getTimefromString(SL1[0]);
+            if (time1 < time) {
+                ErrorString = QString("Time in evaporation records is not increasing from row %1 to %2. Check your file!").arg(r_).arg(r_+1);
+                throw 1;
+            }
         }
-        else
-            time = rl.time;
+//        if (r == 0)
+//            time = rl.time;
+
+
+//        if (r > 0 && rl.time <= time)
+//        {
+//            ErrorString = QString("Snowmelt records at time %1 has unreadable value.").arg(rl.time);
+//            throw 1;
+//        }
+//        else
+//            time = rl.time;
 
         // check if record has characters, then filename assumed
 
@@ -161,7 +172,7 @@ void TWorld::GetSnowmeltData(QString name)
             rl.intensity << SL[i].toDouble(&ok);
             if (!ok)
             {
-                ErrorString = QString(" records at time %1 has unreadable value.").arg(SL[0]);
+                ErrorString = QString("Snowmel records at time %1 has unreadable value: %2.").arg(SL[0]).arg(SL[i]);
                 throw 1;
             }
         }
@@ -170,7 +181,7 @@ void TWorld::GetSnowmeltData(QString name)
     }
 
     nrSeries++;
-    rl.time = rl.time+1440;
+    rl.time = rl.time+1440; //?????????????
 
     for (int i = 1; i < nrStations; i++)
         rl.intensity << 0.0;

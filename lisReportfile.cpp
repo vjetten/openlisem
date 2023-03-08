@@ -19,7 +19,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -285,8 +285,8 @@ void TWorld::OutputUI(void)
         if (SwitchHouses)
             copy(*op.houseMap, *HouseCover);
 
-//        if(SwitchCulverts)
-//            copy(*op.flowbarriersMap,*ChannelMaxQ);
+        if(SwitchHardsurface)
+            copy(*op.hardsurfaceMap,*HardSurface);
 
         if(SwitchFlowBarriers)
         {
@@ -646,14 +646,15 @@ void TWorld::ReportTimeseriesNew(void)
             fout.open(QIODevice::Append | QIODevice::Text);
 
             QTextStream out(&fout);
-            out.setRealNumberPrecision(DIG);
             out.setFieldWidth(width);
             out.setRealNumberNotation(QTextStream::FixedNotation);
+            out.setRealNumberPrecision(5);
             if (SwitchWritePCRtimeplot)
                 out << runstep;
             else
                 out << (time/60)/1440.0;
 
+            out.setRealNumberPrecision(DIG);
             if (SwitchRainfall) out << sep << RainIntavg;
             if (SwitchSnowmelt) out << sep << SnowIntavg;
 
@@ -1105,7 +1106,7 @@ void TWorld::ChannelFloodStatistics(void)
     for (int i = 0; i < NRUNITS; i++)
     {
         floodList[i].nr = i;
-        floodList[i].var0 = 0.05*i; //depth
+        floodList[i].var0 = 0.05*i; //depth 5 cm intervals
         floodList[i].var1 = 0;
         floodList[i].var2 = 0;
         floodList[i].var3 = 0;
@@ -1133,7 +1134,7 @@ void TWorld::ChannelFloodStatistics(void)
             if (SwitchHouses)
                 floodList[i].var5 += HouseCover->Drc*area;
             if (SwitchRoadsystem)
-                floodList[i].var6 += RoadWidthDX->Drc*DX->Drc;
+                floodList[i].var6 += RoadWidthDX->Drc*DX->Drc; // WRONG: all road pixels is the surface, not the length
         }
     }}
 
@@ -1289,7 +1290,7 @@ void TWorld::ReportDump(void)
         QDir().mkdir(dumpDir);
     }
 
-    report(*RainCum,dumpDir+"raincum.map");
+    report(*RainCumFlat,dumpDir+"raincum.map"); //!
   //  report(*Rainpeak,dumpDir+"rainpeak.map");
 
     if (SwitchIncludeET) {

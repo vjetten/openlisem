@@ -19,7 +19,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -42,7 +42,8 @@ double TWorld::MapTotal(cTMap &M)
     double total = 0;
     #pragma omp parallel for reduction(+:total) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-       total = total + M.Drc;
+        if (!pcr::isMV(M.Drc))
+            total = total + M.Drc;
     }}
     return (total);
 }
@@ -224,6 +225,7 @@ void TWorld::Totals(void)
             BaseFlowTot += MapTotal(*Qbase); // total inflow in m3
             if (SwitchChannelBaseflowStationary)
                 BaseFlowTot += MapTotal(*BaseFlowInflow)*_dt; // stationary base inflow
+
             GWlevel = MapTotal(*GWWH)/(double)nrValidCells;
             BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
             //qDebug() << BaseFlowTotmm;

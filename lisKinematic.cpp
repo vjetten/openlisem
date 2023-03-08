@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -143,8 +143,7 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
  * @return new water discharge
  *
  */
-double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
-                             double deltaT, double deltaX, double Qmax)
+double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT, double deltaX)
 {
     /* Using Newton-Raphson Method */
     double  ab_pQ, deltaTX, C;  //auxillary vars
@@ -154,7 +153,8 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
     double dfQkx;  //derivative
     const double _epsilon = 1e-12;
     const double beta = 0.6;
-    Qmax = 1e20; //!!!!!!!!!
+    double q = 0;
+
 
     /* common terms */
      // ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
@@ -172,17 +172,15 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
         //itercount = -2;
         return(0);
     }
-    if (Qmax <= 0)
-        Qmax = 1e20;
+
     // pow function sum flux must be > 0
     if (Qold+Qin > 0)
     {
-        ab_pQ = alpha*beta*pow(std::min((Qold+Qin)/2.0, Qmax),beta-1);
+        ab_pQ = alpha*beta*pow((Qold+Qin)/2.0,beta-1);
         // derivative of diagonal average (space-time), must be > 0 because of pow function
         Qkx = (deltaTX * Qin + Qold * ab_pQ + deltaT * q) / (deltaTX + ab_pQ);
         // explicit first guess Qkx, VERY important
         Qkx = std::max(Qkx, 0.0); // deltaT * q can negative ?
-        Qkx = std::min(Qkx, Qmax);
     }
     else
         Qkx =  0;
@@ -202,7 +200,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
 
-    Qkx = std::min(Qkx, Qmax);
+   // Qkx = std::min(Qkx, Qmax);
 
    // itercount = count;
     return Qkx;
@@ -210,7 +208,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha,
 
 //---------------------------------------------------------------------------
 /*LDD_COOR *_crlinked_*/
-void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax)
+void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX)
 {   
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -236,36 +234,9 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
 
         if (Qin > 0 || _Q->Drc > 0) {
             itercount = 0;
-            _Qn->Drc = IterateToQnew(Qin,_Q->Drc, _q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc);
+            _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc);
            // tmb->Drc = itercount;
         }
-    }
-}
-//---------------------------------------------------------------------------
-void TWorld::AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW)
-{
-    #pragma omp parallel num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        _Qn->Drc = 0;
-        QinKW->Drc = 0;
-    }}
-
-    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
-    {
-        int r = _crlinked_[i_].r;
-        int c = _crlinked_[i_].c;
-        double Qin = 0;
-
-        // get inflow
-        if (_crlinked_[i_].nr >0) {
-            for(int j = 0; j < _crlinked_[i_].nr; j++) {
-                int rr = _crlinked_[i_].inn[j].r;
-                int cr = _crlinked_[i_].inn[j].c;
-                Qin += (_CW->Drcr > 0 ? 0.0 : _Qn->Drcr);//_Qn->Drcr;
-            }
-        }
-        QinKW->Drc = Qin;
-       _Qn->Drc = Qin + _Q->Drc;//(ChannelWidth->Drc > 0 ? 0.0 : _Q->Drc);
     }
 }
 //---------------------------------------------------------------------------
@@ -468,10 +439,8 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
  * @see TWorld::IterateToQnew
  * @see TWorld::LDD
  */
-void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
-                       cTMap *_Q, cTMap *_Qn,
-                       cTMap *_q, cTMap *_Alpha, cTMap *_DX,
-                       cTMap *_Qmax)
+void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX)
+                       //cTMap *_Qmax)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -557,14 +526,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,
             QinKW->data[rowNr][colNr] = Qin;
 
             itercount = 0;
-            double QMax = _Qmax->data[rowNr][colNr];
-            if (QMax <= 0)
-                QMax = 1e15;
-            _Qn->data[rowNr][colNr] = IterateToQnew(QinKW->data[rowNr][colNr], _Q->data[rowNr][colNr], _q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr], QMax );
-            // Newton Rapson iteration for water of current cell
-
-            //Vol->Drc = Vol->Drc+ (Qin-Qn->Drc-q->Drc)*_dt;
-
+            _Qn->data[rowNr][colNr] = IterateToQnew(QinKW->data[rowNr][colNr], _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);//, QMax );
               /* cell rowN, colNr is now done */
 
             temp=list;
@@ -748,5 +710,57 @@ void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
             }
         }
         out->Drc = tot;
+    }
+
+}
+//---------------------------------------------------------------------------
+void TWorld::UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn)
+{
+    #pragma omp parallel num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        _Qn->Drc = 0;
+    }}
+
+    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
+    {
+        int r = _crlinked_[i_].r;
+        int c = _crlinked_[i_].c;
+        double Qin = 0;
+
+        // get inflow
+        if (_crlinked_[i_].nr > 0) {
+            for(int j = 0; j < _crlinked_[i_].nr; j++) {
+                int rr = _crlinked_[i_].inn[j].r;
+                int cr = _crlinked_[i_].inn[j].c;
+                Qin += _Q->Drcr;
+            }
+            Qin /= _crlinked_[i_].nr;
+        }
+        _Qn->Drc = Qin;
+    }
+}
+//---------------------------------------------------------------------------
+void TWorld::AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW)
+{
+    #pragma omp parallel num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        _Qn->Drc = 0;
+    }}
+
+    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
+    {
+        int r = _crlinked_[i_].r;
+        int c = _crlinked_[i_].c;
+        double Qin = 0;
+
+        // get inflow
+        if (_crlinked_[i_].nr >0) {
+            for(int j = 0; j < _crlinked_[i_].nr; j++) {
+                int rr = _crlinked_[i_].inn[j].r;
+                int cr = _crlinked_[i_].inn[j].c;
+                Qin += (_CW->Drcr > 0 ? 0.0 : _Qn->Drcr);
+            }
+        }
+       _Qn->Drc = Qin + _Q->Drc;
     }
 }

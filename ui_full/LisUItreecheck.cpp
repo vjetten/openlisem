@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -37,17 +37,17 @@
 //#include "model.h"
 #include "global.h"
 /*
-RAINFALLMAPS
-CATCHMENTMAPS
-LANDUSEMAPS
-SURFACEMAPS
-EROSIONMAPS
-INFILTRATIONMAPS
-CHANNELMAPS
-BUFFERSMAPS
-SNOWMELTMAPS
-
-NUTRIENTSMAPS
+//#define RAINFALLMAPS 0
+//#define CATCHMENTMAPS 1
+//#define LANDUSEMAPS 2
+//#define SURFACEMAPS 3
+//#define INFILTRATIONMAPS 4
+//#define CHANNELMAPS 5
+//#define HOUSESMAPS 6
+//#define EROSIONMAPS 7
+//#define CONSERVATIONMAPS 7
+//#define TILEDRAINMAPS 8
+//#define PESTMAPS 11
 
 */
 
@@ -55,7 +55,7 @@ NUTRIENTSMAPS
 //--------------------------------------------------------------------
 void lisemqt::on_checkFlowBarriers_clicked()
 {
-    checkMapNameModel(BARRIERMAPS, 0, checkFlowBarriers->isChecked());
+    checkMapNameModel(CONSERVATIONMAPS, 0, checkFlowBarriers->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkDoErosion_clicked()
@@ -77,27 +77,15 @@ void lisemqt::on_checkHouses_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeChannel_clicked()
 {
-//    if (checkIncludeChannel->isChecked())
-//    {
-//        checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
-//        checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
-//        checkMapNameModel(CHANNELMAPS, 13, checkChannelFlood->isChecked());
-//    }
-
-    checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
+    checkMapNameModel(CHANNELMAPS, 0, checkIncludeChannel->isChecked());
 
     checkChannelInfil->setEnabled(checkIncludeChannel->isChecked());
     checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());
     checkChannelCulverts->setEnabled(checkIncludeChannel->isChecked());
-    //checkChannelFlood->setEnabled(checkIncludeChannel->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkChannelInfil_clicked()
 {
-
-//    checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
-//    checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
-//    checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
     on_checkIncludeChannel_clicked();
 
     if (checkChannelBaseflow->isChecked())
@@ -106,13 +94,7 @@ void lisemqt::on_checkChannelInfil_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkChannelBaseflow_clicked()
 {
-//    checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
-//    checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
-//    checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
     on_checkIncludeChannel_clicked();
-
-    //label_195->setEnabled(checkChannelBaseflow->isChecked());
-    //label_baseflowtot->setEnabled(checkChannelBaseflow->isChecked());
 
     if (checkChannelInfil->isChecked())
         checkChannelInfil->setChecked(false);
@@ -278,6 +260,17 @@ void lisemqt::on_checkExpandActive_clicked()
         }
 }
 //--------------------------------------------------------------------
+//#define RAINFALLMAPS 0
+//#define CATCHMENTMAPS 1
+//#define LANDUSEMAPS 2
+//#define SURFACEMAPS 3
+//#define INFILTRATIONMAPS 4
+//#define CHANNELMAPS 5
+//#define HOUSESMAPS 6
+//#define EROSIONMAPS 7
+//#define CONSERVATIONMAPS 7
+//#define TILEDRAINMAPS 8
+//#define PESTMAPS 11
 void lisemqt::RunAllChecks()
 {
     for (int i = 0; i < 12; i++)
@@ -285,12 +278,15 @@ void lisemqt::RunAllChecks()
     // set all to false
 
     // PROCESS IN REVERSE ORDER
+    //checkMapNameModel(PESTMAPS, 10, checkPesticides->isChecked());
+    checkMapNameModel(TILEDRAINMAPS, 0, checkIncludeTiledrains->isChecked());
+    checkMapNameModel(CONSERVATIONMAPS, 0, checkInfilGrass->isChecked() || checkBuffers->isChecked() || checkSedtrap->isChecked());
+    checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
+    checkMapNameModel(HOUSESMAPS, 0, checkHouses->isChecked());
 
- //   checkMapNameModel(CHANNELFLOODMAPS, 0, checkChannelFlood->isChecked());
     checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
     checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
-   // checkMapNameModel(RAINFALLMAPS, 0, checkSnowmelt->isChecked());
 
     int nr = E_InfiltrationMethod->currentIndex();
     if (nr == 0)
@@ -317,17 +313,10 @@ void lisemqt::RunAllChecks()
             else
                 checkMapNameModel(INFILTRATIONMAPS, 12, false);
     }
-    checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
     checkMapNameModel(SURFACEMAPS, 0, true);
     checkMapNameModel(LANDUSEMAPS, 0, true);
     checkMapNameModel(CATCHMENTMAPS, 0, true);
     checkMapNameModel(RAINFALLMAPS, 0, true);
-
-    checkMapNameModel(TILEDRAINMAPS, 0, checkIncludeTiledrains->isChecked());
-    //houses
-    checkMapNameModel(HOUSESMAPS, 0, checkHouses->isChecked());
-
-   // checkMapNameModel(NUTRIENTSMAPS, 10, checkPesticides->isChecked());
 
     checkExpandActive->setChecked(false);
     treeView->collapseAll();

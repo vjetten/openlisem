@@ -1,6 +1,6 @@
 ﻿/*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011,2020  Victor Jetten
+**  Copyright (C) 2010,2011,2022  Victor Jetten
 **  contact:
 **
 **  This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -115,17 +115,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     setupMapPlot();
     // set up the raster map drawing
-
-    int h = MPlot->height();
-    int w = MPlot->width();
-    Masp = (double)w/(double)h;
-    //qDebug() << Masp;
-
-
-//    QSplitter *splitter = new QSplitter(tabWidget->widget(2));
-  //  splitter->addWidget(tabWidget_out);
-    //splitter->addWidget(scrollAreaResults);
-//    splitter->addWidget(widgetMB);
 
     Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
     // put the progress bar into the statusbar
@@ -598,29 +587,6 @@ void lisemqt::setErosionTab()
     label_SDR->setEnabled(checkDoErosion->isChecked());
 
 }
-//--------------------------------------------------------------------
-//void lisemqt::InitScreenOutput()
-//{
-//    sedgroup->setEnabled(true);
-//    int dig = E_DigitsOut->value();
-//    label_MBs->setText(QString::number(0,'e',dig));
-//    label_splashdet->setText(QString::number(0,'f',dig));
-//    label_flowdet->setText(QString::number(0,'f',dig));
-//    label_sedvol->setText(QString::number(0,'f',dig));
-//    label_dep->setText(QString::number(0,'f',dig));
-//    label_detch->setText(QString::number(0,'f',dig));
-//    label_depch->setText(QString::number(0,'f',dig));
-//    label_sedvolch->setText(QString::number(0,'f',dig));
-//    label_soilloss->setText(QString::number(0,'f',dig));
-//    label_soillosskgha->setText(QString::number(0,'f',dig));
-//    label_SDR->setText(QString::number(0,'f',dig));
-//    label_soillosssub->setText(QString::number(0,'f',dig));
-//    label_Qssub->setText(QString::number(0,'f',dig));
-//    sedgroup->setEnabled(checkDoErosion->isChecked());
-
-
-
-//}
 
 //--------------------------------------------------------------------
 void lisemqt::setWriteOutputSOBEK(bool doit)
@@ -646,11 +612,12 @@ void lisemqt::setOutputScreen()
 }
 
 
-void lisemqt::setOutputInfo()
+void lisemqt::setOutputInfo(bool check)
 {
     if (W) {
-      W->noInfo = !W->noInfo;
-      picker->setEnabled(W->noInfo);
+
+      W->noInfo = check;
+      picker->setEnabled(check);
     }
 }
 
@@ -726,7 +693,7 @@ void lisemqt::SetToolBar()
     toolBar->addAction(fontDecreaseAct);
 
     toolBar->addSeparator();
-    resizeAct = new QAction(QIcon(":/2X/adjustsize.png"), "&Fit map to display", this);
+    resizeAct = new QAction(QIcon(":/2X/resetmap.png"), "&Fit map to display", this);
     connect(resizeAct, SIGNAL(triggered()), this, SLOT(resizeMap()));
     toolBar->addAction(resizeAct);
 
@@ -737,7 +704,7 @@ void lisemqt::SetToolBar()
 
     showInfoAct = new QAction(QIcon(":/2X/noinfo.png"), "&no info under cursor", this);
     showInfoAct->setCheckable(true);
-    connect(showInfoAct, SIGNAL(triggered()), this, SLOT(setOutputInfo()));
+    connect(showInfoAct, SIGNAL(triggered(bool)), this, SLOT(setOutputInfo(bool)));
     toolBar->addAction(showInfoAct);
 
     toolBar->addSeparator();
@@ -776,6 +743,7 @@ void lisemqt::SetToolBar()
     connect(checkMapRoads, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
     connect(checkMapChannels, SIGNAL(clicked(bool)), this, SLOT(showChannelVector(bool)));
     connect(checkMapImage, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
+    connect(checkMapHardSurface, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
 
     connect(ComboMaxSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
     connect(ComboMinSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
@@ -783,15 +751,12 @@ void lisemqt::SetToolBar()
     connect(ComboMinSpinBox2,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
 
     connect(transparency, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlpha(int)));
-  //  connect(transparencyChannel, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaChannel(int)));
-    connect(transparencyRoad, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaRoad(int)));
-    connect(transparencyHouse, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaHouse(int)));
-   // connect(transparencyImage, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaBarrier(int))); // barrier is use for image
+//    connect(transparencyRoad, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaRoad(int)));
+    connect(transparencyHardSurface, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaHardSurface(int)));
+   // connect(transparencyHouse, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaHouse(int)));
     connect(transparencyMap, SIGNAL(sliderMoved(int)), this, SLOT(ssetAlphaMap(int)));
-    //connect(showRiverSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
     connect(spinChannelSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
     connect(spinCulvertSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannelOutlet(int)));
-  //  connect(toolShowMapDisplay, SIGNAL(pressed()),this,SLOT(showMapSettings()));
 }
 //---------------------------------------------------------------------------
 int lisemqt::SetStyleUISize()
@@ -897,9 +862,8 @@ void lisemqt::SetStyleUI()
     //label_11->setStyleSheet("QLabel {color: #4477aa;}");
 
     // interface elements that are not visible for now
-    frameSpare->setVisible(false);
+    //frameSpare->setVisible(false);
     tabWidgetOptions->removeTab(8);
-    //tabWidgetOptions->removeTab(7);
     //frameNumerical->setVisible(false);
 
     //tabWidget_erosion->setCurrentIndex(0);
@@ -1052,9 +1016,13 @@ void lisemqt::setMapDir()
                                              //QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks |
 //    path = QFileDialog::getOpenFileName(this,QString("Select maps directory"),
 //                                        pathin,"maps (*.map)");
-
-    if(!path.isEmpty())
+    if(!path.isEmpty()) {
+        if (path.count("/") > 0 && path.lastIndexOf("/") != path.count())
+            path = path + "/";
+        if (path.count("\\") > 0 && path.lastIndexOf("\\") != path.count())
+            path = path + "\\";
         E_MapDir->setText( path );
+    }
 }
 //--------------------------------------------------------------------
 void lisemqt::setWorkDir()
@@ -1085,8 +1053,13 @@ void lisemqt::setResultDir()
                                              pathin,
                                              QFileDialog::ShowDirsOnly
                                              | QFileDialog::DontResolveSymlinks);
-    if(!path.isEmpty())
+    if(!path.isEmpty()) {
+        if (path.count("/") > 0 && path.lastIndexOf("/") != path.count())
+            path = path + "/";
+        if (path.count("\\") > 0 && path.lastIndexOf("\\") != path.count())
+            path = path + "\\";
         E_ResultDir->setText( path );
+    }
 }
 
 //--------------------------------------------------------------------
@@ -1487,8 +1460,7 @@ void lisemqt::shootScreen()
             return;
 
         tabWidget_out->setCurrentIndex(0);
-        originalPixmap = tabWidget->widget(2)->grab(); //QPixmap::grabWidget(tabWidget->widget(2));
-        // originalPixmap = QPixmap::grabWidget(tabWidget_out->widget(0));
+        originalPixmap = tabWidget->widget(2)->grab();
         fileName = screenShotDir + fi.baseName()+ "_Q" + number + ".png";
 
         originalPixmap.save(fileName, format.toLatin1());
@@ -1553,13 +1525,13 @@ void lisemqt::aboutInfo()
 {
     QMessageBox::information ( this, "openLISEM",
                                QString("openLISEM verion %9 (%10) is created by Victor Jetten and Bastian van de Bout with:\n\n%1\n%2\n%3\n%4\n%5\n%6\n%7\n%8")
-                               .arg("- MSYS2 with MingW64, Qt and CMake (http://qt.nokia.com/).")
+                               .arg("- MSYS2 with MingW64, Qt and CMake (https://www.msys2.org/,http://qt.nokia.com/,https://cmake.org/)")
                                .arg("- Qwt technical application widgets for Qt (http://qwt.sf.net)")
                                .arg("- Flood source code derived from fullSWOF2D (http://www.univ-orleans.fr/mapmo/soft/FullSWOF/)")
                                .arg("- Using openMP for parallel processing (https://www.openmp.org/)")
                                .arg("- Using GDAL for map handling (https://gdal.org/)")
                                .arg("- PCRaster lib map functions: http://pcraster.geo.uu.nl/")
-                               .arg("Details can be found at: http://lisem.sourceforge.net")
+                               .arg("Details can be found here: https://github.com/vjetten/openlisem")
                                .arg("This software is made available under GNU CPLv3.0")
                                .arg(VERSIONNR)
                                .arg(DATE)
@@ -1585,6 +1557,7 @@ void lisemqt::resetTabOptions()
 
     checkRoadsystem->setChecked(false);
     checkHouses->setChecked(false);
+    checkAddBuildingDEM->setChecked(false);
     checkHardsurface->setChecked(false);
     checkRaindrum->setChecked(false);
     checkStormDrains->setChecked(false);
@@ -1647,7 +1620,7 @@ void lisemqt::resetTabFlow()
     check2DDiagonalFlowNew->setChecked(false);
     checkCorrectDem->setChecked(false);
     E_pitValue->setValue(1.0);
-    checkSWOFWatersheds->setChecked(false);
+    //checkSWOFWatersheds->setChecked(false);
     rb_swof2->setChecked(true);
     E_TimestepMinFlood->setValue(0.2);
     E_courantFactor->setValue(0.2);
@@ -1655,8 +1628,8 @@ void lisemqt::resetTabFlow()
     GW_recharge->setValue(1.0);
     GW_flow->setValue(1.0);
     GW_slope->setValue(1.0);
-    GW_lag->setValue(0.2);
-    GW_bypass->setValue(0.0);
+    GW_lag->setValue(0.5);
+    GW_deep->setValue(0.0);
     GW_threshold->setValue(0.2);
 }
 //--------------------------------------------------------------------
@@ -1721,14 +1694,15 @@ void lisemqt::resetTabAdvanced()
     E_FloodReconstruction->setValue(4);  //HLL2 etc
     E_FloodFluxLimiter->setValue(1);     //minmod etc
     E_courantFactorSed->setValue(0.2);
-    checkVariableTimestep->setChecked(false);
+    //checkVariableTimestep->setChecked(false);
     checkTimeavgV->setChecked(true);
     checkLinkedList->setChecked(false);
     //checkErosionInsideLoop->setChecked(true);
     checkGravityToChannel->setChecked(false);
-    checkKinWaveChannel->setChecked(true);
+    checkKinWaveChannel->setChecked(false);
     E_ChannelKinWaveDt->setValue(60.0);
     nrUserCores->setValue(0);
+    checkChanMaxVelocity->setChecked(true);
 
 }
 
@@ -1880,13 +1854,22 @@ QString lisemqt::findValidDir(QString path, bool up)
     if (!QFileInfo(path).exists() || path.isEmpty())
         path = currentDir;
 
+    qDebug() << path;
+    if (path.indexOf("/",1) > 0)
+        path.replace("\\","/");
+    else
+        if (path.indexOf("\\",1) > 0)
+            path.replace("/","\\");
+    qDebug() << path;
+
     return (path);
 }
 //---------------------------------------------------------------
 void lisemqt::resizeMap()
 {
       if (W && tabWidget_out->currentIndex() == 1)
-          changeSize();
+            changeSize();
+
 }
 //---------------------------------------------------------------
 void lisemqt::fontSelect()
@@ -2101,7 +2084,9 @@ void lisemqt::on_toolButton_DischargeInName_clicked()
 QString lisemqt::getFileorDir(QString inputdir,QString title, QStringList filters, int doFile)
 {
     QFileDialog dialog;
+
     QString dirout = inputdir;
+
     if (doFile > 0) {
         dialog.setNameFilters(filters);
         dialog.setDirectory(QFileInfo(inputdir).absoluteDir());
@@ -2142,17 +2127,15 @@ void lisemqt::on_toolButton_rainsatName_clicked()
         RainSatFileDir = RainFileDir;
     if (!QFileInfo(RainSatFileDir).exists() || RainSatFileDir.isEmpty())
         RainSatFileDir = currentDir;
-  //  qDebug() << RainSatFileDir << RainSatFileName ;
+  //  qDebug() << RainSatFileDir << RainSatFileName << currentDir;
 
     QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
     QString sss = getFileorDir(RainSatFileDir,"Select rainfall map list table", filters, 2);
 
     RainSatFileDir = QFileInfo(sss).absolutePath()+"/";
     RainSatFileName = QFileInfo(sss).fileName(); //baseName();
-  //  qDebug() << RainSatFileDir << RainSatFileName ;
 
     E_rainsatName->setText(RainSatFileDir + RainSatFileName);
-    //RainFileDir = RainSatFileDir;
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_ETsatName_clicked()
@@ -2169,19 +2152,18 @@ void lisemqt::on_toolButton_ETsatName_clicked()
 
     ETSatFileDir = QFileInfo(sss).absolutePath()+"/";
     ETSatFileName = QFileInfo(sss).fileName(); //baseName();
-    E_ETsatName->setText(ETSatFileDir + ETSatFileName);
 
- //   ETFileDir = ETSatFileDir;
+    E_ETsatName->setText(ETSatFileDir + ETSatFileName);
 }
 
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_RainfallName_clicked()
 {
     if (!QFileInfo(RainFileDir).exists() || RainFileDir.isEmpty())
-        RainSatFileDir = currentDir;
+        RainFileDir = currentDir;
 
     QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
-    QString sss = getFileorDir(RainSatFileDir,"Select rainfall station table", filters, 2);
+    QString sss = getFileorDir(RainFileDir,"Select rainfall station table", filters, 2);
 
     RainFileDir = QFileInfo(sss).absolutePath()+"/";
     RainFileName = QFileInfo(sss).fileName(); //baseName();
@@ -2193,8 +2175,6 @@ void lisemqt::on_toolButton_RainfallName_clicked()
 
 void lisemqt::on_toolButton_ETName_clicked()
 {
-//    if (!QFileInfo(ETFileDir).exists() || ETFileDir.isEmpty())
-//        ETFileDir = RainFileDir;
     if (!QFileInfo(ETFileDir).exists() || ETFileDir.isEmpty())
         ETFileDir = currentDir;
 

@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
@@ -97,11 +97,12 @@ cTMap
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
 *Qbin,
 *Qbase,
-//*VolQb,
+//*Qbaseprev,
 *GWVol,
 *GWWH,
 *GWWHmax,
-//*GWrec,
+*GWdeep,
+*GWrecharge,
 *GWout,
 *GWbp,
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
@@ -306,15 +307,13 @@ cTMap
 *ChannelV,                   //!<
 *ChannelU,                   //!<
 *ChannelN,                   //!<
+*ChannelNcul,                   //!<
 *ChannelWH,                  //!<
 *ChannelWHExtended,                  //!<
 *ChannelVolExtended,                  //!<
 *ChannelWaterVol,            //!<
-//*ChannelBLWaterVol,            //!<
-//*ChannelSSWaterVol,            //!<
 *Channelq,                   //!<
 *ChannelAlpha,               //!<
-//*ChannelFlowWidth,           //!<
 *ChannelWidthMax,           //!<
 *ChannelAdj,                //!<
 *CHAdjDX,                //!<

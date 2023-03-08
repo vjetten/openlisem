@@ -18,7 +18,7 @@
 **
 **  Authors: Victor Jetten, Bastian van de Bout
 **  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 /*!
@@ -142,6 +142,10 @@ void TWorld::DoModel()
         ParseRunfileData();
         // get and parse runfile
 
+
+        QString S = resultDir + QFileInfo(op.runfilename).fileName();
+        QFile::copy(op.runfilename, S);
+
         //BeginTime = getTimefromString(bt)*60; // in seconds!
         //EndTime = getTimefromString(et)*60;
         double btd = getvaluedouble("Begin time day");
@@ -191,8 +195,7 @@ void TWorld::DoModel()
                     rainplace++;
                 if (rainplace > 0) rainplace--;
             }
-            else
-            {
+            else {
                 GetRainfallData(rainFileName);
                 rainplace = 0;
                 while (BeginTime/60 >= RainfallSeries[rainplace].time && rainplace < nrRainfallseries)
@@ -263,7 +266,7 @@ void TWorld::DoModel()
         bool saveMBerror = false;
         saveMBerror2file(saveMBerror, true);
 
-        InfilEffectiveKsat();  // calc effective ksat from all surfaces once
+      //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
 
@@ -272,6 +275,8 @@ void TWorld::DoModel()
         DEBUG("Running...");
 
         GetComboMaps(); // moved to outside timeloop!
+
+        InfilEffectiveKsat(true);
 
         for (time = BeginTime; time < EndTime; time += _dt)
         {            
@@ -295,6 +300,8 @@ void TWorld::DoModel()
             // check if user wants to quit or pause
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
+
+            InfilEffectiveKsat(false);
 
             HydrologyProcesses();  // hydrological processes in one loop, incl splash
 
@@ -396,7 +403,7 @@ void TWorld::HydrologyProcesses()
 
                cell_Redistribution(r, c);
 
-               if (!SwitchImpermeable && !SwitchChannelBaseflow)
+               if (!SwitchImpermeable)// && !SwitchChannelBaseflow)
                    Perc->Drc = cell_Percolation(r, c, 1.0);
                 // if baseflow is active percollation is done there, so do not do it here
             }
