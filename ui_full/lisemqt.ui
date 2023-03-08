@@ -70,7 +70,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -137,7 +137,7 @@
                   </font>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>1</number>
                  </property>
                  <widget class="QWidget" name="tab">
                   <attribute name="title">
@@ -4985,7 +4985,7 @@ p, li { white-space: pre-wrap; }
                          <double>0.010000000000000</double>
                         </property>
                         <property name="value">
-                         <double>1.000000000000000</double>
+                         <double>0.000000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -8425,7 +8425,7 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="text">
-                         <string>Nr of CPU cores, more cores is faster for very large areas (0 = all cores; 1 = 1 core etc.)</string>
+                         <string>Nr of CPU cores (0 = all cores; 1 = 1 core etc.)</string>
                         </property>
                        </widget>
                       </item>
@@ -13307,7 +13307,7 @@ p, li { white-space: pre-wrap; }
                  </font>
                 </property>
                 <property name="text">
-                 <string>Run file: </string>
+                 <string>Run: </string>
                 </property>
                </widget>
               </item>

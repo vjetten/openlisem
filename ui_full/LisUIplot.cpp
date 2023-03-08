@@ -592,6 +592,11 @@ void lisemqt::showOutputData()
         label_dischargesub->setText(format.arg(QString::number(vv,'f',3)));
     }
 
+    if (checkUnits_ls->isChecked())
+        checkBox_OutRunoff->setText("ro - runoff + channel discharge (l/s)");
+    else
+        checkBox_OutRunoff->setText("ro - runoff + channel discharge (m3/s)");
+
     label_soillosssub->setEnabled(checkDoErosion->isChecked());
     label_94->setEnabled(checkDoErosion->isChecked());
     label_Qssub->setEnabled(checkDoErosion->isChecked());

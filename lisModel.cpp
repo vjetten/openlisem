@@ -175,6 +175,10 @@ void TWorld::DoModel()
         ParseRunfileData();
         // get and parse runfile
 
+
+        QString S = resultDir + QFileInfo(op.runfilename).fileName();
+        QFile::copy(op.runfilename, S);
+
         //BeginTime = getTimefromString(bt)*60; // in seconds!
         //EndTime = getTimefromString(et)*60;
         double btd = getvaluedouble("Begin time day");
@@ -224,8 +228,7 @@ void TWorld::DoModel()
                     rainplace++;
                 if (rainplace > 0) rainplace--;
             }
-            else
-            {
+            else {
                 GetRainfallData(rainFileName);
                 rainplace = 0;
                 while (BeginTime/60 >= RainfallSeries[rainplace].time && rainplace < nrRainfallseries)

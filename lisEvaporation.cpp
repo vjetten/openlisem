@@ -82,7 +82,6 @@ void TWorld::GetETData(QString name)
     tmp = countUnits(*ETZone);
     int nrmap = tmp.count();
 
-
     if (nrmap > nrStations)
     {
         ErrorString = QString("Number of stations in ET file (%1) < nr of ET zones in ID map (%2)").arg(nrStations).arg(nrmap);
@@ -103,23 +102,35 @@ void TWorld::GetETData(QString name)
         // initialize ET record structure
         rl.time = 0;
         rl.intensity.clear();
+        int r_ = r+nrStations+skiprows;
 
         // split ET record row with whitespace
-        QStringList SL = ETRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+        QStringList SL = ETRecs[r_].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
 
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
+        time = rl.time;
 
-        if (r == 0)
-            time = rl.time;
-
-        if (r > 0 && rl.time <= time)
-        {
-            ErrorString = QString("ET records at row %1 has unreadable value.").arg(r);
-            throw 1;
+        // check is time is increasing with next row
+        if (r+1 < nrSeries) {
+            QStringList SL1 = ETRecs[r_+1].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+            int time1 = getTimefromString(SL1[0]);
+            if (time1 < time) {
+                ErrorString = QString("Time in evaporation records is not increasing from row %1 to %2. Check your file!").arg(r_).arg(r_+1);
+                throw 1;
+            }
         }
-        else
-            time = rl.time;
+
+//        if (r == 0)
+//            time = rl.time;
+
+//        if (r > 0 && rl.time <= time)
+//        {
+//            ErrorString = QString("ET records at row %1 has unreadable value.").arg(r);
+//            throw 1;
+//        }
+//        else
+//            time = rl.time;
 
         // record is a assumed to be a double
         for (int i = 1; i <= nrStations; i++)
@@ -128,7 +139,7 @@ void TWorld::GetETData(QString name)
             rl.intensity << SL[i].toDouble(&ok);
             if (!ok)
             {
-                ErrorString = QString("ET records at time %1 has unreadable value.").arg(SL[0]);
+                ErrorString = QString("ET records at time %1 has unreadable value: %2.").arg(SL[0]).arg(SL[i]);
                 throw 1;
             }
         }
@@ -137,12 +148,12 @@ void TWorld::GetETData(QString name)
     }
 
     // sometimes not an increasing timeseries
-    for(int i = 1; i < nrSeries; i++){
-        if (ETSeries [i].time <= ETSeries[i-1].time) {
-            ErrorString = QString("ET records time is not increasing at row %1.").arg(i);
-            throw 1;
-        }
-    }
+//    for(int i = 1; i < nrSeries; i++){
+//        if (ETSeries [i].time <= ETSeries[i-1].time) {
+//            ErrorString = QString("ET records time is not increasing at row %1.").arg(i);
+//            throw 1;
+//        }
+//    }
 
     nrETseries = ETSeries.size();//nrSeries;
 }
