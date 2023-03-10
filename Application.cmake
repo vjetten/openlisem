@@ -116,10 +116,7 @@ SET(APP_SOURCES
     lisModel.cpp
     lisOverlandflow.cpp
     lisPesticide.cpp
-<<<<<<< HEAD
     lisPesticide_MC.cpp
-=======
->>>>>>> lisem_pest
     lisPercolation.cpp
     lisRainfall.cpp
     lisDischargein.cpp
