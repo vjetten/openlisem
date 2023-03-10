@@ -88,7 +88,7 @@ void TWorld::saveMBerror2file(bool doError, bool start)
             esfout.close();
         }
 
-        if (SwitchPestMC) {
+        if (SwitchPest) {
             QFile efout(resultDir+errorPestFileName);
             efout.open(QIODevice::WriteOnly | QIODevice::Text);
             QTextStream eout(&efout);
@@ -126,7 +126,7 @@ void TWorld::saveMBerror2file(bool doError, bool start)
             esfout.close();
         }
 
-        if (SwitchPestMC) {
+        if (SwitchPest) {
             QFile efout(resultDir+errorPestFileName);
             efout.open(QIODevice::Append | QIODevice::Text);
             QTextStream eout(&efout);
@@ -302,7 +302,7 @@ void TWorld::DoModel()
       //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
-        if (SwitchPestMC) {
+        if (SwitchPest) {
             PMtotI = MassPestInitial();     // MC calculate mass in system outside time loop
         }
         _dt_user = _dt;

@@ -155,7 +155,7 @@ void TWorld::OutputUI(void)
         op.OutletC.at(0)->append(Qtot_dt > MIN_FLUX? SoilLossTot_dt/Qtot_dt : 0);
         op.OutletQstot.replace(0,SoilLossTot*0.001);
     }
-    if (SwitchPestMC) {
+    if (SwitchPest) {
         op.PMOutW = PestOutW;
         op.PMerr = PMerr;
         op.PMinf = Pestinf;
@@ -366,7 +366,7 @@ void TWorld::ReportTotalSeries(void)
             out << sep << "FloodSed(ton)";
             out << sep << "SoilLoss(ton)";
         }
-        if (SwitchPestMC) {
+        if (SwitchPest) {
             out << sep << "PMOutW";
             out << sep << "PMerr";
             out << sep << "PestPerc";
@@ -426,7 +426,7 @@ void TWorld::ReportTotalSeries(void)
         out << sep << op.FloodSedTot;
         out << sep << op.SoilLossTot;
     }
-    if (SwitchPestMC) {
+    if (SwitchPest) {
         out << sep << op.PMOutW;
         out << sep << op.PMerr;
         out << sep << op.PMperc;
@@ -637,7 +637,7 @@ void TWorld::ReportTimeseriesNew(void)
                         out << ",Qs #" << pnr << ",C #" << pnr;
                     }}
                 }
-                if (SwitchPestMC)
+                if (SwitchPest)
                 {
                     out << ",PQw";
                     if (SwitchErosion) out << ",PQs";
@@ -663,7 +663,7 @@ void TWorld::ReportTimeseriesNew(void)
                         out << ",kg/s #" << pnr << ",g/l #" << pnr;
                     }}
                 }
-                if (SwitchPestMC)
+                if (SwitchPest)
                 {
                     out << ",mg/s";
                     if (SwitchErosion) out << ",mg/s";
@@ -757,7 +757,7 @@ void TWorld::ReportTimeseriesNew(void)
                     out << sep << TotalConc->Drc ;
             }}
         }
-        if (SwitchPestMC)
+        if (SwitchPest)
         {
             out << sep << (PQrw_dt / _dt);
             if (SwitchErosion) out << sep << (PQrs_dt / _dt);
@@ -836,7 +836,7 @@ void TWorld::ReportTotalsNew(void)
     {
         out << "\"Peak time discharge for outlet " + QString::number(i) +" (min):\"," << op.OutletQpeaktime.at(i)<< "\n";
     }
-    if (SwitchPestMC) {
+    if (SwitchPest) {
         out << "\n";
         out << "\"Pesticide simulated:\"," << op.PestName << "\n";
         out << "\"Initial pesticide mass in system (mg) \", " << op.PMtotI << "\n";
@@ -1081,7 +1081,7 @@ void TWorld::ReportMapSeries(void)
     }
 
     //===== PESTICIDES =====
-    if (SwitchReportPestMC) {
+    if (SwitchReportPest) {
         report(*PCms, "pcms");
         report(*PCmw, "pcmw");
         report(*PCrw, "pcrw");

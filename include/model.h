@@ -375,7 +375,7 @@ public:
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
-    SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide, SwitchAddBuildingsDEM, SwitchPestMC, SwitchReportPestMC,
+    SwitchHouses, SwitchRaindrum, SwitchLitter, SwitchAddBuildingsDEM, SwitchPest, SwitchReportPest,
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
@@ -507,17 +507,10 @@ public:
     //double D50CH, D90CH;
 
     ///pesticides
-    double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;
-    double MBpex,PestRunoffSpatialex,PestDisMixingex,PestSorMixingex,PestInfiltex,PestLossTotOutletex;
-    int N_SPK;
-    double Maxsolubility;
-    double MaxVup;
-
-    ///pesticides-MC
     double PMtot, PMerr, PMtotI, PMwerr, PMserr;
     double Pestinf, PestOutW, PestOutS, PestPerc;
     double PQrw_dt, PQrs_dt;
-    double KdPestMC, KfilmPestMC, KrPestMC, rhoPestMC;
+    double KdPest, KfilmPest, KrPest, rhoPest;
     double Cr_max, dt_int_min;
     QString PestName;
 
@@ -845,28 +838,15 @@ public:
     void FindBaseFlow(); //search for channel inflow from groundwater
     bool addedbaseflow;
 
-    void Pestmobilisation(void);
-//    void TransPesticide(int pitRowNr, int pitColNr,cTMap *_LDD,cTMap *_Qn, cTMap *_Vup, cTMap *_Vupold,cTMap *_WHoutavg,
-//                         cTMap *_WHoutavgold,cTMap *_RainNet,cTMap *_CM_N,cTMap *_C_N,cTMap *_CS_N,cTMap *_InfilVol,cTMap *_InfilVolold,
-//                         cTMap *_DX,cTMap *_C,cTMap *_Cold,cTMap *_CS,cTMap *_CM,cTMap *_Kfilm,cTMap *_epsil,
-//                         cTMap *_KD,cTMap *_poro,cTMap *_rhob,cTMap *_kr,cTMap *_Qin, cTMap *_Sin,cTMap *_Q,cTMap *_Alpha,cTMap *_Qpn);
-
-    double cmx_analytique(double t, double dKfi, double dpestiinf, double depsil, double drhob, double dkr, double dKD, double dn, double CM0, double CS0,double Cr);
-    double csx_analytique(double t, double dKfi,double dpestiinf,double depsil,double drhob,double dkr,double dKD,double dn, double CM0,double CS0,double Cr);
-    double **Factorize(double **A, int n, int m);
-    double *Solve(int n,int m, double **A_LU, double *B);
-    double Implicitscheme(double Qj1i1, double Qj1i, double Qji1,double Pj1i, double Pji1, double alpha, double dt,double dx, double Kfilm, double CMi1j1);
-    double ConcentrationP(double watvol, double pest);
-
-    //Pesticides MC
+    //Pesticides
     void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
     double MassPestInitial(void);
-    void KinematicPestMC(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
+    void KinematicPest(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
                          cTMap *_Qn, cTMap *_Qsn, cTMap *_Qpwn, cTMap *_Qpsn,
                          cTMap *_DX, cTMap *_Alpha, cTMap *_Sed,
                          cTMap *_Q, cTMap *_Qs, cTMap *_Qpw, cTMap *_Qps);
-    void InitPesticideMC(void);
-    void PesticideDynamicsMC(void);
+    void InitPesticide(void);
+    void PesticideDynamics(void);
     double PesticidePercolation(double perc, double soildep, double lw,
                                 double zm, double dx, double swdx, double pcmw);
     void KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
@@ -878,16 +858,7 @@ public:
                            double rho);
     double QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
                        double Pji1, double alpha, double dx, double dt);
-    //OBSOLETE--
-    void KinematicPestDissolvedCombined(QVector <LDD_COORIN> _crlinked_,
-                   cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
-                   cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, double _kfilm);
-    double QpwInfExCombined(double Qj1i1, double Qj1i, double Qji1,
-                                    double Pj1i, double Pji1, double alpha,
-                                    double dx, double zm, double kfilm, double qinf,
-                                    double cmw, double dt);
 
-    //--
 
     // 1D hydro processes
     //input timeseries
@@ -1095,7 +1066,7 @@ public:
     void ReportDump(void);
     void ReportMapSeries(void);
     void ReportTotalsNew(void);
-    void ReportTotalsPestMC(void); //MC 220628 initial setup pesticide report
+    void ReportTotalsPest(void); //MC 220628 initial setup pesticide report
     void ReportLandunits(void); //VJ 110107 report erosion stats per land unit
     void CountLandunits(void); //VJ 110107 report erosion stats per land unit
     void saveMBerror2file(bool doError, bool start);

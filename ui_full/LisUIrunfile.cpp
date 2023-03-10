@@ -72,7 +72,7 @@ void lisemqt::GetRunfile()
 
         if (i == 0 && !S.contains("openLISEM"))
             oldRunfile = true;
-        if (i == 0 && !S.contains("[openLISEM-pestmc runfile version 6.0.1]"))
+        if (i == 0 && !S.contains("[openLISEM-PAPPLE runfile version 6.0.1]"))
             saveRunFileOnce = true;
 
         i++;
@@ -211,7 +211,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Add building fraction")==0)         E_AddBuildingFraction->setValue(valc);
         if (p1.compare("Include raindrum storage")==0)      checkRaindrum->setChecked(check);
         if (p1.compare("Include tile drains")==0)           checkIncludeTiledrains->setChecked(check);
-		//if (p1.compare("Include Pesticide MC")==0)         // add here if added to UI
+        //if (p1.compare("Include Pesticides")==0)         // add here if added to UI
 
         
         // INTERCEPTION

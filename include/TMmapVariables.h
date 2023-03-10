@@ -175,64 +175,9 @@ cTMap
 //*DG,                         //!< parameter Govers in TC equation
 *SettlingVelocitySS,           //!< settling velocity according to Stokes [m/s]
 *SettlingVelocityBL,           //!< settling velocity according to Stokes [m/s]
+*K2DOutlets,
 
 // Pesticides
-*PCA,                        //!< applied dose [kg/m2] - MC - how used??
-*epsil,                      //!< mixing layer depth (m]
-*KD,                         //!< soil water partition coefficient [m3/kg]
-*kr,                         //!< rate at which solute desorb [min-1]
-*rhob,                       //!< soil bulk density [kg/m3]
-*C,                          //!< Pesticide concentration in dissolved form in runoff water [kg/m3]
-*CM,                         //!< Pesticide concentration in dissolved form in the mixing zone [kg/m3]
-*CS,                         //!< Pesticide concentration in sorbed form in the mixing zone [kg/m3]
-*C_N,                        //!<
-*CM_N,                       //!<
-*CS_N,                       //!<
-*C_K,                        //!<
-*C_Kold,                     //!<
-*CM_K,                       //!<
-*CS_K,                       //!<
-*Qp,                         //!<
-*Qpn,                        //!<
-*C_Kn,                       //!<
-*K1,                         //!<
-*Kfilm,                      //!<
-*pestiinf,                   //!<
-*pestiinfold,                //!<
-*poro,                       //!<
-*AX,                         //!< MC - only pointer and Newmap - no use found
-*Fkold,                      //!< MC - only pointer and Newmap - no use found
-*Fk,                         //!< MC - only pointer and Newmap - no use found
-*Fmk,                        //!< MC - only pointer and Newmap - no use found
-*flagpest,                   //!< MC - only pointer and Newmap - no use found
-*PMassApplied,               //!< MC - Total pesticide applied in catchment - how are pesticide applications used????
-*PRunoffSpatial,             //!<
-*PDisMixing,                 //!<
-*PSorMixing,                 //!<
-*PInfilt,                    //!<
-*PStorage,                   //!<
-*PRunoffSpatialex,           //!<
-*PDisMixingex,               //!<
-*PSorMixingex,               //!<
-*PInfiltex,                  //!<
-*Qin,                        //!<
-*Sin,                        //!<
-*Pest,                       //!<
-*Fin,                        //!<
-*Pdetach,                    //!<
-*PCinfilt,                   //!<
-*PCfilmexit,                 //!<
-*K2DQP,                      //!< MC - only pointer and Newmap - no use found
-*K2DQPX,                     //!< MC - only pointer and Newmap - no use found
-*K2DQPY,                     //!< MC - only pointer and Newmap - no use found
-*K2DP,                       //!< MC - only pointer and Newmap - no use found
-*K2DPC,                      //!< MC - only pointer and Newmap - no use found
-*K2DPCN,                     //!< MC - only pointer and Newmap - no use found
-
-*K2DOutlets,                 //!<
-//*K2DQ,                     //!<
-
-// Pesticides - MC
 *PMmw,                      //!< Map with mass of pesticides in soil part of mixing zone [mg]
 *PMms,                      //!< Map with mass of pesticides in soil part of mixing zone [mg]
 *PMrw,                      //!< mass of pesticide in runoff water [mg]
@@ -287,8 +232,8 @@ cTMap
 *SoilDepth1,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *SoilDepth1init,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *Lw,
-*thetacheck,                    //!< MC - check what theta does after cell_percolation formula
-*lwcheck,                       //!< MC - MC check what Lw does.
+*thetacheck,                    //!<
+*lwcheck,                       //!<
 *Soilwater,                  //!< actual soil water content [-]
 *ThetaS2,                    //!< porosity soil layer 2 [-]
 *ThetaI2,                    //!< initial moisture content soil layer 2 [-]
@@ -357,7 +302,7 @@ cTMap
 *ChannelAlpha,               //!<
 *ChannelWidthMax,           //!<
 *ChannelAdj,                //!<
-*CHAdjDX,                //!< MC - channel adjusted DX??
+*CHAdjDX,                //!< channel adjusted DX
 *BaseflowL,
 
 *cosGrad,

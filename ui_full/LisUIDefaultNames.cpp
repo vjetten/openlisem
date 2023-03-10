@@ -161,8 +161,8 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;N;tileman.map;Mannings n of the tile drains (-);tileman");
 
 
-    //Pest-MC
-    DEFmaps.append("0;Pesticide-MC");
+    //Pesticides
+    DEFmaps.append("0;Pesticides");
     DEFmaps.append("2;Pest Mixing Soil;pcmixsoil.map;Initial concentration of pesticide in soil of mixing zone;pcmixsoil");
     DEFmaps.append("2;Pest Mixing Water;pcmixwat.map;Initial concentration of pesticide in water of mixing zone;pcmixwat");
     DEFmaps.append("2;Pest Mixing Depth;pestmixdep.map;Thickness of the mixing layer [m];pestmixdep");
@@ -187,7 +187,7 @@ void lisemqt::defaultRunFile()
     }
 
     i = 0;
-    namelist[i++].name = QString("[openLISEM-pestmc runfile version 6.0.1]");
+    namelist[i++].name = QString("[openLISEM-PAPPLE runfile version 6.0.1]");
     namelist[i++].name = QString("");
     //###
     namelist[i++].name = QString("[Input]");
@@ -534,9 +534,9 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0.8");
     namelist[i++].name = QString("Sediment Trap Mannings n");
 
-    //### Pest-MC pesticide data
+    //### Pesticide data
     namelist[i++].name = QString("");
-    namelist[i++].name = QString("[Pesticides-MC]");
+    namelist[i++].name = QString("[Pesticides]");
     namelist[i].value = QString("foobicide");
     namelist[i++].name = QString("Pesticide name");
     namelist[i].value = QString("0.0");

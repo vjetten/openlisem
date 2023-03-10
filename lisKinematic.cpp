@@ -121,7 +121,7 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
     B = -dx*Cavg*abQb_1*(Qj1i1-Qji1);
     C = (Qji1 <= MIN_FLUX ? 0 : dx*aQb*Sji1/Qji1);
     if (Qj1i1 > MIN_FLUX)
-        Sj1i1 = (dx*_dt*s+A+C+B)/(_dt+dx*aQb/Qj1i1); // MC - why add s = 0 here?
+        Sj1i1 = (dx*_dt*s+A+C+B)/(_dt+dx*aQb/Qj1i1);
     else
         Sj1i1 = 0;
     return std::max(0.0 ,Sj1i1);

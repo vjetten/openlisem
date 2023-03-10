@@ -1228,7 +1228,7 @@ void lisemqt::savefile(QString name)
     }
 
     QTextStream out(&fp);
-    out << QString("[openLISEM-pestmc runfile version 6.0.1]\n");
+    out << QString("[openLISEM-PAPPLE runfile version 6.0.1]\n");
 
     for (int i = 1; i < nrnamelist; i++)
     {
