@@ -74,7 +74,7 @@ typedef unsigned             CSF_4BYTE_INT_SIZE_SPECIFIER int  UINT4;
 #undef CSF_SIGNED_SPECIFIER
 
 typedef float               REAL4; /* IEEE-754 32-bit */
-typedef double              REAL8; /* IEEE-754 64-bit */
+typedef double              REAL8; /* IEEE-754 64-bit double */
 
 
 /* endian mode
