@@ -82,7 +82,7 @@ cTMap *TWorld::NewMap(double value)
 //---------------------------------------------------------------------------
 cTMap *TWorld::ReadFullMap(QString name)
 {
-    cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
+    cTMap *_M = new cTMap(readRaster(name));
 
     for (int r = 0; r < _nrRows; r++)
         for (int c = 0; c < _nrCols; c++)
@@ -103,9 +103,10 @@ cTMap *TWorld::ReadFullMap(QString name)
 
 }
 //---------------------------------------------------------------------------
+// read a map from disk
 cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
 {
-    cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
+    cTMap *_M = new cTMap(readRaster(name));
 
     for (int r = 0; r < _nrRows; r++)
         for (int c = 0; c < _nrCols; c++)
@@ -216,7 +217,7 @@ cTMap *TWorld::InitMask(QString name)
 cTMap *TWorld::InitMaskChannel(QString name)
 {
 
-    cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
+    cTMap *_M = new cTMap(readRaster(name));
 
     maplistCTMap[maplistnr].m = _M;
     maplistnr++;
@@ -229,7 +230,7 @@ cTMap *TWorld::InitMaskChannel(QString name)
 cTMap *TWorld::InitMaskTiledrain(QString name)
 {
 
-    cTMap *_M = new cTMap(readRaster(/*inputdir + */name));
+    cTMap *_M = new cTMap(readRaster(name));
 
     maplistCTMap[maplistnr].m = _M;
     maplistnr++;
