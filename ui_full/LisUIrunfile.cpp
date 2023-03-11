@@ -821,8 +821,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Routing Kin Wave 2D")==0)
         {
             if (checkOverlandFlow1D->isChecked())  namelist[j].value = "1";
-            if (checkOverlandFlow2Ddyn->isChecked())  namelist[j].value = "3";
-            if (checkOverlandFlow2Dkindyn->isChecked())  namelist[j].value = "4";
+            if (checkOverlandFlow2Ddyn->isChecked())  namelist[j].value = "2";
+            if (checkOverlandFlow2Dkindyn->isChecked())  namelist[j].value = "3";
         }
         if (p1.compare("Flow Boundary 2D")==0)               namelist[j].value = E_FlowBoundary->text();
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();

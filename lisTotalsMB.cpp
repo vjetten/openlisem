@@ -134,7 +134,7 @@ void TWorld::Totals(void)
 
     //=== infiltration ===//
     if(InfilMethod != INFIL_NONE) {
-        InfilTot += MapTotal(*InfilVol) + MapTotal(*InfilVolKinWave);
+        InfilTot += MapTotal(*InfilVol);// + MapTotal(*InfilVolKinWave);
 
         if (SwitchIncludeChannel && SwitchChannelInfil) {
             InfilTot += MapTotal(*ChannelInfilVol); //m3
@@ -149,8 +149,9 @@ void TWorld::Totals(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc;// + InfilVolFlood->Drc;
-            if (SwitchIncludeChannel)
+            if (SwitchIncludeChannel && SwitchChannelInfil)
                 InfilVolCum->Drc += ChannelInfilVol->Drc;
+
             InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));
             PercmmCum->Drc += Perc->Drc*1000.0;
         }}
@@ -201,7 +202,7 @@ void TWorld::Totals(void)
         }}
         WaterVolRunoffmm *= catchmentAreaFlatMM;
     }
-    // water on the surface in runoff in mm
+    // water on the surface in runoff in mm, used in screen output
 
 
     // runoff fraction per cell calc as in-out/rainfall, indication of sinks and sources of runoff

@@ -420,7 +420,7 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
  */
 void TWorld::ToFlood()
 {
-#pragma omp parallel for  num_threads(userCores)
+    #pragma omp parallel for  num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(hmx->Drc > 0 && WHrunoff->Drc > 0)
         {
@@ -435,8 +435,8 @@ void TWorld::ToFlood()
             hmx->Drc += dwh;
             WH->Drc -= dwh;
             WHrunoff->Drc -= dwh;
-            //WHGrass->Drc -= dwh;
             WHroad->Drc -= dwh;
+            hmxWH->Drc = hmx->Drc + WH->Drc;
 
             if(SwitchErosion)
             {
@@ -444,15 +444,6 @@ void TWorld::ToFlood()
                 SSFlood->Drc += dsed;
                 Sed->Drc -= dsed;
 
-                //                if(SwitchUseGrainSizeDistribution)
-                //                {
-                //                    FOR_GRAIN_CLASSES
-                //                    {
-                //                        SS_D.Drcd +=  Sed_D.Drcd * frac;
-                //                        Sed_D.Drcd = Sed_D.Drcd * (1-frac);
-
-                //                    }
-                //                }
                 SWOFSedimentSetConcentration(r,c,hmx);
                 Conc->Drc = MaxConcentration(WH->Drc*CHAdjDX->Drc, &Sed->Drc, &DEP->Drc);
             }
@@ -524,7 +515,7 @@ void TWorld::ChannelFlood(void)
         dtflood = fullSWOF2open(hmx, Uflood, Vflood, DEM);
     else
         dtflood = fullSWOF2RO(hmx, Uflood, Vflood, DEM);
-    // 2D dyn flow of hmx water
+    // 2D dyn flow of hmx water, when using kin wave
 
     //new flood domain
     nrFloodedCells = 0;
@@ -537,7 +528,7 @@ void TWorld::ChannelFlood(void)
         else
             FloodDomain->Drc = 0;
     }
-
+qDebug() << nrFloodedCells;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         Qflood->Drc = 0;

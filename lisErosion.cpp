@@ -248,12 +248,12 @@ void TWorld::cell_SplashDetachment(int r, int c)
         //      if(SwitchSedtrap)
         //          DETSplash->Drc = (1-SedimentFilter->Drc) * DETSplash->Drc;
 
-        if (SwitchHardsurface)
-            DETSplash_ = (1-HardSurface->Drc)*DETSplash_;
-        // no splash on hard surfaces
+      //  if (SwitchHardsurface)
+      //      DETSplash_ = (1-HardSurface->Drc)*DETSplash_;
+        // no splash on hard surfaces ALREADY taken care of by soilwidth which excludes roads and hard surfaces
 
-        if (SwitchHouses)
-            DETSplash_ = (1-HouseCover->Drc)*DETSplash_;
+      //  if (SwitchHouses)
+        //    DETSplash_ = (1-HouseCover->Drc)*DETSplash_;
         //is already contained in soilwidth
         // no splash from house roofs
 
@@ -460,12 +460,12 @@ void TWorld::cell_FlowDetachment(int r, int c)
                 detachment = (1-StoneFraction->Drc) * detachment;
                 // no flow detachment on stony surfaces
 
-                if (SwitchHardsurface)
-                    detachment = (1-HardSurface->Drc) * detachment;
+             //   if (SwitchHardsurface)
+             //       detachment = (1-HardSurface->Drc) * detachment;
                 // no flow detachment on hard surfaces
 
-                if (SwitchHouses)
-                    detachment = (1-HouseCover->Drc)*detachment;
+             //   if (SwitchHouses)
+             //       detachment = (1-HouseCover->Drc)*detachment;
                 // no flow det from house roofs
 
                 detachment = (1-Snowcover->Drc) * detachment;

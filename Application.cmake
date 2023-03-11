@@ -98,6 +98,7 @@ SET(APP_SOURCES
     swatre/lutio.cpp
     swatre/lookup.cpp
     swatre/swatinp.cpp    
+    lisBoundary.cpp
     lisChannelErosion.cpp
     lisChannelflood.cpp
     lisChannelflow.cpp
