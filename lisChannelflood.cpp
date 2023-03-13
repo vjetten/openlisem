@@ -495,11 +495,11 @@ void TWorld::ChannelFlood(void)
     if (!SwitchIncludeChannel)
         return;
 
+    // mix WHrunoff with hmx
     ChannelOverflow(hmx, V);
     // determine overflow water => hmx
 
     ToFlood();
-    // mix WHrunoff with hmx
 
     double dtflood = 0;
 
