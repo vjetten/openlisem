@@ -166,7 +166,7 @@ void TWorld::Totals(void)
     double SStot = 0;
     #pragma omp parallel for reduction(+:SStot) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        SStot += WHstore->Drc * SoilWidthDX->Drc*DX->Drc;
+        SStot += MicroStoreVol->Drc;
     }}
     SurfStoremm = SStot * catchmentAreaFlatMM;
 

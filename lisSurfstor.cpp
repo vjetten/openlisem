@@ -44,6 +44,47 @@ void TWorld::GridCell()
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
+    double dxa = _dx;
+    double HouseWidthDX_ = HouseCover->Drc*_dx;
+
+     if(SwitchIncludeChannel && ChannelWidth->Drc > 0) {
+          dxa = _dx - ChannelWidth->Drc;
+                  //std::max(0.05, _dx - ChannelWidth->Drc);
+      }
+
+      ChannelAdj->Drc = dxa;
+      CHAdjDX->Drc = dxa*DX->Drc;
+
+      // adjust houses to cell with channels
+      HouseWidthDX_ = std::min(dxa,  HouseWidthDX_);
+              //std::min(dxa, HouseWidthDX_);
+      // adjust roads+hardsurf to cell with channels
+      RoadWidthHSDX->Drc = std::min(dxa, RoadWidthHSDX->Drc);
+      // decrease roadwidth if roads + houses > dx-channel
+      HouseWidthDX_ = std::min(dxa-RoadWidthHSDX->Drc , HouseWidthDX_);
+              //std::min(dxa-RoadWidthHSDX->Drc, HouseWidthDX_);
+      // you cannot have houses and a road larger than a pixel
+  //    SoilWidthDX->Drc = std::max(0.0,dxa - RoadWidthHSDX->Drc - HouseWidthDX_);
+      SoilWidthDX->Drc = dxa - RoadWidthHSDX->Drc;
+      // including houses in soilwidth gives large MB errors! WHY!!!
+
+      HouseCover->Drc = HouseWidthDX_/_dx;
+      //houses are impermeable in ksateff so do have to be done here, with high mannings n, but allow flow
+
+      N->Drc = N->Drc + 1.0*HouseCover->Drc; // N is 1 for a house, very high resistance
+      // adjust man N
+
+      FlowWidth->Drc = ChannelAdj->Drc;//is the same as SoilWidthDX->Drc + RoadWidthHSDX->Drc;
+      //FlowWidth->Drc = SoilWidthDX->Drc + RoadWidthHSDX->Drc + HouseWidthDX_;
+    }}
+//report(*HouseCover,"hc.map");
+//report(*SoilWidthDX,"sw.map");
+//report(*RoadWidthHSDX,"rw.map");
+//report(*FlowWidth,"fw.map");
+
+ /*
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         double dxa = _dx; // dxa is dx minus the channel
 
         if(SwitchIncludeChannel && ChannelWidth->Drc > 0) {
@@ -78,7 +119,7 @@ void TWorld::GridCell()
        // FlowWidth->Drc = SoilWidthDX->Drc + RoadWidthHSDX->Drc;
 
     }}
-
+*/
     if (SwitchFloodInitial) {
         WHinitVolTot = 0;
         FOR_ROW_COL_MV_L {
@@ -147,12 +188,12 @@ void TWorld::SurfaceStorage()
 }
 //---------------------------------------------------------------------------
 void TWorld::cell_SurfaceStorage(int r, int c)
-{
+{    
     double wh = WH->Drc;
     double SW = SoilWidthDX->Drc;
     double RW = RoadWidthHSDX->Drc;
     double WHr = WHroad->Drc;
-    double WHs = std::min(wh, MDS->Drc*(1-exp(-1.875*(wh/std::max(0.005,0.01*RR->Drc)))));
+    double WHs = std::min(wh, MDS->Drc*(1-exp(-1.875*(wh/0.01*RR->Drc))));
     //surface storage on rough surfaces
     // non-linear release fo water from depression storage
     // resemles curves from GIS surface tests, unpublished
@@ -163,8 +204,11 @@ void TWorld::cell_SurfaceStorage(int r, int c)
 
     WHstore->Drc = WHs;
     // non moving microstorage
+    MicroStoreVol->Drc = DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+    // microstore vol in m3
 
-    WaterVolall->Drc = DX->Drc*(wh*SW + WHr*RW);
+    //WaterVolall->Drc = DX->Drc*(wh*SW + WHr*RW);
+    WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
     // all water in the cell incl storage
 }
 //---------------------------------------------------------------------------

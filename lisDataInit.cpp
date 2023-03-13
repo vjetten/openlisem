@@ -489,26 +489,7 @@ void TWorld::InitStandardInput(void)
 
     if (SwitchBuffers) {
         Buffers = ReadMap(LDD, getvaluename("buffers"));
-//        BufferNr = ReadMap(LDD, getvaluename("buffernr"));
-//        nrBuffers = countUnits(*BufferNr) - 1; // non zero
-
-//        //QVector <double> bufferarea;
-//        bufferarea.clear();
-//        for(int i = 1; i <= nrBuffers; i++) {
-//            double area = 0;
-//            BUFFER_LIST bl;
-//            FOR_ROW_COL_MV {
-//                if (i == (int)BufferNr->Drc)
-//                    area += _dx*_dx;
-//            }
-//            bl.area = area;
-//            bl.ID = i;
-//            bl.h = 0;
-//            bufferarea << bl;
-//        }
- //       cover(*Buffers, *LDD,0);
         calcMap(*DEM, *Buffers, ADD);
-
     } 
 
     int cnt = 0;
@@ -547,7 +528,7 @@ void TWorld::InitStandardInput(void)
         ErrorString = QString("Outpoint.map has no values above 0. Copy at least outlet(s).");
         throw 1;
     }
-SwitchUseIDmap = true;
+    SwitchUseIDmap = true;
 /// TODO   !!!!!!!!!!!!!!!
     if (SwitchRainfall && !SwitchRainfallSatellite)
     {
@@ -650,6 +631,7 @@ void TWorld::InitLULCInput(void)
         HardSurface = NewMap(0);
 
     RoadWidthHSDX = NewMap(0);
+    if (SwitchRoadsystem || SwitchHardsurface)
     FOR_ROW_COL_MV {
         //double frac = std::min(1.0,(HardSurface->Drc*_dx + RoadWidthDX->Drc)/_dx);
         RoadWidthHSDX->Drc = std::min(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
@@ -2128,6 +2110,7 @@ void TWorld::IntializeData(void)
     WHrunoff = NewMap(0);
     WHmax = NewMap(0);
     WHstore = NewMap(0);
+    MicroStoreVol = NewMap(0);
     WHroad = NewMap(0);
     //WHGrass = NewMap(0);
     FlowWidth = NewMap(0);

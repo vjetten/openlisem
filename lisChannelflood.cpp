@@ -528,7 +528,7 @@ void TWorld::ChannelFlood(void)
         else
             FloodDomain->Drc = 0;
     }
-qDebug() << nrFloodedCells;
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         Qflood->Drc = 0;
@@ -550,7 +550,7 @@ qDebug() << nrFloodedCells;
 
         hmxflood->Drc = std::max(0.0, WHrunoff->Drc + hmx->Drc - minReportFloodHeight);
 
-        WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+        WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
         // all water on surface
 
         FloodWaterVol->Drc = hmxflood->Drc * CHAdjDX->Drc;

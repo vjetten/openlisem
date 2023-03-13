@@ -118,7 +118,7 @@ void TWorld::ToChannel() //(int r, int c)
         if (fractiontochannel > 0) {
 
             double dwh = fractiontochannel*WHrunoff->Drc;
-            double dvol = fractiontochannel*(WaterVolall->Drc - WHstore->Drc*SoilWidthDX->Drc*DX->Drc);
+            double dvol = fractiontochannel*(WaterVolall->Drc - MicroStoreVol->Drc);
 
 
             // water diverted to the channel
@@ -178,13 +178,16 @@ void TWorld::CalcVelDisch()//(int r, int c)
 
         if (Grad->Drc > MIN_SLOPE)
             alpha = pow(NN/sqrtGrad->Drc * pow(FW, 2.0/3.0),0.6);
+        // perimeter = FlowWidth
         else
             alpha = 0;
 
         if (alpha > 0)
-            Q->Drc = pow((FW*WHr)/alpha, 5.0/3.0); // Q = (A/alpha)^5/3
+            Q->Drc = pow((FW*WHr)/alpha, 5.0/3.0); // Q = (A/alpha)^1/beta and  beta = 6/10 = 3/5
         else
             Q->Drc = 0;
+        //Q = (A/alpha)^5/3 => A^5/3 / alpha^5/3 =? aplha^5/3 = (N/sqrtS^3/5)^5/3 *((P^2/3)^3/5)^5/3 =
+        //Q =  A^5/3 / [N/Sqrt * P^2/3] => A*A^2/3 / P^2/3 * sqrtS/n = A * R^2/3 sqrtS/N = AV
 
         V->Drc = pow(WHr, 2.0/3.0) * sqrtGrad->Drc/NN;
         // overlandflow, we do not use perimeter here but height
@@ -237,7 +240,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 
         WH->Drc = WHR + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
-        WaterVolall->Drc = WHR*CHAdjDX->Drc + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
+        WaterVolall->Drc = WHR*CHAdjDX->Drc + MicroStoreVol->Drc;
         //LOGIC:
         // water layer in three parts: WHstore < (WHrunoff < minReportFloodHeight) < (hmx > minReportFloodHeight)
         // WH =  WHstore + WHrunoff
@@ -247,11 +250,13 @@ void TWorld::OverlandFlow2Ddyn(void)
         // it is also used in channeloverflow and in ponded evaporation
 
         hmxflood->Drc = std::max(0.0, WHR - minReportFloodHeight);
+        // should be WH - minfloodheight?
         // is used for reporting all water aboove a user minimum, the rest is overland flow
+
         FloodWaterVol->Drc = hmxflood->Drc*CHAdjDX->Drc;
         // used in mass balance
         RunoffWaterVol->Drc = std::min(WHR, minReportFloodHeight)*CHAdjDX->Drc;
-        // all water that isnot flood
+        // all water that isnot flood and not stored
 
         if (SwitchErosion) {
             double sed = (SSFlood->Drc + BLFlood->Drc);
@@ -332,7 +337,7 @@ void TWorld::OverlandFlow1D(void)
 
         InfilVolKinWave->Drc = InfilKWact;
 
-        Alpha->Drc = Qn->Drc > 0 ? (WHrunoff->Drc*FlowWidth->Drc)/pow(Qn->Drc,0.6) : 0.0;
+        Alpha->Drc = Qn->Drc > 0 ? (WHrunoff->Drc*FlowWidth->Drc)/pow(Qn->Drc,0.6) : Alpha->Drc;
         // needed for erosion // A = alpha Q^0.6 => alpha = A/Q^0.6
         V->Drc = pow(WHrunoff->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
         // new velocity
@@ -346,8 +351,7 @@ void TWorld::OverlandFlow1D(void)
         hmxWH->Drc = WH->Drc + hmx->Drc;//???? hmx here? why not
         //needed for totals and output
 
-        WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-        // is the same as :         WaterVolall->Drc = DX->Drc*( WH->Drc*SoilWidthDX->Drc + WHroad->Drc*RoadWidthDX->Drc);
+        WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
 
         if (SwitchErosion)
              Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);

@@ -97,13 +97,12 @@ void TWorld::InfilEffectiveKsat(bool first)
                 Poreeff->Drc = ThetaS1->Drc*(1-GrassFraction->Drc) + PoreGrass->Drc*GrassFraction->Drc;
             }
 
-            //INFILTRATION IS ONLY DONE OVER SOILWIDTH, HOUSES AND ROADS ETC ARE ALREADY REMOVED FROM SOILWIDTH
+            if (SwitchHouses) {
+                Ksateff->Drc *= (1-HouseCover->Drc);
+                Poreeff->Drc *= (1-HouseCover->Drc);
+            }
+            //INFILTRATION IS ONLY DONE OVER SOILWIDTH and HOUSEWIDTH, ROADS ETC ARE ALREADY REMOVED FROM SOILWIDTH
             //NO NEED TO ADJUST KSAT FOR THESE SURFACES
-
-//            if (SwitchHouses) {
-//                Ksateff->Drc *= (1-HouseCover->Drc);
-//                Poreeff->Drc *= (1-HouseCover->Drc);
-//            }
 
             // impermeable surfaces
 //            if (SwitchHardsurface) {

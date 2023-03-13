@@ -435,7 +435,7 @@ void TWorld::doETa()
 //                }
 
                 tot = tot + eta;
-                WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
+                WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
             }
 
             // put total Eta in Eta map
