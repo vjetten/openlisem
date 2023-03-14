@@ -11,6 +11,24 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, and openmp
 
+version 6.882-6.883
+- fixed kin wave MB error (interception of houses)
+- fixed erosion MB error (caused by cell_depositInfil(r,c))
+- checked all erosion functions in Splash, 1D and 2D flow for consistency and logic
+- kniown bug 1D2D flow (overflow channels) has mass balance errors in water and sediment, needs to be fixed or minimized
+
+version 6.881
+- fixed major interface bug: factor 1000 in screen display of runoff! Factor is already done in Qoutput itself, does not need to be done in interface
+
+version 6.88
+- Qmax in culverts better, Qmax does not have to appear in Kin Wave
+- merged GW, pressure based and pref flow as in SWAT
+- Ksat crust exponential decline from kssat1 to ksatcrust, porosity untouched for problems waterbalance(?)
+- better behaviour culverts
+- buildings can be added to the dem form a fraction onward (def 0.3)
+- show runfile name on screen en save runfile to result dir, save all screens
+- known bug: rainfall of multiple stations not working well!
+
 version 6.873
 - experimental: added 2D GW flow
 - KNOWN BUG: when using ET mass balance is not correct (calculations are)
