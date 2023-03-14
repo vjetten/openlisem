@@ -64,7 +64,7 @@ cTMap
 *HStor,                      //!< actual roof storage of rainwater [m]
 *IntercHouse,                //!< actual roof storage volume [m^3]
 *HouseCover,                 //!< fraction cover of house in pixel [-]
-*HouseWidthDX,
+//*HouseWidthDX,
 *RoofStore,                  //!< Max storage of roof in [mm]
 *DrumStore,                  //!< Max storage of rainwter drums [m^3]
 *InterceptionmmCum,
@@ -86,6 +86,7 @@ cTMap
 *WHrunoff,                   //!< water height available for runoff [m]
 *WHmax,                      //!< max runoff wh in m for reporting
 *WHstore,                    //!< water heigth stored in micro depressions [m]
+*MicroStoreVol,
 *WaterVolall,                //!< water volume total (incl surface storage) [m^3]
 *WaterVolin,                 //!< water volume total before kin wave (after tochannel) [m^3]
 *flowmask,
@@ -272,9 +273,6 @@ cTMap
 *bca2,
 *Perc,
 *PercmmCum,
-//*factgr,                     //!< actual infiltration rate fo grassstrip [m/s]
-//*fpotgr,                     //!< potential infiltration rate fo grassstrip [m/s]
-//*WHGrass,                    //!< water level on a grassstrip [m]
 *GrassFraction,              //!< fraction of grasstrip in a cell [-]
 *SedimentFilter,             //!< sediment deposited in the sediment trap in kg/m2
 *SedMaxVolume,               //!< maxvol of sediment in that can be trapped in m3
@@ -455,13 +453,10 @@ cTMap
 *tmb,                        //!< Auxilary map
 *tmc,                        //!< Auxilary map
 *tmd,                        //!< Auxilary map
-*CoreMask,
 //display combinations
-*extQCH,
-*extVCH,
-*extWHCH,
-*COMBO_QOFCH,
-*COMBO_VOFCH,
+// *extQCH,
+// *extVCH,
+// *extWHCH,
 *COMBO_SS,
 *COMBO_BL,
 *COMBO_SED,

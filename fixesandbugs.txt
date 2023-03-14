@@ -1,5 +1,9 @@
 this file is a list of changes per major commit
-
+230314 - v6.882-6.883
+- fixed kin wave MB error (interception of houses)
+- fixed erosion MB error (caused by cell_depositInfil(r,c))
+- checked all erosion functions in Splash, 1D and 2D flow for consistency and logic
+- kniown bug 1D2D flow (overflow channels) has mass balance errors in water and sediment, needs to be fixed or minimized
 230123 - v6.881
 - fixed major interface bug: factor 1000 in screen display of runoff! Factor is already done in Qoutput itself, does not need to be done in interface
 221105 - v6.88

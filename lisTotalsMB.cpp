@@ -134,7 +134,7 @@ void TWorld::Totals(void)
 
     //=== infiltration ===//
     if(InfilMethod != INFIL_NONE) {
-        InfilTot += MapTotal(*InfilVol) + MapTotal(*InfilVolKinWave);
+        InfilTot += MapTotal(*InfilVol);// + MapTotal(*InfilVolKinWave);
 
         if (SwitchIncludeChannel && SwitchChannelInfil) {
             InfilTot += MapTotal(*ChannelInfilVol); //m3
@@ -149,8 +149,9 @@ void TWorld::Totals(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc;// + InfilVolFlood->Drc;
-            if (SwitchIncludeChannel)
+            if (SwitchIncludeChannel && SwitchChannelInfil)
                 InfilVolCum->Drc += ChannelInfilVol->Drc;
+
             InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));
             PercmmCum->Drc += Perc->Drc*1000.0;
         }}
@@ -165,7 +166,7 @@ void TWorld::Totals(void)
     double SStot = 0;
     #pragma omp parallel for reduction(+:SStot) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        SStot += WHstore->Drc * SoilWidthDX->Drc*DX->Drc;
+        SStot += MicroStoreVol->Drc;
     }}
     SurfStoremm = SStot * catchmentAreaFlatMM;
 
@@ -201,7 +202,7 @@ void TWorld::Totals(void)
         }}
         WaterVolRunoffmm *= catchmentAreaFlatMM;
     }
-    // water on the surface in runoff in mm
+    // water on the surface in runoff in mm, used in screen output
 
 
     // runoff fraction per cell calc as in-out/rainfall, indication of sinks and sources of runoff
@@ -245,25 +246,21 @@ void TWorld::Totals(void)
     // 2D boundary losses, ALWAYS INCLUDES LDD=5 and channelLDD=5
 
     // Add outlet overland flow, for all flow methods
-  //  if(SwitchKinematic2D != K2D_METHOD_DYN) {
-        FOR_ROW_COL_LDD5 {
-            Qtot_dt += Qn->Drc*_dt;
-        }}
-//    } else {
-  //      Qtot_dt += Qout*_dt;
-    //}
-
+    FOR_ROW_COL_LDD5 {
+        Qtot_dt += Qn->Drc*_dt;
+    }}
 
     // for this flow method, flooding and overland flow are separated, so add the flood outflow separately
-    if(SwitchKinematic2D == K2D_METHOD_KINDYN)
-    {
-        Qfloodout = 0;
-        FOR_ROW_COL_LDD5 {
-            Qfloodout += Qflood->Drc * _dt;
-        }}
+    // obsolete
+//    if(SwitchKinematic2D == K2D_METHOD_KINDYN)
+//    {
+//        Qfloodout = 0;
+//        FOR_ROW_COL_LDD5 {
+//            Qfloodout += Qflood->Drc * _dt;
+//        }}
 
-        QfloodoutTot += Qfloodout;
-    }
+//        QfloodoutTot += Qfloodout;
+//    }
 
     // add channel outflow
     if (SwitchIncludeChannel)

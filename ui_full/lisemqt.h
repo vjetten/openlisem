@@ -287,6 +287,7 @@ public:
     bool startplot = true;
     bool stopplot;
     QVector <double> times;
+    int lastOptionSceen;
 
     bool oldRunfile; // check is old runfile for ksat calibration
     bool saveRunFileOnce; // check is old runfile for ksat calibration

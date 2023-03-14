@@ -43,11 +43,12 @@ functions: \n
 void TWorld::cell_Interception(int r, int c)
 {
     // all variables are in m
-    double Cv = Cover->Drc;
     double Rainc_ = Rainc->Drc;
     double RainNet_ = Rainc_;
-    double Smax = CanopyStorage->Drc;
 
+    // canopy interception
+    double Cv = Cover->Drc;
+    double Smax = CanopyStorage->Drc;
     if (Cv > 0 && Rainc_ > 0 && Smax > 0)
     {
         double CS = CStor->Drc;
@@ -60,6 +61,7 @@ void TWorld::cell_Interception(int r, int c)
         // canopy leaf drain, overflow of rain - dS, not cell
 
         CStor->Drc = CS;
+        // new storage back in CStor
 
         Interc->Drc =  Cv * CS * CHAdjDX->Drc;
         // storage in cell in m3
@@ -110,6 +112,7 @@ void TWorld::cell_Interception(int r, int c)
             //max roof storage in m
 
             HS = std::min(HS + RainNet_, Hmax);
+            // new roof storage
 
             double housedrain = std::max(0.0, (RainNet_ - (HS - HStor->Drc)));
             // overflow in m3/m2 of house
@@ -117,7 +120,7 @@ void TWorld::cell_Interception(int r, int c)
             HStor->Drc = HS;
             // put new storage back in maps in m
 
-            double roofsurface = (_dx * DX->Drc * CvH); // m2
+            double roofsurface = CHAdjDX->Drc * CvH; // m2
             // user should assure housecover is correct with respect to channel and roads
             IntercHouse->Drc =  roofsurface * HS;
             // total interception in m3,exclude roads, channels
@@ -132,7 +135,7 @@ void TWorld::cell_Interception(int r, int c)
             if (SwitchRaindrum && DrumStore->Drc > 0)
             {
                 double Dmax = DrumStore->Drc/roofsurface;
-                //max drum storage in m as if roof storage is more
+                //max drum storage in m
 
                 DS = DStor->Drc;
                 //actual drum storage in m
