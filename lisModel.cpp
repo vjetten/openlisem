@@ -418,9 +418,9 @@ void TWorld::HydrologyProcesses()
         // result is rainnet (and leafdrip for erosion)
 
         if (FloodDomain->Drc > 0) {            
-            hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
+            hmx->Drc += RainNet->Drc + Snowmeltc->Drc; // only used in kin wave pluf flood from channel, hmx is flood water
         } else {
-            WH->Drc += RainNet->Drc + Snowmeltc->Drc;
+            WH->Drc += RainNet->Drc + Snowmeltc->Drc;  // used in 2D flow and kin wave
         }
         // add net to water rainfall on soil surface (in m)
         // when kin wave and flooded hmx exists else always WH
@@ -443,8 +443,7 @@ void TWorld::HydrologyProcesses()
                 // if baseflow is active percollation is done there, so do not do it here
             }
         }
-
-        cell_depositInfil(r,c);
+      //  cell_depositInfil(r,c);
         // deposit all sediment still in flow when infiltration causes WH to become minimum
 
         cell_SurfaceStorage(r, c);

@@ -74,6 +74,8 @@ void lisemqt::runmodel()
 //    savefile(S);
 //    //show runfile name on screen en save runfile to result dir
 
+    lastOptionSceen = tabWidgetOptions->currentIndex();
+
     updateModelData();
     QFile f(QString(op.LisemDir+"openlisemtmp.run"));
     if (f.exists())
@@ -254,6 +256,7 @@ void lisemqt::worldDone(const QString &results)
         tabWidgetOptions->setCurrentIndex(i);
         shootScreen();
     }
+    tabWidgetOptions->setCurrentIndex(lastOptionSceen);
 
     tabWidget->setCurrentIndex(2);
     tabWidget_out->setCurrentIndex(0);
