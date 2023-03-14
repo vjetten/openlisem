@@ -495,285 +495,284 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
-    double chadj = ChannelAdj->Drc;
-    double chadjdx = CHAdjDX->Drc;
-    double BLTC = 0;
-    double SSTC = 0;
-    double BLDepth = BLDepthFlood->Drc;
-    double SSDepth = SSDepthFlood->Drc;
-    double SSC = SSCFlood->Drc;
-    double BLC = BLCFlood->Drc;
-    double SS = SSFlood->Drc;
-    double BL = BLFlood->Drc;
-    double TSettlingVelocitySS = SettlingVelocitySS->Drc;
-    double TSettlingVelocityBL = SettlingVelocityBL->Drc;
-    double bldischarge = 0;
-    double blwatervol = 0;
-    double ssdischarge = 0;
-    double sswatervol = 0;
+        double chadj = ChannelAdj->Drc;
+        double chadjdx = CHAdjDX->Drc;
+        double BLTC = 0;
+        double SSTC = 0;
+        double BLDepth = BLDepthFlood->Drc;
+        double SSDepth = SSDepthFlood->Drc;
+        double SSC = SSCFlood->Drc;
+        double BLC = BLCFlood->Drc;
+        double SS = SSFlood->Drc;
+        double BL = BLFlood->Drc;
+        double TSettlingVelocitySS = SettlingVelocitySS->Drc;
+        double TSettlingVelocityBL = SettlingVelocityBL->Drc;
+        double bldischarge = 0;
+        double blwatervol = 0;
+        double ssdischarge = 0;
+        double sswatervol = 0;
 
-    double velocity = std::sqrt(u->Drc *u->Drc + v->Drc * v->Drc);
-    SWOFSedimentLayerDepth(r,c,h->Drc, velocity);
-    //creates BLDepth and SSDepth, or if 1 layer ssdepth = h and bldepth = 0
+        double velocity = std::sqrt(u->Drc *u->Drc + v->Drc * v->Drc);
+        SWOFSedimentLayerDepth(r,c,h->Drc, velocity);
+        //creates BLDepth and SSDepth, or if 1 layer ssdepth = h and bldepth = 0
 
-    //calculate tranport capacity for bed load and suspended load
-    // Bedload is based on D90, susp on D50
-    if (SwitchUse2Phase) {
-       BLTC = calcTCBedload(r, c, 1, FS_BL_Method, h->Drc, velocity, 1);
-       BLTCFlood->Drc = BLTC;
-       bldischarge = velocity * chadj * BLDepth;
-       blwatervol = chadjdx * BLDepth;
-    }
-
-    SSTC = calcTCSuspended(r, c, 1, FS_SS_Method, h->Drc, velocity, 1);
-    SSTCFlood->Drc = SSTC;
-    ssdischarge = velocity * chadj * SSDepth;
-    sswatervol = chadjdx * SSDepth;
-
-    double deposition = 0;
-    double detachment = 0;
-
-    if(h->Drc < MIN_HEIGHT)
-    {
-        //set all to zero when the water height is zero
+        //calculate tranport capacity for bed load and suspended load
+        // Bedload is based on D90, susp on D50
         if (SwitchUse2Phase) {
-            DepFlood->Drc += -BLFlood->Drc;
-            BLTCFlood->Drc = 0;
-            BLFlood->Drc = 0;
-            BLCFlood->Drc = 0;
+           BLTC = calcTCBedload(r, c, 1, FS_BL_Method, h->Drc, velocity, 1);
+           BLTCFlood->Drc = BLTC;
+           bldischarge = velocity * chadj * BLDepth;
+           blwatervol = chadjdx * BLDepth;
         }
 
-        DepFlood->Drc += -SSFlood->Drc;
-        SSTCFlood->Drc = 0;
-        SSFlood->Drc = 0;
-        SSCFlood->Drc = 0;
+        SSTC = calcTCSuspended(r, c, 1, FS_SS_Method, h->Drc, velocity, 1);
+        SSTCFlood->Drc = SSTC;
+        ssdischarge = velocity * chadj * SSDepth;
+        sswatervol = chadjdx * SSDepth;
 
-        if(SwitchUseMaterialDepth) {
-            StorageDep->Drc += -deposition;
-        }
+        double deposition = 0;
+        double detachment = 0;
 
-    } else {
-        // there is water
-
-        //####### DO SUSPENDED FIRST
-
-        //first check if sediment goes to suspended sediment layer or to bed layer
-        double TransportFactor;
-
-        double maxTC = std::max(SSTC - SSC, 0.0) ;
-        // positive difference: TC deficit becomes detachment (ppositive)
-        double minTC = std::min(SSTC - SSC, 0.0) ;
-        // negative diff, becomes deposition
-
-        deposition = 0;
-        detachment = 0;
-
-        //deposition based on settling velocity
-        if (minTC < 0) {
-            //NOTE use entire depth h for deposition of SS
-            TransportFactor = (1-exp(-dt*TSettlingVelocitySS/h->Drc)) * sswatervol;
-          //  TransportFactor = dt * TSettlingVelocitySS * DX->Drc * SoilWidthDX->Drc;
-            TransportFactor = std::min(TransportFactor, ssdischarge * dt);
-
-            deposition  = std::max(TransportFactor * minTC,-SS);
-
-            // exceptions
-            if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
-                deposition = 0;
-            // prevent any activity on the boundary!
-
-            if (SwitchSedtrap && SedMaxVolume->Drc == 0 && N->Drc == SedTrapN) {
-                N->Drc = Norg->Drc;
-                // if sed trap is full, no effect of N increase
-            }
-            if (SwitchSedtrap && SedMaxVolume->Drc > 0)
-            {
-                if (SS > 0) {
-                    double maxvol = SedMaxVolume->Drc;
-                    double depvol = SS * 1.0/BulkDens; // m3
-                    if (maxvol < depvol)
-                        depvol = maxvol;
-                    if (maxvol > 0){
-                        deposition = -depvol*BulkDens;
-                        maxTC = 0;
-                    }
-                    SedMaxVolume->Drc = maxvol - depvol;
-                    SedimentFilter->Drc += depvol*BulkDens;
-                }
-            }
-
-            if(SwitchUseMaterialDepth)
-                StorageDep->Drc += -deposition;
-
-        } else
-            if (Y->Drc > 0) {
-                TransportFactor = dt * TSettlingVelocitySS * CHAdjDX->Drc;//SoilWidthDX->Drc;
-                // only erosion on soilwidth
-
-                detachment = maxTC * std::min(TransportFactor, sswatervol);
-
-                // Detachment exceptions:
-
-                if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
-                    detachment = 0;
-                // prevent any activity on the boundary!
-
-                if (GrassFraction->Drc > 0)
-                    detachment = (1-GrassFraction->Drc) * detachment;
-                // no flow detachment on grass strips
-
-                //detachment = (1-StoneFraction->Drc) * detachment;
-                // no flow detachment on stony surfaces
-
-                if (SwitchRoadsystem)
-                    detachment = (1-RoadWidthDX->Drc/_dx) * detachment;
-                // no flow detachment on hard surfaces
-
-                if (SwitchHardsurface)
-                    detachment = (1-HardSurface->Drc) * detachment;
-                // no flow detachment on hard surfaces
-
-                if (SwitchHouses)
-                    detachment = (1-HouseCover->Drc)*detachment;
-                // no flow det where houses
-
-                detachment = (1-Snowcover->Drc) * detachment;
-                // TODO: CHECK THIS no flow detachment on snow
-                //is there erosion and sedimentation under the snowdeck?
-
-                if (SwitchSedtrap && SedMaxVolume->Drc > 0)
-                    detachment = 0;
-                //if there is still room in the sed trap then no detahcment on those cells
-
-                //check how much of the potential detachment can be detached from soil layer
-                detachment = DetachMaterial(r,c,1, false, true, false, detachment);
-                //bool channel, bool flood,bool bl
-
-               // if(MAXCONC * sswatervol < SS + detachment)
-                 //   detachment = 0;//std::max(0.0, MAXCONC * sswatervol - SS);
-                // not more detachment then is needed to keep below ssmax
-            }
-
-        //### sediment balance
-        SSDetFlood->Drc += detachment;  // set to zero in mass balance
-        DepFlood->Drc += deposition;
-        SS += deposition;
-        SS += detachment;
-        SSFlood->Drc = std::max(0.0,SS);
-
-        // ########### DO BEDLOAD
-        if (SwitchUse2Phase) {
-            deposition = 0;
-            detachment = 0;
-            if(BLDepth < MIN_HEIGHT) {
-
-                // if the BLdepth is to small dump everything
+        if(h->Drc < MIN_HEIGHT)
+        {
+            //set all to zero when the water height is zero
+            if (SwitchUse2Phase) {
                 DepFlood->Drc += -BLFlood->Drc;
                 BLTCFlood->Drc = 0;
-                //BLDetFlood->Drc = 0;
                 BLFlood->Drc = 0;
                 BLCFlood->Drc = 0;
+            }
 
-            } else {
-                // there is BL transport
+            DepFlood->Drc += -SSFlood->Drc;
+            SSTCFlood->Drc = 0;
+            SSFlood->Drc = 0;
+            SSCFlood->Drc = 0;
 
-                //### calc concentration and net transport capacity
-                maxTC = std::max(BLTC - BLC,0.0);
-                minTC = std::min(BLTC - BLC,0.0);
-                // unit kg/m3
-                if (minTC < 0) {
-                    // IN KG/CELL
+            if(SwitchUseMaterialDepth) {
+                StorageDep->Drc += -deposition;
+            }
 
-                    //### deposition
-                    TransportFactor = (1-exp(-dt*TSettlingVelocityBL/BLDepth)) * blwatervol;
-                    //   TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * FlowWidth->Drc;
-                    // deposition can occur on roads and on soil (so use flowwidth)
+        } else {
+            // there is water
 
-                    // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
-                    deposition = std::max(minTC * TransportFactor, -BL);
-                    // cannot have more depo than sediment present
+            //####### DO SUSPENDED FIRST ###
 
-                    if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
-                        deposition = 0;
-                    // prevent any activity on the boundary!
+            //first check if sediment goes to suspended sediment layer or to bed layer
+            double TransportFactor;
 
-                    if (SwitchSedtrap && SedMaxVolume->Drc > 0)
-                    {
-                        if (BL > 0) {
-                            double maxvol = SedMaxVolume->Drc;
-                            double depvol = BL * 1.0/BulkDens; // m3
-                            if (maxvol < depvol)
-                                depvol = maxvol;
-                            if (maxvol > 0){
-                                deposition = -depvol*BulkDens;
-                                maxTC = 0;
-                            }
-                            SedMaxVolume->Drc = maxvol - depvol;
-                            SedimentFilter->Drc += depvol*BulkDens;
+            double maxTC = std::max(SSTC - SSC, 0.0) ;
+            // positive difference: TC deficit becomes detachment (ppositive)
+            double minTC = std::min(SSTC - SSC, 0.0) ;
+            // negative diff, becomes deposition
+
+            deposition = 0;
+            detachment = 0;
+
+            //deposition based on settling velocity
+            if (minTC < 0) {
+                //NOTE use entire depth h for deposition of SS
+                TransportFactor = (1-exp(-dt*TSettlingVelocitySS/h->Drc)) * sswatervol;
+              //  TransportFactor = dt * TSettlingVelocitySS * DX->Drc * SoilWidthDX->Drc;
+                TransportFactor = std::min(TransportFactor, ssdischarge * dt);
+
+                deposition  = std::max(TransportFactor * minTC,-SS);
+
+                // exceptions
+                if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
+                    deposition = 0;
+                // prevent any activity on the boundary!
+
+                if (SwitchSedtrap && SedMaxVolume->Drc == 0 && N->Drc == SedTrapN) {
+                    N->Drc = Norg->Drc;
+                    // if sed trap is full, no effect of N increase
+                }
+                if (SwitchSedtrap && SedMaxVolume->Drc > 0)
+                {
+                    if (SS > 0) {
+                        double maxvol = SedMaxVolume->Drc;
+                        double depvol = SS * 1.0/BulkDens; // m3
+                        if (maxvol < depvol)
+                            depvol = maxvol;
+                        if (maxvol > 0){
+                            deposition = -depvol*BulkDens;
+                            maxTC = 0;
                         }
+                        SedMaxVolume->Drc = maxvol - depvol;
+                        SedimentFilter->Drc += depvol*BulkDens;
                     }
+                }
 
-                    if(SwitchUseMaterialDepth)
-                    {
-                        StorageDep->Drc += -deposition;
-                    }
-                } else
+                if(SwitchUseMaterialDepth)
+                    StorageDep->Drc += -deposition;
+
+            } else
                 if (Y->Drc > 0) {
-                    //### detachment
-                    // detachment can only come from soil, not roads (so do not use flowwidth)
-                    // units s * m/s * m * m = m3
-                    TransportFactor = dt * TSettlingVelocityBL * DX->Drc * SoilWidthDX->Drc;
-                    //TransportFactor = std::min(TransportFactor, bldischarge * dt);
-                    //TransportFactor = bldischarge*DT->Drc;
+                    //TransportFactor = dt * TSettlingVelocitySS * CHAdjDX->Drc;
+                    TransportFactor = dt * TSettlingVelocitySS * SoilWidthDX->Drc * DX->Drc;
+                    // m3, detachment only erosion on soilwidth
 
-                    detachment = maxTC * std::min(TransportFactor, blwatervol);
-                    // unit = kg/m3 * m3 = kg
+                    detachment = maxTC * std::min(TransportFactor, sswatervol);
+
+                    // Detachment exceptions:
 
                     if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
                         detachment = 0;
-                    // VJ 190325 prevent any activity on the boundary!
+                    // prevent any activity on the boundary!
 
                     if (GrassFraction->Drc > 0)
                         detachment = (1-GrassFraction->Drc) * detachment;
                     // no flow detachment on grass strips
 
-                    // Detachment edxceptions:
                     detachment = (1-StoneFraction->Drc) * detachment;
                     // no flow detachment on stony surfaces
 
-                    if (SwitchHardsurface)
-                        detachment = (1-HardSurface->Drc) * detachment;
+    // not needed because soilwidth
+    //                if (SwitchRoadsystem)
+    //                    detachment = (1-RoadWidthDX->Drc/_dx) * detachment;
+                    // no flow detachment on hard surfaces
+
+    //                if (SwitchHardsurface)
+    //                    detachment = (1-HardSurface->Drc) * detachment;
                     // no flow detachment on hard surfaces
 
                     if (SwitchHouses)
                         detachment = (1-HouseCover->Drc)*detachment;
-                    // no flow det from house roofs
+                    // no flow det where houses
 
                     detachment = (1-Snowcover->Drc) * detachment;
-                    /* TODO: CHECK THIS no flow detachment on snow */
+                    // TODO: CHECK THIS no flow detachment on snow
                     //is there erosion and sedimentation under the snowdeck?
 
-                    detachment = DetachMaterial(r,c,1,false,false,true, detachment);
-
-                    if(MAXCONC * blwatervol < BL + detachment)
-                        detachment = std::max(0.0, MAXCONC * blwatervol - BL);
-                    // limit detachment to what BLflood can carry
-
-                    if (SwitchSedtrap && SedMaxVolume->Drc > 0) {
+                    if (SwitchSedtrap && SedMaxVolume->Drc > 0)
                         detachment = 0;
-                    }
-                }
-                //### sediment balance IN KG/CELL
-                DepFlood->Drc += deposition;
-                BLDetFlood->Drc += detachment;
-                BL += detachment;
-                BL += deposition;
-                BLFlood->Drc = std::max(0.0,BL);
-            }  // BL exist
-        } // 2 phase       
-    } // h > MIN_HEIGHT
+                    //if there is still room in the sed trap then no detahcment on those cells
 
-    SWOFSedimentSetConcentration(r,c,h);
+                    //check how much of the potential detachment can be detached from soil layer
+                    //detachment = DetachMaterial(r,c,1, false, true, false, detachment);
+                    detachment *= Y->Drc;
+
+                    if(SS + detachment > MAXCONC * sswatervol)
+                        detachment = std::min(detachment, MAXCONC * sswatervol - SS);
+                    // not more detachment then is needed to keep below ssmax
+                }
+
+            //### sediment balance
+            SSDetFlood->Drc += detachment;  // set to zero in mass balance
+            DepFlood->Drc += deposition;
+            SS += deposition;
+            SS += detachment;
+            SSFlood->Drc = std::max(0.0,SS);
+
+            // ########### DO BEDLOAD
+            if (SwitchUse2Phase) {
+                deposition = 0;
+                detachment = 0;
+                if(BLDepth < MIN_HEIGHT) {
+
+                    // if the BLdepth is to small dump everything
+                    DepFlood->Drc += -BLFlood->Drc;
+                    BLTCFlood->Drc = 0;
+                    //BLDetFlood->Drc = 0;
+                    BLFlood->Drc = 0;
+                    BLCFlood->Drc = 0;
+
+                } else {
+                    // there is BL transport
+
+                    //### calc concentration and net transport capacity
+                    maxTC = std::max(BLTC - BLC,0.0);
+                    minTC = std::min(BLTC - BLC,0.0);
+                    // unit kg/m3
+                    if (minTC < 0) {
+                        // IN KG/CELL
+
+                        //### deposition
+                        TransportFactor = (1-exp(-dt*TSettlingVelocityBL/BLDepth)) * blwatervol;
+                        //   TransportFactor = _dt*SettlingVelocity->Drc * DX->Drc * FlowWidth->Drc;
+                        // deposition can occur on roads and on soil (so use flowwidth)
+
+                        // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
+                        deposition = std::max(minTC * TransportFactor, -BL);
+                        // cannot have more depo than sediment present
+
+                        if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
+                            deposition = 0;
+                        // prevent any activity on the boundary!
+
+                        if (SwitchSedtrap && SedMaxVolume->Drc > 0)
+                        {
+                            if (BL > 0) {
+                                double maxvol = SedMaxVolume->Drc;
+                                double depvol = BL * 1.0/BulkDens; // m3
+                                if (maxvol < depvol)
+                                    depvol = maxvol;
+                                if (maxvol > 0){
+                                    deposition = -depvol*BulkDens;
+                                    maxTC = 0;
+                                }
+                                SedMaxVolume->Drc = maxvol - depvol;
+                                SedimentFilter->Drc += depvol*BulkDens;
+                            }
+                        }
+
+                        if(SwitchUseMaterialDepth)
+                        {
+                            StorageDep->Drc += -deposition;
+                        }
+                    } else
+                    if (Y->Drc > 0) {
+                        //### detachment
+                        // detachment can only come from soil, not roads (so do not use flowwidth)
+                        // units s * m/s * m * m = m3
+                        TransportFactor = dt * TSettlingVelocityBL * DX->Drc * SoilWidthDX->Drc;
+                        //TransportFactor = std::min(TransportFactor, bldischarge * dt);
+                        //TransportFactor = bldischarge*DT->Drc;
+
+                        detachment = maxTC * std::min(TransportFactor, blwatervol);
+                        // unit = kg/m3 * m3 = kg
+
+                        if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
+                            detachment = 0;
+                        // VJ 190325 prevent any activity on the boundary!
+
+                        if (GrassFraction->Drc > 0)
+                            detachment = (1-GrassFraction->Drc) * detachment;
+                        // no flow detachment on grass strips
+
+                        // Detachment edxceptions:
+                        detachment = (1-StoneFraction->Drc) * detachment;
+                        // no flow detachment on stony surfaces
+
+                        if (SwitchHouses)
+                            detachment = (1-HouseCover->Drc)*detachment;
+                        // no flow det from house roofs
+
+                        detachment = (1-Snowcover->Drc) * detachment;
+                        /* TODO: CHECK THIS no flow detachment on snow */
+                        //is there erosion and sedimentation under the snowdeck?
+
+                        //detachment = DetachMaterial(r,c,1,false,false,true, detachment);
+                        detachment *= Y->Drc;
+
+                        if(MAXCONC * blwatervol < BL + detachment)
+                            detachment = std::max(0.0, MAXCONC * blwatervol - BL);
+                        // limit detachment to what BLflood can carry
+
+                        if (SwitchSedtrap && SedMaxVolume->Drc > 0) {
+                            detachment = 0;
+                        }
+                    }
+                    //### sediment balance IN KG/CELL
+                    DepFlood->Drc += deposition;
+                    BLDetFlood->Drc += detachment;
+                    BL += detachment;
+                    BL += deposition;
+                    BLFlood->Drc = std::max(0.0,BL);
+                }  // BL exist
+            } // 2 phase
+        } // h > MIN_HEIGHT
+
+        SWOFSedimentSetConcentration(r,c,h);
 
     }}
 }

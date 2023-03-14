@@ -454,8 +454,8 @@ void lisemqt::ParseInputData()
     E_SigmaDiffusion->setEnabled(checkDiffusion->isChecked());
 
     checkOverlandFlow1D->setChecked(dummykinwave == 1);
+    checkOverlandFlow2Dkindyn->setChecked(dummykinwave == 2);
     checkOverlandFlow2Ddyn->setChecked(dummykinwave == 3);
-    checkOverlandFlow2Dkindyn->setChecked(dummykinwave == 4);
     setFloodTab(true);//dummykinwave > 1);
     setErosionTab();
 
