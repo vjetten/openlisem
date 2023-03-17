@@ -154,7 +154,7 @@ void TWorld::ToChannel() //(int r, int c)
  * @fn void TWorld::CalcVelDisch()
  * @brief Calculates velocity and discharge based on water height for overland flow
  *
- * Calculates velocity and discharge based on water height for overland flow
+ * Calculates velocity and discharge and alpha based on water height for overland flow (WHrunoff)
  * Using the water height and energy gradient, mannings equation for flow velocity is used.
  * The manning's N is altered when flooding is present,
  * this slows down water while it is converted into flood water.
@@ -198,39 +198,8 @@ void TWorld::CalcVelDisch()//(int r, int c)
     }}
 }
 //---------------------------------------------------------------------------
-void TWorld::OverlandFlow2Ddyn(void)
+void TWorld::updateWHandHmx(void)
 {
-    double dtOF = 0;
-
-    ChannelOverflow(WHrunoff, V);
-        // false means flood sediment maps are used
-
-    startFlood = false;
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV {
-        if (WHrunoff->Drc > HMIN)
-            startFlood = true;
-    }
-
-    if (SwitchSWOFopen)
-        dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
-    else
-        dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
-    //VJ new average flux over lisem timestep, else last Qn is used
-
-    //  infilInWave(WHrunoff, _dt);
-
-    // calc discharge flux
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
-        Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
-        //Q->Drc = Qn->Drc; // just to be sure
-    }}
-
-    Boundary2Ddyn();  // do the domain boundaries
-
-    // calc discharge flux after boundary
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double WHR = WHrunoff->Drc;
@@ -266,6 +235,50 @@ void TWorld::OverlandFlow2Ddyn(void)
         }
 
     }}
+}
+
+
+/**
+ * @fn void TWorld::OverlandFlow2Ddyn()
+ * @brief Does 2D flow, calling SWOF functions, WHrunoff
+ *
+ * @return void
+  */
+void TWorld::OverlandFlow2Ddyn(void)
+{
+    double dtOF = 0;
+
+    ChannelOverflow(WHrunoff, V);
+    // Mixing of 2D runoff with channel water, V is used to determine how much flows into the channel
+    // after this new ChannelHW and WHrunoff, and Susp sediment values ChannelSSSed and SSFlood->Drc
+
+    startFlood = false;
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV {
+        if (WHrunoff->Drc > HMIN)
+            startFlood = true;
+    }
+
+    if (SwitchSWOFopen)
+        dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
+    else
+        dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
+    //VJ new average flux over lisem timestep, else last Qn is used
+
+    //  infilInWave(WHrunoff, _dt);
+
+    // calc discharge flux
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        V->Drc = sqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
+        Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
+        //Q->Drc = Qn->Drc; // just to be sure
+    }}
+
+    Boundary2Ddyn();  // do the domain boundaries for Q, h and sediment
+
+    updateWHandHmx();
+    // update all water levels and volumes and calculate partition flood and runoff for output
 
    // FloodMaxandTiming(hmxWH, minReportFloodHeight);
 

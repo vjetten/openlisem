@@ -497,9 +497,11 @@ void TWorld::ChannelFlood(void)
 
     // mix WHrunoff with hmx
     ChannelOverflow(hmx, V);
-    // determine overflow water => hmx
+    // determine overflow water => hmx      
+    // hmx is flood water, WH is overlandflow, WHrunoff etc
 
     ToFlood();
+    // mix HWrunoff with hmx
 
     double dtflood = 0;
 
@@ -533,44 +535,49 @@ void TWorld::ChannelFlood(void)
     FOR_ROW_COL_MV_L {
         Qflood->Drc = 0;
         if (FloodDomain->Drc > 0) {
-            V->Drc = qSqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+            V->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+
             Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
+
+            Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
         }
+        // replace V in flood domain with sqrt flood V and U
     }}
 
     Boundary2Ddyn();
     // boundary flow
 
+ //   updateWHandHmx();
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        hmxWH->Drc = WH->Drc + hmx->Drc;
 
-        //InfilVolFlood->Drc += Iflood->Drc;
-        // addvolume infiltrated during flood process with FSurplus
+        WHroad->Drc = WHrunoff->Drc;
+        // set road to average outflowing wh, no surface storage.
 
-        hmxflood->Drc = std::max(0.0, WHrunoff->Drc + hmx->Drc - minReportFloodHeight);
+        WH->Drc = WHrunoff->Drc+ WHstore->Drc;
+        // add new average waterlevel (A/dx) to stored water
 
         WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
+
+        hmxWH->Drc = WH->Drc + hmx->Drc;
         // all water on surface
+
+        hmxflood->Drc = std::max(0.0, WHrunoff->Drc + hmx->Drc - minReportFloodHeight);
 
         FloodWaterVol->Drc = hmxflood->Drc * CHAdjDX->Drc;
         double WHrunoffOutput = std::min(WHrunoff->Drc + hmx->Drc, minReportFloodHeight);
         RunoffWaterVol->Drc = WHrunoffOutput * CHAdjDX->Drc;
+        // these are only used for reporting totals on screen and in file
 
-    }}
-
-    if(SwitchErosion) {
-        //calculate concentration and new sediment discharge
-        //WHrunoff and Qn are adapted in case of 2D routing
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
+        if(SwitchErosion) {
             if (FloodDomain->Drc  > 0) {
                 double sed = SSFlood->Drc + BLFlood->Drc;
                 Conc->Drc =  MaxConcentration(FloodWaterVol->Drc, &sed, &DepFlood->Drc);
                 Qsn->Drc += Conc->Drc*Qflood->Drc;
             }
-        }}
-     }
+        }
+     }}
 
     double area = nrFloodedCells*_dx*_dx;
     if (area > 0)
