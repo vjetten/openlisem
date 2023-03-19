@@ -413,8 +413,8 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)
     if(h->Drc > he_ca)
     {
         if (SwitchUse2Phase)
-            BLCFlood->Drc = MaxConcentration(CHAdjDX->Drc*BLDepthFlood->Drc, &BLFlood->Drc, &DepFlood->Drc);
-        SSCFlood->Drc = MaxConcentration(CHAdjDX->Drc*SSDepthFlood->Drc, &SSFlood->Drc, &DepFlood->Drc);
+            BLCFlood->Drc = MaxConcentration(CHAdjDX->Drc*BLDepthFlood->Drc, BLFlood->Drc);
+        SSCFlood->Drc = MaxConcentration(CHAdjDX->Drc*SSDepthFlood->Drc, SSFlood->Drc);
     }
     else
     {
@@ -507,9 +507,9 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
         double BL = BLFlood->Drc;
         double TSettlingVelocitySS = SettlingVelocitySS->Drc;
         double TSettlingVelocityBL = SettlingVelocityBL->Drc;
-        double bldischarge = 0;
+      //  double bldischarge = 0;
         double blwatervol = 0;
-        double ssdischarge = 0;
+      //  double ssdischarge = 0;
         double sswatervol = 0;
 
         double velocity = std::sqrt(u->Drc *u->Drc + v->Drc * v->Drc);
@@ -521,13 +521,13 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
         if (SwitchUse2Phase) {
            BLTC = calcTCBedload(r, c, 1, FS_BL_Method, h->Drc, velocity, 1);
            BLTCFlood->Drc = BLTC;
-           bldischarge = velocity * chadj * BLDepth;
+        //   bldischarge = velocity * chadj * BLDepth;
            blwatervol = chadjdx * BLDepth;
         }
 
         SSTC = calcTCSuspended(r, c, 1, FS_SS_Method, h->Drc, velocity, 1);
         SSTCFlood->Drc = SSTC;
-        ssdischarge = velocity * chadj * SSDepth;
+     //   ssdischarge = velocity * chadj * SSDepth;
         sswatervol = chadjdx * SSDepth;
 
         double deposition = 0;
@@ -573,7 +573,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                 //NOTE use entire depth h for deposition of SS
                 TransportFactor = (1-exp(-dt*TSettlingVelocitySS/h->Drc)) * sswatervol;
               //  TransportFactor = dt * TSettlingVelocitySS * DX->Drc * SoilWidthDX->Drc;
-                TransportFactor = std::min(TransportFactor, ssdischarge * dt);
+              //  TransportFactor = std::min(TransportFactor, ssdischarge * dt);
 
                 deposition  = std::max(TransportFactor * minTC,-SS);
 
@@ -652,7 +652,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                     detachment *= Y->Drc;
 
                     if(SS + detachment > MAXCONC * sswatervol)
-                        detachment = std::min(detachment, MAXCONC * sswatervol - SS);
+                        detachment = MAXCONC * sswatervol - SS;
                     // not more detachment then is needed to keep below ssmax
                 }
 
@@ -726,7 +726,6 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                         // units s * m/s * m * m = m3
                         TransportFactor = dt * TSettlingVelocityBL * DX->Drc * SoilWidthDX->Drc;
                         //TransportFactor = std::min(TransportFactor, bldischarge * dt);
-                        //TransportFactor = bldischarge*DT->Drc;
 
                         detachment = maxTC * std::min(TransportFactor, blwatervol);
                         // unit = kg/m3 * m3 = kg
@@ -754,8 +753,8 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                         //detachment = DetachMaterial(r,c,1,false,false,true, detachment);
                         detachment *= Y->Drc;
 
-                        if(MAXCONC * blwatervol < BL + detachment)
-                            detachment = std::max(0.0, MAXCONC * blwatervol - BL);
+                        if(BL + detachment > MAXCONC * blwatervol)
+                            detachment = MAXCONC * blwatervol - BL;
                         // limit detachment to what BLflood can carry
 
                         if (SwitchSedtrap && SedMaxVolume->Drc > 0) {

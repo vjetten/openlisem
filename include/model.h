@@ -819,7 +819,7 @@ public:
     double GetTotalDW(int r, int c,QList<cTMap *> *M);
     double GetSV(double d);
     void SplashDetachment();
-    double MaxConcentration(double watvol, double *sedvol, double *dep);
+    double MaxConcentration(double watvol, double sedvol);
     void ChannelFlowDetachmentNew();
 
 

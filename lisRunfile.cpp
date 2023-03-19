@@ -197,7 +197,6 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Daily ET")==0)                 SwitchDailyET = iii == 1;
         if (p1.compare("Rainfall ID interpolation")==0)SwitchIDinterpolation = iii == 1;
 
-       // qDebug() << p1 << p << iii;
         //options in the main code, order is not important
         if (p1.compare("Include Erosion simulation")==0)        SwitchErosion =          iii == 1;
         if (p1.compare("Include main channels")==0)             SwitchIncludeChannel =   iii == 1;

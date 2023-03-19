@@ -47,6 +47,8 @@ void TWorld::ChannelFlowandErosion()
 
     ChannelBaseflow();              // calculate baseflow
 
+    //ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
+
     ChannelFlow();                  // channel kin wave for water and sediment
 
     ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
@@ -253,7 +255,7 @@ void TWorld::ChannelSedimentFlow()
 
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        double concss = MaxConcentration(ChannelWaterVol->Drc, &ChannelSSSed->Drc, &ChannelDep->Drc);
+        double concss = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
         ChannelQSSs->Drc = ChannelQ->Drc * concss; // m3/s *kg/m3 = kg/s
       //  ChannelQSSs->Drc = ChannelQsr->Drc*ChannelQ_; //kg/m/s *m
     }}
@@ -261,7 +263,7 @@ void TWorld::ChannelSedimentFlow()
     if(SwitchUse2Phase) {
         #pragma omp parallel num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            double concbl = MaxConcentration(ChannelWaterVol->Drc, &ChannelBLSed->Drc, &ChannelDep->Drc);
+            double concbl = MaxConcentration(ChannelWaterVol->Drc, ChannelBLSed->Drc);
             ChannelQBLs->Drc = ChannelQ->Drc * concbl;
         }}
     }

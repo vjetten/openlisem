@@ -67,8 +67,8 @@ functions: \n
  */
 void TWorld::ChannelFlowDetachmentNew()
 {
-        if (!SwitchErosion)
-        return;
+    if (!SwitchErosion)
+    return;
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
@@ -77,12 +77,9 @@ void TWorld::ChannelFlowDetachmentNew()
         //creates ChannelBLDepth and ChannelSSDepth, if 1 layer ChannelBLDepth = 0
 
         double sswatervol = ChannelSSDepth->Drc*DX->Drc*ChannelWidth->Drc;
-        //double ssdischarge = ChannelV->Drc * ChannelWidth->Drc * ChannelSSDepth->Drc;
         double blwatervol = 0;
-        double bldischarge = 0;
         if (SwitchUse2Phase) {
             blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelWidth->Drc;
-            bldischarge = ChannelV->Drc * ChannelWidth->Drc * ChannelBLDepth->Drc;
         }
 
         //get transport capacity for bed/suspended load for a specific cell and grain size class
@@ -152,20 +149,16 @@ void TWorld::ChannelFlowDetachmentNew()
             if (minTC < 0) {
                 TransportFactor = (1-exp(-_dt*TSettlingVelocitySS/ChannelWH->Drc)) * sswatervol;
              //   TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
-               // TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
                 //TransportFactor = std::min(TransportFactor, ssdischarge * _dt);
 
                 deposition = std::max(TransportFactor * minTC,-SS); // in kg
                 // not more than SS present
 
             } else
-                if(ChannelY->Drc > 0){
                 //  detachment
-                   // TransportFactor = (1-exp(-_dt*TSettlingVelocitySS/ChannelWH->Drc)) * sswatervol;
+                if(ChannelY->Drc > 0){
 
                     TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
-
-
                     //TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
                     // use discharge because standing water has no erosion
 
@@ -176,15 +169,9 @@ void TWorld::ChannelFlowDetachmentNew()
                     detachment *= ChannelY->Drc;//DetachMaterial(r,c,1,true,false,false, detachment);
                     // multiply by Y
 
-    //                if(MAXCONC * sswatervol < SS + detachment)
-    //                    detachment = std::max(0.0, MAXCONC * sswatervol - SS);
+                    if(SS + detachment > MAXCONC * sswatervol)
+                        detachment = MAXCONC * sswatervol - SS;
                 }
-
-//            double sedtrans=ChannelQsr->Drc*_dt*ChannelWidth->Drc; //kg/m/s * s * m = kg
-//            if (SS < sedtrans)
-//                detachment = 0;//ChannelY->Drc *(sedtrans-SS);
-//            else
-//                deposition = (sedtrans-SS)*(1-exp(-_dt*TSettlingVelocitySS/ChannelWH->Drc));
 
             //### sediment balance add suspended
             SS += detachment;
@@ -223,13 +210,13 @@ void TWorld::ChannelFlowDetachmentNew()
                         detachment = maxTC * std::min(TransportFactor, maxTC*sswatervol);
                         // unit = kg/m3 * m3 = kg
 
-                        detachment = DetachMaterial(r,c,1,true,false,true, detachment);
+                        detachment = ChannelY->Drc;//DetachMaterial(r,c,1,true,false,true, detachment);
                         // mult by Y and mixingdepth
                         // IN KG/CELL
 
-                        //if(MAXCONC * blwatervol < BL+detachment)
-                        //    detachment = std::max(0.0, MAXCONC * blwatervol - BL);
-                        // limit detachment to what BLtemp can carry
+                        if(BL + detachment > MAXCONC * blwatervol)
+                            detachment = MAXCONC * blwatervol - BL;
+
                     } else {
                         //### deposition
                         if (BLDepth > MIN_HEIGHT)
@@ -244,13 +231,13 @@ void TWorld::ChannelFlowDetachmentNew()
                         if (SwitchUseMaterialDepth)
                             RStorageDep->Drc += -deposition;
 
-                        BL += detachment; //ChannelBLSed
+                        BL += detachment;
                         BL += deposition;
                         ChannelBLSed->Drc = BL;
+                        ChannelSed->Drc += BL;
                         ChannelDep->Drc += deposition;
                         ChannelDetFlow->Drc += detachment;
                         ChannelTC->Drc += ChannelBLTC->Drc;
-                        ChannelSed->Drc += BL;
                         //total transport capacity (bed load + suspended load), used for output
                     }
                 }
@@ -282,21 +269,18 @@ void TWorld::RiverSedimentMaxC(int r, int c)
     cTMap * _SS = ChannelSSSed;
     cTMap * _SSC = ChannelSSConc;
 
-    //fromChannelWHtoVol(r, c);
-   // ChannelWaterVol->Drc = ChannelWidth->Drc * ChannelWH->Drc * ChannelDX->Drc;
-
     double frac = ChannelSSDepth->Drc/ChannelWH->Drc;
     //maximum concentration
     if(!SwitchUseGrainSizeDistribution)
     {
-        _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc*frac, &_SS->Drc, &ChannelDep->Drc);
+        _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc*frac, _SS->Drc);
         if (SwitchUse2Phase)
-            _BLC->Drc = MaxConcentration(ChannelWaterVol->Drc*(1-frac), &_BL->Drc, &ChannelDep->Drc);
+            _BLC->Drc = MaxConcentration(ChannelWaterVol->Drc*(1-frac), _BL->Drc);
     }
 
     ChannelSed->Drc = (SwitchUse2Phase ? _BL->Drc : 0) + _SS->Drc;
     //total concentration
-    ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, &ChannelSed->Drc, &ChannelDep->Drc);
+    ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
 
 
 }
@@ -325,7 +309,7 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
 {
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, &_SS->Drc, &ChannelDep->Drc);
+        _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, _SS->Drc);
     }}
 
 //diffusion of Suspended Sediment layer
@@ -434,7 +418,7 @@ FOR_ROW_COL_MV_CH {
 FOR_ROW_COL_MV_CHL {
     //set concentration from present sediment
     _SS->Drc = std::max(0.0,_SS->Drc);
-    _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, &_SS->Drc, &ChannelDep->Drc);
+    _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, _SS->Drc);
 }}
 }
 

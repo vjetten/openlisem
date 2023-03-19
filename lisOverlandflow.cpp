@@ -67,15 +67,13 @@ void TWorld::OverlandFlow(void)
 
         if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
             ChannelFlood();
-            FloodMaxandTiming();
-            // st venant channel 2D flooding from channel, only for kyn wave, partly parallel
+            // st venant channel 2D flooding from channel, only for kyn wave
         }
     }
 
-    // dynamic wave overland flow, erosion is included
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
         OverlandFlow2Ddyn();
-        FloodMaxandTiming();
+        // dynamic wave overland flow
     }
 
 
@@ -98,12 +96,7 @@ void TWorld::ToChannel() //(int r, int c)
     FOR_ROW_COL_MV_L {
     if (ChannelWidth->Drc > 0 && WHrunoff->Drc > HMIN && hmx->Drc < HMIN)
     {
-        double fractiontochannel;
-
-        double VtoChan = V->Drc;
-   //     if (F_AddGravity == 1)
-   //         VtoChan = std::pow(WHrunoff->Drc, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drc; //F_Angle
-        fractiontochannel = std::min(1.0, _dt*VtoChan/std::max(0.05*_dx,0.5*ChannelAdj->Drc));
+        double fractiontochannel = std::min(1.0, _dt*V->Drc/(0.5*ChannelAdj->Drc));
         // fraction to channel calc from half the adjacent area width and flow velocity
 
         // cannot flow into channel if water level in channel is higher than runoff depth
@@ -120,17 +113,14 @@ void TWorld::ToChannel() //(int r, int c)
             double dwh = fractiontochannel*WHrunoff->Drc;
             double dvol = fractiontochannel*(WaterVolall->Drc - MicroStoreVol->Drc);
 
-
             // water diverted to the channel
-            ChannelWaterVol->Drc += dvol;//dwh * FlowWidth->Drc * DX->Drc;
-            //  fromChannelVoltoWH(rr, cr);
-            //ChannelFlowWidth->Drc = ChannelWidth->Drc;
+            ChannelWaterVol->Drc += dvol;
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 
             WHrunoff->Drc -= dwh ;
             WHroad->Drc -= dwh;
             WH->Drc -= dwh;
-            WaterVolall->Drc -= dvol;//WHrunoff->Drc*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+            WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
 
             if (SwitchErosion)
             {
@@ -139,9 +129,8 @@ void TWorld::ToChannel() //(int r, int c)
                 //sediment diverted to the channel
                 Sed->Drc -= dsed;
 
-                Conc->Drc = MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, &Sed->Drc, &DEP->Drc);
+                Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
                 // adjust sediment in suspension
-
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r,c);
             }
@@ -229,8 +218,9 @@ void TWorld::updateWHandHmx(void)
 
         if (SwitchErosion) {
             double sed = (SSFlood->Drc + BLFlood->Drc);
-            Conc->Drc =  MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, &sed, &DepFlood->Drc);
-            //TODO: conc here also because of output
+            //Conc->Drc =  MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, sed);
+            Conc->Drc =  MaxConcentration(WaterVolall->Drc, sed);
+
             Qsn->Drc = Conc->Drc*Qn->Drc;
         }
 
@@ -280,7 +270,7 @@ void TWorld::OverlandFlow2Ddyn(void)
     updateWHandHmx();
     // update all water levels and volumes and calculate partition flood and runoff for output
 
-   // FloodMaxandTiming(hmxWH, minReportFloodHeight);
+    FloodMaxandTiming();
 
     TIMEDB(QString("Average dynamic timestep in flooded cells (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));
     // some screen error reporting
@@ -311,7 +301,7 @@ void TWorld::OverlandFlow1D(void)
         if (SwitchErosion) {
             // calc seediment flux going in kin wave as Qs = Q*C
             Qsn->Drc = 0.0;
-            Conc->Drc = MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, &Sed->Drc, &DEP->Drc);
+            Conc->Drc = MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, Sed->Drc);
             Qs->Drc =  Q->Drc * Conc->Drc;
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
         }
@@ -367,7 +357,7 @@ void TWorld::OverlandFlow1D(void)
         WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
 
         if (SwitchErosion)
-             Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
+             Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
     }}
 
     //      routing of substances add here!
