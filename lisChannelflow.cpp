@@ -35,6 +35,75 @@ functions: \n
 #include "model.h"
 //#include "operation.h"
 
+
+void TWorld::ChannelVelocityandDischarge()
+{
+    // velocity, alpha, Q
+    #pragma omp parallel num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+
+        // calc velocity and Q
+        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+
+        double MaxQ = ChannelMaxQ->Drc;
+        double wh = ChannelWH->Drc;
+        double ChannelQ_ = 0;
+        double ChannelV_ = 0;
+        double ChannelAlpha_ = 0;
+
+        // calc channel V and Q, using original width
+        double Perim, Radius, Area;
+        double sqrtgrad = std::max(sqrt(ChannelGrad->Drc), 0.001);
+        double N = ChannelN->Drc;
+
+        double FW = ChannelWidth->Drc;
+        double FWO = ChannelWidthO->Drc;
+
+        Perim = (FW + 2.0*wh);
+        Area = FW*wh;
+
+        if (SwitchChannelAdjustCHW) {
+            double whn = wh * (FW/FWO);
+            Perim = FWO + whn*2; //original dimensions, wider than cell size
+            Area = FWO * whn;
+            // shallow width perim Area
+        }
+        Perim *= ChnTortuosity;
+        Radius = (Perim > 0 ? Area/Perim : 0);
+        ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
+        ChannelQ_ = ChannelV_ * Area;
+        ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
+        ChannelNcul->Drc  = ChannelN->Drc;
+
+        if (SwitchCulverts) {
+            if (ChannelMaxQ->Drc > 0 ) {
+
+                ChannelNcul->Drc = (0.05+ChannelQ_/MaxQ) * 0.015; //0.015 is assumed to be the N of a concrete tube
+                //https://plainwater.com/water/circular-pipe-mannings-n/
+                // resistance increases with discharge, tube is getting fuller
+
+                double v2 = std::pow(Radius, 2.0/3.0)*sqrtgrad/ChannelNcul->Drc;
+                //max velocity not to exceed MaxQ, see excel
+                ChannelV_ = std::min(_CHMaxV,std::min(ChannelV_, v2));
+                ChannelNcul->Drc = std::min(ChannelNcul->Drc,ChannelN->Drc);
+                ChannelQ_ = ChannelV_ * Area;
+
+                if (ChannelQ_ > MaxQ){
+                    ChannelV_ = MaxQ/Area;
+                    ChannelQ_ = MaxQ;
+                }
+                ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
+            }
+        }
+
+        ChannelAlpha->Drc = ChannelAlpha_;
+        ChannelQ->Drc = ChannelQ_;
+        ChannelV->Drc = ChannelV_;
+
+    }}
+}
+
+
 //---------------------------------------------------------------------------
 void TWorld::ChannelFlowandErosion()
 {
@@ -47,13 +116,14 @@ void TWorld::ChannelFlowandErosion()
 
     ChannelBaseflow();              // calculate baseflow
 
+    ChannelVelocityandDischarge();
+
+    ChannelFlow();                  // channel kin wave for water
+
     //ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
-
-    ChannelFlow();                  // channel kin wave for water and sediment
-
     ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
 
-    ChannelSedimentFlow();
+    ChannelSedimentFlow(); // kin wave for sediment and substances
 
 }
 //---------------------------------------------------------------------------
@@ -129,71 +199,10 @@ void TWorld::ChannelFlow(void)
 
         // velocity, alpha, Q
         #pragma omp parallel num_threads(userCores)
-        FOR_ROW_COL_MV_CHL {
-
-            // calc velocity and Q
-            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
-
-            double MaxQ = ChannelMaxQ->Drc;
-            double wh = ChannelWH->Drc;
-            double ChannelQ_ = 0;
-            double ChannelV_ = 0;
-            double ChannelAlpha_ = 0;
-
-            // calc channel V and Q, using original width
-            if (wh > 1e-6) {
-                double Perim, Radius, Area;
-                double sqrtgrad = std::max(sqrt(ChannelGrad->Drc), 0.001);
-                double N = ChannelN->Drc;
-
-                double FW = ChannelWidth->Drc;
-                double FWO = ChannelWidthO->Drc;
-
-                Perim = (FW + 2.0*wh);
-                Area = FW*wh;
-
-                if (SwitchChannelAdjustCHW) {
-                    double whn = wh * (FW/FWO);
-                    Perim = FWO + whn*2; //original dimensions, wider than cell size
-                    Area = FWO * whn;
-                    // shallow width perim Area
-                }
-                Perim *= ChnTortuosity;
-                Radius = (Perim > 0 ? Area/Perim : 0);
-                ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
-                ChannelQ_ = ChannelV_ * Area;
-                ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
-                ChannelNcul->Drc  = ChannelN->Drc;
-
-                if (SwitchCulverts) {
-                    if (ChannelMaxQ->Drc > 0 ) {
-
-                        ChannelNcul->Drc = (0.05+ChannelQ_/MaxQ) * 0.015; //0.015 is assumed to be the N of a concrete tube
-                        //https://plainwater.com/water/circular-pipe-mannings-n/
-                        // resistance increases with discharge, tube is getting fuller
-
-                        double v2 = std::pow(Radius, 2.0/3.0)*sqrtgrad/ChannelNcul->Drc;
-                        //max velocity not to exceed MaxQ, see excel
-                        ChannelV_ = std::min(_CHMaxV,std::min(ChannelV_, v2));
-                        ChannelNcul->Drc = std::min(ChannelNcul->Drc,ChannelN->Drc);
-                        ChannelQ_ = ChannelV_ * Area;
-
-                        if (ChannelQ_ > MaxQ){
-                            ChannelV_ = MaxQ/Area;
-                            ChannelQ_ = MaxQ;
-                        }
-                        ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
-                    }
-                }
-
-                ChannelAlpha->Drc = ChannelAlpha_;
-                ChannelQ->Drc = ChannelQ_;
-                ChannelV->Drc = ChannelV_;
-
-                ChannelQsn->Drc = 0;
-                Channelq->Drc = 0;
-                QinKW->Drc = 0;
-            }
+        FOR_ROW_COL_MV_CHL {            
+            ChannelQsn->Drc = 0;
+            Channelq->Drc = 0;
+            QinKW->Drc = 0;
         }}
 
         // ChannelV and Q and alpha now based on original width and depth, channel vol is always the same

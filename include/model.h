@@ -918,6 +918,7 @@ public:
     void ChannelRainandInfil();
     void ChannelSedimentFlow();
     void ChannelFlowandErosion();
+    void ChannelVelocityandDischarge();
 
     void GroundwaterRecharge();
     void GroundwaterFlow();
