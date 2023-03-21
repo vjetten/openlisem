@@ -53,7 +53,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
     if (!SwitchIncludeChannel)
         return;
 
-    //#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         if (ChannelWidth->Drc > 0 && ChannelMaxQ->Drc <= 0)
         {
@@ -64,7 +64,6 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                 continue;
             // no flow activity then continue
 
-            //if (dH == _h->Drc)
             if (fabs(dH - _h->Drc) < HMIN)
                 continue;
             // no diff in water level, no flow, continue
@@ -81,8 +80,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
             bool dosimpel = false;
 
-            for (int i = 0; i < 2; i++)
-            if (dH > 0) {
+         //   for (int i = 0; i < 2; i++)
+          //  if (dH > 0) {
 
             if (dH > _h->Drc)   // flow from channel
             {
@@ -143,7 +142,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
                 }
             }
-            }
+         //   }
 
             // instantaneous waterlevel exquilibrium acccross channel and adjacent
             if (dosimpel)
