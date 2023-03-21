@@ -81,6 +81,9 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
             bool dosimpel = false;
 
+            for (int i = 0; i < 2; i++)
+            if (dH > 0) {
+
             if (dH > _h->Drc)   // flow from channel
             {
                 //double VfromChan =  0.5*(V->Drc*ChannelV->Drc);//V->Drc;//
@@ -98,8 +101,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     // if flow causes situation to reverse (channel dips below _h)
                     dosimpel = true;
 //                    double unitvol = dH*ChannelWidth->Drc + _h->Drc *ChannelAdj->Drc;
-//                    ChannelWH->Drc = chdepth + unitvol/_dx;
-//                    _h->Drc = unitvol/_dx;
+//                    ChannelWH->Drc = chdepth + unitvol/ChannelWidth->Drc;
+//                    _h->Drc = unitvol/ChannelAdj->Drc;
 
                 } else {
 
@@ -114,7 +117,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
                 }
             }
-            else   // flow to channel
+            else   // flow to channel, dH can be 0 = channel wh below edge
+             //   if (_h->Drc > dH && dH > 0)
             {
                 //double VtoChan =  V->Drc;//0.5*(V->Drc*ChannelV->Drc);//
                 // fraction from _h to channel based on average flood velocity
@@ -125,8 +129,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     // if too much flow
                     dosimpel = true;
 //                    double unitvol = dH*ChannelWidth->Drc + _h->Drc *ChannelAdj->Drc;
-//                    ChannelWH->Drc = chdepth + unitvol/_dx;
-//                    _h->Drc = unitvol/_dx;
+//                    ChannelWH->Drc = chdepth + unitvol/ChannelWidth->Drc;
+//                    _h->Drc = unitvol/ChannelAdj->Drc;
                 } else {
                     if(SwitchErosion) {
                         double sed = frac * ChannelSSSed->Drc;
@@ -139,11 +143,12 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
                 }
             }
+            }
 
             // instantaneous waterlevel exquilibrium acccross channel and adjacent
             if (dosimpel)
             {
-                qDebug() << "simple" << MBs;
+                qDebug() << "simple" ;
                 double fc = ChannelWidth->Drc/_dx;
                 // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
                 double whlevel = (ChannelWH->Drc-chdepth)*fc + _h->Drc*(1-fc);
@@ -205,6 +210,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
         }
     }}
+qDebug() <<  MB << MBs;
 }
 //---------------------------------------------------------------------------
 /**
