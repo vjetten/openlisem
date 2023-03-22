@@ -67,15 +67,13 @@ void TWorld::OverlandFlow(void)
 
         if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
             ChannelFlood();
-            FloodMaxandTiming();
-            // st venant channel 2D flooding from channel, only for kyn wave, partly parallel
+            // st venant channel 2D flooding from channel, only for kyn wave
         }
     }
 
-    // dynamic wave overland flow, erosion is included
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
         OverlandFlow2Ddyn();
-        FloodMaxandTiming();
+        // dynamic wave overland flow
     }
 
 
@@ -98,12 +96,7 @@ void TWorld::ToChannel() //(int r, int c)
     FOR_ROW_COL_MV_L {
     if (ChannelWidth->Drc > 0 && WHrunoff->Drc > HMIN && hmx->Drc < HMIN)
     {
-        double fractiontochannel;
-
-        double VtoChan = V->Drc;
-   //     if (F_AddGravity == 1)
-   //         VtoChan = std::pow(WHrunoff->Drc, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drc; //F_Angle
-        fractiontochannel = std::min(1.0, _dt*VtoChan/std::max(0.05*_dx,0.5*ChannelAdj->Drc));
+        double fractiontochannel = std::min(1.0, _dt*V->Drc/(0.5*ChannelAdj->Drc));
         // fraction to channel calc from half the adjacent area width and flow velocity
 
         // cannot flow into channel if water level in channel is higher than runoff depth
@@ -120,17 +113,14 @@ void TWorld::ToChannel() //(int r, int c)
             double dwh = fractiontochannel*WHrunoff->Drc;
             double dvol = fractiontochannel*(WaterVolall->Drc - MicroStoreVol->Drc);
 
-
             // water diverted to the channel
-            ChannelWaterVol->Drc += dvol;//dwh * FlowWidth->Drc * DX->Drc;
-            //  fromChannelVoltoWH(rr, cr);
-            //ChannelFlowWidth->Drc = ChannelWidth->Drc;
+            ChannelWaterVol->Drc += dvol;
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 
             WHrunoff->Drc -= dwh ;
             WHroad->Drc -= dwh;
             WH->Drc -= dwh;
-            WaterVolall->Drc -= dvol;//WHrunoff->Drc*CHAdjDX->Drc + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+            WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
 
             if (SwitchErosion)
             {
@@ -139,9 +129,8 @@ void TWorld::ToChannel() //(int r, int c)
                 //sediment diverted to the channel
                 Sed->Drc -= dsed;
 
-                Conc->Drc = MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, &Sed->Drc, &DEP->Drc);
+                Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
                 // adjust sediment in suspension
-
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r,c);
             }
@@ -154,7 +143,7 @@ void TWorld::ToChannel() //(int r, int c)
  * @fn void TWorld::CalcVelDisch()
  * @brief Calculates velocity and discharge based on water height for overland flow
  *
- * Calculates velocity and discharge based on water height for overland flow
+ * Calculates velocity and discharge and alpha based on water height for overland flow (WHrunoff)
  * Using the water height and energy gradient, mannings equation for flow velocity is used.
  * The manning's N is altered when flooding is present,
  * this slows down water while it is converted into flood water.
@@ -198,39 +187,8 @@ void TWorld::CalcVelDisch()//(int r, int c)
     }}
 }
 //---------------------------------------------------------------------------
-void TWorld::OverlandFlow2Ddyn(void)
+void TWorld::updateWHandHmx(void)
 {
-    double dtOF = 0;
-
-    ChannelOverflow(WHrunoff, V);
-        // false means flood sediment maps are used
-
-    startFlood = false;
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV {
-        if (WHrunoff->Drc > HMIN)
-            startFlood = true;
-    }
-
-    if (SwitchSWOFopen)
-        dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
-    else
-        dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
-    //VJ new average flux over lisem timestep, else last Qn is used
-
-    //  infilInWave(WHrunoff, _dt);
-
-    // calc discharge flux
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
-        Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
-        //Q->Drc = Qn->Drc; // just to be sure
-    }}
-
-    Boundary2Ddyn();  // do the domain boundaries
-
-    // calc discharge flux after boundary
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double WHR = WHrunoff->Drc;
@@ -260,14 +218,59 @@ void TWorld::OverlandFlow2Ddyn(void)
 
         if (SwitchErosion) {
             double sed = (SSFlood->Drc + BLFlood->Drc);
-            Conc->Drc =  MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, &sed, &DepFlood->Drc);
-            //TODO: conc here also because of output
+            //Conc->Drc =  MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, sed);
+            Conc->Drc =  MaxConcentration(WaterVolall->Drc, sed);
+
             Qsn->Drc = Conc->Drc*Qn->Drc;
         }
 
     }}
+}
 
-   // FloodMaxandTiming(hmxWH, minReportFloodHeight);
+
+/**
+ * @fn void TWorld::OverlandFlow2Ddyn()
+ * @brief Does 2D flow, calling SWOF functions, WHrunoff
+ *
+ * @return void
+  */
+void TWorld::OverlandFlow2Ddyn(void)
+{
+    double dtOF = 0;
+
+    ChannelOverflow(WHrunoff, V);
+    // Mixing of 2D runoff with channel water, V is used to determine how much flows into the channel
+    // after this new ChannelHW and WHrunoff, and Susp sediment values ChannelSSSed and SSFlood->Drc
+
+    startFlood = false;
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV {
+        if (WHrunoff->Drc > HMIN)
+            startFlood = true;
+    }
+
+    if (SwitchSWOFopen)
+        dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
+    else
+        dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
+    //VJ new average flux over lisem timestep, else last Qn is used
+
+    //  infilInWave(WHrunoff, _dt);
+
+    // calc discharge flux
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        V->Drc = sqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
+        Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
+        //Q->Drc = Qn->Drc; // just to be sure
+    }}
+
+    Boundary2Ddyn();  // do the domain boundaries for Q, h and sediment
+
+    updateWHandHmx();
+    // update all water levels and volumes and calculate partition flood and runoff for output
+
+    FloodMaxandTiming();
 
     TIMEDB(QString("Average dynamic timestep in flooded cells (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));
     // some screen error reporting
@@ -298,7 +301,7 @@ void TWorld::OverlandFlow1D(void)
         if (SwitchErosion) {
             // calc seediment flux going in kin wave as Qs = Q*C
             Qsn->Drc = 0.0;
-            Conc->Drc = MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, &Sed->Drc, &DEP->Drc); // MC - Nothing new since flowdetachment??
+            Conc->Drc = MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, Sed->Drc);
             Qs->Drc =  Q->Drc * Conc->Drc;
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
         }
@@ -354,7 +357,7 @@ void TWorld::OverlandFlow1D(void)
         WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
 
         if (SwitchErosion)
-             Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
+             Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
     }}
 
     //      routing of substances add here!
