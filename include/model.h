@@ -54,6 +54,7 @@
 #define PI 3.14159265
 
 #define HMIN 1e-6
+#define DO_SEDDEP 0
 
 #define DEBUG(s) emit debug(QString(s))
 #define TIMEDB(s) emit timedb(QString(s))
@@ -703,7 +704,7 @@ public:
     void maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     void dynOutflowPoints(void);
     void OverlandFlow2Ddyn(void);
-    void SolveDeepWH(void);
+    void updateWHandHmx(void);
     void Boundary2Ddyn();
     void MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v);
@@ -823,7 +824,7 @@ public:
     double GetTotalDW(int r, int c,QList<cTMap *> *M);
     double GetSV(double d);
     void SplashDetachment();
-    double MaxConcentration(double watvol, double *sedvol, double *dep);
+    double MaxConcentration(double watvol, double sedvol);
     void ChannelFlowDetachmentNew();
 
 
@@ -931,6 +932,7 @@ public:
     void ChannelRainandInfil();
     void ChannelSedimentFlow();
     void ChannelFlowandErosion();
+    void ChannelVelocityandDischarge();
 
     void GroundwaterRecharge();
     void GroundwaterFlow();

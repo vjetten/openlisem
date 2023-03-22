@@ -456,7 +456,7 @@ void TWorld::Totals(void)
         {
             double sedall = Sed->Drc + (SwitchUse2Phase ? BLFlood->Drc : 0.0) + SSFlood->Drc +  (SwitchIncludeChannel ? ChannelSed->Drc : 0.0);
             double waterall = WaterVolall->Drc + (SwitchIncludeChannel ? ChannelWaterVol->Drc : 0.0);
-            TotalConc->Drc = MaxConcentration(waterall ,&sedall, NULL);
+            TotalConc->Drc = MaxConcentration(waterall ,sedall);
             // for output
 
             // set to zero for next loop
