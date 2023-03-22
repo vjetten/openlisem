@@ -450,10 +450,7 @@ void TWorld::InitStandardInput(void)
     }
     nrValidCellsLDD5 = crldd5_.size();
 
-  //  if (SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
     crlinkedldd_ = MakeLinkedList(LDD);
-
-
 
     DEM = ReadMap(LDD, getvaluename("dem"));
 
