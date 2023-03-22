@@ -948,7 +948,7 @@ void TWorld::ReportMapSeries(void)
         report(*Qoutput, Outrunoff);
 //    // discharge per timestep and cell - part of all-fluxes-out
 //    report(*Q, OutQ);
-//    report(*Qn, OutQn);
+    report(*Qn, OutQn);
 //    report(*QinAFO, OutQinKW);
 //    // infiltration for each timestep part of all-fuxes-out
 //    report(*InfilVol, Outinfilvol);
