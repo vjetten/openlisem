@@ -143,7 +143,7 @@ void TWorld::cell_SplashDetachment(int r, int c)
 
     DETSplash->Drc = 0;
 
-    if(_WH > 0.00001 && SplashStrength->Drc >= 0)
+    if(_WH > HMIN && SplashStrength->Drc >= 0)
     {
         double DetDT1 = 0, DetDT2 = 0, DetLD1, DetLD2;
         double g_to_kg = 0.001;
@@ -348,14 +348,13 @@ void TWorld::cell_FlowDetachment(int r, int c)
     // trasnport capacity. 2 = kin wave. 1 = 2d flow and 0 is river
 
     if (erosionwh < HMIN) {
-        DEP->Drc += -Sed->Drc;
-        Sed->Drc = 0;
-        Conc->Drc = 0;
-        TC->Drc = 0;
+        if(DO_SEDDEP == 1) {
+            DEP->Drc += -Sed->Drc;
+            Sed->Drc = 0;
+            Conc->Drc = 0;
+            TC->Drc = 0;
+        }
     } else {
-
-       // Conc->Drc = MaxConcentration(erosionwv, Sed->Drc);
-
         double maxTC = 0;
         double minTC = 0;
 
@@ -374,9 +373,6 @@ void TWorld::cell_FlowDetachment(int r, int c)
             //### deposition
             TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/erosionwh)) * erosionwv;
             // in m3
-            // if settl velo is very small, transportfactor is 0 and depo is 0
-            // if settl velo is very large, transportfactor is 1 and depo is max
-
             // deposition can occur on roads and on soil (so use flowwidth)
 
             deposition = minTC * TransportFactor;
@@ -411,7 +407,8 @@ void TWorld::cell_FlowDetachment(int r, int c)
             if (SwitchUseMaterialDepth)
                 StorageDep->Drc += -deposition;
 
-        } else {
+        } else
+            if (maxTC > 0 && Y->Drc > 0) {
             //### detachment
 
             TransportFactor = _dt*SettlingVelocitySS->Drc * DX->Drc * SoilWidthDX->Drc;
@@ -420,7 +417,7 @@ void TWorld::cell_FlowDetachment(int r, int c)
             // detachment can only come from soil, not roads (so do not use flowwidth)
             // units s * m/s * m * m = m3
 
-            detachment = maxTC * std::min(TransportFactor, erosionwv);
+            detachment = maxTC * TransportFactor;//std::min(TransportFactor, erosionwv);
             // unit = kg/m3 * m3 = kg (/cell)
 
             // exceptions

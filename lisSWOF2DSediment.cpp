@@ -533,8 +533,9 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
         double deposition = 0;
         double detachment = 0;
 
-        if(h->Drc < MIN_HEIGHT)
+        if(h->Drc < HMIN)
         {
+            if(DO_SEDDEP == 1) {
             //set all to zero when the water height is zero
             if (SwitchUse2Phase) {
                 DepFlood->Drc += -BLFlood->Drc;
@@ -551,7 +552,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
             if(SwitchUseMaterialDepth) {
                 StorageDep->Drc += -deposition;
             }
-
+        }
         } else {
             // there is water
 
@@ -606,7 +607,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                     StorageDep->Drc += -deposition;
 
             } else
-                if (Y->Drc > 0) {
+                if (maxTC > 0 && Y->Drc > 0) {
                     //TransportFactor = dt * TSettlingVelocitySS * CHAdjDX->Drc;
                     TransportFactor = dt * TSettlingVelocitySS * SoilWidthDX->Drc * DX->Drc;
                     // m3, detachment only erosion on soilwidth
@@ -720,7 +721,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                             StorageDep->Drc += -deposition;
                         }
                     } else
-                    if (Y->Drc > 0) {
+                    if (maxTC > 0 && Y->Drc > 0) {
                         //### detachment
                         // detachment can only come from soil, not roads (so do not use flowwidth)
                         // units s * m/s * m * m = m3

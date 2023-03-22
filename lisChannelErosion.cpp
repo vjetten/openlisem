@@ -120,23 +120,24 @@ void TWorld::ChannelFlowDetachmentNew()
         double minTC = 0;
 
         //when waterheight is insignificant, deposite all remaining sediment
-        if(ChannelWH->Drc < MIN_HEIGHT)
+        if(ChannelWH->Drc < HMIN)
         {
-            deposition += -SS;
-            ChannelSSConc->Drc = 0;
-            ChannelSSSed->Drc = 0;
-            ChannelSSTC->Drc = 0;
+            if(DO_SEDDEP == 1) {
+                deposition += -SS;
+                ChannelSSConc->Drc = 0;
+                ChannelSSSed->Drc = 0;
+                ChannelSSTC->Drc = 0;
 
-            if (SwitchUse2Phase) {
-                deposition = -BL;
-                ChannelBLConc->Drc = 0;
-                ChannelBLSed->Drc = 0;
-                ChannelBLTC->Drc = 0;
+                if (SwitchUse2Phase) {
+                    deposition = -BL;
+                    ChannelBLConc->Drc = 0;
+                    ChannelBLSed->Drc = 0;
+                    ChannelBLTC->Drc = 0;
+                }
+
+                ChannelSed->Drc = 0;
+                ChannelDep->Drc += deposition;
             }
-
-            ChannelSed->Drc = 0;
-            ChannelDep->Drc += deposition;
-
         } else {
             //there is water
 
@@ -156,7 +157,7 @@ void TWorld::ChannelFlowDetachmentNew()
 
             } else
                 //  detachment
-                if(ChannelY->Drc > 0){
+                if(maxTC > 0 && ChannelY->Drc > 0){
 
                     TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
                     //TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
@@ -202,7 +203,7 @@ void TWorld::ChannelFlowDetachmentNew()
                     maxTC = std::max(BLTC - BLC,0.0);
                     minTC = std::min(BLTC - BLC,0.0);
 
-                    if (maxTC > 0) {
+                    if (maxTC > 0 && ChannelY->Drc > 0) {
                         //### detachment
                         TransportFactor = _dt*TSettlingVelocityBL * ChannelDX->Drc * ChannelWidth->Drc;
                         //TransportFactor = std::min(TransportFactor, bldischarge*_dt);
@@ -307,14 +308,14 @@ void TWorld::RiverSedimentMaxC(int r, int c)
  */
 void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
 {
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, _SS->Drc);
     }}
 
-//diffusion of Suspended Sediment layer
-//#pragma omp parallel for num_threads(userCores)
-FOR_ROW_COL_MV_CH {
+    //diffusion of Suspended Sediment layer
+    //#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CH {
 
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, -1, -1, -1, 0, 0, 0, 1, 1, 1};
@@ -413,13 +414,13 @@ FOR_ROW_COL_MV_CH {
     }
 }
 
-//recalculate concentrations
-#pragma omp parallel for num_threads(userCores)
-FOR_ROW_COL_MV_CHL {
-    //set concentration from present sediment
-    _SS->Drc = std::max(0.0,_SS->Drc);
-    _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, _SS->Drc);
-}}
+    //recalculate concentrations
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        //set concentration from present sediment
+        _SS->Drc = std::max(0.0,_SS->Drc);
+        _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, _SS->Drc);
+    }}
 }
 
 //---------------------------------------------------------------------------
@@ -445,8 +446,8 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
     double factor = 0.5;
     double R = (ChannelWidth->Drc * ChannelWH->Drc)/(ChannelWH->Drc * 2 + ChannelWidth->Drc);
 
-    if(!SwitchUseGrainSizeDistribution)
-    {
+  //  if(!SwitchUseGrainSizeDistribution)
+  //  {
         //if a two phase system is modelled, calculate thickness of layer
         double d50m = (D50->Drc/1000000.0);
         double d90m = (D90->Drc/1000000.0);
@@ -459,5 +460,5 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
         ChannelBLDepth->Drc = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), factor*ChannelWH->Drc), 0.1);
         ChannelSSDepth->Drc = std::max(ChannelWH->Drc - ChannelBLDepth->Drc,0.0);
 
-    }
+  //  }
 }

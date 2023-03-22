@@ -54,6 +54,7 @@
 #define PI 3.14159265
 
 #define HMIN 1e-6
+#define DO_SEDDEP 0
 
 #define DEBUG(s) emit debug(QString(s))
 #define TIMEDB(s) emit timedb(QString(s))
