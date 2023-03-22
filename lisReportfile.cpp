@@ -948,7 +948,7 @@ void TWorld::ReportMapSeries(void)
         report(*Qoutput, Outrunoff);
 //    // discharge per timestep and cell - part of all-fluxes-out
 //    report(*Q, OutQ);
-//    report(*Qn, OutQn);
+    report(*Qn, OutQn);
 //    report(*QinAFO, OutQinKW);
 //    // infiltration for each timestep part of all-fuxes-out
 //    report(*InfilVol, Outinfilvol);
@@ -969,7 +969,6 @@ void TWorld::ReportMapSeries(void)
     // velovity m/s
     if (SwitchOutvelo)
         report(*V, Outvelo);
-//        report(*COMBO_VOFCH, Outvelo);
 
     // infiltration mm
     if (SwitchOutinf)
@@ -1387,7 +1386,7 @@ void TWorld::ClearHydrographData()
 }
 //---------------------------------------------------------------------------
 // include all totals!!!
-
+// trial, dump all values to restart run where it crashed
 void TWorld::ReportDump(void)
 {
     dumpDir = inputDir + "/Dump/";
@@ -1425,7 +1424,7 @@ void TWorld::ReportDump(void)
 
     report(*WaterVolall,dumpDir+"WaterVolall.map");
     report(*FloodWaterVol,dumpDir+"FloodWaterVol.map");
-    report(*WaterVolall,dumpDir+"WaterVolall.map");
+
 
     if (SwitchIncludeChannel)
     {

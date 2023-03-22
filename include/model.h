@@ -145,7 +145,7 @@
 #define MIN_HEIGHT 1e-6 /// \def minimum water height (m) for transport of sediment
 #define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MAXCONCBL 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
-#define MIN_SLOPE 1e-6
+#define MIN_SLOPE 1e-3
 #define tiny 1e-6
 
 #define INFIL_NONE 0
@@ -181,8 +181,8 @@
 #define RWUWANGJIA 3
 
 #define K2D_METHOD_KIN   1
-#define K2D_METHOD_KINDYN  2
-#define K2D_METHOD_DYN   3
+#define K2D_METHOD_KINDYN  3
+#define K2D_METHOD_DYN   2
 
 
 //---------------------------------------------------------------------------

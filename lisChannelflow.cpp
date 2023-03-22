@@ -219,11 +219,6 @@ void TWorld::ChannelFlow(void)
         FOR_ROW_COL_MV_CHL {
             //  ChannelQ->Drc = ChannelQn->Drc;  // NOT because needed in erosion!
 
-//                // q = va = C*R^2/3 *hw ~ Cw* h^5/3  C = sqrt(S)/n
-//                //H = (q/Cw)^3/5
-//                double wh = std::pow(ChannelQn->Drc/(ChannelWidth->Drc*sqrt(ChannelGrad->Drc)/ChannelNcul->Drc),3.0/5.0);
-//                ChannelWaterVol->Drc = wh*ChannelWidth->Drc*ChannelDX->Drc;
-
             ChannelWaterVol->Drc += (QinKW->Drc - ChannelQn->Drc)*_dt;
             ChannelWaterVol->Drc = std::max(0.0,ChannelWaterVol->Drc);
             // vol is previous + in - out

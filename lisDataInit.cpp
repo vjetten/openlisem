@@ -451,7 +451,7 @@ void TWorld::InitStandardInput(void)
     nrValidCellsLDD5 = crldd5_.size();
 
   //  if (SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
-        crlinkedldd_ = MakeLinkedList(LDD);
+    crlinkedldd_ = MakeLinkedList(LDD);
 
 
 
@@ -489,26 +489,7 @@ void TWorld::InitStandardInput(void)
 
     if (SwitchBuffers) {
         Buffers = ReadMap(LDD, getvaluename("buffers"));
-//        BufferNr = ReadMap(LDD, getvaluename("buffernr"));
-//        nrBuffers = countUnits(*BufferNr) - 1; // non zero
-
-//        //QVector <double> bufferarea;
-//        bufferarea.clear();
-//        for(int i = 1; i <= nrBuffers; i++) {
-//            double area = 0;
-//            BUFFER_LIST bl;
-//            FOR_ROW_COL_MV {
-//                if (i == (int)BufferNr->Drc)
-//                    area += _dx*_dx;
-//            }
-//            bl.area = area;
-//            bl.ID = i;
-//            bl.h = 0;
-//            bufferarea << bl;
-//        }
- //       cover(*Buffers, *LDD,0);
         calcMap(*DEM, *Buffers, ADD);
-
     } 
 
     int cnt = 0;
@@ -547,7 +528,7 @@ void TWorld::InitStandardInput(void)
         ErrorString = QString("Outpoint.map has no values above 0. Copy at least outlet(s).");
         throw 1;
     }
-SwitchUseIDmap = true;
+    SwitchUseIDmap = true;
 /// TODO   !!!!!!!!!!!!!!!
     if (SwitchRainfall && !SwitchRainfallSatellite)
     {
@@ -650,10 +631,10 @@ void TWorld::InitLULCInput(void)
         HardSurface = NewMap(0);
 
     RoadWidthHSDX = NewMap(0);
+    if (SwitchRoadsystem || SwitchHardsurface)
     FOR_ROW_COL_MV {
-        double frac = std::min(1.0,(HardSurface->Drc*_dx + RoadWidthDX->Drc)/_dx);
+        //double frac = std::min(1.0,(HardSurface->Drc*_dx + RoadWidthDX->Drc)/_dx);
         RoadWidthHSDX->Drc = std::min(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
-        N->Drc = N->Drc * (1-frac) + 0.015*frac;
     }
 
 }
@@ -663,7 +644,7 @@ void TWorld::InitSoilInput(void)
     LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
 
     //## infiltration data
-    if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE)
+    if(/*InfilMethod != INFIL_NONE &&*/ InfilMethod != INFIL_SWATRE)
     {
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
         bca1 = NewMap(0);
@@ -1895,15 +1876,13 @@ void TWorld::IntializeData(void)
     }
 
     //combination display
-    COMBO_QOFCH = NewMap(0);
-    COMBO_VOFCH = NewMap(0);
     COMBO_SED = NewMap(0);
     COMBO_SS = NewMap(0);
     COMBO_BL = NewMap(0);
     COMBO_TC = NewMap(0);
-    extQCH = NewMap(0);
-    extVCH = NewMap(0);
-    extWHCH = NewMap(0);
+//    extQCH = NewMap(0);
+//    extVCH = NewMap(0);
+//    extWHCH = NewMap(0);
 
     //### rainfall and interception maps
     BaseFlowTot = 0;
@@ -2012,12 +1991,12 @@ void TWorld::IntializeData(void)
         calcValue(*RoofStore, 0.001, MUL);
         // from mm to m
         DrumStore = ReadMap(LDD,getvaluename("drumstore"));
-        if (SwitchHardsurface) {
-            FOR_ROW_COL_MV {
-                if (HouseCover->Drc == 1)
-                    HardSurface->Drc = 0;
-            }
-        }
+//        if (SwitchHardsurface) {
+//            FOR_ROW_COL_MV {
+//                if (HouseCover->Drc == 1)
+//                    HardSurface->Drc = 0;
+//            }
+//        }
 
         AddBuildingFraction = 0;
         if (SwitchAddBuildingsDEM) {
@@ -2035,14 +2014,14 @@ void TWorld::IntializeData(void)
     else
         HouseCover = NewMap(0);
 
-    HouseWidthDX = NewMap(0);
-    FOR_ROW_COL_MV
-    {
-        HouseWidthDX->Drc = std::min(_dx,  HouseCover->Drc *_dx);
-        // assume there is always space next to house
-        //N->Drc = N->Drc * (1-HouseCover->Drc) + 0.25*HouseCover->Drc;
-        // moved to cell
-    }
+//    HouseWidthDX = NewMap(0);
+//    FOR_ROW_COL_MV
+//    {
+//        HouseWidthDX->Drc = std::min(_dx,  HouseCover->Drc *_dx);
+//        // assume there is always space next to house
+//        //N->Drc = N->Drc * (1-HouseCover->Drc) + 0.25*HouseCover->Drc;
+//        // moved to cell
+//    }
 
     SoilETMBcorrection = 0;
     //### infiltration maps
@@ -2136,6 +2115,7 @@ void TWorld::IntializeData(void)
     WHrunoff = NewMap(0);
     WHmax = NewMap(0);
     WHstore = NewMap(0);
+    MicroStoreVol = NewMap(0);
     WHroad = NewMap(0);
     //WHGrass = NewMap(0);
     FlowWidth = NewMap(0);
@@ -2706,9 +2686,6 @@ void TWorld::FindBaseFlow()
     BaseFlowInit = MapTotal(*BaseFlowInitialVolume);
 
 }
-
-
-
 //---------------------------------------------------------------------------
 void TWorld::FindChannelAngles()
 {
@@ -2718,8 +2695,6 @@ void TWorld::FindChannelAngles()
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
     fill(*tma, -1);
-
-    //    QList <double> aa;
 
     for (int rr = 0; rr < _nrRows; rr++)
         for (int cr = 0; cr < _nrCols; cr++) {

@@ -501,8 +501,8 @@ void lisemqt::setFloodTab(bool yes)
         yes = false;
     }
 
-   // tabWidgetOptions->setTabEnabled(5, yes);
-    //frame_diffwave->setEnabled(checkOverlandFlow2D->isChecked());
+    checkDiffusion->setEnabled(!checkOverlandFlow1D->isChecked());
+
     FloodParams->setEnabled(yes);
 
     outputMapsFlood->setEnabled(yes);
@@ -523,24 +523,6 @@ void lisemqt::setFloodTab(bool yes)
 //--------------------------------------------------------------------
 void lisemqt::setErosionTab()
 {
- //   tabWidgetOptions->setTabEnabled(4, checkDoErosion->isChecked());
-
-//    int i1 = E_RBLMethod->value(); //river
-//    int i2 = E_RSSMethod->value();
-
-//    int i3 = E_BLMethod->value(); //OF
-//    int i4 = E_SSMethod->value();
-
-//    E_RBLMethod->setValue(0);
-//    E_RSSMethod->setValue(0);
-//    E_BLMethod->setValue(0);
-//    E_SSMethod->setValue(0);
-
-//    E_RBLMethod->setValue(i1);
-//    E_RSSMethod->setValue(i2);
-//    E_BLMethod->setValue(i3);
-//    E_SSMethod->setValue(i4);
-
     //  yes = checkDoErosion->isChecked();
     outputMapsSediment->setEnabled(checkDoErosion->isChecked());
 
@@ -557,6 +539,8 @@ void lisemqt::setErosionTab()
     ComboMinSpinBox2->setEnabled(checkDoErosion->isChecked());
     ComboMaxSpinBox2->setEnabled(checkDoErosion->isChecked());
     DisplayComboBox2->setEnabled(checkDoErosion->isChecked());
+
+    checkDiffusion->setEnabled(!checkOverlandFlow1D->isChecked());
 
     // reset output to 0
     if (!checkDoErosion->isChecked())
