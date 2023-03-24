@@ -82,18 +82,18 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
             bool dosimpel = false;
 
-            for (int i = 0; i < 5; i++) // do the flow twice as a kind of iteration
-          //  if (dH > 0)
+            for (int i = 0; i < 2; i++) // do the flow twice as a kind of iteration
+            if (dH > 0)
             {
                 dH = std::max(0.0, (ChannelWH->Drc-chdepth));
 
                 if (dH > _h->Drc)   // flow from channel
                 {
-                    //double VfromChan =  0.5*(V->Drc*ChannelV->Drc);//V->Drc;//
                     //sqrt(2*GRAV*dH); //Bernoulli
-                    // less error than bernoulli
                     //see https://www.engineeringtoolbox.com/velocity-head-d_916.html
-                    double frac = std::min(1.0, _dt*Vavg/(0.5*ChannelAdj->Drc));
+
+                    //Vavg = ChannelV->Drc;
+                    double frac = std::min(1.0, _dt*Vavg/(0.5*ChannelAdj->Drc));//_dx));//
                     //double dwh =  (dH-_h->Drc) * frac;
                     double dwh =  dH * frac;
                     // amount flowing from channel
@@ -122,9 +122,9 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                 }
                 else   // flow to channel, dH can be 0 = channel wh below edge
                 {
-                    //double VtoChan =  V->Drc;//0.5*(V->Drc*ChannelV->Drc);//
-                    // fraction from _h to channel based on average flood velocity
-                    double frac = std::min(1.0, _dt* Vavg/(0.5*ChannelAdj->Drc));
+                    Vavg = V->Drc;
+
+                    double frac = std::min(1.0, _dt* Vavg/(0.5*ChannelAdj->Drc));//_dx));//
                     double dwh = _h->Drc * frac;
 
                     if (dH + dwh/cwa > _h->Drc-dwh) {
