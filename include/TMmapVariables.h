@@ -207,6 +207,7 @@ cTMap
 *pmwdep,                    //!< mass of deposited pesticide [mg]
 *pmwdet,                     //!< mass of detatched pesticide [mg]
 *WVji1,                     //!< water volume in cell at j, i+1 [m3]
+*SedMassIn,                  //!< sediment mass in to kinematic wave [kg]
 *test_map,
 
 

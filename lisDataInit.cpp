@@ -2227,6 +2227,7 @@ void TWorld::IntializeData(void)
             Qps = NewMap(0);
             pmsdet = NewMap(0);
             pmsdep = NewMap(0);
+            SedMassIn = NewMap(0);
         }
 
         // total masses

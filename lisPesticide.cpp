@@ -237,7 +237,7 @@ void TWorld::PesticideDynamics(void)
 
     //erosion
     if(SwitchErosion){
-        KinematicPestAdsorbed(crlinkedldd_, LDD, Qsn, PQrs, DX, Alpha, Sed,
+        KinematicPestAdsorbed(crlinkedldd_, LDD, Qsn, PQrs, DX, Alpha, SedMassIn,
                               Qs, Qps, rho);
     }
     // calculate new concentration
@@ -565,14 +565,13 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 
     }
 
-    if (_Sed->Drc > 0) { // more than 0.01 gram _Qsn->Drc + Sin
+    if (_Sed->Drc > 0) { //
         // positive = erosion, negative = deposition
         double eMass = (DEP->Drc + DETFlow->Drc + DETSplash->Drc); //kg/cell
 
         // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
         Crs_avg = (PMrs->Drc + (SpinKW->Drc * _dt))
-                  / (_Sed->Drc - eMass + (SinKW->Drc * _dt));
-        // substract eMass from _Sed for a more accurate concentration.
+                  / (_Sed->Drc + (SinKW->Drc * _dt));
         // calculate erosion depth, no time component, per timestep
         // For now only use SoilWidth in formulas. Check what is done with deposition on roads.
         // Can this be eroded after deposition or not?
@@ -651,7 +650,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
                 // Crs
                 // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
                 int_Crs_avg = (int_Mrs + (SpinKW->Drc * dt_int))
-                              / (_Sed->Drc - eMass + (SinKW->Drc * dt_int));
+                              / (_Sed->Drc + (SinKW->Drc * dt_int));
                 // erosion or deposition
                 if (int_eMass < 0) {
                     //deposition
@@ -705,7 +704,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         // mg = mg sec-1 * sec
         PMrs->Drc = std::max(0.0, PMrs->Drc - (_Qpsn->Drc * _dt)
                                       + (SpinKW->Drc * _dt) + msrm_ex);
-        PCrs->Drc = PMrs->Drc / _Sed->Drc;
+        PCrs->Drc = std::min(PMrs->Drc / Sed->Drc, 1000000.0); // divide by Sed after kin wave!!!
         // adjust lower soil layer
         PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);
         zs->Drc -= Ez->Drc;
