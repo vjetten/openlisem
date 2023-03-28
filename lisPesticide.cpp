@@ -629,10 +629,10 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
             dt_int = _dt / steps;
 
             // fill intermediate concentrations and masses
-            double int_Qpsn, int_Cms, int_Crs, int_Crs_avg; //
-            double int_Mrs, int_Mms, int_msrm_ex, int_msoil_ex; //
+            double int_Qpsn {0.0}, int_Cms {0.0}, int_Crs {0.0}, int_Crs_avg {0.0}; //
+            double int_Mrs {0.0}, int_Mms {0.0}, int_msrm_ex {0.0}, int_msoil_ex {0.0}; //
             double sum_int_msrm_ex {0.0}, sum_int_Qpsn {0.0}, sum_int_msoil_ex {0.0};
-            double int_Ez, int_eMass, int_Cs, int_zs, int_Msoil;
+            double int_Ez {0.0}, int_eMass {0.0}, int_Cs {0.0}, int_zs {0.0}, int_Msoil {0.0};
 
             int_Cms = PCms->Drc;
             int_Mrs = PMrs->Drc;
