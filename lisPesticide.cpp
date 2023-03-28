@@ -421,8 +421,8 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
             dt_int = _dt / steps;
 
             // fill intermediate concentrations and masses
-            double int_Qpw, int_Qpwn, int_Cmw, int_Crw, int_Crw_avg; //
-            double int_Mrw, int_Mmw, int_mwrm_ex, int_mrw_inf; //
+            double int_Qpw {0.0}, int_Qpwn {0.0}, int_Cmw {0.0}, int_Crw {0.0}, int_Crw_avg {0.0}; //
+            double int_Mrw {0.0}, int_Mmw {0.0}, int_mwrm_ex {0.0}, int_mrw_inf {0.0}; //
             double sum_int_mwrm_ex {0.0}, sum_int_Qpwn {0.0}, sum_int_mrw_inf {0.0};
 
             int_Qpw = _Qpw->Drc;
@@ -556,7 +556,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     double msrm_ex {0.0};   // mass exchange between mixing layer an suspended sediment
 
     //no erosion - add leftover of mass to mixing layer
-    if (_Sed->Drc < tiny) {
+    if (_Sed->Drc == 0.0) {
         PCrs->Drc = 0.0;        //concentration = 0
         PMms->Drc += PMrs->Drc; //add any leftover mass to mixing layer
         pmsdep->Drc -= PMrs->Drc;
@@ -565,7 +565,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 
     }
 
-    if (_Sed->Drc > tiny) { // more than 0.01 gram _Qsn->Drc + Sin
+    if (_Sed->Drc > 0) { // more than 0.01 gram _Qsn->Drc + Sin
         // positive = erosion, negative = deposition
         double eMass = (DEP->Drc + DETFlow->Drc + DETSplash->Drc); //kg/cell
 
