@@ -209,6 +209,8 @@ cTMap
 *WVji1,                     //!< water volume in cell at j, i+1 [m3]
 *SedMassIn,                  //!< sediment mass in to kinematic wave [kg]
 *PMsplash,                   //!< mass detached adsorbed pesticide by splash erosion [mg]
+*PMflow,                    //!< mass detached adsorbed pesticide by flow detachement[mg]
+*PMdep,                     //!< mass deposited adsorbed pesticide [mg]
 *test_map,
 
 

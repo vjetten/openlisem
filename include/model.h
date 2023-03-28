@@ -842,13 +842,10 @@ public:
     //Pesticides
     void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
     double MassPestInitial(void);
-    void KinematicPest(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
-                         cTMap *_Qn, cTMap *_Qsn, cTMap *_Qpwn, cTMap *_Qpsn,
-                         cTMap *_DX, cTMap *_Alpha, cTMap *_Sed,
-                         cTMap *_Q, cTMap *_Qs, cTMap *_Qpw, cTMap *_Qps);
     void InitPesticide(void);
     void PesticideDynamics(void);
     void PesticideSplashDetachment(void);
+    void PesticideFlowDetachment(double rho);
     double PesticidePercolation(double perc, double soildep, double lw,
                                 double zm, double dx, double swdx, double pcmw);
     void KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,

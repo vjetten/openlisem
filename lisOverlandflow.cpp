@@ -61,7 +61,11 @@ void TWorld::OverlandFlow(void)
                 // kine wave based flow detachment
                 SedMassIn->Drc = Sed->Drc;
             }}
+        if (SwitchPest) {
+            PesticideFlowDetachment(rhoPest);
         }
+        }
+
 
         ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
         OverlandFlow1D();   // kinematic wave of water and sediment

@@ -463,7 +463,13 @@ void TWorld::HydrologyProcesses()
     // divided over 12 hours in a day with sine curve
 
     //MoistureContent();
+    // splash detachment for pesticides
+    if (SwitchPest) {
+        if (SwitchErosion) {
+            PesticideSplashDetachment();
 
+        }
+    }
 }
 //---------------------------------------------------------------------------
 
