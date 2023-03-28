@@ -848,6 +848,7 @@ public:
                          cTMap *_Q, cTMap *_Qs, cTMap *_Qpw, cTMap *_Qps);
     void InitPesticide(void);
     void PesticideDynamics(void);
+    void PesticideSplashDetachment(void);
     double PesticidePercolation(double perc, double soildep, double lw,
                                 double zm, double dx, double swdx, double pcmw);
     void KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,

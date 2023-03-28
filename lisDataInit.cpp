@@ -2228,6 +2228,7 @@ void TWorld::IntializeData(void)
             pmsdet = NewMap(0);
             pmsdep = NewMap(0);
             SedMassIn = NewMap(0);
+            PMsplash = NewMap(0);
         }
 
         // total masses

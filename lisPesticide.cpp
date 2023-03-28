@@ -237,6 +237,10 @@ void TWorld::PesticideDynamics(void)
 
     //erosion
     if(SwitchErosion){
+        // splash detachment
+        PesticideSplashDetachment();
+
+        // adsorbed discharge
         KinematicPestAdsorbed(crlinkedldd_, LDD, Qsn, PQrs, DX, Alpha, SedMassIn,
                               Qs, Qps, rho);
     }
@@ -567,7 +571,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 
     if (_Sed->Drc > 0) { //
         // positive = erosion, negative = deposition
-        double eMass = (DEP->Drc + DETFlow->Drc + DETSplash->Drc); //kg/cell
+        double eMass = (DEP->Drc + DETFlow->Drc); //kg/cell
 
         // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
         Crs_avg = (PMrs->Drc + (SpinKW->Drc * _dt))
@@ -757,4 +761,30 @@ double TWorld::QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i, d
     else
         Pj1i1 = 0;
     return std::max(0.0 ,Pj1i1);
+}
+
+//---------------------------------------------------------------------------
+/**
+* @fn double TWorld::PesticideSplashDetachment(;
+* @brief Calculate mass exchange by erosion and deposition with soil
+*/
+
+
+void TWorld::PesticideSplashDetachment() {
+    double msoil_ex {0.0};  // mass exchange between mixing layer and deeper soil
+    FOR_ROW_COL_MV_L{
+        // add mass to pesticide in flow
+        PMsplash->Drc = DETSplash->Drc * PCms->Drc;
+        PMrs->Drc += PMsplash->Drc;
+        //PCrs->Drc = Sed->Drc > 0 ? PMrs->Drc / Sed->Drc : 0.0;
+
+        // update mass and concentration in mixing layer
+        msoil_ex = DETSplash->Drc * PCs->Drc;
+        PMms->Drc = PMms->Drc - PMsplash->Drc + msoil_ex;
+        // adjust lower soil layer
+        PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);
+
+        //mass balance
+        pmsdet->Drc += PMsplash->Drc;
+    }}
 }
