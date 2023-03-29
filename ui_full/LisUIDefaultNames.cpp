@@ -169,10 +169,6 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Pest Soil Depth;pestsoildep1.map;Initial thickness of soil layer 1 containing pesticides [m];pestsoildep1");
     DEFmaps.append("2;Pest Soil Conc;pcsoil1.map;Initial concentrstion of soil layer 1 containing pesticides [m];pcsoil1");
 
-    // example
-    //   DEFmaps.append("0;Pesticides");
-    //   DEFmaps.append("2;Pest Initial;pestinit.map;Inital content bla bla;pestini");
-
 }
 //---------------------------------------------------------------------------
 // fill namelist with default runfile values and structure
@@ -319,9 +315,9 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include storm drains");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include Pesticide MC");
+    namelist[i++].name = QString("Include Pesticide");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Report Pesticide MC");
+    namelist[i++].name = QString("Report Pesticide");
 
     //###
     namelist[i++].name = QString("");
