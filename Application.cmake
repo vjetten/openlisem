@@ -5,9 +5,9 @@ cmake_minimum_required(VERSION 3.9)
 IF(WIN32)
    # NOTE: a branch of QWT is used for double axis display:
    # https://sourceforge.net/p/qwt/code/HEAD/tree/branches/qwt-6.1-multiaxes/
-    SET(QWT_BUILD_DIR "c:/qt/qwt-6.1-ma")          # <= give your own folder names here
-    SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # <= give your own folder names here
-	SET(GDAL_BUILD_DIR "c:/qt/qwt-6.1-ma")
+   SET(QWT_BUILD_DIR "C:/Qwt61ma/qwt-6.1-ma")       # <= give your own folder names here
+   SET(MINGW_BUILD_DIR "C:/msys/mingw64")     		# <= give your own folder names here
+       SET(GDAL_BUILD_DIR "C:/msys/mingw64")
 
     SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
