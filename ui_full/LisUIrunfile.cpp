@@ -377,7 +377,7 @@ void lisemqt::ParseInputData()
 //        }
 
        // PESTICDES
-        if (p1.compare("Kd pesticide")==0)     PE_Kd->setValue(valc);
+      //  if (p1.compare("Kd pesticide")==0)     PE_Kd->setValue(valc);
 
 
 
@@ -1105,7 +1105,7 @@ void lisemqt::updateModelData()
         //VJ 110110 added
 
         //PESTICIDE
-        if (p1.compare("Kd pesticide")==0) namelist[j].value= PE_Kd->text();
+    //    if (p1.compare("Kd pesticide")==0) namelist[j].value= PE_Kd->text();
 
 
 
