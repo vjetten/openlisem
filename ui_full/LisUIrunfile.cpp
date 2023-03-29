@@ -375,6 +375,13 @@ void lisemqt::ParseInputData()
 //            if (p.contains(",")) p.replace(",",";");
 //            E_GrainSizes->setText(p);
 //        }
+
+       // PESTICDES
+        if (p1.compare("Kd pesticide")==0)     PE_Kd->setValue(valc);
+
+
+
+
         //ADVANCED
         if (p1.compare("Advanced Options")==0)                 checkAdvancedOptions->setChecked(check);
       //  if (p1.compare("Calculate erosion inside 2D loop")==0)  checkErosionInsideLoop->setChecked(check);
@@ -1096,6 +1103,12 @@ void lisemqt::updateModelData()
                 namelist[j].value.setNum(2);
         }
         //VJ 110110 added
+
+        //PESTICIDE
+        if (p1.compare("Kd pesticide")==0) namelist[j].value= PE_Kd->text();
+
+
+
 
         // make a string for all output maps
 

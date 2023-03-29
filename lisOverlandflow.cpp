@@ -68,7 +68,7 @@ void TWorld::OverlandFlow(void)
         if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
             ChannelFlood();
             // st venant channel 2D flooding from channel, only for kyn wave
-    }
+        }
     }
 
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
