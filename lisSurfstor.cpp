@@ -36,6 +36,7 @@ functions: \n
 
 #include <algorithm>
 #include "model.h"
+#define tiny 1e-8
 
 
 //---------------------------------------------------------------------------
@@ -44,43 +45,81 @@ void TWorld::GridCell()
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double dxa = _dx;
+    double HouseWidthDX_ = HouseCover->Drc*_dx;
 
         if(SwitchIncludeChannel && ChannelWidth->Drc > 0) {
-            dxa = std::max(0.05, _dx - ChannelWidth->Drc);
-            // use adjusted channelwidth here to avoid negative adj
-            //        dxa = std::max(0.05, _dx - ChannelWidthExtended->Drc);
-
-           // if (SwitchCulverts)
-             //   dxa = _dx;   //als culvert dan geen channelwidth want channel ondergonds
-            // gives maybe large mass balance error ????
+          dxa = _dx - ChannelWidth->Drc;
+                  //std::max(0.05, _dx - ChannelWidth->Drc);
         }
 
         ChannelAdj->Drc = dxa;
         CHAdjDX->Drc = dxa*DX->Drc;
 
-        //HouseWidthDX->Drc = std::min(dxa*0.95, HouseWidthDX->Drc);
-
+      // adjust houses to cell with channels
+      HouseWidthDX_ = std::min(dxa,  HouseWidthDX_);
+              //std::min(dxa, HouseWidthDX_);
         // adjust roads+hardsurf to cell with channels
-        RoadWidthHSDX->Drc = std::min(dxa-HouseWidthDX->Drc, RoadWidthHSDX->Drc);
+      RoadWidthHSDX->Drc = std::min(dxa, RoadWidthHSDX->Drc);
         // decrease roadwidth if roads + houses > dx-channel
-        SoilWidthDX->Drc = dxa-RoadWidthHSDX->Drc;
-        //soil is dx - roads+hardsurf - channels but including houses
-        //water can infiltrate over soilwidth,
+      HouseWidthDX_ = std::min(dxa-RoadWidthHSDX->Drc , HouseWidthDX_);
+              //std::min(dxa-RoadWidthHSDX->Drc, HouseWidthDX_);
+      // you cannot have houses and a road larger than a pixel
+  //    SoilWidthDX->Drc = std::max(0.0,dxa - RoadWidthHSDX->Drc - HouseWidthDX_);
+      SoilWidthDX->Drc = dxa - RoadWidthHSDX->Drc;
+      // including houses in soilwidth gives large MB errors! WHY!!!
 
+      HouseCover->Drc = HouseWidthDX_/_dx;
+      //houses are impermeable in ksateff so do have to be done here, with high mannings n, but allow flow
 
-        //HouseWidthDX->Drc = std::min(dxa*0.95, HouseWidthDX->Drc);
-        HouseWidthDX->Drc = std::min((dxa-RoadWidthHSDX->Drc)*0.95, HouseWidthDX->Drc);
-        // you cannot have houses and a road larger than a pixel
-        HouseCover->Drc = HouseWidthDX->Drc/_dx;
+      N->Drc = N->Drc + 1.0*HouseCover->Drc; // N is 1 for a house, very high resistance
+      // adjust man N
+
+      FlowWidth->Drc = ChannelAdj->Drc;//is the same as SoilWidthDX->Drc + RoadWidthHSDX->Drc;
+      //FlowWidth->Drc = SoilWidthDX->Drc + RoadWidthHSDX->Drc + HouseWidthDX_;
+    }}
+//report(*HouseCover,"hc.map");
+//report(*SoilWidthDX,"sw.map");
+//report(*RoadWidthHSDX,"rw.map");
+//report(*FlowWidth,"fw.map");
+
+ /*
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        double dxa = _dx; // dxa is dx minus the channel
+
+        if(SwitchIncludeChannel && ChannelWidth->Drc > 0) {
+            dxa = _dx - ChannelWidth->Drc; // channelwidth is limited to 0.95*dx in datainit
+        }
+
+        ChannelAdj->Drc = dxa; // dx besides the channel
+        CHAdjDX->Drc = dxa*DX->Drc; // surface next to the channel
+
+        double HouseWidthDX_ = HouseCover->Drc*_dx;
+        HouseWidthDX_ = std::min(0.95*dxa, HouseWidthDX_);
+        // adjust houses to the space adjacent to the channel with a little bit of open space, channels have precedence
+        HouseCover->Drc = HouseWidthDX_/_dx;
         //houses are impermeable in ksateff so do have to be done here, with high mannings n, but allow flow
 
+        RoadWidthHSDX->Drc = std::min(dxa-HouseWidthDX_, RoadWidthHSDX->Drc);
+        // adjust roads+hardsurf to cell with channels and houses.
+
+        SoilWidthDX->Drc = std::max(0.0, dxa-RoadWidthHSDX->Drc-HouseWidthDX_);
+        //soil is dx - roads+hardsurf - houses - channels
+        //water can infiltrate over soilwidth
+
         N->Drc = N->Drc * (1-HouseCover->Drc) + 1.0*HouseCover->Drc; // N is 1 for a house, very high resistance
-        // adjust man N
+        // adjust man N to houses, rougher
+        N->Drc = N->Drc * (1-RoadWidthHSDX->Drc/_dx) + 0.015*(RoadWidthHSDX->Drc/_dx);
+        // adjust man N to roads, smoother Mannings n of asphalt is 0.015
 
         FlowWidth->Drc = ChannelAdj->Drc;//is the same as SoilWidthDX->Drc + RoadWidthHSDX->Drc;
+       // FlowWidth->Drc = SoilWidthDX->Drc + RoadWidthHSDX->Drc;
+
+        // water can flow in houses but very high manning's n, or houses are part of the dem and then there is no problem anyway
+       // FlowWidth->Drc = SoilWidthDX->Drc + RoadWidthHSDX->Drc;
 
     }}
-
+*/
     if (SwitchFloodInitial) {
         WHinitVolTot = 0;
         FOR_ROW_COL_MV_L {
@@ -149,23 +188,27 @@ void TWorld::SurfaceStorage()
 }
 //---------------------------------------------------------------------------
 void TWorld::cell_SurfaceStorage(int r, int c)
-{
+{    
     double wh = WH->Drc;
     double SW = SoilWidthDX->Drc;
     double RW = RoadWidthHSDX->Drc;
     double WHr = WHroad->Drc;
-    double WHs = std::min(wh, MDS->Drc*(1-exp(-1.875*(wh/std::max(0.005,0.01*RR->Drc)))));
+    double WHs = std::min(wh, MDS->Drc*(1-exp(-1.875*(wh/0.01*RR->Drc))));
     //surface storage on rough surfaces
     // non-linear release fo water from depression storage
     // resembles curves from GIS surface tests, unpublished
+    // note: roads and houses are assumed to be smooth!
 
     WHrunoff->Drc = ((wh - WHs)*SW + WHr*RW)/(SW+RW);
-    // moving overlandflow above surface storage
+    // WH of overlandflow above surface storage
 
     WHstore->Drc = WHs;
     // non moving microstorage
+    MicroStoreVol->Drc = DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+    // microstore vol in m3
 
-    WaterVolall->Drc = DX->Drc*(wh*SW + WHr*RW);
+    //WaterVolall->Drc = DX->Drc*(wh*SW + WHr*RW);
+    WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
     // all water in the cell incl storage
 }
 //---------------------------------------------------------------------------

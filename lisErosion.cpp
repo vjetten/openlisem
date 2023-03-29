@@ -54,6 +54,7 @@ functions: \n
 
 //---------------------------------------------------------------------------
 // deposit all sediment still in flow when infiltration causes WH to become minimum
+// DOES NOT WORK, MB errors
 void TWorld::cell_depositInfil(int r, int c)
 {
     if (!SwitchErosion)
@@ -100,27 +101,12 @@ void TWorld::cell_depositInfil(int r, int c)
  * @see MAXCONC
  *
  */
-double TWorld::MaxConcentration(double watvol, double *sedvol, double *dep)
+double TWorld::MaxConcentration(double watvol, double sedvol)
 {
     double conc = 0;
-    // when if activate, MBs error in KINDYN !!! Bizarre
-    if (watvol > tiny)
-        conc = std::min(*sedvol/watvol, MAXCONC);   // 1e-6 is 1 ml/m2 !!
-    else
-        conc = 0;
-    if (conc < 1e-10)
-        conc = 0;
-    //      conc = MAXCONC;
-    // *dep -= *sedvol;
-    //*sedvol = 0;
-    //}
-
-    //    if (conc > MAXCONC) {
-    //   double maxsed = MAXCONC*watvol;
-    //    *dep += maxsed-*sedvol;
-    //      conc = MAXCONC;
-    //    *sedvol = maxsed;
-    //}
+    if (watvol > 1e-6) {
+        conc = std::min(sedvol/watvol, MAXCONC);   // 1e-6 is 1 ml/m2 !!
+    }
     return conc;
 }
 //---------------------------------------------------------------------------
@@ -157,7 +143,7 @@ void TWorld::cell_SplashDetachment(int r, int c)
 
     DETSplash->Drc = 0;
 
-    if(_WH > 0.00001 && SplashStrength->Drc >= 0)
+    if(_WH > HMIN && SplashStrength->Drc >= 0)
     {
         double DetDT1 = 0, DetDT2 = 0, DetLD1, DetLD2;
         double g_to_kg = 0.001;
@@ -185,9 +171,8 @@ void TWorld::cell_SplashDetachment(int r, int c)
         // kin energy in J/m2/mm
         double throughfall = (1-Lc) * Cv * LeafDrain->Drc * 1000;
         // leaf drip in mm, is calculated as plant leaf drip in interception function so mult cover
-        // VJ 110206 stemflow is also accounted for
 
-        double WH0 = exp(-1.48*_WH*1000); //hmxWH->Drc*1000);
+        double WH0 = exp(-1.48*_WH*1000);
         // water buffer effect on surface, WH in mm in this empirical equation from Torri ?
 
         if(SwitchUseMaterialDepth)
@@ -236,7 +221,7 @@ void TWorld::cell_SplashDetachment(int r, int c)
         // Deal with all exceptions:
 
         DETSplash_ *= (SoilWidthDX->Drc*DX->Drc);
-        // kg/cell, only splash over soilwidth, not roads and channels
+        // kg/cell, only splash over soilwidth, not roads/hardsurfaces and channels ! houses re not in soilwisth, need to be done here
         // FROM KG/M2 TO KG/CELL
 
         DETSplash_ = (1-StoneFraction->Drc) * DETSplash_;
@@ -247,10 +232,11 @@ void TWorld::cell_SplashDetachment(int r, int c)
 
         //      if(SwitchSedtrap)
         //          DETSplash->Drc = (1-SedimentFilter->Drc) * DETSplash->Drc;
+        // assume sedtrap can have splash
 
-        if (SwitchHardsurface)
-            DETSplash_ = (1-HardSurface->Drc)*DETSplash_;
-        // no splash on hard surfaces
+      //  if (SwitchHardsurface)
+      //      DETSplash_ = (1-HardSurface->Drc)*DETSplash_;
+        // no splash on hard surfaces ALREADY taken care of by soilwidth which excludes roads and hard surfaces
 
         if (SwitchHouses)
             DETSplash_ = (1-HouseCover->Drc)*DETSplash_;
@@ -277,7 +263,6 @@ void TWorld::cell_SplashDetachment(int r, int c)
             detachment += deptake;
             // detachment is now taken material
 
-
             if(!(Storage->Drc < 0))
             {
                 mattake = std::min(dleft,Storage->Drc);
@@ -294,15 +279,15 @@ void TWorld::cell_SplashDetachment(int r, int c)
 
         if(SwitchKinematic2D == K2D_METHOD_DYN) {
             SSFlood->Drc += DETSplash_;
-            SSCFlood->Drc = MaxConcentration(WaterVolall->Drc, &SSFlood->Drc, &DepFlood->Drc);
+            SSCFlood->Drc = MaxConcentration(WaterVolall->Drc, SSFlood->Drc);
         } else {
             if (FloodDomain->Drc > 0) {
                 SSFlood->Drc += DETSplash_;
-                SSCFlood->Drc = MaxConcentration(CHAdjDX->Drc * hmx->Drc, &SSFlood->Drc, &DepFlood->Drc);
+                SSCFlood->Drc = MaxConcentration(CHAdjDX->Drc * hmx->Drc, SSFlood->Drc);
 
             } else {
                 Sed->Drc += DETSplash_;
-                Conc->Drc = MaxConcentration(WaterVolall->Drc, &Sed->Drc, &DEP->Drc);
+                Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
             }
         }
 
@@ -350,39 +335,26 @@ void TWorld::SplashDetachment()
  *
  */
 
-// Overland flow erosion for 1D flow
+// Overland flow erosion for 1D flow only
 void TWorld::cell_FlowDetachment(int r, int c)
 {
-//    if (!SwitchErosion)
-//        return;
-
-//    if (SwitchKinematic2D == K2D_METHOD_DYN)
-//        return;
+    double erosionwh = WHrunoff->Drc;
+    double erosionwv = WHrunoff->Drc*CHAdjDX->Drc;
 
     //transport capacity
-//#pragma omp parallel for num_threads(userCores)
-//    FOR_ROW_COL_MV_L  {
         DETFlow->Drc = 0;
         DEP->Drc = 0;
-        //get the transport capacity for a single grain size
         TC->Drc = calcTCSuspended(r,c,-1, FS_SS_Method, WHrunoff->Drc, V->Drc, 2);
- //  }}
-
-
-//#pragma omp parallel for num_threads(userCores)
-  //  FOR_ROW_COL_MV_L {
-        double erosionwh = WHrunoff->Drc; // MC - water height for erosion
-        double erosionwv = WHrunoff->Drc*CHAdjDX->Drc; // MC - water volume for erosion
+    // trasnport capacity. 2 = kin wave. 1 = 2d flow and 0 is river
 
         if (erosionwh < HMIN) {
+        if(DO_SEDDEP == 1) {
             DEP->Drc += -Sed->Drc;
             Sed->Drc = 0;
             Conc->Drc = 0;
             TC->Drc = 0;
+        }
         } else {
-
-            Conc->Drc = MaxConcentration(erosionwv, &Sed->Drc, &DEP->Drc);
-
             double maxTC = 0;
             double minTC = 0;
 
@@ -400,22 +372,22 @@ void TWorld::cell_FlowDetachment(int r, int c)
 
                 //### deposition
                 TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/erosionwh)) * erosionwv;
-                // if settl velo is very small, transportfactor is 0 and depo is 0
-                // if settl velo is very large, transportfactor is 1 and depo is max
-
+            // in m3
                 // deposition can occur on roads and on soil (so use flowwidth)
 
                 deposition = minTC * TransportFactor;
                 // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
                 deposition = std::max(deposition, -Sed->Drc);
 
-
                 if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
                     deposition = 0;
                 // VJ 190325 prevent any activity on the boundary!
+
                 if (SwitchSedtrap && SedMaxVolume->Drc == 0 && N->Drc == SedTrapN) {
                     N->Drc = Norg->Drc;
                 }
+            // mannings N becomes normal when sedtrap is full
+
                 if (SwitchSedtrap && SedMaxVolume->Drc > 0)
                 {
                     if (Sed->Drc > 0) {
@@ -435,16 +407,17 @@ void TWorld::cell_FlowDetachment(int r, int c)
                 if (SwitchUseMaterialDepth)
                     StorageDep->Drc += -deposition;
 
-            } else {
+        } else
+            if (maxTC > 0 && Y->Drc > 0) {
                 //### detachment
 
-                TransportFactor = _dt*SettlingVelocitySS->Drc * DX->Drc * SoilWidthDX->Drc; //fpa->Drc*
+            TransportFactor = _dt*SettlingVelocitySS->Drc * DX->Drc * SoilWidthDX->Drc;
                 // soilwidth is erodible surface
                 // TransportFactor = std::min(TransportFactor, Q->Drc*_dt);
                 // detachment can only come from soil, not roads (so do not use flowwidth)
                 // units s * m/s * m * m = m3
 
-                detachment = maxTC * std::min(TransportFactor, erosionwv);
+            detachment = maxTC * TransportFactor;//std::min(TransportFactor, erosionwv);
                 // unit = kg/m3 * m3 = kg (/cell)
 
                 // exceptions
@@ -460,10 +433,6 @@ void TWorld::cell_FlowDetachment(int r, int c)
                 detachment = (1-StoneFraction->Drc) * detachment;
                 // no flow detachment on stony surfaces
 
-                if (SwitchHardsurface)
-                    detachment = (1-HardSurface->Drc) * detachment;
-                // no flow detachment on hard surfaces
-
                 if (SwitchHouses)
                     detachment = (1-HouseCover->Drc)*detachment;
                 // no flow det from house roofs
@@ -472,25 +441,28 @@ void TWorld::cell_FlowDetachment(int r, int c)
                 /* TODO: CHECK THIS no flow detachment on snow */
                 //is there erosion and sedimentation under the snowdeck?
 
-                detachment = DetachMaterial(r,c,1,false,false,false, detachment);
+            //detachment = DetachMaterial(r,c,1,false,false,false, detachment);
+            // reacctivate when materiallayer is reinstalled
+            detachment *= Y->Drc;
 
-                if(MAXCONC * erosionwv < Sed->Drc+detachment)
-                    detachment = std::max(0.0, MAXCONC * erosionwv - Sed->Drc);
-                // not more detachment then is needed to keep below ssmax
+            if(Sed->Drc+detachment > MAXCONC * erosionwv)
+                detachment = MAXCONC * erosionwv - Sed->Drc;
+            // not more detachment then is possible to keep below diff(max concetrantion-sediment inf low)
 
                 if (SwitchSedtrap && SedMaxVolume->Drc > 0)
                     detachment = 0;
             } // minv > 0
+
             //### sediment balance
             // add to sediment in flow (IN KG/CELL)
-
             Sed->Drc += detachment;
             Sed->Drc += deposition;
             DETFlow->Drc += detachment;
             DEP->Drc += deposition;
-            Conc->Drc = MaxConcentration(erosionwv, &Sed->Drc, &DEP->Drc);
+        Conc->Drc = MaxConcentration(erosionwv, Sed->Drc);
+
         }
-  //  }} // FOR
+
 }
 //---------------------------------------------------------------------------
 /**
@@ -1125,7 +1097,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                 ChannelQsr->Drc = qs;
                 //qDebug() << qs;
                 tc =  qs/ (U * h); //kg/s/m / (m2/s) =  kg/m3   => WH or WHs
-//qDebug() << ucr << tc << U << qs;
+
             }else
                 if(method == FSRIJNFULL)
                 {
@@ -1195,6 +1167,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                         tc =  qs/ (U * h); //kg/s/m / (m2/s) =  kg/m3   => WH or WHs
                 }else if(method == FSWUWANGJIA)
                 {
+                        // NOT USED, FOR MULTIPLE GRAINSIZES
                     double phk = 0;
                     double pek = 0;
                     double sv = settlingvelocities.at(_d);

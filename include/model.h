@@ -54,6 +54,7 @@
 #define PI 3.14159265
 
 #define HMIN 1e-6
+#define DO_SEDDEP 0
 
 #define DEBUG(s) emit debug(QString(s))
 #define TIMEDB(s) emit timedb(QString(s))
@@ -145,7 +146,7 @@
 #define MIN_HEIGHT 1e-6 /// \def minimum water height (m) for transport of sediment
 #define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MAXCONCBL 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
-#define MIN_SLOPE 1e-6
+#define MIN_SLOPE 1e-3
 #define tiny 1e-6
 
 #define INFIL_NONE 0
@@ -181,8 +182,8 @@
 #define RWUWANGJIA 3
 
 #define K2D_METHOD_KIN   1
-#define K2D_METHOD_KINDYN  2
-#define K2D_METHOD_DYN   3
+#define K2D_METHOD_KINDYN  3
+#define K2D_METHOD_DYN   2
 
 
 //---------------------------------------------------------------------------
@@ -703,7 +704,7 @@ public:
     void maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     void dynOutflowPoints(void);
     void OverlandFlow2Ddyn(void);
-    void SolveDeepWH(void);
+    void updateWHandHmx(void);
     void Boundary2Ddyn();
     void MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v);
@@ -823,7 +824,7 @@ public:
     double GetTotalDW(int r, int c,QList<cTMap *> *M);
     double GetSV(double d);
     void SplashDetachment();
-    double MaxConcentration(double watvol, double *sedvol, double *dep);
+    double MaxConcentration(double watvol, double sedvol);
     void ChannelFlowDetachmentNew();
 
 
@@ -931,6 +932,7 @@ public:
     void ChannelRainandInfil();
     void ChannelSedimentFlow();
     void ChannelFlowandErosion();
+    void ChannelVelocityandDischarge();
 
     void GroundwaterRecharge();
     void GroundwaterFlow();

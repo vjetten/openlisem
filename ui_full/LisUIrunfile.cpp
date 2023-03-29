@@ -456,8 +456,8 @@ void lisemqt::ParseInputData()
     E_SigmaDiffusion->setEnabled(checkDiffusion->isChecked());
 
     checkOverlandFlow1D->setChecked(dummykinwave == 1);
-    checkOverlandFlow2Ddyn->setChecked(dummykinwave == 3);
-    checkOverlandFlow2Dkindyn->setChecked(dummykinwave == 4);
+    checkOverlandFlow2Dkindyn->setChecked(dummykinwave == 3);
+    checkOverlandFlow2Ddyn->setChecked(dummykinwave == 2);
     setFloodTab(true);//dummykinwave > 1);
     setErosionTab();
 
@@ -824,8 +824,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Routing Kin Wave 2D")==0)
         {
             if (checkOverlandFlow1D->isChecked())  namelist[j].value = "1";
-            if (checkOverlandFlow2Ddyn->isChecked())  namelist[j].value = "3";
-            if (checkOverlandFlow2Dkindyn->isChecked())  namelist[j].value = "4";
+            if (checkOverlandFlow2Dkindyn->isChecked())  namelist[j].value = "3";
+            if (checkOverlandFlow2Ddyn->isChecked())  namelist[j].value = "2";
         }
         if (p1.compare("Flow Boundary 2D")==0)               namelist[j].value = E_FlowBoundary->text();
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();

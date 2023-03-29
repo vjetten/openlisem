@@ -40,88 +40,109 @@ functions: \n
 #include "operation.h"
 #include "global.h"
 
+#define GRAV 9.81
 
 //---------------------------------------------------------------------------
 //! Get flood level in channel from 1D kin wave channel
 //! Instantaneous mixing of flood water and channel water in channel cells
 //! note: ChannelDepth lets you also control which channels flood:
 //! those that are 0 react as usual (infinite capacity)
-//doOF is always false!!!
+
 void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 {
     if (!SwitchIncludeChannel)
         return;
 
-    //#pragma omp parallel for num_threads(userCores)
+  //  #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (SwitchErosion) {
-            SWOFSedimentSetConcentration(r,c, _h);
-            RiverSedimentMaxC(r, c);
-        }
-
         if (ChannelWidth->Drc > 0 && ChannelMaxQ->Drc <= 0)
         {
             double chdepth = ChannelDepth->Drc;
-            // double charea = ChannelWidth->Drc*ChannelDX->Drc;
             double dH = std::max(0.0, (ChannelWH->Drc-chdepth));
 
             if (dH <= HMIN && _h->Drc <= HMIN)
                 continue;
             // no flow activity then continue
 
-            if (dH == _h->Drc)
+            if (fabs(dH - _h->Drc) < HMIN)
                 continue;
             // no diff in water level, no flow, continue
 
-            // VELOCITIES
-            double VtoChan = V->Drc;
-            if (SwitchGravityToChannel)
-                VtoChan = std::pow(_h->Drc, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drc;
-            double fracA = std::min(1.0, _dt*VtoChan/(0.5*ChannelAdj->Drc));
-            // fraction from _h to channel based on average flood velocity
-
-            double VfromChan = sqrt(2*9.804*dH); //Bernoulli
-            //see https://www.engineeringtoolbox.com/velocity-head-d_916.html
-            double fracC = std::min(1.0, _dt*VfromChan/(0.5*ChannelAdj->Drc));
-            // fraction from channel to surrounding
+            if (SwitchErosion) {
+                SWOFSedimentSetConcentration(r,c, _h);
+                // uses sed depth
+                RiverSedimentMaxC(r, c);
+                // uses channelwatervolume
+            }
 
             double cwa = ChannelWidth->Drc/ChannelAdj->Drc;
+            // dvolchan = ChannelAdj*dH*DX / channelwidth*DX
+            // volchan added = dH*ChanAdj/Channelwidth
+            double Vavg = (V->Drc*ChannelAdj->Drc + ChannelV->Drc)/_dx;
 
             bool dosimpel = false;
 
-            if (dH > _h->Drc)   // flow from channel
+            for (int i = 0; i < 5; i++) // do the flow twice as a kind of iteration
+          //  if (dH > 0)
             {
-                double dwh = fracC * dH;
-                // amount flowing from channel
-                if (_h->Drc + dwh*cwa > dH-dwh) {
-                    // if flow causes situation to reverse (channel dips below _h)
-                    dosimpel = true;
-                } else {
+                dH = std::max(0.0, (ChannelWH->Drc-chdepth));
 
-                    _h->Drc += dwh*cwa;
-                    ChannelWH->Drc -= dwh;
+                if (dH > _h->Drc)   // flow from channel
+                {
+                    //double VfromChan =  0.5*(V->Drc*ChannelV->Drc);//V->Drc;//
+                    //sqrt(2*GRAV*dH); //Bernoulli
+                    // less error than bernoulli
+                    //see https://www.engineeringtoolbox.com/velocity-head-d_916.html
+                    double frac = std::min(1.0, _dt*Vavg/(0.5*ChannelAdj->Drc));
+                    //double dwh =  (dH-_h->Drc) * frac;
+                    double dwh =  dH * frac;
+                    // amount flowing from channel
+                    // from center channel to center adjacent area is always 0.5_dx
+                    // from edge of channel to center adjacent = -0.5*adjacent                // dvolchan = ChannelAdj*dH*DX / channelwidth*DX*dH
 
-                    if(SwitchErosion) {
-                        double sed = ChannelWH->Drc > 0 ? dwh/ChannelWH->Drc * ChannelSSSed->Drc : 0;
-                        ChannelSSSed->Drc -= sed;
-                        SSFlood->Drc += sed;
+                    if (_h->Drc + dwh*cwa > dH-dwh) {
+                        // if flow causes situation to reverse (channel dips below _h)
+                        dosimpel = true;
+                        //                    double unitvol = dH*ChannelWidth->Drc + _h->Drc *ChannelAdj->Drc;
+                        //                    ChannelWH->Drc = chdepth + unitvol/ChannelWidth->Drc;
+                        //                    _h->Drc = unitvol/ChannelAdj->Drc;
+
+                    } else {
+
+                        _h->Drc += dwh*cwa;
+                        ChannelWH->Drc -= dwh;
+
+                        if(SwitchErosion) {
+                            double sed = dwh/ChannelWH->Drc * ChannelSSSed->Drc;
+                            ChannelSSSed->Drc -= sed;
+                            SSFlood->Drc += sed;
+                        }
+
                     }
                 }
-            }
-            else   // flow to channel
-            {
-                double dwh = fracA * _h->Drc;
-                // amount flowing to channel
-                if (dH + dwh/cwa > _h->Drc-dwh) {
-                    // if too much flow
-                    dosimpel = true;
-                } else {
-                    _h->Drc -= dwh;
-                    ChannelWH->Drc += (dwh/cwa);
-                    if(SwitchErosion) {
-                        double sed = fracA*SSFlood->Drc;
-                        ChannelSSSed->Drc += sed;
-                        SSFlood->Drc -= sed;
+                else   // flow to channel, dH can be 0 = channel wh below edge
+                {
+                    //double VtoChan =  V->Drc;//0.5*(V->Drc*ChannelV->Drc);//
+                    // fraction from _h to channel based on average flood velocity
+                    double frac = std::min(1.0, _dt* Vavg/(0.5*ChannelAdj->Drc));
+                    double dwh = _h->Drc * frac;
+
+                    if (dH + dwh/cwa > _h->Drc-dwh) {
+                        // if too much flow
+                        dosimpel = true;
+                        //                    double unitvol = dH*ChannelWidth->Drc + _h->Drc *ChannelAdj->Drc;
+                        //                    ChannelWH->Drc = chdepth + unitvol/ChannelWidth->Drc;
+                        //                    _h->Drc = unitvol/ChannelAdj->Drc;
+                    } else {
+                        if(SwitchErosion) {
+                            double sed = frac * ChannelSSSed->Drc;
+                            ChannelSSSed->Drc += sed;
+                            SSFlood->Drc -= sed;
+                        }
+
+                        _h->Drc -= dwh;
+                        ChannelWH->Drc += (dwh/cwa);
+
                     }
                 }
             }
@@ -129,6 +150,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
             // instantaneous waterlevel exquilibrium acccross channel and adjacent
             if (dosimpel)
             {
+               // qDebug() << "simple" ;
                 double fc = ChannelWidth->Drc/_dx;
                 // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
                 double whlevel = (ChannelWH->Drc-chdepth)*fc + _h->Drc*(1-fc);
@@ -159,33 +181,21 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                             SSFlood->Drc -=sed;
                             ChannelSSSed->Drc += sed;
                         }
-//                        double sed_2 = SSFlood->Drc + ChannelSSSed->Drc;
-//                        qDebug() << sed_ << sed_2 << sed_-sed_2;
-
-//                        RiverSedimentLayerDepth(r,c);
-//                        double _sed = ChannelSSSed->Drc + SSFlood->Drc;
-//                        double volch = ChannelSSDepth->Drc*ChannelWidth->Drc*ChannelDX->Drc;
-//                        double volof = _h->Drc*CHAdjDX->Drc;
-//                        double _concavg = _sed/(volch+volof);
-
-//                        ChannelSSSed->Drc = _concavg * volch;
-//                        ChannelSed->Drc = (SwitchUse2Phase ? ChannelBLSed->Drc : 0.0) + ChannelSSSed->Drc;
-
-//                        SSFlood->Drc = _concavg * volof;
-//                        SSCFlood->Drc = _concavg;
                     }
 
                 }
                 else
                 {
                     //DO NOTHING
-                    // this happens if there is very little flood water (< 5cm) and the channelWH is below the channeldepth
+                    // this happens if there is very little flood water and the channelWH is below the channeldepth
                     // we assume that there is no more flow towards the channel.
+                    //qDebug() << "chan flood do nothing!";
                 }
             }
 
             ChannelWaterVol->Drc = ChannelWH->Drc * ChannelDX->Drc * ChannelWidth->Drc;
-            // WaterVolall->Drc = _h->Drc*ChannelAdj->Drc*DX->Drc;
+            WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
+
             // do not recalc floodvol, MB errors
 
             // recalc channel water vol else big MB error
@@ -197,213 +207,11 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r, c);
                 // all concentrations, possible ChannelDep when surplus
-
             }
 
         }
     }}
-}
-//---------------------------------------------------------------------------
-
-// NOT USED!
-
-//! Get flood level in channel from 1D kin wave channel
-//! Instantaneous mixing of flood water and channel water in channel cells
-//! note: ChannelDepth lets you also control which channels flood:
-//! those that are 0 react as usual (infinite capacity)
-//!
-void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
-{
-    if (!SwitchIncludeChannel)
-        return;
-
-    cTMap *_SS;
-    cTMap *_SSC;
-    if(SwitchErosion) {
-        if (doOF) {
-            // obsolete, for when this function was used instead of tochannel
-            _SS = Sed;
-            _SSC = Conc;
-        } else {
-            _SS = SSFlood;
-            _SSC = SSCFlood;
-        }
-    }
-
-    FOR_ROW_COL_MV_CH {
-        if(ChannelMaskExtended->data[r][c] == 1)// && !pcr::isMV(LDDChannel->data[r][c]))
-        {
-            int rr = r;//(int)ChannelSourceYExtended->Drc;
-            int cr = c;//(int)ChannelSourceXExtended->Drc;
-
-            if(SwitchErosion) {
-                if (doOF)
-                    Conc->Drcr = MaxConcentration(CHAdjDX->Drc*_h->Drcr, &Sed->Drc, &DEP->Drc);
-                else
-                    SWOFSedimentSetConcentration(rr,cr, _h);
-
-                RiverSedimentMaxC(rr, cr);
-            }
-
-            if (ChannelDepth->Drcr > 0 && ChannelMaxQ->Drcr <= 0)
-            {
-                double chdepth = ChannelDepth->Drcr;
-                // double charea = ChannelWidth->Drcr*ChannelDX->Drcr;
-                double dH = std::max(0.0, (ChannelWH->Drcr-chdepth));
-
-                if (dH <= HMIN && _h->Drcr <= HMIN)
-                    continue;
-                // no flow activity then continue
-
-                if (dH == _h->Drcr)
-                    continue;
-                // no diff in water level, no flow, continue
-
-                // VELOCITIES
-                double VtoChan = V->Drc;
-                if (F_AddGravity == 1)
-                    VtoChan = std::pow(_h->Drcr, 2.0/3.0)*sqrt(ChannelPAngle->Drc)/N->Drcr; //F_Angle
-                double fracA = std::min(1.0, _dt*VtoChan/(0.5*_dx));
-                // fraction from _h to channel based on average flood velocity
-
-                double VfromChan = sqrt(2*9.81*dH); //Bernoulli
-                double fracC = std::min(1.0, _dt*VfromChan/(0.5*_dx));
-                // fraction from channel to surrounding based on overflow height and manning
-
-                double cwa = ChannelAdj->Drc > 0 ? ChannelWidthO->Drcr/ChannelAdj->Drc : 0;
-
-                bool dosimpel = false;
-
-                if (dH > _h->Drcr)   // flow from channel
-                {
-                    double dwh = fracC * dH;
-                    if (_h->Drcr + dwh*cwa > dH-dwh) {
-                        // if flow causes situation to reverse (channel dips below _h)
-                        dosimpel = true;
-                    } else {
-
-                        _h->Drcr += dwh*cwa;
-                        ChannelWH->Drcr -= dwh;
-
-                        if(SwitchErosion) {
-                            double sed = dwh/ChannelWH->Drc * ChannelSSSed->Drcr;//
-                            ChannelSSSed->Drcr -= sed;
-                            _SS->Drcr += sed;
-                        }
-                    }
-                }
-                else   // flow to channel
-                {
-                    // water above channel so rectangular
-                //    if (dH > 0){
-                        double dwh = fracA * _h->Drcr;
-                        if (dH + dwh/cwa > _h->Drcr-dwh) {
-                            // if too much flow
-                            dosimpel = true;
-                        } else {
-                            _h->Drcr -= dwh;
-                            ChannelWH->Drcr += (dwh/cwa);
-                            if(SwitchErosion) {
-                                double sed = fracA*_SS->Drcr;
-                                ChannelSSSed->Drcr += sed;
-                                _SS->Drcr -= sed;
-                            }
-                        }
-//                    }
-//                    else
-//                    {
-//                        // water below channel so can have side angle
-//                        double dwh = fracA * _h->Drcr;
-//                        double dvol = dwh*DX->Drcr*ChannelAdj->Drcr;
-//                        double cwh = channelVoltoWH(ChannelWaterVol->Drcr+dvol,rr, cr);
-
-//                        if (cwh-chdepth > _h->Drcr-dwh) {
-//                            // if too much flow
-//                            dosimpel = true;
-//                        } else {
-//                            _h->Drcr -= dwh;
-//                            ChannelWaterVol->Drcr += dvol;
-//                            fromChannelVoltoWH(rr, cr);
-
-//                            if(SwitchErosion) {
-//                                double sed = fracA*_SS->Drcr;
-//                                ChannelSSSed->Drcr += sed;
-//                                _SS->Drcr -= sed;
-//                            }
-//                        }
-//                    }
-                }
-
-                // instantaneous waterlevel exquilibrium acccross channel and adjacent
-                if (dosimpel)
-                {
-                    double fc = ChannelWidthO->Drcr/_dx;
-//                    double totvol = ChannelWaterVol->Drc + _h->Drc*ChannelAdj->Drc*DX->Drc;
-//                    double chvol = totvol*fc;
-//                    double ofvol = totvol*(1-fc);
-//                    _h->Drc = ofvol/(ChannelAdj->Drc*DX->Drc);
-//                    ChannelWH->Drc = channelVoltoWH(chvol,rr, cr);
-
-                    // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
-                    double whlevel = (ChannelWH->Drcr-chdepth)*fc + _h->Drcr*(1-fc);
-                    // equilibrium water level = weighed values of channel surplus level + _h
-                    // can be negative if channelwh is below channel depth and low _h level
-                    if(whlevel > HMIN) {
-                        ChannelWH->Drcr = whlevel + chdepth;
-                        _h->Drcr = whlevel;
-
-                        // new equilibrium levels
-                        if(SwitchErosion)
-                        {
-
-                            RiverSedimentLayerDepth(rr,cr);
-                            //SWOFSedimentLayerDepth(rr, cr, _h->Drcr, V->Drcr);
-
-                            double _sed = ChannelSSSed->Drcr + _SS->Drcr;
-                            double volch = ChannelSSDepth->Drcr*ChannelWidth->Drcr*ChannelDX->Drcr;
-                            double volof = _h->Drcr*ChannelAdj->Drcr*DX->Drcr;
-                            double _concavg = _sed/(volch+volof);
-
-                            ChannelSSSed->Drc = _concavg * volch;
-                            ChannelSed->Drc = ChannelBLSed->Drc + ChannelSSSed->Drc;
-
-                            _SS->Drcr = _concavg * volof;
-                            _SSC->Drcr = _concavg;
-                        }
-
-                    }
-                    else
-                    {
-                        //DO NOTHING
-                        // this happens if there is very little flood water (< 5cm) and the channelWH is below the channeldepth
-                        // we assume that there is no more flow towards the channel.
-                    }
-
-                }
-
-                //fromChannelWHtoVol(rr, cr);
-                // do not recalc floodvol, MB errors
-                ChannelWaterVol->Drcr = ChannelWidth->Drcr * ChannelWH->Drcr * ChannelDX->Drcr;
-
-                // recalc channel water vol else big MB error
-                if(SwitchErosion) {
-                    if (doOF)
-                        Conc->Drcr = MaxConcentration(CHAdjDX->Drc*_h->Drcr, &_SS->Drc, &DEP->Drc);
-                    else {
-                        SWOFSedimentLayerDepth(r,c,_h->Drcr, V->Drcr);
-                        SWOFSedimentSetConcentration(rr,cr, _h);
-                    }
-
-                    RiverSedimentLayerDepth(rr,cr);
-                    RiverSedimentMaxC(rr, cr);
-                    // all concentrations, possible ChannelDep when surplus
-
-                }
-
-            }
-        }
-    }
-
+//qDebug() <<  MB << MBs;
 }
 //---------------------------------------------------------------------------
 /**
@@ -420,41 +228,33 @@ void TWorld::ChannelOverflowNew(cTMap *_h, cTMap *V, bool doOF)
  */
 void TWorld::ToFlood()
 {
-#pragma omp parallel for  num_threads(userCores)
+    #pragma omp parallel for  num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(hmx->Drc > 0 && WHrunoff->Drc > 0)
+        if(hmx->Drc > HMIN && WHrunoff->Drc > HMIN && (WHrunoff->Drc > hmx->Drc))
         {
-            double frac = 1-exp(-runoff_partitioning*hmx->Drc/(WHrunoff->Drc+0.001));
+            double frac = 1.0;//1-exp(-2.0*hmx->Drc/(WHrunoff->Drc+HMIN));
 
-//            double V = qSqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
-//            double Vkin = pow(WHrunoff->Drc,2.0/3.0)*sqrt(Grad->Drc)/N->Drc;
-//            frac = Vkin/(V+0.001);
-            frac = std::max(std::min(frac, 1.0),0.0);
+            //frac = std::max(std::min(frac, 1.0),0.0);
             double dwh = frac * WHrunoff->Drc;
 
             hmx->Drc += dwh;
             WH->Drc -= dwh;
-            WHrunoff->Drc -= dwh;
-            //WHGrass->Drc -= dwh;
-            WHroad->Drc -= dwh;
+//            WHrunoff->Drc -= dwh;
+//            WHroad->Drc -= dwh;
+            WHrunoff->Drc = 0;
+            WHroad->Drc = 0;
+            hmxWH->Drc = hmx->Drc + WH->Drc;
+            WaterVolall->Drc = CHAdjDX->Drc*(hmx->Drc) + MicroStoreVol->Drc;
 
             if(SwitchErosion)
             {
                 double dsed = frac*Sed->Drc;
                 SSFlood->Drc += dsed;
-                Sed->Drc -= dsed;
+                Sed->Drc = 0;//dsed;
 
-                //                if(SwitchUseGrainSizeDistribution)
-                //                {
-                //                    FOR_GRAIN_CLASSES
-                //                    {
-                //                        SS_D.Drcd +=  Sed_D.Drcd * frac;
-                //                        Sed_D.Drcd = Sed_D.Drcd * (1-frac);
-
-                //                    }
-                //                }
+                SWOFSedimentLayerDepth(r,c,hmx->Drc, V->Drc);
                 SWOFSedimentSetConcentration(r,c,hmx);
-                Conc->Drc = MaxConcentration(WH->Drc*CHAdjDX->Drc, &Sed->Drc, &DEP->Drc);
+                Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
             }
         }
     }}
@@ -504,11 +304,14 @@ void TWorld::ChannelFlood(void)
     if (!SwitchIncludeChannel)
         return;
 
+    // mix WHrunoff with hmx
     ChannelOverflow(hmx, V);
-    // determine overflow water => hmx
+    // determine overflow water => hmx      
+    // hmx is flood water, WH is overlandflow, WHrunoff etc
 
     ToFlood();
-    // mix WHrunoff with hmx
+    // mix HWrunoff with hmx
+    // if toflood before channeloverflow then MB error in sed
 
     double dtflood = 0;
 
@@ -524,7 +327,7 @@ void TWorld::ChannelFlood(void)
         dtflood = fullSWOF2open(hmx, Uflood, Vflood, DEM);
     else
         dtflood = fullSWOF2RO(hmx, Uflood, Vflood, DEM);
-    // 2D dyn flow of hmx water
+    // 2D dyn flow of hmx water, when using kin wave
 
     //new flood domain
     nrFloodedCells = 0;
@@ -542,9 +345,13 @@ void TWorld::ChannelFlood(void)
     FOR_ROW_COL_MV_L {
         Qflood->Drc = 0;
         if (FloodDomain->Drc > 0) {
-            V->Drc = qSqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+            V->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+
             Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
+
+            Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
         }
+        // replace V in flood domain with sqrt flood V and U
     }}
 
     Boundary2Ddyn();
@@ -552,34 +359,36 @@ void TWorld::ChannelFlood(void)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        hmxWH->Drc = WH->Drc + hmx->Drc;
 
-        //InfilVolFlood->Drc += Iflood->Drc;
-        // addvolume infiltrated during flood process with FSurplus
+        WHroad->Drc = WHrunoff->Drc;
+        // set road to average outflowing wh, no surface storage.
+
+        WH->Drc = WHrunoff->Drc+ WHstore->Drc;
+        // add new average waterlevel (A/dx) to stored water
+
+        WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
+
+        hmxWH->Drc = WH->Drc + hmx->Drc;
+        // all water on surface
 
         hmxflood->Drc = std::max(0.0, WHrunoff->Drc + hmx->Drc - minReportFloodHeight);
-
-        WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
-        // all water on surface
 
         FloodWaterVol->Drc = hmxflood->Drc * CHAdjDX->Drc;
         double WHrunoffOutput = std::min(WHrunoff->Drc + hmx->Drc, minReportFloodHeight);
         RunoffWaterVol->Drc = WHrunoffOutput * CHAdjDX->Drc;
+        // these are only used for reporting totals on screen and in file
 
-    }}
-
-    if(SwitchErosion) {
-        //calculate concentration and new sediment discharge
-        //WHrunoff and Qn are adapted in case of 2D routing
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
+        if(SwitchErosion) {
+            Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
             if (FloodDomain->Drc  > 0) {
                 double sed = SSFlood->Drc + BLFlood->Drc;
-                Conc->Drc =  MaxConcentration(FloodWaterVol->Drc, &sed, &DepFlood->Drc);
+                Conc->Drc =  MaxConcentration(FloodWaterVol->Drc, sed);
                 Qsn->Drc += Conc->Drc*Qflood->Drc;
             }
-        }}
-     }
+        }
+     }}
+
+    FloodMaxandTiming();
 
     double area = nrFloodedCells*_dx*_dx;
     if (area > 0)

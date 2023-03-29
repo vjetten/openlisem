@@ -197,7 +197,6 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Daily ET")==0)                 SwitchDailyET = iii == 1;
         if (p1.compare("Rainfall ID interpolation")==0)SwitchIDinterpolation = iii == 1;
 
-       // qDebug() << p1 << p << iii;
         //options in the main code, order is not important
         if (p1.compare("Include Erosion simulation")==0)        SwitchErosion =          iii == 1;
         if (p1.compare("Include main channels")==0)             SwitchIncludeChannel =   iii == 1;
@@ -207,8 +206,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Adjust channel crosssection")==0)       SwitchChannelAdjustCHW  = iii == 1;
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
         if (p1.compare("Include channel inflow")==0)            SwitchChannelInflow  = iii == 1;
-        if (p1.compare("Include Pesticide")==0)                 SwitchPest = iii == 1;
-        if (p1.compare("Report Pesticide")==0)                  SwitchReportPest = iii == 1;
+        if (p1.compare("Include Pesticides")==0)                SwitchPest = iii == 1;
+        if (p1.compare("Report Pesticides")==0)                 SwitchReportPest = iii == 1;
         if (p1.compare("GW flow explicit")==0)                  SwitchExplicitGWflow  = iii == 1;
         if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
 

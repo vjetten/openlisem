@@ -72,6 +72,8 @@ void TWorld::InfilEffectiveKsat(bool first)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             Ksateff->Drc = Ksat1->Drc;
+
+            // exponential crusting proces with cumulative rainfall
             if (SwitchInfilCrust) {
                 //double KSc = Ksat1->Drc * (0.3+0.7*exp(-0.05*RainCum->Drc*1000));
                 double ksatdiff = std::max(0.0,Ksat1->Drc - KsatCrust->Drc);
@@ -81,6 +83,7 @@ void TWorld::InfilEffectiveKsat(bool first)
                 // only on bare fraction of soil
                 Poreeff->Drc = ThetaS1->Drc*(1-CrustFraction->Drc) + PoreCrust->Drc*CrustFraction->Drc;
             }
+
             Poreeff->Drc = ThetaS1->Drc;
             Thetaeff->Drc = std::max(0.025*Poreeff->Drc,ThetaI1->Drc);
 
@@ -90,18 +93,17 @@ void TWorld::InfilEffectiveKsat(bool first)
                 Poreeff->Drc = Poreeff->Drc*(1-CompactFraction->Drc) + PoreCompact->Drc*CompactFraction->Drc;
             }
 
-//            if (SwitchInfilCrust) {
-//                Ksateff->Drc = Ksateff->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
-//            }
-
             if (SwitchGrassStrip) {
                 Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
                 Poreeff->Drc = ThetaS1->Drc*(1-GrassFraction->Drc) + PoreGrass->Drc*GrassFraction->Drc;
             }
+
             if (SwitchHouses) {
                 Ksateff->Drc *= (1-HouseCover->Drc);
                 Poreeff->Drc *= (1-HouseCover->Drc);
             }
+            //INFILTRATION IS ONLY DONE OVER SOILWIDTH and HOUSEWIDTH, ROADS ETC ARE ALREADY REMOVED FROM SOILWIDTH
+            //NO NEED TO ADJUST KSAT FOR THESE SURFACES
 
             // impermeable surfaces
 //            if (SwitchHardsurface) {
@@ -113,7 +115,6 @@ void TWorld::InfilEffectiveKsat(bool first)
 //                Ksateff->Drc *= (1-RoadWidthDX->Drc/_dx);
 //                Poreeff->Drc *= (1-RoadWidthDX->Drc/_dx);
 //            }
-//DO NOT INCLUDE ROADS AND HARDSURF HERE BECUAE SOILWIDTH ALREADY EXCLUDES THOSE (but not houses!)
 
             Ksateff->Drc = std::max(0.0, Ksateff->Drc);
             Poreeff->Drc = std::max(0.3, Poreeff->Drc);
@@ -576,20 +577,17 @@ then calls IncreaseInfiltrationDepth to increase the wetting front.
 void TWorld::cell_InfilMethods(int r, int c)
 {
     // default vars are first layer vars
-    double Ks = Ksateff->Drc;//*_dt/3600000.0;  //in m
+    double Ks = Ksateff->Drc;  //in m
     double Psi = Psi1->Drc/100; // in m
     double fwh = 0;
-    double SW = 0;
     double fpot_ = 0;
     double fact_ = 0;// = fact->Drc;
     double SoilDep1 = SoilDepth1->Drc;
 
     if (FloodDomain->Drc == 0) {
         fwh = WH->Drc; //runoff in kinwave or dyn wave
-        SW = SoilWidthDX->Drc; //runoff in kinwave or dyn wave
     } else {
         fwh = hmx->Drc; // flood in kin wave
-        SW = SoilWidthDX->Drc; // flood in kin wave
     }
     // select the appropriate domain water height for overpressure
 
@@ -648,22 +646,23 @@ void TWorld::cell_InfilMethods(int r, int c)
     fact->Drc = fact_;
 
     // increase cumulative infil in m
-    InfilVol->Drc = fact_*SW*DX->Drc;
+    InfilVol->Drc = fact_* SoilWidthDX->Drc * DX->Drc;
     // calc infiltrated volume for mass balance
 
     // calc surplus infiltration (negative in m) for kin wave
-    if(SwitchKinematic2D != K2D_METHOD_DYN) {
-        double space = 0;
-        if (Lw->Drc < SoilDep1)
-            space = (SoilDep1 - Lw->Drc)*(Poreeff->Drc-Thetaeff->Drc);
-        if (SwitchTwoLayer) {
-            if (Lw->Drc > SoilDep1 && Lw->Drc < SoilDepth2->Drc)
-                space = (SoilDepth2->Drc - Lw->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
-        }
+//    if(SwitchKinematic2D != K2D_METHOD_DYN) {
+//        double space = 0;
+//        if (Lw->Drc < SoilDep1)
+//            space = (SoilDep1 - Lw->Drc)*(Poreeff->Drc-Thetaeff->Drc);
+//        if (SwitchTwoLayer) {
+//            if (Lw->Drc > SoilDep1 && Lw->Drc < SoilDepth2->Drc)
+//                space = (SoilDepth2->Drc - Lw->Drc)*(ThetaS2->Drc-ThetaI2->Drc);
+//        }
 
-        FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
-        // negative and smallest of space or fpot-fact ???
-    }
+//        FSurplus->Drc = -1.0 * std::min(space, fact_);//std::max(0.0, fpot_-fact_));
+//        // negative and smallest of space or fpot-fact ???
+//    }
+    FSurplus->Drc = 0;
 }
 //---------------------------------------------------------------------------
 // NOT USED

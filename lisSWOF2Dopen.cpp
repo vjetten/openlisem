@@ -199,7 +199,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     if (startFlood)
     {
 
-
         sumh = getMass(h, 0);
 //        if (SwitchErosion)
 //            sumS = getMassSed(SSFlood, 0);
