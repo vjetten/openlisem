@@ -29,7 +29,6 @@
 #include <algorithm>
 #include "model.h"
 #include "operation.h"
-#define tiny 1e-8
 
 //--------------------------------------------------------------------------------------------
 /**
@@ -299,10 +298,6 @@ void TWorld::OverlandFlow1D(void)
         QinKW->Drc = 0; // store for incoming water in a cell
         //tot = tot + WaterVolin->Drc;
 
-        //Save WHrunoff and Sed as start state for all-fluxes-out
-        WHAFO = WHrunoff;
-        SedAFO = Sed;
-
         if (SwitchErosion) {
             // calc seediment flux going in kin wave as Qs = Q*C
             Qsn->Drc = 0.0;
@@ -378,10 +373,7 @@ void TWorld::OverlandFlow1D(void)
             }}
         } else {
             KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
-            SinAFO = SinKW; // save sediment influx for all-fluxes-out.
-           FOR_ROW_COL_MV_L{
-                ErosionAFO->Drc = (Qsn->Drc*_dt) - (SinKW->Drc*_dt); //??
-           }}
+
 //        }
    }
 
