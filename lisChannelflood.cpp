@@ -82,9 +82,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
             bool dosimpel = false;
 
-            for (int i = 0; i < 5; i++) // do the flow twice as a kind of iteration
-          //  if (dH > 0)
-            {
+         //   for (int i = 0; i < 2; i++) // do the flow twice as a kind of iteration
+         //   {
                 dH = std::max(0.0, (ChannelWH->Drc-chdepth));
 
                 if (dH > _h->Drc)   // flow from channel
@@ -145,7 +144,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
                     }
                 }
-            }
+            //}
 
             // instantaneous waterlevel exquilibrium acccross channel and adjacent
             if (dosimpel)
