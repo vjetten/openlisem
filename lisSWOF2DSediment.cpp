@@ -77,6 +77,10 @@ void TWorld::SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v)
 
     // susponded matter
     SWOFSedimentFlowInterpolation(dt, h,u,v, SSFlood, SSCFlood);
+    // kan ook met pesticden dissolved, deel;tjes in water SSPest, SSCPest, kg + kg/m3
+    /* if SwitchPest
+     *  SWOFSedimentFlowInterpolation(dt, h,u,v, SSPest, SSCPest);
+     */
 
     // Include Bedload
     if (SwitchUse2Phase)
@@ -84,6 +88,7 @@ void TWorld::SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v)
 
     if (SwitchIncludeDiffusion)
         SWOFSedimentDiffusion(dt, h,u,v, SSFlood, SSCFlood);
+    // if switch do pest diffusion
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {

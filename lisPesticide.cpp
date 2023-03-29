@@ -343,7 +343,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         pmwdep->Drc -= PMrw->Drc;
         PMrw->Drc = 0.0;        // mass = 0
         PQrw->Drc = 0.0;        // discharge = 0
-
     }
     if (Qn->Drc + QinKW->Drc > MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
         double vol_mw {0.0};    // volume of water in mixing layer [L]
