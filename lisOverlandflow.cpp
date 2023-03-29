@@ -57,9 +57,10 @@ void TWorld::OverlandFlow(void)
         if (SwitchErosion) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L  {
+                SedAfterSplash->Drc = Sed->Drc; //for pesticide detachment
                 cell_FlowDetachment(r, c);
                 // kine wave based flow detachment
-                SedMassIn->Drc = Sed->Drc;
+                SedMassIn->Drc = Sed->Drc; // for pesticide kin wave
             }}
         if (SwitchPest) {
             PesticideFlowDetachment(rhoPest);

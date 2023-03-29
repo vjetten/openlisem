@@ -628,7 +628,8 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         // mg = mg sec-1 * sec
         PMrs->Drc = std::max(0.0, PMrs->Drc - (_Qpsn->Drc * _dt)
                                       + (SpinKW->Drc * _dt));
-        PCrs->Drc = std::min(PMrs->Drc / Sed->Drc, 1000000.0); // divide by Sed after kin wave!!!
+        PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0;; // divide by Sed after kin wave!!!
+        // 0,001 g
         } // erosion occurs
     }// end ldd loop
 }
@@ -691,7 +692,7 @@ void TWorld::PesticideSplashDetachment() {
         // add mass to pesticide in flow
         PMsplash->Drc = DETSplash->Drc * PCms->Drc;
         PMrs->Drc += PMsplash->Drc;
-        PCrs->Drc = Sed->Drc > 0 ? PMrs->Drc / Sed->Drc : 0.0; //  !!! this should be Sed after splash before flow detachment !!!!!
+        PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0; //  !!! this should be Sed after splash before flow detachment !!!!!
 
         // update mass and concentration in mixing layer
         msoil_ex = DETSplash->Drc * PCs->Drc;
@@ -732,7 +733,7 @@ void TWorld::PesticideFlowDetachment(double rho) {
             //deposition
             msoil_ex = DEP->Drc * PCms->Drc; // what happens with pesticides on roads??
             // mg = mg kg-1 * kg
-            msrm_ex = PCrs->Drc * DEP->Drc; // loss by deposition
+            msrm_ex = (DEP->Drc/SedAfterSplash->Drc) * PMrs->Drc; // loss by deposition
             // no more transport than mass in cell domain
             if (PMrs->Drc + msrm_ex < 0) {
                 msrm_ex = -PMrs->Drc;
@@ -755,7 +756,7 @@ void TWorld::PesticideFlowDetachment(double rho) {
 
         // pesticides in suspended sediment
         PMrs->Drc = std::max(0.0, PMrs->Drc + msrm_ex);
-        PCrs->Drc = SedMassIn->Drc > 0 ? PMrs->Drc / SedMassIn->Drc : 0.0; // !!! this should be SedMassIn
+        PCrs->Drc = SedMassIn->Drc > 1e-6 ? PMrs->Drc / SedMassIn->Drc : 0.0; // !!! this should be SedMassIn
 
         // adjust mass lower soil layer for mass balance
         PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);
