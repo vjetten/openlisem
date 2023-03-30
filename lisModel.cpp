@@ -123,6 +123,8 @@ void TWorld::saveMBerror2file(bool doError, bool start)
         } else {
             eout << " " << runstep << " " << MB << " " << PMerr << " " << PMwerr << " " << op.t << "\n";
         }
+        efout.flush();
+        efout.close();
     }
     }
 }

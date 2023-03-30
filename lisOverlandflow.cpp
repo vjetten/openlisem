@@ -59,7 +59,7 @@ void TWorld::OverlandFlow(void)
                 SedAfterSplash->Drc = Sed->Drc; //for pesticide detachment
                 cell_FlowDetachment(r, c);
                 // kine wave based flow detachment
-				SedMassIn->Drc = Sed->Drc; // for pesticide kin wave
+                SedMassIn->Drc = Sed->Drc; // for pesticide kin wave
             }}
         if (SwitchPest) {
             PesticideFlowDetachment(rhoPest);
