@@ -232,7 +232,8 @@ void TWorld::OutputUI(void)
             COMBO_BL->Drc = 0;
             COMBO_TC->Drc = TC->Drc;
 
-            COMBO_SS->Drc += SSFlood->Drc;
+            COMBO_SS->Drc += SSFlood->Drc; // SS in dynamic
+            COMBO_SS->Drc += Sed->Drc; // SS in 1D kinematic wave
             COMBO_TC->Drc += SSTCFlood->Drc;
             if (SwitchUse2Phase) {
                 COMBO_BL->Drc += BLFlood->Drc;
