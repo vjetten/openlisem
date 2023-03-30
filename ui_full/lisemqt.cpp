@@ -235,33 +235,7 @@ void lisemqt::setFormatMaps(bool check)
 
     E_stormDrainMap->setText(QFileInfo(E_stormDrainMap->text()).baseName() + ext);
 }
-//--------------------------------------------------------------------
-//void lisemqt::resizeEvent(QResizeEvent* event)
-//{
-//    QMainWindow::resizeEvent(event);
-//    groupBox_drawMap->setEnabled(tabWidget_out->currentIndex() == 1);
 
-//    int h = QApplication::desktop()->height(); //event->size().height()
-//    if (h > 800)
-//    {
-//        groupBox_drawMap->setVisible(true);
-//        groupBox_info->setVisible(true);
-//    }
-//    else
-//    {
-//        if (tabWidget_out->currentIndex() == 0)
-//        {
-//            groupBox_drawMap->setVisible(false);
-//            groupBox_info->setVisible(true);
-//        }
-//        else
-//        {
-//            groupBox_drawMap->setVisible(true);
-//            groupBox_info->setVisible(false);
-//        }
-
-//    }
-//}
 //--------------------------------------------------------------------
 void lisemqt::on_tabWidget_out_currentChanged(int index)
 {
@@ -371,21 +345,15 @@ void lisemqt::on_ComboMinSpinBox2_valueChanged(double d)
 
     if( i > -1 && i < this->SymList.length())
     {
-     //   if (!op.ComboSymColor.at(i))
-        {
-            ComboMinSpinBox2->setEnabled(true);
-            if (op.userMaxV.at(i) == 0)
-                op.userMinV.replace(i, d);
+        ComboMinSpinBox2->setEnabled(true);
+        if (op.userMaxV.at(i) == 0)
+            op.userMinV.replace(i, d);
 
-            if (op.userMaxV.at(i) > 0 && d < op.userMaxV.at(i))
-                op.userMinV.replace(i, d);
+        if (op.userMaxV.at(i) > 0 && d < op.userMaxV.at(i))
+            op.userMinV.replace(i, d);
 
-            if(op.userMaxV.at(i) > 0 && d >= op.userMaxV.at(i))
-                ComboMinSpinBox2->setValue(op.userMinV.at(i));
-        }
-     //   else
-        //    ComboMinSpinBox2->setEnabled(false);
-
+        if(op.userMaxV.at(i) > 0 && d >= op.userMaxV.at(i))
+            ComboMinSpinBox2->setValue(op.userMinV.at(i));
     }
     this->showMap();
 
@@ -483,7 +451,6 @@ void lisemqt::on_DisplayComboBox2_currentIndexChanged(int j)
 
     int i = IndexList1.at(j);
 
-  //  ComboMinSpinBox2->setEnabled(!op.ComboSymColor.at(i));
     ComboMaxSpinBox2->setValue(op.userMaxV.at(i));
     ComboMinSpinBox2->setValue(op.userMinV.at(i));
     this->showMap();
@@ -573,6 +540,7 @@ void lisemqt::setErosionTab()
 }
 
 //--------------------------------------------------------------------
+//OBSOLETE
 void lisemqt::setWriteOutputSOBEK(bool doit)
 {
     //   checkWriteSOBEK->setChecked(!doit);
@@ -580,11 +548,12 @@ void lisemqt::setWriteOutputSOBEK(bool doit)
     //checkWritePCRaster->setChecked(!doit);
 }
 //--------------------------------------------------------------------
+//OBSOLETE
 void lisemqt::setWriteOutputCSV(bool doit)
 {
-   // checkWriteSOBEK->setChecked(!doit);
-    //   checkWriteCommaDelimited->setChecked(!doit);
-   // checkWritePCRaster->setChecked(!doit);
+//    checkWriteSOBEK->setChecked(!doit);
+//    checkWriteCommaDelimited->setChecked(!doit);
+//    checkWritePCRaster->setChecked(!doit);
 }
 
 void lisemqt::setOutputScreen()
@@ -594,8 +563,7 @@ void lisemqt::setOutputScreen()
     showAllAct->setChecked(!W->noInterface);
   }
 }
-
-
+//--------------------------------------------------------------------
 void lisemqt::setOutputInfo(bool check)
 {
     if (W) {
@@ -607,7 +575,8 @@ void lisemqt::setOutputInfo(bool check)
 
 
 //--------------------------------------------------------------------
-void lisemqt::setWriteOutputPCR(bool /* doit */)
+// OBSOLETE
+void lisemqt::setWriteOutputPCR(bool doit)
 {
     //    if (checkWriteSOBEK->isChecked())
     //    {
@@ -634,7 +603,6 @@ void lisemqt::SetToolBar()
 {
     toolBar->setIconSize(QSize(32,32));
 
-    //r
     restartAct = new QAction(QIcon(":/2X/reset.png"), "&Reset...", this);
     connect(restartAct, SIGNAL(triggered()), this, SLOT(resetAll()));
     toolBar->addAction(restartAct);
@@ -647,7 +615,6 @@ void lisemqt::SetToolBar()
     toolBar->addAction(openAct);
 
     saveAct = new QAction(QIcon(":/2X/filesave2X.png"), "&Save the run file...", this);
- //   saveAct = new QAction(QIcon(":/2X/savefile.png"), "&Save the run file...", this);
     saveAct->setShortcuts(QKeySequence::Save);
     saveAct->setStatusTip("Save a run file");
     connect(saveAct, SIGNAL(triggered()), this, SLOT(saveRunFile()));
@@ -745,63 +712,76 @@ void lisemqt::SetToolBar()
 //---------------------------------------------------------------------------
 int lisemqt::SetStyleUISize()
 {
-    QRect rect = QGuiApplication::primaryScreen()->availableGeometry();
+    //QRect rect = QGuiApplication::primaryScreen()->availableGeometry();
     int _H = QApplication::desktop()->height();//rect.height();
 
     int disp = 3;
-//    if (abs(_H-700) > abs(_H-800)) disp = -1;
-//    if (abs(_H-800) > abs(_H-1080)) disp = 0;
-//    if (abs(_H-1080) > abs(_H-1200)) disp = 1;
-//    if (abs(_H-1200) > abs(_H-1440)) disp = 2;
-//    if (abs(_H-1440) > abs(_H-1600)) disp = 3;
 
-//    if(_H < 2000) disp = 4;
-    if(_H < 1600) disp = 3;
     if(_H < 1400) disp = 2;
     if(_H < 1200) disp = 1;
     if(_H < 1080) disp = 0;
-  //  if(_H < 800) disp = -1;
-//qDebug() << _H << disp;
-   // tabWidgetOptions->tabBar()->setExpanding(true);
-  //  tabWidget_out->setIconSize(QSize(24, 24));
+    if(_H < 800) disp = -1;
+   // qDebug() << _H << disp;
+
     tabWidgetOptions->setMinimumSize(QSize(600, 500));
     scrollArea->setWidgetResizable(true);
     //scrollArea->setWidget(tabWidgetOptions);
 
     // do a bit of size tweaking for large displays
     QSize iSize = QSize(16,16);
-    if (disp == 1) {
-        tabWidget_out->setIconSize(QSize(24, 24));
+    if (disp == -1) {
+        iSize = QSize(16,16);
+        tabWidget_out->setIconSize(iSize);
+        tabWidget_out->setStyleSheet("QTabBar::tab { height: 40px; width: 28px}");
+        tabWidgetOptions->setIconSize(iSize);
+        tabWidgetOptions->setStyleSheet("QTabBar::tab { height: 40px; width: 28px}");
+        this->setStyleSheet(QString("QToolButton * {icon-size: 16px 16px}"));
+    }
+    if (disp == 0) {
+        tabWidget_out->setIconSize(QSize(20, 20));
         tabWidget_out->setStyleSheet("QTabBar::tab { height: 48px; width: 32px}");
+        tabWidgetOptions->setIconSize(QSize(20, 20));
+        tabWidgetOptions->setStyleSheet("QTabBar::tab { height: 48px; width: 32px}");
         this->setStyleSheet(QString("QToolButton * {icon-size: 16px 16px}"));
         iSize = QSize(16,16);
-
     }
-    if (disp == 2) {// || disp == 3) {
-        tabWidget_out->setIconSize(QSize(48, 48));
-        tabWidget_out->setStyleSheet("QTabBar::tab { height: 64px; width: 48px}");
-        this->setStyleSheet(QString("QToolButton * {icon-size: 24px 24px}"));
+    if (disp == 1) {
+        tabWidget_out->setIconSize(QSize(24, 24));
+        tabWidget_out->setStyleSheet("QTabBar::tab { height: 48px; width: 40px}");
+        tabWidgetOptions->setIconSize(QSize(24, 24));
+        tabWidgetOptions->setStyleSheet("QTabBar::tab { height: 48px; width: 40px}");
+        this->setStyleSheet(QString("QToolButton * {icon-size: 16px 16px}"));
         iSize = QSize(24,24);
+    }
+    if (disp == 2) {
+        tabWidget_out->setIconSize(QSize(32, 32));
+        tabWidget_out->setStyleSheet("QTabBar::tab { height: 64px; width: 48px}");
+        tabWidgetOptions->setIconSize(QSize(32, 32));
+        tabWidgetOptions->setStyleSheet("QTabBar::tab { height: 64px; width: 48px}");
+        this->setStyleSheet(QString("QToolButton * {icon-size: 24px 24px}"));
+        iSize = QSize(32,32);
     }
     if (disp == 3) {
         tabWidget_out->setIconSize(QSize(32, 32));
         tabWidget_out->setStyleSheet("QTabBar::tab { height: 64px; width: 48px}");
+        tabWidgetOptions->setIconSize(QSize(32, 32));
+        tabWidgetOptions->setStyleSheet("QTabBar::tab { height: 64px; width: 48px}");
         this->setStyleSheet(QString("QToolButton * {icon-size: 24px 24px}"));
         iSize = QSize(32,32);
     }
     if (disp > 3) {
         tabWidget_out->setIconSize(QSize(48, 48));
         tabWidget_out->setStyleSheet("QTabBar::tab { height: 96px; width: 64px}");
+        tabWidgetOptions->setIconSize(QSize(48, 48));
+        tabWidgetOptions->setStyleSheet("QTabBar::tab { height: 96px; width: 64px}");
         this->setStyleSheet(QString("QToolButton * {icon-size: 32px 32px}"));
         iSize = QSize(32,32);
     }
 
-   // this->setStyleSheet(QString("QLabel::pixmap {height: 16px; width: 16px}"));
-
     toolBar->setIconSize(iSize);
     toolBar_2->setIconSize(iSize);
 
-    return disp-1;
+    return disp; //-1;
 }
 //---------------------------------------------------------------------------
 /// make some labels yellow

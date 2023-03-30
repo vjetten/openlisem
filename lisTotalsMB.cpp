@@ -320,9 +320,11 @@ void TWorld::Totals(void)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
-        Qoutput->Drc += factor*(Qn->Drc + Qflood->Drc);//  factor means in l/s or m3/s
+        Qoutput->Drc = factor*(Qn->Drc + Qflood->Drc);// in l/s or m3/s
+
         if(SwitchIncludeChannel)
-            Qoutput->Drc += factor*ChannelQn->Drc;
+            Qoutput->Drc = factor*ChannelQn->Drc;
+
         Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;
     }}
     // Total outflow in m3 for all timesteps

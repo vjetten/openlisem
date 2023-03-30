@@ -78,7 +78,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
             double cwa = ChannelWidth->Drc/ChannelAdj->Drc;
             // dvolchan = ChannelAdj*dH*DX / channelwidth*DX
             // volchan added = dH*ChanAdj/Channelwidth
-            double Vavg = (V->Drc*ChannelAdj->Drc + ChannelV->Drc)/_dx;
+            double Vavg = (V->Drc*ChannelAdj->Drc + ChannelV->Drc*ChannelWidth->Drc)/_dx;
 
             bool dosimpel = false;
 
@@ -88,13 +88,13 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
                 if (dH > _h->Drc)   // flow from channel
                 {
-                    //double VfromChan =  0.5*(V->Drc*ChannelV->Drc);//V->Drc;//
                     //sqrt(2*GRAV*dH); //Bernoulli
-                    // less error than bernoulli
                     //see https://www.engineeringtoolbox.com/velocity-head-d_916.html
-                    double frac = std::min(1.0, _dt*Vavg/(0.5*ChannelAdj->Drc));
-                    //double dwh =  (dH-_h->Drc) * frac;
-                    double dwh =  dH * frac;
+
+                    //Vavg = ChannelV->Drc;
+                    double frac = std::min(1.0, _dt*Vavg/(0.5*ChannelAdj->Drc));//_dx));//
+                    double dwh =  (dH-_h->Drc) * frac;
+                   // double dwh =  dH * frac;
                     // amount flowing from channel
                     // from center channel to center adjacent area is always 0.5_dx
                     // from edge of channel to center adjacent = -0.5*adjacent                // dvolchan = ChannelAdj*dH*DX / channelwidth*DX*dH
@@ -121,9 +121,9 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                 }
                 else   // flow to channel, dH can be 0 = channel wh below edge
                 {
-                    //double VtoChan =  V->Drc;//0.5*(V->Drc*ChannelV->Drc);//
-                    // fraction from _h to channel based on average flood velocity
-                    double frac = std::min(1.0, _dt* Vavg/(0.5*ChannelAdj->Drc));
+                  //  Vavg = V->Drc;
+
+                    double frac = std::min(1.0, _dt* Vavg/(0.5*ChannelAdj->Drc));//_dx));//
                     double dwh = _h->Drc * frac;
 
                     if (dH + dwh/cwa > _h->Drc-dwh) {
