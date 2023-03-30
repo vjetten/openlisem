@@ -129,7 +129,7 @@ double TWorld::MassPestInitial(void)
 {
     double pmtot_i {0.0};
     double rho = rhoPest;
-    // PMtotI = PMsoil + PMmw + PMms
+
     //#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
         // mg = mg kg-1 * m * m * kg m-3 * m
@@ -155,7 +155,7 @@ double TWorld::MassPestInitial(void)
 *   update all masses etc.
 */
 
-void TWorld::PesticideDynamics(void)
+void TWorld::PesticideCellDynamics(void)
 {
     double rho = rhoPest;     //kg m-3
     double Kd = KdPest;       // -
@@ -182,6 +182,7 @@ void TWorld::PesticideDynamics(void)
        // Kr * (Kd * PCmw->Drc - PCms->Drc) is mg * kg-1 * sec-1
        // this holds if 1L water = 1kg
 
+       if (SwitchPestMixPartitioning) {
        // positive adds to absorbed, negative to dissolved.
        // mg = mg kg-1 sec-1 *  sec * kg
        mda_ex = kr * (Kd * PCmw->Drc - PCms->Drc) * _dt
@@ -194,6 +195,7 @@ void TWorld::PesticideDynamics(void)
        // mda_ex can not be larger than m_diff
        m_diff = eql_ads - PMms->Drc;
        mda_ex = std::abs(mda_ex) > std::abs(m_diff) ? m_diff : mda_ex;
+       }
 
        //percolation
        PMperc->Drc = 0.0; //does not need to be a map...
@@ -229,7 +231,21 @@ void TWorld::PesticideDynamics(void)
        PCmw->Drc = PMmw->Drc / vol_w;
        PCms->Drc = PMms->Drc / mass_s;
     }}
+}
 
+//---------------------------------------------------------------------------
+/**
+* @fn void TWorld::PesticideFlow1D(void)
+* @brief Do all the calculations for pesticide dynamics between cells
+* This includes:
+*   call functions for adsorbed and dissolved dynamics
+*   update all masses etc.
+*/
+
+void TWorld::PesticideFlow1D(void) {
+
+    double Kfilm = KfilmPest; // m sec-1
+    double rho = rhoPest;     //kg m-3
     //runoff
 
     KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw,
@@ -402,7 +418,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc + PMrw->Drc / _dt);
 
         // internal time loop
-
+        if (SwitchPestInternal_dt) {
         //calculate courant number of standard timestep
         double Cr_rw {0.0};
         double Cr_mw {0.0};
@@ -488,6 +504,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
             mrw_inf = sum_int_mrw_inf;
 
         } // end if Cr > Cr_max
+        } // end internal time loop
 
         // mass balance
         mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
@@ -573,7 +590,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 
 
         // internal loop ----------------------------
-
+        if (SwitchPestInternal_dt) {
         //calculate courant number of standard timestep
         double Cr_rs {0.0};
         Cr_rs = PMrs->Drc > 0 ? ((_Qpsn->Drc * _dt)) / (PMrs->Drc + SpinKW->Drc * _dt) : 0.0;
@@ -623,6 +640,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 
 
         } // end if Cr > Cr_max
+        } // end internal timeloop
 
         // mg = mg sec-1 * sec
         PMrs->Drc = std::max(0.0, PMrs->Drc - (_Qpsn->Drc * _dt)
@@ -691,7 +709,7 @@ void TWorld::PesticideSplashDetachment() {
         // add mass to pesticide in flow
         PMsplash->Drc = DETSplash->Drc * PCms->Drc;
         PMrs->Drc += PMsplash->Drc;
-        PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0; //  !!! this should be Sed after splash before flow detachment !!!!!
+        PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0; // if Sed > 0.001 gr
 
         // update mass and concentration in mixing layer
         msoil_ex = DETSplash->Drc * PCs->Drc;
@@ -755,7 +773,7 @@ void TWorld::PesticideFlowDetachment(double rho) {
 
         // pesticides in suspended sediment
         PMrs->Drc = std::max(0.0, PMrs->Drc + msrm_ex);
-        PCrs->Drc = SedMassIn->Drc > 1e-6 ? PMrs->Drc / SedMassIn->Drc : 0.0; // !!! this should be SedMassIn
+        PCrs->Drc = SedMassIn->Drc > 1e-6 ? PMrs->Drc / SedMassIn->Drc : 0.0; //
 
         // adjust mass lower soil layer for mass balance
         PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);

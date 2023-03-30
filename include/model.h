@@ -371,7 +371,8 @@ public:
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
-    SwitchHouses, SwitchRaindrum, SwitchLitter, SwitchAddBuildingsDEM, SwitchPest, SwitchReportPest,
+    SwitchHouses, SwitchRaindrum, SwitchLitter, SwitchAddBuildingsDEM,
+    SwitchPest, SwitchReportPest, SwitchPestInternal_dt, SwitchPestMixPartitioning,
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
@@ -838,9 +839,10 @@ public:
     void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
     double MassPestInitial(void);
     void InitPesticide(void);
-    void PesticideDynamics(void);
+    void PesticideCellDynamics(void);
     void PesticideSplashDetachment(void);
     void PesticideFlowDetachment(double rho);
+    void PesticideFlow1D(void);
     double PesticidePercolation(double perc, double soildep, double lw,
                                 double zm, double dx, double swdx, double pcmw);
     void KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,

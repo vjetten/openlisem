@@ -87,9 +87,25 @@ void TWorld::saveMBerror2file(bool doError, bool start)
 //        }
         efout.flush();
         efout.close();
+
+    if (SwitchPest) {
+        QFile efout(resultDir+errorPestFileName);
+        efout.open(QIODevice::WriteOnly | QIODevice::Text);
+        QTextStream eout(&efout);
+        eout << "#pesticide mass balance error (%)\n";
+        if (SwitchErosion) eout << "7\n";
+        if (!SwitchErosion) eout << "5\n";
+        eout << "run step\n";
+        eout << "WMerr\n";
+        if (SwitchErosion) {eout << "SMerr\n";}
+        eout << "PMerr\n";
+        if (SwitchErosion) {eout << "PMserr\n";}
+        eout << "PMwerr\n";
+        eout << "runtime\n";
+        efout.flush();
+        efout.close();
         }
-
-
+    }
     if (doError) {
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::Append | QIODevice::Text);
@@ -97,12 +113,18 @@ void TWorld::saveMBerror2file(bool doError, bool start)
         eout << " " << runstep << "," << MB << "," << (SwitchErosion ? MBs : 0.0) << "\n";
         efout.flush();
         efout.close();
-        }
-            efout.flush();
-            efout.close();
+
+    if (SwitchPest) {
+        QFile efout(resultDir+errorPestFileName);
+        efout.open(QIODevice::Append | QIODevice::Text);
+        QTextStream eout(&efout);
+        if (SwitchErosion) {
+            eout << " " << runstep << " " << MB << " " << MBs << " " << PMerr << " " << PMserr << " " << PMwerr << " " << op.t << "\n";
+        } else {
+            eout << " " << runstep << " " << MB << " " << PMerr << " " << PMwerr << " " << op.t << "\n";
         }
     }
-
+    }
 }
 //---------------------------------------------------------------------------
 // the actual model with the main loop
@@ -265,8 +287,9 @@ void TWorld::DoModel()
       //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
+
         if (SwitchPest) {
-            PMtotI = MassPestInitial();     // MC calculate mass in system outside time loop
+            PMtotI = MassPestInitial();     // calculate pesticide mass in system outside time loop
         }
         _dt_user = _dt;
 
@@ -426,11 +449,13 @@ void TWorld::HydrologyProcesses()
     // divided over 12 hours in a day with sine curve
 
     //MoistureContent();
-    // splash detachment for pesticides
+
     if (SwitchPest) {
+        PesticideCellDynamics();
+        // calculate partitioning, and infiltration and percolation losses of pesticides
         if (SwitchErosion) {
             PesticideSplashDetachment();
-
+            // splash detachment for pesticides // not yet parallel!!
         }
     }
 }

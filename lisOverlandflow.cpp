@@ -378,16 +378,13 @@ void TWorld::OverlandFlow1D(void)
             }}
         } else {
             KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
-
-//        }
    }
-
-            // MC - Sed is updated by kinematicSubstance, should conc also be updated? now the conc is still based on the Sed before KW
+    // MC - Sed is updated by kinematicSubstance, should conc also be updated? now the conc is still based on the Sed before KW
 
     // route other stuff
     if (SwitchPest) {
-        //this function takes care of all pesticide dynamics
-        PesticideDynamics();
+        //this function takes care of dissolved and adsorbed kinematic wave
+        PesticideFlow1D();
      }
 }
 }
