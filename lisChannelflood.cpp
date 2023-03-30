@@ -78,12 +78,11 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
             double cwa = ChannelWidth->Drc/ChannelAdj->Drc;
             // dvolchan = ChannelAdj*dH*DX / channelwidth*DX
             // volchan added = dH*ChanAdj/Channelwidth
-            double Vavg = (V->Drc*ChannelAdj->Drc + ChannelV->Drc)/_dx;
+            double Vavg = (V->Drc*ChannelAdj->Drc + ChannelV->Drc*ChannelWidth->Drc)/_dx;
 
             bool dosimpel = false;
 
             for (int i = 0; i < 2; i++) // do the flow twice as a kind of iteration
-            if (dH > 0)
             {
                 dH = std::max(0.0, (ChannelWH->Drc-chdepth));
 
@@ -122,7 +121,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                 }
                 else   // flow to channel, dH can be 0 = channel wh below edge
                 {
-                    Vavg = V->Drc;
+                  //  Vavg = V->Drc;
 
                     double frac = std::min(1.0, _dt* Vavg/(0.5*ChannelAdj->Drc));//_dx));//
                     double dwh = _h->Drc * frac;
