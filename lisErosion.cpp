@@ -1003,7 +1003,6 @@ void TWorld::SedimentSetMaterialDistribution()
 double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double U, int type)
 {
     double R=0, hs=0, S = 0, w = 0, man = 0.01;
-   // cTMap *Wd = nullptr;
     double d50m;
 
     if (type == 0) {
@@ -1045,12 +1044,10 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
 
     if(method == FSHAIRSINEROSE)
     {
-        //tc =  d50m * 1.0/SettlingVelocitySS->Drc * 0.013/GRAV * ps/(ps-pw) * ( std::max(0.0, (om - omcr))/h) ;
         double om =  U*S;
         double omcr = 0.004;
-     //   tc =  Wd->Drc * (1.0/settlingvelocities.at(_d))*(0.013/GRAV) * 1.650 * ( std::max(0.0, (om - omcr))/h) ;
         tc =  d50m/SettlingVelocitySS->Drc* 0.013/GRAV * 1.650 * std::max(0.0, om - omcr)/h ;
-//    m/ (m/s)* m/s /m  dimensionless?
+        //    m/ (m/s)* m/s /m  dimensionless?
 
     } else
         if(method == FSGOVERS)
