@@ -147,7 +147,7 @@
 #define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MAXCONCBL 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MIN_SLOPE 1e-3
-#define tiny 1e-6
+#define tiny 1e-8
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
@@ -168,18 +168,13 @@
 #define VANLEER 2
 
 #define FSGOVERS 0
+#define FSHAIRSINEROSE 1
+
 #define FSRIJN 1
 #define FSRIJNFULL 2
 #define FENGELUND 3
-
-#define FSHAIRSINEROSE 11
 #define FSWUWANGJIA 10
 //#define FSWUWANGJIABL 3
-
-#define RGOVERS 0
-#define RRIJN 1
-#define RRIJNFULL 2
-#define RWUWANGJIA 3
 
 #define K2D_METHOD_KIN   1
 #define K2D_METHOD_KINDYN  3
