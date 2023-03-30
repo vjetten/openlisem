@@ -82,8 +82,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
             bool dosimpel = false;
 
-            for (int i = 0; i < 2; i++) // do the flow twice as a kind of iteration
-            {
+         //   for (int i = 0; i < 2; i++) // do the flow twice as a kind of iteration
+         //   {
                 dH = std::max(0.0, (ChannelWH->Drc-chdepth));
 
                 if (dH > _h->Drc)   // flow from channel
@@ -93,8 +93,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
                     //Vavg = ChannelV->Drc;
                     double frac = std::min(1.0, _dt*Vavg/(0.5*ChannelAdj->Drc));//_dx));//
-                    //double dwh =  (dH-_h->Drc) * frac;
-                    double dwh =  dH * frac;
+                    double dwh =  (dH-_h->Drc) * frac;
+                   // double dwh =  dH * frac;
                     // amount flowing from channel
                     // from center channel to center adjacent area is always 0.5_dx
                     // from edge of channel to center adjacent = -0.5*adjacent                // dvolchan = ChannelAdj*dH*DX / channelwidth*DX*dH
@@ -144,7 +144,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
                     }
                 }
-            }
+            //}
 
             // instantaneous waterlevel exquilibrium acccross channel and adjacent
             if (dosimpel)
