@@ -10519,7 +10519,7 @@ p, li { white-space: pre-wrap; }
               </widget>
              </item>
              <item>
-              <widget class="QTabWidget" name="tabWidget_2">
+              <widget class="QTabWidget" name="tabWidget_totout">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -10533,9 +10533,9 @@ p, li { white-space: pre-wrap; }
                 </font>
                </property>
                <property name="currentIndex">
-                <number>1</number>
+                <number>0</number>
                </property>
-               <widget class="QWidget" name="tab_7">
+               <widget class="QWidget" name="tab_water">
                 <attribute name="title">
                  <string>Water</string>
                 </attribute>
@@ -11161,7 +11161,7 @@ p, li { white-space: pre-wrap; }
                  </item>
                 </layout>
                </widget>
-               <widget class="QWidget" name="tab_8">
+               <widget class="QWidget" name="tab_sed">
                 <attribute name="title">
                  <string>Sediment</string>
                 </attribute>

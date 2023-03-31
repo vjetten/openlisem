@@ -250,18 +250,6 @@ void TWorld::Totals(void)
         Qtot_dt += Qn->Drc*_dt;
     }}
 
-    // for this flow method, flooding and overland flow are separated, so add the flood outflow separately
-    // obsolete
-//    if(SwitchKinematic2D == K2D_METHOD_KINDYN)
-//    {
-//        Qfloodout = 0;
-//        FOR_ROW_COL_LDD5 {
-//            Qfloodout += Qflood->Drc * _dt;
-//        }}
-
-//        QfloodoutTot += Qfloodout;
-//    }
-
     // add channel outflow
     if (SwitchIncludeChannel)
     {
@@ -323,7 +311,7 @@ void TWorld::Totals(void)
         Qoutput->Drc = factor*(Qn->Drc + Qflood->Drc);// in l/s or m3/s
 
         if(SwitchIncludeChannel)
-            Qoutput->Drc = factor*ChannelQn->Drc;
+            Qoutput->Drc += factor*ChannelQn->Drc;
 
         Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;
     }}
@@ -365,13 +353,6 @@ void TWorld::Totals(void)
             DETFlowCum->Drc += DETFlow->Drc;
             DEPCum->Drc += DEP->Drc;
         }}
-//        DetSplashTot = MapTotal(*DETSplashCum);
-//        DetFlowTot = MapTotal(*DETFlowCum);
-//        DepTot = MapTotal(*DEPCum);
-//        SedTot = MapTotal(*Sed);
-//        DetTot = DetFlowTot + DetSplashTot;
-
-
         // DEP is set to 0 each timestep
         // for total soil loss calculation: TotalSoillossMap
 

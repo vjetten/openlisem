@@ -113,6 +113,8 @@ void lisemqt::runmodel()
     //transparencyHardSurface->setVisible(false);
 
     sedgroup->setVisible(checkDoErosion->isChecked());
+    tabWidget_totout->setTabEnabled(1,checkDoErosion->isChecked() );
+
 
     // initialize output graphs
     initPlot();

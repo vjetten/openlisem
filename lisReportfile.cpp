@@ -230,10 +230,14 @@ void TWorld::OutputUI(void)
         FOR_ROW_COL_MV_L {
             COMBO_SS->Drc = 0;
             COMBO_BL->Drc = 0;
-            COMBO_TC->Drc = TC->Drc;
+            COMBO_TC->Drc = 0;
 
             COMBO_SS->Drc += SSFlood->Drc;
+            COMBO_SS->Drc += Sed->Drc;
+
             COMBO_TC->Drc += SSTCFlood->Drc;
+            COMBO_TC->Drc += TC->Drc;
+
             if (SwitchUse2Phase) {
                 COMBO_BL->Drc += BLFlood->Drc;
                 COMBO_TC->Drc += BLTCFlood->Drc;
@@ -249,8 +253,6 @@ void TWorld::OutputUI(void)
 
             COMBO_SS->Drc = COMBO_SS->Drc  < 1e-6 ? 0 : COMBO_SS->Drc;
             COMBO_BL->Drc = COMBO_BL->Drc  < 1e-6 ? 0 : COMBO_BL->Drc;
-            COMBO_SED->Drc = COMBO_SS->Drc + COMBO_BL->Drc;
-
         }}
     }
 
@@ -984,7 +986,7 @@ void TWorld::ReportMapSeries(void)
         if (SwitchOutSed) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                tm->Drc = COMBO_SED->Drc*factor;
+                tm->Drc = (COMBO_SS->Drc + COMBO_BL->Drc)*factor;
             }}
             report(*tm, OutSed);      // in user units
         }

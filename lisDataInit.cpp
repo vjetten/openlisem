@@ -1869,13 +1869,9 @@ void TWorld::IntializeData(void)
     }
 
     //combination display
-    COMBO_SED = NewMap(0);
     COMBO_SS = NewMap(0);
     COMBO_BL = NewMap(0);
     COMBO_TC = NewMap(0);
-//    extQCH = NewMap(0);
-//    extVCH = NewMap(0);
-//    extWHCH = NewMap(0);
 
     //### rainfall and interception maps
     BaseFlowTot = 0;
