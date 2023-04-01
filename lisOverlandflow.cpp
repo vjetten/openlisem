@@ -238,7 +238,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 {
     double dtOF = 0;
 
-    ChannelOverflow(WHrunoff, V);
+    ChannelOverflow2(WHrunoff, V);
     // Mixing of 2D runoff with channel water, V is used to determine how much flows into the channel
     // after this new ChannelHW and WHrunoff, and Susp sediment values ChannelSSSed and SSFlood->Drc
 
