@@ -798,8 +798,6 @@ void lisemqt::SetStyleUI()
 //    label_baseflowtot->setVisible(false);
 //    label_195->setVisible(false);
 
-    GW_initlevel->setVisible(false);
-    label_61->setVisible(false);
     //nrcontourlevels->setVisible(false);
 //    label_92->setText("Relief ");
 //    label_44->setVisible(false);
@@ -1592,7 +1590,6 @@ void lisemqt::resetTabFlow()
     GW_recharge->setValue(1.0);
     GW_flow->setValue(1.0);
     GW_slope->setValue(1.0);
-    GW_lag->setValue(0.5);
     GW_deep->setValue(0.0);
     GW_threshold->setValue(0.2);
 }
@@ -1651,8 +1648,6 @@ void lisemqt::resetTabErosion()
 
 void lisemqt::resetTabAdvanced()
 {
-    E_mixingFactor->setValue(2.0);
-    E_runoffPartitioning->setValue(1.0);
     E_FloodMaxIter->setValue(200);
     E_minWHflow->setText("0.0001");
     E_FloodReconstruction->setValue(4);  //HLL2 etc
@@ -1662,7 +1657,6 @@ void lisemqt::resetTabAdvanced()
     checkTimeavgV->setChecked(true);
     checkLinkedList->setChecked(false);
     //checkErosionInsideLoop->setChecked(true);
-    checkGravityToChannel->setChecked(false);
     checkKinWaveChannel->setChecked(false);
     E_ChannelKinWaveDt->setValue(60.0);
     nrUserCores->setValue(0);

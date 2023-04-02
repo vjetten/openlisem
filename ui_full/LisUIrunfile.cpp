@@ -196,7 +196,6 @@ void lisemqt::ParseInputData()
       //  if (p1.compare("GW lag factor")==0)               GW_lag->setValue(valc);
         if (p1.compare("GW deep percolation")==0)           GW_deep->setValue(valc);
         if (p1.compare("GW threshold factor")==0)           GW_threshold->setValue(valc);
-        if (p1.compare("GW initial level")==0)              GW_initlevel->setValue(valc);
 
         if (p1.compare("Include channel culverts")==0)      checkChannelCulverts->setChecked(check);
         if (p1.compare("Include channel inflow")==0)        checkChannelInflow->setChecked(check);
@@ -380,13 +379,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(iii);
         if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(iii);
         if (p1.compare("Use time avg V")==0)                 checkTimeavgV->setChecked(check);
-        if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(valc);
-        if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(valc);
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(iii);
         if (p1.compare("Min WH flow")==0)                    E_minWHflow->setText(p);
-        if (p1.compare("Use gravity flow")==0)               checkGravityToChannel->setChecked(check);
-     //   if (p1.compare("Angle flow to channel")==0)          E_angleToChannel->setValue(valc);
-       // if (p1.compare("Use fixed angle")==0)                checkFixedAngle->setChecked(check);
         if (p1.compare("Use Channel Kinwave dt")==0)         checkKinWaveChannel->setChecked(check);
         if (p1.compare("Channel KinWave dt")==0)             E_ChannelKinWaveDt->setValue(valc);
         if (p1.compare("Use Channel Max V")==0)         checkChanMaxVelocity->setChecked(check);
@@ -806,11 +800,8 @@ void lisemqt::updateModelData()
         if (p1.compare("GW flow factor")==0)                 namelist[j].value = GW_flow->text();
         if (p1.compare("GW river inflow factor")==0)                 namelist[j].value = GW_inflow->text();
         if (p1.compare("GW slope factor")==0)                namelist[j].value = GW_slope->text();
-   //     if (p1.compare("GW lag factor")==0)                  namelist[j].value = GW_lag->text();
         if (p1.compare("GW deep percolation")==0)            namelist[j].value = GW_deep->text();
         if (p1.compare("GW threshold factor")==0)            namelist[j].value = GW_threshold->text();
-   //     if (p1.compare("GW initial level")==0)               namelist[j].value = GW_initlevel->text();
-
         if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkFlowBarriers->isChecked());
         if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int) checkBuffers->isChecked());
         if (p1.compare("Flow barrier table filename")==0)    namelist[j].value = line_FlowBarriers->text();
@@ -826,19 +817,14 @@ void lisemqt::updateModelData()
         }
         if (p1.compare("Flow Boundary 2D")==0)               namelist[j].value = E_FlowBoundary->text();
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
-        if (p1.compare("Use gravity flow")==0)               namelist[j].value.setNum((int)checkGravityToChannel->isChecked());
-      //  if (p1.compare("Angle flow to channel")==0)          namelist[j].value = E_angleToChannel->text();
         if (p1.compare("Include diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
         if (p1.compare("Include River diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
-        if (p1.compare("Flooding mixing coefficient")==0)    namelist[j].value = E_mixingFactor->text();
-        if (p1.compare("Flooding runoff partitioning")==0)   namelist[j].value = E_runoffPartitioning->text();
         if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
         if (p1.compare("Pit Value")==0)                      namelist[j].value = E_pitValue->text();
-   //     if (p1.compare("Calculate erosion inside 2D loop")==0) namelist[j].value.setNum((int)checkErosionInsideLoop->isChecked());
         if (p1.compare("Use linked list")==0)                namelist[j].value.setNum((int)checkLinkedList->isChecked());
         if (p1.compare("Use Channel Kinwave dt")==0)         namelist[j].value.setNum((int)checkKinWaveChannel->isChecked());
         if (p1.compare("Channel KinWave dt")==0)             namelist[j].value = E_ChannelKinWaveDt->text();

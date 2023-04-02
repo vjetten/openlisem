@@ -409,19 +409,19 @@ void lisemqt::initOutputData()
 {
 
     //textGraph->setMaximumBlockCount(4);
-    textGraph->setWordWrapMode(QTextOption::NoWrap);
-    textGraph->setMaximumHeight(80);
-    textGraph->clear();
+//    textGraph->setWordWrapMode(QTextOption::NoWrap);
+//    textGraph->setMaximumHeight(80);
+//    textGraph->clear();
 
-    textGraph->setVisible(false);
-    label_headerTextGraph->setVisible(false);
+//    textGraph->setVisible(false);
+//    label_headerTextGraph->setVisible(false);
 }
 
 //---------------------------------------------------------------------------
 // max 6 line text output below hydrographs
 void lisemqt::SetTextHydrographs()
 {
-
+/*
    // textGraph->clear();
     QStringList SL;
 
@@ -493,7 +493,7 @@ void lisemqt::SetTextHydrographs()
         SL << outS;
     }
  //   textGraph->appendPlainText(SL.join('\n'));
-
+*/
 }
 //---------------------------------------------------------------------------
 

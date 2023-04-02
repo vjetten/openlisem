@@ -74,15 +74,15 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
             double cwa = ChannelWidth->Drc/ChannelAdj->Drc;
             double Vavg;
-            if (dH > _h->Drc)
-                Vavg = ChannelV->Drc;//Vb;
-            else
-                Vavg = V->Drc; //pow(_h->Drc,2/3)*sqrtGrad->Drc/N->Drc;//
-            // V from channel or reverse
+//            if (dH > _h->Drc)
+//                Vavg = ChannelV->Drc;//Vb;
+//            else
+//                Vavg = V->Drc; //pow(_h->Drc,2/3)*sqrtGrad->Drc/N->Drc;//
+//            // V from channel or reverse
 
-            int step = qMax(1, (int)(Vavg * _dt/(0.5*ChannelAdj->Drc)));
+//            int step = qMax(1, (int)(Vavg * _dt/(0.5*ChannelAdj->Drc)));
             // nr of iterations
-            //int step = 5;
+            int step = 5;
             double fr = 1.0/(double)step * _dt/(0.5*ChannelAdj->Drc);
 
             for (int i = 0; i < step; i++) // do the flow twice as a kind of iteration
@@ -156,7 +156,7 @@ void TWorld::ToFlood()
 {
     #pragma omp parallel for  num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(hmx->Drc > HMIN && WHrunoff->Drc > HMIN && (WHrunoff->Drc > hmx->Drc))
+        if (hmx->Drc > HMIN && WHrunoff->Drc > HMIN)// && (WHrunoff->Drc > hmx->Drc))
         {
             double frac = 1.0;//1-exp(-2.0*hmx->Drc/(WHrunoff->Drc+HMIN));
 
@@ -165,18 +165,17 @@ void TWorld::ToFlood()
 
             hmx->Drc += dwh;
             WH->Drc -= dwh;
-//            WHrunoff->Drc -= dwh;
-//            WHroad->Drc -= dwh;
             WHrunoff->Drc = 0;
             WHroad->Drc = 0;
             hmxWH->Drc = hmx->Drc + WH->Drc;
-            WaterVolall->Drc = CHAdjDX->Drc*(hmx->Drc) + MicroStoreVol->Drc;
+            WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
 
             if(SwitchErosion)
             {
                 double dsed = frac*Sed->Drc;
                 SSFlood->Drc += dsed;
-                Sed->Drc = 0;//dsed;
+                Sed->Drc = 0;
+                Conc->Drc = 0;
 
                 SWOFSedimentLayerDepth(r,c,hmx->Drc, V->Drc);
                 SWOFSedimentSetConcentration(r,c,hmx);

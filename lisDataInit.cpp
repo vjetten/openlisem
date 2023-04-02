@@ -292,7 +292,7 @@ void TWorld::InitParameters(void)
     GW_lag = 0.8; //getvaluedouble("GW lag factor");
     GW_deep = getvaluedouble("GW deep percolation");
     GW_threshold = getvaluedouble("GW threshold factor");
-  //  GW_initlevel = 0;//getvaluedouble("GW initial level");
+
 
     // get calibration parameters
     gsizeCalibrationD50 = getvaluedouble("Grain Size calibration D50");
@@ -346,30 +346,21 @@ void TWorld::InitParameters(void)
     F_pitValue = getvaluedouble("Pit Value");
 
     if (SwitchAdvancedOptions) {
-        mixing_coefficient = getvaluedouble("Flooding mixing coefficient");
-        runoff_partitioning = getvaluedouble("Flooding runoff partitioning");
         F_MaxIter = getvalueint("Flood max iterations");
         F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
         F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
         F_minWH = getvaluedouble("Min WH flow");   //HLL HLL2 Rusanov
         // SwitchHeun = false;// (getvalueint("Use Heun") == 1);
-        //F_AddGravity = getvalueint("Use gravity flow");
-       // F_Angle = getvaluedouble("Angle flow to channel");
         //SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
         SwitchLinkedList = getvalueint("Use Linked List") == 1;
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
     } else {
-        mixing_coefficient = 2.0;
-        runoff_partitioning = 1.0;
         F_MaxIter = 200;
         F_minWH = 0.0001;
         F_fluxLimiter = 1; //minmax, vanleer, albeda
         F_scheme = 4;   //Rusanov HLL HLL2 HLL2c
         //  SwitchHeun = false;
-        //SwitchFixedAngle = false;
-        F_AddGravity = 1;
-        //F_Angle = 0.02;
         F_pitValue = _dx/100;
         //Switch2DDiagonalFlow = true;
         //SwitchErosionInsideLoop = true;
