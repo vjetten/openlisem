@@ -238,9 +238,27 @@ void TWorld::OverlandFlow2Ddyn(void)
 {
     double dtOF = 0;
 
-    ChannelOverflow2(WHrunoff, V);
+    ChannelOverflow(WHrunoff, V);
     // Mixing of 2D runoff with channel water, V is used to determine how much flows into the channel
     // after this new ChannelHW and WHrunoff, and Susp sediment values ChannelSSSed and SSFlood->Drc
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        ChannelWaterVol->Drc = ChannelWH->Drc * ChannelDX->Drc * ChannelWidth->Drc;
+        WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
+        // do not recalc floodvol, MB errors
+
+        // recalc channel water vol else big MB error
+        if(SwitchErosion)
+        {
+            SWOFSedimentLayerDepth(r,c,WHrunoff->Drc, V->Drc);
+            SWOFSedimentSetConcentration(r,c, WHrunoff);
+
+            RiverSedimentLayerDepth(r,c);
+            RiverSedimentMaxC(r, c);
+            // all concentrations, possible ChannelDep when surplus
+        }
+    }}
 
     startFlood = false;
     #pragma omp parallel for num_threads(userCores)
