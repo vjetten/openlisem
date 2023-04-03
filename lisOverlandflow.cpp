@@ -92,6 +92,7 @@ void TWorld::ToChannel() //(int r, int c)
 {
     if (!SwitchIncludeChannel)
         return;
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
     if (ChannelWidth->Drc > 0 && WHrunoff->Drc > HMIN && hmx->Drc < HMIN)
@@ -160,7 +161,7 @@ void TWorld::CalcVelDisch()//(int r, int c)
         double alpha;
         double WHr = WHrunoff->Drc;
         double FW = FlowWidth->Drc;
-
+        double mixing_coefficient = 2.0;
         if (SwitchKinematic2D == K2D_METHOD_KINDYN && SwitchIncludeChannel && hmx->Drc > 0.001)
             NN = N->Drc * (2.0-qExp(-mixing_coefficient*hmx->Drc));
         // slow down water in flood zone, if hmx = 0 then factor = 1
@@ -220,6 +221,7 @@ void TWorld::updateWHandHmx(void)
             double sed = (SSFlood->Drc + BLFlood->Drc);
             //Conc->Drc =  MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, sed);
             Conc->Drc =  MaxConcentration(WaterVolall->Drc, sed);
+            SSCFlood->Drc = MaxConcentration(WaterVolall->Drc, sed);
 
             Qsn->Drc = Conc->Drc*Qn->Drc;
         }
@@ -242,23 +244,25 @@ void TWorld::OverlandFlow2Ddyn(void)
     // Mixing of 2D runoff with channel water, V is used to determine how much flows into the channel
     // after this new ChannelHW and WHrunoff, and Susp sediment values ChannelSSSed and SSFlood->Drc
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        ChannelWaterVol->Drc = ChannelWH->Drc * ChannelDX->Drc * ChannelWidth->Drc;
-        WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
-        // do not recalc floodvol, MB errors
+    if (SwitchIncludeChannel) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            ChannelWaterVol->Drc = ChannelWH->Drc * ChannelDX->Drc * ChannelWidth->Drc;
+            WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
+            // do not recalc floodvol, MB errors
 
-        // recalc channel water vol else big MB error
-        if(SwitchErosion)
-        {
-            SWOFSedimentLayerDepth(r,c,WHrunoff->Drc, V->Drc);
-            SWOFSedimentSetConcentration(r,c, WHrunoff);
+            // recalc channel water vol else big MB error
+            if(SwitchErosion)
+            {
+                SWOFSedimentLayerDepth(r,c,WHrunoff->Drc, V->Drc);
+                SWOFSedimentSetConcentration(r,c, WHrunoff);
 
-            RiverSedimentLayerDepth(r,c);
-            RiverSedimentMaxC(r, c);
-            // all concentrations, possible ChannelDep when surplus
-        }
-    }}
+                RiverSedimentLayerDepth(r,c);
+                RiverSedimentMaxC(r, c);
+                // all concentrations, possible ChannelDep when surplus
+            }
+        }}
+    }
 
     startFlood = false;
     #pragma omp parallel for num_threads(userCores)

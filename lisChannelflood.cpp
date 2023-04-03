@@ -91,7 +91,6 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
                 if (dH > _h->Drc)   // flow from channel
                 {
-                 //   Vavg = ChannelV->Drc;
                     Vavg = sqrt(2*GRAV*dH); //Bernoulli
                     double frac = std::min(1.0, fr * Vavg);
                     double dwh =  dH * frac;
@@ -107,7 +106,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                         ChannelWH->Drc -= dwh;
 
                         if(SwitchErosion) {
-                            double sed = frac * ChannelSSSed->Drc;
+                            double sed = frac * ChannelSSConc->Drc * dwh *ChannelWidth->Drc * DX->Drc;
+                                    //ChannelSSSed->Drc;
                             ChannelSSSed->Drc -= sed;
                             SSFlood->Drc += sed;
                         }
@@ -156,7 +156,7 @@ void TWorld::ToFlood()
 {
     #pragma omp parallel for  num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (hmx->Drc > HMIN && WHrunoff->Drc > HMIN)// && (WHrunoff->Drc > hmx->Drc))
+        if (hmx->Drc > HMIN && WHrunoff->Drc > HMIN && (WHrunoff->Drc > hmx->Drc))
         {
             double frac = 1.0;//1-exp(-2.0*hmx->Drc/(WHrunoff->Drc+HMIN));
 
