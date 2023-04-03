@@ -2112,6 +2112,7 @@ void TWorld::IntializeData(void)
     Qn = NewMap(0);
 
     flowmask = NewMap(0);
+    K2DOutlets = NewMap(0);
 
     QinKW = NewMap(0);
     QinAFO = NewMap(0);

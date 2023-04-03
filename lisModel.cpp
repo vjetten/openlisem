@@ -69,25 +69,8 @@ void TWorld::saveMBerror2file(bool doError, bool start)
         efout.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream eout(&efout);
         eout << "#mass balance error (%)\n";
-      //  eout << "2\n";
-      //  eout << "run step\n";
-      //  eout << "error\n";
-        //eout << "runtime\n";
-
-//        if (SwitchErosion) {
-//            QFile esfout(resultDir+errorSedFileName);
-//            esfout.open(QIODevice::WriteOnly | QIODevice::Text);
-//            QTextStream esout(&esfout);
-//            esout << "#sediment mass balance error (%)\n";
-//            esout << "2\n";
-//            esout << "run step\n";
-//            esout << "MBs error\n";
-//            esfout.flush();
-//            esfout.close();
-//        }
         efout.flush();
         efout.close();
-        }
 
         if (SwitchPest) {
             QFile efout(resultDir+errorPestFileName);
@@ -117,7 +100,6 @@ void TWorld::saveMBerror2file(bool doError, bool start)
         eout << " " << runstep << "," << MB << "," << (SwitchErosion ? MBs : 0.0) << "\n";
         efout.flush();
         efout.close();
-        }
 
         if (SwitchPest) {
             QFile efout(resultDir+errorPestFileName);
