@@ -57,33 +57,67 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
     if (!SwitchIncludeChannel)
         return;
 
+    int step = 1;
+    fill(*tma, 0);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (ChannelWidth->Drc > 0 && ChannelMaxQ->Drc <= 0)
+    if (ChannelWidth->Drc > 0 && ChannelMaxQ->Drc <= 0)
+    {
+        double chdepth = ChannelDepth->Drc;
+        double dH = std::max(0.0, (ChannelWH->Drc-chdepth));
+
+        if (dH <= HMIN && _h->Drc <= HMIN)
+            continue;
+        // no flow activity then continue
+
+        if (fabs(dH - _h->Drc) < HMIN)
+            continue;
+        // no diff in water level, no flow, continue
+
+        tma->Drc = 1;
+
+        //double cwa = ChannelWidth->Drc/ChannelAdj->Drc;
+        double Vavg;
+        if (dH > _h->Drc)
+            Vavg = sqrt(2*GRAV*dH);
+        else
+            Vavg = V->Drc;
+        // V from channel or reverse
+
+        step = qMax(step,  qMax(1, (int)(Vavg * _dt/(0.5*ChannelAdj->Drc))));
+    }
+    }}
+    step = qMin(step, 50);
+    qDebug() << step;
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        if (tma->Drc > 0)//ChannelWidth->Drc > 0 && ChannelMaxQ->Drc <= 0)
         {
             double chdepth = ChannelDepth->Drc;
             double dH = std::max(0.0, (ChannelWH->Drc-chdepth));
 
-            if (dH <= HMIN && _h->Drc <= HMIN)
-                continue;
-            // no flow activity then continue
+//            if (dH <= HMIN && _h->Drc <= HMIN)
+//                continue;
+//            // no flow activity then continue
 
-            if (fabs(dH - _h->Drc) < HMIN)
-                continue;
-            // no diff in water level, no flow, continue
+//            if (fabs(dH - _h->Drc) < HMIN)
+//                continue;
+//            // no diff in water level, no flow, continue
 
             double cwa = ChannelWidth->Drc/ChannelAdj->Drc;
             double Vavg;
-            double Vb = sqrt(2*GRAV*dH);
-            if (dH > _h->Drc)
-                Vavg = Vb;
-            else
-                Vavg = V->Drc;
-            // V from channel or reverse
+//            double Vb = sqrt(2*GRAV*dH);
+//            if (dH > _h->Drc)
+//                Vavg = Vb;
+//            else
+//                Vavg = V->Drc;
+//            // V from channel or reverse
 
-            int step = qMax(1, (int)(Vavg * _dt/(0.5*ChannelAdj->Drc)))+4;
-            // nr of iterations
-            //int step = 5;
+//            int step = qMax(1, (int)(Vavg * _dt/(0.5*ChannelAdj->Drc)))+4;
+//            // nr of iterations
+//            //int step = 5;
+
             double fr = 1.0/(double)step * _dt/(0.5*ChannelAdj->Drc);
 
             for (int i = 0; i < step; i++) // do the flow twice as a kind of iteration

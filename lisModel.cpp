@@ -263,7 +263,7 @@ void TWorld::DoModel()
 
         _dt_user = _dt;
 
-        DEBUG("Running...");
+        DEBUG(" ");
 
         GetComboMaps(); // moved to outside timeloop!
 

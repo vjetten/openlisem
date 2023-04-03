@@ -161,9 +161,9 @@ void TWorld::CalcVelDisch()//(int r, int c)
         double alpha;
         double WHr = WHrunoff->Drc;
         double FW = FlowWidth->Drc;
-        double mixing_coefficient = 2.0;
-        if (SwitchKinematic2D == K2D_METHOD_KINDYN && SwitchIncludeChannel && hmx->Drc > 0.001)
-            NN = N->Drc * (2.0-qExp(-mixing_coefficient*hmx->Drc));
+//        double mixing_coefficient = 2.0;
+//        if (SwitchKinematic2D == K2D_METHOD_KINDYN && SwitchIncludeChannel && hmx->Drc > 0.001)
+//            NN = N->Drc * (2.0-qExp(-mixing_coefficient*hmx->Drc));
         // slow down water in flood zone, if hmx = 0 then factor = 1
 
         if (Grad->Drc > MIN_SLOPE)
