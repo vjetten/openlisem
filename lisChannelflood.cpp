@@ -74,15 +74,16 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
             double cwa = ChannelWidth->Drc/ChannelAdj->Drc;
             double Vavg;
-//            if (dH > _h->Drc)
-//                Vavg = ChannelV->Drc;//Vb;
-//            else
-//                Vavg = V->Drc; //pow(_h->Drc,2/3)*sqrtGrad->Drc/N->Drc;//
-//            // V from channel or reverse
+            double Vb = sqrt(2*GRAV*dH);
+            if (dH > _h->Drc)
+                Vavg = Vb;
+            else
+                Vavg = V->Drc;
+            // V from channel or reverse
 
-//            int step = qMax(1, (int)(Vavg * _dt/(0.5*ChannelAdj->Drc)));
+            int step = qMax(1, (int)(Vavg * _dt/(0.5*ChannelAdj->Drc)))+4;
             // nr of iterations
-            int step = 5;
+            //int step = 5;
             double fr = 1.0/(double)step * _dt/(0.5*ChannelAdj->Drc);
 
             for (int i = 0; i < step; i++) // do the flow twice as a kind of iteration
