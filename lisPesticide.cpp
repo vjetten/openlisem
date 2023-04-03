@@ -28,31 +28,27 @@
   \brief Transport and partitioning of pesticides
 
 functions: \n
-- void TWorld::PesticideDynamics(void)
 - double TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot) \n
 - double TWorld::MassPestInitial(void) \n
+- void TWorld::PesticideCellDynamics(void) \n
+- void TWorld::PesticideFlow1D(void) \n
 - double TWorld::PesticidePercolation(double perc, double soildep, double lw,
-                double zm, double dx, double swdx, double pcmw)
+                double zm, double dx, double swdx, double pcmw) \n
 - void TWorld::KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
                cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
-               cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, double _kfilm)
+               cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, double _kfilm) \n
 - void TWorld::KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
                              cTMap *_LDD, cTMap *_Qsn, cTMap *_Qpsn, cTMap *_DX,
                              cTMap *_Alpha, cTMap *_Sed, cTMap *_Qs, cTMap *_Qps,
-                                   double rho)
-//OBSOLETE
-- void TWorld::KinematicPest(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
-                             cTMap *_Qn, cTMap *_Qsn, cTMap *_Qpwn, cTMap *_Qpsn,
-                             cTMap *_DX, cTMap *_Alpha, cTMap *_Sed,
-                             cTMap *_Q, cTMap *_Qs, cTMap *_Qpw, cTMap *_Qps) \n
+                                   double rho) \n
+- double TWorld::QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
+                             double Pji1, double alpha, double dx, double dt)
+- void TWorld::PesticideSplashDetachment() \n
+- void TWorld::PesticideFlowDetachment(double rho) \n
 */
 
 #include "model.h"
 #include "operation.h"
-
-// check if cell From flows to To
-//#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
-//    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 //---------------------------------------------------------------------------
 /**
@@ -148,10 +144,11 @@ double TWorld::MassPestInitial(void)
 
 //---------------------------------------------------------------------------
 /**
-* @fn void TWorld::PesticideDynamics(void)
-* @brief Do all the calculations for pesticide dynamics
+* @fn void TWorld::PesticideCellDynamics(void)
+* @brief Do all the calculations for dissolved pesticide dynamics in a cell
 * This includes:
-*   call functions for specific dynamics
+*   partitioning in mixing layer
+*   losses by percolation and infiltration
 *   update all masses etc.
 */
 
@@ -306,7 +303,7 @@ double TWorld::PesticidePercolation(double perc, double soildep, double lw,
 /**
 * @fn double TWorld::KinematicPestDissolved(double perc, double soildep,
 *               double lw, double zm, double dx, double swdx, double pcmw)
-* @brief Calculate mass lost by percolation
+* @brief explicit kinematic wave for dissolved pesticides
 */
 
 void TWorld::KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
@@ -523,7 +520,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 /**
 * @fn double TWorld::KinematicPestAdsorbed(double perc, double soildep,
 *               double lw, double zm, double dx, double swdx, double pcmw)
-* @brief Calculate mass transported with runoff sediment
+* @brief Calculate adsorbed pesticide mass transported with runoff sediment
 */
 
 void TWorld::KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
@@ -698,9 +695,8 @@ double TWorld::QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i, d
 //---------------------------------------------------------------------------
 /**
 * @fn double TWorld::PesticideSplashDetachment(;
-* @brief Calculate mass exchange by erosion and deposition with soil
+* @brief Calculate adsorbed pesticide mass added to flow by splash erosion
 */
-
 
 void TWorld::PesticideSplashDetachment() {
 
@@ -729,7 +725,6 @@ void TWorld::PesticideSplashDetachment() {
 * @fn double TWorld::PesticideDetachment(double rho);
 * @brief Calculate mass exchange by erosion and deposition with soil
 */
-
 
 void TWorld::PesticideFlowDetachment(double rho) {
 
