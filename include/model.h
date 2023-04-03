@@ -147,7 +147,7 @@
 #define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MAXCONCBL 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MIN_SLOPE 1e-3
-#define tiny 1e-6
+#define tiny 1e-8
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
@@ -361,7 +361,7 @@ public:
  SwitchGullyInit,SwitchMapoutRunoff, SwitchMapoutConc, SwitchWritePCRnames,SwitchNoErosionOutlet,SwitchSimpleSedKinWave, SwitchSOBEKoutput,
  SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol
  SwitchChannelFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,SwitchRainfallFlood,SwitchLevees,SwitchWatershed,SwitchMinDTfloodMethod,SwitchNeedD90,
- int SwitchFlood1D2DCoupling;SwitchPercolation, SwitchInfilGA2, SwitchCompactPresent, SwitchNutrients, SwitchPestout, SwitchDrainage,
+ int SwitchFlood1D2DCoupling;SwitchPercolation, SwitchInfilGA2, SwitchCompactPresent, SwitchNutrients, SwitchDrainage,
 */
 
     bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelInflow, SwitchChannelAdjustCHW,
@@ -371,7 +371,8 @@ public:
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
-    SwitchHouses, SwitchRaindrum, SwitchLitter, SwitchAddBuildingsDEM, SwitchPest, SwitchReportPest,
+    SwitchHouses, SwitchRaindrum, SwitchLitter, SwitchAddBuildingsDEM,
+    SwitchPest, SwitchReportPest, SwitchPestInternal_dt, SwitchPestMixPartitioning,
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
@@ -837,12 +838,11 @@ public:
     //Pesticides
     void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
     double MassPestInitial(void);
-    void KinematicPest(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD,
-                         cTMap *_Qn, cTMap *_Qsn, cTMap *_Qpwn, cTMap *_Qpsn,
-                         cTMap *_DX, cTMap *_Alpha, cTMap *_Sed,
-                         cTMap *_Q, cTMap *_Qs, cTMap *_Qpw, cTMap *_Qps);
     void InitPesticide(void);
-    void PesticideDynamics(void);
+    void PesticideCellDynamics(void);
+    void PesticideSplashDetachment(void);
+    void PesticideFlowDetachment(double rho);
+    void PesticideFlow1D(void);
     double PesticidePercolation(double perc, double soildep, double lw,
                                 double zm, double dx, double swdx, double pcmw);
     void KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,

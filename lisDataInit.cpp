@@ -2172,7 +2172,9 @@ void TWorld::IntializeData(void)
     }
 
     // load data for pesticide
-    //SwitchPestMC = true;
+    SedMassIn = NewMap(0);
+    SedAfterSplash = NewMap(0);
+
     if(SwitchPest){
         // get constant from runfile
         KdPest = getvaluedouble("Kd pesticide");
@@ -2216,6 +2218,9 @@ void TWorld::IntializeData(void)
             Qps = NewMap(0);
             pmsdet = NewMap(0);
             pmsdep = NewMap(0);
+            PMsplash = NewMap(0);
+            PMflow = NewMap(0);
+            PMdep = NewMap(0);
         }
 
         // total masses
@@ -2423,6 +2428,8 @@ void TWorld::IntializeOptions(void)
 
     SwitchPest = false;
     SwitchReportPest = false;
+    SwitchPestInternal_dt = false;
+    SwitchPestMixPartitioning = true;
 
     addedbaseflow = false;
 }

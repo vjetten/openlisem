@@ -29,7 +29,6 @@
 #include <algorithm>
 #include "model.h"
 #include "operation.h"
-#define tiny 1e-8
 
 //--------------------------------------------------------------------------------------------
 /**
@@ -57,10 +56,16 @@ void TWorld::OverlandFlow(void)
         if (SwitchErosion) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L  {
+                SedAfterSplash->Drc = Sed->Drc; //for pesticide detachment
                 cell_FlowDetachment(r, c);
                 // kine wave based flow detachment
+                SedMassIn->Drc = Sed->Drc; // for pesticide kin wave
             }}
+        if (SwitchPest) {
+            PesticideFlowDetachment(rhoPest);
         }
+        }
+
 
         ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
         OverlandFlow1D();   // kinematic wave of water and sediment
@@ -320,10 +325,6 @@ void TWorld::OverlandFlow1D(void)
         QinKW->Drc = 0; // store for incoming water in a cell
         //tot = tot + WaterVolin->Drc;
 
-        //Save WHrunoff and Sed as start state for all-fluxes-out
-        WHAFO = WHrunoff;
-        SedAFO = Sed;
-
         if (SwitchErosion) {
             // calc seediment flux going in kin wave as Qs = Q*C
             Qsn->Drc = 0.0;
@@ -399,19 +400,13 @@ void TWorld::OverlandFlow1D(void)
             }}
         } else {
             KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
-            SinAFO = SinKW; // save sediment influx for all-fluxes-out.
-           FOR_ROW_COL_MV_L{
-                ErosionAFO->Drc = (Qsn->Drc*_dt) - (SinKW->Drc*_dt); //??
-           }}
-//        }
    }
-
-            // MC - Sed is updated by kinematicSubstance, should conc also be updated? now the conc is still based on the Sed before KW
+    // MC - Sed is updated by kinematicSubstance, should conc also be updated? now the conc is still based on the Sed before KW
 
     // route other stuff
     if (SwitchPest) {
-        //this function takes care of all pesticide dynamics
-        PesticideDynamics();
+        //this function takes care of dissolved and adsorbed kinematic wave
+        PesticideFlow1D();
      }
 }
 }

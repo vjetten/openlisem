@@ -210,7 +210,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Add building fraction")==0)         E_AddBuildingFraction->setValue(valc);
         if (p1.compare("Include raindrum storage")==0)      checkRaindrum->setChecked(check);
         if (p1.compare("Include tile drains")==0)           checkIncludeTiledrains->setChecked(check);
-        //if (p1.compare("Include Pesticides")==0)         // add here if added to UI
+        if (p1.compare("Include Pesticides")==0)            checkPesticides->setChecked(check);
 
         
         // INTERCEPTION
@@ -374,6 +374,13 @@ void lisemqt::ParseInputData()
 //            if (p.contains(",")) p.replace(",",";");
 //            E_GrainSizes->setText(p);
 //        }
+
+       // PESTICDES
+      //  if (p1.compare("Kd pesticide")==0)     PE_Kd->setValue(valc);
+
+
+
+
         //ADVANCED
         if (p1.compare("Advanced Options")==0)                 checkAdvancedOptions->setChecked(check);
       //  if (p1.compare("Calculate erosion inside 2D loop")==0)  checkErosionInsideLoop->setChecked(check);
@@ -786,7 +793,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Nr user Cores")==0) namelist[j].value.setNum(nrUserCores->value());
         // erosion
         if (p1.compare("Include Erosion simulation")==0)      namelist[j].value.setNum((int)checkDoErosion->isChecked());
-
+        // pesticides
+        if (p1.compare("Include Pesticides")==0)            namelist[j].value.setNum((int)checkPesticides->isChecked());
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
@@ -797,7 +805,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkChannelInflow->isChecked());
         // groundwater
         if (p1.compare("GW flow explicit")==0)               namelist[j].value.setNum((int)checkGWflowexplicit->isChecked());
-        if (p1.compare("GW flow SWAT")==0)               namelist[j].value.setNum((int)checkGWflowSWAT->isChecked());
+        if (p1.compare("GW flow SWAT")==0)                   namelist[j].value.setNum((int)checkGWflowSWAT->isChecked());
         if (p1.compare("GW recharge factor")==0)             namelist[j].value = GW_recharge->text();
         if (p1.compare("GW flow factor")==0)                 namelist[j].value = GW_flow->text();
         if (p1.compare("GW river inflow factor")==0)                 namelist[j].value = GW_inflow->text();
@@ -1081,6 +1089,12 @@ void lisemqt::updateModelData()
                 namelist[j].value.setNum(2);
         }
         //VJ 110110 added
+
+        //PESTICIDE
+    //    if (p1.compare("Kd pesticide")==0) namelist[j].value= PE_Kd->text();
+
+
+
 
         // make a string for all output maps
 

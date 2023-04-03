@@ -1106,6 +1106,12 @@ void TWorld::ReportMapSeries(void)
             report(*Ez, "ez");
             report(*pmsdet, "sdet");
             report(*pmsdep, "sdep");
+            report(*PMsplash, "pspl");
+            report(*PMflow, "pflw");
+            report(*PMdep, "pdep");
+            report(*Sed, "sedf");
+            report(*SedMassIn, "sedkw");
+            report(*SedAfterSplash, "sedp");
         }
         //report(*WaterVolall, "wall");
         //report(*WaterVolin, "win");

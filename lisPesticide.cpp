@@ -129,7 +129,7 @@ double TWorld::MassPestInitial(void)
 {
     double pmtot_i {0.0};
     double rho = rhoPest;
-    // PMtotI = PMsoil + PMmw + PMms
+
     //#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
         // mg = mg kg-1 * m * m * kg m-3 * m
@@ -155,7 +155,7 @@ double TWorld::MassPestInitial(void)
 *   update all masses etc.
 */
 
-void TWorld::PesticideDynamics(void)
+void TWorld::PesticideCellDynamics(void)
 {
     double rho = rhoPest;     //kg m-3
     double Kd = KdPest;       // -
@@ -182,6 +182,7 @@ void TWorld::PesticideDynamics(void)
        // Kr * (Kd * PCmw->Drc - PCms->Drc) is mg * kg-1 * sec-1
        // this holds if 1L water = 1kg
 
+       if (SwitchPestMixPartitioning) {
        // positive adds to absorbed, negative to dissolved.
        // mg = mg kg-1 sec-1 *  sec * kg
        mda_ex = kr * (Kd * PCmw->Drc - PCms->Drc) * _dt
@@ -194,6 +195,7 @@ void TWorld::PesticideDynamics(void)
        // mda_ex can not be larger than m_diff
        m_diff = eql_ads - PMms->Drc;
        mda_ex = std::abs(mda_ex) > std::abs(m_diff) ? m_diff : mda_ex;
+       }
 
        //percolation
        PMperc->Drc = 0.0; //does not need to be a map...
@@ -229,7 +231,21 @@ void TWorld::PesticideDynamics(void)
        PCmw->Drc = PMmw->Drc / vol_w;
        PCms->Drc = PMms->Drc / mass_s;
     }}
+}
 
+//---------------------------------------------------------------------------
+/**
+* @fn void TWorld::PesticideFlow1D(void)
+* @brief Do all the calculations for pesticide dynamics between cells
+* This includes:
+*   call functions for adsorbed and dissolved dynamics
+*   update all masses etc.
+*/
+
+void TWorld::PesticideFlow1D(void) {
+
+    double Kfilm = KfilmPest; // m sec-1
+    double rho = rhoPest;     //kg m-3
     //runoff
 
     KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw,
@@ -237,7 +253,9 @@ void TWorld::PesticideDynamics(void)
 
     //erosion
     if(SwitchErosion){
-        KinematicPestAdsorbed(crlinkedldd_, LDD, Qsn, PQrs, DX, Alpha, Sed,
+
+        // adsorbed discharge
+        KinematicPestAdsorbed(crlinkedldd_, LDD, Qsn, PQrs, DX, Alpha, SedMassIn,
                               Qs, Qps, rho);
     }
     // calculate new concentration
@@ -341,7 +359,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         pmwdep->Drc -= PMrw->Drc;
         PMrw->Drc = 0.0;        // mass = 0
         PQrw->Drc = 0.0;        // discharge = 0
-
     }
     if (Qn->Drc + QinKW->Drc > MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
         double vol_mw {0.0};    // volume of water in mixing layer [L]
@@ -401,7 +418,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc + PMrw->Drc / _dt);
 
         // internal time loop
-
+        if (SwitchPestInternal_dt) {
         //calculate courant number of standard timestep
         double Cr_rw {0.0};
         double Cr_mw {0.0};
@@ -421,8 +438,8 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
             dt_int = _dt / steps;
 
             // fill intermediate concentrations and masses
-            double int_Qpw, int_Qpwn, int_Cmw, int_Crw, int_Crw_avg; //
-            double int_Mrw, int_Mmw, int_mwrm_ex, int_mrw_inf; //
+            double int_Qpw {0.0}, int_Qpwn {0.0}, int_Cmw {0.0}, int_Crw {0.0}, int_Crw_avg {0.0}; //
+            double int_Mrw {0.0}, int_Mmw {0.0}, int_mwrm_ex {0.0}, int_mrw_inf {0.0}; //
             double sum_int_mwrm_ex {0.0}, sum_int_Qpwn {0.0}, sum_int_mrw_inf {0.0};
 
             int_Qpw = _Qpw->Drc;
@@ -487,6 +504,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
             mrw_inf = sum_int_mrw_inf;
 
         } // end if Cr > Cr_max
+        } // end internal time loop
 
         // mass balance
         mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
@@ -548,15 +566,9 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         }
     }
     SpinKW->Drc = Spin;
-    //} // end ldd loop
-    //#pragma omp parallel for num_threads(userCores)
-    //FOR_ROW_COL_MV_L {
-    double Crs_avg {0.0};
-    double msoil_ex {0.0};  // mass exchange between mixing layer and deeper soil
-    double msrm_ex {0.0};   // mass exchange between mixing layer an suspended sediment
 
     //no erosion - add leftover of mass to mixing layer
-    if (_Sed->Drc < tiny) {
+    if (_Sed->Drc == 0.0 & SinKW->Drc == 0.0) {
         PCrs->Drc = 0.0;        //concentration = 0
         PMms->Drc += PMrs->Drc; //add any leftover mass to mixing layer
         pmsdep->Drc -= PMrs->Drc;
@@ -564,154 +576,77 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         PQrs->Drc = 0.0;        // discharge = 0
 
     }
-
-    if (_Sed->Drc > tiny) { // more than 0.01 gram _Qsn->Drc + Sin
-        // positive = erosion, negative = deposition
-        double eMass = (DEP->Drc + DETFlow->Drc + DETSplash->Drc); //kg/cell
-
+    double Crs_avg {0.0};
+    if (_Sed->Drc > 0 | SinKW->Drc > 0.0) { //
         // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
         Crs_avg = (PMrs->Drc + (SpinKW->Drc * _dt))
-                  / (_Sed->Drc - eMass + (SinKW->Drc * _dt));
-        // substract eMass from _Sed for a more accurate concentration.
-        // calculate erosion depth, no time component, per timestep
-        // For now only use SoilWidth in formulas. Check what is done with deposition on roads.
-        // Can this be eroded after deposition or not?
-        // option 1 - all deposition on roads add directly to sink
-        // option 2 - deposition on roads can be eroded and added into the system...
-
-        if (eMass < 0) {
-            //deposition
-            // m = kg / kg m-3 * m * m
-            Ez->Drc = eMass / (rho * _DX->Drc * SoilWidthDX->Drc); // also on road surface???
-            msoil_ex = eMass * PCms->Drc; // what happens with pesticides on roads??
-            // mg = mg kg-1 * kg
-            msrm_ex = Crs_avg * eMass; // loss by deposition            
-        } else if (eMass > 0){
-            // erosion
-            Ez->Drc = eMass / (rho * _DX->Drc * SoilWidthDX->Drc); // only on soil surface
-            msoil_ex = eMass * PCs->Drc; //
-            // mg = mg kg-1  kg
-            msrm_ex = PCms->Drc * eMass; // added by erosion
-        }
-        // adjust mass for erosion or deposition
-//        // no more transport than mass in cell domain
-//        if (PMrs->Drc + msrm_ex < 0) {
-//            msrm_ex = -PMrs->Drc;
-//        }
-//        if (PMms->Drc + msoil_ex < msrm_ex) {
-//            msrm_ex = PMms->Drc + msoil_ex;
-//        }
+                  / (_Sed->Drc + (SinKW->Drc * _dt));
 
         // - simple extrapolation
-        double totpests = std::max(0.0, PMrs->Drc + (SpinKW->Drc * _dt) + msrm_ex);
+        double totpests = std::max(0.0, PMrs->Drc + (SpinKW->Drc * _dt));
         double totsed = _Sed->Drc + (SinKW->Drc * _dt);
         _Qpsn->Drc = std::min(totpests/_dt,
                                   _Qsn->Drc * (totpests / totsed));
 
 
         // internal loop ----------------------------
-
-        // calculate eMass rate : eMass/_dt
+        if (SwitchPestInternal_dt) {
         //calculate courant number of standard timestep
         double Cr_rs {0.0};
-        double Cr_ms {0.0};
-        // runoff sediment
-        Cr_rs = PMrs->Drc > 0 ? ((_Qpsn->Drc * _dt) - msrm_ex) / (PMrs->Drc + SpinKW->Drc * _dt) : 0.0;
-        // mixing layer
-        Cr_ms = PMmw->Drc > 0 ? (msrm_ex) / PMms->Drc : 0.0;
+        Cr_rs = PMrs->Drc > 0 ? ((_Qpsn->Drc * _dt)) / (PMrs->Drc + SpinKW->Drc * _dt) : 0.0;
 
-        //start loop if one of the Cr's > Cr_max
-        if (Cr_rs > Cr_max | Cr_ms > Cr_max) {
+        //start loop if Cr > Cr_max
+        if (Cr_rs > Cr_max) {
             // calculate steps and internal timestep
             double steps {0.0};
             double dt_int {0.0};
-            steps = std::min(std::ceil(std::max(Cr_rs,Cr_ms)*(2/Cr_max)), _dt/dt_int_min);
+            steps = std::min(std::ceil(Cr_rs*(2/Cr_max)), _dt/dt_int_min);
             dt_int = _dt / steps;
 
             // fill intermediate concentrations and masses
-            double int_Qpsn, int_Cms, int_Crs, int_Crs_avg; //
-            double int_Mrs, int_Mms, int_msrm_ex, int_msoil_ex; //
-            double sum_int_msrm_ex {0.0}, sum_int_Qpsn {0.0}, sum_int_msoil_ex {0.0};
-            double int_Ez, int_eMass, int_Cs, int_zs, int_Msoil;
+            double int_Qpsn {0.0}, int_Crs_avg {0.0}; //
+            double int_Mrs {0.0}; //
+            double sum_int_Qpsn {0.0};
 
-            int_Cms = PCms->Drc;
             int_Mrs = PMrs->Drc;
-            int_Mms = PMms->Drc;
-            int_Cs = PCs->Drc;
-            int_zs = zs->Drc;
-            int_Msoil = PMsoil->Drc;
-
-            int_eMass = (eMass / _dt) * dt_int;
 
             // make loop
             double count = 0;
             while (count < steps) {
                 count++;
 
-                // Crs
                 // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
                 int_Crs_avg = (int_Mrs + (SpinKW->Drc * dt_int))
-                              / (_Sed->Drc - eMass + (SinKW->Drc * dt_int));
-                // erosion or deposition
-                if (int_eMass < 0) {
-                    //deposition
-                    // m = kg / kg m-3 * m * m
-                    int_Ez = int_eMass / (rho * _DX->Drc * SoilWidthDX->Drc); // also on road surface???
-                    int_msoil_ex = int_eMass * int_Cms; // what happens with pesticides on roads??
-                    // mg = mg kg-1 * kg
-                    int_msrm_ex = int_Crs_avg * int_eMass; // loss by deposition
-                } else if (int_eMass > 0){
-                    // erosion
-                    int_Ez = int_eMass / (rho * _DX->Drc * SoilWidthDX->Drc); // only on soil surface
-                    int_msoil_ex = int_eMass * int_Cs; //
-                    // mg = mg kg-1  kg
-                    int_msrm_ex = int_Cms * int_eMass; // added by erosion
-                }
+                              / (_Sed->Drc + (SinKW->Drc * dt_int));
 
                 // - simple extrapolation
-                double totpests = std::max(0.0, int_Mrs + int_msrm_ex +
+                double totpests = std::max(0.0, int_Mrs +
                                            (SpinKW->Drc * dt_int));
                 double totsed = _Sed->Drc + (SinKW->Drc * dt_int);
                 int_Qpsn = std::min(totpests/dt_int,
                                       _Qsn->Drc * (totpests / totsed));
 
-
                // update for next loop
                int_Mrs = std::max(0.0, int_Mrs - (int_Qpsn * dt_int)
-                                           + (SpinKW->Drc * dt_int) + int_msrm_ex);
-               int_Mms = std::max(0.0, int_Mms - int_msrm_ex + int_msoil_ex);
-               int_Cms = int_Mms / (zm->Drc * rho * _DX->Drc * SoilWidthDX->Drc);
-               int_zs -= int_Ez;
-               int_Msoil = std::max(0.0, int_Msoil - int_msoil_ex);
-               int_Cs  = int_Msoil / (int_zs * rho * _DX->Drc * SoilWidthDX->Drc);
-
+                                           + (SpinKW->Drc * dt_int));
                //sum for final values
                sum_int_Qpsn += int_Qpsn;
-               sum_int_msoil_ex += int_msoil_ex;
-               sum_int_msrm_ex += int_msrm_ex;
 
 
             } // end internal time loop
 
             //calculate final values
             _Qpsn->Drc = sum_int_Qpsn / steps;
-            msoil_ex = sum_int_msoil_ex;
-            msrm_ex = sum_int_msrm_ex;
+
 
         } // end if Cr > Cr_max
+        } // end internal timeloop
 
-        // mass balance
-        eMass < 0 ? pmsdep->Drc += msrm_ex: pmsdet->Drc += msrm_ex;
         // mg = mg sec-1 * sec
         PMrs->Drc = std::max(0.0, PMrs->Drc - (_Qpsn->Drc * _dt)
-                                      + (SpinKW->Drc * _dt) + msrm_ex);
-        PCrs->Drc = PMrs->Drc / _Sed->Drc;
-        // adjust lower soil layer
-        PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);
-        zs->Drc -= Ez->Drc;
-        PCs->Drc = PMsoil->Drc
-                   / (zs->Drc * rho * _DX->Drc * SoilWidthDX->Drc);
-        PMms->Drc = std::max(0.0, PMms->Drc - msrm_ex + msoil_ex);
+                                      + (SpinKW->Drc * _dt));
+        PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0;; // divide by Sed after kin wave!!!
+        // 0,001 g
         } // erosion occurs
     }// end ldd loop
 }
@@ -758,4 +693,94 @@ double TWorld::QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i, d
     else
         Pj1i1 = 0;
     return std::max(0.0 ,Pj1i1);
+}
+
+//---------------------------------------------------------------------------
+/**
+* @fn double TWorld::PesticideSplashDetachment(;
+* @brief Calculate mass exchange by erosion and deposition with soil
+*/
+
+
+void TWorld::PesticideSplashDetachment() {
+
+    FOR_ROW_COL_MV_L{
+         double msoil_ex {0.0};  // mass exchange between mixing layer and deeper soil
+        // add mass to pesticide in flow
+        PMsplash->Drc = DETSplash->Drc * PCms->Drc;
+        PMrs->Drc += PMsplash->Drc;
+        PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0; // if Sed > 0.001 gr
+
+        // update mass and concentration in mixing layer
+        msoil_ex = DETSplash->Drc * PCs->Drc;
+        PMms->Drc = PMms->Drc - PMsplash->Drc + msoil_ex;
+        PCms->Drc = PMms->Drc / (zm->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest);
+        // adjust lower soil layer
+        PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);
+
+        //mass balance
+        pmsdet->Drc += PMsplash->Drc;
+    }}
+}
+
+
+//---------------------------------------------------------------------------
+/**
+* @fn double TWorld::PesticideDetachment(double rho);
+* @brief Calculate mass exchange by erosion and deposition with soil
+*/
+
+
+void TWorld::PesticideFlowDetachment(double rho) {
+
+  // mass exchange between mixing layer an suspended sediment
+
+    FOR_ROW_COL_MV_L{
+        double msoil_ex {0.0};  // mass exchange between mixing layer and deeper soil
+        double msrm_ex {0.0};
+        // For now only use SoilWidth in formulas. Check what is done with deposition on roads.
+        // Can this be eroded after deposition or not?
+        // option 1 - all deposition on roads add directly to sink
+        // option 2 - deposition on roads can be eroded and added into the system...
+
+        PMdep->Drc = 0.0;
+        PMflow->Drc = 0.0;
+
+        if (DEP->Drc < 0) {
+            //deposition
+            msoil_ex = DEP->Drc * PCms->Drc; // what happens with pesticides on roads??
+            // mg = mg kg-1 * kg
+            msrm_ex = (DEP->Drc/SedAfterSplash->Drc) * PMrs->Drc; // loss by deposition
+            // no more transport than mass in cell domain
+            if (PMrs->Drc + msrm_ex < 0) {
+                msrm_ex = -PMrs->Drc;
+            }
+            PMdep->Drc = msrm_ex;
+        } else if (DETFlow->Drc > 0){
+            // erosion
+            msoil_ex = DETFlow->Drc * PCs->Drc; //
+            // mg = mg kg-1  kg
+            msrm_ex = PCms->Drc * DETFlow->Drc; // added by erosion
+            // no more transport than mass in cell domain
+            if (PMms->Drc + msoil_ex < msrm_ex) {
+                msrm_ex = PMms->Drc + msoil_ex;
+            }
+            PMflow->Drc = msrm_ex;
+        }
+
+        // mass balance
+        DEP->Drc < 0 ? pmsdep->Drc += msrm_ex: pmsdet->Drc += msrm_ex;
+
+        // pesticides in suspended sediment
+        PMrs->Drc = std::max(0.0, PMrs->Drc + msrm_ex);
+        PCrs->Drc = SedMassIn->Drc > 1e-6 ? PMrs->Drc / SedMassIn->Drc : 0.0; //
+
+        // adjust mass lower soil layer for mass balance
+        PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);
+
+        // pesticides in mixing layer
+        PMms->Drc = std::max(0.0, PMms->Drc - msrm_ex + msoil_ex);
+        PCms->Drc = PMms->Drc / (zm->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest);
+
+    }}
 }
