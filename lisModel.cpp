@@ -68,24 +68,25 @@ void TWorld::saveMBerror2file(bool doError, bool start)
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream eout(&efout);
-        eout << "#water mass balance error (%)\n";
-        eout << "2\n";
-        eout << "run step\n";
-        eout << "error\n";
+        eout << "#mass balance error (%)\n";
+      //  eout << "2\n";
+      //  eout << "run step\n";
+      //  eout << "error\n";
         //eout << "runtime\n";
+
+//        if (SwitchErosion) {
+//            QFile esfout(resultDir+errorSedFileName);
+//            esfout.open(QIODevice::WriteOnly | QIODevice::Text);
+//            QTextStream esout(&esfout);
+//            esout << "#sediment mass balance error (%)\n";
+//            esout << "2\n";
+//            esout << "run step\n";
+//            esout << "MBs error\n";
+//            esfout.flush();
+//            esfout.close();
+//        }
         efout.flush();
         efout.close();
-
-        if (SwitchErosion) {
-            QFile esfout(resultDir+errorSedFileName);
-            esfout.open(QIODevice::WriteOnly | QIODevice::Text);
-            QTextStream esout(&esfout);
-            esout << "#sediment mass balance error (%)\n";
-            esout << "2\n";
-            esout << "run step\n";
-            esout << "MBs error\n";
-            esfout.flush();
-            esfout.close();
         }
 
         if (SwitchPest) {
@@ -113,17 +114,9 @@ void TWorld::saveMBerror2file(bool doError, bool start)
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::Append | QIODevice::Text);
         QTextStream eout(&efout);
-        eout << " " << runstep << " " << MB << " " << op.t << "\n";
+        eout << " " << runstep << "," << MB << "," << (SwitchErosion ? MBs : 0.0) << "\n";
         efout.flush();
         efout.close();
-
-        if (SwitchErosion) {
-            QFile esfout(resultDir+errorSedFileName);
-            esfout.open(QIODevice::Append | QIODevice::Text);
-            QTextStream esout(&esfout);
-            esout << " " << runstep << " " << MBs <<  "\n";
-            esfout.flush();
-            esfout.close();
         }
 
         if (SwitchPest) {
@@ -153,8 +146,8 @@ void TWorld::DoModel()
 
     mapFormat = "PCRaster";
 
-    errorFileName = QString(resultDir + "error-"+ op.timeStartRun +".txt");
-    errorSedFileName = QString(resultDir + "errorsed-"+ op.timeStartRun +".txt");
+    errorFileName = QString(resultDir + "error-"+ op.timeStartRun +".csv");
+    //errorSedFileName = QString(resultDir + "errorsed-"+ op.timeStartRun +".txt");
     errorPestFileName = QString(resultDir + "error_pest.txt");
     time_ms.start();
     // get time to calc run length
@@ -307,7 +300,7 @@ void TWorld::DoModel()
         }
         _dt_user = _dt;
 
-        DEBUG("Running...");
+        DEBUG(" ");
 
         GetComboMaps(); // moved to outside timeloop!
 

@@ -84,16 +84,16 @@ void TWorld::cell_Interception(int r, int c)
             LCS = std::min(LCS + RainNet_, Smax);
             // add water to the storage, not more than max
 
-            double drain = CvL*  std::max(0.0, (RainNet_ - (LCS - LCStor->Drc)));
+            double drain = std::max(0.0, (RainNet_ - (LCS - LCStor->Drc)));
             // diff between new and old storage is subtracted from leafdrip
 
             LCStor->Drc = LCS;
             // put new storage back in map for next dt
 
-            LInterc->Drc =  CvL * LCS * SoilWidthDX->Drc * DX->Drc;
+            LInterc->Drc =  CvL * LCS * CHAdjDX->Drc;
             // only on soil surface, not channels or roads, in m3
 
-            RainNet_ = drain + (1-CvL)*RainNet_;
+            RainNet_ = CvL*drain + (1-CvL)*RainNet_;
             //recalc
         }
     }
@@ -125,14 +125,14 @@ void TWorld::cell_Interception(int r, int c)
             IntercHouse->Drc =  roofsurface * HS;
             // total interception in m3,exclude roads, channels
 
-            RainNet_ = CvH *housedrain + (1-CvH)*RainNet_;
+            RainNet_ = CvH*housedrain + (1-CvH)*RainNet_;
             // net rainfall is direct rainfall + drainage
             // rainfall that falls on the soil, used in infiltration
 
             // filling raindrums with surplus drainage from roofs
             // drum is recalculated to m based on roof surface
             double DS = 0;
-            if (SwitchRaindrum && DrumStore->Drc > 0)
+            if (SwitchRaindrum && DrumStore->Drc > 0 && roofsurface > 0)
             {
                 double Dmax = DrumStore->Drc/roofsurface;
                 //max drum storage in m
@@ -142,7 +142,7 @@ void TWorld::cell_Interception(int r, int c)
 
                 DS = std::min(DS + RainNet_, Dmax);
                 // fill tank to max
-                double drumdrain = std::max(0.0, HouseCover->Drc * (RainNet_ - (DS - DStor->Drc)));
+                double drumdrain = std::max(0.0, RainNet_ - (DS - DStor->Drc));
 
                 DStor->Drc = DS;
                 // put new drum storage back in maps in m3
@@ -150,7 +150,7 @@ void TWorld::cell_Interception(int r, int c)
                 IntercHouse->Drc += roofsurface * DS;
                 // total interception in m3,exclude roads, channels
 
-                RainNet_ = drumdrain + (1-CvH)*RainNet_;
+                RainNet_ = CvH*drumdrain + (1-CvH)*RainNet_;
             }
         }
     }

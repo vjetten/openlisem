@@ -445,7 +445,6 @@ cTMap
 // *extWHCH,
 *COMBO_SS,
 *COMBO_BL,
-*COMBO_SED,
 *COMBO_TC,
 *ChannelDepthExtended,
 *ChannelWidthExtended,

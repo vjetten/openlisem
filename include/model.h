@@ -168,18 +168,13 @@
 #define VANLEER 2
 
 #define FSGOVERS 0
+#define FSHAIRSINEROSE 1
+
 #define FSRIJN 1
 #define FSRIJNFULL 2
 #define FENGELUND 3
-
-#define FSHAIRSINEROSE 11
 #define FSWUWANGJIA 10
 //#define FSWUWANGJIABL 3
-
-#define RGOVERS 0
-#define RRIJN 1
-#define RRIJNFULL 2
-#define RWUWANGJIA 3
 
 #define K2D_METHOD_KIN   1
 #define K2D_METHOD_KINDYN  3
@@ -978,7 +973,7 @@ public:
     void FloodMaxandTiming();
     void ChannelFloodStatistics(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
-    void ChannelOverflowNew(cTMap *_h, cTMap *_V, bool doOF);
+    void ChannelOverflow2(cTMap *_h, cTMap *_V);
 
     double courant_factor;
     double courant_factorSed;
