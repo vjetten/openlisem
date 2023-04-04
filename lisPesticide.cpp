@@ -72,8 +72,6 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMser
        }
     }}
 
-    //parallel??
-    //#pragma omp parallel for num_threads(userCores)
     PestOutW += PQrw_dt; 
     Pestinf += mapTotal(*PMinf);
     PestPerc += mapTotal(*PMperc);
@@ -243,15 +241,13 @@ void TWorld::PesticideFlow1D(void) {
 
     double Kfilm = KfilmPest; // m sec-1
     double rho = rhoPest;     //kg m-3
-    //runoff
 
+    //runoff
     KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw,
                         Kfilm);
 
     //erosion
     if(SwitchErosion){
-
-        // adsorbed discharge
         KinematicPestAdsorbed(crlinkedldd_, LDD, Qsn, PQrs, DX, Alpha, SedMassIn,
                               Qs, Qps, rho);
     }
@@ -259,7 +255,7 @@ void TWorld::PesticideFlow1D(void) {
     // make parralell
     //#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
-    double volmw {0.0};     //L - volume of water in mixing layer
+    double volmw {0.0};         // L - volume of water in mixing layer
     double massms {0.0};        // kg - mass of sediment in mixing layer
     if (WaterVolall->Drc > 0) {
     PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
@@ -272,6 +268,7 @@ void TWorld::PesticideFlow1D(void) {
     massms = zm->Drc * DX->Drc * SoilWidthDX->Drc * rho;
     //mg kg-1 = mg / kg
     PCms->Drc = PMms->Drc / massms;
+    // calculate concentration here?
     }}
 }
 
@@ -312,14 +309,14 @@ void TWorld::KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-
+    // can be parralel
     FOR_ROW_COL_MV_L {
         _Qpwn->Drc = 0;
         QpinKW->Drc = 0;
     }}
 
-//#pragma omp parallel for reduction(+:Qin) num_threads(userCores)
-for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
+// loop over ldd
+for(long i_ =  0; i_ < _crlinked_.size(); i_++)
 {
     int r = _crlinked_[i_].r;
     int c = _crlinked_[i_].c;
@@ -345,7 +342,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         }
     }
     QpinKW->Drc = Qpin;
-    //#pragma omp parallel for num_threads(userCores)
     double mwrm_ex {0.0};   //mg
     double mrw_inf {0.0};   //mg
     double Crw_avg {0.0};   // mg/L - no runoff; concentration = 0
@@ -419,10 +415,9 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         //calculate courant number of standard timestep
         double Cr_rw {0.0};
         double Cr_mw {0.0};
-        //double Cr_max = 0.9; // max Courant number
-        //double dt_int_min = 0.1; // minimal timestep
+
         // runoff water
-        Cr_rw = PMrw->Drc > 0 ? ((_Qpwn->Drc * _dt) - mwrm_ex + mrw_inf) / (PMrw->Drc + QpinKW->Drc * _dt) : 0.0;
+        Cr_rw = (PMrw->Drc + QpinKW->Drc) > 0 ? ((_Qpwn->Drc * _dt) - mwrm_ex + mrw_inf) / (PMrw->Drc + QpinKW->Drc * _dt) : 0.0;
         // mixing layer
         Cr_mw = PMmw->Drc > 0 ? (mwrm_ex - mrw_inf) / PMmw->Drc : 0.0;
 
@@ -639,10 +634,11 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         } // end if Cr > Cr_max
         } // end internal timeloop
 
+        // can move outside ldd loop to parralel section
         // mg = mg sec-1 * sec
         PMrs->Drc = std::max(0.0, PMrs->Drc - (_Qpsn->Drc * _dt)
                              + (SpinKW->Drc * _dt));
-        PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0;; // divide by Sed after kin wave!!!
+        PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0; // divide by Sed after kin wave
         // 0,001 g
         } // erosion occurs
     }// end ldd loop
@@ -699,7 +695,7 @@ double TWorld::QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i, d
 */
 
 void TWorld::PesticideSplashDetachment() {
-
+    // can be parralel
     FOR_ROW_COL_MV_L{
          double msoil_ex {0.0};  // mass exchange between mixing layer and deeper soil
         // add mass to pesticide in flow
@@ -713,6 +709,7 @@ void TWorld::PesticideSplashDetachment() {
         PCms->Drc = PMms->Drc / (zm->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest);
         // adjust lower soil layer
         PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);
+        // WARNING wee don't update the PCs now - check if it causes problems
 
         //mass balance
         pmsdet->Drc += PMsplash->Drc;
@@ -729,7 +726,7 @@ void TWorld::PesticideSplashDetachment() {
 void TWorld::PesticideFlowDetachment(double rho) {
 
   // mass exchange between mixing layer an suspended sediment
-
+    // can be parralel
     FOR_ROW_COL_MV_L{
         double msoil_ex {0.0};  // mass exchange between mixing layer and deeper soil
         double msrm_ex {0.0};
@@ -772,6 +769,7 @@ void TWorld::PesticideFlowDetachment(double rho) {
 
         // adjust mass lower soil layer for mass balance
         PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);
+        // WARNING wee don't update the PCs now - check if it causes problems
 
         // pesticides in mixing layer
         PMms->Drc = std::max(0.0, PMms->Drc - msrm_ex + msoil_ex);
