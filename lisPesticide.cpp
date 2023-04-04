@@ -590,7 +590,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         if (SwitchPestInternal_dt) {
         //calculate courant number of standard timestep
         double Cr_rs {0.0};
-        Cr_rs = PMrs->Drc > 0 ? ((_Qpsn->Drc * _dt)) / (PMrs->Drc + SpinKW->Drc * _dt) : 0.0;
+        Cr_rs = (PMrs->Drc + SpinKW->Drc) > 0 ? ((_Qpsn->Drc * _dt)) / (PMrs->Drc + SpinKW->Drc * _dt) : 0.0;
 
         //start loop if Cr > Cr_max
         if (Cr_rs > Cr_max) {
@@ -641,7 +641,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 
         // mg = mg sec-1 * sec
         PMrs->Drc = std::max(0.0, PMrs->Drc - (_Qpsn->Drc * _dt)
-                                      + (SpinKW->Drc * _dt));
+                             + (SpinKW->Drc * _dt));
         PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0;; // divide by Sed after kin wave!!!
         // 0,001 g
         } // erosion occurs

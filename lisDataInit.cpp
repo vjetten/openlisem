@@ -2428,7 +2428,7 @@ void TWorld::IntializeOptions(void)
 
     SwitchPest = false;
     SwitchReportPest = false;
-    SwitchPestInternal_dt = false;
+    SwitchPestInternal_dt = true;
     SwitchPestMixPartitioning = true;
 
     addedbaseflow = false;
