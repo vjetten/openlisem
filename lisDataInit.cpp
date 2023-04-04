@@ -1863,6 +1863,8 @@ void TWorld::IntializeData(void)
     COMBO_SS = NewMap(0);
     COMBO_BL = NewMap(0);
     COMBO_TC = NewMap(0);
+    COMBO_V = NewMap(0);
+
 
     //### rainfall and interception maps
     BaseFlowTot = 0;

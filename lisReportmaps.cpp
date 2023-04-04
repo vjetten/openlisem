@@ -110,7 +110,7 @@ void TWorld::setLegendColors()
     Colormap.append(1.0);
 
     Colors.clear();
-    Colors.append("#ffffb2");
+    Colors.append("#f4f4c6");//ffffb2");
     Colors.append("#fecc5c");
     Colors.append("#fd8d3c");
     Colors.append("#f03b20");
@@ -277,7 +277,7 @@ void TWorld::GetComboMaps()
 //    if (Switch2DDiagonalFlow)
 //       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     cl = 1;
-    AddComboMap(0,"Flow Velocity","m/s",V ,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
+    AddComboMap(0,"Flow Velocity","m/s",COMBO_V,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     AddComboMap(0,"Flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.01); //VH
 
     if(SwitchIncludeChannel)

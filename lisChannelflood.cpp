@@ -79,10 +79,12 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
             tma->Drc = 1;
             go = true;
             nrsteps += 1.0;
+            double Vb = sqrt(2*GRAV*dH);
 
             double Vavg;
-            if (dH > _h->Drc)
-                Vavg = sqrt(2*GRAV*dH);
+            //if (dH*Vb > _h->Drc*V->Drc)
+            if (dH > V->Drc)
+                Vavg = Vb; //Bernouilli
             else
                 Vavg = V->Drc;
             // V from channel or reverse
@@ -95,7 +97,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
         return;
 
     // if every cell has its own step the result is an unstable hydrograph
-    int step = (int)sqrt(nr); // limit nr of steps, solution is fine anyway
+    int step = (int)sqrt(nrsteps); // limit nr of steps, solution is fine anyway
     qDebug() << step;
 
     #pragma omp parallel for num_threads(userCores)
@@ -119,13 +121,9 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     if (_h->Drc + dwh*cwa > dH-dwh) {
                         // if flow causes situation to reverse (channel dips below _h)
                         while (_h->Drc + dwh*cwa > dH-dwh) {
-                            frac *= 0.9;
-                            //frac = 0.9*(dH-_h->Drc)/((1-cwa)*dH);
+                            frac = 0.9*(dH-_h->Drc)/((1-cwa)*dH);
                             dwh = dH*frac;
                         }
-//                        frac = 0.9*(dH-_h->Drc)/((1-cwa)*dH);
-//                        dwh = dH*frac;
-
                     } else {
                         _h->Drc += dwh*cwa;
                         ChannelWH->Drc -= dwh;
@@ -147,12 +145,9 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
                     if (dH + dwh/cwa > _h->Drc-dwh) {
                         while (dH + dwh/cwa > _h->Drc-dwh) {
-                            //frac = 0.9*(dH-_h->Drc)/_h->Drc * cwa/(1+cwa);
-                            frac *= 0.9;
+                            frac = 0.9*(dH-_h->Drc)/_h->Drc * cwa/(1+cwa);
                             dwh = dH*frac;
                         }
-//                        frac = 0.9*(dH-_h->Drc)/_h->Drc * cwa/(1+cwa);
-//                        dwh = dH*frac;
                     } else {
                         _h->Drc -= dwh;
                         ChannelWH->Drc += (dwh/cwa);
