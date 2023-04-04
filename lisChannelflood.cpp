@@ -59,8 +59,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
     if (!SwitchIncludeChannel)
         return;
 
-    int step = 1;
-    double nr = 0;
+    double nrsteps = 0;
     bool go = false;
     fill(*tma, 0);
     #pragma omp parallel for num_threads(userCores)
@@ -79,7 +78,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
             tma->Drc = 1;
             go = true;
-            nr += 1.0;
+            nrsteps += 1.0;
 
             double Vavg;
             if (dH > _h->Drc)
@@ -88,8 +87,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                 Vavg = V->Drc;
             // V from channel or reverse
 
-            nr = qMax(nr,  qMax(1.0, (Vavg * _dt/(0.5*ChannelAdj->Drc))));
-            step = qMax(step,  qMax(1, (int)(Vavg * _dt/(0.5*ChannelAdj->Drc))));
+            nrsteps = qMax(nrsteps,  qMax(1.0, (Vavg * _dt/(0.5*ChannelAdj->Drc))));
         }
     }}
 
@@ -97,8 +95,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
         return;
 
     // if every cell has its own step the result is an unstable hydrograph
-    step = (int)sqrt(nr); // limit nr of steps, solution is fine anyway
-    //qDebug() << step;
+    int step = (int)sqrt(nr); // limit nr of steps, solution is fine anyway
+    qDebug() << step;
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
@@ -107,8 +105,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
             double chdepth = ChannelDepth->Drc;
             double dH = std::max(0.0, (ChannelWH->Drc-chdepth));
             double cwa = ChannelWidth->Drc/ChannelAdj->Drc;
-            double fr = 1.0/nr * _dt/(0.5*ChannelAdj->Drc);
-            double oldh = _h->Drc;
+            double fr = 1.0/(double)step * _dt/(0.5*ChannelAdj->Drc);
 
             for (int i = 0; i < step; i++) // do the flow twice as a kind of iteration
             {
@@ -121,13 +118,13 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     double dwh =  dH * frac;
                     if (_h->Drc + dwh*cwa > dH-dwh) {
                         // if flow causes situation to reverse (channel dips below _h)
-
-                         // while (_h->Drc + dwh*cwa > dH-dwh) {
-                           // frac *= 0.9;
-                            frac = 0.9*(dH-_h->Drc)/((1-cwa)*dH);
+                        while (_h->Drc + dwh*cwa > dH-dwh) {
+                            frac *= 0.9;
+                            //frac = 0.9*(dH-_h->Drc)/((1-cwa)*dH);
                             dwh = dH*frac;
-                           // qDebug() << "dH" << frac;
-                        //}
+                        }
+//                        frac = 0.9*(dH-_h->Drc)/((1-cwa)*dH);
+//                        dwh = dH*frac;
 
                     } else {
                         _h->Drc += dwh*cwa;
@@ -141,18 +138,21 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     }
                 } else {
                     // flow to channel, dH can be 0 = channel wh below edge
-                    double Vn = V->Drc;
+                    double Vn = pow(_h->Drc, 0.667)*sqrtGrad->Drc/N->Drc;
+                    Vn = 0.5*(Vn+V->Drc);
+                    Vn = V->Drc;
 
                     double frac = std::min(1.0, fr * Vn);//V->Drc);
                     double dwh = _h->Drc * frac;
 
                     if (dH + dwh/cwa > _h->Drc-dwh) {
-                        //while (dH + dwh/cwa > _h->Drc-dwh) {
-                           // frac *= 0.9;
-                            frac = 0.9*(dH-_h->Drc)/_h->Drc * cwa/(1+cwa);
+                        while (dH + dwh/cwa > _h->Drc-dwh) {
+                            //frac = 0.9*(dH-_h->Drc)/_h->Drc * cwa/(1+cwa);
+                            frac *= 0.9;
                             dwh = dH*frac;
-                          //  qDebug() << "h" << frac;
-                        //}
+                        }
+//                        frac = 0.9*(dH-_h->Drc)/_h->Drc * cwa/(1+cwa);
+//                        dwh = dH*frac;
                     } else {
                         _h->Drc -= dwh;
                         ChannelWH->Drc += (dwh/cwa);
