@@ -74,7 +74,7 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMser
 
     PestOutW += PQrw_dt; 
     Pestinf += mapTotal(*PMinf);
-    PestPerc += mapTotal(*PMperc);
+    //PestPerc += mapTotal(*PMperc);
     double PMerosion {0.0};
     if (SwitchErosion) {
         PestOutS += PQrs_dt;
@@ -83,7 +83,7 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMser
 
     // all pesticide mass in system current timestep
     PMtot = Pestinf + PestOutW + mapTotal(*PMsoil) + mapTotal(*PMrw)
-            + mapTotal(*PMmw) + mapTotal(*PMms) + PestPerc + PMerosion;
+            + mapTotal(*PMmw) + mapTotal(*PMms) + PMerosion;
     PMerr = (PMtot - PMtotI) / PMtotI * 100;
 
     // mass balance for active adsorbed
@@ -204,14 +204,18 @@ void TWorld::PesticideCellDynamics(void)
        // update PCmw before dissolved & PCms before adsorbed
        PCmw->Drc = PMmw->Drc / vol_w;
        PCms->Drc = PMms->Drc / mass_s;
+//----- OBSOLETE -------------------------------------------------
+       // 2023-04-05 we exclude percolation transport since it does not improve
+       // the model, and conceptually is not clear for me (MC)
 
        //percolation
-       PMperc->Drc = 0.0; //does not need to be a map...
+//       PMperc->Drc = 0.0; //does not need to be a map...
 //       if (InfilVol->Drc < 1e-6) {
 //          // PMperc->Drc = PesticidePercolation(Perc->Drc, SoilDepth1->Drc,
 //          //              Lw->Drc, zm->Drc, DX->Drc, SoilWidthDX->Drc, PCmw->Drc);
 //           Theta_mix->Drc = Thetaeff->Drc; //percolation related theta for mixing layer
 //       }
+// --------------------------------------------------------------
 
        //infiltration from runoff through mixing layer to deeper soil
        PMinf->Drc = 0.0; //does not need to be a map...
@@ -225,19 +229,10 @@ void TWorld::PesticideCellDynamics(void)
            mrw_inf = InfilVol->Drc * 1000 * PCrw->Drc; // loss through infiltration from runoff
        }
 
-       // adjust masses if outflow is more than available mass.
-//       // test if this is needed and/or makes sense....
-//       if ((PMmw->Drc + mrw_inf ) < PMinf->Drc + PMperc->Drc + mda_ex) {
-//           double tot = PMinf->Drc + PMperc->Drc + mda_ex;
-//           PMinf->Drc = (PMinf->Drc/tot) * (PMmw->Drc + mrw_inf);
-//           PMperc->Drc = (PMperc->Drc/tot) * (PMmw->Drc + mrw_inf);
-//           mda_ex = (mda_ex/tot) * (PMmw->Drc + mrw_inf);
-//           PCmw->Drc = 0;
-//       }
        // update mass after percolation and infiltration
        mrw_inf > PMrw->Drc ? mrw_inf = PMrw->Drc : mrw_inf;
        // mg = mg - mg - mg
-       PMmw->Drc = std::max(0.0, PMmw->Drc - PMinf->Drc - PMperc->Drc + mrw_inf);
+       PMmw->Drc = std::max(0.0, PMmw->Drc - PMinf->Drc + mrw_inf);
        PMrw->Drc = std::max(0.0, PMrw->Drc - mrw_inf);
 
        pmwdep->Drc -= mrw_inf;
@@ -289,30 +284,6 @@ void TWorld::PesticideFlow1D(void) {
     //mg kg-1 = mg / kg
     PCms->Drc = PMms->Drc / massms;
     }}
-}
-
-//---------------------------------------------------------------------------
-/**
-* @fn double TWorld::PesticidePercolation(double perc, double soildep,
-*               double lw, double zm, double dx, double swdx, double pcmw)
-* @brief Calculate mass lost by percolation
-*/
-
-double TWorld::PesticidePercolation(double perc, double soildep, double lw,
-                double zm, double dx, double swdx, double pcmw)
-{
-    double mass_perc {0.0}; // mg
-    if (perc < tiny) {
-        mass_perc = 0;
-    } else {
-        // calculate volume of percolated water from mixing layer
-        double perc_vol {0.0}, perc_rat {0.0};
-        perc_rat = perc / (soildep - lw);
-        // L = (m * m * m * 1000)
-        perc_vol = zm * dx * swdx * perc_rat * 1000;
-        mass_perc = perc_vol * pcmw;
-    }
-    return(mass_perc);
 }
 
 //---------------------------------------------------------------------------

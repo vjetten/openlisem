@@ -2202,7 +2202,6 @@ void TWorld::IntializeData(void)
         PQrw = NewMap(0);
         Qpw = NewMap(0);
         PMinf = NewMap(0);
-        PMperc = NewMap(0);
         Ez = NewMap(0);
         pmwdet = NewMap(0);
         pmwdep = NewMap(0);
@@ -2226,7 +2225,6 @@ void TWorld::IntializeData(void)
         // total masses
         PestOutW = 0;
         Pestinf = 0;
-        PestPerc = 0;
         PMtot = 0;
         PMerr = 0;
         PMtotI = 0;

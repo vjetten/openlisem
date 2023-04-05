@@ -505,7 +505,7 @@ public:
 
     ///pesticides
     double PMtot, PMerr, PMtotI, PMwerr, PMserr;
-    double Pestinf, PestOutW, PestOutS, PestPerc;
+    double Pestinf, PestOutW, PestOutS;
     double PQrw_dt, PQrs_dt;
     double KdPest, KfilmPest, KrPest, rhoPest;
     double Cr_max, dt_int_min;

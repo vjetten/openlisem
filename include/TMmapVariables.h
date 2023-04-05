@@ -192,7 +192,6 @@ cTMap
 *PQrw,                      //!< flux of pesticide in runoff water [mg/sec]
 *PQrs,                      //!< flux of pesticide in runoff sediment [mg/sec]
 *PMinf,                     //!< mass of pesticide in infiltrating water [mg]
-*PMperc,                    //!< mass of pesticide in percolating water [mg]
 *zm,                        //!< depth of the mixing layer [m]
 *zs,                        //!< depth of the soil layer containing pesticides [m]
 *SpinKW,                    //!< sum upstream influx Qpsn [mg/sec]

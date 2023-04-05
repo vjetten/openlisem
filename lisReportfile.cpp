@@ -159,7 +159,7 @@ void TWorld::OutputUI(void)
         op.PMOutW = PestOutW;
         op.PMerr = PMerr;
         op.PMinf = Pestinf;
-        op.PMperc = PestPerc;
+        //op.PMperc = PestPerc;
         op.PestName = PestName;
         op.PMtotI = PMtotI;
         if (SwitchErosion) {
@@ -1082,7 +1082,7 @@ void TWorld::ReportMapSeries(void)
         report(*PMrw, "pmrw");
         report(*PQrw, "pqrw");
         report(*PMinf, "pinf");
-        report(*PMperc, "prc");
+        //report(*PMperc, "prc");
         report(*pmwdet, "wdet");
         report(*pmwdep, "wdep");
         report(*Crwn, "crwn");
