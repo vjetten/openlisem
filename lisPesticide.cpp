@@ -129,8 +129,9 @@ double TWorld::MassPestInitial(void)
         // mg = mg kg-1 * m * m * kg m-3 * m
         PMms->Drc = PCms->Drc * SoilWidthDX->Drc * DX->Drc * rho * zm->Drc;
         // mg = mg L-1 * m * m * m * 1000
-        PMmw->Drc = PCmw->Drc * ThetaI1->Drc * zm->Drc * SoilWidthDX->Drc
+        PMmw->Drc = PCmw->Drc * ThetaS1->Drc * zm->Drc * SoilWidthDX->Drc
                     * DX->Drc * 1000;
+        // we use ThetaS because we assume saturation when the mixing zone is active.
         // mg = mg kg-1 * m * m * m * kg m-3
         PMsoil->Drc = PCs->Drc * SoilWidthDX->Drc * DX->Drc
                       * zs->Drc * rho;
@@ -161,6 +162,7 @@ void TWorld::PesticideCellDynamics(void)
     FOR_ROW_COL_MV_L{
        // no runoff, no erosion
        double mda_ex {0.0};        // mg - exchange mixing layer
+       double mrw_inf {0.0};       // mg - mass from runoff to mixing layer by infiltration
        double mda_tot {0.0};       // mg - total mass in both phases
        double eql_ads {0.0};       // mg - adsorbed mass in equilibrium
        double eql_diss {0.0};      // mg - dissolved mass in equilibrium
@@ -168,8 +170,11 @@ void TWorld::PesticideCellDynamics(void)
        double vol_w {0.0};         // l - volume water in mixing layer
        double mass_s {0.0};        // kg - mass sediment in mixing layer
 
+       // assume the mixing layer is saturated during infiltration or runoff.
+       Theta_mix->Drc = ThetaS1->Drc;
+
        // exchange between adsorbed and dissolved in mixing zone
-       // kg = m * m * m * kg L-1 * 1000
+       // L = m * m * m * [-] * 1000
        vol_w = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
        // kg = m * m * m * kg m-3
        mass_s = zm->Drc * DX->Drc * SoilWidthDX->Drc * rho;
@@ -192,39 +197,54 @@ void TWorld::PesticideCellDynamics(void)
        mda_ex = std::abs(mda_ex) > std::abs(m_diff) ? m_diff : mda_ex;
        }
 
-       //percolation
-       PMperc->Drc = 0.0; //does not need to be a map...
-       if (InfilVol->Drc < 1e-6) {
-           PMperc->Drc = PesticidePercolation(Perc->Drc, SoilDepth1->Drc,
-                        Lw->Drc, zm->Drc, DX->Drc, SoilWidthDX->Drc, PCmw->Drc);
-           Theta_mix->Drc = Thetaeff->Drc; //percolation related theta for mixing layer
-       }
-
-       //infiltration from mixing layer to deeper soil
-       PMinf->Drc = 0.0; //does not need to be a map...
-       if (InfilVol->Drc > tiny) {
-           // assume the mixing layer is saturated during infiltration or runoff.
-           Theta_mix->Drc = ThetaS1->Drc;
-           // mg = m3 * 1000 * (mg L-1)
-           PMinf->Drc = InfilVol->Drc * 1000 * PCmw->Drc; // infiltration mixing layer (mg)
-       }
-
-       // adjust masses if outflow is more than available mass.
-       if (PMmw->Drc < PMinf->Drc + PMperc->Drc + mda_ex) {
-           double tot = PMinf->Drc + PMperc->Drc + mda_ex;
-           PMinf->Drc = (PMinf->Drc/tot) * PMmw->Drc;
-           PMperc->Drc = (PMperc->Drc/tot) * PMmw->Drc;
-           mda_ex = (mda_ex/tot) * PMmw->Drc;
-           PCmw->Drc = 0;
-       }
-       // update mass after percolation and infiltration
-       // mg = mg - mg - mg
-       PMmw->Drc = std::max(0.0, PMmw->Drc - PMinf->Drc - PMperc->Drc - mda_ex);
+       //update masses
+       PMmw->Drc = std::max(0.0, PMmw->Drc - mda_ex);
        // mg = mg + mg
        PMms->Drc = std::max(0.0, PMms->Drc + mda_ex);
        // update PCmw before dissolved & PCms before adsorbed
        PCmw->Drc = PMmw->Drc / vol_w;
        PCms->Drc = PMms->Drc / mass_s;
+
+       //percolation
+       PMperc->Drc = 0.0; //does not need to be a map...
+//       if (InfilVol->Drc < 1e-6) {
+//          // PMperc->Drc = PesticidePercolation(Perc->Drc, SoilDepth1->Drc,
+//          //              Lw->Drc, zm->Drc, DX->Drc, SoilWidthDX->Drc, PCmw->Drc);
+//           Theta_mix->Drc = Thetaeff->Drc; //percolation related theta for mixing layer
+//       }
+
+       //infiltration from runoff through mixing layer to deeper soil
+       PMinf->Drc = 0.0; //does not need to be a map...
+       if (InfilVol->Drc > 0.0) {
+           // assume the mixing layer is saturated during infiltration or runoff.
+           //Theta_mix->Drc = ThetaS1->Drc;
+           // mg = m3 * 1000 * (mg L-1)
+           PMinf->Drc = InfilVol->Drc * 1000 * PCmw->Drc; // infiltration mixing layer (mg)
+
+           // mg = m3 * 1000 (L->m3) * mg L-1
+           mrw_inf = InfilVol->Drc * 1000 * PCrw->Drc; // loss through infiltration from runoff
+       }
+
+       // adjust masses if outflow is more than available mass.
+//       // test if this is needed and/or makes sense....
+//       if ((PMmw->Drc + mrw_inf ) < PMinf->Drc + PMperc->Drc + mda_ex) {
+//           double tot = PMinf->Drc + PMperc->Drc + mda_ex;
+//           PMinf->Drc = (PMinf->Drc/tot) * (PMmw->Drc + mrw_inf);
+//           PMperc->Drc = (PMperc->Drc/tot) * (PMmw->Drc + mrw_inf);
+//           mda_ex = (mda_ex/tot) * (PMmw->Drc + mrw_inf);
+//           PCmw->Drc = 0;
+//       }
+       // update mass after percolation and infiltration
+       mrw_inf > PMrw->Drc ? mrw_inf = PMrw->Drc : mrw_inf;
+       // mg = mg - mg - mg
+       PMmw->Drc = std::max(0.0, PMmw->Drc - PMinf->Drc - PMperc->Drc + mrw_inf);
+       PMrw->Drc = std::max(0.0, PMrw->Drc - mrw_inf);
+
+       pmwdep->Drc -= mrw_inf;
+
+       // update PCmw before dissolved
+       PCmw->Drc = PMmw->Drc / vol_w;
+
     }}
 }
 
@@ -268,7 +288,6 @@ void TWorld::PesticideFlow1D(void) {
     massms = zm->Drc * DX->Drc * SoilWidthDX->Drc * rho;
     //mg kg-1 = mg / kg
     PCms->Drc = PMms->Drc / massms;
-    // calculate concentration here?
     }}
 }
 
@@ -343,16 +362,15 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
     }
     QpinKW->Drc = Qpin;
     double mwrm_ex {0.0};   //mg
-    double mrw_inf {0.0};   //mg
     double Crw_avg {0.0};   // mg/L - no runoff; concentration = 0
     //no runoff - add leftover of mass in runoff water to mixing layer
-    if (Qn->Drc + QinKW->Drc <= MIN_FLUX) {
-        PCrw->Drc = 0.0;        //concentration = 0
-        PMmw->Drc += PMrw->Drc; //add any leftover mass to mixing layer
-        pmwdep->Drc -= PMrw->Drc;
-        PMrw->Drc = 0.0;        // mass = 0
-        PQrw->Drc = 0.0;        // discharge = 0
-    }
+//    if (Qn->Drc + QinKW->Drc <= MIN_FLUX) {
+//        PCrw->Drc = 0.0;        //concentration = 0
+//        PMmw->Drc += PMrw->Drc; //add any leftover mass to mixing layer
+//        pmwdep->Drc -= PMrw->Drc;
+//        PMrw->Drc = 0.0;        // mass = 0
+//        PQrw->Drc = 0.0;        // discharge = 0
+//    }
     if (Qn->Drc + QinKW->Drc > MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
         double vol_mw {0.0};    // volume of water in mixing layer [L]
         double vol_rw {0.0};    // volume of water in runoff [L]
@@ -378,10 +396,10 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
         eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
         // mwrm_ex can not be larger than m_diff
         m_diff = eql_mw - PMmw->Drc;
-        mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
+    //    mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
 
         // mg = m3 * 1000 (L->m3) * mg L-1
-        mrw_inf = InfilVol->Drc * 1000 * Crw_avg; // loss through infiltration from runoff
+       // mrw_inf = InfilVol->Drc * 1000 * Crw_avg; // loss through infiltration from runoff
 
 //        // adjust masses if outflow is more than available mass.
 //        if (PMrw->Drc < mrw_inf - mwrm_ex) {
@@ -397,10 +415,10 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
 //        }
 
 
-        //substract infiltration and mixing layer exchange
+        //substract mixing layer exchange
         double mrw_n {0.0}; // intermediate mass in runoff water
         //mg = mg + mg - mg - mg + (mg sec-1 * sec)
-        mrw_n = std::max(0.0, PMrw->Drc + mwrm_ex - mrw_inf);
+        mrw_n = std::max(0.0, PMrw->Drc + mwrm_ex);
         // calculate concentration for new outflux
         PCrw->Drc = mrw_n / (WaterVolin->Drc * 1000);
 
@@ -417,9 +435,11 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
         double Cr_mw {0.0};
 
         // runoff water
-        Cr_rw = (PMrw->Drc + QpinKW->Drc) > 0 ? ((_Qpwn->Drc * _dt) - mwrm_ex + mrw_inf) / (PMrw->Drc + QpinKW->Drc * _dt) : 0.0;
+        Cr_rw = (PMrw->Drc + QpinKW->Drc) > 0 ? ((_Qpwn->Drc * _dt) - mwrm_ex) / (PMrw->Drc + QpinKW->Drc * _dt) : 0.0;
+       // Cr_rw = (PMrw->Drc + QpinKW->Drc) > 0 ? ((_Qpwn->Drc * _dt) - mwrm_ex + mrw_inf) / (PMrw->Drc + QpinKW->Drc * _dt) : 0.0;
         // mixing layer
-        Cr_mw = PMmw->Drc > 0 ? (mwrm_ex - mrw_inf) / PMmw->Drc : 0.0;
+        Cr_mw = PMmw->Drc > 0 ? mwrm_ex / PMmw->Drc : 0.0;
+       // Cr_mw = PMmw->Drc > 0 ? (mwrm_ex - mrw_inf) / PMmw->Drc : 0.0;
 
         //start loop if one of the Cr's > Cr_max
         if (Cr_rw > Cr_max | Cr_mw > Cr_max) {
@@ -457,13 +477,13 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
                 eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
                 // mwrm_ex can not be larger than m_diff
                 m_diff = eql_mw - int_Mmw;
-                int_mwrm_ex = std::abs(int_mwrm_ex) > std::abs(m_diff) ? m_diff : int_mwrm_ex;
+               // int_mwrm_ex = std::abs(int_mwrm_ex) > std::abs(m_diff) ? m_diff : int_mwrm_ex;
 
                 // calculate mrw_inf
-                int_mrw_inf =  (InfilVol->Drc / steps) * 1000 * int_Crw_avg; // loss through infiltration
+               // int_mrw_inf =  (InfilVol->Drc / steps) * 1000 * int_Crw_avg; // loss through infiltration
 
                 // calculate concentration for new outflux
-                int_Mrw = std::max(0.0, int_Mrw + int_mwrm_ex - int_mrw_inf);
+                int_Mrw = std::max(0.0, int_Mrw + int_mwrm_ex); // - int_mrw_inf);
                 int_Crw = int_Mrw / (WaterVolin->Drc * 1000);
 
                 // calculate Qpwn
@@ -476,7 +496,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
                 //substract infiltration and discharge
                 //mg = mg + mg - mg - mg + (mg sec-1 * sec)
                 int_Mrw = std::max(0.0, int_Mrw - int_Qpwn * dt_int + QpinKW->Drc * dt_int);
-                int_Mmw = std::max(0.0, int_Mmw - int_mwrm_ex + int_mrw_inf);
+                int_Mmw = std::max(0.0, int_Mmw - int_mwrm_ex); // + int_mrw_inf);
 
                 // for next internal loop Qpw = current Qpwn
                 int_Qpw = int_Qpwn;
@@ -486,27 +506,27 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
                 // mean Q and total exchange and infiltration
                 sum_int_Qpwn += int_Qpwn;
                 sum_int_mwrm_ex += int_mwrm_ex;
-                sum_int_mrw_inf += int_mrw_inf;
+              //  sum_int_mrw_inf += int_mrw_inf;
 
             } // end internal time loop
 
             // calculate final concentrations and masses
             _Qpwn->Drc = sum_int_Qpwn / steps;
             mwrm_ex = sum_int_mwrm_ex;
-            mrw_inf = sum_int_mrw_inf;
+         //   mrw_inf = sum_int_mrw_inf;
 
         } // end if Cr > Cr_max
         } // end internal time loop
 
         // mass balance
         mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
-        pmwdep->Drc -= mrw_inf;
+     //   pmwdep->Drc -= mrw_inf;
 
         //substract discharge
         //mg = mg - (mg sec-1 * sec)
         PMrw->Drc = std::max(0.0, PMrw->Drc - (_Qpwn->Drc * _dt)
-                                      + (QpinKW->Drc * _dt) + mwrm_ex - mrw_inf);
-        PMmw->Drc = std::max(0.0, PMmw->Drc - mwrm_ex + mrw_inf);
+                                      + (QpinKW->Drc * _dt) + mwrm_ex); // - mrw_inf);
+        PMmw->Drc = std::max(0.0, PMmw->Drc - mwrm_ex); // + mrw_inf);
        } //runoff occurs
     }//end ldd loop
 }
@@ -709,7 +729,7 @@ void TWorld::PesticideSplashDetachment() {
         PCms->Drc = PMms->Drc / (zm->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest);
         // adjust lower soil layer
         PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);
-        // WARNING wee don't update the PCs now - check if it causes problems
+        // WARNING we don't update the PCs now - check if it causes problems
 
         //mass balance
         pmsdet->Drc += PMsplash->Drc;
