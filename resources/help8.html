@@ -8,7 +8,7 @@
     <li>Max iterations: forces break out of n-th flood loop, usually not necessary, better to try different Courant conditions and minimum timesteps in the Flow tab (def 200).</li>
     <li>Diagonal connections <i>experimental</i>: the 2D solution can see an obstruction in the direction of flow while there is a diagonal outlet according to the LDD. This connection is forced if the water height > value. A value < 0 or a very high value will ignore this effect (default -1 = off).</li>
     <li>Calculate erosion inside iteration loop for  2D flow: when sitched on all flow erosion is calculated for eacch ieration loop with 2D flow dt, switched off erosion is calculated after the 2D flow is done using the LISEM timestep (default on).</li>
-    <li>Use linked list for kinematic flow: siwtched on menas the linked list is recalculated each time kinematic wave is called (default off)</li>
+    <li>Use linked list for kinematic flow: siwtched on means the linked list is recalculated each time kinematic wave is called (default off)</li>
 </ul>
 <p><strong>Connecting Overland flow/flood to Channel</p></strong>
 A fraction of the water beside the channel in a channe cell, is diverted to the channel. This fraction is based on the general flow velocity of the water [0], or based on the Manning's velocity using the terrain slope perpendicular to the channel [1].

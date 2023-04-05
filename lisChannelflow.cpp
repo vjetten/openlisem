@@ -194,18 +194,14 @@ void TWorld::ChannelFlow(void)
 
     for (double t = 0; t < _dt_user; t+=_dt)
     {
-
         //double sumvol = getMassCH(ChannelWaterVol);
 
-        // velocity, alpha, Q
         #pragma omp parallel num_threads(userCores)
         FOR_ROW_COL_MV_CHL {            
             ChannelQsn->Drc = 0;
-            Channelq->Drc = 0;
+            //Channelq->Drc = 0; // obsolete
             QinKW->Drc = 0;
         }}
-
-        // ChannelV and Q and alpha now based on original width and depth, channel vol is always the same
 
         if (SwitchLinkedList) {
 
@@ -225,6 +221,7 @@ void TWorld::ChannelFlow(void)
             KinematicExplicit(crlinkedlddch_, ChannelQ, ChannelQn, ChannelAlpha, ChannelDX);
         }
 
+
         // calc V and WH back from Qn (original width and depth)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
@@ -233,7 +230,8 @@ void TWorld::ChannelFlow(void)
             ChannelWaterVol->Drc += (QinKW->Drc - ChannelQn->Drc)*_dt;
             ChannelWaterVol->Drc = std::max(0.0,ChannelWaterVol->Drc);
             // vol is previous + in - out
-            ChannelAlpha->Drc = ChannelQn->Drc > 1e-6 ? (ChannelWaterVol->Drc/ChannelDX->Drc)/std::pow(ChannelQn->Drc, 0.6) : ChannelAlpha->Drc;
+
+            //ChannelAlpha->Drc = ChannelQn->Drc > 1e-6 ? (ChannelWaterVol->Drc/ChannelDX->Drc)/std::pow(ChannelQn->Drc, 0.6) : ChannelAlpha->Drc;
 
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
             // new channel WH, use adjusted channelWidth
@@ -260,13 +258,11 @@ void TWorld::ChannelSedimentFlow()
     if (!SwitchErosion)
         return;
 
-    //double sumvol = getMassCH(ChannelWaterVol);
-
+    //separate Suspended and baseload for separate transport
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         double concss = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
         ChannelQSSs->Drc = ChannelQ->Drc * concss; // m3/s *kg/m3 = kg/s
-      //  ChannelQSSs->Drc = ChannelQsr->Drc*ChannelQ_; //kg/m/s *m
     }}
 
     if(SwitchUse2Phase) {
@@ -277,17 +273,17 @@ void TWorld::ChannelSedimentFlow()
         }}
     }
 
-
     if (SwitchLinkedList) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             pcr::setMV(ChannelQSSsn->Drc);
         }}
-
+        // advection SS
         FOR_ROW_COL_LDDCH5 {
               routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
         }}
 
+        //advection BL
         if(SwitchUse2Phase) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
@@ -300,34 +296,25 @@ void TWorld::ChannelSedimentFlow()
         }
 
     } else {
-            //NOTE: this is the new channel alpha, not good!
         KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
         if(SwitchUse2Phase) {
             KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
         }
     }
 
-
     if (SwitchIncludeRiverDiffusion) {
         RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);
         // note SSsed goes in and out, SSconc is recalculated inside
     }
 
+    // recalc all totals fluxes and conc
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         RiverSedimentLayerDepth(r,c);
         RiverSedimentMaxC(r,c);
-        ChannelQsn->Drc = ChannelQSSsn->Drc;
-        ChannelSed->Drc = ChannelSSSed->Drc;
+        ChannelQsn->Drc = ChannelQSSsn->Drc + (SwitchUse2Phase ? ChannelQBLsn->Drc : 0);
+        //ChannelSed->Drc = ChannelSSSed->Drc; //????? this is done in riversedmaxC
     }}
-
-    if(SwitchUse2Phase) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL {
-            ChannelQsn->Drc += ChannelQBLsn->Drc;
-            ChannelSed->Drc += ChannelBLSed->Drc;
-        }}
-    }
 }
 
 

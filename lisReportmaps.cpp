@@ -110,7 +110,7 @@ void TWorld::setLegendColors()
     Colormap.append(1.0);
 
     Colors.clear();
-    Colors.append("#f4f4c6");//ffffb2");
+    Colors.append("#fdecc6");//ffffb2");
     Colors.append("#fecc5c");
     Colors.append("#fd8d3c");
     Colors.append("#f03b20");

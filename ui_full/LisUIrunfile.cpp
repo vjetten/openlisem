@@ -385,6 +385,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Channel KinWave dt")==0)             E_ChannelKinWaveDt->setValue(valc);
         if (p1.compare("Use Channel Max V")==0)         checkChanMaxVelocity->setChecked(check);
         if (p1.compare("Channel Max V")==0)             E_chanMaxVelocity->setValue(valc);
+        if (p1.compare("Channel 2D flow connect")==0)        checkChannel2DflowConnect->setChecked(check);
 
         //CALIBRATION
         if (p1.compare("Smax calibration")==0)         E_CalibrateSmax->setValue(valc);
@@ -830,6 +831,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel KinWave dt")==0)             namelist[j].value = E_ChannelKinWaveDt->text();
         if (p1.compare("Use Channel Max V")==0)              namelist[j].value.setNum((int)checkChanMaxVelocity->isChecked());
         if (p1.compare("Channel Max V")==0)                  namelist[j].value = E_chanMaxVelocity->text();
+        if (p1.compare("Channel 2D flow connect")==0)        namelist[j].value.setNum((int)checkChannel2DflowConnect->isChecked());
 
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
         if (p1.compare("Min WH flow")==0)                    namelist[j].value = E_minWHflow->text();

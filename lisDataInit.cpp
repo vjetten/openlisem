@@ -353,8 +353,9 @@ void TWorld::InitParameters(void)
         // SwitchHeun = false;// (getvalueint("Use Heun") == 1);
         //SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
-        SwitchLinkedList = getvalueint("Use Linked List") == 1;
+        SwitchLinkedList = getvalueint("Use linked List") == 1;
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
+        SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
     } else {
         F_MaxIter = 200;
         F_minWH = 0.0001;
@@ -366,6 +367,7 @@ void TWorld::InitParameters(void)
         //SwitchErosionInsideLoop = true;
         SwitchLinkedList = true;
         _dtCHkin = 60.0;//_dt_user;
+        SwitchChannel2DflowConnect = false;
     }
     _CHMaxV = 20.0;
     if (SwitchChannelMaxV)
