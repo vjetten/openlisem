@@ -334,15 +334,8 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
     QpinKW->Drc = Qpin;
     double mwrm_ex {0.0};   //mg
     double Crw_avg {0.0};   // mg/L - no runoff; concentration = 0
-    //no runoff - add leftover of mass in runoff water to mixing layer
-//    if (Qn->Drc + QinKW->Drc <= MIN_FLUX) {
-//        PCrw->Drc = 0.0;        //concentration = 0
-//        PMmw->Drc += PMrw->Drc; //add any leftover mass to mixing layer
-//        pmwdep->Drc -= PMrw->Drc;
-//        PMrw->Drc = 0.0;        // mass = 0
-//        PQrw->Drc = 0.0;        // discharge = 0
-//    }
-    if (Qn->Drc + QinKW->Drc > MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
+
+    if (Qn->Drc + QinKW->Drc >= MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
         double vol_mw {0.0};    // volume of water in mixing layer [L]
         double vol_rw {0.0};    // volume of water in runoff [L]
         vol_mw = zm->Drc * Theta_mix->Drc * DX->Drc * SoilWidthDX->Drc * 1000;
@@ -369,22 +362,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
         m_diff = eql_mw - PMmw->Drc;
     //    mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
 
-        // mg = m3 * 1000 (L->m3) * mg L-1
-       // mrw_inf = InfilVol->Drc * 1000 * Crw_avg; // loss through infiltration from runoff
-
-//        // adjust masses if outflow is more than available mass.
-//        if (PMrw->Drc < mrw_inf - mwrm_ex) {
-//            double tot = mrw_inf - mwrm_ex;
-//            mrw_inf = (mrw_inf/tot) * PMrw->Drc;
-//            mwrm_ex = (mwrm_ex/tot) * PMrw->Drc;
-//        }
-//        // adjust masses for PMMW
-//        if (PMmw->Drc < mwrm_ex - mrw_inf) {
-//            double tot = mwrm_ex - mrw_inf;
-//            mrw_inf = (mrw_inf/tot) * PMmw->Drc;
-//            mwrm_ex = (mwrm_ex/tot) * PMmw->Drc;
-//        }
-
 
         //substract mixing layer exchange
         double mrw_n {0.0}; // intermediate mass in runoff water
@@ -407,10 +384,8 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
 
         // runoff water
         Cr_rw = (PMrw->Drc + QpinKW->Drc) > 0 ? ((_Qpwn->Drc * _dt) - mwrm_ex) / (PMrw->Drc + QpinKW->Drc * _dt) : 0.0;
-       // Cr_rw = (PMrw->Drc + QpinKW->Drc) > 0 ? ((_Qpwn->Drc * _dt) - mwrm_ex + mrw_inf) / (PMrw->Drc + QpinKW->Drc * _dt) : 0.0;
         // mixing layer
         Cr_mw = PMmw->Drc > 0 ? mwrm_ex / PMmw->Drc : 0.0;
-       // Cr_mw = PMmw->Drc > 0 ? (mwrm_ex - mrw_inf) / PMmw->Drc : 0.0;
 
         //start loop if one of the Cr's > Cr_max
         if (Cr_rw > Cr_max | Cr_mw > Cr_max) {
@@ -422,8 +397,8 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
 
             // fill intermediate concentrations and masses
             double int_Qpw {0.0}, int_Qpwn {0.0}, int_Cmw {0.0}, int_Crw {0.0}, int_Crw_avg {0.0}; //
-            double int_Mrw {0.0}, int_Mmw {0.0}, int_mwrm_ex {0.0}, int_mrw_inf {0.0}; //
-            double sum_int_mwrm_ex {0.0}, sum_int_Qpwn {0.0}, sum_int_mrw_inf {0.0};
+            double int_Mrw {0.0}, int_Mmw {0.0}, int_mwrm_ex {0.0}; //
+            double sum_int_mwrm_ex {0.0}, sum_int_Qpwn {0.0};
 
             int_Qpw = _Qpw->Drc;
             int_Cmw = PCmw->Drc;
@@ -450,11 +425,8 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
                 m_diff = eql_mw - int_Mmw;
                // int_mwrm_ex = std::abs(int_mwrm_ex) > std::abs(m_diff) ? m_diff : int_mwrm_ex;
 
-                // calculate mrw_inf
-               // int_mrw_inf =  (InfilVol->Drc / steps) * 1000 * int_Crw_avg; // loss through infiltration
-
                 // calculate concentration for new outflux
-                int_Mrw = std::max(0.0, int_Mrw + int_mwrm_ex); // - int_mrw_inf);
+                int_Mrw = std::max(0.0, int_Mrw + int_mwrm_ex);
                 int_Crw = int_Mrw / (WaterVolin->Drc * 1000);
 
                 // calculate Qpwn
@@ -467,7 +439,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
                 //substract infiltration and discharge
                 //mg = mg + mg - mg - mg + (mg sec-1 * sec)
                 int_Mrw = std::max(0.0, int_Mrw - int_Qpwn * dt_int + QpinKW->Drc * dt_int);
-                int_Mmw = std::max(0.0, int_Mmw - int_mwrm_ex); // + int_mrw_inf);
+                int_Mmw = std::max(0.0, int_Mmw - int_mwrm_ex);
 
                 // for next internal loop Qpw = current Qpwn
                 int_Qpw = int_Qpwn;
@@ -477,27 +449,24 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
                 // mean Q and total exchange and infiltration
                 sum_int_Qpwn += int_Qpwn;
                 sum_int_mwrm_ex += int_mwrm_ex;
-              //  sum_int_mrw_inf += int_mrw_inf;
 
             } // end internal time loop
 
             // calculate final concentrations and masses
             _Qpwn->Drc = sum_int_Qpwn / steps;
             mwrm_ex = sum_int_mwrm_ex;
-         //   mrw_inf = sum_int_mrw_inf;
 
         } // end if Cr > Cr_max
         } // end internal time loop
 
         // mass balance
         mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
-     //   pmwdep->Drc -= mrw_inf;
 
         //substract discharge
         //mg = mg - (mg sec-1 * sec)
         PMrw->Drc = std::max(0.0, PMrw->Drc - (_Qpwn->Drc * _dt)
-                                      + (QpinKW->Drc * _dt) + mwrm_ex); // - mrw_inf);
-        PMmw->Drc = std::max(0.0, PMmw->Drc - mwrm_ex); // + mrw_inf);
+                                      + (QpinKW->Drc * _dt) + mwrm_ex);
+        PMmw->Drc = std::max(0.0, PMmw->Drc - mwrm_ex);
        } //runoff occurs
     }//end ldd loop
 }
@@ -550,22 +519,24 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     }
     SpinKW->Drc = Spin;
 
-    //no erosion - add leftover of mass to mixing layer
-    if (_Sed->Drc == 0.0 & SinKW->Drc == 0.0) {
-        PCrs->Drc = 0.0;        //concentration = 0
-        PMms->Drc += PMrs->Drc; //add any leftover mass to mixing layer
-        pmsdep->Drc -= PMrs->Drc;
-        PMrs->Drc = 0.0;        // mass = 0
-        PQrs->Drc = 0.0;        // discharge = 0
+//    //no erosion - add leftover of mass to mixing layer
+//    if (_Sed->Drc == 0.0 & SinKW->Drc == 0.0) {
+//        PCrs->Drc = 0.0;        //concentration = 0
+//        PMms->Drc += PMrs->Drc; //add any leftover mass to mixing layer
+//        pmsdep->Drc -= PMrs->Drc;
+//        PMrs->Drc = 0.0;        // mass = 0
+//        PQrs->Drc = 0.0;        // discharge = 0
 
-    }
+//    }
     double Crs_avg {0.0};
     if (_Sed->Drc > 0 | SinKW->Drc > 0.0) { //
+        if (Qn->Drc >= MIN_FLUX) {
         // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
         Crs_avg = (PMrs->Drc + (SpinKW->Drc * _dt))
                   / (_Sed->Drc + (SinKW->Drc * _dt));
 
         // - simple extrapolation
+
         double totpests = std::max(0.0, PMrs->Drc + (SpinKW->Drc * _dt));
         double totsed = _Sed->Drc + (SinKW->Drc * _dt);
         _Qpsn->Drc = std::min(totpests/_dt,
@@ -603,6 +574,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
                               / (_Sed->Drc + (SinKW->Drc * dt_int));
 
                 // - simple extrapolation
+
                 double totpests = std::max(0.0, int_Mrs +
                                            (SpinKW->Drc * dt_int));
                 double totsed = _Sed->Drc + (SinKW->Drc * dt_int);
@@ -624,14 +596,15 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 
         } // end if Cr > Cr_max
         } // end internal timeloop
+        }
 
-        // can move outside ldd loop to parralel section
-        // mg = mg sec-1 * sec
-        PMrs->Drc = std::max(0.0, PMrs->Drc - (_Qpsn->Drc * _dt)
-                             + (SpinKW->Drc * _dt));
-        PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0; // divide by Sed after kin wave
-        // 0,001 g
         } // erosion occurs
+    // can move outside ldd loop to parralel section
+    // mg = mg sec-1 * sec
+    PMrs->Drc = std::max(0.0, PMrs->Drc - (_Qpsn->Drc * _dt)
+                                  + (SpinKW->Drc * _dt));
+    PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0; // divide by Sed after kin wave
+    // 0,001 g
     }// end ldd loop
 }
 

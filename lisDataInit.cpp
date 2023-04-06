@@ -1511,10 +1511,6 @@ void TWorld::InitErosion(void)
     Qs = NewMap(0);
     Qsn = NewMap(0);
     SinKW = NewMap(0);
-    SinAFO = NewMap(0);
-    WHAFO = NewMap(0);
-    SedAFO = NewMap(0);
-    ErosionAFO = NewMap(0);
 
     DetSplashTot = 0;
     DetFlowTot = 0;
@@ -2115,8 +2111,6 @@ void TWorld::IntializeData(void)
     K2DOutlets = NewMap(0);
 
     QinKW = NewMap(0);
-    QinAFO = NewMap(0);
-    //    QKW = NewMap(0);
     Qoutput = NewMap(0);
     Qsoutput = NewMap(0);
     q = NewMap(0);

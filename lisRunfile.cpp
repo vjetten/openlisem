@@ -595,8 +595,6 @@ void TWorld::ParseRunfileData(void)
     OutSn    = "sn";
     OutSin   = "sin";
     OutS     = "s";
-    OutSAFO = "seds";
-    OutWHAFO = "whs";
     OutFW = "fw";
     OutSS = "ss";
     Outerosion = "me";
