@@ -240,6 +240,34 @@ void TWorld::PesticideCellDynamics(void)
        // update PCmw before dissolved
        PCmw->Drc = PMmw->Drc / vol_w;
 
+       // mixing layer -- runoff water exchange
+       double mwrm_ex {0.0};   //mg
+       double vol_rw {0.0};    // volume of water in runoff [L]
+       vol_rw = DX->Drc * FlowWidth->Drc * WHrunoff->Drc * 1000;
+       PCrw->Drc = PMrw->Drc / vol_rw;
+       if (vol_rw > 0.0) {
+       double vol_mw {0.0};    // volume of water in mixing layer [L]
+       vol_mw = zm->Drc * Theta_mix->Drc * DX->Drc * SoilWidthDX->Drc * 1000;
+       // positive adds to runoff, negative to mixing layer.
+       // mg = ((sec-1 * m-1 * (mg L-1) / m) * sec * L
+       mwrm_ex = ((Kfilm * (PCmw->Drc - PCrw->Drc))/(zm->Drc + WHrunoff->Drc))
+                 * _dt * std::min(vol_mw, vol_rw);
+
+       double c_eql {0.0};
+       double eql_mw {0.0};
+       // equilibrium check
+       // calculate equilibrium mass division
+       c_eql = (PMmw->Drc + PMrw->Drc) / (vol_mw + vol_rw);
+       eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
+       // mwrm_ex can not be larger than m_diff
+       m_diff = eql_mw - PMmw->Drc;
+       mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
+       }
+       // mass balance
+       mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
+
+       PMmw->Drc = std::max(0.0, PMmw->Drc - mwrm_ex);
+       PMrw->Drc = std::max(0.0, PMrw->Drc + mwrm_ex);
     }}
 }
 
@@ -332,41 +360,41 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
         }
     }
     QpinKW->Drc = Qpin;
-    double mwrm_ex {0.0};   //mg
-    double Crw_avg {0.0};   // mg/L - no runoff; concentration = 0
+//    double mwrm_ex {0.0};   //mg
+//    double Crw_avg {0.0};   // mg/L - no runoff; concentration = 0
 
     if (Qn->Drc + QinKW->Drc >= MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
         double vol_mw {0.0};    // volume of water in mixing layer [L]
         double vol_rw {0.0};    // volume of water in runoff [L]
-        vol_mw = zm->Drc * Theta_mix->Drc * DX->Drc * SoilWidthDX->Drc * 1000;
-        vol_rw = WaterVolin->Drc * 1000;
+//        vol_mw = zm->Drc * Theta_mix->Drc * DX->Drc * SoilWidthDX->Drc * 1000;
+//        vol_rw = WaterVolin->Drc * 1000;
 
-        // calculate the correct C's based on the Qin and Qold etc.
-        // mg L-1 = (mg + (mg sec-1 * sec)) / (m3 + (m3 sec-1 * sec)) * 1000(m3 -> L)
-        Crw_avg = (PMrw->Drc + (QpinKW->Drc * _dt))
-                  / ((WaterVolin->Drc + (QinKW->Drc * _dt)) * 1000);
+//        // calculate the correct C's based on the Qin and Qold etc.
+//        // mg L-1 = (mg + (mg sec-1 * sec)) / (m3 + (m3 sec-1 * sec)) * 1000(m3 -> L)
+//        Crw_avg = (PMrw->Drc + (QpinKW->Drc * _dt))
+//                  / ((WaterVolin->Drc + (QinKW->Drc * _dt)) * 1000);
 
-        // positive adds to runoff, negative to mixing layer.
-        // mg = ((sec-1 * m-1 * (mg L-1) / m) * sec * L
-        mwrm_ex = ((_kfilm * (PCmw->Drc - Crw_avg))/(zm->Drc + WHrunoff->Drc))
-                   * _dt * std::min(vol_mw, vol_rw);
+//        // positive adds to runoff, negative to mixing layer.
+//        // mg = ((sec-1 * m-1 * (mg L-1) / m) * sec * L
+//        mwrm_ex = ((_kfilm * (PCmw->Drc - Crw_avg))/(zm->Drc + WHrunoff->Drc))
+//                   * _dt * std::min(vol_mw, vol_rw);
 
-        double c_eql {0.0};
-        double eql_mw {0.0};
-        double m_diff {0.0};
-        // equilibrium check
-        // calculate equilibrium mass division
-        c_eql = (PMmw->Drc + PMrw->Drc) / (vol_mw + vol_rw);
-        eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
-        // mwrm_ex can not be larger than m_diff
-        m_diff = eql_mw - PMmw->Drc;
-        mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
+//        double c_eql {0.0};
+//        double eql_mw {0.0};
+//        double m_diff {0.0};
+//        // equilibrium check
+//        // calculate equilibrium mass division
+//        c_eql = (PMmw->Drc + PMrw->Drc) / (vol_mw + vol_rw);
+//        eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
+//        // mwrm_ex can not be larger than m_diff
+//        m_diff = eql_mw - PMmw->Drc;
+//        mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
 
 
         //substract mixing layer exchange
         double mrw_n {0.0}; // intermediate mass in runoff water
         //mg = mg + mg - mg - mg + (mg sec-1 * sec)
-        mrw_n = std::max(0.0, PMrw->Drc + mwrm_ex);
+        mrw_n = std::max(0.0, PMrw->Drc);// + mwrm_ex);
         // calculate concentration for new outflux
         PCrw->Drc = mrw_n / (WaterVolin->Drc * 1000);
 
@@ -383,9 +411,9 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
         double Cr_mw {0.0};
 
         // runoff water
-        Cr_rw = (PMrw->Drc + QpinKW->Drc) > 0 ? ((_Qpwn->Drc * _dt) - mwrm_ex) / (PMrw->Drc + QpinKW->Drc * _dt) : 0.0;
+    //    Cr_rw = (PMrw->Drc + QpinKW->Drc) > 0 ? ((_Qpwn->Drc * _dt) - mwrm_ex) / (PMrw->Drc + QpinKW->Drc * _dt) : 0.0;
         // mixing layer
-        Cr_mw = PMmw->Drc > 0 ? mwrm_ex / PMmw->Drc : 0.0;
+     //   Cr_mw = PMmw->Drc > 0 ? mwrm_ex / PMmw->Drc : 0.0;
 
         //start loop if one of the Cr's > Cr_max
         if (Cr_rw > Cr_max | Cr_mw > Cr_max) {
@@ -454,19 +482,19 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
 
             // calculate final concentrations and masses
             _Qpwn->Drc = sum_int_Qpwn / steps;
-            mwrm_ex = sum_int_mwrm_ex;
+       //     mwrm_ex = sum_int_mwrm_ex;
 
         } // end if Cr > Cr_max
         } // end internal time loop
 
-        // mass balance
-        mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
+//        // mass balance
+//        mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
        } //runoff occurs
     //substract discharge
     //mg = mg - (mg sec-1 * sec)
     PMrw->Drc = std::max(0.0, PMrw->Drc - (_Qpwn->Drc * _dt)
-                                  + (QpinKW->Drc * _dt) + mwrm_ex);
-    PMmw->Drc = std::max(0.0, PMmw->Drc - mwrm_ex);
+                                  + (QpinKW->Drc * _dt)); // + mwrm_ex);
+    PMmw->Drc = std::max(0.0, PMmw->Drc); // - mwrm_ex);
     }//end ldd loop
 }
 
