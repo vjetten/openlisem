@@ -351,15 +351,15 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
         mwrm_ex = ((_kfilm * (PCmw->Drc - Crw_avg))/(zm->Drc + WHrunoff->Drc))
                    * _dt * std::min(vol_mw, vol_rw);
 
-        double c_eql {0.0};
-        double eql_mw {0.0};
-        double m_diff {0.0};
-        // equilibrium check
-        // calculate equilibrium mass division
-        c_eql = (PMmw->Drc + PMrw->Drc) / (vol_mw + vol_rw);
-        eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
-        // mwrm_ex can not be larger than m_diff
-        m_diff = eql_mw - PMmw->Drc;
+//        double c_eql {0.0};
+//        double eql_mw {0.0};
+//        double m_diff {0.0};
+//        // equilibrium check
+//        // calculate equilibrium mass division
+//        c_eql = (PMmw->Drc + PMrw->Drc) / (vol_mw + vol_rw);
+//        eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
+//        // mwrm_ex can not be larger than m_diff
+//        m_diff = eql_mw - PMmw->Drc;
     //    mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
 
 
@@ -372,7 +372,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
 
         _Qpw->Drc = _Q->Drc * 1000 * PCrw->Drc;
         // use explicit backwards method from Chow
-        _Qpwn->Drc = QpwSeparate(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, _Qpw->Drc,
+        _Qpwn->Drc = ChowSubstance(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, _Qpw->Drc,
                                     _Alpha->Drc, _DX->Drc, _dt); //mg/sec
         _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc + PMrw->Drc / _dt);
 
@@ -417,12 +417,12 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
                 // calculate mrwm_ex
                 int_mwrm_ex = ((_kfilm * (int_Cmw - int_Crw_avg))/(zm->Drc + WHrunoff->Drc))
                               * dt_int * std::min(vol_mw, vol_rw);
-                // equilibrium check
-                // calculate equilibrium mass division
-                c_eql = (int_Mmw + int_Mrw) / (vol_mw + vol_rw);
-                eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
-                // mwrm_ex can not be larger than m_diff
-                m_diff = eql_mw - int_Mmw;
+//                // equilibrium check
+//                // calculate equilibrium mass division
+//                c_eql = (int_Mmw + int_Mrw) / (vol_mw + vol_rw);
+//                eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
+//                // mwrm_ex can not be larger than m_diff
+//                m_diff = eql_mw - int_Mmw;
                // int_mwrm_ex = std::abs(int_mwrm_ex) > std::abs(m_diff) ? m_diff : int_mwrm_ex;
 
                 // calculate concentration for new outflux
@@ -430,7 +430,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
                 int_Crw = int_Mrw / (WaterVolin->Drc * 1000);
 
                 // calculate Qpwn
-                int_Qpwn = QpwSeparate(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, int_Qpw,
+                int_Qpwn = ChowSubstance(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, int_Qpw,
                                        _Alpha->Drc, _DX->Drc, dt_int);
 
                 // add & substract all masses and update concentrations
@@ -491,7 +491,6 @@ void TWorld::KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
         SpinKW->Drc = 0;
     }}
 
-//#pragma omp parallel for reduction(+:Qin) num_threads(userCores)
 for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 {
     int r = _crlinked_[i_].r;
@@ -519,28 +518,33 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     }
     SpinKW->Drc = Spin;
 
-//    //no erosion - add leftover of mass to mixing layer
-//    if (_Sed->Drc == 0.0 & SinKW->Drc == 0.0) {
-//        PCrs->Drc = 0.0;        //concentration = 0
-//        PMms->Drc += PMrs->Drc; //add any leftover mass to mixing layer
-//        pmsdep->Drc -= PMrs->Drc;
-//        PMrs->Drc = 0.0;        // mass = 0
-//        PQrs->Drc = 0.0;        // discharge = 0
-
-//    }
     double Crs_avg {0.0};
     if (_Sed->Drc > 0 | SinKW->Drc > 0.0) { //
         if (Qn->Drc >= MIN_FLUX) {
-        // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
-        Crs_avg = (PMrs->Drc + (SpinKW->Drc * _dt))
-                  / (_Sed->Drc + (SinKW->Drc * _dt));
+//        // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
+//        Crs_avg = (PMrs->Drc + (SpinKW->Drc * _dt))
+//                  / (_Sed->Drc + (SinKW->Drc * _dt));
 
-        // - simple extrapolation
+//        // - simple extrapolation
+//        double totpests = std::max(0.0, PMrs->Drc + (SpinKW->Drc * _dt));
+//        double totsed = _Sed->Drc + (SinKW->Drc * _dt);
+//        _Qpsn->Drc = std::min(totpests/_dt,
+//                                  _Qsn->Drc * (totpests / totsed));
 
-        double totpests = std::max(0.0, PMrs->Drc + (SpinKW->Drc * _dt));
-        double totsed = _Sed->Drc + (SinKW->Drc * _dt);
-        _Qpsn->Drc = std::min(totpests/_dt,
-                                  _Qsn->Drc * (totpests / totsed));
+        // Chow applied for concentration of adsorbed in water!
+        // Instead of the adsorbed concentration of pesticides in the sediment
+        // mg/kg we use the concentration in suspended sediment multiplied by
+        // the suspended sediment concentration - resulting in the adsorbed
+        // pesticide concentration in the runoff water. This is suitable to be
+        // solved with the explicit Chow equation. And takes flow speed into
+        // acount when reditributing the adsorbed pesticide. The 'simple extrapolation
+        // above does not do that an causes extreme concentration peaks at the
+        // rising limb of the discharge.
+        // mg sec-1 = m3 sec -1 * (mg m-3)
+        _Qps->Drc = Q->Drc * (PMrs->Drc / WaterVolin->Drc);
+        // use explicit backwards method from Chow
+        _Qpsn->Drc = ChowSubstance(Qn->Drc, QinKW->Drc, Q->Drc, SpinKW->Drc, _Qps->Drc,
+                                 _Alpha->Drc, _DX->Drc, _dt); //mg/sec
 
 
         // internal loop ----------------------------
@@ -559,11 +563,11 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 
             // fill intermediate concentrations and masses
             double int_Qpsn {0.0}, int_Crs_avg {0.0}; //
-            double int_Mrs {0.0}; //
+            double int_Mrs {0.0}, int_Qps {0.0}; //
             double sum_int_Qpsn {0.0};
 
             int_Mrs = PMrs->Drc;
-
+            int_Qps = _Qps->Drc;
             // make loop
             double count = 0;
             while (count < steps) {
@@ -573,26 +577,27 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
                 int_Crs_avg = (int_Mrs + (SpinKW->Drc * dt_int))
                               / (_Sed->Drc + (SinKW->Drc * dt_int));
 
-                // - simple extrapolation
+//                // - simple extrapolation
+//                double totpests = std::max(0.0, int_Mrs +
+//                                           (SpinKW->Drc * dt_int));
+//                double totsed = _Sed->Drc + (SinKW->Drc * dt_int);
+//                int_Qpsn = std::min(totpests/dt_int,
+//                                      _Qsn->Drc * (totpests / totsed));
 
-                double totpests = std::max(0.0, int_Mrs +
-                                           (SpinKW->Drc * dt_int));
-                double totsed = _Sed->Drc + (SinKW->Drc * dt_int);
-                int_Qpsn = std::min(totpests/dt_int,
-                                      _Qsn->Drc * (totpests / totsed));
-
+                // use explicit backwards method from Chow
+                int_Qpsn = ChowSubstance(Qn->Drc, QinKW->Drc, Q->Drc, SpinKW->Drc, int_Qps,
+                                       _Alpha->Drc, _DX->Drc, dt_int); //mg/sec
                // update for next loop
                int_Mrs = std::max(0.0, int_Mrs - (int_Qpsn * dt_int)
                                            + (SpinKW->Drc * dt_int));
-               //sum for final values
+                int_Qps = int_Qpsn;
+                //sum for final values
                sum_int_Qpsn += int_Qpsn;
-
 
             } // end internal time loop
 
             //calculate final values
             _Qpsn->Drc = sum_int_Qpsn / steps;
-
 
         } // end if Cr > Cr_max
         } // end internal timeloop
@@ -610,24 +615,25 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 
 //---------------------------------------------------------------------------
 /**
- * @fn double TWorld::QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i, double Pji1, double alpha, double dx)
- * @brief Explicit backward calculation of dissolved pesticide outflux from a cell
+ * @fn double TWorld::ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i, double Pji1, double alpha, double dx)
+ * @brief Explicit backward calculation of substance in water outflux from a cell
  *
- * Calculation of dissolved pesticide outflux from a cell based on a explicit solution of the time/space matrix,
+ * Calculation of substance outflux from a cell based on a explicit solution of the time/space matrix,
  * j = time and i = place: j1i1 is the new output, j1i is the new flux at the upstream 'entrance' flowing into the gridcell
  *
  * @param Qj1i1 : result kin wave for this cell ( Qj+1,i+1 )
  * @param Qj1i : sum of all upstreamwater from kin wave ( Qj+1,i ),
  * @param Qji1 : incoming Q for kinematic wave (t=j) in this cell, map Q in LISEM (Qj,i+1)
- * @param Pj1i : sum of all upstream pesticide (Pj+1,i)
- * @param Pji1 : incoming dissolved pesticide for kinematic wave (t=j) in this cell, map Qpw in LISEM (Si,j+1)
+ * @param Pj1i : sum of all upstream substance (Pj+1,i)
+ * @param Pji1 : incoming substance for kinematic wave (t=j) in this cell, map Qpw in LISEM (Si,j+1)
  * @param alpha : alpha calculated in LISEM from before kinematic wave
  * @param dt : timestep
  * @param dx : length of the cell, corrected for slope (DX map in LISEM)
- * @return dissolved pesticide outflow in next timestep
+ * @return substance outflow in next timestep
  *
  */
-double TWorld::QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i, double Pji1, double alpha, double dx, double dt)
+double TWorld::ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
+                             double Pji1, double alpha, double dx, double dt)
 {
     double Pj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C;
     const double beta = 0.6;
@@ -651,35 +657,6 @@ double TWorld::QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i, d
         Pj1i1 = 0;
     return std::max(0.0 ,Pj1i1);
 }
-
-//---------------------------------------------------------------------------
-/**
-* @fn double TWorld::PesticideSplashDetachment(;
-* @brief Calculate adsorbed pesticide mass added to flow by splash erosion
-*/
-
-void TWorld::PesticideSplashDetachment() {
-    // can be parralel
-    FOR_ROW_COL_MV_L{
-         double msoil_ex {0.0};  // mass exchange between mixing layer and deeper soil
-        // add mass to pesticide in flow
-        PMsplash->Drc = DETSplash->Drc * PCms->Drc;
-        PMrs->Drc += PMsplash->Drc;
-        PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0; // if Sed > 0.001 gr
-
-        // update mass and concentration in mixing layer
-        msoil_ex = DETSplash->Drc * PCs->Drc;
-        PMms->Drc = PMms->Drc - PMsplash->Drc + msoil_ex;
-        PCms->Drc = PMms->Drc / (zm->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest);
-        // adjust lower soil layer
-        PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);
-        // WARNING we don't update the PCs now - check if it causes problems
-
-        //mass balance
-        pmsdet->Drc += PMsplash->Drc;
-    }}
-}
-
 
 //---------------------------------------------------------------------------
 /**

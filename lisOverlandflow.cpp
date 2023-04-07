@@ -326,7 +326,7 @@ void TWorld::OverlandFlow1D(void)
         //tot = tot + WaterVolin->Drc;
 
         if (SwitchErosion) {
-            // calc seediment flux going in kin wave as Qs = Q*C
+            // calc sediment flux going in kin wave as Qs = Q*C
             Qsn->Drc = 0.0;
             Conc->Drc = MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, Sed->Drc);
             Qs->Drc =  Q->Drc * Conc->Drc;

@@ -852,9 +852,8 @@ public:
                            cTMap *_LDD, cTMap *_Qsn, cTMap *_Qpsn, cTMap *_DX,
                            cTMap *_Alpha, cTMap *_Sed, cTMap *_Qs, cTMap *_Qps,
                            double rho);
-    double QpwSeparate(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
+    double ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
                        double Pji1, double alpha, double dx, double dt);
-
 
     // 1D hydro processes
     //input timeseries
