@@ -26,6 +26,8 @@
 #include "model.h"
 
 
+#define MaxGWDepthfrac 0.95
+
 // results in a new Qbin (Qbase in for channel flow)
 void TWorld::GroundwaterFlow(void)
 {
@@ -48,22 +50,27 @@ void TWorld::GroundwaterFlow(void)
     // recharge and deep percolation
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
+        double dxa = CellArea->Drc;// CHAdjDX->Drc;
         Perc->Drc = cell_Percolation(r, c, GW_recharge); // in m
-        GWrecharge->Drc = Perc->Drc * CellArea->Drc; // m3
+        GWrecharge->Drc = Perc->Drc * dxa; // m3
 
         //GWdeep->Drc_ = 0;//GW_deep * _dt/(86400000)*CellArea_; //*qSqrt(GWWH->Drc)
         // percolation from GW to deeper level, to cause decline in dry periods
 
-        GWVol->Drc += GWrecharge->Drc;// - GWdeep->Drc;
-        GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
+
+        GWVol->Drc += GWrecharge->Drc - GW_deep*CellArea->Drc;
+        GWWH->Drc = GWVol->Drc/(dxa*pore->Drc);
+        GWWH->Drc = std::min(SoilDepth2init->Drc,GWWH->Drc);
+        GWVol->Drc = GWWH->Drc*dxa*pore->Drc;
+
         GWout->Drc = 0;
+        // given a value in GWFlowLDD
     }}
 
 
     if (SwitchSWATGWflow)
         GWFlowLDD();
     // GW contribution to baseflow according to SWAT
-    // do this always
 
     if (SwitchExplicitGWflow)
        GWFlow2D();
@@ -71,17 +78,19 @@ void TWorld::GroundwaterFlow(void)
 
 
     // change the soil depth with GWWH
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
+    if (SwitchGWChangeSD) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
 
-        // change soildepth2 with GW changes
-        if (SwitchImpermeable && GWWH->Drc > 0) {
-            SoilDepth->Drc = SoilDepthinit->Drc - GWWH->Drc;
-        }
+            // change soildepth2 with GW changes
+            if (SwitchImpermeable && GWWH->Drc > 0) {
+                SoilDepth->Drc = SoilDepthinit->Drc - GWWH->Drc;
+            }
 
-        GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
-    }}
+            GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
+        }}
+    }
 
 
     // do the baseflow
@@ -92,17 +101,25 @@ void TWorld::GroundwaterFlow(void)
 
         //add the 2D flow
         if (SwitchExplicitGWflow) {
-            double GWWH_ = GWWH->Drc;
-            Qbase->Drc += 2 * GW_inflow * ksat->Drc * _dx*GWWH_;// * (1-exp(-4*GWWH_));
-            // assumption is a DARCY pressure gradient of hH/dL = 1.0
-            // not this: makes it deped on cell size which is not what we want* (GWWH_/(ChannelAdj->Drc/2));
+            //double gwflow = 0;
+            double dh = std::max(0.0,(SoilDepth2->Drc+SoilDepth1->Drc) - ChannelDepth->Drc);
+            if (GWWH->Drc > dh) {
+                //gwflow = 2 * GW_inflow * ksat->Drc * DX->Drc*(GWWH->Drc-dh);
+                //gwflow = std::min(gwflow, CHAdjDX->Drc*GWWH->Drc*MaxGWDepthfrac);
+                //GWWH->Drc -= gwflow/CHAdjDX->Drc;
+                double dvol = dh*ChannelWidth->Drc*DX->Drc;
+                        //GWVol->Drc * ChannelWidth->Drc/_dx;
+                GWVol->Drc -= dvol;
+                GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
+
+                Qbase->Drc += dvol;//gwflow;
+            }
         }
-        // sort of Darcy with the pressure term as the GW height over half the distance to the channel
         // do not add pore because Ksat is already the permeability of the matrix, not just the pores in the matrix
         // 2 is form two sides into the channel in the middle
 
-        if (GWVol->Drc*0.9 - Qbase->Drc < 0)
-            Qbase->Drc = GWVol->Drc*0.9;
+        if (GWVol->Drc*MaxGWDepthfrac - Qbase->Drc < 0)
+            Qbase->Drc = GWVol->Drc*MaxGWDepthfrac;
 
         //double qb = (1-GW_lag)*Qbase->Drc + GW_lag*Qbaseprev->Drc;
 
@@ -134,7 +151,7 @@ void TWorld::GWFlowLDD(void)
     FOR_ROW_COL_MV_L {
         double CellArea_ = CellArea->Drc;
         // between 0 and soildepth - 0.1m
-        double maxvol = CellArea_ * (SwitchTwoLayer ? (SoilDepth2->Drc-SoilDepth1->Drc)-0.1 : SoilDepth1->Drc-0.1);
+        double maxvol = CellArea_ * (SwitchTwoLayer ? (SoilDepth2->Drc/*+SoilDepth1->Drc*/) : SoilDepth1->Drc)*MaxGWDepthfrac;
         double GWWH_ = GWWH->Drc;
 
         double GWout_ = GW_flow * CellArea_ * ksat->Drc * BaseflowL->Drc; // m3 volume out from every cell
@@ -200,7 +217,7 @@ void TWorld::GWFlow2D(void)
     FOR_ROW_COL_MV_L {
         z->Drc = DEM->Drc - SoilDepth->Drc + 100;
         tma->Drc = 0;
-        tmb->Drc = 0;
+     //   tmb->Drc = 0;
     }}
 
     #pragma omp parallel for num_threads(userCores)
@@ -224,6 +241,8 @@ void TWorld::GWFlow2D(void)
         if(tma->Drc > 0) {
             double H = GWWH->Drc;
             double Z = z->Drc;
+            if (ChannelWidth->Drc > 0)
+                Z = Z - ChannelDepth->Drc;
             double V = vol->Drc;
 
             bool bc1 = c > 0 && !MV(r,c-1)        ;
@@ -282,13 +301,19 @@ void TWorld::GWFlow2D(void)
             if (vol->Drc + dflux > maxvol)
                 dflux = std::min(dflux, vol->Drc);
 
-            GWout->Drc = dflux;
+        //    tmb->Drc += dflux;
             vol->Drc += dflux;
+
             vol->Drc = std::max(0.0, vol->Drc);
             h->Drc = vol->Drc/CellArea->Drc/pore->Drc;
 
         }}
     }
-    //GWout now has the flow but is not used further
+
+//    #pragma omp parallel for num_threads(userCores)
+//    FOR_ROW_COL_MV_L {
+//        GWout->Drc += tmb->Drc;
+//    }}
+
 }
 

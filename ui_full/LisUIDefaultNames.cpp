@@ -437,7 +437,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("GW threshold factor");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW slope factor");
-    namelist[i].value = QString("1.0");
+    namelist[i].value = QString("0.0");
     namelist[i++].name = QString("GW deep percolation");
 
     //###
@@ -626,6 +626,9 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel Max V");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Channel 2D flow connect");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("GW layer change SD");
+
 
     // output maps have standard names
     // input maps names are defined in DEFmaps

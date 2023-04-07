@@ -290,7 +290,9 @@ void TWorld::InitParameters(void)
     GW_inflow = getvaluedouble("GW river inflow factor");
     GW_slope = getvaluedouble("GW slope factor");
     GW_lag = 0.8; //getvaluedouble("GW lag factor");
-    GW_deep = getvaluedouble("GW deep percolation");
+    GW_deep = getvaluedouble("GW deep percolation"); // in mm/day
+    GW_deep *= 0.001/86400; //in m/s
+
     GW_threshold = getvaluedouble("GW threshold factor");
 
 
@@ -356,6 +358,7 @@ void TWorld::InitParameters(void)
         SwitchLinkedList = getvalueint("Use linked List") == 1;
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
+        SwitchGWChangeSD = getvalueint("GW layer change SD") == 1;
     } else {
         F_MaxIter = 200;
         F_minWH = 0.0001;
@@ -368,6 +371,7 @@ void TWorld::InitParameters(void)
         SwitchLinkedList = true;
         _dtCHkin = 60.0;//_dt_user;
         SwitchChannel2DflowConnect = false;
+        SwitchGWChangeSD = true;
     }
     _CHMaxV = 20.0;
     if (SwitchChannelMaxV)
