@@ -351,16 +351,16 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
         mwrm_ex = ((_kfilm * (PCmw->Drc - Crw_avg))/(zm->Drc + WHrunoff->Drc))
                    * _dt * std::min(vol_mw, vol_rw);
 
-//        double c_eql {0.0};
-//        double eql_mw {0.0};
-//        double m_diff {0.0};
-//        // equilibrium check
-//        // calculate equilibrium mass division
-//        c_eql = (PMmw->Drc + PMrw->Drc) / (vol_mw + vol_rw);
-//        eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
-//        // mwrm_ex can not be larger than m_diff
-//        m_diff = eql_mw - PMmw->Drc;
-    //    mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
+        double c_eql {0.0};
+        double eql_mw {0.0};
+        double m_diff {0.0};
+        // equilibrium check
+        // calculate equilibrium mass division
+        c_eql = (PMmw->Drc + PMrw->Drc) / (vol_mw + vol_rw);
+        eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
+        // mwrm_ex can not be larger than m_diff
+        m_diff = eql_mw - PMmw->Drc;
+        mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
 
 
         //substract mixing layer exchange
@@ -461,13 +461,12 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
 
         // mass balance
         mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
-
-        //substract discharge
-        //mg = mg - (mg sec-1 * sec)
-        PMrw->Drc = std::max(0.0, PMrw->Drc - (_Qpwn->Drc * _dt)
-                                      + (QpinKW->Drc * _dt) + mwrm_ex);
-        PMmw->Drc = std::max(0.0, PMmw->Drc - mwrm_ex);
        } //runoff occurs
+    //substract discharge
+    //mg = mg - (mg sec-1 * sec)
+    PMrw->Drc = std::max(0.0, PMrw->Drc - (_Qpwn->Drc * _dt)
+                                  + (QpinKW->Drc * _dt) + mwrm_ex);
+    PMmw->Drc = std::max(0.0, PMmw->Drc - mwrm_ex);
     }//end ldd loop
 }
 
@@ -545,6 +544,8 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         // use explicit backwards method from Chow
         _Qpsn->Drc = ChowSubstance(Qn->Drc, QinKW->Drc, Q->Drc, SpinKW->Drc, _Qps->Drc,
                                  _Alpha->Drc, _DX->Drc, _dt); //mg/sec
+        _Qpsn->Drc = std::min(_Qpsn->Drc, SpinKW->Drc + PMrs->Drc / _dt);
+
 
 
         // internal loop ----------------------------
@@ -612,6 +613,37 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     // 0,001 g
     }// end ldd loop
 }
+
+//---------------------------------------------------------------------------
+/**
+* @fn double TWorld::PesticideSplashDetachment(;
+* @brief Calculate adsorbed pesticide mass added to flow by splash erosion
+*/
+
+void TWorld::PesticideSplashDetachment() {
+    // can be parralel
+    FOR_ROW_COL_MV_L{
+         double msoil_ex {0.0};  // mass exchange between mixing layer and deeper soil
+        // add mass to pesticide in flow
+        PMsplash->Drc = DETSplash->Drc * PCms->Drc;
+        PMrs->Drc += PMsplash->Drc;
+        PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0; // if Sed > 0.001 gr
+
+        // update mass and concentration in mixing layer
+        msoil_ex = DETSplash->Drc * PCs->Drc;
+        PMms->Drc = PMms->Drc - PMsplash->Drc + msoil_ex;
+        PCms->Drc = PMms->Drc / (zm->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest);
+        // adjust lower soil layer
+        PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);
+        // WARNING we don't update the PCs now - check if it causes problems
+
+        //mass balance
+        pmsdet->Drc += PMsplash->Drc;
+    }}
+}
+
+
+
 
 //---------------------------------------------------------------------------
 /**
