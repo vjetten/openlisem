@@ -193,7 +193,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("GW flow factor")==0)                GW_flow->setValue(valc);
         if (p1.compare("GW river inflow factor")==0)           GW_inflow->setValue(valc);
         if (p1.compare("GW slope factor")==0)               GW_slope->setValue(valc);
-      //  if (p1.compare("GW lag factor")==0)               GW_lag->setValue(valc);
         if (p1.compare("GW deep percolation")==0)           GW_deep->setValue(valc);
         if (p1.compare("GW threshold factor")==0)           GW_threshold->setValue(valc);
 
@@ -253,14 +252,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
         //	  if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
         if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setValue(valc);
-
-        //VJ 111120 water repellency
-//        if (p1.compare("Use Water Repellency")==0)      checkWaterRepellency->setChecked(check);
-//        if (p1.compare("Water Repellency A")==0)        E_waterRep_a->setValue(valc);
-//        if (p1.compare("Water Repellency B")==0)        E_waterRep_b->setValue(valc);
-//        if (p1.compare("Water Repellency C")==0)        E_waterRep_c->setValue(valc);
-//        if (p1.compare("Water Repellency D")==0)        E_waterRep_d->setValue(valc);
-
 
         // FLOW
         if (p1.compare("Include flow barriers")==0)          checkFlowBarriers->setChecked(check);

@@ -129,11 +129,11 @@ void TWorld::ChannelFlowandErosion()
 //---------------------------------------------------------------------------
 void TWorld::ChannelBaseflow(void)
 {
-//    if(!SwitchChannelBaseflow)
-//        return;
+    if(!SwitchChannelBaseflow)
+        return;
 
     // add a stationary part
-    if(SwitchChannelBaseflow && SwitchChannelBaseflowStationary)
+    if(SwitchChannelBaseflowStationary)
     {
         // first time
         if(!addedbaseflow) {
@@ -151,9 +151,40 @@ void TWorld::ChannelBaseflow(void)
         }}
     }
 
-    if (SwitchChannelBaseflow && SwitchExplicitGWflow) //SwitchSWATGWflow ||
+    if (SwitchExplicitGWflow) // || SwitchSWATGWflow
+    {
         GroundwaterFlow();
-    // move groundwater and add baseflow to channel
+        // move groundwater, Qbin is the flow
+
+        // do the baseflow
+        cTMap *pore;
+        if (SwitchTwoLayer)
+            pore = ThetaS2;
+        else
+            pore = Thetaeff;
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+
+             Qbase->Drc = GWout->Drc;// * ChannelWidth->Drc/_dx;
+//            double SD = SoilDepht2init->Drc + SoilDepth1init->Drc;
+//            double dH = std::max(0.0, GWWH->Drc - (SD - ChannelDepth->Drc));
+//            double vol = dH*ChannelWidth->Drc*DX->Drc;
+//            Qbase->Drc = vol;// * ChannelWidth->Drc/_dx;
+
+
+            //m3 added per timestep
+
+            GWVol->Drc -= Qbase->Drc;
+
+            ChannelWaterVol->Drc += Qbase->Drc;
+            // NOTE: always added no matter the conditions! e.g. when GW is below surface - channeldepth!
+            // But that would make channeldepth very sensitive
+
+            GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
+
+        }}
+    }
 
 }
 //---------------------------------------------------------------------------

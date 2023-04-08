@@ -312,9 +312,9 @@ void TWorld::GetComboMaps()
         if (SwitchChannelBaseflow) {
             AddComboMap(0,"Groundwater level","m",GWWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
             AddComboMap(0,"Groundwater level max","m",GWWHmax,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
-            AddComboMap(0,"Qbin","m3",Qbin,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+            //AddComboMap(0,"Qbin","m3",Qbin,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
 
-            AddComboMap(0,"SD2","m",SoilDepth2,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+            //AddComboMap(0,"SD2","m",SoilDepth2,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
         }
         cl = 6;
         if (SwitchSlopeStability)

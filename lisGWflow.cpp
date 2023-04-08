@@ -47,29 +47,30 @@ void TWorld::GroundwaterFlow(void)
         SoilDepth = SoilDepth1;
     }
 
-    // recharge and deep percolation
+    // add recharge and subtract deep percolation
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double dxa = CellArea->Drc;// CHAdjDX->Drc;
         Perc->Drc = cell_Percolation(r, c, GW_recharge); // in m
         GWrecharge->Drc = Perc->Drc * dxa; // m3
 
-        //GWdeep->Drc_ = 0;//GW_deep * _dt/(86400000)*CellArea_; //*qSqrt(GWWH->Drc)
+        GWdeep->Drc = GW_deep*CellArea->Drc;
         // percolation from GW to deeper level, to cause decline in dry periods
 
-
-        GWVol->Drc += GWrecharge->Drc - GW_deep*CellArea->Drc;
+        double maxvol = SoilDepth2init->Drc * CellArea->Drc * pore->Drc;
+        if (GWVol->Drc + GWrecharge->Drc - GWdeep->Drc > maxvol)
+            GWrecharge->Drc = maxvol - GWVol->Drc + GWdeep->Drc;
+        GWVol->Drc += GWrecharge->Drc - GWdeep->Drc;
         GWWH->Drc = GWVol->Drc/(dxa*pore->Drc);
-        GWWH->Drc = std::min(SoilDepth2init->Drc,GWWH->Drc);
-        GWVol->Drc = GWWH->Drc*dxa*pore->Drc;
 
-        GWout->Drc = 0;
+        // GWout->Drc = 0;
         // given a value in GWFlowLDD
     }}
 
     if (SwitchExplicitGWflow)
         GWFlowLDDKsat();
     // 2D eplicit flow method based on H+Z differences
+    // results in Qbin which is the flow in m3
 
     // change the soil depth with GWWH
     if (SwitchGWChangeSD) {
@@ -78,6 +79,7 @@ void TWorld::GroundwaterFlow(void)
             GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
 
             // change soildepth2 with GW changes
+            // when gw flow always impermeable !?
             if (SwitchImpermeable && GWWH->Drc > 0) {
                 SoilDepth->Drc = SoilDepthinit->Drc - GWWH->Drc;
             }
@@ -85,46 +87,6 @@ void TWorld::GroundwaterFlow(void)
             GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
         }}
     }
-
-
-    // do the baseflow
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
-        // fast component from LDD
-        Qbase->Drc = Qbin->Drc * ChannelWidth->Drc/_dx;//m3 added per timestep, for MB
-
-        //add the 2D flow
-        if (SwitchExplicitGWflow) {
-            //double gwflow = 0;
-            double dh = std::max(0.0,(SoilDepth2->Drc+SoilDepth1->Drc) - ChannelDepth->Drc);
-            if (GWWH->Drc > dh) {
-                //gwflow = 2 * GW_inflow * ksat->Drc * DX->Drc*(GWWH->Drc-dh);
-                //gwflow = std::min(gwflow, CHAdjDX->Drc*GWWH->Drc*MaxGWDepthfrac);
-                //GWWH->Drc -= gwflow/CHAdjDX->Drc;
-                double dvol = dh*ChannelWidth->Drc*DX->Drc;
-                        //GWVol->Drc * ChannelWidth->Drc/_dx;
-                GWVol->Drc -= dvol;
-                GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
-
-                Qbase->Drc += dvol;//gwflow;
-            }
-        }
-        // do not add pore because Ksat is already the permeability of the matrix, not just the pores in the matrix
-        // 2 is form two sides into the channel in the middle
-
-        if (GWVol->Drc*MaxGWDepthfrac - Qbase->Drc < 0)
-            Qbase->Drc = GWVol->Drc*MaxGWDepthfrac;
-
-        //double qb = (1-GW_lag)*Qbase->Drc + GW_lag*Qbaseprev->Drc;
-
-        GWVol->Drc -= Qbase->Drc;
-
-        ChannelWaterVol->Drc += Qbase->Drc;
-
-        GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
-
-        //Qbaseprev->Drc = Qbase->Drc;
-    }}
 }
 
 void TWorld::GWFlowLDDKsat(void)
@@ -198,19 +160,21 @@ void TWorld::GWFlowLDDKsat(void)
         }
     }
 
-    GWFlow2D();
+    //GWFlow2D();
 
-    //Average3x3(*GWWH, *LDDbaseflow);
+    Average3x3(*GWWH, *LDDbaseflow);
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         GWVol->Drc = GWWH->Drc * pore->Drc * CellArea->Drc;
-        Qbin->Drc = GW_flow * ksat->Drc * GWWH->Drc * _dx * tmb->Drc;//Grad->Drc;
+        GWout->Drc = GW_flow * ksat->Drc * GWWH->Drc * _dx * tmb->Drc;
     }}
 
 
 }
 
+
+    // DOES not work very well, very unstable
 void TWorld::GWFlow2D(void)
 {
     cTMap *pore;
@@ -278,27 +242,27 @@ void TWorld::GWFlow2D(void)
             double v_y1 =  br1 ?vol->data[r-1][c] : V;
             double v_y2 =  br2 ?vol->data[r+1][c] : V;
 
-           double dh_x1 = (h_x1 + z_x1) - (H+Z);
-           double dh_x2 = (h_x2 + z_x2) - (H+Z);
-           double dh_y1 = (h_y1 + z_y1) - (H+Z);
-           double dh_y2 = (h_y2 + z_y2) - (H+Z);
+            double dh_x1 = (h_x1 + z_x1) - (H+Z);
+            double dh_x2 = (h_x2 + z_x2) - (H+Z);
+            double dh_y1 = (h_y1 + z_y1) - (H+Z);
+            double dh_y2 = (h_y2 + z_y2) - (H+Z);
 
-            double f = 0.1; // emphasize terrain slope
-            dh_x1 = (1-f)*(z_x1 - Z)+f*dh_x1;
-            dh_x2 = (1-f)*(z_x2 - Z)+f*dh_y1;
-            dh_y1 = (1-f)*(z_y1 - Z)+f*dh_x2;
-            dh_y2 = (1-f)*(z_y2 - Z)+f*dh_y2;
+//            double f = 0.33; // emphasize terrain slope
+//            dh_x1 = (1-f)*(z_x1 - Z)+f*dh_x1;
+//            dh_x2 = (1-f)*(z_x2 - Z)+f*dh_y1;
+//            dh_y1 = (1-f)*(z_y1 - Z)+f*dh_x2;
+//            dh_y2 = (1-f)*(z_y2 - Z)+f*dh_y2;
 
             // flow = Ksat * cross section * hydraulic gradient
             // ksat has already dt
-            double ff = 1.0;//std::max(1.0, GW_flow);
+            double ff = GW_flow;
             double df_x1 = ff* ksat->Drc * (h_x1 * _dx) * dh_x1/_dx;
             double df_y1 = ff* ksat->Drc * (h_y1 * _dx) * dh_y1/_dx;
             double df_x2 = ff* ksat->Drc * (h_x2 * _dx) * dh_x2/_dx;
             double df_y2 = ff* ksat->Drc * (h_y2 * _dx) * dh_y2/_dx;
             // m3 = m/s * s * (m*m) * m/m
 
-            f = 0.5;//MaxGWDepthfrac;
+            double f = 0.5;//MaxGWDepthfrac;
             df_x1 = std::min(v_x1*f,abs(df_x1)) * df_x1 < 0 ? -1.0 : 1.0;
             df_y1 = std::min(v_y1*f,abs(df_y1)) * df_y1 < 0 ? -1.0 : 1.0;
             df_x2 = std::min(v_x2*f,abs(df_x2)) * df_x2 < 0 ? -1.0 : 1.0;

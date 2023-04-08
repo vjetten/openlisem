@@ -434,7 +434,6 @@ public:
     double GW_flow;
     double GW_inflow;
     double GW_slope;
-    double GW_lag;
     double GW_deep;
     double GW_threshold;
     double GW_initlevel;
@@ -1042,6 +1041,7 @@ public:
 
     double MapTotal(cTMap &M);
     void Average3x3(cTMap &M, cTMap &mask);
+    void Average2x2(cTMap &M, cTMap &mask);
     void Totals(void);
     void MassBalance(void);
     void OutputUI(void);
