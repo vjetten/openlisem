@@ -24,7 +24,7 @@
 
 
 #include "model.h"
-
+#include "operation.h"
 
 #define MaxGWDepthfrac 0.95
 
@@ -67,15 +67,9 @@ void TWorld::GroundwaterFlow(void)
         // given a value in GWFlowLDD
     }}
 
-
-    if (SwitchSWATGWflow)
-        GWFlowLDD();
-    // GW contribution to baseflow according to SWAT
-
     if (SwitchExplicitGWflow)
-       GWFlow2D();
+        GWFlowLDDKsat();
     // 2D eplicit flow method based on H+Z differences
-
 
     // change the soil depth with GWWH
     if (SwitchGWChangeSD) {
@@ -133,7 +127,202 @@ void TWorld::GroundwaterFlow(void)
     }}
 }
 
+void TWorld::GWFlowLDDKsat(void)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+    cTMap *pore;
+    cTMap *ksat;
+    cTMap *SoilDepthinit;
+    cTMap *z = DEM;
+    if (SwitchTwoLayer) {
+        pore = ThetaS2;
+        ksat = Ksat2;
+        SoilDepthinit = SoilDepth2init;
+    } else {
+        pore = Poreeff;
+        ksat = Ksateff;
+        SoilDepthinit = SoilDepth1init;
+    }
+
+    // calculate GW flow angle along network
+    fill(*tmb, 0.0);
+    for(long i_ =  0; i_ < crlinkedlddbase_.size(); i_++)
+    {
+        int r = crlinkedlddbase_.at(i_).r;
+        int c = crlinkedlddbase_.at(i_).c;
+        double Zup = 0;
+
+        if (crlinkedlddbase_.at(i_).nr > 0) {
+            double cnt = 0;
+            for(int j = 0; j < crlinkedlddbase_.at(i_).nr; j++) {
+                int rr = crlinkedlddbase_.at(i_).inn[j].r;
+                int cr = crlinkedlddbase_.at(i_).inn[j].c;
+                Zup += (z->Drcr - SoilDepthinit->Drcr);// + GWWH->Drcr;
+                cnt+=1.0;
+            }
+            Zup /= cnt;
+        }
+        double Z = z->Drc - SoilDepthinit->Drc;// + GWWH->Drc;
+
+        tmb->Drc = fabs(Zup - Z)/_dx + 0.001;
+    }
+
+    fill(*tmc, 0.0);
+    int step = 5;
+    for (int j = 0; j < step; j++) {
+        // loop step times for explicit GW flow
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            tmc->Drc = 1/(double)step * GW_flow * ksat->Drc * GWWH->Drc *_dx * tmb->Drc;//Grad->Drc;
+            // flow is ksat over terrain gradient
+        }}
+
+        for(long i_ =  0; i_ < crlinkedlddbase_.size(); i_++)
+        {
+            int r = crlinkedlddbase_.at(i_).r;
+            int c = crlinkedlddbase_.at(i_).c;
+            double Qin = 0;
+
+            if (crlinkedlddbase_.at(i_).nr > 0) {
+                for(int j = 0; j < crlinkedlddbase_.at(i_).nr; j++) {
+                    int rr = crlinkedlddbase_.at(i_).inn[j].r;
+                    int cr = crlinkedlddbase_.at(i_).inn[j].c;
+                    Qin += tmc->Drcr;
+                }
+            }
+
+            double vol = GWVol->Drc + Qin - tmc->Drc;
+            GWVol->Drc = std::max(0.0, vol);
+            GWWH->Drc = vol/CellArea->Drc/pore->Drc;
+        }
+    }
+
+    GWFlow2D();
+
+    //Average3x3(*GWWH, *LDDbaseflow);
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        GWVol->Drc = GWWH->Drc * pore->Drc * CellArea->Drc;
+        Qbin->Drc = GW_flow * ksat->Drc * GWWH->Drc * _dx * tmb->Drc;//Grad->Drc;
+    }}
+
+
+}
+
+void TWorld::GWFlow2D(void)
+{
+    cTMap *pore;
+    cTMap *ksat;
+    cTMap *SoilDepthinit;
+    cTMap *z = DEM;
+    cTMap *h = GWWH;
+    cTMap *vol = GWVol;
+    if (SwitchTwoLayer) {
+        pore = ThetaS2;
+        ksat = Ksat2;
+        SoilDepthinit = SoilDepth2init;
+    } else {
+        pore = Poreeff;
+        ksat = Ksateff;
+        SoilDepthinit = SoilDepth1init;
+    }
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        z->Drc = DEM->Drc - SoilDepthinit->Drc + 10;
+        tma->Drc = 0;
+    }}
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+       if (GWWH->Drc > HMIN) {
+            tma->Drc = 1;
+            if (c > 0 && !MV(r,c-1)        ) tma->data[r][c-1] = 1;
+            if (c < _nrCols-1 && !MV(r,c+1)) tma->data[r][c+1] = 1;
+            if (r > 0 && !MV(r-1,c)        ) tma->data[r-1][c] = 1;
+            if (r < _nrRows-1 && !MV(r+1,c)) tma->data[r+1][c] = 1;
+
+            if (c > 0 && r > 0 && !MV(r-1,c-1)                ) tma->data[r-1][c-1]=1;
+            if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) tma->data[r+1][c+1]=1;
+            if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) tma->data[r-1][c+1]=1;
+            if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) tma->data[r+1][c-1]=1;
+       }
+    }}
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if(tma->Drc > 0) {
+            double H = GWWH->Drc;
+            double Z = z->Drc;
+            double V = vol->Drc;
+
+            bool bc1 = c > 0 && !MV(r,c-1)        ;
+            bool bc2 = c < _nrCols-1 && !MV(r,c+1);
+            bool br1 = r > 0 && !MV(r-1,c)        ;
+            bool br2 = r < _nrRows-1 && !MV(r+1,c);
+
+            double z_x1 =  bc1 ? z->data[r][c-1] : Z;
+            double z_x2 =  bc2 ? z->data[r][c+1] : Z;
+            double z_y1 =  br1 ? z->data[r-1][c] : Z;
+            double z_y2 =  br2 ? z->data[r+1][c] : Z;
+
+            double h_x1 =  bc1 ? h->data[r][c-1] : H;
+            double h_x2 =  bc2 ? h->data[r][c+1] : H;
+            double h_y1 =  br1 ? h->data[r-1][c] : H;
+            double h_y2 =  br2 ? h->data[r+1][c] : H;
+
+            double v_x1 =  bc1 ?vol->data[r][c-1] : V;
+            double v_x2 =  bc2 ?vol->data[r][c+1] : V;
+            double v_y1 =  br1 ?vol->data[r-1][c] : V;
+            double v_y2 =  br2 ?vol->data[r+1][c] : V;
+
+           double dh_x1 = (h_x1 + z_x1) - (H+Z);
+           double dh_x2 = (h_x2 + z_x2) - (H+Z);
+           double dh_y1 = (h_y1 + z_y1) - (H+Z);
+           double dh_y2 = (h_y2 + z_y2) - (H+Z);
+
+            double f = 0.1; // emphasize terrain slope
+            dh_x1 = (1-f)*(z_x1 - Z)+f*dh_x1;
+            dh_x2 = (1-f)*(z_x2 - Z)+f*dh_y1;
+            dh_y1 = (1-f)*(z_y1 - Z)+f*dh_x2;
+            dh_y2 = (1-f)*(z_y2 - Z)+f*dh_y2;
+
+            // flow = Ksat * cross section * hydraulic gradient
+            // ksat has already dt
+            double ff = 1.0;//std::max(1.0, GW_flow);
+            double df_x1 = ff* ksat->Drc * (h_x1 * _dx) * dh_x1/_dx;
+            double df_y1 = ff* ksat->Drc * (h_y1 * _dx) * dh_y1/_dx;
+            double df_x2 = ff* ksat->Drc * (h_x2 * _dx) * dh_x2/_dx;
+            double df_y2 = ff* ksat->Drc * (h_y2 * _dx) * dh_y2/_dx;
+            // m3 = m/s * s * (m*m) * m/m
+
+            f = 0.5;//MaxGWDepthfrac;
+            df_x1 = std::min(v_x1*f,abs(df_x1)) * df_x1 < 0 ? -1.0 : 1.0;
+            df_y1 = std::min(v_y1*f,abs(df_y1)) * df_y1 < 0 ? -1.0 : 1.0;
+            df_x2 = std::min(v_x2*f,abs(df_x2)) * df_x2 < 0 ? -1.0 : 1.0;
+            df_y2 = std::min(v_y2*f,abs(df_y2)) * df_y2 < 0 ? -1.0 : 1.0;
+
+            double dflux = (df_x1 + df_x2 + df_y1 + df_y2);
+            double maxvol = CellArea->Drc * SoilDepthinit->Drc;
+
+            if (vol->Drc + dflux < 0)
+                dflux = -vol->Drc * MaxGWDepthfrac;
+            if (vol->Drc + dflux > maxvol)
+                dflux = (maxvol - vol->Drc) * MaxGWDepthfrac;
+
+            vol->Drc += dflux;
+            vol->Drc = std::max(0.0, vol->Drc);
+            h->Drc = vol->Drc/CellArea->Drc/pore->Drc;
+        }}
+    }
+
+}
+
+
 // flow according to SWAT 2009, page 174 manual, eq 2.4.2.8
+//OBSOLETE
 void TWorld::GWFlowLDD(void)
 {
     bool doit = false;
@@ -189,131 +378,5 @@ void TWorld::GWFlowLDD(void)
     if (doit)
         AccufluxGW(crlinkedlddbase_, tmb, Qbin, ChannelWidth);
     // Qbin now has the fast component
-}
-
-
-void TWorld::GWFlow2D(void)
-{
-    cTMap *pore;
-    cTMap *ksat;
-    cTMap *SoilDepthinit;
-    cTMap *SoilDepth;
-    cTMap *z = DEM;
-    cTMap *h = GWWH;
-    cTMap *vol = GWVol;
-    if (SwitchTwoLayer) {
-        pore = ThetaS2;
-        ksat = Ksat2;
-        SoilDepthinit = SoilDepth2init;
-        SoilDepth = SoilDepth2;
-    } else {
-        pore = Poreeff;
-        ksat = Ksateff;
-        SoilDepthinit = SoilDepth1init;
-        SoilDepth = SoilDepth1;
-    }
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        z->Drc = DEM->Drc - SoilDepth->Drc + 100;
-        tma->Drc = 0;
-     //   tmb->Drc = 0;
-    }}
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (GWWH->Drc > GW_threshold) {
-            tma->Drc = 1;
-            if (c > 0 && !MV(r,c-1)        ) tma->data[r][c-1] = 1;
-            if (c < _nrCols-1 && !MV(r,c+1)) tma->data[r][c+1] = 1;
-            if (r > 0 && !MV(r-1,c)        ) tma->data[r-1][c] = 1;
-            if (r < _nrRows-1 && !MV(r+1,c)) tma->data[r+1][c] = 1;
-
-            if (c > 0 && r > 0 && !MV(r-1,c-1)                ) tma->data[r-1][c-1]=1;
-            if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) tma->data[r+1][c+1]=1;
-            if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) tma->data[r-1][c+1]=1;
-            if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) tma->data[r+1][c-1]=1;
-        }
-    }}
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if(tma->Drc > 0) {
-            double H = GWWH->Drc;
-            double Z = z->Drc;
-            if (ChannelWidth->Drc > 0)
-                Z = Z - ChannelDepth->Drc;
-            double V = vol->Drc;
-
-            bool bc1 = c > 0 && !MV(r,c-1)        ;
-            bool bc2 = c < _nrCols-1 && !MV(r,c+1);
-            bool br1 = r > 0 && !MV(r-1,c)        ;
-            bool br2 = r < _nrRows-1 && !MV(r+1,c);
-
-            double z_x1 =  bc1 ? z->data[r][c-1] : Z;
-            double z_x2 =  bc2 ? z->data[r][c+1] : Z;
-            double z_y1 =  br1 ? z->data[r-1][c] : Z;
-            double z_y2 =  br2 ? z->data[r+1][c] : Z;
-
-            double h_x1 =  bc1 ? h->data[r][c-1] : H;
-            double h_x2 =  bc2 ? h->data[r][c+1] : H;
-            double h_y1 =  br1 ? h->data[r-1][c] : H;
-            double h_y2 =  br2 ? h->data[r+1][c] : H;
-
-            double v_x1 =  bc1 ?vol->data[r][c-1] : V;
-            double v_x2 =  bc2 ?vol->data[r][c+1] : V;
-            double v_y1 =  br1 ?vol->data[r-1][c] : V;
-            double v_y2 =  br2 ?vol->data[r+1][c] : V;
-
-            double dh_x1 = (h_x1 + z_x1) - (H+Z);
-            double dh_x2 = (h_x2 + z_x2) - (H+Z);
-            double dh_y1 = (h_y1 + z_y1) - (H+Z);
-            double dh_y2 = (h_y2 + z_y2) - (H+Z);
-
-            double f = 1.0/3.0;
-            dh_x1 = (1-f)*(z_x1 - Z)+f*dh_x1;
-            dh_x2 = (1-f)*(z_x2 - Z)+f*dh_y1;
-            dh_y1 = (1-f)*(z_y1 - Z)+f*dh_x2;
-            dh_y2 = (1-f)*(z_y2 - Z)+f*dh_y2;
-
-            double df_x1 = GW_flow * ksat->Drc * (h_x1 * _dx) * dh_x1/_dx * pore->Drc;  // ksat has already dt
-            double df_y1 = GW_flow * ksat->Drc * (h_y1 * _dx) * dh_y1/_dx * pore->Drc;
-            double df_x2 = GW_flow * ksat->Drc * (h_x2 * _dx) * dh_x2/_dx * pore->Drc;
-            double df_y2 = GW_flow * ksat->Drc * (h_y2 * _dx) * dh_y2/_dx * pore->Drc;
-            // m3 = m/s * s * (m*m) * m/m
-
-            double sign_x1 = df_x1 < 0 ? -1.0 : 1.0;
-            double sign_y1 = df_y1 < 0 ? -1.0 : 1.0;
-            double sign_x2 = df_x2 < 0 ? -1.0 : 1.0;
-            double sign_y2 = df_y2 < 0 ? -1.0 : 1.0;
-
-            f = 1.0;
-            df_x1 = std::min(v_x1*f,abs(df_x1)) * sign_x1;
-            df_y1 = std::min(v_y1*f,abs(df_y1)) * sign_y1;
-            df_x2 = std::min(v_x2*f,abs(df_x2)) * sign_x2;
-            df_y2 = std::min(v_y2*f,abs(df_y2)) * sign_y2;
-
-            double dflux = (df_x1 + df_x2 + df_y1 + df_y2);
-            double maxvol = CellArea->Drc * (SwitchTwoLayer ? (SoilDepth2->Drc-SoilDepth1->Drc)-0.1 : SoilDepth1->Drc-0.1);
-
-            if (dflux < 0)
-                dflux = std::max(-vol->Drc, dflux);
-            if (vol->Drc + dflux > maxvol)
-                dflux = std::min(dflux, vol->Drc);
-
-        //    tmb->Drc += dflux;
-            vol->Drc += dflux;
-
-            vol->Drc = std::max(0.0, vol->Drc);
-            h->Drc = vol->Drc/CellArea->Drc/pore->Drc;
-
-        }}
-    }
-
-//    #pragma omp parallel for num_threads(userCores)
-//    FOR_ROW_COL_MV_L {
-//        GWout->Drc += tmb->Drc;
-//    }}
-
 }
 

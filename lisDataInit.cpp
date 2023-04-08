@@ -329,12 +329,6 @@ void TWorld::InitParameters(void)
     //StemflowFraction = getvaluedouble("Stemflow fraction");
     CanopyOpeness = getvaluedouble("Canopy Openess");
 
-    //VJ 110829 water repellency
-//    waterRep_a = getvaluedouble("Water Repellency A");
-//    waterRep_b = getvaluedouble("Water Repellency B");
-//    waterRep_c = getvaluedouble("Water Repellency C");
-//    waterRep_d = getvaluedouble("Water Repellency D");
-
     // VJ 170923 moved all 2D switches here
     minReportFloodHeight = getvaluedouble("Minimum reported flood height");
     courant_factor = getvaluedouble("Flooding courant factor");

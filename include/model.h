@@ -921,6 +921,7 @@ public:
     void GroundwaterFlow();
     void GWFlow2D();
     void GWFlowLDD();
+    void GWFlowLDDKsat();
 
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
@@ -1040,6 +1041,7 @@ public:
 
 
     double MapTotal(cTMap &M);
+    void Average3x3(cTMap &M, cTMap &mask);
     void Totals(void);
     void MassBalance(void);
     void OutputUI(void);

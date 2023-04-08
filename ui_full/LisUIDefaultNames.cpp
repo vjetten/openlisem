@@ -423,8 +423,8 @@ void lisemqt::defaultRunFile()
  //   namelist[i++].name = QString("Use SWOF watersheds");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood solution");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("GW flow SWAT");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("GW flow SWAT");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("GW flow explicit");
     namelist[i].value = QString("1.0");

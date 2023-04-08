@@ -151,7 +151,7 @@ void TWorld::ChannelBaseflow(void)
         }}
     }
 
-    if (SwitchChannelBaseflow && (SwitchSWATGWflow || SwitchExplicitGWflow))
+    if (SwitchChannelBaseflow && SwitchExplicitGWflow) //SwitchSWATGWflow ||
         GroundwaterFlow();
     // move groundwater and add baseflow to channel
 

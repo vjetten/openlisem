@@ -207,7 +207,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
         if (p1.compare("Include channel inflow")==0)            SwitchChannelInflow  = iii == 1;
         if (p1.compare("GW flow explicit")==0)                  SwitchExplicitGWflow  = iii == 1;
-        if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
+      //  if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
 
       //  if (p1.compare("Variable Timestep")==0)                 SwitchVariableTimestep = iii == 1;
         if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
