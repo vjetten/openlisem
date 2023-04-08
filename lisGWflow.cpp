@@ -131,7 +131,10 @@ void TWorld::GWFlowLDDKsat(void)
     }
 
     fill(*tmc, 0.0);
-    int step = 5;
+    int step = 1;
+    while (_dt/(_dx*(double)step) > 0.3)
+        step++;
+    qDebug() << step;
     for (int j = 0; j < step; j++) {
         // loop step times for explicit GW flow
         #pragma omp parallel for num_threads(userCores)

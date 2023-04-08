@@ -5392,7 +5392,7 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="text">
-                         <string>Calibration factor recharge soil profile to groundwater </string>
+                         <string> - Calibration factor for recharge soil profile to GW</string>
                         </property>
                        </widget>
                       </item>
@@ -5473,11 +5473,11 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="text">
-                         <string>Calibration factor groundwater flow towards the channel</string>
+                         <string> - Calibration factor for GW flow towards the channel</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="4" column="0">
+                      <item row="4" column="0" colspan="2">
                        <widget class="QCheckBox" name="checkGWflowexplicit">
                         <property name="enabled">
                          <bool>true</bool>
@@ -8961,21 +8961,6 @@ p, li { white-space: pre-wrap; }
                            </property>
                           </spacer>
                          </item>
-                         <item row="0" column="0">
-                          <widget class="QCheckBox" name="checkChannel2DflowConnect">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Standard connection to 2D flow ( ) or iterative (v)</string>
-                           </property>
-                          </widget>
-                         </item>
                          <item row="2" column="0">
                           <widget class="QCheckBox" name="checkKinWaveChannel">
                            <property name="font">
@@ -9009,7 +8994,7 @@ p, li { white-space: pre-wrap; }
                            </property>
                           </widget>
                          </item>
-                         <item row="5" column="0">
+                         <item row="5" column="0" colspan="3">
                           <widget class="QCheckBox" name="checkGWChangeSD">
                            <property name="font">
                             <font>
@@ -9020,10 +9005,25 @@ p, li { white-space: pre-wrap; }
                             </font>
                            </property>
                            <property name="text">
-                            <string>GW layer is below the soil layers ( ) or part of the soil (v)</string>
+                            <string>GW layer is below the soil layers ( ) or part of the soil (def.) (v) </string>
                            </property>
                            <property name="checked">
                             <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="0" colspan="2">
+                          <widget class="QCheckBox" name="checkChannel2DflowConnect">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Standard connection to 2D flow ( ) or iterative (v)</string>
                            </property>
                           </widget>
                          </item>
