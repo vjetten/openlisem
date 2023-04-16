@@ -63,15 +63,17 @@ void TWorld::Average3x3(cTMap &M, cTMap &mask)
         double cnt = 0;
         for (int i = 1; i <= 9; i++)
         {
-         //   if (i != 5) {
-                int rr = r+dy[i];
-                int cr = c+dx[i];
+            int rr = r+dy[i];
+            int cr = c+dx[i];
 
-                if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
-                    tot = tot + tm->Drcr;
-                    cnt += 1.0;
-                }
-          //  }
+            if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
+                tot = tot + tm->Drcr;
+                cnt += 1.0;
+                  if (i == 5) {
+                      tot = tot + tm->Drcr;
+                      cnt += 1.0;
+                  }
+            }
         }
         M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
     }}

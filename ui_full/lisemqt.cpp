@@ -1534,6 +1534,8 @@ void lisemqt::resetTabCalibration()
     E_CalibrateN->setValue(1.0);
     E_CalibrateTheta->setValue(1.0);
     E_CalibratePsi->setValue(1.0);
+    E_CalibrateSD1->setValue(1.0);
+    E_CalibrateSD1->setValue(1.0);
     E_CalibrateChKsat->setValue(1.0);
     E_CalibrateChN->setValue(1.0);
     E_CalibrateChTor->setValue(1.0);

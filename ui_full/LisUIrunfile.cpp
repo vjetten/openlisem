@@ -388,6 +388,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("N calibration")==0)            E_CalibrateN->setValue(valc);
         if (p1.compare("Theta calibration")==0)        E_CalibrateTheta->setValue(valc);
         if (p1.compare("Psi calibration")==0)          E_CalibratePsi->setValue(valc);
+        if (p1.compare("SoilDepth1 calibration")==0)          E_CalibrateSD1->setValue(valc);
+        if (p1.compare("SoilDepth2 calibration")==0)          E_CalibrateSD2->setValue(valc);
         if (p1.compare("Channel Ksat calibration")==0) E_CalibrateChKsat->setValue(valc);
         if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(valc);
         if (p1.compare("Channel tortuosity")==0)    E_CalibrateChTor->setValue(valc);

@@ -453,6 +453,8 @@ public:
     double nCalibration;
     double thetaCalibration;
     double psiCalibration;
+    double SD1Calibration;
+    double SD2Calibration;
     double ChnCalibration;
     double ChnTortuosity;
     double ChKsatCalibration;

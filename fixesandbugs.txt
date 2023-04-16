@@ -1,6 +1,7 @@
 this file is a list of changes per major commit
-230408 - v6.89
+230412 - v6.89
 - redesigned GW flow completely, only two calib. paraters now, flow to the GW layer and GWflow to the channel
+- added calibration factors for soildepth 1 and 2
 - Interface works better with low resolutions screens
 - erosion overland flow uses govers and harsine and rose
 - included iterative version of connection between 2D flow and channel

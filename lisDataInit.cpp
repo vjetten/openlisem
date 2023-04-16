@@ -312,6 +312,9 @@ void TWorld::InitParameters(void)
 
     thetaCalibration = getvaluedouble("Theta calibration");
     psiCalibration = getvaluedouble("Psi calibration");
+    SD1Calibration = getvaluedouble("SoilDepth1 calibration");
+    SD2Calibration = getvaluedouble("SoilDepth2 calibration");
+
     ChnCalibration = getvaluedouble("Channel N calibration");
     ChnTortuosity = 1.0;
     //ChnTortuosity = getvaluedouble("Channel tortuosity");
@@ -643,6 +646,8 @@ void TWorld::InitSoilInput(void)
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
+        calcValue(*SoilDepth1, SD1Calibration, MUL);
+
         SoilDepth1init = NewMap(0);
         copy(*SoilDepth1init, *SoilDepth1);
 
@@ -688,6 +693,7 @@ void TWorld::InitSoilInput(void)
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
+            calcValue(*SoilDepth2, SD2Calibration, MUL);
             SoilDepth2init = NewMap(0);
             copy(*SoilDepth2init, *SoilDepth2);
 
@@ -1038,19 +1044,18 @@ void TWorld::InitChannel(void)
         Qbin = NewMap(0);
         Qbase = NewMap(0);
         //Qbaseprev = NewMap(0);
-        GWWH = NewMap(0.001);
+        GWWH = NewMap(0);
         GWWHmax = NewMap(0);
+
         GWdeep = NewMap(0);
         GWrecharge = NewMap(0);
         GWout = NewMap(0);
-        GWbp = NewMap(0);
-
+        GWz = NewMap(0);
 
         FOR_ROW_COL_MV_L {
-          //  GWWH->Drc = 0.1*SoilDepth2->Drc;
-            GWVol->Drc = GWWH->Drc*_dx*_dx;
-//            GWVol->Drc = (GW_initlevel+0.001)*_dx*_dx;
+            GWz->Drc = DEM->Drc - SoilDepth1->Drc - SwitchTwoLayer ? SoilDepth2->Drc : 0.0;
         }}
+        Average3x3(*GWz, *LDD);
 
     }
 
