@@ -464,13 +464,12 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             if (step > 0) {
 
                 // get the outflow for all outlets, do not decrease the level here because of the mass balance correction
-                // this is onkly used in the boundary flow?????
                 FOR_ROW_COL_LDD5 {
-                   double Vv =pow(h->Drc, 2.0/3.0)*qSqrt(h->Drc/_dx*Grad->Drc)/N->Drc; // WHY add h/_dx ????
-                   double dh = Vv*h->Drc/DX->Drc*dt_req_min; // *H*dx / dx *DX
+                   double Vv = sqrt(vx->Drc * vx->Drc + vy->Drc * vy->Drc);
+                   double dh = Vv*h->Drc/DX->Drc*dt_req_min; // Q=VA
                    if (h->Drc-dh < 0)
                        dh = h->Drc;
-                   double q = Qout.at(i_) + dh/dt_req_min; //in m/s???
+                   double q = Qout.at(i_) + dh/dt_req_min;
                    Qout.replace(i_,q);
                 }}
 
