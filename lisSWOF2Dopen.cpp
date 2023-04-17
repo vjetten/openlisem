@@ -465,14 +465,14 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
                 // get the outflow for all outlets, do not decrease the level here because of the mass balance correction
                 // this is onkly used in the boundary flow?????
-//                FOR_ROW_COL_LDD5 {
-//                   double Vv =pow(h->Drc, 2.0/3.0)*qSqrt(h->Drc/_dx*Grad->Drc)/N->Drc; // WHY add h/_dx ????
-//                   double dh = Vv*h->Drc/DX->Drc*dt_req_min; // *H*dx / dx *DX
-//                   if (h->Drc-dh < 0)
-//                       dh = h->Drc;
-//                   double q = Qout.at(i_) + dh/dt_req_min; //in m/s???
-//                   Qout.replace(i_,q);
-//                }}
+                FOR_ROW_COL_LDD5 {
+                   double Vv =pow(h->Drc, 2.0/3.0)*qSqrt(h->Drc/_dx*Grad->Drc)/N->Drc; // WHY add h/_dx ????
+                   double dh = Vv*h->Drc/DX->Drc*dt_req_min; // *H*dx / dx *DX
+                   if (h->Drc-dh < 0)
+                       dh = h->Drc;
+                   double q = Qout.at(i_) + dh/dt_req_min; //in m/s???
+                   Qout.replace(i_,q);
+                }}
 
                 if (SwitchErosion) {
                     SWOFSediment(dt_req_min, h,vx,vy);

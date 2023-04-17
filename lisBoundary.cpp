@@ -154,7 +154,7 @@ void TWorld::Boundary2Ddyn()
 {
     if (FlowBoundaryType == 0)
         return;
-
+/*
     cTMap *Q = Qn;
     cTMap *h = WHrunoff;
     cTMap *_U = Uflood;
@@ -193,17 +193,41 @@ void TWorld::Boundary2Ddyn()
 
     BoundaryQ = 0;
     BoundaryQs = 0;
-   // #pragma omp parallel for reduction(+:BoundaryQ, BoundaryQs) num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (tma->Drc == 1 && h->Drc > HMIN) {
-            BoundaryQ += Q->Drc;
-            if (SwitchErosion) {
-                BoundaryQs += Qsn->Drc;
-            }
-        }
-    }}
 
-    /*
+   // #pragma omp parallel for reduction(+:BoundaryQ, BoundaryQs) num_threads(userCores)
+//    FOR_ROW_COL_MV_L {
+//        if (tma->Drc == 1 && h->Drc > HMIN) {
+//            double _q = Q->Drc;
+//            double dh = _q*_dt/CHAdjDX->Drc;
+//            if (h->Drc-dh < 0)
+//                dh = h->Drc;
+//            h->Drc -= dh;
+
+//            WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
+
+//            // recalc V or just let it be.
+////            double Vold = V->Drc;
+////            V->Drc = pow(h->Drc, 2.0/3.0) * qSqrt(Grad->Drc)/N->Drc;
+////            if (Vold > 1e-6) {
+////                _U->Drc *= V->Drc/Vold;
+////                _V->Drc *= V->Drc/Vold;
+////            }
+
+//            BoundaryQ += _q;
+
+//            Q->Drc = _q; //??????
+
+
+//            BoundaryQ += Q->Drc;
+//            if (SwitchErosion) {
+//                BoundaryQs += Qsn->Drc;
+//            }
+//        }
+//    }}
+
+
+*/
+
 
 
     cTMap *h = WHrunoff;
@@ -227,32 +251,31 @@ void TWorld::Boundary2Ddyn()
     // do outlets, overlandflow in outlet cells
 //THIS MAKES NO SENSE: outflow is in Qn, sed in Qsn. The level is already adapted to those fluxes
 
-//    FOR_ROW_COL_LDD5 {
-//        double _q = Qout.at(i_);
-//        double dh = _q*_dt/CHAdjDX->Drc;
-//        h->Drc = std::max(0.0,h->Drc-dh);
+    FOR_ROW_COL_LDD5 {
+        double _q = Qout.at(i_);
+        double dh = _q*_dt/CHAdjDX->Drc;
+        h->Drc = std::max(0.0,h->Drc-dh);
 
 //        double Vold = V->Drc;
-//        //V->Drc = pow(h->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
+        //V->Drc = pow(h->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
 //        V->Drc = pow(h->Drc, 2.0/3.0) * qSqrt(h->Drc/_dx + Grad->Drc)/N->Drc; //?????
 //        if (Vold > 1e-6) {
 //            _U->Drc *= V->Drc/Vold;
 //            _V->Drc *= V->Drc/Vold;
 //        }
-//        Q->Drc = _q;
+        Q->Drc = _q;
 
-//        if (SwitchErosion) {
-//            double ds = std::min(SSFlood->Drc, SSCFlood->Drc*_q*_dt);
-//            SSFlood->Drc -= ds;
-//            if (SwitchUse2Phase) {
-//                ds = std::min(BLFlood->Drc, BLCFlood->Drc*_q*_dt);
-//                BLFlood->Drc -= ds;
-//            }
-//        }
-//    }}
+        if (SwitchErosion) {
+            double ds = std::min(SSFlood->Drc, SSCFlood->Drc*_q*_dt);
+            SSFlood->Drc -= ds;
+            if (SwitchUse2Phase) {
+                ds = std::min(BLFlood->Drc, BLCFlood->Drc*_q*_dt);
+                BLFlood->Drc -= ds;
+            }
+        }
+    }}
 
-    if (FlowBoundaryType == 0)
-    return;
+
 
 
     // direction of velocity is in the direction of + and -
@@ -285,7 +308,7 @@ void TWorld::Boundary2Ddyn()
         }
     }}
 
-    #pragma omp parallel for reduction(+:BoundaryQ, BoundaryQs) num_threads(userCores)
+   // #pragma omp parallel for reduction(+:BoundaryQ, BoundaryQs) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (tma->Drc == 1 && h->Drc > HMIN) {
 
@@ -319,5 +342,5 @@ void TWorld::Boundary2Ddyn()
         }
     }}
     //qDebug() << "bound" << BoundaryQ;
-    */
+
 }

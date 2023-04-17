@@ -296,8 +296,8 @@ void TWorld::Totals(void)
     // sum all outflow in m3 for this timestep, Qtot is for all timesteps!
 
     floodBoundaryTot += BoundaryQ*_dt;
-    FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
-    // 2D boundary losses, ALWAYS INCLUDES LDD=5 and channelLDD=5
+    FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;    
+    qDebug() << floodBoundaryTot;
 
 //    Qtot_dt += floodBoundaryTot;
 
@@ -549,17 +549,18 @@ void TWorld::MassBalance()
     // Mass Balance water, all in m3
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
   //  if (RainTot + SnowTot > 0)
-    {
+  //  {
         double waterin = RainTot + SnowTot + WaterVolSoilTileTot + WHinitVolTot + BaseFlowTot + BaseFlowInit;
                 //qDebug() << RainTot << thetai1tot - thetai1cur << thetai2tot - thetai2cur;
         double waterout = ETaTotVol;
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot + IntercETaTot;// + (thetai1cur - thetai1tot) + (thetai2cur - thetai2tot);
-        double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;
+        double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot + floodBoundaryTot;
         MB = waterin > 0 ? (waterin - waterout - waterstore - waterflow)/waterin *100 : 0;
      //   qDebug() << MB << BaseFlowTot << ChannelVolTot <<  Qtot;
      //   qDebug() << MB << WaterVolTot << ChannelVolTot << Qtot << floodBoundaryTot;
 
-    }
+   // }
+
     //watervoltot includes channel and tile
 
     // Mass Balance sediment, all in kg
