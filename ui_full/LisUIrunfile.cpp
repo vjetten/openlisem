@@ -381,6 +381,7 @@ void lisemqt::ParseInputData()
 
         //CALIBRATION
         if (p1.compare("Smax calibration")==0)         E_CalibrateSmax->setValue(valc);
+        if (p1.compare("RR calibration")==0)         E_CalibrateRR->setValue(valc);
         if (p1.compare("Ksat calibration")==0)         E_CalibrateKsat->setValue(valc);
         if (p1.compare("Ksat2 calibration")==0)         E_CalibrateKsat2->setValue(valc);
         if (p1.compare("Grain Size calibration D50")==0)   E_CalibrateD50->setValue(valc);
@@ -446,7 +447,7 @@ void lisemqt::ParseInputData()
     checkOverlandFlow2Dkindyn->setChecked(dummykinwave == 3);
     checkOverlandFlow2Ddyn->setChecked(dummykinwave == 2);
     setFloodTab(true);//dummykinwave > 1);
-    setErosionTab();
+    setErosionTab(false);
 
     // first guess
     E_WorkDir = QFileInfo(E_runFileList->currentText()).dir().absolutePath();
@@ -1003,9 +1004,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel detachment map")==0) namelist[j].value = E_ChanDetachmentMap->text();
         if (p1.compare("Channel deposition map")==0) namelist[j].value = E_ChanDepositionMap->text();
 
-        if (p1.compare("Grain Size calibration D50")==0)   namelist[j].value = E_CalibrateD50->text();
-        if (p1.compare("Grain Size calibration D90")==0)   namelist[j].value = E_CalibrateD90->text();
         if (p1.compare("Smax calibration")==0) namelist[j].value = E_CalibrateSmax->text();
+        if (p1.compare("RR calibration")==0) namelist[j].value = E_CalibrateRR->text();
         if (p1.compare("Ksat calibration")==0) namelist[j].value = E_CalibrateKsat->text();
         if (p1.compare("Ksat2 calibration")==0) namelist[j].value = E_CalibrateKsat2->text();
         if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();
@@ -1016,6 +1016,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel tortuosity")==0) namelist[j].value = E_CalibrateChTor->text();
         if (p1.compare("Cohesion calibration")==0) namelist[j].value = E_CalibrateCOH->text();
         if (p1.compare("Cohesion Channel calibration")==0) namelist[j].value = E_CalibrateCHCOH->text();
+        if (p1.compare("Grain Size calibration D50")==0)   namelist[j].value = E_CalibrateD50->text();
+        if (p1.compare("Grain Size calibration D90")==0)   namelist[j].value = E_CalibrateD90->text();
         if (p1.compare("Ucr Channel calibration")==0) namelist[j].value = E_CalibrateCHUcr->text();
         if (p1.compare("SV calibration")==0) namelist[j].value = E_CalibrateCHSV->text();
         if (p1.compare("Aggregate stability calibration")==0) namelist[j].value = E_CalibrateAS->text();
@@ -1118,18 +1120,19 @@ void lisemqt::updateModelData()
         QMessageBox msg;
         msg.setText("The run file has changed: \nobsolete options are removed and missing options use default values. \nThe new run files has your choices where applicable.");
 
-        int cnt = 10;
+        int cnt = 3;
 
         QTimer cntDown;
         QObject::connect(&cntDown, &QTimer::timeout, [&msg,&cnt, &cntDown]()->void{
             if(--cnt < 0){
                 cntDown.stop();
                 msg.close();
-            } else {
-                msg.setText(QString("This closes in %1 seconds").arg(cnt));
             }
+//            else {
+//                msg.setText(QString("This closes in %1 seconds").arg(cnt));
+//            }
         });
-        cntDown.start(1000);
+        cntDown.start(300);
         msg.exec();
     }
 

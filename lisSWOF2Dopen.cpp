@@ -158,7 +158,6 @@ void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
                     if (SwitchUse2Phase) {
                         double dBL = std::min(0.9*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
                         BLFlood->Drc -= dBL;
-//                        BLFlood->Drcr += dBL;
                         tmb->Drcr += dBL;
                     }
                 }
@@ -465,14 +464,15 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             if (step > 0) {
 
                 // get the outflow for all outlets, do not decrease the level here because of the mass balance correction
-                FOR_ROW_COL_LDD5 {
-                   double Vv =pow(h->Drc, 2.0/3.0)*qSqrt(h->Drc/_dx*Grad->Drc)/N->Drc;
-                   double dh = Vv*h->Drc/DX->Drc*dt_req_min; // *H*dx / dx *DX
-                   if (h->Drc-dh < 0)
-                       dh = h->Drc;
-                   double q = Qout.at(i_) + dh/dt_req_min;
-                   Qout.replace(i_,q);
-                }}
+                // this is onkly used in the boundary flow?????
+//                FOR_ROW_COL_LDD5 {
+//                   double Vv =pow(h->Drc, 2.0/3.0)*qSqrt(h->Drc/_dx*Grad->Drc)/N->Drc; // WHY add h/_dx ????
+//                   double dh = Vv*h->Drc/DX->Drc*dt_req_min; // *H*dx / dx *DX
+//                   if (h->Drc-dh < 0)
+//                       dh = h->Drc;
+//                   double q = Qout.at(i_) + dh/dt_req_min; //in m/s???
+//                   Qout.replace(i_,q);
+//                }}
 
                 if (SwitchErosion) {
                     SWOFSediment(dt_req_min, h,vx,vy);
@@ -500,15 +500,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
         correctMassBalance(sumh, h, 0);
 
-//        if (SwitchErosion)
-  //          correctMassBalanceSed(sumS, SSFlood, 0);
-
-        //            double sumh1 = getMass(h, 0);
-
-        //            qDebug() << sumh << sumh1 << (sumh-sumh1)/sumh;
-//        if (SwitchErosion && !SwitchErosionInsideLoop) {
-//            SWOFSediment(_dt, h,vx,vy);
-//        }
     } // if floodstart
 
     //qDebug() << _dt/count << count << dt_req_min;

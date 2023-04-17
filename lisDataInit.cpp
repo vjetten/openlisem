@@ -300,9 +300,11 @@ void TWorld::InitParameters(void)
     gsizeCalibrationD90 = getvaluedouble("Grain Size calibration D90");
 
     ksatCalibration = getvaluedouble("Ksat calibration");
-    ksatCalibration2 = getvaluedouble("Ksat2 calibration");
+    ksat2Calibration = getvaluedouble("Ksat2 calibration");
 
     SmaxCalibration = getvaluedouble("Smax calibration");
+    RRCalibration = getvaluedouble("RR calibration");
+
     nCalibration = getvaluedouble("N calibration");
     if (nCalibration == 0)
     {
@@ -553,29 +555,32 @@ void TWorld::InitStandardInput(void)
 void TWorld::InitLULCInput(void)
 {
     N = ReadMap(LDD,getvaluename("manning"));
+    checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
+    calcValue(*N, nCalibration, MUL);
+
     Norg = NewMap(0);
-    calcValue(*N, nCalibration, MUL); //VJ 110112 moved
-    copy(*Norg, *N); //ed in sed trap... if trap is full loose resistance
+    copy(*Norg, *N); //ed in sed trap... if trap is full go back to original N
+
     RR = ReadMap(LDD,getvaluename("RR"));
+    checkMap(*RR, SMALLER, 0.0, "Raindom roughness RR must be >= 0");
+    calcValue(*RR, RRCalibration, MUL);
+
     LAI = ReadMap(LDD,getvaluename("lai"));
+    checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");
     Cover = ReadMap(LDD,getvaluename("cover"));
+    checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
+    checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
 
     if (SwitchLitter)
     {
         Litter = ReadMap(LDD,getvaluename("litter"));
-
-        checkMap(*Litter, LARGER, 1.0, "vegetation litter/herb cover fraction cannot be more than 1");
         checkMap(*Litter, SMALLER, 0.0, "Litter cover fraction must be >= 0");
         checkMap(*Litter, LARGER, 1.0, "Litter cover fraction must be <= 1.0");
     }
     else
         Litter = NewMap(0);
+
     LitterSmax = getvaluedouble("Litter interception storage");
-    checkMap(*RR, SMALLER, 0.0, "Raindom roughness RR must be >= 0");
-    checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
-    checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");
-    checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
-    checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
 
     GrassFraction = NewMap(0);
     if (SwitchGrassStrip)
@@ -689,7 +694,7 @@ void TWorld::InitSoilInput(void)
                 bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
             }}
 
-            calcValue(*Ksat2, ksatCalibration2, MUL);
+            calcValue(*Ksat2, ksat2Calibration, MUL);
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);

@@ -271,10 +271,6 @@ void TWorld::Totals(void)
         runoffTotalCell->Drc = std::max(0.0, RainCumFlat->Drc*1000-InterceptionmmCum->Drc-InfilmmCum->Drc);
     }}
 
-//    //=== storm drain flow ===//
-//    StormDrainVolTot = MapTotal(*TileWaterVol);
-//    StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
-
     //=== channel flow ===//
     if (SwitchIncludeChannel)
     {
@@ -302,6 +298,8 @@ void TWorld::Totals(void)
     floodBoundaryTot += BoundaryQ*_dt;
     FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
     // 2D boundary losses, ALWAYS INCLUDES LDD=5 and channelLDD=5
+
+//    Qtot_dt += floodBoundaryTot;
 
     // Add outlet overland flow, for all flow methods
     FOR_ROW_COL_LDD5 {

@@ -79,9 +79,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     helptxt = new QTextEdit();
     helpLayout->addWidget(helptxt);
 
-    //checkAddDatetime->setVisible(false);
-
-    //RunFileNames.clear();
     op.runfilename.clear();
     E_runFileList->clear();
 
@@ -181,6 +178,7 @@ void lisemqt::SetConnections()
     connect(checkOverlandFlow1D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow2Dkindyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow2Ddyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+    connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
 
     connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
 
@@ -488,9 +486,12 @@ void lisemqt::setFloodTab(bool yes)
 
 }
 //--------------------------------------------------------------------
-void lisemqt::setErosionTab()
+void lisemqt::setErosionTab(bool yes)
 {
     //  yes = checkDoErosion->isChecked();
+qDebug() << checkDoErosion->isChecked();
+    tab_erosion->setEnabled(checkDoErosion->isChecked());
+
     outputMapsSediment->setEnabled(checkDoErosion->isChecked());
 
     checkBox_OutConc->setEnabled(checkDoErosion->isChecked());
@@ -1529,13 +1530,14 @@ void lisemqt::resetTabCalibration()
 {
     //calibration
     E_CalibrateSmax->setValue(1.0);
+    E_CalibrateRR->setValue(1.0);
     E_CalibrateKsat->setValue(1.0);
     E_CalibrateKsat2->setValue(1.0);
     E_CalibrateN->setValue(1.0);
     E_CalibrateTheta->setValue(1.0);
     E_CalibratePsi->setValue(1.0);
     E_CalibrateSD1->setValue(1.0);
-    E_CalibrateSD1->setValue(1.0);
+    E_CalibrateSD2->setValue(1.0);
     E_CalibrateChKsat->setValue(1.0);
     E_CalibrateChN->setValue(1.0);
     E_CalibrateChTor->setValue(1.0);

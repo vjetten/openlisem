@@ -348,8 +348,6 @@ public:
     void resetTabInterception();
     void resetTabInfiltration();
     void doCheckRainfall(bool);
-
-    void setErosionTab();
     void showTextfile(QString name);
 
 
@@ -469,9 +467,8 @@ public slots:
     void setWriteOutputCSV(bool);
     void setWriteOutputPCR(bool);
 
-    //void setFloodErosion();
     void setFloodTab(bool);
-    //void setRunoffTab(bool);
+    void setErosionTab(bool);
 
     void resizeMap();
     void fontSelect();

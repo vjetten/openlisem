@@ -152,6 +152,60 @@ void TWorld::dynOutflowPoints()
 //---------------------------------------------------------------------------
 void TWorld::Boundary2Ddyn()
 {
+    if (FlowBoundaryType == 0)
+        return;
+
+    cTMap *Q = Qn;
+    cTMap *h = WHrunoff;
+    cTMap *_U = Uflood;
+
+
+    if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
+        Q = Qflood;
+        h = hmx;
+    }
+
+    dynOutflowPoints();
+    // find all points flowing to outside because of water level
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (K2DOutlets->Drc == 1)
+        {
+            if (c > 0 && MV(r,c-1)) // U = x; V = y
+                if (Uflood->Drc < 0) {
+                    tma->Drc = 1;
+                }
+            if (c < _nrCols-1 && MV(r,c+1))
+                if (Uflood->Drc > 0) {
+                    tma->Drc = 1;
+                }
+            if (r > 0 && MV(r-1,c))
+                if (Vflood->Drc < 0) {
+                    tma->Drc = 1;
+                }
+            if (r < _nrRows-1 && MV(r+1,c))
+                if (Vflood->Drc > 0) {
+                    tma->Drc = 1;
+                }
+        }
+    }}
+
+    BoundaryQ = 0;
+    BoundaryQs = 0;
+   // #pragma omp parallel for reduction(+:BoundaryQ, BoundaryQs) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (tma->Drc == 1 && h->Drc > HMIN) {
+            BoundaryQ += Q->Drc;
+            if (SwitchErosion) {
+                BoundaryQs += Qsn->Drc;
+            }
+        }
+    }}
+
+    /*
+
+
     cTMap *h = WHrunoff;
     cTMap *Q = Qn;
     cTMap *_U = Uflood;
@@ -170,77 +224,70 @@ void TWorld::Boundary2Ddyn()
         K2DOutlets->Drc = 0;
     }}
 
-   // if (FlowBoundaryType == 0) {
-        FOR_ROW_COL_LDD5 {
-            double _q = Qout.at(i_);
-            double dh = _q*_dt/CHAdjDX->Drc;
-            h->Drc = std::max(0.0,h->Drc-dh);
+    // do outlets, overlandflow in outlet cells
+//THIS MAKES NO SENSE: outflow is in Qn, sed in Qsn. The level is already adapted to those fluxes
 
-            double Vold = V->Drc;
-            //V->Drc = pow(h->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
-            V->Drc = pow(h->Drc, 2.0/3.0) * qSqrt(h->Drc/_dx + Grad->Drc)/N->Drc;
-            if (Vold > 1e-6) {
-                _U->Drc *= V->Drc/Vold;
-                _V->Drc *= V->Drc/Vold;
-            }
-            Q->Drc = _q;
+//    FOR_ROW_COL_LDD5 {
+//        double _q = Qout.at(i_);
+//        double dh = _q*_dt/CHAdjDX->Drc;
+//        h->Drc = std::max(0.0,h->Drc-dh);
 
-            if (SwitchErosion) {
-                double ds = std::min(SSFlood->Drc, SSCFlood->Drc*_q*_dt);
-                SSFlood->Drc -= ds;
-                if (SwitchUse2Phase) {
-                    ds = std::min(BLFlood->Drc, BLCFlood->Drc*_q*_dt);
-                    BLFlood->Drc -= ds;
-                }
-            }
+//        double Vold = V->Drc;
+//        //V->Drc = pow(h->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
+//        V->Drc = pow(h->Drc, 2.0/3.0) * qSqrt(h->Drc/_dx + Grad->Drc)/N->Drc; //?????
+//        if (Vold > 1e-6) {
+//            _U->Drc *= V->Drc/Vold;
+//            _V->Drc *= V->Drc/Vold;
+//        }
+//        Q->Drc = _q;
 
-        }}
+//        if (SwitchErosion) {
+//            double ds = std::min(SSFlood->Drc, SSCFlood->Drc*_q*_dt);
+//            SSFlood->Drc -= ds;
+//            if (SwitchUse2Phase) {
+//                ds = std::min(BLFlood->Drc, BLCFlood->Drc*_q*_dt);
+//                BLFlood->Drc -= ds;
+//            }
+//        }
+//    }}
 
-        if (FlowBoundaryType == 0)
-            return;
-//    }
+    if (FlowBoundaryType == 0)
+    return;
 
 
     // direction of velocity is in the direction of + and -
     // U is EW and V is NS
     // find which outlets on the boundary are directed to the outside based on sign U and V
-   // if (FlowBoundaryType > 0) {
 
-        dynOutflowPoints();
+    dynOutflowPoints();
+    // find all points flowing to outside because of water level
 
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            if (K2DOutlets->Drc == 1)// && h->Drc > 0.001)
-            {
-                if (c > 0 && MV(r,c-1)) // U = x; V = y
-                    if (_U->Drc < 0) {
-                        tma->Drc = 1;
-                    }
-                if (c < _nrCols-1 && MV(r,c+1))
-                    if (_U->Drc > 0) {
-                        tma->Drc = 1;
-                    }
-                if (r > 0 && MV(r-1,c))
-                    if (_V->Drc < 0) {
-                        tma->Drc = 1;
-                    }
-                if (r < _nrRows-1 && MV(r+1,c))
-                    if (_V->Drc > 0) {
-                        tma->Drc = 1;
-                    }
-            }
-        }}
-//    } else {
-//        //boundary 0 only ldd pits regardless of pressure
-//        FOR_ROW_COL_LDD5 {
-//            K2DOutlets->Drc = 1;
-//            tma->Drc = 1;
-//        }}
-//    }
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (K2DOutlets->Drc == 1)// && h->Drc > 0.001)
+        {
+            if (c > 0 && MV(r,c-1)) // U = x; V = y
+                if (_U->Drc < 0) {
+                    tma->Drc = 1;
+                }
+            if (c < _nrCols-1 && MV(r,c+1))
+                if (_U->Drc > 0) {
+                    tma->Drc = 1;
+                }
+            if (r > 0 && MV(r-1,c))
+                if (_V->Drc < 0) {
+                    tma->Drc = 1;
+                }
+            if (r < _nrRows-1 && MV(r+1,c))
+                if (_V->Drc > 0) {
+                    tma->Drc = 1;
+                }
+        }
+    }}
 
     #pragma omp parallel for reduction(+:BoundaryQ, BoundaryQs) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (tma->Drc == 1 && h->Drc > 1e-8) {
+        if (tma->Drc == 1 && h->Drc > HMIN) {
 
             double _q = Q->Drc;
             double dh = _q*_dt/CHAdjDX->Drc;
@@ -272,4 +319,5 @@ void TWorld::Boundary2Ddyn()
         }
     }}
     //qDebug() << "bound" << BoundaryQ;
+    */
 }
