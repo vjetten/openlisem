@@ -191,7 +191,7 @@ void TWorld::cell_SurfaceStorage(int r, int c)
     double SW = SoilWidthDX->Drc;
     double RW = RoadWidthHSDX->Drc;
     double WHr = WHroad->Drc;
-    double WHs = 0;//std::min(wh, MDS->Drc*(1-exp(-1.875*wh/(0.01*RR->Drc))));
+    double WHs = std::min(wh, MDS->Drc*(1-exp(-1.875*wh/(0.01*RR->Drc))));
     //surface storage on rough surfaces
     // non-linear release fo water from depression storage
     // resemles curves from GIS surface tests, unpublished
