@@ -173,6 +173,30 @@ void TWorld::PesticideCellDynamics(void)
        // assume the mixing layer is saturated during infiltration or runoff.
        Theta_mix->Drc = ThetaS1->Drc;
 
+       //infiltration from runoff through mixing layer to deeper soil
+       PMinf->Drc = 0.0; //does not need to be a map...
+       if (InfilVol->Drc > 0.0) {
+           // assume the mixing layer is saturated during infiltration or runoff.
+           //Theta_mix->Drc = ThetaS1->Drc;
+           // mg = m3 * 1000 * (mg L-1)
+           PMinf->Drc = InfilVol->Drc * 1000 * PCmw->Drc; // infiltration mixing layer (mg)
+
+           // mg = m3 * 1000 (L->m3) * mg L-1
+           mrw_inf = InfilVol->Drc * 1000 * PCrw->Drc; // loss through infiltration from runoff
+       }
+
+       // update mass after percolation and infiltration
+       mrw_inf > PMrw->Drc ? mrw_inf = PMrw->Drc : mrw_inf;
+       PMinf->Drc > PMmw->Drc ? PMinf->Drc = PMmw->Drc : PMinf->Drc;
+       // mg = mg - mg - mg
+       PMmw->Drc = std::max(0.0, PMmw->Drc - PMinf->Drc + mrw_inf);
+
+       PMrw->Drc = std::max(0.0, PMrw->Drc - mrw_inf);
+
+       pmwdep->Drc -= mrw_inf;
+       // update PCmw before dissolved
+       PCmw->Drc = PMmw->Drc / vol_w;
+
        // exchange between adsorbed and dissolved in mixing zone
        // L = m * m * m * [-] * 1000
        vol_w = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
@@ -204,6 +228,7 @@ void TWorld::PesticideCellDynamics(void)
        // update PCmw before dissolved & PCms before adsorbed
        PCmw->Drc = PMmw->Drc / vol_w;
        PCms->Drc = PMms->Drc / mass_s;
+
 //----- OBSOLETE -------------------------------------------------
        // 2023-04-05 we exclude percolation transport since it does not improve
        // the model, and conceptually is not clear for me (MC)
@@ -216,29 +241,6 @@ void TWorld::PesticideCellDynamics(void)
 //           Theta_mix->Drc = Thetaeff->Drc; //percolation related theta for mixing layer
 //       }
 // --------------------------------------------------------------
-
-       //infiltration from runoff through mixing layer to deeper soil
-       PMinf->Drc = 0.0; //does not need to be a map...
-       if (InfilVol->Drc > 0.0) {
-           // assume the mixing layer is saturated during infiltration or runoff.
-           //Theta_mix->Drc = ThetaS1->Drc;
-           // mg = m3 * 1000 * (mg L-1)
-           PMinf->Drc = InfilVol->Drc * 1000 * PCmw->Drc; // infiltration mixing layer (mg)
-
-           // mg = m3 * 1000 (L->m3) * mg L-1
-           mrw_inf = InfilVol->Drc * 1000 * PCrw->Drc; // loss through infiltration from runoff
-       }
-
-       // update mass after percolation and infiltration
-       mrw_inf > PMrw->Drc ? mrw_inf = PMrw->Drc : mrw_inf;
-       // mg = mg - mg - mg
-       PMmw->Drc = std::max(0.0, PMmw->Drc - PMinf->Drc + mrw_inf);
-       PMrw->Drc = std::max(0.0, PMrw->Drc - mrw_inf);
-
-       pmwdep->Drc -= mrw_inf;
-
-       // update PCmw before dissolved
-       PCmw->Drc = PMmw->Drc / vol_w;
 
        // mixing layer -- runoff water exchange
        double mwrm_ex {0.0};   //mg
@@ -253,15 +255,15 @@ void TWorld::PesticideCellDynamics(void)
        mwrm_ex = ((Kfilm * (PCmw->Drc - PCrw->Drc))/(zm->Drc + WHrunoff->Drc))
                  * _dt * std::min(vol_mw, vol_rw);
 
-       double c_eql {0.0};
-       double eql_mw {0.0};
-       // equilibrium check
-       // calculate equilibrium mass division
-       c_eql = (PMmw->Drc + PMrw->Drc) / (vol_mw + vol_rw);
-       eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
-       // mwrm_ex can not be larger than m_diff
-       m_diff = eql_mw - PMmw->Drc;
-       mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
+//       double c_eql {0.0};
+//       double eql_mw {0.0};
+//       // equilibrium check
+//       // calculate equilibrium mass division
+//       c_eql = (PMmw->Drc + PMrw->Drc) / (vol_mw + vol_rw);
+//       eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
+//       // mwrm_ex can not be larger than m_diff
+//       m_diff = eql_mw - PMmw->Drc;
+//       mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
        }
        // mass balance
        mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
@@ -494,7 +496,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
     //mg = mg - (mg sec-1 * sec)
     PMrw->Drc = std::max(0.0, PMrw->Drc - (_Qpwn->Drc * _dt)
                                   + (QpinKW->Drc * _dt)); // + mwrm_ex);
-    PMmw->Drc = std::max(0.0, PMmw->Drc); // - mwrm_ex);
+    //PMmw->Drc = std::max(0.0, PMmw->Drc); // - mwrm_ex);
     }//end ldd loop
 }
 
@@ -663,7 +665,7 @@ void TWorld::PesticideSplashDetachment() {
         PCms->Drc = PMms->Drc / (zm->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest);
         // adjust lower soil layer
         PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);
-        // WARNING we don't update the PCs now - check if it causes problems
+        PCs->Drc = PMsoil->Drc / (zs->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest);
 
         //mass balance
         pmsdet->Drc += PMsplash->Drc;
@@ -770,7 +772,7 @@ void TWorld::PesticideFlowDetachment(double rho) {
 
         // adjust mass lower soil layer for mass balance
         PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);
-        // WARNING wee don't update the PCs now - check if it causes problems
+        PCs->Drc = PMsoil->Drc / (zs->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest);
 
         // pesticides in mixing layer
         PMms->Drc = std::max(0.0, PMms->Drc - msrm_ex + msoil_ex);
