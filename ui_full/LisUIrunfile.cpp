@@ -1112,9 +1112,25 @@ void lisemqt::updateModelData()
     if (saveRunFileOnce) {
         savefile(op.runfilename);
         saveRunFileOnce = false;
-        QMessageBox::warning(this,"openLISEM",QString("The run file has changed: ") +
-            QString("obsolete options are removed and missing options use default values. ") +
-            QString("The new run files has your choices where applicable."));
+//        QMessageBox::warning(this,"openLISEM",QString("The run file has changed: ") +
+//            QString("obsolete options are removed and missing options use default values. ") +
+//            QString("The new run files has your choices where applicable."));
+        QMessageBox msg;
+        msg.setText("The run file has changed: \nobsolete options are removed and missing options use default values. \nThe new run files has your choices where applicable.");
+
+        int cnt = 10;
+
+        QTimer cntDown;
+        QObject::connect(&cntDown, &QTimer::timeout, [&msg,&cnt, &cntDown]()->void{
+            if(--cnt < 0){
+                cntDown.stop();
+                msg.close();
+            } else {
+                msg.setText(QString("This closes in %1 seconds").arg(cnt));
+            }
+        });
+        cntDown.start(1000);
+        msg.exec();
     }
 
 }

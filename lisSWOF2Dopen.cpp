@@ -423,12 +423,12 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                             vxn = (qxn/(1.0+nsq))/std::max(0.0001,hn);
                             vyn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
 
-                         //   if (SwitchTimeavgV) {
+                            if (SwitchTimeavgV) {
                                 double fac = 0.5 + 0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
                                 fac = fac * exp(- std::max(1.0,dt) / nsq1);
                                 vxn = fac * Vx + (1.0-fac) *vxn;
                                 vyn = fac * Vy + (1.0-fac) *vyn;
-                         //   }
+                            }
 
                         } else { // hn < ha
                             hn = H; // if no fluxes then also no change in h
