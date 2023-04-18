@@ -183,7 +183,7 @@ void lisemqt::defaultRunFile()
     }
 
     i = 0;
-    namelist[i++].name = QString("[openLISEM-PAPPLE runfile version 6.0.1]");
+    namelist[i++].name = QString("[openLISEM runfile version 6.0.1]");
     namelist[i++].name = QString("");
     //###
     namelist[i++].name = QString("[Input]");

@@ -362,39 +362,12 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
         }
     }
     QpinKW->Drc = Qpin;
-//    double mwrm_ex {0.0};   //mg
-//    double Crw_avg {0.0};   // mg/L - no runoff; concentration = 0
 
     if (Qn->Drc + QinKW->Drc >= MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
         double vol_mw {0.0};    // volume of water in mixing layer [L]
         double vol_rw {0.0};    // volume of water in runoff [L]
-//        vol_mw = zm->Drc * Theta_mix->Drc * DX->Drc * SoilWidthDX->Drc * 1000;
-//        vol_rw = WaterVolin->Drc * 1000;
 
-//        // calculate the correct C's based on the Qin and Qold etc.
-//        // mg L-1 = (mg + (mg sec-1 * sec)) / (m3 + (m3 sec-1 * sec)) * 1000(m3 -> L)
-//        Crw_avg = (PMrw->Drc + (QpinKW->Drc * _dt))
-//                  / ((WaterVolin->Drc + (QinKW->Drc * _dt)) * 1000);
-
-//        // positive adds to runoff, negative to mixing layer.
-//        // mg = ((sec-1 * m-1 * (mg L-1) / m) * sec * L
-//        mwrm_ex = ((_kfilm * (PCmw->Drc - Crw_avg))/(zm->Drc + WHrunoff->Drc))
-//                   * _dt * std::min(vol_mw, vol_rw);
-
-//        double c_eql {0.0};
-//        double eql_mw {0.0};
-//        double m_diff {0.0};
-//        // equilibrium check
-//        // calculate equilibrium mass division
-//        c_eql = (PMmw->Drc + PMrw->Drc) / (vol_mw + vol_rw);
-//        eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
-//        // mwrm_ex can not be larger than m_diff
-//        m_diff = eql_mw - PMmw->Drc;
-//        mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
-
-
-        //substract mixing layer exchange
-        double mrw_n {0.0}; // intermediate mass in runoff water
+        double mrw_n {0.0}; // mass in runoff water
         //mg = mg + mg - mg - mg + (mg sec-1 * sec)
         mrw_n = std::max(0.0, PMrw->Drc);// + mwrm_ex);
         // calculate concentration for new outflux
@@ -406,97 +379,95 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
                                     _Alpha->Drc, _DX->Drc, _dt); //mg/sec
         _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc + PMrw->Drc / _dt);
 
-        // internal time loop
-        if (SwitchPestInternal_dt) {
-        //calculate courant number of standard timestep
-        double Cr_rw {0.0};
-        double Cr_mw {0.0};
+//        // internal time loop
+//        if (SwitchPestInternal_dt) {
+//        //calculate courant number of standard timestep
+//        double Cr_rw {0.0};
+//        double Cr_mw {0.0};
 
-        // runoff water
-    //    Cr_rw = (PMrw->Drc + QpinKW->Drc) > 0 ? ((_Qpwn->Drc * _dt) - mwrm_ex) / (PMrw->Drc + QpinKW->Drc * _dt) : 0.0;
-        // mixing layer
-     //   Cr_mw = PMmw->Drc > 0 ? mwrm_ex / PMmw->Drc : 0.0;
+//        // runoff water
+//    //    Cr_rw = (PMrw->Drc + QpinKW->Drc) > 0 ? ((_Qpwn->Drc * _dt) - mwrm_ex) / (PMrw->Drc + QpinKW->Drc * _dt) : 0.0;
+//        // mixing layer
+//     //   Cr_mw = PMmw->Drc > 0 ? mwrm_ex / PMmw->Drc : 0.0;
 
-        //start loop if one of the Cr's > Cr_max
-        if (Cr_rw > Cr_max | Cr_mw > Cr_max) {
-            // calculate steps and internal timestep
-            double steps {0.0};
-            double dt_int {0.0};
-            steps = std::min(std::ceil(std::max(Cr_rw,Cr_mw)*(2/Cr_max)), _dt/dt_int_min);
-            dt_int = _dt / steps;
+//        //start loop if one of the Cr's > Cr_max
+//        if (Cr_rw > Cr_max | Cr_mw > Cr_max) {
+//            // calculate steps and internal timestep
+//            double steps {0.0};
+//            double dt_int {0.0};
+//            steps = std::min(std::ceil(std::max(Cr_rw,Cr_mw)*(2/Cr_max)), _dt/dt_int_min);
+//            dt_int = _dt / steps;
 
-            // fill intermediate concentrations and masses
-            double int_Qpw {0.0}, int_Qpwn {0.0}, int_Cmw {0.0}, int_Crw {0.0}, int_Crw_avg {0.0}; //
-            double int_Mrw {0.0}, int_Mmw {0.0}, int_mwrm_ex {0.0}; //
-            double sum_int_mwrm_ex {0.0}, sum_int_Qpwn {0.0};
+//            // fill intermediate concentrations and masses
+//            double int_Qpw {0.0}, int_Qpwn {0.0}, int_Cmw {0.0}, int_Crw {0.0}, int_Crw_avg {0.0}; //
+//            double int_Mrw {0.0}, int_Mmw {0.0}, int_mwrm_ex {0.0}; //
+//            double sum_int_mwrm_ex {0.0}, sum_int_Qpwn {0.0};
 
-            int_Qpw = _Qpw->Drc;
-            int_Cmw = PCmw->Drc;
-            int_Mrw = PMrw->Drc;
-            int_Mmw = PMmw->Drc;
+//            int_Qpw = _Qpw->Drc;
+//            int_Cmw = PCmw->Drc;
+//            int_Mrw = PMrw->Drc;
+//            int_Mmw = PMmw->Drc;
 
 
-            // make loop
-            double count = 0;
-            while (count < steps) {
-                count++;
+//            // make loop
+//            double count = 0;
+//            while (count < steps) {
+//                count++;
 
-                // mg L-1 = (mg + (mg sec-1 * sec)) / (m3 + (m3 sec-1 * sec)) * 1000(m3 -> L)
-                int_Crw_avg = (int_Mrw + (QpinKW->Drc * dt_int))
-                          / ((WaterVolin->Drc + (QinKW->Drc * dt_int)) * 1000);
-                // calculate mrwm_ex
-                int_mwrm_ex = ((_kfilm * (int_Cmw - int_Crw_avg))/(zm->Drc + WHrunoff->Drc))
-                              * dt_int * std::min(vol_mw, vol_rw);
-//                // equilibrium check
-//                // calculate equilibrium mass division
-//                c_eql = (int_Mmw + int_Mrw) / (vol_mw + vol_rw);
-//                eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
-//                // mwrm_ex can not be larger than m_diff
-//                m_diff = eql_mw - int_Mmw;
-               // int_mwrm_ex = std::abs(int_mwrm_ex) > std::abs(m_diff) ? m_diff : int_mwrm_ex;
+//                // mg L-1 = (mg + (mg sec-1 * sec)) / (m3 + (m3 sec-1 * sec)) * 1000(m3 -> L)
+//                int_Crw_avg = (int_Mrw + (QpinKW->Drc * dt_int))
+//                          / ((WaterVolin->Drc + (QinKW->Drc * dt_int)) * 1000);
+//                // calculate mrwm_ex
+//                int_mwrm_ex = ((_kfilm * (int_Cmw - int_Crw_avg))/(zm->Drc + WHrunoff->Drc))
+//                              * dt_int * std::min(vol_mw, vol_rw);
+////                // equilibrium check
+////                // calculate equilibrium mass division
+////                c_eql = (int_Mmw + int_Mrw) / (vol_mw + vol_rw);
+////                eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
+////                // mwrm_ex can not be larger than m_diff
+////                m_diff = eql_mw - int_Mmw;
+//               // int_mwrm_ex = std::abs(int_mwrm_ex) > std::abs(m_diff) ? m_diff : int_mwrm_ex;
 
-                // calculate concentration for new outflux
-                int_Mrw = std::max(0.0, int_Mrw + int_mwrm_ex);
-                int_Crw = int_Mrw / (WaterVolin->Drc * 1000);
+//                // calculate concentration for new outflux
+//                int_Mrw = std::max(0.0, int_Mrw + int_mwrm_ex);
+//                int_Crw = int_Mrw / (WaterVolin->Drc * 1000);
 
-                // calculate Qpwn
-                int_Qpwn = ChowSubstance(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, int_Qpw,
-                                       _Alpha->Drc, _DX->Drc, dt_int);
+//                // calculate Qpwn
+//                int_Qpwn = ChowSubstance(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, int_Qpw,
+//                                       _Alpha->Drc, _DX->Drc, dt_int);
 
-                // add & substract all masses and update concentrations
-                int_Qpwn = std::min(int_Qpwn, QpinKW->Drc + int_Mrw / dt_int);
+//                // add & substract all masses and update concentrations
+//                int_Qpwn = std::min(int_Qpwn, QpinKW->Drc + int_Mrw / dt_int);
 
-                //substract infiltration and discharge
-                //mg = mg + mg - mg - mg + (mg sec-1 * sec)
-                int_Mrw = std::max(0.0, int_Mrw - int_Qpwn * dt_int + QpinKW->Drc * dt_int);
-                int_Mmw = std::max(0.0, int_Mmw - int_mwrm_ex);
+//                //substract infiltration and discharge
+//                //mg = mg + mg - mg - mg + (mg sec-1 * sec)
+//                int_Mrw = std::max(0.0, int_Mrw - int_Qpwn * dt_int + QpinKW->Drc * dt_int);
+//                int_Mmw = std::max(0.0, int_Mmw - int_mwrm_ex);
 
-                // for next internal loop Qpw = current Qpwn
-                int_Qpw = int_Qpwn;
-                // L = m * m * m * -- * 1000
-                int_Cmw = int_Mmw / vol_mw;
+//                // for next internal loop Qpw = current Qpwn
+//                int_Qpw = int_Qpwn;
+//                // L = m * m * m * -- * 1000
+//                int_Cmw = int_Mmw / vol_mw;
 
-                // mean Q and total exchange and infiltration
-                sum_int_Qpwn += int_Qpwn;
-                sum_int_mwrm_ex += int_mwrm_ex;
+//                // mean Q and total exchange and infiltration
+//                sum_int_Qpwn += int_Qpwn;
+//                sum_int_mwrm_ex += int_mwrm_ex;
 
-            } // end internal time loop
+//            } // end internal time loop
 
-            // calculate final concentrations and masses
-            _Qpwn->Drc = sum_int_Qpwn / steps;
-       //     mwrm_ex = sum_int_mwrm_ex;
+//            // calculate final concentrations and masses
+//            _Qpwn->Drc = sum_int_Qpwn / steps;
+//       //     mwrm_ex = sum_int_mwrm_ex;
 
-        } // end if Cr > Cr_max
-        } // end internal time loop
+//        } // end if Cr > Cr_max
+//        } // end internal time loop
 
-//        // mass balance
-//        mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
+
        } //runoff occurs
     //substract discharge
     //mg = mg - (mg sec-1 * sec)
     PMrw->Drc = std::max(0.0, PMrw->Drc - (_Qpwn->Drc * _dt)
                                   + (QpinKW->Drc * _dt)); // + mwrm_ex);
-    //PMmw->Drc = std::max(0.0, PMmw->Drc); // - mwrm_ex);
     }//end ldd loop
 }
 
@@ -550,10 +521,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     double Crs_avg {0.0};
     if (_Sed->Drc > 0 | SinKW->Drc > 0.0) { //
         if (Qn->Drc >= MIN_FLUX) {
-//        // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
-//        Crs_avg = (PMrs->Drc + (SpinKW->Drc * _dt))
-//                  / (_Sed->Drc + (SinKW->Drc * _dt));
-
 //        // - simple extrapolation
 //        double totpests = std::max(0.0, PMrs->Drc + (SpinKW->Drc * _dt));
 //        double totsed = _Sed->Drc + (SinKW->Drc * _dt);
@@ -578,60 +545,60 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 
 
 
-        // internal loop ----------------------------
-        if (SwitchPestInternal_dt) {
-        //calculate courant number of standard timestep
-        double Cr_rs {0.0};
-        Cr_rs = (PMrs->Drc + SpinKW->Drc) > 0 ? ((_Qpsn->Drc * _dt)) / (PMrs->Drc + SpinKW->Drc * _dt) : 0.0;
+//        // internal loop ----------------------------
+//        if (SwitchPestInternal_dt) {
+//        //calculate courant number of standard timestep
+//        double Cr_rs {0.0};
+//        Cr_rs = (PMrs->Drc + SpinKW->Drc) > 0 ? ((_Qpsn->Drc * _dt)) / (PMrs->Drc + SpinKW->Drc * _dt) : 0.0;
 
-        //start loop if Cr > Cr_max
-        if (Cr_rs > Cr_max) {
-            // calculate steps and internal timestep
-            double steps {0.0};
-            double dt_int {0.0};
-            steps = std::min(std::ceil(Cr_rs*(2/Cr_max)), _dt/dt_int_min);
-            dt_int = _dt / steps;
+//        //start loop if Cr > Cr_max
+//        if (Cr_rs > Cr_max) {
+//            // calculate steps and internal timestep
+//            double steps {0.0};
+//            double dt_int {0.0};
+//            steps = std::min(std::ceil(Cr_rs*(2/Cr_max)), _dt/dt_int_min);
+//            dt_int = _dt / steps;
 
-            // fill intermediate concentrations and masses
-            double int_Qpsn {0.0}, int_Crs_avg {0.0}; //
-            double int_Mrs {0.0}, int_Qps {0.0}; //
-            double sum_int_Qpsn {0.0};
+//            // fill intermediate concentrations and masses
+//            double int_Qpsn {0.0}, int_Crs_avg {0.0}; //
+//            double int_Mrs {0.0}, int_Qps {0.0}; //
+//            double sum_int_Qpsn {0.0};
 
-            int_Mrs = PMrs->Drc;
-            int_Qps = _Qps->Drc;
-            // make loop
-            double count = 0;
-            while (count < steps) {
-                count++;
+//            int_Mrs = PMrs->Drc;
+//            int_Qps = _Qps->Drc;
+//            // make loop
+//            double count = 0;
+//            while (count < steps) {
+//                count++;
 
-                // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
-                int_Crs_avg = (int_Mrs + (SpinKW->Drc * dt_int))
-                              / (_Sed->Drc + (SinKW->Drc * dt_int));
+//                // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
+//                int_Crs_avg = (int_Mrs + (SpinKW->Drc * dt_int))
+//                              / (_Sed->Drc + (SinKW->Drc * dt_int));
 
-//                // - simple extrapolation
-//                double totpests = std::max(0.0, int_Mrs +
-//                                           (SpinKW->Drc * dt_int));
-//                double totsed = _Sed->Drc + (SinKW->Drc * dt_int);
-//                int_Qpsn = std::min(totpests/dt_int,
-//                                      _Qsn->Drc * (totpests / totsed));
+////                // - simple extrapolation
+////                double totpests = std::max(0.0, int_Mrs +
+////                                           (SpinKW->Drc * dt_int));
+////                double totsed = _Sed->Drc + (SinKW->Drc * dt_int);
+////                int_Qpsn = std::min(totpests/dt_int,
+////                                      _Qsn->Drc * (totpests / totsed));
 
-                // use explicit backwards method from Chow
-                int_Qpsn = ChowSubstance(Qn->Drc, QinKW->Drc, Q->Drc, SpinKW->Drc, int_Qps,
-                                       _Alpha->Drc, _DX->Drc, dt_int); //mg/sec
-               // update for next loop
-               int_Mrs = std::max(0.0, int_Mrs - (int_Qpsn * dt_int)
-                                           + (SpinKW->Drc * dt_int));
-                int_Qps = int_Qpsn;
-                //sum for final values
-               sum_int_Qpsn += int_Qpsn;
+//                // use explicit backwards method from Chow
+//                int_Qpsn = ChowSubstance(Qn->Drc, QinKW->Drc, Q->Drc, SpinKW->Drc, int_Qps,
+//                                       _Alpha->Drc, _DX->Drc, dt_int); //mg/sec
+//               // update for next loop
+//               int_Mrs = std::max(0.0, int_Mrs - (int_Qpsn * dt_int)
+//                                           + (SpinKW->Drc * dt_int));
+//                int_Qps = int_Qpsn;
+//                //sum for final values
+//               sum_int_Qpsn += int_Qpsn;
 
-            } // end internal time loop
+//            } // end internal time loop
 
-            //calculate final values
-            _Qpsn->Drc = sum_int_Qpsn / steps;
+//            //calculate final values
+//            _Qpsn->Drc = sum_int_Qpsn / steps;
 
-        } // end if Cr > Cr_max
-        } // end internal timeloop
+//        } // end if Cr > Cr_max
+//        } // end internal timeloop
         }
 
         } // erosion occurs
