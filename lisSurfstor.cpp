@@ -57,12 +57,10 @@ void TWorld::GridCell()
 
       // adjust houses to cell with channels
       HouseWidthDX_ = std::min(dxa,  HouseWidthDX_);
-              //std::min(dxa, HouseWidthDX_);
       // adjust roads+hardsurf to cell with channels
       RoadWidthHSDX->Drc = std::min(dxa, RoadWidthHSDX->Drc);
       // decrease roadwidth if roads + houses > dx-channel
       HouseWidthDX_ = std::min(dxa-RoadWidthHSDX->Drc , HouseWidthDX_);
-              //std::min(dxa-RoadWidthHSDX->Drc, HouseWidthDX_);
       // you cannot have houses and a road larger than a pixel
   //    SoilWidthDX->Drc = std::max(0.0,dxa - RoadWidthHSDX->Drc - HouseWidthDX_);
       SoilWidthDX->Drc = dxa - RoadWidthHSDX->Drc;
@@ -193,7 +191,7 @@ void TWorld::cell_SurfaceStorage(int r, int c)
     double SW = SoilWidthDX->Drc;
     double RW = RoadWidthHSDX->Drc;
     double WHr = WHroad->Drc;
-    double WHs = std::min(wh, MDS->Drc*(1-exp(-1.875*(wh/0.01*RR->Drc))));
+    double WHs = std::min(wh, MDS->Drc*(1-exp(-1.875*wh/(0.01*RR->Drc))));
     //surface storage on rough surfaces
     // non-linear release fo water from depression storage
     // resemles curves from GIS surface tests, unpublished
