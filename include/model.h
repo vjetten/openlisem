@@ -432,6 +432,7 @@ public:
     double ETBiasCorrection;
     double SoilETMBcorrection;
 
+    //Groundwater flow parameters
     double GW_recharge;
     double GW_flow;
     double GW_inflow;
@@ -443,18 +444,18 @@ public:
     double rainfallETa_threshold;
     double rainIDIfactor;
 
-    double totetafac;
-
-    /// calibration parameters
+    // calibration parameters
     double gsizeCalibrationD50;
     double gsizeCalibrationD90;
     double SmaxCalibration;
+    double RRCalibration;
     double ksatCalibration;
-    double ksatCalibration2;
     double ksat2Calibration;
     double nCalibration;
     double thetaCalibration;
     double psiCalibration;
+    double SD1Calibration;
+    double SD2Calibration;
     double ChnCalibration;
     double ChnTortuosity;
     double ChKsatCalibration;

@@ -43,6 +43,8 @@ functions: \n
 #include "operation.h"
 #include "global.h"
 
+#define QUNIT (QUnits == 1 ? 1.0 : 1000)
+
 //---------------------------------------------------------------------------
 /// report to disk: timeseries at output points, totals, map series and land unit stats
 void TWorld::reportAll(void)
@@ -126,6 +128,7 @@ void TWorld::OutputUI(void)
     op.FloodArea = floodArea;
 
     op.Qtotmm = Qtotmm;
+    op.Qboundtotmm = FloodBoundarymm;
     op.Qtot = Qtot; // all outflow through channel and runoff for all open and outlets boundaries
 
     op.floodBoundaryTot = floodBoundaryTot;
@@ -171,9 +174,8 @@ void TWorld::OutputUI(void)
     //hydrographs
 
     // outlet 0 all flow
-    double factor = QUnits == 1 ? 1.0 : 1000.0;
-    op.OutletQ.at(0)->append(Qtot_dt * factor/_dt); //Qtot_dt is in m3
-    op.OutletQtot.replace(0,Qtot);
+    op.OutletQ.at(0)->append(Qtot_dt * QUNIT/_dt); //Qtot_dt is in m3
+    op.OutletQtot.replace(0,Qtot); // cumulative tot outflow
     op.OutletChannelWH.at(0)->append(0);
 
     for(int j = 1; j < op.OutletIndices.length(); j++)
@@ -184,25 +186,12 @@ void TWorld::OutputUI(void)
         double channelwh = SwitchIncludeChannel? ChannelWH->Drc : 0.0;
         op.OutletChannelWH.at(j)->append(std::isnan(channelwh)?0.0:channelwh); //? why nan
 
-//        op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * Qoutput->Drc/(QUnits == 0 ? 1000.0 : 1.0)); //cumulative in m3/s
-//        op.OutletQ.at(j)->append(Qoutput->Drc);
-
-//        if (SwitchErosion) {
-//            op.OutletQstot.replace(j,op.OutletQstot.at(j) + Qsoutput->Drc*_dt/1000.0); // sum in kg of OF + channel
-//            op.OutletQs.at(j)->append(Qsoutput->Drc);  // in kg/s
-//            op.OutletC.at(j)->append(TotalConc->Drc);  // questionable, abverage conc OF and channel
-//        }
         if (SwitchIncludeChannel) {
             op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * ChannelQn->Drc); //cumulative in m3/s
-            op.OutletQ.at(j)->append(ChannelQn->Drc*factor);
-//            if (SwitchChannelBaseflow) {
-//                op.OutletQb.at(j)->append((Qbase->Drc/_dt+std::min(BaseFlowDischarges->Drc,ChannelQn->Drc))*factor);
-//                // not possible, Qbase moves towards outl;et so is not only Qbase->Drc
-//            }
-
+            op.OutletQ.at(j)->append(ChannelQn->Drc*QUNIT);
         } else {
             op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * Qn->Drc); //cumulative in m3/s
-            op.OutletQ.at(j)->append(Qn->Drc*factor);
+            op.OutletQ.at(j)->append(Qn->Drc*QUNIT);
         }
 
         if (SwitchErosion) {
@@ -356,6 +345,7 @@ void TWorld::ReportTotalSeries(void)
         out << sep << "Flood area(m2)";
         out << sep << "Channels(mm)";
         out << sep << "Outflow(mm)";
+        out << sep << "Boundary Outflow(mm)";
         if (SwitchErosion) {
             out << sep << "Splash(ton)";
             out << sep << "FlowDet(ton)";
@@ -416,6 +406,7 @@ void TWorld::ReportTotalSeries(void)
     out << sep << op.FloodArea;
     out << sep << op.ChannelVolTotmm;
     out << sep << op.Qtotmm;
+    out << sep << op.Qboundtotmm;
     if (SwitchErosion) {
         out << sep << op.DetTotSplash;
         out << sep << op.DetTotFlow;
@@ -482,18 +473,20 @@ void TWorld::ReportTimeseriesNew(void)
     int width = (!SwitchWritePCRtimeplot ? 0 : 3+DIG-3);
     // NOTE if SwitchWriteCommaDelimited = true then SwitchWritePCRtimeplot = false
 
-
-    double QALL = Qtot_dt * (QUnits == 1 ?  1.0 : 1000.0)/_dt; // total outflow on all sides in l/s, same as point 0 in interface
+    double QALL = Qtot_dt * QUNIT/_dt; // total outflow for all outlets, same as point 0 in interface
     double QSALL = SoilLossTot_dt/_dt; //total sed loss in kg/s from all outlets, surface and boundary
 
     QFileInfo fi(resultDir + outflowFileName);
 
     //######  open files and write headers #####//
 
+    QString unitS = "l/s";
+    if (QUnits == 1)
+        unitS = "m3/s";
+
     //PCRaster and flat format are mutually exclusive
     if (SwitchWriteHeaders) //  make file at first timestep
     {
-        //SwitchWriteHeaders = false;
         if (SwitchSeparateOutput) // each point separate file
         {
             FOR_ROW_COL_MV_OUTL {
@@ -526,9 +519,14 @@ void TWorld::ReportTimeseriesNew(void)
                     out << "run step\n";
                     if (SwitchRainfall) out << "Pavg (mm/h)\n";
                     if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
-                    out << "Qall (l/s)\n";
-                    if (SwitchIncludeChannel) out << "Qoutlet (l/s)\n" << "chanWH (m)\n";
-                   // if (SwitchChannelBaseflow) out << ",Qb (l/s)";
+                    out << "Qall " << unitS << "\n";
+                    out << "QBound " << unitS << "\n";
+                    if (SwitchIncludeChannel) {
+                        out << "Q " << unitS << "\n" << "chanWH (m)\n";
+                        // if (SwitchChannelBaseflow) out << ",Qb (l/s)";
+                    } else {
+                        out << "Q " << unitS << "\n";
+                    }
                     if (SwitchIncludeTile) out << "Qdrain (l/s)\n";
                     if (SwitchErosion) out << "Qsall (kg/s)\n" << "Qs (kg/s)\n" << "C (g/l)\n";
 
@@ -542,7 +540,9 @@ void TWorld::ReportTimeseriesNew(void)
                     if (SwitchRainfall) out << ",Pavg";
                     if (SwitchSnowmelt) out << ",Snowavg";
                     out << ",Qall";
-                    if (SwitchIncludeChannel) out << ",Q" << ",chanWH";
+                    out << ",Qbound";
+                    if (SwitchIncludeChannel) {out << ",Q" << ",chanWH";}
+                    else {out << ",Qrunoff";}
                    // if (SwitchChannelBaseflow) out << ",Qb";
                     if (SwitchIncludeTile) out << ",Qtile";
                     if (SwitchErosion) out << ",Qsall" << ",Qs" << ",C";
@@ -551,10 +551,11 @@ void TWorld::ReportTimeseriesNew(void)
                     out << "min";
                     if (SwitchRainfall) out << ",mm/h";
                     if (SwitchSnowmelt) out << ",mm/h";
-                    out << ",l/s";
-                    if (SwitchIncludeChannel) out  << ",l/s" << ",m";
-                  //  if (SwitchChannelBaseflow) out << ",l/s";
-                    if (SwitchIncludeTile) out << ",l/s";
+                    out << "," << unitS;
+                    out << "," << unitS;
+                    if (SwitchIncludeChannel) out  << "," << unitS << ",m";
+                  //  if (SwitchChannelBaseflowout << "," << unitS;
+                    if (SwitchIncludeTile) out << "," << unitS;
                     if (SwitchErosion) out << ",kg/s"<< ",kg/s" << ",g/l";
                     out << "\n";
                 }
@@ -597,6 +598,7 @@ void TWorld::ReportTimeseriesNew(void)
                 if (SwitchRainfall) out << "Pavg (mm/h)\n";
                 if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
                 out << "Qall (l/s)\n";
+                out << "Qbound (l/s)\n";
                 FOR_ROW_COL_MV_OUTL {
                     pnr.setNum(crout_[i_].nr);//(int)PointMap->Drc);
                     out << "Q #" << pnr <<  "(l/s)\n";
@@ -624,6 +626,7 @@ void TWorld::ReportTimeseriesNew(void)
                 if (SwitchSnowmelt) out << ",Snow";
                 // total flow over the bundary
                 out << ",Qall";
+                out << ",Qbound";
                 // for all points in outpoint.map
                 FOR_ROW_COL_MV_OUTL {
                     pnr.setNum(crout_[i_].nr);//(int)PointMap->Drc);
@@ -651,18 +654,20 @@ void TWorld::ReportTimeseriesNew(void)
                 out << "min";
                 if (SwitchRainfall) out << ",mm/h";
                 if (SwitchSnowmelt) out << ",mm/h";
-                out << ",l/s";
+                out << "," << unitS; // qall
+                out << "," << unitS; // bound
+                // for all outlets
                 FOR_ROW_COL_MV_OUTL {
-                    pnr.setNum(crout_[i_].nr);//(int)PointMap->Drc);
-                    out << ",l/s #" << pnr;
+                    pnr.setNum(crout_[i_].nr);
+                    out << "," << unitS << " #" << pnr;
                     if (SwitchIncludeChannel) out << ",m #" << pnr;
-                    if (SwitchIncludeTile) out << ",l/s #" << pnr;
+                    if (SwitchIncludeTile) out << "," << unitS << " #" << pnr;
                 }}
                 if (SwitchErosion)
                 {
                     out << ",kg/s";
                     FOR_ROW_COL_MV_OUTL {
-                        pnr.setNum(crout_[i_].nr);//(int)PointMap->Drc);
+                        pnr.setNum(crout_[i_].nr);
                         out << ",kg/s #" << pnr << ",g/l #" << pnr;
                     }}
                 }
@@ -678,9 +683,9 @@ void TWorld::ReportTimeseriesNew(void)
     }  // opening files and writing header
 
     //######  open files and append values #####//
-    double factor = (QUnits == 1 ?  1.0 : 1000.0);
     if (SwitchSeparateOutput)
     {
+        // for all outlet points
         FOR_ROW_COL_MV_OUTL
         {
             newname1 = fi.path() + "/" + fi.baseName() + "_" + QString::number((int)PointMap->Drc) + "." +  fi.suffix();
@@ -701,17 +706,27 @@ void TWorld::ReportTimeseriesNew(void)
             if (SwitchRainfall) out << sep << RainIntavg;
             if (SwitchSnowmelt) out << sep << SnowIntavg;
 
-            out << sep << QALL << sep << Qoutput->Drc;  //Qoutput is sum channel, of, tile
+            out << sep << QALL << sep << BoundaryQ*QUNIT;
 
-            if (SwitchIncludeChannel) out << sep << ChannelWH->Drc;
-            //if (SwitchChannelBaseflow) out << sep << Qbase->Drc;
-            if (SwitchIncludeTile) out << sep << TileQn->Drc*factor;
+            if (SwitchIncludeChannel) {
+                out << sep << ChannelQn->Drc*QUNIT;
+                out << sep << ChannelWH->Drc;
+                //if (SwitchChannelBaseflow) out << sep << Qbase->Drc*QUNIT;
+            } else {
+                out << sep << Qn->Drc*QUNIT;
+            }
+
+            if (SwitchIncludeTile) out << sep << TileQn->Drc*QUNIT;
+
             if (SwitchErosion) {
-                out << sep << QSALL << sep << Qsoutput->Drc;
-                if (SwitchIncludeChannel)
+                out << sep << QSALL;
+                if (SwitchIncludeChannel) {
+                    out << sep << ChannelQsn->Drc;
                     out << sep << ChannelConc->Drc;
-                else
+                } else {
+                    out << sep << Qsn->Drc;
                     out << sep << TotalConc->Drc ;
+                }
             }
             out << "\n";
             fout.close();
@@ -737,27 +752,32 @@ void TWorld::ReportTimeseriesNew(void)
         if (SwitchRainfall) out << sep << RainIntavg;
         if (SwitchSnowmelt) out << sep << SnowIntavg;
 
-        out << sep << QALL;
+        out << sep << QALL << sep << BoundaryQ*QUNIT;
 
         FOR_ROW_COL_MV_OUTL
         {
-            out << sep << Qoutput->Drc;  //if not channel this is only overlandflow
-            if (SwitchIncludeChannel) out << sep << ChannelWH->Drc;
-            //if (SwitchChannelBaseflow) out << sep << Qbase->Drc;
-            if (SwitchIncludeTile) out << sep << TileQn->Drc*1000;
+            if (SwitchIncludeChannel) {
+                out << sep << ChannelQn->Drc*QUNIT;
+                out << sep << ChannelWH->Drc;
+                //if (SwitchChannelBaseflow) out << sep << Qbase->Drc*QUNIT;
+            } else {
+                out << sep << Qn->Drc*QUNIT;
+            }
+            if (SwitchIncludeTile) out << sep << TileQn->Drc*QUNIT;
         }}
 
         if (SwitchErosion)
         {
             out << sep << QSALL;
-            //#pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_OUTL
             {
-                out << sep << Qsoutput->Drc;
-                if (SwitchIncludeChannel)
+                if (SwitchIncludeChannel) {
+                    out << sep << ChannelQsn->Drc;
                     out << sep << ChannelConc->Drc;
-                else
+                } else {
+                    out << sep << Qsn->Drc;
                     out << sep << TotalConc->Drc ;
+                }
             }}
         }
         if (SwitchPest)
@@ -806,10 +826,11 @@ void TWorld::ReportTotalsNew(void)
        out << QString("\"Water in flood (h>%1) (mm)):\",%2\n").arg(minReportFloodHeight*1000).arg(op.volFloodmm);
     }
     out << "\"Water in channels (mm):\"," << op.ChannelVolTotmm<< "\n";
-    out << "\"Total outflow (all flows) (mm):\"," << op.Qtotmm<< "\n";
+    out << "\"Water across boundary (mm):\"," << op.Qboundtotmm<< "\n";
+    out << "\"Total outflow (all flows) (mm):\"," << op.Qtotmm+op.Qboundtotmm << "\n";
     out << "\n";
-    out << "\"Total outflow (overland+channel+boundaries+drains) (m3):\"," << op.Qtot<< "\n";
-   // out << "\"Total flood discharge (m3):\"," << op.floodBoundaryTot<< "\n";
+    out << "\"Total outflow (overland+channel+drains) (m3):\"," << op.Qtot<< "\n";
+    out << "\"Total boundary outflow (m3):\"," << op.floodBoundaryTot<< "\n";
     out << "\"Total storm drain discharge (m3):\"," << op.Qtiletot<< "\n";
     out << "\"Peak time precipitation (min):\"," << op.RainpeakTime<< "\n";
     out << "\"Total discharge/Precipitation (%):\"," << op.RunoffFraction*100<< "\n";
@@ -946,7 +967,7 @@ void TWorld::ReportMaps(void)
 //---------------------------------------------------------------------------
 void TWorld::ReportMapSeries(void)
 {
-    //discharge l/s
+    //discharge l/s or m3/s
     if (SwitchOutrunoff)
         report(*Qoutput, Outrunoff);
 //    report(*Q, OutQ);

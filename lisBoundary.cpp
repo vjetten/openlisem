@@ -57,14 +57,14 @@ void TWorld::dynOutflowPoints()
         double demy1 = DEMFB(r,c,1,0,true);
         double demy2 = DEMFB(r,c,-1,0,true);
 
-        if(OUTORMV(r,c+1)) // returns true if outside rows. cols or mv
+        if(OUTORMV(r,c+1))
         {
             if(demx1 < demx2)
                 K2DOutlets->Drc = 1;
         }
         if(OUTORMV(r,c-1))
         {
-            if(demx2 <demx1)
+            if(demx2 < demx1)
                 K2DOutlets->Drc = 1;
         }
 
@@ -106,7 +106,7 @@ void TWorld::dynOutflowPoints()
             K2DOutlets->Drc = 1;
         }
 
-        //at boundaries, set cell as outflow cell when slope is in the direction of the boundary
+        //at corners, set cell as outflow cell when slope is in the direction of the boundary
 
         if(r == 0)
         {
@@ -152,111 +152,77 @@ void TWorld::dynOutflowPoints()
 //---------------------------------------------------------------------------
 void TWorld::Boundary2Ddyn()
 {
-    cTMap *h = WHrunoff;
-    cTMap *Q = Qn;
-    cTMap *_U = Uflood;
-    cTMap *_V = Vflood;
 
+    cTMap *Q = Qn;
+    cTMap *h = WHrunoff;
     if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
         Q = Qflood;
         h = hmx;
     }
+    // correct the water height in the outlet(s) for a perfect WB!
+    FOR_ROW_COL_LDD5 {
+        double dh = Q->Drc*_dt/CHAdjDX->Drc;
+        h->Drc = std::max(0.0,h->Drc-dh);
+
+        if (SwitchErosion) {
+            double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Q->Drc*_dt);
+            SSFlood->Drc -= ds;
+            if (SwitchUse2Phase) {
+                ds = std::min(BLFlood->Drc, BLCFlood->Drc*Q->Drc*_dt);
+                BLFlood->Drc -= ds;
+            }
+        }
+    }}
+
+    if (FlowBoundaryType == 0)
+        return;
+
+    dynOutflowPoints();
+    // find all points flowing to outside because of water level
+    // includes effect of boundary condition 2 (user defined)
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (K2DOutlets->Drc == 1)
+        {
+            if (c > 0 && MV(r,c-1)) // U = x; V = y
+                if (Uflood->Drc < -HMIN) {
+                    tma->Drc = 1;
+                }
+            if (c < _nrCols-1 && MV(r,c+1))
+                if (Uflood->Drc > HMIN) {
+                    tma->Drc = 1;
+                }
+            if (r > 0 && MV(r-1,c))
+                if (Vflood->Drc < -HMIN) {
+                    tma->Drc = 1;
+                }
+            if (r < _nrRows-1 && MV(r+1,c))
+                if (Vflood->Drc > HMIN) {
+                    tma->Drc = 1;
+                }
+        }
+    }}
+
+    // outlets already done
+    FOR_ROW_COL_LDD5 {
+        tma->Drc = 0;
+    }}
 
     BoundaryQ = 0;
     BoundaryQs = 0;
-    #pragma omp parallel for num_threads(userCores)
+
+    //#pragma omp parallel for reduction(+:BoundaryQ, BoundaryQs) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        tma->Drc = 0;
-        K2DOutlets->Drc = 0;
-    }}
-
-   // if (FlowBoundaryType == 0) {
-        FOR_ROW_COL_LDD5 {
-            double _q = Qout.at(i_);
-            double dh = _q*_dt/CHAdjDX->Drc;
-            h->Drc = std::max(0.0,h->Drc-dh);
-
-            double Vold = V->Drc;
-            //V->Drc = pow(h->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
-            V->Drc = pow(h->Drc, 2.0/3.0) * qSqrt(h->Drc/_dx + Grad->Drc)/N->Drc;
-            if (Vold > 1e-6) {
-                _U->Drc *= V->Drc/Vold;
-                _V->Drc *= V->Drc/Vold;
-            }
-            Q->Drc = _q;
-
-            if (SwitchErosion) {
-                double ds = std::min(SSFlood->Drc, SSCFlood->Drc*_q*_dt);
-                SSFlood->Drc -= ds;
-                if (SwitchUse2Phase) {
-                    ds = std::min(BLFlood->Drc, BLCFlood->Drc*_q*_dt);
-                    BLFlood->Drc -= ds;
-                }
-            }
-
-        }}
-
-        if (FlowBoundaryType == 0)
-            return;
-//    }
-
-
-    // direction of velocity is in the direction of + and -
-    // U is EW and V is NS
-    // find which outlets on the boundary are directed to the outside based on sign U and V
-   // if (FlowBoundaryType > 0) {
-
-        dynOutflowPoints();
-
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            if (K2DOutlets->Drc == 1)// && h->Drc > 0.001)
-            {
-                if (c > 0 && MV(r,c-1)) // U = x; V = y
-                    if (_U->Drc < 0) {
-                        tma->Drc = 1;
-                    }
-                if (c < _nrCols-1 && MV(r,c+1))
-                    if (_U->Drc > 0) {
-                        tma->Drc = 1;
-                    }
-                if (r > 0 && MV(r-1,c))
-                    if (_V->Drc < 0) {
-                        tma->Drc = 1;
-                    }
-                if (r < _nrRows-1 && MV(r+1,c))
-                    if (_V->Drc > 0) {
-                        tma->Drc = 1;
-                    }
-            }
-        }}
-//    } else {
-//        //boundary 0 only ldd pits regardless of pressure
-//        FOR_ROW_COL_LDD5 {
-//            K2DOutlets->Drc = 1;
-//            tma->Drc = 1;
-//        }}
-//    }
-
-    #pragma omp parallel for reduction(+:BoundaryQ, BoundaryQs) num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (tma->Drc == 1 && h->Drc > 1e-8) {
-
+        if (tma->Drc == 1 && h->Drc > HMIN) {
             double _q = Q->Drc;
             double dh = _q*_dt/CHAdjDX->Drc;
-            h->Drc = std::max(0.0,h->Drc-dh);
 
-            double Vold = V->Drc;
-            //V->Drc = pow(h->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
-            V->Drc = pow(h->Drc, 2.0/3.0) * qSqrt(h->Drc/_dx + Grad->Drc)/N->Drc;
-            if (Vold > 1e-6) {
-                _U->Drc *= V->Drc/Vold;
-                _V->Drc *= V->Drc/Vold;
-            }
+            if (h->Drc-dh < 0)
+                dh = h->Drc;
+            h->Drc -= dh;
 
             BoundaryQ += _q;
-
-            Q->Drc = _q;
 
             if (SwitchErosion) {
                 double ds = std::min(SSFlood->Drc, SSCFlood->Drc*_q*_dt);
@@ -267,9 +233,9 @@ void TWorld::Boundary2Ddyn()
                     BoundaryQs += ds/_dt;
                     BLFlood->Drc -= ds;
                 }
-                //SWOFSedimentSetConcentration(r, c, h);
             }
         }
     }}
-    //qDebug() << "bound" << BoundaryQ;
+
+    //qDebug() << BoundaryQ << MB;
 }

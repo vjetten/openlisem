@@ -201,8 +201,7 @@ void lisemqt::onOutletChanged(int point)
             showPlot(); // show main plot for point X
 
             HPlot->setTitle(QString("Catchment outlet(s)"));
-                //HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
-                //outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
+
         } else {
             if(point > outletpoint)
             {

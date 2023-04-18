@@ -300,9 +300,11 @@ void TWorld::InitParameters(void)
     gsizeCalibrationD90 = getvaluedouble("Grain Size calibration D90");
 
     ksatCalibration = getvaluedouble("Ksat calibration");
-    ksatCalibration2 = getvaluedouble("Ksat2 calibration");
+    ksat2Calibration = getvaluedouble("Ksat2 calibration");
 
     SmaxCalibration = getvaluedouble("Smax calibration");
+    RRCalibration = getvaluedouble("RR calibration");
+
     nCalibration = getvaluedouble("N calibration");
     if (nCalibration == 0)
     {
@@ -312,6 +314,9 @@ void TWorld::InitParameters(void)
 
     thetaCalibration = getvaluedouble("Theta calibration");
     psiCalibration = getvaluedouble("Psi calibration");
+    SD1Calibration = getvaluedouble("SoilDepth1 calibration");
+    SD2Calibration = getvaluedouble("SoilDepth2 calibration");
+
     ChnCalibration = getvaluedouble("Channel N calibration");
     ChnTortuosity = 1.0;
     //ChnTortuosity = getvaluedouble("Channel tortuosity");
@@ -550,29 +555,32 @@ void TWorld::InitStandardInput(void)
 void TWorld::InitLULCInput(void)
 {
     N = ReadMap(LDD,getvaluename("manning"));
+    checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
+    calcValue(*N, nCalibration, MUL);
+
     Norg = NewMap(0);
-    calcValue(*N, nCalibration, MUL); //VJ 110112 moved
-    copy(*Norg, *N); //ed in sed trap... if trap is full loose resistance
+    copy(*Norg, *N); //ed in sed trap... if trap is full go back to original N
+
     RR = ReadMap(LDD,getvaluename("RR"));
+    checkMap(*RR, SMALLER, 0.0, "Raindom roughness RR must be >= 0");
+    calcValue(*RR, RRCalibration, MUL);
+
     LAI = ReadMap(LDD,getvaluename("lai"));
+    checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");
     Cover = ReadMap(LDD,getvaluename("cover"));
+    checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
+    checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
 
     if (SwitchLitter)
     {
         Litter = ReadMap(LDD,getvaluename("litter"));
-
-        checkMap(*Litter, LARGER, 1.0, "vegetation litter/herb cover fraction cannot be more than 1");
         checkMap(*Litter, SMALLER, 0.0, "Litter cover fraction must be >= 0");
         checkMap(*Litter, LARGER, 1.0, "Litter cover fraction must be <= 1.0");
     }
     else
         Litter = NewMap(0);
+
     LitterSmax = getvaluedouble("Litter interception storage");
-    checkMap(*RR, SMALLER, 0.0, "Random roughness RR must be >= 0");
-    checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
-    checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");
-    checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
-    checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
 
     GrassFraction = NewMap(0);
     if (SwitchGrassStrip)
@@ -643,6 +651,8 @@ void TWorld::InitSoilInput(void)
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
+        calcValue(*SoilDepth1, SD1Calibration, MUL);
+
         SoilDepth1init = NewMap(0);
         copy(*SoilDepth1init, *SoilDepth1);
 
@@ -684,10 +694,11 @@ void TWorld::InitSoilInput(void)
                 bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
             }}
 
-            calcValue(*Ksat2, ksatCalibration2, MUL);
+            calcValue(*Ksat2, ksat2Calibration, MUL);
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
+            calcValue(*SoilDepth2, SD2Calibration, MUL);
             SoilDepth2init = NewMap(0);
             copy(*SoilDepth2init, *SoilDepth2);
 
@@ -1038,19 +1049,18 @@ void TWorld::InitChannel(void)
         Qbin = NewMap(0);
         Qbase = NewMap(0);
         //Qbaseprev = NewMap(0);
-        GWWH = NewMap(0.001);
+        GWWH = NewMap(0);
         GWWHmax = NewMap(0);
+
         GWdeep = NewMap(0);
         GWrecharge = NewMap(0);
         GWout = NewMap(0);
-        GWbp = NewMap(0);
-
+        GWz = NewMap(0);
 
         FOR_ROW_COL_MV_L {
-          //  GWWH->Drc = 0.1*SoilDepth2->Drc;
-            GWVol->Drc = GWWH->Drc*_dx*_dx;
-//            GWVol->Drc = (GW_initlevel+0.001)*_dx*_dx;
+            GWz->Drc = DEM->Drc - SoilDepth1->Drc - SwitchTwoLayer ? SoilDepth2->Drc : 0.0;
         }}
+        Average3x3(*GWz, *LDD);
 
     }
 

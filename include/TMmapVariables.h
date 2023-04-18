@@ -105,7 +105,7 @@ cTMap
 *GWdeep,
 *GWrecharge,
 *GWout,
-*GWbp,
+*GWz,
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
 *Qdiag,
 *VH,
