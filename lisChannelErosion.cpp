@@ -282,8 +282,6 @@ void TWorld::RiverSedimentMaxC(int r, int c)
     ChannelSed->Drc = (SwitchUse2Phase ? _BL->Drc : 0) + _SS->Drc;
     //total concentration
     ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
-
-
 }
 
 //---------------------------------------------------------------------------

@@ -445,9 +445,7 @@ cTMap
 *tmc,                        //!< Auxilary map
 *tmd,                        //!< Auxilary map
 //display combinations
-// *extQCH,
-// *extVCH,
-// *extWHCH,
+*COMBO_V,
 *COMBO_SS,
 *COMBO_BL,
 *COMBO_TC,

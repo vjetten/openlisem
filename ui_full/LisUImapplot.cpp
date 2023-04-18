@@ -199,7 +199,11 @@ void lisemqt::setupMapPlot()
     baseMap->attach( MPlot );
     // shaded relief
 
-
+    // 3 data
+    drawMap = new QwtPlotSpectrogram();
+    drawMap->setRenderThreadCount( 0 );
+    drawMap->attach( MPlot );
+    //map for runoff, infil, flood etc
 
     // 5
     roadMap = new QwtPlotSpectrogram();
@@ -218,11 +222,6 @@ void lisemqt::setupMapPlot()
     houseMap->attach( MPlot );
     // building structure map
 
-    // 3 data
-    drawMap = new QwtPlotSpectrogram();
-    drawMap->setRenderThreadCount( 0 );
-    drawMap->attach( MPlot );
-    //map for runoff, infil, flood etc
     //7
     outletMap = new QwtPlotSpectrogram();
     outletMap->setRenderThreadCount( 0 );

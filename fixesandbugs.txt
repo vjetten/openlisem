@@ -1,4 +1,15 @@
 this file is a list of changes per major commit
+230408 - v6.89
+- redesigned GW flow completely, only two calib. paraters now, flow to the GW layer and GWflow to the channel
+- Interface works better with low resolutions screens
+- erosion overland flow uses govers and harsine and rose
+- included iterative version of connection between 2D flow and channel
+- fixed bug in sediment in non-iterative connection of 2D flow and channel
+version 6.887
+- fixed sceen display of discharge, should not be cumulative
+- fixed screen display of sediment load
+version 6.885
+- fixed screen display of discharge factor 1000!
 230314 - v6.882-6.883
 - fixed kin wave MB error (interception of houses)
 - fixed erosion MB error (caused by cell_depositInfil(r,c))

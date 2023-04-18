@@ -1661,7 +1661,7 @@ void lisemqt::resetTabAdvanced()
     E_ChannelKinWaveDt->setValue(60.0);
     nrUserCores->setValue(0);
     checkChanMaxVelocity->setChecked(true);
-
+    checkChannel2DflowConnect->setChecked(false);
 }
 
 void lisemqt::resetAll()

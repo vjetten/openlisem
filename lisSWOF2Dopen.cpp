@@ -393,6 +393,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     // determine smallest dt in x and y for each cell
                     double dtx = dx/std::max(hll_x1.v[3],hll_x2.v[3]);
                     double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]); // v[3] is max U and V in x and y
+
                     double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
                     FloodDT->Drc = dt_req;
 
@@ -422,12 +423,12 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                             vxn = (qxn/(1.0+nsq))/std::max(0.0001,hn);
                             vyn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
 
-                            if (SwitchTimeavgV) {
-                                double fac = 0.5+0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
-                                fac = fac *exp(- std::max(1.0,dt) / nsq1);
+                         //   if (SwitchTimeavgV) {
+                                double fac = 0.5 + 0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
+                                fac = fac * exp(- std::max(1.0,dt) / nsq1);
                                 vxn = fac * Vx + (1.0-fac) *vxn;
                                 vyn = fac * Vy + (1.0-fac) *vyn;
-                            }
+                         //   }
 
                         } else { // hn < ha
                             hn = H; // if no fluxes then also no change in h
