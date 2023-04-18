@@ -189,10 +189,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     double dt_req_min = dt_max;
     int step = 0;
 
-    Qout.clear();
-    FOR_ROW_COL_LDD5 {
-       Qout << 0.0;
-    }}
+//    Qout.clear();
+//    FOR_ROW_COL_LDD5 {
+//       Qout << 0.0;
+//    }}
 
 
     if (startFlood)
@@ -294,9 +294,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double dz_y2 = (z_y2 - Z);
 
                     // muscl
-                    SwitchMUSCL = false;
                     double delzcx =0;
                     double delzcy =0;
+/*
+                    SwitchMUSCL = false;
                     if (SwitchMUSCL) {
                         double dhx   = limiter(H-h_x1, h_x2-H);
                         double dz_hx = limiter(H-h_x1 + dz_x1, h_x2-H + dz_x2);
@@ -341,10 +342,9 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         vx_y2 = Vx - hrh * 0.5*duy;
                         vy_y1 = Vy + hlh * 0.5*dvy;
                         vy_y2 = Vy - hrh * 0.5*dvy;
-
                     }
-
-                    // calculate Riemann valaues for all four boundaries of a cell
+*/
+                    //########### calculate Riemann valaues for all four boundaries of a cell ############
 
                     //coding left right and up/down boundary h
                     //h_x1r|H_l  H  H_r|h_x2l
@@ -394,10 +394,11 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]); // v[3] is max U and V in x and y
 
                     double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
-                    FloodDT->Drc = dt_req;
-
+                    FloodDT->Drc = dt_req; // dt does not need to be a map, left over from earlier code
                     // if step = 0 do not calculate new fluxes and states yet because the first dt is always dt_max
                     // find a smallest dt of the flow domain first
+
+                    //########### after finding the smallest dt, do the st venant eq)
                     if (step > 0) {
 
                         double tx = dt/dx;
@@ -463,17 +464,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
             if (step > 0) {
 
-                // get the outflow for all outlets, do not decrease the level here because of the mass balance correction
-                FOR_ROW_COL_LDD5 {
-                   double Vv = sqrt(vx->Drc * vx->Drc + vy->Drc * vy->Drc);
-                   double dh = Vv*h->Drc/DX->Drc*dt_req_min; // Q=VA
-                   if (h->Drc-dh < 0)
-                       dh = h->Drc;
-                   double q = Qout.at(i_) + dh/dt_req_min;
-                   Qout.replace(i_,q);
-                }}
-
-                if (SwitchErosion) {
+               if (SwitchErosion) {
                     SWOFSediment(dt_req_min, h,vx,vy);
                 }
 

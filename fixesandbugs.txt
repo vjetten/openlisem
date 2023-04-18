@@ -1,4 +1,8 @@
 this file is a list of changes per major commit
+230412 - v6.891
+- fixed bug open and closed boundary flow, to be further tested on different catchments
+- fixed small bugs for reporting to files all output to files with clear separation of total outflow and channelhydrographs fopr water and sediment
+- and reporting of units m3/s and l/s
 230412 - v6.89
 - redesigned GW flow completely, only two calib. paraters now, flow to the GW layer and GWflow to the channel
 - added calibration factors for soildepth 1 and 2

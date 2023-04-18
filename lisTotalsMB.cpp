@@ -297,9 +297,7 @@ void TWorld::Totals(void)
 
     floodBoundaryTot += BoundaryQ*_dt;
     FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;    
-    qDebug() << floodBoundaryTot;
-
-//    Qtot_dt += floodBoundaryTot;
+   // qDebug() << floodBoundaryTot;
 
     // Add outlet overland flow, for all flow methods
     FOR_ROW_COL_LDD5 {
@@ -356,23 +354,20 @@ void TWorld::Totals(void)
         }
     }
 
-    // output fluxes for reporting to file and screen in l/s!]
-    double factor = 1000.0;
-    if (QUnits == 1)
-        factor = 1.0;
-
+    // sum of all fluxes ONLY for display on screen
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
-        Qoutput->Drc = factor*(Qn->Drc + Qflood->Drc);// in l/s or m3/s
+        Qoutput->Drc = (Qn->Drc + Qflood->Drc) * (QUnits == 1 ? 1.0 : 1000);// in m3/s
 
         if(SwitchIncludeChannel)
-            Qoutput->Drc += factor*ChannelQn->Drc;
+            Qoutput->Drc += ChannelQn->Drc * (QUnits == 1 ? 1.0 : 1000);
 
         Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;
     }}
     // Total outflow in m3 for all timesteps
     // does NOT include flood water leaving domain (floodBoundaryTot)
+    // which is reported separatedly (because it is a messy flux)!
 
     Qtot += Qtot_dt;
     // add timestep total to run total in m3
@@ -570,7 +565,7 @@ void TWorld::MassBalance()
         double detachment = DetTot + ChannelDetTot + FloodDetTot;
         double deposition = DepTot + ChannelDepTot + FloodDepTot;
         double sediment = SedTot + ChannelSedTot + FloodSedTot + SoilLossTot;
-        //already in SoilLossTot: + floodBoundarySedTot;
+        //already in SoilLossTot: floodBoundarySedTot;
 
       //  qDebug() << "S" << DetTot<< ChannelDetTot << FloodDetTot;
       //  qDebug() << DepTot << ChannelDepTot << FloodDepTot;

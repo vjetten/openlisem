@@ -1120,7 +1120,7 @@ void lisemqt::updateModelData()
         QMessageBox msg;
         msg.setText("The run file has changed: \nobsolete options are removed and missing options use default values. \nThe new run files has your choices where applicable.");
 
-        int cnt = 3;
+        int cnt = 5;
 
         QTimer cntDown;
         QObject::connect(&cntDown, &QTimer::timeout, [&msg,&cnt, &cntDown]()->void{
@@ -1132,7 +1132,7 @@ void lisemqt::updateModelData()
 //                msg.setText(QString("This closes in %1 seconds").arg(cnt));
 //            }
         });
-        cntDown.start(300);
+        cntDown.start(500);
         msg.exec();
     }
 
