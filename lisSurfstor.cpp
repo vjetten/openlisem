@@ -47,10 +47,10 @@ void TWorld::GridCell()
         double dxa = _dx;
     double HouseWidthDX_ = HouseCover->Drc*_dx;
 
-        if(SwitchIncludeChannel && ChannelWidth->Drc > 0) {
+     if(SwitchIncludeChannel && ChannelWidth->Drc > 0 && ChannelMaxQ->Drc == 0) {
           dxa = _dx - ChannelWidth->Drc;
-                  //std::max(0.05, _dx - ChannelWidth->Drc);
-        }
+     }
+     //note: channelwidth <= _dx*0.95. ADD channelmaxq here, better MB
 
         ChannelAdj->Drc = dxa;
         CHAdjDX->Drc = dxa*DX->Drc;

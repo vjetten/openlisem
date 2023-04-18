@@ -377,7 +377,8 @@ public:
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle,
-    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchExplicitGWflow,SwitchSWATGWflow;
+    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchExplicitGWflow,SwitchSWATGWflow,SwitchChannel2DflowConnect,
+    SwitchGWChangeSD;
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
@@ -435,7 +436,6 @@ public:
     double GW_flow;
     double GW_inflow;
     double GW_slope;
-    double GW_lag;
     double GW_deep;
     double GW_threshold;
     double GW_initlevel;
@@ -932,6 +932,7 @@ public:
     void GroundwaterFlow();
     void GWFlow2D();
     void GWFlowLDD();
+    void GWFlowLDDKsat();
 
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
@@ -972,7 +973,7 @@ public:
     void FloodMaxandTiming();
     void ChannelFloodStatistics(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
-    void ChannelOverflow2(cTMap *_h, cTMap *_V);
+    void ChannelOverflowIteration(cTMap *_h, cTMap *_V);
 
     double courant_factor;
     double courant_factorSed;
@@ -1051,6 +1052,8 @@ public:
 
 
     double MapTotal(cTMap &M);
+    void Average3x3(cTMap &M, cTMap &mask);
+    void Average2x2(cTMap &M, cTMap &mask);
     void Totals(void);
     void MassBalance(void);
     void OutputUI(void);

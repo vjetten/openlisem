@@ -289,8 +289,9 @@ void TWorld::InitParameters(void)
     GW_flow = getvaluedouble("GW flow factor");
     GW_inflow = getvaluedouble("GW river inflow factor");
     GW_slope = getvaluedouble("GW slope factor");
-    GW_lag = 0.8; //getvaluedouble("GW lag factor");
-    GW_deep = getvaluedouble("GW deep percolation");
+    GW_deep = getvaluedouble("GW deep percolation"); // in mm/day
+    GW_deep *= 0.001/86400; //in m/s
+
     GW_threshold = getvaluedouble("GW threshold factor");
 
 
@@ -327,12 +328,6 @@ void TWorld::InitParameters(void)
     //StemflowFraction = getvaluedouble("Stemflow fraction");
     CanopyOpeness = getvaluedouble("Canopy Openess");
 
-    //VJ 110829 water repellency
-//    waterRep_a = getvaluedouble("Water Repellency A");
-//    waterRep_b = getvaluedouble("Water Repellency B");
-//    waterRep_c = getvaluedouble("Water Repellency C");
-//    waterRep_d = getvaluedouble("Water Repellency D");
-
     // VJ 170923 moved all 2D switches here
     minReportFloodHeight = getvaluedouble("Minimum reported flood height");
     courant_factor = getvaluedouble("Flooding courant factor");
@@ -353,8 +348,10 @@ void TWorld::InitParameters(void)
         // SwitchHeun = false;// (getvalueint("Use Heun") == 1);
         //SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
-        SwitchLinkedList = getvalueint("Use Linked List") == 1;
+        SwitchLinkedList = getvalueint("Use linked List") == 1;
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
+        SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
+        SwitchGWChangeSD = getvalueint("GW layer change SD") == 1;
     } else {
         F_MaxIter = 200;
         F_minWH = 0.0001;
@@ -366,6 +363,8 @@ void TWorld::InitParameters(void)
         //SwitchErosionInsideLoop = true;
         SwitchLinkedList = true;
         _dtCHkin = 60.0;//_dt_user;
+        SwitchChannel2DflowConnect = false;
+        SwitchGWChangeSD = true;
     }
     _CHMaxV = 20.0;
     if (SwitchChannelMaxV)
@@ -1864,6 +1863,8 @@ void TWorld::IntializeData(void)
     COMBO_SS = NewMap(0);
     COMBO_BL = NewMap(0);
     COMBO_TC = NewMap(0);
+    COMBO_V = NewMap(0);
+
 
     //### rainfall and interception maps
     BaseFlowTot = 0;

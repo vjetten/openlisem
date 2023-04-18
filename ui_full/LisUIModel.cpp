@@ -62,7 +62,7 @@ void lisemqt::runmodel()
     }
 
 //    label_runfilename->setText(QFileInfo(op.runfilename).fileName());
-    label_runfilename->setText(E_MainTotals->text());
+//    label_runfilename->setText(E_MainTotals->text());
 
 //    QString S = E_ResultDir->text() + QFileInfo(op.runfilename).fileName();
 //    if (checkAddDatetime->isChecked()) {
@@ -163,6 +163,14 @@ void lisemqt::runmodel()
     }
     //qDebug() << screenShotDir;
 
+    tabWidget->setCurrentIndex(0);
+    for (int i = 0; i < 9; i++) {
+        tabWidgetOptions->setCurrentIndex(i);
+        shootScreen();
+    }
+    tabWidget->setCurrentIndex(2);
+    //switch to output screen
+
     W->start();
     // start the model thread, executes W->run()
 
@@ -251,11 +259,6 @@ void lisemqt::worldDone(const QString &results)
     if (results.contains("ERROR"))
         QMessageBox::critical(this,QString("openLISEM"), results, QMessageBox::Ok );
 
-    tabWidget->setCurrentIndex(0);
-    for (int i = 0; i < 9; i++) {
-        tabWidgetOptions->setCurrentIndex(i);
-        shootScreen();
-    }
     tabWidgetOptions->setCurrentIndex(lastOptionSceen);
 
     tabWidget->setCurrentIndex(2);
