@@ -11,6 +11,17 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, and openmp
 
+version 6.883 - 6.89
+- redesigned GW flow completely, only two calib. paraters now, flow to the GW layer and GWflow to the channel
+- Interface works better with low resolutions screens
+- erosion overland flow uses govers and harsine and rose
+- included iterative version of connection between 2D flow and channel
+- fixed bug in sediment in non-iterative connection of 2D flow and channel
+- fixed screen display of discharge, was cumulative
+
+version 6.883-6.885
+- fixed screen display of discharge factor 1000!
+
 version 6.882-6.883
 - fixed kin wave MB error (interception of houses)
 - fixed erosion MB error (caused by cell_depositInfil(r,c))

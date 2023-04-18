@@ -48,6 +48,62 @@ double TWorld::MapTotal(cTMap &M)
     return (total);
 }
 //---------------------------------------------------------------------------
+void TWorld::Average3x3(cTMap &M, cTMap &mask)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        tm->Drc = M.Drc;
+    }}
+
+    double f = 0.5;
+    FOR_ROW_COL_MV_L {
+        double tot = 0;
+        double cnt = 0;
+        for (int i = 1; i <= 9; i++)
+        {
+         //   if (i != 5) {
+                int rr = r+dy[i];
+                int cr = c+dx[i];
+
+                if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
+                    tot = tot + tm->Drcr;
+                    cnt += 1.0;
+                }
+          //  }
+        }
+        M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
+    }}
+}
+//---------------------------------------------------------------------------
+void TWorld::Average2x2(cTMap &M, cTMap &mask)
+{
+    int dx[10] = {0, -1, 1, -1,  1};
+    int dy[10] = {0,  1, 1, -1, -1};
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        tm->Drc = M.Drc;
+    }}
+
+    double f = 0.5;
+    FOR_ROW_COL_MV_L {
+        double tot = 0;
+        double cnt = 0;
+        for (int i = 0; i <= 5; i++)
+        {
+            int rr = r+dy[i];
+            int cr = c+dx[i];
+
+            if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
+                tot = tot + tm->Drcr;
+                cnt += 1.0;
+            }
+        }
+        M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
+    }}
+}
+//---------------------------------------------------------------------------
 // totals for screen and file output and mass balance
 void TWorld::Totals(void)
 {
@@ -176,7 +232,7 @@ void TWorld::Totals(void)
     //ONLY ONCE?
 //    if (SwitchFloodInitial) {
 //        WHinitVolTot = 0;
-//#pragma omp parallel for reduction(+:WHinitVolTot) num_threads(userCores)
+//        #pragma omp parallel for reduction(+:WHinitVolTot) num_threads(userCores)
 //        FOR_ROW_COL_MV_L {
 //            WHinitVolTot = hmxInit->Drc * DX->Drc * ChannelAdj->Drc;
 //        }}

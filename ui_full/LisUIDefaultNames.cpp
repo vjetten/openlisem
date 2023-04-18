@@ -423,8 +423,8 @@ void lisemqt::defaultRunFile()
  //   namelist[i++].name = QString("Use SWOF watersheds");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood solution");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("GW flow SWAT");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("GW flow SWAT");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("GW flow explicit");
     namelist[i].value = QString("1.0");
@@ -437,7 +437,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("GW threshold factor");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW slope factor");
-    namelist[i].value = QString("1.0");
+    namelist[i].value = QString("0.0");
     namelist[i++].name = QString("GW deep percolation");
 
     //###
@@ -465,8 +465,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Particle Cohesion of Deposited Layer");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Calculate erosion inside 2D loop");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use linked list");
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Sediment]");
     namelist[i].value = QString("1");
@@ -602,6 +600,8 @@ void lisemqt::defaultRunFile()
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Advanced]");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Nr user Cores");
     namelist[i].value = QString("4"); //HLL2
     namelist[i++].name = QString("Flooding SWOF Reconstruction");
     namelist[i].value = QString("1"); //minmod
@@ -613,6 +613,10 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("10.0");
     namelist[i++].name = QString("Pit Value");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use 2D Diagonal flow new");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use linked list");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Use Channel Kinwave dt");
     namelist[i].value = QString("60.0");
     namelist[i++].name = QString("Channel KinWave dt");
@@ -621,13 +625,10 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("10.0");
     namelist[i++].name = QString("Channel Max V");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use 2D Diagonal flow new");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Nr user Cores");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Use Avg Channel KinWave");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Minimum Timestep Method");
+    namelist[i++].name = QString("Channel 2D flow connect");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("GW layer change SD");
+
 
     // output maps have standard names
     // input maps names are defined in DEFmaps

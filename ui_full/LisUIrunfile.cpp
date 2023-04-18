@@ -193,7 +193,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("GW flow factor")==0)                GW_flow->setValue(valc);
         if (p1.compare("GW river inflow factor")==0)           GW_inflow->setValue(valc);
         if (p1.compare("GW slope factor")==0)               GW_slope->setValue(valc);
-      //  if (p1.compare("GW lag factor")==0)               GW_lag->setValue(valc);
         if (p1.compare("GW deep percolation")==0)           GW_deep->setValue(valc);
         if (p1.compare("GW threshold factor")==0)           GW_threshold->setValue(valc);
 
@@ -253,14 +252,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
         //	  if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
         if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setValue(valc);
-
-        //VJ 111120 water repellency
-//        if (p1.compare("Use Water Repellency")==0)      checkWaterRepellency->setChecked(check);
-//        if (p1.compare("Water Repellency A")==0)        E_waterRep_a->setValue(valc);
-//        if (p1.compare("Water Repellency B")==0)        E_waterRep_b->setValue(valc);
-//        if (p1.compare("Water Repellency C")==0)        E_waterRep_c->setValue(valc);
-//        if (p1.compare("Water Repellency D")==0)        E_waterRep_d->setValue(valc);
-
 
         // FLOW
         if (p1.compare("Include flow barriers")==0)          checkFlowBarriers->setChecked(check);
@@ -385,6 +376,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Channel KinWave dt")==0)             E_ChannelKinWaveDt->setValue(valc);
         if (p1.compare("Use Channel Max V")==0)         checkChanMaxVelocity->setChecked(check);
         if (p1.compare("Channel Max V")==0)             E_chanMaxVelocity->setValue(valc);
+        if (p1.compare("Channel 2D flow connect")==0)        checkChannel2DflowConnect->setChecked(check);
+        if (p1.compare("GW layer change SD")==0)        checkGWChangeSD->setChecked(check);
 
         //CALIBRATION
         if (p1.compare("Smax calibration")==0)         E_CalibrateSmax->setValue(valc);
@@ -795,7 +788,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkChannelInflow->isChecked());
         // groundwater
         if (p1.compare("GW flow explicit")==0)               namelist[j].value.setNum((int)checkGWflowexplicit->isChecked());
-        if (p1.compare("GW flow SWAT")==0)               namelist[j].value.setNum((int)checkGWflowSWAT->isChecked());
+      //  if (p1.compare("GW flow SWAT")==0)               namelist[j].value.setNum((int)checkGWflowSWAT->isChecked());
         if (p1.compare("GW recharge factor")==0)             namelist[j].value = GW_recharge->text();
         if (p1.compare("GW flow factor")==0)                 namelist[j].value = GW_flow->text();
         if (p1.compare("GW river inflow factor")==0)                 namelist[j].value = GW_inflow->text();
@@ -830,6 +823,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel KinWave dt")==0)             namelist[j].value = E_ChannelKinWaveDt->text();
         if (p1.compare("Use Channel Max V")==0)              namelist[j].value.setNum((int)checkChanMaxVelocity->isChecked());
         if (p1.compare("Channel Max V")==0)                  namelist[j].value = E_chanMaxVelocity->text();
+        if (p1.compare("Channel 2D flow connect")==0)        namelist[j].value.setNum((int)checkChannel2DflowConnect->isChecked());
+        if (p1.compare("GW layer change SD")==0)             namelist[j].value.setNum((int)checkGWChangeSD->isChecked());
 
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
         if (p1.compare("Min WH flow")==0)                    namelist[j].value = E_minWHflow->text();

@@ -221,7 +221,8 @@ void TWorld::OutputUI(void)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        VH->Drc = V->Drc * hmxWH->Drc;
+        COMBO_V->Drc = V->Drc < 1e-5 ? 0 : V->Drc;
+        VH->Drc = COMBO_V->Drc * hmxWH->Drc;
     }}
 
     if(SwitchErosion)
