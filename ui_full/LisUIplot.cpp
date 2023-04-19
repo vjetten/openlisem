@@ -537,7 +537,15 @@ void lisemqt::showOutputData()
     label_ETatot->setText(format.arg(QString::number(op.ETaTotmm,'f',dig)));
     label_raintot->setText(format.arg(QString::number(op.RainTotmm,'f',dig)));
     label_watervoltot->setText(format.arg(QString::number(op.WaterVolTotmm,'f',dig)));
-    label_stormdraintot->setText(format.arg(QString::number(op.StormDrainTotmm,'f',dig)));
+    if (checkStormDrains->isChecked()) {
+        label_99->setText("Storm drains");
+        label_stormdraintot->setText(format.arg(QString::number(op.StormDrainTotmm,'f',dig)));
+    } else
+    if (checkChannelBaseflow->isChecked()) {
+        label_99->setText("Baseflow inflow");
+        label_stormdraintot->setText(format.arg(QString::number(op.BaseFlowTotmm,'f',dig)));
+    }
+
     label_qtot->setText(format.arg(QString::number(op.Qtotmm,'f',dig)));
     label_infiltot->setText(format.arg(QString::number(op.InfilTotmm,'f',dig)));
     label_surfstor->setText(format.arg(QString::number(op.SurfStormm,'f',dig)));

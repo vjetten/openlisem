@@ -269,9 +269,6 @@ void TWorld::GetComboMaps()
     //factor is already done in Qoutput, so that reportfile is also done, not only screen
     // the only thing that needs to change here is the text "m3/s"
 
-    //  if (FlowBoundaryType > 0)
-  //  AddComboMap(0,"Boundary Discharge","l/s",K2DQ,LegendMap[cl],Legend[cl],true,false,1000.0, 1.0);
-
     cl = 2;
     AddComboMap(0,"Water Height","m",hmxWH,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
 //    if (Switch2DDiagonalFlow)
@@ -283,6 +280,7 @@ void TWorld::GetComboMaps()
 
     if(SwitchIncludeChannel)
     {
+
         cl = 0;
         if (QUnits == 0)
             AddComboMap(0,"Channel Discharge","l/s",ChannelQn,LegendMap[cl],Legend[cl],true,false,1000.0, 1.0);
@@ -290,6 +288,10 @@ void TWorld::GetComboMaps()
             AddComboMap(0,"Channel Discharge","m3/s",ChannelQn,LegendMap[cl],Legend[cl],true,false,1.0, 0.001);
         cl = 2;
         AddComboMap(0,"Channel Water Height","m",ChannelWH,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
+        if (SwitchChannelBaseflow)
+            AddComboMap(0,"Baseflow inflow","m3/s",Qbase,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
+
+        AddComboMap(0,"Channel Discharge","m3/s",ChannelQn,LegendMap[cl],Legend[cl],true,false,1.0, 0.001);
         cl = 1;
         AddComboMap(0,"Channel Velocity","m/s",ChannelV,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
 

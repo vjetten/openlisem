@@ -36,6 +36,30 @@ functions: \n
 //#include "operation.h"
 
 
+
+//---------------------------------------------------------------------------
+void TWorld::ChannelFlowandErosion()
+{
+    if (!SwitchIncludeChannel)
+        return;
+
+    SwitchChannelKinWave = true;    // set to false for experimental swof in channel
+
+    ChannelRainandInfil();          // subtract infil, add rainfall
+
+    ChannelBaseflow();              // calculate baseflow
+
+    ChannelVelocityandDischarge();
+
+    ChannelFlow();                  // channel kin wave for water
+
+    //ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
+    ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
+
+    ChannelSedimentFlow(); // kin wave for sediment and substances
+
+}
+//---------------------------------------------------------------------------
 void TWorld::ChannelVelocityandDischarge()
 {
     // velocity, alpha, Q
@@ -103,29 +127,6 @@ void TWorld::ChannelVelocityandDischarge()
     }}
 }
 
-
-//---------------------------------------------------------------------------
-void TWorld::ChannelFlowandErosion()
-{
-    if (!SwitchIncludeChannel)
-        return;
-
-    SwitchChannelKinWave = true;    // set to false for experimental swof in channel
-
-    ChannelRainandInfil();          // subtract infil, add rainfall
-
-    ChannelBaseflow();              // calculate baseflow
-
-    ChannelVelocityandDischarge();
-
-    ChannelFlow();                  // channel kin wave for water
-
-    //ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
-    ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
-
-    ChannelSedimentFlow(); // kin wave for sediment and substances
-
-}
 //---------------------------------------------------------------------------
 void TWorld::ChannelBaseflow(void)
 {
@@ -167,6 +168,7 @@ void TWorld::ChannelBaseflow(void)
         FOR_ROW_COL_MV_CHL {
             Qbase->Drc = std::min(GWVol->Drc, 2*GWout->Drc);
             // 2 sides of channel inflow
+
 
 //            double SD = SoilDepth2init->Drc + SoilDepth1init->Drc;
 //            double dH = std::max(0.0, GWWH->Drc - (SD - ChannelDepth->Drc));
