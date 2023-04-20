@@ -152,8 +152,7 @@ void TWorld::ChannelBaseflow(void)
         }}
     }
 
-    if (SwitchExplicitGWflow) // || SwitchSWATGWflow
-    {
+    if (SwitchGWflow) {
         GroundwaterFlow();
         // move groundwater, Qbin is the flow
 
@@ -166,25 +165,22 @@ void TWorld::ChannelBaseflow(void)
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            Qbase->Drc = std::min(GWVol->Drc, 2*GWout->Drc);
+            //GWout->Drc = GWWH->Drc > GW_threshold ?  GWout->Drc * (GWWH->Drc - GW_threshold) * (1-exp(-GW_threshold*GWWH->Drc)) : 0.0;
+            GWout->Drc = GWWH->Drc > GW_threshold ?  GWout->Drc : 0.0;
+            // apply threshold
+
+            Qbase->Drc = std::min(ChannelWidth->Drc/_dx*GWVol->Drc, 2*GWout->Drc);
             // 2 sides of channel inflow
-
-
-//            double SD = SoilDepth2init->Drc + SoilDepth1init->Drc;
-//            double dH = std::max(0.0, GWWH->Drc - (SD - ChannelDepth->Drc));
-//            double vol = dH*ChannelWidth->Drc*DX->Drc;
-
-//            Qbase->Drc = GWVol->Drc * ChannelWidth->Drc/_dx;
             ChannelWaterVol->Drc += Qbase->Drc;
             // NOTE: always added no matter the conditions! e.g. when GW is below surface - channeldepth!
             // But that would make channeldepth very sensitive
             //m3 added per timestep
 
+            GWVol->Drc -= Qbase->Drc;
             GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
             // adjust GW for channel part
         }}
     }
-
 }
 //---------------------------------------------------------------------------
 void TWorld::ChannelRainandInfil(void)

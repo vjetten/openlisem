@@ -32,17 +32,14 @@
 void TWorld::GroundwaterFlow(void)
 {
     cTMap *pore;
-    cTMap *ksat;
     cTMap *SoilDepthinit;
     cTMap *SoilDepth;
     if (SwitchTwoLayer) {
         pore = ThetaS2;
-        ksat = Ksat2;
         SoilDepthinit = SoilDepth2init;
         SoilDepth = SoilDepth2;
     } else {
         pore = Poreeff;
-        ksat = Ksateff;
         SoilDepthinit = SoilDepth1init;
         SoilDepth = SoilDepth1;
     }
@@ -62,23 +59,23 @@ void TWorld::GroundwaterFlow(void)
             GWrecharge->Drc = maxvol - GWVol->Drc + GWdeep->Drc;
         GWVol->Drc += GWrecharge->Drc - GWdeep->Drc;
         GWWH->Drc = GWVol->Drc/(dxa*pore->Drc);
+        GWout->Drc = 0;
     }}
 
     // results in GWout flux between cells based on pressure differences
-    if (SwitchExplicitGWflow) {
-        GWFlow2D();
-        // flow with pressure differences
+    GWFlow2D();
+    // flow with pressure differences
+    if (SwitchLDDGWflow)
         GWFlowLDDKsat();
-        // flow along the LDDBASE
-    }
+    // flow along the LDDBASE
 
     // change the soil depth with GWWH
     if (SwitchGWChangeSD) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
+            GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
             // change soildepth2 with GW changes
-            // when gw flow always impermeable !?
-            if (SwitchImpermeable && GWWH->Drc > 0) {
+            if (GWWH->Drc > 0) {
                 SoilDepth->Drc = SoilDepthinit->Drc - GWWH->Drc;
             }
 
@@ -95,15 +92,16 @@ void TWorld::GWFlowLDDKsat(void)
     if (SwitchTwoLayer) {
         pore = ThetaS2;
         ksat = Ksat2;
-        SD = SoilDepth1init;
+        SD = SoilDepth2init;
     } else {
         pore = Poreeff;
         ksat = Ksateff;
-        SD = SoilDepth2init;
+        SD = SoilDepth1init;
     }
 
     // calculate GW flow angle along network
     fill(*tmb, 0.0);
+    fill(*tmc, 0.0);
     for(long i_ =  0; i_ < crlinkedlddbase_.size(); i_++)
     {
         int r = crlinkedlddbase_.at(i_).r;
@@ -122,28 +120,32 @@ void TWorld::GWFlowLDDKsat(void)
         }
         double Z = GWz->Drc + GWWH->Drc;
 
-        tmb->Drc = cos(atan(fabs(Zup - Z)/_dx));
+        //tmb->Drc = cos(atan(fabs(Zup - Z)/_dx));
+        tmb->Drc = fabs(Zup - Z)/_dx;
     }
 
-    fill(*tmc, 0.0);
     int step = 1;
     while (_dt/(_dx*(double)step) > 0.3)
         step++;
 
     for (int j = 0; j < step; j++) {
         // loop step times for explicit GW flow
+
+        // calculate all fluxes
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             tmc->Drc = 1/(double)step * GW_flow * ksat->Drc * (GWWH->Drc*_dx) * tmb->Drc;
-            // flow is ksat over terrain gradient
+            tmc->Drc = std::min(tmc->Drc, GWVol->Drc*MaxGWDepthfrac);
+            // flow is ksat over terrain gradient in m3, cannot be more than volume present
         }}
 
+        //sum all fluxes over network
         for(long i_ =  0; i_ < crlinkedlddbase_.size(); i_++)
         {
             int r = crlinkedlddbase_.at(i_).r;
             int c = crlinkedlddbase_.at(i_).c;
             double Qin = 0;
-
+            // sum fluxes in from incoming branches
             if (crlinkedlddbase_.at(i_).nr > 0) {
                 for(int j = 0; j < crlinkedlddbase_.at(i_).nr; j++) {
                     int rr = crlinkedlddbase_.at(i_).inn[j].r;
@@ -154,14 +156,13 @@ void TWorld::GWFlowLDDKsat(void)
 
             double flux = (Qin - tmc->Drc);
             double maxvol = CellArea->Drc * SD->Drc * pore->Drc;
+            double vol = GWVol->Drc;
             if (vol + flux > maxvol)
                 flux = maxvol - vol;
             if (vol + flux < 0)
                 flux = -vol;
-
             GWVol->Drc += flux;
             GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
-
         }
     }
 
@@ -169,14 +170,12 @@ void TWorld::GWFlowLDDKsat(void)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        GWout->Drc = GW_flow * ksat->Drc * (GWWH->Drc*_dx) * tmb->Drc;
-//        GWout->Drc = GWWH->Drc > GW_threshold ?  GWout->Drc * (GWWH->Drc - GW_threshold) * (1-exp(-GW_threshold*GWWH->Drc)) : 0.0;
-        GWout->Drc = GWWH->Drc > GW_threshold ?  GWout->Drc : 0.0;
+        GWVol->Drc = GWWH->Drc*CellArea->Drc*pore->Drc;
+        GWout->Drc += GW_flow * ksat->Drc * (GWWH->Drc*_dx) * tmb->Drc;
+        //gwout is set to 0 outside this function
     }}
-
-
 }
-
+//---------------------------------------------------------------------------
 void TWorld::GWFlow2D(void)
 {
     cTMap *pore;
@@ -188,19 +187,19 @@ void TWorld::GWFlow2D(void)
     if (SwitchTwoLayer) {
         pore = ThetaS2;
         ksat = Ksat2;
-        SD = SoilDepth1init;
+        SD = SoilDepth2init;
     } else {
         pore = Poreeff;
         ksat = Ksateff;
-        SD = SoilDepth2init;
+        SD = SoilDepth1init;
     }
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        GWout->Drc = 0;
         double H = h->Drc;
         double Z = z->Drc;
-        double V = vol->Drc;        
+        double V = vol->Drc;
+        tma->Drc = 0;
 
         bool bc1 = (c > 0 && !MV(r,c-1)        );
         bool bc2 = (c < _nrCols-1 && !MV(r,c+1));
@@ -262,21 +261,22 @@ void TWorld::GWFlow2D(void)
             dflux =  maxvol - V;
         if (V + dflux < 0)
             dflux = -V;
-        GWout->Drc = dflux;
+        tma->Drc += dflux;
     }}
 
     // adjust the vol now, not in the main loop
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        //double maxvol = CellArea->Drc * SD->Drc;
-        GWVol->Drc += GWout->Drc;
-//        GWVol->Drc = std::max(0.0, vol->Drc);
-//        GWVol->Drc = std::min(maxvol, vol->Drc);
+        GWVol->Drc += tma->Drc;
         GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
+
+        //GWout->Drc += tma->Drc;
+        GWout->Drc += GW_flow * ksat->Drc * (GWWH->Drc*_dx) * Grad->Drc; //????
     }}
 
 }
 
+//---------------------------------------------------------------------------
 
 // flow according to SWAT 2009, page 174 manual, eq 2.4.2.8
 //OBSOLETE

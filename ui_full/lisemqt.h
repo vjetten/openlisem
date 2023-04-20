@@ -91,15 +91,6 @@ typedef struct MAP_LIST {
     int varnr;
 } MAP_LIST;
 
-//class myPlotMagnifier : public QwtPlotMagnifier
-//{
-//    int dxi = MPlot->invTransform(MPlot->xBottom,dx*1.5);
-//    dxi = dxi - MPlot->invTransform(MPlot->xBottom,dx);
-//    spinCulvertSize->setValue(dxi);
-
-
-//};
-
 
 /// Exteneded interface class
 class lisemqt : public QMainWindow, private Ui::lisemqtClass
