@@ -489,7 +489,7 @@ void lisemqt::setFloodTab(bool yes)
 void lisemqt::setErosionTab(bool yes)
 {
     //  yes = checkDoErosion->isChecked();
-qDebug() << checkDoErosion->isChecked();
+
     tab_erosion->setEnabled(checkDoErosion->isChecked());
 
     outputMapsSediment->setEnabled(checkDoErosion->isChecked());
@@ -1816,13 +1816,11 @@ QString lisemqt::findValidDir(QString path, bool up)
     if (!QFileInfo(path).exists() || path.isEmpty())
         path = currentDir;
 
-    qDebug() << path;
     if (path.indexOf("/",1) > 0)
         path.replace("\\","/");
     else
         if (path.indexOf("\\",1) > 0)
             path.replace("/","\\");
-    qDebug() << path;
 
     return (path);
 }

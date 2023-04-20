@@ -48,7 +48,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
     if (!SwitchIncludeChannel)
          return;
 
-     #pragma omp parallel for num_threads(userCores)
+     //#pragma omp parallel for num_threads(userCores)
      FOR_ROW_COL_MV_CHL {
 
          if (ChannelWidth->Drc > 0 && ChannelMaxQ->Drc <= 0)
@@ -64,33 +64,33 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                  continue;
              // no diff in water level, no flow, continue
 
-             //double cwa = ChannelWidth->Drc/ChannelAdj->Drc;
+             // VELOCITIES
+             double VtoChan = V->Drc;
+             double fracA = std::min(1.0, _dt*VtoChan/(0.5*ChannelAdj->Drc));
+             // fraction from _h to channel based on average flood velocity
+             double VfromChan = sqrt(2*9.804*dH); //Bernoulli
+             //see https://www.engineeringtoolbox.com/velocity-head-d_916.html
+             double fracC = std::min(1.0, _dt*VfromChan/(0.5*ChannelAdj->Drc));
+             // fraction from channel to surrounding
+
+             double cwa = ChannelWidth->Drc/ChannelAdj->Drc;
 
              bool dosimpel = false;
 
              if (dH > _h->Drc)   // flow from channel
              {
-                 double VfromChan = sqrt(2*9.804*dH); //Bernoulli
-                 //see https://www.engineeringtoolbox.com/velocity-head-d_916.html
-                 double fracC = std::min(1.0, _dt*VfromChan/(0.5*ChannelAdj->Drc));
                  double dwh = fracC * (dH-_h->Drc);
-                 double vol = dwh * ChannelWidth->Drc * DX->Drc;
-                 double newh = _h->Drc + vol/CHAdjDX->Drc;
                  // amount flowing from channel
-                  if (newh > dH-dwh) {
-//                     double totvol = dH*ChannelWidth->Drc*DX->Drc + _h->Drc*CHAdjDX->Drc;
-//                     double h = totvol/CellArea->Drc;
-//                     _h->Drc = h;
-//                     ChannelWH->Drc = chdepth + h;
-
-                     dosimpel=true;
+                 if (_h->Drc + dwh*cwa > dH-dwh) {
                      // if flow causes situation to reverse (channel dips below _h)
+                     dosimpel = true;
                  } else {
-                     _h->Drc += vol/CHAdjDX->Drc;
-                     //_h->Drc += dwh*cwa;
+
+                     _h->Drc += dwh*cwa;
                      ChannelWH->Drc -= dwh;
+
                      if(SwitchErosion) {
-                         double sed = ChannelSSConc->Drc * vol;
+                         double sed = ChannelSSConc->Drc * dwh*ChannelWidth->Drc*ChannelDX->Drc;
                          ChannelSSSed->Drc -= sed;
                          SSFlood->Drc += sed;
                      }
@@ -98,21 +98,16 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
              }
              else   // flow to channel
              {
-                 double VtoChan = V->Drc;
-                 double fracA = std::min(1.0, _dt*VtoChan/(0.5*ChannelAdj->Drc));
-                 // fraction from _h to channel based on average flood velocity
-                 double dwh = fracA * (_h->Drc - dH);
-                 double vol = CHAdjDX->Drc * dwh;
-                 double newh = dH + vol/(ChannelWidth->Drc*DX->Drc);
-                  if (newh > _h->Drc-dwh) {
+                 double dwh = fracA * (_h->Drc-dH);
+                 // amount flowing to channel
+                 if (dH + dwh/cwa > _h->Drc-dwh) {
                      // if too much flow
                      dosimpel = true;
                  } else {
                      _h->Drc -= dwh;
-                     ChannelWH->Drc += vol/(ChannelWidth->Drc*DX->Drc);
+                     ChannelWH->Drc += (dwh/cwa);
                      if(SwitchErosion) {
-                         double sed = SSCFlood->Drc * vol;
-                                 //fracA*SSFlood->Drc;
+                         double sed = fracA*SSFlood->Drc;
                          ChannelSSSed->Drc += sed;
                          SSFlood->Drc -= sed;
                      }
@@ -124,19 +119,25 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
              {
                  double fc = ChannelWidth->Drc/_dx;
                  // fraction of the channel in the gridcell, 1-fc = (dx-chw)/dx = chanadj/dx
-                 double whlevel = dH*fc + _h->Drc*(1-fc);
+                 double whlevel = (ChannelWH->Drc-chdepth)*fc + _h->Drc*(1-fc);
                  // equilibrium water level = weighed values of channel surplus level + _h
                  // can be negative if channelwh is below channel depth and low _h level
-                 if (whlevel > 0)
+                 if(whlevel > 0)
                  {
+                     double sedch = 0;
+                     double sed = 0;
+                     if (SwitchErosion) {
+                        sedch = ChannelSSSed->Drc;
+                        sed = SSFlood->Drc;
+                     }
                      double oldchwh = ChannelWH->Drc;
                      double oldwh = _h->Drc;
-
                      ChannelWH->Drc = whlevel + chdepth;
                      _h->Drc = whlevel;
 
                      // new equilibrium levels
                      if (SwitchErosion) {
+                        // double sed_ = SSFlood->Drc + ChannelSSSed->Drc;
                          if (oldchwh > ChannelWH->Drc) {
                              double sed = (oldchwh-ChannelWH->Drc)*ChannelWidth->Drc*ChannelDX->Drc * ChannelSSConc->Drc;
                              ChannelSSSed->Drc -= sed;
@@ -147,6 +148,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                              ChannelSSSed->Drc += sed;
                          }
                      }
+
                  }
                  else
                  {
