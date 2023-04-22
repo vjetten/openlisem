@@ -105,20 +105,20 @@ void TWorld::InfilEffectiveKsat(bool first)
             //NO NEED TO ADJUST KSAT FOR THESE SURFACES
 
             // impermeable surfaces
-//            if (SwitchHardsurface) {
-//                Ksateff->Drc *= (1-HardSurface->Drc);
-//                Poreeff->Drc *= (1-HardSurface->Drc);
-//            }
+            if (SwitchHardsurface) {
+                Ksateff->Drc *= (1-HardSurface->Drc);
+                Poreeff->Drc *= (1-HardSurface->Drc);
+            }
 
-//            if (SwitchRoadsystem) {
-//                Ksateff->Drc *= (1-RoadWidthDX->Drc/_dx);
-//                Poreeff->Drc *= (1-RoadWidthDX->Drc/_dx);
-//            }
+            if (SwitchRoadsystem) {
+                Ksateff->Drc *= (1-RoadWidthDX->Drc/_dx);
+                Poreeff->Drc *= (1-RoadWidthDX->Drc/_dx);
+            }
 
             Ksateff->Drc = std::max(0.0, Ksateff->Drc);
             Poreeff->Drc = std::max(0.3, Poreeff->Drc);
             Thetaeff->Drc = std::min(1.0,Poreeff->Drc/ThetaS1->Drc) * ThetaI1->Drc;
-            tma->Drc =  Ksateff->Drc;
+           // tma->Drc =  Ksateff->Drc;
             // percolation coefficient
 
         }}

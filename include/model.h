@@ -1040,6 +1040,7 @@ public:
                          double drainfraction, double *repel, double *Theta, SOIL_MODEL *s);
 
 
+    void Fill(cTMap &M, double value);
     double MapTotal(cTMap &M);
     void Average3x3(cTMap &M, cTMap &mask);
     void Average2x2(cTMap &M, cTMap &mask);

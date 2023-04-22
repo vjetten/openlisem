@@ -63,7 +63,8 @@ void TWorld::GroundwaterFlow(void)
     }}
 
     // results in GWout flux between cells based on pressure differences
-    GWFlow2D();
+    if (SwitchGWflow)
+        GWFlow2D();
     // flow with pressure differences
     if (SwitchLDDGWflow)
         GWFlowLDDKsat();
@@ -100,6 +101,7 @@ void TWorld::GWFlowLDDKsat(void)
     }
 
     // calculate GW flow angle along network
+    //fill(*tma, 0.0);
     fill(*tmb, 0.0);
     fill(*tmc, 0.0);
     for(long i_ =  0; i_ < crlinkedlddbase_.size(); i_++)
@@ -153,7 +155,7 @@ void TWorld::GWFlowLDDKsat(void)
                     Qin += tmc->Drcr;
                 }
             }
-
+            //tma->Drc = Qin;
             double flux = (Qin - tmc->Drc);
             double maxvol = CellArea->Drc * SD->Drc * pore->Drc;
             double vol = GWVol->Drc;
@@ -163,17 +165,17 @@ void TWorld::GWFlowLDDKsat(void)
                 flux = -vol;
             GWVol->Drc += flux;
             GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
+            GWout->Drc += ChannelWidth->Drc > 0 ? Qin : 0.0;
         }
     }
 
-    //Average3x3(*GWWH, *LDDbaseflow);
+   // Average3x3(*GWWH, *LDDbaseflow);
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        GWVol->Drc = GWWH->Drc*CellArea->Drc*pore->Drc;
-        GWout->Drc += GW_flow * ksat->Drc * (GWWH->Drc*_dx) * tmb->Drc;
-        //gwout is set to 0 outside this function
-    }}
+//    #pragma omp parallel for num_threads(userCores)
+//    FOR_ROW_COL_MV_L {
+//        GWVol->Drc = GWWH->Drc*CellArea->Drc*pore->Drc;
+//        GWout->Drc += ChannelWidth->Drc > 0 ? tma->Drc : 0.0;
+//    }}
 }
 //---------------------------------------------------------------------------
 void TWorld::GWFlow2D(void)
@@ -271,7 +273,8 @@ void TWorld::GWFlow2D(void)
         GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
 
         //GWout->Drc += tma->Drc;
-        GWout->Drc += GW_flow * ksat->Drc * (GWWH->Drc*_dx) * Grad->Drc; //????
+        GWout->Drc += ChannelWidth->Drc > 0 ? fabs(tma->Drc) : 0.0;
+        // for channel baseflow, assumed always positive in channel cell
     }}
 
 }

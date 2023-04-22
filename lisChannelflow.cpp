@@ -152,7 +152,7 @@ void TWorld::ChannelBaseflow(void)
         }}
     }
 
-    if (SwitchGWflow) {
+    if (SwitchGWflow || SwitchLDDGWflow) {
         GroundwaterFlow();
         // move groundwater, Qbin is the flow
 
@@ -163,6 +163,7 @@ void TWorld::ChannelBaseflow(void)
         else
             pore = Thetaeff;
 
+        // in all channel cells
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             //GWout->Drc = GWWH->Drc > GW_threshold ?  GWout->Drc * (GWWH->Drc - GW_threshold) * (1-exp(-GW_threshold*GWWH->Drc)) : 0.0;

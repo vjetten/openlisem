@@ -1152,8 +1152,9 @@ void TWorld::InitChannel(void)
    // SwitchChannelExtended = ExtendChannelNew();
     //   ExtendChannel();
 
-    ChannelPAngle = NewMap(0);
-    FindChannelAngles();
+    // OBSOLETE
+    //ChannelPAngle = NewMap(0);
+    //FindChannelAngles();
 }
 //---------------------------------------------------------------------------
 void TWorld::InitFlood(void)
@@ -1260,8 +1261,8 @@ void TWorld::InitFlood(void)
 //---------------------------------------------------------------------------
 void TWorld::DiagonalFlowDEM()
 {
-    fill(*tma,0);
-    fill(*tmb,0);
+    Fill(*tma,0);
+    Fill(*tmb,0);
     FOR_ROW_COL_MV_L {
         double Z = DEM->Drc;
         double z_x1 =  c > 0 && !MV(r,c-1)         ? DEM->data[r][c-1] : Z;
@@ -1370,8 +1371,8 @@ void TWorld::DiagonalFlowDEM()
 void TWorld::CorrectDEM(cTMap *h, cTMap * g)
 {
     QList <double> zmin;
-    fill(*tma,-9999);
-    fill(*tmb,0);
+    Fill(*tma,-9999);
+    Fill(*tmb,0);
     FOR_ROW_COL_MV_L {
         double Z = h->Drc;
         double z_x1 =  c > 0 && !MV(r,c-1)         ? h->data[r][c-1] : Z;
@@ -2777,7 +2778,7 @@ void TWorld::FindChannelAngles()
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
-    fill(*tma, -1);
+    Fill(*tma, -1);
 
     for (int rr = 0; rr < _nrRows; rr++)
         for (int cr = 0; cr < _nrCols; cr++) {
@@ -3121,5 +3122,80 @@ void TWorld::InitScreenChanNetwork()
     }
 }
 
-//---------------------------------------------------------------------------
 
+//---------------------------------------------------------------------------
+void TWorld::Fill(cTMap &M, double value)
+{
+    #pragma omp parallel num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        M.Drc = value;
+    }}
+}
+//---------------------------------------------------------------------------
+double TWorld::MapTotal(cTMap &M)
+{
+    double total = 0;
+    #pragma omp parallel for reduction(+:total) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (!pcr::isMV(M.Drc))
+            total = total + M.Drc;
+    }}
+    return (total);
+}
+//---------------------------------------------------------------------------
+void TWorld::Average3x3(cTMap &M, cTMap &mask)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        tm->Drc = M.Drc;
+    }}
+
+     FOR_ROW_COL_MV_L {
+        double tot = 0;
+        double cnt = 0;
+        for (int i = 1; i <= 9; i++)
+        {
+            int rr = r+dy[i];
+            int cr = c+dx[i];
+
+            if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
+                tot = tot + tm->Drcr;
+                cnt += 1.0;
+                  if (i == 5) {
+                      tot = tot + tm->Drcr;
+                      cnt += 1.0;
+                  }
+            }
+        }
+        M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
+    }}
+}
+//---------------------------------------------------------------------------
+void TWorld::Average2x2(cTMap &M, cTMap &mask)
+{
+    int dx[10] = {0, -1, 1, -1,  1};
+    int dy[10] = {0,  1, 1, -1, -1};
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        tm->Drc = M.Drc;
+    }}
+
+    double f = 0.5;
+    FOR_ROW_COL_MV_L {
+        double tot = 0;
+        double cnt = 0;
+        for (int i = 0; i <= 5; i++)
+        {
+            int rr = r+dy[i];
+            int cr = c+dx[i];
+
+            if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
+                tot = tot + tm->Drcr;
+                cnt += 1.0;
+            }
+        }
+        M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
+    }}
+}
