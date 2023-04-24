@@ -703,8 +703,6 @@ public:
     void SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
     void SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
 
-    void infilInWave(cTMap *_h, double dt1);
-
     void MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     double maincalcflux(cTMap *_h,double dt, double dt_max);
@@ -891,8 +889,6 @@ public:
     void InfilEffectiveKsat(bool first);
     void Infiltration();
     void InfilSwatre();
-
-    double IncreaseInfiltrationDepthNew(double fact_, int r, int c);
 
     double IncreaseInfiltrationDepthNew0(double fact_, int r, int c);
     double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);

@@ -310,8 +310,17 @@ void TWorld::GetComboMaps()
     if(InfilMethod != INFIL_NONE)
     {
         AddComboMap(0,"Infiltration","mm",InfilmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-        if (InfilMethod > 1)
-            AddComboMap(0,"Depth wetting front","mm",Lw,LegendMap[cl],Legend[cl],false,false,1000.0,1.0);  // swatre?
+        if (InfilMethod > 1) {
+            Fill(*tma,0.0);
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                tma->Drc = Lw->Drc * SoilWidthDX->Drc/_dx;
+            }}
+            // Show a weighed avregae of cell wetting front else it seems partly impermeable surface infiltrate very deep
+
+            AddComboMap(0,"Depth wetting front","mm",tma,LegendMap[cl],Legend[cl],false,false,1000.0,1.0);  // swatre?
+        }
+
         if (SwitchChannelBaseflow) {
             AddComboMap(0,"Groundwater level","m",GWWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
             AddComboMap(0,"Groundwater level max","m",GWWHmax,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
