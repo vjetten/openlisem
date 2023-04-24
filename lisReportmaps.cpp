@@ -310,8 +310,9 @@ void TWorld::GetComboMaps()
     if(InfilMethod != INFIL_NONE)
     {
         AddComboMap(0,"Infiltration","mm",InfilmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-        if (InfilMethod > 1)
-            AddComboMap(0,"Depth wetting front","mm",Lw,LegendMap[cl],Legend[cl],false,false,1000.0,1.0);  // swatre?
+        if (InfilMethod > 1) {
+            AddComboMap(0,"Depth wetting front","mm",Lwmm,LegendMap[cl],Legend[cl],false,false,1.0,1.0);  // swatre?
+        }
         if (SwitchChannelBaseflow) {
             AddComboMap(0,"Groundwater level","m",GWWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
             AddComboMap(0,"Groundwater level max","m",GWWHmax,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
@@ -403,7 +404,7 @@ void TWorld::GetComboMaps()
 
         if(SwitchUseMaterialDepth) {
             AddComboMap(1,"Storage",unit,Storage,LegendMap[cl],Legend[cl],false,false,-factor, step);
-        AddComboMap(1,"Storage",unit,StorageDep,LegendMap[cl],Legend[cl],false,false,-factor, step);
+            AddComboMap(1,"Storage",unit,StorageDep,LegendMap[cl],Legend[cl],false,false,-factor, step);
         }
     }
 }
@@ -456,14 +457,4 @@ void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList
     op.comboboxset = false;
 }
 
-//void TWorld::ReplaceComboMaps()
-//{
-//    for(int i = 0; i < op.ComboMapsSafe.length(); i++)
-//    {
-//        #pragma omp parallel for num_threads(userCores)
-//        FOR_ROW_COL_MV_L {
-//            op.ComboMapsSafe[i]->Drc = op.ComboMaps[i]->Drc * op.ComboScaling.at(i);
-//        }}
-//    }
 
-//}
