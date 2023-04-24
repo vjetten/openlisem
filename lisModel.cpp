@@ -390,6 +390,7 @@ void TWorld::HydrologyProcesses()
            cell_InfilSwatre(r, c);
         } else {
             if (InfilMethod != INFIL_NONE) {
+
                cell_InfilMethods(r, c);
 
                cell_Redistribution(r, c);

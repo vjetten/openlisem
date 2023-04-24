@@ -29,7 +29,6 @@
 #include <algorithm>
 #include "model.h"
 #include "operation.h"
-#define tiny 1e-8
 
 //--------------------------------------------------------------------------------------------
 /**

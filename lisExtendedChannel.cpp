@@ -173,7 +173,7 @@ bool TWorld::ExtendChannelNew()
 
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
     int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
-    fill(*tma, 0); // flag, -1 channel cell is not done, 2 row direction, 3 col direction
+    Fill(*tma, 0); // flag, -1 channel cell is not done, 2 row direction, 3 col direction
     double adx = 0.95*_dx;
     // do first batch horizontal, vertical and diagonsl
     FOR_ROW_COL_MV_CH
@@ -561,7 +561,7 @@ void TWorld::DistributeOverExtendedChannel(cTMap * _In, cTMap * _Out)
     if(!SwitchIncludeChannel)
         return;
     double intot = MapTotal(*_In);
-    fill(*_Out, 0.0);
+    Fill(*_Out, 0.0);
 
     if(!SwitchChannelExtended) {
 #pragma omp parallel for num_threads(userCores)

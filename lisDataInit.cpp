@@ -639,7 +639,7 @@ void TWorld::InitSoilInput(void)
     LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
 
     //## infiltration data
-    if(/*InfilMethod != INFIL_NONE &&*/ InfilMethod != INFIL_SWATRE)
+    if(InfilMethod != INFIL_SWATRE)
     {
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
         bca1 = NewMap(0);
@@ -699,6 +699,7 @@ void TWorld::InitSoilInput(void)
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
             calcValue(*SoilDepth2, SD2Calibration, MUL);
+
             SoilDepth2init = NewMap(0);
             copy(*SoilDepth2init, *SoilDepth2);
 

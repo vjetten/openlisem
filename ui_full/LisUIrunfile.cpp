@@ -1011,6 +1011,9 @@ void lisemqt::updateModelData()
         if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();
         if (p1.compare("Theta calibration")==0) namelist[j].value = E_CalibrateTheta->text();
         if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
+        if (p1.compare("SoilDepth1 calibration")==0) namelist[j].value = E_CalibrateSD1->text();
+        if (p1.compare("SoilDepth2 calibration")==0) namelist[j].value = E_CalibrateSD2->text();
+        if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
         if (p1.compare("Channel Ksat calibration")==0) namelist[j].value = E_CalibrateChKsat->text();
         if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
         if (p1.compare("Channel tortuosity")==0) namelist[j].value = E_CalibrateChTor->text();

@@ -174,7 +174,7 @@ void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
 
     double nrsteps = 0;
     bool go = false;
-    fill(*tma, 0);
+    Fill(*tma, 0);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         if (ChannelWidth->Drc > 0 && ChannelMaxQ->Drc <= 0)

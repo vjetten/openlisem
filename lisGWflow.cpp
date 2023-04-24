@@ -27,6 +27,7 @@
 #include "operation.h"
 
 #define MaxGWDepthfrac 0.95
+#define GWpow 1.0
 
 //---------------------------------------------------------------------------
 void TWorld::GroundwaterFlow(void)
@@ -47,7 +48,7 @@ void TWorld::GroundwaterFlow(void)
     // add recharge and subtract deep percolation
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        double dxa = CellArea->Drc;// CHAdjDX->Drc;
+        double dxa =  CHAdjDX->Drc; //CellArea->Drc;//
         Perc->Drc = cell_Percolation(r, c, GW_recharge); // in m
         GWrecharge->Drc = Perc->Drc * dxa; // m3
 
@@ -101,15 +102,15 @@ void TWorld::GWFlowLDDKsat(void)
     }
 
     // calculate GW flow angle along network
-    //fill(*tma, 0.0);
-    fill(*tmb, 0.0);
-    fill(*tmc, 0.0);
+    //Fill(*tma, 0.0);
+    Fill(*tmb, 0.0);
+    Fill(*tmc, 0.0);
     for(long i_ =  0; i_ < crlinkedlddbase_.size(); i_++)
     {
         int r = crlinkedlddbase_.at(i_).r;
         int c = crlinkedlddbase_.at(i_).c;
-        double Zup = 0;
 
+        double Zup = 0;
         if (crlinkedlddbase_.at(i_).nr > 0) {
             double cnt = 0;
             for(int j = 0; j < crlinkedlddbase_.at(i_).nr; j++) {
@@ -122,8 +123,8 @@ void TWorld::GWFlowLDDKsat(void)
         }
         double Z = GWz->Drc + GWWH->Drc;
 
-        //tmb->Drc = cos(atan(fabs(Zup - Z)/_dx));
-        tmb->Drc = fabs(Zup - Z)/_dx;
+        tmb->Drc = cos(atan(fabs(Zup - Z)/_dx));
+        //tmb->Drc = fabs(Zup - Z)/_dx;
     }
 
     int step = 1;
@@ -146,6 +147,7 @@ void TWorld::GWFlowLDDKsat(void)
         {
             int r = crlinkedlddbase_.at(i_).r;
             int c = crlinkedlddbase_.at(i_).c;
+
             double Qin = 0;
             // sum fluxes in from incoming branches
             if (crlinkedlddbase_.at(i_).nr > 0) {
@@ -156,16 +158,20 @@ void TWorld::GWFlowLDDKsat(void)
                 }
             }
             //tma->Drc = Qin;
-            double flux = (Qin - tmc->Drc);
+            double flux = Qin - tmc->Drc;
             double maxvol = CellArea->Drc * SD->Drc * pore->Drc;
             double vol = GWVol->Drc;
-            if (vol + flux > maxvol)
-                flux = maxvol - vol;
+            if (vol + flux > maxvol) {
+                //flux = maxvol - vol;
+                Qin = maxvol - tmc->Drc;
+                flux = Qin - tmc->Drc;
+            }
+
             if (vol + flux < 0)
                 flux = -vol;
             GWVol->Drc += flux;
             GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
-            GWout->Drc += ChannelWidth->Drc > 0 ? Qin : 0.0;
+            GWout->Drc += Qin;//ChannelWidth->Drc > 0 ? Qin : 0.0;
         }
     }
 
@@ -174,7 +180,8 @@ void TWorld::GWFlowLDDKsat(void)
 //    #pragma omp parallel for num_threads(userCores)
 //    FOR_ROW_COL_MV_L {
 //        GWVol->Drc = GWWH->Drc*CellArea->Drc*pore->Drc;
-//        GWout->Drc += ChannelWidth->Drc > 0 ? tma->Drc : 0.0;
+//        //GWout->Drc += ChannelWidth->Drc > 0 ? tma->Drc : 0.0;
+//        GWout->Drc += tma->Drc;
 //    }}
 }
 //---------------------------------------------------------------------------
@@ -223,10 +230,10 @@ void TWorld::GWFlow2D(void)
         double v_y1 =  br1 ? vol->data[r-1][c] : V;
         double v_y2 =  br2 ? vol->data[r+1][c] : V;
 
-        double dh_x1 = (h_x1+z_x1) - (H+Z);
-        double dh_x2 = (h_x2+z_x2) - (H+Z);
-        double dh_y1 = (h_y1+z_y1) - (H+Z);
-        double dh_y2 = (h_y2+z_y2) - (H+Z);
+        double dh_x1 = (h_x1 + z_x1) - (H+Z);
+        double dh_x2 = (h_x2 + z_x2) - (H+Z);
+        double dh_y1 = (h_y1 + z_y1) - (H+Z);
+        double dh_y2 = (h_y2 + z_y2) - (H+Z);
 
         double dz_x1 = z_x1 -Z;
         double dz_x2 = z_x2 -Z;
@@ -258,22 +265,23 @@ void TWorld::GWFlow2D(void)
         // sum and correct all fluxes
         double dflux = (df_x1 + df_x2 + df_y1 + df_y2);
         double maxvol = CellArea->Drc * SD->Drc * pore->Drc;
-
         if (V + dflux > maxvol)
             dflux =  maxvol - V;
         if (V + dflux < 0)
             dflux = -V;
+        //fill tma with the resulting flux of a cell
         tma->Drc += dflux;
     }}
 
-    // adjust the vol now, not in the main loop
+    // adjust the vol
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         GWVol->Drc += tma->Drc;
         GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
 
-        //GWout->Drc += tma->Drc;
-        GWout->Drc += ChannelWidth->Drc > 0 ? fabs(tma->Drc) : 0.0;
+        GWout->Drc += tma->Drc;
+        //GWout->Drc += ChannelWidth->Drc > 0 ? fabs(tma->Drc) : 0.0;
+       // GWout->Drc += ChannelWidth->Drc > 0 ? tma->Drc : 0.0;
         // for channel baseflow, assumed always positive in channel cell
     }}
 
