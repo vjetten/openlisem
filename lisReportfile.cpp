@@ -282,7 +282,7 @@ void TWorld::OutputUI(void)
 
         if(SwitchFlowBarriers)
         {
-//            fill(*tma,0.0);
+//            Fill(*tma,0.0);
 //            FOR_ROW_COL_MV {
 //                tma->Drc = std::max(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),FlowBarrierW->Drc),FlowBarrierS->Drc);
 //            }

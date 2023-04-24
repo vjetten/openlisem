@@ -895,7 +895,8 @@ public:
     double IncreaseInfiltrationDepthNew(double fact_, int r, int c);
 
     double IncreaseInfiltrationDepthNew0(double fact_, int r, int c);
-    //OBSOLETE CONTAINS ERRORS
+    double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);
+    double IncreaseInfiltrationDepthNew2(double fact_, int r, int c);
 
     void SoilWater();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);

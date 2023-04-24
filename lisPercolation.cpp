@@ -246,6 +246,9 @@ double TWorld::cell_Percolation(int r, int c, double factor)
 
     if(SwitchTwoLayer) {
 
+        if ((SwitchGWflow || SwitchLDDGWflow) && GWWH->Drc > SoilDepth2->Drc-HMIN)
+         return 0;
+
         pore = ThetaS2->Drc;
         thetar = ThetaR2->Drc;
         theta = ThetaI2->Drc;
@@ -288,6 +291,10 @@ double TWorld::cell_Percolation(int r, int c, double factor)
         thetar = ThetaR1->Drc;
         theta = Thetaeff->Drc;
         double ksat = factor*Ksateff->Drc;
+
+        if ((SwitchGWflow || SwitchLDDGWflow) && GWWH->Drc > SoilDepth1->Drc-HMIN)
+         return 0;
+
 
         if (theta > thetar) {
             theta_E = (theta-thetar)/(pore-thetar);
