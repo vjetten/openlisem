@@ -249,6 +249,7 @@ cTMap
 *SoilDepth1,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *SoilDepth1init,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *Lw,
+*Lwmm,
 *Soilwater,                  //!< actual soil water content [-]
 *ThetaS2,                    //!< porosity soil layer 2 [-]
 *ThetaI2,                    //!< initial moisture content soil layer 2 [-]

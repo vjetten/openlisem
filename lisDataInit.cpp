@@ -2076,8 +2076,7 @@ void TWorld::IntializeData(void)
     PercmmCum = NewMap(0);
     runoffTotalCell = NewMap(0);
     Fcum = NewMap(0);
-  //  L1 = NewMap(0);
-  //  L2 = NewMap(0);
+    Lwmm = NewMap(0);
     Lw = NewMap(0);
 
     if (SwitchInfilCompact) {

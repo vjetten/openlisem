@@ -54,7 +54,14 @@ void TWorld::cell_Redistribution(int r, int c)
     double SoilDep2, pore2, theta2, thetar2, FC, FC2, DL2;
     double Lw_ = Lw->Drc;
     double SoilDep1 = SoilDepth1->Drc;
-    double L_min = 0.05; // minimum L before eprcolation starts
+    double L_min = 0.05; // minimum L before percolation starts
+
+    if (SwitchImpermeable) {
+        if (SwitchTwoLayer && Lw_ > SoilDepth2->Drc-0.001)
+            return;
+        if (!SwitchTwoLayer && Lw_ > SoilDepth1->Drc-0.001)
+            return;
+    }
 
     pore = Poreeff->Drc;
     thetar = ThetaR1->Drc;
@@ -74,14 +81,8 @@ void TWorld::cell_Redistribution(int r, int c)
         DL2 = SoilDep2-SoilDep1;
     }
 
-    if (SwitchImpermeable) {
-        if (SwitchTwoLayer && Lw_ > SoilDepth2->Drc-0.01)
-            return;
-        if (!SwitchTwoLayer && Lw_ > SoilDepth1->Drc-0.01)
-            return;
-    }
-
     if(SwitchTwoLayer) {
+
         // no redistrib of Lw when too little
         if (Lw_ > L_min) {
             if (Lw_ < SoilDep1) {
@@ -136,6 +137,7 @@ void TWorld::cell_Redistribution(int r, int c)
                         Lw_ = SoilDep2;
                     }
                 }
+
             } else {
                 //Lw_ > SoilDep1
 
@@ -178,10 +180,13 @@ void TWorld::cell_Redistribution(int r, int c)
             Thetaeff->Drc = theta;
             ThetaI2->Drc = theta2;
             Lw->Drc = Lw_;
+
         } // Lw_ > L_min
 
         // redistribute the unsat zone between SD1 and SD2
         if (Lw_ < SoilDep1) { // && theta > theta2) {
+
+            // avg percolation flux between layers
             theta_E = (theta-thetar)/(pore-thetar);
             double Perc1 = Ksateff->Drc * pow(theta_E, bca1->Drc); // m/timestep
             theta_E = (theta2-thetar2)/(pore2-thetar2);
@@ -198,6 +203,7 @@ void TWorld::cell_Redistribution(int r, int c)
 
             m2 = DL2*(theta2-thetar2) + Percolation;
             theta2 = thetar2 + m2/DL2;
+            theta2 = std::min(pore2,theta2);
 
             Thetaeff->Drc = theta;
             ThetaI2->Drc = theta2;
@@ -246,8 +252,12 @@ double TWorld::cell_Percolation(int r, int c, double factor)
 
     if(SwitchTwoLayer) {
 
-        if ((SwitchGWflow || SwitchLDDGWflow) && GWWH->Drc > SoilDepth2->Drc-HMIN)
-         return 0;
+        if (SwitchChannelBaseflow) {
+            if(SwitchGWflow || SwitchLDDGWflow) {
+                if (GWWH->Drc > SoilDepth2->Drc-HMIN)
+                    return 0;
+            }
+        }
 
         pore = ThetaS2->Drc;
         thetar = ThetaR2->Drc;
@@ -277,9 +287,9 @@ double TWorld::cell_Percolation(int r, int c, double factor)
                 // wetting front = soildepth2, dL = 0, moisture = 0
                 // assume theta goes back to FC2 and decrease the wetting fornt
                 theta = FC2;
-                double Lwo = Lw_;
+                //double Lwo = Lw_;
                 Lw_ = std::max(0.0, Lw_ - ksat/(pore - theta));
-                Percolation = (Lwo-Lw_)*(pore-theta);
+                Percolation = ksat; //(Lwo-Lw_)*(pore-theta);
             }
             ThetaI2->Drc = theta;
             Lw->Drc = Lw_;
@@ -314,7 +324,7 @@ double TWorld::cell_Percolation(int r, int c, double factor)
                 theta = FC;
                 double Lwo = Lw_;
                 Lw_ = std::max(0.0, Lw_ - ksat/(pore - theta));
-                Percolation = (Lwo-Lw_)*(pore-theta);
+                Percolation = ksat;//(Lwo-Lw_)*(pore-theta);
             }
             Thetaeff->Drc = theta;
             Lw->Drc = Lw_;
