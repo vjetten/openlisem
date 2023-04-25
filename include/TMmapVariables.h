@@ -246,6 +246,7 @@ cTMap
 *Psi1,                       //!< intial suction head wetting front soil layer 1 (input map is in cm) [m]
 *ThetaR1,
 *Ksat1,                      //!< saturated hydraulic conductivity soil layer 1 (input is in mm/h) [m/s]
+*Lambda1,                      //!<
 *SoilDepth1,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *SoilDepth1init,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *Lw,
@@ -257,6 +258,7 @@ cTMap
 *ThetaR2,
 *Psi2,                       //!< intial suction head wetting front soil layer 2 (input map is in cm) [m]
 *Ksat2,                      //!< saturated hydraulic conductivity soil layer 2 (input is in mm/h) [m/s]
+*Lambda2,                      //!<
 *SoilDepth2,                 //!< depth to end soil layer 2 (input is in mm) [m]
 *SoilDepth2init,                 //!< depth to end soil layer 2 (input is in mm) [m]
 *Soilwater2,                  //!< actual soil water content layer 2 [-]

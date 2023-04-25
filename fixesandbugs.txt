@@ -1,4 +1,10 @@
 this file is a list of changes per major commit
+230424 - v6.892
+- Fixed bug causing profile to become saturated instantaneously because percolation from layer 1 to layer 2 saturates subsoil
+- Rewriting of GW flow, LDD version and pressure version work now
+- rewriting of void InfilEffectiveKsat
+- added soilwidthDX to infil calculation
+- replaced fill with Fill (parallel)
 230412 - v6.891
 - fixed bug open and closed boundary flow, to be further tested on different catchments
 - fixed small bugs for reporting to files all output to files with clear separation of total outflow and channelhydrographs fopr water and sediment

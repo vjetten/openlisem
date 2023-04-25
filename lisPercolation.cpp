@@ -85,6 +85,7 @@ void TWorld::cell_Redistribution(int r, int c)
 
         // no redistrib of Lw when too little
         if (Lw_ > L_min) {
+            // if Lw still in layer 1
             if (Lw_ < SoilDep1) {
 
                 // percolation flux, avg K from L into unsat SD1
@@ -92,6 +93,9 @@ void TWorld::cell_Redistribution(int r, int c)
                 Percolation = Ksateff->Drc * pow(theta_E, bca1->Drc); // m/timestep
                 //   Percolation = sqrt(Percolation * Ksateff->Drc);
                 Percolation = 0.5*(Percolation + Ksateff->Drc);
+
+                //double pot1 = 0.02*pow(theta/pore,-1/Lambda1->Drc);
+
                 //flux across boundary is ks+ke/2, average after Swatre
                 double moistw = Lw_ * (pore-thetar); //available sat moisture above Lw_
                 double dm = (pore-FC)*Lw_ * factor;

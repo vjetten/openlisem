@@ -642,9 +642,14 @@ void TWorld::InitSoilInput(void)
     if(InfilMethod != INFIL_SWATRE)
     {
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
+        //Lambda1 = ReadMap(LDD,getvaluename("lambda1"));
+        // bca = 3+2/lambda so that K=Ks*(theta/thetaS)^bca
         bca1 = NewMap(0);
         FOR_ROW_COL_MV_L {
-            bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);
+//            bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);
+            //bca1->Drc = Lambda1->Drc > 0 ? 3+2/Lambda1->Drc : 15.35;  // else average value of all textures
+            double lambda = syd::min(0.27, std::max(0.07,0.0383*ln(Ksat1->Drc)+0.0662));
+            bca1->Drc = 3.0+2.0/lambda;
         }}
 
         calcValue(*Ksat1, ksatCalibration, MUL);
@@ -689,9 +694,16 @@ void TWorld::InitSoilInput(void)
             calcValue(*Psi2, 0.01, MUL);
 
             Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
+            //Lambda2 = ReadMap(LDD,getvaluename("lambda2"));
             bca2 = NewMap(0);
             FOR_ROW_COL_MV_L {
-                bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
+                //bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
+                //bca2->Drc = 24.41*qPow(Ksat2->Drc,-0.188);
+                //bca2->Drc = Lambda2->Drc > 0 ? 3+2/Lambda2->Drc : 15.35;  // else average value of all textures
+
+                double lambda = std::min(0.27, std::max(0.07, 0.0383*ln(Ksat2->Drc)+0.0662));
+                bca2->Drc = 3.0+2.0/lambda;
+
             }}
 
             calcValue(*Ksat2, ksat2Calibration, MUL);
