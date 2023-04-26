@@ -393,10 +393,10 @@ void TWorld::GetComboMaps()
         AddComboMap(1,"Sed trap","kg/m3",SedMaxVolume,LegendMap[cl],Legend[cl],false,false,1.0, step);
 
         AddComboMap(1,"Suspended sed.",unit,COMBO_SS,LegendMap[cl],Legend[cl],false,false,factor, step);
-        AddComboMap(1,"TC suspended","kg/m3",SSTCFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
+        AddComboMap(1,"TC suspended","kg/m3",COMBO_TC,LegendMap[cl],Legend[cl],false,false,1.0, step);
         if(SwitchUse2Phase) {
             AddComboMap(1,"Bedload sed.",unit,COMBO_BL,LegendMap[cl],Legend[cl],false,false,factor, step);
-            AddComboMap(1,"TC bedload","kg/m3",BLTCFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
+         //   AddComboMap(1,"TC bedload","kg/m3",BLTCFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
          //   AddComboMap(1,"SS depth","m",SSDepthFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
          //   AddComboMap(1,"BL depth","m",BLDepthFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
         }

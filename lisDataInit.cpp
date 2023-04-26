@@ -648,7 +648,7 @@ void TWorld::InitSoilInput(void)
         FOR_ROW_COL_MV_L {
 //            bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);
             //bca1->Drc = Lambda1->Drc > 0 ? 3+2/Lambda1->Drc : 15.35;  // else average value of all textures
-            double lambda = syd::min(0.27, std::max(0.07,0.0383*ln(Ksat1->Drc)+0.0662));
+            double lambda = std::min(0.27, std::max(0.07,0.0383*log(Ksat1->Drc)+0.0662));
             bca1->Drc = 3.0+2.0/lambda;
         }}
 
@@ -663,9 +663,10 @@ void TWorld::InitSoilInput(void)
 
         ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
         ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
-        ThetaI1a = NewMap(0);
+        ThetaI1a = NewMap(0); // used for screen output
         calcValue(*ThetaI1, thetaCalibration, MUL); //VJ 110712 calibration of theta
         calcMap(*ThetaI1, *ThetaS1, MIN); //VJ 110712 cannot be more than porosity
+
         Psi1 = ReadMap(LDD,getvaluename("psi1"));
         calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
         calcValue(*Psi1, 0.01, MUL); // convert to meter
@@ -673,6 +674,12 @@ void TWorld::InitSoilInput(void)
         ThetaR1 = NewMap(0);
         FOR_ROW_COL_MV_L {
             ThetaR1->Drc = 0.025*ThetaS1->Drc;
+        }}
+
+        // field capacity
+        ThetaFC1 = NewMap(0);
+        FOR_ROW_COL_MV_L {
+             ThetaFC1 = 0.7867*exp(-0.012*Ksat1->Drc)*ThetaS1->Drc;
         }}
 
         if (SwitchTwoLayer)
@@ -688,6 +695,12 @@ void TWorld::InitSoilInput(void)
                 ThetaR2->Drc = 0.025*ThetaS2->Drc;
             }}
 
+            // field capacity
+            ThetaFC2 = NewMap(0);
+            FOR_ROW_COL_MV_L {
+                 ThetaFC2 = 0.7867*exp(-0.012*Ksat2->Drc)*ThetaS2->Drc;
+            }}
+
             //VJ 101221 all infil maps are needed except psi
             Psi2 = ReadMap(LDD,getvaluename("psi2"));
             calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
@@ -701,7 +714,7 @@ void TWorld::InitSoilInput(void)
                 //bca2->Drc = 24.41*qPow(Ksat2->Drc,-0.188);
                 //bca2->Drc = Lambda2->Drc > 0 ? 3+2/Lambda2->Drc : 15.35;  // else average value of all textures
 
-                double lambda = std::min(0.27, std::max(0.07, 0.0383*ln(Ksat2->Drc)+0.0662));
+                double lambda = std::min(0.27, std::max(0.07, 0.0383*log(Ksat2->Drc)+0.0662));
                 bca2->Drc = 3.0+2.0/lambda;
 
             }}
@@ -806,7 +819,6 @@ void TWorld::InitSoilInput(void)
 //---------------------------------------------------------------------------
 void TWorld::InitBoundary(void)
 {
-
     BoundaryQ = 0;
     BoundaryQs = 0;
 
@@ -2347,9 +2359,6 @@ void TWorld::IntializeData(void)
         }
     }
 
-//    if(SwitchErosion) {
-//        maxDetachment = ReadMap(LDD, getvaluename("maxdet"));
-//    }
     if(SwitchErosion && SwitchUseMaterialDepth)
     {
         Storage = ReadMap(LDD, getvaluename("detmat"));
@@ -2403,6 +2412,8 @@ void TWorld::IntializeData(void)
 
 }
 //---------------------------------------------------------------------------
+//TODO: are all switches and options initialised here?
+//TODO: add calibration factors here to set to 1.0
 void TWorld::IntializeOptions(void)
 {
     nrRainfallseries = 0;
@@ -2495,7 +2506,6 @@ void TWorld::IntializeOptions(void)
     SwitchFlowBarriers = false;
     SwitchBuffers = false;
     SwitchHeun = false;
-    //SwitchFixedAngle = false;
     SwitchErosion = false;
     SwitchUse2Phase = false;
     SwitchUseGrainSizeDistribution = false;
@@ -2507,9 +2517,13 @@ void TWorld::IntializeOptions(void)
     SwitchKETimebased = false;
     SwitchIncludeDiffusion = false;
     SwitchIncludeRiverDiffusion = false;
+    SwitchUseMaterialDepth = false;
 
     SwitchIncludeChannel = false;
     SwitchChannelBaseflow = false;
+    SwitchGWflow = false;
+    SwitchLDDGWflow = false;
+    SwitchGWChangeSD = true;
     SwitchChannelBaseflowStationary = false;
     SwitchChannelInfil = false;
     SwitchCulverts = false;
@@ -2527,6 +2541,7 @@ void TWorld::IntializeOptions(void)
     SwitchWaterRepellency = false;
     SwitchImpermeable = false;
     SwitchTwoLayer = false;
+    SwitchThreeLayer = false;
     SwitchDumpH = false;
     SwitchDumpTheta = false;
     SwitchDumpK = false;

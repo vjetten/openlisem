@@ -245,6 +245,7 @@ cTMap
 *ThetaI1a,                    //!< initial moisture content soil layer 1 [-]
 *Psi1,                       //!< intial suction head wetting front soil layer 1 (input map is in cm) [m]
 *ThetaR1,
+*ThetaFC1,
 *Ksat1,                      //!< saturated hydraulic conductivity soil layer 1 (input is in mm/h) [m/s]
 *Lambda1,                      //!<
 *SoilDepth1,                 //!< depth to end soil layer 1 (input is in mm) [m]
@@ -256,6 +257,7 @@ cTMap
 *ThetaI2,                    //!< initial moisture content soil layer 2 [-]
 *ThetaI2a,                    //!< initial moisture content soil layer 2 [-]
 *ThetaR2,
+*ThetaFC2,
 *Psi2,                       //!< intial suction head wetting front soil layer 2 (input map is in cm) [m]
 *Ksat2,                      //!< saturated hydraulic conductivity soil layer 2 (input is in mm/h) [m/s]
 *Lambda2,                      //!<
