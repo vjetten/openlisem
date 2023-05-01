@@ -262,8 +262,9 @@ cTMap
 *Ksat2,                      //!< saturated hydraulic conductivity soil layer 2 (input is in mm/h) [m/s]
 *Lambda2,                      //!<
 *SoilDepth2,                 //!< depth to end soil layer 2 (input is in mm) [m]
+*SoilDepth3,                 //!< depth to end soil layer 3 (input is in mm) [m]
 *SoilDepth2init,                 //!< depth to end soil layer 2 (input is in mm) [m]
-*Soilwater2,                  //!< actual soil water content layer 2 [-]
+*SoilDepth3init,                 //!< depth to end soil layer 3 (input is in mm) [m]
 *KsatCrust,                  //!< saturated hydraulic conductivity crusted soil surface (input is in mm/h) [m/s]
 *PoreCrust,                //!< saturated hydraulic conductivity compacted soil surface (input is in mm/h) [m/s]
 *KsatCompact,                //!< saturated hydraulic conductivity compacted soil surface (input is in mm/h) [m/s]

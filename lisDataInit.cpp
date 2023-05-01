@@ -679,7 +679,7 @@ void TWorld::InitSoilInput(void)
         // field capacity
         ThetaFC1 = NewMap(0);
         FOR_ROW_COL_MV_L {
-             ThetaFC1 = 0.7867*exp(-0.012*Ksat1->Drc)*ThetaS1->Drc;
+             ThetaFC1->Drc = 0.7867*exp(-0.012*Ksat1->Drc)*ThetaS1->Drc;
         }}
 
         if (SwitchTwoLayer)
@@ -693,12 +693,6 @@ void TWorld::InitSoilInput(void)
 
             FOR_ROW_COL_MV_L {
                 ThetaR2->Drc = 0.025*ThetaS2->Drc;
-            }}
-
-            // field capacity
-            ThetaFC2 = NewMap(0);
-            FOR_ROW_COL_MV_L {
-                 ThetaFC2 = 0.7867*exp(-0.012*Ksat2->Drc)*ThetaS2->Drc;
             }}
 
             //VJ 101221 all infil maps are needed except psi
@@ -718,6 +712,11 @@ void TWorld::InitSoilInput(void)
                 bca2->Drc = 3.0+2.0/lambda;
 
             }}
+            // field capacity
+            ThetaFC2 = NewMap(0);
+            FOR_ROW_COL_MV_L {
+                 ThetaFC2->Drc = 0.7867*exp(-0.012*Ksat2->Drc)*ThetaS2->Drc;
+            }}
 
             calcValue(*Ksat2, ksat2Calibration, MUL);
 
@@ -736,6 +735,10 @@ void TWorld::InitSoilInput(void)
                     throw 1;
                 }
             }
+
+            SoilDepth3init = NewMap(0);
+            SoilDepth3 = NewMap(0);
+
         }
 
         if (SwitchInfilCrust)

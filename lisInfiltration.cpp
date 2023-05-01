@@ -470,8 +470,8 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
     if (passing12) {
         // second layer still at initial
         space2 = (SoilDep2-SoilDep1)*dtheta2;
-        Lnew = SoilDep1 + dfact2/std::max(0.01,dtheta2);
-        dfact12 = std::min(dfact2, space2);
+        Lnew = SoilDep1 + dfact12/std::max(0.01,dtheta2);
+        dfact12 = std::min(dfact12, space2);
 
         if (dtheta2 < 0.01 || Lnew > SoilDep2) {
             passing23 = true;
@@ -487,7 +487,7 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
     if (passing23) {
         // second layer still at initial
         space3 = (SoilDep3-SoilDep2)*dtheta3;
-        Lnew = SoilDep2 + dfact2/std::max(0.01,dtheta3);
+        Lnew = SoilDep2 + dfact23/std::max(0.01,dtheta3);
         dfact23 = std::min(dfact23, space3);
 
         if (dtheta3 < 0.01 || Lnew > SoilDep2) {

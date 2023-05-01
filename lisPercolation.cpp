@@ -50,6 +50,7 @@ void TWorld::MoistureContent()
 //---------------------------------------------------------------------------
 // redistribution of soilwater after infiltration
 // out[put is new Lw and new Thetaeff and ThetaI2
+// CURRENTLY NOT USED, PSLIT into two functions for 1 and 2 layer soils
 void TWorld::cell_Redistribution0(int r, int c)
 {
     double Percolation, pore, theta, thetar, theta_E;
@@ -222,7 +223,7 @@ void TWorld::cell_Redistribution0(int r, int c)
                 //flux across boundary is ks+ke/2, average after Swatre
 
                 double moisture = Lw_ * (pore-thetar); //available sat moisture above Lw_
-                double dm = (pore-FC)*Lw_ * factor;
+                double dm = (pore-FC)*Lw_;
                 Percolation = std::min(dm, Percolation);
 
                 moisture -= Percolation;
@@ -260,7 +261,7 @@ void TWorld::cell_Redistribution2(int r, int c)
 
     double Percolation, theta_E;
 
-    double pore = Thetaeff->Drc;
+    double pore = Poreeff->Drc;
     double thetar = ThetaR1->Drc;
     double theta = Thetaeff->Drc;
     double SoilDep1 = SoilDepth1->Drc;
@@ -270,7 +271,7 @@ void TWorld::cell_Redistribution2(int r, int c)
     double thetar2 = ThetaR2->Drc;
     double theta2 = ThetaI2->Drc;
     double SoilDep2 = SoilDepth2->Drc;
-    double FC2 = ThetaFC1->Drc;
+    double FC2 = ThetaFC2->Drc;
     double DL2 = SoilDep2-SoilDep1;
 
     // if Lw still in layer 1
@@ -383,11 +384,11 @@ void TWorld::cell_Redistribution2(int r, int c)
         }
 
         if (perc1 > 0) {
-            // opercolation moves into layer 1
+            // percolation uses layer 1
             moist1 -= perc1;
             // sat layer 1 now becomes free until FC
             Lw_ = moist1/(pore-thetar);
-            theta = FC;
+            theta = FC2;
         }
     }
 
@@ -425,7 +426,7 @@ void TWorld::cell_Redistribution1(int r, int c)
         //flux across boundary is ks+ke/2, average after Swatre
 
         double moisture = Lw_ * (pore-thetar); //available sat moisture above Lw_
-        double dm = (pore-FC)*Lw_ * factor;
+        double dm = (pore-FC)*Lw_;
         Percolation = std::min(dm, Percolation);
 
         moisture -= Percolation;
@@ -543,14 +544,17 @@ double TWorld::cell_Percolation(int r, int c, double factor)
 //---------------------------------------------------------------------------
 // aletrnative, compacter writing and possibility for three layer
 // percolation is always from the lowest layer
+
+// NOT USED OR TESTED YET
+
 double TWorld::cell_PercolationMulti(int r, int c, double factor)
 {
-    double Percolation, dL, theta_E, FC;
+    double Percolation, dL, theta_E;
     double Lw_ = Lw->Drc;
     cTMap *SoilDepth = SoilDepth1;
     cTMap *pore = Thetaeff;
     cTMap *theta = ThetaI1;
-    cTMap *thetar = thetaR1;
+    cTMap *thetar = ThetaR1;
     cTMap *ksat = Ksateff;
     cTMap *bca = bca1;
     cTMap *FC = ThetaFC1;
@@ -559,17 +563,17 @@ double TWorld::cell_PercolationMulti(int r, int c, double factor)
         SoilDepth = SoilDepth2;
         pore = ThetaS2;
         theta = ThetaI2;
-        thetar = thetaR2;
+        thetar = ThetaR2;
         FC = ThetaFC2;
         ksat = Ksat2;
         bca = bca2;
     }
 
     if(SwitchThreeLayer) {
-        SoilDepth = SoilDepth2+1.0; // 1 meter more, TEMPORARY
+        SoilDepth = SoilDepth2; // 1 meter more, TEMPORARY
         pore = ThetaS2;
         theta = ThetaI2;
-        thetar = thetaR2;
+        thetar = ThetaR2;
         ksat = Ksat2;
         bca = bca2;
     }
@@ -640,7 +644,10 @@ void TWorld::SoilWater()
 
 #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        cell_Redistribution(r, c);
+        if (SwitchTwoLayer)
+        cell_Redistribution2(r, c);
+        else
+        cell_Redistribution1(r, c);
 
         Perc->Drc = cell_Percolation(r, c, 1.0);
     }}
