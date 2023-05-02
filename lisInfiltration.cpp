@@ -177,6 +177,7 @@ void TWorld::cell_InfilMethods(int r, int c)
     double fpot_ = 0;
     double fact_ = 0;
     double SoilDep1 = SoilDepth1->Drc;
+    double SoilDep2 = SoilDepth2->Drc;
 
     if (FloodDomain->Drc == 0) {
         fwh = WH->Drc; //runoff in kinwave or dyn wave
@@ -189,16 +190,23 @@ void TWorld::cell_InfilMethods(int r, int c)
     if (SoilWidthDX->Drc > 0) {
 
         //calculate potential infiltration rate fpot
-        if (SwitchTwoLayer ) {
+        if (SwitchTwoLayer || SwitchThreeLayer) {
             // if wetting front in second layer set those vars
-            if (Lw->Drc > SoilDep1) {
-                //https://www.gsshawiki.com/Infiltration:Multi-layer_Green_and_Ampt
-                // weighed harmonic mean:
-                // 2*L/(SD1/K1+(L-SD2)/K2
-                Ks = 2*Lw->Drc/(SoilDep1/Ksateff->Drc+(Lw->Drc-SoilDep1)/Ksat2->Drc);
+            if (Lw->Drc > SoilDep1 && Lw->Drc < SoilDep2) {
+                //weighed harmonic mean:
+                //https://corporatefinanceinstitute.com/resources/data-science/harmonic-mean/
+                // sum (weights) / sum (weight/variable)
+
+                Ks = Lw->Drc/(SoilDep1/Ksateff->Drc+(Lw->Drc-SoilDep1)/Ksat2->Drc);
                 // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
                 Psi = Psi2->Drc; //in m
             }
+            if (Lw->Drc > SoilDep2) {
+                Ks = Lw->Drc/(SoilDep1/Ksateff->Drc+(SoilDep2-SoilDep1)/Ksat2->Drc + (Lw->Drc- SoilDep2)/Ksat3->Drc);
+                // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
+                Psi = Psi2->Drc; //in m
+            }
+
         }
 
         if (InfilMethod == INFIL_GREENAMPT)
@@ -222,10 +230,13 @@ void TWorld::cell_InfilMethods(int r, int c)
 
         if (fact_ > 0) {
 //            fact_ = IncreaseInfiltrationDepthNew0(fact_, r, c);
-            if (SwitchTwoLayer)
-                fact_ = IncreaseInfiltrationDepthNew2(fact_, r, c);
+            if (SwitchThreeLayer)
+                fact_ = IncreaseInfiltrationDepthNew3(fact_, r, c);
             else
-                fact_ = IncreaseInfiltrationDepthNew1(fact_, r, c);
+                if (SwitchTwoLayer)
+                    fact_ = IncreaseInfiltrationDepthNew2(fact_, r, c);
+                else
+                    fact_ = IncreaseInfiltrationDepthNew1(fact_, r, c);
         }
         // adjust fact and increase Lw, for twolayer, impermeable etc
 
@@ -323,7 +334,7 @@ double TWorld::IncreaseInfiltrationDepthNew2(double fact_in, int r, int c)
         return 0;
     }
 
-    // this goes wrong if percolation saturate sthe bottom layer while there is still room i the top layer
+    // DO NOT DO THIS if percolation saturate sthe bottom layer while there is still room i the top layer
     //    if (SwitchImpermeable && dtheta2 < 0.001) {
     //        Lw->Drc = SoilDep2;
     //        return 0;
