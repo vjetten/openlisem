@@ -737,60 +737,6 @@ void TWorld::InitSoilInput(void)
             }
         }
 
-        if (SwitchThreeLayer)
-        {
-            ThetaS3 = ReadMap(LDD,getvaluename("thetaS3"));
-            ThetaI3 = ReadMap(LDD,getvaluename("thetaI3"));
-            ThetaI3a = NewMap(0);
-            calcValue(*ThetaI3, thetaCalibration, MUL); //VJ 110712 calibration of theta
-            calcMap(*ThetaI3, *ThetaS3, MIN); //VJ 110712 cannot be more than porosity
-            ThetaR3 = NewMap(0);
-
-            FOR_ROW_COL_MV_L {
-                ThetaR3->Drc = 0.025*ThetaS3->Drc;
-            }}
-
-            //VJ 101221 all infil maps are needed except psi
-            Psi3 = ReadMap(LDD,getvaluename("psi3"));
-            calcValue(*Psi3, psiCalibration, MUL); //VJ 110712 calibration of psi
-            calcValue(*Psi3, 0.01, MUL);
-
-            Ksat3 = ReadMap(LDD,getvaluename("ksat3"));
-            //Lambda2 = ReadMap(LDD,getvaluename("lambda2"));
-            bca3 = NewMap(0);
-            FOR_ROW_COL_MV_L {
-                double lambda = std::min(0.27, std::max(0.07, 0.0383*log(Ksat3->Drc)+0.0662));
-                bca3->Drc = 3.0+2.0/lambda;
-
-            }}
-            // field capacity
-            ThetaFC3 = NewMap(0);
-            FOR_ROW_COL_MV_L {
-                 ThetaFC3->Drc = 0.7867*exp(-0.012*Ksat3->Drc)*ThetaS3->Drc;
-            }}
-
-            calcValue(*Ksat3, ksat3Calibration, MUL);
-
-            SoilDepth3 = ReadMap(LDD,getvaluename("soilDep3"));
-            calcValue(*SoilDepth3, 1000, DIV);
-            calcValue(*SoilDepth3, SD3Calibration, MUL);
-
-            SoilDepth3init = NewMap(0);
-            copy(*SoilDepth3init, *SoilDepth3);
-
-            FOR_ROW_COL_MV_L
-            {
-                if (SoilDepth3->Drc < 0)
-                {
-                    ErrorString = QString("SoilDepth3 values < 0 at row %1, col %2").arg(r).arg(c);
-                    throw 1;
-                }
-            }}
-
-        }
-
-
-
         if (SwitchInfilCrust)
         {
             CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));

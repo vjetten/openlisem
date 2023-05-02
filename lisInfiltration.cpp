@@ -187,7 +187,7 @@ void TWorld::cell_InfilMethods(int r, int c)
     // select the appropriate domain water height for overpressure
 
     // only do infiltration on permeable soils
-    if (SoilWidthDX->Drc > 0) {
+    if (SoilWidthDX->Drc > 0 && fwh > 0) {
 
         //calculate potential infiltration rate fpot
         if (SwitchTwoLayer || SwitchThreeLayer) {
@@ -201,11 +201,11 @@ void TWorld::cell_InfilMethods(int r, int c)
                 // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
                 Psi = Psi2->Drc; //in m
             }
-            if (Lw->Drc > SoilDep2) {
-                Ks = Lw->Drc/(SoilDep1/Ksateff->Drc+(SoilDep2-SoilDep1)/Ksat2->Drc + (Lw->Drc- SoilDep2)/Ksat3->Drc);
-                // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
-                Psi = Psi2->Drc; //in m
-            }
+//            if (Lw->Drc > SoilDep2) {
+//                Ks = Lw->Drc/(SoilDep1/Ksateff->Drc+(SoilDep2-SoilDep1)/Ksat2->Drc + (Lw->Drc- SoilDep2)/Ksat3->Drc);
+//                // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
+//                Psi = Psi2->Drc; //in m
+//            }
 
         }
 
@@ -229,9 +229,9 @@ void TWorld::cell_InfilMethods(int r, int c)
         // actual infil in m, cannot have more infil than water on the surface, includes rainfall
 
         if (fact_ > 0) {
-            if (SwitchThreeLayer)
-                fact_ = IncreaseInfiltrationDepthNew3(fact_, r, c);
-            else
+//            if (SwitchThreeLayer)
+//                fact_ = IncreaseInfiltrationDepthNew3(fact_, r, c);
+//            else
                 if (SwitchTwoLayer)
                     fact_ = IncreaseInfiltrationDepthNew2(fact_, r, c);
                 else
@@ -255,9 +255,12 @@ void TWorld::cell_InfilMethods(int r, int c)
 
         Fcum->Drc += fact_; // for Smith and Parlange
         // increase cumulative infil in m
-        fact->Drc = fact_;
+       // fact->Drc = fact_;
         InfilVol->Drc = fact_* SoilWidthDX->Drc * DX->Drc;
         // calc infiltrated volume for mass balance
+    } else {
+       // fact->Drc = 0;
+        InfilVol->Drc = 0;
     }
 
     // calc surplus infiltration (negative in m) for kin wave
