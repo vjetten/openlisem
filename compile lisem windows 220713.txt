@@ -1,6 +1,6 @@
 openLISEM: Quick guideline for code development
 ===============================================
-Date: 220713
+Date: 230501
 
 Introduction:
 openLISEM is compiled with MINGW64, the windows port of the native Linux compiler. The advantage is that it is opensource and free, and easy to compile lisem under Linux.
@@ -27,8 +27,8 @@ The window will likely close now, reopen it!
 
 pacman -S base-devel git mercurial cvs wget p7zip
 pacman -S perl ruby python mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain
-pacman -S mingw-w64-i686-qt-creator mingw-w64-x86_64-qt-creator
 pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-qwt-qt5 mingw-w64-x86_64-gdal mingw-w64-x86_64-clang
+pacman -S mingw-w64-clang-x86_64-qt-creator
 
 {NOTE: info on pacman options: https://devhints.io/pacman)
 
