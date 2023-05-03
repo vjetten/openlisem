@@ -343,7 +343,8 @@ void TWorld::DoModel()
         if (noInterface)
         {
             qDebug() << "\nfinished after "<< op.maxtime << "minutes";
-            // close the world model somewhere..
+            QApplication::quit();
+            // close the world model
         }
     }
     catch(...)  // if an error occurred
@@ -353,6 +354,7 @@ void TWorld::DoModel()
 
         emit done("ERROR STOP: "+ErrorString);
         if (noInterface) {qDebug() << "ERROR STOP "<< ErrorString;
+            QApplication::quit();
         }
     }
 }
