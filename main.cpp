@@ -107,18 +107,41 @@ int main(int argc, char *argv[])
         return app.exec();
 
     } else {
+        // 2 options:
+        // noInterface = run without GUI in console
+        // batchmode = run with GUI but start run automatically (default)
+
+        bool noInterface = false;
+        bool runfound = false;
 
         QString ag = args.join(" ");
-        // run without interface nin console
         QString name;
+
         if (ag.contains("?")) {
-            printf("syntax:\nlisem -r runfile \n");
+            printf("syntax:\nlisem [-ni] -r runfile \n"
+                   "-ni = no interface, with counter and info\n");
             return 0;
         }
 
+        // MC - change if condition to batch
         if (ag.contains("-r")) {
+            runfound = true;
             QStringList sl = ag.split("-r");
             name = sl[1].simplified();
+            if (ag.contains("-ni")) {
+                noInterface = true;
+                op.runfilename = name;
+
+                TWorld *W = new TWorld();
+                // make the model world
+                W->stopRequested = false;
+                W->waitRequested = false;
+                W->noInterface = noInterface;
+                W->start();
+
+                return app.exec();
+            } else {
+
             //qDebug() << "running: " << name;
 
             lisemqt iface(0, true, name);
@@ -126,9 +149,11 @@ int main(int argc, char *argv[])
             iface.show();
 
             return app.exec();
+            }
 
-        } else {
-            printf("syntax:\nlisem -r runfile \n");
+        } else { // change to if condition without '-r'
+            printf("syntax:\nlisem [-ni] -r runfile \n"
+                   "-ni = no interface, with counter and info\n");
             return 0;
         }
     }
