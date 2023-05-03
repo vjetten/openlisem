@@ -475,8 +475,8 @@ void lisemqt::setFloodTab(bool yes)
     label_107->setEnabled(yes);
 
     if (checkOverlandFlow2Ddyn->isChecked() || checkOverlandFlow2Dkindyn->isChecked()) {
-        label_107->setText(QString("Flood,h>%1)").arg(E_floodMinHeight->value()*1000));
-        label_40->setText(QString("Runoff,h<%1)").arg(E_floodMinHeight->value()*1000));
+        label_107->setText(QString("Flood(h>%1mm)").arg(E_floodMinHeight->value()*1000));
+        label_40->setText(QString("Runoff(h<%1mm)").arg(E_floodMinHeight->value()*1000));
     }
     else
     {
@@ -489,7 +489,7 @@ void lisemqt::setFloodTab(bool yes)
 void lisemqt::setErosionTab(bool yes)
 {
     //  yes = checkDoErosion->isChecked();
-qDebug() << checkDoErosion->isChecked();
+
     tab_erosion->setEnabled(checkDoErosion->isChecked());
 
     outputMapsSediment->setEnabled(checkDoErosion->isChecked());
@@ -1816,13 +1816,11 @@ QString lisemqt::findValidDir(QString path, bool up)
     if (!QFileInfo(path).exists() || path.isEmpty())
         path = currentDir;
 
-    qDebug() << path;
     if (path.indexOf("/",1) > 0)
         path.replace("\\","/");
     else
         if (path.indexOf("\\",1) > 0)
             path.replace("/","\\");
-    qDebug() << path;
 
     return (path);
 }

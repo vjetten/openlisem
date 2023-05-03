@@ -240,25 +240,36 @@ cTMap
 *InfilmmCum,                 //!< cumulative infiltration volume for map report and drawing [mm]
 *InfilVolFlood,
 
+*Lw,
+*Lwmm,
 *ThetaS1,                    //!< porosity soil layer 1 [-]
 *ThetaI1,                    //!< initial moisture content soil layer 1 [-]
 *ThetaI1a,                    //!< initial moisture content soil layer 1 [-]
 *Psi1,                       //!< intial suction head wetting front soil layer 1 (input map is in cm) [m]
 *ThetaR1,
+*ThetaFC1,
 *Ksat1,                      //!< saturated hydraulic conductivity soil layer 1 (input is in mm/h) [m/s]
 *SoilDepth1,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *SoilDepth1init,                 //!< depth to end soil layer 1 (input is in mm) [m]
-*Lw,
-*Soilwater,                  //!< actual soil water content [-]
 *ThetaS2,                    //!< porosity soil layer 2 [-]
 *ThetaI2,                    //!< initial moisture content soil layer 2 [-]
 *ThetaI2a,                    //!< initial moisture content soil layer 2 [-]
 *ThetaR2,
+*ThetaFC2,
 *Psi2,                       //!< intial suction head wetting front soil layer 2 (input map is in cm) [m]
 *Ksat2,                      //!< saturated hydraulic conductivity soil layer 2 (input is in mm/h) [m/s]
 *SoilDepth2,                 //!< depth to end soil layer 2 (input is in mm) [m]
 *SoilDepth2init,                 //!< depth to end soil layer 2 (input is in mm) [m]
-*Soilwater2,                  //!< actual soil water content layer 2 [-]
+*ThetaS3,                    //!< porosity soil layer 1 [-]
+*ThetaI3,                    //!< initial moisture content soil layer 1 [-]
+*ThetaI3a,                    //!< initial moisture content soil layer 1 [-]
+*Psi3,                       //!< intial suction head wetting front soil layer 1 (input map is in cm) [m]
+*ThetaR3,
+*ThetaFC3,
+*Ksat3,                      //!< saturated hydraulic conductivity soil layer 1 (input is in mm/h) [m/s]
+*SoilDepth3,                 //!< depth to end soil layer 1 (input is in mm) [m]
+*SoilDepth3init,                 //!< depth to end soil layer 1 (input is in mm) [m]
+
 *KsatCrust,                  //!< saturated hydraulic conductivity crusted soil surface (input is in mm/h) [m/s]
 *PoreCrust,                //!< saturated hydraulic conductivity compacted soil surface (input is in mm/h) [m/s]
 *KsatCompact,                //!< saturated hydraulic conductivity compacted soil surface (input is in mm/h) [m/s]

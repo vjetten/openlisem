@@ -308,7 +308,7 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
     QVector <LDD_COORIN> _crlinked_;
     _crlinked_.clear();
 
-    fill(*tma, -1); // flag
+    Fill(*tma, -1); // flag
 
     FOR_ROW_COL_MV {
         if (_LDD->Drc == 5) {

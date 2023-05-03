@@ -113,6 +113,8 @@ void lisemqt::runmodel()
     sedgroup->setVisible(checkDoErosion->isChecked());
     tabWidget_totout->setTabEnabled(1,checkDoErosion->isChecked() );
 
+    showInfoAct->setChecked(true);
+    setOutputInfo(true);
 
     // initialize output graphs
     initPlot();

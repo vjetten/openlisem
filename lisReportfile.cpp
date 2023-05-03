@@ -282,7 +282,7 @@ void TWorld::OutputUI(void)
 
         if(SwitchFlowBarriers)
         {
-//            fill(*tma,0.0);
+//            Fill(*tma,0.0);
 //            FOR_ROW_COL_MV {
 //                tma->Drc = std::max(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),FlowBarrierW->Drc),FlowBarrierS->Drc);
 //            }
@@ -763,8 +763,6 @@ void TWorld::ReportTotalsNew(void)
     else
         out << "\"Catchment area (m2):\"," << op.CatchmentArea<< "\n";
     out << "\"Total Precipitation (mm):\"," << op.RainTotmm<< "\n";
-    out << "\"Total baseflow inflow (mm):\"," << op.BaseFlowTotmm << "\n"; // not used!
-
     out << "\"Total interception(mm):\"," << op.IntercTotmm<< "\n";
     out << "\"Total Litter interception (mm):\"," << op.IntercLitterTotmm<< "\n";
     out << "\"Total House interception (mm):\"," << op.IntercHouseTotmm<< "\n";
@@ -782,6 +780,7 @@ void TWorld::ReportTotalsNew(void)
     }
     out << "\"Water in channels (mm):\"," << op.ChannelVolTotmm<< "\n";
     out << "\"Water across boundary (mm):\"," << op.Qboundtotmm<< "\n";
+    out << "\"Total baseflow inflow (mm):\"," << op.BaseFlowTotmm << "\n"; // not used!
     out << "\"Total outflow (all flows) (mm):\"," << op.Qtotmm+op.Qboundtotmm << "\n";
     out << "\n";
     out << "\"Total outflow (overland+channel+drains) (m3):\"," << op.Qtot<< "\n";

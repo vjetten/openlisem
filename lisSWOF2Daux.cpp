@@ -146,8 +146,8 @@ void TWorld::prepareFloodZ(cTMap *z)
 {
     prepareFlood = false;
 
-    fill(*delz1,0);
-    fill(*delz2,0);
+    Fill(*delz1,0);
+    Fill(*delz2,0);
     // diff between z cell and adjacent
     for (int r = 0; r < _nrRows; r++)
         for (int c = 1; c < _nrCols; c++)

@@ -85,12 +85,14 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Psi1;psi1.map;Layer 1: Average suction at the wetting front (cm);psi1");
     DEFmaps.append("2;Thetas1;thetas1.map;Layer 1: Porosity (-);thetas1");
     DEFmaps.append("2;Thetai1;thetai1.map;Layer 1: Initial moisture content (-);thetai1");
+    //DEFmaps.append("2;Lambda1;lambda1.map;Layer 1: Brooks-Corey pore parameter (-);lambda1");
     DEFmaps.append("2;Depth1;soildep1.map;Layer 1: Depth (mm) to bottom of layer 1;soildep1");
     DEFmaps.append("1;2nd layer Green&Ampt/Smith&Parlange");
     DEFmaps.append("2;Ksat2;ksat2.map;Layer 2: Saturated Hydraulic Conductivity (mm/h);ksat2");
     DEFmaps.append("2;Psi2;psi2.map;Layer 2: Average suction at the wetting front (cm);psi2");
     DEFmaps.append("2;Thetas2;thetas2.map;Layer 2: Porosity (-);thetas2");
     DEFmaps.append("2;Thetai2;thetai2.map;Layer 2: Initial moisture content (-);thetai2");
+   // DEFmaps.append("2;Lambda2;lambda2.map;Layer 2: Brooks-Corey pore parameter (-);lambda2");
     DEFmaps.append("2;Depth2;soildep2.map;Layer 2: Depth (mm) to bottom of layer 2;soildep2");
 
     DEFmaps.append("1;Special surfaces");
@@ -423,10 +425,10 @@ void lisemqt::defaultRunFile()
  //   namelist[i++].name = QString("Use SWOF watersheds");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood solution");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("GW flow SWAT");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("GW flow explicit");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("GW flow LDD");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW recharge factor");
     namelist[i].value = QString("1.0");

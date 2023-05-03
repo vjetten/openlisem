@@ -368,14 +368,14 @@ public:
     SwitchRainfall, SwitchEventbased, SwitchIDinterpolation, SwitchDailyET, SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
-    SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
+    SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,SwitchThreeLayer,   SwitchChannelKinWave,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
     SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide, SwitchAddBuildingsDEM,
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle,
-    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchExplicitGWflow,SwitchSWATGWflow,SwitchChannel2DflowConnect,
+    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchGWflow,SwitchPressureGWflow,SwitchLDDGWflow,SwitchChannel2DflowConnect,
     SwitchGWChangeSD;
 
     int SwitchKinematic2D;
@@ -703,8 +703,6 @@ public:
     void SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
     void SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
 
-    void infilInWave(cTMap *_h, double dt1);
-
     void MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     double maincalcflux(cTMap *_h,double dt, double dt_max);
@@ -877,9 +875,11 @@ public:
 
     void cell_Interception(int r, int c);
     double cell_Percolation(int r, int c, double factor);
-    double cell_Percolation1(int r, int c, double factor);
-    void cell_SlopeStability(int r, int c);
-    void cell_Redistribution(int r, int c);
+    double cell_PercolationMulti(int r, int c, double factor);
+    void cell_Redistribution0(int r, int c);
+    void cell_Redistribution1(int r, int c);
+    void cell_Redistribution2(int r, int c);
+
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
     void cell_InfilSwatre(int r, int c);
@@ -888,14 +888,14 @@ public:
     void cell_FlowDetachment(int r, int c);
     void MoistureContent();
 
+    void cell_SlopeStability(int r, int c);
+
     void InfilEffectiveKsat(bool first);
     void Infiltration();
     void InfilSwatre();
-
-    double IncreaseInfiltrationDepthNew(double fact_, int r, int c);
-
-    double IncreaseInfiltrationDepthNew0(double fact_, int r, int c);
-    //OBSOLETE CONTAINS ERRORS
+    double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);
+    double IncreaseInfiltrationDepthNew2(double fact_, int r, int c);
+    double IncreaseInfiltrationDepthNew3(double fact_, int r, int c);
 
     void SoilWater();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
@@ -1040,6 +1040,7 @@ public:
                          double drainfraction, double *repel, double *Theta, SOIL_MODEL *s);
 
 
+    void Fill(cTMap &M, double value);
     double MapTotal(cTMap &M);
     void Average3x3(cTMap &M, cTMap &mask);
     void Average2x2(cTMap &M, cTMap &mask);
