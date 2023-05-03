@@ -319,7 +319,16 @@ void TWorld::DoModel()
             saveMBerror2file(saveMBerror, false);
 
             if(stopRequested)
-                time = EndTime;                       
+                time = EndTime;
+
+            // show progress in console without GUI
+            if (noInterface) {
+                int x;
+                x = std::round((op.t / op.maxtime) * 100) ;
+                printf("\rprogress: %d %%                     ", x);
+                //fflush(stdout);
+            }
+             // MC - maybe not the most sophisticated solution but noInterface works again!!
         }
 
         if (SwitchEndRun)
@@ -330,6 +339,12 @@ void TWorld::DoModel()
         DestroyData();  // destroy all maps automatically
         op.nrMapsCreated = maplistnr;
         emit done("finished");
+
+        if (noInterface)
+        {
+            qDebug() << "\nfinished after "<< op.maxtime << "minutes";
+            // close the world model somewhere..
+        }
     }
     catch(...)  // if an error occurred
     {
@@ -337,6 +352,8 @@ void TWorld::DoModel()
         DestroyData();
 
         emit done("ERROR STOP: "+ErrorString);
+        if (noInterface) {qDebug() << "ERROR STOP "<< ErrorString;
+        }
     }
 }
 //---------------------------------------------------------------------------
