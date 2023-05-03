@@ -322,7 +322,7 @@ void TWorld::DoModel()
                 time = EndTime;
 
             // show progress in console without GUI
-            if (noInterface) {
+            if (op.doBatchmode) {
                 int x;
                 x = std::round((op.t / op.maxtime) * 100) ;
                 printf("\rprogress: %d %%                     ", x);
@@ -340,9 +340,9 @@ void TWorld::DoModel()
         op.nrMapsCreated = maplistnr;
         emit done("finished");
 
-        if (noInterface)
+        if (op.doBatchmode)
         {
-            qDebug() << "\nfinished after "<< op.maxtime << "minutes";
+            qDebug() << "\nfinished after "<< op.maxtime << "minutes\n";
             QApplication::quit();
             // close the world model
         }
@@ -353,7 +353,7 @@ void TWorld::DoModel()
         DestroyData();
 
         emit done("ERROR STOP: "+ErrorString);
-        if (noInterface) {qDebug() << "ERROR STOP "<< ErrorString;
+        if (op.doBatchmode) {qDebug() << "ERROR STOP "<< ErrorString;
             QApplication::quit();
         }
     }
