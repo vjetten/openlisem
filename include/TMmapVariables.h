@@ -96,9 +96,7 @@ cTMap
 *V,                          //!< velocity of overland flow [m/s]
 *Alpha,                      //!< alpha in A = alphaQ^b
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
-*Qbin,
 *Qbase,
-//*Qbaseprev,
 *GWVol,
 *GWWH,
 *GWWHmax,
@@ -241,7 +239,7 @@ cTMap
 *InfilVolFlood,
 
 *Lw,
-//*Lwmm,
+*Lwmm,
 *ThetaS1,                    //!< porosity soil layer 1 [-]
 *ThetaI1,                    //!< initial moisture content soil layer 1 [-]
 *ThetaI1a,                    //!< initial moisture content soil layer 1 [-]

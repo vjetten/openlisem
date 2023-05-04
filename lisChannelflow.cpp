@@ -152,9 +152,9 @@ void TWorld::ChannelBaseflow(void)
         }}
     }
 
-    if (SwitchGWflow || SwitchLDDGWflow) {
+    if (SwitchGWflow || SwitchLDDGWflow || SwitchSWATGWflow) {
         GroundwaterFlow();
-        // move groundwater, Qbin is the flow
+        // move groundwater, GWout is the flow into the channel
 
         // do the baseflow
         cTMap *pore;

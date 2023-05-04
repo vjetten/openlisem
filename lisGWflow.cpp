@@ -69,7 +69,8 @@ void TWorld::GroundwaterFlow(void)
     // flow with pressure differences
     if (SwitchLDDGWflow)
         GWFlowLDDKsat();
-    // flow along the LDDBASE
+    if (SwitchSWATGWflow)
+        GWFlowSWAT();
 
     // change the soil depth with GWWH
     if (SwitchGWChangeSD) {
@@ -290,9 +291,7 @@ void TWorld::GWFlow2D(void)
 //---------------------------------------------------------------------------
 
 // flow according to SWAT 2009, page 174 manual, eq 2.4.2.8
-//OBSOLETE
-    /*
-void TWorld::GWFlowLDD(void)
+void TWorld::GWFlowSWAT(void)
 {
     bool doit = false;
 
@@ -307,9 +306,10 @@ void TWorld::GWFlowLDD(void)
     }
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
+        tma->Drc = 0;
         double CellArea_ = CellArea->Drc;
         // between 0 and soildepth - 0.1m
-        double maxvol = CellArea_ * (SwitchTwoLayer ? (SoilDepth2->Drc) : SoilDepth1->Drc)*MaxGWDepthfrac;
+     //   double maxvol = CellArea_ * (SwitchTwoLayer ? (SoilDepth2->Drc) : SoilDepth1->Drc)*MaxGWDepthfrac;
         double GWWH_ = GWWH->Drc;
 
         double GWout_ = GW_flow * CellArea_ * ksat->Drc * BaseflowL->Drc; // m3 volume out from every cell
@@ -319,33 +319,30 @@ void TWorld::GWFlowLDD(void)
 
         // DO NOT include pore, ksat is already a flux from a porous soil and includes dt
 
-        GWout_ = GWWH_ > GW_threshold ?  GWout_ * (GWWH_ - GW_threshold) * (1-exp(-GW_threshold*GWWH_)) : 0.0;
+        GWout_ = GWout_ * std::max(0.0, GWWH_ - GW_threshold) * (1-exp(-GW_threshold*GWWH_));
         // stop outflow when some minimum GW level, 2.4.2.10 in SWAT
         // apply a smooth threshold with exponential function
 
         // GWout_ *= (1+Grad->Drc);  // ???? add effect of slope
 
         if (GWout_ > 0) {
-            if (GWVol->Drc - GWout_ < 0)
-                GWout_ = GWVol->Drc;
-
-            tmb->Drc = GWout_; // used in accufluwGW
-            GWout->Drc = GWout_;
+            GWout_ = std::min(GWVol->Drc*MaxGWDepthfrac, GWout_);
+            tmb->Drc = GWout_; // used in accufluowGW
 
             GWVol->Drc -= GWout_; // subtract from volume
-            GWVol->Drc = std::max(GWVol->Drc,0.0);
-            GWVol->Drc = std::min(GWVol->Drc, maxvol);
-
             GWWH->Drc = GWVol->Drc/CellArea_/pore->Drc;
 
             doit = true;
         }
-
-        Qbin->Drc = 0;
     }}
 
     if (doit)
-        AccufluxGW(crlinkedlddbase_, tmb, Qbin, ChannelWidth);
-    // Qbin now has the fast component
+        AccufluxGW(crlinkedlddbase_, tmb, tma, ChannelWidth);
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        GWout->Drc += tma->Drc;
+    }}
+
 }
-*/
+

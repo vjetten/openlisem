@@ -1070,7 +1070,6 @@ void TWorld::InitChannel(void)
         }}
 
         GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
-        Qbin = NewMap(0);
         Qbase = NewMap(0);
         //Qbaseprev = NewMap(0);
         GWWH = NewMap(0);
@@ -2522,6 +2521,7 @@ void TWorld::IntializeOptions(void)
     SwitchChannelBaseflow = false;
     SwitchGWflow = false;
     SwitchLDDGWflow = false;
+    SwitchSWATGWflow = false;
     SwitchGWChangeSD = true;
     SwitchChannelBaseflowStationary = false;
     SwitchChannelInfil = false;
