@@ -328,7 +328,7 @@ void TWorld::DoModel()
                 printf("\rprogress: %d %%                     ", x);
                 //fflush(stdout);
             }
-             // MC - maybe not the most sophisticated solution but noInterface works again!!
+             // MC - maybe not the most sophisticated solution but noInterface works again
         }
 
         if (SwitchEndRun)
