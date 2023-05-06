@@ -44,32 +44,33 @@ void TWorld::GroundwaterFlow(void)
         SoilDepthinit = SoilDepth1init;
         SoilDepth = SoilDepth1;
     }
-double tot = 0;
-double totr = 0;
-GWdeeptot = 0;
+//double tot = 0;
+//double totr = 0;
+//GWdeeptot = 0;
+
     // add recharge and subtract deep percolation
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        double dxa =  CHAdjDX->Drc; //CellArea->Drc;//
         Perc->Drc = cell_Percolation(r, c, GW_recharge); // in m
-        GWrecharge->Drc = Perc->Drc * dxa; // m3
+        GWrecharge->Drc = Perc->Drc * CHAdjDX->Drc; // m3
 
-        GWdeep->Drc = GW_deep*dxa;
+        GWdeep->Drc = GW_deep * CHAdjDX->Drc;
         // percolation from GW to deeper level, to cause decline in dry periods
 
-        double maxvol = SoilDepthinit->Drc * dxa * pore->Drc;
+        double maxvol = SoilDepthinit->Drc * CellArea->Drc * pore->Drc;
+
         if (GWVol->Drc + GWrecharge->Drc - GWdeep->Drc > maxvol)
             GWrecharge->Drc = maxvol - GWVol->Drc + GWdeep->Drc;
         if (GWVol->Drc + GWrecharge->Drc - GWdeep->Drc < 0)
             GWdeep->Drc = GWVol->Drc + GWrecharge->Drc;
-        GWdeeptot += GWdeep->Drc;
-        tot += GWVol->Drc;
-        totr += GWrecharge->Drc;
+//        GWdeeptot += GWdeep->Drc;
+//        tot += GWVol->Drc;
+//        totr += GWrecharge->Drc;
         GWVol->Drc += GWrecharge->Drc - GWdeep->Drc;
-        GWWH->Drc = GWVol->Drc/(dxa*pore->Drc);
+        GWWH->Drc = GWVol->Drc/(CellArea->Drc*pore->Drc);
         GWout->Drc = 0;
     }}
-qDebug() << GWdeeptot << totr << tot;
+//qDebug() << GWdeeptot << totr << tot;
 
     // results in GWout flux between cells based on pressure differences
     if (SwitchGWflow)
@@ -184,7 +185,7 @@ void TWorld::GWFlowLDDKsat(void)
         }
     }
 
-    Average3x3(*GWWH, *LDDbaseflow);
+ //   Average3x3(*GWWH, *LDDbaseflow);
 
 }
 //---------------------------------------------------------------------------

@@ -201,12 +201,6 @@ void TWorld::cell_InfilMethods(int r, int c)
                 // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
                 Psi = Psi2->Drc; //in m
             }
-//            if (Lw->Drc > SoilDep2) {
-//                Ks = Lw->Drc/(SoilDep1/Ksateff->Drc+(SoilDep2-SoilDep1)/Ksat2->Drc + (Lw->Drc- SoilDep2)/Ksat3->Drc);
-//                // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
-//                Psi = Psi2->Drc; //in m
-//            }
-
         }
 
         if (InfilMethod == INFIL_GREENAMPT)

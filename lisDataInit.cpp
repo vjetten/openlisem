@@ -645,15 +645,14 @@ void TWorld::InitSoilInput(void)
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
         //Lambda1 = ReadMap(LDD,getvaluename("lambda1"));
         // bca = 3+2/lambda so that K=Ks*(theta/thetaS)^bca
-        bca1 = NewMap(0);
+        Psia1 = NewMap(0);
+        lambda1 = NewMap(0);
         FOR_ROW_COL_MV_L {
-//            bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);
-            //bca1->Drc = Lambda1->Drc > 0 ? 3+2/Lambda1->Drc : 15.35;  // else average value of all textures
-            double lambda = std::min(0.27, std::max(0.07,0.0383*log(Ksat1->Drc)+0.0662));
-            bca1->Drc = 3.0+2.0/lambda;
-        }}
+//            bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
 
-        calcValue(*Ksat1, ksatCalibration, MUL);
+            Psia1->Drc = 5.3279*exp(-0.021*Ksat1->Drc); //air entry potential (bubble pressure) in kPa
+            lambda1->Drc = std::min(0.27, std::max(0.07,0.0383*log(Ksat1->Drc)+0.0662));
+        }}
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
@@ -668,10 +667,6 @@ void TWorld::InitSoilInput(void)
         calcValue(*ThetaI1, thetaCalibration, MUL); //VJ 110712 calibration of theta
         calcMap(*ThetaI1, *ThetaS1, MIN); //VJ 110712 cannot be more than porosity
 
-        Psi1 = ReadMap(LDD,getvaluename("psi1"));
-        calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
-        calcValue(*Psi1, 0.01, MUL); // convert to meter
-
         ThetaR1 = NewMap(0);
         FOR_ROW_COL_MV_L {
             ThetaR1->Drc = 0.025*ThetaS1->Drc;
@@ -682,6 +677,15 @@ void TWorld::InitSoilInput(void)
         FOR_ROW_COL_MV_L {
              ThetaFC1->Drc = 0.7867*exp(-0.012*Ksat1->Drc)*ThetaS1->Drc;
         }}
+
+        Psi1 = NewMap(0); //ReadMap(LDD,getvaluename("psi1"));
+        //calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
+        //calcValue(*Psi1, 0.01, MUL); // convert to meter
+        FOR_ROW_COL_MV_L {
+            Psi1->Drc = psiCalibration * 0.01 * 10.2 * Psia1->Drc * pow((ThetaI1->Drc-ThetaR1->Drc)/(ThetaS1->Drc-ThetaR1->Drc), -1.0/lambda1->Drc); //kPa to m
+        }}
+
+        calcValue(*Ksat1, ksatCalibration, MUL);
 
         if (SwitchTwoLayer)
         {
@@ -696,28 +700,32 @@ void TWorld::InitSoilInput(void)
                 ThetaR2->Drc = 0.025*ThetaS2->Drc;
             }}
 
-            //VJ 101221 all infil maps are needed except psi
-            Psi2 = ReadMap(LDD,getvaluename("psi2"));
-            calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
-            calcValue(*Psi2, 0.01, MUL);
+//            Psi2 = ReadMap(LDD,getvaluename("psi2"));
+//            calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
+//            calcValue(*Psi2, 0.01, MUL);
 
             Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
             //Lambda2 = ReadMap(LDD,getvaluename("lambda2"));
-            bca2 = NewMap(0);
+            Psia2 = NewMap(0);
+            lambda2 = NewMap(0);
             FOR_ROW_COL_MV_L {
-                //bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
-                //bca2->Drc = 24.41*qPow(Ksat2->Drc,-0.188);
-                //bca2->Drc = Lambda2->Drc > 0 ? 3+2/Lambda2->Drc : 15.35;  // else average value of all textures
-
-                double lambda = std::min(0.27, std::max(0.07, 0.0383*log(Ksat2->Drc)+0.0662));
-                bca2->Drc = 3.0+2.0/lambda;
-
+                lambda2->Drc = std::min(0.27, std::max(0.07, 0.0383*log(Ksat2->Drc)+0.0662));
+                // regression eq from data from Saxton and rawls 2006, excel file
+                Psia2->Drc = 5.3279*exp(-0.021*Ksat2->Drc); //air entry potential (bubble pressure) in kPa
             }}
             // field capacity
             ThetaFC2 = NewMap(0);
             FOR_ROW_COL_MV_L {
                  ThetaFC2->Drc = 0.7867*exp(-0.012*Ksat2->Drc)*ThetaS2->Drc;
             }}
+
+            Psi2 = NewMap(0);
+            FOR_ROW_COL_MV_L {
+                Psi2->Drc = 0.01 * 10.2 * psiCalibration * Psia2->Drc * pow((ThetaI2->Drc-ThetaR2->Drc)/(ThetaS2->Drc-ThetaR2->Drc), -1.0/lambda2->Drc); //kPa to m
+            }}
+report(*Psi1, "psi1.map");
+report(*Psi2, "psi2.map");
+
 
             calcValue(*Ksat2, ksat2Calibration, MUL);
 
