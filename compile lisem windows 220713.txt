@@ -16,19 +16,27 @@ It is developed in the Qt environment for the interface and extension of C++ lib
 
 -------------- step 1 ---------------
 
-> Download MSYS2.0 and install Qt: https://wiki.qt.io/MSYS2 (except for the static Qt build)
+> Download MSYS2.0 
 
-Open the MSYS command window and execute the following command. answer "y" when asked. .
+Open the MSYS command window and execute the following commands. 
+(answer "y" when asked.)
 
-pacman -Sy
-pacman --needed -S bash pacman pacman-mirrors msys2-runtime
-pacman -Su
-The window will likely close now, reopen it!
+update MSYS itself:
+Pacman -Syu
+The window may close, simply open it again
 
+install the following base packages:
 pacman -S base-devel git mercurial cvs wget p7zip
-pacman -S perl ruby python mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain
-pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-qwt-qt5 mingw-w64-x86_64-gdal mingw-w64-x86_64-clang
-pacman -S mingw-w64-clang-x86_64-qt-creator
+pacman -S perl ruby python mingw-w64-x86_64-toolchain
+
+-install qt5 which is for now the version in which lisem is created:
+pacman -S mingw-w64-x86_64-qt5 mingw-w64-x86_64-qt-creator 
+-install openmp and gdal and qwt:
+pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-gdal mingw-w64-x86_64-qwt-qt5
+
+IF SOMETHING GOES WRONG YOU CAN UNINSTALL AND START AGAIN. 
+BUT DELETE BY HAND THE MSYS64 FOLDER, THE UNINSTALL PROCESS DOES NOT CLEAN UP EVERYTHING! 
+
 
 {NOTE: info on pacman options: https://devhints.io/pacman)
 

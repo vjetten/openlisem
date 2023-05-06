@@ -44,7 +44,9 @@ void TWorld::GroundwaterFlow(void)
         SoilDepthinit = SoilDepth1init;
         SoilDepth = SoilDepth1;
     }
-
+double tot = 0;
+double totr = 0;
+GWdeeptot = 0;
     // add recharge and subtract deep percolation
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -52,16 +54,22 @@ void TWorld::GroundwaterFlow(void)
         Perc->Drc = cell_Percolation(r, c, GW_recharge); // in m
         GWrecharge->Drc = Perc->Drc * dxa; // m3
 
-        GWdeep->Drc = GW_deep*CellArea->Drc;
+        GWdeep->Drc = GW_deep*dxa;
         // percolation from GW to deeper level, to cause decline in dry periods
 
-        double maxvol = SoilDepthinit->Drc * CellArea->Drc * pore->Drc;
+        double maxvol = SoilDepthinit->Drc * dxa * pore->Drc;
         if (GWVol->Drc + GWrecharge->Drc - GWdeep->Drc > maxvol)
             GWrecharge->Drc = maxvol - GWVol->Drc + GWdeep->Drc;
+        if (GWVol->Drc + GWrecharge->Drc - GWdeep->Drc < 0)
+            GWdeep->Drc = GWVol->Drc + GWrecharge->Drc;
+        GWdeeptot += GWdeep->Drc;
+        tot += GWVol->Drc;
+        totr += GWrecharge->Drc;
         GWVol->Drc += GWrecharge->Drc - GWdeep->Drc;
         GWWH->Drc = GWVol->Drc/(dxa*pore->Drc);
         GWout->Drc = 0;
     }}
+qDebug() << GWdeeptot << totr << tot;
 
     // results in GWout flux between cells based on pressure differences
     if (SwitchGWflow)
@@ -172,18 +180,12 @@ void TWorld::GWFlowLDDKsat(void)
                 flux = -vol;
             GWVol->Drc += flux;
             GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
-            GWout->Drc += Qin;//ChannelWidth->Drc > 0 ? Qin : 0.0;
+            GWout->Drc += Qin;
         }
     }
 
-   // Average3x3(*GWWH, *LDDbaseflow);
+    Average3x3(*GWWH, *LDDbaseflow);
 
-//    #pragma omp parallel for num_threads(userCores)
-//    FOR_ROW_COL_MV_L {
-//        GWVol->Drc = GWWH->Drc*CellArea->Drc*pore->Drc;
-//        //GWout->Drc += ChannelWidth->Drc > 0 ? tma->Drc : 0.0;
-//        GWout->Drc += tma->Drc;
-//    }}
 }
 //---------------------------------------------------------------------------
 void TWorld::GWFlow2D(void)
@@ -309,25 +311,18 @@ void TWorld::GWFlowSWAT(void)
         tma->Drc = 0;
         double CellArea_ = CellArea->Drc;
         // between 0 and soildepth - 0.1m
-     //   double maxvol = CellArea_ * (SwitchTwoLayer ? (SoilDepth2->Drc) : SoilDepth1->Drc)*MaxGWDepthfrac;
-        double GWWH_ = GWWH->Drc;
 
         double GWout_ = GW_flow * CellArea_ * ksat->Drc * BaseflowL->Drc; // m3 volume out from every cell
  //       double GWout_ = GW_flow * _dx * GWWH->Drc * ksat->Drc * BaseflowL->Drc;
         //m3:  GW_flow* ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx;
-        //NOTE cross section changed to cellarea!?
 
-        // DO NOT include pore, ksat is already a flux from a porous soil and includes dt
-
-        GWout_ = GWout_ * std::max(0.0, GWWH_ - GW_threshold) * (1-exp(-GW_threshold*GWWH_));
+        //GWout_ = GWout_ * std::max(0.0, GWWH_ - GW_threshold) * (1-exp(-GW_threshold*GWWH_));
         // stop outflow when some minimum GW level, 2.4.2.10 in SWAT
         // apply a smooth threshold with exponential function
 
-        // GWout_ *= (1+Grad->Drc);  // ???? add effect of slope
-
         if (GWout_ > 0) {
             GWout_ = std::min(GWVol->Drc*MaxGWDepthfrac, GWout_);
-            tmb->Drc = GWout_; // used in accufluowGW
+            tmb->Drc = GWout_;
 
             GWVol->Drc -= GWout_; // subtract from volume
             GWWH->Drc = GWVol->Drc/CellArea_/pore->Drc;
@@ -343,6 +338,5 @@ void TWorld::GWFlowSWAT(void)
     FOR_ROW_COL_MV_L {
         GWout->Drc += tma->Drc;
     }}
-
 }
 

@@ -290,7 +290,8 @@ void TWorld::InitParameters(void)
     GW_inflow = getvaluedouble("GW river inflow factor");
     GW_slope = getvaluedouble("GW slope factor");
     GW_deep = getvaluedouble("GW deep percolation"); // in mm/day
-    GW_deep *= 0.001/86400; //in m/s
+    GW_deep *= 0.001/3600*_dt; //mm/h to m/s
+    qDebug() << "gw_deep" << GW_deep;
 
     GW_threshold = getvaluedouble("GW threshold factor");
 
@@ -2068,7 +2069,6 @@ void TWorld::IntializeData(void)
     WaterVolTotmm = 0;
     WaterVolRunoffmm = 0;
     StormDrainTotmm = 0;
-    WaterVolRunoffmm_F = 0;
     ChannelVolTot = 0;
     StormDrainVolTot = 0;
     ChannelVolTotmm = 0;
@@ -2122,6 +2122,7 @@ void TWorld::IntializeData(void)
     Qfloodout = 0;
     Qtotmm = 0;
     FloodBoundarymm = 0;
+    GWdeeptot = 0;
     Qpeak = 0;
     QpeakTime = 0;
     WH = NewMap(0);
