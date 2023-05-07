@@ -650,8 +650,8 @@ void TWorld::InitSoilInput(void)
         FOR_ROW_COL_MV_L {
 //            bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
 
-            Psia1->Drc = 5.3279*exp(-0.021*Ksat1->Drc); //air entry potential (bubble pressure) in kPa
-            lambda1->Drc = std::min(0.27, std::max(0.07,0.0383*log(Ksat1->Drc)+0.0662));
+            Psia1->Drc = 5.1747*exp(-0.021*Ksat1->Drc); //air entry potential (bubble pressure) in kPa
+            lambda1->Drc = std::min(0.27, std::max(0.07,0.0384*log(Ksat1->Drc)+0.0626));
         }}
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
@@ -683,6 +683,7 @@ void TWorld::InitSoilInput(void)
         //calcValue(*Psi1, 0.01, MUL); // convert to meter
         FOR_ROW_COL_MV_L {
             Psi1->Drc = psiCalibration * 0.01 * 10.2 * Psia1->Drc * pow((ThetaI1->Drc-ThetaR1->Drc)/(ThetaS1->Drc-ThetaR1->Drc), -1.0/lambda1->Drc); //kPa to m
+            Psi1->Drc = std::max(Psi1->Drc, 0.01 * 10.2 * psiCalibration * Psia1->Drc);
         }}
 
         calcValue(*Ksat1, ksatCalibration, MUL);
@@ -709,19 +710,20 @@ void TWorld::InitSoilInput(void)
             Psia2 = NewMap(0);
             lambda2 = NewMap(0);
             FOR_ROW_COL_MV_L {
-                lambda2->Drc = std::min(0.27, std::max(0.07, 0.0383*log(Ksat2->Drc)+0.0662));
+                lambda2->Drc = std::min(0.27, std::max(0.07, 0.0384*log(Ksat2->Drc)+0.0626));
                 // regression eq from data from Saxton and rawls 2006, excel file
-                Psia2->Drc = 5.3279*exp(-0.021*Ksat2->Drc); //air entry potential (bubble pressure) in kPa
+                Psia2->Drc = 5.1747*exp(-0.021*Ksat2->Drc); //air entry potential (bubble pressure) in kPa
             }}
             // field capacity
             ThetaFC2 = NewMap(0);
             FOR_ROW_COL_MV_L {
-                 ThetaFC2->Drc = 0.7867*exp(-0.012*Ksat2->Drc)*ThetaS2->Drc;
+                ThetaFC2->Drc = 0.7867*exp(-0.012*Ksat2->Drc)*ThetaS2->Drc;
             }}
 
             Psi2 = NewMap(0);
             FOR_ROW_COL_MV_L {
                 Psi2->Drc = 0.01 * 10.2 * psiCalibration * Psia2->Drc * pow((ThetaI2->Drc-ThetaR2->Drc)/(ThetaS2->Drc-ThetaR2->Drc), -1.0/lambda2->Drc); //kPa to m
+                Psi2->Drc = std::max(Psi2->Drc, 0.01 * 10.2 * psiCalibration * Psia2->Drc);
             }}
 report(*Psi1, "psi1.map");
 report(*Psi2, "psi2.map");

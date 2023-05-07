@@ -1,5 +1,10 @@
 this file is a list of changes per major commit
-230424 - v6.892
+230505 - v6.894
+- Psi is now calculated from theta with brook-Corey, instead of input. Calibration remains
+- Psi is also added to percolation and redistribution of water
+- Redistribution is split in two function for 1 and 2 layers
+- Increase infiltration depth is split into 2 function for 1 and 2 layers
+230424 - v6.892-6.893
 - Fixed bug causing profile to become saturated instantaneously because percolation from layer 1 to layer 2 saturates subsoil
 - Rewriting of GW flow, LDD version and pressure version work now
 - rewriting of void InfilEffectiveKsat

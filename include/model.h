@@ -886,7 +886,6 @@ public:
     void cell_depositInfil(int r, int c);
     void cell_SplashDetachment(int r, int c);
     void cell_FlowDetachment(int r, int c);
-    void MoistureContent();
 
     void cell_SlopeStability(int r, int c);
 

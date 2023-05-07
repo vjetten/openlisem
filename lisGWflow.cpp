@@ -185,7 +185,7 @@ void TWorld::GWFlowLDDKsat(void)
         }
     }
 
- //   Average3x3(*GWWH, *LDDbaseflow);
+    Average3x3(*GWWH, *LDDbaseflow);
 
 }
 //---------------------------------------------------------------------------
