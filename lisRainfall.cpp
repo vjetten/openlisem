@@ -188,16 +188,31 @@ void TWorld::GetRainfallData(QString name)
 
     // read rainfall text file
     fff.open(QIODevice::ReadOnly | QIODevice::Text);
-    while (!fff.atEnd())
-    {
-        S = fff.readLine();
-        if (S.contains("\n"))
-            S.remove(S.count()-1,1);
-        if (!S.trimmed().isEmpty())
-            rainRecs << S.trimmed();
-    }
+    QByteArray fileData;
+    fileData = fff.readAll();
     fff.close();
+    QString text(fileData);
+    qDebug() << text;
+    text.replace('\r',';');
+    text.replace('\n',';');
+    text.replace(";;",";");
+    qDebug() << text;
+    rainRecs = text.split(";");
 
+    // this doers not see unix \r char as end of line, only \n
+//    while (!fff.atEnd())
+//    {
+//        S = fff.readLine();
+//        if (S.contains("\r") && !S.contains("\n"))
+//            S.replace("\r","\n");
+//        if (S.contains("\n"))
+//            S.remove(S.count()-1,1);
+//        if (!S.trimmed().isEmpty()) {
+//            rainRecs << S.trimmed();
+//        }
+//    }
+//    fff.close();
+    qDebug() << rainRecs.size();
     oldformat = (rainRecs[0].contains("RUU"));
     // original very old format
     if (oldformat) {
@@ -209,7 +224,6 @@ void TWorld::GetRainfallData(QString name)
     int count = rainRecs[1].toInt(&ok, 10); // nr of cols in file
     // header
     // second line is only an integer
-
     if (ok)
     {
         SL = rainRecs[count+2].split(QRegExp("\\s+"));
@@ -223,7 +237,7 @@ void TWorld::GetRainfallData(QString name)
         nrStations = count-1;
         // nr stations is count-1 for time as first column
     }
-
+    qDebug() << nrStations;
     // get station numbers from header, or fill in 1,2 ... n
     stationID.clear();
     for (int i = 0; i < nrStations; i++) {
@@ -233,8 +247,9 @@ void TWorld::GetRainfallData(QString name)
             stationID << tmp;
         else
             stationID << i+1;
-    }  
 
+    }
+    qDebug() << stationID;
    // qDebug() << "stations" << stationID;
 
     if (stationID.count() == 1) {

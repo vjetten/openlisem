@@ -20,15 +20,20 @@ It is developed in the Qt environment for the interface and extension of C++ lib
 
 Open the MSYS command window and execute the following command. answer "y" when asked. .
 
-pacman -Sy
+Install all libs and tools and Qt:
+
+pacman -S base-devel git mercurial cvs wget p7zip
+pacman -S perl ruby python mingw-w64-x86_64-toolchain
+pacman -S mingw-w64-x86_64-qt5
+pacman -S mingw-w64-clang-x86_64-qt-creator
+pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-gdal mingw-w64-x86_64-clang
+
+updater everything:
+pacman -Syu
 pacman --needed -S bash pacman pacman-mirrors msys2-runtime
 pacman -Su
 The window will likely close now, reopen it!
 
-pacman -S base-devel git mercurial cvs wget p7zip
-pacman -S perl ruby python mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain
-pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-qwt-qt5 mingw-w64-x86_64-gdal mingw-w64-x86_64-clang
-pacman -S mingw-w64-clang-x86_64-qt-creator
 
 {NOTE: info on pacman options: https://devhints.io/pacman)
 

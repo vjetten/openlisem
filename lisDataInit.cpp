@@ -527,7 +527,7 @@ void TWorld::InitStandardInput(void)
         RainZone = ReadMap(LDD,getvaluename("ID"));
         if (SwitchIDinterpolation) {
             if (SwitchUseIDmap){
-                IDRainPoints = ReadFullMap(getvaluename("IDGauges"));
+                IDRainPoints = ReadMap(LDD,getvaluename("IDGauges"));
             } else {
                 IDRainPoints = NewMap(0);
             }
@@ -1081,7 +1081,7 @@ void TWorld::InitChannel(void)
         GWz = NewMap(0);
 
         FOR_ROW_COL_MV_L {
-            GWz->Drc = DEM->Drc - SoilDepth1->Drc - SwitchTwoLayer ? SoilDepth2->Drc : 0.0;
+        GWz->Drc = DEM->Drc - SoilDepth1->Drc - (SwitchTwoLayer ? SoilDepth2->Drc : 0.0);
         }}
         Average3x3(*GWz, *LDD);
 
