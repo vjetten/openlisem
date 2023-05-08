@@ -291,10 +291,7 @@ void TWorld::InitParameters(void)
     GW_slope = getvaluedouble("GW slope factor");
     GW_deep = getvaluedouble("GW deep percolation"); // in mm/day
     GW_deep *= 0.001/3600*_dt; //mm/h to m/s
-    qDebug() << "gw_deep" << GW_deep;
-
     GW_threshold = getvaluedouble("GW threshold factor");
-
 
     // get calibration parameters
     gsizeCalibrationD50 = getvaluedouble("Grain Size calibration D50");
