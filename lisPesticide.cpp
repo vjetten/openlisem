@@ -206,7 +206,7 @@ void TWorld::PesticideCellDynamics(void)
        // Kr * (Kd * PCmw->Drc - PCms->Drc) is mg * kg-1 * sec-1
        // this holds if 1L water = 1kg
 
-       if (SwitchPestMixPartitioning) {
+       if (SwitchPestMixPartitioning) { // this switch can be removed
        // positive adds to absorbed, negative to dissolved.
        // mg = mg kg-1 sec-1 *  sec * kg
        mda_ex = kr * (Kd * PCmw->Drc - PCms->Drc) * _dt
