@@ -186,18 +186,20 @@ void lisemqt::SetConnections()
 
   //  connect(E_BulkDens2,SIGNAL(editingFinished()),this, SLOT(updateBulkDens()));
   //  connect(E_BulkDens,SIGNAL(editingFinished()),this, SLOT(updateBulkDens2()));
+    connect(checkGWflowexplicit, SIGNAL(toggled(bool)), this, SLOT(setGWflowtype(bool)));
 
 }
-void lisemqt::updateBulkDens()
+
+
+void lisemqt::setGWflowtype(bool check)
 {
- //   QString txt = E_BulkDens2->text();
-  //  E_BulkDens->setText(txt);
+    if (check) {
+        //checkGWflowexplicit->setAutoExclusive(false);
+        checkGWflowexplicit->setChecked(!check);
+        //checkGWflowexplicit->setAutoExclusive(true);
+    }
 }
-void lisemqt::updateBulkDens2()
-{
-   // QString txt = E_BulkDens->text();
-    //E_BulkDens2->setText(txt);
-}
+
 //--------------------------------------------------------------------
 void lisemqt::setFormatMaps(bool check)
 {

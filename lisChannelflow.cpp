@@ -167,10 +167,11 @@ void TWorld::ChannelBaseflow(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             //GWout->Drc = GWWH->Drc > GW_threshold ?  GWout->Drc * (GWWH->Drc - GW_threshold) * (1-exp(-GW_threshold*GWWH->Drc)) : 0.0;
-            GWout->Drc = GWWH->Drc > GW_threshold ?  GWout->Drc : 0.0;
+            //GWout->Drc = GWWH->Drc > GW_threshold ?  GWout->Drc : 0.0;
             // apply threshold
 
-            Qbase->Drc = std::min(ChannelWidth->Drc/_dx*GWVol->Drc, 2*GWout->Drc);
+            Qbase->Drc = ChannelWidth->Drc/_dx*GWVol->Drc;
+                    //std::min(ChannelWidth->Drc/_dx*GWVol->Drc, 2*GWout->Drc);
             // 2 sides of channel inflow
             ChannelWaterVol->Drc += Qbase->Drc;
             // NOTE: always added no matter the conditions! e.g. when GW is below surface - channeldepth!

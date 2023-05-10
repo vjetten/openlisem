@@ -182,7 +182,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>6</number>
+                  <number>4</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -405,7 +405,7 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>Channel baseflow</string>
+                         <string>Channel baseflow and groundwater flow</string>
                         </property>
                        </widget>
                       </item>
@@ -2842,28 +2842,7 @@ p, li { white-space: pre-wrap; }
                          <property name="spacing">
                           <number>2</number>
                          </property>
-                         <item row="0" column="0">
-                          <widget class="QRadioButton" name="checkGWflowexplicit">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Pressure based groundwater flow</string>
-                           </property>
-                           <property name="checked">
-                            <bool>false</bool>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="1" column="0">
+                         <item row="2" column="0">
                           <widget class="QRadioButton" name="checkGWflowLDD">
                            <property name="enabled">
                             <bool>true</bool>
@@ -2884,7 +2863,28 @@ p, li { white-space: pre-wrap; }
                            </property>
                           </widget>
                          </item>
-                         <item row="2" column="0">
+                         <item row="1" column="0">
+                          <widget class="QRadioButton" name="checkGWflowexplicit">
+                           <property name="enabled">
+                            <bool>true</bool>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Pressure based groundwater flow</string>
+                           </property>
+                           <property name="checked">
+                            <bool>false</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="0">
                           <widget class="QRadioButton" name="checkGWflowSWAT">
                            <property name="font">
                             <font>
@@ -2896,6 +2896,21 @@ p, li { white-space: pre-wrap; }
                            </property>
                            <property name="text">
                             <string>GW flow based on SWAT model</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="0">
+                          <widget class="QRadioButton" name="checkGWnone">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>No GW flow</string>
                            </property>
                           </widget>
                          </item>
@@ -6870,24 +6885,6 @@ p, li { white-space: pre-wrap; }
                            </property>
                           </widget>
                          </item>
-                         <item row="6" column="0" colspan="3">
-                          <widget class="QCheckBox" name="checkGWChangeSD">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>GW layer is below the soil layers ( ) or part of the soil (def.) (v) </string>
-                           </property>
-                           <property name="checked">
-                            <bool>true</bool>
-                           </property>
-                          </widget>
-                         </item>
                          <item row="3" column="1">
                           <widget class="QDoubleSpinBox" name="E_ChannelKinWaveDt">
                            <property name="font">
@@ -7729,6 +7726,24 @@ p, li { white-space: pre-wrap; }
                      </property>
                      <property name="value">
                       <double>1.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="20" column="0">
+                    <widget class="QCheckBox" name="checkGWChangeSD">
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>GW layer is below the soil layers ( ) or part of the soil (def.) (v) </string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>
