@@ -188,11 +188,15 @@ void TWorld::GWFlowLDDKsat(void)
                 flux = -vol;
             GWVol->Drc += flux;
             GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
-            GWout->Drc = Qin;
+            GWout->Drc = flux;// Qin;
         }
     }
 
     Average3x3(*GWWH, *LDDbaseflow);
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        GWVol->Drc = GWWH->Drc*CellArea->Drc*pore->Drc;
+    }}
 
 }
 //---------------------------------------------------------------------------
@@ -311,46 +315,36 @@ void TWorld::GWFlowSWAT(void)
 {
     bool doit = false;
 
-    cTMap *pore;
-    cTMap *ksat;
-    if (SwitchTwoLayer) {
-        pore = ThetaS2;
-        ksat = Ksat2;
-    } else {
-        pore = Poreeff;
+    cTMap *ksat = Ksat2;
+    cTMap *pore = ThetaS2;
+    if (!SwitchTwoLayer) {
         ksat = Ksateff;
+        pore = Thetaeff;
     }
+
+    // calculated lateral flow
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        tma->Drc = 0;
-        double CellArea_ = CellArea->Drc;
-        // between 0 and soildepth - 0.1m
-
- //        double GWout_ = GW_flow * CellArea_ * ksat->Drc * BaseflowL->Drc; // m3 volume out from every cell
-       double GWout_ = GW_flow * _dx * std::max(0.0, GWWH->Drc-GW_threshold) * ksat->Drc * BaseflowL->Drc;
-        //m3:  GW_flow* ksat*dt * ((dx/L)^b) *crosssection of flow dh*dx;
+        //        double GWout_ = GW_flow *  CellArea->Drc * ksat->Drc * BaseflowL->Drc; // m3 volume out from every cell
+        double GWout_ = GW_flow * ksat->Drc * _dx * std::max(0.0, GWWH->Drc-GW_threshold) * BaseflowL->Drc;
+        //m3:  ksat*dt  * dh*dx * ((dx/L)^b);  ksat * cross section * distance factor
+        // stop outflow when some minimum GW level, 2.4.2.10 in SWAT
 
         //GWout_ = GWout_ * std::max(0.0, GWWH_ - GW_threshold) * (1-exp(-GW_threshold*GWWH_));
-        // stop outflow when some minimum GW level, 2.4.2.10 in SWAT
         // apply a smooth threshold with exponential function
+        GWout_ = std::min(GWVol->Drc*MaxGWDepthfrac, GWout_);
+        tmb->Drc = GWout_;
 
+        // adjust volume with outflow
         if (GWout_ > 0) {
-            GWout_ = std::min(GWVol->Drc*MaxGWDepthfrac, GWout_);
-            tmb->Drc = GWout_;
-
-            GWVol->Drc -= GWout_; // subtract from volume
-            GWWH->Drc = GWVol->Drc/CellArea_/pore->Drc;
-
-            doit = true;
+           GWVol->Drc -= GWout_; // subtract from volume
+           GWWH->Drc = GWVol->Drc/ CellArea->Drc/pore->Drc;
+           doit = true; // is someqwhere GWout > 0 do accuflux
         }
     }}
 
     if (doit)
-        AccufluxGW(crlinkedlddbase_, tmb, tma, ChannelWidth);
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        GWout->Drc = tma->Drc;
-    }}
+        AccufluxGW(crlinkedlddbase_, tmb, GWout, ChannelWidth);
+    // GWout has not the accumulated flow pattern, do NOT use this anymore for the mass balance
 }
 
