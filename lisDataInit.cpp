@@ -290,10 +290,8 @@ void TWorld::InitParameters(void)
     GW_inflow = getvaluedouble("GW river inflow factor");
     GW_slope = getvaluedouble("GW slope factor");
     GW_deep = getvaluedouble("GW deep percolation"); // in mm/day
-    GW_deep *= 0.001/86400; //in m/s
-
+    GW_deep *= 0.001/3600*_dt; //mm/h to m/s
     GW_threshold = getvaluedouble("GW threshold factor");
-
 
     // get calibration parameters
     gsizeCalibrationD50 = getvaluedouble("Grain Size calibration D50");
@@ -644,15 +642,14 @@ void TWorld::InitSoilInput(void)
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
         //Lambda1 = ReadMap(LDD,getvaluename("lambda1"));
         // bca = 3+2/lambda so that K=Ks*(theta/thetaS)^bca
-        bca1 = NewMap(0);
+        Psia1 = NewMap(0);
+        lambda1 = NewMap(0);
         FOR_ROW_COL_MV_L {
-//            bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);
-            //bca1->Drc = Lambda1->Drc > 0 ? 3+2/Lambda1->Drc : 15.35;  // else average value of all textures
-            double lambda = std::min(0.27, std::max(0.07,0.0383*log(Ksat1->Drc)+0.0662));
-            bca1->Drc = 3.0+2.0/lambda;
-        }}
+//            bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
 
-        calcValue(*Ksat1, ksatCalibration, MUL);
+            Psia1->Drc = 5.1747*exp(-0.021*Ksat1->Drc); //air entry potential (bubble pressure) in kPa
+            lambda1->Drc = std::min(0.27, std::max(0.07,0.0384*log(Ksat1->Drc)+0.0626));
+        }}
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
@@ -667,10 +664,6 @@ void TWorld::InitSoilInput(void)
         calcValue(*ThetaI1, thetaCalibration, MUL); //VJ 110712 calibration of theta
         calcMap(*ThetaI1, *ThetaS1, MIN); //VJ 110712 cannot be more than porosity
 
-        Psi1 = ReadMap(LDD,getvaluename("psi1"));
-        calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
-        calcValue(*Psi1, 0.01, MUL); // convert to meter
-
         ThetaR1 = NewMap(0);
         FOR_ROW_COL_MV_L {
             ThetaR1->Drc = 0.025*ThetaS1->Drc;
@@ -681,6 +674,16 @@ void TWorld::InitSoilInput(void)
         FOR_ROW_COL_MV_L {
              ThetaFC1->Drc = 0.7867*exp(-0.012*Ksat1->Drc)*ThetaS1->Drc;
         }}
+
+        Psi1 = NewMap(0); //ReadMap(LDD,getvaluename("psi1"));
+        //calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
+        //calcValue(*Psi1, 0.01, MUL); // convert to meter
+        FOR_ROW_COL_MV_L {
+            Psi1->Drc = psiCalibration * 0.01 * 10.2 * Psia1->Drc * pow((ThetaI1->Drc-ThetaR1->Drc)/(ThetaS1->Drc-ThetaR1->Drc), -1.0/lambda1->Drc); //kPa to m
+            Psi1->Drc = std::max(Psi1->Drc, 0.01 * 10.2 * psiCalibration * Psia1->Drc);
+        }}
+
+        calcValue(*Ksat1, ksatCalibration, MUL);
 
         if (SwitchTwoLayer)
         {
@@ -695,28 +698,33 @@ void TWorld::InitSoilInput(void)
                 ThetaR2->Drc = 0.025*ThetaS2->Drc;
             }}
 
-            //VJ 101221 all infil maps are needed except psi
-            Psi2 = ReadMap(LDD,getvaluename("psi2"));
-            calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
-            calcValue(*Psi2, 0.01, MUL);
+//            Psi2 = ReadMap(LDD,getvaluename("psi2"));
+//            calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
+//            calcValue(*Psi2, 0.01, MUL);
 
             Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
             //Lambda2 = ReadMap(LDD,getvaluename("lambda2"));
-            bca2 = NewMap(0);
+            Psia2 = NewMap(0);
+            lambda2 = NewMap(0);
             FOR_ROW_COL_MV_L {
-                //bca2->Drc = 5.55*qPow(Ksat2->Drc,-0.114);
-                //bca2->Drc = 24.41*qPow(Ksat2->Drc,-0.188);
-                //bca2->Drc = Lambda2->Drc > 0 ? 3+2/Lambda2->Drc : 15.35;  // else average value of all textures
-
-                double lambda = std::min(0.27, std::max(0.07, 0.0383*log(Ksat2->Drc)+0.0662));
-                bca2->Drc = 3.0+2.0/lambda;
-
+                lambda2->Drc = std::min(0.27, std::max(0.07, 0.0384*log(Ksat2->Drc)+0.0626));
+                // regression eq from data from Saxton and rawls 2006, excel file
+                Psia2->Drc = 5.1747*exp(-0.021*Ksat2->Drc); //air entry potential (bubble pressure) in kPa
             }}
             // field capacity
             ThetaFC2 = NewMap(0);
             FOR_ROW_COL_MV_L {
-                 ThetaFC2->Drc = 0.7867*exp(-0.012*Ksat2->Drc)*ThetaS2->Drc;
+                ThetaFC2->Drc = 0.7867*exp(-0.012*Ksat2->Drc)*ThetaS2->Drc;
             }}
+
+            Psi2 = NewMap(0);
+            FOR_ROW_COL_MV_L {
+                Psi2->Drc = 0.01 * 10.2 * psiCalibration * Psia2->Drc * pow((ThetaI2->Drc-ThetaR2->Drc)/(ThetaS2->Drc-ThetaR2->Drc), -1.0/lambda2->Drc); //kPa to m
+                Psi2->Drc = std::max(Psi2->Drc, 0.01 * 10.2 * psiCalibration * Psia2->Drc);
+            }}
+report(*Psi1, "psi1.map");
+report(*Psi2, "psi2.map");
+
 
             calcValue(*Ksat2, ksat2Calibration, MUL);
 
@@ -735,10 +743,6 @@ void TWorld::InitSoilInput(void)
                     throw 1;
                 }
             }
-
-            SoilDepth3init = NewMap(0);
-            SoilDepth3 = NewMap(0);
-
         }
 
         if (SwitchInfilCrust)
@@ -1074,7 +1078,6 @@ void TWorld::InitChannel(void)
         }}
 
         GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
-        Qbin = NewMap(0);
         Qbase = NewMap(0);
         //Qbaseprev = NewMap(0);
         GWWH = NewMap(0);
@@ -2073,7 +2076,6 @@ void TWorld::IntializeData(void)
     WaterVolTotmm = 0;
     WaterVolRunoffmm = 0;
     StormDrainTotmm = 0;
-    WaterVolRunoffmm_F = 0;
     ChannelVolTot = 0;
     StormDrainVolTot = 0;
     ChannelVolTotmm = 0;
@@ -2127,6 +2129,7 @@ void TWorld::IntializeData(void)
     Qfloodout = 0;
     Qtotmm = 0;
     FloodBoundarymm = 0;
+    GWdeeptot = 0;
     Qpeak = 0;
     QpeakTime = 0;
     WH = NewMap(0);
@@ -2526,6 +2529,7 @@ void TWorld::IntializeOptions(void)
     SwitchChannelBaseflow = false;
     SwitchGWflow = false;
     SwitchLDDGWflow = false;
+    SwitchSWATGWflow = false;
     SwitchGWChangeSD = true;
     SwitchChannelBaseflowStationary = false;
     SwitchChannelInfil = false;

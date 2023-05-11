@@ -375,7 +375,7 @@ public:
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle,
-    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchGWflow,SwitchPressureGWflow,SwitchLDDGWflow,SwitchChannel2DflowConnect,
+    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchGWflow,SwitchPressureGWflow,SwitchLDDGWflow,SwitchSWATGWflow,SwitchChannel2DflowConnect,
     SwitchGWChangeSD;
 
     int SwitchKinematic2D;
@@ -485,7 +485,7 @@ public:
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTot_dt, SedTot,
            FloodDetTot, FloodDepTot, FloodSedTot;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
-    double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm, WaterVolRunoffmm, FloodBoundarymm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, WaterVolRunoffmm_F;
+    double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm, WaterVolRunoffmm, FloodBoundarymm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, GWdeeptot;
     double StormDrainTotmm, floodVolTotmm, floodTotmmInit;
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
@@ -886,7 +886,6 @@ public:
     void cell_depositInfil(int r, int c);
     void cell_SplashDetachment(int r, int c);
     void cell_FlowDetachment(int r, int c);
-    void MoistureContent();
 
     void cell_SlopeStability(int r, int c);
 
@@ -920,7 +919,7 @@ public:
     void GroundwaterRecharge();
     void GroundwaterFlow();
     void GWFlow2D();
-    void GWFlowLDD();
+    void GWFlowSWAT();
     void GWFlowLDDKsat();
 
     double getMassCH(cTMap *M);

@@ -187,7 +187,7 @@ void TWorld::cell_InfilMethods(int r, int c)
     // select the appropriate domain water height for overpressure
 
     // only do infiltration on permeable soils
-    if (SoilWidthDX->Drc > 0) {
+    if (SoilWidthDX->Drc > 0 && fwh > 0) {
 
         //calculate potential infiltration rate fpot
         if (SwitchTwoLayer || SwitchThreeLayer) {
@@ -201,12 +201,6 @@ void TWorld::cell_InfilMethods(int r, int c)
                 // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
                 Psi = Psi2->Drc; //in m
             }
-            if (Lw->Drc > SoilDep2) {
-                Ks = Lw->Drc/(SoilDep1/Ksateff->Drc+(SoilDep2-SoilDep1)/Ksat2->Drc + (Lw->Drc- SoilDep2)/Ksat3->Drc);
-                // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
-                Psi = Psi2->Drc; //in m
-            }
-
         }
 
         if (InfilMethod == INFIL_GREENAMPT)
@@ -229,10 +223,9 @@ void TWorld::cell_InfilMethods(int r, int c)
         // actual infil in m, cannot have more infil than water on the surface, includes rainfall
 
         if (fact_ > 0) {
-//            fact_ = IncreaseInfiltrationDepthNew0(fact_, r, c);
-            if (SwitchThreeLayer)
-                fact_ = IncreaseInfiltrationDepthNew3(fact_, r, c);
-            else
+//            if (SwitchThreeLayer)
+//                fact_ = IncreaseInfiltrationDepthNew3(fact_, r, c);
+//            else
                 if (SwitchTwoLayer)
                     fact_ = IncreaseInfiltrationDepthNew2(fact_, r, c);
                 else
@@ -256,9 +249,12 @@ void TWorld::cell_InfilMethods(int r, int c)
 
         Fcum->Drc += fact_; // for Smith and Parlange
         // increase cumulative infil in m
-        fact->Drc = fact_;
+       // fact->Drc = fact_;
         InfilVol->Drc = fact_* SoilWidthDX->Drc * DX->Drc;
         // calc infiltrated volume for mass balance
+    } else {
+       // fact->Drc = 0;
+        InfilVol->Drc = 0;
     }
 
     // calc surplus infiltration (negative in m) for kin wave
@@ -287,11 +283,6 @@ double TWorld::IncreaseInfiltrationDepthNew1(double fact_in, int r, int c)
 
     // impermeable and L reached SD1, no more infil
     if (SwitchImpermeable && L > SoilDep1 - 0.001) {
-        Lw->Drc = SoilDep1;
-        return 0;
-    }
-    // impermeable and no more room, no more infil
-    if (SwitchImpermeable && dtheta1 < 0.001) {
         Lw->Drc = SoilDep1;
         return 0;
     }
@@ -333,12 +324,6 @@ double TWorld::IncreaseInfiltrationDepthNew2(double fact_in, int r, int c)
         Lw->Drc = SoilDep2;
         return 0;
     }
-
-    // DO NOT DO THIS if percolation saturate sthe bottom layer while there is still room i the top layer
-    //    if (SwitchImpermeable && dtheta2 < 0.001) {
-    //        Lw->Drc = SoilDep2;
-    //        return 0;
-    //    }
 
     // L is in layer 1
     if (L <= SoilDep1) {
@@ -404,10 +389,10 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
 {
     double dtheta1 = std::max(0.0,Poreeff->Drc-Thetaeff->Drc); // space in the top layer
     double dtheta2 = std::max(0.0,ThetaS2->Drc-ThetaI2->Drc);
-    double dtheta3 = std::max(0.0,ThetaS2->Drc-ThetaI2->Drc);
+    double dtheta3 = std::max(0.0,ThetaS3->Drc-ThetaI3->Drc);
     double SoilDep1 = SoilDepth1->Drc;
     double SoilDep2 = SoilDepth2->Drc;
-    double SoilDep3 = SoilDepth2->Drc+1.0; // JUST TON TEST!
+    double SoilDep3 = SoilDepth3->Drc;
     double fact_out = 0;
     double space = 0;
     double Lnew = 0;
@@ -442,7 +427,7 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
     }
 
     // L is in layer 2
-    if (L > SoilDep1 && L < SoilDep2) {
+    if (L > SoilDep1 && L <= SoilDep2) {
         //L already in layer 2 but not in 3
         Lnew = L + fact_in/std::max(0.01,dtheta2);
         space2 = (SoilDep2-L)*dtheta2;
@@ -457,7 +442,7 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
     }
 
     // L is in layer 3
-    if (L > SoilDep2 && L < SoilDep3) {
+    if (L > SoilDep2 && L <= SoilDep3) {
         //L already in layer 2 but not in 3
         Lnew = L + fact_in/std::max(0.01,dtheta3);
         space3 = (SoilDep3-L)*dtheta3;

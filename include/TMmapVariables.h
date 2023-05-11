@@ -96,9 +96,7 @@ cTMap
 *V,                          //!< velocity of overland flow [m/s]
 *Alpha,                      //!< alpha in A = alphaQ^b
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
-*Qbin,
 *Qbase,
-//*Qbaseprev,
 *GWVol,
 *GWWH,
 *GWWHmax,
@@ -280,8 +278,10 @@ cTMap
 *Ksateff,                    //!< effective saturated hydraulic conductivity (input is in mm/h) [m/s]
 *Poreeff,
 *Thetaeff,
-*bca1,
-*bca2,
+*Psia1,
+*Psia2,
+*lambda1,
+*lambda2,
 *Perc,
 *PercmmCum,
 *GrassFraction,              //!< fraction of grasstrip in a cell [-]

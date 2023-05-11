@@ -152,35 +152,31 @@ void TWorld::ChannelBaseflow(void)
         }}
     }
 
-    if (SwitchGWflow || SwitchLDDGWflow) {
+    if (SwitchGWflow || SwitchLDDGWflow || SwitchSWATGWflow) {
         GroundwaterFlow();
-        // move groundwater, Qbin is the flow
+        // move groundwater, GWout is the flow itself between cells
 
-        // do the baseflow
-        cTMap *pore;
-        if (SwitchTwoLayer)
-            pore = ThetaS2;
-        else
+        cTMap *pore = ThetaS2;
+        if (!SwitchTwoLayer)
             pore = Thetaeff;
 
         // in all channel cells
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            //GWout->Drc = GWWH->Drc > GW_threshold ?  GWout->Drc * (GWWH->Drc - GW_threshold) * (1-exp(-GW_threshold*GWWH->Drc)) : 0.0;
-            GWout->Drc = GWWH->Drc > GW_threshold ?  GWout->Drc : 0.0;
-            // apply threshold
+            Qbase->Drc = std::min(GWVol->Drc, 2.0*ChannelWidth->Drc/_dx*fabs(GWout->Drc));
+            // assumption: GWout is the general flow in the channel cell always towards the channel (fabs)
+            // and flow is from 2 sides into the channel, a small channel has less inflow than a broad channel
 
-            Qbase->Drc = std::min(ChannelWidth->Drc/_dx*GWVol->Drc, 2*GWout->Drc);
-            // 2 sides of channel inflow
             ChannelWaterVol->Drc += Qbase->Drc;
-            // NOTE: always added no matter the conditions! e.g. when GW is below surface - channeldepth!
-            // But that would make channeldepth very sensitive
-            //m3 added per timestep
-
             GWVol->Drc -= Qbase->Drc;
             GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
-            // adjust GW for channel part
+            // m3 added per timestep
+
+            // NOTE: flow is always added no matter the conditions! e.g. when GW is below surface - channeldepth!
+            // But that would make channeldepth very sensitive
+
         }}
+
     }
 }
 //---------------------------------------------------------------------------
