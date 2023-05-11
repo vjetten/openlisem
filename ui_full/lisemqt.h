@@ -461,6 +461,8 @@ public slots:
     void setFloodTab(bool);
     void setErosionTab(bool);
 
+    void setGWflowtype(bool);
+
     void resizeMap();
     void fontSelect();
     void fontDecrease();
@@ -468,9 +470,6 @@ public slots:
     void setfontSize();
 
     void setFormatMaps(bool);
-
-    void updateBulkDens();
-    void updateBulkDens2();
 
     QString getFileorDir(QString inputdir,QString title, QStringList filters, int doFile);
 

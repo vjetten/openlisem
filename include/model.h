@@ -485,7 +485,7 @@ public:
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTot_dt, SedTot,
            FloodDetTot, FloodDepTot, FloodSedTot;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
-    double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm, WaterVolRunoffmm, FloodBoundarymm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, WaterVolRunoffmm_F;
+    double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm, WaterVolRunoffmm, FloodBoundarymm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, GWdeeptot;
     double StormDrainTotmm, floodVolTotmm, floodTotmmInit;
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
@@ -886,7 +886,6 @@ public:
     void cell_depositInfil(int r, int c);
     void cell_SplashDetachment(int r, int c);
     void cell_FlowDetachment(int r, int c);
-    void MoistureContent();
 
     void cell_SlopeStability(int r, int c);
 
