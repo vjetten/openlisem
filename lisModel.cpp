@@ -415,17 +415,23 @@ void TWorld::HydrologyProcesses()
            cell_InfilSwatre(r, c);
         } else {
             if (InfilMethod != INFIL_NONE) {
-               cell_InfilMethods(r, c);
 
-               cell_Redistribution(r, c);
+                cell_InfilMethods(r, c);
 
-               if (!SwitchImpermeable)// && !SwitchChannelBaseflow)
-                   Perc->Drc = cell_Percolation(r, c, 1.0);
+                if (SwitchTwoLayer)
+                    cell_Redistribution2(r, c);
+                else
+                    cell_Redistribution1(r, c);
+
+                if (!SwitchImpermeable)
+                    Perc->Drc = cell_Percolation(r, c, 1.0);
                 // if baseflow is active percollation is done there, so do not do it here
             }
         }
-      //  cell_depositInfil(r,c);
+
+        //  cell_depositInfil(r,c);
         // deposit all sediment still in flow when infiltration causes WH to become minimum
+        // gives huge MBs errors!
 
         cell_SurfaceStorage(r, c);
         //calc surf storage and total watervol and WHrunoff

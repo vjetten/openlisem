@@ -186,18 +186,20 @@ void lisemqt::SetConnections()
 
   //  connect(E_BulkDens2,SIGNAL(editingFinished()),this, SLOT(updateBulkDens()));
   //  connect(E_BulkDens,SIGNAL(editingFinished()),this, SLOT(updateBulkDens2()));
+    connect(checkGWflowexplicit, SIGNAL(toggled(bool)), this, SLOT(setGWflowtype(bool)));
 
 }
-void lisemqt::updateBulkDens()
+
+
+void lisemqt::setGWflowtype(bool check)
 {
- //   QString txt = E_BulkDens2->text();
-  //  E_BulkDens->setText(txt);
+    if (check) {
+        //checkGWflowexplicit->setAutoExclusive(false);
+        checkGWflowexplicit->setChecked(!check);
+        //checkGWflowexplicit->setAutoExclusive(true);
+    }
 }
-void lisemqt::updateBulkDens2()
-{
-   // QString txt = E_BulkDens->text();
-    //E_BulkDens2->setText(txt);
-}
+
 //--------------------------------------------------------------------
 void lisemqt::setFormatMaps(bool check)
 {
@@ -475,8 +477,8 @@ void lisemqt::setFloodTab(bool yes)
     label_107->setEnabled(yes);
 
     if (checkOverlandFlow2Ddyn->isChecked() || checkOverlandFlow2Dkindyn->isChecked()) {
-        label_107->setText(QString("Flood,h>%1)").arg(E_floodMinHeight->value()*1000));
-        label_40->setText(QString("Runoff,h<%1)").arg(E_floodMinHeight->value()*1000));
+        label_107->setText(QString("Flood(h>%1mm)").arg(E_floodMinHeight->value()*1000));
+        label_40->setText(QString("Runoff(h<%1mm)").arg(E_floodMinHeight->value()*1000));
     }
     else
     {
@@ -489,7 +491,7 @@ void lisemqt::setFloodTab(bool yes)
 void lisemqt::setErosionTab(bool yes)
 {
     //  yes = checkDoErosion->isChecked();
-qDebug() << checkDoErosion->isChecked();
+
     tab_erosion->setEnabled(checkDoErosion->isChecked());
 
     outputMapsSediment->setEnabled(checkDoErosion->isChecked());
@@ -1816,13 +1818,11 @@ QString lisemqt::findValidDir(QString path, bool up)
     if (!QFileInfo(path).exists() || path.isEmpty())
         path = currentDir;
 
-    qDebug() << path;
     if (path.indexOf("/",1) > 0)
         path.replace("\\","/");
     else
         if (path.indexOf("\\",1) > 0)
             path.replace("/","\\");
-    qDebug() << path;
 
     return (path);
 }

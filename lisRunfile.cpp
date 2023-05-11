@@ -206,10 +206,9 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Adjust channel crosssection")==0)       SwitchChannelAdjustCHW  = iii == 1;
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
         if (p1.compare("Include channel inflow")==0)            SwitchChannelInflow  = iii == 1;
-        if (p1.compare("Include Pesticides")==0)                SwitchPest = iii == 1;
-        if (p1.compare("Report Pesticides")==0)                 SwitchReportPest = iii == 1;
-        if (p1.compare("GW flow explicit")==0)                  SwitchExplicitGWflow  = iii == 1;
-      //  if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
+        if (p1.compare("GW flow explicit")==0)                  SwitchGWflow  = iii == 1;
+        if (p1.compare("GW flow LDD")==0)                       SwitchLDDGWflow  = iii == 1;
+        if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
 
       //  if (p1.compare("Variable Timestep")==0)                 SwitchVariableTimestep = iii == 1;
         if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
@@ -335,18 +334,7 @@ void TWorld::ParseRunfileData(void)
     InfilMethod = getvalueint("Infil Method");
     if (InfilMethod == INFIL_GREENAMPT2) InfilMethod = INFIL_GREENAMPT;
     if (InfilMethod == INFIL_SMITH2) InfilMethod = INFIL_SMITH;
-    //deal with old runfil pre 6.6
-
-//#define INFIL_NONE 0
-//#define INFIL_SWATRE 1
-//#define INFIL_HOLTAN 2
-//#define INFIL_GREENAMPT 3
-//#define INFIL_GREENAMPT2 4
-//#define INFIL_KSAT 5
-//#define INFIL_MOREL 21
-//#define INFIL_SMITH 22
-//#define INFIL_SMITH2 23
-
+    //prob onsolete: deal with old runfil pre 6.6
 
     // check a few things
 
@@ -381,9 +369,9 @@ void TWorld::ParseRunfileData(void)
 //        SwitchImpermeable = false; //!!!!!!!!!!!!!
 // no because this is not the case when there is stationary baselfow
 
-    if (SwitchChannelBaseflow && SwitchExplicitGWflow) {
+    if (SwitchChannelBaseflow && (SwitchGWflow || SwitchLDDGWflow)) {
         SwitchImpermeable = false;
-    }
+    }   
     // stationary baseflow and impermeable soil allowed (ignoring where the stationary flow comes form !
 
     // next get the main input directory
