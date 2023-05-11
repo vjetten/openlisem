@@ -38,6 +38,8 @@ functions: \n
 #include "lisemqt.h"
 #include "global.h"
 
+#include <iostream>
+
 QStringList optionList;
 
 int main(int argc, char *argv[])
@@ -107,18 +109,39 @@ int main(int argc, char *argv[])
         return app.exec();
 
     } else {
+        // 2 options:
+        // noInterface = run without GUI in console
+        // batchmode = run with GUI but start run automatically (default)
+        bool noInterface = false;
 
         QString ag = args.join(" ");
-        // run without interface nin console
         QString name;
+
         if (ag.contains("?")) {
-            printf("syntax:\nlisem -r runfile \n");
+            printf("syntax:\nlisem [-ni] -r runfile \n"
+                   "-ni = no graphical user interface, uses runfile directly!\n");
             return 0;
         }
 
+        // run from console with or without GUI
         if (ag.contains("-r")) {
             QStringList sl = ag.split("-r");
             name = sl[1].simplified();
+            if (ag.contains("-ni")) {
+                noInterface = true;
+                op.runfilename = name;
+                op.doBatchmode = true;
+
+                TWorld *W = new TWorld();
+                // make the model world
+                W->stopRequested = false;
+                W->waitRequested = false;
+                W->noInterface = noInterface;
+                W->start();
+                qDebug() << "\nrunning OpenLISEM with:" << name;
+                return app.exec();
+            } else {
+
             //qDebug() << "running: " << name;
 
             lisemqt iface(0, true, name);
@@ -126,9 +149,11 @@ int main(int argc, char *argv[])
             iface.show();
 
             return app.exec();
+            }
 
         } else {
-            printf("syntax:\nlisem -r runfile \n");
+            printf("syntax:\nlisem [-ni] -r runfile \n"
+                   "-ni = no graphical user interface, uses runfile directly!\n");
             return 0;
         }
     }
