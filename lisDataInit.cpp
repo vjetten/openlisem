@@ -312,7 +312,7 @@ void TWorld::InitParameters(void)
     }
 
     thetaCalibration = getvaluedouble("Theta calibration");
-    psiCalibration = getvaluedouble("Psi calibration");
+    //psiCalibration = getvaluedouble("Psi calibration");
     SD1Calibration = getvaluedouble("SoilDepth1 calibration");
     SD2Calibration = getvaluedouble("SoilDepth2 calibration");
 
@@ -677,7 +677,7 @@ void TWorld::InitSoilInput(void)
         ThetaFC1 = NewMap(0);
         FOR_ROW_COL_MV_L {
              //ThetaFC1->Drc = 0.7867*exp(-0.012*Ksat1->Drc)*ThetaS1->Drc;
-            ThetaFC1->Drc = -0.0519*log(ksat1->Drc) + 0.3714;
+            ThetaFC1->Drc = -0.0519*log(Ksat1->Drc) + 0.3714;
         }}
 
         Psi1 = NewMap(0); //ReadMap(LDD,getvaluename("psi1"));
@@ -728,12 +728,13 @@ void TWorld::InitSoilInput(void)
             ThetaFC2 = NewMap(0);
             FOR_ROW_COL_MV_L {
                // ThetaFC2->Drc = 0.7867*exp(-0.012*Ksat2->Drc)*ThetaS2->Drc;
-                ThetaFC2->Drc = -0.0519*log(ksat2->Drc) + 0.3714;
+                ThetaFC2->Drc = -0.0519*log(Ksat2->Drc) + 0.3714;
             }}
 
             Psi2 = NewMap(0);
             FOR_ROW_COL_MV_L {
-                Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425);                double psi_bp = exp(-0.3012*log(Ksat1->Drc) + 3.5164);
+                Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425);
+                double psi_bp = exp(-0.3012*log(Ksat1->Drc) + 3.5164);
                 Psi2->Drc = std::min(Psi2->Drc,psi_bp)*0.01;
                 // psi cannot be more that bubbling pressure, 0.01 cm to m
 

@@ -289,7 +289,8 @@ double TWorld::cell_Percolation(int r, int c, double factor)
                 Percolation = ksat; //(Lwo-Lw_)*(pore-theta);
             }
             ThetaI2->Drc = theta;
-            Psi2->Drc = 0.01 * 10.2 * Psia2->Drc * psiCalibration * std::max(1.0, pow((theta-thetar)/(pore-thetar), -1.0/lambda2->Drc));
+             //DO NOT RECALCULATE PSI
+            //Psi2->Drc = 0.01 * 10.2 * Psia2->Drc * psiCalibration * std::max(1.0, pow((theta-thetar)/(pore-thetar), -1.0/lambda2->Drc));
             Lw->Drc = Lw_;
             return(Percolation);
         }

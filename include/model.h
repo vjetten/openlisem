@@ -451,7 +451,7 @@ public:
     double ksat2Calibration;
     double nCalibration;
     double thetaCalibration;
-    double psiCalibration;
+    //double psiCalibration;
     double SD1Calibration;
     double SD2Calibration;
     double ChnCalibration;
