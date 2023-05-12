@@ -1,0 +1,146 @@
+openLISEM: Quick guideline for code development
+===============================================
+Date: 230501
+
+Introduction:
+openLISEM is compiled with MINGW64, the windows port of the native Linux compiler. The advantage is that it is opensource and free, and easy to compile lisem under Linux.
+It is developed in the Qt environment for the interface and extension of C++ libs
+
+> The following software is needed
+- MSYS is the installation environment used for MINGW64 and all libraries needed, such as Qt.
+- Qt is the development environment for the code (installed by MSYS)
+- QWT is a set of libraries for graphical output (https://qwt.sourceforge.io/) downloaded in MSYS. HOWEVER: we use a separate branch of this lib.
+- CMAKE is part of the code development and compilation, it generates file for MINGW
+- GIT: to download and manage the openLISEM code from github
+
+
+-------------- step 1 ---------------
+
+> Download MSYS2.0 
+
+Open the MSYS command window and execute the following commands. 
+(answer "y" when asked.)
+
+<<<<<<< HEAD
+Install all libs and tools and Qt:
+
+pacman -S base-devel git mercurial cvs wget p7zip
+pacman -S perl ruby python mingw-w64-x86_64-toolchain
+pacman -S mingw-w64-x86_64-qt5
+pacman -S mingw-w64-clang-x86_64-qt-creator
+pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-gdal mingw-w64-x86_64-clang
+
+updater everything:
+pacman -Syu
+pacman --needed -S bash pacman pacman-mirrors msys2-runtime
+pacman -Su
+The window will likely close now, reopen it!
+
+=======
+update MSYS itself:
+Pacman -Syu
+The window may close, simply open it again
+
+install the following base packages:
+pacman -S base-devel git mercurial cvs wget p7zip
+pacman -S perl ruby python mingw-w64-x86_64-toolchain
+
+-install qt5 which is for now the version in which lisem is created:
+pacman -S mingw-w64-x86_64-qt5 mingw-w64-x86_64-qt-creator 
+-install openmp and gdal and qwt:
+pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-gdal mingw-w64-x86_64-qwt-qt5
+
+IF SOMETHING GOES WRONG YOU CAN UNINSTALL AND START AGAIN. 
+BUT DELETE BY HAND THE MSYS64 FOLDER, THE UNINSTALL PROCESS DOES NOT CLEAN UP EVERYTHING! 
+
+>>>>>>> 3b395dbdbf51f571e03313ee0daed62aa39429ab
+
+{NOTE: info on pacman options: https://devhints.io/pacman)
+
+Add the minw location to the windows path (see e.g. here on how to do that: https://helpdeskgeek.com/windows-10/add-windows-path-environment-variable/):
+c:\[your path]\msys64\mingw64 
+c:\[your path]\msys64\mingw64\bin
+
+restart your PC after this step!
+
+
+-------------- step 2 ---------------
+
+> get the GIT and CMAKE software
+Install git latest version: https://git-scm.com/
+Install cmake lastest version: https://cmake.org
+If you want use Tortoise GIT for an easy integration of GIT commands into the winfows explorer: https://tortoisegit.org/
+
+> Download the openLISEM code from github:
+Register online at github.com
+create an empty directory "lisem" for the code, e.g. c:/prgc/lisem
+create an empty directory for the compiled executable (do not make it a subdirectory of lisem), e.g. c:/prgc/lisem-bin
+
+> With the explorer go into the lisem directory and open a command prompt window (type CMD in to the address line):
+
+type:
+git clone https://github.com/vjetten/openlisem.git .
+(do not forget the '.')
+
+all openlisem code will be downloaded now
+
+> read about GIT, for instance make a branch for yourself (e.g. "mylisem)
+git branch mylisem
+git checkout mylisem
+Please do NOT merge your code with the remote repository!
+
+-------------- step 3 ---------------
+
+> generate the CMAKE files for MINGW to compile lisem
+
+open cmake-gui (should be in your list of programmes after installation). 
+
+In the interface, the first field  ("where is the source code") should point to the folder 'lisem' with the github code
+the second field ("where to build the binaries") should point to the still empty folder 'lisem-bin'
+press configure, choose "codeblocks - MingW makefiles" 
+Red fields should appear without any warnings or errors (one field says "CMAKE_CODEBLOCKS_EXECUTABLE-NOTFOUND", ignore that)
+
+-------------- step 4 ---------------
+
+For openLISEM we use a special version of QWT which is provided on the github website of openlisem:
+download qt-6.1-ma.zip from https://github.com/vjetten/openlisem/releases/tag/openLisem 
+unzip this file in a folder of your choice, for instance in a folder near the openLISEM code
+
+-------------- step 5 ---------------
+
+> compile the code
+
+Open Qtcreator (C:\[your path]\msys64\mingw64\bin\qtcreator.exe) and load the file "CMakeList.txt" in the folder 'lisem'
+click on edit in the left bbar. You should now see the complete tree structure of the code. 
+Because you have your own dirs for MINGW and QWT you have to tell the code wehre to find it:
+
+find aplication.cmake under "CMake Modules" and change these lines too yoru own folder names:
+IF(WIN32)
+ SET(QWT_BUILD_DIR "c:/qt/qwt-6.1-ma") # <= give your won names here
+ SET(GDAL_BUILD_DIR "c:/qt/msys64/mingw64")
+ENDIF()
+
+Click on Projects in the left bar and add '-j' to the "build steps" to speed up the compilation:
+cmake.exe --build C:/prgc/lisem-msys --target all -j
+
+You can now try to compile for the first time.
+
+Currently this gives a lot of errors that are not related to the lisem code involving "stdlib.h" not found.
+A workaround is to find where the errors originate, in "cstdlib" and "cmath" and change the line
+#include_next <stdlib.h>
+to
+#include <stdlib.h>
+You have to do this in 3 or 4 places. I could not find another way to do this. If you find why please contact me!
+
+-------------- step 6 ---------------
+
+Finally: you can run openLISEM from within qtcreator bt not outside as a stand alone version. 
+The many libraries that lisem.exe needs are included in the release version of openLISME on github. 
+Download the latest version and unzip it in the 'lisem-bin' folder.
+You should now be able to compile and run openlisem 
+
+
+best of luck!
+Victor Jetten
+
+v.g.jetten AD utwente DOT nl
