@@ -145,8 +145,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>792</width>
-                <height>746</height>
+                <width>654</width>
+                <height>780</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -182,7 +182,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>4</number>
+                  <number>7</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -5229,66 +5229,6 @@ p, li { white-space: pre-wrap; }
                         </property>
                        </widget>
                       </item>
-                      <item row="6" column="1">
-                       <widget class="QDoubleSpinBox" name="E_CalibratePsi">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="decimals">
-                         <number>2</number>
-                        </property>
-                        <property name="minimum">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="maximum">
-                         <double>99.000000000000000</double>
-                        </property>
-                        <property name="singleStep">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="value">
-                         <double>1.000000000000000</double>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="6" column="0">
-                       <widget class="QLabel" name="label_calpsi">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="toolTip">
-                         <string notr="true"/>
-                        </property>
-                        <property name="text">
-                         <string>Psi (matric suction of layers 1 and 2)</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
                       <item row="5" column="0">
                        <widget class="QLabel" name="label_calth">
                         <property name="sizePolicy">
@@ -5581,22 +5521,6 @@ p, li { white-space: pre-wrap; }
                          </size>
                         </property>
                        </spacer>
-                      </item>
-                      <item row="6" column="2">
-                       <widget class="QLabel" name="label_127">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <italic>true</italic>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Not used with SWATRE</string>
-                        </property>
-                       </widget>
                       </item>
                      </layout>
                     </widget>
@@ -6262,6 +6186,56 @@ p, li { white-space: pre-wrap; }
                    <item row="1" column="0">
                     <widget class="QFrame" name="groupAdvanced">
                      <layout class="QGridLayout" name="gridLayout_65">
+                      <item row="0" column="2">
+                       <spacer name="horizontalSpacer_19">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item row="0" column="4">
+                       <widget class="QToolButton" name="toolButton_help8">
+                        <property name="text">
+                         <string>...</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../resources/openlisem.qrc">
+                          <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="1">
+                       <widget class="QLabel" name="label_56">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Nr of CPU cores (0 = all cores; 1 = 1 core etc.)</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="3">
+                       <widget class="QToolButton" name="toolButton_resetAdvanced">
+                        <property name="text">
+                         <string>...</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../resources/openlisem.qrc">
+                          <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
                       <item row="0" column="0">
                        <widget class="QSpinBox" name="nrUserCores">
                         <property name="sizePolicy">
@@ -6286,56 +6260,6 @@ p, li { white-space: pre-wrap; }
                         </property>
                         <property name="displayIntegerBase">
                          <number>10</number>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="1">
-                       <widget class="QLabel" name="label_56">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Nr of CPU cores (0 = all cores; 1 = 1 core etc.)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="2">
-                       <spacer name="horizontalSpacer_19">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item row="0" column="3">
-                       <widget class="QToolButton" name="toolButton_resetAdvanced">
-                        <property name="text">
-                         <string>...</string>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="../resources/openlisem.qrc">
-                          <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="4">
-                       <widget class="QToolButton" name="toolButton_help8">
-                        <property name="text">
-                         <string>...</string>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="../resources/openlisem.qrc">
-                          <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
                         </property>
                        </widget>
                       </item>
@@ -6743,68 +6667,6 @@ p, li { white-space: pre-wrap; }
                         </layout>
                        </widget>
                       </item>
-                      <item row="2" column="0" colspan="2">
-                       <widget class="QGroupBox" name="groupBox_2">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>true</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="title">
-                         <string>Kinematic Wave</string>
-                        </property>
-                        <layout class="QGridLayout" name="gridLayout_48">
-                         <property name="leftMargin">
-                          <number>8</number>
-                         </property>
-                         <property name="topMargin">
-                          <number>4</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>8</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>4</number>
-                         </property>
-                         <property name="horizontalSpacing">
-                          <number>8</number>
-                         </property>
-                         <property name="verticalSpacing">
-                          <number>4</number>
-                         </property>
-                         <item row="0" column="0">
-                          <widget class="QCheckBox" name="checkLinkedList">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Use linked list for kinematic flow (slower)</string>
-                           </property>
-                           <property name="checked">
-                            <bool>false</bool>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </widget>
-                      </item>
                       <item row="3" column="0" colspan="2">
                        <widget class="QGroupBox" name="groupBox">
                         <property name="sizePolicy">
@@ -7000,6 +6862,68 @@ p, li { white-space: pre-wrap; }
                            </property>
                            <property name="value">
                             <double>1.000000000000000</double>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item row="2" column="0" colspan="2">
+                       <widget class="QGroupBox" name="groupBox_2">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>true</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="title">
+                         <string>Kinematic Wave</string>
+                        </property>
+                        <layout class="QGridLayout" name="gridLayout_48">
+                         <property name="leftMargin">
+                          <number>8</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>4</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>8</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>4</number>
+                         </property>
+                         <property name="horizontalSpacing">
+                          <number>8</number>
+                         </property>
+                         <property name="verticalSpacing">
+                          <number>4</number>
+                         </property>
+                         <item row="0" column="0">
+                          <widget class="QCheckBox" name="checkLinkedList">
+                           <property name="enabled">
+                            <bool>true</bool>
+                           </property>
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Use linked list for kinematic flow (slower)</string>
+                           </property>
+                           <property name="checked">
+                            <bool>false</bool>
                            </property>
                           </widget>
                          </item>
@@ -7747,6 +7671,66 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
+                   <item row="15" column="2">
+                    <widget class="QDoubleSpinBox" name="E_CalibratePsi">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="decimals">
+                      <number>2</number>
+                     </property>
+                     <property name="minimum">
+                      <double>0.010000000000000</double>
+                     </property>
+                     <property name="maximum">
+                      <double>99.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.010000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>1.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="15" column="0">
+                    <widget class="QLabel" name="label_calpsi">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="toolTip">
+                      <string notr="true"/>
+                     </property>
+                     <property name="text">
+                      <string>Psi (matric suction of layers 1 and 2)</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
                   </layout>
                  </widget>
                 </widget>
@@ -8268,8 +8252,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>798</width>
-                <height>649</height>
+                <width>950</width>
+                <height>702</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
