@@ -963,6 +963,21 @@ void TWorld::ReportMaps(void)
         // total sediment
 
     }
+
+    //==== PESTICIDES ==========
+
+    if (SwitchPest)
+        {
+            report(*totalDPlossmap, "pestlossDP.map");
+            report(*PCmw, "pestconcmixwat.map");
+            if (SwitchErosion)
+            {
+                report(*totalPPlossmap, "pestlossPP.map");
+                report(*PCms, "pestconcmixsed.map");
+                report(*PCs, "pestconcsoil1.map");
+            }
+        }
+
 }
 //---------------------------------------------------------------------------
 void TWorld::ReportMapSeries(void)
@@ -970,9 +985,6 @@ void TWorld::ReportMapSeries(void)
     //discharge l/s or m3/s
     if (SwitchOutrunoff)
         report(*Qoutput, Outrunoff);
-//    report(*Q, OutQ);
-//    report(*Qn, OutQn);
-
 
     // water height m
     if (SwitchOutwh)
@@ -1107,27 +1119,24 @@ void TWorld::ReportMapSeries(void)
         //report(*PMperc, "prc");
         report(*pmwdet, "wdet");
         report(*pmwdep, "wdep");
-        report(*Crwn, "crwn");
         //report(*test_map, "test");
         if (SwitchErosion) {
             report(*PCrs, "pcrs");
             report(*PMrs, "pmrs");
             report(*PQrs, "pqrs");
-            report(*SpinKW, "spin");
+            //report(*SpinKW, "spin");
             report(*PCs, "pcs");
-            report(*Ez, "ez");
             report(*pmsdet, "sdet");
             report(*pmsdep, "sdep");
             report(*PMsplash, "pspl");
             report(*PMflow, "pflw");
             report(*PMdep, "pdep");
-            report(*Sed, "sedf");
             report(*SedMassIn, "sedkw");
             report(*SedAfterSplash, "sedp");
         }
 
-        report(*Qpw, "qpw");
-        report(*QpinKW, "qpin");
+       // report(*Qpw, "qpw");
+       // report(*QpinKW, "qpin");
 
     }
 

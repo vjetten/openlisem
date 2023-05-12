@@ -181,7 +181,6 @@ cTMap
 *PCrs,                      //!< concentration of pesticide in runoff sediment [mg/kg]
 *PCms,                      //!< concentration of pesticide in soil of mixing zone [mg/kg]
 *PCmw,                      //!< concentration of pesticide in water of mixing zone [mg/L]
-*Crwn,                      //!< new dissolved concentration in runoff water [mg/L]
 *PQrw,                      //!< flux of pesticide in runoff water [mg/sec]
 *PQrs,                      //!< flux of pesticide in runoff sediment [mg/sec]
 *PMinf,                     //!< mass of pesticide in infiltrating water [mg]
@@ -191,7 +190,6 @@ cTMap
 *QpinKW,                    //!< sum upstream influx Qpn [mg/sec]
 *Qpw,                       //!< dissolved pesticide flux based on Qp [mg/sec]
 *Qps,                       //!< pesticide sediment flux based on Qs [mg/sec]
-*Ez,                        //!< erosion depth [m] - negative is deposition
 *PCs,                       //!< concentration of pesticide in pesticide soil layer 1 [mg/kg]
 *Theta_mix,                 //!< theta of the mixing layer [-]
 *pmsdet,                     //!< mass of detached pesticide [mg]
@@ -201,9 +199,11 @@ cTMap
 *WVji1,                     //!< water volume in cell at j, i+1 [m3]
 *SedMassIn,                  //!< sediment mass in to kinematic wave [kg]
 *SedAfterSplash,             //!< sediment mass in flow after splash [kg]
-*PMsplash,                   //!< mass detached adsorbed pesticide by splash erosion [mg]
-*PMflow,                    //!< mass detached adsorbed pesticide by flow detachement[mg]
-*PMdep,                     //!< mass deposited adsorbed pesticide [mg]
+*PMsplash,                   //!< mass detached sorbed pesticide by splash erosion [mg]
+*PMflow,                    //!< mass detached sorbed pesticide by flow detachement[mg]
+*PMdep,                     //!< mass deposited sorbed pesticide [mg]
+*totalPPlossmap,             //!< total loss of PP pesticide [mg/m2]
+*totalDPlossmap,             //!< total loss of DP pesticide [mg/m2]
 *test_map,
 
 

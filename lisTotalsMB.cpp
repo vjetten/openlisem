@@ -437,7 +437,32 @@ void TWorld::Totals(void)
     }
 
 
+
     SedimentSetMaterialDistribution();
+
+    //=====***** PESTICIDES *****====//
+    if (SwitchPest)
+    {
+        double factor = 1 / (_dx * _dx);
+        // from mg/cell to mg/m2
+         #pragma omp parallel for num_threads(userCores)
+         FOR_ROW_COL_MV_L
+         {
+        totalDPlossmap->Drc = pmwdet->Drc + pmwdep->Drc * factor;
+         }}
+
+     if (SwitchErosion)
+     {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
+        {
+         totalPPlossmap->Drc = pmsdet->Drc + pmsdep->Drc * factor;
+        }}
+
+     }
+
+
+    }
 
 }
 //---------------------------------------------------------------------------
@@ -476,8 +501,9 @@ void TWorld::MassBalance()
         MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
     }
 
+    // pesticides
     if (SwitchPest) {
         MassPest(PMtotI, PMerr, PMtot, PMserr, PMwerr);
-    }
+    }    
 }
 //---------------------------------------------------------------------------

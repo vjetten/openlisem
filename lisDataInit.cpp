@@ -2232,17 +2232,16 @@ void TWorld::IntializeData(void)
         PMrw = NewMap(0);
         PMsoil = NewMap(0);
         PCrw = NewMap(0);
-        Crwn = NewMap(0);
         PQrw = NewMap(0);
         Qpw = NewMap(0);
         PMinf = NewMap(0);
-        Ez = NewMap(0);
         pmwdet = NewMap(0);
         pmwdep = NewMap(0);
         WVji1 = NewMap(0);
         SpinKW = NewMap(0);
         QpinKW = NewMap(0);
         Theta_mix = NewMap(0);
+        totalDPlossmap = NewMap(0);
         test_map = NewMap(0.0);
         if (SwitchErosion) {
             PQrs = NewMap(0);
@@ -2254,6 +2253,7 @@ void TWorld::IntializeData(void)
             PMsplash = NewMap(0);
             PMflow = NewMap(0);
             PMdep = NewMap(0);
+            totalPPlossmap = NewMap(0);
         }
 
         // total masses
