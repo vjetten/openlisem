@@ -1,6 +1,6 @@
 openLISEM: Quick guideline for code development
 ===============================================
-Date: 230501
+Date: 230510
 
 Introduction:
 openLISEM is compiled with MINGW64, the windows port of the native Linux compiler. The advantage is that it is opensource and free, and easy to compile lisem under Linux.
@@ -16,24 +16,28 @@ It is developed in the Qt environment for the interface and extension of C++ lib
 
 -------------- step 1 ---------------
 
-> Download MSYS2.0 and install Qt: https://wiki.qt.io/MSYS2 (except for the static Qt build)
+> Download MSYS2.0 
 
-Open the MSYS command window and execute the following command. answer "y" when asked. .
+Open the MSYS command window and execute the following commands. 
+(answer "y" when asked.)
 
-Install all libs and tools and Qt:
+update MSYS itself:
+Pacman -Syu
+The window may close, simply open it again
 
-pacman -S base-devel git mercurial cvs wget p7zip
-pacman -S perl ruby python mingw-w64-x86_64-toolchain
-pacman -S mingw-w64-x86_64-qt5
-pacman -S mingw-w64-clang-x86_64-qt-creator
-pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-gdal mingw-w64-x86_64-clang
+-install the following base packages:
+	pacman -S base-devel git mercurial cvs wget p7zip
+	pacman -S perl ruby python mingw-w64-x86_64-toolchain
 
-updater everything:
-pacman -Syu
-pacman --needed -S bash pacman pacman-mirrors msys2-runtime
-pacman -Su
-The window will likely close now, reopen it!
+-install qt5 which is for now the version in which lisem is created:
+	pacman -S mingw-w64-x86_64-qt5 mingw-w64-x86_64-qt-creator 
+-install openmp and gdal and qwt:
+	pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-gdal mingw-w64-x86_64-qwt-qt5
 
+note: we are not using this version of qwt but a chnged one, but install it anyway for the source code.
+
+IF SOMETHING GOES WRONG YOU CAN UNINSTALL AND START AGAIN. 
+BUT DELETE BY HAND THE MSYS64 FOLDER, THE UNINSTALL PROCESS DOES NOT CLEAN UP EVERYTHING! 
 
 {NOTE: info on pacman options: https://devhints.io/pacman)
 
@@ -114,10 +118,18 @@ You have to do this in 3 or 4 places. I could not find another way to do this. I
 
 -------------- step 6 ---------------
 
-Finally: you can run openLISEM from within qtcreator bt not outside as a stand alone version. 
-The many libraries that lisem.exe needs are included in the release version of openLISME on github. 
-Download the latest version and unzip it in the 'lisem-bin' folder.
-You should now be able to compile and run openlisem 
+In order to run lisem without qtcreator you have to ccopy all necessary dll's into the lisem bin folder:
+- copy ALL dlls from the /msys64/mingw64/bin folder into the lisem bin folder (where lisem.exe is)
+- open a command window in that dfolder
+- set the path to only c:\ with the command 
+path=c:\
+- run lisem and delete all the dlls. The ones that are used by lisem are blocked from deletion
+make a subdirectory "platforms" in the lisem bin folder
+copy in there the file "qwindows.dll" from the folder: \msys64\mingw64\share\qt5\plugins\platforms
+
+that should do it
+
+
 
 
 best of luck!

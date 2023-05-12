@@ -41,6 +41,7 @@ void TWorld::GetDischargeData(QString name)
     int nrStations = 0;
     int nrSeries = 0;
     double time = 0.0;
+
     QVector <int> locationnnrsmap;
     QVector <int> locationnnrsrec;
 
@@ -63,6 +64,8 @@ void TWorld::GetDischargeData(QString name)
     while (!fff.atEnd())
     {
         S = fff.readLine();
+        if (S.contains("\r\n"))
+            S.remove(S.count()-2,2);
         if (S.contains("\n"))
             S.remove(S.count()-1,1);
         // readLine also reads \n as a character on an empty line!
@@ -80,10 +83,17 @@ void TWorld::GetDischargeData(QString name)
         }
     }}
 
-    int count = QRecs[1].toInt(&ok, 10); // nr of columns stated in the file
+    int count = QRecs[1].toInt(&ok, 10);
+    // nr of columns stated in the file, 1st col is time
+    if (count-1 != nrStations) {
+        ErrorString = "Dischsarge input file error: the nr stations in the file does not equal the number of stations in the map.";
+        throw 1;
+    }
 
-    if (nrStations != count - 1) {
-        ErrorString = QString("Nr columns is in the discharge inflow file (%1) is not equal to nr locations in the discharge inflow point map").arg(name);
+    SL = QRecs[nrStations+3].split(QRegExp("\\s+"));
+    // check nr of columns in file for the second data record
+    if (count != SL.count()) {
+        ErrorString = "Dischsarge input file error: the nr of columns in the file does not equal the number on the second row.";
         throw 1;
     }
 
@@ -92,31 +102,34 @@ void TWorld::GetDischargeData(QString name)
         ErrorString = QString("Records in the discharge inflow file <= 1: %1").arg(name);
         throw 1;
     }
+
     // check if all data rows have the correct nr of columns
-    bool check = false;
-    int err = 0;
-    for (int i = count+2; i < QRecs.size(); i++) {
-        SL = QRecs[i].split(QRegExp("\\s+"));
-        int nrrecords = SL.size();
-        if (nrrecords != count) {
-            err = i;
-            check = true;
-            break;
-        }
-    }
-    if (check) {
-        ErrorString = QString("Nr columns is not equal to nr of records %1 in row in file: %2").arg(err).arg(name);
-        throw 1;
-    }
+//    bool check = false;
+//    int err = 0;
+//    for (int i = count+2; i < QRecs.size(); i++) {
+//        SL = QRecs[i].split(QRegExp("\\s+"));
+//        int nrrecords = SL.size();
+//        if (nrrecords != count) {
+//            err = i;
+//            check = true;
+//            break;
+//        }
+//    }
+//    if (check) {
+//        ErrorString = QString("Nr columns is not equal to nr of records %1 in row in file: %2").arg(err).arg(name);
+//        throw 1;
+//    }
 
 
-    for (int i = 3; i < nrStations+3; i++)
+    for (int i = 2; i < nrStations+2; i++) {
             locationnnrsrec << QRecs[i].toInt(&ok, 10);
-
-    if(locationnnrsmap != locationnnrsrec) {
-        ErrorString = QString("Discharge input location numbers in timeseries and map are not the same.").arg(err).arg(name);
-        throw 1;
     }
+
+    //
+//    if(locationnnrsmap != locationnnrsrec) {
+//        ErrorString = QString("Discharge input location numbers in timeseries and map are not the same.").arg(err).arg(name);
+//        throw 1;
+//    }
 
     //done checking !
 
@@ -218,3 +231,9 @@ void TWorld::DischargeInflow(void)
 
     report(*Qinflow,"qinf");
 }
+
+
+
+
+//---------------------------------------------------------------------------
+

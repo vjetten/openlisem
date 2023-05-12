@@ -159,8 +159,8 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
     if (type == 2)
         nrSnowmeltseries = nrSeries;
 }
-
 //---------------------------------------------------------------------------
+// get station data for ID interpolation or tiesen polyhon map
 void TWorld::GetRainfallData(QString name)
 {
     RAIN_LIST rl;
@@ -172,7 +172,6 @@ void TWorld::GetRainfallData(QString name)
     bool ok;
     int nrStations = 0;
     int nrSeries = 0;
-    int skiprows = 0;
     double time = 0.0;
     bool oldformat = true;
 
@@ -191,8 +190,11 @@ void TWorld::GetRainfallData(QString name)
     while (!fff.atEnd())
     {
         S = fff.readLine();
+        if (S.contains("\r\n"))
+            S.remove(S.count()-2,2);
         if (S.contains("\n"))
             S.remove(S.count()-1,1);
+
         if (!S.trimmed().isEmpty())
             rainRecs << S.trimmed();
     }
@@ -209,7 +211,6 @@ void TWorld::GetRainfallData(QString name)
     int count = rainRecs[1].toInt(&ok, 10); // nr of cols in file
     // header
     // second line is only an integer
-
     if (ok)
     {
         SL = rainRecs[count+2].split(QRegExp("\\s+"));
@@ -233,8 +234,8 @@ void TWorld::GetRainfallData(QString name)
             stationID << tmp;
         else
             stationID << i+1;
-    }  
 
+    }
    // qDebug() << "stations" << stationID;
 
     if (stationID.count() == 1) {
@@ -305,10 +306,7 @@ void TWorld::GetRainfallData(QString name)
         }
     }
 
-    skiprows = 3; // header + number + time = 3
-    nrSeries = rainRecs.size() - nrStations - skiprows;
-    // count rainfall records
-
+    nrSeries = rainRecs.size() - nrStations - 3;
     if (nrSeries <= 1)
     {
         ErrorString = "Rainfall records <= 1, must at least have one interval with 2 rows: a begin and end time.";
@@ -321,7 +319,7 @@ void TWorld::GetRainfallData(QString name)
         rl.time = 0;
         rl.intensity.clear();
         rl.stationnr.clear();
-        int r_ = r+nrStations+skiprows;
+        int r_ = r+nrStations+3;
 
         // split rainfall record row with whitespace
         QStringList SL = rainRecs[r_].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
@@ -330,7 +328,7 @@ void TWorld::GetRainfallData(QString name)
         rl.time = getTimefromString(SL[0]);
         time = rl.time;
 
-        // check is time is increasing with next row
+        // check if time is increasing with next row
         if (r+1 < nrSeries) {
             QStringList SL1 = rainRecs[r_+1].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
             int time1 = getTimefromString(SL1[0]);
@@ -339,20 +337,6 @@ void TWorld::GetRainfallData(QString name)
                 throw 1;
             }
         }
-
-//        if (r == 0) {
-//            time = rl.time;
-//        }
-
-//        if (r > 0 && rl.time <= time)
-//        {
-//            //qDebug() <<"e"<< r << time << rl.time << SL[0];
-//            ErrorString = QString("Rainfall records at time %1 is not readible.").arg(SL[0]);
-//            throw 1;
-//        }
-//        else {
-//            time = rl.time;
-//        }
 
         // rainfall values in this row
         for (int i = 1; i <= nrStations; i++)

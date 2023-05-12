@@ -1,4 +1,10 @@
 this file is a list of changes per major commit
+230512 - v6.895
+- Psi is set back to a psi for the wetting front, somewhere slightly more than the bubbling pressure, relations from rawls et al 1982
+- All relations (field capacity, bubbling pressure) are now from Rawls 1982
+- removed psi and psi calibration from interface
+- added exceel sheets
+- added new compilation text
 230505 - v6.894
 - Psi is now calculated from theta with brook-Corey, instead of input. Calibration remains
 - Psi is also added to percolation and redistribution of water

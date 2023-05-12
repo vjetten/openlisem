@@ -176,10 +176,10 @@ void TWorld::cell_Redistribution2(int r, int c)
 
     Thetaeff->Drc = theta;
     ThetaI2->Drc = theta2;
-//    Psi1->Drc = 0.01 * 10.2 * Psia1->Drc * psiCalibration * pow((theta-thetar)/(pore-thetar), -1.0/lambda1->Drc);
-//    Psi1->Drc = std::max(Psi1->Drc, 0.01 * 10.2 * psiCalibration * Psia1->Drc);
-    Psi1->Drc = 0.01 * 10.2 * Psia1->Drc * psiCalibration * std::max(1.0, pow((theta-thetar)/(pore-thetar), -1.0/lambda1->Drc));
-    Psi2->Drc = 0.01 * 10.2 * Psia2->Drc * psiCalibration * std::max(1.0, pow((theta2-thetar2)/(pore2-thetar2), -1.0/lambda2->Drc));
+
+    //DO NOT RECALCULATE PSI.
+    // Psi1->Drc = 0.01 * 10.2 * Psia1->Drc * psiCalibration * std::max(1.0, pow((theta-thetar)/(pore-thetar), -1.0/lambda1->Drc));
+  //  Psi2->Drc = 0.01 * 10.2 * Psia2->Drc * psiCalibration * std::max(1.0, pow((theta2-thetar2)/(pore2-thetar2), -1.0/lambda2->Drc));
 
     Lw->Drc = Lw_;
 
@@ -232,8 +232,9 @@ void TWorld::cell_Redistribution1(int r, int c)
         }
     }
 
-    Thetaeff->Drc = theta;    
-    Psi1->Drc = 0.01 * 10.2 * Psia1->Drc * psiCalibration * std::max(1.0, pow((theta-thetar)/(pore-thetar), -1.0/lambda1->Drc));
+    Thetaeff->Drc = theta;
+    //DO NOT RECALCULATE PSI
+   // Psi1->Drc = 0.01 * 10.2 * Psia1->Drc * psiCalibration * std::max(1.0, pow((theta-thetar)/(pore-thetar), -1.0/lambda1->Drc));
     Lw->Drc = Lw_;
 }
 //---------------------------------------------------------------------------
@@ -288,7 +289,8 @@ double TWorld::cell_Percolation(int r, int c, double factor)
                 Percolation = ksat; //(Lwo-Lw_)*(pore-theta);
             }
             ThetaI2->Drc = theta;
-            Psi2->Drc = 0.01 * 10.2 * Psia2->Drc * psiCalibration * std::max(1.0, pow((theta-thetar)/(pore-thetar), -1.0/lambda2->Drc));
+             //DO NOT RECALCULATE PSI
+            //Psi2->Drc = 0.01 * 10.2 * Psia2->Drc * psiCalibration * std::max(1.0, pow((theta-thetar)/(pore-thetar), -1.0/lambda2->Drc));
             Lw->Drc = Lw_;
             return(Percolation);
         }
@@ -323,7 +325,8 @@ double TWorld::cell_Percolation(int r, int c, double factor)
                 Percolation = ksat;//(Lwo-Lw_)*(pore-theta);
             }
             Thetaeff->Drc = theta;
-            Psi1->Drc = 0.01 * 10.2 * Psia1->Drc * psiCalibration * std::max(1.0, pow((theta-thetar)/(pore-thetar), -1.0/lambda1->Drc));
+            //DO NOT RECALCULATE PSI
+           // Psi1->Drc = 0.01 * 10.2 * Psia1->Drc * psiCalibration * std::max(1.0, pow((theta-thetar)/(pore-thetar), -1.0/lambda1->Drc));
 
             Lw->Drc = Lw_;
             return(Percolation);
@@ -350,7 +353,7 @@ double TWorld::cell_PercolationMulti(int r, int c, double factor)
     cTMap *lambda = lambda1;
     cTMap *FC = ThetaFC1;
     cTMap *Psi = Psi1;
-    cTMap *Psia = Psia1;
+   // cTMap *Psia = Psia1;
 
     if(SwitchTwoLayer) {
         SoilDepth = SoilDepth2;
@@ -361,7 +364,7 @@ double TWorld::cell_PercolationMulti(int r, int c, double factor)
         ksat = Ksat2;
         lambda = lambda2;
         Psi = Psi2;
-        Psia = Psia2;
+      //  Psia = Psia2;
     }
 
     if (SwitchChannelBaseflow) {
