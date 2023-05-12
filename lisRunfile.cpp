@@ -207,6 +207,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Adjust channel crosssection")==0)       SwitchChannelAdjustCHW  = iii == 1;
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
         if (p1.compare("Include channel inflow")==0)            SwitchChannelInflow  = iii == 1;
+        if (p1.compare("Include Pesticides")==0)                SwitchPest = iii == 1;
+        if (p1.compare("Report Pesticides")==0)                 SwitchReportPest = iii == 1;
         if (p1.compare("GW flow explicit")==0)                  SwitchGWflow  = iii == 1;
         if (p1.compare("GW flow LDD")==0)                       SwitchLDDGWflow  = iii == 1;
         if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
