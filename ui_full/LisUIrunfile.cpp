@@ -250,6 +250,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include crusts")==0)                 checkInfilCrust->setChecked(check);
         if (p1.compare("Impermeable sublayer")==0)           checkInfilImpermeable->setChecked(check);
         if (p1.compare("Two layer")==0)                      checkInfil2layer->setChecked(check);
+        if (p1.compare("Psi user input")==0)                      checkPsiUser->setChecked(check);
         if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
         //	  if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
         if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setValue(valc);
@@ -900,6 +901,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include crusts")==0)                 namelist[j].value.setNum((int)checkInfilCrust->isChecked());
         if (p1.compare("Impermeable sublayer")==0)          namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
         if (p1.compare("Two layer")==0)                     namelist[j].value.setNum((int)checkInfil2layer->isChecked());
+        if (p1.compare("Psi user input")==0)                     namelist[j].value.setNum((int)checkPsiUser->isChecked());
         //if (p1.compare("Matric head files")==0)              namelist[j].value.setNum((int)checkDumphead->isChecked());
         if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());
         if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum(checkWritePCRaster->isChecked() ? 0 : 1);

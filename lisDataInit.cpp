@@ -312,7 +312,7 @@ void TWorld::InitParameters(void)
     }
 
     thetaCalibration = getvaluedouble("Theta calibration");
-    //psiCalibration = getvaluedouble("Psi calibration");
+    psiCalibration = getvaluedouble("Psi calibration");
     SD1Calibration = getvaluedouble("SoilDepth1 calibration");
     SD2Calibration = getvaluedouble("SoilDepth2 calibration");
 
@@ -640,21 +640,6 @@ void TWorld::InitSoilInput(void)
     //## infiltration data
     if(InfilMethod != INFIL_SWATRE)
     {
-        Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
-        //Lambda1 = ReadMap(LDD,getvaluename("lambda1"));
-        // bca = 3+2/lambda so that K=Ks*(theta/thetaS)^bca
-        //Psia1 = NewMap(0);
-        lambda1 = NewMap(0);
-        FOR_ROW_COL_MV_L {
-//            bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
-
-            //Psia1->Drc = 5.1747*exp(-0.021*Ksat1->Drc); //air entry potential (bubble pressure) in kPa
-            //Saxton and Rawls 2006
-          //  lambda1->Drc = 0.0384*log(Ksat1->Drc)+0.0626;
-        //rawls et al., 1982
-        lambda1->Drc = std::min(1.0, 0.0849*log(Ksat1->Drc)+0.159);
-        }}
-
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
         calcValue(*SoilDepth1, SD1Calibration, MUL);
@@ -673,6 +658,16 @@ void TWorld::InitSoilInput(void)
             ThetaR1->Drc = 0.025*ThetaS1->Drc;
         }}
 
+        Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
+        lambda1 = NewMap(0);
+        FOR_ROW_COL_MV_L {
+            //bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
+            //Saxton and Rawls 2006
+          //  lambda1->Drc = 0.0384*log(Ksat1->Drc)+0.0626;
+            //rawls et al., 1982
+            lambda1->Drc = std::min(1.0, 0.0849*log(Ksat1->Drc)+0.159);
+        }}
+
         // field capacity
         ThetaFC1 = NewMap(0);
         FOR_ROW_COL_MV_L {
@@ -680,25 +675,40 @@ void TWorld::InitSoilInput(void)
             ThetaFC1->Drc = -0.0519*log(Ksat1->Drc) + 0.3714;
         }}
 
-        Psi1 = NewMap(0); //ReadMap(LDD,getvaluename("psi1"));
-        //calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
-        //calcValue(*Psi1, 0.01, MUL); // convert to meter
-        FOR_ROW_COL_MV_L {
-             //from rawls et al 1982
-            Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425);
-            double psi_bp = exp(-0.3012*log(Ksat1->Drc) + 3.5164);
-            Psi1->Drc = std::min(Psi1->Drc,psi_bp)*0.01;
-            // psi cannot be more that bubbling pressure, 0.01 cm to m
-
-            // do not use, psi is not matrix potential but psi for G&A
-            //psiCalibration * 0.01 * 10.2 * Psia1->Drc * pow((ThetaI1->Drc-ThetaR1->Drc)/(ThetaS1->Drc-ThetaR1->Drc), -1.0/lambda1->Drc); //kPa to m
-            //Psi1->Drc = std::max(Psi1->Drc, 0.01 * 10.2 * psiCalibration * Psia1->Drc);
-        }}
+        if (SwitchPsiUser) {
+            Psi1 = ReadMap(LDD,getvaluename("psi1"));
+            calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
+            calcValue(*Psi1, 0.01, MUL);
+        } else {
+            Psi1 = NewMap(0);
+            FOR_ROW_COL_MV_L {
+                Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425);
+                double psi_bp = exp(-0.3012*log(Ksat1->Drc) + 3.5164);
+                Psi1->Drc = std::min(Psi1->Drc,psi_bp)*0.01* psiCalibration;
+                // psi cannot be more that bubbling pressure, 0.01 cm to m
+            }}
+        }
 
         calcValue(*Ksat1, ksatCalibration, MUL);
+        // apply calibration after all empirical relations
 
         if (SwitchTwoLayer)
         {
+            SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
+            calcValue(*SoilDepth2, 1000, DIV);
+            calcValue(*SoilDepth2, SD2Calibration, MUL);
+
+            SoilDepth2init = NewMap(0);
+            copy(*SoilDepth2init, *SoilDepth2);
+
+            FOR_ROW_COL_MV_L {
+                if (SoilDepth2->Drc < 0)
+                {
+                    ErrorString = QString("SoilDepth2 values < 0 at row %1, col %2").arg(r).arg(c);
+                    throw 1;
+                }
+            }}
+
             ThetaS2 = ReadMap(LDD,getvaluename("thetaS2"));
             ThetaI2 = ReadMap(LDD,getvaluename("thetaI2"));
             ThetaI2a = NewMap(0);
@@ -710,13 +720,9 @@ void TWorld::InitSoilInput(void)
                 ThetaR2->Drc = 0.025*ThetaS2->Drc;
             }}
 
-//            Psi2 = ReadMap(LDD,getvaluename("psi2"));
-//            calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
-//            calcValue(*Psi2, 0.01, MUL);
-
             Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
-            //Lambda2 = ReadMap(LDD,getvaluename("lambda2"));
-            //Psia2 = NewMap(0);
+
+            // lambda brooks corey
             lambda2 = NewMap(0);
             FOR_ROW_COL_MV_L {
                 //lambda2->Drc = 0.0384*log(Ksat2->Drc)+0.0626;
@@ -724,6 +730,7 @@ void TWorld::InitSoilInput(void)
                 //Psia2->Drc = 5.1747*exp(-0.021*Ksat2->Drc); //air entry potential (bubble pressure) in kPa
                 lambda2->Drc = std::min(1.0,0.0849*log(Ksat2->Drc)+0.159);
             }}
+
             // field capacity
             ThetaFC2 = NewMap(0);
             FOR_ROW_COL_MV_L {
@@ -731,37 +738,22 @@ void TWorld::InitSoilInput(void)
                 ThetaFC2->Drc = -0.0519*log(Ksat2->Drc) + 0.3714;
             }}
 
-            Psi2 = NewMap(0);
-            FOR_ROW_COL_MV_L {
-                Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425);
-                double psi_bp = exp(-0.3012*log(Ksat1->Drc) + 3.5164);
-                Psi2->Drc = std::min(Psi2->Drc,psi_bp)*0.01;
-                // psi cannot be more that bubbling pressure, 0.01 cm to m
-
-                //Psi2->Drc = 0.01 * 10.2 * psiCalibration * Psia2->Drc * pow((ThetaI2->Drc-ThetaR2->Drc)/(ThetaS2->Drc-ThetaR2->Drc), -1.0/lambda2->Drc); //kPa to m
-                //Psi2->Drc = std::max(Psi2->Drc, 0.01 * 10.2 * psiCalibration * Psia2->Drc);
-            }}
-report(*Psi1, "psi1_est.map");
-report(*Psi2, "psi2_est.map");
-
+            // wetting front psi
+            if (SwitchPsiUser) {
+                Psi2 = ReadMap(LDD,getvaluename("psi2"));
+                calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
+                calcValue(*Psi2, 0.01, MUL);
+            } else {
+                Psi2 = NewMap(0);
+                FOR_ROW_COL_MV_L {
+                    Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425);
+                    double psi_bp = exp(-0.3012*log(Ksat1->Drc) + 3.5164);
+                    Psi2->Drc = std::min(Psi2->Drc,psi_bp)*0.01* psiCalibration;
+                    // psi cannot be more that bubbling pressure, 0.01 cm to m
+                }}
+            }
 
             calcValue(*Ksat2, ksat2Calibration, MUL);
-
-            SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
-            calcValue(*SoilDepth1, 1000, DIV);
-            calcValue(*SoilDepth2, SD2Calibration, MUL);
-
-            SoilDepth2init = NewMap(0);
-            copy(*SoilDepth2init, *SoilDepth2);
-
-            FOR_ROW_COL_MV
-            {
-                if (SoilDepth2->Drc < 0)
-                {
-                    ErrorString = QString("SoilDepth2 values < 0 at row %1, col %2").arg(r).arg(c);
-                    throw 1;
-                }
-            }
         }
 
         if (SwitchInfilCrust)
