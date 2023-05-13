@@ -145,8 +145,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>654</width>
-                <height>780</height>
+                <width>792</width>
+                <height>746</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -182,7 +182,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>7</number>
+                  <number>3</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -2359,6 +2359,48 @@ p, li { white-space: pre-wrap; }
                          <string>General options</string>
                         </property>
                         <layout class="QGridLayout" name="gridLayout_2">
+                         <item row="4" column="0">
+                          <widget class="QCheckBox" name="checkInfilCrust">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Include crusts (needs ksatcrst.map and porecrst.map)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="0">
+                          <widget class="QCheckBox" name="checkInfilCompact">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Include compacted areas (needs ksatcomp.map and porecomp.map)</string>
+                           </property>
+                          </widget>
+                         </item>
                          <item row="0" column="0">
                           <widget class="QCheckBox" name="checkInfilImpermeable">
                            <property name="sizePolicy">
@@ -2402,13 +2444,7 @@ p, li { white-space: pre-wrap; }
                           </widget>
                          </item>
                          <item row="2" column="0">
-                          <widget class="QCheckBox" name="checkInfilCompact">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
+                          <widget class="QCheckBox" name="checkPsiUser">
                            <property name="font">
                             <font>
                              <pointsize>8</pointsize>
@@ -2418,28 +2454,7 @@ p, li { white-space: pre-wrap; }
                             </font>
                            </property>
                            <property name="text">
-                            <string>Include compacted areas (needs ksatcomp.map and porecomp.map)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="3" column="0">
-                          <widget class="QCheckBox" name="checkInfilCrust">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Include crusts (needs ksatcrst.map and porecrst.map)</string>
+                            <string>Wetting front Psi as input maps (v) or calculated internally ( )</string>
                            </property>
                           </widget>
                          </item>
@@ -5522,6 +5537,66 @@ p, li { white-space: pre-wrap; }
                         </property>
                        </spacer>
                       </item>
+                      <item row="6" column="1">
+                       <widget class="QDoubleSpinBox" name="E_CalibratePsi">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="decimals">
+                         <number>2</number>
+                        </property>
+                        <property name="minimum">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="maximum">
+                         <double>99.000000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>1.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="6" column="0">
+                       <widget class="QLabel" name="label_calpsi">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="toolTip">
+                         <string notr="true"/>
+                        </property>
+                        <property name="text">
+                         <string>Psi wetting front</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
                      </layout>
                     </widget>
                    </item>
@@ -7671,66 +7746,6 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="15" column="2">
-                    <widget class="QDoubleSpinBox" name="E_CalibratePsi">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="decimals">
-                      <number>2</number>
-                     </property>
-                     <property name="minimum">
-                      <double>0.010000000000000</double>
-                     </property>
-                     <property name="maximum">
-                      <double>99.000000000000000</double>
-                     </property>
-                     <property name="singleStep">
-                      <double>0.010000000000000</double>
-                     </property>
-                     <property name="value">
-                      <double>1.000000000000000</double>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="15" column="0">
-                    <widget class="QLabel" name="label_calpsi">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="toolTip">
-                      <string notr="true"/>
-                     </property>
-                     <property name="text">
-                      <string>Psi (matric suction of layers 1 and 2)</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                     </property>
-                    </widget>
-                   </item>
                   </layout>
                  </widget>
                 </widget>
@@ -8252,8 +8267,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>950</width>
-                <height>702</height>
+                <width>798</width>
+                <height>649</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">

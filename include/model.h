@@ -368,7 +368,7 @@ public:
     SwitchRainfall, SwitchEventbased, SwitchIDinterpolation, SwitchDailyET, SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead,SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
-    SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,SwitchThreeLayer,   SwitchChannelKinWave,
+    SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,SwitchThreeLayer,   SwitchChannelKinWave, SwitchPsiUser,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
     SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide, SwitchAddBuildingsDEM,
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
@@ -451,7 +451,7 @@ public:
     double ksat2Calibration;
     double nCalibration;
     double thetaCalibration;
-    //double psiCalibration;
+    double psiCalibration;
     double SD1Calibration;
     double SD2Calibration;
     double ChnCalibration;

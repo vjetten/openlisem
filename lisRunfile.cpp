@@ -263,6 +263,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =       iii == 1;
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =      iii == 1;
         if (p1.compare("Two layer")==0)                         SwitchTwoLayer =         iii == 1;
+        if (p1.compare("Psi user input")==0)                    SwitchPsiUser =         iii == 1;
 
         if (p1.compare("Matric head files")==0)                 SwitchDumphead =         iii == 1;
         if (p1.compare("Geometric mean Ksat")==0)               SwitchGeometric =        iii == 1;
