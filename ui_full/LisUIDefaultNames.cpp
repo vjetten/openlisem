@@ -80,7 +80,7 @@ void lisemqt::DefaultMapnames()
 
     DEFmaps.append("1;1st layer Green&Ampt/Smith&Parlange");
     DEFmaps.append("2;Ksat1;ksat1.map;Layer 1: Saturated Hydraulic Conductivity (mm/h);ksat1");
-    //DEFmaps.append("2;Psi1;psi1.map;Layer 1: Average suction at the wetting front (cm);psi1");
+    DEFmaps.append("2;Psi1;psi1.map;Layer 1: Suction at the wetting front (cm);psi1");
     DEFmaps.append("2;Thetas1;thetas1.map;Layer 1: Porosity (-);thetas1");
     DEFmaps.append("2;Thetai1;thetai1.map;Layer 1: Initial moisture content (-);thetai1");
     //DEFmaps.append("2;Lambda1;lambda1.map;Layer 1: Brooks-Corey pore parameter (-);lambda1");
@@ -88,7 +88,7 @@ void lisemqt::DefaultMapnames()
 
     DEFmaps.append("1;2nd layer Green&Ampt/Smith&Parlange");
     DEFmaps.append("2;Ksat2;ksat2.map;Layer 2: Saturated Hydraulic Conductivity (mm/h);ksat2");
-    //DEFmaps.append("2;Psi2;psi2.map;Layer 2: Average suction at the wetting front (cm);psi2");
+    DEFmaps.append("2;Psi2;psi2.map;Layer 2: Suction at the wetting front (cm);psi2");
     DEFmaps.append("2;Thetas2;thetas2.map;Layer 2: Porosity (-);thetas2");
     DEFmaps.append("2;Thetai2;thetai2.map;Layer 2: Initial moisture content (-);thetai2");
    // DEFmaps.append("2;Lambda2;lambda2.map;Layer 2: Brooks-Corey pore parameter (-);lambda2");
@@ -382,11 +382,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Impermeable sublayer");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Two layer");
-//    namelist[i].value = QString("1");
-    // obsolete
-//    namelist[i++].name = QString("Include percolation");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Subsoil drainage");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Psi user input");
     namelist[i].value = QString("c:\\");
     namelist[i++].name = QString("Table Directory");
     namelist[i].value = QString("profile.inp");
