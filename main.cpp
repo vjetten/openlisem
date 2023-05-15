@@ -126,7 +126,9 @@ int main(int argc, char *argv[])
         // run from console with or without GUI
         if (ag.contains("-r")) {
             QStringList sl = ag.split("-r");
-            name = sl[1].simplified();
+            name = sl[1].simplified();           
+
+
             if (ag.contains("-ni")) {
                 noInterface = true;
                 op.runfilename = name;
@@ -142,11 +144,11 @@ int main(int argc, char *argv[])
                 return app.exec();
             } else {
 
-            //qDebug() << "running: " << name;
+                //qDebug() << "running: " << name;
 
-            lisemqt iface(0, true, name);
-            iface.setWindowTitle(VERSION);
-            iface.show();
+                lisemqt iface(0, true, name);
+                iface.setWindowTitle(VERSION);
+                iface.show();
 
             return app.exec();
             }

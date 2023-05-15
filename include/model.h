@@ -269,16 +269,17 @@ typedef struct RAIN_LIST {
     QVector <double> intensity;
 } RAIN_LIST;
 //---------------------------------------------------------------------------
-/// Structure to store rain station values of rainfile mapnames
+/// Structure to store meteo station values of rainfile mapnames
 typedef struct METEO_LIST {
     double time;
     QString name;
     double calib;
 } METEO_LIST;
 //---------------------------------------------------------------------------
-/// Structure to store rain station values of rainfile mapnames
+/// Structure to store discharge station values of rainfile mapnames
 typedef struct Q_LIST {
     double time;
+    QList <int> stationnr;
     QVector <double> Qin;
 } Q_LIST;
 //---------------------------------------------------------------------------
@@ -343,6 +344,7 @@ public:
   //  QVector <IDI_POINT> IDIpoints;
     QVector <IDI_POINT> IDIpointsRC;
     QList <int> stationID;
+    QList <int> stationQID;
     QVector <double> IDIpointsV;
 
     /// map management structure, automatic adding and deleting of all cTMap variables
@@ -526,12 +528,14 @@ public:
     int currentRainfallrow;
     int currentETrow;
     int currentSnowmeltrow;
+    int currentDischargerow;
     int rainplace;
     int ETplace;
     int snowmeltplace;
     QVector <RAIN_LIST> RainfallSeries;  // rainfall vector of records
     QVector <RAIN_LIST> ETSeries;
     QVector <RAIN_LIST> SnowmeltSeries;
+    QVector <Q_LIST> DischargeSeries;
     QVector <METEO_LIST> RainfallSeriesMaps;  // rainfall vector of records
     bool calibRainfallinFile;
     QVector <METEO_LIST> ETSeriesMaps;  // rainfall vector of records
@@ -846,6 +850,7 @@ public:
     //input timeseries
     void GetInputTimeseries();
     void GetDischargeData(QString name);
+    void GetDischargeDataNew(QString name);
     void GetRainfallData(QString name);   // get input timeseries
     void GetSpatialMeteoData(QString name, int type);   // get input timeseries
     void GetETData(QString name);   // get input timeseries
