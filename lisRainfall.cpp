@@ -815,3 +815,51 @@ void TWorld::GetDischargeDataNew(QString name)
     nrDischargeseries = DischargeSeries.size();
 }
 //---------------------------------------------------------------------------
+void TWorld::GetDischargeMapfromStations(void)
+{
+    double currenttime = (time)/60;
+    double tt = _dt/3600000.0;
+    bool sameQ = false;
+
+    // from time t to t+1 the rain is the rain of t
+
+    // if time is outside records then use map with zeros
+    if (currenttime < RainfallSeries[0].time || currenttime > RainfallSeries[nrRainfallseries-1].time)
+    {
+        //DEBUG("run time outside rainfall records");
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            Rain->Drc = 0;
+            Rainc->Drc = 0;
+            RainNet->Drc = 0;
+        }}
+        return;
+    }
+
+    // where are we in the series
+    int currentrow = 0;
+    for (int j = 0; j < DischargeSeries.count(); j++) {
+        if (currenttime >= DischargeSeries[j].time && currenttime < DischargeSeries[j+1].time) {
+            currentrow = j;
+            break;
+        }
+    }
+    if (currentrow == currentDischargerow && currentrow > 0)
+        sameQ = true;
+
+    // get the next map from file
+    if (!sameQ) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            double value = -1;
+            for (int k = 0; k < stationQID.size(); k++) {
+                if ((int) DischargeZone->Drc == DischargeSeries[currentrow].stationnr.at(k))
+                    value = DischargeSeries[currentrow].Qin[k]*tt;
+            }
+            //Rain->Drc = value;
+        }}
+    }
+
+    currentDischargerow = currentrow;
+
+}

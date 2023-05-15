@@ -2134,7 +2134,6 @@ void lisemqt::on_toolButton_RainfallName_clicked()
 
 }
 //--------------------------------------------------------------------
-
 void lisemqt::on_toolButton_ETName_clicked()
 {
     if (!QFileInfo(ETFileDir).exists() || ETFileDir.isEmpty())
@@ -2158,6 +2157,20 @@ void lisemqt::on_toolButton_ETShow_clicked()
 {
     //qDebug() <<ETFileDir + ETFileName;
     showTextfile(ETFileDir + ETFileName);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_DischargeName_clicked()
+{
+    if (!QFileInfo(ETFileDir).exists() || ETFileDir.isEmpty())
+        ETFileDir = currentDir;
+
+    QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
+
+    QString sss = getFileorDir(ETFileDir,"Select ET stations file", filters, 2);
+
+    ETFileDir = QFileInfo(sss).absolutePath()+"/";
+    ETFileName = QFileInfo(sss).fileName(); //baseName();
+    E_ETName->setText(ETFileDir + ETFileName);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_RainfallShow_clicked()

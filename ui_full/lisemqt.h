@@ -502,6 +502,8 @@ private slots:
 
     void on_checkIncludeET_toggled(bool checked);
 
+    void on_toolButton_DischargeName_clicked();
+
     void on_toolButton_ETShow_clicked();
 
     void on_toolButton_RainmapShow_clicked();
@@ -509,6 +511,7 @@ private slots:
     void on_toolButton_ETmapShow_clicked();
 
     void on_E_EndTimeDay_returnPressed();
+
     void on_E_BeginTimeDay_returnPressed();
 
     void on_toolButton_help1a_clicked();

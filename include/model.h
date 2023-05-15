@@ -851,6 +851,7 @@ public:
     void GetInputTimeseries();
     void GetDischargeData(QString name);
     void GetDischargeDataNew(QString name);
+    void GetDischargeMapfromStations();
     void GetRainfallData(QString name);   // get input timeseries
     void GetSpatialMeteoData(QString name, int type);   // get input timeseries
     void GetETData(QString name);   // get input timeseries
