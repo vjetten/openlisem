@@ -2160,7 +2160,7 @@ void TWorld::IntializeData(void)
     Qn = NewMap(0);
 
     if (SwitchDischargeUser) {
-        DischargeUserPoints = NewMap(0); // ReadMap(LDD,getvaluename("userdicharge"));
+        DischargeUserPoints = ReadMap(LDD,getvaluename("qinpoints"));
         QuserIn = NewMap(0);
 
         FOR_ROW_COL_MV_L {
