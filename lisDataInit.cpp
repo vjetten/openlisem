@@ -2159,6 +2159,22 @@ void TWorld::IntializeData(void)
     Q = NewMap(0);
     Qn = NewMap(0);
 
+    if (SwitchDischargeUser) {
+        DischargeZone = NewMap(0); // ReadMap(LDD,getvaluename("userdicharge"));
+        QuserIn = NewMap(0);
+
+        FOR_ROW_COL_MV_L {
+            if (DischargeZone->Drc > 0 && ChannelWidth->Drc == 0) {
+                //message
+                int p = (int) DischargeZone->Drc ;
+                ErrorString = (this,"openLISEM",QString("Discharge input point %1 is not in a channel!").arg(p));
+                DEBUG(ErrorString);
+                throw 1;
+            }
+        }}
+
+    }
+
     flowmask = NewMap(0);
     K2DOutlets = NewMap(0);
     //K2DQ = NewMap(0);

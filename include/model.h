@@ -378,7 +378,7 @@ public:
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle,
     SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchGWflow,SwitchPressureGWflow,SwitchLDDGWflow,SwitchSWATGWflow,SwitchChannel2DflowConnect,
-    SwitchGWChangeSD;
+    SwitchGWChangeSD, SwitchDischargeUser;
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency

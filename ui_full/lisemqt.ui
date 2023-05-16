@@ -145,8 +145,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>792</width>
-                <height>746</height>
+                <width>693</width>
+                <height>771</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -1513,7 +1513,7 @@
                        </widget>
                       </item>
                       <item row="3" column="0">
-                       <widget class="QCheckBox" name="checkChannelInflow">
+                       <widget class="QCheckBox" name="checkDischargeUser">
                         <property name="enabled">
                          <bool>true</bool>
                         </property>
@@ -8287,8 +8287,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>798</width>
-                <height>649</height>
+                <width>937</width>
+                <height>699</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
@@ -13528,7 +13528,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>checkIncludeChannel</sender>
    <signal>toggled(bool)</signal>
-   <receiver>checkChannelInflow</receiver>
+   <receiver>checkDischargeUser</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -13878,7 +13878,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>checkChannelInflow</sender>
+   <sender>checkDischargeUser</sender>
    <signal>toggled(bool)</signal>
    <receiver>E_DischargeInName</receiver>
    <slot>setEnabled(bool)</slot>
@@ -13894,7 +13894,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>checkChannelInflow</sender>
+   <sender>checkDischargeUser</sender>
    <signal>toggled(bool)</signal>
    <receiver>toolButton_DischargeInName</receiver>
    <slot>setEnabled(bool)</slot>
@@ -13910,7 +13910,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>checkChannelInflow</sender>
+   <sender>checkDischargeUser</sender>
    <signal>toggled(bool)</signal>
    <receiver>toolButton_DischargeShow</receiver>
    <slot>setEnabled(bool)</slot>

@@ -96,6 +96,8 @@ cTMap
 *V,                          //!< velocity of overland flow [m/s]
 *Alpha,                      //!< alpha in A = alphaQ^b
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
+*DischargeZone,
+*QuserIn,
 *Qbase,
 *GWVol,
 *GWWH,
