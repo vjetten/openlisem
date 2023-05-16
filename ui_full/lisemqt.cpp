@@ -2152,20 +2152,17 @@ void lisemqt::on_toolButton_ETShow_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_DischargeName_clicked()
 {
-    QString path;
+    if (!QFileInfo(DischargeinDir).exists() || DischargeinDir.isEmpty())
+        DischargeinDir = currentDir;
 
-    DischargeinDir = findValidDir(DischargeinDir, false);
+    QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
 
-    path = QFileDialog::getOpenFileName(this,
-                                        QString("Select discarge input file"),
-                                        DischargeinDir);
-    if(!path.isEmpty())
-    {
-        QFileInfo fi(path);
-        DischargeinFileName = fi.fileName();
-        DischargeinDir = CheckDir(fi.absolutePath());//Dir().path());
-        E_DischargeInName->setText( RainFileDir + DischargeinFileName  );
-    }
+    QString sss = getFileorDir(DischargeinDir,"Select ET stations file", filters, 2);
+
+    DischargeinDir = QFileInfo(sss).absolutePath()+"/";
+    DischargeinFileName = QFileInfo(sss).fileName(); //baseName();
+    E_DischargeInName->setText(DischargeinDir + DischargeinFileName);
+
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_RainfallShow_clicked()

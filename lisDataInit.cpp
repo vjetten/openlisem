@@ -2484,10 +2484,12 @@ void TWorld::IntializeOptions(void)
     ETFileDir.clear();
     ETSatFileName.clear();
     ETSatFileDir.clear();
-    snowmeltFileName.clear();
-    snowmeltFileDir.clear();
-    snowmeltSatFileName.clear();
-    snowmeltSatFileDir.clear();
+    dischargeinFileDir.clear();
+    dischargeinFileName.clear();
+//    snowmeltFileName.clear();
+//    snowmeltFileDir.clear();
+//    snowmeltSatFileName.clear();
+//    snowmeltSatFileDir.clear();
     SwatreTableDir.clear();
     SwatreTableName = QString("profile.inp");//.clear();
     resultFileName.clear();

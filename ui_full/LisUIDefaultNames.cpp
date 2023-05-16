@@ -190,8 +190,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("satImage file");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Advanced Options");
-    namelist[i++].name = QString("Discharge inflow directory");
-    namelist[i++].name = QString("Discharge inflow file");
 
     //###
     namelist[i++].name = QString("");
@@ -292,8 +290,6 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel culverts");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include channel inflow");
-    namelist[i].value = QString("0");
     namelist[i++].name = QString("Hard Surfaces");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Include road system");
@@ -339,6 +335,11 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("ET Bias Correction");
     namelist[i].value = QString("2.0");
     namelist[i++].name = QString("Rainfall ET threshold");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include channel inflow");
+    namelist[i++].name = QString("Discharge inflow file");
+    namelist[i++].name = QString("Discharge inflow directory");
+
 //    namelist[i].value = QString("0");
 //    namelist[i++].name = QString("Include Snowmelt");
 //    namelist[i++].name = QString("Snowmelt file");

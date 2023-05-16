@@ -438,8 +438,8 @@ void TWorld::ParseRunfileData(void)
 
         if (SwitchDischargeUser)
         {
-            if (p1.compare("Discharge inflow Directory")==0) dischargeinFileDir = CheckDir(p);
-            if (p1.compare("Discharge inflow file")==0) dischargeinFileName = dischargeinFileDir + "/" + p;
+            if (p1.compare("Discharge inflow directory")==0) dischargeinFileDir = CheckDir(p);
+            if (p1.compare("Discharge inflow file")==0) dischargeinFileName = p;
         }
 
         if (SwitchImage)
@@ -522,6 +522,11 @@ void TWorld::ParseRunfileData(void)
             ETSatFileName = ETSatFileDir + ETSatFileName;
         else
             ETFileName = ETFileDir + ETFileName;
+    }
+
+    if (SwitchDischargeUser) {
+        dischargeinFileName = dischargeinFileDir + dischargeinFileName;
+        qDebug() << dischargeinFileName << dischargeinFileDir;
     }
 
     if(SwitchSnowmelt) {

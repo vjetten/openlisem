@@ -521,31 +521,11 @@ void lisemqt::ParseInputData()
         if (p1.compare("ET Map Directory")==0) ETSatFileDir = CheckDir(p);
         if (p1.compare("ET maplist name")==0) ETSatFileName = p;
 
-        if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
-        if (p1.compare("Snowmelt file")==0) SnowmeltFileName = p;
+        //if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
+        //if (p1.compare("Snowmelt file")==0) SnowmeltFileName = p;
 
-//        if (p1.compare("Snowmelt Map Directory")==0) SnowmeltSatFileDir = CheckDir(p);
-//        if (p1.compare("Snowmelt maplist name")==0) {
-//            SnowmeltSatFileName = p;
-//            E_SnowmeltSatName->setText(SnowmeltSatFileDir + SnowmeltSatFileName);
-//            if (!QFileInfo(E_SnowmeltSatName->text()).exists())
-//            {
-//                SnowmeltSatFileDir = QString(E_WorkDir + "rain/");
-//                E_SnowmeltSatName->setText(SnowmeltSatFileDir + p);
-//            }
-//        }
-
-//        if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
-//        if (p1.compare("Discharge inflow file")==0)
-//        {
-//            E_DischargeInName->setText(DischargeinDir + p);
-//            DischargeinFileName = p;
-//            if (!QFileInfo(E_DischargeInName->text()).exists())
-//            {
-//                DischargeinDir = QString(E_WorkDir + "rain/");
-//                E_DischargeInName->setText(DischargeinDir + p);
-//            }
-//        }
+        if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
+        if (p1.compare("Discharge inflow file")==0) DischargeinFileName = p;
 
         if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
         if (p1.compare("satImage file")==0) satImageFileName = p;
@@ -618,6 +598,15 @@ void lisemqt::ParseInputData()
         {
             ETSatFileDir = QString(E_WorkDir + "rain/");
             E_ETsatName->setText(ETSatFileDir + ETSatFileName);
+        }
+    }
+
+    if (checkDischargeUser->isChecked()) {
+        E_DischargeInName->setText(DischargeinDir + DischargeinFileName);
+        if (!QFileInfo(E_DischargeInName->text()).exists() && !E_DischargeInName->text().isEmpty())
+        {
+            DischargeinDir = QString(E_WorkDir + "rain/");
+            E_DischargeInName->setText(DischargeinDir + DischargeinFileName);
         }
     }
 
@@ -976,6 +965,10 @@ void lisemqt::updateModelData()
         if (p1.compare("ET Map Directory") ==0) namelist[j].value = ETSatFileDir;
         if (p1.compare("ET Bias Correction")==0) namelist[j].value = E_biasCorrectionET->text();
         if (p1.compare("Rainfall ET threshold")==0) namelist[j].value = E_rainfallETA_threshold->text();
+
+        if (p1.compare("Discharge inflow directory")==0) namelist[j].value=DischargeinDir;
+        if (p1.compare("Discharge inflow file")==0) namelist[j].value=DischargeinFileName;
+
 
       //  if (p1.compare("Snowmelt Directory")==0) namelist[j].value = SnowmeltFileDir;
       //  if (p1.compare("Snowmelt file")==0) namelist[j].value = SnowmeltFileName;
