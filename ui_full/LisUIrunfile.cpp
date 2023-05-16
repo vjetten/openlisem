@@ -437,6 +437,7 @@ void lisemqt::ParseInputData()
     groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
 
     on_checkIncludeET_toggled(checkIncludeET->isChecked());
+    on_checkDischargeUser_toggled(checkDischargeUser->isChecked());
 
     if (checkSedtrap->isChecked())
         on_checkSedtrap_clicked();

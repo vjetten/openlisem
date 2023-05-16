@@ -178,6 +178,14 @@ void TWorld::ChannelBaseflow(void)
         }}
 
     }
+
+    if (SwitchDischargeUser) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            ChannelWaterVol->Drc += QuserIn->Drc * _dt;
+            // add user defined discharge
+        }}
+    }
 }
 //---------------------------------------------------------------------------
 void TWorld::ChannelRainandInfil(void)

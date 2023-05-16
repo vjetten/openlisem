@@ -43,7 +43,7 @@ void TWorld::GetDischargeDataNew(QString name)
 
     if (!fi.exists())
     {
-        ErrorString = "Discharge file not found: " + name;
+        ErrorString = "User defined input discharge file not found: " + name;
         throw 1;
     }
 
@@ -187,8 +187,8 @@ void TWorld::GetDischargeMapfromStations(void)
     #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             for (int k = 0; k < stationQID.size(); k++) {
-                if ((int) DischargeZone->Drc == DischargeSeries[currentrow].stationnr.at(k))
-                    QuserIn->Drc = DischargeSeries[currentrow].Qin[k]*_dt; // assuming m3/s to m3
+                if ((int) DischargeUserPoints->Drc == DischargeSeries[currentrow].stationnr.at(k))
+                    QuserIn->Drc = DischargeSeries[currentrow].Qin[k]; // assuming m3/s
             }
         }}
     }

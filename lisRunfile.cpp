@@ -206,7 +206,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include stationary baseflow")==0)       SwitchChannelBaseflowStationary  = iii == 1;
         if (p1.compare("Adjust channel crosssection")==0)       SwitchChannelAdjustCHW  = iii == 1;
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
-        if (p1.compare("Include channel inflow")==0)            SwitchChannelInflow  = iii == 1;
+        if (p1.compare("Include channel inflow")==0)            SwitchDischargeUser  = iii == 1;
         if (p1.compare("GW flow explicit")==0)                  SwitchGWflow  = iii == 1;
         if (p1.compare("GW flow LDD")==0)                       SwitchLDDGWflow  = iii == 1;
         if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
@@ -436,7 +436,7 @@ void TWorld::ParseRunfileData(void)
 
         }
 
-        if (SwitchChannelInflow)
+        if (SwitchDischargeUser)
         {
             if (p1.compare("Discharge inflow Directory")==0) dischargeinFileDir = CheckDir(p);
             if (p1.compare("Discharge inflow file")==0) dischargeinFileName = dischargeinFileDir + "/" + p;

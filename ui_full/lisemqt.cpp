@@ -2020,25 +2020,6 @@ void lisemqt::on_checkHouses_toggled(bool checked)
 }
 //--------------------------------------------------------------------
 
-void lisemqt::on_toolButton_DischargeInName_clicked()
-{
-    QString path;
-
-    DischargeinDir = findValidDir(DischargeinDir, false);
-
-    path = QFileDialog::getOpenFileName(this,
-                                        QString("Select discarge input file"),
-                                        DischargeinDir);
-    if(!path.isEmpty())
-    {
-        QFileInfo fi(path);
-        DischargeinFileName = fi.fileName();
-        DischargeinDir = CheckDir(fi.absolutePath());//Dir().path());
-        E_DischargeInName->setText( RainFileDir + DischargeinFileName  );
-    }
-}
-//--------------------------------------------------------------------
-
 // select a file or directory
 // doFile = 0: select a directory;
 // dofile = 1 select a file and return file name only;
@@ -2148,6 +2129,16 @@ void lisemqt::on_toolButton_ETName_clicked()
     E_ETName->setText(ETFileDir + ETFileName);
 }
 //--------------------------------------------------------------------
+void lisemqt::on_checkDischargeUser_toggled(bool checked)
+{
+    groupDischargeUser->setEnabled(checked);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_DischargeShow_clicked()
+{
+    showTextfile(DischargeinDir + DischargeinFileName);
+}
+//--------------------------------------------------------------------
 void lisemqt::on_checkIncludeET_toggled(bool checked)
 {
     radioGroupET->setEnabled(checked);
@@ -2161,16 +2152,20 @@ void lisemqt::on_toolButton_ETShow_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_DischargeName_clicked()
 {
-    if (!QFileInfo(ETFileDir).exists() || ETFileDir.isEmpty())
-        ETFileDir = currentDir;
+    QString path;
 
-    QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
+    DischargeinDir = findValidDir(DischargeinDir, false);
 
-    QString sss = getFileorDir(ETFileDir,"Select ET stations file", filters, 2);
-
-    ETFileDir = QFileInfo(sss).absolutePath()+"/";
-    ETFileName = QFileInfo(sss).fileName(); //baseName();
-    E_ETName->setText(ETFileDir + ETFileName);
+    path = QFileDialog::getOpenFileName(this,
+                                        QString("Select discarge input file"),
+                                        DischargeinDir);
+    if(!path.isEmpty())
+    {
+        QFileInfo fi(path);
+        DischargeinFileName = fi.fileName();
+        DischargeinDir = CheckDir(fi.absolutePath());//Dir().path());
+        E_DischargeInName->setText( RainFileDir + DischargeinFileName  );
+    }
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_RainfallShow_clicked()

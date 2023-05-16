@@ -913,6 +913,7 @@ void TWorld::InitChannel(void)
     ChannelDepTot = 0;
     ChannelDetTot = 0;
     BaseFlowTotmm = 0;
+    QuserInTot = 0;
 
     if(!SwitchIncludeChannel)
         return;
@@ -2089,7 +2090,6 @@ void TWorld::IntializeData(void)
     StormDrainTotmm = 0;
     ChannelVolTot = 0;
     StormDrainVolTot = 0;
-    ChannelVolTotmm = 0;
     floodVolTotmm= 0;
     floodVolTot = 0;
     //floodVolTotInit = 0;
@@ -2160,13 +2160,13 @@ void TWorld::IntializeData(void)
     Qn = NewMap(0);
 
     if (SwitchDischargeUser) {
-        DischargeZone = NewMap(0); // ReadMap(LDD,getvaluename("userdicharge"));
+        DischargeUserPoints = NewMap(0); // ReadMap(LDD,getvaluename("userdicharge"));
         QuserIn = NewMap(0);
 
         FOR_ROW_COL_MV_L {
-            if (DischargeZone->Drc > 0 && ChannelWidth->Drc == 0) {
+            if (DischargeUserPoints->Drc > 0 && ChannelWidth->Drc == 0) {
                 //message
-                int p = (int) DischargeZone->Drc ;
+                int p = (int) DischargeUserPoints->Drc ;
                 ErrorString = (this,"openLISEM",QString("Discharge input point %1 is not in a channel!").arg(p));
                 DEBUG(ErrorString);
                 throw 1;
@@ -2436,13 +2436,6 @@ void TWorld::IntializeData(void)
     if (/* SwitchChannelBaseflow && */ SwitchChannelBaseflowStationary)
         FindBaseFlow();
 
-    if (SwitchChannelInflow) {
-        Qinflow = NewMap(0);
-        QinLocation = ReadMap(LDD, getvaluename("qinpoints"));
-    } else {
-        QinLocation = NewMap(0);
-    }
-
 }
 //---------------------------------------------------------------------------
 //TODO: are all switches and options initialised here?
@@ -2561,7 +2554,7 @@ void TWorld::IntializeOptions(void)
     SwitchChannelBaseflowStationary = false;
     SwitchChannelInfil = false;
     SwitchCulverts = false;
-    SwitchChannelInflow = false;
+    SwitchDischargeUser = false;
     SwitchIncludeTile = false;
     SwitchIncludeStormDrains = false;
 
