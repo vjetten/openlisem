@@ -779,7 +779,7 @@ void TWorld::GetDischargeDataNew(QString name)
         int r_ = r+nrStations+3;
 
         // split rainfall record row with whitespace
-        QStringList SL = rainRecs[r_].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+        QStringList SL = QRecs[r_].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
 
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
