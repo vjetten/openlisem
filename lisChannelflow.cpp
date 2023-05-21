@@ -152,7 +152,7 @@ void TWorld::ChannelBaseflow(void)
         }}
     }
 
-    if (SwitchGWflow || SwitchLDDGWflow || SwitchSWATGWflow) {
+    if (SwitchGWflow) {
         GroundwaterFlow();
         // move groundwater, GWout is the flow itself between cells
 
