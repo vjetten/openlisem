@@ -157,15 +157,23 @@ void TWorld::ChannelBaseflow(void)
         // move groundwater, GWout is the flow itself between cells
 
         cTMap *pore = ThetaS2;
-        if (!SwitchTwoLayer)
+        cTMap *ksat = Ksat2;
+        if (!SwitchTwoLayer) {
             pore = Thetaeff;
+            ksat = Ksateff;
+        }
 
         // in all channel cells
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            Qbase->Drc = std::min(GWVol->Drc, 2.0*ChannelWidth->Drc/_dx*fabs(GWout->Drc));
-            // assumption: GWout is the general flow in the channel cell always towards the channel (fabs)
-            // and flow is from 2 sides into the channel, a small channel has less inflow than a broad channel
+            double GWchan = GW_flow * ksat->Drc * (GWWH->Drc * DX->Drc) * 2.0 * std::min(1.0, GWWH->Drc/(0.5*ChannelAdj->Drc) ); //gradient= dH/dz ?
+            // flow into the channel is independentt of the GW flow method itself to avoid mass balance problems
+            // Ksat * crosssection * gradient = dH/dL where dL is half the distance of the non channel part to
+            // and flow is from 2 sides into the channel, a small channel has less inflow than a broad channel (ChannelAdj)
+
+            //double GWchan = //(2.0*ChannelWidth->Drc/_dx)*fabs(GWout->Drc));
+
+            Qbase->Drc = std::min(GWVol->Drc, GWchan);
 
             ChannelWaterVol->Drc += Qbase->Drc;
             GWVol->Drc -= Qbase->Drc;
