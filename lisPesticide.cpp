@@ -124,7 +124,7 @@ double TWorld::MassPestInitial(void)
     double pmtot_i {0.0};
     double rho = rhoPest;
 
-    //#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
         // mg = mg kg-1 * m * m * kg m-3 * m
         PMms->Drc = PCms->Drc * SoilWidthDX->Drc * DX->Drc * rho * zm->Drc;
@@ -158,7 +158,7 @@ void TWorld::PesticideCellDynamics(void)
     double Kfilm = KfilmPest; // m sec-1
     double kr = KrPest;       // sec
     // this chunck can also be parallel
-    //#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
        // no runoff, no erosion
        double mda_ex {0.0};        // mg - exchange mixing layer
@@ -206,7 +206,6 @@ void TWorld::PesticideCellDynamics(void)
        // Kr * (Kd * PCmw->Drc - PCms->Drc) is mg * kg-1 * sec-1
        // this holds if 1L water = 1kg
 
-       if (SwitchPestMixPartitioning) { // this switch can be removed
        // positive adds to absorbed, negative to dissolved.
        // mg = mg kg-1 sec-1 *  sec * kg
        mda_ex = kr * (Kd * PCmw->Drc - PCms->Drc) * _dt
@@ -219,7 +218,6 @@ void TWorld::PesticideCellDynamics(void)
        // mda_ex can not be larger than m_diff
        m_diff = eql_ads - PMms->Drc;
        mda_ex = std::abs(mda_ex) > std::abs(m_diff) ? m_diff : mda_ex;
-       }
 
        //update masses
        PMmw->Drc = std::max(0.0, PMmw->Drc - mda_ex);
@@ -298,7 +296,7 @@ void TWorld::PesticideFlow1D(void) {
     }
     // calculate new concentration
     // make parralell
-    //#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
     double volmw {0.0};         // L - volume of water in mixing layer
     double massms {0.0};        // kg - mass of sediment in mixing layer
@@ -379,90 +377,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
                                     _Alpha->Drc, _DX->Drc, _dt); //mg/sec
         _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc + PMrw->Drc / _dt);
 
-//        // internal time loop
-//        if (SwitchPestInternal_dt) {
-//        //calculate courant number of standard timestep
-//        double Cr_rw {0.0};
-//        double Cr_mw {0.0};
-
-//        // runoff water
-//    //    Cr_rw = (PMrw->Drc + QpinKW->Drc) > 0 ? ((_Qpwn->Drc * _dt) - mwrm_ex) / (PMrw->Drc + QpinKW->Drc * _dt) : 0.0;
-//        // mixing layer
-//     //   Cr_mw = PMmw->Drc > 0 ? mwrm_ex / PMmw->Drc : 0.0;
-
-//        //start loop if one of the Cr's > Cr_max
-//        if (Cr_rw > Cr_max | Cr_mw > Cr_max) {
-//            // calculate steps and internal timestep
-//            double steps {0.0};
-//            double dt_int {0.0};
-//            steps = std::min(std::ceil(std::max(Cr_rw,Cr_mw)*(2/Cr_max)), _dt/dt_int_min);
-//            dt_int = _dt / steps;
-
-//            // fill intermediate concentrations and masses
-//            double int_Qpw {0.0}, int_Qpwn {0.0}, int_Cmw {0.0}, int_Crw {0.0}, int_Crw_avg {0.0}; //
-//            double int_Mrw {0.0}, int_Mmw {0.0}, int_mwrm_ex {0.0}; //
-//            double sum_int_mwrm_ex {0.0}, sum_int_Qpwn {0.0};
-
-//            int_Qpw = _Qpw->Drc;
-//            int_Cmw = PCmw->Drc;
-//            int_Mrw = PMrw->Drc;
-//            int_Mmw = PMmw->Drc;
-
-
-//            // make loop
-//            double count = 0;
-//            while (count < steps) {
-//                count++;
-
-//                // mg L-1 = (mg + (mg sec-1 * sec)) / (m3 + (m3 sec-1 * sec)) * 1000(m3 -> L)
-//                int_Crw_avg = (int_Mrw + (QpinKW->Drc * dt_int))
-//                          / ((WaterVolin->Drc + (QinKW->Drc * dt_int)) * 1000);
-//                // calculate mrwm_ex
-//                int_mwrm_ex = ((_kfilm * (int_Cmw - int_Crw_avg))/(zm->Drc + WHrunoff->Drc))
-//                              * dt_int * std::min(vol_mw, vol_rw);
-////                // equilibrium check
-////                // calculate equilibrium mass division
-////                c_eql = (int_Mmw + int_Mrw) / (vol_mw + vol_rw);
-////                eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
-////                // mwrm_ex can not be larger than m_diff
-////                m_diff = eql_mw - int_Mmw;
-//               // int_mwrm_ex = std::abs(int_mwrm_ex) > std::abs(m_diff) ? m_diff : int_mwrm_ex;
-
-//                // calculate concentration for new outflux
-//                int_Mrw = std::max(0.0, int_Mrw + int_mwrm_ex);
-//                int_Crw = int_Mrw / (WaterVolin->Drc * 1000);
-
-//                // calculate Qpwn
-//                int_Qpwn = ChowSubstance(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, int_Qpw,
-//                                       _Alpha->Drc, _DX->Drc, dt_int);
-
-//                // add & substract all masses and update concentrations
-//                int_Qpwn = std::min(int_Qpwn, QpinKW->Drc + int_Mrw / dt_int);
-
-//                //substract infiltration and discharge
-//                //mg = mg + mg - mg - mg + (mg sec-1 * sec)
-//                int_Mrw = std::max(0.0, int_Mrw - int_Qpwn * dt_int + QpinKW->Drc * dt_int);
-//                int_Mmw = std::max(0.0, int_Mmw - int_mwrm_ex);
-
-//                // for next internal loop Qpw = current Qpwn
-//                int_Qpw = int_Qpwn;
-//                // L = m * m * m * -- * 1000
-//                int_Cmw = int_Mmw / vol_mw;
-
-//                // mean Q and total exchange and infiltration
-//                sum_int_Qpwn += int_Qpwn;
-//                sum_int_mwrm_ex += int_mwrm_ex;
-
-//            } // end internal time loop
-
-//            // calculate final concentrations and masses
-//            _Qpwn->Drc = sum_int_Qpwn / steps;
-//       //     mwrm_ex = sum_int_mwrm_ex;
-
-//        } // end if Cr > Cr_max
-//        } // end internal time loop
-
-
        } //runoff occurs
     //substract discharge
     //mg = mg - (mg sec-1 * sec)
@@ -542,63 +456,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         _Qpsn->Drc = ChowSubstance(Qn->Drc, QinKW->Drc, Q->Drc, SpinKW->Drc, _Qps->Drc,
                                  _Alpha->Drc, _DX->Drc, _dt); //mg/sec
         _Qpsn->Drc = std::min(_Qpsn->Drc, SpinKW->Drc + PMrs->Drc / _dt);
-
-
-
-//        // internal loop ----------------------------
-//        if (SwitchPestInternal_dt) {
-//        //calculate courant number of standard timestep
-//        double Cr_rs {0.0};
-//        Cr_rs = (PMrs->Drc + SpinKW->Drc) > 0 ? ((_Qpsn->Drc * _dt)) / (PMrs->Drc + SpinKW->Drc * _dt) : 0.0;
-
-//        //start loop if Cr > Cr_max
-//        if (Cr_rs > Cr_max) {
-//            // calculate steps and internal timestep
-//            double steps {0.0};
-//            double dt_int {0.0};
-//            steps = std::min(std::ceil(Cr_rs*(2/Cr_max)), _dt/dt_int_min);
-//            dt_int = _dt / steps;
-
-//            // fill intermediate concentrations and masses
-//            double int_Qpsn {0.0}, int_Crs_avg {0.0}; //
-//            double int_Mrs {0.0}, int_Qps {0.0}; //
-//            double sum_int_Qpsn {0.0};
-
-//            int_Mrs = PMrs->Drc;
-//            int_Qps = _Qps->Drc;
-//            // make loop
-//            double count = 0;
-//            while (count < steps) {
-//                count++;
-
-//                // mg kg-1 = (mg + (mg sec-1 * sec)) / (kg + kg sec-1 * sec)
-//                int_Crs_avg = (int_Mrs + (SpinKW->Drc * dt_int))
-//                              / (_Sed->Drc + (SinKW->Drc * dt_int));
-
-////                // - simple extrapolation
-////                double totpests = std::max(0.0, int_Mrs +
-////                                           (SpinKW->Drc * dt_int));
-////                double totsed = _Sed->Drc + (SinKW->Drc * dt_int);
-////                int_Qpsn = std::min(totpests/dt_int,
-////                                      _Qsn->Drc * (totpests / totsed));
-
-//                // use explicit backwards method from Chow
-//                int_Qpsn = ChowSubstance(Qn->Drc, QinKW->Drc, Q->Drc, SpinKW->Drc, int_Qps,
-//                                       _Alpha->Drc, _DX->Drc, dt_int); //mg/sec
-//               // update for next loop
-//               int_Mrs = std::max(0.0, int_Mrs - (int_Qpsn * dt_int)
-//                                           + (SpinKW->Drc * dt_int));
-//                int_Qps = int_Qpsn;
-//                //sum for final values
-//               sum_int_Qpsn += int_Qpsn;
-
-//            } // end internal time loop
-
-//            //calculate final values
-//            _Qpsn->Drc = sum_int_Qpsn / steps;
-
-//        } // end if Cr > Cr_max
-//        } // end internal timeloop
         }
 
         } // erosion occurs
@@ -619,6 +476,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 
 void TWorld::PesticideSplashDetachment() {
     // can be parralel
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
          double msoil_ex {0.0};  // mass exchange between mixing layer and deeper soil
         // add mass to pesticide in flow
@@ -697,6 +555,7 @@ void TWorld::PesticideFlowDetachment(double rho) {
 
   // mass exchange between mixing layer an suspended sediment
     // can be parralel
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
         double msoil_ex {0.0};  // mass exchange between mixing layer and deeper soil
         double msrm_ex {0.0};
