@@ -367,11 +367,9 @@ void TWorld::ParseRunfileData(void)
             SwitchChannelBaseflowStationary = false;
     }
 
-//    if (SwitchChannelBaseflow)
-//        SwitchImpermeable = false; //!!!!!!!!!!!!!
-// no because this is not the case when there is stationary baselfow
+    SwitchGWflow = SwitchChannelBaseflow && (SwitchGW2Dflow || SwitchLDDGWflow || SwitchSWATGWflow);
 
-    if (SwitchChannelBaseflow && (SwitchGWflow || SwitchLDDGWflow)) {
+    if (SwitchChannelBaseflow && SwitchGWflow) {
         SwitchImpermeable = false;
     }   
     // stationary baseflow and impermeable soil allowed (ignoring where the stationary flow comes form !

@@ -2550,6 +2550,7 @@ void TWorld::IntializeOptions(void)
     SwitchIncludeChannel = false;
     SwitchChannelBaseflow = false;
     SwitchGWflow = false;
+    SwitchGW2Dflow =  false;
     SwitchLDDGWflow = false;
     SwitchSWATGWflow = false;
     SwitchGWChangeSD = true;

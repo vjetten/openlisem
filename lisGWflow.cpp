@@ -67,6 +67,7 @@ void TWorld::GroundwaterFlow(void)
 //        tot += GWVol->Drc;
 //        totr += GWrecharge->Drc;
         GWVol->Drc += GWrecharge->Drc - GWdeep->Drc;
+        GWVol->Drc = std::min(maxvol, GWVol->Drc);
         GWWH->Drc = GWVol->Drc/(CellArea->Drc*pore->Drc);
         GWout->Drc = 0;
     }}
@@ -80,6 +81,13 @@ void TWorld::GroundwaterFlow(void)
         GWFlowLDDKsat();
     if (SwitchSWATGWflow)
         GWFlowSWAT();
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        double maxvol = SoilDepthinit->Drc * CellArea->Drc * pore->Drc;
+        GWVol->Drc = std::min(maxvol, GWVol->Drc);
+        GWWH->Drc = GWVol->Drc/(CellArea->Drc*pore->Drc);
+    }}
 
     // change the soil depth with GWWH
     if (SwitchGWChangeSD) {
@@ -192,7 +200,7 @@ void TWorld::GWFlowLDDKsat(void)
         }
     }
 
-    Average3x3(*GWWH, *LDDbaseflow);
+  //  Average3x3(*GWWH, *LDDbaseflow);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         GWVol->Drc = GWWH->Drc*CellArea->Drc*pore->Drc;
@@ -290,7 +298,7 @@ void TWorld::GWFlow2D(void)
             dflux =  maxvol - V;
         if (V + dflux < 0)
             dflux = -V;
-        //fill tma with the resulting flux of a cell
+        //fill with the resulting flux of a cell
         GWout->Drc = dflux;
     }}
 
@@ -303,7 +311,7 @@ void TWorld::GWFlow2D(void)
         // recalc gwwh
 
        // GWout->Drc = tma->Drc;
-        // flux is gwout for baseflow
+       // flux is gwout for baseflow
     }}
 
 }
@@ -346,5 +354,6 @@ void TWorld::GWFlowSWAT(void)
     if (doit)
         AccufluxGW(crlinkedlddbase_, tmb, GWout, ChannelWidth);
     // GWout has not the accumulated flow pattern, do NOT use this anymore for the mass balance
+    // channelwidth is flag: stop accumulating when you reach channel
 }
 

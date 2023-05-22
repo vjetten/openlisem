@@ -184,16 +184,22 @@ void TWorld::GetDischargeMapfromStations(void)
 
     // get the next map from file
     if (!sameQ) {
-    #pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
+            QuserIn->Drc = 0;
             for (int k = 0; k < stationQID.size(); k++) {
-                if ((int) DischargeUserPoints->Drc == DischargeSeries[currentrow].stationnr.at(k))
+                if ((int) DischargeUserPoints->Drc == DischargeSeries[currentrow].stationnr.at(k)) {
                     QuserIn->Drc = DischargeSeries[currentrow].Qin[k]; // assuming m3/s
+                   // qDebug() <<  QuserIn->Drc << currentrow << k << DischargeSeries[currentrow].stationnr.at(k);
+                }
             }
         }}
     }
 
     currentDischargerow = currentrow;
+
+//    double hoi =MapTotal(*QuserIn);
+//    qDebug() << hoi;
 
 }
 

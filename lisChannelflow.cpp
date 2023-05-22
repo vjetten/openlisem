@@ -152,20 +152,28 @@ void TWorld::ChannelBaseflow(void)
         }}
     }
 
-    if (SwitchGWflow || SwitchLDDGWflow || SwitchSWATGWflow) {
+    if (SwitchGWflow) {
         GroundwaterFlow();
         // move groundwater, GWout is the flow itself between cells
 
         cTMap *pore = ThetaS2;
-        if (!SwitchTwoLayer)
+        cTMap *ksat = Ksat2;
+        if (!SwitchTwoLayer) {
             pore = Thetaeff;
+            ksat = Ksateff;
+        }
 
         // in all channel cells
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            Qbase->Drc = std::min(GWVol->Drc, 2.0*ChannelWidth->Drc/_dx*fabs(GWout->Drc));
-            // assumption: GWout is the general flow in the channel cell always towards the channel (fabs)
-            // and flow is from 2 sides into the channel, a small channel has less inflow than a broad channel
+            double GWchan = GW_flow * ksat->Drc * (std::min(GWWH->Drc,ChannelDepth->Drc) * DX->Drc) * 2.0;// * std::min(1.0, GWWH->Drc/(0.5*ChannelAdj->Drc) ); //gradient= dH/dz ?
+            // flow into the channel is independentt of the GW flow method itself to avoid mass balance problems
+            // Ksat * crosssection * gradient = dH/dL where dL is half the distance of the non channel part to
+            // and flow is from 2 sides into the channel, a small channel has less inflow than a broad channel (ChannelAdj)
+
+            //double GWchan = //(2.0*ChannelWidth->Drc/_dx)*fabs(GWout->Drc));
+
+            Qbase->Drc = std::min(GWVol->Drc, GWchan);
 
             ChannelWaterVol->Drc += Qbase->Drc;
             GWVol->Drc -= Qbase->Drc;
@@ -178,7 +186,36 @@ void TWorld::ChannelBaseflow(void)
         }}
 
     }
+}
+//---------------------------------------------------------------------------
+void TWorld::ChannelRainandInfil(void)
+{
+    // add rainfall to channel, assume no interception
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        if (SwitchCulverts && ChannelMaxQ->Drc > 0)
+            ChannelWaterVol->Drc += 0;
+        else
+            ChannelWaterVol->Drc += Rainc->Drc*ChannelWidth->Drc*DX->Drc;
+    }}
 
+    // subtract infiltration, no infil in culverts
+    if (SwitchChannelInfil) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            if (ChannelMaxQ->Drc <= 0) {
+                double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
+                // hsat based through entire wet cross section
+                inf = std::min(ChannelWaterVol->Drc, inf);
+                // cannot be more than there is
+                ChannelWaterVol->Drc -= inf;
+                ChannelInfilVol->Drc += inf;
+            }
+        }}
+    }
+
+
+    // add user channel inflow
     if (SwitchDischargeUser) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
@@ -186,29 +223,6 @@ void TWorld::ChannelBaseflow(void)
             // add user defined discharge
         }}
     }
-}
-//---------------------------------------------------------------------------
-void TWorld::ChannelRainandInfil(void)
-{
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
-
-        if (SwitchCulverts && ChannelMaxQ->Drc > 0)
-            ChannelWaterVol->Drc += 0;
-        else
-            ChannelWaterVol->Drc += Rainc->Drc*ChannelWidth->Drc*DX->Drc;
-        // add rainfall to channel, assume no interception
-
-        // subtract infiltration, no infil in culverts
-        if (SwitchChannelInfil && ChannelMaxQ->Drc <= 0) {
-            double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
-            // hsat based through entire wet cross section
-            inf = std::min(ChannelWaterVol->Drc, inf);
-            // cannot be more than there is
-            ChannelWaterVol->Drc -= inf;
-            ChannelInfilVol->Drc += inf;
-        }        
-    }}
 
 }
 //---------------------------------------------------------------------------
