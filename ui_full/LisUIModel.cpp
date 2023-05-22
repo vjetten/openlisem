@@ -113,6 +113,8 @@ void lisemqt::runmodel()
     sedgroup->setVisible(checkDoErosion->isChecked());
     tabWidget_totout->setTabEnabled(1,checkDoErosion->isChecked() );
 
+    showInfoAct->setChecked(true);
+    setOutputInfo(true);
 
     // initialize output graphs
     initPlot();
@@ -147,7 +149,7 @@ void lisemqt::runmodel()
     W->noInterface = true;
     W->noOutput = false;
     W->batchmode = false;
-    // run without Qt interface on openlisemtmp.run only
+    // run without Qt interface on original runfile only
 
     op.timeStartRun = QDateTime().currentDateTime().toString("yyMMdd-hhmm");
 

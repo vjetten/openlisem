@@ -77,7 +77,7 @@ void TWorld::ChannelSWOFopen()
         stop = false;
 
         // do the whole channel
-        //fill(*tma, -1);
+        //Fill(*tma, -1);
         dt_req = dt_max;
 
         #pragma omp parallel for num_threads(userCores)

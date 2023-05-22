@@ -269,9 +269,6 @@ void TWorld::GetComboMaps()
     //factor is already done in Qoutput, so that reportfile is also done, not only screen
     // the only thing that needs to change here is the text "m3/s"
 
-    //  if (FlowBoundaryType > 0)
-  //  AddComboMap(0,"Boundary Discharge","l/s",K2DQ,LegendMap[cl],Legend[cl],true,false,1000.0, 1.0);
-
     cl = 2;
     AddComboMap(0,"Water Height","m",hmxWH,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
 //    if (Switch2DDiagonalFlow)
@@ -279,9 +276,11 @@ void TWorld::GetComboMaps()
     cl = 1;
     AddComboMap(0,"Flow Velocity","m/s",COMBO_V,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     AddComboMap(0,"Flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.01); //VH
+    //AddComboMap(0,"boundary","-",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
 
     if(SwitchIncludeChannel)
     {
+
         cl = 0;
         if (QUnits == 0)
             AddComboMap(0,"Channel Discharge","l/s",ChannelQn,LegendMap[cl],Legend[cl],true,false,1000.0, 1.0);
@@ -289,6 +288,10 @@ void TWorld::GetComboMaps()
             AddComboMap(0,"Channel Discharge","m3/s",ChannelQn,LegendMap[cl],Legend[cl],true,false,1.0, 0.001);
         cl = 2;
         AddComboMap(0,"Channel Water Height","m",ChannelWH,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
+        if (SwitchChannelBaseflow)
+            AddComboMap(0,"Baseflow inflow","m3/s",Qbase,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
+
+        AddComboMap(0,"Channel Discharge","m3/s",ChannelQn,LegendMap[cl],Legend[cl],true,false,1.0, 0.001);
         cl = 1;
         AddComboMap(0,"Channel Velocity","m/s",ChannelV,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
 
@@ -307,13 +310,14 @@ void TWorld::GetComboMaps()
     if(InfilMethod != INFIL_NONE)
     {
         AddComboMap(0,"Infiltration","mm",InfilmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-        if (InfilMethod > 1)
-            AddComboMap(0,"Depth wetting front","mm",Lw,LegendMap[cl],Legend[cl],false,false,1000.0,1.0);  // swatre?
+        if (InfilMethod > 1) {
+            // Show a weighed avregae of cell wetting front else it seems partly impermeable surface infiltrate very deep
+            AddComboMap(0,"Average depth wetting front","mm",Lwmm,LegendMap[cl],Legend[cl],false,false,1.0,1.0);  // swatre?
+        }
+
         if (SwitchChannelBaseflow) {
             AddComboMap(0,"Groundwater level","m",GWWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
             AddComboMap(0,"Groundwater level max","m",GWWHmax,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
-            //AddComboMap(0,"Qbin","m3",Qbin,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
-
             //AddComboMap(0,"SD2","m",SoilDepth2,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
         }
         cl = 6;
@@ -387,10 +391,10 @@ void TWorld::GetComboMaps()
         AddComboMap(1,"Sed trap","kg/m3",SedMaxVolume,LegendMap[cl],Legend[cl],false,false,1.0, step);
 
         AddComboMap(1,"Suspended sed.",unit,COMBO_SS,LegendMap[cl],Legend[cl],false,false,factor, step);
-        AddComboMap(1,"TC suspended","kg/m3",SSTCFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
+        AddComboMap(1,"TC suspended","kg/m3",COMBO_TC,LegendMap[cl],Legend[cl],false,false,1.0, step);
         if(SwitchUse2Phase) {
             AddComboMap(1,"Bedload sed.",unit,COMBO_BL,LegendMap[cl],Legend[cl],false,false,factor, step);
-            AddComboMap(1,"TC bedload","kg/m3",BLTCFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
+         //   AddComboMap(1,"TC bedload","kg/m3",BLTCFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
          //   AddComboMap(1,"SS depth","m",SSDepthFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
          //   AddComboMap(1,"BL depth","m",BLDepthFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
         }
@@ -400,7 +404,7 @@ void TWorld::GetComboMaps()
 
         if(SwitchUseMaterialDepth) {
             AddComboMap(1,"Storage",unit,Storage,LegendMap[cl],Legend[cl],false,false,-factor, step);
-        AddComboMap(1,"Storage",unit,StorageDep,LegendMap[cl],Legend[cl],false,false,-factor, step);
+            AddComboMap(1,"Storage",unit,StorageDep,LegendMap[cl],Legend[cl],false,false,-factor, step);
         }
     }
 }
@@ -453,14 +457,4 @@ void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList
     op.comboboxset = false;
 }
 
-//void TWorld::ReplaceComboMaps()
-//{
-//    for(int i = 0; i < op.ComboMapsSafe.length(); i++)
-//    {
-//        #pragma omp parallel for num_threads(userCores)
-//        FOR_ROW_COL_MV_L {
-//            op.ComboMapsSafe[i]->Drc = op.ComboMaps[i]->Drc * op.ComboScaling.at(i);
-//        }}
-//    }
 
-//}

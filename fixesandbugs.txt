@@ -1,6 +1,28 @@
 this file is a list of changes per major commit
-230408 - v6.89
+230512 - v6.895
+- Psi is set back to a psi for the wetting front, somewhere slightly more than the bubbling pressure, relations from rawls et al 1982
+- All relations (field capacity, bubbling pressure) are now from Rawls 1982
+- removed psi and psi calibration from interface
+- added exceel sheets
+- added new compilation text
+230505 - v6.894
+- Psi is now calculated from theta with brook-Corey, instead of input. Calibration remains
+- Psi is also added to percolation and redistribution of water
+- Redistribution is split in two function for 1 and 2 layers
+- Increase infiltration depth is split into 2 function for 1 and 2 layers
+230424 - v6.892-6.893
+- Fixed bug causing profile to become saturated instantaneously because percolation from layer 1 to layer 2 saturates subsoil
+- Rewriting of GW flow, LDD version and pressure version work now
+- rewriting of void InfilEffectiveKsat
+- added soilwidthDX to infil calculation
+- replaced fill with Fill (parallel)
+230412 - v6.891
+- fixed bug open and closed boundary flow, to be further tested on different catchments
+- fixed small bugs for reporting to files all output to files with clear separation of total outflow and channelhydrographs fopr water and sediment
+- and reporting of units m3/s and l/s
+230412 - v6.89
 - redesigned GW flow completely, only two calib. paraters now, flow to the GW layer and GWflow to the channel
+- added calibration factors for soildepth 1 and 2
 - Interface works better with low resolutions screens
 - erosion overland flow uses govers and harsine and rose
 - included iterative version of connection between 2D flow and channel

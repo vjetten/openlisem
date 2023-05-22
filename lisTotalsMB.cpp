@@ -37,72 +37,6 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
-double TWorld::MapTotal(cTMap &M)
-{
-    double total = 0;
-    #pragma omp parallel for reduction(+:total) num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (!pcr::isMV(M.Drc))
-            total = total + M.Drc;
-    }}
-    return (total);
-}
-//---------------------------------------------------------------------------
-void TWorld::Average3x3(cTMap &M, cTMap &mask)
-{
-    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        tm->Drc = M.Drc;
-    }}
-
-    double f = 0.5;
-    FOR_ROW_COL_MV_L {
-        double tot = 0;
-        double cnt = 0;
-        for (int i = 1; i <= 9; i++)
-        {
-         //   if (i != 5) {
-                int rr = r+dy[i];
-                int cr = c+dx[i];
-
-                if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
-                    tot = tot + tm->Drcr;
-                    cnt += 1.0;
-                }
-          //  }
-        }
-        M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
-    }}
-}
-//---------------------------------------------------------------------------
-void TWorld::Average2x2(cTMap &M, cTMap &mask)
-{
-    int dx[10] = {0, -1, 1, -1,  1};
-    int dy[10] = {0,  1, 1, -1, -1};
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        tm->Drc = M.Drc;
-    }}
-
-    double f = 0.5;
-    FOR_ROW_COL_MV_L {
-        double tot = 0;
-        double cnt = 0;
-        for (int i = 0; i <= 5; i++)
-        {
-            int rr = r+dy[i];
-            int cr = c+dx[i];
-
-            if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
-                tot = tot + tm->Drcr;
-                cnt += 1.0;
-            }
-        }
-        M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
-    }}
-}
 //---------------------------------------------------------------------------
 // totals for screen and file output and mass balance
 void TWorld::Totals(void)
@@ -269,10 +203,6 @@ void TWorld::Totals(void)
         runoffTotalCell->Drc = std::max(0.0, RainCumFlat->Drc*1000-InterceptionmmCum->Drc-InfilmmCum->Drc);
     }}
 
-//    //=== storm drain flow ===//
-//    StormDrainVolTot = MapTotal(*TileWaterVol);
-//    StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
-
     //=== channel flow ===//
     if (SwitchIncludeChannel)
     {
@@ -298,8 +228,8 @@ void TWorld::Totals(void)
     // sum all outflow in m3 for this timestep, Qtot is for all timesteps!
 
     floodBoundaryTot += BoundaryQ*_dt;
-    FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;
-    // 2D boundary losses, ALWAYS INCLUDES LDD=5 and channelLDD=5
+    FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;    
+   // qDebug() << floodBoundaryTot;
 
     // Add outlet overland flow, for all flow methods
     FOR_ROW_COL_LDD5 {
@@ -356,23 +286,20 @@ void TWorld::Totals(void)
         }
     }
 
-    // output fluxes for reporting to file and screen in l/s!]
-    double factor = 1000.0;
-    if (QUnits == 1)
-        factor = 1.0;
-
+    // sum of all fluxes ONLY for display on screen
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
-        Qoutput->Drc = factor*(Qn->Drc + Qflood->Drc);// in l/s or m3/s
+        Qoutput->Drc = (Qn->Drc + Qflood->Drc) * (QUnits == 1 ? 1.0 : 1000);// in m3/s
 
         if(SwitchIncludeChannel)
-            Qoutput->Drc += factor*ChannelQn->Drc;
+            Qoutput->Drc += ChannelQn->Drc * (QUnits == 1 ? 1.0 : 1000);
 
         Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;
     }}
     // Total outflow in m3 for all timesteps
     // does NOT include flood water leaving domain (floodBoundaryTot)
+    // which is reported separatedly (because it is a messy flux)!
 
     Qtot += Qtot_dt;
     // add timestep total to run total in m3
@@ -510,7 +437,32 @@ void TWorld::Totals(void)
     }
 
 
+
     SedimentSetMaterialDistribution();
+
+    //=====***** PESTICIDES *****====//
+    if (SwitchPest)
+    {
+        double factor = 1 / (_dx * _dx);
+        // from mg/cell to mg/m2
+         #pragma omp parallel for num_threads(userCores)
+         FOR_ROW_COL_MV_L
+         {
+        totalDPlossmap->Drc = pmwdet->Drc + pmwdep->Drc * factor;
+         }}
+
+     if (SwitchErosion)
+     {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
+        {
+         totalPPlossmap->Drc = pmsdet->Drc + pmsdep->Drc * factor;
+        }}
+
+     }
+
+
+    }
 
 }
 //---------------------------------------------------------------------------
@@ -519,17 +471,18 @@ void TWorld::MassBalance()
     // Mass Balance water, all in m3
     // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
   //  if (RainTot + SnowTot > 0)
-    {
+  //  {
         double waterin = RainTot + SnowTot + WaterVolSoilTileTot + WHinitVolTot + BaseFlowTot + BaseFlowInit;
                 //qDebug() << RainTot << thetai1tot - thetai1cur << thetai2tot - thetai2cur;
         double waterout = ETaTotVol;
         double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot + IntercETaTot;// + (thetai1cur - thetai1tot) + (thetai2cur - thetai2tot);
-        double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot;
+        double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot + floodBoundaryTot;
         MB = waterin > 0 ? (waterin - waterout - waterstore - waterflow)/waterin *100 : 0;
      //   qDebug() << MB << BaseFlowTot << ChannelVolTot <<  Qtot;
      //   qDebug() << MB << WaterVolTot << ChannelVolTot << Qtot << floodBoundaryTot;
 
-    }
+   // }
+
     //watervoltot includes channel and tile
 
     // Mass Balance sediment, all in kg
@@ -539,7 +492,7 @@ void TWorld::MassBalance()
         double detachment = DetTot + ChannelDetTot + FloodDetTot;
         double deposition = DepTot + ChannelDepTot + FloodDepTot;
         double sediment = SedTot + ChannelSedTot + FloodSedTot + SoilLossTot;
-        //already in SoilLossTot: + floodBoundarySedTot;
+        //already in SoilLossTot: floodBoundarySedTot;
 
       //  qDebug() << "S" << DetTot<< ChannelDetTot << FloodDetTot;
       //  qDebug() << DepTot << ChannelDepTot << FloodDepTot;
@@ -548,8 +501,9 @@ void TWorld::MassBalance()
         MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
     }
 
+    // pesticides
     if (SwitchPest) {
         MassPest(PMtotI, PMerr, PMtot, PMserr, PMwerr);
-    }
+    }    
 }
 //---------------------------------------------------------------------------

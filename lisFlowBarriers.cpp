@@ -282,6 +282,10 @@ double TWorld::FB(int r, int c, int rd, int cd)
  */
 double TWorld::DEMFB(int r, int c, int rd, int cd, bool addwh)
 {
+    cTMap *h = WHrunoff;
+    if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
+        h = hmx;
+    }
 
     double wh = 0;
     double dem = 0;
@@ -290,9 +294,7 @@ double TWorld::DEMFB(int r, int c, int rd, int cd, bool addwh)
         if(!pcr::isMV(LDD->data[r+rd][c+cd]))
         {
             if(addwh)
-            {
-                wh = WHrunoff->data[r + rd][c + cd];
-            }
+                wh = h->data[r + rd][c + cd];
             dem = DEM->data[r + rd][c + cd];
         } else {
             if(!pcr::isMV(LDD->data[r][c])) {

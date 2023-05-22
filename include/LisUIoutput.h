@@ -79,7 +79,7 @@ struct output{
     double
     // water
     MB, Qtot,  Qtiletot, RunoffFraction, RainpeakTime, Rainpeak,
-    Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm,InfilTotmm,StormDrainTotmm,
+    Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm,InfilTotmm,StormDrainTotmm, Qboundtotmm,
     RainTotmm, ETaTotmm, SurfStormm, InfilKWTotmm,  IntercLitterTotmm,WaterVolTotchannelmm,
     floodBoundaryTot, floodBoundarySedTot, Theta1, Theta2, GWlevel, BaseFlowTotmm,
     // channel

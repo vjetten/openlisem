@@ -79,9 +79,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     helptxt = new QTextEdit();
     helpLayout->addWidget(helptxt);
 
-    //checkAddDatetime->setVisible(false);
-
-    //RunFileNames.clear();
     op.runfilename.clear();
     E_runFileList->clear();
 
@@ -181,6 +178,7 @@ void lisemqt::SetConnections()
     connect(checkOverlandFlow1D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow2Dkindyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow2Ddyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+    connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
 
     connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
 
@@ -188,18 +186,20 @@ void lisemqt::SetConnections()
 
   //  connect(E_BulkDens2,SIGNAL(editingFinished()),this, SLOT(updateBulkDens()));
   //  connect(E_BulkDens,SIGNAL(editingFinished()),this, SLOT(updateBulkDens2()));
+    connect(checkGWflowexplicit, SIGNAL(toggled(bool)), this, SLOT(setGWflowtype(bool)));
 
 }
-void lisemqt::updateBulkDens()
+
+
+void lisemqt::setGWflowtype(bool check)
 {
- //   QString txt = E_BulkDens2->text();
-  //  E_BulkDens->setText(txt);
+    if (check) {
+        //checkGWflowexplicit->setAutoExclusive(false);
+        checkGWflowexplicit->setChecked(!check);
+        //checkGWflowexplicit->setAutoExclusive(true);
+    }
 }
-void lisemqt::updateBulkDens2()
-{
-   // QString txt = E_BulkDens->text();
-    //E_BulkDens2->setText(txt);
-}
+
 //--------------------------------------------------------------------
 void lisemqt::setFormatMaps(bool check)
 {
@@ -477,8 +477,8 @@ void lisemqt::setFloodTab(bool yes)
     label_107->setEnabled(yes);
 
     if (checkOverlandFlow2Ddyn->isChecked() || checkOverlandFlow2Dkindyn->isChecked()) {
-        label_107->setText(QString("Flood,h>%1)").arg(E_floodMinHeight->value()*1000));
-        label_40->setText(QString("Runoff,h<%1)").arg(E_floodMinHeight->value()*1000));
+        label_107->setText(QString("Flood(h>%1mm)").arg(E_floodMinHeight->value()*1000));
+        label_40->setText(QString("Runoff(h<%1mm)").arg(E_floodMinHeight->value()*1000));
     }
     else
     {
@@ -488,9 +488,12 @@ void lisemqt::setFloodTab(bool yes)
 
 }
 //--------------------------------------------------------------------
-void lisemqt::setErosionTab()
+void lisemqt::setErosionTab(bool yes)
 {
     //  yes = checkDoErosion->isChecked();
+
+    tab_erosion->setEnabled(checkDoErosion->isChecked());
+
     outputMapsSediment->setEnabled(checkDoErosion->isChecked());
 
     checkBox_OutConc->setEnabled(checkDoErosion->isChecked());
@@ -1529,11 +1532,14 @@ void lisemqt::resetTabCalibration()
 {
     //calibration
     E_CalibrateSmax->setValue(1.0);
+    E_CalibrateRR->setValue(1.0);
     E_CalibrateKsat->setValue(1.0);
     E_CalibrateKsat2->setValue(1.0);
     E_CalibrateN->setValue(1.0);
     E_CalibrateTheta->setValue(1.0);
     E_CalibratePsi->setValue(1.0);
+    E_CalibrateSD1->setValue(1.0);
+    E_CalibrateSD2->setValue(1.0);
     E_CalibrateChKsat->setValue(1.0);
     E_CalibrateChN->setValue(1.0);
     E_CalibrateChTor->setValue(1.0);
@@ -1812,13 +1818,11 @@ QString lisemqt::findValidDir(QString path, bool up)
     if (!QFileInfo(path).exists() || path.isEmpty())
         path = currentDir;
 
-    qDebug() << path;
     if (path.indexOf("/",1) > 0)
         path.replace("\\","/");
     else
         if (path.indexOf("\\",1) > 0)
             path.replace("/","\\");
-    qDebug() << path;
 
     return (path);
 }

@@ -36,6 +36,30 @@ functions: \n
 //#include "operation.h"
 
 
+
+//---------------------------------------------------------------------------
+void TWorld::ChannelFlowandErosion()
+{
+    if (!SwitchIncludeChannel)
+        return;
+
+    SwitchChannelKinWave = true;    // set to false for experimental swof in channel
+
+    ChannelRainandInfil();          // subtract infil, add rainfall
+
+    ChannelBaseflow();              // calculate baseflow
+
+    ChannelVelocityandDischarge();
+
+    ChannelFlow();                  // channel kin wave for water
+
+    //ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
+    ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
+
+    ChannelSedimentFlow(); // kin wave for sediment and substances
+
+}
+//---------------------------------------------------------------------------
 void TWorld::ChannelVelocityandDischarge()
 {
     // velocity, alpha, Q
@@ -103,29 +127,6 @@ void TWorld::ChannelVelocityandDischarge()
     }}
 }
 
-
-//---------------------------------------------------------------------------
-void TWorld::ChannelFlowandErosion()
-{
-    if (!SwitchIncludeChannel)
-        return;
-
-    SwitchChannelKinWave = true;    // set to false for experimental swof in channel
-
-    ChannelRainandInfil();          // subtract infil, add rainfall
-
-    ChannelBaseflow();              // calculate baseflow
-
-    ChannelVelocityandDischarge();
-
-    ChannelFlow();                  // channel kin wave for water
-
-    //ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
-    ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
-
-    ChannelSedimentFlow(); // kin wave for sediment and substances
-
-}
 //---------------------------------------------------------------------------
 void TWorld::ChannelBaseflow(void)
 {
@@ -151,41 +152,32 @@ void TWorld::ChannelBaseflow(void)
         }}
     }
 
-    if (SwitchExplicitGWflow) // || SwitchSWATGWflow
-    {
+    if (SwitchGWflow || SwitchLDDGWflow || SwitchSWATGWflow) {
         GroundwaterFlow();
-        // move groundwater, Qbin is the flow
+        // move groundwater, GWout is the flow itself between cells
 
-        // do the baseflow
-        cTMap *pore;
-        if (SwitchTwoLayer)
-            pore = ThetaS2;
-        else
+        cTMap *pore = ThetaS2;
+        if (!SwitchTwoLayer)
             pore = Thetaeff;
 
+        // in all channel cells
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-
-             Qbase->Drc = GWout->Drc;// * ChannelWidth->Drc/_dx;
-//            double SD = SoilDepht2init->Drc + SoilDepth1init->Drc;
-//            double dH = std::max(0.0, GWWH->Drc - (SD - ChannelDepth->Drc));
-//            double vol = dH*ChannelWidth->Drc*DX->Drc;
-//            Qbase->Drc = vol;// * ChannelWidth->Drc/_dx;
-
-
-            //m3 added per timestep
-
-            GWVol->Drc -= Qbase->Drc;
+            Qbase->Drc = std::min(GWVol->Drc, 2.0*ChannelWidth->Drc/_dx*fabs(GWout->Drc));
+            // assumption: GWout is the general flow in the channel cell always towards the channel (fabs)
+            // and flow is from 2 sides into the channel, a small channel has less inflow than a broad channel
 
             ChannelWaterVol->Drc += Qbase->Drc;
-            // NOTE: always added no matter the conditions! e.g. when GW is below surface - channeldepth!
+            GWVol->Drc -= Qbase->Drc;
+            GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
+            // m3 added per timestep
+
+            // NOTE: flow is always added no matter the conditions! e.g. when GW is below surface - channeldepth!
             // But that would make channeldepth very sensitive
 
-            GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
-
         }}
-    }
 
+    }
 }
 //---------------------------------------------------------------------------
 void TWorld::ChannelRainandInfil(void)

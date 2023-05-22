@@ -292,8 +292,22 @@ void TWorld::OverlandFlow2Ddyn(void)
     FOR_ROW_COL_MV_L {
         V->Drc = sqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
         Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
-        //Q->Drc = Qn->Drc; // just to be sure
     }}
+
+//    // correct the water height in the outlet(s) for a perfect WB!
+//    FOR_ROW_COL_LDD5 {
+//        double dh = Qn->Drc*_dt/CHAdjDX->Drc;
+//        WHrunoff->Drc = std::max(0.0,WHrunoff->Drc-dh);
+
+//        if (SwitchErosion) {
+//            double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Qn->Drc*_dt);
+//            SSFlood->Drc -= ds;
+//            if (SwitchUse2Phase) {
+//                ds = std::min(BLFlood->Drc, BLCFlood->Drc*Qn->Drc*_dt);
+//                BLFlood->Drc -= ds;
+//            }
+//        }
+//    }}
 
     Boundary2Ddyn();  // do the domain boundaries for Q, h and sediment
 

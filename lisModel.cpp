@@ -194,7 +194,7 @@ void TWorld::DoModel()
             RainfallSeries.clear();
             RainfallSeriesMaps.clear();
             calibRainfallinFile = false;
-           // qDebug() << rainSatFileName << rainFileName;
+            qDebug() << rainSatFileName << rainFileName << SwitchRainfallSatellite;
             DEBUG("Get Rainfall Data Information");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
@@ -339,7 +339,16 @@ void TWorld::DoModel()
             saveMBerror2file(saveMBerror, false);
 
             if(stopRequested)
-                time = EndTime;                       
+                time = EndTime;
+
+            // show progress in console without GUI
+            if (op.doBatchmode) {
+                int x;
+                x = std::round((op.t / op.maxtime) * 100) ;
+                printf("\rprogress: %d %%                     ", x);
+                //fflush(stdout);
+            }
+             // MC - maybe not the most sophisticated solution but noInterface works again
         }
 
         if (SwitchEndRun)
@@ -350,6 +359,13 @@ void TWorld::DoModel()
         DestroyData();  // destroy all maps automatically
         op.nrMapsCreated = maplistnr;
         emit done("finished");
+
+        if (op.doBatchmode)
+        {
+            qDebug() << "\nfinished after "<< op.maxtime << "minutes\n";
+            QApplication::quit();
+            // close the world model
+        }
     }
     catch(...)  // if an error occurred
     {
@@ -357,6 +373,9 @@ void TWorld::DoModel()
         DestroyData();
 
         emit done("ERROR STOP: "+ErrorString);
+        if (op.doBatchmode) {qDebug() << "ERROR STOP "<< ErrorString;
+            QApplication::quit();
+        }
     }
 }
 //---------------------------------------------------------------------------
@@ -415,17 +434,23 @@ void TWorld::HydrologyProcesses()
            cell_InfilSwatre(r, c);
         } else {
             if (InfilMethod != INFIL_NONE) {
-               cell_InfilMethods(r, c);
 
-               cell_Redistribution(r, c);
+                cell_InfilMethods(r, c);
 
-               if (!SwitchImpermeable)// && !SwitchChannelBaseflow)
-                   Perc->Drc = cell_Percolation(r, c, 1.0);
+                if (SwitchTwoLayer)
+                    cell_Redistribution2(r, c);
+                else
+                    cell_Redistribution1(r, c);
+
+                if (!SwitchImpermeable)
+                    Perc->Drc = cell_Percolation(r, c, 1.0);
                 // if baseflow is active percollation is done there, so do not do it here
             }
         }
-      //  cell_depositInfil(r,c);
+
+        //  cell_depositInfil(r,c);
         // deposit all sediment still in flow when infiltration causes WH to become minimum
+        // gives huge MBs errors!
 
         cell_SurfaceStorage(r, c);
         //calc surf storage and total watervol and WHrunoff

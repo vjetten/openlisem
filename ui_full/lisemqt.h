@@ -91,15 +91,6 @@ typedef struct MAP_LIST {
     int varnr;
 } MAP_LIST;
 
-//class myPlotMagnifier : public QwtPlotMagnifier
-//{
-//    int dxi = MPlot->invTransform(MPlot->xBottom,dx*1.5);
-//    dxi = dxi - MPlot->invTransform(MPlot->xBottom,dx);
-//    spinCulvertSize->setValue(dxi);
-
-
-//};
-
 
 /// Exteneded interface class
 class lisemqt : public QMainWindow, private Ui::lisemqtClass
@@ -348,8 +339,6 @@ public:
     void resetTabInterception();
     void resetTabInfiltration();
     void doCheckRainfall(bool);
-
-    void setErosionTab();
     void showTextfile(QString name);
 
 
@@ -469,9 +458,10 @@ public slots:
     void setWriteOutputCSV(bool);
     void setWriteOutputPCR(bool);
 
-    //void setFloodErosion();
     void setFloodTab(bool);
-    //void setRunoffTab(bool);
+    void setErosionTab(bool);
+
+    void setGWflowtype(bool);
 
     void resizeMap();
     void fontSelect();
@@ -480,9 +470,6 @@ public slots:
     void setfontSize();
 
     void setFormatMaps(bool);
-
-    void updateBulkDens();
-    void updateBulkDens2();
 
     QString getFileorDir(QString inputdir,QString title, QStringList filters, int doFile);
 

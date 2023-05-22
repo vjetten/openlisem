@@ -188,6 +188,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include stationary baseflow")==0)       checkStationaryBaseflow->setChecked(check);
       //  if (p1.compare("Adjust channel crosssection")==0)     checkChannelAdjustCHW->setChecked(check);
         if (p1.compare("GW flow explicit")==0)              checkGWflowexplicit->setChecked(check);
+        if (p1.compare("GW flow LDD")==0)                  checkGWflowLDD->setChecked(check);
         if (p1.compare("GW flow SWAT")==0)                  checkGWflowSWAT->setChecked(check);
         if (p1.compare("GW recharge factor")==0)            GW_recharge->setValue(valc);
         if (p1.compare("GW flow factor")==0)                GW_flow->setValue(valc);
@@ -251,6 +252,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include crusts")==0)                 checkInfilCrust->setChecked(check);
         if (p1.compare("Impermeable sublayer")==0)           checkInfilImpermeable->setChecked(check);
         if (p1.compare("Two layer")==0)                      checkInfil2layer->setChecked(check);
+        if (p1.compare("Psi user input")==0)                      checkPsiUser->setChecked(check);
         if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
         //	  if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
         if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setValue(valc);
@@ -390,6 +392,7 @@ void lisemqt::ParseInputData()
 
         //CALIBRATION
         if (p1.compare("Smax calibration")==0)         E_CalibrateSmax->setValue(valc);
+        if (p1.compare("RR calibration")==0)         E_CalibrateRR->setValue(valc);
         if (p1.compare("Ksat calibration")==0)         E_CalibrateKsat->setValue(valc);
         if (p1.compare("Ksat2 calibration")==0)         E_CalibrateKsat2->setValue(valc);
         if (p1.compare("Grain Size calibration D50")==0)   E_CalibrateD50->setValue(valc);
@@ -397,6 +400,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("N calibration")==0)            E_CalibrateN->setValue(valc);
         if (p1.compare("Theta calibration")==0)        E_CalibrateTheta->setValue(valc);
         if (p1.compare("Psi calibration")==0)          E_CalibratePsi->setValue(valc);
+        if (p1.compare("SoilDepth1 calibration")==0)          E_CalibrateSD1->setValue(valc);
+        if (p1.compare("SoilDepth2 calibration")==0)          E_CalibrateSD2->setValue(valc);
         if (p1.compare("Channel Ksat calibration")==0) E_CalibrateChKsat->setValue(valc);
         if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(valc);
         if (p1.compare("Channel tortuosity")==0)    E_CalibrateChTor->setValue(valc);
@@ -453,7 +458,7 @@ void lisemqt::ParseInputData()
     checkOverlandFlow2Dkindyn->setChecked(dummykinwave == 3);
     checkOverlandFlow2Ddyn->setChecked(dummykinwave == 2);
     setFloodTab(true);//dummykinwave > 1);
-    setErosionTab();
+    setErosionTab(false);
 
     // first guess
     E_WorkDir = QFileInfo(E_runFileList->currentText()).dir().absolutePath();
@@ -798,7 +803,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkChannelInflow->isChecked());
         // groundwater
         if (p1.compare("GW flow explicit")==0)               namelist[j].value.setNum((int)checkGWflowexplicit->isChecked());
-      //  if (p1.compare("GW flow SWAT")==0)               namelist[j].value.setNum((int)checkGWflowSWAT->isChecked());
+        if (p1.compare("GW flow LDD")==0)                    namelist[j].value.setNum((int)checkGWflowLDD->isChecked());
+        if (p1.compare("GW flow SWAT")==0)                    namelist[j].value.setNum((int)checkGWflowSWAT->isChecked());
         if (p1.compare("GW recharge factor")==0)             namelist[j].value = GW_recharge->text();
         if (p1.compare("GW flow factor")==0)                 namelist[j].value = GW_flow->text();
         if (p1.compare("GW river inflow factor")==0)                 namelist[j].value = GW_inflow->text();
@@ -905,6 +911,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include crusts")==0)                 namelist[j].value.setNum((int)checkInfilCrust->isChecked());
         if (p1.compare("Impermeable sublayer")==0)          namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
         if (p1.compare("Two layer")==0)                     namelist[j].value.setNum((int)checkInfil2layer->isChecked());
+        if (p1.compare("Psi user input")==0)                     namelist[j].value.setNum((int)checkPsiUser->isChecked());
         //if (p1.compare("Matric head files")==0)              namelist[j].value.setNum((int)checkDumphead->isChecked());
         if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());
         if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum(checkWritePCRaster->isChecked() ? 0 : 1);
@@ -1011,19 +1018,23 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel detachment map")==0) namelist[j].value = E_ChanDetachmentMap->text();
         if (p1.compare("Channel deposition map")==0) namelist[j].value = E_ChanDepositionMap->text();
 
-        if (p1.compare("Grain Size calibration D50")==0)   namelist[j].value = E_CalibrateD50->text();
-        if (p1.compare("Grain Size calibration D90")==0)   namelist[j].value = E_CalibrateD90->text();
         if (p1.compare("Smax calibration")==0) namelist[j].value = E_CalibrateSmax->text();
+        if (p1.compare("RR calibration")==0) namelist[j].value = E_CalibrateRR->text();
         if (p1.compare("Ksat calibration")==0) namelist[j].value = E_CalibrateKsat->text();
         if (p1.compare("Ksat2 calibration")==0) namelist[j].value = E_CalibrateKsat2->text();
         if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();
         if (p1.compare("Theta calibration")==0) namelist[j].value = E_CalibrateTheta->text();
+        if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
+        if (p1.compare("SoilDepth1 calibration")==0) namelist[j].value = E_CalibrateSD1->text();
+        if (p1.compare("SoilDepth2 calibration")==0) namelist[j].value = E_CalibrateSD2->text();
         if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
         if (p1.compare("Channel Ksat calibration")==0) namelist[j].value = E_CalibrateChKsat->text();
         if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
         if (p1.compare("Channel tortuosity")==0) namelist[j].value = E_CalibrateChTor->text();
         if (p1.compare("Cohesion calibration")==0) namelist[j].value = E_CalibrateCOH->text();
         if (p1.compare("Cohesion Channel calibration")==0) namelist[j].value = E_CalibrateCHCOH->text();
+        if (p1.compare("Grain Size calibration D50")==0)   namelist[j].value = E_CalibrateD50->text();
+        if (p1.compare("Grain Size calibration D90")==0)   namelist[j].value = E_CalibrateD90->text();
         if (p1.compare("Ucr Channel calibration")==0) namelist[j].value = E_CalibrateCHUcr->text();
         if (p1.compare("SV calibration")==0) namelist[j].value = E_CalibrateCHSV->text();
         if (p1.compare("Aggregate stability calibration")==0) namelist[j].value = E_CalibrateAS->text();
@@ -1123,12 +1134,32 @@ void lisemqt::updateModelData()
     currentDir = E_WorkDir;
     QDir::setCurrent(currentDir);
 
+
     if (saveRunFileOnce) {
         savefile(op.runfilename);
         saveRunFileOnce = false;
-        QMessageBox::warning(this,"openLISEM",QString("The run file has changed: ") +
-            QString("obsolete options are removed and missing options use default values. ") +
-            QString("The new run files has your choices where applicable."));
+//        QMessageBox::warning(this,"openLISEM",QString("The run file has changed: ") +
+//            QString("obsolete options are removed and missing options use default values. ") +
+//            QString("The new run files has your choices where applicable."));
+
+
+        QMessageBox msg;
+        msg.setText("The run file has changed: \nobsolete options are removed and missing options use default values. \nThe new run files has your choices where applicable.");
+
+        int cnt = 5;
+
+        QTimer cntDown;
+        QObject::connect(&cntDown, &QTimer::timeout, [&msg,&cnt, &cntDown]()->void{
+            if(--cnt < 0){
+                cntDown.stop();
+                msg.close();
+            }
+//            else {
+//                msg.setText(QString("This closes in %1 seconds").arg(cnt));
+//            }
+        });
+        cntDown.start(500);
+        msg.exec();
     }
 
 }

@@ -270,16 +270,17 @@ typedef struct RAIN_LIST {
     QVector <double> intensity;
 } RAIN_LIST;
 //---------------------------------------------------------------------------
-/// Structure to store rain station values of rainfile mapnames
+/// Structure to store meteo station values of rainfile mapnames
 typedef struct METEO_LIST {
     double time;
     QString name;
     double calib;
 } METEO_LIST;
 //---------------------------------------------------------------------------
-/// Structure to store rain station values of rainfile mapnames
+/// Structure to store discharge station values of rainfile mapnames
 typedef struct Q_LIST {
     double time;
+    QList <int> stationnr;
     QVector <double> Qin;
 } Q_LIST;
 //---------------------------------------------------------------------------
@@ -344,6 +345,7 @@ public:
   //  QVector <IDI_POINT> IDIpoints;
     QVector <IDI_POINT> IDIpointsRC;
     QList <int> stationID;
+    QList <int> stationQID;
     QVector <double> IDIpointsV;
 
     /// map management structure, automatic adding and deleting of all cTMap variables
@@ -367,17 +369,17 @@ public:
     bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelInflow, SwitchChannelAdjustCHW,
     SwitchChannelBaseflowStationary, SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite,
     SwitchRainfall, SwitchEventbased, SwitchIDinterpolation, SwitchDailyET, SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
-    SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
+    SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead,SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
-    SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
+    SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,SwitchThreeLayer,   SwitchChannelKinWave, SwitchPsiUser,
     SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
     SwitchHouses, SwitchRaindrum, SwitchLitter, SwitchAddBuildingsDEM,
-    SwitchPest, SwitchReportPest, SwitchPestInternal_dt, SwitchPestMixPartitioning,
+    SwitchPest, SwitchReportPest,
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle,
-    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchExplicitGWflow,SwitchSWATGWflow,SwitchChannel2DflowConnect,
+    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchGWflow,SwitchPressureGWflow,SwitchLDDGWflow,SwitchSWATGWflow,SwitchChannel2DflowConnect,
     SwitchGWChangeSD;
 
     int SwitchKinematic2D;
@@ -432,6 +434,7 @@ public:
     double ETBiasCorrection;
     double SoilETMBcorrection;
 
+    //Groundwater flow parameters
     double GW_recharge;
     double GW_flow;
     double GW_inflow;
@@ -443,18 +446,18 @@ public:
     double rainfallETa_threshold;
     double rainIDIfactor;
 
-    double totetafac;
-
-    /// calibration parameters
+    // calibration parameters
     double gsizeCalibrationD50;
     double gsizeCalibrationD90;
     double SmaxCalibration;
+    double RRCalibration;
     double ksatCalibration;
-    double ksatCalibration2;
     double ksat2Calibration;
     double nCalibration;
     double thetaCalibration;
     double psiCalibration;
+    double SD1Calibration;
+    double SD2Calibration;
     double ChnCalibration;
     double ChnTortuosity;
     double ChKsatCalibration;
@@ -486,7 +489,7 @@ public:
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTot_dt, SedTot,
            FloodDetTot, FloodDepTot, FloodSedTot;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
-    double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm, WaterVolRunoffmm, FloodBoundarymm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, WaterVolRunoffmm_F;
+    double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm, WaterVolRunoffmm, FloodBoundarymm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, GWdeeptot;
     double StormDrainTotmm, floodVolTotmm, floodTotmmInit;
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
@@ -528,12 +531,14 @@ public:
     int currentRainfallrow;
     int currentETrow;
     int currentSnowmeltrow;
+    int currentDischargerow;
     int rainplace;
     int ETplace;
     int snowmeltplace;
     QVector <RAIN_LIST> RainfallSeries;  // rainfall vector of records
     QVector <RAIN_LIST> ETSeries;
     QVector <RAIN_LIST> SnowmeltSeries;
+    QVector <Q_LIST> DischargeSeries;
     QVector <METEO_LIST> RainfallSeriesMaps;  // rainfall vector of records
     bool calibRainfallinFile;
     QVector <METEO_LIST> ETSeriesMaps;  // rainfall vector of records
@@ -708,8 +713,6 @@ public:
     void SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
     void SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
 
-    void infilInWave(cTMap *_h, double dt1);
-
     void MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     double maincalcflux(cTMap *_h,double dt, double dt_max);
@@ -859,6 +862,7 @@ public:
     //input timeseries
     void GetInputTimeseries();
     void GetDischargeData(QString name);
+    void GetDischargeDataNew(QString name);
     void GetRainfallData(QString name);   // get input timeseries
     void GetSpatialMeteoData(QString name, int type);   // get input timeseries
     void GetETData(QString name);   // get input timeseries
@@ -888,25 +892,26 @@ public:
 
     void cell_Interception(int r, int c);
     double cell_Percolation(int r, int c, double factor);
-    double cell_Percolation1(int r, int c, double factor);
-    void cell_SlopeStability(int r, int c);
-    void cell_Redistribution(int r, int c);
+    double cell_PercolationMulti(int r, int c, double factor);
+    void cell_Redistribution0(int r, int c);
+    void cell_Redistribution1(int r, int c);
+    void cell_Redistribution2(int r, int c);
+
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
     void cell_InfilSwatre(int r, int c);
     void cell_depositInfil(int r, int c);
     void cell_SplashDetachment(int r, int c);
     void cell_FlowDetachment(int r, int c);
-    void MoistureContent();
+
+    void cell_SlopeStability(int r, int c);
 
     void InfilEffectiveKsat(bool first);
     void Infiltration();
     void InfilSwatre();
-
-    double IncreaseInfiltrationDepthNew(double fact_, int r, int c);
-
-    double IncreaseInfiltrationDepthNew0(double fact_, int r, int c);
-    //OBSOLETE CONTAINS ERRORS
+    double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);
+    double IncreaseInfiltrationDepthNew2(double fact_, int r, int c);
+    double IncreaseInfiltrationDepthNew3(double fact_, int r, int c);
 
     void SoilWater();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
@@ -931,7 +936,7 @@ public:
     void GroundwaterRecharge();
     void GroundwaterFlow();
     void GWFlow2D();
-    void GWFlowLDD();
+    void GWFlowSWAT();
     void GWFlowLDDKsat();
 
     double getMassCH(cTMap *M);
@@ -1051,6 +1056,7 @@ public:
                          double drainfraction, double *repel, double *Theta, SOIL_MODEL *s);
 
 
+    void Fill(cTMap &M, double value);
     double MapTotal(cTMap &M);
     void Average3x3(cTMap &M, cTMap &mask);
     void Average2x2(cTMap &M, cTMap &mask);
