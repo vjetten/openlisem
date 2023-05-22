@@ -687,6 +687,7 @@ void TWorld::GetDischargeDataNew(QString name)
     QFileInfo fi(name);
     QString S;
     QStringList QRecs;
+    QStringList rainRecs;
     QStringList SL;
     bool ok;
     int nrStations = 0;
