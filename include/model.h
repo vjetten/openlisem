@@ -511,7 +511,6 @@ public:
     double Pestinf, PestOutW, PestOutS;
     double PQrw_dt, PQrs_dt;
     double KdPest, KfilmPest, KrPest, rhoPest;
-    double Cr_max, dt_int_min;
     QString PestName;
 
     /// time and dx parameters
