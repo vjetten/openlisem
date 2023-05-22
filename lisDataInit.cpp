@@ -2227,8 +2227,6 @@ void TWorld::IntializeData(void)
         KrPest = getvaluedouble("Kr pesticide");
         rhoPest = getvaluedouble("Rho mixing layer");
         PestName = getvaluestring("Pesticide name");
-        Cr_max = getvaluedouble("Max Courant number");
-        dt_int_min = getvaluedouble("Minimal timestep");
 
         // load maps
         PCms = ReadMap(LDD,getvaluename("pcmixsoil"));
