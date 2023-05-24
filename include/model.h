@@ -365,7 +365,7 @@ public:
  int SwitchFlood1D2DCoupling;SwitchPercolation, SwitchInfilGA2, SwitchCompactPresent, SwitchNutrients, SwitchPestout, SwitchDrainage,
 */
 
-    bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelInflow, SwitchChannelAdjustCHW,
+    bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow, SwitchChannelAdjustCHW,
     SwitchChannelBaseflowStationary, SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite,
     SwitchRainfall, SwitchEventbased, SwitchIDinterpolation, SwitchDailyET, SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead,SwitchWaterRepellency,
@@ -377,8 +377,8 @@ public:
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle,
-    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchGWflow,SwitchPressureGWflow,SwitchLDDGWflow,SwitchSWATGWflow,SwitchChannel2DflowConnect,
-    SwitchGWChangeSD;
+    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchGWflow, SwitchGW2Dflow,SwitchLDDGWflow,SwitchSWATGWflow,SwitchChannel2DflowConnect,
+    SwitchGWChangeSD, SwitchDischargeUser;
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
@@ -479,7 +479,7 @@ public:
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
     double MB, MBeM3, Qtot, Qtot_dt, QTiletot, IntercTot, IntercETaTot, WaterVolTot, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
-    double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowTotmm, Qfloodout,QfloodoutTot;
+    double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowTotmm, Qfloodout, QfloodoutTot, QuserInTot;
     double floodBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
     double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
@@ -851,6 +851,7 @@ public:
     void GetInputTimeseries();
     void GetDischargeData(QString name);
     void GetDischargeDataNew(QString name);
+    void GetDischargeMapfromStations();
     void GetRainfallData(QString name);   // get input timeseries
     void GetSpatialMeteoData(QString name, int type);   // get input timeseries
     void GetETData(QString name);   // get input timeseries

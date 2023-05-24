@@ -206,8 +206,9 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include stationary baseflow")==0)       SwitchChannelBaseflowStationary  = iii == 1;
         if (p1.compare("Adjust channel crosssection")==0)       SwitchChannelAdjustCHW  = iii == 1;
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
-        if (p1.compare("Include channel inflow")==0)            SwitchChannelInflow  = iii == 1;
-        if (p1.compare("GW flow explicit")==0)                  SwitchGWflow  = iii == 1;
+        if (p1.compare("Include channel inflow")==0)            SwitchDischargeUser  = iii == 1;
+        if (p1.compare("Include GW flow")==0)                   SwitchGWflow  = iii == 1;
+        if (p1.compare("GW flow explicit")==0)                  SwitchGW2Dflow  = iii == 1;
         if (p1.compare("GW flow LDD")==0)                       SwitchLDDGWflow  = iii == 1;
         if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
 
@@ -367,11 +368,9 @@ void TWorld::ParseRunfileData(void)
             SwitchChannelBaseflowStationary = false;
     }
 
-//    if (SwitchChannelBaseflow)
-//        SwitchImpermeable = false; //!!!!!!!!!!!!!
-// no because this is not the case when there is stationary baselfow
+    //SwitchGWflow = SwitchChannelBaseflow && (SwitchGW2Dflow || SwitchLDDGWflow || SwitchSWATGWflow);
 
-    if (SwitchChannelBaseflow && (SwitchGWflow || SwitchLDDGWflow)) {
+    if (SwitchChannelBaseflow && SwitchGWflow) {
         SwitchImpermeable = false;
     }   
     // stationary baseflow and impermeable soil allowed (ignoring where the stationary flow comes form !
@@ -436,10 +435,10 @@ void TWorld::ParseRunfileData(void)
 
         }
 
-        if (SwitchChannelInflow)
+        if (SwitchDischargeUser)
         {
-            if (p1.compare("Discharge inflow Directory")==0) dischargeinFileDir = CheckDir(p);
-            if (p1.compare("Discharge inflow file")==0) dischargeinFileName = dischargeinFileDir + "/" + p;
+            if (p1.compare("Discharge inflow directory")==0) dischargeinFileDir = CheckDir(p);
+            if (p1.compare("Discharge inflow file")==0) dischargeinFileName = p;
         }
 
         if (SwitchImage)
@@ -522,6 +521,11 @@ void TWorld::ParseRunfileData(void)
             ETSatFileName = ETSatFileDir + ETSatFileName;
         else
             ETFileName = ETFileDir + ETFileName;
+    }
+
+    if (SwitchDischargeUser) {
+        dischargeinFileName = dischargeinFileDir + dischargeinFileName;
+        qDebug() << dischargeinFileName << dischargeinFileDir;
     }
 
     if(SwitchSnowmelt) {

@@ -187,8 +187,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
         if (p1.compare("Include stationary baseflow")==0)       checkStationaryBaseflow->setChecked(check);
       //  if (p1.compare("Adjust channel crosssection")==0)     checkChannelAdjustCHW->setChecked(check);
+        if (p1.compare("Include GW flow")==0)               checkGWflow->setChecked(check);
         if (p1.compare("GW flow explicit")==0)              checkGWflowexplicit->setChecked(check);
-        if (p1.compare("GW flow LDD")==0)                  checkGWflowLDD->setChecked(check);
+        if (p1.compare("GW flow LDD")==0)                   checkGWflowLDD->setChecked(check);
         if (p1.compare("GW flow SWAT")==0)                  checkGWflowSWAT->setChecked(check);
         if (p1.compare("GW recharge factor")==0)            GW_recharge->setValue(valc);
         if (p1.compare("GW flow factor")==0)                GW_flow->setValue(valc);
@@ -198,7 +199,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("GW threshold factor")==0)           GW_threshold->setValue(valc);
 
         if (p1.compare("Include channel culverts")==0)      checkChannelCulverts->setChecked(check);
-        if (p1.compare("Include channel inflow")==0)        checkChannelInflow->setChecked(check);
+        if (p1.compare("Include channel inflow")==0)        checkDischargeUser->setChecked(check);
         if (p1.compare("Include Erosion simulation")==0)    checkDoErosion->setChecked(check);
         if (p1.compare("Include road system")==0)           checkRoadsystem->setChecked(check);
         if (p1.compare("Include storm drains")==0)          checkStormDrains->setChecked(check);
@@ -437,6 +438,7 @@ void lisemqt::ParseInputData()
     groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
 
     on_checkIncludeET_toggled(checkIncludeET->isChecked());
+    on_checkDischargeUser_toggled(checkDischargeUser->isChecked());
 
     if (checkSedtrap->isChecked())
         on_checkSedtrap_clicked();
@@ -520,31 +522,11 @@ void lisemqt::ParseInputData()
         if (p1.compare("ET Map Directory")==0) ETSatFileDir = CheckDir(p);
         if (p1.compare("ET maplist name")==0) ETSatFileName = p;
 
-        if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
-        if (p1.compare("Snowmelt file")==0) SnowmeltFileName = p;
+        //if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
+        //if (p1.compare("Snowmelt file")==0) SnowmeltFileName = p;
 
-//        if (p1.compare("Snowmelt Map Directory")==0) SnowmeltSatFileDir = CheckDir(p);
-//        if (p1.compare("Snowmelt maplist name")==0) {
-//            SnowmeltSatFileName = p;
-//            E_SnowmeltSatName->setText(SnowmeltSatFileDir + SnowmeltSatFileName);
-//            if (!QFileInfo(E_SnowmeltSatName->text()).exists())
-//            {
-//                SnowmeltSatFileDir = QString(E_WorkDir + "rain/");
-//                E_SnowmeltSatName->setText(SnowmeltSatFileDir + p);
-//            }
-//        }
-
-//        if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
-//        if (p1.compare("Discharge inflow file")==0)
-//        {
-//            E_DischargeInName->setText(DischargeinDir + p);
-//            DischargeinFileName = p;
-//            if (!QFileInfo(E_DischargeInName->text()).exists())
-//            {
-//                DischargeinDir = QString(E_WorkDir + "rain/");
-//                E_DischargeInName->setText(DischargeinDir + p);
-//            }
-//        }
+        if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
+        if (p1.compare("Discharge inflow file")==0) DischargeinFileName = p;
 
         if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
         if (p1.compare("satImage file")==0) satImageFileName = p;
@@ -617,6 +599,15 @@ void lisemqt::ParseInputData()
         {
             ETSatFileDir = QString(E_WorkDir + "rain/");
             E_ETsatName->setText(ETSatFileDir + ETSatFileName);
+        }
+    }
+
+    if (checkDischargeUser->isChecked()) {
+        E_DischargeInName->setText(DischargeinDir + DischargeinFileName);
+        if (!QFileInfo(E_DischargeInName->text()).exists() && !E_DischargeInName->text().isEmpty())
+        {
+            DischargeinDir = QString(E_WorkDir + "rain/");
+            E_DischargeInName->setText(DischargeinDir + DischargeinFileName);
         }
     }
 
@@ -790,8 +781,9 @@ void lisemqt::updateModelData()
         if (p1.compare("Include stationary baseflow")==0)    namelist[j].value.setNum((int)checkStationaryBaseflow->isChecked());
       //  if (p1.compare("Adjust channel crosssection")==0)    namelist[j].value.setNum((int)checkChannelAdjustCHW->isChecked());
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
-        if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkChannelInflow->isChecked());
+        if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkDischargeUser->isChecked());
         // groundwater
+        if (p1.compare("Include GW flow")==0)               namelist[j].value.setNum((int)checkGWflow->isChecked());
         if (p1.compare("GW flow explicit")==0)               namelist[j].value.setNum((int)checkGWflowexplicit->isChecked());
         if (p1.compare("GW flow LDD")==0)                    namelist[j].value.setNum((int)checkGWflowLDD->isChecked());
         if (p1.compare("GW flow SWAT")==0)                    namelist[j].value.setNum((int)checkGWflowSWAT->isChecked());
@@ -975,6 +967,10 @@ void lisemqt::updateModelData()
         if (p1.compare("ET Map Directory") ==0) namelist[j].value = ETSatFileDir;
         if (p1.compare("ET Bias Correction")==0) namelist[j].value = E_biasCorrectionET->text();
         if (p1.compare("Rainfall ET threshold")==0) namelist[j].value = E_rainfallETA_threshold->text();
+
+        if (p1.compare("Discharge inflow directory")==0) namelist[j].value=DischargeinDir;
+        if (p1.compare("Discharge inflow file")==0) namelist[j].value=DischargeinFileName;
+
 
       //  if (p1.compare("Snowmelt Directory")==0) namelist[j].value = SnowmeltFileDir;
       //  if (p1.compare("Snowmelt file")==0) namelist[j].value = SnowmeltFileName;

@@ -325,6 +325,15 @@ double TWorld::IncreaseInfiltrationDepthNew2(double fact_in, int r, int c)
         return 0;
     }
 
+    if (SwitchGWflow) {
+       if (L >= SoilDep1 && GWWH->Drc >= SoilDepth2init->Drc-HMIN) {
+           Lw->Drc = SoilDep1;
+           return 0;
+       }
+       // when GWWH fills osildep2 than soildep2 is 0 anyway
+    }
+
+
     // L is in layer 1
     if (L <= SoilDep1) {
         Lnew = L + fact_in/std::max(0.01,dtheta1);

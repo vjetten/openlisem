@@ -269,7 +269,7 @@ void lisemqt::setupMapPlot()
     // exclude right axis legend from panning
 
     picker = new MyPicker( (QwtPlotCanvas *) MPlot->canvas() );
-    picker->setEnabled(false);
+    picker->setEnabled(true);
 
     mapRescaler = new QwtPlotRescaler( MPlot->canvas() );
  //   mapRescaler->setReferenceAxis( QwtPlot::xBottom );
