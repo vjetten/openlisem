@@ -2167,7 +2167,7 @@ void TWorld::IntializeData(void)
             if (DischargeUserPoints->Drc > 0 && ChannelWidth->Drc == 0) {
                 //message
                 int p = (int) DischargeUserPoints->Drc ;
-                ErrorString = (this,"openLISEM",QString("Discharge input point %1 is not in a channel!").arg(p));
+                ErrorString = QString("Discharge input point %1 is not in a channel!").arg(p);
                 DEBUG(ErrorString);
                 throw 1;
             }
