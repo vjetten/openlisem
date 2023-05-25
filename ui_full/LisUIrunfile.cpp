@@ -436,6 +436,7 @@ void lisemqt::ParseInputData()
     radioRainSatFile->setChecked(Rainmaps);
 
     groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
+    GW_widget->setEnabled(checkGWflow->isChecked());
 
     on_checkIncludeET_toggled(checkIncludeET->isChecked());
     on_checkDischargeUser_toggled(checkDischargeUser->isChecked());

@@ -287,6 +287,12 @@ double TWorld::IncreaseInfiltrationDepthNew1(double fact_in, int r, int c)
         return 0;
     }
 
+    if (SwitchGWflow) {
+        if (GWWH->Drc >= SoilDepth1init->Drc-HMIN) {
+            return 0;
+        }
+    }
+
     Lnew = L + fact_in/std::max(dtheta1,0.01);
     // increase wetting front
     space = (SoilDep1 - L)*dtheta1;

@@ -2284,3 +2284,8 @@ void lisemqt::on_E_EfficiencyDETCH_currentIndexChanged(int index)
 {
     E_EfficiencyDirect->setEnabled(index == 3);
 }
+
+void lisemqt::on_checkGWflow_toggled(bool checked)
+{
+    GW_widget->setEnabled(checked);
+}

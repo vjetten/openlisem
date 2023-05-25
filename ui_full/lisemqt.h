@@ -532,6 +532,8 @@ private slots:
 
     void on_E_EfficiencyDETCH_currentIndexChanged(int index);
 
+    void on_checkGWflow_toggled(bool checked);
+
 private:
 
     QSystemTrayIcon *trayIcon;

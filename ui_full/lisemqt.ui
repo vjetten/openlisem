@@ -146,7 +146,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>680</width>
-                <height>771</height>
+                <height>779</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -2926,271 +2926,271 @@ p, li { white-space: pre-wrap; }
                            </property>
                           </widget>
                          </item>
-                        </layout>
-                       </widget>
-                      </item>
-                      <item row="3" column="0">
-                       <widget class="QWidget" name="widget_GWparams" native="true">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
-                        <layout class="QGridLayout" name="gridLayout_eros">
-                         <property name="leftMargin">
-                          <number>8</number>
-                         </property>
-                         <property name="topMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="horizontalSpacing">
-                          <number>4</number>
-                         </property>
-                         <property name="verticalSpacing">
-                          <number>2</number>
-                         </property>
-                         <item row="5" column="0">
-                          <widget class="QLabel" name="label_102">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string> - GW loss to deep percolation (mm/h)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="4" column="1">
-                          <widget class="QDoubleSpinBox" name="GW_threshold">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="maximum">
-                            <double>10.000000000000000</double>
-                           </property>
-                           <property name="singleStep">
-                            <double>0.010000000000000</double>
-                           </property>
-                           <property name="value">
-                            <double>0.200000000000000</double>
-                           </property>
-                          </widget>
-                         </item>
                          <item row="4" column="0">
-                          <widget class="QLabel" name="label_108">
+                          <widget class="QWidget" name="widget_GWparams" native="true">
                            <property name="enabled">
                             <bool>true</bool>
                            </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string> - GW threshold level for outfow (m)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="5" column="1">
-                          <widget class="QDoubleSpinBox" name="GW_deep">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="decimals">
-                            <number>2</number>
-                           </property>
-                           <property name="minimum">
-                            <double>0.000000000000000</double>
-                           </property>
-                           <property name="maximum">
-                            <double>99.000000000000000</double>
-                           </property>
-                           <property name="singleStep">
-                            <double>0.010000000000000</double>
-                           </property>
-                           <property name="value">
-                            <double>0.000000000000000</double>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="3" column="1">
-                          <widget class="QDoubleSpinBox" name="GW_flow">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="minimum">
-                            <double>0.000000000000000</double>
-                           </property>
-                           <property name="singleStep">
-                            <double>0.010000000000000</double>
-                           </property>
-                           <property name="value">
-                            <double>1.000000000000000</double>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="2" column="2">
-                          <widget class="QLabel" name="label_97">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Ksat2 mult. factor</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="2" column="0">
-                          <widget class="QLabel" name="label_77">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string> - Calibration factor for recharge soil profile to GW</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="2" column="1">
-                          <widget class="QDoubleSpinBox" name="GW_recharge">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="minimum">
-                            <double>0.000000000000000</double>
-                           </property>
-                           <property name="singleStep">
-                            <double>0.010000000000000</double>
-                           </property>
-                           <property name="value">
-                            <double>1.000000000000000</double>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="3" column="0">
-                          <widget class="QLabel" name="label_83">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string> - Calibration factor for GW flow towards the channel</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="3" column="2">
-                          <widget class="QLabel" name="label_106">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Ksat2 mult. factor</string>
-                           </property>
+                           <layout class="QGridLayout" name="gridLayout_eros">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="horizontalSpacing">
+                             <number>4</number>
+                            </property>
+                            <property name="verticalSpacing">
+                             <number>2</number>
+                            </property>
+                            <item row="5" column="0">
+                             <widget class="QLabel" name="label_102">
+                              <property name="enabled">
+                               <bool>true</bool>
+                              </property>
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>8</pointsize>
+                                <bold>false</bold>
+                                <underline>false</underline>
+                                <kerning>true</kerning>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string> - GW loss to deep percolation (mm/h)</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="4" column="1">
+                             <widget class="QDoubleSpinBox" name="GW_threshold">
+                              <property name="enabled">
+                               <bool>true</bool>
+                              </property>
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>8</pointsize>
+                                <bold>false</bold>
+                                <underline>false</underline>
+                                <kerning>true</kerning>
+                               </font>
+                              </property>
+                              <property name="maximum">
+                               <double>10.000000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.010000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>0.200000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="4" column="0">
+                             <widget class="QLabel" name="label_108">
+                              <property name="enabled">
+                               <bool>true</bool>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>8</pointsize>
+                                <bold>false</bold>
+                                <underline>false</underline>
+                                <kerning>true</kerning>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string> - GW threshold level for outfow (m)</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="5" column="1">
+                             <widget class="QDoubleSpinBox" name="GW_deep">
+                              <property name="enabled">
+                               <bool>true</bool>
+                              </property>
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>8</pointsize>
+                                <bold>false</bold>
+                                <underline>false</underline>
+                                <kerning>true</kerning>
+                               </font>
+                              </property>
+                              <property name="decimals">
+                               <number>2</number>
+                              </property>
+                              <property name="minimum">
+                               <double>0.000000000000000</double>
+                              </property>
+                              <property name="maximum">
+                               <double>99.000000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.010000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>0.000000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="3" column="1">
+                             <widget class="QDoubleSpinBox" name="GW_flow">
+                              <property name="enabled">
+                               <bool>true</bool>
+                              </property>
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>8</pointsize>
+                                <bold>false</bold>
+                                <underline>false</underline>
+                                <kerning>true</kerning>
+                               </font>
+                              </property>
+                              <property name="minimum">
+                               <double>0.000000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.010000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>1.000000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="2" column="2">
+                             <widget class="QLabel" name="label_97">
+                              <property name="enabled">
+                               <bool>true</bool>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>8</pointsize>
+                                <bold>false</bold>
+                                <underline>false</underline>
+                                <kerning>true</kerning>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>Ksat2 mult. factor</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="2" column="0">
+                             <widget class="QLabel" name="label_77">
+                              <property name="enabled">
+                               <bool>true</bool>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>8</pointsize>
+                                <bold>false</bold>
+                                <underline>false</underline>
+                                <kerning>true</kerning>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string> - Calibration factor for recharge soil profile to GW</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="2" column="1">
+                             <widget class="QDoubleSpinBox" name="GW_recharge">
+                              <property name="enabled">
+                               <bool>true</bool>
+                              </property>
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>8</pointsize>
+                                <bold>false</bold>
+                                <underline>false</underline>
+                                <kerning>true</kerning>
+                               </font>
+                              </property>
+                              <property name="minimum">
+                               <double>0.000000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.010000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>1.000000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="3" column="0">
+                             <widget class="QLabel" name="label_83">
+                              <property name="enabled">
+                               <bool>true</bool>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>8</pointsize>
+                                <bold>false</bold>
+                                <underline>false</underline>
+                                <kerning>true</kerning>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string> - Calibration factor for GW flow towards the channel</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="3" column="2">
+                             <widget class="QLabel" name="label_106">
+                              <property name="enabled">
+                               <bool>true</bool>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>8</pointsize>
+                                <bold>false</bold>
+                                <underline>false</underline>
+                                <kerning>true</kerning>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>Ksat2 mult. factor</string>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
                           </widget>
                          </item>
                         </layout>
@@ -13739,11 +13739,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>194</x>
-     <y>437</y>
+     <y>436</y>
     </hint>
     <hint type="destinationlabel">
-     <x>445</x>
-     <y>438</y>
+     <x>443</x>
+     <y>437</y>
     </hint>
    </hints>
   </connection>
@@ -13792,22 +13792,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>225</x>
      <y>523</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkGWflow</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widget_GWparams</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>174</x>
-     <y>508</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>113</x>
-     <y>594</y>
     </hint>
    </hints>
   </connection>
