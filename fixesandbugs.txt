@@ -1,4 +1,10 @@
 this file is a list of changes per major commit
+230512 - v6.897
+- merge user discharge input in main branch
+- fix bug with infiltration continuing even when layer two is full with GW
+230512 - v6.896
+- User defined discharge input, e.g. from dam spill
+- psi uwetting front is optional from user or calculated
 230512 - v6.895
 - Psi is set back to a psi for the wetting front, somewhere slightly more than the bubbling pressure, relations from rawls et al 1982
 - All relations (field capacity, bubbling pressure) are now from Rawls 1982

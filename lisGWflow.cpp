@@ -67,19 +67,26 @@ void TWorld::GroundwaterFlow(void)
 //        tot += GWVol->Drc;
 //        totr += GWrecharge->Drc;
         GWVol->Drc += GWrecharge->Drc - GWdeep->Drc;
+        GWVol->Drc = std::min(maxvol, GWVol->Drc);
         GWWH->Drc = GWVol->Drc/(CellArea->Drc*pore->Drc);
         GWout->Drc = 0;
     }}
 //qDebug() << GWdeeptot << totr << tot;
 
     // results in GWout flux between cells based on pressure differences
-    if (SwitchGWflow)
-        GWFlow2D();
-    // flow with pressure differences
+    if (SwitchGW2Dflow)
+        GWFlow2D();     // flow with pressure differences
     if (SwitchLDDGWflow)
-        GWFlowLDDKsat();
+        GWFlowLDDKsat(); // ldd with ksat based flow
     if (SwitchSWATGWflow)
-        GWFlowSWAT();
+        GWFlowSWAT();    // swat based flow using ldd and accuflux
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        double maxvol = SoilDepthinit->Drc * CellArea->Drc * pore->Drc;
+        GWVol->Drc = std::min(maxvol, GWVol->Drc);
+        GWWH->Drc = GWVol->Drc/(CellArea->Drc*pore->Drc);
+    }}
 
     // change the soil depth with GWWH
     if (SwitchGWChangeSD) {
@@ -192,7 +199,7 @@ void TWorld::GWFlowLDDKsat(void)
         }
     }
 
-    Average3x3(*GWWH, *LDDbaseflow);
+  //  Average3x3(*GWWH, *LDDbaseflow);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         GWVol->Drc = GWWH->Drc*CellArea->Drc*pore->Drc;
@@ -290,7 +297,7 @@ void TWorld::GWFlow2D(void)
             dflux =  maxvol - V;
         if (V + dflux < 0)
             dflux = -V;
-        //fill tma with the resulting flux of a cell
+        //fill with the resulting flux of a cell
         GWout->Drc = dflux;
     }}
 
@@ -303,7 +310,7 @@ void TWorld::GWFlow2D(void)
         // recalc gwwh
 
        // GWout->Drc = tma->Drc;
-        // flux is gwout for baseflow
+       // flux is gwout for baseflow
     }}
 
 }
@@ -346,5 +353,6 @@ void TWorld::GWFlowSWAT(void)
     if (doit)
         AccufluxGW(crlinkedlddbase_, tmb, GWout, ChannelWidth);
     // GWout has not the accumulated flow pattern, do NOT use this anymore for the mass balance
+    // channelwidth is flag: stop accumulating when you reach channel
 }
 

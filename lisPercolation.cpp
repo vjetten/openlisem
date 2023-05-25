@@ -249,12 +249,11 @@ double TWorld::cell_Percolation(int r, int c, double factor)
 
     if(SwitchTwoLayer) {
 
-        if (SwitchChannelBaseflow) {
-            if(SwitchGWflow || SwitchLDDGWflow) {
-                if (GWWH->Drc > SoilDepth2->Drc-HMIN)
-                    return 0;
-            }
+        if (SwitchGWflow) {
+            if (GWWH->Drc > SoilDepth2->Drc-HMIN)
+                return 0;
         }
+        // no percolation to second layer if it is full with GW
 
         pore = ThetaS2->Drc;
         thetar = ThetaR2->Drc;
@@ -301,8 +300,8 @@ double TWorld::cell_Percolation(int r, int c, double factor)
         theta = Thetaeff->Drc;
         double ksat = factor*Ksateff->Drc;
 
-        if ((SwitchGWflow || SwitchLDDGWflow) && GWWH->Drc > SoilDepth1->Drc-HMIN)
-         return 0;
+        if (SwitchGWflow && GWWH->Drc > SoilDepth1->Drc-HMIN)
+            return 0;
 
 
         if (theta > thetar) {
@@ -367,11 +366,9 @@ double TWorld::cell_PercolationMulti(int r, int c, double factor)
       //  Psia = Psia2;
     }
 
-    if (SwitchChannelBaseflow) {
-        if(SwitchGWflow || SwitchLDDGWflow) {
-            if (GWWH->Drc > SoilDepth->Drc - HMIN)
-                return 0;
-        }
+    if (SwitchGWflow) {
+       if (GWWH->Drc > SoilDepth->Drc - HMIN)
+           return 0;
     }
 
     if(theta->Drc > thetar->Drc) {

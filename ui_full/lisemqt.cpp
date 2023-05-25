@@ -1516,7 +1516,7 @@ void lisemqt::resetTabOptions()
     checkChannelBaseflow->setChecked(false);
     BaseflowParams->setEnabled(false);
 
-    checkChannelInflow->setChecked(false);
+    checkDischargeUser->setChecked(false);
     //checkChannelAdjustCHW->setChecked(true);
 
 
@@ -2020,25 +2020,6 @@ void lisemqt::on_checkHouses_toggled(bool checked)
 }
 //--------------------------------------------------------------------
 
-void lisemqt::on_toolButton_DischargeInName_clicked()
-{
-    QString path;
-
-    DischargeinDir = findValidDir(DischargeinDir, false);
-
-    path = QFileDialog::getOpenFileName(this,
-                                        QString("Select discarge input file"),
-                                        DischargeinDir);
-    if(!path.isEmpty())
-    {
-        QFileInfo fi(path);
-        DischargeinFileName = fi.fileName();
-        DischargeinDir = CheckDir(fi.absolutePath());//Dir().path());
-        E_DischargeInName->setText( RainFileDir + DischargeinFileName  );
-    }
-}
-//--------------------------------------------------------------------
-
 // select a file or directory
 // doFile = 0: select a directory;
 // dofile = 1 select a file and return file name only;
@@ -2134,7 +2115,6 @@ void lisemqt::on_toolButton_RainfallName_clicked()
 
 }
 //--------------------------------------------------------------------
-
 void lisemqt::on_toolButton_ETName_clicked()
 {
     if (!QFileInfo(ETFileDir).exists() || ETFileDir.isEmpty())
@@ -2149,6 +2129,16 @@ void lisemqt::on_toolButton_ETName_clicked()
     E_ETName->setText(ETFileDir + ETFileName);
 }
 //--------------------------------------------------------------------
+void lisemqt::on_checkDischargeUser_toggled(bool checked)
+{
+    groupDischargeUser->setEnabled(checked);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_DischargeShow_clicked()
+{
+    showTextfile(DischargeinDir + DischargeinFileName);
+}
+//--------------------------------------------------------------------
 void lisemqt::on_checkIncludeET_toggled(bool checked)
 {
     radioGroupET->setEnabled(checked);
@@ -2158,6 +2148,21 @@ void lisemqt::on_toolButton_ETShow_clicked()
 {
     //qDebug() <<ETFileDir + ETFileName;
     showTextfile(ETFileDir + ETFileName);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_DischargeName_clicked()
+{
+    if (!QFileInfo(DischargeinDir).exists() || DischargeinDir.isEmpty())
+        DischargeinDir = currentDir;
+
+    QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
+
+    QString sss = getFileorDir(DischargeinDir,"Select ET stations file", filters, 2);
+
+    DischargeinDir = QFileInfo(sss).absolutePath()+"/";
+    DischargeinFileName = QFileInfo(sss).fileName(); //baseName();
+    E_DischargeInName->setText(DischargeinDir + DischargeinFileName);
+
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_RainfallShow_clicked()
@@ -2278,4 +2283,9 @@ void lisemqt::on_checkChannelInfil_toggled(bool checked)
 void lisemqt::on_E_EfficiencyDETCH_currentIndexChanged(int index)
 {
     E_EfficiencyDirect->setEnabled(index == 3);
+}
+
+void lisemqt::on_checkGWflow_toggled(bool checked)
+{
+    GW_widget->setEnabled(checked);
 }

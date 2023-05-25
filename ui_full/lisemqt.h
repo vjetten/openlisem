@@ -492,9 +492,9 @@ private slots:
 
     void on_checkHouses_toggled(bool checked);
 
-    void on_toolButton_DischargeInName_clicked();
-
     void on_toolButton_rainsatName_clicked();
+
+    void on_toolButton_RainmapShow_clicked();
 
     void on_toolButton_ETName_clicked();
 
@@ -504,11 +504,16 @@ private slots:
 
     void on_toolButton_ETShow_clicked();
 
-    void on_toolButton_RainmapShow_clicked();
+    void on_checkDischargeUser_toggled(bool checked);
+
+    void on_toolButton_DischargeShow_clicked();
+
+    void on_toolButton_DischargeName_clicked();
 
     void on_toolButton_ETmapShow_clicked();
 
     void on_E_EndTimeDay_returnPressed();
+
     void on_E_BeginTimeDay_returnPressed();
 
     void on_toolButton_help1a_clicked();
@@ -526,6 +531,8 @@ private slots:
     void on_checkChannelInfil_toggled(bool checked);
 
     void on_E_EfficiencyDETCH_currentIndexChanged(int index);
+
+    void on_checkGWflow_toggled(bool checked);
 
 private:
 
