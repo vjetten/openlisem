@@ -166,12 +166,12 @@ void TWorld::ChannelBaseflow(void)
         // in all channel cells
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            double GWchan = GW_flow * ksat->Drc * (std::min(GWWH->Drc,ChannelDepth->Drc) * DX->Drc) * 2.0;// * std::min(1.0, GWWH->Drc/(0.5*ChannelAdj->Drc) ); //gradient= dH/dz ?
+           // double GWchan = GW_flow * ksat->Drc * (std::min(GWWH->Drc,ChannelDepth->Drc) * DX->Drc) * 2.0;// * std::min(1.0, GWWH->Drc/(0.5*ChannelAdj->Drc) ); //gradient= dH/dz ?
             // flow into the channel is independentt of the GW flow method itself to avoid mass balance problems
             // Ksat * crosssection * gradient = dH/dL where dL is half the distance of the non channel part to
             // and flow is from 2 sides into the channel, a small channel has less inflow than a broad channel (ChannelAdj)
 
-            //double GWchan = //(2.0*ChannelWidth->Drc/_dx)*fabs(GWout->Drc));
+            double GWchan = (2.0*ChannelWidth->Drc/_dx)*fabs(GWout->Drc);
 
             Qbase->Drc = std::min(GWVol->Drc, GWchan);
 
