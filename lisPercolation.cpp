@@ -249,11 +249,11 @@ double TWorld::cell_Percolation(int r, int c, double factor)
 
     if(SwitchTwoLayer) {
 
-//why here?
         if (SwitchGWflow) {
-                if (GWWH->Drc > SoilDepth2->Drc-HMIN)
-                    return 0;
+            if (GWWH->Drc > SoilDepth2->Drc-HMIN)
+                return 0;
         }
+        // no percolation to second layer if it is full with GW
 
         pore = ThetaS2->Drc;
         thetar = ThetaR2->Drc;

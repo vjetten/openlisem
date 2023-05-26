@@ -166,12 +166,12 @@ void TWorld::ChannelBaseflow(void)
         // in all channel cells
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            double GWchan = GW_flow * ksat->Drc * (GWWH->Drc * DX->Drc) * 2.0 * std::min(1.0, GWWH->Drc/(0.5*ChannelAdj->Drc) ); //gradient= dH/dz ?
+           // double GWchan = GW_flow * ksat->Drc * (std::min(GWWH->Drc,ChannelDepth->Drc) * DX->Drc) * 2.0;// * std::min(1.0, GWWH->Drc/(0.5*ChannelAdj->Drc) ); //gradient= dH/dz ?
             // flow into the channel is independentt of the GW flow method itself to avoid mass balance problems
             // Ksat * crosssection * gradient = dH/dL where dL is half the distance of the non channel part to
             // and flow is from 2 sides into the channel, a small channel has less inflow than a broad channel (ChannelAdj)
 
-            //double GWchan = //(2.0*ChannelWidth->Drc/_dx)*fabs(GWout->Drc));
+            double GWchan = (2.0*ChannelWidth->Drc/_dx)*fabs(GWout->Drc);
 
             Qbase->Drc = std::min(GWVol->Drc, GWchan);
 
@@ -190,25 +190,39 @@ void TWorld::ChannelBaseflow(void)
 //---------------------------------------------------------------------------
 void TWorld::ChannelRainandInfil(void)
 {
+    // add rainfall to channel, assume no interception
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-
         if (SwitchCulverts && ChannelMaxQ->Drc > 0)
             ChannelWaterVol->Drc += 0;
         else
             ChannelWaterVol->Drc += Rainc->Drc*ChannelWidth->Drc*DX->Drc;
-        // add rainfall to channel, assume no interception
-
-        // subtract infiltration, no infil in culverts
-        if (SwitchChannelInfil && ChannelMaxQ->Drc <= 0) {
-            double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
-            // hsat based through entire wet cross section
-            inf = std::min(ChannelWaterVol->Drc, inf);
-            // cannot be more than there is
-            ChannelWaterVol->Drc -= inf;
-            ChannelInfilVol->Drc += inf;
-        }        
     }}
+
+    // subtract infiltration, no infil in culverts
+    if (SwitchChannelInfil) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            if (ChannelMaxQ->Drc <= 0) {
+                double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
+                // hsat based through entire wet cross section
+                inf = std::min(ChannelWaterVol->Drc, inf);
+                // cannot be more than there is
+                ChannelWaterVol->Drc -= inf;
+                ChannelInfilVol->Drc += inf;
+            }
+        }}
+    }
+
+
+    // add user channel inflow
+    if (SwitchDischargeUser) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            ChannelWaterVol->Drc += QuserIn->Drc * _dt;
+            // add user defined discharge
+        }}
+    }
 
 }
 //---------------------------------------------------------------------------

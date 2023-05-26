@@ -74,13 +74,12 @@ void TWorld::GroundwaterFlow(void)
 //qDebug() << GWdeeptot << totr << tot;
 
     // results in GWout flux between cells based on pressure differences
-    if (SwitchGWflow)
-        GWFlow2D();
-    // flow with pressure differences
+    if (SwitchGW2Dflow)
+        GWFlow2D();     // flow with pressure differences
     if (SwitchLDDGWflow)
-        GWFlowLDDKsat();
+        GWFlowLDDKsat(); // ldd with ksat based flow
     if (SwitchSWATGWflow)
-        GWFlowSWAT();
+        GWFlowSWAT();    // swat based flow using ldd and accuflux
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -196,15 +195,15 @@ void TWorld::GWFlowLDDKsat(void)
                 flux = -vol;
             GWVol->Drc += flux;
             GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
-            GWout->Drc = flux;// Qin;
+            GWout->Drc = flux;
         }
     }
 
-    Average3x3(*GWWH, *LDDbaseflow);
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        GWVol->Drc = GWWH->Drc*CellArea->Drc*pore->Drc;
-    }}
+//    Average3x3(*GWWH, *LDDbaseflow);
+//    #pragma omp parallel for num_threads(userCores)
+//    FOR_ROW_COL_MV_L {
+//        GWVol->Drc = GWWH->Drc*CellArea->Drc*pore->Drc;
+//    }}
 
 }
 //---------------------------------------------------------------------------
@@ -337,8 +336,6 @@ void TWorld::GWFlowSWAT(void)
         double GWout_ = GW_flow * ksat->Drc * _dx * std::max(0.0, GWWH->Drc-GW_threshold) * BaseflowL->Drc;
         //m3:  ksat*dt  * dh*dx * ((dx/L)^b);  ksat * cross section * distance factor
         // stop outflow when some minimum GW level, 2.4.2.10 in SWAT
-
-        //GWout_ = GWout_ * std::max(0.0, GWWH_ - GW_threshold) * (1-exp(-GW_threshold*GWWH_));
         // apply a smooth threshold with exponential function
         GWout_ = std::min(GWVol->Drc*MaxGWDepthfrac, GWout_);
         tmb->Drc = GWout_;

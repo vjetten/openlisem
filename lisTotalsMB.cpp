@@ -239,16 +239,22 @@ void TWorld::Totals(void)
     // add channel outflow
     if (SwitchIncludeChannel)
     {
-            FOR_ROW_COL_LDDCH5 {
-                Qtot_dt += ChannelQn->Drc*_dt; //m3
-            }}
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_CHL {
-                ChannelQntot->Drc += ChannelQn->Drc*_dt;
-                //cumulative m3 spatial for .map output
-            }}
+        FOR_ROW_COL_LDDCH5 {
+            Qtot_dt += ChannelQn->Drc*_dt; //m3
+        }}
 
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            ChannelQntot->Drc += ChannelQn->Drc*_dt;
+            //cumulative m3 spatial for .map output
+        }}
         // add channel outflow (in m3) to total for all pits
+
+        if (SwitchDischargeUser) {
+            FOR_ROW_COL_MV_CHL {
+                QuserInTot += QuserIn->Drc*_dt;
+            }}
+        }
     }
 
             //=== storm drain flow ===//
@@ -474,24 +480,13 @@ void TWorld::Totals(void)
 void TWorld::MassBalance()
 {
     // Mass Balance water, all in m3
-    // VJ 110420 added tile volume here, this is the input volume coming from the soil after swatre
-  //  if (RainTot + SnowTot > 0)
-  //  {
-        double waterin = RainTot + SnowTot + WaterVolSoilTileTot + WHinitVolTot + BaseFlowTot + BaseFlowInit;
-                //qDebug() << RainTot << thetai1tot - thetai1cur << thetai2tot - thetai2cur;
-        double waterout = ETaTotVol;
-        double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot + IntercETaTot;// + (thetai1cur - thetai1tot) + (thetai2cur - thetai2tot);
-        double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot + floodBoundaryTot;
-        MB = waterin > 0 ? (waterin - waterout - waterstore - waterflow)/waterin *100 : 0;
-     //   qDebug() << MB << BaseFlowTot << ChannelVolTot <<  Qtot;
-     //   qDebug() << MB << WaterVolTot << ChannelVolTot << Qtot << floodBoundaryTot;
-
-   // }
-
-    //watervoltot includes channel and tile
+    double waterin = RainTot + SnowTot + WaterVolSoilTileTot + WHinitVolTot + BaseFlowTot + BaseFlowInit + QuserInTot;
+    double waterout = ETaTotVol;
+    double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot + IntercETaTot;// + (thetai1cur - thetai1tot) + (thetai2cur - thetai2tot);
+    double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot + floodBoundaryTot;
+    MB = waterin > 0 ? (waterin - waterout - waterstore - waterflow)/waterin *100 : 0;
 
     // Mass Balance sediment, all in kg
-
     if (SwitchErosion)
     {
         double detachment = DetTot + ChannelDetTot + FloodDetTot;

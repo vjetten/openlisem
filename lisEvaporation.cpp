@@ -350,6 +350,7 @@ void TWorld::doETa()
                 double pore = Poreeff->Drc;
                 double theta = Thetaeff->Drc;
                 double thetar = ThetaR1->Drc;
+                double thetafc = ThetaFC1->Drc;
                 double Lw_ = Lw->Drc;
                 double theta_e = (theta-thetar)/(pore-thetar);
                 double f = 1.0/(1.0+qPow(theta_e/0.4,8.0));
@@ -357,36 +358,54 @@ void TWorld::doETa()
                 double ETa_soil = (1.0-f)*etanet*Cover_ + theta_e*ETp_*(1-Cover_);   //Transpiration + Evaporation
 
                 // there is an infiltration front
+
+
+
                 if (Lw_ > 0) {
-                    if(!SwitchTwoLayer || Lw_ < SoilDepth1->Drc) {
-                        double moist = Lw_ * (pore-thetar);
+                    if(Lw_ < SoilDepth1->Drc) {
+                        double moist = Lw_ * (pore-thetafc);
                         eta = std::min(moist, ETa_soil);
                         moist = moist - eta;
-                        Lw->Drc = moist/(pore-thetar);
+                        Lw->Drc = moist/(pore-thetafc);
                         tot = tot + eta;
                         tma->Drc += eta;
+                        // adjust moisture content layer 1
                         double dL = std::max(0.0,Lw_-Lw->Drc);
-                        //get the eta from the entore profile because it includes transpiration
-                        double m1= (SoilDepth1->Drc-Lw_)*(Thetaeff->Drc-thetar);
-                        double m2 = dL*thetar;
+                        double m1 = dL*thetafc; // av moist freed layer
+                        double m2= (SoilDepth1->Drc-Lw_)*(Thetaeff->Drc-thetar);
+                        // av moist below old wetting front
                         Thetaeff->Drc = (m1+m2)/(SoilDepth1->Drc - Lw->Drc)+thetar;
-//                        if(c == 200 && r == 200)
-//                            qDebug() << "m" << m1 << m2 << Thetaeff->Drc << Lw->Drc << dL;
-                    } else {
-                        if (SwitchTwoLayer){
-                            thetar = ThetaR2->Drc;
-                            double moist = (Lw_-SoilDepth1->Drc) * (ThetaS2->Drc-thetar);
-                            eta = std::min(moist, ETa_soil);
-                            moist = moist - eta;
-                            Lw->Drc = moist/(ThetaS2->Drc-thetar)+SoilDepth1->Drc;
-                            tot = tot + eta;
-                            tma->Drc += eta;
-                            double dL = std::max(0.0,Lw_-Lw->Drc);
-                            double m1= (SoilDepth2->Drc-Lw_)*(ThetaI2->Drc-thetar);
-                            double m2 = dL*thetar;
-                            ThetaI2->Drc = (m1+m2)/(SoilDepth2->Drc - Lw->Drc) + thetar;
-                        }
+                        // new average moisture below new WF
                     }
+
+
+//                    if(!SwitchTwoLayer || Lw_ < SoilDepth1->Drc) {
+//                        double moist = Lw_ * (pore-thetar);
+//                        eta = std::min(moist, ETa_soil);
+//                        moist = moist - eta;
+//                        Lw->Drc = moist/(pore-thetar);
+//                        tot = tot + eta;
+//                        tma->Drc += eta;
+//                        double dL = std::max(0.0,Lw_-Lw->Drc);
+//                        //get the eta from the entore profile because it includes transpiration
+//                        double m1= (SoilDepth1->Drc-Lw_)*(Thetaeff->Drc-thetar);
+//                        double m2 = dL*thetar;
+//                        Thetaeff->Drc = (m1+m2)/(SoilDepth1->Drc - Lw->Drc)+thetar;
+//                    } else {
+//                        if (SwitchTwoLayer){
+//                            thetar = ThetaR2->Drc;
+//                            double moist = (Lw_-SoilDepth1->Drc) * (ThetaS2->Drc-thetar);
+//                            eta = std::min(moist, ETa_soil);
+//                            moist = moist - eta;
+//                            Lw->Drc = moist/(ThetaS2->Drc-thetar)+SoilDepth1->Drc;
+//                            tot = tot + eta;
+//                            tma->Drc += eta;
+//                            double dL = std::max(0.0,Lw_-Lw->Drc);
+//                            double m1= (SoilDepth2->Drc-Lw_)*(ThetaI2->Drc-thetar);
+//                            double m2 = dL*thetar;
+//                            ThetaI2->Drc = (m1+m2)/(SoilDepth2->Drc - Lw->Drc) + thetar;
+//                        }
+//                    }
                 } else {
                     // soil moisture evaporation dry surface
                     double moist = (theta-thetar) * SoilDepth1->Drc;

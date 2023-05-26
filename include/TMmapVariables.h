@@ -96,6 +96,8 @@ cTMap
 *V,                          //!< velocity of overland flow [m/s]
 *Alpha,                      //!< alpha in A = alphaQ^b
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
+*DischargeUserPoints,
+*QuserIn,
 *Qbase,
 *GWVol,
 *GWWH,
@@ -107,9 +109,6 @@ cTMap
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
 *Qdiag,
 *VH,
-*QinLocation,
-*Qinflow,
-//*Qoutflow,                   //!< new discharge after kin wave at outflow point [m^3/s]
 *QinKW,
 *QKW,
 *Qoutput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
