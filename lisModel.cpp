@@ -162,7 +162,7 @@ void TWorld::DoModel()
             RainfallSeries.clear();
             RainfallSeriesMaps.clear();
             calibRainfallinFile = false;
-            qDebug() << rainSatFileName << rainFileName << SwitchRainfallSatellite;
+
             DEBUG("Get Rainfall Data Information");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);

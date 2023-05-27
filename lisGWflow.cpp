@@ -44,9 +44,9 @@ void TWorld::GroundwaterFlow(void)
         SoilDepthinit = SoilDepth1init;
         SoilDepth = SoilDepth1;
     }
-//double tot = 0;
-//double totr = 0;
-//GWdeeptot = 0;
+    //double tot = 0;
+    //double totr = 0;
+    //GWdeeptot = 0;
 
     // add recharge and subtract deep percolation
     #pragma omp parallel for num_threads(userCores)
@@ -63,15 +63,16 @@ void TWorld::GroundwaterFlow(void)
             GWrecharge->Drc = maxvol - GWVol->Drc + GWdeep->Drc;
         if (GWVol->Drc + GWrecharge->Drc - GWdeep->Drc < 0)
             GWdeep->Drc = GWVol->Drc + GWrecharge->Drc;
-//        GWdeeptot += GWdeep->Drc;
-//        tot += GWVol->Drc;
-//        totr += GWrecharge->Drc;
+        //        GWdeeptot += GWdeep->Drc;
+        //        tot += GWVol->Drc;
+        //        totr += GWrecharge->Drc;
         GWVol->Drc += GWrecharge->Drc - GWdeep->Drc;
         GWVol->Drc = std::min(maxvol, GWVol->Drc);
         GWWH->Drc = GWVol->Drc/(CellArea->Drc*pore->Drc);
         GWout->Drc = 0;
+        //tmd->Drc = 0;
     }}
-//qDebug() << GWdeeptot << totr << tot;
+    //qDebug() << GWdeeptot << totr << tot;
 
     // results in GWout flux between cells based on pressure differences
     if (SwitchGW2Dflow)
@@ -81,17 +82,15 @@ void TWorld::GroundwaterFlow(void)
     if (SwitchSWATGWflow)
         GWFlowSWAT();    // swat based flow using ldd and accuflux
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        double maxvol = SoilDepthinit->Drc * CellArea->Drc * pore->Drc;
-        GWVol->Drc = std::min(maxvol, GWVol->Drc);
-        GWWH->Drc = GWVol->Drc/(CellArea->Drc*pore->Drc);
-    }}
-
     // change the soil depth with GWWH
+    // is on by default
     if (SwitchGWChangeSD) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
+            //GWout->Drc += tmd->Drc;
+
+            double maxvol = SoilDepthinit->Drc * CellArea->Drc * pore->Drc;
+            GWVol->Drc = std::min(maxvol, GWVol->Drc);
             GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
             // change soildepth2 with GW changes
             if (GWWH->Drc > 0) {
@@ -308,11 +307,7 @@ void TWorld::GWFlow2D(void)
         // update gwvol with flux
         GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
         // recalc gwwh
-
-       // GWout->Drc = tma->Drc;
-       // flux is gwout for baseflow
     }}
-
 }
 
 //---------------------------------------------------------------------------
@@ -352,5 +347,6 @@ void TWorld::GWFlowSWAT(void)
         AccufluxGW(crlinkedlddbase_, tmb, GWout, ChannelWidth);
     // GWout has not the accumulated flow pattern, do NOT use this anymore for the mass balance
     // channelwidth is flag: stop accumulating when you reach channel
+
 }
 

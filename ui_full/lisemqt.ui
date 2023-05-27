@@ -145,8 +145,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>680</width>
-                <height>779</height>
+                <width>792</width>
+                <height>746</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -8365,8 +8365,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>937</width>
-                <height>699</height>
+                <width>798</width>
+                <height>649</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
