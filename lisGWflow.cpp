@@ -194,7 +194,7 @@ void TWorld::GWFlowLDDKsat(void)
                 flux = -vol;
             GWVol->Drc += flux;
             GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
-            GWout->Drc = flux;
+            GWout->Drc += flux;
         }
     }
 
@@ -297,7 +297,7 @@ void TWorld::GWFlow2D(void)
         if (V + dflux < 0)
             dflux = -V;
         //fill with the resulting flux of a cell
-        GWout->Drc = dflux;
+        GWout->Drc += dflux;
     }}
 
     // adjust the vol
@@ -327,8 +327,10 @@ void TWorld::GWFlowSWAT(void)
     // calculated lateral flow
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
+        tmb->Drc = 0;
+        tmc->Drc = 0;
         //        double GWout_ = GW_flow *  CellArea->Drc * ksat->Drc * BaseflowL->Drc; // m3 volume out from every cell
-        double GWout_ = GW_flow * ksat->Drc * _dx * std::max(0.0, GWWH->Drc-GW_threshold) * BaseflowL->Drc;
+        double GWout_ = GW_flow * ksat->Drc * _dx * std::max(0.0, GWWH->Drc-2*GW_threshold) * BaseflowL->Drc;
         //m3:  ksat*dt  * dh*dx * ((dx/L)^b);  ksat * cross section * distance factor
         // stop outflow when some minimum GW level, 2.4.2.10 in SWAT
         // apply a smooth threshold with exponential function
@@ -344,9 +346,14 @@ void TWorld::GWFlowSWAT(void)
     }}
 
     if (doit)
-        AccufluxGW(crlinkedlddbase_, tmb, GWout, ChannelWidth);
-    // GWout has not the accumulated flow pattern, do NOT use this anymore for the mass balance
+        AccufluxGW(crlinkedlddbase_, tmb, tmc, ChannelWidth);
+    // GWout has now the accumulated flow pattern, do NOT use this anymore for the mass balance
     // channelwidth is flag: stop accumulating when you reach channel
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        GWout->Drc += tmc->Drc;
+    }}
 
 }
 
