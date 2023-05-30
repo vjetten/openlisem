@@ -913,6 +913,7 @@ void TWorld::InitChannel(void)
     ChannelDepTot = 0;
     ChannelDetTot = 0;
     BaseFlowTotmm = 0;
+    QuserInTot = 0;
 
     if(!SwitchIncludeChannel)
         return;
@@ -2090,7 +2091,6 @@ void TWorld::IntializeData(void)
     StormDrainTotmm = 0;
     ChannelVolTot = 0;
     StormDrainVolTot = 0;
-    ChannelVolTotmm = 0;
     floodVolTotmm= 0;
     floodVolTot = 0;
     //floodVolTotInit = 0;
@@ -2159,6 +2159,22 @@ void TWorld::IntializeData(void)
     Alpha = NewMap(0);
     Q = NewMap(0);
     Qn = NewMap(0);
+
+    if (SwitchDischargeUser) {
+        DischargeUserPoints = ReadMap(LDD,getvaluename("qinpoints"));
+        QuserIn = NewMap(0);
+
+        FOR_ROW_COL_MV_L {
+            if (DischargeUserPoints->Drc > 0 && ChannelWidth->Drc == 0) {
+                //message
+                int p = (int) DischargeUserPoints->Drc ;
+                ErrorString = QString("Discharge input point %1 is not in a channel!").arg(p);
+                DEBUG(ErrorString);
+                throw 1;
+            }
+        }}
+
+    }
 
     flowmask = NewMap(0);
     K2DOutlets = NewMap(0);
@@ -2324,13 +2340,6 @@ void TWorld::IntializeData(void)
     if (/* SwitchChannelBaseflow && */ SwitchChannelBaseflowStationary)
         FindBaseFlow();
 
-    if (SwitchChannelInflow) {
-        Qinflow = NewMap(0);
-        QinLocation = ReadMap(LDD, getvaluename("qinpoints"));
-    } else {
-        QinLocation = NewMap(0);
-    }
-
 }
 //---------------------------------------------------------------------------
 //TODO: are all switches and options initialised here?
@@ -2382,10 +2391,12 @@ void TWorld::IntializeOptions(void)
     ETFileDir.clear();
     ETSatFileName.clear();
     ETSatFileDir.clear();
-    snowmeltFileName.clear();
-    snowmeltFileDir.clear();
-    snowmeltSatFileName.clear();
-    snowmeltSatFileDir.clear();
+    dischargeinFileDir.clear();
+    dischargeinFileName.clear();
+//    snowmeltFileName.clear();
+//    snowmeltFileDir.clear();
+//    snowmeltSatFileName.clear();
+//    snowmeltSatFileDir.clear();
     SwatreTableDir.clear();
     SwatreTableName = QString("profile.inp");//.clear();
     resultFileName.clear();
@@ -2446,13 +2457,14 @@ void TWorld::IntializeOptions(void)
     SwitchIncludeChannel = false;
     SwitchChannelBaseflow = false;
     SwitchGWflow = false;
+    SwitchGW2Dflow =  false;
     SwitchLDDGWflow = false;
     SwitchSWATGWflow = false;
     SwitchGWChangeSD = true;
     SwitchChannelBaseflowStationary = false;
     SwitchChannelInfil = false;
     SwitchCulverts = false;
-    SwitchChannelInflow = false;
+    SwitchDischargeUser = false;
     SwitchIncludeTile = false;
     SwitchIncludeStormDrains = false;
 

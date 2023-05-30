@@ -69,8 +69,6 @@ void TWorld::saveMBerror2file(bool doError, bool start)
         efout.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream eout(&efout);
         eout << "#mass balance error (%)\n";
-        efout.flush();
-        efout.close();
 
         if (SwitchPest) {
             QFile efout(resultDir+errorPestFileName);
@@ -254,10 +252,10 @@ void TWorld::DoModel()
             }
         }
 
-        if (SwitchChannelInflow)
+        if (SwitchDischargeUser)
         {
             DEBUG("GetDischargeData()");
-            GetDischargeData(dischargeinFileName);
+            GetDischargeDataNew(dischargeinFileName);
         }
 
         // get all input data and create and initialize all maps and variables
@@ -269,7 +267,7 @@ void TWorld::DoModel()
         printstep = 1; // printstep determines report frequency
 
       //  DEBUG("setupHydrographData()");
-        setupHydrographData();
+        setupHydrographData(); // reset hydrograph display
 
         bool saveMBerror = true;
         saveMBerror2file(saveMBerror, true);
@@ -392,6 +390,10 @@ void TWorld::GetInputTimeseries()
             GetETSatMap(); // get rainfall from maps
         else
             GetETMap();   // get rainfall from stations
+    }
+
+    if (SwitchDischargeUser) {
+        GetDischargeMapfromStations();
     }
 
 //    if (SwitchSnowmelt) {
