@@ -1086,7 +1086,7 @@ void TWorld::InitChannel(void)
 
         BaseflowL = ReadMap(LDDChannel, getvaluename("basereach")); // bottom width in m
         FOR_ROW_COL_MV_L {
-            BaseflowL->Drc = pow(_dx/BaseflowL->Drc,GW_slope);
+            BaseflowL->Drc = pow(_dx/BaseflowL->Drc,GW_slope*2);
         }}
 
         GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
@@ -1103,7 +1103,7 @@ void TWorld::InitChannel(void)
         FOR_ROW_COL_MV_L {
         GWz->Drc = DEM->Drc - SoilDepth1->Drc - (SwitchTwoLayer ? SoilDepth2->Drc : 0.0);
         }}
-        Average3x3(*GWz, *LDD);
+        Average3x3(*GWz, *LDD, false);
 
     }
 
@@ -3200,7 +3200,7 @@ double TWorld::MapTotal(cTMap &M)
     return (total);
 }
 //---------------------------------------------------------------------------
-void TWorld::Average3x3(cTMap &M, cTMap &mask)
+void TWorld::Average3x3(cTMap &M, cTMap &mask, bool only)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -3215,9 +3215,11 @@ void TWorld::Average3x3(cTMap &M, cTMap &mask)
         for (int i = 1; i <= 9; i++)
         {
             int rr = r+dy[i];
-            int cr = c+dx[i];
+            int cr = c+dx[i];              
 
             if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
+                if (only && M.Drcr == 0)
+                    continue;
                 tot = tot + tm->Drcr;
                 cnt += 1.0;
                   if (i == 5) {

@@ -182,7 +182,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>4</number>
+                  <number>7</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -6779,8 +6779,8 @@ p, li { white-space: pre-wrap; }
                          <property name="verticalSpacing">
                           <number>4</number>
                          </property>
-                         <item row="0" column="0" colspan="2">
-                          <widget class="QCheckBox" name="checkChannel2DflowConnect">
+                         <item row="2" column="0">
+                          <widget class="QLabel" name="label_87">
                            <property name="font">
                             <font>
                              <pointsize>8</pointsize>
@@ -6790,11 +6790,11 @@ p, li { white-space: pre-wrap; }
                             </font>
                            </property>
                            <property name="text">
-                            <string>Standard connection to 2D flow ( ) or iterative (v)</string>
+                            <string>Channel perimeter totuosity</string>
                            </property>
                           </widget>
                          </item>
-                         <item row="2" column="1">
+                         <item row="3" column="1">
                           <widget class="QDoubleSpinBox" name="E_chanMaxVelocity">
                            <property name="font">
                             <font>
@@ -6821,7 +6821,80 @@ p, li { white-space: pre-wrap; }
                            </property>
                           </widget>
                          </item>
-                         <item row="3" column="1">
+                         <item row="4" column="2">
+                          <spacer name="horizontalSpacer_16">
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>40</width>
+                             <height>20</height>
+                            </size>
+                           </property>
+                          </spacer>
+                         </item>
+                         <item row="2" column="1">
+                          <widget class="QDoubleSpinBox" name="E_CalibrateChTor">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="minimum">
+                            <double>0.010000000000000</double>
+                           </property>
+                           <property name="maximum">
+                            <double>10.000000000000000</double>
+                           </property>
+                           <property name="singleStep">
+                            <double>0.010000000000000</double>
+                           </property>
+                           <property name="value">
+                            <double>1.000000000000000</double>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="0">
+                          <widget class="QCheckBox" name="checkChanMaxVelocity">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Set channel max velocity</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="0" colspan="2">
+                          <widget class="QCheckBox" name="checkChannel2DflowConnect">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Standard connection to 2D flow ( ) or iterative (v)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="4" column="1">
                           <widget class="QDoubleSpinBox" name="E_ChannelKinWaveDt">
                            <property name="font">
                             <font>
@@ -6848,35 +6921,7 @@ p, li { white-space: pre-wrap; }
                            </property>
                           </widget>
                          </item>
-                         <item row="3" column="2">
-                          <spacer name="horizontalSpacer_16">
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
-                           </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>40</width>
-                             <height>20</height>
-                            </size>
-                           </property>
-                          </spacer>
-                         </item>
-                         <item row="2" column="0">
-                          <widget class="QCheckBox" name="checkChanMaxVelocity">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Set channel max velocity</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="3" column="0">
+                         <item row="4" column="0">
                           <widget class="QCheckBox" name="checkKinWaveChannel">
                            <property name="font">
                             <font>
@@ -6894,8 +6939,8 @@ p, li { white-space: pre-wrap; }
                            </property>
                           </widget>
                          </item>
-                         <item row="1" column="0">
-                          <widget class="QLabel" name="label_87">
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_85">
                            <property name="font">
                             <font>
                              <pointsize>8</pointsize>
@@ -6905,12 +6950,12 @@ p, li { white-space: pre-wrap; }
                             </font>
                            </property>
                            <property name="text">
-                            <string>Channel perimeter totuosity</string>
+                            <string>Baseflow: Distance to river contribution coeff. a: ((dx/L)^a)</string>
                            </property>
                           </widget>
                          </item>
-                         <item row="1" column="1">
-                          <widget class="QDoubleSpinBox" name="E_CalibrateChTor">
+                         <item row="0" column="1">
+                          <widget class="QDoubleSpinBox" name="GW_slope">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                              <horstretch>0</horstretch>
@@ -6926,13 +6971,13 @@ p, li { white-space: pre-wrap; }
                             </font>
                            </property>
                            <property name="minimum">
-                            <double>0.010000000000000</double>
+                            <double>0.100000000000000</double>
                            </property>
                            <property name="maximum">
                             <double>10.000000000000000</double>
                            </property>
                            <property name="singleStep">
-                            <double>0.010000000000000</double>
+                            <double>0.100000000000000</double>
                            </property>
                            <property name="value">
                             <double>1.000000000000000</double>
@@ -7198,36 +7243,6 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="19" column="2">
-                    <widget class="QDoubleSpinBox" name="GW_slope">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="minimum">
-                      <double>0.100000000000000</double>
-                     </property>
-                     <property name="maximum">
-                      <double>10.000000000000000</double>
-                     </property>
-                     <property name="singleStep">
-                      <double>0.100000000000000</double>
-                     </property>
-                     <property name="value">
-                      <double>1.000000000000000</double>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="2" column="0" colspan="3">
                     <widget class="QComboBox" name="E_BLMethod">
                      <property name="sizePolicy">
@@ -7394,21 +7409,6 @@ p, li { white-space: pre-wrap; }
                      </property>
                      <property name="value">
                       <double>0.100000000000000</double>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="19" column="0">
-                    <widget class="QLabel" name="label_85">
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Baseflow: Distance to river contribution coeff. a: ((dx/L)^a)</string>
                      </property>
                     </widget>
                    </item>

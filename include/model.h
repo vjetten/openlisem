@@ -1047,7 +1047,7 @@ public:
 
     void Fill(cTMap &M, double value);
     double MapTotal(cTMap &M);
-    void Average3x3(cTMap &M, cTMap &mask);
+    void Average3x3(cTMap &M, cTMap &mask, bool only);
     void Average2x2(cTMap &M, cTMap &mask);
     void Totals(void);
     void MassBalance(void);
