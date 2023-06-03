@@ -272,6 +272,7 @@ void TWorld::GetComboMaps()
 
     cl = 2;
     AddComboMap(0,"Water Height","m",hmxWH,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
+    AddComboMap(0,"Water inflow","m3",ChannelQSide,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
 //    if (Switch2DDiagonalFlow)
 //       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     cl = 1;

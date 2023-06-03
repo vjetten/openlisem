@@ -1039,6 +1039,7 @@ void TWorld::InitChannel(void)
     cover(*ChannelN, *LDD, 0);
 
     ChannelNcul = NewMap(0);
+    ChannelQSide = NewMap(0);
 
     calcValue(*ChannelN, ChnCalibration, MUL);
     copy(*ChannelNcul, *ChannelN);

@@ -213,7 +213,7 @@ void TWorld::Totals(void)
             if (SwitchChannelBaseflowStationary)
                 BaseFlowTot += MapTotal(*BaseFlowInflow)*_dt; // stationary base inflow
 
-            GWlevel = MapTotal(*GWWH)/(double)nrValidCells;
+            GWlevel = MapTotal(*GWWH)/(double)nrValidCells; // avbg GW level
             BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
             //qDebug() << BaseFlowTotmm;
         }
@@ -222,6 +222,10 @@ void TWorld::Totals(void)
         // recalc in mm for screen output
 
     }
+
+    // use baseflow for channel side inflow so that it is reported
+    BaseFlowTot += MapTotal(*ChannelQSide); // total inflow in m3
+    BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
 
     //=== all discharges ===//
     Qtot_dt = 0;
@@ -247,14 +251,9 @@ void TWorld::Totals(void)
         FOR_ROW_COL_MV_CHL {
             ChannelQntot->Drc += ChannelQn->Drc*_dt;
             //cumulative m3 spatial for .map output
+            QuserInTot += ChannelQSide->Drc;
         }}
         // add channel outflow (in m3) to total for all pits
-
-        if (SwitchDischargeUser) {
-            FOR_ROW_COL_MV_CHL {
-                QuserInTot += QuserIn->Drc*_dt;
-            }}
-        }
     }
 
             //=== storm drain flow ===//

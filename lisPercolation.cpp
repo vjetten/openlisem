@@ -39,8 +39,8 @@ void TWorld::cell_Redistribution2(int r, int c)
         if (Lw_ > SoilDepth2->Drc-0.001)
             return;
     }
-    if (Lw_ < L_min)
-        return;
+//    if (Lw_ < L_min)
+//        return;
 
     double Percolation, theta_E;
 
@@ -56,6 +56,8 @@ void TWorld::cell_Redistribution2(int r, int c)
     double SoilDep2 = SoilDepth2->Drc;
     double FC2 = ThetaFC2->Drc;
     double DL2 = SoilDep2-SoilDep1;
+    double CHin1 = 0;
+    double CHin2 = 0;
 
     // if Lw still in layer 1
     if (Lw_ < SoilDep1) {
@@ -66,17 +68,20 @@ void TWorld::cell_Redistribution2(int r, int c)
         double Percolation = Ksateff->Drc * pow(theta_E, 3.0+2.0/lambda1->Drc); // m/timestep
         Percolation = Aavg(Percolation, Ksateff->Drc);
         // harmonic mean = Havg
+        if (SwitchIncludeChannel && ChannelWidth->Drc > 0)
+            CHin1 =  Percolation * 2.0 * DX->Drc * std::min(ChannelDepth->Drc, SoilDep1);
 
         double moistw = Lw_ * (pore-thetar);
         //available sat moisture above Lw_
-        double dm = (pore-FC1)*Lw_;
-        Percolation = std::min(dm, Percolation);
+        double dm = (pore-FC1)*Lw_;        
+        CHin1 = std::min(dm, CHin1);
+        Percolation = std::min(dm-CHin1, Percolation);
         // not more percolation than putting moisture content at field capacity
 
-        moistw -= Percolation;
+        moistw -= Percolation - CHin1;
         // decrease moistw with percolation, can be 0
         Lw_ = moistw/(pore-thetar);
-        // new Lw_
+        // new Lw_                
 
         double store = (SoilDep1 - Lw_) * (pore-theta); // space in SD1 under Lw_
         if (Percolation <= store) {
@@ -142,11 +147,22 @@ void TWorld::cell_Redistribution2(int r, int c)
         Percolation = Ksat2->Drc* pow(theta_E, 3.0+2.0/lambda2->Drc); // m/timestep
         Percolation = Aavg(Percolation, Ksat2->Drc);
 
+        if (SwitchIncludeChannel && ChannelWidth->Drc > 0) {
+            CHin1 = Ksateff->Drc * 2.0 * DX->Drc * std::min(ChannelDepth->Drc, SoilDep1);
+            if (ChannelDepth->Drc > SoilDep1)
+                CHin2 = (SoilDep2-ChannelDepth->Drc)*Percolation * 2.0 * DX->Drc;
+        }
+
         double moist1 = SoilDep1 * (pore - thetar); // moisture above wettingfront in layer 1
         double moist2 = (Lw_-SoilDep1) * (pore2 - thetar2); // moisture above wettingfront in layer 2
 
-        double dm1 = (pore - FC1)*SoilDep1; //available moisture to move
+        double dm1 = (pore - FC1)*SoilDep1;
         double dm2 = (pore2 - FC2)*(Lw_-SoilDep1);
+        //available moisture to move from layer 1 and 2
+
+        CHin1 = std::min(CHin1, dm1);
+        CHin2 = std::min(CHin2, dm2);
+        // channel side inflow
 
         Percolation = std::min(Percolation, dm1+dm2);
         //cannot have more flux than available water
@@ -154,17 +170,24 @@ void TWorld::cell_Redistribution2(int r, int c)
         double perc2 = std::min(Percolation, dm2); // part taken from layer 2
         double perc1 = std::max(0.0, Percolation-perc2); // part taken from layer 1, can be 0
 
-        moist2 -= perc2;
-        double m2 = (SoilDep2-Lw_)*(theta2-thetar2) + perc2;
+        moist2 -= perc2 - CHin2;
+        // decrease WF moisture with outflow
+        double m2 = (SoilDep2-Lw_)*(theta2-thetar2);// why add perc2??? + perc2;
+        // m2 is moisture under Lw
+
         Lw_ = moist2/(pore2-thetar2) + SoilDep1;
+        // new wetting front decreased with perc2 and CHin2
         theta2 = m2/(SoilDep2-Lw_) + thetar2;
+        // new moisture under wetting front
         theta = pore;
+        // moisture layer 1 is saturated
 
         if (theta2 >= pore2) {
             Lw_ = SoilDep2;
             theta2 = pore2;
         }
 
+        // if so mucvh percolation that it goes back into layer 1
         if (perc1 > 0) {
             // percolation uses layer 1
             moist1 -= perc1;
@@ -182,6 +205,8 @@ void TWorld::cell_Redistribution2(int r, int c)
   //  Psi2->Drc = 0.01 * 10.2 * Psia2->Drc * psiCalibration * std::max(1.0, pow((theta2-thetar2)/(pore2-thetar2), -1.0/lambda2->Drc));
 
     Lw->Drc = Lw_;
+    ChannelQSide->Drc = CHin1 + CHin2;
+
 
 }
 //---------------------------------------------------------------------------
