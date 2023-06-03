@@ -401,8 +401,10 @@ void TWorld::HydrologyProcesses()
 
                 cell_InfilMethods(r, c);
 
-                if (SwitchTwoLayer)
+                if (SwitchTwoLayer) {
                     cell_Redistribution2(r, c);
+                    cell_Channelinfow2(r, c);
+                }
                 else
                     cell_Redistribution1(r, c);
 

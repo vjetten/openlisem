@@ -1921,8 +1921,6 @@ void TWorld::IntializeData(void)
 
 
     //### rainfall and interception maps
-    BaseFlowTot = 0;
-    BaseFlowInit = 0;
     RainTot = 0;
     RainTotmm = 0;
     Rainpeak = 0;
@@ -2079,6 +2077,10 @@ void TWorld::IntializeData(void)
     thetai1cur = 0;
     thetai2cur = 0;
 
+    BaseFlowTot = 0;
+    BaseFlowInit = 0;
+    SoilMoistTot = 0;
+
     //houses
     IntercHouseTot = 0;
     IntercHouseTotmm = 0;
@@ -2119,6 +2121,7 @@ void TWorld::IntializeData(void)
     Fcum = NewMap(0);
     Lw = NewMap(0);
     Lwmm = NewMap(0);
+    SoilMB = NewMap(0);
 
     if (SwitchInfilCompact) {
         double cnt = 0;

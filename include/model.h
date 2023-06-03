@@ -482,7 +482,7 @@ public:
     double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowTotmm, Qfloodout, QfloodoutTot, QuserInTot;
     double floodBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
-    double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
+    double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot, SoilMoistTot;
     /// Sediment totals for mass balance and output (in kg)
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTot_dt, SedTot,
            FloodDetTot, FloodDepTot, FloodSedTot;
@@ -885,6 +885,7 @@ public:
     void cell_Redistribution0(int r, int c);
     void cell_Redistribution1(int r, int c);
     void cell_Redistribution2(int r, int c);
+    void cell_Channelinfow2(int r, int c);
 
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
