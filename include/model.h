@@ -885,6 +885,7 @@ public:
     void cell_Redistribution0(int r, int c);
     void cell_Redistribution1(int r, int c);
     void cell_Redistribution2(int r, int c);
+    void cell_Channelinfow1(int r, int c);
     void cell_Channelinfow2(int r, int c);
 
     void cell_SurfaceStorage(int r, int c);

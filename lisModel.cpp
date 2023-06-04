@@ -404,9 +404,10 @@ void TWorld::HydrologyProcesses()
                 if (SwitchTwoLayer) {
                     cell_Redistribution2(r, c);
                     cell_Channelinfow2(r, c);
-                }
-                else
+                } else {
                     cell_Redistribution1(r, c);
+                    cell_Channelinfow1(r, c);
+                }
 
                 if (!SwitchImpermeable)
                     Perc->Drc = cell_Percolation(r, c, 1.0);
