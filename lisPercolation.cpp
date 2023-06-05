@@ -49,61 +49,31 @@ void TWorld::cell_Channelinfow1(int r, int c)
     double theta = Thetaeff->Drc;
     double SoilDep1 = SoilDepth1->Drc;
     double CHin1 = 0;
-    double CHin2 = 0;
-    double ChannelDep = ChannelDepth->Drc - ChannelWH->Drc - 0.05; // effective channel depth
-
-    double K1 = Ksateff->Drc * pow((theta-thetar)/(pore-thetar), 3.0+2.0/lambda1->Drc); // m/timestep
-
+    double ChannelDep = ChannelDepth->Drc;// - ChannelWH->Drc - 0.05; // effective channel depth
     //calc potential horizontal first
     CHin1 = Ksateff->Drc; //m3  // Lw flow
-    CHin2 = K1;                 // unsat flow
 
-    if (Lw_ > SoilDep1 - 0.001)
-        CHin2 = 0;
-
-    if (ChannelDep < SoilDep1) {
-        if (ChannelDep < Lw_) {
-            CHin2 = 0;
-        } else {
-            if (Lw_ < SoilDep1 - 0.001)
-                CHin2 = CHin2 * (ChannelDep-Lw_)/(SoilDep1-Lw_);
-        }
-    }
-
-    // true inflow depends on channel depth and channelWH
-    if (theta <= ThetaFC1->Drc)
-        CHin2 = 0.0;
-
-    // now adjust the soil moisture in these cells
     massbal = Lw_*pore + (SoilDep1-Lw_)*theta;
 
-    double moist1 = Lw_ * (pore-thetar);
-    CHin1 = std::min(moist1, CHin1);
-    moist1 -= CHin1;
-    Lw_ = moist1/(pore-thetar);
-    if (CHin2 > 0) {
-        double moist2 = (SoilDep1-Lw_) * (theta-thetar);
-        CHin2 = std::min(moist2, CHin2);
-        moist2 -= CHin2;
-        theta = thetar + moist2/(SoilDep1-Lw_);
-    }
+    CHin1 = Ksateff->Drc;// * std::min(ChannelDep,Lw_)/ChannelDep;
+
+    double moist = Lw_*(pore-thetar);
+    CHin1 = std::min(CHin1, moist);
+    moist -= CHin1;
+    Lw_ = moist/(pore-thetar);
+
+    ChannelQSide->Drc = DX->Drc*CHin1*std::min(ChannelDep,Lw_); // m3
 
     massbal2 = Lw_*pore + (SoilDep1-Lw_)*theta;
 
     Lw->Drc = Lw_;
-    Thetaeff->Drc = theta;
 
-    ChannelQSide->Drc = DX->Drc * (CHin1*Lw_ + CHin2*(SoilDep1-Lw_)); // m3
-
-    if (std::isnan(ChannelQSide->Drc)) {
-        ChannelQSide->Drc = 0.0;
-        qDebug() << r << c << "nan" << Lw_;
-    }
     // update channel side inflow, sometimes nan occurs  in lw
     SoilMB->Drc += massbal2 - massbal;
 
 }
 //---------------------------------------------------------------------------
+// Side inflow into channel from saturated part of the soil (Lw_), causes decrease of Lw_
 void TWorld::cell_Channelinfow2(int r, int c)
 {
     ChannelQSide->Drc = 0.0;
@@ -112,6 +82,9 @@ void TWorld::cell_Channelinfow2(int r, int c)
 
 //    if (ChannelWH->Drc > ChannelDepth->Drc - 0.05)
 //        return;
+
+    if (Lw->Drc < 0.01)
+        return;
 
     double massbal = 0;
     double massbal2 = 0;
@@ -135,26 +108,27 @@ void TWorld::cell_Channelinfow2(int r, int c)
 
     //double K1 = Ksateff->Drc * pow((theta-thetar)/(pore-thetar), 3.0+2.0/lambda1->Drc); // m/timestep
     //double K2 = Ksat2->Drc * pow((theta2-thetar2)/(pore2-thetar2), 3.0+2.0/lambda2->Drc); // m/timestep
-
+int i = 0;
     if (ChannelDep <= SoilDep1) {
         massbal = Lw_*pore + (SoilDep1-Lw_)*theta;
 
-        CHin1 = Ksateff->Drc * std::min(ChannelDep,Lw_)/ChannelDep;
+        CHin1 = Ksateff->Drc*2.0;// * std::min(ChannelDep,Lw_)/ChannelDep;
 
         double moist = Lw_*(pore-thetar);
         CHin1 = std::min(CHin1, moist);
         moist -= CHin1;
         Lw_ = moist/(pore-thetar);
 
-        ChannelQSide->Drc = DX->Drc*CHin1*Lw_; // m3
+        ChannelQSide->Drc = DX->Drc*CHin1*std::min(ChannelDep,Lw_); // m3
 
         massbal2 = Lw_*pore + (SoilDep1-Lw_)*theta;
-
+i = 1;
     } else {
+        // chan > soildep1
         if (Lw_ <= SoilDep1) {
-            massbal = Lw_*pore + (SoilDep1-Lw_)*theta;// + (SoilDep2-SoilDep1)*theta2;
+            massbal = Lw_*pore + (SoilDep1-Lw_)*theta;
 
-            CHin1 = Ksateff->Drc * Lw_/SoilDep1;
+            CHin1 = Ksateff->Drc*2.0;
             double moist = Lw_*(pore-thetar);
             CHin1 = std::min(CHin1, moist);
             moist -= CHin1;
@@ -162,24 +136,32 @@ void TWorld::cell_Channelinfow2(int r, int c)
 
             ChannelQSide->Drc = DX->Drc*CHin1*Lw_; // m3
 
-            massbal2 = Lw_*pore + (SoilDep1-Lw_)*theta;// + (SoilDep2-SoilDep1)*theta2;
+            massbal2 = Lw_*pore + (SoilDep1-Lw_)*theta;
+            i = 2;
         } else {
             massbal = SoilDep1*pore + (Lw_ - SoilDep1)*pore2 + (SoilDep2-Lw_)*theta2;
 
-            CHin1 = Ksateff->Drc;
-            CHin2 = Ksat2->Drc * (Lw_-SoilDep1)/Lw_;
+            CHin1 = Ksateff->Drc*2.0;
+            CHin2 = Ksat2->Drc*2.0;
 
             double moist1 = SoilDep1*(pore-thetar);
             CHin1 = std::min(CHin1, moist1);
-            double moist = (Lw_-SoilDep1)*(pore2-thetar2);
-            CHin2 = std::min(CHin2, moist);
-            moist -= CHin1 + CHin2;
-            Lw_ = moist1/(pore-thetar) + SoilDep1;
+            double L = moist1/(pore-thetar) ;
 
-            ChannelQSide->Drc = DX->Drc*(CHin1*SoilDep1 + CHin2*(Lw_-SoilDep1)); // m3
+            double moist2 = (Lw_-SoilDep1)*(pore2-thetar2);
+            CHin2 = std::min(CHin2, moist2);
+            moist2 -= CHin2;
+            double L2 = moist2/(pore2-thetar2) ;
+            Lw_ = L + L2;
 
-            massbal2 = SoilDep1*pore + (Lw_ - SoilDep1)*pore2 + (SoilDep2-Lw_)*theta2;
+            ChannelQSide->Drc = DX->Drc*(CHin1*SoilDep1 + CHin2*(std::min(ChannelDep,Lw_)-SoilDep1)); // m3
+            if (Lw_ > SoilDep1)
+                massbal2 = SoilDep1*pore + (Lw_ - SoilDep1)*pore2 + (SoilDep2-Lw_)*theta2;
+            else
+                massbal2 = Lw_*pore + (SoilDep1-Lw_)*theta + (SoilDep2-SoilDep1)*theta2;
+            i = 3;
         }
+
     }
 
     /*
@@ -296,7 +278,7 @@ void TWorld::cell_Channelinfow2(int r, int c)
 
     if (std::isnan(ChannelQSide->Drc)) {
         ChannelQSide->Drc = 0.0;
-        qDebug() << r << c << "nan" << Lw_;
+        qDebug() << r << c << "nan" << i << CHin1 << CHin2 << Lw_;
     }
     // update channel side inflow, sometimes nan occurs  in lw
     SoilMB->Drc += CHAdjDX->Drc*(massbal2 - massbal);

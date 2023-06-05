@@ -278,6 +278,7 @@ cTMap
 *Poreeff,
 *Thetaeff,
 *SoilMB,
+*chanmask3,
 
 *lambda1,
 *lambda2,

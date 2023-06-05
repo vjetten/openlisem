@@ -1041,6 +1041,42 @@ void TWorld::InitChannel(void)
     ChannelNcul = NewMap(0);
     ChannelQSide = NewMap(0);
 
+    chanmask3 = NewMap(0);
+
+    tma->setAllMV();
+    chanmask3->setAllMV();
+    FOR_ROW_COL_MV_L {
+        if (ChannelWidth->Drc > 0) {
+            tma->Drc = 1;
+            if (c > 0 && !MV(r,c-1)        ) tma->data[r][c-1] = 1;
+            if (c < _nrCols-1 && !MV(r,c+1)) tma->data[r][c+1] = 1;
+            if (r > 0 && !MV(r-1,c)        ) tma->data[r-1][c] = 1;
+            if (r < _nrRows-1 && !MV(r+1,c)) tma->data[r+1][c] = 1;
+
+            if (c > 0 && r > 0 && !MV(r-1,c-1)                )tma->data[r-1][c-1]=1;
+            if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1))tma->data[r+1][c+1]=1;
+            if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        )tma->data[r-1][c+1]=1;
+            if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        )tma->data[r+1][c-1]=1;
+        }
+    }}
+
+    FOR_ROW_COL_MV_L {
+        if (tma->Drc > 0) {
+            chanmask3->Drc = 1;
+            if (c > 0 && !MV(r,c-1)        ) chanmask3->data[r][c-1] = 1;
+            if (c < _nrCols-1 && !MV(r,c+1)) chanmask3->data[r][c+1] = 1;
+            if (r > 0 && !MV(r-1,c)        ) chanmask3->data[r-1][c] = 1;
+            if (r < _nrRows-1 && !MV(r+1,c)) chanmask3->data[r+1][c] = 1;
+
+            if (c > 0 && r > 0 && !MV(r-1,c-1)                ) chanmask3->data[r-1][c-1]=1;
+            if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) chanmask3->data[r+1][c+1]=1;
+            if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) chanmask3->data[r-1][c+1]=1;
+            if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) chanmask3->data[r+1][c-1]=1;
+        }
+    }}
+    report(*chanmask3,"cm3.map");
+
+
     calcValue(*ChannelN, ChnCalibration, MUL);
     copy(*ChannelNcul, *ChannelN);
 
@@ -3213,7 +3249,7 @@ void TWorld::Average3x3(cTMap &M, cTMap &mask, bool only)
         tm->Drc = M.Drc;
     }}
 
-     FOR_ROW_COL_MV_L {
+    FOR_ROW_COL_MV_L {
         double tot = 0;
         double cnt = 0;
         for (int i = 1; i <= 9; i++)
@@ -3233,6 +3269,8 @@ void TWorld::Average3x3(cTMap &M, cTMap &mask, bool only)
             }
         }
         M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
+        if (pcr::isMV(mask.Drc))
+            M.Drc = tm->Drc;
     }}
 }
 //---------------------------------------------------------------------------
