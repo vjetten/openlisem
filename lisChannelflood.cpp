@@ -211,6 +211,8 @@ void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
 
     // if every cell has its own step the result is an unstable hydrograph
     int step = (int)sqrt(nrsteps); // limit nr of steps, solution is fine anyway
+
+    step = std::min(10,step);
     //qDebug() << step;
 
     #pragma omp parallel for num_threads(userCores)

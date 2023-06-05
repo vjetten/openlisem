@@ -27,7 +27,6 @@
 #include "operation.h"
 
 #define MaxGWDepthfrac 0.95
-#define GWpow 1.0
 
 //---------------------------------------------------------------------------
 void TWorld::GroundwaterFlow(void)

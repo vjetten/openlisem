@@ -355,6 +355,7 @@ void TWorld::InitParameters(void)
         SwitchLinkedList = getvalueint("Use linked List") == 1;
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
+        SwitchChannelWFinflow = getvalueint("Channel WF inflow") == 1;
         SwitchGWChangeSD = true;//getvalueint("GW layer change SD") == 1;
     } else {
         F_MaxIter = 200;
@@ -368,6 +369,7 @@ void TWorld::InitParameters(void)
         SwitchLinkedList = true;
         _dtCHkin = 60.0;//_dt_user;
         SwitchChannel2DflowConnect = false;
+        SwitchChannelWFinflow = false;
         SwitchGWChangeSD = true;
     }
     _CHMaxV = 20.0;
@@ -1043,8 +1045,9 @@ void TWorld::InitChannel(void)
 
     chanmask3 = NewMap(0);
 
-    tma->setAllMV();
+  //  tma->setAllMV();
     chanmask3->setAllMV();
+/*
     FOR_ROW_COL_MV_L {
         if (ChannelWidth->Drc > 0) {
             tma->Drc = 1;
@@ -1059,9 +1062,10 @@ void TWorld::InitChannel(void)
             if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        )tma->data[r+1][c-1]=1;
         }
     }}
-
+*/
     FOR_ROW_COL_MV_L {
-        if (tma->Drc > 0) {
+        //        if (tma->Drc > 0) {
+        if (ChannelWidth->Drc > 0) {
             chanmask3->Drc = 1;
             if (c > 0 && !MV(r,c-1)        ) chanmask3->data[r][c-1] = 1;
             if (c < _nrCols-1 && !MV(r,c+1)) chanmask3->data[r][c+1] = 1;

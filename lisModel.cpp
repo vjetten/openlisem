@@ -402,8 +402,8 @@ void TWorld::HydrologyProcesses()
                 cell_InfilMethods(r, c);
 
                 if (SwitchTwoLayer) {
-                    cell_Redistribution2(r, c);
-                    cell_Channelinfow2(r, c);
+                    cell_Redistribution2(r, c);                    
+                    cell_Channelinfow2(r, c);                    
                 } else {
                     cell_Redistribution1(r, c);
                     cell_Channelinfow1(r, c);
@@ -429,8 +429,8 @@ void TWorld::HydrologyProcesses()
             cell_SlopeStability(r, c);
     }}
 
-
-    Average3x3(*Lw, *chanmask3, true);
+    if (SwitchChannelWFinflow && _dx < 21)
+        Average3x3(*Lw, *chanmask3, true);
 
     if (SwitchIncludeET) {
         doETa();
