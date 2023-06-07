@@ -429,8 +429,8 @@ void TWorld::HydrologyProcesses()
             cell_SlopeStability(r, c);
     }}
 
-    if (SwitchChannelWFinflow && _dx < 21)
-        Average3x3(*Lw, *chanmask3, true);
+//    if (SwitchChannelWFinflow && _dx < 21)
+//        Average3x3(*Lw, *chanmask3, true);
 
     if (SwitchIncludeET) {
         doETa();

@@ -332,10 +332,9 @@ void TWorld::GWFlowSWAT(void)
     FOR_ROW_COL_MV_L {
         tmb->Drc = 0;
         tmc->Drc = 0;
-       // double GWout_ = GW_flow *  CellArea->Drc * ksat->Drc * BaseflowL->Drc; // m3 volume out from every cell
-       //  double GWout_ = GW_flow *  CHAdjDX->Drc * ksat->Drc * BaseflowL->Drc; // m3 volume out from every cell
-       //  GWout_ = GWWH->Drc > GW_threshold ?  GWout_ * (GWWH->Drc - GW_threshold) * (1-exp(-GW_threshold*GWWH->Drc)) : 0.0;
-        double GWout_ = GW_flow * ksat->Drc * _dx * std::max(0.0, GWWH->Drc-GW_threshold) * BaseflowL->Drc;
+            double GWout_ = GW_flow *  CHAdjDX->Drc * std::max(0.0, GWWH->Drc-GW_threshold) * ksat->Drc * BaseflowL->Drc; // m3 volume out from every cell
+     //   double GWout_ = GW_flow * ksat->Drc * _dx * std::max(0.0, GWWH->Drc-GW_threshold) * BaseflowL->Drc;
+        //  GWout_ *= (1-exp(-GW_threshold*GWWH->Drc));
         //m3:  ksat*dt  * dh*dx * ((dx/L)^b);  ksat * cross section * distance factor
         // stop outflow when some minimum GW level, 2.4.2.10 in SWAT
         // apply a smooth threshold with exponential function
