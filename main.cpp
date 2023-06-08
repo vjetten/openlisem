@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 
                 TWorld *W = new TWorld();
                 // make the model world
-                op.timeStartRun = QDateTime().currentDateTime().toString("yyMMdd-hhmm");
+				op.timeStartRun = QDateTime().currentDateTime().toString("yyMMdd-hhmm");
                 W->stopRequested = false;
                 W->waitRequested = false;
                 W->noInterface = noInterface;
