@@ -45,7 +45,7 @@ void TWorld::ChannelFlowandErosion()
 
     SwitchChannelKinWave = true;    // set to false for experimental swof in channel
 
-    ChannelRainandInfil();          // subtract infil, add rainfall
+    ChannelRainandInfil();          // subtract infil, add rainfall    
 
     ChannelBaseflow();              // calculate baseflow
 
@@ -234,6 +234,19 @@ void TWorld::ChannelRainandInfil(void)
         }}
     }
 
+    if (SwitchChannelWFinflow) {
+        if (SwitchTwoLayer) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                cell_Channelinfow2(r, c);
+            }}
+        } else {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                cell_Channelinfow1(r, c);
+            }}
+        }
+    }
 }
 //---------------------------------------------------------------------------
 //! calc channelflow, ChannelDepth, kin wave
