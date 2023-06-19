@@ -62,8 +62,7 @@ void TWorld::cell_Channelinfow1(int r, int c)
     double ChannelDep = ChannelDepth->Drc - ChannelWH->Drc - 0.05; // effective channel depth
     double K1 = Ksateff->Drc * pow((theta-thetar)/(pore-thetar), 3.0+2.0/lambda1->Drc); // m/timestep
     double DX_= DX->Drc;
-    double dL = 0.
-            5*ChannelAdj->Drc;
+    double dL = 0.5*ChannelAdj->Drc;
 
     massbal = Lw_*pore + (SoilDep1-Lw_)*theta;
 
@@ -111,7 +110,7 @@ void TWorld::cell_Channelinfow2(int r, int c)
 //    if (ChannelWH->Drc > ChannelDepth->Drc - 0.05)
 //        return;
 
-    bool doUnsat = true;
+    bool doUnsat = false;
     if (!doUnsat && Lw->Drc < 0.01)
         return;
 
@@ -121,10 +120,10 @@ void TWorld::cell_Channelinfow2(int r, int c)
     double pore = Poreeff->Drc;
     double thetar = ThetaR1->Drc;
     double theta = Thetaeff->Drc;
-    double thetaFC = 0.9*pore;
+    double thetaFC = 0.99*pore;
     double SoilDep1 = SoilDepth1->Drc;
     double pore2 = ThetaS2->Drc;
-    double thetaFC2 = 0.9*pore2;//0.5*(pore2-ThetaFC2->Drc);
+    double thetaFC2 = 0.99*pore2;//0.5*(pore2-ThetaFC2->Drc);
     double thetar2 = ThetaR2->Drc;
     double theta2 = ThetaI2->Drc;
     double SoilDep2 = SoilDepth2->Drc;
