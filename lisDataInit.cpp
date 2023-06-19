@@ -355,6 +355,7 @@ void TWorld::InitParameters(void)
         SwitchLinkedList = getvalueint("Use linked List") == 1;
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
+        SwitchChannelWFinflow = getvalueint("Channel WF inflow") == 1;
         SwitchGWChangeSD = true;//getvalueint("GW layer change SD") == 1;
     } else {
         F_MaxIter = 200;
@@ -368,6 +369,7 @@ void TWorld::InitParameters(void)
         SwitchLinkedList = true;
         _dtCHkin = 60.0;//_dt_user;
         SwitchChannel2DflowConnect = false;
+        SwitchChannelWFinflow = false;
         SwitchGWChangeSD = true;
     }
     _CHMaxV = 20.0;
@@ -1039,6 +1041,45 @@ void TWorld::InitChannel(void)
     cover(*ChannelN, *LDD, 0);
 
     ChannelNcul = NewMap(0);
+    ChannelQSide = NewMap(0);
+
+    chanmask3 = NewMap(0);
+
+  //  tma->setAllMV();
+    chanmask3->setAllMV();
+/*
+    FOR_ROW_COL_MV_L {
+        if (ChannelWidth->Drc > 0) {
+            tma->Drc = 1;
+            if (c > 0 && !MV(r,c-1)        ) tma->data[r][c-1] = 1;
+            if (c < _nrCols-1 && !MV(r,c+1)) tma->data[r][c+1] = 1;
+            if (r > 0 && !MV(r-1,c)        ) tma->data[r-1][c] = 1;
+            if (r < _nrRows-1 && !MV(r+1,c)) tma->data[r+1][c] = 1;
+
+            if (c > 0 && r > 0 && !MV(r-1,c-1)                )tma->data[r-1][c-1]=1;
+            if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1))tma->data[r+1][c+1]=1;
+            if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        )tma->data[r-1][c+1]=1;
+            if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        )tma->data[r+1][c-1]=1;
+        }
+    }}
+*/
+    FOR_ROW_COL_MV_L {
+        //        if (tma->Drc > 0) {
+        if (ChannelWidth->Drc > 0) {
+            chanmask3->Drc = 1;
+            if (c > 0 && !MV(r,c-1)        ) chanmask3->data[r][c-1] = 1;
+            if (c < _nrCols-1 && !MV(r,c+1)) chanmask3->data[r][c+1] = 1;
+            if (r > 0 && !MV(r-1,c)        ) chanmask3->data[r-1][c] = 1;
+            if (r < _nrRows-1 && !MV(r+1,c)) chanmask3->data[r+1][c] = 1;
+
+            if (c > 0 && r > 0 && !MV(r-1,c-1)                ) chanmask3->data[r-1][c-1]=1;
+            if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) chanmask3->data[r+1][c+1]=1;
+            if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) chanmask3->data[r-1][c+1]=1;
+            if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) chanmask3->data[r+1][c-1]=1;
+        }
+    }}
+    report(*chanmask3,"cm3.map");
+
 
     calcValue(*ChannelN, ChnCalibration, MUL);
     copy(*ChannelNcul, *ChannelN);
@@ -1086,7 +1127,7 @@ void TWorld::InitChannel(void)
 
         BaseflowL = ReadMap(LDDChannel, getvaluename("basereach")); // bottom width in m
         FOR_ROW_COL_MV_L {
-            BaseflowL->Drc = pow(_dx/BaseflowL->Drc,GW_slope);
+            BaseflowL->Drc = pow(_dx/BaseflowL->Drc,GW_slope*2);
         }}
 
         GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
@@ -1103,7 +1144,7 @@ void TWorld::InitChannel(void)
         FOR_ROW_COL_MV_L {
         GWz->Drc = DEM->Drc - SoilDepth1->Drc - (SwitchTwoLayer ? SoilDepth2->Drc : 0.0);
         }}
-        Average3x3(*GWz, *LDD);
+        Average3x3(*GWz, *LDD, false);
 
     }
 
@@ -1920,8 +1961,6 @@ void TWorld::IntializeData(void)
 
 
     //### rainfall and interception maps
-    BaseFlowTot = 0;
-    BaseFlowInit = 0;
     RainTot = 0;
     RainTotmm = 0;
     Rainpeak = 0;
@@ -2078,6 +2117,10 @@ void TWorld::IntializeData(void)
     thetai1cur = 0;
     thetai2cur = 0;
 
+    BaseFlowTot = 0;
+    BaseFlowInit = 0;
+    SoilMoistTot = 0;
+
     //houses
     IntercHouseTot = 0;
     IntercHouseTotmm = 0;
@@ -2118,6 +2161,7 @@ void TWorld::IntializeData(void)
     Fcum = NewMap(0);
     Lw = NewMap(0);
     Lwmm = NewMap(0);
+    SoilMB = NewMap(0);
 
     if (SwitchInfilCompact) {
         double cnt = 0;
@@ -3200,7 +3244,7 @@ double TWorld::MapTotal(cTMap &M)
     return (total);
 }
 //---------------------------------------------------------------------------
-void TWorld::Average3x3(cTMap &M, cTMap &mask)
+void TWorld::Average3x3(cTMap &M, cTMap &mask, bool only)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -3209,15 +3253,17 @@ void TWorld::Average3x3(cTMap &M, cTMap &mask)
         tm->Drc = M.Drc;
     }}
 
-     FOR_ROW_COL_MV_L {
+    FOR_ROW_COL_MV_L {
         double tot = 0;
         double cnt = 0;
         for (int i = 1; i <= 9; i++)
         {
             int rr = r+dy[i];
-            int cr = c+dx[i];
+            int cr = c+dx[i];              
 
             if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
+                if (only && M.Drcr == 0)
+                    continue;
                 tot = tot + tm->Drcr;
                 cnt += 1.0;
                   if (i == 5) {
@@ -3227,6 +3273,8 @@ void TWorld::Average3x3(cTMap &M, cTMap &mask)
             }
         }
         M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
+        if (pcr::isMV(mask.Drc))
+            M.Drc = tm->Drc;
     }}
 }
 //---------------------------------------------------------------------------

@@ -61,19 +61,6 @@ void lisemqt::runmodel()
         return;
     }
 
-//    label_runfilename->setText(QFileInfo(op.runfilename).fileName());
-//    label_runfilename->setText(E_MainTotals->text());
-
-//    QString S = E_ResultDir->text() + QFileInfo(op.runfilename).fileName();
-//    if (checkAddDatetime->isChecked()) {
-//        S = E_ResultDir->text() + QString("res"+op.timeStartRun+"/");
-//        if (!QFileInfo(S).exists())
-//            QDir(S).mkpath(S);
-//        S = S + QFileInfo(op.runfilename).fileName();
-//    }
-//    savefile(S);
-//    //show runfile name on screen en save runfile to result dir
-
     lastOptionSceen = tabWidgetOptions->currentIndex();
 
     updateModelData();
@@ -154,7 +141,6 @@ void lisemqt::runmodel()
     op.timeStartRun = QDateTime().currentDateTime().toString("yyMMdd-hhmm");
 
     if (checkAddDatetime->isChecked()) {
-      //  E_ResultDir->text() =
         screenShotDir = E_ResultDir->text() + QString("res"+op.timeStartRun+"/");
         QDir(screenShotDir).mkpath(QString("screens/"));
         screenShotDir = screenShotDir + QString("screens/");

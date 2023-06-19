@@ -781,7 +781,7 @@ void TWorld::ReportTotalsNew(void)
     }
     out << "\"Water in channels (mm):\"," << op.ChannelVolTotmm<< "\n";
     out << "\"Water across boundary (mm):\"," << op.Qboundtotmm<< "\n";
-    out << "\"Total baseflow inflow (mm):\"," << op.BaseFlowTotmm << "\n"; // not used!
+    out << "\"Total baseflow and side inflow (mm):\"," << op.BaseFlowTotmm << "\n"; // not used!
     out << "\"Total outflow (all flows) (mm):\"," << op.Qtotmm+op.Qboundtotmm << "\n";
     out << "\n";
     out << "\"Total outflow (overland+channel+drains) (m3):\"," << op.Qtot<< "\n";

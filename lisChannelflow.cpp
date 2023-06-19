@@ -45,7 +45,7 @@ void TWorld::ChannelFlowandErosion()
 
     SwitchChannelKinWave = true;    // set to false for experimental swof in channel
 
-    ChannelRainandInfil();          // subtract infil, add rainfall
+    ChannelRainandInfil();          // subtract infil, add rainfall    
 
     ChannelBaseflow();              // calculate baseflow
 
@@ -166,18 +166,22 @@ void TWorld::ChannelBaseflow(void)
         // in all channel cells
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            double GWchan1 = GW_flow * ksat->Drc * (std::min(GWWH->Drc,ChannelDepth->Drc) * DX->Drc) * 2.0 * Grad->Drc;// * std::min(1.0, GWWH->Drc/(0.5*ChannelAdj->Drc) ); //gradient= dH/dz ?
-            // Ksat * crosssection * gradient = dH/dL where dL is half the distance of the non channel part to
-            // and flow is from 2 sides into the channel, a small channel has less inflow than a broad channel (ChannelAdj)
+            if (SwitchSWATGWflow) {
+                Qbase->Drc = std::min(GWVol->Drc,ChannelWidth->Drc/_dx * GWout->Drc);
+            } else {
+                double dH = std::max(0.0, GWWH->Drc - ChannelWH->Drc);
+                double GWchan1 = 2.0*GW_flow * 2*ksat->Drc * dH * DX->Drc*dH/(0.5*_dx); //gradient= dH/dz ?
+                // Ksat * crosssection * gradient = dH/dL where dL is half the distance of the non channel part to
+                // and flow is from 2 sides into the channel, a small channel has less inflow than a broad channel (ChannelAdj)
 
-            double GWchan = std::max(GWchan1, (2.0*ChannelWidth->Drc/_dx)*fabs(GWout->Drc));
-            // for all methods GWout is the flow between cells and also in the channel cells, this is taken as the best guess flow into the channel
+                // double GWchan = std::max(GWchan1, (2.0*ChannelWidth->Drc/_dx)*fabs(GWout->Drc));
+                // for all methods GWout is the flow between cells and also in the channel cells, this is taken as the best guess flow into the channel
 
-            Qbase->Drc = GWchan;//std::min(GWVol->Drc, GWchan); this is already done, just use the flow
-
+                Qbase->Drc = std::min(GWVol->Drc, GWchan1); //this is already done, just use the flow
+            }
             ChannelWaterVol->Drc += Qbase->Drc;
             GWVol->Drc -= Qbase->Drc;
-            GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
+            GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
             // m3 added per timestep, adjust the volume and height
 
             // NOTE: flow is always added no matter the conditions! e.g. when GW is below surface - channeldepth!
@@ -197,9 +201,15 @@ void TWorld::ChannelRainandInfil(void)
             ChannelWaterVol->Drc += 0;
         else
             ChannelWaterVol->Drc += Rainc->Drc*ChannelWidth->Drc*DX->Drc;
+
+        ChannelWaterVol->Drc += ChannelQSide->Drc;
+        // add unsaturated side inflow
+
     }}
 
     // subtract infiltration, no infil in culverts
+// TODO: no infiltration if moisture content or GW does not allow this
+// TODO: infiltration has to change moisture in surrounding soil
     if (SwitchChannelInfil) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
@@ -224,6 +234,19 @@ void TWorld::ChannelRainandInfil(void)
         }}
     }
 
+    if (SwitchChannelWFinflow) {
+        if (SwitchTwoLayer) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                cell_Channelinfow2(r, c);
+            }}
+        } else {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                cell_Channelinfow1(r, c);
+            }}
+        }
+    }
 }
 //---------------------------------------------------------------------------
 //! calc channelflow, ChannelDepth, kin wave

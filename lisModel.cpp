@@ -284,11 +284,11 @@ void TWorld::DoModel()
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
             // these are all non-threaded
-              ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
+            ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
 
-              TileFlow();          // tile drain flow kin wave
+            TileFlow();          // tile drain flow kin wave
 
-              StormDrainFlow();    // storm drain flow kin wave
+            StormDrainFlow();    // storm drain flow kin wave
             // these are all non-threaded
 
             Totals();            // calculate all totals and cumulative values
@@ -401,10 +401,13 @@ void TWorld::HydrologyProcesses()
 
                 cell_InfilMethods(r, c);
 
-                if (SwitchTwoLayer)
-                    cell_Redistribution2(r, c);
-                else
+                if (SwitchTwoLayer) {
+                    cell_Redistribution2(r, c);                    
+                    //cell_Channelinfow2(r, c);
+                } else {
                     cell_Redistribution1(r, c);
+                    //cell_Channelinfow1(r, c);
+                }
 
                 if (!SwitchImpermeable)
                     Perc->Drc = cell_Percolation(r, c, 1.0);
