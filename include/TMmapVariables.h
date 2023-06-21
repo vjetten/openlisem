@@ -260,8 +260,9 @@ cTMap
 *Ksateff,                    //!< effective saturated hydraulic conductivity (input is in mm/h) [m/s]
 *Poreeff,
 *Thetaeff,
-*Psia1,
-*Psia2,
+*SoilMB,
+*chanmask3,
+
 *lambda1,
 *lambda2,
 *Perc,                      //!< Percolation per timestep [m]
@@ -284,6 +285,7 @@ cTMap
 *ChannelDepthO,               //!<
 *ChannelWidth,               //!<
 *ChannelSide,                //!<
+*ChannelQSide,                //!<
 *ChannelQb,                   //!<
 *ChannelQ,                   //!<
 *ChannelQn,                  //!<
