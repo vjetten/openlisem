@@ -35,8 +35,8 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define VERSIONNR "6.897"
-#define DATE "2023/05/22"
+#define VERSIONNR "6.898"
+#define DATE "2023/06/19"
 
 #define VERSIONNR_pest "0.7"
 
