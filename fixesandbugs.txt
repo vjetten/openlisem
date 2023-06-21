@@ -1,4 +1,7 @@
 this file is a list of changes per major commit
+230619 - v6.898
+- merge GW flow into main branch: 3 type sof GW flow. Connection to channel baseflow revised
+- side flow into channelfrom saturated soil (in advanced options)
 230512 - v6.897
 - merge user discharge input in main branch
 - fix bug with infiltration continuing even when layer two is full with GW

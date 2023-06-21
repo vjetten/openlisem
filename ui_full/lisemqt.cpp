@@ -186,20 +186,8 @@ void lisemqt::SetConnections()
 
   //  connect(E_BulkDens2,SIGNAL(editingFinished()),this, SLOT(updateBulkDens()));
   //  connect(E_BulkDens,SIGNAL(editingFinished()),this, SLOT(updateBulkDens2()));
-    connect(checkGWflowexplicit, SIGNAL(toggled(bool)), this, SLOT(setGWflowtype(bool)));
 
 }
-
-
-void lisemqt::setGWflowtype(bool check)
-{
-    if (check) {
-        //checkGWflowexplicit->setAutoExclusive(false);
-        checkGWflowexplicit->setChecked(!check);
-        //checkGWflowexplicit->setAutoExclusive(true);
-    }
-}
-
 //--------------------------------------------------------------------
 void lisemqt::setFormatMaps(bool check)
 {
@@ -1153,6 +1141,12 @@ void lisemqt::on_toolButton_satImageName_clicked()
 //--------------------------------------------------------------------
 void lisemqt::savefileas()
 {
+    if (W)
+    {
+        QMessageBox::warning(this, "openLISEM","Cannot save a file while model is running.");
+        return;
+    }
+
     if (op.runfilename.isEmpty())
     {
         QMessageBox::warning(this, "openLISEM","This runfile will habe no pathnames.");
@@ -1177,6 +1171,12 @@ void lisemqt::savefileas()
 //--------------------------------------------------------------------
 void lisemqt::saveRunFile()
 {
+//    if (W)
+//    {
+//        QMessageBox::warning(this, "openLISEM","Cannot save a file while model is running.");
+//        return;
+//    }
+
     updateModelData();
     // change runfile strings with current interface options
     savefile(op.runfilename);
@@ -1184,6 +1184,12 @@ void lisemqt::saveRunFile()
 //--------------------------------------------------------------------
 void lisemqt::savefile(QString name)
 {
+//    if (W)
+//    {
+//        QMessageBox::warning(this, "openLISEM","Cannot save a file while model is running.");
+//        return;
+//    }
+
     QFile fp(name);
     if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
     {

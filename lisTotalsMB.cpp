@@ -213,15 +213,26 @@ void TWorld::Totals(void)
             if (SwitchChannelBaseflowStationary)
                 BaseFlowTot += MapTotal(*BaseFlowInflow)*_dt; // stationary base inflow
 
-            GWlevel = MapTotal(*GWWH)/(double)nrValidCells;
-            BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
+            GWlevel = MapTotal(*GWWH)/(double)nrValidCells; // avbg GW level
+           // BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
             //qDebug() << BaseFlowTotmm;
         }
 
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
 
+        // use baseflow for channel side inflow so that it is reported
+        double tot = 0;
+        FOR_ROW_COL_MV_CHL {
+            tot += ChannelQSide->Drc; // total inflow in m3
+        }}
+   //qDebug() << tot;
+        BaseFlowTot += tot;
+        BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
+
     }
+
+    SoilMoistTot +=  MapTotal(*SoilMB);
 
     //=== all discharges ===//
     Qtot_dt = 0;
@@ -247,14 +258,9 @@ void TWorld::Totals(void)
         FOR_ROW_COL_MV_CHL {
             ChannelQntot->Drc += ChannelQn->Drc*_dt;
             //cumulative m3 spatial for .map output
+            QuserInTot += ChannelQSide->Drc;
         }}
         // add channel outflow (in m3) to total for all pits
-
-        if (SwitchDischargeUser) {
-            FOR_ROW_COL_MV_CHL {
-                QuserInTot += QuserIn->Drc*_dt;
-            }}
-        }
     }
 
             //=== storm drain flow ===//
@@ -480,7 +486,7 @@ void TWorld::Totals(void)
 void TWorld::MassBalance()
 {
     // Mass Balance water, all in m3
-    double waterin = RainTot + SnowTot + WaterVolSoilTileTot + WHinitVolTot + BaseFlowTot + BaseFlowInit + QuserInTot;
+    double waterin = RainTot + SnowTot + WaterVolSoilTileTot + WHinitVolTot + BaseFlowTot + BaseFlowInit + QuserInTot + SoilMoistTot;
     double waterout = ETaTotVol;
     double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot + IntercETaTot;// + (thetai1cur - thetai1tot) + (thetai2cur - thetai2tot);
     double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot + floodBoundaryTot;

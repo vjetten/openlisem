@@ -461,8 +461,6 @@ public slots:
     void setFloodTab(bool);
     void setErosionTab(bool);
 
-    void setGWflowtype(bool);
-
     void resizeMap();
     void fontSelect();
     void fontDecrease();
