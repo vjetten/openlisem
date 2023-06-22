@@ -435,7 +435,7 @@ public:
     //Groundwater flow parameters
     double GW_recharge;
     double GW_flow;
-    double GW_inflow;
+    //double GW_inflow;
     double GW_slope;
     double GW_deep;
     double GW_threshold;

@@ -34,16 +34,16 @@ void TWorld::cell_Channelinfow1(int r, int c)
 {
     ChannelQSide->Drc = 0.0;
 
-    if (!SwitchChannelWFinflow)
-        return;
+//    if (!SwitchChannelWFinflow)
+//        return;
 
-    if (!SwitchIncludeChannel || ChannelWidth->Drc == 0)
-        return;
+//    if (!SwitchIncludeChannel || ChannelWidth->Drc == 0)
+//        return;
 
-    if (ChannelWH->Drc > ChannelDepth->Drc - 0.05)
-        return;
+//    if (ChannelWH->Drc > ChannelDepth->Drc - 0.05)
+//        return;
 
-    bool doUnsat = true;
+    bool doUnsat = false;
 
     if (!doUnsat && Lw->Drc < 0.01)
         return;

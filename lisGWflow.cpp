@@ -196,7 +196,7 @@ void TWorld::GWFlowLDDKsat(void)
                 flux = -vol;
             GWVol->Drc += flux;
             GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
-            GWout->Drc += flux;
+            GWout->Drc = flux;
         }
     }
 
@@ -300,7 +300,7 @@ void TWorld::GWFlow2D(void)
         if (V + dflux < 0)
             dflux = -V;
         //fill with the resulting flux of a cell
-        GWout->Drc += dflux;
+        GWout->Drc = dflux;
     }}
 
     // adjust the vol
@@ -357,7 +357,7 @@ void TWorld::GWFlowSWAT(void)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        GWout->Drc += tmc->Drc;
+        GWout->Drc = tmc->Drc;
     }}
 
 }
