@@ -915,6 +915,7 @@ void TWorld::InitChannel(void)
     ChannelDepTot = 0;
     ChannelDetTot = 0;
     BaseFlowTotmm = 0;
+    PeakFlowTotmm = 0;
     QuserInTot = 0;
 
     if(!SwitchIncludeChannel)
@@ -2120,6 +2121,7 @@ void TWorld::IntializeData(void)
     BaseFlowTot = 0;
     BaseFlowInit = 0;
     SoilMoistTot = 0;
+    SoilMoistDiff = 0;
 
     //houses
     IntercHouseTot = 0;

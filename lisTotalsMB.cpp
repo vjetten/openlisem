@@ -226,13 +226,12 @@ void TWorld::Totals(void)
         FOR_ROW_COL_MV_CHL {
             tot += ChannelQSide->Drc; // total inflow in m3
         }}
-   //qDebug() << tot;
         BaseFlowTot += tot;
         BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
 
     }
 
-    SoilMoistTot +=  MapTotal(*SoilMB);
+    SoilMoistTot += SoilMoistDiff;// MapTotal(*SoilMB);
 
     //=== all discharges ===//
     Qtot_dt = 0;
@@ -240,7 +239,6 @@ void TWorld::Totals(void)
 
     floodBoundaryTot += BoundaryQ*_dt;
     FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;    
-   // qDebug() << floodBoundaryTot;
 
     // Add outlet overland flow, for all flow methods
     FOR_ROW_COL_LDD5 {
@@ -317,6 +315,7 @@ void TWorld::Totals(void)
     // add timestep total to run total in m3
     Qtotmm = Qtot*catchmentAreaFlatMM;
     // recalc to mm for screen output
+    PeakFlowTotmm = Qtotmm - BaseFlowTotmm;
 
 
     //=====***** SEDIMENT *****====//

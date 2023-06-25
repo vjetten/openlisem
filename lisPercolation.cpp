@@ -28,17 +28,39 @@
 #define Aavg(a,b)  (0.5*(a+b))
 #define Havg(a,b)  (2.0/(1.0/a+1.0/b))
 
+double TWorld::SoilWaterMass()
+{
+    double totsatm3 = 0;
+    double totunsatm3 = 0;
+
+    FOR_ROW_COL_MV_L {
+        double totsat = 0;
+        double totunsat = 0;
+        if (SwitchTwoLayer) {
+            if (Lw->Drc <= SoilDepth1->Drc) {
+                totsat = totsat + Lw->Drc * Poreeff->Drc;
+                totunsat = totunsat + (SoilDepth1->Drc - Lw->Drc) * Thetaeff->Drc;
+                totunsat = totunsat + (SoilDepth2->Drc - SoilDepth1->Drc) * ThetaI2->Drc;
+            } else {
+                totsat = totsat + SoilDepth1->Drc * Poreeff->Drc;
+                totsat = totsat + (Lw->Drc-SoilDepth1->Drc) * ThetaS2->Drc;
+                totunsat = totunsat + (SoilDepth1->Drc - SoilDepth2->Drc) * ThetaI2->Drc;
+            }
+        } else {
+            totsat = totsat + Lw->Drc * Poreeff->Drc;
+            totunsat = totunsat + (SoilDepth1->Drc - Lw->Drc) * Thetaeff->Drc;
+        }
+        totsatm3 += totsat * CHAdjDX->Drc;
+        totunsatm3 += totsat * CHAdjDX->Drc;
+    }}
+
+    return totsatm3+totunsatm3;
+}
 
 //---------------------------------------------------------------------------
 void TWorld::cell_Channelinfow1(int r, int c)
 {
     ChannelQSide->Drc = 0.0;
-
-//    if (!SwitchChannelWFinflow)
-//        return;
-
-//    if (!SwitchIncludeChannel || ChannelWidth->Drc == 0)
-//        return;
 
 //    if (ChannelWH->Drc > ChannelDepth->Drc - 0.05)
 //        return;
@@ -90,7 +112,7 @@ void TWorld::cell_Channelinfow1(int r, int c)
 
     massbal2 = Lw_*pore + (SoilDep1-Lw_)*theta;
 
-    SoilMB->Drc += CHAdjDX->Drc*(massbal2 - massbal); //m3
+    //SoilMB->Drc += CHAdjDX->Drc*(massbal2 - massbal); //m3
 
 }
 //---------------------------------------------------------------------------
@@ -229,7 +251,7 @@ void TWorld::cell_Channelinfow2(int r, int c)
     }
 
     // update channel side inflow, sometimes nan occurs  in lw
-    SoilMB->Drc += CHAdjDX->Drc*(massbal2 - massbal);
+    //SoilMB->Drc += CHAdjDX->Drc*(massbal2 - massbal);
 //qDebug() << massbal << massbal2 << massbal2 - massbal;
 }
 //---------------------------------------------------------------------------
