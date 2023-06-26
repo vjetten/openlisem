@@ -2163,7 +2163,6 @@ void TWorld::IntializeData(void)
     Fcum = NewMap(0);
     Lw = NewMap(0);
     Lwmm = NewMap(0);
-    SoilMB = NewMap(0);
 
     if (SwitchInfilCompact) {
         double cnt = 0;
@@ -2553,7 +2552,6 @@ void TWorld::IntializeOptions(void)
     SwitchOutputTimeStep = false;
     SwitchOutputTimeUser = false;
     SwitchSeparateOutput = false;
-    SwitchPCRoutput = false;
     SwitchWriteHeaders = true; // write headers in output files in first timestep
     SwitchEndRun = false;
 

@@ -52,7 +52,11 @@ void TWorld::reportAll(void)
     ReportTotalsNew();
     // report totals to a text file
 
-    ReportTimeseriesNew();
+    if (SwitchWritePCRtimeplot)
+        ReportTimeseriesPCR();
+    else
+        ReportTimeseriesCSV();
+        //ReportTimeseriesNew();
     // report hydrographs ande sedigraphs at all points in outpoint.map
 
     ReportTotalSeries();
@@ -388,7 +392,8 @@ void TWorld::ReportTotalSeries(void)
     out << sep << op.FloodArea;
     out << sep << op.ChannelVolTotmm;
     out << sep << op.Qtotmm;
-    out << sep << op.Qboundtotmm;
+    if (FlowBoundaryType > 0)
+        out << sep << op.Qboundtotmm;
     if (SwitchErosion) {
         out << sep << op.DetTotSplash;
         out << sep << op.DetTotFlow;
@@ -479,11 +484,12 @@ void TWorld::ReportTimeseriesNew(void)
                     pnr.setNum((int)PointMap->Drc);
                     out << "#LISEM flow and sed output file for point #" << pnr << "\n";
 
-                    // nr columns is time + rain (+ maybe snow) + Q + (maybe Qs + C)
+                    // nr columns is time + rain + Q + (maybe Qs + C)
                     int nrs = 4 + (SwitchErosion ? 3 : 0);
                     if (SwitchRainfall) nrs++;
                     if (SwitchSnowmelt) nrs++;
                     //if (SwitchChannelBaseflow) nrs++;
+                    if (FlowBoundaryType > 0) nrs++;
                     if (SwitchIncludeTile) nrs++;
                     pnr.setNum(nrs);
                     out << pnr << "\n";
@@ -492,12 +498,13 @@ void TWorld::ReportTimeseriesNew(void)
                     if (SwitchRainfall) out << "Pavg (mm/h)\n";
                     if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
                     out << "Qall " << unitS << "\n";
-                    out << "QBound " << unitS << "\n";
+                    if (FlowBoundaryType > 0)
+                        out << "QBound " << unitS << "\n";
                     if (SwitchIncludeChannel) {
-                        out << "Q " << unitS << "\n" << "chanWH (m)\n";
+                        out << QString("Qchan%1").arg(pnr) << unitS << "\n" << "chanWH (m)\n";
                         // if (SwitchChannelBaseflow) out << ",Qb (l/s)";
                     } else {
-                        out << "Q " << unitS << "\n";
+                        out << "Qof " << unitS << "\n";
                     }
                     if (SwitchIncludeTile) out << "Qdrain (l/s)\n";
                     if (SwitchErosion) out << "Qsall (kg/s)\n" << "Qs (kg/s)\n" << "C (g/l)\n";
@@ -570,7 +577,8 @@ void TWorld::ReportTimeseriesNew(void)
                 if (SwitchRainfall) out << "Pavg (mm/h)\n";
                 if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
                 out << "Qall (l/s)\n";
-                out << "Qbound (l/s)\n";
+                if (FlowBoundaryType > 0)
+                    out << "Qbound (l/s)\n";
                 FOR_ROW_COL_MV_OUTL {
                     pnr.setNum(crout_[i_].nr);//(int)PointMap->Drc);
                     out << "Q #" << pnr <<  "(l/s)\n";
@@ -1359,5 +1367,262 @@ void TWorld::ReportDump(void)
 
 
 
+
+}
+
+
+void TWorld::ReportTimeseriesPCR(void)
+{
+    int nr = 0;
+
+    int DIG = ReportDigitsOut;
+    //int SOBEKlines = (int) (EndTime-BeginTime)/_dt+1;
+    double RainIntavg = RainAvgmm * 3600/_dt;
+    //double SnowIntavg = SnowAvgmm * 3600/_dt;
+    QString newname1, sep = " ";
+    int width = 3+DIG-3;
+
+
+    double QALL = Qtot_dt * QUNIT/_dt; // total outflow for all outlets, same as point 0 in interface
+    double QSALL = SoilLossTot_dt/_dt; //total sed loss in kg/s from all outlets, surface and boundary
+
+    QFileInfo fi(resultDir + outflowFileName);
+
+    //######  open files and write headers #####//
+
+    QString unitS = "l/s";
+    if (QUnits == 1)
+        unitS = "m3/s";
+
+    //PCRaster and flat format are mutually exclusive
+    if (SwitchWriteHeaders) //  make file at first timestep
+    {
+        FOR_ROW_COL_MV_OUTL {
+            QString pnr =QString::number((int)PointMap->Drc);
+            newname1 = fi.path() + "/" + fi.baseName() + "_" + pnr + "." +  fi.suffix();
+            // make filename using point number
+
+            QFile fout(newname1);
+            fout.open(QIODevice::WriteOnly | QIODevice::Text);
+            QTextStream out(&fout);
+            out.setRealNumberPrecision(DIG);
+            out.setFieldWidth(width);
+            out.setRealNumberNotation(QTextStream::FixedNotation);
+
+            // HEADERS for the 3 types
+            if (SwitchWritePCRtimeplot)  //PCRaster timeplot format, cannot be SOBEK !
+            {
+
+                out << "#LISEM flow and sed output file for point #" << pnr << "\n";
+
+                // nr columns is time + rain + Q + (maybe Qs + C)
+                int nrs = 5 + (SwitchErosion ? 3 : 0);
+                if (SwitchRainfall) nrs++;
+                if (SwitchSnowmelt) nrs++;
+                if (SwitchChannelBaseflow) nrs++;
+                if (FlowBoundaryType > 0) nrs++;
+                if (SwitchIncludeTile) nrs++;
+                    out << nrs << "\n";
+
+                out << "run step\n";
+                out << "time (day)\n";
+                if (SwitchRainfall) out << "Pavg (mm/h)\n";
+                if (SwitchSnowmelt) out << "Snowavg (mm/h)\n";
+                out << "Qall " << unitS << "\n";
+                if (FlowBoundaryType > 0)
+                    out << "QBound " << unitS << "\n";
+                if (SwitchIncludeChannel) {
+                    out << QString("Qchan%1 ").arg(pnr) << unitS;
+//                    if (SwitchChannelBaseflow)
+//                        out << "\n " << "Qbase" << unitS;
+                    out << "\n" << "chanWH (m)\n";
+                } else {
+                    out << "Qof " << unitS << "\n";
+                }
+                if (SwitchIncludeTile) out << "Qdrain (l/s)\n";
+                if (SwitchErosion) out << "Qsall (kg/s)\n" << "Qs (kg/s)\n" << "C (g/l)\n";
+
+            }
+             fout.close();
+        }}
+    }  // opening files and writing header
+
+    //######  open files and append values #####//
+    // for all outlet points
+    FOR_ROW_COL_MV_OUTL
+    {
+        newname1 = fi.path() + "/" + fi.baseName() + "_" + QString::number((int)PointMap->Drc) + "." +  fi.suffix();
+
+        QFile fout(newname1);
+        fout.open(QIODevice::Append | QIODevice::Text);
+
+        QTextStream out(&fout);
+        out.setFieldWidth(width);
+        out.setRealNumberNotation(QTextStream::FixedNotation);
+        out.setRealNumberPrecision(5);
+        out << runstep;
+        out << sep << (time/60)/1440.0;
+
+        out.setRealNumberPrecision(DIG);
+        if (SwitchRainfall) out << sep << RainIntavg;
+        //if (SwitchSnowmelt) out << sep << SnowIntavg;
+
+        out << sep << QALL;
+        if (FlowBoundaryType > 0)
+            out << sep << BoundaryQ*QUNIT;
+
+        if (SwitchIncludeChannel) {
+            out << sep << ChannelQn->Drc*QUNIT;
+//            if (SwitchChannelBaseflow)
+//                out << sep << (Qbase->Drc+BaseFlowInflow->Drc+ChannelQSide->Drc+BaseFlowInitialVolume->Drc)*QUNIT;
+// does not work: this is what is added in this cell, not the baseflow accumulation form upstream
+            out << sep << ChannelWH->Drc;
+        } else {
+            out << sep << Qn->Drc*QUNIT;
+        }
+
+        if (SwitchIncludeTile)
+            out << sep << TileQn->Drc*QUNIT;
+
+        if (SwitchErosion) {
+            out << sep << QSALL;
+            if (SwitchIncludeChannel) {
+                out << sep << ChannelQsn->Drc;
+                out << sep << ChannelConc->Drc;
+            } else {
+                out << sep << Qsn->Drc;
+                out << sep << TotalConc->Drc ;
+            }
+        }
+        out << "\n";
+        fout.close();
+    }}
+
+}
+
+
+void TWorld::ReportTimeseriesCSV(void)
+{
+    int DIG = ReportDigitsOut;
+
+    double RainIntavg = RainAvgmm * 3600/_dt;
+    double SnowIntavg = SnowAvgmm * 3600/_dt;
+    QString newname1, pnr, sep = ",";
+    int width = 0;
+    double QALL = Qtot_dt * QUNIT/_dt; // total outflow for all outlets, same as point 0 in interface
+    double QSALL = SoilLossTot_dt/_dt; //total sed loss in kg/s from all outlets, surface and boundary
+
+    QFileInfo fi(resultDir + outflowFileName);
+
+    //######  open files and write headers #####//
+
+    QString unitS = "l/s";
+    if (QUnits == 1)
+        unitS = "m3/s";
+
+    //PCRaster and flat format are mutually exclusive
+    if (SwitchWriteHeaders) //  make file at first timestep
+    {
+        FOR_ROW_COL_MV_OUTL {
+            newname1 = fi.path() + "/" + fi.baseName() + "_" + QString::number((int)PointMap->Drc) + "." +  fi.suffix();
+
+            // make filename using point number
+
+            QFile fout(newname1);
+            fout.open(QIODevice::WriteOnly | QIODevice::Text);
+            QTextStream out(&fout);
+            out.setRealNumberPrecision(DIG);
+            out.setFieldWidth(width);
+            out.setRealNumberNotation(QTextStream::FixedNotation);
+
+            pnr.setNum((int)PointMap->Drc);
+            out << "LISEM total flow and sed output file for point " << pnr << "\n";
+
+            out << "Time";
+            if (SwitchRainfall) out << ",Pavg";
+            if (SwitchSnowmelt) out << ",Snowavg";
+            out << ",Qall";
+            if (FlowBoundaryType > 0)
+                out << ",Qbound";
+            if (SwitchIncludeChannel) {
+                out << ",Qchan";
+                //if (SwitchChannelBaseflow)
+                //    out << ",Qbase";
+                out << ",ChanWH";
+            } else {
+                out << ",Qrunoff";
+            }
+            if (SwitchIncludeTile) out << ",Qtile";
+            if (SwitchErosion) out << ",Qsall" << ",Qs" << ",C";
+            out << "\n";
+
+            out << "min";
+            if (SwitchRainfall) out << ",mm/h";
+            if (SwitchSnowmelt) out << ",mm/h";
+            out << "," << unitS;
+            out << "," << unitS;
+            if (SwitchIncludeChannel) {
+                out  << "," << unitS << ",m";
+               // if (SwitchChannelBaseflow) out << "," << unitS;
+                out  << ",m";
+            }
+            if (SwitchIncludeTile) out << "," << unitS;
+            if (SwitchErosion) out << ",kg/s"<< ",kg/s" << ",g/l";
+            out << "\n";
+            fout.close();
+        }}
+
+
+    }  // opening files and writing header
+
+    //######  open files and append values #####//
+    // for all outlet points
+    FOR_ROW_COL_MV_OUTL
+    {
+        newname1 = fi.path() + "/" + fi.baseName() + "_" + QString::number((int)PointMap->Drc) + "." +  fi.suffix();
+
+        QFile fout(newname1);
+        fout.open(QIODevice::Append | QIODevice::Text);
+
+        QTextStream out(&fout);
+        out.setFieldWidth(width);
+        out.setRealNumberNotation(QTextStream::FixedNotation);
+        out.setRealNumberPrecision(5);
+
+        out << (time/60)/1440.0;
+
+        out.setRealNumberPrecision(DIG);
+        if (SwitchRainfall) out << sep << RainIntavg;
+        if (SwitchSnowmelt) out << sep << SnowIntavg;
+
+        out << sep << QALL;
+
+        if (FlowBoundaryType > 0)
+            out << sep << BoundaryQ*QUNIT;
+
+        if (SwitchIncludeChannel) {
+            out << sep << ChannelQn->Drc*QUNIT;
+          //  if (SwitchChannelBaseflow)
+           //     out << sep << (Qbase->Drc+BaseFlowInflow->Drc+ChannelQSide->Drc)*QUNIT;
+            out << sep << ChannelWH->Drc;
+        } else {
+            out << sep << Qn->Drc*QUNIT;
+        }
+
+        if (SwitchIncludeTile) out << sep << TileQn->Drc*QUNIT;
+
+        if (SwitchErosion) {
+            out << sep << QSALL;
+            if (SwitchIncludeChannel) {
+                out << sep << ChannelQsn->Drc;
+                out << sep << ChannelConc->Drc;
+            } else {
+                out << sep << Qsn->Drc;
+                out << sep << TotalConc->Drc ;
+            }
+        }
+        out << "\n";
+        fout.close();
+    }}
 
 }

@@ -277,7 +277,6 @@ cTMap
 *Ksateff,                    //!< effective saturated hydraulic conductivity (input is in mm/h) [m/s]
 *Poreeff,
 *Thetaeff,
-*SoilMB,
 *chanmask3,
 
 *lambda1,
