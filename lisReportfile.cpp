@@ -133,7 +133,7 @@ void TWorld::OutputUI(void)
     op.FloodArea = floodArea;
 
     op.Qtotmm = Qtotmm;
-    op.Qboundtotmm = FloodBoundarymm;
+    op.Qboundtotmm = Qboundtotmm;
     op.Qtot = Qtot; // all outflow through channel and runoff for all open and outlets boundaries
 
     op.floodBoundaryTot = floodBoundaryTot;
@@ -869,6 +869,9 @@ void TWorld::ReportMaps(void)
 
     report(*floodTime, floodTimeFileName);
     report(*floodTimeStart, floodFEWFileName);
+
+    if (SwitchGWflow)
+        report(*GWWH,"groundwater.map");
 
     //===== SEDIMENT =====
     if(SwitchErosion)

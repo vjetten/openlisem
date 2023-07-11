@@ -479,15 +479,15 @@ public:
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
     double MB, MBeM3, Qtot, Qtot_dt, QTiletot, IntercTot, IntercETaTot, WaterVolTot, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
-    double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowTotmm, PeakFlowTotmm, Qfloodout, QfloodoutTot, QuserInTot;
+    double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowInitmm, BaseFlowTotmm, PeakFlowTotmm, Qfloodout, QfloodoutTot, QuserInTot;
     double floodBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
-    double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot, SoilMoistTot, SoilMoistDiff;
+    double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot, SoilMoistTot, SoilMoistDiff, SoilMoistTotmm, QSideVolTot;
     /// Sediment totals for mass balance and output (in kg)
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTot_dt, SedTot,
            FloodDetTot, FloodDepTot, FloodSedTot;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
-    double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm, WaterVolRunoffmm, FloodBoundarymm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, GWdeeptot;
+    double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm, WaterVolRunoffmm, Qboundtotmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, GWdeeptot;
     double StormDrainTotmm, floodVolTotmm, floodTotmmInit;
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
@@ -496,7 +496,7 @@ public:
     double ETstartTime;
     double BulkDens;
     double nrCells, CatchmentArea, nrFloodedCells;
-    double LitterSmax, ETaTot, ETaTotmm, ETaTotVol, GWlevel;
+    double LitterSmax, ETaTot, ETaTotmm, ETaTotVol, GWlevel, GWleveltot;
     double thetai1tot, thetai2tot, thetai1cur, thetai2cur;
 
     double maxRainaxis;

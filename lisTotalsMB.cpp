@@ -116,7 +116,6 @@ void TWorld::Totals(void)
         // for screen and file output
     }}
 
-
     //==== ETa ==========//
     //   ETaTot = mapTotal(*ETa);
     //  ETaTotmm = ETaTot*catchmentAreaFlatMM;
@@ -213,10 +212,14 @@ void TWorld::Totals(void)
             if (SwitchChannelBaseflowStationary)
                 BaseFlowTot += MapTotal(*BaseFlowInflow)*_dt; // stationary base inflow
 
-            GWlevel = MapTotal(*GWWH)/(double)nrValidCells; // avbg GW level
+            GWlevel = MapTotal(*GWWH);
+            GWleveltot = GWlevel*catchmentAreaFlatMM;
+            GWlevel /= (double)nrValidCells; // avg GW level
            // BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
             //qDebug() << BaseFlowTotmm;
         }
+        if (SwitchChannelWFinflow)
+            QSideVolTot += MapTotal(*ChannelQSide);
 
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
         // recalc in mm for screen output
@@ -228,17 +231,19 @@ void TWorld::Totals(void)
         }}
         BaseFlowTot += tot;
         BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
+        BaseFlowInitmm = BaseFlowInit*catchmentAreaFlatMM;
 
     }
 
     SoilMoistTot += SoilMoistDiff;// MapTotal(*SoilMB);
+    SoilMoistTotmm = SoilMoistTot * catchmentAreaFlatMM;
 
     //=== all discharges ===//
     Qtot_dt = 0;
     // sum all outflow in m3 for this timestep, Qtot is for all timesteps!
 
     floodBoundaryTot += BoundaryQ*_dt;
-    FloodBoundarymm = floodBoundaryTot*catchmentAreaFlatMM;    
+    Qboundtotmm = floodBoundaryTot*catchmentAreaFlatMM;
 
     // Add outlet overland flow, for all flow methods
     FOR_ROW_COL_LDD5 {
@@ -484,12 +489,20 @@ void TWorld::Totals(void)
 //---------------------------------------------------------------------------
 void TWorld::MassBalance()
 {
+// in mm as displayed on screen
+//    double in = RainTotmm + BaseFlowTotmm + BaseFlowInitmm;// + SoilMoistTotmm;
+//    double store = IntercTotmm + IntercHouseTotmm + IntercLitterTotmm + InfilTotmm +
+//           ETaTotmm +StormDrainTotmm +SurfStoremm + WaterVolRunoffmm + ChannelVolTotmm + floodVolTotmm;
+//    double out = Qtotmm + Qboundtotmm;
+//    MB = in > 0 ? (in - out - store)/in *100 : 0;
+
     // Mass Balance water, all in m3
-    double waterin = RainTot + SnowTot + WaterVolSoilTileTot + WHinitVolTot + BaseFlowTot + BaseFlowInit + QuserInTot + SoilMoistTot;
-    double waterout = ETaTotVol;
-    double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot + IntercETaTot;// + (thetai1cur - thetai1tot) + (thetai2cur - thetai2tot);
-    double waterflow = WaterVolTot + ChannelVolTot + StormDrainVolTot + Qtot + floodBoundaryTot;
-    MB = waterin > 0 ? (waterin - waterout - waterstore - waterflow)/waterin *100 : 0;
+    double waterin = RainTot + WHinitVolTot + BaseFlowTot + BaseFlowInit + QuserInTot - QSideVolTot;
+                     // rainfall + initial WH on surface if present, + baseflow and init baseflow + user defined inflow in channel + sideinflow through soil
+    double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot + IntercETaTot + WaterVolTot + ChannelVolTot + StormDrainVolTot;
+                     // all interception + ETa + water on surface + water in channel + water in subsurface drains
+    double waterout = Qtot + floodBoundaryTot + ETaTotVol;
+    MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin *100 : 0;
 
     // Mass Balance sediment, all in kg
     if (SwitchErosion)

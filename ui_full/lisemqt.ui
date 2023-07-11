@@ -70,7 +70,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -7908,6 +7908,8 @@ p, li { white-space: pre-wrap; }
                       <font>
                        <pointsize>8</pointsize>
                        <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
                       </font>
                      </property>
                      <property name="text">

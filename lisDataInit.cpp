@@ -2134,6 +2134,7 @@ void TWorld::IntializeData(void)
     WaterVolRunoffmm = 0;
     StormDrainTotmm = 0;
     ChannelVolTot = 0;
+    QSideVolTot = 0;
     StormDrainVolTot = 0;
     floodVolTotmm= 0;
     floodVolTot = 0;
@@ -2184,7 +2185,7 @@ void TWorld::IntializeData(void)
     QfloodoutTot = 0;
     Qfloodout = 0;
     Qtotmm = 0;
-    FloodBoundarymm = 0;
+    Qboundtotmm = 0;
     GWdeeptot = 0;
     Qpeak = 0;
     QpeakTime = 0;
