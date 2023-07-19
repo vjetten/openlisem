@@ -1141,6 +1141,7 @@ void TWorld::InitChannel(void)
         GWrecharge = NewMap(0);
         GWout = NewMap(0);
         GWz = NewMap(0);
+        GWgrad = NewMap(0);
 
         FOR_ROW_COL_MV_L {
         GWz->Drc = DEM->Drc - SoilDepth1->Drc - (SwitchTwoLayer ? SoilDepth2->Drc : 0.0);

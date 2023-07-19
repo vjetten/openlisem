@@ -268,7 +268,7 @@ void TWorld::GetComboMaps()
         AddComboMap(0,"Total Discharge","m3/s",Qoutput,LegendMap[cl],Legend[cl],true,false,1.0, 1.0);//0.001);
     //factor is already done in Qoutput, so that reportfile is also done, not only screen
     // the only thing that needs to change here is the text "m3/s"
-  //  AddComboMap(0,"Added Discharge","m3/s",QuserIn,LegendMap[cl],Legend[cl],true,false,1.0, 1.0);//0.001);
+    //AddComboMap(0,"Added Discharge","m3/s",Qbase,LegendMap[cl],Legend[cl],true,false,1.0, 1.0);//0.001);
 
     cl = 2;
     AddComboMap(0,"Water Height","m",hmxWH,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
