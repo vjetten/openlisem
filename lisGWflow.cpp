@@ -27,6 +27,7 @@
 #include "operation.h"
 
 #define MaxGWDepthfrac 0.95
+#define GWS 3.0
 
 //---------------------------------------------------------------------------
 void TWorld::GroundwaterFlow(void)
@@ -139,14 +140,14 @@ void TWorld::GWFlowLDDKsat(void)
             for(int j = 0; j < crlinkedlddbase_.at(i_).nr; j++) {
                 int rr = crlinkedlddbase_.at(i_).inn[j].r;
                 int cr = crlinkedlddbase_.at(i_).inn[j].c;
-                Hup += GWz->Drcr + h->Drcr;
+                Hup += (GWS*GWz->Drcr + h->Drcr)/(GWS+1.0);
                 Zup += GWz->Drcr;
                 cnt+=1.0;
             }
             Hup /= cnt;
             Zup /= cnt;
         }
-        double H = GWz->Drc + h->Drc;
+        double H = (GWS*GWz->Drc + h->Drc)/(GWS+1.0);
 
         tmb->Drc = cos(atan(fabs(Hup - H)/_dx)); // hydraulic gradient angle
        // tmb->Drc = cos(atan(fabs(Zup - GWz->Drc)/_dx));
@@ -312,10 +313,10 @@ void TWorld::GWFlow2D(void)
         double v_y1 =  br1 ? vol->data[r-1][c] : V;
         double v_y2 =  br2 ? vol->data[r+1][c] : V;
 
-        double dh_x1 = (h_x1 + z_x1) - (H+Z);
-        double dh_x2 = (h_x2 + z_x2) - (H+Z);
-        double dh_y1 = (h_y1 + z_y1) - (H+Z);
-        double dh_y2 = (h_y2 + z_y2) - (H+Z);
+        double dh_x1 = ((h_x1 + GWS*z_x1) - (H+GWS*Z))/(GWS+1.0);
+        double dh_x2 = ((h_x2 + GWS*z_x2) - (H+GWS*Z))/(GWS+1.0);
+        double dh_y1 = ((h_y1 + GWS*z_y1) - (H+GWS*Z))/(GWS+1.0);
+        double dh_y2 = ((h_y2 + GWS*z_y2) - (H+GWS*Z))/(GWS+1.0);
 
         double dz_x1 = z_x1 -Z;
         double dz_x2 = z_x2 -Z;
@@ -385,6 +386,8 @@ void TWorld::GWFlowSWAT(void)
         tmb->Drc = 0;
         tmc->Drc = 0;
         double GWout_ = GW_flow *  CHAdjDX->Drc * std::max(0.0, GWWH->Drc-GW_threshold) * ksat->Drc * BaseflowL->Drc; // m3 volume out from every cell
+        GWout_ *= (1+Grad->Drc);
+
         //  GWout_ *= (1-exp(-GW_threshold*GWWH->Drc));
         //m3:  ksat*dt  * dh*dx * ((dx/L)^b);  ksat * cross section * distance factor
         // stop outflow when some minimum GW level, 2.4.2.10 in SWAT

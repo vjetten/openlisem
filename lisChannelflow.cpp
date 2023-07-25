@@ -173,10 +173,10 @@ void TWorld::ChannelBaseflow(void)
                 double chanbot = DEM->Drc - ChannelDepth->Drc;
                 double dH = bedrock + GWWH->Drc - chanbot;
                 if (dH > 0 && GWWH->Drc > 0) {
-                   Qbase->Drc = std::min(GWVol->Drc, 2.0 * dH/GWWH->Drc * GWout->Drc);
+                   //Qbase->Drc = std::min(GWVol->Drc, 2.0 * dH/GWWH->Drc * GWout->Drc);
+                   Qbase->Drc = std::min(GWVol->Drc, 2.0 * GWout->Drc);
                    // use the fraction of GWout flow that reaches the channel
                 }
-
 
                 //double dH = GWWH->Drc;//std::max(0.0, GWWH->Drc - ChannelWH->Drc);
                 //double GWchan1 = 2.0*GW_flow * ksat->Drc * dH * DX->Drc*dH/(0.5*_dx); //gradient= dH/dz ?
@@ -188,6 +188,8 @@ void TWorld::ChannelBaseflow(void)
 
                 //Qbase->Drc = std::min(GWVol->Drc, GWchan1); //this is already done, just use the flow
             }
+           // Qbase->Drc *= 2.0;
+
             ChannelWaterVol->Drc += Qbase->Drc;
             GWVol->Drc -= Qbase->Drc;
             GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;

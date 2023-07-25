@@ -70,7 +70,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -182,7 +182,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>8</number>
+                  <number>1</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -13616,12 +13616,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>371</x>
-     <y>440</y>
+     <x>452</x>
+     <y>499</y>
     </hint>
     <hint type="destinationlabel">
-     <x>410</x>
-     <y>463</y>
+     <x>504</x>
+     <y>524</y>
     </hint>
    </hints>
   </connection>
@@ -13632,12 +13632,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>371</x>
-     <y>440</y>
+     <x>452</x>
+     <y>499</y>
     </hint>
     <hint type="destinationlabel">
-     <x>410</x>
-     <y>486</y>
+     <x>504</x>
+     <y>549</y>
     </hint>
    </hints>
   </connection>
@@ -13648,12 +13648,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>371</x>
-     <y>440</y>
+     <x>452</x>
+     <y>499</y>
     </hint>
     <hint type="destinationlabel">
-     <x>367</x>
-     <y>607</y>
+     <x>448</x>
+     <y>680</y>
     </hint>
    </hints>
   </connection>
@@ -13664,12 +13664,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>371</x>
-     <y>440</y>
+     <x>452</x>
+     <y>499</y>
     </hint>
     <hint type="destinationlabel">
-     <x>306</x>
-     <y>625</y>
+     <x>333</x>
+     <y>699</y>
     </hint>
    </hints>
   </connection>
@@ -13680,12 +13680,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>371</x>
-     <y>440</y>
+     <x>452</x>
+     <y>499</y>
     </hint>
     <hint type="destinationlabel">
-     <x>586</x>
-     <y>672</y>
+     <x>653</x>
+     <y>752</y>
     </hint>
    </hints>
   </connection>
@@ -13696,12 +13696,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>371</x>
-     <y>440</y>
+     <x>452</x>
+     <y>499</y>
     </hint>
     <hint type="destinationlabel">
-     <x>617</x>
-     <y>673</y>
+     <x>688</x>
+     <y>754</y>
     </hint>
    </hints>
   </connection>
@@ -13712,8 +13712,8 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>213</x>
-     <y>271</y>
+     <x>234</x>
+     <y>311</y>
     </hint>
     <hint type="destinationlabel">
      <x>255</x>
@@ -13728,12 +13728,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>393</x>
-     <y>677</y>
+     <x>465</x>
+     <y>760</y>
     </hint>
     <hint type="destinationlabel">
-     <x>356</x>
-     <y>743</y>
+     <x>428</x>
+     <y>835</y>
     </hint>
    </hints>
   </connection>
@@ -13744,12 +13744,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>889</x>
-     <y>193</y>
+     <x>1014</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1624</x>
-     <y>194</y>
+     <x>1539</x>
+     <y>217</y>
     </hint>
    </hints>
   </connection>
@@ -13760,12 +13760,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>889</x>
-     <y>193</y>
+     <x>1014</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1651</x>
-     <y>195</y>
+     <x>1570</x>
+     <y>219</y>
     </hint>
    </hints>
   </connection>
@@ -13776,12 +13776,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>369</x>
-     <y>365</y>
+     <x>450</x>
+     <y>416</y>
     </hint>
     <hint type="destinationlabel">
-     <x>148</x>
-     <y>353</y>
+     <x>164</x>
+     <y>403</y>
     </hint>
    </hints>
   </connection>
@@ -13792,12 +13792,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>194</x>
-     <y>436</y>
+     <x>275</x>
+     <y>492</y>
     </hint>
     <hint type="destinationlabel">
-     <x>443</x>
-     <y>437</y>
+     <x>494</x>
+     <y>493</y>
     </hint>
    </hints>
   </connection>
@@ -13808,12 +13808,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>264</x>
-     <y>695</y>
+     <x>290</x>
+     <y>767</y>
     </hint>
     <hint type="destinationlabel">
-     <x>567</x>
-     <y>695</y>
+     <x>646</x>
+     <y>767</y>
     </hint>
    </hints>
   </connection>
@@ -13824,12 +13824,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>232</x>
-     <y>625</y>
+     <x>304</x>
+     <y>699</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>678</y>
+     <x>375</x>
+     <y>759</y>
     </hint>
    </hints>
   </connection>
@@ -13840,12 +13840,124 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>210</x>
-     <y>504</y>
+     <x>294</x>
+     <y>581</y>
     </hint>
     <hint type="destinationlabel">
-     <x>225</x>
-     <y>523</y>
+     <x>309</x>
+     <y>755</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioRainSatFile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_rainsatName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>232</x>
+     <y>381</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>378</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioRainSatFile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>toolButton_rainsatName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>138</x>
+     <y>375</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>678</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioRainSatFile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>toolButton_RainmapShow</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>132</x>
+     <y>379</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>714</x>
+     <y>378</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioRainFile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_RainfallName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>218</x>
+     <y>324</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>327</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioRainFile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>toolButton_RainfallName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>148</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>671</x>
+     <y>327</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioRainFile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>toolButton_RainfallShow</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>145</x>
+     <y>321</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>713</x>
+     <y>329</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioRainFile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>checkIDinterpolation</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>138</x>
+     <y>328</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>150</x>
+     <y>349</y>
     </hint>
    </hints>
   </connection>

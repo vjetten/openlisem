@@ -282,6 +282,8 @@ cTMap
 
 *lambda1,
 *lambda2,
+*psi1ae,
+*psi2ae,
 *Perc,
 *PercmmCum,
 *GrassFraction,              //!< fraction of grasstrip in a cell [-]

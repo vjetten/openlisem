@@ -662,12 +662,15 @@ void TWorld::InitSoilInput(void)
 
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
         lambda1 = NewMap(0);
+        psi1ae = NewMap(0);
         FOR_ROW_COL_MV_L {
             //bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
             //Saxton and Rawls 2006
           //  lambda1->Drc = 0.0384*log(Ksat1->Drc)+0.0626;
             //rawls et al., 1982
             lambda1->Drc = std::min(1.0, 0.0849*log(Ksat1->Drc)+0.159);
+            psi1ae->Drc = exp( -0.3012*ln(Ksat1->Drc) + 3.5164) * 0.01; // 0.01 to convert to m
+
         }}
 
         // field capacity
@@ -726,11 +729,13 @@ void TWorld::InitSoilInput(void)
 
             // lambda brooks corey
             lambda2 = NewMap(0);
+            psi2ae = NewMap(0);
             FOR_ROW_COL_MV_L {
                 //lambda2->Drc = 0.0384*log(Ksat2->Drc)+0.0626;
                 // regression eq from data from Saxton and rawls 2006, excel file
-                //Psia2->Drc = 5.1747*exp(-0.021*Ksat2->Drc); //air entry potential (bubble pressure) in kPa
                 lambda2->Drc = std::min(1.0,0.0849*log(Ksat2->Drc)+0.159);
+                psi2ae->Drc = exp( -0.3012*ln(Ksat2->Drc) + 3.5164) * 0.01; // 0.01 to convert to m
+
             }}
 
             // field capacity
@@ -738,6 +743,7 @@ void TWorld::InitSoilInput(void)
             FOR_ROW_COL_MV_L {
                // ThetaFC2->Drc = 0.7867*exp(-0.012*Ksat2->Drc)*ThetaS2->Drc;
                 ThetaFC2->Drc = -0.0519*log(Ksat2->Drc) + 0.3714;
+
             }}
 
             // wetting front psi
@@ -1043,12 +1049,12 @@ void TWorld::InitChannel(void)
 
     ChannelNcul = NewMap(0);
     ChannelQSide = NewMap(0);
-
+/*
     chanmask3 = NewMap(0);
 
   //  tma->setAllMV();
     chanmask3->setAllMV();
-/*
+
     FOR_ROW_COL_MV_L {
         if (ChannelWidth->Drc > 0) {
             tma->Drc = 1;
@@ -1063,7 +1069,7 @@ void TWorld::InitChannel(void)
             if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        )tma->data[r+1][c-1]=1;
         }
     }}
-*/
+
     FOR_ROW_COL_MV_L {
         //        if (tma->Drc > 0) {
         if (ChannelWidth->Drc > 0) {
@@ -1080,7 +1086,7 @@ void TWorld::InitChannel(void)
         }
     }}
     report(*chanmask3,"cm3.map");
-
+*/
 
     calcValue(*ChannelN, ChnCalibration, MUL);
     copy(*ChannelNcul, *ChannelN);
