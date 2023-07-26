@@ -122,6 +122,7 @@ SET(APP_SOURCES
     lisRunfile.cpp
     lisSnowmelt.cpp
     lisSurfstor.cpp
+    lisSoilmoisture.cpp
     lisSWOF2D.cpp
     lisSWOF2Daux.cpp
     lisSWOF2Dopen.cpp

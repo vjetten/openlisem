@@ -253,6 +253,8 @@ void TWorld::GetInputData(void)
     InitSoilInput();
     //## soil/infiltration data
 
+    InitNewSoilProfile();
+
     InitErosion();
     //extended sediment stuff
 
@@ -669,7 +671,7 @@ void TWorld::InitSoilInput(void)
           //  lambda1->Drc = 0.0384*log(Ksat1->Drc)+0.0626;
             //rawls et al., 1982
             lambda1->Drc = std::min(1.0, 0.0849*log(Ksat1->Drc)+0.159);
-            psi1ae->Drc = exp( -0.3012*ln(Ksat1->Drc) + 3.5164) * 0.01; // 0.01 to convert to m
+            psi1ae->Drc = exp( -0.3012*log(Ksat1->Drc) + 3.5164) * 0.01; // 0.01 to convert to m
 
         }}
 
@@ -734,7 +736,7 @@ void TWorld::InitSoilInput(void)
                 //lambda2->Drc = 0.0384*log(Ksat2->Drc)+0.0626;
                 // regression eq from data from Saxton and rawls 2006, excel file
                 lambda2->Drc = std::min(1.0,0.0849*log(Ksat2->Drc)+0.159);
-                psi2ae->Drc = exp( -0.3012*ln(Ksat2->Drc) + 3.5164) * 0.01; // 0.01 to convert to m
+                psi2ae->Drc = exp( -0.3012*log(Ksat2->Drc) + 3.5164) * 0.01; // 0.01 to convert to m
 
             }}
 
@@ -763,6 +765,8 @@ void TWorld::InitSoilInput(void)
 
             calcValue(*Ksat2, ksat2Calibration, MUL);
         }
+
+
 
         if (SwitchInfilCrust)
         {
@@ -3310,5 +3314,50 @@ void TWorld::Average2x2(cTMap &M, cTMap &mask)
             }
         }
         M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
+    }}
+}
+
+void TWorld::InitNewSoilProfile()
+{
+    FOR_ROW_COL_MV {
+        SOIL_LIST sr;
+        sr.r = r;
+        sr.c = c;
+        crSoil << sr;
+    }
+
+    FOR_ROW_COL_MV_L {
+        crSoil[i_].ponded = false;
+        crSoil[i_].dts = 0.5*_dt;
+        crSoil[i_].dtsum = 0;
+
+        double dz = SoilDepth1->Drc / 3.0;
+        double dz2 = (SoilDepth2->Drc - SoilDepth1->Drc) / (double)(nNodes-3);
+
+        for (int j = 0; j < 4; j++) {
+            crSoil[i_].z[j] = j > 0 ? 0.5*dz+dz*(j-1) : 0.0; //node depth 1=0.5dz, 2=1.5dz, 2.5,dz
+            crSoil[i_].dz[j] = j > 0 ? dz : 0.5*dz;
+            crSoil[i_].theta[j] = ThetaI1->Drc;
+            crSoil[i_].pore[j] = ThetaS1->Drc;
+            crSoil[i_].thetar[j] = ThetaR1->Drc;
+            crSoil[i_].Ks[j] = Ksat1->Drc;
+            crSoil[i_].K[j] = Ksat1->Drc;;
+            crSoil[i_].lambda[j] = lambda1->Drc;
+            crSoil[i_].hb[j] = -psi1ae->Drc;
+        }
+
+        for (int j = 4; j < nNodes; j++) {
+            crSoil[i_].z[j] = SoilDepth1->Drc +0.5*dz2 + dz2*(j-4);
+            crSoil[i_].dz[j] = dz2;
+            crSoil[i_].theta[j] = ThetaI2->Drc;
+            crSoil[i_].pore[j] = ThetaS2->Drc;
+            crSoil[i_].thetar[j] = ThetaR2->Drc;
+            crSoil[i_].Ks[j] = Ksat2->Drc;
+            crSoil[i_].K[j] = Ksat2->Drc;
+            crSoil[i_].lambda[j] = lambda2->Drc;
+            crSoil[i_].hb[j] = -psi2ae->Drc;
+        }
+        crSoil[i_].z[nNodes-1] = SoilDepth2->Drc;
+        crSoil[i_].dz[nNodes-1] = 0.5*dz2;
     }}
 }

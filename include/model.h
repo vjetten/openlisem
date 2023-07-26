@@ -297,22 +297,25 @@ typedef struct ExtCH {
     bool isExtended;
 } ExtCH;
 
-int nrnode = 8;
 typedef struct SOIL_LIST {
-//    QVector <double> Q;
-//    QVector <double> dh;
-//    QVector <double> dz;
-//    QVector <double> Ka;
-    double Q [nrnode];
-    double K[nrnode];
-    double z[nrnode];
-    double h[nrnode];
-    double hb[nrnode];
-    double lambda[nrnode];
-    double thetae[nrnode];
-    double theta[nrnode];
-    double thetar[nrnode];
-    double pore[nrnode];
+    int c;
+    int r;
+    double dts;
+    double dtsum;
+    bool ponded;
+    double Q[10];
+    double K[10];
+    double Ks[10];
+    double C[10];
+    double z[10];
+    double dz[10];
+    double h[10];
+    double hb[10];
+    double lambda[10];
+    double thetae[10];
+    double theta[10];    
+    double thetar[10];    
+    double pore[10];
 
 } SOIL_LIST;
 
@@ -341,6 +344,7 @@ public:
     /// copy of overall rows and columns, set in initmask
     int _nrRows;
     int _nrCols;
+    const int nNodes = 10;
 
     long nrValidCells;
     long nrValidCellsLDD5;
@@ -911,6 +915,10 @@ public:
 
     double SoilWaterMass();
 
+    void cell_Soilwater(long i_);
+    void solveFiniteElement(long i_, double *Hnew, double *Wnew, double *Cnew);
+    void calcNewNodalValues(long i_, double *Hnew, double *Wnew, double *Cnew);
+
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
     void cell_InfilSwatre(int r, int c);
@@ -1027,6 +1035,8 @@ public:
     QString SwatreTableDir;
     QString SwatreTableName;
     QString initheadName;
+
+    void InitNewSoilProfile();
 
     double swatreDT;
     bool initSwatreStructure;
