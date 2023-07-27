@@ -150,10 +150,10 @@
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
-#define INFIL_HOLTAN 2
+#define INFIL_SOAP 2
+//#define INFIL_HOLTAN 2
 #define INFIL_GREENAMPT 3
 #define INFIL_GREENAMPT2 4
-#define INFIL_KSAT 5
 #define INFIL_MOREL 21
 #define INFIL_SMITH 22
 #define INFIL_SMITH2 23
@@ -303,14 +303,14 @@ typedef struct SOIL_LIST {
     double dts;
     double dtsum;
     bool ponded;
-    double Q[10];
-    double K[10];
+    double drain;
     double Ks[10];
-    double C[10];
+    double K[10];
     double z[10];
     double dz[10];
     double h[10];
     double hb[10];
+    double hn[10];
     double lambda[10];
     double thetae[10];
     double theta[10];    
@@ -344,7 +344,7 @@ public:
     /// copy of overall rows and columns, set in initmask
     int _nrRows;
     int _nrCols;
-    const int nNodes = 10;
+    int nNodes;
 
     long nrValidCells;
     long nrValidCellsLDD5;
@@ -916,8 +916,8 @@ public:
     double SoilWaterMass();
 
     void cell_Soilwater(long i_);
-    void solveFiniteElement(long i_, double *Hnew, double *Wnew, double *Cnew);
-    void calcNewNodalValues(long i_, double *Hnew, double *Wnew, double *Cnew);
+    void solveFiniteElement(long i_, double *influx, double Hnew[], double C1[], double C2[]);
+    void calcNewNodalValues(long i_, double Hnew[], double Wnew[], double C1[], double C2[]);
 
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);

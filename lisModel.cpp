@@ -297,7 +297,7 @@ void TWorld::DoModel()
 
             OutputUI();          // fill the "op" structure for screen output and calc some output maps
 
-            reportAll();         // report maps and files to screen and disk
+          //  reportAll();         // report maps and files to screen and disk
 
             emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
 
@@ -400,20 +400,21 @@ void TWorld::HydrologyProcesses()
            cell_InfilSwatre(r, c);
         } else {
             if (InfilMethod != INFIL_NONE) {
+                if (InfilMethod == INFIL_SMITH || InfilMethod == INFIL_SMITH2)
+                    cell_Soilwater(i_);
+                else {
 
-                cell_InfilMethods(r, c);
+                    cell_InfilMethods(r, c);
 
-                if (SwitchTwoLayer) {
-                    cell_Redistribution2(r, c);                    
-                    //cell_Channelinfow2(r, c);
-                } else {
-                    cell_Redistribution1(r, c);
-                    //cell_Channelinfow1(r, c);
+                    if (SwitchTwoLayer)
+                        cell_Redistribution2(r, c);
+                    else
+                        cell_Redistribution1(r, c);
+
+                    if (!SwitchImpermeable)
+                        Perc->Drc = cell_Percolation(r, c, 1.0);
+                    // if baseflow is active percollation is done there, so do not do it here
                 }
-
-                if (!SwitchImpermeable)
-                    Perc->Drc = cell_Percolation(r, c, 1.0);
-                // if baseflow is active percollation is done there, so do not do it here
             }
         }
 

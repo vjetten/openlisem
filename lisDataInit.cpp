@@ -3319,6 +3319,8 @@ void TWorld::Average2x2(cTMap &M, cTMap &mask)
 
 void TWorld::InitNewSoilProfile()
 {
+    nNodes = 10;
+
     FOR_ROW_COL_MV {
         SOIL_LIST sr;
         sr.r = r;
@@ -3328,11 +3330,12 @@ void TWorld::InitNewSoilProfile()
 
     FOR_ROW_COL_MV_L {
         crSoil[i_].ponded = false;
-        crSoil[i_].dts = 0.5*_dt;
+        crSoil[i_].dts = 0.1*_dt;
         crSoil[i_].dtsum = 0;
+        crSoil[i_].drain = 0;
 
         double dz = SoilDepth1->Drc / 3.0;
-        double dz2 = (SoilDepth2->Drc - SoilDepth1->Drc) / (double)(nNodes-3);
+        double dz2 = (SoilDepth2->Drc - SoilDepth1->Drc) / (nNodes-3);
 
         for (int j = 0; j < 4; j++) {
             crSoil[i_].z[j] = j > 0 ? 0.5*dz+dz*(j-1) : 0.0; //node depth 1=0.5dz, 2=1.5dz, 2.5,dz
@@ -3340,10 +3343,13 @@ void TWorld::InitNewSoilProfile()
             crSoil[i_].theta[j] = ThetaI1->Drc;
             crSoil[i_].pore[j] = ThetaS1->Drc;
             crSoil[i_].thetar[j] = ThetaR1->Drc;
-            crSoil[i_].Ks[j] = Ksat1->Drc;
-            crSoil[i_].K[j] = Ksat1->Drc;;
-            crSoil[i_].lambda[j] = lambda1->Drc;
-            crSoil[i_].hb[j] = -psi1ae->Drc;
+            crSoil[i_].Ks[j] = Ksat1->Drc/3600000;
+            crSoil[i_].lambda[j] = std::min(1.0, 0.0849*log(Ksat1->Drc)+0.159);
+            crSoil[i_].hb[j] = -1.0*exp( -0.3012*log(Ksat1->Drc) + 3.5164) * 0.01;;
+            crSoil[i_].h[j] = crSoil[i_].hb[j]/
+                              pow((crSoil[i_].theta[j]-crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j]), 1.0/crSoil[i_].lambda[j]);
+            crSoil[i_].hn[j] = crSoil[i_].h[j];
+            crSoil[i_].K[j] = crSoil[i_].Ks[j];
         }
 
         for (int j = 4; j < nNodes; j++) {
@@ -3352,12 +3358,15 @@ void TWorld::InitNewSoilProfile()
             crSoil[i_].theta[j] = ThetaI2->Drc;
             crSoil[i_].pore[j] = ThetaS2->Drc;
             crSoil[i_].thetar[j] = ThetaR2->Drc;
-            crSoil[i_].Ks[j] = Ksat2->Drc;
-            crSoil[i_].K[j] = Ksat2->Drc;
-            crSoil[i_].lambda[j] = lambda2->Drc;
-            crSoil[i_].hb[j] = -psi2ae->Drc;
+            crSoil[i_].Ks[j] = Ksat2->Drc/3600000;
+            crSoil[i_].lambda[j] = std::min(1.0, 0.0849*log(Ksat2->Drc)+0.159);
+            crSoil[i_].hb[j] = -1.0*exp( -0.3012*log(Ksat2->Drc) + 3.5164) * 0.01;;
+            crSoil[i_].K[j] = crSoil[i_].Ks[j];
+            crSoil[i_].h[j] = crSoil[i_].hb[j]/
+                              pow((crSoil[i_].theta[j]-crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j]), 1.0/crSoil[i_].lambda[j]);
+            crSoil[i_].hn[j] = crSoil[i_].h[j];
         }
-        crSoil[i_].z[nNodes-1] = SoilDepth2->Drc;
+        crSoil[i_].z[nNodes-1] = SoilDepth2->Drc; //????
         crSoil[i_].dz[nNodes-1] = 0.5*dz2;
     }}
 }
