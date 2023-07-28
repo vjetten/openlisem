@@ -656,30 +656,24 @@ void TWorld::InitSoilInput(void)
         ThetaI1a = NewMap(0); // used for screen output
         calcValue(*ThetaI1, thetaCalibration, MUL); //VJ 110712 calibration of theta
         calcMap(*ThetaI1, *ThetaS1, MIN); //VJ 110712 cannot be more than porosity
-
-        ThetaR1 = NewMap(0);
-        FOR_ROW_COL_MV_L {
-            ThetaR1->Drc = 0.025*ThetaS1->Drc;
-        }}
+        copy(*ThetaI1a, *ThetaI1);
 
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
+
+        ThetaR1 = NewMap(0);
         lambda1 = NewMap(0);
         psi1ae = NewMap(0);
+        ThetaFC1 = NewMap(0);
         FOR_ROW_COL_MV_L {
             //bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
             //Saxton and Rawls 2006
           //  lambda1->Drc = 0.0384*log(Ksat1->Drc)+0.0626;
             //rawls et al., 1982
-            lambda1->Drc = std::min(1.0, 0.0849*log(Ksat1->Drc)+0.159);
-            psi1ae->Drc = exp( -0.3012*log(Ksat1->Drc) + 3.5164) * 0.01; // 0.01 to convert to m
-
-        }}
-
-        // field capacity
-        ThetaFC1 = NewMap(0);
-        FOR_ROW_COL_MV_L {
-             //ThetaFC1->Drc = 0.7867*exp(-0.012*Ksat1->Drc)*ThetaS1->Drc;
-            ThetaFC1->Drc = -0.0519*log(Ksat1->Drc) + 0.3714;
+            double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
+            lambda1->Drc = 0.0849*ks+0.159;
+            psi1ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+            ThetaR1->Drc = 0.0673*exp(-0.238*log(ks));
+            ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;
         }}
 
         if (SwitchPsiUser) {
@@ -690,8 +684,7 @@ void TWorld::InitSoilInput(void)
             Psi1 = NewMap(0);
             FOR_ROW_COL_MV_L {
                 Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425);
-                double psi_bp = exp(-0.3012*log(Ksat1->Drc) + 3.5164);
-                Psi1->Drc = std::min(Psi1->Drc,psi_bp)*0.01* psiCalibration;
+                Psi1->Drc = std::min(Psi1->Drc,psi1ae->Drc)*0.01* psiCalibration;
                 // psi cannot be more that bubbling pressure, 0.01 cm to m
             }}
         }
@@ -718,34 +711,24 @@ void TWorld::InitSoilInput(void)
 
             ThetaS2 = ReadMap(LDD,getvaluename("thetaS2"));
             ThetaI2 = ReadMap(LDD,getvaluename("thetaI2"));
-            ThetaI2a = NewMap(0);
+            ThetaI2a = NewMap(0); // for output, average soil layer 2
             calcValue(*ThetaI2, thetaCalibration, MUL); //VJ 110712 calibration of theta
             calcMap(*ThetaI2, *ThetaS2, MIN); //VJ 110712 cannot be more than porosity
-            ThetaR2 = NewMap(0);
-
-            FOR_ROW_COL_MV_L {
-                ThetaR2->Drc = 0.025*ThetaS2->Drc;
-            }}
+            copy(*ThetaI2a, *ThetaI2);
 
             Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
 
-            // lambda brooks corey
-            lambda2 = NewMap(0);
+            ThetaR2 = NewMap(0);
+            lambda2 = NewMap(0);             // lambda brooks corey
             psi2ae = NewMap(0);
-            FOR_ROW_COL_MV_L {
-                //lambda2->Drc = 0.0384*log(Ksat2->Drc)+0.0626;
-                // regression eq from data from Saxton and rawls 2006, excel file
-                lambda2->Drc = std::min(1.0,0.0849*log(Ksat2->Drc)+0.159);
-                psi2ae->Drc = exp( -0.3012*log(Ksat2->Drc) + 3.5164) * 0.01; // 0.01 to convert to m
-
-            }}
-
-            // field capacity
             ThetaFC2 = NewMap(0);
             FOR_ROW_COL_MV_L {
-               // ThetaFC2->Drc = 0.7867*exp(-0.012*Ksat2->Drc)*ThetaS2->Drc;
-                ThetaFC2->Drc = -0.0519*log(Ksat2->Drc) + 0.3714;
-
+                // regression eq from data from Saxton and rawls 2006, excel file
+                double ks = std::max(1.0,std::min(1000.0,log(Ksat2->Drc)));
+                lambda2->Drc = 0.0849*ks+0.159;
+                psi2ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+                ThetaR2->Drc = 0.0673*exp(-0.238*log(ks));
+                ThetaFC2->Drc = -0.0519*log(ks) + 0.3714;
             }}
 
             // wetting front psi
@@ -757,16 +740,13 @@ void TWorld::InitSoilInput(void)
                 Psi2 = NewMap(0);
                 FOR_ROW_COL_MV_L {
                     Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425);
-                    double psi_bp = exp(-0.3012*log(Ksat1->Drc) + 3.5164);
-                    Psi2->Drc = std::min(Psi2->Drc,psi_bp)*0.01* psiCalibration;
+                    Psi2->Drc = std::min(Psi2->Drc,psi2ae->Drc)*0.01* psiCalibration;
                     // psi cannot be more that bubbling pressure, 0.01 cm to m
                 }}
             }
 
             calcValue(*Ksat2, ksat2Calibration, MUL);
         }
-
-
 
         if (SwitchInfilCrust)
         {
@@ -798,9 +778,7 @@ void TWorld::InitSoilInput(void)
         FOR_ROW_COL_MV
         {
             if (CrustFraction->Drc +  CompactFraction->Drc > 1.0)
-            {
                 CrustFraction->Drc = 1.0-CompactFraction->Drc;
-            }
         }
     }
 
@@ -3271,7 +3249,7 @@ void TWorld::Average3x3(cTMap &M, cTMap &mask, bool only)
         for (int i = 1; i <= 9; i++)
         {
             int rr = r+dy[i];
-            int cr = c+dx[i];              
+            int cr = c+dx[i];
 
             if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
                 if (only && M.Drcr == 0)
@@ -3325,52 +3303,67 @@ void TWorld::InitNewSoilProfile()
         SOIL_LIST sr;
         sr.r = r;
         sr.c = c;
+        sr.ponded = false;
+        sr.dts = _dt;
+        sr.dtsum = 0;
+        sr.drain = 0;
+        sr.Infact = 0;
+        sr.InfPot = 0;
+
+        sr.h.clear();
+        sr.hb.clear();
+        sr.Ks.clear();
+        sr.pore.clear();
+        sr.theta.clear();
+        sr.thetar.clear();
+        sr.lambda.clear();
+        sr.dz.clear();
+
+          sr.pore.resize(nNodes);
+            sr.Ks.resize(nNodes);
+             sr.h.resize(nNodes);
+            sr.hb.resize(nNodes);
+         sr.theta.resize(nNodes);
+        sr.thetar.resize(nNodes);
+        sr.lambda.resize(nNodes);
+            sr.dz.resize(nNodes);
+
         crSoil << sr;
     }
 
     FOR_ROW_COL_MV_L {
 
-        crSoil[i_].ponded = false;
-        crSoil[i_].dts = 0.1*_dt;
-        crSoil[i_].dtsum = 0;
-        crSoil[i_].drain = 0;
-
         double dz = SoilDepth1->Drc / 3.0;
         double dz2 = (SoilDepth2->Drc - SoilDepth1->Drc) / (nNodes-3);
 
-        for (int j = 0; j < 4; j++)
-            crSoil[i_].z[j] = j*dz;
-                // 0 = surface , 3 = soildepth1
-        for (int j = 4; j < nNodes; j++)
-            crSoil[i_].z[j] = 3*dz + (j-3)*dz2;
-                // nNodes-1 = soildepth2-dz2
-
         for (int j = 0; j < 3; j++) {
-            crSoil[i_].dz[j] = crSoil[i_].z[j+1] - crSoil[i_].z[j];
-            crSoil[i_].theta[j] = ThetaI1->Drc;
-            crSoil[i_].pore[j] = ThetaS1->Drc;
-            crSoil[i_].thetar[j] = ThetaR1->Drc;
-            crSoil[i_].Ks[j] = Ksat1->Drc/3600000;
-            crSoil[i_].lambda[j] = std::min(1.0, 0.0849*log(Ksat1->Drc)+0.159);
-            crSoil[i_].hb[j] = -1.0*exp( -0.3012*log(Ksat1->Drc) + 3.5164) * 0.01;;
-            crSoil[i_].h[j] = crSoil[i_].hb[j]/
-                              pow((crSoil[i_].theta[j]-crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j]), 1.0/crSoil[i_].lambda[j]);
-         //   crSoil[i_].hn[j] = crSoil[i_].h[j];
-            crSoil[i_].K[j] = crSoil[i_].Ks[j];
-        }
+            crSoil[i_].dz.replace(j,  dz);
+            crSoil[i_].theta.replace(j,  ThetaI1->Drc);
+            crSoil[i_].pore.replace(j,  ThetaS1->Drc);
+            crSoil[i_].Ks.replace(j,  Ksat1->Drc/3600000); // calibrated Ksat ! so do not use for lambda etc
 
+            crSoil[i_].thetar.replace(j,  ThetaR1->Drc);
+            crSoil[i_].lambda.replace(j,  lambda1->Drc);
+            crSoil[i_].hb.replace(j,  -psi1ae->Drc);
+            double hh = crSoil[i_].hb[j]/
+                        pow((crSoil[i_].theta[j] - crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j])
+                            , 1.0/crSoil[i_].lambda[j]);
+            crSoil[i_].h.replace(j,hh);
+        }
         for (int j = 3; j < nNodes; j++) {
-            crSoil[i_].dz[j] = dz2;
-            crSoil[i_].theta[j] = ThetaI2->Drc;
-            crSoil[i_].pore[j] = ThetaS2->Drc;
-            crSoil[i_].thetar[j] = ThetaR2->Drc;
-            crSoil[i_].Ks[j] = Ksat2->Drc/3600000;
-            crSoil[i_].lambda[j] = std::min(1.0, 0.0849*log(Ksat2->Drc)+0.159);
-            crSoil[i_].hb[j] = -1.0*exp( -0.3012*log(Ksat2->Drc) + 3.5164) * 0.01;;
-            crSoil[i_].K[j] = crSoil[i_].Ks[j];
-            crSoil[i_].h[j] = crSoil[i_].hb[j]/
-                              pow((crSoil[i_].theta[j]-crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j]), 1.0/crSoil[i_].lambda[j]);
-          //  crSoil[i_].hn[j] = crSoil[i_].h[j];
+            crSoil[i_].dz.replace(j,  dz2);
+            crSoil[i_].theta.replace(j,  ThetaI2->Drc);
+            crSoil[i_].pore.replace(j,  ThetaS2->Drc);
+            crSoil[i_].Ks.replace(j,  Ksat2->Drc/3600000); // calibrated Ksat ! so do not use for lambda etc
+
+            crSoil[i_].thetar.replace(j,  ThetaR2->Drc);
+            crSoil[i_].lambda.replace(j,  lambda2->Drc);
+            crSoil[i_].hb.replace(j,  -psi2ae->Drc);
+            double hh = crSoil[i_].hb[j]/
+                        pow((crSoil[i_].theta[j] - crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j])
+                        , 1.0/crSoil[i_].lambda[j]);
+            crSoil[i_].h.replace(j,hh);
         }
     }}
+
 }

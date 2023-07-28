@@ -304,18 +304,18 @@ typedef struct SOIL_LIST {
     double dtsum;
     bool ponded;
     double drain;
-    double Ks[10];
-    double K[10];
-    double z[10];
-    double dz[10];
-    double h[10];
-    double hb[10];
-    //double hn[10];
-    double lambda[10];
-    double thetae[10];
-    double theta[10];    
-    double thetar[10];    
-    double pore[10];
+    double Infact;
+    double InfPot;
+
+    QVector <double> pore;
+    QVector <double> Ks;
+   // QVector <double> z;
+    QVector <double> dz;
+    QVector <double> h;
+    QVector <double> hb;
+    QVector <double> lambda;
+    QVector <double> theta;
+    QVector <double> thetar;
 
 } SOIL_LIST;
 
@@ -916,8 +916,8 @@ public:
     double SoilWaterMass();
 
     void cell_Soilwater(long i_);
-    double solveFiniteElement(long i_, double *influx, double Hnew[], double C1[]);
-    void calcNewNodalValues(long i_, double Hnew[], double C1[]);
+    void solveFiniteElement(long i_, double *Hnew, double *K, double *C1);
+    void calcNewNodalValues(long i_, double *Hnew, double *K, double *C1);
 
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
