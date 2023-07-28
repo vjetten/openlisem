@@ -310,7 +310,7 @@ typedef struct SOIL_LIST {
     double dz[10];
     double h[10];
     double hb[10];
-    double hn[10];
+    //double hn[10];
     double lambda[10];
     double thetae[10];
     double theta[10];    
@@ -916,8 +916,8 @@ public:
     double SoilWaterMass();
 
     void cell_Soilwater(long i_);
-    void solveFiniteElement(long i_, double *influx, double Hnew[], double C1[], double C2[]);
-    void calcNewNodalValues(long i_, double Hnew[], double Wnew[], double C1[], double C2[]);
+    double solveFiniteElement(long i_, double *influx, double Hnew[], double C1[]);
+    void calcNewNodalValues(long i_, double Hnew[], double C1[]);
 
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);

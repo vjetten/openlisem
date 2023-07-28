@@ -3355,7 +3355,7 @@ void TWorld::InitNewSoilProfile()
             crSoil[i_].hb[j] = -1.0*exp( -0.3012*log(Ksat1->Drc) + 3.5164) * 0.01;;
             crSoil[i_].h[j] = crSoil[i_].hb[j]/
                               pow((crSoil[i_].theta[j]-crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j]), 1.0/crSoil[i_].lambda[j]);
-            crSoil[i_].hn[j] = crSoil[i_].h[j];
+         //   crSoil[i_].hn[j] = crSoil[i_].h[j];
             crSoil[i_].K[j] = crSoil[i_].Ks[j];
         }
 
@@ -3370,7 +3370,7 @@ void TWorld::InitNewSoilProfile()
             crSoil[i_].K[j] = crSoil[i_].Ks[j];
             crSoil[i_].h[j] = crSoil[i_].hb[j]/
                               pow((crSoil[i_].theta[j]-crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j]), 1.0/crSoil[i_].lambda[j]);
-            crSoil[i_].hn[j] = crSoil[i_].h[j];
+          //  crSoil[i_].hn[j] = crSoil[i_].h[j];
         }
     }}
 }
