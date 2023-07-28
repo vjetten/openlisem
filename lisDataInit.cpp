@@ -3319,7 +3319,7 @@ void TWorld::Average2x2(cTMap &M, cTMap &mask)
 
 void TWorld::InitNewSoilProfile()
 {
-    nNodes = 10;
+    nNodes = 9;
 
     FOR_ROW_COL_MV {
         SOIL_LIST sr;
@@ -3329,6 +3329,7 @@ void TWorld::InitNewSoilProfile()
     }
 
     FOR_ROW_COL_MV_L {
+
         crSoil[i_].ponded = false;
         crSoil[i_].dts = 0.1*_dt;
         crSoil[i_].dtsum = 0;
@@ -3337,9 +3338,15 @@ void TWorld::InitNewSoilProfile()
         double dz = SoilDepth1->Drc / 3.0;
         double dz2 = (SoilDepth2->Drc - SoilDepth1->Drc) / (nNodes-3);
 
-        for (int j = 0; j < 4; j++) {
-            crSoil[i_].z[j] = j > 0 ? 0.5*dz+dz*(j-1) : 0.0; //node depth 1=0.5dz, 2=1.5dz, 2.5,dz
-            crSoil[i_].dz[j] = j > 0 ? dz : 0.5*dz;
+        for (int j = 0; j < 4; j++)
+            crSoil[i_].z[j] = j*dz;
+                // 0 = surface , 3 = soildepth1
+        for (int j = 4; j < nNodes; j++)
+            crSoil[i_].z[j] = 3*dz + (j-3)*dz2;
+                // nNodes-1 = soildepth2-dz2
+
+        for (int j = 0; j < 3; j++) {
+            crSoil[i_].dz[j] = crSoil[i_].z[j+1] - crSoil[i_].z[j];
             crSoil[i_].theta[j] = ThetaI1->Drc;
             crSoil[i_].pore[j] = ThetaS1->Drc;
             crSoil[i_].thetar[j] = ThetaR1->Drc;
@@ -3352,8 +3359,7 @@ void TWorld::InitNewSoilProfile()
             crSoil[i_].K[j] = crSoil[i_].Ks[j];
         }
 
-        for (int j = 4; j < nNodes; j++) {
-            crSoil[i_].z[j] = SoilDepth1->Drc +0.5*dz2 + dz2*(j-4);
+        for (int j = 3; j < nNodes; j++) {
             crSoil[i_].dz[j] = dz2;
             crSoil[i_].theta[j] = ThetaI2->Drc;
             crSoil[i_].pore[j] = ThetaS2->Drc;
@@ -3366,7 +3372,5 @@ void TWorld::InitNewSoilProfile()
                               pow((crSoil[i_].theta[j]-crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j]), 1.0/crSoil[i_].lambda[j]);
             crSoil[i_].hn[j] = crSoil[i_].h[j];
         }
-        crSoil[i_].z[nNodes-1] = SoilDepth2->Drc; //????
-        crSoil[i_].dz[nNodes-1] = 0.5*dz2;
     }}
 }
