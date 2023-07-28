@@ -3297,14 +3297,16 @@ void TWorld::Average2x2(cTMap &M, cTMap &mask)
 
 void TWorld::InitNewSoilProfile()
 {
-    nNodes = 9;
+    int nN1 = 3.0;
+    int nN2 = 6.0;
+    nNodes = nN1 + nN2;
 
     FOR_ROW_COL_MV {
         SOIL_LIST sr;
         sr.r = r;
         sr.c = c;
         sr.ponded = false;
-        sr.dts = _dt;
+        sr.dts = _dt/2;
         sr.dtsum = 0;
         sr.drain = 0;
         sr.Infact = 0;
@@ -3333,8 +3335,8 @@ void TWorld::InitNewSoilProfile()
 
     FOR_ROW_COL_MV_L {
 
-        double dz = SoilDepth1->Drc / 3.0;
-        double dz2 = (SoilDepth2->Drc - SoilDepth1->Drc) / (nNodes-3);
+        double dz = SoilDepth1->Drc / nN1;
+        double dz2 = (SoilDepth2->Drc - SoilDepth1->Drc) / nN2;
 
         for (int j = 0; j < 3; j++) {
             crSoil[i_].dz.replace(j,  dz);
