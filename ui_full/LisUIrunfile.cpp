@@ -382,6 +382,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("Channel 2D flow connect")==0)        checkChannel2DflowConnect->setChecked(check);
         if (p1.compare("Channel WF inflow")==0)        checkChannelWFinflow->setChecked(check);
 //        if (p1.compare("GW layer change SD")==0)        checkGWChangeSD->setChecked(check);
+        if (p1.compare("SoilWB nodes 1")==0) spinNodes1->setValue(iii);
+        if (p1.compare("SoilWB nodes 2")==0) spinNodes2->setValue(iii);
+        if (p1.compare("SoilWB dt factor")==0) spinInfdt->setValue(valc);
 
         //CALIBRATION
         if (p1.compare("Smax calibration")==0)         E_CalibrateSmax->setValue(valc);
@@ -826,6 +829,10 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel 2D flow connect")==0)        namelist[j].value.setNum((int)checkChannel2DflowConnect->isChecked());
         if (p1.compare("Channel WF inflow")==0)              namelist[j].value.setNum((int)checkChannelWFinflow->isChecked());
 //        if (p1.compare("GW layer change SD")==0)             namelist[j].value.setNum((int)checkGWChangeSD->isChecked());
+        if (p1.compare("SoilWB nodes 1")==0)                namelist[j].value =spinNodes1->text();
+        if (p1.compare("SoilWB nodes 2")==0)                namelist[j].value =spinNodes2->text();
+        if (p1.compare("SoilWB dt factor")==0)              namelist[j].value =spinInfdt->text();
+
 
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
         if (p1.compare("Min WH flow")==0)                    namelist[j].value = E_minWHflow->text();

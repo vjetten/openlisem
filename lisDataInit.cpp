@@ -359,6 +359,9 @@ void TWorld::InitParameters(void)
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
         SwitchChannelWFinflow = getvalueint("Channel WF inflow") == 1;
         SwitchGWChangeSD = true;//getvalueint("GW layer change SD") == 1;
+        nN1_ = getvalueint("SoilWB nodes 1");
+        nN2_ = getvalueint("SoilWB nodes 2");
+        SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
     } else {
         F_MaxIter = 200;
         F_minWH = 0.0001;
@@ -373,6 +376,9 @@ void TWorld::InitParameters(void)
         SwitchChannel2DflowConnect = false;
         SwitchChannelWFinflow = false;
         SwitchGWChangeSD = true;
+        nN1_ = 3;
+        nN2_ = 6;
+        SoilWBdtfactor = 0.5;
     }
     _CHMaxV = 20.0;
     if (SwitchChannelMaxV)
@@ -3297,16 +3303,17 @@ void TWorld::Average2x2(cTMap &M, cTMap &mask)
 
 void TWorld::InitNewSoilProfile()
 {
-    int nN1 = 3.0;
-    int nN2 = 6.0;
-    nNodes = nN1 + nN2;
-
+        nN1_ = getvalueint("SoilWB nodes 1");
+        nN2_ = getvalueint("SoilWB nodes 2");
+        SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
+    nNodes = nN1_ + nN2_;
+        qDebug() << "nodes" << nNodes;
     FOR_ROW_COL_MV {
         SOIL_LIST sr;
         sr.r = r;
         sr.c = c;
         sr.ponded = false;
-        sr.dts = _dt/2;
+        sr.dts = _dt*SoilWBdtfactor;
         sr.dtsum = 0;
         sr.drain = 0;
         sr.Infact = 0;
@@ -3335,10 +3342,10 @@ void TWorld::InitNewSoilProfile()
 
     FOR_ROW_COL_MV_L {
 
-        double dz = SoilDepth1->Drc / nN1;
-        double dz2 = (SoilDepth2->Drc - SoilDepth1->Drc) / nN2;
+        double dz = SoilDepth1->Drc / nN1_;
+        double dz2 = (SoilDepth2->Drc - SoilDepth1->Drc) / nN2_;
 
-        for (int j = 0; j < 3; j++) {
+        for (int j = 0; j < nN1_; j++) {
             crSoil[i_].dz.replace(j,  dz);
             crSoil[i_].theta.replace(j,  ThetaI1->Drc);
             crSoil[i_].pore.replace(j,  ThetaS1->Drc);
@@ -3352,7 +3359,7 @@ void TWorld::InitNewSoilProfile()
                             , 1.0/crSoil[i_].lambda[j]);
             crSoil[i_].h.replace(j,hh);
         }
-        for (int j = 3; j < nNodes; j++) {
+        for (int j = nN1_; j < nNodes; j++) {
             crSoil[i_].dz.replace(j,  dz2);
             crSoil[i_].theta.replace(j,  ThetaI2->Drc);
             crSoil[i_].pore.replace(j,  ThetaS2->Drc);
@@ -3366,6 +3373,7 @@ void TWorld::InitNewSoilProfile()
                         , 1.0/crSoil[i_].lambda[j]);
             crSoil[i_].h.replace(j,hh);
         }
+        crSoil[i_].h[nNodes-1] = 0.1;
     }}
 
 }

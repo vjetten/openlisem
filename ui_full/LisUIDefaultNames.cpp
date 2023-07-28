@@ -635,6 +635,13 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel WF inflow");
 //    namelist[i].value = QString("1");
 //    namelist[i++].name = QString("GW layer change SD");
+    namelist[i].value = QString("3");
+    namelist[i++].name = QString("SoilWB nodes 1");
+    namelist[i].value = QString("6");
+    namelist[i++].name = QString("SoilWB nodes 2");
+    namelist[i].value = QString("0.5");
+    namelist[i++].name = QString("SoilWB dt factor");
+
 
 
     // output maps have standard names

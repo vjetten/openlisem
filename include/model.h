@@ -344,7 +344,8 @@ public:
     /// copy of overall rows and columns, set in initmask
     int _nrRows;
     int _nrCols;
-    int nNodes;
+    int nNodes, nN1_, nN2_;
+    double SoilWBdtfactor;
 
     long nrValidCells;
     long nrValidCellsLDD5;
