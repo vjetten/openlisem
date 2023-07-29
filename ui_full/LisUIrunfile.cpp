@@ -144,6 +144,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include ET")==0)                    checkIncludeET->setChecked(check);
         if (p1.compare("Use ET maps")==0)                   ETmaps = check;
         if (p1.compare("Daily ET")==0)                      checkDailyET->setChecked(check);
+        if (p1.compare("Daily ET latitude")==0)             E_latitude->setText(p);
         if (p1.compare("ET Bias Correction")==0)            E_biasCorrectionET->setValue(valc);
         if (p1.compare("Rainfall ET threshold")==0)         E_rainfallETA_threshold->setValue(valc);
 
@@ -241,6 +242,7 @@ void lisemqt::ParseInputData()
             case INFIL_SWATRE : E_InfiltrationMethod->setCurrentIndex(1);break;
             case INFIL_GREENAMPT : E_InfiltrationMethod->setCurrentIndex(2);break;
             case INFIL_SMITH : E_InfiltrationMethod->setCurrentIndex(3); break;
+            case INFIL_SOAP : E_InfiltrationMethod->setCurrentIndex(4); break;
             }
         }
 
@@ -772,6 +774,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include ET")==0)               namelist[j].value.setNum((int)checkIncludeET->isChecked());
         if (p1.compare("Use ET maps")==0)              namelist[j].value.setNum((int)radioETsatfile->isChecked());
         if (p1.compare("Daily ET")==0)                 namelist[j].value.setNum((int)checkDailyET->isChecked());
+        if (p1.compare("Daily ET latitude")==0)        namelist[j].value = E_latitude->text();
 
         //if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
 
@@ -1063,6 +1066,7 @@ void lisemqt::updateModelData()
             case 1 : namelist[j].value.setNum(INFIL_SWATRE);break;
             case 2 : namelist[j].value.setNum(INFIL_GREENAMPT);break;
             case 3 : namelist[j].value.setNum(INFIL_SMITH); break;
+            case 4 : namelist[j].value.setNum(INFIL_SOAP); break;
             }
         }
 

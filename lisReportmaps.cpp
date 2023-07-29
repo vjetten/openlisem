@@ -450,7 +450,7 @@ void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList
     op.ComboMapNames.append(name);
     op.ComboUnits.append(unit);
     op.ComboScaling.append(scale);  // multiplier for display
-    op.userMinV.append(0);  //initialize to 0, used to save users choice
+    op.userMinV.append(1e-6);  //initialize to 0, used to save users choice
     op.userMaxV.append(0);
     op.comboStep.append(step);
 

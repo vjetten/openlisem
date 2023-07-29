@@ -3303,9 +3303,13 @@ void TWorld::Average2x2(cTMap &M, cTMap &mask)
 
 void TWorld::InitNewSoilProfile()
 {
-        nN1_ = getvalueint("SoilWB nodes 1");
-        nN2_ = getvalueint("SoilWB nodes 2");
-        SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
+    if(InfilMethod != INFIL_SOAP)
+        return;
+
+    nN1_ = getvalueint("SoilWB nodes 1");
+    nN2_ = getvalueint("SoilWB nodes 2");
+    SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
+
     nNodes = nN1_ + nN2_;
         qDebug() << "nodes" << nNodes;
     FOR_ROW_COL_MV {

@@ -414,6 +414,7 @@ void TWorld::HydrologyProcesses()
                     if (!SwitchImpermeable)
                         Perc->Drc = cell_Percolation(r, c, 1.0);
                     // if baseflow is active percollation is done there, so do not do it here
+                    cell_Evapotranspiration(r,c);
                 }
             }
         }
@@ -432,15 +433,12 @@ void TWorld::HydrologyProcesses()
             cell_SlopeStability(r, c);
     }}
 
-    if (SwitchIncludeET) {
-        doETa();
-    }
     // ETa is subtracted from canopy, soil water surfaces
     // divided over 12 hours in a day with sine curve
 
     //MoistureContent();
-    double soiltot2 = SoilWaterMass();
-    SoilMoistDiff = soiltot2 - soiltot1;
+  //  double soiltot2 = SoilWaterMass();
+  //  SoilMoistDiff = soiltot2 - soiltot1;
 
 }
 //---------------------------------------------------------------------------

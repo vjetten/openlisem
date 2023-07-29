@@ -194,7 +194,6 @@ void TWorld::GetETMap(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             ETp->Drc = ETSeries[currentrow].intensity[(int) ETZone->Drc-1]*tt;
-
         }}
     } //sameET
    // report(*ETp,"etp");
@@ -496,3 +495,115 @@ void TWorld::avgTheta()
     }}
 }
 
+void TWorld::cell_Evapotranspiration(int r, int c)
+{
+    double ETafactor = 1;
+    double Ld = 12;
+
+    // SwitchDailyET = true;
+    double day = trunc(time/86400.0);
+    double hour = std::min(24.0,std::max(0.0, time/3600.0-day*24.0));
+    if (SwitchDailyET) {
+        double declination = -23.45 * M_PI/180.0 * cos(2*M_PI*(day+10)/365.0);
+        Ld = 24.0/M_PI*(acos(-tan(declination)*tan(latitude/180.0*M_PI)));  // daylength in hour
+        if (std::isnan(Ld)) Ld = 12.0;
+        ETafactor = std::max(0.,sin((-0.5-hour/Ld)*M_PI)) / Ld*_dt/3600.0*M_PI*0.5;
+        //<= this ensures that the sum of all steps in a day amounts to the daily ET, regardless of _dt
+    }
+
+    if (ETp->Drc*ETafactor > 0 && Rain->Drc* 3600000.0/_dt < rainfallETa_threshold) {
+        double Cover_ = Cover->Drc;
+        double ETp_ = ETp->Drc * ETafactor;
+        double tot = 0;
+        double etanet = ETp_;
+
+        ETpCum->Drc += ETp_;
+
+        //  interception decrease, drying out canopy, litter, roofs
+        double CStor_  = CStor->Drc;
+        if (CStor_ > 0) {
+            double ETa_int = ETp_;
+
+            ETa_int = std::min(ETa_int, CStor_);
+            CStor_ = CStor_- ETa_int;
+
+            RainCum->Drc = std::max(0.0, RainCum->Drc-ETa_int);
+            if (CStor_ < 1e-6)
+                RainCum->Drc = 0;
+
+            etanet = std::max(0.0, etanet - Cover_*ETa_int);
+            Interc->Drc = Cover_ * CStor_ * CHAdjDX->Drc;
+            IntercETa->Drc += Cover_ * ETa_int * CHAdjDX->Drc;
+            CStor->Drc = CStor_;
+        }
+
+        if (SwitchLitter) {
+            double CvL = Litter->Drc;
+            double LCS = LCStor->Drc;
+            if (CvL > 0 && LCS > 0) {
+                double ETa_int = std::min(etanet, LCS);
+                etanet = std::max(0.0, etanet - CvL*ETa_int);
+                LCStor->Drc = LCS - ETa_int;
+                IntercETa->Drc += CvL * ETa_int * CHAdjDX->Drc;
+                LInterc->Drc =  CvL * LCS * CHAdjDX->Drc;
+            }
+        }
+
+        if (SwitchHouses)
+        {
+            double CvH = HouseCover->Drc;
+            double HS = HStor->Drc;
+            if (CvH > 0 && HS > 0) {
+                double ETa_int = std::min(etanet, HS);
+                etanet = std::max(0.0, etanet - CvH * ETa_int);
+                HStor->Drc = HS - ETa_int;
+                IntercETa->Drc += CvH * ETa_int * CHAdjDX->Drc;
+                //double roofsurface = (_dx * DX->Drc * CvH); // m2
+                IntercHouse->Drc =  (_dx * DX->Drc * CvH) * HS;
+            }
+        }
+
+        //transpiration under Cover from rootzone
+        double pore = Poreeff->Drc;
+        double theta = Thetaeff->Drc;
+        double thetar = ThetaR1->Drc;
+
+        double Lw_ = Lw->Drc;
+        double theta_e = (theta-thetar)/(pore-thetar);
+        double f = 1.0/(1.0+qPow(theta_e/0.4,8.0));
+        double ETa_soil = (1.0-f)*etanet*Cover_ + theta_e*etanet*(1-Cover_);   //Transpiration + Evaporation
+
+        // there is an infiltration front
+        if(Lw_ > 0 && Lw_ < SoilDepth1->Drc) {
+            double moist = Lw_ * (pore-thetar);
+            etanet = std::min(moist, ETa_soil);
+            moist = moist - etanet;
+            Lw->Drc = moist/(pore-thetar);
+            tot = tot + etanet;
+
+        } else {
+            double moist = SoilDepth1->Drc * (theta-thetar);
+            etanet = std::min(moist, ETa_soil);
+            moist = moist - etanet;
+            Thetaeff->Drc = thetar + moist/SoilDepth1->Drc;
+
+            tot = tot + etanet;
+        }
+
+
+        // ponded, evap only outside cover
+        double ETa_pond = etanet*(1-Cover_);
+        if (hmxWH->Drc > ETa_pond) {
+            ETa_pond = std::min(ETa_pond, WH->Drc);
+            WH->Drc -= ETa_pond;
+            WHrunoff->Drc = std::max(0.0, WH->Drc - WHstore->Drc);
+            WHroad->Drc = WHrunoff->Drc;
+            WHrunoff->Drc = WHrunoff->Drc;
+            WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
+            tot = tot + ETa_pond;
+        }
+
+        ETa->Drc = tot;
+        ETaCum->Drc += tot;
+    }
+}

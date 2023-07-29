@@ -325,6 +325,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include ET");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Daily ET");
+    namelist[i].value = QString("58.85");
+    namelist[i++].name = QString("Daily ET latitude");
     namelist[i++].name = QString("ET file");
     namelist[i++].name = QString("ET Directory");
     namelist[i].value = QString("0");

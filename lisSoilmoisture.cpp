@@ -49,6 +49,32 @@
 // F, A, D : Galerkin scheme tri-diagonal matrix coefficients
 // S : sink term = ET
 
+double TWorld::calculateDayLength(double latitude, int dayNumber)
+{
+    const double degreesToRadians = PI / 180.0;
+
+    // Convert latitude from degrees to radians
+    latitude *= degreesToRadians;
+
+    // Earth's axial tilt in degrees
+    const double axialTilt = 23.44;
+    const double axialTiltRadians = axialTilt * degreesToRadians;
+
+    // Day angle in radians
+    double dayAngle = 2 * PI * (dayNumber - 1) / 365;
+
+    // Calculate the declination angle in radians
+    double declination = asin(sin(axialTiltRadians) * sin(dayAngle));
+
+    // Calculate the hour angle at sunrise and sunset in radians
+    double hourAngle = acos(-tan(latitude) * tan(declination));
+
+    // Calculate day length in hours
+    double dayLength = (2.0 * hourAngle) * (180.0 / PI) / 15.0;
+
+    return dayLength;
+}
+
 
 void TWorld::calcSinkterm(long i_, double *S)
 {
@@ -63,30 +89,27 @@ void TWorld::calcSinkterm(long i_, double *S)
     // SwitchDailyET = true;
     double day = trunc(time/86400.0);
     double hour = std::min(24.0,std::max(0.0, time/3600.0-day*24.0));
+
     if (SwitchDailyET) {
-        double declination = -23.45 * M_PI/180.0 * cos(2*M_PI*(day+10)/365.0);
-        Ld = 24.0/M_PI*(acos(-tan(declination)*tan(latitude/180.0*M_PI)));  // daylength in hour
-        if (std::isnan(Ld)) Ld = 12.0;
+        //double declination = -23.45 * M_PI/180.0 * cos(2*M_PI*(day+10)/365.0);
+        //Ld = 24.0/M_PI*(acos(-tan(declination)*tan(latitude/180.0*M_PI)));  // daylength in hour
+        //if (std::isnan(Ld)) Ld = 12.0;
+        Ld = calculateDayLength(day, latitude);
         ETafactor = std::max(0.,sin((-0.5-hour/Ld)*M_PI)) / Ld*_dt/3600.0*M_PI*0.5;
         //<= this ensures that the sum of all steps in a day amounts to the daily ET, regardless of _dt
     }
 
-//    if (Rain->Drc* 3600000.0/_dt > rainfallETa_threshold) {
-//        ETa->Drc = 0;
-//        ETp->Drc = 0;
-//    }
+    if (i_ == 3738) qDebug() << day << hour << ETafactor << ETp->Drc;
 
-    if (i_ == 3738) qDebug() << day << hour << ETp->Drc;
     if (ETp->Drc*ETafactor > 0 && Rain->Drc* 3600000.0/_dt < rainfallETa_threshold) {
-        double AreaSoil = SoilWidthDX->Drc * DX->Drc;
         double Cover_ = Cover->Drc;
         double ETp_ = ETp->Drc * ETafactor;
         double tot = 0;
-        double etanet = 0;
+        double etanet = ETp_;
 
         ETpCum->Drc += ETp_;
-/*
-        //  interception decrease, drying out canopy
+
+        //  interception decrease, drying out canopy, litter, roofs
         double CStor_  = CStor->Drc;
         if (CStor_ > 0) {
             double ETa_int = ETp_;
@@ -98,8 +121,8 @@ void TWorld::calcSinkterm(long i_, double *S)
             if (CStor_ < 1e-6)
                 RainCum->Drc = 0;
 
-            etanet = std::max(0.0, ETp_ - ETa_int);
-            Interc->Drc = Cover_ * CStor_ * CHAdjDX->Drc; //????
+            etanet = std::max(0.0, etanet - Cover_*ETa_int);
+            Interc->Drc = Cover_ * CStor_ * CHAdjDX->Drc;
             IntercETa->Drc += Cover_ * ETa_int * CHAdjDX->Drc;
             CStor->Drc = CStor_;
         }
@@ -107,73 +130,69 @@ void TWorld::calcSinkterm(long i_, double *S)
         if (SwitchLitter) {
             double CvL = Litter->Drc;
             double LCS = LCStor->Drc;
-
-            double ETa_int = std::min(etanet, LCS);
-            etanet = std::max(0.0, ETp_ - ETa_int);
-            LCStor->Drc = LCS- ETa_int;
-            IntercETa->Drc += CvL * ETa_int * AreaSoil;
-            LInterc->Drc =  CvL * LCS * AreaSoil;
+            if (CvL > 0 && LCS > 0) {
+                double ETa_int = std::min(etanet, LCS);
+                etanet = std::max(0.0, etanet - CvL*ETa_int);
+                LCStor->Drc = LCS - ETa_int;
+                IntercETa->Drc += CvL * ETa_int * CHAdjDX->Drc;
+                LInterc->Drc =  CvL * LCS * CHAdjDX->Drc;
+            }
         }
 
         if (SwitchHouses)
         {
             double CvH = HouseCover->Drc;
             double HS = HStor->Drc;
-
-            double ETa_int = std::min(etanet, HS);
-            etanet = std::max(0.0, ETp_ - ETa_int);
-            HStor->Drc = HS - ETa_int;
-            IntercETa->Drc += CvH * ETa_int * AreaSoil;
-            double roofsurface = (_dx * DX->Drc * CvH); // m2
-            IntercHouse->Drc =  roofsurface * HS;
-        }
-*/
-        // if no water on the surface
-        if (!s.ponded) {
-            //transpiration under Cover
-            for (int j = 0; j < nNodes; j++) {
-                if (s.rootz[j] = 0)
-                    break;
-
-                // van genuchten H50 = -3.5 m
-                double f = 1.0/(1.0+pow(s.h[j]/-3.5,1.5));
-                if (s.h[j] > s.hb[j]) f = 0; // saturation
-                if (s.h[j] < -16.0) f = 0; // wilting point -16000 cm
-                S[j] =  ETp_ * Cover_ * f * s.rootz[j]; // etanet * Cover_ *
-            }
-            // surface evaporation (1-Cover)
-            S[0] += (s.theta[0]-s.thetar[0])/(s.pore[0]-s.thetar[0])*ETp_*(1-Cover_);
-
-                if (i_==3738) {
-                    QString ss;
-                    for(int j = 0; j < nNodes; j++) {
-                        ss = ss + QString(" %1").arg(S[j]);
-                    }
-                    qDebug() << Cover_ << ETp_ << ss;
-                }
-
-            for (int j = 0; j < nNodes; j++)
-                tot += S[0];
-        } else {
-            // ponded
-            for (int j = 0; j < nNodes; j++)
-                S[j] = 0;
-
-            double ETa_pond = ETp_;
-            if (hmxWH->Drc > ETp_) {
-                double WHRunoff_ = WHrunoff->Drc;
-                ETa_pond = std::min(ETa_pond, WHRunoff_);
-                WHRunoff_ = WHRunoff_ - ETa_pond;
-                WHroad->Drc = WHRunoff_;
-                WH->Drc = WHRunoff_ + WHstore->Drc;
-                WHrunoff->Drc = WHRunoff_;
-                WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
-
-                tot = tot + ETa_pond;
+            if (CvH > 0 && HS > 0) {
+                double ETa_int = std::min(etanet, HS);
+                etanet = std::max(0.0, etanet - CvH * ETa_int);
+                HStor->Drc = HS - ETa_int;
+                IntercETa->Drc += CvH * ETa_int * CHAdjDX->Drc;
+                //double roofsurface = (_dx * DX->Drc * CvH); // m2
+                IntercHouse->Drc =  (_dx * DX->Drc * CvH) * HS;
             }
         }
+        //transpiration under Cover from rootzone
+        for (int j = 0; j < nNodes; j++) {
+            // van genuchten H50 = -3.5 m
+            double f = 1.0/(1.0+pow(s.h[j]/-3.5,1.5));
+            if (s.h[j] > s.hb[j]) f = 0; // saturation
+            if (s.h[j] < -16.0) f = 0; // wilting point -16000 cm
+            S[j] =  etanet * Cover_ * f * s.rootz[j];
+        }
+
+        // add surface evaporation (1-Cover) to top node
+        if (hmxWH->Drc < 1e-6)
+           S[0] += (s.theta[0]-s.thetar[0])/(s.pore[0]-s.thetar[0])*etanet*(1-Cover_);
+
+        for (int j = 0; j < nNodes; j++) {
+            tot += S[j];
+        }
+
+
+        // ponded, evap only outside cover
+        double ETa_pond = etanet*(1-Cover_);
+        if (hmxWH->Drc > ETa_pond) {
+            ETa_pond = std::min(ETa_pond, WH->Drc);
+            WH->Drc -= ETa_pond;
+            WHrunoff->Drc = std::max(0.0, WH->Drc - WHstore->Drc);
+            WHroad->Drc = WHrunoff->Drc;
+            WHrunoff->Drc = WHrunoff->Drc;
+            WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
+            tot = tot + ETa_pond;
+        }
+
         ETa->Drc = tot;
         ETaCum->Drc += tot;
+
+        if (i_==3738) {
+            QString ss;
+            for(int j = 0; j < nNodes; j++) {
+                ss = ss + QString(" %1").arg(S[j]);
+            }
+            qDebug() << tot << etanet << ss;
+        }
+
     }
 }
 
@@ -272,11 +291,11 @@ void TWorld::cell_Soilwater(long i_)
             // K1 and K2 are avg between node and upper and lower node
             //#pragma omp parallel for num_threads(userCores)
             for(int j = 1; j < nNodes; j++)
-                K1[j] = Aavg(K[j-1],K[j]);
+                K1[j] = 0.5*(K[j-1]+K[j]);
 
             //#pragma omp parallel for num_threads(userCores)
             for(int j = 0; j < nNodes-1; j++)
-                K2[j] = Aavg(K[j],K[j+1]);
+                K2[j] = 0.5(K[j]+K[j+1]);
             K1[0] = K2[0];
             K2[nN] = K1[nN];
 
@@ -286,7 +305,15 @@ void TWorld::cell_Soilwater(long i_)
             D[0] = -A[0]+F[0];
             //#pragma omp parallel for num_threads(userCores)
             for(int j = 1; j < nNodes-1; j++) {
-                F[j] = (C1[j-1] + 4.0*C1[j] + C1[j+1])/6.0; // dtheta/dh * dz/dt
+//                F[j] = (C1[j-1] + 4.0*C1[j] + C1[j+1])/6.0; // dtheta/dh * dz/dt
+//                A[j] = -K2[j];
+//                D[j] = K1[j] + K2[j] + F[j];
+                // Loop unrolling for j-1, j, and j+1
+                double C1_j_1 = C1[j-1];
+                double C1_j = C1[j];
+                double C1_j__1 = C1[j+1];
+
+                F[j] = (C1_j_1 + 4.0 * C1_j + C1_j__1) / 6.0; // dtheta/dh * dz/dt
                 A[j] = -K2[j];
                 D[j] = K1[j] + K2[j] + F[j];
             }
@@ -345,18 +372,14 @@ void TWorld::cell_Soilwater(long i_)
             }
             Hnew[nN] = F[nN]/D[nN];
 
-            //if (i_ == 3738) qDebug() << nN << Hnew[nN] << F[nN] << A[nN] << D[nN];
             for (int j = nNodes-2; j >= 0; j--) {
                 Hnew[j] = (F[j] - A[j]*Hnew[j+1])/D[j];
-               // if (i_ == 3738) qDebug() << j << Hnew[j] << F[j] << A[j] << D[j];
             }
 
-            //if (i_ == 3738) qDebug() << "c" << Hnew[0] << Hnew[1] << F[0] << A[0] << D[0];
+            for(int j = 0; j < nNodes; j++)
+                Hnew[j] = std::min(0.0, Hnew[j]);
+            // CHECK THIS? GW can be positive
 
-          //  //#pragma omp parallel for num_threads(userCores)
-//            for(int j = 1; j < nNodes; j++)
-//                Hnew[j] = std::min(0.0, Hnew[j]);
-            // node 0 can be > 0 ?
 
             // calc boundary fluxes
 
@@ -447,13 +470,13 @@ void TWorld::cell_Soilwater(long i_)
     }
     Lw->Drc = gw;
 //    if (i_ == 3738) qDebug() << cnt << s.dts << s.drain << gw << Hnew[nN];
-//    if (i_==3738) {
-//        QString S;
-//        for(int j = 0; j < nNodes; j++) {
-//            S = S + QString(" %1").arg(s.h[j]);
-//        }
-//        //qDebug() << s.Infact << S;
-//    }
+    if (i_==3738) {
+        QString S;
+        for(int j = 0; j < nNodes; j++) {
+            S = S + QString(" %1").arg(s.h[j]);
+        }
+        //qDebug() << s.Infact << S;
+    }
 
     delete(Hnew);
     delete(Hold);

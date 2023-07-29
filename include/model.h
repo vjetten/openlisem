@@ -919,6 +919,7 @@ public:
 
     void cell_Soilwater(long i_);
     void calcSinkterm(long i_, double *S);
+    double calculateDayLength(double latitude, int dayNumber);
 //    void solveFiniteElement(long i_, double *Hnew, double *K, double *C1);
 //    void calcNewNodalValues(long i_, double *Hnew, double *K, double *C1);
 
@@ -943,6 +944,7 @@ public:
     void SurfaceStorage();
     void doETa();
     void avgTheta();
+    void cell_Evapotranspiration(int r, int c);
     void OverlandFlow();
     void OverlandFlow2D();
     void correctWH(cTMap *_WH);
