@@ -291,7 +291,7 @@ void TWorld::doETa()
             double tot = 0;
             double etanet = 0;
             double Cover_ = Cover->Drc;
-            double ETp_ = ETp->Drc * ETafactor;
+            double ETp_ = ETp->Drc * ETafactor * 0.001;
 
             ETpCum->Drc += ETp_;
 

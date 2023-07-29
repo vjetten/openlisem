@@ -3327,6 +3327,7 @@ void TWorld::InitNewSoilProfile()
         sr.thetar.clear();
         sr.lambda.clear();
         sr.dz.clear();
+        sr.rootz.clear();
 
           sr.pore.resize(nNodes);
             sr.Ks.resize(nNodes);
@@ -3336,6 +3337,7 @@ void TWorld::InitNewSoilProfile()
         sr.thetar.resize(nNodes);
         sr.lambda.resize(nNodes);
             sr.dz.resize(nNodes);
+         sr.rootz.resize(nNodes);
 
         crSoil << sr;
     }
@@ -3373,7 +3375,22 @@ void TWorld::InitNewSoilProfile()
                         , 1.0/crSoil[i_].lambda[j]);
             crSoil[i_].h.replace(j,hh);
         }
-        crSoil[i_].h[nNodes-1] = 0.1;
+
+        double sum = 0;
+        double rootmax = 0.8;
+        // linear root distribution following dz, sum = 1
+        for (int j = 0; j < nNodes; j++) {
+            crSoil[i_].rootz[j] = (j+1)*crSoil[i_].dz[j];
+            if (crSoil[i_].rootz[j] > rootmax)
+                crSoil[i_].rootz[j] = 0;
+            else
+                crSoil[i_].rootz[j] = (rootmax - crSoil[i_].rootz[j])/rootmax;
+
+            sum = sum + crSoil[i_].rootz[j];
+        }
+        for (int j = 0; j < nNodes; j++)
+            crSoil[i_].rootz[j] = crSoil[i_].rootz[j]/sum;
+
     }}
 
 }

@@ -316,6 +316,7 @@ typedef struct SOIL_LIST {
     QVector <double> lambda;
     QVector <double> theta;
     QVector <double> thetar;
+    QVector <double> rootz;
 
 } SOIL_LIST;
 
@@ -917,8 +918,9 @@ public:
     double SoilWaterMass();
 
     void cell_Soilwater(long i_);
-    void solveFiniteElement(long i_, double *Hnew, double *K, double *C1);
-    void calcNewNodalValues(long i_, double *Hnew, double *K, double *C1);
+    void calcSinkterm(long i_, double *S);
+//    void solveFiniteElement(long i_, double *Hnew, double *K, double *C1);
+//    void calcNewNodalValues(long i_, double *Hnew, double *K, double *C1);
 
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
