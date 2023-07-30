@@ -28,6 +28,9 @@
 #define Aavg(a,b)  (0.5*(a+b))
 #define Havg(a,b)  (2.0/(1.0/a+1.0/b))
 #define Savg(a,b)  sqrt(a * b)
+#define MMavg(a,b) std::min(a,b)
+
+
 #define tol2 0.2
 #define tol1 0.01
 
@@ -57,8 +60,8 @@ double TWorld::calculateDayLength(double latitude, int dayNumber)
     latitude *= degreesToRadians;
 
     // Earth's axial tilt in degrees
-    const double axialTilt = 23.44;
-    const double axialTiltRadians = axialTilt * degreesToRadians;
+
+    const double axialTiltRadians = 23.44 * degreesToRadians;
 
     // Day angle in radians
     double dayAngle = 2 * PI * (dayNumber - 1) / 365;
@@ -91,15 +94,13 @@ void TWorld::calcSinkterm(long i_, double *S)
     double hour = std::min(24.0,std::max(0.0, time/3600.0-day*24.0));
 
     if (SwitchDailyET) {
-        //double declination = -23.45 * M_PI/180.0 * cos(2*M_PI*(day+10)/365.0);
-        //Ld = 24.0/M_PI*(acos(-tan(declination)*tan(latitude/180.0*M_PI)));  // daylength in hour
-        //if (std::isnan(Ld)) Ld = 12.0;
-        Ld = calculateDayLength(day, latitude);
-        ETafactor = std::max(0.,sin((-0.5-hour/Ld)*M_PI)) / Ld*_dt/3600.0*M_PI*0.5;
+        //Ld = calculateDayLength(day, latitude);
+        Ld = (2.0*acos(-tan(latitude*0.01745329) * tan(asin(0.397789 * sin(0.017214*(day-1)))))) * 3.8197186;
+        ETafactor = std::max(0.0,sin((-0.5-hour/Ld)*PI)) / Ld*_dt/3600.0*PI*0.5;
         //<= this ensures that the sum of all steps in a day amounts to the daily ET, regardless of _dt
     }
 
-    if (i_ == 3738) qDebug() << day << hour << ETafactor << ETp->Drc;
+//    if (i_ == 3738) qDebug() << day << hour << Ld;
 
     if (ETp->Drc*ETafactor > 0 && Rain->Drc* 3600000.0/_dt < rainfallETa_threshold) {
         double Cover_ = Cover->Drc;
@@ -185,12 +186,12 @@ void TWorld::calcSinkterm(long i_, double *S)
         ETa->Drc = tot;
         ETaCum->Drc += tot;
 
-        if (i_==3738) {
+        if (i_== 3738) {
             QString ss;
             for(int j = 0; j < nNodes; j++) {
                 ss = ss + QString(" %1").arg(S[j]);
             }
-            qDebug() << tot << etanet << ss;
+         //   qDebug() << tot << etanet << ss;
         }
 
     }
@@ -239,14 +240,24 @@ void TWorld::cell_Soilwater(long i_)
         Hnew[j] = s.h[j];
         S[j] = 0;
     }
+    if (SwitchIncludeET)
+        calcSinkterm(i_, S); // ETa
 
-    calcSinkterm(i_, S); // ETa
+    s.Ks[0] = Ksateff->Drc/_dt;
+    s.pore[0] = Poreeff->Drc;
+    // include crusting compaction etc in top layer;
+
+
+    //    double total1  = 0;
+//    for(int j = 0; j < nNodes; j++) {
+//        total1 += s.theta[j]*s.dz[j];
+//    }
 
     // outer loop timestep lisem
     do {
         int NIT = 0;
 
-        // iteration per gridcell
+        // iteration
         do {
             s.ponded = Hnew[0] >= 0;
 
@@ -254,29 +265,13 @@ void TWorld::cell_Soilwater(long i_)
             for(int j = 0; j < nNodes; j++)
                 Hold[j] = Hnew[j];
 
-            // Brooks Corey for H,K,theta and C
-            //calcNewNodalValues(i_, Hnew, K, C1);
-            // Galerkin 3-diagonal scheme and back substitution
-            //solveFiniteElement(i_, Hnew, K, C1);
-
-            // values of K, theta and C for H
-            //#pragma omp parallel for num_threads(userCores)
+            //======= Brooks Corey for H,K,theta and C
             for(int j = 0; j < nNodes; j++) {
                 double Hx = std::min(s.hb[j], 0.5*(Hnew[j] + s.h[j]));
 
-                K[j] = s.Ks[j]*pow(s.hb[j]/Hx, 2.0+3.0*s.lambda[j]);
+                K[j] = s.Ks[j]*pow(std::min(1.0,s.hb[j]/Hx), 2.0+3.0*s.lambda[j]);
 
-//                if (Hx < s.hb[j])
-//                    K[j] = s.Ks[j]*pow(s.hb[j]/Hx, 2.0+3.0*s.lambda[j]);
-//                else
-//                    K[j] = s.Ks[j];
-
-                double Wnew;
-                Wnew = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/std::min(Hnew[j],s.hb[j]), s.lambda[j]);
-//                if (Hnew[j] < s.hb[j])
-//                    Wnew = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/Hnew[j], s.lambda[j]);
-//                else
-//                    Wnew = s.pore[j];
+                double Wnew = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(std::min(1.0,s.hb[j]/Hnew[j]), s.lambda[j]);
 
                 if (fabs(Hnew[j]-s.h[j]) <= 3*tol2) {
                     if (Hx < s.hb[j])
@@ -286,16 +281,18 @@ void TWorld::cell_Soilwater(long i_)
                 } else
                     C1[j] = (Wnew-s.theta[j])/(Hnew[j]-s.h[j]);
                 C1[j] *= s.dz[j]/s.dts;
+              //  if (i_ == 3738) qDebug() << s.Ks[j]*3600000 << K[j]*3600000 << C1[j] << Hx << Wnew;
             }
+           // if (i_ == 3738) qDebug() << NIT;
+
+
+            //======== Galerkin 3-diagonal scheme and back substitution
 
             // K1 and K2 are avg between node and upper and lower node
-            //#pragma omp parallel for num_threads(userCores)
             for(int j = 1; j < nNodes; j++)
-                K1[j] = 0.5*(K[j-1]+K[j]);
-
-            //#pragma omp parallel for num_threads(userCores)
+                K1[j] = MMavg(K[j-1],K[j]);
             for(int j = 0; j < nNodes-1; j++)
-                K2[j] = 0.5(K[j]+K[j+1]);
+                K2[j] = MMavg(K[j],K[j+1]);
             K1[0] = K2[0];
             K2[nN] = K1[nN];
 
@@ -303,17 +300,8 @@ void TWorld::cell_Soilwater(long i_)
             F[0] = (2.0*C1[0] + C1[1])/6.0;
             A[0] = -K1[0];
             D[0] = -A[0]+F[0];
-            //#pragma omp parallel for num_threads(userCores)
             for(int j = 1; j < nNodes-1; j++) {
-//                F[j] = (C1[j-1] + 4.0*C1[j] + C1[j+1])/6.0; // dtheta/dh * dz/dt
-//                A[j] = -K2[j];
-//                D[j] = K1[j] + K2[j] + F[j];
-                // Loop unrolling for j-1, j, and j+1
-                double C1_j_1 = C1[j-1];
-                double C1_j = C1[j];
-                double C1_j__1 = C1[j+1];
-
-                F[j] = (C1_j_1 + 4.0 * C1_j + C1_j__1) / 6.0; // dtheta/dh * dz/dt
+                F[j] = (C1[j-1] + 4.0*C1[j] + C1[j+1])/6.0; // dtheta/dh * dz/dt
                 A[j] = -K2[j];
                 D[j] = K1[j] + K2[j] + F[j];
             }
@@ -364,14 +352,12 @@ void TWorld::cell_Soilwater(long i_)
             }
 
             // calc Hnew with Gaussian elimination and back substitution
-            //#pragma omp parallel for num_threads(userCores)
             for(int j = 1; j < nNodes; j++) {
                 A2 = A[j-1]/D[j-1];
                 D[j] = D[j] - A2 * A[j-1];
                 F[j] = F[j] - A2 * F[j-1];
             }
             Hnew[nN] = F[nN]/D[nN];
-
             for (int j = nNodes-2; j >= 0; j--) {
                 Hnew[j] = (F[j] - A[j]*Hnew[j+1])/D[j];
             }
@@ -380,18 +366,16 @@ void TWorld::cell_Soilwater(long i_)
                 Hnew[j] = std::min(0.0, Hnew[j]);
             // CHECK THIS? GW can be positive
 
-
-            // calc boundary fluxes
+            //======== calc boundary fluxes
 
             if (s.ponded && Hnew[1] < 0) {
                 s.Infact = s.Infact + A1 * Hnew[1];
             }
-
             if (freeDrainage)
                 s.drain = 0.5*(K[nN] + FNN2 - std::min(Hnew[nN],0.0)*FNN1);
-
             s.ponded = Hnew[0] >= 0;
 
+            // stop if Hnew and Hold are close
             stopit = true;
             double tol = 0;
             for(int j = 0; j < nNodes; j++) {
@@ -410,11 +394,11 @@ void TWorld::cell_Soilwater(long i_)
                 // restore and do again
                 s.dts /= 2.0;
                 s.dtsum -= s.dts;
-                //#pragma omp parallel for num_threads(userCores)
                 for(int j = 0; j < nNodes; j++)
                     Hnew[j] = 0.5*(s.h[j]+Hnew[j]);
                 stopit = true;
             }
+
 
         } while(!stopit);
         // end SoilMoisture in PAS code
@@ -428,13 +412,16 @@ void TWorld::cell_Soilwater(long i_)
                 s.theta[j] = s.pore[j];
         }
 
+        // change timestep for next iteration
         double factor = 0.5 + 1/sqrt((double)NIT);
         s.dts = s.dts * factor;
         s.dts = std::max(s.dts,dtmin);
         s.dts = std::min(s.dts,_dt-s.dtsum);
-
         s.dtsum += s.dts;
+
         cnt += 1.0;
+
+        if (i_ == 3738) qDebug() << cnt << NIT << s.dts << s.dtsum << _dt;
     } while(s.dtsum < _dt);
 
     s.dts = _dt/(cnt);
@@ -470,13 +457,19 @@ void TWorld::cell_Soilwater(long i_)
     }
     Lw->Drc = gw;
 //    if (i_ == 3738) qDebug() << cnt << s.dts << s.drain << gw << Hnew[nN];
-    if (i_==3738) {
-        QString S;
-        for(int j = 0; j < nNodes; j++) {
-            S = S + QString(" %1").arg(s.h[j]);
-        }
-        //qDebug() << s.Infact << S;
-    }
+//    if (i_==3738) {
+//        QString S;
+//        for(int j = 0; j < nNodes; j++) {
+//            S = S + QString(" %1").arg(s.h[j]);
+//        }
+//        //qDebug() << s.Infact << S;
+//    }
+
+//    double total2  = 0;
+//    for(int j = 0; j < nNodes; j++) {
+//        total2 += s.theta[j]*s.dz[j];
+//    }
+//    if (i_ == 3900) qDebug() << total2 << total1 << total2-total1 << s.Infact + s.drain;
 
     delete(Hnew);
     delete(Hold);

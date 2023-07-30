@@ -1,5 +1,3 @@
-
-
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
 **  Copyright (C) 2010,2011, 2020  Victor Jetten
@@ -24,15 +22,15 @@
 **
 *************************************************************************/
 /*!
-  \file lisInfiltration.cpp
-  \brief Simplified infiltraton processes: Green and Ampt, Smith and Parlanage, both 1 and 2 layer. SWATRE has separate files.
+//   \file lisInfiltration.cpp
+//   \brief Simplified infiltraton processes: Green and Ampt, Smith and Parlanage, both 1 and 2 layer. SWATRE has separate files.
 
-functions: \n
-- void TWorld::InfilEffectiveKsat(void)
-- void TWorld::InfilSwatre(cTMap *_WH)
-- void TWorld::InfilMethods(cTMap * _Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull)
-- double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, double *L1p, double *L2p, double *FFullp)
-- void TWorld::Infiltration(void)
+// functions: \n
+// - void TWorld::InfilEffectiveKsat(void)
+// - void TWorld::InfilSwatre(cTMap *_WH)
+// - void TWorld::InfilMethods(cTMap * _Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull)
+// - double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, double *L1p, double *L2p, double *FFullp)
+// - void TWorld::Infiltration(void)
  */
 
 #include <algorithm>
@@ -45,6 +43,9 @@ functions: \n
 // Done outside timeloop, move inside when crusting is made dynamic!
 void TWorld::InfilEffectiveKsat(bool first)
 {
+    if (InfilMethod == INFIL_SWATRE || InfilMethod == INFIL_SWATRE)
+        return;
+
     // todo, move to datainit!
     if (first) {
         #pragma omp parallel for num_threads(userCores)
@@ -60,8 +61,8 @@ void TWorld::InfilEffectiveKsat(bool first)
     }
 
 
-    if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
-    {
+//    if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
+//    {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             Ksateff->Drc = Ksat1->Drc;
@@ -70,19 +71,22 @@ void TWorld::InfilEffectiveKsat(bool first)
             // exponential crusting proces with cumulative rainfall
             if (SwitchInfilCrust) {
                 //double KSc = Ksat1->Drc * (0.3+0.7*exp(-0.05*RainCum->Drc*1000));
-                double ksatdiff = std::max(0.0,Ksat1->Drc - KsatCrust->Drc);
-                double factor = RainCum->Drc > 0.01 ? exp(-0.05*(RainCum->Drc-0.01)*1000) : 1.0;
+                double ksatdiff = std::max(0.0,Ksateff->Drc - KsatCrust->Drc);
+                double factor = RainCumFlat->Drc > 0.01 ? exp(-0.05*(RainCumFlat->Drc-0.01)*1000) : 1.0;
+                // do not use raincum because it is set to zero when evap is on!
                 double KSc = KsatCrust->Drc + ksatdiff * factor;
                 // exponential decline until crust value, RainCum is in meters
-
-                //Ksateff->Drc = (1-Cover->Drc) * KSc + Cover->Drc * Ksat1->Drc;
                 Ksateff->Drc = KSc;
+
+//                if (c == 50 && r == 50)
+//                qDebug() << Ksateff->Drc*3600000/_dt << KsatCrust->Drc*3600000/_dt << ksatdiff*3600000/_dt << factor << KSc*3600000/_dt;
+
                 // only on bare fraction of soil, depends on crop. We need basal cover! ???
                 double porediff = std::max(0.0,ThetaS1->Drc - PoreCrust->Drc);
                 Poreeff->Drc = PoreCrust->Drc + porediff * factor;
-                        //ThetaS1->Drc*(1-CrustFraction->Drc) + PoreCrust->Drc*CrustFraction->Drc;
+
+                Thetaeff->Drc = std::min(0.99*Poreeff->Drc,ThetaI1->Drc);
             }
-            Thetaeff->Drc = std::max(0.025*Poreeff->Drc,ThetaI1->Drc);
 
             // affected surfaces
             if (SwitchInfilCompact) {
@@ -120,7 +124,7 @@ void TWorld::InfilEffectiveKsat(bool first)
             // percolation coefficient
 
         }}
-    }
+//    }
 
 }
 //---------------------------------------------------------------------------
@@ -336,7 +340,7 @@ double TWorld::IncreaseInfiltrationDepthNew2(double fact_in, int r, int c)
            Lw->Drc = SoilDep1;
            return 0;
        }
-       // when GWWH fills osildep2 than soildep2 is 0 anyway
+       // when GWWH fills soildep2 than soildep2 is 0 anyway
     }
 
 

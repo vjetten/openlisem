@@ -665,6 +665,7 @@ void TWorld::InitSoilInput(void)
         copy(*ThetaI1a, *ThetaI1);
 
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
+        calcValue(*Ksat1, ksatCalibration, MUL);
 
         ThetaR1 = NewMap(0);
         lambda1 = NewMap(0);
@@ -695,9 +696,6 @@ void TWorld::InitSoilInput(void)
             }}
         }
 
-        calcValue(*Ksat1, ksatCalibration, MUL);
-        // apply calibration after all empirical relations
-
         if (SwitchTwoLayer)
         {
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
@@ -723,6 +721,7 @@ void TWorld::InitSoilInput(void)
             copy(*ThetaI2a, *ThetaI2);
 
             Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
+            calcValue(*Ksat2, ksat2Calibration, MUL);
 
             ThetaR2 = NewMap(0);
             lambda2 = NewMap(0);             // lambda brooks corey
@@ -730,7 +729,7 @@ void TWorld::InitSoilInput(void)
             ThetaFC2 = NewMap(0);
             FOR_ROW_COL_MV_L {
                 // regression eq from data from Saxton and rawls 2006, excel file
-                double ks = std::max(1.0,std::min(1000.0,log(Ksat2->Drc)));
+                double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
                 lambda2->Drc = 0.0849*ks+0.159;
                 psi2ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
                 ThetaR2->Drc = 0.0673*exp(-0.238*log(ks));
@@ -750,8 +749,6 @@ void TWorld::InitSoilInput(void)
                     // psi cannot be more that bubbling pressure, 0.01 cm to m
                 }}
             }
-
-            calcValue(*Ksat2, ksat2Calibration, MUL);
         }
 
         if (SwitchInfilCrust)
@@ -759,6 +756,9 @@ void TWorld::InitSoilInput(void)
             CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
             checkMap(*CrustFraction, LARGER, 1.0, "crust fraction cannot be more than 1");
             KsatCrust = ReadMap(LDD,getvaluename("ksatcrst"));
+            calcValue(*KsatCrust, ksatCalibration, MUL);
+            //DO THIS, else inconsistency, and Ksat can be smaller than ksatcrust
+
             PoreCrust = ReadMap(LDD,getvaluename("porecrst"));
         }
         else
@@ -773,6 +773,8 @@ void TWorld::InitSoilInput(void)
             CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
             checkMap(*CompactFraction, LARGER, 1.0, "compacted area fraction cannot be more than 1");
             KsatCompact = ReadMap(LDD,getvaluename("ksatcomp"));
+            calcValue(*KsatCompact, ksatCalibration, MUL);
+            //DO THIS, else inconsistency, Ksat can be smaller than ksatcomp
             PoreCompact = ReadMap(LDD,getvaluename("porecomp"));
         }
         else

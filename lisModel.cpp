@@ -400,7 +400,7 @@ void TWorld::HydrologyProcesses()
            cell_InfilSwatre(r, c);
         } else {
             if (InfilMethod != INFIL_NONE) {
-                if (InfilMethod == INFIL_SMITH || InfilMethod == INFIL_SMITH2)
+                if (InfilMethod == INFIL_SOAP)
                     cell_Soilwater(i_);
                 else {
 
@@ -436,9 +436,10 @@ void TWorld::HydrologyProcesses()
     // ETa is subtracted from canopy, soil water surfaces
     // divided over 12 hours in a day with sine curve
 
-    //MoistureContent();
-  //  double soiltot2 = SoilWaterMass();
-  //  SoilMoistDiff = soiltot2 - soiltot1;
+  //  MoistureContent();
+    double soiltot2 = SoilWaterMass();
+if (InfilMethod != INFIL_SOAP)
+    SoilMoistDiff = soiltot2 - soiltot1;
 
 }
 //---------------------------------------------------------------------------

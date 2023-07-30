@@ -366,8 +366,10 @@ void TWorld::ParseRunfileData(void)
     } else {
         if (SwitchChannelInfil)
             SwitchChannelBaseflow = false;
-        if (!SwitchChannelBaseflow)
+        if (!SwitchChannelBaseflow) {
             SwitchChannelBaseflowStationary = false;
+            SwitchGWflow = false;
+        }
     }
 
     //SwitchGWflow = SwitchChannelBaseflow && (SwitchGW2Dflow || SwitchLDDGWflow || SwitchSWATGWflow);

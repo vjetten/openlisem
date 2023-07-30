@@ -51,7 +51,7 @@
 //---------------------------------------------------------------------------
 //#define NULL nullptr
 
-#define PI 3.14159265
+#define PI 3.141592653589
 
 #define HMIN 1e-6
 #define DO_SEDDEP 0
@@ -942,7 +942,6 @@ public:
     void SoilWater();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
     void SurfaceStorage();
-    void doETa();
     void avgTheta();
     void cell_Evapotranspiration(int r, int c);
     void OverlandFlow();
