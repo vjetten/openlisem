@@ -254,7 +254,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Impermeable sublayer")==0)           checkInfilImpermeable->setChecked(check);
         if (p1.compare("Two layer")==0)                      checkInfil2layer->setChecked(check);
         if (p1.compare("Psi user input")==0)                      checkPsiUser->setChecked(check);
-        if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
+     //   if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
         //	  if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
         if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setValue(valc);
 
@@ -387,6 +387,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("SoilWB nodes 1")==0) spinNodes1->setValue(iii);
         if (p1.compare("SoilWB nodes 2")==0) spinNodes2->setValue(iii);
         if (p1.compare("SoilWB dt factor")==0) spinInfdt->setValue(valc);
+        if (p1.compare("Infil Kavg")==0)    comboBox_Kmean->setCurrentIndex(iii);
 
         //CALIBRATION
         if (p1.compare("Smax calibration")==0)         E_CalibrateSmax->setValue(valc);
@@ -835,6 +836,7 @@ void lisemqt::updateModelData()
         if (p1.compare("SoilWB nodes 1")==0)                namelist[j].value =spinNodes1->text();
         if (p1.compare("SoilWB nodes 2")==0)                namelist[j].value =spinNodes2->text();
         if (p1.compare("SoilWB dt factor")==0)              namelist[j].value =spinInfdt->text();
+        if (p1.compare("Infil Kavg")==0)                  namelist[j].value.setNum(comboBox_Kmean->currentIndex());
 
 
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
@@ -908,7 +910,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Two layer")==0)                     namelist[j].value.setNum((int)checkInfil2layer->isChecked());
         if (p1.compare("Psi user input")==0)                     namelist[j].value.setNum((int)checkPsiUser->isChecked());
         //if (p1.compare("Matric head files")==0)              namelist[j].value.setNum((int)checkDumphead->isChecked());
-        if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());
+    //    if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());
         if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum(checkWritePCRaster->isChecked() ? 0 : 1);
         if (p1.compare("Report point output separate")==0)   namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
         if (p1.compare("Report digits out")==0)             namelist[j].value = E_DigitsOut->text();
@@ -1051,12 +1053,12 @@ void lisemqt::updateModelData()
 
         if (p1.compare("Table Directory")==0) namelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
         if (p1.compare("Table File")==0) namelist[j].value = E_SwatreTableName->text();//SwatreTableName;
-        if (p1.compare("SWATRE internal minimum timestep")==0)
-        {
-            double fraction = 0.2;//E_SWATREDtsecFraction->value();
-            swatreDT = E_Timestep->text().toDouble()*fraction;
-            namelist[j].value.setNum(swatreDT,'g',6);
-        }
+//        if (p1.compare("SWATRE internal minimum timestep")==0)
+//        {
+//            double fraction = 0.2;//E_SWATREDtsecFraction->value();
+//            swatreDT = E_Timestep->text().toDouble()*fraction;
+//            namelist[j].value.setNum(swatreDT,'g',6);
+//        }
 
         if (p1.compare("Infil Method")==0)
         {

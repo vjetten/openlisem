@@ -269,7 +269,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Psi user input")==0)                    SwitchPsiUser =         iii == 1;
 
         if (p1.compare("Matric head files")==0)                 SwitchDumphead =         iii == 1;
-        if (p1.compare("Geometric mean Ksat")==0)               SwitchGeometric =        iii == 1;
+     //   if (p1.compare("Geometric mean Ksat")==0)               SwitchGeometric =        iii == 1;
      //   if (p1.compare("Use Water Repellency")==0)            SwitchWaterRepellency  = iii == 1;
         if (p1.compare("Timeplot as PCRaster")==0) {
             SwitchWritePCRtimeplot = iii == 1;
@@ -342,17 +342,13 @@ void TWorld::ParseRunfileData(void)
     //prob onsolete: deal with old runfil pre 6.6
 
     // check a few things
-
-    if (InfilMethod == INFIL_SWATRE)
-    {
-        swatreDT = _dt/10; //getvaluedouble("SWATRE internal minimum timestep");
-
-        SwitchGeometric = (getvalueint("Geometric mean Ksat") == 1);
+    SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
+    swatreDT = _dt * SoilWBdtfactor; //getvaluedouble("SWATRE internal minimum timestep");
+    //SwitchGeometric = (getvalueint("Geometric mean Ksat") == 1);
         //  initheadName = getvaluename("inithead");
         // only map name is needed, data is read in swatre lib
         //profileName = getname("profile");//?????????????????????
         // profile map name
-    }
 
     //SwitchUseGrainSizeDistribution = (getvalueint("Use grain size distribution") == 1);
     //qDebug() << SwitchUse2Phase << SwitchAdvancedSed;

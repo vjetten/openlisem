@@ -25,12 +25,6 @@
 #include "lisemqt.h"
 #include "model.h"
 
-#define Aavg(a,b)  (0.5*(a+b))
-#define Havg(a,b)  (2.0/(1.0/a+1.0/b))
-#define Savg(a,b)  sqrt(a * b)
-#define MMavg(a,b) std::min(a,b)
-
-
 #define tol2 0.2
 #define tol1 0.01
 
@@ -289,10 +283,22 @@ void TWorld::cell_Soilwater(long i_)
             //======== Galerkin 3-diagonal scheme and back substitution
 
             // K1 and K2 are avg between node and upper and lower node
-            for(int j = 1; j < nNodes; j++)
-                K1[j] = MMavg(K[j-1],K[j]);
-            for(int j = 0; j < nNodes-1; j++)
-                K2[j] = MMavg(K[j],K[j+1]);
+            for(int j = 1; j < nNodes; j++) {
+                switch (KavgType) {
+                    case 0: K1[j] = Aavg(K[j-1],K[j]);
+                    case 1: K1[j] = Savg(K[j-1],K[j]);
+                    case 2: K1[j] = Havg(K[j-1],K[j],s.dz[j-1],s.dz[j]);
+                    case 3: K1[j] = Mavg(K[j-1],K[j]);
+                }
+            }
+            for(int j = 0; j < nNodes-1; j++) {
+                switch (KavgType) {
+                    case 0: K2[j] = Aavg(K[j],K[j+1]);
+                    case 1: K2[j] = Savg(K[j],K[j+1]);
+                    case 2: K2[j] = Havg(K[j],K[j+1],s.dz[j],s.dz[j+1]);
+                    case 3: K2[j] = Mavg(K[j],K[j+1]);
+                }
+            }
             K1[0] = K2[0];
             K2[nN] = K1[nN];
 
@@ -421,10 +427,11 @@ void TWorld::cell_Soilwater(long i_)
 
         cnt += 1.0;
 
-        if (i_ == 3738) qDebug() << cnt << NIT << s.dts << s.dtsum << _dt;
+       // if (i_ == 3738) qDebug() << cnt << NIT << s.dts << s.dtsum << _dt;
     } while(s.dtsum < _dt);
 
     s.dts = _dt/(cnt);
+    // store average dts for start of new timestep
 
     if (FloodDomain->Drc == 0) {
         s.Infact = std::min(s.Infact, WH->Drc);
@@ -482,6 +489,110 @@ void TWorld::cell_Soilwater(long i_)
     delete(D );
     delete(F );
 }
+/*
+
+void TWorld::SWATRECalc(long i_)
+{
+    SOIL_LIST s;
+    s = crSoil[i_];
+
+    double dtmin = 0.01;
+    int NITMAX = 12;
+    bool stopit = false;
+    int c = s.c;
+    int r = s.r;
+    double WH0;
+    double cnt = 0;
+    int nN = nNodes-1;
+    bool freeDrainage = !SwitchImpermeable;
+
+    double ANE, FNN1, FNN2, A1, A2;
+
+    double *Hold = new double [nNodes];
+    double *Hnew = new double [nNodes];
+    double *C1 = new double [nNodes];
+    double *S  = new double [nNodes];
+    double *K  = new double [nNodes];
+    double *K1 = new double[nNodes];
+    double *K2 = new double[nNodes];
+    double *A  = new double[nNodes];
+    double *B  = new double[nNodes];
+    double *C  = new double[nNodes];
+    double *D  = new double[nNodes];
+    double *F  = new double[nNodes];
+    double *beta  = new double[nNodes];
 
 
+//    const double *dz = Dz(p), *disnod = DistNode(p);
+    // dz is layer thickness, distnode is distance between centre of layers
+//    int i, last = nN-1; // nN nodes from 0 to nN-1 !
+//    NODE_ARRAY thoma, thomb, thomc, thomf, beta;
+    double alpha;
 
+     if ( (*ponded) || (fltsat && (qtop <= qbot)) )
+    {
+       C[0] = -dt * kavg[1] / dz[0] / disnod[1];
+        B[0] = -thomc[0] + dimoca[0] +
+                   dt*kavg[0]/disnod[0]/dz[0];
+        F[0] = C1[0]*s.h[0] +
+                   s.dts/(-dz[0]) * (kavg[0] - kavg[1]) +
+                   dt*kavg[0]*pond/disnod[0]/dz[0];
+    }
+    else
+    {
+        (*ponded) = false;
+        thomc[0] = -dt * kavg[1] / dz[0] / disnod[1];
+        thomb[0] = -thomc[0] + dimoca[0];
+        thomf[0] = dimoca[0]*h[0] +
+                   dt/(-dz[0]) * (- qtop - kavg[1]);
+    }
+
+
+    for (i = 1; i < nN-1; i++)
+    {
+        thoma[i] = -dt*kavg[i]/dz[i]/disnod[i];
+        thomc[i] = -dt*kavg[i+1]/dz[i]/disnod[i+1];
+        thomb[i] = -thoma[i] - thomc[i] + dimoca[i];
+        thomf[i] = dimoca[i]*h[i] +
+                   dt/(-dz[i])*(kavg[i]-kavg[i+1]);
+    }
+
+   thoma[last] = -dt*kavg[last]/dz[last]/disnod[last];
+    thomb[last] = -thoma[last] + dimoca[last];
+    thomf[last] = dimoca[last]*h[last] +
+                  dt/(-dz[last])*(kavg[last]+qbot);
+
+    alpha = thomb[0];
+    h[0] = thomf[0] / alpha;
+    for (i = 1; i < nN; i++) {
+        beta[i] = thomc[i-1] / alpha;
+        alpha = thomb[i] - thoma[i] * beta[i];
+        h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
+    }
+    for (i = (last-1); i >= 0; i--)
+        h[i] -= beta[i+1] * h[i+1];
+
+    for (i = 0; i < nN; i++) {
+        double theta = TheNode(h[i], Horizon(p,i));
+        double dimocaNew = DmcNode(h[i], Horizon(p,i));
+
+        thomb[i] = thomb[i] - dimoca[i] + dimocaNew;
+        thomf[i] = thomf[i] - dimoca[i]*hPrev[i] + dimocaNew*h[i]
+                   - theta + thetaPrev[i];
+    }
+
+     alpha = thomb[0];
+    h[0] = thomf[0] / alpha;
+    for (i = 1; i < nN; i++) {
+        beta[i] = thomc[i-1] / alpha;
+        alpha = thomb[i] - thoma[i] * beta[i];
+        h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
+    }
+
+    for (i = (last-1); i >= 0; i--)
+        h[i] -= beta[i+1] * h[i+1];
+
+}
+
+
+*/

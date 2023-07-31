@@ -386,8 +386,8 @@ void lisemqt::defaultRunFile()
     //namelist[i++].name = QString("SWATRE internal minimum timestep");
     namelist[i].value = QString("inithead");
     namelist[i++].name = QString("Matric head files");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("Geometric mean Ksat");
+ //   namelist[i].value = QString("1");
+ //   namelist[i++].name = QString("Geometric mean Ksat");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include tile drains");
 
@@ -641,8 +641,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("SoilWB nodes 1");
     namelist[i].value = QString("6");
     namelist[i++].name = QString("SoilWB nodes 2");
-    namelist[i].value = QString("0.5");
+    namelist[i].value = QString("0.2");
     namelist[i++].name = QString("SoilWB dt factor");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Infil Kavg");
 
 
 

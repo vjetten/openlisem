@@ -297,7 +297,7 @@ void TWorld::DoModel()
 
             OutputUI();          // fill the "op" structure for screen output and calc some output maps
 
-          //  reportAll();         // report maps and files to screen and disk
+            reportAll();         // report maps and files to screen and disk
 
             emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
 

@@ -365,16 +365,22 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 
       // average K for 1st to n-1 node, top node is done below
       //choice arithmetric average K, geometric in org. SWATRE
-      if (!SwitchGeometric)
-      {
-         for (i=1; i < n; i++)
-            kavg[i] = 0.5*(k[i]+k[i-1]);
+      switch (KavgType) {
+          case 0: kavg[i] = Aavg(k[i],k[i-1]);
+          case 1: kavg[i] = Savg(k[i],k[i-1]);
+          case 2: kavg[i] = Havg(k[i],k[i-1],1.0,1.0);
+          case 3: kavg[i] = Mavg(k[i],k[i-1]);
       }
-      else
-      {
-         for(i=1; i < n; i++)
-            kavg[i] = sqrt((k[i]*k[i-1]));
-      }
+//      if (!SwitchGeometric)
+//      {
+//         for (i=1; i < n; i++)
+//            kavg[i] = 0.5*(k[i]+k[i-1]);
+//      }
+//      else
+//      {
+//         for(i=1; i < n; i++)
+//            kavg[i] = sqrt((k[i]*k[i-1]));
+//      }
 
       //--- boundary conditions ---//
 

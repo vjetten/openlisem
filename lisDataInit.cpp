@@ -361,7 +361,7 @@ void TWorld::InitParameters(void)
         SwitchGWChangeSD = true;//getvalueint("GW layer change SD") == 1;
         nN1_ = getvalueint("SoilWB nodes 1");
         nN2_ = getvalueint("SoilWB nodes 2");
-        SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
+
     } else {
         F_MaxIter = 200;
         F_minWH = 0.0001;
@@ -3311,9 +3311,10 @@ void TWorld::InitNewSoilProfile()
     nN1_ = getvalueint("SoilWB nodes 1");
     nN2_ = getvalueint("SoilWB nodes 2");
     SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
+    KavgType = getvalueint("Infil Kavg");
 
     nNodes = nN1_ + nN2_;
-        qDebug() << "nodes" << nNodes;
+
     FOR_ROW_COL_MV {
         SOIL_LIST sr;
         sr.r = r;
