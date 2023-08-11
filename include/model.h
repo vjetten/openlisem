@@ -924,6 +924,7 @@ public:
     double SoilWaterMass();
 
     void cell_Soilwater(long i_);
+    void cell_SWATRECalc(long i_);
     void calcSinkterm(long i_, double *S);
     double calculateDayLength(double latitude, int dayNumber);
 //    void solveFiniteElement(long i_, double *Hnew, double *K, double *C1);

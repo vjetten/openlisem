@@ -402,6 +402,7 @@ void TWorld::HydrologyProcesses()
             if (InfilMethod != INFIL_NONE) {
                 if (InfilMethod == INFIL_SOAP)
                     cell_Soilwater(i_);
+                   // cell_SWATRECalc(i_);
                 else {
 
                     cell_InfilMethods(r, c);
@@ -414,7 +415,8 @@ void TWorld::HydrologyProcesses()
                     if (!SwitchImpermeable)
                         Perc->Drc = cell_Percolation(r, c, 1.0);
                     // if baseflow is active percollation is done there, so do not do it here
-                    cell_Evapotranspiration(r,c);
+                    if (SwitchIncludeET)
+                        cell_Evapotranspiration(r,c);
                 }
             }
         }

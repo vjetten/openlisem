@@ -331,11 +331,9 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       double _max, qtop, qbot, ThetaSat;  // fluxes at top and bottom, max theta
       double qdrain; // tile drainage
 
-   //   qDebug() << pixel->profile->profileId << elapsedTime << dt;
       //--- get nodal values of theta, K, dif moist cap ---//
       for (i=0; i < n; i++)
       {
-    //      qDebug() << i <<  h[i] << pixel->profile->horizon[i]->name;
          k[i] = HcoNode(h[i], pixel->profile->horizon[i], ksatCalibration);
          // input tables in cm/day function returns in cm/sec !!
          dimoca[i] = DmcNode(h[i], pixel->profile->horizon[i]);
@@ -344,24 +342,24 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
          // moisture content
       }
 
-      *Theta = (theta[0]+theta[1])/2;
+//      *Theta = (theta[0]+theta[1])/2;
       // avg water content of first two nodes, choice ...
 
-      (*repel) = 1.0;
-      if (SwitchWaterRepellency)
-      {
-         if (pixel->repellency == 1)
-         {
-            *repel = 1/(waterRep_d+pow(waterRep_a, 100*(*Theta-waterRep_b)));
-            if (*Theta < waterRep_c)
-               *repel = 1.0;
-         }
-         else
-            *repel = 0;
-         *repel = std::max(0.0,std::min(1-*repel, 1.0));
+//      (*repel) = 1.0;
+//      if (SwitchWaterRepellency)
+//      {
+//         if (pixel->repellency == 1)
+//         {
+//            *repel = 1/(waterRep_d+pow(waterRep_a, 100*(*Theta-waterRep_b)));
+//            if (*Theta < waterRep_c)
+//               *repel = 1.0;
+//         }
+//         else
+//            *repel = 0;
+//         *repel = std::max(0.0,std::min(1-*repel, 1.0));
 
-         k[0] = k[0] * (*repel);
-      }
+//         k[0] = k[0] * (*repel);
+//      }
 
       // average K for 1st to n-1 node, top node is done below
       //choice arithmetric average K, geometric in org. SWATRE
@@ -371,16 +369,6 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
           case 2: kavg[i] = Havg(k[i],k[i-1],1.0,1.0);
           case 3: kavg[i] = Mavg(k[i],k[i-1]);
       }
-//      if (!SwitchGeometric)
-//      {
-//         for (i=1; i < n; i++)
-//            kavg[i] = 0.5*(k[i]+k[i-1]);
-//      }
-//      else
-//      {
-//         for(i=1; i < n; i++)
-//            kavg[i] = sqrt((k[i]*k[i-1]));
-//      }
 
       //--- boundary conditions ---//
 

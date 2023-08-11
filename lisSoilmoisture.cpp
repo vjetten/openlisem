@@ -208,11 +208,12 @@ void TWorld::cell_Soilwater(long i_)
 
     double ANE, FNN1, FNN2, A1, A2;
 
-    double *Hold = new double [nNodes];
-    double *Hnew = new double [nNodes];
-    double *C1 = new double [nNodes];
-    double *S  = new double [nNodes];
-    double *K  = new double [nNodes];
+    double *Hold = new double[nNodes];
+    double *Hnew = new double[nNodes];
+    double *Wnew = new double[nNodes];
+    double *C1 = new double[nNodes];
+    double *S  = new double[nNodes];
+    double *K  = new double[nNodes];
     double *K1 = new double[nNodes];
     double *K2 = new double[nNodes];
     double *A  = new double[nNodes];
@@ -224,7 +225,7 @@ void TWorld::cell_Soilwater(long i_)
     else
         WH0 = hmx->Drc; // flood in kin wave
 
-    s.InfPot = WH0/_dt;// m/s
+    s.InfPot = 0;//WH0/_dt;// m/s
     s.Infact = 0;
     s.dtsum = 0;
     s.drain = 0;
@@ -253,7 +254,7 @@ void TWorld::cell_Soilwater(long i_)
 
         // iteration
         do {
-            s.ponded = Hnew[0] >= 0;
+           // s.ponded = Hnew[0] >= 0;
 
             //#pragma omp parallel for num_threads(userCores)
             for(int j = 0; j < nNodes; j++)
@@ -265,7 +266,7 @@ void TWorld::cell_Soilwater(long i_)
 
                 K[j] = s.Ks[j]*pow(std::min(1.0,s.hb[j]/Hx), 2.0+3.0*s.lambda[j]);
 
-                double Wnew = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(std::min(1.0,s.hb[j]/Hnew[j]), s.lambda[j]);
+                Wnew[j] = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(std::min(1.0,s.hb[j]/Hnew[j]), s.lambda[j]);
 
                 if (fabs(Hnew[j]-s.h[j]) <= 3*tol2) {
                     if (Hx < s.hb[j])
@@ -273,14 +274,11 @@ void TWorld::cell_Soilwater(long i_)
                     else
                         C1[j] = s.theta[j] * 1e-6/s.pore[j];
                 } else
-                    C1[j] = (Wnew-s.theta[j])/(Hnew[j]-s.h[j]);
+                    C1[j] = (Wnew[j]-s.theta[j])/(Hnew[j]-s.h[j]);
                 C1[j] *= s.dz[j]/s.dts;
               //  if (i_ == 3738) qDebug() << s.Ks[j]*3600000 << K[j]*3600000 << C1[j] << Hx << Wnew;
             }
            // if (i_ == 3738) qDebug() << NIT;
-
-
-            //======== Galerkin 3-diagonal scheme and back substitution
 
             // K1 and K2 are avg between node and upper and lower node
             for(int j = 1; j < nNodes; j++) {
@@ -302,6 +300,42 @@ void TWorld::cell_Soilwater(long i_)
             K1[0] = K2[0];
             K2[nN] = K1[nN];
 
+            //----- TOP -----//
+            // check if ponded: 1st compare fluxes, 2nd compare store
+            s.InfPot = -WH0/s.dts;
+            // top flux is ponded layer / timestep, available water, cm/sec
+
+            //----- BOTTOM -----//
+            // bottom is 0 or copy of flux of last 2 layers
+            if (SwitchImpermeable)
+               s.drain = 0;
+            else
+               s.drain = K[nN]*(Hnew[nN]-Hnew[nN-1])/s.dz[nN] - K[nN];
+
+            // 1st check flux aginst max flux
+
+            s.Infact = Savg( s.Ks[0],K[0])*(WH0-Hnew[0]) / s.dz[0] - K[0];
+            // maximum possible flux, compare to real top flux available
+            s.ponded = (s.InfPot < s.Infact);
+            // is qmax negative?
+            if (i_ == 3738) qDebug() << "a" << s.Infact << s.InfPot;
+
+            if (!s.ponded) {
+               // calculate available space in profile in cm: (pore-theta)*dz
+               double space = 0;
+               for(int j = 0; j < nNodes; j++)
+                   space += (s.pore[j] - Wnew[j]) * s.dz[j];
+
+               s.ponded = WH0 > space;
+            }
+            bool fltsat = true;
+            for(int j = 0; j < nNodes; j++)
+                if (Hnew[j] < 0) fltsat = false;
+            if (abs(s.InfPot) > s.drain && fltsat)
+                s.ponded = true;
+
+            //======== Galerkin 3-diagonal scheme and back substitution
+
             // sort of Simpson trapezium solution
             F[0] = (2.0*C1[0] + C1[1])/6.0;
             A[0] = -K1[0];
@@ -321,7 +355,6 @@ void TWorld::cell_Soilwater(long i_)
             FNN1 = F[nN];
             // include gravity term (i.e. k only) and sink term
             F[0] = F[0]*s.h[0] - s.dz[0]*(K1[0] - (2*S[0]+S[1])/6);
-            //#pragma omp parallel for num_threads(userCores)
             for(int j = 1; j < nNodes-1; j++) {
                 F[j] = F[j]*s.h[j]
                        + 0.5*(s.dz[j]+s.dz[j-1]) * K1[j]
@@ -463,14 +496,14 @@ void TWorld::cell_Soilwater(long i_)
             gw = gw + s.dz[j];
     }
     Lw->Drc = gw;
-//    if (i_ == 3738) qDebug() << cnt << s.dts << s.drain << gw << Hnew[nN];
-//    if (i_==3738) {
-//        QString S;
-//        for(int j = 0; j < nNodes; j++) {
-//            S = S + QString(" %1").arg(s.h[j]);
-//        }
-//        //qDebug() << s.Infact << S;
-//    }
+    if (i_ == 3738) qDebug() << cnt << s.dts << s.drain << s.ponded;
+    if (i_==3738) {
+        QString S;
+        for(int j = 0; j < nNodes; j++) {
+            S = S + QString(" %1").arg(s.h[j]);
+        }
+        qDebug() << s.InfPot << s.Infact << S;
+    }
 
 //    double total2  = 0;
 //    for(int j = 0; j < nNodes; j++) {
@@ -478,121 +511,305 @@ void TWorld::cell_Soilwater(long i_)
 //    }
 //    if (i_ == 3900) qDebug() << total2 << total1 << total2-total1 << s.Infact + s.drain;
 
-    delete(Hnew);
-    delete(Hold);
-    delete(C1);
-    delete(S);
-    delete(K);
-    delete(K1);
-    delete(K2);
-    delete(A );
-    delete(D );
-    delete(F );
+    delete[] Hold;
+    delete[] Hnew;
+    delete[] Wnew;
+    delete[] C1;
+    delete[] S;
+    delete[] K;
+    delete[] K1;
+    delete[] K2;
+    delete[] A ;
+    delete[] D ;
+    delete[] F ;
 }
-/*
 
-void TWorld::SWATRECalc(long i_)
+
+void TWorld::cell_SWATRECalc(long i_)
 {
     SOIL_LIST s;
     s = crSoil[i_];
 
     double dtmin = 0.01;
-    int NITMAX = 12;
-    bool stopit = false;
     int c = s.c;
     int r = s.r;
-    double WH0;
-    double cnt = 0;
-    int nN = nNodes-1;
-    bool freeDrainage = !SwitchImpermeable;
 
-    double ANE, FNN1, FNN2, A1, A2;
+    double WH0;
+    int nN = nNodes-1;
+    double qbot = 0;
+    double qtop = s.InfPot;
+    double alpha;
+    bool fltsat = false;
 
     double *Hold = new double [nNodes];
     double *Hnew = new double [nNodes];
+    double *K = new double [nNodes];
     double *C1 = new double [nNodes];
     double *S  = new double [nNodes];
-    double *K  = new double [nNodes];
-    double *K1 = new double[nNodes];
-    double *K2 = new double[nNodes];
-    double *A  = new double[nNodes];
-    double *B  = new double[nNodes];
-    double *C  = new double[nNodes];
-    double *D  = new double[nNodes];
-    double *F  = new double[nNodes];
+    double *kavg  = new double [nNodes];
+    double *thoma  = new double[nNodes];
+    double *thomb  = new double[nNodes];
+    double *thomc  = new double[nNodes];
+    double *thomf  = new double[nNodes];
     double *beta  = new double[nNodes];
+    double *disnod = new double[nNodes];
+    double *Wnew = new double[nNodes];
+    double *z = new double[nNodes];
 
 
-//    const double *dz = Dz(p), *disnod = DistNode(p);
-    // dz is layer thickness, distnode is distance between centre of layers
-//    int i, last = nN-1; // nN nodes from 0 to nN-1 !
-//    NODE_ARRAY thoma, thomb, thomc, thomf, beta;
-    double alpha;
-
-     if ( (*ponded) || (fltsat && (qtop <= qbot)) )
-    {
-       C[0] = -dt * kavg[1] / dz[0] / disnod[1];
-        B[0] = -thomc[0] + dimoca[0] +
-                   dt*kavg[0]/disnod[0]/dz[0];
-        F[0] = C1[0]*s.h[0] +
-                   s.dts/(-dz[0]) * (kavg[0] - kavg[1]) +
-                   dt*kavg[0]*pond/disnod[0]/dz[0];
-    }
+    if (FloodDomain->Drc == 0)
+        WH0 = WH->Drc; //runoff in kinwave or dyn wave
     else
-    {
-        (*ponded) = false;
-        thomc[0] = -dt * kavg[1] / dz[0] / disnod[1];
-        thomb[0] = -thomc[0] + dimoca[0];
-        thomf[0] = dimoca[0]*h[0] +
-                   dt/(-dz[0]) * (- qtop - kavg[1]);
+        WH0 = hmx->Drc; // flood in kin wave
+
+    s.InfPot = -WH0/_dt;// m/s
+    s.Infact = 0;
+    s.dtsum = 0;
+
+    s.Ks[0] = Ksateff->Drc/_dt;
+    s.pore[0] = Poreeff->Drc;
+    // include crusting compaction etc in top layer;
+
+    //#pragma omp parallel for num_threads(userCores)
+    for(int j = 0; j < nNodes; j++) {
+        Hnew[j] = s.h[j];
+        S[j] = 0;
     }
 
+//    if (SwitchIncludeET)
+//        calcSinkterm(i_, S); // ETa
 
-    for (i = 1; i < nN-1; i++)
-    {
-        thoma[i] = -dt*kavg[i]/dz[i]/disnod[i];
-        thomc[i] = -dt*kavg[i+1]/dz[i]/disnod[i+1];
-        thomb[i] = -thoma[i] - thomc[i] + dimoca[i];
-        thomf[i] = dimoca[i]*h[i] +
-                   dt/(-dz[i])*(kavg[i]-kavg[i+1]);
+    // outer loop timestep lisem
+    do {
+
+            //======= Brooks Corey for H,K,theta and C
+            for(int j = 0; j < nNodes; j++) {
+                z[j] = j == 0 ? s.dz[j]*0.5 : z[j-1] + 0.5*(s.dz[j-1]+s.dz[j]);
+                disnod[j] = j == 0 ? z[j] : z[j] - z[j-1];
+
+                K[j] = s.Ks[j]*pow(std::min(1.0,s.hb[j]/s.h[j]), 2.0+3.0*s.lambda[j]);
+                // or Hnew?
+
+                Wnew[j] = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(std::min(1.0,s.hb[j]/Hnew[j]), s.lambda[j]);
+
+                if (fabs(Hnew[j]-s.h[j]) <= 3*tol2) {
+                    if (s.h[j] < s.hb[j])
+                        C1[j] = s.theta[j] * 1e-6/s.pore[j] - 1.0/s.h[j] *(s.pore[j]-s.thetar[j])*s.lambda[j]*pow(s.hb[j]/s.h[j], s.lambda[j]);
+                    else
+                        C1[j] = s.theta[j] * 1e-6/s.pore[j];
+                } else
+                    C1[j] = (Wnew[j]-s.theta[j])/(Hnew[j]-s.h[j]);
+
+           }
+            for (int j = 1; j < nNodes; j++) {
+                switch (KavgType) {
+                    case 0: kavg[j] = Aavg(K[j],K[j-1]);
+                    case 1: kavg[j] = Savg(K[j],K[j-1]);
+                    case 2: kavg[j] = Havg(K[j],K[j-1],1.0,1.0);
+                    case 3: kavg[j] = Mavg(K[j],K[j-1]);
+                }
+            }
+
+            //--- boundary conditions ---//
+
+        //----- TOP -----//
+        // check if ponded: 1st compare fluxes, 2nd compare store
+        qtop = -WH0/s.dts;
+        // top flux is ponded layer / timestep, available water, cm/sec
+
+        //----- BOTTOM -----//
+        // bottom is 0 or copy of flux of last 2 layers
+        if (SwitchImpermeable)
+           s.drain = 0;
+        else
+           s.drain = kavg[nN]*(Hnew[nN]-Hnew[nN-1])/disnod[nN] - kavg[nN];
+
+        // 1st check flux aginst max flux
+
+        double qmax = sqrt( s.Ks[0] * K[0])*(WH0-Hnew[0]) / disnod[0] - kavg[0];
+        // maximum possible flux, compare to real top flux available
+        s.ponded = (qtop < qmax);
+
+        if (!s.ponded) {
+           // calculate available space in profile in cm: (pore-theta)*dz
+           double space = 0;
+           for(int j = 0; j < nNodes; j++)
+               space += (s.pore[j] - Wnew[j]) * s.dz[j];
+
+           s.ponded = abs(qtop * s.dts) > space;
+        }
+        fltsat = true;
+        for(int j = 0; j < nNodes; j++)
+            if (Hnew[j] < 0) fltsat = false;
+
+        for(int j = 0; j < nNodes; j++) {
+            s.h[j] = Hnew[j];
+            s.theta[j] = Wnew[j];
+        }
+
+        //====== headcalc
+        if ( s.ponded || (fltsat && (abs(qtop) > qbot)) )
+        {
+            thomc[0] = -s.dts * kavg[1] / s.dz[0] / disnod[1];
+            thomb[0] = -thomc[0] + C1[0] +
+                       s.dts*kavg[0]/disnod[0]/s.dz[0];
+            thomf[0] = C1[0]*s.h[0] +
+                       s.dts/(-s.dz[0]) * (kavg[0] - kavg[1]) +
+                       s.dts*kavg[0]*WH0/disnod[0]/s.dz[0];
+        }
+        else
+        {
+            s.ponded = false;
+            thomc[0] = -s.dts * kavg[1] / s.dz[0] / disnod[1];
+            thomb[0] = -thomc[0] + C1[0];
+            thomf[0] = C1[0]*s.h[0] +
+                       s.dts/(-s.dz[0]) * (- qtop - kavg[1]);
+        }
+
+
+        for (int j = 1; j < nNodes-1; j++)
+        {
+            thoma[j] = -s.dts*kavg[j]/s.dz[j]/disnod[j];
+            thomc[j] = -s.dts*kavg[j+1]/s.dz[j]/disnod[j+1];
+            thomb[j] = -thoma[j] - thomc[j] + C1[j];
+            thomf[j] = C1[j]*Hnew[j] +
+                       s.dts/(-s.dz[j])*(kavg[j]-kavg[j+1]);
+        }
+
+        thoma[nN] = -s.dts*kavg[nN]/s.dz[nN]/disnod[nN];
+        thomb[nN]= -thoma[nN] + C1[nN];
+        thomf[nN] = C1[nN]*Hnew[nN] +
+                      s.dts/(-s.dz[nN])*(kavg[nN]+qbot);
+
+        alpha = thomb[0];
+        Hnew[0] = thomf[0] / alpha;
+        for (int j = 1; j < nN; j++) {
+            beta[j] = thomc[j-1] / alpha;
+            alpha = thomb[j] - thoma[j] * beta[j];
+            Hnew[j] = (thomf[j] - thoma[j] * Hnew[j-1]) / alpha;
+        }
+        for (int j = (nN-1); j >= 0; j--)
+            Hnew[j] -= beta[j+1] * Hnew[j+1];
+
+        for (int j = 0; j < nNodes; j++) {
+            Wnew[j] = s.thetar[j] + (s.pore[j]-s.thetar[j])*
+                    pow(std::min(1.0,s.hb[j]/Hnew[j]), s.lambda[j]);
+            double dimocaNew = C1[j];
+            if (Hnew[j] < s.hb[j])
+                dimocaNew = s.theta[j] * 1e-6/s.pore[j] -
+                        1.0/s.h[j] *(s.pore[j]-s.thetar[j])*
+                        s.lambda[j]*pow(s.hb[j]/s.h[j], s.lambda[j]);
+            else
+                dimocaNew = s.theta[j] * 1e-6/s.pore[j];
+
+                    //C1[j] = (Wnew[j]-s.theta[j])/(Hnew[j]-s.h[j]);
+
+            thomb[j] = thomb[j] - C1[j] + dimocaNew;
+            thomf[j] = thomf[j] - C1[j]*s.h[j] + dimocaNew*Hnew[j]
+                       - Wnew[j] + s.theta[j];
+        }
+
+        // back substitution
+        alpha = thomb[0];
+        Hnew[0] = thomf[0] / alpha;
+        for (int j = 1; j < nNodes; j++) {
+            beta[j] = thomc[j-1] / alpha;
+            alpha = thomb[j] - thoma[j] * beta[j];
+            Hnew[j] = (thomf[j] - thoma[j] * Hnew[j-1]) / alpha;
+        }
+        for (int j = (nN-1); j >= 0; j--)
+            Hnew[j] -= beta[j+1] * Hnew[j+1];
+        //====== headcalc
+
+        // determine new boundary fluxes
+        if (SwitchImpermeable)
+           s.drain = 0;
+        else
+           s.drain = kavg[nN]*(Hnew[nN]-Hnew[nN-1])/disnod[nN] - kavg[nN];
+
+        if ( s.ponded || (fltsat && (abs(qtop) > qbot)) )
+           qtop = -kavg[0] * ((s.h[0] - WH0)/disnod[0] + 1);
+        // adjust top flux
+
+        WH0 += qtop*s.dts;
+        // decrease pond with top flux
+        if (WH0 < 1e-6)  // 10-6 cm
+           WH0 = 0;
+        s.Infact += qmax*s.dts;
+        // add max infil to influx (negative), to get potential infil
+
+        double dt = _dt/2.0;
+        double precParam = 5.0;
+        double accur1 = 0.3 - 0.02 * precParam;
+        double accur2 = 0.03 - 0.002 * precParam;
+
+        for(int j = 0; j < nNodes; j++)
+        {
+           double mdih = accur1 + accur2 * std::max(1.0, fabs(Hnew[j]));
+           double dih  = fabs(Hnew[j] - s.h[j]);
+           // if difference is small
+           // dih = e.g. 10 and h = -200 then mdih = 200*0.01 + 0.1 = 2.1
+           // mdih/dih = 2.1/10 =0.21
+
+           if (dih > 0.10)
+              dt = std::min(dt, s.dts*mdih/dih);
+        }
+        s.dts = std::max(dt,dtmin);
+        s.dts = std::min(s.dts,_dt-s.dtsum);
+        s.dtsum += s.dts;
+
+        //cnt += 1.0;
+
+       // if (i_ == 3738) qDebug() << cnt << NIT << s.dts << s.dtsum << _dt;
+    } while(s.dtsum < _dt);
+
+    //s.dts = _dt/(cnt);
+    // store average dts for start of new timestep
+
+    if (FloodDomain->Drc == 0) {
+        s.Infact = std::min(s.Infact, WH->Drc);
+        WH->Drc -= s.Infact; //runoff in kinwave or dyn wave
+    } else {
+        s.Infact = std::min(s.Infact, hmx->Drc);
+        hmx->Drc -= s.Infact; // flood in kin wave
     }
 
-   thoma[last] = -dt*kavg[last]/dz[last]/disnod[last];
-    thomb[last] = -thoma[last] + dimoca[last];
-    thomf[last] = dimoca[last]*h[last] +
-                  dt/(-dz[last])*(kavg[last]+qbot);
+    InfilVol->Drc = s.Infact*SoilWidthDX->Drc*DX->Drc;
 
-    alpha = thomb[0];
-    h[0] = thomf[0] / alpha;
-    for (i = 1; i < nN; i++) {
-        beta[i] = thomc[i-1] / alpha;
-        alpha = thomb[i] - thoma[i] * beta[i];
-        h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
+    ThetaI1a->Drc = s.theta[0];
+    //#pragma omp parallel for num_threads(userCores)
+    for (int j = 1; j < nN1_; j++)
+        ThetaI1a->Drc += s.theta[j];
+    ThetaI1a->Drc /= (double)nN1_;
+
+    ThetaI2a->Drc = s.theta[nN1_];
+    //#pragma omp parallel for num_threads(userCores)
+    for (int j = nN1_+1; j < nNodes; j++)
+        ThetaI2a->Drc += s.theta[j];
+    ThetaI2a->Drc /= (double)nN2_;
+
+    Perc->Drc = s.drain*_dt;
+
+    double gw = 0;
+    for (int j = nN; j > 0; j--) {
+        if (s.h[j] >= 0)
+            gw = gw + s.dz[j];
     }
-    for (i = (last-1); i >= 0; i--)
-        h[i] -= beta[i+1] * h[i+1];
+    Lw->Drc = gw;
 
-    for (i = 0; i < nN; i++) {
-        double theta = TheNode(h[i], Horizon(p,i));
-        double dimocaNew = DmcNode(h[i], Horizon(p,i));
-
-        thomb[i] = thomb[i] - dimoca[i] + dimocaNew;
-        thomf[i] = thomf[i] - dimoca[i]*hPrev[i] + dimocaNew*h[i]
-                   - theta + thetaPrev[i];
-    }
-
-     alpha = thomb[0];
-    h[0] = thomf[0] / alpha;
-    for (i = 1; i < nN; i++) {
-        beta[i] = thomc[i-1] / alpha;
-        alpha = thomb[i] - thoma[i] * beta[i];
-        h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
-    }
-
-    for (i = (last-1); i >= 0; i--)
-        h[i] -= beta[i+1] * h[i+1];
-
+    delete[] Hnew;
+    delete[] Hold;
+    delete[] C1;
+    delete[] S;
+    delete[] kavg;
+    delete[] thoma;
+    delete[] thomb;
+    delete[] thomc;
+    delete[] thomf;
+    delete[] Wnew;
+    delete[] disnod;
+    delete[] z;
 }
 
 
-*/
+
