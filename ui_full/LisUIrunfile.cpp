@@ -369,7 +369,7 @@ void lisemqt::ParseInputData()
 //            E_GrainSizes->setText(p);
 //        }
         //ADVANCED
-        if (p1.compare("Advanced Options")==0)                 checkAdvancedOptions->setChecked(check);
+      //  if (p1.compare("Advanced Options")==0)                 checkAdvancedOptions->setChecked(check);
       //  if (p1.compare("Calculate erosion inside 2D loop")==0)  checkErosionInsideLoop->setChecked(check);
         if (p1.compare("Use linked list")==0)        checkLinkedList->setChecked(check);
         if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(iii);
@@ -442,7 +442,7 @@ void lisemqt::ParseInputData()
     radioRainFile->setChecked(!Rainmaps);
     radioRainSatFile->setChecked(Rainmaps);
 
-    groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
+  //  groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
     GW_widget->setEnabled(checkGWflow->isChecked());
 
     on_checkIncludeET_toggled(checkIncludeET->isChecked());
@@ -992,7 +992,7 @@ void lisemqt::updateModelData()
 
         if (p1.compare("satImage Directory")==0) namelist[j].value = satImageFileDir;
         if (p1.compare("satImage file")==0) namelist[j].value = satImageFileName;
-        if (p1.compare("Advanced Options")==0) namelist[j].value.setNum((int)checkAdvancedOptions->isChecked());
+      //  if (p1.compare("Advanced Options")==0) namelist[j].value.setNum((int)checkAdvancedOptions->isChecked());
 
         if (p1.compare("Rainfall map")==0) namelist[j].value = E_RainfallMap->text();
         if (p1.compare("Interception map")==0) namelist[j].value = E_InterceptionMap->text();

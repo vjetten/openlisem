@@ -678,10 +678,14 @@ void TWorld::InitSoilInput(void)
             //rawls et al., 1982
             double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
             lambda1->Drc = 0.0849*ks+0.159;
+            lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
             psi1ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
             ThetaR1->Drc = 0.0673*exp(-0.238*log(ks));
             ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;
         }}
+    report(*lambda1,"lambda1.map");
+    report(*psi1ae,"psi1ae.map");
+    report(*ThetaR1,"ThetaR1.map");
 
         if (SwitchPsiUser) {
             Psi1 = ReadMap(LDD,getvaluename("psi1"));
@@ -731,10 +735,14 @@ void TWorld::InitSoilInput(void)
                 // regression eq from data from Saxton and rawls 2006, excel file
                 double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
                 lambda2->Drc = 0.0849*ks+0.159;
+                lambda2->Drc = std::min(std::max(0.1,lambda2->Drc),0.7);
                 psi2ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
                 ThetaR2->Drc = 0.0673*exp(-0.238*log(ks));
                 ThetaFC2->Drc = -0.0519*log(ks) + 0.3714;
             }}
+report(*lambda2,"lambda2.map");
+report(*psi2ae,"psi2ae.map");
+   report(*ThetaR2,"ThetaR2.map");
 
             // wetting front psi
             if (SwitchPsiUser) {
@@ -3359,14 +3367,9 @@ void TWorld::InitNewSoilProfile()
             crSoil[i_].theta.replace(j,  ThetaI1->Drc);
             crSoil[i_].pore.replace(j,  ThetaS1->Drc);
             crSoil[i_].Ks.replace(j,  Ksat1->Drc/3600000); // calibrated Ksat ! so do not use for lambda etc
-
             crSoil[i_].thetar.replace(j,  ThetaR1->Drc);
             crSoil[i_].lambda.replace(j,  lambda1->Drc);
             crSoil[i_].hb.replace(j,  -psi1ae->Drc);
-            double hh = crSoil[i_].hb[j]/
-                        pow((crSoil[i_].theta[j] - crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j])
-                            , 1.0/crSoil[i_].lambda[j]);
-            crSoil[i_].h.replace(j,hh);
         }
         for (int j = nN1_; j < nNodes; j++) {
             crSoil[i_].dz.replace(j,  dz2);
@@ -3377,11 +3380,18 @@ void TWorld::InitNewSoilProfile()
             crSoil[i_].thetar.replace(j,  ThetaR2->Drc);
             crSoil[i_].lambda.replace(j,  lambda2->Drc);
             crSoil[i_].hb.replace(j,  -psi2ae->Drc);
-            double hh = crSoil[i_].hb[j]/
-                        pow((crSoil[i_].theta[j] - crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j])
-                        , 1.0/crSoil[i_].lambda[j]);
-            crSoil[i_].h.replace(j,hh);
         }
+
+        // calc h
+        for (int j = 0; j < nNodes; j++) {
+            double se = (crSoil[i_].theta[j] - crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j]);
+            double hh = pow(se, (1.0/crSoil[i_].lambda[j]));
+            crSoil[i_].h.replace(j,crSoil[i_].hb[j]/hh);
+         //   if (i_ == 65000)
+           //      qDebug() << i_ << j << crSoil[i_].dz[j] << crSoil[i_].h[j] << crSoil[i_].hb[j] << crSoil[i_].theta[j]<< crSoil[i_].thetar[j]<< crSoil[i_].pore[j] << crSoil[i_].lambda[j];
+        }
+
+
 
         double sum = 0;
         double rootmax = 0.8;

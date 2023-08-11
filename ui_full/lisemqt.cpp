@@ -1702,7 +1702,7 @@ void lisemqt::resetAll()
     E_ResultDir->setText("");
     E_satImageName->setText("");
     checksatImage->setChecked(false);
-    checkAdvancedOptions->setChecked(false);
+   // checkAdvancedOptions->setChecked(false);
 
     //   checkEventBased->setChecked(true);
 
