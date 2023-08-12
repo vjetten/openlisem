@@ -255,7 +255,7 @@ void TWorld::cell_Soilwater(long i_)
         // iteration
         do {
             s.ponded = Hnew[0] >= 0;
-            s.InfPot = WH0/s.dts;
+          //  s.InfPot = WH0/s.dts;
 
             //======= Brooks Corey for H,K,theta and C
             for(int j = 0; j < nNodes; j++) {
@@ -270,7 +270,8 @@ void TWorld::cell_Soilwater(long i_)
 
                 if (fabs(Hnew[j]-Hold[j]) <= 3*tol2) {
                     if (Hx < s.hb[j])
-                        C1[j] = s.theta[j] * 1e-6/s.pore[j] - 1.0/Hx *(s.pore[j]-s.thetar[j])*s.lambda[j]*pow(s.hb[j]/Hx, s.lambda[j]);
+                        C1[j] = s.theta[j] * 1e-6/s.pore[j] -
+                                1.0/Hx *(s.pore[j]-s.thetar[j])*s.lambda[j]*pow(s.hb[j]/Hx, s.lambda[j]);
                     else
                         C1[j] = s.theta[j] * 1e-6/s.pore[j]; //????
                 } else
@@ -303,23 +304,14 @@ void TWorld::cell_Soilwater(long i_)
 //            //swatre: maximum possible flux, compare to real top flux available
 //            s.ponded = (s.InfPot > s.Infact); // both positive
 
+            if (!s.ponded) {
+               // calculate available space in profile in cm: (pore-theta)*dz
+               double space = 0;
+               for(int j = 0; j < nNodes; j++)
+                   space += (s.pore[j] - Wnew[j]) * s.dz[j];
 
-//            if (!s.ponded) {
-//               // calculate available space in profile in cm: (pore-theta)*dz
-//               double space = 0;
-//               for(int j = 0; j < nNodes; j++)
-//                   space += (s.pore[j] - Wnew[j]) * s.dz[j];
-
-//               s.ponded = WH0 > space;
-//            }
-
-//            if (i_ == cell) qDebug() << "inf" << s.InfPot<< s.Infact  << s.ponded;
-
-//            bool fltsat = true;
-//            for(int j = 0; j < nNodes; j++)
-//                if (Hnew[j] < 0) fltsat = false;
-//            if (abs(s.InfPot) > s.drain && fltsat)
-//                s.ponded = true;
+               s.ponded = WH0 > space;
+            }
 
             //======== Galerkin 3-diagonal scheme and back substitution
 
@@ -349,7 +341,7 @@ void TWorld::cell_Soilwater(long i_)
 
             // upper boundary condition
             if (s.ponded){
-                Hnew[0] = s.h[0] + (s.InfPot-s.Infact)*s.dts;
+                Hnew[0] = Hold[0] + (s.InfPot-s.Infact)*s.dts;
                 s.Infact = std::min(s.InfPot, D[0]*Hnew[0] - F[0]);
                 F[0] = Hnew[0];
                 A1 = A[0];
@@ -367,7 +359,7 @@ void TWorld::cell_Soilwater(long i_)
                 FNN2 = F[nN];
                 F[nN] = 0;
             } else {
-                // fixed flux (0)
+                // fixed flux (for instance 0)
                 s.drain = 0;
                 F[nN] = F[nN] - s.drain;
             }
@@ -395,20 +387,17 @@ void TWorld::cell_Soilwater(long i_)
             if (freeDrainage)
                 s.drain = 0.5*(K[nN] + FNN2 - std::min(Hnew[nN],0.0)*FNN1);
 
-            s.ponded = Hnew[0] >= 0; //??? repeat
+            s.ponded = Hnew[0] >= 0;
 
             // stop if Hnew and Hold are close
             stopit = true;
- //           double tol = 0.2;
-//                if (s.ponded)
-//                    tol /= 2.0;
+            double tol = s.ponded ? 0.2 : 0.1;
             for(int j = 0; j < nNodes; j++) {
-                if (fabs(Hnew[j] - Hold[j]) > tol1*fabs(Hold[j]) + tol2) {
+                if (fabs(Hnew[j] - Hold[j]) > tol) {//tol1*fabs(Hold[j]) + tol2) {
                     stopit = false;
                     break;
                 }
             }
-//if (i_ == cell) qDebug() << tol;
             NIT++;
 
             if (!stopit && NIT > NITMAX) {
@@ -438,8 +427,7 @@ void TWorld::cell_Soilwater(long i_)
 
         // SWATRE method is faster!
         double dt = dtmax;
-        for(int j = 0; j < nNodes; j++)
-        {
+        for(int j = 0; j < nNodes; j++) {
            double mdih = 0.2 + 0.02*fabs(Hnew[j]);
            double dih  = fabs(Hnew[j] - Hold[j]);
            if (dih > 0.10)
@@ -468,13 +456,13 @@ void TWorld::cell_Soilwater(long i_)
 
     if (FloodDomain->Drc == 0) {
         s.Infact = std::min(s.Infact, WH->Drc);
-        WH->Drc -= s.Infact; //runoff in kinwave or dyn wave
+        WH->Drc -= s.Infact*_dt; //runoff in kinwave or dyn wave
     } else {
         s.Infact = std::min(s.Infact, hmx->Drc);
-        hmx->Drc -= s.Infact; // flood in kin wave
+        hmx->Drc -= s.Infact*_dt; // flood in kin wave
     }
 
-    InfilVol->Drc = s.Infact*SoilWidthDX->Drc*DX->Drc;
+    InfilVol->Drc = s.Infact*_dt*SoilWidthDX->Drc*DX->Drc;
 
     ThetaI1a->Drc = s.theta[0];
     //#pragma omp parallel for num_threads(userCores)
@@ -496,7 +484,7 @@ void TWorld::cell_Soilwater(long i_)
             gw = gw + s.dz[j];
     }
     Lw->Drc = gw;
-   // if (i_ == cell) qDebug() << cnt << s.dts << s.Infact << s.InfPot << s.ponded << (Hnew[0] >= 0);
+    if (i_ == cell) qDebug() << cnt << s.InfPot-s.Infact  << s.ponded << (Hnew[0] >= 0);
     if (i_==cell) {
         QString S;
         for(int j = 0; j < nNodes; j++) {
