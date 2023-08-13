@@ -27,7 +27,7 @@
 
 #define tol2 0.2
 #define tol1 0.01
-#define cell 64500
+#define cell 11900
 
 
 //DO NOT USE OMP, MUCH SLOWER
@@ -301,7 +301,8 @@ void TWorld::cell_Soilwater(long i_)
 
             //swatre
 //            s.Infact = (Savg( s.Ks[0],K[0])*(WH0-Hnew[0]) / s.dz[0] - K[0]);
-//            //swatre: maximum possible flux, compare to real top flux available
+// //            //swatre: maximum possible flux, compare to real top flux available
+//            //if (i_ == cell) qDebug() << s.Infact;
 //            s.ponded = (s.InfPot > s.Infact); // both positive
 
             if (!s.ponded) {
@@ -440,7 +441,7 @@ void TWorld::cell_Soilwater(long i_)
 
         cnt += 1.0;
 
-        if (i_ == cell) qDebug() << cnt << NIT << s.dts << s.dtsum << _dt;
+       // if (i_ == cell) qDebug() << cnt << NIT << s.dts << s.dtsum << _dt;
     } while(s.dtsum < _dt);
 
     s.dts = _dt/(cnt);

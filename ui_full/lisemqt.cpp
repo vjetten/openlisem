@@ -715,7 +715,7 @@ int lisemqt::SetStyleUISize()
    // qDebug() << _H << disp;
 
     tabWidgetOptions->setMinimumSize(QSize(600, 500));
-    scrollArea->setWidgetResizable(true);
+    //scrollArea->setWidgetResizable(true);
     //scrollArea->setWidget(tabWidgetOptions);
 
     // do a bit of size tweaking for large displays
