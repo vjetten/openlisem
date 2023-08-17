@@ -813,6 +813,10 @@ void lisemqt::SetStyleUI()
     label_9->setStyleSheet("QLabel {color: #4477aa;}");
     label_10->setStyleSheet("QLabel {color: #4477aa;}");
     //label_11->setStyleSheet("QLabel {color: #4477aa;}");
+    scrollArea_Calibration->setStyleSheet("scrollAreaWidgetContents {background-color: blue}");
+//    QAbstractScrollArea #scrollAreaWidgetContents {
+//        background-color: black;
+//    }
 
     // interface elements that are not visible for now
     //frameSpare->setVisible(false);

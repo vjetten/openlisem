@@ -150,6 +150,7 @@ void lisemqt::ParseInputData()
 
         //if (p1.compare("Include Snowmelt")==0)            checkSnowmelt->setChecked(check);
 
+        if (p1.compare("Font size")==0) genfontsize = iii;
         if (p1.compare("Nr user Cores")==0) nrUserCores->setValue(iii);
         if (p1.compare("Result datetime")==0) checkAddDatetime->setChecked(check);
         if (p1.compare("Timeplot as PCRaster")==0)           checkWritePCRaster->setChecked(!check);
@@ -436,6 +437,8 @@ void lisemqt::ParseInputData()
    }
 
     // ###################################
+
+    setfontSize();
 
     radioETfile->setChecked(!ETmaps);
     radioETsatfile->setChecked(ETmaps);
@@ -779,6 +782,7 @@ void lisemqt::updateModelData()
 
         //if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
 
+        if (p1.compare("Font size")==0) namelist[j].value.setNum(genfontsize);
         if (p1.compare("Nr user Cores")==0) namelist[j].value.setNum(nrUserCores->value());
         // erosion
         if (p1.compare("Include Erosion simulation")==0)      namelist[j].value.setNum((int)checkDoErosion->isChecked());

@@ -609,6 +609,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("[Advanced]");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Nr user Cores");
+    namelist[i].value = QString("8");
+    namelist[i++].name = QString("Font size");
     namelist[i].value = QString("4"); //HLL2
     namelist[i++].name = QString("Flooding SWOF Reconstruction");
     namelist[i].value = QString("1"); //minmod
