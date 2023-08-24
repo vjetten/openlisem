@@ -232,6 +232,7 @@ void TWorld::cell_Channelinfow2(int r, int c)
 
 }
 //---------------------------------------------------------------------------
+/*
 void TWorld::cell_Redistribution2psi(int r, int c)
 {
     double Lw_ = Lw->Drc;
@@ -275,7 +276,7 @@ void TWorld::cell_Redistribution2psi(int r, int c)
         m0 = m1;
         if (Lw_ > 0) {
             h0 = 0;
-            K0 = Ksateff->>Drc;
+            K0 = Ksateff->Drc;
             m0 = Lw_*(pore1-thetar1);
         }
 
@@ -446,6 +447,7 @@ void TWorld::cell_Redistribution2psi(int r, int c)
 
 
 }
+*/
 //---------------------------------------------------------------------------
 void TWorld::cell_Redistribution1(int r, int c)
 {

@@ -669,7 +669,7 @@ void TWorld::InitSoilInput(void)
           //  lambda1->Drc = 0.0384*log(Ksat1->Drc)+0.0626;
             //rawls et al., 1982
             lambda1->Drc = std::min(1.0, 0.0849*log(Ksat1->Drc)+0.159);
-            psi1ae->Drc = exp( -0.3012*ln(Ksat1->Drc) + 3.5164) * 0.01; // 0.01 to convert to m
+            psi1ae->Drc = exp( -0.3012*log(Ksat1->Drc) + 3.5164) * 0.01; // 0.01 to convert to m
 
         }}
 
@@ -734,7 +734,7 @@ void TWorld::InitSoilInput(void)
                 //lambda2->Drc = 0.0384*log(Ksat2->Drc)+0.0626;
                 // regression eq from data from Saxton and rawls 2006, excel file
                 lambda2->Drc = std::min(1.0,0.0849*log(Ksat2->Drc)+0.159);
-                psi2ae->Drc = exp( -0.3012*ln(Ksat2->Drc) + 3.5164) * 0.01; // 0.01 to convert to m
+                psi2ae->Drc = exp( -0.3012*log(Ksat2->Drc) + 3.5164) * 0.01; // 0.01 to convert to m
 
             }}
 
