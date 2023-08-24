@@ -263,6 +263,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
           case 2: kavg[i] = Havg(k[i],k[i-1],1.0,1.0);
           case 3: kavg[i] = Mavg(k[i],k[i-1]);
       }
+      kavg[0] = kavg[1];
 
       //--- boundary conditions ---//
 
@@ -281,12 +282,8 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 
       // 1st check flux aginst max flux
       ThetaSat = TheNode(0.0, Horizon(p, 0));
-     // kavg[0]= sqrt( (*repel) * HcoNode(0, Horizon(p, 0), ksatCalibration) * k[0]);
-      //waar slaat dit op ??? ksavg0 is sqrt(ksat, k[0]), waarom ksat???
-
-
 //pixel->var = kavg[0]*36000; //k layer 0 in mm/h
-      //kavg[0]= sqrt( (*repel) * HcoNode(0.0, Horizon(p, 0), ksatCalibration) * k[0]);       
+      kavg[0]= sqrt( (*repel) * HcoNode(0.0, Horizon(p, 0), ksatCalibration) * k[0]);
       
       // geometric avg of ksat and k[0]
       _max = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
