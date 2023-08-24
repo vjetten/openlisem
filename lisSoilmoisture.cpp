@@ -246,7 +246,7 @@ void TWorld::cell_Soilwater(long i_)
     // include crusting compaction etc in top layer;
 
 
-    s.dts=SoilWBdtfactor*_dt;
+    s.dts=0.5*SoilWBdtfactor*_dt;
 
     // outer loop timestep lisem
     do {
@@ -268,18 +268,18 @@ void TWorld::cell_Soilwater(long i_)
                     Wnew[j] = s.pore[j];
                 double W = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/(Hnew[j]-0.01), s.lambda[j]);
                 C1[j] = (Wnew[j]-W)/0.01;
-/*
-                if (fabs(Hnew[j]-Hold[j]) <= 3*tol2) {
-                    if (Hx < s.hb[j])
-                        C1[j] = s.theta[j] * 1e-6/s.pore[j]
-                                -1.0/Hx *(s.pore[j]-s.thetar[j])*s.lambda[j]*pow(s.hb[j]/Hx, s.lambda[j]);
-                    else {
-                        //double f = std::max(1e-6,(0-Hx)/(0-s.hb[j]));
-                        C1[j] = s.theta[j] * 1e-6/s.pore[j]; //????
-                    }
-                } else
-                    C1[j] = (Wnew[j]-s.theta[j])/(Hnew[j]-Hold[j]);
-*/
+
+//                if (fabs(Hnew[j]-Hold[j]) <= 3*tol2) {
+//                    if (Hx < s.hb[j])
+//                        C1[j] = s.theta[j] * 1e-6/s.pore[j]
+//                                -1.0/Hx *(s.pore[j]-s.thetar[j])*s.lambda[j]*pow(s.hb[j]/Hx, s.lambda[j]);
+//                    else {
+//                        //double f = std::max(1e-6,(0-Hx)/(0-s.hb[j]));
+//                        C1[j] = s.theta[j] * 1e-6/s.pore[j]; //????
+//                    }
+//                } else
+//                    C1[j] = (Wnew[j]-s.theta[j])/(Hnew[j]-Hold[j]);
+
                 C1[j] *= s.dz[j]/s.dts;
              }
 
@@ -313,12 +313,10 @@ void TWorld::cell_Soilwater(long i_)
 //               s.ponded = WH0 > space;
 //            }
 
-           // s.Infact = K1[0]*((Hnew[0]-Hnew[1])/s.dz[0]-1);
-           // s.Infact = -Aavg(s.Ks[0],K[0])*(WH0-Hnew[0])/s.dz[0] - K[0];
-            s.Infact = -s.Ks[0]*(WH0-Hnew[0])/s.dz[0] - K[0];
+            s.Infact = -s.Ks[0]*(WH0-std::min(s.hb[0],Hnew[0]))/s.dz[0] + K[0];
             if (s.Infact <= s.InfPot)
                s.ponded = true;
-            double tmp = s.Infact;
+
             //======== Galerkin 3-diagonal scheme and back substitution
 
             // sort of Simpson trapezium solution
@@ -347,12 +345,11 @@ void TWorld::cell_Soilwater(long i_)
 
             // upper boundary condition
             if (s.ponded){
-               // Hnew[0] = Hold[0] + (s.InfPot-s.Infact)*s.dts;
-                Hnew[0] += s.Infact*s.dts;
-                //s.Infact = std::min(s.InfPot, D[0]*Hnew[0] - F[0]);
+                Hnew[0] = Hold[0] +  s.Infact*s.dts;
+                // in worm staat hiet de potential aan het oppervlak dus WH0, alleen als [0] de oppervlakte is
                 s.Infact = D[0]*Hnew[0] - F[0];
-//show(tmp,s.Infact,0);
-                //F[0] = Hnew[0];  //??? F is a flux, how can this be
+
+              //  F[0] = Hnew[0];  //??? F is a flux, hoe kun je H erbij optellen?
                 F[0] = F[0] + s.Infact;
                 A1 = A[0];
                 A[0] = 0;
@@ -391,19 +388,21 @@ void TWorld::cell_Soilwater(long i_)
 
             //======== calc boundary fluxes
 
+            //??????????????????
 //            if (s.ponded && Hnew[1] < 0) {
 //                s.Infact = s.Infact + A1 * Hnew[1];
 //            }
             if (freeDrainage)
                 s.drain = 0.5*(K[nN] + FNN2 - std::min(Hnew[nN],0.0)*FNN1);
 
-            //s.ponded = Hnew[0] > 0;
+            s.ponded = Hnew[0] > 0;
 
             // stop if Hnew and Hold are close
             stopit = true;
-            double tol = s.ponded ? 0.2 : 0.1;
             for(int j = 0; j < nNodes; j++) {
-                if (fabs(Hnew[j] - Hold[j]) > tol) {//tol1*fabs(Hold[j]) + tol2) {
+                double tol = tol1*fabs(Hold[j]) + tol2;
+                if (s.ponded) tol /= 2;
+                if (fabs(Hnew[j] - Hold[j]) > tol) {
                     stopit = false;
                     break;
                 }
@@ -414,19 +413,21 @@ void TWorld::cell_Soilwater(long i_)
                 // restore and do again
                 s.dts /= 2.0;
                 s.dts = std::max(s.dts,dtmin);
-                s.dtsum -= s.dts;
-                for(int j = 0; j < nNodes; j++)
+                for(int j = 1; j < nNodes; j++)  // do not include surface node
+                  //  Hnew[j] = Hold[j];
                     Hnew[j] = 0.5*(Hold[j]+Hnew[j]);
                 stopit = true;
             }
 
+            for(int j = 0; j < nNodes; j++) {
+                Hold[j] = Hnew[j];
+            }
+
+
+           //if (NIT > NITMAX) stopit = true;
         } while(!stopit);
         // end SoilMoisture in PAS code
 
-
-        for(int j = 0; j < nNodes; j++) {
-            Hold[j] = Hnew[j];
-        }
 
         // change timestep for next iteration
 //        double factor = 0.5 + 1/sqrt((double)NIT);
@@ -448,18 +449,8 @@ void TWorld::cell_Soilwater(long i_)
         s.dts = std::min(s.dts,_dt-s.dtsum);
         s.dtsum += s.dts;
 
-//        if (s.Infact ==s.InfPot) {
-//        s.Infact = (s.pore[0] - Wnew[0])*s.dz[0]/s.dts;
-//        Hnew[0] = s.dts*(s.InfPot-s.Infact);
-//        }
-
-        cnt += 1.0;
-
-        if (i_ == cell) qDebug() << cnt << NIT << s.dts << s.dtsum << _dt;
+        if (i_ == cell) qDebug() << NIT << s.dts << s.dtsum << _dt;
     } while(s.dtsum < _dt);
-
-    s.dts = _dt/(cnt);
-    // store average dts for start of new timestep
 
     for(int j = 0; j < nNodes; j++) {
         s.h[j] = Hnew[j];
