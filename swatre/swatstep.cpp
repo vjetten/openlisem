@@ -255,25 +255,6 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
          // moisture content
       }
 
-//      *Theta = (theta[0]+theta[1])/2;
-      // avg water content of first two nodes, choice ...
-
-//      (*repel) = 1.0;
-//      if (SwitchWaterRepellency)
-//      {
-//         if (pixel->repellency == 1)
-//         {
-//            *repel = 1/(waterRep_d+pow(waterRep_a, 100*(*Theta-waterRep_b)));
-//            if (*Theta < waterRep_c)
-//               *repel = 1.0;
-//         }
-//         else
-//            *repel = 0;
-//         *repel = std::max(0.0,std::min(1-*repel, 1.0));
-
-//         k[0] = k[0] * (*repel);
-//      }
-
       // average K for 1st to n-1 node, top node is done below
       //choice arithmetric average K, geometric in org. SWATRE
       switch (KavgType) {
@@ -299,8 +280,8 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       //VJ 110122 why not last node? this gives nan, why? => n does not exist!
 
       // 1st check flux aginst max flux
-      ThetaSat = TheNode(0.0, Horizon(p, 0));    
-      kavg[0]= sqrt( (*repel) * HcoNode(0, Horizon(p, 0), ksatCalibration) * k[0]);
+      ThetaSat = TheNode(0.0, Horizon(p, 0));
+     // kavg[0]= sqrt( (*repel) * HcoNode(0, Horizon(p, 0), ksatCalibration) * k[0]);
       //waar slaat dit op ??? ksavg0 is sqrt(ksat, k[0]), waarom ksat???
 
 
