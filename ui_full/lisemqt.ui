@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1643</width>
-    <height>825</height>
+    <height>928</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -114,8 +114,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>763</width>
-                <height>479</height>
+                <width>780</width>
+                <height>508</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
@@ -2133,7 +2133,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>7</number>
              </property>
              <property name="iconSize">
               <size>
@@ -8546,8 +8546,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>668</width>
-                    <height>567</height>
+                    <width>685</width>
+                    <height>589</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_54">
@@ -9302,13 +9302,13 @@ p, li { white-space: pre-wrap; }
                          <double>0.010000000000000</double>
                         </property>
                         <property name="maximum">
-                         <double>1.000000000000000</double>
+                         <double>0.500000000000000</double>
                         </property>
                         <property name="singleStep">
                          <double>0.010000000000000</double>
                         </property>
                         <property name="value">
-                         <double>0.500000000000000</double>
+                         <double>0.200000000000000</double>
                         </property>
                        </widget>
                       </item>

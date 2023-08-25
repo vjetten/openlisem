@@ -256,6 +256,9 @@ void TWorld::cell_Soilwater(long i_)
         Hnew[j] = s.h[j];
         if (j > GWnode)
             Hnew[j] = 0;
+        if (j == GWnode && Hnew[j] == 0) {
+            Hnew[j] = 0.5*Hnew[j-1];
+        }
         Hold[j] = Hnew[j];
         S[j] = 0;
     }
@@ -372,7 +375,6 @@ void TWorld::cell_Soilwater(long i_)
 
             // lower boundary condition
             if (freeDrainage) {
-                // s.drain = -K[nN]*(Hnew[nN]-Hnew[nN-1])/s.dz[nN] + K[nN];
                 D[nN] = -A[nN-1];
                 FNN2 = F[nN];
                 F[nN] = 0;
@@ -408,28 +410,32 @@ void TWorld::cell_Soilwater(long i_)
                 s.drain = 0.5*(K[nN] + FNN2 - Hnew[nN]*FNN1);
             }
 
-            s.ponded = Hnew[0] > 0;
-
-            // stop if Hnew and Hold are close
             stopit = true;
-            for(int j = 0; j <= nN; j++) {
-                double tol = tol1*fabs(Hold[j]) + tol2;
-                if (s.ponded) tol /= 2;
-                if (fabs(Hnew[j] - Hold[j]) > tol) {
-                    stopit = false;
-                    break;
+            bool iterate = false;
+            if (iterate) {
+                s.ponded = Hnew[0] > 0;
+
+                //stop if Hnew and Hold are close
+                // do not include top node?
+                for(int j = 1; j <= nN; j++) {
+                    double tol = tol1*fabs(Hold[j]) + tol2;
+                    if (s.ponded) tol /= 2;
+                    if (fabs(Hnew[j] - Hold[j]) > tol) {
+                        stopit = false;
+                        break;
+                    }
                 }
-            }
 
-            NIT++;
+                NIT++;
 
-            if (!stopit && NIT > NITMAX) {
-                // try again with smaller dts
-                s.dts /= 2.0;
-                s.dts = std::max(s.dts,dtmin);
-                for(int j = 1; j < nNodes; j++)  // do not include surface node
-                    Hnew[j] = 0.5*(Hold[j]+Hnew[j]);
-                stopit = true;
+                if (!stopit && NIT > NITMAX) {
+                    // try again with smaller dts
+                    s.dts /= 2.0;
+                    s.dts = std::max(s.dts,dtmin);
+                    for(int j = 1; j < nNodes; j++)  // do not include surface node
+                        Hnew[j] = 0.5*(Hold[j]+Hnew[j]);
+                    stopit = true;
+                }
             }
 
             for(int j = 0; j < nNodes; j++) {
@@ -437,7 +443,7 @@ void TWorld::cell_Soilwater(long i_)
             }
 
         } while(!stopit);
-        // end SoilMoisture in PAS code
+
 
         // change timestep for next iteration
         //        double factor = 0.5 + 1/sqrt((double)NIT);
@@ -459,7 +465,7 @@ void TWorld::cell_Soilwater(long i_)
         s.dts = std::min(s.dts,_dt-s.dtsum);
         s.dtsum += s.dts;
 
-        //if (i_ == cell) qDebug() << NIT << s.dts << s.dtsum << _dt << s.Infact;
+       // if (i_ == cell) qDebug() << NIT << s.dts << s.dtsum << _dt << s.Infact;
 
     } while(s.dtsum < _dt);
 
@@ -497,18 +503,17 @@ void TWorld::cell_Soilwater(long i_)
 
     Perc->Drc = s.drain*_dt;
 
-
-    if (i_ == cell) qDebug() << WH0 << s.InfPot << s.Infact  << s.drain;
-    if (i_==cell) {
-        QString S;
-        QString S1;
-        for(int j = 0; j < nNodes; j++) {
-            S = S + QString(" %1").arg(s.h[j]);
-            S1 = S1 + QString(" %1").arg(s.theta[j]);
-        }
-        qDebug() << S;
-        qDebug() << S1;
-    }
+//    if (i_ == cell) qDebug() << WH0 << s.InfPot << s.Infact  << s.drain;
+//    if (i_==cell) {
+//        QString S;
+//        QString S1;
+//        for(int j = 0; j < nNodes; j++) {
+//            S = S + QString(" %1").arg(s.h[j]);
+//            S1 = S1 + QString(" %1").arg(s.theta[j]);
+//        }
+//        qDebug() << S;
+//        qDebug() << S1;
+//    }
 
     delete[] Hold;
     delete[] Hnew;
