@@ -211,7 +211,6 @@ void TWorld::cell_Soilwater(long i_)
 
     double *Hold = new double[nNodes];
     double *Hnew = new double[nNodes];
-    double *Wnew = new double[nNodes];
     double *C1 = new double[nNodes];
     double *S  = new double[nNodes];
     double *K  = new double[nNodes];
@@ -220,7 +219,6 @@ void TWorld::cell_Soilwater(long i_)
     double *A  = new double[nNodes];
     double *D  = new double[nNodes];
     double *F  = new double[nNodes];
-    double *gw  = new double[nNodes];
 
     int GWnode = nN;
     if (SwitchGWflow) {
@@ -237,7 +235,9 @@ void TWorld::cell_Soilwater(long i_)
             shoW(h, depth, j-1);
             GWnode = j-1;
         }
+        shoW(GWnode,nNodes,GWWH->Drc);
     }
+    nN = GWnode;
 
     if (FloodDomain->Drc == 0)
         WH0 = WH->Drc; //runoff in kinwave or dyn wave
@@ -255,12 +255,12 @@ void TWorld::cell_Soilwater(long i_)
         S[j] = 0;
     }
 
-//    if (SwitchGWflow) {
-//        for (int j = GWnode; j < nNodes; j++) {
-//            Hnew[j] = 0;
-//            Hold[j] = 0;
-//        }
-//    }
+    if (SwitchGWflow) {
+        for (int j = GWnode+1; j < nNodes; j++) {
+            Hnew[j] = 0;
+            Hold[j] = 0;
+        }
+    }
 
 
     if (SwitchIncludeET)
@@ -285,11 +285,14 @@ void TWorld::cell_Soilwater(long i_)
                 double Hx = std::min(s.hb[j], 0.5*(Hnew[j] + Hold[j]));
 
                 K[j] = s.Ks[j]*pow(std::min(1.0,s.hb[j]/Hx), 2.0+3.0*s.lambda[j]);
-
-                Wnew[j] = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/Hnew[j], s.lambda[j]);
-
+                double Wnew;
+                if (Hnew[j] < s.hb[j])
+                    Wnew = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/Hnew[j], s.lambda[j]);
+                else
+                    Wnew = s.pore[j];
                 double W = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/(Hnew[j]-0.01), s.lambda[j]);
-                C1[j] = (Wnew[j]-W)/0.01;
+
+                C1[j] = (Wnew-W)/0.01;
                 // swatre solution
 
 //                if (fabs(Hnew[j]-Hold[j]) <= 3*tol2) {
@@ -306,10 +309,10 @@ void TWorld::cell_Soilwater(long i_)
                  C1[j] *= s.dz[j]/s.dts;
              }
 
-//             if (SwitchGWflow) {
-//                for (int j = GWnode; j < nNodes; j++)
-//                    K[j] *= GW_recharge;
-//             }
+             if (SwitchGWflow) {
+                for (int j = GWnode+1; j < nNodes; j++)
+                    K[j] *= GW_recharge;
+             }
 
             // K1 and K2 are avg between node and upper and lower node
             for(int j = 1; j < nNodes; j++) {
@@ -345,7 +348,7 @@ void TWorld::cell_Soilwater(long i_)
             F[0] = (2.0*C1[0] + C1[1])/6.0;
             A[0] = -kK1[0];
             D[0] = -A[0]+F[0];
-            for(int j = 1; j < nNodes-1; j++) {
+            for(int j = 1; j < nN; j++) {
                 F[j] = (C1[j-1] + 4.0*C1[j] + C1[j+1])/6.0; // dtheta/dh * dz/dt
                 A[j] = -kK2[j];
                 D[j] = (kK1[j] + kK2[j]) + F[j];
@@ -357,7 +360,7 @@ void TWorld::cell_Soilwater(long i_)
             FNN1 = F[nN];
             // include gravity term (i.e. k only) and sink term S[]
             F[0] = F[0]*Hold[0] - s.dz[0]*(kK1[0] - (2*S[0]+S[1])/6);
-            for(int j = 1; j < nNodes-2; j++) {
+            for(int j = 1; j < nN-1; j++) {
                 F[j] = F[j]*Hold[j]
                        + 0.5*(s.dz[j]+s.dz[j-1]) * kK1[j]
                        - 0.5*(s.dz[j]+s.dz[j+1]) * kK2[j]
@@ -395,7 +398,8 @@ void TWorld::cell_Soilwater(long i_)
             }
 
             // calc Hnew with Gaussian elimination and back substitution
-            for(int j = 1; j < nNodes; j++) {
+            //for(int j = 1; j < nNodes; j++) {
+            for(int j = 1; j <= nN; j++) {
                 A2 = A[j-1]/D[j-1];
                 D[j] = D[j] - A2 * A[j-1];
                 F[j] = F[j] - A2 * F[j-1];
@@ -423,7 +427,7 @@ void TWorld::cell_Soilwater(long i_)
 
             // stop if Hnew and Hold are close
             stopit = true;
-            for(int j = 0; j < nNodes; j++) {
+            for(int j = 0; j <= nN; j++) {
                 double tol = tol1*fabs(Hold[j]) + tol2;
                 if (s.ponded) tol /= 2;
                 if (fabs(Hnew[j] - Hold[j]) > tol) {
@@ -435,11 +439,10 @@ void TWorld::cell_Soilwater(long i_)
             NIT++;
 
             if (!stopit && NIT > NITMAX) {
-                // restore and do again
+                // try again with smaller dts
                 s.dts /= 2.0;
                 s.dts = std::max(s.dts,dtmin);
                 for(int j = 1; j < nNodes; j++)  // do not include surface node
-                  //  Hnew[j] = Hold[j];
                     Hnew[j] = 0.5*(Hold[j]+Hnew[j]);
                 stopit = true;
             }
@@ -448,8 +451,6 @@ void TWorld::cell_Soilwater(long i_)
                 Hold[j] = Hnew[j];
             }
 
-
-           //if (NIT > NITMAX) stopit = true;
         } while(!stopit);
         // end SoilMoisture in PAS code
 
@@ -512,21 +513,20 @@ void TWorld::cell_Soilwater(long i_)
     Perc->Drc = s.drain*_dt;
 
 
- //   if (i_ == cell) qDebug() << WH0 << s.InfPot << s.Infact  << s.ponded << s.drain;
-//    if (i_==cell) {
-//        QString S;
-//        QString S1;
-//        for(int j = 0; j < nNodes; j++) {
-//            S = S + QString(" %1").arg(s.h[j]);
-//            S1 = S1 + QString(" %1").arg(s.theta[j]);
-//        }
-//        qDebug() << S;
-//        qDebug() << S1;
-//    }
+    if (i_ == cell) qDebug() << WH0 << s.InfPot << s.Infact  << s.drain;
+    if (i_==cell) {
+        QString S;
+        QString S1;
+        for(int j = 0; j < nNodes; j++) {
+            S = S + QString(" %1").arg(s.h[j]);
+            S1 = S1 + QString(" %1").arg(s.theta[j]);
+        }
+        qDebug() << S;
+        qDebug() << S1;
+    }
 
     delete[] Hold;
     delete[] Hnew;
-    delete[] Wnew;
     delete[] C1;
     delete[] S;
     delete[] K;
@@ -535,7 +535,6 @@ void TWorld::cell_Soilwater(long i_)
     delete[] A ;
     delete[] D ;
     delete[] F ;
-    delete[] gw ;
 }
 
 
