@@ -254,7 +254,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include crusts")==0)                 checkInfilCrust->setChecked(check);
         if (p1.compare("Impermeable sublayer")==0)           checkInfilImpermeable->setChecked(check);
         if (p1.compare("Two layer")==0)                      checkInfil2layer->setChecked(check);
-        if (p1.compare("Psi user input")==0)                      checkPsiUser->setChecked(check);
+        if (p1.compare("Nr input layers")==0)                spinSoilLayers->setValue(iii);;
+        if (p1.compare("Psi user input")==0)                 checkPsiUser->setChecked(check);
      //   if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
         //	  if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
         if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setValue(valc);
@@ -387,6 +388,7 @@ void lisemqt::ParseInputData()
 //        if (p1.compare("GW layer change SD")==0)        checkGWChangeSD->setChecked(check);
         if (p1.compare("SoilWB nodes 1")==0) spinNodes1->setValue(iii);
         if (p1.compare("SoilWB nodes 2")==0) spinNodes2->setValue(iii);
+        if (p1.compare("SoilWB nodes 3")==0) spinNodes3->setValue(iii);
         if (p1.compare("SoilWB dt factor")==0) spinInfdt->setValue(valc);
         if (p1.compare("Infil Kavg")==0)    comboBox_Kmean->setCurrentIndex(iii);
 
@@ -823,7 +825,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
         if (p1.compare("Include diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
-        if (p1.compare("Include River diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
+        if (p1.compare("Include River diffusion")==0)        namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
@@ -839,6 +841,7 @@ void lisemqt::updateModelData()
 //        if (p1.compare("GW layer change SD")==0)             namelist[j].value.setNum((int)checkGWChangeSD->isChecked());
         if (p1.compare("SoilWB nodes 1")==0)                namelist[j].value =spinNodes1->text();
         if (p1.compare("SoilWB nodes 2")==0)                namelist[j].value =spinNodes2->text();
+        if (p1.compare("SoilWB nodes 3")==0)                namelist[j].value =spinNodes3->text();
         if (p1.compare("SoilWB dt factor")==0)              namelist[j].value =spinInfdt->text();
         if (p1.compare("Infil Kavg")==0)                  namelist[j].value.setNum(comboBox_Kmean->currentIndex());
 
@@ -912,6 +915,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include crusts")==0)                 namelist[j].value.setNum((int)checkInfilCrust->isChecked());
         if (p1.compare("Impermeable sublayer")==0)          namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
         if (p1.compare("Two layer")==0)                     namelist[j].value.setNum((int)checkInfil2layer->isChecked());
+        if (p1.compare("Nr input layers")==0)                namelist[j].value = spinSoilLayers->text();
         if (p1.compare("Psi user input")==0)                     namelist[j].value.setNum((int)checkPsiUser->isChecked());
         //if (p1.compare("Matric head files")==0)              namelist[j].value.setNum((int)checkDumphead->isChecked());
     //    if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());

@@ -80,7 +80,7 @@
         <item row="1" column="1">
          <widget class="QGroupBox" name="groupBoxOutput">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -2061,7 +2061,7 @@
         <item row="1" column="0">
          <widget class="QGroupBox" name="groupBoxInput">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -2101,497 +2101,6 @@
            <property name="verticalSpacing">
             <number>4</number>
            </property>
-           <item row="0" column="0">
-            <widget class="QGroupBox" name="groupBox_dbase">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>8</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="title">
-              <string>Database</string>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_7">
-              <property name="leftMargin">
-               <number>4</number>
-              </property>
-              <property name="topMargin">
-               <number>2</number>
-              </property>
-              <property name="rightMargin">
-               <number>4</number>
-              </property>
-              <property name="bottomMargin">
-               <number>4</number>
-              </property>
-              <property name="horizontalSpacing">
-               <number>4</number>
-              </property>
-              <property name="verticalSpacing">
-               <number>2</number>
-              </property>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_1">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="layoutDirection">
-                 <enum>Qt::RightToLeft</enum>
-                </property>
-                <property name="text">
-                 <string>Run file(s) </string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="3">
-               <widget class="QToolButton" name="toolButton_fileOpen">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>Select run file</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
-                </property>
-                <property name="autoRaise">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="3">
-               <widget class="QToolButton" name="toolButton_MapDir">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>Select a map directory, this is appended to all maps</string>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
-                </property>
-                <property name="autoRaise">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="3">
-               <widget class="QToolButton" name="toolButton_ResultDir">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0" rowspan="2">
-               <widget class="QLabel" name="label_2">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="layoutDirection">
-                 <enum>Qt::RightToLeft</enum>
-                </property>
-                <property name="text">
-                 <string>Map directory </string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="5">
-               <widget class="QToolButton" name="toolButton_deleteRun">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>Delete current run file from list</string>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/File-Delete-icon.png</normaloff>:/2X/File-Delete-icon.png</iconset>
-                </property>
-                <property name="autoRaise">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1" rowspan="2" colspan="2">
-               <widget class="QLineEdit" name="E_MapDir">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1" colspan="2">
-               <widget class="QComboBox" name="E_runFileList">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-                <property name="duplicatesEnabled">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="label_3">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="layoutDirection">
-                 <enum>Qt::RightToLeft</enum>
-                </property>
-                <property name="text">
-                 <string>   Result directory </string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="4">
-               <widget class="QToolButton" name="toolButton_ShowRunfile">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>Show current run file</string>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../resources/openlisem.qrc">
-                  <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
-                </property>
-                <property name="autoRaise">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1" colspan="2">
-               <widget class="QLineEdit" name="E_ResultDir">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="4" colspan="2">
-               <widget class="QCheckBox" name="checkAddDatetime">
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Make a subdirectory under the result directory with a date-time stamp&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string>Add time</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QGroupBox" name="groupBoxTime">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>8</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="title">
-              <string>Simulation times</string>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_43">
-              <property name="leftMargin">
-               <number>8</number>
-              </property>
-              <property name="topMargin">
-               <number>4</number>
-              </property>
-              <property name="rightMargin">
-               <number>8</number>
-              </property>
-              <property name="bottomMargin">
-               <number>4</number>
-              </property>
-              <property name="horizontalSpacing">
-               <number>8</number>
-              </property>
-              <property name="verticalSpacing">
-               <number>4</number>
-              </property>
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="E_Timestep">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="inputMask">
-                 <string>9999</string>
-                </property>
-                <property name="text">
-                 <string>20</string>
-                </property>
-                <property name="maxLength">
-                 <number>4</number>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QLabel" name="label_6">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Begin time (day:min)</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="5">
-               <widget class="QLineEdit" name="E_EndTimeDay">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="inputMask">
-                 <string>999:9999</string>
-                </property>
-                <property name="text">
-                 <string>000:1200</string>
-                </property>
-                <property name="cursorPosition">
-                 <number>8</number>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_8">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Timestep (sec)</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="4">
-               <widget class="QLabel" name="label_7">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>End time (day:min)</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="3">
-               <widget class="QLineEdit" name="E_BeginTimeDay">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="inputMask">
-                 <string>999:9999</string>
-                </property>
-                <property name="text">
-                 <string>000:0000</string>
-                </property>
-                <property name="maxLength">
-                 <number>8</number>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
            <item row="2" column="0">
             <widget class="QTabWidget" name="tabWidgetOptions">
              <property name="enabled">
@@ -2624,7 +2133,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>7</number>
+              <number>0</number>
              </property>
              <property name="iconSize">
               <size>
@@ -4626,11 +4135,22 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>685</width>
-                    <height>486</height>
+                    <width>668</width>
+                    <height>463</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_77">
+                   <item row="0" column="3">
+                    <widget class="QToolButton" name="toolButton_help3">
+                     <property name="text">
+                      <string>...</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/openlisem.qrc">
+                       <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
                    <item row="4" column="0" colspan="4">
                     <widget class="QCheckBox" name="checkInfilCrust">
                      <property name="sizePolicy">
@@ -4652,10 +4172,21 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="5" column="0">
-                    <widget class="QCheckBox" name="checkIncludeTiledrains">
+                   <item row="0" column="2">
+                    <widget class="QToolButton" name="toolButton_resetInfiltration">
+                     <property name="text">
+                      <string>...</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../resources/openlisem.qrc">
+                       <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="9" column="0" colspan="2">
+                    <widget class="QGroupBox" name="groupBox_RichardsOptions">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -4663,14 +4194,170 @@ p, li { white-space: pre-wrap; }
                      <property name="font">
                       <font>
                        <pointsize>8</pointsize>
-                       <bold>false</bold>
+                       <bold>true</bold>
                        <underline>false</underline>
                        <kerning>true</kerning>
                       </font>
                      </property>
-                     <property name="text">
-                      <string>Activate tile drain system (needs lddtile.map)</string>
+                     <property name="title">
+                      <string>Richards Finite Element options</string>
                      </property>
+                     <layout class="QGridLayout" name="gridLayout_71">
+                      <property name="leftMargin">
+                       <number>8</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>4</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>8</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>8</number>
+                      </property>
+                      <property name="horizontalSpacing">
+                       <number>8</number>
+                      </property>
+                      <property name="verticalSpacing">
+                       <number>4</number>
+                      </property>
+                      <item row="1" column="3">
+                       <widget class="QSpinBox" name="spinNodes2">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="minimum">
+                         <number>2</number>
+                        </property>
+                        <property name="value">
+                         <number>3</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="6">
+                       <spacer name="horizontalSpacer_25">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="QSpinBox" name="spinNodes1">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="minimum">
+                         <number>2</number>
+                        </property>
+                        <property name="value">
+                         <number>3</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="2">
+                       <widget class="QLabel" name="label_147">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>#Nodes in layer 2 </string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="label_140">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>#Nodes in layer 1 </string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="5">
+                       <widget class="QSpinBox" name="spinNodes3">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="minimum">
+                         <number>2</number>
+                        </property>
+                        <property name="value">
+                         <number>3</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="4">
+                       <widget class="QLabel" name="label_154">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>#Nodes in layer 3</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </widget>
                    </item>
                    <item row="2" column="0" colspan="4">
@@ -4694,38 +4381,25 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="0" column="3">
-                    <widget class="QToolButton" name="toolButton_help3">
-                     <property name="text">
-                      <string>...</string>
+                   <item row="7" column="0">
+                    <widget class="QSpinBox" name="spinSoilLayers">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
                      </property>
-                     <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
-                       <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
+                     <property name="minimum">
+                      <number>1</number>
                      </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <spacer name="horizontalSpacer_7">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
+                     <property name="maximum">
+                      <number>3</number>
                      </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>220</width>
-                       <height>28</height>
-                      </size>
+                     <property name="singleStep">
+                      <number>1</number>
                      </property>
-                    </spacer>
-                   </item>
-                   <item row="0" column="2">
-                    <widget class="QToolButton" name="toolButton_resetInfiltration">
-                     <property name="text">
-                      <string>...</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../resources/openlisem.qrc">
-                       <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
+                     <property name="value">
+                      <number>2</number>
                      </property>
                     </widget>
                    </item>
@@ -4750,7 +4424,7 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="9" column="0">
+                   <item row="11" column="0">
                     <spacer name="verticalSpacer_3">
                      <property name="orientation">
                       <enum>Qt::Vertical</enum>
@@ -4763,49 +4437,7 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </spacer>
                    </item>
-                   <item row="0" column="0">
-                    <widget class="QLabel" name="label_150">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>10</pointsize>
-                       <bold>true</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Infiltration</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0" colspan="2">
-                    <widget class="QComboBox" name="E_InfiltrationMethod">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="currentIndex">
-                      <number>-1</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="6" column="0" colspan="2">
+                   <item row="8" column="0" colspan="2">
                     <widget class="QGroupBox" name="groupBox_InfilOptions">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -4882,151 +4514,7 @@ p, li { white-space: pre-wrap; }
                      </layout>
                     </widget>
                    </item>
-                   <item row="7" column="0" colspan="2">
-                    <widget class="QGroupBox" name="groupBox_RichardsOptions">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>true</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="title">
-                      <string>Richards Finite Element options</string>
-                     </property>
-                     <layout class="QGridLayout" name="gridLayout_71">
-                      <property name="leftMargin">
-                       <number>8</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>4</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>8</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>8</number>
-                      </property>
-                      <property name="horizontalSpacing">
-                       <number>8</number>
-                      </property>
-                      <property name="verticalSpacing">
-                       <number>4</number>
-                      </property>
-                      <item row="1" column="3">
-                       <widget class="QSpinBox" name="spinNodes2">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="minimum">
-                         <number>2</number>
-                        </property>
-                        <property name="value">
-                         <number>3</number>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="label_140">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>#Nodes in layer 1 </string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="2">
-                       <widget class="QLabel" name="label_147">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>#Nodes in layer 2 </string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="1">
-                       <widget class="QSpinBox" name="spinNodes1">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="minimum">
-                         <number>2</number>
-                        </property>
-                        <property name="value">
-                         <number>3</number>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="4">
-                       <spacer name="horizontalSpacer_25">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item row="8" column="0" colspan="2">
+                   <item row="10" column="0" colspan="2">
                     <widget class="QGroupBox" name="groupBox_SwatreOptions">
                      <property name="enabled">
                       <bool>true</bool>
@@ -5175,9 +4663,92 @@ p, li { white-space: pre-wrap; }
                      </layout>
                     </widget>
                    </item>
+                   <item row="1" column="0" colspan="2">
+                    <widget class="QComboBox" name="E_InfiltrationMethod">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="currentIndex">
+                      <number>-1</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0" colspan="4">
+                    <widget class="QCheckBox" name="checkIncludeTiledrains">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Activate tile drain system (needs lddtile.map)</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="7" column="1" colspan="3">
+                    <widget class="QLabel" name="label_153">
+                     <property name="text">
+                      <string>Nr. of input soil layers (1,2 or 3) for Green and Ampt or Richards FE</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0" colspan="2">
+                    <widget class="QLabel" name="label_150">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>10</pointsize>
+                       <bold>true</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Infiltration</string>
+                     </property>
+                    </widget>
+                   </item>
                   </layout>
                  </widget>
                 </widget>
+               </item>
+               <item row="1" column="0">
+                <spacer name="horizontalSpacer_7">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
               </layout>
              </widget>
@@ -10863,6 +10434,497 @@ p, li { white-space: pre-wrap; }
                </item>
               </layout>
              </widget>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QGroupBox" name="groupBoxTime">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="title">
+              <string>Simulation times</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_43">
+              <property name="leftMargin">
+               <number>8</number>
+              </property>
+              <property name="topMargin">
+               <number>4</number>
+              </property>
+              <property name="rightMargin">
+               <number>8</number>
+              </property>
+              <property name="bottomMargin">
+               <number>4</number>
+              </property>
+              <property name="horizontalSpacing">
+               <number>8</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>4</number>
+              </property>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="E_Timestep">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="inputMask">
+                 <string>9999</string>
+                </property>
+                <property name="text">
+                 <string>20</string>
+                </property>
+                <property name="maxLength">
+                 <number>4</number>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QLabel" name="label_6">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Begin time (day:min)</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="5">
+               <widget class="QLineEdit" name="E_EndTimeDay">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="inputMask">
+                 <string>999:9999</string>
+                </property>
+                <property name="text">
+                 <string>000:1200</string>
+                </property>
+                <property name="cursorPosition">
+                 <number>8</number>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_8">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Timestep (sec)</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="4">
+               <widget class="QLabel" name="label_7">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>End time (day:min)</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QLineEdit" name="E_BeginTimeDay">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="inputMask">
+                 <string>999:9999</string>
+                </property>
+                <property name="text">
+                 <string>000:0000</string>
+                </property>
+                <property name="maxLength">
+                 <number>8</number>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QGroupBox" name="groupBox_dbase">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="title">
+              <string>Database</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_7">
+              <property name="leftMargin">
+               <number>4</number>
+              </property>
+              <property name="topMargin">
+               <number>2</number>
+              </property>
+              <property name="rightMargin">
+               <number>4</number>
+              </property>
+              <property name="bottomMargin">
+               <number>4</number>
+              </property>
+              <property name="horizontalSpacing">
+               <number>4</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>2</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_1">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::RightToLeft</enum>
+                </property>
+                <property name="text">
+                 <string>Run file(s) </string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QToolButton" name="toolButton_fileOpen">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Select run file</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
+                </property>
+                <property name="autoRaise">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QToolButton" name="toolButton_MapDir">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Select a map directory, this is appended to all maps</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
+                </property>
+                <property name="autoRaise">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="3">
+               <widget class="QToolButton" name="toolButton_ResultDir">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/2X/Folder-icon.png</normaloff>:/2X/Folder-icon.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" rowspan="2">
+               <widget class="QLabel" name="label_2">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::RightToLeft</enum>
+                </property>
+                <property name="text">
+                 <string>Map directory </string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="5">
+               <widget class="QToolButton" name="toolButton_deleteRun">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Delete current run file from list</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/2X/File-Delete-icon.png</normaloff>:/2X/File-Delete-icon.png</iconset>
+                </property>
+                <property name="autoRaise">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" rowspan="2" colspan="2">
+               <widget class="QLineEdit" name="E_MapDir">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" colspan="2">
+               <widget class="QComboBox" name="E_runFileList">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+                <property name="duplicatesEnabled">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_3">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::RightToLeft</enum>
+                </property>
+                <property name="text">
+                 <string>   Result directory </string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="4">
+               <widget class="QToolButton" name="toolButton_ShowRunfile">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Show current run file</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/openlisem.qrc">
+                  <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
+                </property>
+                <property name="autoRaise">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" colspan="2">
+               <widget class="QLineEdit" name="E_ResultDir">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="4" colspan="2">
+               <widget class="QCheckBox" name="checkAddDatetime">
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Make a subdirectory under the result directory with a date-time stamp&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Add time</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>

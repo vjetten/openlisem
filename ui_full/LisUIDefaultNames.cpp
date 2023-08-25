@@ -376,6 +376,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Impermeable sublayer");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Two layer");
+    namelist[i].value = QString("2");
+    namelist[i++].name = QString("Nr input layers");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Psi user input");
     namelist[i].value = QString("c:\\");
@@ -641,8 +643,10 @@ void lisemqt::defaultRunFile()
 //    namelist[i++].name = QString("GW layer change SD");
     namelist[i].value = QString("3");
     namelist[i++].name = QString("SoilWB nodes 1");
-    namelist[i].value = QString("6");
+    namelist[i].value = QString("3");
     namelist[i++].name = QString("SoilWB nodes 2");
+    namelist[i].value = QString("3");
+    namelist[i++].name = QString("SoilWB nodes 3");
     namelist[i].value = QString("0.2");
     namelist[i++].name = QString("SoilWB dt factor");
     namelist[i].value = QString("0");

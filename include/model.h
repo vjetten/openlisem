@@ -350,7 +350,8 @@ public:
     /// copy of overall rows and columns, set in initmask
     int _nrRows;
     int _nrCols;
-    int nNodes, nN1_, nN2_;
+    int nNodes, nN1_, nN2_, nN3_;
+    int nrSoilLayers;
     double SoilWBdtfactor;
     int KavgType;
 
@@ -917,7 +918,7 @@ public:
     void cell_Redistribution0(int r, int c);
     void cell_Redistribution1(int r, int c);
     void cell_Redistribution2(int r, int c);
-    void cell_Redistribution2psi(int r, int c);
+
     void cell_Channelinfow1(int r, int c);
     void cell_Channelinfow2(int r, int c);
 

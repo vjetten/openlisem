@@ -361,6 +361,8 @@ void TWorld::InitParameters(void)
         SwitchGWChangeSD = true;//getvalueint("GW layer change SD") == 1;
         nN1_ = getvalueint("SoilWB nodes 1");
         nN2_ = getvalueint("SoilWB nodes 2");
+        nN3_ = getvalueint("SoilWB nodes 3");
+
 
     } else {
         F_MaxIter = 200;
@@ -377,8 +379,10 @@ void TWorld::InitParameters(void)
         SwitchChannelWFinflow = false;
         SwitchGWChangeSD = true;
         nN1_ = 3;
-        nN2_ = 6;
+        nN2_ = 3;
+        nN3_ = 6;
         SoilWBdtfactor = 0.5;
+
     }
     _CHMaxV = 20.0;
     if (SwitchChannelMaxV)
@@ -645,11 +649,13 @@ void TWorld::InitLULCInput(void)
 //---------------------------------------------------------------------------
 void TWorld::InitSoilInput(void)
 {
-    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
+    LandUnit = ReadMap(LDD,getvaluename("landunit"));
 
     //## infiltration data
     if(InfilMethod != INFIL_SWATRE)
     {
+        nrSoilLayers = getvalueint("Nr input layers");
+
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
         calcValue(*SoilDepth1, SD1Calibration, MUL);
@@ -683,9 +689,6 @@ void TWorld::InitSoilInput(void)
             ThetaR1->Drc = 0.0673*exp(-0.238*log(ks));
             ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;
         }}
-    report(*lambda1,"lambda1.map");
-    report(*psi1ae,"psi1ae.map");
-    report(*ThetaR1,"ThetaR1.map");
 
         if (SwitchPsiUser) {
             Psi1 = ReadMap(LDD,getvaluename("psi1"));
@@ -700,8 +703,9 @@ void TWorld::InitSoilInput(void)
             }}
         }
 
-        if (SwitchTwoLayer)
+        if (nrSoilLayers == 2 || nrSoilLayers == 3)
         {
+            SwitchTwoLayer = true;
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
             calcValue(*SoilDepth2, SD2Calibration, MUL);
@@ -740,9 +744,6 @@ void TWorld::InitSoilInput(void)
                 ThetaR2->Drc = 0.0673*exp(-0.238*log(ks));
                 ThetaFC2->Drc = -0.0519*log(ks) + 0.3714;
             }}
-report(*lambda2,"lambda2.map");
-report(*psi2ae,"psi2ae.map");
-   report(*ThetaR2,"ThetaR2.map");
 
             // wetting front psi
             if (SwitchPsiUser) {
@@ -754,6 +755,63 @@ report(*psi2ae,"psi2ae.map");
                 FOR_ROW_COL_MV_L {
                     Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425);
                     Psi2->Drc = std::min(Psi2->Drc,psi2ae->Drc)*0.01* psiCalibration;
+                    // psi cannot be more that bubbling pressure, 0.01 cm to m
+                }}
+            }
+        }
+
+            if (nrSoilLayers == 3)
+            {
+                SwitchThreeLayer = true;
+                SoilDepth3 = ReadMap(LDD,getvaluename("soilDep3"));
+                calcValue(*SoilDepth3, 1000, DIV);
+                calcValue(*SoilDepth3, SD2Calibration, MUL);
+
+                SoilDepth3init = NewMap(0);
+                copy(*SoilDepth3init, *SoilDepth3);
+
+                FOR_ROW_COL_MV_L {
+                    if (SoilDepth3->Drc < 0)
+                    {
+                    ErrorString = QString("SoilDepth3 values < 0 at row %1, col %2").arg(r).arg(c);
+                    throw 1;
+                    }
+                }}
+
+            ThetaS2 = ReadMap(LDD,getvaluename("thetaS3"));
+            ThetaI2 = ReadMap(LDD,getvaluename("thetaI3"));
+            ThetaI2a = NewMap(0); // for output, average soil layer 2
+            calcValue(*ThetaI3, thetaCalibration, MUL); //VJ 110712 calibration of theta
+            calcMap(*ThetaI3, *ThetaS3, MIN); //VJ 110712 cannot be more than porosity
+            copy(*ThetaI3a, *ThetaI3);
+
+            Ksat3 = ReadMap(LDD,getvaluename("ksat3"));
+            calcValue(*Ksat3, ksat2Calibration, MUL);
+
+            ThetaR3 = NewMap(0);
+            lambda3 = NewMap(0);             // lambda brooks corey
+            psi3ae = NewMap(0);
+            ThetaFC3 = NewMap(0);
+            FOR_ROW_COL_MV_L {
+                // regression eq from data from Saxton and rawls 2006, excel file
+                double ks = std::max(0.5,std::min(1000.0,log(Ksat3->Drc)));
+                lambda3->Drc = 0.0849*ks+0.159;
+                lambda3->Drc = std::min(std::max(0.1,lambda3->Drc),0.7);
+                psi3ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+                ThetaR3->Drc = 0.0673*exp(-0.238*log(ks));
+                ThetaFC3->Drc = -0.0519*log(ks) + 0.3714;
+            }}
+
+            // wetting front psi
+            if (SwitchPsiUser) {
+                Psi3 = ReadMap(LDD,getvaluename("psi3"));
+                calcValue(*Psi3, psiCalibration, MUL); //VJ 110712 calibration of psi
+                calcValue(*Psi3, 0.01, MUL);
+            } else {
+                Psi3 = NewMap(0);
+                FOR_ROW_COL_MV_L {
+                    Psi3->Drc = exp(-0.3382*log(Ksat3->Drc) + 3.3425);
+                    Psi3->Drc = std::min(Psi3->Drc,psi3ae->Drc)*0.01* psiCalibration;
                     // psi cannot be more that bubbling pressure, 0.01 cm to m
                 }}
             }
@@ -1148,7 +1206,13 @@ void TWorld::InitChannel(void)
         GWgrad = NewMap(0);
 
         FOR_ROW_COL_MV_L {
-        GWz->Drc = DEM->Drc - SoilDepth1->Drc - (SwitchTwoLayer ? SoilDepth2->Drc : 0.0);
+        if (SwitchThreeLayer)
+            GWz->Drc = DEM->Drc - SoilDepth3->Drc;
+        else
+            if (SwitchTwoLayer)
+                GWz->Drc = DEM->Drc - SoilDepth2->Drc;
+            else
+                GWz->Drc = DEM->Drc - SoilDepth1->Drc;
         }}
         Average3x3(*GWz, *LDD, false);
 
@@ -1580,7 +1644,6 @@ void TWorld::InitErosion(void)
     FS_SS_Method = FSGOVERS;
 
     FS_SS_Method = getvalueint("Flooding SS method")-1;
-    qDebug() << FS_SS_Method ;
     FS_BL_Method = getvalueint("Flooding BL method")-1;
     R_SS_Method  = getvalueint("River SS method")-1;
     R_BL_Method  = getvalueint("River BL method")-1;
@@ -3388,11 +3451,7 @@ void TWorld::InitNewSoilProfile()
             double se = (crSoil[i_].theta[j] - crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j]);
             double hh = pow(se, (1.0/crSoil[i_].lambda[j]));
             crSoil[i_].h.replace(j,crSoil[i_].hb[j]/hh);
-         //   if (i_ == 65000)
-           //      qDebug() << i_ << j << crSoil[i_].dz[j] << crSoil[i_].h[j] << crSoil[i_].hb[j] << crSoil[i_].theta[j]<< crSoil[i_].thetar[j]<< crSoil[i_].pore[j] << crSoil[i_].lambda[j];
         }
-
-
 
         double sum = 0;
         double rootmax = 0.8;

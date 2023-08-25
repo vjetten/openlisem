@@ -228,12 +228,7 @@ void TWorld::cell_Channelinfow2(int r, int c)
     // update channel side inflow, sometimes nan occurs  in lw
 
 }
-//---------------------------------------------------------------------------
-void TWorld::cell_Redistribution2psi(int r, int c)
-{
 
-
-}
 //---------------------------------------------------------------------------
 void TWorld::cell_Redistribution1(int r, int c)
 {
