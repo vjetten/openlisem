@@ -263,9 +263,9 @@ void TWorld::cell_Soilwater(long i_)
            // h = 0 at depth SD2-GWWH
            // h = GWWH at depth SD2
            // h = ? at depth s.z
-        }
-        if (int j == GWnode && Hnew[j] >= 0) {
-            Hnew[j] = 0.5*Hnew[j-1];
+            if (j = GWnode && Hnew[j] >= 0) {
+                Hnew[j] = 0.5*Hnew[j-1];
+            }
         }
     }
 
