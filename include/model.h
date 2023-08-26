@@ -311,6 +311,7 @@ typedef struct SOIL_LIST {
     double drain;
     double Infact;
     double InfPot;
+    double SD;
 
     QVector <double> pore;
     QVector <double> Ks;
@@ -410,7 +411,7 @@ public:
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle,
     SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchGWflow, SwitchGW2Dflow,SwitchLDDGWflow,SwitchSWATGWflow,
-    SwitchChannel2DflowConnect, SwitchChannelWFinflow, SwitchGWChangeSD, SwitchDischargeUser;
+    SwitchChannel2DflowConnect, SwitchChannelWFinflow, SwitchDischargeUser, SwitchNrLayers;
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency

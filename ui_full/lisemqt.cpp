@@ -1624,7 +1624,7 @@ void lisemqt::resetTabErosion()
     spinKEparameterA3->setValue(7.6);
     spinKEparameterB3->setValue(0.22);
 
-    checkKETimebased->setChecked(false);
+    //checkKETimebased->setChecked(false);
 
     E_EfficiencyDET->setCurrentIndex(1);
     E_EfficiencyDETCH->setCurrentIndex(1);

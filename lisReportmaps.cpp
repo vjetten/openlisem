@@ -330,8 +330,10 @@ void TWorld::GetComboMaps()
         if (InfilMethod != INFIL_SWATRE) {
             cl = 3;
             AddComboMap(0,"Avg Moisture content layer 1","-",ThetaI1a,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
-            if (SwitchTwoLayer)
+            if (SwitchTwoLayer || SwitchThreeLayer)
                 AddComboMap(0,"Avg Moisture content layer 2","-",ThetaI2a,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+            if (SwitchThreeLayer)
+                AddComboMap(0,"Avg Moisture content layer 3","-",ThetaI3a,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
             if (!SwitchImpermeable || SwitchChannelBaseflow)
                 AddComboMap(0,"Percolation","mm",Perc,LegendMap[cl],Legend[cl],false,false,1000,1.0);
         }

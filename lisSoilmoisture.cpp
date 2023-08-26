@@ -197,8 +197,8 @@ void TWorld::cell_Soilwater(long i_)
     s = crSoil[i_];
 
     double dtmin = 0.01*_dt;
-    double dtmax = 0.5*_dx;//std::min(0.2*_dt,0.5*_dx);
-    dtmax = SoilWBdtfactor*_dt;
+    double dtmax = std::min(0.2*_dt,0.5*_dx);
+    //dtmax = SoilWBdtfactor*_dt;
     int NITMAX = 12;
     bool stopit = false;
     int c = s.c;
@@ -225,18 +225,18 @@ void TWorld::cell_Soilwater(long i_)
     int GWnode = nN;
     if (SwitchGWflow) {
         if (GWWH->Drc > 0) {
-            double depth = SoilDepth2->Drc - GWWH->Drc;
             int j = 0;
             for (j = 1; j < nNodes; j++)
             {
-                if (s.z[j] >= depth)
+                if (s.z[j] >= s.SD - GWWH->Drc)
                     break;
             }
             GWnode = j-1;
         }
     }
     nN = GWnode;
- if (r==_nrRows/2 && c == _nrCols/2)
+
+    if (r==_nrRows/2 && c == _nrCols/2)
         qDebug() << GWnode << GWWH->Drc << s.z[GWnode];
 
     if (FloodDomain->Drc == 0)
@@ -259,13 +259,12 @@ void TWorld::cell_Soilwater(long i_)
 
     if (SwitchGWflow) {
         for(int j = GWnode+1; j < nNodes; j++) {
-           Hnew[j] = s.z[j]-(SoilDepth2->Drc-GWWH->Drc);
+            Hnew[j] = s.z[j]-(s.SD-GWWH->Drc);
+            Hold[j] = Hnew[j];
            // h = 0 at depth SD2-GWWH
            // h = GWWH at depth SD2
            // h = ? at depth s.z
-            if (j = GWnode && Hnew[j] >= 0) {
-                Hnew[j] = 0.5*Hnew[j-1];
-            }
+    //TODO:if GW lowers and nodes become negative!
         }
     }
 
@@ -335,7 +334,7 @@ void TWorld::cell_Soilwater(long i_)
             s.ponded = Hnew[0] > 0;
 
             // check for ponding and first estimate of infil with darcy, from SWATRE
-            qmax = Savg(s.Ks[0],K[0])*(WH0-Hnew[0])/s.dz[0] - K[0];
+            qmax = Aavg(s.Ks[0],K[0])*((WH0-Hnew[0])/s.dz[0] - 1);//K[0];
             if (s.InfPot > 0 && qmax <= s.InfPot)
                 s.ponded = true;
 
@@ -409,12 +408,9 @@ void TWorld::cell_Soilwater(long i_)
             // not necessary, and surface can be + so not for the top node anyway!
 
             //======== calc boundary fluxes
-
-            //not sure why this
             if (s.ponded && Hnew[1] < 0) {
                 s.Infact = s.Infact + A1 * Hnew[1];
             }
-
             if (freeDrainage) {
                 s.drain = 0.5*(K[nN] + FNN2 - Hnew[nN]*FNN1);
             }
@@ -426,12 +422,14 @@ void TWorld::cell_Soilwater(long i_)
 
                 //stop if Hnew and Hold are close
                 // do not include top node?
-                for(int j = 1; j <= nN; j++) {
-                    double tol = tol1*fabs(Hold[j]) + tol2;
-                    if (s.ponded) tol /= 2;
-                    if (fabs(Hnew[j] - Hold[j]) > tol) {
-                        stopit = false;
-                        break;
+                for(int j = 0; j <= nN; j++) {
+                    if (Hnew[j] < 0) {
+                        double tol = tol1*fabs(Hold[j]) + tol2;
+                        //if (s.ponded) tol /= 2;
+                        if (fabs(Hnew[j] - Hold[j]) > tol) {
+                            stopit = false;
+                            break;
+                        }
                     }
                 }
 
@@ -441,30 +439,30 @@ void TWorld::cell_Soilwater(long i_)
                     // try again with smaller dts
                     s.dts /= 2.0;
                     s.dts = std::max(s.dts,dtmin);
-                    for(int j = 0; j < nNodes; j++)
-                        Hnew[j] = Hold[j];
-                        //Hnew[j] = 0.5*(Hold[j]+Hnew[j]);
+                    for(int j = 1; j < nNodes; j++)
+                       Hnew[j] = Hold[j];
+                       //  Hnew[j] = 0.5*(Hold[j]+Hnew[j]);
                     stopit = true;
                 }
             }
 
-            for(int j = 0; j < nNodes; j++) {
-                Hold[j] = Hnew[j];
-            }
+            for(int j = 0; j < nNodes; j++)
+                Hold[j] = Hnew[j];            
 
         } while(!stopit);
 
 
         // change timestep for next iteration
-        //        double factor = 0.5 + 1/sqrt((double)NIT);
-        //        s.dts = s.dts * factor;
-        //        s.dts = std::max(s.dts,dtmin);
-        //        s.dts = std::min(s.dts,_dt-s.dtsum);
-        //        s.dtsum += s.dts;
+//        double factor = 0.5 + 1/sqrt((double)NIT);
+//        s.dts = s.dts * factor;
+//        s.dts = std::min(s.dts,dtmax);
+//        s.dts = std::max(s.dts,dtmin);
+//        s.dts = std::min(s.dts,_dt-s.dtsum);
+//        s.dtsum += s.dts;
 
         // SWATRE method is faster!
         double dt = dtmax;
-        for(int j = 0; j < nNodes; j++) {
+        for(int j = 1; j < nNodes; j++) {
             double mdih = tol2 + tol1*fabs(Hnew[j]);
             double dih  = fabs(Hnew[j] - Hold[j]);
             if (dih > 0.10)
@@ -475,7 +473,7 @@ void TWorld::cell_Soilwater(long i_)
         s.dts = std::min(s.dts,_dt-s.dtsum);
         s.dtsum += s.dts;
 
-        //if (r == _nrRows/2 && c == _nrCols/2)qDebug() << NIT << s.dts << s.dtsum << _dt << s.Infact;
+      //  if (r == _nrRows/2 && c == _nrCols/2)qDebug() << NIT << s.dts << s.dtsum << _dt << s.Infact;
 
     } while(s.dtsum < _dt);
 
@@ -503,10 +501,18 @@ void TWorld::cell_Soilwater(long i_)
         ThetaI1a->Drc += s.theta[j];
     ThetaI1a->Drc /= (double)nN1_;
 
-    ThetaI2a->Drc = s.theta[nN1_+1];
-    for (int j = nN1_+2; j < nN; j++)
-        ThetaI2a->Drc += s.theta[j];
-    ThetaI2a->Drc /= (double)nN2_;
+    if (SwitchTwoLayer || SwitchThreeLayer) {
+        ThetaI2a->Drc = s.theta[nN1_+1];
+        for (int j = nN1_+2; j < nN1_+nN2_+1; j++)
+            ThetaI2a->Drc += s.theta[j];
+        ThetaI2a->Drc /= (double)nN2_;
+    }
+    if (SwitchThreeLayer) {
+        ThetaI3a->Drc = s.theta[nN1_+nN2_+1];
+        for (int j = nN2_+nN1_+2; j < nN1_+nN2_+nN3_+1; j++)
+            ThetaI3a->Drc += s.theta[j];
+        ThetaI3a->Drc /= (double)nN3_;
+    }
 
     Perc->Drc = s.drain*_dt;
 

@@ -78,21 +78,27 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Swatre Output points;swatreoutput.map;Points for swatre profile output 1-n);swatreout");
     DEFmaps.append("2;Repellency;repel.map;Gridcells included in water repellency (1/0);repelcell");
 
-    DEFmaps.append("1;1st layer Green&Ampt/Smith&Parlange");
+    DEFmaps.append("1;Soil layer 1");
     DEFmaps.append("2;Ksat1;ksat1.map;Layer 1: Saturated Hydraulic Conductivity (mm/h);ksat1");
-    DEFmaps.append("2;Psi1;psi1.map;Layer 1: Suction at the wetting front (cm);psi1");
+    //DEFmaps.append("2;Psi1;psi1.map;Layer 1: Suction at the wetting front (cm);psi1");
     DEFmaps.append("2;Thetas1;thetas1.map;Layer 1: Porosity (-);thetas1");
     DEFmaps.append("2;Thetai1;thetai1.map;Layer 1: Initial moisture content (-);thetai1");
     //DEFmaps.append("2;Lambda1;lambda1.map;Layer 1: Brooks-Corey pore parameter (-);lambda1");
     DEFmaps.append("2;Depth1;soildep1.map;Layer 1: Depth (mm) to bottom of layer 1;soildep1");
 
-    DEFmaps.append("1;2nd layer Green&Ampt/Smith&Parlange");
+    DEFmaps.append("1;Soil layer 2");
     DEFmaps.append("2;Ksat2;ksat2.map;Layer 2: Saturated Hydraulic Conductivity (mm/h);ksat2");
-    DEFmaps.append("2;Psi2;psi2.map;Layer 2: Suction at the wetting front (cm);psi2");
+    //DEFmaps.append("2;Psi2;psi2.map;Layer 2: Suction at the wetting front (cm);psi2");
     DEFmaps.append("2;Thetas2;thetas2.map;Layer 2: Porosity (-);thetas2");
     DEFmaps.append("2;Thetai2;thetai2.map;Layer 2: Initial moisture content (-);thetai2");
    // DEFmaps.append("2;Lambda2;lambda2.map;Layer 2: Brooks-Corey pore parameter (-);lambda2");
     DEFmaps.append("2;Depth2;soildep2.map;Layer 2: Depth (mm) to bottom of layer 2;soildep2");
+
+    DEFmaps.append("1;Soil layer 3");
+    DEFmaps.append("2;Ksat3;ksat3.map;Layer 3: Saturated Hydraulic Conductivity (mm/h);ksat3");
+    DEFmaps.append("2;Thetas3;thetas3.map;Layer 3: Porosity (-);thetas3");
+    DEFmaps.append("2;Thetai3;thetai3.map;Layer 3: Initial moisture content (-);thetai3");
+    DEFmaps.append("2;Depth3;soildep3.map;Layer 3: Depth (mm) to bottom of layer 2;soildep3");
 
     DEFmaps.append("1;Special surfaces");
     DEFmaps.append("2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst");
@@ -374,8 +380,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include crusts");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Impermeable sublayer");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Two layer");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Two layer");
     namelist[i].value = QString("2");
     namelist[i++].name = QString("Nr input layers");
     namelist[i].value = QString("0");
@@ -639,8 +645,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel 2D flow connect");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Channel WF inflow");
-//    namelist[i].value = QString("1");
-//    namelist[i++].name = QString("GW layer change SD");
     namelist[i].value = QString("3");
     namelist[i++].name = QString("SoilWB nodes 1");
     namelist[i].value = QString("3");
