@@ -3425,6 +3425,7 @@ void TWorld::InitNewSoilProfile()
         double dz = SoilDepth1->Drc / nN1_;
         double dz2 = (SoilDepth2->Drc - SoilDepth1->Drc) / nN2_;
 
+        // 0 is surface, first layer node is 1
         for (int j = 0; j < nN1_+1; j++) {
             crSoil[i_].dz.replace(j,  dz);
             crSoil[i_].theta.replace(j,  ThetaI1->Drc);
@@ -3435,6 +3436,7 @@ void TWorld::InitNewSoilProfile()
             crSoil[i_].hb.replace(j,  -psi1ae->Drc);
         }
         crSoil[i_].dz[0] = dz/2;
+
         for (int j = nN1_+1; j < nNodes; j++) {
             crSoil[i_].dz.replace(j,  dz2);
             crSoil[i_].theta.replace(j,  ThetaI2->Drc);

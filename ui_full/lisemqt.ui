@@ -80,7 +80,7 @@
         <item row="1" column="1">
          <widget class="QGroupBox" name="groupBoxOutput">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -2161,7 +2161,7 @@
                     <x>0</x>
                     <y>0</y>
                     <width>685</width>
-                    <height>486</height>
+                    <height>589</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout">
@@ -2794,8 +2794,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>668</width>
-                    <height>501</height>
+                    <width>685</width>
+                    <height>589</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_78">
@@ -3738,7 +3738,7 @@
                     <x>0</x>
                     <y>0</y>
                     <width>685</width>
-                    <height>486</height>
+                    <height>589</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_5">
@@ -4135,8 +4135,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>668</width>
-                    <height>463</height>
+                    <width>685</width>
+                    <height>562</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_77">

@@ -753,6 +753,17 @@ public:
     int R_BL_Method;
     double R_SigmaDiffusion;
 
+//    double *Hold;
+//    double *Hnew;
+//    double *C1;
+//    double *S;
+//    double *K;
+//    double *kK1;
+//    double *kK2;
+//    double *A;
+//    double *D;
+//    double *F;
+
     //int GrainSizeDistributionType;
 
     bool SwitchAdvancedSed, SwitchUseMaterialDepth,SwitchNoBoundarySed, SwitchUse2Phase,SwitchUseGrainSizeDistribution,
