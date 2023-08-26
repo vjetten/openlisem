@@ -60,71 +60,69 @@ void TWorld::InfilEffectiveKsat(bool first)
         }}
     }
 
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        Ksateff->Drc = Ksat1->Drc;
+        Poreeff->Drc = ThetaS1->Drc;
 
-//    if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
-//    {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            Ksateff->Drc = Ksat1->Drc;
-            Poreeff->Drc = ThetaS1->Drc;
-
-            // exponential crusting proces with cumulative rainfall
-            if (SwitchInfilCrust) {
-                //double KSc = Ksat1->Drc * (0.3+0.7*exp(-0.05*RainCum->Drc*1000));
-                double ksatdiff = std::max(0.0,Ksateff->Drc - KsatCrust->Drc);
-                double factor = RainCumFlat->Drc > 0.01 ? exp(-0.05*(RainCumFlat->Drc-0.01)*1000) : 1.0;
-                // do not use raincum because it is set to zero when evap is on!
-                double KSc = KsatCrust->Drc + ksatdiff * factor;
-                // exponential decline until crust value, RainCum is in meters
-                Ksateff->Drc = KSc;
+        // exponential crusting proces with cumulative rainfall
+        if (SwitchInfilCrust) {
+            //double KSc = Ksat1->Drc * (0.3+0.7*exp(-0.05*RainCum->Drc*1000));
+            double ksatdiff = std::max(0.0,Ksateff->Drc - KsatCrust->Drc);
+            double factor = RainCumFlat->Drc > 0.01 ? exp(-0.05*(RainCumFlat->Drc-0.01)*1000) : 1.0;
+            // do not use raincum because it is set to zero when evap is on!
+            double KSc = KsatCrust->Drc + ksatdiff * factor;
+            // exponential decline until crust value, RainCum is in meters
+            Ksateff->Drc = KSc;
 
 //                if (c == 50 && r == 50)
 //                qDebug() << Ksateff->Drc*3600000/_dt << KsatCrust->Drc*3600000/_dt << ksatdiff*3600000/_dt << factor << KSc*3600000/_dt;
 
-                // only on bare fraction of soil, depends on crop. We need basal cover! ???
-                double porediff = std::max(0.0,ThetaS1->Drc - PoreCrust->Drc);
-                Poreeff->Drc = PoreCrust->Drc + porediff * factor;
+            // only on bare fraction of soil, depends on crop. We need basal cover! ???
+            double porediff = std::max(0.0,ThetaS1->Drc - PoreCrust->Drc);
+            Poreeff->Drc = PoreCrust->Drc + porediff * factor;
 
-                Thetaeff->Drc = std::min(0.99*Poreeff->Drc,ThetaI1->Drc);
+            Thetaeff->Drc = std::min(0.99*Poreeff->Drc,ThetaI1->Drc);
+        }
+
+        // affected surfaces
+        if (SwitchInfilCompact) {
+            Ksateff->Drc = Ksateff->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
+            Poreeff->Drc = Poreeff->Drc*(1-CompactFraction->Drc) + PoreCompact->Drc*CompactFraction->Drc;
+        }
+
+        if (SwitchGrassStrip) {
+            Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
+            Poreeff->Drc = ThetaS1->Drc*(1-GrassFraction->Drc) + PoreGrass->Drc*GrassFraction->Drc;
+        }
+
+        if (SwitchHouses) {
+            Ksateff->Drc *= (1-HouseCover->Drc);
+         //   Poreeff->Drc *= (1-HouseCover->Drc);
+        }
+
+        Ksateff->Drc = std::max(0.0, Ksateff->Drc);
+        Poreeff->Drc = std::max(0.3, Poreeff->Drc);
+
+        if (InfilMethod == INFIL_SOAP) {
+            if (SwitchInfilCrust) {
+                crSoil[i_].Ks[0] = Ksateff->Drc/_dt;  // in m/s
+                crSoil[i_].pore[0] = Poreeff->Drc;
+                crSoil[i_].Ks[1] = 0.5*(Ksateff->Drc+Ksat1->Drc)/_dt;  // in m/s
+                crSoil[i_].pore[1] = 0.5*(ThetaS1->Drc+Poreeff->Drc);
             }
-
-            // affected surfaces
             if (SwitchInfilCompact) {
-                Ksateff->Drc = Ksateff->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
-                Poreeff->Drc = Poreeff->Drc*(1-CompactFraction->Drc) + PoreCompact->Drc*CompactFraction->Drc;
+                crSoil[i_].Ks[0] = Ksateff->Drc/_dt;  // in m/s
+                crSoil[i_].pore[0] = Poreeff->Drc;
+                crSoil[i_].Ks[1] = Ksateff->Drc/_dt;  // in m/s
+                crSoil[i_].pore[1] = Poreeff->Drc;
+                crSoil[i_].Ks[2] = 0.5*(Ksateff->Drc+Ksat1->Drc)/_dt;  // in m/s
+                crSoil[i_].pore[2] = 0.5*(ThetaS1->Drc+Poreeff->Drc);
             }
-
-            if (SwitchGrassStrip) {
-                Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
-                Poreeff->Drc = ThetaS1->Drc*(1-GrassFraction->Drc) + PoreGrass->Drc*GrassFraction->Drc;
-            }
+        }
 
 
-            if (SwitchHouses) {
-                Ksateff->Drc *= (1-HouseCover->Drc);
-             //   Poreeff->Drc *= (1-HouseCover->Drc);
-            }
-
-            //these surfaces are excluded from infiltration so not necessary to adjust Ksat and Pore
-//            // impermeable surfaces
-//            if (SwitchHardsurface) {
-//                Ksateff->Drc *= (1-HardSurface->Drc);
-//             //   Poreeff->Drc *= (1-HardSurface->Drc);
-//            }
-
-//            if (SwitchRoadsystem) {
-//                Ksateff->Drc *= (1-RoadWidthDX->Drc/_dx);
-//             //   Poreeff->Drc *= (1-RoadWidthDX->Drc/_dx);
-//            }
-
-            Ksateff->Drc = std::max(0.0, Ksateff->Drc);
-            Poreeff->Drc = std::max(0.3, Poreeff->Drc);
-           // Thetaeff->Drc = std::min(1.0,Poreeff->Drc/ThetaS1->Drc) * ThetaI1->Drc;
-           // tma->Drc =  Ksateff->Drc;
-            // percolation coefficient
-
-        }}
-//    }
+    }}
 
 }
 //---------------------------------------------------------------------------
@@ -619,17 +617,6 @@ void TWorld::cell_InfilSwatre(int r, int c)
         thetaTop->Drc = tmc->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
     }
 
-    if (SwitchWaterRepellency)
-    {
-        //      FOR_ROW_COL_MV
-        //      {
-        //         RepellencyFraction->Drc = 1 - 1/(waterRep_d+pow(waterRep_a, 100*(thetaTop->Drc-waterRep_b)));
-        //         //         if (thetaTop->Drc < waterRep_c)
-        //         //            RepellencyFraction->Drc = 0;//1.0;
-        //      }
-        //        thetaTop->report("thtop");
-        //        RepellencyFraction->report("repelfr");
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -786,17 +773,4 @@ void TWorld::InfilSwatre()
         }}
     }
 
-        // not done, experimental
-    if (SwitchWaterRepellency)
-    {
-        //      FOR_ROW_COL_MV
-        //      {
-        //         RepellencyFraction->Drc = 1 - 1/(waterRep_d+pow(waterRep_a, 100*(thetaTop->Drc-waterRep_b)));
-        //         //         if (thetaTop->Drc < waterRep_c)
-        //         //            RepellencyFraction->Drc = 0;//1.0;
-        //      }
-        //        thetaTop->report("thtop");
-        //        RepellencyFraction->report("repelfr");
-
-    }
 }

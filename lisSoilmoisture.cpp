@@ -33,7 +33,7 @@
 // Calculates one dimensional soil water balance based on
 // Richards equation, using a fully implicit, mass lumped,
 // Galerkin scheme Finite Element Method.
-// Based on FORTRAN program WORM by Van Genuchten (1987),
+// Based on FORTRAN program WORM-V by Van Genuchten (1987),
 // Research report no.121 of USDA Salinity Laboratory and
 // modified by J.B.Kool and G.H. de Rooij (1989) LUW.
 //
@@ -197,7 +197,7 @@ void TWorld::cell_Soilwater(long i_)
     s = crSoil[i_];
 
     double dtmin = 0.01*_dt;
-    double dtmax = std::min(0.2*_dt,0.5*_dx);
+    double dtmax = 0.5*_dx;//std::min(0.2*_dt,0.5*_dx);
     dtmax = SoilWBdtfactor*_dt;
     int NITMAX = 12;
     bool stopit = false;
@@ -226,18 +226,18 @@ void TWorld::cell_Soilwater(long i_)
     if (SwitchGWflow) {
         if (GWWH->Drc > 0) {
             double depth = SoilDepth2->Drc - GWWH->Drc;
-            double h = 0;
             int j = 0;
             for (j = 1; j < nNodes; j++)
             {
-                h = h + s.dz[j];
-                if (h >= depth)
+                if (s.z[j] >= depth)
                     break;
             }
-            GWnode = j;
+            GWnode = j-1;
         }
     }
     nN = GWnode;
+ if (r==_nrRows/2 && c == _nrCols/2)
+        qDebug() << GWnode << GWWH->Drc << s.z[GWnode];
 
     if (FloodDomain->Drc == 0)
         WH0 = WH->Drc; //runoff in kinwave or dyn wave
@@ -252,27 +252,29 @@ void TWorld::cell_Soilwater(long i_)
     // fill Hnew and Hold
     for(int j = 0; j < nNodes; j++) {
         Hnew[j] = s.h[j];
-        if (SwitchGWflow) {
-            if (j > GWnode)
-                Hnew[j] = 0;
-            if (j == GWnode && Hnew[j] == 0) {
-                Hnew[j] = 0.5*Hnew[j-1];
-            }
-        }
         Hold[j] = Hnew[j];
         S[j] = 0;
     }
+
+
+    if (SwitchGWflow) {
+        for(int j = GWnode+1; j < nNodes; j++) {
+           Hnew[j] = s.z[j]-(SoilDepth2->Drc-GWWH->Drc);
+           // h = 0 at depth SD2-GWWH
+           // h = GWWH at depth SD2
+           // h = ? at depth s.z
+        }
+        if (int j == GWnode && Hnew[j] >= 0) {
+            Hnew[j] = 0.5*Hnew[j-1];
+        }
+    }
+
 
     // ET calculation goes into sink term S
     if (SwitchIncludeET)
         calcSinkterm(i_, S); // ETa
 
-    // include crusting compaction etc in top layer;
-    s.Ks[0] = Ksateff->Drc/_dt;
-    s.pore[0] = Poreeff->Drc;
-
     // initial dts
-    //s.dts=SoilWBdtfactor*_dt;
     s.dts=dtmax;
 
     // outer loop timestep lisem
@@ -284,16 +286,25 @@ void TWorld::cell_Soilwater(long i_)
 
             //======= Brooks Corey for H,K,theta and C
             for(int j = 0; j < nNodes; j++) {
-                double Hx = std::min(s.hb[j], 0.5*(Hnew[j] + Hold[j]));
-
-                K[j] = s.Ks[j]*pow(s.hb[j]/Hx, 2.0+3.0*s.lambda[j]);
-
+                double Hx = 0.5*(Hnew[j] + Hold[j]);
+                if (Hx < s.hb[j])
+                    K[j] = s.Ks[j]*pow(std::min(1.0,s.hb[j]/Hx), 2.0+3.0*s.lambda[j]);
+                else
+                    K[j] = s.Ks[j];
                 if (SwitchGWflow && j >= GWnode)
                     K[j] *= GW_recharge;
 
                 // differential moisture capacity dtheta/dh (tangent of pF curve)
-                double Wnew = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(std::min(1.0,s.hb[j]/Hnew[j]), s.lambda[j]);
-                double W = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(std::min(1.0,s.hb[j]/(Hnew[j]-0.01)), s.lambda[j]);
+                double Wnew;
+                if (Hnew[j] < s.hb[j])
+                    Wnew = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/Hnew[j], s.lambda[j]);
+                else
+                    Wnew = s.pore[j];
+                double W;
+                if (Hnew[j]-0.01 < s.hb[j])
+                    W = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/(Hnew[j]-0.01), s.lambda[j]);
+                else
+                    W = s.pore[j];
                 C1[j] = Wnew-W > 0 ? (Wnew-W)/0.01 : 1e-6;
                 // swatre solution with 0.01 m difference as dh
                 // analytical: -1.0/Hx *(s.pore[j]-s.thetar[j])*s.lambda[j]*pow(s.hb[j]/Hx, s.lambda[j]);
@@ -357,10 +368,10 @@ void TWorld::cell_Soilwater(long i_)
 
             // upper boundary condition
             if (s.ponded){
-                Hnew[0] = Hold[0] + std::min(s.InfPot, qmax)*s.dts;
-                // in worm staat hiet de potential aan het oppervlak dus WH0, maar dit geeft nan
+                Hnew[0] = WH0;   //or:  Hold[0] + qmax*s.dts;
+                // in worm staat hiet de potential aan het oppervlak dus WH0
                 s.Infact = D[0]*Hnew[0] - F[0];
-                //   F[0] = Hnew[0];  //??? original, but F is a flux
+              //      F[0] = Hnew[0];  //??? original, but F is a flux
                 F[0] = F[0] + s.Infact;
                 A1 = A[0];
                 A[0] = 0;
@@ -388,19 +399,20 @@ void TWorld::cell_Soilwater(long i_)
                 D[j] = D[j] - A2 * A[j-1];
                 F[j] = F[j] - A2 * F[j-1];
             }
-
             Hnew[nN] = F[nN]/D[nN];
             for (int j = nN-1; j >= 0; j--) {
                 Hnew[j] = (F[j] - A[j]*Hnew[j+1])/D[j];
             }
-            for(int j = 0; j < nNodes; j++)
-                Hnew[j] = std::min(0.0, Hnew[j]);
+
+//            for(int j = 1; j < nNodes; j++)
+//                Hnew[j] = std::min(0.0, Hnew[j]);
+            // not necessary, and surface can be + so not for the top node anyway!
 
             //======== calc boundary fluxes
 
             //not sure why this
             if (s.ponded && Hnew[1] < 0) {
-                s.Infact = s.Infact + A1 * Hnew[1]; //A1 = -K1[0];
+                s.Infact = s.Infact + A1 * Hnew[1];
             }
 
             if (freeDrainage) {
@@ -463,7 +475,7 @@ void TWorld::cell_Soilwater(long i_)
         s.dts = std::min(s.dts,_dt-s.dtsum);
         s.dtsum += s.dts;
 
-      //  if (r == _nrRows/2 && c == _nrCols/2)qDebug() << NIT << s.dts << s.dtsum << _dt << s.Infact;
+        //if (r == _nrRows/2 && c == _nrCols/2)qDebug() << NIT << s.dts << s.dtsum << _dt << s.Infact;
 
     } while(s.dtsum < _dt);
 
@@ -484,18 +496,15 @@ void TWorld::cell_Soilwater(long i_)
         hmx->Drc -= infil; // flood in kin wave
     }
     s.Infact = infil/_dt;
-
     InfilVol->Drc = s.Infact*_dt*SoilWidthDX->Drc*DX->Drc;
 
     ThetaI1a->Drc = s.theta[1];
-    //#pragma omp parallel for num_threads(userCores)
     for (int j = 2; j <= nN1_; j++)
         ThetaI1a->Drc += s.theta[j];
     ThetaI1a->Drc /= (double)nN1_;
 
     ThetaI2a->Drc = s.theta[nN1_+1];
-    //#pragma omp parallel for num_threads(userCores)
-    for (int j = nN1_+2; j < nNodes; j++)
+    for (int j = nN1_+2; j < nN; j++)
         ThetaI2a->Drc += s.theta[j];
     ThetaI2a->Drc /= (double)nN2_;
 

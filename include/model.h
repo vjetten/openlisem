@@ -314,7 +314,7 @@ typedef struct SOIL_LIST {
 
     QVector <double> pore;
     QVector <double> Ks;
-   // QVector <double> z;
+    QVector <double> z;
     QVector <double> dz;
     QVector <double> h;
     QVector <double> hb;

@@ -3405,6 +3405,7 @@ void TWorld::InitNewSoilProfile()
         sr.thetar.clear();
         sr.lambda.clear();
         sr.dz.clear();
+        sr.z.clear();
         sr.rootz.clear();
 
           sr.pore.resize(nNodes);
@@ -3415,33 +3416,43 @@ void TWorld::InitNewSoilProfile()
         sr.thetar.resize(nNodes);
         sr.lambda.resize(nNodes);
             sr.dz.resize(nNodes);
+             sr.z.resize(nNodes);
          sr.rootz.resize(nNodes);
 
         crSoil << sr;
     }
 
     FOR_ROW_COL_MV_L {
-
+        // use replace first time, else array doesn't initialise???
         double dz = SoilDepth1->Drc / nN1_;
         double dz2 = (SoilDepth2->Drc - SoilDepth1->Drc) / nN2_;
-
-        // 0 is surface, first layer node is 1
+        double z = 0;
         for (int j = 0; j < nN1_+1; j++) {
-            crSoil[i_].dz.replace(j,  dz);
-            crSoil[i_].theta.replace(j,  ThetaI1->Drc);
-            crSoil[i_].pore.replace(j,  ThetaS1->Drc);
-            crSoil[i_].Ks.replace(j,  Ksat1->Drc/3600000); // calibrated Ksat ! so do not use for lambda etc
-            crSoil[i_].thetar.replace(j,  ThetaR1->Drc);
-            crSoil[i_].lambda.replace(j,  lambda1->Drc);
-            crSoil[i_].hb.replace(j,  -psi1ae->Drc);
+            if (j == 0)
+                crSoil[i_].z.replace(j, 0);
+            if (j >= 1)
+                crSoil[i_].z.replace(j, 0.5*dz + (j-1)*dz);
+            z = 0.5*dz + (j-1)*dz;
+            crSoil[i_].dz.replace(j, dz);
+            crSoil[i_].theta.replace(j, ThetaI1->Drc);
+            crSoil[i_].pore.replace(j, ThetaS1->Drc);
+            crSoil[i_].Ks.replace(j, Ksat1->Drc/3600000); // calibrated Ksat ! so do not use for lambda etc
+            crSoil[i_].thetar.replace(j, ThetaR1->Drc);
+            crSoil[i_].lambda.replace(j, lambda1->Drc);
+            crSoil[i_].hb.replace(j, -psi1ae->Drc);
         }
         crSoil[i_].dz[0] = dz/2;
-
         for (int j = nN1_+1; j < nNodes; j++) {
-            crSoil[i_].dz.replace(j,  dz2);
-            crSoil[i_].theta.replace(j,  ThetaI2->Drc);
-            crSoil[i_].pore.replace(j,  ThetaS2->Drc);
-            crSoil[i_].Ks.replace(j,  Ksat2->Drc/3600000); // calibrated Ksat ! so do not use for lambda etc
+            if (j == nN1_+1)
+                z += 0.5*dz + 0.5*dz2;
+            else
+                z += dz2;
+
+            crSoil[i_].z.replace(j, z);
+            crSoil[i_].dz.replace(j, dz2);
+            crSoil[i_].theta.replace(j, ThetaI2->Drc);
+            crSoil[i_].pore.replace(j, ThetaS2->Drc);
+            crSoil[i_].Ks.replace(j, Ksat2->Drc/3600000); // calibrated Ksat ! so do not use for lambda etc
 
             crSoil[i_].thetar.replace(j,  ThetaR2->Drc);
             crSoil[i_].lambda.replace(j,  lambda2->Drc);
@@ -3450,6 +3461,8 @@ void TWorld::InitNewSoilProfile()
 
         // calc h
         for (int j = 0; j < nNodes; j++) {
+            if (r==_nrRows/2 && c == _nrCols/2)
+                qDebug() << crSoil[i_].z[j];
             double se = (crSoil[i_].theta[j] - crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j]);
             double hh = pow(se, (1.0/crSoil[i_].lambda[j]));
             crSoil[i_].h.replace(j,crSoil[i_].hb[j]/hh);
