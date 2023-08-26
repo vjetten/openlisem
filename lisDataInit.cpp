@@ -314,9 +314,9 @@ void TWorld::InitParameters(void)
     }
 
     thetaCalibration = getvaluedouble("Theta calibration");
-    psiCalibration = getvaluedouble("Psi calibration");
-    SD1Calibration = getvaluedouble("SoilDepth1 calibration");
-    SD2Calibration = getvaluedouble("SoilDepth2 calibration");
+    //psiCalibration = getvaluedouble("Psi calibration");
+   // SD1Calibration = getvaluedouble("SoilDepth1 calibration");
+   // SD2Calibration = getvaluedouble("SoilDepth2 calibration");
 
     ChnCalibration = getvaluedouble("Channel N calibration");
     ChnTortuosity = 1.0;
@@ -657,7 +657,7 @@ void TWorld::InitSoilInput(void)
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
-        calcValue(*SoilDepth1, SD1Calibration, MUL);
+        //calcValue(*SoilDepth1, SD1Calibration, MUL);
 
         SoilDepth1init = NewMap(0);
         copy(*SoilDepth1init, *SoilDepth1);
@@ -691,13 +691,13 @@ void TWorld::InitSoilInput(void)
 
         if (SwitchPsiUser) {
             Psi1 = ReadMap(LDD,getvaluename("psi1"));
-            calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
+            //calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
             calcValue(*Psi1, 0.01, MUL);
         } else {
             Psi1 = NewMap(0);
             FOR_ROW_COL_MV_L {
                 Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425);
-                Psi1->Drc = std::min(Psi1->Drc,psi1ae->Drc)*0.01* psiCalibration;
+            Psi1->Drc = std::min(Psi1->Drc,psi1ae->Drc)*0.01;//*psiCalibration;
                 // psi cannot be more that bubbling pressure, 0.01 cm to m
             }}
         }
@@ -715,7 +715,7 @@ void TWorld::InitSoilInput(void)
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
-            calcValue(*SoilDepth2, SD2Calibration, MUL);
+            //calcValue(*SoilDepth2, SD2Calibration, MUL);
 
             SoilDepth2init = NewMap(0);
             copy(*SoilDepth2init, *SoilDepth2);
@@ -747,13 +747,13 @@ void TWorld::InitSoilInput(void)
             // wetting front psi
             if (SwitchPsiUser) {
                 Psi2 = ReadMap(LDD,getvaluename("psi2"));
-                calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
+             //   calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
                 calcValue(*Psi2, 0.01, MUL);
             } else {
                 Psi2 = NewMap(0);
                 FOR_ROW_COL_MV_L {
                     Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425);
-                    Psi2->Drc = std::min(Psi2->Drc,psi2ae->Drc)*0.01* psiCalibration;
+                Psi2->Drc = std::min(Psi2->Drc,psi2ae->Drc)*0.01;//* psiCalibration;
                     // psi cannot be more that bubbling pressure, 0.01 cm to m
                 }}
             }
@@ -764,7 +764,7 @@ void TWorld::InitSoilInput(void)
 
             SoilDepth3 = ReadMap(LDD,getvaluename("soilDep3"));
             calcValue(*SoilDepth3, 1000, DIV);
-            calcValue(*SoilDepth3, SD2Calibration, MUL);
+           // calcValue(*SoilDepth3, SD2Calibration, MUL);
 
             SoilDepth3init = NewMap(0);
             copy(*SoilDepth3init, *SoilDepth3);
@@ -804,13 +804,13 @@ void TWorld::InitSoilInput(void)
             // wetting front psi
             if (SwitchPsiUser) {
                 Psi3 = ReadMap(LDD,getvaluename("psi3"));
-                calcValue(*Psi3, psiCalibration, MUL); //VJ 110712 calibration of psi
+               //calcValue(*Psi3, psiCalibration, MUL); //VJ 110712 calibration of psi
                 calcValue(*Psi3, 0.01, MUL);
             } else {
                 Psi3 = NewMap(0);
                 FOR_ROW_COL_MV_L {
                     Psi3->Drc = exp(-0.3382*log(Ksat3->Drc) + 3.3425);
-                    Psi3->Drc = std::min(Psi3->Drc,psi3ae->Drc)*0.01* psiCalibration;
+                Psi3->Drc = std::min(Psi3->Drc,psi3ae->Drc)*0.01;//* psiCalibration;
                     // psi cannot be more that bubbling pressure, 0.01 cm to m
                 }}
             }

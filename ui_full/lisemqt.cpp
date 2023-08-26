@@ -2300,3 +2300,27 @@ void lisemqt::on_checkGWflow_toggled(bool checked)
 {
     GW_widget->setEnabled(checked);
 }
+
+void lisemqt::on_spinSoilLayers_valueChanged(int arg1)
+{
+    spinNodes2->setEnabled(false);
+    spinNodes3->setEnabled(false);
+    E_CalibrateKsat2->setEnabled(false);
+    E_CalibrateKsat3->setEnabled(false);
+    label_147->setEnabled(false);
+    label_154->setEnabled(false);
+    if (arg1 == 2) {
+        spinNodes2->setEnabled(true);
+        E_CalibrateKsat2->setEnabled(true);
+        label_147->setEnabled(true);
+    }
+    if (arg1 == 3) {
+        spinNodes2->setEnabled(true);
+        E_CalibrateKsat2->setEnabled(true);
+        label_147->setEnabled(true);
+        spinNodes3->setEnabled(true);
+        E_CalibrateKsat3->setEnabled(true);
+        label_154->setEnabled(true);
+    }
+}
+

@@ -142,8 +142,8 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int inr)
                 if (nr == 4)
                     checkMapNameModel(INFILTRATIONMAPS, 13, true);
     }
-    groupBox_InfilOptions->setDisabled(bool(nr == 0));
-    checkInfil2layer->setEnabled(bool(nr == 2 || nr == 3));
+    //groupBox_InfilOptions->setDisabled(bool(nr == 0));
+    //checkInfil2layer->setEnabled(bool(nr == 2 || nr == 3));
 
     groupBox_SwatreOptions->setEnabled(bool(nr == 1));
     //checkPercolation->setDisabled(bool(nr == 1));

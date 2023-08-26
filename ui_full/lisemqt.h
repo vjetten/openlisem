@@ -532,6 +532,8 @@ private slots:
 
     void on_checkGWflow_toggled(bool checked);
 
+    void on_spinSoilLayers_valueChanged(int arg1);
+
 private:
 
     QSystemTrayIcon *trayIcon;
