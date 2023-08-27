@@ -27,7 +27,6 @@
 
 #define tol2 0.2
 #define tol1 0.01
-#define shoW(a,b,c,d) if(r ==_nrRows/2 && c == _nrCols/2)qDebug()<<a<<b<<c<<d
 
 //DO NOT USE OMP, MUCH SLOWER
 // Calculates one dimensional soil water balance based on
@@ -197,13 +196,12 @@ void TWorld::cell_Soilwater(long i_)
     s = crSoil[i_];
 
     double dtmin = 0.01*_dt;
-    double dtmax = std::min(0.2*_dt,0.5*_dx);
-    //dtmax = SoilWBdtfactor*_dt;
+    double dtmax = SoilWBdtfactor*_dt;
     int NITMAX = 12;
     bool stopit = false;
     int c = s.c;
     int r = s.r;
-    double WH0;
+    double WH0, WH1;
     int nN = nNodes-1;
     bool freeDrainage = !SwitchImpermeable;
 
@@ -236,14 +234,14 @@ void TWorld::cell_Soilwater(long i_)
     }
     nN = GWnode;
 
-    if (r==_nrRows/2 && c == _nrCols/2)
-        qDebug() << GWnode << GWWH->Drc << s.z[GWnode];
+//    if (r==_nrRows/2 && c == _nrCols/2)
+//        qDebug() << GWnode << GWWH->Drc << s.z[GWnode];
 
     if (FloodDomain->Drc == 0)
         WH0 = WH->Drc; //runoff in kinwave or dyn wave
     else
         WH0 = hmx->Drc;// flood in kin wave
-
+    WH1 = WH0;
     s.InfPot = WH0/_dt;  // m/s
     s.Infact = WH0/_dt;
     s.dtsum = 0;
@@ -275,10 +273,12 @@ void TWorld::cell_Soilwater(long i_)
 
     // initial dts
     s.dts=dtmax;
+    int cnt = 0;
 
     // outer loop timestep lisem
     do {
         int NIT = 0;
+        s.InfPot = WH1/s.dts;  // m/s
 
         // iteration for Hnew
         do {
@@ -333,8 +333,9 @@ void TWorld::cell_Soilwater(long i_)
 
             s.ponded = Hnew[0] > 0;
 
-            // check for ponding and first estimate of infil with darcy, from SWATRE
-            qmax = Aavg(s.Ks[0],K[0])*((WH0-Hnew[0])/s.dz[0] - 1);//K[0];
+            // check for ponding and first estimate of infil with darcy
+            // with conductivity between Ksat and first node average K1
+            qmax = Savg(s.Ks[0],K1[0])*((WH1-Hnew[1])/s.dz[0] - 1);
             if (s.InfPot > 0 && qmax <= s.InfPot)
                 s.ponded = true;
 
@@ -367,18 +368,24 @@ void TWorld::cell_Soilwater(long i_)
 
             // upper boundary condition
             if (s.ponded){
-                Hnew[0] = WH0;   //or:  Hold[0] + qmax*s.dts;
-                // in worm staat hiet de potential aan het oppervlak dus WH0
-                s.Infact = D[0]*Hnew[0] - F[0];
-              //      F[0] = Hnew[0];  //??? original, but F is a flux
+              //  Hnew[0] = Hold[0] + qmax*s.dts; // not true!
+                Hnew[0] = WH1;
+
+                s.Infact = qmax;
+                //s.Infact = D[0]*Hnew[0] - F[0]; // much too small
+
+             //   if (r == _nrRows/2 && c == _nrCols/2)
+             //       qDebug() <<"pond" << WH1 << qmax << s.Ks[0] << K[0] << K[1];
+
+                //F[0] = Hnew[0];  //F is a flux? but has the same result as adding influx!
                 F[0] = F[0] + s.Infact;
                 A1 = A[0];
                 A[0] = 0;
                 D[0] = 1;
                 F[1] = F[1] - A1 * Hnew[0];
             } else {
-                s.Infact = s.InfPot;
-                F[0] = F[0] + s.Infact; // direct adding, units?? F is a flux
+                s.Infact = s.InfPot; // infil is net rainfall
+                F[0] = F[0] + s.Infact;
             }
 
             // lower boundary condition
@@ -447,7 +454,7 @@ void TWorld::cell_Soilwater(long i_)
             }
 
             for(int j = 0; j < nNodes; j++)
-                Hold[j] = Hnew[j];            
+                Hold[j] = Hnew[j];
 
         } while(!stopit);
 
@@ -473,8 +480,15 @@ void TWorld::cell_Soilwater(long i_)
         s.dts = std::min(s.dts,_dt-s.dtsum);
         s.dtsum += s.dts;
 
-      //  if (r == _nrRows/2 && c == _nrCols/2)qDebug() << NIT << s.dts << s.dtsum << _dt << s.Infact;
 
+        if (WH1 > 0) {
+            WH1 = WH1 - s.Infact*s.dts;
+            WH1 = std::max(0.0, WH1);
+        }
+        s.InfPot = WH1/s.dts;
+
+        //if (r == _nrRows/2 && c == _nrCols/2)qDebug() << NIT << s.dts << s.dtsum << _dt;
+        cnt++;
     } while(s.dtsum < _dt);
 
     for(int j = 0; j < nNodes; j++) {
@@ -485,15 +499,23 @@ void TWorld::cell_Soilwater(long i_)
             s.theta[j] = s.pore[j];
     }
 
-    double infil = s.Infact*_dt;
-    if (FloodDomain->Drc == 0) {
-        infil = std::min(WH->Drc , infil);
-        WH->Drc -= infil; //runoff in kinwave or dyn wave
-    } else {
-        infil = std::min(hmx->Drc , infil);
-        hmx->Drc -= infil; // flood in kin wave
-    }
-    s.Infact = infil/_dt;
+//    double infil = s.Infact*_dt;
+//    if (FloodDomain->Drc == 0) {
+//        infil = std::min(WH->Drc , infil);
+//        WH->Drc -= infil; //runoff in kinwave or dyn wave
+//    } else {
+//        infil = std::min(hmx->Drc , infil);
+//        hmx->Drc -= infil; // flood in kin wave
+//    }
+//    s.Infact = infil/_dt;
+
+        if (FloodDomain->Drc == 0) {
+            WH->Drc = WH1; //runoff in kinwave or dyn wave
+        } else {
+            hmx->Drc = WH1; // flood in kin wave
+        }
+        s.Infact = (WH0-WH1)/_dt;
+
     InfilVol->Drc = s.Infact*_dt*SoilWidthDX->Drc*DX->Drc;
 
     ThetaI1a->Drc = s.theta[1];
@@ -517,15 +539,15 @@ void TWorld::cell_Soilwater(long i_)
     Perc->Drc = s.drain*_dt;
 
     if (r == _nrRows/2 && c == _nrCols/2) {
-        qDebug() << WH0 << s.InfPot << s.Infact  << s.drain;
+        //qDebug() << WH0 << WH1 << s.Infact  << s.drain;
         QString S;
         QString S1;
         for(int j = 0; j < nNodes; j++) {
             S = S + QString(" %1").arg(s.h[j]);
-            S1 = S1 + QString(" %1").arg(s.theta[j]);
+            //S1 = S1 + QString(" %1").arg(s.theta[j]);
         }
-        qDebug() << S;
-        qDebug() << S1;
+        qDebug() << cnt << S;
+        //qDebug() << S1;
     }
 
     delete[] Hold;
