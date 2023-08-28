@@ -292,6 +292,7 @@ void TWorld::cell_Soilwater(long i_)
                     K[j] = s.Ks[j];
                 if (SwitchGWflow && j >= GWnode)
                     K[j] *= GW_recharge;
+                //K[j] *= s.dts;
 
                 // differential moisture capacity dtheta/dh (tangent of pF curve)
                 double Wnew;
@@ -301,10 +302,23 @@ void TWorld::cell_Soilwater(long i_)
                     Wnew = s.pore[j];
                 double W;
                 if (Hnew[j]-0.01 < s.hb[j])
-                    W = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/(Hnew[j]-0.01), s.lambda[j]);
+                    W = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/(Hold[j]), s.lambda[j]);
                 else
                     W = s.pore[j];
-                C1[j] = Wnew-W > 0 ? (Wnew-W)/0.01 : 1e-6;
+
+                if (fabs(Hnew[j]-Hold[j]) <= 3*tol2) {
+                    if (Hx < s.hb[j])
+                        C1[j] = s.theta[j] * 1e-6/s.pore[j]
+                                -1.0/Hx *(s.pore[j]-s.thetar[j])*s.lambda[j]*pow(s.hb[j]/Hx, s.lambda[j]);
+                    else {
+                        C1[j] = s.theta[j] * 1e-6/s.pore[j];
+                    }
+                } else
+                    C1[j] = (Wnew-W)/(Hnew[j]-Hold[j]);
+
+
+                //C1[j] = Wnew-W > 0 ? (Wnew-W)/(Hnew[j]-Hold[j]);
+
                 // swatre solution with 0.01 m difference as dh
                 // analytical: -1.0/Hx *(s.pore[j]-s.thetar[j])*s.lambda[j]*pow(s.hb[j]/Hx, s.lambda[j]);
 
@@ -335,7 +349,8 @@ void TWorld::cell_Soilwater(long i_)
 
             // check for ponding and first estimate of infil with darcy
             // with conductivity between Ksat and first node average K1
-            qmax = Savg(s.Ks[0],K1[0])*((WH1-Hnew[1])/s.dz[0] - 1);
+            qmax = Savg(s.Ks[0],K1[1])*((WH1-Hnew[1])/s.dz[0] - 1);
+            qmax = Savg(K[0],K1[1])*((WH1-Hnew[1])/s.dz[0] - 1);
             if (s.InfPot > 0 && qmax <= s.InfPot)
                 s.ponded = true;
 
@@ -364,7 +379,7 @@ void TWorld::cell_Soilwater(long i_)
                        - 0.5*(s.dz[j]+s.dz[j+1]) * K2[j]
                        - s.dz[j] * (S[j-1]+4*S[j]+S[j+1])/6;
             }
-            F[nN] = F[nN]*Hold[nN] + 0.5*s.dz[nN]*(K2[nN] - (S[nN-1]+2*S[nN])/3);
+            F[nN] = F[nN]*Hold[nN] + s.dz[nN]*(K2[nN] - (S[nN-1]+2*S[nN])/6);
 
             // upper boundary condition
             if (s.ponded){
@@ -423,7 +438,7 @@ void TWorld::cell_Soilwater(long i_)
             }
 
             stopit = true;
-            bool iterate = true;
+            bool iterate = false;
             if (iterate) {
                 s.ponded = Hnew[0] > 0;
 
@@ -447,8 +462,8 @@ void TWorld::cell_Soilwater(long i_)
                     s.dts /= 2.0;
                     s.dts = std::max(s.dts,dtmin);
                     for(int j = 1; j < nNodes; j++)
-                       Hnew[j] = Hold[j];
-                       //  Hnew[j] = 0.5*(Hold[j]+Hnew[j]);
+                      // Hnew[j] = Hold[j];
+                         Hnew[j] = 0.5*(Hold[j]+Hnew[j]);
                     stopit = true;
                 }
             }
@@ -546,7 +561,7 @@ void TWorld::cell_Soilwater(long i_)
             S = S + QString(" %1").arg(s.h[j]);
             //S1 = S1 + QString(" %1").arg(s.theta[j]);
         }
-        qDebug() << cnt << S;
+        qDebug() << cnt << s.Ks[0] << S;
         //qDebug() << S1;
     }
 
