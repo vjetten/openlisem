@@ -484,6 +484,7 @@ public:
     double RRCalibration;
     double ksatCalibration;
     double ksat2Calibration;
+    double ksat3Calibration;
     double nCalibration;
     double thetaCalibration;
 //    double psiCalibration;

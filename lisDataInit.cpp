@@ -670,8 +670,6 @@ void TWorld::InitSoilInput(void)
         copy(*ThetaI1a, *ThetaI1);
 
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
-        calcValue(*Ksat1, ksatCalibration, MUL);
-
         ThetaR1 = NewMap(0);
         lambda1 = NewMap(0);
         psi1ae = NewMap(0);
@@ -701,6 +699,7 @@ void TWorld::InitSoilInput(void)
                 // psi cannot be more that bubbling pressure, 0.01 cm to m
             }}
         }
+        calcValue(*Ksat1, ksatCalibration, MUL);
 
         if (nrSoilLayers == 2) {
             SwitchTwoLayer = true;
@@ -728,7 +727,6 @@ void TWorld::InitSoilInput(void)
             copy(*ThetaI2a, *ThetaI2);
 
             Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
-            calcValue(*Ksat2, ksat2Calibration, MUL);
 
             ThetaR2 = NewMap(0);
             lambda2 = NewMap(0);             // lambda brooks corey
@@ -757,13 +755,13 @@ void TWorld::InitSoilInput(void)
                     // psi cannot be more that bubbling pressure, 0.01 cm to m
                 }}
             }
+            calcValue(*Ksat2, ksat2Calibration, MUL);
         }
 
         if (SwitchThreeLayer)
         {
 
             SoilDepth3 = ReadMap(LDD,getvaluename("soilDep3"));
-            calcValue(*SoilDepth3, 1000, DIV);
            // calcValue(*SoilDepth3, SD2Calibration, MUL);
 
             SoilDepth3init = NewMap(0);
@@ -785,7 +783,7 @@ void TWorld::InitSoilInput(void)
             copy(*ThetaI3a, *ThetaI3);
 
             Ksat3 = ReadMap(LDD,getvaluename("ksat3"));
-            calcValue(*Ksat3, ksat2Calibration, MUL);
+            calcValue(*Ksat3, ksat3Calibration, MUL);
 
             ThetaR3 = NewMap(0);
             lambda3 = NewMap(0);             // lambda brooks corey
@@ -814,6 +812,7 @@ void TWorld::InitSoilInput(void)
                     // psi cannot be more that bubbling pressure, 0.01 cm to m
                 }}
             }
+            calcValue(*SoilDepth3, 1000, DIV);
         }
 
         if (SwitchInfilCrust)
@@ -3485,14 +3484,14 @@ void TWorld::InitNewSoilProfile()
                     z += dz3;
 
                 crSoil[i_].z.replace(j, z);
-                crSoil[i_].dz.replace(j, dz2);
-                crSoil[i_].theta.replace(j, ThetaI2->Drc);
-                crSoil[i_].pore.replace(j, ThetaS2->Drc);
-                crSoil[i_].Ks.replace(j, Ksat2->Drc/3600000); // calibrated Ksat ! so do not use for lambda etc
+                crSoil[i_].dz.replace(j, dz3);
+                crSoil[i_].theta.replace(j, ThetaI3->Drc);
+                crSoil[i_].pore.replace(j, ThetaS3->Drc);
+                crSoil[i_].Ks.replace(j, Ksat3->Drc/3600000); // calibrated Ksat ! so do not use for lambda etc
 
-                crSoil[i_].thetar.replace(j,  ThetaR2->Drc);
-                crSoil[i_].lambda.replace(j,  lambda2->Drc);
-                crSoil[i_].hb.replace(j,  -psi2ae->Drc);
+                crSoil[i_].thetar.replace(j,  ThetaR3->Drc);
+                crSoil[i_].lambda.replace(j,  lambda3->Drc);
+                crSoil[i_].hb.replace(j,  -psi3ae->Drc);
             }
         }
 
