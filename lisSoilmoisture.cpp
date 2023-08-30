@@ -400,7 +400,7 @@ void TWorld::cell_Soilwater(long i_)
             // check for ponding and first estimate of infil with darcy
             // with conductivity between Ksat and first node average K1
 
-            qmax = Savg(s.Ks[0],K1[0])*((WH1-Hnew[1])/s.dz[0] - 1);
+            qmax = Savg(s.Ks[0],K1[0])*((WH1-Hnew[0])/s.dz[0] - 1);
            // qmax = Savg(K[0],K1[1])*((WH1-Hnew[1])/s.dz[0] + 1);
             if (s.InfPot > 0 && qmax <= s.InfPot)
                 s.ponded = true;
