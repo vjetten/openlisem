@@ -280,6 +280,13 @@ cTMap
 *Thetaeff,
 *chanmask3,
 
+*vgalpha1,
+*vgalpha2,
+*vgalpha3,
+*vgn1,
+*vgn2,
+*vgn3,
+
 *lambda1,
 *lambda2,
 *lambda3,
