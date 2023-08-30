@@ -323,6 +323,8 @@ typedef struct SOIL_LIST {
     QVector <double> theta;
     QVector <double> thetar;
     QVector <double> rootz;
+    QVector <double> vg_alpha;
+    QVector <double> vg_n;
 
 } SOIL_LIST;
 
@@ -411,7 +413,7 @@ public:
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle,
     SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchGWflow, SwitchGW2Dflow,SwitchLDDGWflow,SwitchSWATGWflow,
-    SwitchChannel2DflowConnect, SwitchChannelWFinflow, SwitchDischargeUser, SwitchNrLayers;
+    SwitchChannel2DflowConnect, SwitchChannelWFinflow, SwitchDischargeUser, SwitchNrLayers,SwitchVanGenuchten,SwitchBrooksCorey;
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
