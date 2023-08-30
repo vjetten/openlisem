@@ -167,10 +167,10 @@ void TWorld::ChannelBaseflow(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             if (SwitchSWATGWflow) {
-                Qbase->Drc = std::min(GWVol->Drc,ChannelWidth->Drc/_dx * GWout->Drc);
+                Qbase->Drc = ChannelWidth->Drc/_dx * GWout->Drc;//std::min(GWVol->Drc,ChannelWidth->Drc/_dx * GWout->Drc);
             } else {
-                double dH = std::max(0.0, GWWH->Drc - ChannelWH->Drc);
-                double GWchan1 = 2.0*GW_flow * 2*ksat->Drc * dH * DX->Drc*dH/(0.5*_dx); //gradient= dH/dz ?
+                double dH = GWWH->Drc;//std::max(0.0, GWWH->Drc - ChannelWH->Drc);
+                double GWchan1 = 2.0*GW_flow * ksat->Drc * dH * DX->Drc*dH/(0.5*_dx); //gradient= dH/dz ?
                 // Ksat * crosssection * gradient = dH/dL where dL is half the distance of the non channel part to
                 // and flow is from 2 sides into the channel, a small channel has less inflow than a broad channel (ChannelAdj)
 

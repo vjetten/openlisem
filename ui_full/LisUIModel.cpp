@@ -377,7 +377,7 @@ void lisemqt::initOP()
     op.FloodAreaMax = 0;
     op.BaseFlowTotmm = 0;
     op.IntercLitterTotmm = 0;
-    op.WaterVolTotchannelmm = 0;
+    //op.WaterVolTotchannelmm = 0;
     op.Qtotmm = 0;
     op.IntercTotmm = 0;
     op.IntercHouseTotmm = 0;

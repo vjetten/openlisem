@@ -288,7 +288,7 @@ void TWorld::InitParameters(void)
 
     GW_recharge = getvaluedouble("GW recharge factor");
     GW_flow = getvaluedouble("GW flow factor");
-    GW_inflow = getvaluedouble("GW river inflow factor");
+    //GW_inflow = getvaluedouble("GW river inflow factor");
     GW_slope = getvaluedouble("GW slope factor");
     GW_deep = getvaluedouble("GW deep percolation"); // in mm/day
     GW_deep *= 0.001/3600*_dt; //mm/h to m/s
@@ -915,6 +915,7 @@ void TWorld::InitChannel(void)
     ChannelDepTot = 0;
     ChannelDetTot = 0;
     BaseFlowTotmm = 0;
+    PeakFlowTotmm = 0;
     QuserInTot = 0;
 
     if(!SwitchIncludeChannel)
@@ -2120,6 +2121,7 @@ void TWorld::IntializeData(void)
     BaseFlowTot = 0;
     BaseFlowInit = 0;
     SoilMoistTot = 0;
+    SoilMoistDiff = 0;
 
     //houses
     IntercHouseTot = 0;
@@ -2132,6 +2134,7 @@ void TWorld::IntializeData(void)
     WaterVolRunoffmm = 0;
     StormDrainTotmm = 0;
     ChannelVolTot = 0;
+    QSideVolTot = 0;
     StormDrainVolTot = 0;
     floodVolTotmm= 0;
     floodVolTot = 0;
@@ -2161,7 +2164,6 @@ void TWorld::IntializeData(void)
     Fcum = NewMap(0);
     Lw = NewMap(0);
     Lwmm = NewMap(0);
-    SoilMB = NewMap(0);
 
     if (SwitchInfilCompact) {
         double cnt = 0;
@@ -2183,7 +2185,7 @@ void TWorld::IntializeData(void)
     QfloodoutTot = 0;
     Qfloodout = 0;
     Qtotmm = 0;
-    FloodBoundarymm = 0;
+    Qboundtotmm = 0;
     GWdeeptot = 0;
     Qpeak = 0;
     QpeakTime = 0;
@@ -2551,7 +2553,6 @@ void TWorld::IntializeOptions(void)
     SwitchOutputTimeStep = false;
     SwitchOutputTimeUser = false;
     SwitchSeparateOutput = false;
-    SwitchPCRoutput = false;
     SwitchWriteHeaders = true; // write headers in output files in first timestep
     SwitchEndRun = false;
 

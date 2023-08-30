@@ -375,6 +375,8 @@ void TWorld::GetInputTimeseries()
 // all hydrologuical processes in one big parallel loop for speed
 void TWorld::HydrologyProcesses()
 {
+    double soiltot1 = SoilWaterMass();
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         cell_Interception(r,c);
@@ -436,6 +438,8 @@ void TWorld::HydrologyProcesses()
     // divided over 12 hours in a day with sine curve
 
     //MoistureContent();
+    double soiltot2 = SoilWaterMass();
+    SoilMoistDiff = soiltot2 - soiltot1;
 
 }
 //---------------------------------------------------------------------------
