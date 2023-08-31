@@ -686,7 +686,7 @@ void TWorld::InitSoilInput(void)
             lambda1->Drc = 0.0849*ks+0.159;
             lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
             psi1ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
-            vgalpha1->Drc = 0.0237*ks + 0.0054;
+            vgalpha1->Drc = (0.02*ks + 0.0095); // in m-1
             vgn1->Drc = 0.2656*ks + 1.1042;
             ThetaR1->Drc = 0.0673*exp(-0.238*log(ks));
             ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;
@@ -742,7 +742,9 @@ void TWorld::InitSoilInput(void)
             FOR_ROW_COL_MV_L {
                 // regression eq from data from Saxton and rawls 2006, excel file
                 double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
-                vgalpha2->Drc = 0.0237*ks + 0.0054;
+                //vgalpha2->Drc = 0.0237*ks + 0.0054;
+                vgalpha2->Drc = (0.02*ks + 0.0095); // in m-1
+
                 vgn2->Drc = 0.2656*ks + 1.1042;
                 lambda2->Drc = 0.0849*ks+0.159;
                 lambda2->Drc = std::min(std::max(0.1,lambda2->Drc),0.7);
@@ -802,7 +804,9 @@ void TWorld::InitSoilInput(void)
             FOR_ROW_COL_MV_L {
                 // regression eq from data from Saxton and rawls 2006, excel file
                 double ks = std::max(0.5,std::min(1000.0,log(Ksat3->Drc)));
-                vgalpha3->Drc = 0.0237*ks + 0.0054;
+                //vgalpha3->Drc = 0.0237*ks + 0.0054;
+                vgalpha3->Drc = (0.02*ks + 0.0095); // in m-1 has ot have inverse from H in m
+
                 vgn3->Drc = 0.2656*ks + 1.1042;
                 lambda3->Drc = 0.0849*ks+0.159;
                 lambda3->Drc = std::min(std::max(0.1,lambda3->Drc),0.7);
@@ -3529,14 +3533,12 @@ void TWorld::InitNewSoilProfile()
             crSoil[i_].h.replace(j,crSoil[i_].hb[j]/hh);
 
             double n = crSoil[i_].vg_n[j];
-            double alpha = crSoil[i_].vg_alpha[j];
+            double alpha = crSoil[i_].vg_alpha[j]; // note alpha is in 1/cm
             double m = 1-1/n;
-            crSoil[i_].h.replace(j, -std::pow((std::pow(1/se,1/m)-1),1/n)/alpha);
+            crSoil[i_].h.replace(j, -0.01*std::pow((std::pow(1/se,1/m)-1),1/n)/alpha);
 
-
+          //  qDebug() << j << crSoil[i_].h[j];
         }
-
-
 
 
         double sum = 0;

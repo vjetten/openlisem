@@ -943,8 +943,9 @@ public:
     void cell_SWATRECalc(long i_);
     void calcSinkterm(long i_, double *S);
     double calculateDayLength(double latitude, int dayNumber);
-//    void solveFiniteElement(long i_, double *Hnew, double *K, double *C1);
-//    void calcNewNodalValues(long i_, double *Hnew, double *K, double *C1);
+    void VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
+    void BrooksCorey(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
+
 
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);

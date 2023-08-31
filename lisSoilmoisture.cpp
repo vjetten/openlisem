@@ -194,6 +194,66 @@ void TWorld::calcSinkterm(long i_, double *S)
     }
 }
 
+
+void TWorld::VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical)
+{
+    for(int j = 0; j < nNodes; j++) {
+        double Se, Kr;
+        double m = 1-1/s.vg_n[j];
+        double Hx = std::min(Hnew[j]*100, 0.0);
+
+        Se = std::pow(1+std::pow(s.vg_alpha[j]*fabs(Hx), s.vg_n[j]), -m);
+
+        if (Se == 1.0)
+            Kr = 1.0;
+        else
+            if (Se < 0.04)
+                Kr = qSqrt(Se) * std::pow(m * std::pow(Se,1/m), 2.0);
+            else
+                Kr = qSqrt(Se) * std::pow(1-std::pow(1-std::pow(Se,1/m),m), 2.0);
+        K[j] = s.Ks[j]*Kr;
+
+        double W = s.thetar[j]+(s.pore[j]-s.thetar[j])*Se;
+        if (!analytical) {
+            double W1 = s.thetar[j]+(s.pore[j]-s.thetar[j])*std::pow(1+std::pow(s.vg_alpha[j]*fabs(Hx-0.01), s.vg_n[j]), -m);
+            C1[j] = (W-W1)/0.01;
+        } else {
+            if (Hnew[j] < s.hb[j])
+                C1[j] = (W-s.thetar[j])*(s.vg_n[j]-1)*s.vg_alpha[j]*std::pow(fabs(s.vg_alpha[j]*fabs(Hx)),s.vg_n[j]-1)/
+                            (1+std::pow(abs(s.vg_alpha[j]*fabs(Hx)),s.vg_n[j])) + W*1e-6/s.pore[j];
+            else
+                C1[j] = W*1e-6/s.pore[j];
+        }
+
+    }
+}
+
+void TWorld::BrooksCorey(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical)
+{
+    for(int j = 0; j < nNodes; j++) {
+        double Hx = Hnew[j];
+        if (Hx < s.hb[j])
+            K[j] = s.Ks[j]*pow(std::min(1.0,s.hb[j]/Hx), 2.0+3.0*s.lambda[j]);
+        else
+            K[j] = s.Ks[j];
+
+        // differential moisture capacity dtheta/dh (tangent of pF curve)
+        if (!analytical) {
+            double Hx = std::min(Hx, s.hb[j]);
+            double Wnew = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/Hnew[j], s.lambda[j]);
+            double W = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/(Hnew[j]-0.01), s.lambda[j]);
+            C1[j] = (Wnew-W)/0.01;
+        } else {
+           if (Hnew[j] < s.hb[j])
+                C1[j] = s.theta[j] * 1e-6/s.pore[j]
+                        -1.0/Hnew[j] *(s.pore[j]-s.thetar[j])*s.lambda[j]*pow(s.hb[j]/Hnew[j], s.lambda[j]);
+            else
+                C1[j] = s.theta[j] * 1e-6/s.pore[j];
+        }
+    }
+}
+
+
 void TWorld::cell_Soilwater(long i_)
 {
     SOIL_LIST s;
@@ -287,85 +347,24 @@ void TWorld::cell_Soilwater(long i_)
         // iteration for Hnew
         do {
             SwitchVanGenuchten = true;//false;
-                    SwitchBrooksCorey = false;//true;
-                    // van genuchten
-                    if(SwitchVanGenuchten) {
-                        for(int j = 0; j < nNodes; j++) {
+            SwitchBrooksCorey = false;//true;
 
-                            double Hx = 0.5*(Hnew[j] + Hold[j]);
-                            double Se, Kr;
-                            double m = 1-1/s.vg_n[j];
-                            if (Hx < s.hb[j])
-                                Se = std::pow(1 + std::pow(abs(s.vg_alpha[j]*Hx), s.vg_n[j]), -m);
-                            else
-                                Se = 1.0;
+            if(SwitchVanGenuchten)
+                VanGenuchten(s, Hnew, K, C1, false);
+            if(SwitchBrooksCorey)
+                BrooksCorey(s, Hnew, K, C1, false);
 
-                            if (Se < 0.04)
-                                Kr = qSqrt(Se) * std::pow(m * std::pow(Se,1/m), 2.0);
-                            else
-                                Kr = qSqrt(Se) * std::pow(1-std::pow(1-std::pow(Se,1/m),m), 2.0);
-                            K[j] = s.Ks[j]*Kr;
+            for(int j = 0; j < nNodes; j++) {
 
-                            if (SwitchGWflow && j >= GWnode)
-                                K[j] *= GW_recharge;
+//                if (r == _nrRows/2 && c == _nrCols/2)
+//                    qDebug() <<"vg" << Hnew[j] << K[j] << C1[j];
 
-                             double Wnew = s.thetar[j]+(s.pore[j]-s.thetar[j])*Se;
-                            if (Hx < s.hb[j])
-                                C1[j] = (Wnew-s.thetar[j])*(s.vg_n[j]-1)*s.vg_alpha[j]*std::pow(abs(s.vg_alpha[j]*Hx),s.vg_n[j]-1)/
-                                        (1+std::pow(abs(s.vg_alpha[j]*Hx),s.vg_n[j])) + Wnew*1e-6/s.pore[j];
-                            else
-                                C1[j] = Wnew*1e-6/s.pore[j];
+                C1[j] *= s.dz[j]/s.dts;
 
-                            C1[j] *= s.dz[j]/s.dts;
+                if (SwitchGWflow && j >= GWnode)
+                    K[j] *= GW_recharge;
+            }
 
-                        }
-                    }
-
-
-                    //======= Brooks Corey for H,K,theta and C
-                    if(SwitchBrooksCorey) {
-
-                        for(int j = 0; j < nNodes; j++) {
-                            double Hx = 0.5*(Hnew[j] + Hold[j]);
-                            if (Hx < s.hb[j])
-                                K[j] = s.Ks[j]*pow(std::min(1.0,s.hb[j]/Hx), 2.0+3.0*s.lambda[j]);
-                            else
-                                K[j] = s.Ks[j];
-                            if (SwitchGWflow && j >= GWnode)
-                                K[j] *= GW_recharge;
-                            //K[j] *= s.dts;
-
-                            // differential moisture capacity dtheta/dh (tangent of pF curve)
-                            double Wnew;
-                            if (Hnew[j] < s.hb[j])
-                                Wnew = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/Hnew[j], s.lambda[j]);
-                            else
-                                Wnew = s.pore[j];
-                            double W;
-                            if (Hnew[j]-0.01 < s.hb[j])
-                                W = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/(Hold[j]), s.lambda[j]);
-                            else
-                                W = s.pore[j];
-
-                            if (fabs(Hnew[j]-Hold[j]) <= 3*tol2) {
-                                if (Hx < s.hb[j])
-                                    C1[j] = s.theta[j] * 1e-6/s.pore[j]
-                                            -1.0/Hx *(s.pore[j]-s.thetar[j])*s.lambda[j]*pow(s.hb[j]/Hx, s.lambda[j]);
-                                else {
-                                    C1[j] = s.theta[j] * 1e-6/s.pore[j];
-                                }
-                            } else
-                                C1[j] = (Wnew-W)/(Hnew[j]-Hold[j]);
-
-
-                            //C1[j] = Wnew-W > 0 ? (Wnew-W)/(Hnew[j]-Hold[j]);
-
-                            // swatre solution with 0.01 m difference as dh
-                            // analytical: -1.0/Hx *(s.pore[j]-s.thetar[j])*s.lambda[j]*pow(s.hb[j]/Hx, s.lambda[j]);
-
-                            C1[j] *= s.dz[j]/s.dts;
-                        }
-                    }
 
             // K1 and K2 are avg between node and upper and lower node
             for(int j = 1; j < nNodes; j++) {
@@ -387,7 +386,7 @@ void TWorld::cell_Soilwater(long i_)
             K1[0] = K2[0];
             K2[nN] = K1[nN];
 
-            s.ponded = WH1 > 0;//Hnew[0] > 0;
+            s.ponded = Hnew[0] > 0;
 
             // check for ponding and first estimate of infil with darcy
             // with conductivity between Ksat and first node average K1
@@ -417,17 +416,18 @@ void TWorld::cell_Soilwater(long i_)
             // upper boundary condition
             if (s.ponded){
 
-                Hnew[0] = Hold[0] + s.dts*(s.InfPot-qmax);
-                                        //std::min(s.InfPot,qmax);
-             //    Hnew[0] = WH1;
-                s.Infact = D[0]*Hnew[0] - F[0];
-                F[0] = Hnew[0];
-                A[0] = 0;
-                D[0] = 1;
-                F[1] = F[1] + K[0]*Hnew[0];
+          //     Hnew[0] = Hold[0] + s.dts*(s.InfPot-qmax); //s.dts*std::min(s.InfPot,qmax);//
+          //     Hnew[0] = Hold[0] + s.dts*std::min(s.InfPot,qmax);
+                Hnew[0] = WH1;
+                s.Infact = qmax;//D[0]*Hnew[0] - F[0];
+                F[0] = F[0] + s.Infact;
 
-                if (r == _nrRows/2 && c == _nrCols/2)
-                    qDebug() <<"pond" << WH1 << qmax << s.Ks[0] << K[0] << K[1];
+                A[0] = -s.Ks[0];
+                D[0] = 1;
+                F[1] = F[1] + K1[0]*Hnew[0];
+
+//                if (r == _nrRows/2 && c == _nrCols/2)
+//                    qDebug() <<"pond" << WH1 << qmax << s.Ks[0] << K[0] << K[1];
             } else {
                 s.Infact = s.InfPot; // infil is net rainfall
                 F[0] = F[0] + s.Infact;
@@ -459,8 +459,8 @@ void TWorld::cell_Soilwater(long i_)
 //            PE(J) = (F(J) - A(J) * PE(J+1)) / D(J)
 
 
-            //            for(int j = 1; j < nNodes; j++)
-            //                Hnew[j] = std::min(0.0, Hnew[j]);
+                        for(int j = 1; j < nNodes; j++)
+                            Hnew[j] = std::min(0.0, Hnew[j]);
             // not necessary, and surface can be + so not for the top node anyway!
 
             //======== calc boundary fluxes
@@ -542,10 +542,15 @@ void TWorld::cell_Soilwater(long i_)
 
     for(int j = 0; j < nNodes; j++) {
         s.h[j] = Hnew[j];
-        if (s.h[j] < s.hb[j])
-            s.theta[j] = s.thetar[j] + pow(s.hb[j]/s.h[j], s.lambda[j])*(s.pore[j]-s.thetar[j]);
+//        if (s.h[j] < s.hb[j])
+//            s.theta[j] = s.thetar[j] + pow(s.hb[j]/s.h[j], s.lambda[j])*(s.pore[j]-s.thetar[j]);
+//        else
+//            s.theta[j] = s.pore[j];
+        if (Hnew[j] < 0.0)
+            s.theta[j] = s.thetar[j]+(s.pore[j]-s.thetar[j])*std::pow(1+std::pow(s.vg_alpha[j]*fabs(Hnew[j]*100), s.vg_n[j]), -(1-1/s.vg_n[j]));
         else
             s.theta[j] = s.pore[j];
+
     }
 
     //    double infil = s.Infact*_dt;
