@@ -201,6 +201,371 @@ void TWorld::cell_Soilwater(long i_)
 
     double dtmin = 0.01*_dt;
     double dtmax = SoilWBdtfactor*_dt;
+    int NITMAX = 12;
+    bool stopit = false;
+    int c = s.c;
+    int r = s.r;
+    double WH0, WH1;
+    int nN = nNodes-1;
+    bool freeDrainage = !SwitchImpermeable;
+
+    double ANE, FNN1, FNN2, A1, A2;
+    double qmax = 0;
+
+    double *Hold = new double[nNodes];
+    double *Hnew = new double[nNodes];
+    double *C1 = new double[nNodes];
+    double *S  = new double[nNodes];
+    double *K  = new double[nNodes];
+    double *K1 = new double[nNodes];
+    double *K2 = new double[nNodes];
+    double *A  = new double[nNodes];
+    double *D  = new double[nNodes];
+    double *F  = new double[nNodes];
+
+    // find node above groundwater
+    int GWnode = nN;
+    if (SwitchGWflow) {
+        if (GWWH->Drc > 0) {
+            int j = 0;
+            for (j = 1; j < nNodes; j++)
+            {
+                if (s.z[j] >= s.SD - GWWH->Drc)
+                    break;
+            }
+            GWnode = j-1;
+        }
+    }
+    nN = GWnode;
+
+    //    if (r==_nrRows/2 && c == _nrCols/2)
+    //        qDebug() << GWnode << GWWH->Drc << s.z[GWnode];
+
+    if (FloodDomain->Drc == 0)
+        WH0 = WH->Drc; //runoff in kinwave or dyn wave
+    else
+        WH0 = hmx->Drc;// flood in kin wave
+    WH1 = WH0;
+    s.InfPot = WH0/_dt;  // m/s
+    s.Infact = WH0/_dt;
+    s.dtsum = 0;
+    s.drain = 0;
+
+    // fill Hnew and Hold
+    for(int j = 0; j < nNodes; j++) {
+        Hnew[j] = s.h[j];
+        Hold[j] = Hnew[j];
+        S[j] = 0;
+    }
+
+
+    if (SwitchGWflow) {
+        for(int j = GWnode+1; j < nNodes; j++) {
+            Hnew[j] = s.z[j]-(s.SD-GWWH->Drc);
+            Hold[j] = Hnew[j];
+            // h = 0 at depth SD2-GWWH
+            // h = GWWH at depth SD2
+            // h = ? at depth s.z
+            //TODO:if GW lowers and nodes become negative!
+        }
+    }
+
+
+    // ET calculation goes into sink term S
+    if (SwitchIncludeET)
+        calcSinkterm(i_, S); // ETa
+
+    // initial dts
+    s.dts=dtmax;
+    int cnt = 0;
+
+    // outer loop timestep lisem
+    do {
+        int NIT = 0;
+        s.InfPot = WH1/s.dts;  // m/s
+
+        // iteration for Hnew
+        do {
+
+            //======= Brooks Corey for H,K,theta and C
+            for(int j = 0; j < nNodes; j++) {
+                double Hx = 0.5*(Hnew[j] + Hold[j]);
+                if (Hx < s.hb[j])
+                    K[j] = s.Ks[j]*pow(std::min(1.0,s.hb[j]/Hx), 2.0+3.0*s.lambda[j]);
+                else
+                    K[j] = s.Ks[j];
+                if (SwitchGWflow && j >= GWnode)
+                    K[j] *= GW_recharge;
+
+                // differential moisture capacity dtheta/dh (tangent of pF curve)
+                double Wnew;
+                double W;
+                if (Hnew[j] < s.hb[j]) {
+                    Wnew = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/Hnew[j], s.lambda[j]);
+                    W = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/(Hnew[j]-0.01), s.lambda[j]);
+                    C1[j] = (Wnew-W)/0.01;
+                } else {
+                    W = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/(s.hb[j]-0.01), s.lambda[j]);
+                    C1[j] = (s.pore[j]-W)/(0-s.hb[j]);
+                }
+
+                // swatre solution with 0.01 m difference as dh
+                // analytical: -1.0/Hx *(s.pore[j]-s.thetar[j])*s.lambda[j]*pow(s.hb[j]/Hx, s.lambda[j]);
+
+                C1[j] *= s.dz[j]/s.dts;
+            }
+
+            // K1 and K2 are avg between node and upper and lower node
+            for(int j = 1; j < nNodes; j++) {
+                switch (KavgType) {
+                case 0: K1[j] = Aavg(K[j-1],K[j]);
+                case 1: K1[j] = Savg(K[j-1],K[j]);
+                case 2: K1[j] = Havg(K[j-1],K[j],s.dz[j-1],s.dz[j]);
+                case 3: K1[j] = Mavg(K[j-1],K[j]);
+                }
+            }
+            for(int j = 0; j < nNodes-1; j++) {
+                switch (KavgType) {
+                case 0: K2[j] = Aavg(K[j],K[j+1]);
+                case 1: K2[j] = Savg(K[j],K[j+1]);
+                case 2: K2[j] = Havg(K[j],K[j+1],s.dz[j],s.dz[j+1]);
+                case 3: K2[j] = Mavg(K[j],K[j+1]);
+                }
+            }
+            K1[0] = K2[0];
+            K2[nN] = K1[nN];
+
+            s.ponded = WH1 > 0;//Hnew[0] > 0;
+
+            // check for ponding and first estimate of infil with darcy
+            // with conductivity between Ksat and first node average K1
+            qmax = Savg(s.Ks[0],K[0])*((WH1-Hnew[0])/s.dz[0] + 1);
+            if (s.InfPot > 0 && qmax <= s.InfPot)
+                s.ponded = true;
+
+
+            //======== Galerkin 3-diagonal scheme and back substitution
+
+            A[0] = -K1[0];
+            D[0] = K1[0]+ 0.5*C1[0];
+            F[0] = 0.5*C1[0]*Hnew[0] - s.dz[0]*(K1[0] + (2*S[0]+S[1])/6);
+            for(int j = 1; j < nN; j++) {
+                A[j] = -K2[j];
+                D[j] = K1[j] + K2[j] + C1[j];
+                F[j] = C1[j]*Hnew[j]
+                       + 0.5*(s.dz[j]+s.dz[j-1]) * K1[j]
+                       - 0.5*(s.dz[j]+s.dz[j+1]) * K2[j]
+                       - s.dz[j] * (S[j-1]+4*S[j]+S[j+1])/6;
+            }
+            A[nN] = -K2[nN];
+            D[nN] = K2[nN] + 0.5*C1[nN];
+            F[nN] = 0.5*C1[nN]*Hnew[nN] + s.dz[nN]*(K2[nN] - (S[nN-1]+2*S[nN])/6);
+
+
+            // upper boundary condition
+            if (s.ponded){
+
+                Hnew[0] = Hold[0] + s.dts*(s.InfPot-qmax);
+                                        //std::min(s.InfPot,qmax);
+             //    Hnew[0] = WH1;
+                s.Infact = D[0]*Hnew[0] - F[0];
+                F[0] = Hnew[0];
+                A[0] = 0;
+                D[0] = 1;
+                F[1] = F[1] + K[0]*Hnew[0];
+
+                if (r == _nrRows/2 && c == _nrCols/2)
+                    qDebug() <<"pond" << WH1 << qmax << s.Ks[0] << K[0] << K[1];
+            } else {
+                s.Infact = s.InfPot; // infil is net rainfall
+                F[0] = F[0] + s.Infact;
+            }
+
+
+            // lower boundary condition
+            if (freeDrainage) {
+                D[nN] = -A[nN-1];
+                FNN2 = F[nN];
+                F[nN] = 0;
+            } else {
+                // fixed flux (for instance 0)
+                s.drain = 0;
+                F[nN] = F[nN] - s.drain;
+            }
+
+            // calc Hnew with Gaussian elimination and back substitution
+            for(int j = 1; j < nNodes; j++) {
+                A2 = A[j-1]/D[j-1];
+                D[j] = D[j] - A2 * A[j-1];
+                F[j] = F[j] - A2 * F[j-1];
+            }
+            Hnew[nN] = F[nN]/D[nN];
+            for (int j = nN-1; j >= 0; j--)
+                Hnew[j] = (F[j] - A[j]*Hnew[j+1])/D[j];
+//            DO 20 I = 2, NN
+//            J = NN - I + 1
+//            PE(J) = (F(J) - A(J) * PE(J+1)) / D(J)
+
+
+            //            for(int j = 1; j < nNodes; j++)
+            //                Hnew[j] = std::min(0.0, Hnew[j]);
+            // not necessary, and surface can be + so not for the top node anyway!
+
+            //======== calc boundary fluxes
+            if (s.ponded && Hnew[1] < 0) {
+                s.Infact = s.Infact + A1 * Hnew[1];
+            }
+            if (freeDrainage) {
+                s.drain = 0.5*(K[nN] + FNN2 - Hnew[nN]*0.5*C1[nN]);
+            }
+
+            stopit = true;
+            bool iterate = false;
+            if (iterate) {
+                s.ponded = Hnew[0] > 0;
+
+                //stop if Hnew and Hold are close
+                // do not include top node?
+                for(int j = 0; j <= nN; j++) {
+                    if (Hnew[j] < 0) {
+                        double tol = tol1*fabs(Hold[j]) + tol2;
+                        //if (s.ponded) tol /= 2;
+                        if (fabs(Hnew[j] - Hold[j]) > tol) {
+                            stopit = false;
+                            break;
+                        }
+                    }
+                }
+
+                NIT++;
+
+                if (!stopit && NIT > NITMAX) {
+                    // try again with smaller dts
+                    s.dts /= 2.0;
+                    s.dts = std::max(s.dts,dtmin);
+                    for(int j = 1; j < nNodes; j++)
+                    //    Hnew[j] = Hold[j];
+                      Hnew[j] = 0.5*(Hold[j]+Hnew[j]);
+                    stopit = true;
+                }
+            }
+
+            for(int j = 0; j < nNodes; j++)
+                Hold[j] = Hnew[j];
+
+        } while(!stopit);
+
+
+        // change timestep for next iteration
+        //        double factor = 0.5 + 1/sqrt((double)NIT);
+        //        s.dts = s.dts * factor;
+        //        s.dts = std::min(s.dts,dtmax);
+        //        s.dts = std::max(s.dts,dtmin);
+        //        s.dts = std::min(s.dts,_dt-s.dtsum);
+        //        s.dtsum += s.dts;
+
+        // SWATRE method is faster!
+        double dt = dtmax;
+        for(int j = 1; j < nNodes; j++) {
+            double mdih = tol2 + tol1*fabs(Hnew[j]);
+            double dih  = fabs(Hnew[j] - Hold[j]);
+            if (dih > 0.10)
+                dt = dt*mdih/dih;
+        }
+        s.dts = std::min(dt,dtmax);
+        s.dts = std::max(dt,dtmin);
+        s.dts = std::min(s.dts,_dt-s.dtsum);
+        s.dtsum += s.dts;
+
+
+        if (WH1 > 0) {
+            WH1 = WH1 - s.Infact*s.dts;
+            WH1 = std::max(0.0, WH1);
+        }
+        s.InfPot = WH1/s.dts;
+
+        //if (r == _nrRows/2 && c == _nrCols/2)qDebug() << NIT << s.dts << s.dtsum << _dt;
+        cnt++;
+    } while(s.dtsum < _dt);
+
+    for(int j = 0; j < nNodes; j++) {
+        s.h[j] = Hnew[j];
+        if (s.h[j] < s.hb[j])
+            s.theta[j] = s.thetar[j] + pow(s.hb[j]/s.h[j], s.lambda[j])*(s.pore[j]-s.thetar[j]);
+        else
+            s.theta[j] = s.pore[j];
+    }
+
+    //    double infil = s.Infact*_dt;
+    //    if (FloodDomain->Drc == 0) {
+    //        infil = std::min(WH->Drc , infil);
+    //        WH->Drc -= infil; //runoff in kinwave or dyn wave
+    //    } else {
+    //        infil = std::min(hmx->Drc , infil);
+    //        hmx->Drc -= infil; // flood in kin wave
+    //    }
+    //    s.Infact = infil/_dt;
+
+    if (FloodDomain->Drc == 0) {
+        WH->Drc = WH1; //runoff in kinwave or dyn wave
+    } else {
+        hmx->Drc = WH1; // flood in kin wave
+    }
+    s.Infact = (WH0-WH1)/_dt;
+
+    InfilVol->Drc = s.Infact*_dt*SoilWidthDX->Drc*DX->Drc;
+
+    ThetaI1a->Drc = s.theta[1];
+    for (int j = 2; j <= nN1_; j++)
+        ThetaI1a->Drc += s.theta[j];
+    ThetaI1a->Drc /= (double)nN1_;
+
+    if (SwitchTwoLayer || SwitchThreeLayer) {
+        ThetaI2a->Drc = s.theta[nN1_+1];
+        for (int j = nN1_+2; j < nN1_+nN2_+1; j++)
+            ThetaI2a->Drc += s.theta[j];
+        ThetaI2a->Drc /= (double)nN2_;
+    }
+    if (SwitchThreeLayer) {
+        ThetaI3a->Drc = s.theta[nN1_+nN2_+1];
+        for (int j = nN2_+nN1_+2; j < nN1_+nN2_+nN3_+1; j++)
+            ThetaI3a->Drc += s.theta[j];
+        ThetaI3a->Drc /= (double)nN3_;
+    }
+
+    Perc->Drc = s.drain*_dt;
+
+    if (r == _nrRows/2 && c == _nrCols/2) {
+        //qDebug() << WH0 << WH1 << s.Infact  << s.drain;
+        QString S;
+        QString S1;
+        for(int j = 0; j < nNodes; j++) {
+            S = S + QString(" %1").arg(s.h[j]);
+            //S1 = S1 + QString(" %1").arg(s.theta[j]);
+        }
+        qDebug() << cnt << S;
+        //qDebug() << S1;
+    }
+
+    delete[] Hold;
+    delete[] Hnew;
+    delete[] C1;
+    delete[] S;
+    delete[] K;
+    delete[] K1;
+    delete[] K2;
+    delete[] A ;
+    delete[] D ;
+    delete[] F ;
+}
+/*
+void TWorld::cell_Soilwater(long i_)
+{
+    SOIL_LIST s;
+    s = crSoil[i_];
+
+    double dtmin = 0.01*_dt;
+    double dtmax = SoilWBdtfactor*_dt;
     s.dts = dtmax;
     int NITMAX = 12;
     bool stopit = false;
@@ -647,7 +1012,7 @@ void TWorld::cell_Soilwater(long i_)
     delete[] D ;
     delete[] F ;
 }
-
+*/
 
 void TWorld::cell_SWATRECalc(long i_)
 {
