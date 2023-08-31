@@ -412,7 +412,7 @@ void TWorld::cell_Soilwater(long i_)
             //======== Galerkin 3-diagonal scheme and back substitution
 
             // sort of Simpson trapezium solution
-            F[0] = (2.0*C1[0] + C1[1])/6.0;
+            F[0] = 0.5*C1[0];//(2.0*C1[0] + C1[1])/6.0;
             A[0] = -K1[0];
             D[0] = -A[0]+F[0];
             for(int j = 1; j < nN; j++) {
@@ -421,7 +421,7 @@ void TWorld::cell_Soilwater(long i_)
                 D[j] = (K1[j] + K2[j]) + F[j];
             }
             ANE = A[nN-1];
-            F[nN] = (C1[nN-1] + 2.0*C1[nN])/6.0;
+            F[nN] = 0.5*C1[nN];//(C1[nN-1] + 2.0*C1[nN])/6.0;
             D[nN] = -A[nN-1] + F[nN];
             FNN1 = F[nN];
 
@@ -563,9 +563,8 @@ void TWorld::cell_Soilwater(long i_)
             WH1 = WH1 - s.Infact*s.dts;
             WH1 = std::max(0.0, WH1);
         }
-        s.InfPot = WH1/s.dts;
 
-        //if (r == _nrRows/2 && c == _nrCols/2)qDebug() << NIT << s.dts << s.dtsum << _dt;
+        if (r == _nrRows/2 && c == _nrCols/2)qDebug() << NIT << s.dts << s.dtsum << _dt;
         cnt++;
     } while(s.dtsum < _dt);
 

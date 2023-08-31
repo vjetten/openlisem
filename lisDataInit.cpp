@@ -3424,6 +3424,8 @@ void TWorld::InitNewSoilProfile()
         sr.theta.clear();
         sr.thetar.clear();
         sr.lambda.clear();
+        sr.vg_n.clear();
+        sr.vg_alpha.clear();
         sr.dz.clear();
         sr.z.clear();
         sr.rootz.clear();
@@ -3435,6 +3437,8 @@ void TWorld::InitNewSoilProfile()
         sr.theta.resize(nNodes);
         sr.thetar.resize(nNodes);
         sr.lambda.resize(nNodes);
+        sr.vg_n.resize(nNodes);
+        sr.vg_alpha.resize(nNodes);
         sr.dz.resize(nNodes);
         sr.z.resize(nNodes);
         sr.rootz.resize(nNodes);
@@ -3527,7 +3531,7 @@ void TWorld::InitNewSoilProfile()
             double n = crSoil[i_].vg_n[j];
             double alpha = crSoil[i_].vg_alpha[j];
             double m = 1-1/n;
-            crSoil[i_].h.replace(j, -std::pow((std::pow(se,1/m)-1),1/n)/alpha);
+            crSoil[i_].h.replace(j, -std::pow((std::pow(1/se,1/m)-1),1/n)/alpha);
 
         }
 
