@@ -3530,15 +3530,9 @@ void TWorld::InitNewSoilProfile()
 
             double n = crSoil[i_].vg_n[j];
             double alpha = crSoil[i_].vg_alpha[j];
-            double m = 1-1/n; //n/n-1
-           // crSoil[i_].h.replace(j, -std::pow((std::pow(1/se,1/m)-1),1/n)/alpha);
-            //-power((power((Wsat-Wres)/(Hm-Wres),1/m)-1),1/n)/alpha
-//            if (r==_nrRows/2 && c == _nrCols/2)
-//                qDebug() << j
-//                         << crSoil[i_].h[j]
-//                         << crSoil[i_].vg_alpha[j]
-//                         << crSoil[i_].vg_n[j]
-//                         << se;
+            double m = 1-1/n;
+            crSoil[i_].h.replace(j, -std::pow((std::pow(1/se,1/m)-1),1/n)/alpha);
+
 
         }
 
