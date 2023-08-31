@@ -286,34 +286,86 @@ void TWorld::cell_Soilwater(long i_)
 
         // iteration for Hnew
         do {
+            SwitchVanGenuchten = true;//false;
+                    SwitchBrooksCorey = false;//true;
+                    // van genuchten
+                    if(SwitchVanGenuchten) {
+                        for(int j = 0; j < nNodes; j++) {
 
-            //======= Brooks Corey for H,K,theta and C
-            for(int j = 0; j < nNodes; j++) {
-                double Hx = 0.5*(Hnew[j] + Hold[j]);
-                if (Hx < s.hb[j])
-                    K[j] = s.Ks[j]*pow(std::min(1.0,s.hb[j]/Hx), 2.0+3.0*s.lambda[j]);
-                else
-                    K[j] = s.Ks[j];
-                if (SwitchGWflow && j >= GWnode)
-                    K[j] *= GW_recharge;
+                            double Hx = 0.5*(Hnew[j] + Hold[j]);
+                            double Se, Kr;
+                            double m = 1-1/s.vg_n[j];
+                            if (Hx < s.hb[j])
+                                Se = std::pow(1 + std::pow(abs(s.vg_alpha[j]*Hx), s.vg_n[j]), -m);
+                            else
+                                Se = 1.0;
 
-                // differential moisture capacity dtheta/dh (tangent of pF curve)
-                double Wnew;
-                double W;
-                if (Hnew[j] < s.hb[j]) {
-                    Wnew = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/Hnew[j], s.lambda[j]);
-                    W = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/(Hnew[j]-0.01), s.lambda[j]);
-                    C1[j] = (Wnew-W)/0.01;
-                } else {
-                    W = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/(s.hb[j]-0.01), s.lambda[j]);
-                    C1[j] = (s.pore[j]-W)/(0-s.hb[j]);
-                }
+                            if (Se < 0.04)
+                                Kr = qSqrt(Se) * std::pow(m * std::pow(Se,1/m), 2.0);
+                            else
+                                Kr = qSqrt(Se) * std::pow(1-std::pow(1-std::pow(Se,1/m),m), 2.0);
+                            K[j] = s.Ks[j]*Kr;
 
-                // swatre solution with 0.01 m difference as dh
-                // analytical: -1.0/Hx *(s.pore[j]-s.thetar[j])*s.lambda[j]*pow(s.hb[j]/Hx, s.lambda[j]);
+                            if (SwitchGWflow && j >= GWnode)
+                                K[j] *= GW_recharge;
 
-                C1[j] *= s.dz[j]/s.dts;
-            }
+                             double Wnew = s.thetar[j]+(s.pore[j]-s.thetar[j])*Se;
+                            if (Hx < s.hb[j])
+                                C1[j] = (Wnew-s.thetar[j])*(s.vg_n[j]-1)*s.vg_alpha[j]*std::pow(abs(s.vg_alpha[j]*Hx),s.vg_n[j]-1)/
+                                        (1+std::pow(abs(s.vg_alpha[j]*Hx),s.vg_n[j])) + Wnew*1e-6/s.pore[j];
+                            else
+                                C1[j] = Wnew*1e-6/s.pore[j];
+
+                            C1[j] *= s.dz[j]/s.dts;
+
+                        }
+                    }
+
+
+                    //======= Brooks Corey for H,K,theta and C
+                    if(SwitchBrooksCorey) {
+
+                        for(int j = 0; j < nNodes; j++) {
+                            double Hx = 0.5*(Hnew[j] + Hold[j]);
+                            if (Hx < s.hb[j])
+                                K[j] = s.Ks[j]*pow(std::min(1.0,s.hb[j]/Hx), 2.0+3.0*s.lambda[j]);
+                            else
+                                K[j] = s.Ks[j];
+                            if (SwitchGWflow && j >= GWnode)
+                                K[j] *= GW_recharge;
+                            //K[j] *= s.dts;
+
+                            // differential moisture capacity dtheta/dh (tangent of pF curve)
+                            double Wnew;
+                            if (Hnew[j] < s.hb[j])
+                                Wnew = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/Hnew[j], s.lambda[j]);
+                            else
+                                Wnew = s.pore[j];
+                            double W;
+                            if (Hnew[j]-0.01 < s.hb[j])
+                                W = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/(Hold[j]), s.lambda[j]);
+                            else
+                                W = s.pore[j];
+
+                            if (fabs(Hnew[j]-Hold[j]) <= 3*tol2) {
+                                if (Hx < s.hb[j])
+                                    C1[j] = s.theta[j] * 1e-6/s.pore[j]
+                                            -1.0/Hx *(s.pore[j]-s.thetar[j])*s.lambda[j]*pow(s.hb[j]/Hx, s.lambda[j]);
+                                else {
+                                    C1[j] = s.theta[j] * 1e-6/s.pore[j];
+                                }
+                            } else
+                                C1[j] = (Wnew-W)/(Hnew[j]-Hold[j]);
+
+
+                            //C1[j] = Wnew-W > 0 ? (Wnew-W)/(Hnew[j]-Hold[j]);
+
+                            // swatre solution with 0.01 m difference as dh
+                            // analytical: -1.0/Hx *(s.pore[j]-s.thetar[j])*s.lambda[j]*pow(s.hb[j]/Hx, s.lambda[j]);
+
+                            C1[j] *= s.dz[j]/s.dts;
+                        }
+                    }
 
             // K1 and K2 are avg between node and upper and lower node
             for(int j = 1; j < nNodes; j++) {
