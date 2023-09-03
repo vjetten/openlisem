@@ -410,8 +410,8 @@ void TWorld::cell_Soilwater(long i_)
 
             // check for ponding and first estimate of infil with darcy
             // with conductivity between Ksat and first node average K1
-            qmax = Savg(s.Ks[0],K[0])*((WH1-Hnew[0])/s.dz[0] - 1);
-            //qmax = -s.Ks[0]*((Hnew[0]-WH1)/s.dz[0] + 1);
+            //qmax = Savg(s.Ks[0],K[0])*((WH1-Hnew[0])/s.dz[0] - 1);
+            qmax = s.Ks[0]*((Hnew[0]-WH1)/s.dz[0] + 1);
             if (s.InfPot > 0 && fabs(qmax) < fabs(s.InfPot))
                 s.ponded = true;
 
@@ -425,7 +425,7 @@ void TWorld::cell_Soilwater(long i_)
           //     Hnew[0] = Hold[0] + s.dts*std::min(s.InfPot,qmax);
                 Hnew[0] = WH1;
                 s.Infact = fabs(qmax);//D[0]*Hnew[0] - F[0];
-                F[0] = F[0] + s.Infact;
+              //  F[0] = F[0] + s.Infact;
                 F[0] = Hnew[0];
 
                 A[0] = 0;//-s.Ks[0];
@@ -435,8 +435,6 @@ void TWorld::cell_Soilwater(long i_)
 
                 s.Infact = s.InfPot; // infil is net rainfall
                 F[0] = F[0] + s.Infact;
-                            if (r == _nrRows/2 && c == _nrCols/2)
-                                qDebug() <<"pond" << F[0];
             }
 
 
@@ -550,7 +548,7 @@ void TWorld::cell_Soilwater(long i_)
 //        else
 //            s.theta[j] = s.pore[j];
         if (Hnew[j] < 0.0)
-            s.theta[j] = s.thetar[j]+(s.pore[j]-s.thetar[j])*std::pow(1+std::pow(s.vg_alpha[j]*fabs(Hnew[j]*100), s.vg_n[j]), -(1-1/s.vg_n[j]));
+            s.theta[j] = s.thetar[j]+(s.pore[j]-s.thetar[j])*std::pow(1+std::pow(s.vg_alpha[j]*fabs(Hnew[j]), s.vg_n[j]), -(1-1/s.vg_n[j]));
         else
             s.theta[j] = s.pore[j];
 
@@ -682,13 +680,13 @@ void TWorld::cell_SWATRECalc(long i_)
         //if(SwitchBrooksCorey)
             BrooksCorey(s, Hnew, K, C1, anl);
 
-        if (r == _nrRows/2 && c == _nrCols/2) {
-            QString S;
-            for(int j = 0; j < nNodes; j++) {
-                S = S + QString(" %1").arg(Hnew[j]);
-            }
-            qDebug() << "zero" << S;
-        }
+//        if (r == _nrRows/2 && c == _nrCols/2) {
+//            QString S;
+//            for(int j = 0; j < nNodes; j++) {
+//                S = S + QString(" %1").arg(Hnew[j]);
+//            }
+//            qDebug() << "zero" << S;
+//        }
         for (int j = 1; j < nNodes; j++) {
         //    if (r==_nrRows/2 && c == _nrCols/2)
            //     qDebug()<<j << Hnew[j] << C1[j];
@@ -718,9 +716,8 @@ void TWorld::cell_SWATRECalc(long i_)
             qbot = kavg[nN]*(Hnew[nN]-Hnew[nN-1])/s.dz[nN] - kavg[nN];
 
         // 1st check flux aginst max Darcy flux
-        double qmax = Savg(s.Ks[0],K[0])*((Hnew[0]-WH1) / s.dz[0] - 1);
+        double qmax = -Savg(s.Ks[0],K[0])*((Hnew[0]-WH1) / s.dz[0] + 1);
         //qtop = -kavg[0] * ((h[0] - pond)/DistNode(p)[0] + 1);
-       // double qmax = -Savg(s.Ks[0],K[1])*((WH1-Hnew[1]) / s.dz[0] + 1);
 
         s.ponded = false;
         // maximum possible flux, compare to real top flux available
@@ -740,15 +737,14 @@ void TWorld::cell_SWATRECalc(long i_)
 
         if ( s.ponded ) //|| (fltsat && (qtop <= qbot)) )
         {
-            thomc[0] = -s.dts * kavg[1]/ s.dz[0]/disnod[1];
-            thomb[0] = -thomc[0] + C1[0] + s.dts*kavg[0]/disnod[0]/s.dz[0];
-            thomf[0] = C1[0]*Hnew[0]
-                       - s.dts/s.dz[0]*(kavg[0] - kavg[1])
-                       + s.dts*kavg[0]*WH1/s.dz[0];
+            thomc[0] = -s.dts * kavg[1]/ (s.dz[0]/disnod[1]);
+            thomb[0] = -thomc[0] + C1[0] + s.dts*kavg[0]/(disnod[0]/s.dz[0]);
+            thomf[0] = C1[0]*Hnew[0] - s.dts/s.dz[0]*(kavg[0]-kavg[1])
+                       + s.dts*kavg[0]*WH1/(disnod[0]/s.dz[0]);
         }
         else
         {
-            thomc[0] = -s.dts * kavg[1]/s.dz[0]/disnod[1];
+            thomc[0] = -s.dts * kavg[1]/(s.dz[0]/disnod[1]);
             thomb[0] = -thomc[0] + C1[0];
             thomf[0] = C1[0]*Hnew[0] - s.dts/s.dz[0] * (fabs(qtop) - kavg[1]);
         }
@@ -756,13 +752,13 @@ void TWorld::cell_SWATRECalc(long i_)
         //Intermediate nodes: i = 1 to n-2
         for (int j = 1; j < nN; j++) {
 
-            thoma[j] = -s.dts*kavg[j]/s.dz[j]/disnod[j];
-            thomc[j] = -s.dts*kavg[j+1]/s.dz[j]/disnod[j+1];
+            thoma[j] = -s.dts*kavg[j]/(s.dz[j]/disnod[j]);
+            thomc[j] = -s.dts*kavg[j+1]/(s.dz[j]/disnod[j+1]);
             thomb[j] = -thoma[j] - thomc[j] + C1[j]; //D
             thomf[j] = C1[j]*Hnew[j] - s.dts/s.dz[j]*(kavg[j]-kavg[j+1]); //F
         }
         // last node
-        thoma[nN] = -s.dts*kavg[nN]/s.dz[nN]/disnod[nN];
+        thoma[nN] = -s.dts*kavg[nN]/(s.dz[nN]/disnod[nN]);
         thomb[nN]= -thoma[nN] + C1[nN];
         thomf[nN] = C1[nN]*Hnew[nN] - s.dts/s.dz[nN]*(kavg[nN]+qbot); //qbot = negative
 
@@ -778,14 +774,14 @@ void TWorld::cell_SWATRECalc(long i_)
         for (int j = (nN-1); j >= 0; j--)
             Hnew[j] -= beta[j+1] * Hnew[j+1];
 
-        if (r == _nrRows/2 && c == _nrCols/2) {
-            QString S;
-            for(int j = 0; j < nNodes; j++) {
-                S = S + QString(" %1").arg(Hnew[j]);
-            }
-            qDebug() << "first" << S;
-        }
-
+//        if (r == _nrRows/2 && c == _nrCols/2) {
+//            QString S;
+//            for(int j = 0; j < nNodes; j++) {
+//                S = S + QString(" %1").arg(Hnew[j]);
+//            }
+//            qDebug() << "first" << S;
+//        }
+/*
         //correct tridiagonal matrix
         for (int j = 0; j < nNodes; j++) {
             double Cnew = 1e-6;
@@ -823,14 +819,14 @@ void TWorld::cell_SWATRECalc(long i_)
         }
         for (int j = (nN-1); j >= 0; j--)
             Hnew[j] -= beta[j+1] * Hnew[j+1];
-
-        if (r == _nrRows/2 && c == _nrCols/2) {
-            QString S;
-            for(int j = 0; j < nNodes; j++) {
-                S = S + QString(" %1").arg(Hnew[j]);
-            }
-            qDebug() << "2nd" << S;
-        }
+*/
+//        if (r == _nrRows/2 && c == _nrCols/2) {
+//            QString S;
+//            for(int j = 0; j < nNodes; j++) {
+//                S = S + QString(" %1").arg(Hnew[j]);
+//            }
+//            qDebug() << "2nd" << S;
+//        }
 
         for (int j = 1; j < nNodes; j++)
             if(Hnew[j] > 0) Hnew[j] = 0;
@@ -844,10 +840,10 @@ void TWorld::cell_SWATRECalc(long i_)
             qbot = kavg[nN]*(Hnew[nN]-Hnew[nN-1])/disnod[nN] - kavg[nN];
 
         if ( s.ponded )       //|| (fltsat && (qtop < qbot)) )
-            qtop = -kavg[0] * ((Hnew[0] - WH1)/disnod[0] + 1);
-        // adjust top flux
+            qtop = qmax;//-kavg[0] * ((Hnew[0] - WH1)/disnod[0] + 1);
+        // okay: qtop is incoming water (-WH1/s.dts) unless ponded, then Darcy flux
 
-        WH1 += qtop*s.dts;
+        WH1 -= fabs(qtop)*s.dts;
         WH1 = std::max(0.0,WH1);
         // decrease pond with top flux
 
@@ -873,7 +869,7 @@ void TWorld::cell_SWATRECalc(long i_)
         s.h[j] = Hnew[j];
         if (SwitchVanGenuchten) {
             if (Hnew[j] < -0.01)
-                s.theta[j] = s.thetar[j]+(s.pore[j]-s.thetar[j])*std::pow(1+std::pow(s.vg_alpha[j]*fabs(Hnew[j]*100), s.vg_n[j]), -(1-1/s.vg_n[j]));
+                s.theta[j] = s.thetar[j]+(s.pore[j]-s.thetar[j])*std::pow(1+std::pow(s.vg_alpha[j]*fabs(Hnew[j]), s.vg_n[j]), -(1-1/s.vg_n[j]));
             else
                 s.theta[j] = s.pore[j];
         } else {
@@ -916,15 +912,15 @@ void TWorld::cell_SWATRECalc(long i_)
     Perc->Drc = s.drain*_dt;
 
     if (r == _nrRows/2 && c == _nrCols/2) {
-      //  qDebug() << WH0 << WH1 << s.Infact  << s.drain;
+        qDebug() << WH0 << WH1 << s.Infact;
         QString S;
         QString S1;
         for(int j = 0; j < nNodes; j++) {
             S = S + QString(" %1").arg(s.h[j]);
             S1 = S1 + QString(" %1").arg(s.theta[j]);
         }
-        qDebug() << S;
-        qDebug() << S1;
+       qDebug() << S;
+     //    qDebug() << S1;
     }
 
     delete[] Hnew;
