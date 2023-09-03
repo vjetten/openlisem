@@ -705,6 +705,9 @@ void TWorld::InitSoilInput(void)
             }}
         }
         calcValue(*Ksat1, ksatCalibration, MUL);
+        report(*vgalpha1,"vgalpha1.map");
+        report(*vgn1,"vgn1.map");
+
 
         if (nrSoilLayers == 2) {
             SwitchTwoLayer = true;
@@ -3457,6 +3460,7 @@ void TWorld::InitNewSoilProfile()
 
         double dz, dz2, dz3;
         dz = SoilDepth1->Drc / nN1_;
+        double facta = 100;
         if (SwitchTwoLayer)
             dz2 = (SoilDepth2->Drc - SoilDepth1->Drc) / nN2_;
         if (SwitchThreeLayer)
@@ -3475,7 +3479,7 @@ void TWorld::InitNewSoilProfile()
             crSoil[i_].Ks.replace(j, Ksat1->Drc/3600000); // calibrated Ksat ! so do not use for lambda etc
             crSoil[i_].thetar.replace(j, ThetaR1->Drc);
             crSoil[i_].lambda.replace(j, lambda1->Drc);
-            crSoil[i_].vg_alpha.replace(j, vgalpha1->Drc);
+            crSoil[i_].vg_alpha.replace(j, vgalpha1->Drc*facta);
             crSoil[i_].vg_n.replace(j, vgn1->Drc);
             crSoil[i_].hb.replace(j, -psi1ae->Drc);
         }
@@ -3496,7 +3500,7 @@ void TWorld::InitNewSoilProfile()
 
                 crSoil[i_].thetar.replace(j,  ThetaR2->Drc);
                 crSoil[i_].lambda.replace(j,  lambda2->Drc);
-                crSoil[i_].vg_alpha.replace(j, vgalpha2->Drc);
+                crSoil[i_].vg_alpha.replace(j, vgalpha2->Drc*facta);
                 crSoil[i_].vg_n.replace(j, vgn2->Drc);
 
                 crSoil[i_].hb.replace(j,  -psi2ae->Drc);
@@ -3520,7 +3524,7 @@ void TWorld::InitNewSoilProfile()
 
                 crSoil[i_].thetar.replace(j,  ThetaR3->Drc);
                 crSoil[i_].lambda.replace(j,  lambda3->Drc);
-                crSoil[i_].vg_alpha.replace(j, vgalpha3->Drc);
+                crSoil[i_].vg_alpha.replace(j, vgalpha3->Drc*facta);
                 crSoil[i_].vg_n.replace(j, vgn3->Drc);
                 crSoil[i_].hb.replace(j,  -psi3ae->Drc);
             }
@@ -3535,7 +3539,7 @@ void TWorld::InitNewSoilProfile()
             double n = crSoil[i_].vg_n[j];
             double alpha = crSoil[i_].vg_alpha[j]; // note alpha is in 1/cm
             double m = 1-1/n;
-            crSoil[i_].h.replace(j, -0.01*std::pow((std::pow(1/se,1/m)-1),1/n)/alpha);
+            crSoil[i_].h.replace(j, -std::pow((std::pow(1/se,1/m)-1),1/n)/alpha);
 
           //  qDebug() << j << crSoil[i_].h[j];
         }
