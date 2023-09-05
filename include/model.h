@@ -945,6 +945,7 @@ public:
     double calculateDayLength(double latitude, int dayNumber);
     void VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
     void BrooksCorey(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
+    double getThetafromH(int j, SOIL_LIST s, double Hx);
 
 
     void cell_SurfaceStorage(int r, int c);
