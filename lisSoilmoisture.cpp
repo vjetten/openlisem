@@ -224,8 +224,6 @@ void TWorld:: VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], 
             else
                 C1[j] = W*1e-6/s.pore[j];
         }
-      //  if (s.r==_nrRows/2 && s.c == _nrCols/2)
-         //   qDebug()<<j << Hnew[j] << C1[j];
     }
 }
 
@@ -257,8 +255,7 @@ void TWorld::BrooksCorey(SOIL_LIST s, double Hnew[], double K[], double C1[], bo
 
 void TWorld::cell_Soilwater(long i_)
 {
-    SOIL_LIST s;
-    s = crSoil[i_];
+    SOIL_LIST s = crSoil[i_];
 
     double dtmin = 0.01*_dt;
     double dtmax = SoilWBdtfactor*_dt;
@@ -348,8 +345,8 @@ void TWorld::cell_Soilwater(long i_)
 
         // iteration for Hnew
         do {
-            SwitchVanGenuchten = true;//false;
-            SwitchBrooksCorey = false;//true;
+            SwitchVanGenuchten = false;
+            SwitchBrooksCorey = !SwitchVanGenuchten;
 
             if(SwitchVanGenuchten)
                 VanGenuchten(s, Hnew, K, C1, false);
@@ -554,16 +551,6 @@ void TWorld::cell_Soilwater(long i_)
 
     }
 
-    //    double infil = s.Infact*_dt;
-    //    if (FloodDomain->Drc == 0) {
-    //        infil = std::min(WH->Drc , infil);
-    //        WH->Drc -= infil; //runoff in kinwave or dyn wave
-    //    } else {
-    //        infil = std::min(hmx->Drc , infil);
-    //        hmx->Drc -= infil; // flood in kin wave
-    //    }
-    //    s.Infact = infil/_dt;
-
     if (FloodDomain->Drc == 0) {
         WH->Drc = WH1; //runoff in kinwave or dyn wave
     } else {
@@ -604,6 +591,9 @@ void TWorld::cell_Soilwater(long i_)
         qDebug() << cnt << S;
         //qDebug() << S1;
     }
+
+    // put the results back
+    crSoil[i_] = s;
 
     delete[] Hold;
     delete[] Hnew;
@@ -781,7 +771,7 @@ void TWorld::cell_SWATRECalc(long i_)
 //            }
 //            qDebug() << "first" << S;
 //        }
-/*
+
         //correct tridiagonal matrix
         for (int j = 0; j < nNodes; j++) {
             double Cnew = 1e-6;
@@ -819,7 +809,7 @@ void TWorld::cell_SWATRECalc(long i_)
         }
         for (int j = (nN-1); j >= 0; j--)
             Hnew[j] -= beta[j+1] * Hnew[j+1];
-*/
+
 //        if (r == _nrRows/2 && c == _nrCols/2) {
 //            QString S;
 //            for(int j = 0; j < nNodes; j++) {
@@ -922,6 +912,9 @@ void TWorld::cell_SWATRECalc(long i_)
        qDebug() << S;
      //    qDebug() << S1;
     }
+
+    // put the results back
+    crSoil[i_] = s;
 
     delete[] Hnew;
     delete[] Hold;
