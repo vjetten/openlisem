@@ -281,7 +281,7 @@ void TWorld::cell_Soilwater(long i_)
     int nN = nNodes-1;
     bool freeDrainage = !SwitchImpermeable;
 
-    double FNN2, A1, A2;
+    double FNN2, A1;
     double qmax = 0;
 
     double *Hold = new double[nNodes];
@@ -294,6 +294,9 @@ void TWorld::cell_Soilwater(long i_)
     double *A  = new double[nNodes];
     double *D  = new double[nNodes];
     double *F  = new double[nNodes];
+
+    SwitchVanGenuchten = true;
+    SwitchBrooksCorey = !SwitchVanGenuchten;
 
     // find node above groundwater
     int GWnode = nN;
@@ -355,8 +358,6 @@ void TWorld::cell_Soilwater(long i_)
 
         // iteration for Hnew
         do {
-            SwitchVanGenuchten = false;
-            SwitchBrooksCorey = !SwitchVanGenuchten;
 
             if(SwitchVanGenuchten)
                 VanGenuchten(s, Hnew, K, C1, false);
@@ -411,8 +412,8 @@ void TWorld::cell_Soilwater(long i_)
             // check for ponding and first estimate of infil with darcy
             // with conductivity between Ksat and first node average K1
             s.ponded = Hnew[0] > 0;
-            qmax = Savg(s.Ks[0],K[0])*((Hnew[0]-WH1)/s.dz[0] + 1);
-            //qmax = s.Ks[0]*((Hnew[0]-WH1)/s.dz[0] + 1);
+           // qmax = Aavg(s.Ks[0],K[0])*((Hnew[0]-WH1)/s.dz[0] + 1);
+            qmax = s.Ks[0]*((Hnew[0]-WH1)/s.dz[0] + 1);
             if (s.InfPot > 0 && fabs(qmax) < fabs(s.InfPot))
                 s.ponded = true;
 
@@ -420,11 +421,11 @@ void TWorld::cell_Soilwater(long i_)
             if (s.ponded){
                 //Hnew[0] = Hold[0] + s.dts*qmax;
                 Hnew[0] = WH1;
-                //s.Infact = D[0]*Hnew[0] - F[0];
+              //  s.Infact = D[0]*Hnew[0] - F[0];
                 s.Infact = fabs(qmax);
-              //  F[0] = F[0] + s.Infact;
-                F[0] = Hnew[0];
-
+               //  F[0] = F[0] + s.Infact;
+               F[0] = Hnew[0];
+                A1 = A[0];
                 A[0] = 0;
                 D[0] = 1;
                 F[1] = F[1] + K1[0]*Hnew[0];
@@ -448,7 +449,7 @@ void TWorld::cell_Soilwater(long i_)
 
             // calc Hnew with Gaussian elimination and back substitution
             for(int j = 1; j < nNodes; j++) {
-                A2 = A[j-1]/D[j-1];
+                double A2 = A[j-1]/D[j-1];
                 D[j] = D[j] - A2 * A[j-1];
                 F[j] = F[j] - A2 * F[j-1];
             }
@@ -462,15 +463,15 @@ void TWorld::cell_Soilwater(long i_)
             // not necessary, and surface can be + so not for the top node anyway!
 
             //======== calc boundary fluxes
-            if (s.ponded && Hnew[1] < 0) {
-                s.Infact = s.Infact + A1 * Hnew[1];
-            }
+//            if (s.ponded && Hnew[1] < 0) {
+//                s.Infact = s.Infact + A1 * Hnew[1];
+//            }
             if (freeDrainage) {
                 s.drain = 0.5*(K[nN] + FNN2 - Hnew[nN]*0.5*C1[nN]);
             }
 
             stopit = true;
-            bool iterate = false;
+            bool iterate = true;
             if (iterate) {
                // s.ponded = Hnew[0] > 0;
 
@@ -547,7 +548,7 @@ void TWorld::cell_Soilwater(long i_)
     } else {
         hmx->Drc = WH1; // flood in kin wave
     }
-    s.Infact = (WH0-WH1)/_dt;
+   s.Infact = (WH0-WH1)/_dt;
 
     InfilVol->Drc = s.Infact*_dt*SoilWidthDX->Drc*DX->Drc;
 
