@@ -369,7 +369,10 @@ void TWorld::ParseRunfileData(void)
     }
 
     //SwitchGWflow = SwitchChannelBaseflow && (SwitchGW2Dflow || SwitchLDDGWflow || SwitchSWATGWflow);
-
+    if (!SwitchChannelBaseflow) {
+        SwitchGWflow = false;
+        SwitchChannelBaseflowStationary = false;
+    }
     if (SwitchChannelBaseflow && SwitchGWflow) {
         SwitchImpermeable = false;
     }   
