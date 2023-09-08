@@ -412,8 +412,8 @@ void TWorld::cell_Soilwater(long i_)
             // check for ponding and first estimate of infil with darcy
             // with conductivity between Ksat and first node average K1
             s.ponded = Hnew[0] > 0;
-           // qmax = Aavg(s.Ks[0],K[0])*((Hnew[0]-WH1)/s.dz[0] + 1);
-            qmax = s.Ks[0]*((Hnew[0]-WH1)/s.dz[0] + 1);
+            qmax = Aavg(s.Ks[0],K[0])*((Hnew[0]-WH1)/s.dz[0] + 1);
+          //  qmax = s.Ks[0]*((Hnew[0]-WH1)/s.dz[0] + 1);
             if (s.InfPot > 0 && fabs(qmax) < fabs(s.InfPot))
                 s.ponded = true;
 
@@ -467,8 +467,12 @@ void TWorld::cell_Soilwater(long i_)
 //                s.Infact = s.Infact + A1 * Hnew[1];
 //            }
             if (freeDrainage) {
-                s.drain = 0.5*(K[nN] + FNN2 - Hnew[nN]*0.5*C1[nN]);
+                if (Hnew[nN] < 0)
+                    s.drain = 0.5*(K[nN] + FNN2 - Hnew[nN]*0.5*C1[nN]);
+                else
+                    s.drain = 0.5*(K[nN] + FNN2);
             }
+
 
             stopit = true;
             bool iterate = true;
