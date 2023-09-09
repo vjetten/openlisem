@@ -178,27 +178,21 @@ void TWorld::GWFlowLDDKsat(void)
             }
         }
 
-        double h_ = h->Drc + Qin/CHAdjDX->Drc;
-        // add the inflow, calc new GWH
-        double Qn = GW_flow * ksat->Drc * (h_*_dx) * tmb->Drc; //m3
-        // calc the outflow with new h
-        tmc->Drc = (tmc->Drc + Qn)/2.0;
-        // average old and new flow
-        tmc->Drc = std::min(tmc->Drc, GWVol->Drc*MaxGWDepthfrac);
-        // cannot be more than volume
+        double Q1 = GW_flow * ksat->Drc * (h->Drc*_dx) * tmb->Drc; // before Qin
+        double Q2 = GW_flow * ksat->Drc * ((h->Drc+Qin/CHAdjDX->Drc)*_dx) * tmb->Drc; // with Qin
+        double Qn = 0.5*(Q1+Q2);
 
-
-        double flux = Qin - tmc->Drc;
+        double flux = Qin - Qn;
         double maxvol = CHAdjDX->Drc * SD->Drc * pore->Drc;
         double vol = GWVol->Drc;
-        if (vol + flux > maxvol) {
-            //flux = maxvol - vol;
-            Qin = maxvol - tmc->Drc;
-            flux = Qin - tmc->Drc;
+        if (vol + Qin - Qn > maxvol) {
+            Qin = maxvol + Qn;
         }
+        if (vol + Qin - Qn < 0) {
+            Qn = vol + Qin;
+        }
+        flux = Qin - Qn;
 
-        if (vol + flux < 0)
-            flux = -vol;
         GWVol->Drc += flux;
         GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
         GWout->Drc = flux;
