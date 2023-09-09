@@ -1520,7 +1520,7 @@ void lisemqt::resetTabOptions()
     checkIncludeChannel->setChecked(true);
     checkChannelInfil->setChecked(false);
     //checkChannelBaseflow->setChecked(false);
-    BaseflowParams->setEnabled(false);
+    BaseflowParams->setEnabled(true);
 
     checkDischargeUser->setChecked(false);
     //checkChannelAdjustCHW->setChecked(true);
@@ -2294,4 +2294,7 @@ void lisemqt::on_E_EfficiencyDETCH_currentIndexChanged(int index)
 void lisemqt::on_checkGWflow_toggled(bool checked)
 {
     GW_widget->setEnabled(checked);
+    widget_GWparams->setEnabled(checked);
+    BaseflowParams->setEnabled(checked);
+    qDebug() << checked;
 }

@@ -501,7 +501,7 @@ void TWorld::MassBalance()
                      // rainfall + initial WH on surface if present, + baseflow and init baseflow + user defined inflow in channel + sideinflow through soil
     double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot + IntercETaTot + WaterVolTot + ChannelVolTot + StormDrainVolTot;
                      // all interception + ETa + water on surface + water in channel + water in subsurface drains
-    double waterout = Qtot + floodBoundaryTot + ETaTotVol;
+    double waterout = Qtot;// + floodBoundaryTot + ETaTotVol;
     MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin *100 : 0;
 
     // Mass Balance sediment, all in kg
