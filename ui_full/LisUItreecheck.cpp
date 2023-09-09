@@ -80,7 +80,7 @@ void lisemqt::on_checkIncludeChannel_clicked()
     checkMapNameModel(CHANNELMAPS, 0, checkIncludeChannel->isChecked());
 
     checkChannelInfil->setEnabled(checkIncludeChannel->isChecked());
-    checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());
+    //checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());
     checkChannelCulverts->setEnabled(checkIncludeChannel->isChecked());
 }
 //--------------------------------------------------------------------

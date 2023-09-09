@@ -739,6 +739,7 @@ void TWorld::InitSoilInput(void)
             ThetaR2 = NewMap(0);
             lambda2 = NewMap(0);             // lambda brooks corey
             psi2ae = NewMap(0);
+
             ThetaFC2 = NewMap(0);
             vgalpha2 = NewMap(0);
             vgn2 = NewMap(0);
