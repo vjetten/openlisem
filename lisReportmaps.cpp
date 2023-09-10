@@ -282,7 +282,7 @@ void TWorld::GetComboMaps()
  //   AddComboMap(0,"Flow Velocity","m/s",Vflood,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
  //   AddComboMap(0,"Flow Velocity","m/s",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     AddComboMap(0,"Flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.01); //VH
->>>>>>> main_c
+
     //AddComboMap(0,"boundary","-",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
 
     if(SwitchIncludeChannel)

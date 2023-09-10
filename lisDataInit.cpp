@@ -689,7 +689,7 @@ void TWorld::InitSoilInput(void)
             vgalpha1->Drc = (0.02*ks + 0.0095); // in m-1
             vgn1->Drc = 0.2656*ks + 1.1042;
             ThetaR1->Drc = 0.0673*exp(-0.238*log(ks));
-            ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;
+            ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;            
         }}
 
         if (SwitchPsiUser) {
@@ -700,8 +700,17 @@ void TWorld::InitSoilInput(void)
             Psi1 = NewMap(0);
             FOR_ROW_COL_MV_L {
                 Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425);
-            Psi1->Drc = std::min(Psi1->Drc,psi1ae->Drc)*0.01;//*psiCalibration;
-                // psi cannot be more that bubbling pressure, 0.01 cm to m
+                Psi1->Drc = std::min(Psi1->Drc,psi1ae->Drc)*0.01;//*psiCalibration;
+                double psi;
+
+                double se = (ThetaI1->Drc - ThetaR1->Drc)/(ThetaS1->Drc - ThetaR1->Drc);
+                if (SwitchBrooksCorey) {
+                    psi = psi1ae->Drc/std::pow(se, lambda1->Drc);
+                } else {
+                    double m = 1-1/vgn1->Drc;
+                    psi = std::pow((std::pow(1/se,1/m)-1),1/vgn1->Drc)/vgalpha1->Drc*0.101974; // alpha is in 1/kPa, convert to meter
+                }
+                Psi1->Drc = std::min(Psi1->Drc,psi);
             }}
         }
         calcValue(*Ksat1, ksatCalibration, MUL);
@@ -766,8 +775,17 @@ void TWorld::InitSoilInput(void)
                 Psi2 = NewMap(0);
                 FOR_ROW_COL_MV_L {
                     Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425);
-                Psi2->Drc = std::min(Psi2->Drc,psi2ae->Drc)*0.01;//* psiCalibration;
+                    Psi2->Drc = std::min(Psi2->Drc,psi2ae->Drc)*0.01;//* psiCalibration;
                     // psi cannot be more that bubbling pressure, 0.01 cm to m
+                    double psi;
+                    double se = (ThetaI2->Drc - ThetaR2->Drc)/(ThetaS2->Drc - ThetaR2->Drc);
+                    if (SwitchBrooksCorey) {
+                        psi = psi2ae->Drc/std::pow(se, lambda2->Drc);
+                    } else {
+                        double m = 1-1/vgn2->Drc;
+                        psi = std::pow((std::pow(1/se,1/m)-1),1/vgn2->Drc)/vgalpha2->Drc*0.101974; // alpha is in 1/kPa, convert to meter
+                    }
+                    Psi2->Drc = std::min(Psi2->Drc,psi);
                 }}
             }
             calcValue(*Ksat2, ksat2Calibration, MUL);
@@ -828,12 +846,21 @@ void TWorld::InitSoilInput(void)
                 Psi3 = NewMap(0);
                 FOR_ROW_COL_MV_L {
                     Psi3->Drc = exp(-0.3382*log(Ksat3->Drc) + 3.3425);
-                Psi3->Drc = std::min(Psi3->Drc,psi3ae->Drc)*0.01;//* psiCalibration;
+                    Psi3->Drc = std::min(Psi3->Drc,psi3ae->Drc)*0.01;//* psiCalibration;
                     // psi cannot be more that bubbling pressure, 0.01 cm to m
+                    double psi;
+                    double se = (ThetaI3->Drc - ThetaR3->Drc)/(ThetaS3->Drc - ThetaR3->Drc);
+                    if (SwitchBrooksCorey) {
+                        psi = psi3ae->Drc/std::pow(se, lambda3->Drc);
+                    } else {
+                        double m = 1-1/vgn3->Drc;
+                        psi = std::pow((std::pow(1/se,1/m)-1),1/vgn3->Drc)/vgalpha3->Drc*0.101974; // alpha is in 1/kPa, convert to meter
+                    }
+                    Psi3->Drc = std::min(Psi3->Drc,psi);
                 }}
             }
 
-            calcValue(*Ksat3, ksat2Calibration, MUL);
+            calcValue(*Ksat3, ksat3Calibration, MUL);
         }
 
         if (SwitchInfilCrust)
@@ -3406,6 +3433,8 @@ void TWorld::InitNewSoilProfile()
         nN3_ = getvalueint("SoilWB nodes 3");
     SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
     KavgType = getvalueint("Infil Kavg");
+    SwitchBrooksCorey = getvalueint("Soil physics") == 1;
+    SwitchVanGenuchten = !SwitchBrooksCorey;
 
     nNodes = nN1_ + nN2_ + nN3_ + 1;
     qDebug() << SwitchThreeLayer << nN3_ << nNodes;
@@ -3534,13 +3563,15 @@ void TWorld::InitNewSoilProfile()
         // calc h
         for (int j = 0; j < nNodes; j++) {
             double se = (crSoil[i_].theta[j] - crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j]);
-            double hh = std::pow(se, (1.0/crSoil[i_].lambda[j]));
-            crSoil[i_].h.replace(j,crSoil[i_].hb[j]/hh);
-
-            double n = crSoil[i_].vg_n[j];
-            double alpha = crSoil[i_].vg_alpha[j]; // note alpha is in 1/cm
-            double m = 1-1/n;
-            crSoil[i_].h.replace(j, -std::pow((std::pow(1/se,1/m)-1),1/n)/alpha);
+            if (SwitchBrooksCorey) {
+                double hh = std::pow(se, (1.0/crSoil[i_].lambda[j]));
+                crSoil[i_].h.replace(j,crSoil[i_].hb[j]/hh);
+            } else {
+                double n = crSoil[i_].vg_n[j];
+                double m = 1-1/n;
+                crSoil[i_].h.replace(j, -std::pow((std::pow(1/se,1/m)-1),1/n)/crSoil[i_].vg_alpha[j]*0.101974);
+                // kPa to m water
+            }
 
           //  qDebug() << j << crSoil[i_].h[j];
         }

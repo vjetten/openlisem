@@ -340,7 +340,6 @@ void TWorld::ParseRunfileData(void)
     InfilMethod = getvalueint("Infil Method");
     if (InfilMethod == INFIL_GREENAMPT2) InfilMethod = INFIL_GREENAMPT;
     if (InfilMethod == INFIL_SMITH2) InfilMethod = INFIL_SMITH;
-    //prob onsolete: deal with old runfil pre 6.6
 
     // check a few things
     SoilWBdtfactor = getvaluedouble("SoilWB dt factor");

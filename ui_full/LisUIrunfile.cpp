@@ -389,7 +389,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("SoilWB nodes 2")==0) spinNodes2->setValue(iii);
         if (p1.compare("SoilWB nodes 3")==0) spinNodes3->setValue(iii);
         if (p1.compare("SoilWB dt factor")==0) spinInfdt->setValue(valc);
-        if (p1.compare("Infil Kavg")==0)    comboBox_Kmean->setCurrentIndex(iii);
+        if (p1.compare("Infil Kavg")==0)   comboBox_Kmean->setCurrentIndex(iii);
+        if (p1.compare("Soil physics")==0) spinSoilPhysics->setValue(valc);
 
         //CALIBRATION
         if (p1.compare("Smax calibration")==0)         E_CalibrateSmax->setValue(valc);
@@ -449,7 +450,7 @@ void lisemqt::ParseInputData()
 
 
     checkChannelBaseflow->setChecked(checkGWflow->isChecked() || checkStationaryBaseflow->isChecked());
-    groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
+    //groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
 
     GW_widget->setEnabled(checkGWflow->isChecked());
     widget_GWparams->setEnabled(checkGWflow->isChecked());
@@ -846,7 +847,8 @@ void lisemqt::updateModelData()
         if (p1.compare("SoilWB nodes 2")==0)                namelist[j].value =spinNodes2->text();
         if (p1.compare("SoilWB nodes 3")==0)                namelist[j].value =spinNodes3->text();
         if (p1.compare("SoilWB dt factor")==0)              namelist[j].value =spinInfdt->text();
-        if (p1.compare("Infil Kavg")==0)                  namelist[j].value.setNum(comboBox_Kmean->currentIndex());
+        if (p1.compare("Infil Kavg")==0)                    namelist[j].value.setNum(comboBox_Kmean->currentIndex());
+        if (p1.compare("Soil physics")==0)                  namelist[j].value = spinSoilPhysics->text();
 
 
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();

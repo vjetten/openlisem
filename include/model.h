@@ -156,10 +156,8 @@
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
 #define INFIL_SOAP 2
-//#define INFIL_HOLTAN 2
 #define INFIL_GREENAMPT 3
 #define INFIL_GREENAMPT2 4
-#define INFIL_MOREL 21
 #define INFIL_SMITH 22
 #define INFIL_SMITH2 23
 
@@ -302,7 +300,6 @@ typedef struct ExtCH {
     bool isExtended;
 } ExtCH;
 
-
 typedef struct SOIL_LIST {
     int c;
     int r;
@@ -328,6 +325,7 @@ typedef struct SOIL_LIST {
     QVector <double> vg_n;
 
 } SOIL_LIST;
+
 
 /// \class TWorld model.h contains the model 'World': constants, variables and erosion processes
 
@@ -579,6 +577,7 @@ public:
     QVector <Q_LIST> DischargeInSeries;
     QVector <LDD_COORloc> crQin_;
     QVector <int> locationnnrsrec;
+    QVector <SOIL_LIST> crSoil;
 
     // output formatting for SOBEK flood model input
     QString SOBEKdatestring;
