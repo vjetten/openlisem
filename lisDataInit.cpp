@@ -654,113 +654,88 @@ void TWorld::InitSoilInput(void)
         ThetaI1a = NewMap(0); // used for screen output
         calcValue(*ThetaI1, thetaCalibration, MUL); //VJ 110712 calibration of theta
         calcMap(*ThetaI1, *ThetaS1, MIN); //VJ 110712 cannot be more than porosity
-
-        ThetaR1 = NewMap(0);
-        FOR_ROW_COL_MV_L {
-            ThetaR1->Drc = 0.025*ThetaS1->Drc;
-        }}
+        copy(*ThetaI1a, *ThetaI1);
 
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
+
+        ThetaR1 = NewMap(0);
         lambda1 = NewMap(0);
         psi1ae = NewMap(0);
+        ThetaFC1 = NewMap(0);
+
         FOR_ROW_COL_MV_L {
             //bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
             //Saxton and Rawls 2006
-          //  lambda1->Drc = 0.0384*log(Ksat1->Drc)+0.0626;
+            //  lambda1->Drc = 0.0384*log(Ksat1->Drc)+0.0626;
             //rawls et al., 1982
-            lambda1->Drc = std::min(1.0, 0.0849*log(Ksat1->Drc)+0.159);
-            psi1ae->Drc = exp( -0.3012*log(Ksat1->Drc) + 3.5164) * 0.01; // 0.01 to convert to m
-
-        }}
-
-        // field capacity
-        ThetaFC1 = NewMap(0);
-        FOR_ROW_COL_MV_L {
-             //ThetaFC1->Drc = 0.7867*exp(-0.012*Ksat1->Drc)*ThetaS1->Drc;
-            ThetaFC1->Drc = -0.0519*log(Ksat1->Drc) + 0.3714;
+            double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
+            lambda1->Drc = 0.0849*ks+0.159;
+            lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
+            psi1ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+            ThetaR1->Drc = 0.0673*exp(-0.238*log(ks));
+            ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;
         }}
 
         if (SwitchPsiUser) {
             Psi1 = ReadMap(LDD,getvaluename("psi1"));
-            calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
+            //calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
             calcValue(*Psi1, 0.01, MUL);
         } else {
             Psi1 = NewMap(0);
             FOR_ROW_COL_MV_L {
-                Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425);
-                double psi_bp = exp(-0.3012*log(Ksat1->Drc) + 3.5164);
-                Psi1->Drc = std::min(Psi1->Drc,psi_bp)*0.01* psiCalibration;
-                // psi cannot be more that bubbling pressure, 0.01 cm to m
+                Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425)*0.01;
+                Psi1->Drc = std::max(Psi1->Drc,psi1ae->Drc);
             }}
         }
-
         calcValue(*Ksat1, ksatCalibration, MUL);
-        // apply calibration after all empirical relations
+            // apply calibration after all empirical relations
 
         if (SwitchTwoLayer)
         {
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
-            calcValue(*SoilDepth2, SD2Calibration, MUL);
+            //calcValue(*SoilDepth2, SD2Calibration, MUL);
 
             SoilDepth2init = NewMap(0);
             copy(*SoilDepth2init, *SoilDepth2);
 
-            FOR_ROW_COL_MV_L {
-                if (SoilDepth2->Drc < 0)
-                {
-                    ErrorString = QString("SoilDepth2 values < 0 at row %1, col %2").arg(r).arg(c);
-                    throw 1;
-                }
-            }}
-
             ThetaS2 = ReadMap(LDD,getvaluename("thetaS2"));
             ThetaI2 = ReadMap(LDD,getvaluename("thetaI2"));
-            ThetaI2a = NewMap(0);
+            ThetaI2a = NewMap(0); // for output, average soil layer 2
             calcValue(*ThetaI2, thetaCalibration, MUL); //VJ 110712 calibration of theta
             calcMap(*ThetaI2, *ThetaS2, MIN); //VJ 110712 cannot be more than porosity
-            ThetaR2 = NewMap(0);
-
-            FOR_ROW_COL_MV_L {
-                ThetaR2->Drc = 0.025*ThetaS2->Drc;
-            }}
+            copy(*ThetaI2a, *ThetaI2);
 
             Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
 
-            // lambda brooks corey
-            lambda2 = NewMap(0);
+            ThetaR2 = NewMap(0);
+            lambda2 = NewMap(0);             // lambda brooks corey
             psi2ae = NewMap(0);
-            FOR_ROW_COL_MV_L {
-                //lambda2->Drc = 0.0384*log(Ksat2->Drc)+0.0626;
-                // regression eq from data from Saxton and rawls 2006, excel file
-                lambda2->Drc = std::min(1.0,0.0849*log(Ksat2->Drc)+0.159);
-                psi2ae->Drc = exp( -0.3012*log(Ksat2->Drc) + 3.5164) * 0.01; // 0.01 to convert to m
 
-            }}
-
-            // field capacity
             ThetaFC2 = NewMap(0);
             FOR_ROW_COL_MV_L {
-               // ThetaFC2->Drc = 0.7867*exp(-0.012*Ksat2->Drc)*ThetaS2->Drc;
-                ThetaFC2->Drc = -0.0519*log(Ksat2->Drc) + 0.3714;
-
+                // regression eq from data from Saxton and rawls 2006, excel file
+                double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
+                //vgalpha2->Drc = 0.0237*ks + 0.0054;
+                lambda2->Drc = 0.0849*ks+0.159;
+                lambda2->Drc = std::min(std::max(0.1,lambda2->Drc),0.7);
+                psi2ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+                ThetaR2->Drc = 0.0673*exp(-0.238*log(ks));
+                ThetaFC2->Drc = -0.0519*log(ks) + 0.3714;
             }}
 
             // wetting front psi
             if (SwitchPsiUser) {
                 Psi2 = ReadMap(LDD,getvaluename("psi2"));
-                calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
+                //   calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
                 calcValue(*Psi2, 0.01, MUL);
             } else {
                 Psi2 = NewMap(0);
                 FOR_ROW_COL_MV_L {
-                    Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425);
-                    double psi_bp = exp(-0.3012*log(Ksat1->Drc) + 3.5164);
-                    Psi2->Drc = std::min(Psi2->Drc,psi_bp)*0.01* psiCalibration;
-                    // psi cannot be more that bubbling pressure, 0.01 cm to m
+                    Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
+                    Psi2->Drc = std::max(Psi2->Drc,psi2ae->Drc);
                 }}
             }
-
             calcValue(*Ksat2, ksat2Calibration, MUL);
         }
 
