@@ -699,8 +699,7 @@ void TWorld::InitSoilInput(void)
         } else {
             Psi1 = NewMap(0);
             FOR_ROW_COL_MV_L {
-                Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425);
-                Psi1->Drc = std::min(Psi1->Drc,psi1ae->Drc)*0.01;//*psiCalibration;
+                Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425)*0.01;
                 double psi;
 
                 double se = (ThetaI1->Drc - ThetaR1->Drc)/(ThetaS1->Drc - ThetaR1->Drc);
@@ -711,12 +710,10 @@ void TWorld::InitSoilInput(void)
                     psi = std::pow((std::pow(1/se,1/m)-1),1/vgn1->Drc)/vgalpha1->Drc*0.101974; // alpha is in 1/kPa, convert to meter
                 }
                 Psi1->Drc = std::min(Psi1->Drc,psi);
+                Psi1->Drc = std::max(Psi1->Drc,psi1ae->Drc);
             }}
         }
         calcValue(*Ksat1, ksatCalibration, MUL);
-        report(*vgalpha1,"vgalpha1.map");
-        report(*vgn1,"vgn1.map");
-
 
         if (nrSoilLayers == 2) {
             SwitchTwoLayer = true;
@@ -774,18 +771,18 @@ void TWorld::InitSoilInput(void)
             } else {
                 Psi2 = NewMap(0);
                 FOR_ROW_COL_MV_L {
-                    Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425);
-                    Psi2->Drc = std::min(Psi2->Drc,psi2ae->Drc)*0.01;//* psiCalibration;
-                    // psi cannot be more that bubbling pressure, 0.01 cm to m
+                    Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
                     double psi;
+
                     double se = (ThetaI2->Drc - ThetaR2->Drc)/(ThetaS2->Drc - ThetaR2->Drc);
                     if (SwitchBrooksCorey) {
                         psi = psi2ae->Drc/std::pow(se, lambda2->Drc);
                     } else {
-                        double m = 1-1/vgn2->Drc;
+                    double m = 1-1/vgn2->Drc;
                         psi = std::pow((std::pow(1/se,1/m)-1),1/vgn2->Drc)/vgalpha2->Drc*0.101974; // alpha is in 1/kPa, convert to meter
                     }
                     Psi2->Drc = std::min(Psi2->Drc,psi);
+                    Psi2->Drc = std::max(Psi2->Drc,psi2ae->Drc);
                 }}
             }
             calcValue(*Ksat2, ksat2Calibration, MUL);
@@ -845,10 +842,9 @@ void TWorld::InitSoilInput(void)
             } else {
                 Psi3 = NewMap(0);
                 FOR_ROW_COL_MV_L {
-                    Psi3->Drc = exp(-0.3382*log(Ksat3->Drc) + 3.3425);
-                    Psi3->Drc = std::min(Psi3->Drc,psi3ae->Drc)*0.01;//* psiCalibration;
-                    // psi cannot be more that bubbling pressure, 0.01 cm to m
+                    Psi3->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
                     double psi;
+
                     double se = (ThetaI3->Drc - ThetaR3->Drc)/(ThetaS3->Drc - ThetaR3->Drc);
                     if (SwitchBrooksCorey) {
                         psi = psi3ae->Drc/std::pow(se, lambda3->Drc);
@@ -857,6 +853,7 @@ void TWorld::InitSoilInput(void)
                         psi = std::pow((std::pow(1/se,1/m)-1),1/vgn3->Drc)/vgalpha3->Drc*0.101974; // alpha is in 1/kPa, convert to meter
                     }
                     Psi3->Drc = std::min(Psi3->Drc,psi);
+                    Psi3->Drc = std::max(Psi3->Drc,psi3ae->Drc);
                 }}
             }
 
