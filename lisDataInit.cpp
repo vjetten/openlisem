@@ -709,7 +709,7 @@ void TWorld::InitSoilInput(void)
                     double m = 1-1/vgn1->Drc;
                     psi = std::pow((std::pow(1/se,1/m)-1),1/vgn1->Drc)/vgalpha1->Drc*0.101974; // alpha is in 1/kPa, convert to meter
                 }
-                Psi1->Drc = std::min(Psi1->Drc,psi);
+              //  Psi1->Drc = std::min(Psi1->Drc,psi);
                 Psi1->Drc = std::max(Psi1->Drc,psi1ae->Drc);
             }}
         }
@@ -781,7 +781,7 @@ void TWorld::InitSoilInput(void)
                     double m = 1-1/vgn2->Drc;
                         psi = std::pow((std::pow(1/se,1/m)-1),1/vgn2->Drc)/vgalpha2->Drc*0.101974; // alpha is in 1/kPa, convert to meter
                     }
-                    Psi2->Drc = std::min(Psi2->Drc,psi);
+              //      Psi2->Drc = std::min(Psi2->Drc,psi);
                     Psi2->Drc = std::max(Psi2->Drc,psi2ae->Drc);
                 }}
             }
@@ -852,7 +852,7 @@ void TWorld::InitSoilInput(void)
                         double m = 1-1/vgn3->Drc;
                         psi = std::pow((std::pow(1/se,1/m)-1),1/vgn3->Drc)/vgalpha3->Drc*0.101974; // alpha is in 1/kPa, convert to meter
                     }
-                    Psi3->Drc = std::min(Psi3->Drc,psi);
+                 //   Psi3->Drc = std::min(Psi3->Drc,psi);
                     Psi3->Drc = std::max(Psi3->Drc,psi3ae->Drc);
                 }}
             }

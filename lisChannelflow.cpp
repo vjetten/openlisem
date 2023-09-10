@@ -188,7 +188,6 @@ void TWorld::ChannelBaseflow(void)
 
                 //Qbase->Drc = std::min(GWVol->Drc, GWchan1); //this is already done, just use the flow
             }
-           // Qbase->Drc *= 2.0;
 
             ChannelWaterVol->Drc += Qbase->Drc;
             GWVol->Drc = std::max(0.0, GWVol->Drc - Qbase->Drc);
