@@ -312,7 +312,7 @@ void TWorld::DoModel()
 
             InfilEffectiveKsat(false);
 
-            HydrologyProcesses();  // hydrological processes in one loop, incl splash
+            HydrologyProcesses();  // hydrological processes in one loop, incl splash and pesticides
 
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
