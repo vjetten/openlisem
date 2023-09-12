@@ -156,11 +156,13 @@ void TWorld::ChannelBaseflow(void)
         GroundwaterFlow();
         // move groundwater, GWout is the flow itself between cells
 
-        cTMap *pore = ThetaS2;
-        cTMap *ksat = Ksat2;
-        if (!SwitchTwoLayer) {
-            pore = Thetaeff;
-            ksat = Ksateff;
+        cTMap *pore = Thetaeff;
+        cTMap *ksat = Ksateff;
+        cTMap *SD = SoilDepth1init;
+        if (SwitchTwoLayer) {
+            pore = ThetaS2;
+            ksat = Ksat2;
+            SD = SoilDepth2init;
         }
 
         // in all channel cells
@@ -169,7 +171,7 @@ void TWorld::ChannelBaseflow(void)
             if (SwitchSWATGWflow) {
                 Qbase->Drc = ChannelWidth->Drc/_dx * GWout->Drc;
             } else {
-                double bedrock = DEM->Drc - SoilDepth2->Drc;
+                double bedrock = DEM->Drc - SD->Drc;
                 double chanbot = DEM->Drc - ChannelDepth->Drc;
                 double dH = bedrock + GWWH->Drc - chanbot;
                 if (dH > 0 && GWWH->Drc > 0) {

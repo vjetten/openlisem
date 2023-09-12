@@ -356,7 +356,7 @@ void TWorld::InitParameters(void)
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
         SwitchChannelWFinflow = getvalueint("Channel WF inflow") == 1;
-        SwitchGWChangeSD = true;//getvalueint("GW layer change SD") == 1;
+        //SwitchGWChangeSD = true;//getvalueint("GW layer change SD") == 1;
     } else {
         F_MaxIter = 200;
         F_minWH = 0.0001;
@@ -370,7 +370,7 @@ void TWorld::InitParameters(void)
         _dtCHkin = 60.0;//_dt_user;
         SwitchChannel2DflowConnect = false;
         SwitchChannelWFinflow = false;
-        SwitchGWChangeSD = true;
+        //SwitchGWChangeSD = true;
     }
     _CHMaxV = 20.0;
     if (SwitchChannelMaxV)
@@ -2584,7 +2584,7 @@ void TWorld::IntializeOptions(void)
     SwitchGW2Dflow =  false;
     SwitchLDDGWflow = false;
     SwitchSWATGWflow = false;
-    SwitchGWChangeSD = true;
+    //SwitchGWChangeSD = true;
     SwitchChannelBaseflowStationary = false;
     SwitchChannelInfil = false;
     SwitchCulverts = false;
