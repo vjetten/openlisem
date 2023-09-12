@@ -198,8 +198,8 @@ void TWorld::cell_InfilMethods(int r, int c)
                 //weighed harmonic mean:
                 //https://corporatefinanceinstitute.com/resources/data-science/harmonic-mean/
                 // sum (weights) / sum (weight/variable)
-
-                Ks = Lw->Drc/(SoilDep1/Ksateff->Drc+(Lw->Drc-SoilDep1)/Ksat2->Drc);
+                Ks = Havg(Ksateff->Drc,Ksat2->Drc,SoilDep1,Lw->Drc-SoilDep1);
+//                Ks = Lw->Drc/(SoilDep1/Ksateff->Drc+(Lw->Drc-SoilDep1)/Ksat2->Drc);
                 // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
                 Psi = Psi2->Drc; //in m
             }

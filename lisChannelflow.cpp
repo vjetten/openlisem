@@ -191,7 +191,8 @@ void TWorld::ChannelBaseflow(void)
            // Qbase->Drc *= 2.0;
 
             ChannelWaterVol->Drc += Qbase->Drc;
-            GWVol->Drc -= Qbase->Drc;
+            //GWVol->Drc -= Qbase->Drc;
+            GWVol->Drc = std::max(0.0, GWVol->Drc - Qbase->Drc);
             GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
             // m3 added per timestep, adjust the volume and height
 

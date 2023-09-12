@@ -55,6 +55,12 @@
 
 #define HMIN 1e-6
 #define DO_SEDDEP 0
+#define GRAV 9.81
+
+#define Aavg(a,b)  (0.5*(a+b))
+#define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
+#define Savg(a,b)  sqrt(a * b)
+#define Mavg(a,b)  std::min(a,b)
 
 #define DEBUG(s) emit debug(QString(s))
 #define TIMEDB(s) emit timedb(QString(s))

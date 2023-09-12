@@ -1125,7 +1125,11 @@ void TWorld::InitChannel(void)
         GWgrad = NewMap(0);
 
         FOR_ROW_COL_MV_L {
-        GWz->Drc = DEM->Drc - SoilDepth1->Drc - (SwitchTwoLayer ? SoilDepth2->Drc : 0.0);
+            //GWz->Drc = DEM->Drc - SoilDepth1->Drc - (SwitchTwoLayer ? SoilDepth2->Drc : 0.0);
+            if (SwitchTwoLayer)
+                GWz->Drc = DEM->Drc - SoilDepth2->Drc;
+            else
+                GWz->Drc = DEM->Drc - SoilDepth1->Drc;
         }}
         Average3x3(*GWz, *LDD, false);
 
