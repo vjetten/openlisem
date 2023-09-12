@@ -428,7 +428,7 @@ void TWorld::HydrologyProcesses()
 
         if (SwitchPest) {
             // update concentration of pesticides after rainfall (mg/L)
-            PCrw->Drc = PMrw->Drc / (WH->Drc * FlowWidth->Drc + DX->Drc * 1000);
+            PCrw->Drc = PMrw->Drc / (WH->Drc * FlowWidth->Drc * DX->Drc * 1000);
         }
 
         // infiltration by SWATRE of G&A+percolation
@@ -477,10 +477,10 @@ void TWorld::HydrologyProcesses()
 
     if (SwitchPest) {
         PesticideCellDynamics();
-        // calculate partitioning, and infiltration and percolation losses of pesticides
+        // calculate partitioning, and infiltration losses of pesticides
         if (SwitchErosion) {
             PesticideSplashDetachment();
-            // splash detachment for pesticides // not yet parallel!!
+            // splash detachment for pesticides
         }
     }
 }

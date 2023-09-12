@@ -190,12 +190,12 @@ void TWorld::PesticideCellDynamics(void)
        PMrw->Drc = std::max(0.0, PMrw->Drc - mrw_inf);
 
        pmwdep->Drc -= mrw_inf;
+       // L = m * m * m * [-] * 1000
+       vol_w = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
        // update PCmw before partitioning
        PCmw->Drc = PMmw->Drc / vol_w;
 
        // partitioning between sorbed and dissolved in mixing layer
-       // L = m * m * m * [-] * 1000
-       vol_w = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
        // kg = m * m * m * kg m-3
        mass_s = zm->Drc * DX->Drc * SoilWidthDX->Drc * rho;
        // for now the assumption is made that the resulting unit of
@@ -213,14 +213,14 @@ void TWorld::PesticideCellDynamics(void)
        eql_diss = mda_tot / (1 + (Kd / vol_w * mass_s));
        eql_ads = mda_tot - eql_diss;
        // mda_ex can not be larger than m_diff
-       m_diff = eql_ads - PMms->Drc;
+       m_diff = PMms->Drc - eql_ads;
        mda_ex = std::abs(mda_ex) > std::abs(m_diff) ? m_diff : mda_ex;
 
        //update masses
        PMmw->Drc = std::max(0.0, PMmw->Drc - mda_ex);
        // mg = mg + mg
        PMms->Drc = std::max(0.0, PMms->Drc + mda_ex);
-       // update PCmw beforelateral transport
+       // update PCmw before lateral transport
        PCmw->Drc = PMmw->Drc / vol_w;
        PCms->Drc = PMms->Drc / mass_s;
 
@@ -238,6 +238,8 @@ void TWorld::PesticideCellDynamics(void)
 // --------------------------------------------------------------
 
        // mixing layer -- runoff water exchange
+       // change to only uptake, no chemical transfer back to soil, only by
+       // infiltration.
        double mwrm_ex {0.0};   //mg
        double A_mix {0.0};    // surface area of mixing transfer
        // if the water volume in a cell is too small, we cannot assume a film
@@ -249,21 +251,21 @@ void TWorld::PesticideCellDynamics(void)
            if (WH->Drc < 1e-4) {
                A_mix = WaterVolall->Drc / 1e-4;
            } else A_mix = DX->Drc * SoilWidthDX->Drc;
-       // positive adds to runoff, negative to mixing layer.
+       // positive adds to runoff.
        // mg = ((m sec-1 (mg m-3)) m2 * sec
-       mwrm_ex = (Kfilm * (PCmw->Drc - PCrw->Drc) * 1000) * A_mix * _dt;
+           if (PCmw->Drc > PCrw->Drc) {
+            mwrm_ex = (Kfilm * (PCmw->Drc - PCrw->Drc) * 1000) * A_mix * _dt;
 
-       double c_eql {0.0};
-       double eql_mw {0.0};
-       double vol_mw {0.0};
-       // equilibrium check
-       // calculate equilibrium mass division
-       vol_mw = zm->Drc * Theta_mix->Drc * DX->Drc * SoilWidthDX->Drc * 1000;
-       c_eql = (PMmw->Drc + PMrw->Drc) / (vol_mw + WaterVolall->Drc);
-       eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
-       // mwrm_ex can not be larger than m_diff
-       m_diff = eql_mw - PMmw->Drc;
-       mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
+            double c_eql {0.0};
+            double eql_mw {0.0};
+            // equilibrium check
+            // calculate equilibrium mass division
+            c_eql = (PMmw->Drc + PMrw->Drc) / (vol_w + WaterVolall->Drc);
+            eql_mw = c_eql * vol_w; // mass in mixing layer at equilibrium
+            // mwrm_ex can not be larger than m_diff
+            m_diff = PMmw->Drc - eql_mw;
+            mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
+           }
        }
        // mass balance
        mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
@@ -557,8 +559,8 @@ void TWorld::PesticideFlowDetachment(double rho) {
 
         if (DEP->Drc < 0) {
             //deposition
-            msoil_ex = DEP->Drc * PCms->Drc; // what happens with pesticides on roads??
-            // mg = mg kg-1 * kg
+            msoil_ex = DEP->Drc * PCms->Drc;
+            // mg = kg / kg * mg
             msrm_ex = (DEP->Drc/SedAfterSplash->Drc) * PMrs->Drc; // loss by deposition
             // no more transport than mass in cell domain
             if (PMrs->Drc + msrm_ex < 0) {
@@ -566,7 +568,7 @@ void TWorld::PesticideFlowDetachment(double rho) {
             }
             PMdep->Drc = msrm_ex;
         } else if (DETFlow->Drc > 0){
-            // erosion
+            // detachment
             msoil_ex = DETFlow->Drc * PCs->Drc; //
             // mg = mg kg-1  kg
             msrm_ex = PCms->Drc * DETFlow->Drc; // added by erosion
