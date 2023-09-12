@@ -723,7 +723,7 @@ void TWorld::InitSoilInput(void)
             SwitchTwoLayer = true;
             SwitchThreeLayer = true;
         }
-
+        qDebug() << "SwitchTwoLayer" << SwitchTwoLayer;
         if (SwitchTwoLayer) {
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));

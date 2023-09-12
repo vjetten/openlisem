@@ -448,19 +448,15 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
                             if (c > 0  && MV(r,c-1) && vxn < 0) {
                                 vxn = 0;
-                        //        hn = H;
                             }
                             if (c < _nrCols-1 && MV(r,c+1) && vxn > 0) {
                                 vxn = 0;
-                        //        hn = H;
                             }
                             if (r < _nrRows-1 && MV(r+1,c) && vyn > 0) {
                                 vyn = 0;
-                       //         hn = H;
                             }
                             if (r > 0 && MV(r-1,c) && vyn < 0) {
                                 vyn = 0;
-                        //        hn = H;
                             }
                         }
                         if (vyn == 0 && vxn == 0)
