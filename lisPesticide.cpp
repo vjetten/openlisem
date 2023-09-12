@@ -291,12 +291,12 @@ void TWorld::PesticideFlow1D(void) {
 
     //runoff
     KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw,
-                        PMmw);
+                        PMrw);
 
     //erosion
     if(SwitchErosion){
         KinematicPestAdsorbed(crlinkedldd_, LDD, Qsn, PQrs, DX, Alpha, SedMassIn,
-                              Qs, Qps, PMms);
+                              Qs, Qps, PMrs);
     }
     // calculate new concentration
     #pragma omp parallel for num_threads(userCores)
