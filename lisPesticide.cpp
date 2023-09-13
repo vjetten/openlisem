@@ -270,7 +270,7 @@ void TWorld::PesticideCellDynamics(void)
        }
        // mass balance
        mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
-       test_map->Drc = mwrm_ex;
+       //test_map->Drc = mwrm_ex;
 
        PMmw->Drc = std::max(0.0, PMmw->Drc - mwrm_ex);
        PMrw->Drc = std::max(0.0, PMrw->Drc + mwrm_ex);

@@ -1119,7 +1119,7 @@ void TWorld::ReportMapSeries(void)
         //report(*PMperc, "prc");
         report(*pmwdet, "wdet");
         report(*pmwdep, "wdep");
-        report(*test_map, "test");
+        //report(*test_map, "test");
         if (SwitchErosion) {
             report(*PCrs, "pcrs");
             report(*PMrs, "pmrs");
