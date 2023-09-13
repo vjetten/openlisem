@@ -213,7 +213,7 @@ void TWorld::PesticideCellDynamics(void)
        eql_diss = mda_tot / (1 + (Kd / vol_w * mass_s));
        eql_ads = mda_tot - eql_diss;
        // mda_ex can not be larger than m_diff
-       m_diff = PMms->Drc - eql_ads;
+       m_diff = eql_ads - PMms->Drc;
        mda_ex = std::abs(mda_ex) > std::abs(m_diff) ? m_diff : mda_ex;
 
        //update masses
@@ -244,12 +244,12 @@ void TWorld::PesticideCellDynamics(void)
        double A_mix {0.0};    // surface area of mixing transfer
        // if the water volume in a cell is too small, we cannot assume a film
        // over the full surface of the cell. This would overestimate mixing
-       // mass transfer. When water height is smaller than 0.1 mm we assume the
-       // surface area for mass transfer decreases.
-       PCrw->Drc = PMrw->Drc / WaterVolall->Drc;
-       if (WaterVolall->Drc > 0.0) {
-           if (WH->Drc < 1e-4) {
-               A_mix = WaterVolall->Drc / 1e-4;
+       // mass transfer. When water height is smaller than 1 mm we assume the
+       // surface area for mass transfer decreases.      
+       if (WH->Drc > 1e-4) {
+           PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
+           if (WH->Drc < 1e-3) {
+               A_mix = WaterVolall->Drc / 1e-3;
            } else A_mix = DX->Drc * SoilWidthDX->Drc;
        // positive adds to runoff.
        // mg = ((m sec-1 (mg m-3)) m2 * sec
@@ -303,7 +303,7 @@ void TWorld::PesticideFlow1D(void) {
     FOR_ROW_COL_MV_L{
     double volmw {0.0};         // L - volume of water in mixing layer
     double massms {0.0};        // kg - mass of sediment in mixing layer
-    if (WaterVolall->Drc > 0) {
+    if (WaterVolall->Drc > 0.0) {
     PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
     } else PCrw->Drc = 0.0;
     // L = m * m * m * -- * 1000
@@ -365,13 +365,13 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
 
     if (Qn->Drc + QinKW->Drc >= MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
         // calculate concentration for new outflux
-        PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000); // use watervollall and not watervolin for concentration
+        PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000); // use watervolall and not watervolin for concentration
 
         _Qpw->Drc = _Q->Drc * 1000 * PCrw->Drc;
         // use explicit backwards method from Chow
         _Qpwn->Drc = ChowSubstance(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, _Qpw->Drc,
                                     _Alpha->Drc, _DX->Drc, _dt); //mg/sec
-        _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc + _PMW->Drc / _dt);
+        _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc + PMrw->Drc / _dt);
        } //runoff occurs
     //substract discharge
     //mg = mg - (mg sec-1 * sec)
