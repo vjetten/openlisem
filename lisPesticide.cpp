@@ -248,9 +248,10 @@ void TWorld::PesticideCellDynamics(void)
        // surface area for mass transfer decreases.      
        if (WH->Drc > 1e-4) {
            PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
-           if (WH->Drc < 1e-3) {
-               A_mix = WaterVolall->Drc / 1e-3;
-           } else A_mix = DX->Drc * SoilWidthDX->Drc;
+//           if (WH->Drc < 1e-3) {
+//               A_mix = WaterVolall->Drc / 1e-3;
+//           } else
+               A_mix = DX->Drc * SoilWidthDX->Drc;
        // positive adds to runoff.
        // mg = ((m sec-1 (mg m-3)) m2 * sec
            if (PCmw->Drc > PCrw->Drc) {
@@ -260,7 +261,7 @@ void TWorld::PesticideCellDynamics(void)
             double eql_mw {0.0};
             // equilibrium check
             // calculate equilibrium mass division
-            c_eql = (PMmw->Drc + PMrw->Drc) / (vol_w + WaterVolall->Drc);
+            c_eql = (PMmw->Drc + PMrw->Drc) / (vol_w + WaterVolall->Drc*1000);
             eql_mw = c_eql * vol_w; // mass in mixing layer at equilibrium
             // mwrm_ex can not be larger than m_diff
             m_diff = PMmw->Drc - eql_mw;
@@ -269,6 +270,7 @@ void TWorld::PesticideCellDynamics(void)
        }
        // mass balance
        mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
+       test_map->Drc = mwrm_ex;
 
        PMmw->Drc = std::max(0.0, PMmw->Drc - mwrm_ex);
        PMrw->Drc = std::max(0.0, PMrw->Drc + mwrm_ex);

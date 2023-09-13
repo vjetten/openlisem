@@ -428,7 +428,9 @@ void TWorld::HydrologyProcesses()
 
         if (SwitchPest) {
             // update concentration of pesticides after rainfall (mg/L)
-            //PCrw->Drc = PMrw->Drc / (WH->Drc * FlowWidth->Drc * DX->Drc * 1000);
+            if (WH->Drc > 0.0) {
+                PCrw->Drc = PMrw->Drc / (WH->Drc * FlowWidth->Drc * DX->Drc * 1000);
+            }
         }
 
         // infiltration by SWATRE of G&A+percolation
