@@ -25,8 +25,6 @@
 #include "lisemqt.h"
 #include "model.h"
 
-#define Aavg(a,b)  (0.5*(a+b))
-#define Havg(a,b)  (2.0/(1.0/a+1.0/b))
 
 double TWorld::SoilWaterMass()
 {
@@ -455,7 +453,7 @@ void TWorld::cell_Redistribution1(int r, int c)
     double L_min = 0.05; // minimum L before percolation starts
 
     if (SwitchImpermeable) {
-        if (Lw_ > SoilDepth2->Drc-0.001)
+        if (Lw_ > SoilDepth1->Drc-0.001)
             return;
     }
     if (Lw_ < L_min)

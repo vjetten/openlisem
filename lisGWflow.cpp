@@ -197,7 +197,7 @@ void TWorld::GWFlowLDDKsat(void)
 
         GWVol->Drc += flux;
         GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
-        GWout->Drc = flux;
+        GWout->Drc = Qn;//flux;
    }
 
 /*
@@ -352,7 +352,7 @@ void TWorld::GWFlow2D(void)
         if (V + dflux < 0)
             dflux = -V;
         //fill with the resulting flux of a cell
-        GWout->Drc = dflux;
+        GWout->Drc = std::max(0.0,dflux);
     }}
 
     // adjust the vol

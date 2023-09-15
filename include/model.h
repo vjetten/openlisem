@@ -55,7 +55,12 @@
 
 #define HMIN 1e-6
 #define DO_SEDDEP 0
-#define GRAV 9.81
+#define GRAV 9.8067
+
+
+#define Aavg(a,b)  (0.5*(a+b))
+#define Savg(a,b)  qSqrt(a*b)
+#define Havg(a,b)  (2.0/(1.0/a+1.0/b))
 
 #define Aavg(a,b)  (0.5*(a+b))
 #define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights

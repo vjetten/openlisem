@@ -645,7 +645,7 @@ void TWorld::InitSoilInput(void)
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
         calcValue(*SoilDepth1, SD1Calibration, MUL);
-
+        report(*SoilDepth1,"sd1.map");
         SoilDepth1init = NewMap(0);
         copy(*SoilDepth1init, *SoilDepth1);
 

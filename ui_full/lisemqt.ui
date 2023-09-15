@@ -2125,7 +2125,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>0</y>
+                <y>-59</y>
                 <width>760</width>
                 <height>703</height>
                </rect>
@@ -2163,7 +2163,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>6</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -7138,6 +7138,12 @@ p, li { white-space: pre-wrap; }
                   <layout class="QGridLayout" name="gridLayout_22">
                    <item row="2" column="0" colspan="3">
                     <widget class="QGroupBox" name="groupBoxCalHydrology">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="font">
                       <font>
                        <pointsize>8</pointsize>
@@ -7638,7 +7644,7 @@ p, li { white-space: pre-wrap; }
                    <item row="3" column="0" colspan="3">
                     <widget class="QGroupBox" name="groupBoxCalFlow">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -7880,6 +7886,12 @@ p, li { white-space: pre-wrap; }
                    </item>
                    <item row="4" column="0" colspan="3">
                     <widget class="QGroupBox" name="groupBox_3">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="font">
                       <font>
                        <pointsize>8</pointsize>
