@@ -236,7 +236,7 @@ void TWorld::cell_Redistribution1(int r, int c)
     double L_min = 0.05; // minimum L before percolation starts
 
     if (SwitchImpermeable) {
-        if (Lw_ > SoilDepth2->Drc-0.001)
+        if (Lw_ > SoilDepth1->Drc-0.001)
             return;
     }
     if (Lw_ < L_min)

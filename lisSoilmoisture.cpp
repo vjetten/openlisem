@@ -27,7 +27,7 @@
 
 #define tol2 0.2
 #define tol1 0.01
-#define GRAV 9.81
+
 
 //DO NOT USE OMP, MUCH SLOWER
 // Calculates one dimensional soil water balance based on

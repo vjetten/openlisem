@@ -38,6 +38,9 @@ void TWorld::GroundwaterFlow(void)
     if (SwitchTwoLayer) {
         pore = ThetaS2;
         SoilDepthinit = SoilDepth2init;
+        FOR_ROW_COL_MV_L {
+            SoilDepthinit->Drc = SoilDepthinit->Drc - SoilDepth1init->Drc;
+        }}
         SoilDepth = SoilDepth2;
     } else {
         pore = Poreeff;
@@ -82,11 +85,8 @@ void TWorld::GroundwaterFlow(void)
     if (SwitchSWATGWflow)
         GWFlowSWAT();    // swat based flow using ldd and accuflux
 
-    // change the soil depth with GWWH
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        //GWout->Drc += tmd->Drc;
-
         double maxvol = SoilDepthinit->Drc * CHAdjDX->Drc * pore->Drc;
         GWVol->Drc = std::min(maxvol, GWVol->Drc);
         GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
@@ -97,7 +97,6 @@ void TWorld::GroundwaterFlow(void)
 
         GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
     }}
-
 }
 //---------------------------------------------------------------------------
 void TWorld::GWFlowLDDKsat(void)
@@ -110,6 +109,9 @@ void TWorld::GWFlowLDDKsat(void)
         pore = ThetaS2;
         ksat = Ksat2;
         SD = SoilDepth2init;
+        FOR_ROW_COL_MV_L {
+            SD->Drc = SD->Drc - SoilDepth1init->Drc;
+        }}
     } else {
         pore = Poreeff;
         ksat = Ksateff;
@@ -193,7 +195,7 @@ void TWorld::GWFlowLDDKsat(void)
 
         GWVol->Drc += flux;
         GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
-        GWout->Drc = flux;
+        GWout->Drc = Qn;//flux;
    }
 
 /*
@@ -266,6 +268,9 @@ void TWorld::GWFlow2D(void)
         pore = ThetaS2;
         ksat = Ksat2;
         SD = SoilDepth2init;
+        FOR_ROW_COL_MV_L {
+            SD->Drc = SD->Drc - SoilDepth1init->Drc;
+        }}
     } else {
         pore = Poreeff;
         ksat = Ksateff;
@@ -345,7 +350,7 @@ void TWorld::GWFlow2D(void)
         if (V + dflux < 0)
             dflux = -V;
         //fill with the resulting flux of a cell
-        GWout->Drc = dflux;
+        GWout->Drc = std::max(0.0,dflux);
     }}
 
     // adjust the vol

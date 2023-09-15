@@ -50,7 +50,6 @@ functions: \n
 
 #define he_ca 1e-12
 #define ve_ca 1e-12
-#define GRAV 9.81
 
 //---------------------------------------------------------------------------
 // deposit all sediment still in flow when infiltration causes WH to become minimum

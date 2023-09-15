@@ -33,7 +33,6 @@
 
 #define dt_ca 0.001
 
-#define GRAV 9.8067
 #define EPSILON 1e-6
 
 #define dtmaxfrac 0.5

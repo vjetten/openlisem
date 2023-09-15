@@ -8,7 +8,6 @@
 #define he_ca 1e-10
 #define ve_ca 1e-10
 
-#define GRAV 9.8067
 #define EPSILON 1e-10
 //--------------------------------------------------------------------------------------------
 // correct mass balance

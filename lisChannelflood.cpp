@@ -40,7 +40,6 @@ functions: \n
 #include "operation.h"
 #include "global.h"
 
-#define GRAV 9.81
 #define HMIN3 0.001
 
 void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)

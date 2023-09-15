@@ -358,10 +358,8 @@ void TWorld::InitParameters(void)
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
         SwitchChannelWFinflow = getvalueint("Channel WF inflow") == 1;
-//        nN1_ = getvalueint("SoilWB nodes 1");
-//        nN2_ = getvalueint("SoilWB nodes 2");
-//        nN3_ = getvalueint("SoilWB nodes 3");
 
+        //SwitchGWChangeSD = true;//getvalueint("GW layer change SD") == 1;
 
     } else {
         F_MaxIter = 200;
@@ -376,10 +374,14 @@ void TWorld::InitParameters(void)
         _dtCHkin = 60.0;//_dt_user;
         SwitchChannel2DflowConnect = false;
         SwitchChannelWFinflow = false;
+
         nN1_ = 3;
         nN2_ = 3;
         nN3_ = 6;
         SoilWBdtfactor = 0.5;
+
+
+        //SwitchGWChangeSD = true;
 
     }
     _CHMaxV = 20.0;
@@ -657,7 +659,9 @@ void TWorld::InitSoilInput(void)
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
+
         //calcValue(*SoilDepth1, SD1Calibration, MUL);
+
 
         SoilDepth1init = NewMap(0);
         copy(*SoilDepth1init, *SoilDepth1);
@@ -677,6 +681,8 @@ void TWorld::InitSoilInput(void)
         ThetaFC1 = NewMap(0);
         vgalpha1 = NewMap(0);
         vgn1 = NewMap(0);
+
+
         FOR_ROW_COL_MV_L {
             //bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
             //Saxton and Rawls 2006
@@ -686,10 +692,12 @@ void TWorld::InitSoilInput(void)
             lambda1->Drc = 0.0849*ks+0.159;
             lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
             psi1ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+            // NEGATIVE????
             vgalpha1->Drc = (0.02*ks + 0.0095); // in m-1
             vgn1->Drc = 0.2656*ks + 1.1042;
             ThetaR1->Drc = 0.0673*exp(-0.238*log(ks));
             ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;            
+
         }}
 
         if (SwitchPsiUser) {
@@ -700,20 +708,24 @@ void TWorld::InitSoilInput(void)
             Psi1 = NewMap(0);
             FOR_ROW_COL_MV_L {
                 Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425)*0.01;
-                double psi;
 
-                double se = (ThetaI1->Drc - ThetaR1->Drc)/(ThetaS1->Drc - ThetaR1->Drc);
-                if (SwitchBrooksCorey) {
-                    psi = psi1ae->Drc/std::pow(se, lambda1->Drc);
-                } else {
-                    double m = 1-1/vgn1->Drc;
-                    psi = std::pow((std::pow(1/se,1/m)-1),1/vgn1->Drc)/vgalpha1->Drc*0.101974; // alpha is in 1/kPa, convert to meter
-                }
+//                double psi;
+
+//                double se = (ThetaI1->Drc - ThetaR1->Drc)/(ThetaS1->Drc - ThetaR1->Drc);
+//                if (SwitchBrooksCorey) {
+//                    psi = psi1ae->Drc/std::pow(se, lambda1->Drc);
+//                } else {
+//                    double m = 1-1/vgn1->Drc;
+//                    psi = std::pow((std::pow(1/se,1/m)-1),1/vgn1->Drc)/vgalpha1->Drc*0.101974; // alpha is in 1/kPa, convert to meter
+//                }
               //  Psi1->Drc = std::min(Psi1->Drc,psi);
+
                 Psi1->Drc = std::max(Psi1->Drc,psi1ae->Drc);
             }}
         }
         calcValue(*Ksat1, ksatCalibration, MUL);
+            // apply calibration after all empirical relations
+
 
         if (nrSoilLayers == 2) {
             SwitchTwoLayer = true;
@@ -754,11 +766,12 @@ void TWorld::InitSoilInput(void)
                 double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
                 //vgalpha2->Drc = 0.0237*ks + 0.0054;
                 vgalpha2->Drc = (0.02*ks + 0.0095); // in m-1
-
                 vgn2->Drc = 0.2656*ks + 1.1042;
+
                 lambda2->Drc = 0.0849*ks+0.159;
                 lambda2->Drc = std::min(std::max(0.1,lambda2->Drc),0.7);
-                psi2ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+                psi2ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m                
+                //NEGATIVE???
                 ThetaR2->Drc = 0.0673*exp(-0.238*log(ks));
                 ThetaFC2->Drc = -0.0519*log(ks) + 0.3714;
             }}
@@ -766,21 +779,21 @@ void TWorld::InitSoilInput(void)
             // wetting front psi
             if (SwitchPsiUser) {
                 Psi2 = ReadMap(LDD,getvaluename("psi2"));
+
              //   calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
                 calcValue(*Psi2, 0.01, MUL);
             } else {
                 Psi2 = NewMap(0);
                 FOR_ROW_COL_MV_L {
                     Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
-                    double psi;
-
-                    double se = (ThetaI2->Drc - ThetaR2->Drc)/(ThetaS2->Drc - ThetaR2->Drc);
-                    if (SwitchBrooksCorey) {
-                        psi = psi2ae->Drc/std::pow(se, lambda2->Drc);
-                    } else {
-                    double m = 1-1/vgn2->Drc;
-                        psi = std::pow((std::pow(1/se,1/m)-1),1/vgn2->Drc)/vgalpha2->Drc*0.101974; // alpha is in 1/kPa, convert to meter
-                    }
+//                    double psi;
+//                    double se = (ThetaI2->Drc - ThetaR2->Drc)/(ThetaS2->Drc - ThetaR2->Drc);
+//                    if (SwitchBrooksCorey) {
+//                        psi = psi2ae->Drc/std::pow(se, lambda2->Drc);
+//                    } else {
+//                    double m = 1-1/vgn2->Drc;
+//                        psi = std::pow((std::pow(1/se,1/m)-1),1/vgn2->Drc)/vgalpha2->Drc*0.101974; // alpha is in 1/kPa, convert to meter
+//                    }
               //      Psi2->Drc = std::min(Psi2->Drc,psi);
                     Psi2->Drc = std::max(Psi2->Drc,psi2ae->Drc);
                 }}
@@ -825,7 +838,6 @@ void TWorld::InitSoilInput(void)
                 double ks = std::max(0.5,std::min(1000.0,log(Ksat3->Drc)));
                 //vgalpha3->Drc = 0.0237*ks + 0.0054;
                 vgalpha3->Drc = (0.02*ks + 0.0095); // in m-1 has ot have inverse from H in m
-
                 vgn3->Drc = 0.2656*ks + 1.1042;
                 lambda3->Drc = 0.0849*ks+0.159;
                 lambda3->Drc = std::min(std::max(0.1,lambda3->Drc),0.7);
@@ -843,15 +855,14 @@ void TWorld::InitSoilInput(void)
                 Psi3 = NewMap(0);
                 FOR_ROW_COL_MV_L {
                     Psi3->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
-                    double psi;
-
-                    double se = (ThetaI3->Drc - ThetaR3->Drc)/(ThetaS3->Drc - ThetaR3->Drc);
-                    if (SwitchBrooksCorey) {
-                        psi = psi3ae->Drc/std::pow(se, lambda3->Drc);
-                    } else {
-                        double m = 1-1/vgn3->Drc;
-                        psi = std::pow((std::pow(1/se,1/m)-1),1/vgn3->Drc)/vgalpha3->Drc*0.101974; // alpha is in 1/kPa, convert to meter
-                    }
+//                    double psi;
+//                    double se = (ThetaI3->Drc - ThetaR3->Drc)/(ThetaS3->Drc - ThetaR3->Drc);
+//                    if (SwitchBrooksCorey) {
+//                        psi = psi3ae->Drc/std::pow(se, lambda3->Drc);
+//                    } else {
+//                        double m = 1-1/vgn3->Drc;
+//                        psi = std::pow((std::pow(1/se,1/m)-1),1/vgn3->Drc)/vgalpha3->Drc*0.101974; // alpha is in 1/kPa, convert to meter
+//                    }
                  //   Psi3->Drc = std::min(Psi3->Drc,psi);
                     Psi3->Drc = std::max(Psi3->Drc,psi3ae->Drc);
                 }}
@@ -1257,7 +1268,7 @@ void TWorld::InitChannel(void)
             else
                 GWz->Drc = DEM->Drc - SoilDepth1->Drc;
     }}
-Average3x3(*GWz, *LDD, false);
+    Average3x3(*GWz, *LDD, false);
 
 }
 
@@ -3359,61 +3370,61 @@ void TWorld::Average3x3(cTMap &M, cTMap &mask, bool only)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         tm->Drc = M.Drc;
     }}
 
-FOR_ROW_COL_MV_L {
-    double tot = 0;
-    double cnt = 0;
-    for (int i = 1; i <= 9; i++)
-    {
-        int rr = r+dy[i];
-        int cr = c+dx[i];
+    FOR_ROW_COL_MV_L {
+        double tot = 0;
+        double cnt = 0;
+        for (int i = 1; i <= 9; i++)
+        {
+            int rr = r+dy[i];
+            int cr = c+dx[i];
 
-        if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
-            if (only && M.Drcr == 0)
-                continue;
-            tot = tot + tm->Drcr;
-            cnt += 1.0;
-            if (i == 5) {
+            if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
+                if (only && M.Drcr == 0)
+                    continue;
                 tot = tot + tm->Drcr;
                 cnt += 1.0;
+                if (i == 5) {
+                    tot = tot + tm->Drcr;
+                    cnt += 1.0;
+                }
             }
         }
-    }
-    M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
-    if (pcr::isMV(mask.Drc))
-        M.Drc = tm->Drc;
-}}
+        M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
+        if (pcr::isMV(mask.Drc))
+            M.Drc = tm->Drc;
+    }}
 }
 //---------------------------------------------------------------------------
 void TWorld::Average2x2(cTMap &M, cTMap &mask)
 {
     int dx[10] = {0, -1, 1, -1,  1};
     int dy[10] = {0,  1, 1, -1, -1};
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         tm->Drc = M.Drc;
     }}
 
-double f = 0.5;
-FOR_ROW_COL_MV_L {
-    double tot = 0;
-    double cnt = 0;
-    for (int i = 0; i <= 5; i++)
-    {
-        int rr = r+dy[i];
-        int cr = c+dx[i];
+    double f = 0.5;
+    FOR_ROW_COL_MV_L {
+        double tot = 0;
+        double cnt = 0;
+        for (int i = 0; i <= 5; i++)
+        {
+            int rr = r+dy[i];
+            int cr = c+dx[i];
 
-        if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
-            tot = tot + tm->Drcr;
-            cnt += 1.0;
+            if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
+                tot = tot + tm->Drcr;
+                cnt += 1.0;
+            }
         }
-    }
-    M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
-}}
+        M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
+    }}
 }
 
 void TWorld::InitNewSoilProfile()
