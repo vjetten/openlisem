@@ -5,8 +5,9 @@ cmake_minimum_required(VERSION 3.9)
 IF(WIN32)
    # NOTE: a branch of QWT is used for double axis display:
    # https://sourceforge.net/p/qwt/code/HEAD/tree/branches/qwt-6.1-multiaxes/
-    SET(QWT_BUILD_DIR "c:/qt/qwt-6.1-ma")          # <= give your own folder names here
-    SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # <= give your own folder names here
+    SET(QWT_BUILD_DIR "C:/Qwt61ma/qwt-6.1-ma")          # <= give your own folder names here
+    SET(MINGW_BUILD_DIR "C:/msys/mingw64")     # <= give your own folder names here
+	SET(GDAL_BUILD_DIR "C:/msys/mingw64")
 
     SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
@@ -31,14 +32,16 @@ ENDIF()
 
 # linux ubuntu, qwt installation should be in usr if you followed the instructions, version nr may be different
 IF(UNIX AND NOT CYGWIN)
-    SET(QWT_BUILD_DIR "/usr/local/qwt-6.1.4")
+ SET(QWT_BUILD_DIR "/usr/local/qwt-6.4.0-svn")
+ SET(GDAL_INCLUDE_DIRS "/usr/include/gdal")
+ SET(GDAL_LIBRARIES "/usr/lib/libgdal.so")
     SET(CMAKE_SKIP_BUILD_RPATH FALSE)
     SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
     SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
     SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
-
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.so")
-    SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/")
+    SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include")
+    SET(OpenMP_CXX_INCLUDE_DIRS "/usr/lib/gcc/x86_64-linux-gnu/11/include")
 ENDIF()
 
 #============ INCLDUES ====================
@@ -46,7 +49,7 @@ ENDIF()
 INCLUDE_DIRECTORIES(
     ${GDAL_INCLUDE_DIRS}
     ${QWT_INCLUDE_DIRS}
-    ${OMP_INCLUDE_DIRS}
+    ${OpenMP_CXX_INCLUDE_DIRS}
     SYSTEM
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/ui_full
@@ -62,7 +65,7 @@ find_package(OpenMP REQUIRED)
 INCLUDE(CheckCXXCompilerFlag)
 
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -std=c++11 ${OpenMP_CXX_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -std=c++11 ${OpenMP_CXX_FLAGS} -fopenmp")
 
     IF(UNIX)
        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wl,-rpath=${ORIGIN}./lib")
@@ -73,7 +76,7 @@ ENDIF()
 #============ sourcecode files ===============
 
 SET(APP_SOURCES
-    fixesandbugs.txt    
+    fixesandbugs.txt
     main.cpp
     CsfMap.cpp
     CsfRGBMap.cpp
@@ -242,3 +245,4 @@ add_executable(Lisem WIN32
 )
 
 target_link_libraries(Lisem Qt5::Widgets Qt5::Gui Qt5::Core ${GDAL_LIBRARIES} ${QWT_LIBRARIES} OpenMP::OpenMP_CXX)
+
