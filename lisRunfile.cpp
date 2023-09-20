@@ -202,7 +202,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include Erosion simulation")==0)        SwitchErosion =          iii == 1;
         if (p1.compare("Include main channels")==0)             SwitchIncludeChannel =   iii == 1;
         if (p1.compare("Include channel infil")==0)             SwitchChannelInfil     = iii == 1;
-        if (p1.compare("Include channel baseflow")==0)          SwitchChannelBaseflow  = iii == 1;
+     //   if (p1.compare("Include channel baseflow")==0)          SwitchChannelBaseflow  = iii == 1;
         if (p1.compare("Include stationary baseflow")==0)       SwitchChannelBaseflowStationary  = iii == 1;
         if (p1.compare("Adjust channel crosssection")==0)       SwitchChannelAdjustCHW  = iii == 1;
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
@@ -364,14 +364,20 @@ void TWorld::ParseRunfileData(void)
         SwitchChannelBaseflowStationary = false;
         SwitchChannelInfil = false;
     } else {
-        if (SwitchChannelInfil)
+        if (SwitchChannelInfil) {
             SwitchChannelBaseflow = false;
-        if (!SwitchChannelBaseflow)
             SwitchChannelBaseflowStationary = false;
+        }
+
+        if (SwitchChannelBaseflowStationary || SwitchGWflow)
+            SwitchChannelBaseflow = true;
     }
 
     //SwitchGWflow = SwitchChannelBaseflow && (SwitchGW2Dflow || SwitchLDDGWflow || SwitchSWATGWflow);
-
+    if (!SwitchChannelBaseflow) {
+        SwitchGWflow = false;
+        SwitchChannelBaseflowStationary = false;
+    }
     if (SwitchChannelBaseflow && SwitchGWflow) {
         SwitchImpermeable = false;
     }   

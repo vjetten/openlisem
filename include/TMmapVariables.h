@@ -106,6 +106,7 @@ cTMap
 *GWrecharge,
 *GWout,
 *GWz,
+*GWgrad,
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
 *Qdiag,
 *VH,
@@ -260,12 +261,13 @@ cTMap
 *Ksateff,                    //!< effective saturated hydraulic conductivity (input is in mm/h) [m/s]
 *Poreeff,
 *Thetaeff,
-*SoilMB,
 *chanmask3,
 
 *lambda1,
 *lambda2,
-*Perc,                      //!< Percolation per timestep [m]
+*psi1ae,
+*psi2ae,
+*Perc,
 *PercmmCum,
 *GrassFraction,              //!< fraction of grasstrip in a cell [-]
 *SedimentFilter,             //!< sediment deposited in the sediment trap in kg/m2
@@ -309,7 +311,6 @@ cTMap
 *ChannelAlpha,               //!<
 *ChannelWidthMax,           //!<
 *ChannelAdj,                //!<
-*CHAdjDX,                //!< channel adjusted DX
 *BaseflowL,
 
 *cosGrad,
@@ -471,6 +472,5 @@ cTMap
 *FlowBarrierNT,              //!< Flow barriers end timing North of cell
 *FlowBarrierWT,              //!< Flow barriers end timing West of cell
 *FlowBarrierST,              //!< Flow barriers end timing South of cell
-*FlowBarrierET;               //!< Flow barriers end timing East of cell
 
 cTRGBMap * RGB_Image;

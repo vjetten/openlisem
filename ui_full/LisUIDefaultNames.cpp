@@ -41,7 +41,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;ID;ID.map;Raingauge zone ID numbers (e.g. Tiessen polyg.), corresponding to columns (1,2,...) in rainfall file;ID");
     DEFmaps.append("2;Gauges;IDgauge.map;Raingauge ID numbers for inv.dist. interpolation, corresponding to columns (1,2,...) in rainfall file;IDGauges");
     DEFmaps.append("2;ET ID;ETID.map;ET zone ID numbers, correspond to columns (1,2,...) in EvapoTranspiration file;ETID");
-    DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
+   // DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
 
     DEFmaps.append("0;Catchment");
     DEFmaps.append("2;DEM;dem.map;Digital elevation model (m);dem");
@@ -287,8 +287,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include main channels");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel infil");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include channel baseflow");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Include channel baseflow");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include stationary baseflow");
     namelist[i].value = QString("0");
@@ -438,8 +438,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("GW recharge factor");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW flow factor");
-    namelist[i].value = QString("1.0");
-    namelist[i++].name = QString("GW river inflow factor");
+//    namelist[i].value = QString("1.0");
+//    namelist[i++].name = QString("GW river inflow factor");
     namelist[i].value = QString("0.2");
     namelist[i++].name = QString("GW threshold factor");
     namelist[i].value = QString("1.0");

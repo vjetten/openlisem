@@ -55,6 +55,12 @@
 
 #define HMIN 1e-6
 #define DO_SEDDEP 0
+#define GRAV 9.81
+
+#define Aavg(a,b)  (0.5*(a+b))
+#define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
+#define Savg(a,b)  sqrt(a * b)
+#define Mavg(a,b)  std::min(a,b)
 
 #define DEBUG(s) emit debug(QString(s))
 #define TIMEDB(s) emit timedb(QString(s))
@@ -147,7 +153,6 @@
 #define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MAXCONCBL 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MIN_SLOPE 1e-3
-#define tiny 1e-8
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
@@ -363,7 +368,7 @@ public:
  SwitchGullyInit,SwitchMapoutRunoff, SwitchMapoutConc, SwitchWritePCRnames,SwitchNoErosionOutlet,SwitchSimpleSedKinWave, SwitchSOBEKoutput,
  SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol
  SwitchChannelFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,SwitchRainfallFlood,SwitchLevees,SwitchWatershed,SwitchMinDTfloodMethod,SwitchNeedD90,
- int SwitchFlood1D2DCoupling;SwitchPercolation, SwitchInfilGA2, SwitchCompactPresent, SwitchNutrients, SwitchDrainage,
+ int SwitchFlood1D2DCoupling;SwitchPercolation, SwitchInfilGA2, SwitchCompactPresent, SwitchNutrients, SwitchPestout, SwitchDrainage,
 */
 
     bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow, SwitchChannelAdjustCHW,
@@ -372,7 +377,7 @@ public:
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead,SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,SwitchThreeLayer,   SwitchChannelKinWave, SwitchPsiUser,
-    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
+    SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
     SwitchHouses, SwitchRaindrum, SwitchLitter, SwitchAddBuildingsDEM,
     SwitchPest, SwitchReportPest,
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
@@ -437,7 +442,7 @@ public:
     //Groundwater flow parameters
     double GW_recharge;
     double GW_flow;
-    double GW_inflow;
+    //double GW_inflow;
     double GW_slope;
     double GW_deep;
     double GW_threshold;
@@ -481,15 +486,15 @@ public:
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
     double MB, MBeM3, Qtot, Qtot_dt, QTiletot, IntercTot, IntercETaTot, WaterVolTot, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
-    double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowTotmm, Qfloodout, QfloodoutTot, QuserInTot;
+    double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowInitmm, BaseFlowTotmm, PeakFlowTotmm, Qfloodout, QfloodoutTot, QuserInTot;
     double floodBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
-    double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot, SoilMoistTot;
+    double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot, SoilMoistTot, SoilMoistDiff, SoilMoistTotmm, QSideVolTot;
     /// Sediment totals for mass balance and output (in kg)
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTot_dt, SedTot,
            FloodDetTot, FloodDepTot, FloodSedTot;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
-    double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm, WaterVolRunoffmm, FloodBoundarymm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, GWdeeptot;
+    double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm, WaterVolRunoffmm, Qboundtotmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, GWdeeptot;
     double StormDrainTotmm, floodVolTotmm, floodTotmmInit;
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
@@ -498,7 +503,7 @@ public:
     double ETstartTime;
     double BulkDens;
     double nrCells, CatchmentArea, nrFloodedCells;
-    double LitterSmax, ETaTot, ETaTotmm, ETaTotVol, GWlevel;
+    double LitterSmax, ETaTot, ETaTotmm, ETaTotVol, GWlevel, GWleveltot;
     double thetai1tot, thetai2tot, thetai1cur, thetai2cur;
 
     double maxRainaxis;
@@ -896,8 +901,11 @@ public:
     void cell_Redistribution0(int r, int c);
     void cell_Redistribution1(int r, int c);
     void cell_Redistribution2(int r, int c);
+   // void cell_Redistribution2psi(int r, int c);
     void cell_Channelinfow1(int r, int c);
     void cell_Channelinfow2(int r, int c);
+
+    double SoilWaterMass();
 
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
@@ -1067,6 +1075,8 @@ public:
     void OutputUI(void);
     void reportAll(void);
     void ReportTimeseriesNew(void);
+    void ReportTimeseriesPCR(void);
+    void ReportTimeseriesCSV(void);
     void ReportTotalSeries(void);
 
     void ReportMaps(void);

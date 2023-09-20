@@ -28,43 +28,63 @@
 #define Aavg(a,b)  (0.5*(a+b))
 #define Havg(a,b)  (2.0/(1.0/a+1.0/b))
 
+double TWorld::SoilWaterMass()
+{
+    double totsatm3 = 0;
+    double totunsatm3 = 0;
+
+    FOR_ROW_COL_MV_L {
+        double totsat = 0;
+        double totunsat = 0;
+        if (SwitchTwoLayer) {
+            if (Lw->Drc <= SoilDepth1->Drc) {
+                totsat = totsat + Lw->Drc * Poreeff->Drc;
+                totunsat = totunsat + (SoilDepth1->Drc - Lw->Drc) * Thetaeff->Drc;
+                totunsat = totunsat + (SoilDepth2->Drc - SoilDepth1->Drc) * ThetaI2->Drc;
+            } else {
+                totsat = totsat + SoilDepth1->Drc * Poreeff->Drc;
+                totsat = totsat + (Lw->Drc-SoilDepth1->Drc) * ThetaS2->Drc;
+                totunsat = totunsat + (SoilDepth1->Drc - SoilDepth2->Drc) * ThetaI2->Drc;
+            }
+        } else {
+            totsat = totsat + Lw->Drc * Poreeff->Drc;
+            totunsat = totunsat + (SoilDepth1->Drc - Lw->Drc) * Thetaeff->Drc;
+        }
+        totsatm3 += totsat * CHAdjDX->Drc;
+        totunsatm3 += totsat * CHAdjDX->Drc;
+    }}
+
+    return totsatm3+totunsatm3;
+}
 
 //---------------------------------------------------------------------------
 void TWorld::cell_Channelinfow1(int r, int c)
 {
     ChannelQSide->Drc = 0.0;
 
-    if (!SwitchChannelWFinflow)
+//    if (ChannelWH->Drc > ChannelDepth->Drc - 0.05)
+//        return;
+
+    bool doUnsat = false;
+
+    if (/* !doUnsat && */ Lw->Drc < 0.01)
         return;
 
-    if (!SwitchIncludeChannel || ChannelWidth->Drc == 0)
-        return;
-
-    if (ChannelWH->Drc > ChannelDepth->Drc - 0.05)
-        return;
-
-    bool doUnsat = true;
-
-    if (!doUnsat && Lw->Drc < 0.01)
-        return;
-
-    double massbal = 0;
-    double massbal2 = 0;
+   // double massbal = 0;
+  //  double massbal2 = 0;
 
     double Lw_ = Lw->Drc;
 
     double pore = Poreeff->Drc;
     double thetar = ThetaR1->Drc;
     double theta = Thetaeff->Drc;
-    double SoilDep1 = SoilDepth1->Drc;
+   // double SoilDep1 = SoilDepth1->Drc;
     double CHin1 = 0;
     double CHin2 = 0;
     double ChannelDep = ChannelDepth->Drc - ChannelWH->Drc - 0.05; // effective channel depth
     double K1 = Ksateff->Drc * pow((theta-thetar)/(pore-thetar), 3.0+2.0/lambda1->Drc); // m/timestep
     double DX_= DX->Drc;
     double dL = 0.5*ChannelAdj->Drc;
-
-    massbal = Lw_*pore + (SoilDep1-Lw_)*theta;
 
     CHin1 = Ksateff->Drc*2.0;
     CHin2 = K1 * 2.0;
@@ -77,21 +97,16 @@ void TWorld::cell_Channelinfow1(int r, int c)
     moist -= dh;
     Lw_ = moist/(pore-thetar); // new Lw
 
-    double h2 = std::max(0.0, ChannelDep-Lw_);
-    if (doUnsat && theta > 0.95*pore && h2 > 0.01) {
-        moist = h2*(theta-thetar);
-        dh = CHin2*h2*DX_/CHAdjDX->Drc * h2/dL;
-        dh = std::min(dh, moist);
-        theta = thetar + moist/h2;
-    } else
-        CHin2 = 0;
+//    double h2 = std::max(0.0, ChannelDep-Lw_);
+//    if (doUnsat && theta > 0.95*pore && h2 > 0.01) {
+//        moist = h2*(theta-thetar);
+//        dh = CHin2*h2*DX_/CHAdjDX->Drc * h2/dL;
+//        dh = std::min(dh, moist);
+//        theta = thetar + moist/h2;
+//    } else
+//        CHin2 = 0;
 
-    ChannelQSide->Drc = DX_*(CHin1*h*h/dL + CHin2*h2*h2/dL); // m3
-
-    massbal2 = Lw_*pore + (SoilDep1-Lw_)*theta;
-
-    SoilMB->Drc += CHAdjDX->Drc*(massbal2 - massbal); //m3
-
+    ChannelQSide->Drc = DX_*(CHin1*h*h/dL);// + CHin2*h2*h2/dL); // m3
 }
 //---------------------------------------------------------------------------
 // Side inflow into channel from saturated part of the soil (Lw_), causes decrease of Lw_
@@ -101,158 +116,104 @@ void TWorld::cell_Channelinfow2(int r, int c)
 {
     ChannelQSide->Drc = 0.0;
 
-//    if (!SwitchChannelWFinflow)
-//        return;
-
-//    if (!SwitchIncludeChannel || ChannelWidth->Drc == 0)
-//        return;
-
-//    if (ChannelWH->Drc > ChannelDepth->Drc - 0.05)
-//        return;
-
-    bool doUnsat = false;
-    if (!doUnsat && Lw->Drc < 0.01)
+    if (ChannelWH->Drc > ChannelDepth->Drc - 0.05)
         return;
 
-    double massbal = 0;
-    double massbal2 = 0;
+    if (Lw->Drc < 0.01)
+        return;
+
     double Lw_ = Lw->Drc;
     double pore = Poreeff->Drc;
     double thetar = ThetaR1->Drc;
     double theta = Thetaeff->Drc;
-    double thetaFC = 0.99*pore;
     double SoilDep1 = SoilDepth1->Drc;
     double pore2 = ThetaS2->Drc;
-    double thetaFC2 = 0.99*pore2;//0.5*(pore2-ThetaFC2->Drc);
     double thetar2 = ThetaR2->Drc;
     double theta2 = ThetaI2->Drc;
-    double SoilDep2 = SoilDepth2->Drc;
     double CHin1 = 0;
     double CHin2 = 0;
-    double CHin3 = 0;
-    double ChannelDep = ChannelDepth->Drc;// - ChannelWH->Drc - 0.05; // effective channel depth
+    double ChannelDep = ChannelDepth->Drc - ChannelWH->Drc; // effective channel depth
     double DX_= DX->Drc;
     double dL = 0.5* ChannelAdj->Drc;
 
-    double K1 = Ksateff->Drc * pow((theta-thetar)/(pore-thetar), 3.0+2.0/lambda1->Drc); // m/timestep
-    double K2 = Ksat2->Drc * pow((theta2-thetar2)/(pore2-thetar2), 3.0+2.0/lambda2->Drc); // m/timestep
-
     if (ChannelDep <= SoilDep1) {
-        massbal = Lw_*pore + (SoilDep1-Lw_)*theta;
         CHin1 = Ksateff->Drc*2.0;
-        CHin2 = K1 * 2.0;
-
         // sat layer 1
         double h = std::min(ChannelDep,Lw_);
         if (Lw_ > 0.01) {
-            double moist = Lw_*(pore-thetar);
-            double dh = CHin1 * h*DX_/CHAdjDX->Drc * h/dL; // ks*cross section /cellsurface * Darcy pressure
+            double moist = h*(pore-thetar);
+            double frac = (h*DX_)/CHAdjDX->Drc; //= Lw_/ChannelAdj->Drc;
+            double pressgrad = (h/dL);
+            double dh = CHin1 * frac * pressgrad;
             dh = std::min(dh, moist);
             moist -= dh;
             Lw_ = moist/(pore-thetar); // new Lw
+            CHin1 = dh/frac/pressgrad;
         } else
             CHin1 = 0;
 
-        // unsat layer 1
-        double h2 = std::max(0.0, ChannelDep-Lw_);
-        if (doUnsat && theta > thetaFC && h2 > 0.01) {
-            double moist = h2*(theta-thetar);
-            double dh = CHin2*h2*DX_/CHAdjDX->Drc * h2/dL;
-            dh = std::min(dh, moist);
-            theta = thetar + moist/h2;
-        } else
-            CHin2 = 0;
-
-        ChannelQSide->Drc = DX_*(CHin1*h*h/dL + CHin2*h2*h2/dL); // m3
-
-        massbal2 = Lw_*pore + (SoilDep1-Lw_)*theta;
+        ChannelQSide->Drc = DX_*(CHin1*h*h/dL);
 
     } else {
         // chan > soildep1
-        if (Lw_ < SoilDep1) {
-            massbal = Lw_*pore + (SoilDep1-Lw_)*theta + (SoilDep2-SoilDep1)*theta2;
+        if (Lw_ <= SoilDep1) {
 
             CHin1 = Ksateff->Drc*2.0;
-            CHin2 = K1*2.0;
-            CHin3 = K2*2.0;
-            //sat layer 1
+
+            // sat layer 1
+            double h = Lw_;
             if (Lw_ > 0.01) {
-                double moist = Lw_*(pore-thetar);
-                double dh = CHin1*Lw_* DX_/CHAdjDX->Drc * Lw_/dL;
+                double moist = h*(pore-thetar);
+                double frac = (h*DX_)/CHAdjDX->Drc; // Lw_/ChannelAdj->Drc;
+                double pressgrad = (h/dL);
+                double dh = CHin1 * frac * pressgrad;
                 dh = std::min(dh, moist);
                 moist -= dh;
-                Lw_ = moist/(pore-thetar);
+                Lw_ = moist/(pore-thetar); // new Lw
+                CHin1 = dh/frac/pressgrad;
             } else
                 CHin1 = 0;
 
-            //unsat layer 1
-            double h1 = std::max(0.0,SoilDep1 - Lw_);
-            if (doUnsat && theta > thetaFC && h1 > 0.01) {
-                double moist1 = h1*(pore-thetar);
-                double dh1 = CHin2 * h1*DX_/CHAdjDX->Drc * h1/dL;
-                dh1 = std::min(dh1, moist1);
-                moist1 -= dh1;
-                theta = thetar + moist1/h1;
-            } else
-                CHin2 = 0;
-
-            //unsat layer 2
-            double h2 = SoilDep2 - SoilDep1;
-            if (theta2 > thetaFC2) {
-                double moist2 = h2*(pore2-thetar2);
-                double dh2 = CHin3 * h2*DX_/CHAdjDX->Drc * h2/dL;
-                dh2 = std::min(dh2, moist2);
-                moist2 -= dh2;
-                theta2 = thetar2 + moist2/h2;
-            } else
-                CHin3 = 0;
-
-            ChannelQSide->Drc = DX_*(CHin1*Lw_*Lw_/dL + CHin2*h1*h1/dL +CHin3*h2*h2/dL); // m3
-
-            massbal2 = Lw_*pore + (SoilDep1-Lw_)*theta  + (SoilDep2-SoilDep1)*theta2;
+            ChannelQSide->Drc = DX_*(CHin1*h*h/dL);
 
         } else {
             // both chandep and Lw > soildep1
-            massbal = SoilDep1*pore + (Lw_ - SoilDep1)*pore2 + (SoilDep2-Lw_)*theta2;
+
             CHin1 = Ksateff->Drc*2.0;
             CHin2 = Ksat2->Drc*2.0;
-            CHin3 = K2*2.0;
+            double L = 0;
+            double L2 =0;
 
             // layer 1 saturated
-            double L = Lw_;
-            double L2 = 0;
             double moist1 = SoilDep1*(pore-thetar);
-            double dh = CHin1 * SoilDep1*DX_/CHAdjDX->Drc * SoilDep1/dL;
+            double frac = (SoilDep1*DX_)/CHAdjDX->Drc; // Lw_/ChannelAdj->Drc;
+            double pressgrad = (SoilDep1/dL);
+            double dh = CHin1 * frac * pressgrad;
             dh = std::min(dh, moist1);
             moist1 -= dh;
             L = moist1/(pore-thetar);
+            CHin1 = dh/frac/pressgrad;
 
-            // layer 2 saturated part
-            double h2 = Lw_-SoilDep1;
-            if (h2 > 0.01) {
+            // layer 2 saturated part, but not deeper than chandep
+            double h2 = std::max(0.0,Lw_-SoilDep1);
+            h2 = std::min(h2,ChannelDep-SoilDep1);
+            if (h2 > 0.001) {
                 double moist2 = h2*(pore2-thetar2);
-                double dh = CHin2 * h2*DX_/CHAdjDX->Drc * h2/dL;
+                frac = (h2*DX_)/CHAdjDX->Drc; // Lw_/ChannelAdj->Drc;
+                pressgrad = (h2/dL);
+                dh = CHin2 * frac * pressgrad;
                 dh = std::min(dh, moist2);
                 moist2 -= dh;
                 L2 = moist2/(pore-thetar);
-            } else
+                CHin2 = dh/frac/pressgrad;
+            } else {
+                h2 = 0;
                 CHin2 = 0;
+            }
+
             Lw_ = L + L2;
 
-            // layer 2 unsaturated part
-            double h3 = std::max(0.0, std::min(SoilDep2, ChannelDep) - Lw_);
-            if (doUnsat && theta2 > thetaFC2 && h3 > 0.01) {
-                double moist2 = h3*(pore2-thetar2);
-                double dh2 = CHin3 * h3*DX_/CHAdjDX->Drc * h3/dL;
-                dh2 = std::min(dh2, moist2);
-                moist2 -= dh2;
-                theta2 = thetar2 + moist2/h3;
-            } else
-                CHin3 = 0;
-
-            ChannelQSide->Drc = DX->Drc*(CHin1*SoilDep1*SoilDep1/dL + CHin2*h2*h2/dL + CHin3*h3*h3/dL); // m3
-
-            massbal2 = SoilDep1*pore + (Lw_-SoilDep1)*pore2 + (SoilDep2-Lw_)*theta2;
+            ChannelQSide->Drc = DX->Drc*(CHin1*SoilDep1*SoilDep1/dL + CHin2*h2*h2/dL);
         }
 
     }
@@ -265,30 +226,27 @@ void TWorld::cell_Channelinfow2(int r, int c)
 
     if (std::isnan(ChannelQSide->Drc)) {
         ChannelQSide->Drc = 0.0;
-        //qDebug() << r << c << "nan" << i << CHin1 << CHin2 << CHin3 << Lw_;
+        //qDebug() << r << c << "nan" << CHin1 << CHin2 << CHin3 << Lw_ << i;
     }
     // update channel side inflow, sometimes nan occurs  in lw
-    SoilMB->Drc += CHAdjDX->Drc*(massbal2 - massbal);
-//qDebug() << massbal << massbal2 << massbal2 - massbal;
+
 }
 //---------------------------------------------------------------------------
-void TWorld::cell_Redistribution2(int r, int c)
+/*
+void TWorld::cell_Redistribution2psi(int r, int c)
 {
     double Lw_ = Lw->Drc;
-//    double L_min = 0.05; // minimum L before percolation starts
 
     if (SwitchImpermeable) {
         if (Lw_ > SoilDepth2->Drc-0.001)
             return;
     }
-//    if (Lw_ < L_min)
-//        return;
 
     double Percolation, theta_E;
 
-    double pore = Poreeff->Drc;
-    double thetar = ThetaR1->Drc;
-    double theta = Thetaeff->Drc;
+    double pore1 = Poreeff->Drc;
+    double thetar1 = ThetaR1->Drc;
+    double theta1 = Thetaeff->Drc;
     double SoilDep1 = SoilDepth1->Drc;
     double FC1 = ThetaFC1->Drc;
 
@@ -297,7 +255,58 @@ void TWorld::cell_Redistribution2(int r, int c)
     double theta2 = ThetaI2->Drc;
     double SoilDep2 = SoilDepth2->Drc;
     double FC2 = ThetaFC2->Drc;
-    double DL2 = SoilDep2-SoilDep1;    
+    double DL2 = SoilDep2-SoilDep1;
+
+
+    double h0, h1, h2, h3;
+    double dh1, dh2, dh3;
+    double dz1, dz2, dz3;
+    double K1, K2, K3;
+    double Q1, Q2, Q3;
+    double m0, m1, m2, m3;
+
+    if (Lw_ < SoilDep1) {
+        theta_E = (theta1-thetar1)/(pore1-thetar1);
+        //se = (h / h b ) (-lambda)
+        h1 = psi1ae->Drc*pow(theta_E, -1.0/lambda1->Drc);
+        h0 = h1;
+        K1 = Ksateff->Drc * pow(theta_E, 3.0+2.0/lambda1->Drc);
+        K0 = K1;
+        m1 = (SoilDep1-Lw_)*(theta1-thetar1);
+        m0 = m1;
+        if (Lw_ > 0) {
+            h0 = 0;
+            K0 = Ksateff->Drc;
+            m0 = Lw_*(pore1-thetar1);
+        }
+
+        theta_E = (theta2-thetar2)/(pore2-thetar2);
+        h2 = psi2ae->Drc*pow(theta_E, -1.0/lambda2->Drc);
+        h3 = h3;
+        K2 = Ksat2->Drc * pow(theta_E, 3.0+2.0/lambda2->Drc);
+        K3 = K2;
+        m2 = (DL2-GWWH->Drc)*(theta2-thetar2);
+        m3 = m2;
+        if (GWWH->Drc > 0) {
+            h3 = 0;
+            K3 = Ksat2->Drc;
+            m3 = GWWH->Drc*(pore2-thetar2);
+        }
+
+        dz1 = 0.5*SoilDep1;
+        dz2 = 0.5*(DL2-GWWH->Drc) + (LW_ + 0.5*(SoilDep1 -Lw_));
+        dz3 = 0.5*DL2;//0.5*GWWH-Drc + 0.5*(DL2-GWWH->Drc);
+        dh1 = h0-h1;
+        dh2 = h1-h2;
+        dh3 = h2-h3;
+        Q1 = -Aavg(K0, K1) * (dh1/dz1+1);
+        Q2 = -Aavg(K1, K2) * (dh2/dz2+1);
+        Q3 = -Aavg(K2, K3) * (dh3/dz3+1);
+
+
+    }
+
+
 
     // if Lw still in layer 1
             if (Lw_ < SoilDep1) {
@@ -305,13 +314,18 @@ void TWorld::cell_Redistribution2(int r, int c)
 
                 // percolation flux, avg K from L into unsat SD1
                 theta_E = (theta-thetar)/(pore-thetar);
+        //se = (h / h b ) (-lambda)
+
+        double psi1L = psi1ae->Drc*pow(theta_E, -1.0/lambda1->Drc);
         double Percolation = Ksateff->Drc * pow(theta_E, 3.0+2.0/lambda1->Drc); // m/timestep
-        Percolation = Aavg(Percolation, Ksateff->Drc);
-        // harmonic mean = Havg
+        double dz = 0.5*SoilDep1; //Lw_ + 0.5*(SoilDep1-Lw_) - 0.5*Lw_;
+        Percolation = -Percolation * (0-psi1L)/dz;
+            //Lw_ + 0.5*SoilDep1 - 0.5*Lw_ - 0.5*Lw_ = 0.5*SD1?
+
 
         double moistw = Lw_ * (pore-thetar);
         //available sat moisture above Lw_
-        double dm = (pore-FC1)*Lw_;        
+        double dm = (pore-FC1)*Lw_;
                 Percolation = std::min(dm, Percolation);
                 // not more percolation than putting moisture content at field capacity
 
@@ -426,13 +440,14 @@ void TWorld::cell_Redistribution2(int r, int c)
             ThetaI2->Drc = theta2;
 
     //DO NOT RECALCULATE PSI.
-    // Psi1->Drc = 0.01 * 10.2 * Psia1->Drc * psiCalibration * std::max(1.0, pow((theta-thetar)/(pore-thetar), -1.0/lambda1->Drc));
-  //  Psi2->Drc = 0.01 * 10.2 * Psia2->Drc * psiCalibration * std::max(1.0, pow((theta2-thetar2)/(pore2-thetar2), -1.0/lambda2->Drc));
+    // Psi1->Drc = 0.01 * 10.2 * Psia1->Drc * std::max(1.0, pow((theta-thetar)/(pore-thetar), -1.0/lambda1->Drc));
+  //  Psi2->Drc = 0.01 * 10.2 * Psia2->Drc * std::max(1.0, pow((theta2-thetar2)/(pore2-thetar2), -1.0/lambda2->Drc));
 
             Lw->Drc = Lw_;
 
 
 }
+*/
 //---------------------------------------------------------------------------
 void TWorld::cell_Redistribution1(int r, int c)
 {
@@ -734,112 +749,162 @@ void TWorld::cell_SlopeStability(int r, int c)
 
 }
 
+//---------------------------------------------------------------------------
+void TWorld::cell_Redistribution2(int r, int c)
+{
+   double Lw_ = Lw->Drc;
 
-
-/*
-    //calc potential horizontal first
-    if (Lw_ <= SoilDep1) {
-        //double K = (Lw_*Ksateff->Drc+(SoilDep1-Lw_)*K1)/SoilDep1;
-        CHin1 = Ksateff->Drc;
-        CHin2 = theta > thetar ? K1 : 0.0; //m3
-        CHin3 = theta2 > thetar2 ? K2 : 0.0;
-    } else {
-        //double K = ((Lw_-SoilDep1)*Ksat2->Drc+(SoilDep2-Lw_)*K2)/DL2;
-        CHin1 = Ksateff->Drc;
-        CHin2 = Ksat2->Drc;
-        CHin3 = theta2 > thetar2 ? K2 : 0.0;
+   if (SwitchImpermeable) {
+        if (Lw_ > SoilDepth2->Drc-0.001)
+        return;
     }
 
+   double Percolation, theta_E;
 
-    if (Lw_ < ChannelDep) {
-        if (Lw_ <= SoilDep1) {
-            CHin1 *= Lw_; //m2
-            CHin2 = 0;
-            CHin3 = 0;
-        } else {
-            CHin1 *= SoilDep1; //m2
-            CHin2 = LKw_-SoilDep1;
-            CHin3 = 0;
+   double pore = Poreeff->Drc;
+   double thetar = ThetaR1->Drc;
+   double theta = Thetaeff->Drc;
+   double SoilDep1 = SoilDepth1->Drc;
+   double FC1 = ThetaFC1->Drc;
+
+   double pore2 = ThetaS2->Drc;
+   double thetar2 = ThetaR2->Drc;
+   double theta2 = ThetaI2->Drc;
+   double SoilDep2 = SoilDepth2->Drc;
+   double FC2 = ThetaFC2->Drc;
+   double DL2 = SoilDep2-SoilDep1;
+
+   // if Lw still in layer 1
+   if (Lw_ < SoilDep1) {
+        // decrease L with flow into the unsat zone beneath
+
+        // percolation flux, avg K from L into unsat SD1
+        theta_E = (theta-thetar)/(pore-thetar);
+        double Percolation = Ksateff->Drc * pow(theta_E, 3.0+2.0/lambda1->Drc); // m/timestep
+        Percolation = Aavg(Percolation, Ksateff->Drc);
+        // harmonic mean = Havg
+
+        double moistw = Lw_ * (pore-thetar);
+        //available sat moisture above Lw_
+        double dm = (pore-FC1)*Lw_;
+        Percolation = std::min(dm, Percolation);
+        // not more percolation than putting moisture content at field capacity
+
+        moistw -= Percolation;
+        // decrease moistw with percolation, can be 0
+        Lw_ = moistw/(pore-thetar);
+        // new Lw_
+
+        double store = (SoilDep1 - Lw_) * (pore-theta); // space in SD1 under Lw_
+        if (Percolation <= store) {
+        // if percolation fits in store layer 1 under the Lw
+        double m1 = (theta-thetar)*(SoilDep1-Lw_) + Percolation;
+        theta = m1/(SoilDep1-Lw_) + thetar;
+
+        // cannot happen, you cannot have flow from L into the unsaturated zone that saturates the layer under Lw!
+        if (theta >= pore) {
+                theta = pore;
+                Lw_= SoilDep1;
         }
     } else {
-        if (ChannelDep <= SoilDep1) {
-            CHin1 *= Lw_; //m2
-            CHin2 = 0;
-            CHin3 = 0;
+        // some spills over in layer 2, Lw_ is in layer 1
+        double m1 = (theta-thetar)*(SoilDep1-Lw_);
+        double m2 = (theta2-thetar2)*DL2;
+        double Perc1 = m1/(m1+m2)*Percolation;
+        double Perc2 = m2/(m1+m2)*Percolation;
 
-    }
-    // true inflow depends on channel depth and channelWH
-    if (ChannelDep <= SoilDep1) {
-        if (Lw_ > ChannelDep) {
-            CHin2 = 0;
-            CHin3 = 0;
-        } else {
-            CHin2 = CHin2 * (ChannelDep-Lw)/ChannelDep;
-            CHin3 = 0.0;
-        }
-    } else {
-        //chan depth into layer 2
-        if (Lw_ > ChannelDep) {
-            CHin2 = CHin2 * (ChannelDep-SoilDep1)/ChannelDep;
-            CHin3 = 0;
-        } else {
-            CHin2 = (Lw_ - SoilDep1)/Lw_;
-            CHin3 = CHin3 * (ChannelDep-Lw_)/SoilDep2;
-        }
+        m1 = (theta-thetar)*(SoilDep1-Lw_) + Perc1;
+        theta = m1/(SoilDep1-Lw_)+thetar;
+
+        // cannot happen!
+        if (theta >= pore) {
+                theta = pore;
+                Lw_ = SoilDep1;
     }
 
-    if (CHin1 < 1e-10) CHin1 = 0;
-    if (CHin2 < 1e-10) CHin2 = 0;
-    if (CHin3 < 1e-10) CHin3 = 0;
+        m2 = (theta2-thetar2)*DL2 + Perc2;
+        theta2 = m2/DL2 + thetar2;
 
-//    if (CHin1 == 0 && CHin2 == 0 && CHin3 == 0)
-//        return;
+        // cannot happen!
+        if (theta2 >= pore2) {
+                theta2 = pore2;
+                Lw_ = SoilDep2;
+        }
+        }
 
-    // now adjust the soil moisture in these cells
-    if (Lw_ < SoilDep1) {
-        massbal = Lw_*pore + (SoilDep1-Lw_)*theta + DL2*theta2;
+        // unsaturated flow between layer 1 and 2
+        // avg percolation flux between layers
+        theta_E = (theta-thetar)/(pore-thetar);
+        double Perc1 = Ksateff->Drc * pow(theta_E, 3.0+2.0/lambda1->Drc); // m/timestep
+        theta_E = (theta2-thetar2)/(pore2-thetar2);
+        double Perc2 = Ksat2->Drc * pow(theta_E, 3.0+2.0/lambda2->Drc); // m/timestep
+        Percolation = Aavg(Perc1, Perc2);
 
-        double moist1 = Lw_ * (pore-thetar);
-        double moist2 = (SoilDep1-Lw_) * (theta-thetar);
-        double moist3 = DL2 * (theta2-thetar2);
+        double m1 = (SoilDep1-Lw_)*(theta-thetar);  // max moist
+        Percolation = std::min(Percolation, m1);
+        double m2 = DL2*(pore2-theta2); // max fit
+        Percolation = std::min(Percolation, m2);
 
-        CHin1 = std::min(moist1, CHin1);
-        CHin2 = std::min(moist2, CHin2);
-        CHin3 = std::min(moist3, CHin3);
+        m1 -= Percolation;
+        theta = thetar + m1/(SoilDep1-Lw_);
 
-        moist1 -= CHin1;
-        moist2 -= CHin2;
-        moist3 -= CHin3;
+        m2 = DL2*(theta2-thetar2) + Percolation;
+        theta2 = thetar2 + m2/DL2;
+        theta2 = std::min(pore2,theta2);
 
+   } else {
+        //Lw_ > SoilDep1
+
+        theta_E = (theta2-thetar2)/(pore2-thetar2);
+        Percolation = Ksat2->Drc* pow(theta_E, 3.0+2.0/lambda2->Drc); // m/timestep
+        Percolation = Aavg(Percolation, Ksat2->Drc);
+        double moist1 = SoilDep1 * (pore - thetar); // moisture above wettingfront in layer 1
+        double moist2 = (Lw_-SoilDep1) * (pore2 - thetar2); // moisture above wettingfront in layer 2
+
+        double dm1 = (pore - FC1)*SoilDep1;
+        double dm2 = (pore2 - FC2)*(Lw_-SoilDep1);
+        //available moisture to move from layer 1 and 2
+        Percolation = std::min(Percolation, dm1+dm2);
+        //cannot have more flux than available water
+
+        double perc2 = std::min(Percolation, dm2); // part taken from layer 2
+        double perc1 = std::max(0.0, Percolation-perc2); // part taken from layer 1, can be 0
+
+        moist2 -= perc2;
+        // decrease WF moisture with outflow
+        double m2 = (SoilDep2-Lw_)*(theta2-thetar2);// why add perc2??? + perc2;
+        // m2 is moisture under Lw
+
+        Lw_ = moist2/(pore2-thetar2) + SoilDep1;
+        // new wetting front decreased with perc2 and CHin2
+        theta2 = m2/(SoilDep2-Lw_) + thetar2;
+        // new moisture under wetting front
+        theta = pore;
+        // moisture layer 1 is saturated
+
+        if (theta2 >= pore2) {
+        Lw_ = SoilDep2;
+        theta2 = pore2;
+        }
+
+        // if so mucvh percolation that it goes back into layer 1
+        if (perc1 > 0) {
+        // percolation uses layer 1
+        moist1 -= perc1;
+        // sat layer 1 now becomes free until FC
         Lw_ = moist1/(pore-thetar);
-        theta = thetar + moist2/(SoilDep1-Lw_);
-        theta2 = thetar2 + moist3/DL2;
+        theta = FC2;
+        }
+   }
 
-        ChannelQSide->Drc = DX->Drc * (CHin1*Lw_ + CHin2*(SoilDep1-Lw_) + CHin3*DL2); // m3
+   Thetaeff->Drc = theta;
+   ThetaI2->Drc = theta2;
 
-        massbal2 = Lw_*pore + (SoilDep1-Lw_)*theta + DL2*theta2;
+   //DO NOT RECALCULATE PSI.
+   // Psi1->Drc = 0.01 * 10.2 * Psia1->Drc * psiCalibration * std::max(1.0, pow((theta-thetar)/(pore-thetar), -1.0/lambda1->Drc));
+   //  Psi2->Drc = 0.01 * 10.2 * Psia2->Drc * psiCalibration * std::max(1.0, pow((theta2-thetar2)/(pore2-thetar2), -1.0/lambda2->Drc));
 
-    } else {
-        massbal = SoilDep1*pore + (SoilDep2-Lw_)*theta2 + (Lw_- SoilDep1)*pore2;
+   Lw->Drc = Lw_;
 
-        double moist1 = SoilDep1 * (pore-thetar);
-        double moist2 = (Lw_ - SoilDep1) * (pore2-thetar2);
-        double moist3 = (SoilDep2-Lw_) * (theta2-thetar2);
 
-        CHin1 = std::min(moist1, CHin1);
-        CHin2 = std::min(moist2, CHin2);
-        CHin3 = std::min(moist3, CHin3);
-
-        //moist1 -= CHin1;
-        moist2 -= CHin2+CHin1;
-        moist3 -= CHin3;
-
-        double dL = CHin1/(pore-thetar);
-        Lw_ = moist2/(pore2-thetar2) + SoilDep1 - dL;
-        theta2 = Lw_ > SoilDep2-0.001 ? pore2 : thetar2 + moist3/(SoilDep2-Lw_);
-
-        ChannelQSide->Drc = DX->Drc * (CHin1*SoilDep1 + CHin2*(Lw_-SoilDep1) + CHin3*(SoilDep2-Lw_)); // m3
-
-        massbal2 = SoilDep1*pore + (SoilDep2-Lw_)*theta2 + (Lw_- SoilDep1)*pore2;
-    }
-*/
+}

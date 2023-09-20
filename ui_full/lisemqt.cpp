@@ -1519,8 +1519,8 @@ void lisemqt::resetTabOptions()
 
     checkIncludeChannel->setChecked(true);
     checkChannelInfil->setChecked(false);
-    checkChannelBaseflow->setChecked(false);
-    BaseflowParams->setEnabled(false);
+    //checkChannelBaseflow->setChecked(false);
+    BaseflowParams->setEnabled(true);
 
     checkDischargeUser->setChecked(false);
     //checkChannelAdjustCHW->setChecked(true);
@@ -2274,16 +2274,16 @@ void lisemqt::on_toolButton_resetOptions_clicked()
     resetTabOptions();
 }
 
-void lisemqt::on_checkChannelBaseflow_toggled(bool checked)
+void lisemqt::on_checkStationaryBaseflow_toggled(bool checked)
 {
-    BaseflowParams->setEnabled(checked);
+ //   BaseflowParams->setEnabled(checked);
     if (checked) checkChannelInfil->setChecked(false);
 }
 
 void lisemqt::on_checkChannelInfil_toggled(bool checked)
 {
-    BaseflowParams->setEnabled(!checked);
-    if (checked) checkChannelBaseflow->setChecked(false);
+   // BaseflowParams->setEnabled(!checked);
+    if (checked) checkStationaryBaseflow->setChecked(false);
 }
 
 void lisemqt::on_E_EfficiencyDETCH_currentIndexChanged(int index)
@@ -2294,4 +2294,7 @@ void lisemqt::on_E_EfficiencyDETCH_currentIndexChanged(int index)
 void lisemqt::on_checkGWflow_toggled(bool checked)
 {
     GW_widget->setEnabled(checked);
+    widget_GWparams->setEnabled(checked);
+    BaseflowParams->setEnabled(checked);
+    qDebug() << checked;
 }

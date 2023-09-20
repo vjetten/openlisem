@@ -11,13 +11,17 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt5, openmp, gdal and pcraster
 
+version 6.898
+- 3 different ways of groundwater flow, for different scales
+- experimental: added possibility to have inflow into channel from saturated parts of the soil (in advanced options)
+
 version 6.893 - 6.897
 - KNOWN bug: activating evapotranspiration gives a mass balance error, not all evaporation losses are accounted for
 - Groundwater connection to the channel is still experimental
 changes and added options:
 - suction below the wetting front can be supplied with maps psi1 and psi2, but also intenally calculated using pedotransfer functions (Rawls 1982)
 - three ways of groundwaterflow are added for different scales
-- it is now possible to add discharge manually (for ninstance dam spill) at userdefined points in the channel
+- it is now possible to add discharge manually (for instance dam spill) at userdefined points in the channel
 - connection of overlandflow to the channel can be made iterative (in advanced options) for large timesteps
 - new libraries, especially lbgdal-32.dll, do not mix with old dlls
 
