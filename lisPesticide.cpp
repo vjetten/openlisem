@@ -250,7 +250,7 @@ void TWorld::PesticideCellDynamics(void)
        // surface area for mass transfer decreases.      
        if (WH->Drc > 1e-4) {
            PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
-           if (WH->Drc < WH_lim && Rainc->Drc < tiny) {
+           if (WH->Drc < WH_lim && Rainc->Drc < 1e-8) {
                A_mix = WaterVolall->Drc / WH_lim;
            } else A_mix = DX->Drc * SoilWidthDX->Drc;
        // positive adds to runoff.
