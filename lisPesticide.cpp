@@ -242,16 +242,17 @@ void TWorld::PesticideCellDynamics(void)
        // infiltration.
        double mwrm_ex {0.0};   //mg
        double A_mix {0.0};    // surface area of mixing transfer
+       double WH_lim {0.0};  // m - min water level to cover full cell for mass transfer
+       WH_lim = 1e-3;
        // if the water volume in a cell is too small, we cannot assume a film
        // over the full surface of the cell. This would overestimate mixing
-       // mass transfer. When water height is smaller than 1 mm we assume the
+       // mass transfer. When water height is smaller than 'WH_lim' we assume the
        // surface area for mass transfer decreases.      
        if (WH->Drc > 1e-4) {
            PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
-//           if (WH->Drc < 1e-3) {
-//               A_mix = WaterVolall->Drc / 1e-3;
-//           } else
-               A_mix = DX->Drc * SoilWidthDX->Drc;
+           if (WH->Drc < WH_lim && Rainc->Drc < tiny) {
+               A_mix = WaterVolall->Drc / WH_lim;
+           } else A_mix = DX->Drc * SoilWidthDX->Drc;
        // positive adds to runoff.
        // mg = ((m sec-1 (mg m-3)) m2 * sec
            if (PCmw->Drc > PCrw->Drc) {
