@@ -73,7 +73,7 @@ ENDIF()
 #============ sourcecode files ===============
 
 SET(APP_SOURCES
-    fixesandbugs.txt    
+    fixesandbugs.txt
     main.cpp
     CsfMap.cpp
     CsfRGBMap.cpp

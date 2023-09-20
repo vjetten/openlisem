@@ -1,4 +1,8 @@
 this file is a list of changes per major commit
+230623 - v6.899
+- fixing small bugs in channel side inflow from sat soil layer
+- overall soil mass balance correction
+- output to seperate files only from all points in outpoint.map.
 230619 - v6.898
 - merge GW flow into main branch: 3 type sof GW flow. Connection to channel baseflow revised
 - side flow into channelfrom saturated soil (in advanced options)

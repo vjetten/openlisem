@@ -312,7 +312,7 @@ void TWorld::DoModel()
 
             InfilEffectiveKsat(false);
 
-            HydrologyProcesses();  // hydrological processes in one loop, incl splash
+            HydrologyProcesses();  // hydrological processes in one loop, incl splash and pesticides
 
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
@@ -408,6 +408,8 @@ void TWorld::GetInputTimeseries()
 // all hydrologuical processes in one big parallel loop for speed
 void TWorld::HydrologyProcesses()
 {
+    double soiltot1 = SoilWaterMass();
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         cell_Interception(r,c);
@@ -428,7 +430,9 @@ void TWorld::HydrologyProcesses()
 
         if (SwitchPest) {
             // update concentration of pesticides after rainfall (mg/L)
-            PCrw->Drc = PMrw->Drc / (WH->Drc * FlowWidth->Drc + DX->Drc * 1000);
+            if (WH->Drc > 0.0) {
+                PCrw->Drc = PMrw->Drc / (WH->Drc * FlowWidth->Drc * DX->Drc * 1000);
+            }
         }
 
         // infiltration by SWATRE of G&A+percolation
@@ -474,13 +478,15 @@ void TWorld::HydrologyProcesses()
     // divided over 12 hours in a day with sine curve
 
     //MoistureContent();
+    double soiltot2 = SoilWaterMass();
+    SoilMoistDiff = soiltot2 - soiltot1;
 
     if (SwitchPest) {
         PesticideCellDynamics();
-        // calculate partitioning, and infiltration and percolation losses of pesticides
+        // calculate partitioning, and infiltration losses of pesticides
         if (SwitchErosion) {
             PesticideSplashDetachment();
-            // splash detachment for pesticides // not yet parallel!!
+            // splash detachment for pesticides
         }
     }
 }

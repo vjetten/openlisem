@@ -86,7 +86,7 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMser
             + mapTotal(*PMmw) + mapTotal(*PMms) + PMerosion;
     PMerr = (PMtot - PMtotI) / PMtotI * 100;
 
-    // mass balance for active adsorbed
+    // mass balance for active sorbed
     PMserr = 0;
     if (SwitchErosion) {
     double PMsdep {0.0};
@@ -157,14 +157,12 @@ void TWorld::PesticideCellDynamics(void)
     double Kd = KdPest;       // -
     double Kfilm = KfilmPest; // m sec-1
     double kr = KrPest;       // sec
-    // this chunck can also be parallel
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
-       // no runoff, no erosion
        double mda_ex {0.0};        // mg - exchange mixing layer
        double mrw_inf {0.0};       // mg - mass from runoff to mixing layer by infiltration
        double mda_tot {0.0};       // mg - total mass in both phases
-       double eql_ads {0.0};       // mg - adsorbed mass in equilibrium
+       double eql_ads {0.0};       // mg - sorbed mass in equilibrium
        double eql_diss {0.0};      // mg - dissolved mass in equilibrium
        double m_diff {0.0};        // mg - current mass - eql mass
        double vol_w {0.0};         // l - volume water in mixing layer
@@ -176,8 +174,6 @@ void TWorld::PesticideCellDynamics(void)
        //infiltration from runoff through mixing layer to deeper soil
        PMinf->Drc = 0.0; //does not need to be a map...
        if (InfilVol->Drc > 0.0) {
-           // assume the mixing layer is saturated during infiltration or runoff.
-           //Theta_mix->Drc = ThetaS1->Drc;
            // mg = m3 * 1000 * (mg L-1)
            PMinf->Drc = InfilVol->Drc * 1000 * PCmw->Drc; // infiltration mixing layer (mg)
 
@@ -194,22 +190,23 @@ void TWorld::PesticideCellDynamics(void)
        PMrw->Drc = std::max(0.0, PMrw->Drc - mrw_inf);
 
        pmwdep->Drc -= mrw_inf;
-       // update PCmw before dissolved
-       PCmw->Drc = PMmw->Drc / vol_w;
-
-       // exchange between adsorbed and dissolved in mixing zone
        // L = m * m * m * [-] * 1000
        vol_w = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
+       // update PCmw before partitioning
+       PCmw->Drc = PMmw->Drc / vol_w;
+
+       // partitioning between sorbed and dissolved in mixing layer
        // kg = m * m * m * kg m-3
        mass_s = zm->Drc * DX->Drc * SoilWidthDX->Drc * rho;
        // for now the assumption is made that the resulting unit of
        // Kr * (Kd * PCmw->Drc - PCms->Drc) is mg * kg-1 * sec-1
        // this holds if 1L water = 1kg
 
-       // positive adds to absorbed, negative to dissolved.
+       // positive adds to sorbed, negative to dissolved.
        // mg = mg kg-1 sec-1 *  sec * kg
+       // based on PhD lefrancq should always be mass_s
        mda_ex = kr * (Kd * PCmw->Drc - PCms->Drc) * _dt
-                * std::min(vol_w, mass_s);
+                    * mass_s;
 
        // calculate equilibrium mass division
        mda_tot = PMmw->Drc + PMms->Drc;
@@ -223,13 +220,13 @@ void TWorld::PesticideCellDynamics(void)
        PMmw->Drc = std::max(0.0, PMmw->Drc - mda_ex);
        // mg = mg + mg
        PMms->Drc = std::max(0.0, PMms->Drc + mda_ex);
-       // update PCmw before dissolved & PCms before adsorbed
+       // update PCmw before lateral transport
        PCmw->Drc = PMmw->Drc / vol_w;
        PCms->Drc = PMms->Drc / mass_s;
 
 //----- OBSOLETE -------------------------------------------------
        // 2023-04-05 we exclude percolation transport since it does not improve
-       // the model, and conceptually is not clear for me (MC)
+       // the model, and conceptually is not clear (MC)
 
        //percolation
 //       PMperc->Drc = 0.0; //does not need to be a map...
@@ -241,30 +238,40 @@ void TWorld::PesticideCellDynamics(void)
 // --------------------------------------------------------------
 
        // mixing layer -- runoff water exchange
+       // change to only uptake, no chemical transfer back to soil, only by
+       // infiltration.
        double mwrm_ex {0.0};   //mg
-       double vol_rw {0.0};    // volume of water in runoff [L]
-       vol_rw = DX->Drc * FlowWidth->Drc * WHrunoff->Drc * 1000;
-       PCrw->Drc = PMrw->Drc / vol_rw;
-       if (vol_rw > 0.0) {
-       double vol_mw {0.0};    // volume of water in mixing layer [L]
-       vol_mw = zm->Drc * Theta_mix->Drc * DX->Drc * SoilWidthDX->Drc * 1000;
-       // positive adds to runoff, negative to mixing layer.
-       // mg = ((sec-1 * m-1 * (mg L-1) / m) * sec * L
-       mwrm_ex = ((Kfilm * (PCmw->Drc - PCrw->Drc))/(zm->Drc + WHrunoff->Drc))
-                 * _dt * std::min(vol_mw, vol_rw);
+       double A_mix {0.0};    // surface area of mixing transfer
+       double WH_lim {0.0};  // m - min water level to cover full cell for mass transfer
+       WH_lim = 1e-3;
+       // if the water volume in a cell is too small, we cannot assume a film
+       // over the full surface of the cell. This would overestimate mixing
+       // mass transfer. When water height is smaller than 'WH_lim' we assume the
+       // surface area for mass transfer decreases.      
+       if (WH->Drc > 1e-4) {
+           PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
+           if (WH->Drc < WH_lim && Rainc->Drc < 1e-8) {
+               A_mix = WaterVolall->Drc / WH_lim;
+           } else A_mix = DX->Drc * SoilWidthDX->Drc;
+       // positive adds to runoff.
+       // mg = ((m sec-1 (mg m-3)) m2 * sec
+           if (PCmw->Drc > PCrw->Drc) {
+            mwrm_ex = (Kfilm * (PCmw->Drc - PCrw->Drc) * 1000) * A_mix * _dt;
 
-//       double c_eql {0.0};
-//       double eql_mw {0.0};
-//       // equilibrium check
-//       // calculate equilibrium mass division
-//       c_eql = (PMmw->Drc + PMrw->Drc) / (vol_mw + vol_rw);
-//       eql_mw = c_eql * vol_mw; // mass in mixing layer at equilibrium
-//       // mwrm_ex can not be larger than m_diff
-//       m_diff = eql_mw - PMmw->Drc;
-//       mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
+            double c_eql {0.0};
+            double eql_mw {0.0};
+            // equilibrium check
+            // calculate equilibrium mass division
+            c_eql = (PMmw->Drc + PMrw->Drc) / (vol_w + WaterVolall->Drc*1000);
+            eql_mw = c_eql * vol_w; // mass in mixing layer at equilibrium
+            // mwrm_ex can not be larger than m_diff
+            m_diff = PMmw->Drc - eql_mw;
+            mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
+           }
        }
        // mass balance
        mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
+       //test_map->Drc = mwrm_ex;
 
        PMmw->Drc = std::max(0.0, PMmw->Drc - mwrm_ex);
        PMrw->Drc = std::max(0.0, PMrw->Drc + mwrm_ex);
@@ -282,25 +289,24 @@ void TWorld::PesticideCellDynamics(void)
 
 void TWorld::PesticideFlow1D(void) {
 
-    double Kfilm = KfilmPest; // m sec-1
+    //double Kfilm = KfilmPest; // m sec-1
     double rho = rhoPest;     //kg m-3
 
     //runoff
     KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw,
-                        Kfilm);
+                        PMrw);
 
     //erosion
     if(SwitchErosion){
         KinematicPestAdsorbed(crlinkedldd_, LDD, Qsn, PQrs, DX, Alpha, SedMassIn,
-                              Qs, Qps, rho);
+                              Qs, Qps, PMrs);
     }
     // calculate new concentration
-    // make parralell
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
     double volmw {0.0};         // L - volume of water in mixing layer
     double massms {0.0};        // kg - mass of sediment in mixing layer
-    if (WaterVolall->Drc > 0) {
+    if (WaterVolall->Drc > 0.0) {
     PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
     } else PCrw->Drc = 0.0;
     // L = m * m * m * -- * 1000
@@ -323,11 +329,12 @@ void TWorld::PesticideFlow1D(void) {
 
 void TWorld::KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
                cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
-               cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, double _kfilm)
+               cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, cTMap *_PMW)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-    // can be parralel
+
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         _Qpwn->Drc = 0;
         QpinKW->Drc = 0;
@@ -339,7 +346,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
     int r = _crlinked_[i_].r;
     int c = _crlinked_[i_].c;
 
-    double Qin {0};         //m3 sec-1
     double Qpin {0};        //mg sec-1
 
     for (int i = 1; i <= 9; i++)
@@ -353,7 +359,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
                 ldd = (int) _LDD->Drcr;
                 // if the cells flow into
                 if (FLOWS_TO(ldd, rr,cr,r,c)) {
-                    Qin += _Qn->Drcr;
                     Qpin += _Qpwn->Drcr;
                 }
             }
@@ -362,26 +367,19 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
     QpinKW->Drc = Qpin;
 
     if (Qn->Drc + QinKW->Drc >= MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
-        double vol_mw {0.0};    // volume of water in mixing layer [L]
-        double vol_rw {0.0};    // volume of water in runoff [L]
-
-        double mrw_n {0.0}; // mass in runoff water
-        //mg = mg + mg - mg - mg + (mg sec-1 * sec)
-        mrw_n = std::max(0.0, PMrw->Drc);// + mwrm_ex);
         // calculate concentration for new outflux
-        PCrw->Drc = mrw_n / (WaterVolin->Drc * 1000);
+        PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000); // use watervolall and not watervolin for concentration
 
         _Qpw->Drc = _Q->Drc * 1000 * PCrw->Drc;
         // use explicit backwards method from Chow
         _Qpwn->Drc = ChowSubstance(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, _Qpw->Drc,
                                     _Alpha->Drc, _DX->Drc, _dt); //mg/sec
         _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc + PMrw->Drc / _dt);
-
        } //runoff occurs
     //substract discharge
     //mg = mg - (mg sec-1 * sec)
     PMrw->Drc = std::max(0.0, PMrw->Drc - (_Qpwn->Drc * _dt)
-                                  + (QpinKW->Drc * _dt)); // + mwrm_ex);
+                                  + (QpinKW->Drc * _dt));
     }//end ldd loop
 }
 
@@ -393,25 +391,25 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
 */
 
 void TWorld::KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
-                             cTMap *_LDD, cTMap *_Qsn, cTMap *_Qpsn, cTMap *_DX,
-                             cTMap *_Alpha, cTMap *_Sed, cTMap *_Qs, cTMap *_Qps,
-                                   double rho)
+                             cTMap *_LDD, cTMap *_Qn, cTMap *_Qpsn, cTMap *_DX,
+                             cTMap *_Alpha, cTMap *_Sed, cTMap *_Q, cTMap *_Qps,
+                                   cTMap *_PMS)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
 
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         _Qpsn->Drc = 0;
         SpinKW->Drc = 0;
     }}
 
-for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
+for(long i_ =  0; i_ < _crlinked_.size(); i_++)
 {
     int r = _crlinked_[i_].r;
     int c = _crlinked_[i_].c;
 
-    double Sin {0}; //m3 sec-1
-    double Spin {0}; //mg sec-1
+    double Spin {0.0}; //mg sec-1
 
     for (int i = 1; i <= 9; i++)
     {
@@ -424,7 +422,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
                 ldd = (int) _LDD->Drcr;
                 // if the cells flow into
                 if (FLOWS_TO(ldd, rr,cr,r,c)) {
-                    Sin += _Qsn->Drcr;
                     Spin += _Qpsn->Drcr;
                 }
             }
@@ -432,7 +429,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     }
     SpinKW->Drc = Spin;
 
-    double Crs_avg {0.0};
     if (_Sed->Drc > 0 | SinKW->Drc > 0.0) { //
         if (Qn->Drc >= MIN_FLUX) {
 //        // - simple extrapolation
@@ -448,16 +444,15 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
         // pesticide concentration in the runoff water. This is suitable to be
         // solved with the explicit Chow equation. And takes flow speed into
         // acount when reditributing the adsorbed pesticide. The 'simple extrapolation
-        // above does not do that an causes extreme concentration peaks at the
+        // above does not do that and causes extreme concentration peaks at the
         // rising limb of the discharge.
         // mg sec-1 = m3 sec -1 * (mg m-3)
-        _Qps->Drc = Q->Drc * (PMrs->Drc / WaterVolin->Drc);
+        _Qps->Drc = Q->Drc * (PMrs->Drc / WaterVolall->Drc);
         // use explicit backwards method from Chow
-        _Qpsn->Drc = ChowSubstance(Qn->Drc, QinKW->Drc, Q->Drc, SpinKW->Drc, _Qps->Drc,
+        _Qpsn->Drc = ChowSubstance(_Qn->Drc, QinKW->Drc, _Q->Drc, SpinKW->Drc, _Qps->Drc,
                                  _Alpha->Drc, _DX->Drc, _dt); //mg/sec
-        _Qpsn->Drc = std::min(_Qpsn->Drc, SpinKW->Drc + PMrs->Drc / _dt);
+        _Qpsn->Drc = std::min(_Qpsn->Drc, SpinKW->Drc + _PMS->Drc / _dt);
         }
-
         } // erosion occurs
     // can move outside ldd loop to parralel section
     // mg = mg sec-1 * sec
@@ -475,7 +470,6 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
 */
 
 void TWorld::PesticideSplashDetachment() {
-    // can be parralel
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
          double msoil_ex {0.0};  // mass exchange between mixing layer and deeper soil
@@ -554,7 +548,6 @@ double TWorld::ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
 void TWorld::PesticideFlowDetachment(double rho) {
 
   // mass exchange between mixing layer an suspended sediment
-    // can be parralel
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
         double msoil_ex {0.0};  // mass exchange between mixing layer and deeper soil
@@ -569,8 +562,8 @@ void TWorld::PesticideFlowDetachment(double rho) {
 
         if (DEP->Drc < 0) {
             //deposition
-            msoil_ex = DEP->Drc * PCms->Drc; // what happens with pesticides on roads??
-            // mg = mg kg-1 * kg
+            msoil_ex = DEP->Drc * PCms->Drc;
+            // mg = kg / kg * mg
             msrm_ex = (DEP->Drc/SedAfterSplash->Drc) * PMrs->Drc; // loss by deposition
             // no more transport than mass in cell domain
             if (PMrs->Drc + msrm_ex < 0) {
@@ -578,7 +571,7 @@ void TWorld::PesticideFlowDetachment(double rho) {
             }
             PMdep->Drc = msrm_ex;
         } else if (DETFlow->Drc > 0){
-            // erosion
+            // detachment
             msoil_ex = DETFlow->Drc * PCs->Drc; //
             // mg = mg kg-1  kg
             msrm_ex = PCms->Drc * DETFlow->Drc; // added by erosion

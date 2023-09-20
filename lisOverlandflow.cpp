@@ -279,6 +279,8 @@ void TWorld::OverlandFlow2Ddyn(void)
             startFlood = true;
     }
 
+    //Vflood negative is flow up, positive is flow down
+
     if (SwitchSWOFopen)
         dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
     else
@@ -293,21 +295,6 @@ void TWorld::OverlandFlow2Ddyn(void)
         V->Drc = sqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
         Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
     }}
-
-//    // correct the water height in the outlet(s) for a perfect WB!
-//    FOR_ROW_COL_LDD5 {
-//        double dh = Qn->Drc*_dt/CHAdjDX->Drc;
-//        WHrunoff->Drc = std::max(0.0,WHrunoff->Drc-dh);
-
-//        if (SwitchErosion) {
-//            double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Qn->Drc*_dt);
-//            SSFlood->Drc -= ds;
-//            if (SwitchUse2Phase) {
-//                ds = std::min(BLFlood->Drc, BLCFlood->Drc*Qn->Drc*_dt);
-//                BLFlood->Drc -= ds;
-//            }
-//        }
-//    }}
 
     Boundary2Ddyn();  // do the domain boundaries for Q, h and sediment
 
@@ -422,7 +409,7 @@ void TWorld::OverlandFlow1D(void)
 
     // route other stuff
     if (SwitchPest) {
-        //this function takes care of dissolved and adsorbed kinematic wave
+        //this function takes care of dissolved and sorbed kinematic wave
         PesticideFlow1D();
      }
 }
