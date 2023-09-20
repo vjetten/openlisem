@@ -25,9 +25,6 @@
 #include "lisemqt.h"
 #include "model.h"
 
-#define Aavg(a,b)  (0.5*(a+b))
-#define Havg(a,b)  (2.0/(1.0/a+1.0/b))
-
 double TWorld::SoilWaterMass()
 {
     double totsatm3 = 0;
