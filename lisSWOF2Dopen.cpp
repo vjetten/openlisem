@@ -363,7 +363,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     // z is blocking to prevent flow when water is flat and Z is not flat, described in article SWOF                    
                     double h_x1r = std::max(0.0, h_x1 - std::max(0.0,  dz_x1 + fb_x1));
                     double H_l   = std::max(0.0, H    - std::max(0.0, -dz_x1 + fb_x1));
-                    if(bc1)
+                    if(bc1)  // if inside
                         hll_x1 = F_Riemann(h_x1r,vx_x1,vy_x1, H_l,Vx,Vy); // c-1 and c  //
                     else
                         hll_x1 = F_Riemann(0,0,0, H_l,Vx,Vy);
@@ -416,6 +416,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                             double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
                             double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
 
+
+
                             double vsq = sqrt(Vx * Vx + Vy * Vy);
                             double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.0001,pow(hn,4.0/3.0)); //pow(hn,4.0/3.0);//
                             double nsq = nsq1*vsq*dt;
@@ -442,7 +444,23 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                             vxn = 0;
                             vyn = 0;
                         }
+                        if (FlowBoundaryType == 0 || (FlowBoundaryType == 2 && FlowBoundary->Drc == 0)) {
 
+                            if (c > 0  && MV(r,c-1) && vxn < 0) {
+                                vxn = 0;
+                            }
+                            if (c < _nrCols-1 && MV(r,c+1) && vxn > 0) {
+                                vxn = 0;
+                            }
+                            if (r < _nrRows-1 && MV(r+1,c) && vyn > 0) {
+                                vyn = 0;
+                            }
+                            if (r > 0 && MV(r-1,c) && vyn < 0) {
+                                vyn = 0;
+                            }
+                        }
+                        if (vyn == 0 && vxn == 0)
+                            hn = H;
                        // vxn = checkforMinMaxV(vxn);
                        // vyn = checkforMinMaxV(vyn);
 

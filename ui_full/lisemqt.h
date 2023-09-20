@@ -524,7 +524,7 @@ private slots:
 
     void on_toolButton_resetOptions_clicked();
 
-    void on_checkChannelBaseflow_toggled(bool checked);
+    void on_checkStationaryBaseflow_toggled(bool checked);
 
     void on_checkChannelInfil_toggled(bool checked);
 

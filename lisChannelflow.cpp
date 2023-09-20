@@ -156,31 +156,45 @@ void TWorld::ChannelBaseflow(void)
         GroundwaterFlow();
         // move groundwater, GWout is the flow itself between cells
 
-        cTMap *pore = ThetaS2;
-        cTMap *ksat = Ksat2;
-        if (!SwitchTwoLayer) {
-            pore = Thetaeff;
-            ksat = Ksateff;
+        cTMap *pore = Thetaeff;
+        cTMap *ksat = Ksateff;
+        cTMap *SD = SoilDepth1init;
+        if (SwitchTwoLayer) {
+            pore = ThetaS2;
+            ksat = Ksat2;
+            SD = SoilDepth2init;
         }
 
         // in all channel cells
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             if (SwitchSWATGWflow) {
-                Qbase->Drc = ChannelWidth->Drc/_dx * GWout->Drc;//std::min(GWVol->Drc,ChannelWidth->Drc/_dx * GWout->Drc);
+                Qbase->Drc = ChannelWidth->Drc/_dx * GWout->Drc;
             } else {
-                double dH = GWWH->Drc;//std::max(0.0, GWWH->Drc - ChannelWH->Drc);
-                double GWchan1 = 2.0*GW_flow * ksat->Drc * dH * DX->Drc*dH/(0.5*_dx); //gradient= dH/dz ?
+                double bedrock = DEM->Drc - SD->Drc;
+                double chanbot = DEM->Drc - ChannelDepth->Drc;
+                double dH = bedrock + GWWH->Drc - chanbot;
+                if (dH > 0 && GWWH->Drc > 0) {
+                   //Qbase->Drc = std::min(GWVol->Drc, 2.0 * dH/GWWH->Drc * GWout->Drc);
+                   Qbase->Drc = std::min(GWVol->Drc, 2.0 * GWout->Drc);
+                   // use the fraction of GWout flow that reaches the channel
+                }
+
+                //double dH = GWWH->Drc;//std::max(0.0, GWWH->Drc - ChannelWH->Drc);
+                //double GWchan1 = 2.0*GW_flow * ksat->Drc * dH * DX->Drc*dH/(0.5*_dx); //gradient= dH/dz ?
                 // Ksat * crosssection * gradient = dH/dL where dL is half the distance of the non channel part to
                 // and flow is from 2 sides into the channel, a small channel has less inflow than a broad channel (ChannelAdj)
 
                 // double GWchan = std::max(GWchan1, (2.0*ChannelWidth->Drc/_dx)*fabs(GWout->Drc));
                 // for all methods GWout is the flow between cells and also in the channel cells, this is taken as the best guess flow into the channel
 
-                Qbase->Drc = std::min(GWVol->Drc, GWchan1); //this is already done, just use the flow
+                //Qbase->Drc = std::min(GWVol->Drc, GWchan1); //this is already done, just use the flow
             }
+           // Qbase->Drc *= 2.0;
+
             ChannelWaterVol->Drc += Qbase->Drc;
-            GWVol->Drc -= Qbase->Drc;
+            //GWVol->Drc -= Qbase->Drc;
+            GWVol->Drc = std::max(0.0, GWVol->Drc - Qbase->Drc);
             GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
             // m3 added per timestep, adjust the volume and height
 

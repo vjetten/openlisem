@@ -283,8 +283,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include main channels");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel infil");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include channel baseflow");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Include channel baseflow");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include stationary baseflow");
     namelist[i].value = QString("0");

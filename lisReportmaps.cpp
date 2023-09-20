@@ -268,7 +268,7 @@ void TWorld::GetComboMaps()
         AddComboMap(0,"Total Discharge","m3/s",Qoutput,LegendMap[cl],Legend[cl],true,false,1.0, 1.0);//0.001);
     //factor is already done in Qoutput, so that reportfile is also done, not only screen
     // the only thing that needs to change here is the text "m3/s"
-  //  AddComboMap(0,"Added Discharge","m3/s",QuserIn,LegendMap[cl],Legend[cl],true,false,1.0, 1.0);//0.001);
+    //AddComboMap(0,"Added Discharge","m3/s",Qbase,LegendMap[cl],Legend[cl],true,false,1.0, 1.0);//0.001);
 
     cl = 2;
     AddComboMap(0,"Water Height","m",hmxWH,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
@@ -276,7 +276,10 @@ void TWorld::GetComboMaps()
 //    if (Switch2DDiagonalFlow)
 //       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     cl = 1;
-    AddComboMap(0,"Flow Velocity","m/s",COMBO_V,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
+   AddComboMap(0,"Flow Velocity","m/s",COMBO_V,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
+ //   AddComboMap(0,"Flow Velocity","m/s",Uflood,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
+ //   AddComboMap(0,"Flow Velocity","m/s",Vflood,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
+ //   AddComboMap(0,"Flow Velocity","m/s",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     AddComboMap(0,"Flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.01); //VH
     //AddComboMap(0,"boundary","-",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
 
@@ -317,7 +320,7 @@ void TWorld::GetComboMaps()
             AddComboMap(0,"Average depth wetting front","mm",Lwmm,LegendMap[cl],Legend[cl],false,false,1.0,1.0);  // swatre?
         }
 
-        if (SwitchChannelBaseflow) {
+        if (SwitchGWflow) {
             AddComboMap(0,"Groundwater level","m",GWWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
             AddComboMap(0,"Groundwater level max","m",GWWHmax,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
             //AddComboMap(0,"SD2","m",SoilDepth2,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
