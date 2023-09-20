@@ -854,11 +854,12 @@ public:
                                 double zm, double dx, double swdx, double pcmw);
     void KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
                            cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
-                           cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, double _kfilm);
+                           cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, cTMap *_PMW);
     void KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
-                           cTMap *_LDD, cTMap *_Qsn, cTMap *_Qpsn, cTMap *_DX,
-                           cTMap *_Alpha, cTMap *_Sed, cTMap *_Qs, cTMap *_Qps,
-                           double rho);
+                           cTMap *_LDD, cTMap *_Qn, cTMap *_Qpsn, cTMap *_DX,
+                           cTMap *_Alpha, cTMap *_Sed, cTMap *_Q, cTMap *_Qps,
+                               cTMap *_PMS);
+
     double ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
                        double Pji1, double alpha, double dx, double dt);
 

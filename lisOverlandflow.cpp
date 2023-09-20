@@ -409,7 +409,7 @@ void TWorld::OverlandFlow1D(void)
 
     // route other stuff
     if (SwitchPest) {
-        //this function takes care of dissolved and adsorbed kinematic wave
+        //this function takes care of dissolved and sorbed kinematic wave
         PesticideFlow1D();
      }
 }

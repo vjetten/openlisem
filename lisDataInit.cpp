@@ -2272,7 +2272,9 @@ void TWorld::IntializeData(void)
         // get constant from runfile
         KdPest = getvaluedouble("Kd pesticide");
         KfilmPest = getvaluedouble("Kfilm pesticide");
+        KfilmPest = KfilmPest / 1000; // mm sec-1 to m sec-1
         KrPest = getvaluedouble("Kr pesticide");
+        KrPest = KrPest / 60; // min-1 to sec-1
         rhoPest = getvaluedouble("Rho mixing layer");
         PestName = getvaluestring("Pesticide name");
 
