@@ -35,7 +35,7 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define VERSIONNR "6.91"
+#define VERSIONNR "6.92 soil"
 #define DATE "2023/09/09"
 
 
