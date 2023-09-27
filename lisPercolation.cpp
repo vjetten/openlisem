@@ -514,14 +514,14 @@ void TWorld::cell_SlopeStability(int r, int c)
 //    report FdayTot = FDays;
 //    # report the last timestep, cumulative unstable days
 
-    double F = 0;
-    if (CohesionSoil->Drc > 0) {
-        double cosGrad_ = cosGrad->Drc;
+        double F = 0;
+        if (CohesionSoil->Drc > 0) {
+            double cosGrad_ = cosGrad->Drc;
    //  qDebug() << cosGrad_;
-     double soilbulk = SoilDepth2->Drc*BulkDensity->Drc;
+        double soilbulk = SoilDepth2->Drc*BulkDensity->Drc;
         double S = CohesionSoil->Drc + (soilbulk - GWWH->Drc * 1000.0)*(cosGrad_*cosGrad_)*AngleFriction->Drc; // shear strength kPa
 
-           double T = soilbulk *Grad->Drc*cosGrad_;// shear stress kPa
+        double T = soilbulk *Grad->Drc*cosGrad_;// shear stress kPa
       //  qDebug() << S << soilbulk << Grad->Drc << cosGrad_; //T;
         F = Grad->Drc > 0.01 ? S/T : 0.0;
     }
