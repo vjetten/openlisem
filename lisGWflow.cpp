@@ -38,9 +38,9 @@ void TWorld::GroundwaterFlow(void)
     if (SwitchTwoLayer) {
         pore = ThetaS2;
         SoilDepthinit = SoilDepth2init;
-        FOR_ROW_COL_MV_L {
-            SoilDepthinit->Drc = SoilDepthinit->Drc - SoilDepth1init->Drc;
-        }}
+//        FOR_ROW_COL_MV_L {
+//            SoilDepthinit->Drc = SoilDepthinit->Drc - SoilDepth1init->Drc;
+//        }}
         SoilDepth = SoilDepth2;
     } else {
         pore = Poreeff;
@@ -111,9 +111,9 @@ void TWorld::GWFlowLDDKsat(void)
         pore = ThetaS2;
         ksat = Ksat2;
         SD = SoilDepth2init;
-        FOR_ROW_COL_MV_L {
-            SD->Drc = SD->Drc - SoilDepth1init->Drc;
-        }}
+//        FOR_ROW_COL_MV_L {
+//            SD->Drc = SD->Drc - SoilDepth1init->Drc;
+//        }}
     } else {
         pore = Poreeff;
         ksat = Ksateff;
@@ -270,9 +270,9 @@ void TWorld::GWFlow2D(void)
         pore = ThetaS2;
         ksat = Ksat2;
         SD = SoilDepth2init;
-        FOR_ROW_COL_MV_L {
-            SD->Drc = SD->Drc - SoilDepth1init->Drc;
-        }}
+//        FOR_ROW_COL_MV_L {
+//            SD->Drc = SD->Drc - SoilDepth1init->Drc;
+//        }}
     } else {
         pore = Poreeff;
         ksat = Ksateff;
