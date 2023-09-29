@@ -253,17 +253,29 @@ void TWorld::BrooksCorey(SOIL_LIST s, double Hnew[], double K[], double C1[], bo
     }
 }
 
-double TWorld::getThetafromH(int j, SOIL_LIST s, double Hx)
+void TWorld::getThetafromH(int j, SOIL_LIST s)
 {
-    double theta = s.pore[j];
     if (SwitchBrooksCorey) {
-        if (Hx < s.hb[j])
+        if (s.h[j] < s.hb[j])
             s.theta[j] = s.thetar[j] + pow(s.hb[j]/s.h[j], s.lambda[j])*(s.pore[j]-s.thetar[j]);
     } else {
-        if (Hx < 0.0)
-            s.theta[j] = s.thetar[j]+(s.pore[j]-s.thetar[j])*std::pow(1+std::pow(s.vg_alpha[j]*fabs(Hx*GRAV), s.vg_n[j]), -(1-1/s.vg_n[j]));
+        if (s.h[j] < 0.0)
+            s.theta[j] = s.thetar[j]+(s.pore[j]-s.thetar[j])*std::pow(1+std::pow(s.vg_alpha[j]*fabs(s.h[j]*GRAV), s.vg_n[j]), -(1-1/s.vg_n[j]));
     }
-    return theta;
+}
+
+void TWorld::getHfromTheta(int j, SOIL_LIST s)
+{
+    double se = (s.theta[j] - s.thetar[j])/(s.pore[j]-s.thetar[j]);
+    if (SwitchBrooksCorey) {
+        double hh = std::pow(se, (1.0/s.lambda[j]));
+        s.h.replace(j,s.hb[j]/hh);
+    } else {
+        double n = s.vg_n[j];
+        double m = 1-1/n;
+        s.h.replace(j, -std::pow((std::pow(1/se,1/m)-1),1/n)/s.vg_alpha[j]*0.101974);
+        // kPa to m water
+    }
 }
 
 void TWorld::cell_Soilwater(long i_)
@@ -297,6 +309,64 @@ void TWorld::cell_Soilwater(long i_)
 
     SwitchVanGenuchten = true;
     SwitchBrooksCorey = !SwitchVanGenuchten;
+
+    if (FloodDomain->Drc == 0)
+        WH0 = WH->Drc; //runoff in kinwave or dyn wave
+    else
+        WH0 = hmx->Drc;// flood in kin wave
+
+    WH1 = WH0;
+
+
+    if (SwitchGWflow) {
+        double dif = std::max(0.0, SoilDepth2init->Drc - GWWH->Drc);
+        //distance GW to surface
+        if (dif < s.z[1]) {
+            double store = dif*(s.pore[1]-s.theta[1]);
+            if (store > WH1) {
+                WH1 = 0;
+                store = WH0-store;
+                double m = (s.theta[1]-s.thetar[1])*dif + WH0;
+                s.theta[1] = m/dif + s.thetar[1];
+                getHfromTheta(1, s);
+            } else {
+                WH1 -= store;
+                store = 0;
+                s.theta[1] = s.pore[1];
+                s.h[1] = 0;
+            }
+
+            if (FloodDomain->Drc == 0) {
+                WH->Drc = WH1;
+            } else {
+                hmx->Drc = WH1;
+            }
+            s.Infact = (WH0-WH1)/_dt;
+
+            InfilVol->Drc = s.Infact*_dt*SoilWidthDX->Drc*DX->Drc;
+
+            ThetaI1a->Drc = s.theta[1];
+            for (int j = 2; j <= nN1_; j++)
+                ThetaI1a->Drc += s.theta[j];
+            ThetaI1a->Drc /= (double)nN1_;
+
+            if (SwitchTwoLayer || SwitchThreeLayer) {
+                ThetaI2a->Drc = s.theta[nN1_+1];
+                for (int j = nN1_+2; j < nN1_+nN2_+1; j++)
+                    ThetaI2a->Drc += s.theta[j];
+                ThetaI2a->Drc /= (double)nN2_;
+            }
+            if (SwitchThreeLayer) {
+                ThetaI3a->Drc = s.theta[nN1_+nN2_+1];
+                for (int j = nN2_+nN1_+2; j < nN1_+nN2_+nN3_+1; j++)
+                    ThetaI3a->Drc += s.theta[j];
+                ThetaI3a->Drc /= (double)nN3_;
+            }
+            return;
+
+        }
+    }
+
 
     // find node above groundwater
     int GWnode = nN;
@@ -544,7 +614,7 @@ void TWorld::cell_Soilwater(long i_)
 
     for(int j = 0; j < nNodes; j++) {        
         s.h[j] = Hnew[j];
-        s.theta[j] = getThetafromH(j, s, Hnew[j]);
+        getThetafromH(j, s);
     }
 
     if (FloodDomain->Drc == 0) {
