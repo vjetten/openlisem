@@ -82,7 +82,6 @@ void TWorld::calcSinkterm(long i_, double *S)
     SOIL_LIST s = crSoil[i_];
     int r = s.r;
     int c = s.c;
-    s.ponded = s.h[0] >= 0;
 
     double ETafactor = 1;
     double Ld = 12;
@@ -100,7 +99,7 @@ void TWorld::calcSinkterm(long i_, double *S)
 
     //    if (i_ == 3738) qDebug() << day << hour << Ld;
 
-    if (ETp->Drc*ETafactor > 0 && Rain->Drc* 3600000.0/_dt < rainfallETa_threshold) {
+    if (ETp->Drc*ETafactor > 0) {// && Rain->Drc* 3600000.0/_dt < rainfallETa_threshold) {
         double Cover_ = Cover->Drc;
         double ETp_ = ETp->Drc * ETafactor;
         double tot = 0;
@@ -151,6 +150,7 @@ void TWorld::calcSinkterm(long i_, double *S)
                 IntercHouse->Drc =  (_dx * DX->Drc * CvH) * HS;
             }
         }
+
         //transpiration under Cover from rootzone
         for (int j = 0; j < nNodes; j++) {
             // van genuchten H50 = -3.5 m
@@ -161,14 +161,16 @@ void TWorld::calcSinkterm(long i_, double *S)
         }
 
         // add surface evaporation (1-Cover) to top node
-        if (hmxWH->Drc < 1e-6)
-            S[0] += (s.theta[0]-s.thetar[0])/(s.pore[0]-s.thetar[0])*etanet*(1-Cover_);
+//        if (hmxWH->Drc < 1e-6) {
+//            if (s.h[0] > -16)
+//                S[0] += (s.theta[0]-s.thetar[0])/(s.pore[0]-s.thetar[0])*etanet*(1-Cover_);
+//        }
 
         for (int j = 0; j < nNodes; j++) {
             tot += S[j];
         }
 
-
+/*
         // ponded, evap only outside cover
         double ETa_pond = etanet*(1-Cover_);
         if (hmxWH->Drc > ETa_pond) {
@@ -180,7 +182,7 @@ void TWorld::calcSinkterm(long i_, double *S)
             WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
             tot = tot + ETa_pond;
         }
-
+*/
         ETa->Drc = tot;
         ETaCum->Drc += tot;
 
@@ -189,7 +191,7 @@ void TWorld::calcSinkterm(long i_, double *S)
             for(int j = 0; j < nNodes; j++) {
                 ss = ss + QString(" %1").arg(S[j]);
             }
-            //   qDebug() << tot << etanet << ss;
+            qDebug() << "S" << tot << etanet << ss;
         }
 
     }
@@ -283,7 +285,7 @@ void TWorld::cell_Soilwater(long i_)
     SOIL_LIST s = crSoil[i_];
 
     double dtmin = 0.01*_dt;
-    double dtmax = SoilWBdtfactor*_dt;
+    double dtmax = SoilWBdtfactor;//*_dt;
     s.dts = dtmax;
     int NITMAX = 12;
     bool stopit = false;
@@ -494,11 +496,12 @@ void TWorld::cell_Soilwater(long i_)
               //  s.Infact = D[0]*Hnew[0] - F[0];
                 s.Infact = fabs(qmax);
                //  F[0] = F[0] + s.Infact;
-               F[0] = Hnew[0];
+                F[0] = Hnew[0];
                 A1 = A[0];
                 A[0] = 0;
                 D[0] = 1;
-                F[1] = F[1] + K1[0]*Hnew[0];
+                //F[1] = F[1] + K1[0]*Hnew[0];
+                F[1] = F[1] + Aavg(s.Ks[0],K[1])*Hnew[0];
             } else {
 
                 s.Infact = s.InfPot; // infil is net rainfall
@@ -528,8 +531,9 @@ void TWorld::cell_Soilwater(long i_)
                 Hnew[j] = (F[j] - A[j]*Hnew[j+1])/D[j];
 
 
-        //    for(int j = 1; j < nNodes; j++)
-        //        Hnew[j] = std::min(0.0, Hnew[j]);
+            for(int j = 1; j < nNodes; j++)
+                Hnew[j] = std::max(-50.0, Hnew[j]);
+//                Hnew[j] = std::min(0.0, Hnew[j]);
             // not necessary, and surface can be + so not for the top node anyway!
 
             //======== calc boundary fluxes
@@ -612,8 +616,8 @@ void TWorld::cell_Soilwater(long i_)
         cnt++;
     } while(s.dtsum < _dt);
 
-    for(int j = 0; j < nNodes; j++) {        
-        s.h[j] = Hnew[j];
+    for(int j = 0; j < nNodes; j++) {
+        s.h[j] = std::max(-50.0,Hnew[j]);
         getThetafromH(j, s);
     }
 
@@ -622,7 +626,7 @@ void TWorld::cell_Soilwater(long i_)
     } else {
         hmx->Drc = WH1; // flood in kin wave
     }
-   s.Infact = (WH0-WH1)/_dt;
+    s.Infact = (WH0-WH1)/_dt;
 
     InfilVol->Drc = s.Infact*_dt*SoilWidthDX->Drc*DX->Drc;
 
@@ -710,7 +714,7 @@ void TWorld::cell_SWATRECalc(long i_)
 
     double WH1 = WH0;
     s.dtsum = 0;
-    s.dts = SoilWBdtfactor*_dt;
+    s.dts = SoilWBdtfactor;//*_dt;
 
     //#pragma omp parallel for num_threads(userCores)
     for(int j = 0; j < nNodes; j++) {

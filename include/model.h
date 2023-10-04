@@ -59,17 +59,9 @@
 
 #define Aavg(a,b)  (0.5*(a+b))
 #define Savg(a,b)  qSqrt(a*b)
-#define Havg(a,b)  (2.0/(1.0/a+1.0/b))
-
-#define Aavg(a,b)  (0.5*(a+b))
-#define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
-#define Savg(a,b)  sqrt(a * b)
+//#define Havg(a,b)  (2.0/(1.0/a+1.0/b))
 #define Mavg(a,b)  std::min(a,b)
-
-#define Aavg(a,b)  (0.5*(a+b))
 #define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
-#define Savg(a,b)  sqrt(a * b)
-#define Mavg(a,b)  std::min(a,b)
 
 #define DEBUG(s) emit debug(QString(s))
 #define TIMEDB(s) emit timedb(QString(s))
@@ -690,6 +682,7 @@ public:
     void InitLULCInput(void);
     void InitSoilInput(void);
     void InitFlood(void);
+    void InitSlopeStability();
     void InitScreenChanNetwork();
     void FindChannelAngles();
     void CorrectDEM(cTMap *h, cTMap * g);

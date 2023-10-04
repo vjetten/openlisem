@@ -653,7 +653,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("SoilWB nodes 2");
     namelist[i].value = QString("3");
     namelist[i++].name = QString("SoilWB nodes 3");
-    namelist[i].value = QString("0.2");
+    namelist[i].value = QString("30");
     namelist[i++].name = QString("SoilWB dt factor");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Infil Kavg");

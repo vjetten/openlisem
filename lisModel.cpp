@@ -432,8 +432,8 @@ void TWorld::HydrologyProcesses()
         if (SwitchErosion)
             cell_SplashDetachment(r, c);
 
-        if (SwitchSlopeStability)
-            cell_SlopeStability(r, c);
+        //if (SwitchSlopeStability)
+          //  cell_SlopeStability(r, c);
     }}
 
     // ETa is subtracted from canopy, soil water surfaces

@@ -8879,7 +8879,7 @@ p, li { white-space: pre-wrap; }
                     <x>0</x>
                     <y>0</y>
                     <width>668</width>
-                    <height>610</height>
+                    <height>609</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_54">
@@ -9403,17 +9403,20 @@ p, li { white-space: pre-wrap; }
                           <kerning>true</kerning>
                          </font>
                         </property>
+                        <property name="decimals">
+                         <number>0</number>
+                        </property>
                         <property name="minimum">
-                         <double>0.010000000000000</double>
+                         <double>1.000000000000000</double>
                         </property>
                         <property name="maximum">
-                         <double>0.500000000000000</double>
+                         <double>600.000000000000000</double>
                         </property>
                         <property name="singleStep">
-                         <double>0.010000000000000</double>
+                         <double>1.000000000000000</double>
                         </property>
                         <property name="value">
-                         <double>0.200000000000000</double>
+                         <double>30.000000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -9428,7 +9431,7 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="text">
-                         <string>Internal timestep fraction</string>
+                         <string>Internal timestep (sec)</string>
                         </property>
                        </widget>
                       </item>

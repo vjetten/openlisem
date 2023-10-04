@@ -259,7 +259,9 @@ void TWorld::GetInputData(void)
     //extended sediment stuff
 
     InitChannel();
-    //## read and initialize all channel maps and variables
+    //## read and initialize all channel maps and variables, and groundwater
+
+    InitSlopeStability();
 
     InitFlood();
     // vars for dyn wave
@@ -278,6 +280,8 @@ void TWorld::GetInputData(void)
     InitFlowBarriers();
 
     InitScreenChanNetwork();
+
+    InitSlopeStability();
 
 }
 //---------------------------------------------------------------------------
@@ -424,30 +428,6 @@ void TWorld::InitStandardInput(void)
         cr_ << newcr;
     }
 
-    /* OBSOLETE
-    if (SwitchSWOFWatersheds) {
-        WaterSheds = ReadMap(LDD,getvaluename("wsheds"));
-        QList <int> tmp = countUnits(*WaterSheds);
-        nrWatersheds = tmp.count();
-
-        long nrc = 0;
-        WScr.clear();
-        for (int i = 0; i <= nrWatersheds; i++){
-            crws_.clear();
-            FOR_ROW_COL_MV {
-                if (WaterSheds->Drc == i) {
-                    LDD_COOR newcr;
-                    newcr.r = r;
-                    newcr.c = c;
-                    crws_ << newcr;
-                }
-            }
-            WScr.append(crws_);
-            nrc += WScr.at(i).size();
-            //qDebug() << WScr.size() << WScr.at(i).size() << i << nrc << nrValidCells;
-        }
-    }
-    */
     FOR_ROW_COL_MV {
         if (LDD->Drc == 5) {
             LDD_COOR newcr;
@@ -468,26 +448,6 @@ void TWorld::InitStandardInput(void)
     FOR_ROW_COL_MV {
         sqrtGrad->Drc = sqrt(Grad->Drc);
     }
-
-    SwitchSlopeStability = false;
-    if (SwitchSlopeStability) {
-        tanGrad = NewMap(0);
-        cosGrad = NewMap(0);
-        BulkDensity = NewMap(1400);
-        AngleFriction = NewMap(1.0);  // tan phi = 45 degrees
-
-        FSlope = NewMap(0);
-
-        FOR_ROW_COL_MV {
-            // grad = grad = sin(atan(slope(DEMm)))
-            double at = asin(Grad->Drc);
-            tanGrad->Drc = tan(at);
-            cosGrad->Drc = cos(at);
-        }
-        report(*cosGrad,"cosgrad.map");
-        report(*tanGrad,"tangrad.map");
-    }
-
 
     if (SwitchCorrectDEM)
         CorrectDEM(DEM, Grad);
@@ -3311,6 +3271,86 @@ void TWorld::InitShade(void)
         // VJ add a bit of elevation for enhanced effect
         ShadeBW->Drc = Shade->Drc;
     }
+
+}
+//---------------------------------------------------------------------------
+void TWorld::InitSlopeStability()
+{
+
+    SwitchSlopeStability = false;
+    if (!SwitchSlopeStability)
+        return;
+    Fill(*tma, 0);
+    FOR_ROW_COL_MV_L {
+        //[dz/dx] = ((c + 2f + i)*4/wght1 - (a + 2d + g)*4/wght2) / (8 * x_cellsize)
+        //[dz/dy] = ((g + 2h + i)*4/wght3 - (a + 2b + c)*4/wght4) / (8 * y_cellsize)
+        double a1 = 0;
+        double a2 = 0;
+        double a3 = 0;
+        double a4 = 0;
+        double a5 = 0;
+        double a6 = 0;
+        double a7 = 0;
+        double a8 = 0;
+        double a9 = 0;
+        // a1 a2 a3
+        // a4 a5 a6
+        // a7 a8 a9
+
+        if (c > 0 && r > 0 && !MV(r-1,c-1)        )         a1 = GWz->data[r-1][c-1];
+        if (r > 0 && c < _nrCols-1 && !MV(r-1,c))           a2 = GWz->data[r-1][c];
+        if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1))         a3 = GWz->data[r-1][c+1];
+
+        if (c > 0 && !MV(r,c-1)        )                    a4 = GWz->data[r][c-1];
+                                                            a5 = GWz->Drc;
+        if (c < _nrCols-1 && !MV(r,c+1))                    a6 = GWz->data[r][c+1];
+
+        if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) a7 = GWz->data[r+1][c-1];
+        if (r < _nrRows-1 && !MV(r+1,c))                    a8 = GWz->data[r+1][c];
+        if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) a9 = GWz->data[r+1][c+1];
+
+        double w1 = 0;
+        if (c > 0 && r > 0 && !MV(r-1,c-1)        )         w1+=1.0;
+        if (c > 0 && !MV(r,c-1)        )                    w1+=2.0;
+        if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) w1+=1.0;
+        double w2 = 0;
+        if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1))         w2+=1.0;
+        if (c < _nrCols-1 && !MV(r,c+1))                    w2+=2.0;
+        if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) w2+=1.0;
+        double w3 = 0;
+        if (c > 0 && r > 0 && !MV(r-1,c-1)        )         w3+=1.0;
+        if (r > 0 && c < _nrCols-1 && !MV(r-1,c))           w3+=2.0;
+        if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1))         w3+=1.0;
+        double w4 = 0;
+        if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) w4+=1.0;
+        if (r < _nrRows-1 && !MV(r+1,c))                    w4+=2.0;
+        if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) w4+=1.0;
+
+
+        double dzdx = ((w1 > 0 ? (a1+2*a4+a7)*4/w1 : 0) + (w2 > 0 ? (a3+2*a6+a9)*4/w2 : 0)) / (8*_dx);
+        double dzdy = ((w3 > 0 ? (a1+2*a2+a3)*4/w3 : 0) + (w4 > 0 ? (a7+2*a8+a9)*4/w4 : 0)) / (8*_dx);
+        //slope_degrees = ATAN (rise_run) * 57.29578
+
+        tma->Drc = qSqrt(dzdx*dzdx+dzdy*dzdy);
+    }}
+
+    report(*tma,"slopegz.map");
+
+//    tanGrad = NewMap(0);
+//    cosGrad = NewMap(0);
+//    BulkDensity = NewMap(1400);
+//    AngleFriction = NewMap(1.0);  // tan phi = 45 degrees
+
+//    FSlope = NewMap(0);
+
+//    FOR_ROW_COL_MV {
+//        // grad = grad = sin(atan(slope(DEMm)))
+//    double at = asin(Grad->Drc);
+//        tanGrad->Drc = tan(at);
+//        cosGrad->Drc = cos(at);
+//    }
+//    report(*cosGrad,"cosgrad.map");
+//    report(*tanGrad,"tangrad.map");
 
 }
 //---------------------------------------------------------------------------

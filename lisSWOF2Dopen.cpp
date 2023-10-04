@@ -215,16 +215,17 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (hs->Drc > F_minWH) {
-                    flowmask->Drc = 1;
-                    if (c > 0 && !MV(r,c-1)        ) flowmask->data[r][c-1] = 1;
-                    if (c < _nrCols-1 && !MV(r,c+1)) flowmask->data[r][c+1] = 1;
-                    if (r > 0 && !MV(r-1,c)        ) flowmask->data[r-1][c] = 1;
-                    if (r < _nrRows-1 && !MV(r+1,c)) flowmask->data[r+1][c] = 1;
+                    if (c > 0 && !MV(r,c-1)                           ) flowmask->data[r][c-1] = 1;
+                                                                        flowmask->Drc = 1;
+                    if (c < _nrCols-1 && !MV(r,c+1)                   ) flowmask->data[r][c+1] = 1;
 
                     if (c > 0 && r > 0 && !MV(r-1,c-1)                ) flowmask->data[r-1][c-1]=1;
-                    if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) flowmask->data[r+1][c+1]=1;
+                    if (r > 0 &&          !MV(r-1,c)                  ) flowmask->data[r-1][c] = 1;
                     if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) flowmask->data[r-1][c+1]=1;
+
                     if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) flowmask->data[r+1][c-1]=1;
+                    if (r < _nrRows-1 && !MV(r+1,c)                   ) flowmask->data[r+1][c] = 1;
+                    if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) flowmask->data[r+1][c+1]=1;
                 }
             }}
 
