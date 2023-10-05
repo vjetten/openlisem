@@ -156,7 +156,7 @@ void TWorld::PesticideCellDynamics(void)
     double rho = rhoPest;     //kg m-3
     double Kd = KdPest;       // -
     double Kfilm = KfilmPest; // m sec-1
-    double kr = KrPest;       // sec
+    double kr = KrPest;       // sec-1
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
        double mda_ex {0.0};        // mg - exchange mixing layer
@@ -204,9 +204,6 @@ void TWorld::PesticideCellDynamics(void)
 
        // positive adds to sorbed, negative to dissolved.
        // mg = mg kg-1 sec-1 *  sec * kg
-       // based on PhD lefrancq should always be mass_s
-       mda_ex = kr * (Kd * PCmw->Drc - PCms->Drc) * _dt
-                    * mass_s;
 
        // calculate equilibrium mass division
        mda_tot = PMmw->Drc + PMms->Drc;
@@ -214,7 +211,15 @@ void TWorld::PesticideCellDynamics(void)
        eql_ads = mda_tot - eql_diss;
        // mda_ex can not be larger than m_diff
        m_diff = eql_ads - PMms->Drc;
-       mda_ex = std::abs(mda_ex) > std::abs(m_diff) ? m_diff : mda_ex;
+       // kinetic sorption (kr > 0)
+       if (kr > 0) {
+           mda_ex = kr * (Kd * PCmw->Drc - PCms->Drc) * _dt
+                    * mass_s;
+        mda_ex = std::abs(mda_ex) > std::abs(m_diff) ? m_diff : mda_ex;
+       } else {
+        // equilibrium sorption (kr input = -1)
+        mda_ex = m_diff;
+       }
 
        //update masses
        PMmw->Drc = std::max(0.0, PMmw->Drc - mda_ex);
@@ -470,13 +475,21 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
 */
 
 void TWorld::PesticideSplashDetachment() {
+    double Emax = ERmaxPest;
+    double beta = ERbetaPest;
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
-         double msoil_ex {0.0};  // mass exchange between mixing layer and deeper soil
+        double msoil_ex {0.0};  // mass exchange between mixing layer and deeper soil
+        double er {0.0}; // enrichtment ratio
+        double Se {0.0}; // detachment or deposition rate - kg/ha
+        //calculate enrichment ratio
+        Se = DETSplash->Drc * (10000 / (DX->Drc * SoilWidthDX->Drc)); // cell area to ha
+        er = PesticideEnrichmentRatio(Emax, Se, beta);
         // add mass to pesticide in flow
-        PMsplash->Drc = DETSplash->Drc * PCms->Drc;
+        PMsplash->Drc = DETSplash->Drc * PCms->Drc * er;
         PMrs->Drc += PMsplash->Drc;
-        PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0; // if Sed > 0.001 gr
+        //PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0; // if Sed > 0.001 gr
 
         // update mass and concentration in mixing layer
         msoil_ex = DETSplash->Drc * PCs->Drc;
@@ -546,6 +559,8 @@ double TWorld::ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
 */
 
 void TWorld::PesticideFlowDetachment(double rho) {
+    double Emax = ERmaxPest;
+    double beta = ERbetaPest;
 
   // mass exchange between mixing layer an suspended sediment
     #pragma omp parallel for num_threads(userCores)
@@ -556,12 +571,20 @@ void TWorld::PesticideFlowDetachment(double rho) {
         // Can this be eroded after deposition or not?
         // option 1 - all deposition on roads add directly to sink
         // option 2 - deposition on roads can be eroded and added into the system...
+        double er {0.0}; // enrichtment ratio
+        double Se {0.0}; // detachment or deposition rate - kg/ha
+
 
         PMdep->Drc = 0.0;
         PMflow->Drc = 0.0;
 
         if (DEP->Drc < 0) {
-            //deposition
+            //calculate enrichment ratio
+            //Se = DEP->Drc * (10000 / (DX->Drc * SoilWidthDX->Drc)); // cell area to ha
+            //er = PesticideEnrichmentRatio(Emax, Se, beta);
+            // for now no enrichment effect on deposition
+
+        //deposition
             msoil_ex = DEP->Drc * PCms->Drc;
             // mg = kg / kg * mg
             msrm_ex = (DEP->Drc/SedAfterSplash->Drc) * PMrs->Drc; // loss by deposition
@@ -571,13 +594,19 @@ void TWorld::PesticideFlowDetachment(double rho) {
             }
             PMdep->Drc = msrm_ex;
         } else if (DETFlow->Drc > 0){
+            //calculate enrichment ratio
+            // kg/ha = kg/cell * (ha / cell)
+            Se = DETFlow->Drc * (10000 / (DX->Drc * SoilWidthDX->Drc)); // cell area to ha
+            er = PesticideEnrichmentRatio(Emax, Se, beta);
             // detachment
             msoil_ex = DETFlow->Drc * PCs->Drc; //
             // mg = mg kg-1  kg
-            msrm_ex = PCms->Drc * DETFlow->Drc; // added by erosion
+            msrm_ex = PCms->Drc * DETFlow->Drc * er; // added by erosion
             // no more transport than mass in cell domain
             if (PMms->Drc + msoil_ex < msrm_ex) {
                 msrm_ex = PMms->Drc + msoil_ex;
+                // only compare with PMms? what happens when more then mixing layer depth
+                // erodes in 1 timestep? - very unlikely
             }
             PMflow->Drc = msrm_ex;
         }
@@ -598,4 +627,21 @@ void TWorld::PesticideFlowDetachment(double rho) {
         PCms->Drc = PMms->Drc / (zm->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest);
 
     }}
+}
+
+//---------------------------------------------------------------------------
+/**
+* @fn double TWorld::PesticideEnrichmentRatio(double Emax, double S, double beta);
+* @brief Calculate the enrichment ratio of pesticide from soil to runoff
+*/
+
+double TWorld::PesticideEnrichmentRatio(double Emax, double S, double beta) {
+
+    double er {0.0}; // enrichtment ratio
+
+    er = Emax * pow(S, beta); // function by Menzel 1980
+    // defaults: Emax = 7.4, beta = -0.2
+    if (er > Emax) {er = Emax;}
+
+    return(er);
 }

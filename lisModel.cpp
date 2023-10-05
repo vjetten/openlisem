@@ -483,7 +483,7 @@ void TWorld::HydrologyProcesses()
 
     if (SwitchPest) {
         PesticideCellDynamics();
-        // calculate partitioning, and infiltration losses of pesticides
+        // calculate partitioning, uptake and infiltration losses of pesticides
         if (SwitchErosion) {
             PesticideSplashDetachment();
             // splash detachment for pesticides
