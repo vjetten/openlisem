@@ -555,6 +555,11 @@ void TWorld::ReportTimeseriesNew(void)
                    // if (SwitchChannelBaseflow) out << ",Qb";
                     if (SwitchIncludeTile) out << ",Qtile";
                     if (SwitchErosion) out << ",Qsall" << ",Qs" << ",C";
+                    if (SwitchPest)
+                    {
+                        out << ",PQw";
+                        if (SwitchErosion) out << ",PQs";
+                    }
                     out << "\n";
 
                     out << "min";
@@ -566,6 +571,11 @@ void TWorld::ReportTimeseriesNew(void)
                   //  if (SwitchChannelBaseflowout << "," << unitS;
                     if (SwitchIncludeTile) out << "," << unitS;
                     if (SwitchErosion) out << ",kg/s"<< ",kg/s" << ",g/l";
+                    if (SwitchPest)
+                    {
+                        out << ",mg/s";
+                        if (SwitchErosion) out << ",mg/s";
+                    }
                     out << "\n";
                 }
                 fout.close();
@@ -737,6 +747,11 @@ void TWorld::ReportTimeseriesNew(void)
                     out << sep << Qsn->Drc;
                     out << sep << TotalConc->Drc ;
                 }
+            }
+            if (SwitchPest)
+            {
+                out << sep << (PQrw_dt / _dt);
+                if (SwitchErosion) out << sep << (PQrs_dt / _dt);
             }
             out << "\n";
             fout.close();
@@ -1665,6 +1680,11 @@ void TWorld::ReportTimeseriesCSV(void)
             }
             if (SwitchIncludeTile) out << ",Qtile";
             if (SwitchErosion) out << ",Qsall" << ",Qs" << ",C";
+            if (SwitchPest)
+            {
+                out << ",PQw";
+                if (SwitchErosion) out << ",PQs";
+            }
             out << "\n";
 
             out << "min";
@@ -1676,9 +1696,16 @@ void TWorld::ReportTimeseriesCSV(void)
                 out  << "," << unitS << ",m";
                // if (SwitchChannelBaseflow) out << "," << unitS;
                 out  << ",m";
+            } else {
+                out << "," << unitS;
             }
             if (SwitchIncludeTile) out << "," << unitS;
             if (SwitchErosion) out << ",kg/s"<< ",kg/s" << ",g/l";
+            if (SwitchPest)
+            {
+                out << ",mg/s";
+                if (SwitchErosion) out << ",mg/s";
+            }
             out << "\n";
             fout.close();
         }}
@@ -1731,6 +1758,11 @@ void TWorld::ReportTimeseriesCSV(void)
                 out << sep << Qsn->Drc;
                 out << sep << TotalConc->Drc ;
             }
+        }
+        if (SwitchPest)
+        {
+            out << sep << (PQrw_dt / _dt);
+            if (SwitchErosion) out << sep << (PQrs_dt / _dt);
         }
         out << "\n";
         fout.close();

@@ -515,7 +515,7 @@ public:
     double PMtot, PMerr, PMtotI, PMwerr, PMserr;
     double Pestinf, PestOutW, PestOutS;
     double PQrw_dt, PQrs_dt;
-    double KdPest, KfilmPest, KrPest, rhoPest;
+    double KdPest, KfilmPest, KrPest, rhoPest, ERmaxPest, ERbetaPest;
     QString PestName;
 
     /// time and dx parameters
@@ -862,6 +862,7 @@ public:
 
     double ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
                        double Pji1, double alpha, double dx, double dt);
+    double PesticideEnrichmentRatio(double Emax, double S, double beta);
 
     // 1D hydro processes
     //input timeseries

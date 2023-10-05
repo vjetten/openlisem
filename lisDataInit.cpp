@@ -2269,12 +2269,14 @@ void TWorld::IntializeData(void)
     SedAfterSplash = NewMap(0);
 
     if(SwitchPest){
-        // get constant from runfile
+        // get constants from runfile
         KdPest = getvaluedouble("Kd pesticide");
         KfilmPest = getvaluedouble("Kfilm pesticide");
         KfilmPest = KfilmPest / 1000; // mm sec-1 to m sec-1
+        ERbetaPest = getvaluedouble("ERbeta pesticide");
         KrPest = getvaluedouble("Kr pesticide");
         KrPest = KrPest / 60; // min-1 to sec-1
+        ERmaxPest = getvaluedouble("ERmax pesticide");
         rhoPest = getvaluedouble("Rho mixing layer");
         PestName = getvaluestring("Pesticide name");
 
