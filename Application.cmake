@@ -242,4 +242,3 @@ add_executable(Lisem WIN32
 )
 
 target_link_libraries(Lisem Qt5::Widgets Qt5::Gui Qt5::Core ${GDAL_LIBRARIES} ${QWT_LIBRARIES} OpenMP::OpenMP_CXX)
-

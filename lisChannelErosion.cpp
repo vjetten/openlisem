@@ -40,7 +40,6 @@ functions: \n
 
 #define he_ca 1e-12
 #define ve_ca 1e-12
-#define GRAV 9.81
 //#define FLOWS_TO(ldd, rFrom, cFrom, rTo, cTo) \
 //    ( ldd != 0 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
