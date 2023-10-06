@@ -78,8 +78,10 @@ void TWorld::GroundwaterFlow(void)
     //qDebug() << GWdeeptot << totr << tot;
 
     // results in GWout flux between cells based on pressure differences
-    if (SwitchGW2Dflow)
-        GWFlow2D();     // flow with pressure differences
+if (SwitchGW2Dflow) {
+    for (int j_ = 0; j_ < 5; j_++)
+        GWFlow2D(0.2);
+    }// flow with pressure differences
     if (SwitchLDDGWflow)
         GWFlowLDDKsat(); // ldd with ksat based flow
     if (SwitchSWATGWflow)
@@ -258,7 +260,7 @@ void TWorld::GWFlowLDDKsat(void)
 
 }
 //---------------------------------------------------------------------------
-void TWorld::GWFlow2D(void)
+void TWorld::GWFlow2D(double factor)
 {
     cTMap *pore;
     cTMap *ksat;
@@ -323,7 +325,7 @@ void TWorld::GWFlow2D(void)
         double dz_y2 = z_y2 -Z;
 
         // flow = Ksat * cross section * hydraulic gradient Ks * A * dH/dL
-        double ff = GW_flow;
+        double ff = GW_flow * factor;
 
         double df_x1 = ff * ksat->Drc * (h_x1*_dx) * dh_x1/cos(atan(dz_x1/_dx)); // (dh_x1/_dx);
         double df_x2 = ff * ksat->Drc * (h_x2*_dx) * dh_x2/cos(atan(dz_x2/_dx)); // (dh_x2/_dx);

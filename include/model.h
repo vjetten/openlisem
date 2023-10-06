@@ -940,7 +940,7 @@ public:
 
     void GroundwaterRecharge();
     void GroundwaterFlow();
-    void GWFlow2D();
+    void GWFlow2D(double factor);
     void GWFlowSWAT();
     void GWFlowLDDKsat();
 
