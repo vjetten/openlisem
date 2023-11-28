@@ -79,9 +79,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     helptxt = new QTextEdit();
     helpLayout->addWidget(helptxt);
 
-    //checkAddDatetime->setVisible(false);
-
-    //RunFileNames.clear();
     op.runfilename.clear();
     E_runFileList->clear();
 
@@ -181,6 +178,7 @@ void lisemqt::SetConnections()
     connect(checkOverlandFlow1D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow2Dkindyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
     connect(checkOverlandFlow2Ddyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+    connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
 
     connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
 
@@ -189,16 +187,6 @@ void lisemqt::SetConnections()
   //  connect(E_BulkDens2,SIGNAL(editingFinished()),this, SLOT(updateBulkDens()));
   //  connect(E_BulkDens,SIGNAL(editingFinished()),this, SLOT(updateBulkDens2()));
 
-}
-void lisemqt::updateBulkDens()
-{
- //   QString txt = E_BulkDens2->text();
-  //  E_BulkDens->setText(txt);
-}
-void lisemqt::updateBulkDens2()
-{
-   // QString txt = E_BulkDens->text();
-    //E_BulkDens2->setText(txt);
 }
 //--------------------------------------------------------------------
 void lisemqt::setFormatMaps(bool check)
@@ -477,8 +465,8 @@ void lisemqt::setFloodTab(bool yes)
     label_107->setEnabled(yes);
 
     if (checkOverlandFlow2Ddyn->isChecked() || checkOverlandFlow2Dkindyn->isChecked()) {
-        label_107->setText(QString("Flood,h>%1)").arg(E_floodMinHeight->value()*1000));
-        label_40->setText(QString("Runoff,h<%1)").arg(E_floodMinHeight->value()*1000));
+        label_107->setText(QString("Flood(h>%1mm)").arg(E_floodMinHeight->value()*1000));
+        label_40->setText(QString("Runoff(h<%1mm)").arg(E_floodMinHeight->value()*1000));
     }
     else
     {
@@ -488,9 +476,12 @@ void lisemqt::setFloodTab(bool yes)
 
 }
 //--------------------------------------------------------------------
-void lisemqt::setErosionTab()
+void lisemqt::setErosionTab(bool yes)
 {
     //  yes = checkDoErosion->isChecked();
+
+    tab_erosion->setEnabled(checkDoErosion->isChecked());
+
     outputMapsSediment->setEnabled(checkDoErosion->isChecked());
 
     checkBox_OutConc->setEnabled(checkDoErosion->isChecked());
@@ -1150,6 +1141,12 @@ void lisemqt::on_toolButton_satImageName_clicked()
 //--------------------------------------------------------------------
 void lisemqt::savefileas()
 {
+    if (W)
+    {
+        QMessageBox::warning(this, "openLISEM","Cannot save a file while model is running.");
+        return;
+    }
+
     if (op.runfilename.isEmpty())
     {
         QMessageBox::warning(this, "openLISEM","This runfile will habe no pathnames.");
@@ -1174,6 +1171,12 @@ void lisemqt::savefileas()
 //--------------------------------------------------------------------
 void lisemqt::saveRunFile()
 {
+//    if (W)
+//    {
+//        QMessageBox::warning(this, "openLISEM","Cannot save a file while model is running.");
+//        return;
+//    }
+
     updateModelData();
     // change runfile strings with current interface options
     savefile(op.runfilename);
@@ -1181,6 +1184,12 @@ void lisemqt::saveRunFile()
 //--------------------------------------------------------------------
 void lisemqt::savefile(QString name)
 {
+//    if (W)
+//    {
+//        QMessageBox::warning(this, "openLISEM","Cannot save a file while model is running.");
+//        return;
+//    }
+
     QFile fp(name);
     if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
     {
@@ -1190,7 +1199,7 @@ void lisemqt::savefile(QString name)
     }
 
     QTextStream out(&fp);
-    out << QString("[openLISEM runfile version 6.0.1]\n");
+    out << QString("[openLISEM runfile version 6.0]\n");
 
     for (int i = 1; i < nrnamelist; i++)
     {
@@ -1510,10 +1519,10 @@ void lisemqt::resetTabOptions()
 
     checkIncludeChannel->setChecked(true);
     checkChannelInfil->setChecked(false);
-    checkChannelBaseflow->setChecked(false);
-    BaseflowParams->setEnabled(false);
+    //checkChannelBaseflow->setChecked(false);
+    BaseflowParams->setEnabled(true);
 
-    checkChannelInflow->setChecked(false);
+    checkDischargeUser->setChecked(false);
     //checkChannelAdjustCHW->setChecked(true);
 
 
@@ -1529,11 +1538,14 @@ void lisemqt::resetTabCalibration()
 {
     //calibration
     E_CalibrateSmax->setValue(1.0);
+    E_CalibrateRR->setValue(1.0);
     E_CalibrateKsat->setValue(1.0);
     E_CalibrateKsat2->setValue(1.0);
     E_CalibrateN->setValue(1.0);
     E_CalibrateTheta->setValue(1.0);
     E_CalibratePsi->setValue(1.0);
+    E_CalibrateSD1->setValue(1.0);
+    E_CalibrateSD2->setValue(1.0);
     E_CalibrateChKsat->setValue(1.0);
     E_CalibrateChN->setValue(1.0);
     E_CalibrateChTor->setValue(1.0);
@@ -1812,13 +1824,11 @@ QString lisemqt::findValidDir(QString path, bool up)
     if (!QFileInfo(path).exists() || path.isEmpty())
         path = currentDir;
 
-    qDebug() << path;
     if (path.indexOf("/",1) > 0)
         path.replace("\\","/");
     else
         if (path.indexOf("\\",1) > 0)
             path.replace("/","\\");
-    qDebug() << path;
 
     return (path);
 }
@@ -2016,25 +2026,6 @@ void lisemqt::on_checkHouses_toggled(bool checked)
 }
 //--------------------------------------------------------------------
 
-void lisemqt::on_toolButton_DischargeInName_clicked()
-{
-    QString path;
-
-    DischargeinDir = findValidDir(DischargeinDir, false);
-
-    path = QFileDialog::getOpenFileName(this,
-                                        QString("Select discarge input file"),
-                                        DischargeinDir);
-    if(!path.isEmpty())
-    {
-        QFileInfo fi(path);
-        DischargeinFileName = fi.fileName();
-        DischargeinDir = CheckDir(fi.absolutePath());//Dir().path());
-        E_DischargeInName->setText( RainFileDir + DischargeinFileName  );
-    }
-}
-//--------------------------------------------------------------------
-
 // select a file or directory
 // doFile = 0: select a directory;
 // dofile = 1 select a file and return file name only;
@@ -2130,7 +2121,6 @@ void lisemqt::on_toolButton_RainfallName_clicked()
 
 }
 //--------------------------------------------------------------------
-
 void lisemqt::on_toolButton_ETName_clicked()
 {
     if (!QFileInfo(ETFileDir).exists() || ETFileDir.isEmpty())
@@ -2145,6 +2135,16 @@ void lisemqt::on_toolButton_ETName_clicked()
     E_ETName->setText(ETFileDir + ETFileName);
 }
 //--------------------------------------------------------------------
+void lisemqt::on_checkDischargeUser_toggled(bool checked)
+{
+    groupDischargeUser->setEnabled(checked);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_DischargeShow_clicked()
+{
+    showTextfile(DischargeinDir + DischargeinFileName);
+}
+//--------------------------------------------------------------------
 void lisemqt::on_checkIncludeET_toggled(bool checked)
 {
     radioGroupET->setEnabled(checked);
@@ -2154,6 +2154,21 @@ void lisemqt::on_toolButton_ETShow_clicked()
 {
     //qDebug() <<ETFileDir + ETFileName;
     showTextfile(ETFileDir + ETFileName);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_DischargeName_clicked()
+{
+    if (!QFileInfo(DischargeinDir).exists() || DischargeinDir.isEmpty())
+        DischargeinDir = currentDir;
+
+    QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
+
+    QString sss = getFileorDir(DischargeinDir,"Select ET stations file", filters, 2);
+
+    DischargeinDir = QFileInfo(sss).absolutePath()+"/";
+    DischargeinFileName = QFileInfo(sss).fileName(); //baseName();
+    E_DischargeInName->setText(DischargeinDir + DischargeinFileName);
+
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_RainfallShow_clicked()
@@ -2259,19 +2274,27 @@ void lisemqt::on_toolButton_resetOptions_clicked()
     resetTabOptions();
 }
 
-void lisemqt::on_checkChannelBaseflow_toggled(bool checked)
+void lisemqt::on_checkStationaryBaseflow_toggled(bool checked)
 {
-    BaseflowParams->setEnabled(checked);
+ //   BaseflowParams->setEnabled(checked);
     if (checked) checkChannelInfil->setChecked(false);
 }
 
 void lisemqt::on_checkChannelInfil_toggled(bool checked)
 {
-    BaseflowParams->setEnabled(!checked);
-    if (checked) checkChannelBaseflow->setChecked(false);
+   // BaseflowParams->setEnabled(!checked);
+    if (checked) checkStationaryBaseflow->setChecked(false);
 }
 
 void lisemqt::on_E_EfficiencyDETCH_currentIndexChanged(int index)
 {
     E_EfficiencyDirect->setEnabled(index == 3);
+}
+
+void lisemqt::on_checkGWflow_toggled(bool checked)
+{
+    GW_widget->setEnabled(checked);
+    widget_GWparams->setEnabled(checked);
+    BaseflowParams->setEnabled(checked);
+    qDebug() << checked;
 }

@@ -30,7 +30,8 @@
   \brief Read and parse the temporary runfile produce by the interface.
 
   Functions in here are doubled from the interface. The idea is to keep interface and model\n
-  completely separate. In principle the model could be called directly with a runfile (not implemented). \n
+  completely separate. In principle the model could be called directly with a runfile (not implemented).
+  MC - 2023-05-03 added run without GUI - this uses the runfile directly! \n
 
 functions: \n
 - QString TWorld::getvaluename(QString vname) \n
@@ -201,15 +202,17 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include Erosion simulation")==0)        SwitchErosion =          iii == 1;
         if (p1.compare("Include main channels")==0)             SwitchIncludeChannel =   iii == 1;
         if (p1.compare("Include channel infil")==0)             SwitchChannelInfil     = iii == 1;
-        if (p1.compare("Include channel baseflow")==0)          SwitchChannelBaseflow  = iii == 1;
+     //   if (p1.compare("Include channel baseflow")==0)          SwitchChannelBaseflow  = iii == 1;
         if (p1.compare("Include stationary baseflow")==0)       SwitchChannelBaseflowStationary  = iii == 1;
         if (p1.compare("Adjust channel crosssection")==0)       SwitchChannelAdjustCHW  = iii == 1;
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
-        if (p1.compare("Include channel inflow")==0)            SwitchChannelInflow  = iii == 1;
+        if (p1.compare("Include channel inflow")==0)            SwitchDischargeUser  = iii == 1;
+        if (p1.compare("Include GW flow")==0)                   SwitchGWflow  = iii == 1;
+        if (p1.compare("GW flow explicit")==0)                  SwitchGW2Dflow  = iii == 1;
         if (p1.compare("Include Pesticides")==0)                SwitchPest = iii == 1;
         if (p1.compare("Report Pesticides")==0)                 SwitchReportPest = iii == 1;
-        if (p1.compare("GW flow explicit")==0)                  SwitchExplicitGWflow  = iii == 1;
-      //  if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
+        if (p1.compare("GW flow LDD")==0)                       SwitchLDDGWflow  = iii == 1;
+        if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
 
       //  if (p1.compare("Variable Timestep")==0)                 SwitchVariableTimestep = iii == 1;
         if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
@@ -263,6 +266,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =       iii == 1;
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable = iii == 1;
         if (p1.compare("Two layer")==0)                         SwitchTwoLayer =         iii == 1;
+        if (p1.compare("Psi user input")==0)                    SwitchPsiUser =         iii == 1;
 
         if (p1.compare("Matric head files")==0)                 SwitchDumphead =         iii == 1;
         if (p1.compare("Geometric mean Ksat")==0)               SwitchGeometric =        iii == 1;
@@ -335,18 +339,7 @@ void TWorld::ParseRunfileData(void)
     InfilMethod = getvalueint("Infil Method");
     if (InfilMethod == INFIL_GREENAMPT2) InfilMethod = INFIL_GREENAMPT;
     if (InfilMethod == INFIL_SMITH2) InfilMethod = INFIL_SMITH;
-    //deal with old runfil pre 6.6
-
-//#define INFIL_NONE 0
-//#define INFIL_SWATRE 1
-//#define INFIL_HOLTAN 2
-//#define INFIL_GREENAMPT 3
-//#define INFIL_GREENAMPT2 4
-//#define INFIL_KSAT 5
-//#define INFIL_MOREL 21
-//#define INFIL_SMITH 22
-//#define INFIL_SMITH2 23
-
+    //prob onsolete: deal with old runfil pre 6.6
 
     // check a few things
 
@@ -371,14 +364,24 @@ void TWorld::ParseRunfileData(void)
         SwitchChannelBaseflowStationary = false;
         SwitchChannelInfil = false;
     } else {
-        if (SwitchChannelInfil)
+        if (SwitchChannelInfil) {
             SwitchChannelBaseflow = false;
-        if (!SwitchChannelBaseflow)
             SwitchChannelBaseflowStationary = false;
+        }
+
+        if (SwitchChannelBaseflowStationary || SwitchGWflow)
+            SwitchChannelBaseflow = true;
     }
 
-    if (SwitchChannelBaseflow)
-        SwitchImpermeable = false; //!!!!!!!!!!!!!
+    //SwitchGWflow = SwitchChannelBaseflow && (SwitchGW2Dflow || SwitchLDDGWflow || SwitchSWATGWflow);
+    if (!SwitchChannelBaseflow) {
+        SwitchGWflow = false;
+        SwitchChannelBaseflowStationary = false;
+    }
+    if (SwitchChannelBaseflow && SwitchGWflow) {
+        SwitchImpermeable = false;
+    }   
+    // stationary baseflow and impermeable soil allowed (ignoring where the stationary flow comes form !
 
     // next get the main input directory
     for (j = 0; j < nrrunnamelist; j++)
@@ -440,10 +443,10 @@ void TWorld::ParseRunfileData(void)
 
         }
 
-        if (SwitchChannelInflow)
+        if (SwitchDischargeUser)
         {
-            if (p1.compare("Discharge inflow Directory")==0) dischargeinFileDir = CheckDir(p);
-            if (p1.compare("Discharge inflow file")==0) dischargeinFileName = dischargeinFileDir + "/" + p;
+            if (p1.compare("Discharge inflow directory")==0) dischargeinFileDir = CheckDir(p);
+            if (p1.compare("Discharge inflow file")==0) dischargeinFileName = p;
         }
 
         if (SwitchImage)
@@ -526,6 +529,11 @@ void TWorld::ParseRunfileData(void)
             ETSatFileName = ETSatFileDir + ETSatFileName;
         else
             ETFileName = ETFileDir + ETFileName;
+    }
+
+    if (SwitchDischargeUser) {
+        dischargeinFileName = dischargeinFileDir + dischargeinFileName;
+        qDebug() << dischargeinFileName << dischargeinFileDir;
     }
 
     if(SwitchSnowmelt) {

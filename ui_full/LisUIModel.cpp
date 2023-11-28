@@ -61,19 +61,6 @@ void lisemqt::runmodel()
         return;
     }
 
-//    label_runfilename->setText(QFileInfo(op.runfilename).fileName());
-//    label_runfilename->setText(E_MainTotals->text());
-
-//    QString S = E_ResultDir->text() + QFileInfo(op.runfilename).fileName();
-//    if (checkAddDatetime->isChecked()) {
-//        S = E_ResultDir->text() + QString("res"+op.timeStartRun+"/");
-//        if (!QFileInfo(S).exists())
-//            QDir(S).mkpath(S);
-//        S = S + QFileInfo(op.runfilename).fileName();
-//    }
-//    savefile(S);
-//    //show runfile name on screen en save runfile to result dir
-
     lastOptionSceen = tabWidgetOptions->currentIndex();
 
     updateModelData();
@@ -113,6 +100,8 @@ void lisemqt::runmodel()
     sedgroup->setVisible(checkDoErosion->isChecked());
     tabWidget_totout->setTabEnabled(1,checkDoErosion->isChecked() );
 
+    showInfoAct->setChecked(true);
+    setOutputInfo(true);
 
     // initialize output graphs
     initPlot();
@@ -147,12 +136,11 @@ void lisemqt::runmodel()
     W->noInterface = true;
     W->noOutput = false;
     W->batchmode = false;
-    // run without Qt interface on openlisemtmp.run only
+    // run without Qt interface on original runfile only
 
     op.timeStartRun = QDateTime().currentDateTime().toString("yyMMdd-hhmm");
 
     if (checkAddDatetime->isChecked()) {
-      //  E_ResultDir->text() =
         screenShotDir = E_ResultDir->text() + QString("res"+op.timeStartRun+"/");
         QDir(screenShotDir).mkpath(QString("screens/"));
         screenShotDir = screenShotDir + QString("screens/");
@@ -389,7 +377,7 @@ void lisemqt::initOP()
     op.FloodAreaMax = 0;
     op.BaseFlowTotmm = 0;
     op.IntercLitterTotmm = 0;
-    op.WaterVolTotchannelmm = 0;
+    //op.WaterVolTotchannelmm = 0;
     op.Qtotmm = 0;
     op.IntercTotmm = 0;
     op.IntercHouseTotmm = 0;

@@ -33,8 +33,6 @@
 #define he_ca 1e-10
 #define ve_ca 1e-10
 
-#define GRAV 9.8067
-
 
 // NOT USED !!!
 
@@ -77,7 +75,7 @@ void TWorld::ChannelSWOFopen()
         stop = false;
 
         // do the whole channel
-        //fill(*tma, -1);
+        //Fill(*tma, -1);
         dt_req = dt_max;
 
         #pragma omp parallel for num_threads(userCores)

@@ -96,22 +96,20 @@ cTMap
 *V,                          //!< velocity of overland flow [m/s]
 *Alpha,                      //!< alpha in A = alphaQ^b
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
-*Qbin,
+*DischargeUserPoints,
+*QuserIn,
 *Qbase,
-//*Qbaseprev,
 *GWVol,
 *GWWH,
 *GWWHmax,
 *GWdeep,
 *GWrecharge,
 *GWout,
-*GWbp,
+*GWz,
+*GWgrad,
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
 *Qdiag,
 *VH,
-*QinLocation,
-*Qinflow,
-//*Qoutflow,                   //!< new discharge after kin wave at outflow point [m^3/s]
 *QinKW,                      //!< new Q kinematic wave
 *QKW,
 *Qoutput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
@@ -183,7 +181,6 @@ cTMap
 *PCrs,                      //!< concentration of pesticide in runoff sediment [mg/kg]
 *PCms,                      //!< concentration of pesticide in soil of mixing zone [mg/kg]
 *PCmw,                      //!< concentration of pesticide in water of mixing zone [mg/L]
-*Crwn,                      //!< new dissolved concentration in runoff water [mg/L]
 *PQrw,                      //!< flux of pesticide in runoff water [mg/sec]
 *PQrs,                      //!< flux of pesticide in runoff sediment [mg/sec]
 *PMinf,                     //!< mass of pesticide in infiltrating water [mg]
@@ -193,7 +190,6 @@ cTMap
 *QpinKW,                    //!< sum upstream influx Qpn [mg/sec]
 *Qpw,                       //!< dissolved pesticide flux based on Qp [mg/sec]
 *Qps,                       //!< pesticide sediment flux based on Qs [mg/sec]
-*Ez,                        //!< erosion depth [m] - negative is deposition
 *PCs,                       //!< concentration of pesticide in pesticide soil layer 1 [mg/kg]
 *Theta_mix,                 //!< theta of the mixing layer [-]
 *pmsdet,                     //!< mass of detached pesticide [mg]
@@ -203,9 +199,11 @@ cTMap
 *WVji1,                     //!< water volume in cell at j, i+1 [m3]
 *SedMassIn,                  //!< sediment mass in to kinematic wave [kg]
 *SedAfterSplash,             //!< sediment mass in flow after splash [kg]
-*PMsplash,                   //!< mass detached adsorbed pesticide by splash erosion [mg]
-*PMflow,                    //!< mass detached adsorbed pesticide by flow detachement[mg]
-*PMdep,                     //!< mass deposited adsorbed pesticide [mg]
+*PMsplash,                   //!< mass detached sorbed pesticide by splash erosion [mg]
+*PMflow,                    //!< mass detached sorbed pesticide by flow detachement[mg]
+*PMdep,                     //!< mass deposited sorbed pesticide [mg]
+*totalPPlossmap,             //!< total loss of PP pesticide [mg/m2]
+*totalDPlossmap,             //!< total loss of DP pesticide [mg/m2]
 *test_map,
 
 
@@ -223,27 +221,36 @@ cTMap
 *InfilmmCum,                 //!< cumulative infiltration volume for map report and drawing [mm]
 *InfilVolFlood,
 
+*Lw,
+*Lwmm,
 *ThetaS1,                    //!< porosity soil layer 1 [-]
 *ThetaI1,                    //!< initial moisture content soil layer 1 [-]
 *ThetaI1a,                    //!< initial moisture content soil layer 1 [-]
 *Psi1,                       //!< intial suction head wetting front soil layer 1 (input map is in cm) [m]
 *ThetaR1,
+*ThetaFC1,
 *Ksat1,                      //!< saturated hydraulic conductivity soil layer 1 (input is in mm/h) [m/s]
 *SoilDepth1,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *SoilDepth1init,                 //!< depth to end soil layer 1 (input is in mm) [m]
-*Lw,
-*thetacheck,                    //!<
-*lwcheck,                       //!<
-*Soilwater,                  //!< actual soil water content [-]
 *ThetaS2,                    //!< porosity soil layer 2 [-]
 *ThetaI2,                    //!< initial moisture content soil layer 2 [-]
 *ThetaI2a,                    //!< initial moisture content soil layer 2 [-]
 *ThetaR2,
+*ThetaFC2,
 *Psi2,                       //!< intial suction head wetting front soil layer 2 (input map is in cm) [m]
 *Ksat2,                      //!< saturated hydraulic conductivity soil layer 2 (input is in mm/h) [m/s]
 *SoilDepth2,                 //!< depth to end soil layer 2 (input is in mm) [m]
 *SoilDepth2init,                 //!< depth to end soil layer 2 (input is in mm) [m]
-*Soilwater2,                  //!< actual soil water content layer 2 [-]
+*ThetaS3,                    //!< porosity soil layer 1 [-]
+*ThetaI3,                    //!< initial moisture content soil layer 1 [-]
+*ThetaI3a,                    //!< initial moisture content soil layer 1 [-]
+*Psi3,                       //!< intial suction head wetting front soil layer 1 (input map is in cm) [m]
+*ThetaR3,
+*ThetaFC3,
+*Ksat3,                      //!< saturated hydraulic conductivity soil layer 1 (input is in mm/h) [m/s]
+*SoilDepth3,                 //!< depth to end soil layer 1 (input is in mm) [m]
+*SoilDepth3init,                 //!< depth to end soil layer 1 (input is in mm) [m]
+
 *KsatCrust,                  //!< saturated hydraulic conductivity crusted soil surface (input is in mm/h) [m/s]
 *PoreCrust,                //!< saturated hydraulic conductivity compacted soil surface (input is in mm/h) [m/s]
 *KsatCompact,                //!< saturated hydraulic conductivity compacted soil surface (input is in mm/h) [m/s]
@@ -254,9 +261,13 @@ cTMap
 *Ksateff,                    //!< effective saturated hydraulic conductivity (input is in mm/h) [m/s]
 *Poreeff,
 *Thetaeff,
-*bca1,
-*bca2,
-*Perc,                      //!< Percolation per timestep [m]
+*chanmask3,
+
+*lambda1,
+*lambda2,
+*psi1ae,
+*psi2ae,
+*Perc,
 *PercmmCum,
 *GrassFraction,              //!< fraction of grasstrip in a cell [-]
 *SedimentFilter,             //!< sediment deposited in the sediment trap in kg/m2
@@ -276,6 +287,7 @@ cTMap
 *ChannelDepthO,               //!<
 *ChannelWidth,               //!<
 *ChannelSide,                //!<
+*ChannelQSide,                //!<
 *ChannelQb,                   //!<
 *ChannelQ,                   //!<
 *ChannelQn,                  //!<
@@ -461,6 +473,7 @@ cTMap
 *FlowBarrierNT,              //!< Flow barriers end timing North of cell
 *FlowBarrierWT,              //!< Flow barriers end timing West of cell
 *FlowBarrierST,              //!< Flow barriers end timing South of cell
-*FlowBarrierET;               //!< Flow barriers end timing East of cell
+*FlowBarrierET               //!< Flow barriers end timing East of cell
 
+;
 cTRGBMap * RGB_Image;

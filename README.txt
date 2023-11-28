@@ -1,6 +1,6 @@
 openLISEM
 ============
-Date: 221019
+Date: 230525
 ============
 
 This software is subject to a DISCLAIMER and released under the copyright model GPLv3
@@ -9,7 +9,29 @@ For questions contact v.g.jetten AD utwente.nl
 
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu)
-NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, and openmp
+NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt5, openmp, gdal and pcraster
+
+version 6.898
+- 3 different ways of groundwater flow, for different scales
+- experimental: added possibility to have inflow into channel from saturated parts of the soil (in advanced options)
+
+version 6.893 - 6.897
+- KNOWN bug: activating evapotranspiration gives a mass balance error, not all evaporation losses are accounted for
+- Groundwater connection to the channel is still experimental
+changes and added options:
+- suction below the wetting front can be supplied with maps psi1 and psi2, but also intenally calculated using pedotransfer functions (Rawls 1982)
+- three ways of groundwaterflow are added for different scales
+- it is now possible to add discharge manually (for instance dam spill) at userdefined points in the channel
+- connection of overlandflow to the channel can be made iterative (in advanced options) for large timesteps
+- new libraries, especially lbgdal-32.dll, do not mix with old dlls
+
+version 6.891 - 6.892
+- CHANGED calcyulation of unsaturated Ksat for percolation and redistribution! Closer to Brooks-Corey, Saxton and Rawls 2006
+- Fixed bug where matrix potential PSI was multiplied by 0.01 twice (cm to m). Infiltration will behave differently now
+- Fixed bug causing profile to become saturated instantaneously because percolation from layer 1 to layer 2 saturates subsoil
+- fixed bug open and closed boundary flow, to be further tested on different catchments
+- fixed small bugs for reporting to files all output to files with clear separation of total outflow and channelhydrographs fopr water and sediment
+  and reporting of units m3/s and l/s
 
 version 6.883 - 6.89
 - redesigned GW flow completely, only two calib. paraters now, flow to the GW layer and GWflow to the channel

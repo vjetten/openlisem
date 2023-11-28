@@ -36,6 +36,29 @@ functions: \n
 //#include "operation.h"
 
 
+
+//---------------------------------------------------------------------------
+void TWorld::ChannelFlowandErosion()
+{
+    if (!SwitchIncludeChannel)
+        return;
+
+    SwitchChannelKinWave = true;    // set to false for experimental swof in channel
+
+    ChannelRainandInfil();          // subtract infil, add rainfall    
+
+    ChannelBaseflow();              // calculate baseflow
+
+    ChannelVelocityandDischarge();
+
+    ChannelFlow();                  // channel kin wave for water
+
+    ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
+
+    ChannelSedimentFlow(); // kin wave for sediment and substances
+
+}
+//---------------------------------------------------------------------------
 void TWorld::ChannelVelocityandDischarge()
 {
     // velocity, alpha, Q
@@ -103,29 +126,6 @@ void TWorld::ChannelVelocityandDischarge()
     }}
 }
 
-
-//---------------------------------------------------------------------------
-void TWorld::ChannelFlowandErosion()
-{
-    if (!SwitchIncludeChannel)
-        return;
-
-    SwitchChannelKinWave = true;    // set to false for experimental swof in channel
-
-    ChannelRainandInfil();          // subtract infil, add rainfall
-
-    ChannelBaseflow();              // calculate baseflow
-
-    ChannelVelocityandDischarge();
-
-    ChannelFlow();                  // channel kin wave for water
-
-    //ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
-    ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
-
-    ChannelSedimentFlow(); // kin wave for sediment and substances
-
-}
 //---------------------------------------------------------------------------
 void TWorld::ChannelBaseflow(void)
 {
@@ -151,65 +151,116 @@ void TWorld::ChannelBaseflow(void)
         }}
     }
 
-    if (SwitchExplicitGWflow) // || SwitchSWATGWflow
-    {
+    if (SwitchGWflow) {
+
         GroundwaterFlow();
-        // move groundwater, Qbin is the flow
+        // move groundwater, GWout is the flow itself between cells
 
-        // do the baseflow
-        cTMap *pore;
-        if (SwitchTwoLayer)
+        cTMap *pore = Thetaeff;
+        cTMap *ksat = Ksateff;
+        cTMap *SD = SoilDepth1init;
+        if (SwitchTwoLayer) {
             pore = ThetaS2;
-        else
-            pore = Thetaeff;
+            ksat = Ksat2;
+            SD = SoilDepth2init;
+        }
 
+        // in all channel cells
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
+            if (SwitchSWATGWflow) {
+                Qbase->Drc = ChannelWidth->Drc/_dx * GWout->Drc;
+            } else {
+                double bedrock = DEM->Drc - SD->Drc;
+                double chanbot = DEM->Drc - ChannelDepth->Drc;
+                double dH = bedrock + GWWH->Drc - chanbot;
+                if (dH > 0 && GWWH->Drc > 0) {
+                   //Qbase->Drc = std::min(GWVol->Drc, 2.0 * dH/GWWH->Drc * GWout->Drc);
+                   Qbase->Drc = std::min(GWVol->Drc, 2.0 * GWout->Drc);
+                   // use the fraction of GWout flow that reaches the channel
+                }
 
-             Qbase->Drc = GWout->Drc;// * ChannelWidth->Drc/_dx;
-//            double SD = SoilDepht2init->Drc + SoilDepth1init->Drc;
-//            double dH = std::max(0.0, GWWH->Drc - (SD - ChannelDepth->Drc));
-//            double vol = dH*ChannelWidth->Drc*DX->Drc;
-//            Qbase->Drc = vol;// * ChannelWidth->Drc/_dx;
+                //double dH = GWWH->Drc;//std::max(0.0, GWWH->Drc - ChannelWH->Drc);
+                //double GWchan1 = 2.0*GW_flow * ksat->Drc * dH * DX->Drc*dH/(0.5*_dx); //gradient= dH/dz ?
+                // Ksat * crosssection * gradient = dH/dL where dL is half the distance of the non channel part to
+                // and flow is from 2 sides into the channel, a small channel has less inflow than a broad channel (ChannelAdj)
 
+                // double GWchan = std::max(GWchan1, (2.0*ChannelWidth->Drc/_dx)*fabs(GWout->Drc));
+                // for all methods GWout is the flow between cells and also in the channel cells, this is taken as the best guess flow into the channel
 
-            //m3 added per timestep
-
-            GWVol->Drc -= Qbase->Drc;
+                //Qbase->Drc = std::min(GWVol->Drc, GWchan1); //this is already done, just use the flow
+            }
+           // Qbase->Drc *= 2.0;
 
             ChannelWaterVol->Drc += Qbase->Drc;
-            // NOTE: always added no matter the conditions! e.g. when GW is below surface - channeldepth!
+            //GWVol->Drc -= Qbase->Drc;
+            GWVol->Drc = std::max(0.0, GWVol->Drc - Qbase->Drc);
+            GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
+            // m3 added per timestep, adjust the volume and height
+
+            // NOTE: flow is always added no matter the conditions! e.g. when GW is below surface - channeldepth!
             // But that would make channeldepth very sensitive
 
-            GWWH->Drc = GWVol->Drc/CellArea->Drc/pore->Drc;
-
         }}
-    }
 
+    }
 }
 //---------------------------------------------------------------------------
 void TWorld::ChannelRainandInfil(void)
 {
+    // add rainfall to channel, assume no interception
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-
         if (SwitchCulverts && ChannelMaxQ->Drc > 0)
             ChannelWaterVol->Drc += 0;
         else
             ChannelWaterVol->Drc += Rainc->Drc*ChannelWidth->Drc*DX->Drc;
-        // add rainfall to channel, assume no interception
 
-        // subtract infiltration, no infil in culverts
-        if (SwitchChannelInfil && ChannelMaxQ->Drc <= 0) {
-            double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
-            // hsat based through entire wet cross section
-            inf = std::min(ChannelWaterVol->Drc, inf);
-            // cannot be more than there is
-            ChannelWaterVol->Drc -= inf;
-            ChannelInfilVol->Drc += inf;
-        }        
+        ChannelWaterVol->Drc += ChannelQSide->Drc;
+        // add unsaturated side inflow
+
     }}
 
+    // subtract infiltration, no infil in culverts
+// TODO: no infiltration if moisture content or GW does not allow this
+// TODO: infiltration has to change moisture in surrounding soil
+    if (SwitchChannelInfil) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            if (ChannelMaxQ->Drc <= 0) {
+                double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
+                // hsat based through entire wet cross section
+                inf = std::min(ChannelWaterVol->Drc, inf);
+                // cannot be more than there is
+                ChannelWaterVol->Drc -= inf;
+                ChannelInfilVol->Drc += inf;
+            }
+        }}
+    }
+
+
+    // add user channel inflow
+    if (SwitchDischargeUser) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            ChannelWaterVol->Drc += QuserIn->Drc * _dt;
+            // add user defined discharge
+        }}
+    }
+
+    if (SwitchChannelWFinflow) {
+        if (SwitchTwoLayer) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                cell_Channelinfow2(r, c);
+            }}
+        } else {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                cell_Channelinfow1(r, c);
+            }}
+        }
+    }
 }
 //---------------------------------------------------------------------------
 //! calc channelflow, ChannelDepth, kin wave

@@ -40,7 +40,6 @@ functions: \n
 #include "operation.h"
 #include "global.h"
 
-#define GRAV 9.81
 #define HMIN3 0.001
 
 void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
@@ -56,11 +55,11 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
              double chdepth = ChannelDepth->Drc;
              double dH = std::max(0.0, (ChannelWH->Drc-chdepth));
 
-             if (dH <= HMIN && _h->Drc <= HMIN)
+             if (dH <= HMIN3 && _h->Drc <= HMIN3)
                  continue;
              // no flow activity then continue
 
-             if (dH == _h->Drc)
+             if (fabs(dH - _h->Drc) < HMIN3)
                  continue;
              // no diff in water level, no flow, continue
 
@@ -79,7 +78,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
              if (dH > _h->Drc)   // flow from channel
              {
-                 double dwh = fracC * dH;
+                 double dwh = fracC * (dH-_h->Drc);
                  // amount flowing from channel
                  if (_h->Drc + dwh*cwa > dH-dwh) {
                      // if flow causes situation to reverse (channel dips below _h)
@@ -98,7 +97,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
              }
              else   // flow to channel
              {
-                 double dwh = fracA * _h->Drc;
+                 double dwh = fracA * (_h->Drc-dH);
                  // amount flowing to channel
                  if (dH + dwh/cwa > _h->Drc-dwh) {
                      // if too much flow
@@ -174,7 +173,7 @@ void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
 
     double nrsteps = 0;
     bool go = false;
-    fill(*tma, 0);
+    Fill(*tma, 0);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         if (ChannelWidth->Drc > 0 && ChannelMaxQ->Drc <= 0)
@@ -211,6 +210,8 @@ void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
 
     // if every cell has its own step the result is an unstable hydrograph
     int step = (int)sqrt(nrsteps); // limit nr of steps, solution is fine anyway
+
+    step = std::min(10,step);
     //qDebug() << step;
 
     #pragma omp parallel for num_threads(userCores)
@@ -231,8 +232,12 @@ void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
 
                     double frac = std::min(1.0, fr * sqrt(2*GRAV*dH));  // start Vb here gives unstable hydrograph!
                     double dwh =  dH * frac;
+                   // double vol = dwh * ChannelWidth->Drc * DX->Drc;
+                   // double newh = _h->Drc + vol/CHAdjDX->Drc;
+
                     if (_h->Drc + dwh*cwa > dH-dwh) {
                         // if flow causes situation to reverse (channel dips below _h)
+                        // find a smaller frac
                         while (_h->Drc + dwh*cwa > dH-dwh) {
                             frac = 0.9*(dH-_h->Drc)/((1-cwa)*dH);
                             dwh = dH*frac;

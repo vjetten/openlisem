@@ -69,8 +69,6 @@ void TWorld::saveMBerror2file(bool doError, bool start)
         efout.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream eout(&efout);
         eout << "#mass balance error (%)\n";
-        efout.flush();
-        efout.close();
 
         if (SwitchPest) {
             QFile efout(resultDir+errorPestFileName);
@@ -194,7 +192,7 @@ void TWorld::DoModel()
             RainfallSeries.clear();
             RainfallSeriesMaps.clear();
             calibRainfallinFile = false;
-           // qDebug() << rainSatFileName << rainFileName;
+
             DEBUG("Get Rainfall Data Information");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
@@ -254,10 +252,10 @@ void TWorld::DoModel()
             }
         }
 
-        if (SwitchChannelInflow)
+        if (SwitchDischargeUser)
         {
             DEBUG("GetDischargeData()");
-            GetDischargeData(dischargeinFileName);
+            GetDischargeDataNew(dischargeinFileName);
         }
 
         // get all input data and create and initialize all maps and variables
@@ -269,7 +267,7 @@ void TWorld::DoModel()
         printstep = 1; // printstep determines report frequency
 
       //  DEBUG("setupHydrographData()");
-        setupHydrographData();
+        setupHydrographData(); // reset hydrograph display
 
         bool saveMBerror = true;
         saveMBerror2file(saveMBerror, true);
@@ -314,16 +312,16 @@ void TWorld::DoModel()
 
             InfilEffectiveKsat(false);
 
-            HydrologyProcesses();  // hydrological processes in one loop, incl splash
+            HydrologyProcesses();  // hydrological processes in one loop, incl splash and pesticides
 
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
             // these are all non-threaded
-              ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
+            ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
 
-              TileFlow();          // tile drain flow kin wave
+            TileFlow();          // tile drain flow kin wave
 
-              StormDrainFlow();    // storm drain flow kin wave
+            StormDrainFlow();    // storm drain flow kin wave
             // these are all non-threaded
 
             Totals();            // calculate all totals and cumulative values
@@ -339,7 +337,16 @@ void TWorld::DoModel()
             saveMBerror2file(saveMBerror, false);
 
             if(stopRequested)
-                time = EndTime;                       
+                time = EndTime;
+
+            // show progress in console without GUI
+            if (op.doBatchmode) {
+                int x;
+                x = std::round((op.t / op.maxtime) * 100) ;
+                printf("\rprogress: %d %%                     ", x);
+                //fflush(stdout);
+            }
+             // MC - maybe not the most sophisticated solution but noInterface works again
         }
 
         if (SwitchEndRun)
@@ -350,6 +357,13 @@ void TWorld::DoModel()
         DestroyData();  // destroy all maps automatically
         op.nrMapsCreated = maplistnr;
         emit done("finished");
+
+        if (op.doBatchmode)
+        {
+            qDebug() << "\nfinished after "<< op.maxtime << "minutes\n";
+            QApplication::quit();
+            // close the world model
+        }
     }
     catch(...)  // if an error occurred
     {
@@ -357,6 +371,9 @@ void TWorld::DoModel()
         DestroyData();
 
         emit done("ERROR STOP: "+ErrorString);
+        if (op.doBatchmode) {qDebug() << "ERROR STOP "<< ErrorString;
+            QApplication::quit();
+        }
     }
 }
 //---------------------------------------------------------------------------
@@ -375,6 +392,10 @@ void TWorld::GetInputTimeseries()
             GetETMap();   // get rainfall from stations
     }
 
+    if (SwitchDischargeUser) {
+        GetDischargeMapfromStations();
+    }
+
 //    if (SwitchSnowmelt) {
 //        if (SwitchSnowmeltSatellite)
 //            ; //TODO snowmelt satellite
@@ -387,6 +408,8 @@ void TWorld::GetInputTimeseries()
 // all hydrologuical processes in one big parallel loop for speed
 void TWorld::HydrologyProcesses()
 {
+    double soiltot1 = SoilWaterMass();
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         cell_Interception(r,c);
@@ -407,7 +430,9 @@ void TWorld::HydrologyProcesses()
 
         if (SwitchPest) {
             // update concentration of pesticides after rainfall (mg/L)
-            PCrw->Drc = PMrw->Drc / (WH->Drc * FlowWidth->Drc + DX->Drc * 1000);
+            if (WH->Drc > 0.0) {
+                PCrw->Drc = PMrw->Drc / (WH->Drc * FlowWidth->Drc * DX->Drc * 1000);
+            }
         }
 
         // infiltration by SWATRE of G&A+percolation
@@ -415,17 +440,26 @@ void TWorld::HydrologyProcesses()
            cell_InfilSwatre(r, c);
         } else {
             if (InfilMethod != INFIL_NONE) {
-               cell_InfilMethods(r, c);
 
-               cell_Redistribution(r, c);
+                cell_InfilMethods(r, c);
 
-               if (!SwitchImpermeable)// && !SwitchChannelBaseflow)
-                   Perc->Drc = cell_Percolation(r, c, 1.0);
+                if (SwitchTwoLayer) {
+                    cell_Redistribution2(r, c);                    
+                    //cell_Channelinfow2(r, c);
+                } else {
+                    cell_Redistribution1(r, c);
+                    //cell_Channelinfow1(r, c);
+                }
+
+                if (!SwitchImpermeable)
+                    Perc->Drc = cell_Percolation(r, c, 1.0);
                 // if baseflow is active percollation is done there, so do not do it here
             }
         }
-      //  cell_depositInfil(r,c);
+
+        //  cell_depositInfil(r,c);
         // deposit all sediment still in flow when infiltration causes WH to become minimum
+        // gives huge MBs errors!
 
         cell_SurfaceStorage(r, c);
         //calc surf storage and total watervol and WHrunoff
@@ -444,13 +478,15 @@ void TWorld::HydrologyProcesses()
     // divided over 12 hours in a day with sine curve
 
     //MoistureContent();
+    double soiltot2 = SoilWaterMass();
+    SoilMoistDiff = soiltot2 - soiltot1;
 
     if (SwitchPest) {
         PesticideCellDynamics();
-        // calculate partitioning, and infiltration and percolation losses of pesticides
+        // calculate partitioning, uptake and infiltration losses of pesticides
         if (SwitchErosion) {
             PesticideSplashDetachment();
-            // splash detachment for pesticides // not yet parallel!!
+            // splash detachment for pesticides
         }
     }
 }
