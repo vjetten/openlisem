@@ -2,7 +2,12 @@ this file is a list of changes per major commit
 
 231208 - v6.92-v6.94
 - flowboundary crashed, fixed
-231115 - v6.92
+231115 - v6.899-v6.92
+- changed emprical equations for thetar etc
+- improved soil water distribution in G&A
+- experimental code SOAP included, not yet working
+- more stable groundwater
+- improved ET
 - fixed bug causing crash when using 1 layer infiltration models
 230623 - v6.899
 - fixing small bugs in channel side inflow from sat soil layer
