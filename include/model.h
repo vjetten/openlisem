@@ -41,6 +41,7 @@
 #include <omp.h>
 
 #include "CsfMap.h"
+#include "pcrtypes.h"
 #include "io.h"
 #include "lerror.h"
 #include "swatre_p.h"
@@ -60,11 +61,7 @@
 
 #define Aavg(a,b)  (0.5*(a+b))
 #define Savg(a,b)  qSqrt(a*b)
-#define Havg(a,b)  (2.0/(1.0/a+1.0/b))
-
-#define Aavg(a,b)  (0.5*(a+b))
 #define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
-#define Savg(a,b)  sqrt(a * b)
 #define Mavg(a,b)  std::min(a,b)
 
 #define DEBUG(s) emit debug(QString(s))
@@ -698,6 +695,7 @@ public:
     double checkforMinMaxV(double Ves1);
 
     double limiter(double a, double b);
+    vec4 F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);

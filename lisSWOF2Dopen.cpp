@@ -180,7 +180,7 @@ void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
 double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 {
     double timesum = 0;
-    double dt_max = std::min(_dt, _dx*0.5);
+    double dt_max = std::min(_dt, _dx*0.75);
     int count = 0;
     double sumh = 0;
     bool stop;

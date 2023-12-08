@@ -301,11 +301,15 @@ void TWorld::Totals(void)
         }
     }
 
+
     // sum of all fluxes ONLY for display on screen
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
+        Qototal->Drc += (Qn->Drc + Qflood->Drc) * _dt;
         Qoutput->Drc = (Qn->Drc + Qflood->Drc) * (QUnits == 1 ? 1.0 : 1000);// in m3/s
+
+        FHI->Drc = (Qn->Drc + Qflood->Drc)*(V->Drc + 0.5);
 
         if(SwitchIncludeChannel)
             Qoutput->Drc += ChannelQn->Drc * (QUnits == 1 ? 1.0 : 1000);
@@ -315,6 +319,8 @@ void TWorld::Totals(void)
     // Total outflow in m3 for all timesteps
     // does NOT include flood water leaving domain (floodBoundaryTot)
     // which is reported separatedly (because it is a messy flux)!
+
+    report(*Qototal,"qtotm3.map");
 
     Qtot += Qtot_dt;
     // add timestep total to run total in m3

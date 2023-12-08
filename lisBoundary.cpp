@@ -57,23 +57,23 @@ void TWorld::dynOutflowPoints()
         double demy1 = DEMFB(r,c,1,0,true);
         double demy2 = DEMFB(r,c,-1,0,true);
 
-        if(OUTORMV(r,c+1))
+        if (FlowBoundary->Drc == 6)//  OUTORMV(r,c+1))
         {
             if(demx1 < demx2)
                 K2DOutlets->Drc = 1;
         }
-        if(OUTORMV(r,c-1))
+        if (FlowBoundary->Drc == 4)// (OUTORMV(r,c-1))
         {
             if(demx2 < demx1)
                 K2DOutlets->Drc = 1;
         }
 
-        if(OUTORMV(r+1,c))
+        if(FlowBoundary->Drc == 2) // OUTORMV(r+1,c))
         {
             if(demy1 < demy2)
                 K2DOutlets->Drc = 1;
         }
-        if(OUTORMV(r-1,c))
+        if(FlowBoundary->Drc == 8)   //OUTORMV(r-1,c))
         {
             if(demy2 < demy1)
                 K2DOutlets->Drc = 1;
@@ -95,12 +95,12 @@ void TWorld::dynOutflowPoints()
             Dhy = (demy2-dem);
         }
 
-        if(OUTORMV(r,c+1) && OUTORMV(r,c-1))
+        if (FlowBoundary->Drc == 4 && FlowBoundary->Drc == 6)// OUTORMV(r,c+1) && OUTORMV(r,c-1))
         {
             Dhx = 0;
             K2DOutlets->Drc = 1;
         }
-        if(OUTORMV(r+1,c) && OUTORMV(r-1,c))
+        if (FlowBoundary->Drc == 2 && FlowBoundary->Drc == 8)//(OUTORMV(r+1,c) && OUTORMV(r-1,c))
         {
             Dhy = 0;
             K2DOutlets->Drc = 1;
@@ -142,12 +142,12 @@ void TWorld::dynOutflowPoints()
     }}
 
     //flowboundary 2 use the map
-    if (FlowBoundaryType == 2) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            K2DOutlets->Drc *= FlowBoundary->Drc;
-        }}
-    }
+//    if (FlowBoundaryType == 2) {
+//        #pragma omp parallel for num_threads(userCores)
+//        FOR_ROW_COL_MV_L {
+//            K2DOutlets->Drc *= FlowBoundary->Drc;
+//        }}
+//    }
 }
 //---------------------------------------------------------------------------
 void TWorld::Boundary2Ddyn()
@@ -183,78 +183,35 @@ void TWorld::Boundary2Ddyn()
 
     Fill(*K2DOutlets,0);
 
-    FOR_ROW_COL_MV_L {
-        tma->Drc = DEM->Drc + h->Drc;
-    }}
-    // outlets already done
-    FOR_ROW_COL_LDD5 {
-        tma->Drc = 0;
-    }}
 //    FOR_ROW_COL_MV_L {
-//        if (pcr::isMV(tma->data[r][c-1]) && tma->data[r][c+1] >= tma->Drc) {
-//        if (Uflood->Drc < 0)
-//            K2DOutlets->Drc = 1;
-//        }
-//        if (pcr::isMV(tma->data[r][c+1]) && tma->data[r][c-1] >= tma->Drc) {
-//        if (Uflood->Drc > 0)
-//            K2DOutlets->Drc = 1;
-//        }
-//        if (pcr::isMV(tma->data[r+1][c]) && tma->data[r-1][c] >= tma->Drc) {
-//        if (Vflood->Drc > 0)
-//            K2DOutlets->Drc = 1;
-//        }
-//        if (pcr::isMV(tma->data[r-1][c]) && tma->data[r+1][c] >= tma->Drc) {
-//        if (Vflood->Drc < 0)
-//            K2DOutlets->Drc = 1;
-//        }
-
-
+//        tma->Drc = DEM->Drc + h->Drc;
+//    }}
+//    // outlets already done
+//    FOR_ROW_COL_LDD5 {
+//        tma->Drc = 0;
 //    }}
 
-    //NOTE Uflood negative is flow to the left, positive to the right
+    //NOTE Uflood negative is flow to the left, positive to the right, u = x col, v = y row
     //Vflood negative is flow up, positive is flow down
+    // 2,4,6,8, are ldd directions
     FOR_ROW_COL_MV_L {
-        if (pcr::isMV(tma->data[r][c-1]) && Uflood->Drc < 0) {
+        if (FlowBoundary->Drc == 4 && Uflood->Drc < 0) {
             K2DOutlets->Drc = 1;
         }
-        if (pcr::isMV(tma->data[r][c+1]) && Uflood->Drc > 0) {
+        if (FlowBoundary->Drc == 6 && Uflood->Drc > 0) {
             K2DOutlets->Drc = 1;
         }
-        if (pcr::isMV(tma->data[r+1][c]) && Vflood->Drc > 0) {
+        if (FlowBoundary->Drc == 2 && Vflood->Drc > 0) {
             K2DOutlets->Drc = 1;
         }
-        if (pcr::isMV(tma->data[r-1][c]) && Vflood->Drc < 0) {
+        if (FlowBoundary->Drc == 8 && Vflood->Drc < 0) {
             K2DOutlets->Drc = 1;
         }
-
-
     }}
 
-
-//    #pragma omp parallel for num_threads(userCores)
-//    FOR_ROW_COL_MV_L {
-//        if (K2DOutlets->Drc == 1)
-//        {
-//            if (c > 0 && MV(r,c-1)) // U = x; V = y
-//                if (Uflood->Drc < -HMIN) {
-//                    tma->Drc = 1;
-//                }
-//            if (c < _nrCols-1 && MV(r,c+1))
-//                if (Uflood->Drc > HMIN) {
-//                    tma->Drc = 1;
-//                }
-//            if (r > 0 && MV(r-1,c))
-//                if (Vflood->Drc < -HMIN) {
-//                    tma->Drc = 1;
-//                }
-//            if (r < _nrRows-1 && MV(r+1,c))
-//                if (Vflood->Drc > HMIN) {
-//                    tma->Drc = 1;
-//                }
-//        }
-//    }}
-
-
+    FOR_ROW_COL_LDD5 {
+        K2DOutlets->Drc = 0;
+    }}
 
     BoundaryQ = 0;
     BoundaryQs = 0;

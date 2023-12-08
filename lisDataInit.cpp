@@ -829,16 +829,20 @@ void TWorld::InitBoundary(void)
         for (int c = 1; c < _nrCols-1; c++)
             if(!pcr::isMV(LDD->data[r][c]))
             {
-                if (DomainEdge->Drc == 0 &&
-                        (pcr::isMV(LDD->data[r-1][c  ]) ||
-                         pcr::isMV(LDD->data[r-1][c  ]) ||
-                         pcr::isMV(LDD->data[r-1][c+1]) ||
-                         pcr::isMV(LDD->data[r  ][c-1]) ||
-                         pcr::isMV(LDD->data[r  ][c+1]) ||
-                         pcr::isMV(LDD->data[r+1][c-1]) ||
-                         pcr::isMV(LDD->data[r+1][c  ]) ||
-                         pcr::isMV(LDD->data[r+1][c+1]) )
-                        )
+                if (DomainEdge->Drc == 0 && pcr::isMV(LDD->data[r-1][c  ])) DomainEdge->Drc = 8; // use ldd logic for clarity
+                if (DomainEdge->Drc == 0 && pcr::isMV(LDD->data[r+1][c  ])) DomainEdge->Drc = 2;
+                if (DomainEdge->Drc == 0 && pcr::isMV(LDD->data[r  ][c-1])) DomainEdge->Drc = 4;
+                if (DomainEdge->Drc == 0 && pcr::isMV(LDD->data[r  ][c+1])) DomainEdge->Drc = 6;
+                        //(pcr::isMV(LDD->data[r-1][c-1]) ||
+                        // pcr::isMV(LDD->data[r-1][c+1]) ||
+                        // pcr::isMV(LDD->data[r+1][c-1]) ||
+                        // pcr::isMV(LDD->data[r+1][c+1]) ||
+//                       ( pcr::isMV(LDD->data[r-1][c  ]) ||
+//                         pcr::isMV(LDD->data[r  ][c-1]) ||
+//                         pcr::isMV(LDD->data[r  ][c+1]) ||
+//                         pcr::isMV(LDD->data[r+1][c  ]) )
+//                        )
+
                     DomainEdge->Drc = 1;
             }
     FOR_ROW_COL_MV
@@ -880,10 +884,15 @@ void TWorld::InitBoundary(void)
                 // use flowboundary for domainedge
             }
 
-    calcMap(*FlowBoundary, *DomainEdge, MUL); // to limit digitized flowboundary to edge cells
 
-    //    report(*FlowBoundary, "bound.map");
-    //    report(*DomainEdge, "edge.map");
+    FOR_ROW_COL_MV {
+        if (FlowBoundary->Drc > 0)
+            FlowBoundary->Drc = DomainEdge->Drc;
+    }
+    //calcMap(*FlowBoundary, *DomainEdge, MUL); // to limit digitized flowboundary to edge cells
+
+   report(*FlowBoundary, "bound.map");
+    report(*DomainEdge, "edge.map");
 
 }
 //---------------------------------------------------------------------------
@@ -2224,6 +2233,9 @@ void TWorld::IntializeData(void)
     QinKW = NewMap(0);
     //    QKW = NewMap(0);
     Qoutput = NewMap(0);
+    Qototal = NewMap(0);
+    FHI = NewMap(0);
+
     Qsoutput = NewMap(0);
     q = NewMap(0);
 
