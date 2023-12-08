@@ -1,7 +1,9 @@
 this file is a list of changes per major commit
-231208 - v6.899-v6.94
+
+231208 - v6.92-v6.94
 - flowboundary crashed, fixed
--
+231115 - v6.92
+- fixed bug causing crash when using 1 layer infiltration models
 230623 - v6.899
 - fixing small bugs in channel side inflow from sat soil layer
 - overall soil mass balance correction
