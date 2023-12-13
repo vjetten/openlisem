@@ -303,6 +303,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include raindrum storage");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include storm drains");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Storm drain shape");
 
     //###
     namelist[i++].name = QString("");

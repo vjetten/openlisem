@@ -252,6 +252,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include road system")==0)               SwitchRoadsystem     = iii == 1;
         if (p1.compare("Include tile drains")==0)               SwitchIncludeTile      = iii == 1;
         if (p1.compare("Include storm drains")==0)              SwitchIncludeStormDrains      = iii == 1;
+        if (p1.compare("Storm drain shape")==0)                 SwitchStormDrainShape      = iii == 1;
         if (p1.compare("Include litter interception")==0)       SwitchLitter =           iii == 1;
 
         if (p1.compare("Include flow barriers")==0)             SwitchFlowBarriers = iii == 1;

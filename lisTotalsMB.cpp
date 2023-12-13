@@ -286,7 +286,7 @@ void TWorld::Totals(void)
             // input for mass balance, is the water seeping from the soil, input
             // this is the water before the kin wave
             calc2Maps(*tm, *TileDrainSoil, *TileWidth, MUL); //in m3
-            calcMap(*tm, *TileDX, MUL); //in m3
+            calcMap(*tm, *DX, MUL); //in m3
             // tm->calcV(_dx, MUL); //in m3 ??? or DX?
             TileVolTot += MapTotal(*tm); // in m3
 

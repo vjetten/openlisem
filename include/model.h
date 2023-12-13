@@ -379,7 +379,7 @@ public:
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead,SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,SwitchThreeLayer,   SwitchChannelKinWave, SwitchPsiUser,
-    SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
+    SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchStormDrainShape, SwitchKETimebased,
     SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide, SwitchAddBuildingsDEM,
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
@@ -695,6 +695,7 @@ public:
     double checkforMinMaxV(double Ves1);
 
     double limiter(double a, double b);
+    vec4 F_ROE(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
@@ -954,8 +955,8 @@ public:
     void ToTiledrain();//);
     void TileFlow(void);
     void StormDrainFlow(void);
-    void CalcVelDischTile(void);
-    void CalcVelDischDrain(void);
+    void CalcVelDischRectangular(void);
+    void CalcVelDischCircular(void);
     void GridCell();
 
     void doExtendRow(int r, int c, int n,  double w2, double adx);
@@ -996,6 +997,7 @@ public:
     void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX);//, cTMap *_Vol);
     double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX);
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
+    void upstreamDrain(cTMap *_LDD, cTMap *MaxQ, cTMap *in, cTMap *out);
     void KinematicExplicit(QVector<LDD_COORIN> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX);//, cTMap *_Qmax);
     void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
     void AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);

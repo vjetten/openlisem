@@ -2,6 +2,8 @@ this file is a list of changes per major commit
 
 231208 - v6.92-v6.94
 - flowboundary crashed, fixed
+- fixed error in Rusanov
+- added Roe?
 231115 - v6.899-v6.92
 - changed emprical equations for thetar etc
 - improved soil water distribution in G&A

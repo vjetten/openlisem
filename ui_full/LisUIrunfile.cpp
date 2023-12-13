@@ -203,6 +203,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include Erosion simulation")==0)    checkDoErosion->setChecked(check);
         if (p1.compare("Include road system")==0)           checkRoadsystem->setChecked(check);
         if (p1.compare("Include storm drains")==0)          checkStormDrains->setChecked(check);
+        if (p1.compare("Storm drain shape")==0)          checkStormDrainShape->setChecked(check);
         if (p1.compare("Hard Surfaces")==0)                 checkHardsurface->setChecked(check);
         if (p1.compare("Include house storage")==0)         checkHouses->setChecked(check);
         if (p1.compare("Include buildings")==0)             checkHouses->setChecked(check);
@@ -886,6 +887,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
         if (p1.compare("Hard Surfaces")==0)                  namelist[j].value.setNum((int)checkHardsurface->isChecked());
         if (p1.compare("Include storm drains")==0)           namelist[j].value.setNum((int)checkStormDrains->isChecked());
+        if (p1.compare("Storm drain shape")==0)          namelist[j].value.setNum((int)checkStormDrainShape->isChecked());
 
         if (p1.compare("Include Satellite Image")==0)        namelist[j].value.setNum((int)checksatImage->isChecked());
 

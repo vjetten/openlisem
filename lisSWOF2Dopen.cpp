@@ -23,7 +23,7 @@
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
-
+//https://sourcesup.renater.fr/frs/?group_id=895&release_id=3901#fullswof_2d-_1.10.00-title-content
 #include <algorithm>
 #include "lisemqt.h"
 #include "model.h"
@@ -413,6 +413,9 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
                             double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
                             double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
+                            //qes[i] = he[i]*ve[i]-TX*(f2[i+1]-f2[i]+
+                            //GRAV_DEM*((hleft[i]-hright[i])*(hleft[i]+hright[i])+(hr[i]-hl[i])*(hr[i]+hl[i])+(hl[i]+hr[i])*dzi[i]));
+
 
 
 
@@ -444,18 +447,30 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         }
                         if (FlowBoundaryType == 0 || (FlowBoundaryType == 2 && FlowBoundary->Drc == 0)) {
 
-                            if (c > 0  && MV(r,c-1) && vxn < 0) {
+                            if (DomainEdge->Drc == 4 && vxn < 0) {
                                 vxn = 0;
                             }
-                            if (c < _nrCols-1 && MV(r,c+1) && vxn > 0) {
+                            if (DomainEdge->Drc == 6 && vxn > 0) {
                                 vxn = 0;
                             }
-                            if (r < _nrRows-1 && MV(r+1,c) && vyn > 0) {
+                            if (DomainEdge->Drc == 2 && vyn > 0) {
                                 vyn = 0;
                             }
-                            if (r > 0 && MV(r-1,c) && vyn < 0) {
+                            if (DomainEdge->Drc == 8 && vyn < 0) {
                                 vyn = 0;
                             }
+//                            if (c > 0  && MV(r,c-1) && vxn < 0) {
+//                                vxn = 0;
+//                            }
+//                            if (c < _nrCols-1 && MV(r,c+1) && vxn > 0) {
+//                                vxn = 0;
+//                            }
+//                            if (r < _nrRows-1 && MV(r+1,c) && vyn > 0) {
+//                                vyn = 0;
+//                            }
+//                            if (r > 0 && MV(r-1,c) && vyn < 0) {
+//                                vyn = 0;
+//                            }
                         }
                         if (vyn == 0 && vxn == 0)
                             hn = H;

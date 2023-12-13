@@ -243,5 +243,5 @@ void TWorld::Boundary2Ddyn()
         }
     }}
 
-    qDebug() << BoundaryQ << MB;
+    //qDebug() << BoundaryQ << MB;
 }

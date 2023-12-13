@@ -9,6 +9,8 @@
 #define ve_ca 1e-10
 
 #define EPSILON 1e-10
+
+#define GRAV_DEM 4.90335
 //--------------------------------------------------------------------------------------------
 // correct mass balance
 double TWorld::getMass(cTMap *M, double th)
@@ -246,9 +248,82 @@ double TWorld::limiter(double a, double b)
 //timestep
 
 
-/// Numerical flux calculation on which the new velocity is based
-/// U_n+1 = U_n + dt/dx* [flux]  when flux is calculated by HLL, HLL2, Rusanov
-/// HLL = Harten, Lax, van Leer numerical solution
+
+//  1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
+//  2e component: Momentum flux in gelijke richting per meter per tijdseenheid  ( dus (m4/s2)/(m) = m3/s2 = h*u*u)
+//  3d component: Momentum flux in loodrechte richting per meter per tijdseenheid  ( dus (m4/s2)/(m) = m3/s2 = h*u*v)
+
+vec4 TWorld::F_ROE(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
+{
+    vec4 hll;
+    double f1, f2, f3, cfl;//, tx;
+    double cL=sqrt(GRAV*h_L);
+    double cR=sqrt(GRAV*h_R);
+    double umean=(u_L+u_R)/2.0;
+    double vmean=(v_L+v_R)/2.0;
+    double cmean=(cL+cR)/2.0;
+    double lamb1=umean-cmean;
+    double lamb2=umean+cmean;
+    double lamb1L=u_L-cL;
+    double lamb2L=u_L+cL;
+    double lamb1R=u_R-cR;
+    double lamb2R=u_R+cR;
+    double lamb1v=vmean-cmean;
+    double lamb2v=vmean+cmean;
+    double lamb1Lv=v_L-cL;
+    double lamb2Lv=v_L+cL;
+    double lamb1Rv=v_R-cR;
+    double lamb2Rv=v_R+cR;
+    double UL2 = u_L*u_L;
+    double VL2 = v_L*v_L;
+    double UR2 = u_R*u_R;
+    double VR2 = v_R*v_R;
+    double HL2 = h_L*h_L;
+    double HR2 = h_R*h_R;
+
+    if ( (lamb1L < 0 && lamb1R > 0) || (lamb2L < 0 && lamb2R > 0) ||
+         (lamb1Lv < 0 && lamb1Rv > 0) || (lamb2Lv < 0 && lamb2Rv > 0)) {
+        //entropy correction with the Rusanov flux
+        cfl = std::max(fabs(u_L)+sqrt(GRAV*h_L),fabs(u_R)+sqrt(GRAV*h_R));
+        double q_R = u_R*h_R;
+        double q_L = u_L*h_L;
+        f1 = ((q_L+q_R) - cfl*(h_R-h_L))*0.5;
+        f2 = ((u_L*q_L) + (GRAV_DEM*h_L*h_L) + (u_R*q_R) + (GRAV_DEM*h_R*h_R) - cfl*(q_R-q_L))*0.5;
+        f3 = ((q_L*v_L+q_R*v_R) - cfl*(h_R*v_R-h_L*v_L))*0.5;
+    }
+    else
+        if (lamb1 >= 0.){
+            //supercritical flow from the left to the right
+            f1=h_L*u_L;
+            f2=h_L*UL2+(GRAV_DEM*HL2);
+            cfl=std::max(fabs(u_L)+cL,fabs(u_R)+cR);//*tx;
+        }
+        else if (lamb2<=0.){
+            //supercritical flow from the right to the left
+            f1=h_R*u_R;
+            f2=h_R*UR2+(GRAV_DEM*HR2);
+            cfl=std::max(fabs(u_L)+cL,fabs(u_R)+cR);//*tx;
+        }
+        else{
+            //subcritical flow
+            double lambmax=0.;
+            double ustar=0.;
+            double hstar=0.;
+
+            lambmax=std::max(fabs(lamb1),fabs(lamb2));
+            ustar=(u_L+u_R)/2.-(cR-cL);
+            hstar=pow((cR+cL)/2.-(u_R-u_L)/4.,  2.)/GRAV;
+            f1=hstar*ustar;
+            f2=hstar*ustar*ustar+(GRAV_DEM*hstar*hstar);
+            cfl=std::max(lambmax,std::max(fabs(u_L)+cL,fabs(u_R)+cR));//*tx;
+        }
+        hll.v[0] = f1;
+        hll.v[1] = f2;
+        hll.v[2] = f3;
+        hll.v[3] = cfl;
+        return hll;
+}
+
 
 vec4 TWorld::F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
@@ -271,7 +346,7 @@ vec4 TWorld::F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
         double q_R = u_R*h_R;
         double q_L = u_L*h_L;
 
-        //chokgolf snelheden van links en naar rechts
+        //schokgolf snelheden van links en naar rechts
         double c1 = std::min(u_L - sqrt_grav_h_L,u_R - sqrt_grav_h_R); //we already have u_L - sqrt_grav_h_L<u_L + sqrt_grav_h_L and u_R - sqrt_grav_h_R<u_R + sqrt_grav_h_R
         double c2 = std::max(u_L + sqrt_grav_h_L,u_R + sqrt_grav_h_R); //so we do not need all the eigenvalues to get c1 and c2
         tmp = 1./std::max(0.1,c2-c1);
@@ -310,8 +385,8 @@ vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
         double sqrt_grav_h_R = sqrt(grav_h_R);
         double q_R = u_R*h_R;
         double q_L = u_L*h_L;
-        double c1;// = std::min(u_L - sqrt_grav_h_L,u_R - sqrt_grav_h_R); //we already have u_L - sqrt_grav_h_L<u_L + sqrt_grav_h_L and u_R - sqrt_grav_h_R<u_R + sqrt_grav_h_R
-        double c2;// = std::max(u_L + sqrt_grav_h_L,u_R + sqrt_grav_h_R); //so we do not need all the eigenvalues to get c1 and c2
+        double c1;
+        double c2;
         if(h_L < he_ca) {
             c1 = u_R - 2*sqrt_grav_h_R;//sqrt(GRAV*h_R);
         }else{
@@ -363,16 +438,17 @@ vec4 TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
         double q_R = u_R*h_R;
         double q_L = u_L*h_L;
 
-        //chokgolf snelheden van links en naar rechts
+        //schokgolf snelheden van links en naar rechts
         double c1 = std::min(u_L - sqrt_grav_h_L,u_R - sqrt_grav_h_R); //we already have u_L - sqrt_grav_h_L<u_L + sqrt_grav_h_L and u_R - sqrt_grav_h_R<u_R + sqrt_grav_h_R
         double c2 = std::max(u_L + sqrt_grav_h_L,u_R + sqrt_grav_h_R); //so we do not need all the eigenvalues to get c1 and c2
-        tmp = 1./std::max(0.1,c2-c1);
+        tmp = 1.0/(c1-c2);//1./std::max(0.1,c2-c1);
         double t1 = (std::min(c2,0.) - std::min(c1,0.))*tmp;
         double t2 = 1. - t1;
         double t3 = (c2*fabs(c1) - c1*fabs(c2))*0.5*tmp;
 
         f1 = t1*q_R + t2*q_L - t3*(h_R - h_L);
         f2 = t1*(q_R*u_R + grav_h_R*h_R*0.5) + t2*(q_L*u_L + grav_h_L*h_L*0.5) - t3*(q_R - q_L);
+        // f3 is not in the latest fullswof code?
         f3 = t1*q_R*v_R + t2*q_L*v_L - t3*(h_R*v_R - h_L*v_L);
         cfl = std::max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition std::max(fabs(c1),fabs(c2))*tx with tx=dt/dx
     }
@@ -432,29 +508,40 @@ vec4 TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double
     hll.v[3] = cfl;
     return hll;
 }
+//  1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
+//  2e component: Momentum flux in gelijke richting per meter per tijdseenheid  ( dus (m4/s2)/(m) = m3/s2 = h*u*u)
+//  3d component: Momentum flux in loodrechte richting per meter per tijdseenheid  ( dus (m4/s2)/(m) = m3/s2 = h*u*v)
 
 vec4 TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
     vec4 hll;
-    double c = std::max(fabs(u_L),fabs(u_R));
-    double cd = c*0.5;
-    double q_R = u_R*h_R;
-    double q_L = u_L*h_L;
-    hll.v[0] = (q_L+q_R)*0.5-cd*(h_R-h_L);
-    hll.v[1] = ((u_L*q_L)+(u_R*q_R))*0.5-cd*(q_R-q_L);
-    hll.v[2] = (q_L*v_L+q_R*v_R)*0.5-cd*(h_R*v_R-h_L*v_L);
-    hll.v[3] = c;
+    double f1, f2, f3, cfl, tmp = 0;
+    if (h_L<=0. && h_R<=0.){
+        f1 = 0.;
+        f2 = 0.;
+        f3 = 0.;
+        cfl = 0.;
+    }else{
+        cfl = std::max(fabs(u_L)+sqrt(GRAV*h_L),fabs(u_R)+sqrt(GRAV*h_R));
+        double q_R = u_R*h_R;
+        double q_L = u_L*h_L;
+        f1 = ((q_L+q_R) - cfl*(h_R-h_L))*0.5;
+        f2 = ((u_L*q_L) + (GRAV_DEM*h_L*h_L) + (u_R*q_R) + (GRAV_DEM*h_R*h_R) - cfl*(q_R-q_L))*0.5;
+        f3 = ((q_L*v_L+q_R*v_R) - cfl*(h_R*v_R-h_L*v_L))*0.5;
+    }
+    hll.v[0] = f1;
+    hll.v[1] = f2;
+    hll.v[2] = f3;
+    hll.v[3] = cfl;
     return hll;
 }
 
 vec4 TWorld::F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
-  //  1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
-  //  2e component: Momentum flux in gelijke richting per meter per tijdseenheid  ( dus (m4/s2)/(m) = m3/s2 = h*u*u)
-  //  3d component: Momentum flux in loodrechte richting per meter per tijdseenheid  ( dus (m4/s2)/(m) = m3/s2 = h*u*v)
-
-
     vec4 rec;// = {0,0,0,0};
+    if (F_scheme == 6)
+    rec = F_ROE(h_L, u_L, v_L, h_R, u_R, v_R);
+    else
     if (F_scheme == 5)
         rec = F_HLL4(h_L, u_L, v_L, h_R, u_R, v_R);
     else

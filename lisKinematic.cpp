@@ -715,6 +715,40 @@ void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
 
 }
 //---------------------------------------------------------------------------
+void TWorld::upstreamDrain(cTMap *_LDD, cTMap *MaxQ, cTMap *in, cTMap *out)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+    FOR_ROW_COL_MV
+    {
+        double tot = 0;
+        for (int i=1; i<=9; i++)
+        {
+            // this is the current cell
+            if (i==5)
+                continue;
+
+            // look around in 8 directions
+            int row = r+dy[i];
+            int col = c+dx[i];
+            int ldd = 0;
+
+            if (INSIDE(row, col) && !pcr::isMV(_LDD->data[row][col]))
+                ldd = (int) _LDD->data[row][col];
+            else
+                continue;
+
+            if (FLOWS_TO(ldd, row,col,r,c)) {
+                tot += in->data[row][col];
+            }
+        }
+        tot = std::min(MaxQ->Drc, tot);
+        out->Drc = tot;
+    }
+
+}
+//---------------------------------------------------------------------------
 void TWorld::UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn)
 {
     #pragma omp parallel num_threads(userCores)

@@ -645,7 +645,7 @@ void TWorld::InitSoilInput(void)
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
         calcValue(*SoilDepth1, SD1Calibration, MUL);
-        report(*SoilDepth1,"sd1.map");
+       // report(*SoilDepth1,"sd1.map");
         SoilDepth1init = NewMap(0);
         copy(*SoilDepth1init, *SoilDepth1);
 
@@ -833,66 +833,46 @@ void TWorld::InitBoundary(void)
                 if (DomainEdge->Drc == 0 && pcr::isMV(LDD->data[r+1][c  ])) DomainEdge->Drc = 2;
                 if (DomainEdge->Drc == 0 && pcr::isMV(LDD->data[r  ][c-1])) DomainEdge->Drc = 4;
                 if (DomainEdge->Drc == 0 && pcr::isMV(LDD->data[r  ][c+1])) DomainEdge->Drc = 6;
-                        //(pcr::isMV(LDD->data[r-1][c-1]) ||
-                        // pcr::isMV(LDD->data[r-1][c+1]) ||
-                        // pcr::isMV(LDD->data[r+1][c-1]) ||
-                        // pcr::isMV(LDD->data[r+1][c+1]) ||
-//                       ( pcr::isMV(LDD->data[r-1][c  ]) ||
-//                         pcr::isMV(LDD->data[r  ][c-1]) ||
-//                         pcr::isMV(LDD->data[r  ][c+1]) ||
-//                         pcr::isMV(LDD->data[r+1][c  ]) )
-//                        )
-
-                    DomainEdge->Drc = 1;
             }
-    FOR_ROW_COL_MV
-    {
-        if(r == 0 || c == 0 || r == _nrRows-1 || c == _nrCols-1)
-            if (!pcr::isMV(LDD->Drc))
-                DomainEdge->Drc = 1;
+    // if ldd touches the edge
+    FOR_ROW_COL_MV {
+        if(r == 0)          DomainEdge->Drc = 8;
+        if(r == _nrRows-1)  DomainEdge->Drc = 2;
+        if(c == 0)          DomainEdge->Drc = 4;
+        if(c == _nrCols-1)  DomainEdge->Drc = 6;
     }
 
     FlowBoundary = NewMap(0);
-    if (FlowBoundaryType == 0) // no outflow as flood or overland flow, only pits
+
+    if(FlowBoundaryType == 1) // potential outflow everywhere
     {
-        if (!SwitchIncludeChannel) {
-            FOR_ROW_COL_MV
-            {
-                if(LDD->Drc == 5)
-                    FlowBoundary->Drc = 1;
-            }
-        } else {
-            FOR_ROW_COL_MV_CH
-            {
-                if(LDDChannel->Drc == 5)
-                    FlowBoundary->Drc = 1;
-            }
-
+        // determine dynamically in function K2DDEMA
+        // for flood DomainEdge is used
+        copy( *FlowBoundary, *DomainEdge);
+    }
+    if (FlowBoundaryType == 2 ) // user defined outflow (0 close, >0 outflow)
+    {
+        FlowBoundary = ReadMap(LDD,getvaluename("flowboundary"));
+        // use flowboundary for domainedge
+        FOR_ROW_COL_MV {
+            if (FlowBoundary->Drc > 0)
+                FlowBoundary->Drc = DomainEdge->Drc;
+            // this sets the cells to 1 row/col instead of a user sloppy digitizing
         }
     }
-    else
-        if(FlowBoundaryType == 1) // potential outflow everywhere
-        {
-            // determine dynamically in function K2DDEMA
-            // for flood DomainEdge is used
-            copy( *FlowBoundary, *DomainEdge);
-        }
-        else
-            if (FlowBoundaryType == 2 ) // user defined outflow (0 close, 1 outflow)
-            {
-                FlowBoundary = ReadMap(LDD,getvaluename("flowboundary"));
-                // use flowboundary for domainedge
-            }
-
-
+    // always set outlet to 1
     FOR_ROW_COL_MV {
-        if (FlowBoundary->Drc > 0)
-            FlowBoundary->Drc = DomainEdge->Drc;
+        if(LDD->Drc == 5)
+            FlowBoundary->Drc = 1;
     }
-    //calcMap(*FlowBoundary, *DomainEdge, MUL); // to limit digitized flowboundary to edge cells
-
+    if (SwitchIncludeChannel) {
+        FOR_ROW_COL_MV_CH {
+            if(LDDChannel->Drc == 5)
+                FlowBoundary->Drc = 1;
+        }
+    }
    report(*FlowBoundary, "bound.map");
-    report(*DomainEdge, "edge.map");
+   report(*DomainEdge, "edge.map");
 
 }
 //---------------------------------------------------------------------------
@@ -2518,7 +2498,7 @@ void TWorld::IntializeOptions(void)
     floodMaxVHFileName = QString("VHmax.map");
     floodWHmaxFileName= QString("WHmax.map");
     tileWaterVolfilename= QString("drainvol.map");
-    tileQmaxfilename= QString("drainqmax.map");
+    //tileQmaxfilename= QString("drainqmax.map");
 
     rainFileName.clear();
     rainFileDir.clear();
@@ -3006,62 +2986,69 @@ void TWorld::InitImages()
 // read and Intiialize all Tile drain variables and maps
 void TWorld::InitTiledrains(void)
 {
-    if (SwitchIncludeTile || SwitchIncludeStormDrains)
-    {
-    // channel vars and maps that must be there even if channel is switched off
-    TileVolTot = 0;
-    TileWaterVol = NewMap(0);
-    TileWaterVolSoil = NewMap(0);
-    RunoffVolinToTile = NewMap(0);
-    TileQ = NewMap(0);
-    TileQn = NewMap(0);
-    TileQs = NewMap(0);
-    TileQsn = NewMap(0);
-    TileWH = NewMap(0);
-    Tileq = NewMap(0);
-    TileAlpha = NewMap(0);
-    TileDrainSoil = NewMap(0);
-    TileV = NewMap(0);
-    TileDX = NewMap(_dx);
-    TileMaxQ = NewMap(0);
-    TileQmax = NewMap(0);
+    if (SwitchIncludeTile || SwitchIncludeStormDrains) {
 
-    // maybe needed later for erosion in tiledrain
-    //TileSedTot = 0;
-    //TileDepTot = 0;
-    //TileDetTot = 0;
-    //TileQsoutflow = NewMap(0);
-    //TileDetFlow = NewMap(0);
-    //TileDep = NewMap(0);
-    //TileSed = NewMap(0);
-    //TileConc = NewMap(0);
-    //TileTC = NewMap(0);
-    //TileY = NewMap(0);
-    //SedToTile = NewMap(0);
+        //switch tile is soil draimn and switch drain is urban drains
 
-  //  if (SwitchIncludeTile || SwitchIncludeStormDrains)
-    //{
+        // channel vars and maps that must be there even if channel is switched off
+        TileVolTot = 0;
+        TileWaterVol = NewMap(0);
+        RunoffVolinToTile = NewMap(0);
+        TileQ = NewMap(0);
+        TileQn = NewMap(0);
+        Tileq = NewMap(0);
+        TileAlpha = NewMap(0);
+        //TileDX = NewMap(_dx);
+      //  TileMaxQ = NewMap(0);
+
+
+        // maybe needed later for erosion in tiledrain
+        //TileSedTot = 0;
+        //TileDepTot = 0;
+        //TileDetTot = 0;
+        //TileQsoutflow = NewMap(0);
+        //TileDetFlow = NewMap(0);
+        //TileDep = NewMap(0);
+        //TileSed = NewMap(0);
+        //TileConc = NewMap(0);
+        //TileTC = NewMap(0);
+        //TileY = NewMap(0);
+        //SedToTile = NewMap(0);
+        //TileCohesion = ReadMap(LDDTile, getvaluename("chancoh"));
+
         //## Tile maps
         LDDTile = InitMaskTiledrain(getvaluename("lddtile"));
         // must be first" LDDTile is the mask for tile drains
 
-
+        TileDiameter = NewMap(0);
         TileSinkhole = ReadMap(LDDTile, getvaluename("tilesink"));
-        if (SwitchIncludeStormDrains)
-            TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
-        if (SwitchIncludeTile) {
-            TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
-            TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
-            TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
-        }
-
         TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
         checkMap(*TileGrad, LARGER, 1.0, "Tile drain gradient must be SINE of slope angle (not tangent)");
         calcValue(*TileGrad, 0.001, MAX);
         TileN = ReadMap(LDDTile, getvaluename("tileman"));
-        //TileCohesion = ReadMap(LDDTile, getvaluename("chancoh"));
-
         cover(*TileGrad, *LDD, 0);
+        cover(*TileN, *LDD, 0);
+
+        if (SwitchIncludeStormDrains || SwitchIncludeTile) {
+            if (SwitchStormDrainShape)
+                TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
+        } else {
+                TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
+                TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
+                FOR_ROW_COL_MV {
+                    TileDiameter->Drc = TileWidth->Drc*TileHeight->Drc;
+                }
+        }
+
+        // soil tule drain additonal files
+        if (SwitchIncludeTile) {
+            TileDrainSoil = NewMap(0);
+            TileWaterVolSoil = NewMap(0);
+           // TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
+           // TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
+            TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
+        }
+
         if (SwitchIncludeStormDrains)
             cover(*TileDiameter, *LDD, 0);
         if (SwitchIncludeTile){
@@ -3069,21 +3056,17 @@ void TWorld::InitTiledrains(void)
             cover(*TileHeight, *LDD, 0);
             cover(*TileDepth, *LDD, -1); //VJ non tile cells flaaged by -1 value, needed in swatre init
         }
-        cover(*TileN, *LDD, 0);
-        cover(*TileSinkhole, *LDD, 0);
+            cover(*TileN, *LDD, 0);
+            cover(*TileSinkhole, *LDD, 0);
+            FOR_ROW_COL_MV_TILE {
+                TileDX->Drc = _dx/cos(asin(TileGrad->Drc));
+                TileSinkhole->Drc = std::min(TileSinkhole->Drc, 0.9*_dx*_dx);
+              //  if (SwitchIncludeStormDrains)
+               //     TileMaxQ->Drc = pow(4.0/TileDiameter->Drc, 2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+                // estimate maxq with full tube and manning, overestimate because long tubes do not stay full
+            }
 
-        /* TODO ? */
-
-        FOR_ROW_COL_MV_TILE
-        {
-            TileDX->Drc = _dx/cos(asin(TileGrad->Drc));
-            TileSinkhole->Drc = std::min(TileSinkhole->Drc, 0.9*_dx*_dx);
-            if (SwitchIncludeStormDrains)
-                TileMaxQ->Drc = pow(4.0/TileDiameter->Drc, 2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
-            // estimate maxq with full tube and manning, overestimate because long tubes do not stay full
         }
-
-    }
 
 }
 //---------------------------------------------------------------------------

@@ -434,27 +434,27 @@ cTMap
 *LDDTile,                    //!< LDD network of tile drains, must be connected to outlet
 *TileDrainSoil,              //!< drain volume from layer
 *TileDiameter,                  //!< total width of drains in cell (m)
-*TileMaxQ,
+//*TileMaxQ,
 *TileWidth,                  //!< total width of drains in cell (m)
 *TileHeight,                 //!< height of drain (m)
 *TileDepth,                  //!< depth of tiles in soil below surface (m)
 *TileSinkhole,               //!< sinkhole on surface connecting to tiledrains (m2)
 *TileQ,                      //!< water flux in drains m3/s
 *TileQn,                     //!< new water flux in drains m3/s
-*TileQs,                     //!< sediment flux in drains kg/s
-*TileQsn,                    //!< new sediment flux in drains kg/s
+//*TileQs,                     //!< sediment flux in drains kg/s
+//*TileQsn,                    //!< new sediment flux in drains kg/s
 //*TileQoutflow,               //!< water outflow in outlet
 *TileGrad,                   //!< gradient of the tiledrain system
 *TileN,                      //!< mannings inside the tiledrains
-*TileWH,                     //!< water height in the tile drains (m)
+//*TileWH,                     //!< water height in the tile drains (m)
 *TileWaterVol,               //!< water volume in the tiledrains (m3)
 *TileWaterVolSoil,           //!< water volume in the tiledrains from the soil only, used for mass bal corection (m3)
 *Tileq,                      //!< possible drainage inside tiles, not used
 *RunoffVolinToTile,          //!< can be used for shortcut of surface pits to tile system
 *TileAlpha,                  //!< alpha in tile drain, in A = alpha*Q^beta
-*TileDX,                     //!< cell length in tile drain, dx/cos angle
-*TileV,                      //!< velocity in tile drain m/s
-*TileQmax,                   //!< max Q tile drain m3/s
+//*TileDX,                     //!< cell length in tile drain, dx/cos angle
+//*TileV,                      //!< velocity in tile drain m/s
+//*TileQmax,                   //!< max Q tile drain m3/s
 
 *TotalDetMap,                //!<
 *TotalDepMap,                //!<
