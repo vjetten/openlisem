@@ -70,7 +70,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -2605,7 +2605,7 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>Round (v) or rectangular( )</string>
+                         <string>Rectangular ( ) or Pipe (V) </string>
                         </property>
                        </widget>
                       </item>
@@ -10457,6 +10457,64 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab_maps">
+       <attribute name="title">
+        <string>Map dbase</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_12">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_47">
+          <property name="text">
+           <string>Double Click on map name to open file interface, F2 to edit name dircetly </string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QGroupBox" name="groupBox_InputMaps">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>Input Maps</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_10">
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="checkExpandActive">
+             <property name="text">
+              <string>Expand activated maps categories</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QTreeView" name="treeView">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Sunken</enum>
+             </property>
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAsNeeded</enum>
+             </property>
+             <property name="horizontalScrollBarPolicy">
+              <enum>Qt::ScrollBarAsNeeded</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="tab_simulation">
        <attribute name="title">
         <string>Simulation</string>
@@ -13526,64 +13584,6 @@ p, li { white-space: pre-wrap; }
                </item>
               </layout>
              </widget>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab_maps">
-       <attribute name="title">
-        <string>Map dbase</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_12">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_47">
-          <property name="text">
-           <string>Double Click on map name to open file interface, F2 to edit name dircetly </string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QGroupBox" name="groupBox_InputMaps">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="title">
-           <string>Input Maps</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_10">
-           <item row="1" column="1">
-            <widget class="QCheckBox" name="checkExpandActive">
-             <property name="text">
-              <string>Expand activated maps categories</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QTreeView" name="treeView">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Sunken</enum>
-             </property>
-             <property name="verticalScrollBarPolicy">
-              <enum>Qt::ScrollBarAsNeeded</enum>
-             </property>
-             <property name="horizontalScrollBarPolicy">
-              <enum>Qt::ScrollBarAsNeeded</enum>
-             </property>
             </widget>
            </item>
           </layout>

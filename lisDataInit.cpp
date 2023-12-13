@@ -2998,6 +2998,7 @@ void TWorld::InitTiledrains(void)
         TileQn = NewMap(0);
         Tileq = NewMap(0);
         TileAlpha = NewMap(0);
+
         //TileDX = NewMap(_dx);
       //  TileMaxQ = NewMap(0);
 
@@ -3016,9 +3017,10 @@ void TWorld::InitTiledrains(void)
         //SedToTile = NewMap(0);
         //TileCohesion = ReadMap(LDDTile, getvaluename("chancoh"));
 
-        //## Tile maps
+        //##### Tile maps #####
+
         LDDTile = InitMaskTiledrain(getvaluename("lddtile"));
-        // must be first" LDDTile is the mask for tile drains
+        // must be first LDDTile is the mask for tile drains
 
         TileDiameter = NewMap(0);
         TileSinkhole = ReadMap(LDDTile, getvaluename("tilesink"));
@@ -3028,7 +3030,15 @@ void TWorld::InitTiledrains(void)
         TileN = ReadMap(LDDTile, getvaluename("tileman"));
         cover(*TileGrad, *LDD, 0);
         cover(*TileN, *LDD, 0);
+        cover(*TileSinkhole, *LDD, 0);
+        TileWaterVolSoil = NewMap(0);
 
+        FOR_ROW_COL_MV_TILE {
+            //TileDX->Drc = _dx/cos(asin(TileGrad->Drc));
+            TileSinkhole->Drc = std::min(TileSinkhole->Drc, 0.9*_dx*_dx);
+        }
+
+        // dimensions rectangular or circular
         if (SwitchIncludeStormDrains || SwitchIncludeTile) {
             if (SwitchStormDrainShape)
                 TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
@@ -3038,35 +3048,18 @@ void TWorld::InitTiledrains(void)
                 FOR_ROW_COL_MV {
                     TileDiameter->Drc = TileWidth->Drc*TileHeight->Drc;
                 }
+            cover(*TileWidth, *LDD, 0);
+            cover(*TileHeight, *LDD, 0);
         }
+        cover(*TileDiameter, *LDD, 0);
 
         // soil tule drain additonal files
         if (SwitchIncludeTile) {
             TileDrainSoil = NewMap(0);
-            TileWaterVolSoil = NewMap(0);
-           // TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
-           // TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
             TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
-        }
-
-        if (SwitchIncludeStormDrains)
-            cover(*TileDiameter, *LDD, 0);
-        if (SwitchIncludeTile){
-            cover(*TileWidth, *LDD, 0);
-            cover(*TileHeight, *LDD, 0);
             cover(*TileDepth, *LDD, -1); //VJ non tile cells flaaged by -1 value, needed in swatre init
         }
-            cover(*TileN, *LDD, 0);
-            cover(*TileSinkhole, *LDD, 0);
-            FOR_ROW_COL_MV_TILE {
-                TileDX->Drc = _dx/cos(asin(TileGrad->Drc));
-                TileSinkhole->Drc = std::min(TileSinkhole->Drc, 0.9*_dx*_dx);
-              //  if (SwitchIncludeStormDrains)
-               //     TileMaxQ->Drc = pow(4.0/TileDiameter->Drc, 2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
-                // estimate maxq with full tube and manning, overestimate because long tubes do not stay full
-            }
-
-        }
+    }
 
 }
 //---------------------------------------------------------------------------
