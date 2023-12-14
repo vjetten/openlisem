@@ -36,9 +36,9 @@
 #define VERSION_H_
 
 #define VERSIONNR "6.91"
-#define DATE "2023/09/20"
+#define DATE "2023/12/14"
 
-#define VERSIONNR_pest "0.8"
+#define VERSIONNR_pest "1.0"
 
 
 #define VERSION QString("openLISEM version %1 - %2 pesticides %3").arg(VERSIONNR).arg(DATE).arg(VERSIONNR_pest)
