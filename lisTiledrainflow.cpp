@@ -62,7 +62,7 @@ void TWorld::ToTiledrain()//int thread)
                 if (SwitchStormDrainShape)
                     MaxVol = DX->Drc * PI*TileDiameter->Drc*TileDiameter->Drc*0.25; //(pi r^2)
                 else
-                    MaxVol = DX->Drc * TileDiameter->Drc; //rectangular drain
+                    MaxVol = DX->Drc * TileDiameter->Drc; //rectangular drain, diameter is area in fact
 
                 if (TileWaterVol->Drc > MaxVol*0.99)
                     fractiontotile = 0;
@@ -140,7 +140,6 @@ void TWorld::CalcVelDischCircular()
       double TWH = rr - cos(theta/2.0)*rr;
       Perim = Area < 0.5*rr*rr*PI ? rr*theta : PI*TileDiameter->Drc-rr*theta;
 
-//      double minV = std::pow(TileWH->Drc,2.0/3.0) * gradN;
       double minV = std::pow(TWH,2.0/3.0) * gradN;
       double TileV_ = Perim > 1e-10 ? std::min(minV, std::pow(Area/Perim,2.0/3.0) * gradN) : 0.0;
       //TileV_ = std::min(TileV_, 2.0);
@@ -154,26 +153,29 @@ void TWorld::CalcVelDischCircular()
 //- calc Tileflow, Tileheight, kin wave
 void TWorld::TileFlow(void)
 {
-   if (!SwitchIncludeTile)
+   if (!SwitchIncludeTile && !SwitchIncludeStormDrains)
       return;
+   // get water from surface
+   if (SwitchIncludeStormDrains) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV {
+                TileWaterVol->Drc += RunoffVolinToTile->Drc;
+                // add water from the surface
+        }
+   }
 
-   #pragma omp parallel for num_threads(userCores)
-   FOR_ROW_COL_MV_TILE {
-      TileQn->Drc = 0;
+    // get water from soil
+   if (SwitchIncludeTile) {
+       #pragma omp parallel for num_threads(userCores)
+       FOR_ROW_COL_MV_TILE {
+          TileWaterVol->Drc += TileDrainSoil->Drc * TileDiameter->Drc * DX->Drc;
+          // asume water can come from all sides!
+          // add inflow to Tile in m3, tiledrainsoil is in m per timestep
 
-      TileWaterVol->Drc += TileDrainSoil->Drc * TileDiameter->Drc * DX->Drc;
-      // asume water can come from all sides!
-      // add inflow to Tile in m3, tiledrainsoil is in m per timestep
+          TileWaterVolSoil->Drc += TileDrainSoil->Drc * TileDiameter->Drc  * DX->Drc;
+          // soil only used for MB correction
 
-      TileWaterVolSoil->Drc += TileDrainSoil->Drc * TileDiameter->Drc  * DX->Drc;
-      // soil only used for MB correction
-
-      //TileWaterVol->Drc += RunoffVolinToTile->Drc;
-      // add from the surface ????
-
-     // TileWH->Drc = TileWaterVol->Drc/(TileWidth->Drc * TileDX->Drc);
-      // water height in m per cell
-
+       }
    }
 
    if (SwitchStormDrainShape)
@@ -187,7 +189,7 @@ void TWorld::TileFlow(void)
    // flag all new flux as missing value, needed in kin wave and replaced by new flux
    FOR_ROW_COL_MV_TILE {
       if (LDDTile->Drc == 5)
-                Kinematic(r,c, LDDTile, TileQ, TileQn, TileAlpha, DX);
+            Kinematic(r,c, LDDTile, TileQ, TileQn, TileAlpha, DX);
    }
 
    cover(*TileQn, *LDD, 0); // avoid missing values around Tile for adding to Qn for output
@@ -195,24 +197,28 @@ void TWorld::TileFlow(void)
    #pragma omp parallel for num_threads(userCores)
    FOR_ROW_COL_MV_TILE {
         TileWaterVol->Drc = TileWaterVol->Drc + _dt*(QinKW->Drc - TileQn->Drc);
-      TileWaterVol->Drc =  std::max(0.0, TileWaterVol->Drc);
-        TileWaterVol->Drc =  std::min(TileWaterVol->Drc, TileDiameter->Drc*DX->Drc);
+        TileWaterVol->Drc =  std::max(0.0, TileWaterVol->Drc);
+
+        double MaxVol;
+        if (SwitchStormDrainShape)
+                MaxVol = DX->Drc * PI*TileDiameter->Drc*TileDiameter->Drc*0.25; //(pi r^2)
+        else
+                MaxVol = DX->Drc * TileDiameter->Drc; //rectangular drain, diameter is area in fact
+
+        TileWaterVol->Drc =  std::min(TileWaterVol->Drc, MaxVol);
         TileQ->Drc = TileQn->Drc;
    }
 
 }
 //---------------------------------------------------------------------------
+// obsolete
 //- calc Tileflow, Tileheight, kin wave
 void TWorld::StormDrainFlow(void)
 {
+   /*
     if (!SwitchIncludeStormDrains)
         return;
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV {
-        TileWaterVol->Drc += RunoffVolinToTile->Drc;
-        // add water from the surface
-    }
 
     if (SwitchStormDrainShape)
         CalcVelDischCircular();
@@ -286,5 +292,6 @@ void TWorld::StormDrainFlow(void)
 //         TileQn->Drc = TileQ->Drc;
 //   }
 //   cover(*TileQn, *LDD, 0);
+*/
 }
 
