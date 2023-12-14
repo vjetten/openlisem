@@ -31,12 +31,13 @@ ENDIF()
 
 # linux ubuntu, qwt installation should be in usr if you followed the instructions, version nr may be different
 IF(UNIX AND NOT CYGWIN)
-    SET(QWT_BUILD_DIR "/usr/local/qwt-6.1.4")
+    SET(QWT_BUILD_DIR "/usr/local/qwt-6.4.0-svn")
     SET(CMAKE_SKIP_BUILD_RPATH FALSE)
     SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
     SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
     SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
-
+    SET(GDAL_INCLUDE_DIRS "/usr/include/gdal")
+    SET(GDAL_LIBRARIES "/usr/lib/libgdal.so")
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.so")
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/")
 ENDIF()
