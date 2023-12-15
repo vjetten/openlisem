@@ -267,18 +267,20 @@ void TWorld::Totals(void)
     }
 
             //=== storm drain flow ===//
-    if (SwitchIncludeTile || SwitchIncludeStormDrains) {
-        StormDrainVolTot = MapTotal(*TileWaterVol);
-        StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
-    }
+//    if (SwitchIncludeTile || SwitchIncludeStormDrains) {
+//        StormDrainVolTot = MapTotal(*TileWaterVol);
+//        StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
+//    }
 
     if(SwitchIncludeStormDrains) {
         FOR_ROW_COL_MV_TILE
                 if (LDDTile->Drc == 5)
         {
-            Qtot_dt += TileQn->Drc * _dt;
+            //Qtot_dt += TileQn->Drc * _dt;
             QTiletot += TileQn->Drc * _dt;
         }
+                StormDrainVolTot = MapTotal(*TileWaterVol) + QTiletot;
+        StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
     } else {
         if (SwitchIncludeTile)
         {
@@ -287,9 +289,9 @@ void TWorld::Totals(void)
             // this is the water before the kin wave
             calc2Maps(*tm, *TileDrainSoil, *TileWidth, MUL); //in m3
             calcMap(*tm, *DX, MUL); //in m3
-            // tm->calcV(_dx, MUL); //in m3 ??? or DX?
-            TileVolTot += MapTotal(*tm); // in m3
 
+            TileVolTot += MapTotal(*tm); // in m3
+// TO DO CHECK THIS
             FOR_ROW_COL_MV_TILE
                     if (LDDTile->Drc == 5)
             {

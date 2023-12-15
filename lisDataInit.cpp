@@ -170,23 +170,18 @@ void TWorld::DestroyData(void)
             CloseSwatre(SwatreSoilModelGrass);
     }
 
-      //if (cr_) free(cr_);
-      //if (crch_) free(crch_);psi1
-
     cr_.clear();
     crch_.clear();
     crldd5_.clear();
     crlddch5_.clear();
 
     for(int i_ = 0; i_ < crlinkedldd_.size(); i_++){
-       // crlinkedldd_[i_].in.clear();
         if(crlinkedldd_[i_].inn)
             free(crlinkedldd_[i_].inn);
     }
     crlinkedldd_.clear();
 
     for(int i_ = 0; i_ < crlinkedlddch_.size(); i_++){
-      //  crlinkedlddch_[i_].in.clear();
         if(crlinkedlddch_[i_].inn)
             free(crlinkedlddch_[i_].inn);
     }
@@ -935,18 +930,6 @@ void TWorld::InitChannel(void)
       //  i++;
     }
     crlinkedlddch_= MakeLinkedList(LDDChannel);
-
-
-    //qDebug() << "nrcells" << nrValidCellsCH << crlinkedlddch_.size();
-
-//   crlinkedlddch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
-//        QVector <LDD_COOR> temp = MakeLinkedList(LDDChannel);
-
-//        for (long i=0; i < temp.size(); i++) {
-//            crlinkedlddch_[i].r = temp[i].r;
-//            crlinkedlddch_[i].c = temp[i].c;
-//        }
-//        temp.clear();
 
     crlddch5_.clear();
     FOR_ROW_COL_MV_CH {
@@ -2048,12 +2031,12 @@ void TWorld::IntializeData(void)
 //            }
 //        }
 
-        AddBuildingFraction = 0;
         if (SwitchAddBuildingsDEM) {
-            AddBuildingFraction = getvaluedouble("Add Building fraction");
+            double AddBuildingFraction = getvaluedouble("Add Building fraction");
+            double AddBuildingHeight = getvaluedouble("Add Building fraction");
             FOR_ROW_COL_MV {
                 double dem = DEM->Drc;
-                dem += HouseCover->Drc > AddBuildingFraction  ? HouseCover->Drc*10 : 0.0;
+                dem += HouseCover->Drc > AddBuildingFraction  ? AddBuildingHeight: 0.0;
                 dem = RoadWidthDX->Drc > 0.1 ? DEM->Drc : dem;
                 DEM->Drc = dem;
             }
@@ -3001,8 +2984,6 @@ void TWorld::InitTiledrains(void)
 
         //TileDX = NewMap(_dx);
       //  TileMaxQ = NewMap(0);
-
-
         // maybe needed later for erosion in tiledrain
         //TileSedTot = 0;
         //TileDepTot = 0;
@@ -3022,6 +3003,20 @@ void TWorld::InitTiledrains(void)
         LDDTile = InitMaskTiledrain(getvaluename("lddtile"));
         // must be first LDDTile is the mask for tile drains
 
+
+        nrValidCellsTile = 0;
+        FOR_ROW_COL_MV_CH {
+            nrValidCellsTile++;
+        }
+        FOR_ROW_COL_MV_TILE {
+            LDD_COOR newcr;
+            newcr.r = r;
+            newcr.c = c;
+            crtile_ << newcr;
+        }
+        crlinkedlddtile_= MakeLinkedList(LDDTile);
+
+
         TileDiameter = NewMap(0);
         TileSinkhole = ReadMap(LDDTile, getvaluename("tilesink"));
         TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
@@ -3032,32 +3027,34 @@ void TWorld::InitTiledrains(void)
         cover(*TileN, *LDD, 0);
         cover(*TileSinkhole, *LDD, 0);
         TileWaterVolSoil = NewMap(0);
+        TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
+        TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
+        TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
+
+        cover(*TileN, *LDD, 0);
+        cover(*TileSinkhole, *LDD, 0);
+        cover(*TileGrad, *LDD, 0);
+        cover(*TileDiameter, *LDD, 0);
+        cover(*TileWidth, *LDD, 0);
+        cover(*TileHeight, *LDD, 0);
 
         FOR_ROW_COL_MV_TILE {
-            //TileDX->Drc = _dx/cos(asin(TileGrad->Drc));
             TileSinkhole->Drc = std::min(TileSinkhole->Drc, 0.9*_dx*_dx);
         }
 
         // dimensions rectangular or circular
-        if (SwitchIncludeStormDrains || SwitchIncludeTile) {
-            if (SwitchStormDrainShape)
-                TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
-        } else {
-                TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
-                TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
-                FOR_ROW_COL_MV {
-                    TileDiameter->Drc = TileWidth->Drc*TileHeight->Drc;
-                }
-            cover(*TileWidth, *LDD, 0);
-            cover(*TileHeight, *LDD, 0);
-        }
-        cover(*TileDiameter, *LDD, 0);
-
-        // soil tule drain additonal files
         if (SwitchIncludeTile) {
-            TileDrainSoil = NewMap(0);
+            TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
             TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
-            cover(*TileDepth, *LDD, -1); //VJ non tile cells flaaged by -1 value, needed in swatre init
+            TileDrainSoil = NewMap(0);
+            cover(*TileDepth, *LDD, -1); //VJ non tile cells flagged by -1 value, needed in swatre init
+        }
+
+        if (!SwitchStormDrainCircular) {
+            //rectangular drainage
+            FOR_ROW_COL_MV_TILE {
+                TileDiameter->Drc = TileWidth->Drc*TileHeight->Drc;
+            }
         }
     }
 

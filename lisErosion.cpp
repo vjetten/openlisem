@@ -690,6 +690,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
  */
 double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
 {
+    /*
     //simple iteration over maps
     double wtotal = 0;
     FOR_GRAIN_CLASSES
@@ -697,6 +698,7 @@ double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
         wtotal += (*M).Drcd;
     }
     return wtotal;
+    */
 }
 //---------------------------------------------------------------------------
 /**

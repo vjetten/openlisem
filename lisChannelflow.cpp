@@ -279,8 +279,8 @@ void TWorld::ChannelFlow(void)
         //double sumvol = getMassCH(ChannelWaterVol);
 
         #pragma omp parallel num_threads(userCores)
-        FOR_ROW_COL_MV_CHL {            
-            ChannelQsn->Drc = 0;
+        FOR_ROW_COL_MV_CHL {
+            ChannelQn->Drc = 0;
             //Channelq->Drc = 0; // obsolete
             QinKW->Drc = 0;
         }}
@@ -343,6 +343,7 @@ void TWorld::ChannelSedimentFlow()
     //separate Suspended and baseload for separate transport
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
+        ChannelQsn->Drc = 0;
         double concss = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
         ChannelQSSs->Drc = ChannelQ->Drc * concss; // m3/s *kg/m3 = kg/s
     }}

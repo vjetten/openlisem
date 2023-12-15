@@ -203,13 +203,18 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include Erosion simulation")==0)    checkDoErosion->setChecked(check);
         if (p1.compare("Include road system")==0)           checkRoadsystem->setChecked(check);
         if (p1.compare("Include storm drains")==0)          checkStormDrains->setChecked(check);
-        if (p1.compare("Storm drain shape")==0)          checkStormDrainShape->setChecked(check);
+        if (p1.compare("Storm drain shape")==0)             {
+            if (iii == 0) checkStormDrainRect->setChecked(check);
+            if (iii == 1) checkStormDrainCirc->setChecked(check);
+        }
+
         if (p1.compare("Hard Surfaces")==0)                 checkHardsurface->setChecked(check);
         if (p1.compare("Include house storage")==0)         checkHouses->setChecked(check);
         if (p1.compare("Include buildings")==0)             checkHouses->setChecked(check);
 
         if (p1.compare("Add buildings to DEM")==0)          checkAddBuildingDEM->setChecked(check);
         if (p1.compare("Add building fraction")==0)         E_AddBuildingFraction->setValue(valc);
+        if (p1.compare("Add building height")==0)           E_buildingHeight->setValue(valc);
         if (p1.compare("Include raindrum storage")==0)      checkRaindrum->setChecked(check);
         if (p1.compare("Include tile drains")==0)           checkIncludeTiledrains->setChecked(check);
 
@@ -883,11 +888,15 @@ void lisemqt::updateModelData()
         if (p1.compare("Include buildings")==0)          namelist[j].value.setNum((int)checkHouses->isChecked());
         if (p1.compare("Add buildings to DEM")==0)           namelist[j].value.setNum((int)checkAddBuildingDEM->isChecked());
         if (p1.compare("Add building fraction")==0)           namelist[j].value = E_AddBuildingFraction->text();
+        if (p1.compare("Add building height")==0)           namelist[j].value = E_buildingHeight->text();
         if (p1.compare("Include raindrum storage")==0)       namelist[j].value.setNum((int)checkRaindrum->isChecked());
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
         if (p1.compare("Hard Surfaces")==0)                  namelist[j].value.setNum((int)checkHardsurface->isChecked());
         if (p1.compare("Include storm drains")==0)           namelist[j].value.setNum((int)checkStormDrains->isChecked());
-        if (p1.compare("Storm drain shape")==0)          namelist[j].value.setNum((int)checkStormDrainShape->isChecked());
+        if (p1.compare("Storm drain shape")==0)  {
+            if (checkStormDrainRect->isChecked())  namelist[j].value.setNum(0);
+            if (checkStormDrainCirc->isChecked())  namelist[j].value.setNum(1);
+        }
 
         if (p1.compare("Include Satellite Image")==0)        namelist[j].value.setNum((int)checksatImage->isChecked());
 

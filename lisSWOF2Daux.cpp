@@ -24,6 +24,7 @@ double TWorld::getMass(cTMap *M, double th)
     return sum2;
 }
 
+/*
 double TWorld::getMassWS(int nr_, cTMap *M, double th)
 {
     double sum2 = 0;
@@ -34,7 +35,7 @@ double TWorld::getMassWS(int nr_, cTMap *M, double th)
     }}
     return sum2;
 }
-
+*/
 double TWorld::getMassSed(cTMap *M, double th)
 {
     double sum2 = 0;
@@ -74,12 +75,13 @@ void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
     }}
 }
 
+/*
 void TWorld::correctMassBalanceWS(int nr_, double sum1, cTMap *M, double th)
 {
     double sum2 = 0;
     double n = 0;
 
-#pragma omp parallel for reduction(+:sum2) num_threads(userCores)
+    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_LWS(nr_) {
         if(M->Drc > th)
         {
@@ -90,7 +92,7 @@ void TWorld::correctMassBalanceWS(int nr_, double sum1, cTMap *M, double th)
     // total and cells active for M
     double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
 
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_LWS(nr_) {
         if(M->Drc > th)
         {
@@ -99,7 +101,7 @@ void TWorld::correctMassBalanceWS(int nr_, double sum1, cTMap *M, double th)
         }
     }}
 }
-
+*/
 
 void TWorld::correctMassBalanceSed(double sum1, cTMap *M, double th)
 {

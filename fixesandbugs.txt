@@ -1,6 +1,7 @@
 this file is a list of changes per major commit
 
 231208 - v6.92-v6.94
+- Fixed subsurface drainage code
 - flowboundary crashed, fixed
 - fixed error in Rusanov
 - added Roe?

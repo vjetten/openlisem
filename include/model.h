@@ -131,6 +131,9 @@
 #define FOR_ROW_COL_MV_CHL for(long i_ = nrValidCellsCH-1; i_ >= 0; i_--)\
 {int r = crch_[i_].r; int c = crch_[i_].c;
 
+#define FOR_ROW_COL_MV_TILEL for(long i_ = nrValidCellsTile-1; i_ >= 0; i_--)\
+{int r = crtile_[i_].r; int c = crtile_[i_].c;
+
 #define FOR_ROW_COL_MV_OUTL for(int i_ = 0; i_ < crout_.size(); i_++)\
 {int r = crout_[i_].r; int c = crout_[i_].c;
 
@@ -336,17 +339,20 @@ public:
     long nrValidCellsCH;
     long nrValidCellsLDDCH5;
     long nrValidCellsWS;
-    int nrWatersheds;
+    long nrValidCellsTile;
+   // int nrWatersheds;
     QVector <LDD_COOR> crldd5_;
     QVector <LDD_COOR> crlddch5_;
     QVector <LDD_COOR> cr_;
     QVector <LDD_COOR> crws_;
-    QList< QVector <LDD_COOR> > WScr;
+    //QList< QVector <LDD_COOR> > WScr;
     QVector <LDD_COORi> dcr_;
     QVector <LDD_COOR> crch_;
+    QVector <LDD_COOR> crtile_;
     QVector <LDD_COORIN> crlinkedldd_;
     QVector <LDD_COORIN> crlinkedlddch_;
     QVector <LDD_COORIN> crlinkedlddbase_;
+    QVector <LDD_COORIN> crlinkedlddtile_;
     QVector <LDD_COORout> crout_;
 
   //  QVector <IDI_POINT> IDIpoints;
@@ -379,7 +385,7 @@ public:
     SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead,SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
     SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,SwitchThreeLayer,   SwitchChannelKinWave, SwitchPsiUser,
-    SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchStormDrainShape, SwitchKETimebased,
+    SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchStormDrainCircular, SwitchKETimebased,
     SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide, SwitchAddBuildingsDEM,
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
@@ -397,7 +403,6 @@ public:
     int userCores;
     int SwitchSV; //ettling velocity
     double splashb; // splash strength coef b limburg equtions,
-    double AddBuildingFraction;
 
     // flow bloundaries
     QList<int> FBid;
@@ -952,9 +957,8 @@ public:
     void fromChannelVoltoWH(int r, int c);
     double channelVoltoWH(double vol, int r, int c);
     void fromChannelWHtoVol(int r, int c);
-    void ToTiledrain();//);
+    void ToTiledrain();
     void TileFlow(void);
-    void StormDrainFlow(void);
     void CalcVelDischRectangular(void);
     void CalcVelDischCircular(void);
     void GridCell();
@@ -989,10 +993,10 @@ public:
     double mixing_coefficient, runoff_partitioning;
     double minReportFloodHeight;
     void correctMassBalance(double sum1, cTMap *M, double th);
-    void correctMassBalanceWS(int nr_, double sum1, cTMap *M, double th);
+    //void correctMassBalanceWS(int nr_, double sum1, cTMap *M, double th);
     void correctMassBalanceSed(double sum1, cTMap *M, double th);
     double getMass(cTMap *M, double th);
-    double getMassWS(int nr_, cTMap *M, double th);
+    //double getMassWS(int nr_, cTMap *M, double th);
     double getMassSed(cTMap *M, double th);
     void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX);//, cTMap *_Vol);
     double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX);
