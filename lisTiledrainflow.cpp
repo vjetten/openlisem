@@ -45,11 +45,7 @@ void TWorld::ToTiledrain()//int thread)
    // ONLY ON ROADS, AFFECTING ROADWH
     if (SwitchIncludeStormDrains)  //SwitchIncludeTile ||
     {
-        //Fill(*RunoffVolinToTile,0);
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            RunoffVolinToTile->Drc = 0;
-        }}
+        Fill(*RunoffVolinToTile,0);
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_TILEL {
@@ -86,7 +82,7 @@ void TWorld::ToTiledrain()//int thread)
 // V, alpha and Q in the Tile
 void TWorld::CalcVelDischRectangular()
 {
-
+    qDebug() << "hier";
     double Perim, Area, Sgrad, TileV_;
     const double _23 = 2.0/3.0;
     #pragma omp parallel for num_threads(userCores)
@@ -180,15 +176,15 @@ void TWorld::TileFlow(void)
    else
       CalcVelDischRectangular();
 
-   //TileQn->setAllMV();
+   TileQn->setAllMV();
 
    Fill(*QinKW, 0.0);
    // flag all new flux as missing value, needed in kin wave and replaced by new flux
-//   FOR_ROW_COL_MV_TILE {
-//      if (LDDTile->Drc == 5)
-//            Kinematic(r,c, LDDTile, TileQ, TileQn, TileAlpha, DX);
-//   }
-   KinematicExplicit(crlinkedlddtile_, TileQ, TileQn, TileAlpha, DX);
+   FOR_ROW_COL_MV_TILE {
+      if (LDDTile->Drc == 5)
+            Kinematic(r,c, LDDTile, TileQ, TileQn, TileAlpha, DX);
+   }
+//   KinematicExplicit(crlinkedlddtile_, TileQ, TileQn, TileAlpha, DX);
 
    cover(*TileQn, *LDD, 0); // avoid missing values around Tile for adding to Qn for output
 

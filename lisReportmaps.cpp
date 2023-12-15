@@ -306,8 +306,8 @@ void TWorld::GetComboMaps()
 
     if(SwitchIncludeTile || SwitchIncludeStormDrains) {
         cl = 0;
-        AddComboMap(0,"Storm Drain Volume","m3",TileWaterVol,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-        AddComboMap(0,"Storm Drain Discharge","l/s",TileQn,LegendMap[cl],Legend[cl],false,false,1000.0,1.0);
+        AddComboMap(0,"Storm Drain Volume","m3",TileWaterVol,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+        AddComboMap(0,"Storm Drain Discharge","m3/s",TileQn,LegendMap[cl],Legend[cl],true,false,1.0,0.001);
     }
 
     cl = 3;

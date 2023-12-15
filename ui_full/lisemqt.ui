@@ -70,7 +70,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -2125,7 +2125,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>-59</y>
+                <y>0</y>
                 <width>800</width>
                 <height>703</height>
                </rect>
@@ -2691,6 +2691,9 @@
                            </property>
                            <property name="text">
                             <string>Rectangular</string>
+                           </property>
+                           <property name="checked">
+                            <bool>true</bool>
                            </property>
                           </widget>
                          </item>
@@ -12710,6 +12713,9 @@ p, li { white-space: pre-wrap; }
                   <bold>false</bold>
                  </font>
                 </property>
+                <property name="decimals">
+                 <number>3</number>
+                </property>
                 <property name="minimum">
                  <double>0.000000000000000</double>
                 </property>
@@ -12858,6 +12864,9 @@ p, li { white-space: pre-wrap; }
                   <pointsize>8</pointsize>
                   <bold>false</bold>
                  </font>
+                </property>
+                <property name="decimals">
+                 <number>3</number>
                 </property>
                 <property name="minimum">
                  <double>0.000000000000000</double>
@@ -13073,6 +13082,9 @@ p, li { white-space: pre-wrap; }
                   <bold>false</bold>
                  </font>
                 </property>
+                <property name="decimals">
+                 <number>3</number>
+                </property>
                 <property name="minimum">
                  <double>0.000000000000000</double>
                 </property>
@@ -13100,25 +13112,6 @@ p, li { white-space: pre-wrap; }
                  </widget>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="checkMapRoads">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>8</pointsize>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Roads</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
                  <widget class="QCheckBox" name="checkMapBuildings">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -13134,6 +13127,25 @@ p, li { white-space: pre-wrap; }
                   </property>
                   <property name="text">
                    <string>Buildings      </string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="checkMapRoads">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>8</pointsize>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Roads</string>
                   </property>
                  </widget>
                 </item>
@@ -13187,6 +13199,9 @@ p, li { white-space: pre-wrap; }
                   <pointsize>8</pointsize>
                   <bold>false</bold>
                  </font>
+                </property>
+                <property name="decimals">
+                 <number>3</number>
                 </property>
                 <property name="minimum">
                  <double>-999999.000000000000000</double>
