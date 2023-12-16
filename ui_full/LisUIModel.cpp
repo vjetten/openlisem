@@ -63,6 +63,8 @@ void lisemqt::runmodel()
 
     lastOptionSceen = tabWidgetOptions->currentIndex();
 
+    showOutputDataZero();
+
     updateModelData();
     QFile f(QString(op.LisemDir+"openlisemtmp.run"));
     if (f.exists())

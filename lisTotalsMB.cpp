@@ -279,7 +279,7 @@ void TWorld::Totals(void)
             //Qtot_dt += TileQn->Drc * _dt;
             QTiletot += TileQn->Drc * _dt;
         }
-                StormDrainVolTot = MapTotal(*TileWaterVol) + QTiletot;
+        StormDrainVolTot = MapTotal(*TileWaterVol) + QTiletot;
         StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
     } else {
         if (SwitchIncludeTile)
