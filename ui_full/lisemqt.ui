@@ -70,7 +70,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -2163,7 +2163,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>7</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -8567,7 +8567,7 @@ p, li { white-space: pre-wrap; }
                             <number>1</number>
                            </property>
                            <property name="maximum">
-                            <number>6</number>
+                            <number>4</number>
                            </property>
                            <property name="value">
                             <number>4</number>

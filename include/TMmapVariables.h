@@ -284,8 +284,8 @@ cTMap
 
 *lambda1,
 *lambda2,
-*psi1ae,
-*psi2ae,
+//*psi1ae,
+//*psi2ae,
 *Perc,
 *PercmmCum,
 *GrassFraction,              //!< fraction of grasstrip in a cell [-]
@@ -395,7 +395,7 @@ cTMap
 *VRO, *URO, *iro,
 *Uflood,*Vflood,
 *hs, *vs, *us,
-*vxs, *vys,
+//*vxs, *vys,
 
 // FULLSWOF2D
 *f1o, *f2o, *f3o,

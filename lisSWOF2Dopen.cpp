@@ -177,7 +177,7 @@ void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
 
 }
 //-------------------------------------------------------------------------------------------------
-double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
+double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     double timesum = 0;
     double dt_max = std::min(_dt, _dx*0.75);
@@ -186,12 +186,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     bool stop;
     double dt_req_min = dt_max;
     int step = 0;
-
-//    Qout.clear();
-//    FOR_ROW_COL_LDD5 {
-//       Qout << 0.0;
-//    }}
-
 
     if (startFlood)
     {
@@ -204,8 +198,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 hs->Drc = h->Drc;
-                vxs->Drc = vx->Drc;
-                vys->Drc = vy->Drc;
+                tmc->Drc = u->Drc;
+                tmd->Drc = v->Drc;
                 FloodDT->Drc = dt_max;
                 FloodT->Drc = 0;
                 flowmask->Drc = 0;
@@ -234,7 +228,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                 if (flowmask->Drc > 0) {
                         //double dt = FloodDT->Drc; //dt_req_min;
                     double dt = dt_req_min;
-                    double vxn, vyn; // is V U ?
+                    double un, vn;
                     //  double vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
 
                     FloodT->Drc += FloodDT->Drc;
@@ -250,8 +244,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double H = hs->Drc;
                     double n = N->Drc;
                     double Z = z->Drc;
-                    double Vx = vxs->Drc;
-                    double Vy = vys->Drc;
+                    double Vx = u->Drc;
+                    double Vy = v->Drc;
 
                     bool bc1 = c > 0 && !MV(r,c-1)        ;
                     bool bc2 = c < _nrCols-1 && !MV(r,c+1);
@@ -268,15 +262,15 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double h_y1 =  br1 ? hs->data[r-1][c] : H;
                     double h_y2 =  br2 ? hs->data[r+1][c] : H;
 
-                    double vx_x1 = bc1 ? vxs->data[r][c-1] : Vx;
-                    double vx_x2 = bc2 ? vxs->data[r][c+1] : Vx;
-                    double vx_y1 = br1 ? vxs->data[r-1][c] : Vx;
-                    double vx_y2 = br2 ? vxs->data[r+1][c] : Vx;
+                    double vx_x1 = bc1 ? tmc->data[r][c-1] : Vx;
+                    double vx_x2 = bc2 ? tmc->data[r][c+1] : Vx;
+                    double vx_y1 = br1 ? tmc->data[r-1][c] : Vx;
+                    double vx_y2 = br2 ? tmc->data[r+1][c] : Vx;
 
-                    double vy_x1 = bc1 ? vys->data[r][c-1] : Vy;
-                    double vy_x2 = bc2 ? vys->data[r][c+1] : Vy;
-                    double vy_y1 = br1 ? vys->data[r-1][c] : Vy;
-                    double vy_y2 = br2 ? vys->data[r+1][c] : Vy;
+                    double vy_x1 = bc1 ? tmd->data[r][c-1] : Vy;
+                    double vy_x2 = bc2 ? tmd->data[r][c+1] : Vy;
+                    double vy_y1 = br1 ? tmd->data[r-1][c] : Vy;
+                    double vy_y2 = br2 ? tmd->data[r+1][c] : Vy;
 
                     double fb_x1=0,fb_x2=0,fb_y1=0,fb_y2=0;
                     if (SwitchFlowBarriers) {
@@ -364,6 +358,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     if(bc1)  // if inside
                         hll_x1 = F_Riemann(h_x1r,vx_x1,vy_x1, H_l,Vx,Vy); // c-1 and c  //
                     else
+                       // hll_x1 = F_Riemann(H_r,Vx,Vy, h_x2l,vx_x2,vy_x2);
                         hll_x1 = F_Riemann(0,0,0, H_l,Vx,Vy);
 
                     double H_r   = std::max(0.0, H    - std::max(0.0,  dz_x2 + fb_x2));
@@ -371,6 +366,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     if(bc2)
                         hll_x2 = F_Riemann(H_r,Vx,Vy, h_x2l,vx_x2,vy_x2); // c and c+1
                     else
+                        //hll_x2 = F_Riemann(h_x1r,vx_x1,vy_x1, H_l,Vx,Vy);
                         hll_x2 = F_Riemann(H_r,Vx,Vy, 0,0,0);
 
                     double h_y1d = std::max(0.0, h_y1 - std::max(0.0,  dz_y1 + fb_y1));
@@ -378,6 +374,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     if (br1)
                         hll_y1 = F_Riemann(h_y1d,vy_y1,vx_y1, H_u,Vy,Vx); // r-1 and r
                     else
+                        //hll_y1 = F_Riemann(H_d,Vy,Vx, h_y2u,vy_y2,vx_y2);
                         hll_y1 = F_Riemann(0,0,0, H_u,Vy,Vx);
 
                     double H_d   = std::max(0.0, H    - std::max(0.0,  dz_y2 + fb_y2));
@@ -385,6 +382,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     if(br2)
                         hll_y2 = F_Riemann(H_d,Vy,Vx, h_y2u,vy_y2,vx_y2); // r and r+1
                     else
+                        //hll_y2 = F_Riemann(h_y1d,vy_y1,vx_y1, H_u,Vy,Vx);
                         hll_y2 = F_Riemann(H_d,Vy,Vx, 0,0,0);
 
                     // determine smallest dt in x and y for each cell
@@ -408,78 +406,60 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                         // momentum balance for cells with water
                         if(hn > he_ca) {
                             // SWOF solution, delzc1 = 0 when not MUSCL
-                            double gflow_x = GRAV*0.5*( (H_l-H)*(H_l+H)+(H-H_r)*(H+H_r) + delzcx*(H_l+H_r) );
-                            double gflow_y = GRAV*0.5*( (H_u-H)*(H_u+H)+(H-H_d)*(H+H_d) + delzcy*(H_u+H_d) );
+                        double gflow_x = GRAV*0.5*( (H_l-H)*(H_l+H)+(H-H_r)*(H+H_r) );// + delzcx*(H_l+H_r) );
+                        double gflow_y = GRAV*0.5*( (H_u-H)*(H_u+H)+(H-H_d)*(H+H_d) );// + delzcy*(H_u+H_d) );
 
                             double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
                             double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
-                            //qes[i] = he[i]*ve[i]-TX*(f2[i+1]-f2[i]+
-                            //GRAV_DEM*((hleft[i]-hright[i])*(hleft[i]+hright[i])+(hr[i]-hl[i])*(hr[i]+hl[i])+(hl[i]+hr[i])*dzi[i]));
 
+                            double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.0001,pow(hn,4.0/3.0));
+                            double nsq = nsq1 * sqrt(Vx * Vx + Vy * Vy)*dt;
 
-
-
-                            double vsq = sqrt(Vx * Vx + Vy * Vy);
-                            double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.0001,pow(hn,4.0/3.0)); //pow(hn,4.0/3.0);//
-                            double nsq = nsq1*vsq*dt;
-
-                            vxn = (qxn/(1.0+nsq))/std::max(0.0001,hn);
-                            vyn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
+                            un = (qxn/(1.0+nsq))/std::max(0.0001,hn);
+                            vn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
 
                             if (SwitchTimeavgV) {
                                 double fac = 0.5 + 0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
                                 fac = fac * exp(- std::max(1.0,dt) / nsq1);
-                                vxn = fac * Vx + (1.0-fac) *vxn;
-                                vyn = fac * Vy + (1.0-fac) *vyn;
+                                un = fac * Vx + (1.0-fac) *un;
+                                vn = fac * Vy + (1.0-fac) *vn;
                             }
 
                         } else { // hn < ha
                             hn = H; // if no fluxes then also no change in h
-                            vxn = 0;
-                            vyn = 0;
+                            un = 0;
+                            vn = 0;
                         }
 
                         // dan maar even met geweld!
-                        if (std::isnan(vxn) || std::isnan(vyn)  )
+                        if (std::isnan(un) || std::isnan(vn)  )
                         {
-                            vxn = 0;
-                            vyn = 0;
+                            un = 0;
+                            vn = 0;
                         }
                         if (FlowBoundaryType == 0 || (FlowBoundaryType == 2 && FlowBoundary->Drc == 0)) {
 
-                            if (DomainEdge->Drc == 4 && vxn < 0) {
-                                vxn = 0;
+                            if (DomainEdge->Drc == 4 && un < 0) {
+                                un = 0;
                             }
-                            if (DomainEdge->Drc == 6 && vxn > 0) {
-                                vxn = 0;
+                            if (DomainEdge->Drc == 6 && un > 0) {
+                                un = 0;
                             }
-                            if (DomainEdge->Drc == 2 && vyn > 0) {
-                                vyn = 0;
+                            if (DomainEdge->Drc == 2 && vn > 0) {
+                                vn = 0;
                             }
-                            if (DomainEdge->Drc == 8 && vyn < 0) {
-                                vyn = 0;
+                            if (DomainEdge->Drc == 8 && vn < 0) {
+                                vn = 0;
                             }
-//                            if (c > 0  && MV(r,c-1) && vxn < 0) {
-//                                vxn = 0;
-//                            }
-//                            if (c < _nrCols-1 && MV(r,c+1) && vxn > 0) {
-//                                vxn = 0;
-//                            }
-//                            if (r < _nrRows-1 && MV(r+1,c) && vyn > 0) {
-//                                vyn = 0;
-//                            }
-//                            if (r > 0 && MV(r-1,c) && vyn < 0) {
-//                                vyn = 0;
-//                            }
                         }
-                        if (vyn == 0 && vxn == 0)
+                        if (vn == 0 && un == 0)
                             hn = H;
                        // vxn = checkforMinMaxV(vxn);
                        // vyn = checkforMinMaxV(vyn);
 
                         h->Drc = hn;
-                        vx->Drc = vxn;
-                        vy->Drc = vyn;
+                        u->Drc = un;
+                        v->Drc = vn;
 
                     } // step > 0
                 } // flowmask > 0, active cells + 1
@@ -496,14 +476,14 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             if (step > 0) {
 
                if (SwitchErosion) {
-                    SWOFSediment(dt_req_min, h,vx,vy);
+                    SWOFSediment(dt_req_min, h,u,v);
                 }
 
                 if (Switch2DDiagonalFlow) {
                     if (Switch2DDiagonalFlowNew)
-                        SWOFDiagonalFlowNew(dt_req_min, h, vx, vy);
+                        SWOFDiagonalFlowNew(dt_req_min, h, u, v);
                     else
-                        SWOFDiagonalFlow(dt_req_min, h, vx, vy); //old, not used
+                        SWOFDiagonalFlow(dt_req_min, h, u, v); //old, not used
                 }
 
 
@@ -526,263 +506,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
     //qDebug() << _dt/count << count << dt_req_min;
     iter_n = std::max(1,count);
     return(count > 0 ? _dt/count : _dt);
-}
-
-double TWorld::fullSWOF2openWS(int nr_, cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
-{
-    /*
-    double timesum = 0;
-    double dt_max = std::min(_dt, _dx*0.5);
-    int count = 0;
-    double sumh = 0;
-    //double sumS = 0;
-    bool stop;
-    double dt_req_min = dt_max;
-    int step = 0;
-
-    if (startFlood)
-    {
-
-        sumh = getMassWS(nr_, h, 0);
-
-        do {
-            // bool SwitchLimitSWOFVelocity = true;
-            //double vmax = 100000;
-            // if (SwitchLimitSWOFVelocity)
-            //      vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_LWS(nr_) {
-                hs->Drc = h->Drc;
-                vxs->Drc = vx->Drc;
-                vys->Drc = vy->Drc;
-                FloodDT->Drc = dt_max;
-                tmb->Drc = 0;
-            }}
-
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_LWS(nr_) {
-                if (hs->Drc > F_minWH) {
-                    tmb->Drc = 1;
-                    if (c > 0 && !MV(r,c-1)        ) tmb->data[r][c-1] = 1;
-                    if (c < _nrCols-1 && !MV(r,c+1)) tmb->data[r][c+1] = 1;
-                    if (r > 0 && !MV(r-1,c)        ) tmb->data[r-1][c] = 1;
-                    if (r < _nrRows-1 && !MV(r+1,c)) tmb->data[r+1][c] = 1;
-
-                    if (c > 0 && r > 0 && !MV(r-1,c-1)                ) tmb->data[r-1][c-1]=1;
-                    if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) tmb->data[r+1][c+1]=1;
-                    if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) tmb->data[r-1][c+1]=1;
-                    if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) tmb->data[r+1][c-1]=1;
-                }
-            }}
-
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                if (tmb->Drc == 1 && WaterSheds->Drc != (double) nr_)
-                    tmb = 0;
-            }}
-
-            //do all flow and state calculations
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_LWS(nr_) {
-            if (tmb->Drc > 0) {
-
-                double dt = dt_req_min;
-                double vxn, vyn;
-                //  double vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
-
-                vec4 hll_x1;
-                vec4 hll_x2;
-                vec4 hll_y1;
-                vec4 hll_y2;
-
-                double dx = _dx;//ChannelAdj->Drc;
-                double dy = _dx;//DX->Drc;
-
-                double H = hs->Drc;
-                double n = N->Drc;
-                double Z = z->Drc;
-                double Vx = vxs->Drc;
-                double Vy = vys->Drc;
-
-                bool bc1 = c > 0 && !MV(r,c-1)        ;
-                bool bc2 = c < _nrCols-1 && !MV(r,c+1);
-                bool br1 = r > 0 && !MV(r-1,c)        ;
-                bool br2 = r < _nrRows-1 && !MV(r+1,c);
-
-                double z_x1 =  bc1 ? z->data[r][c-1] : Z;
-                double z_x2 =  bc2 ? z->data[r][c+1] : Z;
-                double z_y1 =  br1 ? z->data[r-1][c] : Z;
-                double z_y2 =  br2 ? z->data[r+1][c] : Z;
-
-                double h_x1 =  bc1 ? hs->data[r][c-1] : H;
-                double h_x2 =  bc2 ? hs->data[r][c+1] : H;
-                double h_y1 =  br1 ? hs->data[r-1][c] : H;
-                double h_y2 =  br2 ? hs->data[r+1][c] : H;
-
-                double vx_x1 = bc1 ? vxs->data[r][c-1] : Vx;
-                double vx_x2 = bc2 ? vxs->data[r][c+1] : Vx;
-                double vx_y1 = br1 ? vxs->data[r-1][c] : Vx;
-                double vx_y2 = br2 ? vxs->data[r+1][c] : Vx;
-
-                double vy_x1 = bc1 ? vys->data[r][c-1] : Vy;
-                double vy_x2 = bc2 ? vys->data[r][c+1] : Vy;
-                double vy_y1 = br1 ? vys->data[r-1][c] : Vy;
-                double vy_y2 = br2 ? vys->data[r+1][c] : Vy;
-
-                double fb_x1=0,fb_x2=0,fb_y1=0,fb_y2=0;
-                if (SwitchFlowBarriers) {
-                    fb_x1 = bc1 ? std::max(FlowBarrierW->Drc, FlowBarrierE->data[r][c-1]) : FlowBarrierW->Drc;
-                    fb_x2 = bc2 ? std::max(FlowBarrierE->Drc, FlowBarrierE->data[r][c+1]) : FlowBarrierE->Drc;
-                    fb_y1 = br1 ? std::max(FlowBarrierN->Drc, FlowBarrierS->data[r-1][c]) : FlowBarrierN->Drc;
-                    fb_y2 = br2 ? std::max(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]) : FlowBarrierS->Drc;
-                }
-
-                double dz_x1 = (Z - z_x1);
-                double dz_x2 = (z_x2 - Z);
-                double dz_y1 = (Z - z_y1);
-                double dz_y2 = (z_y2 - Z);
-
-                // z is blocking to prevent flow when water is flat and Z is not flat, described in article SWOF
-                double h_x1r = std::max(0.0, h_x1 - std::max(0.0,  dz_x1 + fb_x1));
-                double H_l   = std::max(0.0, H    - std::max(0.0, -dz_x1 + fb_x1));
-                if(bc1)
-                    hll_x1 = F_Riemann(h_x1r,vx_x1,vy_x1, H_l,Vx,Vy); // c-1 and c  //
-                else
-                    hll_x1 = F_Riemann(0,0,0, H_l,Vx,Vy);
-
-                double H_r   = std::max(0.0, H    - std::max(0.0,  dz_x2 + fb_x2));
-                double h_x2l = std::max(0.0, h_x2 - std::max(0.0, -dz_x2 + fb_x2));
-                if(bc2)
-                    hll_x2 = F_Riemann(H_r,Vx,Vy, h_x2l,vx_x2,vy_x2); // c and c+1
-                else
-                    hll_x2 = F_Riemann(H_r,Vx,Vy, 0,0,0);
-
-                double h_y1d = std::max(0.0, h_y1 - std::max(0.0,  dz_y1 + fb_y1));
-                double H_u   = std::max(0.0, H    - std::max(0.0, -dz_y1 + fb_y1));
-                if (br1)
-                    hll_y1 = F_Riemann(h_y1d,vy_y1,vx_y1, H_u,Vy,Vx); // r-1 and r
-                else
-                    hll_y1 = F_Riemann(0,0,0, H_u,Vy,Vx);
-
-                double H_d   = std::max(0.0, H    - std::max(0.0,  dz_y2 + fb_y2));
-                double h_y2u = std::max(0.0, h_y2 - std::max(0.0, -dz_y2 + fb_y2));
-                if(br2)
-                    hll_y2 = F_Riemann(H_d,Vy,Vx, h_y2u,vy_y2,vx_y2); // r and r+1
-                else
-                    hll_y2 = F_Riemann(H_d,Vy,Vx, 0,0,0);
-
-                // determine smallest dt in x and y for each cell
-                double dtx = dx/std::max(hll_x1.v[3],hll_x2.v[3]);
-                double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]);
-                double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
-                FloodDT->Drc = dt_req;
-
-                // if step = 0 do not calculate new fluxes and states yet because the first dt is always dt_max
-                // find a smallest dt of the flow domain first
-                if (step > 0) {
-
-                    double tx = dt/dx;
-                    double ty = dt/dy;
-
-                    double flux_x1 = +hll_x1.v[0]/_dx;
-                    double flux_x2 = -hll_x2.v[0]/_dx;
-                    double flux_y1 = +hll_y1.v[0]/_dx;
-                    double flux_y2 = -hll_y2.v[0]/_dx;
-
-                    // if cell drops < 0 then adjust timestep
-                    double tot = dt*(flux_x1 + flux_x2 + flux_y1 + flux_y2);
-                    if (H+tot < 0) {
-                        dt = H/-tot*dt;
-                        // qDebug() << "oei" << H-tot;
-                    }
-
-                    double hn = std::max(0.0, H + dt*(flux_x1 + flux_x2 + flux_y1 + flux_y2));
-                    // mass balance
-
-                    // momentum balance for cells with water
-                    if(hn > he_ca) {
-                        // SWOF solution, delzc1 = 0 when not MUSCL
-                        //  GRAV*0.5*((h1g_-h1l_)*(h1g_+h1l_) + (h1r_-h1d_)*(h1r_+h1d_) + (h1l_+h1r_)*delzc1->Drc));
-                        double gflow_x = GRAV*0.5*( (H_l-H)*(H_l+H)+(H-H_r)*(H+H_r) );
-                        double gflow_y = GRAV*0.5*( (H_u-H)*(H_u+H)+(H-H_d)*(H+H_d) );
-
-                        double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
-                        double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
-
-                        double vsq = sqrt(Vx * Vx + Vy * Vy);
-                        double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.01,pow(hn,4.0/3.0));
-                        double nsq = nsq1*vsq*dt;
-
-                        vxn = (qxn/(1.0+nsq))/std::max(0.01,hn);
-                        vyn = (qyn/(1.0+nsq))/std::max(0.01,hn);
-
-                        if (SwitchTimeavgV) {
-                            double fac = 0.5+0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
-                            fac = fac *exp(- std::max(1.0,dt) / nsq1);
-                            vxn = fac * Vx + (1.0-fac) *vxn;
-                            vyn = fac * Vy + (1.0-fac) *vyn;
-                        }
-
-                    } else { // hn < ha
-                        hn = H; // if no fluxes then also no change in h
-                        vxn = 0;
-                        vyn = 0;
-                    }
-
-                    // dan maar even met geweld!
-                    if (std::isnan(vxn) || std::isnan(vyn)  )
-                    {
-                        vxn = 0;
-                        vyn = 0;
-                    }
-
-
-                    h->Drc = hn;
-                    vx->Drc = vxn;
-                    vy->Drc = vyn;
-                } // step > 0
-            } // tmb > 0, active cells + 1
-            }}
-
-            // find smallest domain dt
-            #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
-            FOR_ROW_COL_MV_LWS(nr_) {
-                dt_req_min = std::min(dt_req_min, FloodDT->Drc);
-            }}
-            dt_req_min = std::min(dt_req_min, _dt-timesum);
-
-            if (step > 0) {
-
-//                if (SwitchErosion) {
-//                    SWOFSediment(dt_req_min, h,vx,vy);
-//                }
-
-                if (Switch2DDiagonalFlow) {
-                    SWOFDiagonalFlow(dt_req_min, h, vx, vy);
-                }
-
-
-                timesum += dt_req_min;
-                count++; // nr loops
-            }
-
-            step += 1; // now we have a good dt min, do the real calculations
-
-            stop = timesum > _dt-0.001;
-            if(count > F_MaxIter)
-            stop = true;
-
-        } while (!stop);
-
-       correctMassBalanceWS(nr_, sumh, h, 0);
-
-    } // if floodstart
-
-    //qDebug() << _dt/count << count << dt_req_min;
-    iter_n = std::max(1,count);
-    return(count > 0 ? _dt/count : _dt);
-    */
-    return 0;
 }
 
 

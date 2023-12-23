@@ -198,6 +198,35 @@
  so memory doesn't have to be freed for each map. The functions Newmap(double) and
 ReadMap(cTMap *Mask, QString name) put a map on this list
 */
+typedef struct DATA1D {
+    int r;
+    int c;
+    double Ksat1;
+    double Ksat2;
+    double ThetaS1;
+    double ThetaS2;
+    double Psi1;
+    double Psi2;
+    double ThetaI1;
+    double ThetaI2;
+    double SoilDep1;
+    double SoilDep2;
+
+    double Lw;
+    double F;
+    double Iact;
+    double Ipot;
+
+    double ThetaR1;
+    double lambda1;
+    double psi1ae;
+    double ThetaFC1;
+    double ThetaR2;
+    double lambda2;
+    double psi2ae2;
+    double ThetaFC2;
+}  DATA1D;
+//---------------------------------------------------------------------------list
 typedef struct MapListStruct {
     cTMap *m;
 }  MapListStruct;
@@ -688,7 +717,6 @@ public:
 
     double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
-    double fullSWOF2openWS(int nr_, cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     void ChannelSWOFopen();
 
     void KinematicSWOFopen(cTMap *_h, cTMap *_V);
@@ -701,7 +729,6 @@ public:
 
     double limiter(double a, double b);
     vec4 F_ROE(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    vec4 F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
