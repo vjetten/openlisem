@@ -103,18 +103,21 @@ SET(APP_SOURCES
     lisChannelflood.cpp
     lisChannelflow.cpp
     lisDataInit.cpp
+    lisDataInit1D.cpp
     lisErosion.cpp
     lisExtendedChannel.cpp
     lisFlowBarriers.cpp
     lisEvaporation.cpp
     lisGWflow.cpp
     lisInfiltration.cpp
+    lisInfiltration1D.cpp
     lisInterception.cpp
     lisKinematic.cpp
     lisModel.cpp
     lisOverlandflow.cpp
     lisPesticide.cpp
     lisPercolation.cpp
+    lisPercolation1D.cpp
     lisRainfall.cpp
     lisDischargein.cpp
     lisReportfile.cpp
@@ -149,6 +152,7 @@ SET(APP_SOURCES
     include/swatremisc.h
     include/swatresoillut.h
     include/TMmapVariables.h
+    include/VectormapVariables.h
     include/version.h
     include/pcrtypes.h
     include/csf.h

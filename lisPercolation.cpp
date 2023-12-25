@@ -482,7 +482,7 @@ void TWorld::cell_SlopeStability(int r, int c)
 
 //---------------------------------------------------------------------------
 
-void TWorld::cell_Channelinfow1(int r, int c)
+void TWorld::cell_Channelinflow1(int r, int c)
 {
    ChannelQSide->Drc = 0.0;
 
@@ -536,7 +536,7 @@ void TWorld::cell_Channelinfow1(int r, int c)
 // Side inflow into channel from saturated part of the soil (Lw_), causes decrease of Lw_
 // the assumption is thart the Darcy flow pressure difference dH/dL is 1.0
 // afactor 2.0 is applied to Ksat because the flow is from both sides
-void TWorld::cell_Channelinfow2(int r, int c)
+void TWorld::cell_Channelinflow2(int r, int c)
 {
    ChannelQSide->Drc = 0.0;
 

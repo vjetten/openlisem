@@ -27,11 +27,10 @@
 \brief List of maps with descriptions and units. Linked directly in the model class.
 */
 
+
 cTMap
 
-//*_MASK,
 *DEM,                        //!< DEM [m]
-//*DEMdz,                        //!< DEM [m]
 *Shade,                      //!< Shaded relief for display [0-1]
 *ShadeBW,                      //!< Shaded relief for display [0-1]
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
@@ -48,8 +47,6 @@ cTMap
 *RainZone,                   //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *ETZone,                     //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *Rain,                       //!< map with rain from tis time intervall [m]
-//*IDIw,
-//*noRain,
 *Rainc,                      //!< map with rain from tis time intervall, spread over the surface (corrected or slope) [m]
 *RainCum,                    //!< cumulative rainfall, as spreadoutover slope [m]
 *RainCumFlat,                //!< cumulative rainfall [m]
@@ -64,7 +61,6 @@ cTMap
 *HStor,                      //!< actual roof storage of rainwater [m]
 *IntercHouse,                //!< actual roof storage volume [m^3]
 *HouseCover,                 //!< fraction cover of house in pixel [-]
-//*HouseWidthDX,
 *RoofStore,                  //!< Max storage of roof in [mm]
 *DrumStore,                  //!< Max storage of rainwter drums [m^3]
 *InterceptionmmCum,
@@ -82,16 +78,13 @@ cTMap
 *WH,                         //!< water height on the surface [m]
 *WHbef,                      //!< water height on the surface before infiltration [m]
 *WHroad,                     //!< water height on the roads [m]
-//*WHrunoffOutput,                     //!< water height on the roads [m]
 *WHrunoff,                   //!< water height available for runoff [m]
 *WHmax,                      //!< max runoff wh in m for reporting
 *WHstore,                    //!< water heigth stored in micro depressions [m]
 *MicroStoreVol,
 *WaterVolall,                //!< water volume total (incl surface storage) [m^3]
 *WaterVolin,                 //!< water volume total before kin wave (after tochannel) [m^3]
-*flowmask,
-//*WaterVolRunoff,                //!< water volume for runoff [m^3]
-
+//*flowmask,
 *FlowWidth,                  //!< width of the flow overland, based on ponded area/roughness, +roads etc [m]
 *V,                          //!< velocity of overland flow [m/s]
 *Alpha,                      //!< alpha in A = alphaQ^b
@@ -224,12 +217,10 @@ cTMap
 *K2DPCN,                          //!<
 
 *K2DOutlets,                    //!<
-//*K2DQ,                          //!<
 
 // infiltration
 *Fcum,                       //!< cumulative infiltration [m]
-*FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
-*FFull,                      //!< map flagging when the soil is full
+//*FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
 *fact,                       //!< actual infiltration rate [m/s]
 *fpot,                       //!< potential infiltration rate [m/s]
 *InfilVolKinWave,            //!< volume infiltrated in the kin wave (slope and channel) in this timestep [m^3]
@@ -248,7 +239,7 @@ cTMap
 *Psi1,                       //!< intial suction head wetting front soil layer 1 (input map is in cm) [m]
 *ThetaR1,
 *ThetaFC1,
-*Ksat1,                      //!< saturated hydraulic conductivity soil layer 1 (input is in mm/h) [m/s]
+*Ksat1,                      //!< saturated hydraulic conductivity soil layer 1 (input is in mm/h) [m/s]    
 *SoilDepth1,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *SoilDepth1init,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *ThetaS2,                    //!< porosity soil layer 2 [-]
@@ -384,7 +375,6 @@ cTMap
 *Buffers,                    //!<
 *BufferNr,                    //!<
 *ChannelMaxQ,                //!<
-//*ChannelLevee,                //!<
 *FloodWaterVol,                //!<
 *RunoffWaterVol,                //!<
 
@@ -392,10 +382,8 @@ cTMap
 *DomainEdge,                //!<
 *FloodDT,
 *FloodT,
-*VRO, *URO, *iro,
 *Uflood,*Vflood,
 *hs, *vs, *us,
-//*vxs, *vys,
 
 // FULLSWOF2D
 *f1o, *f2o, *f3o,
@@ -412,11 +400,12 @@ cTMap
 *g1, *g2, *g3, *cfly,
 *hsa, *vsa, *usa,
 
-*hll0_x1, *hll1_x1, *hll2_x1,
-*hll0_y1, *hll1_y1, *hll2_y1,
-*hll0_x2, *hll1_x2, *hll2_x2,
-*hll0_y2, *hll1_y2, *hll2_y2,
-*sxzh, *syzh,
+
+//*hll0_x1, *hll1_x1, *hll2_x1,
+//*hll0_y1, *hll1_y1, *hll2_y1,
+//*hll0_x2, *hll1_x2, *hll2_x2,
+//*hll0_y2, *hll1_y2, *hll2_y2,
+//*sxzh, *syzh,
 
 //FULLSWOF2D with Sediment
 *BLDepthFlood,
@@ -470,7 +459,7 @@ cTMap
 *tmc,                        //!< Auxilary map
 *tmd,                        //!< Auxilary map
 //display combinations
-*COMBO_V,
+//*COMBO_V,
 *COMBO_SS,
 *COMBO_BL,
 *COMBO_TC,
@@ -496,4 +485,3 @@ cTMap
 
 ;
 
-cTRGBMap * RGB_Image;

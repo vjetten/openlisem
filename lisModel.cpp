@@ -145,9 +145,10 @@ void TWorld::DoModel()
         }
         //VJ get time here else combomaps goes wrong for rainfall intensity
 
-        //time vraiables in sec
-        //        DEBUG("Get Input Data");
+        //time variables in sec
+        DEBUG("Get Input Data");
         GetInputData();
+
         DEBUG("Intialize Input Data()");
         IntializeData();
 

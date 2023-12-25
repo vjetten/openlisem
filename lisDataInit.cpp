@@ -79,30 +79,7 @@ cTMap *TWorld::NewMap(double value)
 
     return(_M);
 }
-//---------------------------------------------------------------------------
-cTMap *TWorld::ReadFullMap(QString name)
-{
-    cTMap *_M = new cTMap(readRaster(name));
 
-    for (int r = 0; r < _nrRows; r++)
-        for (int c = 0; c < _nrCols; c++)
-            if (pcr::isMV(_M->Drc))
-            {
-//                QString sr, sc;
-//                sr.setNum(r); sc.setNum(c);
-//                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+name+".\n \
-//                        All cells in this map should be non-MV";
-//                        throw 1;
-                _M->Drc = 0;
-            }
-
-    maplistCTMap[maplistnr].m = _M;
-    maplistnr++;
-
-    return(_M);
-
-}
-//---------------------------------------------------------------------------
 // read a map from disk
 cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
 {
@@ -125,6 +102,7 @@ cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
     return(_M);
 
 }
+
 //---------------------------------------------------------------------------
 void TWorld::DestroyData(void)
 {
@@ -245,6 +223,7 @@ void TWorld::GetInputData(void)
     InitLULCInput();
     //## surface related variables
 
+    InitSoilInput1D();
     InitSoilInput();
     //## soil/infiltration data
 
@@ -295,6 +274,7 @@ void TWorld::InitParameters(void)
 
     ksatCalibration = getvaluedouble("Ksat calibration");
     ksat2Calibration = getvaluedouble("Ksat2 calibration");
+    ksat3Calibration = getvaluedouble("Ksat3 calibration");
 
     SmaxCalibration = getvaluedouble("Smax calibration");
     RRCalibration = getvaluedouble("RR calibration");
@@ -395,9 +375,14 @@ void TWorld::InitStandardInput(void)
     tmc = NewMap(0); // temp map for aux calculations
     tmd = NewMap(0); // temp map for aux calculations
 
-    nrValidCells = 0;
+    nrValidCells = 0; //long
     FOR_ROW_COL_MV {
-        nrValidCells++;
+        nrValidCells+=1;
+    }
+
+    nrCells = 0; //double
+    FOR_ROW_COL_MV {
+        nrCells+=1;
     }
 
     FOR_ROW_COL_MV {
@@ -407,36 +392,12 @@ void TWorld::InitStandardInput(void)
         cr_ << newcr;
     }
 
-    /* OBSOLETE
-    if (SwitchSWOFWatersheds) {
-        WaterSheds = ReadMap(LDD,getvaluename("wsheds"));
-        QList <int> tmp = countUnits(*WaterSheds);
-        nrWatersheds = tmp.count();
-
-        long nrc = 0;
-        WScr.clear();
-        for (int i = 0; i <= nrWatersheds; i++){
-            crws_.clear();
-            FOR_ROW_COL_MV {
-                if (WaterSheds->Drc == i) {
-                    LDD_COOR newcr;
-                    newcr.r = r;
-                    newcr.c = c;
-                    crws_ << newcr;
-                }
-            }
-            WScr.append(crws_);
-            nrc += WScr.at(i).size();
-            //qDebug() << WScr.size() << WScr.at(i).size() << i << nrc << nrValidCells;
-        }
-    }
-    */
     FOR_ROW_COL_MV {
         if (LDD->Drc == 5) {
-        LDD_COOR newcr;
-        newcr.r = r;
-        newcr.c = c;
-        crldd5_ << newcr;
+            LDD_COOR newcr;
+            newcr.r = r;
+            newcr.c = c;
+            crldd5_ << newcr;
         }
     }
     nrValidCellsLDD5 = crldd5_.size();
@@ -516,8 +477,8 @@ void TWorld::InitStandardInput(void)
         ErrorString = QString("Outpoint.map has no values above 0. Copy at least outlet(s).");
         throw 1;
     }
+
     SwitchUseIDmap = true;
-/// TODO   !!!!!!!!!!!!!!!
     if (SwitchRainfall && !SwitchRainfallSatellite)
     {
         RainZone = ReadMap(LDD,getvaluename("ID"));
@@ -630,6 +591,7 @@ void TWorld::InitLULCInput(void)
 
 }
 //---------------------------------------------------------------------------
+
 void TWorld::InitSoilInput(void)
 {
     LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
@@ -653,9 +615,11 @@ void TWorld::InitSoilInput(void)
 
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
 
+        //ReadMap1D(LDD,vksat1,getvaluename("ksat1"));
+//        qDebug() << vksat1[0] << vksat1.size();
+
         ThetaR1 = NewMap(0);
         lambda1 = NewMap(0);
-        //psi1ae = NewMap(0);
         ThetaFC1 = NewMap(0);
 
         FOR_ROW_COL_MV_L {
@@ -666,7 +630,7 @@ void TWorld::InitSoilInput(void)
             double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
             lambda1->Drc = 0.0849*ks+0.159;
             lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
-            tma->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+            tma->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m   //psi ae
             ThetaR1->Drc = 0.0673*exp(-0.238*log(ks));
             ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;
         }}
@@ -1165,8 +1129,6 @@ void TWorld::InitChannel(void)
         UcrCHCalibration = getvaluedouble("Ucr Channel calibration");
         DirectEfficiency = getvaluedouble("Direct efficiency channel");
 
-//qDebug() << COHCHCalibration << UcrCHCalibration << SVCHCalibration;
-        //qDebug() << "SwitchEfficiencyDETCH"<< SwitchEfficiencyDETCH;
         FOR_ROW_COL_MV_CHL {
             ChannelCohesion->Drc *= COHCHCalibration;
 
@@ -1887,10 +1849,6 @@ void TWorld::IntializeData(void)
     //totals for mass balance
     MB = 0;
     MBs = 0;
-    nrCells = 0;
-    FOR_ROW_COL_MV {
-        nrCells+=1;
-    }
 
     DX = NewMap(0);
     CellArea = NewMap(0);
@@ -1912,10 +1870,11 @@ void TWorld::IntializeData(void)
     }
 
     //combination display
-    COMBO_SS = NewMap(0);
-    COMBO_BL = NewMap(0);
-    COMBO_TC = NewMap(0);
-    COMBO_V = NewMap(0);
+    if(SwitchErosion) {
+        COMBO_SS = NewMap(0);
+        COMBO_BL = NewMap(0);
+        COMBO_TC = NewMap(0);
+    }
 
 
     //### rainfall and interception maps
@@ -2106,15 +2065,10 @@ void TWorld::IntializeData(void)
     InfilVol = NewMap(0);
     InfilmmCum = NewMap(0);
     InfilVolCum = NewMap(0);
-    fact = NewMap(0);
-    fpot = NewMap(0);
-  //  factgr = NewMap(0);
-  //  fpotgr = NewMap(0);
     Ksateff = NewMap(0);
     Poreeff = NewMap(0);
     Thetaeff = NewMap(0);
-    FSurplus = NewMap(0);
-    FFull = NewMap(0);
+    //FSurplus = NewMap(0);
     Perc = NewMap(0);
     PercmmCum = NewMap(0);
     runoffTotalCell = NewMap(0);
@@ -2155,7 +2109,6 @@ void TWorld::IntializeData(void)
     WHroad = NewMap(0);
     //WHGrass = NewMap(0);
     FlowWidth = NewMap(0);
-    //fpa = NewMap(0);
     V = NewMap(0);
     VH = NewMap(0);
     Alpha = NewMap(0);
@@ -2178,9 +2131,8 @@ void TWorld::IntializeData(void)
 
     }
 
-    flowmask = NewMap(0);
+//    flowmask = NewMap(0);
     K2DOutlets = NewMap(0);
-    //K2DQ = NewMap(0);
 
     if(SwitchPesticide)
     {
@@ -2193,10 +2145,9 @@ void TWorld::IntializeData(void)
     }
 
     QinKW = NewMap(0);
-    //    QKW = NewMap(0);
     Qoutput = NewMap(0);
-    Qototal = NewMap(0);
-    FHI = NewMap(0);
+    Qototal = NewMap(0); // cumulative overland flow
+    FHI = NewMap(0); // flood hazard index
 
     Qsoutput = NewMap(0);
     q = NewMap(0);
@@ -2217,6 +2168,8 @@ void TWorld::IntializeData(void)
     // swatre get input data is called before, ReadSwatreInput
     if (InfilMethod == INFIL_SWATRE)
     {
+        fact = NewMap(0);
+        fpot = NewMap(0);
         thetaTop = NewMap(0);
 
         precision = 5.0;

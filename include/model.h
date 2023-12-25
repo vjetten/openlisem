@@ -47,6 +47,7 @@
 #include "swatre_p.h"
 #include "swatre_g.h"
 
+
 //#define OLDSWATRE 1
 
 //---------------------------------------------------------------------------
@@ -113,6 +114,9 @@
 //#define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < _nrCols*_nrRows; i_++)\
 //{int r = i_/_nrCols; int c=i_%_nrCols;\
 //if(!pcr::isMV(LDD->data[r][c]))
+
+
+#define FOR_ROW_COL_MV_V for(long i_ = nrValidCells-1; i_ >= 0; i_--)
 
 
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
@@ -198,34 +202,7 @@
  so memory doesn't have to be freed for each map. The functions Newmap(double) and
 ReadMap(cTMap *Mask, QString name) put a map on this list
 */
-typedef struct DATA1D {
-    int r;
-    int c;
-    double Ksat1;
-    double Ksat2;
-    double ThetaS1;
-    double ThetaS2;
-    double Psi1;
-    double Psi2;
-    double ThetaI1;
-    double ThetaI2;
-    double SoilDep1;
-    double SoilDep2;
 
-    double Lw;
-    double F;
-    double Iact;
-    double Ipot;
-
-    double ThetaR1;
-    double lambda1;
-    double psi1ae;
-    double ThetaFC1;
-    double ThetaR2;
-    double lambda2;
-    double psi2ae2;
-    double ThetaFC2;
-}  DATA1D;
 //---------------------------------------------------------------------------list
 typedef struct MapListStruct {
     cTMap *m;
@@ -357,6 +334,14 @@ public:
     TWorld(QObject *parent = nullptr);
     ~TWorld();
 
+    /// variable declaration list of all 2D maps with comments:
+    #include "TMmapVariables.h"
+    /// variable declaration list of all 1D vectors :
+    #include "VectormapVariables.h"
+
+    cTRGBMap * RGB_Image;
+
+
     QLocale loc;
 
     /// copy of overall rows and columns, set in initmask
@@ -394,8 +379,6 @@ public:
     MapListStruct maplistCTMap[NUMNAMES];
     int maplistnr;
 
-    /// variable declaration list of all maps with comments:
-#include "TMmapVariables.h"
 
     /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
 
@@ -493,6 +476,7 @@ public:
     double RRCalibration;
     double ksatCalibration;
     double ksat2Calibration;
+    double ksat3Calibration;
     double nCalibration;
     double thetaCalibration;
     double psiCalibration;
@@ -667,7 +651,10 @@ public:
     void InitMapList(void);
     cTMap *NewMap(double value);
     cTMap *ReadMap(cTMap *Mask, QString name);
-    cTMap *ReadFullMap(QString name);
+
+    void NewMap1D(QVector <double> &V, double value);
+    void ReadMap1D(cTMap *Mask, QVector <double> &V, QString name);
+
     void DestroyData(void);
     cTMap *InitMask(QString name);
     cTMap *InitMaskChannel(QString name);
@@ -686,6 +673,7 @@ public:
     void InitStandardInput(void);
     void InitLULCInput(void);
     void InitSoilInput(void);
+    void InitSoilInput1D(void);
     void InitFlood(void);
     void InitScreenChanNetwork();
     void FindChannelAngles();
@@ -928,18 +916,17 @@ public:
     void cell_Redistribution1(int r, int c);
     void cell_Redistribution2(int r, int c);
    // void cell_Redistribution2psi(int r, int c);
-    void cell_Channelinfow1(int r, int c);
-    void cell_Channelinfow2(int r, int c);
-
+    void cell_Channelinflow1(int r, int c);
+    void cell_Channelinflow2(int r, int c);
     double SoilWaterMass();
 
+    // raster based functions
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
     void cell_InfilSwatre(int r, int c);
     void cell_depositInfil(int r, int c);
     void cell_SplashDetachment(int r, int c);
     void cell_FlowDetachment(int r, int c);
-
     void cell_SlopeStability(int r, int c);
 
     void InfilEffectiveKsat(bool first);
@@ -948,7 +935,6 @@ public:
     double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);
     double IncreaseInfiltrationDepthNew2(double fact_, int r, int c);
     double IncreaseInfiltrationDepthNew3(double fact_, int r, int c);
-
     void SoilWater();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
     void SurfaceStorage();
@@ -959,8 +945,18 @@ public:
     void correctWH(cTMap *_WH);
 
     void HydrologyProcesses();
-    void ChannelandTileflow();
 
+    // Vector based Functions
+    void InfilEffectiveKsat1D();
+    void cell_InfilMethods1D(long i_, int r, int c);
+    double IncreaseInfiltrationDepthNew1_1D(double fact_in, long i_, int r, int c);
+    double IncreaseInfiltrationDepthNew2_1D(double fact_in, long i_, int r, int c);
+    double IncreaseInfiltrationDepthNew3_1D(double fact_in, long i_, int r, int c);
+    double cell_Percolation1D(long i_, int r, int c, double factor);
+    void cell_Redistribution1_1D(long i_, int r, int c);
+    void cell_Redistribution2_1D(long i_, int r, int c);
+
+    void ChannelandTileflow();
     void OverlandFlow1D(void);
     void ChannelFlow();
     void ChannelBaseflow();

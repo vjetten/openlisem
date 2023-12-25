@@ -252,12 +252,12 @@ void TWorld::ChannelRainandInfil(void)
         if (SwitchTwoLayer) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_CHL {
-                cell_Channelinfow2(r, c);
+                cell_Channelinflow2(r, c);
             }}
         } else {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_CHL {
-                cell_Channelinfow1(r, c);
+                cell_Channelinflow1(r, c);
             }}
         }
     }

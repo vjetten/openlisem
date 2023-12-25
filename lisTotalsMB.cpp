@@ -50,7 +50,7 @@ void TWorld::Totals(void)
     //=== precipitation ===//
     if (SwitchRainfall)
     {
-        RainAvgmm = MapTotal(*Rain)*1000.0/(double)nrValidCells;
+        RainAvgmm = MapTotal(*Rain)*1000.0/nrCells;
 
         RainTotmm += RainAvgmm;
         // spatial avg area rainfall in mm
@@ -66,7 +66,7 @@ void TWorld::Totals(void)
 
     if (SwitchSnowmelt)
     {
-        SnowAvgmm = MapTotal(*Snowmelt)*1000.0/(double)nrValidCells;
+        SnowAvgmm = MapTotal(*Snowmelt)*1000.0/nrCells;
 
         SnowTotmm += SnowAvgmm;
 
@@ -87,7 +87,7 @@ void TWorld::Totals(void)
     if (SwitchIncludeET) {
        // double ETtot = MapTotal(*ETa);
         ETaTot = MapTotal(*ETaCum);
-        ETaTotmm = ETaTot * 1000.0/(double)nrValidCells;
+        ETaTotmm = ETaTot * 1000.0/nrCells;
 
         ETaTotVol = (ETaTot-SoilETMBcorrection)*_dx*_dx; //m3
         // correct for soil water because that is not in the mass balance
@@ -214,7 +214,7 @@ void TWorld::Totals(void)
 
             GWlevel = MapTotal(*GWWH);
             GWleveltot = GWlevel*catchmentAreaFlatMM;
-            GWlevel /= (double)nrValidCells; // avg GW level
+            GWlevel /= (double)nrCells; // avg GW level
            // BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
             //qDebug() << BaseFlowTotmm;
         }
@@ -235,6 +235,7 @@ void TWorld::Totals(void)
 
     }
 
+    // not really used in mass balance
     SoilMoistTot += SoilMoistDiff;// MapTotal(*SoilMB);
     SoilMoistTotmm = SoilMoistTot * catchmentAreaFlatMM;
 

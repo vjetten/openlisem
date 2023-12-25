@@ -699,6 +699,7 @@ double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
     }
     return wtotal;
     */
+        return 0;
 }
 //---------------------------------------------------------------------------
 /**

@@ -56,73 +56,77 @@ void TWorld::InfilEffectiveKsat(bool first)
                 KsatCrust->Drc *= _dt/3600000.0;
             if (SwitchInfilCompact)
                 KsatCompact->Drc *= _dt/3600000.0;
+            if (SwitchGrassStrip)
+                KsatGrass->Drc *= _dt/3600000.0;
         }}
     }
 
-
-    if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
-    {
+    if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             Ksateff->Drc = Ksat1->Drc;
             Poreeff->Drc = ThetaS1->Drc;
 
             // exponential crusting proces with cumulative rainfall
+            // crust fraction has no role now!!!
             if (SwitchInfilCrust) {
                 //double KSc = Ksat1->Drc * (0.3+0.7*exp(-0.05*RainCum->Drc*1000));
                 double ksatdiff = std::max(0.0,Ksat1->Drc - KsatCrust->Drc);
                 double factor = RainCum->Drc > 0.01 ? exp(-0.05*(RainCum->Drc-0.01)*1000) : 1.0;
-                double KSc = KsatCrust->Drc + ksatdiff * factor;
+                Ksateff->Drc = KsatCrust->Drc + ksatdiff * factor;
                 // exponential decline until crust value, RainCum is in meters
-
                 //Ksateff->Drc = (1-Cover->Drc) * KSc + Cover->Drc * Ksat1->Drc;
-                Ksateff->Drc = KSc;
+
                 // only on bare fraction of soil, depends on crop. We need basal cover! ???
                 double porediff = std::max(0.0,ThetaS1->Drc - PoreCrust->Drc);
                 Poreeff->Drc = PoreCrust->Drc + porediff * factor;
-                        //ThetaS1->Drc*(1-CrustFraction->Drc) + PoreCrust->Drc*CrustFraction->Drc;
+                    //ThetaS1->Drc*(1-CrustFraction->Drc) + PoreCrust->Drc*CrustFraction->Drc;
             }
-            Thetaeff->Drc = std::max(0.025*Poreeff->Drc,ThetaI1->Drc);
+
+    //        if (SwitchInfilCrust) {
+    //            Ksateff->Drc = Ksateff->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
+    //            Poreeff->Drc = Poreeff->Drc*(1-CrustFraction->Drc) + PoreCrust->Drc*CrustFraction->Drc;
+    //        }
+
 
             // affected surfaces
             if (SwitchInfilCompact) {
-                Ksateff->Drc = Ksateff->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
-                Poreeff->Drc = Poreeff->Drc*(1-CompactFraction->Drc) + PoreCompact->Drc*CompactFraction->Drc;
+                Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
+                Poreeff->Drc = ThetaS1->Drc*(1-CompactFraction->Drc) + PoreCompact->Drc*CompactFraction->Drc;
             }
 
             if (SwitchGrassStrip) {
-                Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
+                Ksateff->Drc = Ksat1->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
                 Poreeff->Drc = ThetaS1->Drc*(1-GrassFraction->Drc) + PoreGrass->Drc*GrassFraction->Drc;
             }
 
 
             if (SwitchHouses) {
                 Ksateff->Drc *= (1-HouseCover->Drc);
-             //   Poreeff->Drc *= (1-HouseCover->Drc);
             }
 
             //these surfaces are excluded from infiltration so not necessary to adjust Ksat and Pore
-//            // impermeable surfaces
-//            if (SwitchHardsurface) {
-//                Ksateff->Drc *= (1-HardSurface->Drc);
-//             //   Poreeff->Drc *= (1-HardSurface->Drc);
-//            }
+            // because they are not part of soilwidthDX!
+            //            // impermeable surfaces
+            //            if (SwitchHardsurface) {
+            //                Ksateff->Drc *= (1-HardSurface->Drc);
+            //             //   Poreeff->Drc *= (1-HardSurface->Drc);
+            //            }
 
-//            if (SwitchRoadsystem) {
-//                Ksateff->Drc *= (1-RoadWidthDX->Drc/_dx);
-//             //   Poreeff->Drc *= (1-RoadWidthDX->Drc/_dx);
-//            }
+            //            if (SwitchRoadsystem) {
+            //                Ksateff->Drc *= (1-RoadWidthDX->Drc/_dx);
+            //             //   Poreeff->Drc *= (1-RoadWidthDX->Drc/_dx);
+            //            }
 
             Ksateff->Drc = std::max(0.0, Ksateff->Drc);
             Poreeff->Drc = std::max(0.3, Poreeff->Drc);
-           // Thetaeff->Drc = std::min(1.0,Poreeff->Drc/ThetaS1->Drc) * ThetaI1->Drc;
-           // tma->Drc =  Ksateff->Drc;
-            // percolation coefficient
 
         }}
     }
 
 }
+
+
 //---------------------------------------------------------------------------
 /*!
  \brief Main infiltration function, calls infiltration types (SWATRE, Green and Ampt,
@@ -168,6 +172,7 @@ Green and Ampt, or Smith and Parlange.
 This function calculates the potential infiltration according to G&A or S&P \n
 then calls IncreaseInfiltrationDepth to increase the wetting front.
 */
+
 void TWorld::cell_InfilMethods(int r, int c)
 {
     // default vars are first layer vars
@@ -261,7 +266,7 @@ void TWorld::cell_InfilMethods(int r, int c)
 
     // calc surplus infiltration (negative in m) for kin wave
     // no longer used
-    FSurplus->Drc = 0;
+    //FSurplus->Drc = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -798,3 +803,4 @@ void TWorld::InfilSwatre()
 
     }
 }
+
