@@ -79,6 +79,35 @@ void TWorld::ReadMap1D(cTMap *Mask, QVector <double> &V, QString name)
 
 }
 //---------------------------------------------------------------------------
+void TWorld::checkMap1D(QVector <double> &V,int oper,double value, QString mapName, QString SS)
+{
+    FOR_ROW_COL_MV_L {
+        if (oper == LARGER && V[i_] > value)
+        {
+            ErrorString = QString("Value at row=%1 and col=%2 in %3 is larger than %4.\n").arg(r).arg(c).arg(mapName).arg(value) + SS;
+            throw 1;
+        }
+        else
+            if (oper == SMALLER && V[i_] < value)
+            {
+                ErrorString = QString("Value at row=%1 and col=%2 in %3 is smaller than %4.\n").arg(r).arg(c).arg(mapName).arg(value) + SS;
+                throw 1;
+            }
+            else
+                if (oper == LARGEREQUAL && V[i_] >= value)
+                {
+                    ErrorString = QString("Value at row=%1 and col=%2 in %3 is larger or equal than %4.\n").arg(r).arg(c).arg(mapName).arg(value) + SS;
+                    throw 1;
+                }
+                else
+                    if (oper == SMALLEREQUAL && V[i_] <= value)
+                    {
+                        ErrorString = QString("Value at row=%1 and col=%2 in %3 is smaller or equal than %4.\n").arg(r).arg(c).arg(mapName).arg(value) + SS;
+                        throw 1;
+                    }
+    }}
+}
+//---------------------------------------------------------------------------
 
 void TWorld::InitSoilInput1D(void)
 {
@@ -256,11 +285,6 @@ void TWorld::InitSoilInput1D(void)
                 vKsatCrust[i_] *= _dt/3600000.0;
             }
         }
-//        else {
-//            NewMap1D(vCrustFraction, 0);
-//            NewMap1D(vKsatCrust,0);
-//            NewMap1D(vPoreCrust, 0);
-//        }
 
         if (SwitchInfilCompact)
         {
@@ -299,7 +323,6 @@ void TWorld::InitSoilInput1D(void)
         }
     }
 
-
     NewMap1D(vLw, 0);
     NewMap1D(vInfilVol, 0);
 
@@ -308,4 +331,74 @@ void TWorld::InitSoilInput1D(void)
     NewMap1D(vThetaeff, 0);
     NewMap1D(vKsateff, 0);
 
+}
+
+void TWorld::InitLULCInput1D(void)
+{
+    ReadMap1D(LDD,vtma,getvaluename("lai"));
+    ReadMap1D(LDD,vCover,getvaluename("cover"));
+
+    checkMap1D(vtma, SMALLER, 0.0, "LAI map","LAI must be >= 0");
+    checkMap1D(vCover, SMALLER, 0.0, "Cover map","Cover fraction must be >= 0");
+    checkMap1D(vCover, LARGER, 1.0, "Cover map","Cover fraction must be <= 1.0");
+
+    InterceptionLAIType = getvalueint("Canopy storage equation");
+    SwitchInterceptionLAI = InterceptionLAIType < 8;
+
+    if (SwitchInterceptionLAI)
+    {
+        NewMap1D(vCanopyStorage, 0); //in m !!!
+        FOR_ROW_COL_MV_V {
+            switch (InterceptionLAIType) {
+                case 0: vCanopyStorage[i_] = 0.4376 * vtma[i_] + 1.0356;break; // gives identical results
+                case 1: vCanopyStorage[i_] = 0.2331 * vtma[i_]; break;
+                case 2: vCanopyStorage[i_] = 0.3165 * vtma[i_]; break;
+                case 3: vCanopyStorage[i_] = 1.46 * pow(vtma[i_],0.56); break;
+                case 4: vCanopyStorage[i_] = 0.0918 * pow(vtma[i_],1.04); break;
+                case 5: vCanopyStorage[i_] = 0.2856 * vtma[i_]; break;
+                case 6: vCanopyStorage[i_] = 0.1713 * vtma[i_]; break;
+                case 7: vCanopyStorage[i_] = 0.59 * pow(vtma[i_],0.88); break;
+            }
+        }
+    } else {
+        ReadMap1D(LDD, vCanopyStorage, getvaluename("smax"));
+    }
+
+    // openness coefficient k
+    NewMap1D(vkLAI, 0);
+    FOR_ROW_COL_MV_V {
+        vCanopyStorage[i_] *= SmaxCalibration;
+        vCanopyStorage[i_] *= 0.001; // mm to m
+        vkLAI[i_] = 1-exp(-CanopyOpeness*vtma[i_]);
+    }
+    NewMap1D(vInterc,0.0);
+    NewMap1D(vCStor,0.0);
+    NewMap1D(vCanopyStorage,0.0);
+    NewMap1D(vCover,0.0);
+    NewMap1D(vLeafDrain,0.0);
+
+    if (SwitchLitter)
+    {
+        ReadMap1D(LDD,vLitter,getvaluename("litter"));
+        checkMap1D(vLitter, SMALLER, 0.0,"Litter cover map","Litter cover fraction must be >= 0");
+        checkMap1D(vLitter, LARGER, 1.0, "Litter cover map","Litter cover fraction must be <= 1.0");
+        NewMap1D(vLCStor,0.0);
+        NewMap1D(vLInterc,0.0);
+        LitterSmax = getvaluedouble("Litter interception storage");
+    }
+
+    if (SwitchHouses)
+    {
+        ReadMap1D(LDD,vRoofStore,getvaluename("roofstore"));
+        FOR_ROW_COL_MV_V {
+            vRoofStore[i_] *= 0.001; // mm to m
+        }
+        NewMap1D(vHStor,0.0);
+        NewMap1D(vIntercHouse,0.0);
+
+        if (SwitchRaindrum) {
+            ReadMap1D(LDD,vDrumStore,getvaluename("drumstore"));
+            NewMap1D(vDStor,0.0);
+        }
+    }
 }

@@ -112,6 +112,7 @@ SET(APP_SOURCES
     lisInfiltration.cpp
     lisInfiltration1D.cpp
     lisInterception.cpp
+    lisInterception1D.cpp
     lisKinematic.cpp
     lisModel.cpp
     lisOverlandflow.cpp

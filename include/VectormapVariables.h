@@ -32,6 +32,7 @@ QVector <double> vtmb;
 QVector <double> vtmc;
 QVector <double> vtmd;
 
+// infiltration, percolation, redistribution
 QVector <double> vKsat1;
 QVector <double> vThetaS1;
 QVector <double> vThetaI1;
@@ -77,17 +78,34 @@ QVector <double> vPoreGrass;
 
 QVector <double> vLw;
 QVector <double> vInfilVol;
-QVector <double> vWH;
-QVector <double> vWHrunoff;
-QVector <double> vWHroad;
-QVector <double> vFloodDomain;
-QVector <double> vhmx;
-QVector <double> vDX;
-QVector <double> vSoilWidthDX;
 QVector <double> vKsateff;
 QVector <double> vThetaeff;
 QVector <double> vPoreeff;
 QVector <double> vPerc;
+
+// interception
+QVector <double> vInterc;
+QVector <double> vCStor;
+QVector <double> vCanopyStorage;
+QVector <double> vCover;
+QVector <double> vkLAI;
+QVector <double> vLeafDrain;
+QVector <double> vLitter;
+QVector <double> vLCStor;
+QVector <double> vLInterc;
+QVector <double> vHStor;
+QVector <double> vRoofStore;
+QVector <double> vIntercHouse;
+QVector <double> vDrumStore;
+QVector <double> vDStor;
+
+//QVector <double> vWH;
+//QVector <double> vWHrunoff;
+//QVector <double> vWHroad;
+//QVector <double> vFloodDomain;
+//QVector <double> vhmx;
+//QVector <double> vDX;
+//QVector <double> vSoilWidthDX;
 
 
 

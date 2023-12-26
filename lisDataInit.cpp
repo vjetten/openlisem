@@ -1612,7 +1612,7 @@ void TWorld::InitErosion(void)
         if (SwitchUse2Phase)
             SettlingVelocityBL->Drc = GetSV(D90->Drc/gsizeCalibrationD90);
     }
-
+/*
     if(SwitchMulticlass)
     {
         graindiameters.clear();
@@ -1654,7 +1654,7 @@ void TWorld::InitErosion(void)
         R_Advect.clear();
         F_Advect.clear();
     }
-
+*/
 
     //    if(SwitchUseGrainSizeDistribution)
     //    {
@@ -1950,9 +1950,9 @@ void TWorld::IntializeData(void)
     {
         CanopyStorage = ReadMap(LDD,getvaluename("smax"));
         //if we have a Smax map directly we need the LAI so we derive it from the cover
-        FOR_ROW_COL_MV {
-            LAI->Drc = (log(std::max(0.01,1-Cover->Drc))/-0.4);// /std::max(0.1,Cover->Drc);
-        }
+//        FOR_ROW_COL_MV {
+//            LAI->Drc = (log(std::max(0.01,1-Cover->Drc))/-0.4);// /std::max(0.1,Cover->Drc);
+//        }
     }
     calcValue(*CanopyStorage, SmaxCalibration, MUL);
 
