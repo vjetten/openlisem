@@ -32,8 +32,17 @@
 #include "operation.h"
 #include "CsfRGBMap.h"
 
-
-
+//---------------------------------------------------------------------------
+double TWorld::MapTotal1D(QVector <double> &V)
+{
+    double total = 0.;
+    #pragma omp parallel for reduction(+:total) num_threads(userCores)
+    FOR_ROW_COL_MV_V {
+        if (!pcr::isMV(V[i_]))
+            total = total + V[i_];
+    }
+    return (total);
+}
 //---------------------------------------------------------------------------
 void TWorld::NewMap1D(QVector <double> &V, double value)
 {
@@ -376,6 +385,8 @@ void TWorld::InitLULCInput1D(void)
     NewMap1D(vCanopyStorage,0.0);
     NewMap1D(vCover,0.0);
     NewMap1D(vLeafDrain,0.0);
+    NewMap1D(vIntercHouse,0.0);
+    NewMap1D(vLInterc,0.0);
 
     if (SwitchLitter)
     {
@@ -383,7 +394,6 @@ void TWorld::InitLULCInput1D(void)
         checkMap1D(vLitter, SMALLER, 0.0,"Litter cover map","Litter cover fraction must be >= 0");
         checkMap1D(vLitter, LARGER, 1.0, "Litter cover map","Litter cover fraction must be <= 1.0");
         NewMap1D(vLCStor,0.0);
-        NewMap1D(vLInterc,0.0);
         LitterSmax = getvaluedouble("Litter interception storage");
     }
 
@@ -394,7 +404,6 @@ void TWorld::InitLULCInput1D(void)
             vRoofStore[i_] *= 0.001; // mm to m
         }
         NewMap1D(vHStor,0.0);
-        NewMap1D(vIntercHouse,0.0);
 
         if (SwitchRaindrum) {
             ReadMap1D(LDD,vDrumStore,getvaluename("drumstore"));

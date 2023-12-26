@@ -227,9 +227,9 @@ cTMap
 *InfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
 *ChannelInfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
 
-*InfilVolCum,                //!< cumulative infiltration volume for mass balance and map report [m^3]
+//*InfilVolCum,                //!< cumulative infiltration volume for mass balance and map report [m^3]
 *InfilmmCum,                 //!< cumulative infiltration volume for map report and drawing [mm]
-*InfilVolFlood,
+//*InfilVolFlood,
 
 *Lw,
 *Lwmm,

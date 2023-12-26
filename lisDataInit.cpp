@@ -1505,23 +1505,6 @@ void TWorld::InitErosion(void)
     SVCHCalibration = 1.0;
     SVCHCalibration = getvaluedouble("SV calibration");
 
-
-//    if (SwitchUse2Phase && SwitchUseGrainSizeDistribution) {
-//        R_BL_Method = FSWUWANGJIA;
-//        R_SS_Method = FSWUWANGJIA;  // ignore because it has to be 3 when 2 layer and graisizedist
-//        FS_BL_Method = FSWUWANGJIA;
-//        FS_SS_Method = FSWUWANGJIA;
-//    }
-//    else
-//        if(!SwitchUse2Phase && !SwitchUseGrainSizeDistribution) {
-//            R_BL_Method = FSRIJN;     // if single layer and no grainsize = simple erosion, then govers
-//            R_SS_Method = FSGOVERS;
-//            FS_BL_Method = FSRIJN;
-//            FS_SS_Method = FSGOVERS;
-//        }
-
-    unity = NewMap(1.0);
-
     Qs = NewMap(0);
     Qsn = NewMap(0);
 
@@ -1612,7 +1595,8 @@ void TWorld::InitErosion(void)
         if (SwitchUse2Phase)
             SettlingVelocityBL->Drc = GetSV(D90->Drc/gsizeCalibrationD90);
     }
-/*
+
+/* MULTICLASS, NOT IMPLEMENTED
     if(SwitchMulticlass)
     {
         graindiameters.clear();
@@ -1654,189 +1638,190 @@ void TWorld::InitErosion(void)
         R_Advect.clear();
         F_Advect.clear();
     }
+
+
+    if(SwitchUseGrainSizeDistribution)
+    {
+
+        if(SwitchEstimateGrainSizeDistribution)
+        {
+            if(numgrainclasses == 0)
+            {
+                ErrorString = "Could not simulate 0 grain classes" +QString("\n")
+                        + "Please provide a positive number";
+                throw 1;
+
+            }
+
+
+            distD50 = 0;
+            distD90 = 0;
+            int count = 0;
+            FOR_ROW_COL_MV
+            {
+                distD50 += D50->Drc;
+                distD90 += D90->Drc;
+                count++;
+            }
+            distD50 = distD50/count;
+            distD90 = distD90/count;
+
+            double s = distD90- distD50;
+            double s2l = std::max(distD50 - 2*s,distD50);
+            double s2r = 2 * s;
+
+            int classesleft = numgrainclasses;
+            int mod2 = classesleft % 2;
+            if(mod2 == 1)
+            {
+                classesleft -= 1;
+            }
+
+            for(int i = 1; i < classesleft/2 + 1 ; i++)
+            {
+                double d = (distD50 - s2l) + ((double)i) * s2l/(1.0 + double(classesleft/2.0) );
+                graindiameters.append(d);
+                W_D.append(NewMap(s2l/(1.0 + double(classesleft/2.0) )));
+            }
+            if(mod2 == 1)
+            {
+                graindiameters.append(distD50);
+                W_D.append(NewMap(0.5 *s2l/(1.0 + double(classesleft/2.0) ) + 0.5 * s2r/(1.0 + double(classesleft/2.0))));
+            }
+
+            for(int i = 1; i < classesleft/2 + 1; i++)
+            {
+                double d = (distD50) + ((double)i) *s2r/(1.0 + double(classesleft/2.0) );
+                graindiameters.append(d);
+                W_D.append(NewMap(s2r/(1.0 + double(classesleft/2.0))));
+            }
+
+            FOR_GRAIN_CLASSES
+            {
+
+                settlingvelocities.append(GetSV(graindiameters.at(d)));
+
+                FOR_ROW_COL_MV
+                {
+                    W_D.Drcd = W_D.Drcd*LogNormalDist(D50->Drc,D90->Drc -D50->Drc,graindiameters.at(d));
+                }
+                Tempa_D.append(NewMap(0.0));
+                Tempb_D.append(NewMap(0.0));
+                Tempc_D.append(NewMap(0.0));
+                Tempd_D.append(NewMap(0.0));
+
+                BL_D.append(NewMap(0.0));
+                SS_D.append(NewMap(0.0));
+                BLC_D.append(NewMap(0.0));
+                SSC_D.append(NewMap(0.0));
+                BLTC_D.append(NewMap(0.0));
+                SSTC_D.append(NewMap(0.0));
+                BLD_D.append(NewMap(0.0));
+                SSD_D.append(NewMap(0.0));
+
+                RBL_D.append(NewMap(0.0));
+                RSS_D.append(NewMap(0.0));
+                RBLC_D.append(NewMap(0.0));
+                RSSC_D.append(NewMap(0.0));
+                RBLTC_D.append(NewMap(0.0));
+                RSSTC_D.append(NewMap(0.0));
+                RBLD_D.append(NewMap(0.0));
+                RSSD_D.append(NewMap(0.0));
+
+                Sed_D.append(NewMap(0.0));
+                TC_D.append(NewMap(0.0));
+                Conc_D.append(NewMap(0.0));
+
+                StorageDep_D.append(NewMap(0.0));
+                Storage_D.append(NewMap(0.0));
+                RStorageDep_D.append(NewMap(0.0));
+                RStorage_D.append(NewMap(0.0));
+            }
+
+            FOR_ROW_COL_MV
+            {
+                double wtotal = 0;
+                FOR_GRAIN_CLASSES
+                {
+                    wtotal += (W_D).Drcd;
+                }
+
+                if(wtotal != 0)
+                {
+                    FOR_GRAIN_CLASSES
+                    {
+                        (W_D).Drcd = (W_D).Drcd/wtotal;
+                    }
+                }
+            }
+
+        }
+
+        if(SwitchReadGrainSizeDistribution)
+        {
+
+            numgrainclasses = 0;
+            QStringList diamlist = getvaluename("Grain size class maps").split(";", Qt::SkipEmptyParts);
+
+            for(int i = 0; i < diamlist.count(); i++)
+            {
+                double diam = gsizeCalibration*diamlist.at(i).toDouble();
+                ///gsizeCalibration ?? added later?
+                if( diam > 0.0)
+                {
+                    numgrainclasses++;
+                    graindiameters.append(diam);
+
+                    settlingvelocities.append(GetSV(diam));
+
+                    W_D.append(ReadMap(LDD,"GSD_"+diamlist.at(i)));
+
+                    graindiameters.clear();
+
+                    Tempa_D.append(NewMap(0.0));
+                    Tempb_D.append(NewMap(0.0));
+                    Tempc_D.append(NewMap(0.0));
+                    Tempd_D.append(NewMap(0.0));
+
+                    BL_D.append(NewMap(0.0));
+                    SS_D.append(NewMap(0.0));
+                    BLC_D.append(NewMap(0.0));
+                    SSC_D.append(NewMap(0.0));
+                    BLTC_D.append(NewMap(0.0));
+                    SSTC_D.append(NewMap(0.0));
+                    BLD_D.append(NewMap(0.0));
+                    SSD_D.append(NewMap(0.0));
+
+                    RBL_D.append(NewMap(0.0));
+                    RSS_D.append(NewMap(0.0));
+                    RBLC_D.append(NewMap(0.0));
+                    RSSC_D.append(NewMap(0.0));
+                    RBLTC_D.append(NewMap(0.0));
+                    RSSTC_D.append(NewMap(0.0));
+                    RBLD_D.append(NewMap(0.0));
+                    RSSD_D.append(NewMap(0.0));
+
+                    Sed_D.append(NewMap(0.0));
+                    TC_D.append(NewMap(0.0));
+                    Conc_D.append(NewMap(0.0));
+
+                    StorageDep_D.append(NewMap(0.0));
+                    Storage_D.append(NewMap(0.0));
+                    RStorageDep_D.append(NewMap(0.0));
+                    RStorage_D.append(NewMap(0.0));
+                }
+            }
+
+            if(numgrainclasses == 0)
+            {
+                ErrorString = "Could not interpret grain classes from the string: \n"
+                        +  getvaluename("Grain size class maps") + "\n"
+                        + "Please provide positive values seperated by commas.";
+                throw 1;
+            }
+        }
+    }
 */
-
-    //    if(SwitchUseGrainSizeDistribution)
-    //    {
-
-    //        if(SwitchEstimateGrainSizeDistribution)
-    //        {
-    //            if(numgrainclasses == 0)
-    //            {
-    //                ErrorString = "Could not simulate 0 grain classes" +QString("\n")
-    //                        + "Please provide a positive number";
-    //                throw 1;
-
-    //            }
-
-
-    //            distD50 = 0;
-    //            distD90 = 0;
-    //            int count = 0;
-    //            FOR_ROW_COL_MV
-    //            {
-    //                distD50 += D50->Drc;
-    //                distD90 += D90->Drc;
-    //                count++;
-    //            }
-    //            distD50 = distD50/count;
-    //            distD90 = distD90/count;
-
-    //            double s = distD90- distD50;
-    //            double s2l = std::max(distD50 - 2*s,distD50);
-    //            double s2r = 2 * s;
-
-    //            int classesleft = numgrainclasses;
-    //            int mod2 = classesleft % 2;
-    //            if(mod2 == 1)
-    //            {
-    //                classesleft -= 1;
-    //            }
-
-    //            for(int i = 1; i < classesleft/2 + 1 ; i++)
-    //            {
-    //                double d = (distD50 - s2l) + ((double)i) * s2l/(1.0 + double(classesleft/2.0) );
-    //                graindiameters.append(d);
-    //                W_D.append(NewMap(s2l/(1.0 + double(classesleft/2.0) )));
-    //            }
-    //            if(mod2 == 1)
-    //            {
-    //                graindiameters.append(distD50);
-    //                W_D.append(NewMap(0.5 *s2l/(1.0 + double(classesleft/2.0) ) + 0.5 * s2r/(1.0 + double(classesleft/2.0))));
-    //            }
-
-    //            for(int i = 1; i < classesleft/2 + 1; i++)
-    //            {
-    //                double d = (distD50) + ((double)i) *s2r/(1.0 + double(classesleft/2.0) );
-    //                graindiameters.append(d);
-    //                W_D.append(NewMap(s2r/(1.0 + double(classesleft/2.0))));
-    //            }
-
-    //            FOR_GRAIN_CLASSES
-    //            {
-
-    //                settlingvelocities.append(GetSV(graindiameters.at(d)));
-
-    //                FOR_ROW_COL_MV
-    //                {
-    //                    W_D.Drcd = W_D.Drcd*LogNormalDist(D50->Drc,D90->Drc -D50->Drc,graindiameters.at(d));
-    //                }
-    //                Tempa_D.append(NewMap(0.0));
-    //                Tempb_D.append(NewMap(0.0));
-    //                Tempc_D.append(NewMap(0.0));
-    //                Tempd_D.append(NewMap(0.0));
-
-    //                BL_D.append(NewMap(0.0));
-    //                SS_D.append(NewMap(0.0));
-    //                BLC_D.append(NewMap(0.0));
-    //                SSC_D.append(NewMap(0.0));
-    //                BLTC_D.append(NewMap(0.0));
-    //                SSTC_D.append(NewMap(0.0));
-    //                BLD_D.append(NewMap(0.0));
-    //                SSD_D.append(NewMap(0.0));
-
-    //                RBL_D.append(NewMap(0.0));
-    //                RSS_D.append(NewMap(0.0));
-    //                RBLC_D.append(NewMap(0.0));
-    //                RSSC_D.append(NewMap(0.0));
-    //                RBLTC_D.append(NewMap(0.0));
-    //                RSSTC_D.append(NewMap(0.0));
-    //                RBLD_D.append(NewMap(0.0));
-    //                RSSD_D.append(NewMap(0.0));
-
-    //                Sed_D.append(NewMap(0.0));
-    //                TC_D.append(NewMap(0.0));
-    //                Conc_D.append(NewMap(0.0));
-
-    //                StorageDep_D.append(NewMap(0.0));
-    //                Storage_D.append(NewMap(0.0));
-    //                RStorageDep_D.append(NewMap(0.0));
-    //                RStorage_D.append(NewMap(0.0));
-    //            }
-
-    //            FOR_ROW_COL_MV
-    //            {
-    //                double wtotal = 0;
-    //                FOR_GRAIN_CLASSES
-    //                {
-    //                    wtotal += (W_D).Drcd;
-    //                }
-
-    //                if(wtotal != 0)
-    //                {
-    //                    FOR_GRAIN_CLASSES
-    //                    {
-    //                        (W_D).Drcd = (W_D).Drcd/wtotal;
-    //                    }
-    //                }
-    //            }
-
-    //        }
-
-    //        //        if(SwitchReadGrainSizeDistribution)
-    //        //        {
-
-    //        //            numgrainclasses = 0;
-    //        //            QStringList diamlist = getvaluename("Grain size class maps").split(";", Qt::SkipEmptyParts);
-
-    //        //            for(int i = 0; i < diamlist.count(); i++)
-    //        //            {
-    //        //                double diam = gsizeCalibration*diamlist.at(i).toDouble();
-    //        //                ///gsizeCalibration ?? added later?
-    //        //                if( diam > 0.0)
-    //        //                {
-    //        //                    numgrainclasses++;
-    //        //                    graindiameters.append(diam);
-
-    //        //                    settlingvelocities.append(GetSV(diam));
-
-    //        //                    W_D.append(ReadMap(LDD,"GSD_"+diamlist.at(i)));
-
-    //        //                    graindiameters.clear();
-
-    //        //                    Tempa_D.append(NewMap(0.0));
-    //        //                    Tempb_D.append(NewMap(0.0));
-    //        //                    Tempc_D.append(NewMap(0.0));
-    //        //                    Tempd_D.append(NewMap(0.0));
-
-    //        //                    BL_D.append(NewMap(0.0));
-    //        //                    SS_D.append(NewMap(0.0));
-    //        //                    BLC_D.append(NewMap(0.0));
-    //        //                    SSC_D.append(NewMap(0.0));
-    //        //                    BLTC_D.append(NewMap(0.0));
-    //        //                    SSTC_D.append(NewMap(0.0));
-    //        //                    BLD_D.append(NewMap(0.0));
-    //        //                    SSD_D.append(NewMap(0.0));
-
-    //        //                    RBL_D.append(NewMap(0.0));
-    //        //                    RSS_D.append(NewMap(0.0));
-    //        //                    RBLC_D.append(NewMap(0.0));
-    //        //                    RSSC_D.append(NewMap(0.0));
-    //        //                    RBLTC_D.append(NewMap(0.0));
-    //        //                    RSSTC_D.append(NewMap(0.0));
-    //        //                    RBLD_D.append(NewMap(0.0));
-    //        //                    RSSD_D.append(NewMap(0.0));
-
-    //        //                    Sed_D.append(NewMap(0.0));
-    //        //                    TC_D.append(NewMap(0.0));
-    //        //                    Conc_D.append(NewMap(0.0));
-
-    //        //                    StorageDep_D.append(NewMap(0.0));
-    //        //                    Storage_D.append(NewMap(0.0));
-    //        //                    RStorageDep_D.append(NewMap(0.0));
-    //        //                    RStorage_D.append(NewMap(0.0));
-    //        //                }
-    //        //            }
-
-    //        //            if(numgrainclasses == 0)
-    //        //            {
-    //        //                ErrorString = "Could not interpret grain classes from the string: \n"
-    //        //                        +  getvaluename("Grain size class maps") + "\n"
-    //        //                        + "Please provide positive values seperated by commas.";
-    //        //                throw 1;
-    //        //            }
-    //        //        }
-    //    }
 }
 
 
@@ -2060,11 +2045,11 @@ void TWorld::IntializeData(void)
     floodBoundaryTot = 0;
     floodBoundarySedTot = 0;
 
-    InfilVolFlood = NewMap(0);
+    //InfilVolFlood = NewMap(0);
     InfilVolKinWave = NewMap(0);
     InfilVol = NewMap(0);
     InfilmmCum = NewMap(0);
-    InfilVolCum = NewMap(0);
+    //InfilVolCum = NewMap(0);
     Ksateff = NewMap(0);
     Poreeff = NewMap(0);
     Thetaeff = NewMap(0);

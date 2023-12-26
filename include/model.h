@@ -745,8 +745,8 @@ public:
     bool SwitchAdvancedSed, SwitchUseMaterialDepth,SwitchNoBoundarySed, SwitchUse2Phase,SwitchUseGrainSizeDistribution,
         SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution, SwitchD50CHavg;
 
-    int numgrainclasses;
-    QString GrainMaps;
+//    int numgrainclasses;
+//    QString GrainMaps;
 //    QList<double> graindiameters;
 //    QList<double> settlingvelocities;
     double distD50;
@@ -791,24 +791,23 @@ public:
     //material that is available for detachment
 //    QList<cTMap *> StorageDep_D;
 //    QList<cTMap *> Storage_D;
+    //    QList<cTMap *> RStorageDep_D;
+    //    QList<cTMap *> RStorage_D;
+
     cTMap *Storage;
     cTMap *StorageDep;
     cTMap *SedimentMixingDepth;
     cTMap *maxDetachment;
 
-    QList<cTMap *> RStorageDep_D;
-    QList<cTMap *> RStorage_D;
     cTMap *RStorage;
     cTMap *RStorageDep;
     cTMap *RSedimentMixingDepth;
 
-    cTMap *unity;
-
     //keep track of any dissolved substances that need to be advected by the kinematic wave
     //not used!!!
-    QList<cTMap *> OF_Advect;
-    QList<cTMap *> R_Advect;
-    QList<cTMap *> F_Advect;
+//    QList<cTMap *> OF_Advect;
+//    QList<cTMap *> R_Advect;
+//    QList<cTMap *> F_Advect;
 
 
     //sediment for SWOF flood model

@@ -143,11 +143,11 @@ void TWorld::cell_InfilMethods1D(long i_, int r, int c)
             double space = vPoreeff[i_]-vThetaeff[i_];
             if (vLw[i_] > vSoilDepth1[i_])
                 space = vThetaS2[i_]-vThetaI2[i_];
-//            double B = (fwh + Psi)*space;
-//            if (B > 0.01) {
-//                fpot_ = Ks*exp(Fcum->Drc/B)/(exp(Fcum->Drc/B)-1);
-//            } else
-//                fpot_ = Ks;
+            double B = (fwh + Psi)*space;
+            if (B > 0.01) {
+                fpot_ = Ks*exp(Fcum->Drc/B)/(exp(Fcum->Drc/B)-1);
+            } else
+                fpot_ = Ks;
         }
 
         fact_ = std::min(fpot_, fwh);
@@ -171,18 +171,19 @@ void TWorld::cell_InfilMethods1D(long i_, int r, int c)
         else
             fwh -= fact_;
 
+        // copy back to maps
         if(FloodDomain->Drc == 0)
             WH->Drc = fwh;
         else
             hmx->Drc = fwh;
         // adjust the WH in the correct domain with new fact
 
-        //Fcum->Drc += fact_; // for Smith and Parlange
+        Fcum->Drc += fact_; // for Smith and Parlange
         // increase cumulative infil in m
-        vInfilVol[i_] = fact_* SoilWidthDX->Drc * DX->Drc;
+        InfilVol->Drc = fact_* SoilWidthDX->Drc * DX->Drc;
         // calc infiltrated volume for mass balance
     } else {
-        vInfilVol[i_] = 0;
+        InfilVol->Drc = 0;
     }
 
     // calc surplus infiltration (negative in m) for kin wave
