@@ -101,21 +101,27 @@ void TWorld::Totals(void)
     // interception in mm and m3
     //Litter
     if (SwitchLitter) {
-        //IntercLitterTot = MapTotal(*LInterc); // in m
-        IntercLitterTot = MapTotal1D(vLInterc); // in m
+        if (Switch1Darrays)
+            IntercLitterTot = MapTotal1D(vLInterc); // in m
+        else
+            IntercLitterTot = MapTotal(*LInterc); // in m
         IntercLitterTotmm = IntercLitterTot*catchmentAreaFlatMM; // *1000/total cellarea
     }
 
     if (SwitchHouses) {
-        //IntercHouseTot = MapTotal(*IntercHouse);
-        IntercHouseTot = MapTotal1D(vIntercHouse);
+        if (Switch1Darrays)
+            IntercHouseTot = MapTotal1D(vIntercHouse);
+        else
+            IntercHouseTot = MapTotal(*IntercHouse);
         IntercHouseTotmm = IntercHouseTot*catchmentAreaFlatMM;
         // interception in mm and m3
     }
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        //InterceptionmmCum->Drc = (IntercETa->Drc + Interc->Drc + IntercHouse->Drc + LInterc->Drc)*1000.0/CellArea->Drc;
-        InterceptionmmCum->Drc = (IntercETa->Drc + vInterc[i_] + vIntercHouse[i_] + vLInterc[i_])*1000.0/CellArea->Drc;
+        if (Switch1Darrays)
+            InterceptionmmCum->Drc = (IntercETa->Drc + vInterc[i_] + vIntercHouse[i_] + vLInterc[i_])*1000.0/CellArea->Drc;
+        else
+            InterceptionmmCum->Drc = (IntercETa->Drc + Interc->Drc + IntercHouse->Drc + LInterc->Drc)*1000.0/CellArea->Drc;
         // for screen and file output
     }}
 
@@ -145,8 +151,10 @@ void TWorld::Totals(void)
                 tma->Drc += ChannelInfilVol->Drc;
 
             InfilmmCum->Drc = std::max(0.0, tma->Drc*1000.0/(_dx*_dx));
-            //PercmmCum->Drc += Perc->Drc*1000.0;
-            PercmmCum->Drc += vPerc[i_]*1000.0;
+            if (Switch1Darrays)
+                PercmmCum->Drc += vPerc[i_]*1000.0;
+            else
+                PercmmCum->Drc += Perc->Drc*1000.0;
         }}
 
         theta1tot = MapTotal(*ThetaI1a)/(double)nrCells;

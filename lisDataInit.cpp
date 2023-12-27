@@ -217,7 +217,7 @@ void TWorld::GetInputData(void)
 {
     InitParameters();
 
-    Switch1Darrays = true;
+    Switch1Darrays = false;
 
     InitStandardInput();
     //## Basic data start of map list etc.
@@ -282,7 +282,7 @@ void TWorld::InitParameters(void)
 
     ksatCalibration = getvaluedouble("Ksat calibration");
     ksat2Calibration = getvaluedouble("Ksat2 calibration");
-    ksat3Calibration = getvaluedouble("Ksat3 calibration");
+    ksat3Calibration = 1.0;//getvaluedouble("Ksat3 calibration");
 
     SmaxCalibration = getvaluedouble("Smax calibration");
     RRCalibration = getvaluedouble("RR calibration");
@@ -366,6 +366,8 @@ void TWorld::InitParameters(void)
     if (userCores == 0 || userCores > cores)
         userCores = cores;
     op.cores = userCores;
+
+    SwitchSlopeStability = false;
 
 }
 //---------------------------------------------------------------------------
@@ -618,6 +620,7 @@ void TWorld::InitLULCInput(void)
 
         if (SwitchLitter)
         {
+            LCStor = NewMap(0);
             Litter = ReadMap(LDD,getvaluename("litter"));
             checkMap(*Litter, SMALLER, 0.0, "Litter cover fraction must be >= 0");
             checkMap(*Litter, LARGER, 1.0, "Litter cover fraction must be <= 1.0");
@@ -638,20 +641,30 @@ void TWorld::InitLULCInput(void)
                 }
             }
         }
-    } //1D
 
-    if (SwitchHouses) {
-        //houses info:
-        //housecover.map;Fraction of hard roof surface per cell (-);housecover");
-        //roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
-        //drumstore.map;Size of storage of rainwater drums (m3);drumstore");
-        HouseCover = ReadMap(LDD,getvaluename("housecover"));
-        RoofStore = ReadMap(LDD,getvaluename("roofstore"));
-        calcValue(*RoofStore, 0.001, MUL);
-        // from mm to m
-        DrumStore = ReadMap(LDD,getvaluename("drumstore"));
-    } else
-        HouseCover = NewMap(0);
+        LeafDrain = NewMap(0);
+        CStor = NewMap(0);
+        Interc = NewMap(0);
+        IntercETa = NewMap(0);
+        InterceptionmmCum = NewMap(0);
+        LInterc = NewMap(0);
+        IntercHouse = NewMap(0);
+
+        if (SwitchHouses) {
+            //houses info:
+            //housecover.map;Fraction of hard roof surface per cell (-);housecover");
+            //roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
+            //drumstore.map;Size of storage of rainwater drums (m3);drumstore");
+            HouseCover = ReadMap(LDD,getvaluename("housecover"));
+            RoofStore = ReadMap(LDD,getvaluename("roofstore"));
+            calcValue(*RoofStore, 0.001, MUL);
+            // from mm to m
+            DrumStore = ReadMap(LDD,getvaluename("drumstore"));
+            HStor = NewMap(0);
+            DStor = NewMap(0);
+        } else
+            HouseCover = NewMap(0);
+    } //1D
 
     if (SwitchRoadsystem)
     {
@@ -686,8 +699,8 @@ void TWorld::InitLULCInput(void)
         StripN = getvaluedouble("Grassstrip Mannings n");
         FOR_ROW_COL_MV {
             if (GrassWidthDX->Drc > 0) {
-                    N->Drc = N->Drc*(1-GrassFraction->Drc)+StripN*GrassFraction->Drc;
-                    HouseCover->Drc = HouseCover->Drc*(1-GrassFraction->Drc);
+                N->Drc = N->Drc*(1-GrassFraction->Drc)+StripN*GrassFraction->Drc;
+                HouseCover->Drc = HouseCover->Drc*(1-GrassFraction->Drc);
             }
         }
     }
