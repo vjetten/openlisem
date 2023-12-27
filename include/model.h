@@ -950,6 +950,8 @@ public:
     void cell_Redistribution1_1D(long i_, int r, int c);
     void cell_Redistribution2_1D(long i_, int r, int c);
     void cell_Interception1D(long i_, int r, int c);
+    void avgTheta1D();
+
 
     void ChannelandTileflow();
     void OverlandFlow1D(void);
@@ -1087,8 +1089,13 @@ public:
     double MapTotal(cTMap &M);
     void Average3x3(cTMap &M, cTMap &mask, bool only);
     void Average2x2(cTMap &M, cTMap &mask);
-    void Totals(void);
+
+    void TotalsHydro1D(void);
+    void TotalsHydro(void);
+    void TotalsFlow(void);
+    void TotalsSediment(void);
     void MassBalance(void);
+
     void OutputUI(void);
     void reportAll(void);
     void ReportTimeseriesNew(void);
@@ -1124,6 +1131,7 @@ protected:
     // talk to the interface
     QElapsedTimer time_ms;
     double startTime;
+    void copy1Dto2D(QVector <double> &V);
     void setupDisplayMaps();
     void setupHydrographData();
     void ClearHydrographData();

@@ -306,3 +306,32 @@ void TWorld::cell_Redistribution2_1D(long i_, int r, int c)
    vLw[i_] = Lw_;
 }
 //---------------------------------------------------------------------------
+void TWorld::avgTheta1D()
+{
+#pragma omp parallel for num_threads(userCores)
+   FOR_ROW_COL_MV_L {
+        double Lw_ = vLw[i_];
+        double SoilDep1 = vSoilDepth1[i_];
+        ThetaI1a[i_] = vThetaeff[i_];
+
+        if (Lw_ > 0 && Lw_ < SoilDep1 - 1e-3) {
+            double f = Lw_/SoilDep1;
+            //ThetaI1a[i_] = f * ThetaS1[i_] + (1-f) *Thetaeff[i_];
+            vThetaI1a[i_] = f * vPoreeff[i_] + (1-f) *vThetaeff[i_];
+        }
+        if (Lw_ > SoilDep1 - 1e-3)
+            vThetaI1a[i_] = vPoreeff[i_];
+        //ThetaI1a[i_] = ThetaS1[i_];
+
+        if (SwitchTwoLayer) {
+            double SoilDep2 = vSoilDepth2[i_];
+            vThetaI2a[i_] = vThetaI2[i_];
+            if (Lw_ > SoilDep1 && Lw_ < SoilDep2 - 1e-3) {
+                double f = (Lw_-SoilDep1)/(SoilDep2-SoilDep1);
+                vThetaI2a[i_] = f * vThetaS2[i_] + (1-f) *vThetaI2[i_];
+            }
+            if (Lw_ > SoilDep2 - 1e-3)
+                vThetaI2a[i_] = vThetaS2[i_];
+        }
+   }}
+}

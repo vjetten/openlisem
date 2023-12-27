@@ -98,6 +98,7 @@ QVector <double> vRoofStore;
 QVector <double> vIntercHouse;
 QVector <double> vDrumStore;
 QVector <double> vDStor;
+QVector <double> vIntercETa;
 
 //QVector <double> vWH;
 //QVector <double> vWHrunoff;

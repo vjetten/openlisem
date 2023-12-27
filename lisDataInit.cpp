@@ -217,7 +217,7 @@ void TWorld::GetInputData(void)
 {
     InitParameters();
 
-    Switch1Darrays = false;
+    Switch1Darrays = true;
 
     InitStandardInput();
     //## Basic data start of map list etc.
@@ -225,6 +225,7 @@ void TWorld::GetInputData(void)
     InitMeteoInput();
     //## Basic data start of map list etc.
 
+    InitLULCInput1D();
     InitLULCInput();
     //## surface related variables
 
@@ -646,25 +647,28 @@ void TWorld::InitLULCInput(void)
         CStor = NewMap(0);
         Interc = NewMap(0);
         IntercETa = NewMap(0);
-        InterceptionmmCum = NewMap(0);
         LInterc = NewMap(0);
         IntercHouse = NewMap(0);
 
-        if (SwitchHouses) {
-            //houses info:
-            //housecover.map;Fraction of hard roof surface per cell (-);housecover");
-            //roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
-            //drumstore.map;Size of storage of rainwater drums (m3);drumstore");
-            HouseCover = ReadMap(LDD,getvaluename("housecover"));
-            RoofStore = ReadMap(LDD,getvaluename("roofstore"));
-            calcValue(*RoofStore, 0.001, MUL);
-            // from mm to m
-            DrumStore = ReadMap(LDD,getvaluename("drumstore"));
-            HStor = NewMap(0);
-            DStor = NewMap(0);
-        } else
-            HouseCover = NewMap(0);
-    } //1D
+    } // !1D
+
+    //MOVE TO TOTALS
+    InterceptionmmCum = NewMap(0);
+
+    if (SwitchHouses) {
+        //houses info:
+        //housecover.map;Fraction of hard roof surface per cell (-);housecover");
+        //roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
+        //drumstore.map;Size of storage of rainwater drums (m3);drumstore");
+        HouseCover = ReadMap(LDD,getvaluename("housecover"));
+        RoofStore = ReadMap(LDD,getvaluename("roofstore"));
+        calcValue(*RoofStore, 0.001, MUL);
+        // from mm to m
+        DrumStore = ReadMap(LDD,getvaluename("drumstore"));
+        HStor = NewMap(0);
+        DStor = NewMap(0);
+    } else
+        HouseCover = NewMap(0);
 
     if (SwitchRoadsystem)
     {
@@ -877,7 +881,20 @@ void TWorld::InitSoilInput(void)
                 }
             }
         }
-    }
+
+        FOR_ROW_COL_MV {
+            Ksat1->Drc *= _dt/3600000.0;
+            if (SwitchTwoLayer)
+                Ksat2->Drc *= _dt/3600000.0;
+            if (SwitchInfilCrust)
+                KsatCrust->Drc *= _dt/3600000.0;
+            if (SwitchInfilCompact)
+                KsatCompact->Drc *= _dt/3600000.0;
+            if (SwitchGrassStrip)
+                KsatGrass->Drc *= _dt/3600000.0;
+        }
+    } //1D
+
     // SWATRE infiltration read maps and structures
     if (InfilMethod == INFIL_SWATRE)
     {
@@ -917,6 +934,8 @@ void TWorld::InitSoilInput(void)
         // read the swatre tables and make the information structure ZONE etc
         ReadSwatreInputNew();
     }
+
+
 }
 //---------------------------------------------------------------------------
 void TWorld::InitBoundary(void)
@@ -1203,11 +1222,17 @@ void TWorld::InitChannel(void)
         GWgrad = NewMap(0);
 
         FOR_ROW_COL_MV_L {
-            //GWz->Drc = DEM->Drc - SoilDepth1->Drc - (SwitchTwoLayer ? SoilDepth2->Drc : 0.0);
-            if (SwitchTwoLayer)
-                GWz->Drc = DEM->Drc - SoilDepth2->Drc;
-            else
-                GWz->Drc = DEM->Drc - SoilDepth1->Drc;
+            if (Switch1Darrays) {
+                if (SwitchTwoLayer)
+                    GWz->Drc = DEM->Drc - vSoilDepth2[i_];
+                else
+                    GWz->Drc = DEM->Drc - vSoilDepth1[i_];
+            }else {
+                if (SwitchTwoLayer)
+                    GWz->Drc = DEM->Drc - SoilDepth2->Drc;
+                else
+                    GWz->Drc = DEM->Drc - SoilDepth1->Drc;
+            }
         }}
         Average3x3(*GWz, *LDD, false);
 

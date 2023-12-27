@@ -253,7 +253,7 @@ void TWorld::DoModel()
 
         GetComboMaps(); // moved to outside timeloop!
 
-        InfilEffectiveKsat(true);
+        //InfilEffectiveKsat(true);
 
         for (time = BeginTime; time < EndTime; time += _dt)
         {            
@@ -278,7 +278,11 @@ void TWorld::DoModel()
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
 
-            InfilEffectiveKsat(false);
+            if (Switch1Darrays)
+                InfilEffectiveKsat1D();
+            else
+                InfilEffectiveKsat(false);
+
 
             HydrologyProcesses();  // hydrological processes in one loop, incl splash
 
@@ -293,7 +297,14 @@ void TWorld::DoModel()
             //StormDrainFlow();
             // these are all non-threaded
 
-            Totals();            // calculate all totals and cumulative values
+            if (Switch1Darrays)
+                TotalsHydro1D();            // calculate all totals and cumulative values
+            else
+                TotalsHydro();            // calculate all totals and cumulative values
+
+            TotalsFlow();            // calculate all totals and cumulative values
+
+            TotalsSediment();            // calculate all totals and cumulative values
 
             MassBalance();       // check water and sed mass balance
 
@@ -378,71 +389,133 @@ void TWorld::GetInputTimeseries()
 void TWorld::HydrologyProcesses()
 {
     //double soiltot1 = SoilWaterMass();
+    if (Switch1Darrays) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            cell_Interception1D(i_, r,c);
+            // all interception on plants, houses, litter
+            // result is rainnet (and leafdrip for erosion)
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        cell_Interception(r,c);
-        // all interception on plants, houses, litter
-        // result is rainnet (and leafdrip for erosion)
-
-        if (FloodDomain->Drc > 0) {
-            hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc; // only used in kin wave pluf flood from channel, hmx is flood water
-        } else {
-            WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;  // used in 2D flow and kin wave
-        }
-        // add net to water rainfall on soil surface (in m)
-        // when kin wave and flooded hmx exists else always WH
-        if (SwitchRoadsystem || SwitchHardsurface) {
-            if (RoadWidthHSDX->Drc > 0)
-                WHroad->Drc += RainNet->Drc;// + Snowmeltc->Drc;
-        }
-
-        // infiltration by SWATRE of G&A+percolation
-        if (InfilMethod == INFIL_SWATRE) {
-           cell_InfilSwatre(r, c);
-        } else {
-            if (InfilMethod != INFIL_NONE) {
-
-                cell_InfilMethods(r, c);
-
-                if (SwitchTwoLayer) {
-                    cell_Redistribution2(r, c);
-                    //cell_Channelinfow2(r, c);
-                } else {
-                    cell_Redistribution1(r, c);
-                    //cell_Channelinfow1(r, c);
-                }
-
-                if (!SwitchImpermeable)
-                    Perc->Drc = cell_Percolation(r, c, 1.0);
-                // if baseflow is active percollation is done there, so do not do it here
+            if (FloodDomain->Drc > 0) {
+                hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc; // only used in kin wave pluf flood from channel, hmx is flood water
+            } else {
+                WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;  // used in 2D flow and kin wave
             }
-        }
+            // add net to water rainfall on soil surface (in m)
+            // when kin wave and flooded hmx exists else always WH
+            if (SwitchRoadsystem || SwitchHardsurface) {
+                if (RoadWidthHSDX->Drc > 0)
+                    WHroad->Drc += RainNet->Drc;// + Snowmeltc->Drc;
+            }
 
-        //  cell_depositInfil(r,c);
-        // deposit all sediment still in flow when infiltration causes WH to become minimum
-        // gives huge MBs errors!
+            // infiltration by SWATRE of G&A+percolation
+            if (InfilMethod == INFIL_SWATRE) {
+                cell_InfilSwatre(r, c);
+            } else {
+                if (InfilMethod != INFIL_NONE) {
 
-        cell_SurfaceStorage(r, c);
-        //calc surf storage and total watervol and WHrunoff
+                    cell_InfilMethods1D(i_, r, c);
 
-        if (SwitchErosion)
-            cell_SplashDetachment(r, c);
+                    if (SwitchTwoLayer) {
+                        cell_Redistribution2_1D(i_, r, c);
+                    } else {
+                        cell_Redistribution1_1D(i_, r, c);
+                    }
 
-        if (SwitchSlopeStability)
-            cell_SlopeStability(r, c);
-    }}
+                    if (!SwitchImpermeable)
+                        Perc->Drc = cell_Percolation1D(i_, r, c, 1.0);
+                    // if baseflow is active percollation is done there, so do not do it here
+                }
+            }
+
+            //  cell_depositInfil(r,c);
+            // deposit all sediment still in flow when infiltration causes WH to become minimum
+            // gives huge MBs errors!
+
+            cell_SurfaceStorage(r, c);
+            //calc surf storage and total watervol and WHrunoff
+
+            if (SwitchErosion)
+                cell_SplashDetachment(r, c);
+
+            if (SwitchSlopeStability)
+                cell_SlopeStability(r, c);
+        }}
 
     if (SwitchIncludeET) {
-       // doETa();
+        doETa();
     }
     // ETa is subtracted from canopy, soil water surfaces
     // divided over 12 hours in a day with sine curve
 
     //MoistureContent();
-   // double soiltot2 = SoilWaterMass();
-   // SoilMoistDiff = soiltot2 - soiltot1;
+    // double soiltot2 = SoilWaterMass();
+    // SoilMoistDiff = soiltot2 - soiltot1;
+    } else {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            cell_Interception(r,c);
+            // all interception on plants, houses, litter
+            // result is rainnet (and leafdrip for erosion)
 
+            if (FloodDomain->Drc > 0) {
+                hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc; // only used in kin wave pluf flood from channel, hmx is flood water
+            } else {
+                WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;  // used in 2D flow and kin wave
+            }
+            // add net to water rainfall on soil surface (in m)
+            // when kin wave and flooded hmx exists else always WH
+            if (SwitchRoadsystem || SwitchHardsurface) {
+                if (RoadWidthHSDX->Drc > 0)
+                    WHroad->Drc += RainNet->Drc;// + Snowmeltc->Drc;
+            }
+
+            // infiltration by SWATRE of G&A+percolation
+            if (InfilMethod == INFIL_SWATRE) {
+               cell_InfilSwatre(r, c);
+            } else {
+                if (InfilMethod != INFIL_NONE) {
+
+                    cell_InfilMethods(r, c);
+
+                    if (SwitchTwoLayer) {
+                        cell_Redistribution2(r, c);
+                        //cell_Channelinfow2(r, c);
+                    } else {
+                        cell_Redistribution1(r, c);
+                        //cell_Channelinfow1(r, c);
+                    }
+
+                    if (!SwitchImpermeable)
+                        Perc->Drc = cell_Percolation(r, c, 1.0);
+                    // if baseflow is active percollation is done there, so do not do it here
+                }
+            }
+
+            //  cell_depositInfil(r,c);
+            // deposit all sediment still in flow when infiltration causes WH to become minimum
+            // gives huge MBs errors!
+
+            cell_SurfaceStorage(r, c);
+            //calc surf storage and total watervol and WHrunoff
+
+            if (SwitchErosion)
+                cell_SplashDetachment(r, c);
+
+            if (SwitchSlopeStability)
+                cell_SlopeStability(r, c);
+        }}
+
+        if (SwitchIncludeET) {
+           // doETa();
+        }
+        // ETa is subtracted from canopy, soil water surfaces
+        // divided over 12 hours in a day with sine curve
+
+        //MoistureContent();
+       // double soiltot2 = SoilWaterMass();
+       // SoilMoistDiff = soiltot2 - soiltot1;
+    }
 }
 //---------------------------------------------------------------------------
 

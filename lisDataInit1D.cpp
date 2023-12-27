@@ -340,6 +340,9 @@ void TWorld::InitSoilInput1D(void)
 
 void TWorld::InitLULCInput1D(void)
 {
+    if (!Switch1Darrays)
+        return;
+
     ReadMap1D(LDD,vtma,getvaluename("lai"));
     ReadMap1D(LDD,vCover,getvaluename("cover"));
 
@@ -413,4 +416,8 @@ void TWorld::InitLULCInput1D(void)
             NewMap1D(vDStor,0.0);
         }
     }
+
+    if (SwitchIncludeET)
+        NewMap1D(vIntercETa,0.0);
+
 }

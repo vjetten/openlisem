@@ -212,12 +212,19 @@ void TWorld::OutputUI(void)
     }
 
     //output maps
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        VH->Drc = V->Drc * hmxWH->Drc;
-        Lwmm->Drc = Lw->Drc *1000 * SoilWidthDX->Drc/_dx;
-    }}
+    if (Switch1Darrays) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            VH->Drc = V->Drc * hmxWH->Drc;
+            Lwmm->Drc = vLw[i_] *1000 * SoilWidthDX->Drc/_dx;
+        }}
+    } else {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            VH->Drc = V->Drc * hmxWH->Drc;
+            Lwmm->Drc = Lw->Drc *1000 * SoilWidthDX->Drc/_dx;
+        }}
+    }
 
     if(SwitchErosion)
     {
@@ -296,7 +303,11 @@ void TWorld::OutputUI(void)
     }
     // MAP DISPLAY VARIABLES
     if(InfilMethod != INFIL_SWATRE && InfilMethod !=INFIL_NONE)
-        avgTheta();
+        if (Switch1Darrays)
+            avgTheta1D();
+        else
+            avgTheta();
+    }
 }
 //---------------------------------------------------------------------------
 void TWorld::ReportTotalSeries(void)

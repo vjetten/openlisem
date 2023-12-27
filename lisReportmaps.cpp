@@ -50,6 +50,16 @@ functions: \n
 // by copying the info remains available
 // initialize maps for output to screen
 // must be done after Initialize Data because then we know how large the map is
+
+void TWorld::copy1Dto2D(QVector <double> &V)
+{
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        tma->Drc = V[i_];
+    }}
+}
+
+
 void TWorld::setupDisplayMaps()
 {
     if (op.baseMap != 0)
@@ -268,20 +278,13 @@ void TWorld::GetComboMaps()
         AddComboMap(0,"Total Discharge","m3/s",Qoutput,LegendMap[cl],Legend[cl],true,false,1.0, 0.001);
     //factor is already done in Qoutput, so that reportfile is also done, not only screen
     // the only thing that needs to change here is the text "m3/s"
-    //AddComboMap(0,"Added Discharge","m3/s",Qbase,LegendMap[cl],Legend[cl],true,false,1.0, 1.0);//0.001);
 
     cl = 2;
     AddComboMap(0,"Water Height","m",hmxWH,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
  //   AddComboMap(0,"Water inflow","m3",ChannelQSide,LegendMap[cl],Legend[cl],true,false,1.0,1.0);
-//    if (Switch2DDiagonalFlow)
-//       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     cl = 1;
    AddComboMap(0,"Flow Velocity","m/s",V,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
- //   AddComboMap(0,"Flow Velocity","m/s",Uflood,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
- //   AddComboMap(0,"Flow Velocity","m/s",Vflood,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
- //   AddComboMap(0,"Flow Velocity","m/s",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     AddComboMap(0,"Flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.01); //VH
-    //AddComboMap(0,"boundary","-",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     AddComboMap(0,"Cumulative overland flow","m3",Qototal,LegendMap[0],Legend[0],true,false,1.0, 1.0);//0.001);
     cl = 0;
     AddComboMap(0,"Flood Hazard Index [WH(V+0.5)]","-",FHI,LegendMap[0],Legend[0],true,false,1.0, 0.001);
@@ -330,15 +333,19 @@ void TWorld::GetComboMaps()
         if (SwitchSlopeStability)
             AddComboMap(0,"Slope Stability","m",FSlope,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
 
-
         if (InfilMethod != INFIL_SWATRE) {
             cl = 3;
             //AddComboMap(0,"Avg Moisture content layer 1","-",Thetaeff,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-            AddComboMap(0,"Avg Moisture content layer 1","-",ThetaI1a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-            if (SwitchTwoLayer)
-                AddComboMap(0,"Avg Moisture content layer 2","-",ThetaI2a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-            if (!SwitchImpermeable || SwitchChannelBaseflow)
-                AddComboMap(0,"Percolation","mm",Perc,LegendMap[cl],Legend[cl],false,false,1000,1.0);
+            copy1Dto2D(vThetaI1a);
+            AddComboMap(0,"Avg Moisture content layer 1","-",tma,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+            if (SwitchTwoLayer) {
+                copy1Dto2D(vThetaI2a);
+                AddComboMap(0,"Avg Moisture content layer 2","-",tma,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+            }
+            if (!SwitchImpermeable || SwitchChannelBaseflow) {
+                copy1Dto2D(vPerc);
+                AddComboMap(0,"Percolation","mm",tma,LegendMap[cl],Legend[cl],false,false,1000,1.0);
+            }
         }
     }
 
@@ -351,7 +358,7 @@ void TWorld::GetComboMaps()
     if (SwitchIncludeET) {
         AddComboMap(0,"ETa Cumulative","mm",ETaCum,LegendMap[3],Legend[3],false,false,1000.0,0.1);
        // AddComboMap(0,"ETp Cumulative","mm",ETpCum,LegendMap[3],Legend[3],false,false,1000.0,0.1);
-       }
+    }
 
     if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
         cl = 2;
@@ -366,7 +373,7 @@ void TWorld::GetComboMaps()
         AddComboMap(0,"Flood duration","min",floodTime,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         cl = 5;
         //        if (SwitchVariableTimestep) {
-        AddComboMap(0,"Timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
+        //AddComboMap(0,"Timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
         // AddComboMap(0,"Steps pr cell","-",FloodT,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         //       }
     }
@@ -397,7 +404,7 @@ void TWorld::GetComboMaps()
         AddComboMap(1,"Sed trap","kg/m3",SedMaxVolume,LegendMap[cl],Legend[cl],false,false,1.0, step);
 
         AddComboMap(1,"Suspended sed.",unit,COMBO_SS,LegendMap[cl],Legend[cl],false,false,factor, step);
-        AddComboMap(1,"TC suspended","kg/m3",COMBO_TC,LegendMap[cl],Legend[cl],false,false,1.0, step);
+      //  AddComboMap(1,"TC suspended","kg/m3",COMBO_TC,LegendMap[cl],Legend[cl],false,false,1.0, step);
         if(SwitchUse2Phase) {
             AddComboMap(1,"Bedload sed.",unit,COMBO_BL,LegendMap[cl],Legend[cl],false,false,factor, step);
          //   AddComboMap(1,"TC bedload","kg/m3",BLTCFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
@@ -408,10 +415,10 @@ void TWorld::GetComboMaps()
         cl = 9;
         AddComboMap(1,"Deposition",unit,DEPCum,LegendMap[cl],Legend[cl],false,false,-factor, step);
 
-        if(SwitchUseMaterialDepth) {
-            AddComboMap(1,"Storage",unit,Storage,LegendMap[cl],Legend[cl],false,false,-factor, step);
-            AddComboMap(1,"Storage",unit,StorageDep,LegendMap[cl],Legend[cl],false,false,-factor, step);
-        }
+//        if(SwitchUseMaterialDepth) {
+//            AddComboMap(1,"Storage",unit,Storage,LegendMap[cl],Legend[cl],false,false,-factor, step);
+//            AddComboMap(1,"Storage",unit,StorageDep,LegendMap[cl],Legend[cl],false,false,-factor, step);
+//        }
     }
 }
 //---------------------------------------------------------------------------

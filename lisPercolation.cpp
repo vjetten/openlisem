@@ -681,3 +681,34 @@ void TWorld::SoilWater()
    }}
 }
 
+//---------------------------------------------------------------------------
+// calc average soil moisture content for output to screen and folder
+void TWorld::avgTheta()
+{
+#pragma omp parallel for num_threads(userCores)
+   FOR_ROW_COL_MV_L {
+        double Lw_ = Lw->Drc;
+        double SoilDep1 = SoilDepth1->Drc;
+        ThetaI1a->Drc = Thetaeff->Drc;
+
+        if (Lw_ > 0 && Lw_ < SoilDep1 - 1e-3) {
+            double f = Lw_/SoilDep1;
+            //ThetaI1a->Drc = f * ThetaS1->Drc + (1-f) *Thetaeff->Drc;
+            ThetaI1a->Drc = f * Poreeff->Drc + (1-f) *Thetaeff->Drc;
+        }
+        if (Lw_ > SoilDep1 - 1e-3)
+            ThetaI1a->Drc = Poreeff->Drc;
+        //ThetaI1a->Drc = ThetaS1->Drc;
+
+        if (SwitchTwoLayer) {
+            double SoilDep2 = SoilDepth2->Drc;
+            ThetaI2a->Drc = ThetaI2->Drc;
+            if (Lw_ > SoilDep1 && Lw_ < SoilDep2 - 1e-3) {
+                double f = (Lw_-SoilDep1)/(SoilDep2-SoilDep1);
+                ThetaI2a->Drc = f * ThetaS2->Drc + (1-f) *ThetaI2->Drc;
+            }
+            if (Lw_ > SoilDep2 - 1e-3)
+                ThetaI2a->Drc = ThetaS2->Drc;
+        }
+   }}
+}
