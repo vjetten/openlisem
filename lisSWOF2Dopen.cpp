@@ -198,26 +198,26 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 hs->Drc = h->Drc;
-                tmc->Drc = u->Drc;
-                tmd->Drc = v->Drc;
+                //tmb->Drc = u->Drc;
+                //tmd->Drc = v->Drc;
                 FloodDT->Drc = dt_max;
                 FloodT->Drc = 0;
-                tmb->Drc = 0; // mask where there is flow + 1 cell surrounding it
+                tma->Drc = 0; // mask where there is flow + 1 cell surrounding it
             }}
 
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (hs->Drc > F_minWH) {
-                    tmb->Drc = 1;
-                    if (c > 0 && !MV(r,c-1)        ) tmb->data[r][c-1] = 1;
-                    if (c < _nrCols-1 && !MV(r,c+1)) tmb->data[r][c+1] = 1;
-                    if (r > 0 && !MV(r-1,c)        ) tmb->data[r-1][c] = 1;
-                    if (r < _nrRows-1 && !MV(r+1,c)) tmb->data[r+1][c] = 1;
+                    tma->Drc = 1;
+                    if (c > 0 && !MV(r,c-1)        ) tma->data[r][c-1] = 1;
+                    if (c < _nrCols-1 && !MV(r,c+1)) tma->data[r][c+1] = 1;
+                    if (r > 0 && !MV(r-1,c)        ) tma->data[r-1][c] = 1;
+                    if (r < _nrRows-1 && !MV(r+1,c)) tma->data[r+1][c] = 1;
 
-                    if (c > 0 && r > 0 && !MV(r-1,c-1)                ) tmb->data[r-1][c-1]=1;
-                    if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) tmb->data[r+1][c+1]=1;
-                    if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) tmb->data[r-1][c+1]=1;
-                    if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) tmb->data[r+1][c-1]=1;
+                    if (c > 0 && r > 0 && !MV(r-1,c-1)                ) tma->data[r-1][c-1]=1;
+                    if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) tma->data[r+1][c+1]=1;
+                    if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) tma->data[r-1][c+1]=1;
+                    if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) tma->data[r+1][c-1]=1;
                 }
             }}
 
@@ -225,11 +225,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
 
-                if (tmb->Drc > 0) {
+                if (tma->Drc > 0) {
                         //double dt = FloodDT->Drc; //dt_req_min;
                     double dt = dt_req_min;
                     double un, vn;
-                    //  double vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
 
                     FloodT->Drc += FloodDT->Drc;
 
@@ -238,7 +237,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     vec4 hll_y1;
                     vec4 hll_y2;
 
-                    double dx = _dx;//ChannelAdj->Drc;
+                    double dx = _dx;//ChannelAdj->Drc; //??????????????
                     double dy = _dx;//DX->Drc;
 
                     double H = hs->Drc;
@@ -262,20 +261,20 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     double h_y1 =  br1 ? hs->data[r-1][c] : H;
                     double h_y2 =  br2 ? hs->data[r+1][c] : H;
 
-                    double vx_x1 = bc1 ? tmc->data[r][c-1] : Vx;
-                    double vx_x2 = bc2 ? tmc->data[r][c+1] : Vx;
-                    double vx_y1 = br1 ? tmc->data[r-1][c] : Vx;
-                    double vx_y2 = br2 ? tmc->data[r+1][c] : Vx;
+                    double vx_x1 = bc1 ? u->data[r][c-1] : Vx;
+                    double vx_x2 = bc2 ? u->data[r][c+1] : Vx;
+                    double vx_y1 = br1 ? u->data[r-1][c] : Vx;
+                    double vx_y2 = br2 ? u->data[r+1][c] : Vx;
 
-                    double vy_x1 = bc1 ? tmd->data[r][c-1] : Vy;
-                    double vy_x2 = bc2 ? tmd->data[r][c+1] : Vy;
-                    double vy_y1 = br1 ? tmd->data[r-1][c] : Vy;
-                    double vy_y2 = br2 ? tmd->data[r+1][c] : Vy;
+                    double vy_x1 = bc1 ? v->data[r][c-1] : Vy;
+                    double vy_x2 = bc2 ? v->data[r][c+1] : Vy;
+                    double vy_y1 = br1 ? v->data[r-1][c] : Vy;
+                    double vy_y2 = br2 ? v->data[r+1][c] : Vy;
 
                     double fb_x1=0,fb_x2=0,fb_y1=0,fb_y2=0;
                     if (SwitchFlowBarriers) {
                         fb_x1 = bc1 ? std::max(FlowBarrierW->Drc, FlowBarrierE->data[r][c-1]) : FlowBarrierW->Drc;
-                        fb_x2 = bc2 ? std::max(FlowBarrierE->Drc, FlowBarrierE->data[r][c+1]) : FlowBarrierE->Drc;
+                        fb_x2 = bc2 ? std::max(FlowBarrierE->Drc, FlowBarrierW->data[r][c+1]) : FlowBarrierE->Drc;
                         fb_y1 = br1 ? std::max(FlowBarrierN->Drc, FlowBarrierS->data[r-1][c]) : FlowBarrierN->Drc;
                         fb_y2 = br2 ? std::max(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]) : FlowBarrierS->Drc;
                     }
@@ -299,7 +298,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
                         double z1r_ = Z+(dz_hx-dhx);
                         double z1l_ = Z+(dhx-dz_hx);
-                        delzcx = z1r_-z1l_; // ???? this is in fact  => 2.0*(dz_hx - dhx)
+                        delzcx = z1r_-z1l_; // ???? this is in fact  => 2.0*(dz_hx - dhx) if limit is minmod
 
 
                         double hlh = 1.0;

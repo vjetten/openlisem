@@ -217,7 +217,12 @@ void TWorld::GetInputData(void)
 {
     InitParameters();
 
+    Switch1Darrays = true;
+
     InitStandardInput();
+    //## Basic data start of map list etc.
+
+    InitMeteoInput();
     //## Basic data start of map list etc.
 
     InitLULCInput();
@@ -259,6 +264,9 @@ void TWorld::InitParameters(void)
     ETBiasCorrection = getvaluedouble("ET Bias Correction");
     rainfallETa_threshold = getvaluedouble("Rainfall ET threshold");
     rainIDIfactor = getvaluedouble("IDI factor");
+
+    InterceptionLAIType = getvalueint("Canopy storage equation");
+    SwitchInterceptionLAI = InterceptionLAIType < 8;
 
     GW_recharge = getvaluedouble("GW recharge factor");
     GW_flow = getvaluedouble("GW flow factor");
@@ -408,29 +416,29 @@ void TWorld::InitStandardInput(void)
 
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
-    sqrtGrad = NewMap(0);
-    FOR_ROW_COL_MV {
-        sqrtGrad->Drc = sqrt(Grad->Drc);
-    }
+//    sqrtGrad = NewMap(0);
+//    FOR_ROW_COL_MV {
+//        sqrtGrad->Drc = sqrt(Grad->Drc);
+//    }
 
-    SwitchSlopeStability = false;
-    if (SwitchSlopeStability) {
-        tanGrad = NewMap(0);
-        cosGrad = NewMap(0);
-        BulkDensity = NewMap(1400);
-        AngleFriction = NewMap(1.0);  // tan phi = 45 degrees
+//    SwitchSlopeStability = false;
+//    if (SwitchSlopeStability) {
+//        tanGrad = NewMap(0);
+//        cosGrad = NewMap(0);
+//        BulkDensity = NewMap(1400);
+//        AngleFriction = NewMap(1.0);  // tan phi = 45 degrees
 
-        FSlope = NewMap(0);
+//        FSlope = NewMap(0);
 
-        FOR_ROW_COL_MV {
-            // grad = grad = sin(atan(slope(DEMm)))
-            double at = asin(Grad->Drc);
-            tanGrad->Drc = tan(at);
-            cosGrad->Drc = cos(at);
-        }
-        report(*cosGrad,"cosgrad.map");
-        report(*tanGrad,"tangrad.map");
-    }
+//        FOR_ROW_COL_MV {
+//            // grad = grad = sin(atan(slope(DEMm)))
+//            double at = asin(Grad->Drc);
+//            tanGrad->Drc = tan(at);
+//            cosGrad->Drc = cos(at);
+//        }
+//        report(*cosGrad,"cosgrad.map");
+//        report(*tanGrad,"tangrad.map");
+//    }
 
 
     if (SwitchCorrectDEM)
@@ -458,7 +466,7 @@ void TWorld::InitStandardInput(void)
     bool found = false;
     FOR_ROW_COL_MV {
         if(PointMap->Drc > 0) {
-            found = true;
+           found = true;
         }
     }
 
@@ -470,12 +478,43 @@ void TWorld::InitStandardInput(void)
                 newcr.r = r;
                 newcr.c = c;
                 newcr.nr = (int)PointMap->Drc ;
-                crout_ << newcr;
+                crout_ << newcr;               
             }
         }
     } else {
         ErrorString = QString("Outpoint.map has no values above 0. Copy at least outlet(s).");
         throw 1;
+    }
+}
+//---------------------------------------------------------------------------
+void TWorld::InitMeteoInput(void)
+{
+    //### rainfall and interception maps
+    RainTot = 0;
+    RainTotmm = 0;
+    Rainpeak = 0;
+    RainpeakTime = 0;
+    RainstartTime = -1;
+    rainStarted = false;
+    ETStarted = false;
+    RainAvgmm = 0;
+    SnowAvgmm = 0;
+    SnowTot = 0;
+    SnowTotmm = 0;
+    Snowpeak = 0;
+    SnowpeakTime = 0;
+    Rain = NewMap(0);
+    //IDIw = NewMap(0);
+    Rainc = NewMap(0);
+    RainCum = NewMap(0);
+    RainCumFlat = NewMap(0);
+    RainNet = NewMap(0);
+
+    if (SwitchIncludeET) {
+        ETa = NewMap(0);
+        ETaCum = NewMap(0);
+        ETp = NewMap(0);
+        ETpCum = NewMap(0);
     }
 
     SwitchUseIDmap = true;
@@ -491,18 +530,22 @@ void TWorld::InitStandardInput(void)
         }
     }
 
-
     if (SwitchIncludeET && !SwitchETSatellite)
     {
         ETZone = ReadMap(LDD,getvaluename("ETID"));
     }
 
-    Snowcover = NewMap(0);
+    if (SwitchSnowmelt) {
+        Snowmelt = NewMap(0);
+        Snowmeltc = NewMap(0);
+        SnowmeltCum = NewMap(0);
+        Snowcover = NewMap(0);
+    }
+
     if (SwitchSnowmelt && !SwitchSnowmeltSatellite)
     {
         SnowmeltZone = ReadMap(LDD,getvaluename("SnowID"));
-        FOR_ROW_COL_MV
-        {
+        FOR_ROW_COL_MV {
             Snowcover->Drc = (SnowmeltZone->Drc == 0 ? 0 : 1.0);
         }
     }
@@ -511,7 +554,19 @@ void TWorld::InitStandardInput(void)
 //## landuse and surface data
 void TWorld::InitLULCInput(void)
 {
+    LandUnit = ReadMap(LDD,getvaluename("landunit"));
+    // used in reporting
+
     N = ReadMap(LDD,getvaluename("manning"));
+    checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
+    calcValue(*N, nCalibration, MUL);
+
+    Norg = NewMap(0);
+    copy(*Norg, *N); //ed in sed trap... if trap is full go back to original N
+
+    RR = ReadMap(LDD,getvaluename("RR"));
+    checkMap(*RR, SMALLER, 0.0, "Raindom roughness RR must be >= 0");
+    calcValue(*RR, RRCalibration, MUL);    N = ReadMap(LDD,getvaluename("manning"));
     checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
     calcValue(*N, nCalibration, MUL);
 
@@ -522,48 +577,81 @@ void TWorld::InitLULCInput(void)
     checkMap(*RR, SMALLER, 0.0, "Raindom roughness RR must be >= 0");
     calcValue(*RR, RRCalibration, MUL);
 
-    LAI = ReadMap(LDD,getvaluename("lai"));
-    checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");
-    Cover = ReadMap(LDD,getvaluename("cover"));
-    checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
-    checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
+    if (!Switch1Darrays) {
+        LAI = ReadMap(LDD,getvaluename("lai"));
+        checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");
+        Cover = ReadMap(LDD,getvaluename("cover"));
+        checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
+        checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
 
-    if (SwitchLitter)
-    {
-        Litter = ReadMap(LDD,getvaluename("litter"));
-        checkMap(*Litter, SMALLER, 0.0, "Litter cover fraction must be >= 0");
-        checkMap(*Litter, LARGER, 1.0, "Litter cover fraction must be <= 1.0");
-    }
-    else
-        Litter = NewMap(0);
-
-    LitterSmax = getvaluedouble("Litter interception storage");
-
-    GrassFraction = NewMap(0);
-    if (SwitchGrassStrip)
-    {
-        KsatGrass = ReadMap(LDD,getvaluename("ksatgras"));
-        PoreGrass = ReadMap(LDD,getvaluename("poregras"));
-        CohGrass = ReadMap(LDD,getvaluename("cohgras"));
-        GrassWidthDX = ReadMap(LDD,getvaluename("grasswidth"));
-        copy(*GrassFraction, *GrassWidthDX);
-        calcValue(*GrassFraction, _dx, DIV);
-        StripN = getvaluedouble("Grassstrip Mannings n");
-        FOR_ROW_COL_MV
+        if (InterceptionLAIType < 8)
         {
-            if (GrassWidthDX->Drc != 0)
+            CanopyStorage = NewMap(0); //in m !!!
+            FOR_ROW_COL_MV
             {
-                N->Drc = N->Drc*(1-GrassFraction->Drc)+StripN*GrassFraction->Drc;
-                Cover->Drc = Cover->Drc*(1-GrassFraction->Drc) + 0.95*GrassFraction->Drc;
-                LAI->Drc = LAI->Drc*(1-GrassFraction->Drc) + 5.0*LAI->Drc;
+                switch (InterceptionLAIType)
+                {
+                case 0: CanopyStorage->Drc = 0.4376 * LAI->Drc + 1.0356;break; // gives identical results
+                    //0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
+                case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
+                case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
+                case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
+                case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
+                case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
+                case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
+                case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
+
+                }
             }
-            //adjust mann N Cover and height
+        } else {
+            CanopyStorage = ReadMap(LDD,getvaluename("smax"));
+            //if we have a Smax map directly we need the LAI so we derive it from the cover
         }
-    } else {
-        KsatGrass = NewMap(0);
-        PoreGrass = NewMap(0);
-        CohGrass = NewMap(0);
-    }
+        calcValue(*CanopyStorage, 0.001, MUL); // from mm to m
+        calcValue(*CanopyStorage, SmaxCalibration, MUL);
+
+        // openness coefficient k
+        kLAI = NewMap(0);
+        FOR_ROW_COL_MV {
+            kLAI->Drc = 1-exp(-CanopyOpeness*LAI->Drc);
+        }
+
+        if (SwitchLitter)
+        {
+            Litter = ReadMap(LDD,getvaluename("litter"));
+            checkMap(*Litter, SMALLER, 0.0, "Litter cover fraction must be >= 0");
+            checkMap(*Litter, LARGER, 1.0, "Litter cover fraction must be <= 1.0");
+        }
+        LitterSmax = getvaluedouble("Litter interception storage");
+
+        GrassFraction = NewMap(0);
+        if (SwitchGrassStrip)
+        {
+            KsatGrass = ReadMap(LDD,getvaluename("ksatgras"));
+            PoreGrass = ReadMap(LDD,getvaluename("poregras"));
+            FOR_ROW_COL_MV
+            {
+                if (GrassWidthDX->Drc != 0)
+                {
+                    Cover->Drc = Cover->Drc*(1-GrassFraction->Drc) + 0.95*GrassFraction->Drc;
+                    LAI->Drc = LAI->Drc*(1-GrassFraction->Drc) + 5.0*GrassFraction->Drc;
+                }
+            }
+        }
+    } //1D
+
+    if (SwitchHouses) {
+        //houses info:
+        //housecover.map;Fraction of hard roof surface per cell (-);housecover");
+        //roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
+        //drumstore.map;Size of storage of rainwater drums (m3);drumstore");
+        HouseCover = ReadMap(LDD,getvaluename("housecover"));
+        RoofStore = ReadMap(LDD,getvaluename("roofstore"));
+        calcValue(*RoofStore, 0.001, MUL);
+        // from mm to m
+        DrumStore = ReadMap(LDD,getvaluename("drumstore"));
+    } else
+        HouseCover = NewMap(0);
 
     if (SwitchRoadsystem)
     {
@@ -589,150 +677,194 @@ void TWorld::InitLULCInput(void)
         RoadWidthHSDX->Drc = std::min(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
     }
 
+    // adjust Mannings N
+    if (SwitchGrassStrip) {
+        CohGrass = ReadMap(LDD,getvaluename("cohgras"));
+        GrassWidthDX = ReadMap(LDD,getvaluename("grasswidth"));
+        copy(*GrassFraction, *GrassWidthDX);
+        calcValue(*GrassFraction, _dx, DIV);
+        StripN = getvaluedouble("Grassstrip Mannings n");
+        FOR_ROW_COL_MV {
+            if (GrassWidthDX->Drc > 0) {
+                    N->Drc = N->Drc*(1-GrassFraction->Drc)+StripN*GrassFraction->Drc;
+                    HouseCover->Drc = HouseCover->Drc*(1-GrassFraction->Drc);
+            }
+        }
+    }
 }
 //---------------------------------------------------------------------------
 
 void TWorld::InitSoilInput(void)
 {
-    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
-
-    //## infiltration data
-    if(InfilMethod != INFIL_SWATRE)
-    {
-        SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
-        calcValue(*SoilDepth1, 1000, DIV);
-        calcValue(*SoilDepth1, SD1Calibration, MUL);
-       // report(*SoilDepth1,"sd1.map");
-        SoilDepth1init = NewMap(0);
-        copy(*SoilDepth1init, *SoilDepth1);
-
-        ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
-        ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
-        ThetaI1a = NewMap(0); // used for screen output
-        calcValue(*ThetaI1, thetaCalibration, MUL); //VJ 110712 calibration of theta
-        calcMap(*ThetaI1, *ThetaS1, MIN); //VJ 110712 cannot be more than porosity
-        copy(*ThetaI1a, *ThetaI1);
-
-        Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
-
-        //ReadMap1D(LDD,vksat1,getvaluename("ksat1"));
-//        qDebug() << vksat1[0] << vksat1.size();
-
-        ThetaR1 = NewMap(0);
-        lambda1 = NewMap(0);
-        ThetaFC1 = NewMap(0);
-
-        FOR_ROW_COL_MV_L {
-            //bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
-            //Saxton and Rawls 2006
-            //  lambda1->Drc = 0.0384*log(Ksat1->Drc)+0.0626;
-            //rawls et al., 1982
-            double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
-            lambda1->Drc = 0.0849*ks+0.159;
-            lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
-            tma->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m   //psi ae
-            ThetaR1->Drc = 0.0673*exp(-0.238*log(ks));
-            ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;
-        }}
-
-        if (SwitchPsiUser) {
-            Psi1 = ReadMap(LDD,getvaluename("psi1"));
-            //calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
-            calcValue(*Psi1, 0.01, MUL);
-        } else {
-            Psi1 = NewMap(0);
-            FOR_ROW_COL_MV_L {
-                Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425)*0.01;
-                Psi1->Drc = std::max(Psi1->Drc,tma->Drc);//psi1ae->Drc);
-            }}
-        }
-        calcValue(*Ksat1, ksatCalibration, MUL);
-            // apply calibration after all empirical relations
-
-        if (SwitchTwoLayer)
+    if (!Switch1Darrays) {
+        //## infiltration data
+        if(InfilMethod != INFIL_SWATRE)
         {
-            SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
-            calcValue(*SoilDepth2, 1000, DIV);
-            //calcValue(*SoilDepth2, SD2Calibration, MUL);
+            SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
+            calcValue(*SoilDepth1, 1000, DIV);
+            calcValue(*SoilDepth1, SD1Calibration, MUL);
+            SoilDepth1init = NewMap(0);
+            copy(*SoilDepth1init, *SoilDepth1);
 
-            SoilDepth2init = NewMap(0);
-            copy(*SoilDepth2init, *SoilDepth2);
+            ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
+            ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
+            ThetaI1a = NewMap(0); // used for screen output
+            calcValue(*ThetaI1, thetaCalibration, MUL); //VJ 110712 calibration of theta
+            calcMap(*ThetaI1, *ThetaS1, MIN); //VJ 110712 cannot be more than porosity
+            copy(*ThetaI1a, *ThetaI1);
+            ThetaR1 = NewMap(0);
+            lambda1 = NewMap(0);
+            ThetaFC1 = NewMap(0);
 
-            ThetaS2 = ReadMap(LDD,getvaluename("thetaS2"));
-            ThetaI2 = ReadMap(LDD,getvaluename("thetaI2"));
-            ThetaI2a = NewMap(0); // for output, average soil layer 2
-            calcValue(*ThetaI2, thetaCalibration, MUL); //VJ 110712 calibration of theta
-            calcMap(*ThetaI2, *ThetaS2, MIN); //VJ 110712 cannot be more than porosity
-            copy(*ThetaI2a, *ThetaI2);
-
-            Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
-
-            ThetaR2 = NewMap(0);
-            lambda2 = NewMap(0);             // lambda brooks corey
-            //psi2ae = NewMap(0);
-
-            ThetaFC2 = NewMap(0);
+            Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
             FOR_ROW_COL_MV_L {
-                // regression eq from data from Saxton and rawls 2006, excel file
-                double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
-                //vgalpha2->Drc = 0.0237*ks + 0.0054;
-                lambda2->Drc = 0.0849*ks+0.159;
-                lambda2->Drc = std::min(std::max(0.1,lambda2->Drc),0.7);
-                tma->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
-                ThetaR2->Drc = 0.0673*exp(-0.238*log(ks));
-                ThetaFC2->Drc = -0.0519*log(ks) + 0.3714;
+                //bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
+                //Saxton and Rawls 2006
+                //  lambda1->Drc = 0.0384*log(Ksat1->Drc)+0.0626;
+                //rawls et al., 1982
+                double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
+                lambda1->Drc = 0.0849*ks+0.159;
+                lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
+                tma->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m   //psi ae
+                ThetaR1->Drc = 0.0673*exp(-0.238*log(ks));
+                ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;
             }}
 
-            // wetting front psi
             if (SwitchPsiUser) {
-                Psi2 = ReadMap(LDD,getvaluename("psi2"));
-                //   calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
-                calcValue(*Psi2, 0.01, MUL);
+                Psi1 = ReadMap(LDD,getvaluename("psi1"));
+                //calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
+                calcValue(*Psi1, 0.01, MUL);
             } else {
-                Psi2 = NewMap(0);
+                Psi1 = NewMap(0);
                 FOR_ROW_COL_MV_L {
-                    Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
-                Psi2->Drc = std::max(Psi2->Drc,tma->Drc);//psi2ae->Drc);
+                    Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425)*0.01;
+                    Psi1->Drc = std::max(Psi1->Drc,tma->Drc);//psi1ae->Drc);
                 }}
             }
-            calcValue(*Ksat2, ksat2Calibration, MUL);
-        }
+            calcValue(*Ksat1, ksatCalibration, MUL);
+                // apply calibration after all empirical relations
 
-        if (SwitchInfilCrust)
-        {
-            CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
-            checkMap(*CrustFraction, LARGER, 1.0, "crust fraction cannot be more than 1");
-            KsatCrust = ReadMap(LDD,getvaluename("ksatcrst"));
-            PoreCrust = ReadMap(LDD,getvaluename("porecrst"));
-        }
-        else
-        {
-            CrustFraction = NewMap(0);
-            KsatCrust = NewMap(0);
-            PoreCrust = NewMap(0);
-        }
+            if (SwitchTwoLayer)
+            {
+                SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
+                calcValue(*SoilDepth2, 1000, DIV);
+                //calcValue(*SoilDepth2, SD2Calibration, MUL);
 
-        if (SwitchInfilCompact)
-        {
-            CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
-            checkMap(*CompactFraction, LARGER, 1.0, "compacted area fraction cannot be more than 1");
-            KsatCompact = ReadMap(LDD,getvaluename("ksatcomp"));
-            PoreCompact = ReadMap(LDD,getvaluename("porecomp"));
-        }
-        else
-        {
-            CompactFraction = NewMap(0);
-            KsatCompact = NewMap(0);
-            PoreCompact = NewMap(0);
-        }
-        FOR_ROW_COL_MV
-        {
-            if (CrustFraction->Drc +  CompactFraction->Drc > 1.0) {
-                CrustFraction->Drc = 1.0-CompactFraction->Drc;
+                SoilDepth2init = NewMap(0);
+                copy(*SoilDepth2init, *SoilDepth2);
+
+                ThetaS2 = ReadMap(LDD,getvaluename("thetaS2"));
+                ThetaI2 = ReadMap(LDD,getvaluename("thetaI2"));
+                ThetaI2a = NewMap(0); // for output, average soil layer 2
+                calcValue(*ThetaI2, thetaCalibration, MUL); //VJ 110712 calibration of theta
+                calcMap(*ThetaI2, *ThetaS2, MIN); //VJ 110712 cannot be more than porosity
+                copy(*ThetaI2a, *ThetaI2);
+                ThetaFC2 = NewMap(0);
+                ThetaR2 = NewMap(0);
+                lambda2 = NewMap(0);             // lambda brooks corey
+                //psi2ae = NewMap(0);
+
+                Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
+
+                FOR_ROW_COL_MV_L {
+                    // regression eq from data from Saxton and rawls 2006, excel file
+                    double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
+                    //vgalpha2->Drc = 0.0237*ks + 0.0054;
+                    lambda2->Drc = 0.0849*ks+0.159;
+                    lambda2->Drc = std::min(std::max(0.1,lambda2->Drc),0.7);
+                    tma->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+                    ThetaR2->Drc = 0.0673*exp(-0.238*log(ks));
+                    ThetaFC2->Drc = -0.0519*log(ks) + 0.3714;
+                }}
+
+                // wetting front psi
+                if (SwitchPsiUser) {
+                    Psi2 = ReadMap(LDD,getvaluename("psi2"));
+                    //   calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
+                    calcValue(*Psi2, 0.01, MUL);
+                } else {
+                    Psi2 = NewMap(0);
+                    FOR_ROW_COL_MV_L {
+                        Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
+                        Psi2->Drc = std::max(Psi2->Drc,tma->Drc);//psi2ae->Drc);
+                    }}
+                }
+                calcValue(*Ksat2, ksat2Calibration, MUL);
+            }
+
+            if (SwitchThreeLayer)
+            {
+                SoilDepth3 = ReadMap(LDD,getvaluename("soilDep3"));
+                calcValue(*SoilDepth3, 1000, DIV);
+                //calcValue(*SoilDepth2, SD2Calibration, MUL);
+
+                SoilDepth3init = NewMap(0);
+                copy(*SoilDepth3init, *SoilDepth3);
+
+                ThetaS3 = ReadMap(LDD,getvaluename("thetaS3"));
+                ThetaI3 = ReadMap(LDD,getvaluename("thetaI3"));
+                ThetaI3a = NewMap(0); // for output, average soil layer 2
+                calcValue(*ThetaI3, thetaCalibration, MUL); //VJ 110712 calibration of theta
+                calcMap(*ThetaI3, *ThetaS3, MIN); //VJ 110712 cannot be more than porosity
+                copy(*ThetaI3a, *ThetaI3);
+                ThetaFC3 = NewMap(0);
+                ThetaR3 = NewMap(0);
+                lambda3 = NewMap(0);             // lambda brooks corey
+                //psi2ae = NewMap(0);
+
+                Ksat3 = ReadMap(LDD,getvaluename("ksat3"));
+
+                FOR_ROW_COL_MV_L {
+                    // regression eq from data from Saxton and rawls 2006, excel file
+                    double ks = std::max(0.5,std::min(1000.0,log(Ksat3->Drc)));
+                    //vgalpha2->Drc = 0.0237*ks + 0.0054;
+                    lambda3->Drc = 0.0849*ks+0.159;
+                    lambda3->Drc = std::min(std::max(0.1,lambda3->Drc),0.7);
+                    tma->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+                    ThetaR3->Drc = 0.0673*exp(-0.238*log(ks));
+                    ThetaFC3->Drc = -0.0519*log(ks) + 0.3714;
+                }}
+
+                // wetting front psi
+                if (SwitchPsiUser) {
+                    Psi3 = ReadMap(LDD,getvaluename("psi3"));
+                    //   calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
+                    calcValue(*Psi3, 0.01, MUL);
+                } else {
+                    Psi3 = NewMap(0);
+                    FOR_ROW_COL_MV_L {
+                        Psi3->Drc = exp(-0.3382*log(Ksat3->Drc) + 3.3425)*0.01;
+                        Psi3->Drc = std::max(Psi3->Drc,tma->Drc);//psi2ae->Drc);
+                    }}
+                }
+                calcValue(*Ksat3, ksat2Calibration, MUL);
+            }
+
+            if (SwitchInfilCrust)
+            {
+                CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
+                checkMap(*CrustFraction, LARGER, 1.0, "crust fraction cannot be more than 1");
+                KsatCrust = ReadMap(LDD,getvaluename("ksatcrst"));
+                PoreCrust = ReadMap(LDD,getvaluename("porecrst"));
+            }
+
+            if (SwitchInfilCompact)
+            {
+                CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
+                checkMap(*CompactFraction, LARGER, 1.0, "compacted area fraction cannot be more than 1");
+                KsatCompact = ReadMap(LDD,getvaluename("ksatcomp"));
+                PoreCompact = ReadMap(LDD,getvaluename("porecomp"));
+            }
+
+            if(SwitchInfilCrust && SwitchInfilCompact) {
+                FOR_ROW_COL_MV {
+                    if (CrustFraction->Drc + CompactFraction->Drc > 1.0) {
+                        CrustFraction->Drc = 1.0-CompactFraction->Drc;
+                    }
+                }
             }
         }
     }
-
     // SWATRE infiltration read maps and structures
     if (InfilMethod == INFIL_SWATRE)
     {
@@ -751,16 +883,14 @@ void TWorld::InitSoilInput(void)
         else
             CrustFraction = NewMap(0);
 
-        RepellencyFraction = NewMap(1.0);
-        if (SwitchWaterRepellency)
-        {
-            RepellencyCell = ReadMap(LDD,getvaluename("repelcell"));
-            // values of 1 calculate repellency
-        }
-        else
-            RepellencyCell = NewMap(0); //no repellency anywhere
-
-
+//        RepellencyFraction = NewMap(1.0);
+//        if (SwitchWaterRepellency)
+//        {
+//            RepellencyCell = ReadMap(LDD,getvaluename("repelcell"));
+//            // values of 1 calculate repellency
+//        }
+//        else
+//            RepellencyCell = NewMap(0); //no repellency anywhere
         // repellency to 1, no effect
 
         if (SwitchInfilCompact)
@@ -1415,6 +1545,7 @@ double TWorld::LogNormalDist(double d50,double s, double d)
 //---------------------------------------------------------------------------
 void TWorld::InitErosion(void)
 {
+
 //qDebug() << "hoi"; //SwitchSlopeStability ||
 //if (SwitchErosion) {
 //        COHCalibration = getvaluedouble("Cohesion calibration");
@@ -1862,142 +1993,74 @@ void TWorld::IntializeData(void)
     }
 
 
-    //### rainfall and interception maps
-    RainTot = 0;
-    RainTotmm = 0;
-    Rainpeak = 0;
-    RainpeakTime = 0;
-    RainstartTime = -1;
-    rainStarted = false;
-    ETStarted = false;
-    RainAvgmm = 0;
-    SnowAvgmm = 0;
-    SnowTot = 0;
-    SnowTotmm = 0;
-    Snowpeak = 0;
-    SnowpeakTime = 0;
-    Rain = NewMap(0);
-    //IDIw = NewMap(0);
-    Rainc = NewMap(0);
-    RainCum = NewMap(0);
-    RainCumFlat = NewMap(0);
-    RainNet = NewMap(0);
-    LeafDrain = NewMap(0);
 
-    CStor = NewMap(0);
-    Interc = NewMap(0);
-    IntercETa = NewMap(0);
-    // litter
-    LCStor = NewMap(0);
-    LInterc = NewMap(0);
+//    if (SwitchInterceptionLAI)
+//    {
+//        CanopyStorage = NewMap(0); //in m !!!
+//        FOR_ROW_COL_MV
+//        {
+//            switch (InterceptionLAIType)
+//            {
+//            case 0: CanopyStorage->Drc = 0.4376 * LAI->Drc + 1.0356;break; // gives identical results
+//                        //0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
+//            case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
+//            case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
+//            case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
+//            case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
+//            case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
+//            case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
+//            case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
 
-    InterceptionmmCum = NewMap(0);
-    //houses
-    HStor = NewMap(0);
-    IntercHouse = NewMap(0);
-    DStor = NewMap(0);
-
-    if (SwitchIncludeET) {
-        ETa = NewMap(0);
-        ETaCum = NewMap(0);
-        ETp = NewMap(0);
-        ETpCum = NewMap(0);
-    }
-
-    Snowmelt = NewMap(0);
-    Snowmeltc = NewMap(0);
-    SnowmeltCum = NewMap(0);
-
-    InterceptionLAIType = getvalueint("Canopy storage equation");
-    SwitchInterceptionLAI = InterceptionLAIType < 8;
-
-    if (SwitchInterceptionLAI)
-    {
-        CanopyStorage = NewMap(0); //in m !!!
-        FOR_ROW_COL_MV
-        {
-            switch (InterceptionLAIType)
-            {
-            case 0: CanopyStorage->Drc = 0.4376 * LAI->Drc + 1.0356;break; // gives identical results
-                        //0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
-            case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
-            case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
-            case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
-            case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
-            case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
-            case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
-            case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
-
-            }
-        }
-    }
-    else
-    {
-        CanopyStorage = ReadMap(LDD,getvaluename("smax"));
-        //if we have a Smax map directly we need the LAI so we derive it from the cover
-//        FOR_ROW_COL_MV {
-//            LAI->Drc = (log(std::max(0.01,1-Cover->Drc))/-0.4);// /std::max(0.1,Cover->Drc);
-//        }
-    }
-    calcValue(*CanopyStorage, SmaxCalibration, MUL);
-
-    // openness coefficient k
-    kLAI = NewMap(0);
-    FOR_ROW_COL_MV {
-        kLAI->Drc = 1-exp(-CanopyOpeness*LAI->Drc);
-    }
-
-
-    calcValue(*CanopyStorage, 0.001, MUL); // from mm to m
-    //NOTE: LAI is still needed for canopy openness, can be circumvented with cover
-    if (SwitchHouses)
-    {
-        //houses info:
-        //housecover.map;Fraction of hard roof surface per cell (-);housecover");
-        //roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
-        //drumstore.map;Size of storage of rainwater drums (m3);drumstore");
-        HouseCover = ReadMap(LDD,getvaluename("housecover"));
-        if (SwitchGrassStrip) {
-            FOR_ROW_COL_MV {
-                if (GrassWidthDX->Drc != 0)
-                    HouseCover->Drc = HouseCover->Drc*(1-GrassFraction->Drc);
-            }
-        }
-        RoofStore = ReadMap(LDD,getvaluename("roofstore"));
-        calcValue(*RoofStore, 0.001, MUL);
-        // from mm to m
-        DrumStore = ReadMap(LDD,getvaluename("drumstore"));
-//        if (SwitchHardsurface) {
-//            FOR_ROW_COL_MV {
-//                if (HouseCover->Drc == 1)
-//                    HardSurface->Drc = 0;
 //            }
 //        }
+//    } else {
+//        CanopyStorage = ReadMap(LDD,getvaluename("smax"));
+//        //if we have a Smax map directly we need the LAI so we derive it from the cover
+//    }
+//    calcValue(*CanopyStorage, 0.001, MUL); // from mm to m
+//    calcValue(*CanopyStorage, SmaxCalibration, MUL);
 
-        if (SwitchAddBuildingsDEM) {
-            double AddBuildingFraction = getvaluedouble("Add Building fraction");
-            double AddBuildingHeight = getvaluedouble("Add Building fraction");
-            FOR_ROW_COL_MV {
+//    // openness coefficient k
+//    kLAI = NewMap(0);
+//    FOR_ROW_COL_MV {
+//        kLAI->Drc = 1-exp(-CanopyOpeness*LAI->Drc);
+//    }
+
+
+//    if (SwitchHouses)
+//    {
+//        //houses info:
+//        //housecover.map;Fraction of hard roof surface per cell (-);housecover");
+//        //roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
+//        //drumstore.map;Size of storage of rainwater drums (m3);drumstore");
+//        HouseCover = ReadMap(LDD,getvaluename("housecover"));
+//        if (SwitchGrassStrip) {
+//            FOR_ROW_COL_MV {
+//                if (GrassWidthDX->Drc != 0)
+//                    HouseCover->Drc = HouseCover->Drc*(1-GrassFraction->Drc);
+//            }
+//        }
+//        RoofStore = ReadMap(LDD,getvaluename("roofstore"));
+//        calcValue(*RoofStore, 0.001, MUL);
+//        // from mm to m
+//        DrumStore = ReadMap(LDD,getvaluename("drumstore"));
+//    }
+//    else
+//        HouseCover = NewMap(0);
+
+    if (SwitchAddBuildingsDEM) {
+        double AddBuildingFraction = getvaluedouble("Add Building fraction");
+        double AddBuildingHeight = getvaluedouble("Add Building fraction");
+        FOR_ROW_COL_MV {
+            if (HouseCover->Drc > 0) {
                 double dem = DEM->Drc;
                 dem += HouseCover->Drc > AddBuildingFraction  ? AddBuildingHeight: 0.0;
                 dem = RoadWidthDX->Drc > 0.1 ? DEM->Drc : dem;
                 DEM->Drc = dem;
             }
-            InitShade();
         }
-
+        InitShade();
     }
-    else
-        HouseCover = NewMap(0);
-
-//    HouseWidthDX = NewMap(0);
-//    FOR_ROW_COL_MV
-//    {
-//        HouseWidthDX->Drc = std::min(_dx,  HouseCover->Drc *_dx);
-//        // assume there is always space next to house
-//        //N->Drc = N->Drc * (1-HouseCover->Drc) + 0.25*HouseCover->Drc;
-//        // moved to cell
-//    }
 
     SoilETMBcorrection = 0;
     //### infiltration maps

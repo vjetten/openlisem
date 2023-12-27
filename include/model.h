@@ -406,6 +406,8 @@ public:
     SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchGWflow, SwitchGW2Dflow,SwitchLDDGWflow,SwitchSWATGWflow,
     SwitchChannel2DflowConnect, SwitchChannelWFinflow, SwitchGWChangeSD, SwitchDischargeUser;
 
+    bool Switch1Darrays;
+
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
     int SwitchEfficiencyDETCH; // channel detachment efficiency
@@ -670,6 +672,7 @@ public:
     void IntializeData(void);     // make all non-input maps
     void IntializeOptions(void);  // set all options to false etc
     void InitStandardInput(void);
+    void InitMeteoInput(void);
     void InitLULCInput(void);
     void InitSoilInput(void);
     void InitFlood(void);
@@ -829,21 +832,19 @@ public:
                                 cTMap *_Alpha, cTMap *_DX, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
 
   //  double K2DSolvebyInterpolationSed( cTMap *M, cTMap *MC);
+ //   double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
+ //   double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
+ //   double GetDp(int r, int c,double p);
+ //   double GetTotalDW(int r, int c,QList<cTMap *> *M);
 
-
-    double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
-    double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
-    double GetDp(int r, int c,double p);
-    double GetTotalDW(int r, int c,QList<cTMap *> *M);
     double GetSV(double d);
     void SplashDetachment();
     double MaxConcentration(double watvol, double sedvol);
     void ChannelFlowDetachmentNew();
 
-
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentLayerDepth(int r , int c);
-     void RiverSedimentMaxC(int r, int c);
+    void RiverSedimentMaxC(int r, int c);
 
     double calcTCSuspended(int r,int c, int _d, int method, double h, double U, int type);
     double calcTCBedload(int r,int c, int _d, int method, double h, double U, int type);
@@ -936,6 +937,7 @@ public:
     void HydrologyProcesses();
 
     // Vector based Functions
+    double MapTotal1D(QVector <double> &V);
     void checkMap1D(QVector <double> &V,int oper,double value,QString mapName,QString SS);
     void InitSoilInput1D();
     void InitLULCInput1D();

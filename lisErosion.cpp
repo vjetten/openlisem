@@ -436,7 +436,8 @@ void TWorld::cell_FlowDetachment(int r, int c)
                 detachment = (1-HouseCover->Drc)*detachment;
             // no flow det from house roofs
 
-            detachment = (1-Snowcover->Drc) * detachment;
+            if (SwitchSnowmelt)
+                detachment = (1-Snowcover->Drc) * detachment;
             /* TODO: CHECK THIS no flow detachment on snow */
             //is there erosion and sedimentation under the snowdeck?
 
@@ -688,9 +689,9 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
  * @param M : Material map list
  * @return The total value
  */
+/*
 double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
 {
-    /*
     //simple iteration over maps
     double wtotal = 0;
     FOR_GRAIN_CLASSES
@@ -698,9 +699,9 @@ double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
         wtotal += (*M).Drcd;
     }
     return wtotal;
-    */
         return 0;
 }
+    */
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::GetDp(int r, int c,double p)
@@ -716,11 +717,11 @@ double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
  * @return The p percent grain size
  * @see TWorld::GetDpMat
  */
-double TWorld::GetDp(int r, int c,double p)
-{
+//double TWorld::GetDp(int r, int c,double p)
+//{
     //use more generic function
   //  return GetDpMat(r,c,p,&W_D);
-}
+//}
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
@@ -737,8 +738,8 @@ double TWorld::GetDp(int r, int c,double p)
  * @param M : Material distribution map list
  * @return The p percent grain size
  */
-double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
-{
+//double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
+//{
         /*
     //check if there is a single grain class
     //then we can return the single value
@@ -783,7 +784,7 @@ double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
     //more specificly done if: 100 * p > (100 - percentage in last grain class)
     return graindiameters.at(numgrainclasses-1);
 */
-}
+//}
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M)
@@ -801,8 +802,8 @@ double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
  * @param V : Parameter value map list
  * @return The value of parameter V for the p percent grain size.
  */
-double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V)
-{
+//double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V)
+//{
         /*
     //check if there is a single grain class
     //then we can return the single value
@@ -848,7 +849,7 @@ double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *
     //more specificly done if: 100 * p > (100 - percentage in last grain class)
     return (*V).at(numgrainclasses-1);
 */
-}
+//}
 //---------------------------------------------------------------------------
 /**
  * @fn void TWorld::SedimentSetMaterialDistribution(int r,int c)
@@ -863,8 +864,8 @@ double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *
  * @param c : coumn nr of the cell
  * @return void
  */
-void TWorld::SedimentSetMaterialDistribution()
-{
+//void TWorld::SedimentSetMaterialDistribution()
+//{
         /*
     if(!SwitchUseMaterialDepth)
         return;
@@ -991,7 +992,7 @@ void TWorld::SedimentSetMaterialDistribution()
         }
     }
 */
-}
+//}
 
 
 //---------------------------------------------------------------------------

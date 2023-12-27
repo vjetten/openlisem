@@ -120,11 +120,13 @@ void TWorld::checkMap1D(QVector <double> &V,int oper,double value, QString mapNa
 
 void TWorld::InitSoilInput1D(void)
 {
+    if (!Switch1Darrays)
+        return;
+
     NewMap1D(vtma,0);
     NewMap1D(vtmb,0);
     NewMap1D(vtmc,0);
     NewMap1D(vtmd,0);
-
 
     if(InfilMethod != INFIL_SWATRE) {
 
@@ -305,12 +307,6 @@ void TWorld::InitSoilInput1D(void)
                 vKsatCompact[i_] *= _dt/3600000.0;
             }
         }
-//        else
-//        {
-//            NewMap1D(vCompactFraction, 0);
-//            NewMap1D(vKsatCompact,0);
-//            NewMap1D(vPoreCompact, 0);
-//        }
 
         if (SwitchInfilCompact && SwitchInfilCrust) {
             FOR_ROW_COL_MV_V {
@@ -347,12 +343,20 @@ void TWorld::InitLULCInput1D(void)
     ReadMap1D(LDD,vtma,getvaluename("lai"));
     ReadMap1D(LDD,vCover,getvaluename("cover"));
 
-    checkMap1D(vtma, SMALLER, 0.0, "LAI map","LAI must be >= 0");
-    checkMap1D(vCover, SMALLER, 0.0, "Cover map","Cover fraction must be >= 0");
-    checkMap1D(vCover, LARGER, 1.0, "Cover map","Cover fraction must be <= 1.0");
+    checkMap1D(vtma, SMALLER, 0.0, getvaluename("lai"),"LAI must be >= 0");
+    checkMap1D(vCover, SMALLER, 0.0, getvaluename("cover"),"Cover fraction must be >= 0");
+    checkMap1D(vCover, LARGER, 1.0, getvaluename("cover"),"Cover fraction must be <= 1.0");
 
-    InterceptionLAIType = getvalueint("Canopy storage equation");
-    SwitchInterceptionLAI = InterceptionLAIType < 8;
+    if (SwitchGrassStrip) {
+        FOR_ROW_COL_MV_V {
+            if (vGrassFraction[i_] > 0)
+            {
+                vCover[i_] = vCover[i_]*(1-vGrassFraction[i_]) + 0.95*vGrassFraction[i_];
+                vtma[i_] = vtma[i_]*(1-vGrassFraction[i_]) + 5.0*vGrassFraction[i_];
+            }
+        }
+    }
+
 
     if (SwitchInterceptionLAI)
     {
@@ -383,27 +387,26 @@ void TWorld::InitLULCInput1D(void)
     NewMap1D(vInterc,0.0);
     NewMap1D(vCStor,0.0);
     NewMap1D(vCanopyStorage,0.0);
-    NewMap1D(vCover,0.0);
     NewMap1D(vLeafDrain,0.0);
-    NewMap1D(vIntercHouse,0.0);
-    NewMap1D(vLInterc,0.0);
 
     if (SwitchLitter)
     {
-        ReadMap1D(LDD,vLitter,getvaluename("litter"));
-        checkMap1D(vLitter, SMALLER, 0.0,"Litter cover map","Litter cover fraction must be >= 0");
-        checkMap1D(vLitter, LARGER, 1.0, "Litter cover map","Litter cover fraction must be <= 1.0");
+        NewMap1D(vLInterc,0.0);
         NewMap1D(vLCStor,0.0);
+        ReadMap1D(LDD,vLitter,getvaluename("litter"));
+        checkMap1D(vLitter, SMALLER, 0.0,getvaluename("litter"),"Litter cover fraction must be >= 0");
+        checkMap1D(vLitter, LARGER, 1.0, getvaluename("litter"),"Litter cover fraction must be <= 1.0");
         LitterSmax = getvaluedouble("Litter interception storage");
     }
 
     if (SwitchHouses)
     {
+        NewMap1D(vIntercHouse,0.0);
+        NewMap1D(vHStor,0.0);
         ReadMap1D(LDD,vRoofStore,getvaluename("roofstore"));
         FOR_ROW_COL_MV_V {
             vRoofStore[i_] *= 0.001; // mm to m
         }
-        NewMap1D(vHStor,0.0);
 
         if (SwitchRaindrum) {
             ReadMap1D(LDD,vDrumStore,getvaluename("drumstore"));

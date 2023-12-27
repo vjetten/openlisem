@@ -36,7 +36,7 @@ cTMap
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
 *CellArea,                   //!< cell area = DX * _dx [m^2]
 *Grad,                       //!< sine of the DEM gradient [-]
-*sqrtGrad,
+//*sqrtGrad,
 *LDD,                        //!< local drain direction map [-]
 *Outlet,                     //!< main outlet of the catchment, value 5 in LDD map [-]
 *PointMap,                   //!< map with output points, values > 0 [-]
@@ -260,6 +260,7 @@ cTMap
 *Ksat3,                      //!< saturated hydraulic conductivity soil layer 1 (input is in mm/h) [m/s]
 *SoilDepth3,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *SoilDepth3init,                 //!< depth to end soil layer 1 (input is in mm) [m]
+*lambda3,                 //!< depth to end soil layer 1 (input is in mm) [m]
 
 *KsatCrust,                  //!< saturated hydraulic conductivity crusted soil surface (input is in mm/h) [m/s]
 *PoreCrust,                //!< saturated hydraulic conductivity compacted soil surface (input is in mm/h) [m/s]
