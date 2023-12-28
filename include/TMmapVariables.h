@@ -36,7 +36,6 @@ cTMap
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
 *CellArea,                   //!< cell area = DX * _dx [m^2]
 *Grad,                       //!< sine of the DEM gradient [-]
-//*sqrtGrad,
 *LDD,                        //!< local drain direction map [-]
 *Outlet,                     //!< main outlet of the catchment, value 5 in LDD map [-]
 *PointMap,                   //!< map with output points, values > 0 [-]
@@ -111,8 +110,6 @@ cTMap
 *Qs,                         //!< sediment discharge before kin wave [kg/s]
 *Qsn,                        //!< new sediment discharge after kin wave [kg/s]
 *Qsoutput,                   //!< sediment outflow for screen/file output, sum of overland flow and channel [kg/s]
-*q,                          //!< infiltration surplus going in kin wave (<= 0) [m2/s]
-*R,                          //!< hydraulic radius overland flow [m]
 *N,                          //!< Manning's n
 *Norg,                          //!< Manning's n
 *RR,                         //!< Random roughness, locally converted to m [cm]

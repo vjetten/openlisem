@@ -459,6 +459,45 @@ vec4 TWorld::F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,do
     return (rec);
 }
 //---------------------------------------------------------------------------
+void TWorld::simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v)
+{
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L{
+        h1r->Drc = _h->Drc;
+        u1r->Drc = _u->Drc;
+        v1r->Drc = _v->Drc;
+        h1l->Drc = _h->Drc;
+        u1l->Drc = _u->Drc;
+        v1l->Drc = _v->Drc;
+
+        h2r->Drc = _h->Drc;
+        u2r->Drc = _u->Drc;
+        v2r->Drc = _v->Drc;
+        h2l->Drc = _h->Drc;
+        u2l->Drc = _u->Drc;
+        v2l->Drc = _v->Drc;
+    }}
+}
+
+void TWorld::setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v)
+{
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (_h->Drc <= he_ca)
+        {
+            _h->Drc = 0;
+            _u->Drc = 0;
+            _v->Drc = 0;
+        }
+
+        if (fabs(_u->Drc) <= ve_ca)
+            _u->Drc = 0;
+        if (fabs(_v->Drc) <= ve_ca)
+            _v->Drc = 0;
+    }}
+}
+//---------------------------------------------------------------------------
+
 void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
 {
 

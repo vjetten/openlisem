@@ -37,11 +37,6 @@
 /// structure to pass variables form the model to the interface.
 /// This tsructure is the link, visible by both
 
-//typedef struct LDD_COOR {
-//    int r;
-//    int c;
-//}  LDD_COOR;
-
 struct output{
     int runstep;
     int printstep;
@@ -62,10 +57,8 @@ struct output{
     QVector<double> OutletQstot;  // sum in kg
     QVector<double> Pmm;
     QVector<double> Time;
-    QVector <double> Qtile;
+    QVector<double> Qtile;
 
- //   QVector <double> CulvertX;
- //   QVector <double> CulvertY;
     QVector <double> EndPointX;
     QVector <double> EndPointY;
     QVector <double> ObsPointX;
@@ -100,11 +93,8 @@ struct output{
     cTMap *hardsurfaceMap;
     cTRGBMap *Image;
 
-    QList<double> graindiameters;
-
     QList<int> ComboLists;
     QList<cTMap *> ComboMaps;
-  //  QList<cTMap *> ComboMapsSafe;
     QList<QList<double>> ComboColorMap;
     QList<QList<QString>> ComboColors;
     QList<bool> ComboLogaritmic;

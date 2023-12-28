@@ -152,22 +152,22 @@ void TWorld::DoModel()
         DEBUG("Intialize Input Data()");
         IntializeData();
 
-        DEBUG("10 sec");
-        QTime dieTime= QTime::currentTime().addSecs(10);
-        while (QTime::currentTime() < dieTime)
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+//        DEBUG("10 sec");
+//        QTime dieTime= QTime::currentTime().addSecs(10);
+//        while (QTime::currentTime() < dieTime)
+//            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 
 
-        //    DEBUG("setupDisplayMaps()");
+        DEBUG("setupDisplayMaps()");
         setupDisplayMaps();
         // reset all display output maps for new job
         // must be done after Initialize Data because then we know how large the map is
         // clear() calls the destruction of all elements in the sturcture
 
-        DEBUG("10 sec - 2");
-         dieTime= QTime::currentTime().addSecs(10);
-        while (QTime::currentTime() < dieTime)
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+//        DEBUG("10 sec - 2");
+//         dieTime= QTime::currentTime().addSecs(10);
+//        while (QTime::currentTime() < dieTime)
+//            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 
         if (SwitchRainfall)
         {
@@ -254,7 +254,6 @@ void TWorld::DoModel()
         bool saveMBerror = true;
         saveMBerror2file(saveMBerror, true);
 
-      //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
 
@@ -264,12 +263,15 @@ void TWorld::DoModel()
 
         GetComboMaps(); // moved to outside timeloop!
 
-        //InfilEffectiveKsat(true);
+        if (Switch1Darrays)
+            InfilEffectiveKsat1D();
+        else
+            InfilEffectiveKsat();
 
-        DEBUG("10 sec - 3");
-        dieTime= QTime::currentTime().addSecs(10);
-        while (QTime::currentTime() < dieTime)
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+//        DEBUG("10 sec - 3");
+//        dieTime= QTime::currentTime().addSecs(10);
+//        while (QTime::currentTime() < dieTime)
+//            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 
         for (time = BeginTime; time < EndTime; time += _dt)
         {            
@@ -294,10 +296,12 @@ void TWorld::DoModel()
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
 
-            if (Switch1Darrays)
-                InfilEffectiveKsat1D();
-            else
-                InfilEffectiveKsat(false);
+            if (SwitchInfilCrust) {
+                if (Switch1Darrays)
+                    InfilEffectiveKsat1D();
+                else
+                    InfilEffectiveKsat();
+            }
 
             HydrologyProcesses();  // hydrological processes in one loop, incl splash
 

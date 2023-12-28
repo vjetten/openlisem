@@ -337,7 +337,6 @@ void lisemqt::initOP()
 
     op.comboboxset = false;
 
-    op.graindiameters.clear();
     op.baseMap = nullptr;
     op.baseMapDEM = nullptr;
     op.channelMap = nullptr;
@@ -347,8 +346,6 @@ void lisemqt::initOP()
     op.hardsurfaceMap = nullptr;
     op.Image = nullptr;
 
- //   op.CulvertX.clear();
- //   op.CulvertY.clear();
     op.EndPointX.clear();
     op.EndPointY.clear();
     op.ObsPointX.clear();

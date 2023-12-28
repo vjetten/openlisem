@@ -106,25 +106,22 @@
 // faster
 //#define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
 //{long _i_ = cri_[i_]; int r = (int)(_i_/_nrCols); int c = (int)(_i_ % _nrCols);
-
-// fastest, QVector stores all elements in the same consequtive memory!
-//#define FOR_ROW_COL_MV_L for(long i_ = 0; i_< nrValidCells; i_++)\
-//{int r = cr_[i_].r; int c = cr_[i_].c;
 // slower
 //#define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < _nrCols*_nrRows; i_++)\
 //{int r = i_/_nrCols; int c=i_%_nrCols;\
 //if(!pcr::isMV(LDD->data[r][c]))
 
+// fastest, QVector stores all elements in the same consequtive memory!
+// #define FOR_ROW_COL_MV_L for(long i_ = 0; i_< nrValidCells; i_++){int r = cr_[i_].r; int c = cr_[i_].c;
 
 #define FOR_ROW_COL_MV_V for(long i_ = nrValidCells-1; i_ >= 0; i_--)
 
-
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
- {int r = cr_[i_].r; int c = cr_[i_].c;
+{int r = cr_[i_].r; int c = cr_[i_].c;
 
 //not used
-#define FOR_ROW_COL_MV_LWS(nr_) for(long i_ = WScr.at(nr_).size()-1; i_ >= 0; i_--)\
-{int r = WScr.at(nr_)[i_].r; int c = WScr.at(nr_)[i_].c;
+// #define FOR_ROW_COL_MV_LWS(nr_) for(long i_ = WScr.at(nr_).size()-1; i_ >= 0; i_--)\
+// {int r = WScr.at(nr_)[i_].r; int c = WScr.at(nr_)[i_].c;
 
 #define FOR_ROW_COL_LDD5 for(long i_ = nrValidCellsLDD5-1; i_ >= 0; i_--)\
 {int r = crldd5_[i_].r; int c = crldd5_[i_].c;
@@ -141,8 +138,7 @@
 #define FOR_ROW_COL_MV_OUTL for(int i_ = 0; i_ < crout_.size(); i_++)\
 {int r = crout_[i_].r; int c = crout_[i_].c;
 
-
-#define FOR_GRAIN_CLASSES for(int d  = 0 ; d < numgrainclasses;d++)
+//#define FOR_GRAIN_CLASSES for(int d  = 0 ; d < numgrainclasses;d++)
 
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
@@ -154,14 +150,14 @@
     for (int  c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDDTile->data[r][c]))
 
-#define NRUNITS 512  /// \def max number of landunits or depth classes in flooding
-#define NUMNAMES 512   /// \def NUMNAMES runfile namelist max
-#define NUMMAPS 512    /// \def max nr maps
-#define MIN_FLUX 1e-6 /// \def minimum flux (m3/s) in kinematic wave
+#define NRUNITS 512     /// \def max number of landunits or depth classes in flooding
+#define NUMNAMES 512    /// \def NUMNAMES runfile namelist max
+#define NUMMAPS 512     /// \def max nr maps
+#define MIN_FLUX 1e-6   /// \def minimum flux (m3/s) in kinematic wave
 #define MIN_HEIGHT 1e-6 /// \def minimum water height (m) for transport of sediment
-#define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
-#define MAXCONCBL 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
-#define MIN_SLOPE 1e-3
+#define MAXCONC 848.0   /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
+#define MAXCONCBL 848.0 /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
+#define MIN_SLOPE 1e-4
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
@@ -317,7 +313,7 @@ typedef struct ExtCH {
 
 /// \class TWorld model.h contains the model 'World': constants, variables and erosion processes
 
-/** The model 'world': the main class containing all variables, maps, options, filenames.\n
+/** The model 'World': the main class containing all variables, maps, options, filenames.\n
   The class contains hydrological and erosion processes which are run in a time loop.\n
   The main function is <B>void TWorld::DoModel()</B>, which has the time loop calling ll processes\n
   Every timestep the mass balance is calculated and output is reported to the UI and disk.
@@ -341,7 +337,6 @@ public:
 
     cTRGBMap * RGB_Image;
 
-
     QLocale loc;
 
     /// copy of overall rows and columns, set in initmask
@@ -354,12 +349,11 @@ public:
     long nrValidCellsLDDCH5;
     long nrValidCellsWS;
     long nrValidCellsTile;
-   // int nrWatersheds;
+
     QVector <LDD_COOR> crldd5_;
     QVector <LDD_COOR> crlddch5_;
     QVector <LDD_COOR> cr_;
     QVector <LDD_COOR> crws_;
-    //QList< QVector <LDD_COOR> > WScr;
     QVector <LDD_COORi> dcr_;
     QVector <LDD_COOR> crch_;
     QVector <LDD_COOR> crtile_;
@@ -369,7 +363,6 @@ public:
     QVector <LDD_COORIN> crlinkedlddtile_;
     QVector <LDD_COORout> crout_;
 
-  //  QVector <IDI_POINT> IDIpoints;
     QVector <IDI_POINT> IDIpointsRC;
     QList <int> stationID;
     QList <int> stationQID;
@@ -415,7 +408,7 @@ public:
     int ReportDigitsOut;
     int FlowBoundaryType; // open, closed
     int userCores;
-    int SwitchSV; //ettling velocity
+    int SwitchSV; //settling velocity
     double splashb; // splash strength coef b limburg equtions,
 
     // flow bloundaries
@@ -441,7 +434,7 @@ public:
     /// infiltration method
     int InfilMethod;
 
-    /// erosion units in output: to/ha; kg/cell; kg/m2
+    /// erosion units in output: ton/ha; kg/cell; kg/m2
     int ErosionUnits;
 
     /// discharge units in output: l/s or m3/s
@@ -529,8 +522,6 @@ public:
 
     double maxRainaxis;
     double latitude;
-
-    //double D50CH, D90CH;
 
     ///pesticides
     double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;
@@ -712,7 +703,6 @@ public:
     vec4 F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    void correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2);
 
     //runoff dynamic
     double maincalcfluxOF(cTMap *_h, double dt, double dt_max);

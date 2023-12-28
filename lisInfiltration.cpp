@@ -43,24 +43,8 @@ functions: \n
 
 //---------------------------------------------------------------------------
 // Done outside timeloop, move inside when crusting is made dynamic!
-void TWorld::InfilEffectiveKsat(bool first)
+void TWorld::InfilEffectiveKsat()
 {
-    // todo, move to datainit!
-    if (first) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            Ksat1->Drc *= _dt/3600000.0;
-            if (SwitchTwoLayer)
-                Ksat2->Drc *= _dt/3600000.0;
-            if (SwitchInfilCrust)
-                KsatCrust->Drc *= _dt/3600000.0;
-            if (SwitchInfilCompact)
-                KsatCompact->Drc *= _dt/3600000.0;
-            if (SwitchGrassStrip)
-                KsatGrass->Drc *= _dt/3600000.0;
-        }}
-    }
-
     if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
@@ -93,13 +77,16 @@ void TWorld::InfilEffectiveKsat(bool first)
             if (SwitchInfilCompact) {
                 Ksateff->Drc = Ksat1->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
                 Poreeff->Drc = ThetaS1->Drc*(1-CompactFraction->Drc) + PoreCompact->Drc*CompactFraction->Drc;
+                if (Poreeff->Drc < ThetaI1->Drc) {
+                    ThetaI1->Drc *= Poreeff->Drc/ThetaS1->Drc;
+                    ThetaI1a->Drc = ThetaI1->Drc ;
+                }
             }
 
             if (SwitchGrassStrip) {
                 Ksateff->Drc = Ksat1->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
                 Poreeff->Drc = ThetaS1->Drc*(1-GrassFraction->Drc) + PoreGrass->Drc*GrassFraction->Drc;
             }
-
 
             if (SwitchHouses) {
                 Ksateff->Drc *= (1-HouseCover->Drc);

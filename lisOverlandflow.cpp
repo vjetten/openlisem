@@ -314,7 +314,7 @@ void TWorld::OverlandFlow1D(void)
         WaterVolin->Drc = DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
         //volume runoff into the kin wave, needed to determine infil in kin wave
         // WaterVolin total water volume in m3 before kin wave, WHrunoff may be adjusted in tochannel
-        q->Drc = 0;//FSurplus->Drc*SoilWidthDX->Drc/_dt;
+        //q->Drc = FSurplus->Drc*SoilWidthDX->Drc/_dt;
         // OBSOLETE? has never work properly
         // infil flux in kin wave (<= 0)negative value), in m2/s, in kiv wave DX is used
         // surplus related to infiltrating surfaces

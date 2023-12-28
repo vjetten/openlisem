@@ -419,10 +419,6 @@ void TWorld::InitStandardInput(void)
 
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
-//    sqrtGrad = NewMap(0);
-//    FOR_ROW_COL_MV {
-//        sqrtGrad->Drc = sqrt(Grad->Drc);
-//    }
 
 //    SwitchSlopeStability = false;
 //    if (SwitchSlopeStability) {
@@ -464,8 +460,6 @@ void TWorld::InitStandardInput(void)
 
     // points are user observation points. they should include outlet points
     PointMap = ReadMap(LDD,getvaluename("outpoint"));
-    //map with points for output data
-    // VJ 110630 show hydrograph for selected output point
     bool found = false;
     FOR_ROW_COL_MV {
         if(PointMap->Drc > 0) {
@@ -506,8 +500,8 @@ void TWorld::InitMeteoInput(void)
     SnowTotmm = 0;
     Snowpeak = 0;
     SnowpeakTime = 0;
+
     Rain = NewMap(0);
-    //IDIw = NewMap(0);
     Rainc = NewMap(0);
     RainCum = NewMap(0);
     RainCumFlat = NewMap(0);
@@ -570,15 +564,6 @@ void TWorld::InitLULCInput(void)
     RR = ReadMap(LDD,getvaluename("RR"));
     checkMap(*RR, SMALLER, 0.0, "Raindom roughness RR must be >= 0");
     calcValue(*RR, RRCalibration, MUL);    N = ReadMap(LDD,getvaluename("manning"));
-    checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
-    calcValue(*N, nCalibration, MUL);
-
-    Norg = NewMap(0);
-    copy(*Norg, *N); //ed in sed trap... if trap is full go back to original N
-
-    RR = ReadMap(LDD,getvaluename("RR"));
-    checkMap(*RR, SMALLER, 0.0, "Raindom roughness RR must be >= 0");
-    calcValue(*RR, RRCalibration, MUL);
 
     if (!Switch1Darrays) {
         LAI = ReadMap(LDD,getvaluename("lai"));
@@ -2030,62 +2015,6 @@ void TWorld::IntializeData(void)
         COMBO_TC = NewMap(0);
     }
 
-
-
-//    if (SwitchInterceptionLAI)
-//    {
-//        CanopyStorage = NewMap(0); //in m !!!
-//        FOR_ROW_COL_MV
-//        {
-//            switch (InterceptionLAIType)
-//            {
-//            case 0: CanopyStorage->Drc = 0.4376 * LAI->Drc + 1.0356;break; // gives identical results
-//                        //0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
-//            case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
-//            case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
-//            case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
-//            case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
-//            case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
-//            case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
-//            case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
-
-//            }
-//        }
-//    } else {
-//        CanopyStorage = ReadMap(LDD,getvaluename("smax"));
-//        //if we have a Smax map directly we need the LAI so we derive it from the cover
-//    }
-//    calcValue(*CanopyStorage, 0.001, MUL); // from mm to m
-//    calcValue(*CanopyStorage, SmaxCalibration, MUL);
-
-//    // openness coefficient k
-//    kLAI = NewMap(0);
-//    FOR_ROW_COL_MV {
-//        kLAI->Drc = 1-exp(-CanopyOpeness*LAI->Drc);
-//    }
-
-
-//    if (SwitchHouses)
-//    {
-//        //houses info:
-//        //housecover.map;Fraction of hard roof surface per cell (-);housecover");
-//        //roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
-//        //drumstore.map;Size of storage of rainwater drums (m3);drumstore");
-//        HouseCover = ReadMap(LDD,getvaluename("housecover"));
-//        if (SwitchGrassStrip) {
-//            FOR_ROW_COL_MV {
-//                if (GrassWidthDX->Drc != 0)
-//                    HouseCover->Drc = HouseCover->Drc*(1-GrassFraction->Drc);
-//            }
-//        }
-//        RoofStore = ReadMap(LDD,getvaluename("roofstore"));
-//        calcValue(*RoofStore, 0.001, MUL);
-//        // from mm to m
-//        DrumStore = ReadMap(LDD,getvaluename("drumstore"));
-//    }
-//    else
-//        HouseCover = NewMap(0);
-
     if (SwitchAddBuildingsDEM) {
         double AddBuildingFraction = getvaluedouble("Add Building fraction");
         double AddBuildingHeight = getvaluedouble("Add Building fraction");
@@ -2101,7 +2030,7 @@ void TWorld::IntializeData(void)
     }
 
     SoilETMBcorrection = 0;
-    //### infiltration maps
+
     InfilTot = 0;
     InfilTotmm = 0;
     InfilKWTot = 0;
@@ -2125,7 +2054,6 @@ void TWorld::IntializeData(void)
     SoilMoistTot = 0;
     SoilMoistDiff = 0;
 
-    //houses
     IntercHouseTot = 0;
     IntercHouseTotmm = 0;
     IntercLitterTot = 0;
@@ -2140,40 +2068,37 @@ void TWorld::IntializeData(void)
     StormDrainVolTot = 0;
     floodVolTotmm= 0;
     floodVolTot = 0;
-    //floodVolTotInit = 0;
     floodVolTotMax = 0;
     floodAreaMax = 0;
     floodBoundaryTot = 0;
     floodBoundarySedTot = 0;
 
-    //InfilVolFlood = NewMap(0);
     InfilVolKinWave = NewMap(0);
     InfilVol = NewMap(0);
     InfilmmCum = NewMap(0);
-    //InfilVolCum = NewMap(0);
-    Ksateff = NewMap(0);
-    Poreeff = NewMap(0);
-    Thetaeff = NewMap(0);
-    //FSurplus = NewMap(0);
-    Perc = NewMap(0);
     PercmmCum = NewMap(0);
     runoffTotalCell = NewMap(0);
     Fcum = NewMap(0);
-    Lw = NewMap(0);
     Lwmm = NewMap(0);
 
-    if (SwitchInfilCompact) {
-        double cnt = 0;
-        FOR_ROW_COL_MV {
-            if(PoreCompact->Drc*CompactFraction->Drc+(1-CompactFraction->Drc)*ThetaS1->Drc < ThetaI1->Drc)
-                cnt+=1.0;
-        }
-        if (cnt > 0) {
-            ErrorString = QString("WARNING: Compacted porosity is smaller than initial moisture content in %1% of the cells, these cells will be seen as impermeable.").arg(cnt/nrCells*100);
-            DEBUG(ErrorString);
-            // throw 1;
-        }
-    }
+    Ksateff = NewMap(0);
+    Poreeff = NewMap(0);
+    Thetaeff = NewMap(0);
+    Perc = NewMap(0);
+    Lw = NewMap(0);
+
+//    if (SwitchInfilCompact) {
+//        double cnt = 0;
+//        FOR_ROW_COL_MV {
+//            if(PoreCompact->Drc*CompactFraction->Drc+(1-CompactFraction->Drc)*ThetaS1->Drc < ThetaI1->Drc)
+//                cnt+=1.0;
+//        }
+//        if (cnt > 0) {
+//            ErrorString = QString("WARNING: Compacted porosity is smaller than initial moisture content in %1% of the cells, these cells will be seen as impermeable.").arg(cnt/nrCells*100);
+//            DEBUG(ErrorString);
+//            // throw 1;
+//        }
+//    }
 
     //### runoff maps
     Qtot = 0;
@@ -2217,7 +2142,6 @@ void TWorld::IntializeData(void)
 
     }
 
-//    flowmask = NewMap(0);
     K2DOutlets = NewMap(0);
 
     if(SwitchPesticide)
@@ -2236,7 +2160,6 @@ void TWorld::IntializeData(void)
     FHI = NewMap(0); // flood hazard index
 
     Qsoutput = NewMap(0);
-    q = NewMap(0);
 
     WaterVolin = NewMap(0);
     WaterVolall = NewMap(0);
