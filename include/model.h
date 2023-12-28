@@ -652,10 +652,6 @@ public:
     void InitMapList(void);
     cTMap *NewMap(double value);
     cTMap *ReadMap(cTMap *Mask, QString name);
-
-    void NewMap1D(QVector <double> &V, double value);
-    void ReadMap1D(cTMap *Mask, QVector <double> &V, QString name);
-
     void DestroyData(void);
     cTMap *InitMask(QString name);
     cTMap *InitMaskChannel(QString name);
@@ -861,8 +857,6 @@ public:
 
     double cmx_analytique(double t, double dKfi, double dpestiinf, double depsil, double drhob, double dkr, double dKD, double dn, double CM0, double CS0,double Cr);
     double csx_analytique(double t, double dKfi,double dpestiinf,double depsil,double drhob,double dkr,double dKD,double dn, double CM0,double CS0,double Cr);
-    double **Factorize(double **A, int n, int m);
-    double *Solve(int n,int m, double **A_LU, double *B);
     double Implicitscheme(double Qj1i1, double Qj1i, double Qji1,double Pj1i, double Pji1, double alpha, double dt,double dx, double Kfilm, double CMi1j1);
     double ConcentrationP(double watvol, double pest);
 
@@ -937,8 +931,11 @@ public:
     void HydrologyProcesses();
 
     // Vector based Functions
-    double MapTotal1D(QVector <double> &V);
-    void checkMap1D(QVector <double> &V,int oper,double value,QString mapName,QString SS);
+    void copy1Dto2D(double *V);
+    double* NewMap1D(double value);
+    double* ReadMap1D(cTMap *Mask, QString name);
+    double MapTotal1D(double *V);
+    void checkMap1D(double *V,int oper,double value,QString mapName,QString SS);
     void InitSoilInput1D();
     void InitLULCInput1D();
     void InfilEffectiveKsat1D();
@@ -1133,7 +1130,6 @@ protected:
     // talk to the interface
     QElapsedTimer time_ms;
     double startTime;
-    void copy1Dto2D(QVector <double> &V);
     void setupDisplayMaps();
     void setupHydrographData();
     void ClearHydrographData();

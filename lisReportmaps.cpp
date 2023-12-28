@@ -51,7 +51,7 @@ functions: \n
 // initialize maps for output to screen
 // must be done after Initialize Data because then we know how large the map is
 
-void TWorld::copy1Dto2D(QVector <double> &V)
+void TWorld::copy1Dto2D(double *V)
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {

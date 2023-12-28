@@ -27,86 +27,87 @@
 
 #endif // VECTORMAPVARIABLES_H
 
-QVector <double> vtma;
-QVector <double> vtmb;
-QVector <double> vtmc;
-QVector <double> vtmd;
+double *vtma;
+double *vtmb;
+double *vtmc;
+double *vtmd;
 
 // infiltration, percolation, redistribution
-QVector <double> vKsat1;
-QVector <double> vThetaS1;
-QVector <double> vThetaI1;
-QVector <double> vThetaI1a;
-QVector <double> vThetaR1;
-QVector <double> vPsi1;
-QVector <double> vThetaFC1;
-QVector <double> vlambda1;
-QVector <double> vSoilDepth1;
-QVector <double> vSoilDepth1init;
+double *vKsat1;
+double *vThetaS1;
+double *vThetaI1;
+double *vThetaI1a;
+double *vThetaR1;
+double *vPsi1;
+double *vThetaFC1;
+double *vlambda1;
+double *vSoilDepth1;
+double *vSoilDepth1init;
 
-QVector <double> vKsat2;
-QVector <double> vThetaS2;
-QVector <double> vThetaI2;
-QVector <double> vThetaI2a;
-QVector <double> vlambda2;
-QVector <double> vThetaFC2;
-QVector <double> vPsi2;
-QVector <double> vThetaR2;
-QVector <double> vSoilDepth2;
-QVector <double> vSoilDepth2init;
+double *vKsat2;
+double *vThetaS2;
+double *vThetaI2;
+double *vThetaI2a;
+double *vlambda2;
+double *vThetaFC2;
+double *vPsi2;
+double *vThetaR2;
+double *vSoilDepth2;
+double *vSoilDepth2init;
 
-QVector <double> vKsat3;
-QVector <double> vThetaS3;
-QVector <double> vThetaI3;
-QVector <double> vThetaI3a;
-QVector <double> vlambda3;
-QVector <double> vThetaFC3;
-QVector <double> vPsi3;
-QVector <double> vThetaR3;
-QVector <double> vSoilDepth3;
-QVector <double> vSoilDepth3init;
+double *vKsat3;
+double *vThetaS3;
+double *vThetaI3;
+double *vThetaI3a;
+double *vlambda3;
+double *vThetaFC3;
+double *vPsi3;
+double *vThetaR3;
+double *vSoilDepth3;
+double *vSoilDepth3init;
 
-QVector <double> vCrustFraction;
-QVector <double> vKsatCrust;
-QVector <double> vPoreCrust;
-QVector <double> vCompactFraction;
-QVector <double> vKsatCompact;
-QVector <double> vPoreCompact;
-QVector <double> vGrassFraction;
-QVector <double> vKsatGrass;
-QVector <double> vPoreGrass;
+double *vCrustFraction;
+double *vKsatCrust;
+double *vPoreCrust;
+double *vCompactFraction;
+double *vKsatCompact;
+double *vPoreCompact;
+double *vGrassFraction;
+double *vKsatGrass;
+double *vPoreGrass;
 
-QVector <double> vLw;
-QVector <double> vInfilVol;
-QVector <double> vKsateff;
-QVector <double> vThetaeff;
-QVector <double> vPoreeff;
-QVector <double> vPerc;
+double *vLw;
+double *vInfilVol;
+double *vKsateff;
+double *vThetaeff;
+double *vPoreeff;
+double *vPerc;
 
 // interception
-QVector <double> vInterc;
-QVector <double> vCStor;
-QVector <double> vCanopyStorage;
-QVector <double> vCover;
-QVector <double> vkLAI;
-QVector <double> vLeafDrain;
-QVector <double> vLitter;
-QVector <double> vLCStor;
-QVector <double> vLInterc;
-QVector <double> vHStor;
-QVector <double> vRoofStore;
-QVector <double> vIntercHouse;
-QVector <double> vDrumStore;
-QVector <double> vDStor;
-QVector <double> vIntercETa;
+double *vInterc;
+double *vCStor;
+double *vCanopyStorage;
+double *vCover;
+double *vLai;
+double *vkLAI;
+double *vLeafDrain;
+double *vLitter;
+double *vLCStor;
+double *vLInterc;
+double *vHStor;
+double *vRoofStore;
+double *vIntercHouse;
+double *vDrumStore;
+double *vDStor;
+double *vIntercETa;
 
-//QVector <double> vWH;
-//QVector <double> vWHrunoff;
-//QVector <double> vWHroad;
-//QVector <double> vFloodDomain;
-//QVector <double> vhmx;
-//QVector <double> vDX;
-//QVector <double> vSoilWidthDX;
+//double *vWH;
+//double *vWHrunoff;
+//double *vWHroad;
+//double *vFloodDomain;
+//double *vhmx;
+//double *vDX;
+//double *vSoilWidthDX;
 
 
 
