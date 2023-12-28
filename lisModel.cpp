@@ -283,7 +283,6 @@ void TWorld::DoModel()
             else
                 InfilEffectiveKsat(false);
 
-
             HydrologyProcesses();  // hydrological processes in one loop, incl splash
 
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
@@ -426,6 +425,7 @@ void TWorld::HydrologyProcesses()
                         Perc->Drc = cell_Percolation1D(i_, r, c, 1.0);
                     // if baseflow is active percollation is done there, so do not do it here
                 }
+
             }
 
             //  cell_depositInfil(r,c);
@@ -441,6 +441,8 @@ void TWorld::HydrologyProcesses()
             if (SwitchSlopeStability)
                 cell_SlopeStability(r, c);
         }}
+        if (InfilMethod != INFIL_NONE)
+            avgTheta1D();
 
     if (SwitchIncludeET) {
         doETa();
@@ -489,6 +491,8 @@ void TWorld::HydrologyProcesses()
                     if (!SwitchImpermeable)
                         Perc->Drc = cell_Percolation(r, c, 1.0);
                     // if baseflow is active percollation is done there, so do not do it here
+
+                    avgTheta();
                 }
             }
 
@@ -509,6 +513,7 @@ void TWorld::HydrologyProcesses()
         if (SwitchIncludeET) {
            // doETa();
         }
+
         // ETa is subtracted from canopy, soil water surfaces
         // divided over 12 hours in a day with sine curve
 

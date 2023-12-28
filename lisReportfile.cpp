@@ -301,13 +301,6 @@ void TWorld::OutputUI(void)
     //        copy(*op.flowbarriersMap,*tma);
         }
     }
-    // MAP DISPLAY VARIABLES
-    if(InfilMethod != INFIL_SWATRE && InfilMethod !=INFIL_NONE)
-        if (Switch1Darrays)
-            avgTheta1D();
-        else
-            avgTheta();
-    }
 }
 //---------------------------------------------------------------------------
 void TWorld::ReportTotalSeries(void)
