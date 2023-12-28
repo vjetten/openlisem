@@ -387,8 +387,9 @@ void TWorld::GetInputTimeseries()
 // all hydrologuical processes in one big parallel loop for speed
 void TWorld::HydrologyProcesses()
 {
-    //double soiltot1 = SoilWaterMass();
     if (Switch1Darrays) {
+        double soiltot1 = SoilWaterMass1D();
+
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             cell_Interception1D(i_, r,c);
@@ -444,6 +445,9 @@ void TWorld::HydrologyProcesses()
 
         if (InfilMethod != INFIL_NONE)
             avgTheta1D();
+
+        double soiltot2 = SoilWaterMass1D();
+        SoilMoistDiff = soiltot2 - soiltot1;
 
     } else {
         double soiltot1 = SoilWaterMass();

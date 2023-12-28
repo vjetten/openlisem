@@ -56,7 +56,7 @@ double TWorld::SoilWaterMass()
             } else {
                 totsat = totsat + SoilDepth1->Drc * Poreeff->Drc;
                 totsat = totsat + (Lw->Drc-SoilDepth1->Drc) * ThetaS2->Drc;
-                totunsat = totunsat + (SoilDepth1->Drc - SoilDepth2->Drc) * ThetaI2->Drc;
+                totunsat = totunsat + (SoilDepth2->Drc - Lw->Drc) * ThetaI2->Drc;
             }
         } else {
             totsat = totsat + Lw->Drc * Poreeff->Drc;

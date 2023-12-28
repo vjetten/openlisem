@@ -951,6 +951,8 @@ public:
     void cell_Redistribution2_1D(long i_, int r, int c);
     void cell_Interception1D(long i_, int r, int c);
     void avgTheta1D();
+    double SoilWaterMass1D();
+
 
 
     void ChannelandTileflow();
