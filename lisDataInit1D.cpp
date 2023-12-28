@@ -47,11 +47,13 @@ double TWorld::MapTotal1D(QVector <double> &V)
 void TWorld::NewMap1D(QVector <double> &V, double value)
 {
     V.clear();
+    V.squeeze();
     for (int r = 0; r < LDD->nrRows(); r++)
         for (int c = 0; c < LDD->nrCols(); c++) {
             if (!pcr::isMV(LDD->Drc))
-                V << 0.0;
+                V << value;
         }
+   // qDebug() << (double)V.size()/(double)(_nrRows*_nrCols);
 }
 //---------------------------------------------------------------------------
 void TWorld::ReadMap1D(cTMap *Mask, QVector <double> &V, QString name)
@@ -69,20 +71,20 @@ void TWorld::ReadMap1D(cTMap *Mask, QVector <double> &V, QString name)
             }
         }
 
-
+    V.clear();
     for (int r = 0; r < Mask->nrRows(); r++)
         for (int c = 0; c < Mask->nrCols(); c++) {
             if (!pcr::isMV(Mask->Drc)) {
-                if (pcr::isMV(_M->Drc))
-                    V << 0.0;
-                else
+//                if (pcr::isMV(_M->Drc))
+//                    V << 0.0;
+//                else
                     V << _M->Drc;
             }
         }
 
     delete _M;
 
-    if (V.size() != nrCells) {
+    if (V.size() != nrValidCells) {
         ErrorString = "Length of Vector in map: "+name+" is wrong.";
         throw 1;
     }
@@ -127,7 +129,7 @@ void TWorld::InitSoilInput1D(void)
     NewMap1D(vtma,0);
     NewMap1D(vtmb,0);
     NewMap1D(vtmc,0);
-    NewMap1D(vtmd,0);
+  //  NewMap1D(vtmd,0);
 
     if(InfilMethod != INFIL_SWATRE) {
 
@@ -330,7 +332,7 @@ void TWorld::InitSoilInput1D(void)
     }
 
     NewMap1D(vLw, 0);
-    NewMap1D(vInfilVol, 0);
+    //NewMap1D(vInfilVol, 0);
 
     NewMap1D(vPerc, 0);
     NewMap1D(vPoreeff, 0);

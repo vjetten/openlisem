@@ -334,6 +334,11 @@ void TWorld::DoModel()
         //DEBUG("Free data structure memory");
         op.hasrunonce = true;
         DestroyData();  // destroy all maps automatically
+//        QTime dieTime= QTime::currentTime().addSecs(10);
+//        while (QTime::currentTime() < dieTime)
+//            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+
+
         op.nrMapsCreated = maplistnr;
         emit done("finished");
 
