@@ -306,7 +306,7 @@ void TWorld::KinematicSWOFopen(cTMap *_h, cTMap *_V)
 
         dt_req = dt_max;
 
-#pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             double C = 0.25;//std::min(0.25, courant_factor);
             int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};

@@ -289,7 +289,6 @@ void TWorld::GetComboMaps()
     cl = 0;
     AddComboMap(0,"Flood Hazard Index [WH(V+0.5)]","-",FHI,LegendMap[0],Legend[0],true,false,1.0, 0.001);
 
-
     if(SwitchIncludeChannel)
     {
 
@@ -434,13 +433,6 @@ void TWorld::GetComboMaps()
 //---------------------------------------------------------------------------
 void TWorld::ClearComboMaps()
 {
-
-    for(int i =op.ComboMapsSafe.length() - 1; i >-1 ; i--)
-    {
-        delete op.ComboMapsSafe.at(i);
-    }
-    op.ComboMapsSafe.clear();
-
     op.ComboLists.clear();
     op.ComboMaps.clear();
     op.ComboColorMap.clear();
@@ -462,10 +454,6 @@ void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList
 {
     op.ComboLists.append(listn);
     op.ComboMaps.append(map);
-    // copy pointer or make a map and copy content
-    op.ComboMapsSafe.append(new cTMap());
-    op.ComboMapsSafe.at(op.ComboMapsSafe.length()-1)->MakeMap(LDD,0.0);
-
     op.ComboColorMap.append(ColorMap);
     op.ComboColors.append(Colors);
     op.ComboLogaritmic.append(log);

@@ -322,7 +322,7 @@ void TWorld::ChannelFlow(void)
             double P = 2*ChannelWH->Drc+ChannelWidth->Drc;
 
             if (P > 0)
-                ChannelV->Drc = std::pow(ChannelArea/P,2/3)*qSqrt(Grad->Drc)/ChannelNcul->Drc;
+                ChannelV->Drc = std::pow(ChannelArea/P,2/3)*qSqrt(ChannelGrad->Drc)/ChannelNcul->Drc;
             else
                 ChannelV->Drc = 0;
 

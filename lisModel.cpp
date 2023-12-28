@@ -152,11 +152,22 @@ void TWorld::DoModel()
         DEBUG("Intialize Input Data()");
         IntializeData();
 
+        DEBUG("10 sec");
+        QTime dieTime= QTime::currentTime().addSecs(10);
+        while (QTime::currentTime() < dieTime)
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+
+
         //    DEBUG("setupDisplayMaps()");
         setupDisplayMaps();
         // reset all display output maps for new job
         // must be done after Initialize Data because then we know how large the map is
         // clear() calls the destruction of all elements in the sturcture
+
+        DEBUG("10 sec - 2");
+         dieTime= QTime::currentTime().addSecs(10);
+        while (QTime::currentTime() < dieTime)
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 
         if (SwitchRainfall)
         {
@@ -255,6 +266,11 @@ void TWorld::DoModel()
 
         //InfilEffectiveKsat(true);
 
+        DEBUG("10 sec - 3");
+        dieTime= QTime::currentTime().addSecs(10);
+        while (QTime::currentTime() < dieTime)
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+
         for (time = BeginTime; time < EndTime; time += _dt)
         {            
             if (runstep > 0 && runstep % printinterval == 0)
@@ -334,10 +350,6 @@ void TWorld::DoModel()
         //DEBUG("Free data structure memory");
         op.hasrunonce = true;
         DestroyData();  // destroy all maps automatically
-//        QTime dieTime= QTime::currentTime().addSecs(10);
-//        while (QTime::currentTime() < dieTime)
-//            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-
 
         op.nrMapsCreated = maplistnr;
         emit done("finished");

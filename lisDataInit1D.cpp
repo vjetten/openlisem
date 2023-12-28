@@ -51,9 +51,10 @@ double* TWorld::NewMap1D(double value)
     long i = 0;
     for (int r = 0; r < LDD->nrRows(); r++)
         for (int c = 0; c < LDD->nrCols(); c++) {
-            if (!pcr::isMV(LDD->Drc))
+            if (!pcr::isMV(LDD->Drc)) {
                 V[i] = value;
                 i++;
+            }
         }
     return V;
    // qDebug() << (double)V.size()/(double)(_nrRows*_nrCols);
@@ -77,12 +78,13 @@ double* TWorld::ReadMap1D(cTMap *Mask, QString name)
     double* V = new double[nrValidCells];
     long i = 0;
     for (int r = 0; r < Mask->nrRows(); r++)
-        for (int c = 0; c < Mask->nrCols(); c++) {
+        for (int c = 0; c < Mask->nrCols(); c++)
+            if (!pcr::isMV(Mask->Drc)) {
                 V[i] = _M->Drc;
                 i++;
             }
 
-
+    qDebug() << i << nrValidCells;
     delete _M;
 
     return V;
@@ -385,7 +387,7 @@ void TWorld::InitLULCInput1D(void)
     FOR_ROW_COL_MV_V {
         vCanopyStorage[i_] *= SmaxCalibration;
         vCanopyStorage[i_] *= 0.001; // mm to m
-        vkLAI[i_] = 1-exp(-CanopyOpeness*vtma[i_]);
+        vkLAI[i_] = 1-exp(-CanopyOpeness*vLai[i_]);
     }
     vInterc = NewMap1D(0.0);
     vCStor = NewMap1D(0.0);

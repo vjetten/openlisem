@@ -217,7 +217,7 @@ void TWorld::GetInputData(void)
 {
     InitParameters();
 
-    Switch1Darrays = true;
+    Switch1Darrays = false;
 
     InitStandardInput();
     //## Basic data start of map list etc.
