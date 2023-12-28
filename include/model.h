@@ -903,7 +903,7 @@ public:
     void cell_FlowDetachment(int r, int c);
     void cell_SlopeStability(int r, int c);
 
-    void InfilEffectiveKsat(bool first);
+    void InfilEffectiveKsat();
     void Infiltration();
     void InfilSwatre();
     double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);

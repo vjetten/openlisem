@@ -284,7 +284,7 @@ void TWorld::GetComboMaps()
  //   AddComboMap(0,"Water inflow","m3",ChannelQSide,LegendMap[cl],Legend[cl],true,false,1.0,1.0);
     cl = 1;
     AddComboMap(0,"Flow Velocity","m/s",V,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
-    AddComboMap(0,"Flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.01); //VH
+    //AddComboMap(0,"Flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.01); //VH
     AddComboMap(0,"Cumulative overland flow","m3",Qototal,LegendMap[0],Legend[0],true,false,1.0, 1.0);//0.001);
     cl = 0;
     AddComboMap(0,"Flood Hazard Index [WH(V+0.5)]","-",FHI,LegendMap[0],Legend[0],true,false,1.0, 0.001);

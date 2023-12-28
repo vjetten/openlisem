@@ -217,7 +217,7 @@ void TWorld::GetInputData(void)
 {
     InitParameters();
 
-    Switch1Darrays = false;
+    Switch1Darrays = true;
 
     InitStandardInput();
     //## Basic data start of map list etc.
@@ -2121,38 +2121,12 @@ void TWorld::IntializeData(void)
     //WHGrass = NewMap(0);
     FlowWidth = NewMap(0);
     V = NewMap(0);
-    VH = NewMap(0);
+   // VH = NewMap(0);
     Alpha = NewMap(0);
     Q = NewMap(0);
     Qn = NewMap(0);
 
-    if (SwitchDischargeUser) {
-        DischargeUserPoints = ReadMap(LDD,getvaluename("qinpoints"));
-        QuserIn = NewMap(0);
-
-        FOR_ROW_COL_MV_L {
-            if (DischargeUserPoints->Drc > 0 && ChannelWidth->Drc == 0) {
-                //message
-                int p = (int) DischargeUserPoints->Drc ;
-                ErrorString = QString("Discharge input point %1 is not in a channel!").arg(p);
-                DEBUG(ErrorString);
-                throw 1;
-            }
-        }}
-
-    }
-
     K2DOutlets = NewMap(0);
-
-    if(SwitchPesticide)
-    {
-        K2DQP = NewMap(0);
-        K2DQPX = NewMap(0);
-        K2DQPY = NewMap(0);
-        K2DP = NewMap(0);
-        K2DPC = NewMap(0);
-        K2DPCN = NewMap(0);
-    }
 
     QinKW = NewMap(0);
     Qoutput = NewMap(0);
@@ -2170,10 +2144,28 @@ void TWorld::IntializeData(void)
         report(*hmxInit,"whi.map");
     }
 
+    if (SwitchDischargeUser) {
+        DischargeUserPoints = ReadMap(LDD,getvaluename("qinpoints"));
+        QuserIn = NewMap(0);
+
+        FOR_ROW_COL_MV_L {
+            if (DischargeUserPoints->Drc > 0 && ChannelWidth->Drc == 0) {
+                //message
+                int p = (int) DischargeUserPoints->Drc ;
+                ErrorString = QString("Discharge input point %1 is not in a channel!").arg(p);
+                DEBUG(ErrorString);
+                throw 1;
+            }
+        }}
+
+}
+
+
     SwatreSoilModel = nullptr;
     SwatreSoilModelCrust = nullptr;
     SwatreSoilModelCompact = nullptr;
     SwatreSoilModelGrass = nullptr;
+
     // swatre get input data is called before, ReadSwatreInput
     if (InfilMethod == INFIL_SWATRE)
     {
@@ -2211,8 +2203,36 @@ void TWorld::IntializeData(void)
         // flag: structure is created and can be destroyed in function destroydata
     }
 
+//    if(SwitchIncludeChannel)
+//    {
+//        if(SwitchErosion && SwitchUseMaterialDepth)
+//        {
+//            RStorageDep = NewMap(0.0);
+//            RSedimentMixingDepth = ReadMap(LDD, getvaluename("chansedmixdepth"));
+//            RStorage = ReadMap(LDD, getvaluename("chandetmat"));
+//            FOR_ROW_COL_MV
+//            {
+//                if(RStorage->Drc != -1) {
+//                    RStorage->Drc = RStorage->Drc * ChannelWidth->Drc * DX->Drc;
+//                } else {
+//                    RStorage->Drc = -999999;
+//                }
+//                RSedimentMixingDepth->Drc = std::max(RSedimentMixingDepth->Drc, 0.01);
+//            }
+//        }
+//    }
+
+    if (/* SwitchChannelBaseflow && */ SwitchChannelBaseflowStationary)
+        FindBaseFlow();
+
     if (SwitchPesticide)
     {
+        K2DQP = NewMap(0);
+        K2DQPX = NewMap(0);
+        K2DQPY = NewMap(0);
+        K2DP = NewMap(0);
+        K2DPC = NewMap(0);
+        K2DPCN = NewMap(0);
         //### pesticides maps
         PestMassApplied = 0.0;
         PestLossTotOutlet = 0.0;
@@ -2282,9 +2302,7 @@ void TWorld::IntializeData(void)
         PInfiltex=NewMap(0);
 
         Pdetach=NewMap(0);
-    }
-    if (SwitchPesticide)
-    {
+
         N_SPK=1;
 
         //test Joyce papier
@@ -2360,49 +2378,26 @@ void TWorld::IntializeData(void)
         }
     }
 
-    if(SwitchErosion && SwitchUseMaterialDepth)
-    {
-        Storage = ReadMap(LDD, getvaluename("detmat"));
-        StorageDep = NewMap(0.0);
-        SedimentMixingDepth = ReadMap(LDD, getvaluename("sedmixdepth"));
-        FOR_ROW_COL_MV
-        {
-            if(Storage->Drc != -1)
-            {
-                Storage->Drc = Storage->Drc * ChannelAdj->Drc * DX->Drc;
-            }else
-            {
-                Storage->Drc = -999999;
-            }
-            SedimentMixingDepth->Drc  = std::max(0.01, SedimentMixingDepth->Drc);
-        }
+//    if(SwitchErosion && SwitchUseMaterialDepth)
+//    {
+//        Storage = ReadMap(LDD, getvaluename("detmat"));
+//        StorageDep = NewMap(0.0);
+//        SedimentMixingDepth = ReadMap(LDD, getvaluename("sedmixdepth"));
+//        FOR_ROW_COL_MV
+//        {
+//            if(Storage->Drc != -1)
+//            {
+//                Storage->Drc = Storage->Drc * ChannelAdj->Drc * DX->Drc;
+//            }else
+//            {
+//                Storage->Drc = -999999;
+//            }
+//            SedimentMixingDepth->Drc  = std::max(0.01, SedimentMixingDepth->Drc);
+//        }
 
-    }
+//    }
 
-    if(SwitchIncludeChannel)
-    {
-        if(SwitchErosion && SwitchUseMaterialDepth)
-        {
-            RStorageDep = NewMap(0.0);
-            RSedimentMixingDepth = ReadMap(LDD, getvaluename("chansedmixdepth"));
-            RStorage = ReadMap(LDD, getvaluename("chandetmat"));
-            FOR_ROW_COL_MV
-            {
-                if(RStorage->Drc != -1)
-                {
-                    RStorage->Drc = RStorage->Drc * ChannelWidth->Drc * DX->Drc;
-                }else
-                {
-                    RStorage->Drc = -999999;
-                }
-                RSedimentMixingDepth->Drc = std::max(RSedimentMixingDepth->Drc, 0.01);
-            }
-        }
 
-    }
-
-    if (/* SwitchChannelBaseflow && */ SwitchChannelBaseflowStationary)
-        FindBaseFlow();
 
 }
 //---------------------------------------------------------------------------

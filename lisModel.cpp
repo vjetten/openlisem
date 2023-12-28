@@ -296,12 +296,12 @@ void TWorld::DoModel()
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
 
-            if (SwitchInfilCrust) {
+          //  if (SwitchInfilCrust) {
                 if (Switch1Darrays)
                     InfilEffectiveKsat1D();
                 else
                     InfilEffectiveKsat();
-            }
+           // }
 
             HydrologyProcesses();  // hydrological processes in one loop, incl splash
 
@@ -312,9 +312,6 @@ void TWorld::DoModel()
 
             TileFlow();          // tile drain flow kin wave
                                  // storm drain flow kin wave
-
-            //StormDrainFlow();
-            // these are all non-threaded
 
             if (Switch1Darrays)
                 TotalsHydro1D();            // calculate all totals and cumulative values
