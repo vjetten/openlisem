@@ -25,6 +25,35 @@
 #include "lisemqt.h"
 #include "model.h"
 
+
+double TWorld::SoilWaterMass1D()
+{
+    double totsatm3 = 0;
+    double totunsatm3 = 0;
+
+    FOR_ROW_COL_MV_L {
+        double totsat = 0;
+        double totunsat = 0;
+        if (SwitchTwoLayer) {
+            if (vLw[i_] <= vSoilDepth1[i_]) {
+                totsat = totsat + vLw[i_] * vPoreeff[i_];
+                totunsat = totunsat + (vSoilDepth1[i_] - vLw[i_]) * vThetaeff[i_];
+                totunsat = totunsat + (vSoilDepth2[i_] - vSoilDepth1[i_]) * vThetaI2[i_];
+            } else {
+                totsat = totsat + vSoilDepth1[i_] * vPoreeff[i_];
+                totsat = totsat + (vLw[i_]-vSoilDepth1[i_]) * vThetaS2[i_];
+                totunsat = totunsat + (vSoilDepth2[i_] - vLw[i_]) * vThetaI2[i_];
+            }
+        } else {
+            totsat = totsat + vLw[i_] * vPoreeff[i_];
+            totunsat = totunsat + (vSoilDepth1[i_] - vLw[i_]) * vThetaeff[i_];
+        }
+        totsatm3 += totsat * CHAdjDX->Drc;
+        totunsatm3 += totsat * CHAdjDX->Drc;
+    }}
+
+    return totsatm3+totunsatm3;
+}
 //---------------------------------------------------------------------------
 // percolation from the bottom of the soil profile
 //factor is for use of GW recharge

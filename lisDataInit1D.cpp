@@ -46,6 +46,7 @@ double TWorld::MapTotal1D(QVector <double> &V)
 //---------------------------------------------------------------------------
 void TWorld::NewMap1D(QVector <double> &V, double value)
 {
+    V.clear();
     for (int r = 0; r < LDD->nrRows(); r++)
         for (int c = 0; c < LDD->nrCols(); c++) {
             if (!pcr::isMV(LDD->Drc))

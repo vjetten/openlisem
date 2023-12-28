@@ -428,10 +428,6 @@ void TWorld::HydrologyProcesses()
 
             }
 
-            //  cell_depositInfil(r,c);
-            // deposit all sediment still in flow when infiltration causes WH to become minimum
-            // gives huge MBs errors!
-
             cell_SurfaceStorage(r, c);
             //calc surf storage and total watervol and WHrunoff
 
@@ -441,19 +437,17 @@ void TWorld::HydrologyProcesses()
             if (SwitchSlopeStability)
                 cell_SlopeStability(r, c);
         }}
+
+        if (SwitchIncludeET) {
+            doETa();
+        }
+
         if (InfilMethod != INFIL_NONE)
             avgTheta1D();
 
-    if (SwitchIncludeET) {
-        doETa();
-    }
-    // ETa is subtracted from canopy, soil water surfaces
-    // divided over 12 hours in a day with sine curve
-
-    //MoistureContent();
-    // double soiltot2 = SoilWaterMass();
-    // SoilMoistDiff = soiltot2 - soiltot1;
     } else {
+        double soiltot1 = SoilWaterMass();
+
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             cell_Interception(r,c);
@@ -492,13 +486,8 @@ void TWorld::HydrologyProcesses()
                         Perc->Drc = cell_Percolation(r, c, 1.0);
                     // if baseflow is active percollation is done there, so do not do it here
 
-                    avgTheta();
                 }
             }
-
-            //  cell_depositInfil(r,c);
-            // deposit all sediment still in flow when infiltration causes WH to become minimum
-            // gives huge MBs errors!
 
             cell_SurfaceStorage(r, c);
             //calc surf storage and total watervol and WHrunoff
@@ -511,15 +500,14 @@ void TWorld::HydrologyProcesses()
         }}
 
         if (SwitchIncludeET) {
-           // doETa();
+           doETa();
         }
 
-        // ETa is subtracted from canopy, soil water surfaces
-        // divided over 12 hours in a day with sine curve
+        if (InfilMethod != INFIL_NONE)
+            avgTheta();
 
-        //MoistureContent();
-       // double soiltot2 = SoilWaterMass();
-       // SoilMoistDiff = soiltot2 - soiltot1;
+        double soiltot2 = SoilWaterMass();
+        SoilMoistDiff = soiltot2 - soiltot1;
     }
 }
 //---------------------------------------------------------------------------
