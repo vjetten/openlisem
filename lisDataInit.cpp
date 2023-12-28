@@ -217,7 +217,7 @@ void TWorld::GetInputData(void)
 {
     InitParameters();
 
-    Switch1Darrays = true;
+    Switch1Darrays = false;
 
     InitStandardInput();
     //## Basic data start of map list etc.
@@ -1328,10 +1328,7 @@ void TWorld::InitFlood(void)
     RunoffWaterVol = NewMap(0);
     floodTimeStart = NewMap(0);
     hs = NewMap(0);
-    vs = NewMap(0);
-    us = NewMap(0);
-    //vxs = NewMap(0);
-    //vys = NewMap(0);
+
     Uflood = NewMap(0);
     Vflood = NewMap(0);
     hmx = NewMap(0);
@@ -1354,9 +1351,8 @@ void TWorld::InitFlood(void)
         DiagonalFlowDEM();
 
     if (!SwitchSWOFopen) {
-        //hsa = NewMap(0);
-        //vsa = NewMap(0);
-       // usa = NewMap(0);
+        vs = NewMap(0);
+        us = NewMap(0);
         z1r = NewMap(0);
         z1l = NewMap(0);
         z2r = NewMap(0);
@@ -1402,16 +1398,17 @@ void TWorld::InitFlood(void)
 
     if (SwitchErosion) {
         BLDepthFlood = NewMap(0);
-        SSDepthFlood = NewMap(0);
         BLFlood = NewMap(0);
         BLCFlood = NewMap(0);
         BLTCFlood = NewMap(0);
         BLDetFlood = NewMap(0);
 
+        SSDepthFlood = NewMap(0);
         SSFlood = NewMap(0);
         SSCFlood = NewMap(0);
         SSTCFlood = NewMap(0);
         SSDetFlood = NewMap(0);
+
         DepFlood = NewMap(0);
     }
 }
@@ -2081,11 +2078,13 @@ void TWorld::IntializeData(void)
     Fcum = NewMap(0);
     Lwmm = NewMap(0);
 
-    Ksateff = NewMap(0);
-    Poreeff = NewMap(0);
-    Thetaeff = NewMap(0);
-    Perc = NewMap(0);
-    Lw = NewMap(0);
+    if (!Switch1Darrays) {
+        Ksateff = NewMap(0);
+        Poreeff = NewMap(0);
+        Thetaeff = NewMap(0);
+        Perc = NewMap(0);
+        Lw = NewMap(0);
+    }
 
 //    if (SwitchInfilCompact) {
 //        double cnt = 0;

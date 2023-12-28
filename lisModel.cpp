@@ -296,12 +296,12 @@ void TWorld::DoModel()
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
 
-          //  if (SwitchInfilCrust) {
+            if (SwitchInfilCrust) {
                 if (Switch1Darrays)
                     InfilEffectiveKsat1D();
                 else
                     InfilEffectiveKsat();
-           // }
+            }
 
             HydrologyProcesses();  // hydrological processes in one loop, incl splash
 
