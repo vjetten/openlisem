@@ -47,7 +47,6 @@
 #include "swatre_p.h"
 #include "swatre_g.h"
 
-
 //#define OLDSWATRE 1
 
 //---------------------------------------------------------------------------
@@ -106,22 +105,22 @@
 // faster
 //#define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
 //{long _i_ = cri_[i_]; int r = (int)(_i_/_nrCols); int c = (int)(_i_ % _nrCols);
+
+// fastest, QVector stores all elements in the same consequtive memory!
+//#define FOR_ROW_COL_MV_L for(long i_ = 0; i_< nrValidCells; i_++)\
+//{int r = cr_[i_].r; int c = cr_[i_].c;
 // slower
 //#define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < _nrCols*_nrRows; i_++)\
 //{int r = i_/_nrCols; int c=i_%_nrCols;\
 //if(!pcr::isMV(LDD->data[r][c]))
 
-// fastest, QVector stores all elements in the same consequtive memory!
-// #define FOR_ROW_COL_MV_L for(long i_ = 0; i_< nrValidCells; i_++){int r = cr_[i_].r; int c = cr_[i_].c;
-
-#define FOR_ROW_COL_MV_V for(long i_ = nrValidCells-1; i_ >= 0; i_--)
 
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
-{int r = cr_[i_].r; int c = cr_[i_].c;
+ {int r = cr_[i_].r; int c = cr_[i_].c;
 
 //not used
-// #define FOR_ROW_COL_MV_LWS(nr_) for(long i_ = WScr.at(nr_).size()-1; i_ >= 0; i_--)\
-// {int r = WScr.at(nr_)[i_].r; int c = WScr.at(nr_)[i_].c;
+#define FOR_ROW_COL_MV_LWS(nr_) for(long i_ = WScr.at(nr_).size()-1; i_ >= 0; i_--)\
+{int r = WScr.at(nr_)[i_].r; int c = WScr.at(nr_)[i_].c;
 
 #define FOR_ROW_COL_LDD5 for(long i_ = nrValidCellsLDD5-1; i_ >= 0; i_--)\
 {int r = crldd5_[i_].r; int c = crldd5_[i_].c;
@@ -138,7 +137,8 @@
 #define FOR_ROW_COL_MV_OUTL for(int i_ = 0; i_ < crout_.size(); i_++)\
 {int r = crout_[i_].r; int c = crout_[i_].c;
 
-//#define FOR_GRAIN_CLASSES for(int d  = 0 ; d < numgrainclasses;d++)
+
+#define FOR_GRAIN_CLASSES for(int d  = 0 ; d < numgrainclasses;d++)
 
 /// shortcut for channel row and col loop
 #define FOR_ROW_COL_MV_CH for (int  r = 0; r < _nrRows; r++)\
@@ -150,14 +150,14 @@
     for (int  c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDDTile->data[r][c]))
 
-#define NRUNITS 512     /// \def max number of landunits or depth classes in flooding
-#define NUMNAMES 512    /// \def NUMNAMES runfile namelist max
-#define NUMMAPS 512     /// \def max nr maps
-#define MIN_FLUX 1e-6   /// \def minimum flux (m3/s) in kinematic wave
+#define NRUNITS 512  /// \def max number of landunits or depth classes in flooding
+#define NUMNAMES 512   /// \def NUMNAMES runfile namelist max
+#define NUMMAPS 512    /// \def max nr maps
+#define MIN_FLUX 1e-6 /// \def minimum flux (m3/s) in kinematic wave
 #define MIN_HEIGHT 1e-6 /// \def minimum water height (m) for transport of sediment
-#define MAXCONC 848.0   /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
-#define MAXCONCBL 848.0 /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
-#define MIN_SLOPE 1e-4
+#define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
+#define MAXCONCBL 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
+#define MIN_SLOPE 1e-3
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
@@ -198,8 +198,6 @@
  so memory doesn't have to be freed for each map. The functions Newmap(double) and
 ReadMap(cTMap *Mask, QString name) put a map on this list
 */
-
-//---------------------------------------------------------------------------list
 typedef struct MapListStruct {
     cTMap *m;
 }  MapListStruct;
@@ -313,7 +311,7 @@ typedef struct ExtCH {
 
 /// \class TWorld model.h contains the model 'World': constants, variables and erosion processes
 
-/** The model 'World': the main class containing all variables, maps, options, filenames.\n
+/** The model 'world': the main class containing all variables, maps, options, filenames.\n
   The class contains hydrological and erosion processes which are run in a time loop.\n
   The main function is <B>void TWorld::DoModel()</B>, which has the time loop calling ll processes\n
   Every timestep the mass balance is calculated and output is reported to the UI and disk.
@@ -330,13 +328,6 @@ public:
     TWorld(QObject *parent = nullptr);
     ~TWorld();
 
-    /// variable declaration list of all 2D maps with comments:
-    #include "TMmapVariables.h"
-    /// variable declaration list of all 1D vectors :
-   // #include "VectormapVariables.h"
-
-    cTRGBMap * RGB_Image;
-
     QLocale loc;
 
     /// copy of overall rows and columns, set in initmask
@@ -349,11 +340,12 @@ public:
     long nrValidCellsLDDCH5;
     long nrValidCellsWS;
     long nrValidCellsTile;
-
+   // int nrWatersheds;
     QVector <LDD_COOR> crldd5_;
     QVector <LDD_COOR> crlddch5_;
     QVector <LDD_COOR> cr_;
     QVector <LDD_COOR> crws_;
+    //QList< QVector <LDD_COOR> > WScr;
     QVector <LDD_COORi> dcr_;
     QVector <LDD_COOR> crch_;
     QVector <LDD_COOR> crtile_;
@@ -363,6 +355,7 @@ public:
     QVector <LDD_COORIN> crlinkedlddtile_;
     QVector <LDD_COORout> crout_;
 
+  //  QVector <IDI_POINT> IDIpoints;
     QVector <IDI_POINT> IDIpointsRC;
     QList <int> stationID;
     QList <int> stationQID;
@@ -372,6 +365,8 @@ public:
     MapListStruct maplistCTMap[NUMNAMES];
     int maplistnr;
 
+    /// variable declaration list of all maps with comments:
+#include "TMmapVariables.h"
 
     /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
 
@@ -399,8 +394,6 @@ public:
     SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchGWflow, SwitchGW2Dflow,SwitchLDDGWflow,SwitchSWATGWflow,
     SwitchChannel2DflowConnect, SwitchChannelWFinflow, SwitchGWChangeSD, SwitchDischargeUser;
 
-    bool Switch1Darrays;
-
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
     int SwitchEfficiencyDETCH; // channel detachment efficiency
@@ -408,7 +401,7 @@ public:
     int ReportDigitsOut;
     int FlowBoundaryType; // open, closed
     int userCores;
-    int SwitchSV; //settling velocity
+    int SwitchSV; //ettling velocity
     double splashb; // splash strength coef b limburg equtions,
 
     // flow bloundaries
@@ -434,7 +427,7 @@ public:
     /// infiltration method
     int InfilMethod;
 
-    /// erosion units in output: ton/ha; kg/cell; kg/m2
+    /// erosion units in output: to/ha; kg/cell; kg/m2
     int ErosionUnits;
 
     /// discharge units in output: l/s or m3/s
@@ -471,7 +464,6 @@ public:
     double RRCalibration;
     double ksatCalibration;
     double ksat2Calibration;
-    double ksat3Calibration;
     double nCalibration;
     double thetaCalibration;
     double psiCalibration;
@@ -522,6 +514,8 @@ public:
 
     double maxRainaxis;
     double latitude;
+
+    //double D50CH, D90CH;
 
     ///pesticides
     double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;
@@ -588,6 +582,7 @@ public:
     QString interceptionMapFileName;
     QString infiltrationMapFileName;
     QString runoffMapFileName;
+   // QString runoffFractionMapFileName;
     QString channelDischargeMapFileName;
 
     QString floodLevelFileName;
@@ -643,6 +638,7 @@ public:
     void InitMapList(void);
     cTMap *NewMap(double value);
     cTMap *ReadMap(cTMap *Mask, QString name);
+    cTMap *ReadFullMap(QString name);
     void DestroyData(void);
     cTMap *InitMask(QString name);
     cTMap *InitMaskChannel(QString name);
@@ -659,7 +655,6 @@ public:
     void IntializeData(void);     // make all non-input maps
     void IntializeOptions(void);  // set all options to false etc
     void InitStandardInput(void);
-    void InitMeteoInput(void);
     void InitLULCInput(void);
     void InitSoilInput(void);
     void InitFlood(void);
@@ -667,6 +662,7 @@ public:
     void FindChannelAngles();
     void CorrectDEM(cTMap *h, cTMap * g);
     void DiagonalFlowDEM();
+
 
     // functions in lisRunfile.cpp
     QString getvaluename(QString vname);
@@ -678,31 +674,40 @@ public:
     QString checkOutputMapName(QString p, QString S, int i);
     void ParseRunfileData(void);
     void GetRunFile(void);
+    //MapListStruct qx[9];
 
     //FLOOD according to FULLSWOF2D
     double Flood_DTMIN;
     int F_scheme, F_fluxLimiter, F_MaxIter, F_AddGravity;
     double F_Angle, F_minWH;
+   // double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl, HLL_tmp;
     double F_pitValue;
     bool prepareFlood, startFlood;
     int iter_n;
     int F_SWOFSolution;
+
     double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
+    double fullSWOF2openWS(int nr_, cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     void ChannelSWOFopen();
+
     void KinematicSWOFopen(cTMap *_h, cTMap *_V);
+
     void prepareFloodZ(cTMap *z);
     void setFloodMask(cTMap * h);
     void setFloodMaskDT(cTMap * DT);
     void setFloodDT(cTMap * h);
     double checkforMinMaxV(double Ves1);
+
     double limiter(double a, double b);
     vec4 F_ROE(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
+    vec4 F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
+    void correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2);
 
     //runoff dynamic
     double maincalcfluxOF(cTMap *_h, double dt, double dt_max);
@@ -716,6 +721,7 @@ public:
     void simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v);
     void SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
     void SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
+
     void MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     double maincalcflux(cTMap *_h,double dt, double dt_max);
@@ -734,69 +740,70 @@ public:
     bool SwitchAdvancedSed, SwitchUseMaterialDepth,SwitchNoBoundarySed, SwitchUse2Phase,SwitchUseGrainSizeDistribution,
         SwitchEstimateGrainSizeDistribution,SwitchReadGrainSizeDistribution, SwitchD50CHavg;
 
-//    int numgrainclasses;
-//    QString GrainMaps;
-//    QList<double> graindiameters;
-//    QList<double> settlingvelocities;
+    int numgrainclasses;
+    QString GrainMaps;
+    QList<double> graindiameters;
+    QList<double> settlingvelocities;
     double distD50;
     double distD90;
     double LogNormalDist(double d50,double sigma, double d);
     double DetachMaterial(int r,int c, int d,bool channel,bool flood,bool bl, double detachment);
     void SedimentSetMaterialDistribution();//(int r,int c);
-//    QList<cTMap *> IW_D;
-//    QList<cTMap *> W_D;
-//    QList<cTMap *> RW_D;
-//    //flood sediment
-//    QList<cTMap *> BL_D; //bed load sediment for a certain grain size (see graindiameters)
-//    QList<cTMap *> SS_D; //suspended sediment for a certain grain size
-//    QList<cTMap *> BLC_D; //concentration
-//    QList<cTMap *> SSC_D; //concentration
-//    QList<cTMap *> BLTC_D; //transport capacity
-//    QList<cTMap *> SSTC_D; //transport capacity
-//    QList<cTMap *> BLD_D; //layer depth
-//    QList<cTMap *> SSD_D; //layer depth
+    QList<cTMap *> IW_D;
+    QList<cTMap *> W_D;
+    QList<cTMap *> RW_D;
+    //flood sediment
+    QList<cTMap *> BL_D; //bed load sediment for a certain grain size (see graindiameters)
+    QList<cTMap *> SS_D; //suspended sediment for a certain grain size
+    QList<cTMap *> BLC_D; //concentration
+    QList<cTMap *> SSC_D; //concentration
+    QList<cTMap *> BLTC_D; //transport capacity
+    QList<cTMap *> SSTC_D; //transport capacity
+    QList<cTMap *> BLD_D; //layer depth
+    QList<cTMap *> SSD_D; //layer depth
 
     //river sediment
-//    QList<cTMap *> RBL_D;
-//    QList<cTMap *> RSS_D;
-//    QList<cTMap *> RBLC_D;
-//    QList<cTMap *> RSSC_D;
-//    QList<cTMap *> RBLTC_D;
-//    QList<cTMap *> RSSTC_D;
-//    QList<cTMap *> RBLD_D;
-//    QList<cTMap *> RSSD_D;
+    QList<cTMap *> RBL_D;
+    QList<cTMap *> RSS_D;
+    QList<cTMap *> RBLC_D;
+    QList<cTMap *> RSSC_D;
+    QList<cTMap *> RBLTC_D;
+    QList<cTMap *> RSSTC_D;
+    QList<cTMap *> RBLD_D;
+    QList<cTMap *> RSSD_D;
 
     //overland flow
-//    QList<cTMap *> Sed_D;
-//    QList<cTMap *> TC_D;
-//    QList<cTMap *> Conc_D;
+    QList<cTMap *> Sed_D;
+    QList<cTMap *> TC_D;
+    QList<cTMap *> Conc_D;
 
     //used for advection in the 1d kinematic method
-//    QList<cTMap *> Tempa_D;
-//    QList<cTMap *> Tempb_D;
-//    QList<cTMap *> Tempc_D;
-//    QList<cTMap *> Tempd_D;
+    QList<cTMap *> Tempa_D;
+    QList<cTMap *> Tempb_D;
+    QList<cTMap *> Tempc_D;
+    QList<cTMap *> Tempd_D;
 
     //material that is available for detachment
-//    QList<cTMap *> StorageDep_D;
-//    QList<cTMap *> Storage_D;
-    //    QList<cTMap *> RStorageDep_D;
-    //    QList<cTMap *> RStorage_D;
-
+    QList<cTMap *> StorageDep_D;
+    QList<cTMap *> Storage_D;
     cTMap *Storage;
     cTMap *StorageDep;
     cTMap *SedimentMixingDepth;
     cTMap *maxDetachment;
 
+    QList<cTMap *> RStorageDep_D;
+    QList<cTMap *> RStorage_D;
     cTMap *RStorage;
     cTMap *RStorageDep;
     cTMap *RSedimentMixingDepth;
 
+    cTMap *unity;
+
     //keep track of any dissolved substances that need to be advected by the kinematic wave
     //not used!!!
-//    QList<cTMap *> OF_Advect;
-//    QList<cTMap *> R_Advect;
-//    QList<cTMap *> F_Advect;
+    QList<cTMap *> OF_Advect;
+    QList<cTMap *> R_Advect;
+    QList<cTMap *> F_Advect;
 
 
     //sediment for SWOF flood model
@@ -818,19 +825,21 @@ public:
                                 cTMap *_Alpha, cTMap *_DX, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
 
   //  double K2DSolvebyInterpolationSed( cTMap *M, cTMap *MC);
- //   double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
- //   double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
- //   double GetDp(int r, int c,double p);
- //   double GetTotalDW(int r, int c,QList<cTMap *> *M);
 
+
+    double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
+    double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
+    double GetDp(int r, int c,double p);
+    double GetTotalDW(int r, int c,QList<cTMap *> *M);
     double GetSV(double d);
     void SplashDetachment();
     double MaxConcentration(double watvol, double sedvol);
     void ChannelFlowDetachmentNew();
 
+
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentLayerDepth(int r , int c);
-    void RiverSedimentMaxC(int r, int c);
+     void RiverSedimentMaxC(int r, int c);
 
     double calcTCSuspended(int r,int c, int _d, int method, double h, double U, int type);
     double calcTCBedload(int r,int c, int _d, int method, double h, double U, int type);
@@ -847,6 +856,8 @@ public:
 
     double cmx_analytique(double t, double dKfi, double dpestiinf, double depsil, double drhob, double dkr, double dKD, double dn, double CM0, double CS0,double Cr);
     double csx_analytique(double t, double dKfi,double dpestiinf,double depsil,double drhob,double dkr,double dKD,double dn, double CM0,double CS0,double Cr);
+    double **Factorize(double **A, int n, int m);
+    double *Solve(int n,int m, double **A_LU, double *B);
     double Implicitscheme(double Qj1i1, double Qj1i, double Qji1,double Pj1i, double Pji1, double alpha, double dt,double dx, double Kfilm, double CMi1j1);
     double ConcentrationP(double watvol, double pest);
 
@@ -890,25 +901,27 @@ public:
     void cell_Redistribution1(int r, int c);
     void cell_Redistribution2(int r, int c);
    // void cell_Redistribution2psi(int r, int c);
-    void cell_Channelinflow1(int r, int c);
-    void cell_Channelinflow2(int r, int c);
+    void cell_Channelinfow1(int r, int c);
+    void cell_Channelinfow2(int r, int c);
+
     double SoilWaterMass();
 
-    // raster based functions
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
     void cell_InfilSwatre(int r, int c);
     void cell_depositInfil(int r, int c);
     void cell_SplashDetachment(int r, int c);
     void cell_FlowDetachment(int r, int c);
+
     void cell_SlopeStability(int r, int c);
 
-    void InfilEffectiveKsat();
+    void InfilEffectiveKsat(bool first);
     void Infiltration();
     void InfilSwatre();
     double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);
     double IncreaseInfiltrationDepthNew2(double fact_, int r, int c);
     double IncreaseInfiltrationDepthNew3(double fact_, int r, int c);
+
     void SoilWater();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
     void SurfaceStorage();
@@ -919,30 +932,8 @@ public:
     void correctWH(cTMap *_WH);
 
     void HydrologyProcesses();
-
-//    // Vector based Functions
-//    void copy1Dto2D(double *V);
-//    double* NewMap1D(double value);
-//    double* ReadMap1D(cTMap *Mask, QString name);
-//    double MapTotal1D(double *V);
-//    void checkMap1D(double *V,int oper,double value,QString mapName,QString SS);
-//    void InitSoilInput1D();
-//    void InitLULCInput1D();
-//    void InfilEffectiveKsat1D();
-//    void cell_InfilMethods1D(long i_, int r, int c);
-//    double IncreaseInfiltrationDepthNew1_1D(double fact_in, long i_, int r, int c);
-//    double IncreaseInfiltrationDepthNew2_1D(double fact_in, long i_, int r, int c);
-//    double IncreaseInfiltrationDepthNew3_1D(double fact_in, long i_, int r, int c);
-//    double cell_Percolation1D(long i_, int r, int c, double factor);
-//    void cell_Redistribution1_1D(long i_, int r, int c);
-//    void cell_Redistribution2_1D(long i_, int r, int c);
-//    void cell_Interception1D(long i_, int r, int c);
-//    void avgTheta1D();
-//    double SoilWaterMass1D();
-
-
-
     void ChannelandTileflow();
+
     void OverlandFlow1D(void);
     void ChannelFlow();
     void ChannelBaseflow();
@@ -1078,13 +1069,8 @@ public:
     double MapTotal(cTMap &M);
     void Average3x3(cTMap &M, cTMap &mask, bool only);
     void Average2x2(cTMap &M, cTMap &mask);
-
     void Totals(void);
-//    void TotalsHydro(void);
-//    void TotalsFlow(void);
-//    void TotalsSediment(void);
     void MassBalance(void);
-
     void OutputUI(void);
     void reportAll(void);
     void ReportTimeseriesNew(void);

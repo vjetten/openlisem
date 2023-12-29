@@ -350,7 +350,7 @@ void TWorld::InitParameters(void)
         SwitchLinkedList = getvalueint("Use linked List") == 1;
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
-        SwitchChannelWFinflow = getvalueint("Channel WF inflow") == 1;
+        SwitchChannelWFinflow = false;//getvalueint("Channel WF inflow") == 1;
         //SwitchGWChangeSD = true;//getvalueint("GW layer change SD") == 1;
     } else {
         F_MaxIter = 200;
