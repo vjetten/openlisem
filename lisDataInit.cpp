@@ -217,7 +217,7 @@ void TWorld::GetInputData(void)
 {
     InitParameters();
 
-    Switch1Darrays = false;
+    Switch1Darrays = true;
 
     InitStandardInput();
     //## Basic data start of map list etc.
@@ -339,7 +339,8 @@ void TWorld::InitParameters(void)
         SwitchLinkedList = getvalueint("Use linked List") == 1;
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
-        SwitchChannelWFinflow = getvalueint("Channel WF inflow") == 1;
+        //SwitchChannelWFinflow = getvalueint("Channel WF inflow") == 1;
+        SwitchChannelWFinflow = false;
         //SwitchGWChangeSD = true;//getvalueint("GW layer change SD") == 1;
     } else {
         F_MaxIter = 200;

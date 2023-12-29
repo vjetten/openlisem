@@ -633,8 +633,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel Max V");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Channel 2D flow connect");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Channel WF inflow");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Channel WF inflow");
 //    namelist[i].value = QString("1");
 //    namelist[i++].name = QString("GW layer change SD");
 
