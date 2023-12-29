@@ -166,21 +166,22 @@ void TWorld::CalcVelDisch()//(int r, int c)
         // slow down water in flood zone, if hmx = 0 then factor = 1
 
         if (Grad->Drc > MIN_SLOPE)
-            alpha = pow(NN/qSqrt(Grad->Drc) * pow(FW, 2.0/3.0),0.6);
-                // perimeter = FlowWidth
+            alpha = pow(NN/sqrtGrad->Drc * pow(FW, 2.0/3.0),0.6);
+        // perimeter = FlowWidth
         else
             alpha = 0;
 
         if (alpha > 0)
             Q->Drc = pow((FW*WHr)/alpha, 5.0/3.0); // Q = (A/alpha)^1/beta and  beta = 6/10 = 3/5
         else
-            Q->Drc = 0; //no kinematic flow in flat areas
-
+            Q->Drc = 0;
         //Q = (A/alpha)^5/3 => A^5/3 / alpha^5/3 =? aplha^5/3 = (N/sqrtS^3/5)^5/3 *((P^2/3)^3/5)^5/3 =
         //Q =  A^5/3 / [N/Sqrt * P^2/3] => A*A^2/3 / P^2/3 * sqrtS/n = A * R^2/3 sqrtS/N = AV
 
-        V->Drc = pow(WHr, 2.0/3.0) * qSqrt(Grad->Drc)/NN;
+        V->Drc = pow(WHr, 2.0/3.0) * sqrtGrad->Drc/NN;
         // overlandflow, we do not use perimeter here but height
+        // note: we can use tortuosity here: perimeter = R/(w*tortuosity) = hw/(w*tort) = h/tort
+        // tortuosity can come from random roughness! use analysis from EU project
         Alpha->Drc = alpha;
 
     }}
@@ -314,7 +315,7 @@ void TWorld::OverlandFlow1D(void)
         WaterVolin->Drc = DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
         //volume runoff into the kin wave, needed to determine infil in kin wave
         // WaterVolin total water volume in m3 before kin wave, WHrunoff may be adjusted in tochannel
-        //q->Drc = FSurplus->Drc*SoilWidthDX->Drc/_dt;
+        q->Drc = 0;//FSurplus->Drc*SoilWidthDX->Drc/_dt;
         // OBSOLETE? has never work properly
         // infil flux in kin wave (<= 0)negative value), in m2/s, in kiv wave DX is used
         // surplus related to infiltrating surfaces
@@ -366,7 +367,7 @@ void TWorld::OverlandFlow1D(void)
 
         Alpha->Drc = Qn->Drc > 0 ? (WHrunoff->Drc*FlowWidth->Drc)/pow(Qn->Drc,0.6) : Alpha->Drc;
         // needed for erosion // A = alpha Q^0.6 => alpha = A/Q^0.6
-        V->Drc = pow(WHrunoff->Drc, 2.0/3.0) * qSqrt(Grad->Drc)/N->Drc;
+        V->Drc = pow(WHrunoff->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
         // new velocity
 
         WHroad->Drc = WHrunoff->Drc;

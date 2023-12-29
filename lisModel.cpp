@@ -145,29 +145,17 @@ void TWorld::DoModel()
         }
         //VJ get time here else combomaps goes wrong for rainfall intensity
 
-        //time variables in sec
-        DEBUG("Get Input Data");
+        //time vraiables in sec
+        //        DEBUG("Get Input Data");
         GetInputData();
-
         DEBUG("Intialize Input Data()");
         IntializeData();
 
-//        DEBUG("10 sec");
-//        QTime dieTime= QTime::currentTime().addSecs(10);
-//        while (QTime::currentTime() < dieTime)
-//            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-
-
-        DEBUG("setupDisplayMaps()");
+        //    DEBUG("setupDisplayMaps()");
         setupDisplayMaps();
         // reset all display output maps for new job
         // must be done after Initialize Data because then we know how large the map is
         // clear() calls the destruction of all elements in the sturcture
-
-//        DEBUG("10 sec - 2");
-//         dieTime= QTime::currentTime().addSecs(10);
-//        while (QTime::currentTime() < dieTime)
-//            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 
         if (SwitchRainfall)
         {
@@ -254,6 +242,7 @@ void TWorld::DoModel()
         bool saveMBerror = true;
         saveMBerror2file(saveMBerror, true);
 
+      //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
 
@@ -263,12 +252,7 @@ void TWorld::DoModel()
 
         GetComboMaps(); // moved to outside timeloop!
 
-        InfilEffectiveKsat();
-
-//        DEBUG("10 sec - 3");
-//        dieTime= QTime::currentTime().addSecs(10);
-//        while (QTime::currentTime() < dieTime)
-//            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        InfilEffectiveKsat(true);
 
         for (time = BeginTime; time < EndTime; time += _dt)
         {            
@@ -293,8 +277,7 @@ void TWorld::DoModel()
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
 
-            if (SwitchInfilCrust)
-                InfilEffectiveKsat();
+            InfilEffectiveKsat(false);
 
             HydrologyProcesses();  // hydrological processes in one loop, incl splash
 
@@ -306,11 +289,10 @@ void TWorld::DoModel()
             TileFlow();          // tile drain flow kin wave
                                  // storm drain flow kin wave
 
-            TotalsHydro();            // calculate all totals and cumulative values
+            //StormDrainFlow();
+            // these are all non-threaded
 
-            TotalsFlow();            // calculate all totals and cumulative values
-
-            TotalsSediment();            // calculate all totals and cumulative values
+            Totals();            // calculate all totals and cumulative values
 
             MassBalance();       // check water and sed mass balance
 
@@ -341,7 +323,6 @@ void TWorld::DoModel()
         //DEBUG("Free data structure memory");
         op.hasrunonce = true;
         DestroyData();  // destroy all maps automatically
-
         op.nrMapsCreated = maplistnr;
         emit done("finished");
 
@@ -403,16 +384,16 @@ void TWorld::HydrologyProcesses()
         // all interception on plants, houses, litter
         // result is rainnet (and leafdrip for erosion)
 
-        if (FloodDomain->Drc > 0) {
-            hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc; // only used in kin wave pluf flood from channel, hmx is flood water
+        if (FloodDomain->Drc > 0) {            
+            hmx->Drc += RainNet->Drc + Snowmeltc->Drc; // only used in kin wave pluf flood from channel, hmx is flood water
         } else {
-            WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;  // used in 2D flow and kin wave
+            WH->Drc += RainNet->Drc + Snowmeltc->Drc;  // used in 2D flow and kin wave
         }
         // add net to water rainfall on soil surface (in m)
         // when kin wave and flooded hmx exists else always WH
         if (SwitchRoadsystem || SwitchHardsurface) {
             if (RoadWidthHSDX->Drc > 0)
-                WHroad->Drc += RainNet->Drc;// + Snowmeltc->Drc;
+                WHroad->Drc += RainNet->Drc + Snowmeltc->Drc;
         }
 
         // infiltration by SWATRE of G&A+percolation
@@ -434,9 +415,12 @@ void TWorld::HydrologyProcesses()
                 if (!SwitchImpermeable)
                     Perc->Drc = cell_Percolation(r, c, 1.0);
                 // if baseflow is active percollation is done there, so do not do it here
-
             }
         }
+
+        //  cell_depositInfil(r,c);
+        // deposit all sediment still in flow when infiltration causes WH to become minimum
+        // gives huge MBs errors!
 
         cell_SurfaceStorage(r, c);
         //calc surf storage and total watervol and WHrunoff
@@ -449,12 +433,12 @@ void TWorld::HydrologyProcesses()
     }}
 
     if (SwitchIncludeET) {
-       doETa();
+        doETa();
     }
+    // ETa is subtracted from canopy, soil water surfaces
+    // divided over 12 hours in a day with sine curve
 
-    if (InfilMethod != INFIL_NONE)
-        avgTheta();
-
+    //MoistureContent();
     double soiltot2 = SoilWaterMass();
     SoilMoistDiff = soiltot2 - soiltot1;
 

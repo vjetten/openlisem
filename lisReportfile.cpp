@@ -212,9 +212,11 @@ void TWorld::OutputUI(void)
     }
 
     //output maps
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-      //  VH->Drc = V->Drc * hmxWH->Drc;
+        COMBO_V->Drc = V->Drc < 1e-5 ? 0 : V->Drc;
+        VH->Drc = COMBO_V->Drc * hmxWH->Drc;
         Lwmm->Drc = Lw->Drc *1000 * SoilWidthDX->Drc/_dx;
     }}
 
@@ -251,6 +253,13 @@ void TWorld::OutputUI(void)
     }
 
     //output maps for combo box
+    for(int i = 0; i < op.ComboMaps.length(); i++)
+    {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            op.ComboMapsSafe[i]->Drc = op.ComboMaps[i]->Drc; // * op.ComboScaling.at(i); scaling is done filldrawmapdata
+        }}
+    }
 
     // ONLY ONCE
     if (runstep <= 1) {
@@ -286,6 +295,9 @@ void TWorld::OutputUI(void)
     //        copy(*op.flowbarriersMap,*tma);
         }
     }
+    // MAP DISPLAY VARIABLES
+    if(InfilMethod != INFIL_SWATRE && InfilMethod !=INFIL_NONE)
+        avgTheta();
 }
 //---------------------------------------------------------------------------
 void TWorld::ReportTotalSeries(void)
@@ -821,12 +833,11 @@ void TWorld::ReportTotalsNew(void)
 /// outputnames that start with "out" are series
 void TWorld::ReportMaps(void)
 {
-//    #pragma omp parallel for num_threads(userCores)
-//    FOR_ROW_COL_MV_L {
-//        tma->Drc = (RainCumFlat->Drc) * 1000.0; // m to mm
-//        //+ SnowmeltCum->Drc*DX->Drc/_dx
-//    }}
-    report(*RainCumFlat, rainfallMapFileName);
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        tm->Drc = (RainCumFlat->Drc + SnowmeltCum->Drc*DX->Drc/_dx) * 1000.0; // m to mm
+    }}
+    report(*tm, rainfallMapFileName);
 
     report(*InterceptionmmCum, interceptionMapFileName);
 
@@ -875,12 +886,12 @@ void TWorld::ReportMaps(void)
         // all detachment combined
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            tma->Drc =std::max(0.0,TotalSoillossMap->Drc)*factor;
-            tmb->Drc =std::min(0.0,TotalSoillossMap->Drc)*factor;
+            tm->Drc =std::max(0.0,TotalSoillossMap->Drc)*factor;
+            tma->Drc =std::min(0.0,TotalSoillossMap->Drc)*factor;
         }}
-        report(*tma, totalErosionFileName);
+        report(*tm, totalErosionFileName);
         // all deposition combined
-        report(*tmb, totalDepositionFileName);
+        report(*tma, totalDepositionFileName);
         // all channel depostion combined
 
         if (SwitchIncludeChannel)
@@ -888,15 +899,15 @@ void TWorld::ReportMaps(void)
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (ChannelWidth->Drc > 0) {
-                    tma->Drc =std::max(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc)*factor;
-                    tmb->Drc =std::min(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc)*factor;
+                    tm->Drc =std::max(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc)*factor;
+                    tma->Drc =std::min(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc)*factor;
                 } else {
+                    tm->Drc = 0;
                     tma->Drc = 0;
-                    tmb->Drc = 0;
                 }
             }}
-            report(*tma, totalChanErosionFileName);
-            report(*tmb, totalChanDepositionFileName);
+            report(*tm, totalChanErosionFileName);
+            report(*tma, totalChanDepositionFileName);
         }
 
         //copy(*tm, *TotalSoillossMap);

@@ -436,8 +436,7 @@ void TWorld::cell_FlowDetachment(int r, int c)
                 detachment = (1-HouseCover->Drc)*detachment;
             // no flow det from house roofs
 
-            if (SwitchSnowmelt)
-                detachment = (1-Snowcover->Drc) * detachment;
+            detachment = (1-Snowcover->Drc) * detachment;
             /* TODO: CHECK THIS no flow detachment on snow */
             //is there erosion and sedimentation under the snowdeck?
 
@@ -689,9 +688,9 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
  * @param M : Material map list
  * @return The total value
  */
-/*
 double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
 {
+    /*
     //simple iteration over maps
     double wtotal = 0;
     FOR_GRAIN_CLASSES
@@ -699,9 +698,9 @@ double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
         wtotal += (*M).Drcd;
     }
     return wtotal;
+    */
         return 0;
 }
-    */
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::GetDp(int r, int c,double p)
@@ -717,11 +716,11 @@ double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
  * @return The p percent grain size
  * @see TWorld::GetDpMat
  */
-//double TWorld::GetDp(int r, int c,double p)
-//{
+double TWorld::GetDp(int r, int c,double p)
+{
     //use more generic function
-  //  return GetDpMat(r,c,p,&W_D);
-//}
+    return GetDpMat(r,c,p,&W_D);
+}
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
@@ -738,9 +737,8 @@ double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
  * @param M : Material distribution map list
  * @return The p percent grain size
  */
-//double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
-//{
-        /*
+double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
+{
     //check if there is a single grain class
     //then we can return the single value
     if(numgrainclasses == 1)
@@ -783,8 +781,7 @@ double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
     //or because the vast majority of material is in this class.
     //more specificly done if: 100 * p > (100 - percentage in last grain class)
     return graindiameters.at(numgrainclasses-1);
-*/
-//}
+}
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M)
@@ -802,9 +799,8 @@ double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
  * @param V : Parameter value map list
  * @return The value of parameter V for the p percent grain size.
  */
-//double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V)
-//{
-        /*
+double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V)
+{
     //check if there is a single grain class
     //then we can return the single value
     if(numgrainclasses == 1)
@@ -848,8 +844,7 @@ double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
     //or because the vast majority of material is in this class.
     //more specificly done if: 100 * p > (100 - percentage in last grain class)
     return (*V).at(numgrainclasses-1);
-*/
-//}
+}
 //---------------------------------------------------------------------------
 /**
  * @fn void TWorld::SedimentSetMaterialDistribution(int r,int c)
@@ -864,9 +859,8 @@ double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
  * @param c : coumn nr of the cell
  * @return void
  */
-//void TWorld::SedimentSetMaterialDistribution()
-//{
-        /*
+void TWorld::SedimentSetMaterialDistribution()
+{
     if(!SwitchUseMaterialDepth)
         return;
 
@@ -989,10 +983,9 @@ double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
                     }
                 }
             }
-        }
+        } */
     }
-*/
-//}
+}
 
 
 //---------------------------------------------------------------------------
@@ -1173,7 +1166,6 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                         tc =  qs/ (U * h); //kg/s/m / (m2/s) =  kg/m3   => WH or WHs
                 }else if(method == FSWUWANGJIA)
                 {
-                        /*
                         // NOT USED, FOR MULTIPLE GRAINSIZES
                     double phk = 0;
                     double pek = 0;
@@ -1208,7 +1200,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                     qs = qs * 1 * sqrt((ps/pw - 1)*GRAV*pow(gd,3.0));
 
                     tc = ps * qs/ (U * h);
-*/
+
                 }
     return std::max(std::min(tc,MAXCONC ),0.0);
 }
@@ -1308,7 +1300,6 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double U
 
     }else if(method == FSWUWANGJIA)
     {
-        /*
         double na = (pow(graindiameters.at(_d)/100000.0,(1.0/6.0))/20.0)/n;
         double phk = 0;
         double pek = 0;
@@ -1340,7 +1331,7 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double U
         qs = qs * 1 * sqrt((ps/pw - 1)*GRAV*pow(graindiameters.at(_d)/1000000.0,3.0));
 
         tc = ps * qs/ (U * hb);
-*/
+
     }
 
     return std::max(std::min(tc,MAXCONCBL),0.0);

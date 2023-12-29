@@ -333,7 +333,7 @@ public:
     /// variable declaration list of all 2D maps with comments:
     #include "TMmapVariables.h"
     /// variable declaration list of all 1D vectors :
-    #include "VectormapVariables.h"
+   // #include "VectormapVariables.h"
 
     cTRGBMap * RGB_Image;
 
@@ -920,25 +920,25 @@ public:
 
     void HydrologyProcesses();
 
-    // Vector based Functions
-    void copy1Dto2D(double *V);
-    double* NewMap1D(double value);
-    double* ReadMap1D(cTMap *Mask, QString name);
-    double MapTotal1D(double *V);
-    void checkMap1D(double *V,int oper,double value,QString mapName,QString SS);
-    void InitSoilInput1D();
-    void InitLULCInput1D();
-    void InfilEffectiveKsat1D();
-    void cell_InfilMethods1D(long i_, int r, int c);
-    double IncreaseInfiltrationDepthNew1_1D(double fact_in, long i_, int r, int c);
-    double IncreaseInfiltrationDepthNew2_1D(double fact_in, long i_, int r, int c);
-    double IncreaseInfiltrationDepthNew3_1D(double fact_in, long i_, int r, int c);
-    double cell_Percolation1D(long i_, int r, int c, double factor);
-    void cell_Redistribution1_1D(long i_, int r, int c);
-    void cell_Redistribution2_1D(long i_, int r, int c);
-    void cell_Interception1D(long i_, int r, int c);
-    void avgTheta1D();
-    double SoilWaterMass1D();
+//    // Vector based Functions
+//    void copy1Dto2D(double *V);
+//    double* NewMap1D(double value);
+//    double* ReadMap1D(cTMap *Mask, QString name);
+//    double MapTotal1D(double *V);
+//    void checkMap1D(double *V,int oper,double value,QString mapName,QString SS);
+//    void InitSoilInput1D();
+//    void InitLULCInput1D();
+//    void InfilEffectiveKsat1D();
+//    void cell_InfilMethods1D(long i_, int r, int c);
+//    double IncreaseInfiltrationDepthNew1_1D(double fact_in, long i_, int r, int c);
+//    double IncreaseInfiltrationDepthNew2_1D(double fact_in, long i_, int r, int c);
+//    double IncreaseInfiltrationDepthNew3_1D(double fact_in, long i_, int r, int c);
+//    double cell_Percolation1D(long i_, int r, int c, double factor);
+//    void cell_Redistribution1_1D(long i_, int r, int c);
+//    void cell_Redistribution2_1D(long i_, int r, int c);
+//    void cell_Interception1D(long i_, int r, int c);
+//    void avgTheta1D();
+//    double SoilWaterMass1D();
 
 
 
@@ -1079,9 +1079,10 @@ public:
     void Average3x3(cTMap &M, cTMap &mask, bool only);
     void Average2x2(cTMap &M, cTMap &mask);
 
-    void TotalsHydro(void);
-    void TotalsFlow(void);
-    void TotalsSediment(void);
+    void Totals(void);
+//    void TotalsHydro(void);
+//    void TotalsFlow(void);
+//    void TotalsSediment(void);
     void MassBalance(void);
 
     void OutputUI(void);

@@ -39,7 +39,7 @@ functions: \n
 
 //---------------------------------------------------------------------------
 // totals for screen and file output and mass balance
-void TWorld::TotalsHydro(void)
+void TWorld::Totals(void)
 {
     double rainfall, snowmelt;
     double oldrainpeak, oldsnowpeak;
@@ -50,7 +50,7 @@ void TWorld::TotalsHydro(void)
     //=== precipitation ===//
     if (SwitchRainfall)
     {
-        RainAvgmm = MapTotal(*Rain)*1000.0/nrCells;
+        RainAvgmm = MapTotal(*Rain)*1000.0/(double)nrValidCells;
 
         RainTotmm += RainAvgmm;
         // spatial avg area rainfall in mm
@@ -66,7 +66,7 @@ void TWorld::TotalsHydro(void)
 
     if (SwitchSnowmelt)
     {
-        SnowAvgmm = MapTotal(*Snowmelt)*1000.0/nrCells;
+        SnowAvgmm = MapTotal(*Snowmelt)*1000.0/(double)nrValidCells;
 
         SnowTotmm += SnowAvgmm;
 
@@ -87,7 +87,7 @@ void TWorld::TotalsHydro(void)
     if (SwitchIncludeET) {
        // double ETtot = MapTotal(*ETa);
         ETaTot = MapTotal(*ETaCum);
-        ETaTotmm = ETaTot * 1000.0/nrCells;
+        ETaTotmm = ETaTot * 1000.0/(double)nrValidCells;
 
         ETaTotVol = (ETaTot-SoilETMBcorrection)*_dx*_dx; //m3
         // correct for soil water because that is not in the mass balance
@@ -96,6 +96,7 @@ void TWorld::TotalsHydro(void)
         IntercETaTotmm = IntercETaTot*catchmentAreaFlatMM;
         // cumulative evaporated from canopy
     }
+
 
     // interception in mm and m3
     //Litter
@@ -115,6 +116,11 @@ void TWorld::TotalsHydro(void)
         // for screen and file output
     }}
 
+    //==== ETa ==========//
+    //   ETaTot = mapTotal(*ETa);
+    //  ETaTotmm = ETaTot*catchmentAreaFlatMM;
+    // interception in mm and m3
+
     //=== infiltration ===//
     if(InfilMethod != INFIL_NONE) {
         InfilTot += MapTotal(*InfilVol);// + MapTotal(*InfilVolKinWave);
@@ -131,17 +137,17 @@ void TWorld::TotalsHydro(void)
         // used for reporting only
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            tma->Drc += InfilVol->Drc + InfilVolKinWave->Drc;// + InfilVolFlood->Drc;
+            InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc;// + InfilVolFlood->Drc;
             if (SwitchIncludeChannel && SwitchChannelInfil)
-                tma->Drc += ChannelInfilVol->Drc;
+                InfilVolCum->Drc += ChannelInfilVol->Drc;
 
-            InfilmmCum->Drc = std::max(0.0, tma->Drc*1000.0/(_dx*_dx));
+            InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));
             PercmmCum->Drc += Perc->Drc*1000.0;
         }}
 
-        theta1tot = MapTotal(*ThetaI1a)/nrCells;
+        theta1tot = MapTotal(*ThetaI1a)/(double)nrCells;
         if (SwitchTwoLayer)
-            theta2tot = MapTotal(*ThetaI2a)/nrCells;
+            theta2tot = MapTotal(*ThetaI2a)/(double)nrCells;
     }
 
     //=== surf store ===//
@@ -155,23 +161,15 @@ void TWorld::TotalsHydro(void)
 
     // does not go to MB, is already in tot water vol
 
-}
-//---------------------------------------------------------------------------
-// totals for screen and file output and mass balance
-void TWorld::TotalsFlow(void)
-{
-        double catchmentAreaFlatMM = (1000.0/(_dx*_dx*nrCells));
-
-
-        //TODO: check init WH
-        //ONLY ONCE?
-        //    if (SwitchFloodInitial) {
-        //        WHinitVolTot = 0;
-        //        #pragma omp parallel for reduction(+:WHinitVolTot) num_threads(userCores)
-        //        FOR_ROW_COL_MV_L {
-        //            WHinitVolTot = hmxInit->Drc * DX->Drc * ChannelAdj->Drc;
-        //        }}
-        //    }
+    //TODO: check init WH
+    //ONLY ONCE?
+//    if (SwitchFloodInitial) {
+//        WHinitVolTot = 0;
+//        #pragma omp parallel for reduction(+:WHinitVolTot) num_threads(userCores)
+//        FOR_ROW_COL_MV_L {
+//            WHinitVolTot = hmxInit->Drc * DX->Drc * ChannelAdj->Drc;
+//        }}
+//    }
 
     //=== surface flow ===//
     WaterVolTot = MapTotal(*WaterVolall);//m3
@@ -216,7 +214,7 @@ void TWorld::TotalsFlow(void)
 
             GWlevel = MapTotal(*GWWH);
             GWleveltot = GWlevel*catchmentAreaFlatMM;
-            GWlevel /= (double)nrCells; // avg GW level
+            GWlevel /= (double)nrValidCells; // avg GW level
            // BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
             //qDebug() << BaseFlowTotmm;
         }
@@ -237,7 +235,6 @@ void TWorld::TotalsFlow(void)
 
     }
 
-    // not really used in mass balance
     SoilMoistTot += SoilMoistDiff;// MapTotal(*SoilMB);
     SoilMoistTotmm = SoilMoistTot * catchmentAreaFlatMM;
 
@@ -332,138 +329,136 @@ void TWorld::TotalsFlow(void)
     Qtotmm = Qtot*catchmentAreaFlatMM;
     // recalc to mm for screen output
     PeakFlowTotmm = Qtotmm - BaseFlowTotmm;
-}
-//---------------------------------------------------------------------------
-// totals for screen and file output and mass balance
-void TWorld::TotalsSediment(void)
-{
-    if (!SwitchErosion)
-        return;
+
 
     //=====***** SEDIMENT *****====//
 
     // DetSplashTot, DetFlowTot and DepTot are for output in file and screen
     // DetTot and DepTot are for MB
 
-    SoilLossTot_dt = 0;    
-    SedTot = 0;
-    //#pragma omp parallel for reduction(+:DetSplashTot,DetFlowTot,DepTot,SedTot) num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-         // Dep and Detflow are zero if 2Ddyn
-        DetSplashTot += DETSplash->Drc;
-        DetFlowTot += DETFlow->Drc;
-        DepTot += DEP->Drc;
-        SedTot += Sed->Drc;
-    }}
-    // all in kg/cell
+    SoilLossTot_dt = 0;
 
-    DetTot = DetFlowTot + DetSplashTot;
-
-    // these maps combine kin wave OF and all 2D flow and channelflow
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        DETSplashCum->Drc += DETSplash->Drc;
-        DETFlowCum->Drc += DETFlow->Drc;
-        DEPCum->Drc += DEP->Drc;
-    }}
-    // DEP is set to 0 each timestep
-    // for total soil loss calculation: TotalSoillossMap
-
-    //outflow from domain/channel
-    if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
+    if (SwitchErosion)
     {
-       // #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
-        FOR_ROW_COL_LDD5 {
-            SoilLossTot_dt += Qsn->Drc * _dt;
+        SedTot = 0;
+        //#pragma omp parallel for reduction(+:DetSplashTot,DetFlowTot,DepTot,SedTot) num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+             // Dep and Detflow are zero if 2Ddyn
+            DetSplashTot += DETSplash->Drc;
+            DetFlowTot += DETFlow->Drc;
+            DepTot += DEP->Drc;
+            SedTot += Sed->Drc;
         }}
+        // all in kg/cell
 
-    }
+        DetTot = DetFlowTot + DetSplashTot;
 
-    if (SwitchIncludeChannel)
-    {
-      //  #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
-        FOR_ROW_COL_LDDCH5 {
-            SoilLossTot_dt += ChannelQsn->Drc * _dt;
-        }}
-
-        ChannelDetTot += MapTotal(*ChannelDetFlow);
-        ChannelDepTot += MapTotal(*ChannelDep);
-        ChannelSedTot = (SwitchUse2Phase ? MapTotal(*ChannelBLSed) : 0.0) + MapTotal(*ChannelSSSed);
-    }
-
-    floodBoundarySedTot += BoundaryQs*_dt; // not used
-    SoilLossTot_dt += BoundaryQs*_dt;
-    // boundary sediment losses (kg) in cells that are not outlet, if open boundary else 0
-    // calc as cells with velocity U and V directed outwards
-
-    // used for mass balance and screen output
-    FloodDetTot += (SwitchUse2Phase ? MapTotal(*BLDetFlood) : 0.0) + MapTotal(*SSDetFlood);
-    FloodDepTot += MapTotal(*DepFlood);
-    FloodSedTot = (SwitchUse2Phase ? MapTotal(*BLFlood) : 0.0) + MapTotal(*SSFlood);
-
-    if (SwitchUse2Phase) {
+        // these maps combine kin wave OF and all 2D flow and channelflow
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            DETFlowCum->Drc += BLDetFlood->Drc;
+            DETSplashCum->Drc += DETSplash->Drc;
+            DETFlowCum->Drc += DETFlow->Drc;
+            DEPCum->Drc += DEP->Drc;
         }}
-    }
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        DETFlowCum->Drc += SSDetFlood->Drc;
-        DEPCum->Drc += DepFlood->Drc;
-    }}
-    // SPATIAL totals for output overland flow all in kg/cell
-    // variables are valid for both 1D and 2D flow dyn and diff
+        // DEP is set to 0 each timestep
+        // for total soil loss calculation: TotalSoillossMap
 
-    FOR_ROW_COL_MV_L {
-        Qsoutput->Drc = Qsn->Drc + (SwitchIncludeChannel ? ChannelQsn->Drc : 0.0);
-        // for reporting sed discharge screen
-        // in kg/s, sum of overland flow and channel flow
-    }}
-
-    // for reporting
-    if (SwitchIncludeChannel)
-    {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL
+        //outflow from domain/channel
+        if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN)
         {
-            DETFlowCum->Drc += ChannelDetFlow->Drc;
-            DEPCum->Drc += ChannelDep->Drc;
-            TotalChanDetMap->Drc += ChannelDetFlow->Drc;
-            TotalChanDepMap->Drc += ChannelDep->Drc;
+           // #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
+            FOR_ROW_COL_LDD5 {
+                SoilLossTot_dt += Qsn->Drc * _dt;
+            }}
+
+        }
+
+        if (SwitchIncludeChannel)
+        {
+          //  #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
+            FOR_ROW_COL_LDDCH5 {
+                SoilLossTot_dt += ChannelQsn->Drc * _dt;               
+            }}
+
+            ChannelDetTot += MapTotal(*ChannelDetFlow);
+            ChannelDepTot += MapTotal(*ChannelDep);
+            ChannelSedTot = (SwitchUse2Phase ? MapTotal(*ChannelBLSed) : 0.0) + MapTotal(*ChannelSSSed);
+        }
+
+        floodBoundarySedTot += BoundaryQs*_dt; // not used
+        SoilLossTot_dt += BoundaryQs*_dt;
+        // boundary sediment losses (kg) in cells that are not outlet, if open boundary else 0
+        // calc as cells with velocity U and V directed outwards
+
+        // used for mass balance and screen output
+        FloodDetTot += (SwitchUse2Phase ? MapTotal(*BLDetFlood) : 0.0) + MapTotal(*SSDetFlood);
+        FloodDepTot += MapTotal(*DepFlood);
+        FloodSedTot = (SwitchUse2Phase ? MapTotal(*BLFlood) : 0.0) + MapTotal(*SSFlood);
+
+        if (SwitchUse2Phase) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                DETFlowCum->Drc += BLDetFlood->Drc;
+            }}
+        }
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            DETFlowCum->Drc += SSDetFlood->Drc;
+            DEPCum->Drc += DepFlood->Drc;
         }}
+        // SPATIAL totals for output overland flow all in kg/cell
+        // variables are valid for both 1D and 2D flow dyn and diff
+
+        FOR_ROW_COL_MV_L {
+            Qsoutput->Drc = Qsn->Drc + (SwitchIncludeChannel ? ChannelQsn->Drc : 0.0);
+            // for reporting sed discharge screen
+            // in kg/s, sum of overland flow and channel flow
+        }}
+
+        // for reporting
+        if (SwitchIncludeChannel)
+        {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL
+            {
+                DETFlowCum->Drc += ChannelDetFlow->Drc;
+                DEPCum->Drc += ChannelDep->Drc;
+                TotalChanDetMap->Drc += ChannelDetFlow->Drc;
+                TotalChanDepMap->Drc += ChannelDep->Drc;
+            }}
+        }
+
+        // with all det and dep calculate the soil loss, excl channel
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
+        {
+            TotalSoillossMap->Drc = DETSplashCum->Drc + DETFlowCum->Drc + DEPCum->Drc;
+            TotalDepMap->Drc = std::min(0.0, TotalSoillossMap->Drc); // for table damage output per landunit
+            TotalDetMap->Drc = std::max(0.0, TotalSoillossMap->Drc);
+        }}
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L
+        {
+            double sedall = Sed->Drc + (SwitchUse2Phase ? BLFlood->Drc : 0.0) + SSFlood->Drc +  (SwitchIncludeChannel ? ChannelSed->Drc : 0.0);
+            double waterall = WaterVolall->Drc + (SwitchIncludeChannel ? ChannelWaterVol->Drc : 0.0);
+            TotalConc->Drc = MaxConcentration(waterall ,sedall);
+            // for output
+
+            // set to zero for next loop
+            DepFlood->Drc = 0;
+            BLDetFlood->Drc = 0;
+
+            SSDetFlood->Drc = 0;
+
+        }}
+
+        SoilLossTot += SoilLossTot_dt;
+        // total sediment outflow from outlets and domain boundaries
+        // this is the value reported in the screen for total soil loss (/1000 for ton)
+        // so this is the total loos through the outlets and boundaries
+
     }
-
-    // with all det and dep calculate the soil loss, excl channel
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
-        TotalSoillossMap->Drc = DETSplashCum->Drc + DETFlowCum->Drc + DEPCum->Drc;
-        TotalDepMap->Drc = std::min(0.0, TotalSoillossMap->Drc); // for table damage output per landunit
-        TotalDetMap->Drc = std::max(0.0, TotalSoillossMap->Drc);
-    }}
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
-        double sedall = Sed->Drc + (SwitchUse2Phase ? BLFlood->Drc : 0.0) + SSFlood->Drc +  (SwitchIncludeChannel ? ChannelSed->Drc : 0.0);
-        double waterall = WaterVolall->Drc + (SwitchIncludeChannel ? ChannelWaterVol->Drc : 0.0);
-        TotalConc->Drc = MaxConcentration(waterall ,sedall);
-        // for output
-
-        // set to zero for next loop
-        DepFlood->Drc = 0;
-        BLDetFlood->Drc = 0;
-
-        SSDetFlood->Drc = 0;
-
-    }}
-
-    SoilLossTot += SoilLossTot_dt;
-    // total sediment outflow from outlets and domain boundaries
-    // this is the value reported in the screen for total soil loss (/1000 for ton)
-    // so this is the total loos through the outlets and boundaries
-
 
 
     if (SwitchPesticide)
@@ -496,7 +491,7 @@ void TWorld::TotalsSediment(void)
 
     }
 
-    //SedimentSetMaterialDistribution();
+    SedimentSetMaterialDistribution();
 
 }
 //---------------------------------------------------------------------------
