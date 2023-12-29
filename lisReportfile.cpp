@@ -212,19 +212,11 @@ void TWorld::OutputUI(void)
     }
 
     //output maps
-    if (Switch1Darrays) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-           // VH->Drc = V->Drc * hmxWH->Drc;
-            Lwmm->Drc = vLw[i_] *1000 * SoilWidthDX->Drc/_dx;
-        }}
-    } else {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-          //  VH->Drc = V->Drc * hmxWH->Drc;
-            Lwmm->Drc = Lw->Drc *1000 * SoilWidthDX->Drc/_dx;
-        }}
-    }
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+      //  VH->Drc = V->Drc * hmxWH->Drc;
+        Lwmm->Drc = Lw->Drc *1000 * SoilWidthDX->Drc/_dx;
+    }}
 
     if(SwitchErosion)
     {

@@ -335,25 +335,12 @@ void TWorld::GetComboMaps()
         if (InfilMethod != INFIL_SWATRE) {
             cl = 3;
             //AddComboMap(0,"Avg Moisture content layer 1","-",Thetaeff,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-            if (Switch1Darrays) {
-                copy1Dto2D(vThetaI1a);
-                AddComboMap(0,"Avg Moisture content layer 1","-",tma,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-            } else
-                AddComboMap(0,"Avg Moisture content layer 1","-",ThetaI1a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+            AddComboMap(0,"Avg Moisture content layer 1","-",ThetaI1a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
             if (SwitchTwoLayer) {
-                if (Switch1Darrays) {
-                    copy1Dto2D(vThetaI2a);
-                    AddComboMap(0,"Avg Moisture content layer 2","-",tma,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-                } else
-                    AddComboMap(0,"Avg Moisture content layer 2","-",ThetaI2a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+                AddComboMap(0,"Avg Moisture content layer 2","-",ThetaI2a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
             }
             if (!SwitchImpermeable || SwitchChannelBaseflow) {
-
-                if (Switch1Darrays) {
-                    copy1Dto2D(vPerc);
-                    AddComboMap(0,"Percolation","mm",tma,LegendMap[cl],Legend[cl],false,false,1000,1.0);
-                } else
-                    AddComboMap(0,"Percolation","mm",Perc,LegendMap[cl],Legend[cl],false,false,1000,1.0);
+                AddComboMap(0,"Percolation","mm",Perc,LegendMap[cl],Legend[cl],false,false,1000,1.0);
             }
         }
     }
