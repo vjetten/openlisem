@@ -288,11 +288,11 @@ void TWorld::DoModel()
 
             TileFlow();          // tile drain flow kin wave
                                  // storm drain flow kin wave
-
             //StormDrainFlow();
-            // these are all non-threaded
 
-            Totals();            // calculate all totals and cumulative values
+            TotalsHydro();       // calculate all totals and cumulative values
+            TotalsFlow();
+            TotalsSediment();
 
             MassBalance();       // check water and sed mass balance
 

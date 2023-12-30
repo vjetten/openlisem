@@ -1069,7 +1069,9 @@ public:
     double MapTotal(cTMap &M);
     void Average3x3(cTMap &M, cTMap &mask, bool only);
     void Average2x2(cTMap &M, cTMap &mask);
-    void Totals(void);
+    void TotalsHydro(void);
+    void TotalsFlow(void);
+    void TotalsSediment(void);
     void MassBalance(void);
     void OutputUI(void);
     void reportAll(void);

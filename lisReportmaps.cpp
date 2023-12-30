@@ -276,7 +276,7 @@ void TWorld::GetComboMaps()
 //    if (Switch2DDiagonalFlow)
 //       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     cl = 1;
-   AddComboMap(0,"Flow Velocity","m/s",COMBO_V,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
+    AddComboMap(0,"Flow Velocity","m/s",COMBO_V,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
  //   AddComboMap(0,"Flow Velocity","m/s",Uflood,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
  //   AddComboMap(0,"Flow Velocity","m/s",Vflood,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
  //   AddComboMap(0,"Flow Velocity","m/s",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
@@ -418,11 +418,11 @@ void TWorld::GetComboMaps()
 void TWorld::ClearComboMaps()
 {
 
-    for(int i =op.ComboMapsSafe.length() - 1; i >-1 ; i--)
-    {
-        delete op.ComboMapsSafe.at(i);
-    }
-    op.ComboMapsSafe.clear();
+//    for(int i =op.ComboMapsSafe.length() - 1; i >-1 ; i--)
+//    {
+//        delete op.ComboMapsSafe.at(i);
+//    }
+//    op.ComboMapsSafe.clear();
 
     op.ComboLists.clear();
     op.ComboMaps.clear();
@@ -446,8 +446,8 @@ void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList
     op.ComboLists.append(listn);
     op.ComboMaps.append(map);
     // copy pointer or make a map and copy content
-    op.ComboMapsSafe.append(new cTMap());
-    op.ComboMapsSafe.at(op.ComboMapsSafe.length()-1)->MakeMap(LDD,0.0);
+    //op.ComboMapsSafe.append(new cTMap());
+    //op.ComboMapsSafe.at(op.ComboMapsSafe.length()-1)->MakeMap(LDD,0.0);
 
     op.ComboColorMap.append(ColorMap);
     op.ComboColors.append(Colors);
