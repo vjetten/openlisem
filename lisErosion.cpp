@@ -146,7 +146,7 @@ void TWorld::cell_SplashDetachment(int r, int c)
     {
         double DetDT1 = 0, DetDT2 = 0, DetLD1, DetLD2;
         double g_to_kg = 0.001;
-        double Lc = Litter->Drc;
+        double Lc = SwitchLitter ? Litter->Drc : 0.0;
         double Cv = Cover->Drc;
         double strength = SplashStrength->Drc;
         double Int = Rain->Drc * 3600/_dt * 1000; // intensity in mm/h, Rain is in m
@@ -435,8 +435,8 @@ void TWorld::cell_FlowDetachment(int r, int c)
             if (SwitchHouses)
                 detachment = (1-HouseCover->Drc)*detachment;
             // no flow det from house roofs
-
-            detachment = (1-Snowcover->Drc) * detachment;
+            if (SwitchSnowmelt)
+                detachment = (1-Snowcover->Drc) * detachment;
             /* TODO: CHECK THIS no flow detachment on snow */
             //is there erosion and sedimentation under the snowdeck?
 

@@ -50,7 +50,7 @@ void TWorld::TotalsHydro(void)
     //=== precipitation ===//
     if (SwitchRainfall)
     {
-        RainAvgmm = MapTotal(*Rain)*1000.0/(double)nrValidCells;
+        RainAvgmm = MapTotal(*Rain)*1000.0/nrCells;
 
         RainTotmm += RainAvgmm;
         // spatial avg area rainfall in mm
@@ -66,7 +66,7 @@ void TWorld::TotalsHydro(void)
 
     if (SwitchSnowmelt)
     {
-        SnowAvgmm = MapTotal(*Snowmelt)*1000.0/(double)nrValidCells;
+        SnowAvgmm = MapTotal(*Snowmelt)*1000.0/nrCells;
 
         SnowTotmm += SnowAvgmm;
 
@@ -87,7 +87,7 @@ void TWorld::TotalsHydro(void)
     if (SwitchIncludeET) {
        // double ETtot = MapTotal(*ETa);
         ETaTot = MapTotal(*ETaCum);
-        ETaTotmm = ETaTot * 1000.0/(double)nrValidCells;
+        ETaTotmm = ETaTot * 1000.0/nrCells;
 
         ETaTotVol = (ETaTot-SoilETMBcorrection)*_dx*_dx; //m3
         // correct for soil water because that is not in the mass balance
@@ -110,9 +110,17 @@ void TWorld::TotalsHydro(void)
         IntercHouseTotmm = IntercHouseTot*catchmentAreaFlatMM;
         // interception in mm and m3
     }
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        InterceptionmmCum->Drc = (IntercETa->Drc + Interc->Drc + IntercHouse->Drc + LInterc->Drc)*1000.0/CellArea->Drc;
+        InterceptionmmCum->Drc = Interc->Drc;
+        if (SwitchIncludeET)
+            InterceptionmmCum->Drc += IntercETa->Drc;
+        if (SwitchHouses)
+            InterceptionmmCum->Drc += IntercHouse->Drc;
+        if (SwitchLitter)
+            InterceptionmmCum->Drc += LInterc->Drc;
+        InterceptionmmCum->Drc *= 1000.0/CellArea->Drc;
         // for screen and file output
     }}
 

@@ -141,7 +141,6 @@ cTMap
 *Litter,                     //!< vegetation litter cover fraction [-]
 *CanopyStorage,              //!< canopy storage [m]
 *LAI,                        //!< leaf area index [m^2/m^2]
-*kLAI,
 *LandUnit,                   //!< land unit class (> 0) [-]
 
 *Cohesion,                   //!< total cohesion of the soil surface: coh soil *(1-cover) + coh plant (cover) [kPa]
@@ -269,6 +268,7 @@ cTMap
 *Ksat3,                      //!< saturated hydraulic conductivity soil layer 1 (input is in mm/h) [m/s]
 *SoilDepth3,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *SoilDepth3init,                 //!< depth to end soil layer 1 (input is in mm) [m]
+*lambda3,
 
 *KsatCrust,                  //!< saturated hydraulic conductivity crusted soil surface (input is in mm/h) [m/s]
 *PoreCrust,                //!< saturated hydraulic conductivity compacted soil surface (input is in mm/h) [m/s]
@@ -284,8 +284,6 @@ cTMap
 
 *lambda1,
 *lambda2,
-*psi1ae,
-*psi2ae,
 *Perc,
 *PercmmCum,
 *GrassFraction,              //!< fraction of grasstrip in a cell [-]
@@ -395,7 +393,6 @@ cTMap
 *VRO, *URO, *iro,
 *Uflood,*Vflood,
 *hs, *vs, *us,
-*vxs, *vys,
 
 // FULLSWOF2D
 *f1o, *f2o, *f3o,

@@ -103,6 +103,7 @@ SET(APP_SOURCES
     lisChannelflood.cpp
     lisChannelflow.cpp
     lisDataInit.cpp
+    lisDataFunctions.cpp
     lisErosion.cpp
     lisExtendedChannel.cpp
     lisFlowBarriers.cpp

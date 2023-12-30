@@ -835,7 +835,7 @@ void TWorld::ReportMaps(void)
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        tm->Drc = (RainCumFlat->Drc + SnowmeltCum->Drc*DX->Drc/_dx) * 1000.0; // m to mm
+        tm->Drc = (RainCumFlat->Drc)*1000.0;// + SnowmeltCum->Drc*DX->Drc/_dx) * 1000.0; // m to mm
     }}
     report(*tm, rainfallMapFileName);
 

@@ -154,9 +154,9 @@ void TWorld::addRainfallWH()
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (FloodDomain->Drc > 0) {
-                hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
+                hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc;
             } else {
-                WH->Drc += RainNet->Drc + Snowmeltc->Drc;
+                WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;
                 // add net to water rainfall on soil surface (in m)
 
             //    if (SwitchGrassStrip && GrassWidthDX->Drc > 0)

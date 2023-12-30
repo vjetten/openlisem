@@ -54,7 +54,8 @@ void TWorld::cell_Interception(int r, int c)
         double CS = CStor->Drc;
         //actual canopy storage in m
 
-        CS = Smax*(1-exp(-kLAI->Drc*RainCum->Drc/Smax));
+        double canopen = 1-exp(-0.45*LAI->Drc);
+        CS = Smax*(1-exp(-canopen*RainCum->Drc/Smax));
         // new store of a canopy, not cell
 
         LeafDrain->Drc = std::max(0.0, (Rainc_ - (CS - CStor->Drc)));
