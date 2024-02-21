@@ -60,7 +60,6 @@ void TWorld::GetInputData(void)
     InitBoundary();
     //find domain boundaries
 
-    //## make shaded relief map for display.
     InitShade();
     InitImages();
 
@@ -458,19 +457,6 @@ void TWorld::InitLULCInput(void)
         RoofStore = ReadMap(LDD,getvaluename("roofstore"));
         calcValue(*RoofStore, 0.001, MUL); // from mm to m
         DrumStore = ReadMap(LDD,getvaluename("drumstore"));
-
-        if (SwitchAddBuildingsDEM) {
-            double AddBuildingFraction = getvaluedouble("Add Building fraction");
-            double AddBuildingHeight = getvaluedouble("Add Building fraction");
-            FOR_ROW_COL_MV {
-                double dem = DEM->Drc;
-                dem += HouseCover->Drc > AddBuildingFraction  ? AddBuildingHeight: 0.0;
-                dem = RoadWidthDX->Drc > 0.1 ? DEM->Drc : dem;
-                DEM->Drc = dem;
-            }
-            InitShade();
-        }
-
     }
     else
         HouseCover = NewMap(0);
@@ -538,6 +524,20 @@ void TWorld::InitLULCInput(void)
         //double frac = std::min(1.0,(HardSurface->Drc*_dx + RoadWidthDX->Drc)/_dx);
         RoadWidthHSDX->Drc = std::min(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
     }
+
+
+    //## make shaded relief map for display.
+    if (SwitchHouses && SwitchAddBuildingsDEM) {
+    double AddBuildingFraction = getvaluedouble("Add Building fraction");
+    double AddBuildingHeight = getvaluedouble("Add Building fraction");
+        FOR_ROW_COL_MV_L {
+            double dem = DEM->Drc;
+            dem += HouseCover->Drc > AddBuildingFraction  ? AddBuildingHeight: 0.0;
+            dem = RoadWidthDX->Drc > 0.1 ? DEM->Drc : dem;
+            DEM->Drc = dem;
+        }}
+    }
+
 
 }
 //---------------------------------------------------------------------------

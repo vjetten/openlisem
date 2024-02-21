@@ -204,8 +204,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 hs->Drc = h->Drc;
-//                vxs->Drc = u->Drc;
-//                vys->Drc = vy->Drc;
                 FloodDT->Drc = dt_max;
                 FloodT->Drc = 0;
                 flowmask->Drc = 0;
@@ -234,8 +232,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 if (flowmask->Drc > 0) {
                         //double dt = FloodDT->Drc; //dt_req_min;
                     double dt = dt_req_min;
-                    double vxn, vyn; // is V U ?
-                    //  double vmax = std::min(courant_factor, 0.2) * _dx/dt_req_min;
+                    double vxn, vyn;
 
                     FloodT->Drc += FloodDT->Drc;
 
@@ -364,28 +361,32 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     if(bc1)  // if inside
                         hll_x1 = F_Riemann(h_x1r,vx_x1,vy_x1, H_l,Vx,Vy); // c-1 and c  //
                     else
-                        hll_x1 = F_Riemann(0,0,0, H_l,Vx,Vy);
+                      //  hll_x1 = F_Riemann(H_l,Vx,Vy, H_l,Vx,Vy);
+                    hll_x1 = F_Riemann(0,0,0, H_l,Vx,Vy);
 
                     double H_r   = std::max(0.0, H    - std::max(0.0,  dz_x2 + fb_x2));
                     double h_x2l = std::max(0.0, h_x2 - std::max(0.0, -dz_x2 + fb_x2));
                     if(bc2)
                         hll_x2 = F_Riemann(H_r,Vx,Vy, h_x2l,vx_x2,vy_x2); // c and c+1
                     else
-                        hll_x2 = F_Riemann(H_r,Vx,Vy, 0,0,0);
+                      //  hll_x2 = F_Riemann(H_r,Vx,Vy, H_r,Vx,Vy);
+                    hll_x2 = F_Riemann(H_r,Vx,Vy, 0,0,0);
 
                     double h_y1d = std::max(0.0, h_y1 - std::max(0.0,  dz_y1 + fb_y1));
                     double H_u   = std::max(0.0, H    - std::max(0.0, -dz_y1 + fb_y1));
                     if (br1)
                         hll_y1 = F_Riemann(h_y1d,vy_y1,vx_y1, H_u,Vy,Vx); // r-1 and r
                     else
-                        hll_y1 = F_Riemann(0,0,0, H_u,Vy,Vx);
+                      //   hll_y1 = F_Riemann(H_u,Vy,Vx, H_u,Vy,Vx);
+                   hll_y1 = F_Riemann(0,0,0, H_u,Vy,Vx);
 
                     double H_d   = std::max(0.0, H    - std::max(0.0,  dz_y2 + fb_y2));
                     double h_y2u = std::max(0.0, h_y2 - std::max(0.0, -dz_y2 + fb_y2));
                     if(br2)
                         hll_y2 = F_Riemann(H_d,Vy,Vx, h_y2u,vy_y2,vx_y2); // r and r+1
                     else
-                        hll_y2 = F_Riemann(H_d,Vy,Vx, 0,0,0);
+                     //   hll_y2 = F_Riemann(H_d,Vy,Vx, H_d,Vy,Vx);
+                    hll_y2 = F_Riemann(H_d,Vy,Vx, 0,0,0);
 
                     // determine smallest dt in x and y for each cell
                     double dtx = dx/std::max(hll_x1.v[3],hll_x2.v[3]);
@@ -403,21 +404,17 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         double ty = dt/dy;
 
                         double hn = std::max(0.0, H + dt/_dx*(hll_x1.v[0]-hll_x2.v[0] + hll_y1.v[0]-hll_y2.v[0]));
-                        // mass balance
+                        // mass balance, hll_....v[0] is the height
 
                         // momentum balance for cells with water
                         if(hn > he_ca) {
                             // SWOF solution, delzc1 = 0 when not MUSCL
-                            double gflow_x = GRAV*0.5*( (H_l-H)*(H_l+H)+(H-H_r)*(H+H_r) + delzcx*(H_l+H_r) );
-                            double gflow_y = GRAV*0.5*( (H_u-H)*(H_u+H)+(H-H_d)*(H+H_d) + delzcy*(H_u+H_d) );
+                            double gflow_x = GRAV*0.5*( (H_l-H)*(H_l+H)+(H-H_r)*(H+H_r));// + delzcx*(H_l+H_r) ); delzcx = 0 when no muscl
+                            double gflow_y = GRAV*0.5*( (H_u-H)*(H_u+H)+(H-H_d)*(H+H_d));// + delzcy*(H_u+H_d) );
+                            // graviy term: gh
 
                             double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
                             double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
-                            //qes[i] = he[i]*ve[i]-TX*(f2[i+1]-f2[i]+
-                            //GRAV_DEM*((hleft[i]-hright[i])*(hleft[i]+hright[i])+(hr[i]-hl[i])*(hr[i]+hl[i])+(hl[i]+hr[i])*dzi[i]));
-
-
-
 
                             double vsq = sqrt(Vx * Vx + Vy * Vy);
                             double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.0001,pow(hn,4.0/3.0)); //pow(hn,4.0/3.0);//
@@ -459,23 +456,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                             if (DomainEdge->Drc == 8 && vyn < 0) {
                                 vyn = 0;
                             }
-//                            if (c > 0  && MV(r,c-1) && vxn < 0) {
-//                                vxn = 0;
-//                            }
-//                            if (c < _nrCols-1 && MV(r,c+1) && vxn > 0) {
-//                                vxn = 0;
-//                            }
-//                            if (r < _nrRows-1 && MV(r+1,c) && vyn > 0) {
-//                                vyn = 0;
-//                            }
-//                            if (r > 0 && MV(r-1,c) && vyn < 0) {
-//                                vyn = 0;
-//                            }
+
                         }
                         if (vyn == 0 && vxn == 0)
                             hn = H;
-                       // vxn = checkforMinMaxV(vxn);
-                       // vyn = checkforMinMaxV(vyn);
 
                         h->Drc = hn;
                         u->Drc = vxn;

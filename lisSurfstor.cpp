@@ -169,7 +169,7 @@ void TWorld::addRainfallWH()
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (RoadWidthHSDX->Drc > 0)
-                WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
+                WHroad->Drc += Rainc->Drc;// + Snowmeltc->Drc;
         }}
     }
 
