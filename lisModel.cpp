@@ -225,7 +225,26 @@ void TWorld::DoModel()
         if (SwitchDischargeUser)
         {
             DEBUG("GetDischargeData()");
-            GetDischargeDataNew(dischargeinFileName);
+            GetDischargeData(dischargeinFileName);
+//todo
+//            Discha = 0;
+//            while (BeginTime/60 >= WHSeries[WHplace].time && WHplace < nrWHseries)
+//                WHplace++;
+//            if (WHplace > 0) WHplace--;
+        }
+
+        if (SwitchWaveUser)
+        {
+            WHSeries.clear();
+            DEBUG("GetWHboundData()");
+
+            GetWHboundData(WaveinFileName);
+
+            WHplace = 0;
+            while (BeginTime/60 >= WHSeries[WHplace].time && WHplace < nrWHseries)
+                WHplace++;
+            if (WHplace > 0) WHplace--;
+            qDebug() << WHplace;
         }
 
         // get all input data and create and initialize all maps and variables
@@ -351,7 +370,7 @@ void TWorld::GetInputTimeseries()
     if (SwitchRainfallSatellite)
         GetRainfallMap();         // get rainfall from maps
     else
-        GetRainfallMapfromStations();         // get rainfall from stations
+        GetRainfallMapfromStations();  // get rainfall from stations
 
     if (SwitchIncludeET) {
         if (SwitchETSatellite)
@@ -362,6 +381,10 @@ void TWorld::GetInputTimeseries()
 
     if (SwitchDischargeUser) {
         GetDischargeMapfromStations();
+    }
+
+    if (SwitchWaveUser) {
+        GetWHboundMap();
     }
 
 //    if (SwitchSnowmelt) {
@@ -389,6 +412,15 @@ void TWorld::HydrologyProcesses()
         } else {
             WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;  // used in 2D flow and kin wave
         }
+
+        if (SwitchWaveUser) {
+            if (WHboundarea->Drc > 0) {
+                WHboundRain->Drc += RainNet->Drc;
+                // WHbound is the forced water level in area with value '1', ples cum rainfall
+                WH->Drc = WHbound->Drc + WHboundRain->Drc;
+            }
+        }
+
         // add net to water rainfall on soil surface (in m)
         // when kin wave and flooded hmx exists else always WH
         if (SwitchRoadsystem || SwitchHardsurface) {
@@ -431,6 +463,7 @@ void TWorld::HydrologyProcesses()
         if (SwitchSlopeStability)
             cell_SlopeStability(r, c);
     }}
+report(*WH,"wh");
 
     if (SwitchIncludeET) {
         doETa();

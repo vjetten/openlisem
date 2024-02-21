@@ -64,7 +64,6 @@ cTMap
 *HStor,                      //!< actual roof storage of rainwater [m]
 *IntercHouse,                //!< actual roof storage volume [m^3]
 *HouseCover,                 //!< fraction cover of house in pixel [-]
-//*HouseWidthDX,
 *RoofStore,                  //!< Max storage of roof in [mm]
 *DrumStore,                  //!< Max storage of rainwter drums [m^3]
 *InterceptionmmCum,
@@ -98,6 +97,9 @@ cTMap
 *Q,                          //!< discharge of overland flow before kin wave [m^3/s]
 *DischargeUserPoints,
 *QuserIn,
+*WHbound,
+*WHboundarea,
+*WHboundRain,
 *Qbase,
 *GWVol,
 *GWWH,

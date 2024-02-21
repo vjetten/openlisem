@@ -2140,9 +2140,20 @@ void lisemqt::on_checkDischargeUser_toggled(bool checked)
     groupDischargeUser->setEnabled(checked);
 }
 //--------------------------------------------------------------------
+void lisemqt::on_checkWaveInUser_toggled(bool checked)
+{
+    groupWaveUser->setEnabled(checked);
+}
+//--------------------------------------------------------------------
 void lisemqt::on_toolButton_DischargeShow_clicked()
 {
     showTextfile(DischargeinDir + DischargeinFileName);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_WaveShow_clicked()
+{
+    qDebug() <<WaveinDir + WaveinFileName;
+    showTextfile(WaveinDir + WaveinFileName);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeET_toggled(bool checked)
@@ -2168,6 +2179,21 @@ void lisemqt::on_toolButton_DischargeName_clicked()
     DischargeinDir = QFileInfo(sss).absolutePath()+"/";
     DischargeinFileName = QFileInfo(sss).fileName(); //baseName();
     E_DischargeInName->setText(DischargeinDir + DischargeinFileName);
+
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_WaveInName_clicked()
+{
+    if (!QFileInfo(WaveinDir).exists() || WaveinDir.isEmpty())
+        WaveinDir = currentDir;
+
+    QStringList filters({"Text file (*.txt *.tbl *.tss)","Any files (*)"});
+
+    QString sss = getFileorDir(WaveinDir,"Select file with water heights", filters, 2);
+
+    WaveinDir = QFileInfo(sss).absolutePath()+"/";
+    WaveinFileName = QFileInfo(sss).fileName();
+    E_WaveInName->setText(WaveinDir + WaveinFileName);
 
 }
 //--------------------------------------------------------------------

@@ -172,6 +172,8 @@ void TWorld::InitParameters(void)
        _CHMaxV =  getvaluedouble("Channel Max V");
 
     SwitchKinematic2D = getvalueint("Routing Kin Wave 2D");
+    if (SwitchKinematic2D != K2D_METHOD_DYN)
+       SwitchWaveUser = false;
 
     userCores = getvalueint("Nr user Cores");
     int cores = omp_get_max_threads();
@@ -1952,6 +1954,16 @@ void TWorld::IntializeData(void)
 
     }
 
+    if (SwitchWaveUser) {
+        WHboundarea = ReadMap(LDD,getvaluename("whbound"));
+        FOR_ROW_COL_MV_L {
+            if (WHboundarea->Drc != 0.0)
+                WHboundarea->Drc = 1.0;
+        }}
+        WHbound = NewMap(0);
+        WHboundRain = NewMap(0);
+    }
+
     flowmask = NewMap(0);
     K2DOutlets = NewMap(0);
     //K2DQ = NewMap(0);
@@ -2280,6 +2292,10 @@ void TWorld::IntializeOptions(void)
     resultFileName.clear();
     outflowFileName.clear();
     totalSeriesFileName.clear();
+    dischargeinFileName.clear();
+    dischargeinFileDir.clear();
+    WaveinFileName.clear();
+    WaveinFileDir.clear();
 
     SwitchUserCores = false;
 
@@ -2289,8 +2305,7 @@ void TWorld::IntializeOptions(void)
     SwitchVariableTimestep = false;
     SwitchWriteCommaDelimited = true;
     SwitchWritePCRtimeplot = false;
-    SwitchOutputTimeStep = false;
-    SwitchOutputTimeUser = false;
+    //SwitchOutputTimeUser = false;
     SwitchSeparateOutput = false;
     SwitchWriteHeaders = true; // write headers in output files in first timestep
     SwitchEndRun = false;
@@ -2323,7 +2338,6 @@ void TWorld::IntializeOptions(void)
     SwitchUseGrainSizeDistribution = false;
     SwitchReadGrainSizeDistribution = false;
     SwitchSedtrap = false;
-    SwitchMulticlass = false;
     SwitchEfficiencyDET = 1;
     SwitchEfficiencyDETCH = 2;
     SwitchKETimebased = false;
@@ -2342,6 +2356,7 @@ void TWorld::IntializeOptions(void)
     SwitchChannelInfil = false;
     SwitchCulverts = false;
     SwitchDischargeUser = false;
+    SwitchWaveUser = false;
     SwitchIncludeTile = false;
     SwitchIncludeStormDrains = false;
 
@@ -2610,127 +2625,6 @@ void TWorld::FindBaseFlow()
 
     BaseFlowInit = MapTotal(*BaseFlowInitialVolume);
 
-}
-//---------------------------------------------------------------------------
-// NOT USED
-void TWorld::FindChannelAngles()
-{
-    if(!SwitchIncludeChannel)
-        return;
-    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-
-    Fill(*tma, -1);
-
-    for (int rr = 0; rr < _nrRows; rr++)
-        for (int cr = 0; cr < _nrCols; cr++) {
-            if(LDDChannel->Drcr == 5) {
-                // aa << 0;
-
-                LDD_LINKEDLIST *list = nullptr;
-                LDD_LINKEDLIST *temp = nullptr;
-                list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-
-                list->prev = nullptr;
-                list->rowNr = rr;
-                list->colNr = cr;
-                double nn = 0;
-
-                while (list != nullptr)
-                {
-                    int i = 0;
-                    bool  subCachDone = true;
-                    int rowNr = list->rowNr;
-                    int colNr = list->colNr;
-
-                    for (i=1; i<=9; i++)
-                    {
-                        int r, c;
-                        int ldd = 0;
-
-                        // this is the current cell
-                        if (i==5)
-                            continue;
-
-                        r = rowNr+dy[i];
-                        c = colNr+dx[i];
-
-                        if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
-                            ldd = (int) LDDChannel->Drc;
-                        else
-                            continue;
-
-                        // check if there are more cells upstream, if not subCatchDone remains true
-                        if (tma->Drc < 0 &&
-                                FLOWS_TO(ldd, r, c, rowNr, colNr) &&
-                                INSIDE(r, c))
-                        {
-                            temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-                            temp->prev = list;
-                            list = temp;
-                            list->rowNr = r;
-                            list->colNr = c;
-                            subCachDone = false;
-                            nn += 1.0;
-                        }
-                    }
-
-                    if (subCachDone)
-                    {
-                        double grad = 0;
-                        double n = 0;
-
-                        for (i=1;i<=9;i++)
-                        {
-                            int r, c, ldd = 0;
-
-                            if (i==5)
-                                continue;
-
-                            r = rowNr+dy[i];
-                            c = colNr+dx[i];
-
-                            if (INSIDE(r, c) && !pcr::isMV(LDD->Drc)) {
-                                ldd = (int) LDD->Drc;
-                            }
-
-                            if(ldd > 0 && FLOWS_TO(ldd, r,c,rowNr, colNr)) {
-                                double dist = ldd % 2 == 0? _dx : _dx*1.4242;
-                                grad += sin(atan((DEM->Drc-DEM->data[rowNr][colNr])/dist));
-                                n += 1.0;
-                            }
-                            //                            if (nn != aa.last()) {
-                            //                                aa << nn;
-                            //                            }
-                        }
-
-                        ChannelPAngle->data[rowNr][colNr] =  n > 0 ? std::max(0.01,std::min(0.1,grad/n)) : 0.01;
-                        tma->data[rowNr][colNr] = 1;
-
-                        temp=list;
-                        list=list->prev;
-                        free(temp);
-                    }
-                }
-            }
-        }
-
-    double avggrad = 0;
-    double nn = 0;
-    FOR_ROW_COL_MV_CH {
-        avggrad += ChannelPAngle->Drc;
-        nn+=1.0;
-    }
-    avggrad /= nn;
-
-    FOR_ROW_COL_MV_CH {
-//        if (SwitchFixedAngle)
-//            ChannelPAngle->Drc = F_Angle;
-//        else
-            ChannelPAngle->Drc = 0.5*ChannelPAngle->Drc + 0.5*avggrad;
-        //std::min(ChannelPAngle->Drc, F_Angle);
-    }
-  //  report(*ChannelPAngle,"cpa.map");
 }
 //---------------------------------------------------------------------------
 void TWorld::InitImages()

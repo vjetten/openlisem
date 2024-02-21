@@ -287,12 +287,18 @@ typedef struct METEO_LIST {
     double calib;
 } METEO_LIST;
 //---------------------------------------------------------------------------
-/// Structure to store discharge station values of rainfile mapnames
+/// Structure to store discharge station values
 typedef struct Q_LIST {
     double time;
     QList <int> stationnr;
     QVector <double> Qin;
 } Q_LIST;
+//---------------------------------------------------------------------------
+/// Structure to store voundary water level
+typedef struct WH_LIST {
+    double time;
+    double WH;
+} WH_LIST;
 //---------------------------------------------------------------------------
 typedef struct BUFFER_LIST {
     double area;
@@ -370,29 +376,105 @@ public:
 
     /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
 
-/* OBSOLETE
- SwitchLimitDepTC,SwatreInitialized, SwitchLimitTC, SwitchWheelPresent,SwitchChannelExtended,startbaseflowincrease,SwitchAllinChannel,
- SwitchErosionInsideLoop, SwitchSimpleDepression,SwitchRunoffPerM,SwitchWheelAsChannel, SwitchGullies, SwitchGullyEqualWD, SwitchGullyInfil,
- SwitchGullyInit,SwitchMapoutRunoff, SwitchMapoutConc, SwitchWritePCRnames,SwitchNoErosionOutlet,SwitchSimpleSedKinWave, SwitchSOBEKoutput,
- SwitchMapoutWH, SwitchMapoutWHC, SwitchMapoutTC, SwitchMapoutEros, SwitchMapoutDepo, SwitchMapoutV,SwitchMapoutInf, SwitchMapoutSs, SwitchMapoutChvol
- SwitchChannelFlood, SwitchFloodSedimentMethod, SwitchStoninessDET,SwitchRainfallFlood,SwitchLevees,SwitchWatershed,SwitchMinDTfloodMethod,SwitchNeedD90,
- int SwitchFlood1D2DCoupling;SwitchPercolation, SwitchInfilGA2, SwitchCompactPresent, SwitchNutrients, SwitchPestout, SwitchDrainage,
-*/
+    bool
+        // input rniafall and inflow
+        SwitchRainfall,
+        SwitchEventbased,
+        SwitchIDinterpolation,
+        SwitchUseIDmap,
+        SwitchDailyET,
+        SwitchRainfallSatellite,
+        SwitchIncludeET,
+        SwitchETSatellite,
+        SwitchSnowmelt,
+        SwitchSnowmeltSatellite,
 
-    bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow, SwitchChannelAdjustCHW,
-    SwitchChannelBaseflowStationary, SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite,
-    SwitchRainfall, SwitchEventbased, SwitchIDinterpolation, SwitchDailyET, SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
-    SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead,SwitchWaterRepellency,
-    SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
-    SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,SwitchThreeLayer,   SwitchChannelKinWave, SwitchPsiUser,
-    SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchStormDrainCircular, SwitchKETimebased,
-    SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide, SwitchAddBuildingsDEM,
-    SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
-    SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
-    SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
-    SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle,
-    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchGWflow, SwitchGW2Dflow,SwitchLDDGWflow,SwitchSWATGWflow,
-    SwitchChannel2DflowConnect, SwitchChannelWFinflow, SwitchGWChangeSD, SwitchDischargeUser;
+        // channel and Overland flow
+        SwitchIncludeChannel,
+        SwitchChannelBaseflow,
+        SwitchChannelBaseflowStationary,
+        SwitchChannelAdjustCHW,
+        SwitchChannelInfil,
+        SwitchGWflow,
+        SwitchGW2Dflow,
+        SwitchLDDGWflow,
+        SwitchSWATGWflow,
+        SwitchChannel2DflowConnect,
+        SwitchChannelWFinflow,
+        SwitchGWChangeSD,
+        SwitchDischargeUser,
+        SwitchWaveUser,
+        SwitchIncludeDiffusion,
+        SwitchIncludeRiverDiffusion,
+        SwitchFloodInitial,
+        SwitchFlowBarriers,
+        SwitchBuffers,
+        SwitchCulverts,
+        SwitchLitter,
+
+        // output
+        //SwitchOutputTimeUser,
+        SwitchWriteCommaDelimited,
+        SwitchWritePCRtimeplot,
+        SwitchSeparateOutput,
+        SwitchWriteHeaders,
+        SwitchEndRun,
+        SwitchResultDatetime,
+        SwitchOutputTimestamp,
+
+        // erosion,
+        SwitchErosion,
+        SwitchSlopeStability,
+        SwitchSedtrap,
+        SwitchKETimebased,
+
+        // infiltration,
+        SwitchRoadsystem,
+        SwitchHardsurface,
+        SwitchInfilCompact,
+        SwitchInfilCrust,
+        SwitchGrassStrip,
+        SwitchImpermeable,
+        SwitchDumphead,
+        SwitchGeometric,
+        SwitchTwoLayer,
+        SwitchThreeLayer,
+        SwitchWaterRepellency,
+        SwitchInterceptionLAI,
+        SwitchPsiUser,
+        SwitchDumpH,
+        SwitchDumpTheta,
+        SwitchDumpK,
+
+        // tiles and drains
+        SwitchIncludeTile,
+        SwitchIncludeStormDrains,
+        SwitchStormDrainCircular,
+        SwitchHouses,
+        SwitchRaindrum,
+        SwitchAddBuildingsDEM,
+
+        //pesticide
+        SwitchPesticide,
+        Switchheaderpest,
+
+        // advanced
+        SwitchAdvancedOptions,
+        SwitchTimeavgV,
+        SwitchCorrectDEM,
+        Switch2DDiagonalFlow,
+        Switch2DDiagonalFlowNew,
+        SwitchSWOFopen,
+        SwitchMUSCL,
+        SwitchUserCores,
+        SwitchVariableTimestep,
+        SwitchHeun,
+        SwitchImage,
+        SwitchChannelKinwaveDt,
+        SwitchChannelKinwaveAvg,
+        SwitchLinkedList,
+        SwitchChannelKinWave,
+        SwitchChannelMaxV;
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
@@ -539,22 +621,25 @@ public:
     int nrRainfallseries;
     int nrETseries;
     int nrSnowmeltseries;
+    int nrWHseries;
     int currentRainfallrow;
     int currentETrow;
     int currentSnowmeltrow;
     int currentDischargerow;
+    int currentWHrow;
     int rainplace;
     int ETplace;
+    int WHplace;
     int snowmeltplace;
     QVector <RAIN_LIST> RainfallSeries;  // rainfall vector of records
     QVector <RAIN_LIST> ETSeries;
     QVector <RAIN_LIST> SnowmeltSeries;
     QVector <Q_LIST> DischargeSeries;
+    QVector <WH_LIST> WHSeries;
     QVector <METEO_LIST> RainfallSeriesMaps;  // rainfall vector of records
     bool calibRainfallinFile;
     QVector <METEO_LIST> ETSeriesMaps;  // rainfall vector of records
     QVector <METEO_LIST> SnowmeltSeriesMaps;  // rainfall vector of records
-    QVector <Q_LIST> DischargeInSeries;
     QVector <LDD_COORloc> crQin_;
     QVector <int> locationnnrsrec;
 
@@ -613,6 +698,8 @@ public:
     QString snowmeltSatFileDir;
     QString dischargeinFileName;
     QString dischargeinFileDir;
+    QString WaveinFileName;
+    QString WaveinFileDir;
     QString resultFileName;
     QString temprunname;
     /// standard names of output map series
@@ -663,7 +750,7 @@ public:
     void InitFlood(void);
     void InitMeteoInput(void);
     void InitScreenChanNetwork();
-    void FindChannelAngles();
+    //void FindChannelAngles();
     void CorrectDEM(cTMap *h, cTMap * g);
     void DiagonalFlowDEM();
     void InitPesticide(void);
@@ -868,7 +955,7 @@ public:
     //input timeseries
     void GetInputTimeseries();
     void GetDischargeData(QString name);
-    void GetDischargeDataNew(QString name);
+    void GetWHboundData(QString name);
     void GetDischargeMapfromStations();
     void GetRainfallData(QString name);   // get input timeseries
     void GetSpatialMeteoData(QString name, int type);   // get input timeseries
@@ -882,10 +969,14 @@ public:
     void GetRainfallMap(void);
     /// convert ET of a timestep into a map
     void GetETSatMap(void);
-    void GetETMap(void);
+    void GetETMap(void);    
     /// convert snowmelt of a timestep into a map
     void GetSnowmeltMap(void);
+    // user defined point discharge inflow in channel
     void DischargeInflow(void);
+    // user defined water height at boundary
+    void GetWHboundMap(void);
+
     /// interception of vegetation canopy resulting in rainnet
     void Interception();
     /// infiltration function calling all infiltration methods

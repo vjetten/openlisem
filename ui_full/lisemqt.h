@@ -296,6 +296,8 @@ public:
     QString ETSatFileDir;
     QString DischargeinDir;
     QString DischargeinFileName;
+    QString WaveinDir;
+    QString WaveinFileName;
     QString SnowmeltFileName;
     QString SnowmeltFileDir;
     QString SwatreTableName;
@@ -504,9 +506,15 @@ private slots:
 
     void on_checkDischargeUser_toggled(bool checked);
 
+    void on_checkWaveInUser_toggled(bool checked);
+
     void on_toolButton_DischargeShow_clicked();
 
     void on_toolButton_DischargeName_clicked();
+
+    void on_toolButton_WaveInName_clicked();
+
+    void on_toolButton_WaveShow_clicked();
 
     void on_toolButton_ETmapShow_clicked();
 

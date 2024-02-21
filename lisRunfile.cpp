@@ -207,6 +207,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Adjust channel crosssection")==0)       SwitchChannelAdjustCHW  = iii == 1;
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
         if (p1.compare("Include channel inflow")==0)            SwitchDischargeUser  = iii == 1;
+        if (p1.compare("Include water height inflow")==0)       SwitchWaveUser  = iii == 1;
         if (p1.compare("Include GW flow")==0)                   SwitchGWflow  = iii == 1;
         if (p1.compare("GW flow explicit")==0)                  SwitchGW2Dflow  = iii == 1;
         if (p1.compare("GW flow LDD")==0)                       SwitchLDDGWflow  = iii == 1;
@@ -274,8 +275,8 @@ void TWorld::ParseRunfileData(void)
             SwitchWritePCRtimeplot = iii == 1;
             SwitchWriteCommaDelimited = iii < 1;
         }
-        if (p1.compare("Regular runoff output")==0)             SwitchOutputTimeStep =   iii == 1;
-        if (p1.compare("User defined output")==0)               SwitchOutputTimeUser =   iii == 1;
+        //if (p1.compare("Regular runoff output")==0)             SwitchOutputTimeStep =   iii == 1;
+       // if (p1.compare("User defined output")==0)               SwitchOutputTimeUser =   iii == 1;
         if (p1.compare("Output interval")==0)                   printinterval = iii;
         if (p1.compare("Report point output separate")==0)      SwitchSeparateOutput =   iii == 1;
         if (p1.compare("Report digits out")==0)                 ReportDigitsOut = iii;
@@ -448,6 +449,12 @@ void TWorld::ParseRunfileData(void)
             if (p1.compare("Discharge inflow file")==0) dischargeinFileName = p;
         }
 
+        if (SwitchWaveUser)
+        {
+            if (p1.compare("Water level inflow directory")==0) WaveinFileDir = CheckDir(p);
+            if (p1.compare("Water level inflow file")==0) WaveinFileName = p;
+        }
+
         if (SwitchImage)
         {
             if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
@@ -517,7 +524,6 @@ void TWorld::ParseRunfileData(void)
 
     }
 
-
     if (SwitchRainfallSatellite)
         rainSatFileName = rainSatFileDir+rainSatFileName;
     else
@@ -532,7 +538,10 @@ void TWorld::ParseRunfileData(void)
 
     if (SwitchDischargeUser) {
         dischargeinFileName = dischargeinFileDir + dischargeinFileName;
-        qDebug() << dischargeinFileName << dischargeinFileDir;
+    }
+
+    if (SwitchWaveUser) {
+        WaveinFileName = WaveinFileDir + WaveinFileName;
     }
 
     if(SwitchSnowmelt) {

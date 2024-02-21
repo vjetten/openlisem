@@ -114,6 +114,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Baseflow network;lddbaseflow.map;LDD perpendicular to the river;lddbase");
     DEFmaps.append("2;Baseflow contrib. area;basedistance.map;Distance to river (m);basereach");
     DEFmaps.append("2;WHInit;WHinit.map;Initial floodlevel (m);whinit");
+    DEFmaps.append("2;WHBoound;whboundary.map;Area that will have a forced user defined water level (0,1);whbound");
 
 //        DEFmaps.append("2;Channelmaterial;chandetmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);chandetmat");
 //        DEFmaps.append("2;ChannelMixingDepth;chansedmixdepth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
@@ -341,6 +342,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include channel inflow");
     namelist[i++].name = QString("Discharge inflow file");
     namelist[i++].name = QString("Discharge inflow directory");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include water height inflow");
+    namelist[i++].name = QString("Water level inflow file");
+    namelist[i++].name = QString("Water level inflow directory");
 
 //    namelist[i].value = QString("0");
 //    namelist[i++].name = QString("Include Snowmelt");
@@ -564,9 +569,9 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Runoff maps in l/s/m");
   //  namelist[i++].name = QString("Timeseries as PCRaster");
     namelist[i++].name = QString("Erosion map units (0/1/2)");
-    namelist[i++].name = QString("Regular runoff output");
+    //namelist[i++].name = QString("Regular runoff output");
     namelist[i++].name = QString("Output interval");
-    namelist[i++].name = QString("User defined output");
+    //namelist[i++].name = QString("User defined output");
     namelist[i++].name = QString("Output times");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("OutRunoff");

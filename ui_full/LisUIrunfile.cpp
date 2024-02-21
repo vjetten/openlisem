@@ -200,6 +200,7 @@ void lisemqt::ParseInputData()
 
         if (p1.compare("Include channel culverts")==0)      checkChannelCulverts->setChecked(check);
         if (p1.compare("Include channel inflow")==0)        checkDischargeUser->setChecked(check);
+        if (p1.compare("Include water height inflow")==0)   checkWaveInUser->setChecked(check);
         if (p1.compare("Include Erosion simulation")==0)    checkDoErosion->setChecked(check);
         if (p1.compare("Include road system")==0)           checkRoadsystem->setChecked(check);
         if (p1.compare("Include storm drains")==0)          checkStormDrains->setChecked(check);
@@ -449,6 +450,7 @@ void lisemqt::ParseInputData()
 
     on_checkIncludeET_toggled(checkIncludeET->isChecked());
     on_checkDischargeUser_toggled(checkDischargeUser->isChecked());
+    on_checkWaveInUser_toggled(checkWaveInUser->isChecked());
 
     if (checkSedtrap->isChecked())
         on_checkSedtrap_clicked();
@@ -538,6 +540,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
         if (p1.compare("Discharge inflow file")==0) DischargeinFileName = p;
 
+        if (p1.compare("Water level inflow directory")==0) WaveinDir = CheckDir(p);
+        if (p1.compare("Water level inflow file")==0) WaveinFileName = p;
+
         if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
         if (p1.compare("satImage file")==0) satImageFileName = p;
 
@@ -612,6 +617,15 @@ void lisemqt::ParseInputData()
         }
     }
 
+    if (checkWaveInUser->isChecked()) {
+        E_WaveInName->setText(WaveinDir + WaveinFileName);
+        if (!QFileInfo(E_WaveInName->text()).exists() && !E_WaveInName->text().isEmpty())
+        {
+            WaveinDir = QString(E_WorkDir + "rain/");
+            E_WaveInName->setText(WaveinDir + WaveinFileName);
+        }
+    }
+
     if (checkDischargeUser->isChecked()) {
         E_DischargeInName->setText(DischargeinDir + DischargeinFileName);
         if (!QFileInfo(E_DischargeInName->text()).exists() && !E_DischargeInName->text().isEmpty())
@@ -620,7 +634,6 @@ void lisemqt::ParseInputData()
             E_DischargeInName->setText(DischargeinDir + DischargeinFileName);
         }
     }
-
 //    E_SnowmeltName->setText(SnowmeltFileDir + SnowmeltFileName);
 //    if (!QFileInfo(E_SnowmeltName->text()).exists())
 //    {
@@ -782,7 +795,7 @@ void lisemqt::updateModelData()
 
         if (p1.compare("Nr user Cores")==0) namelist[j].value.setNum(nrUserCores->value());
         // erosion
-        if (p1.compare("Include Erosion simulation")==0)      namelist[j].value.setNum((int)checkDoErosion->isChecked());
+        if (p1.compare("Include Erosion simulation")==0)     namelist[j].value.setNum((int)checkDoErosion->isChecked());
 
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
@@ -792,11 +805,12 @@ void lisemqt::updateModelData()
       //  if (p1.compare("Adjust channel crosssection")==0)    namelist[j].value.setNum((int)checkChannelAdjustCHW->isChecked());
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkDischargeUser->isChecked());
+        if (p1.compare("Include water height inflow")==0)    namelist[j].value.setNum((int)checkWaveInUser->isChecked());
         // groundwater
-        if (p1.compare("Include GW flow")==0)               namelist[j].value.setNum((int)checkGWflow->isChecked());
+        if (p1.compare("Include GW flow")==0)                namelist[j].value.setNum((int)checkGWflow->isChecked());
         if (p1.compare("GW flow explicit")==0)               namelist[j].value.setNum((int)checkGWflowexplicit->isChecked());
         if (p1.compare("GW flow LDD")==0)                    namelist[j].value.setNum((int)checkGWflowLDD->isChecked());
-        if (p1.compare("GW flow SWAT")==0)                    namelist[j].value.setNum((int)checkGWflowSWAT->isChecked());
+        if (p1.compare("GW flow SWAT")==0)                   namelist[j].value.setNum((int)checkGWflowSWAT->isChecked());
         if (p1.compare("GW recharge factor")==0)             namelist[j].value = GW_recharge->text();
         if (p1.compare("GW flow factor")==0)                 namelist[j].value = GW_flow->text();
       //  if (p1.compare("GW river inflow factor")==0)                 namelist[j].value = GW_inflow->text();
@@ -820,7 +834,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
         if (p1.compare("Include diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
-        if (p1.compare("Include River diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
+        if (p1.compare("Include River diffusion")==0)        namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
@@ -987,6 +1001,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Discharge inflow directory")==0) namelist[j].value=DischargeinDir;
         if (p1.compare("Discharge inflow file")==0) namelist[j].value=DischargeinFileName;
 
+        if (p1.compare("Water level inflow directory")==0) namelist[j].value=WaveinDir;
+        if (p1.compare("Water level inflow file")==0) namelist[j].value=WaveinFileName;
 
       //  if (p1.compare("Snowmelt Directory")==0) namelist[j].value = SnowmeltFileDir;
       //  if (p1.compare("Snowmelt file")==0) namelist[j].value = SnowmeltFileName;
@@ -1047,7 +1063,7 @@ void lisemqt::updateModelData()
         // VJ 110209 canopy openess, factor Aston as user input
 
         if (p1.compare("Output interval")==0) namelist[j].value = printinterval->cleanText();
-        if (p1.compare("Regular runoff output")==0) namelist[j].value.setNum(1);
+        //if (p1.compare("Regular runoff output")==0) namelist[j].value.setNum(1);
         if (p1.compare("User defined output")==0) namelist[j].value.setNum(0);
         if (p1.compare("Output times")==0) namelist[j].value.setNum(0);
         //TODO fix output stuff

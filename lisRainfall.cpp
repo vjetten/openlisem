@@ -517,7 +517,7 @@ void TWorld::GetRainfallMap(void)
         samerain = true;
   //  qDebug() << currentrow << currenttime << currentRainfallrow << samerain;
 
-    SwitchdoRrainAverage = false;
+    bool SwitchdoRrainAverage = false;
     // get the next map from file
     if (!samerain) {
         // create an empty map and read the file
