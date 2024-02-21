@@ -400,7 +400,7 @@ void TWorld::GetInputTimeseries()
 void TWorld::HydrologyProcesses()
 {
     double soiltot1 = SoilWaterMass();
-
+    Fill(*tma,0);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         cell_Interception(r,c);
@@ -414,10 +414,10 @@ void TWorld::HydrologyProcesses()
         }
 
         if (SwitchWaveUser) {
+            WHboundRain->Drc += RainNet->Drc;
             if (WHboundarea->Drc > 0) {
-                WHboundRain->Drc += RainNet->Drc;
                 // WHbound is the forced water level in area with value '1', ples cum rainfall
-                WH->Drc = WHbound->Drc + WHboundRain->Drc;
+                WH->Drc = 3.0;// WHbound->Drc;// + WHboundRain->Drc;
             }
         }
 
@@ -463,7 +463,9 @@ void TWorld::HydrologyProcesses()
         if (SwitchSlopeStability)
             cell_SlopeStability(r, c);
     }}
+
 report(*WH,"wh");
+report(*RainNet,"rn");
 
     if (SwitchIncludeET) {
         doETa();

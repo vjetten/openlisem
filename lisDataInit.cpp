@@ -827,8 +827,8 @@ void TWorld::InitBoundary(void)
                 FlowBoundary->Drc = 1;
         }
     }
-   report(*FlowBoundary, "bound.map");
-   report(*DomainEdge, "edge.map");
+ //  report(*FlowBoundary, "bound.map");
+ //  report(*DomainEdge, "edge.map");
 
 }
 //---------------------------------------------------------------------------
@@ -1962,6 +1962,7 @@ void TWorld::IntializeData(void)
         }}
         WHbound = NewMap(0);
         WHboundRain = NewMap(0);
+        report(*WHboundarea,"b.map");
     }
 
     flowmask = NewMap(0);
@@ -2035,7 +2036,6 @@ void TWorld::IntializeData(void)
         // flag: structure is created and can be destroyed in function destroydata
     }
 
-
     if(SwitchErosion && SwitchUseMaterialDepth)
     {
         Storage = ReadMap(LDD, getvaluename("detmat"));
@@ -2074,7 +2074,6 @@ void TWorld::IntializeData(void)
                 RSedimentMixingDepth->Drc = std::max(RSedimentMixingDepth->Drc, 0.01);
             }
         }
-
     }
 
     if (/* SwitchChannelBaseflow && */ SwitchChannelBaseflowStationary)

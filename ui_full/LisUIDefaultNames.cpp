@@ -114,7 +114,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Baseflow network;lddbaseflow.map;LDD perpendicular to the river;lddbase");
     DEFmaps.append("2;Baseflow contrib. area;basedistance.map;Distance to river (m);basereach");
     DEFmaps.append("2;WHInit;WHinit.map;Initial floodlevel (m);whinit");
-    DEFmaps.append("2;WHBoound;whboundary.map;Area that will have a forced user defined water level (0,1);whbound");
+    DEFmaps.append("2;WHBound;whboundary.map;Area that will have a forced user defined water level (0,1);whbound");
 
 //        DEFmaps.append("2;Channelmaterial;chandetmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);chandetmat");
 //        DEFmaps.append("2;ChannelMixingDepth;chansedmixdepth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
