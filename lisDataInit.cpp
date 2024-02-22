@@ -464,8 +464,8 @@ void TWorld::InitLULCInput(void)
             double AddBuildingHeight = getvaluedouble("Add Building fraction");
             FOR_ROW_COL_MV {
                 double dem = DEM->Drc;
-                dem += HouseCover->Drc > AddBuildingFraction  ? AddBuildingHeight: 0.0;
-                dem = RoadWidthDX->Drc > 0.1 ? DEM->Drc : dem;
+                dem += HouseCover->Drc > AddBuildingFraction && RoadWidthDX->Drc < 0.1 ? AddBuildingHeight: 0.0;
+            //    dem = RoadWidthDX->Drc > 0.1 ? DEM->Drc : dem;
                 DEM->Drc = dem;
             }
             InitShade();
