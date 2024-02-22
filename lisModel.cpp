@@ -288,11 +288,11 @@ void TWorld::DoModel()
 
             TileFlow();          // tile drain flow kin wave
                                  // storm drain flow kin wave
-
             //StormDrainFlow();
-            // these are all non-threaded
 
-            Totals();            // calculate all totals and cumulative values
+            TotalsHydro();       // calculate all totals and cumulative values
+            TotalsFlow();
+            TotalsSediment();
 
             MassBalance();       // check water and sed mass balance
 
@@ -384,6 +384,7 @@ void TWorld::HydrologyProcesses()
         // all interception on plants, houses, litter
         // result is rainnet (and leafdrip for erosion)
 
+//<<<<<<< HEAD
         if (SwitchFloodInitial  && hmxInit->Drc > 0)
             hmxInit->Drc += RainNet->Drc + Snowmeltc->Drc;
 
@@ -395,6 +396,12 @@ void TWorld::HydrologyProcesses()
             WH->Drc += RainNet->Drc + Snowmeltc->Drc;  // used in 2D flow and kin wave
             if (SwitchFloodInitial && hmxInit-> Drc > 0)
                 WH->Drc = hmxInit->Drc;
+//=======
+//        if (FloodDomain->Drc > 0) {
+//            hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc; // only used in kin wave pluf flood from channel, hmx is flood water
+//        } else {
+//            WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;  // used in 2D flow and kin wave
+//>>>>>>> 96af545acf617cbd894338d4aac443215b4db18e
         }
 
 
@@ -402,7 +409,7 @@ void TWorld::HydrologyProcesses()
         // when kin wave and flooded hmx exists else always WH
         if (SwitchRoadsystem || SwitchHardsurface) {
             if (RoadWidthHSDX->Drc > 0)
-                WHroad->Drc += RainNet->Drc + Snowmeltc->Drc;
+                WHroad->Drc += RainNet->Drc;// + Snowmeltc->Drc;
         }
 
         // infiltration by SWATRE of G&A+percolation

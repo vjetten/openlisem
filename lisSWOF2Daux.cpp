@@ -541,12 +541,12 @@ vec4 TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
 vec4 TWorld::F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
     vec4 rec;// = {0,0,0,0};
-    if (F_scheme == 6)
-    rec = F_ROE(h_L, u_L, v_L, h_R, u_R, v_R);
-    else
-    if (F_scheme == 5)
-        rec = F_HLL4(h_L, u_L, v_L, h_R, u_R, v_R);
-    else
+//    if (F_scheme == 6)
+//    rec = F_ROE(h_L, u_L, v_L, h_R, u_R, v_R);
+//    else
+//    if (F_scheme == 5)
+//        rec = F_HLL4(h_L, u_L, v_L, h_R, u_R, v_R);
+//    else
     if (F_scheme == 4)
         rec = F_HLL3(h_L, u_L, v_L, h_R, u_R, v_R);
     else

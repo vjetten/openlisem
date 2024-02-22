@@ -22,24 +22,6 @@
 **
 *************************************************************************/
 
-/*!
- \file lisDatainit.cpp
- \brief All data handling functions, read, parse, initialize, make and delete the map structures etc.
-
- functions: \n
- - cTMap TWorld::NewMap(double value) Make a map filled with a value and LDD as mask \n
- - cTMap TWorld::ReadMap(cTMap *Mask, QString name) Make a map and fill it with data from a file\n
- - void TWorld::DestroyData(void) Destroy the list with all maps and pointers, no need to do this one by one.\n
- - cTMap TWorld::InitMask(QString name) Make and read the reference map which is the LDD \n
- - cTMap TWorld::InitMaskChannel(QString name) Make and read the channel map (channel LDD)\n
- - cTMap TWorld::InitMaskTiledrain(QString name) Make and read the tiell drain map (tile LDD)\n
- - void TWorld::InitTiledrains(void) read and intiialize all Tile drain variables and maps \n
- - void TWorld::InitBuffers(void)  read and intiialize all buffer and sediment fence variables and maps \n
- - void TWorld::InitChannel(void)  read and intiialize all channel variables and maps \n
- - void TWorld::GetInputData(void) Read all input maps \n
- - void TWorld::IntializeData(void) Initialize all auxillary maps and variables\n
- - void TWorld::IntializeOptions(void) Initialize all options (Switch...) before the run file.\n
-*/
 
 #include <algorithm>
 #include <qstring.h>
@@ -50,190 +32,6 @@
 #include "model.h"
 #include "operation.h"
 #include "CsfRGBMap.h"
-
-//---------------------------------------------------------------------------
-/** \n void TWorld::InitMapList(void)
-*  blabla
-*/
-void TWorld::InitMapList(void)
-{
-    maplistnr = 0;
-    for (int i = 0; i < NUMNAMES; i++)
-    {
-        maplistCTMap[i].m = nullptr;
-    }
-}
-//---------------------------------------------------------------------------
-cTMap *TWorld::NewMap(double value)
-{
-    cTMap *_M = new cTMap();
-
-    _M->MakeMap(LDD, value);
-    // changed to LDD instead of Mask
-
-    if (_M)
-    {
-        maplistCTMap[maplistnr].m = _M;
-        maplistnr++;
-    }
-
-    return(_M);
-}
-//---------------------------------------------------------------------------
-cTMap *TWorld::ReadFullMap(QString name)
-{
-    cTMap *_M = new cTMap(readRaster(name));
-
-    for (int r = 0; r < _nrRows; r++)
-        for (int c = 0; c < _nrCols; c++)
-            if (pcr::isMV(_M->Drc))
-            {
-//                QString sr, sc;
-//                sr.setNum(r); sc.setNum(c);
-//                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+name+".\n \
-//                        All cells in this map should be non-MV";
-//                        throw 1;
-                _M->Drc = 0;
-            }
-
-    maplistCTMap[maplistnr].m = _M;
-    maplistnr++;
-
-    return(_M);
-
-}
-//---------------------------------------------------------------------------
-// read a map from disk
-cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
-{
-    cTMap *_M = new cTMap(readRaster(name));
-
-    for (int r = 0; r < _nrRows; r++)
-        for (int c = 0; c < _nrCols; c++)
-            if (!pcr::isMV(Mask->Drc) && pcr::isMV(_M->Drc))
-            {
-                QString sr, sc;
-                sr.setNum(r); sc.setNum(c);
-                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+name+".\n \
-                        This is a cell with missing values where a flow network esists (either LDD, Channel LDD, tile drain LDD).";
-                        throw 1;
-            }
-
-    maplistCTMap[maplistnr].m = _M;
-    maplistnr++;
-
-    return(_M);
-
-}
-//---------------------------------------------------------------------------
-void TWorld::DestroyData(void)
-{
-    DEBUG("clear all maps");
-    if (op.nrMapsCreated > 0) {
-        for (int i = 0; i < op.nrMapsCreated; i++)
-        {
-            if (maplistCTMap[i].m != nullptr)
-            {
-                delete maplistCTMap[i].m;
-                maplistCTMap[i].m = nullptr;
-            }
-        }
-    }
-
-    DEBUG("clear meteo structures");
-
-    // clear() calls the destruction of all elements in the sturcture
-    RainfallSeries.clear();
-    RainfallSeriesMaps.clear();
-    calibRainfallinFile = false;
-    if (SwitchSnowmelt) {
-        SnowmeltSeries.clear();
-        SnowmeltSeriesMaps.clear();
-    }
-    if (SwitchIncludeET) {
-        ETSeries.clear();
-        ETSeriesMaps.clear();
-    }
-
-    if (InfilMethod == INFIL_SWATRE && initSwatreStructure)
-    {
-        DEBUG("clear swatre structure");
-
-        FreeSwatreInfo();
-        if (SwatreSoilModel)
-            CloseSwatre(SwatreSoilModel);
-        if (SwatreSoilModelCrust)
-            CloseSwatre(SwatreSoilModelCrust);
-        if (SwatreSoilModelCompact)
-            CloseSwatre(SwatreSoilModelCompact);
-        if (SwatreSoilModelGrass)
-            CloseSwatre(SwatreSoilModelGrass);
-    }
-
-    cr_.clear();
-    crch_.clear();
-    crldd5_.clear();
-    crlddch5_.clear();
-
-    for(int i_ = 0; i_ < crlinkedldd_.size(); i_++){
-        if(crlinkedldd_[i_].inn)
-            free(crlinkedldd_[i_].inn);
-    }
-    crlinkedldd_.clear();
-
-    for(int i_ = 0; i_ < crlinkedlddch_.size(); i_++){
-        if(crlinkedlddch_[i_].inn)
-            free(crlinkedlddch_[i_].inn);
-    }
-    crlinkedlddch_.clear();
-
-}
-//---------------------------------------------------------------------------
-/// separate networks need their own InitMask: LDD, ChannelLDD, TileLDD
-cTMap *TWorld::InitMask(QString name)
-{
-    // read map and make a mask map
-
-    cTMap *_M = new cTMap(readRaster(name));
-
-    maplistCTMap[maplistnr].m = _M;
-    maplistnr++;
-
-    _dx = _M->cellSize()*1.0000000;
-    _nrRows = _M->nrRows();
-    _nrCols = _M->nrCols();
-    _llx =  _M->west();
-    _lly = _M->north() - (double)_nrRows * _dx;
-
-    return(_M);
-
-}
-//---------------------------------------------------------------------------
-/// separate networks need their own InitMask: LDD, ChannelLDD, TileLDD
-cTMap *TWorld::InitMaskChannel(QString name)
-{
-
-    cTMap *_M = new cTMap(readRaster(name));
-
-    maplistCTMap[maplistnr].m = _M;
-    maplistnr++;
-
-    return(_M);
-
-}
-//---------------------------------------------------------------------------
-/// separate networks need their own InitMask: LDD, ChannelLDD, TileLDD
-cTMap *TWorld::InitMaskTiledrain(QString name)
-{
-
-    cTMap *_M = new cTMap(readRaster(name));
-
-    maplistCTMap[maplistnr].m = _M;
-    maplistnr++;
-
-    return(_M);
-
-}
 //---------------------------------------------------------------------------
 void TWorld::GetInputData(void)
 {
@@ -241,6 +39,8 @@ void TWorld::GetInputData(void)
 
     InitStandardInput();
     //## Basic data start of map list etc.
+
+    InitMeteoInput();
 
     InitLULCInput();
     //## surface related variables
@@ -295,6 +95,7 @@ void TWorld::InitParameters(void)
 
     ksatCalibration = getvaluedouble("Ksat calibration");
     ksat2Calibration = getvaluedouble("Ksat2 calibration");
+    ksat3Calibration = 1.0;//egetvaluedouble("Ksat2 calibration");
 
     SmaxCalibration = getvaluedouble("Smax calibration");
     RRCalibration = getvaluedouble("RR calibration");
@@ -325,7 +126,7 @@ void TWorld::InitParameters(void)
     DepositedCohesion = getvaluedouble("Particle Cohesion of Deposited Layer");
     BulkDens = getvaluedouble("Sediment bulk density");
     //StemflowFraction = getvaluedouble("Stemflow fraction");
-    CanopyOpeness = getvaluedouble("Canopy Openess");
+    CanopyOpeness = 0.45;//getvaluedouble("Canopy Openess");
 
     // VJ 170923 moved all 2D switches here
     minReportFloodHeight = getvaluedouble("Minimum reported flood height");
@@ -350,7 +151,7 @@ void TWorld::InitParameters(void)
         SwitchLinkedList = getvalueint("Use linked List") == 1;
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
-        SwitchChannelWFinflow = getvalueint("Channel WF inflow") == 1;
+        SwitchChannelWFinflow = false;//getvalueint("Channel WF inflow") == 1;
         //SwitchGWChangeSD = true;//getvalueint("GW layer change SD") == 1;
     } else {
         F_MaxIter = 200;
@@ -516,9 +317,17 @@ void TWorld::InitStandardInput(void)
         ErrorString = QString("Outpoint.map has no values above 0. Copy at least outlet(s).");
         throw 1;
     }
+
+    ChannelAdj = NewMap(_dx);
+    CHAdjDX = NewMap(0);
+
+}
+//---------------------------------------------------------------------------
+void TWorld::InitMeteoInput(void)
+{
     SwitchUseIDmap = true;
-/// TODO   !!!!!!!!!!!!!!!
-    if (SwitchRainfall && !SwitchRainfallSatellite)
+
+    if (!SwitchRainfallSatellite)
     {
         RainZone = ReadMap(LDD,getvaluename("ID"));
         if (SwitchIDinterpolation) {
@@ -530,26 +339,58 @@ void TWorld::InitStandardInput(void)
         }
     }
 
+    //### rainfall and interception maps
+    RainTot = 0;
+    RainTotmm = 0;
+    Rainpeak = 0;
+    RainpeakTime = 0;
+    RainstartTime = -1;
+    rainStarted = false;
+    ETStarted = false;
+    RainAvgmm = 0;
+    SnowAvgmm = 0;
+    SnowTot = 0;
+    SnowTotmm = 0;
+    Snowpeak = 0;
+    SnowpeakTime = 0;
 
-    if (SwitchIncludeET && !SwitchETSatellite)
-    {
-        ETZone = ReadMap(LDD,getvaluename("ETID"));
-    }
+    Rain = NewMap(0);
+    Rainc = NewMap(0);
+    RainCum = NewMap(0);
+    RainCumFlat = NewMap(0);
+    RainNet = NewMap(0);
 
-    Snowcover = NewMap(0);
-    if (SwitchSnowmelt && !SwitchSnowmeltSatellite)
-    {
-        SnowmeltZone = ReadMap(LDD,getvaluename("SnowID"));
-        FOR_ROW_COL_MV
-        {
-            Snowcover->Drc = (SnowmeltZone->Drc == 0 ? 0 : 1.0);
+    if (SwitchIncludeET) {
+        ETa = NewMap(0);
+        ETaCum = NewMap(0);
+        ETp = NewMap(0);
+        ETpCum = NewMap(0);
+
+        if (!SwitchETSatellite){
+            ETZone = ReadMap(LDD,getvaluename("ETID"));
         }
     }
+
+    if (SwitchSnowmelt) {
+        Snowcover = NewMap(0);
+        Snowmelt = NewMap(0);
+        Snowmeltc = NewMap(0);
+        SnowmeltCum = NewMap(0);
+        if (!SwitchSnowmeltSatellite)
+        {
+            SnowmeltZone = ReadMap(LDD,getvaluename("SnowID"));
+            FOR_ROW_COL_MV {
+                Snowcover->Drc = (SnowmeltZone->Drc == 0 ? 0 : 1.0);
+            }
+        }
+    }
+
 }
 //---------------------------------------------------------------------------
 //## landuse and surface data
 void TWorld::InitLULCInput(void)
 {
+    //===== surface =====
     N = ReadMap(LDD,getvaluename("manning"));
     checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
     calcValue(*N, nCalibration, MUL);
@@ -561,22 +402,91 @@ void TWorld::InitLULCInput(void)
     checkMap(*RR, SMALLER, 0.0, "Raindom roughness RR must be >= 0");
     calcValue(*RR, RRCalibration, MUL);
 
+    //===== interception =====
     LAI = ReadMap(LDD,getvaluename("lai"));
     checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");
     Cover = ReadMap(LDD,getvaluename("cover"));
     checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
     checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
 
+    LeafDrain = NewMap(0);
+    CStor = NewMap(0);
+    Interc = NewMap(0);
+    InterceptionmmCum = NewMap(0);
+
+    if (SwitchIncludeET)
+        IntercETa = NewMap(0);
+
+    InterceptionLAIType = getvalueint("Canopy storage equation");
+    SwitchInterceptionLAI = InterceptionLAIType < 8;
+
+    if (SwitchInterceptionLAI)
+    {
+        CanopyStorage = NewMap(0); //in m !!!
+        FOR_ROW_COL_MV
+        {
+            switch (InterceptionLAIType)
+            {
+                case 0: CanopyStorage->Drc = 0.4376 * LAI->Drc + 1.0356;break; // gives identical results
+                    //0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
+                case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
+                case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
+                case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
+                case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
+                case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
+                case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
+                case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
+
+            }
+        }
+    }
+    else
+    {
+        CanopyStorage = ReadMap(LDD,getvaluename("smax"));
+    }
+    calcValue(*CanopyStorage, SmaxCalibration, MUL);
+    calcValue(*CanopyStorage, 0.001, MUL); // from mm to m
+    //NOTE: LAI is still needed for canopy openness
+
+    if (SwitchHouses)
+    {
+        HStor = NewMap(0);
+        IntercHouse = NewMap(0);
+        DStor = NewMap(0);
+
+        HouseCover = ReadMap(LDD,getvaluename("housecover"));
+        RoofStore = ReadMap(LDD,getvaluename("roofstore"));
+        calcValue(*RoofStore, 0.001, MUL); // from mm to m
+        DrumStore = ReadMap(LDD,getvaluename("drumstore"));
+
+        if (SwitchAddBuildingsDEM) {
+            double AddBuildingFraction = getvaluedouble("Add Building fraction");
+            double AddBuildingHeight = getvaluedouble("Add Building fraction");
+            FOR_ROW_COL_MV {
+                double dem = DEM->Drc;
+                dem += HouseCover->Drc > AddBuildingFraction  ? AddBuildingHeight: 0.0;
+                dem = RoadWidthDX->Drc > 0.1 ? DEM->Drc : dem;
+                DEM->Drc = dem;
+            }
+            InitShade();
+        }
+
+    }
+    else
+        HouseCover = NewMap(0);
+
     if (SwitchLitter)
     {
+        LCStor = NewMap(0);
+        LInterc = NewMap(0);
         Litter = ReadMap(LDD,getvaluename("litter"));
         checkMap(*Litter, SMALLER, 0.0, "Litter cover fraction must be >= 0");
         checkMap(*Litter, LARGER, 1.0, "Litter cover fraction must be <= 1.0");
+        LitterSmax = getvaluedouble("Litter interception storage");
     }
-    else
-        Litter = NewMap(0);
+//    else
+//        Litter = NewMap(0);
 
-    LitterSmax = getvaluedouble("Litter interception storage");
 
     GrassFraction = NewMap(0);
     if (SwitchGrassStrip)
@@ -594,15 +504,16 @@ void TWorld::InitLULCInput(void)
             {
                 N->Drc = N->Drc*(1-GrassFraction->Drc)+StripN*GrassFraction->Drc;
                 Cover->Drc = Cover->Drc*(1-GrassFraction->Drc) + 0.95*GrassFraction->Drc;
-                LAI->Drc = LAI->Drc*(1-GrassFraction->Drc) + 5.0*LAI->Drc;
+                LAI->Drc = LAI->Drc*(1-GrassFraction->Drc) + 5.0*GrassFraction->Drc;
             }
             //adjust mann N Cover and height
         }
-    } else {
-        KsatGrass = NewMap(0);
-        PoreGrass = NewMap(0);
-        CohGrass = NewMap(0);
     }
+    //    else {
+    //        KsatGrass = NewMap(0);
+    //        PoreGrass = NewMap(0);
+    //        CohGrass = NewMap(0);
+    //    }
 
     if (SwitchRoadsystem)
     {
@@ -640,7 +551,6 @@ void TWorld::InitSoilInput(void)
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
         calcValue(*SoilDepth1, SD1Calibration, MUL);
-       // report(*SoilDepth1,"sd1.map");
         SoilDepth1init = NewMap(0);
         copy(*SoilDepth1init, *SoilDepth1);
 
@@ -655,7 +565,6 @@ void TWorld::InitSoilInput(void)
 
         ThetaR1 = NewMap(0);
         lambda1 = NewMap(0);
-        psi1ae = NewMap(0);
         ThetaFC1 = NewMap(0);
 
         FOR_ROW_COL_MV_L {
@@ -667,7 +576,7 @@ void TWorld::InitSoilInput(void)
             double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
             lambda1->Drc = 0.0849*ks+0.159;
             lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
-            psi1ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+
             ThetaR1->Drc = 0.0673*exp(-0.238*log(ks));
             ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;
         }}
@@ -680,7 +589,9 @@ void TWorld::InitSoilInput(void)
             Psi1 = NewMap(0);
             FOR_ROW_COL_MV_L {
                 Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425)*0.01;
-                Psi1->Drc = std::max(Psi1->Drc,psi1ae->Drc);
+                double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
+                double psiae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+                Psi1->Drc = std::max(Psi1->Drc, psiae);
             }}
         }
         calcValue(*Ksat1, ksatCalibration, MUL);
@@ -690,7 +601,7 @@ void TWorld::InitSoilInput(void)
         {
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
-            //calcValue(*SoilDepth2, SD2Calibration, MUL);
+            calcValue(*SoilDepth2, SD2Calibration, MUL);
 
             SoilDepth2init = NewMap(0);
             copy(*SoilDepth2init, *SoilDepth2);
@@ -706,7 +617,6 @@ void TWorld::InitSoilInput(void)
 
             ThetaR2 = NewMap(0);
             lambda2 = NewMap(0);             // lambda brooks corey
-            psi2ae = NewMap(0);
 
             ThetaFC2 = NewMap(0);
             FOR_ROW_COL_MV_L {
@@ -715,7 +625,6 @@ void TWorld::InitSoilInput(void)
                 //vgalpha2->Drc = 0.0237*ks + 0.0054;
                 lambda2->Drc = 0.0849*ks+0.159;
                 lambda2->Drc = std::min(std::max(0.1,lambda2->Drc),0.7);
-                psi2ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
                 ThetaR2->Drc = 0.0673*exp(-0.238*log(ks));
                 ThetaFC2->Drc = -0.0519*log(ks) + 0.3714;
             }}
@@ -729,10 +638,60 @@ void TWorld::InitSoilInput(void)
                 Psi2 = NewMap(0);
                 FOR_ROW_COL_MV_L {
                     Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
-                    Psi2->Drc = std::max(Psi2->Drc,psi2ae->Drc);
+                    double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
+                    double psi2ae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+                    Psi2->Drc = std::max(Psi2->Drc,psi2ae);
                 }}
             }
             calcValue(*Ksat2, ksat2Calibration, MUL);
+        }
+
+        if (SwitchThreeLayer)
+        {
+            SoilDepth3 = ReadMap(LDD,getvaluename("soilDep3"));
+            calcValue(*SoilDepth3, 1000, DIV);
+            //calcValue(*SoilDepth2, SD2Calibration, MUL);
+
+            SoilDepth3init = NewMap(0);
+            copy(*SoilDepth3init, *SoilDepth3);
+
+            ThetaS3 = ReadMap(LDD,getvaluename("thetaS3"));
+            ThetaI3 = ReadMap(LDD,getvaluename("thetaI3"));
+            ThetaI3a = NewMap(0); // for output, average soil layer 2
+            calcValue(*ThetaI3, thetaCalibration, MUL);
+            calcMap(*ThetaI3, *ThetaS3, MIN);
+            copy(*ThetaI3a, *ThetaI3);
+
+            Ksat3 = ReadMap(LDD,getvaluename("ksat3"));
+
+            ThetaR3 = NewMap(0);
+            lambda3 = NewMap(0);             // lambda brooks corey
+            ThetaFC3 = NewMap(0);
+            FOR_ROW_COL_MV_L {
+                // regression eq from data from Saxton and rawls 2006, excel file
+                double ks = std::max(0.5,std::min(1000.0,log(Ksat3->Drc)));
+                //vgalpha2->Drc = 0.0237*ks + 0.0054;
+                lambda3->Drc = 0.0849*ks+0.159;
+                lambda3->Drc = std::min(std::max(0.1,lambda3->Drc),0.7);
+                ThetaR3->Drc = 0.0673*exp(-0.238*log(ks));
+                ThetaFC3->Drc = -0.0519*log(ks) + 0.3714;
+            }}
+
+            // wetting front psi
+            if (SwitchPsiUser) {
+                Psi3 = ReadMap(LDD,getvaluename("psi3"));
+                //   calcValue(*Psi3, psiCalibration, MUL); //VJ 110712 calibration of psi
+                calcValue(*Psi3, 0.01, MUL);
+            } else {
+                Psi3 = NewMap(0);
+                FOR_ROW_COL_MV_L {
+                    Psi3->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
+                    double ks = std::max(0.5,std::min(1000.0,log(Ksat3->Drc)));
+                    double psi3ae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+                    Psi3->Drc = std::max(Psi2->Drc,psi3ae);
+                }}
+            }
+            calcValue(*Ksat3, ksat3Calibration, MUL);
         }
 
         if (SwitchInfilCrust)
@@ -925,10 +884,6 @@ void TWorld::InitChannel(void)
         newcr.r = r;
         newcr.c = c;
         crch_ << newcr;
-
-      //  crch_[i].r = r;
-      //  crch_[i].c = c;
-      //  i++;
     }
     crlinkedlddch_= MakeLinkedList(LDDChannel);
 
@@ -997,44 +952,6 @@ void TWorld::InitChannel(void)
 
     ChannelNcul = NewMap(0);
     ChannelQSide = NewMap(0);
-/*
-    chanmask3 = NewMap(0);
-
-  //  tma->setAllMV();
-    chanmask3->setAllMV();
-
-    FOR_ROW_COL_MV_L {
-        if (ChannelWidth->Drc > 0) {
-            tma->Drc = 1;
-            if (c > 0 && !MV(r,c-1)        ) tma->data[r][c-1] = 1;
-            if (c < _nrCols-1 && !MV(r,c+1)) tma->data[r][c+1] = 1;
-            if (r > 0 && !MV(r-1,c)        ) tma->data[r-1][c] = 1;
-            if (r < _nrRows-1 && !MV(r+1,c)) tma->data[r+1][c] = 1;
-
-            if (c > 0 && r > 0 && !MV(r-1,c-1)                )tma->data[r-1][c-1]=1;
-            if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1))tma->data[r+1][c+1]=1;
-            if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        )tma->data[r-1][c+1]=1;
-            if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        )tma->data[r+1][c-1]=1;
-        }
-    }}
-
-    FOR_ROW_COL_MV_L {
-        //        if (tma->Drc > 0) {
-        if (ChannelWidth->Drc > 0) {
-            chanmask3->Drc = 1;
-            if (c > 0 && !MV(r,c-1)        ) chanmask3->data[r][c-1] = 1;
-            if (c < _nrCols-1 && !MV(r,c+1)) chanmask3->data[r][c+1] = 1;
-            if (r > 0 && !MV(r-1,c)        ) chanmask3->data[r-1][c] = 1;
-            if (r < _nrRows-1 && !MV(r+1,c)) chanmask3->data[r+1][c] = 1;
-
-            if (c > 0 && r > 0 && !MV(r-1,c-1)                ) chanmask3->data[r-1][c-1]=1;
-            if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) chanmask3->data[r+1][c+1]=1;
-            if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) chanmask3->data[r-1][c+1]=1;
-            if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) chanmask3->data[r+1][c-1]=1;
-        }
-    }}
-    report(*chanmask3,"cm3.map");
-*/
 
     calcValue(*ChannelN, ChnCalibration, MUL);
     copy(*ChannelNcul, *ChannelN);
@@ -1087,7 +1004,6 @@ void TWorld::InitChannel(void)
 
         GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
         Qbase = NewMap(0);
-        //Qbaseprev = NewMap(0);
         GWWH = NewMap(0);
         GWWHmax = NewMap(0);
 
@@ -1167,8 +1083,6 @@ void TWorld::InitChannel(void)
         UcrCHCalibration = getvaluedouble("Ucr Channel calibration");
         DirectEfficiency = getvaluedouble("Direct efficiency channel");
 
-//qDebug() << COHCHCalibration << UcrCHCalibration << SVCHCalibration;
-        //qDebug() << "SwitchEfficiencyDETCH"<< SwitchEfficiencyDETCH;
         FOR_ROW_COL_MV_CHL {
             ChannelCohesion->Drc *= COHCHCalibration;
 
@@ -1208,24 +1122,18 @@ void TWorld::InitFlood(void)
     FloodDetTot = 0;
 
     prepareFlood = true;
-    //   iro = NewMap(0);
     Qflood = NewMap(0);
     hmxWH = NewMap(0);
     FloodWaterVol = NewMap(0);
     RunoffWaterVol = NewMap(0);
     floodTimeStart = NewMap(0);
+
     hs = NewMap(0);
-    vs = NewMap(0);
-    us = NewMap(0);
-    vxs = NewMap(0);
-    vys = NewMap(0);
     Uflood = NewMap(0);
     Vflood = NewMap(0);
     hmx = NewMap(0);
     hmxflood = NewMap(0);
     FloodDomain = NewMap(0);
-    ChannelAdj = NewMap(_dx);
-    CHAdjDX = NewMap(0);
 
     floodHmxMax = NewMap(0);//
     floodVMax = NewMap(0);//
@@ -1241,9 +1149,8 @@ void TWorld::InitFlood(void)
         DiagonalFlowDEM();
 
     if (!SwitchSWOFopen) {
-        //hsa = NewMap(0);
-        //vsa = NewMap(0);
-       // usa = NewMap(0);
+        vs = NewMap(0);
+        us = NewMap(0);
         z1r = NewMap(0);
         z1l = NewMap(0);
         z2r = NewMap(0);
@@ -1445,14 +1352,6 @@ void TWorld::CorrectDEM(cTMap *h, cTMap * g)
     //report(*tmb, "dempits.map");
 }
 //---------------------------------------------------------------------------
-double TWorld::LogNormalDist(double d50,double s, double d)
-{
-    double dev = log(1.0 + s/d50);
-    double dev2 = (log(d)  - log(d50));
-    return (1.0/(d *sqrt(2.0*3.14159) * log(1.0 + s/d50)))*exp(-dev2*dev2)/(4*dev*dev);
-
-}
-//---------------------------------------------------------------------------
 void TWorld::InitErosion(void)
 {
 //qDebug() << "hoi"; //SwitchSlopeStability ||
@@ -1560,8 +1459,6 @@ void TWorld::InitErosion(void)
 //            FS_SS_Method = FSGOVERS;
 //        }
 
-    unity = NewMap(1.0);
-
     Qs = NewMap(0);
     Qsn = NewMap(0);
 
@@ -1644,8 +1541,11 @@ void TWorld::InitErosion(void)
                 SplashStrength->Drc = -1;
         // negative values give no splash
     }
-
-
+}
+//---------------------------------------------------------------------------
+void TWorld::InitMulticlass(void)
+{
+/*
     FOR_ROW_COL_MV
     {
         SettlingVelocitySS->Drc = GetSV(D50->Drc/gsizeCalibrationD50);
@@ -1696,187 +1596,188 @@ void TWorld::InitErosion(void)
     }
 
 
-    //    if(SwitchUseGrainSizeDistribution)
-    //    {
+    if(SwitchUseGrainSizeDistribution)
+    {
 
-    //        if(SwitchEstimateGrainSizeDistribution)
-    //        {
-    //            if(numgrainclasses == 0)
-    //            {
-    //                ErrorString = "Could not simulate 0 grain classes" +QString("\n")
-    //                        + "Please provide a positive number";
-    //                throw 1;
+        if(SwitchEstimateGrainSizeDistribution)
+        {
+            if(numgrainclasses == 0)
+            {
+                ErrorString = "Could not simulate 0 grain classes" +QString("\n")
+                        + "Please provide a positive number";
+                throw 1;
 
-    //            }
+            }
 
 
-    //            distD50 = 0;
-    //            distD90 = 0;
-    //            int count = 0;
-    //            FOR_ROW_COL_MV
-    //            {
-    //                distD50 += D50->Drc;
-    //                distD90 += D90->Drc;
-    //                count++;
-    //            }
-    //            distD50 = distD50/count;
-    //            distD90 = distD90/count;
+            distD50 = 0;
+            distD90 = 0;
+            int count = 0;
+            FOR_ROW_COL_MV
+            {
+                distD50 += D50->Drc;
+                distD90 += D90->Drc;
+                count++;
+            }
+            distD50 = distD50/count;
+            distD90 = distD90/count;
 
-    //            double s = distD90- distD50;
-    //            double s2l = std::max(distD50 - 2*s,distD50);
-    //            double s2r = 2 * s;
+            double s = distD90- distD50;
+            double s2l = std::max(distD50 - 2*s,distD50);
+            double s2r = 2 * s;
 
-    //            int classesleft = numgrainclasses;
-    //            int mod2 = classesleft % 2;
-    //            if(mod2 == 1)
-    //            {
-    //                classesleft -= 1;
-    //            }
+            int classesleft = numgrainclasses;
+            int mod2 = classesleft % 2;
+            if(mod2 == 1)
+            {
+                classesleft -= 1;
+            }
 
-    //            for(int i = 1; i < classesleft/2 + 1 ; i++)
-    //            {
-    //                double d = (distD50 - s2l) + ((double)i) * s2l/(1.0 + double(classesleft/2.0) );
-    //                graindiameters.append(d);
-    //                W_D.append(NewMap(s2l/(1.0 + double(classesleft/2.0) )));
-    //            }
-    //            if(mod2 == 1)
-    //            {
-    //                graindiameters.append(distD50);
-    //                W_D.append(NewMap(0.5 *s2l/(1.0 + double(classesleft/2.0) ) + 0.5 * s2r/(1.0 + double(classesleft/2.0))));
-    //            }
+            for(int i = 1; i < classesleft/2 + 1 ; i++)
+            {
+                double d = (distD50 - s2l) + ((double)i) * s2l/(1.0 + double(classesleft/2.0) );
+                graindiameters.append(d);
+                W_D.append(NewMap(s2l/(1.0 + double(classesleft/2.0) )));
+            }
+            if(mod2 == 1)
+            {
+                graindiameters.append(distD50);
+                W_D.append(NewMap(0.5 *s2l/(1.0 + double(classesleft/2.0) ) + 0.5 * s2r/(1.0 + double(classesleft/2.0))));
+            }
 
-    //            for(int i = 1; i < classesleft/2 + 1; i++)
-    //            {
-    //                double d = (distD50) + ((double)i) *s2r/(1.0 + double(classesleft/2.0) );
-    //                graindiameters.append(d);
-    //                W_D.append(NewMap(s2r/(1.0 + double(classesleft/2.0))));
-    //            }
+            for(int i = 1; i < classesleft/2 + 1; i++)
+            {
+                double d = (distD50) + ((double)i) *s2r/(1.0 + double(classesleft/2.0) );
+                graindiameters.append(d);
+                W_D.append(NewMap(s2r/(1.0 + double(classesleft/2.0))));
+            }
 
-    //            FOR_GRAIN_CLASSES
-    //            {
+            FOR_GRAIN_CLASSES
+            {
 
-    //                settlingvelocities.append(GetSV(graindiameters.at(d)));
+                settlingvelocities.append(GetSV(graindiameters.at(d)));
 
-    //                FOR_ROW_COL_MV
-    //                {
-    //                    W_D.Drcd = W_D.Drcd*LogNormalDist(D50->Drc,D90->Drc -D50->Drc,graindiameters.at(d));
-    //                }
-    //                Tempa_D.append(NewMap(0.0));
-    //                Tempb_D.append(NewMap(0.0));
-    //                Tempc_D.append(NewMap(0.0));
-    //                Tempd_D.append(NewMap(0.0));
+                FOR_ROW_COL_MV
+                {
+                    W_D.Drcd = W_D.Drcd*LogNormalDist(D50->Drc,D90->Drc -D50->Drc,graindiameters.at(d));
+                }
+                Tempa_D.append(NewMap(0.0));
+                Tempb_D.append(NewMap(0.0));
+                Tempc_D.append(NewMap(0.0));
+                Tempd_D.append(NewMap(0.0));
 
-    //                BL_D.append(NewMap(0.0));
-    //                SS_D.append(NewMap(0.0));
-    //                BLC_D.append(NewMap(0.0));
-    //                SSC_D.append(NewMap(0.0));
-    //                BLTC_D.append(NewMap(0.0));
-    //                SSTC_D.append(NewMap(0.0));
-    //                BLD_D.append(NewMap(0.0));
-    //                SSD_D.append(NewMap(0.0));
+                BL_D.append(NewMap(0.0));
+                SS_D.append(NewMap(0.0));
+                BLC_D.append(NewMap(0.0));
+                SSC_D.append(NewMap(0.0));
+                BLTC_D.append(NewMap(0.0));
+                SSTC_D.append(NewMap(0.0));
+                BLD_D.append(NewMap(0.0));
+                SSD_D.append(NewMap(0.0));
 
-    //                RBL_D.append(NewMap(0.0));
-    //                RSS_D.append(NewMap(0.0));
-    //                RBLC_D.append(NewMap(0.0));
-    //                RSSC_D.append(NewMap(0.0));
-    //                RBLTC_D.append(NewMap(0.0));
-    //                RSSTC_D.append(NewMap(0.0));
-    //                RBLD_D.append(NewMap(0.0));
-    //                RSSD_D.append(NewMap(0.0));
+                RBL_D.append(NewMap(0.0));
+                RSS_D.append(NewMap(0.0));
+                RBLC_D.append(NewMap(0.0));
+                RSSC_D.append(NewMap(0.0));
+                RBLTC_D.append(NewMap(0.0));
+                RSSTC_D.append(NewMap(0.0));
+                RBLD_D.append(NewMap(0.0));
+                RSSD_D.append(NewMap(0.0));
 
-    //                Sed_D.append(NewMap(0.0));
-    //                TC_D.append(NewMap(0.0));
-    //                Conc_D.append(NewMap(0.0));
+                Sed_D.append(NewMap(0.0));
+                TC_D.append(NewMap(0.0));
+                Conc_D.append(NewMap(0.0));
 
-    //                StorageDep_D.append(NewMap(0.0));
-    //                Storage_D.append(NewMap(0.0));
-    //                RStorageDep_D.append(NewMap(0.0));
-    //                RStorage_D.append(NewMap(0.0));
-    //            }
+                StorageDep_D.append(NewMap(0.0));
+                Storage_D.append(NewMap(0.0));
+                RStorageDep_D.append(NewMap(0.0));
+                RStorage_D.append(NewMap(0.0));
+            }
 
-    //            FOR_ROW_COL_MV
-    //            {
-    //                double wtotal = 0;
-    //                FOR_GRAIN_CLASSES
-    //                {
-    //                    wtotal += (W_D).Drcd;
-    //                }
+            FOR_ROW_COL_MV
+            {
+                double wtotal = 0;
+                FOR_GRAIN_CLASSES
+                {
+                    wtotal += (W_D).Drcd;
+                }
 
-    //                if(wtotal != 0)
-    //                {
-    //                    FOR_GRAIN_CLASSES
-    //                    {
-    //                        (W_D).Drcd = (W_D).Drcd/wtotal;
-    //                    }
-    //                }
-    //            }
+                if(wtotal != 0)
+                {
+                    FOR_GRAIN_CLASSES
+                    {
+                        (W_D).Drcd = (W_D).Drcd/wtotal;
+                    }
+                }
+            }
 
-    //        }
+        }
 
-    //        //        if(SwitchReadGrainSizeDistribution)
-    //        //        {
+        if(SwitchReadGrainSizeDistribution)
+        {
 
-    //        //            numgrainclasses = 0;
-    //        //            QStringList diamlist = getvaluename("Grain size class maps").split(";", Qt::SkipEmptyParts);
+            numgrainclasses = 0;
+            QStringList diamlist = getvaluename("Grain size class maps").split(";", Qt::SkipEmptyParts);
 
-    //        //            for(int i = 0; i < diamlist.count(); i++)
-    //        //            {
-    //        //                double diam = gsizeCalibration*diamlist.at(i).toDouble();
-    //        //                ///gsizeCalibration ?? added later?
-    //        //                if( diam > 0.0)
-    //        //                {
-    //        //                    numgrainclasses++;
-    //        //                    graindiameters.append(diam);
+            for(int i = 0; i < diamlist.count(); i++)
+            {
+                double diam = gsizeCalibration*diamlist.at(i).toDouble();
+                ///gsizeCalibration ?? added later?
+                if( diam > 0.0)
+                {
+                    numgrainclasses++;
+                    graindiameters.append(diam);
 
-    //        //                    settlingvelocities.append(GetSV(diam));
+                    settlingvelocities.append(GetSV(diam));
 
-    //        //                    W_D.append(ReadMap(LDD,"GSD_"+diamlist.at(i)));
+                    W_D.append(ReadMap(LDD,"GSD_"+diamlist.at(i)));
 
-    //        //                    graindiameters.clear();
+                    graindiameters.clear();
 
-    //        //                    Tempa_D.append(NewMap(0.0));
-    //        //                    Tempb_D.append(NewMap(0.0));
-    //        //                    Tempc_D.append(NewMap(0.0));
-    //        //                    Tempd_D.append(NewMap(0.0));
+                    Tempa_D.append(NewMap(0.0));
+                    Tempb_D.append(NewMap(0.0));
+                    Tempc_D.append(NewMap(0.0));
+                    Tempd_D.append(NewMap(0.0));
 
-    //        //                    BL_D.append(NewMap(0.0));
-    //        //                    SS_D.append(NewMap(0.0));
-    //        //                    BLC_D.append(NewMap(0.0));
-    //        //                    SSC_D.append(NewMap(0.0));
-    //        //                    BLTC_D.append(NewMap(0.0));
-    //        //                    SSTC_D.append(NewMap(0.0));
-    //        //                    BLD_D.append(NewMap(0.0));
-    //        //                    SSD_D.append(NewMap(0.0));
+                    BL_D.append(NewMap(0.0));
+                    SS_D.append(NewMap(0.0));
+                    BLC_D.append(NewMap(0.0));
+                    SSC_D.append(NewMap(0.0));
+                    BLTC_D.append(NewMap(0.0));
+                    SSTC_D.append(NewMap(0.0));
+                    BLD_D.append(NewMap(0.0));
+                    SSD_D.append(NewMap(0.0));
 
-    //        //                    RBL_D.append(NewMap(0.0));
-    //        //                    RSS_D.append(NewMap(0.0));
-    //        //                    RBLC_D.append(NewMap(0.0));
-    //        //                    RSSC_D.append(NewMap(0.0));
-    //        //                    RBLTC_D.append(NewMap(0.0));
-    //        //                    RSSTC_D.append(NewMap(0.0));
-    //        //                    RBLD_D.append(NewMap(0.0));
-    //        //                    RSSD_D.append(NewMap(0.0));
+                    RBL_D.append(NewMap(0.0));
+                    RSS_D.append(NewMap(0.0));
+                    RBLC_D.append(NewMap(0.0));
+                    RSSC_D.append(NewMap(0.0));
+                    RBLTC_D.append(NewMap(0.0));
+                    RSSTC_D.append(NewMap(0.0));
+                    RBLD_D.append(NewMap(0.0));
+                    RSSD_D.append(NewMap(0.0));
 
-    //        //                    Sed_D.append(NewMap(0.0));
-    //        //                    TC_D.append(NewMap(0.0));
-    //        //                    Conc_D.append(NewMap(0.0));
+                    Sed_D.append(NewMap(0.0));
+                    TC_D.append(NewMap(0.0));
+                    Conc_D.append(NewMap(0.0));
 
-    //        //                    StorageDep_D.append(NewMap(0.0));
-    //        //                    Storage_D.append(NewMap(0.0));
-    //        //                    RStorageDep_D.append(NewMap(0.0));
-    //        //                    RStorage_D.append(NewMap(0.0));
-    //        //                }
-    //        //            }
+                    StorageDep_D.append(NewMap(0.0));
+                    Storage_D.append(NewMap(0.0));
+                    RStorageDep_D.append(NewMap(0.0));
+                    RStorage_D.append(NewMap(0.0));
+                }
+            }
 
-    //        //            if(numgrainclasses == 0)
-    //        //            {
-    //        //                ErrorString = "Could not interpret grain classes from the string: \n"
-    //        //                        +  getvaluename("Grain size class maps") + "\n"
-    //        //                        + "Please provide positive values seperated by commas.";
-    //        //                throw 1;
-    //        //            }
-    //        //        }
-    //    }
+            if(numgrainclasses == 0)
+            {
+                ErrorString = "Could not interpret grain classes from the string: \n"
+                        +  getvaluename("Grain size class maps") + "\n"
+                        + "Please provide positive values seperated by commas.";
+                throw 1;
+            }
+        }
+        }
+*/
 }
 
 
@@ -1919,134 +1820,6 @@ void TWorld::IntializeData(void)
     COMBO_TC = NewMap(0);
     COMBO_V = NewMap(0);
 
-
-    //### rainfall and interception maps
-    RainTot = 0;
-    RainTotmm = 0;
-    Rainpeak = 0;
-    RainpeakTime = 0;
-    RainstartTime = -1;
-    rainStarted = false;
-    ETStarted = false;
-    RainAvgmm = 0;
-    SnowAvgmm = 0;
-    SnowTot = 0;
-    SnowTotmm = 0;
-    Snowpeak = 0;
-    SnowpeakTime = 0;
-    Rain = NewMap(0);
-    //IDIw = NewMap(0);
-    Rainc = NewMap(0);
-    RainCum = NewMap(0);
-    RainCumFlat = NewMap(0);
-    RainNet = NewMap(0);
-    LeafDrain = NewMap(0);
-
-    CStor = NewMap(0);
-    Interc = NewMap(0);
-    IntercETa = NewMap(0);
-    // litter
-    LCStor = NewMap(0);
-    LInterc = NewMap(0);
-
-    InterceptionmmCum = NewMap(0);
-    //houses
-    HStor = NewMap(0);
-    IntercHouse = NewMap(0);
-    DStor = NewMap(0);
-
-    if (SwitchIncludeET) {
-        ETa = NewMap(0);
-        ETaCum = NewMap(0);
-        ETp = NewMap(0);
-        ETpCum = NewMap(0);
-    }
-
-    Snowmelt = NewMap(0);
-    Snowmeltc = NewMap(0);
-    SnowmeltCum = NewMap(0);
-
-    InterceptionLAIType = getvalueint("Canopy storage equation");
-    SwitchInterceptionLAI = InterceptionLAIType < 8;
-
-    if (SwitchInterceptionLAI)
-    {
-        CanopyStorage = NewMap(0); //in m !!!
-        FOR_ROW_COL_MV
-        {
-            switch (InterceptionLAIType)
-            {
-            case 0: CanopyStorage->Drc = 0.4376 * LAI->Drc + 1.0356;break; // gives identical results
-                        //0.935+0.498*LAI->Drc-0.00575*(LAI->Drc * LAI->Drc);break;
-            case 1: CanopyStorage->Drc = 0.2331 * LAI->Drc; break;
-            case 2: CanopyStorage->Drc = 0.3165 * LAI->Drc; break;
-            case 3: CanopyStorage->Drc = 1.46 * pow(LAI->Drc,0.56); break;
-            case 4: CanopyStorage->Drc = 0.0918 * pow(LAI->Drc,1.04); break;
-            case 5: CanopyStorage->Drc = 0.2856 * LAI->Drc; break;
-            case 6: CanopyStorage->Drc = 0.1713 * LAI->Drc; break;
-            case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
-
-            }
-        }
-    }
-    else
-    {
-        CanopyStorage = ReadMap(LDD,getvaluename("smax"));
-        //if we have a Smax map directly we need the LAI so we derive it from the cover
-        FOR_ROW_COL_MV {
-            LAI->Drc = (log(std::max(0.01,1-Cover->Drc))/-0.4);// /std::max(0.1,Cover->Drc);
-        }
-    }
-    calcValue(*CanopyStorage, SmaxCalibration, MUL);
-
-    // openness coefficient k
-    kLAI = NewMap(0);
-    FOR_ROW_COL_MV {
-        kLAI->Drc = 1-exp(-CanopyOpeness*LAI->Drc);
-    }
-
-
-    calcValue(*CanopyStorage, 0.001, MUL); // from mm to m
-    //NOTE: LAI is still needed for canopy openness, can be circumvented with cover
-    if (SwitchHouses)
-    {
-        //houses info:
-        //housecover.map;Fraction of hard roof surface per cell (-);housecover");
-        //roofstore.map;Size of interception storage of rainwater on roofs (mm);roofstore");
-        //drumstore.map;Size of storage of rainwater drums (m3);drumstore");
-        HouseCover = ReadMap(LDD,getvaluename("housecover"));
-        if (SwitchGrassStrip) {
-            FOR_ROW_COL_MV {
-                if (GrassWidthDX->Drc != 0)
-                    HouseCover->Drc = HouseCover->Drc*(1-GrassFraction->Drc);
-            }
-        }
-        RoofStore = ReadMap(LDD,getvaluename("roofstore"));
-        calcValue(*RoofStore, 0.001, MUL);
-        // from mm to m
-        DrumStore = ReadMap(LDD,getvaluename("drumstore"));
-//        if (SwitchHardsurface) {
-//            FOR_ROW_COL_MV {
-//                if (HouseCover->Drc == 1)
-//                    HardSurface->Drc = 0;
-//            }
-//        }
-
-        if (SwitchAddBuildingsDEM) {
-            double AddBuildingFraction = getvaluedouble("Add Building fraction");
-            double AddBuildingHeight = getvaluedouble("Add Building fraction");
-            FOR_ROW_COL_MV {
-                double dem = DEM->Drc;
-                dem += HouseCover->Drc > AddBuildingFraction  ? AddBuildingHeight: 0.0;
-                dem = RoadWidthDX->Drc > 0.1 ? DEM->Drc : dem;
-                DEM->Drc = dem;
-            }
-            InitShade();
-        }
-
-    }
-    else
-        HouseCover = NewMap(0);
 
 //    HouseWidthDX = NewMap(0);
 //    FOR_ROW_COL_MV
@@ -2253,6 +2026,56 @@ void TWorld::IntializeData(void)
         // flag: structure is created and can be destroyed in function destroydata
     }
 
+
+    if(SwitchErosion && SwitchUseMaterialDepth)
+    {
+        Storage = ReadMap(LDD, getvaluename("detmat"));
+        StorageDep = NewMap(0.0);
+        SedimentMixingDepth = ReadMap(LDD, getvaluename("sedmixdepth"));
+        FOR_ROW_COL_MV
+        {
+            if(Storage->Drc != -1)
+            {
+                Storage->Drc = Storage->Drc * ChannelAdj->Drc * DX->Drc;
+            }else
+            {
+                Storage->Drc = -999999;
+            }
+            SedimentMixingDepth->Drc  = std::max(0.01, SedimentMixingDepth->Drc);
+        }
+
+    }
+
+    if(SwitchIncludeChannel)
+    {
+        if(SwitchErosion && SwitchUseMaterialDepth)
+        {
+            RStorageDep = NewMap(0.0);
+            RSedimentMixingDepth = ReadMap(LDD, getvaluename("chansedmixdepth"));
+            RStorage = ReadMap(LDD, getvaluename("chandetmat"));
+            FOR_ROW_COL_MV
+            {
+                if(RStorage->Drc != -1)
+                {
+                    RStorage->Drc = RStorage->Drc * ChannelWidth->Drc * DX->Drc;
+                }else
+                {
+                    RStorage->Drc = -999999;
+                }
+                RSedimentMixingDepth->Drc = std::max(RSedimentMixingDepth->Drc, 0.01);
+            }
+        }
+
+    }
+
+    if (/* SwitchChannelBaseflow && */ SwitchChannelBaseflowStationary)
+        FindBaseFlow();
+
+}
+//---------------------------------------------------------------------------
+void TWorld::InitPesticide(void)
+{
+
     if (SwitchPesticide)
     {
         //### pesticides maps
@@ -2401,51 +2224,6 @@ void TWorld::IntializeData(void)
             out << "\n";
         }
     }
-
-    if(SwitchErosion && SwitchUseMaterialDepth)
-    {
-        Storage = ReadMap(LDD, getvaluename("detmat"));
-        StorageDep = NewMap(0.0);
-        SedimentMixingDepth = ReadMap(LDD, getvaluename("sedmixdepth"));
-        FOR_ROW_COL_MV
-        {
-            if(Storage->Drc != -1)
-            {
-                Storage->Drc = Storage->Drc * ChannelAdj->Drc * DX->Drc;
-            }else
-            {
-                Storage->Drc = -999999;
-            }
-            SedimentMixingDepth->Drc  = std::max(0.01, SedimentMixingDepth->Drc);
-        }
-
-    }
-
-    if(SwitchIncludeChannel)
-    {
-        if(SwitchErosion && SwitchUseMaterialDepth)
-        {
-            RStorageDep = NewMap(0.0);
-            RSedimentMixingDepth = ReadMap(LDD, getvaluename("chansedmixdepth"));
-            RStorage = ReadMap(LDD, getvaluename("chandetmat"));
-            FOR_ROW_COL_MV
-            {
-                if(RStorage->Drc != -1)
-                {
-                    RStorage->Drc = RStorage->Drc * ChannelWidth->Drc * DX->Drc;
-                }else
-                {
-                    RStorage->Drc = -999999;
-                }
-                RSedimentMixingDepth->Drc = std::max(RSedimentMixingDepth->Drc, 0.01);
-            }
-        }
-
-    }
-
-    if (/* SwitchChannelBaseflow && */ SwitchChannelBaseflowStationary)
-        FindBaseFlow();
-
 }
 //---------------------------------------------------------------------------
 //TODO: are all switches and options initialised here?
@@ -2837,6 +2615,7 @@ void TWorld::FindBaseFlow()
 
 }
 //---------------------------------------------------------------------------
+// NOT USED
 void TWorld::FindChannelAngles()
 {
     if(!SwitchIncludeChannel)
@@ -3200,82 +2979,3 @@ void TWorld::InitScreenChanNetwork()
 
 
 //---------------------------------------------------------------------------
-void TWorld::Fill(cTMap &M, double value)
-{
-    #pragma omp parallel num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        M.Drc = value;
-    }}
-}
-//---------------------------------------------------------------------------
-double TWorld::MapTotal(cTMap &M)
-{
-    double total = 0;
-    #pragma omp parallel for reduction(+:total) num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (!pcr::isMV(M.Drc))
-            total = total + M.Drc;
-    }}
-    return (total);
-}
-//---------------------------------------------------------------------------
-void TWorld::Average3x3(cTMap &M, cTMap &mask, bool only)
-{
-    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        tm->Drc = M.Drc;
-    }}
-
-    FOR_ROW_COL_MV_L {
-        double tot = 0;
-        double cnt = 0;
-        for (int i = 1; i <= 9; i++)
-        {
-            int rr = r+dy[i];
-            int cr = c+dx[i];              
-
-            if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
-                if (only && M.Drcr == 0)
-                    continue;
-                tot = tot + tm->Drcr;
-                cnt += 1.0;
-                  if (i == 5) {
-                      tot = tot + tm->Drcr;
-                      cnt += 1.0;
-                  }
-            }
-        }
-        M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
-        if (pcr::isMV(mask.Drc))
-            M.Drc = tm->Drc;
-    }}
-}
-//---------------------------------------------------------------------------
-void TWorld::Average2x2(cTMap &M, cTMap &mask)
-{
-    int dx[10] = {0, -1, 1, -1,  1};
-    int dy[10] = {0,  1, 1, -1, -1};
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        tm->Drc = M.Drc;
-    }}
-
-    double f = 0.5;
-    FOR_ROW_COL_MV_L {
-        double tot = 0;
-        double cnt = 0;
-        for (int i = 0; i <= 5; i++)
-        {
-            int rr = r+dy[i];
-            int cr = c+dx[i];
-
-            if (INSIDE(rr, cr) && !pcr::isMV(mask.Drcr)) {
-                tot = tot + tm->Drcr;
-                cnt += 1.0;
-            }
-        }
-        M.Drc = cnt > 0 ? tot/cnt : tm->Drc;
-    }}
-}

@@ -638,8 +638,8 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                     if (SwitchHouses)
                         detachment = (1-HouseCover->Drc)*detachment;
                     // no flow det where houses
-
-                    detachment = (1-Snowcover->Drc) * detachment;
+                    if (SwitchSnowmelt)
+                        detachment = (1-Snowcover->Drc) * detachment;
                     // TODO: CHECK THIS no flow detachment on snow
                     //is there erosion and sedimentation under the snowdeck?
 
@@ -745,8 +745,8 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                         if (SwitchHouses)
                             detachment = (1-HouseCover->Drc)*detachment;
                         // no flow det from house roofs
-
-                        detachment = (1-Snowcover->Drc) * detachment;
+                        if (SwitchSnowmelt)
+                            detachment = (1-Snowcover->Drc) * detachment;
                         /* TODO: CHECK THIS no flow detachment on snow */
                         //is there erosion and sedimentation under the snowdeck?
 

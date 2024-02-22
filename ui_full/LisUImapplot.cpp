@@ -506,7 +506,7 @@ void lisemqt::showComboMap(int i)
     // fill vector RD with matrix data and find the new max value
     double MinV;
     double MaxV;
-    double res = fillDrawMapData(op.ComboMapsSafe.at(i), op.ComboScaling.at(i), RD, &MinV, &MaxV);
+    double res = fillDrawMapData(op.ComboMaps.at(i), op.ComboScaling.at(i), RD, &MinV, &MaxV);
     if (res <=-1e20)
         return;
     //double MinV = mapMinimum(*op.ComboMaps.at(i));

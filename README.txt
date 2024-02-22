@@ -1,6 +1,6 @@
 openLISEM
 ============
-Date: 230525
+Date: 231216
 ============
 
 This software is subject to a DISCLAIMER and released under the copyright model GPLv3
@@ -10,6 +10,16 @@ For questions contact v.g.jetten AD utwente.nl
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt5, openmp, gdal and pcraster
+
+version 6.94
+- Improved subsurface storm drains, can be used in urban envrioenments or tile drains in fields, BETA
+
+version 6.90-6.93
+- NOT YET available: Created a new Richard Equation soil water system, multilayered
+- imporved some ET calculations, may still cause mass balance errors
+- small changed to boundary conditions SWOF
+- fixed a bug in Rusanov Riemann solver
+- Improved domain boundary flow detection when open boundary
 
 version 6.898
 - 3 different ways of groundwater flow, for different scales

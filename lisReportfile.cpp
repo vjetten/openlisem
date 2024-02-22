@@ -253,13 +253,13 @@ void TWorld::OutputUI(void)
     }
 
     //output maps for combo box
-    for(int i = 0; i < op.ComboMaps.length(); i++)
-    {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            op.ComboMapsSafe[i]->Drc = op.ComboMaps[i]->Drc; // * op.ComboScaling.at(i); scaling is done filldrawmapdata
-        }}
-    }
+//    for(int i = 0; i < op.ComboMaps.length(); i++)
+//    {
+//        #pragma omp parallel for num_threads(userCores)
+//        FOR_ROW_COL_MV_L {
+//            op.ComboMapsSafe[i]->Drc = op.ComboMaps[i]->Drc; // * op.ComboScaling.at(i); scaling is done filldrawmapdata
+//        }}
+//    }
 
     // ONLY ONCE
     if (runstep <= 1) {
@@ -286,14 +286,14 @@ void TWorld::OutputUI(void)
         if(SwitchHardsurface)
             copy(*op.hardsurfaceMap,*HardSurface);
 
-        if(SwitchFlowBarriers)
-        {
+//        if(SwitchFlowBarriers)
+//        {
 //            Fill(*tma,0.0);
 //            FOR_ROW_COL_MV {
 //                tma->Drc = std::max(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),FlowBarrierW->Drc),FlowBarrierS->Drc);
 //            }
-    //        copy(*op.flowbarriersMap,*tma);
-        }
+//            copy(*op.flowbarriersMap,*tma);
+//        }
     }
     // MAP DISPLAY VARIABLES
     if(InfilMethod != INFIL_SWATRE && InfilMethod !=INFIL_NONE)
@@ -835,7 +835,7 @@ void TWorld::ReportMaps(void)
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        tm->Drc = (RainCumFlat->Drc + SnowmeltCum->Drc*DX->Drc/_dx) * 1000.0; // m to mm
+        tm->Drc = (RainCumFlat->Drc)*1000.0;// + SnowmeltCum->Drc*DX->Drc/_dx) * 1000.0; // m to mm
     }}
     report(*tm, rainfallMapFileName);
 

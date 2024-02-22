@@ -464,6 +464,7 @@ public:
     double RRCalibration;
     double ksatCalibration;
     double ksat2Calibration;
+    double ksat3Calibration;
     double nCalibration;
     double thetaCalibration;
     double psiCalibration;
@@ -643,13 +644,15 @@ public:
     cTMap *InitMask(QString name);
     cTMap *InitMaskChannel(QString name);
     cTMap *InitMaskTiledrain(QString name);
-    void InitTiledrains(void); //VJ 110112
-    void InitBuffers(void); //VJ 110112
-    void InitChannel(void); //VJ 110112
-    void InitBoundary(void); //VJ 110112
-    void InitShade(void); //VJ 130301
+
+    void InitTiledrains(void);
+    void InitBuffers(void);
+    void InitChannel(void);
+    void InitBoundary(void);
+    void InitShade(void);
     void InitImages(void);
-    void InitErosion(void); //VJ 110511
+    void InitErosion(void);
+    void InitMulticlass(void);
     void GetInputData(void);      // get and make input maps
     void InitParameters(void);
     void IntializeData(void);     // make all non-input maps
@@ -658,10 +661,12 @@ public:
     void InitLULCInput(void);
     void InitSoilInput(void);
     void InitFlood(void);
+    void InitMeteoInput(void);
     void InitScreenChanNetwork();
     void FindChannelAngles();
     void CorrectDEM(cTMap *h, cTMap * g);
     void DiagonalFlowDEM();
+    void InitPesticide(void);
 
 
     // functions in lisRunfile.cpp
@@ -796,8 +801,6 @@ public:
     cTMap *RStorage;
     cTMap *RStorageDep;
     cTMap *RSedimentMixingDepth;
-
-    cTMap *unity;
 
     //keep track of any dissolved substances that need to be advected by the kinematic wave
     //not used!!!
@@ -1069,7 +1072,9 @@ public:
     double MapTotal(cTMap &M);
     void Average3x3(cTMap &M, cTMap &mask, bool only);
     void Average2x2(cTMap &M, cTMap &mask);
-    void Totals(void);
+    void TotalsHydro(void);
+    void TotalsFlow(void);
+    void TotalsSediment(void);
     void MassBalance(void);
     void OutputUI(void);
     void reportAll(void);

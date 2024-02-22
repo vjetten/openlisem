@@ -45,15 +45,11 @@ void TWorld::ToTiledrain()//int thread)
    // ONLY ON ROADS, AFFECTING ROADWH
     if (SwitchIncludeStormDrains)  //SwitchIncludeTile ||
     {
-        //Fill(*RunoffVolinToTile,0);
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            RunoffVolinToTile->Drc = 0;
-        }}
+        Fill(*RunoffVolinToTile,0);
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_TILEL {
-            if(TileSinkhole->Drc > 0 && WHrunoff->Drc > 0) {
+            if(TileSinkhole->Drc > 0) {// && WHrunoff->Drc > 1e-6) {
                 double fractiontotile = std::max(1.0, std::min(0.0,TileSinkhole->Drc/CHAdjDX->Drc));
                 // fraction based on surface, simpel!
                 //Street inlet is assumed to be a hole in the street
@@ -64,20 +60,19 @@ void TWorld::ToTiledrain()//int thread)
                 else
                     MaxVol = DX->Drc*TileWidth->Drc*TileHeight->Drc;
 
-                if (TileWaterVol->Drc > MaxVol*0.99)
-                    fractiontotile = 0;
-                else {
-                    double vol = fractiontotile*(WaterVolall->Drc-MicroStoreVol->Drc);
-                    vol = std::min(vol, MaxVol - TileWaterVol->Drc);
+//                if (TileWaterVol->Drc >= MaxVol)
+//                    fractiontotile = 0;
+//                else {
+                    double vol = fractiontotile*WaterVolall->Drc;//std::max(0.0,(WaterVolall->Drc-MicroStoreVol->Drc));
+                  //  vol = std::min(vol, MaxVol - TileWaterVol->Drc);
                     double dh = vol/CHAdjDX->Drc;
-
                     RunoffVolinToTile->Drc = vol;
                     // adjust water height
                     WHrunoff->Drc -= dh;
                     WHroad->Drc -= dh;
                     WH->Drc -= dh;
                     WaterVolall->Drc -= vol;
-                }
+//                }
             }
         }}
     }
@@ -86,7 +81,6 @@ void TWorld::ToTiledrain()//int thread)
 // V, alpha and Q in the Tile
 void TWorld::CalcVelDischRectangular()
 {
-
     double Perim, Area, Sgrad, TileV_;
     const double _23 = 2.0/3.0;
     #pragma omp parallel for num_threads(userCores)
@@ -180,15 +174,15 @@ void TWorld::TileFlow(void)
    else
       CalcVelDischRectangular();
 
-   //TileQn->setAllMV();
+   TileQn->setAllMV();
 
    Fill(*QinKW, 0.0);
    // flag all new flux as missing value, needed in kin wave and replaced by new flux
-//   FOR_ROW_COL_MV_TILE {
-//      if (LDDTile->Drc == 5)
-//            Kinematic(r,c, LDDTile, TileQ, TileQn, TileAlpha, DX);
-//   }
-   KinematicExplicit(crlinkedlddtile_, TileQ, TileQn, TileAlpha, DX);
+   FOR_ROW_COL_MV_TILE {
+      if (LDDTile->Drc == 5)
+            Kinematic(r,c, LDDTile, TileQ, TileQn, TileAlpha, DX);
+   }
+//   KinematicExplicit(crlinkedlddtile_, TileQ, TileQn, TileAlpha, DX);
 
    cover(*TileQn, *LDD, 0); // avoid missing values around Tile for adding to Qn for output
 
@@ -203,7 +197,7 @@ void TWorld::TileFlow(void)
         else
             MaxVol = DX->Drc * TileDiameter->Drc; //rectangular drain, diameter is area in fact
 
-        TileWaterVol->Drc = std::min(TileWaterVol->Drc, MaxVol);
+       // TileWaterVol->Drc = std::min(TileWaterVol->Drc, MaxVol);
         TileQ->Drc = TileQn->Drc;
    }}
 

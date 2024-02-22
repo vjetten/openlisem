@@ -177,7 +177,7 @@ void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
 
 }
 //-------------------------------------------------------------------------------------------------
-double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
+double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     double timesum = 0;
     double dt_max = std::min(_dt, _dx*0.75);
@@ -204,8 +204,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 hs->Drc = h->Drc;
-                vxs->Drc = vx->Drc;
-                vys->Drc = vy->Drc;
+//                vxs->Drc = u->Drc;
+//                vys->Drc = vy->Drc;
                 FloodDT->Drc = dt_max;
                 FloodT->Drc = 0;
                 flowmask->Drc = 0;
@@ -250,8 +250,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double H = hs->Drc;
                     double n = N->Drc;
                     double Z = z->Drc;
-                    double Vx = vxs->Drc;
-                    double Vy = vys->Drc;
+                    double Vx = u->Drc;
+                    double Vy = v->Drc;
 
                     bool bc1 = c > 0 && !MV(r,c-1)        ;
                     bool bc2 = c < _nrCols-1 && !MV(r,c+1);
@@ -268,15 +268,15 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double h_y1 =  br1 ? hs->data[r-1][c] : H;
                     double h_y2 =  br2 ? hs->data[r+1][c] : H;
 
-                    double vx_x1 = bc1 ? vxs->data[r][c-1] : Vx;
-                    double vx_x2 = bc2 ? vxs->data[r][c+1] : Vx;
-                    double vx_y1 = br1 ? vxs->data[r-1][c] : Vx;
-                    double vx_y2 = br2 ? vxs->data[r+1][c] : Vx;
+                    double vx_x1 = bc1 ? u->data[r][c-1] : Vx;
+                    double vx_x2 = bc2 ? u->data[r][c+1] : Vx;
+                    double vx_y1 = br1 ? u->data[r-1][c] : Vx;
+                    double vx_y2 = br2 ? u->data[r+1][c] : Vx;
 
-                    double vy_x1 = bc1 ? vys->data[r][c-1] : Vy;
-                    double vy_x2 = bc2 ? vys->data[r][c+1] : Vy;
-                    double vy_y1 = br1 ? vys->data[r-1][c] : Vy;
-                    double vy_y2 = br2 ? vys->data[r+1][c] : Vy;
+                    double vy_x1 = bc1 ? v->data[r][c-1] : Vy;
+                    double vy_x2 = bc2 ? v->data[r][c+1] : Vy;
+                    double vy_y1 = br1 ? v->data[r-1][c] : Vy;
+                    double vy_y2 = br2 ? v->data[r+1][c] : Vy;
 
                     double fb_x1=0,fb_x2=0,fb_y1=0,fb_y2=0;
                     if (SwitchFlowBarriers) {
@@ -475,8 +475,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                        // vyn = checkforMinMaxV(vyn);
 
                         h->Drc = hn;
-                        vx->Drc = vxn;
-                        vy->Drc = vyn;
+                        u->Drc = vxn;
+                        v->Drc = vyn;
 
                     } // step > 0
                 } // flowmask > 0, active cells + 1
@@ -493,14 +493,14 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
             if (step > 0) {
 
                if (SwitchErosion) {
-                    SWOFSediment(dt_req_min, h,vx,vy);
+                    SWOFSediment(dt_req_min, h,u,v);
                 }
 
                 if (Switch2DDiagonalFlow) {
                     if (Switch2DDiagonalFlowNew)
-                        SWOFDiagonalFlowNew(dt_req_min, h, vx, vy);
+                        SWOFDiagonalFlowNew(dt_req_min, h, u, v);
                     else
-                        SWOFDiagonalFlow(dt_req_min, h, vx, vy); //old, not used
+                        SWOFDiagonalFlow(dt_req_min, h, u, v); //old, not used
                 }
 
 
