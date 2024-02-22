@@ -385,7 +385,7 @@ void TWorld::HydrologyProcesses()
         // result is rainnet (and leafdrip for erosion)
 
         if (SwitchFloodInitial  && hmxInit->Drc > 0)
-            hmxInit->Drc += RainNet->Drc + Snowmeltc->Drc;
+            hmxInit->Drc += RainNet->Drc;// + Snowmeltc->Drc;
 
         if (FloodDomain->Drc > 0) {
             hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc; // only used in kin wave pluf flood from channel, hmx is flood water
@@ -396,7 +396,6 @@ void TWorld::HydrologyProcesses()
             if (SwitchFloodInitial && hmxInit-> Drc > 0)
                 WH->Drc = hmxInit->Drc;
         }
-
 
         // add net to water rainfall on soil surface (in m)
         // when kin wave and flooded hmx exists else always WH

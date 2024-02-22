@@ -575,7 +575,7 @@ void TWorld::InitSoilInput(void)
             //Saxton and Rawls 2006
             //  lambda1->Drc = 0.0384*log(Ksat1->Drc)+0.0626;
             //rawls et al., 1982
-            double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
+            double ks = std::min(1000.0,log(std::max(0.5,Ksat1->Drc)));
             lambda1->Drc = 0.0849*ks+0.159;
             lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
 
@@ -590,7 +590,7 @@ void TWorld::InitSoilInput(void)
         } else {
             Psi1 = NewMap(0);
             FOR_ROW_COL_MV_L {
-                Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425)*0.01;
+                Psi1->Drc = exp(-0.3382*log(std::max(0.5,Ksat1->Drc)) + 3.3425)*0.01;
                 double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
                 double psiae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
                 Psi1->Drc = std::max(Psi1->Drc, psiae);
@@ -623,7 +623,7 @@ void TWorld::InitSoilInput(void)
             ThetaFC2 = NewMap(0);
             FOR_ROW_COL_MV_L {
                 // regression eq from data from Saxton and rawls 2006, excel file
-                double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
+                double ks = std::min(1000.0,log(std::max(0.5,Ksat2->Drc)));
                 //vgalpha2->Drc = 0.0237*ks + 0.0054;
                 lambda2->Drc = 0.0849*ks+0.159;
                 lambda2->Drc = std::min(std::max(0.1,lambda2->Drc),0.7);
@@ -639,7 +639,7 @@ void TWorld::InitSoilInput(void)
             } else {
                 Psi2 = NewMap(0);
                 FOR_ROW_COL_MV_L {
-                    Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
+                    Psi2->Drc = exp(-0.3382*log(std::max(0.5,Ksat2->Drc)) + 3.3425)*0.01;
                     double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
                     double psi2ae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
                     Psi2->Drc = std::max(Psi2->Drc,psi2ae);
@@ -2789,7 +2789,7 @@ void TWorld::InitTiledrains(void)
 
 
         nrValidCellsTile = 0;
-        FOR_ROW_COL_MV_CH {
+        FOR_ROW_COL_MV_TILE {
             nrValidCellsTile++;
         }
         FOR_ROW_COL_MV_TILE {

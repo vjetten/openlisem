@@ -513,7 +513,7 @@ void TWorld::TotalsSediment(void)
 
     }
 
-    SedimentSetMaterialDistribution();
+    //SedimentSetMaterialDistribution();
 
 }
 //---------------------------------------------------------------------------
