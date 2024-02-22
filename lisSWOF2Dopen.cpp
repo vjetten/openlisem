@@ -416,9 +416,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                             //qes[i] = he[i]*ve[i]-TX*(f2[i+1]-f2[i]+
                             //GRAV_DEM*((hleft[i]-hright[i])*(hleft[i]+hright[i])+(hr[i]-hl[i])*(hr[i]+hl[i])+(hl[i]+hr[i])*dzi[i]));
 
-
-
-
                             double vsq = sqrt(Vx * Vx + Vy * Vy);
                             double nsq1 = (0.001+n)*(0.001+n)*GRAV/std::max(0.0001,pow(hn,4.0/3.0)); //pow(hn,4.0/3.0);//
                             double nsq = nsq1*vsq*dt;

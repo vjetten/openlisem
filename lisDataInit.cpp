@@ -557,8 +557,8 @@ void TWorld::InitSoilInput(void)
         ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
         ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
         ThetaI1a = NewMap(0); // used for screen output
-        calcValue(*ThetaI1, thetaCalibration, MUL); //VJ 110712 calibration of theta
-        calcMap(*ThetaI1, *ThetaS1, MIN); //VJ 110712 cannot be more than porosity
+        calcValue(*ThetaI1, thetaCalibration, MUL);
+        calcMap(*ThetaI1, *ThetaS1, MIN);
         copy(*ThetaI1a, *ThetaI1);
 
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
@@ -569,6 +569,7 @@ void TWorld::InitSoilInput(void)
 
         FOR_ROW_COL_MV_L {
             //bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
+            // comes form CHARIM somehow
             //Saxton and Rawls 2006
             //  lambda1->Drc = 0.0384*log(Ksat1->Drc)+0.0626;
             //rawls et al., 1982
@@ -1982,6 +1983,8 @@ void TWorld::IntializeData(void)
     if (SwitchFloodInitial) {
         hmxInit = ReadMap(LDD, getvaluename("whinit"));
         report(*hmxInit,"whi.map");
+    } else {
+        hmxInit = NewMap(0);
     }
 
     SwatreSoilModel = nullptr;

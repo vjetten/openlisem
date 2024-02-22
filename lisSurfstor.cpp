@@ -151,20 +151,39 @@ void TWorld::GridCell()
 // OBSOLETE not used
 void TWorld::addRainfallWH()
 {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            if (FloodDomain->Drc > 0) {
-                hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc;
-            } else {
-                WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;
-                // add net to water rainfall on soil surface (in m)
+//<<<<<<< HEAD
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (SwitchFloodInitial  && hmxInit->Drc > 0)
+            hmxInit->Drc += RainNet->Drc + Snowmeltc->Drc;
+//=======
+//        #pragma omp parallel for num_threads(userCores)
+//        FOR_ROW_COL_MV_L {
+//            if (FloodDomain->Drc > 0) {
+//                hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc;
+//            } else {
+//                WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;
+//                // add net to water rainfall on soil surface (in m)
 
-            //    if (SwitchGrassStrip && GrassWidthDX->Drc > 0)
-            //        WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
-                // net rainfall on grass strips, infil is calculated separately for grassstrips
-            }
-        }}
+//            //    if (SwitchGrassStrip && GrassWidthDX->Drc > 0)
+//            //        WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
+//                // net rainfall on grass strips, infil is calculated separately for grassstrips
+//            }
+//        }}
+//>>>>>>> 96af545acf617cbd894338d4aac443215b4db18e
 
+        if (FloodDomain->Drc > 0) {
+            hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
+            if (SwitchFloodInitial && hmxInit-> Drc > 0)
+                hmx->Drc = hmxInit->Drc;
+        } else {
+            WH->Drc += RainNet->Drc + Snowmeltc->Drc;
+            // add net to water rainfall on soil surface (in m)
+            if (SwitchFloodInitial && hmxInit-> Drc > 0)
+                WH->Drc = hmxInit->Drc;
+        }
+    }}
+report(*hmxInit,"hi");
     if (SwitchRoadsystem || SwitchHardsurface) {  //???? separate hs from road here?
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
