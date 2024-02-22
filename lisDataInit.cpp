@@ -448,6 +448,30 @@ void TWorld::InitLULCInput(void)
     calcValue(*CanopyStorage, 0.001, MUL); // from mm to m
     //NOTE: LAI is still needed for canopy openness
 
+    if (SwitchRoadsystem)
+    {
+        RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
+        checkMap(*RoadWidthDX, LARGER, _dx, "road width cannot be larger than gridcell size");
+    }
+    else
+        RoadWidthDX = NewMap(0);
+
+    if (SwitchHardsurface)
+    {
+        HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
+        calcValue(*HardSurface, 1.0, MIN);
+        calcValue(*HardSurface, 0.0, MAX);
+    }
+    else
+        HardSurface = NewMap(0);
+
+    RoadWidthHSDX = NewMap(0);
+    if (SwitchRoadsystem || SwitchHardsurface)
+        FOR_ROW_COL_MV {
+            //double frac = std::min(1.0,(HardSurface->Drc*_dx + RoadWidthDX->Drc)/_dx);
+            RoadWidthHSDX->Drc = std::min(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
+        }
+
     if (SwitchHouses)
     {
         HStor = NewMap(0);
@@ -461,11 +485,11 @@ void TWorld::InitLULCInput(void)
 
         if (SwitchAddBuildingsDEM) {
             double AddBuildingFraction = getvaluedouble("Add Building fraction");
-            double AddBuildingHeight = getvaluedouble("Add Building fraction");
+            double AddBuildingHeight = getvaluedouble("Add Building height");
             FOR_ROW_COL_MV {
                 double dem = DEM->Drc;
-                dem += HouseCover->Drc > AddBuildingFraction && RoadWidthDX->Drc < 0.1 ? AddBuildingHeight: 0.0;
-            //    dem = RoadWidthDX->Drc > 0.1 ? DEM->Drc : dem;
+                if (HouseCover->Drc > AddBuildingFraction && RoadWidthDX->Drc < 0.1)
+                    dem += AddBuildingHeight;
                 DEM->Drc = dem;
             }
             InitShade();
@@ -515,29 +539,7 @@ void TWorld::InitLULCInput(void)
     //        CohGrass = NewMap(0);
     //    }
 
-    if (SwitchRoadsystem)
-    {
-        RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
-        checkMap(*RoadWidthDX, LARGER, _dx, "road width cannot be larger than gridcell size");
-    }
-    else
-        RoadWidthDX = NewMap(0);
-
-    if (SwitchHardsurface)
-    {
-        HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
-        calcValue(*HardSurface, 1.0, MIN);
-        calcValue(*HardSurface, 0.0, MAX);
-    }
-    else
-        HardSurface = NewMap(0);
-
-    RoadWidthHSDX = NewMap(0);
-    if (SwitchRoadsystem || SwitchHardsurface)
-    FOR_ROW_COL_MV {
-        //double frac = std::min(1.0,(HardSurface->Drc*_dx + RoadWidthDX->Drc)/_dx);
-        RoadWidthHSDX->Drc = std::min(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
-    }
+\
 
 }
 //---------------------------------------------------------------------------
