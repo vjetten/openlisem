@@ -1401,91 +1401,7 @@ void lisemqt::on_E_ResultDir_returnPressed()
 
     }
 }
-//--------------------------------------------------------------------
-void lisemqt::shootMScreen()
-{
-    doShootScreens = shootMscreenAct->isChecked();
-}
 
-//--------------------------------------------------------------------
-void lisemqt::shootScreen()
-{
-
-    if (op.runfilename.isEmpty())
-    {
-        QMessageBox::warning(this, "openLISEM",QString("Select a run file first"));
-        return;
-    }
-
-    QPixmap originalPixmap; // clear image for low memory situations
-    QString format = "png";
-    QFileInfo fi(op.runfilename);
-
-    QString fileName = screenShotDir + fi.baseName();
-    QString number = QString("-%1").arg(op.runstep,5,'d',0,'0');
-    QString name;
-
-    if (doShootScreens)
-    {
-        if (op.runstep % printinterval->value() > 0)
-            return;
-
-        tabWidget_out->setCurrentIndex(0);
-        originalPixmap = tabWidget->widget(2)->grab();
-        fileName = screenShotDir + fi.baseName()+ "_Q" + number + ".png";
-
-        originalPixmap.save(fileName, format.toLatin1());
-
-        tabWidget_out->setCurrentIndex(1);
-        originalPixmap = tabWidget->widget(2)->grab(); //QPixmap::grabWidget(tabWidget->widget(2));
-        QString name = "";
-        if (checkBoxComboMaps->isChecked()) {
-            int index = DisplayComboBox->currentIndex();
-            if( index > -1 && index < NameList.length())
-                name = NameList.at(index);
-        } else if (checkBoxComboMaps2->isChecked()) {
-            int index = DisplayComboBox2->currentIndex()+DisplayComboBox->count();
-         //   qDebug() << index;
-            if( index > -1 && index < NameList.length())
-                name = NameList.at(index);
-        }
-
-        fileName = screenShotDir + fi.baseName()+ name + number  + ".png";
-        originalPixmap.save(fileName, format.toLatin1());
-    }
-    else
-    {
-        if (tabWidget->currentIndex() == 0) {
-            originalPixmap = tabWidgetOptions->currentWidget()->grab();
-            name = QString("input_%1").arg(tabWidgetOptions->currentIndex());
-            number = "";
-        } else
-            originalPixmap = tabWidget->currentWidget()->grab();
-
-        if (tabWidget->currentIndex() == 1)
-            name = "inputmaps";
-        if (tabWidget->currentIndex() == 2) // output
-        {
-            if (tabWidget_out->currentIndex() == 0) {
-                name = "_Q";
-            }
-            if (tabWidget_out->currentIndex() == 1) {
-                if (checkBoxComboMaps->isChecked()) {
-                    int index = DisplayComboBox->currentIndex();
-                    if( index > -1 && index < NameList.length())
-                        name = NameList.at(index);
-                } else if (checkBoxComboMaps2->isChecked()) {
-                    int index = DisplayComboBox2->currentIndex()+DisplayComboBox->count();
-                    if( index > -1 && index < NameList.length())
-                        name = NameList.at(index);
-                }
-            }
-        }
-
-        fileName = screenShotDir + fi.baseName()+ name + number  + ".png";
-        originalPixmap.save(fileName, format.toLatin1());
-    }
-}
 //--------------------------------------------------------------------
 void lisemqt::aboutQT()
 {
@@ -1548,6 +1464,7 @@ void lisemqt::resetTabCalibration()
     E_CalibrateSD2->setValue(1.0);
     E_CalibrateChKsat->setValue(1.0);
     E_CalibrateChN->setValue(1.0);
+    E_CalibrateWave->setValue(0.0);
     E_CalibrateChTor->setValue(1.0);
     E_CalibrateAS->setValue(1.0);
     E_CalibrateCOH->setValue(1.0);

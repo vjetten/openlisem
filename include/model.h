@@ -553,6 +553,7 @@ public:
     double SD1Calibration;
     double SD2Calibration;
     double ChnCalibration;
+    double WaveCalibration;
     double ChnTortuosity;
     double ChKsatCalibration;
     double COHCalibration;
@@ -840,7 +841,7 @@ public:
     double distD90;
     double LogNormalDist(double d50,double sigma, double d);
     double DetachMaterial(int r,int c, int d,bool channel,bool flood,bool bl, double detachment);
-    void SedimentSetMaterialDistribution();//(int r,int c);
+   // void SedimentSetMaterialDistribution();//(int r,int c);
     QList<cTMap *> IW_D;
     QList<cTMap *> W_D;
     QList<cTMap *> RW_D;
@@ -917,10 +918,10 @@ public:
   //  double K2DSolvebyInterpolationSed( cTMap *M, cTMap *MC);
 
 
-    double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
-    double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
-    double GetDp(int r, int c,double p);
-    double GetTotalDW(int r, int c,QList<cTMap *> *M);
+  //  double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
+ //   double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
+ //   double GetDp(int r, int c,double p);
+ //   double GetTotalDW(int r, int c,QList<cTMap *> *M);
     double GetSV(double d);
     void SplashDetachment();
     double MaxConcentration(double watvol, double sedvol);

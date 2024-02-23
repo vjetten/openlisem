@@ -352,7 +352,10 @@ void TWorld::FloodMaxandTiming()
             floodVolTotMax += floodHmxMax->Drc*area;
         }
         if (hmxWH->Drc > minReportFloodHeight && floodTimeStart->Drc == 0)  {
-            floodTimeStart->Drc = (time - RainstartTime)/60.0;
+            if (SwitchWaveUser)
+                floodTimeStart->Drc = (time - BeginTime)/60.0;
+            else
+                floodTimeStart->Drc = (time - RainstartTime)/60.0;
             // time since first pixel received rainfall
         }
         if (hmxWH->Drc > minReportFloodHeight) {

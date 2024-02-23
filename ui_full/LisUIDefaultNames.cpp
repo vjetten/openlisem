@@ -551,6 +551,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel Ksat calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Channel N calibration");
+    namelist[i].value = QString("0.0");
+    namelist[i++].name = QString("Boundary water level calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Channel tortuosity");
     namelist[i].value = QString("1.0");

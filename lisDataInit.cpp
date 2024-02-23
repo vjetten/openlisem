@@ -112,6 +112,10 @@ void TWorld::InitParameters(void)
     SD2Calibration = getvaluedouble("SoilDepth2 calibration");
 
     ChnCalibration = getvaluedouble("Channel N calibration");
+
+    WaveCalibration = getvaluedouble("Boundary water level calibration");
+
+
     ChnTortuosity = 1.0;
     //ChnTortuosity = getvaluedouble("Channel tortuosity");
     if (ChnCalibration == 0)
@@ -449,6 +453,30 @@ void TWorld::InitLULCInput(void)
     calcValue(*CanopyStorage, 0.001, MUL); // from mm to m
     //NOTE: LAI is still needed for canopy openness
 
+    if (SwitchRoadsystem)
+    {
+        RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
+        checkMap(*RoadWidthDX, LARGER, _dx, "road width cannot be larger than gridcell size");
+    }
+    else
+        RoadWidthDX = NewMap(0);
+
+    if (SwitchHardsurface)
+    {
+        HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
+        calcValue(*HardSurface, 1.0, MIN);
+        calcValue(*HardSurface, 0.0, MAX);
+    }
+    else
+        HardSurface = NewMap(0);
+
+    RoadWidthHSDX = NewMap(0);
+    if (SwitchRoadsystem || SwitchHardsurface)
+        FOR_ROW_COL_MV {
+            //double frac = std::min(1.0,(HardSurface->Drc*_dx + RoadWidthDX->Drc)/_dx);
+            RoadWidthHSDX->Drc = std::min(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
+        }
+
     if (SwitchHouses)
     {
         HStor = NewMap(0);
@@ -497,41 +525,11 @@ void TWorld::InitLULCInput(void)
             //adjust mann N Cover and height
         }
     }
-    //    else {
-    //        KsatGrass = NewMap(0);
-    //        PoreGrass = NewMap(0);
-    //        CohGrass = NewMap(0);
-    //    }
-
-    if (SwitchRoadsystem)
-    {
-        RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
-        checkMap(*RoadWidthDX, LARGER, _dx, "road width cannot be larger than gridcell size");
-    }
-    else
-        RoadWidthDX = NewMap(0);
-
-    if (SwitchHardsurface)
-    {
-        HardSurface = ReadMap(LDD,getvaluename("hardsurf"));
-        calcValue(*HardSurface, 1.0, MIN);
-        calcValue(*HardSurface, 0.0, MAX);
-    }
-    else
-        HardSurface = NewMap(0);
-
-    RoadWidthHSDX = NewMap(0);
-    if (SwitchRoadsystem || SwitchHardsurface)
-    FOR_ROW_COL_MV {
-        //double frac = std::min(1.0,(HardSurface->Drc*_dx + RoadWidthDX->Drc)/_dx);
-        RoadWidthHSDX->Drc = std::min(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
-    }
-
 
     //## make shaded relief map for display.
     if (SwitchHouses && SwitchAddBuildingsDEM) {
-    double AddBuildingFraction = getvaluedouble("Add Building fraction");
-    double AddBuildingHeight = getvaluedouble("Add Building fraction");
+        double AddBuildingFraction = getvaluedouble("Add Building fraction");
+        double AddBuildingHeight = getvaluedouble("Add Building height");
         FOR_ROW_COL_MV_L {
             double dem = DEM->Drc;
             dem += HouseCover->Drc > AddBuildingFraction  ? AddBuildingHeight: 0.0;
@@ -539,8 +537,6 @@ void TWorld::InitLULCInput(void)
             DEM->Drc = dem;
         }}
     }
-
-
 }
 //---------------------------------------------------------------------------
 void TWorld::InitSoilInput(void)
@@ -559,8 +555,8 @@ void TWorld::InitSoilInput(void)
         ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
         ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
         ThetaI1a = NewMap(0); // used for screen output
-        calcValue(*ThetaI1, thetaCalibration, MUL); //VJ 110712 calibration of theta
-        calcMap(*ThetaI1, *ThetaS1, MIN); //VJ 110712 cannot be more than porosity
+        calcValue(*ThetaI1, thetaCalibration, MUL);
+        calcMap(*ThetaI1, *ThetaS1, MIN);
         copy(*ThetaI1a, *ThetaI1);
 
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
@@ -571,10 +567,11 @@ void TWorld::InitSoilInput(void)
 
         FOR_ROW_COL_MV_L {
             //bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
+            // comes form CHARIM somehow
             //Saxton and Rawls 2006
             //  lambda1->Drc = 0.0384*log(Ksat1->Drc)+0.0626;
             //rawls et al., 1982
-            double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
+            double ks = std::min(1000.0,log(std::max(0.5,Ksat1->Drc)));
             lambda1->Drc = 0.0849*ks+0.159;
             lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
 
@@ -589,7 +586,7 @@ void TWorld::InitSoilInput(void)
         } else {
             Psi1 = NewMap(0);
             FOR_ROW_COL_MV_L {
-                Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425)*0.01;
+                Psi1->Drc = exp(-0.3382*log(std::max(0.5,Ksat1->Drc)) + 3.3425)*0.01;
                 double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
                 double psiae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
                 Psi1->Drc = std::max(Psi1->Drc, psiae);
@@ -622,7 +619,7 @@ void TWorld::InitSoilInput(void)
             ThetaFC2 = NewMap(0);
             FOR_ROW_COL_MV_L {
                 // regression eq from data from Saxton and rawls 2006, excel file
-                double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
+                double ks = std::min(1000.0,log(std::max(0.5,Ksat2->Drc)));
                 //vgalpha2->Drc = 0.0237*ks + 0.0054;
                 lambda2->Drc = 0.0849*ks+0.159;
                 lambda2->Drc = std::min(std::max(0.1,lambda2->Drc),0.7);
@@ -638,7 +635,7 @@ void TWorld::InitSoilInput(void)
             } else {
                 Psi2 = NewMap(0);
                 FOR_ROW_COL_MV_L {
-                    Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
+                    Psi2->Drc = exp(-0.3382*log(std::max(0.5,Ksat2->Drc)) + 3.3425)*0.01;
                     double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
                     double psi2ae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
                     Psi2->Drc = std::max(Psi2->Drc,psi2ae);
@@ -1995,6 +1992,8 @@ void TWorld::IntializeData(void)
     if (SwitchFloodInitial) {
         hmxInit = ReadMap(LDD, getvaluename("whinit"));
         report(*hmxInit,"whi.map");
+    } else {
+        hmxInit = NewMap(0);
     }
 
     SwatreSoilModel = nullptr;
@@ -2677,7 +2676,7 @@ void TWorld::InitTiledrains(void)
 
 
         nrValidCellsTile = 0;
-        FOR_ROW_COL_MV_CH {
+        FOR_ROW_COL_MV_TILE {
             nrValidCellsTile++;
         }
         FOR_ROW_COL_MV_TILE {

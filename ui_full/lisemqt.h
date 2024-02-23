@@ -355,6 +355,7 @@ public slots:
     void pausemodel();
     void shootScreen();
     void shootMScreen();
+    void convertScreenshotsToVideo();
     void aboutQT();
     void aboutInfo();
     void resetAll();

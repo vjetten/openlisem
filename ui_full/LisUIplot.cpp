@@ -58,7 +58,7 @@ void lisemqt::setupPlot()
 
     PGraph = new QwtPlotCurve("Rainfall intensity");
     QGraph = new QwtPlotCurve("Discharge");
-   // QbGraph = new QwtPlotCurve("Baseflow");
+    QbGraph = new QwtPlotCurve("Water Height boundary");
     QsGraph = new QwtPlotCurve("Sediment discharge");
     CGraph = new QwtPlotCurve("Concentration");
     QtileGraph = new QwtPlotCurve("Tile drain");
@@ -84,7 +84,7 @@ void lisemqt::setupPlot()
     pen3.setWidth(2);
     pen3.setColor(col);
     pen3.setCosmetic(true);
-    pen3.setStyle(Qt::DashLine);
+    //pen3.setStyle(Qt::DashLine);
 
 
     col.setRgb( 220,0,0,255 );
@@ -112,14 +112,13 @@ void lisemqt::setupPlot()
     PGraph->setPen(pen2);
     PGraph->setAxes(HPlot->xBottom, *axisYR1);// HPlot->yRight);
 
-        //QbGraph->setPen(pen3);
-      //  QbGraph->setAxes(HPlot->xBottom, *axisYL1);
-      //  QbGraph->setStyle(QwtPlotCurve::Lines);
+    QbGraph->setPen(pen3);
+    QbGraph->setAxes(HPlot->xBottom, *axisYL1);
+    QbGraph->setStyle(QwtPlotCurve::Lines);
 
     QtileGraph->setPen(pen3);
     QtileGraph->setAxes(HPlot->xBottom, *axisYL1);
     QtileGraph->setStyle(QwtPlotCurve::Lines);
-
 
     QsGraph->setPen(pen4);
     QsGraph->setAxes(HPlot->xBottom, *axisYR1);
@@ -282,6 +281,7 @@ void lisemqt::initPlot()
     }
     else
     {
+        QbGraph->setAxes(HPlot->xBottom, *axisYR1);
         QGraph->setAxes(HPlot->xBottom, *axisYL1);
         PGraph->setAxes(HPlot->xBottom, *axisYR1);
         HPlot->setAxesCount(QwtPlot::yLeft, 1);
@@ -291,6 +291,8 @@ void lisemqt::initPlot()
         else
             HPlot->setAxisTitle(*axisYL1, "Q (m3/s)");
         HPlot->setAxisTitle(*axisYR1, "P (mm/h)");
+        if (checkWaveInUser->isChecked())
+            HPlot->setAxisTitle(*axisYR1, "WH (m)");
     }
 
     // redraw legend with nr of variables
@@ -313,8 +315,8 @@ void lisemqt::showPlot()
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
     PGraph->setSamples(op.Time,op.Pmm);
 
-   // if (checkChannelBaseflow->isChecked())
-    //    QbGraph->setSamples(op.Time,*op.OutletQb[index]);
+    if (checkWaveInUser->isChecked())
+       QbGraph->setSamples(op.Time,*op.Wavein[index]);
 
     int _j = op.OutletQ[index]->count()-1; // last value index
 

@@ -400,26 +400,34 @@ void TWorld::GetInputTimeseries()
 void TWorld::HydrologyProcesses()
 {
     double soiltot1 = SoilWaterMass();
-    Fill(*tma,0);
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         cell_Interception(r,c);
         // all interception on plants, houses, litter
         // result is rainnet (and leafdrip for erosion)
 
+//        if (SwitchFloodInitial  && hmxInit->Drc > 0)
+//            hmxInit->Drc += RainNet->Drc;// + Snowmeltc->Drc;
+
         if (FloodDomain->Drc > 0) {
             hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc; // only used in kin wave pluf flood from channel, hmx is flood water
+//            if (SwitchFloodInitial && hmxInit-> Drc > 0)
+//                hmx->Drc = hmxInit->Drc;
         } else {
             WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;  // used in 2D flow and kin wave
+//            if (SwitchFloodInitial && hmxInit-> Drc > 0)
+//                WH->Drc = hmxInit->Drc;
         }
 
         if (SwitchWaveUser) {
             WHboundRain->Drc += RainNet->Drc;
             if (WHboundarea->Drc > 0) {
                 // WHbound is the forced water level in area with value '1', ples cum rainfall
-                WH->Drc = 3.0;// WHbound->Drc;// + WHboundRain->Drc;
+                WH->Drc = WHbound->Drc + WHboundRain->Drc;
             }
         }
+
 
         // add net to water rainfall on soil surface (in m)
         // when kin wave and flooded hmx exists else always WH
@@ -464,8 +472,8 @@ void TWorld::HydrologyProcesses()
             cell_SlopeStability(r, c);
     }}
 
-report(*WH,"wh");
-report(*RainNet,"rn");
+//report(*WH,"wh");
+//report(*RainNet,"rn");
 
     if (SwitchIncludeET) {
         doETa();

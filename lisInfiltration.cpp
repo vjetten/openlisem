@@ -56,6 +56,7 @@ void TWorld::InfilEffectiveKsat(bool first)
                 KsatCrust->Drc *= _dt/3600000.0;
             if (SwitchInfilCompact)
                 KsatCompact->Drc *= _dt/3600000.0;
+
         }}
     }
 
@@ -115,9 +116,19 @@ void TWorld::InfilEffectiveKsat(bool first)
 
             Ksateff->Drc = std::max(0.0, Ksateff->Drc);
             Poreeff->Drc = std::max(0.3, Poreeff->Drc);
-           // Thetaeff->Drc = std::min(1.0,Poreeff->Drc/ThetaS1->Drc) * ThetaI1->Drc;
-           // tma->Drc =  Ksateff->Drc;
-            // percolation coefficient
+
+            if (SwitchWaveUser) {
+                if (WHboundarea->Drc > 0) {
+                    Ksateff->Drc = 0;
+                    Poreeff->Drc = 0;
+                    Ksat1->Drc = 0;
+                    Ksat2->Drc = 0;
+                    ThetaS1->Drc = 0;
+                    ThetaS2->Drc = 0;
+                    ThetaI1->Drc = 0;
+                    ThetaI2->Drc = 0;
+                }
+            }
 
         }}
     }

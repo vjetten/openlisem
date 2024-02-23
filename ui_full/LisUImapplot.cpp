@@ -198,23 +198,33 @@ void lisemqt::setupMapPlot()
     baseMap->setRenderThreadCount( 0);
     baseMap->attach( MPlot );
     // shaded relief
-
-    // 3 data
-    drawMap = new QwtPlotSpectrogram();
-    drawMap->setRenderThreadCount( 0 );
-    drawMap->attach( MPlot );
-    //map for runoff, infil, flood etc
-
-    // 5
+    // 3
     roadMap = new QwtPlotSpectrogram();
     roadMap->setRenderThreadCount( 0 );
     roadMap->attach( MPlot );
     // road map
 
-    // 6
+    // 4
     hardsurfMap = new QwtPlotSpectrogram();
     hardsurfMap->setRenderThreadCount( 0 );
     hardsurfMap->attach( MPlot );
+
+    //5 data
+    drawMap = new QwtPlotSpectrogram();
+    drawMap->setRenderThreadCount( 0 );
+    drawMap->attach( MPlot );
+    //map for runoff, infil, flood etc
+
+    // // 5
+    // roadMap = new QwtPlotSpectrogram();
+    // roadMap->setRenderThreadCount( 0 );
+    // roadMap->attach( MPlot );
+    // // road map
+
+    // // 6
+    // hardsurfMap = new QwtPlotSpectrogram();
+    // hardsurfMap->setRenderThreadCount( 0 );
+    // hardsurfMap->attach( MPlot );
 
     // 4
     houseMap = new QwtPlotSpectrogram();

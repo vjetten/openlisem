@@ -239,8 +239,10 @@ void lisemqt::worldShow(bool showall)
 
     showMap(); // show map with selected data
 
-    if (doShootScreens)
-       shootScreen();
+    if (doShootScreens) {
+        shootScreen();
+        convertScreenshotsToVideo();
+    }
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldDone(const QString &results)
