@@ -342,6 +342,7 @@ public:
     void resetTabInfiltration();
     void doCheckRainfall(bool);
     void showTextfile(QString name);
+    void showTextfileOld(QString name);
 
 
 public slots:
