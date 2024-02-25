@@ -64,6 +64,8 @@
 #include "LisUIoutput.h"
 #include "LisUItreemodel.h"
 #include "LisUImapplot.h"
+#include "lismpeg.h"
+
 
 
 // constants to define the place of the main parts in the map tree structure
@@ -110,7 +112,8 @@ public:
     QHBoxLayout *helpLayout;
 
     QProgressBar *pb;
-  //  void resizeEvent(QResizeEvent* event);
+
+    lismpeg *lisMpeg;
 
     bool darkLISEM;
     bool doBatchmode;
@@ -554,6 +557,7 @@ private:
     QAction *stopAct;
     QAction *shootscreenAct;
     QAction *shootMscreenAct;
+    QAction *makeMovieAct;
     QAction *aboutAct;
     QAction *aboutActI;
     QAction *restartAct;

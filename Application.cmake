@@ -106,6 +106,8 @@ SET(APP_SOURCES
     ui_full/LisUIplot.cpp
     ui_full/LisUImapplot.cpp
     ui_full/LisUImapplot.h
+    ui_full/Lismpeg.cpp
+    ui_full/Lismpeg.h
     swatre/swatstep.cpp
     swatre/swatinit.cpp
     swatre/soillut.cpp
@@ -246,7 +248,7 @@ SET(PCR_SOURCES
     PCRlib/vsvers.c
     PCRlib/wattrblk.c
 )
-QT5_WRAP_UI(UI_SOURCES ui_full/lisemqt.ui)
+QT5_WRAP_UI(UI_SOURCES ui_full/lisemqt.ui ui_full/lismpeg.ui)
 
 QT5_ADD_RESOURCES(RCC_SOURCES resources/openlisem.qrc)
 

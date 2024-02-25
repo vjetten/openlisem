@@ -61,6 +61,7 @@
         <file>2X/adjustsize.png</file>
         <file>../compile lisem windows 220713.txt</file>
         <file>2X/resetmap.png</file>
+        <file>2X/film.png</file>
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>

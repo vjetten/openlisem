@@ -46,7 +46,7 @@ update of the runfile before running:
 
 */
 
-#include <algorithm>
+//#include <algorithm>
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
@@ -73,7 +73,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     nrUserCores->setMaximum(ompt);//omp_get_max_threads());
 
     helpbox = new QDialog();
-    helpbox->resize(1080, 600);
+    helpbox->resize(qApp->primaryScreen()->size().height()*2/3,qApp->primaryScreen()->size().height()*2/3);
     helpbox->setWindowTitle("option help");
     helpLayout = new QHBoxLayout(helpbox);
     helptxt = new QTextEdit();
@@ -115,6 +115,8 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
     // put the progress bar into the statusbar
+
+    lisMpeg = new lismpeg(this);
 
     tabWidgetOptions->setCurrentIndex(0);
     tabWidget_OutputMaps->setCurrentIndex(0);
@@ -589,6 +591,7 @@ void lisemqt::setWriteOutputPCR(bool doit)
 //            checkWritePCRaster->setChecked(false);
 //        }
 }
+
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()
 {
@@ -626,6 +629,11 @@ void lisemqt::SetToolBar()
     shootMscreenAct->setCheckable(true);
     connect(shootMscreenAct, SIGNAL(triggered()), this, SLOT(shootMScreen()));
     toolBar->addAction(shootMscreenAct);
+
+    makeMovieAct = new QAction(QIcon(":/2X/film.png"), "Save the run in multiple screenshots", this);
+    makeMovieAct->setCheckable(true);
+    connect(makeMovieAct, SIGNAL(triggered()), this, SLOT(convertScreenshotsToVideo()));
+    toolBar->addAction(makeMovieAct);
 
     fontIncreaseAct = new QAction(QIcon(":/2X/fontbigger2X.png"), "&Increase font size", this);
     connect(fontIncreaseAct, SIGNAL(triggered()), this, SLOT(fontIncrease()));
@@ -1015,129 +1023,7 @@ void lisemqt::setResultDir()
     }
 }
 
-//--------------------------------------------------------------------
-void lisemqt::on_E_floodMinHeight_valueChanged(double)
-{
-    label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
-    label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
-}
-//--------------------------------------------------------------------
-// this is for the directory with the table files
-void lisemqt::on_toolButton_SwatreTableDir_clicked()
-{
-    QString path;
-    QString pathin;
 
-    pathin = findValidDir(E_SwatreTableDir->text(), false);
-
-    path = QFileDialog::getExistingDirectory(this, QString("Select the directory with the Swatre tables"),
-                                             pathin,
-                                             QFileDialog::ShowDirsOnly
-                                             | QFileDialog::DontResolveSymlinks);
-    if(!path.isEmpty())
-    {
-        E_SwatreTableDir->setText( path );
-        SwatreTableDir = path;
-    }
-}
-//--------------------------------------------------------------------
-// this is for the file profile.inp
-void lisemqt::on_toolButton_SwatreTableFile_clicked()
-{
-    QString path;
-    path = QFileDialog::getOpenFileName(this,
-                                        QString("Select the SWATRE profile definition file"),
-                                        SwatreTableName,"Profiles (*.inp);;All files (*.*)");
-    if(!path.isEmpty())
-    {
-        SwatreTableName = path;
-        E_SwatreTableName->setText(path);
-    }
-}
-//--------------------------------------------------------------------
-void lisemqt::on_toolButton_SwatreTableShow_clicked()
-{
-    QFile file(SwatreTableName);
-    if (!file.open(QFile::ReadOnly | QFile::Text))
-    {
-        QMessageBox::warning(this,"openLISEM",
-                             QString("Cannot read file %1:\n%2.")
-                             .arg(SwatreTableName)
-                             .arg(file.errorString()));
-        return;
-    }
-
-    QTextStream in(&file);
-
-    QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
-    view->setWindowTitle(SwatreTableName);
-    view->setMinimumWidth(400);
-    view->setMinimumHeight(500);
-    view->setAttribute(Qt::WA_DeleteOnClose);
-    view->show();
-
-    file.close();
-}
-//--------------------------------------------------------------------
-void lisemqt::on_toolButton_satImageName_clicked()
-{
-    QString path;
-
-    satImageFileDir = findValidDir(satImageFileDir, false);
-
-    path = QFileDialog::getOpenFileName(this,
-                                        QString("Select background satellite image file"),
-                                        satImageFileDir,"GeoTiff (*.tif)");
-    if(!path.isEmpty())
-    {
-        QFileInfo fi(path);
-        satImageFileName = fi.fileName();
-        satImageFileDir = CheckDir(fi.absolutePath());//Dir().path());
-        E_satImageName->setText( satImageFileDir + satImageFileName );
-    }
-}
-//--------------------------------------------------------------------
-//void lisemqt::on_toolButton_SnowmeltName_clicked()
-//{
-//    QString path;
-
-//    SnowmeltFileDir = findValidDir(SnowmeltFileDir, false);
-
-//    path = QFileDialog::getOpenFileName(this,
-//                                        QString("Select snow melt file"),
-//                                        SnowmeltFileDir);
-//    if(!path.isEmpty())
-//    {
-//        QFileInfo fi(path);
-//        SnowmeltFileName = fi.fileName();
-//        SnowmeltFileDir = CheckDir(fi.absolutePath());//Dir().path());
-//        E_SnowmeltName->setText( SnowmeltFileDir + SnowmeltFileName );
-//    }
-//}
-//--------------------------------------------------------------------
-//void lisemqt::on_toolButton_SnowmeltShow_clicked()
-//{
-//    QFile file(SnowmeltFileDir + SnowmeltFileName);
-//    if (!file.open(QFile::ReadOnly | QFile::Text))
-//    {
-//        QMessageBox::warning(this,"openLISEM",
-//                             QString("Cannot read file %1:\n%2.")
-//                             .arg(SnowmeltFileDir + SnowmeltFileName)
-//                             .arg(file.errorString()));
-//        return;
-//    }
-
-//    QTextStream in(&file);
-
-//    QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
-//    view->setWindowTitle(SnowmeltFileName);
-//    view->setMinimumWidth(400);
-//    view->setMinimumHeight(500);
-//    view->setAttribute(Qt::WA_DeleteOnClose);
-//    view->show();
-
-//    file.close();
-//}
 //--------------------------------------------------------------------
 void lisemqt::savefileas()
 {
@@ -1326,32 +1212,7 @@ void lisemqt::StorePath()
 
     fff.close();
 }
-//---------------------------------------------------------------------------
-void lisemqt::on_toolButton_ShowRunfile_clicked()
-{
 
-    QFile file(op.runfilename);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(this, "openLISEM",
-                             QString("Cannot read file %1:\n%2.")
-                             .arg(op.runfilename)
-                             .arg(file.errorString()));
-        return;
-    }
-
-    QTextStream in(&file);
-
-    QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
-    view->createStandardContextMenu ();
-    view->setWindowTitle(op.runfilename);
-    view->setMinimumWidth(400);
-    view->setMinimumHeight(500);
-    view->setAttribute(Qt::WA_DeleteOnClose);
-
-    view->show();
-
-    file.close();
-}
 //---------------------------------------------------------------------------
 void lisemqt::on_E_runFileList_currentIndexChanged(int)
 {
