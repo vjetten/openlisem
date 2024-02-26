@@ -113,54 +113,6 @@ void lisemqt::shootScreen()
 //--------------------------------------------------------------------
 void lisemqt::convertScreenshotsToVideo()
 {
+    lisMpeg->setWorkDir(E_ResultDir->text());
     lisMpeg->exec();
-  /*
-
-
-
-    QString screendir = QFileDialog::getExistingDirectory(nullptr, "Select Directory", E_ResultDir->text());
-    screendir = screendir+"/screens";
-    QString filePattern = "*.png";
-    QDir directory(screendir);
-    QStringList files = directory.entryList(QStringList(filePattern), QDir::Files);
-    QString listName = screendir+"/list.txt";
-    qDebug() << listName;
-
-    QFile outputFile(listName); // Replace this with the path for the output file
-    if (!outputFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qWarning() << "Failed to open output file list.txt";
-        return;
-    }
-    QString vidname;
-    QTextStream outStream(&outputFile);
-    for (const QString &file : files) {
-        if(!file.contains("_")) {
-            outStream << screendir+"/"+file << "\n";
-            vidname = QFileInfo(file).fileName();
-        }
-    }
-    vidname.remove(vidname.indexOf("-"),20).append(".mp4");
-
-    outputFile.close();
-    QString prog = QCoreApplication::applicationDirPath() + "/mencoder.exe";
-    QString S = QString("mf://@list.txt -mf w=1920:h=1080:fps=12:type=png -ovc x264 -x264encopts crf=20:threads=6 -oac copy -o").arg(listName);
-    QStringList args;
-        args << S.split(" ");
-        args << screendir+"/" + vidname;
-
-    QProcess mpegProcess;//= new QProcess();
-    mpegProcess.start(prog, args);
-
-    ProgressDialog progressDialog;
-    progressDialog.setProcess(&mpegProcess);
-    progressDialog.show();
-
-    mpegProcess.waitForFinished(-1);
-    qDebug() << mpegProcess.readAllStandardOutput();
-    qDebug() << mpegProcess.readAllStandardError();
-    //while (mpegProcess.readyReadStandardOutput());
-*/
-    qDebug() << "done";
-
-
 }

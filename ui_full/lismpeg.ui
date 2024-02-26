@@ -47,7 +47,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QLineEdit" name="E_resultDir"/>
+    <widget class="QLineEdit" name="E_resultsDir"/>
    </item>
    <item row="1" column="2">
     <widget class="QToolButton" name="toolButton_resultDir">
@@ -61,7 +61,7 @@
     </widget>
    </item>
    <item row="2" column="0" colspan="3">
-    <widget class="QToolButton" name="toolButton_3">
+    <widget class="QToolButton" name="toolButton_createMP4">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>

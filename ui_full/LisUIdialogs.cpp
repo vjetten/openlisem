@@ -339,7 +339,7 @@ void lisemqt::showTextfile(QString name)
     QStringList lines = initialText.split("\n");
     int maxWidth = 0;
     for (const QString& line : lines) {
-        maxWidth = qMax(maxWidth, QFontMetrics(QFont()).width(line));
+        maxWidth = qMax(maxWidth, QFontMetrics(QFont()).horizontalAdvance(line));
     }
     int maxHeight = qMin(qApp->primaryScreen()->size().height() * 2 / 3, lines.size() * 40);
     // Create a QDialog instance

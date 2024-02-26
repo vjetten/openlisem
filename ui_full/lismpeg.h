@@ -15,13 +15,19 @@ public:
     explicit lismpeg(QWidget *parent = nullptr);
     ~lismpeg();
 
+    QString mencoderDir;
+    QString screenDir;
+    QString resultsDir;
+    QString baseDir;
 
+    void setWorkDir(QString d);
+    QString getFileorDir(QString inputdir,QString title, QStringList filters, int doFile);
 
-//public slots:
-//     bool findCondaDir();
+private slots:
+    void on_toolButton_resultDir_clicked();
+    void on_toolButton_mencoderDir_clicked();
 
-//    private:
-//        Ui::lismpeg *ui;
+    void on_toolButton_createMP4_clicked();
 };
 
 #endif // LISMPEG_H
