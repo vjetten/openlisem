@@ -108,6 +108,7 @@ SET(APP_SOURCES
     ui_full/LisUImapplot.h
     ui_full/Lismpeg.cpp
     ui_full/Lismpeg.h
+    ui_full/lisemqt.h
     swatre/swatstep.cpp
     swatre/swatinit.cpp
     swatre/soillut.cpp
