@@ -115,4 +115,5 @@ void lisemqt::convertScreenshotsToVideo()
 {
     lisMpeg->setWorkDir(E_ResultDir->text());
     lisMpeg->exec();
+    mencoderDir = lisMpeg->mencoderDir;
 }

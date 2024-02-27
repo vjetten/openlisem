@@ -114,6 +114,7 @@ public:
     QProgressBar *pb;
 
     lismpeg *lisMpeg;
+  //  QString mencoderDir;
 
     bool darkLISEM;
     bool doBatchmode;

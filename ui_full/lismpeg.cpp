@@ -128,14 +128,52 @@ void lismpeg::on_toolButton_createMP4_clicked()
     args << S.split(" ");
     args << screenDir+"/" + vidname;
 qDebug() << prog << args;
-    QProcess mpegProcess;
-    mpegProcess.start(prog, args);
 
-    mpegProcess.waitForFinished(-1);
-    qDebug() << mpegProcess.readAllStandardOutput();
-    qDebug() << mpegProcess.readAllStandardError();
+mpegProcess = new QProcess(this);
+mpegProcess->setReadChannel ( QProcess::StandardError );
+// pcrcalc outputs on the error channel
+
+connect(mpegProcess, SIGNAL(readyReadStandardError()),this, SLOT(readFromStderr()) );
+connect(mpegProcess, SIGNAL(finished(int)),this, SLOT(finishedModel(int)) );
+
+    mpegProcess->start(prog, args);
+
+    //mpegProcess.waitForFinished(-1);
+    //qDebug() << mpegProcess->readAllStandardOutput();
+    //qDebug() << mpegProcess->readAllStandardError();
     //while (mpegProcess.readyReadStandardOutput());
-E_mpegProcessOutput->insertPlainText(mpegProcess.readAllStandardError());
+
     qDebug() << "done";
 }
 
+void lismpeg::readFromStderr()
+{
+    QString buffer = QString(mpegProcess->readAllStandardError());
+
+    if (!buffer.contains('\r')) {
+        bufprev = bufprev + buffer;
+        return;
+    }
+    else {
+        bufprev = bufprev + buffer;
+        buffer = bufprev;
+        bufprev = "";
+    }
+    E_mpegProcessOutput->insertPlainText(bufprev);
+    QCoreApplication::sendPostedEvents(this, 0);
+
+}//---------------------------------------------------------------
+
+void lismpeg::finishedModel(int)
+{
+    if (mpegProcess->bytesAvailable() > 0)
+    {
+        QByteArray buf;
+        buf.clear();
+        buf = mpegProcess->readAllStandardError();
+        //qDebug() << "buf" << buf;
+        E_mpegProcessOutput->insertPlainText(buf);
+    }
+
+    QCoreApplication::sendPostedEvents(this, 0);
+}

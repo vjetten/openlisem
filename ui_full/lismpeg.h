@@ -20,6 +20,10 @@ public:
     QString resultsDir;
     QString baseDir;
 
+    QString bufprev;
+
+    QProcess *mpegProcess;
+
     void setWorkDir(QString d);
     QString getFileorDir(QString inputdir,QString title, QStringList filters, int doFile);
 
@@ -28,6 +32,8 @@ private slots:
     void on_toolButton_mencoderDir_clicked();
 
     void on_toolButton_createMP4_clicked();
-};
+
+    void readFromStderr();
+    void finishedModel(int);
 
 #endif // LISMPEG_H
