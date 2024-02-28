@@ -3,9 +3,7 @@
 
 #include <QDialog>
 #include "ui_lismpeg.h"
-//namespace Ui {
-//class lsmpeg;
-//}
+
 
 class lismpeg : public QDialog, private Ui::lismpeg
 {
@@ -36,4 +34,7 @@ private slots:
     void readFromStderr();
     void finishedModel(int);
 
+};
+
 #endif // LISMPEG_H
+

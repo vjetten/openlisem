@@ -1154,7 +1154,7 @@ void lisemqt::updateModelData()
     QDir::setCurrent(currentDir);
 
     if (mencoderDir.isEmpty() || !QFileInfo(mencoderDir).exists())
-        mencoderDir = qApp->applicationDirPath() + "\mencoder.exe";
+        mencoderDir = qApp->applicationDirPath() + "\\mencoder.exe";
 
     if (saveRunFileOnce) {
         savefile(op.runfilename);

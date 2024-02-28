@@ -123,33 +123,66 @@ void lismpeg::on_toolButton_createMP4_clicked()
 
     outputFile.close();
     QString prog = mencoderDir;
-    QString S = QString("mf://@%1 -mf w=1920:h=1080:fps=12:type=png -ovc x264 -x264encopts crf=20:threads=6 -oac copy -o").arg(listName);
+    QString S = QString("mf://@%1 -mf w=1920:h=1080:fps=12:type=png -ovc x264 -x264encopts crf=20:threads=1 -oac copy -of lavf -lavfopts format=mp4 -o").arg(listName);
     QStringList args;
     args << S.split(" ");
     args << screenDir+"/" + vidname;
-qDebug() << prog << args;
+    qDebug() << prog << args;
+    E_mpegProcessOutput->append("Creating: "+screenDir+"/"+vidname+"\n");
 
-mpegProcess = new QProcess(this);
-mpegProcess->setReadChannel ( QProcess::StandardError );
-// pcrcalc outputs on the error channel
+    mpegProcess = new QProcess(this);
+    //mpegProcess->setReadChannel ( QProcess::StandardError );
+    // pcrcalc outputs on the error channel
 
-connect(mpegProcess, SIGNAL(readyReadStandardError()),this, SLOT(readFromStderr()) );
-connect(mpegProcess, SIGNAL(finished(int)),this, SLOT(finishedModel(int)) );
+    connect(mpegProcess, SIGNAL(readyReadStandardOutput()),this, SLOT(readFromStderr()) );
+    connect(mpegProcess, SIGNAL(finished(int)),this, SLOT(finishedModel(int)) );
 
     mpegProcess->start(prog, args);
 
-    //mpegProcess.waitForFinished(-1);
-    //qDebug() << mpegProcess->readAllStandardOutput();
-    //qDebug() << mpegProcess->readAllStandardError();
+  //  mpegProcess->waitForFinished(-1);
+  //  qDebug() << mpegProcess->readAllStandardOutput();
+  //  qDebug() << mpegProcess->readAllStandardError();
     //while (mpegProcess.readyReadStandardOutput());
 
-    qDebug() << "done";
+
 }
 
 void lismpeg::readFromStderr()
 {
-    QString buffer = QString(mpegProcess->readAllStandardError());
+    // Read the output of the process
+    QByteArray data = mpegProcess->readAllStandardOutput();
 
+    // Convert the data to QString
+    QString output = QString::fromUtf8(data);
+
+    // Update the current line in the QTextEdit
+//    E_mpegProcessOutput->setPlainText(E_mpegProcessOutput->toPlainText() + output);
+
+    QStringList lines = output.split("\r\n");
+
+   // Iterate through the lines
+   for (const QString& line : lines) {
+       // Check if the line contains "Pos:"
+       if (line.contains("Pos:")) {
+           // Update the current line in the QTextEdit
+           QTextCursor cursor = E_mpegProcessOutput->textCursor();
+           cursor.movePosition(QTextCursor::End);
+           cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::KeepAnchor);
+           cursor.removeSelectedText();
+           cursor.insertText(line);
+       } else {
+           // Append the output to the QTextEdit
+           E_mpegProcessOutput->append(line);
+       }
+   }
+    // Ensure the current line is visible
+//    if (output.contains("Pos:")) {
+//        QTextCursor cursor = E_mpegProcessOutput->textCursor();
+//        cursor.movePosition(QTextCursor::End);
+//        E_mpegProcessOutput->setTextCursor(cursor);
+//    }
+    /*
+    QString buffer = QString(mpegProcess->readAllStandardError());
     if (!buffer.contains('\r')) {
         bufprev = bufprev + buffer;
         return;
@@ -160,20 +193,24 @@ void lismpeg::readFromStderr()
         bufprev = "";
     }
     E_mpegProcessOutput->insertPlainText(bufprev);
-    QCoreApplication::sendPostedEvents(this, 0);
-
-}//---------------------------------------------------------------
+   // QCoreApplication::sendPostedEvents(this, 0);
+    qDebug() << bufprev << buffer;
+*/
+}
+//---------------------------------------------------------------
 
 void lismpeg::finishedModel(int)
 {
-    if (mpegProcess->bytesAvailable() > 0)
-    {
-        QByteArray buf;
-        buf.clear();
-        buf = mpegProcess->readAllStandardError();
-        //qDebug() << "buf" << buf;
-        E_mpegProcessOutput->insertPlainText(buf);
-    }
+     E_mpegProcessOutput->append("\nDone.");
+//    if (mpegProcess->bytesAvailable() > 0)
+//    {
+//        QByteArray buf;
+//        buf.clear();
+//        buf = mpegProcess->readAllStandardError();
+//        //qDebug() << "buf" << buf;
+//        E_mpegProcessOutput->insertPlainText(buf);
+//        qDebug() << "finishs";
+//    }
 
-    QCoreApplication::sendPostedEvents(this, 0);
+  //  QCoreApplication::sendPostedEvents(this, 0);
 }

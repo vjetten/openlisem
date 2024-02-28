@@ -24,7 +24,7 @@
 
 #include "lisemqt.h"
 //#include "model.h"
-//#include "global.h"
+#include "global.h"
 
 
 //---------------------------------------------------------------
