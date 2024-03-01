@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+#cmake_minimum_required(VERSION 3.9)
 
 #============ WIN ========================
 
@@ -11,30 +11,20 @@ IF(WIN32)
     SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
 
-    #SET(MPEG_LIBRARIES "${MINGW_BUILD_DIR}/lib/libavcodec.dll.a ${MINGW_BUILD_DIR}/lib/libavutil.dll.a ${MINGW_BUILD_DIR}/lib/libavformat.dll.a")
-
-
-    #SET(MPEG_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include/libavformat ${MINGW_BUILD_DIR}/include/libavcodec ${MINGW_BUILD_DIR}/include/libavutil")
-
-    #" -lavformat -lavcodec -lavutil")
-
     # QWT standard MSYS install
     #   SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/qwt-qt5")
     #   SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
 
     # Lisem uses a QWT branch with quadruple axes support
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
-    SET(QWT_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/qwtlib/libqwt.dll.a")
+    SET(QWT_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/qwtlib/libqwt.dll.a")    
 
-    SET(FFmpeg "${MINGW_BUILD_DIR}/lib")
+    SET(PCR_LIBRARIES "C:/prgc/PCR/libs/sources/libpcraster_raster_format.a")
 
     FIND_PATH(OMP_INCLUDE_DIRS
         NAMES omp.h
         PATHS "${MINGW_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32"
     )
-
-   # find_package(FFmpeg REQUIRED COMPONENTS avcodec avutil avformat)
-
 
 ENDIF()
 
@@ -177,78 +167,7 @@ SET(APP_SOURCES
     openlisemico.rc
 )
 
-SET(PCR_SOURCES
-    PCRlib/_getcell.c
-    PCRlib/_getrow.c
-    PCRlib/_gsomece.c
-    PCRlib/_putcell.c
-    PCRlib/_rputrow.c
-    PCRlib/angle.c
-    PCRlib/attravai.c
-    PCRlib/attrsize.c
-    PCRlib/cellsize.c
-    PCRlib/create2.c
-    PCRlib/csfglob.c
-    PCRlib/csfsup.c
-    PCRlib/delattr.c
-    PCRlib/dumconv.c
-    PCRlib/endian.c
-    PCRlib/filename.c
-    PCRlib/gattrblk.c
-    PCRlib/gattridx.c
-    PCRlib/gcellrep.c
-    PCRlib/gdattype.c
-    PCRlib/getattr.c
-    PCRlib/getx0.c
-    PCRlib/gety0.c
-    PCRlib/ggisfid.c
-    PCRlib/gmaxval.c
-    PCRlib/gminval.c
-    PCRlib/gnrcols.c
-    PCRlib/gnrrows.c
-    PCRlib/gproj.c
-    PCRlib/gputproj.c
-    PCRlib/gvalscal.c
-    PCRlib/gvartype.c
-    PCRlib/gversion.c
-    PCRlib/ismv.c
-    PCRlib/kernlcsf.c
-    PCRlib/legend.c
-    PCRlib/mclose.c
-    PCRlib/mopen.c
-    PCRlib/moreattr.c
-    PCRlib/mperror.c
-    PCRlib/pgisfid.c
-    PCRlib/pmaxval.c
-    PCRlib/pminval.c
-    PCRlib/putallmv.c
-    PCRlib/putattr.c
-    PCRlib/putsomec.c
-    PCRlib/putx0.c
-    PCRlib/puty0.c
-    PCRlib/pvalscal.c
-    PCRlib/rattrblk.c
-    PCRlib/rcomp.c
-    PCRlib/rcoords.c
-    PCRlib/rdup2.c
-    PCRlib/reseterr.c
-    PCRlib/rextend.c
-    PCRlib/rmalloc.c
-    PCRlib/rrowcol.c
-    PCRlib/ruseas.c
-    PCRlib/setangle.c
-    PCRlib/setmv.c
-    PCRlib/setvtmv.c
-    PCRlib/strconst.c
-    PCRlib/strpad.c
-    PCRlib/swapio.c
-    PCRlib/trackmm.c
-    PCRlib/vs2.c
-    PCRlib/vsdef.c
-    PCRlib/vsis.c
-    PCRlib/vsvers.c
-    PCRlib/wattrblk.c
-)
+
 QT5_WRAP_UI(UI_SOURCES ui_full/lisemqt.ui ui_full/lismpeg.ui)
 
 QT5_ADD_RESOURCES(RCC_SOURCES resources/openlisem.qrc)
@@ -257,8 +176,11 @@ add_executable(Lisem WIN32
     ${UI_SOURCES}
     ${RCC_SOURCES}
     ${APP_SOURCES}
-    ${PCR_SOURCES}
+    #${PCR_SOURCES}
 )
 
-target_link_libraries(Lisem Qt5::Widgets Qt5::Gui Qt5::Core ${GDAL_LIBRARIES} ${QWT_LIBRARIES} OpenMP::OpenMP_CXX)
-
+target_link_libraries(Lisem
+    Qt5::Widgets Qt5::Gui Qt5::Core
+    ${GDAL_LIBRARIES} ${QWT_LIBRARIES} ${PCR_LIBRARIES}
+    OpenMP::OpenMP_CXX
+)

@@ -153,10 +153,11 @@ void lisemqt::runmodel()
     }
     //qDebug() << screenShotDir;
 
+    // take a screenshot of all option widgets
     tabWidget->setCurrentIndex(0);
     for (int i = 0; i < 9; i++) {
         tabWidgetOptions->setCurrentIndex(i);
-        shootScreen();
+        shootSingleScreen(1);
     }
     tabWidget->setCurrentIndex(2);
     //switch to output screen
@@ -239,10 +240,8 @@ void lisemqt::worldShow(bool showall)
 
     showMap(); // show map with selected data
 
-    if (doShootScreens) {
-        shootScreen();
-        convertScreenshotsToVideo();
-    }
+    if (doShootScreens)
+        shootMultipleScreens();
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldDone(const QString &results)
@@ -255,9 +254,9 @@ void lisemqt::worldDone(const QString &results)
 
     tabWidget->setCurrentIndex(2);
     tabWidget_out->setCurrentIndex(0);
-    shootScreen();
+    shootSingleScreen(0);
     tabWidget_out->setCurrentIndex(1);
-    shootScreen();
+    shootSingleScreen(0);
 
 
     // arrive here after model emits done signal

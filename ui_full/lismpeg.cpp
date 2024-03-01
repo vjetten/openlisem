@@ -8,9 +8,16 @@ lismpeg::lismpeg(QWidget *parent) :
     this->setWindowTitle("Create mpeg from screenshots");
    // this->setWindowFlags(Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
 
-    mencoderDir = QCoreApplication::applicationDirPath() + "/mencoder.exe";
-    E_mencoderDir->setText(mencoderDir);
+  //  mencoderDir = QCoreApplication::applicationDirPath() + "/mencoder.exe";
+  //  E_mencoderDir->setText(mencoderDir);
     resize(qApp->primaryScreen()->size().height()*2/3,qApp->primaryScreen()->size().height()*2/3);
+
+
+    toolButton_createMP4->setStyleSheet("QToolButton { text-align: center; }");
+    QStringList sss;
+    sss << "2560x1440" << "1920x1080" << "1280x720";
+    comboBox_mpegResolution->addItems(sss);
+    comboBox_mpegResolution->setCurrentIndex(1);
 
 }
 //---------------------------------------------------------------------------
@@ -63,6 +70,18 @@ QString lismpeg::getFileorDir(QString inputdir,QString title, QStringList filter
     return dirout;
 }
 
+void lismpeg::setMencoderDir(QString d)
+{
+    mencoderDir = d;
+    E_mencoderDir->setText(mencoderDir);
+}
+
+// QString lismpeg::getMencoderDir()
+// {
+//     retrun(mencoderDir);
+//     reurn E_resultsDir->setText(mencoderDir);
+// }
+
 void lismpeg::setWorkDir(QString d)
 {
     resultsDir = d;
@@ -85,45 +104,79 @@ void lismpeg::on_toolButton_resultDir_clicked()
 void lismpeg::on_toolButton_mencoderDir_clicked()
 {
     QStringList filters({"Exe files (*.exe)"});
-    QString sss = getFileorDir(mencoderDir,"Select dir with mencoder.exe", filters, 2);
-
+    QString sss = getFileorDir(mencoderDir,"Select mencoder.exe", filters, 2);
     mencoderDir = QFileInfo(sss).absoluteFilePath();
-//    if (!QFileInfo(mencoderDir).exists() || !mencoderDir.contains("mencoder.exe")) {
-//        qWarning(" download the latest mplayer zip at http://www.mplayerhq.hu and copy mencoder.exe from this package into the lisem.exe folder! ");
-//    }
-//    else
-        E_mencoderDir->setText(mencoderDir);
-
+    qDebug() << sss << mencoderDir;
+   if (!QFileInfo(mencoderDir).exists() || !mencoderDir.contains("mencoder.exe")) {
+       QMessageBox::warning(this, QString("openLISEM"),
+       QString("Download the latest mplayer zip at http://www.mplayerhq.hu and copy mencoder.exe from this package into the lisem.exe folder! "));
+   }
+   else
+    E_mencoderDir->setText(mencoderDir);
+   qDebug() << mencoderDir;
 }
 
 void lismpeg::on_toolButton_createMP4_clicked()
 {
-    screenDir = resultsDir+"screens";
+    E_mpegProcessOutput->clear();
+    screenDir = resultsDir;
+
+    if (!screenDir.contains("screens"))
+        screenDir = screenDir+"screens";
+    qDebug() << screenDir;
     QString filePattern = "*.png";
     QDir directory(screenDir);
     QStringList files = directory.entryList(QStringList(filePattern), QDir::Files);
     QString listName = screenDir+"/list.txt";
 
+    if (files.count() == 0) {
+        E_mpegProcessOutput->append("No screenshots found.");
+        return;
+    }
+
+
     qDebug() << listName;
 
     QFile outputFile(listName); // Replace this with the path for the output file
     if (!outputFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qWarning() << "Failed to open output file list.txt";
+        E_mpegProcessOutput->append("No screenshots found.");
         return;
     }
+
+
     QString vidname;
     QTextStream outStream(&outputFile);
+    int count = 0;
     for (const QString &file : files) {
         if(!file.contains("_")) {
             outStream << screenDir+"/"+file << "\n";
             vidname = QFileInfo(file).fileName();
+            count++;
         }
     }
+    if (count == 0) {
+        E_mpegProcessOutput->append("No map screenshots found.");
+        return;
+    }
+    E_mpegProcessOutput->append(QString("Start: %1 map screenshots found.").arg(count));
+
     vidname.remove(vidname.indexOf("-"),20).append(".mp4");
 
     outputFile.close();
     QString prog = mencoderDir;
-    QString S = QString("mf://@%1 -mf w=1920:h=1080:fps=12:type=png -ovc x264 -x264encopts crf=20:threads=1 -oac copy -of lavf -lavfopts format=mp4 -o").arg(listName);
+    int wid = 1920;
+    int hei = 1080;
+    if (comboBox_mpegResolution->currentIndex() == 0) {
+        wid = 2560;
+        hei = 1440;
+    } else
+        if (comboBox_mpegResolution->currentIndex() == 2) {
+            wid = 1280;
+            hei = 720;
+        }
+
+    QString S = QString("mf://@%1 -mf w=%2:h=%3:fps=%4:type=png -ovc x264 -x264encopts crf=20 -oac copy -of lavf -lavfopts format=mp4 -o").arg(listName).arg(wid).arg(hei).arg(doubleSpin_mpegFps->value());
+
     QStringList args;
     args << S.split(" ");
     args << screenDir+"/" + vidname;
@@ -158,7 +211,7 @@ void lismpeg::readFromStderr()
     // Update the current line in the QTextEdit
 //    E_mpegProcessOutput->setPlainText(E_mpegProcessOutput->toPlainText() + output);
 
-    QStringList lines = output.split("\r\n");
+   QStringList lines = output.split("\r\n");
 
    // Iterate through the lines
    for (const QString& line : lines) {
@@ -172,45 +225,23 @@ void lismpeg::readFromStderr()
            cursor.insertText(line);
        } else {
            // Append the output to the QTextEdit
+           if(!line.isEmpty())
            E_mpegProcessOutput->append(line);
        }
    }
-    // Ensure the current line is visible
-//    if (output.contains("Pos:")) {
-//        QTextCursor cursor = E_mpegProcessOutput->textCursor();
-//        cursor.movePosition(QTextCursor::End);
-//        E_mpegProcessOutput->setTextCursor(cursor);
-//    }
-    /*
-    QString buffer = QString(mpegProcess->readAllStandardError());
-    if (!buffer.contains('\r')) {
-        bufprev = bufprev + buffer;
-        return;
-    }
-    else {
-        bufprev = bufprev + buffer;
-        buffer = bufprev;
-        bufprev = "";
-    }
-    E_mpegProcessOutput->insertPlainText(bufprev);
-   // QCoreApplication::sendPostedEvents(this, 0);
-    qDebug() << bufprev << buffer;
-*/
+
 }
 //---------------------------------------------------------------
 
 void lismpeg::finishedModel(int)
 {
      E_mpegProcessOutput->append("\nDone.");
-//    if (mpegProcess->bytesAvailable() > 0)
-//    {
-//        QByteArray buf;
-//        buf.clear();
-//        buf = mpegProcess->readAllStandardError();
-//        //qDebug() << "buf" << buf;
-//        E_mpegProcessOutput->insertPlainText(buf);
-//        qDebug() << "finishs";
-//    }
 
-  //  QCoreApplication::sendPostedEvents(this, 0);
 }
+
+void lismpeg::on_toolButton_stpMP4_clicked()
+{
+    E_mpegProcessOutput->append("\nUser interrupt, invalid MP4.");
+    mpegProcess->kill();
+}
+

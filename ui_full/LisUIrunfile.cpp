@@ -548,7 +548,11 @@ void lisemqt::ParseInputData()
         if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
         if (p1.compare("satImage file")==0) satImageFileName = p;
 
-        if (p1.compare("mpegexe Directory")==0) mencoderDir = CheckDir(p);
+        if (p1.compare("mpegexe Directory")==0) {
+            mencoderDir = QFileInfo(p).absoluteFilePath();
+            if (!QFileInfo(mencoderDir).exists())
+                mencoderDir = "";
+        }
 
         if (p1.compare("Rainfall map")==0) E_RainfallMap->setText(p);
         if (p1.compare("Interception map")==0) E_InterceptionMap->setText(p);
@@ -1015,7 +1019,10 @@ void lisemqt::updateModelData()
         if (p1.compare("satImage file")==0) namelist[j].value = satImageFileName;
         if (p1.compare("Advanced Options")==0) namelist[j].value.setNum((int)checkAdvancedOptions->isChecked());
 
-        if (p1.compare("mpegexe Directory")==0) namelist[j].value = mencoderDir;
+        if (p1.compare("mpegexe Directory")==0) {
+            qDebug() << "out" << mencoderDir;
+            namelist[j].value = mencoderDir;
+        }
 
         if (p1.compare("Rainfall map")==0) namelist[j].value = E_RainfallMap->text();
         if (p1.compare("Interception map")==0) namelist[j].value = E_InterceptionMap->text();
@@ -1153,8 +1160,8 @@ void lisemqt::updateModelData()
     currentDir = E_WorkDir;
     QDir::setCurrent(currentDir);
 
-    if (mencoderDir.isEmpty() || !QFileInfo(mencoderDir).exists())
-        mencoderDir = qApp->applicationDirPath() + "\\mencoder.exe";
+    // if (mencoderDir.isEmpty() || !QFileInfo(mencoderDir).exists())
+    //     mencoderDir = qApp->applicationDirPath() + "\\mencoder.exe";
 
     if (saveRunFileOnce) {
         savefile(op.runfilename);

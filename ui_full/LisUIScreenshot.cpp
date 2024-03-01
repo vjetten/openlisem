@@ -34,14 +34,15 @@ void lisemqt::shootMScreen()
 //--------------------------------------------------------------------
 void lisemqt::shootScreen()
 {
-
+    shootSingleScreen(0);
+/*
     if (op.runfilename.isEmpty())
     {
         QMessageBox::warning(this, "openLISEM",QString("Select a run file first"));
         return;
     }
 
-    QPixmap originalPixmap; // clear image for low memory situations
+    QPixmap originalPixmap;
     QString format = "png";
     QFileInfo fi(op.runfilename);
 
@@ -49,19 +50,23 @@ void lisemqt::shootScreen()
     QString number = QString("-%1").arg(op.runstep,5,'d',0,'0');
     QString name;
 
+    // is multiple screenshots while running
     if (doShootScreens)
     {
         if (op.runstep % printinterval->value() > 0)
             return;
+        // continue each printinterval else return
 
+        // always take screenshot of the hydrograph
         tabWidget_out->setCurrentIndex(0);
         originalPixmap = tabWidget->widget(2)->grab();
         fileName = screenShotDir + fi.baseName()+ "_Q" + number + ".png";
-
         originalPixmap.save(fileName, format.toLatin1());
 
+        // grab the map screen, whatever map is present
         tabWidget_out->setCurrentIndex(1);
-        originalPixmap = tabWidget->widget(2)->grab(); //QPixmap::grabWidget(tabWidget->widget(2));
+        originalPixmap = tabWidget->widget(2)->grab();
+        // get the proper name of the variable shown
         QString name = "";
         if (checkBoxComboMaps->isChecked()) {
             int index = DisplayComboBox->currentIndex();
@@ -77,7 +82,7 @@ void lisemqt::shootScreen()
         fileName = screenShotDir + fi.baseName()+ name + number  + ".png";
         originalPixmap.save(fileName, format.toLatin1());
     }
-    else
+    else // only one screenshot
     {
         if (tabWidget->currentIndex() == 0) {
             originalPixmap = tabWidgetOptions->currentWidget()->grab();
@@ -98,7 +103,8 @@ void lisemqt::shootScreen()
                     int index = DisplayComboBox->currentIndex();
                     if( index > -1 && index < NameList.length())
                         name = NameList.at(index);
-                } else if (checkBoxComboMaps2->isChecked()) {
+                } else
+                    if (checkBoxComboMaps2->isChecked()) {
                     int index = DisplayComboBox2->currentIndex()+DisplayComboBox->count();
                     if( index > -1 && index < NameList.length())
                         name = NameList.at(index);
@@ -109,11 +115,115 @@ void lisemqt::shootScreen()
         fileName = screenShotDir + fi.baseName()+ name + number  + ".png";
         originalPixmap.save(fileName, format.toLatin1());
     }
+*/
+}
+//--------------------------------------------------------------------
+void lisemqt::shootMultipleScreens()
+{
+    if (op.runfilename.isEmpty())
+    {
+        QMessageBox::warning(this, "openLISEM",QString("Select a run file first"));
+        return;
+    }
+
+    QPixmap originalPixmap;
+    QString format = "png";
+    QFileInfo fi(op.runfilename);
+
+    QString fileName = screenShotDir + fi.baseName();
+    QString number = QString("-%1").arg(op.runstep,5,'d',0,'0');
+
+
+    if (op.runstep % printinterval->value() > 0)
+        return;
+    // continue each printinterval else return
+
+    // always take screenshot of the hydrograph
+    tabWidget_out->setCurrentIndex(0);
+    originalPixmap = tabWidget->widget(2)->grab();
+    fileName = screenShotDir + fi.baseName()+ "_Q" + number + ".png";
+    originalPixmap.save(fileName, format.toLatin1());
+
+    // grab the map screen, whatever map is present
+    tabWidget_out->setCurrentIndex(1);
+    originalPixmap = tabWidget->widget(2)->grab();
+    // get the proper name of the variable shown
+    QString name = "";
+    if (checkBoxComboMaps->isChecked()) {
+        int index = DisplayComboBox->currentIndex();
+        if( index > -1 && index < NameList.length())
+            name = NameList.at(index);
+    } else if (checkBoxComboMaps2->isChecked()) {
+        int index = DisplayComboBox2->currentIndex()+DisplayComboBox->count();
+        //   qDebug() << index;
+        if( index > -1 && index < NameList.length())
+            name = NameList.at(index);
+    }
+
+    fileName = screenShotDir + fi.baseName()+ name + number  + ".png";
+    originalPixmap.save(fileName, format.toLatin1());
+
+}
+//--------------------------------------------------------------------
+void lisemqt::shootSingleScreen(int options)
+{
+    if (op.runfilename.isEmpty())
+    {
+        QMessageBox::warning(this, "openLISEM",QString("Select a run file first"));
+        return;
+    }
+
+    QPixmap originalPixmap;
+    QString format = "png";
+    QFileInfo fi(op.runfilename);
+
+    QString fileName = screenShotDir + fi.baseName();
+    QString number = "";//QString("-%1").arg(op.runstep,5,'d',0,'0');
+    QString name;
+
+    if (options == 1) {
+        tabWidget->setCurrentIndex(0);
+        originalPixmap = tabWidgetOptions->currentWidget()->grab();
+        name = QString("input_%1").arg(tabWidgetOptions->currentIndex());
+        number = "";
+    } else {
+        originalPixmap = tabWidget->currentWidget()->grab();
+        // grab the screen
+
+        if (tabWidget->currentIndex() == 1) { // maplist
+            name = "inputmaps";
+        }
+        if (tabWidget->currentIndex() == 2) // output
+        {
+            number = QString("-%1").arg(op.runstep,5,'d',0,'0');
+            if (tabWidget_out->currentIndex() == 0) {
+                name = "_Q";
+            }
+            if (tabWidget_out->currentIndex() == 1) {
+                if (checkBoxComboMaps->isChecked()) {
+                    int index = DisplayComboBox->currentIndex();
+                    if( index > -1 && index < NameList.length())
+                        name = NameList.at(index);
+                } else
+                    if (checkBoxComboMaps2->isChecked()) {
+                        int index = DisplayComboBox2->currentIndex()+DisplayComboBox->count();
+                        if( index > -1 && index < NameList.length())
+                            name = NameList.at(index);
+                    }
+            }
+        }
+    }
+    fileName = screenShotDir + fi.baseName()+ name + number  + ".png";
+    originalPixmap.save(fileName, format.toLatin1());
 }
 //--------------------------------------------------------------------
 void lisemqt::convertScreenshotsToVideo()
 {
+    lisMpeg->setMencoderDir(mencoderDir);
     lisMpeg->setWorkDir(E_ResultDir->text());
+
     lisMpeg->exec();
+
     mencoderDir = lisMpeg->mencoderDir;
+    qDebug() << "new" << mencoderDir;
 }

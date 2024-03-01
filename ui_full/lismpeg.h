@@ -22,6 +22,7 @@ public:
 
     QProcess *mpegProcess;
 
+    void setMencoderDir(QString d);
     void setWorkDir(QString d);
     QString getFileorDir(QString inputdir,QString title, QStringList filters, int doFile);
 
@@ -34,6 +35,7 @@ private slots:
     void readFromStderr();
     void finishedModel(int);
 
+    void on_toolButton_stpMP4_clicked();
 };
 
 #endif // LISMPEG_H
