@@ -19,11 +19,15 @@ lismpeg::lismpeg(QWidget *parent) :
     comboBox_mpegResolution->addItems(sss);
     comboBox_mpegResolution->setCurrentIndex(1);
 
+    mpegProcess = new QProcess(this);
+    mp4Process = new QProcess(this);
 }
 //---------------------------------------------------------------------------
 lismpeg::~lismpeg()
 {
   //  delete ui;
+    delete mp4Process;
+    delete mpegProcess;
 }
 
 
@@ -123,7 +127,7 @@ void lismpeg::on_toolButton_createMP4_clicked()
 
     if (!screenDir.contains("screens"))
         screenDir = screenDir+"screens";
-    qDebug() << screenDir;
+
     QString filePattern = "*.png";
     QDir directory(screenDir);
     QStringList files = directory.entryList(QStringList(filePattern), QDir::Files);
@@ -134,26 +138,25 @@ void lismpeg::on_toolButton_createMP4_clicked()
         return;
     }
 
-
-    qDebug() << listName;
-
     QFile outputFile(listName); // Replace this with the path for the output file
     if (!outputFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         E_mpegProcessOutput->append("No screenshots found.");
         return;
     }
 
-
-    QString vidname;
+    QString tname;
     QTextStream outStream(&outputFile);
     int count = 0;
     for (const QString &file : files) {
         if(!file.contains("_")) {
             outStream << screenDir+"/"+file << "\n";
+            tname = QFileInfo(file).absoluteFilePath();
             vidname = QFileInfo(file).fileName();
             count++;
         }
     }
+    //qDebug() << tname;
+
     if (count == 0) {
         E_mpegProcessOutput->append("No map screenshots found.");
         return;
@@ -175,15 +178,17 @@ void lismpeg::on_toolButton_createMP4_clicked()
             hei = 720;
         }
 
-    QString S = QString("mf://@%1 -mf w=%2:h=%3:fps=%4:type=png -ovc x264 -x264encopts crf=20 -oac copy -of lavf -lavfopts format=mp4 -o").arg(listName).arg(wid).arg(hei).arg(doubleSpin_mpegFps->value());
+
+   //  QString S = QString("mf://@%1 -mf w=%2:h=%3:fps=%4:type=png -ovc x264 -x264encopts -oac copy -of lavf -lavfopts format=mp4 -o").arg(listName).arg(wid).arg(hei).arg(doubleSpin_mpegFps->value());
+   QString S = QString("mf://@%1 -mf w=%2:h=%3:fps=%4:type=png -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o").arg(listName).arg(wid).arg(hei).arg(doubleSpin_mpegFps->value());
 
     QStringList args;
     args << S.split(" ");
-    args << screenDir+"/" + vidname;
-    qDebug() << prog << args;
-    E_mpegProcessOutput->append("Creating: "+screenDir+"/"+vidname+"\n");
+    vidname = screenDir+"/" + vidname;
+    args << vidname;
+    E_mpegProcessOutput->append("Creating: " +vidname+"\n");
 
-    mpegProcess = new QProcess(this);
+    // mpegProcess = new QProcess(this);
     //mpegProcess->setReadChannel ( QProcess::StandardError );
     // pcrcalc outputs on the error channel
 
@@ -241,7 +246,21 @@ void lismpeg::finishedModel(int)
 
 void lismpeg::on_toolButton_stpMP4_clicked()
 {
-    E_mpegProcessOutput->append("\nUser interrupt, invalid MP4.");
-    mpegProcess->kill();
+    if (mpegProcess && mpegProcess->state() == QProcess::Running) {
+        E_mpegProcessOutput->append("\nUser interrupt, invalid MP4.");
+        mpegProcess->kill();
+    }
+}
+
+
+void lismpeg::on_toolButton_showMP4_clicked()
+{
+    QString prog;
+    QStringList args;
+    prog = mencoderDir;
+    prog.replace("mencoder.exe","mplayer.exe");
+    args << vidname;
+    mp4Process->start(prog, args);
+    mp4Process->waitForFinished(-1);
 }
 

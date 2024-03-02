@@ -17,10 +17,10 @@ public:
     QString screenDir;
     QString resultsDir;
     QString baseDir;
-
-    QString bufprev;
+    QString vidname;
 
     QProcess *mpegProcess;
+    QProcess *mp4Process;
 
     void setMencoderDir(QString d);
     void setWorkDir(QString d);
@@ -36,6 +36,7 @@ private slots:
     void finishedModel(int);
 
     void on_toolButton_stpMP4_clicked();
+    void on_toolButton_showMP4_clicked();
 };
 
 #endif // LISMPEG_H
