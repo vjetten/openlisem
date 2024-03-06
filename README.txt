@@ -11,6 +11,10 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt5, openmp, gdal and pcraster
 
+version 6.95 beta
+- Added boundary water level fluctuation, e.g. dikebreak or large flood
+- Added possibility to make mpeg movie after simulation, install this: http://www.mplayerhq.hu/
+
 version 6.94
 - Improved subsurface storm drains, can be used in urban envrioenments or tile drains in fields, BETA
 

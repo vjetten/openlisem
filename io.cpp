@@ -118,7 +118,7 @@ cTMap readRaster(
 
     MaskedRaster<double> raster_data(nr_rows, nr_cols, north, west, cell_size);
 
-    // All raster values are read into doubles. PCRaster value scales are not
+    // All raster values are read into doubles, GDT_Float64. PCRaster value scales are not
     // taken into account.
     if(band->RasterIO(GF_Read, 0, 0, nr_cols, nr_rows, raster_data[0],
             nr_cols, nr_rows, GDT_Float64, 0, 0) != CE_None) {
@@ -475,6 +475,7 @@ void writeRaster(
     QString const& pathName,
     QString const& format)
 {
+// not needed because inside lisem this is not happening
 //    if(raster.nrRows() == 0 || raster.nrCols() == 0) {
 //        return;
 //    }
@@ -511,8 +512,8 @@ void writeRaster(
     }
 }
 
-
 /// makes mapname if (name.map) or mapseries (name0000.001 to name0009.999)
+/// or 'verylongname' to verylongname99.999
 void WriteMapSeries(
     cTMap const& raster,
     QString const& Dir,
@@ -523,15 +524,24 @@ void WriteMapSeries(
     QString path;
     QFileInfo fi(Name);
 
+    // in no extension is given
     if(Name.indexOf(".") < 0) {
         QString nam, dig;
 
-        nam = Name + "00000000";
+        // convert count to digit with a 3 digit extension filled with 0
+        dig = QString("%1").arg(count, 5, 10, QLatin1Char('0'));
+        dig.insert(dig.length()-3, ".");
 
-        nam.remove(7, 10);
-        dig = QString("%1").arg(count, 4, 10, QLatin1Char('0'));
-        dig.insert(1, ".");
+        // if small name fill with 0
+        if (name.Length() < 6) {
+            nam = Name + "0000000000";
+            nam.remove(6, nam.length());
+        }
+
         Name = nam + dig;
+
+        // so wh at count 1020 becomes wh000001.020
+        // and waterheight becomes waterheight01.020
     }
 
     path = Dir + Name;

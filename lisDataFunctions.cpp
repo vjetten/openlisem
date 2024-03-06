@@ -57,7 +57,8 @@ cTMap *TWorld::NewMap(double value)
     {
         maplistCTMap[maplistnr].m = _M;
         maplistnr++;
-    }
+    } else
+        qDebug() << "no more space";
 
     return(_M);
 }
