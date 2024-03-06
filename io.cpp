@@ -533,7 +533,7 @@ void WriteMapSeries(
         dig.insert(dig.length()-3, ".");
 
         // if small name fill with 0
-        if (name.Length() < 6) {
+        if (Name.length() < 6) {
             nam = Name + "0000000000";
             nam.remove(6, nam.length());
         }
