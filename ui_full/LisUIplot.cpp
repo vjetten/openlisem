@@ -291,8 +291,8 @@ void lisemqt::initPlot()
         else
             HPlot->setAxisTitle(*axisYL1, "Q (m3/s)");
         HPlot->setAxisTitle(*axisYR1, "P (mm/h)");
-        if (checkWaveInUser->isChecked())
-            HPlot->setAxisTitle(*axisYR1, "WH (m)");
+//        if (checkWaveInUser->isChecked())
+//            HPlot->setAxisTitle(*axisYR1, "WH (m)");
     }
 
     // redraw legend with nr of variables
@@ -315,8 +315,8 @@ void lisemqt::showPlot()
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
     PGraph->setSamples(op.Time,op.Pmm);
 
-    if (checkWaveInUser->isChecked())
-       QbGraph->setSamples(op.Time,*op.Wavein[index]);
+//    if (checkWaveInUser->isChecked())
+//       QbGraph->setSamples(op.Time,*op.Wavein[index]);
 
     int _j = op.OutletQ[index]->count()-1; // last value index
 

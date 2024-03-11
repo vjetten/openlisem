@@ -19,7 +19,7 @@ IF(WIN32)
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
     SET(QWT_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/qwtlib/libqwt.dll.a")    
 
-    SET(PCR_LIBRARIES "C:/prgc/PCR/libs/sources/libpcraster_raster_format.a")
+   # SET(PCR_LIBRARIES "C:/prgc/PCR/libs/sources/libpcraster_raster_format.a")
 
     FIND_PATH(OMP_INCLUDE_DIRS
         NAMES omp.h
@@ -181,6 +181,6 @@ add_executable(Lisem WIN32
 
 target_link_libraries(Lisem
     Qt5::Widgets Qt5::Gui Qt5::Core
-    ${GDAL_LIBRARIES} ${QWT_LIBRARIES} ${PCR_LIBRARIES}
+    ${GDAL_LIBRARIES} ${QWT_LIBRARIES} #${PCR_LIBRARIES}
     OpenMP::OpenMP_CXX
 )

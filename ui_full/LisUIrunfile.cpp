@@ -741,7 +741,9 @@ QString lisemqt::CheckDir(QString p, bool makeit)
         return(p);
 
     path = QDir(p).fromNativeSeparators(p);
+
     path = QDir(path).absoluteFilePath(path);
+
     if (!path.endsWith("/"))
         path = path + '/';
 
