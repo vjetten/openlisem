@@ -262,7 +262,7 @@ void TWorld::getThetafromH(int j, SOIL_LIST s)
             s.theta[j] = s.thetar[j] + pow(s.hb[j]/s.h[j], s.lambda[j])*(s.pore[j]-s.thetar[j]);
     } else {
         if (s.h[j] < 0.0)
-            s.theta[j] = s.thetar[j]+(s.pore[j]-s.thetar[j])*std::pow(1+std::pow(s.vg_alpha[j]*fabs(s.h[j]*GRAV), s.vg_n[j]), -(1-1/s.vg_n[j]));
+            s.theta[j] = s.thetar[j]+(s.pore[j]-s.thetar[j])*std::pow(1+std::pow(s.vg_alpha[j]*fabs(s.h[j]/*GRAV*/), s.vg_n[j]), -(1-1/s.vg_n[j]));
     }
 }
 
@@ -275,7 +275,7 @@ void TWorld::getHfromTheta(int j, SOIL_LIST s)
     } else {
         double n = s.vg_n[j];
         double m = 1-1/n;
-        s.h.replace(j, -std::pow((std::pow(1/se,1/m)-1),1/n)/s.vg_alpha[j]*0.101974);
+        s.h.replace(j, -std::pow((std::pow(1/se,1/m)-1),1/n)/s.vg_alpha[j] /*0.101974*/);
         // kPa to m water
     }
 }
@@ -499,7 +499,7 @@ void TWorld::cell_Soilwater(long i_)
                 A1 = A[0];
                 A[0] = 0;
                 D[0] = 1;
-                F[1] = F[1] + A1*Hnew[0];
+                F[1] = F[1] - A1*Hnew[0]; //was +
                 // THIS IS ALSO THE CONDITION UNDER GW, SO D=1!, A = 0, F = H???
             } else {
                 s.Infact = s.InfPot;
@@ -650,7 +650,7 @@ void TWorld::cell_Soilwater(long i_)
          QString S;
          QString S1;
          for(int j = 0; j < nNodes; j++) {
-             S = S + QString(" %1").arg(s.h[j]);
+             S = S + QString(" %1").arg(s.h[j]*100);
             S1 = S1 + QString(" %1").arg(s.theta[j]);
          }
         qDebug() << time/86400 << S;

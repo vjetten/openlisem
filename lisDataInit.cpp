@@ -3538,7 +3538,7 @@ void TWorld::InitNewSoilProfile()
 
         double dz, dz2, dz3;
         dz = SoilDepth1->Drc / nN1_;
-        double facta = 100;
+        double facta = 1;//e100;
         if (SwitchTwoLayer)
             dz2 = (SoilDepth2->Drc - SoilDepth1->Drc) / nN2_;
         if (SwitchThreeLayer)
