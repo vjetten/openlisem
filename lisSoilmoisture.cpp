@@ -280,171 +280,12 @@ void TWorld::getHfromTheta(int j, SOIL_LIST s)
     }
 }
 
-void TWorld::cell_SoilwaterExpl(long i_)
-{
-    SOIL_LIST s = crSoil[i_];
-
-    double dtmin = 0.01*_dt;
-    double dtmax = SoilWBdtfactor*_dt;
-    s.dts = _dt;//dtmax;
-    int c = s.c;
-    int r = s.r;
-    double WH0, WH1;
-    bool freeDrainage = !SwitchImpermeable;
-
-    double *S  = new double[nNodes];
-    double *K  = new double[nNodes];
-    double *C1  = new double[nNodes];
-    double *Ka = new double[nNodes];
-    double *Q  = new double[nNodes];
-    double *Hnew  = new double[nNodes];
-
-    SwitchVanGenuchten = false;
-    SwitchBrooksCorey = !SwitchVanGenuchten;
-
-    if (FloodDomain->Drc == 0)
-        WH0 = WH->Drc; //runoff in kinwave or dyn wave
-    else
-        WH0 = hmx->Drc;// flood in kin wave
-
-    WH1 = WH0;
-
-    s.InfPot = 0;  // m/s
-    s.Infact = 0;
-    s.dtsum = 0;
-    s.drain = 0;
-
-    // fill Hnew and Hold
-    for(int j = 0; j < nNodes; j++) {
-        S[j] = 0;
-        Hnew[j] = s.h[j];
-    }
-
-    //get K and C for current H
-    if(SwitchVanGenuchten)
-        VanGenuchten(s, Hnew, K, C1, false);
-    if(SwitchBrooksCorey)
-        BrooksCorey(s, Hnew, K, C1, false);
-
-    // ET calculation goes into sink term S
-    // if (SwitchIncludeET)
-    //     calcSinkterm(i_, S); // ETa
-
-    // initial dts
-    s.dts=dtmax;
-    int cnt = 0;
-
-    // K1 and K2 are avg between node and upper and lower node
-    for(int j = 1; j < nNodes; j++) {
-        switch (KavgType) {
-        case 0: Ka[j] = Aavg(K[j-1],K[j]); break;
-        case 1: Ka[j] = Savg(K[j-1],K[j]); break;
-        case 2: Ka[j] = Havg(K[j-1],K[j],s.dz[j-1],s.dz[j]); break;
-        case 3: Ka[j] = Mavg(K[j-1],K[j]); break;
-        }
-    }
-    Ka[0] = Ka[1];
-    s.InfPot = WH1/s.dts;
-
-    // explicit state and fluxes
-    // ponding?
-    // Q=-K[h]*((h1-h2)/(z1-z2)+1) but dz is z2-z1 so reversed and positive
-    // therefore in this case it should be Q=-K[h]*((h2-h1)/dz+1), where h <= 0 or on the surface can be positive
-    if (WH1 > 0) {
-        Q[0] = -s.Ks[0]*((s.h[0]-WH1)/s.dz[0] + 1);
-        Q[0] = std::max(Q[0], -s.InfPot);
-    } else {
-        Q[0] = -Ka[0]*((s.h[0]-0)/s.dz[0] + 1); //??? is there something better
-    }
-    // if (r == _nrRows/2 && c == _nrCols/2)
-    //     qDebug() << WH1 << Q[0] << s.h[0] << s.theta[0] << s.dz[0] << Ka[0] << K[0] << K[1];
-
-    for(int j = 1; j < nNodes-1; j++) {
-        Q[j] = -Ka[j]*((s.h[j]-s.h[j-1])/s.dz[j] + 1);
-    }
-
-    for(int j = 0; j < nNodes; j++) {
-        getThetafromH(j,s);
-        double moist = s.theta[j] * s.dz[j];
-        double moistmax = s.pore[j] * s.dz[j];
-        double dm = moistmax-moist;
-        if ((Q[j]-Q[j+1])*s.dts > dm) {
-            Q[j] = (dm+Q[j+1]*s.dts)/s.dts;
-        }
-        moist = moist + (Q[j]-Q[j+1])*s.dts;
-        s.theta[j] = moist/s.dz[j];
-        s.theta[j] = std::min(s.theta[j],s.pore[j]);
-
-        getHfromTheta(j,s);
-    }
-
-    s.drain = Q[nNodes-1];
-    if (WH1 > 0)
-        WH1 = std::max(0.0, WH1 + Q[0]*s.dts);
-
-    // outer loop timestep lisem
-
-    if (FloodDomain->Drc == 0) {
-        WH->Drc = WH1; //runoff in kinwave or dyn wave
-    } else {
-        hmx->Drc = WH1; // flood in kin wave
-    }
-    s.Infact = (WH0-WH1)/_dt;
-
-    InfilVol->Drc = s.Infact*_dt*SoilWidthDX->Drc*DX->Drc;
-
-    ThetaI1a->Drc = s.theta[1];
-    for (int j = 2; j <= nN1_; j++)
-        ThetaI1a->Drc += s.theta[j];
-    ThetaI1a->Drc /= (double)nN1_;
-
-    if (SwitchTwoLayer || SwitchThreeLayer) {
-        ThetaI2a->Drc = s.theta[nN1_+1];
-        for (int j = nN1_+2; j < nN1_+nN2_+1; j++)
-            ThetaI2a->Drc += s.theta[j];
-        ThetaI2a->Drc /= (double)nN2_;
-    }
-    if (SwitchThreeLayer) {
-        ThetaI3a->Drc = s.theta[nN1_+nN2_+1];
-        for (int j = nN2_+nN1_+2; j < nN1_+nN2_+nN3_+1; j++)
-            ThetaI3a->Drc += s.theta[j];
-        ThetaI3a->Drc /= (double)nN3_;
-    }
-
-    Perc->Drc = s.drain*_dt;
-
-    // if (r == _nrRows/2 && c == _nrCols/2) {
-    //  //   qDebug() << WH0 << WH1 << Q[0];
-    //     QString S;
-
-    //     // for(int j = 0; j < nNodes; j++) {
-    //     //     S = S + QString(" %1").arg(s.h[j]);
-    //     //     //S1 = S1 + QString(" %1").arg(s.theta[j]);
-    //     // }
-    //    // qDebug() <<  S;
-    // }
-
-    // put the results back
-    crSoil[i_] = s;
-
-    delete[] Hnew;
-    delete[] C1;
-    delete[] S;
-    delete[] Ka;
-    delete[] K;
-    delete[] Q;
-
-}
-
-
-
-
 void TWorld::cell_Soilwater(long i_)
 {
     SOIL_LIST s = crSoil[i_];
 
     double dtmin = 0.01*_dt;
-    double dtmax = _dt;//SoilWBdtfactor*_dt;
+    double dtmax = std::min(_dt, SoilWBdtfactor);
     s.dts = dtmax;
     int NITMAX = 12;
     bool stopit = false;
@@ -464,9 +305,6 @@ void TWorld::cell_Soilwater(long i_)
     double *A  = new double[nNodes];
     double *D  = new double[nNodes];
     double *F  = new double[nNodes];
-
-    SwitchVanGenuchten = true;
-    SwitchBrooksCorey = !SwitchVanGenuchten;
 
     if (FloodDomain->Drc == 0)
         WH0 = WH->Drc; //runoff in kinwave or dyn wave
@@ -580,11 +418,11 @@ void TWorld::cell_Soilwater(long i_)
         // iteration for Hnew
         do {
 
+            //======== Get nodal values
             if(SwitchVanGenuchten)
                 VanGenuchten(s, H, K, C1, false); //????Hnew???c
             if(SwitchBrooksCorey)
                 BrooksCorey(s, H, K, C1, false);
-
             for(int j = 0; j < nNodes; j++) {
                 C1[j] *= s.dz[j]/s.dts;
 
@@ -613,7 +451,11 @@ void TWorld::cell_Soilwater(long i_)
             K2[nN] = K1[nN];
 
             //======== Galerkin 3-diagonal scheme and back substitution
-            F[0] = (2*C1[0] +C1[1])/6.0;  // C is differential moisture ca[pacity dtheta/dh. That means that F has the unit of m?
+            // checked against WORM-V !!!
+
+            // C is differential moisture capacity dtheta/dh. That means that F has the unit of m?
+            // but is multiplied here with dz/dt !?
+            F[0] = (2*C1[0] +C1[1])/6.0;
             A[0] = -K1[0];
             D[0] = -A[0] + F[0];
             for(int j = 1; j < nN; j++) {
@@ -626,17 +468,16 @@ void TWorld::cell_Soilwater(long i_)
             D[nN] = -A[nN-1] + F[nN];
             FFN = F[nN];
 
-            // checked against WORM !!!
             //include gravity term (i.e. k only) and sink term
             //NOTE in WORM for first term originally -K1 + S1 but in paper
             //  by Van Genuchten -K1 -S1 !!!
-            F[0] = F[0]*H[0] - 0.5*s.dz[0]*(K1[0]-(4.0*S[0]+S[1])/3.0);
+            F[0] = F[0]*H[0] - 0.5*s.dz[0]*(K1[0]-(2.0*S[0]+S[1])/3.0);
             for(int j = 1; j < nN; j++) {
                 F[j] = F[j]*H[j] + 0.5*(s.dz[j]+s.dz[j-1]) * K1[j]
-                                    - 0.5*(s.dz[j]+s.dz[j+1]) * K2[j]
-                                    - s.dz[j] * (S[j-1]+4*S[j]+S[j+1])/6;
+                                 - 0.5*(s.dz[j]+s.dz[j+1]) * K2[j]
+                                 - s.dz[j] * (S[j-1]+4*S[j]+S[j+1])/6;
             }
-            F[nN] = F[nN]*H[nN] + 0.5*s.dz[nN]*(K2[nN] - (S[nN-1]+2.0*S[nN])/3.0);
+            F[nN] = F[nN]*H[nN] + 0.5*s.dz[nN]*(K2[nN]-(S[nN-1]+2.0*S[nN])/3.0);
 
             //======== Boundary conditions
 
@@ -652,12 +493,14 @@ void TWorld::cell_Soilwater(long i_)
             // upper boundary condition
             if (s.ponded){
                 Hnew[0] = H[0] + WH1; //SOAP: throughfall -influx = the water layer on the surface, but what is influx? prev timestep?
+                s.Infact = D[0] * H[0] - F[0];
                 F[0] = Hnew[0];
                 A1 = A[0];
                 A[0] = 0;
                 D[0] = 1;
                 F[1] = F[1] + A1*Hnew[0];
             } else {
+                s.Infact = s.InfPot;
                 F[0] = F[0] + s.InfPot; // in WORM this is a flux
             }
 
@@ -706,35 +549,32 @@ void TWorld::cell_Soilwater(long i_)
             s.ponded = Hnew[0] > 0;
 
             stopit = true;
-           // bool iterate = true;
-           // if (iterate) {
-
-                //stop if Hnew and Hold are close
-                // do not include top node?
-                for(int j = 0; j <= nN; j++) {
-                    if (Hnew[j] < 0) {
-                        double tol = tol1*fabs(H[j]) + tol2;
-                        if (s.ponded) tol /= 2;
-                        if (fabs(Hnew[j] - H[j]) > tol) {
-                            stopit = false;
-                            break;
-                        }
+            //stop if Hnew and Hold are close
+            // do not include top node?
+            for(int j = 1; j <= nN; j++) {
+                if (Hnew[j] < 0) {
+                    double tol = tol1*fabs(H[j]) + tol2;
+                    if (s.ponded) tol /= 2;
+                    if (fabs(Hnew[j] - H[j]) > tol) {
+                        stopit = false;
+                        break;
                     }
                 }
+            }
 
-                NIT++;
+            NIT++;
 
-                if (!stopit && NIT > NITMAX) {
-                    // try again with smaller dts
-                    s.dts /= 2.0;
-                    s.dts = std::max(s.dts,dtmin);
-                    for(int j = 1; j < nNodes; j++)
-                    //    Hnew[j] = Hold[j];
-                      Hnew[j] = 0.5*(H[j]+Hnew[j]);
-                    stopit = true;
-                }
-          //  }
+            if (!stopit && NIT > NITMAX) {
+                // try again with smaller dts
+                s.dts /= 2.0;
+                s.dts = std::max(s.dts,dtmin);
+                for(int j = 1; j < nNodes; j++)
+                //    Hnew[j] = Hold[j];
+                  Hnew[j] = 0.5*(H[j]+Hnew[j]);
+                stopit = true;
+            }
 
+            //?????????? do this or not?
             for(int j = 0; j < nNodes; j++)
                 H[j] = Hnew[j];
 
@@ -746,10 +586,6 @@ void TWorld::cell_Soilwater(long i_)
 
         //        double factor = 0.5 + 1/sqrt((double)NIT);
         //        s.dts = s.dts * factor;
-        //        s.dts = std::min(s.dts,dtmax);
-        //        s.dts = std::max(s.dts,dtmin);
-        //        s.dts = std::min(s.dts,_dt-s.dtsum);
-        //        s.dtsum += s.dts;
 
         // SWATRE method is faster!
         double dt = dtmax;
@@ -764,7 +600,6 @@ void TWorld::cell_Soilwater(long i_)
         s.dts = std::min(s.dts,_dt-s.dtsum);
         s.dtsum += s.dts;
 
-
         if (WH1 > 0) {
             WH1 = WH1 - s.Infact*s.dts;
             WH1 = std::max(0.0, WH1);
@@ -772,6 +607,7 @@ void TWorld::cell_Soilwater(long i_)
 
        // if (r == _nrRows/2 && c == _nrCols/2) qDebug() << "iteration" <<  NIT << s.dts << s.dtsum << _dt;
         cnt++;
+
     } while(s.dtsum < _dt);
         // outer _dt loop
 
@@ -1154,10 +990,164 @@ void TWorld::cell_SWATRECalc(long i_)
     delete[] thomb;
     delete[] thomc;
     delete[] thomf;
-   // delete[] Wnew;
-    delete[] disnod;
-   // delete[] z;
+    delete[] disnod;   
 }
 
 
 
+
+void TWorld::cell_SoilwaterExpl(long i_)
+{
+    SOIL_LIST s = crSoil[i_];
+
+    double dtmin = 0.01*_dt;
+    double dtmax = SoilWBdtfactor*_dt;
+    s.dts = _dt;//dtmax;
+    int c = s.c;
+    int r = s.r;
+    double WH0, WH1;
+    bool freeDrainage = !SwitchImpermeable;
+
+    double *S  = new double[nNodes];
+    double *K  = new double[nNodes];
+    double *C1  = new double[nNodes];
+    double *Ka = new double[nNodes];
+    double *Q  = new double[nNodes];
+    double *Hnew  = new double[nNodes];
+
+    // SwitchVanGenuchten = false;
+    // SwitchBrooksCorey = !SwitchVanGenuchten;
+
+    if (FloodDomain->Drc == 0)
+        WH0 = WH->Drc; //runoff in kinwave or dyn wave
+    else
+        WH0 = hmx->Drc;// flood in kin wave
+
+    WH1 = WH0;
+
+    s.InfPot = 0;  // m/s
+    s.Infact = 0;
+    s.dtsum = 0;
+    s.drain = 0;
+
+    // fill Hnew and Hold
+    for(int j = 0; j < nNodes; j++) {
+        S[j] = 0;
+        Hnew[j] = s.h[j];
+    }
+
+    //get K and C for current H
+    if(SwitchVanGenuchten)
+        VanGenuchten(s, Hnew, K, C1, false);
+    if(SwitchBrooksCorey)
+        BrooksCorey(s, Hnew, K, C1, false);
+
+    // ET calculation goes into sink term S
+    // if (SwitchIncludeET)
+    //     calcSinkterm(i_, S); // ETa
+
+    // initial dts
+    s.dts=dtmax;
+    int cnt = 0;
+
+    // K1 and K2 are avg between node and upper and lower node
+    for(int j = 1; j < nNodes; j++) {
+        switch (KavgType) {
+        case 0: Ka[j] = Aavg(K[j-1],K[j]); break;
+        case 1: Ka[j] = Savg(K[j-1],K[j]); break;
+        case 2: Ka[j] = Havg(K[j-1],K[j],s.dz[j-1],s.dz[j]); break;
+        case 3: Ka[j] = Mavg(K[j-1],K[j]); break;
+        }
+    }
+    Ka[0] = Ka[1];
+    s.InfPot = WH1/s.dts;
+
+    // explicit state and fluxes
+    // ponding?
+    // Q=-K[h]*((h1-h2)/(z1-z2)+1) but dz is z2-z1 so reversed and positive
+    // therefore in this case it should be Q=-K[h]*((h2-h1)/dz+1), where h <= 0 or on the surface can be positive
+    if (WH1 > 0) {
+        Q[0] = -s.Ks[0]*((s.h[0]-WH1)/s.dz[0] + 1);
+        Q[0] = std::max(Q[0], -s.InfPot);
+    } else {
+        Q[0] = -Ka[0]*((s.h[0]-0)/s.dz[0] + 1); //??? is there something better
+    }
+    // if (r == _nrRows/2 && c == _nrCols/2)
+    //     qDebug() << WH1 << Q[0] << s.h[0] << s.theta[0] << s.dz[0] << Ka[0] << K[0] << K[1];
+
+    for(int j = 1; j < nNodes-1; j++) {
+        Q[j] = -Ka[j]*((s.h[j]-s.h[j-1])/s.dz[j] + 1);
+    }
+
+    for(int j = 0; j < nNodes; j++) {
+        getThetafromH(j,s);
+        double moist = s.theta[j] * s.dz[j];
+        double moistmax = s.pore[j] * s.dz[j];
+        double dm = moistmax-moist;
+        if ((Q[j]-Q[j+1])*s.dts > dm) {
+            Q[j] = (dm+Q[j+1]*s.dts)/s.dts;
+        }
+        moist = moist + (Q[j]-Q[j+1])*s.dts;
+        s.theta[j] = moist/s.dz[j];
+        s.theta[j] = std::min(s.theta[j],s.pore[j]);
+
+        getHfromTheta(j,s);
+    }
+
+    s.drain = Q[nNodes-1];
+    if (WH1 > 0)
+        WH1 = std::max(0.0, WH1 + Q[0]*s.dts);
+
+    // outer loop timestep lisem
+
+    if (FloodDomain->Drc == 0) {
+        WH->Drc = WH1; //runoff in kinwave or dyn wave
+    } else {
+        hmx->Drc = WH1; // flood in kin wave
+    }
+    s.Infact = (WH0-WH1)/_dt;
+
+    InfilVol->Drc = s.Infact*_dt*SoilWidthDX->Drc*DX->Drc;
+
+    ThetaI1a->Drc = s.theta[1];
+    for (int j = 2; j <= nN1_; j++)
+        ThetaI1a->Drc += s.theta[j];
+    ThetaI1a->Drc /= (double)nN1_;
+
+    if (SwitchTwoLayer || SwitchThreeLayer) {
+        ThetaI2a->Drc = s.theta[nN1_+1];
+        for (int j = nN1_+2; j < nN1_+nN2_+1; j++)
+            ThetaI2a->Drc += s.theta[j];
+        ThetaI2a->Drc /= (double)nN2_;
+    }
+    if (SwitchThreeLayer) {
+        ThetaI3a->Drc = s.theta[nN1_+nN2_+1];
+        for (int j = nN2_+nN1_+2; j < nN1_+nN2_+nN3_+1; j++)
+            ThetaI3a->Drc += s.theta[j];
+        ThetaI3a->Drc /= (double)nN3_;
+    }
+
+    Perc->Drc = s.drain*_dt;
+
+    // if (r == _nrRows/2 && c == _nrCols/2) {
+    //  //   qDebug() << WH0 << WH1 << Q[0];
+    //     QString S;
+
+    //     // for(int j = 0; j < nNodes; j++) {
+    //     //     S = S + QString(" %1").arg(s.h[j]);
+    //     //     //S1 = S1 + QString(" %1").arg(s.theta[j]);
+    //     // }
+    //    // qDebug() <<  S;
+    // }
+
+    // put the results back
+    crSoil[i_] = s;
+
+    delete[] Hnew;
+    delete[] C1;
+    delete[] S;
+    delete[] Ka;
+    delete[] K;
+    delete[] Q;
+
+}

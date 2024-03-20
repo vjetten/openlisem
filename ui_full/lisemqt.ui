@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1643</width>
+    <width>1673</width>
     <height>928</height>
    </rect>
   </property>
@@ -114,8 +114,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>780</width>
-                <height>508</height>
+                <width>795</width>
+                <height>505</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
@@ -2651,8 +2651,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>685</width>
-                    <height>589</height>
+                    <width>700</width>
+                    <height>588</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout">
@@ -3407,8 +3407,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>685</width>
-                    <height>589</height>
+                    <width>700</width>
+                    <height>588</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_78">
@@ -4350,8 +4350,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>685</width>
-                    <height>589</height>
+                    <width>700</width>
+                    <height>588</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_5">
@@ -4748,8 +4748,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>685</width>
-                    <height>562</height>
+                    <width>700</width>
+                    <height>561</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_77">
@@ -5307,8 +5307,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>685</width>
-                    <height>589</height>
+                    <width>700</width>
+                    <height>588</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_76">
@@ -6213,8 +6213,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>668</width>
-                    <height>675</height>
+                    <width>679</width>
+                    <height>689</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_75">
@@ -7874,8 +7874,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>696</width>
-                    <height>572</height>
+                    <width>700</width>
+                    <height>588</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_69">
@@ -8878,8 +8878,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>668</width>
-                    <height>609</height>
+                    <width>679</width>
+                    <height>620</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_54">
@@ -9416,7 +9416,7 @@ p, li { white-space: pre-wrap; }
                          <double>1.000000000000000</double>
                         </property>
                         <property name="value">
-                         <double>30.000000000000000</double>
+                         <double>10.000000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -10135,8 +10135,8 @@ p, li { white-space: pre-wrap; }
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>663</width>
-                    <height>585</height>
+                    <width>666</width>
+                    <height>595</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_79">

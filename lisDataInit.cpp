@@ -382,7 +382,7 @@ void TWorld::InitParameters(void)
         nN1_ = 3;
         nN2_ = 3;
         nN3_ = 6;
-        SoilWBdtfactor = 0.5;
+        SoilWBdtfactor = 10;
 
 
         //SwitchGWChangeSD = true;
@@ -3481,7 +3481,7 @@ void TWorld::InitNewSoilProfile()
         nN3_ = getvalueint("SoilWB nodes 3");
     SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
     KavgType = getvalueint("Infil Kavg");
-    SwitchBrooksCorey = getvalueint("Soil physics") == 1;
+    SwitchBrooksCorey = getvalueint("Van Genuchten") == 1;
     SwitchVanGenuchten = !SwitchBrooksCorey;
 
     nNodes = nN1_ + nN2_ + nN3_ + 1;
