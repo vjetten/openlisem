@@ -401,7 +401,7 @@ void TWorld::HydrologyProcesses()
         } else {
             if (InfilMethod != INFIL_NONE) {
                 if (InfilMethod == INFIL_SOAP)
-                   cell_Soilwater(i_);
+                   cell_SoilwaterExpl(i_);
                     // cell_SWATRECalc(i_);
 
                 else {
