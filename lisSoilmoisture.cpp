@@ -481,11 +481,12 @@ void TWorld::cell_Soilwater(long i_)
 
             //======== Boundary conditions
 
-            // check for ponding and first estimate of infil with darcy
-            // with conductivity between Ksat and first node average K1
+            // check for ponding
             s.ponded = Hnew[0] > 0;
+
+            // NOT necessary, SWATRE code:
             // double qmax = -0.5*(s.Ks[0]+K[0])*((Hnew[0]-WH1)/s.dz[0] + 1);
-            // if (/*WH1 > 0 && */ fabs(qmax) < fabs(s.InfPot))
+            // if (fabs(qmax) < fabs(s.InfPot))
             //     s.ponded = true;
             // if (r == _nrRows/2 && c == _nrCols/2)
             // qDebug() << "qmax" << s.ponded << qmax << s.InfPot;
@@ -499,11 +500,11 @@ void TWorld::cell_Soilwater(long i_)
                 A[0] = 0;
                 D[0] = 1;
                 F[1] = F[1] + A1*Hnew[0];
+                // THIS IS ALSO THE CONDITION UNDER GW, SO D=1!, A = 0, F = H???
             } else {
                 s.Infact = s.InfPot;
                 F[0] = F[0] + s.InfPot; // in WORM this is a flux
             }
-
 
             // lower boundary condition
             if (freeDrainage) {
@@ -528,9 +529,8 @@ void TWorld::cell_Soilwater(long i_)
 
 
 //            for(int j = 1; j < nNodes; j++)
-//                Hnew[j] = std::max(-50.0, Hnew[j]);
 //                Hnew[j] = std::min(0.0, Hnew[j]);
-            // not necessary, and surface can be + so not for the top node anyway!
+            // not necessary? and surface can be + so not for the top node anyway!
 
             //======== calc boundary fluxes
 
@@ -612,7 +612,7 @@ void TWorld::cell_Soilwater(long i_)
         // outer _dt loop
 
     for(int j = 0; j < nNodes; j++) {
-        s.h[j] = Hnew[j];//std::max(-50.0,Hnew[j]);//??????????????????
+        s.h[j] = Hnew[j];
         getThetafromH(j, s);
     }
 
@@ -646,15 +646,15 @@ void TWorld::cell_Soilwater(long i_)
     Perc->Drc = s.drain*_dt;
 
     if (r == _nrRows/2 && c == _nrCols/2) {
-        qDebug() << "timeloop" << WH0 - WH1 << s.Infact*3600000  << s.h[0] << s.h[1];
-        // QString S;
-        // QString S1;
-        // for(int j = 0; j < nNodes; j++) {
-        //     S = S + QString(" %1").arg(s.h[j]);
-        //     //S1 = S1 + QString(" %1").arg(s.theta[j]);
-        // }
-        //qDebug() << cnt << S;
-        //qDebug() << S1;
+       // qDebug() << "timeloop" << WH0 - WH1 << s.Infact*3600000  << s.h[0] << s.h[1];
+         QString S;
+         QString S1;
+         for(int j = 0; j < nNodes; j++) {
+             S = S + QString(" %1").arg(s.h[j]);
+            S1 = S1 + QString(" %1").arg(s.theta[j]);
+         }
+        qDebug() << time/86400 << S;
+        qDebug() << S1;
     }
 
     // put the results back
@@ -995,7 +995,7 @@ void TWorld::cell_SWATRECalc(long i_)
 
 
 
-
+/*
 void TWorld::cell_SoilwaterExpl(long i_)
 {
     SOIL_LIST s = crSoil[i_];
@@ -1151,3 +1151,4 @@ void TWorld::cell_SoilwaterExpl(long i_)
     delete[] Q;
 
 }
+*/
