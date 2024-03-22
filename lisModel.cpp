@@ -428,7 +428,6 @@ void TWorld::HydrologyProcesses()
             }
         }
 
-
         // add net to water rainfall on soil surface (in m)
         // when kin wave and flooded hmx exists else always WH
         if (SwitchRoadsystem || SwitchHardsurface) {
@@ -437,11 +436,11 @@ void TWorld::HydrologyProcesses()
         }
 
         // infiltration by SWATRE of G&A+percolation
-        if (InfilMethod == INFIL_SWATRE) {
-           cell_InfilSwatre(r, c);
-        } else {
-            if (InfilMethod != INFIL_NONE) {
-
+        switch (InfilMethod) {
+            case INFIL_SOAP : cell_Soilwater(i_); break;
+            case INFIL_GREENAMPT:
+            case INFIL_SMITH:
+                // Green and Ampt + redistribution
                 cell_InfilMethods(r, c);
 
                 if (SwitchTwoLayer) {
@@ -454,10 +453,39 @@ void TWorld::HydrologyProcesses()
 
                 if (!SwitchImpermeable)
                     Perc->Drc = cell_Percolation(r, c, 1.0);
-                // if baseflow is active percollation is done there, so do not do it here
-            }
+                break;
+            case INFIL_SWATRE : cell_InfilSwatre(r, c); break;
         }
 
+        /*
+        if (InfilMethod == INFIL_SWATRE) {
+            cell_InfilSwatre(r, c);
+        } else {
+            if (InfilMethod != INFIL_NONE) {
+                if (InfilMethod == INFIL_SOAP) {
+
+                   cell_Soilwater(i_);
+                    // cell_SWATRECalc(i_);
+
+                } else {
+                    // Green and Ampt + redistribution
+                    cell_InfilMethods(r, c);
+
+                    if (SwitchTwoLayer) {
+                        cell_Redistribution2(r, c);
+                        //cell_Channelinfow2(r, c);
+                    } else {
+                        cell_Redistribution1(r, c);
+                        //cell_Channelinfow1(r, c);
+                    }
+
+                    if (!SwitchImpermeable)
+                        Perc->Drc = cell_Percolation(r, c, 1.0);
+                    // if baseflow is active percollation is done there, so do not do it here
+                }
+            }
+        }
+*/
         //  cell_depositInfil(r,c);
         // deposit all sediment still in flow when infiltration causes WH to become minimum
         // gives huge MBs errors!
@@ -472,9 +500,6 @@ void TWorld::HydrologyProcesses()
             cell_SlopeStability(r, c);
     }}
 
-//report(*WH,"wh");
-//report(*RainNet,"rn");
-
     if (SwitchIncludeET) {
         doETa();
     }
@@ -483,7 +508,8 @@ void TWorld::HydrologyProcesses()
 
     //MoistureContent();
     double soiltot2 = SoilWaterMass();
-    SoilMoistDiff = soiltot2 - soiltot1;
+    if (InfilMethod != INFIL_SOAP)
+        SoilMoistDiff = soiltot2 - soiltot1;
 
 }
 //---------------------------------------------------------------------------

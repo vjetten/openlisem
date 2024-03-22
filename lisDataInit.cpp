@@ -48,6 +48,9 @@ void TWorld::GetInputData(void)
     InitSoilInput();
     //## soil/infiltration data
 
+    InitNewSoilProfile();
+    // fin element soil init
+
     InitErosion();
     //extended sediment stuff
 
@@ -169,6 +172,13 @@ void TWorld::InitParameters(void)
         _dtCHkin = 60.0;//_dt_user;
         SwitchChannel2DflowConnect = false;
         SwitchChannelWFinflow = false;
+
+        nN1_ = 3;
+        nN2_ = 3;
+        nN3_ = 6;
+        SoilWBdtfactor = 10;
+
+
         //SwitchGWChangeSD = true;
     }
     _CHMaxV = 20.0;
@@ -546,6 +556,9 @@ void TWorld::InitSoilInput(void)
     //## infiltration data
     if(InfilMethod != INFIL_SWATRE)
     {
+        nrSoilLayers = getvalueint("Nr input layers");
+        SwitchPsiUser = false;
+
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
         calcValue(*SoilDepth1, SD1Calibration, MUL);
@@ -563,7 +576,10 @@ void TWorld::InitSoilInput(void)
 
         ThetaR1 = NewMap(0);
         lambda1 = NewMap(0);
+        psi1ae = NewMap(0);
         ThetaFC1 = NewMap(0);
+        vgalpha1 = NewMap(0);
+        vgn1 = NewMap(0);
 
         FOR_ROW_COL_MV_L {
             //bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
@@ -574,7 +590,10 @@ void TWorld::InitSoilInput(void)
             double ks = std::min(1000.0,log(std::max(0.5,Ksat1->Drc)));
             lambda1->Drc = 0.0849*ks+0.159;
             lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
-
+            psi1ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+            // NEGATIVE????
+            vgalpha1->Drc = (0.02*ks + 0.0095); // in m-1
+            vgn1->Drc = 0.2656*ks + 1.1042;
             ThetaR1->Drc = 0.0673*exp(-0.238*log(ks));
             ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;
         }}
@@ -587,16 +606,26 @@ void TWorld::InitSoilInput(void)
             Psi1 = NewMap(0);
             FOR_ROW_COL_MV_L {
                 Psi1->Drc = exp(-0.3382*log(std::max(0.5,Ksat1->Drc)) + 3.3425)*0.01;
-                double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
-                double psiae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
-                Psi1->Drc = std::max(Psi1->Drc, psiae);
+               // double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
+                //double psiae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+                Psi1->Drc = std::max(Psi1->Drc, psi1ae->Drc);
             }}
         }
         calcValue(*Ksat1, ksatCalibration, MUL);
             // apply calibration after all empirical relations
 
-        if (SwitchTwoLayer)
-        {
+
+        if (nrSoilLayers == 2) {
+            SwitchTwoLayer = true;
+            SwitchThreeLayer = false;
+        }
+        if (nrSoilLayers == 3) {
+            SwitchTwoLayer = true;
+            SwitchThreeLayer = true;
+        }
+        qDebug() << "SwitchTwoLayer" << SwitchTwoLayer;
+        if (SwitchTwoLayer) {
+
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
             calcValue(*SoilDepth2, SD2Calibration, MUL);
@@ -615,14 +644,21 @@ void TWorld::InitSoilInput(void)
 
             ThetaR2 = NewMap(0);
             lambda2 = NewMap(0);             // lambda brooks corey
+            psi2ae = NewMap(0);
 
             ThetaFC2 = NewMap(0);
+            vgalpha2 = NewMap(0);
+            vgn2 = NewMap(0);
             FOR_ROW_COL_MV_L {
                 // regression eq from data from Saxton and rawls 2006, excel file
                 double ks = std::min(1000.0,log(std::max(0.5,Ksat2->Drc)));
                 //vgalpha2->Drc = 0.0237*ks + 0.0054;
+                vgalpha2->Drc = (0.02*ks + 0.0095); // in m-1
+                vgn2->Drc = 0.2656*ks + 1.1042;
+
                 lambda2->Drc = 0.0849*ks+0.159;
                 lambda2->Drc = std::min(std::max(0.1,lambda2->Drc),0.7);
+                psi2ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
                 ThetaR2->Drc = 0.0673*exp(-0.238*log(ks));
                 ThetaFC2->Drc = -0.0519*log(ks) + 0.3714;
             }}
@@ -636,9 +672,9 @@ void TWorld::InitSoilInput(void)
                 Psi2 = NewMap(0);
                 FOR_ROW_COL_MV_L {
                     Psi2->Drc = exp(-0.3382*log(std::max(0.5,Ksat2->Drc)) + 3.3425)*0.01;
-                    double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
-                    double psi2ae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
-                    Psi2->Drc = std::max(Psi2->Drc,psi2ae);
+                    //double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
+                    //double psi2ae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+                    Psi2->Drc = std::max(Psi2->Drc,psi2ae->Drc);
                 }}
             }
             calcValue(*Ksat2, ksat2Calibration, MUL);
@@ -653,6 +689,14 @@ void TWorld::InitSoilInput(void)
             SoilDepth3init = NewMap(0);
             copy(*SoilDepth3init, *SoilDepth3);
 
+            FOR_ROW_COL_MV_L {
+                if (SoilDepth3->Drc < 0)
+                {
+                    ErrorString = QString("SoilDepth3 values < 0 at row %1, col %2").arg(r).arg(c);
+                    throw 1;
+                }
+            }}
+
             ThetaS3 = ReadMap(LDD,getvaluename("thetaS3"));
             ThetaI3 = ReadMap(LDD,getvaluename("thetaI3"));
             ThetaI3a = NewMap(0); // for output, average soil layer 2
@@ -664,13 +708,18 @@ void TWorld::InitSoilInput(void)
 
             ThetaR3 = NewMap(0);
             lambda3 = NewMap(0);             // lambda brooks corey
+            psi3ae = NewMap(0);
             ThetaFC3 = NewMap(0);
+            vgalpha3 = NewMap(0);
+            vgn3 = NewMap(0);
             FOR_ROW_COL_MV_L {
                 // regression eq from data from Saxton and rawls 2006, excel file
                 double ks = std::max(0.5,std::min(1000.0,log(Ksat3->Drc)));
-                //vgalpha2->Drc = 0.0237*ks + 0.0054;
+                vgalpha3->Drc = (0.02*ks + 0.0095); // in m-1 has ot have inverse from H in m
+                vgn3->Drc = 0.2656*ks + 1.1042;
                 lambda3->Drc = 0.0849*ks+0.159;
                 lambda3->Drc = std::min(std::max(0.1,lambda3->Drc),0.7);
+                psi3ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
                 ThetaR3->Drc = 0.0673*exp(-0.238*log(ks));
                 ThetaFC3->Drc = -0.0519*log(ks) + 0.3714;
             }}
@@ -684,9 +733,9 @@ void TWorld::InitSoilInput(void)
                 Psi3 = NewMap(0);
                 FOR_ROW_COL_MV_L {
                     Psi3->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
-                    double ks = std::max(0.5,std::min(1000.0,log(Ksat3->Drc)));
-                    double psi3ae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
-                    Psi3->Drc = std::max(Psi2->Drc,psi3ae);
+                    //double ks = std::max(0.5,std::min(1000.0,log(Ksat3->Drc)));
+                    //double psi3ae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+                    Psi3->Drc = std::max(Psi2->Drc,psi3ae->Drc);
                 }}
             }
             calcValue(*Ksat3, ksat3Calibration, MUL);
@@ -2865,6 +2914,180 @@ void TWorld::InitScreenChanNetwork()
         }
     }
 }
-
-
 //---------------------------------------------------------------------------
+void TWorld::InitNewSoilProfile()
+{
+    if(InfilMethod != INFIL_SOAP)
+        return;
+
+    nN1_ = getvalueint("SoilWB nodes 1");
+    nN2_ = 0;
+    if (SwitchTwoLayer)
+        nN2_ = getvalueint("SoilWB nodes 2");
+    nN3_ = 0;
+    if (SwitchThreeLayer)
+        nN3_ = getvalueint("SoilWB nodes 3");
+    SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
+    KavgType = getvalueint("Infil Kavg");
+    SwitchBrooksCorey = getvalueint("Van Genuchten") == 1;
+    SwitchVanGenuchten = !SwitchBrooksCorey;
+
+    nNodes = nN1_ + nN2_ + nN3_ + 1;
+    qDebug() << SwitchThreeLayer << nN3_ << nNodes;
+
+    FOR_ROW_COL_MV {
+        SOIL_LIST sr;
+        sr.r = r;
+        sr.c = c;
+        sr.ponded = false;
+        sr.dts = _dt*SoilWBdtfactor;
+        sr.dtsum = 0;
+        sr.drain = 0;
+        sr.Infact = 0;
+        sr.InfPot = 0;
+        sr.SD = 0;
+
+        sr.h.clear();
+        sr.hb.clear();
+        sr.Ks.clear();
+        sr.pore.clear();
+        sr.theta.clear();
+        sr.thetar.clear();
+        sr.lambda.clear();
+        sr.vg_n.clear();
+        sr.vg_alpha.clear();
+        sr.dz.clear();
+        sr.z.clear();
+        sr.rootz.clear();
+
+        sr.pore.resize(nNodes);
+        sr.Ks.resize(nNodes);
+        sr.h.resize(nNodes);
+        sr.hb.resize(nNodes);
+        sr.theta.resize(nNodes);
+        sr.thetar.resize(nNodes);
+        sr.lambda.resize(nNodes);
+        sr.vg_n.resize(nNodes);
+        sr.vg_alpha.resize(nNodes);
+        sr.dz.resize(nNodes);
+        sr.z.resize(nNodes);
+        sr.rootz.resize(nNodes);
+
+        crSoil << sr;
+    }
+
+    FOR_ROW_COL_MV_L {
+        // use replace first time, else array doesn't initialise???
+        crSoil[i_].SD = SoilDepth1->Drc;
+        if (SwitchTwoLayer)
+            crSoil[i_].SD = SoilDepth2->Drc;
+        if (SwitchThreeLayer)
+            crSoil[i_].SD = SoilDepth3->Drc;
+
+        double dz, dz2, dz3;
+        dz = SoilDepth1->Drc / nN1_;
+        double facta = 1;//e100;
+        if (SwitchTwoLayer)
+            dz2 = (SoilDepth2->Drc - SoilDepth1->Drc) / nN2_;
+        if (SwitchThreeLayer)
+            dz3 = (SoilDepth3->Drc - SoilDepth2->Drc) / nN3_;
+
+        double z = 0;
+        for (int j = 0; j < nN1_+1; j++) {
+            if (j == 0)
+                crSoil[i_].z.replace(j, 0);
+            if (j >= 1)
+                crSoil[i_].z.replace(j, 0.5*dz + (j-1)*dz);
+            z = 0.5*dz + (j-1)*dz;
+            crSoil[i_].dz.replace(j, dz);
+            crSoil[i_].theta.replace(j, ThetaI1->Drc);
+            crSoil[i_].pore.replace(j, ThetaS1->Drc);
+            crSoil[i_].Ks.replace(j, Ksat1->Drc/3600000); // calibrated Ksat ! so do not use for lambda etc
+            crSoil[i_].thetar.replace(j, ThetaR1->Drc);
+            crSoil[i_].lambda.replace(j, lambda1->Drc);
+            crSoil[i_].vg_alpha.replace(j, vgalpha1->Drc*facta);
+            crSoil[i_].vg_n.replace(j, vgn1->Drc);
+            crSoil[i_].hb.replace(j, -psi1ae->Drc);
+        }
+        crSoil[i_].dz[0] = dz/2;
+
+        if (SwitchTwoLayer) {
+            for (int j = nN1_+1; j < nN1_+nN2_+1; j++) {
+                if (j == nN1_+1)
+                    z += 0.5*dz + 0.5*dz2;
+                else
+                    z += dz2;
+
+                crSoil[i_].z.replace(j, z);
+                crSoil[i_].dz.replace(j, dz2);
+                crSoil[i_].theta.replace(j, ThetaI2->Drc);
+                crSoil[i_].pore.replace(j, ThetaS2->Drc);
+                crSoil[i_].Ks.replace(j, Ksat2->Drc/3600000); // calibrated Ksat ! so do not use for lambda etc
+
+                crSoil[i_].thetar.replace(j,  ThetaR2->Drc);
+                crSoil[i_].lambda.replace(j,  lambda2->Drc);
+                crSoil[i_].vg_alpha.replace(j, vgalpha2->Drc*facta);
+                crSoil[i_].vg_n.replace(j, vgn2->Drc);
+
+                crSoil[i_].hb.replace(j,  -psi2ae->Drc);
+            }
+        }
+        if (SwitchThreeLayer) {
+            for (int j = nN1_+nN2_+1; j < nN1_+nN2_+nN3_+1; j++) {
+                if (j == nN2_+1)
+                    z += 0.5*dz2 + 0.5*dz3;
+                else
+                    z += dz3;
+
+                crSoil[i_].z.replace(j, z);
+
+                crSoil[i_].dz.replace(j, dz3);
+
+
+                crSoil[i_].theta.replace(j, ThetaI3->Drc);
+                crSoil[i_].pore.replace(j, ThetaS3->Drc);
+                crSoil[i_].Ks.replace(j, Ksat3->Drc/3600000); // calibrated Ksat ! so do not use for lambda etc
+
+                crSoil[i_].thetar.replace(j,  ThetaR3->Drc);
+                crSoil[i_].lambda.replace(j,  lambda3->Drc);
+                crSoil[i_].vg_alpha.replace(j, vgalpha3->Drc*facta);
+                crSoil[i_].vg_n.replace(j, vgn3->Drc);
+                crSoil[i_].hb.replace(j,  -psi3ae->Drc);
+            }
+        }
+
+        // calc h
+        for (int j = 0; j < nNodes; j++) {
+            double se = (crSoil[i_].theta[j] - crSoil[i_].thetar[j])/(crSoil[i_].pore[j]-crSoil[i_].thetar[j]);
+            if (SwitchBrooksCorey) {
+                double hh = std::pow(se, (1.0/crSoil[i_].lambda[j]));
+                crSoil[i_].h.replace(j,crSoil[i_].hb[j]/hh);
+            } else {
+                double n = crSoil[i_].vg_n[j];
+                double m = 1-1/n;
+                crSoil[i_].h.replace(j, -std::pow((std::pow(1/se,1/m)-1),1/n)/crSoil[i_].vg_alpha[j]*0.101974);
+                // kPa to m water
+            }
+
+          //  qDebug() << j << crSoil[i_].h[j];
+        }
+
+
+        double sum = 0;
+        double rootmax = 0.8;
+        // linear root distribution following dz, sum = 1
+        for (int j = 0; j < nNodes; j++) {
+            crSoil[i_].rootz[j] = (j+1)*crSoil[i_].dz[j];
+            if (crSoil[i_].rootz[j] > rootmax)
+                crSoil[i_].rootz[j] = 0;
+            else
+                crSoil[i_].rootz[j] = (rootmax - crSoil[i_].rootz[j])/rootmax;
+
+            sum = sum + crSoil[i_].rootz[j];
+        }
+        for (int j = 0; j < nNodes; j++)
+            crSoil[i_].rootz[j] = crSoil[i_].rootz[j]/sum;
+
+    }}
+
+}

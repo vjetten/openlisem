@@ -243,6 +243,7 @@ cTMap
 
 *Lw,
 *Lwmm,
+
 *ThetaS1,                    //!< porosity soil layer 1 [-]
 *ThetaI1,                    //!< initial moisture content soil layer 1 [-]
 *ThetaI1a,                    //!< initial moisture content soil layer 1 [-]
@@ -252,6 +253,7 @@ cTMap
 *Ksat1,                      //!< saturated hydraulic conductivity soil layer 1 (input is in mm/h) [m/s]
 *SoilDepth1,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *SoilDepth1init,                 //!< depth to end soil layer 1 (input is in mm) [m]
+
 *ThetaS2,                    //!< porosity soil layer 2 [-]
 *ThetaI2,                    //!< initial moisture content soil layer 2 [-]
 *ThetaI2a,                    //!< initial moisture content soil layer 2 [-]
@@ -261,6 +263,7 @@ cTMap
 *Ksat2,                      //!< saturated hydraulic conductivity soil layer 2 (input is in mm/h) [m/s]
 *SoilDepth2,                 //!< depth to end soil layer 2 (input is in mm) [m]
 *SoilDepth2init,                 //!< depth to end soil layer 2 (input is in mm) [m]
+
 *ThetaS3,                    //!< porosity soil layer 1 [-]
 *ThetaI3,                    //!< initial moisture content soil layer 1 [-]
 *ThetaI3a,                    //!< initial moisture content soil layer 1 [-]
@@ -270,7 +273,19 @@ cTMap
 *Ksat3,                      //!< saturated hydraulic conductivity soil layer 1 (input is in mm/h) [m/s]
 *SoilDepth3,                 //!< depth to end soil layer 1 (input is in mm) [m]
 *SoilDepth3init,                 //!< depth to end soil layer 1 (input is in mm) [m]
+
+*lambda1,
+*lambda2,
 *lambda3,
+*vgalpha1,
+*vgalpha2,
+*vgalpha3,
+*vgn1,
+*vgn2,
+*vgn3,
+*psi1ae,
+*psi2ae,
+*psi3ae,
 
 *KsatCrust,                  //!< saturated hydraulic conductivity crusted soil surface (input is in mm/h) [m/s]
 *PoreCrust,                //!< saturated hydraulic conductivity compacted soil surface (input is in mm/h) [m/s]
@@ -284,8 +299,6 @@ cTMap
 *Thetaeff,
 *chanmask3,
 
-*lambda1,
-*lambda2,
 *Perc,
 *PercmmCum,
 *GrassFraction,              //!< fraction of grasstrip in a cell [-]

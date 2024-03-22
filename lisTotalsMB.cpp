@@ -256,6 +256,9 @@ void TWorld::TotalsFlow(void)
 
     }
 
+    SoilMoistTot += SoilMoistDiff;// MapTotal(*SoilMB);
+    SoilMoistTotmm = SoilMoistTot * catchmentAreaFlatMM;
+
     //=== all discharges ===//
     Qtot_dt = 0;
     // sum all outflow in m3 for this timestep, Qtot is for all timesteps!

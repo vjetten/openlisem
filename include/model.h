@@ -161,11 +161,11 @@
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
-#define INFIL_HOLTAN 2
+#define INFIL_SOAP 2
 #define INFIL_GREENAMPT 3
 #define INFIL_GREENAMPT2 4
-#define INFIL_KSAT 5
-#define INFIL_MOREL 21
+//#define INFIL_KSAT 5
+//#define INFIL_MOREL 21
 #define INFIL_SMITH 22
 #define INFIL_SMITH2 23
 
@@ -294,7 +294,7 @@ typedef struct Q_LIST {
     QVector <double> Qin;
 } Q_LIST;
 //---------------------------------------------------------------------------
-/// Structure to store voundary water level
+/// Structure to store boundary water level
 typedef struct WH_LIST {
     double time;
     double WH;
@@ -314,6 +314,31 @@ typedef struct ExtCH {
     bool isExtended;
 } ExtCH;
 
+typedef struct SOIL_LIST {
+    int c;
+    int r;
+    double dts;
+    double dtsum;
+    bool ponded;
+    double drain;
+    double Infact;
+    double InfPot;
+    double SD;
+
+    QVector <double> pore;
+    QVector <double> Ks;
+    QVector <double> z;
+    QVector <double> dz;
+    QVector <double> h;
+    QVector <double> hb;
+    QVector <double> lambda;
+    QVector <double> theta;
+    QVector <double> thetar;
+    QVector <double> rootz;
+    QVector <double> vg_alpha;
+    QVector <double> vg_n;
+
+} SOIL_LIST;
 
 /// \class TWorld model.h contains the model 'World': constants, variables and erosion processes
 
@@ -339,6 +364,10 @@ public:
     /// copy of overall rows and columns, set in initmask
     int _nrRows;
     int _nrCols;
+    int nNodes, nN1_, nN2_, nN3_;
+    int nrSoilLayers;
+    double SoilWBdtfactor;
+    int KavgType;								 
 
     long nrValidCells;
     long nrValidCellsLDD5;
@@ -346,12 +375,10 @@ public:
     long nrValidCellsLDDCH5;
     long nrValidCellsWS;
     long nrValidCellsTile;
-   // int nrWatersheds;
     QVector <LDD_COOR> crldd5_;
     QVector <LDD_COOR> crlddch5_;
     QVector <LDD_COOR> cr_;
     QVector <LDD_COOR> crws_;
-    //QList< QVector <LDD_COOR> > WScr;
     QVector <LDD_COORi> dcr_;
     QVector <LDD_COOR> crch_;
     QVector <LDD_COOR> crtile_;
@@ -360,6 +387,8 @@ public:
     QVector <LDD_COORIN> crlinkedlddbase_;
     QVector <LDD_COORIN> crlinkedlddtile_;
     QVector <LDD_COORout> crout_;
+    // vector of soil structure
+    QVector <SOIL_LIST> crSoil;
 
   //  QVector <IDI_POINT> IDIpoints;
     QVector <IDI_POINT> IDIpointsRC;
@@ -442,9 +471,12 @@ public:
         SwitchWaterRepellency,
         SwitchInterceptionLAI,
         SwitchPsiUser,
+        SwitchNrLayers,
         SwitchDumpH,
         SwitchDumpTheta,
         SwitchDumpK,
+        SwitchVanGenuchten,
+        SwitchBrooksCorey,
 
         // tiles and drains
         SwitchIncludeTile,
@@ -756,7 +788,6 @@ public:
     void DiagonalFlowDEM();
     void InitPesticide(void);
 
-
     // functions in lisRunfile.cpp
     QString getvaluename(QString vname);
     double getvaluedouble(QString vname);
@@ -1001,6 +1032,16 @@ public:
 
     double SoilWaterMass();
 
+    void cell_Soilwater(long i_);
+    //void cell_SoilwaterExpl(long i_);
+    void cell_SWATRECalc(long i_);
+    void calcSinkterm(long i_, double *S);
+    double calculateDayLength(double latitude, int dayNumber);
+    void VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
+    void BrooksCorey(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
+    void getThetafromH(int j, SOIL_LIST s);
+    void getHfromTheta(int j, SOIL_LIST s);
+    //????void cell_Evapotranspiration(int r, int c);									   
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
     void cell_InfilSwatre(int r, int c);
@@ -1118,6 +1159,7 @@ public:
     QString SwatreTableName;
     QString initheadName;
 
+    void InitNewSoilProfile();
     double swatreDT;
     bool initSwatreStructure;
 

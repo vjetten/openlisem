@@ -144,6 +144,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include ET")==0)                    checkIncludeET->setChecked(check);
         if (p1.compare("Use ET maps")==0)                   ETmaps = check;
         if (p1.compare("Daily ET")==0)                      checkDailyET->setChecked(check);
+        if (p1.compare("Daily ET latitude")==0)             E_latitude->setText(p);
         if (p1.compare("ET Bias Correction")==0)            E_biasCorrectionET->setValue(valc);
         if (p1.compare("Rainfall ET threshold")==0)         E_rainfallETA_threshold->setValue(valc);
 
@@ -248,6 +249,7 @@ void lisemqt::ParseInputData()
             case INFIL_SWATRE : E_InfiltrationMethod->setCurrentIndex(1);break;
             case INFIL_GREENAMPT : E_InfiltrationMethod->setCurrentIndex(2);break;
             case INFIL_SMITH : E_InfiltrationMethod->setCurrentIndex(3); break;
+            case INFIL_SOAP : E_InfiltrationMethod->setCurrentIndex(4); break;
             }
         }
 
@@ -257,9 +259,10 @@ void lisemqt::ParseInputData()
         if (p1.compare("Grassstrip Mannings n")==0)           E_GrassStripN->setValue(valc);
         if (p1.compare("Include crusts")==0)                 checkInfilCrust->setChecked(check);
         if (p1.compare("Impermeable sublayer")==0)           checkInfilImpermeable->setChecked(check);
-        if (p1.compare("Two layer")==0)                      checkInfil2layer->setChecked(check);
-        if (p1.compare("Psi user input")==0)                      checkPsiUser->setChecked(check);
-        if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
+      //  if (p1.compare("Two layer")==0)                      checkInfil2layer->setChecked(check);
+        if (p1.compare("Nr input layers")==0)                spinSoilLayers->setValue(iii);
+        if (p1.compare("Psi user input")==0)                 checkPsiUser->setChecked(check);
+     //   if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
         //	  if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
         if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setValue(valc);
 
@@ -387,8 +390,13 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use Channel Max V")==0)         checkChanMaxVelocity->setChecked(check);
         if (p1.compare("Channel Max V")==0)             E_chanMaxVelocity->setValue(valc);
         if (p1.compare("Channel 2D flow connect")==0)        checkChannel2DflowConnect->setChecked(check);
-//        if (p1.compare("Channel WF inflow")==0)        checkChannelWFinflow->setChecked(check);
-//        if (p1.compare("GW layer change SD")==0)        checkGWChangeSD->setChecked(check);
+        if (p1.compare("Channel WF inflow")==0)        checkChannelWFinflow->setChecked(check);
+        if (p1.compare("SoilWB nodes 1")==0) spinNodes1->setValue(iii);
+        if (p1.compare("SoilWB nodes 2")==0) spinNodes2->setValue(iii);
+        if (p1.compare("SoilWB nodes 3")==0) spinNodes3->setValue(iii);
+        if (p1.compare("SoilWB dt factor")==0) spinInfdt->setValue(valc);
+        if (p1.compare("Infil Kavg")==0)   comboBox_Kmean->setCurrentIndex(iii);
+        if (p1.compare("Van Genuchten")==0) spinSoilPhysics->setValue(valc);
 
         //CALIBRATION
         if (p1.compare("Smax calibration")==0)         E_CalibrateSmax->setValue(valc);

@@ -93,6 +93,12 @@ void lisemqt::DefaultMapnames()
    // DEFmaps.append("2;Lambda2;lambda2.map;Layer 2: Brooks-Corey pore parameter (-);lambda2");
     DEFmaps.append("2;Depth2;soildep2.map;Layer 2: Depth (mm) to bottom of layer 2;soildep2");
 
+
+    DEFmaps.append("1;Soil layer 3");
+    DEFmaps.append("2;Ksat3;ksat3.map;Layer 3: Saturated Hydraulic Conductivity (mm/h);ksat3");
+    DEFmaps.append("2;Thetas3;thetas3.map;Layer 3: Porosity (-);thetas3");
+    DEFmaps.append("2;Thetai3;thetai3.map;Layer 3: Initial moisture content (-);thetai3");
+    DEFmaps.append("2;Depth3;soildep3.map;Layer 3: Depth (mm) to bottom of layer 2;soildep3");
     DEFmaps.append("1;Special surfaces");
     DEFmaps.append("2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst");
     DEFmaps.append("2;Porosity Crust;porecrst.map;Porosity of crusted areas (all models except SWATRE) (-);porecrst");
@@ -380,8 +386,11 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include crusts");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Impermeable sublayer");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Two layer");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Two layer");
+//    namelist[i++].name = QString("Two layer");
+    namelist[i].value = QString("2");
+    namelist[i++].name = QString("Nr input layers");									 
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Psi user input");
     namelist[i].value = QString("c:\\");
@@ -645,6 +654,19 @@ void lisemqt::defaultRunFile()
 //    namelist[i++].name = QString("Channel WF inflow");
 //    namelist[i].value = QString("1");
 //    namelist[i++].name = QString("GW layer change SD");
+    namelist[i++].name = QString("Channel WF inflow");
+    namelist[i].value = QString("3");
+    namelist[i++].name = QString("SoilWB nodes 1");
+    namelist[i].value = QString("3");
+    namelist[i++].name = QString("SoilWB nodes 2");
+    namelist[i].value = QString("3");
+    namelist[i++].name = QString("SoilWB nodes 3");
+    namelist[i].value = QString("30");
+    namelist[i++].name = QString("SoilWB dt factor");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Infil Kavg");
+    namelist[i].value = QString("2");
+    namelist[i++].name = QString("Van Genuchten");												   
 
 
     // output maps have standard names

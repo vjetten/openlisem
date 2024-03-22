@@ -196,6 +196,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include ET")==0)               SwitchIncludeET = iii == 1;
         if (p1.compare("Use ET maps")==0)              SwitchETSatellite = iii == 1;
         if (p1.compare("Daily ET")==0)                 SwitchDailyET = iii == 1;
+        if (p1.compare("Daily ET latitude")==0)        latitude = p.toDouble();
+
         if (p1.compare("Rainfall ID interpolation")==0)SwitchIDinterpolation = iii == 1;
 
         //options in the main code, order is not important
@@ -265,11 +267,12 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include grass strips")==0)              SwitchGrassStrip =       iii == 1;
         if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =       iii == 1;
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =      iii == 1;
-        if (p1.compare("Two layer")==0)                         SwitchTwoLayer =         iii == 1;
+      //  if (p1.compare("Two layer")==0)                         SwitchTwoLayer =         iii == 1;
+        if (p1.compare("Nr input layers")==0)                   SwitchNrLayers =         iii == 1;
         if (p1.compare("Psi user input")==0)                    SwitchPsiUser =         iii == 1;
 
         if (p1.compare("Matric head files")==0)                 SwitchDumphead =         iii == 1;
-        if (p1.compare("Geometric mean Ksat")==0)               SwitchGeometric =        iii == 1;
+     //   if (p1.compare("Geometric mean Ksat")==0)               SwitchGeometric =        iii == 1;
      //   if (p1.compare("Use Water Repellency")==0)            SwitchWaterRepellency  = iii == 1;
         if (p1.compare("Timeplot as PCRaster")==0) {
             SwitchWritePCRtimeplot = iii == 1;
@@ -342,17 +345,13 @@ void TWorld::ParseRunfileData(void)
     //prob onsolete: deal with old runfil pre 6.6
 
     // check a few things
-
-    if (InfilMethod == INFIL_SWATRE)
-    {
-        swatreDT = _dt/10; //getvaluedouble("SWATRE internal minimum timestep");
-
-        SwitchGeometric = (getvalueint("Geometric mean Ksat") == 1);
+    SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
+    swatreDT = _dt * SoilWBdtfactor; //getvaluedouble("SWATRE internal minimum timestep");
+    //SwitchGeometric = (getvalueint("Geometric mean Ksat") == 1);
         //  initheadName = getvaluename("inithead");
         // only map name is needed, data is read in swatre lib
         //profileName = getname("profile");//?????????????????????
         // profile map name
-    }
 
     //SwitchUseGrainSizeDistribution = (getvalueint("Use grain size distribution") == 1);
     //qDebug() << SwitchUse2Phase << SwitchAdvancedSed;
