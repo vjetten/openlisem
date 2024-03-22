@@ -253,164 +253,153 @@ void TWorld::GetETSatMap(void)
     currentETrow = currentrow;
 }
 //---------------------------------------------------------------------------
-void TWorld::doETa()
+double TWorld::getETaFactor()
 {
-    double ETafactor = 1;
-    double Ld = 12;
+    double day = floor(time/86400.0);
+    double hour = std::min(24.0,std::max(0.0, time/3600.0-day*24.0));
+    double Ld = (2.0*acos(-tan(latitude*0.01745329) * tan(asin(0.397789 * sin(0.017214*(day-1)))))) * 3.8197186;
+    double ETafactor = std::max(0.0,sin((-0.5-hour/Ld)*PI)) / Ld*_dt/3600.0*PI*0.5;
 
-
-    // SwitchDailyET = true;
-    if (SwitchDailyET) {
-        double day = trunc(time/86400.0);
-        double hour = std::min(24.0,std::max(0.0, time/3600.0-day*24.0));
-       // qDebug() << day << hour;
-        double declination = -23.45 * M_PI/180.0 * cos(2*M_PI*(day+10)/365.0);
-        Ld = 24.0/M_PI*(acos(-tan(declination)*tan(latitude/180.0*M_PI)));  // daylength in hour
-        if (std::isnan(Ld))
-            Ld = 12.0;
-        ETafactor = std::max(0.,sin((-0.5-hour/Ld)*M_PI)) / Ld*_dt/3600.0*M_PI*0.5;
-            //<= this ensures that the sum of all steps in a day amounts to the daily ET, regardless of _dt
-        //qDebug() << day << hour <<  ETafactor << Ld << declination;
+    return ETafactor;
+}
+//---------------------------------------------------------------------------
+void TWorld::cell_ETa(int r, int c)
+{
+    tma->Drc = 0;
+    if (Rain->Drc* 3600000.0/_dt > rainfallETa_threshold) {
+        ETa->Drc = 0;
+        ETp->Drc = 0;
     }
-    // sum of ETafactor during Ld is always 1, so ETp is devided with a sine curve over daylength Ld
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        tma->Drc = 0;
-        if (Rain->Drc* 3600000.0/_dt > rainfallETa_threshold) {
-            ETa->Drc = 0;
-            ETp->Drc = 0;
-        }
 
   //      if (r==200 && c == 200)
     //       qDebug() << time/60 << ETp->Drc << ETafactor << Rain->Drc*3600000.0/_dt;
 
-        if (ETp->Drc*ETafactor > 0) {
-            double eta = 0;
-            double AreaSoil = SoilWidthDX->Drc * DX->Drc;
-            double tot = 0;
-            double etanet = 0;
-            double Cover_ = Cover->Drc;
-            double ETp_ = ETp->Drc * ETafactor; // potential ETp
+    if (ETp->Drc*ETafactor > 0) {
+        double AreaSoil = SoilWidthDX->Drc * DX->Drc;
+        double Cover_ = Cover->Drc;
+        double ETp_ = ETp->Drc * ETafactor; // potential ETp
+        double tot = 0;
+        double etanet = ETp_;
+        double eta = 0;
 
-            ETpCum->Drc += ETp_;
+        ETpCum->Drc += ETp_;
 
-           //  interception decrease, drying out canopy
-            double CStor_  = CStor->Drc;
-            if (CStor_ > 0) {
-                double ETa_int = ETp_;
+       //  interception decrease, drying out canopy
+        double CStor_  = CStor->Drc;
+        if (CStor_ > 0) {
+            double ETa_int = ETp_;
 
-                ETa_int = std::min(ETa_int, CStor_);
-                CStor_ = CStor_- ETa_int;
+            ETa_int = std::min(ETa_int, CStor_);
+            CStor_ = CStor_- ETa_int;
 
-                RainCum->Drc = std::max(0.0, RainCum->Drc-ETa_int);
-                if (CStor_ < 1e-5)
-                   RainCum->Drc = 0;
+            RainCum->Drc = std::max(0.0, RainCum->Drc-ETa_int);
+            if (CStor_ < 1e-5)
+               RainCum->Drc = 0;
 
-                // restart the cumulative process when CStor is dried out
+            // restart the cumulative process when CStor is dried out
 
-                etanet = ETp_;//std::max(0.0, ETp_ - ETa_int);
+            etanet = ETp_;//std::max(0.0, ETp_ - ETa_int);
 
-                Interc->Drc = Cover_ * CStor_ * AreaSoil;
-                IntercETa->Drc += Cover_ * ETa_int * AreaSoil;
-                CStor->Drc = CStor_;
-            }
+            Interc->Drc = Cover_ * CStor_ * AreaSoil;
+            IntercETa->Drc += Cover_ * ETa_int * AreaSoil;
+            CStor->Drc = CStor_;
+        }
 
-            if (SwitchHouses)
-            {
-                double CvH = HouseCover->Drc;
-                double HS = HStor->Drc;
+        if (SwitchHouses)
+        {
+            double CvH = HouseCover->Drc;
+            double HS = HStor->Drc;
 
-                double ETa_int = std::min(etanet, HS);
-                etanet = ETp_;//std::max(0.0, ETp_ - ETa_int);
-                HStor->Drc = HS - ETa_int;
-                IntercETa->Drc += CvH * ETa_int * AreaSoil;
-                double roofsurface = (_dx * DX->Drc * CvH); // m2
-                IntercHouse->Drc =  roofsurface * HS;
-            }
+            double ETa_int = std::min(etanet, HS);
+            etanet = ETp_;//std::max(0.0, ETp_ - ETa_int);
+            HStor->Drc = HS - ETa_int;
+            IntercETa->Drc += CvH * ETa_int * AreaSoil;
+            double roofsurface = (_dx * DX->Drc * CvH); // m2
+            IntercHouse->Drc =  roofsurface * HS;
+        }
 
-            // on ground level energy is shared
-            if (SwitchLitter) {
-                double CvL = Litter->Drc;
-                double LCS = LCStor->Drc;
+        // on ground level energy is shared
+        if (SwitchLitter) {
+            double CvL = Litter->Drc;
+            double LCS = LCStor->Drc;
 
-                double ETa_int = std::min(etanet, LCS);
-                etanet = ETp_; //std::max(0.0, ETp_ - ETa_int);
-                // we assume the canopy has a different input higher so the ETP for ground is not affected by the canopy
-                LCStor->Drc = LCS- ETa_int;
-                IntercETa->Drc += CvL * ETa_int * CHAdjDX->Drc;
-                LInterc->Drc =  CvL * LCS * CHAdjDX->Drc;
-            }
+            double ETa_int = std::min(etanet, LCS);
+            etanet = ETp_; //std::max(0.0, ETp_ - ETa_int);
+            // we assume the canopy has a different input higher so the ETP for ground is not affected by the canopy
+            LCStor->Drc = LCS- ETa_int;
+            IntercETa->Drc += CvL * ETa_int * CHAdjDX->Drc;
+            LInterc->Drc =  CvL * LCS * CHAdjDX->Drc;
+        }
 
 //            if (r==96 && c == 164)
 //                qDebug() << ETp_ << CStor_ << RainCum->Drc << Interc->Drc;
-            bool ponded = hmxWH->Drc > 0.01;
+        bool ponded = hmxWH->Drc > 0.01;
 
-            if (!ponded) {
-                double pore = Poreeff->Drc;
-                double theta = Thetaeff->Drc;
-                double thetar = ThetaR1->Drc;
-                double thetafc = ThetaFC1->Drc;
-                double Lw_ = Lw->Drc;
-                double theta_e = (theta-thetar)/(pore-thetar);
-                double f = 1.0/(1.0+qPow(theta_e/0.4,8.0));
-                double ETa_soil = 0;
-                if (SwitchLitter)
-                    ETa_soil = (1.0-f)*ETp_*Cover_ + theta_e*ETp_*(1-Litter->Drc);   //Transpiration + surface Evaporation
-                else
-                    ETa_soil = (1.0-f)*ETp_*Cover_ + theta_e*ETp_*(1-Cover_);   //Transpiration + Evaporation
+        if (!ponded) {
+            double pore = Poreeff->Drc;
+            double theta = Thetaeff->Drc;
+            double thetar = ThetaR1->Drc;
+            double thetafc = ThetaFC1->Drc;
+            double Lw_ = Lw->Drc;
+            double theta_e = (theta-thetar)/(pore-thetar);
+            double f = 1.0/(1.0+qPow(theta_e/0.4,8.0));
+            double ETa_soil = 0;
 
-                // adjust soil moisture because of ETa
-                // there is an infiltration front
-                if (Lw_ > 0) {
-                    if(Lw_ < SoilDepth1->Drc) {
-                        double moist = Lw_ * (pore-theta);
-                        eta = std::min(moist, ETa_soil);
-                        moist = moist - eta; // new mositure
-                        Lw->Drc = moist/(pore-theta);  // new wetting front
-                        tot = tot + eta;
-                        tma->Drc += eta;
-                        // adjust moisture content layer 1
-                        double dL = std::max(0.0,Lw_-Lw->Drc);
-                        double m1 = dL*thetafc; // av moist freed layer
-                        double m2= (SoilDepth1->Drc-Lw_)*(Thetaeff->Drc-thetar);
-                        // av moist below old wetting front
-                        Thetaeff->Drc = (m1+m2)/(SoilDepth1->Drc - Lw->Drc)+thetar;
-                        // new average moisture below new WF
-                    }
-                } else {
-                    // soil moisture evaporation dry surface
-                    double moist = (theta-thetar) * SoilDepth1->Drc;
+            if (SwitchLitter)
+                ETa_soil = (1.0-f)*ETp_*Cover_ + theta_e*ETp_*(1-Litter->Drc);   //Transpiration + surface Evaporation
+            else
+                ETa_soil = (1.0-f)*ETp_*Cover_ + theta_e*ETp_*(1-Cover_);   //Transpiration + Evaporation
+
+            // adjust soil moisture because of ETa
+            // there is an infiltration front
+            if (Lw_ > 0) {
+                if(Lw_ < SoilDepth1->Drc) {
+                    double moist = Lw_ * (pore-theta);
                     eta = std::min(moist, ETa_soil);
-                    moist = moist - eta;
-                    Thetaeff->Drc = moist/SoilDepth1->Drc + thetar;
+                    moist = moist - eta; // new mositure
+                    Lw->Drc = moist/(pore-theta);  // new wetting front
                     tot = tot + eta;
                     tma->Drc += eta;
+                    // adjust moisture content layer 1
+                    double dL = std::max(0.0,Lw_-Lw->Drc);
+                    double m1 = dL*thetafc; // av moist freed layer
+                    double m2= (SoilDepth1->Drc-Lw_)*(Thetaeff->Drc-thetar);
+                    // av moist below old wetting front
+                    Thetaeff->Drc = (m1+m2)/(SoilDepth1->Drc - Lw->Drc)+thetar;
+                    // new average moisture below new WF
                 }
-              //  if(c == 200 && r == 200)
-                //    qDebug() << Thetaeff->Drc << ThetaI2->Drc << Lw->Drc << SoilDepth1->Drc;
-
-            }
-            // ETa = ETp for any ponded surfaces
-            if (WHrunoff->Drc > 0.01) {
-                double ETa_pond = ETp_;
-                double WHRunoff_ = WHrunoff->Drc;
-                ETa_pond = std::min(ETa_pond, WHRunoff_);
-                WHRunoff_ = WHRunoff_ - ETa_pond;
-                eta = ETa_pond;
-                WHroad->Drc = WHRunoff_;
-                WH->Drc = WHRunoff_ + WHstore->Drc;
-                WHrunoff->Drc = WHRunoff_;
+            } else {
+                // soil moisture evaporation dry surface
+                double moist = (theta-thetar) * SoilDepth1->Drc;
+                eta = std::min(moist, ETa_soil);
+                moist = moist - eta;
+                Thetaeff->Drc = moist/SoilDepth1->Drc + thetar;
                 tot = tot + eta;
-                WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
+                tma->Drc += eta;
             }
+          //  if(c == 200 && r == 200)
+            //    qDebug() << Thetaeff->Drc << ThetaI2->Drc << Lw->Drc << SoilDepth1->Drc;
 
-            // put total Eta in Eta map
-            ETa->Drc = tot;
-            ETaCum->Drc += tot;
         }
-    }}
-    SoilETMBcorrection += MapTotal(*tma); // ET water coming from the soil, in m
+        // ETa = ETp for any ponded surfaces
+        if (WHrunoff->Drc > 0.01) {
+            double ETa_pond = ETp_;
+            double WHRunoff_ = WHrunoff->Drc;
+            ETa_pond = std::min(ETa_pond, WHRunoff_);
+            WHRunoff_ = WHRunoff_ - ETa_pond;
+            eta = ETa_pond;
+            WHroad->Drc = WHRunoff_;
+            WH->Drc = WHRunoff_ + WHstore->Drc;
+            WHrunoff->Drc = WHRunoff_;
+            tot = tot + eta;
+            WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
+        }
+
+        // put total Eta in Eta map
+        ETa->Drc = tot;
+        ETaCum->Drc += tot;
+    }
+    //SoilETMBcorrection += MapTotal(*tma); // ET water coming from the soil, in m
 }
 
 // calc average soil moisture content for output to screen and folder

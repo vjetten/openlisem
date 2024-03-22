@@ -77,37 +77,27 @@ double TWorld::calculateDayLength(double latitude, int dayNumber)
 }
 
 
-void TWorld::calcSinkterm(long i_, double *S)
+double TWorld::calcSinkterm(long i_, double *S)
 {
     SOIL_LIST s = crSoil[i_];
     int r = s.r;
     int c = s.c;
-
-    double ETafactor = 1;
-    double Ld = 12;
-
-    // SwitchDailyET = true;
-    double day = trunc(time/86400.0);
-    double hour = std::min(24.0,std::max(0.0, time/3600.0-day*24.0));
-
-    if (SwitchDailyET) {
-        //Ld = calculateDayLength(day, latitude);
-        Ld = (2.0*acos(-tan(latitude*0.01745329) * tan(asin(0.397789 * sin(0.017214*(day-1)))))) * 3.8197186;
-        ETafactor = std::max(0.0,sin((-0.5-hour/Ld)*PI)) / Ld*_dt/3600.0*PI*0.5;
-        //<= this ensures that the sum of all steps in a day amounts to the daily ET, regardless of _dt
-    }
-
+    double WH = 0;
     //    if (i_ == 3738) qDebug() << day << hour << Ld;
 
-    if (ETp->Drc*ETafactor > 0) {// && Rain->Drc* 3600000.0/_dt < rainfallETa_threshold) {
+    if (ETp->Drc*ETafactor >0 && Rain->Drc* 3600000.0/_dt > rainfallETa_threshold) {
+
+        double AreaSoil = SoilWidthDX->Drc * DX->Drc;
         double Cover_ = Cover->Drc;
-        double ETp_ = ETp->Drc * ETafactor;
+        double ETp_ = ETp->Drc * ETafactor; // potential ETp
         double tot = 0;
         double etanet = ETp_;
+        double ETpshade = ETp_*(1-Cover_)+0.15*ETp_*(Cover_);
+       //double eta = 0;
 
         ETpCum->Drc += ETp_;
 
-        //  interception decrease, drying out canopy, litter, roofs
+       //  interception decrease, drying out canopy
         double CStor_  = CStor->Drc;
         if (CStor_ > 0) {
             double ETa_int = ETp_;
@@ -116,39 +106,37 @@ void TWorld::calcSinkterm(long i_, double *S)
             CStor_ = CStor_- ETa_int;
 
             RainCum->Drc = std::max(0.0, RainCum->Drc-ETa_int);
-            if (CStor_ < 1e-6)
-                RainCum->Drc = 0;
+            if (CStor_ < 1e-5)
+               RainCum->Drc = 0;
 
-            etanet = std::max(0.0, etanet - Cover_*ETa_int);
-            Interc->Drc = Cover_ * CStor_ * CHAdjDX->Drc;
-            IntercETa->Drc += Cover_ * ETa_int * CHAdjDX->Drc;
+            // restart the cumulative process when CStor is dried out
+
+            Interc->Drc = Cover_ * CStor_ * AreaSoil;
+            IntercETa->Drc += Cover_ * ETa_int * AreaSoil;
             CStor->Drc = CStor_;
-        }
-
-        if (SwitchLitter) {
-            double CvL = Litter->Drc;
-            double LCS = LCStor->Drc;
-            if (CvL > 0 && LCS > 0) {
-                double ETa_int = std::min(etanet, LCS);
-                etanet = std::max(0.0, etanet - CvL*ETa_int);
-                LCStor->Drc = LCS - ETa_int;
-                IntercETa->Drc += CvL * ETa_int * CHAdjDX->Drc;
-                LInterc->Drc =  CvL * LCS * CHAdjDX->Drc;
-            }
         }
 
         if (SwitchHouses)
         {
             double CvH = HouseCover->Drc;
             double HS = HStor->Drc;
-            if (CvH > 0 && HS > 0) {
-                double ETa_int = std::min(etanet, HS);
-                etanet = std::max(0.0, etanet - CvH * ETa_int);
-                HStor->Drc = HS - ETa_int;
-                IntercETa->Drc += CvH * ETa_int * CHAdjDX->Drc;
-                //double roofsurface = (_dx * DX->Drc * CvH); // m2
-                IntercHouse->Drc =  (_dx * DX->Drc * CvH) * HS;
-            }
+
+            double ETa_int = std::min(ETp_, HS);
+            HStor->Drc = HS - ETa_int;
+            IntercETa->Drc += CvH * ETa_int * AreaSoil;
+            double roofsurface = (_dx * DX->Drc * CvH); // m2
+            IntercHouse->Drc =  roofsurface * HS;
+        }
+
+        // on ground level energy is shared
+        if (SwitchLitter) {
+            double CvL = Litter->Drc;
+            double LCS = LCStor->Drc;
+
+            double ETa_int = std::min(ETpshade, LCS);
+            LCStor->Drc = LCS - ETa_int;
+            IntercETa->Drc += CvL * ETa_int * CHAdjDX->Drc;
+            LInterc->Drc =  CvL * LCS * CHAdjDX->Drc;
         }
 
         //transpiration under Cover from rootzone
@@ -157,42 +145,36 @@ void TWorld::calcSinkterm(long i_, double *S)
             double f = 1.0/(1.0+pow(s.h[j]/-3.5,1.5));
             if (s.h[j] > s.hb[j]) f = 0; // saturation
             if (s.h[j] < -16.0) f = 0; // wilting point -16000 cm
-            S[j] =  etanet * Cover_ * f * s.rootz[j];
+            etanet = ETp_* Cover_;
+            S[j] =  etanet * f * s.rootz[j];
         }
 
         // add surface evaporation (1-Cover) to top node
-//        if (hmxWH->Drc < 1e-6) {
-//            if (s.h[0] > -16)
-//                S[0] += (s.theta[0]-s.thetar[0])/(s.pore[0]-s.thetar[0])*etanet*(1-Cover_);
-//        }
+        if (!s.ponded) {
+           etanet = ETp_*(1-Cover_);
+           if (s.h[0] > -16)
+               S[0] += (s.theta[0]-s.thetar[0])/(s.pore[0]-s.thetar[0])*etanet;
+        } else {
+            WH = WH - ETpshade;
+            WH = std::max(0.0, WH);
+        }
 
         for (int j = 0; j < nNodes; j++) {
             tot += S[j];
         }
 
-/*
-        // ponded, evap only outside cover
-        double ETa_pond = etanet*(1-Cover_);
-        if (hmxWH->Drc > ETa_pond) {
-            ETa_pond = std::min(ETa_pond, WH->Drc);
-            WH->Drc -= ETa_pond;
-            WHrunoff->Drc = std::max(0.0, WH->Drc - WHstore->Drc);
-            WHroad->Drc = WHrunoff->Drc;
-            WHrunoff->Drc = WHrunoff->Drc;
-            WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
-            tot = tot + ETa_pond;
-        }
-*/
         ETa->Drc = tot;
         ETaCum->Drc += tot;
 
-        if (r==_nrRows/2 && c == _nrCols/2) {
-            QString ss;
-            for(int j = 0; j < nNodes; j++) {
-                ss = ss + QString(" %1").arg(S[j]);
-            }
-            qDebug() << "S" << tot << etanet << ss;
-        }
+        return (WH);
+
+        // if (r==_nrRows/2 && c == _nrCols/2) {
+        //     QString ss;
+        //     for(int j = 0; j < nNodes; j++) {
+        //         ss = ss + QString(" %1").arg(S[j]);
+        //     }
+        //     qDebug() << "S" << tot << etanet << ss;
+        // }
 
     }
 }
@@ -311,7 +293,6 @@ void TWorld::cell_Soilwater(long i_)
     else
         WH0 = hmx->Drc;// flood in kin wave
 
-    WH1 = WH0;
     s.InfPot = 0;  // m/s
     s.Infact = 0;
     s.dtsum = 0;
@@ -404,8 +385,11 @@ void TWorld::cell_Soilwater(long i_)
 
 
     // ET calculation goes into sink term S
+    // return reduced WH if ponding
     if (SwitchIncludeET)
-        calcSinkterm(i_, S); // ETa
+        WH0 = calcSinkterm(i_, S);
+
+    WH1 = WH0;
 
     int cnt = 0;
 
@@ -482,7 +466,7 @@ void TWorld::cell_Soilwater(long i_)
             //======== Boundary conditions
 
             // check for ponding
-            s.ponded = Hnew[0] > 0;
+            s.ponded = Hnew[0] > 0; //or H[0] > 0 ???? check
 
             // NOT necessary, SWATRE code:
             // double qmax = -0.5*(s.Ks[0]+K[0])*((Hnew[0]-WH1)/s.dz[0] + 1);

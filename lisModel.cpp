@@ -401,6 +401,13 @@ void TWorld::HydrologyProcesses()
 {
     double soiltot1 = SoilWaterMass();
 
+    if (SwitchIncludeET) {
+        if (SwitchDailyET)
+            ETafactor = getETaFactor();
+        else
+            ETafactor = 1.0;
+    }
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         cell_Interception(r,c);
@@ -443,6 +450,9 @@ void TWorld::HydrologyProcesses()
                 // Green and Ampt + redistribution
                 cell_InfilMethods(r, c);
 
+                if (SwitchIncludeET)
+                    cell_ETa(r,c);
+
                 if (SwitchTwoLayer) {
                     cell_Redistribution2(r, c);
                     //cell_Channelinfow2(r, c);
@@ -453,6 +463,7 @@ void TWorld::HydrologyProcesses()
 
                 if (!SwitchImpermeable)
                     Perc->Drc = cell_Percolation(r, c, 1.0);
+
                 break;
             case INFIL_SWATRE : cell_InfilSwatre(r, c); break;
         }
@@ -500,9 +511,9 @@ void TWorld::HydrologyProcesses()
             cell_SlopeStability(r, c);
     }}
 
-    if (SwitchIncludeET) {
-        doETa();
-    }
+    // if (SwitchIncludeET) {
+    //     doETa();
+    // }
     // ETa is subtracted from canopy, soil water surfaces
     // divided over 12 hours in a day with sine curve
 

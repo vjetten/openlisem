@@ -1035,7 +1035,7 @@ public:
     void cell_Soilwater(long i_);
     //void cell_SoilwaterExpl(long i_);
     void cell_SWATRECalc(long i_);
-    void calcSinkterm(long i_, double *S);
+    double calcSinkterm(long i_, double *S);
     double calculateDayLength(double latitude, int dayNumber);
     void VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
     void BrooksCorey(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
@@ -1048,6 +1048,9 @@ public:
     void cell_depositInfil(int r, int c);
     void cell_SplashDetachment(int r, int c);
     void cell_FlowDetachment(int r, int c);
+    void cell_ETa(int r, int c);
+    double getETaFactor();
+    double ETafactor;
 
     void cell_SlopeStability(int r, int c);
 
@@ -1061,7 +1064,7 @@ public:
     void SoilWater();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
     void SurfaceStorage();
-    void doETa();
+    //void doETa();
     void avgTheta();
     void OverlandFlow();
     void OverlandFlow2D();
