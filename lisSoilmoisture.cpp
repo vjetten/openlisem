@@ -187,7 +187,7 @@ void TWorld:: VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], 
         double m = 1-1/s.vg_n[j];
         double Hx = std::min(Hnew[j], 0.0);
 
-        Se = std::pow(1+std::pow(s.vg_alpha[j]*fabs(Hx*GRAV), s.vg_n[j]), -m);
+        Se = std::pow(1+std::pow(s.vg_alpha[j]*fabs(Hx), s.vg_n[j]), -m);
 
         if (Se == 1.0)
             Kr = 1.0;
@@ -200,11 +200,11 @@ void TWorld:: VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], 
 
         double W = s.thetar[j]+(s.pore[j]-s.thetar[j])*Se;
         if (!analytical) {
-            double W1 = s.thetar[j]+(s.pore[j]-s.thetar[j])*std::pow(1+std::pow(s.vg_alpha[j]*fabs(Hx*GRAV-0.1), s.vg_n[j]), -m);
+            double W1 = s.thetar[j]+(s.pore[j]-s.thetar[j])*std::pow(1+std::pow(s.vg_alpha[j]*fabs(Hx-0.1), s.vg_n[j]), -m);
             C1[j] = (W-W1)/0.01;
         } else {
             if (Hnew[j] < s.hb[j])
-                C1[j] = (W-s.thetar[j])*(s.vg_n[j]-1)*s.vg_alpha[j]*std::pow(fabs(s.vg_alpha[j]*fabs(Hx*GRAV)),s.vg_n[j]-1)/
+                C1[j] = (W-s.thetar[j])*(s.vg_n[j]-1)*s.vg_alpha[j]*std::pow(fabs(s.vg_alpha[j]*fabs(Hx)),s.vg_n[j]-1)/
                             (1+std::pow(abs(s.vg_alpha[j]*fabs(Hx)),s.vg_n[j])) + W*1e-6/s.pore[j];
             else
                 C1[j] = W*1e-6/s.pore[j];
@@ -244,7 +244,9 @@ void TWorld::getThetafromH(int j, SOIL_LIST s)
             s.theta[j] = s.thetar[j] + pow(s.hb[j]/s.h[j], s.lambda[j])*(s.pore[j]-s.thetar[j]);
     } else {
         if (s.h[j] < 0.0)
-            s.theta[j] = s.thetar[j]+(s.pore[j]-s.thetar[j])*std::pow(1+std::pow(s.vg_alpha[j]*fabs(s.h[j]/*GRAV*/), s.vg_n[j]), -(1-1/s.vg_n[j]));
+            s.theta[j] = s.thetar[j]+(s.pore[j]-s.thetar[j])*std::pow(1+std::pow(s.vg_alpha[j]*fabs(s.h[j]), s.vg_n[j]), -(1-1/s.vg_n[j]));
+        else
+            s.theta[j] = s.pore[j];
     }
 }
 
@@ -257,7 +259,7 @@ void TWorld::getHfromTheta(int j, SOIL_LIST s)
     } else {
         double n = s.vg_n[j];
         double m = 1-1/n;
-        s.h.replace(j, -std::pow((std::pow(1/se,1/m)-1),1/n)/s.vg_alpha[j] /*0.101974*/);
+        s.h.replace(j, -std::pow((std::pow(1/se,1/m)-1),1/n)/s.vg_alpha[j]);
         // kPa to m water
     }
 }
@@ -402,6 +404,8 @@ void TWorld::cell_Soilwater(long i_)
         // iteration for Hnew
         do {
 
+            // SwitchVanGenuchten = false;
+            // SwitchBrooksCorey = true;
             //======== Get nodal values
             if(SwitchVanGenuchten)
                 VanGenuchten(s, H, K, C1, false); //????Hnew???c
@@ -413,7 +417,16 @@ void TWorld::cell_Soilwater(long i_)
             //     if (SwitchGWflow && j >= GWnode)
             //         K[j] *= GW_recharge;
             }
-
+            if (r == _nrRows/2 && c == _nrCols/2) {
+                 QString S;
+                 QString S1;
+                 for(int j = 0; j < nNodes; j++) {
+                     S = S + QString(" %1").arg(s.h[j]*100);
+                    S1 = S1 + QString(" %1").arg(s.theta[j]);
+                 }
+                qDebug() << time/86400 << S;
+                qDebug() << S1;
+            }
             // K1 and K2 are avg between node and upper and lower node
             for(int j = 1; j < nNodes; j++) {
                 switch (KavgType) {
@@ -629,17 +642,17 @@ void TWorld::cell_Soilwater(long i_)
 
     Perc->Drc = s.drain*_dt;
 
-    if (r == _nrRows/2 && c == _nrCols/2) {
-       // qDebug() << "timeloop" << WH0 - WH1 << s.Infact*3600000  << s.h[0] << s.h[1];
-         QString S;
-         QString S1;
-         for(int j = 0; j < nNodes; j++) {
-             S = S + QString(" %1").arg(s.h[j]*100);
-            S1 = S1 + QString(" %1").arg(s.theta[j]);
-         }
-        qDebug() << time/86400 << S;
-        qDebug() << S1;
-    }
+    // if (r == _nrRows/2 && c == _nrCols/2) {
+    //    // qDebug() << "timeloop" << WH0 - WH1 << s.Infact*3600000  << s.h[0] << s.h[1];
+    //      QString S;
+    //      QString S1;
+    //      for(int j = 0; j < nNodes; j++) {
+    //          S = S + QString(" %1").arg(s.h[j]*100);
+    //         S1 = S1 + QString(" %1").arg(s.theta[j]);
+    //      }
+    //     qDebug() << time/86400 << S;
+    //     qDebug() << S1;
+    // }
 
     // put the results back
     crSoil[i_] = s;

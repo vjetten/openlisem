@@ -256,9 +256,6 @@ void TWorld::TotalsFlow(void)
 
     }
 
-    SoilMoistTot += SoilMoistDiff;// MapTotal(*SoilMB);
-    SoilMoistTotmm = SoilMoistTot * catchmentAreaFlatMM;
-
     //=== all discharges ===//
     Qtot_dt = 0;
     // sum all outflow in m3 for this timestep, Qtot is for all timesteps!
@@ -530,7 +527,7 @@ void TWorld::MassBalance()
 //    MB = in > 0 ? (in - out - store)/in *100 : 0;
 
     // Mass Balance water, all in m3
-    double waterin = RainTot + WHinitVolTot + BaseFlowTot + BaseFlowInit + QuserInTot - QSideVolTot;
+    double waterin = RainTot + WHinitVolTot + BaseFlowTot + BaseFlowInit + QuserInTot;// - QSideVolTot;
                      // rainfall + initial WH on surface if present, + baseflow and init baseflow + user defined inflow in channel + sideinflow through soil
     double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot + IntercETaTot + WaterVolTot + ChannelVolTot + StormDrainVolTot;
                      // all interception + ETa + water on surface + water in channel + water in subsurface drains
