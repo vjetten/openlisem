@@ -629,63 +629,53 @@ void TWorld::InitSoilInput(void)
         ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
         ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
         ThetaI1a = NewMap(0); // used for screen output
-        calcValue(*ThetaI1, thetaCalibration, MUL); //VJ 110712 calibration of theta
-        calcMap(*ThetaI1, *ThetaS1, MIN); //VJ 110712 cannot be more than porosity
+        calcValue(*ThetaI1, thetaCalibration, MUL);
+        calcMap(*ThetaI1, *ThetaS1, MIN);
         copy(*ThetaI1a, *ThetaI1);
 
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
 
         ThetaR1 = NewMap(0);
-        lambda1 = NewMap(0);
         psi1ae = NewMap(0);
-        ThetaFC1 = NewMap(0);
+        ThetaFC1 = NewMap(0);        
         vgalpha1 = NewMap(0);
         vgn1 = NewMap(0);
-
+        lambda1 = NewMap(0);
 
         FOR_ROW_COL_MV_L {
-            //bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
-            //Saxton and Rawls 2006
-            //  lambda1->Drc = 0.0384*log(Ksat1->Drc)+0.0626;
-            //rawls et al., 1982
-            double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
-            lambda1->Drc = 0.0849*ks+0.159;
-            lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
-            psi1ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
-            // NEGATIVE????
-            vgalpha1->Drc = (0.02*ks + 0.0095); // in m-1
-            vgn1->Drc = 0.2656*ks + 1.1042;
-            ThetaR1->Drc = 0.0673*exp(-0.238*log(ks));
-            ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;            
+            double ks = log(std::max(0.5,std::min(1000.0,Ksat1->Drc)));
+            psi1ae->Drc = exp( -0.3012*ks + 3.5164); // IN CM
+            ThetaR1->Drc = 0.0673*exp(-0.238*ks);
+            ThetaFC1->Drc = -0.0519*ks + 0.3714;
 
+            vgalpha1->Drc = (0.02*ks + 0.0095); // in cm-1
+            vgn1->Drc = 0.2656*ks + 1.1042;
+            lambda1->Drc = 0.1794*exp(0.241*ks);//0.0849*ks+0.159;
+            lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
         }}
+        report(*psi1ae,"_psiae.map");
+        report(*ThetaR1,"_thetar.map");
+        report(*ThetaFC1,"_thetafc.map");
+        report(*lambda1,"_lambda.map");
+        report(*vgalpha1,"_valpha.map");
+        report(*vgn1,"_vn.map");
 
         if (SwitchPsiUser) {
-            Psi1 = ReadMap(LDD,getvaluename("psi1"));
+            Psi1 = ReadMap(LDD,getvaluename("psi1")); // in cm
             //calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
-            calcValue(*Psi1, 0.01, MUL);
+            //calcValue(*Psi1, 0.01, MUL);
         } else {
             Psi1 = NewMap(0);
             FOR_ROW_COL_MV_L {
-                Psi1->Drc = exp(-0.3382*log(Ksat1->Drc) + 3.3425)*0.01;
-
-//                double psi;
-
-//                double se = (ThetaI1->Drc - ThetaR1->Drc)/(ThetaS1->Drc - ThetaR1->Drc);
-//                if (SwitchBrooksCorey) {
-//                    psi = psi1ae->Drc/std::pow(se, lambda1->Drc);
-//                } else {
-//                    double m = 1-1/vgn1->Drc;
-//                    psi = std::pow((std::pow(1/se,1/m)-1),1/vgn1->Drc)/vgalpha1->Drc*0.101974; // alpha is in 1/kPa, convert to meter
-//                }
-              //  Psi1->Drc = std::min(Psi1->Drc,psi);
-
+                double ks = log(std::max(0.5,std::min(1000.0,Ksat1->Drc)));
+                Psi1->Drc = exp(-0.3382*ks + 3.3425);
                 Psi1->Drc = std::max(Psi1->Drc,psi1ae->Drc);
             }}
         }
         calcValue(*Ksat1, ksatCalibration, MUL);
             // apply calibration after all empirical relations
 
+        report(*Psi1,"_psi.map");
 
         if (nrSoilLayers == 2) {
             SwitchTwoLayer = true;
@@ -695,7 +685,7 @@ void TWorld::InitSoilInput(void)
             SwitchTwoLayer = true;
             SwitchThreeLayer = true;
         }
-        qDebug() << "SwitchTwoLayer" << SwitchTwoLayer;
+
         if (SwitchTwoLayer) {
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
@@ -715,25 +705,22 @@ void TWorld::InitSoilInput(void)
             Ksat2 = ReadMap(LDD,getvaluename("ksat2"));
 
             ThetaR2 = NewMap(0);
-            lambda2 = NewMap(0);             // lambda brooks corey
             psi2ae = NewMap(0);
-
             ThetaFC2 = NewMap(0);
             vgalpha2 = NewMap(0);
             vgn2 = NewMap(0);
-            FOR_ROW_COL_MV_L {
-                // regression eq from data from Saxton and rawls 2006, excel file
-                double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
-                //vgalpha2->Drc = 0.0237*ks + 0.0054;
-                vgalpha2->Drc = (0.02*ks + 0.0095); // in m-1
-                vgn2->Drc = 0.2656*ks + 1.1042;
+            lambda2 = NewMap(0);
 
-                lambda2->Drc = 0.0849*ks+0.159;
+            FOR_ROW_COL_MV_L {
+                double ks = log(std::max(0.5,std::min(1000.0,Ksat2->Drc)));
+                psi2ae->Drc = exp( -0.3012*ks + 3.5164); // IN CM
+                ThetaR2->Drc = 0.0673*exp(-0.238*ks);
+                ThetaFC2->Drc = -0.0519*ks + 0.3714;
+
+                vgalpha2->Drc = (0.02*ks + 0.0095); // in cm-1
+                vgn2->Drc = 0.2656*ks + 1.1042;
+                lambda2->Drc = 0.1794*exp(0.241*ks);//0.0849*ks+0.159;
                 lambda2->Drc = std::min(std::max(0.1,lambda2->Drc),0.7);
-                psi2ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m                
-                //NEGATIVE???
-                ThetaR2->Drc = 0.0673*exp(-0.238*log(ks));
-                ThetaFC2->Drc = -0.0519*log(ks) + 0.3714;
             }}
 
             // wetting front psi
@@ -745,17 +732,9 @@ void TWorld::InitSoilInput(void)
             } else {
                 Psi2 = NewMap(0);
                 FOR_ROW_COL_MV_L {
-                    Psi2->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
-//                    double psi;
-//                    double se = (ThetaI2->Drc - ThetaR2->Drc)/(ThetaS2->Drc - ThetaR2->Drc);
-//                    if (SwitchBrooksCorey) {
-//                        psi = psi2ae->Drc/std::pow(se, lambda2->Drc);
-//                    } else {
-//                    double m = 1-1/vgn2->Drc;
-//                        psi = std::pow((std::pow(1/se,1/m)-1),1/vgn2->Drc)/vgalpha2->Drc*0.101974; // alpha is in 1/kPa, convert to meter
-//                    }
-              //      Psi2->Drc = std::min(Psi2->Drc,psi);
-                    Psi2->Drc = std::max(Psi2->Drc,psi2ae->Drc);
+                    double ks = log(std::max(0.5,std::min(1000.0,Ksat2->Drc)));
+                    Psi2->Drc = exp(-0.3382*ks + 3.3425);
+                    Psi2->Drc = std::max(Psi1->Drc,psi2ae->Drc);
                 }}
             }
             calcValue(*Ksat2, ksat2Calibration, MUL);
@@ -788,22 +767,22 @@ void TWorld::InitSoilInput(void)
             Ksat3 = ReadMap(LDD,getvaluename("ksat3"));
 
             ThetaR3 = NewMap(0);
-            lambda3 = NewMap(0);             // lambda brooks corey
             psi3ae = NewMap(0);
             ThetaFC3 = NewMap(0);
             vgalpha3 = NewMap(0);
             vgn3 = NewMap(0);
+            lambda3 = NewMap(0);
+
             FOR_ROW_COL_MV_L {
-                // regression eq from data from Saxton and rawls 2006, excel file
-                double ks = std::max(0.5,std::min(1000.0,log(Ksat3->Drc)));
-                //vgalpha3->Drc = 0.0237*ks + 0.0054;
-                vgalpha3->Drc = (0.02*ks + 0.0095); // in m-1 has ot have inverse from H in m
+                double ks = log(std::max(0.5,std::min(1000.0,Ksat3->Drc)));
+                psi3ae->Drc = exp( -0.3012*ks + 3.5164); // IN CM
+                ThetaR3->Drc = 0.0673*exp(-0.238*ks);
+                ThetaFC3->Drc = -0.0519*ks + 0.3714;
+
+                vgalpha3->Drc = (0.02*ks + 0.0095); // in cm-1
                 vgn3->Drc = 0.2656*ks + 1.1042;
-                lambda3->Drc = 0.0849*ks+0.159;
-                lambda3->Drc = std::min(std::max(0.1,lambda3->Drc),0.7);
-                psi3ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
-                ThetaR3->Drc = 0.0673*exp(-0.238*log(ks));
-                ThetaFC3->Drc = -0.0519*log(ks) + 0.3714;
+                lambda3->Drc = 0.1794*exp(0.241*ks);//0.0849*ks+0.159;
+                lambda3->Drc = std::min(std::max(0.1,lambda2->Drc),0.7);
             }}
 
             // wetting front psi
@@ -814,17 +793,9 @@ void TWorld::InitSoilInput(void)
             } else {
                 Psi3 = NewMap(0);
                 FOR_ROW_COL_MV_L {
-                    Psi3->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
-//                    double psi;
-//                    double se = (ThetaI3->Drc - ThetaR3->Drc)/(ThetaS3->Drc - ThetaR3->Drc);
-//                    if (SwitchBrooksCorey) {
-//                        psi = psi3ae->Drc/std::pow(se, lambda3->Drc);
-//                    } else {
-//                        double m = 1-1/vgn3->Drc;
-//                        psi = std::pow((std::pow(1/se,1/m)-1),1/vgn3->Drc)/vgalpha3->Drc*0.101974; // alpha is in 1/kPa, convert to meter
-//                    }
-                 //   Psi3->Drc = std::min(Psi3->Drc,psi);
-                    Psi3->Drc = std::max(Psi3->Drc,psi3ae->Drc);
+                    double ks = log(std::max(0.5,std::min(1000.0,Ksat3->Drc)));
+                    Psi3->Drc = exp(-0.3382*ks + 3.3425);
+                    Psi3->Drc = std::max(Psi1->Drc,psi3ae->Drc);
                 }}
             }
 
@@ -3617,8 +3588,8 @@ void TWorld::InitNewSoilProfile()
             } else {
                 double n = crSoil[i_].vg_n[j];
                 double m = 1-1/n;
-                crSoil[i_].h.replace(j, -std::pow((std::pow(1/se,1/m)-1),1/n)/crSoil[i_].vg_alpha[j]*0.101974);
-                // kPa to m water
+                crSoil[i_].h.replace(j, -std::pow((std::pow(1/se,1/m)-1),1/n)/crSoil[i_].vg_alpha[j]);
+                // UNIT of H is the unit of alpha!!!!! so if alpha is in cm than H also
             }
 
           //  qDebug() << j << crSoil[i_].h[j];
