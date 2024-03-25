@@ -652,7 +652,7 @@ void TWorld::cell_Soilwater(long i_)
          QString S;
          QString S1;
          for(int j = 0; j < nNodes; j++) {
-             S = S + QString(" %1").arg(s.h[j]*100);
+             S = S + QString(" %1").arg(s.h[j]);
             S1 = S1 + QString(" %1").arg(s.theta[j]);
          }
         qDebug() << time/86400 << S;

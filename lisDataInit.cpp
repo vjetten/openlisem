@@ -3525,7 +3525,7 @@ void TWorld::InitNewSoilProfile()
             crSoil[i_].dz.replace(j, dz);
             crSoil[i_].theta.replace(j, ThetaI1->Drc);
             crSoil[i_].pore.replace(j, ThetaS1->Drc);
-            crSoil[i_].Ks.replace(j, Ksat1->Drc/3600000); // calibrated Ksat ! so do not use for lambda etc
+            crSoil[i_].Ks.replace(j, Ksat1->Drc/3600000);
             crSoil[i_].thetar.replace(j, ThetaR1->Drc);
             crSoil[i_].lambda.replace(j, lambda1->Drc);
             crSoil[i_].vg_alpha.replace(j, vgalpha1->Drc*facta);
@@ -3545,7 +3545,7 @@ void TWorld::InitNewSoilProfile()
                 crSoil[i_].dz.replace(j, dz2);
                 crSoil[i_].theta.replace(j, ThetaI2->Drc);
                 crSoil[i_].pore.replace(j, ThetaS2->Drc);
-                crSoil[i_].Ks.replace(j, Ksat2->Drc/3600000); // calibrated Ksat ! so do not use for lambda etc
+                crSoil[i_].Ks.replace(j, Ksat2->Drc/3600000);
 
                 crSoil[i_].thetar.replace(j,  ThetaR2->Drc);
                 crSoil[i_].lambda.replace(j,  lambda2->Drc);
