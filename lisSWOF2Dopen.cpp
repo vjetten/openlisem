@@ -30,9 +30,6 @@
 #include "operation.h"
 #include "global.h"
 
-#define he_ca 1e-10
-#define ve_ca 1e-10
-
 //-------------------------------------------------------------------------------------------------
 // force flow when a diagonal solution exists and a DEM blockage is present
 void TWorld::SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)

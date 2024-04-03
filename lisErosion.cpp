@@ -48,9 +48,6 @@ functions: \n
 #include "operation.h"
 #include "model.h"
 
-#define he_ca 1e-12
-#define ve_ca 1e-12
-
 //---------------------------------------------------------------------------
 // deposit all sediment still in flow when infiltration causes WH to become minimum
 // DOES NOT WORK, MB errors

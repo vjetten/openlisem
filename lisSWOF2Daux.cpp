@@ -1,16 +1,10 @@
 
 #include <algorithm>
 #include "lisemqt.h"
-//#include "model.h"
+#include "model.h"
 #include "operation.h"
 #include "global.h"
 
-#define he_ca 1e-10
-#define ve_ca 1e-10
-
-#define EPSILON 1e-10
-
-#define GRAV_DEM 4.90335
 //--------------------------------------------------------------------------------------------
 // correct mass balance
 double TWorld::getMass(cTMap *M, double th)
@@ -327,53 +321,14 @@ vec4 TWorld::F_ROE(double h_L,double u_L,double v_L,double h_R,double u_R,double
 }
 
 
-vec4 TWorld::F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
-{
-    vec4 hll;
-    double f1, f2, f3, cfl, tmp = 0;
-    if (h_L<=0. && h_R<=0.){
-        f1 = 0.;
-        f2 = 0.;
-        f3 = 0.;
-        cfl = 0.;
-    }
-    else
-    {
-        double grav_h_L = GRAV*h_L;
-        double grav_h_R = GRAV*h_R;
-        double factorL = h_L > 1.0 && h_L*u_L < 0.1 ? h_R*u_R : 0.5;
-        double factorR = h_R > 1.0 && h_R*u_R < 0.1 ? h_L*u_L : 0.5;
-        double sqrt_grav_h_L = pow(grav_h_L,factorL);  // wave velocity
-        double sqrt_grav_h_R = pow(grav_h_R,factorR);
-        double q_R = u_R*h_R;
-        double q_L = u_L*h_L;
 
-        //schokgolf snelheden van links en naar rechts
-        double c1 = std::min(u_L - sqrt_grav_h_L,u_R - sqrt_grav_h_R); //we already have u_L - sqrt_grav_h_L<u_L + sqrt_grav_h_L and u_R - sqrt_grav_h_R<u_R + sqrt_grav_h_R
-        double c2 = std::max(u_L + sqrt_grav_h_L,u_R + sqrt_grav_h_R); //so we do not need all the eigenvalues to get c1 and c2
-        tmp = 1./std::max(0.1,c2-c1);
-        double t1 = (std::min(c2,0.) - std::min(c1,0.))*tmp;
-        double t2 = 1. - t1;
-        double t3 = (c2*fabs(c1) - c1*fabs(c2))*0.5*tmp;
-
-        f1 = t1*q_R + t2*q_L - t3*(h_R - h_L);
-        f2 = t1*(q_R*u_R + grav_h_R*h_R*0.5) + t2*(q_L*u_L + grav_h_L*h_L*0.5) - t3*(q_R - q_L);
-        f3 = t1*q_R*v_R + t2*q_L*v_L - t3*(h_R*v_R - h_L*v_L);
-        cfl = std::max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition std::max(fabs(c1),fabs(c2))*tx with tx=dt/dx
-    }
-    hll.v[0] = f1;
-    hll.v[1] = f2;
-    hll.v[2] = f3;
-    hll.v[3] = cfl;
-    return hll;
-}
-
+//f_hllc2.cpp in swof
 vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
     vec4 hll;
-    double f1, f2, f3, cfl,tmp;
+    double f1, f2, f3, cfl;
     double c;
-    if (h_L<=0. && h_R<=0.){
+    if (h_L < he_ca && h_R < he_ca){
         c = 0.;
         f1 = 0.;
         f2 = 0.;
@@ -392,14 +347,14 @@ vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
         if(h_L < he_ca) {
             c1 = u_R - 2*sqrt_grav_h_R;//sqrt(GRAV*h_R);
         }else{
-            c1 = std::min(u_L-sqrt_grav_h_L,u_R-sqrt_grav_h_R); // as u-sqrt(grav_h) <= u+sqrt(grav_h)
+            c1 = std::min(u_L-sqrt_grav_h_L, u_R-sqrt_grav_h_R); // as u-sqrt(grav_h) <= u+sqrt(grav_h)
         }
         if(h_R < he_ca) {
             c2 = u_L + 2*sqrt_grav_h_L;//sqrt(GRAV*h_L);
         }else{
-            c2 = std::max(u_L+sqrt_grav_h_L,u_R+sqrt_grav_h_R); // as u+sqrt(grav_h) >= u-sqrt(grav_h)
+            c2 = std::max(u_L+sqrt_grav_h_L, u_R+sqrt_grav_h_R); // as u+sqrt(grav_h) >= u-sqrt(grav_h)
         }
-        tmp = 1./std::max(0.1,c2-c1);
+        double tmp = 1./(c2-c1);
         double t1 = (std::min(c2,0.) - std::min(c1,0.))*tmp;
         double t2 = 1. - t1;
         double t3 = (c2*fabs(c1) - c1*fabs(c2))*0.5*tmp;
@@ -424,35 +379,30 @@ vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
 vec4 TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
     vec4 hll;
-    double f1, f2, f3, cfl, tmp = 0;
-    if (h_L<=0. && h_R<=0.){
+    double f1, f2, f3, cfl;
+    if (h_L < he_ca && h_R < he_ca){
         f1 = 0.;
         f2 = 0.;
         f3 = 0.;
         cfl = 0.;
-    }
-    else
-    {
+    } else {
         double grav_h_L = GRAV*h_L;
         double grav_h_R = GRAV*h_R;
-        double sqrt_grav_h_L = sqrt(grav_h_L);  // wave velocity
+        double sqrt_grav_h_L = sqrt(grav_h_L);
         double sqrt_grav_h_R = sqrt(grav_h_R);
         double q_R = u_R*h_R;
         double q_L = u_L*h_L;
+        double c1 = std::min(u_L-sqrt_grav_h_L,u_R-sqrt_grav_h_R);   // as u-sqrt(grav_h) <= u+sqrt(grav_h)
+        double c2 = std::max(u_L+sqrt_grav_h_L,u_R+sqrt_grav_h_R);   // as u+sqrt(grav_h) >= u-sqrt(grav_h)
+        double tmp = 1./(c2-c1);
+        double t1 = (std::min(c2,0.)-std::min(c1,0.))*tmp;
+        double t2 = 1.-t1;
+        double t3 = (c2*fabs(c1)-c1*fabs(c2))*0.5*tmp;
 
-        //schokgolf snelheden van links en naar rechts
-        double c1 = std::min(u_L - sqrt_grav_h_L,u_R - sqrt_grav_h_R); //we already have u_L - sqrt_grav_h_L<u_L + sqrt_grav_h_L and u_R - sqrt_grav_h_R<u_R + sqrt_grav_h_R
-        double c2 = std::max(u_L + sqrt_grav_h_L,u_R + sqrt_grav_h_R); //so we do not need all the eigenvalues to get c1 and c2
-        tmp = 1.0/(c1-c2);//1./std::max(0.1,c2-c1);
-        double t1 = (std::min(c2,0.) - std::min(c1,0.))*tmp;
-        double t2 = 1. - t1;
-        double t3 = (c2*fabs(c1) - c1*fabs(c2))*0.5*tmp;
-
-        f1 = t1*q_R + t2*q_L - t3*(h_R - h_L);
-        f2 = t1*(q_R*u_R + grav_h_R*h_R*0.5) + t2*(q_L*u_L + grav_h_L*h_L*0.5) - t3*(q_R - q_L);
-        // f3 is not in the latest fullswof code?
-        f3 = t1*q_R*v_R + t2*q_L*v_L - t3*(h_R*v_R - h_L*v_L);
-        cfl = std::max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition std::max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+        f1 = t1*q_R+t2*q_L-t3*(h_R-h_L);
+        f2 = t1*(q_R*u_R+grav_h_R*h_R*0.5)+t2*(q_L*u_L+grav_h_L*h_L*0.5)-t3*(q_R-q_L);
+        f3 = t1*q_R*v_R+t2*q_L*v_L-t3*(h_R*v_R-h_L*v_L);
+        cfl = std::max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition max(fabs(c1),fabs(c2))*tx with tx=dt/dx
     }
     hll.v[0] = f1;
     hll.v[1] = f2;
@@ -464,8 +414,9 @@ vec4 TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
 vec4 TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
     vec4 hll;
-    double f1, f2, f3, cfl, tmp = 0;
-    if (h_L<=0. && h_R<=0.){
+    double f1, f2, f3, cfl;
+    if (h_L < he_ca && h_R < he_ca){
+
         f1 = 0.;
         f2 = 0.;
         f3 = 0.;
@@ -497,10 +448,10 @@ vec4 TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double
             f3=q_R*v_R;
             cfl=fabs(c1); //std::max(fabs(c1),fabs(c2))=fabs(c1)
         }else{ //subcritical flow
-            tmp = 1./(c2-c1);
-            f1=(c2*q_L-c1*q_R)*tmp+c1*c2*(h_R-h_L)*tmp;
-            f2=(c2*(q_L*u_L+halfL)-c1*(q_R*u_R+halfR))*tmp+c1*c2*(q_R-q_L)*tmp;
-            f3=(c2*(q_L*v_L)-c1*(q_R*v_R))*tmp+c1*c2*(h_R*v_R-h_L*v_L)*tmp;
+            double tmp = 1./(c2-c1);
+            f1=(c2*q_L-c1*q_R)*tmp + c1*c2*(h_R-h_L)*tmp;
+            f2=(c2*(q_L*u_L+halfL) - c1*(q_R*u_R+halfR))*tmp + c1*c2*(q_R-q_L)*tmp;
+            f3=(c2*(q_L*v_L)-c1*(q_R*v_R))*tmp + c1*c2*(h_R*v_R-h_L*v_L)*tmp;
             cfl=std::max(fabs(c1),fabs(c2));
         }
     }
@@ -518,7 +469,8 @@ vec4 TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
 {
     vec4 hll;
     double f1, f2, f3, cfl, tmp = 0;
-    if (h_L<=0. && h_R<=0.){
+    if (h_L < he_ca && h_R < he_ca){
+
         f1 = 0.;
         f2 = 0.;
         f3 = 0.;

@@ -28,12 +28,7 @@
 #include "operation.h"
 #include "global.h"
 
-#define he_ca 1e-10
-#define ve_ca 1e-10
-
 #define dt_ca 0.001
-
-#define EPSILON 1e-6
 
 #define dtmaxfrac 0.5
 

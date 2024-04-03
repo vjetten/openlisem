@@ -58,6 +58,12 @@
 #define DO_SEDDEP 0
 #define GRAV 9.8067
 
+#define he_ca 1e-10
+#define ve_ca 1e-10
+
+#define EPSILON 1e-10
+
+#define GRAV_DEM 4.90335
 
 #define Aavg(a,b)  (0.5*(a+b))
 #define Savg(a,b)  qSqrt(a*b)
