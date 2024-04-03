@@ -106,9 +106,9 @@ void lisemqt::on_checkChannelBaseflow_clicked()
 void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int inr)
 {
     int nr = std::max(0, inr);
-    checkInfil2layer->setEnabled(bool(nr == 2 || nr == 3));
+    checkInfil2layer->setEnabled(nr > 1);
     groupBox_SwatreOptions->setEnabled(nr == 1);
-    checkBox_OutTheta->setEnabled(bool(nr == 2 || nr == 3));
+    checkBox_OutTheta->setEnabled(nr > 1);
 
     uiInfilMethod = nr;
     // set runfile var to infil nr

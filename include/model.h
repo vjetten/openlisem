@@ -432,6 +432,7 @@ public:
         SwitchChannelInfil,
         SwitchGWflow,
         SwitchGW2Dflow,
+        SwitchGWSWOFflow,
         SwitchLDDGWflow,
         SwitchSWATGWflow,
         SwitchChannel2DflowConnect,
@@ -744,10 +745,10 @@ public:
     /// standard names of output map series
     QString Outrunoff, Outconc, Outwh, Outrwh, Outvelo, Outinf, Outss, Outchvol,
     Outtc, Outeros, Outdepo, OutSL, OutSed, OutInt,OutSedSS, OutSedBL,
-    OutTiledrain, OutTileVol,OutTileV, OutHmx, OutVf, OutQf, OutHmxWH, OutTheta1, OutTheta2;
+    OutTiledrain, OutTileVol,OutTileV, OutHmx, OutVf, OutQf, OutHmxWH, OutTheta1, OutTheta2, OutGW;
     bool  SwitchOutrunoff, SwitchOutconc, SwitchOutwh, SwitchOutrwh, SwitchOutvelo, SwitchOutinf, SwitchOutss, SwitchOutchvol,
     SwitchOutConc, SwitchOutTC, SwitchOutDet, SwitchOutDep, SwitchOutSL, SwitchOutSed, SwitchOutInt, SwitchOutSedSS, SwitchOutSedBL,
-    SwitchOutTiledrain, SwitchOutTileVol, SwitchOutHmx, SwitchOutVf, SwitchOutQf, SwitchOutHmxWH, SwitchOutTheta;
+    SwitchOutTiledrain, SwitchOutTileVol, SwitchOutHmx, SwitchOutVf, SwitchOutQf, SwitchOutHmxWH, SwitchOutTheta, SwitchOutGW;
     QString errorFileName;
     QString errorSedFileName;
     QString satImageFileName;
@@ -1041,7 +1042,7 @@ public:
     void cell_Soilwater(long i_);
     //void cell_SoilwaterExpl(long i_);
     void cell_SWATRECalc(long i_);
-    double calcSinkterm(long i_, double *S);
+    double calcSinkterm(long i_,  double WH, double *S);
     double calculateDayLength(double latitude, int dayNumber);
     void VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
     void BrooksCorey(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
@@ -1092,6 +1093,7 @@ public:
     void GWFlow2D(double factor);
     void GWFlowSWAT();
     void GWFlowLDDKsat();
+    double fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
 
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);

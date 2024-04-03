@@ -1062,6 +1062,9 @@ void TWorld::InitChannel(void)
         GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
         Qbase = NewMap(0);
         GWWH = NewMap(0);
+        GWU = NewMap(0);
+        GWV = NewMap(0);
+        GWN = NewMap(0);
         GWWHmax = NewMap(0);
 
         GWdeep = NewMap(0);
@@ -1070,14 +1073,25 @@ void TWorld::InitChannel(void)
         GWz = NewMap(0);
         GWgrad = NewMap(0);
 
+
+
         FOR_ROW_COL_MV_L {
             //GWz->Drc = DEM->Drc - SoilDepth1->Drc - (SwitchTwoLayer ? SoilDepth2->Drc : 0.0);
             if (SwitchTwoLayer)
                 GWz->Drc = DEM->Drc - SoilDepth2->Drc;
             else
                 GWz->Drc = DEM->Drc - SoilDepth1->Drc;
+            tm->Drc = SoilDepth2->Drc;
         }}
         Average3x3(*GWz, *LDD, false);
+
+        Average3x3(*tm, *LDD, false);
+        FOR_ROW_COL_MV_L {
+            GWN->Drc = 0.1+pow(tm->Drc,2.0/3.0)*qSqrt(0.1)/(Ksat2->Drc/_dt);
+        }}
+
+        Average3x3(*GWN, *LDD, false);
+        report(*GWN,"gwn.map");
 
     }
 
@@ -2406,6 +2420,7 @@ void TWorld::IntializeOptions(void)
     SwitchChannelBaseflow = false;
     SwitchGWflow = false;
     SwitchGW2Dflow =  false;
+    SwitchGWSWOFflow =  false;
     SwitchLDDGWflow = false;
     SwitchSWATGWflow = false;
     //SwitchGWChangeSD = true;

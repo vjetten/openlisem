@@ -1545,7 +1545,7 @@ void lisemqt::resetAll()
     E_InfiltrationMethod->addItem("SWATRE");
     E_InfiltrationMethod->addItem("Green and Ampt");
     E_InfiltrationMethod->addItem("Smith and Parlange");
-    E_InfiltrationMethod->addItem("Richards equation");
+    E_InfiltrationMethod->addItem("Richards equation (experimental)");
     E_InfiltrationMethod->setCurrentIndex(2);
 
     initOP();

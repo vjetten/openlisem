@@ -77,12 +77,11 @@ double TWorld::calculateDayLength(double latitude, int dayNumber)
 }
 
 
-double TWorld::calcSinkterm(long i_, double *S)
+double TWorld::calcSinkterm(long i_, double WH, double *S)
 {
     SOIL_LIST s = crSoil[i_];
     int r = s.r;
     int c = s.c;
-    double WH = 0;
     //    if (i_ == 3738) qDebug() << day << hour << Ld;
 
     if (ETp->Drc*ETafactor >0 && Rain->Drc* 3600000.0/_dt > rainfallETa_threshold) {
@@ -166,7 +165,6 @@ double TWorld::calcSinkterm(long i_, double *S)
         ETa->Drc = tot;
         ETaCum->Drc += tot;
 
-        return (WH);
 
         // if (r==_nrRows/2 && c == _nrCols/2) {
         //     QString ss;
@@ -177,6 +175,7 @@ double TWorld::calcSinkterm(long i_, double *S)
         // }
 
     }
+    return (WH);
 }
 
 
@@ -388,10 +387,9 @@ void TWorld::cell_Soilwater(long i_)
 
     // ET calculation goes into sink term S
     // return reduced WH if ponding
-    if (SwitchIncludeET)
-        WH0 = calcSinkterm(i_, S);
-
     WH1 = WH0;
+    if (SwitchIncludeET)
+        WH1 = calcSinkterm(i_, WH0, S);
 
     int cnt = 0;
 

@@ -980,6 +980,10 @@ void TWorld::ReportMapSeries(void)
         }
     }
 
+    if (SwitchOutGW && SwitchGWflow) {
+            report(*GWWH, OutGW);
+    }
+
     //===== SEDIMENT =====
     if(SwitchErosion)
     {

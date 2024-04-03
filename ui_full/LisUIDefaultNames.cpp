@@ -440,6 +440,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("GW flow explicit");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("GW flow SWOF");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("GW flow LDD");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("GW flow SWAT");
@@ -601,6 +603,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("OutTileDrain");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("OutTheta");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("OutGW");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("OutTileV");
     namelist[i].value = QString("0");

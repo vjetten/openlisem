@@ -190,6 +190,7 @@ void lisemqt::ParseInputData()
       //  if (p1.compare("Adjust channel crosssection")==0)     checkChannelAdjustCHW->setChecked(check);
         if (p1.compare("Include GW flow")==0)               checkGWflow->setChecked(check);
         if (p1.compare("GW flow explicit")==0)              checkGWflowexplicit->setChecked(check);
+        if (p1.compare("GW flow SWOF")==0)                  checkGWflowSWOF->setChecked(check);
         if (p1.compare("GW flow LDD")==0)                   checkGWflowLDD->setChecked(check);
         if (p1.compare("GW flow SWAT")==0)                  checkGWflowSWAT->setChecked(check);
         if (p1.compare("GW recharge factor")==0)            GW_recharge->setValue(valc);
@@ -435,6 +436,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("OutTileDrain")==0)      checkBox_OutTiledrain->setChecked(check);
         if (p1.compare("OutTileVolume")==0)         checkBox_OutTileVol->setChecked(check);
         if (p1.compare("OutTheta")==0)         checkBox_OutTheta->setChecked(check);
+        if (p1.compare("OutGW")==0)         checkBox_OutGW->setChecked(check);
+
         if (p1.compare("OutDet")==0)     checkBox_OutDet->setChecked(check);
         if (p1.compare("OutDep")==0)     checkBox_OutDep->setChecked(check);
         if (p1.compare("OutTC")==0)      checkBox_OutTC->setChecked(check);
@@ -825,6 +828,7 @@ void lisemqt::updateModelData()
         // groundwater
         if (p1.compare("Include GW flow")==0)                namelist[j].value.setNum((int)checkGWflow->isChecked());
         if (p1.compare("GW flow explicit")==0)               namelist[j].value.setNum((int)checkGWflowexplicit->isChecked());
+        if (p1.compare("GW flow SWOF")==0)                   namelist[j].value.setNum((int)checkGWflowSWOF->isChecked());
         if (p1.compare("GW flow LDD")==0)                    namelist[j].value.setNum((int)checkGWflowLDD->isChecked());
         if (p1.compare("GW flow SWAT")==0)                   namelist[j].value.setNum((int)checkGWflowSWAT->isChecked());
         if (p1.compare("GW recharge factor")==0)             namelist[j].value = GW_recharge->text();
@@ -1148,6 +1152,7 @@ void lisemqt::updateModelData()
         if (p1.compare("OutTileDrain")==0)      namelist[j].value.setNum((int)checkBox_OutTiledrain->isChecked());
         if (p1.compare("OutTileVolume")==0)     namelist[j].value.setNum((int)checkBox_OutTileVol->isChecked());
         if (p1.compare("OutTheta")==0)         namelist[j].value.setNum((int)checkBox_OutTheta->isChecked());
+        if (p1.compare("OutGW")==0)         namelist[j].value.setNum((int)checkBox_OutGW->isChecked());
 
         if (p1.compare("OutDet")==0)     namelist[j].value.setNum((int)checkBox_OutDet->isChecked());
         if (p1.compare("OutDep")==0)     namelist[j].value.setNum((int)checkBox_OutDep->isChecked());

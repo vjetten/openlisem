@@ -204,7 +204,6 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include Erosion simulation")==0)        SwitchErosion =          iii == 1;
         if (p1.compare("Include main channels")==0)             SwitchIncludeChannel =   iii == 1;
         if (p1.compare("Include channel infil")==0)             SwitchChannelInfil     = iii == 1;
-     //   if (p1.compare("Include channel baseflow")==0)          SwitchChannelBaseflow  = iii == 1;
         if (p1.compare("Include stationary baseflow")==0)       SwitchChannelBaseflowStationary  = iii == 1;
         if (p1.compare("Adjust channel crosssection")==0)       SwitchChannelAdjustCHW  = iii == 1;
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
@@ -212,10 +211,10 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include water height inflow")==0)       SwitchWaveUser  = iii == 1;
         if (p1.compare("Include GW flow")==0)                   SwitchGWflow  = iii == 1;
         if (p1.compare("GW flow explicit")==0)                  SwitchGW2Dflow  = iii == 1;
+        if (p1.compare("GW flow SWOF")==0)                      SwitchGWSWOFflow  = iii == 1;
         if (p1.compare("GW flow LDD")==0)                       SwitchLDDGWflow  = iii == 1;
         if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
 
-      //  if (p1.compare("Variable Timestep")==0)                 SwitchVariableTimestep = iii == 1;
         if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
         if (p1.compare("Use Channel Kinwave dt")==0)            SwitchChannelKinwaveDt = iii == 1;
         if (p1.compare("Use Channel Max GV")==0)                SwitchChannelMaxV = iii == 1;
@@ -223,13 +222,11 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Correct DEM")==0)                       SwitchCorrectDEM = iii == 1;
         if (p1.compare("Use 2D Diagonal flow")==0)              Switch2DDiagonalFlow = iii == 1;
         if (p1.compare("Use 2D Diagonal flow new")==0)          Switch2DDiagonalFlowNew = iii == 1;
-  //      if (p1.compare("Use SWOF watersheds")==0)               SwitchSWOFWatersheds = iii == 1;
         if (p1.compare("Flow Boundary 2D")==0)                  FlowBoundaryType = iii;
         if (p1.compare("Advanced Options")==0)                  SwitchAdvancedOptions = iii == 1;
 
         if (p1.compare("Detachment efficiency")==0)             SwitchEfficiencyDET = iii;
         if (p1.compare("Detachment efficiency channel")==0)     SwitchEfficiencyDETCH = iii;
-        //if (p1.compare("Direct efficiency channel")==0)     SwitchEfficiencyDETCH = iii;
         if (p1.compare("Splash equation")==0)                   SwitchSplashEQ = iii;
         if (p1.compare("SettlingVelocity")==0)                  SwitchSV = iii-1;
         if (p1.compare("Use material depth")==0)                SwitchUseMaterialDepth  = iii == 1;
@@ -237,12 +234,6 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use 2 phase flow")==0)                  SwitchUse2Phase = iii;
         if (p1.compare("Include River diffusion")==0)           SwitchIncludeRiverDiffusion = iii == 1;
         if (p1.compare("Include diffusion")==0)                 SwitchIncludeDiffusion = iii == 1;
-
-//        if (p1.compare("Use grain size distribution")==0)       SwitchMulticlass = iii == 1;
-//        if (p1.compare("Estimate grain size distribution")==0)  SwitchEstimateGrainSizeDistribution = iii == 1;
-//        if (p1.compare("Read grain distribution maps")==0)      SwitchReadGrainSizeDistribution    = iii == 1;
-        //   if (p1.compare("Number of grain size classes (simulated)")==0)  numgrainclasses    = iii ;
-        //   if (p1.compare("Grain size class maps")==0)     GrainMaps  = p;
 
         if (p1.compare("Flood initial level map")==0)           SwitchFloodInitial     = iii == 1;
         if (p1.compare("Include house storage")==0)             SwitchHouses =   iii == 1;
@@ -324,6 +315,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OutTileDrain")==0)      SwitchOutTiledrain = iii == 1;
         if (p1.compare("OutTileVolume")==0)     SwitchOutTileVol = iii == 1;
         if (p1.compare("OutTheta")==0)          SwitchOutTheta= iii == 1;
+        if (p1.compare("OutGW")==0)             SwitchOutGW= iii == 1;
+
         if (p1.compare("OutDet")==0)            SwitchOutDet = iii == 1;
         if (p1.compare("OutDep")==0)            SwitchOutDep = iii == 1;
         if (p1.compare("OutTC")==0)             SwitchOutTC = iii == 1;
@@ -602,7 +595,7 @@ void TWorld::ParseRunfileData(void)
     OutSed  = "sed";
     OutSedSS  = "sedSS";
     OutSedBL  = "sedBL";
-
+    OutGW = "GWH";
 }
 //------------------------------------------------------------------------------
 void TWorld::GetRunFile(void)
