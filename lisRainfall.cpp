@@ -175,7 +175,7 @@ void TWorld::GetRainfallData(QString name)
     double time = 0.0;
     bool oldformat = true;
 
-    if (!fi.exists())
+    if (!fi.exists() || !fi.isFile())
     {
         ErrorString = "Rainfall file not found: " + name;
         throw 1;

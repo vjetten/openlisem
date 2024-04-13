@@ -529,11 +529,58 @@ void TWorld::MassBalance()
     // Mass Balance water, all in m3
     double waterin = RainTot + WHinitVolTot + BaseFlowTot + BaseFlowInit + QuserInTot;// - QSideVolTot;
                      // rainfall + initial WH on surface if present, + baseflow and init baseflow + user defined inflow in channel + sideinflow through soil
-    double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot + IntercETaTot + WaterVolTot + ChannelVolTot + StormDrainVolTot;
+    double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot;
                      // all interception + ETa + water on surface + water in channel + water in subsurface drains
-    double waterout = Qtot;// + floodBoundaryTot + ETaTotVol;
-    MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin *100 : 0;
+    double waterout = Qtot + IntercETaTot;// + floodBoundaryTot + ETaTotVol;
+    MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
 
+    FOR_ROW_COL_MV_L {
+        MBm->Drc = (waterin - waterout - waterstore)/nrCells/CHAdjDX->Drc;
+        //added to WH in next timestep in infiltration
+    }}
+    //qDebug() << "o " << MB;
+
+    if (SwitchCorrectMB_WH && fabs(MB) > 1e-6) {
+        // correct WH
+        FOR_ROW_COL_MV_L {
+            tma->Drc = 0;
+            if (WHrunoff->Drc > 0)
+                tma->Drc = 1;
+        }}
+        double tot = MapTotal(*tma);
+        double dV = 0.99*(waterin - waterout - waterstore)/tot;
+        FOR_ROW_COL_MV_L {
+            double dH = dV/(CHAdjDX->Drc);
+            if (WHrunoff->Drc+dH > 0) WHrunoff->Drc += dH;
+            WHrunoff->Drc = std::max(0.0,WHrunoff->Drc);
+            WHroad->Drc = WHrunoff->Drc;
+            WH->Drc = WHrunoff->Drc + WHstore->Drc;
+
+            WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
+        }}
+        WaterVolTot = MapTotal(*WaterVolall);
+        waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot;
+
+        // channel correction => can be tricky?
+        // if (SwitchIncludeChannel) {
+        //     FOR_ROW_COL_MV_L {
+        //         tma->Drc = 0;
+        //         if (ChannelWH->Drc > 0)
+        //             tma->Drc = 1;
+        //     }}
+        //     tot = MapTotal(*tma);
+        //     dV = (waterin - waterout - waterstore)/tot;
+        //     FOR_ROW_COL_MV_CHL {
+        //         double dH = dV/(ChannelWidth->Drc*DX->Drc);
+        //         if (ChannelWH->Drc+dH > 0) ChannelWH->Drc += dH;
+        //         ChannelWaterVol->Drc = (ChannelWidth->Drc*ChannelDX->Drc)*ChannelWH->Drc;
+        //     }}
+        //     ChannelVolTot = MapTotal(*ChannelWaterVol);
+        //     waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot;
+        // }
+        MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
+    }
+   // qDebug() << MB;
     // Mass Balance sediment, all in kg
     if (SwitchErosion)
     {

@@ -1445,6 +1445,7 @@ void lisemqt::resetTabAdvanced()
     E_courantFactorSed->setValue(0.2);
     //checkVariableTimestep->setChecked(false);
     checkTimeavgV->setChecked(true);
+    checkMB_WH->setChecked(false);
     checkLinkedList->setChecked(false);
     //checkErosionInsideLoop->setChecked(true);
     checkKinWaveChannel->setChecked(false);

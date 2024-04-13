@@ -31,6 +31,7 @@ cTMap
 
 //*_MASK,
 *DEM,                        //!< DEM [m]
+*MBm,
 //*DEMdz,                        //!< DEM [m]
 *Shade,                      //!< Shaded relief for display [0-1]
 *ShadeBW,                      //!< Shaded relief for display [0-1]

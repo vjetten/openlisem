@@ -384,12 +384,13 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(iii);
         if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(iii);
         if (p1.compare("Use time avg V")==0)                 checkTimeavgV->setChecked(check);
+        if (p1.compare("Correct MB with WH")==0)             checkMB_WH->setChecked(check);
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(iii);
         if (p1.compare("Min WH flow")==0)                    E_minWHflow->setText(p);
         if (p1.compare("Use Channel Kinwave dt")==0)         checkKinWaveChannel->setChecked(check);
         if (p1.compare("Channel KinWave dt")==0)             E_ChannelKinWaveDt->setValue(valc);
         if (p1.compare("Use Channel Max V")==0)         checkChanMaxVelocity->setChecked(check);
-        if (p1.compare("Channel Max V")==0)             E_chanMaxVelocity->setValue(valc);
+        if (p1.compare("Channel Max V")  ==0)             E_chanMaxVelocity->setValue(valc);
         if (p1.compare("Channel 2D flow connect")==0)        checkChannel2DflowConnect->setChecked(check);
         if (p1.compare("Channel WF inflow")==0)        checkChannelWFinflow->setChecked(check);
         if (p1.compare("SoilWB nodes 1")==0) spinNodes1->setValue(iii);
@@ -874,6 +875,7 @@ void lisemqt::updateModelData()
 
         if (p1.compare("Timestep flood")==0)                 namelist[j].value = E_TimestepMinFlood->text();
         if (p1.compare("Use time avg V")==0)                 namelist[j].value.setNum((int) checkTimeavgV->isChecked());
+        if (p1.compare("Correct MB with WH")==0)             namelist[j].value.setNum((int) checkMB_WH->isChecked());
         if (p1.compare("Correct DEM")==0)                    namelist[j].value.setNum((int) checkCorrectDem->isChecked());
         if (p1.compare("Use 2D Diagonal flow")==0)           namelist[j].value.setNum((int) check2DDiagonalFlow->isChecked());
         if (p1.compare("Use 2D Diagonal flow new")==0)       namelist[j].value.setNum((int) check2DDiagonalFlowNew->isChecked());

@@ -216,6 +216,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
 
         if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
+        if (p1.compare("Correct MB with WH")==0)                SwitchCorrectMB_WH = iii == 1;
         if (p1.compare("Use Channel Kinwave dt")==0)            SwitchChannelKinwaveDt = iii == 1;
         if (p1.compare("Use Channel Max GV")==0)                SwitchChannelMaxV = iii == 1;
 

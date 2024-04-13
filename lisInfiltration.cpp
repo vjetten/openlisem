@@ -198,9 +198,11 @@ void TWorld::cell_InfilMethods(int r, int c)
     }
     // select the appropriate domain water height for overpressure
 
+    fwh += MBm->Drc;
+    fwh = std::max(0.0,fwh);
+
     // only do infiltration on permeable soils
     if (SoilWidthDX->Drc > 0 && fwh > 0) {
-
         //calculate potential infiltration rate fpot
         if (SwitchTwoLayer || SwitchThreeLayer) {
             SoilDep2 = SoilDepth2->Drc;
@@ -245,6 +247,8 @@ void TWorld::cell_InfilMethods(int r, int c)
                     fact_ = IncreaseInfiltrationDepthNew1(fact_, r, c);
         }
         // adjust fact and increase Lw, for twolayer, impermeable etc
+
+
 
         if (fwh < fact_)
         {

@@ -500,6 +500,7 @@ public:
         // advanced
         SwitchAdvancedOptions,
         SwitchTimeavgV,
+        SwitchCorrectMB_WH,
         SwitchCorrectDEM,
         Switch2DDiagonalFlow,
         Switch2DDiagonalFlowNew,
