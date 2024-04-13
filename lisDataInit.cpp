@@ -1087,7 +1087,7 @@ void TWorld::InitChannel(void)
 
         Average3x3(*tm, *LDD, false);
         FOR_ROW_COL_MV_L {
-            GWN->Drc = 0.1+pow(tm->Drc,2.0/3.0)*qSqrt(0.1)/(Ksat2->Drc/_dt);
+            GWN->Drc = 0.1+pow(tm->Drc,2.0/3.0)*qSqrt(0.1)/(Ksat2->Drc/3600000/_dt);
         }}
 
         Average3x3(*GWN, *LDD, false);

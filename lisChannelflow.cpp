@@ -173,10 +173,12 @@ void TWorld::ChannelBaseflow(void)
             } else {
                 double bedrock = DEM->Drc - SD->Drc;
                 double chanbot = DEM->Drc - ChannelDepth->Drc;
+                bedrock=chanbot;
                 double dH = bedrock + GWWH->Drc - chanbot;
                 if (dH > 0 && GWWH->Drc > 0) {
                    //Qbase->Drc = std::min(GWVol->Drc, 2.0 * dH/GWWH->Drc * GWout->Drc);
-                   Qbase->Drc = std::min(GWVol->Drc, 2.0 * GWout->Drc);
+                   //Qbase->Drc = std::min(GWVol->Drc, 2.0 * GWout->Drc);
+                   Qbase->Drc = GWout->Drc;
                    // use the fraction of GWout flow that reaches the channel
                 }
 
@@ -202,7 +204,7 @@ void TWorld::ChannelBaseflow(void)
             // But that would make channeldepth very sensitive
 
         }}
-
+report(*Qbase,"qb");
     }
 }
 //---------------------------------------------------------------------------
@@ -248,6 +250,7 @@ void TWorld::ChannelRainandInfil(void)
         }}
     }
 
+/*
     if (SwitchChannelWFinflow) {
         if (SwitchTwoLayer) {
             #pragma omp parallel for num_threads(userCores)
@@ -259,8 +262,9 @@ void TWorld::ChannelRainandInfil(void)
             FOR_ROW_COL_MV_CHL {
                 cell_Channelinfow1(r, c);
             }}
-        }
+        }        
     }
+*/
 }
 //---------------------------------------------------------------------------
 //! calc channelflow, ChannelDepth, kin wave

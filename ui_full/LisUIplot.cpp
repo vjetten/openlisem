@@ -543,10 +543,10 @@ void lisemqt::showOutputData()
         label_99->setText("Storm drains");
         label_stormdraintot->setText(format.arg(QString::number(op.StormDrainTotmm,'f',dig)));
     } else
-    if (checkChannelBaseflow->isChecked()) {
-        label_99->setText("Chan. inflow");
-        label_stormdraintot->setText(format.arg(QString::number(op.BaseFlowTotmm,'f',dig)));
-    }
+        if (checkChannelBaseflow->isChecked()) {
+            label_99->setText("Added Baseflow");
+            label_stormdraintot->setText(format.arg(QString::number(op.BaseFlowTotmm,'f',dig)));
+        }
 
     label_qtot->setText(format.arg(QString::number(op.Qtotmm,'f',dig)));
     label_infiltot->setText(format.arg(QString::number(op.InfilTotmm,'f',dig)));

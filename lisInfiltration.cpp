@@ -49,7 +49,7 @@ void TWorld::InfilEffectiveKsat(bool first)
     if (first) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            Ksat1->Drc *= _dt/3600000.0;
+            Ksat1->Drc *= _dt/3600000.0; // mm/h to m
             if (SwitchTwoLayer)
                 Ksat2->Drc *= _dt/3600000.0;
             if (SwitchInfilCrust)

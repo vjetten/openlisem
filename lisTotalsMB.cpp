@@ -240,16 +240,16 @@ void TWorld::TotalsFlow(void)
 
         // recalc in mm for screen output
         // NOT USED
-        if (SwitchChannelWFinflow) {
-            QSideVolTot += MapTotal(*ChannelQSide);
-                //use baseflow for channel side inflow so that it is reported
-                double tot = 0;
-                FOR_ROW_COL_MV_CHL {
-                    tot += ChannelQSide->Drc; // total inflow in m3
-                }}
+        // if (SwitchChannelWFinflow) {
+        //     QSideVolTot += MapTotal(*ChannelQSide);
+        //         //use baseflow for channel side inflow so that it is reported
+        //         double tot = 0;
+        //         FOR_ROW_COL_MV_CHL {
+        //             tot += ChannelQSide->Drc; // total inflow in m3
+        //         }}
 
-           BaseFlowTot += tot;
-        }
+        //    BaseFlowTot += tot;
+        // }
 
         BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
         BaseFlowInitmm = BaseFlowInit*catchmentAreaFlatMM;
