@@ -178,7 +178,7 @@ void TWorld::ChannelBaseflow(void)
                 if (dH > 0 && GWWH->Drc > 0) {
                    //Qbase->Drc = std::min(GWVol->Drc, 2.0 * dH/GWWH->Drc * GWout->Drc);
                 //   Qbase->Drc = std::min(GWVol->Drc, 2.0 * fabs(GWout->Drc));
-                   Qbase->Drc = 2*GWout->Drc;
+                   Qbase->Drc = 20*GWout->Drc;
                    // use the fraction of GWout flow that reaches the channel
                 }
 

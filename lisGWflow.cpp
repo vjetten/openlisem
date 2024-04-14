@@ -94,8 +94,10 @@ void TWorld::GroundwaterFlow(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             GWout->Drc = sqrt(GWU->Drc*GWU->Drc + GWV->Drc*GWV->Drc) * _dx * GWWH->Drc * _dt;
-            GWVol->Drc = GWWH->Drc*pore->Drc*CHAdjDX->Drc;            
+            GWVol->Drc = GWWH->Drc*pore->Drc*CHAdjDX->Drc;
+            tma->Drc = sqrt(GWU->Drc*GWU->Drc + GWV->Drc*GWV->Drc)*1000*3600/_dt;
         }}
+        report(*tma,"gwv");
     }
 
     if (SwitchLDDGWflow)
@@ -445,7 +447,7 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 double dy = _dx;
 
                 double H = hs->Drc;
-                double n = GWN->Drc; //N->Drc; //////
+                double n = GWN->Drc;
                 double Z = z->Drc;
                 double Vx = GW_flow*u->Drc;
                 double Vy = GW_flow*v->Drc;
@@ -479,6 +481,18 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 double dz_x2 = (z_x2 - Z);
                 double dz_y1 = (Z - z_y1);
                 double dz_y2 = (z_y2 - Z);
+
+                 vx_x1 = std::min(Ks,fabs(vx_x1))*(vx_x1 < 0 ? -1.0 : 1.0);
+                 vx_x2 = std::min(Ks,fabs(vx_x2))*(vx_x2 < 0 ? -1.0 : 1.0);
+                 vx_y1 = std::min(Ks,fabs(vx_y1))*(vx_y1 < 0 ? -1.0 : 1.0);
+                 vx_y2 = std::min(Ks,fabs(vx_y2))*(vx_y2 < 0 ? -1.0 : 1.0);
+                 vy_x1 = std::min(Ks,fabs(vy_x1))*(vy_x1 < 0 ? -1.0 : 1.0);
+                 vy_x2 = std::min(Ks,fabs(vy_x2))*(vy_x2 < 0 ? -1.0 : 1.0);
+                 vy_y1 = std::min(Ks,fabs(vy_y1))*(vy_y1 < 0 ? -1.0 : 1.0);
+                 vy_y2 = std::min(Ks,fabs(vy_y2))*(vy_y2 < 0 ? -1.0 : 1.0);
+                 Vx = std::min(Ks,fabs(Vx))*(Vx < 0 ? -1.0 : 1.0);
+                 Vy = std::min(Ks,fabs(Vy))*(Vy < 0 ? -1.0 : 1.0);
+
 
                 // z is blocking to prevent flow when water is flat and Z is not flat, described in article SWOF
                 double h_x1r = std::max(0.0, h_x1 - std::max(0.0,  dz_x1));
@@ -534,6 +548,8 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         double gflow_y = GRAV*0.5*( (H_u-H)*(H_u+H)+(H-H_d)*(H+H_d));
                         // graviy term: gh
 
+                        //double qxn = H * Vx - tx*(gflow_x);
+                        //double qyn = H * Vy - ty*(gflow_y);
                         double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
                         double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
 
@@ -573,6 +589,7 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     }
                     if (vyn == 0 && vxn == 0)
                         hn = H;
+
                     vxn = std::min(Ks,fabs(vxn))*(vxn < 0 ? -1.0 : 1.0);
                     vyn = std::min(Ks,fabs(vyn))*(vyn < 0 ? -1.0 : 1.0);
 
