@@ -177,20 +177,11 @@ void TWorld::ChannelBaseflow(void)
                 double dH = bedrock + GWWH->Drc - chanbot;
                 if (dH > 0 && GWWH->Drc > 0) {
                    //Qbase->Drc = std::min(GWVol->Drc, 2.0 * dH/GWWH->Drc * GWout->Drc);
-                   //Qbase->Drc = std::min(GWVol->Drc, 2.0 * GWout->Drc);
-                   Qbase->Drc = GWout->Drc;
+                //   Qbase->Drc = std::min(GWVol->Drc, 2.0 * fabs(GWout->Drc));
+                   Qbase->Drc = 2*GWout->Drc;
                    // use the fraction of GWout flow that reaches the channel
                 }
 
-                //double dH = GWWH->Drc;//std::max(0.0, GWWH->Drc - ChannelWH->Drc);
-                //double GWchan1 = 2.0*GW_flow * ksat->Drc * dH * DX->Drc*dH/(0.5*_dx); //gradient= dH/dz ?
-                // Ksat * crosssection * gradient = dH/dL where dL is half the distance of the non channel part to
-                // and flow is from 2 sides into the channel, a small channel has less inflow than a broad channel (ChannelAdj)
-
-                // double GWchan = std::max(GWchan1, (2.0*ChannelWidth->Drc/_dx)*fabs(GWout->Drc));
-                // for all methods GWout is the flow between cells and also in the channel cells, this is taken as the best guess flow into the channel
-
-                //Qbase->Drc = std::min(GWVol->Drc, GWchan1); //this is already done, just use the flow
             }
            // Qbase->Drc *= 2.0;
 
@@ -205,6 +196,7 @@ void TWorld::ChannelBaseflow(void)
 
         }}
 report(*Qbase,"qb");
+report(*GWout,"gwout");
     }
 }
 //---------------------------------------------------------------------------

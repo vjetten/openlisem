@@ -202,23 +202,23 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             FOR_ROW_COL_MV_L {
                 hs->Drc = h->Drc;
                 FloodDT->Drc = dt_max;
-                FloodT->Drc = 0;
-                flowmask->Drc = 0;
+                //FloodT->Drc = 0;
+                tmd->Drc = 0;
             }}
 
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (hs->Drc > F_minWH) {
-                    flowmask->Drc = 1;
-                    if (c > 0 && !MV(r,c-1)        ) flowmask->data[r][c-1] = 1;
-                    if (c < _nrCols-1 && !MV(r,c+1)) flowmask->data[r][c+1] = 1;
-                    if (r > 0 && !MV(r-1,c)        ) flowmask->data[r-1][c] = 1;
-                    if (r < _nrRows-1 && !MV(r+1,c)) flowmask->data[r+1][c] = 1;
+                    tmd->Drc = 1;
+                    if (c > 0 && !MV(r,c-1)        ) tmd->data[r][c-1] = 1;
+                    if (c < _nrCols-1 && !MV(r,c+1)) tmd->data[r][c+1] = 1;
+                    if (r > 0 && !MV(r-1,c)        ) tmd->data[r-1][c] = 1;
+                    if (r < _nrRows-1 && !MV(r+1,c)) tmd->data[r+1][c] = 1;
 
-                    if (c > 0 && r > 0 && !MV(r-1,c-1)                ) flowmask->data[r-1][c-1]=1;
-                    if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) flowmask->data[r+1][c+1]=1;
-                    if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) flowmask->data[r-1][c+1]=1;
-                    if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) flowmask->data[r+1][c-1]=1;
+                    if (c > 0 && r > 0 && !MV(r-1,c-1)                ) tmd->data[r-1][c-1]=1;
+                    if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) tmd->data[r+1][c+1]=1;
+                    if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) tmd->data[r-1][c+1]=1;
+                    if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) tmd->data[r+1][c-1]=1;
                 }
             }}
 
@@ -226,12 +226,12 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
 
-                if (flowmask->Drc > 0) {
+                if (tmd->Drc > 0) {
                         //double dt = FloodDT->Drc; //dt_req_min;
                     double dt = dt_req_min;
                     double vxn, vyn;
 
-                    FloodT->Drc += FloodDT->Drc;
+                    //FloodT->Drc += FloodDT->Drc;
 
                     vec4 hll_x1;
                     vec4 hll_x2;
@@ -463,7 +463,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         v->Drc = vyn;
 
                     } // step > 0
-                } // flowmask > 0, active cells + 1
+                } // tmd > 0, active cells + 1
             }}
 
             // find smallest domain dt

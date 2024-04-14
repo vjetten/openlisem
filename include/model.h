@@ -1215,6 +1215,7 @@ public:
 
 
     void Fill(cTMap &M, double value);
+    void Copy(cTMap &M, cTMap &M1);
     double MapTotal(cTMap &M);
     void Average3x3(cTMap &M, cTMap &mask, bool only);
     void Average2x2(cTMap &M, cTMap &mask);

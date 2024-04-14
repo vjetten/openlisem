@@ -1034,7 +1034,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Advanced Options")==0) namelist[j].value.setNum((int)checkAdvancedOptions->isChecked());
 
         if (p1.compare("mpegexe Directory")==0) {
-            qDebug() << "out" << mencoderDir;
+            //qDebug() << "out" << mencoderDir;
             namelist[j].value = mencoderDir;
         }
 

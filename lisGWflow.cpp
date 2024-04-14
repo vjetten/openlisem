@@ -74,17 +74,27 @@ void TWorld::GroundwaterFlow(void)
 
     }}
 
+    //flow with pressure differences
     if (SwitchGW2Dflow) {
-        for (int j_ = 0; j_ < 5; j_++)
+        Fill(*tma, 0);
+        for (int j_ = 0; j_ < 5; j_++) {
             GWFlow2D(0.2);
-        // flow with pressure differences
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                tma->Drc += GWout->Drc;
+            }}
+        }
+        Copy(*tma,*GWout);
+
+         //GWFlow2D(1.0);
     }
 
     if (SwitchGWSWOFflow) {
         double er = fullSWOF2GW(GWWH, GWU, GWV, GWz);
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             GWout->Drc = sqrt(GWU->Drc*GWU->Drc + GWV->Drc*GWV->Drc) * _dx * GWWH->Drc * _dt;
-            GWVol->Drc = GWWH->Drc*pore->Drc*CHAdjDX->Drc;
+            GWVol->Drc = GWWH->Drc*pore->Drc*CHAdjDX->Drc;            
         }}
     }
 
@@ -311,6 +321,7 @@ void TWorld::GWFlow2D(double factor)
         // update gwvol with flux
         GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
         // recalc gwwh
+        //GWout->Drc = fabs(GWout->Drc);
     }}
 }
 
@@ -367,7 +378,7 @@ void TWorld::GWFlowSWAT(void)
 double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     double timesum = 0;
-    double dt_max = std::min(_dt, _dx);
+    double dt_max = std::min(_dt, _dx/2);
     int count = 0;
     double sumh = 0;
     bool stop;
@@ -396,24 +407,20 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             hs->Drc = h->Drc;
-            FloodDT->Drc = dt_max;
-            FloodT->Drc = 0;
-            flowmask->Drc = 0;
-        }}
+            tmc->Drc = dt_max;
+            tmd->Drc = 0;
 
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            if (hs->Drc > F_minWH) {
-                flowmask->Drc = 1;
-                if (c > 0 && !MV(r,c-1)        ) flowmask->data[r][c-1] = 1;
-                if (c < _nrCols-1 && !MV(r,c+1)) flowmask->data[r][c+1] = 1;
-                if (r > 0 && !MV(r-1,c)        ) flowmask->data[r-1][c] = 1;
-                if (r < _nrRows-1 && !MV(r+1,c)) flowmask->data[r+1][c] = 1;
+            if (hs->Drc > 0.001) {
+                tmd->Drc = 1;
+                if (c > 0 && !MV(r,c-1)        ) tmd->data[r][c-1] = 1;
+                if (c < _nrCols-1 && !MV(r,c+1)) tmd->data[r][c+1] = 1;
+                if (r > 0 && !MV(r-1,c)        ) tmd->data[r-1][c] = 1;
+                if (r < _nrRows-1 && !MV(r+1,c)) tmd->data[r+1][c] = 1;
 
-                if (c > 0 && r > 0 && !MV(r-1,c-1)                ) flowmask->data[r-1][c-1]=1;
-                if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) flowmask->data[r+1][c+1]=1;
-                if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) flowmask->data[r-1][c+1]=1;
-                if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) flowmask->data[r+1][c-1]=1;
+                if (c > 0 && r > 0 && !MV(r-1,c-1)                ) tmd->data[r-1][c-1]=1;
+                if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) tmd->data[r+1][c+1]=1;
+                if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) tmd->data[r-1][c+1]=1;
+                if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) tmd->data[r+1][c-1]=1;
             }
         }}
 
@@ -421,13 +428,13 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
 
-            if (flowmask->Drc > 0) {
+            if (tmd->Drc > 0) {
                     //double dt = FloodDT->Drc; //dt_req_min;
                 double dt = dt_req_min;
                 double vxn, vyn;
-                double Ks = ksat->Drc/_dt;
+                double Ks = GW_flow*ksat->Drc/_dt;
 
-                FloodT->Drc += FloodDT->Drc;
+                //FloodT->Drc += FloodDT->Drc;
 
                 vec4 hll_x1;
                 vec4 hll_x2;
@@ -440,8 +447,8 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 double H = hs->Drc;
                 double n = GWN->Drc; //N->Drc; //////
                 double Z = z->Drc;
-                double Vx = u->Drc;
-                double Vy = v->Drc;
+                double Vx = GW_flow*u->Drc;
+                double Vy = GW_flow*v->Drc;
 
                 bool bc1 = c > 0 && !MV(r,c-1)        ;
                 bool bc2 = c < _nrCols-1 && !MV(r,c+1);
@@ -458,26 +465,15 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 double h_y1 =  br1 ? hs->data[r-1][c] : H;
                 double h_y2 =  br2 ? hs->data[r+1][c] : H;
 
-                double vx_x1 = bc1 ? u->data[r][c-1] : Vx;
-                double vx_x2 = bc2 ? u->data[r][c+1] : Vx;
-                double vx_y1 = br1 ? u->data[r-1][c] : Vx;
-                double vx_y2 = br2 ? u->data[r+1][c] : Vx;
+                double vx_x1 = bc1 ? GW_flow*u->data[r][c-1] : Vx;
+                double vx_x2 = bc2 ? GW_flow*u->data[r][c+1] : Vx;
+                double vx_y1 = br1 ? GW_flow*u->data[r-1][c] : Vx;
+                double vx_y2 = br2 ? GW_flow*u->data[r+1][c] : Vx;
 
-                double vy_x1 = bc1 ? v->data[r][c-1] : Vy;
-                double vy_x2 = bc2 ? v->data[r][c+1] : Vy;
-                double vy_y1 = br1 ? v->data[r-1][c] : Vy;
-                double vy_y2 = br2 ? v->data[r+1][c] : Vy;
-
-                vx_x1 *= GW_flow;
-                vx_x2 *= GW_flow;
-                vx_y1 *= GW_flow;
-                vx_y2 *= GW_flow;
-                vy_x1 *= GW_flow;
-                vy_x2 *= GW_flow;
-                vy_y1 *= GW_flow;
-                vy_y2 *= GW_flow;
-                Vx *= GW_flow;
-                Vy *= GW_flow;
+                double vy_x1 = bc1 ? GW_flow*v->data[r][c-1] : Vy;
+                double vy_x2 = bc2 ? GW_flow*v->data[r][c+1] : Vy;
+                double vy_y1 = br1 ? GW_flow*v->data[r-1][c] : Vy;
+                double vy_y2 = br2 ? GW_flow*v->data[r+1][c] : Vy;
 
                 double dz_x1 = (Z - z_x1);
                 double dz_x2 = (z_x2 - Z);
@@ -518,7 +514,7 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]); // v[3] is max U and V in x and y
 
                 double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
-                FloodDT->Drc = dt_req; // dt does not need to be a map, left over from earlier code
+                tmc->Drc = dt_req; // dt does not need to be a map, left over from earlier code
                 // if step = 0 do not calculate new fluxes and states yet because the first dt is always dt_max
                 // find a smallest dt of the flow domain first
 
@@ -532,7 +528,7 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     // mass balance, hll_....v[0] is the height
 
                     // momentum balance for cells with water
-                    if(hn > he_ca) {
+                    if(hn > 1e-6) {
                         // SWOF solution, delzc1 = 0 when not MUSCL
                         double gflow_x = GRAV*0.5*( (H_l-H)*(H_l+H)+(H-H_r)*(H+H_r));
                         double gflow_y = GRAV*0.5*( (H_u-H)*(H_u+H)+(H-H_d)*(H+H_d));
@@ -542,14 +538,11 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
 
                         double vsq = sqrt(Vx * Vx + Vy * Vy);
-                        double nsq1 = n*n*GRAV/pow(hn,4.0/3.0); //pow(hn,4.0/3.0);//
+                        double nsq1 = n*n*GRAV/pow(hn,4.0/3.0);//
                         double nsq = nsq1*vsq*dt;
 
                         vxn = (qxn/(1.0+nsq))/hn;
                         vyn = (qyn/(1.0+nsq))/hn;
-                        vxn = std::min(Ks,vxn);
-                        vyn = std::min(Ks,vyn);
-
                     } else { // hn < ha
                         hn = H; // if no fluxes then also no change in h
                         vxn = 0;
@@ -580,19 +573,21 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     }
                     if (vyn == 0 && vxn == 0)
                         hn = H;
+                    vxn = std::min(Ks,fabs(vxn))*(vxn < 0 ? -1.0 : 1.0);
+                    vyn = std::min(Ks,fabs(vyn))*(vyn < 0 ? -1.0 : 1.0);
 
                     h->Drc = hn;
                     u->Drc = vxn;
                     v->Drc = vyn;
 
                 } // step > 0
-            } // flowmask > 0, active cells + 1
+            } // tmd > 0, active cells + 1
         }}
 
         // find smallest domain dt
         #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            dt_req_min = std::min(dt_req_min, FloodDT->Drc);
+            dt_req_min = std::min(dt_req_min, tmc->Drc);
         }}
 
         dt_req_min = std::min(dt_req_min, _dt-timesum);

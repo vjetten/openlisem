@@ -1212,7 +1212,7 @@ void TWorld::InitFlood(void)
     floodVHMax = NewMap(0);//
     floodTime = NewMap(0);//
     FloodDT = NewMap(0);
-    FloodT = NewMap(0);
+    //FloodT = NewMap(0);
 
     iter_n = 0;
 
@@ -2036,7 +2036,7 @@ void TWorld::IntializeData(void)
         report(*WHboundarea,"b.map");
     }
 
-    flowmask = NewMap(0);
+    //flowmask = NewMap(0);
     K2DOutlets = NewMap(0);
     //K2DQ = NewMap(0);
 

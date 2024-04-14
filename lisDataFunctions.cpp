@@ -222,6 +222,14 @@ void TWorld::Fill(cTMap &M, double value)
     }}
 }
 //---------------------------------------------------------------------------
+void TWorld::Copy(cTMap &M, cTMap &M1)
+{
+    #pragma omp parallel num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        M1.Drc = M.Drc;
+    }}
+}
+//---------------------------------------------------------------------------
 double TWorld::MapTotal(cTMap &M)
 {
     double total = 0;

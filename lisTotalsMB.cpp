@@ -534,13 +534,9 @@ void TWorld::MassBalance()
     double waterout = Qtot + IntercETaTot;// + floodBoundaryTot + ETaTotVol;
     MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
 
-    FOR_ROW_COL_MV_L {
-        MBm->Drc = (waterin - waterout - waterstore)/nrCells/CHAdjDX->Drc;
-        //added to WH in next timestep in infiltration
-    }}
-    //qDebug() << "o " << MB;
-
+    Fill(*MBm, 0);
     if (SwitchCorrectMB_WH && fabs(MB) > 1e-6) {
+        //qDebug() << "o " << MB;
         // correct WH
         FOR_ROW_COL_MV_L {
             tma->Drc = 0;
@@ -551,7 +547,8 @@ void TWorld::MassBalance()
         double dV = 0.99*(waterin - waterout - waterstore)/tot;
         FOR_ROW_COL_MV_L {
             double dH = dV/(CHAdjDX->Drc);
-            if (WHrunoff->Drc+dH > 0) WHrunoff->Drc += dH;
+            if (WHrunoff->Drc > 0)
+                WHrunoff->Drc += dH;
             WHrunoff->Drc = std::max(0.0,WHrunoff->Drc);
             WHroad->Drc = WHrunoff->Drc;
             WH->Drc = WHrunoff->Drc + WHstore->Drc;
@@ -560,6 +557,12 @@ void TWorld::MassBalance()
         }}
         WaterVolTot = MapTotal(*WaterVolall);
         waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot;
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            MBm->Drc = (waterin - waterout - waterstore)/nrCells/CellArea->Drc;
+            //average error in m water height, added to WH in next timestep in infiltration
+        }}
 
         // channel correction => can be tricky?
         // if (SwitchIncludeChannel) {
@@ -579,6 +582,7 @@ void TWorld::MassBalance()
         //     waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot;
         // }
         MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
+        //qDebug() << "n " << MB;
     }
    // qDebug() << MB;
     // Mass Balance sediment, all in kg
