@@ -285,11 +285,6 @@ void TWorld::TotalsFlow(void)
     }
 
             //=== storm drain flow ===//
-//    if (SwitchIncludeTile || SwitchIncludeStormDrains) {
-//        StormDrainVolTot = MapTotal(*TileWaterVol);
-//        StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
-//    }
-
     if(SwitchIncludeStormDrains) {
         FOR_ROW_COL_MV_TILE
                 if (LDDTile->Drc == 5)

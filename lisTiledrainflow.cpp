@@ -50,7 +50,8 @@ void TWorld::ToTiledrain()//int thread)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_TILEL {
             if(TileInlet->Drc > 0) {// && WHrunoff->Drc > 1e-6) {
-                double fractiontotile = std::max(1.0, std::min(0.0,TileInlet->Drc/CHAdjDX->Drc)) * RoadWidthDX->Drc/_dx;
+                double fractiontotile = 2 * std::max(1.0, std::min(0.0,TileInlet->Drc/CHAdjDX->Drc)) * RoadWidthDX->Drc/_dx;
+                // 2 is both sides of the street
                 // fraction based on surface, simpel!
                 //Street inlet is assumed to be a hole in the street
 
@@ -165,6 +166,7 @@ void TWorld::CalcMAXDischCircular()
       double Area = rr*rr*PI;
       double Perim = 2*PI*rr;
       double TileV_ = std::pow(0.9*Area/Perim,2.0/3.0) * gradN;
+
       TileMaxQ->Drc = Area*TileV_;
      // TileMaxAlpha->Drc = std::pow(std::pow(Perim, 2.0/3.0)/gradN , 0.6);
       TileMaxAlpha->Drc  = Area/std::pow(TileMaxQ->Drc, 0.6);
@@ -229,7 +231,7 @@ void TWorld::TileFlow(void)
         else
             MaxVol = DX->Drc * TileDiameter->Drc; //rectangular drain, diameter is area in fact
 
-       // TileWaterVol->Drc = std::min(TileWaterVol->Drc, MaxVol);
+        TileWaterVol->Drc = std::min(TileWaterVol->Drc, MaxVol);
         TileQ->Drc = TileQn->Drc;
    }}
 

@@ -2798,25 +2798,33 @@ void TWorld::InitTiledrains(void)
             TileInlet->Drc = std::min(TileInlet->Drc, 0.9*_dx*_dx);
         }
 
-        // dimensions rectangular or circular
         if (SwitchIncludeTile) {
-            TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
             TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
-            TileDrainSoil = NewMap(0);
             cover(*TileDepth, *LDD, -1); //VJ non tile cells flagged by -1 value, needed in swatre init
-            CalcMAXDischCircular();
+            TileDrainSoil = NewMap(0);
         }
 
-        if (!SwitchStormDrainCircular) {
+        // dimensions rectangular or circular
+        if (SwitchIncludeStormDrains && SwitchStormDrainCircular) {
+            TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
+            FOR_ROW_COL_MV_TILE {
+                double area = TileDiameter->Drc*0.25 * PI;
+                area  *= 2;
+                TileDiameter->Drc = area * 4.0/PI;
+            }
+            CalcMAXDischCircular();
+        }
+        if (SwitchIncludeStormDrains && !SwitchStormDrainCircular) {
             //rectangular drainage
             FOR_ROW_COL_MV_TILE {
                 TileDiameter->Drc = TileWidth->Drc*TileHeight->Drc;
+                TileDiameter->Drc *= 2;
             }
             CalcMAXDischRectangular();
         }
     }
-    report(*TileMaxQ,"tilemq.map");
-    report(*TileMaxAlpha,"tilema.map");
+  //  report(*TileMaxQ,"tilemq.map");
+  //  report(*TileMaxAlpha,"tilema.map");
 }
 //---------------------------------------------------------------------------
 // Make a shaded relief map from the DEM for map display
