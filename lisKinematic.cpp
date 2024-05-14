@@ -143,7 +143,7 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
  * @return new water discharge
  *
  */
-double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT, double deltaX)
+double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT, double deltaX, double Qm, double Am)
 {
     /* Using Newton-Raphson Method */
     double  ab_pQ, deltaTX, C;  //auxillary vars
@@ -153,7 +153,8 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     double dfQkx;  //derivative
     const double _epsilon = 1e-12;
     const double beta = 0.6;
-    double q = 0;
+
+    //double q = 0; //sink term, not used
 
 
     /* common terms */
@@ -161,46 +162,55 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     // derivative of diagonal average (space-time)
 
     deltaTX = deltaT/deltaX;
-    C = deltaTX*Qin + alpha*pow(Qold,beta) + deltaT*q;
+    C = deltaTX*Qin + alpha*pow(Qold,beta);// + deltaT*q;
     //dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
-    //C is unit volume of water    
-    // can be negative because of q
+    //C is unit volume of water
+
 
     // if C < 0 than all infiltrates, return 0, if all fluxes 0 then return
-    if (C < 0)
-    {
-        //itercount = -2;
-        return(0);
-    }
+    // since q is no longer used this does not happen
+    if (C < 0) return(0);
 
     // pow function sum flux must be > 0
     if (Qold+Qin > 0)
     {
         ab_pQ = alpha*beta*pow((Qold+Qin)/2.0,beta-1);
         // derivative of diagonal average (space-time), must be > 0 because of pow function
-        Qkx = (deltaTX * Qin + Qold * ab_pQ + deltaT * q) / (deltaTX + ab_pQ);
+        Qkx = (deltaTX*Qin + Qold*ab_pQ /*+ deltaT*q*/) / (deltaTX + ab_pQ);
         // explicit first guess Qkx, VERY important
-        Qkx = std::max(Qkx, 0.0); // deltaT * q can negative ?
+        Qkx = std::max(Qkx, 0.0);
+        if (Qm > 0) {
+            Qkx = std::min(Qkx, Qm);
+            if (Qkx == Qm)
+                alpha = Am;
+        }
+
     }
     else
         Qkx =  0;
 
-    Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);
+    //Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0); // why nan?
     if (Qkx < MIN_FLUX)
         return(0);
-
     // avoid spurious iteration
+
     count = 0;
     do {
         fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   /* Current k */ //m2
         dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  /* Current k */
         Qkx   -= fQkx / dfQkx;                                /* Next k */
 
-        Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);        
+        Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);
+
+        if (Qm > 0) {
+            Qkx = std::min(Qkx, Qm);
+            if (QKx == Qm)
+                alpha = Amax;
+        }
+
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
 
-   // Qkx = std::min(Qkx, Qmax);
 
    // itercount = count;
     return Qkx;
@@ -208,7 +218,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
 
 //---------------------------------------------------------------------------
 /*LDD_COOR *_crlinked_*/
-void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX)
+void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
 {   
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -235,7 +245,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
 
         if (Qin > 0 || _Q->Drc > 0) {
             itercount = 0;
-            _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc);
+            _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _AlphaMax->Drc);
            // tmb->Drc = itercount;
         }
     }
@@ -440,8 +450,7 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
  * @see TWorld::IterateToQnew
  * @see TWorld::LDD
  */
-void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX)
-                       //cTMap *_Qmax)
+void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -462,8 +471,6 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
         int rowNr = list->rowNr;
         int colNr = list->colNr;
 
-        /** put all points that have to be calculated to calculate the current point in the list,
-         before the current point */
         for (i=1; i<=9; i++)
         {
             int r, c;
@@ -527,7 +534,9 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
             QinKW->data[rowNr][colNr] = Qin;
 
             itercount = 0;
-            _Qn->data[rowNr][colNr] = IterateToQnew(QinKW->data[rowNr][colNr], _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);//, QMax );
+            _Qn->data[rowNr][colNr] =
+                    IterateToQnew(QinKW->data[rowNr][colNr], _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr],
+                                  _QMax->data[rowNr][colNr], _AMax->data[rowNr][colNr] );
               /* cell rowN, colNr is now done */
 
             temp=list;

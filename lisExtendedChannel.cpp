@@ -35,7 +35,7 @@ else for (int i = 1; i < n; i++) extendRow(r,c,i,(i == n-1) ? w2 : adx);tma->dat
 #define do_col(r,c, w2, n)   if(n == 1) extendCol(r,c,1,w2);\
 else for (int i = 1; i < n; i++) extendCol(r,c,i,(i == n-1) ? w2 : adx);tma->data[r][c]=3
 
-
+// THESE FUNCTIONS ARE CURRENTLY NOT USED !!!!
 
 /// when channelwidth > _dx distributes excess width over neighbouring cells
 /**

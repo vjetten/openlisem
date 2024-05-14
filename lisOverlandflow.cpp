@@ -338,10 +338,11 @@ void TWorld::OverlandFlow1D(void)
         FOR_ROW_COL_MV_L {
             pcr::setMV(Qn->Drc);
             QinKW->Drc = 0;
+            tma->Drc = -1;
         }}
 
         FOR_ROW_COL_LDD5 {
-            Kinematic(r,c, LDD, Q, Qn,  Alpha, DX);
+            Kinematic(r,c, LDD, Q, Qn,  Alpha, DX, tma);
             // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
         }}
     } else {

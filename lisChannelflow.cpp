@@ -284,9 +284,9 @@ void TWorld::ChannelFlow(void)
         if (SwitchLinkedList) {
 
             ChannelQn->setAllMV();
-
+            Fill(*tma,-1);
             FOR_ROW_COL_LDDCH5 {
-                Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelAlpha, ChannelDX);
+                Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelAlpha, ChannelDX, tma);
             }}
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {

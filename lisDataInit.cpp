@@ -1027,6 +1027,7 @@ void TWorld::InitChannel(void)
 
         ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
         cover(*ChannelMaxQ, *LDD,0);
+        ChannelMaxAlpha = NewMap(0);
 
         for (int i = 0; i < crlinkedlddch_.size(); i++) {
             int c = crlinkedlddch_.at(i).c;
@@ -1038,8 +1039,10 @@ void TWorld::InitChannel(void)
                // ChannelGrad->Drc = 0.001;
             }
         }
-    } else
-        ChannelMaxQ = NewMap(0);
+    } else {
+        ChannelMaxQ = NewMap(-1);
+        ChannelMaxAlpha = NewMap(-1);
+    }
 
 
 
@@ -2724,12 +2727,15 @@ void TWorld::InitTiledrains(void)
         TileWaterVol = NewMap(0);
         RunoffVolinToTile = NewMap(0);
         TileQ = NewMap(0);
+        TileMaxQ = NewMap(0);
         TileQn = NewMap(0);
         Tileq = NewMap(0);
         TileAlpha = NewMap(0);
+        TileMaxAlpha = NewMap(0);
+
+
 
         //TileDX = NewMap(_dx);
-      //  TileMaxQ = NewMap(0);
         // maybe needed later for erosion in tiledrain
         //TileSedTot = 0;
         //TileDepTot = 0;
@@ -2794,6 +2800,7 @@ void TWorld::InitTiledrains(void)
             TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
             TileDrainSoil = NewMap(0);
             cover(*TileDepth, *LDD, -1); //VJ non tile cells flagged by -1 value, needed in swatre init
+            CalcMAXDischCircular();
         }
 
         if (!SwitchStormDrainCircular) {
@@ -2801,6 +2808,7 @@ void TWorld::InitTiledrains(void)
             FOR_ROW_COL_MV_TILE {
                 TileDiameter->Drc = TileWidth->Drc*TileHeight->Drc;
             }
+            CalcMAXDischRectangular();
         }
     }
 

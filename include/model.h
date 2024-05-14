@@ -159,7 +159,7 @@
 #define NRUNITS 512  /// \def max number of landunits or depth classes in flooding
 #define NUMNAMES 512   /// \def NUMNAMES runfile namelist max
 #define NUMMAPS 512    /// \def max nr maps
-#define MIN_FLUX 1e-6 /// \def minimum flux (m3/s) in kinematic wave
+#define MIN_FLUX 1e-6 /// \def minimum flux (m3/s)
 #define MIN_HEIGHT 1e-6 /// \def minimum water height (m) for transport of sediment
 #define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MAXCONCBL 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
@@ -1108,7 +1108,9 @@ public:
     void ToTiledrain();
     void TileFlow(void);
     void CalcVelDischRectangular(void);
+    void CalcMAXDischRectangular(void);
     void CalcVelDischCircular(void);
+    void CalcMAXDischCircular(void);
     void GridCell();
 
     void doExtendRow(int r, int c, int n,  double w2, double adx);
@@ -1146,12 +1148,14 @@ public:
     double getMass(cTMap *M, double th);
     //double getMassWS(int nr_, cTMap *M, double th);
     double getMassSed(cTMap *M, double th);
-    void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX);//, cTMap *_Vol);
-    double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX);
+    void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX, cTMap *_Qmax, cTMap *_Amax);
+    void KinematicExplicit(QVector<LDD_COORIN> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax);
+    double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX, double Qm, double Am);
+
+    void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
+
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
     void upstreamDrain(cTMap *_LDD, cTMap *MaxQ, cTMap *in, cTMap *out);
-    void KinematicExplicit(QVector<LDD_COORIN> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX);//, cTMap *_Qmax);
-    void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
     void AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
     void UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
 
