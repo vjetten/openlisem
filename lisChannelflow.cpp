@@ -99,16 +99,17 @@ void TWorld::ChannelVelocityandDischarge()
         ChannelNcul->Drc  = ChannelN->Drc;
 
         if (SwitchCulverts) {
+            /*
             if (ChannelMaxQ->Drc > 0 ) {
 
-                ChannelNcul->Drc = (0.05+ChannelQ_/MaxQ) * 0.015; //0.015 is assumed to be the N of a concrete tube
+                //ChannelNcul->Drc = (0.05+ChannelQ_/MaxQ) * 0.015; //0.015 is assumed to be the N of a concrete tube
                 //https://plainwater.com/water/circular-pipe-mannings-n/
                 // resistance increases with discharge, tube is getting fuller
 
                 double v2 = std::pow(Radius, 2.0/3.0)*sqrtgrad/ChannelNcul->Drc;
                 //max velocity not to exceed MaxQ, see excel
                 ChannelV_ = std::min(_CHMaxV,std::min(ChannelV_, v2));
-                ChannelNcul->Drc = std::min(ChannelNcul->Drc,ChannelN->Drc);
+                //ChannelNcul->Drc = std::min(ChannelNcul->Drc,ChannelN->Drc);
                 ChannelQ_ = ChannelV_ * Area;
 
                 if (ChannelQ_ > MaxQ){
@@ -117,6 +118,7 @@ void TWorld::ChannelVelocityandDischarge()
                 }
                 ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
             }
+            */
         }
 
         ChannelAlpha->Drc = ChannelAlpha_;
@@ -286,7 +288,7 @@ void TWorld::ChannelFlow(void)
             ChannelQn->setAllMV();
             Fill(*tma,-1);
             FOR_ROW_COL_LDDCH5 {
-                Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelAlpha, ChannelDX, tma);
+                Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelAlpha, ChannelDX, ChannelMaxQ, ChannelMaxAlpha);
             }}
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
@@ -296,7 +298,7 @@ void TWorld::ChannelFlow(void)
 
         } else {
             // default
-            KinematicExplicit(crlinkedlddch_, ChannelQ, ChannelQn, ChannelAlpha, ChannelDX);
+            KinematicExplicit(crlinkedlddch_, ChannelQ, ChannelQn, ChannelAlpha, ChannelDX, ChannelMaxQ, ChannelMaxAlpha);
         }
 
 

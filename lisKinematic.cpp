@@ -204,8 +204,8 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
 
         if (Qm > 0) {
             Qkx = std::min(Qkx, Qm);
-            if (QKx == Qm)
-                alpha = Amax;
+            if (Qkx == Qm)
+                alpha = Am;
         }
 
         count++;
@@ -245,7 +245,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
 
         if (Qin > 0 || _Q->Drc > 0) {
             itercount = 0;
-            _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _AlphaMax->Drc);
+            _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
            // tmb->Drc = itercount;
         }
     }
@@ -536,7 +536,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
             itercount = 0;
             _Qn->data[rowNr][colNr] =
                     IterateToQnew(QinKW->data[rowNr][colNr], _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr],
-                                  _QMax->data[rowNr][colNr], _AMax->data[rowNr][colNr] );
+                                  _Qmax->data[rowNr][colNr], _Amax->data[rowNr][colNr] );
               /* cell rowN, colNr is now done */
 
             temp=list;

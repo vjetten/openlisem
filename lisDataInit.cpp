@@ -1029,6 +1029,12 @@ void TWorld::InitChannel(void)
         cover(*ChannelMaxQ, *LDD,0);
         ChannelMaxAlpha = NewMap(0);
 
+        FOR_ROW_COL_MV_CHL {
+            if (ChannelMaxQ->Drc > 0)
+                ChannelMaxAlpha->Drc = (ChannelWidth->Drc*ChannelDepth->Drc)/std::pow(ChannelMaxQ->Drc, 0.6);
+        }}
+
+        // there can be no side inflow in a culvert (which is actually not true!)
         for (int i = 0; i < crlinkedlddch_.size(); i++) {
             int c = crlinkedlddch_.at(i).c;
             int r = crlinkedlddch_.at(i).r;
@@ -1037,6 +1043,7 @@ void TWorld::InitChannel(void)
                 hoi.ldd *= -1;
                 crlinkedlddch_.replace(i, hoi) ;
                // ChannelGrad->Drc = 0.001;
+
             }
         }
     } else {
@@ -1076,8 +1083,6 @@ void TWorld::InitChannel(void)
         GWout = NewMap(0);
         GWz = NewMap(0);
         GWgrad = NewMap(0);
-
-
 
         FOR_ROW_COL_MV_L {
             //GWz->Drc = DEM->Drc - SoilDepth1->Drc - (SwitchTwoLayer ? SoilDepth2->Drc : 0.0);
@@ -2770,28 +2775,27 @@ void TWorld::InitTiledrains(void)
 
 
         TileDiameter = NewMap(0);
-        TileSinkhole = ReadMap(LDDTile, getvaluename("tilesink"));
+        TileInlet = ReadMap(LDDTile, getvaluename("tilesink"));
         TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
         checkMap(*TileGrad, LARGER, 1.0, "Tile drain gradient must be SINE of slope angle (not tangent)");
         calcValue(*TileGrad, 0.001, MAX);
         TileN = ReadMap(LDDTile, getvaluename("tileman"));
         cover(*TileGrad, *LDD, 0);
         cover(*TileN, *LDD, 0);
-        cover(*TileSinkhole, *LDD, 0);
+        cover(*TileInlet, *LDD, 0);
         TileWaterVolSoil = NewMap(0);
         TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
         TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
         TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
 
         cover(*TileN, *LDD, 0);
-        cover(*TileSinkhole, *LDD, 0);
         cover(*TileGrad, *LDD, 0);
         cover(*TileDiameter, *LDD, 0);
         cover(*TileWidth, *LDD, 0);
         cover(*TileHeight, *LDD, 0);
 
         FOR_ROW_COL_MV_TILE {
-            TileSinkhole->Drc = std::min(TileSinkhole->Drc, 0.9*_dx*_dx);
+            TileInlet->Drc = std::min(TileInlet->Drc, 0.9*_dx*_dx);
         }
 
         // dimensions rectangular or circular
@@ -2811,7 +2815,8 @@ void TWorld::InitTiledrains(void)
             CalcMAXDischRectangular();
         }
     }
-
+    report(*TileMaxQ,"tilemq.map");
+    report(*TileMaxAlpha,"tilema.map");
 }
 //---------------------------------------------------------------------------
 // Make a shaded relief map from the DEM for map display

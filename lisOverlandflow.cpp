@@ -342,11 +342,11 @@ void TWorld::OverlandFlow1D(void)
         }}
 
         FOR_ROW_COL_LDD5 {
-            Kinematic(r,c, LDD, Q, Qn,  Alpha, DX, tma);
+            Kinematic(r,c, LDD, Q, Qn,  Alpha, DX, tma, tma);
             // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
         }}
     } else {
-        KinematicExplicit(crlinkedldd_, Q, Qn, Alpha,DX);
+        KinematicExplicit(crlinkedldd_, Q, Qn, Alpha,DX, tma, tma);
     }
 
     //convert calculate Qn back to WH and volume for next loop

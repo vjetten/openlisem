@@ -454,7 +454,7 @@ cTMap
 *TileWidth,                  //!< total width of drains in cell (m)
 *TileHeight,                 //!< height of drain (m)
 *TileDepth,                  //!< depth of tiles in soil below surface (m)
-*TileSinkhole,               //!< sinkhole on surface connecting to tiledrains (m2)
+*TileInlet,               //!< sinkhole on surface connecting to tiledrains (m2)
 *TileQ,                      //!< water flux in drains m3/s
 *TileMaxQ,                      //!< water flux in drains m3/s
 *TileQn,                     //!< new water flux in drains m3/s
@@ -469,7 +469,7 @@ cTMap
 *Tileq,                      //!< possible drainage inside tiles, not used
 *RunoffVolinToTile,          //!< can be used for shortcut of surface pits to tile system
 *TileAlpha,                  //!< alpha in tile drain, in A = alpha*Q^beta
-*TileMaxAplha,                      //!< water flux in drains m3/s
+*TileMaxAlpha,                      //!< water flux in drains m3/s
 //*TileDX,                     //!< cell length in tile drain, dx/cos angle
 //*TileV,                      //!< velocity in tile drain m/s
 //*TileQmax,                   //!< max Q tile drain m3/s

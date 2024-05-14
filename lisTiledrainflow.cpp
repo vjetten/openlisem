@@ -49,8 +49,8 @@ void TWorld::ToTiledrain()//int thread)
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_TILEL {
-            if(TileSinkhole->Drc > 0) {// && WHrunoff->Drc > 1e-6) {
-                double fractiontotile = std::max(1.0, std::min(0.0,TileSinkhole->Drc/CHAdjDX->Drc));
+            if(TileInlet->Drc > 0) {// && WHrunoff->Drc > 1e-6) {
+                double fractiontotile = std::max(1.0, std::min(0.0,TileInlet->Drc/CHAdjDX->Drc)) * RoadWidthDX->Drc/_dx;
                 // fraction based on surface, simpel!
                 //Street inlet is assumed to be a hole in the street
 
@@ -60,11 +60,11 @@ void TWorld::ToTiledrain()//int thread)
                 else
                     MaxVol = DX->Drc*TileWidth->Drc*TileHeight->Drc;
 
-//                if (TileWaterVol->Drc >= MaxVol)
-//                    fractiontotile = 0;
-//                else {
+                if (TileWaterVol->Drc >= MaxVol)
+                    fractiontotile = 0;
+                else {
                     double vol = fractiontotile*WaterVolall->Drc;//std::max(0.0,(WaterVolall->Drc-MicroStoreVol->Drc));
-                  //  vol = std::min(vol, MaxVol - TileWaterVol->Drc);
+                    //  vol = std::min(vol, MaxVol - TileWaterVol->Drc);
                     double dh = vol/CHAdjDX->Drc;
                     RunoffVolinToTile->Drc = vol;
                     // adjust water height
@@ -72,7 +72,7 @@ void TWorld::ToTiledrain()//int thread)
                     WHroad->Drc -= dh;
                     WH->Drc -= dh;
                     WaterVolall->Drc -= vol;
-//                }
+                }
             }
         }}
     }
@@ -154,7 +154,7 @@ void TWorld::CalcVelDischCircular()
    }}
 }
 
-void TWorld::CalcMaxDischCircular()
+void TWorld::CalcMAXDischCircular()
 {
    #pragma omp parallel for num_threads(userCores)
    FOR_ROW_COL_MV_TILEL {
@@ -164,7 +164,7 @@ void TWorld::CalcMaxDischCircular()
 
       double Area = rr*rr*PI;
       double Perim = 2*PI*rr;
-      double TileV_ = std::pow(Area/Perim,2.0/3.0) * gradN;
+      double TileV_ = std::pow(0.9*Area/Perim,2.0/3.0) * gradN;
       TileMaxQ->Drc = Area*TileV_;
      // TileMaxAlpha->Drc = std::pow(std::pow(Perim, 2.0/3.0)/gradN , 0.6);
       TileMaxAlpha->Drc  = Area/std::pow(TileMaxQ->Drc, 0.6);
@@ -212,9 +212,9 @@ void TWorld::TileFlow(void)
    // flag all new flux as missing value, needed in kin wave and replaced by new flux
    FOR_ROW_COL_MV_TILE {
       if (LDDTile->Drc == 5)
-            Kinematic(r,c, LDDTile, TileQ, TileQn, TileAlpha, DX, TileMaxQ);
+            Kinematic(r,c, LDDTile, TileQ, TileQn, TileAlpha, DX, TileMaxQ, TileMaxAlpha);
    }
-//   KinematicExplicit(crlinkedlddtile_, TileQ, TileQn, TileAlpha, DX);
+//   KinematicExplicit(crlinkedlddtile_, TileQ, TileQn, TileAlpha, DX, TileMaxQ, TileMaxAlpha);
 
    cover(*TileQn, *LDD, 0); // avoid missing values around Tile for adding to Qn for output
 
