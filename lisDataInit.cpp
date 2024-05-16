@@ -205,6 +205,12 @@ void TWorld::InitStandardInput(void)
     // LDD is also mask and reference file, everthing has to fit LDD
     // channels use channel LDD as mask
 
+    FOR_ROW_COL_MV {
+        if (LDD->Drc == 0)
+            SET_MV_REAL8(&LDD->Drc);
+    }
+
+
     tm = NewMap(0); // temp map for aux calculations
     tma = NewMap(0); // temp map for aux calculations
     tmb = NewMap(0); // temp map for aux calculations
@@ -930,6 +936,11 @@ void TWorld::InitChannel(void)
     //## channel maps
     LDDChannel = InitMaskChannel(getvaluename("lddchan"));
     // LDDChannel is the mask for channels
+
+    FOR_ROW_COL_MV_CH {
+        if (LDDChannel->Drc == 0)
+            SET_MV_REAL8(&LDDChannel->Drc);
+    }
 
     nrValidCellsCH = 0;
     FOR_ROW_COL_MV_CH {
@@ -2759,6 +2770,10 @@ void TWorld::InitTiledrains(void)
 
         LDDTile = InitMaskTiledrain(getvaluename("lddtile"));
         // must be first LDDTile is the mask for tile drains
+        FOR_ROW_COL_MV_TILE {
+            if (LDDTile->Drc == 0)
+                SET_MV_REAL8(&LDDTile->Drc);
+        }
 
 
         nrValidCellsTile = 0;

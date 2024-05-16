@@ -45,8 +45,7 @@ functions: \n
 //    ( ldd != 0 && ldd != 5 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 
-#define MAX_ITERS 50
-
+#define MAX_ITERS 12
 /*
   local drain direction maps have values for directions as follows:
     7  8  9
@@ -204,8 +203,10 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
 
         if (Qm > 0) {
             Qkx = std::min(Qkx, Qm);
-            if (Qkx == Qm)
+            if (Qkx == Qm) {
                 alpha = Am;
+                count = MAX_ITERS+1;
+            }
         }
 
         count++;

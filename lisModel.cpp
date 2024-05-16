@@ -299,12 +299,12 @@ void TWorld::DoModel()
             InfilEffectiveKsat(false);
 
             HydrologyProcesses();  // hydrological processes in one loop, incl splash
-
+            qDebug()<<"OF";
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
-
+qDebug()<<"channel";
             // these are all non-threaded
             ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
-
+qDebug()<<"tile";
             TileFlow();          // tile drain flow kin wave
                                  // storm drain flow kin wave
             //StormDrainFlow();
