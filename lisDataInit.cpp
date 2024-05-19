@@ -1175,10 +1175,8 @@ void TWorld::InitChannel(void)
         DirectEfficiency = getvaluedouble("Direct efficiency channel");
 
         FOR_ROW_COL_MV_CHL {
-            ChannelCohesion->Drc *= COHCHCalibration;
-
-            if (ChannelCohesion->Drc < 0)
-                ChannelY->Drc = 0;
+            if (ChannelCohesion->Drc > 0)
+                ChannelCohesion->Drc *= COHCHCalibration;
 
             if (ChannelCohesion->Drc == 0) {
                 ChannelY->Drc = 1.0;
@@ -1195,6 +1193,8 @@ void TWorld::InitChannel(void)
                             if (SwitchEfficiencyDETCH == 4)
                                 ChannelY->Drc = DirectEfficiency;
                }
+            if (ChannelCohesion->Drc < 0)
+                ChannelY->Drc = 0;
         }}
     }
     // OBSOLETE
@@ -1481,15 +1481,14 @@ void TWorld::InitErosion(void)
 
     D50 = ReadMap(LDD,getvaluename("D50"));
     //SwitchNeedD90 = SwitchErosion && (SwitchChannelFlood || (SwitchUse2Phase && !R_BL_Method == RGOVERS) || (SwitchEstimateGrainSizeDistribution && SwitchUseGrainSizeDistribution);
-    if(SwitchUse2Phase && !SwitchUseGrainSizeDistribution)
+    if(SwitchUse2Phase)// && !SwitchUseGrainSizeDistribution)
     {
         D90 = ReadMap(LDD,getvaluename("D90"));
     }
 
-    FOR_ROW_COL_MV
-    {
+    FOR_ROW_COL_MV {
         D50->Drc = D50->Drc *gsizeCalibrationD50;
-        if(SwitchUse2Phase && !SwitchUseGrainSizeDistribution)
+        if(SwitchUse2Phase)// && !SwitchUseGrainSizeDistribution)
         {
             D90->Drc = D90->Drc * gsizeCalibrationD90;
         }
@@ -1584,15 +1583,21 @@ void TWorld::InitErosion(void)
     Y = NewMap(0);
     //splashb = NewMap(0);
 
+    FOR_ROW_COL_MV {
+        SettlingVelocitySS->Drc = GetSV(D50->Drc/gsizeCalibrationD50);
+        if (SwitchUse2Phase)
+            SettlingVelocityBL->Drc = GetSV(D90->Drc/gsizeCalibrationD90);
+    }
+
     SplashStrength = NewMap(0);
 
    // qDebug() << "SwitchEfficiencyDET" <<SwitchEfficiencyDET;
 
-    FOR_ROW_COL_MV
-    {
+    FOR_ROW_COL_MV {
         if (RootCohesion->Drc < 0) // root cohesion can be used to avoid surface erosion base don land use
             CohesionSoil->Drc = -1;
-        else
+
+        if (CohesionSoil->Drc >= 0)
             CohesionSoil->Drc = COHCalibration*(Cohesion->Drc + Cover->Drc*RootCohesion->Drc);
 
         // soil cohesion everywhere, plantcohesion only where plants
@@ -1637,12 +1642,7 @@ void TWorld::InitErosion(void)
 void TWorld::InitMulticlass(void)
 {
 /*
-    FOR_ROW_COL_MV
-    {
-        SettlingVelocitySS->Drc = GetSV(D50->Drc/gsizeCalibrationD50);
-        if (SwitchUse2Phase)
-            SettlingVelocityBL->Drc = GetSV(D90->Drc/gsizeCalibrationD90);
-    }
+
 
     if(SwitchMulticlass)
     {
@@ -2127,7 +2127,7 @@ void TWorld::IntializeData(void)
         initSwatreStructure = true;
         // flag: structure is created and can be destroyed in function destroydata
     }
-
+    SwitchUseMaterialDepth = false;
     if(SwitchErosion && SwitchUseMaterialDepth)
     {
         Storage = ReadMap(LDD, getvaluename("detmat"));

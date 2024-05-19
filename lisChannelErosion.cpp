@@ -62,8 +62,8 @@ functions: \n
 void TWorld::ChannelFlowDetachmentNew()
 {
     if (!SwitchErosion)
-    return;
-
+        return;
+//        report(*ChannelCohesion,"chcoh.map");
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
 
@@ -106,7 +106,6 @@ void TWorld::ChannelFlowDetachmentNew()
 
         ChannelDetFlow->Drc = 0;
         ChannelDep->Drc = 0;
-
         double deposition = 0;
         double detachment = 0;
         double TransportFactor = 0;
@@ -114,9 +113,8 @@ void TWorld::ChannelFlowDetachmentNew()
         double minTC = 0;
 
         //when waterheight is insignificant, deposite all remaining sediment
-        if(ChannelWH->Drc < HMIN)
-        {
-            if(DO_SEDDEP == 1) {
+        if(ChannelWH->Drc < HMIN) {
+            if(DO_SEDDEP == 0) {
                 deposition += -SS;
                 ChannelSSConc->Drc = 0;
                 ChannelSSSed->Drc = 0;
@@ -137,11 +135,12 @@ void TWorld::ChannelFlowDetachmentNew()
 
             //### do suspended first
 
-            //deposition
             maxTC = std::max(SSTC - SSC, 0.0);  // TC in kg/m3
             minTC = std::min(SSTC - SSC, 0.0);
 
             if (minTC < 0) {
+                //deposition
+
                 TransportFactor = (1-exp(-_dt*TSettlingVelocitySS/ChannelWH->Drc)) * sswatervol;
              //   TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
                 //TransportFactor = std::min(TransportFactor, ssdischarge * _dt);
@@ -149,9 +148,9 @@ void TWorld::ChannelFlowDetachmentNew()
                 deposition = std::max(TransportFactor * minTC,-SS); // in kg
                 // not more than SS present
 
-            } else
+            } else {
                 //  detachment
-                if(maxTC > 0 && ChannelY->Drc > 0){
+                if(maxTC > 0 && ChannelCohesion->Drc >= 0) {
 
                     TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
                     //TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
@@ -161,12 +160,22 @@ void TWorld::ChannelFlowDetachmentNew()
                     detachment = maxTC * std::min(TransportFactor, sswatervol);
                     // cannot have more detachment than remaining capacity in flow
 
-                    detachment *= ChannelY->Drc;//DetachMaterial(r,c,1,true,false,false, detachment);
+                    detachment *= ChannelY->Drc;
+
+                    if (ChannelMaxQ->Drc > 0)
+                        detachment = 0;
+                    // not detahcment in culverts
+
+                    //DetachMaterial(r,c,1,true,false,false, detachment);
                     // multiply by Y
 
                     if(SS + detachment > MAXCONC * sswatervol)
                         detachment = MAXCONC * sswatervol - SS;
+
+                } else {
+                    detachment = 0;
                 }
+            }
 
             //### sediment balance add suspended
             SS += detachment;
@@ -242,6 +251,7 @@ void TWorld::ChannelFlowDetachmentNew()
         RiverSedimentMaxC(r,c);
         //partial and total concentration ALL DONE
     }}
+report(*ChannelDetFlow, "cdf");
 }
 //---------------------------------------------------------------------------
 /**

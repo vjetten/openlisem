@@ -243,6 +243,7 @@ void TWorld::cell_SplashDetachment(int r, int c)
             DETSplash_ = (1-Snowcover->Drc)*DETSplash_;
         // no splash on snow deck
 
+    /*
         if(SwitchUseMaterialDepth)
         {
             //check wat we can detach from the top and bottom layer of present material
@@ -271,7 +272,7 @@ void TWorld::cell_SplashDetachment(int r, int c)
             }
             DETSplash_ = detachment;
         }
-
+*/
 
         if(SwitchKinematic2D == K2D_METHOD_DYN) {
             SSFlood->Drc += DETSplash_;
@@ -436,6 +437,10 @@ void TWorld::cell_FlowDetachment(int r, int c)
                 detachment = (1-Snowcover->Drc) * detachment;
             /* TODO: CHECK THIS no flow detachment on snow */
             //is there erosion and sedimentation under the snowdeck?
+
+            if (SwitchRoadsystem || SwitchHardsurface)
+                detachment = (1-std::min(1.0,RoadWidthHSDX->Drc/_dx))*detachment;
+
 
             //detachment = DetachMaterial(r,c,1,false,false,false, detachment);
             // reacctivate when materiallayer is reinstalled
