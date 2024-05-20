@@ -517,6 +517,7 @@ void lisemqt::showComboMap(int i)
     double MinV;
     double MaxV;
     double res = fillDrawMapData(op.ComboMaps.at(i), op.ComboScaling.at(i), RD, &MinV, &MaxV);
+
     if (res <=-1e20)
         return;
     //double MinV = mapMinimum(*op.ComboMaps.at(i));

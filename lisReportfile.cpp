@@ -1109,9 +1109,9 @@ void TWorld::ReportLandunits(void)
         for (int i = 0; i < landUnitNr; i++)
             if (unitList[i].nr == (int)LandUnit->Drc) {
                 unitList[i].var0 += CellArea->Drc/10000;//ha
-                unitList[i].var1 += TotalDetMap->Drc/1000; //ton/cell
-                unitList[i].var2 += TotalDepMap->Drc/1000;
-                unitList[i].var3 += TotalSoillossMap->Drc/1000;
+             //   unitList[i].var1 += std::max(0.0,TotalSoillossMap->Drc/1000); //ton/cell
+             //   unitList[i].var2 += std::min(0.0,TotalSoillossMap->Drc/1000);
+                unitList[i].var1 += TotalSoillossMap->Drc/1000;
             }
     }}
 
@@ -1124,14 +1124,16 @@ void TWorld::ReportLandunits(void)
     out.setRealNumberPrecision(3);
     out.setRealNumberNotation(QTextStream::FixedNotation);
 
-    out << "Landunit,Area,Detachment,Deposition,Soil Loss\n";
-    out << "#,ha,ton,ton,ton\n";
+    // out << "Landunit,Area,Detachment,Deposition,Soil Loss\n";
+    // out << "#,ha,ton,ton,ton\n";
+    out << "Landunit,Area,Soil Loss\n";
+    out << "#,ha,ton\n";
     for (int i = 0; i < landUnitNr; i++)
         out << unitList[i].nr << ","
             << unitList[i].var0 << ","
-            << unitList[i].var1 << ","
-            << unitList[i].var2 << ","
-            << unitList[i].var3 << "\n";
+            << unitList[i].var1 << "\n";
+          //  << unitList[i].var2 << ","
+          //  << unitList[i].var3 << "\n";
     fout.close();
 
 }

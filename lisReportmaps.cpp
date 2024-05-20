@@ -187,15 +187,19 @@ void TWorld::setLegendColors()
 
     Colormap.clear();
     Colormap.append(0.0);
-    Colormap.append(0.25);
+  //  Colormap.append(0.25);
+    Colormap.append(0.49);
     Colormap.append(0.5);
+    Colormap.append(0.51);
     Colormap.append(0.75);
     Colormap.append(1.0);
 
     Colors.clear();
     Colors.append("#2b83ba");
-    Colors.append("#a4ddd9");
-    Colors.append("#ffffef");
+   // Colors.append("#a4ddd9");
+    Colors.append("#fffff0");
+    Colors.append("#dddddd");
+    Colors.append("#fffff0");
     Colors.append("#d3b03e");
     Colors.append("#d7191c");
 
@@ -225,27 +229,28 @@ void TWorld::setLegendColors()
     Colormap.append(0.75);
     Colormap.append(1.0);
     Colors.clear();
-    Colors.append("#ffffd4");
+    Colors.append("#fffff0");
     Colors.append("#fed98e");
     Colors.append("#fe9929");
     Colors.append("#d95f0e");
     Colors.append("#a94400");
+
 
     Legend<<Colors; //8
     LegendMap << Colormap;
 
     Colormap.clear();
     Colormap.append(0.0);
-    Colormap.append(0.25);
-    Colormap.append(0.5);
-    Colormap.append(0.75);
+ //   Colormap.append(0.25);
+  //  Colormap.append(0.5);
+  //  Colormap.append(0.75);
     Colormap.append(1.0);
     Colors.clear();
-    Colors.append("#f0f9e8");
-    Colors.append("#bae4bc");
-    Colors.append("#7bccc4");
-    Colors.append("#43a2ca");
-    Colors.append("#0868ac");
+    Colors.append("#fffff0");
+  //  Colors.append("#bae4bc");
+   // Colors.append("#7bccc4");
+  //  Colors.append("#43a2ca");
+    Colors.append("#2b83ba");
 
     Legend<<Colors; //9
     LegendMap << Colormap;
@@ -396,17 +401,25 @@ void TWorld::GetComboMaps()
         if (SwitchSedtrap)
         AddComboMap(1,"Sed trap","kg/m3",SedMaxVolume,LegendMap[cl],Legend[cl],false,false,1.0, step);
 
-        AddComboMap(1,"Suspended sed.",unit,COMBO_SS,LegendMap[cl],Legend[cl],false,false,factor, step);
+        double factor_g = 1000/(_dx*_dx);
+        QString unit_g = "g/m2";
+
+        AddComboMap(1,"Suspended sed.",unit_g,COMBO_SS,LegendMap[cl],Legend[cl],false,false,factor_g, step);
         AddComboMap(1,"TC suspended","kg/m3",COMBO_TC,LegendMap[cl],Legend[cl],false,false,1.0, step);
         if(SwitchUse2Phase) {
-            AddComboMap(1,"Bedload sed.",unit,COMBO_BL,LegendMap[cl],Legend[cl],false,false,factor, step);
+            AddComboMap(1,"Bedload sed.",unit_g,COMBO_BL,LegendMap[cl],Legend[cl],false,false,factor_g, step);
          //   AddComboMap(1,"TC bedload","kg/m3",BLTCFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
          //   AddComboMap(1,"SS depth","m",SSDepthFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
          //   AddComboMap(1,"BL depth","m",BLDepthFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
         }
 
         cl = 9;
-        AddComboMap(1,"Deposition",unit,DEPCum,LegendMap[cl],Legend[cl],false,false,-factor, step);
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            tma->Drc = DEPCum->Drc < 1e-3 ? 0.0 : DEPCum->Drc;
+        }}
+
+        AddComboMap(1,"Deposition",unit,tma,LegendMap[cl],Legend[cl],false,false,-factor, step);
 
         if(SwitchUseMaterialDepth) {
             AddComboMap(1,"Storage",unit,Storage,LegendMap[cl],Legend[cl],false,false,-factor, step);

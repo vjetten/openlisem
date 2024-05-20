@@ -569,8 +569,8 @@ void lisemqt::setOutputInfo(bool check)
 
 //--------------------------------------------------------------------
 // OBSOLETE
-void lisemqt::setWriteOutputPCR(bool doit)
-{
+//void lisemqt::setWriteOutputPCR(bool doit)
+//{
     //    if (checkWriteSOBEK->isChecked())
     //    {
     //        //checkWriteSOBEK->setChecked(false);
@@ -590,17 +590,12 @@ void lisemqt::setWriteOutputPCR(bool doit)
 //            //checkWriteSOBEK->setChecked(false);
 //            checkWritePCRaster->setChecked(false);
 //        }
-}
+//}
 
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()
 {
     toolBar->setIconSize(QSize(32,32));
-
-    restartAct = new QAction(QIcon(":/2X/reset.png"), "&Reset...", this);
-    connect(restartAct, SIGNAL(triggered()), this, SLOT(resetAll()));
-    toolBar->addAction(restartAct);
-    toolBar->addSeparator();
 
     openAct = new QAction(QIcon(":/2X/Folder-Open-icon.png"), "&Open a run file...", this);
     openAct->setShortcuts(QKeySequence::Open);
@@ -687,7 +682,11 @@ void lisemqt::SetToolBar()
     aboutActI = new QAction(QIcon(":/2X/question-mark-button2x.png"), "", this);
     connect(aboutActI, SIGNAL(triggered()), this, SLOT(aboutInfo()));
     toolBar_2->addAction(aboutActI);
-        toolBar->addSeparator();
+    restartAct = new QAction(QIcon(":/2X/reset.png"), "&Reset interface and all options...", this);
+    connect(restartAct, SIGNAL(triggered()), this, SLOT(resetAll()));
+    toolBar_2->addAction(restartAct);
+
+    //toolBar->addSeparator();
 
     connect(checkMapBuildings, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
     connect(checkMapRoads, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));

@@ -621,14 +621,15 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                     detachment = (1-StoneFraction->Drc) * detachment;
                     // no flow detachment on stony surfaces
 
-    // not needed because soilwidth
-                    if (SwitchRoadsystem || SwitchHardsurface)
-                        detachment = (1-std::min(1.0,RoadWidthHSDX->Drc/_dx))*detachment;
                     // no flow detachment on hard surfaces
-
-    //                if (SwitchHardsurface)
-    //                    detachment = (1-HardSurface->Drc) * detachment;
-                    // no flow detachment on hard surfaces
+                    //if (SwitchRoadsystem || SwitchHardsurface)
+                    //  detachment = (1-RoadWidthHSDX->Drc/_dx)*detachment;
+                    // if (SwitchRoadsystem)
+                    //     detachment = (1-RoadWidthDX->Drc/_dx)*detachment;
+                    // if (SwitchHardsurface)
+                    //     detachment = (1-HardSurface->Drc)*detachment;
+                    if (RoadWidthHSDX->Drc > 0.1)
+                        detachment = 0;
 
                     if (SwitchHouses)
                         detachment = (1-HouseCover->Drc)*detachment;
@@ -743,14 +744,22 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                             if (SwitchHouses)
                                 detachment = (1-HouseCover->Drc)*detachment;
 
-                            if (SwitchRoadsystem || SwitchHardsurface)
-                                detachment = (1-std::min(1.0,RoadWidthHSDX->Drc/_dx))*detachment;
+                            //if (SwitchRoadsystem || SwitchHardsurface)
+                              //  detachment = (1-RoadWidthHSDX->Drc/_dx)*detachment;
+                            // if (SwitchRoadsystem)
+                            //     detachment = (1-RoadWidthDX->Drc/_dx)*detachment;
+                            // if (SwitchHardsurface)
+                            //     detachment = (1-HardSurface->Drc)*detachment;
+                            if (RoadWidthHSDX->Drc > 0/1)
+                                detachment = 0;
 
                             // no flow det from house roofs
                             if (SwitchSnowmelt)
                                 detachment = (1-Snowcover->Drc) * detachment;
                             /* TODO: CHECK THIS no flow detachment on snow */
                             //is there erosion and sedimentation under the snowdeck?
+
+                            detachment = std::max(0.0,detachment);
 
                             //detachment = DetachMaterial(r,c,1,false,false,true, detachment);
                             detachment *= Y->Drc;

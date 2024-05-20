@@ -230,10 +230,6 @@ void TWorld::cell_SplashDetachment(int r, int c)
         //          DETSplash->Drc = (1-SedimentFilter->Drc) * DETSplash->Drc;
         // assume sedtrap can have splash
 
-      //  if (SwitchHardsurface)
-      //      DETSplash_ = (1-HardSurface->Drc)*DETSplash_;
-        // no splash on hard surfaces ALREADY taken care of by soilwidth which excludes roads and hard surfaces
-
         if (SwitchHouses)
             DETSplash_ = (1-HouseCover->Drc)*DETSplash_;
         //is already contained in soilwidth
@@ -242,6 +238,13 @@ void TWorld::cell_SplashDetachment(int r, int c)
         if (SwitchSnowmelt)
             DETSplash_ = (1-Snowcover->Drc)*DETSplash_;
         // no splash on snow deck
+
+        // if (SwitchRoadsystem)
+        //     DETSplash_ = (1-RoadWidthDX->Drc/_dx)*DETSplash_;
+        // if (SwitchHardsurface)
+        //     DETSplash_ = (1-HardSurface->Drc)*DETSplash_;
+         if (RoadWidthHSDX->Drc > 0.1)
+             DETSplash_ = 0;
 
     /*
         if(SwitchUseMaterialDepth)
@@ -438,8 +441,15 @@ void TWorld::cell_FlowDetachment(int r, int c)
             /* TODO: CHECK THIS no flow detachment on snow */
             //is there erosion and sedimentation under the snowdeck?
 
-            if (SwitchRoadsystem || SwitchHardsurface)
-                detachment = (1-std::min(1.0,RoadWidthHSDX->Drc/_dx))*detachment;
+            // no flow detachment on hard surfaces
+            //if (SwitchRoadsystem || SwitchHardsurface)
+            //  detachment = (1-RoadWidthHSDX->Drc/_dx)*detachment;
+            if (SwitchRoadsystem)
+                detachment = (1-RoadWidthDX->Drc/_dx)*detachment;
+            if (SwitchHardsurface)
+                detachment = (1-HardSurface->Drc)*detachment;
+            // if (RoadWidthHSDX->Drc > 0)
+            //     detachment = 0;
 
 
             //detachment = DetachMaterial(r,c,1,false,false,false, detachment);

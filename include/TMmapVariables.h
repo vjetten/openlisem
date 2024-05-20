@@ -33,7 +33,7 @@ cTMap
 *DEM,                        //!< DEM [m]
 *MBm,
 //*DEMdz,                        //!< DEM [m]
-*Shade,                      //!< Shaded relief for display [0-1]
+//*Shade,                      //!< Shaded relief for display [0-1]
 *ShadeBW,                      //!< Shaded relief for display [0-1]
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
 *CellArea,                   //!< cell area = DX * _dx [m^2]
@@ -474,8 +474,6 @@ cTMap
 //*TileV,                      //!< velocity in tile drain m/s
 //*TileQmax,                   //!< max Q tile drain m3/s
 
-*TotalDetMap,                //!<
-*TotalDepMap,                //!<
 *TotalChanDetMap,                //!<
 *TotalChanDepMap,                //!<
 *TotalSoillossMap,           //!<

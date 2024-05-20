@@ -246,7 +246,8 @@ class colorMapGray: public QwtLinearColorMapVJ
     }
 public:
     colorMapGray():
-      QwtLinearColorMapVJ( QColor("#555555"),QColor("#ffffff"))
+//      QwtLinearColorMapVJ( QColor("#555555"),QColor("#ffffff"))
+        QwtLinearColorMapVJ( QColor("#222222"),QColor("#ffffff"))
     {
     }
 };
@@ -318,7 +319,8 @@ class colorMapRoads2: public QwtLinearColorMapVJ
     }
 public:
     colorMapRoads2():
-        QwtLinearColorMapVJ( QColor("#f9fb44"), QColor("#f9fb44")  )
+//        QwtLinearColorMapVJ( QColor("#f9fb44"), QColor("#f9fb44")  )
+        QwtLinearColorMapVJ( QColor("#f0f000"), QColor("#f0f000")  )
     {
     }
 };

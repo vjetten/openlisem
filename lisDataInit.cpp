@@ -1560,8 +1560,6 @@ void TWorld::InitErosion(void)
     SoilLossTot_dt = 0;
     SedTot = 0;
 
-    TotalDetMap = NewMap(0);
-    TotalDepMap = NewMap(0);
     TotalSoillossMap = NewMap(0);
     TotalSed = NewMap(0);
     TotalConc = NewMap(0);
@@ -2848,9 +2846,8 @@ void TWorld::InitTiledrains(void)
 
 void TWorld::InitShade(void)
 {
-    Shade = NewMap(0);
     ShadeBW = NewMap(0);
-
+    Fill(*tma,0);
     double maxDem = -1e9;
     double minDem = 1e9;
 
@@ -2923,25 +2920,24 @@ void TWorld::InitShade(void)
         }
         double Zenith_rad = 70.0 * PI / 180.0;
         double Azimuth_rad = 240 * PI / 180.0;
-        Shade->Drc = 255.0 * ( ( cos(Zenith_rad) * cos(Slope_rad) ) + ( sin(Zenith_rad) * sin(Slope_rad) * cos(Azimuth_rad - Aspect_rad) ) );
+        tma->Drc = 255.0 * ( ( cos(Zenith_rad) * cos(Slope_rad) ) + ( sin(Zenith_rad) * sin(Slope_rad) * cos(Azimuth_rad - Aspect_rad) ) );
     }
-    double MaxV = mapMaximum(*Shade);
-    double MinV = mapMinimum(*Shade);
+    double MaxV = mapMaximum(*tma);
+    double MinV = mapMinimum(*tma);
 
     FOR_ROW_COL_MV
     {
-        Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
+        tma->Drc = (tma->Drc-MinV)/(MaxV-MinV);
         // VJ add a bit of elevation for enhanced effect
-        Shade->Drc = 0.8*Shade->Drc+0.2*(DEM->Drc - minDem)/(maxDem-minDem);
+        tma->Drc = 0.8*tma->Drc+0.2*(DEM->Drc - minDem)/(maxDem-minDem);
         //ShadeBW->Drc = Shade->Drc;
     }
-    MaxV = mapMaximum(*Shade);
-    MinV = mapMinimum(*Shade);
+    MaxV = mapMaximum(*tma);
+    MinV = mapMinimum(*tma);
     FOR_ROW_COL_MV
     {
-        Shade->Drc = (Shade->Drc-MinV)/(MaxV-MinV);
+        ShadeBW->Drc = (tma->Drc-MinV)/(MaxV-MinV);
         // VJ add a bit of elevation for enhanced effect
-        ShadeBW->Drc = Shade->Drc;
     }
 
 }

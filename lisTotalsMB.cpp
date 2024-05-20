@@ -446,12 +446,15 @@ void TWorld::TotalsSediment(void)
         }
 
         // with all det and dep calculate the soil loss, excl channel
+        // kg/cell
         #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L
-        {
+        FOR_ROW_COL_MV_L {
             TotalSoillossMap->Drc = DETSplashCum->Drc + DETFlowCum->Drc + DEPCum->Drc;
-            TotalDepMap->Drc = std::min(0.0, TotalSoillossMap->Drc); // for table damage output per landunit
-            TotalDetMap->Drc = std::max(0.0, TotalSoillossMap->Drc);
+            TotalSoillossMap->Drc = fabs(TotalSoillossMap->Drc) < 1e-3 ? 0.0 : TotalSoillossMap->Drc;
+            // 0.001 kg/cellarea = 1/cellarea g/m2
+
+            // TotalDepMap->Drc = std::min(0.0, TotalSoillossMap->Drc); // for table damage output per landunit
+            // TotalDetMap->Drc = std::max(0.0, TotalSoillossMap->Drc);
         }}
 
         #pragma omp parallel for num_threads(userCores)

@@ -251,7 +251,6 @@ void TWorld::ChannelFlowDetachmentNew()
         RiverSedimentMaxC(r,c);
         //partial and total concentration ALL DONE
     }}
-report(*ChannelDetFlow, "cdf");
 }
 //---------------------------------------------------------------------------
 /**

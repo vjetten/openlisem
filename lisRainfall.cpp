@@ -200,7 +200,7 @@ void TWorld::GetRainfallData(QString name)
     }
     fff.close();
 
-    oldformat = (rainRecs[0].contains("RUU"));
+    oldformat = (rainRecs[0].contains(" RUU"));
     // original very old format
     if (oldformat) {
         ErrorString = "The old RUU rainfall file format is not longer supported.";
@@ -287,7 +287,7 @@ void TWorld::GetRainfallData(QString name)
                 p.c = SL[1].toInt();
                 p.nr = SL[2].toInt();
                 p.V = 0;
-                qDebug() << p.r << p.c << p.V;
+                //qDebug() << p.r << p.c << p.V;
                 IDIpointsRC << p;
             }
         }
@@ -298,7 +298,7 @@ void TWorld::GetRainfallData(QString name)
         QList <int> tmp;
         tmp = countUnits(*RainZone);
         int nrmap = tmp.count();
-
+      //  qDebug() << "rainfall zones" << nrmap << nrStations;
         if (nrmap > nrStations)
         {
             ErrorString = QString("Number of stations in rainfall file (%1) < nr of rainfall zones in ID map (%2)").arg(nrStations).arg(nrmap);
@@ -333,7 +333,8 @@ void TWorld::GetRainfallData(QString name)
             QStringList SL1 = rainRecs[r_+1].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
             int time1 = getTimefromString(SL1[0]);
             if (time1 < time) {
-                ErrorString = QString("Time in rainfall records is not increasing from row %1 to %2. Check your file!").arg(r_).arg(r_+1);
+                ErrorString = QString("Time in rainfall is not increasing from row %1 to %2: %3 and %4. Check your file!")
+                                  .arg(r_).arg(r_+1).arg(time).arg(time1);
                 throw 1;
             }
         }
@@ -346,7 +347,7 @@ void TWorld::GetRainfallData(QString name)
             rl.intensity << SL[i].toDouble(&ok);
             if (!ok)
             {
-                ErrorString = QString("Rainfall records at time %1 has unreadable value: %2.").arg(SL[0]).arg(SL[i]);
+                ErrorString = QString("Rainfall at time %1 has unreadable value: %2.").arg(SL[0]).arg(SL[i]);
                 throw 1;
             }
             rl.stationnr << stationID.at(i-1);
@@ -364,6 +365,26 @@ void TWorld::GetRainfallData(QString name)
 //    }
 
     nrRainfallseries = RainfallSeries.size();//nrSeries;
+
+//for testing if read properly
+    /*
+    for (int i = 0; i < nrRainfallseries; i++) {
+        qDebug() << RainfallSeries[i].time;
+        QString S, S1;
+        for (int j = 0; j < RainfallSeries[i].stationnr.size(); j++) {
+            S1 = QString("%1 ").arg(RainfallSeries[i].stationnr[j]);
+            S = S + S1;
+        }
+        qDebug() << S;
+        S = "";
+        for (int j = 0; j < RainfallSeries[i].stationnr.size(); j++) {
+            S1 = QString("%1 ").arg(RainfallSeries[i].intensity[j]);
+            S = S + S1;
+        }
+        qDebug() << S;
+
+    }
+*/
 }
 //---------------------------------------------------------------------------
 void TWorld::GetRainfallMapfromStations(void)
@@ -408,7 +429,6 @@ void TWorld::GetRainfallMapfromStations(void)
     }
     if (currentrow == currentRainfallrow && currentrow > 0)
         samerain = true;
-
 
     // get the next map from file
     if (!samerain) {

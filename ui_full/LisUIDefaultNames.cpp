@@ -39,7 +39,7 @@ void lisemqt::DefaultMapnames()
     //# syntax: branch level; keyword; default mapname; description; variable name
     DEFmaps.append("0;Rainfall");
     DEFmaps.append("2;ID;ID.map;Raingauge zone ID numbers (e.g. Tiessen polyg.), corresponding to columns (1,2,...) in rainfall file;ID");
-    DEFmaps.append("2;Gauges;IDgauge.map;Raingauge ID numbers for inv.dist. interpolation, corresponding to columns (1,2,...) in rainfall file;IDGauges");
+    DEFmaps.append("2;ID Gauges;IDgauge.map;Cells with Raingauge ID numbers for inv.dist. interpolation, corresponding to columns (1,2,...) in rainfall file;IDGauges");
     DEFmaps.append("2;ET ID;ETID.map;ET zone ID numbers, correspond to columns (1,2,...) in EvapoTranspiration file;ETID");
    // DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
 
@@ -82,7 +82,6 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Psi1;psi1.map;Layer 1: Suction at the wetting front (cm);psi1");
     DEFmaps.append("2;Thetas1;thetas1.map;Layer 1: Porosity (-);thetas1");
     DEFmaps.append("2;Thetai1;thetai1.map;Layer 1: Initial moisture content (-);thetai1");
-    //DEFmaps.append("2;Lambda1;lambda1.map;Layer 1: Brooks-Corey pore parameter (-);lambda1");
     DEFmaps.append("2;Depth1;soildep1.map;Layer 1: Depth (mm) to bottom of layer 1;soildep1");
 
     DEFmaps.append("1;2nd layer Green&Ampt/Smith&Parlange");
@@ -90,22 +89,22 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Psi2;psi2.map;Layer 2: Suction at the wetting front (cm);psi2");
     DEFmaps.append("2;Thetas2;thetas2.map;Layer 2: Porosity (-);thetas2");
     DEFmaps.append("2;Thetai2;thetai2.map;Layer 2: Initial moisture content (-);thetai2");
-   // DEFmaps.append("2;Lambda2;lambda2.map;Layer 2: Brooks-Corey pore parameter (-);lambda2");
     DEFmaps.append("2;Depth2;soildep2.map;Layer 2: Depth (mm) to bottom of layer 2;soildep2");
 
-
-    DEFmaps.append("1;Soil layer 3");
+    DEFmaps.append("1;3rd layer Green&Ampt/Smith&Parlange");
     DEFmaps.append("2;Ksat3;ksat3.map;Layer 3: Saturated Hydraulic Conductivity (mm/h);ksat3");
+    DEFmaps.append("2;Psi3;psi3.map;Layer 3: Suction at the wetting front (cm);psi3");
     DEFmaps.append("2;Thetas3;thetas3.map;Layer 3: Porosity (-);thetas3");
     DEFmaps.append("2;Thetai3;thetai3.map;Layer 3: Initial moisture content (-);thetai3");
     DEFmaps.append("2;Depth3;soildep3.map;Layer 3: Depth (mm) to bottom of layer 2;soildep3");
+
     DEFmaps.append("1;Special surfaces");
     DEFmaps.append("2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst");
     DEFmaps.append("2;Porosity Crust;porecrst.map;Porosity of crusted areas (all models except SWATRE) (-);porecrst");
-    DEFmaps.append("2;Ksat Compact;ksatcomp.map;Ksat of compacted areas (all models except SWATRE) (mm/h);ksatcomp");
+    DEFmaps.append("2;Ksat Compacted;ksatcomp.map;Ksat of compacted areas (all models except SWATRE) (mm/h);ksatcomp");
     DEFmaps.append("2;Porosity Compact;porecomp.map;Porosity of compacted areas (all models except SWATRE) (-);porecomp");
 
-    DEFmaps.append("0;Channels");
+    DEFmaps.append("0;Channels and Groundwater");
     DEFmaps.append("2;LDD;lddchan.map;LDD of main channel (must be 1 branch connected to the outlet);lddchan");
     DEFmaps.append("2;Width;chanwidt.map;Channel width (m);chanwidth");
     DEFmaps.append("2;Depth;chandepth.map;Channel depth, zero (0) depth is considered infinite (m);chandepth");
@@ -149,10 +148,9 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Ksat Grass;ksatgras.map;Ksat of grassstrips (all models except SWATRE) (mm/h);ksatgras");
     DEFmaps.append("2;Porosity Grass;poregras.map;Porosity of grasstrips (all models except SWATRE) (-);poregras");
     DEFmaps.append("2;Cohesion Grass;cohgras.map;Porosity of grasstrips (all models except SWATRE) (-);cohgras");
-//    DEFmaps.append("0;FlowBarriers");
     DEFmaps.append("2;FlowBarrierIndex;flowbarrierindex.map;An index value, indicating which flow barrier properties will be used (-);flowbarrierindex");
 
-    DEFmaps.append("0;Storm/Tile drains");
+    DEFmaps.append("0;Storm drains/Tile drains");
     DEFmaps.append("2;LDD;lddtile.map;LDD of tile drain system (must be one system connected to the outlet);lddtile");
     DEFmaps.append("2;Sink;tileinlet.map;Sink holes connecting surface to tile drain system (size in m2);tilesink");
     DEFmaps.append("2;Diameter;tilediameter.map;Tile drain pipe diameter (m);tilediameter");

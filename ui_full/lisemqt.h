@@ -466,7 +466,7 @@ public slots:
 
     void setWriteOutputSOBEK(bool);
     void setWriteOutputCSV(bool);
-    void setWriteOutputPCR(bool);
+    //void setWriteOutputPCR(bool);
 
     void setFloodTab(bool);
     void setErosionTab(bool);
