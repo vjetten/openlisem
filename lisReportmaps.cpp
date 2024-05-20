@@ -287,7 +287,8 @@ void TWorld::GetComboMaps()
  //   AddComboMap(0,"Flow Velocity","m/s",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     AddComboMap(0,"Flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.001); //VH
     //AddComboMap(0,"boundary","-",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
-    AddComboMap(0,"Cumulative overland flow","m3",Qototal,LegendMap[0],Legend[0],true,false,1.0, 1.0);//0.001);
+
+    AddComboMap(0,"Cumulative overland flow","m3",Qototal,LegendMap[0],Legend[0],false,false,1.0, 1.0);//0.001);
     cl = 0;
     AddComboMap(0,"Flood Hazard Index [WH(V+0.5)]","-",FHI,LegendMap[0],Legend[0],true,false,1.0, 0.001);
 
@@ -397,14 +398,18 @@ void TWorld::GetComboMaps()
         cl = 8;
         AddComboMap(1,"Splash detachment",unit,DETSplashCum,LegendMap[cl],Legend[cl],false,false,factor, step);
         AddComboMap(1,"Flow detachment",unit,DETFlowCum,LegendMap[cl],Legend[cl],false,false,factor, step);
+        cl = 9;
+        AddComboMap(1,"Deposition",unit,DEPCum,LegendMap[cl],Legend[cl],false,false,-factor, step);
+
+        cl = 8;
         AddComboMap(1,"Sed. Concentration","kg/m3",TotalConc,LegendMap[cl],Legend[cl],false,false,1.0, step);
         if (SwitchSedtrap)
-        AddComboMap(1,"Sed trap","kg/m3",SedMaxVolume,LegendMap[cl],Legend[cl],false,false,1.0, step);
+            AddComboMap(1,"Sed trap","kg/m3",SedMaxVolume,LegendMap[cl],Legend[cl],false,false,1.0, step);
 
         double factor_g = 1000/(_dx*_dx);
         QString unit_g = "g/m2";
-
         AddComboMap(1,"Suspended sed.",unit_g,COMBO_SS,LegendMap[cl],Legend[cl],false,false,factor_g, step);
+
         AddComboMap(1,"TC suspended","kg/m3",COMBO_TC,LegendMap[cl],Legend[cl],false,false,1.0, step);
         if(SwitchUse2Phase) {
             AddComboMap(1,"Bedload sed.",unit_g,COMBO_BL,LegendMap[cl],Legend[cl],false,false,factor_g, step);
@@ -414,13 +419,6 @@ void TWorld::GetComboMaps()
         }
 
         cl = 9;
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            tma->Drc = DEPCum->Drc < 1e-3 ? 0.0 : DEPCum->Drc;
-        }}
-
-        AddComboMap(1,"Deposition",unit,tma,LegendMap[cl],Legend[cl],false,false,-factor, step);
-
         if(SwitchUseMaterialDepth) {
             AddComboMap(1,"Storage",unit,Storage,LegendMap[cl],Legend[cl],false,false,-factor, step);
             AddComboMap(1,"Storage",unit,StorageDep,LegendMap[cl],Legend[cl],false,false,-factor, step);
