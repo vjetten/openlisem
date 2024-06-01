@@ -273,14 +273,14 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include buffers")==0)          checkBuffers->setChecked(check);
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(valc);
-        if (p1.compare("Flood solution")==0)
-        {
-            switch (iii) {
-            case 0 : rb_swof2->setChecked(true); break;
-            case 1 : rb_swofnomuscl->setChecked(true); break;
-            case 2 : rb_swofmuscl->setChecked(true); break;
-            }
-        }
+        if (p1.compare("Flood solution")==0)                 checkMUSCL->setChecked(check);
+        // {
+        //     switch (iii) {
+        //     case 0 : rb_swof2->setChecked(true); break;
+        //     case 1 : rb_swofnomuscl->setChecked(true); break;
+        //     case 2 : rb_swofmuscl->setChecked(true); break;
+        //     }
+        // }
         if (p1.compare("Routing Kin Wave 2D")==0)            dummykinwave = iii;
         if (p1.compare("Flow Boundary 2D")==0)               E_FlowBoundary->setValue(iii);
         if (p1.compare("Correct DEM")==0)                    checkCorrectDem->setChecked(check);
@@ -885,14 +885,14 @@ void lisemqt::updateModelData()
     //    if (p1.compare("Use fixed angle")==0)                namelist[j].value.setNum((int) checkFixedAngle->isChecked());
      //   if (p1.compare("Variable Timestep")==0)              namelist[j].value.setNum((int) checkVariableTimestep->isChecked());
 
-        if (p1.compare("Flood solution")==0)
-        {
-            int i = 0;
-            if(rb_swof2->isChecked()) i = 0;
-            if(rb_swofnomuscl->isChecked()) i = 1;
-            if(rb_swofmuscl->isChecked()) i = 2;
-            namelist[j].value.setNum(i);
-        }
+         if (p1.compare("Flood solution")==0)                namelist[j].value.setNum((int) checkMUSCL->isChecked());
+        // {
+        //     int i = 0;
+        //     if(rb_swof2->isChecked()) i = 0;
+        //     if(rb_swofnomuscl->isChecked()) i = 1;
+        //     if(rb_swofmuscl->isChecked()) i = 2;
+        //     namelist[j].value.setNum(i);
+        // }
 
         if (p1.compare("Splash equation")==0)                namelist[j].value = E_splashEquation->text();
         if (p1.compare("Detachment efficiency")==0)          namelist[j].value = QString::number(E_EfficiencyDET->currentIndex()+1);

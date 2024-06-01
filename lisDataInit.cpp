@@ -141,8 +141,8 @@ void TWorld::InitParameters(void)
     // courant_factor_sed = getvaluedouble("Flooding courant factor diffusive");
     TimestepfloodMin = getvaluedouble("Timestep flood");
     F_SWOFSolution = getvalueint("Flood Solution");
-    SwitchMUSCL = F_SWOFSolution == 2;
-    SwitchSWOFopen = F_SWOFSolution == 0;
+    SwitchMUSCL = F_SWOFSolution == 1;
+    //SwitchSWOFopen = F_SWOFSolution == 0;
 
     F_pitValue = getvaluedouble("Pit Value");
 

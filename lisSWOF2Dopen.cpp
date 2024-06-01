@@ -208,7 +208,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 //FloodT->Drc = 0;
                 tmd->Drc = 0;
             }}
-            SwitchMUSCL = true;
+
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (hs->Drc > F_minWH) {
@@ -294,7 +294,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                             u_xx2 =  u->data[r][c+2];
                             v_xx2 =  v->data[r][c+2];
                         }
-                        if(!MV(r > 1 && r-2,c)) {
+                        if(r > 1 && !MV(r-2,c)) {
                             h_yy1 = hs->data[r-2][c];
                             u_yy1 =  u->data[r-2][c];
                             v_yy1 =  v->data[r-2][c];
@@ -395,7 +395,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         delzcx = Z+(dz_h-dh)- (Z+(dh-dz_h));// = (dz_h-dh)-(dh-dz_h) = 2*dz_h-2*dh; //!!!!
 
                         // left hand cell, right boundary
-                        if (c > c+2 && !MV(r,c)) {
+                        if(c > 1 && !MV(r,c-2)) {
                             delta_h2 = delta_h1;
                             delta_u2 = delta_u1;
                             delta_v2 = delta_v1;
@@ -419,7 +419,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         }
 
                         // right hand cell, left boundary
-                        if (c < _nrCols-2 && !MV(r,c)) {
+                        if(c < _nrCols-2 && !MV(r,c+2)) {
                             delta_h2 = h_xx2 - h_x2;
                             delta_u2 = u_xx2 - u_x2;
                             delta_v2 = v_xx2 - v_x2;
@@ -471,7 +471,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         delzcy = Z+(dz_h-dh)- (Z+(dh-dz_h));// = (dz_h-dh)-(dh-dz_h) = 2*dz_h-2*dh; //!!!!
 
                         // upper cell, down boundary
-                        if (r > r+2 && !MV(r,c)) {
+                        if(r > 1 && !MV(r-2,c)) {
                             delta_h2 = delta_h1;
                             delta_u2 = delta_u1;
                             delta_v2 = delta_v1;
@@ -493,7 +493,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         }
 
                         // lower cell, up boundary
-                        if (r < _nrRows-2 && !MV(r,c)) {
+                        if(r < _nrRows-2 && !MV(r+2,c)) {
                             delta_h2 = h_yy2 - h_y2;
                             delta_u2 = u_yy2 - u_y2;
                             delta_v2 = v_yy2 - v_y2;
@@ -522,13 +522,13 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     // z is blocking to prevent flow when water is flat and Z is not flat, described in article SWOF
                     // barrier is ourown additiona, to vcreate flood walls.
 
-                    //left and right hand side of c-1 (x1)
+                    //left and right hand side of c and c-1 (x and x1)
                     double h_x1r = std::max(0.0, hx1r - std::max(0.0,  dz_x1 + fb_x1)); //rechts van c-1
                     double h_xl  = std::max(0.0, hxl  - std::max(0.0, -dz_x1 + fb_x1)); //links van het midden
                     if(!bc1) { h_x1r=ux1r=vx1r=0.0; } // if !inside = boundary
                     hll_x1 = F_Riemann(h_x1r,ux1r,vx1r, h_xl,uxl,vxl); // c-1 (x1 right) and c (x1 left)
 
-                    //right and left hand side of c+1 (x2)
+                    //right and left hand side of c and c+1 (x and x2)
                     double h_xr  = std::max(0.0, hxr  - std::max(0.0,  dz_x2 + fb_x2));
                     double h_x2l = std::max(0.0, hx2l - std::max(0.0, -dz_x2 + fb_x2));
                     if(!bc2) { h_x2l=ux2l=vx2l=0.0;}

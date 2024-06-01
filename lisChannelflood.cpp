@@ -411,10 +411,10 @@ void TWorld::ChannelFlood(void)
         }
     }
 
-    if (SwitchSWOFopen)
-        dtflood = fullSWOF2open(hmx, Uflood, Vflood, DEM);
-    else
-        dtflood = fullSWOF2RO(hmx, Uflood, Vflood, DEM);
+    //if (SwitchSWOFopen)
+    dtflood = fullSWOF2open(hmx, Uflood, Vflood, DEM);
+    // OBSOLETE
+    //    dtflood = fullSWOF2RO(hmx, Uflood, Vflood, DEM);
     // 2D dyn flow of hmx water, when using kin wave
 
     //new flood domain

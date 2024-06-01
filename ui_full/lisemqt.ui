@@ -2176,7 +2176,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>8</number>
+                  <number>7</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -9382,10 +9382,23 @@
                          <property name="verticalSpacing">
                           <number>4</number>
                          </property>
-                         <item row="9" column="0" colspan="3">
-                          <widget class="QCheckBox" name="checkTimeavgV">
+                         <item row="5" column="3">
+                          <spacer name="horizontalSpacer_22">
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>40</width>
+                             <height>20</height>
+                            </size>
+                           </property>
+                          </spacer>
+                         </item>
+                         <item row="5" column="0" colspan="2">
+                          <widget class="QLineEdit" name="E_minWHflow">
                            <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
@@ -9399,40 +9412,9 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Time average velocity in 2D flow (def. V)</string>
-                           </property>
-                           <property name="checked">
-                            <bool>true</bool>
+                            <string>0.0001</string>
                            </property>
                           </widget>
-                         </item>
-                         <item row="5" column="2">
-                          <widget class="QLabel" name="label_63">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Minimum height (m) before flow is calculated in 2D</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="5" column="3">
-                          <spacer name="horizontalSpacer_22">
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
-                           </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>40</width>
-                             <height>20</height>
-                            </size>
-                           </property>
-                          </spacer>
                          </item>
                          <item row="4" column="0">
                           <widget class="QSpinBox" name="E_FloodMaxIter">
@@ -9461,54 +9443,6 @@
                            </property>
                            <property name="value">
                             <number>200</number>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="5" column="0" colspan="2">
-                          <widget class="QLineEdit" name="E_minWHflow">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>0.0001</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="4" column="1" colspan="2">
-                          <widget class="QLabel" name="label_199">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Max iterations (def. 200)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                            </property>
                           </widget>
                          </item>
@@ -9545,7 +9479,46 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="11" column="0" colspan="3">
+                         <item row="10" column="0" colspan="3">
+                          <widget class="QCheckBox" name="checkTimeavgV">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Time average velocity in 2D flow (def. V)</string>
+                           </property>
+                           <property name="checked">
+                            <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="7" column="0" colspan="4">
+                          <widget class="QCheckBox" name="checkMB_WH">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Correct mass balance by changing the surface water level (t) and infiltration (t+1)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="12" column="0" colspan="3">
                           <widget class="QCheckBox" name="checkNoSedBoundary">
                            <property name="font">
                             <font>
@@ -9557,6 +9530,33 @@
                            </property>
                            <property name="text">
                             <string>No detachment/deposition at domain boundary</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="4" column="1" colspan="2">
+                          <widget class="QLabel" name="label_199">
+                           <property name="enabled">
+                            <bool>true</bool>
+                           </property>
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Max iterations (def. 200)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                           </property>
+                           <property name="alignment">
+                            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                            </property>
                           </widget>
                          </item>
@@ -9581,8 +9581,8 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="6" column="0" colspan="4">
-                          <widget class="QCheckBox" name="checkMB_WH">
+                         <item row="5" column="2">
+                          <widget class="QLabel" name="label_63">
                            <property name="font">
                             <font>
                              <pointsize>8</pointsize>
@@ -9592,7 +9592,22 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Correct mass balance by changing the surface water level (t) and infiltration (t+1)</string>
+                            <string>Minimum height (m) before flow is calculated in 2D</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="6" column="0">
+                          <widget class="QCheckBox" name="checkMUSCL">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Use MUSCL in 2D flow</string>
                            </property>
                           </widget>
                          </item>
