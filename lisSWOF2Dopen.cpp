@@ -208,6 +208,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
+                //z->Drc *= 2.0;
                 if (hs->Drc > F_minWH) {
                     tmd->Drc = 1;
                     if (c > 0 && !MV(r,c-1)        ) tmd->data[r][c-1] = 1;
@@ -280,10 +281,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         fb_y2 = br2 ? std::max(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]) : FlowBarrierS->Drc;
                     }
 
-                    double dz_x1 = (Z - z_x1);
-                    double dz_x2 = (z_x2 - Z);
-                    double dz_y1 = (Z - z_y1);
-                    double dz_y2 = (z_y2 - Z);
+                    double dz_x1 = (Z - z_x1)*F_Z2Dcorrection;
+                    double dz_x2 = (z_x2 - Z)*F_Z2Dcorrection;
+                    double dz_y1 = (Z - z_y1)*F_Z2Dcorrection;
+                    double dz_y2 = (z_y2 - Z)*F_Z2Dcorrection;
 
                     // muscl
                     double delzcx =0;
@@ -375,7 +376,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         hll_y1 = F_Riemann(h_y1d,vy_y1,vx_y1, H_u,Vy,Vx); // r-1 and r
                     else
                       //   hll_y1 = F_Riemann(H_u,Vy,Vx, H_u,Vy,Vx);
-                   hll_y1 = F_Riemann(0,0,0, H_u,Vy,Vx);
+                    hll_y1 = F_Riemann(0,0,0, H_u,Vy,Vx);
 
                     double H_d   = std::max(0.0, H    - std::max(0.0,  dz_y2 + fb_y2));
                     double h_y2u = std::max(0.0, h_y2 - std::max(0.0, -dz_y2 + fb_y2));

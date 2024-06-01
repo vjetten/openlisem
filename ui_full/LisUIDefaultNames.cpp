@@ -634,6 +634,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding SWOF Reconstruction");
     namelist[i].value = QString("1"); //minmod
     namelist[i++].name = QString("Flooding SWOF flux limiter");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Z 2D correction");
     namelist[i].value = QString("200");
     namelist[i++].name = QString("Flood max iterations");
     namelist[i].value = QString("0.0001");

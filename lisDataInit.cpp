@@ -151,6 +151,7 @@ void TWorld::InitParameters(void)
         F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
         F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
         F_minWH = getvaluedouble("Min WH flow");   //HLL HLL2 Rusanov
+        F_Z2Dcorrection = getvaluedouble("Z 2D correction");
         // SwitchHeun = false;// (getvalueint("Use Heun") == 1);
         //SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
@@ -166,6 +167,7 @@ void TWorld::InitParameters(void)
         F_scheme = 4;   //Rusanov HLL HLL2 HLL2c
         //  SwitchHeun = false;
         F_pitValue = _dx/100;
+        F_Z2Dcorrection = 1.0;
         //Switch2DDiagonalFlow = true;
         //SwitchErosionInsideLoop = true;
         SwitchLinkedList = true;

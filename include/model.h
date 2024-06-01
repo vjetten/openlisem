@@ -811,7 +811,7 @@ public:
     //FLOOD according to FULLSWOF2D
     double Flood_DTMIN;
     int F_scheme, F_fluxLimiter, F_MaxIter, F_AddGravity;
-    double F_Angle, F_minWH;
+    double F_minWH, F_Z2Dcorrection;
    // double HLL2_f1, HLL2_f2, HLL2_f3, HLL2_cfl, HLL_tmp;
     double F_pitValue;
     bool prepareFlood, startFlood;
