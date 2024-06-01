@@ -208,7 +208,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 //FloodT->Drc = 0;
                 tmd->Drc = 0;
             }}
-
+            SwitchMUSCL = true;
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (hs->Drc > F_minWH) {
@@ -222,11 +222,17 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) tmd->data[r+1][c+1]=1;
                     if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) tmd->data[r-1][c+1]=1;
                     if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) tmd->data[r+1][c-1]=1;
+                    if (SwitchMUSCL) {
+                        if (c > 1 && !MV(r,c-2)        ) tmd->data[r][c-2] = 1;
+                        if (c < _nrCols-2 && !MV(r,c+2)) tmd->data[r][c+2] = 1;
+                        if (r > 1 && !MV(r-2,c)        ) tmd->data[r-2][c] = 1;
+                        if (r < _nrRows-2 && !MV(r+2,c)) tmd->data[r+2][c] = 1;
+                    }
                 }
             }}
 
             //do all flow and state calculations
-  //          #pragma omp parallel for num_threads(userCores)
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
 
                 if (tmd->Drc > 0) {
@@ -275,6 +281,32 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     double v_y1 = br1 ? v->data[r-1][c] : V;
                     double v_y2 = br2 ? v->data[r+1][c] : V;
 
+                    double h_xx1, h_xx2, u_xx1, u_xx2, v_xx1, v_xx2;
+                    double h_yy1, h_yy2, u_yy1, u_yy2, v_yy1, v_yy2;
+                    if (SwitchMUSCL) {
+                        if(c > 1 && !MV(r,c-2)) {
+                            h_xx1 = hs->data[r][c-2];
+                            u_xx1 =  u->data[r][c-2];
+                            v_xx1 =  v->data[r][c-2];
+                        }
+                        if(c < _nrCols-2 && !MV(r,c+2)) {
+                            h_xx2 = hs->data[r][c+2];
+                            u_xx2 =  u->data[r][c+2];
+                            v_xx2 =  v->data[r][c+2];
+                        }
+                        if(!MV(r > 1 && r-2,c)) {
+                            h_yy1 = hs->data[r-2][c];
+                            u_yy1 =  u->data[r-2][c];
+                            v_yy1 =  v->data[r-2][c];
+                        }
+                        if(r < _nrRows-2 && !MV(r+2,c)) {
+                            h_yy2 = hs->data[r+2][c];
+                            u_yy2 =  u->data[r+2][c];
+                            v_yy2 =  v->data[r+2][c];
+                        }
+                    }
+
+
                     double fb_x1=0,fb_x2=0,fb_y1=0,fb_y2=0;
                     if (SwitchFlowBarriers) {
                         fb_x1 = bc1 ? std::max(FlowBarrierW->Drc, FlowBarrierE->data[r][c-1]) : FlowBarrierW->Drc;
@@ -317,7 +349,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     vy1d = v_y1; vyu = V; vyd = V; vy2u = v_y2;
 
                     //  MUSCL: on the 4 boundaties of a gridcell interpolate from the center values
-                    SwitchMUSCL = true;
                     if (SwitchMUSCL) {
                         double minh = 0.0001;
                         double dh, du, dv, dz_h;
@@ -368,9 +399,9 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                             delta_h2 = delta_h1;
                             delta_u2 = delta_u1;
                             delta_v2 = delta_v1;
-                            delta_h1 = h_x1 - hs->data[r][c-2];
-                            delta_u1 = u_x1 - u->data[r][c-2];
-                            delta_v1 = u_x1 - v->data[r][c-2];
+                            delta_h1 = h_x1 - h_xx1;
+                            delta_u1 = u_x1 - u_xx1;
+                            delta_v1 = u_x1 - v_xx1;
                             dh = limiter(delta_h1, delta_h2);
                             du = limiter(delta_u1, delta_u2);
                             dv = limiter(delta_v1, delta_v2);
@@ -389,9 +420,9 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
                         // right hand cell, left boundary
                         if (c < _nrCols-2 && !MV(r,c)) {
-                            delta_h2 = hs->data[r][c+2] - h_x2;
-                            delta_u2 =  u->data[r][c+2] - u_x2;
-                            delta_v2 =  v->data[r][c+2] - v_x2;
+                            delta_h2 = h_xx2 - h_x2;
+                            delta_u2 = u_xx2 - u_x2;
+                            delta_v2 = v_xx2 - v_x2;
                             delta_h1 = tmph;
                             delta_u1 = tmpu;
                             delta_v1 = tmpv;
@@ -444,9 +475,9 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                             delta_h2 = delta_h1;
                             delta_u2 = delta_u1;
                             delta_v2 = delta_v1;
-                            delta_h1 = h_y1 - hs->data[r-2][c];
-                            delta_u1 =  u_y1 - u->data[r-2][c];
-                            delta_v1 =  u_y1 - v->data[r-2][c];
+                            delta_h1 = h_y1 - h_yy1;
+                            delta_u1 = u_y1 - u_yy1;
+                            delta_v1 = u_y1 - v_yy1;
                             dh = limiter(delta_h1, delta_h2);
                             du = limiter(delta_u1, delta_u2);
                             dv = limiter(delta_v1, delta_v2);
@@ -463,9 +494,9 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
                         // lower cell, up boundary
                         if (r < _nrRows-2 && !MV(r,c)) {
-                            delta_h2 = hs->data[r+2][c] - h_y2;
-                            delta_u2 =  u->data[r+2][c] - u_y2;
-                            delta_v2 =  v->data[r+2][c] - v_y2;
+                            delta_h2 = h_yy2 - h_y2;
+                            delta_u2 = u_yy2 - u_y2;
+                            delta_v2 = v_yy2 - v_y2;
                             delta_h1 = tmph;
                             delta_u1 = tmpu;
                             delta_v1 = tmpv;
