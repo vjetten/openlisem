@@ -544,7 +544,6 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
                     // momentum balance for cells with water
                     if(hn > 1e-6) {
-                        // SWOF solution, delzc1 = 0 when not MUSCL
                         double gflow_x = GRAV*0.5*( (H_l-H)*(H_l+H)+(H-H_r)*(H+H_r));
                         double gflow_y = GRAV*0.5*( (H_u-H)*(H_u+H)+(H-H_d)*(H+H_d));
                         // graviy term: gh

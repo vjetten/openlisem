@@ -278,6 +278,8 @@ typedef struct UNIT_LIST {
 //---------------------------------------------------------------------------
 /// vec4 used for HLL
 typedef struct vec4 { double v[4]; } vec4;
+/// vec6 used for muscl
+typedef struct vec6 { double v[6]; } vec6;
 //---------------------------------------------------------------------------
 /// Structure to store rain station values of rainfile mapnames
 typedef struct RAIN_LIST {

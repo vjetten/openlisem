@@ -31,6 +31,9 @@
 #include "global.h"
 
 //-------------------------------------------------------------------------------------------------
+
+
+
 // force flow when a diagonal solution exists and a DEM blockage is present
 void TWorld::SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
 {
@@ -223,7 +226,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             }}
 
             //do all flow and state calculations
-            #pragma omp parallel for num_threads(userCores)
+  //          #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
 
                 if (tmd->Drc > 0) {
@@ -257,7 +260,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     double z_y1 =  br1 ? z->data[r-1][c] : Z;
                     double z_y2 =  br2 ? z->data[r+1][c] : Z;
 
-                    double h_x1 =  bc1 ? hs->data[r][c-1] : H;
+                    double h_x1 =  bc1 ? hs->data[r][c-1] : H;  //??? hs???
                     double h_x2 =  bc2 ? hs->data[r][c+1] : H;
                     double h_y1 =  br1 ? hs->data[r-1][c] : H;
                     double h_y2 =  br2 ? hs->data[r+1][c] : H;
@@ -286,64 +289,11 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     double dz_y2 = (z_y2 - Z);
 
                     // muscl
-                    double delzcx =0;
-                    double delzcy =0;
-/*
- *  The point of muscl is to estimate the water level and vlocity on the 4 boundaties of a gridcell
-                    SwitchMUSCL = false;
-                    if (SwitchMUSCL) {
-                        delta_h1 = H-h_x1;
-                        delta_u1 = U-u_x1;
-                        delta_v1 = V-v_x1;
-                        delta_h2 = h_x2 - H;
-                        delta_u2 = u_x2 - U;
-                        delta_v2 = v_x2 - V;
-                        double dhx   = limiter(H-h_x1, h_x2-H);
-                        double dz_hx = limiter(H-h_x1 + dz_x1, h_x2-H + dz_x2);
+                    double delzcx = 0;
+                    double delzcy = 0;
 
-                        double dux = limiter(Vx-u_x1, u_x2-U);
-                        double dvx = limiter(Vy-v_x1, v_x2-V);
-
-                        double z1r_ = Z+(dz_hx-dhx);
-                        double z1l_ = Z+(dhx-dz_hx);
-                        delzcx = z1r_-z1l_; // ???? this is in fact  => 2.0*(dz_hx - dhx)
-
-
-                        double hlh = 1.0;
-                        double hrh = 1.0;
-                        if (H > he_ca) {
-                            hlh = (H + 0.5*dhx)/H;
-                            hrh = (H - 0.5*dhx)/H;
-                        }
-
-                        u_x1 = U + hlh * 0.5*dux;
-                        u_x2 = U - hrh * 0.5*dux;
-                        v_x1 = V + hlh * 0.5*dvx;
-                        v_x2 = V - hrh * 0.5*dvx;
-
-                        double dhy   = limiter(H-h_y1, h_y2-H);
-                        double dz_hy = limiter(H-h_y1 + dz_y1, h_y2-H + dz_y2);
-                        double duy = limiter(U-u_y1, u_y2-U);
-                        double dvy = limiter(V-v_y1, v_y2-V);
-
-                        double z2r_ = Z+(dz_hy-dhy);
-                        double z2l_ = Z+(dhy-dz_hy);
-                        delzcy = z2r_-z2l_;
-
-                        hlh = 1.0;
-                        hrh = 1.0;
-                        if (H > he_ca) {
-                            hlh = (H + 0.5*dhy)/H;
-                            hrh = (H - 0.5*dhy)/H;
-                        }
-
-                        u_y1 = Vx + hlh * 0.5*duy;
-                        u_y2 = Vx - hrh * 0.5*duy;
-                        v_y1 = Vy + hlh * 0.5*dvy;
-                        v_y2 = Vy - hrh * 0.5*dvy;
-                    }
-*/
-                    //########### calculate Riemann valaues for all four boundaries of a cell ############
+                    // all boundaries are done in all direction (so horizontal in x and y and vertical in x and why
+                    // not only horizontal in x and vertical in y, because these are vectors so for each boundary there is an x and y direction
 
                     double hx1r, hxl, hxr, hx2l;  // c-1, c, c+1
                     double hy1d, hyu, hyd, hy2u;  // r-1, r, r+1
@@ -357,36 +307,185 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     // all boundaries are done in all direction (so horizontal in x and y and vertical in x and why
                     // not only horizontal in x and vertical in y, because these are vectors so for each boundary there is an x and y direction
 
-                    // non muscl solution, cell centres for flow in x and y direction: Cell centres
-                    hx1r = h_x1;
-                    hxl = H;
-                    hxr = H;
-                    hx2l = h_x2;
+                    // non muscl solution, cell centres for boundaries in x and y directions
+                    hx1r = h_x1; hxl = H; hxr = H; hx2l = h_x2;
+                    ux1r = u_x1; uxl = U; uxr = U; ux2l = u_x2;
+                    vx1r = v_x1; vxl = V; vxr = V; vx2l = v_x2;
 
-                    ux1r = u_x1;
-                    uxl = U;
-                    uxr = U;
-                    ux2l = u_x2;
+                    hy1d = h_y1; hyu = H; hyd = H; hy2u = h_y2;
+                    uy1d = u_y1; uyu = U; uyd = U; uy2u = u_y2;
+                    vy1d = v_y1; vyu = V; vyd = V; vy2u = v_y2;
 
-                    vx1r = v_x1;
-                    vxl = V;
-                    vxr = V;
-                    vx2l = v_x2;
+                    //  MUSCL: on the 4 boundaties of a gridcell interpolate from the center values
+                    SwitchMUSCL = true;
+                    if (SwitchMUSCL) {
+                        double minh = 0.0001;
+                        double dh, du, dv, dz_h;
+                        double tmph, tmpu, tmpv;
+                        double delta_h1, delta_h2;
+                        double delta_u1, delta_u2;
+                        double delta_v1, delta_v2;
 
-                    hy1d = h_y1;
-                    hyu = H;
-                    hyd = H;
-                    hy2u = h_y2;
+                        // center cell
+                        delta_h1 = H-h_x1;
+                        delta_u1 = U-u_x1;
+                        delta_v1 = V-v_x1;
+                        delta_h2 = h_x2-H;
+                        delta_u2 = u_x2-U;
+                        delta_v2 = v_x2-V;
+                        tmph = delta_h2;
+                        tmpu = delta_u2;
+                        tmpv = delta_v2;
+                        dh = limiter(delta_h1, delta_h2);
+                        du = limiter(delta_u1, delta_u2);
+                        dv = limiter(delta_v1, delta_v2);
+                        hxl = H - 0.5*dh;
+                        hxr = H + 0.5*dh;
+                        if (H > minh) {             //???dangerous, can give high velocities?
+                            uxl = U - hxr*du*0.5/H;
+                            uxr = U + hxl*du*0.5/H;
+                            vxl = V - hxr*dv*0.5/H;
+                            vxr = V + hxl*dv*0.5/H;
+                            //h1r[i][j]=h[i][j]+dh*0.5;
+                            //h1l[i][j]=h[i][j]-dh*0.5;
+                            // u1r[i][j]=u[i][j]+h1l[i][j]*du*0.5/h[i][j];
+                            // u1l[i][j]=u[i][j]-h1r[i][j]*du*0.5/h[i][j];
+                            // v1r[i][j]=v[i][j]+h1l[i][j]*dv*0.5/h[i][j];
+                            // v1l[i][j]=v[i][j]-h1r[i][j]*dv*0.5/h[i][j];
+                        } else {
+                            uxl = U - hxr*du*0.5;
+                            uxr = U + hxl*du*0.5;
+                            vxl = V - hxr*dv*0.5;
+                            vxr = V + hxl*dv*0.5;
+                        }
+                        //limiter->calcul(delta_h1+delta_z1[i-1][j],delta_h2+delta_z1[i][j]);
+                        //delta_z1[i][j] = z[i+1][j]-z[i][j]; => x2-x => so i-1 = x-x1
+                        dz_h = limiter(delta_h1 + (Z-dz_x1), delta_h2 + (dz_x2-Z));
+                        delzcx = Z+(dz_h-dh)- (Z+(dh-dz_h));// = (dz_h-dh)-(dh-dz_h) = 2*dz_h-2*dh; //!!!!
 
-                    uy1d = u_y1;
-                    uyu = U;
-                    uyd = U;
-                    uy2u = u_y2;
+                        // left hand cell, right boundary
+                        if (c > c+2 && !MV(r,c)) {
+                            delta_h2 = delta_h1;
+                            delta_u2 = delta_u1;
+                            delta_v2 = delta_v1;
+                            delta_h1 = h_x1 - hs->data[r][c-2];
+                            delta_u1 = u_x1 - u->data[r][c-2];
+                            delta_v1 = u_x1 - v->data[r][c-2];
+                            dh = limiter(delta_h1, delta_h2);
+                            du = limiter(delta_u1, delta_u2);
+                            dv = limiter(delta_v1, delta_v2);
+                            //h1r[i-1][j]=h[i-1][j]+dh*0.5;
+                            //u1r[i-1][j]=u[i-1][j]+h1l[i][j]*du*0.5/h[i-1][j];
+                            hx1r = h_x1 + 0.5*dh;
+                            double hx1l = h_x1 - 0.5*dh;
+                            if (h_x1 > minh) {
+                                ux1r = u_x1 + hx1l*du*0.5/h_x1;
+                                vx1r = v_x1 + hx1l*dv*0.5/h_x1;
+                            } else {
+                                ux1r = u_x1 + hx1l*du*0.5;
+                                vx1r = v_x1 + hx1l*dv*0.5;
+                            }
+                        }
 
-                    vy1d = v_y1;
-                    vyu = V;
-                    vyd = V;
-                    vy2u = v_y2;
+                        // right hand cell, left boundary
+                        if (c < _nrCols-2 && !MV(r,c)) {
+                            delta_h2 = hs->data[r][c+2] - h_x2;
+                            delta_u2 =  u->data[r][c+2] - u_x2;
+                            delta_v2 =  v->data[r][c+2] - v_x2;
+                            delta_h1 = tmph;
+                            delta_u1 = tmpu;
+                            delta_v1 = tmpv;
+                            dh = limiter(delta_h1, delta_h2);
+                            du = limiter(delta_u1, delta_u2);
+                            dv = limiter(delta_v1, delta_v2);
+                            hx2l = h_x2 - 0.5*dh;
+                            double hx2r = h_x2 - 0.5*dh;
+                            if (H > minh) {
+                                ux2l = U - hx2r*du*0.5/h_x2;
+                                vx2l = V - hx2r*dv*0.5/h_x2;
+                            } else {
+                                ux2l = U - hx2r*du*0.5;
+                                vx2l = V - hx2r*dv*0.5;
+                            }
+                        }
+
+                        // vertical, direction from up to down
+                        // center cell
+                        delta_h1 = H-h_y1;
+                        delta_u1 = U-u_y1;
+                        delta_v1 = V-v_y1;
+                        delta_h2 = h_y2-H;
+                        delta_u2 = u_y2-U;
+                        delta_v2 = v_y2-V;
+                        tmph = delta_h2;
+                        tmpu = delta_u2;
+                        tmpv = delta_v2;
+                        dh = limiter(delta_h1, delta_h2);
+                        du = limiter(delta_u1, delta_u2);
+                        dv = limiter(delta_v1, delta_v2);
+                        hyu = H - 0.5*dh;
+                        hyd = H + 0.5*dh;
+                        if (H > minh) {
+                            uyu = U - hyd*du*0.5/H;
+                            uyd = U + hyu*du*0.5/H;
+                            vyu = V - hyd*dv*0.5/H;
+                            vyd = V + hyu*dv*0.5/H;
+                        } else {
+                            uyu = U - hyd*du*0.5;
+                            uyd = U + hyu*du*0.5;
+                            vyu = V - hyd*dv*0.5;
+                            vyd = V + hyu*dv*0.5;
+                        }
+                        dz_h = limiter(delta_h1 + (Z-dz_y1), delta_h2 + (dz_y2-Z));
+                        delzcy = Z+(dz_h-dh)- (Z+(dh-dz_h));// = (dz_h-dh)-(dh-dz_h) = 2*dz_h-2*dh; //!!!!
+
+                        // upper cell, down boundary
+                        if (r > r+2 && !MV(r,c)) {
+                            delta_h2 = delta_h1;
+                            delta_u2 = delta_u1;
+                            delta_v2 = delta_v1;
+                            delta_h1 = h_y1 - hs->data[r-2][c];
+                            delta_u1 =  u_y1 - u->data[r-2][c];
+                            delta_v1 =  u_y1 - v->data[r-2][c];
+                            dh = limiter(delta_h1, delta_h2);
+                            du = limiter(delta_u1, delta_u2);
+                            dv = limiter(delta_v1, delta_v2);
+                            hy1d = h_y1 + 0.5*dh;
+                            double hy1u = h_y1 - 0.5*dh;
+                            if (H > minh) {
+                                uy1d = U + hy1u*du*0.5/h_y1;
+                                vy1d = V + hy1u*dv*0.5/h_y1;
+                            } else {
+                                uy1d = U + hy1u*du*0.5;
+                                vy1d = V + hy1u*dv*0.5;
+                            }
+                        }
+
+                        // lower cell, up boundary
+                        if (r < _nrRows-2 && !MV(r,c)) {
+                            delta_h2 = hs->data[r+2][c] - h_y2;
+                            delta_u2 =  u->data[r+2][c] - u_y2;
+                            delta_v2 =  v->data[r+2][c] - v_y2;
+                            delta_h1 = tmph;
+                            delta_u1 = tmpu;
+                            delta_v1 = tmpv;
+                            dh = limiter(delta_h1, delta_h2);
+                            du = limiter(delta_u1, delta_u2);
+                            dv = limiter(delta_v1, delta_v2);
+                            hy2u = h_y2 - 0.5*dh;
+                            double hy2d = h_y2 + 0.5*dh;
+                            if (H > minh) {
+                                uy2u = U - hy2d*du*0.5/h_y2;
+                                vy2u = V - hy2d*dv*0.5/h_y2;
+                            } else {
+                                uy2u = U - hy2d*du*0.5;
+                                vy2u = V - hy2d*dv*0.5;
+                            }
+                        }
+                    }
+
+                    //########### calculate Riemann valaues for all four boundaries of a cell ############
+
 
                     // if muscl H and h_x1 etc become Hx1l and hx1r
                     // z is blocking to prevent flow when water is flat and Z is not flat, described in article SWOF
@@ -438,15 +537,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                             // SWOF solution, delzc1 = 0 when not MUSCL
                             //double gflow_x = GRAV*0.5*( (H_l-H)*(H_l+H)+(H-H_r)*(H+H_r));// + delzcx*(H_l+H_r) ); delzcx = 0 when no muscl
                             //double gflow_y = GRAV*0.5*( (H_u-H)*(H_u+H)+(H-H_d)*(H+H_d));// + delzcy*(H_u+H_d) );
-                            double gflow_x = GRAV*0.5*( (h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) );// + delzcx*(H_l+H_r) ); delzcx = 0 when no muscl
-                            double gflow_y = GRAV*0.5*( (h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd) );// + delzcy*(H_u+H_d) );
-                            // IS THIS SWOF OR NOT?
-                            //+ GRAV_DEM*(( h1left[i][j]- h1l[i][j])*( h1left[i][j]+ h1l[i][j])+
-                            //            ( h1r[i][j]- h1right[i][j])*( h1r[i][j]+ h1right[i][j])+
-                            //( h1l[i][j]+ h1r[i][j])* delzc1[i][j]))- ty*( g2[i][j+1]- g2[i][j]));
-                            //h1right[i-1][j] = rec_hydro.get_hhydro_l();
-                            //h1left[i][j] = rec_hydro.get_hhydro_r(); left is center left, right is x-1 right
-
+                            double gflow_x = GRAV*0.5*( (h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) + delzcx*(hxl+hxr)); //delzcx = 0 when no muscl
+                            double gflow_y = GRAV*0.5*( (h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd) + delzcy*(hyu+hyd));
 
                             double qxn = H * U - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
                             double qyn = H * V - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
