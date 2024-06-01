@@ -289,6 +289,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     double delzcx =0;
                     double delzcy =0;
 /*
+ *  The point of muscl is to estimate the water level and vlocity on the 4 boundaties of a gridcell
                     SwitchMUSCL = false;
                     if (SwitchMUSCL) {
                         delta_h1 = H-h_x1;
@@ -344,69 +345,75 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 */
                     //########### calculate Riemann valaues for all four boundaries of a cell ############
 
-                    //coding left right and up/down boundary h
-                    //h_x1r|H_l  H  H_r|h_x2l
-                    //_____|___________|_____
+                    double hx1r, hxl, hxr, hx2l;  // c-1, c, c+1
+                    double hy1d, hyu, hyd, hy2u;  // r-1, r, r+1
 
-                    // |h_y1d
-                    // |-----
-                    // |H_u
-                    // |
-                    // |H
-                    // |
-                    // |H_d
-                    // |-----
-                    // |h_y2u
-                    // boundary variables
+                    double ux1r, uxl, uxr, ux2l;
+                    double uy1d, uyu, uyd, uy2u;
 
-                    double hx1l, hx1r, hx2l, hx2r;
-                    double hy1l, hy1r, hy2l, hy2r;
-                    double u1l, u1r, u2l, u2r;
-                    double v1l, v1r, v2l, v2r;
+                    double vx1r, vxl, vxr, vx2l;
+                    double vy1d, vyu, vyd, vy2u;
 
-                    // non muscl solution, cell centres for flow in x direction
-                    hx1l = h_x1;
-                    hx1r = H;
-                    hx2l = H;
-                    hx2r = h_x2;
-                    u1l = u_x1;
-                    u1r = U;
-                    u2l = U;
-                    u2r = u_x2;
-                    v1l = v_x1;
-                    v1r = V;
-                    v2l = V;
-                    v2r = v_x2;
+                    // all boundaries are done in all direction (so horizontal in x and y and vertical in x and why
+                    // not only horizontal in x and vertical in y, because these are vectors so for each boundary there is an x and y direction
+
+                    // non muscl solution, cell centres for flow in x and y direction: Cell centres
+                    hx1r = h_x1;
+                    hxl = H;
+                    hxr = H;
+                    hx2l = h_x2;
+
+                    ux1r = u_x1;
+                    uxl = U;
+                    uxr = U;
+                    ux2l = u_x2;
+
+                    vx1r = v_x1;
+                    vxl = V;
+                    vxr = V;
+                    vx2l = v_x2;
+
+                    hy1d = h_y1;
+                    hyu = H;
+                    hyd = H;
+                    hy2u = h_y2;
+
+                    uy1d = u_y1;
+                    uyu = U;
+                    uyd = U;
+                    uy2u = u_y2;
+
+                    vy1d = v_y1;
+                    vyu = V;
+                    vyd = V;
+                    vy2u = v_y2;
 
                     // if muscl H and h_x1 etc become Hx1l and hx1r
-                    // z is blocking to prevent flow when water is flat and Z is not flat, described in article SWOF                    
-                    double h_x1r = std::max(0.0, h_x1 - std::max(0.0,  dz_x1 + fb_x1));
-                    double H_l   = std::max(0.0, H    - std::max(0.0, -dz_x1 + fb_x1));
-                    if(bc1)  // if inside
-                        hll_x1 = F_Riemann(h_x1r,u_x1,v_x1, H_l,U,V); // c-1 and c  //h_x1r is h of the c-1 cell on the right hand side
-                    else
-                        hll_x1 = F_Riemann(0,0,0, H_l,U,V);
+                    // z is blocking to prevent flow when water is flat and Z is not flat, described in article SWOF
+                    // barrier is ourown additiona, to vcreate flood walls.
 
-                    double H_r   = std::max(0.0, H    - std::max(0.0,  dz_x2 + fb_x2));
-                    double h_x2l = std::max(0.0, h_x2 - std::max(0.0, -dz_x2 + fb_x2));
-                    if(bc2)
-                        hll_x2 = F_Riemann(H_r,U,V, h_x2l,u_x2,v_x2); // c and c+1
-                    else
-                        hll_x2 = F_Riemann(H_r,U,V, 0,0,0);
+                    //left and right hand side of c-1 (x1)
+                    double h_x1r = std::max(0.0, hx1r - std::max(0.0,  dz_x1 + fb_x1)); //rechts van c-1
+                    double h_xl  = std::max(0.0, hxl  - std::max(0.0, -dz_x1 + fb_x1)); //links van het midden
+                    if(!bc1) { h_x1r=ux1r=vx1r=0.0; } // if !inside = boundary
+                    hll_x1 = F_Riemann(h_x1r,ux1r,vx1r, h_xl,uxl,vxl); // c-1 (x1 right) and c (x1 left)
 
-                    double h_y1d = std::max(0.0, h_y1 - std::max(0.0,  dz_y1 + fb_y1));
-                    double H_u   = std::max(0.0, H    - std::max(0.0, -dz_y1 + fb_y1));
-                    if (br1)
-                        hll_y1 = F_Riemann(h_y1d,v_y1,u_y1, H_u,V,U); // r-1 and r
-                    else
-                       hll_y1 = F_Riemann(0,0,0, H_u,V,U);
+                    //right and left hand side of c+1 (x2)
+                    double h_xr  = std::max(0.0, hxr  - std::max(0.0,  dz_x2 + fb_x2));
+                    double h_x2l = std::max(0.0, hx2l - std::max(0.0, -dz_x2 + fb_x2));
+                    if(!bc2) { h_x2l=ux2l=vx2l=0.0;}
+                    hll_x2 = F_Riemann(h_xr,uxr,vxr, h_x2l,ux2l,vx2l); // c and c+1
 
-                    double H_d   = std::max(0.0, H    - std::max(0.0,  dz_y2 + fb_y2));
-                    double h_y2u = std::max(0.0, h_y2 - std::max(0.0, -dz_y2 + fb_y2));
-                    if(br2)
-                        hll_y2 = F_Riemann(H_d,V, U, h_y2u,v_y2,u_y2); // r and r+1
-                    else
-                        hll_y2 = F_Riemann(H_d,V,U, 0,0,0);
+                    double h_y1d = std::max(0.0, hy1d - std::max(0.0,  dz_y1 + fb_y1));
+                    double h_yu  = std::max(0.0, hyu  - std::max(0.0, -dz_y1 + fb_y1));
+                    if (!br1) {h_y1d=vy1d=uy1d=0.0;}
+                    hll_y1 = F_Riemann(h_y1d,vy1d,uy1d, h_yu,vyu,uyu); // r-1 (y1 down) and r (y up)
+                    // v and u chnaged places for y comnpared to x ? why? is also in swof code
+
+                    double h_yd  = std::max(0.0, hyd  - std::max(0.0,  dz_y2 + fb_y2));
+                    double h_y2u = std::max(0.0, hy2u - std::max(0.0, -dz_y2 + fb_y2));
+                    if(!br2) { h_y2u=vy2u=uy2u=0.0; }
+                    hll_y2 = F_Riemann(h_yd, vyd, uyd, h_y2u,vy2u,uy2u); // r and r+1
 
                     // determine smallest dt in x and y for each cell
                     double dtx = dx/std::max(hll_x1.v[3],hll_x2.v[3]);
@@ -429,9 +436,17 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         // momentum balance for cells with water
                         if(hn > he_ca) {
                             // SWOF solution, delzc1 = 0 when not MUSCL
-                            double gflow_x = GRAV*0.5*( (H_l-H)*(H_l+H)+(H-H_r)*(H+H_r));// + delzcx*(H_l+H_r) ); delzcx = 0 when no muscl
-                            double gflow_y = GRAV*0.5*( (H_u-H)*(H_u+H)+(H-H_d)*(H+H_d));// + delzcy*(H_u+H_d) );
-                            // graviy term: gh
+                            //double gflow_x = GRAV*0.5*( (H_l-H)*(H_l+H)+(H-H_r)*(H+H_r));// + delzcx*(H_l+H_r) ); delzcx = 0 when no muscl
+                            //double gflow_y = GRAV*0.5*( (H_u-H)*(H_u+H)+(H-H_d)*(H+H_d));// + delzcy*(H_u+H_d) );
+                            double gflow_x = GRAV*0.5*( (h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) );// + delzcx*(H_l+H_r) ); delzcx = 0 when no muscl
+                            double gflow_y = GRAV*0.5*( (h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd) );// + delzcy*(H_u+H_d) );
+                            // IS THIS SWOF OR NOT?
+                            //+ GRAV_DEM*(( h1left[i][j]- h1l[i][j])*( h1left[i][j]+ h1l[i][j])+
+                            //            ( h1r[i][j]- h1right[i][j])*( h1r[i][j]+ h1right[i][j])+
+                            //( h1l[i][j]+ h1r[i][j])* delzc1[i][j]))- ty*( g2[i][j+1]- g2[i][j]));
+                            //h1right[i-1][j] = rec_hydro.get_hhydro_l();
+                            //h1left[i][j] = rec_hydro.get_hhydro_r(); left is center left, right is x-1 right
+
 
                             double qxn = H * U - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
                             double qyn = H * V - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
