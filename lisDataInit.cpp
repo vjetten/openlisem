@@ -161,7 +161,7 @@ void TWorld::InitParameters(void)
         //SwitchGWChangeSD = true;//getvalueint("GW layer change SD") == 1;
     } else {
         F_MaxIter = 200;
-        F_minWH = 0.0001;
+        F_minWH = 0.00001;
         F_fluxLimiter = 1; //minmax, vanleer, albeda
         F_scheme = 4;   //Rusanov HLL HLL2 HLL2c
         //  SwitchHeun = false;
