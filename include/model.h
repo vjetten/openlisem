@@ -820,18 +820,10 @@ public:
     int iter_n;
     int F_SWOFSolution;
 
-    double fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
-    double fullSWOF2openWS(int nr_, cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
+
     void ChannelSWOFopen();
-
     void KinematicSWOFopen(cTMap *_h, cTMap *_V);
-
-    void prepareFloodZ(cTMap *z);
-    void setFloodMask(cTMap * h);
-    void setFloodMaskDT(cTMap * DT);
-    void setFloodDT(cTMap * h);
-    double checkforMinMaxV(double Ves1);
 
     double limiter(double a, double b);
     vec4 F_ROE(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
@@ -841,24 +833,14 @@ public:
     vec4 F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    void correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2);
 
     //runoff dynamic
-    double maincalcfluxOF(cTMap *_h, double dt, double dt_max);
-    void maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     void dynOutflowPoints(void);
     void OverlandFlow2Ddyn(void);
     void updateWHandHmx(void);
     void Boundary2Ddyn();
-    void MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
-    void setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v);
-    void simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v);
     void SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
     void SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
-
-    void MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
-    void maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
-    double maincalcflux(cTMap *_h,double dt, double dt_max);
 
     //SEDIMENT TRANSPORT
     int FS_SS_Method;

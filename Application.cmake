@@ -131,7 +131,7 @@ SET(APP_SOURCES
     lisSnowmelt.cpp
     lisSurfstor.cpp
     lisSoilmoisture.cpp
-    lisSWOF2D.cpp
+   # lisSWOF2D.cpp  OBSOLETE
     lisSWOF2Daux.cpp
     lisSWOF2Dopen.cpp
     lisSWOF2DSediment.cpp

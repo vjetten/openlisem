@@ -1231,7 +1231,6 @@ void TWorld::InitFlood(void)
     floodVHMax = NewMap(0);//
     floodTime = NewMap(0);//
     FloodDT = NewMap(0);
-    //FloodT = NewMap(0);
 
     iter_n = 0;
 
@@ -1239,51 +1238,53 @@ void TWorld::InitFlood(void)
     if (Switch2DDiagonalFlow)
         DiagonalFlowDEM();
 
-    if (!SwitchSWOFopen) {
-        vs = NewMap(0);
-        us = NewMap(0);
-        z1r = NewMap(0);
-        z1l = NewMap(0);
-        z2r = NewMap(0);
-        z2l = NewMap(0);
-        h1r = NewMap(0);
-        h1l = NewMap(0);
-        h2r = NewMap(0);
-        h2l = NewMap(0);
-        v1r = NewMap(0);
-        v1l = NewMap(0);
-        v2r = NewMap(0);
-        v2l = NewMap(0);
-        u1r = NewMap(0);
-        u1l = NewMap(0);
-        u2r = NewMap(0);
-        u2l = NewMap(0);
+    // OBSOLETE
+    // if (!SwitchSWOFopen) {
+    //FloodT = NewMap(0);
+    //     vs = NewMap(0);
+    //     us = NewMap(0);
+    //     z1r = NewMap(0);
+    //     z1l = NewMap(0);
+    //     z2r = NewMap(0);
+    //     z2l = NewMap(0);
+    //     h1r = NewMap(0);
+    //     h1l = NewMap(0);
+    //     h2r = NewMap(0);
+    //     h2l = NewMap(0);
+    //     v1r = NewMap(0);
+    //     v1l = NewMap(0);
+    //     v2r = NewMap(0);
+    //     v2l = NewMap(0);
+    //     u1r = NewMap(0);
+    //     u1l = NewMap(0);
+    //     u2r = NewMap(0);
+    //     u2l = NewMap(0);
 
-        delzc1 = NewMap(0);
-        delzc2 = NewMap(0);
+    //     delzc1 = NewMap(0);
+    //     delzc2 = NewMap(0);
 
-        f1 = NewMap(0);
-        f2 = NewMap(0);
-        f3 = NewMap(0);
-        cflx = NewMap(0);
-        cfly = NewMap(0);
-        g1 = NewMap(0);
-        g2 = NewMap(0);
-        g3 = NewMap(0);
-        f1o = NewMap(0);
-        f2o = NewMap(0);
-        f3o = NewMap(0);
-        g1o = NewMap(0);
-        g2o = NewMap(0);
-        g3o = NewMap(0);
-        h1d = NewMap(0);
-        h1g = NewMap(0);
-        h2d = NewMap(0);
-        h2g = NewMap(0);
-        delz1 = NewMap(0);
-        delz2 = NewMap(0);
-        prepareFloodZ(DEM);
-    }
+    //     f1 = NewMap(0);
+    //     f2 = NewMap(0);
+    //     f3 = NewMap(0);
+    //     cflx = NewMap(0);
+    //     cfly = NewMap(0);
+    //     g1 = NewMap(0);
+    //     g2 = NewMap(0);
+    //     g3 = NewMap(0);
+    //     f1o = NewMap(0);
+    //     f2o = NewMap(0);
+    //     f3o = NewMap(0);
+    //     g1o = NewMap(0);
+    //     g2o = NewMap(0);
+    //     g3o = NewMap(0);
+    //     h1d = NewMap(0);
+    //     h1g = NewMap(0);
+    //     h2d = NewMap(0);
+    //     h2g = NewMap(0);
+    //     delz1 = NewMap(0);
+    //     delz2 = NewMap(0);
+    //     prepareFloodZ(DEM);
+    // }
 
     if (SwitchErosion) {
         BLDepthFlood = NewMap(0);

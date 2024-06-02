@@ -1,3 +1,30 @@
+/*************************************************************************
+**  openLISEM: a spatial surface water balance and soil erosion model
+**  Copyright (C) 2022  Victor Jetten, Bastian van de Bout
+**  contact: v.g.jetten@utwente.nl
+**
+**  This program is free software: you can redistribute it and/or modify
+**  it under the terms of the GNU General Public License GPLv3 as published by
+**  the Free Software Foundation, either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  This program is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  GNU General Public License for more details.
+**
+**  You should have received a copy of the GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**
+**  Authors: Victor Jetten, Bastian van de Bout
+**  Developed in: MingW/Qt/
+**  website, information and code: https://github.com/vjetten/openlisem
+**
+*************************************************************************/
+//This particular code uses much of the principles of the FullSWOF model
+// https://arxiv.org/abs/1204.3210
+//https://sourcesup.renater.fr/frs/?group_id=895&release_id=3901#fullswof_2d-_1.10.00-title-content
+// the scheme is made suited for parallel processing
 
 #include <algorithm>
 #include "lisemqt.h"
@@ -5,183 +32,149 @@
 #include "operation.h"
 #include "global.h"
 
-//--------------------------------------------------------------------------------------------
-// correct mass balance
-double TWorld::getMass(cTMap *M, double th)
-{
-    double sum2 = 0;
-    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if(M->Drc > th)
-            sum2 += M->Drc*CHAdjDX->Drc;
-    }}
-    return sum2;
-}
-
-/*
-double TWorld::getMassWS(int nr_, cTMap *M, double th)
-{
-    double sum2 = 0;
-    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
-    FOR_ROW_COL_MV_LWS(nr_) {
-        if(M->Drc > th)
-            sum2 += M->Drc*CHAdjDX->Drc;
-    }}
-    return sum2;
-}
-*/
-double TWorld::getMassSed(cTMap *M, double th)
-{
-    double sum2 = 0;
-    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if(M->Drc > th)
-            sum2 += M->Drc;
-    }}
-    return sum2;
-}
 //---------------------------------------------------------------------------
-// correct mass balance
-void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
-{
-    double sum2 = 0;
-    double n = 0;
 
-    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if(M->Drc > th)
-        {
-            sum2 += M->Drc*CHAdjDX->Drc;
-            n += 1;
-        }
-    }}
-    sum2 = std::max(0.0, sum2);
-    // total and cells active for M
-    double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
+// force flow when a diagonal solution exists and a DEM blockage is present
+void TWorld::SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
+{
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(M->Drc > th)
-        {
-            M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
-            M->Drc = std::max(M->Drc , 0.0);
-        }
+        tma->Drc = 0;
+        tmb->Drc = 0;
+        tmc->Drc = 0;
     }}
-}
 
-/*
-void TWorld::correctMassBalanceWS(int nr_, double sum1, cTMap *M, double th)
-{
-    double sum2 = 0;
-    double n = 0;
-
-    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
-    FOR_ROW_COL_MV_LWS(nr_) {
-        if(M->Drc > th)
-        {
-            sum2 += M->Drc* CHAdjDX->Drc;
-            n += 1;
-        }
-    }}
-    // total and cells active for M
-    double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
+    bool doit = false;
 
     #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_LWS(nr_) {
-        if(M->Drc > th)
-        {
-            M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
-            M->Drc = std::max(M->Drc , 0.0);
-        }
-    }}
-}
-*/
+    for(long i_= 0; i_ < dcr_.size(); i_++) {
 
-void TWorld::correctMassBalanceSed(double sum1, cTMap *M, double th)
-{
-    double sum2 = 0;
-    double n = 0;
+        int r = dcr_[i_].r;
+        int c = dcr_[i_].c;
 
-    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if(M->Drc > th)
-        {
-            sum2 += M->Drc;
-            n += 1;
-        }
-    }}
-// total and cells active for M
-    double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
+        if (h->Drc > F_pitValue) {
+            int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
+            int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
+            doit = true;
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if(M->Drc > th)
-        {
-            M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
-            M->Drc = std::max(M->Drc , 0.0);
-        }
-    }}
-}
+            vec4 rec;
+            int ldd = dcr_[i_].ldd;
+            int rr = r+dy[ldd];
+            int cr = c+dx[ldd];
 
-double TWorld::checkforMinMaxV(double Ves1)
-{
-    double Vv = Ves1;
-    double vxabs = fabs(Ves1);
+            // h downstream cannot be updated inside parallel loop!
+            // save these values and add later
+            if (h->Drcr < h->Drc) {
+                // 1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
+                rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->Drcr, vx->Drcr, vy->Drcr);
+                double flux = std::abs(rec.v[0]);
+                double dH = std::min(h->Drc *0.9, flux*dt_req_min/_dx);
 
-    double signx = (Ves1 < 0 ? -1.0 : 1.0);
+                h->Drc -= dH;
+                tmc->Drcr += dH;
 
-//    if (vxabs < 0.01)
-//        Vv = signx * 0.01;
-
-    if (vxabs > 20)
-        Vv = signx * (20+(pow(vxabs,0.3)));
-    return Vv;
-}
-//---------------------------------------------------------------------------
-// used in datainit, done once
-void TWorld::prepareFloodZ(cTMap *z)
-{
-    prepareFlood = false;
-
-    Fill(*delz1,0);
-    Fill(*delz2,0);
-    // diff between z cell and adjacent
-    for (int r = 0; r < _nrRows; r++)
-        for (int c = 1; c < _nrCols; c++)
-            if(!pcr::isMV(LDD->data[r][c]) && !pcr::isMV(LDD->data[r][c-1]))
-            {
-                delz1->data[r][c-1] = (z->Drc) - z->data[r][c-1];
-                // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
+                if (SwitchErosion) {
+                    double dS = std::min(0.9*SSFlood->Drc, dH*CHAdjDX->Drc*SSCFlood->Drc);
+                    SSFlood->Drc -= dS;
+                    tma->Drcr += dS;
+                    if (SwitchUse2Phase) {
+                        double dBL = std::min(0.9*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
+                        BLFlood->Drc -= dBL;
+                        tmb->Drcr += dBL;
+                    }
+                }
             }
-    for (int r = 1; r < _nrRows; r++)
-        for (int c = 0; c < _nrCols; c++)
-            if(!pcr::isMV(LDD->data[r][c]) && !pcr::isMV(LDD->data[r-1][c]))
-            {
-                delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
-                // needed in maincalcflux for 1D scheme, is calculated in MUSCL for 2D scheme
+        }
+    }
+
+    if (doit) {
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            h->Drc += tmc->Drc;
+        }}
+
+        if (SwitchErosion) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                SSFlood->Drc += tma->Drc;
+                if (SwitchUse2Phase)
+                    BLFlood->Drc += tmb->Drc;
+            }}
+        }
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+// force flow when a diagonal solution exists and a DEM blockage is present
+void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
+{
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        tma->Drc = 0;
+        tmb->Drc = 0;
+        tmc->Drc = 0;
+    }}
+
+bool doit = false;
+
+#pragma omp parallel for num_threads(userCores)
+for(long i_= 0; i_ < dcr_.size(); i_++) {
+
+    int r = dcr_[i_].r;
+    int c = dcr_[i_].c;
+
+    if (h->Drc > F_pitValue) {
+        int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
+        int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
+        doit = true;
+
+        vec4 rec;
+        int ldd = dcr_[i_].ldd;
+        int rr = r+dy[ldd];
+        int cr = c+dx[ldd];
+
+        // h downstream cannot be updated inside parallel loop!
+        // save these values and add later
+        if (h->Drcr < h->Drc) {
+            // 1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
+            rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->Drcr, vx->Drcr, vy->Drcr);
+            double flux = std::abs(rec.v[0]);
+            double dH = std::min(h->Drc *0.9, flux*dt_req_min/_dx);
+
+            h->Drc -= dH;
+            //h->Drcr += dH;
+            tmc->Drcr += dH;
+            //Qdiag->Drc = flux;
+
+            if (SwitchErosion) {
+                double dS = std::min(0.9*SSFlood->Drc, dH*CHAdjDX->Drc*SSCFlood->Drc);
+                SSFlood->Drc -= dS;
+                //SSFlood->Drcr += dS;
+                tma->Drcr += dS;
+                if (SwitchUse2Phase) {
+                    double dBL = std::min(0.9*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
+                    BLFlood->Drc -= dBL;
+                    tmb->Drcr += dBL;
+                }
             }
+        }
+    }
+}
 
-//    FOR_ROW_COL_MV_L {
-//        delz1->Drc  = 0;
-//        delz2->Drc  = 0;
-//        if (!MV(r,c-1) && c > 0) {
-//            delz1->data[r][c-1] = z->Drc - z->data[r][c-1];
-//        }
-//        if (!MV(r-1,c) && r > 0) {
-//            delz2->data[r-1][c] = z->Drc - z->data[r-1][c];
-//        }
-//    }
+if (doit) {
+#pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (SwitchErosion) {
+            SSFlood->Drc += tma->Drc;
+            if (SwitchUse2Phase)
+                BLFlood->Drc += tmb->Drc;
+        }
+        h->Drc += tmc->Drc;
+    }}
+}
 
-//    FOR_ROW_COL_MV_L {
-//        delzc1->Drc  = 0;
-//        delzc2->Drc  = 0;
-//        if (c > 0 && c < _nrCols-1 && !MV(r,c+1) && !MV(r,c-1)) {
-//            delzc1->Drc = limiter((z->data[r][c+1] - z->Drc),(z->Drc - z->data[r][c-1]));
-//        }
-//        if (r > 0 && r < _nrRows-1 && !MV(r+1,c) && !MV(r-1,c)) {
-//            delzc2->Drc = limiter((z->data[r+1][c] - z->Drc),(z->Drc - z->data[r-1][c]));
-//        }
-//    }
 }
 //---------------------------------------------------------------------------
 /**
@@ -231,96 +224,12 @@ double TWorld::limiter(double a, double b)
     return(rec);
 }
 
-//goudanov no wave
 
-//LSMVector3 retnw;
-//float c = std::max(fabs(u_L),fabs(u_R));
-//float cd = c*0.5f;
-//float q_R = u_R*h_R;
-//float q_L = u_L*h_L;
-//retnw.x = (q_L+q_R)*0.5f-cd*(h_R-h_L);
-//retnw.y = ((u_L*q_L)+(u_R*q_R))*0.5f-cd*(q_R-q_L);
-//retnw.z = (q_L*v_L+q_R*v_R)*0.5f-cd*(h_R*v_R-h_L*v_L);
-//timestep
-
-
+//---------------------------------------------------------------------------
 
 //  1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
 //  2e component: Momentum flux in gelijke richting per meter per tijdseenheid  ( dus (m4/s2)/(m) = m3/s2 = h*u*u)
 //  3d component: Momentum flux in loodrechte richting per meter per tijdseenheid  ( dus (m4/s2)/(m) = m3/s2 = h*u*v)
-
-vec4 TWorld::F_ROE(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
-{
-    vec4 hll;
-    double f1, f2, f3, cfl;//, tx;
-    double cL=sqrt(GRAV*h_L);
-    double cR=sqrt(GRAV*h_R);
-    double umean=(u_L+u_R)/2.0;
-    double vmean=(v_L+v_R)/2.0;
-    double cmean=(cL+cR)/2.0;
-    double lamb1=umean-cmean;
-    double lamb2=umean+cmean;
-    double lamb1L=u_L-cL;
-    double lamb2L=u_L+cL;
-    double lamb1R=u_R-cR;
-    double lamb2R=u_R+cR;
-    double lamb1v=vmean-cmean;
-    double lamb2v=vmean+cmean;
-    double lamb1Lv=v_L-cL;
-    double lamb2Lv=v_L+cL;
-    double lamb1Rv=v_R-cR;
-    double lamb2Rv=v_R+cR;
-    double UL2 = u_L*u_L;
-    double VL2 = v_L*v_L;
-    double UR2 = u_R*u_R;
-    double VR2 = v_R*v_R;
-    double HL2 = h_L*h_L;
-    double HR2 = h_R*h_R;
-
-    if ( (lamb1L < 0 && lamb1R > 0) || (lamb2L < 0 && lamb2R > 0) ||
-         (lamb1Lv < 0 && lamb1Rv > 0) || (lamb2Lv < 0 && lamb2Rv > 0)) {
-        //entropy correction with the Rusanov flux
-        cfl = std::max(fabs(u_L)+sqrt(GRAV*h_L),fabs(u_R)+sqrt(GRAV*h_R));
-        double q_R = u_R*h_R;
-        double q_L = u_L*h_L;
-        f1 = ((q_L+q_R) - cfl*(h_R-h_L))*0.5;
-        f2 = ((u_L*q_L) + (GRAV_DEM*h_L*h_L) + (u_R*q_R) + (GRAV_DEM*h_R*h_R) - cfl*(q_R-q_L))*0.5;
-        f3 = ((q_L*v_L+q_R*v_R) - cfl*(h_R*v_R-h_L*v_L))*0.5;
-    }
-    else
-        if (lamb1 >= 0.){
-            //supercritical flow from the left to the right
-            f1=h_L*u_L;
-            f2=h_L*UL2+(GRAV_DEM*HL2);
-            cfl=std::max(fabs(u_L)+cL,fabs(u_R)+cR);//*tx;
-        }
-        else if (lamb2<=0.){
-            //supercritical flow from the right to the left
-            f1=h_R*u_R;
-            f2=h_R*UR2+(GRAV_DEM*HR2);
-            cfl=std::max(fabs(u_L)+cL,fabs(u_R)+cR);//*tx;
-        }
-        else{
-            //subcritical flow
-            double lambmax=0.;
-            double ustar=0.;
-            double hstar=0.;
-
-            lambmax=std::max(fabs(lamb1),fabs(lamb2));
-            ustar=(u_L+u_R)/2.-(cR-cL);
-            hstar=pow((cR+cL)/2.-(u_R-u_L)/4.,  2.)/GRAV;
-            f1=hstar*ustar;
-            f2=hstar*ustar*ustar+(GRAV_DEM*hstar*hstar);
-            cfl=std::max(lambmax,std::max(fabs(u_L)+cL,fabs(u_R)+cR));//*tx;
-        }
-        hll.v[0] = f1;
-        hll.v[1] = f2;
-        hll.v[2] = f3;
-        hll.v[3] = cfl;
-        return hll;
-}
-
-
 
 //f_hllc2.cpp in swof
 vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
@@ -493,12 +402,12 @@ vec4 TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
 vec4 TWorld::F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
     vec4 rec;// = {0,0,0,0};
-//    if (F_scheme == 6)
-//    rec = F_ROE(h_L, u_L, v_L, h_R, u_R, v_R);
-//    else
-//    if (F_scheme == 5)
-//        rec = F_HLL4(h_L, u_L, v_L, h_R, u_R, v_R);
-//    else
+    //    if (F_scheme == 6)
+    //    rec = F_ROE(h_L, u_L, v_L, h_R, u_R, v_R);
+    //    else
+    //    if (F_scheme == 5)
+    //        rec = F_HLL4(h_L, u_L, v_L, h_R, u_R, v_R);
+    //    else
     if (F_scheme == 4)
         rec = F_HLL3(h_L, u_L, v_L, h_R, u_R, v_R);
     else
@@ -512,576 +421,81 @@ vec4 TWorld::F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,do
                     rec = F_Rusanov( h_L, u_L, v_L, h_R, u_R, v_R);
     return (rec);
 }
-//---------------------------------------------------------------------------
-//OBSOLETE
-void TWorld::correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cTMap *ves2) //, double thv, double dv, double dt)
+
+//--------------------------------------------------------------------------------------------
+// correct mass balance
+double TWorld::getMass(cTMap *M, double th)
 {
-    double sign1 = ves1->Drc > 0 ? 1.0 : -1.0;
-    double sign2 = ves2->Drc > 0 ? 1.0 : -1.0;
-    double s1 = Grad->Drc, s2 = Grad->Drc;
-    double G = sqrt(2*GRAV*hes->Drc); // bernouilly pressure velocity
-
-    if (sign1 < 0) {
-        if (c > 0 && !MV(r, c-1))
-            s1 = sin(atan(fabs(hes->Drc-hes->data[r][c-1])));
-    } else {
-        if (c < _nrCols-1 && !MV(r, c+1))
-            s1 = sin(atan(fabs(hes->Drc-hes->data[r][c+1])));
-    }
-    if (sign2 < 0) {
-        if (r > 0 && !MV(r-1, c))
-            s2 = sin(atan(fabs(hes->Drc-hes->data[r-1][c])));
-    } else {
-        if (r < _nrRows-1 && !MV(r+1, c))
-            s2 = sin(atan(fabs(hes->Drc-hes->data[r+1][c])));
-    }
-
-    double U1 =  (pow(hes->Drc,2.0/3.0)*sqrt(s1+Grad->Drc)/N->Drc + G);
-    double V1 =  (pow(hes->Drc,2.0/3.0)*sqrt(s2+Grad->Drc)/N->Drc + G);
-
-    ves1->Drc = sign1 * std::min(fabs(ves1->Drc), U1);
-    ves2->Drc = sign2 * std::min(fabs(ves2->Drc), V1);
-    // when V is much larger than kinematic wave V + pressure flow, limit it to that
-
-}
-//---------------------------------------------------------------------------
-
-void TWorld::simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v)
-{
-#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L{
-        h1r->Drc = _h->Drc;
-        u1r->Drc = _u->Drc;
-        v1r->Drc = _v->Drc;
-        h1l->Drc = _h->Drc;
-        u1l->Drc = _u->Drc;
-        v1l->Drc = _v->Drc;
-
-        h2r->Drc = _h->Drc;
-        u2r->Drc = _u->Drc;
-        v2r->Drc = _v->Drc;
-        h2l->Drc = _h->Drc;
-        u2l->Drc = _u->Drc;
-        v2l->Drc = _v->Drc;
-    }}
-}
-
-void TWorld::setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v)
-{
-#pragma omp parallel for num_threads(userCores)
+    double sum2 = 0;
+#pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (_h->Drc <= he_ca)
-        {
-            _h->Drc = 0;
-            _u->Drc = 0;
-            _v->Drc = 0;
-        }
-
-        if (fabs(_u->Drc) <= ve_ca)
-            _u->Drc = 0;
-        if (fabs(_v->Drc) <= ve_ca)
-            _v->Drc = 0;
+        if(M->Drc > th)
+            sum2 += M->Drc*CHAdjDX->Drc;
     }}
+return sum2;
 }
 //---------------------------------------------------------------------------
-
-void TWorld::MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z)
+double TWorld::getMassSed(cTMap *M, double th)
 {
+    double sum2 = 0;
+    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if(M->Drc > th)
+            sum2 += M->Drc;
+    }}
+    return sum2;
+}
+//---------------------------------------------------------------------------
+// correct mass balance
+void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
+{
+    double sum2 = 0;
+    double n = 0;
+
+    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if(M->Drc > th)
+        {
+            sum2 += M->Drc*CHAdjDX->Drc;
+            n += 1;
+        }
+    }}
+    sum2 = std::max(0.0, sum2);
+    // total and cells active for M
+    double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (_h->Drc > he_ca)
+        if(M->Drc > th)
         {
-            double delta_h1 = 0;
-            double delta_u1 = 0;
-            double delta_v1 = 0;
-            double delta_h2 = 0;
-            double delta_u2 = 0;
-            double delta_v2 = 0;
-            double dz1 = 0;
-            double dz2 = 0;
-
-            double hx = _h->Drc;
-            double ux = _u->Drc;
-            double vx = _v->Drc;
-            double zx = _z->Drc;
-
-            if(c > 0 && !MV(r,c-1)) {
-                double hx1 = _h->data[r][c-1];
-                double ux1 = _u->data[r][c-1];
-                double vx1 = _v->data[r][c-1];
-                double zx1 = _z->data[r][c-1];
-
-                delta_h1 = hx - hx1;
-                delta_u1 = ux - ux1;
-                delta_v1 = vx - vx1;
-                dz1 = zx - zx1;
-            }
-            if(c < _nrCols-1 && !MV(r,c+1)) {
-
-                double hx2 = _h->data[r][c+1];
-                double ux2 = _u->data[r][c+1];
-                double vx2 = _v->data[r][c+1];
-                double zx2 = _z->data[r][c+1];
-
-                delta_h2 = hx2 - hx;
-                delta_u2 = ux2 - ux;
-                delta_v2 = vx2 - vx;
-                dz2 = zx2 - zx;
-            }
-
-            double dh   = limiter(delta_h1, delta_h2);
-            double dz_h = limiter(delta_h1 + dz1, delta_h2 + dz2);
-
-            double du   = limiter(delta_u1, delta_u2);
-            double dv   = limiter(delta_v1, delta_v2);
-
-            double _h1r = hx+dh*0.5;
-            double _h1l = hx-dh*0.5;
-
-            double _z1r = zx+0.5*(dz_h-dh);
-            double _z1l = zx+0.5*(dh-dz_h);
-
-            double _delzc1 = _z1r-_z1l;
-
-            double hlh = hx > he_ca ? _h1l/hx : 1.0;
-            double hrh = hx > he_ca ? _h1r/hx : 1.0;
-
-            double _u1r = ux + hlh * 0.5*du;
-            double _u1l = ux - hrh * 0.5*du;
-            double _v1r = vx + hlh * 0.5*dv;
-            double _v1l = vx - hrh * 0.5*dv;
-
-            h1r->Drc = _h1r;
-            h1l->Drc = _h1l;
-            z1r->Drc = _z1r;
-            z1l->Drc = _z1l;
-            delzc1->Drc = _delzc1;
-            u1r->Drc = _u1r;
-            u1l->Drc = _u1l;
-            v1r->Drc = _v1r;
-            v1l->Drc = _v1l;
+            M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
+            M->Drc = std::max(M->Drc , 0.0);
         }
     }}
+}
 
-//#pragma omp parallel for num_threads(userCores)
+void TWorld::correctMassBalanceSed(double sum1, cTMap *M, double th)
+{
+    double sum2 = 0;
+    double n = 0;
+
+    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (_h->Drc > he_ca) {
-            if (c > 0 && !MV(r,c-1))
-                delz1->data[r][c-1] = z1l->Drc - z1r->data[r][c-1];
+        if(M->Drc > th)
+        {
+            sum2 += M->Drc;
+            n += 1;
         }
     }}
+    // total and cells active for M
+    double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (_h->Drc > he_ca)
+        if(M->Drc > th)
         {
-            double delta_h1 = 0;
-            double delta_u1 = 0;
-            double delta_v1 = 0;
-            double delta_h2 = 0;
-            double delta_u2 = 0;
-            double delta_v2 = 0;
-            double dz1 = 0;
-            double dz2 = 0;
-            double hx = _h->Drc;
-            double ux = _u->Drc;
-            double vx = _v->Drc;
-            double zx = _z->Drc;
-
-            if(r > 0 && !MV(r-1,c)) {
-                double hx1 = _h->data[r-1][c];
-                double ux1 = _u->data[r-1][c];
-                double vx1 = _v->data[r-1][c];
-                double zx1 = _z->data[r-1][c];
-                delta_h1 = hx - hx1;
-                delta_u1 = ux - ux1;
-                delta_v1 = vx - vx1;
-                dz1 = zx - zx1;
-            }
-            if(r < _nrRows-1 && !MV(r+1, c)) {
-                double hx2 = _h->data[r+1][c];
-                double ux2 = _u->data[r+1][c];
-                double vx2 = _v->data[r+1][c];
-                double zx2 = _z->data[r+1][c];
-                delta_h2 = hx2 - hx;
-                delta_u2 = ux2 - ux;
-                delta_v2 = vx2 - vx;
-                dz2 = zx2 - zx;
-            }
-            double dh   = limiter(delta_h1, delta_h2);
-            double dz_h = limiter(delta_h1+dz2,delta_h2+dz2);
-            double du   = limiter(delta_u1, delta_u2);
-            double dv   = limiter(delta_v1, delta_v2);
-
-            double _h2r = hx+0.5*dh;
-            double _h2l = hx-0.5*dh;
-
-            double _z2r = zx+0.5*(dz_h-dh);
-            double _z2l = zx+0.5*(dh-dz_h);
-
-            double _delzc2 = _z2r-_z2l; //dz_h -dh;
-
-            double hlh = hx > he_ca ? _h2l/hx : 1.0;
-            double hrh = hx > he_ca ? _h2r/hx : 1.0;
-
-            double _u2r = ux + hlh * 0.5*du;
-            double _u2l = ux - hrh * 0.5*du;
-            double _v2r = vx + hlh * 0.5*dv;
-            double _v2l = vx - hrh * 0.5*dv;
-
-            h2r->Drc = _h2r;
-            h2l->Drc = _h2l;
-            z2r->Drc = _z2r;
-            z2l->Drc = _z2l;
-            delzc2->Drc = _delzc2;
-            u2r->Drc = _u2r;
-            u2l->Drc = _u2l;
-            v2r->Drc = _v2r;
-            v2l->Drc = _v2l;
-        }
-    }}
-
-//#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (_h->Drc > he_ca) {
-            if(r > 0 && !MV(r-1,c))
-                delz2->data[r-1][c] = z2l->Drc - z2r->data[r-1][c];
+            M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
+            M->Drc = std::max(M->Drc , 0.0);
         }
     }}
 }
-//---------------------------------------------------------------------------
-double TWorld::maincalcfluxOF(cTMap *_h, double dt, double dt_max)
-{
-    vec4 rec;
-    double dt_tmp, dtx = dt_max;
-    cTMap *fbw = FlowBarrierW;
-    cTMap *fbe = FlowBarrierE;
-    cTMap *fbn = FlowBarrierN;
-    cTMap *fbs = FlowBarrierS;
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        f1->Drc = 0;
-        f2->Drc = 0;
-        f3->Drc = 0;
-        f1o->Drc = 0;
-        f2o->Drc = 0;
-        f3o->Drc = 0;
-        g1->Drc = 0;
-        g2->Drc = 0;
-        g3->Drc = 0;
-        g1o->Drc = 0;
-        g2o->Drc = 0;
-        g3o->Drc = 0;
-        tma->Drc = dt_max;
-        tmb->Drc = dt_max;
-    }}
-
-//FOR_ROW_COL_MV {
-//    if(c > 0 && !MV(r,c-1)) {
-//        h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
-//        h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
-//    }
-//    if(r > 0 && !MV(r-1,c)) {
-//        h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
-//        h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
-//    }
-//}
-
-            //coding left right and up/down boundary h
-            //  h1d-1|h1g h  h1d|h1g+1
-            //  h1r-1|h1l h  h1r|h1l+1
-            //  _____|__________|_____
-
-
-//#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if(c > 0 && !MV(r,c-1)) {
-            h1d->data[r][c-1] = std::max(0.0, h1r->data[r][c-1] - std::max(0.0,  delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
-            h1g->Drc          = std::max(0.0, h1l->Drc          - std::max(0.0, -delz1->data[r][c-1]  + std::max(fbw->Drc,fbe->data[r][c-1])));
-            rec = F_Riemann(h1d->data[r][c-1], u1r->data[r][c-1], v1r->data[r][c-1],h1g->Drc, u1l->Drc, v1l->Drc);
-            // riemann(r, c-1
-
-            f1->Drc =   rec.v[0];
-            f2->Drc =   rec.v[1];
-            f3->Drc =   rec.v[2];
-            cflx->Drc = rec.v[3];
-        }
-    }}
-
-//#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if(r > 0 && !MV(r-1,c)) {
-            h2d->data[r-1][c] = std::max(0.0, h2r->data[r-1][c] - std::max(0.0,  delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
-            h2g->Drc          = std::max(0.0, h2l->Drc          - std::max(0.0, -delz2->data[r-1][c]  + std::max(fbs->Drc,fbn->data[r-1][c])));
-            rec = F_Riemann(h2d->data[r-1][c],v2r->data[r-1][c],u2r->data[r-1][c], h2g->Drc,v2l->Drc,u2l->Drc);
-            g1->Drc = rec.v[0];
-            g2->Drc = rec.v[2]; // !!!!!!!!!!!!
-            g3->Drc = rec.v[1];
-            cfly->Drc = rec.v[3];
-        }
-    }}
-
-#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        // left hand side boundary
-        if(c == 0 || MV(r,c-1)) {
-            double _h1g = std::max(0.0, h1l->Drc - fbe->Drc);
-            rec = F_Riemann(0,0,0, _h1g, u1l->Drc, v1l->Drc);
-            f1->Drc = rec.v[0];
-            f2->Drc = rec.v[1];
-            f3->Drc = rec.v[2];
-            cflx->Drc = rec.v[3];
-        }
-
-        // right hand side boundary
-        if(c == _nrCols-1 || MV(r, c+1)) {
-            double _h1d = std::max(0.0, h1r->Drc - fbw->Drc);
-            rec = F_Riemann(_h1d,u1r->Drc,v1r->Drc,0.,0.,0.);
-            f1o->Drc = rec.v[0];
-            f2o->Drc = rec.v[1];
-            f3o->Drc = rec.v[2];
-        }
-
-        //upper boundary
-        if (r == 0 || MV(r-1,c)) {
-            double _h2g = std::max(0.0, h2l->Drc - fbn->Drc);
-            rec = F_Riemann(0,0,0,_h2g,v2l->Drc,u2l->Drc);
-            g1->Drc = rec.v[0];
-            g2->Drc = rec.v[2];// !!!
-            g3->Drc = rec.v[1];
-            cfly->Drc = rec.v[3];
-        }
-
-        // lower boundary
-        if (r == _nrRows-1 || MV(r+1, c)) {
-            double _h2d = std::max(0.0, h2d->Drc - fbs->Drc);
-            rec = F_Riemann(_h2d,v2l->Drc,u2l->Drc,0.,0.,0.);
-            g1o->Drc = rec.v[0];
-            g2o->Drc = rec.v[2];// !!!
-            g3o->Drc = rec.v[1];
-        }
-    }}
-
-//    dtx = dt_max;
-
-//#pragma omp parallel for num_threads(userCores)
-//    FOR_ROW_COL_MV_L {
-//        if(_h->Drc > he_ca) {
-//            if (qFabs(cflx->Drc*dt/_dx) < 1e-10)
-//                dt_tmp = dt_max;
-//            else
-//                dt_tmp = courant_factor*_dx/cflx->Drc;
-//            tma->Drc = dt_tmp;
-
-//            if (qFabs(cfly->Drc*dt/_dx) < 1e-10)
-//                dt_tmp = dt_max;
-//            else
-//                dt_tmp = courant_factor*_dx/cfly->Drc;
-//            tmb->Drc = dt_tmp;
-//        }
-//    }}
-
-//    FOR_ROW_COL_MV {
-//        if(_h->Drc > he_ca) {
-//            dtx = std::min(dtx, std::min(tma->Drc, tmb->Drc));
-//        }
-//    }
-
-    dtx = dt_max;
-
-    #pragma omp parallel for reduction(min : dtx) num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        dtx = std::min(dtx, courant_factor*_dx/cflx->Drc);
-        dtx = std::min(dtx, courant_factor*_dx/cfly->Drc);
-    }}
-    return(std::max(TimestepfloodMin, dtx));
-}
-
-void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2)
-{
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L  {
-        double Hes, Ves1, Ves2;
-        double tx = dt/_dx;//ChannelAdj->Drc;
-        double ty = dt/_dx;//DX->Drc;
-        double _f1=0, _f2=0, _f3=0, _g1=0, _g2=0, _g3=0;
-        double h1g_ = h1g->Drc;
-        double h1l_ = h1l->Drc;
-        double h1r_ = h1r->Drc;
-        double h1d_ = h1d->Drc;
-        double h2g_ = h2g->Drc;
-        double h2l_ = h2l->Drc;
-        double h2r_ = h2r->Drc;
-        double h2d_ = h2d->Drc;
-        double ve1_ = ve1->Drc;
-        double ve2_ = ve2->Drc;
-
-        //f r,c => riemann(c-1,r   c,r)
-        //g t,c => riemann(c,r-1   c,r)
-        //_f = r,c+1    => riemann(c,r, c+1,r)
-        //_g = r+1,c    => riemann(c,r, c,r+1)
-
-        //choose left hand boundary and normal (f1), or right hand boundary values (f1o)
-        if (c < _nrCols-1 && !MV(r, c+1)) {
-            _f1 = f1->data[r][c+1];
-            _f2 = f2->data[r][c+1];
-            _f3 = f3->data[r][c+1];
-        } else
-        //if (c == _nrCols-1 || MV(r, c+1))
-        {
-            _f1 = f1o->Drc;
-            _f2 = f2o->Drc;
-            _f3 = f3o->Drc;
-        }
-        if (r < _nrRows-1 && !MV(r+1, c)) {
-            _g1 = g1->data[r+1][c];
-            _g2 = g2->data[r+1][c];
-            _g3 = g3->data[r+1][c];
-        } else
-        //if (r == _nrRows-1 || MV(r+1, c))
-        {
-            _g1 = g1o->Drc;
-            _g2 = g2o->Drc;
-            _g3 = g3o->Drc;
-        }
-
-        // Hes = -tx*(riemann(c,r, c+1,r) - riemann(c-1,r   c,r))
-        Hes = std::max(0.0, he->Drc - tx*(_f1 - f1->Drc) - ty*(_g1 - g1->Drc));
-
-        if (Hes > he_ca)
-        {
-            //Solution of the equation of momentum (Second and third equation of Saint-venant)
-            double qes1;
-            double qes2;
-// note
-//            f1->Drc =   rec.v[0];
-//            f2->Drc =   rec.v[1];
-//            f3->Drc =   rec.v[2];
-//            g1->Drc = rec.v[0];
-//            g2->Drc = rec.v[2];// !!!
-//            g3->Drc = rec.v[1];
-            qes1 = he->Drc*ve1_ - ty*(_g2 - g2->Drc) - tx*(_f2 - f2->Drc +
-                        GRAV*0.5*((h1g_-h1l_)*(h1g_+h1l_) + (h1r_-h1d_)*(h1r_+h1d_) + (h1l_+h1r_)*delzc1->Drc));
-
-            qes2 = he->Drc*ve2_ - tx*(_f3 - f3->Drc) - ty*(_g3 - g3->Drc +
-                        GRAV*0.5*((h2g_-h2l_)*(h2g_+h2l_) + (h2r_-h2d_)*(h2r_+h2d_) + (h2l_+h2r_)*delzc2->Drc));
-
-            double sqUV = qSqrt(ve1_*ve1_+ve2_*ve2_);
-            double nsq1 = (0.001+N->Drc)*(0.001+N->Drc)*GRAV/std::max(0.001, qPow(Hes,4.0/3.0));
-            double nsq = nsq1*sqUV*dt;
-
-            Ves1 = (qes1/(1.0+nsq))/std::max(0.001,Hes);
-            Ves2 = (qes2/(1.0+nsq))/std::max(0.001,Hes);
-
-            if (SwitchTimeavgV) {
-                double fac = 0;
-                fac = 0.5+0.5*std::min(1.0,4*Hes)*std::min(1.0,4*Hes);
-                fac = fac *exp(- std::max(1.0,dt) / nsq1);
-                Ves1 = fac * ve1_ + (1.0-fac) *Ves1;
-                Ves2 = fac * ve2_ + (1.0-fac) *Ves2;
-            }
-
-        }
-        else
-        {
-            Hes = 0;
-            Ves1 = 0;
-            Ves2 = 0;
-        }      
-
-        // dan maar even met geweld!
-        if (std::isnan(Ves1) || std::isnan(Ves2))
-        {
-            //   qDebug() << "Ves nan" << Ves1 << Ves2;
-            Ves1 = 0;
-            Ves2 = 0;
-            Hes = 0;
-        }
-
-        Ves1 = checkforMinMaxV(Ves1);
-        Ves2 = checkforMinMaxV(Ves2);
-
-        hes->Drc = Hes;
-        ves1->Drc = Ves1;
-        ves2->Drc = Ves2;
-    }}
-}
-//---------------------------------------------------------------------------
-double TWorld::fullSWOF2RO(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
-{
-    double dt_max = std::min(_dt, _dx*0.5);
-    double dt1 = dt_max, timesum = 0;
-    int n = 0;
-    double sumh = 0;
-    double sumS = 0;
-    bool stop;
-
-
-    if (startFlood)
-    {
-       // sumh = getMass(h, 0);
-        if (SwitchErosion)
-            sumS = getMass(SSFlood, 0);
-
-
-        do {
-
-            dt1 = dt_max;
-
-            setZeroOF(h, u, v);
-            simpleSchemeOF(h,u,v);
-            // MUSCL: build left and right pressures and velocities with flux limiters
-            if (SwitchMUSCL)
-                MUSCLOF(h,u,v,z);
-
-            // riemann solvers
-            dt1 = maincalcfluxOF(h, dt1, dt_max);
-            dt1 = std::min(dt1, _dt-timesum);
-            // st venant equations
-            maincalcschemeOF(dt1, h,u,v, hs,us,vs);
-
-            setZeroOF(hs, us, vs);
-
-            if (SwitchErosion)// && SwitchErosionInsideLoop)
-                SWOFSediment(dt1, hs,us,vs);
-
-            if (Switch2DDiagonalFlow) {
-                if (Switch2DDiagonalFlowNew)
-                    SWOFDiagonalFlowNew(dt1, hs, us, vs);
-                else
-                    SWOFDiagonalFlow(dt1, hs, us, vs);
-            }
-
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                h->Drc = hs->Drc;
-                u->Drc = us->Drc;
-                v->Drc = vs->Drc;
-            }}
-
-            timesum = timesum + dt1;
-            stop = timesum  > _dt-1e-6;
-            n++;
-
-            if (n > F_MaxIter)
-                break;
-
-        } while (!stop);
-    } // if floodstart
-
-    correctMassBalance(sumh, h, 0);
-    if (SwitchErosion)
-        correctMassBalanceSed(sumS, SSFlood, 0);
-
-
-//    if (SwitchErosion && !SwitchErosionInsideLoop)
-//        SWOFSediment(_dt, h,u,v);
-
-    iter_n = n;
-    dt1 = n > 0? _dt/n : dt1;
-
-    return(dt1);
-}
-
