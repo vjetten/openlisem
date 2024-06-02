@@ -372,25 +372,22 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         dv = limiter(delta_v1, delta_v2);
                         hxl = H - 0.5*dh;
                         hxr = H + 0.5*dh;
-                        if (H > minh) {             //???dangerous, can give high velocities?
-                            uxl = U - hxr*du*0.5/H;
-                            uxr = U + hxl*du*0.5/H;
-                            vxl = V - hxr*dv*0.5/H;
-                            vxr = V + hxl*dv*0.5/H;
-                            //h1r[i][j]=h[i][j]+dh*0.5;
-                            //h1l[i][j]=h[i][j]-dh*0.5;
-                            // u1r[i][j]=u[i][j]+h1l[i][j]*du*0.5/h[i][j];
-                            // u1l[i][j]=u[i][j]-h1r[i][j]*du*0.5/h[i][j];
-                            // v1r[i][j]=v[i][j]+h1l[i][j]*dv*0.5/h[i][j];
-                            // v1l[i][j]=v[i][j]-h1r[i][j]*dv*0.5/h[i][j];
-                        } else {
-                            uxl = U - hxr*du*0.5;
-                            uxr = U + hxl*du*0.5;
-                            vxl = V - hxr*dv*0.5;
-                            vxr = V + hxl*dv*0.5;
-                        }
-                        //limiter->calcul(delta_h1+delta_z1[i-1][j],delta_h2+delta_z1[i][j]);
-                        //delta_z1[i][j] = z[i+1][j]-z[i][j]; => x2-x => so i-1 = x-x1
+                        uxl = U - 0.5*du*hxl/H;
+                        uxr = U + 0.5*du*hxr/H;
+                        vxl = V - 0.5*dv*hxl/H;
+                        vxr = V + 0.5*dv*hxr/H;
+                        // if (H > minh) {
+                        // uxl = U - 0.5*du*hxr/H;
+                        // uxr = U + 0.5*du*hxl/H;
+                        // vxl = V - 0.5*dv*hxr/H;
+                        // vxr = V + 0.5*dv*hxl/H;
+                        // } else {
+                        //     uxl = U - 0.5*hxr*du;
+                        //     uxr = U + 0.5*hxl*du;
+                        //     vxl = V - 0.5*hxr*dv;
+                        //     vxr = V + 0.5*hxl*dv;
+                        // }
+
                         dz_h = limiter(delta_h1 + (Z-dz_x1), delta_h2 + (dz_x2-Z));
                         delzcx = Z+(dz_h-dh)- (Z+(dh-dz_h));// = (dz_h-dh)-(dh-dz_h) = 2*dz_h-2*dh; //!!!!
 
@@ -405,17 +402,17 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                             dh = limiter(delta_h1, delta_h2);
                             du = limiter(delta_u1, delta_u2);
                             dv = limiter(delta_v1, delta_v2);
-                            //h1r[i-1][j]=h[i-1][j]+dh*0.5;
-                            //u1r[i-1][j]=u[i-1][j]+h1l[i][j]*du*0.5/h[i-1][j];
                             hx1r = h_x1 + 0.5*dh;
-                            double hx1l = h_x1 - 0.5*dh;
-                            if (h_x1 > minh) {
-                                ux1r = u_x1 + hx1l*du*0.5/h_x1;
-                                vx1r = v_x1 + hx1l*dv*0.5/h_x1;
-                            } else {
-                                ux1r = u_x1 + hx1l*du*0.5;
-                                vx1r = v_x1 + hx1l*dv*0.5;
-                            }
+                            ux1r = u_x1 + 0.5*du*hxl/H;
+                            vx1r = v_x1 + 0.5*dv*hxl/H;
+                            // double hx1l = h_x1 - 0.5*dh;
+                            // if (H > minh) {
+                            //     ux1r = u_x1 + 0.5*du*hx1r/H;
+                            //     vx1r = v_x1 + 0.5*dv*hx1r/H;
+                            // } else {
+                            //     ux1r = u_x1 + hx1l*du*0.5;
+                            //     vx1r = v_x1 + hx1l*dv*0.5;
+                            // }
                         }
 
                         // right hand cell, left boundary
@@ -430,14 +427,16 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                             du = limiter(delta_u1, delta_u2);
                             dv = limiter(delta_v1, delta_v2);
                             hx2l = h_x2 - 0.5*dh;
-                            double hx2r = h_x2 - 0.5*dh;
-                            if (H > minh) {
-                                ux2l = U - hx2r*du*0.5/h_x2;
-                                vx2l = V - hx2r*dv*0.5/h_x2;
-                            } else {
-                                ux2l = U - hx2r*du*0.5;
-                                vx2l = V - hx2r*dv*0.5;
-                            }
+                            ux2l = u_x2 - 0.5*du*hxr/H;
+                            vx2l = v_x2 - 0.5*dv*hxr/H;
+                            // double hx2r = h_x2 - 0.5*dh;
+                            // if (H > minh) {
+                            //     ux2l = u_x2 - 0.5*du*hx2l/H;
+                            //     vx2l = v_x2 - 0.5*dv*hx2l/H;
+                            // } else {
+                            //     ux2l = u_x2 - 0.5*hx2r*du;
+                            //     vx2l = v_x2 - 0.5*hx2r*dv;
+                            // }
                         }
 
                         // vertical, direction from up to down
@@ -456,17 +455,21 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         dv = limiter(delta_v1, delta_v2);
                         hyu = H - 0.5*dh;
                         hyd = H + 0.5*dh;
-                        if (H > minh) {
-                            uyu = U - hyd*du*0.5/H;
-                            uyd = U + hyu*du*0.5/H;
-                            vyu = V - hyd*dv*0.5/H;
-                            vyd = V + hyu*dv*0.5/H;
-                        } else {
-                            uyu = U - hyd*du*0.5;
-                            uyd = U + hyu*du*0.5;
-                            vyu = V - hyd*dv*0.5;
-                            vyd = V + hyu*dv*0.5;
-                        }
+                        uyu = U - 0.5*du*hyu/H;
+                        uyd = U + 0.5*du*hyd/H;
+                        vyu = V - 0.5*dv*hyu/H;
+                        vyd = V + 0.5*dv*hyd/H;
+                        // if (H > minh) {
+                        //     uyu = U - 0.5*du*hyd/H;
+                        //     uyd = U + 0.5*du*hyu/H;
+                        //     vyu = V - 0.5*dv*hyd/H;
+                        //     vyd = V + 0.5*dv*hyu/H;
+                        // } else {
+                        //     uyu = U - 0.5*hyd*du;
+                        //     uyd = U + 0.5*hyu*du;
+                        //     vyu = V - 0.5*hyd*dv;
+                        //     vyd = V + 0.5*hyu*dv;
+                        // }
                         dz_h = limiter(delta_h1 + (Z-dz_y1), delta_h2 + (dz_y2-Z));
                         delzcy = Z+(dz_h-dh)- (Z+(dh-dz_h));// = (dz_h-dh)-(dh-dz_h) = 2*dz_h-2*dh; //!!!!
 
@@ -482,14 +485,16 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                             du = limiter(delta_u1, delta_u2);
                             dv = limiter(delta_v1, delta_v2);
                             hy1d = h_y1 + 0.5*dh;
-                            double hy1u = h_y1 - 0.5*dh;
-                            if (H > minh) {
-                                uy1d = U + hy1u*du*0.5/h_y1;
-                                vy1d = V + hy1u*dv*0.5/h_y1;
-                            } else {
-                                uy1d = U + hy1u*du*0.5;
-                                vy1d = V + hy1u*dv*0.5;
-                            }
+                            uy1d = u_y1 + 0.5*du*hyu/H;
+                            vy1d = v_y1 + 0.5*dv*hyu/H;
+                            // double hy1u = h_y1 - 0.5*dh;
+                            // if (H > minh) {
+                            //     uy1d = u_y1 + 0.5*du*hy1d/H;
+                            //     vy1d = v_y1 + 0.5*dv*hy1d/H;
+                            // } else {
+                            //     uy1d = u_y1 + hy1u*du*0.5;
+                            //     vy1d = v_y1 + hy1u*dv*0.5;
+                            // }
                         }
 
                         // lower cell, up boundary
@@ -504,14 +509,16 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                             du = limiter(delta_u1, delta_u2);
                             dv = limiter(delta_v1, delta_v2);
                             hy2u = h_y2 - 0.5*dh;
-                            double hy2d = h_y2 + 0.5*dh;
-                            if (H > minh) {
-                                uy2u = U - hy2d*du*0.5/h_y2;
-                                vy2u = V - hy2d*dv*0.5/h_y2;
-                            } else {
-                                uy2u = U - hy2d*du*0.5;
-                                vy2u = V - hy2d*dv*0.5;
-                            }
+                            uy2u = u_y2 - 0.5*du*hyd/H;
+                            vy2u = v_y2 - 0.5*dv*hyd/H;
+                            // double hy2d = h_y2 + 0.5*dh;
+                            // if (H > minh) {
+                            //     uy2u = u_y2 - 0.5*du*hy2u/H;
+                            //     vy2u = v_y2 - 0.5*dv*hy2u/H;
+                            // } else {
+                            //     uy2u = u_y2 - hy2d*du*0.5;
+                            //     vy2u = v_y2 - hy2d*dv*0.5;
+                            // }
                         }
                     }
 
