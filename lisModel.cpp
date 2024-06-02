@@ -437,10 +437,10 @@ void TWorld::HydrologyProcesses()
 
         // add net to water rainfall on soil surface (in m)
         // when kin wave and flooded hmx exists else always WH
-        if (SwitchRoadsystem || SwitchHardsurface) {
-            if (RoadWidthHSDX->Drc > 0)
-                WHroad->Drc += RainNet->Drc;// + Snowmeltc->Drc;
-        }
+    //    if (SwitchRoadsystem || SwitchHardsurface) {
+         //   if (RoadWidthHSDX->Drc > 0)
+                //WHroad->Drc += RainNet->Drc;// + Snowmeltc->Drc;
+   //     }
 
         // infiltration by SWATRE of G&A+percolation
         switch (InfilMethod) {

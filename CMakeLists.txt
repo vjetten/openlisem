@@ -38,3 +38,9 @@ SET(CMAKE_MODULE_PATH
 # Include application makefile
 INCLUDE(Application)
 
+target_sources(Lisem
+  PRIVATE
+
+)
+
+

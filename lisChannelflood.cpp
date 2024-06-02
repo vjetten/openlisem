@@ -306,7 +306,7 @@ void TWorld::ToFlood()
             hmx->Drc += dwh;
             WH->Drc -= dwh;
             WHrunoff->Drc = 0;
-            WHroad->Drc = 0;
+            //WHroad->Drc = 0;
             hmxWH->Drc = hmx->Drc + WH->Drc;
             WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
 
@@ -411,10 +411,10 @@ void TWorld::ChannelFlood(void)
         }
     }
 
-    if (SwitchSWOFopen)
-        dtflood = fullSWOF2open(hmx, Uflood, Vflood, DEM);
-    else
-        dtflood = fullSWOF2RO(hmx, Uflood, Vflood, DEM);
+    //if (SwitchSWOFopen)
+    dtflood = fullSWOF2open(hmx, Uflood, Vflood, DEM);
+    // OBSOLETE
+    //    dtflood = fullSWOF2RO(hmx, Uflood, Vflood, DEM);
     // 2D dyn flow of hmx water, when using kin wave
 
     //new flood domain
@@ -448,7 +448,7 @@ void TWorld::ChannelFlood(void)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
-        WHroad->Drc = WHrunoff->Drc;
+        //WHroad->Drc = WHrunoff->Drc;
         // set road to average outflowing wh, no surface storage.
 
         WH->Drc = WHrunoff->Drc+ WHstore->Drc;

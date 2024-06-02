@@ -306,8 +306,6 @@ void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
             _g3 = g3o->Drc;
         }
 
-
-
         hes->Drc = std::max(0.0, he->Drc - tx*_f1 + tx*f1->Drc - ty*_g1 + ty*g1->Drc);
 
         if (hes->Drc > he_ca)

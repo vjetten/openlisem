@@ -548,7 +548,7 @@ void TWorld::MassBalance()
             if (WHrunoff->Drc > 0)
                 WHrunoff->Drc += dH;
             WHrunoff->Drc = std::max(0.0,WHrunoff->Drc);
-            WHroad->Drc = WHrunoff->Drc;
+            //WHroad->Drc = WHrunoff->Drc;
             WH->Drc = WHrunoff->Drc + WHstore->Drc;
 
             WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;

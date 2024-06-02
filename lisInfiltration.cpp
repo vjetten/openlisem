@@ -96,9 +96,8 @@ void TWorld::InfilEffectiveKsat(bool first)
                 Poreeff->Drc = ThetaS1->Drc*(1-GrassFraction->Drc) + PoreGrass->Drc*GrassFraction->Drc;
             }
 
-
             if (SwitchHouses) {
-                Ksateff->Drc *= (1-HouseCover->Drc);
+                Ksateff->Drc *= std::max(0.0, 1-HouseCover->Drc);
              //   Poreeff->Drc *= (1-HouseCover->Drc);
             }
 
@@ -190,6 +189,8 @@ void TWorld::cell_InfilMethods(int r, int c)
     double SoilDep1 = SoilDepth1->Drc;
     double SoilDep2 = 0;
 
+    if (HouseCover->Drc == 1.0 || Ksateff->Drc == 0)
+        return;
 
     if (FloodDomain->Drc == 0) {
         fwh = WH->Drc; //runoff in kinwave or dyn wave
@@ -198,7 +199,7 @@ void TWorld::cell_InfilMethods(int r, int c)
     }
     // select the appropriate domain water height for overpressure
 
-    fwh += MBm->Drc;
+    fwh += MBm->Drc; // mass balance correction
     fwh = std::max(0.0,fwh);
 
     // only do infiltration on permeable soils

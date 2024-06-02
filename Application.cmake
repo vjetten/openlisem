@@ -64,7 +64,7 @@ find_package(OpenMP REQUIRED)
 INCLUDE(CheckCXXCompilerFlag)
 
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -std=c++11 ${OpenMP_CXX_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing --param=max-vartrack-size=1500000 -std=c++11 ${OpenMP_CXX_FLAGS}")
 
     IF(UNIX)
        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wl,-rpath=${ORIGIN}./lib")
@@ -131,7 +131,7 @@ SET(APP_SOURCES
     lisSnowmelt.cpp
     lisSurfstor.cpp
     lisSoilmoisture.cpp
-    lisSWOF2D.cpp
+   # lisSWOF2D.cpp  OBSOLETE
     lisSWOF2Daux.cpp
     lisSWOF2Dopen.cpp
     lisSWOF2DSediment.cpp

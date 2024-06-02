@@ -168,13 +168,13 @@ void TWorld::addRainfallWH()
         }
     }}
 
-    if (SwitchRoadsystem || SwitchHardsurface) {  //???? separate hs from road here?
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            if (RoadWidthHSDX->Drc > 0)
-                WHroad->Drc += Rainc->Drc;// + Snowmeltc->Drc;
-        }}
-    }
+    // if (SwitchRoadsystem || SwitchHardsurface) {  //???? separate hs from road here?
+    //     #pragma omp parallel for num_threads(userCores)
+    //     FOR_ROW_COL_MV_L {
+    //         if (RoadWidthHSDX->Drc > 0)
+    //             WHroad->Drc += Rainc->Drc;// + Snowmeltc->Drc;
+    //     }}
+    // }
 
 }
 //---------------------------------------------------------------------------
@@ -190,16 +190,16 @@ void TWorld::SurfaceStorage()
 void TWorld::cell_SurfaceStorage(int r, int c)
 {    
     double wh = WH->Drc;
-    double SW = SoilWidthDX->Drc;
-    double RW = RoadWidthHSDX->Drc;
-    double WHr = WHroad->Drc;
-    double WHs = 0;//std::max(0.0, std::min(wh, MDS->Drc*(1-exp(-1.875*wh/(0.01*RR->Drc)))));
+    //double SW = SoilWidthDX->Drc;
+    //double RW = RoadWidthHSDX->Drc;
+    //double WHr = WHroad->Drc;
+    double WHs = std::max(0.0, std::min(wh, MDS->Drc*(1-exp(-1.875*wh/(0.01*RR->Drc)))));
     //surface storage on rough surfaces
     // non-linear release fo water from depression storage
     // resemles curves from GIS surface tests, unpublished
     // note: roads and houses are assumed to be smooth!
 
-    WHrunoff->Drc = ((wh - WHs)*SW + WHr*RW)/(SW+RW);
+    WHrunoff->Drc = wh-WHs;// ((wh - WHs)*SW + WHr*RW)/(SW+RW);
     // WH of overlandflow above surface storage
 
     WHstore->Drc = WHs;
@@ -207,7 +207,6 @@ void TWorld::cell_SurfaceStorage(int r, int c)
     MicroStoreVol->Drc = DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
     // microstore vol in m3
 
-    //WaterVolall->Drc = DX->Drc*(wh*SW + WHr*RW);
     WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
     // all water in the cell incl storage
 }

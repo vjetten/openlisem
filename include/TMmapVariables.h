@@ -81,7 +81,7 @@ cTMap
 
 *WH,                         //!< water height on the surface [m]
 *WHbef,                      //!< water height on the surface before infiltration [m]
-*WHroad,                     //!< water height on the roads [m]
+//*WHroad,                     //!< water height on the roads [m]
 //*WHrunoffOutput,                     //!< water height on the roads [m]
 *WHrunoff,                   //!< water height available for runoff [m]
 *WHmax,                      //!< max runoff wh in m for reporting
@@ -408,31 +408,33 @@ cTMap
 //*FloodZonePotential,                //!<
 *DomainEdge,                //!<
 *FloodDT,
-//*FloodT,
-*VRO, *URO, *iro,
 *Uflood,*Vflood,
-*hs, *vs, *us,
+*hs, //*vs, *us,
 
-// FULLSWOF2D
-*f1o, *f2o, *f3o,
-*g1o, *g2o, *g3o,
-*z1r, *z1l, *z2r, *z2l,
-*h1r, *h1l, *h2r, *h2l,
-*h1d, *h1g, *h2d, *h2g,
-*v1r, *v1l, *v2r, *v2l,
-*u1r, *u1l, *u2r, *u2l,
-//*delta_z1, *delta_z2,
-*delzc1, *delzc2,
-*delz1, *delz2,
-*f1, *f2, *f3, *cflx,
-*g1, *g2, *g3, *cfly,
-*hsa, *vsa, *usa,
+//OBSOLETE
+// //*FloodT,
+// *VRO, *URO, *iro,
 
-*hll0_x1, *hll1_x1, *hll2_x1,
-*hll0_y1, *hll1_y1, *hll2_y1,
-*hll0_x2, *hll1_x2, *hll2_x2,
-*hll0_y2, *hll1_y2, *hll2_y2,
-*sxzh, *syzh,
+// // FULLSWOF2D
+// *f1o, *f2o, *f3o,
+// *g1o, *g2o, *g3o,
+// *z1r, *z1l, *z2r, *z2l,
+// *h1r, *h1l, *h2r, *h2l,
+// *h1d, *h1g, *h2d, *h2g,
+// *v1r, *v1l, *v2r, *v2l,
+// *u1r, *u1l, *u2r, *u2l,
+// //*delta_zx, *delta_zy,
+// *delzc1, *delzc2,
+// *delz1, *delz2,
+// *f1, *f2, *f3, *cflx,
+// *g1, *g2, *g3, *cfly,
+// *hsa, *vsa, *usa,
+
+// *hll0_x1, *hll1_x1, *hll2_x1,
+// *hll0_y1, *hll1_y1, *hll2_y1,
+// *hll0_x2, *hll1_x2, *hll2_x2,
+// *hll0_y2, *hll1_y2, *hll2_y2,
+// *sxzh, *syzh,
 
 //FULLSWOF2D with Sediment
 *BLDepthFlood,
