@@ -118,7 +118,7 @@ void TWorld::ToChannel() //(int r, int c)
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 
             WHrunoff->Drc -= dwh ;
-            WHroad->Drc -= dwh;
+            //WHroad->Drc -= dwh;
             WH->Drc -= dwh;
             WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
 
@@ -193,7 +193,7 @@ void TWorld::updateWHandHmx(void)
     FOR_ROW_COL_MV_L {
         double WHR = WHrunoff->Drc;
 
-        WHroad->Drc = WHR;
+        //WHroad->Drc = WHR;
         // set road to average outflowing wh, no surface storage.
 
         WH->Drc = WHR + WHstore->Drc;
@@ -372,7 +372,7 @@ void TWorld::OverlandFlow1D(void)
         V->Drc = pow(WHrunoff->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
         // new velocity
 
-        WHroad->Drc = WHrunoff->Drc;
+        //WHroad->Drc = WHrunoff->Drc;
         // set road to average outflowing wh, no surface storage.
 
         WH->Drc = WHrunoff->Drc + WHstore->Drc;

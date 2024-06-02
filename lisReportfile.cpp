@@ -1357,7 +1357,7 @@ void TWorld::ReportDump(void)
     report(*WHstore,dumpDir+"WHstore.map");
     report(*WH,dumpDir+"WH.map");
     report(*WHrunoff,dumpDir+"WHrunoff.map");
-    report(*WHroad,dumpDir+"WHroad.map");
+  //  report(*WHroad,dumpDir+"WHroad.map");
 
     report(*WaterVolall,dumpDir+"WaterVolall.map");
     report(*FloodWaterVol,dumpDir+"FloodWaterVol.map");

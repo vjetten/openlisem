@@ -388,7 +388,7 @@ void TWorld::cell_ETa(int r, int c)
             ETa_pond = std::min(ETa_pond, WHRunoff_);
             WHRunoff_ = WHRunoff_ - ETa_pond;
             eta = ETa_pond;
-            WHroad->Drc = WHRunoff_;
+            //WHroad->Drc = WHRunoff_;
             WH->Drc = WHRunoff_ + WHstore->Drc;
             WHrunoff->Drc = WHRunoff_;
             tot = tot + eta;
