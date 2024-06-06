@@ -141,10 +141,11 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
                     double h_xx1, h_xx2, u_xx1, u_xx2, v_xx1, v_xx2;
                     double h_yy1, h_yy2, u_yy1, u_yy2, v_yy1, v_yy2;
-                    h_xx1=h_x1; h_xx2=h_x2; u_xx1=u_x1; u_xx2=u_x2; v_xx1=v_x1; v_xx2=v_x2;
-                    h_yy1=h_y1; h_yy2=h_y2; u_yy1=u_y1; u_yy2=u_y2; v_yy1=v_y1; v_yy2=v_y2;
 
                     if (SwitchMUSCL) {
+                        h_xx1=h_x1; h_xx2=h_x2; u_xx1=u_x1; u_xx2=u_x2; v_xx1=v_x1; v_xx2=v_x2;
+                        h_yy1=h_y1; h_yy2=h_y2; u_yy1=u_y1; u_yy2=u_y2; v_yy1=v_y1; v_yy2=v_y2;
+
                         if(c > 1 && !MV(r,c-2)) {
                             h_xx1 = hs->data[r][c-2];
                             u_xx1 =  u->data[r][c-2];

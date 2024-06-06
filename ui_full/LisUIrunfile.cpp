@@ -383,7 +383,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use linked list")==0)        checkLinkedList->setChecked(check);
         if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(iii);
         if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(iii);
-        if (p1.compare("Z 2D correction")==0)               E_Z2Dcorrection->setValue(iii);
+        //if (p1.compare("Z 2D correction")==0)               E_Z2Dcorrection->setValue(iii);
         if (p1.compare("Use time avg V")==0)                 checkTimeavgV->setChecked(check);
         if (p1.compare("Correct MB with WH")==0)             checkMB_WH->setChecked(check);
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(iii);
@@ -858,7 +858,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
         if (p1.compare("Include River diffusion")==0)        namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
-        if (p1.compare("Z 2D correction")==0)                namelist[j].value = E_Z2Dcorrection->text();
+        //if (p1.compare("Z 2D correction")==0)                namelist[j].value = E_Z2Dcorrection->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
         if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());

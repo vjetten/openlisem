@@ -171,7 +171,6 @@ void lisemqt::on_checkInfilGrass_clicked()
     checkMapNameModel(CONSERVATIONMAPS, 0, checkSedtrap->isChecked()||checkInfilGrass->isChecked());
     E_GrassStripN->setEnabled(checkInfilGrass->isChecked());
     label_15->setEnabled(checkInfilGrass->isChecked());
-    label_98->setEnabled(checkInfilGrass->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkSedtrap_clicked()
