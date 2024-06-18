@@ -109,9 +109,9 @@ void TWorld::ToChannel() //(int r, int c)
             fractiontochannel = 0;
 
         if (fractiontochannel > 0) {
-
             double dwh = fractiontochannel*WHrunoff->Drc;
-            double dvol = fractiontochannel*(WaterVolall->Drc - MicroStoreVol->Drc);
+            double dvol = dwh*CHAdjDX->Drc;//fractiontochannel*(WaterVolall->Drc - MicroStoreVol->Drc);
+           // qDebug() << fractiontochannel << dwh << dvol << hmx->Drc;
 
             // water diverted to the channel
             ChannelWaterVol->Drc += dvol;
@@ -156,33 +156,29 @@ void TWorld::CalcVelDisch()//(int r, int c)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
-        double NN = N->Drc;
-        double alpha;
-        double WHr = WHrunoff->Drc;
-        double FW = FlowWidth->Drc;
-//        double mixing_coefficient = 2.0;
-//        if (SwitchKinematic2D == K2D_METHOD_KINDYN && SwitchIncludeChannel && hmx->Drc > 0.001)
-//            NN = N->Drc * (2.0-qExp(-mixing_coefficient*hmx->Drc));
+        // double mixing_coefficient = 2.0;
+        // if (SwitchKinematic2D == K2D_METHOD_KINDYN && SwitchIncludeChannel && hmx->Drc > 0.001)
+        // NN = N->Drc * (2.0-qExp(-mixing_coefficient*hmx->Drc));
         // slow down water in flood zone, if hmx = 0 then factor = 1
 
         if (Grad->Drc > MIN_SLOPE)
-            alpha = pow(NN/sqrtGrad->Drc * pow(FW, 2.0/3.0),0.6);
+            Alpha->Drc = pow(N->Drc/sqrtGrad->Drc * pow(FlowWidth->Drc, 2.0/3.0),0.6);
         // perimeter = FlowWidth
         else
-            alpha = 0;
+            Alpha->Drc = 0;
 
-        if (alpha > 0)
-            Q->Drc = pow((FW*WHr)/alpha, 5.0/3.0); // Q = (A/alpha)^1/beta and  beta = 6/10 = 3/5
+        if (Alpha->Drc > 0)
+            Q->Drc = pow((FlowWidth->Drc*WHrunoff->Drc)/Alpha->Drc, 5.0/3.0); // Q = (A/alpha)^1/beta and  beta = 6/10 = 3/5
         else
             Q->Drc = 0;
         //Q = (A/alpha)^5/3 => A^5/3 / alpha^5/3 =? aplha^5/3 = (N/sqrtS^3/5)^5/3 *((P^2/3)^3/5)^5/3 =
         //Q =  A^5/3 / [N/Sqrt * P^2/3] => A*A^2/3 / P^2/3 * sqrtS/n = A * R^2/3 sqrtS/N = AV
 
-        V->Drc = pow(WHr, 2.0/3.0) * sqrtGrad->Drc/NN;
+        V->Drc = pow(WHrunoff->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
         // overlandflow, we do not use perimeter here but height
         // note: we can use tortuosity here: perimeter = R/(w*tortuosity) = hw/(w*tort) = h/tort
         // tortuosity can come from random roughness! use analysis from EU project
-        Alpha->Drc = alpha;
+
 
     }}
 }

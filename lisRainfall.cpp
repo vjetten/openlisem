@@ -474,7 +474,7 @@ void TWorld::GetRainfallMapfromStations(void)
                     if ((int) RainZone->Drc == RainfallSeries[currentrow].stationnr.at(k))
                         value = RainfallSeries[currentrow].intensity[k]*tt;
                 }
-                Rain->Drc = value;
+                Rain->Drc = value; //rain in m per timestep
 
                 if (Rain->Drc > 0)
                     rainStarted = true;

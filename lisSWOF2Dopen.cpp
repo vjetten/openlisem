@@ -175,6 +175,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         fb_y1 = br1 ? std::max(FlowBarrierN->Drc, FlowBarrierS->data[r-1][c]) : FlowBarrierN->Drc;
                         fb_y2 = br2 ? std::max(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]) : FlowBarrierS->Drc;
                     }
+                    if (LandUnit->Drc == 523) {
+                        fb_y1 = 0.05;
+                        fb_x1 = 0.05;
+                    }
 
                     double dz_x1 = (Z - z_x1);
                     double dz_x2 = (z_x2 - Z);

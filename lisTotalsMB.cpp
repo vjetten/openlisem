@@ -50,13 +50,17 @@ void TWorld::TotalsHydro(void)
     //=== precipitation ===//
     if (SwitchRainfall)
     {
-        RainAvgmm = MapTotal(*Rain)*1000.0/nrCells;
+        double ptot = MapTotal(*Rain);
+        RainAvgmm = ptot*1000.0/nrCells;
 
         RainTotmm += RainAvgmm;
         // spatial avg area rainfall in mm
 
         rainfall = RainAvgmm/catchmentAreaFlatMM;
-        RainTot += rainfall; // in m3
+//        FOR_ROW_COL_MV_L {
+//        RainTot += Rain->Drc*CHAdjDX->Drc;//   _dx*_dx; // in m3
+//        }}
+        RainTot += ptot*_dx*_dx; // in m3
 
         oldrainpeak  = Rainpeak;
         Rainpeak = std::max(Rainpeak, rainfall);
@@ -264,14 +268,16 @@ void TWorld::TotalsFlow(void)
     Qboundtotmm = floodBoundaryTot*catchmentAreaFlatMM;
 
     // Add outlet overland flow, for all flow methods
-    FOR_ROW_COL_LDD5 {
-        Qtot_dt += Qn->Drc*_dt;
+    FOR_ROW_COL_MV_L {
+        if (LDD->Drc == 5)
+            Qtot_dt += Qn->Drc*_dt;
     }}
 
     // add channel outflow
     if (SwitchIncludeChannel)
     {
-        FOR_ROW_COL_LDDCH5 {
+        FOR_ROW_COL_MV_CHL {
+            if (LDDChannel->Drc == 5)
             Qtot_dt += ChannelQn->Drc*_dt; //m3
         }}
 
@@ -532,6 +538,9 @@ void TWorld::MassBalance()
     double waterout = Qtot + IntercETaTot;// + floodBoundaryTot + ETaTotVol;
     MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
 
+    qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot  << WaterVolTot << ChannelVolTot <<  Qtot ;
+
+
     Fill(*MBm, 0);
     if (SwitchCorrectMB_WH && fabs(MB) > 1e-6) {
         //qDebug() << "o " << MB;
@@ -542,9 +551,9 @@ void TWorld::MassBalance()
                 tma->Drc = 1;
         }}
         double tot = MapTotal(*tma);
-        double dV = 0.99*(waterin - waterout - waterstore)/tot;
+        double dV = (waterin - waterout - waterstore)/tot;
         FOR_ROW_COL_MV_L {
-            double dH = dV/(CHAdjDX->Drc);
+            double dH = dV/(CHAdjDX->Drc); // avg error in m on wet cells
             if (WHrunoff->Drc > 0)
                 WHrunoff->Drc += dH;
             WHrunoff->Drc = std::max(0.0,WHrunoff->Drc);

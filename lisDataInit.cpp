@@ -990,17 +990,17 @@ void TWorld::InitChannel(void)
     cover(*ChannelDepth, *LDD,0);
 
     ChannelWidthO = NewMap(0);
-    ChannelDepthO = NewMap(0);
+ //   ChannelDepthO = NewMap(0);
 
     FOR_ROW_COL_MV_CH
     {
         ChannelWidthO->Drc = ChannelWidth->Drc;
-        ChannelDepthO->Drc = ChannelDepth->Drc;
+      //  ChannelDepthO->Drc = ChannelDepth->Drc;
 
         SwitchChannelAdjustCHW = true;
         if (SwitchChannelAdjustCHW && ChannelWidth->Drc  > 0.95* _dx) {
             ChannelWidth->Drc = 0.95*_dx;
-            ChannelDepth->Drc *= ChannelWidth->Drc /(0.95*_dx);
+            ChannelDepth->Drc *= ChannelWidthO->Drc/ChannelWidth->Drc; //(0.95*_dx);
         }
 
         if (ChannelWidth->Drc <= 0)

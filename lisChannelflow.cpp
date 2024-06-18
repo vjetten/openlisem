@@ -68,7 +68,7 @@ void TWorld::ChannelVelocityandDischarge()
         // calc velocity and Q
         ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 
-        double MaxQ = ChannelMaxQ->Drc;
+      //  double MaxQ = ChannelMaxQ->Drc;
         double wh = ChannelWH->Drc;
         double ChannelQ_ = 0;
         double ChannelV_ = 0;
@@ -95,7 +95,8 @@ void TWorld::ChannelVelocityandDischarge()
         Radius = (Perim > 0 ? Area/Perim : 0);
         ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
         ChannelQ_ = ChannelV_ * Area;
-        ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
+        //ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
+        ChannelAlpha_ = pow(N/sqrtgrad * pow(Perim, 2.0/3.0),0.6);  // no difference
         ChannelNcul->Drc  = ChannelN->Drc;
 
         if (SwitchCulverts) {
@@ -286,7 +287,7 @@ void TWorld::ChannelFlow(void)
         if (SwitchLinkedList) {
 
             ChannelQn->setAllMV();
-            Fill(*tma,-1);
+            //Fill(*tma,-1);
             FOR_ROW_COL_LDDCH5 {
                 Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelAlpha, ChannelDX, ChannelMaxQ, ChannelMaxAlpha);
             }}
@@ -307,6 +308,7 @@ void TWorld::ChannelFlow(void)
         FOR_ROW_COL_MV_CHL {
             //  ChannelQ->Drc = ChannelQn->Drc;  // NOT because needed in erosion!
 
+            ChannelQn->Drc = std::min(QinKW->Drc+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
             ChannelWaterVol->Drc += (QinKW->Drc - ChannelQn->Drc)*_dt;
             ChannelWaterVol->Drc = std::max(0.0,ChannelWaterVol->Drc);
             // vol is previous + in - out
@@ -317,12 +319,14 @@ void TWorld::ChannelFlow(void)
             // new channel WH, use adjusted channelWidth
 
             double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
-            double P = 2*ChannelWH->Drc+ChannelWidth->Drc;
+//            double P = 2*ChannelWH->Drc+ChannelWidth->Drc;
 
-            if (P > 0)
-                ChannelV->Drc = std::pow(ChannelArea/P,2/3)*sqrtGrad->Drc/ChannelNcul->Drc;
-            else
-                ChannelV->Drc = 0;
+//            if (P > 0)
+//                ChannelV->Drc = std::pow(ChannelArea/P,2/3)*sqrtGrad->Drc/ChannelNcul->Drc;
+//            else
+//                ChannelV->Drc = 0;
+
+            ChannelV->Drc = ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0;
 
             // get the maximum for output
             maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);

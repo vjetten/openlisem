@@ -17,7 +17,7 @@ IF(WIN32)
 
     # Lisem uses a QWT branch with quadruple axes support
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
-    SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
+    SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/bin/lib/libqwt.dll.a")
     #SET(QWT_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/qwtlib/libqwt.dll.a")
 
     #SET(PCR_LIBRARIES "C:/prgc/PCR/libs/sources/libpcraster_raster_format.a")
