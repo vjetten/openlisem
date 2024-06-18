@@ -95,12 +95,12 @@ void TWorld::ChannelVelocityandDischarge()
         Radius = (Perim > 0 ? Area/Perim : 0);
         ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
         ChannelQ_ = ChannelV_ * Area;
-        //ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
-        ChannelAlpha_ = pow(N/sqrtgrad * pow(Perim, 2.0/3.0),0.6);  // no difference
-        ChannelNcul->Drc  = ChannelN->Drc;
+        ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
+       // ChannelAlpha_ = pow(N/sqrtgrad * pow(Perim, 2.0/3.0),0.6);  // no difference
+        /*
+            ChannelNcul->Drc  = ChannelN->Drc;
 
         if (SwitchCulverts) {
-            /*
             if (ChannelMaxQ->Drc > 0 ) {
 
                 //ChannelNcul->Drc = (0.05+ChannelQ_/MaxQ) * 0.015; //0.015 is assumed to be the N of a concrete tube
@@ -119,8 +119,8 @@ void TWorld::ChannelVelocityandDischarge()
                 }
                 ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
             }
-            */
         }
+            */
 
         ChannelAlpha->Drc = ChannelAlpha_;
         ChannelQ->Drc = ChannelQ_;
@@ -266,6 +266,7 @@ void TWorld::ChannelRainandInfil(void)
 //! channel WH and V and Q are clculated before
 void TWorld::ChannelFlow(void)
 {
+
     if (SwitchChannelKinwaveDt) {
         if (_dt_user > _dtCHkin) {
             double n = _dt_user/_dtCHkin;
@@ -314,17 +315,11 @@ void TWorld::ChannelFlow(void)
             // vol is previous + in - out
 
             //ChannelAlpha->Drc = ChannelQn->Drc > 1e-6 ? (ChannelWaterVol->Drc/ChannelDX->Drc)/std::pow(ChannelQn->Drc, 0.6) : ChannelAlpha->Drc;
-
+            // recalc to Qn for erosion kin wave?
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
             // new channel WH, use adjusted channelWidth
 
             double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
-//            double P = 2*ChannelWH->Drc+ChannelWidth->Drc;
-
-//            if (P > 0)
-//                ChannelV->Drc = std::pow(ChannelArea/P,2/3)*sqrtGrad->Drc/ChannelNcul->Drc;
-//            else
-//                ChannelV->Drc = 0;
 
             ChannelV->Drc = ChannelArea > 0 ? ChannelQn->Drc/ChannelArea : 0;
 

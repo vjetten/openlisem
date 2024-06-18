@@ -410,7 +410,7 @@ void TWorld::HydrologyProcesses()
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        //cell_Interception(r,c);
+        cell_Interception(r,c);
         // all interception on plants, houses, litter
         // result is rainnet (and leafdrip for erosion)
 

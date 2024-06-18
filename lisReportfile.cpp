@@ -217,7 +217,8 @@ void TWorld::OutputUI(void)
     FOR_ROW_COL_MV_L {
         COMBO_V->Drc = V->Drc < 1e-5 ? 0 : V->Drc;
         VH->Drc = COMBO_V->Drc * hmxWH->Drc;
-        Lwmm->Drc = Lw->Drc *1000 * SoilWidthDX->Drc/_dx;
+        //Lwmm->Drc = Lw->Drc *1000 * SoilWidthDX->Drc/_dx;
+        Lwmm->Drc = Lw->Drc *1000 * FlowWidth->Drc/_dx;
     }}
 
     if(SwitchErosion)

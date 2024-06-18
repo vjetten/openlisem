@@ -618,7 +618,8 @@ void TWorld::cell_Soilwater(long i_)
     }
     s.Infact = (WH0-WH1)/_dt;
 
-    InfilVol->Drc = s.Infact*_dt*SoilWidthDX->Drc*DX->Drc;
+    InfilVol->Drc = s.Infact*_dt*FlowWidth->Drc*DX->Drc;
+    // not soilwidth because roads are incorporated in ksat and thetas
 
     ThetaI1a->Drc = s.theta[1];
     for (int j = 2; j <= nN1_; j++)

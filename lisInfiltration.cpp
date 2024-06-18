@@ -109,12 +109,12 @@ void TWorld::InfilEffectiveKsat(bool first)
 //            }
 
 //            if (SwitchRoadsystem) {
-//                Ksateff->Drc *= (1-RoadWidthDX->Drc/_dx);
-//             //   Poreeff->Drc *= (1-RoadWidthDX->Drc/_dx);
+            Ksateff->Drc *= (1-RoadWidthHSDX->Drc/_dx);
+            Poreeff->Drc *= (1-RoadWidthHSDX->Drc/_dx);
 //            }
 
             Ksateff->Drc = std::max(0.0, Ksateff->Drc);
-            Poreeff->Drc = std::max(0.3, Poreeff->Drc);
+            Poreeff->Drc = std::max(0.0, Poreeff->Drc);
 
             if (SwitchWaveUser) {
                 if (WHboundarea->Drc > 0) {
@@ -202,8 +202,9 @@ void TWorld::cell_InfilMethods(int r, int c)
     fwh += MBm->Drc; // mass balance correction
     fwh = std::max(0.0,fwh);
 
-    // only do infiltration on permeable soils
-    if (SoilWidthDX->Drc > 0 && fwh > 0) {
+    // only do infiltration on permeable soils, is now incorporated in ksateff
+    //if (SoilWidthDX->Drc > 0 && fwh > 0) {
+    if (fwh > 0) {
         //calculate potential infiltration rate fpot
         if (SwitchTwoLayer || SwitchThreeLayer) {
             SoilDep2 = SoilDepth2->Drc;
@@ -268,7 +269,8 @@ void TWorld::cell_InfilMethods(int r, int c)
         Fcum->Drc += fact_; // for Smith and Parlange
         // increase cumulative infil in m
        // fact->Drc = fact_;
-        InfilVol->Drc = fact_* SoilWidthDX->Drc * DX->Drc;
+        //InfilVol->Drc = fact_* SoilWidthDX->Drc * DX->Drc;
+        InfilVol->Drc = fact_* FlowWidth->Drc * DX->Drc;
         // calc infiltrated volume for mass balance
     } else {
        // fact->Drc = 0;

@@ -312,7 +312,7 @@ void TWorld::OverlandFlow1D(void)
         WaterVolin->Drc = DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
         //volume runoff into the kin wave, needed to determine infil in kin wave
         // WaterVolin total water volume in m3 before kin wave, WHrunoff may be adjusted in tochannel
-        q->Drc = 0;//FSurplus->Drc*SoilWidthDX->Drc/_dt;
+        //q->Drc = 0;//FSurplus->Drc*SoilWidthDX->Drc/_dt;
         // OBSOLETE? has never work properly
         // infil flux in kin wave (<= 0)negative value), in m2/s, in kiv wave DX is used
         // surplus related to infiltrating surfaces
@@ -358,10 +358,10 @@ void TWorld::OverlandFlow1D(void)
         // runoff based on water vol out
         // NOTE route substance is already an explicit solution                      
 
-        double diff = QinKW->Drc*_dt + WaterVolin->Drc - WaterVolout - Qn->Drc * _dt;
-        InfilKWact = diff;//std::min(-FSurplus->Drc*SoilWidthDX->Drc*DX->Drc, diff);
+//        double diff = QinKW->Drc*_dt + WaterVolin->Drc - WaterVolout - Qn->Drc * _dt;
+//        InfilKWact = diff;//std::min(-FSurplus->Drc*SoilWidthDX->Drc*DX->Drc, diff);
 
-        InfilVolKinWave->Drc = InfilKWact;
+ //       InfilVolKinWave->Drc = InfilKWact;
 
         Alpha->Drc = Qn->Drc > 0 ? (WHrunoff->Drc*FlowWidth->Drc)/pow(Qn->Drc,0.6) : Alpha->Drc;
         // needed for erosion // A = alpha Q^0.6 => alpha = A/Q^0.6
@@ -379,8 +379,6 @@ void TWorld::OverlandFlow1D(void)
 
         WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
 
-        if (SwitchErosion)
-             Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
     }}
 
     //      routing of substances add here!
