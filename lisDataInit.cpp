@@ -423,7 +423,7 @@ void TWorld::InitLULCInput(void)
     copy(*Norg, *N); //ed in sed trap... if trap is full go back to original N
 
     RR = ReadMap(LDD,getvaluename("RR"));
-    checkMap(*RR, SMALLER, 0.0, "Raindom roughness RR must be >= 0");
+    checkMap(*RR, SMALLER, 0.0, "Random roughness RR must be >= 0");
     calcValue(*RR, RRCalibration, MUL);
 
     //===== interception =====
@@ -1980,7 +1980,7 @@ void TWorld::IntializeData(void)
     Ksateff = NewMap(0);
     Poreeff = NewMap(0);
     Thetaeff = NewMap(0);
-    FSurplus = NewMap(0);
+    //FSurplus = NewMap(0);
     FFull = NewMap(0);
     Perc = NewMap(0);
     PercmmCum = NewMap(0);
@@ -2083,6 +2083,10 @@ void TWorld::IntializeData(void)
     WaterVolall = NewMap(0);
 
     WHinitVolTot = 0;
+
+    if (SwitchKinematic2D != K2D_METHOD_DYN)
+        SwitchFloodInitial = false;
+
     if (SwitchFloodInitial) {
         hmxInit = ReadMap(LDD, getvaluename("whinit"));
         report(*hmxInit,"whi.map");

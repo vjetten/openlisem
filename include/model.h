@@ -505,7 +505,7 @@ public:
         SwitchCorrectMB_WH,
         SwitchCorrectDEM,
         Switch2DDiagonalFlow,
-        Switch2DDiagonalFlowNew,
+        //Switch2DDiagonalFlowNew,
         SwitchSWOFopen,
         SwitchMUSCL,
         SwitchUserCores,

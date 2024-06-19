@@ -1350,7 +1350,7 @@ void lisemqt::resetTabInfiltration()
     //infiltration
     checkInfilCompact->setChecked(false);
     checkInfilCrust->setChecked(false);
-    checkInfil2layer->setChecked(false);
+    //checkInfil2layer->setChecked(false);
     checkInfilImpermeable->setChecked(false);
     checkIncludeTiledrains->setChecked(false);
     checkGeometric->setChecked(true);
@@ -1368,11 +1368,9 @@ void lisemqt::resetTabFlow()
     line_FlowBarriers->setText("flowbarriers.txt");
     checkBuffers->setChecked(false);
     check2DDiagonalFlow->setChecked(true);
-    check2DDiagonalFlowNew->setChecked(false);
+    //check2DDiagonalFlowNew->setChecked(false);
     checkCorrectDem->setChecked(false);
     E_pitValue->setValue(1.0);
-    //checkSWOFWatersheds->setChecked(false);
-    rb_swof2->setChecked(true);
     E_TimestepMinFlood->setValue(0.2);
     E_courantFactor->setValue(0.2);
 
@@ -1693,3 +1691,9 @@ void lisemqt::setfontSize()
     //tabWidget_erosion->setStyleSheet(S);
 */
 }
+
+void lisemqt::on_checkOverlandFlow2Dkindyn_toggled(bool checked)
+{
+    check2DDiagonalFlow->setChecked(checked);
+}
+

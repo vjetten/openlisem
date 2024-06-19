@@ -189,7 +189,7 @@ void TWorld::cell_InfilMethods(int r, int c)
     double SoilDep1 = SoilDepth1->Drc;
     double SoilDep2 = 0;
 
-    if (HouseCover->Drc == 1.0 || Ksateff->Drc == 0)
+    if (Ksateff->Drc == 0)
         return;
 
     if (FloodDomain->Drc == 0) {
@@ -272,14 +272,11 @@ void TWorld::cell_InfilMethods(int r, int c)
         //InfilVol->Drc = fact_* SoilWidthDX->Drc * DX->Drc;
         InfilVol->Drc = fact_* FlowWidth->Drc * DX->Drc;
         // calc infiltrated volume for mass balance
+        // use flowwidth because Ksateff included impermeable surfaces anyway
     } else {
        // fact->Drc = 0;
         InfilVol->Drc = 0;
     }
-
-    // calc surplus infiltration (negative in m) for kin wave
-    // no longer used
-    FSurplus->Drc = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -652,7 +649,7 @@ void TWorld::cell_InfilSwatre(int r, int c)
 /// SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
 void TWorld::InfilSwatre()
 {
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (FloodDomain->Drc == 0)
             tm->Drc = WH->Drc;

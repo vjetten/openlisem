@@ -415,16 +415,12 @@ void TWorld::HydrologyProcesses()
         // result is rainnet (and leafdrip for erosion)
 
 //        if (SwitchFloodInitial  && hmxInit->Drc > 0)
-//            hmxInit->Drc += RainNet->Drc;// + Snowmeltc->Drc;
+//            hmxInit->Drc += RainNet->Drc;
 
         if (FloodDomain->Drc > 0) {
             hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc; // only used in kin wave pluf flood from channel, hmx is flood water
-//            if (SwitchFloodInitial && hmxInit-> Drc > 0)
-//                hmx->Drc = hmxInit->Drc;
         } else {
             WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;  // used in 2D flow and kin wave
-//            if (SwitchFloodInitial && hmxInit-> Drc > 0)
-//                WH->Drc = hmxInit->Drc;
         }
 
         if (SwitchWaveUser) {
@@ -434,13 +430,6 @@ void TWorld::HydrologyProcesses()
                 WH->Drc = WHbound->Drc + WHboundRain->Drc;
             }
         }
-
-        // add net to water rainfall on soil surface (in m)
-        // when kin wave and flooded hmx exists else always WH
-    //    if (SwitchRoadsystem || SwitchHardsurface) {
-         //   if (RoadWidthHSDX->Drc > 0)
-                //WHroad->Drc += RainNet->Drc;// + Snowmeltc->Drc;
-   //     }
 
         // infiltration by SWATRE of G&A+percolation
         switch (InfilMethod) {

@@ -274,23 +274,13 @@ void lisemqt::ParseInputData()
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(valc);
         if (p1.compare("Flood solution")==0)                 checkMUSCL->setChecked(check);
-        // {
-        //     switch (iii) {
-        //     case 0 : rb_swof2->setChecked(true); break;
-        //     case 1 : rb_swofnomuscl->setChecked(true); break;
-        //     case 2 : rb_swofmuscl->setChecked(true); break;
-        //     }
-        // }
         if (p1.compare("Routing Kin Wave 2D")==0)            dummykinwave = iii;
         if (p1.compare("Flow Boundary 2D")==0)               E_FlowBoundary->setValue(iii);
         if (p1.compare("Correct DEM")==0)                    checkCorrectDem->setChecked(check);
         if (p1.compare("Use 2D Diagonal flow")==0)           check2DDiagonalFlow->setChecked(check);
-        if (p1.compare("Use 2D Diagonal flow new")==0)       check2DDiagonalFlowNew->setChecked(check);
         if (p1.compare("Pit Value")==0)                      E_pitValue->setValue(valc);
         if (p1.compare("Flood initial level map")==0)        checkFloodInitial->setChecked(check);
         if (p1.compare("Timestep flood")==0)                 E_TimestepMinFlood->setValue(valc);
-    //    if (p1.compare("Use SWOF watersheds")==0)            checkSWOFWatersheds->setChecked(check);
-
 
         // EROSION
         if (p1.compare("Splash equation")==0)                E_splashEquation->setValue(iii);
@@ -478,7 +468,11 @@ void lisemqt::ParseInputData()
     checkOverlandFlow2Dkindyn->setChecked(dummykinwave == 3);
     checkOverlandFlow2Ddyn->setChecked(dummykinwave == 2);
     setFloodTab(true);//dummykinwave > 1);
-    setErosionTab(false);
+    setErosionTab(false); //?????
+
+    if (dummykinwave == 3) {
+        checkMUSCL->setChecked(false);
+    }
 
     // first guess
     E_WorkDir = QFileInfo(E_runFileList->currentText()).dir().absolutePath();
@@ -880,7 +874,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Correct MB with WH")==0)             namelist[j].value.setNum((int) checkMB_WH->isChecked());
         if (p1.compare("Correct DEM")==0)                    namelist[j].value.setNum((int) checkCorrectDem->isChecked());
         if (p1.compare("Use 2D Diagonal flow")==0)           namelist[j].value.setNum((int) check2DDiagonalFlow->isChecked());
-        if (p1.compare("Use 2D Diagonal flow new")==0)       namelist[j].value.setNum((int) check2DDiagonalFlowNew->isChecked());
+    //    if (p1.compare("Use 2D Diagonal flow new")==0)       namelist[j].value.setNum((int) check2DDiagonalFlowNew->isChecked());
 
     //    if (p1.compare("Use SWOF watersheds")==0)            namelist[j].value.setNum((int) checkSWOFWatersheds->isChecked());
 

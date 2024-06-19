@@ -233,7 +233,7 @@ cTMap
 
 // infiltration
 *Fcum,                       //!< cumulative infiltration [m]
-*FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
+//*FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
 *FFull,                      //!< map flagging when the soil is full
 *fact,                       //!< actual infiltration rate [m/s]
 *fpot,                       //!< potential infiltration rate [m/s]

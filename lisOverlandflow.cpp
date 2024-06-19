@@ -46,8 +46,13 @@ void TWorld::OverlandFlow(void)
 {
     ToTiledrain();   // fraction going into tiledrain directly from surface, for 1D and 2D flow
 
+    if(SwitchKinematic2D == K2D_METHOD_DYN) {
+        OverlandFlow2Ddyn();
+        // dynamic wave overland flow
+    } else {
+
     // kinematic wave or kin wave with overflow
-    if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
+    //if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
 
         CalcVelDisch();
         // overland flow velocity, discharge and alpha
@@ -69,15 +74,9 @@ void TWorld::OverlandFlow(void)
             // st venant channel 2D flooding from channel, only for kyn wave
         }
     }
-
-    if(SwitchKinematic2D == K2D_METHOD_DYN) {
-        OverlandFlow2Ddyn();
-        // dynamic wave overland flow
-    }
-
-
 }
 //--------------------------------------------------------------------------------------------
+// ToChannel is ONLY called with KIN or KINDYN
 /**
  * @fn void TWorld::ToChannel(void)
  * @brief Calculates fraction of overland flow that flows into channel
@@ -87,15 +86,15 @@ void TWorld::OverlandFlow(void)
  *
  * @return void
  */
-void TWorld::ToChannel() //(int r, int c)
+void TWorld::ToChannel()
 {
     if (!SwitchIncludeChannel)
         return;
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-    if (ChannelWidth->Drc > 0 && WHrunoff->Drc > HMIN && hmx->Drc < HMIN)
-    {
+    if (ChannelWidth->Drc > 0 && WHrunoff->Drc > 0 && hmx->Drc == 0) {
+
         double fractiontochannel = std::min(1.0, _dt*V->Drc/(0.5*ChannelAdj->Drc));
         // fraction to channel calc from half the adjacent area width and flow velocity
 
@@ -117,10 +116,14 @@ void TWorld::ToChannel() //(int r, int c)
             ChannelWaterVol->Drc += dvol;
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 
-            WHrunoff->Drc -= dwh ;
-            //WHroad->Drc -= dwh;
+//            WaterVolall->Drc -= dvol;
+//            WaterVolall->Drc = std::max(WaterVolall->Drc, MicroStoreVol->Drc);
+//            WHrunoff->Drc = (WaterVolall->Drc - MicroStoreVol->Drc)/CHAdjDX->Drc;
+//            WH->Drc = WHrunoff->Drc + WHstore->Drc;
+
+            WHrunoff->Drc -= dwh;
             WH->Drc -= dwh;
-            WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
+            WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc) + MicroStoreVol->Drc;
 
             if (SwitchErosion)
             {
@@ -189,15 +192,11 @@ void TWorld::updateWHandHmx(void)
     FOR_ROW_COL_MV_L {
         double WHR = WHrunoff->Drc;
 
-        //WHroad->Drc = WHR;
-        // set road to average outflowing wh, no surface storage.
-
         WH->Drc = WHR + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
         WaterVolall->Drc = WHR*CHAdjDX->Drc + MicroStoreVol->Drc;
         //LOGIC:
         // water layer in three parts: WHstore < (WHrunoff < minReportFloodHeight) < (hmx > minReportFloodHeight)
-        // WH =  WHstore + WHrunoff
 
         hmxWH->Drc = WH->Drc;// + hmx->Drc; // in 2D flow hmx is 0, not used
         // hmxWH is used for reporting and calculation of velocity on screen. It combines aall waterheight irrespective of type of flow
@@ -210,7 +209,7 @@ void TWorld::updateWHandHmx(void)
         FloodWaterVol->Drc = hmxflood->Drc*CHAdjDX->Drc;
         // used in mass balance
         RunoffWaterVol->Drc = std::min(WHR, minReportFloodHeight)*CHAdjDX->Drc;
-        // all water that isnot flood and not stored
+        // all water that is not flood and not stored, so below min level
 
         if (SwitchErosion) {
             double sed = (SSFlood->Drc + BLFlood->Drc);
@@ -246,7 +245,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             ChannelWaterVol->Drc = ChannelWH->Drc * ChannelDX->Drc * ChannelWidth->Drc;
-            WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
+            WaterVolall->Drc = CHAdjDX->Drc*WHrunoff->Drc + MicroStoreVol->Drc;
             // do not recalc floodvol, MB errors
 
             // recalc channel water vol else big MB error
@@ -269,16 +268,8 @@ void TWorld::OverlandFlow2Ddyn(void)
             startFlood = true;
     }
 
-    //Vflood negative is flow up, positive is flow down
-
-    //if (SwitchSWOFopen)
     dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
     // //VJ new average flux over lisem timestep, else last Qn is used
-
-    // ========= OBSOLETE ========
-    //     dtOF = fullSWOF2RO(WHrunoff, Uflood, Vflood, DEM);
-
-    //  infilInWave(WHrunoff, _dt);
 
     // calc discharge flux
     #pragma omp parallel for num_threads(userCores)
@@ -349,7 +340,7 @@ void TWorld::OverlandFlow1D(void)
     //convert calculate Qn back to WH and volume for next loop
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        double InfilKWact = 0;
+    //    double InfilKWact = 0;
         double WaterVolout = std::max(0.0, QinKW->Drc*_dt + WaterVolin->Drc  - Qn->Drc*_dt);
         // mass balance, this includes now errors!
 

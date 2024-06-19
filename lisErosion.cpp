@@ -243,8 +243,9 @@ void TWorld::cell_SplashDetachment(int r, int c)
         //     DETSplash_ = (1-RoadWidthDX->Drc/_dx)*DETSplash_;
         // if (SwitchHardsurface)
         //     DETSplash_ = (1-HardSurface->Drc)*DETSplash_;
-         if (RoadWidthHSDX->Drc > 0.1)
-             DETSplash_ = 0;
+//         if (RoadWidthHSDX->Drc > 0.1)
+//             DETSplash_ = 0;
+// soilwidth already takes care of this
 
     /*
         if(SwitchUseMaterialDepth)
@@ -448,12 +449,9 @@ void TWorld::cell_FlowDetachment(int r, int c)
                 detachment = (1-RoadWidthDX->Drc/_dx)*detachment;
             if (SwitchHardsurface)
                 detachment = (1-HardSurface->Drc)*detachment;
-            // if (RoadWidthHSDX->Drc > 0)
-            //     detachment = 0;
-
 
             //detachment = DetachMaterial(r,c,1,false,false,false, detachment);
-            // reacctivate when materiallayer is reinstalled
+            // OBSOLETE, reacctivate when materiallayer is reinstalled
             detachment *= Y->Drc;
 
             if(Sed->Drc+detachment > MAXCONC * erosionwv)
@@ -476,6 +474,7 @@ void TWorld::cell_FlowDetachment(int r, int c)
 
 }
 //---------------------------------------------------------------------------
+// OBSOLETE FOR NOW
 /**
  * @fn double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool bl,double detachment)
  * @brief Calculates real detachment from potential detachment.
@@ -497,7 +496,6 @@ void TWorld::cell_FlowDetachment(int r, int c)
  * @return Actual detachment
  */
 
-// TODO: check what happens in this function
 double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool bl,double detachment)
 {
     /*

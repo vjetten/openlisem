@@ -160,19 +160,19 @@ void TWorld::Boundary2Ddyn()
         h = hmx;
     }
     // correct the water height in the outlet(s) for a perfect WB!
-    FOR_ROW_COL_LDD5 {
-        double dh = Q->Drc*_dt/CHAdjDX->Drc;
-        h->Drc = std::max(0.0,h->Drc-dh);
+//    FOR_ROW_COL_LDD5 {
+//        double dh = Q->Drc*_dt/CHAdjDX->Drc;
+//        h->Drc = std::max(0.0,h->Drc-dh);
 
-        if (SwitchErosion) {
-            double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Q->Drc*_dt);
-            SSFlood->Drc -= ds;
-            if (SwitchUse2Phase) {
-                ds = std::min(BLFlood->Drc, BLCFlood->Drc*Q->Drc*_dt);
-                BLFlood->Drc -= ds;
-            }
-        }
-    }}
+//        if (SwitchErosion) {
+//            double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Q->Drc*_dt);
+//            SSFlood->Drc -= ds;
+//            if (SwitchUse2Phase) {
+//                ds = std::min(BLFlood->Drc, BLCFlood->Drc*Q->Drc*_dt);
+//                BLFlood->Drc -= ds;
+//            }
+//        }
+//    }}
 
     if (FlowBoundaryType == 0)
         return;

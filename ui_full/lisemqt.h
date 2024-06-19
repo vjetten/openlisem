@@ -548,6 +548,8 @@ private slots:
 
     void on_checkGWflow_toggled(bool checked);
 
+    void on_checkOverlandFlow2Dkindyn_toggled(bool checked);
+
 private:
 
     QSystemTrayIcon *trayIcon;

@@ -416,10 +416,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 }
 
                 if (Switch2DDiagonalFlow) {
-                    if (Switch2DDiagonalFlowNew)
+              //      if (Switch2DDiagonalFlowNew)
                         SWOFDiagonalFlowNew(dt_req_min, h, u, v);
-                    else
-                        SWOFDiagonalFlow(dt_req_min, h, u, v); //old, not used
+          //          else
+            //            SWOFDiagonalFlow(dt_req_min, h, u, v); //old, not used
                 }
 
 
