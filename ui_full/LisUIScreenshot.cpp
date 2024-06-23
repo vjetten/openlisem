@@ -211,6 +211,7 @@ void lisemqt::shootSingleScreen(int options)
                             name = NameList.at(index);
                     }
             }
+
         }
     }
     fileName = screenShotDir + fi.baseName()+ name + number  + ".png";

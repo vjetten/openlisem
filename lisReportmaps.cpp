@@ -281,16 +281,25 @@ void TWorld::GetComboMaps()
 //    if (Switch2DDiagonalFlow)
 //       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     cl = 1;
-    AddComboMap(0,"Flow Velocity","m/s",COMBO_V,LegendMap[cl],Legend[cl],false,false,1.0, 0.001);
+    AddComboMap(0,"Overland flow Velocity","m/s",COMBO_V,LegendMap[cl],Legend[cl],false,false,1.0, 0.001);
  //   AddComboMap(0,"Flow Velocity","m/s",Uflood,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
  //   AddComboMap(0,"Flow Velocity","m/s",Vflood,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
  //   AddComboMap(0,"Flow Velocity","m/s",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
-    AddComboMap(0,"Flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.001); //VH
+    AddComboMap(0,"Overland flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.001); //VH
     //AddComboMap(0,"boundary","-",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
 
     AddComboMap(0,"Cumulative overland flow","m3",Qototal,LegendMap[0],Legend[0],false,false,1.0, 1.0);//0.001);
-    cl = 0;
-    AddComboMap(0,"Flood Hazard Index [WH(V+0.5)]","-",FHI,LegendMap[0],Legend[0],true,false,1.0, 0.001);
+    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
+        cl = 2;
+        QString txt = QString("Max flood Height (h>%1m)").arg(minReportFloodHeight);
+        AddComboMap(0,txt,"m",floodHmxMax,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
+        cl = 5;
+        AddComboMap(0,"Flood Start Time","min",floodTimeStart,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+        cl = 6;
+        AddComboMap(0,"Flood duration","min",floodTime,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+        cl = 0;
+        AddComboMap(0,"Flood Hazard Index [WH(V+0.5)]","-",FHI,LegendMap[0],Legend[0],true,false,1.0, 0.001);
+    }
 
 
     if(SwitchIncludeChannel)
@@ -358,24 +367,6 @@ void TWorld::GetComboMaps()
         AddComboMap(0,"ETa Cumulative","mm",ETaCum,LegendMap[3],Legend[3],false,false,1000.0,0.1);
        // AddComboMap(0,"ETp Cumulative","mm",ETpCum,LegendMap[3],Legend[3],false,false,1000.0,0.1);
        }
-
-    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
-        cl = 2;
-        QString txt = QString("Max flood Height (h>%1m)").arg(minReportFloodHeight);
-
-        //        AddComboMap(0,txt,"m",hmxflood,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
-        //        setColor(3);
-        AddComboMap(0,txt,"m",floodHmxMax,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
-        cl = 5;
-        AddComboMap(0,"Flood Start Time","min",floodTimeStart,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-        cl = 6;
-        AddComboMap(0,"Flood duration","min",floodTime,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-        cl = 5;
-        //        if (SwitchVariableTimestep) {
-        //AddComboMap(0,"Timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
-        // AddComboMap(0,"Steps pr cell","-",FloodT,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-        //       }
-    }
 
     if(SwitchErosion)
     {
