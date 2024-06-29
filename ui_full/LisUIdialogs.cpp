@@ -505,7 +505,7 @@ void lisemqt::on_checkGWflow_toggled(bool checked)
 {
     GW_widget->setEnabled(checked);
     widget_GWparams->setEnabled(checked);
-    BaseflowParams->setEnabled(checked);
+    groupBaseflowParams->setEnabled(checked);
     qDebug() << checked;
 }
 

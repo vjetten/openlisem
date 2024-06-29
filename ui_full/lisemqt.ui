@@ -70,7 +70,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -193,7 +193,7 @@
                  <widget class="QWidget" name="tab_general">
                   <attribute name="icon">
                    <iconset resource="../resources/openlisem.qrc">
-                    <normaloff>:/2X/settings2.png</normaloff>:/2X/settings2.png</iconset>
+                    <normaloff>:/settings2.png</normaloff>:/settings2.png</iconset>
                   </attribute>
                   <attribute name="title">
                    <string/>
@@ -2713,7 +2713,7 @@
                     </widget>
                    </item>
                    <item row="5" column="0" colspan="4">
-                    <widget class="QGroupBox" name="groupBox_6">
+                    <widget class="QGroupBox" name="groupConservationwater">
                      <property name="font">
                       <font>
                        <pointsize>8</pointsize>
@@ -3071,7 +3071,7 @@
                     </spacer>
                    </item>
                    <item row="1" column="0" colspan="4">
-                    <widget class="QGroupBox" name="gridGroupBox">
+                    <widget class="QGroupBox" name="groupSurfaceFlowoptions">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -3242,7 +3242,7 @@
                     </widget>
                    </item>
                    <item row="2" column="0" colspan="4">
-                    <widget class="QGroupBox" name="FloodParams">
+                    <widget class="QGroupBox" name="groupFloodParams">
                      <property name="enabled">
                       <bool>true</bool>
                      </property>
@@ -3578,7 +3578,7 @@
                   </attribute>
                   <layout class="QGridLayout" name="gridLayout_67">
                    <item row="1" column="0">
-                    <widget class="QGroupBox" name="groupBox_7">
+                    <widget class="QGroupBox" name="groupChannelParams">
                      <property name="font">
                       <font>
                        <pointsize>8</pointsize>
@@ -3804,7 +3804,7 @@
                     </widget>
                    </item>
                    <item row="3" column="0">
-                    <widget class="QGroupBox" name="BaseflowParams">
+                    <widget class="QGroupBox" name="groupBaseflowParams">
                      <property name="font">
                       <font>
                        <pointsize>8</pointsize>
@@ -5503,8 +5503,8 @@
                      </property>
                     </spacer>
                    </item>
-                   <item row="7" column="0" colspan="9">
-                    <widget class="QGroupBox" name="groupBoxConservation">
+                   <item row="7" column="0" colspan="8">
+                    <widget class="QGroupBox" name="groupConservation">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                        <horstretch>0</horstretch>
@@ -5777,14 +5777,14 @@
                  <widget class="QWidget" name="tab_calib">
                   <attribute name="icon">
                    <iconset resource="../resources/openlisem.qrc">
-                    <normaloff>:/2X/advanced.png</normaloff>:/2X/advanced.png</iconset>
+                    <normaloff>:/advanced.png</normaloff>:/advanced.png</iconset>
                   </attribute>
                   <attribute name="title">
                    <string/>
                   </attribute>
                   <layout class="QGridLayout" name="gridLayout_22">
                    <item row="2" column="0" colspan="3">
-                    <widget class="QGroupBox" name="groupBoxCalHydrology">
+                    <widget class="QGroupBox" name="groupCalHydrology">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
                        <horstretch>0</horstretch>
@@ -6289,7 +6289,7 @@
                     </widget>
                    </item>
                    <item row="3" column="0" colspan="3">
-                    <widget class="QGroupBox" name="groupBoxCalFlow">
+                    <widget class="QGroupBox" name="groupCalFlow">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
                        <horstretch>0</horstretch>
@@ -6565,7 +6565,7 @@
                     </widget>
                    </item>
                    <item row="4" column="0" colspan="3">
-                    <widget class="QGroupBox" name="groupBox_3">
+                    <widget class="QGroupBox" name="groupCalErosion">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
                        <horstretch>0</horstretch>
@@ -6927,7 +6927,7 @@
                  <widget class="QWidget" name="tab_advanced">
                   <attribute name="icon">
                    <iconset resource="../resources/openlisem.qrc">
-                    <normaloff>:/2X/settings1.png</normaloff>:/2X/settings1.png</iconset>
+                    <normaloff>:/settings1.png</normaloff>:/settings1.png</iconset>
                   </attribute>
                   <attribute name="title">
                    <string/>
@@ -7046,7 +7046,7 @@
                        </widget>
                       </item>
                       <item row="2" column="0" colspan="3">
-                       <widget class="QGroupBox" name="groupBox_5">
+                       <widget class="QGroupBox" name="groupAdvRichards">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -7246,7 +7246,7 @@
                        </widget>
                       </item>
                       <item row="4" column="0" colspan="3">
-                       <widget class="QGroupBox" name="groupBox">
+                       <widget class="QGroupBox" name="groupAdvChannel">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                           <horstretch>0</horstretch>
@@ -7414,7 +7414,7 @@
                        </widget>
                       </item>
                       <item row="3" column="0" colspan="3">
-                       <widget class="QGroupBox" name="groupBox_2">
+                       <widget class="QGroupBox" name="groupAdvKinwave">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -7482,7 +7482,7 @@
                        </widget>
                       </item>
                       <item row="1" column="0" colspan="3">
-                       <widget class="QGroupBox" name="groupBox_SWOF">
+                       <widget class="QGroupBox" name="groupAdvSWOF">
                         <property name="enabled">
                          <bool>true</bool>
                         </property>
@@ -9297,7 +9297,7 @@ p, li { white-space: pre-wrap; }
                   </font>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>1</number>
                  </property>
                  <widget class="QWidget" name="tab">
                   <attribute name="title">
@@ -10228,247 +10228,7 @@ p, li { white-space: pre-wrap; }
                       <property name="verticalSpacing">
                        <number>4</number>
                       </property>
-                      <item row="0" column="0">
-                       <layout class="QGridLayout" name="gridLayout_33">
-                        <item row="0" column="2">
-                         <widget class="QSpinBox" name="printinterval">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="font">
-                           <font>
-                            <pointsize>8</pointsize>
-                            <bold>false</bold>
-                           </font>
-                          </property>
-                          <property name="minimum">
-                           <number>1</number>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="0" column="3">
-                         <widget class="QLabel" name="label_16">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="font">
-                           <font>
-                            <pointsize>8</pointsize>
-                            <bold>false</bold>
-                           </font>
-                          </property>
-                          <property name="text">
-                           <string>timesteps</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="0" column="1">
-                         <widget class="QLabel" name="label_80">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="font">
-                           <font>
-                            <pointsize>8</pointsize>
-                            <bold>false</bold>
-                           </font>
-                          </property>
-                          <property name="text">
-                           <string>Report mapseries every:</string>
-                          </property>
-                          <property name="alignment">
-                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="0" column="1">
-                       <spacer name="horizontalSpacer_8">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item row="1" column="0" colspan="2">
-                       <widget class="QCheckBox" name="checkWritePCRnames">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Mapseries as PCRaster filenames (.001, .002)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="0" colspan="2">
-                       <widget class="Line" name="line">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="1">
-                       <widget class="QGroupBox" name="groupSedmapsout">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>true</bold>
-                         </font>
-                        </property>
-                        <property name="title">
-                         <string>Sediment</string>
-                        </property>
-                        <layout class="QGridLayout" name="gridLayout_35">
-                         <item row="0" column="0">
-                          <widget class="QCheckBox" name="checkBox_OutDet">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>det - detachment (selected units)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="1" column="0">
-                          <widget class="QCheckBox" name="checkBox_OutDep">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>dep - deposition (select units)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="2" column="0">
-                          <widget class="QCheckBox" name="checkBox_OutSL">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>sloss - soilloss (selected units)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="3" column="0">
-                          <widget class="QCheckBox" name="checkBox_OutConc">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>conc - sediment concentration (g/l)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="4" column="0">
-                          <widget class="QCheckBox" name="checkBox_OutTC">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>tc - transport capacity (kg/m3)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="5" column="0">
-                          <widget class="QCheckBox" name="checkBox_OutSed">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>sed - Sediment in flow (selected units)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="6" column="0">
-                          <widget class="QCheckBox" name="checkBox_OutSedSS">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>SS - Suspended in flow (selected units)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="7" column="0">
-                          <widget class="QCheckBox" name="checkBox_OutSedBL">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>BL - Bedload in flow (selected units)</string>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </widget>
-                      </item>
-                      <item row="3" column="0">
+                      <item row="2" column="0">
                        <widget class="QGroupBox" name="groupWatermapsout">
                         <property name="font">
                          <font>
@@ -10653,6 +10413,239 @@ p, li { white-space: pre-wrap; }
                           </widget>
                          </item>
                         </layout>
+                       </widget>
+                      </item>
+                      <item row="0" column="1">
+                       <spacer name="horizontalSpacer_8">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item row="0" column="0">
+                       <layout class="QGridLayout" name="gridLayout_33">
+                        <item row="0" column="2">
+                         <widget class="QSpinBox" name="printinterval">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <pointsize>8</pointsize>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="minimum">
+                           <number>1</number>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="0" column="3">
+                         <widget class="QLabel" name="label_16">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <pointsize>8</pointsize>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>timesteps</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="0" column="1">
+                         <widget class="QLabel" name="label_80">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <pointsize>8</pointsize>
+                            <bold>false</bold>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>Report mapseries every:</string>
+                          </property>
+                          <property name="alignment">
+                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item row="2" column="1">
+                       <widget class="QGroupBox" name="groupSedmapsout">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>true</bold>
+                         </font>
+                        </property>
+                        <property name="title">
+                         <string>Sediment</string>
+                        </property>
+                        <layout class="QGridLayout" name="gridLayout_35">
+                         <item row="0" column="0">
+                          <widget class="QCheckBox" name="checkBox_OutDet">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>det - detachment (selected units)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QCheckBox" name="checkBox_OutDep">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>dep - deposition (select units)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="0">
+                          <widget class="QCheckBox" name="checkBox_OutSL">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>sloss - soilloss (selected units)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="0">
+                          <widget class="QCheckBox" name="checkBox_OutConc">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>conc - sediment concentration (g/l)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="4" column="0">
+                          <widget class="QCheckBox" name="checkBox_OutTC">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>tc - transport capacity (kg/m3)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="5" column="0">
+                          <widget class="QCheckBox" name="checkBox_OutSed">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>sed - Sediment in flow (selected units)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="6" column="0">
+                          <widget class="QCheckBox" name="checkBox_OutSedSS">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>SS - Suspended in flow (selected units)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="7" column="0">
+                          <widget class="QCheckBox" name="checkBox_OutSedBL">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>BL - Bedload in flow (selected units)</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item row="1" column="0" colspan="2">
+                       <widget class="QCheckBox" name="checkWritePCRnames">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Mapseries as PCRaster filenames (.001, .002)</string>
+                        </property>
                        </widget>
                       </item>
                      </layout>

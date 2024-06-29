@@ -50,12 +50,12 @@ int main(int argc, char *argv[])
 
     if (height < 1080) {
         // assumes that the default desktop resolution is 720p (scale of 1)
-        int minWidth = 1280;
+     //   int minWidth = 1280;
 
 
-        double scale = width / minWidth;
-        std::string scaleAsString = std::to_string(scale);
-        QByteArray scaleAsQByteArray(scaleAsString.c_str(), scaleAsString.length());
+     //   double scale = width / minWidth;
+     //   std::string scaleAsString = std::to_string(scale);
+      //  QByteArray scaleAsQByteArray(scaleAsString.c_str(), scaleAsString.length());
        // qputenv("QT_SCALE_FACTOR", scaleAsQByteArray);
       //  qputenv("QT_AUTO_SCREEN_SCALE_FACTOR",scaleAsQByteArray);
        // qDebug() <<scaleAsQByteArray << height << width;
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    app.setWindowIcon(QIcon(":/openlisem.ico"));
+    app.setWindowIcon(QIcon(":/openlisemN.ico"));
 
     app.setStyle(QStyleFactory::create("Fusion"));
    //  app.setStyle(QStyleFactory::create("Windows"));

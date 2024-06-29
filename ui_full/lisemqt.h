@@ -122,6 +122,8 @@ public:
 
     bool WhasStopped;
 
+    void saveCurrentStyleToCSS(const QString &filePath);
+    void saveWidgetStyle(QWidget *widget, QTextStream &out);
     void initMapTree();
     void DefaultMapnames();
     void fillMapnames();
@@ -471,6 +473,7 @@ public slots:
     void setFloodTab(bool);
     void setErosionTab(bool);
 
+    void setBWUI();
     void resizeMap();
     void fontSelect();
     void fontDecrease();
@@ -566,6 +569,7 @@ private:
     QAction *showAllAct;
     QAction *showInfoAct;
     QAction *resizeAct;
+    QAction *setBWAct;
 
     QAction *fontAct;
     QAction *fontIncreaseAct;

@@ -31,7 +31,6 @@
         <file>2X/Folder-Open-icon1.png</file>
         <file>2X/File-Delete-icon.png</file>
         <file>2X/reset.png</file>
-        <file>2X/settings.png</file>
         <file>../README.txt</file>
         <file>help8.html</file>
         <file>ITC logo.png</file>
@@ -49,18 +48,13 @@
         <file>water.png</file>
         <file>rain.png</file>
         <file>eros1bw.png</file>
-        <file>2X/advanced.png</file>
-        <file>2X/settings2.png</file>
         <file>soil4.png</file>
         <file>2X/noinfo.png</file>
-        <file>2X/settings1.png</file>
         <file>soil5.png</file>
         <file>2X/adjustsize.png</file>
         <file>../compile lisem windows 220713.txt</file>
         <file>2X/resetmap.png</file>
         <file>2X/film.png</file>
-        <file>river.png</file>
-        <file>river1.png</file>
         <file>river2.png</file>
         <file>river3.png</file>
         <file>d_rain.png</file>
@@ -72,6 +66,11 @@
         <file>d_soil5.png</file>
         <file>d_settings1.png</file>
         <file>d_advanced.png</file>
+        <file>dark2.css</file>
+        <file>advanced.png</file>
+        <file>settings1.png</file>
+        <file>settings2.png</file>
+        <file>black-and-white.png</file>
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>
