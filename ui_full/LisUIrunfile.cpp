@@ -102,7 +102,6 @@ void lisemqt::GetRunfile()
 void lisemqt::ParseInputData()
 {
     int j=0;
-    int dummykinwave = 1;
     // get all the options/checks
 
     resetAll();
@@ -274,7 +273,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(valc);
         if (p1.compare("Flood solution")==0)                 checkMUSCL->setChecked(check);
-        if (p1.compare("Routing Kin Wave 2D")==0)            dummykinwave = iii;
+        if (p1.compare("Routing Kin Wave 2D")==0)            E_OFWaveType->setCurrentIndex(iii);
         if (p1.compare("Flow Boundary 2D")==0)               E_FlowBoundary->setValue(iii);
         if (p1.compare("Correct DEM")==0)                    checkCorrectDem->setChecked(check);
         if (p1.compare("Use 2D Diagonal flow")==0)           check2DDiagonalFlow->setChecked(check);
@@ -448,13 +447,12 @@ void lisemqt::ParseInputData()
     radioRainFile->setChecked(!Rainmaps);
     radioRainSatFile->setChecked(Rainmaps);
 
-    checkChannelBaseflow->setChecked(checkGWflow->isChecked() || checkStationaryBaseflow->isChecked());
+    doChannelBaseflow = (checkGWflow->isChecked() || checkStationaryBaseflow->isChecked()) && checkIncludeChannel->isChecked();
     groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
     GW_widget->setEnabled(checkGWflow->isChecked());
     widget_GWparams->setEnabled(checkGWflow->isChecked());
 
     on_checkIncludeET_toggled(checkIncludeET->isChecked());
-    on_checkDischargeUser_toggled(checkDischargeUser->isChecked());
     on_checkWaveInUser_toggled(checkWaveInUser->isChecked());
 
     if (checkSedtrap->isChecked())
@@ -464,15 +462,12 @@ void lisemqt::ParseInputData()
 
     E_SigmaDiffusion->setEnabled(checkDiffusion->isChecked());
 
-    checkOverlandFlow1D->setChecked(dummykinwave == 1);
-    checkOverlandFlow2Dkindyn->setChecked(dummykinwave == 3);
-    checkOverlandFlow2Ddyn->setChecked(dummykinwave == 2);
-    setFloodTab(true);//dummykinwave > 1);
-    setErosionTab(false); //?????
+    //checkOverlandFlow1D->setChecked(dummykinwave == 1);
+    //checkOverlandFlow2Dkindyn->setChecked(dummykinwave == 3);
+    //checkOverlandFlow2Ddyn->setChecked(dummykinwave == 2);
 
-    if (dummykinwave == 3) {
-        checkMUSCL->setChecked(false);
-    }
+    setFloodTab(true);
+    setErosionTab(false); //?????
 
     // first guess
     E_WorkDir = QFileInfo(E_runFileList->currentText()).dir().absolutePath();
@@ -487,7 +482,6 @@ void lisemqt::ParseInputData()
     {
         QString p1 = namelist[j].name;
         QString p = namelist[j].value;
-//qDebug() << j << namelist[j].name << namelist[j].value;
         if (p1.compare("Begin time day")==0) daystart = p;//E_BeginTimeDay->setText(p);
         if (p1.compare("Begin time")==0) minstart = p;//E_BeginTimeMin->setText(p);
         if (p1.compare("End time day")==0)   dayend = p;//E_EndTimeDay->setText(p);
@@ -840,19 +834,15 @@ void lisemqt::updateModelData()
         if (p1.compare("Include litter interception")==0)    namelist[j].value.setNum((int)checkIncludeLitter->isChecked());
         if (p1.compare("Litter interception storage")==0)    namelist[j].value = E_LitterSmax->text();
 
-        if (p1.compare("Routing Kin Wave 2D")==0)
-        {
-            if (checkOverlandFlow1D->isChecked())  namelist[j].value = "1";
-            if (checkOverlandFlow2Dkindyn->isChecked())  namelist[j].value = "3";
-            if (checkOverlandFlow2Ddyn->isChecked())  namelist[j].value = "2";
-        }
+        if (p1.compare("Routing Kin Wave 2D")==0)   namelist[j].value.setNum(E_OFWaveType->currentIndex());
+
         if (p1.compare("Flow Boundary 2D")==0)               namelist[j].value = E_FlowBoundary->text();
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
         if (p1.compare("Include diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
         if (p1.compare("Include River diffusion")==0)        namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
-        //if (p1.compare("Z 2D correction")==0)                namelist[j].value = E_Z2Dcorrection->text();
+
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
         if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());

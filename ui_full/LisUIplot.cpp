@@ -543,7 +543,7 @@ void lisemqt::showOutputData()
         label_99->setText("Storm drains");
         label_stormdraintot->setText(format.arg(QString::number(op.StormDrainTotmm,'f',dig)));
     } else
-        if (checkChannelBaseflow->isChecked()) {
+        if (doChannelBaseflow) {
             label_99->setText("Added Baseflow");
             label_stormdraintot->setText(format.arg(QString::number(op.BaseFlowTotmm,'f',dig)));
         }
@@ -552,7 +552,7 @@ void lisemqt::showOutputData()
     label_infiltot->setText(format.arg(QString::number(op.InfilTotmm,'f',dig)));
     label_surfstor->setText(format.arg(QString::number(op.SurfStormm,'f',dig)));
     label_interctot->setText(format.arg(QString::number(op.IntercTotmm+op.IntercHouseTotmm+op.IntercLitterTotmm,'f',dig)));
-    if (checkOverlandFlow1D->isChecked() && !checkIncludeChannel->isChecked())
+    if (/*checkOverlandFlow1D->isChecked()*/E_OFWaveType->currentIndex() == 0 && !checkIncludeChannel->isChecked())
         label_floodVolmm->setText(format.arg(QString::number(0,'f',dig)));
     else
         label_floodVolmm->setText(format.arg(QString::number(op.volFloodmm,'f',dig)));

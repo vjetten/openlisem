@@ -67,7 +67,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setMinimumSize(1280,800);
     showMaximized();
 
-    darkLISEM = false;//true;
+    darkLISEM = false;
 
     int ompt = omp_get_max_threads();
     nrUserCores->setMaximum(ompt);//omp_get_max_threads());
@@ -176,18 +176,17 @@ void lisemqt::SetConnections()
     connect(MapNameModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(editMapname(QModelIndex, QModelIndex)));
     connect(toolButton_ResultDir, SIGNAL(clicked()), this, SLOT(setResultDir()));
 
-    connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-    connect(checkOverlandFlow1D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-    connect(checkOverlandFlow2Dkindyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-    connect(checkOverlandFlow2Ddyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+   // obsolete
+   // connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+   // connect(checkOverlandFlow1D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+   // connect(checkOverlandFlow2Dkindyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+   // connect(checkOverlandFlow2Ddyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+
     connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
 
     connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
 
     connect(checkFormatGtiff, SIGNAL(toggled(bool)), this, SLOT(setFormatMaps(bool)));
-
-  //  connect(E_BulkDens2,SIGNAL(editingFinished()),this, SLOT(updateBulkDens()));
-  //  connect(E_BulkDens,SIGNAL(editingFinished()),this, SLOT(updateBulkDens2()));
 
 }
 //--------------------------------------------------------------------
@@ -254,13 +253,6 @@ void lisemqt::on_tabWidget_out_currentChanged(int index)
     }
     */
 }
-//--------------------------------------------------------------------
-// bad programming, checkboxes as radiobuttons, but needed to be square buttons!
-void lisemqt::on_checkOverlandFlow1D_clicked()
-{
-   // tabWidgetOptions->setTabEnabled(3, true);
-}
-
 //--------------------------------------------------------------------
 void lisemqt::setErosionMapOutput(bool doit)
 {
@@ -449,16 +441,16 @@ void lisemqt::on_DisplayComboBox2_currentIndexChanged(int j)
 void lisemqt::setFloodTab(bool yes)
 {
     yes = true;
-    if (checkOverlandFlow2Dkindyn->isChecked() && !checkIncludeChannel->isChecked()) {
+    if (/*checkOverlandFlow2Dkindyn->isChecked()*/ E_OFWaveType->currentIndex() == 1 && !checkIncludeChannel->isChecked()) {
         yes = false;
         QMessageBox::warning(this,"openLISEM",QString("The combination of 1D overland flow and 2D flood can only be used with a channel activated."));
-        checkOverlandFlow1D->setChecked(true);
+        //checkOverlandFlow1D->setChecked(true);
     }
-    if (checkOverlandFlow1D->isChecked()) {
+    if (E_OFWaveType->currentIndex() == 0 /*checkOverlandFlow1D->isChecked()*/) {
         yes = false;
     }
 
-    checkDiffusion->setEnabled(!checkOverlandFlow1D->isChecked());
+    checkDiffusion->setEnabled(yes);
 
     FloodParams->setEnabled(yes);
 
@@ -466,7 +458,8 @@ void lisemqt::setFloodTab(bool yes)
     label_floodVolmm->setEnabled(yes);
     label_107->setEnabled(yes);
 
-    if (checkOverlandFlow2Ddyn->isChecked() || checkOverlandFlow2Dkindyn->isChecked()) {
+    //if (checkOverlandFlow2Ddyn->isChecked() || checkOverlandFlow2Dkindyn->isChecked()) {
+    if (E_OFWaveType->currentIndex() > 0) {
         label_107->setText(QString("Flood(h>%1mm)").arg(E_floodMinHeight->value()*1000));
         label_40->setText(QString("Runoff(h<%1mm)").arg(E_floodMinHeight->value()*1000));
     }
@@ -500,7 +493,7 @@ void lisemqt::setErosionTab(bool yes)
     ComboMaxSpinBox2->setEnabled(checkDoErosion->isChecked());
     DisplayComboBox2->setEnabled(checkDoErosion->isChecked());
 
-    checkDiffusion->setEnabled(!checkOverlandFlow1D->isChecked());
+    checkDiffusion->setEnabled(E_OFWaveType->currentIndex() > 0);//!checkOverlandFlow1D->isChecked());
 
     // reset output to 0
     if (!checkDoErosion->isChecked())
@@ -793,40 +786,75 @@ void lisemqt::SetStyleUI()
     genfontsize = 8+SetStyleUISize();
     setfontSize();
 
-//    label_baseflowtot->setVisible(false);
-//    label_195->setVisible(false);
+    toolBar_2->setMovable(false);
+    toolBar->setMovable(false);
 
-    //nrcontourlevels->setVisible(false);
-//    label_92->setText("Relief ");
-//    label_44->setVisible(false);
-//    label_45->setVisible(false);
-//    label_MB->setVisible(false);
-//    label_MBs->setVisible(false);
+    //QString flat("QToolButton { background-color: white; border: none; }");
 
-    toolBar_2->setMovable( false);
-    toolBar->setMovable( false);   
-    //    scrollAreaResults->setFixedWidth(500);
-    //  //  toolShowMapDisplay->setVisible(false);
-    //    //this->adjustSize();
+    QString sc1 = "#2266aa";
+     groupBoxInput->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc1));
+    groupBoxOutput->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc1));
+    label_55->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
+    label_59->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
+    label_88->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
+    label_156->setStyleSheet(QString("QLabel {color:%1;}").arg(sc1));
+    label_9->setStyleSheet(QString("QLabel {color:  %1;}").arg(sc1));
+    label_10->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
 
-    QString flat("QToolButton { background-color: white; border: none; }");
+    QString sc = "#4488cc";
+    checkWaveInUser->setStyleSheet(QString("QCheckBox {color: %1;}").arg(sc));
+    groupInfrastructrure->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupSurfaceflow->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox_4->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupChannels->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox_8->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    radioGroupRain->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    radioGroupET->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupInterception_2->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupInterception->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupInfiltration->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox_InfilOptions->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox_RichardsOptions->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox_SwatreOptions->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox_6->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupWaveUser->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    gridGroupBox->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    FloodParams->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox_7->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    BaseflowParams->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupKinEnergy->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupSedCH->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupSed->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBoxConservation->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBoxCalHydrology->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBoxCalFlow->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox_3->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox_5->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox_2->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox_SWOF->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox_dbase->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBoxTime->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    outputMapsWater->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    outputMapsFlood->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    outputMapsSediment->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupSedmapsout->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupWatermapsout->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    outputGraphsTables->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBoxunits->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox_InputMaps->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupTime->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    outletgroup->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox_drawMap->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
+    groupBox_info->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
 
-    groupBoxInput->setStyleSheet("QGroupBox::title{color: #4477aa;}");
-    groupBoxOutput->setStyleSheet("QGroupBox::title{color: #4477aa;}");
-    checkDoErosion->setStyleSheet("QCheckBox {color: #4477aa;}");
-    //checkSed2Phase->setStyleSheet("QCheckBox {color: #4477aa;}");
-    label_55->setStyleSheet("QLabel {color: #4477aa;}");
-    label_88->setStyleSheet("QLabel {color: #4477aa;}");
-    label_9->setStyleSheet("QLabel {color: #4477aa;}");
-    label_10->setStyleSheet("QLabel {color: #4477aa;}");
-    //label_11->setStyleSheet("QLabel {color: #4477aa;}");
+
+
 
     // interface elements that are not visible for now
-    //frameSpare->setVisible(false);
-    tabWidgetOptions->removeTab(8);
-    //frameNumerical->setVisible(false);
+    int last = tabWidgetOptions->count()-1;
+    tabWidgetOptions->removeTab(last);
 
-    //tabWidget_erosion->setCurrentIndex(0);
     if (darkLISEM) {
         QPalette darkPalette;
         darkPalette.setColor(QPalette::Window,QColor(53,53,53));
@@ -945,13 +973,14 @@ void lisemqt::SetStyleUI()
  //   GroupImpermeable.addButton(checkImpermeable,1);
  //   GroupImpermeable.addButton(checkPercolation,2);
 
-    GroupRunoff.addButton(checkOverlandFlow1D,1);
+  //  GroupRunoff.addButton(checkOverlandFlow1D,1);
   //  GroupRunoff.addButton(checkOverlandFlow2D,2);
-    GroupRunoff.addButton(checkOverlandFlow2Ddyn,3);
-    GroupRunoff.addButton(checkOverlandFlow2Dkindyn,4);
+  //  GroupRunoff.addButton(checkOverlandFlow2Ddyn,3);
+  //  GroupRunoff.addButton(checkOverlandFlow2Dkindyn,4);
 
 
-    if (checkOverlandFlow2Ddyn->isChecked()) {
+    //if (checkOverlandFlow2Ddyn->isChecked()) {
+    if (E_OFWaveType->currentIndex() == 2) {
         label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
         label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
 
@@ -959,7 +988,7 @@ void lisemqt::SetStyleUI()
         label_107->setText("Flood mm");
         label_40->setText("Runoff mm");
     }
-    bool yes = !checkOverlandFlow1D->isChecked();
+    bool yes = E_OFWaveType->currentIndex() > 0; // !checkOverlandFlow1D->isChecked();
     label_floodVolmm->setEnabled(yes);
     label_107->setEnabled(yes);
 
@@ -1288,9 +1317,10 @@ void lisemqt::aboutInfo()
 //--------------------------------------------------------------------
 void lisemqt::resetTabOptions()
 {
-    checkOverlandFlow1D->setChecked(false);
-    checkOverlandFlow2Ddyn->setChecked(true);
-    checkOverlandFlow2Dkindyn->setChecked(false);
+    //checkOverlandFlow1D->setChecked(false);
+    //checkOverlandFlow2Ddyn->setChecked(true);
+    //checkOverlandFlow2Dkindyn->setChecked(false);
+    E_OFWaveType->setCurrentIndex(2);
     checkDoErosion->setChecked(false);
 
     checkIncludeChannel->setChecked(true);
@@ -1690,10 +1720,5 @@ void lisemqt::setfontSize()
     S = QString("QToolBox::tab {background-color: #1b6fb5}");
     //tabWidget_erosion->setStyleSheet(S);
 */
-}
-
-void lisemqt::on_checkOverlandFlow2Dkindyn_toggled(bool checked)
-{
-    check2DDiagonalFlow->setChecked(checked);
 }
 

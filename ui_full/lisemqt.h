@@ -314,6 +314,7 @@ public:
     int uiInfilMethod;
     double swatreDT;
     QString screenShotDir;
+    bool doChannelBaseflow;
 
  //   QList<cTMap *> ComboMapsSafe;
 
@@ -422,7 +423,6 @@ public slots:
     void on_checkChannelInfil_clicked();
     void on_checkChannelBaseflow_clicked();
     void on_checkDoErosion_clicked();
-    void on_checkOverlandFlow1D_clicked();
     void on_checkIncludeChannel_clicked();
     void on_checkIncludeTiledrains_clicked();
     void on_checkBoxComboMaps_stateChanged(int);
@@ -512,8 +512,6 @@ private slots:
 
     void on_toolButton_ETShow_clicked();
 
-    void on_checkDischargeUser_toggled(bool checked);
-
     void on_checkWaveInUser_toggled(bool checked);
 
     void on_toolButton_DischargeShow_clicked();
@@ -548,7 +546,6 @@ private slots:
 
     void on_checkGWflow_toggled(bool checked);
 
-    void on_checkOverlandFlow2Dkindyn_toggled(bool checked);
 
 private:
 

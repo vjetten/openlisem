@@ -249,11 +249,6 @@ void lisemqt::on_toolButton_ETName_clicked()
     E_ETName->setText(ETFileDir + ETFileName);
 }
 //--------------------------------------------------------------------
-void lisemqt::on_checkDischargeUser_toggled(bool checked)
-{
-    groupDischargeUser->setEnabled(checked);
-}
-//--------------------------------------------------------------------
 void lisemqt::on_checkWaveInUser_toggled(bool checked)
 {
     groupWaveUser->setEnabled(checked);
@@ -272,7 +267,7 @@ void lisemqt::on_toolButton_WaveShow_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeET_toggled(bool checked)
 {
-    radioGroupET->setEnabled(checked);
+    widgetEToptions->setEnabled(checked);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_ETShow_clicked()
@@ -492,13 +487,11 @@ void lisemqt::on_toolButton_resetOptions_clicked()
 
 void lisemqt::on_checkStationaryBaseflow_toggled(bool checked)
 {
- //   BaseflowParams->setEnabled(checked);
     if (checked) checkChannelInfil->setChecked(false);
 }
 
 void lisemqt::on_checkChannelInfil_toggled(bool checked)
 {
-   // BaseflowParams->setEnabled(!checked);
     if (checked) checkStationaryBaseflow->setChecked(false);
 }
 

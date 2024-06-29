@@ -16,8 +16,6 @@
         <file>2X/fontsmaller2X.png</file>
         <file>2X/information_42X.png</file>
         <file>2X/map2X.png</file>
-        <file>2X/map32X.png</file>
-        <file>2X/map42X.png</file>
         <file>2X/Mscreenshots2X.png</file>
         <file>2X/onewfile2X.png</file>
         <file>2X/openLisem2X.png</file>
@@ -47,7 +45,6 @@
         <file>2X/Folder-Open-icon.png</file>
         <file>darcula.css</file>
         <file>black.qss</file>
-        <file>calibr.png</file>
         <file>Plant-icon.png</file>
         <file>water.png</file>
         <file>rain.png</file>
@@ -62,6 +59,10 @@
         <file>../compile lisem windows 220713.txt</file>
         <file>2X/resetmap.png</file>
         <file>2X/film.png</file>
+        <file>river.png</file>
+        <file>river1.png</file>
+        <file>river2.png</file>
+        <file>river3.png</file>
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>
