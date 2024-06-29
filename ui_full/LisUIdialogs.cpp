@@ -488,6 +488,7 @@ void lisemqt::on_toolButton_resetOptions_clicked()
 void lisemqt::on_checkStationaryBaseflow_toggled(bool checked)
 {
     if (checked) checkChannelInfil->setChecked(false);
+    doChannelBaseflow = checked;
 }
 
 void lisemqt::on_checkChannelInfil_toggled(bool checked)

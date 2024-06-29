@@ -67,7 +67,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setMinimumSize(1280,800);
     showMaximized();
 
-    darkLISEM = false;
+    darkLISEM = true;
 
     int ompt = omp_get_max_threads();
     nrUserCores->setMaximum(ompt);//omp_get_max_threads());
@@ -792,6 +792,22 @@ void lisemqt::SetStyleUI()
     //QString flat("QToolButton { background-color: white; border: none; }");
 
     QString sc1 = "#2266aa";
+    QString sc = "#4488cc";
+
+    if (darkLISEM) {
+        sc1 = "#ffff00";
+        sc = "#FFff88";
+        tabWidgetOptions->setTabIcon(0,QIcon(":/d_settings2.png"));
+        tabWidgetOptions->setTabIcon(1,QIcon(":/d_rain.png"));
+        tabWidgetOptions->setTabIcon(2,QIcon(":/d_Plant-icon.png"));
+        tabWidgetOptions->setTabIcon(3,QIcon(":/d_soil5.png"));
+        tabWidgetOptions->setTabIcon(4,QIcon(":/d_water.png"));
+        tabWidgetOptions->setTabIcon(5,QIcon(":/d_river3.png"));
+        tabWidgetOptions->setTabIcon(6,QIcon(":/d_eros1bw.png"));
+        tabWidgetOptions->setTabIcon(6,QIcon(":/d_advanced.png"));
+        tabWidgetOptions->setTabIcon(8,QIcon(":/d_settings1.png"));
+
+    }
      groupBoxInput->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc1));
     groupBoxOutput->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc1));
     label_55->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
@@ -800,8 +816,8 @@ void lisemqt::SetStyleUI()
     label_156->setStyleSheet(QString("QLabel {color:%1;}").arg(sc1));
     label_9->setStyleSheet(QString("QLabel {color:  %1;}").arg(sc1));
     label_10->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
+    label_128->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
 
-    QString sc = "#4488cc";
     checkWaveInUser->setStyleSheet(QString("QCheckBox {color: %1;}").arg(sc));
     groupInfrastructrure->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
     groupSurfaceflow->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));

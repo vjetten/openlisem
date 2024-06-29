@@ -421,7 +421,7 @@ public slots:
 
     void on_checkFlowBarriers_clicked();
     void on_checkChannelInfil_clicked();
-    void on_checkChannelBaseflow_clicked();
+ //  void on_checkChannelBaseflow_clicked();
     void on_checkDoErosion_clicked();
     void on_checkIncludeChannel_clicked();
     void on_checkIncludeTiledrains_clicked();

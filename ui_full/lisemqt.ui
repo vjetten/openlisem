@@ -36,7 +36,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>:/openLisem.png</normaloff>:/openLisem.png</iconset>
+    <normaloff>../resources/openLisemN.png</normaloff>../resources/openLisemN.png</iconset>
   </property>
   <property name="iconSize">
    <size>
@@ -182,7 +182,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>8</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -190,7 +190,7 @@
                    <height>42</height>
                   </size>
                  </property>
-                 <widget class="QWidget" name="tab_6">
+                 <widget class="QWidget" name="tab_general">
                   <attribute name="icon">
                    <iconset resource="../resources/openlisem.qrc">
                     <normaloff>:/2X/settings2.png</normaloff>:/2X/settings2.png</iconset>
@@ -899,7 +899,7 @@
                    </item>
                   </layout>
                  </widget>
-                 <widget class="QWidget" name="tab_global">
+                 <widget class="QWidget" name="tab_meteo">
                   <attribute name="icon">
                    <iconset resource="../resources/openlisem.qrc">
                     <normaloff>:/rain.png</normaloff>:/rain.png</iconset>
@@ -3568,7 +3568,7 @@
                    </item>
                   </layout>
                  </widget>
-                 <widget class="QWidget" name="tab_7">
+                 <widget class="QWidget" name="tab_Channel">
                   <attribute name="icon">
                    <iconset resource="../resources/openlisem.qrc">
                     <normaloff>:/river3.png</normaloff>:/river3.png</iconset>
@@ -6924,7 +6924,7 @@
                    </item>
                   </layout>
                  </widget>
-                 <widget class="QWidget" name="tab_5">
+                 <widget class="QWidget" name="tab_advanced">
                   <attribute name="icon">
                    <iconset resource="../resources/openlisem.qrc">
                     <normaloff>:/2X/settings1.png</normaloff>:/2X/settings1.png</iconset>
@@ -7807,7 +7807,7 @@
                    </item>
                   </layout>
                  </widget>
-                 <widget class="QWidget" name="tab_3">
+                 <widget class="QWidget" name="tab_spare">
                   <attribute name="title">
                    <string>Page</string>
                   </attribute>
@@ -9275,7 +9275,7 @@ p, li { white-space: pre-wrap; }
                 <x>0</x>
                 <y>0</y>
                 <width>755</width>
-                <height>561</height>
+                <height>558</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
@@ -9297,7 +9297,7 @@ p, li { white-space: pre-wrap; }
                   </font>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tab">
                   <attribute name="title">
@@ -9515,7 +9515,7 @@ p, li { white-space: pre-wrap; }
                          </font>
                         </property>
                         <property name="text">
-                         <string>Overland flow (mm)</string>
+                         <string>Overland flow (m3)</string>
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -10902,46 +10902,9 @@ p, li { white-space: pre-wrap; }
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="palette">
-              <palette>
-               <active>
-                <colorrole role="WindowText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>68</red>
-                   <green>119</green>
-                   <blue>170</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </active>
-               <inactive>
-                <colorrole role="WindowText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>68</red>
-                   <green>119</green>
-                   <blue>170</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </inactive>
-               <disabled>
-                <colorrole role="WindowText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>120</red>
-                   <green>120</green>
-                   <blue>120</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </disabled>
-              </palette>
-             </property>
              <property name="font">
               <font>
-               <pointsize>8</pointsize>
+               <pointsize>9</pointsize>
                <bold>true</bold>
               </font>
              </property>

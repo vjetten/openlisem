@@ -1978,7 +1978,7 @@ void TWorld::IntializeData(void)
     FFull = NewMap(0);
     Perc = NewMap(0);
     PercmmCum = NewMap(0);
-    runoffTotalCell = NewMap(0);
+    //runoffTotalCell = NewMap(0);
     Fcum = NewMap(0);
     Lw = NewMap(0);
     Lwmm = NewMap(0);
@@ -2350,7 +2350,7 @@ void TWorld::IntializeOptions(void)
     rainfallMapFileName = QString("rainfall.map");
     interceptionMapFileName = QString("interception.map");
     infiltrationMapFileName = QString("infiltration.map");
-    runoffMapFileName = QString("runoff.map");
+    runoffMapFileName = QString("Flowcumm3.map");
     channelDischargeMapFileName = QString("chandism3.map");
     floodMaxQFileName = QString("chanmaxq.map");
     floodMaxChanWHFileName = QString("chanmaxwh.map");

@@ -93,14 +93,14 @@ void lisemqt::on_checkChannelInfil_clicked()
     doChannelBaseflow = checkStationaryBaseflow->isChecked();
 }
 //--------------------------------------------------------------------
-void lisemqt::on_checkChannelBaseflow_clicked()
-{
-    on_checkIncludeChannel_clicked();
+// void lisemqt::on_checkChannelBaseflow_clicked()
+// {
+//     on_checkIncludeChannel_clicked();
 
-    if (checkChannelInfil->isChecked())
-        checkChannelInfil->setChecked(false);
-    doChannelBaseflow = checkStationaryBaseflow->isChecked();
-}
+//     if (checkChannelInfil->isChecked())
+//         checkChannelInfil->setChecked(false);
+//     doChannelBaseflow = checkStationaryBaseflow->isChecked();
+// }
 //--------------------------------------------------------------------
 //2nd number is number of rows at a level. e.g. green and ampt starts at
 // after swatre, swatre has 11 rows (maps), starting at 0, so G&A starts at 11

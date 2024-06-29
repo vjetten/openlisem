@@ -63,6 +63,15 @@
         <file>river1.png</file>
         <file>river2.png</file>
         <file>river3.png</file>
+        <file>d_rain.png</file>
+        <file>d_settings2.png</file>
+        <file>d_river3.png</file>
+        <file>d_water.png</file>
+        <file>d_Plant-icon.png</file>
+        <file>d_eros1bw.png</file>
+        <file>d_soil5.png</file>
+        <file>d_settings1.png</file>
+        <file>d_advanced.png</file>
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>

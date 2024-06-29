@@ -225,7 +225,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Interception map");
     namelist[i].value = QString("infiltration.map");
     namelist[i++].name = QString("Infiltration map");
-    namelist[i].value = QString("runoff.map");
+    namelist[i].value = QString("Flowcumm3.map");
     namelist[i++].name = QString("Runoff map");
     namelist[i].value = QString("WHmax.map");
     namelist[i++].name = QString("WH max level map");
