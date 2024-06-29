@@ -160,10 +160,10 @@ void lisemqt::setupPlot()
     HPlot->setAxisScale(*axisYR1, 0.0, 1.0 );
     HPlot->setAxisScale(*axisYR2, 0.0, 1.0 );
 
-    if (darkLISEM)
-        HPlot->setCanvasBackground(QBrush("#777777"));
-    else
-        HPlot->setCanvasBackground(QBrush(Qt::white));   // set gridlines
+    // if (darkLISEM)
+    //     HPlot->setCanvasBackground(QBrush("#777777"));
+    // else
+    //     HPlot->setCanvasBackground(QBrush(Qt::white));   // set gridlines
 
     QwtPlotGrid *grid = new QwtPlotGrid();
     col.setRgb( 180,180,180,180 );

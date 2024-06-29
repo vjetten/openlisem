@@ -134,6 +134,8 @@ public:
     void GetStorePath();
     void StorePath();
     void SetStyleUI();
+    void lightStyleUI();
+    void darkStyleUI();
     int SetStyleUISize();
     void GetRunfile();
     void ParseInputData();

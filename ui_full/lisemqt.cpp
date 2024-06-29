@@ -98,14 +98,14 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     showMaximized();
 
     darkLISEM = false;
-    QString fileName = ":/dark2.css";
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "Unable to open the file!";
-    }
-    QTextStream in(&file);
-    QString fileContent = in.readAll();
-    file.close();
+    // QString fileName = ":/dark2.css";
+    // QFile file(fileName);
+    // if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    //     qDebug() << "Unable to open the file!";
+    // }
+    // QTextStream in(&file);
+    // QString fileContent = in.readAll();
+    // file.close();
    // qApp->setStyleSheet(fileContent);
 
     int ompt = omp_get_max_threads();
@@ -143,9 +143,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     W = nullptr;
     // initalize pointer to the world, created when run button is pushed
 
-    SetStyleUI();
-    // do some style things
-
     setupPlot();
     // set up the discharge graphs
 
@@ -154,6 +151,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
     // put the progress bar into the statusbar
+
+    SetStyleUI();
+    // do some style things
 
     lisMpeg = new lismpeg(this);
 
@@ -819,6 +819,169 @@ int lisemqt::SetStyleUISize()
 
     return disp; //-1;
 }
+
+//---------------------------------------------------------------------------
+/// make some labels yellow
+void lisemqt::lightStyleUI()
+{
+    QString sc1 = "#2266aa";
+    QString sc = "#4488cc";
+    QString ly = "#ffff99";
+    QString fc = "#000000";
+
+    tabWidgetOptions->setTabIcon(0,QIcon(":/settings2.png"));
+    tabWidgetOptions->setTabIcon(1,QIcon(":/rain.png"));
+    tabWidgetOptions->setTabIcon(2,QIcon(":/Plant-icon.png"));
+    tabWidgetOptions->setTabIcon(3,QIcon(":/soil5.png"));
+    tabWidgetOptions->setTabIcon(4,QIcon(":/water.png"));
+    tabWidgetOptions->setTabIcon(5,QIcon(":/river3.png"));
+    tabWidgetOptions->setTabIcon(6,QIcon(":/eros1bw.png"));
+    tabWidgetOptions->setTabIcon(7,QIcon(":/advanced.png"));
+    tabWidgetOptions->setTabIcon(8,QIcon(":/settings1.png"));
+
+    qApp->setStyleSheet(QString("* { background-color: #f0f0f0; color: #000000;}"
+                                "*:disabled { color: #a4a4a4; }"
+                                "* {window background-color: #fefefe;}"
+                                "* QButton {background-color: #fefefe;}"
+                               // "* base { color: #606060; }"
+                               // "* alternatebase { color: #a4a4a4; }"
+                                "QLineEdit {background-color: #ffffff;}"
+                                "QGroupBox::title{color: %1;}"
+                                "QGroupBox#groupBoxOutput::title{color: %2;}"
+                                "QGroupBox#groupBoxInput::title{color: %2;}"
+                                //"QTabBar::tab { background: #606060; }"
+                                 "QTabBar::tab:selected { background: #ffffff; }"
+                                 //"QwtPlotCanvas { background: #fdfdfd; } "
+                                 //"QwtPlotCanvas#MPlot { background: #0000ff; } "
+                                ).arg(sc).arg(sc1)
+                        );
+
+    HPlot->setStyleSheet("*{background-color: #ffffff; color: #000000;}");
+    MPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
+
+    label_55->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
+    label_59->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
+    label_88->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
+    label_156->setStyleSheet(QString("QLabel {color:%1;}").arg(sc1));
+    label_9->setStyleSheet(QString("QLabel {color:  %1;}").arg(sc1));
+    label_10->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
+    label_128->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
+    checkWaveInUser->setStyleSheet(QString("QCheckBox {color: %1;}").arg(sc));
+
+
+                label_dx->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+              label_area->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+              label_time->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+           label_endtime->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+           label_raintot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_ETatot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+       label_watervoltot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+     label_stormdraintot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+              label_qtot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+          label_infiltot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+          label_surfstor->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+         label_interctot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+         label_qpeaktime->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+         label_ppeaktime->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_QPfrac->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+        label_floodVolmm->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+    label_watervolchannel->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_qtotm3sub->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_dischargesub->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_qpeaksub->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_soillosssub->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+               label_Qssub->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_splashdet->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+             label_flowdet->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+              label_sedvol->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+                 label_dep->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+               label_detch->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+               label_depch->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_sedvolch->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_soilloss->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_soillosskgha->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+                 label_SDR->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+
+}
+void lisemqt::darkStyleUI()
+{
+    QString sc1 = "#ffff00";
+    QString sc = "#FFff88";
+    QString ly = "#B2AF11";
+    QString fc = "#ffffff";
+
+    tabWidgetOptions->setTabIcon(0,QIcon(":/d_settings2.png"));
+    tabWidgetOptions->setTabIcon(1,QIcon(":/d_rain.png"));
+    tabWidgetOptions->setTabIcon(2,QIcon(":/d_Plant-icon.png"));
+    tabWidgetOptions->setTabIcon(3,QIcon(":/d_soil5.png"));
+    tabWidgetOptions->setTabIcon(4,QIcon(":/d_water.png"));
+    tabWidgetOptions->setTabIcon(5,QIcon(":/d_river3.png"));
+    tabWidgetOptions->setTabIcon(6,QIcon(":/d_eros1bw.png"));
+    tabWidgetOptions->setTabIcon(7,QIcon(":/d_advanced.png"));
+    tabWidgetOptions->setTabIcon(8,QIcon(":/d_settings1.png"));
+
+    qApp->setStyleSheet(QString("* { background-color: #353535; color: #f5f5f5;}"
+                                "*:disabled { color: #a4a4a4; }"
+                            //    "* base { color: #606060; }"
+                            //    "* alternatebase { color: #a4a4a4; }"
+                                "QLineEdit {background-color: #646464;}"
+                                "QGroupBox::title{color: %1;}"
+                                "QGroupBox#groupBoxOutput::title{color: %2;}"
+                                "QGroupBox#groupBoxInput::title{color: %2;}"
+                                //"QTabBar::tab { background: #606060; }"
+                                 "QTabBar::tab:selected { background: #606060; }"
+                                 "QwtPlotCanvas { background: #cccccc; } "
+                                ).arg(sc).arg(sc1)
+                        );
+
+
+    HPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
+    MPlot->setStyleSheet("*{background-color: #d0d0d0; color: #000000;}");
+
+    label_55->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
+    label_59->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
+    label_88->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
+    label_156->setStyleSheet(QString("QLabel {color:%1;}").arg(sc1));
+    label_9->setStyleSheet(QString("QLabel {color:  %1;}").arg(sc1));
+    label_10->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
+    label_128->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
+    checkWaveInUser->setStyleSheet(QString("QCheckBox {color: %1;}").arg(sc));
+
+                label_dx->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+              label_area->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+              label_time->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+           label_endtime->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+           label_raintot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_ETatot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+       label_watervoltot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+     label_stormdraintot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+              label_qtot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+          label_infiltot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+          label_surfstor->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+         label_interctot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+         label_qpeaktime->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+         label_ppeaktime->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_QPfrac->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+        label_floodVolmm->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+    label_watervolchannel->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_qtotm3sub->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_dischargesub->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_qpeaksub->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_soillosssub->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+               label_Qssub->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_splashdet->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+             label_flowdet->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+              label_sedvol->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+                 label_dep->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+               label_detch->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+               label_depch->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_sedvolch->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_soilloss->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+            label_soillosskgha->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+                 label_SDR->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
+
+}
+
 //---------------------------------------------------------------------------
 /// make some labels yellow
 void lisemqt::SetStyleUI()
@@ -834,87 +997,10 @@ void lisemqt::SetStyleUI()
     toolBar_2->setMovable(false);
     toolBar->setMovable(false);
 
-    //QString flat("QToolButton { background-color: white; border: none; }");
-
-    QString sc1 = "#2266aa";
-    QString sc = "#4488cc";
-
-    if (darkLISEM) {
-        sc1 = "#ffff00";
-        sc = "#FFff88";
-        tabWidgetOptions->setTabIcon(0,QIcon(":/d_settings2.png"));
-        tabWidgetOptions->setTabIcon(1,QIcon(":/d_rain.png"));
-        tabWidgetOptions->setTabIcon(2,QIcon(":/d_Plant-icon.png"));
-        tabWidgetOptions->setTabIcon(3,QIcon(":/d_soil5.png"));
-        tabWidgetOptions->setTabIcon(4,QIcon(":/d_water.png"));
-        tabWidgetOptions->setTabIcon(5,QIcon(":/d_river3.png"));
-        tabWidgetOptions->setTabIcon(6,QIcon(":/d_eros1bw.png"));
-        tabWidgetOptions->setTabIcon(7,QIcon(":/d_advanced.png"));
-        tabWidgetOptions->setTabIcon(8,QIcon(":/d_settings1.png"));
-    } else {
-        tabWidgetOptions->setTabIcon(0,QIcon(":/settings2.png"));
-        tabWidgetOptions->setTabIcon(1,QIcon(":/rain.png"));
-        tabWidgetOptions->setTabIcon(2,QIcon(":/Plant-icon.png"));
-        tabWidgetOptions->setTabIcon(3,QIcon(":/soil5.png"));
-        tabWidgetOptions->setTabIcon(4,QIcon(":/water.png"));
-        tabWidgetOptions->setTabIcon(5,QIcon(":/river3.png"));
-        tabWidgetOptions->setTabIcon(6,QIcon(":/eros1bw.png"));
-        tabWidgetOptions->setTabIcon(7,QIcon(":/advanced.png"));
-        tabWidgetOptions->setTabIcon(8,QIcon(":/settings1.png"));
-
-    }
-
-    qApp->setStyleSheet(QString("QGroupBox::title{color: %1;}").arg(sc));
-
-     groupBoxInput->setStyleSheet(QString("QGroupBox#groupBoxInput::title{color: %1;}").arg(sc1));
-    groupBoxOutput->setStyleSheet(QString("QGroupBox#groupBoxOutput::title{color: %1;}").arg(sc1));
-
-    label_55->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
-    label_59->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
-    label_88->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
-    label_156->setStyleSheet(QString("QLabel {color:%1;}").arg(sc1));
-    label_9->setStyleSheet(QString("QLabel {color:  %1;}").arg(sc1));
-    label_10->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
-    label_128->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
-    checkWaveInUser->setStyleSheet(QString("QCheckBox {color: %1;}").arg(sc));
-
     // interface elements that are not visible for now
     tabWidgetOptions->removeTab(9);
 
-    if (darkLISEM) {
-        qApp->setStyleSheet(QString("* { background-color: #353535; color: #f5f5f5;}"
-                                    "*:disabled { color: #a4a4a4; }"
-                                    "* base { color: #606060; }"
-                                    "* alternatebase { color: #424242; }"
-                                    "QGroupBox::title{color: %1;}"
-                                    "QGroupBox#groupBoxOutput::title{color: %2;}"
-                                    "QGroupBox#groupBoxInput::title{color: %2;}"
-                                    //"QTabBar::tab { background: #606060; }"
-                                     "QTabBar::tab:selected { background: #606060; }"
-                                     "QwtPlotCanvas#HPlot { background: #eeeeee; } "
-                                     "QwtPlotCanvas#MPlot { background: #dddddd; } "
-                                    ).arg(sc).arg(sc1)
-                            );
-
-
-    } else {
-        qApp->setStyleSheet(QString("* { background-color: #f0f0f0; color: black;}"
-                                    "*:disabled { color: gray; }"
-                                    "* base { color: #ffffff; }"
-                                    "* alternatebase { color: #f5f5f5; }"
-                                    "QGroupBox::title{color: %1;}"
-                                    "QGroupBox#groupBoxOutput::title{color: %2;}"
-                                    "QGroupBox#groupBoxInput::title{color: %2;}"
-                                    // "QTabBar::tab { background: #a4a4a4; }"
-                                     "QTabBar::tab:selected { background: #fefefe; }"
-                                     "QwtPlotCanvas#HPlot { background: #fefefe; } "
-                                     "QwtPlotCanvas#MPlot { background: #efefef; } "
-                                    ).arg(sc).arg(sc1)
-                            );
-
-    }
-
-    int w = 80, h = 15;
+     int w = 80, h = 15;
     label_dx->setMinimumSize(w,h);
     label_area->setMinimumSize(w,h);
     label_time->setMinimumSize(w,h);
@@ -957,65 +1043,9 @@ void lisemqt::SetStyleUI()
     label_MBs->setMinimumSize(w,h);
     label_MB->setMinimumSize(w,h);
 
-    QString ly, fc;
-    if (!darkLISEM){
-        ly = "#ffff99";
-        fc = "#000000";
-    } else {
-        ly = "#B2AF11";
-        fc = "#ffffff";
-    }
-
-             label_dx->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-           label_area->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-           label_time->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-        label_endtime->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-        label_raintot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-         label_ETatot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-    label_watervoltot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-  label_stormdraintot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-           label_qtot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-       label_infiltot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-       label_surfstor->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-      label_interctot->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-       //label_qtotm3->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-      label_qpeaktime->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-      label_ppeaktime->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-         label_QPfrac->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-    //label_discharge->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-     label_floodVolmm->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-label_watervolchannel->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-        //   label_litterstore->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        //label_baseflowtot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-
-        label_qtotm3sub->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-     label_dischargesub->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-         label_qpeaksub->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-      label_soillosssub->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-            label_Qssub->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-        label_splashdet->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-          label_flowdet->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-           label_sedvol->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-              label_dep->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-            label_detch->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-            label_depch->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-         label_sedvolch->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-         label_soilloss->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-     label_soillosskgha->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-              label_SDR->setStyleSheet(QString("* { background-color: %1; color: %2; }").arg(ly).arg(fc));
-
     //Grouped Buttons become mututally exclusive
     GroupMapDisplay.addButton(checkBoxComboMaps, 1);
     GroupMapDisplay.addButton(checkBoxComboMaps2, 2);
-
- //   GroupImpermeable.addButton(checkImpermeable,1);
- //   GroupImpermeable.addButton(checkPercolation,2);
-
-  //  GroupRunoff.addButton(checkOverlandFlow1D,1);
-  //  GroupRunoff.addButton(checkOverlandFlow2D,2);
-  //  GroupRunoff.addButton(checkOverlandFlow2Ddyn,3);
-  //  GroupRunoff.addButton(checkOverlandFlow2Dkindyn,4);
-
 
     //if (checkOverlandFlow2Ddyn->isChecked()) {
     if (E_OFWaveType->currentIndex() == 2) {
@@ -1030,6 +1060,11 @@ label_watervolchannel->setStyleSheet(QString("* { background-color: %1; color: %
     label_floodVolmm->setEnabled(yes);
     label_107->setEnabled(yes);
 
+    if (darkLISEM)
+        darkStyleUI();
+    else
+        lightStyleUI();
+qDebug() << darkLISEM;
 }
 //--------------------------------------------------------------------
 void lisemqt::setMapDir()
@@ -1475,13 +1510,6 @@ void lisemqt::resetTabErosion()
 
     E_SigmaDiffusion->setValue(0.5);
 
-//    checkSedMultiGrain->setChecked(false);
-//    checkEstimateGrainSizeDistribution->setChecked(false); // if multiclass, estimate from D50 and D90
-//    checkReadGrainSizeDistribution->setChecked(false); // if multiclass, calculate from user series
-
-//    E_NumberClasses->setValue(6);
-//    E_GrainSizes->setText("2;20;50;125;150;500");
-
     checkDiffusion->setChecked(false);
     checkDiffusionCH->setChecked(false);
 
@@ -1692,7 +1720,11 @@ void lisemqt::setBWUI()
         darkLISEM = false;
     else
         darkLISEM = true;
-    SetStyleUI();
+
+    if (darkLISEM)
+        darkStyleUI();
+    else
+        lightStyleUI();
 }
 //---------------------------------------------------------------
 void lisemqt::fontSelect()
