@@ -71,6 +71,7 @@
         <file>settings1.png</file>
         <file>settings2.png</file>
         <file>black-and-white.png</file>
+        <file>qtdarcula.css</file>
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>

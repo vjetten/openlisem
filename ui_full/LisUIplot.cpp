@@ -513,10 +513,11 @@ void lisemqt::showOutputData()
     }
 
     QString format;
-    if(darkLISEM)
-        format = QString("<font color=#ffffaa>%2</font>");
-    else
-        format= QString("<font color=#000000>%2</font>");
+    // if(darkLISEM)
+    //     format = QString("<font color=#ffffaa>%2</font>");
+    // else
+    //     format= QString("<font color=#000000>%2</font>");
+    format="%2";
 
     if (startplot) {
         label_dx->setText(format.arg(QString::number(op._dx,'f',dig)));
@@ -664,11 +665,12 @@ void lisemqt::showOutputDataZero()
         return;
     }
 
-    QString format;
-    if(darkLISEM)
-        format = QString("<font color=#ffffaa>%2</font>");
-    else
-        format= QString("<font color=#000000>%2</font>");
+    // QString format;
+    // // if(darkLISEM)
+    // //     format = QString("<font color=#ffffaa>%2</font>");
+    // // else
+    // //     format= QString("<font color=#000000>%2</font>");
+    // format = "%2";
 
     QString zero = QString::number(0,'f',E_DigitsOut->value());
 

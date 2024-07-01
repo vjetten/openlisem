@@ -70,7 +70,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -182,7 +182,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>8</number>
+                  <number>0</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -788,6 +788,9 @@
                      <property name="title">
                       <string>Channels and rivers</string>
                      </property>
+                     <property name="checkable">
+                      <bool>false</bool>
+                     </property>
                      <layout class="QGridLayout" name="gridLayout_17">
                       <property name="leftMargin">
                        <number>8</number>
@@ -859,6 +862,9 @@
                      </property>
                      <property name="title">
                       <string>Erosion processes</string>
+                     </property>
+                     <property name="checkable">
+                      <bool>false</bool>
                      </property>
                      <layout class="QFormLayout" name="formLayout">
                       <property name="horizontalSpacing">
@@ -934,6 +940,12 @@
                      </property>
                      <property name="title">
                       <string>Evapotranspiration</string>
+                     </property>
+                     <property name="checkable">
+                      <bool>true</bool>
+                     </property>
+                     <property name="checked">
+                      <bool>false</bool>
                      </property>
                      <layout class="QGridLayout" name="gridLayout_77">
                       <item row="0" column="0">
