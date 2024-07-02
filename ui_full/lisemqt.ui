@@ -145,8 +145,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>856</width>
-                <height>703</height>
+                <width>869</width>
+                <height>750</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -9286,8 +9286,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>755</width>
-                <height>558</height>
+                <width>759</width>
+                <height>539</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
@@ -9309,7 +9309,7 @@ p, li { white-space: pre-wrap; }
                   </font>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tab">
                   <attribute name="title">
