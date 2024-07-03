@@ -514,7 +514,7 @@ private slots:
 
     void on_toolButton_ETsatName_clicked();
 
-    void on_checkIncludeET_toggled(bool checked);
+   // void on_checkIncludeET_toggled(bool checked);
 
     void on_toolButton_ETShow_clicked();
 

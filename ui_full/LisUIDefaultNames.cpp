@@ -316,6 +316,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Meteo]");
     namelist[i].value = QString("1");
+    namelist[i++].name = QString("Include Rainfall");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Event based");
     namelist[i++].name = QString("Rainfall file");
     namelist[i++].name = QString("Rainfall Directory");
@@ -376,6 +378,8 @@ void lisemqt::defaultRunFile()
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Infiltration]");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Include Infiltration");
     namelist[i].value = QString("2");  //GA =2
     namelist[i++].name = QString("Infil Method");
     namelist[i].value = QString("0");

@@ -134,7 +134,7 @@ void TWorld::TotalsHydro(void)
     // interception in mm and m3
 
     //=== infiltration ===//
-    if(InfilMethod != INFIL_NONE) {
+    if(SwitchInfiltration) {
         InfilTot += MapTotal(*InfilVol);// + MapTotal(*InfilVolKinWave);
 
         if (SwitchIncludeChannel && SwitchChannelInfil) {

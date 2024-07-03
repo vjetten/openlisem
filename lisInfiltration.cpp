@@ -61,7 +61,7 @@ void TWorld::InfilEffectiveKsat(bool first)
     }
 
 
-    if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_NONE)
+    if (SwitchInfiltration && InfilMethod != INFIL_SWATRE)// && InfilMethod != INFIL_NONE)
     {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
@@ -159,7 +159,7 @@ void TWorld::Infiltration()
         }}
     }
     else
-    if (InfilMethod != INFIL_NONE) {
+    if (SwitchInfiltration) { //InfilMethod != INFIL_NONE) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             cell_InfilMethods(r, c);

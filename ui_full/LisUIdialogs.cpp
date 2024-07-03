@@ -265,10 +265,10 @@ void lisemqt::on_toolButton_WaveShow_clicked()
     showTextfile(WaveinDir + WaveinFileName);
 }
 //--------------------------------------------------------------------
-void lisemqt::on_checkIncludeET_toggled(bool checked)
-{
-    widgetEToptions->setEnabled(checked);
-}
+// void lisemqt::on_checkIncludeET_toggled(bool checked)
+// {
+//     widgetEToptions->setEnabled(checked);
+// }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_ETShow_clicked()
 {

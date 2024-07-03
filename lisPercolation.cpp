@@ -665,7 +665,7 @@ void TWorld::cell_Channelinfow2(int r, int c)
 // this function is not used!
 void TWorld::SoilWater()
 {
-   if (InfilMethod == INFIL_SWATRE || InfilMethod == INFIL_NONE)
+   if (InfilMethod == INFIL_SWATRE || !SwitchInfiltration) //InfilMethod == INFIL_NONE)
         return;
    if (SwitchImpermeable)
         return;

@@ -297,7 +297,7 @@ void TWorld::OutputUI(void)
 //        }
     }
     // MAP DISPLAY VARIABLES
-    if(InfilMethod != INFIL_SWATRE && InfilMethod !=INFIL_NONE)
+    if(SwitchInfiltration && InfilMethod != INFIL_SWATRE)// && InfilMethod !=INFIL_NONE)
         avgTheta();
 }
 //---------------------------------------------------------------------------
@@ -975,7 +975,7 @@ void TWorld::ReportMapSeries(void)
 
 
     if (SwitchOutTheta) {
-        if (InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE) {
+        if (SwitchInfiltration && InfilMethod != INFIL_SWATRE) { //InfilMethod != INFIL_NONE
             report(*ThetaI1a, OutTheta1);
             if (SwitchTwoLayer)
                 report(*ThetaI2a, OutTheta2);
@@ -1348,7 +1348,7 @@ void TWorld::ReportDump(void)
     if (SwitchHouses)
         report(*IntercHouse,dumpDir+"IntercHouse.map");
 
-    if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE) {
+    if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE) { //InfilMethod != INFIL_NONE
         report(*ThetaI1,dumpDir+"ThetaI1.map");
         if (SwitchTwoLayer)
             report(*ThetaI2,dumpDir+"ThetaI2.map");

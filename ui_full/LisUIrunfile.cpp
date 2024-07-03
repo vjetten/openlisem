@@ -134,13 +134,14 @@ void lisemqt::ParseInputData()
         bool check = iii == 1;
         if (p1.contains("["))
             continue;
+        if (p1.compare("Include Rainfall")==0)              groupRainfall->setChecked(check);
         if (p1.compare("Event based")==0)                   checkEventBased->setChecked(check);
         if (p1.compare("Use Rainfall maps")==0)             Rainmaps = check;
         if (p1.compare("Rainfall ID interpolation")==0)     checkIDinterpolation->setChecked(check);
         if (p1.compare("IDI factor")==0)                    E_IDIfactor->setValue(valc);
         if (p1.compare("Rainfall Bias Correction")==0)      E_biasCorrectionP->setValue(valc);
 
-        if (p1.compare("Include ET")==0)                    checkIncludeET->setChecked(check);
+        if (p1.compare("Include ET")==0)                    groupET->setChecked(check);
         if (p1.compare("Use ET maps")==0)                   ETmaps = check;
         if (p1.compare("Daily ET")==0)                      checkDailyET->setChecked(check);
         if (p1.compare("Daily ET latitude")==0)             E_latitude->setText(p);
@@ -242,14 +243,15 @@ void lisemqt::ParseInputData()
         // VJ 110209 canopy openess, factor Aston as user input
 
         // INFILTRATION
+        if (p1.compare("Include Infiltration")==0)     groupInfiltration->setChecked(check);
         if (p1.compare("Infil Method")==0) {
             switch(iii)
             {
-            case INFIL_NONE : E_InfiltrationMethod->setCurrentIndex(0);break;
-            case INFIL_SWATRE : E_InfiltrationMethod->setCurrentIndex(1);break;
-            case INFIL_GREENAMPT : E_InfiltrationMethod->setCurrentIndex(2);break;
-            case INFIL_SMITH : E_InfiltrationMethod->setCurrentIndex(3); break;
-            case INFIL_SOAP : E_InfiltrationMethod->setCurrentIndex(4); break;
+            //case INFIL_NONE : E_InfiltrationMethod->setCurrentIndex(0);break;
+            case INFIL_SWATRE : E_InfiltrationMethod->setCurrentIndex(0);break;
+            case INFIL_GREENAMPT : E_InfiltrationMethod->setCurrentIndex(1);break;
+            case INFIL_SMITH : E_InfiltrationMethod->setCurrentIndex(2); break;
+            case INFIL_SOAP : E_InfiltrationMethod->setCurrentIndex(3); break;
             }
         }
 
@@ -452,7 +454,7 @@ void lisemqt::ParseInputData()
     GW_widget->setEnabled(checkGWflow->isChecked());
     widget_GWparams->setEnabled(checkGWflow->isChecked());
 
-    on_checkIncludeET_toggled(checkIncludeET->isChecked());
+  //  on_checkIncludeET_toggled(checkIncludeET->isChecked());
     on_checkWaveInUser_toggled(checkWaveInUser->isChecked());
 
     if (checkSedtrap->isChecked())
@@ -595,22 +597,24 @@ void lisemqt::ParseInputData()
         }
     }
 
-    E_rainsatName->setText(RainSatFileDir + RainSatFileName);
-    //qDebug() << RainSatFileName << RainSatFileDir;
-    if (!QFileInfo(E_rainsatName->text()).exists())
-    {
-        RainSatFileDir = QString(E_WorkDir + "rain/");
+    if (groupRainfall->isChecked()) {
         E_rainsatName->setText(RainSatFileDir + RainSatFileName);
-    }
-    E_RainfallName->setText(RainFileDir + RainFileName);
-    if (!QFileInfo(E_RainfallName->text()).exists())
-    {
-        RainFileDir = QString(E_WorkDir + "rain/");
+        //qDebug() << RainSatFileName << RainSatFileDir;
+        if (!QFileInfo(E_rainsatName->text()).exists())
+        {
+            RainSatFileDir = QString(E_WorkDir + "rain/");
+            E_rainsatName->setText(RainSatFileDir + RainSatFileName);
+        }
         E_RainfallName->setText(RainFileDir + RainFileName);
+        if (!QFileInfo(E_RainfallName->text()).exists())
+        {
+            RainFileDir = QString(E_WorkDir + "rain/");
+            E_RainfallName->setText(RainFileDir + RainFileName);
+        }
     }
 
 
-    if (checkIncludeET->isChecked()) {
+    if (groupET->isChecked()) {
         E_ETName->setText(ETFileDir + ETFileName);
         if (!QFileInfo(E_ETName->text()).exists() && !E_ETName->text().isEmpty())
         {
@@ -768,9 +772,6 @@ QString lisemqt::CheckDir(QString p, bool makeit)
 //! It is ALSO called just before the model is run to create a tmp runfile for the model to read
 void lisemqt::updateModelData()
 {
-//    if(!checkRainfall->isChecked() && !checkSnowmelt->isChecked())
-//        QMessageBox::warning(this,"openLISEM","No rainfall or snowmelt, running on empty!");
-
     int days = E_BeginTimeDay->text().split(":")[0].toInt();
     int mins = E_BeginTimeDay->text().split(":")[1].toInt();
     int daye = E_EndTimeDay->text().split(":")[0].toInt();
@@ -778,14 +779,14 @@ void lisemqt::updateModelData()
    // qDebug() << days << mins << daye << mine;
 
     if (!checkEventBased->isChecked()) {
-    if (mins > 1440) {
-       days = mins/1440 + 1;
-       mins = mins % 1440;
-    }
-    if (mine > 1440) {
-        daye = mine/1440 + 1;
-        mine = mine % 1440;
-    }
+        if (mins > 1440) {
+           days = mins/1440 + 1;
+           mins = mins % 1440;
+        }
+        if (mine > 1440) {
+            daye = mine/1440 + 1;
+            mine = mine % 1440;
+        }
     }
  //   qDebug() << days << mins << daye << mine;
 
@@ -793,25 +794,78 @@ void lisemqt::updateModelData()
     {
         QString p1 = namelist[j].name;
 
+        if (p1.compare("Include Rainfall")==0)         namelist[j].value.setNum((int)groupRainfall->isChecked());
+        if (p1.compare("Rainfall file")==0)            namelist[j].value = RainFileName;
+        if (p1.compare("Rainfall Directory")==0)       namelist[j].value = RainFileDir;
+        if (p1.compare("Rainfall ID interpolation")==0)namelist[j].value.setNum((int)checkIDinterpolation->isChecked());
+        if (p1.compare("IDI factor")==0)               namelist[j].value = E_IDIfactor->text();
         if (p1.compare("Event based")==0)              namelist[j].value.setNum((int)checkEventBased->isChecked());
         if (p1.compare("Use Rainfall maps")==0)        namelist[j].value.setNum((int)radioRainSatFile->isChecked());
-        if (p1.compare("Rainfall ID interpolation")==0)namelist[j].value.setNum((int)checkIDinterpolation->isChecked());
-        if (p1.compare("Include ET")==0)               namelist[j].value.setNum((int)checkIncludeET->isChecked());
-        if (p1.compare("Use ET maps")==0)              namelist[j].value.setNum((int)radioETsatfile->isChecked());
+        if (p1.compare("Rainfall maplist name")==0)    namelist[j].value = RainSatFileName;
+        if (p1.compare("Rainfall Map Directory")==0)   namelist[j].value = RainSatFileDir;
+        if (p1.compare("Rainfall Bias Correction")==0) namelist[j].value = E_biasCorrectionP->text();
+
+        if (p1.compare("Include ET")==0)               namelist[j].value.setNum((int)groupET->isChecked());
         if (p1.compare("Daily ET")==0)                 namelist[j].value.setNum((int)checkDailyET->isChecked());
+        if (p1.compare("ET file") ==0)                 namelist[j].value = ETFileName;
+        if (p1.compare("ET Directory") ==0)            namelist[j].value = ETFileDir;
+        if (p1.compare("Use ET maps")==0)              namelist[j].value.setNum((int)radioETsatfile->isChecked());
+        if (p1.compare("ET maplist name") ==0)         namelist[j].value = ETSatFileName;
+        if (p1.compare("ET Map Directory") ==0)        namelist[j].value = ETSatFileDir;
+        if (p1.compare("ET Bias Correction")==0)       namelist[j].value = E_biasCorrectionET->text();
+        if (p1.compare("Rainfall ET threshold")==0)    namelist[j].value = E_rainfallETA_threshold->text();
 
         //if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
 
-        if (p1.compare("Nr user Cores")==0) namelist[j].value.setNum(nrUserCores->value());
-        // erosion
-        if (p1.compare("Include Erosion simulation")==0)     namelist[j].value.setNum((int)checkDoErosion->isChecked());
+        // interception
+        if (p1.compare("Include litter interception")==0)    namelist[j].value.setNum((int)checkIncludeLitter->isChecked());
+        if (p1.compare("Litter interception storage")==0)    namelist[j].value = E_LitterSmax->text();
+        if (p1.compare("Canopy storage equation")==0)
+        {
+            int i = 0;
+            if(radioButton_1->isChecked()) i = 0;
+            if(radioButton_2->isChecked()) i = 1;
+            if(radioButton_3->isChecked()) i = 2;
+            if(radioButton_4->isChecked()) i = 3;
+            if(radioButton_5->isChecked()) i = 4;
+            if(radioButton_6->isChecked()) i = 5;
+            if(radioButton_7->isChecked()) i = 6;
+            if(radioButton_8->isChecked()) i = 7;
+            if(radioButton_9->isChecked()) i = 8;  // 8 = storage map, not LAI eq
+            namelist[j].value.setNum(i);
+        }
+
+        //infiltration
+        if (p1.compare("Include Infiltration")==0)    namelist[j].value.setNum((int)groupInfiltration->isChecked());;
+        if (p1.compare("Infil Method")==0)
+        {
+            switch(E_InfiltrationMethod->currentIndex())
+            {
+          //  case 0 : namelist[j].value.setNum(INFIL_NONE);break;
+            case 0 : namelist[j].value.setNum(INFIL_SWATRE);break;
+            case 1 : namelist[j].value.setNum(INFIL_GREENAMPT);break;
+            case 2 : namelist[j].value.setNum(INFIL_SMITH); break;
+            case 3 : namelist[j].value.setNum(INFIL_SOAP); break;
+            }
+        }
+        if (p1.compare("Table Directory")==0) namelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
+        if (p1.compare("Table File")==0) namelist[j].value = E_SwatreTableName->text();//SwatreTableName;
+        if (p1.compare("SWATRE internal minimum timestep")==0)
+        {
+            double fraction = 0.2;//E_SWATREDtsecFraction->value();
+            swatreDT = E_Timestep->text().toDouble()*fraction;
+            namelist[j].value.setNum(swatreDT,'g',6);
+        }
+        if (p1.compare("Include crusts")==0)                namelist[j].value.setNum((int)checkInfilCrust->isChecked());
+        if (p1.compare("Impermeable sublayer")==0)          namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
+        if (p1.compare("Two layer")==0)                     namelist[j].value.setNum((int)checkInfil2layer->isChecked());
+        if (p1.compare("Psi user input")==0)                namelist[j].value.setNum((int)checkPsiUser->isChecked());
+        if (p1.compare("Geometric mean Ksat")==0)           namelist[j].value.setNum((int)checkGeometric->isChecked());
 
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
-     //   if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
         if (p1.compare("Include stationary baseflow")==0)    namelist[j].value.setNum((int)checkStationaryBaseflow->isChecked());
-      //  if (p1.compare("Adjust channel crosssection")==0)    namelist[j].value.setNum((int)checkChannelAdjustCHW->isChecked());
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkDischargeUser->isChecked());
         if (p1.compare("Include water height inflow")==0)    namelist[j].value.setNum((int)checkWaveInUser->isChecked());
@@ -823,7 +877,6 @@ void lisemqt::updateModelData()
         if (p1.compare("GW flow SWAT")==0)                   namelist[j].value.setNum((int)checkGWflowSWAT->isChecked());
         if (p1.compare("GW recharge factor")==0)             namelist[j].value = GW_recharge->text();
         if (p1.compare("GW flow factor")==0)                 namelist[j].value = GW_flow->text();
-      //  if (p1.compare("GW river inflow factor")==0)                 namelist[j].value = GW_inflow->text();
         if (p1.compare("GW slope factor")==0)                namelist[j].value = GW_slope->text();
         if (p1.compare("GW deep percolation")==0)            namelist[j].value = GW_deep->text();
         if (p1.compare("GW threshold factor")==0)            namelist[j].value = GW_threshold->text();
@@ -831,18 +884,12 @@ void lisemqt::updateModelData()
         if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int) checkBuffers->isChecked());
         if (p1.compare("Flow barrier table filename")==0)    namelist[j].value = line_FlowBarriers->text();
 
-        if (p1.compare("Include litter interception")==0)    namelist[j].value.setNum((int)checkIncludeLitter->isChecked());
-        if (p1.compare("Litter interception storage")==0)    namelist[j].value = E_LitterSmax->text();
-
-        if (p1.compare("Routing Kin Wave 2D")==0)   namelist[j].value.setNum(E_OFWaveType->currentIndex());
-
+        // overland flow
         if (p1.compare("Flow Boundary 2D")==0)               namelist[j].value = E_FlowBoundary->text();
+        if (p1.compare("Routing Kin Wave 2D")==0)            namelist[j].value.setNum(E_OFWaveType->currentIndex());
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
-        if (p1.compare("Include diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
-        if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
-        if (p1.compare("Include River diffusion")==0)        namelist[j].value.setNum((int)checkDiffusion->isChecked());
+        if (p1.compare("Flood solution")==0)                 namelist[j].value.setNum((int) checkMUSCL->isChecked());
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
-
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
         if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
@@ -854,37 +901,24 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel Max V")==0)                  namelist[j].value = E_chanMaxVelocity->text();
         if (p1.compare("Channel 2D flow connect")==0)        namelist[j].value.setNum((int)checkChannel2DflowConnect->isChecked());
 //        if (p1.compare("Channel WF inflow")==0)              namelist[j].value.setNum((int)checkChannelWFinflow->isChecked());
-//        if (p1.compare("GW layer change SD")==0)             namelist[j].value.setNum((int)checkGWChangeSD->isChecked());
-
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
         if (p1.compare("Min WH flow")==0)                    namelist[j].value = E_minWHflow->text();
-
         if (p1.compare("Timestep flood")==0)                 namelist[j].value = E_TimestepMinFlood->text();
         if (p1.compare("Use time avg V")==0)                 namelist[j].value.setNum((int) checkTimeavgV->isChecked());
         if (p1.compare("Correct MB with WH")==0)             namelist[j].value.setNum((int) checkMB_WH->isChecked());
         if (p1.compare("Correct DEM")==0)                    namelist[j].value.setNum((int) checkCorrectDem->isChecked());
         if (p1.compare("Use 2D Diagonal flow")==0)           namelist[j].value.setNum((int) check2DDiagonalFlow->isChecked());
-    //    if (p1.compare("Use 2D Diagonal flow new")==0)       namelist[j].value.setNum((int) check2DDiagonalFlowNew->isChecked());
 
-    //    if (p1.compare("Use SWOF watersheds")==0)            namelist[j].value.setNum((int) checkSWOFWatersheds->isChecked());
-
-    //    if (p1.compare("Use fixed angle")==0)                namelist[j].value.setNum((int) checkFixedAngle->isChecked());
-     //   if (p1.compare("Variable Timestep")==0)              namelist[j].value.setNum((int) checkVariableTimestep->isChecked());
-
-         if (p1.compare("Flood solution")==0)                namelist[j].value.setNum((int) checkMUSCL->isChecked());
-        // {
-        //     int i = 0;
-        //     if(rb_swof2->isChecked()) i = 0;
-        //     if(rb_swofnomuscl->isChecked()) i = 1;
-        //     if(rb_swofmuscl->isChecked()) i = 2;
-        //     namelist[j].value.setNum(i);
-        // }
-
+         // erosion
+        if (p1.compare("Include Erosion simulation")==0)     namelist[j].value.setNum((int)checkDoErosion->isChecked());
         if (p1.compare("Splash equation")==0)                namelist[j].value = E_splashEquation->text();
         if (p1.compare("Detachment efficiency")==0)          namelist[j].value = QString::number(E_EfficiencyDET->currentIndex()+1);
         if (p1.compare("Detachment efficiency channel")==0)  namelist[j].value = QString::number(E_EfficiencyDETCH->currentIndex()+1);
         if (p1.compare("Direct efficiency channel")==0)      namelist[j].value = E_EfficiencyDirect->text();
         if (p1.compare("Settling Velocity")==0)              namelist[j].value = QString::number(E_settlingVelocity->currentIndex()+1);
+        if (p1.compare("Include diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
+        if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
+        if (p1.compare("Include River diffusion")==0)        namelist[j].value.setNum((int)checkDiffusion->isChecked());
 
         if (p1.compare("Use 2 phase flow")==0)              namelist[j].value.setNum((int) checkSed2Phase->isChecked());
 
@@ -895,12 +929,6 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding SS method")==0)             namelist[j].value = QString::number(E_SSMethod->currentIndex()+1);
         if (p1.compare("River BL method")==0)                namelist[j].value = QString::number(E_RBLMethod->currentIndex()+1);
         if (p1.compare("River SS method")==0)                namelist[j].value = QString::number(E_RSSMethod->currentIndex()+1);
-
-//        if (p1.compare("Use grain size distribution")==0)    namelist[j].value.setNum((int)checkSedMultiGrain->isChecked());
-//        if (p1.compare("Estimate grain size distribution")==0)namelist[j].value.setNum((int)checkEstimateGrainSizeDistribution->isChecked());
-//        if (p1.compare("Read grain distribution maps")==0)    namelist[j].value.setNum((int)checkReadGrainSizeDistribution->isChecked());
-//        if (p1.compare("Number of grain size classes (simulated)")==0)  namelist[j].value = E_NumberClasses->text();
-//        if (p1.compare("Grain size class maps")==0)   namelist[j].value = E_GrainSizes->text();
 
         //tile drains
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
@@ -920,7 +948,7 @@ void lisemqt::updateModelData()
             if (checkStormDrainCirc->isChecked())  namelist[j].value.setNum(1);
         }
 
-        if (p1.compare("Include Satellite Image")==0)        namelist[j].value.setNum((int)checksatImage->isChecked());
+        if (p1.compare("Nr user Cores")==0) namelist[j].value.setNum(nrUserCores->value());
 
         if (p1.compare("Include Sediment traps")==0)         namelist[j].value.setNum((int)checkSedtrap->isChecked());
         if (p1.compare("Include compacted")==0)            namelist[j].value.setNum((int)checkInfilCompact->isChecked());
@@ -928,12 +956,6 @@ void lisemqt::updateModelData()
         if (p1.compare("Grassstrip Mannings n")==0)          namelist[j].value = E_GrassStripN->text();
         if (p1.compare("Sediment Trap Mannings n")==0)          namelist[j].value = E_SedTrapN->text();
 
-        if (p1.compare("Include crusts")==0)                 namelist[j].value.setNum((int)checkInfilCrust->isChecked());
-        if (p1.compare("Impermeable sublayer")==0)          namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
-        if (p1.compare("Two layer")==0)                     namelist[j].value.setNum((int)checkInfil2layer->isChecked());
-        if (p1.compare("Psi user input")==0)                     namelist[j].value.setNum((int)checkPsiUser->isChecked());
-        //if (p1.compare("Matric head files")==0)              namelist[j].value.setNum((int)checkDumphead->isChecked());
-        if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());
         if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum(checkWritePCRaster->isChecked() ? 0 : 1);
         if (p1.compare("Report point output separate")==0)   namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
         if (p1.compare("Report digits out")==0)             namelist[j].value = E_DigitsOut->text();
@@ -942,21 +964,6 @@ void lisemqt::updateModelData()
         if (p1.compare("End run report")==0)                namelist[j].value.setNum((int)checkEndRunReport->isChecked());
 
         if (p1.compare("Sediment bulk density")==0)          namelist[j].value = E_BulkDens->text();
-        //if (p1.compare("Use canopy storage map")==0)   	     namelist[j].value.setNum((int)!checkInterceptionLAI->isChecked());
-        if (p1.compare("Canopy storage equation")==0)
-        {
-            int i = 0;
-            if(radioButton_1->isChecked()) i = 0;
-            if(radioButton_2->isChecked()) i = 1;
-            if(radioButton_3->isChecked()) i = 2;
-            if(radioButton_4->isChecked()) i = 3;
-            if(radioButton_5->isChecked()) i = 4;
-            if(radioButton_6->isChecked()) i = 5;
-            if(radioButton_7->isChecked()) i = 6;
-            if(radioButton_8->isChecked()) i = 7;
-            if(radioButton_9->isChecked()) i = 8;  // 8 = storage map, not LAI eq
-            namelist[j].value.setNum(i);
-        }
 
         //VJ 110705 KE equations
         if (p1.compare("KE parameters EQ1")==0)
@@ -984,27 +991,13 @@ void lisemqt::updateModelData()
         if (p1.compare("End time day")==0)   namelist[j].value = QString("%1").arg(daye,3,10, QLatin1Char('0'));//E_EndTimeDay->text();
         if (p1.compare("End time")==0)   namelist[j].value = QString("%1").arg(mine,4,10, QLatin1Char('0'));//E_EndTimeMin->text();
         if (p1.compare("Timestep")==0)   namelist[j].value = E_Timestep->text();
-     //   if (p1.compare("Work Directory")==0)    namelist[j].value = E_WorkDir;//->text();
         if (p1.compare("Map Directory")==0)    namelist[j].value = E_MapDir->text();
         if (p1.compare("Result Directory")==0) namelist[j].value = E_ResultDir->text();
         if (p1.compare("Main results file")==0) namelist[j].value = E_MainTotals->text();
         if (p1.compare("Total series file")==0) namelist[j].value = E_SeriesTotals->text();
         if (p1.compare("Filename point output")==0) namelist[j].value = E_PointResults->text();
-     //   if (p1.compare("Filename landunit output")==0) namelist[j].value = E_LandunitResults->text();
 
-        if (p1.compare("Rainfall file")==0) namelist[j].value = RainFileName;
-        if (p1.compare("Rainfall Directory")==0) namelist[j].value = RainFileDir;
-        if (p1.compare("Rainfall maplist name")==0) namelist[j].value = RainSatFileName;
-        if (p1.compare("Rainfall Map Directory")==0) namelist[j].value = RainSatFileDir;
-        if (p1.compare("Rainfall Bias Correction")==0) namelist[j].value = E_biasCorrectionP->text();
-        if (p1.compare("IDI factor")==0)            namelist[j].value = E_IDIfactor->text();
-
-        if (p1.compare("ET file") ==0)        namelist[j].value = ETFileName;
-        if (p1.compare("ET Directory") ==0)   namelist[j].value = ETFileDir;
-        if (p1.compare("ET maplist name") ==0) namelist[j].value = ETSatFileName;
-        if (p1.compare("ET Map Directory") ==0) namelist[j].value = ETSatFileDir;
-        if (p1.compare("ET Bias Correction")==0) namelist[j].value = E_biasCorrectionET->text();
-        if (p1.compare("Rainfall ET threshold")==0) namelist[j].value = E_rainfallETA_threshold->text();
+        if (p1.compare("Include Satellite Image")==0)        namelist[j].value.setNum((int)checksatImage->isChecked());
 
         if (p1.compare("Discharge inflow directory")==0) namelist[j].value=DischargeinDir;
         if (p1.compare("Discharge inflow file")==0) namelist[j].value=DischargeinFileName;
@@ -1081,33 +1074,6 @@ void lisemqt::updateModelData()
         if (p1.compare("User defined output")==0) namelist[j].value.setNum(0);
         if (p1.compare("Output times")==0) namelist[j].value.setNum(0);
         //TODO fix output stuff
-
-        if (p1.compare("Table Directory")==0) namelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
-        if (p1.compare("Table File")==0) namelist[j].value = E_SwatreTableName->text();//SwatreTableName;
-        if (p1.compare("SWATRE internal minimum timestep")==0)
-        {
-            double fraction = 0.2;//E_SWATREDtsecFraction->value();
-            swatreDT = E_Timestep->text().toDouble()*fraction;
-            namelist[j].value.setNum(swatreDT,'g',6);
-        }
-
-        if (p1.compare("Infil Method")==0)
-        {
-            switch(E_InfiltrationMethod->currentIndex())
-            {
-            case 0 : namelist[j].value.setNum(INFIL_NONE);break;
-            case 1 : namelist[j].value.setNum(INFIL_SWATRE);break;
-            case 2 : namelist[j].value.setNum(INFIL_GREENAMPT);break;
-            case 3 : namelist[j].value.setNum(INFIL_SMITH); break;
-            }
-        }
-
-        //VJ 111120 water repellency
-//        if (p1.compare("Use Water Repellency")==0)      namelist[j].value.setNum((int)checkWaterRepellency->isChecked());
-//        if (p1.compare("Water Repellency A")==0)        namelist[j].value.setNum(E_waterRep_a->value(),'g',6);
-//        if (p1.compare("Water Repellency B")==0)        namelist[j].value.setNum(E_waterRep_b->value(),'g',6);
-//        if (p1.compare("Water Repellency C")==0)        namelist[j].value.setNum(E_waterRep_c->value(),'g',6);
-//        if (p1.compare("Water Repellency D")==0)        namelist[j].value.setNum(E_waterRep_d->value(),'g',6);
 
         if (p1.compare("Report discharge units")==0)
         {

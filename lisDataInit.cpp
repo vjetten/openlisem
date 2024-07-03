@@ -937,7 +937,7 @@ void TWorld::InitChannel(void)
         if (LDDChannel->Drc == 0)
             SET_MV_REAL8(&LDDChannel->Drc);
     }
-
+report(*LDDChannel,"lddchan.map");
     nrValidCellsCH = 0;
     FOR_ROW_COL_MV_CH {
         nrValidCellsCH++;
@@ -965,15 +965,14 @@ void TWorld::InitChannel(void)
 
 
     // for 1D or 2D overland flow: channel outlet points are checked, leading
-    FOR_ROW_COL_MV_CH
-    {
-        if(Outlet->Drc > 0 && LDDChannel->Drc != 5)
-        {
-            //qDebug() << r << c << LDDChannel->Drc << Outlet->Drc;
-            ErrorString = "Outlet points (outlet.map) do not coincide with Channel LDD endpoints.";
-            throw 1;
-        }
-    }
+    // FOR_ROW_COL_MV_CH {
+    //     if(Outlet->Drc > 0 && LDDChannel->Drc != 5)
+    //     {
+    //         //qDebug() << r << c << LDDChannel->Drc << Outlet->Drc;
+    //         ErrorString = QString("Outlet points (outlet.map) do not coincide with Channel LDD endpoints: %1 %2.").arg(Outlet->Drc).arg(LDDChannel->Drc);
+    //         throw 1;
+    //     }
+    // }
 
     ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth")); // bottom width in m
 

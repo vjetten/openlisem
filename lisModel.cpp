@@ -341,6 +341,13 @@ void TWorld::DoModel()
 
         //DEBUG("Free data structure memory");
         op.hasrunonce = true;
+
+        // CopyComboMap(0,Qoutput);
+        // CopyComboMap(1,hmxWH);
+        // CopyComboMap(2,COMBO_V);
+        // CopyComboMap(3,VH);
+        // CopyComboMap(4,Qototal);
+
         DestroyData();  // destroy all maps automatically
         op.nrMapsCreated = maplistnr;
         emit done("finished");
@@ -354,6 +361,12 @@ void TWorld::DoModel()
     }
     catch(...)  // if an error occurred
     {
+        CopyComboMap(0,Qoutput);
+        CopyComboMap(1,hmxWH);
+        CopyComboMap(2,COMBO_V);
+        CopyComboMap(3,VH);
+        CopyComboMap(4,Qototal);
+
         op.nrMapsCreated = maplistnr;
         DestroyData();
 

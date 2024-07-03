@@ -1130,7 +1130,16 @@ void lisemqt::resetTabInterception()
 
 void lisemqt::resetTabInfiltration()
 {
-    //infiltration
+    groupInfiltration->setChecked(true);
+
+    E_InfiltrationMethod->clear();
+   // E_InfiltrationMethod->addItem("no Infiltration");
+    E_InfiltrationMethod->addItem("SWATRE");
+    E_InfiltrationMethod->addItem("Green and Ampt");
+    E_InfiltrationMethod->addItem("Smith and Parlange");
+    E_InfiltrationMethod->addItem("Richards equation (experimental)");
+    E_InfiltrationMethod->setCurrentIndex(2);
+
     checkInfilCompact->setChecked(false);
     checkInfilCrust->setChecked(false);
     //checkInfil2layer->setChecked(false);
@@ -1296,7 +1305,6 @@ void lisemqt::resetAll()
 
     checkWritePCRaster->setChecked(true);
 
-
     checkBox_OutRunoff->setChecked(false);
     checkBox_OutConc->setChecked(false);
     checkBox_OutWH->setChecked(false);
@@ -1315,20 +1323,17 @@ void lisemqt::resetAll()
 
     printinterval->setValue(1);
 
-    E_InfiltrationMethod->clear();
-    E_InfiltrationMethod->addItem("no Infiltration");
-    E_InfiltrationMethod->addItem("SWATRE");
-    E_InfiltrationMethod->addItem("Green and Ampt");
-    E_InfiltrationMethod->addItem("Smith and Parlange");
-    E_InfiltrationMethod->addItem("Richards equation (experimental)");
-    E_InfiltrationMethod->setCurrentIndex(2);
 
     initOP();
 
     progressBar->setValue(0);
 
    //main
+
     resetTabOptions();
+
+    groupRainfall->setChecked(true);
+    groupET->setChecked(false);
 
     resetTabInterception();
 

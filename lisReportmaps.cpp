@@ -328,7 +328,7 @@ void TWorld::GetComboMaps()
     cl = 3;
     AddComboMap(0,"Interception","mm",InterceptionmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
 
-    if(InfilMethod != INFIL_NONE)
+    if(SwitchInfiltration)
     {
         AddComboMap(0,"Infiltration","mm",InfilmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         if (InfilMethod > 1) {
@@ -442,6 +442,8 @@ void TWorld::ClearComboMaps()
     op.comboboxset = false;
 }
 //---------------------------------------------------------------------------
+//because this is moved outside the timeloop and the pointer of a map is copied to this structure (not the map itself),
+// you cannot display this after the original maps are destroyed
 void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList<double> ColorMap, QList<QString> Colors,
                          bool log,bool symcol, double scale, double step)
 {
@@ -465,4 +467,13 @@ void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList
     op.comboboxset = false;
 }
 
-
+void TWorld::CopyComboMap(int i, cTMap * map)
+{
+    op.ComboMaps.append(new cTMap);
+    op.ComboMaps.at(i)->MakeMap(LDD,0.0);
+    #pragma omp parallel num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        op.ComboMaps.at(i)->Drc = map->Drc;
+    }}
+    // copy the map content
+}

@@ -72,6 +72,10 @@
         <file>settings2.png</file>
         <file>black-and-white.png</file>
         <file>qtdarcula.css</file>
+        <file>d_black-and-white.png</file>
+        <file>2X/d_fontbigger2X.png</file>
+        <file>d_river2.png</file>
+        <file>2X/d_fontsmaller2X.png</file>
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>

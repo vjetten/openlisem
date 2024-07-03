@@ -191,6 +191,7 @@ void TWorld::ParseRunfileData(void)
         QString p = runnamelist[j].value;
 
         //if (p1.compare("Include Snowmelt")==0)                  SwitchSnowmelt =         iii == 1
+        if (p1.compare("Include Rainfall")==0)         SwitchRainfall = iii == 1;
         if (p1.compare("Event based")==0)              SwitchEventbased = iii == 1;
         if (p1.compare("Use Rainfall maps")==0)        SwitchRainfallSatellite = iii == 1;
         if (p1.compare("Include ET")==0)               SwitchIncludeET = iii == 1;
@@ -199,6 +200,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Daily ET latitude")==0)        latitude = p.toDouble();
 
         if (p1.compare("Rainfall ID interpolation")==0)SwitchIDinterpolation = iii == 1;
+
+        if (p1.compare("Include Infiltration")==0)              SwitchInfiltration = iii == 1;
 
         //options in the main code, order is not important
         if (p1.compare("Include Erosion simulation")==0)        SwitchErosion =          iii == 1;
@@ -336,6 +339,9 @@ void TWorld::ParseRunfileData(void)
     InfilMethod = getvalueint("Infil Method");
     if (InfilMethod == INFIL_GREENAMPT2) InfilMethod = INFIL_GREENAMPT;
     if (InfilMethod == INFIL_SMITH2) InfilMethod = INFIL_SMITH;
+
+    if (!SwitchInfiltration)
+        InfilMethod = INFIL_NONE;
     //prob onsolete: deal with old runfil pre 6.6
 
     // check a few things
