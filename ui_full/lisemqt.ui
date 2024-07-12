@@ -2132,7 +2132,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>3</number>
+                  <number>2</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -3681,7 +3681,7 @@
                     </widget>
                    </item>
                    <item row="0" column="0" rowspan="2">
-                    <widget class="QGroupBox" name="groupInterception_2">
+                    <widget class="QGroupBox" name="groupInterception">
                      <property name="font">
                       <font>
                        <pointsize>8</pointsize>
@@ -3692,6 +3692,9 @@
                      </property>
                      <property name="title">
                       <string>Interception</string>
+                     </property>
+                     <property name="checkable">
+                      <bool>true</bool>
                      </property>
                      <layout class="QGridLayout" name="gridLayout_5">
                       <item row="1" column="0">
@@ -3737,7 +3740,7 @@
                        </widget>
                       </item>
                       <item row="2" column="0" colspan="3">
-                       <widget class="QGroupBox" name="groupInterception">
+                       <widget class="QGroupBox" name="groupCanopyStrorage">
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>

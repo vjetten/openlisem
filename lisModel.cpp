@@ -421,6 +421,7 @@ void TWorld::HydrologyProcesses()
             ETafactor = 1.0;
     }
 
+    // Do all hydrology in one big loop. Not sure if this is faster then a loop per process
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         cell_Interception(r,c);
@@ -470,35 +471,7 @@ void TWorld::HydrologyProcesses()
             case INFIL_SWATRE : cell_InfilSwatre(r, c); break;
         }
 
-        /*
-        if (InfilMethod == INFIL_SWATRE) {
-            cell_InfilSwatre(r, c);
-        } else {
-            if (InfilMethod != INFIL_NONE) {
-                if (InfilMethod == INFIL_SOAP) {
-
-                   cell_Soilwater(i_);
-                    // cell_SWATRECalc(i_);
-
-                } else {
-                    // Green and Ampt + redistribution
-                    cell_InfilMethods(r, c);
-
-                    if (SwitchTwoLayer) {
-                        cell_Redistribution2(r, c);
-                        //cell_Channelinfow2(r, c);
-                    } else {
-                        cell_Redistribution1(r, c);
-                        //cell_Channelinfow1(r, c);
-                    }
-
-                    if (!SwitchImpermeable)
-                        Perc->Drc = cell_Percolation(r, c, 1.0);
-                    // if baseflow is active percollation is done there, so do not do it here
-                }
-            }
-        }
-*/
+        // do not do this!
         //  cell_depositInfil(r,c);
         // deposit all sediment still in flow when infiltration causes WH to become minimum
         // gives huge MBs errors!

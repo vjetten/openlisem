@@ -42,6 +42,10 @@ functions: \n
 // note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
 void TWorld::cell_Interception(int r, int c)
 {
+
+    if (!SwitchInterception)
+        return;
+
     // all variables are in m
     double Rainc_ = Rainc->Drc;
     double RainNet_ = Rainc_;

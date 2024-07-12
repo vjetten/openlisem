@@ -222,6 +222,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include tile drains")==0)           checkIncludeTiledrains->setChecked(check);
 
         // INTERCEPTION
+        if (p1.compare("Include Interception")==0)     groupInterception->setChecked(check);
         if (p1.compare("Canopy storage equation")==0)
         {
             switch (iii) {
@@ -818,6 +819,7 @@ void lisemqt::updateModelData()
         //if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
 
         // interception
+        if (p1.compare("Include Interception")==0)    namelist[j].value.setNum((int)groupInterception->isChecked());;
         if (p1.compare("Include litter interception")==0)    namelist[j].value.setNum((int)checkIncludeLitter->isChecked());
         if (p1.compare("Litter interception storage")==0)    namelist[j].value = E_LitterSmax->text();
         if (p1.compare("Canopy storage equation")==0)

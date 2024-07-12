@@ -1121,6 +1121,7 @@ void lisemqt::resetTabCalibration()
 
 void lisemqt::resetTabInterception()
 {
+    groupInterception->setChecked(true);
     radioButton_1->setChecked(true); //<= crops interception
     E_CanopyOpeness->setValue(0.45);
     //    E_StemflowFraction->setValue(0.054);

@@ -367,6 +367,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Interception]");
     namelist[i].value = QString("1");
+    namelist[i++].name = QString("Include Interception");
+    namelist[i].value = QString("1");
     namelist[i++].name = QString("Canopy storage equation");
     namelist[i].value = QString("0.45");
     namelist[i++].name = QString("Canopy Openess");

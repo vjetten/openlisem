@@ -201,6 +201,7 @@ void TWorld::ParseRunfileData(void)
 
         if (p1.compare("Rainfall ID interpolation")==0)SwitchIDinterpolation = iii == 1;
 
+        if (p1.compare("Include Interception")==0)              SwitchInterception = iii == 1;
         if (p1.compare("Include Infiltration")==0)              SwitchInfiltration = iii == 1;
 
         //options in the main code, order is not important
