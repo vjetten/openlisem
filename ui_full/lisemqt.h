@@ -280,7 +280,7 @@ public:
     QwtPlotCurve *QtileGraph;
 
     bool startplot;
-    bool stopplot;
+    bool stoprun;
     QVector <double> times;
     int lastOptionSceen;
 

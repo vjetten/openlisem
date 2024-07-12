@@ -42,23 +42,26 @@ Make the model world and run it
 */
 void lisemqt::runmodel()
 {
-    if(startplot && !stopplot && W)
+
+    if (W)
     {
-        if (W->waitRequested)
+        if (W->waitRequested) {
             pausemodel();
-        return;
+            qDebug() << "pauze";
+            return;
+        }
     }
 
     // if the model has stopped and a new run is requested, clear the datastructures
     // until that time the user can look at the old results
-    if (stopplot && W) {
+    if (stoprun && W) {
         qDebug() << W->maplistCTMap.size();
         qDeleteAll(W->maplistCTMap);
         W->maplistCTMap.clear(); // destroy ALL maps
 
         qDebug() << W->maplistCTMap.size();
         // destroy all networlk structures
-        qDeleteAll(W->cr_);
+    //    qDeleteAll(W->cr_);
         W->cr_.clear();
      //   qDeleteAll(W->crch_);
         W->crch_.clear();
@@ -85,8 +88,8 @@ void lisemqt::runmodel()
         }
     }
 
-    startplot = true; // user has pressed run
-    stopplot = false; // user has not stopped the run
+    startplot = true; // user has pressed run, used only to initiatte screen stop, after that set to false!
+    stoprun = false; // user has not stopped the run
 
     label_debug->text().clear();
 
@@ -139,7 +142,7 @@ void lisemqt::runmodel()
     tabWidget_totout->setTabEnabled(1,checkDoErosion->isChecked() );
 
     showInfoAct->setChecked(true);
-    setOutputInfo(true); // forgot why this is done!
+    setOutputInfo(true); // show the cursor over the map
 
     // initialize output graphs
     initPlot();
@@ -164,14 +167,14 @@ void lisemqt::runmodel()
     // connect(W, SIGNAL(timedb(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
     // // connect emitted signals from the model thread to the interface routines that handle them
 
-    W->noInfo = true;
+    W->showInfo = true;
 
     //WhasStopped = false;
     W->stopRequested = false;
     // stoprequested is used to stop the thread with the interface
     W->waitRequested = false;
     // waitrequested is used to pause the thread with the interface, only on windows machines!
-  //  W->noInterface = true; // why?
+    W->noInterface = true; // if true then show something
     W->noOutput = false;
     W->batchmode = false;
     // run without Qt interface on original runfile only
@@ -198,7 +201,6 @@ void lisemqt::runmodel()
     tabWidget->setCurrentIndex(2);
     //switch to output screen
 
-    //W->stop();
     W->start();
     // start the model thread, executes W->run()
 
@@ -244,7 +246,6 @@ void lisemqt::stopmodel()
 {
     if(W) {
         W->stopRequested = true;
-       // WhasStopped = true;
     }
 }
 //---------------------------------------------------------------------------
@@ -276,7 +277,7 @@ void lisemqt::worldShow(bool showall)
 
     showImageMap();
 
-    //startplot = false; ///???
+    startplot = false; //if not set to false all the above are done eahc time
 
     showMap(); // show map with selected data
 
@@ -304,7 +305,7 @@ void lisemqt::worldDone(const QString &results)
         W->quit();
         W->wait();
     }
-    stopplot = true;
+    stoprun = true;
     startplot = false;
 
     // free the map plot discharge bdata

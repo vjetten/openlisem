@@ -122,7 +122,7 @@
 
 
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
- {int r = cr_[i_]->r; int c = cr_[i_]->c;
+ {int r = cr_[i_].r; int c = cr_[i_].c;
 
 //not used
 #define FOR_ROW_COL_MV_LWS(nr_) for(long i_ = WScr.at(nr_).size()-1; i_ >= 0; i_--)\
@@ -386,7 +386,7 @@ public:
     long nrValidCellsTile;
     QVector <LDD_COOR> crldd5_;
     QVector <LDD_COOR> crlddch5_;
-    QVector <LDD_COOR*> cr_;
+    QVector <LDD_COOR> cr_;
     QVector <LDD_COOR> crws_;
     QVector <LDD_COORi> dcr_;
     QVector <LDD_COOR> crch_;
@@ -1233,7 +1233,7 @@ public:
     bool stopRequested;
     bool waitRequested;
     bool noInterface;
-    bool noInfo;
+    bool showInfo;
     bool noOutput;
     bool batchmode;
     QMutex mutex;

@@ -64,6 +64,7 @@ void TWorld::stop()
 void TWorld::saveMBerror2file(bool doError, bool start)
 {
     if (doError && start) {
+        qDebug() << "hier";
         //create error file
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::WriteOnly | QIODevice::Text);

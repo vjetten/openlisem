@@ -70,7 +70,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -145,8 +145,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>843</width>
-                <height>720</height>
+                <width>869</width>
+                <height>780</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -9208,8 +9208,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>762</width>
-                <height>564</height>
+                <width>759</width>
+                <height>539</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
@@ -14267,7 +14267,7 @@ p, li { white-space: pre-wrap; }
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <property name="iconSize">
               <size>

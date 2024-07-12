@@ -225,9 +225,12 @@ void TWorld::InitStandardInput(void)
     }
 
     FOR_ROW_COL_MV {
-        LDD_COOR *newcr = new LDD_COOR;
-        newcr->r = r;
-        newcr->c = c;
+        // LDD_COOR *newcr = new LDD_COOR;
+        // newcr->r = r;
+        // newcr->c = c;
+        LDD_COOR newcr;
+        newcr.r = r;
+        newcr.c = c;
         cr_ << newcr;
     }
 

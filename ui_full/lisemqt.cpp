@@ -130,8 +130,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
     connect(W, SIGNAL(timedb(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
     // connect emitted signals from the model thread to the interface routines that handle them
-    startplot = false;
-    stopplot = false;
+    //startplot = false; // start plotting
+    stoprun = false;
+    W->waitRequested = false;
     // run is not started so we don't accidentally do wrong things while W exists
 
     if(doBatch)
@@ -567,37 +568,10 @@ void lisemqt::setOutputScreen()
 void lisemqt::setOutputInfo(bool check)
 {
     if (W) {
-
-      W->noInfo = check;
+      W->showInfo = check;
       picker->setEnabled(check);
     }
 }
-
-
-//--------------------------------------------------------------------
-// OBSOLETE
-//void lisemqt::setWriteOutputPCR(bool doit)
-//{
-    //    if (checkWriteSOBEK->isChecked())
-    //    {
-    //        //checkWriteSOBEK->setChecked(false);
-    //        checkWriteCommaDelimited->setChecked(false);
-    //        checkWritePCRaster->setChecked(false);
-    //        //checkSeparateOutput->setChecked(true);
-    //    }
-    //    else
-//    if (checkWritePCRaster->isChecked())
-//    {
-//        //checkWriteSOBEK->setChecked(false);
-//        //checkWriteCommaDelimited->setChecked(false);
-//    }
-//    else
-//        if (checkWriteCommaDelimited->isChecked())
-//        {
-//            //checkWriteSOBEK->setChecked(false);
-//            checkWritePCRaster->setChecked(false);
-//        }
-//}
 
 //--------------------------------------------------------------------
 void lisemqt::SetToolBar()
