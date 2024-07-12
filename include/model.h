@@ -122,7 +122,7 @@
 
 
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
- {int r = cr_[i_].r; int c = cr_[i_].c;
+ {int r = cr_[i_]->r; int c = cr_[i_]->c;
 
 //not used
 #define FOR_ROW_COL_MV_LWS(nr_) for(long i_ = WScr.at(nr_).size()-1; i_ >= 0; i_--)\
@@ -229,9 +229,10 @@ typedef struct LDD_COORi {
 typedef struct LDD_COORIN {
     int r;
     int c;
-    int nr;
     int ldd;
-    LDD_COOR *inn;
+    QVector <LDD_COOR> inn;
+    int nr;
+    //LDD_COOR *inn;
 }  LDD_COORIN;
 //---------------------------------------------------------------------------
 typedef struct LDD_COORloc {
@@ -385,7 +386,7 @@ public:
     long nrValidCellsTile;
     QVector <LDD_COOR> crldd5_;
     QVector <LDD_COOR> crlddch5_;
-    QVector <LDD_COOR> cr_;
+    QVector <LDD_COOR*> cr_;
     QVector <LDD_COOR> crws_;
     QVector <LDD_COORi> dcr_;
     QVector <LDD_COOR> crch_;
@@ -405,7 +406,8 @@ public:
     QVector <double> IDIpointsV;
 
     /// map management structure, automatic adding and deleting of all cTMap variables
-    MapListStruct maplistCTMap[NUMNAMES];
+    //MapListStruct maplistCTMap[NUMNAMES];
+    QVector <cTMap*> maplistCTMap;
     int maplistnr;
 
     /// variable declaration list of all maps with comments:
@@ -769,7 +771,6 @@ public:
     void InitMapList(void);
     cTMap *NewMap(double value);
     cTMap *ReadMap(cTMap *Mask, QString name);
-    cTMap *ReadFullMap(QString name);
     void DestroyData(void);
     cTMap *InitMask(QString name);
     cTMap *InitMaskChannel(QString name);

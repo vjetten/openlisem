@@ -120,7 +120,7 @@ public:
     bool doBatchmode;
     QString batchRunname;
 
-    bool WhasStopped;
+   // bool WhasStopped;
 
     void initMapTree();
     void DefaultMapnames();
@@ -279,7 +279,7 @@ public:
     QwtPlotCurve *PGraph;
     QwtPlotCurve *QtileGraph;
 
-    bool startplot = true;
+    bool startplot;
     bool stopplot;
     QVector <double> times;
     int lastOptionSceen;

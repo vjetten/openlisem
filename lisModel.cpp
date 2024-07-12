@@ -89,6 +89,7 @@ void TWorld::saveMBerror2file(bool doError, bool start)
 // the actual model with the main loop
 void TWorld::DoModel()
 {
+    //DestroyData(); // clear all structures in ccase this is not the first run.
 
     if (!op.doBatchmode)
         temprunname = QString(op.LisemDir+"openlisemtmp.run");
@@ -108,8 +109,7 @@ void TWorld::DoModel()
         DEBUG("reading and initializing data");
 
         IntializeOptions(); // reset all options
-
-        InitMapList();
+//        InitMapList();
         // map structure to destroy data automatically
 
         DEBUG("GetRunFile()");
@@ -340,9 +340,9 @@ void TWorld::DoModel()
             ReportMaps();
 
         //DEBUG("Free data structure memory");
-        op.hasrunonce = true;
-        DestroyData();  // destroy all maps automatically
-        op.nrMapsCreated = maplistnr;
+    //    op.hasrunonce = true;
+     //   DestroyData();  // destroy all maps automatically
+     //   op.nrMapsCreated = maplistnr;
         emit done("finished");
 
         if (op.doBatchmode)
@@ -354,8 +354,8 @@ void TWorld::DoModel()
     }
     catch(...)  // if an error occurred
     {
-        op.nrMapsCreated = maplistnr;
-        DestroyData();
+      //  op.nrMapsCreated = maplistnr;
+      //  DestroyData();
 
         emit done("ERROR STOP: "+ErrorString);
         if (op.doBatchmode) {qDebug() << "ERROR STOP "<< ErrorString;

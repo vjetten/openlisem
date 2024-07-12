@@ -42,15 +42,51 @@ Make the model world and run it
 */
 void lisemqt::runmodel()
 {
-    if(W)
+    if(startplot && !stopplot && W)
     {
         if (W->waitRequested)
             pausemodel();
         return;
     }
 
-    startplot = true;
-    stopplot = false;
+    // if the model has stopped and a new run is requested, clear the datastructures
+    // until that time the user can look at the old results
+    if (stopplot && W) {
+        qDebug() << W->maplistCTMap.size();
+        qDeleteAll(W->maplistCTMap);
+        W->maplistCTMap.clear(); // destroy ALL maps
+
+        qDebug() << W->maplistCTMap.size();
+        // destroy all networlk structures
+        qDeleteAll(W->cr_);
+        W->cr_.clear();
+     //   qDeleteAll(W->crch_);
+        W->crch_.clear();
+      //  qDeleteAll(W->crldd5_);
+        W->crldd5_.clear();
+      //  qDeleteAll(W->crlddch5_);
+        W->crlddch5_.clear();
+      //  qDeleteAll(W->crlinkedldd_);
+        W->crlinkedldd_.clear();
+      //  qDeleteAll(W->crlinkedlddch_);
+        W->crlinkedlddch_.clear();
+        // destroy swatre data structures
+        if (W->InfilMethod == INFIL_SWATRE && W->initSwatreStructure)
+        {
+            W->FreeSwatreInfo();
+            if (W->SwatreSoilModel)
+                W->CloseSwatre(W->SwatreSoilModel);
+            if (W->SwatreSoilModelCrust)
+                W->CloseSwatre(W->SwatreSoilModelCrust);
+            if (W->SwatreSoilModelCompact)
+                W->CloseSwatre(W->SwatreSoilModelCompact);
+            if (W->SwatreSoilModelGrass)
+                W->CloseSwatre(W->SwatreSoilModelGrass);
+        }
+    }
+
+    startplot = true; // user has pressed run
+    stopplot = false; // user has not stopped the run
 
     label_debug->text().clear();
 
@@ -103,7 +139,7 @@ void lisemqt::runmodel()
     tabWidget_totout->setTabEnabled(1,checkDoErosion->isChecked() );
 
     showInfoAct->setChecked(true);
-    setOutputInfo(true);
+    setOutputInfo(true); // forgot why this is done!
 
     // initialize output graphs
     initPlot();
@@ -119,23 +155,23 @@ void lisemqt::runmodel()
 
     //=======================================================================================//
 
-    W = new TWorld();
-    // make the model world !!!
+    // W = new TWorld();
+    // // make the model world !!!
 
-    connect(W, SIGNAL(show(bool)),this, SLOT(worldShow(bool)),Qt::BlockingQueuedConnection);
-    connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
-    connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
-    connect(W, SIGNAL(timedb(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
-    // connect emitted signals from the model thread to the interface routines that handle them
+    // connect(W, SIGNAL(show(bool)),this, SLOT(worldShow(bool)),Qt::BlockingQueuedConnection);
+    // connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
+    // connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
+    // connect(W, SIGNAL(timedb(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
+    // // connect emitted signals from the model thread to the interface routines that handle them
 
     W->noInfo = true;
 
-    WhasStopped = false;
+    //WhasStopped = false;
     W->stopRequested = false;
     // stoprequested is used to stop the thread with the interface
     W->waitRequested = false;
     // waitrequested is used to pause the thread with the interface, only on windows machines!
-    W->noInterface = true;
+  //  W->noInterface = true; // why?
     W->noOutput = false;
     W->batchmode = false;
     // run without Qt interface on original runfile only
@@ -162,6 +198,7 @@ void lisemqt::runmodel()
     tabWidget->setCurrentIndex(2);
     //switch to output screen
 
+    //W->stop();
     W->start();
     // start the model thread, executes W->run()
 
@@ -200,11 +237,14 @@ void lisemqt::pausemodel()
     }
 }
 //---------------------------------------------------------------------------
+// linked to stop button in interface, the current loop is finished before
+// the model thread is really stopped, this infact sets time to endtime
+// after the loop is finished worldDone is called to end the thread
 void lisemqt::stopmodel()
 {
     if(W) {
         W->stopRequested = true;
-        WhasStopped = true;
+       // WhasStopped = true;
     }
 }
 //---------------------------------------------------------------------------
@@ -236,7 +276,7 @@ void lisemqt::worldShow(bool showall)
 
     showImageMap();
 
-    startplot = false;
+    //startplot = false; ///???
 
     showMap(); // show map with selected data
 
@@ -260,18 +300,12 @@ void lisemqt::worldDone(const QString &results)
 
 
     // arrive here after model emits done signal
-    if (W)
-    {
-        //https://stackoverflow.com/questions/31442006/properly-delete-qthread
+     if (W) {
         W->quit();
         W->wait();
-       // W->deleteLater();
-        delete W;
-        W = nullptr;
     }
-    //free the world instance
-
     stopplot = true;
+    startplot = false;
 
     // free the map plot discharge bdata
     QFile::remove(QString(op.LisemDir+"openlisemtmp.run"));

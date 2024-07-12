@@ -101,9 +101,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     SetConnections();
 
-    W = nullptr;
-    // initalize pointer to the world, created when run button is pushed
-
     SetStyleUI();
     // do some style things
 
@@ -121,12 +118,21 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     tabWidgetOptions->setCurrentIndex(0);
     tabWidget_OutputMaps->setCurrentIndex(0);
 
-    doBatchmode = doBatch; // save in iface for later use
-    batchRunname = runname;
-    doCheckRainfall(true); // ???????? why here
-    op.doBatchmode = doBatch;  //?????
-    op.hasrunonce = false;
-    op.nrMapsCreated = 0;
+    doBatchmode = doBatch; // save as global var in iface
+    //batchRunname = runname;
+    //doCheckRainfall(true); // ???????? why here
+    op.doBatchmode = doBatch;  //copy batchmode for inside run
+
+    // make the model world once, this structure is always needed regardless of the area
+    W = new TWorld();
+    connect(W, SIGNAL(show(bool)),this, SLOT(worldShow(bool)),Qt::BlockingQueuedConnection);
+    connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
+    connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
+    connect(W, SIGNAL(timedb(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
+    // connect emitted signals from the model thread to the interface routines that handle them
+    startplot = false;
+    stopplot = false;
+    // run is not started so we don't accidentally do wrong things while W exists
 
     if(doBatch)
     {
@@ -139,7 +145,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
                           // also update DEFmaps for map tree view in interface
         initMapTree();    // fill the tree strcuture on page 2 with DEFmaps
         RunAllChecks();   // activate the maps in the tree parts in response to checks
-        E_runFileList->insertItem(0, batchRunname);
+        E_runFileList->insertItem(0, runname);
 
         stopAct->setChecked(false);
         runAct->setChecked(true);
@@ -160,6 +166,7 @@ lisemqt::~lisemqt()
 {
     if (!doBatchmode)
         StorePath();
+    delete W;
 }
 //--------------------------------------------------------------------
 // NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
@@ -1455,10 +1462,7 @@ void lisemqt::resetTabAdvanced()
 
 void lisemqt::resetAll()
 {
-    W = nullptr;
     MapNameModel = nullptr;
-   // HPlot = nullptr;
-   // MPlot = nullptr;
 
     nrUserCores->setValue(0);
     doShootScreens = false;

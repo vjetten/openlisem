@@ -375,15 +375,15 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
                     newcr.c = colNr;
                     newcr.ldd = (int) _LDD->data[rowNr][colNr];
 
-                  //  newcr.in.clear();
-                    newcr.inn = (LDD_COOR*) malloc(sizeof(LDD_COOR)*9);
+                   // newcr.inn.clear(); // to be sure
+                    //newcr.inn = (LDD_COOR*) malloc(sizeof(LDD_COOR)*9);
                     newcr.nr = 0;
 
                     int j = 0;
                     for (i=1;i<=9;i++)
                     {
-                        newcr.inn[j].r = 0;
-                        newcr.inn[j].c = 0;
+                       // newcr.inn[j].r = 0;
+                       // newcr.inn[j].c = 0;
                         if (i != 5) {
 
                             int rr = rowNr+dy[i];
@@ -394,14 +394,13 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
                                     ldd = (int) _LDD->Drcr;
                                     if (FLOWS_TO(ldd, rr,cr,rowNr,colNr))
                                     {
-//                                        LDD_COOR incr;
-//                                        incr.r = rr;
-//                                        incr.c = cr;
-//                                        newcr.in << incr;
-                                        newcr.inn[j].r = rr;
-                                        newcr.inn[j].c = cr;
-
-                                        j++;
+                                       LDD_COOR incr;
+                                       incr.r = rr;
+                                       incr.c = cr;
+                                       newcr.inn << incr; // add the point that flows into the cell to inn
+//                                        newcr.inn[j].r = rr;
+//                                        newcr.inn[j].c = cr;
+                                       j++;
                                     }
                                 }
                             }
@@ -423,6 +422,7 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
 
         }
     }
+
     return(_crlinked_);
 }
 

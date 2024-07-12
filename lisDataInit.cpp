@@ -225,36 +225,12 @@ void TWorld::InitStandardInput(void)
     }
 
     FOR_ROW_COL_MV {
-        LDD_COOR newcr;
-        newcr.r = r;
-        newcr.c = c;
+        LDD_COOR *newcr = new LDD_COOR;
+        newcr->r = r;
+        newcr->c = c;
         cr_ << newcr;
     }
 
-    /* OBSOLETE
-    if (SwitchSWOFWatersheds) {
-        WaterSheds = ReadMap(LDD,getvaluename("wsheds"));
-        QList <int> tmp = countUnits(*WaterSheds);
-        nrWatersheds = tmp.count();
-
-        long nrc = 0;
-        WScr.clear();
-        for (int i = 0; i <= nrWatersheds; i++){
-            crws_.clear();
-            FOR_ROW_COL_MV {
-                if (WaterSheds->Drc == i) {
-                    LDD_COOR newcr;
-                    newcr.r = r;
-                    newcr.c = c;
-                    crws_ << newcr;
-                }
-            }
-            WScr.append(crws_);
-            nrc += WScr.at(i).size();
-            //qDebug() << WScr.size() << WScr.at(i).size() << i << nrc << nrValidCells;
-        }
-    }
-    */
     FOR_ROW_COL_MV {
         if (LDD->Drc == 5) {
         LDD_COOR newcr;
@@ -305,15 +281,16 @@ void TWorld::InitStandardInput(void)
         calcMap(*DEM, *Buffers, ADD);
     } 
 
-    int cnt = 0;
-    Outlet = NewMap(0);
-    FOR_ROW_COL_MV {
-        if(LDD->Drc == 5) {
-            cnt++;
-            //qDebug() << "ldd" << r << c << cnt;
-            Outlet->Drc = cnt;
-        }
-    }
+    // int cnt = 0;
+    // Outlet = NewMap(0);
+    // FOR_ROW_COL_MV {
+    //     if(LDD->Drc == 5) {
+    //         cnt++;
+    //         //qDebug() << "ldd" << r << c << cnt;
+    //         Outlet->Drc = cnt;
+    //     }
+    // }
+    Outlet = ReadMap(LDD,getvaluename("outlet"));
 
     // points are user observation points. they should include outlet points
     PointMap = ReadMap(LDD,getvaluename("outpoint"));
@@ -325,6 +302,11 @@ void TWorld::InitStandardInput(void)
             found = true;
         }
     }
+    if (!found) {
+        copy(*PointMap, *Outlet);
+        found = true;
+    }
+
 
     if (found) {
         crout_.clear();
@@ -971,15 +953,15 @@ void TWorld::InitChannel(void)
 
 
     // for 1D or 2D overland flow: channel outlet points are checked, leading
-    FOR_ROW_COL_MV_CH
-    {
-        if(Outlet->Drc > 0 && LDDChannel->Drc != 5)
-        {
-            //qDebug() << r << c << LDDChannel->Drc << Outlet->Drc;
-            ErrorString = "Outlet points (outlet.map) do not coincide with Channel LDD endpoints.";
-            throw 1;
-        }
-    }
+    // FOR_ROW_COL_MV_CH
+    // {
+    //     if(Outlet->Drc > 0 && LDDChannel->Drc != 5)
+    //     {
+    //         //qDebug() << r << c << LDDChannel->Drc << Outlet->Drc;
+    //         ErrorString = "Outlet points (outlet.map) do not coincide with Channel LDD endpoints.";
+    //         throw 1;
+    //     }
+    // }
 
     ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth")); // bottom width in m
 
