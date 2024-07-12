@@ -2132,7 +2132,7 @@
                   <enum>QTabWidget::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -14431,118 +14431,6 @@ p, li { white-space: pre-wrap; }
  </resources>
  <connections>
   <connection>
-   <sender>checkIncludeChannel</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkChannelInfil</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>572</x>
-     <y>476</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>718</x>
-     <y>430</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkIncludeChannel</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkChannelCulverts</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>572</x>
-     <y>476</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>356</x>
-     <y>752</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkIncludeChannel</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkDischargeUser</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>572</x>
-     <y>476</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>274</x>
-     <y>489</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkIncludeChannel</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>E_DischargeInName</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>572</x>
-     <y>476</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>390</x>
-     <y>490</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkIncludeChannel</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>toolButton_DischargeName</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>572</x>
-     <y>476</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>426</x>
-     <y>491</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkAdvancedOptions</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>groupAdvanced</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>114</x>
-     <y>349</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>255</x>
-     <y>576</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkSnowmelt</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>radioGroupSnowmelt</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>65</x>
-     <y>914</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>476</x>
-     <y>991</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checksatImage</sender>
    <signal>toggled(bool)</signal>
    <receiver>E_satImageName</receiver>
@@ -14575,102 +14463,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>checkFlowBarriers</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>line_FlowBarriers</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>236</x>
-     <y>819</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>820</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkSed2Phase</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>E_RBLMethod</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>172</x>
-     <y>866</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>541</x>
-     <y>866</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkGWflow</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>GW_widget</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>547</x>
-     <y>540</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>562</x>
-     <y>665</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioRainSatFile</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>E_rainsatName</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>133</x>
-     <y>439</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>569</x>
-     <y>440</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioRainSatFile</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>toolButton_rainsatName</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>96</x>
-     <y>439</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>664</x>
-     <y>441</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioRainSatFile</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>toolButton_RainmapShow</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>90</x>
-     <y>439</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>700</x>
-     <y>441</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>radioRainFile</sender>
    <signal>toggled(bool)</signal>
    <receiver>E_RainfallName</receiver>
@@ -14683,54 +14475,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>573</x>
      <y>379</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioRainFile</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>toolButton_RainfallName</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>106</x>
-     <y>378</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>664</x>
-     <y>380</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioRainFile</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>toolButton_RainfallShow</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>103</x>
-     <y>378</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>700</x>
-     <y>380</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioRainFile</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkIDinterpolation</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>96</x>
-     <y>378</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>241</x>
-     <y>408</y>
     </hint>
    </hints>
   </connection>
@@ -14751,82 +14495,66 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>checkAddBuildingDEM</sender>
+   <sender>checkIncludeChannel</sender>
    <signal>toggled(bool)</signal>
-   <receiver>E_buildingHeight</receiver>
+   <receiver>checkChannelInfil</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>292</x>
-     <y>696</y>
+     <x>572</x>
+     <y>476</y>
     </hint>
     <hint type="destinationlabel">
-     <x>568</x>
-     <y>698</y>
+     <x>718</x>
+     <y>430</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkAddBuildingDEM</sender>
+   <sender>radioRainFile</sender>
    <signal>toggled(bool)</signal>
-   <receiver>label_140</receiver>
+   <receiver>toolButton_RainfallName</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>292</x>
-     <y>696</y>
+     <x>106</x>
+     <y>378</y>
     </hint>
     <hint type="destinationlabel">
-     <x>497</x>
-     <y>698</y>
+     <x>664</x>
+     <y>380</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkWaveInUser</sender>
+   <sender>radioETsatfile</sender>
    <signal>toggled(bool)</signal>
-   <receiver>groupWaveUser</receiver>
+   <receiver>toolButton_ETsatName</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>241</x>
-     <y>658</y>
+     <x>85</x>
+     <y>584</y>
     </hint>
     <hint type="destinationlabel">
-     <x>591</x>
-     <y>734</y>
+     <x>656</x>
+     <y>584</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkMUSCL</sender>
+   <sender>checkSnowmelt</sender>
    <signal>toggled(bool)</signal>
-   <receiver>E_FloodFluxLimiter</receiver>
+   <receiver>radioGroupSnowmelt</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>353</x>
-     <y>534</y>
+     <x>65</x>
+     <y>914</y>
     </hint>
     <hint type="destinationlabel">
-     <x>71</x>
-     <y>559</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkMUSCL</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_100</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>407</x>
-     <y>534</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>527</x>
-     <y>554</y>
+     <x>476</x>
+     <y>991</y>
     </hint>
    </hints>
   </connection>
@@ -14849,22 +14577,6 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>checkDischargeUser</sender>
    <signal>toggled(bool)</signal>
-   <receiver>toolButton_DischargeName</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>274</x>
-     <y>489</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>426</x>
-     <y>491</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkDischargeUser</sender>
-   <signal>toggled(bool)</signal>
    <receiver>toolButton_DischargeShow</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
@@ -14874,6 +14586,134 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>462</x>
+     <y>491</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkAdvancedOptions</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupAdvanced</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>114</x>
+     <y>349</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>255</x>
+     <y>576</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkFlowBarriers</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>line_FlowBarriers</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>236</x>
+     <y>819</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>820</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioRainSatFile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_rainsatName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>133</x>
+     <y>439</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>569</x>
+     <y>440</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkAddBuildingDEM</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_140</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>696</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>497</x>
+     <y>698</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioRainSatFile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>toolButton_rainsatName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>96</x>
+     <y>439</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>664</x>
+     <y>441</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioRainFile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>toolButton_RainfallShow</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>103</x>
+     <y>378</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>700</x>
+     <y>380</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkMUSCL</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_FloodFluxLimiter</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>353</x>
+     <y>534</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>71</x>
+     <y>559</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkDischargeUser</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>toolButton_DischargeName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>274</x>
+     <y>489</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>426</x>
      <y>491</y>
     </hint>
    </hints>
@@ -14895,18 +14735,82 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>radioETsatfile</sender>
+   <sender>checkAddBuildingDEM</sender>
    <signal>toggled(bool)</signal>
-   <receiver>E_ETsatName</receiver>
+   <receiver>E_buildingHeight</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>38</x>
-     <y>581</y>
+     <x>292</x>
+     <y>696</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>576</y>
+     <x>568</x>
+     <y>698</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkMUSCL</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_100</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>407</x>
+     <y>534</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>527</x>
+     <y>554</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkGWflow</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>GW_widget</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>547</x>
+     <y>540</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>562</x>
+     <y>665</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkIncludeChannel</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>toolButton_DischargeName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>572</x>
+     <y>476</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>426</x>
+     <y>491</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkIncludeChannel</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_DischargeInName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>572</x>
+     <y>476</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>390</x>
+     <y>490</y>
     </hint>
    </hints>
   </connection>
@@ -14927,22 +14831,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>radioETsatfile</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>toolButton_ETsatName</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>85</x>
-     <y>584</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>656</x>
-     <y>584</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>radioETfile</sender>
    <signal>toggled(bool)</signal>
    <receiver>toolButton_ETShow</receiver>
@@ -14959,6 +14847,54 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>radioRainSatFile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>toolButton_RainmapShow</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>90</x>
+     <y>439</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>700</x>
+     <y>441</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkWaveInUser</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupWaveUser</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>241</x>
+     <y>658</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>591</x>
+     <y>734</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkIncludeChannel</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>checkDischargeUser</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>572</x>
+     <y>476</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>274</x>
+     <y>489</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>radioETsatfile</sender>
    <signal>toggled(bool)</signal>
    <receiver>toolButton_ETmapShow</receiver>
@@ -14971,6 +14907,70 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>686</x>
      <y>582</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkIncludeChannel</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>checkChannelCulverts</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>572</x>
+     <y>476</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>356</x>
+     <y>752</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkSed2Phase</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_RBLMethod</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>172</x>
+     <y>866</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>541</x>
+     <y>866</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioRainFile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>checkIDinterpolation</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>96</x>
+     <y>378</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>241</x>
+     <y>408</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioETsatfile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_ETsatName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>38</x>
+     <y>581</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>277</x>
+     <y>576</y>
     </hint>
    </hints>
   </connection>

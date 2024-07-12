@@ -89,6 +89,8 @@ void TWorld::saveMBerror2file(bool doError, bool start)
 // the actual model with the main loop
 void TWorld::DoModel()
 {
+    op.nrRunsDone++;
+    qDebug() << op.nrRunsDone;
 
     if (!op.doBatchmode)
         temprunname = QString(op.LisemDir+"openlisemtmp.run");
@@ -105,6 +107,8 @@ void TWorld::DoModel()
 
     try
     {
+        DestroyData();
+
         DEBUG("reading and initializing data");
 
         IntializeOptions(); // reset all options
@@ -118,20 +122,22 @@ void TWorld::DoModel()
         ParseRunfileData();
         // get and parse runfile
 
-
         QString S = resultDir + QFileInfo(op.runfilename).fileName();
         QFile::copy(op.runfilename, S);
 
-        //BeginTime = getTimefromString(bt)*60; // in seconds!
-        //EndTime = getTimefromString(et)*60;
+
+        //time vraiables in sec
         double btd = getvaluedouble("Begin time day");
         double btm = getvaluedouble("Begin time");
         double etd = getvaluedouble("End time day");
         double etm = getvaluedouble("End time");
+
         if (SwitchEventbased) {
             DEBUG("Day in start and end time is ignored.");
         }
+
         _dt = getvaluedouble("Timestep");
+
         if (SwitchEventbased) {
             BeginTime = (btm)*60; //for running in sec
             EndTime = (etm)*60;   //in sec
@@ -143,13 +149,16 @@ void TWorld::DoModel()
             op.BeginTime = BeginTime/60;// for graph drawing in min
             op.EndTime = EndTime/60;
         }
-        //VJ get time here else combomaps goes wrong for rainfall intensity
 
-        //time vraiables in sec
+
+        //get all maps
         DEBUG("Get Input Maps");
         GetInputData();
         DEBUG("Intialize Database");
         IntializeData();
+
+        op.nrMapsCreated = maplistnr; // save nr of maps for cleaning memory
+
 
         //DEBUG("setupDisplayMaps()");
         setupDisplayMaps();
@@ -348,8 +357,8 @@ void TWorld::DoModel()
         // CopyComboMap(3,VH);
         // CopyComboMap(4,Qototal);
 
-        DestroyData();  // destroy all maps automatically
-        op.nrMapsCreated = maplistnr;
+        //op.nrMapsCreated = maplistnr;
+      //  DestroyData();  // destroy all maps automatically
         emit done("finished");
 
         if (op.doBatchmode)
@@ -361,14 +370,14 @@ void TWorld::DoModel()
     }
     catch(...)  // if an error occurred
     {
-        CopyComboMap(0,Qoutput);
-        CopyComboMap(1,hmxWH);
-        CopyComboMap(2,COMBO_V);
-        CopyComboMap(3,VH);
-        CopyComboMap(4,Qototal);
+        // CopyComboMap(0,Qoutput);
+        // CopyComboMap(1,hmxWH);
+        // CopyComboMap(2,COMBO_V);
+        // CopyComboMap(3,VH);
+        // CopyComboMap(4,Qototal);
 
-        op.nrMapsCreated = maplistnr;
-        DestroyData();
+        //op.nrMapsCreated = maplistnr;
+        //DestroyData();
 
         emit done("ERROR STOP: "+ErrorString);
         if (op.doBatchmode) {qDebug() << "ERROR STOP "<< ErrorString;

@@ -43,6 +43,7 @@
 //}  LDD_COOR;
 
 struct output{
+    int nrRunsDone; // nr runs without closing interface, needed to destroyd old data before start of a new run
     int runstep;
     int printstep;
     int maxstep;

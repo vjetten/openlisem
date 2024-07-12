@@ -426,7 +426,7 @@ public:
         SwitchSnowmelt,
         SwitchSnowmeltSatellite,
 
-        SwitchInterception.
+        SwitchInterception,
         SwitchInfiltration,
         // channel and Overland flow
         SwitchIncludeChannel,

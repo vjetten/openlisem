@@ -98,15 +98,8 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     showMaximized();
 
     darkLISEM = false;
-    // QString fileName = ":/dark2.css";
-    // QFile file(fileName);
-    // if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    //     qDebug() << "Unable to open the file!";
-    // }
-    // QTextStream in(&file);
-    // QString fileContent = in.readAll();
-    // file.close();
-   // qApp->setStyleSheet(fileContent);
+
+    op.nrRunsDone = 0;
 
     int ompt = omp_get_max_threads();
     nrUserCores->setMaximum(ompt);//omp_get_max_threads());
