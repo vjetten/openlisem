@@ -739,20 +739,20 @@ void lisemqt::showChannelVectorNew()
 
         for(long i_ =  0; i_ < op.lddch_.size(); i_++) {
 
-            int r = _nrRows-op.lddch_[i_]->r-1;
-            int c = op.lddch_[i_]->c;
-            int ldd = std::abs(op.lddch_[i_]->ldd);
+            int r = _nrRows-op.lddch_[i_].r-1;
+            int c = op.lddch_[i_].c;
+            int ldd = std::abs(op.lddch_[i_].ldd);
 
             xend = cx+c*dx + 0.5*dx;
             yend = cy+r*dx + 0.5*dx;
-            if (op.lddch_[i_]->nr == 0) {
+            if (op.lddch_[i_].nr == 0) {
                 Y << yend;
                 X << xend;
             }
             Y << yend + _dy[ldd]*dx;
             X << xend + _dx[ldd]*dx;
 
-            if (i_ < op.lddch_.size()-1 && op.lddch_[i_+1]->nr == 0) {
+            if (i_ < op.lddch_.size()-1 && op.lddch_[i_+1].nr == 0) {
                 Xa.push_back(X);
                 Ya.push_back(Y);
                 X.clear();
@@ -776,29 +776,29 @@ void lisemqt::showChannelVectorNew()
             int count = 0;
             for(long i_ =  0; i_ < op.lddch_.size(); i_++) {
 
-                if(op.lddch_[i_]->ldd < 0) {
+                if(op.lddch_[i_].ldd < 0) {
                     int r,c,ldd;
 
                     if (first) {
-                        r = _nrRows-op.lddch_[i_]->r-1;
-                        c = op.lddch_[i_]->c;
+                        r = _nrRows-op.lddch_[i_].r-1;
+                        c = op.lddch_[i_].c;
                         xend = cx+c*dx + 0.5*dx;
                         yend = cy+r*dx + 0.5*dx;
                         Y << yend;
                         X << xend;
                         first = false;
                     }
-                    r = _nrRows-op.lddch_[i_]->r-1;
-                    c = op.lddch_[i_]->c;
+                    r = _nrRows-op.lddch_[i_].r-1;
+                    c = op.lddch_[i_].c;
                     xend = cx+c*dx + 0.5*dx;
                     yend = cy+r*dx + 0.5*dx;
                     Y << yend;
                     X << xend;
                     count++;
 
-                    if (i_ < op.lddch_.size() -1 && (op.lddch_[i_+1]->ldd > 0)) {
+                    if (i_ < op.lddch_.size() -1 && (op.lddch_[i_+1].ldd > 0)) {
                         if (count == 1) {
-                            ldd = std::abs(op.lddch_[i_]->ldd);
+                            ldd = std::abs(op.lddch_[i_].ldd);
                             Y << yend + _dy[ldd]*dx;
                             X << xend + _dx[ldd]*dx;
                         }

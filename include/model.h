@@ -121,12 +121,10 @@
 //if(!pcr::isMV(LDD->data[r][c]))
 
 
-#define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
- {int r = cr_[i_]->r; int c = cr_[i_]->c;
-
-//not used
-// #define FOR_ROW_COL_MV_LWS(nr_) for(long i_ = WScr.at(nr_).size()-1; i_ >= 0; i_--)\
-// {int r = WScr.at(nr_)[i_].r; int c = WScr.at(nr_)[i_].c;
+// #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
+//  {int r = cr_[i_]->r; int c = cr_[i_]->c;
+#define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < nrValidCells; i_++)\
+ {int r = cr_[i_].r; int c = cr_[i_].c;
 
 #define FOR_ROW_COL_LDD5 for(long i_ = nrValidCellsLDD5-1; i_ >= 0; i_--)\
 {int r = crldd5_[i_].r; int c = crldd5_[i_].c;
@@ -134,8 +132,10 @@
 #define FOR_ROW_COL_LDDCH5 for(long i_ = nrValidCellsLDDCH5-1; i_ >= 0; i_--)\
 {int r = crlddch5_[i_].r; int c = crlddch5_[i_].c;
 
-#define FOR_ROW_COL_MV_CHL for(long i_ = nrValidCellsCH-1; i_ >= 0; i_--)\
-{int r = crch_[i_]->r; int c = crch_[i_]->c;
+// #define FOR_ROW_COL_MV_CHL for(long i_ = nrValidCellsCH-1; i_ >= 0; i_--)\
+// {int r = crch_[i_]->r; int c = crch_[i_]->c;
+#define FOR_ROW_COL_MV_CHL for(long i_ = 0; i_ < nrValidCellsCH; i_++)\
+{int r = crch_[i_].r; int c = crch_[i_].c;
 
 #define FOR_ROW_COL_MV_TILEL for(long i_ = nrValidCellsTile-1; i_ >= 0; i_--)\
 {int r = crtile_[i_].r; int c = crtile_[i_].c;
@@ -384,12 +384,12 @@ public:
     long nrValidCellsLDDCH5;
     long nrValidCellsWS;
     long nrValidCellsTile;
-    QVector <LDD_COOR*> cr_;
-    QVector <LDD_COOR*> crch_;
-    QVector <LDD_COORIN*> crlinkedldd_;
-    QVector <LDD_COORIN*> crlinkedlddch_;
-    QVector <LDD_COORIN*> crlinkedlddbase_;
-    QVector <LDD_COORIN*> crlinkedlddtile_;
+    QVector <LDD_COOR> cr_;
+    QVector <LDD_COOR> crch_;
+    QVector <LDD_COORIN> crlinkedldd_;
+    QVector <LDD_COORIN> crlinkedlddch_;
+    QVector <LDD_COORIN> crlinkedlddbase_;
+    QVector <LDD_COORIN> crlinkedlddtile_;
 
     QVector <LDD_COOR> crldd5_;
     QVector <LDD_COOR> crlddch5_;
@@ -1132,17 +1132,17 @@ public:
     //double getMassWS(int nr_, cTMap *M, double th);
     double getMassSed(cTMap *M, double th);
     void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX, cTMap *_Qmax, cTMap *_Amax);
-    void KinematicExplicit(QVector<LDD_COORIN*> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax);
+    void KinematicExplicit(QVector<LDD_COORIN> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax);
     double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX, double Qm, double Am);
 
-    void KinematicSubstance(QVector<LDD_COORIN*> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
+    void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
 
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
     void upstreamDrain(cTMap *_LDD, cTMap *MaxQ, cTMap *in, cTMap *out);
-    void AccufluxGW(QVector <LDD_COORIN*>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
-    void UpstreamGW(QVector <LDD_COORIN*>_crlinked_ , cTMap *_Q, cTMap *_Qn);
+    void AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
+    void UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
 
-    QVector <LDD_COORIN*> MakeLinkedList(cTMap *_LDD);
+    QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
 
     // kinematic 2D
     double BoundaryQ;

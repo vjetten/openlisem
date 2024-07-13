@@ -70,7 +70,7 @@ struct output{
     QVector <double> EndPointY;
     QVector <double> ObsPointX;
     QVector <double> ObsPointY;
-    QVector <LDD_COORIN*> lddch_;
+    QVector <LDD_COORIN> lddch_;
 
     double timestep, CatchmentArea, t,time, maxtime, EndTime, BeginTime;
     double _llx, _lly, _dx;

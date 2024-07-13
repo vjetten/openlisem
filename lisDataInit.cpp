@@ -225,12 +225,12 @@ void TWorld::InitStandardInput(void)
     }
 
     FOR_ROW_COL_MV {
-        LDD_COOR *newcr = new LDD_COOR;
-        newcr->r = r;
-        newcr->c = c;
-        // LDD_COOR newcr;
-        // newcr.r = r;
-        // newcr.c = c;
+        // LDD_COOR *newcr = new LDD_COOR;
+        // newcr->r = r;
+        // newcr->c = c;
+        LDD_COOR newcr;
+        newcr.r = r;
+        newcr.c = c;
         cr_ << newcr;
     }
 
@@ -936,12 +936,12 @@ void TWorld::InitChannel(void)
     //crch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
     //long i = 0;
     FOR_ROW_COL_MV_CH {
-        // LDD_COOR newcr;
-        // newcr.r = r;
-        // newcr.c = c;
-        LDD_COOR *newcr = new LDD_COOR;
-        newcr->r = r;
-        newcr->c = c;
+        LDD_COOR newcr;
+        newcr.r = r;
+        newcr.c = c;
+        // LDD_COOR *newcr = new LDD_COOR;
+        // newcr->r = r;
+        // newcr->c = c;
         crch_ << newcr;
     }
     crlinkedlddch_= MakeLinkedList(LDDChannel);
@@ -1037,15 +1037,13 @@ void TWorld::InitChannel(void)
 
         // there can be no side inflow in a culvert (which is actually not true!)
         for (int i = 0; i < crlinkedlddch_.size(); i++) {
-            int c = crlinkedlddch_.at(i)->c;
-            int r = crlinkedlddch_.at(i)->r;
+            int c = crlinkedlddch_.at(i).c;
+            int r = crlinkedlddch_.at(i).r;
             if (ChannelMaxQ->Drc > 0) {
-                crlinkedlddch_.at(i)->ldd = -1;
-                //LDD_COORIN *hoi = crlinkedlddch_.at(i);
-                //hoi->ldd *= -1;
-                //crlinkedlddch_.replace(i, *hoi) ;
-               // ChannelGrad->Drc = 0.001;
-
+                //crlinkedlddch_.at(i).ldd = -1;
+                LDD_COORIN *hoi = crlinkedlddch_.at(i);
+                hoi->ldd *= -1;
+                crlinkedlddch_.replace(i, *hoi) ;
             }
         }
     } else {

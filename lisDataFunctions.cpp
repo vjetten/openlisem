@@ -34,9 +34,7 @@
 #include "CsfRGBMap.h"
 
 //---------------------------------------------------------------------------
-/** \n void TWorld::InitMapList(void)
-*
-*/
+// OBSOLETE
 void TWorld::InitMapList(void)
 {
     maplistCTMap.clear();

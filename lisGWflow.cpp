@@ -149,16 +149,16 @@ void TWorld::GWFlowLDDKsat(void)
     // calculate GW flow angle along network
     for(long i_ =  0; i_ < crlinkedlddbase_.size(); i_++)
     {
-        int r = crlinkedlddbase_.at(i_)->r;
-        int c = crlinkedlddbase_.at(i_)->c;
+        int r = crlinkedlddbase_.at(i_).r;
+        int c = crlinkedlddbase_.at(i_).c;
 
         double Hup = 0;
-        double Zup = 0;
-        if (crlinkedlddbase_.at(i_)->nr > 0) {
+        //double Zup = 0;
+        if (crlinkedlddbase_.at(i_).nr > 0) {
             double cnt = 0;
-            for(int j = 0; j < crlinkedlddbase_.at(i_)->nr; j++) {
-                int rr = crlinkedlddbase_.at(i_)->inn[j].r;
-                int cr = crlinkedlddbase_.at(i_)->inn[j].c;
+            for(int j = 0; j < crlinkedlddbase_.at(i_).nr; j++) {
+                int rr = crlinkedlddbase_.at(i_).inn[j].r;
+                int cr = crlinkedlddbase_.at(i_).inn[j].c;
                 //Hup += (GWS*GWz->Drcr + h->Drcr)/(GWS+1.0);  // GWS is a weight to emphasize the Z!
                 Hup += (GWz->Drcr + h->Drcr);
                 //Zup += GWz->Drcr;
@@ -183,14 +183,14 @@ void TWorld::GWFlowLDDKsat(void)
 
     for(long i_ =  0; i_ < crlinkedlddbase_.size(); i_++)
     {
-        int r = crlinkedlddbase_.at(i_)->r;
-        int c = crlinkedlddbase_.at(i_)->c;
+        int r = crlinkedlddbase_.at(i_).r;
+        int c = crlinkedlddbase_.at(i_).c;
 
         double Qin = 0;
-        if (crlinkedlddbase_.at(i_)->nr > 0) {
-            for(int j = 0; j < crlinkedlddbase_.at(i_)->nr; j++) {
-                int rr = crlinkedlddbase_.at(i_)->inn[j].r;
-                int cr = crlinkedlddbase_.at(i_)->inn[j].c;
+        if (crlinkedlddbase_.at(i_).nr > 0) {
+            for(int j = 0; j < crlinkedlddbase_.at(i_).nr; j++) {
+                int rr = crlinkedlddbase_.at(i_).inn[j].r;
+                int cr = crlinkedlddbase_.at(i_).inn[j].c;
                 Qin += tmc->Drcr;
             }
         }

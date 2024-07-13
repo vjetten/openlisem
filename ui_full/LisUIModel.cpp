@@ -60,20 +60,20 @@ void lisemqt::runmodel()
         // destroy ALL maps
         qDeleteAll(W->maplistCTMap.begin(),W->maplistCTMap.end());
         W->maplistCTMap.clear();
-
         // destroy all networlk structures
-        qDeleteAll(W->cr_.begin(),W->cr_.end());
-        W->cr_.clear();
-        qDeleteAll(W->crch_.begin(),W->crch_.end());
-        W->crch_.clear();
-        qDeleteAll(W->crlinkedldd_.begin(),W->crlinkedldd_.end());
-        W->crlinkedldd_.clear();
-        qDeleteAll(W->crlinkedlddch_.begin(),W->crlinkedlddch_.end());
-        W->crlinkedlddch_.clear();
+      //  qDeleteAll(W->cr_.begin(),W->cr_.end());
+      //  W->cr_.clear();
+        Clear(W->cr_);
+      //  qDeleteAll(W->crch_.begin(),W->crch_.end());
+      //  W->crch_.clear();
+        Clear(W->crch_);
+        //qDeleteAll(W->crlinkedldd_.begin(),W->crlinkedldd_.end());
+        //W->crlinkedldd_.clear();
+        Clear(W->crlinkedldd_);
+        //qDeleteAll(W->crlinkedlddch_.begin(),W->crlinkedlddch_.end());
+        //W->crlinkedlddch_.clear();
+        Clear(W->crlinkedlddch_);
 
-        // while (W->crldd5_.count())
-        //     if (!W->crldd5_.isEmpty())
-        //         W->crldd5_.removeLast();
         // W->crldd5_.clear();
         // W->crlddch5_.clear();
         // W->crout_.clear();
