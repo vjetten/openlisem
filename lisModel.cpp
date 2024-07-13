@@ -259,8 +259,8 @@ void TWorld::DoModel()
       //  DEBUG("setupHydrographData()");
         setupHydrographData(); // reset hydrograph display
 
-        bool saveMBerror = true;
-        saveMBerror2file(true); //saveMBerror,
+        //bool saveMBerror = true;
+        //saveMBerror2file(true); //saveMBerror,
 
       //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
@@ -322,7 +322,7 @@ void TWorld::DoModel()
 
             emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
 
-            saveMBerror2file(false); //saveMBerror
+            //saveMBerror2file(false); //saveMBerror
 
             if(stopRequested)
                 time = EndTime;

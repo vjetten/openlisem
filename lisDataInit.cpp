@@ -1040,10 +1040,9 @@ void TWorld::InitChannel(void)
             int c = crlinkedlddch_.at(i).c;
             int r = crlinkedlddch_.at(i).r;
             if (ChannelMaxQ->Drc > 0) {
-                //crlinkedlddch_.at(i).ldd = -1;
-                LDD_COORIN *hoi = crlinkedlddch_.at(i);
-                hoi->ldd *= -1;
-                crlinkedlddch_.replace(i, *hoi) ;
+                LDD_COORIN hoi = crlinkedlddch_.at(i);
+                hoi.ldd *= -1;
+                crlinkedlddch_.replace(i, hoi) ;
             }
         }
     } else {

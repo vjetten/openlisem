@@ -356,6 +356,7 @@ public slots:
     void openRunFile();
     void deleteRunFileList();
     void runmodel();
+    void ClearOP();
     void stopmodel();
     void pausemodel();
     void shootScreen();

@@ -36,6 +36,101 @@
 #include "global.h"
 
 #define Clear(list) while (list.count()) {if (!list.isEmpty()) list.removeLast();}
+#define Clear2D(list) for(int i = 0 ; i < list.count(); i++) {\
+            while (list.at(i)->count()) {if (!list.at(i)->isEmpty())list.at(i)->removeLast();}\
+            while (list.count()) {if (!list.isEmpty()) list.removeLast();}}
+
+
+
+void lisemqt::ClearOP()
+{
+    /*
+    QList<int> OutletIndices;
+    QList<int> OutletLocationX;
+    QList<int> OutletLocationY;
+    QList<QVector<double>*> OutletQ;
+    QList<QVector<double>*> Wavein;
+    QList<QVector<double>*> OutletQs;  //current kg/s
+    QList<QVector<double>*> OutletC;   // avg concetration
+    QList<QVector<double>*> OutletChannelWH;
+    QVector<double> OutletQpeak;
+    QVector<double> OutletQpeaktime;
+    QVector<double> OutletQtot;
+    QVector<double> OutletQstot;  // sum in kg
+    QVector<double> Pmm;
+    QVector<double> Time;
+    QVector <double> Qtile;
+    QVector <double> EndPointX;
+    QVector <double> EndPointY;
+    QVector <double> ObsPointX;
+    QVector <double> ObsPointY;
+    QVector <LDD_COORIN> lddch_;
+
+    // map pointers for display
+    cTMap *baseMap;
+    cTMap *baseMapDEM;
+    cTMap *channelMap;
+    cTMap *outletMap;
+    cTMap *roadMap;
+    cTMap *houseMap;
+    cTMap *hardsurfaceMap;
+    cTRGBMap *Image;
+
+    QList<int> ComboLists;
+    QList<cTMap *> ComboMaps;
+    QList<QList<double>> ComboColorMap;
+    QList<QList<QString>> ComboColors;
+    QList<bool> ComboLogaritmic;
+    QList<bool> ComboSymColor;
+    QStringList ComboMapNames;
+    QStringList ComboUnits;
+    QList<double> ComboScaling;
+    QList<double> userMinV;
+    QList<double> userMaxV;
+    QList<double> comboStep;
+    */
+
+    Clear2D(op.OutletQ);
+    Clear2D(op.Wavein);
+    Clear2D(op.OutletQs);
+    Clear2D(op.OutletC);
+    Clear2D(op.OutletChannelWH);
+
+    Clear(op.OutletIndices);
+    Clear(op.OutletLocationX);
+    Clear(op.OutletLocationY);
+    Clear(op.OutletQpeak);
+    Clear(op.OutletQpeaktime);
+    Clear(op.OutletQtot);
+    Clear(op.OutletQstot);
+    Clear(op.Pmm);
+    Clear(op.Time);
+    Clear(op.Qtile);
+    Clear(op.EndPointX);
+    Clear(op.EndPointY);
+    Clear(op.ObsPointX);
+    Clear(op.ObsPointY);
+    Clear(op.lddch_);
+    // Clear(op.ComboLists);
+    // qDeleteAll(op.ComboMaps.begin(), op.ComboMaps.end());
+    // op.ComboMapNames.clear();
+    // op.ComboUnits.clear();
+    // Clear(op.ComboLogaritmic);
+    // Clear(op.ComboSymColor);
+    // Clear(op.ComboScaling);
+    // Clear(op.userMinV);
+    // Clear(op.userMaxV);
+    // Clear(op.comboStep);
+    // Clear(op.comboStep);
+    delete op.baseMap;
+    delete op.baseMapDEM;
+    delete op.channelMap;
+    delete op.outletMap;
+    delete op.roadMap;
+    delete op.houseMap;
+    delete op.hardsurfaceMap;
+    delete op.Image;
+}
 
 //---------------------------------------------------------------------------
 /** Run the model:
@@ -61,34 +156,30 @@ void lisemqt::runmodel()
         qDeleteAll(W->maplistCTMap.begin(),W->maplistCTMap.end());
         W->maplistCTMap.clear();
         // destroy all networlk structures
-      //  qDeleteAll(W->cr_.begin(),W->cr_.end());
-      //  W->cr_.clear();
         Clear(W->cr_);
-      //  qDeleteAll(W->crch_.begin(),W->crch_.end());
-      //  W->crch_.clear();
         Clear(W->crch_);
-        //qDeleteAll(W->crlinkedldd_.begin(),W->crlinkedldd_.end());
-        //W->crlinkedldd_.clear();
         Clear(W->crlinkedldd_);
-        //qDeleteAll(W->crlinkedlddch_.begin(),W->crlinkedlddch_.end());
-        //W->crlinkedlddch_.clear();
         Clear(W->crlinkedlddch_);
-
-        // W->crldd5_.clear();
-        // W->crlddch5_.clear();
-        // W->crout_.clear();
-        // W->dcr_.clear();
-        // W->crtile_.clear();
         Clear(W->crldd5_);
         Clear(W->crlddch5_);
         Clear(W->crout_);
         Clear(W->dcr_);
         Clear(W->crtile_);
 
+        QVector <double> zero;
+        zero.clear();
+        PGraph->setSamples(zero,zero);
+        QGraph->setSamples(zero,zero);
+        QbGraph->setSamples(zero,zero);
+        QsGraph->setSamples(zero,zero);
+        CGraph->setSamples(zero,zero);
+        QtileGraph->setSamples(zero,zero);
+        HPlot->replot();
 
-
-
-
+        // HPlot->detachItems(QwtPlotItem::Rtti_PlotItem, true);
+        // HPlot->replot();
+        // MPlot->detachItems(QwtPlotItem::Rtti_PlotItem, true);
+        // MPlot->replot();
 
         // destroy swatre data structures
         if (W->InfilMethod == INFIL_SWATRE && W->initSwatreStructure)
@@ -103,6 +194,8 @@ void lisemqt::runmodel()
             if (W->SwatreSoilModelGrass)
                 W->CloseSwatre(W->SwatreSoilModelGrass);
         }
+
+        ClearOP();
     }
 
     startplot = true; // user has pressed run, used only to initiatte screen stop, after that set to false!
