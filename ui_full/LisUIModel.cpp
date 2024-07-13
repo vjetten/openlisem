@@ -414,7 +414,8 @@ void lisemqt::worldDone(const QString &results)
     startplot = false;
 
     // free the map plot discharge bdata
-    QFile::remove(QString(op.LisemDir+"openlisemtmp.run"));
+    if (QFileInfo(QString(op.LisemDir+"openlisemtmp.run")).exists())
+        QFile::remove(QString(op.LisemDir+"openlisemtmp.run"));
 
     // delete the temp run file
     //qDebug() << QString(op.LisemDir+"openlisemtmp.run")<< "deleted";
@@ -478,6 +479,15 @@ void lisemqt::initOP()
 
     op.comboboxset = false;
 
+    // delete op.baseMap;
+    // delete op.baseMapDEM;
+    // delete op.channelMap;
+    // delete op.outletMap;
+    // delete op.roadMap;
+    // delete op.houseMap;
+    // delete op.hardsurfaceMap;
+    // delete op.Image;
+//the maps are pointers to the real maps, not copies
     op.baseMap = nullptr;
     op.baseMapDEM = nullptr;
     op.channelMap = nullptr;
@@ -485,7 +495,7 @@ void lisemqt::initOP()
     op.roadMap = nullptr;
     op.houseMap = nullptr;
     op.hardsurfaceMap = nullptr;
-    op.Image = nullptr;
+    op.Image = nullptr;        
 
     op.EndPointX.clear();
     op.EndPointY.clear();

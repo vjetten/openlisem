@@ -151,27 +151,19 @@ void TWorld::InitParameters(void)
         F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
         F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
         F_minWH = getvaluedouble("Min WH flow");   //HLL HLL2 Rusanov
-       // F_Z2Dcorrection = getvaluedouble("Z 2D correction");
-        // SwitchHeun = false;// (getvalueint("Use Heun") == 1);
-        //SwitchFixedAngle = (getvalueint("Use fixed Angle") == 1);
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
         SwitchLinkedList = getvalueint("Use linked List") == 1;
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
         SwitchChannelWFinflow = false;//getvalueint("Channel WF inflow") == 1;
-        //SwitchGWChangeSD = true;//getvalueint("GW layer change SD") == 1;
     } else {
         F_MaxIter = 200;
         F_minWH = 0.00001;
         F_fluxLimiter = 1; //minmax, vanleer, albeda
         F_scheme = 4;   //Rusanov HLL HLL2 HLL2c
-        //  SwitchHeun = false;
         F_pitValue = _dx/100;
-      //  F_Z2Dcorrection = 1.0;
-        //Switch2DDiagonalFlow = true;
-        //SwitchErosionInsideLoop = true;
         SwitchLinkedList = true;
-        _dtCHkin = 60.0;//_dt_user;
+        _dtCHkin = 60.0;
         SwitchChannel2DflowConnect = false;
         SwitchChannelWFinflow = false;
 
@@ -187,9 +179,11 @@ void TWorld::InitParameters(void)
     if (SwitchChannelMaxV)
        _CHMaxV =  getvaluedouble("Channel Max V");
 
-    SwitchKinematic2D = getvalueint("Routing Kin Wave 2D");
-    if (SwitchKinematic2D != K2D_METHOD_DYN)
-       SwitchWaveUser = false;
+    int wave = getvalueint("Routing Kin Wave 2D");
+    if (wave == 0) SwitchKinematic2D = K2D_METHOD_KIN;
+    if (wave == 1) SwitchKinematic2D = K2D_METHOD_KINDYN;
+    if (wave == 2) SwitchKinematic2D = K2D_METHOD_DYN;
+    if (wave < 2) SwitchWaveUser = false; // waveuser is an incoming wave at the boundary (tsunami type)
 
     userCores = getvalueint("Nr user Cores");
     int cores = omp_get_max_threads();
@@ -928,7 +922,7 @@ void TWorld::InitChannel(void)
         if (LDDChannel->Drc == 0)
             SET_MV_REAL8(&LDDChannel->Drc);
     }
-
+report(*LDDChannel,"lddchan.map");
     nrValidCellsCH = 0;
     FOR_ROW_COL_MV_CH {
         nrValidCellsCH++;
@@ -959,12 +953,11 @@ void TWorld::InitChannel(void)
 
 
     // for 1D or 2D overland flow: channel outlet points are checked, leading
-    // FOR_ROW_COL_MV_CH
-    // {
+    // FOR_ROW_COL_MV_CH {
     //     if(Outlet->Drc > 0 && LDDChannel->Drc != 5)
     //     {
     //         //qDebug() << r << c << LDDChannel->Drc << Outlet->Drc;
-    //         ErrorString = "Outlet points (outlet.map) do not coincide with Channel LDD endpoints.";
+    //         ErrorString = QString("Outlet points (outlet.map) do not coincide with Channel LDD endpoints: %1 %2.").arg(Outlet->Drc).arg(LDDChannel->Drc);
     //         throw 1;
     //     }
     // }
@@ -1737,7 +1730,7 @@ void TWorld::IntializeData(void)
     FFull = NewMap(0);
     Perc = NewMap(0);
     PercmmCum = NewMap(0);
-    runoffTotalCell = NewMap(0);
+    //runoffTotalCell = NewMap(0);
     Fcum = NewMap(0);
     Lw = NewMap(0);
     Lwmm = NewMap(0);
@@ -2109,7 +2102,7 @@ void TWorld::IntializeOptions(void)
     rainfallMapFileName = QString("rainfall.map");
     interceptionMapFileName = QString("interception.map");
     infiltrationMapFileName = QString("infiltration.map");
-    runoffMapFileName = QString("runoff.map");
+    runoffMapFileName = QString("Flowcumm3.map");
     channelDischargeMapFileName = QString("chandism3.map");
     floodMaxQFileName = QString("chanmaxq.map");
     floodMaxChanWHFileName = QString("chanmaxwh.map");

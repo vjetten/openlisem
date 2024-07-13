@@ -225,7 +225,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Interception map");
     namelist[i].value = QString("infiltration.map");
     namelist[i++].name = QString("Infiltration map");
-    namelist[i].value = QString("runoff.map");
+    namelist[i].value = QString("Flowcumm3.map");
     namelist[i++].name = QString("Runoff map");
     namelist[i].value = QString("WHmax.map");
     namelist[i++].name = QString("WH max level map");
@@ -316,6 +316,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Meteo]");
     namelist[i].value = QString("1");
+    namelist[i++].name = QString("Include Rainfall");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Event based");
     namelist[i++].name = QString("Rainfall file");
     namelist[i++].name = QString("Rainfall Directory");
@@ -365,6 +367,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Interception]");
     namelist[i].value = QString("1");
+    namelist[i++].name = QString("Include Interception");
+    namelist[i].value = QString("1");
     namelist[i++].name = QString("Canopy storage equation");
     namelist[i].value = QString("0.45");
     namelist[i++].name = QString("Canopy Openess");
@@ -376,6 +380,8 @@ void lisemqt::defaultRunFile()
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Infiltration]");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Include Infiltration");
     namelist[i].value = QString("2");  //GA =2
     namelist[i++].name = QString("Infil Method");
     namelist[i].value = QString("0");

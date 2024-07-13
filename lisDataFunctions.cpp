@@ -90,9 +90,8 @@ cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
 // OBSOLETE
 void TWorld::DestroyData(void)
 {
-    DEBUG("clear all maps");
+
     maplistCTMap.clear();
-    //if (op.nrMapsCreated > 0) {
     // if (op.nrMapsCreated > 0) {
     //     for (int i = 0; i < op.nrMapsCreated; i++)
     //     {
@@ -102,21 +101,6 @@ void TWorld::DestroyData(void)
     //             maplistCTMap[i].m = nullptr;
     //         }
     //     }
-    // }
-
-  //  DEBUG("clear meteo structures");
-
-    // clear() calls the destruction of all elements in the sturcture
-    // RainfallSeries.clear();
-    // RainfallSeriesMaps.clear();
-    // calibRainfallinFile = false;
-    // if (SwitchSnowmelt) {
-    //     SnowmeltSeries.clear();
-    //     SnowmeltSeriesMaps.clear();
-    // }
-    // if (SwitchIncludeET) {
-    //     ETSeries.clear();
-    //     ETSeriesMaps.clear();
     // }
 
     if (InfilMethod == INFIL_SWATRE && initSwatreStructure)
@@ -133,7 +117,9 @@ void TWorld::DestroyData(void)
         if (SwatreSoilModelGrass)
             CloseSwatre(SwatreSoilModelGrass);
     }
+    qDebug() << "network";
 
+    DEBUG("clear network structures");
     cr_.clear();
     crch_.clear();
     crldd5_.clear();

@@ -160,10 +160,10 @@ void lisemqt::setupPlot()
     HPlot->setAxisScale(*axisYR1, 0.0, 1.0 );
     HPlot->setAxisScale(*axisYR2, 0.0, 1.0 );
 
-    if (darkLISEM)
-        HPlot->setCanvasBackground(QBrush("#777777"));
-    else
-        HPlot->setCanvasBackground(QBrush(Qt::white));   // set gridlines
+    // if (darkLISEM)
+    //     HPlot->setCanvasBackground(QBrush("#777777"));
+    // else
+    //     HPlot->setCanvasBackground(QBrush(Qt::white));   // set gridlines
 
     QwtPlotGrid *grid = new QwtPlotGrid();
     col.setRgb( 180,180,180,180 );
@@ -513,10 +513,11 @@ void lisemqt::showOutputData()
     }
 
     QString format;
-    if(darkLISEM)
-        format = QString("<font color=#ffffaa>%2</font>");
-    else
-        format= QString("<font color=#000000>%2</font>");
+    // if(darkLISEM)
+    //     format = QString("<font color=#ffffaa>%2</font>");
+    // else
+    //     format= QString("<font color=#000000>%2</font>");
+    format="%2";
 
     if (startplot) {
         label_dx->setText(format.arg(QString::number(op._dx,'f',dig)));
@@ -543,7 +544,7 @@ void lisemqt::showOutputData()
         label_99->setText("Storm drains");
         label_stormdraintot->setText(format.arg(QString::number(op.StormDrainTotmm,'f',dig)));
     } else
-        if (checkChannelBaseflow->isChecked()) {
+        if (doChannelBaseflow) {
             label_99->setText("Added Baseflow");
             label_stormdraintot->setText(format.arg(QString::number(op.BaseFlowTotmm,'f',dig)));
         }
@@ -552,7 +553,7 @@ void lisemqt::showOutputData()
     label_infiltot->setText(format.arg(QString::number(op.InfilTotmm,'f',dig)));
     label_surfstor->setText(format.arg(QString::number(op.SurfStormm,'f',dig)));
     label_interctot->setText(format.arg(QString::number(op.IntercTotmm+op.IntercHouseTotmm+op.IntercLitterTotmm,'f',dig)));
-    if (checkOverlandFlow1D->isChecked() && !checkIncludeChannel->isChecked())
+    if (/*checkOverlandFlow1D->isChecked()*/E_OFWaveType->currentIndex() == 0 && !checkIncludeChannel->isChecked())
         label_floodVolmm->setText(format.arg(QString::number(0,'f',dig)));
     else
         label_floodVolmm->setText(format.arg(QString::number(op.volFloodmm,'f',dig)));
@@ -664,11 +665,12 @@ void lisemqt::showOutputDataZero()
         return;
     }
 
-    QString format;
-    if(darkLISEM)
-        format = QString("<font color=#ffffaa>%2</font>");
-    else
-        format= QString("<font color=#000000>%2</font>");
+    // QString format;
+    // // if(darkLISEM)
+    // //     format = QString("<font color=#ffffaa>%2</font>");
+    // // else
+    // //     format= QString("<font color=#000000>%2</font>");
+    // format = "%2";
 
     QString zero = QString::number(0,'f',E_DigitsOut->value());
 

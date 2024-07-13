@@ -134,7 +134,7 @@ void TWorld::TotalsHydro(void)
     // interception in mm and m3
 
     //=== infiltration ===//
-    if(InfilMethod != INFIL_NONE) {
+    if(SwitchInfiltration) {
         InfilTot += MapTotal(*InfilVol);// + MapTotal(*InfilVolKinWave);
 
         if (SwitchIncludeChannel && SwitchChannelInfil) {
@@ -218,11 +218,11 @@ void TWorld::TotalsFlow(void)
 
     // runoff fraction per cell calc as in-out/rainfall, indication of sinks and sources of runoff
     // exclude channel cells
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        //runoffTotalCell->Drc += (Qn->Drc /*+ Qflood->Drc*/)* _dt * catchmentAreaFlatMM; // in mm !!!!
-        runoffTotalCell->Drc = std::max(0.0, RainCumFlat->Drc*1000-InterceptionmmCum->Drc-InfilmmCum->Drc);
-    }}
+    // #pragma omp parallel for num_threads(userCores)
+    // FOR_ROW_COL_MV_L {
+    //     //runoffTotalCell->Drc += (Qn->Drc /*+ Qflood->Drc*/)* _dt * catchmentAreaFlatMM; // in mm !!!!
+    //     runoffTotalCell->Drc = std::max(0.0, RainCumFlat->Drc*1000-InterceptionmmCum->Drc-InfilmmCum->Drc);
+    // }}
 
     //=== channel flow ===//
     if (SwitchIncludeChannel) {
@@ -285,7 +285,7 @@ void TWorld::TotalsFlow(void)
         FOR_ROW_COL_MV_CHL {
             ChannelQntot->Drc += ChannelQn->Drc*_dt;
             //cumulative m3 spatial for .map output
-            QuserInTot += ChannelQSide->Drc;
+            //QuserInTot += ChannelQSide->Drc;
         }}
         // add channel outflow (in m3) to total for all pits
     }
@@ -341,7 +341,7 @@ void TWorld::TotalsFlow(void)
     // does NOT include flood water leaving domain (floodBoundaryTot)
     // which is reported separatedly (because it is a messy flux)!
 
-    report(*Qototal,"qtotm3.map");
+   // report(*Qototal,"qtotm3.map");
 
     Qtot += Qtot_dt;
     // add timestep total to run total in m3
@@ -538,8 +538,7 @@ void TWorld::MassBalance()
     double waterout = Qtot + IntercETaTot;// + floodBoundaryTot + ETaTotVol;
     MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
 
-  //  qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot  << WaterVolTot << ChannelVolTot <<  Qtot ;
-
+   // qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot  << WaterVolTot << ChannelVolTot <<  Qtot ;
 
     Fill(*MBm, 0);
     if (SwitchCorrectMB_WH && fabs(MB) > 1e-6) {

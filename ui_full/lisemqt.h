@@ -122,6 +122,8 @@ public:
 
    // bool WhasStopped;
 
+    void saveCurrentStyleToCSS(const QString &filePath);
+    void saveWidgetStyle(QWidget *widget, QTextStream &out);
     void initMapTree();
     void DefaultMapnames();
     void fillMapnames();
@@ -132,6 +134,9 @@ public:
     void GetStorePath();
     void StorePath();
     void SetStyleUI();
+    void lightStyleUI();
+    void darkStyleUI();
+    void setOutputTabStyle(QString bc, QString fc);
     int SetStyleUISize();
     void GetRunfile();
     void ParseInputData();
@@ -314,6 +319,7 @@ public:
     int uiInfilMethod;
     double swatreDT;
     QString screenShotDir;
+    bool doChannelBaseflow;
 
  //   QList<cTMap *> ComboMapsSafe;
 
@@ -421,9 +427,8 @@ public slots:
 
     void on_checkFlowBarriers_clicked();
     void on_checkChannelInfil_clicked();
-    void on_checkChannelBaseflow_clicked();
+ //  void on_checkChannelBaseflow_clicked();
     void on_checkDoErosion_clicked();
-    void on_checkOverlandFlow1D_clicked();
     void on_checkIncludeChannel_clicked();
     void on_checkIncludeTiledrains_clicked();
     void on_checkBoxComboMaps_stateChanged(int);
@@ -472,6 +477,7 @@ public slots:
     void setFloodTab(bool);
     void setErosionTab(bool);
 
+    void setBWUI();
     void resizeMap();
     void fontSelect();
     void fontDecrease();
@@ -509,11 +515,9 @@ private slots:
 
     void on_toolButton_ETsatName_clicked();
 
-    void on_checkIncludeET_toggled(bool checked);
+   // void on_checkIncludeET_toggled(bool checked);
 
     void on_toolButton_ETShow_clicked();
-
-    void on_checkDischargeUser_toggled(bool checked);
 
     void on_checkWaveInUser_toggled(bool checked);
 
@@ -549,7 +553,6 @@ private slots:
 
     void on_checkGWflow_toggled(bool checked);
 
-    void on_checkOverlandFlow2Dkindyn_toggled(bool checked);
 
 private:
 
@@ -570,6 +573,7 @@ private:
     QAction *showAllAct;
     QAction *showInfoAct;
     QAction *resizeAct;
+    QAction *setBWAct;
 
     QAction *fontAct;
     QAction *fontIncreaseAct;

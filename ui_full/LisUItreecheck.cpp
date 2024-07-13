@@ -80,7 +80,7 @@ void lisemqt::on_checkIncludeChannel_clicked()
     checkMapNameModel(CHANNELMAPS, 0, checkIncludeChannel->isChecked());
 
     checkChannelInfil->setEnabled(checkIncludeChannel->isChecked());
-    //checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());
+    checkStationaryBaseflow->setEnabled(checkIncludeChannel->isChecked());
     checkChannelCulverts->setEnabled(checkIncludeChannel->isChecked());
 }
 //--------------------------------------------------------------------
@@ -88,17 +88,19 @@ void lisemqt::on_checkChannelInfil_clicked()
 {
     on_checkIncludeChannel_clicked();
 
-    if (checkChannelBaseflow->isChecked())
-        checkChannelBaseflow->setChecked(false);
+    if (checkStationaryBaseflow->isChecked())
+        checkStationaryBaseflow->setChecked(false);
+    doChannelBaseflow = checkStationaryBaseflow->isChecked();
 }
 //--------------------------------------------------------------------
-void lisemqt::on_checkChannelBaseflow_clicked()
-{
-    on_checkIncludeChannel_clicked();
+// void lisemqt::on_checkChannelBaseflow_clicked()
+// {
+//     on_checkIncludeChannel_clicked();
 
-    if (checkChannelInfil->isChecked())
-        checkChannelInfil->setChecked(false);
-}
+//     if (checkChannelInfil->isChecked())
+//         checkChannelInfil->setChecked(false);
+//     doChannelBaseflow = checkStationaryBaseflow->isChecked();
+// }
 //--------------------------------------------------------------------
 //2nd number is number of rows at a level. e.g. green and ampt starts at
 // after swatre, swatre has 11 rows (maps), starting at 0, so G&A starts at 11
@@ -283,7 +285,7 @@ void lisemqt::RunAllChecks()
     checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
     checkMapNameModel(HOUSESMAPS, 0, checkHouses->isChecked());
 
-    checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
+    checkMapNameModel(CHANNELMAPS, 12, doChannelBaseflow);//checkChannelBaseflow->isChecked());
     checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
 

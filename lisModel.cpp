@@ -42,7 +42,7 @@
 TWorld::TWorld(QObject *parent) :
     QThread(parent)
 {
-    moveToThread(this);
+   moveToThread(this);
 }
 //---------------------------------------------------------------------------
 TWorld::~TWorld()
@@ -90,6 +90,7 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
 // the actual model with the main loop
 void TWorld::DoModel()
 {
+
     //DestroyData(); // clear all structures in ccase this is not the first run.
 
     if (!op.doBatchmode)
@@ -107,6 +108,8 @@ void TWorld::DoModel()
 
     try
     {
+        DestroyData();
+
         DEBUG("reading and initializing data");
 
         IntializeOptions(); // reset all options
@@ -119,20 +122,22 @@ void TWorld::DoModel()
         ParseRunfileData();
         // get and parse runfile
 
-
         QString S = resultDir + QFileInfo(op.runfilename).fileName();
         QFile::copy(op.runfilename, S);
 
-        //BeginTime = getTimefromString(bt)*60; // in seconds!
-        //EndTime = getTimefromString(et)*60;
+
+        //time vraiables in sec
         double btd = getvaluedouble("Begin time day");
         double btm = getvaluedouble("Begin time");
         double etd = getvaluedouble("End time day");
         double etm = getvaluedouble("End time");
+
         if (SwitchEventbased) {
             DEBUG("Day in start and end time is ignored.");
         }
+
         _dt = getvaluedouble("Timestep");
+
         if (SwitchEventbased) {
             BeginTime = (btm)*60; //for running in sec
             EndTime = (etm)*60;   //in sec
@@ -144,9 +149,9 @@ void TWorld::DoModel()
             op.BeginTime = BeginTime/60;// for graph drawing in min
             op.EndTime = EndTime/60;
         }
-        //VJ get time here else combomaps goes wrong for rainfall intensity
 
-        //time vraiables in sec
+
+        //get all maps
         DEBUG("Get Input Maps");
         GetInputData();
         DEBUG("Intialize Database");
@@ -341,9 +346,11 @@ void TWorld::DoModel()
             ReportMaps();
 
         //DEBUG("Free data structure memory");
+
     //    op.hasrunonce = true;
      //   DestroyData();  // destroy all maps automatically
      //   op.nrMapsCreated = maplistnr;
+
         emit done("finished");
 
         if (op.doBatchmode)
@@ -355,6 +362,7 @@ void TWorld::DoModel()
     }
     catch(...)  // if an error occurred
     {
+
       //  op.nrMapsCreated = maplistnr;
       //  DestroyData();
 
@@ -409,6 +417,7 @@ void TWorld::HydrologyProcesses()
             ETafactor = 1.0;
     }
 
+    // Do all hydrology in one big loop. Not sure if this is faster then a loop per process
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         cell_Interception(r,c);
@@ -458,35 +467,7 @@ void TWorld::HydrologyProcesses()
             case INFIL_SWATRE : cell_InfilSwatre(r, c); break;
         }
 
-        /*
-        if (InfilMethod == INFIL_SWATRE) {
-            cell_InfilSwatre(r, c);
-        } else {
-            if (InfilMethod != INFIL_NONE) {
-                if (InfilMethod == INFIL_SOAP) {
-
-                   cell_Soilwater(i_);
-                    // cell_SWATRECalc(i_);
-
-                } else {
-                    // Green and Ampt + redistribution
-                    cell_InfilMethods(r, c);
-
-                    if (SwitchTwoLayer) {
-                        cell_Redistribution2(r, c);
-                        //cell_Channelinfow2(r, c);
-                    } else {
-                        cell_Redistribution1(r, c);
-                        //cell_Channelinfow1(r, c);
-                    }
-
-                    if (!SwitchImpermeable)
-                        Perc->Drc = cell_Percolation(r, c, 1.0);
-                    // if baseflow is active percollation is done there, so do not do it here
-                }
-            }
-        }
-*/
+        // do not do this!
         //  cell_depositInfil(r,c);
         // deposit all sediment still in flow when infiltration causes WH to become minimum
         // gives huge MBs errors!

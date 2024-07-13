@@ -57,6 +57,36 @@ output op;
 // All model results are put in this structure and sent from the model
 // to the interface each timestep, defined in LisUIoutput.h
 
+
+void lisemqt::saveCurrentStyleToCSS(const QString &filePath)
+{
+    QFile file(filePath);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QTextStream out(&file);
+        saveWidgetStyle(this, out);
+        file.close();
+    }
+}
+
+void lisemqt::saveWidgetStyle(QWidget *widget, QTextStream &out)
+{
+    QString className = widget->metaObject()->className();
+    QString styleSheet = widget->styleSheet();
+
+    if (!styleSheet.isEmpty()) {
+        out << className << " {\n" << styleSheet << "\n}\n";
+    }
+
+    // Traverse child widgets
+    for (QObject *child : widget->children()) {
+        QWidget *childWidget = qobject_cast<QWidget*>(child);
+        if (childWidget) {
+            saveWidgetStyle(childWidget, out);
+        }
+    }
+}
+
 //--------------------------------------------------------------------
 lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     : QMainWindow(parent)
@@ -67,7 +97,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setMinimumSize(1280,800);
     showMaximized();
 
-    darkLISEM = false;//true;
+    darkLISEM = false;
+
+    op.nrRunsDone = 0;
 
     int ompt = omp_get_max_threads();
     nrUserCores->setMaximum(ompt);//omp_get_max_threads());
@@ -113,6 +145,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
     // put the progress bar into the statusbar
 
+    SetStyleUI();
+    // do some style things
+
     lisMpeg = new lismpeg(this);
 
     tabWidgetOptions->setCurrentIndex(0);
@@ -125,6 +160,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     // make the model world once, this structure is always needed regardless of the area
     W = new TWorld();
+    W->moveToThread(this->thread());
     connect(W, SIGNAL(show(bool)),this, SLOT(worldShow(bool)),Qt::BlockingQueuedConnection);
     connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
     connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
@@ -184,18 +220,17 @@ void lisemqt::SetConnections()
     connect(MapNameModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(editMapname(QModelIndex, QModelIndex)));
     connect(toolButton_ResultDir, SIGNAL(clicked()), this, SLOT(setResultDir()));
 
-    connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-    connect(checkOverlandFlow1D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-    connect(checkOverlandFlow2Dkindyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-    connect(checkOverlandFlow2Ddyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+   // obsolete
+   // connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+   // connect(checkOverlandFlow1D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+   // connect(checkOverlandFlow2Dkindyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+   // connect(checkOverlandFlow2Ddyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
+
     connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
 
     connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
 
     connect(checkFormatGtiff, SIGNAL(toggled(bool)), this, SLOT(setFormatMaps(bool)));
-
-  //  connect(E_BulkDens2,SIGNAL(editingFinished()),this, SLOT(updateBulkDens()));
-  //  connect(E_BulkDens,SIGNAL(editingFinished()),this, SLOT(updateBulkDens2()));
 
 }
 //--------------------------------------------------------------------
@@ -262,13 +297,6 @@ void lisemqt::on_tabWidget_out_currentChanged(int index)
     }
     */
 }
-//--------------------------------------------------------------------
-// bad programming, checkboxes as radiobuttons, but needed to be square buttons!
-void lisemqt::on_checkOverlandFlow1D_clicked()
-{
-   // tabWidgetOptions->setTabEnabled(3, true);
-}
-
 //--------------------------------------------------------------------
 void lisemqt::setErosionMapOutput(bool doit)
 {
@@ -457,24 +485,25 @@ void lisemqt::on_DisplayComboBox2_currentIndexChanged(int j)
 void lisemqt::setFloodTab(bool yes)
 {
     yes = true;
-    if (checkOverlandFlow2Dkindyn->isChecked() && !checkIncludeChannel->isChecked()) {
+    if (/*checkOverlandFlow2Dkindyn->isChecked()*/ E_OFWaveType->currentIndex() == 1 && !checkIncludeChannel->isChecked()) {
         yes = false;
         QMessageBox::warning(this,"openLISEM",QString("The combination of 1D overland flow and 2D flood can only be used with a channel activated."));
-        checkOverlandFlow1D->setChecked(true);
+        //checkOverlandFlow1D->setChecked(true);
     }
-    if (checkOverlandFlow1D->isChecked()) {
+    if (E_OFWaveType->currentIndex() == 0 /*checkOverlandFlow1D->isChecked()*/) {
         yes = false;
     }
 
-    checkDiffusion->setEnabled(!checkOverlandFlow1D->isChecked());
+    checkDiffusion->setEnabled(yes);
 
-    FloodParams->setEnabled(yes);
+    groupFloodParams->setEnabled(yes);
 
     outputMapsFlood->setEnabled(yes);
     label_floodVolmm->setEnabled(yes);
     label_107->setEnabled(yes);
 
-    if (checkOverlandFlow2Ddyn->isChecked() || checkOverlandFlow2Dkindyn->isChecked()) {
+    //if (checkOverlandFlow2Ddyn->isChecked() || checkOverlandFlow2Dkindyn->isChecked()) {
+    if (E_OFWaveType->currentIndex() > 0) {
         label_107->setText(QString("Flood(h>%1mm)").arg(E_floodMinHeight->value()*1000));
         label_40->setText(QString("Runoff(h<%1mm)").arg(E_floodMinHeight->value()*1000));
     }
@@ -508,7 +537,7 @@ void lisemqt::setErosionTab(bool yes)
     ComboMaxSpinBox2->setEnabled(checkDoErosion->isChecked());
     DisplayComboBox2->setEnabled(checkDoErosion->isChecked());
 
-    checkDiffusion->setEnabled(!checkOverlandFlow1D->isChecked());
+    checkDiffusion->setEnabled(E_OFWaveType->currentIndex() > 0);//!checkOverlandFlow1D->isChecked());
 
     // reset output to 0
     if (!checkDoErosion->isChecked())
@@ -618,6 +647,11 @@ void lisemqt::SetToolBar()
     connect(fontDecreaseAct, SIGNAL(triggered()), this, SLOT(fontDecrease()));
     toolBar->addAction(fontDecreaseAct);
 
+    setBWAct = new QAction(QIcon(":/black-and-white.png"), "Save the run in multiple screenshots", this);
+    setBWAct->setCheckable(true);
+    connect(setBWAct, SIGNAL(triggered()), this, SLOT(setBWUI()));
+    toolBar->addAction(setBWAct);
+
     toolBar->addSeparator();
     resizeAct = new QAction(QIcon(":/2X/resetmap.png"), "&Fit map to display", this);
     connect(resizeAct, SIGNAL(triggered()), this, SLOT(resizeMap()));
@@ -634,6 +668,7 @@ void lisemqt::SetToolBar()
     toolBar->addAction(showInfoAct);
 
     toolBar->addSeparator();
+
     runAct = new QAction(QIcon(":/2X/play-icon.png"), "Run model...", this);
     runAct->setStatusTip("run the model ...");
     runAct->setCheckable(true);
@@ -688,263 +723,7 @@ void lisemqt::SetToolBar()
     connect(spinChannelSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannel(int)));
     connect(spinCulvertSize, SIGNAL(valueChanged(int)),this,SLOT(ssetAlphaChannelOutlet(int)));
 }
-//---------------------------------------------------------------------------
-int lisemqt::SetStyleUISize()
-{
-    //QRect rect = QGuiApplication::primaryScreen()->availableGeometry();
-    int _H = QApplication::desktop()->height();//rect.height();
 
-    int disp = 3;
-
-    if(_H < 1400) disp = 2;
-    if(_H < 1200) disp = 1;
-    if(_H < 1080) disp = 0;
-    if(_H < 800) disp = -1;
-   // qDebug() << _H << disp;
-
-    tabWidgetOptions->setMinimumSize(QSize(600, 500));
-    scrollArea->setWidgetResizable(true);
-    //scrollArea->setWidget(tabWidgetOptions);
-
-    // do a bit of size tweaking for large displays
-    QSize iSize = QSize(16,16);
-    if (disp == -1) {
-        iSize = QSize(16,16);
-        tabWidget_out->setIconSize(iSize);
-        tabWidget_out->setStyleSheet("QTabBar::tab { height: 40px; width: 28px}");
-        tabWidgetOptions->setIconSize(iSize);
-        tabWidgetOptions->setStyleSheet("QTabBar::tab { height: 40px; width: 28px}");
-        this->setStyleSheet(QString("QToolButton * {icon-size: 16px 16px}"));
-    }
-    if (disp == 0) {
-        tabWidget_out->setIconSize(QSize(20, 20));
-        tabWidget_out->setStyleSheet("QTabBar::tab { height: 48px; width: 32px}");
-        tabWidgetOptions->setIconSize(QSize(20, 20));
-        tabWidgetOptions->setStyleSheet("QTabBar::tab { height: 48px; width: 32px}");
-        this->setStyleSheet(QString("QToolButton * {icon-size: 16px 16px}"));
-        iSize = QSize(16,16);
-    }
-    if (disp == 1) {
-        tabWidget_out->setIconSize(QSize(24, 24));
-        tabWidget_out->setStyleSheet("QTabBar::tab { height: 48px; width: 40px}");
-        tabWidgetOptions->setIconSize(QSize(24, 24));
-        tabWidgetOptions->setStyleSheet("QTabBar::tab { height: 48px; width: 40px}");
-        this->setStyleSheet(QString("QToolButton * {icon-size: 16px 16px}"));
-        iSize = QSize(24,24);
-    }
-    if (disp == 2) {
-        tabWidget_out->setIconSize(QSize(32, 32));
-        tabWidget_out->setStyleSheet("QTabBar::tab { height: 64px; width: 48px}");
-        tabWidgetOptions->setIconSize(QSize(32, 32));
-        tabWidgetOptions->setStyleSheet("QTabBar::tab { height: 64px; width: 48px}");
-        this->setStyleSheet(QString("QToolButton * {icon-size: 24px 24px}"));
-        iSize = QSize(32,32);
-    }
-    if (disp == 3) {
-        tabWidget_out->setIconSize(QSize(32, 32));
-        tabWidget_out->setStyleSheet("QTabBar::tab { height: 64px; width: 48px}");
-        tabWidgetOptions->setIconSize(QSize(32, 32));
-        tabWidgetOptions->setStyleSheet("QTabBar::tab { height: 64px; width: 48px}");
-        this->setStyleSheet(QString("QToolButton * {icon-size: 24px 24px}"));
-        iSize = QSize(32,32);
-    }
-    if (disp > 3) {
-        tabWidget_out->setIconSize(QSize(48, 48));
-        tabWidget_out->setStyleSheet("QTabBar::tab { height: 96px; width: 64px}");
-        tabWidgetOptions->setIconSize(QSize(48, 48));
-        tabWidgetOptions->setStyleSheet("QTabBar::tab { height: 96px; width: 64px}");
-        this->setStyleSheet(QString("QToolButton * {icon-size: 32px 32px}"));
-        iSize = QSize(32,32);
-    }
-
-    toolBar->setIconSize(iSize);
-    toolBar_2->setIconSize(iSize);
-
-    return disp; //-1;
-}
-//---------------------------------------------------------------------------
-/// make some labels yellow
-void lisemqt::SetStyleUI()
-{
-    trayIcon = new QSystemTrayIcon(this);
-    trayIcon->setIcon(QIcon(":/openLisem.ico"));
-    trayIcon->show();
-    tabWidgetOptions->tabBar()->setExpanding(true);
-
-    genfontsize = 8+SetStyleUISize();
-    setfontSize();
-
-//    label_baseflowtot->setVisible(false);
-//    label_195->setVisible(false);
-
-    //nrcontourlevels->setVisible(false);
-//    label_92->setText("Relief ");
-//    label_44->setVisible(false);
-//    label_45->setVisible(false);
-//    label_MB->setVisible(false);
-//    label_MBs->setVisible(false);
-
-    toolBar_2->setMovable( false);
-    toolBar->setMovable( false);   
-    //    scrollAreaResults->setFixedWidth(500);
-    //  //  toolShowMapDisplay->setVisible(false);
-    //    //this->adjustSize();
-
-    QString flat("QToolButton { background-color: white; border: none; }");
-
-    groupBoxInput->setStyleSheet("QGroupBox::title{color: #4477aa;}");
-    groupBoxOutput->setStyleSheet("QGroupBox::title{color: #4477aa;}");
-    checkDoErosion->setStyleSheet("QCheckBox {color: #4477aa;}");
-    //checkSed2Phase->setStyleSheet("QCheckBox {color: #4477aa;}");
-    label_55->setStyleSheet("QLabel {color: #4477aa;}");
-    label_88->setStyleSheet("QLabel {color: #4477aa;}");
-    label_9->setStyleSheet("QLabel {color: #4477aa;}");
-    label_10->setStyleSheet("QLabel {color: #4477aa;}");
-    //label_11->setStyleSheet("QLabel {color: #4477aa;}");
-
-    // interface elements that are not visible for now
-    //frameSpare->setVisible(false);
-    tabWidgetOptions->removeTab(8);
-    //frameNumerical->setVisible(false);
-
-    //tabWidget_erosion->setCurrentIndex(0);
-    if (darkLISEM) {
-        QPalette darkPalette;
-        darkPalette.setColor(QPalette::Window,QColor(53,53,53));
-        darkPalette.setColor(QPalette::WindowText,Qt::white);
-        darkPalette.setColor(QPalette::ButtonText,Qt::white);
-        darkPalette.setColor(QPalette::HighlightedText,Qt::white);
-        darkPalette.setColor(QPalette::Text,QColor("#ffffaa"));
-        darkPalette.setColor(QPalette::Disabled,QPalette::WindowText,QColor(164,164,164));
-        darkPalette.setColor(QPalette::Base,QColor(96,96,96));
-        darkPalette.setColor(QPalette::AlternateBase,QColor(66,66,66));
-        darkPalette.setColor(QPalette::ToolTipBase,Qt::white);
-        darkPalette.setColor(QPalette::ToolTipText,Qt::white);
-
-        darkPalette.setColor(QPalette::Disabled,QPalette::Text,QColor(164,164,164));
-        darkPalette.setColor(QPalette::Dark,QColor(35,35,35));
-        darkPalette.setColor(QPalette::Shadow,QColor(20,20,20));
-        darkPalette.setColor(QPalette::Button,QColor(53,53,53));
-        darkPalette.setColor(QPalette::Disabled,QPalette::ButtonText,QColor(164,164,164));
-        darkPalette.setColor(QPalette::BrightText,Qt::red);
-        darkPalette.setColor(QPalette::Link,QColor(42,130,218));
-        darkPalette.setColor(QPalette::Highlight,QColor(42,130,218));
-        darkPalette.setColor(QPalette::Disabled,QPalette::Highlight,QColor(80,80,80));
-        darkPalette.setColor(QPalette::Disabled,QPalette::HighlightedText,QColor(127,127,127));
-
-        qApp->setPalette(darkPalette);
-    }
-
-    int w = 80, h = 15;
-    label_dx->setMinimumSize(w,h);
-    label_area->setMinimumSize(w,h);
-    label_time->setMinimumSize(w,h);
-    label_endtime->setMinimumSize(w,h);
-    label_raintot->setMinimumSize(w,h);
-    label_ETatot->setMinimumSize(w,h);
-    label_watervoltot->setMinimumSize(w,h);
-    label_stormdraintot->setMinimumSize(w,h);
-    label_qtot->setMinimumSize(w,h);
-    label_infiltot->setMinimumSize(w,h);
-    label_surfstor->setMinimumSize(w,h);
-    label_interctot->setMinimumSize(w,h);
-    //label_qtotm3->setMinimumSize(w,h);
-    label_qpeaktime->setMinimumSize(w,h);
-    label_ppeaktime->setMinimumSize(w,h);
-    label_QPfrac->setMinimumSize(w,h);
-    //label_discharge->setMinimumSize(w,h);
-    label_floodVolmm->setMinimumSize(w,h);
-    label_watervolchannel->setMinimumSize(w,h);
-    //   label_litterstore->setMinimumSize(w,h);
-    //label_baseflowtot->setMinimumSize(w,h);
-
-    label_qtotm3sub->setMinimumSize(w,h);
-    label_dischargesub->setMinimumSize(w,h);
-    label_qpeaksub->setMinimumSize(w,h);
-    label_soillosssub->setMinimumSize(w,h);
-    label_Qssub->setMinimumSize(w,h);
-
-    label_splashdet->setMinimumSize(w,h);
-    label_flowdet->setMinimumSize(w,h);
-    label_sedvol->setMinimumSize(w,h);
-    label_dep->setMinimumSize(w,h);
-    label_detch->setMinimumSize(w,h);
-    label_depch->setMinimumSize(w,h);
-    label_sedvolch->setMinimumSize(w,h);
-    label_soilloss->setMinimumSize(w,h);
-    label_soillosskgha->setMinimumSize(w,h);
-    label_SDR->setMinimumSize(w,h);
-
-    label_MBs->setMinimumSize(w,h);
-    label_MB->setMinimumSize(w,h);
-
-    QString ly = "#ffff99";
-    if (!darkLISEM) {
-        label_dx->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_area->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_time->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_endtime->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_raintot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_ETatot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_watervoltot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_stormdraintot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_qtot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_infiltot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_surfstor->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_interctot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        //label_qtotm3->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_qpeaktime->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_ppeaktime->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_QPfrac->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        //label_discharge->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_floodVolmm->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_watervolchannel->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        //   label_litterstore->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        //label_baseflowtot->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-
-        label_qtotm3sub->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_dischargesub->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_qpeaksub->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_soillosssub->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_Qssub->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-
-        label_splashdet->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_flowdet->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_sedvol->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_dep->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_detch->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_depch->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_sedvolch->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_soilloss->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_soillosskgha->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-        label_SDR->setStyleSheet(QString("* { background-color: %1 }").arg(ly));
-    }
-    //Grouped Buttons become mututally exclusive
-    GroupMapDisplay.addButton(checkBoxComboMaps, 1);
-    GroupMapDisplay.addButton(checkBoxComboMaps2, 2);
-
- //   GroupImpermeable.addButton(checkImpermeable,1);
- //   GroupImpermeable.addButton(checkPercolation,2);
-
-    GroupRunoff.addButton(checkOverlandFlow1D,1);
-  //  GroupRunoff.addButton(checkOverlandFlow2D,2);
-    GroupRunoff.addButton(checkOverlandFlow2Ddyn,3);
-    GroupRunoff.addButton(checkOverlandFlow2Dkindyn,4);
-
-
-    if (checkOverlandFlow2Ddyn->isChecked()) {
-        label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
-        label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
-
-    } else {
-        label_107->setText("Flood mm");
-        label_40->setText("Runoff mm");
-    }
-    bool yes = !checkOverlandFlow1D->isChecked();
-    label_floodVolmm->setEnabled(yes);
-    label_107->setEnabled(yes);
-
-}
 //--------------------------------------------------------------------
 void lisemqt::setMapDir()
 {
@@ -1269,15 +1048,16 @@ void lisemqt::aboutInfo()
 //--------------------------------------------------------------------
 void lisemqt::resetTabOptions()
 {
-    checkOverlandFlow1D->setChecked(false);
-    checkOverlandFlow2Ddyn->setChecked(true);
-    checkOverlandFlow2Dkindyn->setChecked(false);
+    //checkOverlandFlow1D->setChecked(false);
+    //checkOverlandFlow2Ddyn->setChecked(true);
+    //checkOverlandFlow2Dkindyn->setChecked(false);
+    E_OFWaveType->setCurrentIndex(2);
     checkDoErosion->setChecked(false);
 
     checkIncludeChannel->setChecked(true);
     checkChannelInfil->setChecked(false);
     //checkChannelBaseflow->setChecked(false);
-    BaseflowParams->setEnabled(true);
+    groupBaseflowParams->setEnabled(true);
 
     checkDischargeUser->setChecked(false);
     //checkChannelAdjustCHW->setChecked(true);
@@ -1319,6 +1099,7 @@ void lisemqt::resetTabCalibration()
 
 void lisemqt::resetTabInterception()
 {
+    groupInterception->setChecked(true);
     radioButton_1->setChecked(true); //<= crops interception
     E_CanopyOpeness->setValue(0.45);
     //    E_StemflowFraction->setValue(0.054);
@@ -1328,7 +1109,16 @@ void lisemqt::resetTabInterception()
 
 void lisemqt::resetTabInfiltration()
 {
-    //infiltration
+    groupInfiltration->setChecked(true);
+
+    E_InfiltrationMethod->clear();
+   // E_InfiltrationMethod->addItem("no Infiltration");
+    E_InfiltrationMethod->addItem("SWATRE");
+    E_InfiltrationMethod->addItem("Green and Ampt");
+    E_InfiltrationMethod->addItem("Smith and Parlange");
+    E_InfiltrationMethod->addItem("Richards equation (experimental)");
+    E_InfiltrationMethod->setCurrentIndex(2);
+
     checkInfilCompact->setChecked(false);
     checkInfilCrust->setChecked(false);
     //checkInfil2layer->setChecked(false);
@@ -1387,13 +1177,6 @@ void lisemqt::resetTabErosion()
     E_BLMethod->setCurrentIndex(1);
 
     E_SigmaDiffusion->setValue(0.5);
-
-//    checkSedMultiGrain->setChecked(false);
-//    checkEstimateGrainSizeDistribution->setChecked(false); // if multiclass, estimate from D50 and D90
-//    checkReadGrainSizeDistribution->setChecked(false); // if multiclass, calculate from user series
-
-//    E_NumberClasses->setValue(6);
-//    E_GrainSizes->setText("2;20;50;125;150;500");
 
     checkDiffusion->setChecked(false);
     checkDiffusionCH->setChecked(false);
@@ -1498,7 +1281,6 @@ void lisemqt::resetAll()
 
     checkWritePCRaster->setChecked(true);
 
-
     checkBox_OutRunoff->setChecked(false);
     checkBox_OutConc->setChecked(false);
     checkBox_OutWH->setChecked(false);
@@ -1517,20 +1299,17 @@ void lisemqt::resetAll()
 
     printinterval->setValue(1);
 
-    E_InfiltrationMethod->clear();
-    E_InfiltrationMethod->addItem("no Infiltration");
-    E_InfiltrationMethod->addItem("SWATRE");
-    E_InfiltrationMethod->addItem("Green and Ampt");
-    E_InfiltrationMethod->addItem("Smith and Parlange");
-    E_InfiltrationMethod->addItem("Richards equation (experimental)");
-    E_InfiltrationMethod->setCurrentIndex(2);
 
     initOP();
 
     progressBar->setValue(0);
 
    //main
+
     resetTabOptions();
+
+    groupRainfall->setChecked(true);
+    groupET->setChecked(false);
 
     resetTabInterception();
 
@@ -1596,6 +1375,19 @@ void lisemqt::resizeMap()
 
 }
 //---------------------------------------------------------------
+void lisemqt::setBWUI()
+{
+    if(darkLISEM)
+        darkLISEM = false;
+    else
+        darkLISEM = true;
+
+    if (darkLISEM)
+        darkStyleUI();
+    else
+        lightStyleUI();
+}
+//---------------------------------------------------------------
 void lisemqt::fontSelect()
 {
     // bool ok;
@@ -1636,42 +1428,5 @@ void lisemqt::setfontSize()
         widget->update();
     }
 
-/*
-
-    qApp->setStyleSheet(QString("QLabel {font-size: %1px}\
-                                QCheckBox::indicator {width: %1px; height: %1px}\
-                                QRadioButton::indicator {width: %1px; height: %1px}\
-                                QComboBox {font-size: %1px; padding: 1px 0px 1px 3px}\
-                                QLineEdit {font-size: %1px; padding: 1px 1px 1px 1px}\
-                                QToolButton {font-size: %1px}\
-                                QCheckBox {font-size: %1px; padding:  1px 1px 1px 1px}\
-                                QRadioButton {font-size: %1px; 1px 1px 1px 3px}\
-                                QSpinBox {width: %1px; height: %1px; font-size: %1px; padding: 0px 0px 0px 0px}\
-                                QDoubleSpinBox {width: %2px; height: %1px;font-size: %1px; padding: 0px 0px 0px 0px}\
-                                ").arg(fs).arg(fs*2.4));
-
-    tabWidgetOptions->setStyleSheet( QString("font-size: %1px; ").arg(fs) );
-    tabWidget->setStyleSheet( QString("font-size: %1px; ").arg(fs) );
-
-    QString S = QString("QGroupBox {font-size: %1px;font-weight: bold;color: black;}").arg(fs);
-    //groupBox1->setStyleSheet(S);
-    //groupBox2->setStyleSheet(S);
-    //groupBox3->setStyleSheet(S);
-    //groupBox4->setStyleSheet(S);
-    //groupBox5->setStyleSheet(S);
-    S = QString("QGroupBox {font-size: %1px;font-weight: bold;color: #1b6fb5;}").arg(fs);
-    watergroup->setStyleSheet(S);
-    sedgroup->setStyleSheet(S);
-    outletgroup->setStyleSheet(S);
-    groupTime->setStyleSheet(S);
-
-    S = QString("QToolBox::tab {background-color: #1b6fb5}");
-    //tabWidget_erosion->setStyleSheet(S);
-*/
-}
-
-void lisemqt::on_checkOverlandFlow2Dkindyn_toggled(bool checked)
-{
-    check2DDiagonalFlow->setChecked(checked);
 }
 

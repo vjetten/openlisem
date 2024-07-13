@@ -16,8 +16,6 @@
         <file>2X/fontsmaller2X.png</file>
         <file>2X/information_42X.png</file>
         <file>2X/map2X.png</file>
-        <file>2X/map32X.png</file>
-        <file>2X/map42X.png</file>
         <file>2X/Mscreenshots2X.png</file>
         <file>2X/onewfile2X.png</file>
         <file>2X/openLisem2X.png</file>
@@ -33,7 +31,6 @@
         <file>2X/Folder-Open-icon1.png</file>
         <file>2X/File-Delete-icon.png</file>
         <file>2X/reset.png</file>
-        <file>2X/settings.png</file>
         <file>../README.txt</file>
         <file>help8.html</file>
         <file>ITC logo.png</file>
@@ -47,22 +44,40 @@
         <file>2X/Folder-Open-icon.png</file>
         <file>darcula.css</file>
         <file>black.qss</file>
-        <file>calibr.png</file>
         <file>Plant-icon.png</file>
         <file>water.png</file>
         <file>rain.png</file>
         <file>eros1bw.png</file>
-        <file>2X/advanced.png</file>
-        <file>2X/settings2.png</file>
         <file>soil4.png</file>
         <file>2X/noinfo.png</file>
-        <file>2X/settings1.png</file>
         <file>soil5.png</file>
         <file>2X/adjustsize.png</file>
         <file>../compile lisem windows 220713.txt</file>
         <file>2X/resetmap.png</file>
         <file>2X/film.png</file>
         <file>2X/openLisemN.png</file>
+        <file>river2.png</file>
+        <file>river3.png</file>
+        <file>d_rain.png</file>
+        <file>d_settings2.png</file>
+        <file>d_river3.png</file>
+        <file>d_water.png</file>
+        <file>d_Plant-icon.png</file>
+        <file>d_eros1bw.png</file>
+        <file>d_soil5.png</file>
+        <file>d_settings1.png</file>
+        <file>d_advanced.png</file>
+        <file>dark2.css</file>
+        <file>advanced.png</file>
+        <file>settings1.png</file>
+        <file>settings2.png</file>
+        <file>black-and-white.png</file>
+        <file>qtdarcula.css</file>
+        <file>d_black-and-white.png</file>
+        <file>2X/d_fontbigger2X.png</file>
+        <file>d_river2.png</file>
+        <file>2X/d_fontsmaller2X.png</file>
+>>>>>>> lisui
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>

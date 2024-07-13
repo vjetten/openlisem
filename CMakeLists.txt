@@ -40,6 +40,11 @@ INCLUDE(Application)
 
 target_sources(Lisem
   PRIVATE
+    ui_full/lisUIStyle.cpp
+)
+
+target_sources(Lisem
+  PRIVATE
 
 )
 
