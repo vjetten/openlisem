@@ -540,7 +540,6 @@ void TWorld::MassBalance()
 
    // qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot  << WaterVolTot << ChannelVolTot <<  Qtot ;
 
-
     Fill(*MBm, 0);
     if (SwitchCorrectMB_WH && fabs(MB) > 1e-6) {
         //qDebug() << "o " << MB;

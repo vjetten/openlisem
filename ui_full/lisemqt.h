@@ -120,7 +120,7 @@ public:
     bool doBatchmode;
     QString batchRunname;
 
-    bool WhasStopped;
+   // bool WhasStopped;
 
     void saveCurrentStyleToCSS(const QString &filePath);
     void saveWidgetStyle(QWidget *widget, QTextStream &out);
@@ -266,7 +266,7 @@ public:
 
     QList <QwtComboColorMap*> cmMap;
     QList <QwtComboColorMap*> cmLeg;
-    QList<QwtComboColorMap *> ColorMapList;
+    QList <QwtComboColorMap*> ColorMapList;
     QList<QString> NameList;
     QList<QString> UnitList;
     QList<bool> SymList;
@@ -284,8 +284,8 @@ public:
     QwtPlotCurve *PGraph;
     QwtPlotCurve *QtileGraph;
 
-    bool startplot = true;
-    bool stopplot;
+    bool startplot;
+    bool stoprun;
     QVector <double> times;
     int lastOptionSceen;
 
@@ -362,6 +362,7 @@ public slots:
     void openRunFile();
     void deleteRunFileList();
     void runmodel();
+    void ClearOP();
     void stopmodel();
     void pausemodel();
     void shootScreen();

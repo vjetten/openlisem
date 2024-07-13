@@ -61,9 +61,10 @@ void TWorld::stop()
     stopRequested = true;
 }
 //---------------------------------------------------------------------------
-void TWorld::saveMBerror2file(bool doError, bool start)
+void TWorld::saveMBerror2file( bool start) //bool doError,
 {
-    if (doError && start) {
+    if (start) {
+        qDebug() << "hier";
         //create error file
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::WriteOnly | QIODevice::Text);
@@ -75,22 +76,22 @@ void TWorld::saveMBerror2file(bool doError, bool start)
     }
 
 
-    if (doError) {
+ //   if (doError) {
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::Append | QIODevice::Text);
         QTextStream eout(&efout);
         eout << " " << runstep << "," << MB << "," << (SwitchErosion ? MBs : 0.0) << "\n";
         efout.flush();
         efout.close();
-    }
+  //  }
 
 }
 //---------------------------------------------------------------------------
 // the actual model with the main loop
 void TWorld::DoModel()
 {
-    op.nrRunsDone++;
-    qDebug() << op.nrRunsDone;
+
+    //DestroyData(); // clear all structures in ccase this is not the first run.
 
     if (!op.doBatchmode)
         temprunname = QString(op.LisemDir+"openlisemtmp.run");
@@ -112,8 +113,7 @@ void TWorld::DoModel()
         DEBUG("reading and initializing data");
 
         IntializeOptions(); // reset all options
-
-        InitMapList();
+//        InitMapList();
         // map structure to destroy data automatically
 
         DEBUG("GetRunFile()");
@@ -267,8 +267,8 @@ void TWorld::DoModel()
       //  DEBUG("setupHydrographData()");
         setupHydrographData(); // reset hydrograph display
 
-        bool saveMBerror = true;
-        saveMBerror2file(saveMBerror, true);
+        //bool saveMBerror = true;
+        //saveMBerror2file(true); //saveMBerror,
 
       //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
@@ -330,7 +330,7 @@ void TWorld::DoModel()
 
             emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
 
-            saveMBerror2file(saveMBerror, false);
+            //saveMBerror2file(false); //saveMBerror
 
             if(stopRequested)
                 time = EndTime;
@@ -349,16 +349,11 @@ void TWorld::DoModel()
             ReportMaps();
 
         //DEBUG("Free data structure memory");
-        op.hasrunonce = true;
 
-        // CopyComboMap(0,Qoutput);
-        // CopyComboMap(1,hmxWH);
-        // CopyComboMap(2,COMBO_V);
-        // CopyComboMap(3,VH);
-        // CopyComboMap(4,Qototal);
+    //    op.hasrunonce = true;
+     //   DestroyData();  // destroy all maps automatically
+     //   op.nrMapsCreated = maplistnr;
 
-        //op.nrMapsCreated = maplistnr;
-      //  DestroyData();  // destroy all maps automatically
         emit done("finished");
 
         if (op.doBatchmode)
@@ -370,14 +365,9 @@ void TWorld::DoModel()
     }
     catch(...)  // if an error occurred
     {
-        // CopyComboMap(0,Qoutput);
-        // CopyComboMap(1,hmxWH);
-        // CopyComboMap(2,COMBO_V);
-        // CopyComboMap(3,VH);
-        // CopyComboMap(4,Qototal);
 
-        //op.nrMapsCreated = maplistnr;
-        //DestroyData();
+      //  op.nrMapsCreated = maplistnr;
+      //  DestroyData();
 
         emit done("ERROR STOP: "+ErrorString);
         if (op.doBatchmode) {qDebug() << "ERROR STOP "<< ErrorString;

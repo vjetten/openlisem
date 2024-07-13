@@ -34,16 +34,15 @@
 #include "CsfRGBMap.h"
 
 //---------------------------------------------------------------------------
-/** \n void TWorld::InitMapList(void)
-*
-*/
+// OBSOLETE
 void TWorld::InitMapList(void)
 {
-    maplistnr = 0;
-    for (int i = 0; i < NUMNAMES; i++)
-    {
-        maplistCTMap[i].m = nullptr;
-    }
+    maplistCTMap.clear();
+    // maplistnr = 0;
+    // for (int i = 0; i < NUMNAMES; i++)
+    // {
+    //     maplistCTMap[i].m = nullptr;
+    // }
 }
 //---------------------------------------------------------------------------
 cTMap *TWorld::NewMap(double value)
@@ -55,31 +54,13 @@ cTMap *TWorld::NewMap(double value)
 
     if (_M)
     {
-        maplistCTMap[maplistnr].m = _M;
+//        maplistCTMap[maplistnr].m = _M;
+        maplistCTMap <<  _M;
         maplistnr++;
     } else
         qDebug() << "no more space";
 
     return(_M);
-}
-//---------------------------------------------------------------------------
-//NOT USED
-cTMap *TWorld::ReadFullMap(QString name)
-{
-    cTMap *_M = new cTMap(readRaster(name));
-
-    for (int r = 0; r < _nrRows; r++)
-        for (int c = 0; c < _nrCols; c++)
-            if (pcr::isMV(_M->Drc))
-            {
-                _M->Drc = 0;
-            }
-
-    maplistCTMap[maplistnr].m = _M;
-    maplistnr++;
-
-    return(_M);
-
 }
 //---------------------------------------------------------------------------
 // read a map from disk
@@ -98,46 +79,29 @@ cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
                                                                                                      throw 1;
             }
 
-    maplistCTMap[maplistnr].m = _M;
+    //maplistCTMap[maplistnr].m = _M;
+    maplistCTMap << _M;
     maplistnr++;
 
     return(_M);
 
 }
 //---------------------------------------------------------------------------
+// OBSOLETE
 void TWorld::DestroyData(void)
 {
-    if (op.nrRunsDone <= 1)
-        return;
-qDebug() << "destroy" << op.nrMapsCreated;
-    DEBUG("clear all maps");
-    if (op.nrMapsCreated > 0) {
-        for (int i = 0; i < op.nrMapsCreated; i++)
-        {
-            if (maplistCTMap[i].m != nullptr)
-            {
-                delete maplistCTMap[i].m;
-                maplistCTMap[i].m = nullptr;
-            }
-        }
-    }
-qDebug() << "rain";
-DEBUG("clear meteo structures");
 
-    // clear() calls the destruction of all elements in the sturcture
-    //if (SwitchRainfall) {
-        RainfallSeries.clear();
-        RainfallSeriesMaps.clear();
-        calibRainfallinFile = false;
-    //}
-    //if (SwitchSnowmelt) {
-        SnowmeltSeries.clear();
-        SnowmeltSeriesMaps.clear();
-    //}
-    //if (SwitchIncludeET) {
-        ETSeries.clear();
-        ETSeriesMaps.clear();
-    //}
+    maplistCTMap.clear();
+    // if (op.nrMapsCreated > 0) {
+    //     for (int i = 0; i < op.nrMapsCreated; i++)
+    //     {
+    //         if (maplistCTMap[i].m != nullptr)
+    //         {
+    //             delete maplistCTMap[i].m;
+    //             maplistCTMap[i].m = nullptr;
+    //         }
+    //     }
+    // }
 
     if (InfilMethod == INFIL_SWATRE && initSwatreStructure)
     {
@@ -161,16 +125,16 @@ DEBUG("clear meteo structures");
     crldd5_.clear();
     crlddch5_.clear();
 
-    for(int i_ = 0; i_ < crlinkedldd_.size(); i_++){
-        if(crlinkedldd_[i_].inn)
-            free(crlinkedldd_[i_].inn);
-    }
+    // for(int i_ = 0; i_ < crlinkedldd_.size(); i_++){
+    //     if(crlinkedldd_[i_].inn)
+    //         free(crlinkedldd_[i_].inn);
+    // }
     crlinkedldd_.clear();
 
-    for(int i_ = 0; i_ < crlinkedlddch_.size(); i_++){
-        if(crlinkedlddch_[i_].inn)
-            free(crlinkedlddch_[i_].inn);
-    }
+    // for(int i_ = 0; i_ < crlinkedlddch_.size(); i_++){
+    //     if(crlinkedlddch_[i_].inn)
+    //         free(crlinkedlddch_[i_].inn);
+    // }
     crlinkedlddch_.clear();
 
 }
@@ -178,11 +142,11 @@ DEBUG("clear meteo structures");
 /// separate networks need their own InitMask: LDD, ChannelLDD, TileLDD
 cTMap *TWorld::InitMask(QString name)
 {
-    // read map and make a mask map
-
+    // read map and make a mask map   
     cTMap *_M = new cTMap(readRaster(name));
 
-    maplistCTMap[maplistnr].m = _M;
+    //maplistCTMap[maplistnr].m = _M;
+    maplistCTMap << _M;
     maplistnr++;
 
     _dx = _M->cellSize()*1.0000000;
@@ -201,7 +165,8 @@ cTMap *TWorld::InitMaskChannel(QString name)
 
     cTMap *_M = new cTMap(readRaster(name));
 
-    maplistCTMap[maplistnr].m = _M;
+    //maplistCTMap[maplistnr].m = _M;
+    maplistCTMap << _M;
     maplistnr++;
 
     return(_M);
@@ -214,7 +179,8 @@ cTMap *TWorld::InitMaskTiledrain(QString name)
 
     cTMap *_M = new cTMap(readRaster(name));
 
-    maplistCTMap[maplistnr].m = _M;
+    //maplistCTMap[maplistnr].m = _M;
+    maplistCTMap << _M;
     maplistnr++;
 
     return(_M);

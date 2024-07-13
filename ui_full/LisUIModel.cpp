@@ -35,6 +35,103 @@
 #include "lisemqt.h"
 #include "global.h"
 
+#define Clear(list) while (list.count()) {if (!list.isEmpty()) list.removeLast();}
+#define Clear2D(list) for(int i = 0 ; i < list.count(); i++) {\
+            while (list.at(i)->count()) {if (!list.at(i)->isEmpty())list.at(i)->removeLast();}\
+            while (list.count()) {if (!list.isEmpty()) list.removeLast();}}
+
+
+
+void lisemqt::ClearOP()
+{
+    /*
+    QList<int> OutletIndices;
+    QList<int> OutletLocationX;
+    QList<int> OutletLocationY;
+    QList<QVector<double>*> OutletQ;
+    QList<QVector<double>*> Wavein;
+    QList<QVector<double>*> OutletQs;  //current kg/s
+    QList<QVector<double>*> OutletC;   // avg concetration
+    QList<QVector<double>*> OutletChannelWH;
+    QVector<double> OutletQpeak;
+    QVector<double> OutletQpeaktime;
+    QVector<double> OutletQtot;
+    QVector<double> OutletQstot;  // sum in kg
+    QVector<double> Pmm;
+    QVector<double> Time;
+    QVector <double> Qtile;
+    QVector <double> EndPointX;
+    QVector <double> EndPointY;
+    QVector <double> ObsPointX;
+    QVector <double> ObsPointY;
+    QVector <LDD_COORIN> lddch_;
+
+    // map pointers for display
+    cTMap *baseMap;
+    cTMap *baseMapDEM;
+    cTMap *channelMap;
+    cTMap *outletMap;
+    cTMap *roadMap;
+    cTMap *houseMap;
+    cTMap *hardsurfaceMap;
+    cTRGBMap *Image;
+
+    QList<int> ComboLists;
+    QList<cTMap *> ComboMaps;
+    QList<QList<double>> ComboColorMap;
+    QList<QList<QString>> ComboColors;
+    QList<bool> ComboLogaritmic;
+    QList<bool> ComboSymColor;
+    QStringList ComboMapNames;
+    QStringList ComboUnits;
+    QList<double> ComboScaling;
+    QList<double> userMinV;
+    QList<double> userMaxV;
+    QList<double> comboStep;
+    */
+
+    Clear2D(op.OutletQ);
+    Clear2D(op.Wavein);
+    Clear2D(op.OutletQs);
+    Clear2D(op.OutletC);
+    Clear2D(op.OutletChannelWH);
+
+    Clear(op.OutletIndices);
+    Clear(op.OutletLocationX);
+    Clear(op.OutletLocationY);
+    Clear(op.OutletQpeak);
+    Clear(op.OutletQpeaktime);
+    Clear(op.OutletQtot);
+    Clear(op.OutletQstot);
+    Clear(op.Pmm);
+    Clear(op.Time);
+    Clear(op.Qtile);
+    Clear(op.EndPointX);
+    Clear(op.EndPointY);
+    Clear(op.ObsPointX);
+    Clear(op.ObsPointY);
+    Clear(op.lddch_);
+    // Clear(op.ComboLists);
+    // qDeleteAll(op.ComboMaps.begin(), op.ComboMaps.end());
+    // op.ComboMapNames.clear();
+    // op.ComboUnits.clear();
+    // Clear(op.ComboLogaritmic);
+    // Clear(op.ComboSymColor);
+    // Clear(op.ComboScaling);
+    // Clear(op.userMinV);
+    // Clear(op.userMaxV);
+    // Clear(op.comboStep);
+    // Clear(op.comboStep);
+    delete op.baseMap;
+    delete op.baseMapDEM;
+    delete op.channelMap;
+    delete op.outletMap;
+    delete op.roadMap;
+    delete op.houseMap;
+    delete op.hardsurfaceMap;
+    delete op.Image;
+}
+
 //---------------------------------------------------------------------------
 /** Run the model:
 Save the current interface as a temporary run file, read by the model
@@ -42,15 +139,62 @@ Make the model world and run it
 */
 void lisemqt::runmodel()
 {
-    if(W)
+
+    if (W)
     {
-        if (W->waitRequested)
+        if (W->waitRequested) {
             pausemodel();
-        return;
+            qDebug() << "pauze";
+            return;
+        }
     }
 
-    startplot = true;
-    stopplot = false;
+    // if the model has stopped and a new run is requested, clear the datastructures
+    // until that time the user can look at the old results
+    if (stoprun && W) {
+        // destroy ALL maps
+        qDeleteAll(W->maplistCTMap.begin(),W->maplistCTMap.end());
+        W->maplistCTMap.clear();
+        // destroy all networlk structures
+        Clear(W->cr_);
+        Clear(W->crch_);
+        Clear(W->crlinkedldd_);
+        Clear(W->crlinkedlddch_);
+        Clear(W->crldd5_);
+        Clear(W->crlddch5_);
+        Clear(W->crout_);
+        Clear(W->dcr_);
+        Clear(W->crtile_);
+
+        QVector <double> zero;
+        zero.clear();
+        PGraph->setSamples(zero,zero);
+        QGraph->setSamples(zero,zero);
+        QbGraph->setSamples(zero,zero);
+        QsGraph->setSamples(zero,zero);
+        CGraph->setSamples(zero,zero);
+        QtileGraph->setSamples(zero,zero);
+        HPlot->replot();
+
+        ClearOP(); // clear most of the op structure
+
+        // destroy swatre data structures
+        if (W->InfilMethod == INFIL_SWATRE && W->initSwatreStructure)
+        {
+            W->FreeSwatreInfo();
+            if (W->SwatreSoilModel)
+                W->CloseSwatre(W->SwatreSoilModel);
+            if (W->SwatreSoilModelCrust)
+                W->CloseSwatre(W->SwatreSoilModelCrust);
+            if (W->SwatreSoilModelCompact)
+                W->CloseSwatre(W->SwatreSoilModelCompact);
+            if (W->SwatreSoilModelGrass)
+                W->CloseSwatre(W->SwatreSoilModelGrass);
+        }
+    }
+
+    startplot = true; // user has pressed run, used only to initiatte screen stop, after that set to false!
+    stoprun = false; // user has not stopped the run
 
     label_debug->text().clear();
 
@@ -103,7 +247,7 @@ void lisemqt::runmodel()
     tabWidget_totout->setTabEnabled(1,checkDoErosion->isChecked() );
 
     showInfoAct->setChecked(true);
-    setOutputInfo(true);
+    setOutputInfo(true); // show the cursor over the map
 
     // initialize output graphs
     initPlot();
@@ -119,23 +263,23 @@ void lisemqt::runmodel()
 
     //=======================================================================================//
 
-    W = new TWorld();
-    // make the model world !!!
+    // W = new TWorld();
+    // // make the model world !!!
 
-    connect(W, SIGNAL(show(bool)),this, SLOT(worldShow(bool)),Qt::BlockingQueuedConnection);
-    connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
-    connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
-    connect(W, SIGNAL(timedb(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
-    // connect emitted signals from the model thread to the interface routines that handle them
+    // connect(W, SIGNAL(show(bool)),this, SLOT(worldShow(bool)),Qt::BlockingQueuedConnection);
+    // connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
+    // connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
+    // connect(W, SIGNAL(timedb(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
+    // // connect emitted signals from the model thread to the interface routines that handle them
 
-    W->noInfo = true;
+    W->showInfo = true;
 
-    WhasStopped = false;
+    //WhasStopped = false;
     W->stopRequested = false;
     // stoprequested is used to stop the thread with the interface
     W->waitRequested = false;
     // waitrequested is used to pause the thread with the interface, only on windows machines!
-    W->noInterface = true;
+    W->noInterface = true; // if true then show something
     W->noOutput = false;
     W->batchmode = false;
     // run without Qt interface on original runfile only
@@ -200,11 +344,13 @@ void lisemqt::pausemodel()
     }
 }
 //---------------------------------------------------------------------------
+// linked to stop button in interface, the current loop is finished before
+// the model thread is really stopped, this infact sets time to endtime
+// after the loop is finished worldDone is called to end the thread
 void lisemqt::stopmodel()
 {
     if(W) {
         W->stopRequested = true;
-        WhasStopped = true;
     }
 }
 //---------------------------------------------------------------------------
@@ -236,7 +382,7 @@ void lisemqt::worldShow(bool showall)
 
     showImageMap();
 
-    startplot = false;
+    startplot = false; //if not set to false all the above are done eahc time
 
     showMap(); // show map with selected data
 
@@ -260,18 +406,12 @@ void lisemqt::worldDone(const QString &results)
 
 
     // arrive here after model emits done signal
-    if (W)
-    {
-        //https://stackoverflow.com/questions/31442006/properly-delete-qthread
+     if (W) {
         W->quit();
         W->wait();
-       // W->deleteLater();
-        delete W;
-        W = nullptr;
     }
-    //free the world instance
-
-    stopplot = true;
+    stoprun = true;
+    startplot = false;
 
     // free the map plot discharge bdata
     if (QFileInfo(QString(op.LisemDir+"openlisemtmp.run")).exists())

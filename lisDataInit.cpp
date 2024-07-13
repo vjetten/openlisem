@@ -219,36 +219,15 @@ void TWorld::InitStandardInput(void)
     }
 
     FOR_ROW_COL_MV {
+        // LDD_COOR *newcr = new LDD_COOR;
+        // newcr->r = r;
+        // newcr->c = c;
         LDD_COOR newcr;
         newcr.r = r;
         newcr.c = c;
         cr_ << newcr;
     }
 
-    /* OBSOLETE
-    if (SwitchSWOFWatersheds) {
-        WaterSheds = ReadMap(LDD,getvaluename("wsheds"));
-        QList <int> tmp = countUnits(*WaterSheds);
-        nrWatersheds = tmp.count();
-
-        long nrc = 0;
-        WScr.clear();
-        for (int i = 0; i <= nrWatersheds; i++){
-            crws_.clear();
-            FOR_ROW_COL_MV {
-                if (WaterSheds->Drc == i) {
-                    LDD_COOR newcr;
-                    newcr.r = r;
-                    newcr.c = c;
-                    crws_ << newcr;
-                }
-            }
-            WScr.append(crws_);
-            nrc += WScr.at(i).size();
-            //qDebug() << WScr.size() << WScr.at(i).size() << i << nrc << nrValidCells;
-        }
-    }
-    */
     FOR_ROW_COL_MV {
         if (LDD->Drc == 5) {
         LDD_COOR newcr;
@@ -299,15 +278,16 @@ void TWorld::InitStandardInput(void)
         calcMap(*DEM, *Buffers, ADD);
     } 
 
-    int cnt = 0;
-    Outlet = NewMap(0);
-    FOR_ROW_COL_MV {
-        if(LDD->Drc == 5) {
-            cnt++;
-            //qDebug() << "ldd" << r << c << cnt;
-            Outlet->Drc = cnt;
-        }
-    }
+    // int cnt = 0;
+    // Outlet = NewMap(0);
+    // FOR_ROW_COL_MV {
+    //     if(LDD->Drc == 5) {
+    //         cnt++;
+    //         //qDebug() << "ldd" << r << c << cnt;
+    //         Outlet->Drc = cnt;
+    //     }
+    // }
+    Outlet = ReadMap(LDD,getvaluename("outlet"));
 
     // points are user observation points. they should include outlet points
     PointMap = ReadMap(LDD,getvaluename("outpoint"));
@@ -319,6 +299,11 @@ void TWorld::InitStandardInput(void)
             found = true;
         }
     }
+    if (!found) {
+        copy(*PointMap, *Outlet);
+        found = true;
+    }
+
 
     if (found) {
         crout_.clear();
@@ -948,6 +933,9 @@ report(*LDDChannel,"lddchan.map");
         LDD_COOR newcr;
         newcr.r = r;
         newcr.c = c;
+        // LDD_COOR *newcr = new LDD_COOR;
+        // newcr->r = r;
+        // newcr->c = c;
         crch_ << newcr;
     }
     crlinkedlddch_= MakeLinkedList(LDDChannel);
@@ -1048,8 +1036,6 @@ report(*LDDChannel,"lddchan.map");
                 LDD_COORIN hoi = crlinkedlddch_.at(i);
                 hoi.ldd *= -1;
                 crlinkedlddch_.replace(i, hoi) ;
-               // ChannelGrad->Drc = 0.001;
-
             }
         }
     } else {
@@ -1632,239 +1618,6 @@ void TWorld::InitErosion(void)
         // negative values give no splash
     }
 }
-//---------------------------------------------------------------------------
-void TWorld::InitMulticlass(void)
-{
-/*
-
-
-    if(SwitchMulticlass)
-    {
-        graindiameters.clear();
-        settlingvelocities.clear();
-        Tempa_D.clear();
-        Tempb_D.clear();
-        Tempc_D.clear();
-        Tempd_D.clear();
-
-        BL_D.clear();
-        SS_D.clear();
-        BLC_D.clear();
-        SSC_D.clear();
-        BLTC_D.clear();
-        SSTC_D.clear();
-        BLD_D.clear();
-        SSD_D.clear();
-
-        RBL_D.clear();
-        RSS_D.clear();
-        RBLC_D.clear();
-        RSSC_D.clear();
-        RBLTC_D.clear();
-        RSSTC_D.clear();
-        RBLD_D.clear();
-        RSSD_D.clear();
-
-        Sed_D.clear();
-        TC_D.clear();
-        Conc_D.clear();
-
-        StorageDep_D.clear();
-        Storage_D.clear();
-        RStorageDep_D.clear();
-        RStorage_D.clear();
-
-        OF_Advect.clear();
-
-        R_Advect.clear();
-        F_Advect.clear();
-    }
-
-
-    if(SwitchUseGrainSizeDistribution)
-    {
-
-        if(SwitchEstimateGrainSizeDistribution)
-        {
-            if(numgrainclasses == 0)
-            {
-                ErrorString = "Could not simulate 0 grain classes" +QString("\n")
-                        + "Please provide a positive number";
-                throw 1;
-
-            }
-
-
-            distD50 = 0;
-            distD90 = 0;
-            int count = 0;
-            FOR_ROW_COL_MV
-            {
-                distD50 += D50->Drc;
-                distD90 += D90->Drc;
-                count++;
-            }
-            distD50 = distD50/count;
-            distD90 = distD90/count;
-
-            double s = distD90- distD50;
-            double s2l = std::max(distD50 - 2*s,distD50);
-            double s2r = 2 * s;
-
-            int classesleft = numgrainclasses;
-            int mod2 = classesleft % 2;
-            if(mod2 == 1)
-            {
-                classesleft -= 1;
-            }
-
-            for(int i = 1; i < classesleft/2 + 1 ; i++)
-            {
-                double d = (distD50 - s2l) + ((double)i) * s2l/(1.0 + double(classesleft/2.0) );
-                graindiameters.append(d);
-                W_D.append(NewMap(s2l/(1.0 + double(classesleft/2.0) )));
-            }
-            if(mod2 == 1)
-            {
-                graindiameters.append(distD50);
-                W_D.append(NewMap(0.5 *s2l/(1.0 + double(classesleft/2.0) ) + 0.5 * s2r/(1.0 + double(classesleft/2.0))));
-            }
-
-            for(int i = 1; i < classesleft/2 + 1; i++)
-            {
-                double d = (distD50) + ((double)i) *s2r/(1.0 + double(classesleft/2.0) );
-                graindiameters.append(d);
-                W_D.append(NewMap(s2r/(1.0 + double(classesleft/2.0))));
-            }
-
-            FOR_GRAIN_CLASSES
-            {
-
-                settlingvelocities.append(GetSV(graindiameters.at(d)));
-
-                FOR_ROW_COL_MV
-                {
-                    W_D.Drcd = W_D.Drcd*LogNormalDist(D50->Drc,D90->Drc -D50->Drc,graindiameters.at(d));
-                }
-                Tempa_D.append(NewMap(0.0));
-                Tempb_D.append(NewMap(0.0));
-                Tempc_D.append(NewMap(0.0));
-                Tempd_D.append(NewMap(0.0));
-
-                BL_D.append(NewMap(0.0));
-                SS_D.append(NewMap(0.0));
-                BLC_D.append(NewMap(0.0));
-                SSC_D.append(NewMap(0.0));
-                BLTC_D.append(NewMap(0.0));
-                SSTC_D.append(NewMap(0.0));
-                BLD_D.append(NewMap(0.0));
-                SSD_D.append(NewMap(0.0));
-
-                RBL_D.append(NewMap(0.0));
-                RSS_D.append(NewMap(0.0));
-                RBLC_D.append(NewMap(0.0));
-                RSSC_D.append(NewMap(0.0));
-                RBLTC_D.append(NewMap(0.0));
-                RSSTC_D.append(NewMap(0.0));
-                RBLD_D.append(NewMap(0.0));
-                RSSD_D.append(NewMap(0.0));
-
-                Sed_D.append(NewMap(0.0));
-                TC_D.append(NewMap(0.0));
-                Conc_D.append(NewMap(0.0));
-
-                StorageDep_D.append(NewMap(0.0));
-                Storage_D.append(NewMap(0.0));
-                RStorageDep_D.append(NewMap(0.0));
-                RStorage_D.append(NewMap(0.0));
-            }
-
-            FOR_ROW_COL_MV
-            {
-                double wtotal = 0;
-                FOR_GRAIN_CLASSES
-                {
-                    wtotal += (W_D).Drcd;
-                }
-
-                if(wtotal != 0)
-                {
-                    FOR_GRAIN_CLASSES
-                    {
-                        (W_D).Drcd = (W_D).Drcd/wtotal;
-                    }
-                }
-            }
-
-        }
-
-        if(SwitchReadGrainSizeDistribution)
-        {
-
-            numgrainclasses = 0;
-            QStringList diamlist = getvaluename("Grain size class maps").split(";", Qt::SkipEmptyParts);
-
-            for(int i = 0; i < diamlist.count(); i++)
-            {
-                double diam = gsizeCalibration*diamlist.at(i).toDouble();
-                ///gsizeCalibration ?? added later?
-                if( diam > 0.0)
-                {
-                    numgrainclasses++;
-                    graindiameters.append(diam);
-
-                    settlingvelocities.append(GetSV(diam));
-
-                    W_D.append(ReadMap(LDD,"GSD_"+diamlist.at(i)));
-
-                    graindiameters.clear();
-
-                    Tempa_D.append(NewMap(0.0));
-                    Tempb_D.append(NewMap(0.0));
-                    Tempc_D.append(NewMap(0.0));
-                    Tempd_D.append(NewMap(0.0));
-
-                    BL_D.append(NewMap(0.0));
-                    SS_D.append(NewMap(0.0));
-                    BLC_D.append(NewMap(0.0));
-                    SSC_D.append(NewMap(0.0));
-                    BLTC_D.append(NewMap(0.0));
-                    SSTC_D.append(NewMap(0.0));
-                    BLD_D.append(NewMap(0.0));
-                    SSD_D.append(NewMap(0.0));
-
-                    RBL_D.append(NewMap(0.0));
-                    RSS_D.append(NewMap(0.0));
-                    RBLC_D.append(NewMap(0.0));
-                    RSSC_D.append(NewMap(0.0));
-                    RBLTC_D.append(NewMap(0.0));
-                    RSSTC_D.append(NewMap(0.0));
-                    RBLD_D.append(NewMap(0.0));
-                    RSSD_D.append(NewMap(0.0));
-
-                    Sed_D.append(NewMap(0.0));
-                    TC_D.append(NewMap(0.0));
-                    Conc_D.append(NewMap(0.0));
-
-                    StorageDep_D.append(NewMap(0.0));
-                    Storage_D.append(NewMap(0.0));
-                    RStorageDep_D.append(NewMap(0.0));
-                    RStorage_D.append(NewMap(0.0));
-                }
-            }
-
-            if(numgrainclasses == 0)
-            {
-                ErrorString = "Could not interpret grain classes from the string: \n"
-                        +  getvaluename("Grain size class maps") + "\n"
-                        + "Please provide positive values seperated by commas.";
-                throw 1;
-            }
-        }
-        }
-*/
-}
-
 
 //---------------------------------------------------------------------------
 /// called after get input data, initializes non-input maps and variables
@@ -2746,23 +2499,6 @@ void TWorld::InitTiledrains(void)
         Tileq = NewMap(0);
         TileAlpha = NewMap(0);
         TileMaxAlpha = NewMap(0);
-
-
-
-        //TileDX = NewMap(_dx);
-        // maybe needed later for erosion in tiledrain
-        //TileSedTot = 0;
-        //TileDepTot = 0;
-        //TileDetTot = 0;
-        //TileQsoutflow = NewMap(0);
-        //TileDetFlow = NewMap(0);
-        //TileDep = NewMap(0);
-        //TileSed = NewMap(0);
-        //TileConc = NewMap(0);
-        //TileTC = NewMap(0);
-        //TileY = NewMap(0);
-        //SedToTile = NewMap(0);
-        //TileCohesion = ReadMap(LDDTile, getvaluename("chancoh"));
 
         //##### Tile maps #####
 

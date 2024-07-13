@@ -153,7 +153,7 @@ void TWorld::GWFlowLDDKsat(void)
         int c = crlinkedlddbase_.at(i_).c;
 
         double Hup = 0;
-        double Zup = 0;
+        //double Zup = 0;
         if (crlinkedlddbase_.at(i_).nr > 0) {
             double cnt = 0;
             for(int j = 0; j < crlinkedlddbase_.at(i_).nr; j++) {
