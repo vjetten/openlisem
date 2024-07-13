@@ -77,7 +77,6 @@
         <file>2X/d_fontbigger2X.png</file>
         <file>d_river2.png</file>
         <file>2X/d_fontsmaller2X.png</file>
->>>>>>> lisui
     </qresource>
     <qresource prefix="/new/prefix1"/>
 </RCC>
