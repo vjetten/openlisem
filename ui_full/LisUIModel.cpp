@@ -263,9 +263,9 @@ void lisemqt::runmodel()
 
     //=======================================================================================//
 
+    // moved to lisemqt, nneeds to be done only once
     // W = new TWorld();
     // // make the model world !!!
-
     // connect(W, SIGNAL(show(bool)),this, SLOT(worldShow(bool)),Qt::BlockingQueuedConnection);
     // connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
     // connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
