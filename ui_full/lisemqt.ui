@@ -35,14 +35,8 @@
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/openLisem.png</normaloff>:/openLisem.png</iconset>
-  </property>
-  <property name="iconSize">
-   <size>
-    <width>32</width>
-    <height>323</height>
-   </size>
+   <iconset resource="../resources/openlisem.qrc">
+    <normaloff>:/2X/openLisemN.png</normaloff>:/2X/openLisemN.png</iconset>
   </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
