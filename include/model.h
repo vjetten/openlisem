@@ -122,11 +122,11 @@
 
 
 #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
- {int r = cr_[i_].r; int c = cr_[i_].c;
+ {int r = cr_[i_]->r; int c = cr_[i_]->c;
 
 //not used
-#define FOR_ROW_COL_MV_LWS(nr_) for(long i_ = WScr.at(nr_).size()-1; i_ >= 0; i_--)\
-{int r = WScr.at(nr_)[i_].r; int c = WScr.at(nr_)[i_].c;
+// #define FOR_ROW_COL_MV_LWS(nr_) for(long i_ = WScr.at(nr_).size()-1; i_ >= 0; i_--)\
+// {int r = WScr.at(nr_)[i_].r; int c = WScr.at(nr_)[i_].c;
 
 #define FOR_ROW_COL_LDD5 for(long i_ = nrValidCellsLDD5-1; i_ >= 0; i_--)\
 {int r = crldd5_[i_].r; int c = crldd5_[i_].c;
@@ -135,7 +135,7 @@
 {int r = crlddch5_[i_].r; int c = crlddch5_[i_].c;
 
 #define FOR_ROW_COL_MV_CHL for(long i_ = nrValidCellsCH-1; i_ >= 0; i_--)\
-{int r = crch_[i_].r; int c = crch_[i_].c;
+{int r = crch_[i_]->r; int c = crch_[i_]->c;
 
 #define FOR_ROW_COL_MV_TILEL for(long i_ = nrValidCellsTile-1; i_ >= 0; i_--)\
 {int r = crtile_[i_].r; int c = crtile_[i_].c;
@@ -384,18 +384,19 @@ public:
     long nrValidCellsLDDCH5;
     long nrValidCellsWS;
     long nrValidCellsTile;
+    QVector <LDD_COOR*> cr_;
+    QVector <LDD_COOR*> crch_;
+    QVector <LDD_COORIN*> crlinkedldd_;
+    QVector <LDD_COORIN*> crlinkedlddch_;
+    QVector <LDD_COORIN*> crlinkedlddbase_;
+    QVector <LDD_COORIN*> crlinkedlddtile_;
+
     QVector <LDD_COOR> crldd5_;
     QVector <LDD_COOR> crlddch5_;
-    QVector <LDD_COOR> cr_;
-    QVector <LDD_COOR> crws_;
-    QVector <LDD_COORi> dcr_;
-    QVector <LDD_COOR> crch_;
     QVector <LDD_COOR> crtile_;
-    QVector <LDD_COORIN> crlinkedldd_;
-    QVector <LDD_COORIN> crlinkedlddch_;
-    QVector <LDD_COORIN> crlinkedlddbase_;
-    QVector <LDD_COORIN> crlinkedlddtile_;
     QVector <LDD_COORout> crout_;
+    QVector <LDD_COORi> dcr_;
+
     // vector of soil structure
     QVector <SOIL_LIST> crSoil;
 
@@ -783,7 +784,6 @@ public:
     void InitShade(void);
     void InitImages(void);
     void InitErosion(void);
-    void InitMulticlass(void);
     void GetInputData(void);      // get and make input maps
     void InitParameters(void);
     void IntializeData(void);     // make all non-input maps
@@ -809,12 +809,11 @@ public:
     QString checkOutputMapName(QString p, QString S, int i);
     void ParseRunfileData(void);
     void GetRunFile(void);
-    //MapListStruct qx[9];
 
     //FLOOD according to FULLSWOF2D
     double Flood_DTMIN;
     int F_scheme, F_fluxLimiter, F_MaxIter, F_AddGravity;
-    double F_minWH;//, F_Z2Dcorrection;
+    double F_minWH;
     double F_pitValue;
     bool prepareFlood, startFlood;
     int iter_n;
@@ -1133,17 +1132,17 @@ public:
     //double getMassWS(int nr_, cTMap *M, double th);
     double getMassSed(cTMap *M, double th);
     void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX, cTMap *_Qmax, cTMap *_Amax);
-    void KinematicExplicit(QVector<LDD_COORIN> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax);
+    void KinematicExplicit(QVector<LDD_COORIN*> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax);
     double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX, double Qm, double Am);
 
-    void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
+    void KinematicSubstance(QVector<LDD_COORIN*> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
 
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
     void upstreamDrain(cTMap *_LDD, cTMap *MaxQ, cTMap *in, cTMap *out);
-    void AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
-    void UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
+    void AccufluxGW(QVector <LDD_COORIN*>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
+    void UpstreamGW(QVector <LDD_COORIN*>_crlinked_ , cTMap *_Q, cTMap *_Qn);
 
-    QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
+    QVector <LDD_COORIN*> MakeLinkedList(cTMap *_LDD);
 
     // kinematic 2D
     double BoundaryQ;
@@ -1224,7 +1223,7 @@ public:
     void ReportTotalsNew(void);
     void ReportLandunits(void); //VJ 110107 report erosion stats per land unit
     void CountLandunits(void); //VJ 110107 report erosion stats per land unit
-    void saveMBerror2file(bool doError, bool start);
+    void saveMBerror2file(bool start);
 
     int nrBuffers;
     QVector <BUFFER_LIST> bufferarea;

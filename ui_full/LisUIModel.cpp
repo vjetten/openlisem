@@ -35,6 +35,8 @@
 #include "lisemqt.h"
 #include "global.h"
 
+#define Clear(list) while (list.count()) {if (!list.isEmpty()) list.removeLast();}
+
 //---------------------------------------------------------------------------
 /** Run the model:
 Save the current interface as a temporary run file, read by the model
@@ -55,24 +57,39 @@ void lisemqt::runmodel()
     // if the model has stopped and a new run is requested, clear the datastructures
     // until that time the user can look at the old results
     if (stoprun && W) {
-        qDebug() << W->maplistCTMap.size();
-        qDeleteAll(W->maplistCTMap);
-        W->maplistCTMap.clear(); // destroy ALL maps
+        // destroy ALL maps
+        qDeleteAll(W->maplistCTMap.begin(),W->maplistCTMap.end());
+        W->maplistCTMap.clear();
 
-        qDebug() << W->maplistCTMap.size();
         // destroy all networlk structures
-    //    qDeleteAll(W->cr_);
+        qDeleteAll(W->cr_.begin(),W->cr_.end());
         W->cr_.clear();
-     //   qDeleteAll(W->crch_);
+        qDeleteAll(W->crch_.begin(),W->crch_.end());
         W->crch_.clear();
-      //  qDeleteAll(W->crldd5_);
-        W->crldd5_.clear();
-      //  qDeleteAll(W->crlddch5_);
-        W->crlddch5_.clear();
-      //  qDeleteAll(W->crlinkedldd_);
+        qDeleteAll(W->crlinkedldd_.begin(),W->crlinkedldd_.end());
         W->crlinkedldd_.clear();
-      //  qDeleteAll(W->crlinkedlddch_);
+        qDeleteAll(W->crlinkedlddch_.begin(),W->crlinkedlddch_.end());
         W->crlinkedlddch_.clear();
+
+        // while (W->crldd5_.count())
+        //     if (!W->crldd5_.isEmpty())
+        //         W->crldd5_.removeLast();
+        // W->crldd5_.clear();
+        // W->crlddch5_.clear();
+        // W->crout_.clear();
+        // W->dcr_.clear();
+        // W->crtile_.clear();
+        Clear(W->crldd5_);
+        Clear(W->crlddch5_);
+        Clear(W->crout_);
+        Clear(W->dcr_);
+        Clear(W->crtile_);
+
+
+
+
+
+
         // destroy swatre data structures
         if (W->InfilMethod == INFIL_SWATRE && W->initSwatreStructure)
         {

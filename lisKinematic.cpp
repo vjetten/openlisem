@@ -219,7 +219,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
 
 //---------------------------------------------------------------------------
 /*LDD_COOR *_crlinked_*/
-void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
+void TWorld::KinematicExplicit(QVector <LDD_COORIN*>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
 {   
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -231,14 +231,14 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
  // parallel doesn't work here
     for(long i_ =  0; i_ < _crlinked_.size(); i_++)
     {
-        int r = _crlinked_.at(i_).r;
-        int c = _crlinked_.at(i_).c;
+        int r = _crlinked_.at(i_)->r;
+        int c = _crlinked_.at(i_)->c;
         double Qin = 0;
 
-        if (_crlinked_.at(i_).nr > 0) {
-            for(int j = 0; j < _crlinked_.at(i_).nr; j++) {
-                int rr = _crlinked_.at(i_).inn[j].r;
-                int cr = _crlinked_.at(i_).inn[j].c;
+        if (_crlinked_.at(i_)->nr > 0) {
+            for(int j = 0; j < _crlinked_.at(i_)->nr; j++) {
+                int rr = _crlinked_.at(i_)->inn[j].r;
+                int cr = _crlinked_.at(i_)->inn[j].c;
                 Qin += _Qn->Drcr;
             }
         }
@@ -253,7 +253,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
 }
 //---------------------------------------------------------------------------
 /*LDD_COOR *_crlinked_*/
-void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
+void TWorld::KinematicSubstance(QVector <LDD_COORIN*> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
 {
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -267,8 +267,8 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
 //#pragma omp parallel for reduction(+:Qin) num_threads(userCores)
     for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     {
-        int r = _crlinked_[i_].r;
-        int c = _crlinked_[i_].c;
+        int r = _crlinked_[i_]->r;
+        int c = _crlinked_[i_]->c;
 
         double Qin = 0;
         double Sin = 0;
@@ -311,12 +311,12 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
 
 }
 //---------------------------------------------------------------------------
-QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
+QVector <LDD_COORIN*> TWorld::MakeLinkedList(cTMap *_LDD)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
     int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
 
-    QVector <LDD_COORIN> _crlinked_;
+    QVector <LDD_COORIN*> _crlinked_;
     _crlinked_.clear();
 
     Fill(*tma, -1); // flag
@@ -370,14 +370,17 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
 
                 if (subCachDone)
                 {
-                    LDD_COORIN newcr;
-                    newcr.r = rowNr;
-                    newcr.c = colNr;
-                    newcr.ldd = (int) _LDD->data[rowNr][colNr];
+                    // LDD_COORIN newcr;
+                    // newcr.r = rowNr;
+                    // newcr.c = colNr;
+                    LDD_COORIN *newcr = new LDD_COORIN;
+                    newcr->r = rowNr;
+                    newcr->c = colNr;
+                    newcr->ldd = (int) _LDD->data[rowNr][colNr];
 
                    // newcr.inn.clear(); // to be sure
                     //newcr.inn = (LDD_COOR*) malloc(sizeof(LDD_COOR)*9);
-                    newcr.nr = 0;
+                    newcr->nr = 0;
 
                     int j = 0;
                     for (i=1;i<=9;i++)
@@ -397,7 +400,7 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
                                        LDD_COOR incr;
                                        incr.r = rr;
                                        incr.c = cr;
-                                       newcr.inn << incr; // add the point that flows into the cell to inn
+                                       newcr->inn << incr; // add the point that flows into the cell to inn
 //                                        newcr.inn[j].r = rr;
 //                                        newcr.inn[j].c = cr;
                                        j++;
@@ -406,7 +409,7 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
                             }
                         }
                     }
-                    newcr.nr = j;
+                    newcr->nr = j;
 
                     _crlinked_ << newcr;
                     tma->data[rowNr][colNr] = 0;
@@ -759,7 +762,7 @@ void TWorld::upstreamDrain(cTMap *_LDD, cTMap *MaxQ, cTMap *in, cTMap *out)
 
 }
 //---------------------------------------------------------------------------
-void TWorld::UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn)
+void TWorld::UpstreamGW(QVector <LDD_COORIN*>_crlinked_ , cTMap *_Q, cTMap *_Qn)
 {
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -768,24 +771,24 @@ void TWorld::UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn)
 
     for(long i_ =  0; i_ < _crlinked_.size(); i_++)
     {
-        int r = _crlinked_[i_].r;
-        int c = _crlinked_[i_].c;
+        int r = _crlinked_[i_]->r;
+        int c = _crlinked_[i_]->c;
         double Qin = 0;
 
         // get inflow
-        if (_crlinked_[i_].nr > 0) {
-            for(int j = 0; j < _crlinked_[i_].nr; j++) {
-                int rr = _crlinked_[i_].inn[j].r;
-                int cr = _crlinked_[i_].inn[j].c;
+        if (_crlinked_[i_]->nr > 0) {
+            for(int j = 0; j < _crlinked_[i_]->nr; j++) {
+                int rr = _crlinked_[i_]->inn[j].r;
+                int cr = _crlinked_[i_]->inn[j].c;
                 Qin += _Q->Drcr;
             }
-            Qin /= _crlinked_[i_].nr;
+            Qin /= _crlinked_[i_]->nr;
         }
         _Qn->Drc = Qin;
     }
 }
 //---------------------------------------------------------------------------
-void TWorld::AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW)
+void TWorld::AccufluxGW(QVector <LDD_COORIN*>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW)
 {
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -794,15 +797,15 @@ void TWorld::AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, 
 
     for(long i_ =  0; i_ < _crlinked_.size(); i_++)
     {
-        int r = _crlinked_[i_].r;
-        int c = _crlinked_[i_].c;
+        int r = _crlinked_[i_]->r;
+        int c = _crlinked_[i_]->c;
         double Qin = 0;
 
         // get inflow
-        if (_crlinked_[i_].nr >0) {
-            for(int j = 0; j < _crlinked_[i_].nr; j++) {
-                int rr = _crlinked_[i_].inn[j].r;
-                int cr = _crlinked_[i_].inn[j].c;
+        if (_crlinked_[i_]->nr >0) {
+            for(int j = 0; j < _crlinked_[i_]->nr; j++) {
+                int rr = _crlinked_[i_]->inn[j].r;
+                int cr = _crlinked_[i_]->inn[j].c;
                 Qin += (_CW->Drcr > 0 ? 0.0 : _Qn->Drcr);
             }
         }

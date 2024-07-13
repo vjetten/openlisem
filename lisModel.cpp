@@ -61,9 +61,9 @@ void TWorld::stop()
     stopRequested = true;
 }
 //---------------------------------------------------------------------------
-void TWorld::saveMBerror2file(bool doError, bool start)
+void TWorld::saveMBerror2file( bool start) //bool doError,
 {
-    if (doError && start) {
+    if (start) {
         qDebug() << "hier";
         //create error file
         QFile efout(resultDir+errorFileName);
@@ -76,14 +76,14 @@ void TWorld::saveMBerror2file(bool doError, bool start)
     }
 
 
-    if (doError) {
+ //   if (doError) {
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::Append | QIODevice::Text);
         QTextStream eout(&efout);
         eout << " " << runstep << "," << MB << "," << (SwitchErosion ? MBs : 0.0) << "\n";
         efout.flush();
         efout.close();
-    }
+  //  }
 
 }
 //---------------------------------------------------------------------------
@@ -260,7 +260,7 @@ void TWorld::DoModel()
         setupHydrographData(); // reset hydrograph display
 
         bool saveMBerror = true;
-        saveMBerror2file(saveMBerror, true);
+        saveMBerror2file(true); //saveMBerror,
 
       //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
@@ -322,7 +322,7 @@ void TWorld::DoModel()
 
             emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
 
-            saveMBerror2file(saveMBerror, false);
+            saveMBerror2file(false); //saveMBerror
 
             if(stopRequested)
                 time = EndTime;
