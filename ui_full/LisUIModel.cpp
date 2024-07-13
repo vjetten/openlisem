@@ -176,10 +176,35 @@ void lisemqt::runmodel()
         QtileGraph->setSamples(zero,zero);
         HPlot->replot();
 
-        // HPlot->detachItems(QwtPlotItem::Rtti_PlotItem, true);
-        // HPlot->replot();
-        // MPlot->detachItems(QwtPlotItem::Rtti_PlotItem, true);
+        // Clear(cmMap);
+        // Clear(cmLeg);
+        // Clear(ColorMapList);
+
+        // mapData.clear();
+        // RGBData.clear();
+
+        // drawMap->setData(nullptr);
+        // baseMap->setData(nullptr);
+        // baseMapDEM->setData(nullptr);
+        // baseMapImage->setData(nullptr);
+        // contourDEM->setData(nullptr);
+        // hardsurfMap->setData(nullptr);
+        // roadMap->setData(nullptr);
+        // houseMap->setData(nullptr);
+        // imageMap->setData(nullptr);
+        // outletMap->setData(nullptr);
         // MPlot->replot();
+
+        // delete RD;
+        // delete RDb;
+        // delete RDbb;
+        // delete RDc;
+        // delete RDd;
+        // delete RDe;
+        // delete RDf;
+        // delete RImage;
+
+        ClearOP(); // clear most of the op structure
 
         // destroy swatre data structures
         if (W->InfilMethod == INFIL_SWATRE && W->initSwatreStructure)
@@ -194,8 +219,6 @@ void lisemqt::runmodel()
             if (W->SwatreSoilModelGrass)
                 W->CloseSwatre(W->SwatreSoilModelGrass);
         }
-
-        ClearOP();
     }
 
     startplot = true; // user has pressed run, used only to initiatte screen stop, after that set to false!

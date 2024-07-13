@@ -261,7 +261,7 @@ public:
 
     QList <QwtComboColorMap*> cmMap;
     QList <QwtComboColorMap*> cmLeg;
-    QList<QwtComboColorMap *> ColorMapList;
+    QList <QwtComboColorMap*> ColorMapList;
     QList<QString> NameList;
     QList<QString> UnitList;
     QList<bool> SymList;
