@@ -42,7 +42,7 @@
 TWorld::TWorld(QObject *parent) :
     QThread(parent)
 {
-    moveToThread(this);
+ //   moveToThread(this);
 }
 //---------------------------------------------------------------------------
 TWorld::~TWorld()
@@ -156,9 +156,6 @@ void TWorld::DoModel()
         GetInputData();
         DEBUG("Intialize Database");
         IntializeData();
-
-        op.nrMapsCreated = maplistnr; // save nr of maps for cleaning memory
-
 
         //DEBUG("setupDisplayMaps()");
         setupDisplayMaps();

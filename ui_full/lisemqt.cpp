@@ -160,6 +160,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     // make the model world once, this structure is always needed regardless of the area
     W = new TWorld();
+    W->moveToThread(this->thread());
     connect(W, SIGNAL(show(bool)),this, SLOT(worldShow(bool)),Qt::BlockingQueuedConnection);
     connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
     connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
