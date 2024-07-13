@@ -42,7 +42,7 @@
 TWorld::TWorld(QObject *parent) :
     QThread(parent)
 {
- //   moveToThread(this);
+   moveToThread(this);
 }
 //---------------------------------------------------------------------------
 TWorld::~TWorld()
