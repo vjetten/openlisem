@@ -291,7 +291,7 @@ void lisemqt::initPlot()
         else
             HPlot->setAxisTitle(*axisYL1, "Q (m3/s)");
         HPlot->setAxisTitle(*axisYR1, "P (mm/h)");
-        if (checkWaveInUser->isChecked())
+        if (checkWaterUserIn->isChecked())
             HPlot->setAxisTitle(*axisYR1, "WH (m)");
     }
 
@@ -315,7 +315,7 @@ void lisemqt::showPlot()
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
     PGraph->setSamples(op.Time,op.Pmm);
 
-    if (checkWaveInUser->isChecked())
+    if (checkWaterUserIn->isChecked())
        QbGraph->setSamples(op.Time,*op.Wavein[index]);
 
     int _j = op.OutletQ[index]->count()-1; // last value index

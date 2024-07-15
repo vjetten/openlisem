@@ -64,7 +64,9 @@ find_package(OpenMP REQUIRED)
 INCLUDE(CheckCXXCompilerFlag)
 
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing --param=max-vartrack-size=1500000 -std=c++11 ${OpenMP_CXX_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -Wno-var-tracking-assignments -std=c++11 ${OpenMP_CXX_FLAGS}")
+#--param=max-vartrack-size=1500000
+    #add_compile_options(-Wno-var-tracking-assignments)
 
     IF(UNIX)
        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wl,-rpath=${ORIGIN}./lib")

@@ -39,10 +39,6 @@ int lisemqt::SetStyleUISize()
     if(_H < 800) disp = -1;
    // qDebug() << _H << disp;
 
-    tabWidgetOptions->setMinimumSize(QSize(600, 500));
-    scrollArea->setWidgetResizable(true);
-    //scrollArea->setWidget(tabWidgetOptions);
-
     // do a bit of size tweaking for large displays
     QSize iSize = QSize(16,16);
     if (disp == -1) {
@@ -155,7 +151,7 @@ void lisemqt::lightStyleUI()
     tabWidgetOptions->setTabIcon(2,QIcon(":/Plant-icon.png"));
     tabWidgetOptions->setTabIcon(3,QIcon(":/soil5.png"));
     tabWidgetOptions->setTabIcon(4,QIcon(":/water.png"));
-    tabWidgetOptions->setTabIcon(5,QIcon(":/river2.png"));
+    tabWidgetOptions->setTabIcon(5,QIcon(":/river4.png"));
     tabWidgetOptions->setTabIcon(6,QIcon(":/eros1bw.png"));
     tabWidgetOptions->setTabIcon(7,QIcon(":/advanced.png"));
     tabWidgetOptions->setTabIcon(8,QIcon(":/settings1.png"));
@@ -199,7 +195,7 @@ void lisemqt::lightStyleUI()
     label_9->setStyleSheet(QString("QLabel {color:  %1;}").arg(sc1));
     label_10->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
     label_128->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
-    checkWaveInUser->setStyleSheet(QString("QCheckBox {color: %1;}").arg(sc));
+    //groupWaveUser->setStyleSheet(QString("QCheckBox {color: %1;}").arg(sc));
 
     setOutputTabStyle(bc, fc);
 }
@@ -216,7 +212,7 @@ void lisemqt::darkStyleUI()
     tabWidgetOptions->setTabIcon(2,QIcon(":/d_Plant-icon.png"));
     tabWidgetOptions->setTabIcon(3,QIcon(":/d_soil5.png"));
     tabWidgetOptions->setTabIcon(4,QIcon(":/d_water.png"));
-    tabWidgetOptions->setTabIcon(5,QIcon(":/d_river2.png"));
+    tabWidgetOptions->setTabIcon(5,QIcon(":/d_river3.png"));
     tabWidgetOptions->setTabIcon(6,QIcon(":/d_eros1bw.png"));
     tabWidgetOptions->setTabIcon(7,QIcon(":/d_advanced.png"));
     tabWidgetOptions->setTabIcon(8,QIcon(":/d_settings1.png"));
@@ -292,7 +288,7 @@ void lisemqt::darkStyleUI()
    //  label_10->setStyleSheet(QString("QLabel:disabled {color: %1;}").arg(sc2));
    // label_128->setStyleSheet(QString("QLabel:disabled {color: %1;}").arg(sc2));
 
-   checkWaveInUser->setStyleSheet("QCheckBox {color: #e57537;}");
+   //checkWaveInUser->setStyleSheet("QCheckBox {color: #e57537;}");
 
    setOutputTabStyle("#a28000", "#f0f0f0");
 

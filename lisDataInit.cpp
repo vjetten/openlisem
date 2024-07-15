@@ -146,6 +146,9 @@ void TWorld::InitParameters(void)
 
     F_pitValue = getvaluedouble("Pit Value");
 
+    SwitchCorrectMB_WH = getvalueint("Correct MB with WH") == 1;
+    op.SwitchCorrectMB_WH = SwitchCorrectMB_WH;
+
     if (SwitchAdvancedOptions) {
         F_MaxIter = getvalueint("Flood max iterations");
         F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda

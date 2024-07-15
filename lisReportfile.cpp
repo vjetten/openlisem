@@ -79,7 +79,7 @@ void TWorld::reportAll(void)
     report to screen, hydrographs and maps */
 void TWorld::OutputUI(void)
 {
-
+    SwitchCorrectMB_WH = op.SwitchCorrectMB_WH;
     op.timestep = this->_dt/60.0;
 
     op.t = time_ms.elapsed()*0.001/60.0;    

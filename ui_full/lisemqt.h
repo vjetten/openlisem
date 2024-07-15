@@ -519,7 +519,7 @@ private slots:
 
     void on_toolButton_ETShow_clicked();
 
-    void on_checkWaveInUser_toggled(bool checked);
+   // void on_checkWaveInUser_toggled(bool checked);
 
     void on_toolButton_DischargeShow_clicked();
 
@@ -553,6 +553,8 @@ private slots:
 
     void on_checkGWflow_toggled(bool checked);
 
+
+    void on_checkMB_WH_toggled(bool checked);
 
 private:
 

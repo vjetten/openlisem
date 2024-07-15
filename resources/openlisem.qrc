@@ -8,7 +8,6 @@
         <file>help6.html</file>
         <file>help7.html</file>
         <file>bullet.png</file>
-        <file>2X/chart-line-stacked-icon2X.png</file>
         <file>2X/diropen2X.png</file>
         <file>2X/filesave2X.png</file>
         <file>2X/filesaveas2X.png</file>
@@ -18,8 +17,6 @@
         <file>2X/map2X.png</file>
         <file>2X/Mscreenshots2X.png</file>
         <file>2X/onewfile2X.png</file>
-        <file>2X/openLisem2X.png</file>
-        <file>2X/openLisem252X.png</file>
         <file>2X/screenshots2X.png</file>
         <file>2X/question-mark-button2x.png</file>
         <file>2X/pause-icon.png</file>
@@ -42,8 +39,6 @@
         <file>../INSTALL</file>
         <file>../ubuntu compile.txt</file>
         <file>2X/Folder-Open-icon.png</file>
-        <file>darcula.css</file>
-        <file>black.qss</file>
         <file>Plant-icon.png</file>
         <file>water.png</file>
         <file>rain.png</file>
@@ -67,15 +62,14 @@
         <file>d_soil5.png</file>
         <file>d_settings1.png</file>
         <file>d_advanced.png</file>
-        <file>dark2.css</file>
         <file>advanced.png</file>
         <file>settings1.png</file>
         <file>settings2.png</file>
         <file>black-and-white.png</file>
-        <file>qtdarcula.css</file>
         <file>d_black-and-white.png</file>
         <file>2X/d_fontbigger2X.png</file>
         <file>d_river2.png</file>
         <file>2X/d_fontsmaller2X.png</file>
+        <file>river4.png</file>
     </qresource>
 </RCC>

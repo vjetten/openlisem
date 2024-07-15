@@ -35,7 +35,6 @@
 
 #include <algorithm>
 #include "lisemqt.h"
-//#include "model.h"
 #include "global.h"
 #include "option.h"
 
@@ -202,7 +201,7 @@ void lisemqt::ParseInputData()
 
         if (p1.compare("Include channel culverts")==0)      checkChannelCulverts->setChecked(check);
         if (p1.compare("Include channel inflow")==0)        checkDischargeUser->setChecked(check);
-        if (p1.compare("Include water height inflow")==0)   checkWaveInUser->setChecked(check);
+        if (p1.compare("Include water height inflow")==0)   checkWaterUserIn->setChecked(check);
         if (p1.compare("Include Erosion simulation")==0)    checkDoErosion->setChecked(check);
         if (p1.compare("Include road system")==0)           checkRoadsystem->setChecked(check);
         if (p1.compare("Include storm drains")==0)          checkStormDrains->setChecked(check);
@@ -456,7 +455,7 @@ void lisemqt::ParseInputData()
     widget_GWparams->setEnabled(checkGWflow->isChecked());
 
   //  on_checkIncludeET_toggled(checkIncludeET->isChecked());
-    on_checkWaveInUser_toggled(checkWaveInUser->isChecked());
+  // on_checkWaveInUser_toggled(checkWaveInUser->isChecked());
 
     if (checkSedtrap->isChecked())
         on_checkSedtrap_clicked();
@@ -631,7 +630,7 @@ void lisemqt::ParseInputData()
         }
     }
 
-    if (checkWaveInUser->isChecked()) {
+    if (checkWaterUserIn->isChecked()) {
         E_WaveInName->setText(WaveinDir + WaveinFileName);
         if (!QFileInfo(E_WaveInName->text()).exists() && !E_WaveInName->text().isEmpty())
         {
@@ -870,7 +869,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include stationary baseflow")==0)    namelist[j].value.setNum((int)checkStationaryBaseflow->isChecked());
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkDischargeUser->isChecked());
-        if (p1.compare("Include water height inflow")==0)    namelist[j].value.setNum((int)checkWaveInUser->isChecked());
+        if (p1.compare("Include water height inflow")==0)    namelist[j].value.setNum((int)checkWaterUserIn->isChecked());
         // groundwater
         if (p1.compare("Include GW flow")==0)                namelist[j].value.setNum((int)checkGWflow->isChecked());
         if (p1.compare("GW flow explicit")==0)               namelist[j].value.setNum((int)checkGWflowexplicit->isChecked());

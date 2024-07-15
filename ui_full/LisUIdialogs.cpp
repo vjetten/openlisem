@@ -249,10 +249,10 @@ void lisemqt::on_toolButton_ETName_clicked()
     E_ETName->setText(ETFileDir + ETFileName);
 }
 //--------------------------------------------------------------------
-void lisemqt::on_checkWaveInUser_toggled(bool checked)
-{
-    groupWaveUser->setEnabled(checked);
-}
+// void lisemqt::on_checkWaveInUser_toggled(bool checked)
+// {
+//     groupWaveUser->setEnabled(checked);
+// }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_DischargeShow_clicked()
 {

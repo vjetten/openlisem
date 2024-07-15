@@ -119,6 +119,7 @@ struct output{
 
     bool comboboxset;
     bool has_image;
+    bool SwitchCorrectMB_WH;
 
     QString runfilename;
     QString LisemDir;
