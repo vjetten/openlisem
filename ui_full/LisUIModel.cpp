@@ -254,8 +254,6 @@ void lisemqt::runmodel()
 
     initMapPlot();
 
-    initOutputData();
-
     initOP();
     // reset op structure
 

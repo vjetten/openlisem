@@ -134,8 +134,8 @@ void lisemqt::changeSize()
     double h = MPlot->height();
     double w = MPlot->width();
 
-    MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrRows*op._dx*w/h);//, op._dx*10);
-    MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx);//, op._dx*10);
+    MPlot->setAxisScale( QwtAxis::XBottom, op._llx, op._llx+(double)op._nrRows*op._dx*w/h);//, op._dx*10);
+    MPlot->setAxisScale( QwtAxis::YLeft, op._lly, op._lly+(double)op._nrRows*op._dx);//, op._dx*10);
 
     MPlot->replot();
 
@@ -169,11 +169,11 @@ void lisemqt::setupMapPlot()
 
   //  MPlot->setStyleSheet(QString("* { background-color: %1 }").arg("#555555"));
     // put it on screen
-    MPlot->enableAxis( MPlot->yRight );
-    MPlot->setAxisTitle(MPlot->xBottom, "m");
-    MPlot->setAxisTitle(MPlot->yLeft, "m");
-    MPlot->setAxisLabelRotation(MPlot->yLeft, 270);
-    MPlot->setAxisLabelAlignment(MPlot->yLeft, Qt::AlignVCenter);
+  //  MPlot->enableAxis( QwtAxis::YRight );
+    MPlot->setAxisTitle(QwtAxis::XBottom, "m");
+    MPlot->setAxisTitle(QwtAxis::YLeft, "m");
+    MPlot->setAxisLabelRotation(QwtAxis::YLeft, 270);
+    MPlot->setAxisLabelAlignment(QwtAxis::YLeft, Qt::AlignVCenter);
 
     // attach plot to widget in UI
 
@@ -247,13 +247,13 @@ void lisemqt::setupMapPlot()
     // raster data to link to plot
 
     rightAxis = new QwtScaleWidget();
-    rightAxis = MPlot->axisWidget( MPlot->yRight );
+    rightAxis = MPlot->axisWidget( QwtAxis::YRight );
     rightAxis->setColorBarEnabled( true );
     rightAxis->setColorBarWidth( 20 );
     // legend to the right of the plot
 
     magnifier = new QwtPlotMagnifier( MPlot->canvas() );
-    magnifier->setAxisEnabled( MPlot->yRight, false );
+    magnifier->setAxisEnabled( QwtAxis::YRight, false );
     // exclude right axis legend from rescaling
     magnifier->setZoomInKey(Qt::Key_Plus, Qt::ShiftModifier);
     magnifier->setZoomOutKey(Qt::Key_Minus, Qt::NoModifier );
@@ -266,7 +266,7 @@ void lisemqt::setupMapPlot()
 //    zoomer->setKeyPattern( QwtEventPattern::KeyHome, Qt::Key_Home );
 
     panner = new QwtPlotPanner( MPlot->canvas() );
-    panner->setAxisEnabled( MPlot->yRight, false );
+    panner->setAxisEnabled( QwtAxis::YRight, false );
     // exclude right axis legend from panning
 
     picker = new MyPicker( (QwtPlotCanvas *) MPlot->canvas() );
@@ -274,10 +274,10 @@ void lisemqt::setupMapPlot()
 
     mapRescaler = new QwtPlotRescaler( MPlot->canvas() );
  //   mapRescaler->setReferenceAxis( QwtPlot::xBottom );
-    mapRescaler->setAspectRatio( QwtPlot::xBottom, 1.0 );
-    mapRescaler->setAspectRatio( QwtPlot::yLeft, 1.0 );
-    mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
-    mapRescaler->setAspectRatio( QwtPlot::xTop, 1.0 );
+    mapRescaler->setAspectRatio( QwtAxis::XBottom, 1.0 );
+    mapRescaler->setAspectRatio( QwtAxis::YLeft, 1.0 );
+    mapRescaler->setAspectRatio( QwtAxis::YRight, 0.0 );
+    mapRescaler->setAspectRatio( QwtAxis::XTop, 1.0 );
     mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
     //mapRescaler->setRescalePolicy( QwtPlotRescaler::Fixed );
 
@@ -599,14 +599,14 @@ void lisemqt::showComboMap(int i)
         mi = (mi == 0 ? std::pow(0.1,3-coef) : mi);
         ma = (ma == 0 ? std::pow(10,coef)    : ma);
 
-        MPlot->setAxisScale( MPlot->yRight, mi, ma );
-        MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLogScaleEngine() );
+        MPlot->setAxisScale( QwtAxis::YRight, mi, ma );
+        MPlot->setAxisScaleEngine( QwtAxis::YRight, new QwtLogScaleEngine() );
     }
     else
     {
 
-        MPlot->setAxisScale( MPlot->yRight, mi, ma);
-        MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
+        MPlot->setAxisScale( QwtAxis::YRight, mi, ma);
+        MPlot->setAxisScaleEngine( QwtAxis::YRight, new QwtLinearScaleEngine() );
     }
 
 }
@@ -671,7 +671,7 @@ void lisemqt::showChannelVector(bool yes)
         for (int i = 0; i < rivers.length(); i++) {
             rivers[i]->setPen(pen1);
             rivers[i]->attach( MPlot );
-            rivers[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
+            rivers[i]->setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
         }
 
         QPen pen2;
@@ -683,7 +683,7 @@ void lisemqt::showChannelVector(bool yes)
         for (int i = 0; i < culverts.length(); i++) {
             culverts[i]->setPen(pen2);
             culverts[i]->attach( MPlot );
-            culverts[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
+            culverts[i]->setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
         }
 
         int dxi = spinCulvertSize->value();
@@ -825,8 +825,8 @@ void lisemqt::showChannelVectorNew()
         }
 
         // dot size
-        int dxi = MPlot->invTransform(MPlot->xBottom,dx*1.5);
-        dxi = dxi - MPlot->invTransform(MPlot->xBottom,dx);        
+        int dxi = MPlot->invTransform(QwtAxis::XBottom,dx*1.5);
+        dxi = dxi - MPlot->invTransform(QwtAxis::XBottom,dx);
         dxi = std::min(9,dxi);
         spinCulvertSize->setValue(dxi);
 
@@ -834,14 +834,14 @@ void lisemqt::showChannelVectorNew()
         outlets.setSymbol(new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi )));
         outlets.setPen( Qt::black );
         outlets.setStyle( QwtPlotCurve::NoCurve );
-        outlets.setAxes(MPlot->xBottom, MPlot->yLeft);
+        outlets.setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
         outlets.setSamples(op.EndPointX,op.EndPointY);
 
         // points in outpoint.map
         obspoints.setSymbol(new QwtSymbol( QwtSymbol::Ellipse, Qt::cyan, QPen( Qt::black ), QSize( dxi,dxi )));
         obspoints.setPen( Qt::black );
         obspoints.setStyle( QwtPlotCurve::NoCurve );
-        obspoints.setAxes(MPlot->xBottom, MPlot->yLeft);
+        obspoints.setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
         obspoints.setSamples(op.ObsPointX,op.ObsPointY);
 
         // clear all structures here for the next run of a different area

@@ -168,10 +168,8 @@ public:
     void showPlot();
     void initPlot();
 
-    void initOutputData();
     void showOutputData();
     void showOutputDataZero();
-    void SetTextHydrographs();
     // Map drawing variable
     void setupMapPlot();
     void initMapPlot();
@@ -213,10 +211,11 @@ public:
     QwtMatrixRasterData *RDf;
     QwtMatrixRasterData *RImage;
     QList<double> contourLevels;
-    QwtAxisId *axisYL1;
-    QwtAxisId *axisYL2;
-    QwtAxisId *axisYR1;
-    QwtAxisId *axisYR2;
+    // QwtAxisId *axisYL1;
+    // QwtAxisId *axisYL2;
+    // QwtAxisId *axisYR1;
+    // QwtAxisId *axisYR2;
+    // QwtAxisId *axisX;
     QList <QVector <double>> Xa;
     QList <QVector <double>> Ya;
     QList <QVector <double>> Xc;
