@@ -163,13 +163,16 @@ void lisemqt::setupMapPlot()
     title.setText("Runoff (l/s)");
     title.setFont(QFont("MS Shell Dlg 2",12));
     MPlot = new QwtPlot(title, this);
+
     // make the plot window
     tabWidget_out->setCurrentIndex(1);
     maplayout->insertWidget(0, MPlot, 0);
 
   //  MPlot->setStyleSheet(QString("* { background-color: %1 }").arg("#555555"));
     // put it on screen
-  //  MPlot->enableAxis( QwtAxis::YRight );
+
+    MPlot->setAxisVisible( QwtAxis::YRight );
+
     MPlot->setAxisTitle(QwtAxis::XBottom, "m");
     MPlot->setAxisTitle(QwtAxis::YLeft, "m");
     MPlot->setAxisLabelRotation(QwtAxis::YLeft, 270);
