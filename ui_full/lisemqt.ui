@@ -70,7 +70,7 @@
        <enum>QTabWidget::TabPosition::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -2217,7 +2217,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>8</number>
+                  <number>9</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -9714,9 +9714,9 @@
                            <property name="font">
                             <font>
                              <pointsize>8</pointsize>
-                             <bold>false</bold>
                              <underline>false</underline>
                              <kerning>true</kerning>
+                             <fontweight>Medium</fontweight>
                             </font>
                            </property>
                            <property name="text">

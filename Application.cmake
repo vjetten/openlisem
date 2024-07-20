@@ -6,20 +6,17 @@ IF(WIN32)
    # NOTE: a branch of QWT is used for double axis display:
    # https://sourceforge.net/p/qwt/code/HEAD/tree/branches/qwt-6.1-multiaxes/
     #SET(QWT_BUILD_DIR "c:/qt/qwt-6.1-ma")          # <= give your own folder names here
-    SET(QWT_BUILD_DIR "c:/qt/qwt-6.3.0")          # <= give your own folder names here
+    #SET(QWT_BUILD_DIR "c:/qt/qwt-6.3.0")          # <= give your own folder names here
+    SET(QWT_BUILD_DIR "C:/prgc/lisemgit/qwt/git")          # <= give your own folder names here
     SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # <= give your own folder names here
 
     SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
 
-    # QWT standard MSYS install
-    #   SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/qwt-qt5")
-    #   SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
-
     # Lisem uses a QWT branch with quadruple axes support
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
-    #SET(QWT_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/qwtlib/libqwt.dll.a")
+   # SET(QWT_LIBRARIES "${MINGW_BUILD_DIR}/lib/libqwt-qt6.dll.a")
 
     #SET(PCR_LIBRARIES "C:/prgc/PCR/libs/sources/libpcraster_raster_format.a")
 

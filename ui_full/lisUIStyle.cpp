@@ -191,7 +191,7 @@ void lisemqt::lightStyleUI()
                                 "QTabWidget { background-color: #fcfcfc; }"
                                 "QGroupBox#groupBoxOutput::title{color: #2266aa;}"
                                 "QGroupBox#groupBoxInput::title{color: #2266aa;}"
-                                "QWidget { font-size: %1px; }"
+                                "* { font-size: %1px; }"
                                 ).arg(genfontsize)
                         );
 
@@ -268,7 +268,7 @@ void lisemqt::darkStyleUI()
                         "QTabWidget#tabWidgetOptions QTabBar::tab:selected {background-color: #1D545C; "
                                     "height:32px; width: 42px;margin: 0px; padding-top: -15px; padding-bottom: 15px}"
                         "QTabWidget#tabWidget QTabBar::tab:selected {background-color: #1D545C; color #e57537;}"
-                        "QWidget { font-size: %1px; }"
+                        "* { font-size: %1px; }"
                         ).arg(genfontsize));
     // "QWidget#tab_general  {background-color: #363636;} "
     // "QWidget#tab_meteo    {background-color: #363636;} "
@@ -322,7 +322,7 @@ void lisemqt::SetStyleUI()
    toolBar->setMovable(false);
 
    // interface elements that are not visible for now
- //  tabWidgetOptions->removeTab(9);
+   tabWidgetOptions->removeTab(9);
 
    int w = 80, h = 15;
    label_dx->setMinimumSize(w,h);
@@ -435,11 +435,22 @@ void lisemqt::fontIncrease()
 //---------------------------------------------------------------
 void lisemqt::setfontSize()
 {
-    if (darkLISEM)
-        darkStyleUI();
-    else
-        lightStyleUI();
-    //qApp->setStyleSheet(QString("QWidget { font-size: %1px; }").arg(genfontsize));
+    // if (darkLISEM)
+    //     darkStyleUI();
+    // else
+    //     lightStyleUI();
+    // //qApp->setStyleSheet(QString("QWidget { font-size: %1px; }").arg(genfontsize));
+    //QFont font = qApp->font();
+    // const QWidgetList allWidgets = QApplication::allWidgets();
+    // for (QWidget *widget : allWidgets) {
+    //     QFont font = widget->font();
+    //     font.setPointSize(genfontsize);
+    //     widget->setFont(font);
+    //     widget->update();
+    // }
+    qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
+
+    qDebug() <<"F"<<genfontsize;
 }
 
 
