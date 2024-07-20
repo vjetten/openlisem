@@ -630,7 +630,7 @@ void TWorld::GetRunFile(void)
         {
             if (S.contains("="))
             {
-                QStringList SL = S.split(QRegExp("="));
+                QStringList SL = S.split(QRegularExpression("="));
                 runnamelist[nrrunnamelist].name = SL[0].trimmed();
                 runnamelist[nrrunnamelist].value = SL[1].trimmed();
                 nrrunnamelist++;

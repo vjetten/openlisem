@@ -69,7 +69,7 @@ void TWorld::GetSnowmeltData(QString name)
     {
         S = fff.readLine();
         if (S.contains("\n"))
-            S.remove(S.count()-1,1); // readLine also reads \n as a character on an empty line!
+            S.remove(S.size()-1,1); // readLine also reads \n as a character on an empty line!
         if (!S.trimmed().isEmpty())
             rainRecs << S.trimmed();
     }
@@ -81,7 +81,7 @@ void TWorld::GetSnowmeltData(QString name)
     // second line is only an integer
     if (ok)
     {
-        SL = rainRecs[count+2].split(QRegExp("\\s+"));
+        SL = rainRecs[count+2].split(QRegularExpression("\\s+"));
         if (count == SL.count())
             oldformat = false;
         //if the number of columns equals the integer then new format
@@ -94,13 +94,13 @@ void TWorld::GetSnowmeltData(QString name)
 
     if (oldformat)
     {
-        QStringList SL = rainRecs[0].split(QRegExp("\\s+"));
+        QStringList SL = rainRecs[0].split(QRegularExpression("\\s+"));
         // get first line, white space character as split for header
 
         nrStations = SL[SL.size()-1].toInt(&ok, 10);
         // read nr stations from last value in old style header
         // failure gives 0
-        SL = rainRecs[rainRecs.count()-1].split(QRegExp("\\s+"));
+        SL = rainRecs[rainRecs.count()-1].split(QRegularExpression("\\s+"));
         oldformat = (nrStations == SL.count()-1);
     }
 
@@ -136,7 +136,7 @@ void TWorld::GetSnowmeltData(QString name)
         int r_ = r+nrStations+skiprows;
 
         // split snowmelt record row with whitespace
-        QStringList SL = rainRecs[r_].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+        QStringList SL = rainRecs[r_].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
@@ -144,7 +144,7 @@ void TWorld::GetSnowmeltData(QString name)
 
         // check is time is increasing with next row
         if (r+1 < nrSeries) {
-            QStringList SL1 = rainRecs[r_+1].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+            QStringList SL1 = rainRecs[r_+1].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
             int time1 = getTimefromString(SL1[0]);
             if (time1 < time) {
                 ErrorString = QString("Time in evaporation records is not increasing from row %1 to %2. Check your file!").arg(r_).arg(r_+1);

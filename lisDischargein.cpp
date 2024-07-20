@@ -57,9 +57,9 @@ void TWorld::GetDischargeData(QString name)
     {
         S = fff.readLine();
         if (S.contains("\r\n"))
-            S.remove(S.count()-2,2);
+            S.remove(S.size()-2,2);
         if (S.contains("\n"))
-            S.remove(S.count()-1,1);
+            S.remove(S.size()-1,1);
 
         if (!S.trimmed().isEmpty())
             QRecs << S.trimmed();
@@ -72,7 +72,7 @@ void TWorld::GetDischargeData(QString name)
     // second line is only an integer
     if (ok)
     {
-        SL = QRecs[count+2].split(QRegExp("\\s+"));
+        SL = QRecs[count+2].split(QRegularExpression("\\s+"));
         // check nr of columns in file
         if (count != SL.count()) {
             ErrorString = "Error: The nr of columns/stations in the discharge file does not equal the number on the second row.";
@@ -87,7 +87,7 @@ void TWorld::GetDischargeData(QString name)
     // get station numbers from header, or fill in 1,2 ... n
     stationQID.clear();
     for (int i = 0; i < nrStations; i++) {
-        SL = QRecs[i+3].split(QRegExp("\\s+"));
+        SL = QRecs[i+3].split(QRegularExpression("\\s+"));
         int tmp = SL.last().toInt(&ok, 10);
         if (ok)
             stationQID << tmp;
@@ -114,7 +114,7 @@ void TWorld::GetDischargeData(QString name)
         int r_ = r+nrStations+3;
 
         // split rainfall record row with whitespace
-        QStringList SL = QRecs[r_].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+        QStringList SL = QRecs[r_].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
@@ -122,7 +122,7 @@ void TWorld::GetDischargeData(QString name)
 
         // check if time is increasing with next row
         if (r+1 < nrSeries) {
-            QStringList SL1 = QRecs[r_+1].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+            QStringList SL1 = QRecs[r_+1].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
             int time1 = getTimefromString(SL1[0]);
             if (time1 < time) {
                 ErrorString = QString("Time in discharge records is not increasing from row %1 to %2. Check your file!").arg(r_).arg(r_+1);
@@ -232,9 +232,9 @@ void TWorld::GetWHboundData(QString name)
     {
         S = fff.readLine();
         if (S.contains("\r\n"))
-            S.remove(S.count()-2,2);
+            S.remove(S.size()-2,2);
         if (S.contains("\n"))
-            S.remove(S.count()-1,1);
+            S.remove(S.size()-1,1);
 
         if (!S.trimmed().isEmpty())
             QRecs << S.trimmed();
@@ -247,7 +247,7 @@ void TWorld::GetWHboundData(QString name)
     // second line is only an integer
     if (ok)
     {
-        SL = QRecs[count+2].split(QRegExp("\\s+"));
+        SL = QRecs[count+2].split(QRegularExpression("\\s+"));
         // check nr of columns in file
         if (count != SL.count()) {
             ErrorString = "Error: The nr of columns/stations in the discharge file does not equal the number on the second row.";
@@ -274,7 +274,7 @@ void TWorld::GetWHboundData(QString name)
         int r_ = r+4;
 
         // split rainfall record row with whitespace
-        QStringList SL = QRecs[r_].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+        QStringList SL = QRecs[r_].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
@@ -282,7 +282,7 @@ void TWorld::GetWHboundData(QString name)
 
         // check if time is increasing with next row
         if (r+1 < nrSeries) {
-            QStringList SL1 = QRecs[r_+1].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+            QStringList SL1 = QRecs[r_+1].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
             int time1 = getTimefromString(SL1[0]);
             if (time1 < time) {
                 ErrorString = QString("Time in discharge records is not increasing from row %1 to %2. Check your file!").arg(r_).arg(r_+1);

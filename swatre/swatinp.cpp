@@ -110,7 +110,7 @@ void TWorld::ReadSwatreInputNew(void)
             {
                 int pos = S.indexOf("#");
                 if (pos > 0)
-                    swatreProfileDef << S.remove(pos,S.count()).trimmed();
+                    swatreProfileDef << S.remove(pos,S.size()).trimmed();
             }
         }
     }

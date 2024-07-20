@@ -77,7 +77,7 @@ void lisemqt::GetRunfile()
         i++;
         if (S.contains("="))
         {
-            QStringList SL = S.split(QRegExp("="));
+            QStringList SL = S.split(QRegularExpression("="));
 
             for (int j = 0; j < nrnamelist; j++) {
                 if (namelist[j].name == SL[0].trimmed()) {
@@ -108,7 +108,8 @@ void lisemqt::ParseInputData()
     bool Rainmaps = false;
 
     QLocale loc = QLocale::system(); // current locale
-    QChar pnt = loc.decimalPoint();
+    QString pnt = loc.decimalPoint();
+    //QChar pnt = loc.decimalPoint();
 
     for (j = 0; j < nrnamelist; j++)
     {

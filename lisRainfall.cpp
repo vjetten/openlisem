@@ -57,7 +57,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
     {
         S = fff.readLine();
         if (S.contains("\n"))
-            S.remove(S.count()-1,1);
+            S.remove(S.size()-1,1);
         if (!S.trimmed().isEmpty())
             rainRecs << S.trimmed();
      //   qDebug() << S;
@@ -114,7 +114,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
         rl.calib = 1.0;
 
         // split rainfall record row with whitespace
-        QStringList SL = rainRecs[r+skip].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+        QStringList SL = rainRecs[r+skip].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 //qDebug() << SL;
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
@@ -191,9 +191,9 @@ void TWorld::GetRainfallData(QString name)
     {
         S = fff.readLine();
         if (S.contains("\r\n"))
-            S.remove(S.count()-2,2);
+            S.remove(S.size()-2,2);
         if (S.contains("\n"))
-            S.remove(S.count()-1,1);
+            S.remove(S.size()-1,1);
 
         if (!S.trimmed().isEmpty())
             rainRecs << S.trimmed();
@@ -213,7 +213,7 @@ void TWorld::GetRainfallData(QString name)
     // second line is only an integer
     if (ok)
     {
-        SL = rainRecs[count+2].split(QRegExp("\\s+"));
+        SL = rainRecs[count+2].split(QRegularExpression("\\s+"));
         // check nr of columns in file
         if (count != SL.count()) {
             ErrorString = "Rainfall file error: The nr of columns in the rainfall file does not equal the number on the second row.";
@@ -228,7 +228,7 @@ void TWorld::GetRainfallData(QString name)
     // get station numbers from header, or fill in 1,2 ... n
     stationID.clear();
     for (int i = 0; i < nrStations; i++) {
-        SL = rainRecs[i+3].split(QRegExp("\\s+"));
+        SL = rainRecs[i+3].split(QRegularExpression("\\s+"));
         int tmp = SL.last().toInt(&ok, 10);
         if (ok)
             stationID << tmp;
@@ -279,7 +279,7 @@ void TWorld::GetRainfallData(QString name)
         } else {
 
             for (int i = 0; i < stationID.count(); i++) {
-                SL = rainRecs[i+3].split(QRegExp("\\s+"));
+                SL = rainRecs[i+3].split(QRegularExpression("\\s+"));
                 if (SL.count() < 3)
                     break;
                 IDI_POINT p;
@@ -322,7 +322,7 @@ void TWorld::GetRainfallData(QString name)
         int r_ = r+nrStations+3;
 
         // split rainfall record row with whitespace
-        QStringList SL = rainRecs[r_].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+        QStringList SL = rainRecs[r_].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
@@ -330,7 +330,7 @@ void TWorld::GetRainfallData(QString name)
 
         // check if time is increasing with next row
         if (r+1 < nrSeries) {
-            QStringList SL1 = rainRecs[r_+1].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+            QStringList SL1 = rainRecs[r_+1].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
             int time1 = getTimefromString(SL1[0]);
             if (time1 < time) {
                 ErrorString = QString("Time in rainfall is not increasing from row %1 to %2: %3 and %4. Check your file!")
@@ -637,11 +637,11 @@ double TWorld::getTimefromString(QString sss)
         return(min);
     }
 
-    if (!sss.contains(QRegExp("[-:/]"))) {
+    if (!sss.contains(QRegularExpression("[-:/]"))) {
         day = sss.toDouble();
     } else {
         // DDD/HH/MM or DDD-HH-MM or DDD:HH:MM
-        QStringList DHM = sss.split(QRegExp("[-:/]"));
+        QStringList DHM = sss.split(QRegularExpression("[-:/]"));
 
         if (DHM.count() == 2) {
             day = DHM.at(0).toDouble();

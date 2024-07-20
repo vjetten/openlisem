@@ -170,7 +170,7 @@ void lisemqt::runmodel()
         zero.clear();
         PGraph->setSamples(zero,zero);
         QGraph->setSamples(zero,zero);
-        QbGraph->setSamples(zero,zero);
+        //QbGraph->setSamples(zero,zero);
         QsGraph->setSamples(zero,zero);
         CGraph->setSamples(zero,zero);
         QtileGraph->setSamples(zero,zero);

@@ -100,6 +100,7 @@ SET(APP_SOURCES
     ui_full/LisUImapplot.cpp
     ui_full/LisUImapplot.h
     ui_full/Lismpeg.cpp
+    ui_full/lisUIStyle.cpp
     ui_full/Lismpeg.h
     ui_full/lisemqt.h
     swatre/swatstep.cpp
@@ -185,21 +186,24 @@ add_executable(Lisem WIN32
 )
 
 # Link the necessary libraries
-target_link_libraries(Lisem
-    Qt6::Widgets Qt6::Gui Qt6::Core
-    ${GDAL_LIBRARIES} ${QWT_LIBRARIES}
-    OpenMP::OpenMP_CXX
-)
+if (Qt6_FOUND)
+    target_link_libraries(Lisem
+        Qt6::Widgets Qt6::Gui Qt6::Core
+        ${GDAL_LIBRARIES} ${QWT_LIBRARIES}
+        OpenMP::OpenMP_CXX
+    )
+else()
+    target_link_libraries(Lisem
+        Qt5::Widgets Qt5::Gui Qt5::Core
+        ${GDAL_LIBRARIES} ${QWT_LIBRARIES}
+        OpenMP::OpenMP_CXX
+    )
+endif()
 
 #QT5_WRAP_UI(UI_SOURCES ui_full/lisemqt.ui ui_full/lismpeg.ui)
 #
 #QT5_ADD_RESOURCES(RCC_SOURCES resources/openlisem.qrc)
 #
-#add_executable(Lisem WIN32
-#    ${UI_SOURCES}
-#    ${RCC_SOURCES}
-#    ${APP_SOURCES}
-#)
 #
 #target_link_libraries(Lisem
 #    Qt5::Widgets Qt5::Gui Qt5::Core

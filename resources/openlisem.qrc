@@ -71,5 +71,6 @@
         <file>d_river2.png</file>
         <file>2X/d_fontsmaller2X.png</file>
         <file>river4.png</file>
+        <file>../openLisemN.ico</file>
     </qresource>
 </RCC>

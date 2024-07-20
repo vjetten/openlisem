@@ -134,13 +134,14 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     setupPlot();
     // set up the discharge graphs
+ //   return;
 
     setupMapPlot();
     // set up the raster map drawing
 
-    Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
+//    Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
     // put the progress bar into the statusbar
-
+   // this->statusBar->addPermanentWidget(progressBar);
     SetStyleUI();
     // do some style things
 
@@ -732,9 +733,9 @@ void lisemqt::setMapDir()
 //    path = QFileDialog::getOpenFileName(this,QString("Select maps directory"),
 //                                        pathin,"maps (*.map)");
     if(!path.isEmpty()) {
-        if (path.count("/") > 0 && path.lastIndexOf("/") != path.count())
+        if (path.count("/") > 0 && path.lastIndexOf("/") != path.size())
             path = path + "/";
-        if (path.count("\\") > 0 && path.lastIndexOf("\\") != path.count())
+        if (path.count("\\") > 0 && path.lastIndexOf("\\") != path.size())
             path = path + "\\";
         E_MapDir->setText( path );
     }
@@ -769,9 +770,9 @@ void lisemqt::setResultDir()
                                              QFileDialog::ShowDirsOnly
                                              | QFileDialog::DontResolveSymlinks);
     if(!path.isEmpty()) {
-        if (path.count("/") > 0 && path.lastIndexOf("/") != path.count())
+        if (path.count("/") > 0 && path.lastIndexOf("/") != path.size())
             path = path + "/";
-        if (path.count("\\") > 0 && path.lastIndexOf("\\") != path.count())
+        if (path.count("\\") > 0 && path.lastIndexOf("\\") != path.size())
             path = path + "\\";
         E_ResultDir->setText( path );
     }
@@ -917,7 +918,7 @@ void lisemqt::GetStorePath()
     {
         QString  line = fff.readLine();
         if (line.contains('\n'))
-            line.remove(line.count()-1,1);
+            line.remove(line.size()-1,1);
         //remove '/n'
         if (line.isEmpty())
             continue;
@@ -1323,7 +1324,7 @@ void lisemqt::resetAll()
     resetTabAdvanced();
 
     tabWidget->setCurrentIndex(0);
-    tabWidget_out->setCurrentIndex(1);
+ //   tabWidget_out->setCurrentIndex(1);
     tabWidget_out->setCurrentIndex(0);
 
     checkBoxComboMaps->setEnabled(true);
@@ -1332,7 +1333,7 @@ void lisemqt::resetAll()
     checkBoxComboMaps2->setChecked(false);
     checkBoxComboMaps2->setEnabled(false);
 
-    showOutputData();
+    //showOutputData();
 }
 //--------------------------------------------------------------------
 QString lisemqt::findValidDir(QString path, bool up)
@@ -1391,21 +1392,33 @@ void lisemqt::fontSelect()
     //  if (ok) {
     // the user clicked OK and font is set to the font the user selected
     qApp->setFont(font);
-    setfontSize();
+    if (darkLISEM)
+        darkStyleUI();
+    else
+        lightStyleUI();
+    //setfontSize();
 }
 //---------------------------------------------------------------
 void lisemqt::fontDecrease()
 {
     genfontsize--;
     genfontsize = std::max(5, genfontsize);
-    setfontSize();
+    if (darkLISEM)
+        darkStyleUI();
+    else
+        lightStyleUI();
+    //setfontSize();
 }
 //---------------------------------------------------------------
 void lisemqt::fontIncrease()
 {
     genfontsize++;
     genfontsize = std::min(20, genfontsize);
-    setfontSize();
+    if (darkLISEM)
+        darkStyleUI();
+    else
+        lightStyleUI();
+    //setfontSize();
 
 }
 //---------------------------------------------------------------
@@ -1415,14 +1428,15 @@ void lisemqt::setfontSize()
     //int fs = genfontsize;
     //qDebug() << genfontsize;
 
-    const QWidgetList allWidgets = QApplication::allWidgets();
-    for (QWidget *widget : allWidgets) {
-        QFont font = widget->font();
-        font.setPointSize(genfontsize);
-        widget->setFont(font);
-        widget->update();
-    }
-
+    // const QWidgetList allWidgets = QApplication::allWidgets();
+    // for (QWidget *widget : allWidgets) {
+    //     QFont font = widget->font();
+    //     font.setPointSize(genfontsize);
+    //     widget->setFont(font);
+    //     widget->update();
+    // }
+    QString stylesheet = QString("QWidget { font-size: %1px; }").arg(genfontsize);
+    qApp->setStyleSheet(stylesheet);
 }
 
 

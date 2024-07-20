@@ -58,7 +58,7 @@ void lisemqt::setupPlot()
 
     PGraph = new QwtPlotCurve("Rainfall intensity");
     QGraph = new QwtPlotCurve("Discharge");
-    QbGraph = new QwtPlotCurve("Water Height boundary");
+    //QbGraph = new QwtPlotCurve("Water Height boundary");
     QsGraph = new QwtPlotCurve("Sediment discharge");
     CGraph = new QwtPlotCurve("Concentration");
     QtileGraph = new QwtPlotCurve("Tile drain");
@@ -98,13 +98,18 @@ void lisemqt::setupPlot()
     pen5.setColor(col);
     pen5.setCosmetic(false);
 
-    axisYL1 = new QwtAxisId(QwtPlot::yLeft,0);
-    axisYL2 = new QwtAxisId(QwtPlot::yLeft,1);
-    axisYR1 = new QwtAxisId(QwtPlot::yRight,0);
-    axisYR2 = new QwtAxisId(QwtPlot::yRight,1);
+    axisYL1 = new QwtAxisId(QwtPlot::yLeft);
+    //axisYL2 = new QwtAxisId(QwtPlot::yLeft);
+    axisYR1 = new QwtAxisId(QwtPlot::yRight);
+    //axisYR2 = new QwtAxisId(QwtPlot::yRight);
 
-    HPlot->setAxesCount(QwtPlot::yLeft, 2);
-    HPlot->setAxesCount(QwtPlot::yRight, 2);
+    // axisYL1 = new QwtAxisId(QwtPlot::yLeft,0);
+    // axisYL2 = new QwtAxisId(QwtPlot::yLeft,1);
+    // axisYR1 = new QwtAxisId(QwtPlot::yRight,0);
+    // axisYR2 = new QwtAxisId(QwtPlot::yRight,1);
+
+  //  HPlot->setAxesCount(QwtPlot::yLeft, 2);
+  //  HPlot->setAxesCount(QwtPlot::yRight, 2);
 
     QGraph->setPen(pen1);
     QGraph->setAxes(HPlot->xBottom, *axisYL1);
@@ -112,9 +117,9 @@ void lisemqt::setupPlot()
     PGraph->setPen(pen2);
     PGraph->setAxes(HPlot->xBottom, *axisYR1);// HPlot->yRight);
 
-    QbGraph->setPen(pen3);
-    QbGraph->setAxes(HPlot->xBottom, *axisYL1);
-    QbGraph->setStyle(QwtPlotCurve::Lines);
+    // QbGraph->setPen(pen3);
+    // QbGraph->setAxes(HPlot->xBottom, *axisYL1);
+    // QbGraph->setStyle(QwtPlotCurve::Lines);
 
     QtileGraph->setPen(pen3);
     QtileGraph->setAxes(HPlot->xBottom, *axisYL1);
@@ -124,7 +129,7 @@ void lisemqt::setupPlot()
     QsGraph->setAxes(HPlot->xBottom, *axisYR1);
 
     CGraph->setPen(pen5);
-    CGraph->setAxes(HPlot->xBottom, *axisYR2);
+    CGraph->setAxes(HPlot->xBottom, *axisYR1);
     QsGraph->setStyle(QwtPlotCurve::Lines);
     CGraph->setStyle(QwtPlotCurve::Lines);
 
@@ -151,14 +156,14 @@ void lisemqt::setupPlot()
     HPlot->setAxisTitle(*axisYR1, "P (mm/h)");
 
     HPlot->setAxisAutoScale(*axisYL1,true);
-    HPlot->setAxisAutoScale(*axisYL2,true);
+    //HPlot->setAxisAutoScale(*axisYL2,true);
     HPlot->setAxisAutoScale(*axisYR1,true);
-    HPlot->setAxisAutoScale(*axisYR2,true);
+    //HPlot->setAxisAutoScale(*axisYR2,true);
 
     HPlot->setAxisScale(*axisYL1, 0.0, 1.0 );
-    HPlot->setAxisScale(*axisYL2, 0.0, 1.0 );
+    //HPlot->setAxisScale(*axisYL2, 0.0, 1.0 );
     HPlot->setAxisScale(*axisYR1, 0.0, 1.0 );
-    HPlot->setAxisScale(*axisYR2, 0.0, 1.0 );
+    //HPlot->setAxisScale(*axisYR2, 0.0, 1.0 );
 
     // if (darkLISEM)
     //     HPlot->setCanvasBackground(QBrush("#777777"));
@@ -263,36 +268,36 @@ void lisemqt::initPlot()
         QsGraph->attach(HPlot);
         CGraph->attach(HPlot);
 
-        HPlot->setAxesCount(QwtPlot::yLeft, 2);
-        HPlot->setAxesCount(QwtPlot::yRight, 2);
+      //  HPlot->setAxesCount(QwtPlot::yLeft, 2);
+      //  HPlot->setAxesCount(QwtPlot::yRight, 2);
 
         QGraph->setAxes(HPlot->xBottom, *axisYL1);
-        PGraph->setAxes(HPlot->xBottom, *axisYL2);
+        PGraph->setAxes(HPlot->xBottom, *axisYL1);
         QsGraph->setAxes(HPlot->xBottom, *axisYR1);
-        CGraph->setAxes(HPlot->xBottom, *axisYR2);
+        CGraph->setAxes(HPlot->xBottom, *axisYR1);
 
         if (checkUnits_ls->isChecked())
             HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
         else
             HPlot->setAxisTitle(*axisYL1, "Q (m3/s)");
-        HPlot->setAxisTitle(*axisYL2, "P (mm/h)");
+        HPlot->setAxisTitle(*axisYL1, "P (mm/h)");
         HPlot->setAxisTitle(*axisYR1, "Qs (kg/s)");
-        HPlot->setAxisTitle(*axisYR2, "C (g/l)");
+        HPlot->setAxisTitle(*axisYR1, "C (g/l)");
     }
     else
     {
-        QbGraph->setAxes(HPlot->xBottom, *axisYR1);
+      //  QbGraph->setAxes(HPlot->xBottom, *axisYR1);
         QGraph->setAxes(HPlot->xBottom, *axisYL1);
         PGraph->setAxes(HPlot->xBottom, *axisYR1);
-        HPlot->setAxesCount(QwtPlot::yLeft, 1);
-        HPlot->setAxesCount(QwtPlot::yRight, 1);
+        //HPlot->setAxesCount(QwtPlot::yLeft, 1);
+        //HPlot->setAxesCount(QwtPlot::yRight, 1);
         if (checkUnits_ls->isChecked())
             HPlot->setAxisTitle(*axisYL1, "Q (l/s)");
         else
             HPlot->setAxisTitle(*axisYL1, "Q (m3/s)");
         HPlot->setAxisTitle(*axisYR1, "P (mm/h)");
-        if (checkWaterUserIn->isChecked())
-            HPlot->setAxisTitle(*axisYR1, "WH (m)");
+        //if (checkWaterUserIn->isChecked())
+          //  HPlot->setAxisTitle(*axisYR1, "WH (m)");
     }
 
     // redraw legend with nr of variables
@@ -315,8 +320,8 @@ void lisemqt::showPlot()
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
     PGraph->setSamples(op.Time,op.Pmm);
 
-    if (checkWaterUserIn->isChecked())
-       QbGraph->setSamples(op.Time,*op.Wavein[index]);
+    // if (checkWaterUserIn->isChecked())
+    //    QbGraph->setSamples(op.Time,*op.Wavein[index]);
 
     int _j = op.OutletQ[index]->count()-1; // last value index
 

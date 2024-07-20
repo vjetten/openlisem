@@ -28,9 +28,9 @@
 //---------------------------------------------------------------------------
 int lisemqt::SetStyleUISize()
 {
-    //QRect rect = QGuiApplication::primaryScreen()->availableGeometry();
-    int _H = QApplication::desktop()->height();//rect.height();
-
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect screenGeometry = screen->geometry();
+    int _H = screenGeometry.height();
     int disp = 3;
 
     if(_H < 1400) disp = 2;
@@ -182,7 +182,8 @@ void lisemqt::lightStyleUI()
                                 "QTabWidget { background-color: #fcfcfc; }"
                                 "QGroupBox#groupBoxOutput::title{color: %2;}"
                                 "QGroupBox#groupBoxInput::title{color: %2;}"
-                                ).arg(sc).arg(sc1)
+                                "QWidget { font-size: %3px; }"
+                                ).arg(sc).arg(sc1).arg(genfontsize)
                         );
 
     HPlot->setStyleSheet("*{background-color: #fcfcfc; color: #000000;}");
@@ -221,7 +222,7 @@ void lisemqt::darkStyleUI()
     fontIncreaseAct->setIcon(QIcon(":/2X/d_fontbigger2X.png"));
     fontDecreaseAct->setIcon(QIcon(":/2X/d_fontsmaller2X.png"));
 
-    qApp->setStyleSheet("* { background-color: #2E2F30; color: #D6CF9A;}"
+    qApp->setStyleSheet(QString("* { background-color: #2E2F30; color: #D6CF9A;}"
                         "*:disabled { color: #888888; }"
 
                         "QTreeView, QAbstractItemView *{ background: #2E2F30; background-color: #2E2F30;"
@@ -257,18 +258,16 @@ void lisemqt::darkStyleUI()
                         "QTabWidget#tabWidgetOptions QTabBar::tab:selected {background-color: #1D545C; "
                                     "height:32px; width: 42px;margin: 0px; padding-top: -15px; padding-bottom: 15px}"
                         "QTabWidget#tabWidget QTabBar::tab:selected {background-color: #1D545C; color #e57537;}"
-
-                        // "QWidget#tab_general  {background-color: #363636;} "
-                        // "QWidget#tab_meteo    {background-color: #363636;} "
-                        // "QWidget#tab_interc   {background-color: #363636;} "
-                        // "QWidget#tab_infil    {background-color: #363636;} "
-                        // "QWidget#tab_flooding {background-color: #363636;} "
-                        // "QWidget#tab_Channel  {background-color: #363636;} "
-                        // "QWidget#tab_calib    {background-color: #363636;} "
-                        // "QWidget#tab_advanced {background-color: #363636;} "
-
-                        );
-
+                        "QWidget { font-size: %1px; }"
+                        ).arg(genfontsize));
+    // "QWidget#tab_general  {background-color: #363636;} "
+    // "QWidget#tab_meteo    {background-color: #363636;} "
+    // "QWidget#tab_interc   {background-color: #363636;} "
+    // "QWidget#tab_infil    {background-color: #363636;} "
+    // "QWidget#tab_flooding {background-color: #363636;} "
+    // "QWidget#tab_Channel  {background-color: #363636;} "
+    // "QWidget#tab_calib    {background-color: #363636;} "
+    // "QWidget#tab_advanced {background-color: #363636;} "
     HPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
     MPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
 
@@ -299,91 +298,85 @@ void lisemqt::darkStyleUI()
 // general sgtyle things, done once
 void lisemqt::SetStyleUI()
 {
-    trayIcon = new QSystemTrayIcon(this);
-    trayIcon->setIcon(QIcon(":/openLisemN.ico"));
-    trayIcon->show();
-    tabWidgetOptions->tabBar()->setExpanding(true);
 
-    genfontsize = 8+SetStyleUISize();
-    setfontSize();
+   trayIcon = new QSystemTrayIcon(this);
+   trayIcon->setIcon(QIcon(":/openLisemN.ico"));
+   trayIcon->show();
 
-    toolBar_2->setMovable(false);
-    toolBar->setMovable(false);
+   tabWidgetOptions->tabBar()->setExpanding(true);
 
-    // interface elements that are not visible for now
-    tabWidgetOptions->removeTab(9);
+   genfontsize = 11;//8+SetStyleUISize();
+   //setfontSize();
 
-     int w = 80, h = 15;
-    label_dx->setMinimumSize(w,h);
-    label_area->setMinimumSize(w,h);
-    label_time->setMinimumSize(w,h);
-    label_endtime->setMinimumSize(w,h);
-    label_raintot->setMinimumSize(w,h);
-    label_ETatot->setMinimumSize(w,h);
-    label_watervoltot->setMinimumSize(w,h);
-    label_stormdraintot->setMinimumSize(w,h);
-    label_qtot->setMinimumSize(w,h);
-    label_infiltot->setMinimumSize(w,h);
-    label_surfstor->setMinimumSize(w,h);
-    label_interctot->setMinimumSize(w,h);
-    //label_qtotm3->setMinimumSize(w,h);
-    label_qpeaktime->setMinimumSize(w,h);
-    label_ppeaktime->setMinimumSize(w,h);
-    label_QPfrac->setMinimumSize(w,h);
-    //label_discharge->setMinimumSize(w,h);
-    label_floodVolmm->setMinimumSize(w,h);
-    label_watervolchannel->setMinimumSize(w,h);
-    //   label_litterstore->setMinimumSize(w,h);
-    //label_baseflowtot->setMinimumSize(w,h);
 
-    label_qtotm3sub->setMinimumSize(w,h);
-    label_dischargesub->setMinimumSize(w,h);
-    label_qpeaksub->setMinimumSize(w,h);
-    label_soillosssub->setMinimumSize(w,h);
-    label_Qssub->setMinimumSize(w,h);
+   toolBar_2->setMovable(false);
+   toolBar->setMovable(false);
+   return;
+   // interface elements that are not visible for now
+ //  tabWidgetOptions->removeTab(9);
 
-    label_splashdet->setMinimumSize(w,h);
-    label_flowdet->setMinimumSize(w,h);
-    label_sedvol->setMinimumSize(w,h);
-    label_dep->setMinimumSize(w,h);
-    label_detch->setMinimumSize(w,h);
-    label_depch->setMinimumSize(w,h);
-    label_sedvolch->setMinimumSize(w,h);
-    label_soilloss->setMinimumSize(w,h);
-    label_soillosskgha->setMinimumSize(w,h);
-    label_SDR->setMinimumSize(w,h);
+   int w = 80, h = 15;
+   label_dx->setMinimumSize(w,h);
+   label_area->setMinimumSize(w,h);
+   label_time->setMinimumSize(w,h);
+   label_endtime->setMinimumSize(w,h);
+   label_raintot->setMinimumSize(w,h);
+   label_ETatot->setMinimumSize(w,h);
+   label_watervoltot->setMinimumSize(w,h);
+   label_stormdraintot->setMinimumSize(w,h);
+   label_qtot->setMinimumSize(w,h);
+   label_infiltot->setMinimumSize(w,h);
+   label_surfstor->setMinimumSize(w,h);
+   label_interctot->setMinimumSize(w,h);
+   //label_qtotm3->setMinimumSize(w,h);
+   label_qpeaktime->setMinimumSize(w,h);
+   label_ppeaktime->setMinimumSize(w,h);
+   label_QPfrac->setMinimumSize(w,h);
+   //label_discharge->setMinimumSize(w,h);
+   label_floodVolmm->setMinimumSize(w,h);
+   label_watervolchannel->setMinimumSize(w,h);
+   //   label_litterstore->setMinimumSize(w,h);
+   //label_baseflowtot->setMinimumSize(w,h);
 
-    label_MBs->setMinimumSize(w,h);
-    label_MB->setMinimumSize(w,h);
+   label_qtotm3sub->setMinimumSize(w,h);
+   label_dischargesub->setMinimumSize(w,h);
+   label_qpeaksub->setMinimumSize(w,h);
+   label_soillosssub->setMinimumSize(w,h);
+   label_Qssub->setMinimumSize(w,h);
 
-    //Grouped Buttons become mututally exclusive
-    GroupMapDisplay.addButton(checkBoxComboMaps, 1);
-    GroupMapDisplay.addButton(checkBoxComboMaps2, 2);
+   label_splashdet->setMinimumSize(w,h);
+   label_flowdet->setMinimumSize(w,h);
+   label_sedvol->setMinimumSize(w,h);
+   label_dep->setMinimumSize(w,h);
+   label_detch->setMinimumSize(w,h);
+   label_depch->setMinimumSize(w,h);
+   label_sedvolch->setMinimumSize(w,h);
+   label_soilloss->setMinimumSize(w,h);
+   label_soillosskgha->setMinimumSize(w,h);
+   label_SDR->setMinimumSize(w,h);
 
-    //if (checkOverlandFlow2Ddyn->isChecked()) {
-    if (E_OFWaveType->currentIndex() == 2) {
-        label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
-        label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
+   label_MBs->setMinimumSize(w,h);
+   label_MB->setMinimumSize(w,h);
 
-    } else {
-        label_107->setText("Flood mm");
-        label_40->setText("Runoff mm");
-    }
-    bool yes = E_OFWaveType->currentIndex() > 0; // !checkOverlandFlow1D->isChecked();
-    label_floodVolmm->setEnabled(yes);
-    label_107->setEnabled(yes);
+   //Grouped Buttons become mututally exclusive
+   GroupMapDisplay.addButton(checkBoxComboMaps, 1);
+   GroupMapDisplay.addButton(checkBoxComboMaps2, 2);
 
-    if (darkLISEM)
-        darkStyleUI();
-    else
-        lightStyleUI();
-    //  QString fileName = ":/qtdarcula.css";
-    //  QFile file(fileName);
-    //  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    //      qDebug() << "Unable to open the file!";
-    //  }
-    //  QTextStream in(&file);
-    //  QString fileContent = in.readAll();
-    //  file.close();
-    // qApp->setStyleSheet(fileContent);
+   //if (checkOverlandFlow2Ddyn->isChecked()) {
+   if (E_OFWaveType->currentIndex() == 2) {
+       label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
+       label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
+
+   } else {
+       label_107->setText("Flood mm");
+       label_40->setText("Runoff mm");
+   }
+   bool yes = E_OFWaveType->currentIndex() > 0; // !checkOverlandFlow1D->isChecked();
+   label_floodVolmm->setEnabled(yes);
+   label_107->setEnabled(yes);
+
+   // if (darkLISEM)
+   //     darkStyleUI();
+   // else
+   //     lightStyleUI();
 }

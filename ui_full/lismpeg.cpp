@@ -49,7 +49,7 @@ QString lismpeg::getFileorDir(QString inputdir,QString title, QStringList filter
         filters.clear();
         dialog.setNameFilters(filters);
         dialog.setDirectory(QDir(inputdir));
-        dialog.setFileMode(QFileDialog::DirectoryOnly);
+        dialog.setFileMode(QFileDialog::Directory);
     }
 
     dialog.setLabelText(QFileDialog::LookIn,title);

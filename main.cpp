@@ -63,12 +63,12 @@ int main(int argc, char *argv[])
     //     delete temp;
 
     // open console but only if run from cmd.exe in win
-#ifdef _WIN32
-    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
-        freopen("CONOUT$", "w", stdout);
-        freopen("CONOUT$", "w", stderr);
-    }
-#endif
+// #ifdef _WIN32
+//     if (AttachConsole(ATTACH_PARENT_PROCESS)) {
+//         freopen("CONOUT$", "w", stdout);
+//         freopen("CONOUT$", "w", stderr);
+//     }
+// #endif
 
     Fixture fixture; // <= necessary for GDAL
  //   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

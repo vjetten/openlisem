@@ -106,12 +106,17 @@ void lisemqt::on_toolButton_help(int page)
     helptxt->setHtml(stream.readAll());
   //  helpbox->show();
 
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect screenGeometry = screen->geometry();
+    int screenWidth = screenGeometry.width();
+    int screenHeight = screenGeometry.height();
 
     QTextEdit *view = new QTextEdit(helptxt->toHtml());
     view->createStandardContextMenu();
     view->setWindowTitle("Option help");
-    view->setMinimumWidth(qApp->desktop()->width()/3*2);
-    view->setMinimumHeight(qApp->desktop()->height()/3*2);
+
+    view->setMinimumWidth(screenWidth/3*2);
+    view->setMinimumHeight(screenHeight/3*2);
     view->setAttribute(Qt::WA_DeleteOnClose);
 
     view->show();
@@ -158,7 +163,7 @@ QString lisemqt::getFileorDir(QString inputdir,QString title, QStringList filter
         filters.clear();
         dialog.setNameFilters(filters);
         dialog.setDirectory(QDir(inputdir));
-        dialog.setFileMode(QFileDialog::DirectoryOnly);
+        dialog.setFileMode(QFileDialog::Directory);
     }
 
     dialog.setLabelText(QFileDialog::LookIn,title);

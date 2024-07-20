@@ -162,10 +162,10 @@ void lisemqt::setupMapPlot()
 {
     title.setText("Runoff (l/s)");
     title.setFont(QFont("MS Shell Dlg 2",12));
-
     MPlot = new QwtPlot(title, this);
     // make the plot window
-    maplayout->insertWidget(1, MPlot, 0);
+    tabWidget_out->setCurrentIndex(1);
+    maplayout->insertWidget(-1, MPlot, 0);
 
   //  MPlot->setStyleSheet(QString("* { background-color: %1 }").arg("#555555"));
     // put it on screen
