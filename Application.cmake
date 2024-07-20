@@ -5,7 +5,8 @@ cmake_minimum_required(VERSION 3.9)
 IF(WIN32)
    # NOTE: a branch of QWT is used for double axis display:
    # https://sourceforge.net/p/qwt/code/HEAD/tree/branches/qwt-6.1-multiaxes/
-    SET(QWT_BUILD_DIR "c:/qt/qwt-6.1-ma")          # <= give your own folder names here
+    #SET(QWT_BUILD_DIR "c:/qt/qwt-6.1-ma")          # <= give your own folder names here
+    SET(QWT_BUILD_DIR "c:/qt/qwt-6.3.0")          # <= give your own folder names here
     SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # <= give your own folder names here
 
     SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
@@ -17,14 +18,14 @@ IF(WIN32)
 
     # Lisem uses a QWT branch with quadruple axes support
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
-    SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/bin/lib/libqwt.dll.a")
+    SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
     #SET(QWT_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/qwtlib/libqwt.dll.a")
 
     #SET(PCR_LIBRARIES "C:/prgc/PCR/libs/sources/libpcraster_raster_format.a")
 
     FIND_PATH(OMP_INCLUDE_DIRS
         NAMES omp.h
-        PATHS "${MINGW_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32"
+        PATHS "${MINGW_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32/14.1.0/include"
     )
 
 ENDIF()
@@ -170,20 +171,39 @@ SET(APP_SOURCES
     openlisemico.rc
 )
 
+# Generate UI source files
+qt_wrap_ui(UI_SOURCES ui_full/lisemqt.ui ui_full/lismpeg.ui)
 
-QT5_WRAP_UI(UI_SOURCES ui_full/lisemqt.ui ui_full/lismpeg.ui)
+# Generate resource source files
+qt_add_resources(RCC_SOURCES resources/openlisem.qrc)
 
-QT5_ADD_RESOURCES(RCC_SOURCES resources/openlisem.qrc)
-
+# Add executable target
 add_executable(Lisem WIN32
     ${UI_SOURCES}
     ${RCC_SOURCES}
     ${APP_SOURCES}
 )
 
+# Link the necessary libraries
 target_link_libraries(Lisem
-    Qt5::Widgets Qt5::Gui Qt5::Core
+    Qt6::Widgets Qt6::Gui Qt6::Core
     ${GDAL_LIBRARIES} ${QWT_LIBRARIES}
     OpenMP::OpenMP_CXX
 )
+
+#QT5_WRAP_UI(UI_SOURCES ui_full/lisemqt.ui ui_full/lismpeg.ui)
+#
+#QT5_ADD_RESOURCES(RCC_SOURCES resources/openlisem.qrc)
+#
+#add_executable(Lisem WIN32
+#    ${UI_SOURCES}
+#    ${RCC_SOURCES}
+#    ${APP_SOURCES}
+#)
+#
+#target_link_libraries(Lisem
+#    Qt5::Widgets Qt5::Gui Qt5::Core
+#    ${GDAL_LIBRARIES} ${QWT_LIBRARIES}
+#    OpenMP::OpenMP_CXX
+#)
 #${PCR_LIBRARIES}
