@@ -134,21 +134,21 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     setupPlot();
     // set up the discharge graphs
- //   return;
 
     setupMapPlot();
     // set up the raster map drawing
 
-//    Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
+    Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
     // put the progress bar into the statusbar
    // this->statusBar->addPermanentWidget(progressBar);
+
     SetStyleUI();
     // do some style things
 
     lisMpeg = new lismpeg(this);
 
-   tabWidgetOptions->setCurrentIndex(0);
-   tabWidget_OutputMaps->setCurrentIndex(0);
+    tabWidgetOptions->setCurrentIndex(0);
+    tabWidget_OutputMaps->setCurrentIndex(0);
 
     doBatchmode = doBatch; // save as global var in iface
     //batchRunname = runname;
@@ -1295,12 +1295,9 @@ void lisemqt::resetAll()
 
     printinterval->setValue(1);
 
-
     initOP();
 
     progressBar->setValue(0);
-
-   //main
 
     resetTabOptions();
 
@@ -1333,7 +1330,7 @@ void lisemqt::resetAll()
     checkBoxComboMaps2->setChecked(false);
     checkBoxComboMaps2->setEnabled(false);
 
-    //showOutputData();
+    showOutputData();
 }
 //--------------------------------------------------------------------
 QString lisemqt::findValidDir(QString path, bool up)
@@ -1370,78 +1367,3 @@ void lisemqt::resizeMap()
             changeSize();
 
 }
-//---------------------------------------------------------------
-void lisemqt::setBWUI()
-{
-    if(darkLISEM)
-        darkLISEM = false;
-    else
-        darkLISEM = true;
-
-    if (darkLISEM)
-        darkStyleUI();
-    else
-        lightStyleUI();
-}
-//---------------------------------------------------------------
-void lisemqt::fontSelect()
-{
-    // bool ok;
-    QFont font = QFontDialog::getFont(0, qApp->font());
-    //         &ok, QFont("MS Shell Dlg 2", genfontsize), this);
-    //  if (ok) {
-    // the user clicked OK and font is set to the font the user selected
-    qApp->setFont(font);
-    if (darkLISEM)
-        darkStyleUI();
-    else
-        lightStyleUI();
-    //setfontSize();
-}
-//---------------------------------------------------------------
-void lisemqt::fontDecrease()
-{
-    genfontsize--;
-    genfontsize = std::max(5, genfontsize);
-    if (darkLISEM)
-        darkStyleUI();
-    else
-        lightStyleUI();
-    //setfontSize();
-}
-//---------------------------------------------------------------
-void lisemqt::fontIncrease()
-{
-    genfontsize++;
-    genfontsize = std::min(20, genfontsize);
-    if (darkLISEM)
-        darkStyleUI();
-    else
-        lightStyleUI();
-    //setfontSize();
-
-}
-//---------------------------------------------------------------
-void lisemqt::setfontSize()
-{
-   // int x = SetStyleUISize();
-    //int fs = genfontsize;
-    //qDebug() << genfontsize;
-
-    // const QWidgetList allWidgets = QApplication::allWidgets();
-    // for (QWidget *widget : allWidgets) {
-    //     QFont font = widget->font();
-    //     font.setPointSize(genfontsize);
-    //     widget->setFont(font);
-    //     widget->update();
-    // }
-    QString stylesheet = QString("QWidget { font-size: %1px; }").arg(genfontsize);
-    qApp->setStyleSheet(stylesheet);
-}
-
-
-void lisemqt::on_checkMB_WH_toggled(bool checked)
-{
-    op.SwitchCorrectMB_WH = checked;
-}
-

@@ -30,14 +30,23 @@ int lisemqt::SetStyleUISize()
 {
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect screenGeometry = screen->geometry();
-    int _H = screenGeometry.height();
+    int _H = screenGeometry.height();// * screen->devicePixelRatio();
     int disp = 3;
-
-    if(_H < 1400) disp = 2;
-    if(_H < 1200) disp = 1;
+    // for (int i = 0; i < screens.size(); ++i) {
+    //     QScreen *screen = screens.at(i);
+    //     qreal logicalDpi = screen->logicalDotsPerInch();
+    //     qreal physicalDpi = screen->physicalDotsPerInch();
+    //     qreal devicePixelRatio = screen->devicePixelRatio();
+    //     qDebug() << "Screen" << i << ":";
+    //     qDebug() << "  Logical DPI:" << logicalDpi;
+    //     qDebug() << "  Physical DPI:" << physicalDpi;
+    //     qDebug() << "  Device Pixel Ratio:" << devicePixelRatio;
+    // }
+    if(_H < 1440) disp = 2;
+    if(_H < 1280) disp = 1;
     if(_H < 1080) disp = 0;
     if(_H < 800) disp = -1;
-   // qDebug() << _H << disp;
+    qDebug() << _H << disp;
 
     // do a bit of size tweaking for large displays
     QSize iSize = QSize(16,16);
@@ -93,7 +102,7 @@ int lisemqt::SetStyleUISize()
     toolBar->setIconSize(iSize);
     toolBar_2->setIconSize(iSize);
 
-    return disp; //-1;
+    return disp+2;
 }
 
 // labels in output tab
@@ -178,12 +187,12 @@ void lisemqt::lightStyleUI()
                                 "QCheckBox::indicator:unchecked {background-color: #ffffff;border: 1px solid #646464; }"
                                 //"QRadioButton::indicator {background-color: #ffffff;}"
                                 "QTabWidget, QTabWidget::tab-bar {border-color: #292b2d; background-color: #fcfcfc;}"
-                                "QGroupBox::title{color: %1;}"
+                                "QGroupBox::title{color: #4488cc;}"
                                 "QTabWidget { background-color: #fcfcfc; }"
-                                "QGroupBox#groupBoxOutput::title{color: %2;}"
-                                "QGroupBox#groupBoxInput::title{color: %2;}"
-                                "QWidget { font-size: %3px; }"
-                                ).arg(sc).arg(sc1).arg(genfontsize)
+                                "QGroupBox#groupBoxOutput::title{color: #2266aa;}"
+                                "QGroupBox#groupBoxInput::title{color: #2266aa;}"
+                                "QWidget { font-size: %1px; }"
+                                ).arg(genfontsize)
                         );
 
     HPlot->setStyleSheet("*{background-color: #fcfcfc; color: #000000;}");
@@ -199,6 +208,7 @@ void lisemqt::lightStyleUI()
     //groupWaveUser->setStyleSheet(QString("QCheckBox {color: %1;}").arg(sc));
 
     setOutputTabStyle(bc, fc);
+    qDebug() << genfontsize;
 }
 void lisemqt::darkStyleUI()
 {
@@ -291,7 +301,7 @@ void lisemqt::darkStyleUI()
 
    setOutputTabStyle("#a28000", "#f0f0f0");
 
-
+qDebug() << genfontsize;
 }
 
 //---------------------------------------------------------------------------
@@ -305,13 +315,12 @@ void lisemqt::SetStyleUI()
 
    tabWidgetOptions->tabBar()->setExpanding(true);
 
-   genfontsize = 11;//8+SetStyleUISize();
-   //setfontSize();
-
+   genfontsize = 10+SetStyleUISize();
+   setfontSize();
 
    toolBar_2->setMovable(false);
    toolBar->setMovable(false);
-   return;
+
    // interface elements that are not visible for now
  //  tabWidgetOptions->removeTab(9);
 
@@ -375,8 +384,67 @@ void lisemqt::SetStyleUI()
    label_floodVolmm->setEnabled(yes);
    label_107->setEnabled(yes);
 
-   // if (darkLISEM)
-   //     darkStyleUI();
-   // else
-   //     lightStyleUI();
+   if (darkLISEM)
+       darkStyleUI();
+   else
+       lightStyleUI();
 }
+//---------------------------------------------------------------
+void lisemqt::setBWUI()
+{
+    if(darkLISEM)
+        darkLISEM = false;
+    else
+        darkLISEM = true;
+
+    if (darkLISEM)
+        darkStyleUI();
+    else
+        lightStyleUI();
+}
+//---------------------------------------------------------------
+void lisemqt::fontSelect()
+{
+    // bool ok;
+    QFont font = QFontDialog::getFont(0, qApp->font());
+    //         &ok, QFont("MS Shell Dlg 2", genfontsize), this);
+    //  if (ok) {
+    // the user clicked OK and font is set to the font the user selected
+    qApp->setFont(font);
+    if (darkLISEM)
+        darkStyleUI();
+    else
+        lightStyleUI();
+    //setfontSize();
+}
+//---------------------------------------------------------------
+void lisemqt::fontDecrease()
+{
+    genfontsize--;
+    genfontsize = std::max(6, genfontsize);
+    setfontSize();
+}
+//---------------------------------------------------------------
+void lisemqt::fontIncrease()
+{
+    genfontsize++;
+    genfontsize = std::min(20, genfontsize);
+    setfontSize();
+
+}
+//---------------------------------------------------------------
+void lisemqt::setfontSize()
+{
+    if (darkLISEM)
+        darkStyleUI();
+    else
+        lightStyleUI();
+    //qApp->setStyleSheet(QString("QWidget { font-size: %1px; }").arg(genfontsize));
+}
+
+
+void lisemqt::on_checkMB_WH_toggled(bool checked)
+{
+    op.SwitchCorrectMB_WH = checked;
+}
+
