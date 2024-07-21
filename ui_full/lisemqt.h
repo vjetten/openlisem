@@ -137,7 +137,7 @@ public:
     void lightStyleUI();
     void darkStyleUI();
     void setOutputTabStyle(QString bc, QString fc);
-    int SetStyleUISize();
+    void SetStyleUISize();
     void GetRunfile();
     void ParseInputData();
     void updateModelData();

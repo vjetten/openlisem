@@ -276,7 +276,6 @@ void lisemqt::setupMapPlot()
     picker->setEnabled(true);
 
     mapRescaler = new QwtPlotRescaler( MPlot->canvas() );
- //   mapRescaler->setReferenceAxis( QwtPlot::xBottom );
     mapRescaler->setAspectRatio( QwtAxis::XBottom, 1.0 );
     mapRescaler->setAspectRatio( QwtAxis::YLeft, 1.0 );
     mapRescaler->setAspectRatio( QwtAxis::YRight, 0.0 );

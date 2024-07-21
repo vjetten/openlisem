@@ -145,6 +145,8 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     SetStyleUI();
     // do some style things
 
+    tabWidgetOptions->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
     lisMpeg = new lismpeg(this);
 
     tabWidgetOptions->setCurrentIndex(0);

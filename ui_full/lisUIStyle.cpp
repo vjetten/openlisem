@@ -26,7 +26,7 @@
 #include "global.h"
 
 //---------------------------------------------------------------------------
-int lisemqt::SetStyleUISize()
+void lisemqt::SetStyleUISize()
 {
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect screenGeometry = screen->geometry();
@@ -101,8 +101,12 @@ int lisemqt::SetStyleUISize()
 
     toolBar->setIconSize(iSize);
     toolBar_2->setIconSize(iSize);
+    toolBar_2->setMovable(false);
+    toolBar->setMovable(false);
 
-    return disp+2;
+    genfontsize = screen->devicePixelRatio()*(disp+10);
+    //qDebug() << genfontsize << screen->devicePixelRatio();
+    qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
 }
 
 // labels in output tab
@@ -158,8 +162,8 @@ void lisemqt::lightStyleUI()
     tabWidgetOptions->setTabIcon(0,QIcon(":/settings2.png"));
     tabWidgetOptions->setTabIcon(1,QIcon(":/rain.png"));
     tabWidgetOptions->setTabIcon(2,QIcon(":/Plant-icon.png"));
-    tabWidgetOptions->setTabIcon(3,QIcon(":/soil5.png"));
-    tabWidgetOptions->setTabIcon(4,QIcon(":/water.png"));
+    tabWidgetOptions->setTabIcon(3,QIcon(":/soil6.png"));
+    tabWidgetOptions->setTabIcon(4,QIcon(":/water1.png"));
     tabWidgetOptions->setTabIcon(5,QIcon(":/river4.png"));
     tabWidgetOptions->setTabIcon(6,QIcon(":/eros1bw.png"));
     tabWidgetOptions->setTabIcon(7,QIcon(":/advanced.png"));
@@ -208,7 +212,7 @@ void lisemqt::lightStyleUI()
     //groupWaveUser->setStyleSheet(QString("QCheckBox {color: %1;}").arg(sc));
 
     setOutputTabStyle(bc, fc);
-    qDebug() << genfontsize;
+
 }
 void lisemqt::darkStyleUI()
 {
@@ -221,8 +225,8 @@ void lisemqt::darkStyleUI()
     tabWidgetOptions->setTabIcon(0,QIcon(":/d_settings2.png"));
     tabWidgetOptions->setTabIcon(1,QIcon(":/d_rain.png"));
     tabWidgetOptions->setTabIcon(2,QIcon(":/d_Plant-icon.png"));
-    tabWidgetOptions->setTabIcon(3,QIcon(":/d_soil5.png"));
-    tabWidgetOptions->setTabIcon(4,QIcon(":/d_water.png"));
+    tabWidgetOptions->setTabIcon(3,QIcon(":/d_soil6.png"));
+    tabWidgetOptions->setTabIcon(4,QIcon(":/d_water1.png"));
     tabWidgetOptions->setTabIcon(5,QIcon(":/d_river3.png"));
     tabWidgetOptions->setTabIcon(6,QIcon(":/d_eros1bw.png"));
     tabWidgetOptions->setTabIcon(7,QIcon(":/d_advanced.png"));
@@ -301,7 +305,6 @@ void lisemqt::darkStyleUI()
 
    setOutputTabStyle("#a28000", "#f0f0f0");
 
-qDebug() << genfontsize;
 }
 
 //---------------------------------------------------------------------------
@@ -315,11 +318,7 @@ void lisemqt::SetStyleUI()
 
    tabWidgetOptions->tabBar()->setExpanding(true);
 
-   genfontsize = 10+SetStyleUISize();
-   setfontSize();
-
-   toolBar_2->setMovable(false);
-   toolBar->setMovable(false);
+   SetStyleUISize();
 
    // interface elements that are not visible for now
    tabWidgetOptions->removeTab(9);
@@ -422,15 +421,14 @@ void lisemqt::fontDecrease()
 {
     genfontsize--;
     genfontsize = std::max(6, genfontsize);
-    setfontSize();
+    qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
 }
 //---------------------------------------------------------------
 void lisemqt::fontIncrease()
 {
     genfontsize++;
-    genfontsize = std::min(20, genfontsize);
-    setfontSize();
-
+    genfontsize = std::min(32, genfontsize);
+    qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
 }
 //---------------------------------------------------------------
 void lisemqt::setfontSize()
