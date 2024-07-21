@@ -76,5 +76,6 @@
         <file>water1.png</file>
         <file>soil6.png</file>
         <file>d_water1.png</file>
+        <file>house.png</file>
     </qresource>
 </RCC>

@@ -165,9 +165,10 @@ void lisemqt::lightStyleUI()
     tabWidgetOptions->setTabIcon(3,QIcon(":/soil6.png"));
     tabWidgetOptions->setTabIcon(4,QIcon(":/water1.png"));
     tabWidgetOptions->setTabIcon(5,QIcon(":/river4.png"));
-    tabWidgetOptions->setTabIcon(6,QIcon(":/eros1bw.png"));
-    tabWidgetOptions->setTabIcon(7,QIcon(":/advanced.png"));
-    tabWidgetOptions->setTabIcon(8,QIcon(":/settings1.png"));
+    tabWidgetOptions->setTabIcon(6,QIcon(":/house.png"));
+    tabWidgetOptions->setTabIcon(7,QIcon(":/eros1bw.png"));
+    tabWidgetOptions->setTabIcon(8,QIcon(":/advanced.png"));
+    tabWidgetOptions->setTabIcon(9,QIcon(":/settings1.png"));
 
     setBWAct->setIcon(QIcon(":/black-and-white.png"));
     fontIncreaseAct->setIcon(QIcon(":/2X/fontbigger2X.png"));
@@ -229,8 +230,9 @@ void lisemqt::darkStyleUI()
     tabWidgetOptions->setTabIcon(4,QIcon(":/d_water1.png"));
     tabWidgetOptions->setTabIcon(5,QIcon(":/d_river3.png"));
     tabWidgetOptions->setTabIcon(6,QIcon(":/d_eros1bw.png"));
-    tabWidgetOptions->setTabIcon(7,QIcon(":/d_advanced.png"));
-    tabWidgetOptions->setTabIcon(8,QIcon(":/d_settings1.png"));
+    tabWidgetOptions->setTabIcon(7,QIcon(":/house.png"));
+    tabWidgetOptions->setTabIcon(8,QIcon(":/d_advanced.png"));
+    tabWidgetOptions->setTabIcon(9,QIcon(":/d_settings1.png"));
 
     setBWAct->setIcon(QIcon(":/d_black-and-white.png"));
     fontIncreaseAct->setIcon(QIcon(":/2X/d_fontbigger2X.png"));
@@ -321,7 +323,7 @@ void lisemqt::SetStyleUI()
    SetStyleUISize();
 
    // interface elements that are not visible for now
-   tabWidgetOptions->removeTab(9);
+   tabWidgetOptions->removeTab(10);
 
    int w = 80, h = 15;
    label_dx->setMinimumSize(w,h);
