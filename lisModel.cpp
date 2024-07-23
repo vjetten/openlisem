@@ -94,7 +94,7 @@ void TWorld::DoModel()
     //DestroyData(); // clear all structures in ccase this is not the first run.
 
     if (!op.doBatchmode)
-        temprunname = QString(op.LisemDir+"openlisemtmp.run");
+        temprunname = QString(op.userAppDir+"openlisemtmp.run");
     else
         temprunname = op.runfilename;
 

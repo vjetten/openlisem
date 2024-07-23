@@ -253,11 +253,16 @@ void lisemqt::setupMapPlot()
     rightAxis = MPlot->axisWidget( QwtAxis::YRight );
     rightAxis->setColorBarEnabled( true );
     rightAxis->setColorBarWidth( 20 );
+    rightAxis->setMargin(8);
+    int startDist, endDist;
+    rightAxis->getBorderDistHint( startDist, endDist );
+    rightAxis->setBorderDist( startDist, endDist+32 );
     // legend to the right of the plot
 
     magnifier = new QwtPlotMagnifier( MPlot->canvas() );
     magnifier->setAxisEnabled( QwtAxis::YRight, false );
     // exclude right axis legend from rescaling
+    magnifier->setMouseButton( Qt::NoButton );
     magnifier->setZoomInKey(Qt::Key_Plus, Qt::ShiftModifier);
     magnifier->setZoomOutKey(Qt::Key_Minus, Qt::NoModifier );
     magnifier->setZoomInKey(Qt::Key_Plus, Qt::KeypadModifier);
@@ -323,8 +328,10 @@ double lisemqt::fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_R
     // set intervals for rasterdata, x,y,z min and max
     _RD->setValueMatrix( mapData, _M->nrCols() );
     // set column number to divide vector into rows
-    _RD->setInterval( Qt::XAxis, QwtInterval( op._llx,op._llx+(double)op._nrCols*op._dx, QwtInterval::ExcludeMaximum ) );
-    _RD->setInterval( Qt::YAxis, QwtInterval( op._lly,op._lly+(double)op._nrRows*op._dx, QwtInterval::ExcludeMaximum ) );
+//    _RD->setInterval( Qt::XAxis, QwtInterval( op._llx,op._llx+(double)op._nrCols*op._dx, QwtInterval::ExcludeMaximum ) );
+//    _RD->setInterval( Qt::YAxis, QwtInterval( op._lly,op._lly+(double)op._nrRows*op._dx, QwtInterval::ExcludeMaximum ) );
+    _RD->setInterval( Qt::XAxis, QwtInterval( op._llx,op._llx+(double)op._nrCols*op._dx, QwtInterval::IncludeBorders ) );
+    _RD->setInterval( Qt::YAxis, QwtInterval( op._lly,op._lly+(double)op._nrRows*op._dx, QwtInterval::IncludeBorders ) );
     // set x/y axis intervals
     //qDebug() << sum << maxV;
     if (sum == 0) maxV = -1e-20;
@@ -377,8 +384,10 @@ double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterDa
     _RD->setValueMatrix( RGBData, _M->nrCols() );
     // set column number to divide vector into rows
 
-    _RD->setInterval( Qt::XAxis, QwtInterval( op._llx,op._llx + (double)_M->nrCols()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
-    _RD->setInterval( Qt::YAxis, QwtInterval( op._lly,op._lly + (double)_M->nrRows()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
+//    _RD->setInterval( Qt::XAxis, QwtInterval( op._llx,op._llx + (double)_M->nrCols()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
+//    _RD->setInterval( Qt::YAxis, QwtInterval( op._lly,op._lly + (double)_M->nrRows()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
+    _RD->setInterval( Qt::XAxis, QwtInterval( op._llx,op._llx + (double)_M->nrCols()*_M->cellSize(), QwtInterval::IncludeBorders ) );
+    _RD->setInterval( Qt::YAxis, QwtInterval( op._lly,op._lly + (double)_M->nrRows()*_M->cellSize(), QwtInterval::IncludeBorders ) );
     // set x/y axis intervals
     return maxV;
 }

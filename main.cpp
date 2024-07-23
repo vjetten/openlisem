@@ -93,6 +93,21 @@ int main(int argc, char *argv[])
     op.LisemDir = QCoreApplication::applicationDirPath()+"/";
     // exe path, used for ini file
 
+    QString appDataLocalPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    QFileInfo appDataLocalFileInfo(appDataLocalPath);
+    QString localPath = appDataLocalFileInfo.absolutePath()+"/lisem";
+    QDir dir;
+    if (!dir.exists(localPath)) {
+        if (dir.mkpath(localPath)) {
+            qDebug() << "Directory created successfully: " << localPath;
+        } else {
+            qDebug() << "Failed to create directory: " << localPath;
+        }
+    } else {
+        qDebug() << "Directory already exists: " << localPath;
+    }
+
+    op.userAppDir = localPath+"/";
     QStringList args=QCoreApplication::arguments();
 
     QLocale loc = QLocale::system(); // current locale

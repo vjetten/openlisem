@@ -210,11 +210,11 @@ void lisemqt::runmodel()
     showOutputDataZero();
 
     updateModelData();
-    QFile f(QString(op.LisemDir+"openlisemtmp.run"));
+    QFile f(QString(op.userAppDir+"openlisemtmp.run"));
     if (f.exists())
         f.remove();
 
-    savefile(QString(op.LisemDir+"openlisemtmp.run"));
+    savefile(QString(op.userAppDir+"openlisemtmp.run"));
     // save the current settings as a runfile that is read by the model
     // in savefile(string) the runfile is updated with all user options and map names
 
@@ -412,8 +412,8 @@ void lisemqt::worldDone(const QString &results)
     startplot = false;
 
     // free the map plot discharge bdata
-    if (QFileInfo(QString(op.LisemDir+"openlisemtmp.run")).exists())
-        QFile::remove(QString(op.LisemDir+"openlisemtmp.run"));
+    if (QFileInfo(QString(op.userAppDir+"openlisemtmp.run")).exists())
+        QFile::remove(QString(op.userAppDir+"openlisemtmp.run"));
 
     // delete the temp run file
     //qDebug() << QString(op.LisemDir+"openlisemtmp.run")<< "deleted";

@@ -174,30 +174,32 @@ void lisemqt::lightStyleUI()
     fontIncreaseAct->setIcon(QIcon(":/2X/fontbigger2X.png"));
     fontDecreaseAct->setIcon(QIcon(":/2X/fontsmaller2X.png"));
 
+    qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
 
-    qApp->setStyleSheet(QString(//"* { background-color: #f0f0f0; color: #000000;}"
-                                "*:disabled { color: #a4a4a4; }"
-                                //"QAbstractItemView, QTreeView *{"
-                                "QAbstractItemView, QTreeView *{"
-                                    "background-color: #f0f0f0;"
-                                    "selection-background-color: #5599dd;"
-                                    "selection-color: #fcfcfc;"
-                                    "alternate-background-color: #e9e9e9;"
-                                "}"
-                                "QComboBox {selection-background-color: #5599dd; selection-color: #fcfcfc;}"
-                                "QComboBox QAbstractItemView {border: 1px solid #4488cc;selection-background-color: #5599dd; selection-color: #fcfcfc;}"
+    qApp->setStyleSheet(//"* { background-color: #f0f0f0; color: #000000;}"
+                        "*:disabled { color: #a4a4a4; }"
+                        //"QAbstractItemView, QTreeView *{"
+                        "QAbstractItemView, QTreeView *{"
+                            "background-color: #f0f0f0;"
+                            "selection-background-color: #5599dd;"
+                            "selection-color: #fcfcfc;"
+                            "alternate-background-color: #e9e9e9;"
+                        "}"
+                        "QComboBox {selection-background-color: #5599dd; selection-color: #fcfcfc;}"
+                        "QComboBox QAbstractItemView {border: 1px solid #4488cc;selection-background-color: #5599dd; selection-color: #fcfcfc;}"
 
-                                "QComboBox:editable {selection-background-color: #e0e0e0; selection-color: #f0f0f0;}"
-                                "QLineEdit {background-color: #fcfcfc; color: black;}"
-                                "QCheckBox::indicator:unchecked {background-color: #ffffff;border: 1px solid #646464; }"
-                                //"QRadioButton::indicator {background-color: #ffffff;}"
-                                "QTabWidget, QTabWidget::tab-bar {border-color: #292b2d; background-color: #fcfcfc;}"
-                                "QGroupBox::title{color: #4488cc;}"
-                                "QTabWidget { background-color: #fcfcfc; }"
-                                "QGroupBox#groupBoxOutput::title{color: #2266aa;}"
-                                "QGroupBox#groupBoxInput::title{color: #2266aa;}"
-                                "* { font-size: %1px; }"
-                                ).arg(genfontsize)
+                        "QComboBox:editable {selection-background-color: #e0e0e0; selection-color: #f0f0f0;}"
+                        "QLineEdit {background-color: #fcfcfc; color: black;}"
+                        "QCheckBox::indicator:unchecked {background-color: #ffffff;border: 1px solid #646464; }"
+                        //"QRadioButton::indicator {background-color: #ffffff;}"
+                        "QTabWidget, QTabWidget::tab-bar {border-color: #292b2d; background-color: #fcfcfc;}"
+                        "QGroupBox::title{color: #4488cc;}"
+                        "QTabWidget { background-color: #fcfcfc; }"
+                        "QGroupBox#groupBoxOutput::title{color: #2266aa;}"
+                        "QGroupBox#groupBoxInput::title{color: #2266aa;}"
+                        "QGroupBox#groupRainfall::title{color: #2266aa;}"
+                        "QGroupBox#groupInfiltration::title{color: #2266aa;}"
+                        "QGroupBox#groupInterception::title{color: #2266aa;}"
                         );
 
     HPlot->setStyleSheet("*{background-color: #fcfcfc; color: #000000;}");
@@ -206,6 +208,7 @@ void lisemqt::lightStyleUI()
     label_55->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
     label_59->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
     label_88->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
+    label_89->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
     label_156->setStyleSheet(QString("QLabel {color:%1;}").arg(sc1));
     label_9->setStyleSheet(QString("QLabel {color:  %1;}").arg(sc1));
     label_10->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
@@ -238,7 +241,9 @@ void lisemqt::darkStyleUI()
     fontIncreaseAct->setIcon(QIcon(":/2X/d_fontbigger2X.png"));
     fontDecreaseAct->setIcon(QIcon(":/2X/d_fontsmaller2X.png"));
 
-    qApp->setStyleSheet(QString("* { background-color: #2E2F30; color: #D6CF9A;}"
+    qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
+
+    qApp->setStyleSheet("* { background-color: #2E2F30; color: #D6CF9A;}"
                         "*:disabled { color: #888888; }"
 
                         "QTreeView, QAbstractItemView *{ background: #2E2F30; background-color: #2E2F30;"
@@ -260,6 +265,10 @@ void lisemqt::darkStyleUI()
                         "QGroupBox::title:disabled{color: #888888;}"
                         "QGroupBox#groupBoxOutput::title{color: #e57537;}"
                         "QGroupBox#groupBoxInput::title{color: #e57537;}"
+                        "QGroupBox#groupRainfall::title{color: #e57537;}"
+                        "QGroupBox#groupInfiltration::title{color: #e57537;}"
+                        "QGroupBox#groupInterception::title{color: #e57537;}"
+
 
                         "QCheckBox::indicator:unchecked{background-color: #606060;border: 1px solid #1D545C; }"
 
@@ -269,13 +278,26 @@ void lisemqt::darkStyleUI()
                         "QToolBar#toolBar QToolButton:checked {background : #565656;}"
                         "QToolBar#toolBar_2 QToolButton:checked {background : #565656;}"
 
-                        //"QRadioButton::indicator:unchecked{background-color: #606060;border: 1px solid #303030; }"
-
                         "QTabWidget#tabWidgetOptions QTabBar::tab:selected {background-color: #1D545C; "
                                     "height:32px; width: 42px;margin: 0px; padding-top: -15px; padding-bottom: 15px}"
                         "QTabWidget#tabWidget QTabBar::tab:selected {background-color: #1D545C; color #e57537;}"
-                        "* { font-size: %1px; }"
-                        ).arg(genfontsize));
+                        );
+
+    HPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
+    MPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
+
+     label_55->setStyleSheet( "QLabel {color: #e57537;}");
+     label_59->setStyleSheet( "QLabel {color: #e57537;}");
+     label_88->setStyleSheet( "QLabel {color: #e57537;}");
+     label_89->setStyleSheet( "QLabel {color: #e57537;}");
+    label_156->setStyleSheet( "QLabel {color: #e57537;}");
+      label_9->setStyleSheet( "QLabel {color: #e57537;}");
+     label_10->setStyleSheet( "QLabel {color: #e57537;}");
+    label_128->setStyleSheet( "QLabel {color: #e57537;}");
+
+    setOutputTabStyle("#a28000", "#f0f0f0");
+
+
     // "QWidget#tab_general  {background-color: #363636;} "
     // "QWidget#tab_meteo    {background-color: #363636;} "
     // "QWidget#tab_interc   {background-color: #363636;} "
@@ -284,18 +306,7 @@ void lisemqt::darkStyleUI()
     // "QWidget#tab_Channel  {background-color: #363636;} "
     // "QWidget#tab_calib    {background-color: #363636;} "
     // "QWidget#tab_advanced {background-color: #363636;} "
-    HPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
-    MPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
-
-     label_55->setStyleSheet( "QLabel {color: #e57537;}");
-     label_59->setStyleSheet( "QLabel {color: #e57537;}");
-     label_88->setStyleSheet( "QLabel {color: #e57537;}");
-    label_156->setStyleSheet( "QLabel {color: #e57537;}");
-      label_9->setStyleSheet( "QLabel {color: #e57537;}");
-     label_10->setStyleSheet( "QLabel {color: #e57537;}");
-    label_128->setStyleSheet( "QLabel {color: #e57537;}");
-
-   //  label_55->setStyleSheet(QString("QLabel:disabled {color: %1;}").arg(sc2));
+    //  label_55->setStyleSheet(QString("QLabel:disabled {color: %1;}").arg(sc2));
    //  label_59->setStyleSheet(QString("QLabel:disabled {color: %1;}").arg(sc2));
    //  label_88->setStyleSheet(QString("QLabel:disabled {color: %1;}").arg(sc2));
    // label_156->setStyleSheet(QString("QLabel:disabled {color: %1;}").arg(sc2));
@@ -304,8 +315,6 @@ void lisemqt::darkStyleUI()
    // label_128->setStyleSheet(QString("QLabel:disabled {color: %1;}").arg(sc2));
 
    //checkWaveInUser->setStyleSheet("QCheckBox {color: #e57537;}");
-
-   setOutputTabStyle("#a28000", "#f0f0f0");
 
 }
 

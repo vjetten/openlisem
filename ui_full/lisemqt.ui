@@ -185,7 +185,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>6</number>
+                  <number>9</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -4486,7 +4486,7 @@
                      <property name="font">
                       <font>
                        <pointsize>11</pointsize>
-                       <bold>false</bold>
+                       <bold>true</bold>
                        <underline>false</underline>
                        <kerning>true</kerning>
                       </font>
@@ -6929,6 +6929,14 @@
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>true</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
                      </property>
                      <property name="text">
                       <string>Advanced options</string>

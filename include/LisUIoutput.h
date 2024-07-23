@@ -123,6 +123,7 @@ struct output{
 
     QString runfilename;
     QString LisemDir;
+    QString userAppDir;
     QString format;
     QString timeStartRun;
     QString datestamp;

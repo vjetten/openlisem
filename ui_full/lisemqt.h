@@ -122,8 +122,6 @@ public:
 
    // bool WhasStopped;
 
-    void saveCurrentStyleToCSS(const QString &filePath);
-    void saveWidgetStyle(QWidget *widget, QTextStream &out);
     void initMapTree();
     void DefaultMapnames();
     void fillMapnames();

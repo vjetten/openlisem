@@ -57,35 +57,6 @@ output op;
 // to the interface each timestep, defined in LisUIoutput.h
 
 
-void lisemqt::saveCurrentStyleToCSS(const QString &filePath)
-{
-    QFile file(filePath);
-    if (file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        QTextStream out(&file);
-        saveWidgetStyle(this, out);
-        file.close();
-    }
-}
-
-void lisemqt::saveWidgetStyle(QWidget *widget, QTextStream &out)
-{
-    QString className = widget->metaObject()->className();
-    QString styleSheet = widget->styleSheet();
-
-    if (!styleSheet.isEmpty()) {
-        out << className << " {\n" << styleSheet << "\n}\n";
-    }
-
-    // Traverse child widgets
-    for (QObject *child : widget->children()) {
-        QWidget *childWidget = qobject_cast<QWidget*>(child);
-        if (childWidget) {
-            saveWidgetStyle(childWidget, out);
-        }
-    }
-}
-
 //--------------------------------------------------------------------
 lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     : QMainWindow(parent)
@@ -911,7 +882,7 @@ void lisemqt::openRunFile()
 void lisemqt::GetStorePath()
 {
     runfilelist.clear();
-    QFile fff(op.LisemDir + "openlisem.ini");
+    QFile fff(op.userAppDir + "openlisem.ini");
 
     if (!fff.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
@@ -957,7 +928,7 @@ void lisemqt::StorePath()
     if (op.runfilename.isEmpty())
         return;
 
-    QFile fff(op.LisemDir + "openlisem.ini");
+    QFile fff(op.userAppDir + "openlisem.ini");
     if (!fff.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
