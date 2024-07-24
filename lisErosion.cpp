@@ -171,15 +171,15 @@ void TWorld::cell_SplashDetachment(int r, int c)
         double WH0 = exp(-1.48*_WH*1000);
         // water buffer effect on surface, WH in mm in this empirical equation from Torri ?
 
-        if(SwitchUseMaterialDepth)
-        {
-            double depdepth = std::max((StorageDep->Drc / BulkDens)/(_dx * DX->Drc),0.0);
-            double fac1 = std::max(0.0,1.0 - depdepth/(SedimentMixingDepth->Drc+0.01));
-            double fac2 = 1.0 - fac1;
+        // if(SwitchUseMaterialDepth)
+        // {
+        //     double depdepth = std::max((StorageDep->Drc / BulkDens)/(_dx * DX->Drc),0.0);
+        //     double fac1 = std::max(0.0,1.0 - depdepth/(SedimentMixingDepth->Drc+0.01));
+        //     double fac2 = 1.0 - fac1;
 
-            strength = strength * fac2 + (0.1033/DepositedCohesion) * fac1;
-            //b = b * fac2 + 3.58 * fac1;
-        }
+        //     strength = strength * fac2 + (0.1033/DepositedCohesion) * fac1;
+        //     //b = b * fac2 + 3.58 * fac1;
+        // }
 
         // fraction ponded area
         double FPA = 1.0;
@@ -405,8 +405,8 @@ void TWorld::cell_FlowDetachment(int r, int c)
             }
 
             //add deposition to soil layer
-            if (SwitchUseMaterialDepth)
-                StorageDep->Drc += -deposition;
+            // if (SwitchUseMaterialDepth)
+            //     StorageDep->Drc += -deposition;
 
         } else
             if (maxTC > 0 && Y->Drc > 0) {

@@ -179,11 +179,10 @@ void lisemqt::defaultRunFile()
     }
 
     i = 0;
-    namelist[i++].name = QString("[openLISEM runfile version 6.0]");
+    namelist[i++].name = QString("[openLISEM runfile version 7.0]");
     namelist[i++].name = QString("");
     //###
     namelist[i++].name = QString("[Input]");
-   // namelist[i++].name = QString("Work Directory");
     namelist[i++].name = QString("Map Directory");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Result datetime");
@@ -192,8 +191,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("satImage Directory");
     namelist[i++].name = QString("satImage file");
     namelist[i++].name = QString("mpegexe Directory");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Advanced Options");
 
     //###
     namelist[i++].name = QString("");
@@ -216,6 +213,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("3");
     namelist[i++].name = QString("Report digits out");
     namelist[i].value = QString("0");
+    namelist[i].value = QString("0.05");
+    namelist[i++].name = QString("Minimum reported flood height");
     namelist[i++].name = QString("Report format GTiff");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("End run report");
@@ -276,43 +275,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("10");
     namelist[i++].name = QString("Timestep");
 
-    //###
-    namelist[i++].name = QString("");
-    namelist[i++].name = QString("[General options]");
-    namelist[i].value = QString("2");
-    namelist[i++].name = QString("Routing Kin Wave 2D");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include Erosion simulation");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include main channels");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include channel infil");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Include channel baseflow");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include stationary baseflow");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include channel culverts");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Hard Surfaces");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("Include road system");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include buildings");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Add buildings to DEM");
-    namelist[i].value = QString("0.3");
-    namelist[i++].name = QString("Add building fraction");
-    namelist[i].value = QString("1.0");
-    namelist[i++].name = QString("Add building height");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include raindrum storage");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include storm drains");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Storm drain shape");
-
-    //###
+    //### METEO
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Meteo]");
     namelist[i].value = QString("1");
@@ -363,7 +326,7 @@ void lisemqt::defaultRunFile()
 //    namelist[i++].name = QString("Snowmelt maplist name");
 //    namelist[i++].name = QString("Snowmelt Map Directory");
 
-    //###
+    //### INTERCEPTION
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Interception]");
     namelist[i].value = QString("1");
@@ -377,7 +340,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Litter interception storage");
 
-    //###
+    //### INFILTRATION
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Infiltration]");
     namelist[i].value = QString("1");
@@ -410,13 +373,13 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include tile drains");
 
-    //###
+    //### FLOW
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Flow]");
+    namelist[i].value = QString("2");
+    namelist[i++].name = QString("Routing Kin Wave 2D");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Flow Boundary 2D");
-    namelist[i].value = QString("0.05");
-    namelist[i++].name = QString("Minimum reported flood height");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Include buffers");
     namelist[i].value = QString("0");
@@ -429,18 +392,24 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding courant factor");
     namelist[i].value = QString("0.1");
     namelist[i++].name = QString("Timestep flood");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("Use time avg V");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Correct MB with WH");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Correct DEM");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Use 2D Diagonal flow");
-//    namelist[i].value = QString("0");
- //   namelist[i++].name = QString("Use SWOF watersheds");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood solution");
+
+    //### Channels and GW
+    namelist[i++].name = QString("");
+    namelist[i++].name = QString("[Channel and Groundwater]");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include main channels");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include channel infil");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include stationary baseflow");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include channel culverts");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include GW flow");
     namelist[i].value = QString("0");
@@ -464,9 +433,34 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0.0");
     namelist[i++].name = QString("GW deep percolation");
 
-    //###
+    //### Infrastructure
+    namelist[i++].name = QString("");
+    namelist[i++].name = QString("[Infrastructure]");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include buildings");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include raindrum storage");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Add buildings to DEM");
+    namelist[i].value = QString("0.3");
+    namelist[i++].name = QString("Add building fraction");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Add building height");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Hard Surfaces");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Include road system");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include storm drains");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Storm drain shape");
+
+    //### EROSION
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Erosion]");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include Erosion simulation");
+    namelist[i++].name = QString("[Splash]");
     namelist[i].value = QString("1;28.300;0.520;0.042");
     namelist[i++].name = QString("KE parameters EQ1");
     namelist[i].value = QString("0;8.950;8.440");
@@ -481,15 +475,12 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Splash equation");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("No detachment boundary");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use material depth");
-    namelist[i].value = QString("1500.0");
-    namelist[i++].name = QString("Sediment bulk density");
-    namelist[i].value = QString("0.5");
-    namelist[i++].name = QString("Particle Cohesion of Deposited Layer");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Calculate erosion inside 2D loop");
-    namelist[i++].name = QString("");
+    // namelist[i].value = QString("0");
+    // namelist[i++].name = QString("Use material depth");
+    // namelist[i].value = QString("1350.0");
+    // namelist[i++].name = QString("Sediment bulk density");
+  //  namelist[i].value = QString("0.5");
+  //  namelist[i++].name = QString("Particle Cohesion of Deposited Layer");
     namelist[i++].name = QString("[Sediment]");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Detachment efficiency");
@@ -501,8 +492,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding BL method");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Include diffusion");
-  //  namelist[i].value = QString("1");
-  //  namelist[i++].name = QString("Settling Velocity channel");
     namelist[i].value = QString("2");
     namelist[i++].name = QString("Detachment efficiency channel");
     namelist[i].value = QString("1.0");
@@ -518,17 +507,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0.5");
     namelist[i++].name = QString("Sigma diffusion");
 
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Use grain size distribution");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Estimate grain size distribution");
-//    namelist[i].value = QString("6");
-//    namelist[i++].name = QString("Number of grain size classes (simulated)");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Read grain distribution maps");
-//    namelist[i].value = QString("2;20;50;125;250;500");
-//    namelist[i++].name = QString("Grain size class maps");
-    //###
+    //### COnservation mitigation
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Conservation]");
     namelist[i].value = QString("0");
@@ -540,7 +519,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0.8");
     namelist[i++].name = QString("Sediment Trap Mannings n");
 
-    //###
+    //### Calibration
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Calibration]");
     namelist[i].value = QString("1.0");
@@ -586,13 +565,10 @@ void lisemqt::defaultRunFile()
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Output maps]");
-    namelist[i++].name = QString("Runoff maps in l/s/m");
-  //  namelist[i++].name = QString("Timeseries as PCRaster");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Erosion map units (0/1/2)");
-    //namelist[i++].name = QString("Regular runoff output");
+    namelist[i].value = QString("1");
     namelist[i++].name = QString("Output interval");
-    //namelist[i++].name = QString("User defined output");
-    namelist[i++].name = QString("Output times");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("OutRunoff");
     namelist[i].value = QString("0");
@@ -630,8 +606,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("OutSedBL");
 
-
-    //###
+    //### Advanced
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Advanced]");
     namelist[i].value = QString("0");
@@ -640,16 +615,16 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flooding SWOF Reconstruction");
     namelist[i].value = QString("1"); //minmod
     namelist[i++].name = QString("Flooding SWOF flux limiter");
-    // namelist[i].value = QString("1.0");
-    // namelist[i++].name = QString("Z 2D correction");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Correct MB with WH");
     namelist[i].value = QString("200");
     namelist[i++].name = QString("Flood max iterations");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Use time avg V");
     namelist[i].value = QString("0.00001");
     namelist[i++].name = QString("Min WH flow");
     namelist[i].value = QString("10.0");
     namelist[i++].name = QString("Pit Value");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use 2D Diagonal flow new");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Use linked list");
     namelist[i].value = QString("0");
@@ -662,6 +637,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel Max V");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Channel 2D flow connect");
+ //   namelist[i].value = QString("0");
+ //   namelist[i++].name = QString("Calculate erosion inside 2D loop");
 //    namelist[i].value = QString("0");
 //    namelist[i++].name = QString("Channel WF inflow");
 //    namelist[i].value = QString("1");
@@ -680,6 +657,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("2");
     namelist[i++].name = QString("Van Genuchten");												   
 
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Advanced Options");
 
     // output maps have standard names
     // input maps names are defined in DEFmaps

@@ -409,11 +409,11 @@ void TWorld::GetComboMaps()
          //   AddComboMap(1,"BL depth","m",BLDepthFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
         }
 
-        cl = 9;
-        if(SwitchUseMaterialDepth) {
-            AddComboMap(1,"Storage",unit,Storage,LegendMap[cl],Legend[cl],false,false,-factor, step);
-            AddComboMap(1,"Storage",unit,StorageDep,LegendMap[cl],Legend[cl],false,false,-factor, step);
-        }
+        // cl = 9;
+        // if(SwitchUseMaterialDepth) {
+        //     AddComboMap(1,"Storage",unit,Storage,LegendMap[cl],Legend[cl],false,false,-factor, step);
+        //     AddComboMap(1,"Storage",unit,StorageDep,LegendMap[cl],Legend[cl],false,false,-factor, step);
+        // }
     }
 }
 //---------------------------------------------------------------------------

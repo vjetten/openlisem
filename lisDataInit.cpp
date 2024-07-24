@@ -1881,7 +1881,9 @@ void TWorld::IntializeData(void)
         initSwatreStructure = true;
         // flag: structure is created and can be destroyed in function destroydata
     }
+
     SwitchUseMaterialDepth = false;
+
     if(SwitchErosion && SwitchUseMaterialDepth)
     {
         Storage = ReadMap(LDD, getvaluename("detmat"));

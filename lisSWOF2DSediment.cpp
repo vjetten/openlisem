@@ -373,9 +373,9 @@ void TWorld::SWOFSedimentCheckZero(int r, int c, cTMap * h)//,cTMap * u,cTMap * 
         DepFlood->Drc += -(_SS->Drc);
 
         //add to soil layer
-        if(SwitchUseMaterialDepth) {
-            StorageDep->Drc += _BL->Drc + _SS->Drc;
-        }
+        // if(SwitchUseMaterialDepth) {
+        //     StorageDep->Drc += _BL->Drc + _SS->Drc;
+        // }
 
         //set to zero
         _BL->Drc = 0;
@@ -597,8 +597,8 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                     }
                 }
 
-                if(SwitchUseMaterialDepth)
-                    StorageDep->Drc += -deposition;
+                // if(SwitchUseMaterialDepth)
+                //     StorageDep->Drc += -deposition;
 
             } else {
                 if (maxTC > 0 && CohesionSoil->Drc >= 0) {
