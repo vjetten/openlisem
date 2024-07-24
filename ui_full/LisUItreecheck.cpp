@@ -60,9 +60,9 @@ void lisemqt::on_checkFlowBarriers_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkDoErosion_clicked()
 {
-    checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
+   // checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
 
-    setErosionMapOutput(checkDoErosion->isChecked());
+    //setErosionMapOutput(checkDoErosion->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeTiledrains_clicked()

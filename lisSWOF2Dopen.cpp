@@ -46,11 +46,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     double dt_req_min = dt_max;
     int step = 0;
 
-//    Qout.clear();
-//    FOR_ROW_COL_LDD5 {
-//       Qout << 0.0;
-//    }}
-
     if (startFlood)
     {
 
@@ -88,6 +83,40 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     }
                 }
             }}
+
+            // #pragma omp parallel for num_threads(userCores)
+            // FOR_ROW_COL_MV_L {
+            //     if (tmd->Drc > 0) {
+            //     double H = hs->Drc;
+            //     double Z = z->Drc;
+            //     double U = u->Drc;
+            //     double V = v->Drc;
+            //     bool bc1 = c > 0 && !MV(r,c-1)        ;
+            //     bool bc2 = c < _nrCols-1 && !MV(r,c+1);
+            //     bool br1 = r > 0 && !MV(r-1,c)        ;
+            //     bool br2 = r < _nrRows-1 && !MV(r+1,c);
+            //     double z_x1 =  bc1 ? z->data[r][c-1] : Z;
+            //     double z_x2 =  bc2 ? z->data[r][c+1] : Z;
+            //     double z_y1 =  br1 ? z->data[r-1][c] : Z;
+            //     double z_y2 =  br2 ? z->data[r+1][c] : Z;
+
+            //     double h_x1 =  bc1 ? hs->data[r][c-1] : H;  //??? hs???
+            //     double h_x2 =  bc2 ? hs->data[r][c+1] : H;
+            //     double h_y1 =  br1 ? hs->data[r-1][c] : H;
+            //     double h_y2 =  br2 ? hs->data[r+1][c] : H;
+            //     double dh_x1 =  fabs((z_x1+h_x1)-(H+Z));
+            //     double dh_x2 =  fabs((z_x2+h_x2)-(H+Z));
+            //     double dh_y1 =  fabs((z_y1+h_y1)-(H+Z));
+            //     double dh_y2 =  fabs((z_y2+h_y2)-(H+Z));
+
+            //     double min = 1e-5;
+            //     if (dh_x1 < min && dh_x2 < min &&
+            //         dh_y1 < min && dh_y2 < min &&
+            //         U < min && V < min)
+            //         tmd->Drc = 0;
+            //     }
+            // }}
+
 
             //do all flow and state calculations
             #pragma omp parallel for num_threads(userCores)

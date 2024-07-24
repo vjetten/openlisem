@@ -243,8 +243,8 @@ void lisemqt::runmodel()
     transparencyHardSurface->setEnabled(checkHouses->isChecked() || checkRoadsystem->isChecked() || checkHardsurface->isChecked());
     //transparencyHardSurface->setVisible(false);
 
-    sedgroup->setVisible(checkDoErosion->isChecked());
-    tabWidget_totout->setTabEnabled(1,checkDoErosion->isChecked() );
+  //  sedgroup->setVisible(checkDoErosion->isChecked());
+  //  tabWidget_totout->setTabEnabled(1,checkDoErosion->isChecked() );
 
     showInfoAct->setChecked(true);
     setOutputInfo(true); // show the cursor over the map

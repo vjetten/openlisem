@@ -195,7 +195,7 @@ void lisemqt::SetConnections()
    // connect(checkOverlandFlow2Dkindyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
    // connect(checkOverlandFlow2Ddyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
 
-    connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
+   // connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
 
     connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
 
@@ -488,53 +488,53 @@ void lisemqt::setErosionTab(bool yes)
 {
     //  yes = checkDoErosion->isChecked();
 
-    tab_erosion->setEnabled(checkDoErosion->isChecked());
+  //  tab_erosion->setEnabled(checkDoErosion->isChecked());
 
-    outputMapsSediment->setEnabled(checkDoErosion->isChecked());
+   // outputMapsSediment->setEnabled(checkDoErosion->isChecked());
 
-    checkBox_OutConc->setEnabled(checkDoErosion->isChecked());
-    checkBox_OutDet->setEnabled(checkDoErosion->isChecked());
-    checkBox_OutDep->setEnabled(checkDoErosion->isChecked());
-    checkBox_OutSL->setEnabled(checkDoErosion->isChecked());
-    checkBox_OutSed->setEnabled(checkDoErosion->isChecked());
-    checkBox_OutTC->setEnabled(checkDoErosion->isChecked());
-    checkBox_OutSedSS->setEnabled(checkDoErosion->isChecked() && checkSed2Phase->isChecked());
-    checkBox_OutSedBL->setEnabled(checkDoErosion->isChecked() && checkSed2Phase->isChecked());
+    // checkBox_OutConc->setEnabled(checkDoErosion->isChecked());
+    // checkBox_OutDet->setEnabled(checkDoErosion->isChecked());
+    // checkBox_OutDep->setEnabled(checkDoErosion->isChecked());
+    // checkBox_OutSL->setEnabled(checkDoErosion->isChecked());
+    // checkBox_OutSed->setEnabled(checkDoErosion->isChecked());
+    // checkBox_OutTC->setEnabled(checkDoErosion->isChecked());
+    // checkBox_OutSedSS->setEnabled(checkDoErosion->isChecked() && checkSed2Phase->isChecked());
+    // checkBox_OutSedBL->setEnabled(checkDoErosion->isChecked() && checkSed2Phase->isChecked());
 
-    checkBoxComboMaps2->setEnabled(checkDoErosion->isChecked());
-    ComboMinSpinBox2->setEnabled(checkDoErosion->isChecked());
-    ComboMaxSpinBox2->setEnabled(checkDoErosion->isChecked());
-    DisplayComboBox2->setEnabled(checkDoErosion->isChecked());
+    // checkBoxComboMaps2->setEnabled(checkDoErosion->isChecked());
+    // ComboMinSpinBox2->setEnabled(checkDoErosion->isChecked());
+    // ComboMaxSpinBox2->setEnabled(checkDoErosion->isChecked());
+    // DisplayComboBox2->setEnabled(checkDoErosion->isChecked());
 
-    checkDiffusion->setEnabled(E_OFWaveType->currentIndex() > 0);//!checkOverlandFlow1D->isChecked());
+    // checkDiffusion->setEnabled(E_OFWaveType->currentIndex() > 0);//!checkOverlandFlow1D->isChecked());
 
-    // reset output to 0
-    if (!checkDoErosion->isChecked())
-    {
-        sedgroup->setEnabled(true);
-        int dig = E_DigitsOut->value();
-        label_MBs->setText(QString::number(0,'e',dig));
-        label_splashdet->setText(QString::number(0,'f',dig));
-        label_flowdet->setText(QString::number(0,'f',dig));
-        label_sedvol->setText(QString::number(0,'f',dig));
-        label_dep->setText(QString::number(0,'f',dig));
-        label_detch->setText(QString::number(0,'f',dig));
-        label_depch->setText(QString::number(0,'f',dig));
-        label_sedvolch->setText(QString::number(0,'f',dig));
-        //        label_flooddet->setText(QString::number(0,'f',dig));
-        //        label_flooddep->setText(QString::number(0,'f',dig));
-        //        label_floodsed->setText(QString::number(0,'f',dig));
-        label_soilloss->setText(QString::number(0,'f',dig));
-        label_soillosskgha->setText(QString::number(0,'f',dig));
-        label_SDR->setText(QString::number(0,'f',dig));
-        label_soillosssub->setText(QString::number(0,'f',dig));
-        label_Qssub->setText(QString::number(0,'f',dig));
-    }
-    sedgroup->setEnabled(checkDoErosion->isChecked());
+    // // reset output to 0
+    // if (!checkDoErosion->isChecked())
+    // {
+    //     sedgrouptotals->setEnabled(true);
+    //     int dig = E_DigitsOut->value();
+    //     label_MBs->setText(QString::number(0,'e',dig));
+    //     label_splashdet->setText(QString::number(0,'f',dig));
+    //     label_flowdet->setText(QString::number(0,'f',dig));
+    //     label_sedvol->setText(QString::number(0,'f',dig));
+    //     label_dep->setText(QString::number(0,'f',dig));
+    //     label_detch->setText(QString::number(0,'f',dig));
+    //     label_depch->setText(QString::number(0,'f',dig));
+    //     label_sedvolch->setText(QString::number(0,'f',dig));
+    //     //        label_flooddet->setText(QString::number(0,'f',dig));
+    //     //        label_flooddep->setText(QString::number(0,'f',dig));
+    //     //        label_floodsed->setText(QString::number(0,'f',dig));
+    //     label_soilloss->setText(QString::number(0,'f',dig));
+    //     label_soillosskgha->setText(QString::number(0,'f',dig));
+    //     label_SDR->setText(QString::number(0,'f',dig));
+    //     label_soillosssub->setText(QString::number(0,'f',dig));
+    //     label_Qssub->setText(QString::number(0,'f',dig));
+    // }
+    // sedgrouptotals->setEnabled(checkDoErosion->isChecked());
 
-    label_soillosskgha->setEnabled(checkDoErosion->isChecked());
-    label_soilloss->setEnabled(checkDoErosion->isChecked());
-    label_SDR->setEnabled(checkDoErosion->isChecked());
+    // label_soillosskgha->setEnabled(checkDoErosion->isChecked());
+    // label_soilloss->setEnabled(checkDoErosion->isChecked());
+    // label_SDR->setEnabled(checkDoErosion->isChecked());
 
 }
 
@@ -1068,7 +1068,7 @@ void lisemqt::resetTabCalibration()
 
 void lisemqt::resetTabInterception()
 {
-    groupInterception->setChecked(true);
+    checkInterception->setChecked(true);
     radioButton_1->setChecked(true); //<= crops interception
     E_CanopyOpeness->setValue(0.45);
     //    E_StemflowFraction->setValue(0.054);
@@ -1078,7 +1078,7 @@ void lisemqt::resetTabInterception()
 
 void lisemqt::resetTabInfiltration()
 {
-    groupInfiltration->setChecked(true);
+    checkInfiltration->setChecked(true);
 
     E_InfiltrationMethod->clear();
    // E_InfiltrationMethod->addItem("no Infiltration");
@@ -1086,7 +1086,7 @@ void lisemqt::resetTabInfiltration()
     E_InfiltrationMethod->addItem("Green and Ampt");
     E_InfiltrationMethod->addItem("Smith and Parlange");
     E_InfiltrationMethod->addItem("Richards equation (experimental)");
-    E_InfiltrationMethod->setCurrentIndex(2);
+    E_InfiltrationMethod->setCurrentIndex(1);
 
     checkInfilCompact->setChecked(false);
     checkInfilCrust->setChecked(false);
@@ -1274,8 +1274,8 @@ void lisemqt::resetAll()
 
     resetTabOptions();
 
-    groupRainfall->setChecked(true);
-    groupET->setChecked(false);
+    checkRainfall->setChecked(true);
+    checkET->setChecked(false);
 
     resetTabInterception();
 
@@ -1340,3 +1340,5 @@ void lisemqt::resizeMap()
             changeSize();
 
 }
+
+

@@ -404,7 +404,7 @@ public slots:
     //void on_toolButton_SnowmeltName_clicked();
     void on_toolButton_RainfallShow_clicked();
 //    void on_toolButton_SnowmeltShow_clicked();
-    void on_toolButton_ShowRunfile_clicked();
+//    void on_toolButton_ShowRunfile_clicked();
     void on_toolButton_satImageName_clicked();
     //void on_toolButton_fileOpen_clicked();
     void on_toolButton_SwatreTableDir_clicked();
@@ -552,6 +552,24 @@ private slots:
 
 
     void on_checkMB_WH_toggled(bool checked);
+
+    void on_checkRainfall_toggled(bool checked);
+
+    void on_checkET_toggled(bool checked);
+
+    void on_checkInterception_toggled(bool checked);
+
+    void on_E_OFWaveType_currentIndexChanged(int index);
+
+    void on_checkIncludeChannel_toggled(bool checked);
+
+    void on_checkDoErosion_toggled(bool checked);
+
+    void on_checkBuildings_toggled(bool checked);
+
+    void on_checkConservation_toggled(bool checked);
+
+    void on_checkInfiltration_toggled(bool checked);
 
 private:
 

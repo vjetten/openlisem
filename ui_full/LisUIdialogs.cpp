@@ -493,7 +493,7 @@ void lisemqt::on_toolButton_resetOptions_clicked()
 void lisemqt::on_checkStationaryBaseflow_toggled(bool checked)
 {
     if (checked) checkChannelInfil->setChecked(false);
-    doChannelBaseflow = checked;
+   // doChannelBaseflow = checked;
 }
 
 void lisemqt::on_checkChannelInfil_toggled(bool checked)
@@ -595,75 +595,76 @@ void lisemqt::on_toolButton_satImageName_clicked()
         E_satImageName->setText( satImageFileDir + satImageFileName );
     }
 }
-//--------------------------------------------------------------------
-//void lisemqt::on_toolButton_SnowmeltName_clicked()
-//{
-//    QString path;
-
-//    SnowmeltFileDir = findValidDir(SnowmeltFileDir, false);
-
-//    path = QFileDialog::getOpenFileName(this,
-//                                        QString("Select snow melt file"),
-//                                        SnowmeltFileDir);
-//    if(!path.isEmpty())
-//    {
-//        QFileInfo fi(path);
-//        SnowmeltFileName = fi.fileName();
-//        SnowmeltFileDir = CheckDir(fi.absolutePath());//Dir().path());
-//        E_SnowmeltName->setText( SnowmeltFileDir + SnowmeltFileName );
-//    }
-//}
-//--------------------------------------------------------------------
-//void lisemqt::on_toolButton_SnowmeltShow_clicked()
-//{
-//    QFile file(SnowmeltFileDir + SnowmeltFileName);
-//    if (!file.open(QFile::ReadOnly | QFile::Text))
-//    {
-//        QMessageBox::warning(this,"openLISEM",
-//                             QString("Cannot read file %1:\n%2.")
-//                             .arg(SnowmeltFileDir + SnowmeltFileName)
-//                             .arg(file.errorString()));
-//        return;
-//    }
-
-//    QTextStream in(&file);
-
-//    QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
-//    view->setWindowTitle(SnowmeltFileName);
-//    view->setMinimumWidth(400);
-//    view->setMinimumHeight(500);
-//    view->setAttribute(Qt::WA_DeleteOnClose);
-//    view->show();
-
-//    file.close();
-//}
-
 //---------------------------------------------------------------------------
-void lisemqt::on_toolButton_ShowRunfile_clicked()
+void lisemqt::on_checkRainfall_toggled(bool checked)
 {
-    showTextfile(op.runfilename);
-
-/*
-    QFile file(op.runfilename);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(this, "openLISEM",
-                             QString("Cannot read file %1:\n%2.")
-                             .arg(op.runfilename)
-                             .arg(file.errorString()));
-        return;
-    }
-
-    QTextStream in(&file);
-
-    QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
-    view->createStandardContextMenu ();
-    view->setWindowTitle(op.runfilename);
-    view->setMinimumWidth(400);
-    view->setMinimumHeight(500);
-    view->setAttribute(Qt::WA_DeleteOnClose);
-
-    view->show();
-
-    file.close();
-    */
+    groupRainfall->setEnabled(checked);
 }
+//---------------------------------------------------------------------------
+void lisemqt::on_checkET_toggled(bool checked)
+{
+    groupET->setEnabled(checked);
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_checkInterception_toggled(bool checked)
+{
+    groupInterception->setEnabled(checked);
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_E_OFWaveType_currentIndexChanged(int index)
+{
+    groupFloodParams->setEnabled(index > 0);
+    groupWaveUser->setEnabled(index > 0);
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_checkInfiltration_toggled(bool checked)
+{
+    groupInfiltration->setEnabled(checked);
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_checkIncludeChannel_toggled(bool checked)
+{
+    groupChannelParams->setEnabled(checked);
+    checkMapChannels->setEnabled(checked);
+
+    checkMapNameModel(CHANNELMAPS, 0, checked);
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_checkDoErosion_toggled(bool checked)
+{
+    widgetErosion->setEnabled(checked);
+
+    groupConservationSed->setEnabled(checked);
+
+    ComboMinSpinBox2->setEnabled(checked);
+    ComboMaxSpinBox2->setEnabled(checked);
+    DisplayComboBox2->setEnabled(checked);
+    checkBoxComboMaps2->setEnabled(checked);
+
+    outputMapsSediment->setEnabled(checked);
+    groupSedMapseriesout->setEnabled(checked);
+    tabWidget_totout->setTabEnabled(1,checked);
+
+    groupCalErosion->setEnabled(checked);
+
+    label_soillosskgha->setEnabled(checked);
+    label_soilloss->setEnabled(checked);
+    label_SDR->setEnabled(checked);
+    label_94->setEnabled(checked);
+    label_105->setEnabled(checked);
+    label_45->setEnabled(checked);
+
+    checkMapNameModel(EROSIONMAPS, 0, checked);
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_checkBuildings_toggled(bool checked)
+{
+    widgetInfra->setEnabled(checked);
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_checkConservation_toggled(bool checked)
+{
+    groupMitigationWater->setEnabled(checked);
+    groupConservationSed->setEnabled(checked);
+}
+//---------------------------------------------------------------------------

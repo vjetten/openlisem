@@ -131,28 +131,15 @@ void lisemqt::initMapPlot()
 
 void lisemqt::changeSize()
 {
-    double h = MPlot->height();
-    double w = MPlot->width();
+   double h = MPlot->height();
+   double w = MPlot->width();
 
     MPlot->setAxisScale( QwtAxis::XBottom, op._llx, op._llx+(double)op._nrRows*op._dx*w/h);//, op._dx*10);
     MPlot->setAxisScale( QwtAxis::YLeft, op._lly, op._lly+(double)op._nrRows*op._dx);//, op._dx*10);
+  //  MPlot->setAxisAutoScale(QwtAxis::XBottom, true);
+  //  MPlot->setAxisAutoScale(QwtAxis::YLeft, true);
 
     MPlot->replot();
-
-// from mapedit:
-//    double h = MPlot->height();
-//    double w = MPlot->width();
-
-//    if(_nrCols >= _nrRows ) {
-//        MPlot->setAxisScale( MPlot->xBottom, _llx, _llx+_nrCols*_dx*w/h, _dx*10);
-//        MPlot->setAxisScale( MPlot->yLeft, _lly, _lly+_nrCols*_dx, _dx*10);
-//    } else {
-//        MPlot->setAxisScale( MPlot->xBottom, _llx, _llx+_nrRows*_dx*w/h,_dx*10);
-//        MPlot->setAxisScale( MPlot->yLeft, _lly, _lly+_nrRows*_dx, _dx*10);
-//    }
-//    MPlot->replot();
-
-
 
 }
 

@@ -134,14 +134,14 @@ void lisemqt::ParseInputData()
         bool check = iii == 1;
         if (p1.contains("["))
             continue;
-        if (p1.compare("Include Rainfall")==0)              groupRainfall->setChecked(check);
+        if (p1.compare("Include Rainfall")==0)              checkRainfall->setChecked(check);
         if (p1.compare("Event based")==0)                   checkEventBased->setChecked(check);
         if (p1.compare("Use Rainfall maps")==0)             Rainmaps = check;
         if (p1.compare("Rainfall ID interpolation")==0)     checkIDinterpolation->setChecked(check);
         if (p1.compare("IDI factor")==0)                    E_IDIfactor->setValue(valc);
         if (p1.compare("Rainfall Bias Correction")==0)      E_biasCorrectionP->setValue(valc);
 
-        if (p1.compare("Include ET")==0)                    groupET->setChecked(check);
+        if (p1.compare("Include ET")==0)                    checkET->setChecked(check);
         if (p1.compare("Use ET maps")==0)                   ETmaps = check;
         if (p1.compare("Daily ET")==0)                      checkDailyET->setChecked(check);
         if (p1.compare("Daily ET latitude")==0)             E_latitude->setText(p);
@@ -222,7 +222,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include tile drains")==0)           checkIncludeTiledrains->setChecked(check);
 
         // INTERCEPTION
-        if (p1.compare("Include Interception")==0)     groupInterception->setChecked(check);
+        if (p1.compare("Include Interception")==0)     checkInterception->setChecked(check);
         if (p1.compare("Canopy storage equation")==0)
         {
             switch (iii) {
@@ -244,7 +244,7 @@ void lisemqt::ParseInputData()
         // VJ 110209 canopy openess, factor Aston as user input
 
         // INFILTRATION
-        if (p1.compare("Include Infiltration")==0)     groupInfiltration->setChecked(check);
+        if (p1.compare("Include Infiltration")==0)     checkInfiltration->setChecked(check);
         if (p1.compare("Infil Method")==0) {
             switch(iii)
             {
@@ -445,32 +445,33 @@ void lisemqt::ParseInputData()
 
     // ###################################
 
+    //set the interface to the options from the runfile, toggles are not always triggered
+
+    on_checkRainfall_toggled(checkRainfall->isChecked());
+    on_checkET_toggled(checkET->isChecked());
+    on_checkInterception_toggled(checkInterception->isChecked());
+    on_checkInfiltration_toggled(checkInfiltration->isChecked());
+    on_checkIncludeChannel_toggled(checkIncludeChannel->isChecked());
+    on_checkGWflow_toggled(checkGWflow->isChecked());
+    on_checkDoErosion_toggled(checkDoErosion->isChecked());
+    groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
+
     radioETfile->setChecked(!ETmaps);
     radioETsatfile->setChecked(ETmaps);
     radioRainFile->setChecked(!Rainmaps);
     radioRainSatFile->setChecked(Rainmaps);
 
     doChannelBaseflow = (checkGWflow->isChecked() || checkStationaryBaseflow->isChecked()) && checkIncludeChannel->isChecked();
-    groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
     GW_widget->setEnabled(checkGWflow->isChecked());
     widget_GWparams->setEnabled(checkGWflow->isChecked());
-
-  //  on_checkIncludeET_toggled(checkIncludeET->isChecked());
-  // on_checkWaveInUser_toggled(checkWaveInUser->isChecked());
 
     if (checkSedtrap->isChecked())
         on_checkSedtrap_clicked();
     if (checkInfilGrass->isChecked())
         on_checkInfilGrass_clicked();
-
     E_SigmaDiffusion->setEnabled(checkDiffusion->isChecked());
 
-    //checkOverlandFlow1D->setChecked(dummykinwave == 1);
-    //checkOverlandFlow2Dkindyn->setChecked(dummykinwave == 3);
-    //checkOverlandFlow2Ddyn->setChecked(dummykinwave == 2);
-
-    setFloodTab(true);
-    setErosionTab(false); //?????
+    setFloodTab(true);  //TODO
 
     // first guess
     E_WorkDir = QFileInfo(E_runFileList->currentText()).dir().absolutePath();
@@ -598,7 +599,7 @@ void lisemqt::ParseInputData()
         }
     }
 
-    if (groupRainfall->isChecked()) {
+    if (checkRainfall->isChecked()) {
         E_rainsatName->setText(RainSatFileDir + RainSatFileName);
         //qDebug() << RainSatFileName << RainSatFileDir;
         if (!QFileInfo(E_rainsatName->text()).exists())
@@ -615,7 +616,7 @@ void lisemqt::ParseInputData()
     }
 
 
-    if (groupET->isChecked()) {
+    if (checkET->isChecked()) {
         E_ETName->setText(ETFileDir + ETFileName);
         if (!QFileInfo(E_ETName->text()).exists() && !E_ETName->text().isEmpty())
         {
@@ -795,7 +796,7 @@ void lisemqt::updateModelData()
     {
         QString p1 = namelist[j].name;
 
-        if (p1.compare("Include Rainfall")==0)         namelist[j].value.setNum((int)groupRainfall->isChecked());
+        if (p1.compare("Include Rainfall")==0)         namelist[j].value.setNum((int)checkRainfall->isChecked());
         if (p1.compare("Rainfall file")==0)            namelist[j].value = RainFileName;
         if (p1.compare("Rainfall Directory")==0)       namelist[j].value = RainFileDir;
         if (p1.compare("Rainfall ID interpolation")==0)namelist[j].value.setNum((int)checkIDinterpolation->isChecked());
@@ -806,7 +807,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Rainfall Map Directory")==0)   namelist[j].value = RainSatFileDir;
         if (p1.compare("Rainfall Bias Correction")==0) namelist[j].value = E_biasCorrectionP->text();
 
-        if (p1.compare("Include ET")==0)               namelist[j].value.setNum((int)groupET->isChecked());
+        if (p1.compare("Include ET")==0)               namelist[j].value.setNum((int)checkET->isChecked());
         if (p1.compare("Daily ET")==0)                 namelist[j].value.setNum((int)checkDailyET->isChecked());
         if (p1.compare("ET file") ==0)                 namelist[j].value = ETFileName;
         if (p1.compare("ET Directory") ==0)            namelist[j].value = ETFileDir;
@@ -819,7 +820,7 @@ void lisemqt::updateModelData()
         //if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
 
         // interception
-        if (p1.compare("Include Interception")==0)    namelist[j].value.setNum((int)groupInterception->isChecked());;
+        if (p1.compare("Include Interception")==0)    namelist[j].value.setNum((int)checkInterception->isChecked());;
         if (p1.compare("Include litter interception")==0)    namelist[j].value.setNum((int)checkIncludeLitter->isChecked());
         if (p1.compare("Litter interception storage")==0)    namelist[j].value = E_LitterSmax->text();
         if (p1.compare("Canopy storage equation")==0)
@@ -838,7 +839,7 @@ void lisemqt::updateModelData()
         }
 
         //infiltration
-        if (p1.compare("Include Infiltration")==0)    namelist[j].value.setNum((int)groupInfiltration->isChecked());;
+        if (p1.compare("Include Infiltration")==0)    namelist[j].value.setNum((int)checkInfiltration->isChecked());;
         if (p1.compare("Infil Method")==0)
         {
             switch(E_InfiltrationMethod->currentIndex())
