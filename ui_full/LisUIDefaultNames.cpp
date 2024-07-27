@@ -437,6 +437,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Infrastructure]");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include Infrastructure");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Include buildings");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include raindrum storage");

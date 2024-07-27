@@ -109,7 +109,6 @@ void lisemqt::ParseInputData()
 
     QLocale loc = QLocale::system(); // current locale
     QString pnt = loc.decimalPoint();
-    //QChar pnt = loc.decimalPoint();
 
     for (j = 0; j < nrnamelist; j++)
     {
@@ -118,8 +117,9 @@ void lisemqt::ParseInputData()
         QString p1 = namelist[j].name;
         bool ok;
 
+        // deal with dot or comma as decimal
         int iii = loc.toInt(p);
-        double valc = loc.toDouble(p,&ok); //namelist[j].value.toDouble(&ok);
+        double valc = loc.toDouble(p,&ok);
         if (!ok && pnt == ',') {
             QString p2 = p.replace(",",".");
             valc = p2.toDouble();
@@ -129,11 +129,38 @@ void lisemqt::ParseInputData()
             valc = p2.toDouble();
         }
 
-    //  qDebug() << p1 <<  p  << iii <<  valc;
-
         bool check = iii == 1;
         if (p1.contains("["))
             continue;
+
+        if (p1.compare("Result datetime")==0) checkAddDatetime->setChecked(check);
+        if (p1.compare("Timeplot as PCRaster")==0)           checkWritePCRaster->setChecked(!check);
+        if (p1.compare("Report point output separate")==0)   checkSeparateOutput->setChecked(check);
+        if (p1.compare("Report discharge units")==0)
+        {
+            int units = p.toInt();
+            if (units == 0)
+                checkUnits_ls->setChecked(true);
+            if (units == 1)
+                checkUnits_m3s->setChecked(true);
+        }
+        if (p1.compare("Report digits out")==0)              E_DigitsOut->setValue(iii);
+        if (p1.compare("Report format GTiff")==0)            checkFormatGtiff->setChecked(check);
+        if (p1.compare("End run report")==0)                 checkEndRunReport->setChecked(check);
+        if (p1.compare("Include Satellite Image")==0)        checksatImage->setChecked(check);
+        if (p1.compare("Output interval")==0)                printinterval->setValue(std::max(1,iii));
+        if (p1.compare("Erosion map units (0/1/2)")==0)
+        {
+            int units = p.toInt();
+            if (units == 0)
+                checkUnits_tonha->setChecked(true);
+            if (units == 1)
+                checkUnits_kgcell->setChecked(true);
+            if (units == 2)
+                checkUnits_kgm2->setChecked(true);
+        }
+
+        // METEO
         if (p1.compare("Include Rainfall")==0)              checkRainfall->setChecked(check);
         if (p1.compare("Event based")==0)                   checkEventBased->setChecked(check);
         if (p1.compare("Use Rainfall maps")==0)             Rainmaps = check;
@@ -148,59 +175,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("ET Bias Correction")==0)            E_biasCorrectionET->setValue(valc);
         if (p1.compare("Rainfall ET threshold")==0)         E_rainfallETA_threshold->setValue(valc);
         //if (p1.compare("Include Snowmelt")==0)            checkSnowmelt->setChecked(check);
-
-        if (p1.compare("Result datetime")==0) checkAddDatetime->setChecked(check);
-        if (p1.compare("Timeplot as PCRaster")==0)           checkWritePCRaster->setChecked(!check);
-        if (p1.compare("Report point output separate")==0)   checkSeparateOutput->setChecked(check);
-        if (p1.compare("Report discharge units")==0)
-        {
-            int units = p.toInt();
-            if (units == 0)
-                checkUnits_ls->setChecked(true);
-            if (units == 1)
-                checkUnits_m3s->setChecked(true);
-        }
-
-        if (p1.compare("Report digits out")==0)              E_DigitsOut->setValue(iii);
-        if (p1.compare("Report format GTiff")==0)            checkFormatGtiff->setChecked(check);
-        if (p1.compare("End run report")==0)                 checkEndRunReport->setChecked(check);
-      //  if (p1.compare("Add timestamp")==0)                  checkOutputTimestamp->setChecked(check);
-      //  if (p1.compare("Variable Timestep")==0)              checkVariableTimestep->setChecked(check);
-        if (p1.compare("Include Satellite Image")==0)        checksatImage->setChecked(check);
-        if (p1.compare("Output interval")==0)                printinterval->setValue(std::max(1,iii));
-        if (p1.compare("Erosion map units (0/1/2)")==0)
-        {
-            int units = p.toInt();
-            if (units == 0)
-                checkUnits_tonha->setChecked(true);
-            if (units == 1)
-                checkUnits_kgcell->setChecked(true);
-            if (units == 2)
-                checkUnits_kgm2->setChecked(true);
-        }
-
-        // GENERAL
-        if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
-        if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
-     //   if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
-        if (p1.compare("Include stationary baseflow")==0)       checkStationaryBaseflow->setChecked(check);
-      //  if (p1.compare("Adjust channel crosssection")==0)     checkChannelAdjustCHW->setChecked(check);
-        if (p1.compare("Include GW flow")==0)               checkGWflow->setChecked(check);
-        if (p1.compare("GW flow explicit")==0)              checkGWflowexplicit->setChecked(check);
-        if (p1.compare("GW flow SWOF")==0)                  checkGWflowSWOF->setChecked(check);
-        if (p1.compare("GW flow LDD")==0)                   checkGWflowLDD->setChecked(check);
-        if (p1.compare("GW flow SWAT")==0)                  checkGWflowSWAT->setChecked(check);
-        if (p1.compare("GW recharge factor")==0)            GW_recharge->setValue(valc);
-        if (p1.compare("GW flow factor")==0)                GW_flow->setValue(valc);
-       // if (p1.compare("GW river inflow factor")==0)           GW_inflow->setValue(valc);
-        if (p1.compare("GW slope factor")==0)               GW_slope->setValue(valc);
-        if (p1.compare("GW deep percolation")==0)           GW_deep->setValue(valc);
-        if (p1.compare("GW threshold factor")==0)           GW_threshold->setValue(valc);
-
-        if (p1.compare("Include channel culverts")==0)      checkChannelCulverts->setChecked(check);
-        if (p1.compare("Include channel inflow")==0)        checkDischargeUser->setChecked(check);
-        if (p1.compare("Include water height inflow")==0)   checkWaterUserIn->setChecked(check);
-        if (p1.compare("Include Erosion simulation")==0)    checkDoErosion->setChecked(check);
 
         // INTERCEPTION
         if (p1.compare("Include Interception")==0)     checkInterception->setChecked(check);
@@ -236,20 +210,21 @@ void lisemqt::ParseInputData()
             }
         }
         if (p1.compare("Include compacted")==0)              checkInfilCompact->setChecked(check);
-        if (p1.compare("Include grass strips")==0)           checkInfilGrass->setChecked(check);
-        if (p1.compare("Grassstrip Mannings n")==0)           E_GrassStripN->setValue(valc);
         if (p1.compare("Include crusts")==0)                 checkInfilCrust->setChecked(check);
         if (p1.compare("Impermeable sublayer")==0)           checkInfilImpermeable->setChecked(check);
         if (p1.compare("Nr input layers")==0)                spinSoilLayers->setValue(iii);
         if (p1.compare("Psi user input")==0)                 checkPsiUser->setChecked(check);
-     //   if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
-        //	  if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
-        if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setValue(valc);
+        if (p1.compare("SoilWB nodes 1")==0) spinNodes1->setValue(iii);
+        if (p1.compare("SoilWB nodes 2")==0) spinNodes2->setValue(iii);
+        if (p1.compare("SoilWB nodes 3")==0) spinNodes3->setValue(iii);
+        if (p1.compare("SoilWB dt factor")==0) spinInfdt->setValue(valc);
+        if (p1.compare("Infil Kavg")==0)   comboBox_Kmean->setCurrentIndex(iii);
+        if (p1.compare("Van Genuchten")==0) spinSoilPhysics->setValue(valc);
 
         // FLOW
         if (p1.compare("Include flow barriers")==0)          checkFlowBarriers->setChecked(check);
         if (p1.compare("Flow barrier table filename")==0)    line_FlowBarriers->setText(p);
-        if (p1.compare("Include buffers")==0)          checkBuffers->setChecked(check);
+        if (p1.compare("Include buffers")==0)                checkBuffers->setChecked(check);
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(valc);
         if (p1.compare("Flood solution")==0)                 checkMUSCL->setChecked(check);
@@ -261,7 +236,26 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flood initial level map")==0)        checkFloodInitial->setChecked(check);
         if (p1.compare("Timestep flood")==0)                 E_TimestepMinFlood->setValue(valc);
 
+        // CHANNELS AND GW
+        if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
+        if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
+        if (p1.compare("Include stationary baseflow")==0)    checkStationaryBaseflow->setChecked(check);
+        if (p1.compare("Include channel culverts")==0)       checkChannelCulverts->setChecked(check);
+        if (p1.compare("Include channel inflow")==0)         checkDischargeUser->setChecked(check);
+        if (p1.compare("Include water height inflow")==0)    checkWaterUserIn->setChecked(check);
+        if (p1.compare("Include GW flow")==0)                checkGWflow->setChecked(check);
+        if (p1.compare("GW flow explicit")==0)               checkGWflowexplicit->setChecked(check);
+        if (p1.compare("GW flow SWOF")==0)                   checkGWflowSWOF->setChecked(check);
+        if (p1.compare("GW flow LDD")==0)                    checkGWflowLDD->setChecked(check);
+        if (p1.compare("GW flow SWAT")==0)                   checkGWflowSWAT->setChecked(check);
+        if (p1.compare("GW recharge factor")==0)             GW_recharge->setValue(valc);
+        if (p1.compare("GW flow factor")==0)                 GW_flow->setValue(valc);
+        if (p1.compare("GW slope factor")==0)                GW_slope->setValue(valc);
+        if (p1.compare("GW deep percolation")==0)            GW_deep->setValue(valc);
+        if (p1.compare("GW threshold factor")==0)            GW_threshold->setValue(valc);
+
         // INFRASTRUCTURE
+        if (p1.compare("Include Infrastructure")==0)        checkInfrastructure->setChecked(check);
         if (p1.compare("Include buildings")==0)             checkHouses->setChecked(check);
         if (p1.compare("Add buildings to DEM")==0)          checkAddBuildingDEM->setChecked(check);
         if (p1.compare("Add building fraction")==0)         E_AddBuildingFraction->setValue(valc);
@@ -276,23 +270,18 @@ void lisemqt::ParseInputData()
         if (p1.compare("Hard Surfaces")==0)                 checkHardsurface->setChecked(check);
         if (p1.compare("Include tile drains")==0)           checkIncludeTiledrains->setChecked(check);
 
-
         // EROSION
-        if (p1.compare("Splash equation")==0)                E_splashEquation->setValue(iii);
+        if (p1.compare("Include Erosion simulation")==0)     checkDoErosion->setChecked(check);
         if (p1.compare("Detachment efficiency")==0)          E_EfficiencyDET->setCurrentIndex(iii-1);
         if (p1.compare("Detachment efficiency channel")==0)  E_EfficiencyDETCH->setCurrentIndex(iii-1);
-        if (p1.compare("Direct efficiency channel")==0)      E_EfficiencyDirect->setValue(valc);
+        if (p1.compare("Direct efficiency channel")==0)      E_EfficiencyDirect->setValue(valc);         // user defined detachment efficiency
         if (p1.compare("Settling Velocity")==0)              E_settlingVelocity->setCurrentIndex(iii-1);
-        if (p1.compare("Include Sediment traps")==0)         checkSedtrap->setChecked(check);
-        if (p1.compare("KE parameters EQ1")==0)
-        {
+        if (p1.compare("Splash Delivery Ratio")==0)          E_SplashDelibery->setValue(valc);
+        if (p1.compare("Splash equation")==0)                E_splashEquation->setValue(iii);
+        if (p1.compare("KE parameters EQ1")==0) {
             QStringList param;
-//            if (p.contains(",")){
-//                p.replace(",",";");
-//            }
             param = p.split(";",Qt::SkipEmptyParts);
-            //qDebug() << p << param;
-            if (param.count() > 4) {
+             if (param.count() > 4 || param.count() == 1) {
                 bool ok;
                 int i = param[0].toInt(&ok, 10);
                 param.clear();
@@ -304,14 +293,10 @@ void lisemqt::ParseInputData()
             spinKEparameterB1->setValue(param[2].toDouble());
             spinKEparameterC1->setValue(param[3].toDouble());
         }
-        if (p1.compare("KE parameters EQ2")==0)
-        {
+        if (p1.compare("KE parameters EQ2")==0) {
             QStringList param;
-//            if (p.contains(",")){
-//                p.replace(",",";");
-//            }
             param = p.split(";",Qt::SkipEmptyParts);
-            if (param.count() > 3) {
+            if (param.count() > 3 || param.count() == 1) {
                 bool ok;
                 int i = param[0].toInt(&ok, 10);
                 param.clear();
@@ -322,14 +307,10 @@ void lisemqt::ParseInputData()
             spinKEparameterA2->setValue(param[1].toDouble());
             spinKEparameterB2->setValue(param[2].toDouble());
         }
-        if (p1.compare("KE parameters EQ3")==0)
-        {
+        if (p1.compare("KE parameters EQ3")==0) {
             QStringList param;
-//            if (p.contains(",")){
-//                p.replace(",",";");
-//            }
             param = p.split(";",Qt::SkipEmptyParts);
-            if (param.count() > 3) {
+            if (param.count() > 3 || param.count() == 1) {
                 bool ok;
                 int i = param[0].toInt(&ok, 10);
                 param.clear();
@@ -340,9 +321,7 @@ void lisemqt::ParseInputData()
             spinKEparameterA3->setValue(param[1].toDouble());
             spinKEparameterB3->setValue(param[2].toDouble());
         }
-        if (p1.compare("KE time based")==0)                   checkKETimebased->setChecked(check);
-
-      //  if (p1.compare("Use material depth")==0)              checkMaterialDepth->setChecked(check);
+        if (p1.compare("KE time based")==0)           //  if (p1.compare("Use material depth")==0)              checkMaterialDepth->setChecked(check);
         if (p1.compare("No detachment boundary")==0)          checkNoSedBoundary->setChecked(check);
         if (p1.compare("Use 2 phase flow")==0)                checkSed2Phase->setChecked(check);
         if (p1.compare("River BL method")==0)                 E_RBLMethod->setCurrentIndex(iii-1);
@@ -356,20 +335,24 @@ void lisemqt::ParseInputData()
 //        if (p1.compare("Use grain size distribution")==0)     checkSedMultiGrain->setChecked(check);
 //        if (p1.compare("Estimate grain size distribution")==0)checkEstimateGrainSizeDistribution->setChecked(check);
 //        if (p1.compare("Read grain distribution maps")==0)    checkReadGrainSizeDistribution->setChecked(check);
-//        if (p1.compare("Number of grain size classes (simulated)")==0)
-//                                                              E_NumberClasses->setValue(iii);
+//        if (p1.compare("Number of grain size classes (simulated)")==0) E_NumberClasses->setValue(iii);
 //        if (p1.compare("Grain size class maps")==0)   {
 //            if (p.contains(",")) p.replace(",",";");
 //            E_GrainSizes->setText(p);
 //        }
+
+        // CONSERVATION
+        if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setValue(valc);
+        if (p1.compare("Include Sediment traps")==0)         checkSedtrap->setChecked(check);
+        if (p1.compare("Include grass strips")==0)           checkInfilGrass->setChecked(check);
+        if (p1.compare("Grassstrip Mannings n")==0)           E_GrassStripN->setValue(valc);
+
         //ADVANCED
         if (p1.compare("Advanced Options")==0)                 checkAdvancedOptions->setChecked(check);
-      //  if (p1.compare("Calculate erosion inside 2D loop")==0)  checkErosionInsideLoop->setChecked(check);
         if (p1.compare("Nr user Cores")==0) nrUserCores->setValue(iii);
         if (p1.compare("Use linked list")==0)        checkLinkedList->setChecked(check);
         if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(iii);
         if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(iii);
-        //if (p1.compare("Z 2D correction")==0)               E_Z2Dcorrection->setValue(iii);
         if (p1.compare("Use time avg V")==0)                 checkTimeavgV->setChecked(check);
         if (p1.compare("Correct MB with WH")==0)             checkMB_WH->setChecked(check);
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(iii);
@@ -379,13 +362,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use Channel Max V")==0)         checkChanMaxVelocity->setChecked(check);
         if (p1.compare("Channel Max V")  ==0)             E_chanMaxVelocity->setValue(valc);
         if (p1.compare("Channel 2D flow connect")==0)        checkChannel2DflowConnect->setChecked(check);
-        if (p1.compare("Channel WF inflow")==0)        checkChannelWFinflow->setChecked(check);
-        if (p1.compare("SoilWB nodes 1")==0) spinNodes1->setValue(iii);
-        if (p1.compare("SoilWB nodes 2")==0) spinNodes2->setValue(iii);
-        if (p1.compare("SoilWB nodes 3")==0) spinNodes3->setValue(iii);
-        if (p1.compare("SoilWB dt factor")==0) spinInfdt->setValue(valc);
-        if (p1.compare("Infil Kavg")==0)   comboBox_Kmean->setCurrentIndex(iii);
-        if (p1.compare("Van Genuchten")==0) spinSoilPhysics->setValue(valc);
+        //if (p1.compare("Channel WF inflow")==0)        checkChannelWFinflow->setChecked(check);
+
 
         //CALIBRATION
         if (p1.compare("Smax calibration")==0)         E_CalibrateSmax->setValue(valc);
@@ -402,14 +380,12 @@ void lisemqt::ParseInputData()
         if (p1.compare("Channel Ksat calibration")==0) E_CalibrateChKsat->setValue(valc);
         if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(valc);
         if (p1.compare("Boundary water level calibration")==0)    E_CalibrateWave->setValue(valc);
-
         if (p1.compare("Channel tortuosity")==0)    E_CalibrateChTor->setValue(valc);
         if (p1.compare("Cohesion calibration")==0)     E_CalibrateCOH->setValue(valc);
         if (p1.compare("Cohesion Channel calibration")==0)    E_CalibrateCHCOH->setValue(valc);
-        if (p1.compare("Ucr Channel calibration")==0)    E_CalibrateCHUcr->setValue(valc);
-        if (p1.compare("SV calibration")==0)    E_CalibrateCHSV->setValue(valc);
+        //if (p1.compare("Ucr Channel calibration")==0)    E_CalibrateCHUcr->setValue(valc);
+        //if (p1.compare("SV calibration")==0)    E_CalibrateCHSV->setValue(valc);
         if (p1.compare("Aggregate stability calibration")==0)    E_CalibrateAS->setValue(valc);
-        if (p1.compare("Splash Delivery Ratio")==0)    E_SplashDelibery->setValue(valc);
        // if (p1.compare("Particle Cohesion of Deposited Layer")==0) E_DepositedCohesion->setValue(valc);
         if (p1.compare("Sediment bulk density")==0)          E_BulkDens->setValue(valc);
 
@@ -448,6 +424,7 @@ void lisemqt::ParseInputData()
     on_checkIncludeChannel_toggled(checkIncludeChannel->isChecked());
     on_checkGWflow_toggled(checkGWflow->isChecked());
     on_checkDoErosion_toggled(checkDoErosion->isChecked());
+    on_checkInfrastructure_toggled(checkInfrastructure->isChecked());
     groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
 
     radioETfile->setChecked(!ETmaps);
@@ -456,8 +433,6 @@ void lisemqt::ParseInputData()
     radioRainSatFile->setChecked(Rainmaps);
 
     doChannelBaseflow = (checkGWflow->isChecked() || checkStationaryBaseflow->isChecked()) && checkIncludeChannel->isChecked();
-    GW_widget->setEnabled(checkGWflow->isChecked());
-    widget_GWparams->setEnabled(checkGWflow->isChecked());
 
     if (checkSedtrap->isChecked())
         on_checkSedtrap_clicked();
@@ -681,8 +656,8 @@ void lisemqt::ParseInputData()
     E_BeginTimeDay->setText(QString("%1:%2").arg(days,3, 10, QLatin1Char('0')).arg(mins,4, 10, QLatin1Char('0')));
     E_EndTimeDay->setText(QString("%1:%2").arg(daye,3, 10, QLatin1Char('0')).arg(mine,4, 10, QLatin1Char('0')));
 
-    on_checkIncludeChannel_clicked();
-    on_checkMaterialDepth_clicked();
+    on_checkIncludeChannel_clicked(); //why???
+    //on_checkMaterialDepth_clicked();
 
     //****====------====****//
 
@@ -855,7 +830,6 @@ void lisemqt::updateModelData()
         }
         if (p1.compare("Include crusts")==0)                namelist[j].value.setNum((int)checkInfilCrust->isChecked());
         if (p1.compare("Impermeable sublayer")==0)          namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
-        if (p1.compare("Two layer")==0)                     namelist[j].value.setNum((int)checkInfil2layer->isChecked());
         if (p1.compare("Psi user input")==0)                namelist[j].value.setNum((int)checkPsiUser->isChecked());
         if (p1.compare("Geometric mean Ksat")==0)           namelist[j].value.setNum((int)checkGeometric->isChecked());
 
@@ -931,7 +905,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
 
         //houses
-        if (p1.compare("Include house storage")==0)          namelist[j].value.setNum((int)checkHouses->isChecked());
+        if (p1.compare("Include Infrastructure")==0)          namelist[j].value.setNum((int)checkInfrastructure->isChecked());
         if (p1.compare("Include buildings")==0)          namelist[j].value.setNum((int)checkHouses->isChecked());
         if (p1.compare("Add buildings to DEM")==0)           namelist[j].value.setNum((int)checkAddBuildingDEM->isChecked());
         if (p1.compare("Add building fraction")==0)           namelist[j].value = E_AddBuildingFraction->text();

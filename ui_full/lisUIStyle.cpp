@@ -104,9 +104,10 @@ void lisemqt::SetStyleUISize()
     toolBar_2->setMovable(false);
     toolBar->setMovable(false);
 
-    genfontsize = screen->devicePixelRatio()*(disp+10);
-    //qDebug() << genfontsize << screen->devicePixelRatio();
-    qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
+    genfontsize = screen->devicePixelRatio()*(disp+8);
+    qDebug() << genfontsize << screen->devicePixelRatio();
+    //qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
+    setfontSize();
 }
 
 // labels in output tab
@@ -162,7 +163,7 @@ void lisemqt::lightStyleUI()
     tabWidgetOptions->setTabIcon(0,QIcon(":/settings2.png"));
     tabWidgetOptions->setTabIcon(1,QIcon(":/rain.png"));
     tabWidgetOptions->setTabIcon(2,QIcon(":/Plant-icon.png"));
-    tabWidgetOptions->setTabIcon(3,QIcon(":/soil6.png"));
+    tabWidgetOptions->setTabIcon(3,QIcon(":/soil5.png"));
     tabWidgetOptions->setTabIcon(4,QIcon(":/water1.png"));
     tabWidgetOptions->setTabIcon(5,QIcon(":/river4.png"));
     tabWidgetOptions->setTabIcon(6,QIcon(":/house.png"));
@@ -174,7 +175,7 @@ void lisemqt::lightStyleUI()
     fontIncreaseAct->setIcon(QIcon(":/2X/fontbigger2X.png"));
     fontDecreaseAct->setIcon(QIcon(":/2X/fontsmaller2X.png"));
 
-    qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
+    //qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
 
     qApp->setStyleSheet(//"* { background-color: #f0f0f0; color: #000000;}"
                         "*:disabled { color: #a4a4a4; }"
@@ -223,13 +224,13 @@ void lisemqt::darkStyleUI()
     QString sc1 = "#e57537";
     QString sc2 = "#888888";
     QString sc = "#dddd55";
-    QString bc = "#a28000";
+    QString bc = "##a28000";
     QString fc = "#fcfcfc";
 
     tabWidgetOptions->setTabIcon(0,QIcon(":/d_settings2.png"));
     tabWidgetOptions->setTabIcon(1,QIcon(":/d_rain.png"));
     tabWidgetOptions->setTabIcon(2,QIcon(":/d_Plant-icon.png"));
-    tabWidgetOptions->setTabIcon(3,QIcon(":/d_soil6.png"));
+    tabWidgetOptions->setTabIcon(3,QIcon(":/d_soil5.png"));
     tabWidgetOptions->setTabIcon(4,QIcon(":/d_water1.png"));
     tabWidgetOptions->setTabIcon(5,QIcon(":/d_river3.png"));
     tabWidgetOptions->setTabIcon(6,QIcon(":/d_eros1bw.png"));
@@ -241,7 +242,7 @@ void lisemqt::darkStyleUI()
     fontIncreaseAct->setIcon(QIcon(":/2X/d_fontbigger2X.png"));
     fontDecreaseAct->setIcon(QIcon(":/2X/d_fontsmaller2X.png"));
 
-    qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
+ //   qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
 
     qApp->setStyleSheet("* { background-color: #2E2F30; color: #D6CF9A;}"
                         "*:disabled { color: #888888; }"
@@ -286,14 +287,14 @@ void lisemqt::darkStyleUI()
     HPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
     MPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
 
-     label_55->setStyleSheet( "QLabel {color: #e57537;}");
-     label_59->setStyleSheet( "QLabel {color: #e57537;}");
-     label_88->setStyleSheet( "QLabel {color: #e57537;}");
-     label_89->setStyleSheet( "QLabel {color: #e57537;}");
-    label_156->setStyleSheet( "QLabel {color: #e57537;}");
-      label_9->setStyleSheet( "QLabel {color: #e57537;}");
-     label_10->setStyleSheet( "QLabel {color: #e57537;}");
-    label_128->setStyleSheet( "QLabel {color: #e57537;}");
+     label_55->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
+     label_59->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
+     label_88->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
+     label_89->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
+    label_156->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
+      label_9->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
+     label_10->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
+    label_128->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
 
     setOutputTabStyle("#a28000", "#f0f0f0");
 
@@ -432,14 +433,16 @@ void lisemqt::fontDecrease()
 {
     genfontsize--;
     genfontsize = std::max(6, genfontsize);
-    qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
+    //qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
+    setfontSize();
 }
 //---------------------------------------------------------------
 void lisemqt::fontIncrease()
 {
     genfontsize++;
     genfontsize = std::min(32, genfontsize);
-    qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
+    //qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
+    setfontSize();
 }
 //---------------------------------------------------------------
 void lisemqt::setfontSize()
@@ -448,16 +451,14 @@ void lisemqt::setfontSize()
     //     darkStyleUI();
     // else
     //     lightStyleUI();
-    // //qApp->setStyleSheet(QString("QWidget { font-size: %1px; }").arg(genfontsize));
-    //QFont font = qApp->font();
-    // const QWidgetList allWidgets = QApplication::allWidgets();
-    // for (QWidget *widget : allWidgets) {
-    //     QFont font = widget->font();
-    //     font.setPointSize(genfontsize);
-    //     widget->setFont(font);
-    //     widget->update();
-    // }
-    qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
+    QFont font = qApp->font();
+    const QWidgetList allWidgets = QApplication::allWidgets();
+    for (QWidget *widget : allWidgets) {
+        QFont font = widget->font();
+        font.setPointSize(genfontsize);
+        widget->setFont(font);
+        widget->update();
+    }
 
     qDebug() <<"F"<<genfontsize;
 }

@@ -352,7 +352,7 @@ void TWorld::GetComboMaps()
             AddComboMap(0,"Avg Moisture content layer 1","-",ThetaI1a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
             if (SwitchTwoLayer)
                 AddComboMap(0,"Avg Moisture content layer 2","-",ThetaI2a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-            if (!SwitchImpermeable || SwitchChannelBaseflow)
+            if (!SwitchImpermeable || SwitchGWflow)
                 AddComboMap(0,"Percolation","mm",Perc,LegendMap[cl],Legend[cl],false,false,1000,1.0);
         }
     }

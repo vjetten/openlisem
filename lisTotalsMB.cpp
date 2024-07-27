@@ -228,10 +228,8 @@ void TWorld::TotalsFlow(void)
     if (SwitchIncludeChannel) {
         ChannelVolTot = MapTotal(*ChannelWaterVol); //m3
         // add channel vol to total
-        if (SwitchChannelBaseflow) {
+        if (SwitchGWflow) {
                 BaseFlowTot += MapTotal(*Qbase); // total inflow in m3
-                if (SwitchChannelBaseflowStationary)
-                    BaseFlowTot += MapTotal(*BaseFlowInflow)*_dt; // stationary base inflow
 
                 GWlevel = MapTotal(*GWWH);
                 GWleveltot = GWlevel*catchmentAreaFlatMM;
@@ -239,6 +237,9 @@ void TWorld::TotalsFlow(void)
                 // BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
                 //qDebug() << BaseFlowTotmm;
         }
+
+        if (SwitchChannelBaseflowStationary)
+            BaseFlowTot += MapTotal(*BaseFlowInflow)*_dt; // stationary base inflow
 
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
 

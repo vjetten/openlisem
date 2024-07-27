@@ -47,15 +47,15 @@ void TWorld::ChannelFlowandErosion()
 
     ChannelRainandInfil();          // subtract infil, add rainfall    
 
-    ChannelBaseflow();              // calculate baseflow
+    ChannelBaseflow();              // add stationary and GW baseflow if selected
 
-    ChannelVelocityandDischarge();
+    ChannelVelocityandDischarge();  // maaings V Q Aplha
 
     ChannelFlow();                  // channel kin wave for water
 
     ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
 
-    ChannelSedimentFlow(); // kin wave for sediment and substances
+    ChannelSedimentFlow();          // kin wave for sediment and substances
 
 }
 //---------------------------------------------------------------------------
@@ -132,9 +132,6 @@ void TWorld::ChannelVelocityandDischarge()
 //---------------------------------------------------------------------------
 void TWorld::ChannelBaseflow(void)
 {
-    if(!SwitchChannelBaseflow)
-        return;
-
     // add a stationary part
     if(SwitchChannelBaseflowStationary)
     {
@@ -154,6 +151,7 @@ void TWorld::ChannelBaseflow(void)
         }}
     }
 
+    // add the baseflow from GW
     if (SwitchGWflow) {
 
         GroundwaterFlow();
@@ -198,8 +196,6 @@ void TWorld::ChannelBaseflow(void)
             // But that would make channeldepth very sensitive
 
         }}
-//report(*Qbase,"qb");
-//report(*GWout,"gwout");
     }
 }
 //---------------------------------------------------------------------------

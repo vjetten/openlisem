@@ -330,7 +330,7 @@ void TWorld::ReportTotalSeries(void)
         out << sep << "Theta1 (-)";
         if (SwitchTwoLayer)
             out << sep << "Theta2 (-)";
-        if (SwitchChannelBaseflow) {
+        if (SwitchChannelBaseflowStationary || SwitchGWflow) {
             out << sep << "GWlevel (m)";
             out << sep << "Baseflow in (mm)";
         }
@@ -382,7 +382,7 @@ void TWorld::ReportTotalSeries(void)
     out << sep << op.Theta1;
     if (SwitchTwoLayer)
         out << sep << op.Theta2;
-    if (SwitchChannelBaseflow) {
+    if (SwitchChannelBaseflowStationary || SwitchGWflow) {
         out << sep << op.GWlevel;
         out << sep << op.BaseFlowTotmm;
     }
@@ -1369,16 +1369,11 @@ void TWorld::ReportDump(void)
     {
         report(*ChannelWaterVol,dumpDir+"ChannelWaterVol.map");
         report(*ChannelWH,dumpDir+"ChannelWH.map");
-        if (SwitchChannelBaseflow) {
+        if (SwitchGWflow) {
             report(*Qbase,dumpDir+"Qbase.map");
             report(*GWWH,dumpDir+"GWWH.map");
         }
     }
-
-
-
-
-
 }
 
 
@@ -1430,7 +1425,7 @@ void TWorld::ReportTimeseriesPCR(void)
                 int nrs = 5 + (SwitchErosion ? 3 : 0);
                 if (SwitchRainfall) nrs++;
                 if (SwitchSnowmelt) nrs++;
-                if (SwitchChannelBaseflow) nrs++;
+                if (SwitchChannelBaseflowStationary || SwitchGWflow) nrs++;
                 if (FlowBoundaryType > 0) nrs++;
                 if (SwitchIncludeTile) nrs++;
                     out << nrs << "\n";

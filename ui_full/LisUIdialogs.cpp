@@ -511,7 +511,7 @@ void lisemqt::on_checkGWflow_toggled(bool checked)
     GW_widget->setEnabled(checked);
     widget_GWparams->setEnabled(checked);
     groupBaseflowParams->setEnabled(checked);
-    qDebug() << checked;
+    //qDebug() << checked;
 }
 
 //--------------------------------------------------------------------
@@ -657,14 +657,25 @@ void lisemqt::on_checkDoErosion_toggled(bool checked)
     checkMapNameModel(EROSIONMAPS, 0, checked);
 }
 //---------------------------------------------------------------------------
-void lisemqt::on_checkBuildings_toggled(bool checked)
+void lisemqt::on_checkInfrastructure_toggled(bool checked)
 {
     widgetInfra->setEnabled(checked);
+    transparencyHardSurface->setEnabled(checked);
+    transparencyRoad->setEnabled(checked);
+    checkMapHardSurface->setEnabled(checked);
+    checkMapBuildings->setEnabled(checked);
+    checkMapRoads->setEnabled(checked);
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_checkConservation_toggled(bool checked)
 {
     groupMitigationWater->setEnabled(checked);
     groupConservationSed->setEnabled(checked);
+
 }
 //---------------------------------------------------------------------------
+void lisemqt::on_toolButton_ShowRunfile_clicked()
+{
+    //qDebug() << E_runFileList->currentText();
+    showTextfile(E_runFileList->currentText());
+}

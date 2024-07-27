@@ -190,6 +190,7 @@ public:
 
     QwtPlot *MPlot;               // plot in which the raster map is drawn
     QwtText title;
+    //OSMPlot *OSMplot;
     QwtPlotSpectrogram *drawMap;  // raster map drawing
     QwtPlotSpectrogram *baseMap;  // raster map drawing
     QwtPlotSpectrogram *baseMapDEM;  // raster map drawing
@@ -446,9 +447,9 @@ public slots:
     void on_checkInfilCompact_clicked();
     void on_checkInfilCrust_clicked();
     void on_checkInfilGrass_clicked();
-    void on_checkInfil2layer_clicked();
+    //void on_checkInfil2layer_clicked();
     void on_checkSedtrap_clicked();
-    void on_checkMaterialDepth_clicked();
+ //   void on_checkMaterialDepth_clicked();
 //    void on_E_BulkDens2_editingFinished();
 //    void on_E_BulkDens_editingFinished();
   //  void on_checkSnowmelt_clicked();
@@ -465,6 +466,7 @@ public slots:
     void ssetAlphaRoad(int v);
     void ssetAlphaHouse(int v);
     void ssetAlphaHardSurface(int v);
+    void ssetAlphaHardSurfaceW(int v);
     void ssetAlphaMap(int v);
 
     void setWriteOutputSOBEK(bool);
@@ -565,11 +567,13 @@ private slots:
 
     void on_checkDoErosion_toggled(bool checked);
 
-    void on_checkBuildings_toggled(bool checked);
-
     void on_checkConservation_toggled(bool checked);
 
     void on_checkInfiltration_toggled(bool checked);
+
+    void on_toolButton_ShowRunfile_clicked();
+
+    void on_checkInfrastructure_toggled(bool checked);
 
 private:
 

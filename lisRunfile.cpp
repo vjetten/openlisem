@@ -176,6 +176,41 @@ QString TWorld::checkOutputMapName(QString p, QString S, int i)
     }
     return p;
 }
+//------------------------------------------------------------------------------
+// read the run file in a runnamelist
+void TWorld::GetRunFile(void)
+{
+    QFile fin(temprunname);
+
+    if (!fin.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        ErrorString = "Cannot open runfile: " + temprunname;
+        throw 2;
+    }
+
+    for (int i = 0; i < NUMNAMES; i++)
+    {
+        runnamelist[i].name.clear();
+        runnamelist[i].value.clear();
+    }
+    nrrunnamelist = 0;
+
+    while (!fin.atEnd())
+    {
+        QString S = fin.readLine();
+        if (!S.trimmed().isEmpty())
+        {
+            if (S.contains("="))
+            {
+                QStringList SL = S.split(QRegularExpression("="));
+                runnamelist[nrrunnamelist].name = SL[0].trimmed();
+                runnamelist[nrrunnamelist].value = SL[1].trimmed();
+                nrrunnamelist++;
+            }
+        }
+    }
+    fin.close();
+}
 //---------------------------------------------------------------------------
 void TWorld::ParseRunfileData(void)
 {
@@ -190,24 +225,50 @@ void TWorld::ParseRunfileData(void)
         QString p1 = runnamelist[j].name;
         QString p = runnamelist[j].value;
 
-        //if (p1.compare("Include Snowmelt")==0)                  SwitchSnowmelt =         iii == 1
+        if (p1.compare("Map Directory")==0) {
+            inputDir=CheckDir(p);
+            //qDebug() << p << inputDir;
+        }
+
+        if (p1.compare("Result Directory")==0) {
+            resultDir = CheckDir(p, true);
+        }
+
+        // output
+        if (p1.compare("Output interval")==0)                   printinterval = iii;
+        if (p1.compare("Report point output separate")==0)      SwitchSeparateOutput = iii == 1;
+        if (p1.compare("Report digits out")==0)                 ReportDigitsOut = iii;
+        if (p1.compare("Report end run")==0)                    SwitchEndRun = iii == 1;
+        if (p1.compare("Include Satellite Image")==0)           SwitchImage = iii == 1;
+        if (p1.compare("Erosion map units (0/1/2)")==0)  ErosionUnits = iii;
+        if (p1.compare("Report discharge units")==0) QUnits = iii;
+
+        // meteo
         if (p1.compare("Include Rainfall")==0)         SwitchRainfall = iii == 1;
         if (p1.compare("Event based")==0)              SwitchEventbased = iii == 1;
         if (p1.compare("Use Rainfall maps")==0)        SwitchRainfallSatellite = iii == 1;
-        if (p1.compare("Include ET")==0)               SwitchIncludeET = iii == 1;
-        if (p1.compare("Use ET maps")==0)              SwitchETSatellite = iii == 1;
         if (p1.compare("Daily ET")==0)                 SwitchDailyET = iii == 1;
         if (p1.compare("Daily ET latitude")==0)        latitude = p.toDouble();
-
         if (p1.compare("Rainfall ID interpolation")==0)SwitchIDinterpolation = iii == 1;
+        if (p1.compare("Include ET")==0)               SwitchIncludeET = iii == 1;
+        if (p1.compare("Use ET maps")==0)              SwitchETSatellite = iii == 1;
 
+        // interception
         if (p1.compare("Include Interception")==0)              SwitchInterception = iii == 1;
-        if (p1.compare("Include Infiltration")==0)              SwitchInfiltration = iii == 1;
+        if (p1.compare("Include litter interception")==0)       SwitchLitter =           iii == 1;
 
-        //options in the main code, order is not important
-        if (p1.compare("Include Erosion simulation")==0)        SwitchErosion =          iii == 1;
-        if (p1.compare("Include main channels")==0)             SwitchIncludeChannel =   iii == 1;
-        if (p1.compare("Include channel infil")==0)             SwitchChannelInfil     = iii == 1;
+        //infiltration
+        if (p1.compare("Include Infiltration")==0)              SwitchInfiltration = iii == 1;
+        if (p1.compare("Include compacted")==0)                 SwitchInfilCompact = iii == 1;
+        if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =   iii == 1;
+        if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =  iii == 1;
+        if (p1.compare("Nr input layers")==0)                   SwitchNrLayers =     iii == 1;
+        if (p1.compare("Psi user input")==0)                    SwitchPsiUser =      iii == 1;
+        if (p1.compare("Matric head files")==0)                 SwitchDumphead =     iii == 1;
+
+        //channels and GW
+        if (p1.compare("Include main channels")==0)             SwitchIncludeChannel = iii == 1;
+        if (p1.compare("Include channel infil")==0)             SwitchChannelInfil   = iii == 1;
         if (p1.compare("Include stationary baseflow")==0)       SwitchChannelBaseflowStationary  = iii == 1;
         if (p1.compare("Adjust channel crosssection")==0)       SwitchChannelAdjustCHW  = iii == 1;
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
@@ -219,67 +280,22 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("GW flow LDD")==0)                       SwitchLDDGWflow  = iii == 1;
         if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
 
-        if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
-      //  if (p1.compare("Correct MB with WH")==0)                SwitchCorrectMB_WH = iii == 1;
-        if (p1.compare("Use Channel Kinwave dt")==0)            SwitchChannelKinwaveDt = iii == 1;
-        if (p1.compare("Use Channel Max GV")==0)                SwitchChannelMaxV = iii == 1;
-
+        // flow
         if (p1.compare("Correct DEM")==0)                       SwitchCorrectDEM = iii == 1;
         if (p1.compare("Use 2D Diagonal flow")==0)              Switch2DDiagonalFlow = iii == 1;
         if (p1.compare("Flow Boundary 2D")==0)                  FlowBoundaryType = iii;
-        if (p1.compare("Advanced Options")==0)                  SwitchAdvancedOptions = iii == 1;
+        if (p1.compare("Flood initial level map")==0)           SwitchFloodInitial     = iii == 1;
 
+        // erosion
+        if (p1.compare("Include Erosion simulation")==0)        SwitchErosion =          iii == 1;
         if (p1.compare("Detachment efficiency")==0)             SwitchEfficiencyDET = iii;
         if (p1.compare("Detachment efficiency channel")==0)     SwitchEfficiencyDETCH = iii;
         if (p1.compare("Splash equation")==0)                   SwitchSplashEQ = iii;
         if (p1.compare("SettlingVelocity")==0)                  SwitchSV = iii-1;
-      //  if (p1.compare("Use material depth")==0)                SwitchUseMaterialDepth  = iii == 1;
         if (p1.compare("No detachment boundary")==0)            SwitchNoBoundarySed  = iii == 1;
         if (p1.compare("Use 2 phase flow")==0)                  SwitchUse2Phase = iii;
         if (p1.compare("Include River diffusion")==0)           SwitchIncludeRiverDiffusion = iii == 1;
         if (p1.compare("Include diffusion")==0)                 SwitchIncludeDiffusion = iii == 1;
-
-        if (p1.compare("Flood initial level map")==0)           SwitchFloodInitial     = iii == 1;
-        //if (p1.compare("Include house storage")==0)             SwitchHouses =   iii == 1;
-        if (p1.compare("Include buildings")==0)                 SwitchHouses =   iii == 1;
-        if (p1.compare("Add buildings to DEM")==0)              SwitchAddBuildingsDEM    =   iii == 1;        
-        if (p1.compare("Include raindrum storage")==0)          SwitchRaindrum  =   iii == 1;
-
-        if (p1.compare("Include Satellite Image")==0)           SwitchImage =            iii == 1;
-        if (p1.compare("Hard Surfaces")==0)                     SwitchHardsurface      = iii == 1;
-        if (p1.compare("Include road system")==0)               SwitchRoadsystem     = iii == 1;
-        if (p1.compare("Include tile drains")==0)               SwitchIncludeTile      = iii == 1;
-        if (p1.compare("Include storm drains")==0)              SwitchIncludeStormDrains      = iii == 1;
-        if (p1.compare("Storm drain shape")==0)                 SwitchStormDrainCircular      = iii == 1;
-        if (p1.compare("Include litter interception")==0)       SwitchLitter =           iii == 1;
-
-        if (p1.compare("Include flow barriers")==0)             SwitchFlowBarriers = iii == 1;
-        if (p1.compare("Flow barrier table filename")==0)       FlowBarriersFileName = p;
-        if (p1.compare("Include buffers")==0)                   SwitchBuffers = iii == 1;
-
-        if (p1.compare("Include Sediment traps")==0)            SwitchSedtrap =          iii == 1;
-        if (p1.compare("Include compacted")==0)                 SwitchInfilCompact =     iii == 1;
-        if (p1.compare("Include grass strips")==0)              SwitchGrassStrip =       iii == 1;
-        if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =       iii == 1;
-        if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =      iii == 1;
-      //  if (p1.compare("Two layer")==0)                         SwitchTwoLayer =         iii == 1;
-        if (p1.compare("Nr input layers")==0)                   SwitchNrLayers =         iii == 1;
-        if (p1.compare("Psi user input")==0)                    SwitchPsiUser =         iii == 1;
-
-        if (p1.compare("Matric head files")==0)                 SwitchDumphead =         iii == 1;
-     //   if (p1.compare("Geometric mean Ksat")==0)               SwitchGeometric =        iii == 1;
-     //   if (p1.compare("Use Water Repellency")==0)            SwitchWaterRepellency  = iii == 1;
-        if (p1.compare("Timeplot as PCRaster")==0) {
-            SwitchWritePCRtimeplot = iii == 1;
-            SwitchWriteCommaDelimited = iii < 1;
-        }
-        //if (p1.compare("Regular runoff output")==0)             SwitchOutputTimeStep =   iii == 1;
-       // if (p1.compare("User defined output")==0)               SwitchOutputTimeUser =   iii == 1;
-        if (p1.compare("Output interval")==0)                   printinterval = iii;
-        if (p1.compare("Report point output separate")==0)      SwitchSeparateOutput =   iii == 1;
-        if (p1.compare("Report digits out")==0)                 ReportDigitsOut = iii;
-        if (p1.compare("Report end run")==0)                    SwitchEndRun = iii == 1;
-
         if (p1.compare("KE parameters EQ1")==0)
         {
             QStringList param;
@@ -308,8 +324,37 @@ void TWorld::ParseRunfileData(void)
             KEParamater_a3 = param[1].toDouble();
             KEParamater_b3 = param[2].toDouble();
         }
-        if (p1.compare("KE time based")==0)     SwitchKETimebased = iii == 1;
+        if (p1.compare("KE time based")==0) SwitchKETimebased = iii == 1;
 
+        // infrastructure
+        if (p1.compare("Include Infrastructure")==0)            SwitchInfrastructure =   iii == 1;
+        if (p1.compare("Include buildings")==0)                 SwitchHouses =   iii == 1;
+        if (p1.compare("Add buildings to DEM")==0)              SwitchAddBuildingsDEM    =   iii == 1;        
+        if (p1.compare("Include raindrum storage")==0)          SwitchRaindrum  =   iii == 1;
+        if (p1.compare("Hard Surfaces")==0)                     SwitchHardsurface      = iii == 1;
+        if (p1.compare("Include road system")==0)               SwitchRoadsystem     = iii == 1;
+        if (p1.compare("Include tile drains")==0)               SwitchIncludeTile      = iii == 1;
+        if (p1.compare("Include storm drains")==0)              SwitchIncludeStormDrains      = iii == 1;
+        if (p1.compare("Storm drain shape")==0)                 SwitchStormDrainCircular      = iii == 1;
+
+        // conservation
+        if (p1.compare("Include Sediment traps")==0)            SwitchSedtrap =          iii == 1;
+        if (p1.compare("Include grass strips")==0)              SwitchGrassStrip =       iii == 1;
+        if (p1.compare("Timeplot as PCRaster")==0) {
+            SwitchWritePCRtimeplot = iii == 1;
+            SwitchWriteCommaDelimited = iii < 1;
+        }
+        if (p1.compare("Include flow barriers")==0)             SwitchFlowBarriers = iii == 1;
+        if (p1.compare("Flow barrier table filename")==0)       FlowBarriersFileName = p;
+        if (p1.compare("Include buffers")==0)                   SwitchBuffers = iii == 1;
+
+        // advanced
+        if (p1.compare("Advanced Options")==0)                  SwitchAdvancedOptions = iii == 1;
+        if (p1.compare("Use Channel Kinwave dt")==0)            SwitchChannelKinwaveDt = iii == 1;
+        if (p1.compare("Use Channel Max GV")==0)                SwitchChannelMaxV = iii == 1;
+        if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
+
+        // outpu map names
         if (p1.compare("OutRunoff")==0)         SwitchOutrunoff = iii == 1;
         if (p1.compare("OutWH")==0)             SwitchOutwh = iii == 1;
         if (p1.compare("OutV")==0)              SwitchOutvelo = iii == 1;
@@ -320,7 +365,6 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OutTileVolume")==0)     SwitchOutTileVol = iii == 1;
         if (p1.compare("OutTheta")==0)          SwitchOutTheta= iii == 1;
         if (p1.compare("OutGW")==0)             SwitchOutGW= iii == 1;
-
         if (p1.compare("OutDet")==0)            SwitchOutDet = iii == 1;
         if (p1.compare("OutDep")==0)            SwitchOutDep = iii == 1;
         if (p1.compare("OutTC")==0)             SwitchOutTC = iii == 1;
@@ -330,70 +374,60 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OutSedSS")==0)          SwitchOutSedSS = iii == 1;
         if (p1.compare("OutSedBL")==0)          SwitchOutSedBL = iii == 1;
 
-        if (p1.compare("Erosion map units (0/1/2)")==0)  ErosionUnits = iii;
-        if (p1.compare("Report discharge units")==0) QUnits = iii;
     }// first loop of runnamelist
 
     //##########################
 
+    // get a number of options that detemrine how to read runfile parameters
+
+    SwitchResultDatetime = getvalueint("Result datetime") == 1;
+    SwitchOutputTimestamp = SwitchResultDatetime;//getvalueint("Add timestamp") == 1;
+
+    if (SwitchResultDatetime) {
+        QDir(resultDir).mkpath(QString("res"+op.timeStartRun+"/"));
+        resultDir = resultDir + QString("res"+op.timeStartRun+"/");
+    }
+
     InfilMethod = getvalueint("Infil Method");
     if (InfilMethod == INFIL_GREENAMPT2) InfilMethod = INFIL_GREENAMPT;
     if (InfilMethod == INFIL_SMITH2) InfilMethod = INFIL_SMITH;
-
     if (!SwitchInfiltration)
         InfilMethod = INFIL_NONE;
     //prob onsolete: deal with old runfil pre 6.6
-
-    // check a few things
     SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
     swatreDT = _dt * SoilWBdtfactor; //getvaluedouble("SWATRE internal minimum timestep");
-    //SwitchGeometric = (getvalueint("Geometric mean Ksat") == 1);
-        //  initheadName = getvaluename("inithead");
-        // only map name is needed, data is read in swatre lib
-        //profileName = getname("profile");//?????????????????????
-        // profile map name
 
-    //SwitchUseGrainSizeDistribution = (getvalueint("Use grain size distribution") == 1);
-    //qDebug() << SwitchUse2Phase << SwitchAdvancedSed;
-
-    //SwitchChannelFlood = true; // always true
     if (!SwitchIncludeChannel)
     {
-        SwitchChannelBaseflow = false;
+      //  SwitchChannelBaseflow = false;
         SwitchChannelBaseflowStationary = false;
         SwitchChannelInfil = false;
     } else {
         if (SwitchChannelInfil) {
-            SwitchChannelBaseflow = false;
+         //   SwitchChannelBaseflow = false;
             SwitchChannelBaseflowStationary = false;
         }
 
-        if (SwitchChannelBaseflowStationary || SwitchGWflow)
-            SwitchChannelBaseflow = true;
+      //  if (SwitchGWflow)
+          //  SwitchChannelBaseflow = true;
     }
 
     //SwitchGWflow = SwitchChannelBaseflow && (SwitchGW2Dflow || SwitchLDDGWflow || SwitchSWATGWflow);
-    if (!SwitchChannelBaseflow) {
-        SwitchGWflow = false;
-        SwitchChannelBaseflowStationary = false;
-    }
-    if (SwitchChannelBaseflow && SwitchGWflow) {
-        SwitchImpermeable = false;
+    // if (!SwitchChannelBaseflow) {
+    //     SwitchGWflow = false;
+    //     SwitchChannelBaseflowStationary = false;
+    // }
+    if (SwitchGWflow) {     /*SwitchChannelBaseflow && */
+        SwitchImpermeable = false;  //???okay
     }   
+    if (!SwitchInfrastructure) {
+        SwitchRoadsystem = false;
+        SwitchHardsurface = false;
+        SwitchHouses = false;
+    }
     // stationary baseflow and impermeable soil allowed (ignoring where the stationary flow comes form !
 
-    // next get the main input directory
-    for (j = 0; j < nrrunnamelist; j++)
-    {
-        QString p1 = runnamelist[j].name;
-        QString p = runnamelist[j].value;
 
-        // input ourput dirs and file names
-        if (p1.compare("Map Directory")==0) {
-            inputDir=CheckDir(p);
-            //qDebug() << p << inputDir;
-        }
-    }
     // start again and do the rest of the variables, map names etc.
     // choice of options in first loop determines what happens in this loop
     for (j = 0; j < nrrunnamelist; j++)
@@ -431,16 +465,15 @@ void TWorld::ParseRunfileData(void)
 
         }
 
-        if (SwitchSnowmelt)
-        {
-            if (p1.compare("Snowmelt Directory")==0) snowmeltFileDir = CheckDir(p);
-            if (p1.compare("Snowmelt file")==0) snowmeltFileName = p;
-            if (SwitchSnowmeltSatellite) {
-                if (p1.compare("Snowmelt Map Directory")==0) snowmeltSatFileDir = CheckDir(p);
-                if (p1.compare("Snowmelt maplist name")==0) snowmeltSatFileName = p;//rainFileDir +p;
-            }
-
-        }
+        // if (SwitchSnowmelt)
+        // {
+        //     if (p1.compare("Snowmelt Directory")==0) snowmeltFileDir = CheckDir(p);
+        //     if (p1.compare("Snowmelt file")==0) snowmeltFileName = p;
+        //     if (SwitchSnowmeltSatellite) {
+        //         if (p1.compare("Snowmelt Map Directory")==0) snowmeltSatFileDir = CheckDir(p);
+        //         if (p1.compare("Snowmelt maplist name")==0) snowmeltSatFileName = p;//rainFileDir +p;
+        //     }
+        // }
 
         if (SwitchDischargeUser)
         {
@@ -458,14 +491,9 @@ void TWorld::ParseRunfileData(void)
         {
             if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
             if (p1.compare("satImage file")==0) satImageFileName = satImageFileDir + "/" + p;
-            //qDebug() << satImageFileName;
         }
 
         // OUTPUT FILES
-        if (p1.compare("Result Directory")==0) {
-            resultDir = CheckDir(p, true);
-        }
-
         if (p1.compare("Main results file")==0)
             resultFileName = checkOutputMapName(p, "main results file", 1);
         if (p1.compare("Total Series file")==0)
@@ -543,20 +571,12 @@ void TWorld::ParseRunfileData(void)
         WaveinFileName = WaveinFileDir + WaveinFileName;
     }
 
-    if(SwitchSnowmelt) {
-        if (SwitchSnowmeltSatellite)
-            snowmeltSatFileName = snowmeltSatFileDir+snowmeltSatFileName;
-        else
-            snowmeltFileName = snowmeltFileDir+snowmeltFileName;
-    }
-
-    SwitchResultDatetime = getvalueint("Result datetime") == 1;
-    SwitchOutputTimestamp = SwitchResultDatetime;//getvalueint("Add timestamp") == 1;
-
-    if (SwitchResultDatetime) {
-        QDir(resultDir).mkpath(QString("res"+op.timeStartRun+"/"));
-        resultDir = resultDir + QString("res"+op.timeStartRun+"/");
-    }       
+    // if(SwitchSnowmelt) {
+    //     if (SwitchSnowmeltSatellite)
+    //         snowmeltSatFileName = snowmeltSatFileDir+snowmeltSatFileName;
+    //     else
+    //         snowmeltFileName = snowmeltFileDir+snowmeltFileName;
+    // }
 
     totalLandunitFileName = QString("totlandunit.csv");
 
@@ -577,6 +597,7 @@ void TWorld::ParseRunfileData(void)
         totalLandunitFileName = name;
    }
 
+    // empty filenames need to be kept because of the order of names: TODO fix this
     Outrunoff = "ro";
     Outconc   = "conc";
     Outwh     = "wh";
@@ -605,37 +626,4 @@ void TWorld::ParseRunfileData(void)
     OutGW = "GWH";
 }
 //------------------------------------------------------------------------------
-void TWorld::GetRunFile(void)
-{    
-    QFile fin(temprunname);
 
-    if (!fin.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        ErrorString = "Cannot open runfile: " + temprunname;
-        throw 2;
-    }
-
-    for (int i = 0; i < NUMNAMES; i++)
-    {
-        runnamelist[i].name.clear();
-        runnamelist[i].value.clear();
-    }
-    nrrunnamelist = 0;
-
-    while (!fin.atEnd())
-    {
-        QString S = fin.readLine();
-        if (!S.trimmed().isEmpty())
-        {
-            if (S.contains("="))
-            {
-                QStringList SL = S.split(QRegularExpression("="));
-                runnamelist[nrrunnamelist].name = SL[0].trimmed();
-                runnamelist[nrrunnamelist].value = SL[1].trimmed();
-                nrrunnamelist++;
-            }
-        }
-    }
-    fin.close();
-}
-//------------------------------------------------------------------------------

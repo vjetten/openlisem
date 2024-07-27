@@ -232,19 +232,13 @@ void lisemqt::runmodel()
     checkMapChannels->setChecked(false);
     checkMapChannels->setEnabled(checkIncludeChannel->isChecked());
 
-    checkMapBuildings->setChecked(false);
-    checkMapBuildings->setEnabled(checkHouses->isChecked());
-
-    checkMapRoads->setChecked(false);
-    checkMapRoads->setEnabled(checkRoadsystem->isChecked());
-
-    checkMapHardSurface->setChecked(false);
-    checkMapHardSurface->setEnabled(checkHardsurface->isChecked());
-    transparencyHardSurface->setEnabled(checkHouses->isChecked() || checkRoadsystem->isChecked() || checkHardsurface->isChecked());
-    //transparencyHardSurface->setVisible(false);
-
-  //  sedgroup->setVisible(checkDoErosion->isChecked());
-  //  tabWidget_totout->setTabEnabled(1,checkDoErosion->isChecked() );
+    if (checkInfrastructure->isChecked()) {
+         checkMapBuildings->setChecked(checkHouses->isChecked());
+         checkMapRoads->setChecked(checkRoadsystem->isChecked());
+         checkMapHardSurface->setChecked(checkHardsurface->isChecked());
+        transparencyHardSurface->setValue(200);
+        transparencyRoad->setValue(200);
+    }
 
     showInfoAct->setChecked(true);
     setOutputInfo(true); // show the cursor over the map

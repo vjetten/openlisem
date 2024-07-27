@@ -45,6 +45,7 @@ void TWorld::GridCell()
     FOR_ROW_COL_MV_L {
         double dxa = _dx;
         double HouseWidthDX_ = HouseCover->Drc*_dx;
+        double RoadWidthHSDX_ = RoadWidthHSDX->Drc;
 
         if(SwitchIncludeChannel) {
             if (ChannelWidth->Drc > 0){
@@ -61,16 +62,18 @@ void TWorld::GridCell()
         // adjust houses to cell with channels
         HouseWidthDX_ = std::min(dxa,  HouseWidthDX_);
         // adjust roads+hardsurf to cell with channels
-        RoadWidthHSDX->Drc = std::min(dxa, RoadWidthHSDX->Drc);
+        RoadWidthHSDX_ = std::min(dxa, RoadWidthHSDX_);
         // decrease roadwidth if roads + houses > dx-channel
-        HouseWidthDX_ = std::min(dxa-RoadWidthHSDX->Drc , HouseWidthDX_);
+        RoadWidthHSDX_ = std::min(dxa-HouseWidthDX_, RoadWidthHSDX_);
+        //HouseWidthDX_ = std::min(dxa-RoadWidthHSDX->Drc , HouseWidthDX_);
         // you cannot have houses and a road larger than a pixel
         //    SoilWidthDX->Drc = std::max(0.0,dxa - RoadWidthHSDX->Drc - HouseWidthDX_);
         SoilWidthDX->Drc = std::max(0.0, dxa - RoadWidthHSDX->Drc - HouseWidthDX_);
         // soilwidth is used in infil, evap and erosion
 
-        HouseCover->Drc = HouseWidthDX_/_dx;
+        HouseCover->Drc = HouseWidthDX_/_dx;        
         //houses are impermeable in ksateff so do have to be done here, with high mannings n, but allow flow
+        RoadWidthHSDX->Drc = RoadWidthHSDX_;
 
         // adjust man N
         N->Drc = N->Drc + 1.0*HouseCover->Drc; // N is 1 for a house, very high resistance

@@ -3,6 +3,7 @@
 
 #include "lisemqt.h"
 
+
 //---------------------------------------------------------------------------
 #define BGc "#eeeeee" // background grey for missing value in maps
 
@@ -46,7 +47,7 @@ public:
 
         //layer 0 is dem, layer 1 is shade, layer 3 is thematic
         QwtPlotItemList list = plot()->itemList(QwtPlotItem::Rtti_PlotSpectrogram);
-        QwtPlotSpectrogram * sp2 = static_cast<QwtPlotSpectrogram *> (list.at(3));
+        QwtPlotSpectrogram * sp2 = static_cast<QwtPlotSpectrogram *> (list.at(5));
         if (sp2->data() == nullptr)
             return QwtText(txt);
 
@@ -301,8 +302,8 @@ class colorMapRoads: public QwtLinearColorMapVJ
     }
 public:
     colorMapRoads():
-        QwtLinearColorMapVJ( QColor("#cccccc"), QColor("#cccccc"))
-//      QwtLinearColorMapVJ( QColor("#53db00"), QColor("#7dfe2f"))
+        QwtLinearColorMapVJ( QColor("#bbccaa"), QColor("#bbccaa"))
+ //     QwtLinearColorMapVJ( QColor("#aaee88"), QColor("#aaee88"))
     {
     }
 };
@@ -320,7 +321,9 @@ class colorMapRoads2: public QwtLinearColorMapVJ
 public:
     colorMapRoads2():
 //        QwtLinearColorMapVJ( QColor("#f9fb44"), QColor("#f9fb44")  )
-        QwtLinearColorMapVJ( QColor("#f0f000"), QColor("#f0f000")  )
+
+        QwtLinearColorMapVJ( QColor("#53fd00"), QColor("#53fd00")  )
+//        QwtLinearColorMapVJ( QColor("#f0f000"), QColor("#f0f000")  )
     {
     }
 };

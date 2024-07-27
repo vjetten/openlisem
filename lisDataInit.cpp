@@ -129,8 +129,8 @@ void TWorld::InitParameters(void)
 
     ChKsatCalibration = getvaluedouble("Channel Ksat calibration");
     SplashDelivery =getvaluedouble("Splash Delivery Ratio");
-    DepositedCohesion = getvaluedouble("Particle Cohesion of Deposited Layer");
-    BulkDens = getvaluedouble("Sediment bulk density");
+    DepositedCohesion = 1.0;//getvaluedouble("Particle Cohesion of Deposited Layer");
+    BulkDens =1350;//getvaluedouble("Sediment bulk density");
     //StemflowFraction = getvaluedouble("Stemflow fraction");
     CanopyOpeness = 0.45;//getvaluedouble("Canopy Openess");
 
@@ -591,8 +591,8 @@ void TWorld::InitSoilInput(void)
             ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;
             // NOTE alpha must have the reverse units of H. If H is in m, alpha must be in 1/m
         }}
-report(*vgalpha1,"valpha.map");
-report(*vgn1,"vn.map");
+//report(*vgalpha1,"valpha.map");
+//report(*vgn1,"vn.map");
         if (SwitchPsiUser) {
             Psi1 = ReadMap(LDD,getvaluename("psi1"));
             //calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
@@ -925,7 +925,7 @@ void TWorld::InitChannel(void)
         if (LDDChannel->Drc == 0)
             SET_MV_REAL8(&LDDChannel->Drc);
     }
-report(*LDDChannel,"lddchan.map");
+
     nrValidCellsCH = 0;
     FOR_ROW_COL_MV_CH {
         nrValidCellsCH++;
@@ -1047,7 +1047,6 @@ report(*LDDChannel,"lddchan.map");
     }
 
 
-
     FOR_ROW_COL_MV_CH
     {
         ChannelWidthMax->Drc = ChannelWidth->Drc; // not used!
@@ -1055,7 +1054,7 @@ report(*LDDChannel,"lddchan.map");
         ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
     }
 
-    if (SwitchChannelBaseflow) {
+    if (SwitchGWflow) {
 
         LDDbaseflow = ReadMap(LDD, getvaluename("lddbase"));
         crlinkedlddbase_= MakeLinkedList(LDDbaseflow);
@@ -1924,7 +1923,7 @@ void TWorld::IntializeData(void)
         }
     }
 
-    if (/* SwitchChannelBaseflow && */ SwitchChannelBaseflowStationary)
+    if (SwitchChannelBaseflowStationary)
         FindBaseFlow();
 
 }
@@ -2193,7 +2192,7 @@ void TWorld::IntializeOptions(void)
     SwitchUseMaterialDepth = false;
 
     SwitchIncludeChannel = false;
-    SwitchChannelBaseflow = false;
+    //SwitchChannelBaseflow = false;
     SwitchGWflow = false;
     SwitchGW2Dflow =  false;
     SwitchGWSWOFflow =  false;

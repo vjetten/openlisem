@@ -433,7 +433,7 @@ public:
         SwitchInfiltration,
         // channel and Overland flow
         SwitchIncludeChannel,
-        SwitchChannelBaseflow,
+       // SwitchChannelBaseflow,
         SwitchChannelBaseflowStationary,
         SwitchChannelAdjustCHW,
         SwitchChannelInfil,
@@ -472,8 +472,6 @@ public:
         SwitchKETimebased,
 
         // infiltration,
-        SwitchRoadsystem,
-        SwitchHardsurface,
         SwitchInfilCompact,
         SwitchInfilCrust,
         SwitchGrassStrip,
@@ -492,11 +490,14 @@ public:
         SwitchVanGenuchten,
         SwitchBrooksCorey,
 
-        // tiles and drains
+        // tiles and drains, buildings
+        SwitchRoadsystem,
+        SwitchHardsurface,
         SwitchIncludeTile,
         SwitchIncludeStormDrains,
         SwitchStormDrainCircular,
         SwitchHouses,
+        SwitchInfrastructure,
         SwitchRaindrum,
         SwitchAddBuildingsDEM,
 

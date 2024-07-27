@@ -93,17 +93,32 @@ void lisemqt::ssetAlphaHouse(int v)
         MPlot->replot();
 }
 //---------------------------------------------------------------------------
+void lisemqt::ssetAlphaHardSurfaceW(int v)
+{
+//    int v = (int)d;
+    if (checkInfrastructure->isChecked()) {
+        bool doit = (checkHardsurface->isChecked() || checkRoadsystem->isChecked());
+        if (v > 0 && checkHardsurface->isChecked())
+            hardsurfMap->setAlpha(v);
+        if (v > 0 && checkRoadsystem->isChecked())
+            roadMap->setAlpha(v);
+        if (v > 0 && doit)
+            MPlot->replot();
+    }
+}//---------------------------------------------------------------------------
 void lisemqt::ssetAlphaHardSurface(int v)
 {
-    bool doit = (checkHouses->isChecked() || checkHardsurface->isChecked() || checkRoadsystem->isChecked());
-    if (v > 0 && checkHouses->isChecked())
-        houseMap->setAlpha(v);
-    if (v > 0 && checkHardsurface->isChecked())
-        hardsurfMap->setAlpha(v);
-    if (v > 0 && checkRoadsystem->isChecked())
-        roadMap->setAlpha(v);
-    if (v > 0 && doit)
-        MPlot->replot();
+    if (checkInfrastructure->isChecked()) {
+        bool doit = (checkHouses->isChecked() || checkHardsurface->isChecked() || checkRoadsystem->isChecked());
+        if (v > 0 && checkHouses->isChecked())
+            houseMap->setAlpha(v);
+        // if (v > 0 && checkHardsurface->isChecked())
+        //     hardsurfMap->setAlpha(v);
+        // if (v > 0 && checkRoadsystem->isChecked())
+        //     roadMap->setAlpha(v);
+        if (v > 0 && doit)
+            MPlot->replot();
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -151,12 +166,9 @@ void lisemqt::setupMapPlot()
     title.setFont(QFont("MS Shell Dlg 2",12));
     MPlot = new QwtPlot(title, this);
 
-    // make the plot window
+   // make the plot window
     tabWidget_out->setCurrentIndex(1);
     maplayout->insertWidget(0, MPlot, 0);
-
-  //  MPlot->setStyleSheet(QString("* { background-color: %1 }").arg("#555555"));
-    // put it on screen
 
     MPlot->setAxisVisible( QwtAxis::YRight );
 
@@ -189,29 +201,29 @@ void lisemqt::setupMapPlot()
     baseMap->attach( MPlot );
     // shaded relief
 
-    //3 data
-    drawMap = new QwtPlotSpectrogram();
-    drawMap->setRenderThreadCount( 0 );
-    drawMap->attach( MPlot );
-    //map for runoff, infil, flood etc
 
     // 4
-    houseMap = new QwtPlotSpectrogram();
-    houseMap->setRenderThreadCount( 0 );
-    houseMap->attach( MPlot );
-    // building structure map
-
-    // 5
     roadMap = new QwtPlotSpectrogram();
     roadMap->setRenderThreadCount( 0 );
     roadMap->attach( MPlot );
     // road map
 
-    // 6
+    // 5
     hardsurfMap = new QwtPlotSpectrogram();
     hardsurfMap->setRenderThreadCount( 0 );
     hardsurfMap->attach( MPlot );
 
+    //6 data
+    drawMap = new QwtPlotSpectrogram();
+    drawMap->setRenderThreadCount( 0 );
+    drawMap->attach( MPlot );
+    //map for runoff, infil, flood etc
+
+    // 3
+    houseMap = new QwtPlotSpectrogram();
+    houseMap->setRenderThreadCount( 0 );
+    houseMap->attach( MPlot );
+    // building structure map
 
     //7
     outletMap = new QwtPlotSpectrogram();
@@ -473,9 +485,9 @@ void lisemqt::showMap()
             showComboMap(IndexList1.at(DisplayComboBox2->currentIndex()));
         }
 
-    roadMap->setAlpha(checkMapRoads->isChecked() ? transparencyHardSurface->value() : 0);
+    roadMap->setAlpha(checkMapRoads->isChecked() ? transparencyRoad->value() : 0);
     houseMap->setAlpha(checkMapBuildings->isChecked() ? transparencyHardSurface->value() : 0);
-    hardsurfMap->setAlpha(checkMapHardSurface->isChecked() ? transparencyHardSurface->value() : 0);
+    hardsurfMap->setAlpha(checkMapHardSurface->isChecked() ? transparencyRoad->value() : 0);
 
     // imageMap->setAlpha(0);  // flow barriers for now not used, sat image instead
     if (checksatImage->isChecked()){
@@ -823,7 +835,7 @@ void lisemqt::showChannelVectorNew()
         }
 
         // dot size
-        int dxi = MPlot->invTransform(QwtAxis::XBottom,dx*1.5);
+        int dxi = MPlot->invTransform(QwtAxis::XBottom,dx*1.2);
         dxi = dxi - MPlot->invTransform(QwtAxis::XBottom,dx);
         dxi = std::min(9,dxi);
         spinCulvertSize->setValue(dxi);
@@ -889,7 +901,7 @@ void lisemqt::showRoadMap()
     }
 
     if (checkMapRoads->isChecked())
-        roadMap->setAlpha(transparencyHardSurface->value());
+        roadMap->setAlpha(transparencyRoad->value());
     else
         roadMap->setAlpha(0);
 
@@ -933,7 +945,7 @@ void lisemqt::showHardSurfaceMap()
     }
 
     if (checkHardsurface->isChecked())
-        hardsurfMap->setAlpha(transparencyHardSurface->value());
+        hardsurfMap->setAlpha(transparencyRoad->value());
     else
         hardsurfMap->setAlpha(0);
     hardsurfMap->setColorMap(new colorMapRoads());
