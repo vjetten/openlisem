@@ -32,24 +32,22 @@
 void TWorld::GetSpatialMeteoData(QString name, int type)
 {
     METEO_LIST rl;
-    QFile fff(name);
-    QFileInfo fi(name);
     QString S;
     QStringList rainRecs;
-    QStringList SL;
-    int skip = 4;
     int nrSeries = 0;
 
-    if (!fi.exists())
-    {
+    QFile fff(name);
+    QFileInfo fi(name);
+    if (!fi.exists()) {
         if (type == 0)
             ErrorString = "Rainfall file not found: " + name;
         if (type == 1)
-            ErrorString = "Et file not found: " + name;
+            ErrorString = "ET file not found: " + name;
         if (type == 2)
             ErrorString = "Snowmelt file not found: " + name;
         throw 1;
     }
+
 
     // read all lines in the text file
     fff.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -60,30 +58,29 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
             S.remove(S.size()-1,1);
         if (!S.trimmed().isEmpty())
             rainRecs << S.trimmed();
-     //   qDebug() << S;
     }
     fff.close();
 
-    // check first if PCRaster graph format is present: header, number of vars, columns equal vars
-   // int count = rainRecs[1].toInt(&ok, 10);
+    // check nr of col
+    bool ok;
+    int skip = rainRecs[1].toInt(&ok, 10) + 2; // +2 is for the titel and the number itself
+    if (!ok) {
+        ErrorString = "2nd line in the rainfall file"+name+"must be the number of columns";
+        throw 1;
+    }
 
-    // format
-    //header
-    // 2 (variables)
-    // // DDD/HH/MM or DDD-HH-MM or DDD:HH:MM
-    // map name
-
-    nrSeries = rainRecs.size() - skip;
+    nrSeries = rainRecs.count() - skip;
+    qDebug() << "nrseries" << nrSeries << skip;
     // count records
 
     if (nrSeries <= 1)
     {
         if (type == 0)
-            ErrorString = "Rainfall records <= 1, must at least have one interval with 2 rows: a begin and end time.";
+            ErrorString = "Rainfall records <= 1, must at least have 2 rows: a begin and end time.";
         if (type == 1)
-            ErrorString = "ET records <= 1, must at least have one interval with 2 rows: a begin and end time.";
+            ErrorString = "ET records <= 1, must at least have 2 rows: a begin and end time.";
         if (type == 2)
-            ErrorString = "Snowmelt records <= 1, must at least have one interval with 2 rows: a begin and end time.";
+            ErrorString = "Snowmelt records <= 1, must at least have with 2 rows: a begin and end time.";
         throw 1;
     }
 
@@ -106,6 +103,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
         currentSnowmeltrow = 0;
     }
 
+    double lasttime = -1;
     for(int r = 0; r < nrSeries; r++)
     {
         // initialize record structure
@@ -115,7 +113,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
 
         // split rainfall record row with whitespace
         QStringList SL = rainRecs[r+skip].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
-//qDebug() << SL;
+
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
 
@@ -129,18 +127,25 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
                 rl.calib = v;
         }
 
-        if (!fi.exists())
-        {
+        if (!fi.exists()) {
             if (type == 0)
-                ErrorString = QString("Rainfall map %1 not found. Rainfall maps must be in the rainfall directory.").arg(SL[1]);
+                ErrorString = QString("Rainfall map %1 at time %2 not found. Rainfall maps must be in the rainfall directory.").arg(SL[1]).arg(SL[0]);
             if (type == 1)
-                ErrorString = QString("ET map %1 not found. Rainfall maps must be in the rainfall directory.").arg(SL[1]);
+                ErrorString = QString("ET map %1 at time %2 not found. Rainfall maps must be in the rainfall directory.").arg(SL[1]).arg(SL[0]);
             if (type == 2)
-                ErrorString = QString("Snowmelt map %1 not found. Rainfall maps must be in the rainfall directory.").arg(SL[1]);
+                ErrorString = QString("Snowmelt map %1 at time %2 not found. Rainfall maps must be in the rainfall directory.").arg(SL[1]).arg(SL[0]);
             throw 1;
         }
         rl.name = fi.absoluteFilePath();
-      //  qDebug() << rl.time << rl.name;
+       // qDebug() << rl.time << rl.name;
+
+        if (rl.time <= lasttime) {
+            if (type == 0)
+                ErrorString = QString("Rainfall time (t) %1 is <= time (t-1) %2. Rows must increase in time.").arg(rl.time).arg(RainfallSeriesMaps.last().time);
+            if (type == 1)
+                ErrorString = QString("ET time (t) %1 is <= time (t-1) %2. Rows must increase in time.").arg(rl.time).arg(RainfallSeriesMaps.last().time);
+            throw 1;
+        }
 
         // add the record to the list
         if (type == 0)
@@ -150,6 +155,8 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
         if (type == 2)
             SnowmeltSeriesMaps << rl;
 
+        lasttime = rl.time;
+
     }
 
     if (type == 0)
@@ -158,6 +165,12 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
         nrETseries = nrSeries;
     if (type == 2)
         nrSnowmeltseries = nrSeries;
+
+  //  for(int i = 0; i < nrSeries; i++)
+  //      qDebug() << i << RainfallSeriesMaps[i].time << RainfallSeriesMaps[i].name;
+
+
+    rainRecs.clear();
 }
 //---------------------------------------------------------------------------
 // get station data for ID interpolation or tiesen polyhon map
@@ -209,10 +222,8 @@ void TWorld::GetRainfallData(QString name)
 
     // check first if PCRaster graph format is present: header, number of vars, columns equal vars
     int count = rainRecs[1].toInt(&ok, 10); // nr of cols in file
-    // header
-    // second line is only an integer
-    if (ok)
-    {
+    // header + second line is only one integer + third line is time,, forth etc lines are names of stations
+    if (ok) {
         SL = rainRecs[count+2].split(QRegularExpression("\\s+"));
         // check nr of columns in file
         if (count != SL.count()) {
@@ -222,10 +233,11 @@ void TWorld::GetRainfallData(QString name)
 
         //if the number of columns equals the integer then new format
         nrStations = count-1;
-        // nr stations is count-1 for time as first column
+        // nr stations is count-1 for time as first column, -1 is for the firsst time col
     }
 
     // get station numbers from header, or fill in 1,2 ... n
+    // needed for the ID maps, if no number assume values 1,2,3,4 etc
     stationID.clear();
     for (int i = 0; i < nrStations; i++) {
         SL = rainRecs[i+3].split(QRegularExpression("\\s+"));
@@ -234,7 +246,6 @@ void TWorld::GetRainfallData(QString name)
             stationID << tmp;
         else
             stationID << i+1;
-
     }
    // qDebug() << "stations" << stationID;
 
@@ -356,16 +367,8 @@ void TWorld::GetRainfallData(QString name)
         RainfallSeries << rl;
     }
 
-    // sometimes not an increasing timeseries
-//    for(int i = 1; i < nrSeries; i++){
-//        if (RainfallSeries[i].time <= RainfallSeries[i-1].time) {
-//            ErrorString = QString("Rainfall records time is not increasing at row %1.").arg(i);
-//            throw 1;
-//        }
-//    }
-
     nrRainfallseries = RainfallSeries.size();//nrSeries;
-
+    rainRecs.clear();
 //for testing if read properly
     /*
     for (int i = 0; i < nrRainfallseries; i++) {
@@ -409,17 +412,7 @@ void TWorld::GetRainfallMapfromStations(void)
     }
 
     // where are we in the series
-    int currentrow = 0;// rainplace;
-    // find current record
-//    while (currenttime >= RainfallSeries[rainplace].time
-//        && currenttime < RainfallSeries[rainplace+1].time)
-//    {
-//        currentrow = rainplace;
-//        rainplace++;
-//    }
-//qDebug() << time/86400 << currenttime << rainplace << currentrow  << RainfallSeries[currentrow].time << RainfallSeries[currentrow].intensity[0];
-//    if (currentrow == currentRainfallrow && currentrow > 0)
-//        samerain = true;
+    int currentrow = 0;
 
     for (int j = 0; j < RainfallSeries.count(); j++) {
         if (currenttime >= RainfallSeries[j].time && currenttime < RainfallSeries[j+1].time) {

@@ -686,7 +686,6 @@ public:
     QVector <Q_LIST> DischargeSeries;
     QVector <WH_LIST> WHSeries;
     QVector <METEO_LIST> RainfallSeriesMaps;  // rainfall vector of records
-    bool calibRainfallinFile;
     QVector <METEO_LIST> ETSeriesMaps;  // rainfall vector of records
     QVector <METEO_LIST> SnowmeltSeriesMaps;  // rainfall vector of records
     QVector <LDD_COORloc> crQin_;

@@ -117,7 +117,6 @@ void TWorld::DestroyData(void)
         if (SwatreSoilModelGrass)
             CloseSwatre(SwatreSoilModelGrass);
     }
-    qDebug() << "network";
 
     DEBUG("clear network structures");
     cr_.clear();

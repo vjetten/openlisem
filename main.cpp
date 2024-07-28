@@ -71,24 +71,12 @@ int main(int argc, char *argv[])
 // #endif
 
     Fixture fixture; // <= necessary for GDAL
- //   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-  //  argc += 2;
-
-  //  argv[] = {(char*)"Appname", (char*)"--platform", (char*)"windows:dpiawareness=0"};
-
 
     QApplication app(argc, argv);
 
     app.setWindowIcon(QIcon(":/openlisemN.ico"));
 
     app.setStyle(QStyleFactory::create("Fusion"));
-   //  app.setStyle(QStyleFactory::create("Windows"));
-
-     // modify palette to dark
-
-    //qputenv("QT_SCALE_FACTOR", "1.0");
-
-  //  qputenv("QT_AUTO_SCREEN_SCALE_FACTOR","1");
 
     op.LisemDir = QCoreApplication::applicationDirPath()+"/";
     // exe path, used for ini file
@@ -97,15 +85,17 @@ int main(int argc, char *argv[])
     QFileInfo appDataLocalFileInfo(appDataLocalPath);
     QString localPath = appDataLocalFileInfo.absolutePath()+"/lisem";
     QDir dir;
-    if (!dir.exists(localPath)) {
-        if (dir.mkpath(localPath)) {
-            qDebug() << "Directory created successfully: " << localPath;
-        } else {
-            qDebug() << "Failed to create directory: " << localPath;
-        }
-    } else {
-        qDebug() << "Directory already exists: " << localPath;
-    }
+    if (!dir.exists(localPath))
+        dir.mkpath(localPath);
+    // if (!dir.exists(localPath)) {
+    //     if (dir.mkpath(localPath)) {
+    //         qDebug() << "Directory created successfully: " << localPath;
+    //     } else {
+    //         qDebug() << "Failed to create directory: " << localPath;
+    //     }
+    // } else {
+    //     qDebug() << "Directory already exists: " << localPath;
+    // }
 
     op.userAppDir = localPath+"/";
     QStringList args=QCoreApplication::arguments();

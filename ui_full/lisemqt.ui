@@ -828,7 +828,133 @@
                       <property name="verticalSpacing">
                        <number>4</number>
                       </property>
-                      <item row="0" column="0">
+                      <item row="3" column="1">
+                       <widget class="QCheckBox" name="checkEventBased">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Event based (day nr in time indication is ignored)</string>
+                        </property>
+                        <property name="checked">
+                         <bool>false</bool>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="6" column="1">
+                       <layout class="QHBoxLayout" name="horizontalLayout_7">
+                        <item>
+                         <widget class="QLabel" name="label_121">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <pointsize>8</pointsize>
+                            <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>Bias correction factor</string>
+                          </property>
+                          <property name="alignment">
+                           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QDoubleSpinBox" name="E_biasCorrectionP">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <pointsize>8</pointsize>
+                            <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
+                           </font>
+                          </property>
+                          <property name="minimum">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="singleStep">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="value">
+                           <double>1.000000000000000</double>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <spacer name="horizontalSpacer_5">
+                          <property name="orientation">
+                           <enum>Qt::Orientation::Horizontal</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>40</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
+                       </layout>
+                      </item>
+                      <item row="3" column="0">
+                       <widget class="QLabel" name="label_98">
+                        <property name="text">
+                         <string> - </string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="4" column="0" colspan="2">
+                       <widget class="QFrame" name="frame_3">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="frameShape">
+                         <enum>QFrame::Shape::HLine</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Shadow::Sunken</enum>
+                        </property>
+                        <property name="lineWidth">
+                         <number>1</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="0" colspan="2">
                        <layout class="QHBoxLayout" name="horizontalLayout_3">
                         <item>
                          <widget class="QRadioButton" name="radioRainFile">
@@ -926,8 +1052,15 @@
                         </item>
                        </layout>
                       </item>
-                      <item row="1" column="0">
+                      <item row="1" column="0" colspan="2">
                        <layout class="QHBoxLayout" name="horizontalLayout_9">
+                        <item>
+                         <widget class="QLabel" name="label_149">
+                          <property name="text">
+                           <string> - </string>
+                          </property>
+                         </widget>
+                        </item>
                         <item>
                          <widget class="QCheckBox" name="checkIDinterpolation">
                           <property name="font">
@@ -942,7 +1075,7 @@
                            <enum>Qt::LayoutDirection::LeftToRight</enum>
                           </property>
                           <property name="text">
-                           <string>Inverse distance interpolation stations (needs gaugeID.map); wight:</string>
+                           <string>Inverse distance interpolation stations (gaugeID.map); weight:</string>
                           </property>
                          </widget>
                         </item>
@@ -978,31 +1111,7 @@
                         </item>
                        </layout>
                       </item>
-                      <item row="2" column="0">
-                       <widget class="QCheckBox" name="checkEventBased">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Event based (day nr in time indication is ignored)</string>
-                        </property>
-                        <property name="checked">
-                         <bool>false</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="0">
+                      <item row="5" column="0" colspan="2">
                        <layout class="QHBoxLayout" name="horizontalLayout_8">
                         <item>
                          <widget class="QRadioButton" name="radioRainSatFile">
@@ -1081,80 +1190,6 @@
                             <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
                           </property>
                          </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="4" column="0">
-                       <layout class="QHBoxLayout" name="horizontalLayout_7">
-                        <item>
-                         <widget class="QLabel" name="label_121">
-                          <property name="enabled">
-                           <bool>true</bool>
-                          </property>
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="font">
-                           <font>
-                            <pointsize>8</pointsize>
-                            <bold>false</bold>
-                            <underline>false</underline>
-                            <kerning>true</kerning>
-                           </font>
-                          </property>
-                          <property name="text">
-                           <string>Bias correction factor</string>
-                          </property>
-                          <property name="alignment">
-                           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QDoubleSpinBox" name="E_biasCorrectionP">
-                          <property name="enabled">
-                           <bool>true</bool>
-                          </property>
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="font">
-                           <font>
-                            <pointsize>8</pointsize>
-                            <bold>false</bold>
-                            <underline>false</underline>
-                            <kerning>true</kerning>
-                           </font>
-                          </property>
-                          <property name="minimum">
-                           <double>0.010000000000000</double>
-                          </property>
-                          <property name="singleStep">
-                           <double>0.010000000000000</double>
-                          </property>
-                          <property name="value">
-                           <double>1.000000000000000</double>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <spacer name="horizontalSpacer_5">
-                          <property name="orientation">
-                           <enum>Qt::Orientation::Horizontal</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>40</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
                         </item>
                        </layout>
                       </item>

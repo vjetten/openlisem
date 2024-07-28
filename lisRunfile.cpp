@@ -380,6 +380,9 @@ void TWorld::ParseRunfileData(void)
 
     // get a number of options that detemrine how to read runfile parameters
 
+    if (SwitchRainfallSatellite)
+        SwitchEventbased = false;
+
     SwitchResultDatetime = getvalueint("Result datetime") == 1;
     SwitchOutputTimestamp = SwitchResultDatetime;//getvalueint("Add timestamp") == 1;
 

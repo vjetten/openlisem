@@ -106,6 +106,11 @@ void TWorld::DoModel()
     // get time to calc run length
     startTime=omp_get_wtime()/60.0;
 
+    rainplace =  0;
+    lastrainplace = 0;
+    ETplace =  0;
+    lastETplace = 0;
+
     try
     {
         DestroyData();
@@ -167,76 +172,75 @@ void TWorld::DoModel()
         {
             RainfallSeries.clear();
             RainfallSeriesMaps.clear();
-            calibRainfallinFile = false;
-
-            DEBUG("Get Rainfall Data Information");
+            DEBUG("Get Rainfall Data");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
-                rainplace = 0;
-                while (BeginTime/60 >= RainfallSeriesMaps[rainplace].time && rainplace < nrRainfallseries)
-                    rainplace++;
-                if (rainplace > 0) rainplace--;
-            }
-            else {
+
+                for (rainplace = lastrainplace; rainplace < nrRainfallseries; rainplace++) {
+                    if (BeginTime/60 >= RainfallSeriesMaps[rainplace].time)
+                        break;
+                }
+            } else {
                 GetRainfallData(rainFileName);
-                rainplace = 0;
-                while (BeginTime/60 >= RainfallSeries[rainplace].time && rainplace < nrRainfallseries)
-                    rainplace++;                
-                if (rainplace > 0) rainplace--;
+
+                for (rainplace = lastrainplace; rainplace < nrRainfallseries; rainplace++) {
+                    if (BeginTime/60 >= RainfallSeries[rainplace].time)
+                        break;
+                }
             }
-          //  op.maxRainaxis = getmaxRainfall();
-          //qDebug() << "rain" << rainplace;
+            if (rainplace > 0) rainplace--;
+            lastrainplace = rainplace;
         }
+
+        qDebug() << RainfallSeriesMaps[rainplace].time;
+
 
         if (SwitchIncludeET)
         {
             ETSeries.clear();
             ETSeriesMaps.clear();
-            DEBUG("Get ET Data Information");
+            DEBUG("Get EvapoTranspiaration Data");
             if (SwitchETSatellite) {
                 GetSpatialMeteoData(ETSatFileName, 1);
-                ETplace = 0;
-                while (BeginTime/60 >= ETSeriesMaps[ETplace].time && ETplace < nrETseries)
-                    ETplace++;
-                if (ETplace > 0) ETplace--;
+
+                for (ETplace = lastETplace; ETplace < nrETseries; ETplace++) {
+                    if (BeginTime/60 >= ETSeriesMaps[ETplace].time)
+                        break;
+                }
             } else {
                 GetETData(ETFileName);
-                ETplace = 0;
-                while (BeginTime/60 >= ETSeries[ETplace].time && ETplace < nrETseries)
-                    ETplace++;
-                if (ETplace > 0) ETplace--;
+                for (ETplace = lastETplace; ETplace < nrETseries; ETplace++) {
+                    if (BeginTime/60 >= ETSeries[ETplace].time)
+                        break;
+                }
             }
-          //qDebug() << "et" << ETplace;
+            if (ETplace > 0) ETplace--;
+            ETplace = ETplace;
         }
 
-        SwitchSnowmelt = false;
-        if (SwitchSnowmelt)
-        {
-            SnowmeltSeries.clear();
-            SnowmeltSeriesMaps.clear();
-            DEBUG("Get Snowmelt Data Information");
-            if (SwitchSnowmeltSatellite) {
-                GetSpatialMeteoData(snowmeltSatFileName, 2);
-            snowmeltplace = 0;
-            while (BeginTime/60 >= SnowmeltSeriesMaps[snowmeltplace].time && snowmeltplace < nrSnowmeltseries)
-                snowmeltplace++;
-            } else {
-                GetSnowmeltData(snowmeltFileName);
-                snowmeltplace = 0;
-                while (BeginTime/60 >= SnowmeltSeries[snowmeltplace].time && snowmeltplace < nrSnowmeltseries)
-                    snowmeltplace++;
-            }
-        }
+        // SwitchSnowmelt = false;
+        // if (SwitchSnowmelt)
+        // {
+        //     SnowmeltSeries.clear();
+        //     SnowmeltSeriesMaps.clear();
+        //     DEBUG("Get Snowmelt Data Information");
+        //     if (SwitchSnowmeltSatellite) {
+        //         GetSpatialMeteoData(snowmeltSatFileName, 2);
+        //     snowmeltplace = 0;
+        //     while (BeginTime/60 >= SnowmeltSeriesMaps[snowmeltplace].time && snowmeltplace < nrSnowmeltseries)
+        //         snowmeltplace++;
+        //     } else {
+        //         GetSnowmeltData(snowmeltFileName);
+        //         snowmeltplace = 0;
+        //         while (BeginTime/60 >= SnowmeltSeries[snowmeltplace].time && snowmeltplace < nrSnowmeltseries)
+        //             snowmeltplace++;
+        //     }
+        // }
 
         if (SwitchDischargeUser)
         {
             DEBUG("GetDischargeData()");
             GetDischargeData(dischargeinFileName);
-//todo
-//            Discha = 0;
-//            while (BeginTime/60 >= WHSeries[WHplace].time && WHplace < nrWHseries)
-//                WHplace++;
-//            if (WHplace > 0) WHplace--;
         }
 
         if (SwitchWaveUser)
