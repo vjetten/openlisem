@@ -297,7 +297,7 @@ void TWorld::OutputUI(void)
 //        }
     }
     // MAP DISPLAY VARIABLES
-    if(SwitchInfiltration && InfilMethod != INFIL_SWATRE)// && InfilMethod !=INFIL_NONE)
+    if(SwitchInfiltration && InfilMethod != INFIL_SWATRE)
         avgTheta();
 }
 //---------------------------------------------------------------------------
@@ -368,7 +368,7 @@ void TWorld::ReportTotalSeries(void)
     out.setFieldWidth(width);
     out.setRealNumberNotation(QTextStream::FixedNotation);
 
-    out << time/60;
+    out << (time-BeginTime)/60;
     out << sep << op.RainTotmm;
     out << sep << op.IntercTotmm;
     if (SwitchLitter)
@@ -976,9 +976,9 @@ void TWorld::ReportMapSeries(void)
 
     if (SwitchOutTheta) {
         if (SwitchInfiltration && InfilMethod != INFIL_SWATRE) { //InfilMethod != INFIL_NONE
-            report(*ThetaI1a, OutTheta1);
+            report(*ThetaI1a, "th1l");//OutTheta1);
             if (SwitchTwoLayer)
-                report(*ThetaI2a, OutTheta2);
+                report(*ThetaI2a, "th2l");//OutTheta2);
         }
     }
 

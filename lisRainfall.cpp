@@ -103,6 +103,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
         currentSnowmeltrow = 0;
     }
 
+    RainfallSeriesMaps.clear();
     double lasttime = -1;
     for(int r = 0; r < nrSeries; r++)
     {
@@ -188,6 +189,8 @@ void TWorld::GetRainfallData(QString name)
     double time = 0.0;
     bool oldformat = true;
 
+    RainfallSeries.clear();
+
     if (!fi.exists() || !fi.isFile())
     {
         ErrorString = "Rainfall file not found: " + name;
@@ -257,6 +260,7 @@ void TWorld::GetRainfallData(QString name)
     if (SwitchIDinterpolation) {
 
         IDIpointsRC.clear();
+
 
         if (SwitchUseIDmap) {
             // read points in the IDgauge.map and check if a corresponding number exists in the rainfall file

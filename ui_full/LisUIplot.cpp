@@ -55,7 +55,7 @@ void lisemqt::setupPlot()
     title.setText("Hydrograph outlet");
     title.setFont(QFont("MS Shell Dlg 2",12));
     HPlot = new QwtPlot(title);
-    layout_Plot->insertWidget(0, HPlot, 1);
+    layout_Plot->insertWidget(0, HPlot, 0);
 
     // panning with the left mouse button
     (void) new QwtPlotPanner( HPlot->canvas() );

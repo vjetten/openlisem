@@ -109,11 +109,13 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int inr)
 {
     int nr = std::max(0, inr);   
     bool morelayers = (spinSoilLayers->value() > 1);
-    groupBox_SwatreOptions->setEnabled(nr == 0);
-    checkBox_OutTheta->setEnabled(nr > 1);
+    checkBox_OutTheta->setEnabled(nr > 0);
 
     uiInfilMethod = nr;
     // set runfile var to infil nr
+
+    groupBox_SwatreOptions->setEnabled(nr == 0);
+    groupBox_RichardsOptions->setEnabled(nr == 3);
 
     checkMapNameModel(INFILTRATIONMAPS, 0, true);
     checkMapNameModel(INFILTRATIONMAPS, 10, false);//SW

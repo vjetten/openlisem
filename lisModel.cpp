@@ -106,11 +106,6 @@ void TWorld::DoModel()
     // get time to calc run length
     startTime=omp_get_wtime()/60.0;
 
-    rainplace =  0;
-    lastrainplace = 0;
-    ETplace =  0;
-    lastETplace = 0;
-
     try
     {
         DestroyData();
@@ -170,29 +165,25 @@ void TWorld::DoModel()
 
         if (SwitchRainfall)
         {
-            RainfallSeries.clear();
-            RainfallSeriesMaps.clear();
-            DEBUG("Get Rainfall Data");
+            //DEBUG("Get Rainfall Data");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
 
-                for (rainplace = lastrainplace; rainplace < nrRainfallseries; rainplace++) {
+                for (rainplace = 0; rainplace < nrRainfallseries; rainplace++) {
                     if (BeginTime/60 >= RainfallSeriesMaps[rainplace].time)
                         break;
                 }
             } else {
                 GetRainfallData(rainFileName);
 
-                for (rainplace = lastrainplace; rainplace < nrRainfallseries; rainplace++) {
+                for (rainplace = 0; rainplace < nrRainfallseries; rainplace++) {
                     if (BeginTime/60 >= RainfallSeries[rainplace].time)
                         break;
                 }
             }
             if (rainplace > 0) rainplace--;
-            lastrainplace = rainplace;
         }
 
-        qDebug() << RainfallSeriesMaps[rainplace].time;
 
 
         if (SwitchIncludeET)
@@ -203,19 +194,18 @@ void TWorld::DoModel()
             if (SwitchETSatellite) {
                 GetSpatialMeteoData(ETSatFileName, 1);
 
-                for (ETplace = lastETplace; ETplace < nrETseries; ETplace++) {
+                for (ETplace = 0; ETplace < nrETseries; ETplace++) {
                     if (BeginTime/60 >= ETSeriesMaps[ETplace].time)
                         break;
                 }
             } else {
                 GetETData(ETFileName);
-                for (ETplace = lastETplace; ETplace < nrETseries; ETplace++) {
+                for (ETplace = 0; ETplace < nrETseries; ETplace++) {
                     if (BeginTime/60 >= ETSeries[ETplace].time)
                         break;
                 }
             }
             if (ETplace > 0) ETplace--;
-            ETplace = ETplace;
         }
 
         // SwitchSnowmelt = false;
