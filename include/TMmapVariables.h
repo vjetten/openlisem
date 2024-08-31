@@ -118,7 +118,7 @@ cTMap
 *VH,
 *QinKW,
 *QKW,
-*Qototal,
+*Qm3total,
 *FHI,
 *Qoutput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
 *Qs,                         //!< sediment discharge before kin wave [kg/s]

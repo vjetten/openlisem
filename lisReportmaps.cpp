@@ -288,7 +288,7 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"Overland flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.001); //VH
     //AddComboMap(0,"boundary","-",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
 
-    AddComboMap(0,"Cumulative overland flow","m3",Qototal,LegendMap[0],Legend[0],false,false,1.0, 1.0);//0.001);
+    AddComboMap(0,"Cumulative overland flow","m3",Qm3total,LegendMap[0],Legend[0],false,false,1.0, 1.0);//0.001);
     if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
         cl = 2;
         QString txt = QString("Max flood Height (h>%1m)").arg(minReportFloodHeight);

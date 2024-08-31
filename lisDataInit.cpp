@@ -1834,7 +1834,7 @@ void TWorld::IntializeData(void)
     QinKW = NewMap(0);
     //    QKW = NewMap(0);
     Qoutput = NewMap(0);
-    Qototal = NewMap(0);
+    Qm3total = NewMap(0);
     FHI = NewMap(0);
 
     Qsoutput = NewMap(0);
