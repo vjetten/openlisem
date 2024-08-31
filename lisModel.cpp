@@ -434,6 +434,8 @@ void TWorld::HydrologyProcesses()
                 WH->Drc = WHbound->Drc + WHboundRain->Drc;
             }
         }
+        if(std::isnan(Thetaeff->Drc))
+            qDebug() << QString("A nan 1 %1 %2").arg(r).arg(c);
 
         // infiltration by SWATRE of G&A+percolation
         switch (InfilMethod) {
@@ -460,7 +462,11 @@ void TWorld::HydrologyProcesses()
                 break;
             case INFIL_SWATRE : cell_InfilSwatre(r, c); break;
         }
+        if(std::isnan(Thetaeff->Drc))
+            qDebug() << QString("B nan 1 %1 %2").arg(r).arg(c);
 
+        //if(std::isnan(ThetaI2->Drc))
+//            qDebug() << "nan 2";
         // do not do this!
         //  cell_depositInfil(r,c);
         // deposit all sediment still in flow when infiltration causes WH to become minimum

@@ -322,7 +322,7 @@ public:
     colorMapRoads2():
 //        QwtLinearColorMapVJ( QColor("#f9fb44"), QColor("#f9fb44")  )
 
-        QwtLinearColorMapVJ( QColor("#53fd00"), QColor("#53fd00")  )
+        QwtLinearColorMapVJ( QColor("#fcd6a4"), QColor("#fcd6a4")  ) // OSM road color
 //        QwtLinearColorMapVJ( QColor("#f0f000"), QColor("#f0f000")  )
     {
     }

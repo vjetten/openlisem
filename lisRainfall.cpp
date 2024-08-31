@@ -70,7 +70,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
     }
 
     nrSeries = rainRecs.count() - skip;
-    qDebug() << "nrseries" << nrSeries << skip;
+    //qDebug() << "nrseries" << nrSeries << skip;
     // count records
 
     if (nrSeries <= 1)

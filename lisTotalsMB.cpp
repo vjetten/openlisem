@@ -157,20 +157,10 @@ void TWorld::TotalsHydro(void)
             PercmmCum->Drc += Perc->Drc*1000.0;
         }}
 
-//        theta1tot = MapTotal(*ThetaI1a)/nrCells;
-
-        double hoi = 0;
-        FOR_ROW_COL_MV {
-        //MapTotal(*Thetaeff)/nrCells;
-             if(!pcr::isMV(Thetaeff->data[r][c]))
-          hoi += Thetaeff->Drc;
-        }
-        //theta1tot/=nrCells;
-        report(*Thetaeff, "th");
+        theta1tot = MapTotal(*ThetaI1a)/nrCells;
         if (SwitchTwoLayer)
-//            theta2tot = MapTotal(*ThetaI2a)/nrCells;
-        theta2tot = MapTotal(*ThetaI2)/nrCells;
-        qDebug() << hoi << theta2tot ;
+            theta2tot = MapTotal(*ThetaI2a)/nrCells;
+      // qDebug() <<  theta1tot << theta2tot << nrCells;
     }
 
     //=== surf store ===//

@@ -339,7 +339,7 @@ void TWorld::GWFlowSWAT(void)
     cTMap *pore = ThetaS2;
     if (!SwitchTwoLayer) {
         ksat = Ksateff;
-        pore = Thetaeff;
+        pore = Poreeff; //Thetaeff;??? ERROR
     }
 
     // calculated lateral flow

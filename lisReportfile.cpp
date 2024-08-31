@@ -297,8 +297,9 @@ void TWorld::OutputUI(void)
 //        }
     }
     // MAP DISPLAY VARIABLES
-    if(SwitchInfiltration && InfilMethod != INFIL_SWATRE)
+    if(SwitchInfiltration && InfilMethod != INFIL_SWATRE) {
         avgTheta();
+    }
 }
 //---------------------------------------------------------------------------
 void TWorld::ReportTotalSeries(void)

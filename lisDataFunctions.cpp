@@ -205,9 +205,9 @@ void TWorld::Copy(cTMap &M, cTMap &M1)
 double TWorld::MapTotal(cTMap &M)
 {
     double total = 0;
-#pragma omp parallel for reduction(+:total) num_threads(userCores)
+    #pragma omp parallel for reduction(+:total) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (!pcr::isMV(M.Drc))
+        if (!pcr::isMV(M.Drc) && !std::isnan(M.Drc))
             total = total + M.Drc;
     }}
 return (total);

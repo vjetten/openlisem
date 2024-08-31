@@ -290,13 +290,23 @@ void TWorld::InitStandardInput(void)
     //         Outlet->Drc = cnt;
     //     }
     // }
+    bool found = false;
     Outlet = ReadMap(LDD,getvaluename("outlet"));
+    FOR_ROW_COL_MV {
+        if(Outlet->Drc > 0) {
+            found = true;
+        }
+    }
+    if (!found) {
+        ErrorString="outlet.map does not have any outlets";
+        throw 1;
+    }
 
     // points are user observation points. they should include outlet points
     PointMap = ReadMap(LDD,getvaluename("outpoint"));
     //map with points for output data
     // VJ 110630 show hydrograph for selected output point
-    bool found = false;
+    found = false;
     FOR_ROW_COL_MV {
         if(PointMap->Drc > 0) {
             found = true;
@@ -543,6 +553,8 @@ void TWorld::InitLULCInput(void)
 void TWorld::InitSoilInput(void)
 {
     LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
+    ThetaI1a = NewMap(0); // used for screen output
+    ThetaI2a = NewMap(0); // for output, average soil layer 2
 
     //## infiltration data
     if(InfilMethod != INFIL_SWATRE)
@@ -558,7 +570,6 @@ void TWorld::InitSoilInput(void)
 
         ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
         ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
-        ThetaI1a = NewMap(0); // used for screen output
         calcValue(*ThetaI1, thetaCalibration, MUL);
         calcMap(*ThetaI1, *ThetaS1, MIN);
         copy(*ThetaI1a, *ThetaI1);
@@ -630,7 +641,6 @@ void TWorld::InitSoilInput(void)
 
             ThetaS2 = ReadMap(LDD,getvaluename("thetaS2"));
             ThetaI2 = ReadMap(LDD,getvaluename("thetaI2"));
-            ThetaI2a = NewMap(0); // for output, average soil layer 2
             calcValue(*ThetaI2, thetaCalibration, MUL); //VJ 110712 calibration of theta
             calcMap(*ThetaI2, *ThetaS2, MIN); //VJ 110712 cannot be more than porosity
             copy(*ThetaI2a, *ThetaI2);
@@ -656,7 +666,10 @@ void TWorld::InitSoilInput(void)
                 ThetaR2->Drc = 0.0673*exp(-0.238*log(ks));
                 ThetaFC2->Drc = -0.0519*log(ks) + 0.3714;
             }}
-
+// report(*ThetaR2,"tr2.map");
+// report(*ThetaFC2,"tfc2.map");
+// report(*ThetaR1,"tr1.map");
+// report(*ThetaFC1,"tfc1.map");
             // wetting front psi
             if (SwitchPsiUser) {
                 Psi2 = ReadMap(LDD,getvaluename("psi2"));

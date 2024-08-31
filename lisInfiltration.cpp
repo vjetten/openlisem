@@ -70,20 +70,24 @@ void TWorld::InfilEffectiveKsat(bool first)
 
             // exponential crusting proces with cumulative rainfall
             if (SwitchInfilCrust) {
-                //double KSc = Ksat1->Drc * (0.3+0.7*exp(-0.05*RainCum->Drc*1000));
                 double ksatdiff = std::max(0.0,Ksat1->Drc - KsatCrust->Drc);
-                double factor = RainCum->Drc > 0.01 ? exp(-0.05*(RainCum->Drc-0.01)*1000) : 1.0;
-                double KSc = KsatCrust->Drc + ksatdiff * factor;
+                double factor = 1.0 - 1.0/(1.0+std::pow(RainCum->Drc*1000/10,5.0));
+                // increase crusting factor gaussian from 5 (0) to 20mm (1)
+                //        RainCum->Drc > 0.01 ? exp(-0.05*(RainCum->Drc-0.01)*1000) : 0.0;  // this was 1.0 (max crusting instead of 0!
                 // exponential decline until crust value, RainCum is in meters
 
                 //Ksateff->Drc = (1-Cover->Drc) * KSc + Cover->Drc * Ksat1->Drc;
-                Ksateff->Drc = KSc;
-                // only on bare fraction of soil, depends on crop. We need basal cover! ???
+                Ksateff->Drc = KsatCrust->Drc + ksatdiff * factor;
+                // only on bare fraction of soil, depends on crop. We need basal cover! until then don't overcomplicate
                 double porediff = std::max(0.0,ThetaS1->Drc - PoreCrust->Drc);
                 Poreeff->Drc = PoreCrust->Drc + porediff * factor;
-                        //ThetaS1->Drc*(1-CrustFraction->Drc) + PoreCrust->Drc*CrustFraction->Drc;
+
+                // to avoid pore is less than thetaR else nan in redistribution
+                if (Poreeff->Drc < ThetaR1->Drc)
+                    ThetaR1->Drc = 0.5*Poreeff->Drc;
+
             }
-            Thetaeff->Drc = std::max(0.025*Poreeff->Drc,ThetaI1->Drc);
+            Thetaeff->Drc = std::max(ThetaR1->Drc,ThetaI1->Drc);
 
             // affected surfaces
             if (SwitchInfilCompact) {
@@ -108,14 +112,16 @@ void TWorld::InfilEffectiveKsat(bool first)
 //             //   Poreeff->Drc *= (1-HardSurface->Drc);
 //            }
 
-//            if (SwitchRoadsystem) {
-            Ksateff->Drc *= (1-RoadWidthHSDX->Drc/_dx);
-            Poreeff->Drc *= (1-RoadWidthHSDX->Drc/_dx);
-//            }
+            if (SwitchRoadsystem) {
+                Ksateff->Drc *= (1-RoadWidthHSDX->Drc/_dx);
+          //      Poreeff->Drc *= (1-RoadWidthHSDX->Drc/_dx);
+            }
 
+            if (Poreeff->Drc <= ThetaR1->Drc)
+                Poreeff->Drc = std::max(ThetaR1->Drc, Poreeff->Drc+0.05);
             Ksateff->Drc = std::max(0.0, Ksateff->Drc);
-            Poreeff->Drc = std::max(0.0, Poreeff->Drc);
 
+            // may be a problem in for instance redistribution
             if (SwitchWaveUser) {
                 if (WHboundarea->Drc > 0) {
                     Ksateff->Drc = 0;
