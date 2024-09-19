@@ -341,6 +341,7 @@ public:
 
     void setDisplayComboBoxes();
     void on_toolButton_help(int page);
+    void resetTabRainfall();
     void resetTabOptions();
     void resetTabErosion();
     void resetTabFlow();
@@ -388,6 +389,7 @@ public slots:
     void on_toolButton_resetErosion_clicked();
     void on_toolButton_resetFlow_clicked();
     void on_toolButton_resetCalibration_clicked();
+    void doResetAll();
 
 
     void on_toolButton_help1_clicked();
@@ -575,6 +577,8 @@ private slots:
 
     void on_checkInfrastructure_toggled(bool checked);
 
+    void on_toolButton_resetRainfall_clicked();
+
 private:
 
     QSystemTrayIcon *trayIcon;
@@ -590,7 +594,7 @@ private:
     QAction *makeMovieAct;
     QAction *aboutAct;
     QAction *aboutActI;
-    QAction *restartAct;
+    QAction *resetAllAct;
     QAction *showAllAct;
     QAction *showInfoAct;
     QAction *resizeAct;

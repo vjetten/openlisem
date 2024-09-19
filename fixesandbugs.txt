@@ -1,5 +1,27 @@
 this file is a list of changes per major commit
 
+
+
+
+240714 - v7.00
+- BUG fix: Lisem crashed when changing the displayed map after the run was finished
+- Data remains in memory until the next run is started
+- MUSCL option for 2D flow: cell boundary interpolation of water level and velocities (4 types). For high resolution flow.
+- Advanced options: optional overall mass balance correction
+Interface
+- Dark mode/Light mode 
+- Some repositioning of options
+- Rainfall, interception and infiltration can be switched on/off
+- scrollbars correctly triggered
+
+240523 - v6.99
+- BUG FIX: in erosion causing zero flow detachment (only splash)
+- boundary water level inflow (with whboundary.map and file with water levels), for dike break or coastal zone flooding
+- Better hydraulics subsurface storm drains (sewage system) for urban environments (beta, some mass balance errors)
+Interface
+- Make mpeg movies of screenshot series after the simulation. Needs download MPlayer from http://www.mplayerhq.hu
+
+
 231208 - v6.92-v6.94
 - Fixed subsurface drainage code
 - flowboundary crashed, fixed

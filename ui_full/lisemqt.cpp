@@ -576,6 +576,11 @@ void lisemqt::SetToolBar()
 {
     toolBar->setIconSize(QSize(32,32));
 
+
+    resetAllAct = new QAction(QIcon(":/2X/reset.png"), "&Reset interface and all options...", this);
+    connect(resetAllAct, SIGNAL(triggered()), this, SLOT(doResetAll()));
+    toolBar->addAction(resetAllAct);
+
     openAct = new QAction(QIcon(":/2X/Folder-Open-icon.png"), "&Open a run file...", this);
     openAct->setShortcuts(QKeySequence::Open);
     openAct->setStatusTip("Open a run file");
@@ -667,9 +672,10 @@ void lisemqt::SetToolBar()
     aboutActI = new QAction(QIcon(":/2X/question-mark-button2x.png"), "", this);
     connect(aboutActI, SIGNAL(triggered()), this, SLOT(aboutInfo()));
     toolBar_2->addAction(aboutActI);
-    restartAct = new QAction(QIcon(":/2X/reset.png"), "&Reset interface and all options...", this);
-    connect(restartAct, SIGNAL(triggered()), this, SLOT(resetAll()));
-    toolBar_2->addAction(restartAct);
+
+    // resetAllAct = new QAction(QIcon(":/2X/reset.png"), "&Reset interface and all options...", this);
+    // connect(resetAllAct, SIGNAL(triggered()), this, SLOT(resetAll()));
+    // toolBar_2->addAction(resetAllAct);
 
     //toolBar->addSeparator();
 
@@ -754,17 +760,17 @@ void lisemqt::setResultDir()
 //--------------------------------------------------------------------
 void lisemqt::savefileas()
 {
-    if (W)
+    if (W && W->isRunning())
     {
         QMessageBox::warning(this, "openLISEM","Cannot save a file while model is running.");
         return;
     }
 
-    if (op.runfilename.isEmpty())
-    {
-        QMessageBox::warning(this, "openLISEM","This runfile will habe no pathnames.");
-        //return;
-    }
+    // if (op.runfilename.isEmpty())
+    // {
+    //     QMessageBox::warning(this, "openLISEM","No runfile active.");
+    //     //return;
+    // }
 
     QString selectedFilter;
     QString fileName = QFileDialog::getSaveFileName(this,
@@ -772,7 +778,7 @@ void lisemqt::savefileas()
                                                     op.runfilename,
                                                     QString("Text Files (*.run);;All Files (*)"),
                                                     &selectedFilter);
-
+qDebug() << fileName;
     if (!fileName.isEmpty()) {
         updateModelData();
         savefile(fileName);
@@ -1014,11 +1020,32 @@ void lisemqt::aboutInfo()
 }
 
 //--------------------------------------------------------------------
+void lisemqt::resetTabRainfall()
+{
+
+    E_RainfallName->setText("");
+    E_RainsatName->setText("");
+    E_ETName->setText("");
+    E_ETsatName->setText("");
+
+    checkEventBased->setChecked(false);
+
+    checkIDinterpolation->setChecked(false);
+    E_IDIfactor->setValue(2.0);
+    E_biasCorrectionP->setValue(1.0);
+
+    checkDailyET->setChecked(true);
+    E_latitude->setText("");
+    E_biasCorrectionET->setValue(1.0);
+    E_rainfallETA_threshold->setValue(2.0);
+
+}
+//--------------------------------------------------------------------
 void lisemqt::resetTabOptions()
 {
-    //checkOverlandFlow1D->setChecked(false);
-    //checkOverlandFlow2Ddyn->setChecked(true);
-    //checkOverlandFlow2Dkindyn->setChecked(false);
+    checkRainfall->setChecked(true);
+    checkET->setChecked(false);
+
     E_OFWaveType->setCurrentIndex(2);
     checkDoErosion->setChecked(false);
 
@@ -1085,7 +1112,7 @@ void lisemqt::resetTabInfiltration()
     E_InfiltrationMethod->addItem("Green and Ampt");
     E_InfiltrationMethod->addItem("Smith and Parlange");
     E_InfiltrationMethod->addItem("Richards equation (experimental)");
-    E_InfiltrationMethod->setCurrentIndex(2);
+    E_InfiltrationMethod->setCurrentIndex(1);
 
     checkInfilCompact->setChecked(false);
     checkInfilCrust->setChecked(false);
@@ -1203,14 +1230,10 @@ void lisemqt::resetAll()
     // DEFmaps stringlist that is used to build the map tree interface
 
     E_MapDir->setText("");
-    E_RainfallName->setText("");
-    //E_SnowmeltName->setText("");
     E_ResultDir->setText("");
     E_satImageName->setText("");
     checksatImage->setChecked(false);
     checkAdvancedOptions->setChecked(false);
-
-    //   checkEventBased->setChecked(true);
 
     checkSeparateOutput->setChecked(false);
     E_DigitsOut->setValue(3);
@@ -1241,10 +1264,8 @@ void lisemqt::resetAll()
     E_SeriesTotals->setText("totalSeries.csv");
     E_PointResults->setText("hydrographs.csv");
 
-    E_BeginTimeDay->setText("1");
-  //  E_BeginTimeMin->setText("0");
-    E_EndTimeDay->setText("1");
-  //  E_EndTimeMin->setText("120");
+    E_BeginTimeDay->setText("001:0000");
+    E_EndTimeDay->setText("001:0720");
     E_Timestep->setText("20");
 
     checkWritePCRaster->setChecked(true);
@@ -1273,8 +1294,7 @@ void lisemqt::resetAll()
 
     resetTabOptions();
 
-    checkRainfall->setChecked(true);
-    checkET->setChecked(false);
+    resetTabRainfall();
 
     resetTabInterception();
 
@@ -1339,6 +1359,5 @@ void lisemqt::resizeMap()
             changeSize();
 
 }
-
 
 

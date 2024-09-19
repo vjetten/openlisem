@@ -503,6 +503,10 @@ void lisemqt::showMap()
             contourLevels += level;
         contourDEM->setContourLevels( contourLevels );
         contourDEM->setDisplayMode( QwtPlotSpectrogram::ContourMode, nrcontourlevels->value() > 0 );
+    } else {
+        contourLevels.clear();
+        contourDEM->setContourLevels( contourLevels );
+        contourDEM->setDisplayMode( QwtPlotSpectrogram::ContourMode, false);
     }
 
     MPlot->replot();

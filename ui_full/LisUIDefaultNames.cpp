@@ -33,7 +33,7 @@
 void lisemqt::DefaultMapnames()
 {
     DEFmaps.clear();
-    //VJ 110417 delete all at start, needed when reseatAll;
+    //VJ 110417 delete all at start, needed when resetAll;
 
     //# interface maplist, DO NOT CHANGE if you don't know what you are doing
     //# syntax: branch level; keyword; default mapname; description; variable name
@@ -179,7 +179,7 @@ void lisemqt::defaultRunFile()
     }
 
     i = 0;
-    namelist[i++].name = QString("[openLISEM runfile version 7.0]");
+    namelist[i++].name = QString("[openLISEM runfile version 7.x]");
     namelist[i++].name = QString("");
     //###
     namelist[i++].name = QString("[Input]");

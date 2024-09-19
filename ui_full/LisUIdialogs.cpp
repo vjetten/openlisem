@@ -26,7 +26,18 @@
 //#include "model.h"
 #include "global.h"
 
-
+//---------------------------------------------------------------
+void lisemqt::doResetAll()
+{
+    op.runfilename.clear();
+    E_runFileList->clear();
+    resetAll();
+}
+//---------------------------------------------------------------
+void lisemqt::on_toolButton_resetRainfall_clicked()
+{
+    resetTabRainfall();
+}
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetCalibration_clicked()
 {
@@ -203,7 +214,7 @@ void lisemqt::on_toolButton_rainsatName_clicked()
     RainSatFileDir = QFileInfo(sss).absolutePath()+"/";
     RainSatFileName = QFileInfo(sss).fileName(); //baseName();
 
-    E_rainsatName->setText(RainSatFileDir + RainSatFileName);
+    E_RainsatName->setText(RainSatFileDir + RainSatFileName);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_ETsatName_clicked()

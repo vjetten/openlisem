@@ -569,12 +569,12 @@ void lisemqt::ParseInputData()
     }
 
     if (checkRainfall->isChecked()) {
-        E_rainsatName->setText(RainSatFileDir + RainSatFileName);
+        E_RainsatName->setText(RainSatFileDir + RainSatFileName);
         //qDebug() << RainSatFileName << RainSatFileDir;
-        if (!QFileInfo(E_rainsatName->text()).exists())
+        if (!QFileInfo(E_RainsatName->text()).exists())
         {
             RainSatFileDir = QString(E_WorkDir + "rain/");
-            E_rainsatName->setText(RainSatFileDir + RainSatFileName);
+            E_RainsatName->setText(RainSatFileDir + RainSatFileName);
         }
         E_RainfallName->setText(RainFileDir + RainFileName);
         if (!QFileInfo(E_RainfallName->text()).exists())
