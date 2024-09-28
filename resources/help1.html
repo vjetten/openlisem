@@ -1,26 +1,19 @@
+<h2><strong>General Options</strong></h2>
+<p>NOTE: each TAB for a process group has a help file with details!</p>
+<p><strong>Rainfall, Interception, Infiltration</strong></p>
+<p>Switch processes on or off. Each of these options have details in the option tabs. If switched off, the proccess is simply skipped. For instance not infiltration means a completely impermeable surface and 100% runoff and storage.</p>
 <p><strong>Overland flow</strong></p>
 <ul>
 <li>1D uses a kinematic wave on a predefined continues network that connects all cells to the outlet of the area (ldd.map in PCRaster). The network is user defined and is an input, the DEM is not used. The kinematic wave uses a finite difference iteration. This option gives <strong>only runoff and no flood</strong>.</li>
 <li>1D and 2D: if both options are selected a 1D kinematic wave is used for the runoff and a 2D dynamic wave for the flooding. The flooding ONLY takes place when there are channels defined and they overflow. <strong>Flood in this case is overflowing channel water</strong>.</li>
-<li>2D dynamic flow uses the DEM to determine where water flows. The water is distributed over the cells downstream, using a full dynamic wave for with depth-average velocity. The 'flow' tab gives several numerical options. It uses a semi-explicit finite volume solution with a small adaptive timestep (non-iterative).<br />The distinction between runoff and flood is user defined by a flood threshold (in m). All water above this threshold is considered flood (hazardous), below is considered runoff.</li>
+<li>2D dynamic flow uses the DEM to determine where water flows. The water is distributed over the cells downstream, using a full dynamic wave for with depth-average velocity. The 'flow' tab gives several numerical options. It uses a semi-explicit finite volume solution with a small adaptive timestep (non-iterative). <br />The distinction between runoff and flood is user defined by a flood threshold (in m). All water above this threshold is considered flood (hazardous), below is considered runoff.</li>
 </ul>
 <p>NOTE: channel flow is always 1D kinematic wave over a channel network (lddchan.map in PCRaster).</p>
 <p>NOTE: a kinematic wave is advised for large scale problems and less than optimal DEMs (e.g. SRTM or ASTER DEMs).</p>
-<p>&nbsp;</p>
+<p><strong>Channels/Rivers and groundwater flow<br /></strong></p>
+<p>The channel system can be switched off entirely in which case only overland flow is considered. Channels are 1D networks using a kinematic wave for flow. Groundwater and baseflow can be switched on and off. When there are no channels there is no baseflow</p>
 <p><strong>Erosion processes</strong></p>
 <p>Switch erosion processes on or off. If switched on, sediment dynamics are simulated for all flows. Default suspended matter is simulated, transport equations can be chosen. Optionally bedload can be simulated. These options can be set for overland flow and channel flow separately.</p>
-<p><strong>Channels/Rivers</strong></p>
-<p>The channel system can be switched off entirely in which case only overland flow is considered. Channels are 1D networks using a kinematic wave for flow.</p>
-<ul>
-<li>Channel infiltration: assumed to be saturated infiltration, the flux equals ChannelKsat (mm/h). If not checked the channel is assumed impermeable. Mutually exclusive with baseflow.</li>
-<li>Channel baseflow: baseflow is generated from a groundwater layer assuming a distance related contribution of cells surounding the channel. See Flow options. Mutually exclusive with channel infiltration</li>
-</ul>
 <p><strong>Infrastructure</strong></p>
-<p>Switch on or off the effect of buildings and infrastructure:</p>
-<ul>
-<li>Buildings have interception storage, are impermeable, obstruct flow and are non-erodible. They can have storage drums for rainwater (interception from roof goes into the drum). Buildings can be smaller than the girdcell in which case the characteristics of the soil and vegetation are used.</li>
-<li>Roads have no interception, are impermeable, smooth, have no detachment of sediment but can have deposition. Roads can be smaller than the girdcell in which case the characteristics of the soil and vegetation are used.</li>
-<li>Hard Surfaces (parking lots, courtyards, airstrips), have no interception, are impermeable, smooth, have no detachment of sediment but can have deposition. They behave the same as roads but are a separate class because they are often in a different land use class.</li>
-<li>Channel Culverts: these are cells in the channel that constrain the discharge a maximum flow in m3/s (specified in ChanMaxQ.map). It is a simple bottleneck; no pipe flow physics are used.</li></ul>
-<p>Storm drains (tile drains) are networks of circular subsurface pipes with regular inlets. A kinematic wave transports water along this system. The maximum flow is determined by the diameter, gradient and Manning's n. Can be used for urban drains or agricultural tile drains.</p>
-
+<p>Switch on or off the effect of buildings and infrastructure (roads, parking lots) and subsurface drainage from streets.</p>
+<p>&nbsp;</p>

@@ -336,7 +336,7 @@ void TWorld::TotalsFlow(void)
 
         if(SwitchIncludeChannel) {
             Qoutput->Drc += ChannelQn->Drc * (QUnits == 1 ? 1.0 : 1000);
-           // Qm3total->Drc += ChannelQn->Drc * _dt;
+            Qm3total->Drc += ChannelQn->Drc * _dt;
         }
 
         Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;

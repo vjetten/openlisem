@@ -26,12 +26,30 @@
 //#include "model.h"
 #include "global.h"
 
-//---------------------------------------------------------------
-void lisemqt::doResetAll()
-{
+#define HELPOPTIONS 1
+#define HELPRAINFALL 2
+#define HELPINTERCEPTION 3
+#define HELPINFILTRATION 4
+#define HELPFLOW 5
+#define HELPCHANNEL 6
+#define HELPEROSION 7
+#define HELPINFRA 8
+#define HELPCALIBRATION 9
+#define HELPADVANCED 10
+
+
+
+//)---------------------------------------------------------------
+voi)d lisemqt::doResetAll()
+{)
     op.runfilename.clear();
     E_runFileList->clear();
     resetAll();
+}
+//---------------------------------------------------------------
+void lisemqt::on_toolButton_resetOptions_clicked()
+{
+    resetTabOptions();
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetRainfall_clicked()
@@ -39,9 +57,14 @@ void lisemqt::on_toolButton_resetRainfall_clicked()
     resetTabRainfall();
 }
 //---------------------------------------------------------------
-void lisemqt::on_toolButton_resetCalibration_clicked()
+void lisemqt::on_toolButton_resetInterception_clicked()
 {
-    resetTabCalibration();
+    resetTabInterception();
+}
+//---------------------------------------------------------------
+void lisemqt::on_toolButton_resetInfiltration_clicked()
+{
+    resetTabInfiltration();
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetFlow_clicked()
@@ -49,68 +72,96 @@ void lisemqt::on_toolButton_resetFlow_clicked()
     resetTabFlow();
 }
 //---------------------------------------------------------------
+void lisemqt::on_toolButton_resetChannel_clicked()
+{
+   // resetTabChannel();
+}
+//---------------------------------------------------------------
+void lisemqt::on_toolButton_resetInfra_clicked()
+{
+   // resetTabInfra();
+}
+//---------------------------------------------------------------
 void lisemqt::on_toolButton_resetErosion_clicked()
 {
     resetTabErosion();
 }
 //---------------------------------------------------------------
+void lisemqt::on_toolButton_resetCalibration_clicked()
+{
+    resetTabCalibration();
+}
+//---------------------------------------------------------------
+void lisemqt::on_toolButton_resetAdvanced_clicked()
+{
+    resetTabAdvanced();
+}
+//---------------------------------------------------------------
+void lisemqt::on_toolButton_helpOptions_clicked()
+{
+    on_toolButton_help(HELPOPTIONS);
+}
+//---------------------------------------------------------------
+void lisemqt::on_toolButton_helpRainfall_clicked()
+{
+    on_toolButton_help(HELPRAINFALL);
+}
+//---------------------------------------------------------------
+void lisemqt::on_toolButton_helpInterception_clicked()
+{
+    on_toolButton_help(HELPINTERCEPTION);
+}
+//---------------------------------------------------------------
+void lisemqt::on_toolButton_helpInfiltration_clicked()
+{
+    on_toolButton_help(HELPINFILTRATION);
+}
+//---------------------------------------------------------------
+void lisemqt::on_toolButton_helpFlow_clicked()
+{
+    on_toolButton_help(HELPFLOW);
+}
+---------------------------------------------------------------
+void lisemqt::on_toolButton_helpChannel_clicked()
+{
+    on_toolButton_help(HELPCHANNEL);
+}
+//---------------------------------------------------------------
+void lisemqt::on_toolButton_helpErosion_clicked()
+{
+    on_toolButton_help(HELPEROSION);
+}
+//---------------------------------------------------------------
+void lisemqt::on_toolButton_helpCalibration_clicked()
+{
+    on_toolButton_help(HELPINFRA);
+}
+//---------------------------------------------------------------
+void lisemqt::on_toolButton_helpInfra_clicked()
+{
+    on_toolButton_help(HELPCALIBRATION);
 
-void lisemqt::on_toolButton_help1_clicked()
-{
-    on_toolButton_help(1);
 }
 //---------------------------------------------------------------
-void lisemqt::on_toolButton_help2_clicked()
+void lisemqt::on_toolButton_helpAdvanced_clicked()
 {
-    on_toolButton_help(2);
-}
-//---------------------------------------------------------------
-void lisemqt::on_toolButton_help3_clicked()
-{
-    on_toolButton_help(3);
-}
-//---------------------------------------------------------------
-void lisemqt::on_toolButton_help4_clicked()
-{
-    on_toolButton_help(4);
-}
-//---------------------------------------------------------------
-void lisemqt::on_toolButton_help5_clicked()
-{
-    on_toolButton_help(5);
-}
-//---------------------------------------------------------------
-//void lisemqt::on_toolButton_help6_clicked()
-//{
-//    on_toolButton_help(6);
-//}
-//---------------------------------------------------------------
-void lisemqt::on_toolButton_help7_clicked()
-{
-    on_toolButton_help(7);
-}
-//---------------------------------------------------------------
-void lisemqt::on_toolButton_help8_clicked()
-{
-    on_toolButton_help(8);
-}
-//---------------------------------------------------------------
-void lisemqt::on_toolButton_help1a_clicked()
-{
-    on_toolButton_help(6);
+    on_toolButton_help(HELPADVANCED);
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_help(int page)
 {
     QString filename;
-    if (page == 1) filename=":/help1.html";
-    if (page == 2) filename=":/help2.html";
-    if (page == 3) filename=":/help3.html";
-    if (page == 4) filename=":/help4.html";
-    if (page == 5) filename=":/help5.html";
-    if (page == 6) filename=":/help6.html";
-    if (page == 7) filename=":/help7.html";
-    if (page == 8) filename=":/help8.html";
+    if (page == HELPOPTIONS     ) filename = ":/help1.html";
+    if (page == HELPRAINFALL    ) filename = ":/help6.html";
+    if (page == HELPINTERCEPTION) filename = ":/help2.html";
+    if (page == HELPINFILTRATION) filename = ":/help3.html";
+    if (page == HELPFLOW        ) filename = ":/help4.html";
+    if (page == HELPCHANNEL     ) filename = ":/help9.html";
+    if (page == HELPEROSION     ) filename = ":/help5.html";
+    if (page == HELPINFRA       ) filename = ":/help8.html";
+    if (page == HELPCALIBRATION ) filename = ":/help7.html";
+    if (page == HELPADVANCED    ) filename = ":/help8.html";
+
     QFile file(filename);
     file.open(QFile::ReadOnly | QFile::Text);
     QTextStream stream(&file);
@@ -479,27 +530,6 @@ void lisemqt::on_E_BeginTimeDay_returnPressed()
        E_BeginTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
 }
 
-
-
-void lisemqt::on_toolButton_resetInfiltration_clicked()
-{
-    resetTabInfiltration();
-}
-
-void lisemqt::on_toolButton_resetInterception_clicked()
-{
-    resetTabInterception();
-}
-
-void lisemqt::on_toolButton_resetAdvanced_clicked()
-{
-    resetTabAdvanced();
-}
-
-void lisemqt::on_toolButton_resetOptions_clicked()
-{
-    resetTabOptions();
-}
 
 void lisemqt::on_checkStationaryBaseflow_toggled(bool checked)
 {

@@ -386,20 +386,29 @@ public slots:
     //void on_toolButton_ResultDir_clicked();
     void setResultDir();
 
-    void on_toolButton_resetErosion_clicked();
-    void on_toolButton_resetFlow_clicked();
-    void on_toolButton_resetCalibration_clicked();
+
     void doResetAll();
+    void on_toolButton_resetOptions_clicked();
+    void on_toolButton_resetRainfall_clicked();
+    void on_toolButton_resetInterception_clicked();
+    void on_toolButton_resetInfiltration_clicked();
+    void on_toolButton_resetFlow_clicked();
+    void on_toolButton_resetChannel_clicked();
+    void on_toolButton_resetInfra_clicked();
+    void on_toolButton_resetErosion_clicked();
+    void on_toolButton_resetCalibration_clicked();
+    void on_toolButton_resetAdvanced_clicked();
 
-
-    void on_toolButton_help1_clicked();
-    void on_toolButton_help2_clicked();
-    void on_toolButton_help3_clicked();
-    void on_toolButton_help4_clicked();
-    void on_toolButton_help5_clicked();
-   // void on_toolButton_help6_clicked();
-    void on_toolButton_help7_clicked();
-    void on_toolButton_help8_clicked();
+    void on_toolButton_helpOptions_clicked();
+    void on_toolButton_helpRainfall_clicked();
+    void on_toolButton_helpInterception_clicked();
+    void on_toolButton_helpInfiltration_clicked();
+    void on_toolButton_helpFlow_clicked();
+    void on_toolButton_helpChannel_clicked();
+    void on_toolButton_helpInfra_clicked();
+    void on_toolButton_helpErosion_clicked();
+    void on_toolButton_helpCalibration_clicked();
+    void on_toolButton_helpAdvanced_clicked();
 
     void on_toolButton_RainfallName_clicked();
    // void on_toolButton_DichargeInName_clicked();
@@ -536,16 +545,6 @@ private slots:
 
     void on_E_BeginTimeDay_returnPressed();
 
-    void on_toolButton_help1a_clicked();
-
-    void on_toolButton_resetAdvanced_clicked();
-
-    void on_toolButton_resetInfiltration_clicked();
-
-    void on_toolButton_resetInterception_clicked();
-
-    void on_toolButton_resetOptions_clicked();
-
     void on_checkStationaryBaseflow_toggled(bool checked);
 
     void on_checkChannelInfil_toggled(bool checked);
@@ -577,7 +576,12 @@ private slots:
 
     void on_checkInfrastructure_toggled(bool checked);
 
-    void on_toolButton_resetRainfall_clicked();
+    void on_E_ETName_returnPressed();
+
+    void on_E_RainsatName_returnPressed();
+
+    void on_E_RainfallName_returnPressed();
+
 
 private:
 

@@ -428,7 +428,7 @@ void lisemqt::ParseInputData()
     groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
 
     radioETfile->setChecked(!ETmaps);
-    radioETsatfile->setChecked(ETmaps);
+    radioETSatfile->setChecked(ETmaps);
     radioRainFile->setChecked(!Rainmaps);
     radioRainSatFile->setChecked(Rainmaps);
 
@@ -498,26 +498,38 @@ void lisemqt::ParseInputData()
    //     if (p1.compare("Filename landunit output")==0) E_LandunitResults->setText(p);
         // resultDir is added in report operation
 
-        if (p1.compare("Rainfall Directory")==0) RainFileDir = CheckDir(p);
-        if (p1.compare("Rainfall file")==0)  RainFileName = p;
+        if (radioRainFile->isChecked()) {
+            if (p1.compare("Rainfall Directory")==0) RainFileDir = CheckDir(p);
+            if (p1.compare("Rainfall file")==0) RainFileName = p;
+        }
 
-        if (p1.compare("Rainfall Map Directory")==0) RainSatFileDir = CheckDir(p);
-        if (p1.compare("Rainfall maplist name")==0)  RainSatFileName = p;
+        if (radioRainSatFile->isChecked()) {
+            if (p1.compare("Rainfall Map Directory")==0) RainSatFileDir = CheckDir(p);
+            if (p1.compare("Rainfall maplist name")==0) RainSatFileName = p;
+        }
 
-        if (p1.compare("ET Directory")==0) ETFileDir = CheckDir(p);
-        if (p1.compare("ET file")==0) ETFileName = p;
+        if (radioETfile->isChecked()) {
+            if (p1.compare("ET Directory")==0) ETFileDir = CheckDir(p);
+            if (p1.compare("ET file")==0) ETFileName = p;
+        }
 
-        if (p1.compare("ET Map Directory")==0) ETSatFileDir = CheckDir(p);
-        if (p1.compare("ET maplist name")==0) ETSatFileName = p;
+        if (radioETSatfile->isChecked()) {
+            if (p1.compare("ET Map Directory")==0) ETSatFileDir = CheckDir(p);
+            if (p1.compare("ET maplist name")==0) ETSatFileName = p;
+        }
 
         //if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
         //if (p1.compare("Snowmelt file")==0) SnowmeltFileName = p;
 
-        if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
-        if (p1.compare("Discharge inflow file")==0) DischargeinFileName = p;
+        if (checkDischargeUser->isChecked()) {
+            if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
+            if (p1.compare("Discharge inflow file")==0) DischargeinFileName = p;
+        }
 
-        if (p1.compare("Water level inflow directory")==0) WaveinDir = CheckDir(p);
-        if (p1.compare("Water level inflow file")==0) WaveinFileName = p;
+        if (checkWaterUserIn->isChecked()) {
+            if (p1.compare("Water level inflow directory")==0) WaveinDir = CheckDir(p);
+            if (p1.compare("Water level inflow file")==0) WaveinFileName = p;
+        }
 
         if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
         if (p1.compare("satImage file")==0) satImageFileName = p;
@@ -712,7 +724,7 @@ QString lisemqt::CheckDir(QString p, bool makeit)
 {
     /* TODO mulitplatform: fromNativeSeparators etc*/
     QString path;
-
+//qDebug() << "checkdir";
     if (p.isEmpty() || p == "/")
         return(p);
 
@@ -720,7 +732,7 @@ QString lisemqt::CheckDir(QString p, bool makeit)
     path = QDir(path).absoluteFilePath(path);
     if (!path.endsWith("/"))
         path = path + '/';
-
+//qDebug() << p << path;
     if (!QDir(path).exists())
     {
         if (makeit)
@@ -780,7 +792,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Daily ET")==0)                 namelist[j].value.setNum((int)checkDailyET->isChecked());
         if (p1.compare("ET file") ==0)                 namelist[j].value = ETFileName;
         if (p1.compare("ET Directory") ==0)            namelist[j].value = ETFileDir;
-        if (p1.compare("Use ET maps")==0)              namelist[j].value.setNum((int)radioETsatfile->isChecked());
+        if (p1.compare("Use ET maps")==0)              namelist[j].value.setNum((int)radioETSatfile->isChecked());
         if (p1.compare("ET maplist name") ==0)         namelist[j].value = ETSatFileName;
         if (p1.compare("ET Map Directory") ==0)        namelist[j].value = ETSatFileDir;
         if (p1.compare("ET Bias Correction")==0)       namelist[j].value = E_biasCorrectionET->text();

@@ -1,24 +1,17 @@
-<p><strong>Flow boundary and barriers (for 2D flow)</strong></p>
-<p>0 - outflow not allowed except in outflow points in outlet.map. Water can pool at the edges if the DEM is not perfect.<br />1 - outflow to all sides possible of flood and overland flow. Outlets always allow outflow. (default)<br />2 - a user defined map (flowboundary.map) allows 2D outflow where the value is 1, and a closed boundary where the value = 0. A map filled with 1 is the same as unchecked, free outflow.</p>
-<p><strong>Flood threshold</strong></p>
-<p>When using 2D dynamic flow there is no difference between runoff and flooding. In order to avoid spurious flood levels reported as "flood" a threshold level (in m, default 0.05) can be set to distinguish between a real flood and non-hazardous flow.</p>
-<p><strong>Initial water level</strong></p>
-<p>A simulation can be started with an initial water level: supply a map called whinit.map which has water initial levels (in m).</p>
-<p><strong>Buffers</strong></p>
-<p>Buffers.map is a map added to the DEM, works only for 2D flow. Positive values (in meters) are gridcells added to the DEM (creating dikes), negative values are values that are subtracted from the DEM (creating depressions). Units are in meters.</p>
-<p><strong>Flow Barriers between cells</strong><br />Barriers up to a given height (m) to disconnect flow between cells (only for 2D flow). The barriers are assumed to be on the cell boundary and have no physical thickness, only a height. Cells can be disconnected in the 4 directions NESW. This needs flowbarrier.map with codes 0 (no barrier), and 1, 2, 3 ... n. The numbers correspond to the text file flowbarriers.txt where the height of the barriers are given.</p>
-<p><strong>Baseflow parameters</strong></p>
-<p>Baseflow is generated following principles of SWAT (2009). Three additional masp are needed: a map that gives the distance to the channel (basedistance.map), an LDD map giving the flow direction towards the channel (lddbase.map), and an intial groundwater level map (gwlevel.map, in m). Three parameters can be set, all are relative calibration paraters:</p>
-<p>- Recharge of the groundwater from the soil profile, based on the unsaturated Ksat and soil moisture content, multiplication factor (0-100, def 1.0)</p>
-<p>- Grounrwater flow towards the channel cells, based on Ksat, porosity and inverse distance to the channel: multiplication factor (0-100, def 1.0)</p>
-<p>- Baseflow recession factor, weiging the inflow of the previous timestep and the current timestep (0-1, def 0.2). 0 Means only current timstep is used, 1 means only previous timestep is used.</p>
-<p><strong>2D dynamic wave parameters</strong><br />The SD Shallow Water Overland Flow (SWOF) equations are a semi-implicite finite volume solution, using progressively smaller timesteps to solve the St Venant flood equations, using a Riemann Solver and a Flux Limiter. Fluxes and states can be estimated at the cell boundaries or from the cell centers.</p>
-<ul>
-<li>SWOF 2.0: Simplified and very fast SWOF solution, using cell center values and a flux limiter only for the hydraulic pressure differences.</li>
-<li>SWOF Cell centred solution: water pressure and velocities on cell boundaries based on a 1st order Taylor solution, only using information in the cell itself.</li>
-<li>SWOF MUSCL solution: Water pressure and velocities on cell boundaries based on a 2nd order Taylor solution, using information in the cell and its neighbours in X and Y direction. Slower and more accurate. A MUSCL scheme estimates fluxes and states at cell boundaries (slow).</li>
-<li>Time average velocity: Velocity of cells is a weighted average between two iteration steps (def on), use for stabler solutions and to avoid spurious velocities (def on)</li>
-<li>Enable diagonal flow when blocked: water can be blocked in X and Y direction in 2D flow (a local depression, while a diagonal outlet exists. Diagonal outflows are not regarded in a 2D scheme. Enabling this uses the LDD to transport water and sediment to this diagonal cell (def on). The threshold pit depth is set at 0.1m (a guide value is 1% is the cell size or less).</li>
-</ul>
-<p>Courant factor: Determines minimum timestep, lower means smaller timesteps in the iteration are used. (def. 0.2, range 0.01-1.0).</p>
-<p>Minimum timestep: User defined minimum timestep for dynamic wave solution. In case of instability lower this value (def. 0.2sec).</p>
+<h2>2D Surface Flow</h2>
+<h3><strong>Dynamic Wave parameters</strong></h3>
+<p><strong>Flow boundary (for 2D flow):</strong></p>
+<p>0 - Closed boundary, outflow not allowed except in outflow points in outlet.map. Water can pool at the edges if the DEM is not perfect.<br />1 - Open Boundary: outflow to all sides possible of flood and overland flow. Outlets always allow outflow. (default)<br />2 - a user defined map (flowboundary.map) allows 2D outflow where the value is 1, and a closed boundary where the value = 0. A map filled with 1 is the same as unchecked, free outflow.</p>
+<p><strong>Courant factor</strong>: Determines minimum timestep, lower means smaller timesteps in the iteration are used. (def. 0.2, range 0.01- 0.5).</p>
+<p><strong>Minimum timestep</strong>: User defined minimum timestep for dynamic wave solution. In case of instability lower this value (def. 0.2 sec).</p>
+<p>&nbsp;</p>
+<p><strong>MUSCL solution</strong>: use a <em>Monotonic Upstream-centered Scheme for Conservation Laws.</em> Water pressure and momentum are calculated on cell boundaries, interpolating from cell centres. Gives a narrower flow and is slower. Can be more accurate in certain situations. (def. off)</p>
+<p><strong>Enable diagonal flow</strong> when blocked: water can be blocked in X and Y direction in 2D flow (a local depression, while a diagonal outlet exists. Diagonal outflows are not regarded in a 2D scheme. Enabling this uses the LDD to transport water and sediment to this diagonal cell (def off). The threshold pit depth is set at 0.1 m. Can solve certain spurious pits that remain filled.</p>
+<p><strong>Remove pits</strong>: set pit elevation to lowest surrounding cell in a 3x3 window (def. off)</p>
+<h3>Boundary inflow</h3>
+<p>There are two ways to impose a water level at the start of the run, this works only when 2D flow is selected for surface flow:</p>
+<p>- A one time waterlevel that at the start that will behave as a flood and spread out (def. name WHlevel.map). The waterlevel is assumed to be in m.</p>
+<p>&nbsp;- A large flood or sea surge that has a changing water level with time. The water level is imposed in a given zone in a map (default name: <em>WHBoundary.map</em>).&nbsp; Where this map is '1', a water level (in m) will be implemented that is read from a file. This can be for instance a tidal wave. The file has the same format as the rainfall:</p>
+<p><code># A one line header, rainfall source</code><br /><code>2</code><br /><code>time</code> (hour:min)<br /><code>water level (m)</code><br /><code>100:0230&nbsp;&nbsp; 0.5</code><br /><code>100:0240&nbsp;&nbsp; 1.0<br />100:0251&nbsp;&nbsp; 1.34</code><br /><code>etc</code></p>
+<p>NOTE: this wave does not have incoming momentum only pressure. As such it does not represent a strong 'destructive' wave like a tsunami</p>
+<p>&nbsp;</p>

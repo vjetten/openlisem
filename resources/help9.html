@@ -1,0 +1,19 @@
+<h2>Channel and Groundwater options</h2>
+<h3>Channel</h3>
+<p>Use <strong>culverts</strong> in the channels: the maximum discharge in the channel is forced by the value (m3/s) in <em>Chanmaxq.map</em>. Cells outside the channel are ignored<em>. </em>Note: this often leads to a poorer overall water balance (def. off)</p>
+<p><strong>stationary baseflow</strong>: the stationary baseflow is added every timestep in the run, for all cells in the channel. The value of each channel cell is determined from the desired baseflow at the outlet of a channel. This value is supplied by the user in a map <em>baseflow.map</em> (def. name). For insatnce, if the outflow point of the channel has a stationary baseflow of 5 m3/s, all channel cells will receive a value that results in 5 m3/s at the outlet when using a kinematic wave (using the channel Manning's n and gradient).</p>
+<p><strong>Channel infiltration</strong>: a value is subtracted from the discarge based on the Ksat value in chanksat.map (in mm/h). This is mutually exclusive from baseflow.</p>
+<p><strong>Channel tortuosity</strong>: in LISEM channels are assumed to be rectangular. If the perimeter is large that the rectangular perimeter, a factor &gt; 1 can be used.</p>
+<p><strong>User defined inflow</strong>: at certain locations defined in <em>Qinpoints.map </em>(values 0,1,2,3...) a user defined inflow in m3/s is added to the river discharge. These points must be in the channel. Each point has a column in the user discharge&nbsp; file. This files has the same format as the rainfall:</p>
+<p><code># A one line header</code><br />3<br /><code>time</code> (day:min)<br /><code>point 1</code> (m3/s)<br /><code>point 2 (m3/s)</code><br /><code>100:0230&nbsp;&nbsp; 120.0 104.3&nbsp; </code><br /><code>100:0240&nbsp;&nbsp; 230.0 114.3 </code><br /><code>100:0251&nbsp;&nbsp; 211.2 208.3&nbsp; </code><br /><code>etc</code></p>
+<h3>Groundwater and baseflow </h3>
+<p>Groundwater is in the soil profile as a saturated layer. The groundwater can rise in the soil profile because of percolation downward and it lowers because of lateral flow. Flow is done 4 options:</p>
+<p>1. Pressure based flow, in a 3x3 window using total hydraulic potential (gravity + pressure). No iteration is done so this can become unstable. USein detailed simulations of smaller areas</p>
+<p>2. Pressure based using a Riemann solver. Not tested andd experimental. May be more stable than optuion 1.</p>
+<p>3. Flow along a predined user network (<em>LDDBaseflow.map</em>). the flow is pressure based but flows in the direction of the LDD. For large scale modelling, results do not look like a smooth water table, but the method ignores local depressions in which gorundwater gets stuck.</p>
+<p>4. groundwater is treated following principles of the model SWAT (2009).Water does not flow towards the river but form every cell some groundwater is taken and added to the river, where teh amount is smaller as the cell is further away. Fro very large scale mdoelling. Two additional maps are needed: a map that gives the distance to the channel (<em>basedistance.map</em>), an LDD map giving the flow direction towards the channel (<em>lddbase.map</em>).</p>
+<p>To influence the groundwater 4 parameters can be set, all are relative calibration parameters:<br />
+<br />- Recharge of the groundwater from the soil profile, based on the unsaturated Ksat and soil moisture content, multiplication factor (0-100, def 1.0)<br />
+<br />- Groundwater flow towards the channel cells, based on Ksat, porosity and inverse distance to the channel: multiplication factor (0-100, def 1.0)<br />
+<br />- Baseflow recession factor, weiging the inflow of the previous timestep and the current timestep (0-1, def 0.2). 0 Means only current timstep is used, 1 means only previous timestep is used.<br />
+<br />&nbsp;- A percolation loss factor of groundwater to deeper layers, in mm/h</p>

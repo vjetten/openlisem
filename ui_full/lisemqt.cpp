@@ -1090,8 +1090,7 @@ void lisemqt::resetTabCalibration()
     E_CalibrateCHUcr->setValue(1.0);
     E_CalibrateCHSV->setValue(1.0);
 }
-
-
+//--------------------------------------------------------------------
 void lisemqt::resetTabInterception()
 {
     checkInterception->setChecked(true);
@@ -1101,7 +1100,7 @@ void lisemqt::resetTabInterception()
     checkIncludeLitter->setChecked(false);
     E_LitterSmax->setValue(1.0);
 }
-
+//--------------------------------------------------------------------
 void lisemqt::resetTabInfiltration()
 {
     checkInfiltration->setChecked(true);
@@ -1123,6 +1122,22 @@ void lisemqt::resetTabInfiltration()
     E_SWATREDtsecFraction->setValue(0.2);
     E_SwatreTableName->setText("profile.inp");
     E_SwatreTableDir->setText("");
+}
+//--------------------------------------------------------------------
+void lisemqt::resetTabChannel()
+{
+    checkChannelCulverts->setChecked(false);
+    checkChannelInfil->setChecked(false);
+    checkStationaryBaseflow->setChecked(false);
+    E_CalibrateChTor->setValue(1.0);
+    checkDischargeUser->setChecked(false);
+    E_DischargeInName->settext("");
+
+}
+//--------------------------------------------------------------------
+void lisemqt::resetTabInfra()
+{
+
 }
 //--------------------------------------------------------------------
 void lisemqt::resetTabFlow()
@@ -1358,6 +1373,35 @@ void lisemqt::resizeMap()
       if (W && tabWidget_out->currentIndex() == 1)
             changeSize();
 
+}
+
+
+
+void lisemqt::on_E_ETName_returnPressed()
+{
+    if (E_ETName->text() == "") {
+        ETFileDir = "";
+        ETFileName = "";
+    }
+}
+
+
+void lisemqt::on_E_RainsatName_returnPressed()
+{
+    if (E_RainsatName->text() == "") {
+        RainSatFileDir = "";
+        RainSatFileName = "";
+    }
+
+}
+
+
+void lisemqt::on_E_RainfallName_returnPressed()
+{
+    if (E_RainfallName->text() == "") {
+        RainFileDir  = "";
+        RainFileName = "";
+    }
 }
 
 
