@@ -341,14 +341,17 @@ public:
 
     void setDisplayComboBoxes();
     void on_toolButton_help(int page);
-    void resetTabRainfall();
     void resetTabOptions();
-    void resetTabErosion();
-    void resetTabFlow();
-    void resetTabCalibration();
-    void resetTabAdvanced();
+    void resetTabRainfall();
     void resetTabInterception();
     void resetTabInfiltration();
+    void resetTabFlow();
+    void resetTabChannel();
+    void resetTabInfra();
+    void resetTabErosion();
+    void resetTabCalibration();
+    void resetTabAdvanced();
+
     void doCheckRainfall(bool);
     void showTextfile(QString name);
     void showTextfileOld(QString name);

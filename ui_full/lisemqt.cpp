@@ -1131,8 +1131,9 @@ void lisemqt::resetTabChannel()
     checkStationaryBaseflow->setChecked(false);
     E_CalibrateChTor->setValue(1.0);
     checkDischargeUser->setChecked(false);
-    E_DischargeInName->settext("");
-
+    E_DischargeInName->setText("");
+    checkGWflowexplicit->setChecked(true);
+    checkGWflow->setChecked(false);
 }
 //--------------------------------------------------------------------
 void lisemqt::resetTabInfra()

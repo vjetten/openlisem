@@ -40,8 +40,8 @@
 
 
 //)---------------------------------------------------------------
-voi)d lisemqt::doResetAll()
-{)
+void lisemqt::doResetAll()
+{
     op.runfilename.clear();
     E_runFileList->clear();
     resetAll();
@@ -121,7 +121,7 @@ void lisemqt::on_toolButton_helpFlow_clicked()
 {
     on_toolButton_help(HELPFLOW);
 }
----------------------------------------------------------------
+//---------------------------------------------------------------
 void lisemqt::on_toolButton_helpChannel_clicked()
 {
     on_toolButton_help(HELPCHANNEL);

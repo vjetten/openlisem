@@ -293,6 +293,7 @@ void TWorld::GetComboMaps()
         cl = 2;
         QString txt = QString("Max flood Height (h>%1m)").arg(minReportFloodHeight);
         AddComboMap(0,txt,"m",floodHmxMax,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
+        AddComboMap(0,"Max flow","m3/s",Qm3max,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
         cl = 5;
         AddComboMap(0,"Flood Start Time","min",floodTimeStart,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
         cl = 6;

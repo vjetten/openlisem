@@ -330,6 +330,7 @@ void TWorld::TotalsFlow(void)
     FOR_ROW_COL_MV_L
     {
         Qm3total->Drc += (Qn->Drc + Qflood->Drc) * _dt;
+        Qm3max->Drc = std::max(Qm3max->Drc, Qn->Drc + Qflood->Drc);
         Qoutput->Drc = (Qn->Drc + Qflood->Drc) * (QUnits == 1 ? 1.0 : 1000);// in m3/s
 
         FHI->Drc = (Qn->Drc + Qflood->Drc)*(V->Drc + 0.5);
@@ -337,6 +338,7 @@ void TWorld::TotalsFlow(void)
         if(SwitchIncludeChannel) {
             Qoutput->Drc += ChannelQn->Drc * (QUnits == 1 ? 1.0 : 1000);
             Qm3total->Drc += ChannelQn->Drc * _dt;
+            Qm3max->Drc = std::max(Qm3max->Drc, ChannelQn->Drc);
         }
 
         Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;
@@ -346,6 +348,7 @@ void TWorld::TotalsFlow(void)
     // which is reported separatedly (because it is a messy flux)!
 
    // report(*Qototal,"qtotm3.map");
+    report(*Qm3max,"qm3smax.map");
 
     Qtot += Qtot_dt;
     // add timestep total to run total in m3
