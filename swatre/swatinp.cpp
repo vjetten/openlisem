@@ -116,6 +116,10 @@ void TWorld::ReadSwatreInputNew(void)
     }
     fin.close();
 
+    for (int i = 0; i < swatreProfileDef.count(); i++) {
+        qDebug() << swatreProfileDef[i];
+    }
+
     ZONE *z;
     int  i;
     QStringList checkList; // temp list to check for double profile nrs

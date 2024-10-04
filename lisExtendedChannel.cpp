@@ -49,57 +49,57 @@ else for (int i = 1; i < n; i++) extendCol(r,c,i,(i == n-1) ? w2 : adx);tma->dat
 
 void TWorld::doExtendRow(int r, int c, int n,  double w2, double adx)
 {
-    ExtendCH.chCol = c;
-    ExtendCH.chRow = r;
-    ExtendCH.isExtended = true;
-    ExtendCH.childCol.clear();
-    ExtendCH.childRow.clear();
-    if (n == 1) {
-        extendRow(r,c,1,w2);
-        ExtendCH.childCol << c;
-        ExtendCH.childRow << r-1;
-        ExtendCH.childCol << c;
-        ExtendCH.childRow << r+1;
-    }
-    else
-        for (int i = 1; i < n; i++) {
-           // w = ;
-            extendRow(r,c,i,(i == n-1) ? w2 : adx);
-            ExtendCH.childCol << c;
-            ExtendCH.childRow << r-i;
-            ExtendCH.childCol << c;
-            ExtendCH.childRow << r+i;
-        }
-    ExtChannel << ExtendCH;
-    tma->data[r][c]=2;
+    // ExtendCH.chCol = c;
+    // ExtendCH.chRow = r;
+    // ExtendCH.isExtended = true;
+    // ExtendCH.childCol.clear();
+    // ExtendCH.childRow.clear();
+    // if (n == 1) {
+    //     extendRow(r,c,1,w2);
+    //     ExtendCH.childCol << c;
+    //     ExtendCH.childRow << r-1;
+    //     ExtendCH.childCol << c;
+    //     ExtendCH.childRow << r+1;
+    // }
+    // else
+    //     for (int i = 1; i < n; i++) {
+    //        // w = ;
+    //         extendRow(r,c,i,(i == n-1) ? w2 : adx);
+    //         ExtendCH.childCol << c;
+    //         ExtendCH.childRow << r-i;
+    //         ExtendCH.childCol << c;
+    //         ExtendCH.childRow << r+i;
+    //     }
+    // ExtChannel << ExtendCH;
+    // tma->data[r][c]=2;
 }
 
 
 void TWorld::doExtendCol(int r, int c, int n, double w2, double adx)
 {
-    ExtendCH.chCol = c;
-    ExtendCH.chRow = r;
-    ExtendCH.isExtended = true;
-    ExtendCH.childCol.clear();
-    ExtendCH.childRow.clear();
-    if (n == 1) {
-        extendCol(r,c,1,w2);
-        ExtendCH.childCol << c-1;
-        ExtendCH.childRow << r;
-        ExtendCH.childCol << c+1;
-        ExtendCH.childRow << r;
-    }
-    else
-        for (int i = 1; i < n; i++) {
-           // w = (i == n-1) ? w2 : adx;
-            extendCol(r,c,i,(i == n-1) ? w2 : adx);
-            ExtendCH.childCol << c-i;
-            ExtendCH.childRow << r;
-            ExtendCH.childCol << c+i;
-            ExtendCH.childRow << r;
-        }
-    tma->data[r][c]=3;
-    ExtChannel << ExtendCH;
+    // ExtendCH.chCol = c;
+    // ExtendCH.chRow = r;
+    // ExtendCH.isExtended = true;
+    // ExtendCH.childCol.clear();
+    // ExtendCH.childRow.clear();
+    // if (n == 1) {
+    //     extendCol(r,c,1,w2);
+    //     ExtendCH.childCol << c-1;
+    //     ExtendCH.childRow << r;
+    //     ExtendCH.childCol << c+1;
+    //     ExtendCH.childRow << r;
+    // }
+    // else
+    //     for (int i = 1; i < n; i++) {
+    //        // w = (i == n-1) ? w2 : adx;
+    //         extendCol(r,c,i,(i == n-1) ? w2 : adx);
+    //         ExtendCH.childCol << c-i;
+    //         ExtendCH.childRow << r;
+    //         ExtendCH.childCol << c+i;
+    //         ExtendCH.childRow << r;
+    //     }
+    // tma->data[r][c]=3;
+    // ExtChannel << ExtendCH;
 }
 
 

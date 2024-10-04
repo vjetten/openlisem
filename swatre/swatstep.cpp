@@ -309,7 +309,7 @@ double  TWorld::NewTimeStep(
  * @param s
  */
 void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
-                             double *drain, double drainfraction, double *repel,
+                             double *drain, double drainfraction,
                              double *Theta, SOIL_MODEL *s)
 {
    NODE_ARRAY theta, thetaPrev, hPrev, dimoca, kavg, k;
@@ -347,21 +347,21 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       *Theta = (theta[0]+theta[1])/2;
       // avg water content of first two nodes, choice ...
 
-      (*repel) = 1.0;
-      if (SwitchWaterRepellency)
-      {
-         if (pixel->repellency == 1)
-         {
-            *repel = 1/(waterRep_d+pow(waterRep_a, 100*(*Theta-waterRep_b)));
-            if (*Theta < waterRep_c)
-               *repel = 1.0;
-         }
-         else
-            *repel = 0;
-         *repel = std::max(0.0,std::min(1-*repel, 1.0));
+      // (*repel) = 1.0;
+      // if (SwitchWaterRepellency)
+      // {
+      //    if (pixel->repellency == 1)
+      //    {
+      //       *repel = 1/(waterRep_d+pow(waterRep_a, 100*(*Theta-waterRep_b)));
+      //       if (*Theta < waterRep_c)
+      //          *repel = 1.0;
+      //    }
+      //    else
+      //       *repel = 0;
+      //    *repel = std::max(0.0,std::min(1-*repel, 1.0));
 
-         k[0] = k[0] * (*repel);
-      }
+      //    k[0] = k[0] * (*repel);
+      // }
 
       // average K for 1st to n-1 node, top node is done below
       //choice arithmetric average K, geometric in org. SWATRE
@@ -528,7 +528,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
  * @param _theta
  * @param where
  */
-void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta)//, cTMap *where)
+void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta)
 {   
    // map "where" is used as a flag here, it is the fraction of crust, compaction, grass
    // so that the additional calculations are not done everywhere
@@ -539,7 +539,7 @@ void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap
 //         if(where->Drc > 0) // flag to indicate if this pixel has to be done
          // for regular soil this is 1 so always done, for e.g. crusting only when larger than 0
 //   {
-      double wh, infil, drain, drainfraction = 0, Theta, repellency;
+      double wh, infil, drain, drainfraction = 0, Theta;
       QString dig;
 
       wh = _WH->Drc*100;
@@ -550,7 +550,7 @@ void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap
       if (SwitchIncludeTile)
          drainfraction = TileWidth->Drc/_dx;
 
-      ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, drainfraction, &repellency, &Theta, s);
+      ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, drainfraction,  &Theta, s);
       // estimate new h and theta at the end of dt
 
       //SwitchDumpH = true;
@@ -582,8 +582,8 @@ void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap
       // save the average moisture content of the top two layers
       // used for repellency OBSOLETE
 
-      if (SwitchWaterRepellency)
-         RepellencyFraction->Drc = repellency;
+   //   if (SwitchWaterRepellency)
+    //     RepellencyFraction->Drc = repellency;
  //  }
   // report (*tmc,"ksatav");
 }

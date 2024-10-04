@@ -138,8 +138,8 @@ cTMap
 *StoneFraction,              //!< fraction of stones on the surface, affects splash [-]
 *CompactFraction,            //!< fraction compacted at the surface, uses ksat compact [-]
 *CrustFraction,              //!< fraction crusted at the surface, uses ksat crust [-]
-*RepellencyFraction,         //!< fraction of water repellency of node 1 in Swatre [-]
-*RepellencyCell,             //!< Cell included in water repellency in Swatre [-]
+//*RepellencyFraction,         //!< fraction of water repellency of node 1 in Swatre [-]
+//*RepellencyCell,             //!< Cell included in water repellency in Swatre [-]
 *HardSurface,                //!< value 1 if 'hard' surface: no interception, infiltration, detachment [-]
 *runoffTotalCell,
 

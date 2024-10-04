@@ -143,7 +143,7 @@ void TWorld::InitParameters(void)
     F_SWOFSolution = getvalueint("Flood Solution");
     SwitchMUSCL = F_SWOFSolution == 1;
     //SwitchSWOFopen = F_SWOFSolution == 0;
-
+qDebug() << "MUSCL" << SwitchMUSCL;
     F_pitValue = getvaluedouble("Pit Value");
 
     SwitchCorrectMB_WH = getvalueint("Correct MB with WH") == 1;
@@ -162,7 +162,7 @@ void TWorld::InitParameters(void)
     } else {
         F_MaxIter = 200;
         F_minWH = 0.00001;
-        F_fluxLimiter = 1; //minmax, vanleer, albeda
+        F_fluxLimiter = 1; //minmod, vanleer, albeda
         F_scheme = 4;   //Rusanov HLL HLL2 HLL2c
         F_pitValue = _dx/100;
         SwitchLinkedList = true;
@@ -809,14 +809,14 @@ void TWorld::InitSoilInput(void)
         else
             CrustFraction = NewMap(0);
 
-        RepellencyFraction = NewMap(1.0);
-        if (SwitchWaterRepellency)
-        {
-            RepellencyCell = ReadMap(LDD,getvaluename("repelcell"));
-            // values of 1 calculate repellency
-        }
-        else
-            RepellencyCell = NewMap(0); //no repellency anywhere
+       // RepellencyFraction = NewMap(1.0);
+        // if (SwitchWaterRepellency)
+        // {
+        //     RepellencyCell = ReadMap(LDD,getvaluename("repelcell"));
+        //     // values of 1 calculate repellency
+        // }
+        // else
+        //     RepellencyCell = NewMap(0); //no repellency anywhere
 
 
         // repellency to 1, no effect
@@ -2228,7 +2228,7 @@ void TWorld::IntializeOptions(void)
     SwitchDumphead = false;
     initSwatreStructure = false;  // check to flag when swatre 3D structure is created, needed to clean up data
     SwitchGeometric = true;
-    SwitchWaterRepellency = false;
+ //   SwitchWaterRepellency = false;
     SwitchImpermeable = false;
     SwitchTwoLayer = false;
     SwitchThreeLayer = false;

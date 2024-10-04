@@ -638,8 +638,8 @@ void TWorld::cell_InfilSwatre(int r, int c)
         thetaTop->Drc = tmc->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
     }
 
-    if (SwitchWaterRepellency)
-    {
+  //  if (SwitchWaterRepellency)
+//{
         //      FOR_ROW_COL_MV
         //      {
         //         RepellencyFraction->Drc = 1 - 1/(waterRep_d+pow(waterRep_a, 100*(thetaTop->Drc-waterRep_b)));
@@ -648,7 +648,7 @@ void TWorld::cell_InfilSwatre(int r, int c)
         //      }
         //        thetaTop->report("thtop");
         //        RepellencyFraction->report("repelfr");
-    }
+  //  }
 }
 
 //---------------------------------------------------------------------------
@@ -806,7 +806,7 @@ void TWorld::InfilSwatre()
     }
 
         // not done, experimental
-    if (SwitchWaterRepellency)
+   // if (SwitchWaterRepellency)
     {
         //      FOR_ROW_COL_MV
         //      {
@@ -817,5 +817,5 @@ void TWorld::InfilSwatre()
         //        thetaTop->report("thtop");
         //        RepellencyFraction->report("repelfr");
 
-    }
+  //  }
 }

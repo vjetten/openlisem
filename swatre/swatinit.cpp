@@ -64,7 +64,7 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
       s->pixel[i].dumpHid = 0;  //set to 1 for output of a pixel
       s->pixel[i].tiledrain = 0;
       s->pixel[i].tilenode = -1;
-      s->pixel[i].repellency = 0;// no repellency as init
+   //   s->pixel[i].repellency = 0;// no repellency as init
       // set tiledrain to 0, and tiledepth to -1 (above surface)
       s->pixel[i].currDt = swatreDT;
    }
@@ -76,8 +76,8 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
             //ProfileNr(profileMap->Drc);
       // profileNr throws an error if profile nr not found
 
-      if (SwitchWaterRepellency)
-         s->pixel[r*_nrCols+c].repellency = (int)RepellencyCell->Drc;
+      // if (SwitchWaterRepellency)
+      //    s->pixel[r*_nrCols+c].repellency = (int)RepellencyCell->Drc;
 
       if(SwitchDumpH || SwitchDumpTheta || SwitchDumpK) {
           s->pixel[r*_nrCols+c].dumpHid = SwatreOutput->Drc;

@@ -315,13 +315,13 @@ typedef struct BUFFER_LIST {
     int ID;
 } BUFFER_LIST;
 
-typedef struct ExtCH {
-    QList <int> childRow;
-    QList <int> childCol;
-    int chRow;
-    int chCol;
-    bool isExtended;
-} ExtCH;
+// typedef struct ExtCH {
+//     QList <int> childRow;
+//     QList <int> childCol;
+//     int chRow;
+//     int chCol;
+//     bool isExtended;
+// } ExtCH;
 
 typedef struct SOIL_LIST {
     int c;
@@ -480,7 +480,7 @@ public:
         SwitchGeometric,
         SwitchTwoLayer,
         SwitchThreeLayer,
-        SwitchWaterRepellency,
+        //SwitchWaterRepellency,
         SwitchInterceptionLAI,
         SwitchPsiUser,
         SwitchNrLayers,
@@ -546,8 +546,8 @@ public:
     QList<double> FBTimeW;
 
     // extended channel obsolete
-    QVector <ExtCH> ExtChannel;
-    ExtCH ExtendCH;
+    // QVector <ExtCH> ExtChannel;
+    // ExtCH ExtendCH;
 
     // multiple options that are set in interface or runfile, see defines above
 
@@ -1200,7 +1200,7 @@ public:
     double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes,
                         double precParam, double dtMin, double dtMax);
     void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
-                         double drainfraction, double *repel, double *Theta, SOIL_MODEL *s);
+                         double drainfraction, double *Theta, SOIL_MODEL *s);
 
 
     void Fill(cTMap &M, double value);
