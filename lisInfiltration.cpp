@@ -158,14 +158,14 @@ void TWorld::InfilEffectiveKsat(bool first)
 void TWorld::Infiltration()
 {
     //NOTE fact and fpot have a unit of m (not m/s)
-    if (InfilMethod == INFIL_SWATRE) {
-        #pragma omp parallel for num_threads(userCores)
+    if (SwitchInfiltration && InfilMethod == INFIL_SWATRE) {
+      // #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             cell_InfilSwatre(r, c);
         }}
     }
     else
-    if (SwitchInfiltration) { //InfilMethod != INFIL_NONE) {
+    if (SwitchInfiltration) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             cell_InfilMethods(r, c);
@@ -772,11 +772,9 @@ void TWorld::InfilSwatre()
         }}
     }
 
-    if (SwitchGrassStrip)
-    {
+    if (SwitchGrassStrip) {
         #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L
-        {
+        FOR_ROW_COL_MV_L {
             tm->Drc = WHbef->Drc;//WHGrass->Drc;
             tma->Drc = 0;
             tmb->Drc = 0;
@@ -787,8 +785,7 @@ void TWorld::InfilSwatre()
         }}
 
         #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L
-        {
+        FOR_ROW_COL_MV_L {
             if (FloodDomain->Drc == 0)
                 tmd->Drc = WH->Drc;
             else
@@ -807,7 +804,7 @@ void TWorld::InfilSwatre()
 
         // not done, experimental
    // if (SwitchWaterRepellency)
-    {
+   // {
         //      FOR_ROW_COL_MV
         //      {
         //         RepellencyFraction->Drc = 1 - 1/(waterRep_d+pow(waterRep_a, 100*(thetaTop->Drc-waterRep_b)));

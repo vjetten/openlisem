@@ -153,7 +153,7 @@ SET(APP_SOURCES
     include/operation.h
     include/option.h
     include/raster.h
-    include/swatre_g.h
+    #include/swatre_g.h obsolete
     include/swatre_p.h
     include/swatreLookup.h
     include/swatremisc.h

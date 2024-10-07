@@ -54,71 +54,145 @@ functions:
 static const char *colName[3] = { "theta", "h", "k" };
 
 //----------------------------------------------------------------------------------------
-double *TWorld::ReadSoilTable(
-		const char *fileName,
-      int   *nrRows
-      )
+//	const char *fileName,
+LUT *TWorld::ReadSoilTableNew(QString fileName)
 {
-	char buf[1024];
-	double  *l;
-	int     sizeL, nrL;
-	FILE    *f;
+    // read the table in a stringlist
+    QStringList list;
+    QFile file(fileName);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
 
-	sizeL = INC_STEP;
-	nrL = 0;
-	l = (double *)malloc(sizeof(double) * sizeL);
-	f = fopen(fileName, "r");
-    if (f == nullptr)
-		Error(QString(OPEN_ERRORs).arg(fileName));
+        while (!in.atEnd()) {
+            QString line = in.readLine();
 
-	do {
-		int currNrCols;
-        if (fgets(buf, 1024, f) == nullptr)
-		{
-			if (feof(f))
-				break; /* OK, END OF FILE */
-			Error(QString(READ_ERRORs).arg(fileName));
-		}
+            // Skip empty or space-only lines
+            if (!line.trimmed().isEmpty())
+                list.append(line);
+        }
+        file.close();
+    }
+    LUT *l = new LUT;
+    l->nrRows = list.count()-1;
 
-      QStringList SL = QString(buf).split(QRegularExpression("\\s+"),Qt::SkipEmptyParts);
-      currNrCols = SL.count();
-      strcpy(buf, SL.join(" ").toLatin1());
-      // trim spaces and count columns
+    for (int i = 0; i < list.count(); i++) {
+        QStringList SL = list[i].split(QRegularExpression("\\s+"),Qt::SkipEmptyParts);
+     //   qDebug() << SL;
+        if (SL.count() == 1) {
+            SL.removeLast();
+            break;
+        }
+        l->hydro[THETA_COL].append(SL[THETA_COL].toDouble());
+        l->hydro[H_COL].append(SL[H_COL].toDouble());
+        l->hydro[K_COL].append(SL[K_COL].toDouble()/86400 * ksatCalibration); // cm/day to mm/h 0.41667!
+        //NOTE: Ksat in cm/day needs to me cm/sec ??
 
-		if (currNrCols == 0)
-			continue;  /* EMPTY LINE, next one please */
+    }
 
-		if (currNrCols != EXP_NR_COLS)
-			Error(QString(COL_ERRORs).arg(fileName).arg(nrL/EXP_NR_COLS+1).arg(currNrCols < EXP_NR_COLS?"less":"more"));
-		/* increase l if neccessary */
-		if (sizeL <= (nrL + EXP_NR_COLS))
-		{
-			sizeL += INC_STEP;
-			l = (double *)realloc(l, sizeL*sizeof(double));
-		}
+    for (int i = 0; i < l->nrRows-1; i++) {
+        if (l->hydro[H_COL][i+1] <= l->hydro[H_COL][i])
+            Error(QString("matrix head not increasing in table %1 at h = %2.").arg(fileName).arg(l->hydro[H_COL][i]));
+        if (l->hydro[THETA_COL][i+1] <= l->hydro[THETA_COL][i])
+            Error(QString("moisture content not increasing in table %1 at theta = %2.").arg(fileName).arg(l->hydro[THETA_COL][i]));
+    }
 
-		ReadCols(fileName, l+nrL,buf,EXP_NR_COLS);
-		/* test if lut is monotonous increasing */
 
-		if (nrL > 0)
-			for (int i=0; i< EXP_NR_COLS; i++)
-				if ( l[nrL+i] < l[(nrL-EXP_NR_COLS)+i])
-               Error(QString(SMALLERs).arg(fileName).arg(colName[i]).arg(nrL/EXP_NR_COLS).arg(l[nrL+i]));
+    for (int i = 0; i < l->nrRows - 1; i++) {
+        double v = 0.5*(l->hydro[H_COL][i] + l->hydro[H_COL][i+1]);
+        l->hydro[DMCH_COL] << v;
+        v = (l->hydro[THETA_COL][i+1] - l->hydro[THETA_COL][i])/(l->hydro[H_COL][i+1] - l->hydro[H_COL][i]);
+        l->hydro[DMCC_COL] << v;
+    }
 
-		nrL += EXP_NR_COLS;
-	} while (/* infinite: */ nrL > -1 );
+    // fill l->nrRows
+    l->hydro[DMCH_COL] << 0;
+    l->hydro[DMCC_COL] << l->hydro[DMCC_COL][l->nrRows-2];
 
-	/* loop contains one break and one continue */
-	if (nrL == 0)
-		Error(QString(NO_ENTRIESs).arg(fileName));
+    return(l);
+}
+//----------------------------------------------------------------------------------------
 
-	*nrRows = nrL / EXP_NR_COLS;
-	fclose(f);
-	return l;
+double *TWorld::ReadSoilTable(QString fileName,  int *nrRows)
+{
+ //
+    // char buf[1024];
+    // double  *l;
+    // int     sizeL, nrL;
+    // FILE    *f;
+
+    // sizeL = INC_STEP;
+    // nrL = 0;
+    // l = (double *)malloc(sizeof(double) * sizeL);
+    // f = fopen(fileName, "r");
+ //    if (f == nullptr)
+    // 	Error(QString(OPEN_ERRORs).arg(fileName));
+
+ //    QStringList list;
+ //    QFile file(fileName);
+ //    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+ //        QTextStream in(&file);
+
+ //        while (!in.atEnd()) {
+ //            QString line = in.readLine();
+
+ //            // Skip empty or space-only lines
+ //            if (!line.trimmed().isEmpty())
+ //                list.append(line);
+ //        }
+ //        file.close();
+ //    }
+
+
+    // do {
+    // 	int currNrCols;
+ //        if (fgets(buf, 1024, f) == nullptr)
+    // 	{
+    // 		if (feof(f))
+    // 			break; /* OK, END OF FILE */
+    // 		Error(QString(READ_ERRORs).arg(fileName));
+    // 	}
+
+ //      QStringList SL = QString(buf).split(QRegularExpression("\\s+"),Qt::SkipEmptyParts);
+ //      currNrCols = SL.count();
+ //      strcpy(buf, SL.join(" ").toLatin1());
+ //      // trim spaces and count columns
+
+    // 	if (currNrCols == 0)
+    // 		continue;  /* EMPTY LINE, next one please */
+
+    // 	if (currNrCols != EXP_NR_COLS)
+    // 		Error(QString(COL_ERRORs).arg(fileName).arg(nrL/EXP_NR_COLS+1).arg(currNrCols < EXP_NR_COLS?"less":"more"));
+    // 	/* increase l if neccessary */
+    // 	if (sizeL <= (nrL + EXP_NR_COLS))
+    // 	{
+    // 		sizeL += INC_STEP;
+    // 		l = (double *)realloc(l, sizeL*sizeof(double));
+    // 	}
+
+ //        ReadCols(l+nrL,buf,EXP_NR_COLS);
+    // 	/* test if lut is monotonous increasing */
+
+    // 	if (nrL > 0)
+    // 		for (int i=0; i< EXP_NR_COLS; i++)
+    // 			if ( l[nrL+i] < l[(nrL-EXP_NR_COLS)+i])
+ //               Error(QString(SMALLERs).arg(fileName).arg(colName[i]).arg(nrL/EXP_NR_COLS).arg(l[nrL+i]));
+
+    // 	nrL += EXP_NR_COLS;
+    // } while (/* infinite: */ nrL > -1 );
+
+    // /* loop contains one break and one continue */
+    // if (nrL == 0)
+    // 	Error(QString(NO_ENTRIESs).arg(fileName));
+
+    // *nrRows = nrL / EXP_NR_COLS;
+    // fclose(f);
+    // return l;
+    return 0;
 }
 //----------------------------------------------------------------------------------------
 void TWorld::ReadCols(
-        const char * /* fileName */, /* for error reporting only */
+       // const char * /* fileName */, /* for error reporting only */
+
 		double *inLut,   /* -w current position in lut that will be filled */
 		const char *buf, /* buffer to read from */
 		int   n)         /* number of items to read */

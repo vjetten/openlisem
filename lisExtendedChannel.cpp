@@ -139,6 +139,7 @@ void TWorld::extendCol(int r, int c, int i, double w)
 
 bool TWorld::ExtendChannelNew()
 {
+    /*
     ChannelDepthExtended = NewMap(0.0);
     ChannelWidthExtended = NewMap(0.0);
     ChannelMaskExtended = NewMap(0.0);
@@ -329,13 +330,13 @@ bool TWorld::ExtendChannelNew()
     copy(*ChannelDepthExtended, *ChannelDepth);
    // report (*ChannelSourceXExtended,"chmx.map");
    // report (*ChannelSourceYExtended,"chmy.map");
-
+*/
     return true;
 }
 
 void TWorld::ExtendChannel()
 {
-    ExtendChannelNew();
+   // ExtendChannelNew();
     return;
 
 

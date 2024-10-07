@@ -82,36 +82,34 @@ thomb has unit dtheta/dh (like dimoca)
  * @param qtop
  * @param qbot
  */
-void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double  *thetaPrev,
-                      const double  *hPrev,const double  *kavg, const double  *dimoca,
+void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double *thetaPrev,
+                      const double *hPrev, const double *kavg, const double *dimoca,
                       bool fltsat, double dt, double pond, double qtop, double qbot)
 {
    int nN = NrNodes(p);
-   const double *dz = Dz(p), *disnod = DistNode(p);
+   //const double *dz = Dz(p), *disnod = DistNode(p);
    // dz is layer thickness, distnode is distance between centre of layers
-   int i, last = nN-1; // nN nodes from 0 to nN-1 !
+   int i;
    NODE_ARRAY thoma, thomb, thomc, thomf, beta;
    double alpha;
 
+   QVector <double> dz;
+   QVector <double> disnod;
+   dz << p->zone->dz;
+   disnod << p->zone->disnod;
+
    /* First node : 0 (include boundary cond. qtop or pond) */
-	if ( (*ponded) || (fltsat && (qtop <= qbot)) )
-	{
+    if ( (*ponded) || (fltsat && (qtop <= qbot)) ) {
 		 /* h at soil surface prescribed, ponding */
 		 thomc[0] = -dt * kavg[1] / dz[0] / disnod[1];
-		 thomb[0] = -thomc[0] + dimoca[0] +
-					dt*kavg[0]/disnod[0]/dz[0];
-		 thomf[0] = dimoca[0]*h[0] +
-					dt/(-dz[0]) * (kavg[0] - kavg[1]) +
-					dt*kavg[0]*pond/disnod[0]/dz[0];
-	}
-	else
-	{
+         thomb[0] = -thomc[0] + dimoca[0] + dt*kavg[0]/disnod[0]/dz[0];
+         thomf[0] = dimoca[0]*h[0] + dt/(-dz[0]) * (kavg[0] - kavg[1]) + dt*kavg[0]*pond/disnod[0]/dz[0];
+    } else {
 		 /*  q at soil surface prescribed, qtop = rainfall  */
          (*ponded) = false;
 		 thomc[0] = -dt * kavg[1] / dz[0] / disnod[1];
 		 thomb[0] = -thomc[0] + dimoca[0];
-		 thomf[0] = dimoca[0]*h[0] +
-					dt/(-dz[0]) * (- qtop - kavg[1]);
+         thomf[0] = dimoca[0]*h[0] + dt/(-dz[0]) * (- qtop - kavg[1]);
 	}
 
 
@@ -121,17 +119,15 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double  *th
 		 thoma[i] = -dt*kavg[i]/dz[i]/disnod[i];
 		 thomc[i] = -dt*kavg[i+1]/dz[i]/disnod[i+1];
 		 thomb[i] = -thoma[i] - thomc[i] + dimoca[i];
-		 thomf[i] = dimoca[i]*h[i] +
-					dt/(-dz[i])*(kavg[i]-kavg[i+1]);
+         thomf[i] = dimoca[i]*h[i] + dt/(-dz[i])*(kavg[i]-kavg[i+1]);
 	}
 
-	 /* last node : n-1 (include boundary cond. qbot)*/
-	thoma[last] = -dt*kavg[last]/dz[last]/disnod[last];
-	thomb[last] = -thoma[last] + dimoca[last];
-	thomf[last] = dimoca[last]*h[last] +
-				  dt/(-dz[last])*(kavg[last]+qbot);
+    // last node : nN-1 (include boundary cond. qbot)
+    thoma[nN-1] = -dt*kavg[nN-1]/dz[nN-1]/disnod[nN-1];
+    thomb[nN-1] = -thoma[nN-1] + dimoca[nN-1];
+    thomf[nN-1] = dimoca[nN-1]*h[nN-1] + dt/(-dz[nN-1])*(kavg[nN-1]+qbot);
 
-	/* Gaussian elimination and backsubstitution h - first time */
+    // Gaussian elimination and backsubstitution h - first time
 	alpha = thomb[0];
 	h[0] = thomf[0] / alpha;
 	for (i = 1; i < nN; i++) {
@@ -139,10 +135,10 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double  *th
 		alpha = thomb[i] - thoma[i] * beta[i];
 		h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
 	}
-	for (i = (last-1); i >= 0; i--) /* CW (last-1) was last */
+    for (i = (nN-2); i >= 0; i--)
 		h[i] -= beta[i+1] * h[i+1];
 
-	/* correct tridiagonal matrix */
+    // correct tridiagonal matrix
 	for (i = 0; i < nN; i++) {
 		double theta = TheNode(h[i], Horizon(p,i));
         double dimocaNew = DmcNode(h[i], Horizon(p,i));
@@ -152,7 +148,7 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double  *th
 				   - theta + thetaPrev[i];
 	}
 
-	/* Gaussian elimination and backsubstitution h - second time */
+    // Gaussian elimination and backsubstitution h - second time
 	alpha = thomb[0];
 	h[0] = thomf[0] / alpha;
 	for (i = 1; i < nN; i++) {
@@ -161,96 +157,8 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double  *th
 		h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
 	}
 
-	for (i = (last-1); i >= 0; i--) /* CW (last-1) was last */
+    for (i = (nN-2); i >= 0; i--)
 		h[i] -= beta[i+1] * h[i+1];
-
-   /*
-
-
-   // First node : 0 (include boundary cond. qtop or pond)
-   if ( (*ponded))// || (fltsat && (qtop <= qbot)) )
-   {
-      // h at soil surface prescribed, ponding
-      thomc[0] = -dt * kavg[1] / dz[0] / disnod[1];
-      thomb[0] = -thomc[0] + dimoca[0] + dt*kavg[0]/disnod[0]/dz[0];
-      thomf[0] = dimoca[0]*h[0] + dt/(-dz[0])*(kavg[0] - kavg[1])
-                                + dt*kavg[0]*pond/disnod[0]/dz[0];
-   }
-   else
-   {
-      //  q at soil surface prescribed, qtop = rainfall (or evap and then qtop positive)
-      (*ponded) = false;
-      thomc[0] = -dt * kavg[1] / dz[0] / disnod[1];
-      thomb[0] = -thomc[0] + dimoca[0];
-      thomf[0] = dimoca[0]*h[0] + dt/(-dz[0]) * (-qtop - kavg[1]);
-   }
-
-   // Intermediate nodes: i = 1 to n-2
-   for (i = 1; i < nN-1; i++)
-   {
-      thoma[i] = -dt*kavg[i]/dz[i]/disnod[i];
-      thomc[i] = -dt*kavg[i+1]/dz[i]/disnod[i+1];
-      thomb[i] = -thoma[i] - thomc[i] + dimoca[i];
-      thomf[i] = dimoca[i]*h[i] + dt/(-dz[i])*(kavg[i]-kavg[i+1]);
-      //+dt/(-dz[i])*(Sink[i])
-      //add sink term to thomf as flux, Sink must be positive if evap, negative if e.g. drip irrigation
-   }
-
-   // last node : n-1 (include boundary cond. qbot)
-   thoma[nN-1] = -dt*kavg[nN-1]/dz[nN-1]/disnod[nN-1];
-   thomb[nN-1] = -thoma[nN-1] + dimoca[nN-1];
-   thomf[nN-1] = dimoca[nN-1]*h[nN-1] + dt/(-dz[nN-1])*(kavg[nN-1]+qbot);
-
-   // Gaussian elimination and backsubstitution h - first time
-   alpha = thomb[0];
-   h[0] = thomf[0] / alpha;
-   for (i = 1; i < nN; i++)
-   {
-      beta[i] = thomc[i-1] / alpha;
-      alpha = thomb[i] - thoma[i] * beta[i];
-      h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
-   }
-   for (i = (nN-2); i >= 0; i--)
-   {
-      h[i] -= beta[i+1] * h[i+1];
-   }
-
-   // correct tridiagonal matrix
-   for (i = 0; i < nN; i++)
-   {
-      double theta = TheNode(h[i], Horizon(p,i));
-      double dimocaNew = DmcNode(h[i], Horizon(p,i));
-
-      thomb[i] = thomb[i] - dimoca[i] + dimocaNew;
-      thomf[i] = thomf[i] - dimoca[i]*hPrev[i] + dimocaNew*h[i] - theta + thetaPrev[i];
-   }
-   //thomf is new theta
-
-   // Gaussian elimination and backsubstitution h - second time
-   alpha = thomb[0];
-   h[0] = thomf[0] / alpha;
-
-   for (i = 1; i < nN; i++)
-   {
-      beta[i] = thomc[i-1] / alpha;
-      alpha = thomb[i] - thoma[i] * beta[i];
-      h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
-      //alpha = tomb = new h/theta
-      //thoma = alpha/beta is (new h/theta)/(old
-   }
-
-   for (i = nN-2; i >= 0; i--)
-   {
-      h[i] -= beta[i+1] * h[i+1];
-   }
-
-//         for (i = 1; i < nN; i++)
-//         {
-//            if (h[i] >= -0.001)
-//            h[i] = -0.001;
-//         }
-   // niet doen want node 0 kan positief zijn door waterlaag
-*/
 
 }
 //--------------------------------------------------------------------------------
@@ -315,8 +223,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
    NODE_ARRAY theta, thetaPrev, hPrev, dimoca, kavg, k;
    const PROFILE *p = pixel->profile;
    double *h = pixel->h;
-   int    i, n = NrNodes(p);
-   //double ThetaSat;
+   int n = pixel->nrNodes;//p->zone->nrNodes;
    double dt = std::max(_dt/5, pixel->currDt);
    double pond = *waterHeightIO;
    double elapsedTime = 0;
@@ -324,185 +231,184 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
    double drainout = 0;
    int tnode = pixel->tilenode;
 
-   // while internal swatre timestep is not lisem timestep: (time is in seconds!!!)
+
+qDebug() << "compute" << n << pixel->MV << p->profileId;
+;
+
    while (elapsedTime < _dt)
    {
-      bool ponded, fltsat;    // flag idf ponded and if profile fully saturated
+       qDebug() << elapsedTime << _dt;
+      bool ponded, fltsat;    // flag if ponded or if profile fully saturated
       double _max, qtop, qbot, ThetaSat;  // fluxes at top and bottom, max theta
       double qdrain; // tile drainage
 
-   //   qDebug() << pixel->profile->profileId << elapsedTime << dt;
-      //--- get nodal values of theta, K, dif moist cap ---//
-      for (i=0; i < n; i++)
-      {
-    //      qDebug() << i <<  h[i] << pixel->profile->horizon[i]->name;
-         k[i] = HcoNode(h[i], pixel->profile->horizon[i], ksatCalibration);
+      //for(int k = 0; k < 30;k++)
+      for (int j = 0; j < pixel->nrNodes; j++)
+      qDebug() <<  p->horizon[j]->lut->hydro[H_COL];
+
+
+
+      // get nodal values of theta, K, dif moist cap
+  //    for (int j = 0; j < pixel->nrNodes; j++) {
+ //        k[j] = HcoNode(pixel->h[j], p->horizon[j], ksatCalibration);
+ //        qDebug() << n<< j << pixel->h[j] << k[j];
          // input tables in cm/day function returns in cm/sec !!
-         dimoca[i] = DmcNode(h[i], pixel->profile->horizon[i]);
-         // differential moisture capacity dtheta/dh
-         theta[i] = TheNode(h[i], pixel->profile->horizon[i]);
+    //     dimoca[i] = DmcNode(h[i], pixel->profile->horizon[i]);
+         // differential moisture capacity d(theta)/d(h), tangent moisture retention curve
+    //     theta[i] = TheNode(h[i], pixel->profile->horizon[i]);
          // moisture content
-      }
-
-      *Theta = (theta[0]+theta[1])/2;
+     //    qDebug() << h[i] << k[i] << theta[i] << dimoca[i];
+  //    }
+      elapsedTime += 100;
+      qDebug() << "hier";
+     // *Theta = (theta[0]+theta[1])/2;
       // avg water content of first two nodes, choice ...
-
-      // (*repel) = 1.0;
-      // if (SwitchWaterRepellency)
-      // {
-      //    if (pixel->repellency == 1)
-      //    {
-      //       *repel = 1/(waterRep_d+pow(waterRep_a, 100*(*Theta-waterRep_b)));
-      //       if (*Theta < waterRep_c)
-      //          *repel = 1.0;
-      //    }
-      //    else
-      //       *repel = 0;
-      //    *repel = std::max(0.0,std::min(1-*repel, 1.0));
-
-      //    k[0] = k[0] * (*repel);
-      // }
+      //TODO: WHY? FOR WHAT, pesticides, repelency?
 
       // average K for 1st to n-1 node, top node is done below
       //choice arithmetric average K, geometric in org. SWATRE
-      if (!SwitchGeometric)
-      {
-         for (i=1; i < n; i++)
-            kavg[i] = 0.5*(k[i]+k[i-1]);
-      }
-      else
-      {
-         for(i=1; i < n; i++)
-            kavg[i] = sqrt((k[i]*k[i-1]));
-      }
+
+      // for(int j = 1; j < nNodes; j++) {
+      //     switch (KavgType) {
+      //     case 0: kavg[j] = Aavg(k[j-1],k[j]); break;
+      //     case 1: kavg[j] = Savg(k[j-1],k[j]); break;
+      //     case 2: kavg[j] = Havg(k[j-1],k[j],p->zone->disnod[j-1],p->zone->disnod[j]); break;
+      //     case 3: kavg[j] = Mavg(k[j-1],k[j]); break;
+      //     }
+      // }
+
+      // if (!SwitchGeometric) {
+      //    for (i=1; i < n; i++)
+      //       kavg[i] = 0.5*(k[i]+k[i-1]);
+      // } else {
+      //   for(int j=1; j < n; j++)
+      //      kavg[j] = sqrt((k[j]*k[j-1]));
+      // }
 
       //--- boundary conditions ---//
 
       //----- TOP -----//
       // check if ponded: 1st compare fluxes, 2nd compare store
-      qtop = -pond/dt;
-      // top flux is ponded layer / timestep, available water, cm/sec
 
-      //----- BOTTOM -----//
-      // bottom is 0 or copy of flux of last 2 layers
-      if (SwitchImpermeable)
-         qbot = 0;
-      else
-         qbot = kavg[n-1]*(h[n-1]-h[n-2])/DistNode(p)[n-1] - kavg[n-1];
-      //VJ 110122 why not last node? this gives nan, why? => n does not exist!
+//       qtop = -pond/dt;
+//       // top flux is ponded layer / timestep, available water, cm/sec
 
-      // 1st check flux aginst max flux
-      ThetaSat = TheNode(0.0, Horizon(p, 0));    
-      kavg[0]= sqrt( (*repel) * HcoNode(0, Horizon(p, 0), ksatCalibration) * k[0]);
-      //waar slaat dit op ??? ksavg0 is sqrt(ksat, k[0]), waarom ksat???
+//       //----- BOTTOM -----//
+//       // bottom is 0 or copy of flux of last 2 layers
+//       if (SwitchImpermeable)
+//          qbot = 0;
+//       else
+//          qbot = kavg[n-1]*(h[n-1]-h[n-2])/DistNode(p)[n-1] - kavg[n-1];
 
+//       // 1st check flux against max flux
+//       ThetaSat = TheNode(0.0, Horizon(p, 0));
+//       //kavg[0]= sqrt( (*repel) * HcoNode(0, Horizon(p, 0), ksatCalibration) * k[0]);
+//       kavg[0]= sqrt( HcoNode(0, Horizon(p, 0), ksatCalibration) * k[0]);
+//       // geometric avg of ksat and k[0] => is used for max possible
+// qDebug() << "swatre" << _max << DistNode(p)[0] << kavg[0];
+//       _max = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
+//       // maximum possible flux, compare to real top flux available
+//       ponded = (qtop < _max);
+//       // if more flux then max possible flag ponded is true
+//       // NOTE qtop and _max are both negative !
 
-//pixel->var = kavg[0]*36000; //k layer 0 in mm/h
-      //kavg[0]= sqrt( (*repel) * HcoNode(0.0, Horizon(p, 0), ksatCalibration) * k[0]);       
-      
-      // geometric avg of ksat and k[0]
-      _max = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
-      // maximum possible flux, compare to real top flux available
-      ponded = (qtop < _max);
-      // if more flux then max possible flag ponded is true
-      // NOTE qtop and _max are both negative !
+//       //2nd check: ponded layer depth against storage
+//       if (!ponded)
+//       {
+//          // calculate available space in profile in cm: (pore-theta)*dz
+//          double space = 0;
+//          for(i = 0; i < n && h[i] < 0 /*&& space > pond*/; i++)
+//          {
+//             ThetaSat = TheNode(0, Horizon(p, i));
+//                   //LUT_Highest(p->horizon[i]->lut, THETA_COL);
+//             space += (ThetaSat - theta[i]) * (-Dz(p)[i]);
+//          }
+//          //ponded = pond > space;
+//          ponded = ((-qtop) * dt) > space;
+//       }
 
-      //2nd check: ponded layer depth against storage
-      if (!ponded)
-      {
-         // calculate available space in profile in cm: (pore-theta)*dz
-         double space = 0;
-         for(i = 0; i < n && h[i] < 0 /*&& space > pond*/; i++)
-         {
-            ThetaSat = TheNode(0, Horizon(p, i));
-                  //LUT_Highest(p->horizon[i]->lut, THETA_COL);
-            space += (ThetaSat - theta[i]) * (-Dz(p)[i]);
-         }
-         //ponded = pond > space;
-         ponded = ((-qtop) * dt) > space;
-      }
+//       // check if profile is completely saturated (flstsat)
+//       fltsat = true;
+//       for (i = n-1; i >= 0; i--)
+//          if (h[i] < 0)
+//          {
+//             fltsat = false;
+//             break;
+//          }
 
-      // check if profile is completely saturated (flstsat)
-      fltsat = true;
-      for (i = n-1; i >= 0; i--)
-         if (h[i] < 0)
-         {
-            fltsat = false;
-            break;
-         }
+//       // save last h and theta, used in headcalc
+//       for (i = 0; i < n; i++)
+//       {
+//          hPrev[i] = h[i];
+//          thetaPrev[i] = theta[i];
+//       }
 
-      // save last h and theta, used in headcalc
-      for (i = 0; i < n; i++)
-      {
-         hPrev[i] = h[i];
-         thetaPrev[i] = theta[i];
-      }
+//       // calculate hew heads
 
-      // calculate hew heads
+//       HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca,
+//                fltsat, dt, pond, qtop, qbot);
+//       // calculate new h and theta with two times gaussian matrix
+//       // and back substitution abracadabra
 
-      HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca,
-               fltsat, dt, pond, qtop, qbot);
-      // calculate new h and theta with two times gaussian matrix
-      // and back substitution abracadabra
+//       // determine new boundary fluxes
 
-      // determine new boundary fluxes
+//       if (SwitchImpermeable)
+//          qbot = 0;
+//       else
+//       	 qbot = kavg[n-1]*(h[n-1]-h[n-2])/DistNode(p)[n-1] - kavg[n-1];
+//       // new qbot is actually not use but may come in handy later
 
-      if (SwitchImpermeable)
-         qbot = 0;
-      else
-      	 qbot = kavg[n-1]*(h[n-1]-h[n-2])/DistNode(p)[n-1] - kavg[n-1];
-      // new qbot is actually not use but may come in handy later
+//       if ( ponded || (fltsat && (qtop < qbot)) )
+//          qtop = -kavg[0] * ((h[0] - pond)/DistNode(p)[0] + 1);
+//       // adjust top flux
 
-      if ( ponded || (fltsat && (qtop < qbot)) )
-         qtop = -kavg[0] * ((h[0] - pond)/DistNode(p)[0] + 1);
-      // adjust top flux
+//       pond += qtop*dt;
+//       // decrease pond with top flux
+//       if (pond < POND_EPS)  // 10-6 cm
+//          pond = 0;
+//       influx += _max*dt;
+//       // add max infil to influx (negative), to get potential infil
 
-      pond += qtop*dt;
-      // decrease pond with top flux
-      if (pond < POND_EPS)  // 10-6 cm
-         pond = 0;
-      influx += _max*dt;
-      // add max infil to influx (negative), to get potential infil
+//       //--- calculate tile drain ---//
+//       if (SwitchIncludeTile && tnode > 0) //VJ 110825 tnode = -1 if cell has no drainage
+//       {
+//          //options:
+//          qdrain =  k[tnode];
+//          //qdrain =  HcoNode(0, Horizon(p, tnode), 1.0);
+//          // drainage in node is ksat of node, no calibration!
+//          // drainage is cond of the node in cm/sec
+//          double water = theta[tnode] * -DistNode(p)[tnode] * drainfraction;
+//          // total amonut of water available to drain in this node (cm)
+//          // note: distnode has a negative value
+//          qdrain = std::min(qdrain, water/dt);
+//          // cannot have more drainage than water available
 
-      //--- calculate tile drain ---//
-      if (SwitchIncludeTile && tnode > 0) //VJ 110825 tnode = -1 if cell has no drainage
-      {
-         //options:
-         qdrain =  k[tnode];
-         //qdrain =  HcoNode(0, Horizon(p, tnode), 1.0);
-         // drainage in node is ksat of node, no calibration!
-         // drainage is cond of the node in cm/sec
-         double water = theta[tnode] * -DistNode(p)[tnode] * drainfraction;
-         // total amonut of water available to drain in this node (cm)
-         // note: distnode has a negative value
-         qdrain = std::min(qdrain, water/dt);
-         // cannot have more drainage than water available
+//          theta[tnode] = std::max(0.001, theta[tnode] - (qdrain*dt)/DistNode(p)[tnode]* drainfraction);
+//          // adjust theta with drainage removed
 
-         theta[tnode] = std::max(0.001, theta[tnode] - (qdrain*dt)/DistNode(p)[tnode]* drainfraction);
-         // adjust theta with drainage removed
+//          h[tnode] = HNode(theta[tnode], Horizon(p, tnode) );
+//          hPrev[tnode] = h[tnode];
+//          // new h from theta
 
-         h[tnode] = HNode(theta[tnode], Horizon(p, tnode) );
-         hPrev[tnode] = h[tnode];
-         // new h from theta
+//          drainout += qdrain*dt;
+//          // add for all swatre timestps, in cm
+//       }
 
-         drainout += qdrain*dt;
-         // add for all swatre timestps, in cm
-      }
+//       elapsedTime += dt;
+//       /* estimate new dt within lisemtimestep */
+//       dt = NewTimeStep(dt, hPrev, h, n, precision, s->minDt, _dt);
+//       pixel->currDt = dt;
 
-      elapsedTime += dt;
-      /* estimate new dt within lisemtimestep */
-      dt = NewTimeStep(dt, hPrev, h, n, precision, s->minDt, _dt);
-      pixel->currDt = dt;
+//       if (elapsedTime+dt+TIME_EPS >= _dt)
+//          dt = _dt - elapsedTime;
+//          // elapsedTime = _dt+TIME_EPS;
 
-      if (elapsedTime+dt+TIME_EPS >= _dt)
-         dt = _dt - elapsedTime;
-         // elapsedTime = _dt+TIME_EPS;
+   } // elapsedTime < lisemTimeStep
 
-   } /* elapsedTime < lisemTimeStep */
-   for (i=0; i < n; i++)  {
-       pixel->theta[i] = theta[i];
-       pixel->k[i] = kavg[i];
-   }
+   // for (int j=0; j < n; j++)  {
+   //     pixel->theta[j] = theta[j];
+   //     pixel->k[j] = kavg[j];
+   // }
    /*
     if (pixel->dumpH>0)
        printf("Cell %4d : wh after infil. %8.5f (mm) infil. %8.5f (mm)\n"\
@@ -512,9 +418,9 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
    */
 
    // save stuff for output in maps
-   *waterHeightIO = pond; // waterlayer on surface
-   *infil = influx; // total max influx in lisem timestep, fpot
-   *drain = drainout; // tiledrain, is 0 when not activated
+ //  *waterHeightIO = pond; // waterlayer on surface
+ //  *infil = influx; // total max influx in lisem timestep, fpot
+ //  *drain = drainout; // tiledrain, is 0 when not activated
 }
 //--------------------------------------------------------------------------------
 // units in SWATRE are cm and cm/day
@@ -535,57 +441,56 @@ void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap
    // for normal soil surface where is always 1.
    // this prevents doing swatrestep for crusting for cells that are 0 for instance
 
-//   FOR_ROW_COL_MV
-//         if(where->Drc > 0) // flag to indicate if this pixel has to be done
-         // for regular soil this is 1 so always done, for e.g. crusting only when larger than 0
-//   {
-      double wh, infil, drain, drainfraction = 0, Theta;
-      QString dig;
+    double wh, infil, drain, drainfraction = 0, Theta;
+    QString dig;
 
-      wh = _WH->Drc*100;
-      // WH is in m, convert to cm
-      infil = 0;
-      drain = 0;
+    wh = _WH->Drc*100;
+    // WH is in m, convert to cm
+    infil = 0;
+    drain = 0;
+    showr = r;
+    showc = c;
 
-      if (SwitchIncludeTile)
-         drainfraction = TileWidth->Drc/_dx;
+    long cel = r*_nrCols+c;
 
-      ComputeForPixel(&s->pixel[r*_nrCols+c], &wh, &infil, &drain, drainfraction,  &Theta, s);
-      // estimate new h and theta at the end of dt
+   // qDebug() << "swatrestep" << s->pixel[cel].MV << s->pixel[cel]._r << s->pixel[cel]._c << r << c;
 
-      //SwitchDumpH = true;
-      if(SwitchDumpH || SwitchDumpTheta || SwitchDumpK) {
-          if(s->pixel[r*_nrCols+c].dumpHid > 0) {
-              for (int i = 0; i < s->pixel[r*_nrCols+c].nrNodes; i++) {
-                  QString name = QString("SwH%1").arg(step,2, 10, QLatin1Char('0'));
-                  dig = QString("%1").arg(i, 12-name.length(), 10, QLatin1Char('0'));
-                  name=name+dig;
-                  name.insert(8, ".");
-                  //qDebug() << name << dig;
-              }
-          }
-      }
+    if (SwitchIncludeTile)
+        drainfraction = TileWidth->Drc/_dx;
+
+    ComputeForPixel(&s->pixel[cel], &wh, &infil, &drain, drainfraction,  &Theta, s);
+    // estimate new h and theta at the end of dt
+
+    //SwitchDumpH = true;
+    if(SwitchDumpH || SwitchDumpTheta || SwitchDumpK) {
+        if(s->pixel[cel].dumpHid > 0) {
+            for (int i = 0; i < s->pixel[cel].nrNodes; i++) {
+                QString name = QString("SwH%1").arg(step,2, 10, QLatin1Char('0'));
+                dig = QString("%1").arg(i, 12-name.length(), 10, QLatin1Char('0'));
+                name=name+dig;
+                name.insert(8, ".");
+                //qDebug() << name << dig;
+            }
+        }
+    }
 
 
-      _WH->Drc = wh*0.01;
-      //back to m
+    _WH->Drc = wh*0.01;
+    //back to m
 
-      _fpot->Drc = std::max(0.0, -infil*0.01);
-      // infil is negative (downward flux * dt, in cm)
-      //fpot is positive like in other infil  methods (in m)
+    _fpot->Drc = std::max(0.0, -infil*0.01);
+    // infil is negative (downward flux * dt, in cm)
+    //fpot is positive like in other infil  methods (in m)
 
-      if (SwitchIncludeTile)
-         _drain->Drc = drain*0.01;  // in m
-      // drained water from the soil, already accounts for drainwidth versus cell width
+    if (SwitchIncludeTile)
+        _drain->Drc = drain*0.01;  // in m
+    // drained water from the soil, already accounts for drainwidth versus cell width
 
-      _theta->Drc = Theta;
-      // save the average moisture content of the top two layers
-      // used for repellency OBSOLETE
+    //_theta->Drc = Theta;
+    // save the average moisture content of the top two layers
+    // used for repellency OBSOLETE
 
-   //   if (SwitchWaterRepellency)
-    //     RepellencyFraction->Drc = repellency;
- //  }
-  // report (*tmc,"ksatav");
+
 }
 //--------------------------------------------------------------------------------
 

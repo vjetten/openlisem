@@ -22,6 +22,7 @@
 **
 *************************************************************************/
 
+#include "model.h"
 /*!
   \file swatresoillut.h
   \brief SWATRE local declarations to deal with input tables
@@ -31,14 +32,14 @@
 #define  SOILLUT_H
 
 
-#define THETA_COL	0
+#define THETA_COL	    0
 #define H_COL           1
 #define K_COL           2
 #define DMCH_COL        3
 #define DMCC_COL        4
-#define NR_COL          (DMCC_COL+1)
+#define NR_COL          5
 
-#define LUT_nrRows(l)	           (l->nrRows)
+#define LUT_nrRows(l) (l->nrRows)
 #define LUT_ValueAt(l,indexCol,indexRow)  (l->lut[indexRow][indexCol])
 #define LUT_Highest(l, indexCol)   (l->lut[(LUT_nrRows(l)-1)][indexCol])
 
@@ -65,6 +66,7 @@ typedef struct LUT {
     double *key;  // buffer for search key
     int   nrRows, nrCols;
     bool  gotoMinMax;
+    QVector<double> hydro[5];
 } LUT;
 
 

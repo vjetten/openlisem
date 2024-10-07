@@ -143,7 +143,7 @@ void TWorld::InitParameters(void)
     F_SWOFSolution = getvalueint("Flood Solution");
     SwitchMUSCL = F_SWOFSolution == 1;
     //SwitchSWOFopen = F_SWOFSolution == 0;
-qDebug() << "MUSCL" << SwitchMUSCL;
+
     F_pitValue = getvaluedouble("Pit Value");
 
     SwitchCorrectMB_WH = getvalueint("Correct MB with WH") == 1;
@@ -789,7 +789,7 @@ void TWorld::InitSoilInput(void)
                 CrustFraction->Drc = 1.0-CompactFraction->Drc;
             }
         }
-    }
+    } // not swatre
 
     // SWATRE infiltration read maps and structures
     if (InfilMethod == INFIL_SWATRE)
@@ -831,6 +831,7 @@ void TWorld::InitSoilInput(void)
 
         // read the swatre tables and make the information structure ZONE etc
         ReadSwatreInputNew();
+        qDebug() << "SWATRE init done";
     }
 }
 //---------------------------------------------------------------------------
@@ -1856,11 +1857,11 @@ void TWorld::IntializeData(void)
         hmxInit = NewMap(0);
     }
 
+    // swatre get input data is called before, ReadSwatreInput
     SwatreSoilModel = nullptr;
     SwatreSoilModelCrust = nullptr;
     SwatreSoilModelCompact = nullptr;
     SwatreSoilModelGrass = nullptr;
-    // swatre get input data is called before, ReadSwatreInput
     if (InfilMethod == INFIL_SWATRE)
     {
         thetaTop = NewMap(0);
@@ -1872,8 +1873,8 @@ void TWorld::IntializeData(void)
         SwatreSoilModel = InitSwatre(ProfileID);//, initheadName, TileDepth, swatreDT);
         if (SwatreSoilModel == nullptr)
             throw 3;
-
-        if (SwitchInfilCrust)// || SwitchWaterRepellency)
+qDebug() << "SwatreSoilModel created";
+        if (SwitchInfilCrust)
         {
             SwatreSoilModelCrust = InitSwatre(ProfileIDCrust);//, initheadName, TileDepth, swatreDT);
             if (SwatreSoilModelCrust == nullptr)
@@ -1896,7 +1897,6 @@ void TWorld::IntializeData(void)
     }
 
     SwitchUseMaterialDepth = false;
-
     if(SwitchErosion && SwitchUseMaterialDepth)
     {
         Storage = ReadMap(LDD, getvaluename("detmat"));
@@ -2148,7 +2148,7 @@ void TWorld::IntializeOptions(void)
 //    snowmeltSatFileName.clear();
 //    snowmeltSatFileDir.clear();
     SwatreTableDir.clear();
-    SwatreTableName = QString("profile.inp");//.clear();
+    SwatreTableName.clear();
     resultFileName.clear();
     outflowFileName.clear();
     totalSeriesFileName.clear();

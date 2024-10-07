@@ -30,6 +30,8 @@
 #ifndef SWATRE_P_H
 #define SWATRE_P_H
 
+#include <QtCore>
+
 #include "swatresoillut.h"
 
 
@@ -66,20 +68,25 @@
 		 etc.
 \endcode
 */
+
 typedef struct ZONE   {
 	/* structure explaining how the soil subdivided */
-		int  nrNodes;     	/*!< nr. of nodes (equals nr. of compartments), arrays with nrNodes elements: */
-		double *dz;       	/*!< compartment size (cm.) used as negative in [SWATRE]*/
-		double *z;        	/*!< position of nodal point relative to top soil (Cm) e.g -21 means 21 cm below top of soil */
-		double *endComp;   /*!< end of compartment i only used when reading the profiles, arrays with nrNodes+1 elements: */
-		double *disnod;    /*!< distance between nodal points, 0 is between top-profile and first nodal point last is between bottom and last nodal point */
+        // double *dz;       	/*!< compartment size (cm.) used as negative in [SWATRE]*/
+        // double *z;        	/*!< position of nodal point relative to top soil (Cm) e.g -21 means 21 cm below top of soil */
+        // double *endComp;   /*!< end of compartment i only used when reading the profiles, arrays with nrNodes+1 elements: */
+        // double *disnod;    /*!< distance between nodal points, 0 is between top-profile and first nodal point last is between bottom and last nodal point */
 
+      int  nrNodes;     	/*!< nr. of nodes (equals nr. of compartments), arrays with nrNodes elements: */
+      QVector <double> dz;
+      QVector <double> z;
+      QVector <double> endComp;
+      QVector <double> disnod;
 } ZONE;
 //---------------------------------------------------------------------------
 /* change this structure if we add VanGenughten eqs. */
 /// SWATRE structure with names and pointers to land use tables
 typedef struct HORIZON {
-   char *name;  	/** name of horizon: filename of lut-table */
+   QString name;
    LUT  *lut;     /** lut of theta, h, k, dmch, dmcc */
 } HORIZON;
 //---------------------------------------------------------------------------
@@ -88,7 +95,7 @@ typedef struct PROFILE {
    int            profileId; 	/** number identifying this profile  >= 0 */
    const ZONE     *zone; 		/** array with zone.nrNodes elements: containing z, dz, node distance etc*/
    const HORIZON  **horizon; 	/** ptr to horizon information this node belongs to */
-   int nrNodes;
+  // int nrNodes;
 } PROFILE;
 //---------------------------------------------------------------------------
 typedef double NODE_ARRAY[MAX_NODES_P];
@@ -100,19 +107,27 @@ typedef double NODE_ARRAY[MAX_NODES_P];
    Specific can be put here such as tile drain flux, drip irrigation flux etc
   */
 typedef struct PIXEL_INFO {
+    int _r;
+    int _c;
+   int MV;
    const PROFILE *profile;    /** profile this pixel belongs to */
+
    double        *h;          /** array of MAX_NODES nodes with matrix head */
-   double        *theta;          /** array of MAX_NODES nodes with matrix head */
-   double        *k;          /** array of MAX_NODES nodes with matrix head */
+ //  double        *theta;          /** array of MAX_NODES nodes with matrix head */
+ //  double        *k;          /** array of MAX_NODES nodes with matrix head */
    double        currDt;      /** current size of SWATRE timestep */
    double        tiledrain;   /** drainage into tiledrin system at a given depth */
    int           tilenode;    /** nearest node that has the tiledrain */
-  // int           repellency;  /** water repellency will be calculated if 1 */
    int           dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
    int nrNodes;
    double var; // variable can be used for anything
 } PIXEL_INFO;
 //---------------------------------------------------------------------------
+typedef struct SOIL_MODEL {
+   struct PIXEL_INFO  *pixel; //defined in swatre_p.h
+   double minDt;
+} SOIL_MODEL;
+
 
 
 #endif // SWATRE_P_H

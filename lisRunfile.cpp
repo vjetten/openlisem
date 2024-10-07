@@ -440,10 +440,13 @@ void TWorld::ParseRunfileData(void)
 
         if (InfilMethod == INFIL_SWATRE)
         {
-            if (p1.compare("Table Directory")==0)
-                SwatreTableDir = CheckDir(p);
-            if (p1.compare("Table File")==0)
-                SwatreTableName = p;
+            // if (p1.compare("Table Directory")==0)
+            //     SwatreTableDir = CheckDir(p);
+            if (p1.compare("Table File")==0) {
+                SwatreTableName = p; // this is the complete path
+                SwatreTableDir = QFileInfo(p).absolutePath()+"/";
+            }
+
             initheadName = getvaluename("inithead");
         }
 

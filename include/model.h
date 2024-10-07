@@ -45,9 +45,8 @@
 #include "io.h"
 #include "lerror.h"
 #include "swatre_p.h"
-#include "swatre_g.h"
+//#include "swatre_g.h"
 
-//#define OLDSWATRE 1
 
 //---------------------------------------------------------------------------
 //#define NULL nullptr
@@ -1179,20 +1178,21 @@ public:
     void CloseSwatre(SOIL_MODEL *s);
     void FreeSwatreInfo(void);
     //VJ 111104 old stuff, no longer used but kept for now
-    int ReadSwatreInput(QString fileName, QString tablePath);
-    ZONE *ReadNodeDefinition(FILE *f);
-    PROFILE *ReadProfileDefinition(FILE *f, ZONE *z, const char *tablePath);
+   // int ReadSwatreInput(QString fileName, QString tablePath);
+    //ZONE *ReadNodeDefinition(FILE *f);
+    //PROFILE *ReadProfileDefinition(FILE *f, ZONE *z, const char *tablePath);
     PROFILE *ProfileNr(int profileNr);
     // VJ 111104 constructing profile with Qt commands
     QStringList swatreProfileDef;
     QList<int> swatreProfileNr;
     int *profileNr;
     void ReadSwatreInputNew(void);
-    ZONE *ReadNodeDefinitionNew(void);
     PROFILE *ReadProfileDefinitionNew(int pos, ZONE *z);
-    HORIZON *ReadHorizon(const char *tablePath,	const  char *tableName);
-    double *ReadSoilTable(const char *fileName, int *nrRows);
-    void ReadCols(const char *fileName, double *inLut, const char *buf, int   n);
+    HORIZON *ReadHorizon(QString tablePath, QString tableName);//(const char *tablePath,	const  char *tableName);
+    HORIZON *ReadHorizonNew(QString tablePath, QString tableName);
+    double *ReadSoilTable(QString fileName, int *nrRows);//const char *fileName, int *nrRows);
+    LUT *ReadSoilTableNew(QString fileName);
+    void ReadCols(/*const char *fileName,*/ double *inLut, const char *buf, int   n);
     void InitializeProfile(void);
     void HeadCalc(double *h, bool *ponded, const PROFILE *p ,const double  *thetaPrev,
                   const double  *hPrev, const double  *kavg, const double  *dimoca,
@@ -1201,6 +1201,8 @@ public:
                         double precParam, double dtMin, double dtMax);
     void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
                          double drainfraction, double *Theta, SOIL_MODEL *s);
+int showr;
+int showc;
 
 
     void Fill(cTMap &M, double value);

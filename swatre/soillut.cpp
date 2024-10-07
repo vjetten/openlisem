@@ -110,7 +110,7 @@ LUT *CreateLutFromContents(
     LUT *l;
     int i;
 
-    l = (LUT *)malloc(sizeof(LUT));
+    l = new LUT;//(LUT *)malloc(sizeof(LUT));
     l->key = (double *)malloc(sizeof(double)*nrCols);
     l->lut = (double **)malloc(sizeof(double *)*nrRows);
 

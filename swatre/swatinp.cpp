@@ -32,10 +32,11 @@
 - PROFILE * TWorld::ReadProfileDefinitionNew(int pos,ZONE *z) \n
 - HORIZON * TWorld::ReadHorizon(const char *tablePath, const char *tableName) \n
 - void  TWorld::FreeSwatreInfo(void) \n
-- obsolete:
+
+- obsolete !!!!!!!!:
 - int TWorld::ReadSwatreInput(QString fileName, QString tablePath) \n
 - ZONE * TWorld::ReadNodeDefinition(FILE *f) \n
-- PROFILE * TWorld::ReadProfileDefinition(FILE *f,ZONE *z,const char *tablePath) \n
+- PROFILE * TWorld::ReadProfileDefinitionNew(FILE *f,ZONE *z,const char *tablePath) \n
 - PROFILE * TWorld::ProfileNr(int profileNr) \n
 
 profile node setup:
@@ -69,80 +70,122 @@ static int nrHorizonList=0, sizeHorizonList=0;
 //----------------------------------------------------------------------------------------------
 void TWorld::InitializeProfile( void )
 {
-   profileList = nullptr;
-   nrProfileList=0;
-   sizeProfileList=0;
-   zone=nullptr;
 
-   horizonList = nullptr;
-   nrHorizonList=0;
-   sizeHorizonList=0;
+    zone = nullptr;
+    profileList = nullptr;
+    //FreeSwatreInfo();
 
-   swatreProfileDef.clear();
-   swatreProfileNr.clear();
+    //profileList = nullptr;
+
+    // if (profileList != nullptr) {
+    //     if (profileList[0] != nullptr) {
+    //          for(int i=0; i < nrProfileList; i++)
+    //             if (profileList[i] != nullptr)
+    //                 free(profileList[i]);
+    //     }
+    //     free(profileList);
+    //     profileList = nullptr;
+    // }
+
+    nrProfileList = 0;
+    sizeProfileList = 0;
+
+    // zone=nullptr;
+    horizonList = nullptr;
+    nrHorizonList = 0;
+    sizeHorizonList = 0;
+
+    //swatreProfileDef.clear();
+    //swatreProfileNr.clear();
 }
 //----------------------------------------------------------------------------------------------
 /// read and parse profile.inp
 /// new version using swatreProfileDef QStringList
 void TWorld::ReadSwatreInputNew(void)
 {
-    // get the profile inp file contents and put in stringlist
-    QFile fin(SwatreTableName);
-    if (!fin.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        Error(QString("SWATRE: Can't open profile definition file %1").arg(SwatreTableName));
-        throw 1;
-    }
 
+    // get the profile inp file contents and put in stringlist
     // set profiles to nullptr
     InitializeProfile();
 
-    // read profile.inp and put in StringList, trimmed and without blank lines
-    while (!fin.atEnd())
-    {
-        QString S = fin.readLine();
-        S = S.trimmed();
-        if (!S.isEmpty())
-        {
-            if (S.indexOf("#")< 0)
-                swatreProfileDef << S.trimmed();
-            else
-            {
-                int pos = S.indexOf("#");
-                if (pos > 0)
-                    swatreProfileDef << S.remove(pos,S.size()).trimmed();
+    QFile file(SwatreTableName);
+
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+
+            // Skip empty or space-only lines
+            if (!line.trimmed().isEmpty()) {
+                swatreProfileDef.append(line);
+            } else {
+                swatreProfileDef.append("###");
             }
         }
-    }
-    fin.close();
 
-    for (int i = 0; i < swatreProfileDef.count(); i++) {
-        qDebug() << swatreProfileDef[i];
+        file.close();
+    } else {
+        Error(QString("SWATRE: Can't open profile definition file %1").arg(SwatreTableName));
+        throw 1;
+    }
+//qDebug() << swatreProfileDef;
+    zone = new ZONE;
+    bool ok;
+    zone->nrNodes = swatreProfileDef[0].toInt(&ok, 10);
+    if (!ok)
+        Error(QString("SWATRE: Can't read number of nodes %1 from input file: %2").arg(zone->nrNodes).arg(SwatreTableName));
+    if (zone->nrNodes < 3 )
+        Error(QString("SWATRE: you need to define 3 nodes or more").arg(zone->nrNodes));
+    if (zone->nrNodes > MAX_NODES)
+        Error(QString("SWATRE: number of nodes %1 larger than %2").arg(zone->nrNodes).arg(MAX_NODES));
+
+    for (int i=0; i <= zone->nrNodes; i++) {
+        zone->dz.append(0.0);
+        zone->z.append(0.0);
+        zone->endComp.append(0.0);
+        zone->disnod.append(0.0);
     }
 
-    ZONE *z;
-    int  i;
+    int pos = 1;
+    for (int i = 1; i < zone->nrNodes; i++) {
+        pos++;
+
+        bool ok;
+        zone->endComp[i] = swatreProfileDef[pos].toDouble(&ok);
+
+    //    qDebug() << "zone->endComp[i]" << pos << zone->endComp[pos] << swatreProfileDef[pos];
+
+        if (!ok)
+            Error(QString("SWATRE: Can't read compartment end of node %1").arg(pos));
+        if (zone->endComp[i] <= 0)
+            Error(QString("SWATRE: compartment end of node nr. %1 <= 0").arg(pos));
+
+        /* compute dz and make negative */
+        zone->dz[pos] = (zone->endComp[pos-1]-zone->endComp[pos]);
+        zone->z[pos] = zone->z[pos-1] + 0.5*(zone->dz[pos-1]+zone->dz[pos]);
+        zone->disnod[pos] = zone->z[pos] - zone->z[pos-1];
+    }
+    zone->dz[0] = -zone->endComp[1];
+    zone->z[0] = zone->dz[1]*0.5;
+    zone->disnod[0] = zone->z[1];
+
+    zone->disnod[zone->nrNodes] = 0.5 * zone->dz[zone->nrNodes-1];
+
+ //   for (int i = 0; i <= zone->nrNodes; i++)
+    //    qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i];
+
+
+    //  count and check valid profiles
     QStringList checkList; // temp list to check for double profile nrs
-
-
-    // read node distances and make structure
-    z = ReadNodeDefinitionNew();
-
-
-    //   mark count nr profiles
-    for (int i = z->nrNodes+1; i < swatreProfileDef.count(); i++) {
-        bool ok = false, oki = false;
-        double dummy = swatreProfileDef[i-1].toDouble(&ok);
-        int dummi = swatreProfileDef[i].toInt(&oki);
-        // if(swatreProfileDef[i-1].toDouble() && swatreProfileDef[i].toInt())
-        if (ok && oki)
-        {
-            // if two values follow each other this is a new profile
+    for (int i = zone->nrNodes+1; i < swatreProfileDef.count(); i++) {
+        if (swatreProfileDef[i].contains("###")) {
+            checkList << swatreProfileDef[i+1];
             nrProfileList++;
-            checkList << swatreProfileDef[i];
         }
     }
     sizeProfileList = nrProfileList;
+qDebug() << "nr profiles" << nrProfileList << checkList.count();
 
     if (nrProfileList == 0)
         Error(QString("SWATRE: no profiles read from %1").arg(SwatreTableName));
@@ -151,84 +194,34 @@ void TWorld::ReadSwatreInputNew(void)
     for (int i = 0; i < checkList.count()-1; i++)
     {
         if (checkList[i] == checkList[i+1])
-            DEBUG(QString("Warning SWATRE: profile id %1 declared more than once").arg(checkList[i+1]));
+            DEBUG(QString("Warning SWATRE: profile id %1 defined more than once").arg(checkList[i+1]));
     }
-    // alternative duplicate check but with no info on duplicates
-    //   if (checkList.removeDuplicates() > 0)
-    //      Error(QString("SWATRE: there are duplicate profile ID's.");
 
     // ordered int list with profile nrs
     // makes checklist redundant
     swatreProfileNr.clear();
     for (int i = 0; i < checkList.count(); i++)
         swatreProfileNr << checkList[i].toInt();
+
     std::sort(swatreProfileNr.begin(), swatreProfileNr.end());
 
-    profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*sizeProfileList+1);
+    // qDebug() << swatreProfileNr;
+    // qDebug() << checkList;
+
+    profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1));
+    // why realloc? profile list is a list of pointers to PROFILE
 
     nrProfileList = 0;
-    for (i = z->nrNodes+1; i < swatreProfileDef.count(); i++) {
-        bool ok = false, oki = false;
-        double dummy = swatreProfileDef[i-1].toDouble(&ok);
-        int dummi = swatreProfileDef[i].toInt(&oki);
-        if (ok && oki)
-            //  if(swatreProfileDef[i-1].toDouble() && swatreProfileDef[i].toInt())
-        {
-            profileList[nrProfileList] = ReadProfileDefinitionNew(i, z);
-            // read the profile tables for each defined prpfile,
+    for (int i = zone->nrNodes+1; i < swatreProfileDef.count(); i++) {
+        if (swatreProfileDef[i].contains("###")) {
+            i++;
+            profileList[nrProfileList] = ReadProfileDefinitionNew(i, zone);
+            // creates a profile and gives the pointer to profilelist
             // i is the place in the StrinList where a profile starts
             nrProfileList++;
         }
     }
 
-}
-//----------------------------------------------------------------------------------------------
-/** allocates ZONE structure,
- *   reads compartment ends:
- *   2.5 5 10 means dz[0] = dz[1] = 2.5, dz[2] = 5, etc.\n
- *   computes all parameters stored in ZONE -structure
- */
-
-ZONE * TWorld::ReadNodeDefinitionNew(void)
-{
-   int  i;
-   bool ok;
-   int pos = 0;
-
-   zone = (ZONE *)malloc(sizeof(ZONE));
-   zone->nrNodes = swatreProfileDef[pos].toInt(&ok, 10);
-   pos++;
-   if (!ok)
-      Error(QString("SWATRE: Can't read number of nodes %1 from input file").arg(zone->nrNodes));
-   if (zone->nrNodes < 1 )
-      Error(QString("SWATRE: number of nodes %1 smaller than 1").arg(zone->nrNodes));
-   if (zone->nrNodes > MAX_NODES)
-      Error(QString("SWATRE: number of nodes %1 larger than %2").arg(zone->nrNodes).arg(MAX_NODES));
-
-   zone->dz     = (double *)malloc(sizeof(double)*zone->nrNodes);
-   zone->z      = (double *)malloc(sizeof(double)*zone->nrNodes);
-   zone->disnod = (double *)malloc(sizeof(double)*(zone->nrNodes+1));
-   zone->endComp= (double *)malloc(sizeof(double)*zone->nrNodes);
-
-
-   for (i=0; i < zone->nrNodes; i++)
-   {
-      zone->endComp[i] = swatreProfileDef[pos+i].toDouble(&ok);
-      if (!ok)
-         Error(QString("SWATRE: Can't read compartment end of node %1").arg(i+1));
-      if (zone->endComp[i] <= 0)
-         Error(QString("SWATRE: compartment end of node nr. %1 <= 0").arg(i+1));
-
-      /* compute dz and make negative */
-      zone->dz[i]= ( (i == 0) ? -zone->endComp[0] : (zone->endComp[i-1]-zone->endComp[i]));
-      zone->z[i]= ( (i == 0) ? zone->dz[i]*0.5 : zone->z[i-1] + 0.5*(zone->dz[i-1]+zone->dz[i]));
-      zone->disnod[i] = ( (i == 0) ? zone->z[i]: zone->z[i] - zone->z[i-1]);
-
-      //qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i];
-   }
-   zone->disnod[zone->nrNodes] = 0.5 * zone->dz[zone->nrNodes-1];
-
-   return(zone);
 }
 //----------------------------------------------------------------------------------------------
 /// read a new profile from profile.inp, construct and return it
@@ -243,133 +236,136 @@ ZONE * TWorld::ReadNodeDefinitionNew(void)
  } PROFILE;
 \endcode
 */
-PROFILE * TWorld::ReadProfileDefinitionNew(
-      int pos,
-      ZONE *z)         /* zone division this profile */
+PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
 {
-   QString tableName;
-   int  i;
-   double endHor = 0, endHorPrev = 0;
-   PROFILE *p;
-   HORIZON *h;
-   bool ok;
+    QString tableName;
+    double endHor = 0, endHorPrev = 0;
+    PROFILE *p;
+    HORIZON *h;
+    bool ok;
+//qDebug() << pos << "readprofdefnew" << z->nrNodes;
+    // profile has a pointer to LUT
+    // allocate profile memory, PROFILE is defined in swatre_p.h
+    p = new PROFILE;
 
+    p->profileId = swatreProfileDef[pos].toInt(&ok, 10);
+    if (!ok)
+        Error(QString("SWATRE: read error: error in profile id %1 definition").arg(p->profileId));
 
-   /* profile has a pointer to LUT */
-   // allocate profile memory, PROFILE is defined in swatre_p.h
-   p = (PROFILE *)malloc(sizeof(PROFILE));
-   p->profileId = swatreProfileDef[pos].toInt(&ok, 10);
-   if (!ok)
-      Error(QString("SWATRE: read error: error in profile id %1 definition").arg(p->profileId));
+    p->horizon = (const HORIZON **)malloc(sizeof(HORIZON *) * z->nrNodes);
+    p->zone = z; // pointer
 
-   p->horizon = (const HORIZON **)malloc(sizeof(HORIZON *)*z->nrNodes);
-   p->zone = z;
-   p->nrNodes = z->nrNodes;
+    // assign a horizon to each layer/node
+    pos++; // profile nr, move one line
 
-   //pos++; // lastline of prev profile
+    for (int i = 0 ; i < z->nrNodes; i++) {
 
-   i = 0;
-   while (i != z->nrNodes)
-   {
-      pos++; // profile nr
+     //   qDebug() << pos << swatreProfileDef[pos];
 
-      // read tablename from swatreProfileDef (= profile.inp without blanks)
-      tableName = swatreProfileDef[pos];
-      if (!QFileInfo(SwatreTableDir + tableName).exists())
-         Error(QString("SWATRE: Can't read a LUT for profile nr %1 node nr %2 and up").arg(p->profileId).arg(i+1));
+        tableName = swatreProfileDef[pos];
+        pos++;
 
-      endHorPrev = endHor;
-      pos++; // profile depth, endHor
-      endHor = swatreProfileDef[pos].toDouble(&ok);//toInt(&ok, 10);
-      if (!ok)
-         Error(QString("SWATRE: Can't read end of horizon for profile nr %1").arg(p->profileId));
+        if (!QFileInfo(SwatreTableDir + tableName).exists())
+            Error(QString("SWATRE: Can't read the LUT for profile nr %1 node nr %2 and up").arg(p->profileId).arg(i+1));
 
-      if (endHor <= endHorPrev)
-         Error(QString("SWATRE: Error in profile definition nr %1").arg(p->profileId));
+        endHorPrev = endHor;
+        endHor = swatreProfileDef[pos].toDouble(&ok);
+        if (!ok)
+            Error(QString("SWATRE: Can't read end of horizon for profile nr %1").arg(p->profileId));
+        if (endHor <= endHorPrev)
+            Error(QString("SWATRE: Error in profile definition nr %1, depth horizons do not increase").arg(p->profileId));
 
-      h = ReadHorizon(SwatreTableDir.toLatin1().constData(), tableName.toLatin1().constData());
-      // copy horizon info to all nodes of this horizon
+        h = ReadHorizonNew(SwatreTableDir, tableName);
+        // copy horizon info to all nodes of this horizon
+        while (i < z->nrNodes && z->endComp[i] <= endHor ) {
+         //   qDebug() << i << z->endComp[i] << endHor;
+            p->horizon[i] = h;
+            i++;
+        }
+            pos++; //next line = name
 
-      while (i < z->nrNodes && z->endComp[i] <= endHor )
-         p->horizon[i++] = h;
+//qDebug() << "pos" << pos;
+        //if (z->endComp[i-1] != endHor)
+          //  Error(QString("SWATRE: Compartment does not end on depth '%1' (found in profile nr %2 for horizon %3)")
+            //      .arg(endHor).arg(p->profileId).arg(tableName));
+        //????????????? what does this error mean exactly?
+    }
 
-      if (z->endComp[i-1] != endHor)
-         Error(QString("SWATRE: No compartment ends on depth '%1' (found in profile nr %2 for horizon %3)")
-               .arg(endHor).arg(p->profileId).arg(tableName));
-   }
-   return(p);
+    for (int i = 0; i < z->nrNodes; i++) {
+        qDebug() << i << p->horizon[i]->lut->hydro[0];
+    }
+    return(p); // return the profile
 }
 //----------------------------------------------------------------------------------------------
 /// OBSOLETE, replaced by ReadSwatreInputNew
 /** make profile list and read all profile data */
-int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
-{
-   FILE *f;
-   ZONE *z;
-   int  i, mmax;
-   PROFILE **tmpList;
-   // PROFILE.INP is opened here
-   f = fopen(fileName.toLatin1().constData(), "r");
+//int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
+//{
+// // PROFILE.INP is opened here
+// FILE *f = fopen(fileName.toLatin1().constData(), "r");
+// if (f == nullptr)
+// {
+//    Error(QString("SWATRE: Can't open profile definition file %1").arg(fileName));
+//    throw 1;
+// }
+// //All file name checking in main program
 
-   if (f == nullptr)
-   {
-      Error(QString("SWATRE: Can't open profile definition file %1").arg(fileName));
-      throw 1;
-   }
-   //All file name checking in main program
+// // set profiles to nullptr
+// InitializeProfile();
 
-   // set profiles to nullptr
-   InitializeProfile();
+// // read node distances and make structure
+// ZONE *z = ReadNodeDefinition(f);
 
-   // read node distances and make structure
-   z = ReadNodeDefinition(f);
+// // check if list can hold new one
+// do {
 
-   // check if list can hold new one
-   do {
+//    if (nrProfileList == sizeProfileList)
+//    {
+//       int i = sizeProfileList;
+//       sizeProfileList += LIST_INC;
+//       profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*sizeProfileList);
+//       while (i < sizeProfileList)
+//          profileList[i++] = nullptr;
+//    }
+//    profileList[nrProfileList] =
+//          ReadProfileDefinition(f,z,tablePath.toLatin1().constData());
 
-      if (nrProfileList == sizeProfileList)
-      {
-         int i = sizeProfileList;
-         sizeProfileList += LIST_INC;
-         profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*sizeProfileList);
-         while (i < sizeProfileList)
-            profileList[i++] = nullptr;
-      }
-      profileList[nrProfileList] =
-            ReadProfileDefinition(f,z,tablePath.toLatin1().constData());
+// } while (profileList[nrProfileList++] != nullptr);
+// // correct for eof-marker and test if something is read
+// if ( --nrProfileList == 0)
+//    Error(QString("SWATRE: no profiles read from %1").arg(fileName));
 
-   } while (profileList[nrProfileList++] != nullptr);
-   // correct for eof-marker and test if something is read
-   if ( --nrProfileList == 0)
-      Error(QString("SWATRE: no profiles read from %1").arg(fileName));
 
-   /* make profileList index match the profileId's */
-   mmax = 0;
-   for (i = 0 ; i < nrProfileList; i++)
-      mmax = std::max(mmax, profileList[i]->profileId);
-   mmax++;
+// // make profileList index match the profileId's
+// //WHY???? is a profile is numbered 100 I make 100 empty profiles???
+// // becaus ethe map has the profile nrs, but that can be solved with a code list!
+// int mmax = 0;
+// for (int i = 0 ; i < nrProfileList; i++) {
+//      mmax = std::max(mmax, profileList[i]->profileId);
+//      mmax++;
+// }
 
-   tmpList = (PROFILE **)malloc(mmax*sizeof(PROFILE *));
-   for (i = 0 ; i < mmax; i++)
-      tmpList[i] = nullptr;
+// PROFILE **tmpList = (PROFILE **)malloc(mmax*sizeof(PROFILE *));
+// for (int i = 0 ; i < mmax; i++)
+//    tmpList[i] = nullptr;
 
-   for (i = 0 ; i < nrProfileList; i++)
-      if (tmpList[profileList[i]->profileId] == nullptr)
-         tmpList[profileList[i]->profileId] = profileList[i];
-      else
-         Error(QString("SWATRE: profile with id '%!' declared more than once").arg(profileList[i]->profileId));
+// for (int i = 0 ; i < nrProfileList; i++)
+//    if (tmpList[profileList[i]->profileId] == nullptr)
+//       tmpList[profileList[i]->profileId] = profileList[i];
+//    else
+//       Error(QString("SWATRE: profile with id '%!' declared more than once").arg(profileList[i]->profileId));
 
-   free(profileList);
+// free(profileList);
 
-   profileList = tmpList;
-   nrProfileList = mmax;
-   sizeProfileList = mmax;
+// profileList = tmpList;
+// nrProfileList = mmax;
+// sizeProfileList = mmax;
 
-   /* PROFILE.INP is closed here */
-   fclose(f);
+// /* PROFILE.INP is closed here */
+// fclose(f);
 
-   return (0);
-}
+// return (0);
+//}
 //----------------------------------------------------------------------------------------------
 /// OBSOLETE, no longer used
 /** return PROFILE or throw an error if not found, profileNr is the profile map value
@@ -377,204 +373,99 @@ int TWorld::ReadSwatreInput(QString fileName, QString tablePath)
 */
 PROFILE *TWorld::ProfileNr(int profileNr)
 {
-   if (profileNr < 0 || profileNr >= nrProfileList)
-      return(nullptr);
-   return(profileList[profileNr]);
+    if (profileNr < 0 || profileNr >= nrProfileList)
+        return(nullptr);
+    return(profileList[profileNr]);
 }
 //----------------------------------------------------------------------------------------------
 void  TWorld::FreeSwatreInfo(void)
 {
-   int i;
+    int i;
 
-   /* currently, all profiles have the same zoning */
-   if (zone == nullptr)
-      return;
+    // if (zone == nullptr)
+    //    return;
 
-   free(zone->dz);
-   free(zone->z);
-   free(zone->endComp);
-   free(zone->disnod);
-   free(zone);
+    // if (zone != nullptr) {
+    //     zone->dz.clear();
+    //     zone->z.clear();
+    //     zone->endComp.clear();
+    //     zone->disnod.clear();
+    //     delete(zone);
+    //     zone = nullptr;
+    // }
 
-   for(i=0; i < nrProfileList; i++)
-      if (profileList[i] != nullptr)
-         free(profileList[i]);
-   free(profileList);
-   profileList = nullptr;
-   nrProfileList=sizeProfileList=0;
+    // // if (zone != nullptr) {
+    // //     free(zone->dz);
+    // //     free(zone->z);
+    // //     free(zone->endComp);
+    // //     free(zone->disnod);
+    // //     free(zone);
+    // //     zone = nullptr;
+    // // }
 
-   for(i=0; i < nrHorizonList; i++)
-   {
-      free(horizonList[i]->name);
-      FreeLut(horizonList[i]->lut);
-      horizonList[i]->lut = nullptr;
-      free(horizonList[i]);
-   }
-   free(horizonList);
-   horizonList = nullptr;
-   nrHorizonList=sizeHorizonList=0;
-}
-//----------------------------------------------------------------------------------------------
-/** allocates ZONE structure,
-    reads compartment ends:
-    2.5 5 10 means dz[0] = dz[1] = 2.5, dz[2] = 5, etc.\n
-    computes all parameters stored in ZONE -structure
-*/
-ZONE * TWorld::ReadNodeDefinition(FILE *f)
-{
-   int  i;
-   zone = (ZONE *)malloc(sizeof(ZONE));
-   if ( fscanf(f,"%d",&(zone->nrNodes)) != 1 )
-      Error(QString("SWATRE: Can't read number of nodes %1 from input file").arg(zone->nrNodes));
-   if (zone->nrNodes < 1 )
-      Error(QString("SWATRE: number of nodes %1 smaller than 1").arg(zone->nrNodes));
-   if (zone->nrNodes > MAX_NODES)
-      Error(QString("SWATRE: number of nodes %1 larger than %2").arg(zone->nrNodes).arg(MAX_NODES));
+    // if (profileList != nullptr) {
+    //     if (profileList[0] != nullptr) {
+    //         for(int i=0; i < nrProfileList; i++)
+    //             if (profileList[i] != nullptr)
+    //                 free(profileList[i]);
+    //     }
+    //     free(profileList);
+    //     profileList = nullptr;
+    // }
+    // // for(i=0; i < nrProfileList; i++)
+    // //    if (profileList[i] != nullptr)
+    // //       free(profileList[i]);
+    // // free(profileList);
+    // // profileList = nullptr;
+     nrProfileList = 0;
+     sizeProfileList = 0;
 
-   zone->dz     = (double *)malloc(sizeof(double)*zone->nrNodes);
-   zone->z      = (double *)malloc(sizeof(double)*zone->nrNodes);
-   zone->disnod = (double *)malloc(sizeof(double)*(zone->nrNodes+1));
-   zone->endComp= (double *)malloc(sizeof(double)*zone->nrNodes);
+    // if (horizonList != nullptr) {
+    //     for(i=0; i < nrHorizonList; i++)
+    //     {
+    //         //free(horizonList[i]->name);
+    //         //FreeLut(horizonList[i]->lut);
+    //         horizonList[i]->lut = nullptr;
+    //         free(horizonList[i]);
+    //     }
+    //     free(horizonList);
+    //     horizonList = nullptr;
+    // }
 
-   for (i=0; i < zone->nrNodes; i++)
-   {
-      if ( fscanf(f,"%lf",&(zone->endComp[i])) != 1 )
-         Error(QString("SWATRE: Can't read compartment end of node %1").arg(i+1));
-      if (zone->endComp[i] <= 0)
-         Error(QString("SWATRE: compartment end of node nr. %1 <= 0").arg(i+1));
-      /* compute dz and make negative */
-      zone->dz[i]= ( (i == 0) ? -zone->endComp[0] : (zone->endComp[i-1]-zone->endComp[i]));
-      zone->z[i]= ( (i == 0) ? zone->dz[i]*0.5 : zone->z[i-1] + 0.5*(zone->dz[i-1]+zone->dz[i]));
-      zone->disnod[i] = ( (i == 0) ? zone->z[i]: zone->z[i] - zone->z[i-1]);
-
-      //qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i];
-   }
-   zone->disnod[zone->nrNodes] = 0.5 * zone->dz[zone->nrNodes-1];
-
-   return(zone);
-}
-//----------------------------------------------------------------------------------------------
-/// OBSOLETE, replaced by ReadProfileDefinitionNew
-/**
-   returns pointer to new profile or nullptr if eof is encountered
-   while reading first token of profile definition
-*/
-PROFILE * TWorld::ReadProfileDefinition(
-      FILE *f,
-      ZONE *z,         /* zone division this profile */
-      const char *tablePath) /* pathName ended with a '/' */
-{
-   char tableName[256];
-   int  i;
-   double endHor;
-   PROFILE *p;
-   HORIZON *h;
-   /* profile has a pointer to LUT */
-   p = (PROFILE *)malloc(sizeof(PROFILE));
-
-
-   if ( fscanf(f,"%d",&(p->profileId)) != 1 )
-   {
-      if (feof(f))
-      {
-         free(p);
-         return nullptr;
-      }
-      Error(QString("SWATRE: read error: can't read profile id %1").arg(p->profileId));
-   }
-   if (p->profileId < 0)
-      Error(QString("SWATRE: profile id smaller that 0: %1").arg(p->profileId));
-
-   p->horizon = (const HORIZON **)malloc(sizeof(HORIZON *)*z->nrNodes);
-   p->zone = z;
-
-   i = 0;
-   while (i != z->nrNodes)
-   {
-      if ( fscanf(f,"%s",tableName) != 1 )
-         Error(QString("SWATRE: Can't read a LUT for profile nr %1 node nr %2 and up").arg(p->profileId).arg(i+1));
-      if ( fscanf(f,"%lf", &endHor) != 1 )
-         Error(QString("SWATRE: Can't read end of horizon for profile nr %1").arg(p->profileId));
-
-      h = ReadHorizon(tablePath, tableName);
-      // copy horizon info to all nodes of this horizon
-
-      while (i < z->nrNodes && z->endComp[i] <= endHor )
-         p->horizon[i++] = h;
-      if (z->endComp[i-1] != endHor)
-         Error(QString("SWATRE: No compartment ends on depth '%1' (found in profile nr %2 for horizon %3)")
-               .arg(endHor).arg(p->profileId).arg(tableName));
-   }
-   return(p);
+    nrHorizonList = 0;
+    sizeHorizonList = 0;
 }
 //----------------------------------------------------------------------------------------------
 /// copy horizon info to all nodes of this horizon
-HORIZON * TWorld::ReadHorizon(const char *tablePath,	const char *tableName)
+HORIZON * TWorld::ReadHorizonNew(QString tablePath, QString tableName)
 {
-   HORIZON	*h;
-   char fileName[256];
-   double *t, *lutCont;
-   int i, nrRowsa=0;
+    //qDebug() << "new hor";
+    // look if it's already loaded
+    for(int i = 0; i < nrHorizonList; i++)
+        if (tableName == horizonList[i]->name)
+            return(horizonList[i]);
 
-   // look if it's already loaded
-   for( i= 0; i < nrHorizonList; i++)
-      if (!strcmp(tableName, horizonList[i]->name))
-         return(horizonList[i]);
+    // check for space in list, if not then add LIST_INC (20) pointers
+    if (nrHorizonList == sizeHorizonList) {
+        sizeHorizonList += LIST_INC; // add 20
+        horizonList = (HORIZON **)realloc(horizonList, sizeof(HORIZON *)*sizeHorizonList);
+    }
 
-   /* if not then add one */
-   /* check for space in list */
-   if (nrHorizonList == sizeHorizonList)
-   {
-      sizeHorizonList += LIST_INC;
-      horizonList = (HORIZON **)realloc(horizonList, sizeof(HORIZON *)*sizeHorizonList);
-   }
+    // make a horizon and add it to the list, horizon is a name and a pointer to LUT
+    HORIZON	*h = new HORIZON;
+    horizonList[nrHorizonList++] = h;
 
-   h = (HORIZON *)malloc(sizeof(HORIZON));
-   horizonList[nrHorizonList++] = h;
-   strcat(strcpy(fileName, tablePath), tableName);
+    // read the lut with this horizon and link the pointer
+    h->lut = ReadSoilTableNew(tablePath + tableName);
+    h->name = tableName;
 
-
-   /* hook up table to temp array t */
-   t = ReadSoilTable(fileName, &nrRowsa);
-
-   lutCont = (double *)malloc(sizeof(double)*NR_COL*(nrRowsa+2));
-   for(i=0; i < nrRowsa; i++)
-   {
-      lutCont[IND(i,THETA_COL)] =  t[i*3+THETA_COL];
-      lutCont[IND(i,H_COL)]     =  t[i*3+H_COL];
-      lutCont[IND(i,K_COL)]     =  t[i*3+K_COL];
-   }
-
-   // check some stuff
-   for(i=0; i < (nrRowsa-1); i++)
-   {
-      if (lutCont[IND(i+1,H_COL)] <= lutCont[IND(i,H_COL)])
-         Error(QString("matrix head not decreasing in table %1 at h = %2.").arg(tableName).arg(lutCont[IND(i,H_COL)]));
-      if (lutCont[IND(i+1,THETA_COL)] <= lutCont[IND(i,THETA_COL)])
-         Error(QString("moisture content not decreasing in table %1 at theta = %2.").arg(tableName).arg(lutCont[IND(i,THETA_COL)]));
-   }
-
-   for(i=0; i < (nrRowsa-1); i++)
-   {
-      lutCont[IND(i,DMCH_COL)] = 0.5 *
-            (lutCont[IND(i+1,H_COL)] + lutCont[IND(i,H_COL)]);
-      // dif moisture cap dh
-
-      lutCont[IND(i,DMCC_COL)] =
-            (lutCont[IND(i+1,THETA_COL)] - lutCont[IND(i,THETA_COL)])/
-            (lutCont[IND(i+1,H_COL)] - lutCont[IND(i,H_COL)]);
-      // dif moisture cap dtheta/dh
-      //qDebug() << i << lutCont[IND(i+1,H_COL)]<< lutCont[IND(i,THETA_COL)] << lutCont[IND(i,DMCH_COL)]<<lutCont[IND(i,DMCC_COL)];
-   }
-   lutCont[IND(nrRowsa-1,DMCH_COL)] = 0;
-   lutCont[IND(nrRowsa-1,DMCC_COL)] = lutCont[IND(nrRowsa-2,DMCC_COL)] ;
-
-   free(t);
-
-   h->name = strcpy((char *)malloc(strlen(tableName)+1), tableName);
-   h->lut = CreateLutFromContents(lutCont, true, nrRowsa, LUT_COLS);
-
-
-   return(h);
+    return(h);
+}
+//----------------------------------------------------------------------------------------------
+/// copy horizon info to all nodes of this horizon
+//HORIZON * TWorld::ReadHorizon(QString const char *tablePath,	const char *tableName)
+HORIZON * TWorld::ReadHorizon(QString tablePath, QString tableName)
+{
+return nullptr;
 }
 //----------------------------------------------------------------------------------------------

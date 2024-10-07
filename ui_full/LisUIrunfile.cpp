@@ -563,20 +563,24 @@ void lisemqt::ParseInputData()
         if (p1.compare("Storm Drain map")==0) E_stormDrainMap->setText(p);
         if (p1.compare("Storm Drain Vol map")==0) E_stormDrainVolMap->setText(p);
 
-        if (uiInfilMethod == 1 && p1.compare("Table Directory")==0)
-        {
-            SwatreTableDir = CheckDir(p);
-            if (SwatreTableDir.isEmpty())
-                SwatreTableDir = E_MapDir->text();
-            E_SwatreTableDir->setText(SwatreTableDir);
-        }
+        // if (uiInfilMethod == 1 && p1.compare("Table Directory")==0)
+        // {
+        //     SwatreTableDir = CheckDir(p);
+        //     if (SwatreTableDir.isEmpty())
+        //         SwatreTableDir = E_MapDir->text();
+        //     E_SwatreTableDir->setText(SwatreTableDir);
+        // }
 
-        if (uiInfilMethod == 1 && p1.compare("Table File")==0)
+        if (uiInfilMethod == 0 && p1.compare("Table File")==0)
         {
-            SwatreTableName = p;
-            if (SwatreTableName.isEmpty())
-                SwatreTableName = E_MapDir->text() + QString("profile.inp");
-            E_SwatreTableName->setText(SwatreTableName);
+            SwatreTableDir = QFileInfo(p).absolutePath()+"/";
+            SwatreTableName = QFileInfo(p).fileName(); //baseName();   SwatreTableName = p;
+qDebug() << p << SwatreTableDir << SwatreTableName;
+            if (SwatreTableName.isEmpty()) {
+                SwatreTableName = QString("profile.inp");
+                SwatreTableDir = E_MapDir->text();
+            }
+            E_SwatreTableName->setText(SwatreTableDir + SwatreTableName);
         }
     }
 
@@ -832,7 +836,7 @@ void lisemqt::updateModelData()
             case 3 : namelist[j].value.setNum(INFIL_SOAP); break;
             }
         }
-        if (p1.compare("Table Directory")==0) namelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
+       // if (p1.compare("Table Directory")==0) namelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
         if (p1.compare("Table File")==0) namelist[j].value = E_SwatreTableName->text();//SwatreTableName;
         if (p1.compare("SWATRE internal minimum timestep")==0)
         {
