@@ -73,14 +73,14 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
         file.close();
     }
     LUT *l = new LUT;
-    l->nrRows = list.count()-1;
+    l->nrRows = list.count();
 
     for (int i = 0; i < list.count(); i++) {
         QStringList SL = list[i].split(QRegularExpression("\\s+"),Qt::SkipEmptyParts);
      //   qDebug() << SL;
         if (SL.count() == 1) {
             SL.removeLast();
-            break;
+            break; // sometimes table ends with some char code
         }
         l->hydro[THETA_COL].append(SL[THETA_COL].toDouble());
         l->hydro[H_COL].append(SL[H_COL].toDouble());
@@ -89,24 +89,35 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
 
     }
 
-    for (int i = 0; i < l->nrRows-1; i++) {
-        if (l->hydro[H_COL][i+1] <= l->hydro[H_COL][i])
-            Error(QString("matrix head not increasing in table %1 at h = %2.").arg(fileName).arg(l->hydro[H_COL][i]));
-        if (l->hydro[THETA_COL][i+1] <= l->hydro[THETA_COL][i])
-            Error(QString("moisture content not increasing in table %1 at theta = %2.").arg(fileName).arg(l->hydro[THETA_COL][i]));
-    }
-
+    // for (int i = 0; i < l->nrRows-1; i++) {
+    //     if (l->hydro[H_COL][i+1] <= l->hydro[H_COL][i])
+    //         Error(QString("matrix head not increasing in table %1 at h = %2.").arg(fileName).arg(l->hydro[H_COL][i]));
+    //     if (l->hydro[THETA_COL][i+1] <= l->hydro[THETA_COL][i])
+    //         Error(QString("moisture content not increasing in table %1 at theta = %2.").arg(fileName).arg(l->hydro[THETA_COL][i]));
+    //     if (l->hydro[K_COL][i+1] <= l->hydro[K_COL][i])
+    //         Error(QString("Hydraulic conductivity not increasing in table %1 at K = %2.").arg(fileName).arg(l->hydro[K_COL][i]));
+    // }
 
     for (int i = 0; i < l->nrRows - 1; i++) {
         double v = 0.5*(l->hydro[H_COL][i] + l->hydro[H_COL][i+1]);
         l->hydro[DMCH_COL] << v;
         v = (l->hydro[THETA_COL][i+1] - l->hydro[THETA_COL][i])/(l->hydro[H_COL][i+1] - l->hydro[H_COL][i]);
+
+        if (i > 0 && v < l->hydro[DMCC_COL][i-1]) {
+            double dv = l->hydro[DMCC_COL][i-1] - l->hydro[DMCC_COL][i-2];
+            v = l->hydro[DMCC_COL][i-1]+dv;
+        }
         l->hydro[DMCC_COL] << v;
     }
 
-    // fill l->nrRows
+    // fill l->nrRows-1
     l->hydro[DMCH_COL] << 0;
-    l->hydro[DMCC_COL] << l->hydro[DMCC_COL][l->nrRows-2];
+    l->hydro[DMCC_COL] << l->hydro[DMCC_COL][l->nrRows-2] + (l->hydro[DMCC_COL][l->nrRows-2] - l->hydro[DMCC_COL][l->nrRows-3]);
+
+    qDebug() << fileName;
+    for (int i = 0; i < l->nrRows; i++) {
+    qDebug() << l->hydro[0][i] <<  l->hydro[1][i] << l->hydro[2][i] << l->hydro[3][i] << l->hydro[4][i];
+    }
 
     return(l);
 }

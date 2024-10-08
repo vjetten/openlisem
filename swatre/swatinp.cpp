@@ -244,6 +244,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
     HORIZON *h;
     bool ok;
 //qDebug() << pos << "readprofdefnew" << z->nrNodes;
+
     // profile has a pointer to LUT
     // allocate profile memory, PROFILE is defined in swatre_p.h
     p = new PROFILE;
@@ -255,20 +256,17 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
     p->horizon = (const HORIZON **)malloc(sizeof(HORIZON *) * z->nrNodes);
     p->zone = z; // pointer
 
-    // assign a horizon to each layer/node
-    pos++; // profile nr, move one line
-
-    for (int i = 0 ; i < z->nrNodes; i++) {
-
-     //   qDebug() << pos << swatreProfileDef[pos];
+    int i = 0;
+    while (i != z->nrNodes) {
+        pos++; // profile nr, move one line
 
         tableName = swatreProfileDef[pos];
-        pos++;
 
         if (!QFileInfo(SwatreTableDir + tableName).exists())
             Error(QString("SWATRE: Can't read the LUT for profile nr %1 node nr %2 and up").arg(p->profileId).arg(i+1));
 
         endHorPrev = endHor;
+        pos++;
         endHor = swatreProfileDef[pos].toDouble(&ok);
         if (!ok)
             Error(QString("SWATRE: Can't read end of horizon for profile nr %1").arg(p->profileId));
@@ -276,24 +274,17 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
             Error(QString("SWATRE: Error in profile definition nr %1, depth horizons do not increase").arg(p->profileId));
 
         h = ReadHorizonNew(SwatreTableDir, tableName);
-        // copy horizon info to all nodes of this horizon
-        while (i < z->nrNodes && z->endComp[i] <= endHor ) {
-         //   qDebug() << i << z->endComp[i] << endHor;
-            p->horizon[i] = h;
-            i++;
-        }
-            pos++; //next line = name
 
-//qDebug() << "pos" << pos;
-        //if (z->endComp[i-1] != endHor)
-          //  Error(QString("SWATRE: Compartment does not end on depth '%1' (found in profile nr %2 for horizon %3)")
-            //      .arg(endHor).arg(p->profileId).arg(tableName));
+        // copy horizon info to all nodes of this horizon
+        while (i < z->nrNodes && z->endComp[i] <= endHor )
+            p->horizon[i++] = h;
+
+     //   if (z->endComp[i-1] != endHor)
+       //    Error(QString("SWATRE: Compartment does not end on depth '%1' (found in profile nr %2 for horizon %3)")
+         //        .arg(endHor).arg(p->profileId).arg(tableName));
         //????????????? what does this error mean exactly?
     }
 
-    for (int i = 0; i < z->nrNodes; i++) {
-        qDebug() << i << p->horizon[i]->lut->hydro[0];
-    }
     return(p); // return the profile
 }
 //----------------------------------------------------------------------------------------------

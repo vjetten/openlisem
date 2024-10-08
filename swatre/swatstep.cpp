@@ -233,7 +233,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 
 
 qDebug() << "compute" << n << pixel->MV << p->profileId;
-;
+
 
    while (elapsedTime < _dt)
    {
@@ -242,23 +242,16 @@ qDebug() << "compute" << n << pixel->MV << p->profileId;
       double _max, qtop, qbot, ThetaSat;  // fluxes at top and bottom, max theta
       double qdrain; // tile drainage
 
-      //for(int k = 0; k < 30;k++)
-      for (int j = 0; j < pixel->nrNodes; j++)
-      qDebug() <<  p->horizon[j]->lut->hydro[H_COL];
-
-
-
       // get nodal values of theta, K, dif moist cap
-  //    for (int j = 0; j < pixel->nrNodes; j++) {
- //        k[j] = HcoNode(pixel->h[j], p->horizon[j], ksatCalibration);
- //        qDebug() << n<< j << pixel->h[j] << k[j];
+      for (int j = 0; j < pixel->nrNodes; j++) {
+         k[j] = HcoNode(h[j], p->horizon[j], ksatCalibration);
          // input tables in cm/day function returns in cm/sec !!
-    //     dimoca[i] = DmcNode(h[i], pixel->profile->horizon[i]);
+         dimoca[j] = DmcNode(h[j], pixel->profile->horizon[j]);
          // differential moisture capacity d(theta)/d(h), tangent moisture retention curve
-    //     theta[i] = TheNode(h[i], pixel->profile->horizon[i]);
+         theta[j] = TheNode(h[j], pixel->profile->horizon[j]);
          // moisture content
-     //    qDebug() << h[i] << k[i] << theta[i] << dimoca[i];
-  //    }
+         qDebug() << h[j] << k[j] << theta[j] << dimoca[j];
+      }
       elapsedTime += 100;
       qDebug() << "hier";
      // *Theta = (theta[0]+theta[1])/2;
@@ -453,7 +446,12 @@ void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap
 
     long cel = r*_nrCols+c;
 
-   // qDebug() << "swatrestep" << s->pixel[cel].MV << s->pixel[cel]._r << s->pixel[cel]._c << r << c;
+    qDebug() << "swatrestep" << s->pixel[cel].MV << s->pixel[cel]._r << s->pixel[cel]._c << r << c;
+
+
+     for (int i = 0; i < s->pixel[cel].nrNodes; i++) {
+         qDebug() << i << s->pixel[cel].profile->horizon[i]->lut->hydro[DMCH_COL];
+     }
 
     if (SwitchIncludeTile)
         drainfraction = TileWidth->Drc/_dx;

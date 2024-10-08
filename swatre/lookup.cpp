@@ -62,7 +62,7 @@ double TheNode(
     if (it == l->hydro[H_COL].begin()) {
         return(l->hydro[THETA_COL][0]);
     } else if (it == l->hydro[H_COL].end()) {
-        return(l->hydro[THETA_COL][l->nrRows]);
+        return(l->hydro[THETA_COL][l->nrRows-1]);
     } else {
         double lH = *(it - 1);
         double uH = *it;
@@ -117,11 +117,12 @@ double DmcNode(
 
     LUT *l = hor->lut;
 
-    auto it = std::lower_bound(l->hydro[H_COL].begin(), l->hydro[H_COL].end(), head);
-    if (it == l->hydro[H_COL].begin()) {
+    auto it = std::lower_bound(l->hydro[DMCH_COL].begin(), l->hydro[DMCH_COL].end(), head);
+
+    if (it == l->hydro[DMCH_COL].begin()) {
         return(l->hydro[DMCC_COL][0]);
-    } else if (it == l->hydro[H_COL].end()) {
-        return(l->hydro[DMCC_COL][l->nrRows]);
+    } else if (it == l->hydro[DMCH_COL].end()) {
+        return(l->hydro[DMCC_COL][l->nrRows-1]);
     } else {
         double lH = *(it - 1);
         double uH = *it;
