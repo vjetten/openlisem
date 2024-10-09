@@ -548,7 +548,7 @@ void TWorld::cell_InfilSwatre(int r, int c)
         tm->Drc = hmx->Drc;
 
     WHbef->Drc = tm->Drc;
-
+qDebug() << "infiltration SWATRE";
     SwatreStep(op.runstep, r,c, SwatreSoilModel, tm, fpot, TileDrainSoil, thetaTop);
     // WH and fpot done in swatrestep, for normal surface swatre should be done in all cells
 

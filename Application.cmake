@@ -102,7 +102,7 @@ SET(APP_SOURCES
     ui_full/lisemqt.h
     swatre/swatstep.cpp
     swatre/swatinit.cpp
-    swatre/soillut.cpp
+   # swatre/soillut.cpp obsolete
     swatre/lutio.cpp
     swatre/lookup.cpp
     swatre/swatinp.cpp    
@@ -156,8 +156,8 @@ SET(APP_SOURCES
     #include/swatre_g.h obsolete
     include/swatre_p.h
     include/swatreLookup.h
-    include/swatremisc.h
-    include/swatresoillut.h
+   # include/swatremisc.h obsolete
+   # include/swatresoillut.h obsolete
     include/TMmapVariables.h
     include/VectormapVariables.h
     include/version.h

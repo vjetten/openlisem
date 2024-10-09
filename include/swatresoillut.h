@@ -32,12 +32,7 @@
 #define  SOILLUT_H
 
 
-#define THETA_COL	    0
-#define H_COL           1
-#define K_COL           2
-#define DMCH_COL        3
-#define DMCC_COL        4
-#define NR_COL          5
+
 
 #define LUT_nrRows(l) (l->nrRows)
 #define LUT_ValueAt(l,indexCol,indexRow)  (l->lut[indexRow][indexCol])

@@ -43,6 +43,7 @@
 
 static int keyCol;
 
+//OBSOLETE !!!!!!!!!!!
 
 //--------------------------------------------------------------------------------
 /*! Comparison function for double

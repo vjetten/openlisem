@@ -1174,26 +1174,23 @@ public:
     double precision;
     int tnode; //VJ 110122 node nr in profile with tile drains
     SOIL_MODEL *InitSwatre(cTMap *profileMap);//, QString initHeadMaps, cTMap *tiledepthMap, double dtMin);
-    void SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta);//, cTMap *where);
     void CloseSwatre(SOIL_MODEL *s);
     void FreeSwatreInfo(void);
-    //VJ 111104 old stuff, no longer used but kept for now
-   // int ReadSwatreInput(QString fileName, QString tablePath);
-    //ZONE *ReadNodeDefinition(FILE *f);
-    //PROFILE *ReadProfileDefinition(FILE *f, ZONE *z, const char *tablePath);
+    void InitializeProfile(void);
+
     PROFILE *ProfileNr(int profileNr);
     // VJ 111104 constructing profile with Qt commands
     QStringList swatreProfileDef;
     QList<int> swatreProfileNr;
     int *profileNr;
+
     void ReadSwatreInputNew(void);
     PROFILE *ReadProfileDefinitionNew(int pos, ZONE *z);
-    HORIZON *ReadHorizon(QString tablePath, QString tableName);//(const char *tablePath,	const  char *tableName);
     HORIZON *ReadHorizonNew(QString tablePath, QString tableName);
-    double *ReadSoilTable(QString fileName, int *nrRows);//const char *fileName, int *nrRows);
     LUT *ReadSoilTableNew(QString fileName);
-    void ReadCols(/*const char *fileName,*/ double *inLut, const char *buf, int   n);
-    void InitializeProfile(void);
+
+
+    void SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta);//, cTMap *where);
     void HeadCalc(double *h, bool *ponded, const PROFILE *p ,const double  *thetaPrev,
                   const double  *hPrev, const double  *kavg, const double  *dimoca,
                   bool fltsat, double dt, double pond, double qtop, double qbot);

@@ -57,6 +57,7 @@ static const char *colName[3] = { "theta", "h", "k" };
 //	const char *fileName,
 LUT *TWorld::ReadSoilTableNew(QString fileName)
 {
+    QChar subChar(26); //SUB
     // read the table in a stringlist
     QStringList list;
     QFile file(fileName);
@@ -65,10 +66,12 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
 
         while (!in.atEnd()) {
             QString line = in.readLine();
-
+           // line.remove(subChar);
+            line.replace("\u001A"," ");
             // Skip empty or space-only lines
-            if (!line.trimmed().isEmpty())
-                list.append(line);
+            if (!line.trimmed().isEmpty() && line != " ")
+                list.append(line);           
+
         }
         file.close();
     }
@@ -77,26 +80,28 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
 
     for (int i = 0; i < list.count(); i++) {
         QStringList SL = list[i].split(QRegularExpression("\\s+"),Qt::SkipEmptyParts);
-     //   qDebug() << SL;
-        if (SL.count() == 1) {
-            SL.removeLast();
+
+        bool ok;
+        SL[0].toDouble(&ok);
+        if (!ok || SL.count() < 3) {
+            qDebug() << "not ok" << SL;
+            l->nrRows--;
             break; // sometimes table ends with some char code
         }
         l->hydro[THETA_COL].append(SL[THETA_COL].toDouble());
         l->hydro[H_COL].append(SL[H_COL].toDouble());
         l->hydro[K_COL].append(SL[K_COL].toDouble()/86400 * ksatCalibration); // cm/day to mm/h 0.41667!
         //NOTE: Ksat in cm/day needs to me cm/sec ??
-
     }
 
-    // for (int i = 0; i < l->nrRows-1; i++) {
-    //     if (l->hydro[H_COL][i+1] <= l->hydro[H_COL][i])
-    //         Error(QString("matrix head not increasing in table %1 at h = %2.").arg(fileName).arg(l->hydro[H_COL][i]));
-    //     if (l->hydro[THETA_COL][i+1] <= l->hydro[THETA_COL][i])
-    //         Error(QString("moisture content not increasing in table %1 at theta = %2.").arg(fileName).arg(l->hydro[THETA_COL][i]));
-    //     if (l->hydro[K_COL][i+1] <= l->hydro[K_COL][i])
-    //         Error(QString("Hydraulic conductivity not increasing in table %1 at K = %2.").arg(fileName).arg(l->hydro[K_COL][i]));
-    // }
+    for (int i = 0; i < l->nrRows-1; i++) {
+        if (l->hydro[H_COL][i+1] <= l->hydro[H_COL][i])
+            Error(QString("matrix head not increasing in table %1 at h = %2.").arg(fileName).arg(l->hydro[H_COL][i]));
+        if (l->hydro[THETA_COL][i+1] <= l->hydro[THETA_COL][i])
+            Error(QString("moisture content not increasing in table %1 at theta = %2.").arg(fileName).arg(l->hydro[THETA_COL][i]));
+        if (l->hydro[K_COL][i+1] <= l->hydro[K_COL][i])
+            Error(QString("Hydraulic conductivity not increasing in table %1 at K = %2.").arg(fileName).arg(l->hydro[K_COL][i]));
+    }
 
     for (int i = 0; i < l->nrRows - 1; i++) {
         double v = 0.5*(l->hydro[H_COL][i] + l->hydro[H_COL][i+1]);
@@ -114,111 +119,12 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
     l->hydro[DMCH_COL] << 0;
     l->hydro[DMCC_COL] << l->hydro[DMCC_COL][l->nrRows-2] + (l->hydro[DMCC_COL][l->nrRows-2] - l->hydro[DMCC_COL][l->nrRows-3]);
 
-    qDebug() << fileName;
-    for (int i = 0; i < l->nrRows; i++) {
-    qDebug() << l->hydro[0][i] <<  l->hydro[1][i] << l->hydro[2][i] << l->hydro[3][i] << l->hydro[4][i];
-    }
+    // qDebug() << fileName;
+    // for (int i = 0; i < l->nrRows; i++) {
+    // qDebug() << l->hydro[0][i] <<  l->hydro[1][i] << l->hydro[2][i] << l->hydro[3][i] << l->hydro[4][i];
+    // }
+
+    // WORKS
 
     return(l);
 }
-//----------------------------------------------------------------------------------------
-
-double *TWorld::ReadSoilTable(QString fileName,  int *nrRows)
-{
- //
-    // char buf[1024];
-    // double  *l;
-    // int     sizeL, nrL;
-    // FILE    *f;
-
-    // sizeL = INC_STEP;
-    // nrL = 0;
-    // l = (double *)malloc(sizeof(double) * sizeL);
-    // f = fopen(fileName, "r");
- //    if (f == nullptr)
-    // 	Error(QString(OPEN_ERRORs).arg(fileName));
-
- //    QStringList list;
- //    QFile file(fileName);
- //    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
- //        QTextStream in(&file);
-
- //        while (!in.atEnd()) {
- //            QString line = in.readLine();
-
- //            // Skip empty or space-only lines
- //            if (!line.trimmed().isEmpty())
- //                list.append(line);
- //        }
- //        file.close();
- //    }
-
-
-    // do {
-    // 	int currNrCols;
- //        if (fgets(buf, 1024, f) == nullptr)
-    // 	{
-    // 		if (feof(f))
-    // 			break; /* OK, END OF FILE */
-    // 		Error(QString(READ_ERRORs).arg(fileName));
-    // 	}
-
- //      QStringList SL = QString(buf).split(QRegularExpression("\\s+"),Qt::SkipEmptyParts);
- //      currNrCols = SL.count();
- //      strcpy(buf, SL.join(" ").toLatin1());
- //      // trim spaces and count columns
-
-    // 	if (currNrCols == 0)
-    // 		continue;  /* EMPTY LINE, next one please */
-
-    // 	if (currNrCols != EXP_NR_COLS)
-    // 		Error(QString(COL_ERRORs).arg(fileName).arg(nrL/EXP_NR_COLS+1).arg(currNrCols < EXP_NR_COLS?"less":"more"));
-    // 	/* increase l if neccessary */
-    // 	if (sizeL <= (nrL + EXP_NR_COLS))
-    // 	{
-    // 		sizeL += INC_STEP;
-    // 		l = (double *)realloc(l, sizeL*sizeof(double));
-    // 	}
-
- //        ReadCols(l+nrL,buf,EXP_NR_COLS);
-    // 	/* test if lut is monotonous increasing */
-
-    // 	if (nrL > 0)
-    // 		for (int i=0; i< EXP_NR_COLS; i++)
-    // 			if ( l[nrL+i] < l[(nrL-EXP_NR_COLS)+i])
- //               Error(QString(SMALLERs).arg(fileName).arg(colName[i]).arg(nrL/EXP_NR_COLS).arg(l[nrL+i]));
-
-    // 	nrL += EXP_NR_COLS;
-    // } while (/* infinite: */ nrL > -1 );
-
-    // /* loop contains one break and one continue */
-    // if (nrL == 0)
-    // 	Error(QString(NO_ENTRIESs).arg(fileName));
-
-    // *nrRows = nrL / EXP_NR_COLS;
-    // fclose(f);
-    // return l;
-    return 0;
-}
-//----------------------------------------------------------------------------------------
-void TWorld::ReadCols(
-       // const char * /* fileName */, /* for error reporting only */
-
-		double *inLut,   /* -w current position in lut that will be filled */
-		const char *buf, /* buffer to read from */
-		int   n)         /* number of items to read */
-{
-	const char *cp; /* current ptr */
-	char  *rp;      /* result prt */
-	int i;
-
-	cp = buf;
-	for (i = 0; i < n; i++)
-	{
-		inLut[i] = strtod(cp, &rp);
-		//	if ( (!isspace(*rp)) && (*rp != '\0') )
-		//	Error(NAN_MESS, fileName, cp);
-		cp = rp; /* advance ptr to next number */
-	}
-}
-//----------------------------------------------------------------------------------------

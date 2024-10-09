@@ -49,17 +49,15 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
    for (long i = 0; i < nrCel; i++)
    {
       s->pixel[i].MV = 0;
-      s->pixel[i]._r = -1;
-      s->pixel[i]._c = -1;
       s->pixel[i].profile = nullptr;
       s->pixel[i].h = new double[MAX_NODES_P];
     //  s->pixel[i].theta = new double[MAX_NODES_P];
     //  s->pixel[i].k = new double[MAX_NODES_P];
-      for (int n = 0; n < MAX_NODES_P; n++) {
-          s->pixel[i].h[n] = -1e10;
-        //  s->pixel[i].theta[n] = 0.01;
-        //  s->pixel[i].k[n] = 0;
-      }
+      // for (int n = 0; n < MAX_NODES_P; n++) {
+      //     s->pixel[i].h[n] = -1e10;
+      //     s->pixel[i].theta[n] = 0.01;
+      //   //  s->pixel[i].k[n] = 0;
+      // }
       s->pixel[i].nrNodes = zone->nrNodes;
       s->pixel[i].dumpHid = 0;  //set to 1 for output of a pixel
       s->pixel[i].tiledrain = 0;
@@ -70,10 +68,10 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
    // give each pixel a profile 
    FOR_ROW_COL_MV {
        long j = r*_nrCols + c;
-       s->pixel[j]._r = r;
-       s->pixel[j]._c = c;
-
        s->pixel[j].MV = 1;
+       //s->pixel[j].h = new double[MAX_NODES_P];
+       //for (int n = 0; n < MAX_NODES_P; n++)
+//            s->pixel[j].h[n] = -1e10;
 
        int profnr = swatreProfileNr.indexOf((int)profileMap->Drc);
        //qDebug() << "profnr" << profnr << profileMap->Drc;
@@ -89,12 +87,6 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
            s->pixel[j].dumpHid = SwatreOutput->Drc;
        }
    }
-
-   long hoi = 0;
-    for (long i = 0; i < nrCel; i++)
-        if (s->pixel[i].MV == 1) hoi++;
-   qDebug() << "hoi" << hoi << nrCells << nrCel;
-
 
    // fill the inithead structure of each pixel and set tiledrain depth if any
    for (int n = 0; n < zone->nrNodes; n++)

@@ -32,7 +32,7 @@
 
 #include <QtCore>
 
-#include "swatresoillut.h"
+//#include "swatresoillut.h"
 
 
 #define MAX_NODES            20
@@ -48,6 +48,13 @@
 #define DistNode(profile)       (profile->zone->disnod)
 #define Horizon(profile, node)  (profile->horizon[node])
 /* sizeof intermediate arrays is fixed to optimize computation: */
+
+#define THETA_COL	    0
+#define H_COL           1
+#define K_COL           2
+#define DMCH_COL        3
+#define DMCC_COL        4
+#define NR_COL          5
 
 //-------------------------------------------------------------
 /// SWATRE structure geometry of profile: node distances etc.
@@ -107,8 +114,8 @@ typedef double NODE_ARRAY[MAX_NODES_P];
    Specific can be put here such as tile drain flux, drip irrigation flux etc
   */
 typedef struct PIXEL_INFO {
-    int _r;
-    int _c;
+    // int _r;
+    // int _c;
    int MV;
    const PROFILE *profile;    /** profile this pixel belongs to */
 
