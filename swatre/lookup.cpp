@@ -112,7 +112,7 @@ double HcoNode(double head,const HORIZON *hor,double calib)
     LUT *l = hor->lut;
 
     if (head >= 0) {
-        qDebug() << "ksat" << l->hydro[K_COL][l->nrRows-1];
+      //  qDebug() << "ksat" << l->hydro[K_COL][l->nrRows-1];
         return l->hydro[K_COL][l->nrRows-1];
     }
 

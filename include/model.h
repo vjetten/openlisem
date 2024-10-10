@@ -51,6 +51,8 @@
 //---------------------------------------------------------------------------
 //#define NULL nullptr
 
+#define SHOWDEBUG (showr == 270 && showc == 318)
+
 #define PI 3.14159265
 
 #define HMIN 1e-6

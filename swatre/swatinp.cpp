@@ -129,7 +129,12 @@ void TWorld::ReadSwatreInputNew(void)
         Error(QString("SWATRE: Can't open profile definition file %1").arg(SwatreTableName));
         throw 1;
     }
-//qDebug() << swatreProfileDef;
+
+
+    for(int i; i < swatreProfileDef.count(); i++)
+        qDebug() << swatreProfileDef[i];
+
+    // read and make nodes
     zone = new ZONE;
     bool ok;
     zone->nrNodes = swatreProfileDef[0].toInt(&ok, 10);
@@ -147,35 +152,57 @@ void TWorld::ReadSwatreInputNew(void)
         zone->disnod.append(0.0);
     }
 
-    int pos = 1;
-    for (int i = 1; i < zone->nrNodes; i++) {
-        pos++;
 
-        bool ok;
-        zone->endComp[i] = swatreProfileDef[pos].toDouble(&ok);
-
-    //    qDebug() << "zone->endComp[i]" << pos << zone->endComp[pos] << swatreProfileDef[pos];
-
+   int pos = 2;
+    for (int i = 0; i < zone->nrNodes; i++)
+    {
+        zone->endComp[i] = swatreProfileDef[i+pos].toDouble(&ok);
         if (!ok)
-            Error(QString("SWATRE: Can't read compartment end of node %1").arg(pos));
+            Error(QString("SWATRE: Can't read compartment end of node %1").arg(i+pos));
         if (zone->endComp[i] <= 0)
-            Error(QString("SWATRE: compartment end of node nr. %1 <= 0").arg(pos));
-
-        /* compute dz and make negative */
-        zone->dz[pos] = (zone->endComp[pos-1]-zone->endComp[pos]);
-        zone->z[pos] = zone->z[pos-1] + 0.5*(zone->dz[pos-1]+zone->dz[pos]);
-        zone->disnod[pos] = zone->z[pos] - zone->z[pos-1];
+            Error(QString("SWATRE: compartment end of node %1 <= 0").arg(i+pos));
     }
-    zone->dz[0] = -zone->endComp[1];
-    zone->z[0] = zone->dz[1]*0.5;
-    zone->disnod[0] = zone->z[1];
-
+    zone->dz[0]= -zone->endComp[0];
+    zone->z[0]= zone->dz[0]*0.5;
+    zone->disnod[0] = zone->z[0];
+    for (int i = 1; i < zone->nrNodes; i++)
+    {
+        zone->dz[i]= (zone->endComp[i-1]-zone->endComp[i]);
+        zone->z[i]= zone->z[i-1] + 0.5*(zone->dz[i-1]+zone->dz[i]);
+        zone->disnod[i] = zone->z[i] - zone->z[i-1];
+    }
     zone->disnod[zone->nrNodes] = 0.5 * zone->dz[zone->nrNodes-1];
 
- //   for (int i = 0; i <= zone->nrNodes; i++)
-    //    qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i];
+    for (int i = 0; i <= zone->nrNodes; i++)
+        qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i];
 
+    /*
+     * 	int  i;
+    zone = (ZONE *)malloc(sizeof(ZONE));
+    if ( fscanf(f,"%d",&(zone->nrNodes)) != 1 )
+        Error(QString("SWATRE: Can't read number of nodes %1 from input file").arg(zone->nrNodes));
+    if (zone->nrNodes < 1 )
+        Error(QString("SWATRE: number of nodes %1 smaller than 1").arg(zone->nrNodes));
+    if (zone->nrNodes > MAX_NODES)
+        Error(QString("SWATRE: number of nodes %1 larger than %2").arg(zone->nrNodes).arg(MAX_NODES));
 
+    zone->dz     = (double *)malloc(sizeof(double)*zone->nrNodes);
+    zone->z      = (double *)malloc(sizeof(double)*zone->nrNodes);
+    zone->disnod = (double *)malloc(sizeof(double)*(zone->nrNodes+1));
+    zone->endComp= (double *)malloc(sizeof(double)*zone->nrNodes);
+
+    for (i=0; i < zone->nrNodes; i++)
+    {
+        if ( fscanf(f,"%lf",&(zone->endComp[i])) != 1 )
+            Error(QString("SWATRE: Can't read compartment end of node %1").arg(i+1));
+        if (zone->endComp[i] <= 0)
+            Error(QString("SWATRE: compartment end of node nr. %1 <= 0").arg(i+1));
+        zone->dz[i]= ( (i == 0) ? -zone->endComp[0] : (zone->endComp[i-1]-zone->endComp[i]));
+        zone->z[i]= ( (i == 0) ? zone->dz[i]*0.5 : zone->z[i-1] + 0.5*(zone->dz[i-1]+zone->dz[i]));
+        zone->disnod[i] = ( (i == 0) ? zone->z[i]: zone->z[i] - zone->z[i-1]);
+    }
+    zone->disnod[zone->nrNodes] = 0.5 * zone->dz[zone->nrNodes-1];
+*/
     //  count and check valid profiles
     QStringList checkList; // temp list to check for double profile nrs
     for (int i = zone->nrNodes+1; i < swatreProfileDef.count(); i++) {
@@ -185,7 +212,8 @@ void TWorld::ReadSwatreInputNew(void)
         }
     }
     sizeProfileList = nrProfileList;
-qDebug() << "nr profiles" << nrProfileList << checkList.count();
+
+    qDebug() << "nr profiles" << nrProfileList << checkList.count();
 
     if (nrProfileList == 0)
         Error(QString("SWATRE: no profiles read from %1").arg(SwatreTableName));

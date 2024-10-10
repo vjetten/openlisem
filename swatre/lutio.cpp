@@ -32,24 +32,24 @@ functions:
 */
 
 
-#include "swatresoillut.h"
+//#include "swatresoillut.h"
 #include "lerror.h"
 #include "model.h"
 
 
-///  number of elements added to the lut when initializing (malloc) or resizing (realloc)
-#define EXP_NR_COLS 3
-#define INC_STEP (45*3)
+// ///  number of elements added to the lut when initializing (malloc) or resizing (realloc)
+// #define EXP_NR_COLS 3
+// #define INC_STEP (45*3)
 
-/// error messages:
-#define OPEN_ERRORs "SWATRE: Can't open %1"
-#define READ_ERRORs "SWATRE: Read error on %1"
-#define COL_ERRORs  "SWATRE: Table %1, entry nr. %2 contains %3 than 3 columns"
-#define EOF_MESSs   "SWATRE: Unexpected end of file while reading lookup table"
-#define NO_ENTRIESs "SWATRE: Table %1 contains no entries"
-#define NR_COLSs    "SWATRE: Encountered line containing %1 while first row had %2 columns"
-#define NAN_MESSs   "SWATRE: Table %1 contains a non number symbol: %2"
-#define SMALLERs    "SWATRE: Table %1 column %2 on entry %3 has smaller value (%4) than previous element"
+// /// error messages:
+// #define OPEN_ERRORs "SWATRE: Can't open %1"
+// #define READ_ERRORs "SWATRE: Read error on %1"
+// #define COL_ERRORs  "SWATRE: Table %1, entry nr. %2 contains %3 than 3 columns"
+// #define EOF_MESSs   "SWATRE: Unexpected end of file while reading lookup table"
+// #define NO_ENTRIESs "SWATRE: Table %1 contains no entries"
+// #define NR_COLSs    "SWATRE: Encountered line containing %1 while first row had %2 columns"
+// #define NAN_MESSs   "SWATRE: Table %1 contains a non number symbol: %2"
+// #define SMALLERs    "SWATRE: Table %1 column %2 on entry %3 has smaller value (%4) than previous element"
 
 static const char *colName[3] = { "theta", "h", "k" };
 

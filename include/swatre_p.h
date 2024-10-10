@@ -76,6 +76,17 @@
 \endcode
 */
 
+
+/// SWATRE Land use tables, nrRows and nrCols mean rows and cols (3) in the table
+typedef struct LUT {
+    double **lut;
+    double *key;  // buffer for search key
+    int   nrRows, nrCols;
+    bool  gotoMinMax;
+    QVector<double> hydro[5];
+} LUT;
+
+
 typedef struct ZONE   {
 	/* structure explaining how the soil subdivided */
         // double *dz;       	/*!< compartment size (cm.) used as negative in [SWATRE]*/
