@@ -35,6 +35,8 @@ functions:
 #include "model.h"
 
 //--------------------------------------------------------------------------------
+// make the 3d structure PIXEL_INFO, based on profile numbers in map
+// zone exists is done before
 SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
 {
    SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
@@ -51,13 +53,9 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
       s->pixel[i].MV = 0;
       s->pixel[i].profile = nullptr;
       s->pixel[i].h = new double[MAX_NODES_P];
-    //  s->pixel[i].theta = new double[MAX_NODES_P];
-    //  s->pixel[i].k = new double[MAX_NODES_P];
-      // for (int n = 0; n < MAX_NODES_P; n++) {
-      //     s->pixel[i].h[n] = -1e10;
-      //     s->pixel[i].theta[n] = 0.01;
-      //   //  s->pixel[i].k[n] = 0;
-      // }
+      for (int n = 0; n < MAX_NODES_P; n++) {
+          s->pixel[i].h[n] = -100;
+      }
       s->pixel[i].nrNodes = zone->nrNodes;
       s->pixel[i].dumpHid = 0;  //set to 1 for output of a pixel
       s->pixel[i].tiledrain = 0;
@@ -69,19 +67,12 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
    FOR_ROW_COL_MV {
        long j = r*_nrCols + c;
        s->pixel[j].MV = 1;
-       //s->pixel[j].h = new double[MAX_NODES_P];
-       //for (int n = 0; n < MAX_NODES_P; n++)
-//            s->pixel[j].h[n] = -1e10;
 
        int profnr = swatreProfileNr.indexOf((int)profileMap->Drc);
-       //qDebug() << "profnr" << profnr << profileMap->Drc;
        if (profnr > 0)
-           s->pixel[j].profile = profileList[profnr];
+           s->pixel[j].profile = profileList[profnr];  // pointer to profile
        else
            Error(QString("SWATRE: Profile number %1 in profile.map does not exist in the defenitions in profile.inp").arg((int)profileMap->Drc));
-
-       // give profile pointer to pixel
-       // if nr does not exist in the list
 
        if(SwitchDumpH || SwitchDumpTheta || SwitchDumpK) {
            s->pixel[j].dumpHid = SwatreOutput->Drc;
@@ -94,23 +85,27 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
       QString fname = QString("%1.%2").arg(initheadName).arg(n+1, 3, 10, QLatin1Char('0'));
       // make inithead.001 to .00n name
 
-      cTMap *inith = ReadMap(LDD,fname);
+      inith = ReadMap(LDD,fname);
       // get inithead information
 
       FOR_ROW_COL_MV {
          long j = r*_nrRows+c;
          s->pixel[j].h[n] = inith->Drc;//*psiCalibration;
-
+qDebug() << inith->Drc;
          // find depth of tilenode
          if (SwitchIncludeTile) {
-             if (!pcr::isMV(TileDepth->Drc) && TileDepth->Drc > 0)
-             {
+             if (!pcr::isMV(TileDepth->Drc) && TileDepth->Drc > 0) {
                  // NOTE depth is in m while node info is in cm, so *100
                  // endComp is the depth at the bottom of the compartment, so the tile is <= endcomp
                  if (s->pixel[j].profile->zone->endComp[n] > TileDepth->Drc*100)
                      s->pixel[j].tilenode = n-1;
              }
          }
+
+         if (SHOWDEBUG) {
+             qDebug() << fname << s->pixel[j].h[0] << s->pixel[j].h[1];
+         }
+
       }
    }
 

@@ -794,7 +794,7 @@ void TWorld::InitSoilInput(void)
     // SWATRE infiltration read maps and structures
     if (InfilMethod == INFIL_SWATRE)
     {
-        // read all Swatre profiles
+        // read all Swatre profile maps
         ProfileID = ReadMap(LDD,getvaluename("profmap"));
         SwatreOutput = ReadMap(LDD,getvaluename("swatreout"));
 
@@ -809,18 +809,6 @@ void TWorld::InitSoilInput(void)
         else
             CrustFraction = NewMap(0);
 
-       // RepellencyFraction = NewMap(1.0);
-        // if (SwitchWaterRepellency)
-        // {
-        //     RepellencyCell = ReadMap(LDD,getvaluename("repelcell"));
-        //     // values of 1 calculate repellency
-        // }
-        // else
-        //     RepellencyCell = NewMap(0); //no repellency anywhere
-
-
-        // repellency to 1, no effect
-
         if (SwitchInfilCompact)
         {
             CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
@@ -831,7 +819,7 @@ void TWorld::InitSoilInput(void)
 
         // read the swatre tables and make the information structure ZONE etc
         ReadSwatreInputNew();
-        qDebug() << "SWATRE init done";
+        qDebug() << "SWATRE input New done";
     }
 }
 //---------------------------------------------------------------------------
@@ -1873,7 +1861,7 @@ void TWorld::IntializeData(void)
         SwatreSoilModel = InitSwatre(ProfileID);//, initheadName, TileDepth, swatreDT);
         if (SwatreSoilModel == nullptr)
             throw 3;
-qDebug() << "SwatreSoilModel created";
+
         if (SwitchInfilCrust)
         {
             SwatreSoilModelCrust = InitSwatre(ProfileIDCrust);//, initheadName, TileDepth, swatreDT);

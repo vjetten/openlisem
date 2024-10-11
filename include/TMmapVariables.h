@@ -310,13 +310,15 @@ cTMap
 *SedimentFilter,             //!< sediment deposited in the sediment trap in kg/m2
 *SedMaxVolume,               //!< maxvol of sediment in that can be trapped in m3
 *GrassWidthDX,               //!< width of grasstrip in [m]
-*thetaTop,                   //!< average theta of node 0 and 1 for water repelency and nutrients
 
+//swatre
+*thetaTop,                   //!< average theta of node 0 and 1 for water repelency and nutrients
 *ProfileID,                  //!< SWATRE profile unit number map
 *ProfileIDCrust,             //!< SWATRE profile unit number map for crusted areas
 *ProfileIDCompact,           //!< SWATRE profile unit number map for compacted areas
 *ProfileIDGrass,             //!< SWATRE profile unit number map for grass strips
-*SwatreOutput,
+*SwatreOutput,               //!< SWATRE cells flagged for output
+*inith,                      //!< SWATRE inithead in -cm
 
 *LDDChannel,                 //!<
 *LDDbaseflow,

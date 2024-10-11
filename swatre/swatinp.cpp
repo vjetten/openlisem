@@ -130,9 +130,8 @@ void TWorld::ReadSwatreInputNew(void)
         throw 1;
     }
 
-
-    for(int i; i < swatreProfileDef.count(); i++)
-        qDebug() << swatreProfileDef[i];
+    // for(int i; i < swatreProfileDef.count(); i++)
+    //     qDebug() << swatreProfileDef[i];
 
     // read and make nodes
     zone = new ZONE;
@@ -176,33 +175,6 @@ void TWorld::ReadSwatreInputNew(void)
     for (int i = 0; i <= zone->nrNodes; i++)
         qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i];
 
-    /*
-     * 	int  i;
-    zone = (ZONE *)malloc(sizeof(ZONE));
-    if ( fscanf(f,"%d",&(zone->nrNodes)) != 1 )
-        Error(QString("SWATRE: Can't read number of nodes %1 from input file").arg(zone->nrNodes));
-    if (zone->nrNodes < 1 )
-        Error(QString("SWATRE: number of nodes %1 smaller than 1").arg(zone->nrNodes));
-    if (zone->nrNodes > MAX_NODES)
-        Error(QString("SWATRE: number of nodes %1 larger than %2").arg(zone->nrNodes).arg(MAX_NODES));
-
-    zone->dz     = (double *)malloc(sizeof(double)*zone->nrNodes);
-    zone->z      = (double *)malloc(sizeof(double)*zone->nrNodes);
-    zone->disnod = (double *)malloc(sizeof(double)*(zone->nrNodes+1));
-    zone->endComp= (double *)malloc(sizeof(double)*zone->nrNodes);
-
-    for (i=0; i < zone->nrNodes; i++)
-    {
-        if ( fscanf(f,"%lf",&(zone->endComp[i])) != 1 )
-            Error(QString("SWATRE: Can't read compartment end of node %1").arg(i+1));
-        if (zone->endComp[i] <= 0)
-            Error(QString("SWATRE: compartment end of node nr. %1 <= 0").arg(i+1));
-        zone->dz[i]= ( (i == 0) ? -zone->endComp[0] : (zone->endComp[i-1]-zone->endComp[i]));
-        zone->z[i]= ( (i == 0) ? zone->dz[i]*0.5 : zone->z[i-1] + 0.5*(zone->dz[i-1]+zone->dz[i]));
-        zone->disnod[i] = ( (i == 0) ? zone->z[i]: zone->z[i] - zone->z[i-1]);
-    }
-    zone->disnod[zone->nrNodes] = 0.5 * zone->dz[zone->nrNodes-1];
-*/
     //  count and check valid profiles
     QStringList checkList; // temp list to check for double profile nrs
     for (int i = zone->nrNodes+1; i < swatreProfileDef.count(); i++) {
@@ -220,11 +192,6 @@ void TWorld::ReadSwatreInputNew(void)
 
     checkList.sort();
     // //DOES NOT WORK BECAUSE order is 1, 10, 11 ...28 and then 2,3,4 ...
-    // for (int i = 0; i < checkList.count()-1; i++)
-    // {
-    //     if (checkList[i] == checkList[i+1])
-    //         DEBUG(QString("Warning SWATRE: profile id %1 defined more than once").arg(checkList[i+1]));
-    // }
 
     // ordered int list with profile nrs
     // makes checklist redundant
@@ -240,9 +207,6 @@ void TWorld::ReadSwatreInputNew(void)
     }
 
     // sort the integer profile numbers
-
-    qDebug() << swatreProfileNr;
-    qDebug() << checkList;
 
     profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1));
     // why realloc? profile list is a list of pointers to PROFILE
@@ -289,7 +253,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
     if (!ok)
         Error(QString("SWATRE: read error: error in profile id %1 definition").arg(p->profileId));
 
-    qDebug() << pos << "readprofdefnew" << p->profileId;
+   // qDebug() << pos << "readprofdefnew" << p->profileId;
 
     p->horizon = (const HORIZON **)malloc(sizeof(HORIZON *) * z->nrNodes);
     p->zone = z; // pointer
@@ -316,7 +280,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
         while (i < z->nrNodes && z->endComp[i] <= endHor )
             p->horizon[i++] = h;
 
-        qDebug() << tableName << p->profileId;
+       // qDebug() << tableName << p->profileId;
      //   if (z->endComp[i-1] != endHor)
        //    Error(QString("SWATRE: Compartment does not end on depth '%1' (found in profile nr %2 for horizon %3)")
          //        .arg(endHor).arg(p->profileId).arg(tableName));
@@ -416,7 +380,7 @@ HORIZON * TWorld::ReadHorizonNew(QString tablePath, QString tableName)
     // read the lut with this horizon and link the pointer
     h->lut = ReadSoilTableNew(tablePath + tableName);
     h->name = tableName;
-qDebug() << tableName << nrHorizonList;
+
     return(h);
 }
 //----------------------------------------------------------------------------------------------

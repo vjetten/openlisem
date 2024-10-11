@@ -98,7 +98,8 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double *the
 		 /* h at soil surface prescribed, ponding */
          thomc[0] = -dt * kavg[1] / p->zone->dz[0] / p->zone->disnod[1];
          thomb[0] = -thomc[0] + dimoca[0] + dt*kavg[0]/p->zone->disnod[0]/p->zone->dz[0];
-         thomf[0] = dimoca[0]*h[0] + dt/(-p->zone->dz[0]) * (kavg[0] - kavg[1]) + dt*kavg[0]*pond/p->zone->disnod[0]/p->zone->dz[0];
+         thomf[0] = dimoca[0]*h[0] + dt/(-p->zone->dz[0]) * (kavg[0] - kavg[1]) +
+                 dt*kavg[0]*pond/p->zone->disnod[0]/p->zone->dz[0];
     } else {
 		 /*  q at soil surface prescribed, qtop = rainfall  */
          (*ponded) = false;
@@ -219,15 +220,15 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
    const PROFILE *p = pixel->profile;
    double *h = pixel->h;
    int n = pixel->nrNodes;//p->zone->nrNodes;
-   double dt = std::max(_dt/5, pixel->currDt);
+   double dt = _dt/5;// std::max(_dt/5, pixel->currDt);
    double pond = *waterHeightIO;
    double elapsedTime = 0;
    double influx = 0;
    double drainout = 0;
    int tnode = pixel->tilenode;
 
-       if (SHOWDEBUG)
-qDebug() << "compute for pixel" << n << pixel->MV << p->profileId;
+   if (SHOWDEBUG)
+       qDebug() << "compute for pixel" << n << pixel->MV << p->profileId;
 
 
    while (elapsedTime < _dt)
@@ -241,20 +242,16 @@ qDebug() << "compute for pixel" << n << pixel->MV << p->profileId;
       for (int j = 0; j < pixel->nrNodes; j++) {
          k[j] = HcoNode(h[j], p->horizon[j], ksatCalibration);
          // input tables in cm/day function returns in cm/sec !!
-         dimoca[j] = DmcNode(h[j], pixel->profile->horizon[j]);
+         dimoca[j] = DmcNode(h[j], p->horizon[j]);
          // differential moisture capacity d(theta)/d(h), tangent moisture retention curve
-         theta[j] = TheNode(h[j], pixel->profile->horizon[j]);
+         theta[j] = TheNode(h[j], p->horizon[j]);
          // moisture content
         // qDebug() << h[j] << k[j] << theta[j] << dimoca[j];
       }     
       if (SHOWDEBUG) {
-        qDebug() << elapsedTime << _dt;
-        // for (int j = 0; j < pixel->nrNodes; j++) {
-        //     qDebug() << k[j];
-        // }
-
+         qDebug() << elapsedTime <<dt;
+          qDebug() << "h1" << h[0] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
       }
-
       *Theta = (theta[0]+theta[1])/2;
       // avg water content of first two nodes, choice ...
       //TODO: WHY? FOR WHAT, pesticides, repelency?
@@ -263,8 +260,8 @@ qDebug() << "compute for pixel" << n << pixel->MV << p->profileId;
       //choice arithmetric average K, geometric in org. SWATRE
 
       for(int j = 1; j < nNodes; j++) {
-          kavg[j] = std::sqrt(k[j-1]*k[j]);
-      kavg[0] = kavg[1];
+        kavg[j] = std::sqrt(k[j-1]*k[j]);
+        kavg[0] = kavg[1];
 
           // switch (KavgType) {
           // case 0: kavg[j] = Aavg(k[j-1],k[j]); break;
@@ -274,14 +271,14 @@ qDebug() << "compute for pixel" << n << pixel->MV << p->profileId;
           // }
       }
 
-      //--- boundary conditions ---//
+      //--- boundary conditions ---
 
-      //----- TOP -----//
+      //----- TOP -----
       // check if ponded: 1st compare fluxes, 2nd compare store
+      // top flux is ponded layer / timestep, available water/rainfall, cm/sec
       qtop = -pond/dt;
-      // top flux is ponded layer / timestep, available water, cm/sec
 
-      //----- BOTTOM -----//
+      //----- BOTTOM -----
       // bottom is 0 or copy of flux of last 2 layers
       if (SwitchImpermeable)
          qbot = 0;
@@ -291,16 +288,17 @@ qDebug() << "compute for pixel" << n << pixel->MV << p->profileId;
       // 1st check flux against max flux
       ThetaSat = TheNode(0.0, Horizon(p, 0));
       //kavg[0]= sqrt( (*repel) * HcoNode(0, Horizon(p, 0), ksatCalibration) * k[0]);
-      kavg[0]= sqrt( HcoNode(0, Horizon(p, 0), ksatCalibration) * k[0]);
+      kavg[0]= HcoNode(0, p->horizon[0], ksatCalibration);//sqrt( HcoNode(0, p->horizon[0], ksatCalibration) * k[0]);
       // geometric avg of ksat and k[0] => is used for max possible
-
-      _max = kavg[0]*(pond-h[0]) / DistNode(p)[1] - kavg[0];
+     // _max = -kavg[0]*((h[0]-pond) / DistNode(p)[0] + 1);
+      _max = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
+//      qmax = -kavg[0]*((h[0]-pond) / DistNode(p)[0] + 1);
       // maximum possible flux, compare to real top flux available
       ponded = (qtop < _max);
       // if more flux then max possible flag ponded is true
       // NOTE qtop and _max are both negative !
-       if (SHOWDEBUG)
-      qDebug() << "swatre" << _max << DistNode(p)[1] << kavg[0];
+      if (SHOWDEBUG)
+        qDebug() << "swatre" <<ponded << _max << qtop << DistNode(p)[0] << DistNode(p)[1];
 
       //2nd check: ponded layer depth against storage
       if (!ponded)
@@ -310,11 +308,9 @@ qDebug() << "compute for pixel" << n << pixel->MV << p->profileId;
          for(int i = 0; i < n && h[i] < 0 /*&& space > pond*/; i++)
          {
             ThetaSat = TheNode(0, Horizon(p, i));
-                  //LUT_Highest(p->horizon[i]->lut, THETA_COL);
             space += (ThetaSat - theta[i]) * (-Dz(p)[i]);
          }
-         //ponded = pond > space;
-         ponded = ((-qtop) * dt) > space;
+         ponded = pond > space;
       }
 
       // check if profile is completely saturated (flstsat)
@@ -338,7 +334,9 @@ qDebug() << "compute for pixel" << n << pixel->MV << p->profileId;
       HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca, fltsat, dt, pond, qtop, qbot);
       // calculate new h and theta with two times gaussian matrix
       // and back substitution abracadabra
-
+ if (SHOWDEBUG) {
+     qDebug() << "h" << h[0] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
+ }
       // determine new boundary fluxes
 
       if (SwitchImpermeable)
@@ -349,6 +347,7 @@ qDebug() << "compute for pixel" << n << pixel->MV << p->profileId;
 
       if ( ponded || (fltsat && (qtop < qbot)) )
          qtop = -kavg[0] * ((h[0] - pond)/DistNode(p)[0] + 1);
+
       // adjust top flux
 
       pond += qtop*dt;
@@ -429,11 +428,6 @@ qDebug() << "compute for pixel" << n << pixel->MV << p->profileId;
  */
 void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta)
 {   
-   // map "where" is used as a flag here, it is the fraction of crust, compaction, grass
-   // so that the additional calculations are not done everywhere
-   // for normal soil surface where is always 1.
-   // this prevents doing swatrestep for crusting for cells that are 0 for instance
-
     double wh, infil, drain, drainfraction = 0, Theta;
     QString dig;
 
@@ -484,8 +478,6 @@ void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap
     //_theta->Drc = Theta;
     // save the average moisture content of the top two layers
     // used for repellency OBSOLETE
-
-
 }
 //--------------------------------------------------------------------------------
 

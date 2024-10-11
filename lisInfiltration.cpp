@@ -157,15 +157,22 @@ void TWorld::InfilEffectiveKsat(bool first)
 // this function is not used!
 void TWorld::Infiltration()
 {
+    if (!SwitchInfiltration)
+        return;
+
+
     //NOTE fact and fpot have a unit of m (not m/s)
-    if (SwitchInfiltration && InfilMethod == INFIL_SWATRE) {
-      // #pragma omp parallel for num_threads(userCores)
+    if (InfilMethod == INFIL_SWATRE) {
+        InfilSwatre();
+        /*
+       #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             cell_InfilSwatre(r, c);
         }}
+        */
     }
     else
-    if (SwitchInfiltration) {
+    {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             cell_InfilMethods(r, c);
@@ -553,13 +560,18 @@ void TWorld::cell_InfilSwatre(int r, int c)
     // WH and fpot done in swatrestep, for normal surface swatre should be done in all cells
 
     fact->Drc = (WHbef->Drc - tm->Drc);
+    InfilVol->Drc = fact->Drc* FlowWidth->Drc * DX->Drc;
+
     // actual infil is dif between WH before and after
+if (SHOWDEBUG)
+    qDebug() << "fact" << fact->Drc;
 
     if (FloodDomain->Drc == 0)
         WH->Drc = tm->Drc;
     else
         hmx->Drc = tm->Drc;
 
+/*
     if (CrustFraction->Drc > 0) {
         tm->Drc = WHbef->Drc;
         tma->Drc = 0;  // gpot for crusted
@@ -638,17 +650,7 @@ void TWorld::cell_InfilSwatre(int r, int c)
         thetaTop->Drc = tmc->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
     }
 
-  //  if (SwitchWaterRepellency)
-//{
-        //      FOR_ROW_COL_MV
-        //      {
-        //         RepellencyFraction->Drc = 1 - 1/(waterRep_d+pow(waterRep_a, 100*(thetaTop->Drc-waterRep_b)));
-        //         //         if (thetaTop->Drc < waterRep_c)
-        //         //            RepellencyFraction->Drc = 0;//1.0;
-        //      }
-        //        thetaTop->report("thtop");
-        //        RepellencyFraction->report("repelfr");
-  //  }
+*/
 }
 
 //---------------------------------------------------------------------------
@@ -674,32 +676,13 @@ void TWorld::InfilSwatre()
         else
             hmx->Drc = tm->Drc;
 
-        if (CrustFraction->Drc > 0) {
-            tm->Drc = WHbef->Drc;
-            tma->Drc = 0;
-            tmb->Drc = 0;
-            tmc->Drc = 0;
-            tmd->Drc = 0; // WH or hmx
-            SwatreStep(op.runstep, r, c, SwatreSoilModelCrust, tm, tma, tmb, tmc);//, CrustFraction);
-            // calculate crust SWATRE and get the soil moisture of the top node
+        InfilVol->Drc = fact->Drc * FlowWidth->Drc * DX->Drc;
 
-            if (FloodDomain->Drc == 0)
-                tmd->Drc = WH->Drc;
-            else
-                tmd->Drc = hmx->Drc;
-            tmd->Drc = tm->Drc*CrustFraction->Drc + tmd->Drc*(1-CrustFraction->Drc);
-            if (FloodDomain->Drc == 0)
-                WH->Drc = tmd->Drc;
-            else
-                hmx->Drc = tmd->Drc;
-            fact->Drc = (WHbef->Drc - tmc->Drc);
-            fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
-            thetaTop->Drc = tmc->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
-        }
+        if (SHOWDEBUG)
+            qDebug() << "fact" << fact->Drc;
     }}
 
-    //calculate a new crustfraction for water repellency
-    // formula = f = 1/(1+1.2^(theta-30)), theta in %
+//TODO, do not calc crust etc for all cells, overkill, only > 0, restore crustfraction idea
 
     if (SwitchInfilCrust)
     {
@@ -715,8 +698,6 @@ void TWorld::InfilSwatre()
                 SwatreStep(op.runstep, r, c, SwatreSoilModelCrust, tm, tma, tmb, tmc);//, CrustFraction);
             // calculate crust SWATRE and get the soil moisture of the top node
             // CrustFraction is cells > 0
-
-
         }}
 
         // calculate average cell values
@@ -801,18 +782,4 @@ void TWorld::InfilSwatre()
             thetaTop->Drc = tmc->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
         }}
     }
-
-        // not done, experimental
-   // if (SwitchWaterRepellency)
-   // {
-        //      FOR_ROW_COL_MV
-        //      {
-        //         RepellencyFraction->Drc = 1 - 1/(waterRep_d+pow(waterRep_a, 100*(thetaTop->Drc-waterRep_b)));
-        //         //         if (thetaTop->Drc < waterRep_c)
-        //         //            RepellencyFraction->Drc = 0;//1.0;
-        //      }
-        //        thetaTop->report("thtop");
-        //        RepellencyFraction->report("repelfr");
-
-  //  }
 }

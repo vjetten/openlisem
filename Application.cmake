@@ -155,7 +155,7 @@ SET(APP_SOURCES
     include/raster.h
     #include/swatre_g.h obsolete
     include/swatre_p.h
-    include/swatreLookup.h
+   # include/swatreLookup.h obsolete
    # include/swatremisc.h obsolete
    # include/swatresoillut.h obsolete
     include/TMmapVariables.h
@@ -197,14 +197,3 @@ else()
     )
 endif()
 
-#QT5_WRAP_UI(UI_SOURCES ui_full/lisemqt.ui ui_full/lismpeg.ui)
-#
-#QT5_ADD_RESOURCES(RCC_SOURCES resources/openlisem.qrc)
-#
-#
-#target_link_libraries(Lisem
-#    Qt5::Widgets Qt5::Gui Qt5::Core
-#    ${GDAL_LIBRARIES} ${QWT_LIBRARIES}
-#    OpenMP::OpenMP_CXX
-#)
-#${PCR_LIBRARIES}

@@ -34,17 +34,13 @@
 
 */
 
-#include <algorithm>
-// #include "swatre_p.h"
-// #include "swatresoillut.h"
-// #include "swatreLookup.h"
-
+//#include <algorithm>
 #include "model.h"
 
 
 //-----------------------------------------------------------------------------------
 /// head from theta
-double HNode(
+double TWorld::HNode(
         double theta,           // current theta value of this node
         const  HORIZON *hor)    // parameters of horizon this node belongs to
 {
@@ -73,7 +69,7 @@ double HNode(
 }
 //-----------------------------------------------------------------------------------
 /// theta from head
-double TheNode(
+double TWorld::TheNode(
         double head,           // current head value of this node
         const  HORIZON *hor)   // parameters of horizon this node belongs to
 {
@@ -107,13 +103,15 @@ double TheNode(
 }
 //-----------------------------------------------------------------------------------
 /// hydraulic conductivity from head
-double HcoNode(double head,const HORIZON *hor,double calib)
+double TWorld::HcoNode(double head,const HORIZON *hor,double calib)
 {
     LUT *l = hor->lut;
 
+    if (SHOWDEBUG) {
     if (head >= 0) {
-      //  qDebug() << "ksat" << l->hydro[K_COL][l->nrRows-1];
+     //   qDebug() << "ksat" << l->hydro[K_COL][l->nrRows-1];
         return l->hydro[K_COL][l->nrRows-1];
+    }
     }
 
     auto it = std::lower_bound(l->hydro[H_COL].begin(), l->hydro[H_COL].end(), head);
@@ -136,7 +134,7 @@ double HcoNode(double head,const HORIZON *hor,double calib)
 }
 //-----------------------------------------------------------------------------------
 /// Differential Moisture Capacity from head
-double DmcNode(
+double TWorld::DmcNode(
         double head,           // current head value of this node
         const  HORIZON *hor)   // parameters of horizon this node belongs to
 {   
