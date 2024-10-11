@@ -345,9 +345,78 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
 
       // calculate hew heads
 
-      HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca, fltsat, dt, pond, qtop, qbot);
+    //  HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca, fltsat, dt, pond, qtop, qbot);
       // calculate new h and theta with two times gaussian matrix
       // and back substitution abracadabra
+
+
+      NODE_ARRAY thoma, thomb, thomc, thomf, beta;
+      double alpha;
+      int nN = NrNodes(p);
+
+      /* First node : 0 (include boundary cond. qtop or pond) */
+       if ( ponded ){//|| (fltsat && (qtop <= qbot)) ) {
+            // h at soil surface prescribed, ponding
+            thomc[0] = -dt * kavg[1] / p->zone->dz[0] / p->zone->disnod[1];
+            thomb[0] = -thomc[0] + dimoca[0] + dt*kavg[0]/p->zone->disnod[0]/p->zone->dz[0];
+            thomf[0] = dimoca[0]*h[0] + dt/(-p->zone->dz[0]) * (kavg[0] - kavg[1]) +
+                    dt*kavg[0]*pond/p->zone->disnod[0]/p->zone->dz[0];
+       } else {
+            //  q at soil surface prescribed, qtop = rainfall
+            ponded = false;
+            thomc[0] = -dt * kavg[1] / p->zone->dz[0] / p->zone->disnod[1];
+            thomb[0] = -thomc[0] + dimoca[0];
+            thomf[0] = dimoca[0]*h[0] + dt/(-p->zone->dz[0]) * (-qtop - kavg[1]); //(- qtop - kavg[1]);
+       }
+
+
+        /* Intermediate nodes: i = 1 to n-2 */
+       for (int i = 1; i < nN-1; i++)
+       {
+            thoma[i] = -dt*kavg[i]/p->zone->dz[i]/p->zone->disnod[i];
+            thomc[i] = -dt*kavg[i+1]/p->zone->dz[i]/p->zone->disnod[i+1];
+            thomb[i] = -thoma[i] - thomc[i] + dimoca[i];
+            thomf[i] = dimoca[i]*h[i] + dt/(-p->zone->dz[i])*(kavg[i]-kavg[i+1]);
+       }
+
+       // last node : nN-1 (include boundary cond. qbot)
+       thoma[nN-1] = -dt*kavg[nN-1]/p->zone->dz[nN-1]/p->zone->disnod[nN-1];
+       thomb[nN-1] = -thoma[nN-1] + dimoca[nN-1];
+       thomf[nN-1] = dimoca[nN-1]*h[nN-1] + dt/(-p->zone->dz[nN-1])*(kavg[nN-1]+qbot);
+
+       // Gaussian elimination and backsubstitution h - first time
+       alpha = thomb[0];
+       h[0] = thomf[0] / alpha;
+       for (int i = 1; i < nN; i++) {
+           beta[i] = thomc[i-1] / alpha;
+           alpha = thomb[i] - thoma[i] * beta[i];
+           h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
+       }
+       for (int i = (nN-2); i >= 0; i--)
+           h[i] -= beta[i+1] * h[i+1];
+
+       // correct tridiagonal matrix
+       for (int i = 0; i < nN; i++) {
+           double theta = TheNode(h[i], Horizon(p,i));
+           double dimocaNew = DmcNode(h[i], Horizon(p,i));
+           thomb[i] = thomb[i] - dimoca[i] + dimocaNew;
+           thomf[i] = thomf[i] - dimoca[i]*hPrev[i] + dimocaNew*h[i]
+                      - theta + thetaPrev[i];
+       }
+
+       // Gaussian elimination and backsubstitution h - second time
+       alpha = thomb[0];
+       h[0] = thomf[0] / alpha;
+       for (int i = 1; i < nN; i++) {
+           beta[i] = thomc[i-1] / alpha;
+           alpha = thomb[i] - thoma[i] * beta[i];
+           h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
+       }
+
+       for (int i = (nN-2); i >= 0; i--)
+           h[i] -= beta[i+1] * h[i+1];
+
+
  if (SHOWDEBUG) {
      qDebug() << "h" << h[0] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
  }
