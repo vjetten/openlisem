@@ -298,7 +298,8 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
       // geometric avg of ksat and k[0] => is used for max possible
 
       // _max = -kavg[0]*((h[0]-pond) / DistNode(p)[0] + 1);
-      _max = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
+//      _max = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
+        _max = kavg[0]*(h[0]-pond) / DistNode(p)[0] - kavg[0];
 
       // maximum possible flux, compare to real top flux available
       ponded = (qtop < _max);
@@ -420,8 +421,9 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
     pixel->drain = drainout;
     pixel->infil = influx;
 
+    pixel->h.clear();
    for (int i = 0; i < n; i++) {
-       pixel->h[i] = h[i];
+       pixel->h.append(h[i]);
    }
    delete[] h;
 
