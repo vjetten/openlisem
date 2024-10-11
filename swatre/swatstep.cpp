@@ -257,10 +257,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
          // moisture content
         // qDebug() << h[j] << k[j] << theta[j] << dimoca[j];
       }     
-      // if (SHOWDEBUG) {
-      //    qDebug() << elapsedTime <<dt;
-      //    qDebug() << "h1" << h[0] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
-      // }
+
       *Theta = (theta[0]+theta[1])/2;
       // avg water content of first two nodes, choice ...
       //TODO: WHY? FOR WHAT, pesticides, repelency?
@@ -299,17 +296,14 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
       kavg[0]= Ksat;//sqrt( Ksat * k[0]);
       // geometric avg of ksat and k[0] => is used for max possible
 
-      // _max = -kavg[0]*((h[0]-pond) / DistNode(p)[0] + 1);
       _max = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
-     //   _max = kavg[0]*(h[0]-pond) / DistNode(p)[0] - kavg[0];  //dit is de enige die iets doet met h
 
       // maximum possible flux, compare to real top flux available
       ponded = (qtop < _max);
       // if more flux then max possible flag ponded is true
-      // NOTE qtop and _max are both negative !
 
-      if (SHOWDEBUG)
-        qDebug() << "swatre" <<ponded << _max << qtop << DistNode(p)[0] << DistNode(p)[1];
+    //  if (SHOWDEBUG)
+    //    qDebug() << "swatre" <<ponded << _max << qtop;
 
       //2nd check: ponded layer depth against storage
       if (!ponded)
@@ -416,7 +410,6 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
        for (int i = (nN-2); i >= 0; i--)
            h[i] -= beta[i+1] * h[i+1];
 
-
  if (SHOWDEBUG) {
      qDebug() << "h" << h[0] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
  }
@@ -498,8 +491,8 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
    }
    delete[] h;
 
-       if (SHOWDEBUG)
-           qDebug() << "pond" << pond << influx;
+       // if (SHOWDEBUG)
+       //     qDebug() << "pond" << pond << influx;
 }
 //--------------------------------------------------------------------------------
 // units in SWATRE are cm and cm/day
