@@ -52,10 +52,10 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
    {
       s->pixel[i].MV = 0;
       s->pixel[i].profile = nullptr;
-      s->pixel[i].h = new double[MAX_NODES_P];
-      for (int n = 0; n < MAX_NODES_P; n++) {
-          s->pixel[i].h[n] = -100;
-      }
+      // s->pixel[i].h = new double[MAX_NODES_P];
+      // for (int n = 0; n < MAX_NODES_P; n++) {
+      //     s->pixel[i].h[n] = -100;
+      // }
       s->pixel[i].nrNodes = zone->nrNodes;
       s->pixel[i].dumpHid = 0;  //set to 1 for output of a pixel
       s->pixel[i].tiledrain = 0;
@@ -67,6 +67,9 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
    FOR_ROW_COL_MV {
        long j = r*_nrCols + c;
        s->pixel[j].MV = 1;
+       // for (int i = 0; i < zone->nrNodes; i++) {
+       //      s->pixel[i].h.append(-100);
+       // }
 
        int profnr = swatreProfileNr.indexOf((int)profileMap->Drc);
        if (profnr > 0)
@@ -78,32 +81,31 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
            s->pixel[j].dumpHid = SwatreOutput->Drc;
        }
    }
-
+qDebug() << "inith" << zone->nrNodes;
    // fill the inithead structure of each pixel and set tiledrain depth if any
-   for (int n = 0; n < zone->nrNodes; n++)
+   for (int k = 0; k < zone->nrNodes; k++)
    {
-      QString fname = QString("%1.%2").arg(initheadName).arg(n+1, 3, 10, QLatin1Char('0'));
+      QString fname = QString("%1.%2").arg(initheadName).arg(k+1, 3, 10, QLatin1Char('0'));
       // make inithead.001 to .00n name
 
       inith = ReadMap(LDD,fname);
       // get inithead information
 
       FOR_ROW_COL_MV {
-         long j = r*_nrRows+c;
-         s->pixel[j].h[n] = inith->Drc;//*psiCalibration;
-qDebug() << inith->Drc;
+         long j = r*_nrCols + c;
+         s->pixel[j].h.append(inith->Drc);//*psiCalibration;
          // find depth of tilenode
          if (SwitchIncludeTile) {
              if (!pcr::isMV(TileDepth->Drc) && TileDepth->Drc > 0) {
                  // NOTE depth is in m while node info is in cm, so *100
                  // endComp is the depth at the bottom of the compartment, so the tile is <= endcomp
-                 if (s->pixel[j].profile->zone->endComp[n] > TileDepth->Drc*100)
-                     s->pixel[j].tilenode = n-1;
+                 if (s->pixel[j].profile->zone->endComp[k] > TileDepth->Drc*100)
+                     s->pixel[j].tilenode = k-1;
              }
          }
 
          if (SHOWDEBUG) {
-             qDebug() << fname << s->pixel[j].h[0] << s->pixel[j].h[1];
+             qDebug() << fname << j << s->pixel[j].h.size() << s->pixel[j].h[k] << inith->Drc;
          }
 
       }
@@ -125,9 +127,8 @@ void TWorld::CloseSwatre(SOIL_MODEL *s)
 
     for (long i = 0; i < _nrCols*_nrRows; i++) {
         if (!s->pixel[i].MV) {
-            delete[] s->pixel[i].h;
-      //      delete[] s->pixel[i].theta;
-      //      delete[] s->pixel[i].k;
+            //delete[] s->pixel[i].h;
+            s->pixel[i].h.clear();
         }
     }
 

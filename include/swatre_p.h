@@ -27,6 +27,23 @@
   \brief SWATRE private declarations and structures
 */
 
+
+/*
+ structures made:
+
+ zone
+
+
+
+  */
+
+
+
+
+
+
+
+
 #ifndef SWATRE_P_H
 #define SWATRE_P_H
 
@@ -129,16 +146,17 @@ typedef struct PIXEL_INFO {
     // int _c;
    int MV;
    const PROFILE *profile;    /** profile this pixel belongs to */
+ // double        *h;          /** array of MAX_NODES nodes with matrix head */
 
-   double        *h;          /** array of MAX_NODES nodes with matrix head */
- //  double        *theta;          /** array of MAX_NODES nodes with matrix head */
- //  double        *k;          /** array of MAX_NODES nodes with matrix head */
+   QVector <double> h;
    double        currDt;      /** current size of SWATRE timestep */
    double        tiledrain;   /** drainage into tiledrin system at a given depth */
    int           tilenode;    /** nearest node that has the tiledrain */
    int           dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
    int nrNodes;
    double var; // variable can be used for anything
+
+
 } PIXEL_INFO;
 //---------------------------------------------------------------------------
 typedef struct SOIL_MODEL {

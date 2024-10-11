@@ -212,13 +212,14 @@ double  TWorld::NewTimeStep(
  * @param Theta
  * @param s
  */
+
+
 void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
                              double *drain, double drainfraction,
                              double *Theta, SOIL_MODEL *s)
 {
    NODE_ARRAY theta, thetaPrev, hPrev, dimoca, kavg, k;
    const PROFILE *p = pixel->profile;
-   double *h = pixel->h;
    int n = pixel->nrNodes;//p->zone->nrNodes;
    double dt = _dt/5;// std::max(_dt/5, pixel->currDt);
    double pond = *waterHeightIO;
@@ -229,6 +230,11 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 
    if (SHOWDEBUG)
        qDebug() << "compute for pixel" << n << pixel->MV << p->profileId;
+
+   double *h = new double [n];
+   for (int i = 0; i < n; i++) {
+       h[i] = pixel->h[i];
+   }
 
 
    while (elapsedTime < _dt)
@@ -393,11 +399,6 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
 
    } // elapsedTime < lisemTimeStep
 
-   // for (int j=0; j < n; j++)  {
-   //     pixel->theta[j] = theta[j];
-   //     pixel->k[j] = kavg[j];
-   // }
-   // is this needed
    /*
     if (pixel->dumpH>0)
        printf("Cell %4d : wh after infil. %8.5f (mm) infil. %8.5f (mm)\n"\
@@ -410,6 +411,11 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
   *waterHeightIO = pond; // waterlayer on surface
   *infil = influx; // total max influx in lisem timestep, fpot
   *drain = drainout; // tiledrain, is 0 when not activated
+
+   for (int i = 0; i < n; i++) {
+       pixel->h[i] = h[i];
+   }
+   delete[] h;
 
        if (SHOWDEBUG)
            qDebug() << "pond" << pond << influx;
