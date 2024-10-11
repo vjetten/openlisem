@@ -94,18 +94,18 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double *the
    double alpha;
 
    /* First node : 0 (include boundary cond. qtop or pond) */
-    if ( (*ponded) || (fltsat && (qtop <= qbot)) ) {
-		 /* h at soil surface prescribed, ponding */
+    if ( *ponded ){//|| (fltsat && (qtop <= qbot)) ) {
+         // h at soil surface prescribed, ponding
          thomc[0] = -dt * kavg[1] / p->zone->dz[0] / p->zone->disnod[1];
          thomb[0] = -thomc[0] + dimoca[0] + dt*kavg[0]/p->zone->disnod[0]/p->zone->dz[0];
          thomf[0] = dimoca[0]*h[0] + dt/(-p->zone->dz[0]) * (kavg[0] - kavg[1]) +
                  dt*kavg[0]*pond/p->zone->disnod[0]/p->zone->dz[0];
     } else {
-		 /*  q at soil surface prescribed, qtop = rainfall  */
-         (*ponded) = false;
+         //  q at soil surface prescribed, qtop = rainfall
+         *ponded = false;
          thomc[0] = -dt * kavg[1] / p->zone->dz[0] / p->zone->disnod[1];
 		 thomb[0] = -thomc[0] + dimoca[0];
-         thomf[0] = dimoca[0]*h[0] + dt/(-p->zone->dz[0]) * (- qtop - kavg[1]);
+         thomf[0] = dimoca[0]*h[0] + dt/(-p->zone->dz[0]) * (-qtop - kavg[1]); //(- qtop - kavg[1]);
 	}
 
 
@@ -133,12 +133,11 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double *the
 	}
     for (i = (nN-2); i >= 0; i--)
 		h[i] -= beta[i+1] * h[i+1];
-
+/*
     // correct tridiagonal matrix
 	for (i = 0; i < nN; i++) {
 		double theta = TheNode(h[i], Horizon(p,i));
         double dimocaNew = DmcNode(h[i], Horizon(p,i));
-
 		thomb[i] = thomb[i] - dimoca[i] + dimocaNew;
 		thomf[i] = thomf[i] - dimoca[i]*hPrev[i] + dimocaNew*h[i]
 				   - theta + thetaPrev[i];
@@ -156,6 +155,10 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double *the
     for (i = (nN-2); i >= 0; i--)
 		h[i] -= beta[i+1] * h[i+1];
 
+    // if (SHOWDEBUG) {
+    //    qDebug() << "headcalc" << h[0] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
+    // }
+*/
 }
 //--------------------------------------------------------------------------------
 /**
@@ -230,7 +233,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
    int tnode = pixel->tilenode;
 
    if (SHOWDEBUG)
-       qDebug() << "compute for pixel" << n << pixel->MV << p->profileId;
+       qDebug() << "compute for pixel" << n << pond << pixel->MV << p->profileId;
 
    double *h = new double [n];
    for (int i = 0; i < n; i++) {
@@ -254,10 +257,10 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
          // moisture content
         // qDebug() << h[j] << k[j] << theta[j] << dimoca[j];
       }     
-      if (SHOWDEBUG) {
-         qDebug() << elapsedTime <<dt;
-         qDebug() << "h1" << h[0] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
-      }
+      // if (SHOWDEBUG) {
+      //    qDebug() << elapsedTime <<dt;
+      //    qDebug() << "h1" << h[0] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
+      // }
       *Theta = (theta[0]+theta[1])/2;
       // avg water content of first two nodes, choice ...
       //TODO: WHY? FOR WHAT, pesticides, repelency?
@@ -266,9 +269,8 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
       //choice arithmetric average K, geometric in org. SWATRE
 
       for(int j = 1; j < nNodes; j++) {
-        kavg[j] = (k[j-1]+k[j])/2.0;//std::sqrt(k[j-1]*k[j]);
-        kavg[0] = kavg[1];
-
+        kavg[j] = (k[j-1]+k[j])/2.0;
+        //kavg[j] = std::sqrt(k[j-1]*k[j]);
           // switch (KavgType) {
           // case 0: kavg[j] = Aavg(k[j-1],k[j]); break;
           // case 1: kavg[j] = Savg(k[j-1],k[j]); break;
@@ -293,13 +295,13 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
 
       // 1st check flux against max flux
       ThetaSat = TheNode(0.0, Horizon(p, 0));
-      //kavg[0]= sqrt( (*repel) * HcoNode(0, Horizon(p, 0), ksatCalibration) * k[0]);
-      kavg[0]= HcoNode(0, p->horizon[0], ksatCalibration);//sqrt( HcoNode(0, p->horizon[0], ksatCalibration) * k[0]);
+      double Ksat = HcoNode(0, p->horizon[0], ksatCalibration);
+      kavg[0]= Ksat;//sqrt( Ksat * k[0]);
       // geometric avg of ksat and k[0] => is used for max possible
 
       // _max = -kavg[0]*((h[0]-pond) / DistNode(p)[0] + 1);
-//      _max = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
-        _max = kavg[0]*(h[0]-pond) / DistNode(p)[0] - kavg[0];
+      _max = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
+     //   _max = kavg[0]*(h[0]-pond) / DistNode(p)[0] - kavg[0];  //dit is de enige die iets doet met h
 
       // maximum possible flux, compare to real top flux available
       ponded = (qtop < _max);
@@ -359,7 +361,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
 
       if ( ponded || (fltsat && (qtop < qbot)) )
          qtop = -kavg[0] * ((h[0] - pond)/DistNode(p)[0] + 1);
-
+         //   qtop = kavg[0]*(pond - h[0]) / DistNode(p)[0] - kavg[0];
       // adjust top flux
 
       pond += qtop*dt;
