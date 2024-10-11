@@ -213,16 +213,17 @@ double  TWorld::NewTimeStep(
  * @param s
  */
 
+void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction, double *Theta)
 
-void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
-                             double *drain, double drainfraction,
-                             double *Theta, SOIL_MODEL *s)
+// void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
+//                              double *drain, double drainfraction,
+//                              double *Theta, SOIL_MODEL *s)
 {
    NODE_ARRAY theta, thetaPrev, hPrev, dimoca, kavg, k;
    const PROFILE *p = pixel->profile;
    int n = pixel->nrNodes;//p->zone->nrNodes;
    double dt = _dt/5;// std::max(_dt/5, pixel->currDt);
-   double pond = *waterHeightIO;
+   double pond = pixel->wh;//*waterHeightIO;
    double elapsedTime = 0;
    double influx = 0;
    double drainout = 0;
@@ -235,7 +236,6 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
    for (int i = 0; i < n; i++) {
        h[i] = pixel->h[i];
    }
-
 
    while (elapsedTime < _dt)
    {
@@ -256,7 +256,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       }     
       if (SHOWDEBUG) {
          qDebug() << elapsedTime <<dt;
-          qDebug() << "h1" << h[0] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
+         qDebug() << "h1" << h[0] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
       }
       *Theta = (theta[0]+theta[1])/2;
       // avg water content of first two nodes, choice ...
@@ -266,7 +266,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       //choice arithmetric average K, geometric in org. SWATRE
 
       for(int j = 1; j < nNodes; j++) {
-        kavg[j] = std::sqrt(k[j-1]*k[j]);
+        kavg[j] = (k[j-1]+k[j])/2.0;//std::sqrt(k[j-1]*k[j]);
         kavg[0] = kavg[1];
 
           // switch (KavgType) {
@@ -296,13 +296,15 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
       //kavg[0]= sqrt( (*repel) * HcoNode(0, Horizon(p, 0), ksatCalibration) * k[0]);
       kavg[0]= HcoNode(0, p->horizon[0], ksatCalibration);//sqrt( HcoNode(0, p->horizon[0], ksatCalibration) * k[0]);
       // geometric avg of ksat and k[0] => is used for max possible
-     // _max = -kavg[0]*((h[0]-pond) / DistNode(p)[0] + 1);
+
+      // _max = -kavg[0]*((h[0]-pond) / DistNode(p)[0] + 1);
       _max = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
-//      qmax = -kavg[0]*((h[0]-pond) / DistNode(p)[0] + 1);
+
       // maximum possible flux, compare to real top flux available
       ponded = (qtop < _max);
       // if more flux then max possible flag ponded is true
       // NOTE qtop and _max are both negative !
+
       if (SHOWDEBUG)
         qDebug() << "swatre" <<ponded << _max << qtop << DistNode(p)[0] << DistNode(p)[1];
 
@@ -329,11 +331,14 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
          }
 
       // save last h and theta, used in headcalc
-      for (int i = 0; i < n; i++)
-      {
-         hPrev[i] = h[i];
-         thetaPrev[i] = theta[i];
-      }
+      // for (int i = 0; i < n; i++)
+      // {
+      //    hPrev[i] = h[i];
+      //    thetaPrev[i] = theta[i];
+      // }
+
+      std::memcpy(hPrev, h, n * sizeof(double));
+      std::memcpy(thetaPrev, theta, n * sizeof(double));
 
       // calculate hew heads
 
@@ -408,9 +413,12 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
    */
 
    // save stuff for output in maps
-  *waterHeightIO = pond; // waterlayer on surface
-  *infil = influx; // total max influx in lisem timestep, fpot
-  *drain = drainout; // tiledrain, is 0 when not activated
+  // *waterHeightIO = pond; // waterlayer on surface
+  // *infil = influx; // total max influx in lisem timestep, fpot
+  // *drain = drainout; // tiledrain, is 0 when not activated
+    pixel->wh = pond;
+    pixel->drain = drainout;
+    pixel->infil = influx;
 
    for (int i = 0; i < n; i++) {
        pixel->h[i] = h[i];
@@ -434,17 +442,19 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *i
  */
 void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta)
 {   
+//NOTE ??? _drain =tiledrain soil !!! not drainage bottom profile
+
     double wh, infil, drain, drainfraction = 0, Theta;
     QString dig;
 
-    wh = _WH->Drc*100;
-    // WH is in m, convert to cm
-    infil = 0;
-    drain = 0;
     showr = r;
     showc = c;
 
     long cel = r*_nrCols+c;
+    s->pixel[cel].wh = _WH->Drc*100;
+    // WH is in m, convert to cm
+    s->pixel[cel].infil = 0;
+    s->pixel[cel].drain = 0;
 
      // for (int i = 0; i < s->pixel[cel].nrNodes; i++) {
      //     qDebug() << i << s->pixel[cel].profile->horizon[i]->lut->hydro[H_COL];
@@ -453,7 +463,8 @@ void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap
     if (SwitchIncludeTile)
         drainfraction = TileWidth->Drc/_dx;
 
-    ComputeForPixel(&s->pixel[cel], &wh, &infil, &drain, drainfraction,  &Theta, s);
+//    ComputeForPixel(&s->pixel[cel], &wh, &infil, &drain, drainfraction,  &Theta, s);
+    ComputeForPixel(&s->pixel[cel], s, drainfraction, &Theta);
     // estimate new h and theta at the end of dt
 
     //SwitchDumpH = true;
@@ -470,7 +481,7 @@ void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap
     }
 
 
-    _WH->Drc = wh*0.01;
+    _WH->Drc = s->pixel[cel].wh*0.01;
     //back to m
 
     _fpot->Drc = std::max(0.0, -infil*0.01);
@@ -478,7 +489,7 @@ void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap
     //fpot is positive like in other infil  methods (in m)
 
     if (SwitchIncludeTile)
-        _drain->Drc = drain*0.01;  // in m
+        _drain->Drc = s->pixel[cel].drain*0.01;  // in m
     // drained water from the soil, already accounts for drainwidth versus cell width
 
     //_theta->Drc = Theta;

@@ -153,10 +153,10 @@ typedef struct PIXEL_INFO {
    double        tiledrain;   /** drainage into tiledrin system at a given depth */
    int           tilenode;    /** nearest node that has the tiledrain */
    int           dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
-   int nrNodes;
-   double var; // variable can be used for anything
-
-
+   int           nrNodes;
+   double infil;
+   double drain;
+   double wh;
 } PIXEL_INFO;
 //---------------------------------------------------------------------------
 typedef struct SOIL_MODEL {

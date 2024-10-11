@@ -1198,8 +1198,9 @@ public:
                   bool fltsat, double dt, double pond, double qtop, double qbot);
     double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes,
                         double precParam, double dtMin, double dtMax);
-    void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
-                         double drainfraction, double *Theta, SOIL_MODEL *s);
+//    void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
+  //                       double drainfraction, double *Theta, SOIL_MODEL *s);
+    void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction, double *Theta);
     double HNode(double theta,const  HORIZON *hor);
     double TheNode(double head,const  HORIZON *hor);
     double HcoNode(double head,const HORIZON *hor,double calib);
