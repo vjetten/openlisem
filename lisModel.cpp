@@ -413,7 +413,7 @@ void TWorld::HydrologyProcesses()
     }
 
     // Do all hydrology in one big loop. Not sure if this is faster then a loop per process
-    #pragma omp parallel for num_threads(userCores)
+   // #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         cell_Interception(r,c);
         // all interception on plants, houses, litter

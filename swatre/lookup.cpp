@@ -1,26 +1,3 @@
-/*************************************************************************
-**  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011,2020  Victor Jetten
-**  contact:
-**
-**  This program is free software: you can redistribute it and/or modify
-**  it under the terms of the GNU General Public License GPLv3 as published by
-**  the Free Software Foundation, either version 3 of the License, or
-**  (at your option) any later version.
-**
-**  This program is distributed in the hope that it will be useful,
-**  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-**  GNU General Public License for more details.
-**
-**  You should have received a copy of the GNU General Public License
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-**
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
-**  website, information and code: https://github.com/vjetten/openlisem
-**
-*************************************************************************/
 
 /*!
   \file lookup.cpp
@@ -137,7 +114,7 @@ double TWorld::HcoNode(double head,const HORIZON *hor,double calib)
 double TWorld::DmcNode(
         double head,           // current head value of this node
         const  HORIZON *hor)   // parameters of horizon this node belongs to
-{   
+{
     LUT *l = hor->lut;
 
     if (head >= 0) {
@@ -203,3 +180,35 @@ double TWorld::DmcNode(
             */
 }
 //-----------------------------------------------------------------------------------
+double TWorld::FindNode(double head, const  HORIZON *hor, int column)
+{
+    LUT *l = hor->lut;
+
+    if (head >= 0) {
+        return l->hydro[column].last();
+    }
+
+    auto it = std::lower_bound(l->hydro[H_COL].begin(), l->hydro[H_COL].end(), head);
+
+    if (it == l->hydro[H_COL].begin()) {
+        return(l->hydro[column][0]);
+    } else if (it == l->hydro[H_COL].end()) {
+        return(l->hydro[column].last());
+    } else {
+        int lowerIndex = std::distance(l->hydro[H_COL].begin(), it - 1); // Index of lower bound
+        int upperIndex = std::distance(l->hydro[H_COL].begin(), it);     // Index of upper bound
+        double lV = *(it - 1);
+        double uV = *it;
+
+        if (uV == lV) {
+            return l->hydro[H_COL][lowerIndex]; // or some default value
+        }
+
+
+        double lTh = l->hydro[column][lowerIndex];
+        double uTh = l->hydro[column][upperIndex];
+
+        return lTh + (head - lV) * (uTh - lTh) / (uV-lV);
+    }
+
+}

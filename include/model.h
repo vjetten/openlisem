@@ -1205,6 +1205,7 @@ public:
     double TheNode(double head,const  HORIZON *hor);
     double HcoNode(double head,const HORIZON *hor,double calib);
     double DmcNode(double head,const  HORIZON *hor);
+    double FindNode(double head,const  HORIZON *hor, int column);
 
 
 int showr;
