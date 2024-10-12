@@ -657,7 +657,8 @@ if (SHOWDEBUG)
 /// SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
 void TWorld::InfilSwatre()
 {
-    #pragma omp parallel for num_threads(userCores)
+   //
+//#pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (FloodDomain->Drc == 0)
             tm->Drc = WH->Drc;

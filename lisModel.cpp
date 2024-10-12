@@ -413,7 +413,7 @@ void TWorld::HydrologyProcesses()
     }
 
     // Do all hydrology in one big loop. Not sure if this is faster then a loop per process
-   // #pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         cell_Interception(r,c);
         // all interception on plants, houses, litter
@@ -461,13 +461,25 @@ void TWorld::HydrologyProcesses()
                     Perc->Drc = cell_Percolation(r, c, 1.0);
 
                 break;
-            case INFIL_SWATRE :
-            cell_InfilSwatre(r, c); break;
+            // case INFIL_SWATRE :
+            // cell_InfilSwatre(r, c); break;
         }
         if(std::isnan(Thetaeff->Drc))
             qDebug() << QString("B nan 1 %1 %2").arg(r).arg(c);
+    }}
 
 
+    if (SwitchInfiltration && InfilMethod == INFIL_SWATRE) {
+//#pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+        cell_InfilSwatre(r,c);
+       // InfilSwatre();
+        }}
+    }
+
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
         // do not do this!
         //  cell_depositInfil(r,c);
         // deposit all sediment still in flow when infiltration causes WH to become minimum

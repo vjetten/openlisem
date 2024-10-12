@@ -250,16 +250,16 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
 
       // get nodal values of theta, K, dif moist cap
       for (int j = 0; j < pixel->nrNodes; j++) {
-         k[j] = HcoNode(h[j], p->horizon[j], ksatCalibration);
-        // k[j] = FindNode(h[j], p->horizon[j], K_COL);
-         // input tables in cm/day function returns in cm/sec !!
-        dimoca[j] = DmcNode(h[j], p->horizon[j]);
-  //        dimoca[j] = FindNode(h[j], p->horizon[j], DMCC_COL);
-         // differential moisture capacity d(theta)/d(h), tangent moisture retention curve
-         theta[j] = TheNode(h[j], p->horizon[j]);
-         // moisture content
-        // qDebug() << h[j] << k[j] << theta[j] << dimoca[j];
-      }     
+          k[j] = HcoNode(h[j], p->horizon[j], ksatCalibration);
+          // k[j] = FindNode(h[j], p->horizon[j], K_COL);
+          // input tables in cm/day function returns in cm/sec !!
+          dimoca[j] = DmcNode(h[j], p->horizon[j]);
+          // dimoca[j] = FindNode(h[j], p->horizon[j], DMCC_COL);
+          // differential moisture capacity d(theta)/d(h), tangent moisture retention curve
+          theta[j] = TheNode(h[j], p->horizon[j]);
+          // moisture content
+          // qDebug() << h[j] << k[j] << theta[j] << dimoca[j];
+      }
 
       *Theta = (theta[0]+theta[1])/2;
 
@@ -290,13 +290,9 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
       // geometric avg of ksat and k[0] => is used for max possible
 
       _max = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
-
       // maximum possible flux, compare to real top flux available
       ponded = (qtop < _max);
       // if more flux then max possible flag ponded is true
-
-    //  if (SHOWDEBUG)
-    //    qDebug() << "swatre" <<ponded << _max << qtop;
 
       //2nd check: ponded layer depth against storage
       if (!ponded)
@@ -405,7 +401,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
            h[i] -= beta[i+1] * h[i+1];
 
  if (SHOWDEBUG) {
-     qDebug() << "h" << h[0] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
+     qDebug()<< dt << "h" << h[0] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
  }
       // determine new boundary fluxes
 
