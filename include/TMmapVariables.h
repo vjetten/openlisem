@@ -237,7 +237,7 @@ cTMap
 //*FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
 *FFull,                      //!< map flagging when the soil is full
 *fact,                       //!< actual infiltration rate [m/s]
-*fpot,                       //!< potential infiltration rate [m/s]
+//*fpot,                       //!< potential infiltration rate [m/s]
 *InfilVolKinWave,            //!< volume infiltrated in the kin wave (slope and channel) in this timestep [m^3]
 *InfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
 *ChannelInfilVol,                   //!< volume of water infiltrated in this timestep [m^3]

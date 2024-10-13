@@ -476,7 +476,7 @@ void TWorld::HydrologyProcesses()
             cell_InfilSwatre(i_, r,c);
         }}
         // InfilSwatre();
-report(*fact,"fact");
+
     }
 
 

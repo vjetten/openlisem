@@ -1724,7 +1724,7 @@ void TWorld::IntializeData(void)
     InfilmmCum = NewMap(0);
     InfilVolCum = NewMap(0);
     fact = NewMap(0);
-    fpot = NewMap(0);
+  //  fpot = NewMap(0);
   //  factgr = NewMap(0);
   //  fpotgr = NewMap(0);
     Ksateff = NewMap(0);

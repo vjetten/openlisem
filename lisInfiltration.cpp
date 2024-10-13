@@ -549,7 +549,6 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
 //---------------------------------------------------------------------------
 void TWorld::cell_InfilSwatre(long i_, int r, int c)
 {
-
     if (FloodDomain->Drc == 0)
         tm->Drc = WH->Drc;
     else
@@ -557,110 +556,109 @@ void TWorld::cell_InfilSwatre(long i_, int r, int c)
 
     WHbef->Drc = tm->Drc;
 
-    SwatreStep(i_, op.runstep, r,c, SwatreSoilModel, tm, fpot, TileDrainSoil, thetaTop);
-    // WH and fpot done in swatrestep, for normal surface swatre should be done in all cells
-
-    fact->Drc = std::max(0.0, WHbef->Drc - tm->Drc);
-    InfilVol->Drc = fact->Drc* FlowWidth->Drc * DX->Drc;
+    SwatreStep(i_, r, c, SwatreSoilModel, tm, TileDrainSoil, thetaTop);
 
     // actual infil is dif between WH before and after
-if (SHOWDEBUG)
-    qDebug() << "fact" << fact->Drc;
+    fact->Drc = std::max(0.0, WHbef->Drc - tm->Drc);
+    InfilVol->Drc = fact->Drc* FlowWidth->Drc * DX->Drc;
 
     if (FloodDomain->Drc == 0)
         WH->Drc = tm->Drc;
     else
         hmx->Drc = tm->Drc;
 
-/*
+
     if (CrustFraction->Drc > 0) {
         tm->Drc = WHbef->Drc;
-        tma->Drc = 0;  // gpot for crusted
+        tma->Drc = 0;
         tmb->Drc = 0;
-        tmc->Drc = 0;  //thetatop
-        tmd->Drc = 0;
 
-        SwatreStep(op.runstep, r, c, SwatreSoilModelCrust, tm, tma, tmb, tmc);//, CrustFraction);
+        SwatreStep(i_, r, c, SwatreSoilModelCrust, tm, tma, tmb);
         // calculate crust SWATRE and get the soil moisture of the top node
 
+        double _wh;
         if (FloodDomain->Drc == 0)
-            tmd->Drc = WH->Drc;
+            _wh = WH->Drc;
         else
-            tmd->Drc = hmx->Drc;
+            _wh = hmx->Drc;
         // water level on crusted areas
 
-        tmd->Drc = tm->Drc*CrustFraction->Drc + tmd->Drc*(1-CrustFraction->Drc);
+        double wha = tm->Drc*CrustFraction->Drc + _wh*(1-CrustFraction->Drc);
         // weighted average
         if (FloodDomain->Drc == 0)
-            WH->Drc = tmd->Drc;
+            WH->Drc = wha;
         else
-            hmx->Drc = tmd->Drc;
+            hmx->Drc = wha;
 
-        fact->Drc = (WHbef->Drc - tmc->Drc);
-        fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
-        thetaTop->Drc = tmc->Drc*CrustFraction->Drc + thetaTop->Drc*(1-CrustFraction->Drc);
+        fact->Drc = (WHbef->Drc - tm->Drc);
+        //fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
+        thetaTop->Drc = tmb->Drc*CrustFraction->Drc + thetaTop->Drc*(1-CrustFraction->Drc);
     }
 
     if (SwitchInfilCompact)
     {
         tm->Drc = WHbef->Drc;
-        tma->Drc = 0; // fpot
-        tmb->Drc = 0; // tile drain
-        tmc->Drc = 0; // theta top layer for repellency
-        tmd->Drc = 0;
+        tma->Drc = 0;
+        tmb->Drc = 0;
 
-        SwatreStep(op.runstep, r, c, SwatreSoilModelCompact, tm, tma, tmb, tmc);//, CompactFraction);
+        SwatreStep(i_, r, c, SwatreSoilModelCompact, tm, tma, tmb);
+        // calculate crust SWATRE and get the soil moisture of the top node
 
+        double _wh;
         if (FloodDomain->Drc == 0)
-            tmd->Drc = WH->Drc;
+            _wh = WH->Drc;
         else
-            tmd->Drc = hmx->Drc;
-        tmd->Drc = tm->Drc*CompactFraction->Drc + tmd->Drc*(1-CompactFraction->Drc);
-        if (FloodDomain->Drc == 0)
-            WH->Drc = tmd->Drc;
-        else
-            hmx->Drc = tmd->Drc;
+            _wh = hmx->Drc;
+        // water level on crusted areas
 
-        fact->Drc = (WHbef->Drc - tmd->Drc);
-        fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
-        thetaTop->Drc = tmc->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
+        double wha = tm->Drc*CompactFraction->Drc + _wh*(1-CompactFraction->Drc);
+        // weighted average
+        if (FloodDomain->Drc == 0)
+            WH->Drc = wha;
+        else
+            hmx->Drc = wha;
+
+        fact->Drc = (WHbef->Drc - tm->Drc);
+        //fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
+        thetaTop->Drc = tmb->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
     }
 
     if (SwitchGrassStrip)
     {
-            tm->Drc = WHbef->Drc;//WHGrass->Drc;
-            tma->Drc = 0;
-            tmb->Drc = 0;
-            tmc->Drc = 0;
-            tmd->Drc = 0;
+        tm->Drc = WHbef->Drc;
+        tma->Drc = 0;
+        tmb->Drc = 0;
 
-        SwatreStep(op.runstep, r,c, SwatreSoilModelGrass, tm, tma, tmb, tmc);//, GrassFraction);
+        SwatreStep(i_, r, c, SwatreSoilModelGrass, tm, tma, tmb);
+        // calculate crust SWATRE and get the soil moisture of the top node
 
+        double _wh;
         if (FloodDomain->Drc == 0)
-            tmd->Drc = WH->Drc;
+            _wh = WH->Drc;
         else
-            tmd->Drc = hmx->Drc;
-        tmd->Drc = tm->Drc*GrassFraction->Drc + tmd->Drc*(1-GrassFraction->Drc);
-        if (FloodDomain->Drc == 0)
-            WH->Drc = tmd->Drc;
-        else
-            hmx->Drc = tmd->Drc;
+            _wh = hmx->Drc;
+        // water level on crusted areas
 
-        fact->Drc = (WHbef->Drc - tmd->Drc);
-        fpot->Drc = tma->Drc*GrassFraction->Drc + fpot->Drc*(1-GrassFraction->Drc);
-        thetaTop->Drc = tmc->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
+        double wha = tm->Drc*GrassFraction->Drc + _wh*(1-GrassFraction->Drc);
+        // weighted average
+        if (FloodDomain->Drc == 0)
+            WH->Drc = wha;
+        else
+            hmx->Drc = wha;
+
+        fact->Drc = (WHbef->Drc - tm->Drc);
+        //fpot->Drc = tma->Drc*GrassFraction->Drc + fpot->Drc*(1-GrassFraction->Drc);
+        thetaTop->Drc = tmb->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
     }
-
-*/
 }
 
 //---------------------------------------------------------------------------
 /// SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
 void TWorld::InfilSwatre()
 {
-   //
+
 //#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
+    FOR_ROW_COL_MV_L {        
         if (FloodDomain->Drc == 0)
             tm->Drc = WH->Drc;
         else
@@ -668,120 +666,99 @@ void TWorld::InfilSwatre()
 
         WHbef->Drc = tm->Drc;
 
-        SwatreStep(i_, op.runstep, r,c, SwatreSoilModel, tm, fpot, TileDrainSoil, thetaTop);
-        // WH and fpot done in swatrestep, for normal surface swatre should be done in all cells
-
-        fact->Drc = (WHbef->Drc - tm->Drc);
-        InfilVol->Drc = fact->Drc* FlowWidth->Drc * DX->Drc;
+        SwatreStep(i_, r, c, SwatreSoilModel, tm, TileDrainSoil, thetaTop);
 
         // actual infil is dif between WH before and after
-    if (SHOWDEBUG)
-        qDebug() << "fact" << fact->Drc;
+        fact->Drc = std::max(0.0, WHbef->Drc - tm->Drc);
+        InfilVol->Drc = fact->Drc* FlowWidth->Drc * DX->Drc;
 
         if (FloodDomain->Drc == 0)
             WH->Drc = tm->Drc;
         else
             hmx->Drc = tm->Drc;
-    }}
 
-//TODO, do not calc crust etc for all cells, overkill, only > 0, restore crustfraction idea
 
-    if (SwitchInfilCrust)
-    {
-       // #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L
-        {
+        if (CrustFraction->Drc > 0) {
             tm->Drc = WHbef->Drc;
             tma->Drc = 0;
             tmb->Drc = 0;
-            tmc->Drc = 0;
-            tmd->Drc = 0; // WH or hmx
-            if (CrustFraction->Drc > 0)
-                SwatreStep(i_, op.runstep, r, c, SwatreSoilModelCrust, tm, tma, tmb, tmc);//, CrustFraction);
+
+            SwatreStep(i_, r, c, SwatreSoilModelCrust, tm, tma, tmb);
             // calculate crust SWATRE and get the soil moisture of the top node
-            // CrustFraction is cells > 0
-        }}
 
-        // calculate average cell values
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L
-        {
+            double _wh;
             if (FloodDomain->Drc == 0)
-                tmd->Drc = WH->Drc;
+                _wh = WH->Drc;
             else
-                tmd->Drc = hmx->Drc;
-            tmd->Drc = tm->Drc*CrustFraction->Drc + tmd->Drc*(1-CrustFraction->Drc);
-            if (FloodDomain->Drc == 0)
-                WH->Drc = tmd->Drc;
-            else
-                hmx->Drc = tmd->Drc;
-            fact->Drc = (WHbef->Drc - tmc->Drc);
-            fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
-            thetaTop->Drc = tmc->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
-        }}
-    }
+                _wh = hmx->Drc;
+            // water level on crusted areas
 
-    if (SwitchInfilCompact)
-    {
-      //  #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L
+            double wha = tm->Drc*CrustFraction->Drc + _wh*(1-CrustFraction->Drc);
+            // weighted average
+            if (FloodDomain->Drc == 0)
+                WH->Drc = wha;
+            else
+                hmx->Drc = wha;
+
+            fact->Drc = (WHbef->Drc - tm->Drc);
+            //fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
+            thetaTop->Drc = tmb->Drc*CrustFraction->Drc + thetaTop->Drc*(1-CrustFraction->Drc);
+        }
+
+        if (SwitchInfilCompact)
         {
             tm->Drc = WHbef->Drc;
-            tma->Drc = 0; // fpot
-            tmb->Drc = 0; // tile drain
-            tmc->Drc = 0; // theta top layer for repellency
-            tmd->Drc = 0;
-            if (CompactFraction->Drc > 0)
-                SwatreStep(i_, op.runstep, r, c, SwatreSoilModelCompact, tm, tma, tmb, tmc);//, CompactFraction);
-        }}
-
-
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L
-        {
-            if (FloodDomain->Drc == 0)
-                tmd->Drc = WH->Drc;
-            else
-                tmd->Drc = hmx->Drc;
-            tmd->Drc = tm->Drc*CompactFraction->Drc + tmd->Drc*(1-CompactFraction->Drc);
-            if (FloodDomain->Drc == 0)
-                WH->Drc = tmd->Drc;
-            else
-                hmx->Drc = tmd->Drc;
-
-            fact->Drc = (WHbef->Drc - tmd->Drc);
-            fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
-            thetaTop->Drc = tmc->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
-        }}
-    }
-
-    if (SwitchGrassStrip) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            tm->Drc = WHbef->Drc;//WHGrass->Drc;
             tma->Drc = 0;
             tmb->Drc = 0;
-            tmc->Drc = 0;
-            tmd->Drc = 0;
-            if (GrassFraction->Drc > 0)
-                SwatreStep(i_, op.runstep, r, c, SwatreSoilModelGrass, tm, tma, tmb, tmc);//, GrassFraction);
-        }}
 
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            if (FloodDomain->Drc == 0)
-                tmd->Drc = WH->Drc;
-            else
-                tmd->Drc = hmx->Drc;
-            tmd->Drc = tm->Drc*GrassFraction->Drc + tmd->Drc*(1-GrassFraction->Drc);
-            if (FloodDomain->Drc == 0)
-                WH->Drc = tmd->Drc;
-            else
-                hmx->Drc = tmd->Drc;
+            SwatreStep(i_, r, c, SwatreSoilModelCompact, tm, tma, tmb);
+            // calculate crust SWATRE and get the soil moisture of the top node
 
-            fact->Drc = (WHbef->Drc - tmd->Drc);
-            fpot->Drc = tma->Drc*GrassFraction->Drc + fpot->Drc*(1-GrassFraction->Drc);
-            thetaTop->Drc = tmc->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
-        }}
-    }
+            double _wh;
+            if (FloodDomain->Drc == 0)
+                _wh = WH->Drc;
+            else
+                _wh = hmx->Drc;
+            // water level on crusted areas
+
+            double wha = tm->Drc*CompactFraction->Drc + _wh*(1-CompactFraction->Drc);
+            // weighted average
+            if (FloodDomain->Drc == 0)
+                WH->Drc = wha;
+            else
+                hmx->Drc = wha;
+
+            fact->Drc = (WHbef->Drc - tm->Drc);
+            //fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
+            thetaTop->Drc = tmb->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
+        }
+
+        if (SwitchGrassStrip)
+        {
+            tm->Drc = WHbef->Drc;
+            tma->Drc = 0;
+            tmb->Drc = 0;
+
+            SwatreStep(i_, r, c, SwatreSoilModelGrass, tm, tma, tmb);
+            // calculate crust SWATRE and get the soil moisture of the top node
+
+            double _wh;
+            if (FloodDomain->Drc == 0)
+                _wh = WH->Drc;
+            else
+                _wh = hmx->Drc;
+            // water level on crusted areas
+
+            double wha = tm->Drc*GrassFraction->Drc + _wh*(1-GrassFraction->Drc);
+            // weighted average
+            if (FloodDomain->Drc == 0)
+                WH->Drc = wha;
+            else
+                hmx->Drc = wha;
+
+            fact->Drc = (WHbef->Drc - tm->Drc);
+            //fpot->Drc = tma->Drc*GrassFraction->Drc + fpot->Drc*(1-GrassFraction->Drc);
+            thetaTop->Drc = tmb->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
+        }
+    }}
 }

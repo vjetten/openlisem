@@ -45,7 +45,7 @@
 #include "io.h"
 #include "lerror.h"
 #include "swatre_p.h"
-//#include "swatre_g.h"
+
 
 
 //---------------------------------------------------------------------------
@@ -1190,10 +1190,10 @@ public:
     LUT *ReadSoilTableNew(QString fileName);
 
     void cell_InfilSwatre(long i_, int r, int c);
-    void SwatreStep(long i_, int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta);//, cTMap *where);
-    void HeadCalc(double *h, bool *ponded, const PROFILE *p ,const double  *thetaPrev,
-                  const double  *hPrev, const double  *kavg, const double  *dimoca,
-                  bool fltsat, double dt, double pond, double qtop, double qbot);
+    void SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_drain, cTMap *_theta);
+    void HeadCalc(double *h, const PROFILE *p , bool *isPonded,bool fltsat,
+                  const double *thetaPrev, const double *hPrev, const double *kavg, const double *dimoca,
+                  double dt, double pond, double qtop, double qbot);
     double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes,
                         double precParam, double dtMin, double dtMax);
     void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction);
