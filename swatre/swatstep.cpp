@@ -176,8 +176,8 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
     double Theta = 0;
     int tnode = pixel->tilenode;
 
-    if (SHOWDEBUG)
-        qDebug() << "compute for pixel" << nN << pond << p->profileId;
+    // if (SHOWDEBUG)
+    //     qDebug() << "compute for pixel" << nN << pond << p->profileId;
 
     //double *h = new double [n];
     NODE_ARRAY h;
@@ -209,10 +209,27 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
         Theta = (theta[0]+theta[1])/2;
 
         // average K for 1st to n-1 node, top node is done below
-        for(int j = 1; j < nN; j++) {
-            kavg[j] = (k[j-1]+k[j])/2.0;
-            //kavg[j] = std::sqrt(k[j-1]*k[j]);
+        // for(int j = 1; j < nN; j++) {
+        //     kavg[j] = (k[j-1]+k[j])/2.0;
+        //     //kavg[j] = std::sqrt(k[j-1]*k[j]);
+        // }
+        // for(int j = 1; j < nN; j++) {
+        //     switch (KavgType) {
+        //     case 0: kavg[j] = Aavg(k[j],k[j-1]); break;
+        //     case 1: kavg[j] = Savg(k[j],k[j-1]); break;
+        //     case 2: kavg[j] = Havg(k[j],k[j-1],Dz(p)[j],Dz(p)[j-1]); break;
+        //     case 3: kavg[j] = Mavg(k[j],k[j-1]); break;
+        //     }
+        // }
+
+
+        switch (KavgType) {
+            case 0: for(int j = 1; j < nN; j++){ kavg[j] = Aavg(k[j],k[j-1]);} break;
+            case 1: for(int j = 1; j < nN; j++){ kavg[j] = Savg(k[j],k[j-1]);} break;
+            case 2: for(int j = 1; j < nN; j++){ kavg[j] = Havg(k[j],k[j-1],Dz(p)[j],Dz(p)[j-1]); }break;
+            case 3: for(int j = 1; j < nN; j++){ kavg[j] = Mavg(k[j],k[j-1]);} break;
         }
+
 
         //--- boundary conditions ---
 
@@ -231,8 +248,8 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
         // 1st check flux against max flux
         double Ksat = HcoNode(0, p->horizon[0], ksatCalibration);
         //FindNode(0, p->horizon[0], K_COL)*ksatCalibration;
-        //kavg[0]= sqrt( Ksat * k[0]);
-        kavg[0]= ( Ksat + k[0])/2.0;
+        kavg[0]= sqrt( Ksat * k[0]);
+       // kavg[0]= ( Ksat + k[0])/2.0;
         // geometric avg of ksat and k[0] => is used for max possible
 
         qmax = -kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
@@ -360,14 +377,14 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
         qtop = std::min(0.0,qtop);
 
         // adjust top flux
-        if (SHOWDEBUG) {
-            QList <double> s;
-            for (int j=0; j < nN; j++)
-                s << h[j];
+        // if (SHOWDEBUG) {
+        //     QList <double> s;
+        //     for (int j=0; j < nN; j++)
+        //         s << h[j];
 
-            qDebug()<< dt << qtop << "h" << s;
-            //qDebug()<< qtop << "th" << theta[0] << theta[2] << theta[3] << theta[4] << theta[5] << theta[6] << theta[7] << theta[8] << theta[9];
-        }
+        //     qDebug()<< dt << qtop << "h" << s;
+        //     //qDebug()<< qtop << "th" << theta[0] << theta[2] << theta[3] << theta[4] << theta[5] << theta[6] << theta[7] << theta[8] << theta[9];
+        // }
 
         pond += qtop*dt;       // decrease pond with top flux
         if (pond < POND_EPS)

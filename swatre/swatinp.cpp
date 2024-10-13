@@ -111,7 +111,7 @@ void TWorld::InitializeProfile( void )
 /// new version using swatreProfileDef QStringList
 void TWorld::ReadSwatreInputNew(void)
 {
-
+qDebug() << "ReadSwatreInputNew";
     // get the profile inp file contents and put in stringlist
     // set profiles to nullptr
     //InitializeProfile();
@@ -184,8 +184,8 @@ void TWorld::ReadSwatreInputNew(void)
     }
     zone->disnod[zone->nrNodes] = 0.5 * zone->dz[zone->nrNodes-1];
 
-    for (int i = 0; i <= zone->nrNodes; i++)
-        qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i];
+ //  for (int i = 0; i <= zone->nrNodes; i++)
+ //       qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i];
 
     //  count and check valid profiles
     QStringList checkList; // temp list to check for double profile nrs
@@ -220,7 +220,8 @@ void TWorld::ReadSwatreInputNew(void)
 
     // sort the integer profile numbers
 
-    profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1));
+    //profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1));
+    profileList = (PROFILE **)malloc(sizeof(PROFILE *)*(nrProfileList+1));
     // why realloc? profile list is a list of pointers to PROFILE
 
     nrProfileList = 0;
@@ -316,6 +317,8 @@ PROFILE *TWorld::ProfileNr(int profileNr)
 // free the zone, luts and profiles, these are only pointers in PIXEL_INFO
 void  TWorld::FreeSwatreInfo(void)
 {
+  if (zone == nullptr)
+      return;
 
     if (zone != nullptr) {
         zone->dz.clear();

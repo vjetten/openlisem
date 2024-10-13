@@ -471,7 +471,7 @@ void TWorld::HydrologyProcesses()
 
 
     if (SwitchInfiltration && InfilMethod == INFIL_SWATRE) {
-        //#pragma omp parallel for num_threads(userCores)
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             cell_InfilSwatre(i_, r,c);
         }}

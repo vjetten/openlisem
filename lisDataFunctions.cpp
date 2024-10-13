@@ -92,31 +92,21 @@ void TWorld::DestroyData(void)
 {
 
     maplistCTMap.clear();
-    // if (op.nrMapsCreated > 0) {
-    //     for (int i = 0; i < op.nrMapsCreated; i++)
-    //     {
-    //         if (maplistCTMap[i].m != nullptr)
-    //         {
-    //             delete maplistCTMap[i].m;
-    //             maplistCTMap[i].m = nullptr;
-    //         }
-    //     }
+
+    // if (InfilMethod == INFIL_SWATRE && initSwatreStructure)
+    // {
+    //     DEBUG("clear swatre structure");
+
+    //     FreeSwatreInfo();
+    //     if (SwatreSoilModel)
+    //         CloseSwatre(SwatreSoilModel);
+    //     if (SwatreSoilModelCrust)
+    //         CloseSwatre(SwatreSoilModelCrust);
+    //     if (SwatreSoilModelCompact)
+    //         CloseSwatre(SwatreSoilModelCompact);
+    //     if (SwatreSoilModelGrass)
+    //         CloseSwatre(SwatreSoilModelGrass);
     // }
-
-    if (InfilMethod == INFIL_SWATRE && initSwatreStructure)
-    {
-        DEBUG("clear swatre structure");
-
-        FreeSwatreInfo();
-        if (SwatreSoilModel)
-            CloseSwatre(SwatreSoilModel);
-        if (SwatreSoilModelCrust)
-            CloseSwatre(SwatreSoilModelCrust);
-        if (SwatreSoilModelCompact)
-            CloseSwatre(SwatreSoilModelCompact);
-        if (SwatreSoilModelGrass)
-            CloseSwatre(SwatreSoilModelGrass);
-    }
 
     DEBUG("clear network structures");
     cr_.clear();

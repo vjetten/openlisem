@@ -109,9 +109,9 @@ void TWorld::CloseSwatre(SOIL_MODEL *s)
     swatreProfileDef.clear();
     swatreProfileNr.clear();
 
-    FOR_ROW_COL_MV_L {
-        s->pixel[i_].h.clear();
-    }}
+    // FOR_ROW_COL_MV_L {
+    //     s->pixel[i_].h.clear();
+    // }}
     delete[] s->pixel;
 
     free(s);
