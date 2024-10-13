@@ -547,8 +547,9 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
 }
 
 //---------------------------------------------------------------------------
-void TWorld::cell_InfilSwatre(int r, int c)
+void TWorld::cell_InfilSwatre(long i_, int r, int c)
 {
+
     if (FloodDomain->Drc == 0)
         tm->Drc = WH->Drc;
     else
@@ -556,10 +557,10 @@ void TWorld::cell_InfilSwatre(int r, int c)
 
     WHbef->Drc = tm->Drc;
 
-    SwatreStep(op.runstep, r,c, SwatreSoilModel, tm, fpot, TileDrainSoil, thetaTop);
+    SwatreStep(i_, op.runstep, r,c, SwatreSoilModel, tm, fpot, TileDrainSoil, thetaTop);
     // WH and fpot done in swatrestep, for normal surface swatre should be done in all cells
 
-    fact->Drc = (WHbef->Drc - tm->Drc);
+    fact->Drc = std::max(0.0, WHbef->Drc - tm->Drc);
     InfilVol->Drc = fact->Drc* FlowWidth->Drc * DX->Drc;
 
     // actual infil is dif between WH before and after
@@ -667,27 +668,27 @@ void TWorld::InfilSwatre()
 
         WHbef->Drc = tm->Drc;
 
-        SwatreStep(op.runstep, r,c, SwatreSoilModel, tm, fpot, TileDrainSoil, thetaTop);
-        // WH and fpot done in swatrestep
-        // for normal surface swatre should be done in all cells
+        SwatreStep(i_, op.runstep, r,c, SwatreSoilModel, tm, fpot, TileDrainSoil, thetaTop);
+        // WH and fpot done in swatrestep, for normal surface swatre should be done in all cells
+
         fact->Drc = (WHbef->Drc - tm->Drc);
-        // actual; infil is dif between WH before and after
+        InfilVol->Drc = fact->Drc* FlowWidth->Drc * DX->Drc;
+
+        // actual infil is dif between WH before and after
+    if (SHOWDEBUG)
+        qDebug() << "fact" << fact->Drc;
+
         if (FloodDomain->Drc == 0)
             WH->Drc = tm->Drc;
         else
             hmx->Drc = tm->Drc;
-
-        InfilVol->Drc = fact->Drc * FlowWidth->Drc * DX->Drc;
-
-        if (SHOWDEBUG)
-            qDebug() << "fact" << fact->Drc;
     }}
 
 //TODO, do not calc crust etc for all cells, overkill, only > 0, restore crustfraction idea
 
     if (SwitchInfilCrust)
     {
-        #pragma omp parallel for num_threads(userCores)
+       // #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L
         {
             tm->Drc = WHbef->Drc;
@@ -696,7 +697,7 @@ void TWorld::InfilSwatre()
             tmc->Drc = 0;
             tmd->Drc = 0; // WH or hmx
             if (CrustFraction->Drc > 0)
-                SwatreStep(op.runstep, r, c, SwatreSoilModelCrust, tm, tma, tmb, tmc);//, CrustFraction);
+                SwatreStep(i_, op.runstep, r, c, SwatreSoilModelCrust, tm, tma, tmb, tmc);//, CrustFraction);
             // calculate crust SWATRE and get the soil moisture of the top node
             // CrustFraction is cells > 0
         }}
@@ -722,7 +723,7 @@ void TWorld::InfilSwatre()
 
     if (SwitchInfilCompact)
     {
-        #pragma omp parallel for num_threads(userCores)
+      //  #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L
         {
             tm->Drc = WHbef->Drc;
@@ -731,7 +732,7 @@ void TWorld::InfilSwatre()
             tmc->Drc = 0; // theta top layer for repellency
             tmd->Drc = 0;
             if (CompactFraction->Drc > 0)
-                SwatreStep(op.runstep, r, c, SwatreSoilModelCompact, tm, tma, tmb, tmc);//, CompactFraction);
+                SwatreStep(i_, op.runstep, r, c, SwatreSoilModelCompact, tm, tma, tmb, tmc);//, CompactFraction);
         }}
 
 
@@ -763,7 +764,7 @@ void TWorld::InfilSwatre()
             tmc->Drc = 0;
             tmd->Drc = 0;
             if (GrassFraction->Drc > 0)
-                SwatreStep(op.runstep, r, c, SwatreSoilModelGrass, tm, tma, tmb, tmc);//, GrassFraction);
+                SwatreStep(i_, op.runstep, r, c, SwatreSoilModelGrass, tm, tma, tmb, tmc);//, GrassFraction);
         }}
 
         #pragma omp parallel for num_threads(userCores)

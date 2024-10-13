@@ -39,79 +39,65 @@ functions:
 // zone exists is done before
 SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
 {
-   SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
-   /* TODO check if this needs freeing when error */
+    SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
+    /* TODO check if this needs freeing when error */
 
-   long nrCel = _nrCols*_nrRows;
+    // long nrCel = _nrCols*_nrRows;
 
-   s->minDt = swatreDT;
-   s->pixel = new PIXEL_INFO[nrCel];
+    s->minDt = swatreDT;
+    s->pixel = new PIXEL_INFO[(long)nrCells];
 
-   // set initial values
-   for (long i = 0; i < nrCel; i++)
-   {
-      s->pixel[i].MV = 0;
-      s->pixel[i].profile = nullptr;
-      // s->pixel[i].h = new double[MAX_NODES_P];
-      // for (int n = 0; n < MAX_NODES_P; n++) {
-      //     s->pixel[i].h[n] = -100;
-      // }
-      s->pixel[i].nrNodes = zone->nrNodes;
-      s->pixel[i].dumpHid = 0;  //set to 1 for output of a pixel
-      s->pixel[i].tiledrain = 0;
-      s->pixel[i].tilenode = -1;      // set tiledrain to 0, and tiledepth to -1 (above surface)
-      s->pixel[i].currDt = swatreDT;
-   }
+    // set initial values
+    for (long i = 0; i < (long)nrCells; i++) {
+        s->pixel[i].profile = nullptr;
+        s->pixel[i].dumpHid = 0;  //set to 1 for output of a pixel
+        s->pixel[i].tiledrain = 0;
+        s->pixel[i].wh = 0;
+        s->pixel[i].percolation = 0;
+        s->pixel[i].tilenode = -1;      // set tiledrain to 0, and tiledepth to -1 (above surface)
+    }
 
-   // give each pixel a profile 
-   FOR_ROW_COL_MV {
-       long j = r*_nrCols + c;
-       s->pixel[j].MV = 1;
-       // for (int i = 0; i < zone->nrNodes; i++) {
-       //      s->pixel[i].h.append(-100);
-       // }
+    // give each pixel a profile
+    FOR_ROW_COL_MV_L {
+        int profnr = swatreProfileNr.indexOf((int)profileMap->Drc);
+        if (profnr > 0)
+            s->pixel[i_].profile = profileList[profnr];  // pointer to profile
+        else
+            Error(QString("SWATRE: Profile number %1 in profile.map does not exist in the defenitions in profile.inp").arg((int)profileMap->Drc));
 
-       int profnr = swatreProfileNr.indexOf((int)profileMap->Drc);
-       if (profnr > 0)
-           s->pixel[j].profile = profileList[profnr];  // pointer to profile
-       else
-           Error(QString("SWATRE: Profile number %1 in profile.map does not exist in the defenitions in profile.inp").arg((int)profileMap->Drc));
+        if(SwitchDumpH || SwitchDumpTheta || SwitchDumpK) {
+            s->pixel[i_].dumpHid = SwatreOutput->Drc;
+        }
+    }}
 
-       if(SwitchDumpH || SwitchDumpTheta || SwitchDumpK) {
-           s->pixel[j].dumpHid = SwatreOutput->Drc;
-       }
-   }
-qDebug() << "inith" << zone->nrNodes;
-   // fill the inithead structure of each pixel and set tiledrain depth if any
-   for (int k = 0; k < zone->nrNodes; k++)
-   {
-      QString fname = QString("%1.%2").arg(initheadName).arg(k+1, 3, 10, QLatin1Char('0'));
-      // make inithead.001 to .00n name
+// fill the inithead structure of each pixel and set tiledrain depth if any
+for (int k = 0; k < zone->nrNodes; k++) {
+    QString fname = QString("%1.%2").arg(initheadName).arg(k+1, 3, 10, QLatin1Char('0'));
+    // make inithead.001 to .00n name
 
-      inith = ReadMap(LDD,fname);
-      // get inithead information
+    inith = ReadMap(LDD,fname);
+    // get inithead information
 
-      FOR_ROW_COL_MV {
-         long j = r*_nrCols + c;
-         s->pixel[j].h.append(inith->Drc);//*psiCalibration;
-         // find depth of tilenode
-         if (SwitchIncludeTile) {
-             if (!pcr::isMV(TileDepth->Drc) && TileDepth->Drc > 0) {
-                 // NOTE depth is in m while node info is in cm, so *100
-                 // endComp is the depth at the bottom of the compartment, so the tile is <= endcomp
-                 if (s->pixel[j].profile->zone->endComp[k] > TileDepth->Drc*100)
-                     s->pixel[j].tilenode = k-1;
-             }
-         }
+    FOR_ROW_COL_MV_L {
+        s->pixel[i_].h.append(inith->Drc);//*psiCalibration;
+        // find depth of tilenode
+        if (SwitchIncludeTile) {
+            if (!pcr::isMV(TileDepth->Drc) && TileDepth->Drc > 0) {
+                // NOTE depth is in m while node info is in cm, so *100
+                // endComp is the depth at the bottom of the compartment, so the tile is <= endcomp
+                if (s->pixel[i_].profile->zone->endComp[k] > TileDepth->Drc*100)
+                    s->pixel[i_].tilenode = k-1;
+            }
+        }
 
-         if (SHOWDEBUG) {
-             qDebug() << fname << j << s->pixel[j].h.size() << s->pixel[j].h[k] << inith->Drc;
-         }
+        if (SHOWDEBUG) {
+            qDebug() << fname <<i_ << s->pixel[i_].h.size() << s->pixel[i_].h[k] << inith->Drc;
+        }
 
-      }
-   }
+    }}
+}
 qDebug() << "DONE InitSwatre";
-   return(s);
+return(s);
 }
 //--------------------------------------------------------------------------------
 /// soil model instance to be freed
@@ -120,20 +106,16 @@ void TWorld::CloseSwatre(SOIL_MODEL *s)
     if (s == nullptr)
         return;
 
-    //TODO: delete profile and zones
-
     swatreProfileDef.clear();
     swatreProfileNr.clear();
 
-    for (long i = 0; i < _nrCols*_nrRows; i++) {
-        if (!s->pixel[i].MV) {
-            //delete[] s->pixel[i].h;
-            s->pixel[i].h.clear();
-        }
-    }
+    FOR_ROW_COL_MV_L {
+        s->pixel[i_].h.clear();
+    }}
+    delete[] s->pixel;
 
-    free(s->pixel);
     free(s);
     s = nullptr;
+    qDebug() << "closed swatre";
 }
 //--------------------------------------------------------------------------------

@@ -22,31 +22,8 @@
 **
 *************************************************************************/
 
-
-/*!
-  \file swatstep.cpp
-  \brief SWATRE iteration and soil matrix solution
-
- Note that there is no real iteration: all calculations are done twice
- and if the solution is not good enough, the NEXT SWATRE internal timestep is
- decreased.
- Order of calculations:\
- LisInfiltration, swatre -> SwatreStep --> for each pixxel do: ComputeForPixel HeadCalc + NewTimestep
- functions:
-- void TWorld::HeadCalc(double *h,bool *ponded,const PROFILE *p,const double  *thetaPrev, \n
-      const double *hPrev,const double  *kavg,const double  *dimoca, \n
-      bool fltsat, double dt, double pond, double qtop, double qbot) \n
-- double  TWorld::NewTimeStep(double prevDt, const double *hLast, const double *h, \n
-  int nrNodes, double precParam, double dtMin, double dtMax) \n
-- void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
-                             double *drain, SOIL_MODEL *s) \n
-- void TWorld::SwatreStep(SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *where) \n
- */
 #include <algorithm>
 #include "model.h"
-#include "swatreLookup.h"
-
-
 
 
 //--------------------------------------------------------------------------------
@@ -66,22 +43,7 @@ thomc has unit cm
 thomb has unit dtheta/dh (like dimoca)
 
 */
-/**
- * @brief
- *
- * @param h
- * @param ponded
- * @param p
- * @param thetaPrev
- * @param hPrev
- * @param kavg
- * @param dimoca
- * @param fltsat
- * @param dt
- * @param pond
- * @param qtop
- * @param qbot
- */
+
 void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double *thetaPrev,
                       const double *hPrev, const double *kavg, const double *dimoca,
                       bool fltsat, double dt, double pond, double qtop, double qbot)
@@ -133,7 +95,7 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double *the
 	}
     for (i = (nN-2); i >= 0; i--)
 		h[i] -= beta[i+1] * h[i+1];
-/*
+
     // correct tridiagonal matrix
 	for (i = 0; i < nN; i++) {
 		double theta = TheNode(h[i], Horizon(p,i));
@@ -158,7 +120,7 @@ void TWorld::HeadCalc(double *h, bool *ponded,const PROFILE *p,const double *the
     // if (SHOWDEBUG) {
     //    qDebug() << "headcalc" << h[0] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
     // }
-*/
+
 }
 //--------------------------------------------------------------------------------
 /**
@@ -183,7 +145,7 @@ double  TWorld::NewTimeStep(
       double 		 dtMax)
 {
    int i;
-   double dt = dtMax;
+   double dt = _dt;//dtMax;
    double accur1 = 0.3 - 0.02 * precParam;
    double accur2 = 0.03 - 0.002 * precParam;
 
@@ -207,49 +169,45 @@ double  TWorld::NewTimeStep(
  * @brief
  *
  * @param pixel
- * @param waterHeightIO
- * @param infil
- * @param drain
  * @param drainfraction
- * @param repel
  * @param Theta
  * @param s
  */
 
-void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction, double *Theta)
 
-// void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil,
-//                              double *drain, double drainfraction,
-//                              double *Theta, SOIL_MODEL *s)
+void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction)
 {
    NODE_ARRAY theta, thetaPrev, hPrev, dimoca, kavg, k;
    const PROFILE *p = pixel->profile;
-   int n = pixel->nrNodes;//p->zone->nrNodes;
-   double dt = _dt/5;// std::max(_dt/5, pixel->currDt);
-   double pond = pixel->wh;//*waterHeightIO;
+
+   int nN = NrNodes(p);
+   double dt = _dt/5;
+   double pond = pixel->wh;
    double elapsedTime = 0;
    double influx = 0;
    double drainout = 0;
+   double percolation = 0;
+   double Theta = 0;
    int tnode = pixel->tilenode;
 
    if (SHOWDEBUG)
-       qDebug() << "compute for pixel" << n << pond << pixel->MV << p->profileId;
+       qDebug() << "compute for pixel" << nN << pond << p->profileId;
 
    //double *h = new double [n];
    NODE_ARRAY h;
-   for (int i = 0; i < n; i++) {
+   for (int i = 0; i < nN; i++) {
        h[i] = pixel->h[i];
    }
 
    while (elapsedTime < _dt)
    {
 
-      bool ponded, fltsat;    // flag if ponded or if profile fully saturated
-      double _max, qtop, qbot, ThetaSat;  // fluxes at top and bottom, max theta
+      bool isPonded, fltsat;    // flag if ponded or if profile fully saturated
+      double qmax, qtop, qbot, ThetaSat;  // fluxes at top and bottom, max theta
       double qdrain; // tile drainage
 
       // get nodal values of theta, K, dif moist cap
-      for (int j = 0; j < pixel->nrNodes; j++) {
+      for (int j = 0; j < nN; j++) {
           k[j] = HcoNode(h[j], p->horizon[j], ksatCalibration);
           // k[j] = FindNode(h[j], p->horizon[j], K_COL);
           // input tables in cm/day function returns in cm/sec !!
@@ -258,22 +216,23 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
           // differential moisture capacity d(theta)/d(h), tangent moisture retention curve
           theta[j] = TheNode(h[j], p->horizon[j]);
           // moisture content
-          // qDebug() << h[j] << k[j] << theta[j] << dimoca[j];
+         // if(SHOWDEBUG)
+         // qDebug() << h[j] << k[j] << theta[j] << dimoca[j];
       }
 
-      *Theta = (theta[0]+theta[1])/2;
+      Theta = (theta[0]+theta[1])/2;
 
       // average K for 1st to n-1 node, top node is done below
-      for(int j = 1; j < nNodes; j++) {
-        kavg[j] = (k[j-1]+k[j])/2.0;
-        //kavg[j] = std::sqrt(k[j-1]*k[j]);
+      for(int j = 1; j < nN; j++) {
+          kavg[j] = (k[j-1]+k[j])/2.0;
+          //kavg[j] = std::sqrt(k[j-1]*k[j]);
       }
 
       //--- boundary conditions ---
 
       //----- TOP -----
       // check if ponded: 1st compare fluxes, 2nd compare store
-      // top flux is ponded layer / timestep, available water/rainfall, cm/sec
+      // top flux is water/timestep (cm/sec)
       qtop = -pond/dt;
 
       //----- BOTTOM -----
@@ -281,40 +240,40 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
       if (SwitchImpermeable)
          qbot = 0;
       else
-         qbot = kavg[n-1]*(h[n-1]-h[n-2])/DistNode(p)[n-1] - kavg[n-1];
+         qbot = kavg[nN-1]*(h[nN-1]-h[nN-2])/DistNode(p)[nN-1] - kavg[nN-1];
 
       // 1st check flux against max flux
       double Ksat = HcoNode(0, p->horizon[0], ksatCalibration);
               //FindNode(0, p->horizon[0], K_COL)*ksatCalibration;
-      kavg[0]= sqrt( Ksat * k[0]);
+      //kavg[0]= sqrt( Ksat * k[0]);
+      kavg[0]= ( Ksat + k[0])/2.0;
       // geometric avg of ksat and k[0] => is used for max possible
 
-      _max = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
+      qmax = -kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
+      qmax = std::min(qmax, 0.0);
       // maximum possible flux, compare to real top flux available
-      ponded = (qtop < _max);
+      isPonded = (qtop < qmax);
       // if more flux then max possible flag ponded is true
 
-      //2nd check: ponded layer depth against storage
-      if (!ponded)
-      {
+      //2nd check: isPonded layer depth against storage
+      if (!isPonded) {
          // calculate available space in profile in cm: (pore-theta)*dz
          double space = 0;
-         for(int i = 0; i < n && h[i] < 0 /*&& space > pond*/; i++)
-         {
-            ThetaSat = TheNode(0, p->horizon[i]);//FindNode(0, Horizon(p, i), THETA_COL);
+         for(int i = 0; i < nN && h[i] < 0 && space > pond; i++) {
+            ThetaSat = TheNode(0, p->horizon[i]);        //FindNode(0, Horizon(p, i), THETA_COL);
             space += (ThetaSat - theta[i]) * (-Dz(p)[i]);
          }
-         ponded = pond > space;
+         isPonded = pond > space;
       }
 
       // check if profile is completely saturated (flstsat)
       fltsat = true;
-      for (int i = n-1; i >= 0; i--)
-         if (h[i] < 0)
-         {
+      for (int i = nN-1; i >= 0; i--) {
+         if (h[i] < 0) {
             fltsat = false;
             break;
          }
+      }
       if (fltsat && (qtop <= qbot))
           fltsat = false;
 
@@ -324,22 +283,18 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
       //    thetaPrev[i] = theta[i];
       // }
 
-      std::memcpy(hPrev, h, n * sizeof(double));
-      std::memcpy(thetaPrev, theta, n * sizeof(double));
+      std::memcpy(hPrev, h, nN * sizeof(double));
+      std::memcpy(thetaPrev, theta, nN * sizeof(double));
 
       // calculate hew heads
-
-    //  HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca, fltsat, dt, pond, qtop, qbot);
-      // calculate new h and theta with two times gaussian matrix
-      // and back substitution abracadabra
-
+      // calculate new h and theta with two times gaussian matrix and back substitution
+      //  HeadCalc(h, &ponded, p, thetaPrev, hPrev, kavg, dimoca, fltsat, dt, pond, qtop, qbot);
 
       NODE_ARRAY thoma, thomb, thomc, thomf, beta;
       double alpha;
-      int nN = NrNodes(p);
 
       /* First node : 0 (include boundary cond. qtop or pond) */
-       if ( ponded || fltsat) {
+       if ( isPonded || fltsat) {
             // h at soil surface prescribed, ponding
             thomc[0] = -dt * kavg[1] / Dz(p)[0] / DistNode(p)[1];
             thomb[0] = -thomc[0] + dimoca[0] + dt*kavg[0]/DistNode(p)[0]/Dz(p)[0];
@@ -347,7 +302,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
                     dt*kavg[0]*pond/DistNode(p)[0]/Dz(p)[0];
        } else {
             //  q at soil surface prescribed, qtop = rainfall
-            ponded = false;
+            isPonded = false;
             thomc[0] = -dt * kavg[1] / Dz(p)[0] / DistNode(p)[1];
             thomb[0] = -thomc[0] + dimoca[0];
             thomf[0] = dimoca[0]*h[0] + dt/(-Dz(p)[0]) * (-qtop - kavg[1]); //(- qtop - kavg[1]);
@@ -400,28 +355,41 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
        for (int i = (nN-2); i >= 0; i--)
            h[i] -= beta[i+1] * h[i+1];
 
- if (SHOWDEBUG) {
-     qDebug()<< dt << "h" << h[0] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
- }
+
+       for (int j = 0; j < nN; j++) {
+           theta[j] = TheNode(h[j], p->horizon[j]);
+       }
+
       // determine new boundary fluxes
 
       if (SwitchImpermeable)
          qbot = 0;
       else
-         qbot = kavg[n-1]*(h[n-1]-h[n-2])/DistNode(p)[n-1] - kavg[n-1];
+          qbot = -kavg[nN-1]*(h[nN-1]-h[nN-2])/DistNode(p)[nN-1] - kavg[nN-1];
+         //qbot = kavg[n-1]*(h[n-1]-h[n-2])/DistNode(p)[n-1] - kavg[n-1];
       // new qbot is actually not use but may come in handy later
+      percolation += qbot*dt;
 
-      if ( ponded || (fltsat && (qtop < qbot)) )
-         qtop = -kavg[0] * ((h[0] - pond)/DistNode(p)[0] + 1);
-         //   qtop = kavg[0]*(pond - h[0]) / DistNode(p)[0] - kavg[0];
+      if ( isPonded || fltsat)
+        // qtop = -kavg[0] * ((h[0] - pond)/DistNode(p)[0] + 1);
+            qtop = -kavg[0]*(pond - h[0]) / DistNode(p)[0] - kavg[0];
+      qtop = std::min(0.0,qtop);
+
       // adjust top flux
+      if (SHOWDEBUG) {
+          QList <double> s;
+          for (int j=0; j < nN; j++)
+              s << h[j];
 
-      pond += qtop*dt;
-      // decrease pond with top flux
-      if (pond < POND_EPS)  // 10-6 cm
+          qDebug()<< dt << qtop << "h" << s;
+          //qDebug()<< qtop << "th" << theta[0] << theta[2] << theta[3] << theta[4] << theta[5] << theta[6] << theta[7] << theta[8] << theta[9];
+      }
+
+      pond += qtop*dt;       // decrease pond with top flux
+      if (pond < POND_EPS)
          pond = 0;
-      influx += _max*dt;
-      // add max infil to influx (negative), to get potential infil
+      influx += qmax*dt;
+      // add max infil to influx (negative), to get potential infil  WHY???
 
       //--- calculate tile drain ---//
       if (SwitchIncludeTile && tnode > 0) //VJ 110825 tnode = -1 if cell has no drainage
@@ -450,8 +418,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
 
       elapsedTime += dt;
       /* estimate new dt within lisemtimestep */
-      dt = _dt/NewTimeStep(dt, hPrev, h, n, precision, s->minDt, _dt);
-      //pixel->currDt = dt;
+      dt = NewTimeStep(dt, hPrev, h, nN, precision, s->minDt, _dt);
 
       if (elapsedTime+dt+TIME_EPS >= _dt)
          dt = _dt - elapsedTime;
@@ -471,18 +438,18 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
   // *waterHeightIO = pond; // waterlayer on surface
   // *infil = influx; // total max influx in lisem timestep, fpot
   // *drain = drainout; // tiledrain, is 0 when not activated
-    pixel->wh = pond;
-    pixel->drain = drainout;
-    pixel->infil = influx;
+   pixel->wh = pond;
+   pixel->tiledrain = drainout;
+   pixel->infil = influx;
+   pixel->percolation = -percolation;
+   pixel->theta = Theta;
 
    pixel->h.clear();
-   for (int i = 0; i < n; i++) {
+   for (int i = 0; i < nN; i++) {
        pixel->h.append(h[i]);
    }
   // delete[] h;
 
-       // if (SHOWDEBUG)
-       //     qDebug() << "pond" << pond << influx;
 }
 //--------------------------------------------------------------------------------
 // units in SWATRE are cm and cm/day
@@ -496,7 +463,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
  * @param _theta
  * @param where
  */
-void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta)
+void TWorld::SwatreStep(long i_, int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta)
 {   
 //NOTE ??? _drain =tiledrain soil !!! not drainage bottom profile
 
@@ -506,27 +473,24 @@ void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap
     showr = r;
     showc = c;
 
-    long cel = r*_nrCols+c;
-    s->pixel[cel].wh = _WH->Drc*100;
-    // WH is in m, convert to cm
-    s->pixel[cel].infil = 0;
-    s->pixel[cel].drain = 0;
+    s->pixel[i_].wh = _WH->Drc*100;    // WH is in m, convert to cm
+    s->pixel[i_].infil = 0;
+    s->pixel[i_].tiledrain = 0;
 
-     // for (int i = 0; i < s->pixel[cel].nrNodes; i++) {
-     //     qDebug() << i << s->pixel[cel].profile->horizon[i]->lut->hydro[H_COL];
+     // for (int i = 0; i < s->pixel[i_].nrNodes; i++) {
+     //     qDebug() << i << s->pixel[i_].profile->horizon[i]->lut->hydro[H_COL];
      // }
 
     if (SwitchIncludeTile)
         drainfraction = TileWidth->Drc/_dx;
 
-//    ComputeForPixel(&s->pixel[cel], &wh, &infil, &drain, drainfraction,  &Theta, s);
-    ComputeForPixel(&s->pixel[cel], s, drainfraction, &Theta);
+    ComputeForPixel(&s->pixel[i_], s, drainfraction);
     // estimate new h and theta at the end of dt
 
     //SwitchDumpH = true;
     if(SwitchDumpH || SwitchDumpTheta || SwitchDumpK) {
-        if(s->pixel[cel].dumpHid > 0) {
-            for (int i = 0; i < s->pixel[cel].nrNodes; i++) {
+        if(s->pixel[i_].dumpHid > 0) {
+            for (int i = 0; i < zone->nrNodes; i++) {
                 QString name = QString("SwH%1").arg(step,2, 10, QLatin1Char('0'));
                 dig = QString("%1").arg(i, 12-name.length(), 10, QLatin1Char('0'));
                 name=name+dig;
@@ -536,7 +500,7 @@ void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap
         }
     }
 
-    _WH->Drc = s->pixel[cel].wh*0.01;
+    _WH->Drc = s->pixel[i_].wh*0.01;
     //back to m
 
     _fpot->Drc = std::max(0.0, -infil*0.01);
@@ -544,8 +508,8 @@ void TWorld::SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap
     //fpot is positive like in other infil  methods (in m)
 
     if (SwitchIncludeTile)
-        _drain->Drc = s->pixel[cel].drain*0.01;  // in m
-    // drained water from the soil, already accounts for drainwidth versus cell width
+        _drain->Drc = s->pixel[i_].tiledrain*0.01;  // in m
+    // drained water from the soil, already accounts for drainwidth versus i_l width
 
     //_theta->Drc = Theta;
     // save the average moisture content of the top two layers

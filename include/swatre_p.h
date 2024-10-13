@@ -22,56 +22,32 @@
 **
 *************************************************************************/
 
-/*!
-  \file swatre_p.h
-  \brief SWATRE private declarations and structures
-*/
-
-
-/*
- structures made:
-
- zone
-
-
-
-  */
-
-
-
-
-
-
-
 
 #ifndef SWATRE_P_H
 #define SWATRE_P_H
 
-#include <QtCore>
-
-//#include "swatresoillut.h"
-
+#include <QtCore> // QVector
 
 #define MAX_NODES            20
 #define MAX_NODES_P          (MAX_NODES+3)
 
-/* maximum amount of ponding that is regarded as no ponding (0) */
+// maximum amount of ponding that is regarded as no ponding (0)
 #define POND_EPS             (1.0E-6)
-/* maximum amount of time for which it is not worth doing an iteration */
+// maximum amount of time for which it is not worth doing an iteration
 #define TIME_EPS             (1.0E-6)
 
 #define NrNodes(profile)        (zone->nrNodes)  //profile->zone->nrNodes)
 #define Dz(profile)             (profile->zone->dz)
 #define DistNode(profile)       (profile->zone->disnod)
 #define Horizon(profile, node)  (profile->horizon[node])
-/* sizeof intermediate arrays is fixed to optimize computation: */
+// sizeof intermediate arrays is fixed to optimize computation
 
 #define THETA_COL	    0
 #define H_COL           1
 #define K_COL           2
-#define DMCH_COL        3
+#define DMCH_COL        3 //not used
 #define DMCC_COL        4
-#define NR_COL          5
+#define NR_COL          5 //not used
 
 //-------------------------------------------------------------
 /// SWATRE structure geometry of profile: node distances etc.
@@ -81,88 +57,62 @@
 -		 z = 0.5*(dz[i-1]+dz[i]) is negative centre of compartment, nodes
 -		 disnod = z[i]-z[i-1] is negative distance between centres, nodes
 - schematics:
-\code
-		  -------   surface    -       - z[0]-
-			  o                  |dz[0] -      | disnod[0]
-		  -------   endComp[0] -        |z[1]-
-			  o                  |dz[1] -      | disnod[1]
-		  -------   endcomp[1] -        |z[2]-
-			  o                  |dz[2] -      | disnod[2]
-		  -------   endcomp[2] -
-		 etc.
-\endcode
+
+          -------   surface    -       - z[0]-
+              o                  |dz[0] -      | disnod[0]
+          -------   endComp[0] -        |z[1]-
+              o                  |dz[1] -      | disnod[1]
+          -------   endcomp[1] -        |z[2]-
+              o                  |dz[2] -      | disnod[2]
+          -------   endcomp[2] -
+         etc.
+
 */
-
-
-/// SWATRE Land use tables, nrRows and nrCols mean rows and cols (3) in the table
-typedef struct LUT {
-    double **lut;
-    double *key;  // buffer for search key
-    int   nrRows, nrCols;
-    bool  gotoMinMax;
-    QVector<double> hydro[5];
-} LUT;
-
-
 typedef struct ZONE   {
-	/* structure explaining how the soil subdivided */
-        // double *dz;       	/*!< compartment size (cm.) used as negative in [SWATRE]*/
-        // double *z;        	/*!< position of nodal point relative to top soil (Cm) e.g -21 means 21 cm below top of soil */
-        // double *endComp;   /*!< end of compartment i only used when reading the profiles, arrays with nrNodes+1 elements: */
-        // double *disnod;    /*!< distance between nodal points, 0 is between top-profile and first nodal point last is between bottom and last nodal point */
-
-      int  nrNodes;     	/*!< nr. of nodes (equals nr. of compartments), arrays with nrNodes elements: */
-      QVector <double> dz;
-      QVector <double> z;
-      QVector <double> endComp;
-      QVector <double> disnod;
+    int  nrNodes;
+    QVector <double> dz;
+    QVector <double> z;
+    QVector <double> endComp;
+    QVector <double> disnod;
 } ZONE;
 //---------------------------------------------------------------------------
-/* change this structure if we add VanGenughten eqs. */
-/// SWATRE structure with names and pointers to land use tables
+/// SWATRE Land use tables, nrRows and nrCols mean rows and cols (3) in the table
+typedef struct LUT {
+    int   nrRows, nrCols;
+    QVector<double> hydro[5];
+} LUT;
+//---------------------------------------------------------------------------
 typedef struct HORIZON {
-   QString name;
-   LUT  *lut;     /** lut of theta, h, k, dmch, dmcc */
+    QString name;
+    LUT  *lut;     /** lut of theta, h, k, dmch, dmcc */
 } HORIZON;
 //---------------------------------------------------------------------------
-/// SWATRE structure with horizon and node info
 typedef struct PROFILE {
-   int            profileId; 	/** number identifying this profile  >= 0 */
-   const ZONE     *zone; 		/** array with zone.nrNodes elements: containing z, dz, node distance etc*/
-   const HORIZON  **horizon; 	/** ptr to horizon information this node belongs to */
-  // int nrNodes;
+    int            profileId; 	/** number identifying this profile  >= 0 */
+    const ZONE     *zone; 		/** array with zone.nrNodes elements: containing z, dz, node distance etc*/
+    const HORIZON  **horizon; 	/** ptr to horizon information this node belongs to */
+    // int nrNodes;
 } PROFILE;
 //---------------------------------------------------------------------------
 typedef double NODE_ARRAY[MAX_NODES_P];
 //---------------------------------------------------------------------------
-/// SWATRE structure for actual matrix head and profile information
-/** SWATRE structure for actual matrix head and profile information
-   Each pixel in the map profile.map has this info. PROFILE gives the profiel layout
-   The h array contains the matrix potentials ported to the next timestep.
-   Specific can be put here such as tile drain flux, drip irrigation flux etc
-  */
 typedef struct PIXEL_INFO {
-    // int _r;
-    // int _c;
-   int MV;
-   const PROFILE *profile;    /** profile this pixel belongs to */
- // double        *h;          /** array of MAX_NODES nodes with matrix head */
-
-   QVector <double> h;
-   double        currDt;      /** current size of SWATRE timestep */
-   double        tiledrain;   /** drainage into tiledrin system at a given depth */
-   int           tilenode;    /** nearest node that has the tiledrain */
-   int           dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
-   int           nrNodes;
-   double infil;
-   double drain;
-   double wh;
+    const PROFILE *profile;    /** profile this pixel belongs to */
+    QVector <double> h;
+    double wh;
+    double infil;
+    double percolation;
+    double theta; // for pesticides?
+    double tiledrain;   /** drainage into tiledrin system at a given depth */
+    int tilenode;    /** nearest node that has the tiledrain */
+    int dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
 } PIXEL_INFO;
 //---------------------------------------------------------------------------
 typedef struct SOIL_MODEL {
-   struct PIXEL_INFO  *pixel; //defined in swatre_p.h
-   double minDt;
+    struct PIXEL_INFO  *pixel; //defined in swatre_p.h
+    double minDt;
 } SOIL_MODEL;
+//---------------------------------------------------------------------------
 
 
 

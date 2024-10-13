@@ -438,31 +438,32 @@ void TWorld::HydrologyProcesses()
         if(std::isnan(Thetaeff->Drc))
             qDebug() << QString("A nan 1 %1 %2").arg(r).arg(c);
 
-        // infiltration by SWATRE of G&A+percolation
-        switch (InfilMethod) {
-            case INFIL_SOAP : cell_Soilwater(i_); break;
-            case INFIL_GREENAMPT:
-            case INFIL_SMITH:
-                // Green and Ampt + redistribution
-                cell_InfilMethods(r, c);
+        if (SwitchInfiltration) {
+            switch (InfilMethod) {
+                case INFIL_SOAP : cell_Soilwater(i_); break;
+                case INFIL_GREENAMPT:
+                case INFIL_SMITH:
+                    // Green and Ampt + redistribution
+                    cell_InfilMethods(r, c);
 
-                if (SwitchIncludeET)
-                    cell_ETa(r,c);
+                    if (SwitchIncludeET)
+                        cell_ETa(r,c);
 
-                if (SwitchTwoLayer) {
-                    cell_Redistribution2(r, c);
-                    //cell_Channelinfow2(r, c);
-                } else {
-                    cell_Redistribution1(r, c);
-                    //cell_Channelinfow1(r, c);
-                }
+                    if (SwitchTwoLayer) {
+                        cell_Redistribution2(r, c);
+                        //cell_Channelinfow2(r, c);
+                    } else {
+                        cell_Redistribution1(r, c);
+                        //cell_Channelinfow1(r, c);
+                    }
 
-                if (!SwitchImpermeable)
-                    Perc->Drc = cell_Percolation(r, c, 1.0);
+                    if (!SwitchImpermeable)
+                        Perc->Drc = cell_Percolation(r, c, 1.0);
 
-                break;
-            // case INFIL_SWATRE :
-            // cell_InfilSwatre(r, c); break;
+                    break;
+                // case INFIL_SWATRE :
+                // cell_InfilSwatre(r, c); break;
+            }
         }
         if(std::isnan(Thetaeff->Drc))
             qDebug() << QString("B nan 1 %1 %2").arg(r).arg(c);
@@ -470,11 +471,12 @@ void TWorld::HydrologyProcesses()
 
 
     if (SwitchInfiltration && InfilMethod == INFIL_SWATRE) {
-//#pragma omp parallel for num_threads(userCores)
+        //#pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-        cell_InfilSwatre(r,c);
-       // InfilSwatre();
+            cell_InfilSwatre(i_, r,c);
         }}
+        // InfilSwatre();
+report(*fact,"fact");
     }
 
 

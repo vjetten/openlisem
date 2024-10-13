@@ -1038,7 +1038,6 @@ public:
     //????void cell_Evapotranspiration(int r, int c);									   
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
-    void cell_InfilSwatre(int r, int c);
     void cell_depositInfil(int r, int c);
     void cell_SplashDetachment(int r, int c);
     void cell_FlowDetachment(int r, int c);
@@ -1154,7 +1153,6 @@ public:
     //double Qout;
     QVector <double> Qout;
 
-
     //SWATRE
     /// filenames for Swatre soil information
     QString SwatreTableDir;
@@ -1172,7 +1170,7 @@ public:
     SOIL_MODEL *SwatreSoilModelGrass;
     PROFILE **profileList;
     int nrProfileList, sizeProfileList;
-    ZONE *zone;
+    ZONE *zone = nullptr;
     double precision;
     int tnode; //VJ 110122 node nr in profile with tile drains
     SOIL_MODEL *InitSwatre(cTMap *profileMap);//, QString initHeadMaps, cTMap *tiledepthMap, double dtMin);
@@ -1191,16 +1189,14 @@ public:
     HORIZON *ReadHorizonNew(QString tablePath, QString tableName);
     LUT *ReadSoilTableNew(QString fileName);
 
-
-    void SwatreStep(int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta);//, cTMap *where);
+    void cell_InfilSwatre(long i_, int r, int c);
+    void SwatreStep(long i_, int step, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_fpot, cTMap *_drain, cTMap *_theta);//, cTMap *where);
     void HeadCalc(double *h, bool *ponded, const PROFILE *p ,const double  *thetaPrev,
                   const double  *hPrev, const double  *kavg, const double  *dimoca,
                   bool fltsat, double dt, double pond, double qtop, double qbot);
     double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes,
                         double precParam, double dtMin, double dtMax);
-//    void ComputeForPixel(PIXEL_INFO *pixel, double *waterHeightIO, double *infil, double *drain,
-  //                       double drainfraction, double *Theta, SOIL_MODEL *s);
-    void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction, double *Theta);
+    void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction);
     double HNode(double theta,const  HORIZON *hor);
     double TheNode(double head,const  HORIZON *hor);
     double HcoNode(double head,const HORIZON *hor,double calib);

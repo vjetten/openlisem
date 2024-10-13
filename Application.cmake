@@ -103,7 +103,7 @@ SET(APP_SOURCES
     swatre/swatstep.cpp
     swatre/swatinit.cpp
    # swatre/soillut.cpp obsolete
-    swatre/lutio.cpp
+   # swatre/lutio.cpp obsolete
     swatre/lookup.cpp
     swatre/swatinp.cpp    
     lisBoundary.cpp

@@ -51,7 +51,7 @@ functions:
 // #define NAN_MESSs   "SWATRE: Table %1 contains a non number symbol: %2"
 // #define SMALLERs    "SWATRE: Table %1 column %2 on entry %3 has smaller value (%4) than previous element"
 
-static const char *colName[3] = { "theta", "h", "k" };
+//static const char *colName[3] = { "theta", "h", "k" };
 
 //----------------------------------------------------------------------------------------
 //	const char *fileName,

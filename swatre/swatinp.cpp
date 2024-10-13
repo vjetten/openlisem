@@ -60,8 +60,8 @@ profile node setup:
 #include "model.h"
 
 #define LIST_INC	20
-#define LUT_COLS  5
-#define IND(r,c)  ((r)*LUT_COLS+(c))
+//#define LUT_COLS  5
+//#define IND(r,c)  ((r)*LUT_COLS+(c))
 
 /// array of pointers to horizons, nullptr if not allocated
 static HORIZON **horizonList = nullptr;
@@ -70,10 +70,18 @@ static int nrHorizonList=0, sizeHorizonList=0;
 //----------------------------------------------------------------------------------------------
 void TWorld::InitializeProfile( void )
 {
-
-    zone = nullptr;
-    profileList = nullptr;
+    // if (zone) {
+    //     zone->dz.clear();
+    //     zone->z.clear();
+    //     zone->endComp.clear();
+    //     zone->disnod.clear();
+    //     free(zone);
+    // }
+   // zone = nullptr;
+   // profileList = nullptr;
     //FreeSwatreInfo();
+
+
 
     //profileList = nullptr;
 
@@ -87,13 +95,13 @@ void TWorld::InitializeProfile( void )
     //     profileList = nullptr;
     // }
 
-    nrProfileList = 0;
-    sizeProfileList = 0;
+   //  nrProfileList = 0;
+   //  sizeProfileList = 0;
 
-    // zone=nullptr;
-    horizonList = nullptr;
-    nrHorizonList = 0;
-    sizeHorizonList = 0;
+   //  // zone=nullptr;
+   // // horizonList = nullptr;
+   //  nrHorizonList = 0;
+   //  sizeHorizonList = 0;
 
     //swatreProfileDef.clear();
     //swatreProfileNr.clear();
@@ -106,7 +114,11 @@ void TWorld::ReadSwatreInputNew(void)
 
     // get the profile inp file contents and put in stringlist
     // set profiles to nullptr
-    InitializeProfile();
+    //InitializeProfile();
+    nrProfileList = 0;
+    sizeProfileList = 0;
+    nrHorizonList = 0;
+    sizeHorizonList = 0;
 
     QFile file(SwatreTableName);
 
@@ -135,6 +147,7 @@ void TWorld::ReadSwatreInputNew(void)
 
     // read and make nodes
     zone = new ZONE;
+
     bool ok;
     zone->nrNodes = swatreProfileDef[0].toInt(&ok, 10);
     if (!ok)
@@ -151,8 +164,7 @@ void TWorld::ReadSwatreInputNew(void)
         zone->disnod.append(0.0);
     }
 
-
-   int pos = 2;
+    int pos = 2;
     for (int i = 0; i < zone->nrNodes; i++)
     {
         zone->endComp[i] = swatreProfileDef[i+pos].toDouble(&ok);
@@ -301,62 +313,47 @@ PROFILE *TWorld::ProfileNr(int profileNr)
     return(profileList[profileNr]);
 }
 //----------------------------------------------------------------------------------------------
+// free the zone, luts and profiles, these are only pointers in PIXEL_INFO
 void  TWorld::FreeSwatreInfo(void)
 {
-    int i;
 
-    // if (zone == nullptr)
-    //    return;
+    if (zone != nullptr) {
+        zone->dz.clear();
+        zone->z.clear();
+        zone->endComp.clear();
+        zone->disnod.clear();
+        delete(zone);
+        zone = nullptr;
+    }
 
-    // if (zone != nullptr) {
-    //     zone->dz.clear();
-    //     zone->z.clear();
-    //     zone->endComp.clear();
-    //     zone->disnod.clear();
-    //     delete(zone);
-    //     zone = nullptr;
-    // }
+    if (profileList != nullptr) {
+        if (profileList[0] != nullptr) {
+            for(int i=0; i < nrProfileList; i++)
+                if (profileList[i] != nullptr)
+                    free(profileList[i]);
+        }
+        free(profileList);
+        profileList = nullptr;
+    }
 
-    // // if (zone != nullptr) {
-    // //     free(zone->dz);
-    // //     free(zone->z);
-    // //     free(zone->endComp);
-    // //     free(zone->disnod);
-    // //     free(zone);
-    // //     zone = nullptr;
-    // // }
+    nrProfileList = 0;
+    sizeProfileList = 0;
 
-    // if (profileList != nullptr) {
-    //     if (profileList[0] != nullptr) {
-    //         for(int i=0; i < nrProfileList; i++)
-    //             if (profileList[i] != nullptr)
-    //                 free(profileList[i]);
-    //     }
-    //     free(profileList);
-    //     profileList = nullptr;
-    // }
-    // // for(i=0; i < nrProfileList; i++)
-    // //    if (profileList[i] != nullptr)
-    // //       free(profileList[i]);
-    // // free(profileList);
-    // // profileList = nullptr;
-     nrProfileList = 0;
-     sizeProfileList = 0;
-
-    // if (horizonList != nullptr) {
-    //     for(i=0; i < nrHorizonList; i++)
-    //     {
-    //         //free(horizonList[i]->name);
-    //         //FreeLut(horizonList[i]->lut);
-    //         horizonList[i]->lut = nullptr;
-    //         free(horizonList[i]);
-    //     }
-    //     free(horizonList);
-    //     horizonList = nullptr;
-    // }
+    if (horizonList != nullptr) {
+        for(int i=0; i < nrHorizonList; i++)
+        {
+            for(int k = 0; k < 5; k++)
+                horizonList[i]->lut->hydro[k].clear();
+          //  horizonList[i]->lut = nullptr;
+            free(horizonList[i]);
+        }
+        free(horizonList);
+        horizonList = nullptr;
+    }
 
     nrHorizonList = 0;
     sizeHorizonList = 0;
+    qDebug() << "free:" << zone << profileList << horizonList;
 }
 //----------------------------------------------------------------------------------------------
 /// copy horizon info to all nodes of this horizon
@@ -382,5 +379,79 @@ HORIZON * TWorld::ReadHorizonNew(QString tablePath, QString tableName)
     h->name = tableName;
 
     return(h);
+}
+//----------------------------------------------------------------------------------------------
+LUT *TWorld::ReadSoilTableNew(QString fileName)
+{
+    QChar subChar(26); //SUB
+    // read the table in a stringlist
+    QStringList list;
+    QFile file(fileName);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+           // line.remove(subChar);
+            line.replace("\u001A"," ");
+            // Skip empty or space-only lines
+            if (!line.trimmed().isEmpty() && line != " ")
+                list.append(line);
+
+        }
+        file.close();
+    }
+    LUT *l = new LUT;
+    l->nrRows = list.count();
+
+    for (int i = 0; i < list.count(); i++) {
+        QStringList SL = list[i].split(QRegularExpression("\\s+"),Qt::SkipEmptyParts);
+
+        bool ok;
+        SL[0].toDouble(&ok);
+        if (!ok || SL.count() < 3) {
+            qDebug() << "not ok" << SL;
+            l->nrRows--;
+            break; // sometimes table ends with some char code
+        }
+        l->hydro[THETA_COL].append(SL[THETA_COL].toDouble());
+        l->hydro[H_COL].append(SL[H_COL].toDouble());
+        l->hydro[K_COL].append(SL[K_COL].toDouble()/86400 * ksatCalibration); // cm/day to mm/h 0.41667!
+        //NOTE: Ksat in cm/day needs to me cm/sec ??
+    }
+
+    for (int i = 0; i < l->nrRows-1; i++) {
+        if (l->hydro[H_COL][i+1] <= l->hydro[H_COL][i])
+            Error(QString("matrix head not increasing in table %1 at h = %2.").arg(fileName).arg(l->hydro[H_COL][i]));
+        if (l->hydro[THETA_COL][i+1] <= l->hydro[THETA_COL][i])
+            Error(QString("moisture content not increasing in table %1 at theta = %2.").arg(fileName).arg(l->hydro[THETA_COL][i]));
+        if (l->hydro[K_COL][i+1] <= l->hydro[K_COL][i])
+            Error(QString("Hydraulic conductivity not increasing in table %1 at K = %2.").arg(fileName).arg(l->hydro[K_COL][i]));
+    }
+
+    for (int i = 0; i < l->nrRows - 1; i++) {
+        double v = 0.5*(l->hydro[H_COL][i] + l->hydro[H_COL][i+1]);
+        l->hydro[DMCH_COL] << v;
+        v = (l->hydro[THETA_COL][i+1] - l->hydro[THETA_COL][i])/(l->hydro[H_COL][i+1] - l->hydro[H_COL][i]);
+
+        if (i > 0 && v < l->hydro[DMCC_COL][i-1]) {
+            double dv = l->hydro[DMCC_COL][i-1] - l->hydro[DMCC_COL][i-2];
+            v = l->hydro[DMCC_COL][i-1]+dv;
+        }
+        l->hydro[DMCC_COL] << v;
+    }
+
+    // fill l->nrRows-1
+    l->hydro[DMCH_COL] << 0;
+    l->hydro[DMCC_COL] << l->hydro[DMCC_COL][l->nrRows-2] + (l->hydro[DMCC_COL][l->nrRows-2] - l->hydro[DMCC_COL][l->nrRows-3]);
+
+    // qDebug() << fileName;
+    // for (int i = 0; i < l->nrRows; i++) {
+    // qDebug() << l->hydro[0][i] <<  l->hydro[1][i] << l->hydro[2][i] << l->hydro[3][i] << l->hydro[4][i];
+    // }
+
+    // WORKS
+
+    return(l);
 }
 //----------------------------------------------------------------------------------------------
