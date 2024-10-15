@@ -47,6 +47,7 @@ INCLUDE(Application)
 target_sources(Lisem
   PRIVATE
   README.txt
+  changes.txt
 
 
 

@@ -11,6 +11,30 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt5, openmp, gdal and pcraster
 
+240916 - v7.1
+- BUG fix: SWATRE is working again
+- TODO: Swatre does not interact with groundwater and may crash
+- Small interface bug fixes and more logical positioning of options
+
+240714 - v7.00
+- BUG fix: Lisem crashed when changing the displayed map after the run was finished
+- Data remains in memory until the next run is started
+- MUSCL option for 2D flow: cell boundary interpolation of water level and velocities (4 types). For high resolution flow.
+- Advanced options: optional overall mass balance correction
+
+Interface
+- Dark mode/Light mode
+- Some repositioning of options
+- Rainfall, interception and infiltration can be switched on/off
+- scrollbars correctly triggered
+
+240523 - v6.99
+- BUG FIX: in erosion causing zero flow detachment (only splash)
+- boundary water level inflow (with whboundary.map and file with water levels), for dike break or coastal zone flooding
+- Better hydraulics subsurface storm drains (sewage system) for urban environments (beta, some mass balance errors)
+Interface
+- Make mpeg movies of screenshot series after the simulation. Needs download MPlayer from http://www.mplayerhq.hu
+
 version 6.95 beta
 - Added boundary water level fluctuation, e.g. dikebreak or large flood
 - Added possibility to make mpeg movie after simulation, install this: http://www.mplayerhq.hu/

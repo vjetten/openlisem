@@ -71,7 +71,7 @@ double TWorld::TheNode(
 }
 //-----------------------------------------------------------------------------------
 /// hydraulic conductivity from head
-double TWorld::HcoNode(double head,const HORIZON *hor,double calib)
+double TWorld::HcoNode(double head,const HORIZON *hor)
 {
     LUT *l = hor->lut;
 
@@ -151,7 +151,6 @@ double TWorld::FindNode(double head, const  HORIZON *hor, int column)
         if (uV == lV) {
             return l->hydro[H_COL][lowerIndex]; // or some default value
         }
-
 
         double lTh = l->hydro[column][lowerIndex];
         double uTh = l->hydro[column][upperIndex];

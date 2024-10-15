@@ -847,7 +847,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include crusts")==0)                namelist[j].value.setNum((int)checkInfilCrust->isChecked());
         if (p1.compare("Impermeable sublayer")==0)          namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
         if (p1.compare("Psi user input")==0)                namelist[j].value.setNum((int)checkPsiUser->isChecked());
-        if (p1.compare("Geometric mean Ksat")==0)           namelist[j].value.setNum((int)checkGeometric->isChecked());
+       // if (p1.compare("Geometric mean Ksat")==0)           namelist[j].value.setNum((int)checkGeometric->isChecked());
 
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());

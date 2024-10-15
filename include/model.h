@@ -67,7 +67,7 @@
 #define GRAV_DEM 4.90335
 
 #define Aavg(a,b)  (0.5*(a+b))
-#define Savg(a,b)  qSqrt(a*b)
+#define Savg(a,b)  std::sqrt(a*b)
 #define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
 #define Mavg(a,b)  std::min(a,b)
 
@@ -1199,7 +1199,7 @@ public:
     void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction);
     double HNode(double theta,const  HORIZON *hor);
     double TheNode(double head,const  HORIZON *hor);
-    double HcoNode(double head,const HORIZON *hor,double calib);
+    double HcoNode(double head,const HORIZON *hor);
     double DmcNode(double head,const  HORIZON *hor);
     double FindNode(double head,const  HORIZON *hor, int column);
 

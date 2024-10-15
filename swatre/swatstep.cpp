@@ -194,13 +194,14 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
 
         // get nodal values of theta, K, dif moist cap
         for (int j = 0; j < nN; j++) {
-            k[j] = HcoNode(h[j], p->horizon[j], ksatCalibration);
-            // k[j] = FindNode(h[j], p->horizon[j], K_COL);
+        //     k[j] = HcoNode(h[j], p->horizon[j]);
+            k[j] = FindNode(h[j], p->horizon[j], K_COL);
             // input tables in cm/day function returns in cm/sec !!
-            dimoca[j] = DmcNode(h[j], p->horizon[j]);
-            // dimoca[j] = FindNode(h[j], p->horizon[j], DMCC_COL);
+         //   dimoca[j] = DmcNode(h[j], p->horizon[j]);
+             dimoca[j] = FindNode(h[j], p->horizon[j], DMCC_COL);
             // differential moisture capacity d(theta)/d(h), tangent moisture retention curve
-            theta[j] = TheNode(h[j], p->horizon[j]);
+            //theta[j] = TheNode(h[j], p->horizon[j]);
+            theta[j] = FindNode(h[j], p->horizon[j], THETA_COL);
             // moisture content
             // if(SHOWDEBUG)
             // qDebug() << h[j] << k[j] << theta[j] << dimoca[j];
@@ -213,15 +214,6 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
         //     kavg[j] = (k[j-1]+k[j])/2.0;
         //     //kavg[j] = std::sqrt(k[j-1]*k[j]);
         // }
-        // for(int j = 1; j < nN; j++) {
-        //     switch (KavgType) {
-        //     case 0: kavg[j] = Aavg(k[j],k[j-1]); break;
-        //     case 1: kavg[j] = Savg(k[j],k[j-1]); break;
-        //     case 2: kavg[j] = Havg(k[j],k[j-1],Dz(p)[j],Dz(p)[j-1]); break;
-        //     case 3: kavg[j] = Mavg(k[j],k[j-1]); break;
-        //     }
-        // }
-
 
         switch (KavgType) {
             case 0: for(int j = 1; j < nN; j++){ kavg[j] = Aavg(k[j],k[j-1]);} break;
@@ -229,8 +221,9 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
             case 2: for(int j = 1; j < nN; j++){ kavg[j] = Havg(k[j],k[j-1],Dz(p)[j],Dz(p)[j-1]); }break;
             case 3: for(int j = 1; j < nN; j++){ kavg[j] = Mavg(k[j],k[j-1]);} break;
         }
-
-
+        for(int j = 1; j < nN; j++)
+            kavg[j] *= ksat2Calibration;
+        kavg[0] *= ksatCalibration;
         //--- boundary conditions ---
 
         //----- TOP -----
@@ -246,8 +239,8 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
             qbot = kavg[nN-1]*(h[nN-1]-h[nN-2])/DistNode(p)[nN-1] - kavg[nN-1];
 
         // 1st check flux against max flux
-        double Ksat = HcoNode(0, p->horizon[0], ksatCalibration);
-        //FindNode(0, p->horizon[0], K_COL)*ksatCalibration;
+       // double Ksat = HcoNode(0, p->horizon[0])*ksatCalibration;
+        double Ksat = FindNode(0, p->horizon[0], K_COL)*ksatCalibration;
         kavg[0]= sqrt( Ksat * k[0]);
        // kavg[0]= ( Ksat + k[0])/2.0;
         // geometric avg of ksat and k[0] => is used for max possible
@@ -263,7 +256,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
             // calculate available space in profile in cm: (pore-theta)*dz
             double space = 0;
             for(int i = 0; i < nN && h[i] < 0 && space > pond; i++) {
-                ThetaSat = TheNode(0, p->horizon[i]);        //FindNode(0, Horizon(p, i), THETA_COL);
+                ThetaSat = FindNode(0, Horizon(p, i), THETA_COL);//TheNode(0, p->horizon[i]);        //FindNode(0, Horizon(p, i), THETA_COL);
                 space += (ThetaSat - theta[i]) * (-Dz(p)[i]);
             }
             isPonded = pond > space;
@@ -337,8 +330,8 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
 
         // correct tridiagonal matrix
         for (int i = 0; i < nN; i++) {
-            double theta = TheNode(h[i], Horizon(p,i));
-            double dimocaNew = DmcNode(h[i], Horizon(p,i));
+            double theta = FindNode(h[i], Horizon(p,i), THETA_COL);//TheNode(h[i], Horizon(p,i));
+            double dimocaNew = FindNode(h[i], Horizon(p,i), DMCC_COL);//DmcNode(h[i], Horizon(p,i));
             thomb[i] = thomb[i] - dimoca[i] + dimocaNew;
             thomf[i] = thomf[i] - dimoca[i]*hPrev[i] + dimocaNew*h[i]
                     - theta + thetaPrev[i];

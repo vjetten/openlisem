@@ -1118,7 +1118,7 @@ void lisemqt::resetTabInfiltration()
     //checkInfil2layer->setChecked(false);
     checkInfilImpermeable->setChecked(false);
     checkIncludeTiledrains->setChecked(false);
-    checkGeometric->setChecked(true);
+    //checkGeometric->setChecked(true);
     E_SWATREDtsecFraction->setValue(0.2);
     E_SwatreTableName->setText("profile.inp");
     //E_SwatreTableDir->setText("");

@@ -115,6 +115,13 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int inr)
     // set runfile var to infil nr
 
     groupBox_SwatreOptions->setEnabled(nr == 0);
+    if (nr == 0) {
+        spinSoilLayers->setEnabled(false);
+        label_153->setEnabled(false);
+    }else {
+        spinSoilLayers->setEnabled(true);
+        label_153->setEnabled(true);
+    }
     groupBox_RichardsOptions->setEnabled(nr == 3);
 
     checkMapNameModel(INFILTRATIONMAPS, 0, true);

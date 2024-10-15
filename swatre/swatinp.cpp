@@ -119,6 +119,8 @@ qDebug() << "ReadSwatreInputNew";
     sizeProfileList = 0;
     nrHorizonList = 0;
     sizeHorizonList = 0;
+    swatreProfileDef.clear();
+    swatreProfileNr.clear();
 
     QFile file(SwatreTableName);
 
@@ -419,7 +421,7 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
         }
         l->hydro[THETA_COL].append(SL[THETA_COL].toDouble());
         l->hydro[H_COL].append(SL[H_COL].toDouble());
-        l->hydro[K_COL].append(SL[K_COL].toDouble()/86400 * ksatCalibration); // cm/day to mm/h 0.41667!
+        l->hydro[K_COL].append(SL[K_COL].toDouble()/86400); // cm/day to mm/h 0.41667!
         //NOTE: Ksat in cm/day needs to me cm/sec ??
     }
 

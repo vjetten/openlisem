@@ -3,6 +3,7 @@ this file is a list of changes per major commit
 
 
 240916 - v7.1
+- BUG fix: SWATRE is working again
 - Small interface bug fixes and more logical positioning of options
 
 240714 - v7.00

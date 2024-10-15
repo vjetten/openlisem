@@ -425,7 +425,7 @@ void TWorld::cell_Soilwater(long i_)
                 qDebug() << time/86400 << S;
                 qDebug() << S1;
             }
-            // K1 and K2 are avg between node and upper and lower node
+            /*
             for(int j = 1; j < nNodes; j++) {
                 switch (KavgType) {
                 case 0: K1[j] = Aavg(K[j-1],K[j]); break;
@@ -441,6 +441,19 @@ void TWorld::cell_Soilwater(long i_)
                 case 2: K2[j] = Havg(K[j],K[j+1],s.dz[j],s.dz[j+1]); break;
                 case 3: K2[j] = Mavg(K[j],K[j+1]); break;
                 }
+            }
+            */
+            switch (KavgType) {
+                case 0: for(int j = 1; j < nNodes; j++){ K1[j] = Aavg(K[j],K[j-1]);} break;
+                case 1: for(int j = 1; j < nNodes; j++){ K1[j] = Savg(K[j],K[j-1]);} break;
+                case 2: for(int j = 1; j < nNodes; j++){ K1[j] = Havg(K[j],K[j-1],s.dz[j],s.dz[j-1]); }break;
+                case 3: for(int j = 1; j < nNodes; j++){ K1[j] = Mavg(K[j],K[j-1]);} break;
+            }
+            switch (KavgType) {
+                case 0: for(int j = 0; j < nNodes-1; j++){ K2[j] = Aavg(K[j],K[j+1]);} break;
+                case 1: for(int j = 0; j < nNodes-1; j++){ K2[j] = Savg(K[j],K[j+1]);} break;
+                case 2: for(int j = 0; j < nNodes-1; j++){ K2[j] = Havg(K[j],K[j+1],s.dz[j],s.dz[j+1]); }break;
+                case 3: for(int j = 0; j < nNodes-1; j++){ K2[j] = Mavg(K[j],K[j+1]);} break;
             }
             K1[0] = K2[0];
             K2[nN] = K1[nN];
