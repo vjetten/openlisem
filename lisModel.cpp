@@ -64,7 +64,6 @@ void TWorld::stop()
 void TWorld::saveMBerror2file( bool start) //bool doError,
 {
     if (start) {
-        qDebug() << "hier";
         //create error file
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::WriteOnly | QIODevice::Text);
@@ -435,8 +434,8 @@ void TWorld::HydrologyProcesses()
                 WH->Drc = WHbound->Drc + WHboundRain->Drc;
             }
         }
-        if(std::isnan(Thetaeff->Drc))
-            qDebug() << QString("A nan 1 %1 %2").arg(r).arg(c);
+        // if(std::isnan(Thetaeff->Drc))
+        //     qDebug() << QString("A nan 1 %1 %2").arg(r).arg(c);
 
         if (SwitchInfiltration) {
             switch (InfilMethod) {
@@ -465,8 +464,8 @@ void TWorld::HydrologyProcesses()
                 // cell_InfilSwatre(r, c); break;
             }
         }
-        if(std::isnan(Thetaeff->Drc))
-            qDebug() << QString("B nan 1 %1 %2").arg(r).arg(c);
+        // if(std::isnan(Thetaeff->Drc))
+        //     qDebug() << QString("B nan 1 %1 %2").arg(r).arg(c);
     }}
 
 

@@ -1,48 +1,39 @@
 cmake_minimum_required(VERSION 3.9)
 
-#============ WIN ========================
+# Enable ccache if available
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CCACHE_PROGRAM}")
+endif()
 
+# Platform-specific configurations
 IF(WIN32)
-   # NOTE: a branch of QWT is used for double axis display:
-   # https://sourceforge.net/p/qwt/code/HEAD/tree/branches/qwt-6.1-multiaxes/
-    #SET(QWT_BUILD_DIR "c:/qt/qwt-6.1-ma")          # <= give your own folder names here
-    #SET(QWT_BUILD_DIR "c:/qt/qwt-6.3.0")          # <= give your own folder names here
-    SET(QWT_BUILD_DIR "C:/prgc/lisemgit/qwt/git")          # <= give your own folder names here
-    SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # <= give your own folder names here
-
+    # QWT configuration for double axis display, note a double axis branch of qwt is used
+    SET(QWT_BUILD_DIR "C:/prgc/lisemgit/qwt/git")    # Adjust to your folder names
+    SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # Adjust to your folder names
     SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
-
-    # Lisem uses a QWT branch with quadruple axes support
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
-   # SET(QWT_LIBRARIES "${MINGW_BUILD_DIR}/lib/libqwt-qt6.dll.a")
-
-    #SET(PCR_LIBRARIES "C:/prgc/PCR/libs/sources/libpcraster_raster_format.a")
 
     FIND_PATH(OMP_INCLUDE_DIRS
         NAMES omp.h
         PATHS "${MINGW_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32/14.1.0/include"
     )
-
 ENDIF()
 
-#============= LINUX ======================
-
-# linux ubuntu, qwt installation should be in usr if you followed the instructions, version nr may be different
 IF(UNIX AND NOT CYGWIN)
     SET(QWT_BUILD_DIR "/usr/local/qwt-6.1.4")
     SET(CMAKE_SKIP_BUILD_RPATH FALSE)
     SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
     SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
     SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
-
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.so")
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/")
 ENDIF()
 
-#============ INCLDUES ====================
-
+# Include directories
 INCLUDE_DIRECTORIES(
     ${GDAL_INCLUDE_DIRS}
     ${QWT_INCLUDE_DIRS}
@@ -53,30 +44,32 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_BINARY_DIR}/.
 )
 
-#============ OMP ===========================
-
+# Find OpenMP
 find_package(OpenMP REQUIRED)
 
 # Enable automatic handling of MOC, UIC, and RCC
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
+#set(CMAKE_AUTOMOC ON)
+#set(CMAKE_AUTOUIC ON)
+#set(CMAKE_AUTORCC ON)
 
 # Optionally skip rule dependency checks to avoid timestamp issues
 set(CMAKE_SKIP_RULE_DEPENDENCY TRUE)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set_property(DIRECTORY PROPERTY CMAKE_CONFIGURE_DEPENDS "")
 
-#============ FLAGS =========================
+# Cache the autogen output in a specific directory
+set(CMAKE_AUTOGEN_BUILD_DIR "${CMAKE_BINARY_DIR}/autogen")
+set_source_files_properties(ui_full/LisUIDialogs.cpp PROPERTIES AUTOMOC ON)
+set_source_files_properties(ui_full/lisemqt.cpp PROPERTIES AUTOMOC ON)
+set_source_files_properties(ui_full/LisUItreemodel.cpp PROPERTIES AUTOMOC ON)
+set_source_files_properties(ui_full/Lismpeg.cpp PROPERTIES AUTOUIC ON)
+set_source_files_properties(resources/openlisem.qrc PROPERTIES AUTORCC ON)
 
-INCLUDE(CheckCXXCompilerFlag)
-
+# Compiler flags
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -Wno-var-tracking-assignments -std=c++11 ${OpenMP_CXX_FLAGS}")
-#--param=max-vartrack-size=1500000
-    #add_compile_options(-Wno-var-tracking-assignments)
-
     IF(UNIX)
-       SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wl,-rpath=${ORIGIN}./lib")
-       # extra flags for thread and looking for so libs in ./lib
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wl,-rpath=${ORIGIN}./lib")
     ENDIF()
 ENDIF()
 
@@ -110,8 +103,6 @@ SET(APP_SOURCES
     ui_full/lisemqt.h
     swatre/swatstep.cpp
     swatre/swatinit.cpp
-   # swatre/soillut.cpp obsolete
-   # swatre/lutio.cpp obsolete
     swatre/lookup.cpp
     swatre/swatinp.cpp    
     lisBoundary.cpp
@@ -140,7 +131,6 @@ SET(APP_SOURCES
     lisSnowmelt.cpp
     lisSurfstor.cpp
     lisSoilmoisture.cpp
-   # lisSWOF2D.cpp  OBSOLETE
     lisSWOF2Daux.cpp
     lisSWOF2Dopen.cpp
     lisSWOF2DSediment.cpp
@@ -157,31 +147,26 @@ SET(APP_SOURCES
     include/LisUIoutput.h
     include/masked_raster.h
     include/mmath.h
-    include/model.h
+    #include/model.h
     include/operation.h
     include/option.h
     include/raster.h
-    #include/swatre_g.h obsolete
     include/swatre_p.h
-   # include/swatreLookup.h obsolete
-   # include/swatremisc.h obsolete
-   # include/swatresoillut.h obsolete
     include/TMmapVariables.h
     include/VectormapVariables.h
     include/version.h
-    #include/pcrtypes.h
-    #include/csf.h
-    #include/csfattr.h
-    #include/csfimpl.h
-    #include/csftypes.h
     openlisemico.rc
+)
+
+qt6_wrap_cpp(MOC_FILES
+    include/model.h
+    #include/lisemqt.h
+    #include/lismpeg.h
+    # Add all header files with Q_OBJECT here
 )
 
 # Generate UI source files
 qt_wrap_ui(UI_SOURCES ui_full/lisemqt.ui ui_full/lismpeg.ui)
-
-set_property(SOURCE ui_full/lisemqt.ui PROPERTY SKIP_AUTOUIC ON)
-set_property(SOURCE ui_full/lismpeg.ui PROPERTY SKIP_AUTOUIC ON)
 
 # Generate resource source files
 qt_add_resources(RCC_SOURCES resources/openlisem.qrc)
@@ -191,6 +176,7 @@ add_executable(Lisem WIN32
     ${UI_SOURCES}
     ${RCC_SOURCES}
     ${APP_SOURCES}
+    ${MOC_FILES}
 )
 
 # Link the necessary libraries
@@ -207,4 +193,5 @@ else()
         OpenMP::OpenMP_CXX
     )
 endif()
+
 
