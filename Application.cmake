@@ -57,6 +57,14 @@ INCLUDE_DIRECTORIES(
 
 find_package(OpenMP REQUIRED)
 
+# Enable automatic handling of MOC, UIC, and RCC
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
+# Optionally skip rule dependency checks to avoid timestamp issues
+set(CMAKE_SKIP_RULE_DEPENDENCY TRUE)
+
 #============ FLAGS =========================
 
 INCLUDE(CheckCXXCompilerFlag)
@@ -171,6 +179,9 @@ SET(APP_SOURCES
 
 # Generate UI source files
 qt_wrap_ui(UI_SOURCES ui_full/lisemqt.ui ui_full/lismpeg.ui)
+
+set_property(SOURCE ui_full/lisemqt.ui PROPERTY SKIP_AUTOUIC ON)
+set_property(SOURCE ui_full/lismpeg.ui PROPERTY SKIP_AUTOUIC ON)
 
 # Generate resource source files
 qt_add_resources(RCC_SOURCES resources/openlisem.qrc)
