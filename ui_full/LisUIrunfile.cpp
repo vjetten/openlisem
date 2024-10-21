@@ -384,7 +384,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Cohesion calibration")==0)     E_CalibrateCOH->setValue(valc);
         if (p1.compare("Cohesion Channel calibration")==0)    E_CalibrateCHCOH->setValue(valc);
         //if (p1.compare("Ucr Channel calibration")==0)    E_CalibrateCHUcr->setValue(valc);
-        //if (p1.compare("SV calibration")==0)    E_CalibrateCHSV->setValue(valc);
+        if (p1.compare("SV calibration")==0)    E_CalibrateCHSV->setValue(valc);
         if (p1.compare("Aggregate stability calibration")==0)    E_CalibrateAS->setValue(valc);
        // if (p1.compare("Particle Cohesion of Deposited Layer")==0) E_DepositedCohesion->setValue(valc);
         if (p1.compare("Sediment bulk density")==0)          E_BulkDens->setValue(valc);
