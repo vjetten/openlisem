@@ -47,10 +47,10 @@ INCLUDE_DIRECTORIES(
 # Find OpenMP
 find_package(OpenMP REQUIRED)
 
-# Enable automatic handling of MOC, UIC, and RCC
-#set(CMAKE_AUTOMOC ON)
-#set(CMAKE_AUTOUIC ON)
-#set(CMAKE_AUTORCC ON)
+# Enable automatic handling of MOC, UIC, and RCC based on file type changes instead of timestamps
+set(CMAKE_AUTOMOC_DEPEND_FILTERS "moc" "*.h")
+set(CMAKE_AUTOUIC_DEPEND_FILTERS "ui" "*.ui")
+set(CMAKE_AUTORCC_DEPEND_FILTERS "qrc" "*.qrc")
 
 # Optionally skip rule dependency checks to avoid timestamp issues
 set(CMAKE_SKIP_RULE_DEPENDENCY TRUE)
@@ -59,13 +59,13 @@ set_property(DIRECTORY PROPERTY CMAKE_CONFIGURE_DEPENDS "")
 
 # Cache the autogen output in a specific directory
 set(CMAKE_AUTOGEN_BUILD_DIR "${CMAKE_BINARY_DIR}/autogen")
-set_source_files_properties(ui_full/LisUIDialogs.cpp PROPERTIES AUTOMOC ON)
-set_source_files_properties(ui_full/lisemqt.cpp PROPERTIES AUTOMOC ON)
-set_source_files_properties(ui_full/LisUItreemodel.cpp PROPERTIES AUTOMOC ON)
-set_source_files_properties(ui_full/Lismpeg.cpp PROPERTIES AUTOUIC ON)
-set_source_files_properties(resources/openlisem.qrc PROPERTIES AUTORCC ON)
-
+#set_source_files_properties(ui_full/LisUIDialogs.cpp PROPERTIES AUTOMOC ON)
+#set_source_files_properties(ui_full/lisemqt.cpp PROPERTIES AUTOMOC ON)
+#set_source_files_properties(ui_full/LisUItreemodel.cpp PROPERTIES AUTOMOC ON)
+#set_source_files_properties(ui_full/Lismpeg.cpp PROPERTIES AUTOUIC ON)
+#set_source_files_properties(resources/openlisem.qrc PROPERTIES AUTORCC ON)
 set_property(SOURCE ui_full/lisemqt.ui PROPERTY SKIP_AUTOUIC ON)
+set_property(SOURCE ui_full/lismpeg.ui PROPERTY SKIP_AUTOUIC ON)
 
 # Compiler flags
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
@@ -75,10 +75,9 @@ IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL 
     ENDIF()
 ENDIF()
 
-#============ sourcecode files ===============
-
+# Source files
 SET(APP_SOURCES
-    fixesandbugs.txt    
+    fixesandbugs.txt
     main.cpp
     CsfMap.cpp
     CsfRGBMap.cpp
@@ -106,7 +105,7 @@ SET(APP_SOURCES
     swatre/swatstep.cpp
     swatre/swatinit.cpp
     swatre/lookup.cpp
-    swatre/swatinp.cpp    
+    swatre/swatinp.cpp
     lisBoundary.cpp
     lisChannelErosion.cpp
     lisChannelflood.cpp
@@ -149,7 +148,7 @@ SET(APP_SOURCES
     include/LisUIoutput.h
     include/masked_raster.h
     include/mmath.h
-    #include/model.h
+    include/model.h
     include/operation.h
     include/option.h
     include/raster.h
@@ -162,8 +161,8 @@ SET(APP_SOURCES
 
 qt6_wrap_cpp(MOC_FILES
     include/model.h
-    #include/lisemqt.h
-    #include/lismpeg.h
+    ui_full/lisemqt.h
+    ui_full/lismpeg.h
     # Add all header files with Q_OBJECT here
 )
 
@@ -195,5 +194,3 @@ else()
         OpenMP::OpenMP_CXX
     )
 endif()
-
-

@@ -2,8 +2,9 @@
 #define LISMPEG_H
 
 #include <QDialog>
+#include <QProcess>
 #include "ui_lismpeg.h"
-
+//#include "lisemqt.h"
 
 class lismpeg : public QDialog, private Ui::lismpeg
 {
