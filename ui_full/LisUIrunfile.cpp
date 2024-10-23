@@ -575,7 +575,6 @@ void lisemqt::ParseInputData()
         {
             SwatreTableDir = QFileInfo(p).absolutePath()+"/";
             SwatreTableName = QFileInfo(p).fileName(); //baseName();   SwatreTableName = p;
-qDebug() << p << SwatreTableDir << SwatreTableName;
             if (SwatreTableName.isEmpty()) {
                 SwatreTableName = QString("profile.inp");
                 SwatreTableDir = E_MapDir->text();
@@ -1033,6 +1032,7 @@ void lisemqt::updateModelData()
         if (p1.compare("RR calibration")==0) namelist[j].value = E_CalibrateRR->text();
         if (p1.compare("Ksat calibration")==0) namelist[j].value = E_CalibrateKsat->text();
         if (p1.compare("Ksat2 calibration")==0) namelist[j].value = E_CalibrateKsat2->text();
+        if (p1.compare("Ksat3 calibration")==0) namelist[j].value = E_CalibrateKsat3->text();
         if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();
         if (p1.compare("Theta calibration")==0) namelist[j].value = E_CalibrateTheta->text();
         if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();

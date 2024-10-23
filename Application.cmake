@@ -65,6 +65,8 @@ set_source_files_properties(ui_full/LisUItreemodel.cpp PROPERTIES AUTOMOC ON)
 set_source_files_properties(ui_full/Lismpeg.cpp PROPERTIES AUTOUIC ON)
 set_source_files_properties(resources/openlisem.qrc PROPERTIES AUTORCC ON)
 
+set_property(SOURCE ui_full/lisemqt.ui PROPERTY SKIP_AUTOUIC ON)
+
 # Compiler flags
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -Wno-var-tracking-assignments -std=c++11 ${OpenMP_CXX_FLAGS}")

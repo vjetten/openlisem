@@ -67,7 +67,7 @@
 #define GRAV_DEM 4.90335
 
 #define Aavg(a,b)  (0.5*(a+b))
-#define Savg(a,b)  std::sqrt(a*b)
+#define Savg(a,b)  qSqrt(a*b)
 #define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
 #define Mavg(a,b)  std::min(a,b)
 
@@ -1176,10 +1176,8 @@ public:
     SOIL_MODEL *InitSwatre(cTMap *profileMap);//, QString initHeadMaps, cTMap *tiledepthMap, double dtMin);
     void CloseSwatre(SOIL_MODEL *s);
     void FreeSwatreInfo(void);
-    void InitializeProfile(void);
 
     PROFILE *ProfileNr(int profileNr);
-    // VJ 111104 constructing profile with Qt commands
     QStringList swatreProfileDef;
     QList<int> swatreProfileNr;
     int *profileNr;

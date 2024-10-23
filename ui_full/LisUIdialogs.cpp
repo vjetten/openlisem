@@ -732,3 +732,49 @@ void lisemqt::on_toolButton_ShowRunfile_clicked()
     //qDebug() << E_runFileList->currentText();
     showTextfile(E_runFileList->currentText());
 }
+//---------------------------------------------------------------------------
+void lisemqt::on_E_ETName_returnPressed()
+{
+    if (E_ETName->text() == "") {
+        ETFileDir = "";
+        ETFileName = "";
+    }
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_E_RainsatName_returnPressed()
+{
+    if (E_RainsatName->text() == "") {
+        RainSatFileDir = "";
+        RainSatFileName = "";
+    }
+
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_E_RainfallName_returnPressed()
+{
+    if (E_RainfallName->text() == "") {
+        RainFileDir  = "";
+        RainFileName = "";
+    }
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_spinSoilLayers_valueChanged(int arg1)
+{
+    label_calKsat->setEnabled(true);
+    E_CalibrateKsat->setEnabled(true);
+    label_calKsat2->setEnabled(false);
+    E_CalibrateKsat2->setEnabled(false);
+    label_calKsat3->setEnabled(false);
+    E_CalibrateKsat3->setEnabled(false);
+    if (arg1 == 2) {
+        label_calKsat2->setEnabled(true);
+        E_CalibrateKsat2->setEnabled(true);
+    }
+    if (arg1 == 3) {
+        label_calKsat2->setEnabled(true);
+        E_CalibrateKsat2->setEnabled(true);
+        label_calKsat3->setEnabled(true);
+        E_CalibrateKsat3->setEnabled(true);
+    }
+
+}

@@ -97,7 +97,7 @@ void TWorld::InitParameters(void)
 
     ksatCalibration = getvaluedouble("Ksat calibration");
     ksat2Calibration = getvaluedouble("Ksat2 calibration");
-    ksat3Calibration = 1.0;//egetvaluedouble("Ksat2 calibration");
+    ksat3Calibration = getvaluedouble("Ksat3 calibration");
 
     SmaxCalibration = getvaluedouble("Smax calibration");
     RRCalibration = getvaluedouble("RR calibration");

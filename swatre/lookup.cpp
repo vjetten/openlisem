@@ -14,7 +14,37 @@
 //#include <algorithm>
 #include "model.h"
 
+//-----------------------------------------------------------------------------------
+double TWorld::FindNode(double head, const  HORIZON *hor, int column)
+{
+    LUT *l = hor->lut;
 
+    if (head >= 0) {
+        return l->hydro[column].last();
+    }
+
+    auto it = std::lower_bound(l->hydro[H_COL].begin(), l->hydro[H_COL].end(), head);
+
+    if (it == l->hydro[H_COL].begin()) {
+        return(l->hydro[column][0]);
+    } else if (it == l->hydro[H_COL].end()) {
+        return(l->hydro[column].last());
+    } else {
+        int lowerIndex = std::distance(l->hydro[H_COL].begin(), it - 1); // Index of lower bound
+        int upperIndex = std::distance(l->hydro[H_COL].begin(), it);     // Index of upper bound
+        double lV = *(it - 1);
+        double uV = *it;
+
+        if (uV == lV) {
+            return l->hydro[H_COL][lowerIndex]; // or some default value
+        }
+
+        double lTh = l->hydro[column][lowerIndex];
+        double uTh = l->hydro[column][upperIndex];
+
+        return lTh + (head - lV) * (uTh - lTh) / (uV-lV);
+    }
+}
 //-----------------------------------------------------------------------------------
 /// head from theta
 double TWorld::HNode(
@@ -43,6 +73,7 @@ double TWorld::HNode(
 }
 //-----------------------------------------------------------------------------------
 /// theta from head
+//OBSOLETE
 double TWorld::TheNode(
         double head,           // current head value of this node
         const  HORIZON *hor)   // parameters of horizon this node belongs to
@@ -71,6 +102,7 @@ double TWorld::TheNode(
 }
 //-----------------------------------------------------------------------------------
 /// hydraulic conductivity from head
+/// //OBSOLETE
 double TWorld::HcoNode(double head,const HORIZON *hor)
 {
     LUT *l = hor->lut;
@@ -96,6 +128,7 @@ double TWorld::HcoNode(double head,const HORIZON *hor)
     }
 }
 //-----------------------------------------------------------------------------------
+//OBSOLETE
 /// Differential Moisture Capacity from head
 double TWorld::DmcNode(
         double head,           // current head value of this node
@@ -128,34 +161,4 @@ double TWorld::DmcNode(
     }
 }
 //-----------------------------------------------------------------------------------
-double TWorld::FindNode(double head, const  HORIZON *hor, int column)
-{
-    LUT *l = hor->lut;
 
-    if (head >= 0) {
-        return l->hydro[column].last();
-    }
-
-    auto it = std::lower_bound(l->hydro[H_COL].begin(), l->hydro[H_COL].end(), head);
-
-    if (it == l->hydro[H_COL].begin()) {
-        return(l->hydro[column][0]);
-    } else if (it == l->hydro[H_COL].end()) {
-        return(l->hydro[column].last());
-    } else {
-        int lowerIndex = std::distance(l->hydro[H_COL].begin(), it - 1); // Index of lower bound
-        int upperIndex = std::distance(l->hydro[H_COL].begin(), it);     // Index of upper bound
-        double lV = *(it - 1);
-        double uV = *it;
-
-        if (uV == lV) {
-            return l->hydro[H_COL][lowerIndex]; // or some default value
-        }
-
-        double lTh = l->hydro[column][lowerIndex];
-        double uTh = l->hydro[column][upperIndex];
-
-        return lTh + (head - lV) * (uTh - lTh) / (uV-lV);
-    }
-
-}

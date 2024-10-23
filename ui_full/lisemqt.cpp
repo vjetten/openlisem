@@ -1377,32 +1377,3 @@ void lisemqt::resizeMap()
 }
 
 
-
-void lisemqt::on_E_ETName_returnPressed()
-{
-    if (E_ETName->text() == "") {
-        ETFileDir = "";
-        ETFileName = "";
-    }
-}
-
-
-void lisemqt::on_E_RainsatName_returnPressed()
-{
-    if (E_RainsatName->text() == "") {
-        RainSatFileDir = "";
-        RainSatFileName = "";
-    }
-
-}
-
-
-void lisemqt::on_E_RainfallName_returnPressed()
-{
-    if (E_RainfallName->text() == "") {
-        RainFileDir  = "";
-        RainFileName = "";
-    }
-}
-
-

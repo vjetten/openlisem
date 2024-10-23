@@ -511,8 +511,6 @@ private slots:
     void worldShow(bool showall);
     void worldDone(const QString &results);
     void worldDebug(const QString &results);
-    void worldTimedb(const QString &results);
-
 
     void on_check2DDiagonalFlow_toggled(bool checked);
 
@@ -585,6 +583,8 @@ private slots:
 
     void on_E_RainfallName_returnPressed();
 
+
+    void on_spinSoilLayers_valueChanged(int arg1);
 
 private:
 

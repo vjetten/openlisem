@@ -73,7 +73,7 @@ typedef struct ZONE   {
     QVector <double> dz;
     QVector <double> z;
     QVector <double> endComp;
-    QVector <double> disnod;
+    QVector <double> disnod;   
 } ZONE;
 //---------------------------------------------------------------------------
 /// SWATRE Land use tables, nrRows and nrCols mean rows and cols (3) in the table
@@ -91,7 +91,7 @@ typedef struct PROFILE {
     int            profileId; 	/** number identifying this profile  >= 0 */
     const ZONE     *zone; 		/** array with zone.nrNodes elements: containing z, dz, node distance etc*/
     const HORIZON  **horizon; 	/** ptr to horizon information this node belongs to */
-    // int nrNodes;
+    QVector <double> KsatCal;
 } PROFILE;
 //---------------------------------------------------------------------------
 typedef double NODE_ARRAY[MAX_NODES_P];
@@ -109,7 +109,7 @@ typedef struct PIXEL_INFO {
 } PIXEL_INFO;
 //---------------------------------------------------------------------------
 typedef struct SOIL_MODEL {
-    struct PIXEL_INFO  *pixel; //defined in swatre_p.h
+    struct PIXEL_INFO  *pixel;
     double minDt;
 } SOIL_MODEL;
 //---------------------------------------------------------------------------

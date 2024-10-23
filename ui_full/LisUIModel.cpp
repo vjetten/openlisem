@@ -35,12 +35,15 @@
 #include "lisemqt.h"
 #include "global.h"
 
-#define Clear(list) while (list.count()) {if (!list.isEmpty()) list.removeLast();}
-#define Clear2D(list) for(int i = 0 ; i < list.count(); i++) {\
-            while (list.at(i)->count()) {if (!list.at(i)->isEmpty())list.at(i)->removeLast();}\
-            while (list.count()) {if (!list.isEmpty()) list.removeLast();}}
+#define ClearL(list) while (list.count()) {if (!list.isEmpty()) list.removeLast();}
+// #define Clear2D(list) for(int i = 0 ; i < list.count(); i++) {\
+//             while (list.at(i)->count()) {if (!list.at(i)->isEmpty())list.at(i)->removeLast();}\
+//             while (list.count()) {if (!list.isEmpty()) list.removeLast();}}
 
-
+// from CoPilot
+#define Clear(list) list.clear();QList<int>().swap(list)
+#define Cleard(list) list.clear();QList<double>().swap(list)
+#define Clear2D(list) for(auto vec : list){delete vec;}list.clear();QList<QVector<double>*>().swap(list)
 
 void lisemqt::ClearOP()
 {
@@ -99,18 +102,18 @@ void lisemqt::ClearOP()
     Clear(op.OutletIndices);
     Clear(op.OutletLocationX);
     Clear(op.OutletLocationY);
-    Clear(op.OutletQpeak);
-    Clear(op.OutletQpeaktime);
-    Clear(op.OutletQtot);
-    Clear(op.OutletQstot);
-    Clear(op.Pmm);
-    Clear(op.Time);
-    Clear(op.Qtile);
-    Clear(op.EndPointX);
-    Clear(op.EndPointY);
-    Clear(op.ObsPointX);
-    Clear(op.ObsPointY);
-    Clear(op.lddch_);
+    Cleard(op.OutletQpeak);
+    Cleard(op.OutletQpeaktime);
+    Cleard(op.OutletQtot);
+    Cleard(op.OutletQstot);
+    Cleard(op.Pmm);
+    Cleard(op.Time);
+    Cleard(op.Qtile);
+    Cleard(op.EndPointX);
+    Cleard(op.EndPointY);
+    Cleard(op.ObsPointX);
+    Cleard(op.ObsPointY);
+    ClearL(op.lddch_);
     // Clear(op.ComboLists);
     // qDeleteAll(op.ComboMaps.begin(), op.ComboMaps.end());
     // op.ComboMapNames.clear();
@@ -156,15 +159,15 @@ void lisemqt::runmodel()
         qDeleteAll(W->maplistCTMap.begin(),W->maplistCTMap.end());
         W->maplistCTMap.clear();
         // destroy all networlk structures
-        Clear(W->cr_);
-        Clear(W->crch_);
-        Clear(W->crlinkedldd_);
-        Clear(W->crlinkedlddch_);
-        Clear(W->crldd5_);
-        Clear(W->crlddch5_);
-        Clear(W->crout_);
-        Clear(W->dcr_);
-        Clear(W->crtile_);
+        ClearL(W->cr_);
+        ClearL(W->crch_);
+        ClearL(W->crlinkedldd_);
+        ClearL(W->crlinkedlddch_);
+        ClearL(W->crldd5_);
+        ClearL(W->crlddch5_);
+        ClearL(W->crout_);
+        ClearL(W->dcr_);
+        ClearL(W->crtile_);
 
         QVector <double> zero;
         zero.clear();
@@ -178,12 +181,12 @@ void lisemqt::runmodel()
 
         ClearOP(); // clear most of the op structure
 
-        // destroy swatre data structures
-        if (W->InfilMethod == INFIL_SWATRE && W->initSwatreStructure)
+        // destroy swatre structures
+        if (W->SwitchInfiltration && W->InfilMethod == INFIL_SWATRE && W->initSwatreStructure)
         {
-            W->FreeSwatreInfo();
+            W->FreeSwatreInfo(); // free horizon structures
             if (W->SwatreSoilModel)
-                W->CloseSwatre(W->SwatreSoilModel);
+                W->CloseSwatre(W->SwatreSoilModel);  // free pixel_info
             if (W->SwatreSoilModelCrust)
                 W->CloseSwatre(W->SwatreSoilModelCrust);
             if (W->SwatreSoilModelCompact)
@@ -430,13 +433,6 @@ void lisemqt::worldDebug(const QString &results)
 {
     QString sss = results; //label_debug->text() + results + " - ";
     label_debug->setText(sss);
-    // show messages from the World model on the screen
-}
-//---------------------------------------------------------------------------
-// this function is linked to the debug signal emitted from the model world
-void lisemqt::worldTimedb(const QString &results)
-{
-   // label_realtime->setText(results);
     // show messages from the World model on the screen
 }
 //---------------------------------------------------------------------------
