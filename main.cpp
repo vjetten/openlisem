@@ -25,7 +25,8 @@
 
 /*!
   \file main.cpp
-  \brief main function, making and calling interface
+  \brief main function, call the app based on 2 options. If in the command line '-ni'
+    is found then no GUI is loaded, otherwise the interface is made and called
 
 functions: \n
 - int main(int argc, char *argv[]) \n
@@ -44,120 +45,94 @@ QStringList optionList;
 
 int main(int argc, char *argv[])
 {
-    QApplication* temp = new QApplication(argc, argv);
-    double width = QApplication::desktop()->width();
-    double height = QApplication::desktop()->height();
-
-    if (height < 1080) {
-        // assumes that the default desktop resolution is 720p (scale of 1)
-        int minWidth = 1280;
-
-
-        double scale = width / minWidth;
-        std::string scaleAsString = std::to_string(scale);
-        QByteArray scaleAsQByteArray(scaleAsString.c_str(), scaleAsString.length());
-       // qputenv("QT_SCALE_FACTOR", scaleAsQByteArray);
-      //  qputenv("QT_AUTO_SCREEN_SCALE_FACTOR",scaleAsQByteArray);
-       // qDebug() <<scaleAsQByteArray << height << width;
-    }
-        delete temp;
-    // open console but only if run from cmd.exe in win
-#ifdef _WIN32
-    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
-        freopen("CONOUT$", "w", stdout);
-        freopen("CONOUT$", "w", stderr);
-    }
-#endif
-
     Fixture fixture; // <= necessary for GDAL
- //   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-  //  argc += 2;
+    QString runFileName;
+    bool noInterface = false;
+    // Parse command-line arguments
+    for (int i = 1; i < argc; ++i) {
+        QString arg = argv[i];
+        if (arg == "-ni") {
+            noInterface = true;
+        } else if (arg == "-r" && i + 1 < argc) {
+            runFileName = argv[++i];
+        } else {
+            printf("syntax:\nlisem [-ni] -r runfile \n-ni = no graphical user interface, uses runfile directly!\n");
+            return 0;
+        }
+    }
 
-  //  argv[] = {(char*)"Appname", (char*)"--platform", (char*)"windows:dpiawareness=0"};
+    // Initialize application based on noInterface flag
+    if (noInterface) {
+        QCoreApplication app(argc, argv); // Use QCoreApplication for headless mode
 
+        op.LisemDir = QCoreApplication::applicationDirPath() + "/";
+        // exe path, used for ini file
 
-    QApplication app(argc, argv);
+        QString appDataLocalPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+        QFileInfo appDataLocalFileInfo(appDataLocalPath);
+        QString localPath = appDataLocalFileInfo.absolutePath() + "/lisem";
+        QDir dir;
+        if (!dir.exists(localPath))
+            dir.mkpath(localPath);
+        op.userAppDir = localPath + "/";
+        QLocale loc = QLocale::system(); // current locale
+        loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
+        QLocale::setDefault(loc);
 
-    app.setWindowIcon(QIcon(":/openlisem.ico"));
+        //Start the model based on the specified runfile directly
+        if (!runFileName.isEmpty()) {
+            op.runfilename = runFileName;
+            op.doBatchmode = true;
 
-    app.setStyle(QStyleFactory::create("Fusion"));
-   //  app.setStyle(QStyleFactory::create("Windows"));
+            TWorld *W = new TWorld();
 
-     // modify palette to dark
-
-    //qputenv("QT_SCALE_FACTOR", "1.0");
-
-  //  qputenv("QT_AUTO_SCREEN_SCALE_FACTOR","1");
-
-    op.LisemDir = QCoreApplication::applicationDirPath()+"/";
-    // exe path, used for ini file
-
-    QStringList args=QCoreApplication::arguments();
-
-    QLocale loc = QLocale::system(); // current locale
-    loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
-    QLocale::setDefault(loc);
-
-
-    if (argc <= 1)
-    {
-        lisemqt iface;
-
-        iface.setWindowTitle(VERSION);
-        iface.show();
-
-        return app.exec();
-
-    } else {
-        // 2 options:
-        // noInterface = run without GUI in console
-        // batchmode = run with GUI but start run automatically (default)
-        bool noInterface = false;
-
-        QString ag = args.join(" ");
-        QString name;
-
-        if (ag.contains("?")) {
-            printf("syntax:\nlisem [-ni] -r runfile \n"
+            W->stopRequested = false;
+            W->waitRequested = false;
+            W->noInterface = noInterface;
+            W->start();
+            qDebug() << "\nrunning OpenLISEM with:" << runFileName;
+            return app.exec();
+        } else {
+            printf("syntax:\nLisem [-ni] -r runfile \n"
                    "-ni = no graphical user interface, uses runfile directly!\n");
             return 0;
         }
+    } else {
+        QApplication app(argc, argv); // Use QApplication for GUI mode
+        app.setWindowIcon(QIcon(":/openlisemN.ico"));
+        app.setStyle(QStyleFactory::create("Fusion"));
 
-        // run from console with or without GUI
-        if (ag.contains("-r")) {
-            QStringList sl = ag.split("-r");
-            name = sl[1].simplified();           
+        op.LisemDir = QCoreApplication::applicationDirPath() + "/";
+        // exe path, used for ini file
 
+        QString appDataLocalPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+        QFileInfo appDataLocalFileInfo(appDataLocalPath);
+        QString localPath = appDataLocalFileInfo.absolutePath() + "/lisem";
+        QDir dir;
+        if (!dir.exists(localPath))
+            dir.mkpath(localPath);
+        op.userAppDir = localPath + "/";
+        QLocale loc = QLocale::system(); // current locale
+        loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
+        QLocale::setDefault(loc);
 
-            if (ag.contains("-ni")) {
-                noInterface = true;
-                op.runfilename = name;
-                op.doBatchmode = true;
-
-                TWorld *W = new TWorld();
-                // make the model world
-				op.timeStartRun = QDateTime().currentDateTime().toString("yyMMdd-hhmm");
-                W->stopRequested = false;
-                W->waitRequested = false;
-                W->noInterface = noInterface;
-                W->start();
-                qDebug() << "\nrunning OpenLISEM with:" << name;
-                return app.exec();
-            } else {
-
-                //qDebug() << "running: " << name;
-
-                lisemqt iface(0, true, name);
+        // select between a standard run with GUI or a run with GUI based on a specified runfile from the command line
+        if (argc <= 1) {
+            lisemqt iface;
+            iface.setWindowTitle(VERSION);
+            iface.show();
+            return app.exec();
+        } else {
+            if (!runFileName.isEmpty()) {
+                lisemqt iface(0, true, runFileName);
                 iface.setWindowTitle(VERSION);
                 iface.show();
-
-            return app.exec();
+                return app.exec();
+            } else {
+                printf("syntax:\nlisem [-ni] -r runfile \n"
+                       "-ni = no graphical user interface, uses runfile directly!\n");
+                return 0;
             }
-
-        } else {
-            printf("syntax:\nlisem [-ni] -r runfile \n"
-                   "-ni = no graphical user interface, uses runfile directly!\n");
-            return 0;
         }
     }
 }

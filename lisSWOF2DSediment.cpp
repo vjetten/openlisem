@@ -40,12 +40,7 @@ functions: \n
 
 #define signf(x)  ((x < 0)? -1.0 : 1.0)
 
-#define he_ca 1e-12
-#define ve_ca 1e-12
-
 #define dt_ca 0.005
-
-#define EPSILON 1e-6
 
 //--------------------------------------------------------------------------------------------
 /**
@@ -383,9 +378,9 @@ void TWorld::SWOFSedimentCheckZero(int r, int c, cTMap * h)//,cTMap * u,cTMap * 
         DepFlood->Drc += -(_SS->Drc);
 
         //add to soil layer
-        if(SwitchUseMaterialDepth) {
-            StorageDep->Drc += _BL->Drc + _SS->Drc;
-        }
+        // if(SwitchUseMaterialDepth) {
+        //     StorageDep->Drc += _BL->Drc + _SS->Drc;
+        // }
 
         //set to zero
         _BL->Drc = 0;
@@ -498,8 +493,8 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-
-        double chadj = ChannelAdj->Drc;
+        //tmb->Drc = 0;
+        //double chadj = ChannelAdj->Drc;
         double chadjdx = CHAdjDX->Drc;
         double BLTC = 0;
         double SSTC = 0;
@@ -540,23 +535,23 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
         if(h->Drc < HMIN)
         {
             if(DO_SEDDEP == 1) {
-            //set all to zero when the water height is zero
-            if (SwitchUse2Phase) {
-                DepFlood->Drc += -BLFlood->Drc;
-                BLTCFlood->Drc = 0;
-                BLFlood->Drc = 0;
-                BLCFlood->Drc = 0;
-            }
+                //set all to zero when the water height is zero
+                if (SwitchUse2Phase) {
+                    DepFlood->Drc += -BLFlood->Drc;
+                    BLTCFlood->Drc = 0;
+                    BLFlood->Drc = 0;
+                    BLCFlood->Drc = 0;
+                }
 
-            DepFlood->Drc += -SSFlood->Drc;
-            SSTCFlood->Drc = 0;
-            SSFlood->Drc = 0;
-            SSCFlood->Drc = 0;
+                DepFlood->Drc += -SSFlood->Drc;
+                SSTCFlood->Drc = 0;
+                SSFlood->Drc = 0;
+                SSCFlood->Drc = 0;
 
-            if(SwitchUseMaterialDepth) {
-                StorageDep->Drc += -deposition;
+                if(SwitchUseMaterialDepth) {
+                    StorageDep->Drc += -deposition;
+                }
             }
-        }
         } else {
             // there is water
 
@@ -569,7 +564,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
             // positive difference: TC deficit becomes detachment (ppositive)
             double minTC = std::min(SSTC - SSC, 0.0) ;
             // negative diff, becomes deposition
-
+            //tmb->Drc = maxTC;
             deposition = 0;
             detachment = 0;
 
@@ -607,13 +602,13 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                     }
                 }
 
-                if(SwitchUseMaterialDepth)
-                    StorageDep->Drc += -deposition;
+                // if(SwitchUseMaterialDepth)
+                //     StorageDep->Drc += -deposition;
 
-            } else
-                if (maxTC > 0 && Y->Drc > 0) {
-                    //TransportFactor = dt * TSettlingVelocitySS * CHAdjDX->Drc;
-                    TransportFactor = dt * TSettlingVelocitySS * SoilWidthDX->Drc * DX->Drc;
+            } else {
+                if (maxTC > 0 && CohesionSoil->Drc >= 0) {
+                    TransportFactor = dt * TSettlingVelocitySS * CHAdjDX->Drc;
+                   // TransportFactor = dt * TSettlingVelocitySS * SoilWidthDX->Drc * DX->Drc;
                     // m3, detachment only erosion on soilwidth
 
                     detachment = maxTC * std::min(TransportFactor, sswatervol);
@@ -631,20 +626,21 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                     detachment = (1-StoneFraction->Drc) * detachment;
                     // no flow detachment on stony surfaces
 
-    // not needed because soilwidth
-    //                if (SwitchRoadsystem)
-    //                    detachment = (1-RoadWidthDX->Drc/_dx) * detachment;
                     // no flow detachment on hard surfaces
-
-    //                if (SwitchHardsurface)
-    //                    detachment = (1-HardSurface->Drc) * detachment;
-                    // no flow detachment on hard surfaces
+                    //if (SwitchRoadsystem || SwitchHardsurface)
+                    //  detachment = (1-RoadWidthHSDX->Drc/_dx)*detachment;
+                    // if (SwitchRoadsystem)
+                    //     detachment = (1-RoadWidthDX->Drc/_dx)*detachment;
+                    // if (SwitchHardsurface)
+                    //     detachment = (1-HardSurface->Drc)*detachment;
+                    if (RoadWidthHSDX->Drc > 0.1)
+                        detachment = 0;
 
                     if (SwitchHouses)
                         detachment = (1-HouseCover->Drc)*detachment;
                     // no flow det where houses
-
-                    detachment = (1-Snowcover->Drc) * detachment;
+                    if (SwitchSnowmelt)
+                        detachment = (1-Snowcover->Drc) * detachment;
                     // TODO: CHECK THIS no flow detachment on snow
                     //is there erosion and sedimentation under the snowdeck?
 
@@ -660,7 +656,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                         detachment = MAXCONC * sswatervol - SS;
                     // not more detachment then is needed to keep below ssmax
                 }
-
+            }
             //### sediment balance
             SSDetFlood->Drc += detachment;  // set to zero in mass balance
             DepFlood->Drc += deposition;
@@ -720,50 +716,66 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                             }
                         }
 
-                        if(SwitchUseMaterialDepth)
-                        {
-                            StorageDep->Drc += -deposition;
-                        }
-                    } else
-                    if (maxTC > 0 && Y->Drc > 0) {
-                        //### detachment
-                        // detachment can only come from soil, not roads (so do not use flowwidth)
-                        // units s * m/s * m * m = m3
-                        TransportFactor = dt * TSettlingVelocityBL * DX->Drc * SoilWidthDX->Drc;
-                        //TransportFactor = std::min(TransportFactor, bldischarge * dt);
+                        // if(SwitchUseMaterialDepth)
+                        // {
+                        //     StorageDep->Drc += -deposition;
+                        // }
+                    } else {
+                        if (maxTC > 0 && Y->Drc > 0) {
 
-                        detachment = maxTC * std::min(TransportFactor, blwatervol);
-                        // unit = kg/m3 * m3 = kg
+                            //### detachment ###
 
-                        if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
-                            detachment = 0;
-                        // VJ 190325 prevent any activity on the boundary!
+                            // detachment can only come from soil, not roads (so do not use flowwidth)
+                            // units s * m/s * m * m = m3
+                            //TransportFactor = dt * TSettlingVelocityBL * DX->Drc * SoilWidthDX->Drc;
+                            TransportFactor = dt * TSettlingVelocitySS * CHAdjDX->Drc;
+                            //TransportFactor = std::min(TransportFactor, bldischarge * dt);
 
-                        if (GrassFraction->Drc > 0)
-                            detachment = (1-GrassFraction->Drc) * detachment;
-                        // no flow detachment on grass strips
+                            detachment = maxTC * std::min(TransportFactor, blwatervol);
+                            // unit = kg/m3 * m3 = kg
 
-                        // Detachment edxceptions:
-                        detachment = (1-StoneFraction->Drc) * detachment;
-                        // no flow detachment on stony surfaces
+                            if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
+                                detachment = 0;
+                            // VJ 190325 prevent any activity on the boundary!
 
-                        if (SwitchHouses)
-                            detachment = (1-HouseCover->Drc)*detachment;
-                        // no flow det from house roofs
+                            if (GrassFraction->Drc > 0)
+                                detachment = (1-GrassFraction->Drc) * detachment;
+                            // no flow detachment on grass strips
 
-                        detachment = (1-Snowcover->Drc) * detachment;
-                        /* TODO: CHECK THIS no flow detachment on snow */
-                        //is there erosion and sedimentation under the snowdeck?
+                            // Detachment edxceptions:
+                            detachment = (1-StoneFraction->Drc) * detachment;
+                            // no flow detachment on stony surfaces
 
-                        //detachment = DetachMaterial(r,c,1,false,false,true, detachment);
-                        detachment *= Y->Drc;
+                            if (SwitchHouses)
+                                detachment = (1-HouseCover->Drc)*detachment;
 
-                        if(BL + detachment > MAXCONC * blwatervol)
-                            detachment = MAXCONC * blwatervol - BL;
-                        // limit detachment to what BLflood can carry
+                            //if (SwitchRoadsystem || SwitchHardsurface)
+                              //  detachment = (1-RoadWidthHSDX->Drc/_dx)*detachment;
+                            // if (SwitchRoadsystem)
+                            //     detachment = (1-RoadWidthDX->Drc/_dx)*detachment;
+                            // if (SwitchHardsurface)
+                            //     detachment = (1-HardSurface->Drc)*detachment;
+                            if (RoadWidthHSDX->Drc > 0/1)
+                                detachment = 0;
 
-                        if (SwitchSedtrap && SedMaxVolume->Drc > 0) {
-                            detachment = 0;
+                            // no flow det from house roofs
+                            if (SwitchSnowmelt)
+                                detachment = (1-Snowcover->Drc) * detachment;
+                            /* TODO: CHECK THIS no flow detachment on snow */
+                            //is there erosion and sedimentation under the snowdeck?
+
+                            detachment = std::max(0.0,detachment);
+
+                            //detachment = DetachMaterial(r,c,1,false,false,true, detachment);
+                            detachment *= Y->Drc;
+
+                            if(BL + detachment > MAXCONC * blwatervol)
+                                detachment = MAXCONC * blwatervol - BL;
+                            // limit detachment to what BLflood can carry
+
+                            if (SwitchSedtrap && SedMaxVolume->Drc > 0) {
+                                detachment = 0;
+                            }
                         }
                     }
                     //### sediment balance IN KG/CELL
@@ -779,4 +791,5 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
         SWOFSedimentSetConcentration(r,c,h);
 
     }}
+
 }

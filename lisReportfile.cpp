@@ -71,7 +71,7 @@ void TWorld::reportAll(void)
     ReportLandunits();
     // report stats per landunit class
 
-    ChannelFloodStatistics();
+    FloodStatistics();
     // report buildings submerged in flood level classes in 5cm intervals
 }
 //---------------------------------------------------------------------------
@@ -79,7 +79,7 @@ void TWorld::reportAll(void)
     report to screen, hydrographs and maps */
 void TWorld::OutputUI(void)
 {
-
+    SwitchCorrectMB_WH = op.SwitchCorrectMB_WH;
     op.timestep = this->_dt/60.0;
 
     op.t = time_ms.elapsed()*0.001/60.0;    
@@ -100,8 +100,8 @@ void TWorld::OutputUI(void)
     //op.EndTime = EndTime/60.0;
     op.CatchmentArea = CatchmentArea;
 
-    op.Pmm.append((RainAvgmm + SnowAvgmm)*3600/_dt);
-    op.RainTotmm = RainTotmm + SnowTotmm;
+    op.Pmm.append((RainAvgmm)*3600/_dt); // + SnowAvgmm
+    op.RainTotmm = RainTotmm;// + SnowTotmm;
     op.ETaTotmm = ETaTotmm;
     op.GWlevel = GWlevel;
     op.RainpeakTime = RainpeakTime/60;
@@ -228,7 +228,8 @@ void TWorld::OutputUI(void)
     FOR_ROW_COL_MV_L {
         COMBO_V->Drc = V->Drc < 1e-5 ? 0 : V->Drc;
         VH->Drc = COMBO_V->Drc * hmxWH->Drc;
-        Lwmm->Drc = Lw->Drc *1000 * SoilWidthDX->Drc/_dx;
+        //Lwmm->Drc = Lw->Drc *1000 * SoilWidthDX->Drc/_dx;
+        Lwmm->Drc = Lw->Drc *1000 * FlowWidth->Drc/_dx;
     }}
 
     if(SwitchErosion)
@@ -263,14 +264,6 @@ void TWorld::OutputUI(void)
         }}
     }
 
-    //output maps for combo box
-    for(int i = 0; i < op.ComboMaps.length(); i++)
-    {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            op.ComboMapsSafe[i]->Drc = op.ComboMaps[i]->Drc; // * op.ComboScaling.at(i); scaling is done filldrawmapdata
-        }}
-    }
 
     // ONLY ONCE
     if (runstep <= 1) {
@@ -297,18 +290,19 @@ void TWorld::OutputUI(void)
         if(SwitchHardsurface)
             copy(*op.hardsurfaceMap,*HardSurface);
 
-        if(SwitchFlowBarriers)
-        {
+//        if(SwitchFlowBarriers)
+//        {
 //            Fill(*tma,0.0);
 //            FOR_ROW_COL_MV {
 //                tma->Drc = std::max(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),FlowBarrierW->Drc),FlowBarrierS->Drc);
 //            }
-    //        copy(*op.flowbarriersMap,*tma);
-        }
+//            copy(*op.flowbarriersMap,*tma);
+//        }
     }
     // MAP DISPLAY VARIABLES
-    if(InfilMethod != INFIL_SWATRE && InfilMethod !=INFIL_NONE)
+    if(SwitchInfiltration && InfilMethod != INFIL_SWATRE) {
         avgTheta();
+    }
 }
 //---------------------------------------------------------------------------
 void TWorld::ReportTotalSeries(void)
@@ -340,7 +334,7 @@ void TWorld::ReportTotalSeries(void)
         out << sep << "Theta1 (-)";
         if (SwitchTwoLayer)
             out << sep << "Theta2 (-)";
-        if (SwitchChannelBaseflow) {
+        if (SwitchChannelBaseflowStationary || SwitchGWflow) {
             out << sep << "GWlevel (m)";
             out << sep << "Baseflow in (mm)";
         }
@@ -387,7 +381,7 @@ void TWorld::ReportTotalSeries(void)
     out.setFieldWidth(width);
     out.setRealNumberNotation(QTextStream::FixedNotation);
 
-    out << time/60;
+    out << (time-BeginTime)/60;
     out << sep << op.RainTotmm;
     out << sep << op.IntercTotmm;
     if (SwitchLitter)
@@ -401,7 +395,7 @@ void TWorld::ReportTotalSeries(void)
     out << sep << op.Theta1;
     if (SwitchTwoLayer)
         out << sep << op.Theta2;
-    if (SwitchChannelBaseflow) {
+    if (SwitchChannelBaseflowStationary || SwitchGWflow) {
         out << sep << op.GWlevel;
         out << sep << op.BaseFlowTotmm;
     }
@@ -904,7 +898,7 @@ void TWorld::ReportMaps(void)
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        tm->Drc = (RainCumFlat->Drc + SnowmeltCum->Drc*DX->Drc/_dx) * 1000.0; // m to mm
+        tm->Drc = (RainCumFlat->Drc)*1000.0;// + SnowmeltCum->Drc*DX->Drc/_dx) * 1000.0; // m to mm
     }}
     report(*tm, rainfallMapFileName);
 
@@ -912,7 +906,9 @@ void TWorld::ReportMaps(void)
 
     report(*InfilmmCum, infiltrationMapFileName);
 
-    report(*runoffTotalCell, runoffMapFileName); // in mm, total runoff from cell (but there is also runon!)
+   // report(*runoffTotalCell, runoffMapFileName); // in mm, total runoff from cell (but there is also runon!)
+
+    report(*Qm3total, runoffMapFileName); // in m3 total for this run
 
     report(*WHmax, floodWHmaxFileName);
     // report(*floodHmxMax, floodWHmaxFileName);  // BOTH overland flow and flood for all combinations
@@ -933,7 +929,7 @@ void TWorld::ReportMaps(void)
     if (SwitchIncludeStormDrains || SwitchIncludeTile)
     {
         report(*TileWaterVol, tileWaterVolfilename);
-        report(*TileQmax, tileQmaxfilename);
+       //report(*TileQmax, tileQmaxfilename);
     }
 
     report(*floodTime, floodTimeFileName);
@@ -1059,11 +1055,15 @@ void TWorld::ReportMapSeries(void)
 
 
     if (SwitchOutTheta) {
-        if (InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE) {
-            report(*ThetaI1a, OutTheta1);
+        if (SwitchInfiltration && InfilMethod != INFIL_SWATRE) { //InfilMethod != INFIL_NONE
+            report(*ThetaI1a, "th1l");//OutTheta1);
             if (SwitchTwoLayer)
-                report(*ThetaI2a, OutTheta2);
+                report(*ThetaI2a, "th2l");//OutTheta2);
         }
+    }
+
+    if (SwitchOutGW && SwitchGWflow) {
+            report(*GWWH, OutGW);
     }
 
     //===== SEDIMENT =====
@@ -1228,9 +1228,9 @@ void TWorld::ReportLandunits(void)
         for (int i = 0; i < landUnitNr; i++)
             if (unitList[i].nr == (int)LandUnit->Drc) {
                 unitList[i].var0 += CellArea->Drc/10000;//ha
-                unitList[i].var1 += TotalDetMap->Drc/1000; //ton/cell
-                unitList[i].var2 += TotalDepMap->Drc/1000;
-                unitList[i].var3 += TotalSoillossMap->Drc/1000;
+             //   unitList[i].var1 += std::max(0.0,TotalSoillossMap->Drc/1000); //ton/cell
+             //   unitList[i].var2 += std::min(0.0,TotalSoillossMap->Drc/1000);
+                unitList[i].var1 += TotalSoillossMap->Drc/1000;
             }
     }}
 
@@ -1243,19 +1243,21 @@ void TWorld::ReportLandunits(void)
     out.setRealNumberPrecision(3);
     out.setRealNumberNotation(QTextStream::FixedNotation);
 
-    out << "Landunit,Area,Detachment,Deposition,Soil Loss\n";
-    out << "#,ha,ton,ton,ton\n";
+    // out << "Landunit,Area,Detachment,Deposition,Soil Loss\n";
+    // out << "#,ha,ton,ton,ton\n";
+    out << "Landunit,Area,Soil Loss\n";
+    out << "#,ha,ton\n";
     for (int i = 0; i < landUnitNr; i++)
         out << unitList[i].nr << ","
             << unitList[i].var0 << ","
-            << unitList[i].var1 << ","
-            << unitList[i].var2 << ","
-            << unitList[i].var3 << "\n";
+            << unitList[i].var1 << "\n";
+          //  << unitList[i].var2 << ","
+          //  << unitList[i].var3 << "\n";
     fout.close();
 
 }
 //---------------------------------------------------------------------------
-void TWorld::ChannelFloodStatistics(void)
+void TWorld::FloodStatistics(void)
 {
     if(SwitchKinematic2D == K2D_METHOD_KIN)
         return;
@@ -1463,7 +1465,7 @@ void TWorld::ReportDump(void)
     if (SwitchHouses)
         report(*IntercHouse,dumpDir+"IntercHouse.map");
 
-    if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE) {
+    if(InfilMethod != INFIL_NONE && InfilMethod != INFIL_SWATRE) { //InfilMethod != INFIL_NONE
         report(*ThetaI1,dumpDir+"ThetaI1.map");
         if (SwitchTwoLayer)
             report(*ThetaI2,dumpDir+"ThetaI2.map");
@@ -1474,7 +1476,7 @@ void TWorld::ReportDump(void)
     report(*WHstore,dumpDir+"WHstore.map");
     report(*WH,dumpDir+"WH.map");
     report(*WHrunoff,dumpDir+"WHrunoff.map");
-    report(*WHroad,dumpDir+"WHroad.map");
+  //  report(*WHroad,dumpDir+"WHroad.map");
 
     report(*WaterVolall,dumpDir+"WaterVolall.map");
     report(*FloodWaterVol,dumpDir+"FloodWaterVol.map");
@@ -1484,16 +1486,11 @@ void TWorld::ReportDump(void)
     {
         report(*ChannelWaterVol,dumpDir+"ChannelWaterVol.map");
         report(*ChannelWH,dumpDir+"ChannelWH.map");
-        if (SwitchChannelBaseflow) {
+        if (SwitchGWflow) {
             report(*Qbase,dumpDir+"Qbase.map");
             report(*GWWH,dumpDir+"GWWH.map");
         }
     }
-
-
-
-
-
 }
 
 
@@ -1545,7 +1542,7 @@ void TWorld::ReportTimeseriesPCR(void)
                 int nrs = 5 + (SwitchErosion ? 3 : 0);
                 if (SwitchRainfall) nrs++;
                 if (SwitchSnowmelt) nrs++;
-                if (SwitchChannelBaseflow) nrs++;
+                if (SwitchChannelBaseflowStationary || SwitchGWflow) nrs++;
                 if (FlowBoundaryType > 0) nrs++;
                 if (SwitchIncludeTile) nrs++;
                     out << nrs << "\n";

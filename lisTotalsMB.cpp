@@ -39,7 +39,7 @@ functions: \n
 
 //---------------------------------------------------------------------------
 // totals for screen and file output and mass balance
-void TWorld::Totals(void)
+void TWorld::TotalsHydro(void)
 {
     double rainfall, snowmelt;
     double oldrainpeak, oldsnowpeak;
@@ -50,13 +50,17 @@ void TWorld::Totals(void)
     //=== precipitation ===//
     if (SwitchRainfall)
     {
-        RainAvgmm = MapTotal(*Rain)*1000.0/(double)nrValidCells;
+        double ptot = MapTotal(*Rain);
+        RainAvgmm = ptot*1000.0/nrCells;
 
         RainTotmm += RainAvgmm;
         // spatial avg area rainfall in mm
 
         rainfall = RainAvgmm/catchmentAreaFlatMM;
-        RainTot += rainfall; // in m3
+//        FOR_ROW_COL_MV_L {
+//        RainTot += Rain->Drc*CHAdjDX->Drc;//   _dx*_dx; // in m3
+//        }}
+        RainTot += ptot*_dx*_dx; // in m3
 
         oldrainpeak  = Rainpeak;
         Rainpeak = std::max(Rainpeak, rainfall);
@@ -66,7 +70,7 @@ void TWorld::Totals(void)
 
     if (SwitchSnowmelt)
     {
-        SnowAvgmm = MapTotal(*Snowmelt)*1000.0/(double)nrValidCells;
+        SnowAvgmm = MapTotal(*Snowmelt)*1000.0/nrCells;
 
         SnowTotmm += SnowAvgmm;
 
@@ -87,7 +91,7 @@ void TWorld::Totals(void)
     if (SwitchIncludeET) {
        // double ETtot = MapTotal(*ETa);
         ETaTot = MapTotal(*ETaCum);
-        ETaTotmm = ETaTot * 1000.0/(double)nrValidCells;
+        ETaTotmm = ETaTot * 1000.0/nrCells;
 
         ETaTotVol = (ETaTot-SoilETMBcorrection)*_dx*_dx; //m3
         // correct for soil water because that is not in the mass balance
@@ -110,9 +114,17 @@ void TWorld::Totals(void)
         IntercHouseTotmm = IntercHouseTot*catchmentAreaFlatMM;
         // interception in mm and m3
     }
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        InterceptionmmCum->Drc = (IntercETa->Drc + Interc->Drc + IntercHouse->Drc + LInterc->Drc)*1000.0/CellArea->Drc;
+        InterceptionmmCum->Drc = Interc->Drc;
+        if (SwitchIncludeET)
+            InterceptionmmCum->Drc += IntercETa->Drc;
+        if (SwitchHouses)
+            InterceptionmmCum->Drc += IntercHouse->Drc;
+        if (SwitchLitter)
+            InterceptionmmCum->Drc += LInterc->Drc;
+        InterceptionmmCum->Drc *= 1000.0/CellArea->Drc;
         // for screen and file output
     }}
 
@@ -122,7 +134,7 @@ void TWorld::Totals(void)
     // interception in mm and m3
 
     //=== infiltration ===//
-    if(InfilMethod != INFIL_NONE) {
+    if(SwitchInfiltration) {
         InfilTot += MapTotal(*InfilVol);// + MapTotal(*InfilVolKinWave);
 
         if (SwitchIncludeChannel && SwitchChannelInfil) {
@@ -145,9 +157,10 @@ void TWorld::Totals(void)
             PercmmCum->Drc += Perc->Drc*1000.0;
         }}
 
-        theta1tot = MapTotal(*ThetaI1a)/(double)nrCells;
+        theta1tot = MapTotal(*ThetaI1a)/nrCells;
         if (SwitchTwoLayer)
-            theta2tot = MapTotal(*ThetaI2a)/(double)nrCells;
+            theta2tot = MapTotal(*ThetaI2a)/nrCells;
+      // qDebug() <<  theta1tot << theta2tot << nrCells;
     }
 
     //=== surf store ===//
@@ -171,6 +184,17 @@ void TWorld::Totals(void)
 //        }}
 //    }
 
+
+    SoilMoistTot += SoilMoistDiff;// MapTotal(*SoilMB);
+    SoilMoistTotmm = SoilMoistTot * catchmentAreaFlatMM;
+
+}
+
+
+void TWorld::TotalsFlow(void)
+{
+    double catchmentAreaFlatMM = (1000.0/(_dx*_dx*nrCells));
+
     //=== surface flow ===//
     WaterVolTot = MapTotal(*WaterVolall);//m3
     WaterVolTotmm = WaterVolTot*catchmentAreaFlatMM; // => not used
@@ -181,8 +205,8 @@ void TWorld::Totals(void)
     // flood water above user defined threshold
 
     if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
-       WaterVolRunoffmm = MapTotal(*RunoffWaterVol)* catchmentAreaFlatMM;//m3
-       // runoff water below user defined threshold
+            WaterVolRunoffmm = MapTotal(*RunoffWaterVol)* catchmentAreaFlatMM;//m3
+            // runoff water below user defined threshold
     } else {
         WaterVolRunoffmm = 0;
         #pragma omp parallel for reduction(+:WaterVolRunoffmm) num_threads(userCores)
@@ -193,50 +217,50 @@ void TWorld::Totals(void)
     }
     // water on the surface in runoff in mm, used in screen output
 
-
     // runoff fraction per cell calc as in-out/rainfall, indication of sinks and sources of runoff
     // exclude channel cells
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        //runoffTotalCell->Drc += (Qn->Drc /*+ Qflood->Drc*/)* _dt * catchmentAreaFlatMM; // in mm !!!!
-        runoffTotalCell->Drc = std::max(0.0, RainCumFlat->Drc*1000-InterceptionmmCum->Drc-InfilmmCum->Drc);
-    }}
+    // #pragma omp parallel for num_threads(userCores)
+    // FOR_ROW_COL_MV_L {
+    //     //runoffTotalCell->Drc += (Qn->Drc /*+ Qflood->Drc*/)* _dt * catchmentAreaFlatMM; // in mm !!!!
+    //     runoffTotalCell->Drc = std::max(0.0, RainCumFlat->Drc*1000-InterceptionmmCum->Drc-InfilmmCum->Drc);
+    // }}
 
     //=== channel flow ===//
-    if (SwitchIncludeChannel)
-    {
+    if (SwitchIncludeChannel) {
         ChannelVolTot = MapTotal(*ChannelWaterVol); //m3
         // add channel vol to total
-        if (SwitchChannelBaseflow) {
-            BaseFlowTot += MapTotal(*Qbase); // total inflow in m3
-            if (SwitchChannelBaseflowStationary)
-                BaseFlowTot += MapTotal(*BaseFlowInflow)*_dt; // stationary base inflow
+        if (SwitchGWflow) {
+                BaseFlowTot += MapTotal(*Qbase); // total inflow in m3
 
-            GWlevel = MapTotal(*GWWH);
-            GWleveltot = GWlevel*catchmentAreaFlatMM;
-            GWlevel /= (double)nrValidCells; // avg GW level
-           // BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
-            //qDebug() << BaseFlowTotmm;
+                GWlevel = MapTotal(*GWWH);
+                GWleveltot = GWlevel*catchmentAreaFlatMM;
+                GWlevel /= (double)nrValidCells; // avg GW level
+                // BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
+                //qDebug() << BaseFlowTotmm;
         }
-        if (SwitchChannelWFinflow)
-            QSideVolTot += MapTotal(*ChannelQSide);
+
+        if (SwitchChannelBaseflowStationary)
+            BaseFlowTot += MapTotal(*BaseFlowInflow)*_dt; // stationary base inflow
 
         ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
-        // recalc in mm for screen output
 
-        // use baseflow for channel side inflow so that it is reported
-        double tot = 0;
-        FOR_ROW_COL_MV_CHL {
-            tot += ChannelQSide->Drc; // total inflow in m3
-        }}
-        BaseFlowTot += tot;
+        // recalc in mm for screen output
+        // NOT USED
+        // if (SwitchChannelWFinflow) {
+        //     QSideVolTot += MapTotal(*ChannelQSide);
+        //         //use baseflow for channel side inflow so that it is reported
+        //         double tot = 0;
+        //         FOR_ROW_COL_MV_CHL {
+        //             tot += ChannelQSide->Drc; // total inflow in m3
+        //         }}
+
+        //    BaseFlowTot += tot;
+        // }
+
         BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
         BaseFlowInitmm = BaseFlowInit*catchmentAreaFlatMM;
 
     }
-
-    SoilMoistTot += SoilMoistDiff;// MapTotal(*SoilMB);
-    SoilMoistTotmm = SoilMoistTot * catchmentAreaFlatMM;
 
     //=== all discharges ===//
     Qtot_dt = 0;
@@ -246,14 +270,16 @@ void TWorld::Totals(void)
     Qboundtotmm = floodBoundaryTot*catchmentAreaFlatMM;
 
     // Add outlet overland flow, for all flow methods
-    FOR_ROW_COL_LDD5 {
-        Qtot_dt += Qn->Drc*_dt;
+    FOR_ROW_COL_MV_L {
+        if (LDD->Drc == 5)
+            Qtot_dt += Qn->Drc*_dt;
     }}
 
     // add channel outflow
     if (SwitchIncludeChannel)
     {
-        FOR_ROW_COL_LDDCH5 {
+        FOR_ROW_COL_MV_CHL {
+            if (LDDChannel->Drc == 5)
             Qtot_dt += ChannelQn->Drc*_dt; //m3
         }}
 
@@ -261,24 +287,21 @@ void TWorld::Totals(void)
         FOR_ROW_COL_MV_CHL {
             ChannelQntot->Drc += ChannelQn->Drc*_dt;
             //cumulative m3 spatial for .map output
-            QuserInTot += ChannelQSide->Drc;
+            //QuserInTot += ChannelQSide->Drc;
         }}
         // add channel outflow (in m3) to total for all pits
     }
 
             //=== storm drain flow ===//
-    if (SwitchIncludeTile || SwitchIncludeStormDrains) {
-        StormDrainVolTot = MapTotal(*TileWaterVol);
-        StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
-    }
-
     if(SwitchIncludeStormDrains) {
         FOR_ROW_COL_MV_TILE
                 if (LDDTile->Drc == 5)
         {
-            Qtot_dt += TileQn->Drc * _dt;
+            //Qtot_dt += TileQn->Drc * _dt;
             QTiletot += TileQn->Drc * _dt;
         }
+        StormDrainVolTot = MapTotal(*TileWaterVol) + QTiletot;
+        StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
     } else {
         if (SwitchIncludeTile)
         {
@@ -286,10 +309,10 @@ void TWorld::Totals(void)
             // input for mass balance, is the water seeping from the soil, input
             // this is the water before the kin wave
             calc2Maps(*tm, *TileDrainSoil, *TileWidth, MUL); //in m3
-            calcMap(*tm, *TileDX, MUL); //in m3
-            // tm->calcV(_dx, MUL); //in m3 ??? or DX?
-            TileVolTot += MapTotal(*tm); // in m3
+            calcMap(*tm, *DX, MUL); //in m3
 
+            TileVolTot += MapTotal(*tm); // in m3
+// TO DO CHECK THIS
             FOR_ROW_COL_MV_TILE
                     if (LDDTile->Drc == 5)
             {
@@ -301,14 +324,22 @@ void TWorld::Totals(void)
         }
     }
 
+
     // sum of all fluxes ONLY for display on screen
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
+        Qm3total->Drc += (Qn->Drc + Qflood->Drc) * _dt;
+        Qm3max->Drc = std::max(Qm3max->Drc, Qn->Drc + Qflood->Drc);
         Qoutput->Drc = (Qn->Drc + Qflood->Drc) * (QUnits == 1 ? 1.0 : 1000);// in m3/s
 
-        if(SwitchIncludeChannel)
+        FHI->Drc = (Qn->Drc + Qflood->Drc)*(V->Drc + 0.5);
+
+        if(SwitchIncludeChannel) {
             Qoutput->Drc += ChannelQn->Drc * (QUnits == 1 ? 1.0 : 1000);
+            Qm3total->Drc += ChannelQn->Drc * _dt;
+            Qm3max->Drc = std::max(Qm3max->Drc, ChannelQn->Drc);
+        }
 
         Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;
     }}
@@ -316,12 +347,19 @@ void TWorld::Totals(void)
     // does NOT include flood water leaving domain (floodBoundaryTot)
     // which is reported separatedly (because it is a messy flux)!
 
+   // report(*Qototal,"qtotm3.map");
+    report(*Qm3max,"qm3smax.map");
+
     Qtot += Qtot_dt;
     // add timestep total to run total in m3
     Qtotmm = Qtot*catchmentAreaFlatMM;
     // recalc to mm for screen output
     PeakFlowTotmm = Qtotmm - BaseFlowTotmm;
+}
 
+void TWorld::TotalsSediment(void)
+{
+    //double catchmentAreaFlatMM = (1000.0/(_dx*_dx*nrCells));
 
     //=====***** SEDIMENT *****====//
 
@@ -421,12 +459,15 @@ void TWorld::Totals(void)
         }
 
         // with all det and dep calculate the soil loss, excl channel
+        // kg/cell
         #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L
-        {
+        FOR_ROW_COL_MV_L {
             TotalSoillossMap->Drc = DETSplashCum->Drc + DETFlowCum->Drc + DEPCum->Drc;
-            TotalDepMap->Drc = std::min(0.0, TotalSoillossMap->Drc); // for table damage output per landunit
-            TotalDetMap->Drc = std::max(0.0, TotalSoillossMap->Drc);
+            TotalSoillossMap->Drc = fabs(TotalSoillossMap->Drc) < 1e-3 ? 0.0 : TotalSoillossMap->Drc;
+            // 0.001 kg/cellarea = 1/cellarea g/m2
+
+            // TotalDepMap->Drc = std::min(0.0, TotalSoillossMap->Drc); // for table damage output per landunit
+            // TotalDetMap->Drc = std::max(0.0, TotalSoillossMap->Drc);
         }}
 
         #pragma omp parallel for num_threads(userCores)
@@ -454,7 +495,7 @@ void TWorld::Totals(void)
 
 
 
-    SedimentSetMaterialDistribution();
+    //SedimentSetMaterialDistribution();
 
     //=====***** PESTICIDES *****====//
     if (SwitchPest)
@@ -492,13 +533,67 @@ void TWorld::MassBalance()
 //    MB = in > 0 ? (in - out - store)/in *100 : 0;
 
     // Mass Balance water, all in m3
-    double waterin = RainTot + WHinitVolTot + BaseFlowTot + BaseFlowInit + QuserInTot - QSideVolTot;
+    double waterin = RainTot + WHinitVolTot + BaseFlowTot + BaseFlowInit + QuserInTot;// - QSideVolTot;
                      // rainfall + initial WH on surface if present, + baseflow and init baseflow + user defined inflow in channel + sideinflow through soil
-    double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot + IntercETaTot + WaterVolTot + ChannelVolTot + StormDrainVolTot;
+    double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot;
                      // all interception + ETa + water on surface + water in channel + water in subsurface drains
-    double waterout = Qtot;// + floodBoundaryTot + ETaTotVol;
-    MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin *100 : 0;
+    double waterout = Qtot + IntercETaTot;// + floodBoundaryTot + ETaTotVol;
+    MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
 
+   // qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot  << WaterVolTot << ChannelVolTot <<  Qtot ;
+
+    Fill(*MBm, 0);
+
+    if (SwitchCorrectMB_WH && fabs(MB) > 1e-6) {
+        //qDebug() << "o " << MB;
+        // correct WH
+        FOR_ROW_COL_MV_L {
+            tma->Drc = 0;
+            if (WHrunoff->Drc > 0)
+                tma->Drc = 1;
+        }}
+        double tot = MapTotal(*tma);
+        double dV = (waterin - waterout - waterstore)/tot;
+        FOR_ROW_COL_MV_L {
+            double dH = dV/(CHAdjDX->Drc); // avg error in m on wet cells
+            if (WHrunoff->Drc > 0)
+                WHrunoff->Drc += dH;
+            WHrunoff->Drc = std::max(0.0,WHrunoff->Drc);
+            //WHroad->Drc = WHrunoff->Drc;
+            WH->Drc = WHrunoff->Drc + WHstore->Drc;
+
+            WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
+        }}
+        WaterVolTot = MapTotal(*WaterVolall);
+        waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot;
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            MBm->Drc = (waterin - waterout - waterstore)/nrCells/CellArea->Drc;
+            //average error in m water height, added to WH in next timestep in infiltration
+        }}
+
+        // channel correction => can be tricky?
+        // if (SwitchIncludeChannel) {
+        //     FOR_ROW_COL_MV_L {
+        //         tma->Drc = 0;
+        //         if (ChannelWH->Drc > 0)
+        //             tma->Drc = 1;
+        //     }}
+        //     tot = MapTotal(*tma);
+        //     dV = (waterin - waterout - waterstore)/tot;
+        //     FOR_ROW_COL_MV_CHL {
+        //         double dH = dV/(ChannelWidth->Drc*DX->Drc);
+        //         if (ChannelWH->Drc+dH > 0) ChannelWH->Drc += dH;
+        //         ChannelWaterVol->Drc = (ChannelWidth->Drc*ChannelDX->Drc)*ChannelWH->Drc;
+        //     }}
+        //     ChannelVolTot = MapTotal(*ChannelWaterVol);
+        //     waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot;
+        // }
+        MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
+        //qDebug() << "n " << MB;
+    }
+   // qDebug() << MB;
     // Mass Balance sediment, all in kg
     if (SwitchErosion)
     {

@@ -48,9 +48,6 @@ functions: \n
 #include "operation.h"
 #include "model.h"
 
-#define he_ca 1e-12
-#define ve_ca 1e-12
-
 //---------------------------------------------------------------------------
 // deposit all sediment still in flow when infiltration causes WH to become minimum
 // DOES NOT WORK, MB errors
@@ -146,7 +143,7 @@ void TWorld::cell_SplashDetachment(int r, int c)
     {
         double DetDT1 = 0, DetDT2 = 0, DetLD1, DetLD2;
         double g_to_kg = 0.001;
-        double Lc = Litter->Drc;
+        double Lc = SwitchLitter ? Litter->Drc : 0.0;
         double Cv = Cover->Drc;
         double strength = SplashStrength->Drc;
         double Int = Rain->Drc * 3600/_dt * 1000; // intensity in mm/h, Rain is in m
@@ -174,15 +171,15 @@ void TWorld::cell_SplashDetachment(int r, int c)
         double WH0 = exp(-1.48*_WH*1000);
         // water buffer effect on surface, WH in mm in this empirical equation from Torri ?
 
-        if(SwitchUseMaterialDepth)
-        {
-            double depdepth = std::max((StorageDep->Drc / BulkDens)/(_dx * DX->Drc),0.0);
-            double fac1 = std::max(0.0,1.0 - depdepth/(SedimentMixingDepth->Drc+0.01));
-            double fac2 = 1.0 - fac1;
+        // if(SwitchUseMaterialDepth)
+        // {
+        //     double depdepth = std::max((StorageDep->Drc / BulkDens)/(_dx * DX->Drc),0.0);
+        //     double fac1 = std::max(0.0,1.0 - depdepth/(SedimentMixingDepth->Drc+0.01));
+        //     double fac2 = 1.0 - fac1;
 
-            strength = strength * fac2 + (0.1033/DepositedCohesion) * fac1;
-            //b = b * fac2 + 3.58 * fac1;
-        }
+        //     strength = strength * fac2 + (0.1033/DepositedCohesion) * fac1;
+        //     //b = b * fac2 + 3.58 * fac1;
+        // }
 
         // fraction ponded area
         double FPA = 1.0;
@@ -233,10 +230,6 @@ void TWorld::cell_SplashDetachment(int r, int c)
         //          DETSplash->Drc = (1-SedimentFilter->Drc) * DETSplash->Drc;
         // assume sedtrap can have splash
 
-      //  if (SwitchHardsurface)
-      //      DETSplash_ = (1-HardSurface->Drc)*DETSplash_;
-        // no splash on hard surfaces ALREADY taken care of by soilwidth which excludes roads and hard surfaces
-
         if (SwitchHouses)
             DETSplash_ = (1-HouseCover->Drc)*DETSplash_;
         //is already contained in soilwidth
@@ -246,6 +239,15 @@ void TWorld::cell_SplashDetachment(int r, int c)
             DETSplash_ = (1-Snowcover->Drc)*DETSplash_;
         // no splash on snow deck
 
+        // if (SwitchRoadsystem)
+        //     DETSplash_ = (1-RoadWidthDX->Drc/_dx)*DETSplash_;
+        // if (SwitchHardsurface)
+        //     DETSplash_ = (1-HardSurface->Drc)*DETSplash_;
+//         if (RoadWidthHSDX->Drc > 0.1)
+//             DETSplash_ = 0;
+// soilwidth already takes care of this
+
+    /*
         if(SwitchUseMaterialDepth)
         {
             //check wat we can detach from the top and bottom layer of present material
@@ -274,7 +276,7 @@ void TWorld::cell_SplashDetachment(int r, int c)
             }
             DETSplash_ = detachment;
         }
-
+*/
 
         if(SwitchKinematic2D == K2D_METHOD_DYN) {
             SSFlood->Drc += DETSplash_;
@@ -402,9 +404,9 @@ void TWorld::cell_FlowDetachment(int r, int c)
                     }
                 }
 
-                //add deposition to soil layer
-                if (SwitchUseMaterialDepth)
-                    StorageDep->Drc += -deposition;
+            //add deposition to soil layer
+            // if (SwitchUseMaterialDepth)
+            //     StorageDep->Drc += -deposition;
 
         } else
             if (maxTC > 0 && Y->Drc > 0) {
@@ -432,16 +434,24 @@ void TWorld::cell_FlowDetachment(int r, int c)
                 detachment = (1-StoneFraction->Drc) * detachment;
                 // no flow detachment on stony surfaces
 
-                if (SwitchHouses)
-                    detachment = (1-HouseCover->Drc)*detachment;
-                // no flow det from house roofs
-
+            if (SwitchHouses)
+                detachment = (1-HouseCover->Drc)*detachment;
+            // no flow det from house roofs
+            if (SwitchSnowmelt)
                 detachment = (1-Snowcover->Drc) * detachment;
-                /* TODO: CHECK THIS no flow detachment on snow */
-                //is there erosion and sedimentation under the snowdeck?
+            /* TODO: CHECK THIS no flow detachment on snow */
+            //is there erosion and sedimentation under the snowdeck?
+
+            // no flow detachment on hard surfaces
+            //if (SwitchRoadsystem || SwitchHardsurface)
+            //  detachment = (1-RoadWidthHSDX->Drc/_dx)*detachment;
+            if (SwitchRoadsystem)
+                detachment = (1-RoadWidthDX->Drc/_dx)*detachment;
+            if (SwitchHardsurface)
+                detachment = (1-HardSurface->Drc)*detachment;
 
             //detachment = DetachMaterial(r,c,1,false,false,false, detachment);
-            // reacctivate when materiallayer is reinstalled
+            // OBSOLETE, reacctivate when materiallayer is reinstalled
             detachment *= Y->Drc;
 
             if(Sed->Drc+detachment > MAXCONC * erosionwv)
@@ -464,6 +474,7 @@ void TWorld::cell_FlowDetachment(int r, int c)
 
 }
 //---------------------------------------------------------------------------
+// NOT USED FOR NOW
 /**
  * @fn double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool bl,double detachment)
  * @brief Calculates real detachment from potential detachment.
@@ -485,7 +496,6 @@ void TWorld::cell_FlowDetachment(int r, int c)
  * @return Actual detachment
  */
 
-// TODO: check what happens in this function
 double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool bl,double detachment)
 {
     /*
@@ -688,8 +698,11 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
  * @param M : Material map list
  * @return The total value
  */
+
+    /*
 double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
 {
+
     //simple iteration over maps
     double wtotal = 0;
     FOR_GRAIN_CLASSES
@@ -697,7 +710,9 @@ double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
         wtotal += (*M).Drcd;
     }
     return wtotal;
-}
+
+}*/
+
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::GetDp(int r, int c,double p)
@@ -713,11 +728,13 @@ double TWorld::GetTotalDW(int r, int c,QList<cTMap *> *M)
  * @return The p percent grain size
  * @see TWorld::GetDpMat
  */
+    /*
 double TWorld::GetDp(int r, int c,double p)
 {
     //use more generic function
     return GetDpMat(r,c,p,&W_D);
 }
+*/
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
@@ -734,6 +751,8 @@ double TWorld::GetDp(int r, int c,double p)
  * @param M : Material distribution map list
  * @return The p percent grain size
  */
+
+/*
 double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
 {
     //check if there is a single grain class
@@ -779,6 +798,7 @@ double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
     //more specificly done if: 100 * p > (100 - percentage in last grain class)
     return graindiameters.at(numgrainclasses-1);
 }
+*/
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M)
@@ -796,6 +816,7 @@ double TWorld::GetDpMat(int r, int c,double p,QList<cTMap *> *M)
  * @param V : Parameter value map list
  * @return The value of parameter V for the p percent grain size.
  */
+/*
 double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V)
 {
     //check if there is a single grain class
@@ -842,6 +863,7 @@ double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *
     //more specificly done if: 100 * p > (100 - percentage in last grain class)
     return (*V).at(numgrainclasses-1);
 }
+*/
 //---------------------------------------------------------------------------
 /**
  * @fn void TWorld::SedimentSetMaterialDistribution(int r,int c)
@@ -856,6 +878,7 @@ double TWorld::GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *
  * @param c : coumn nr of the cell
  * @return void
  */
+/*
 void TWorld::SedimentSetMaterialDistribution()
 {
     if(!SwitchUseMaterialDepth)
@@ -873,7 +896,7 @@ void TWorld::SedimentSetMaterialDistribution()
             }
 
         }
-/*
+
         //update grain size distributed weights
         if(SwitchUseGrainSizeDistribution)
         {
@@ -980,10 +1003,10 @@ void TWorld::SedimentSetMaterialDistribution()
                     }
                 }
             }
-        } */
+        }
     }
 }
-
+*/
 
 //---------------------------------------------------------------------------
 /**
@@ -999,6 +1022,7 @@ void TWorld::SedimentSetMaterialDistribution()
  * @param U : velocity can be channel of overland or flood
  * @param type : channel (0) or flood (1) or overland (2)
  */
+
 double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double U, int type)
 {
     double R=0, hs=0, S = 0, w = 0, man = 0.01;
@@ -1163,6 +1187,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                         tc =  qs/ (U * h); //kg/s/m / (m2/s) =  kg/m3   => WH or WHs
                 }else if(method == FSWUWANGJIA)
                 {
+                        /*
                         // NOT USED, FOR MULTIPLE GRAINSIZES
                     double phk = 0;
                     double pek = 0;
@@ -1197,7 +1222,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                     qs = qs * 1 * sqrt((ps/pw - 1)*GRAV*pow(gd,3.0));
 
                     tc = ps * qs/ (U * h);
-
+*/
                 }
     return std::max(std::min(tc,MAXCONC ),0.0);
 }
@@ -1297,6 +1322,7 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double U
 
     }else if(method == FSWUWANGJIA)
     {
+        /*
         double na = (pow(graindiameters.at(_d)/100000.0,(1.0/6.0))/20.0)/n;
         double phk = 0;
         double pek = 0;
@@ -1328,7 +1354,7 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double U
         qs = qs * 1 * sqrt((ps/pw - 1)*GRAV*pow(graindiameters.at(_d)/1000000.0,3.0));
 
         tc = ps * qs/ (U * hb);
-
+*/
     }
 
     return std::max(std::min(tc,MAXCONCBL),0.0);

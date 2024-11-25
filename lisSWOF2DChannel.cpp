@@ -30,12 +30,7 @@
 #include "operation.h"
 #include "global.h"
 
-#define he_ca 1e-10
-#define ve_ca 1e-10
-
-
 // NOT USED !!!
-
 //-----------------------------------------------------------------------------------------------------
 void TWorld::ChannelSWOFopen()
 {

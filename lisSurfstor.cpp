@@ -45,79 +45,54 @@ void TWorld::GridCell()
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double dxa = _dx;
-    double HouseWidthDX_ = HouseCover->Drc*_dx;
+        double HouseWidthDX_ = HouseCover->Drc*_dx;
+        double RoadWidthHSDX_ = RoadWidthHSDX->Drc;
 
-     if(SwitchIncludeChannel && ChannelWidth->Drc > 0 && ChannelMaxQ->Drc == 0) {
-          dxa = _dx - ChannelWidth->Drc;
-     }
-     //note: channelwidth <= _dx*0.95. ADD channelmaxq here, better MB
+        if(SwitchIncludeChannel) {
+            if (ChannelWidth->Drc > 0){
+                dxa = _dx - ChannelWidth->Drc;
+                if (SwitchCulverts && ChannelMaxQ->Drc > 0)
+                    dxa = _dx;
+            }
+        }
+        //note: channelwidth <= _dx*0.95. ADD channelmaxq here, better MB
 
         ChannelAdj->Drc = dxa;
         CHAdjDX->Drc = dxa*DX->Drc;
 
-      // adjust houses to cell with channels
-      HouseWidthDX_ = std::min(dxa,  HouseWidthDX_);
+        // adjust houses to cell with channels
+        HouseWidthDX_ = std::min(dxa,  HouseWidthDX_);
         // adjust roads+hardsurf to cell with channels
-      RoadWidthHSDX->Drc = std::min(dxa, RoadWidthHSDX->Drc);
+        RoadWidthHSDX_ = std::min(dxa, RoadWidthHSDX_);
         // decrease roadwidth if roads + houses > dx-channel
-      HouseWidthDX_ = std::min(dxa-RoadWidthHSDX->Drc , HouseWidthDX_);
-      // you cannot have houses and a road larger than a pixel
-  //    SoilWidthDX->Drc = std::max(0.0,dxa - RoadWidthHSDX->Drc - HouseWidthDX_);
-      SoilWidthDX->Drc = dxa - RoadWidthHSDX->Drc;
-      // including houses in soilwidth gives large MB errors! WHY!!!
+        RoadWidthHSDX_ = std::min(dxa-HouseWidthDX_, RoadWidthHSDX_);
+        //HouseWidthDX_ = std::min(dxa-RoadWidthHSDX->Drc , HouseWidthDX_);
+        // you cannot have houses and a road larger than a pixel
+        //    SoilWidthDX->Drc = std::max(0.0,dxa - RoadWidthHSDX->Drc - HouseWidthDX_);
+        SoilWidthDX->Drc = std::max(0.0, dxa - RoadWidthHSDX->Drc - HouseWidthDX_);
+        // soilwidth is used in infil, evap and erosion
 
-      HouseCover->Drc = HouseWidthDX_/_dx;
-      //houses are impermeable in ksateff so do have to be done here, with high mannings n, but allow flow
-
-      N->Drc = N->Drc + 1.0*HouseCover->Drc; // N is 1 for a house, very high resistance
-      // adjust man N
-
-      FlowWidth->Drc = ChannelAdj->Drc;//is the same as SoilWidthDX->Drc + RoadWidthHSDX->Drc;
-      //FlowWidth->Drc = SoilWidthDX->Drc + RoadWidthHSDX->Drc + HouseWidthDX_;
-    }}
-//report(*HouseCover,"hc.map");
-//report(*SoilWidthDX,"sw.map");
-//report(*RoadWidthHSDX,"rw.map");
-//report(*FlowWidth,"fw.map");
-
- /*
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        double dxa = _dx; // dxa is dx minus the channel
-
-        if(SwitchIncludeChannel && ChannelWidth->Drc > 0) {
-            dxa = _dx - ChannelWidth->Drc; // channelwidth is limited to 0.95*dx in datainit
-        }
-
-        ChannelAdj->Drc = dxa; // dx besides the channel
-        CHAdjDX->Drc = dxa*DX->Drc; // surface next to the channel
-
-        double HouseWidthDX_ = HouseCover->Drc*_dx;
-        HouseWidthDX_ = std::min(0.95*dxa, HouseWidthDX_);
-        // adjust houses to the space adjacent to the channel with a little bit of open space, channels have precedence
-        HouseCover->Drc = HouseWidthDX_/_dx;
+        HouseCover->Drc = HouseWidthDX_/_dx;        
         //houses are impermeable in ksateff so do have to be done here, with high mannings n, but allow flow
+        RoadWidthHSDX->Drc = RoadWidthHSDX_;
 
-        RoadWidthHSDX->Drc = std::min(dxa-HouseWidthDX_, RoadWidthHSDX->Drc);
-        // adjust roads+hardsurf to cell with channels and houses.
+        // adjust man N
+        N->Drc = N->Drc + 1.0*HouseCover->Drc; // N is 1 for a house, very high resistance
+        N->Drc = N->Drc * (1-RoadWidthHSDX->Drc/_dx) + 0.016 * (RoadWidthHSDX->Drc/_dx); // asphalt manning's n
+        //https://www.engineeringtoolbox.com/mannings-roughness-d_799.html
 
-        SoilWidthDX->Drc = std::max(0.0, dxa-RoadWidthHSDX->Drc-HouseWidthDX_);
-        //soil is dx - roads+hardsurf - houses - channels
-        //water can infiltrate over soilwidth
+        // adjust surface storage for pixels with roads
+        RR->Drc = RR->Drc*(1-RoadWidthHSDX->Drc/_dx) + 0.2 * (RoadWidthHSDX->Drc/_dx); // assume smooth asphalt surface
+        double RRmm = 10 * RR->Drc;
+        MDS->Drc = std::max(0.0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
+        MDS->Drc /= 1000; // convert to m
 
-        N->Drc = N->Drc * (1-HouseCover->Drc) + 1.0*HouseCover->Drc; // N is 1 for a house, very high resistance
-        // adjust man N to houses, rougher
-        N->Drc = N->Drc * (1-RoadWidthHSDX->Drc/_dx) + 0.015*(RoadWidthHSDX->Drc/_dx);
-        // adjust man N to roads, smoother Mannings n of asphalt is 0.015
-
-        FlowWidth->Drc = ChannelAdj->Drc;//is the same as SoilWidthDX->Drc + RoadWidthHSDX->Drc;
-       // FlowWidth->Drc = SoilWidthDX->Drc + RoadWidthHSDX->Drc;
-
-        // water can flow in houses but very high manning's n, or houses are part of the dem and then there is no problem anyway
-       // FlowWidth->Drc = SoilWidthDX->Drc + RoadWidthHSDX->Drc;
-
+        FlowWidth->Drc = ChannelAdj->Drc;
+        // water can flow everywhere, a house is permeable and a migh mannings n, roads are smooth
+        // if hosues are part of the dem than the water automatically flows around it
     }}
-*/
+
+    // starting with a water level
     if (SwitchFloodInitial) {
         WHinitVolTot = 0;
         FOR_ROW_COL_MV_L {
@@ -129,51 +104,41 @@ void TWorld::GridCell()
             WHinitVolTot += hmxInit->Drc * CHAdjDX->Drc;
         }}
     }
-
-//    thetai1tot = 0;
-//    #pragma omp parallel for reduction(+:thetai1tot) num_threads(userCores)
-//    FOR_ROW_COL_MV_L {
-//        thetai1tot += ThetaI1->Drc * SoilDepth1->Drc*CHAdjDX->Drc;
-//    }}
-//    thetai1cur = thetai1tot;
-
-//    if (SwitchTwoLayer) {
-//        thetai2tot = 0;
-//        #pragma omp parallel for reduction(+:thetai2tot) num_threads(userCores)
-//        FOR_ROW_COL_MV_L {
-//            thetai2tot += ThetaI2->Drc * (SoilDepth2->Drc-SoilDepth1->Drc)*CHAdjDX->Drc;
-//        }}
-//        thetai2cur = thetai2tot;
-//    }
-
 }
 //---------------------------------------------------------------------------
-/// Adds new rainfall afterinterception to runoff water nheight or flood waterheight
+/// Adds new rainfall after interception to runoff water height or flood waterheight
 // OBSOLETE not used
 void TWorld::addRainfallWH()
-{
+{    
+    if (SwitchKinematic2D != K2D_METHOD_KINDYN) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;
+            // add net to water rainfall on soil surface (in m)
+        }}
+        // Switch floodinitial is false if not 2D flow
+        if (SwitchFloodInitial) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                if (hmxInit->Drc > 0) {
+                    hmxInit->Drc += RainNet->Drc;// + Snowmeltc->Drc;
+                    WH->Drc = hmxInit->Drc;
+                }
+            }}
+        }
+    }
+
+    if (SwitchKinematic2D == K2D_METHOD_KINDYN) {
+        // TODO: hmx is the flooded part when we have kin wave + flooding, else this is not used, floodDomain = 0
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (FloodDomain->Drc > 0) {
-                hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
-            } else {
-                WH->Drc += RainNet->Drc + Snowmeltc->Drc;
-                // add net to water rainfall on soil surface (in m)
-
-            //    if (SwitchGrassStrip && GrassWidthDX->Drc > 0)
-            //        WHGrass->Drc += RainNet->Drc + Snowmeltc->Drc;
-                // net rainfall on grass strips, infil is calculated separately for grassstrips
+                hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc;
+                if (SwitchFloodInitial && hmxInit-> Drc > 0)
+                    hmx->Drc = hmxInit->Drc;
             }
         }}
-
-    if (SwitchRoadsystem || SwitchHardsurface) {  //???? separate hs from road here?
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            if (RoadWidthHSDX->Drc > 0)
-                WHroad->Drc += Rainc->Drc + Snowmeltc->Drc;
-        }}
     }
-
 }
 //---------------------------------------------------------------------------
 // not used
@@ -188,24 +153,20 @@ void TWorld::SurfaceStorage()
 void TWorld::cell_SurfaceStorage(int r, int c)
 {    
     double wh = WH->Drc;
-    double SW = SoilWidthDX->Drc;
-    double RW = RoadWidthHSDX->Drc;
-    double WHr = WHroad->Drc;
     double WHs = std::max(0.0, std::min(wh, MDS->Drc*(1-exp(-1.875*wh/(0.01*RR->Drc)))));
-    //surface storage on rough surfaces
+    // surface storage on rough surfaces
     // non-linear release fo water from depression storage
     // resembles curves from GIS surface tests, unpublished
     // note: roads and houses are assumed to be smooth!
 
-    WHrunoff->Drc = ((wh - WHs)*SW + WHr*RW)/(SW+RW);
+    WHrunoff->Drc = wh-WHs;// ((wh - WHs)*SW + WHr*RW)/(SW+RW);
     // WH of overlandflow above surface storage
 
     WHstore->Drc = WHs;
     // non moving microstorage
-    MicroStoreVol->Drc = DX->Drc*WHstore->Drc*SoilWidthDX->Drc;
+    MicroStoreVol->Drc = DX->Drc*WHstore->Drc*FlowWidth->Drc; //RR is adjusted for roads so over entire flowwidth
     // microstore vol in m3
 
-    //WaterVolall->Drc = DX->Drc*(wh*SW + WHr*RW);
     WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
     // all water in the cell incl storage
 }

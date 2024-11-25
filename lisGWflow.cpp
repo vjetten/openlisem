@@ -38,9 +38,9 @@ void TWorld::GroundwaterFlow(void)
     if (SwitchTwoLayer) {
         pore = ThetaS2;
         SoilDepthinit = SoilDepth2init;
-        FOR_ROW_COL_MV_L {
-            SoilDepthinit->Drc = SoilDepthinit->Drc - SoilDepth1init->Drc;
-        }}
+//        FOR_ROW_COL_MV_L {
+//            SoilDepthinit->Drc = SoilDepthinit->Drc - SoilDepth1init->Drc;
+//        }}
         SoilDepth = SoilDepth2;
     } else {
         pore = Poreeff;
@@ -66,29 +66,49 @@ void TWorld::GroundwaterFlow(void)
             GWrecharge->Drc = maxvol - GWVol->Drc + GWdeep->Drc;
         if (GWVol->Drc + GWrecharge->Drc - GWdeep->Drc < 0)
             GWdeep->Drc = GWVol->Drc + GWrecharge->Drc;
-        //        GWdeeptot += GWdeep->Drc;
-        //        tot += GWVol->Drc;
-        //        totr += GWrecharge->Drc;
+
         GWVol->Drc += GWrecharge->Drc - GWdeep->Drc;
         GWVol->Drc = std::min(maxvol, GWVol->Drc);
         GWWH->Drc = GWVol->Drc/(CHAdjDX->Drc*pore->Drc);
         GWout->Drc = 0;
-        //tmd->Drc = 0;
-    }}
-    //qDebug() << GWdeeptot << totr << tot;
 
-    // results in GWout flux between cells based on pressure differences
-    if (SwitchGW2Dflow)
-        GWFlow2D();     // flow with pressure differences
+    }}
+
+    //flow with pressure differences
+    if (SwitchGW2Dflow) {
+        Fill(*tma, 0);
+        for (int j_ = 0; j_ < 5; j_++) {
+            GWFlow2D(0.2);
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                tma->Drc += GWout->Drc;
+            }}
+        }
+        Copy(*tma,*GWout);
+
+         //GWFlow2D(1.0);
+    }
+
+    if (SwitchGWSWOFflow) {
+        double er = fullSWOF2GW(GWWH, GWU, GWV, GWz);
+        //Fill(*tma,0);
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            GWout->Drc = sqrt(GWU->Drc*GWU->Drc + GWV->Drc*GWV->Drc) * _dx * GWWH->Drc * _dt;
+            GWVol->Drc = GWWH->Drc*pore->Drc*CHAdjDX->Drc;
+            //tma->Drc = sqrt(GWU->Drc*GWU->Drc + GWV->Drc*GWV->Drc)*1000*3600/_dt;
+        }}
+        //report(*tma,"gwv");
+    }
+
     if (SwitchLDDGWflow)
         GWFlowLDDKsat(); // ldd with ksat based flow
+
     if (SwitchSWATGWflow)
         GWFlowSWAT();    // swat based flow using ldd and accuflux
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        //GWout->Drc += tmd->Drc;
-
         double maxvol = SoilDepthinit->Drc * CHAdjDX->Drc * pore->Drc;
         GWVol->Drc = std::min(maxvol, GWVol->Drc);
         GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
@@ -111,9 +131,6 @@ void TWorld::GWFlowLDDKsat(void)
         pore = ThetaS2;
         ksat = Ksat2;
         SD = SoilDepth2init;
-        FOR_ROW_COL_MV_L {
-            SD->Drc = SD->Drc - SoilDepth1init->Drc;
-        }}
     } else {
         pore = Poreeff;
         ksat = Ksateff;
@@ -136,36 +153,34 @@ void TWorld::GWFlowLDDKsat(void)
         int c = crlinkedlddbase_.at(i_).c;
 
         double Hup = 0;
-        double Zup = 0;
+        //double Zup = 0;
         if (crlinkedlddbase_.at(i_).nr > 0) {
             double cnt = 0;
             for(int j = 0; j < crlinkedlddbase_.at(i_).nr; j++) {
                 int rr = crlinkedlddbase_.at(i_).inn[j].r;
                 int cr = crlinkedlddbase_.at(i_).inn[j].c;
-                Hup += (GWS*GWz->Drcr + h->Drcr)/(GWS+1.0);
-                Zup += GWz->Drcr;
+                //Hup += (GWS*GWz->Drcr + h->Drcr)/(GWS+1.0);  // GWS is a weight to emphasize the Z!
+                Hup += (GWz->Drcr + h->Drcr);
+                //Zup += GWz->Drcr;
                 cnt+=1.0;
             }
-            Hup /= cnt;
-            Zup /= cnt;
+            Hup /= cnt;  // average gradient angle for all upstream ceels
+            //Zup /= cnt;
         }
-        double H = (GWS*GWz->Drc + h->Drc)/(GWS+1.0);
+        //double H = (GWS*GWz->Drc + h->Drc)/(GWS+1.0);
+        double H = (GWz->Drc + h->Drc);
 
-        tmb->Drc = cos(atan(fabs(Hup - H)/_dx)); // hydraulic gradient angle
+        tmb->Drc = cos(atan(fabs(Hup - H)/_dx)); // hydraulic gradient angle, always positive in the dircetion of the LDD
        // tmb->Drc = cos(atan(fabs(Zup - GWz->Drc)/_dx));
     }
 
-    int step = 1;
-    // calculate all fluxes
+    // calculate all incoming fluxes
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        tmc->Drc = 1/(double)step * GW_flow * ksat->Drc * (h->Drc*_dx) * tmb->Drc;
+        tmc->Drc = GW_flow * ksat->Drc * (h->Drc*_dx) * tmb->Drc;
         tmc->Drc = std::min(tmc->Drc, GWVol->Drc*MaxGWDepthfrac);
-        // flow is ksat over terrain gradient in m3, cannot be more than volume present
     }}
 
-    //  #pragma omp parallel for ordered num_threads(userCores)
-    // parallel doesn't work here
     for(long i_ =  0; i_ < crlinkedlddbase_.size(); i_++)
     {
         int r = crlinkedlddbase_.at(i_).r;
@@ -182,9 +197,9 @@ void TWorld::GWFlowLDDKsat(void)
 
         double Q1 = GW_flow * ksat->Drc * (h->Drc*_dx) * tmb->Drc; // before Qin
         double Q2 = GW_flow * ksat->Drc * ((h->Drc+Qin/CHAdjDX->Drc)*_dx) * tmb->Drc; // with Qin
-        double Qn = 0.5*(Q1+Q2);
+        double Qn = 0.5*(Q1+Q2); // average flow out
 
-        double flux = Qin - Qn;
+        double dflux = Qin - Qn;
         double maxvol = CHAdjDX->Drc * SD->Drc * pore->Drc;
         double vol = GWVol->Drc;
         if (vol + Qin - Qn > maxvol) {
@@ -193,62 +208,12 @@ void TWorld::GWFlowLDDKsat(void)
         if (vol + Qin - Qn < 0) {
             Qn = vol + Qin;
         }
-        flux = Qin - Qn;
+        dflux = Qin - Qn;
 
-        GWVol->Drc += flux;
+        GWVol->Drc += dflux;
         GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
-        GWout->Drc = flux;
+        GWout->Drc = Qn;
    }
-
-/*
-    int step = 1;
-    while (_dt/(_dx*(double)step) > 0.3)
-        step++;
-
-    for (int j = 0; j < step; j++) {
-        // loop step times for explicit GW flow
-
-        // calculate all fluxes
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            tmc->Drc = 1/(double)step * GW_flow * ksat->Drc * (h->Drc*_dx) * tmb->Drc;
-            tmc->Drc = std::min(tmc->Drc, GWVol->Drc*MaxGWDepthfrac);
-            // flow is ksat over terrain gradient in m3, cannot be more than volume present
-        }}
-
-        //sum all fluxes over network
-        for(long i_ =  0; i_ < crlinkedlddbase_.size(); i_++)
-        {
-            int r = crlinkedlddbase_.at(i_).r;
-            int c = crlinkedlddbase_.at(i_).c;
-
-            double Qin = 0;
-            // sum fluxes in from incoming branches
-            if (crlinkedlddbase_.at(i_).nr > 0) {
-                for(int j = 0; j < crlinkedlddbase_.at(i_).nr; j++) {
-                    int rr = crlinkedlddbase_.at(i_).inn[j].r;
-                    int cr = crlinkedlddbase_.at(i_).inn[j].c;
-                    Qin += tmc->Drcr;
-                }
-            }
-            //tma->Drc = Qin;
-            double flux = Qin - tmc->Drc;
-            double maxvol = CHAdjDX->Drc * SD->Drc * pore->Drc;
-            double vol = GWVol->Drc;
-            if (vol + flux > maxvol) {
-                //flux = maxvol - vol;
-                Qin = maxvol - tmc->Drc;
-                flux = Qin - tmc->Drc;
-            }
-
-            if (vol + flux < 0)
-                flux = -vol;
-            GWVol->Drc += flux;
-            GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
-            GWout->Drc = flux;
-        }
-    }
-*/
 
 //    Average3x3(*GWWH, *LDDbaseflow, true);
 //    #pragma omp parallel for num_threads(userCores)
@@ -258,7 +223,7 @@ void TWorld::GWFlowLDDKsat(void)
 
 }
 //---------------------------------------------------------------------------
-void TWorld::GWFlow2D(void)
+void TWorld::GWFlow2D(double factor)
 {
     cTMap *pore;
     cTMap *ksat;
@@ -268,11 +233,8 @@ void TWorld::GWFlow2D(void)
     cTMap *vol = GWVol;
     if (SwitchTwoLayer) {
         pore = ThetaS2;
-        ksat = Ksat2;
+        ksat = Ksat2;   // has the unit m, *_dt time is included
         SD = SoilDepth2init;
-        FOR_ROW_COL_MV_L {
-            SD->Drc = SD->Drc - SoilDepth1init->Drc;
-        }}
     } else {
         pore = Poreeff;
         ksat = Ksateff;
@@ -323,7 +285,7 @@ void TWorld::GWFlow2D(void)
         double dz_y2 = z_y2 -Z;
 
         // flow = Ksat * cross section * hydraulic gradient Ks * A * dH/dL
-        double ff = GW_flow;
+        double ff = GW_flow * factor;
 
         double df_x1 = ff * ksat->Drc * (h_x1*_dx) * dh_x1/cos(atan(dz_x1/_dx)); // (dh_x1/_dx);
         double df_x2 = ff * ksat->Drc * (h_x2*_dx) * dh_x2/cos(atan(dz_x2/_dx)); // (dh_x2/_dx);
@@ -352,7 +314,7 @@ void TWorld::GWFlow2D(void)
         if (V + dflux < 0)
             dflux = -V;
         //fill with the resulting flux of a cell
-        GWout->Drc = dflux;
+        GWout->Drc = dflux;//std::max(0.0,dflux);
     }}
 
     // adjust the vol
@@ -362,6 +324,7 @@ void TWorld::GWFlow2D(void)
         // update gwvol with flux
         GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
         // recalc gwwh
+        //GWout->Drc = fabs(GWout->Drc);
     }}
 }
 
@@ -376,7 +339,7 @@ void TWorld::GWFlowSWAT(void)
     cTMap *pore = ThetaS2;
     if (!SwitchTwoLayer) {
         ksat = Ksateff;
-        pore = Thetaeff;
+        pore = Poreeff; //Thetaeff;??? ERROR
     }
 
     // calculated lateral flow
@@ -415,3 +378,253 @@ void TWorld::GWFlowSWAT(void)
 
 }
 
+double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
+{
+    double timesum = 0;
+    double dt_max = std::min(_dt, _dx/2);
+    int count = 0;
+    double sumh = 0;
+    bool stop;
+    double dt_req_min = dt_max;
+    int step = 0;
+
+    cTMap *pore;
+    cTMap *ksat;
+    cTMap *SD;
+    if (SwitchTwoLayer) {
+        pore = ThetaS2;
+        ksat = Ksat2;   // has the unit m, *_dt time is included
+        SD = SoilDepth2init;
+    } else {
+        pore = Poreeff;
+        ksat = Ksateff;
+        SD = SoilDepth1init;
+    }
+
+    sumh = getMass(h, 0);
+
+    if (sumh == 0)
+        return 0;
+
+    do {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            hs->Drc = h->Drc;
+            tmc->Drc = dt_max;
+            tmd->Drc = 0;
+
+            if (hs->Drc > 0.001) {
+                tmd->Drc = 1;
+                if (c > 0 && !MV(r,c-1)        ) tmd->data[r][c-1] = 1;
+                if (c < _nrCols-1 && !MV(r,c+1)) tmd->data[r][c+1] = 1;
+                if (r > 0 && !MV(r-1,c)        ) tmd->data[r-1][c] = 1;
+                if (r < _nrRows-1 && !MV(r+1,c)) tmd->data[r+1][c] = 1;
+
+                if (c > 0 && r > 0 && !MV(r-1,c-1)                ) tmd->data[r-1][c-1]=1;
+                if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1)) tmd->data[r+1][c+1]=1;
+                if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1)        ) tmd->data[r-1][c+1]=1;
+                if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1)        ) tmd->data[r+1][c-1]=1;
+            }
+        }}
+
+        //do all flow and state calculations
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+
+            if (tmd->Drc > 0) {
+                    //double dt = FloodDT->Drc; //dt_req_min;
+                double dt = dt_req_min;
+                double vxn, vyn;
+                double Ks = GW_flow*ksat->Drc/_dt;
+
+                //FloodT->Drc += FloodDT->Drc;
+
+                vec4 hll_x1;
+                vec4 hll_x2;
+                vec4 hll_y1;
+                vec4 hll_y2;
+
+                double dx = _dx;
+                double dy = _dx;
+
+                double H = hs->Drc;
+                double n = GWN->Drc;
+                double Z = z->Drc;
+                double Vx = GW_flow*u->Drc;
+                double Vy = GW_flow*v->Drc;
+
+                bool bc1 = c > 0 && !MV(r,c-1)        ;
+                bool bc2 = c < _nrCols-1 && !MV(r,c+1);
+                bool br1 = r > 0 && !MV(r-1,c)        ;
+                bool br2 = r < _nrRows-1 && !MV(r+1,c);
+
+                double z_x1 =  bc1 ? z->data[r][c-1] : Z;
+                double z_x2 =  bc2 ? z->data[r][c+1] : Z;
+                double z_y1 =  br1 ? z->data[r-1][c] : Z;
+                double z_y2 =  br2 ? z->data[r+1][c] : Z;
+
+                double h_x1 =  bc1 ? hs->data[r][c-1] : H;
+                double h_x2 =  bc2 ? hs->data[r][c+1] : H;
+                double h_y1 =  br1 ? hs->data[r-1][c] : H;
+                double h_y2 =  br2 ? hs->data[r+1][c] : H;
+
+                double vx_x1 = bc1 ? GW_flow*u->data[r][c-1] : Vx;
+                double vx_x2 = bc2 ? GW_flow*u->data[r][c+1] : Vx;
+                double vx_y1 = br1 ? GW_flow*u->data[r-1][c] : Vx;
+                double vx_y2 = br2 ? GW_flow*u->data[r+1][c] : Vx;
+
+                double vy_x1 = bc1 ? GW_flow*v->data[r][c-1] : Vy;
+                double vy_x2 = bc2 ? GW_flow*v->data[r][c+1] : Vy;
+                double vy_y1 = br1 ? GW_flow*v->data[r-1][c] : Vy;
+                double vy_y2 = br2 ? GW_flow*v->data[r+1][c] : Vy;
+
+                double dz_x1 = (Z - z_x1);
+                double dz_x2 = (z_x2 - Z);
+                double dz_y1 = (Z - z_y1);
+                double dz_y2 = (z_y2 - Z);
+
+                 vx_x1 = std::min(Ks,fabs(vx_x1))*(vx_x1 < 0 ? -1.0 : 1.0);
+                 vx_x2 = std::min(Ks,fabs(vx_x2))*(vx_x2 < 0 ? -1.0 : 1.0);
+                 vx_y1 = std::min(Ks,fabs(vx_y1))*(vx_y1 < 0 ? -1.0 : 1.0);
+                 vx_y2 = std::min(Ks,fabs(vx_y2))*(vx_y2 < 0 ? -1.0 : 1.0);
+                 vy_x1 = std::min(Ks,fabs(vy_x1))*(vy_x1 < 0 ? -1.0 : 1.0);
+                 vy_x2 = std::min(Ks,fabs(vy_x2))*(vy_x2 < 0 ? -1.0 : 1.0);
+                 vy_y1 = std::min(Ks,fabs(vy_y1))*(vy_y1 < 0 ? -1.0 : 1.0);
+                 vy_y2 = std::min(Ks,fabs(vy_y2))*(vy_y2 < 0 ? -1.0 : 1.0);
+                 Vx = std::min(Ks,fabs(Vx))*(Vx < 0 ? -1.0 : 1.0);
+                 Vy = std::min(Ks,fabs(Vy))*(Vy < 0 ? -1.0 : 1.0);
+
+
+                // z is blocking to prevent flow when water is flat and Z is not flat, described in article SWOF
+                double h_x1r = std::max(0.0, h_x1 - std::max(0.0,  dz_x1));
+                double H_l   = std::max(0.0, H    - std::max(0.0, -dz_x1));
+                if(bc1)  // if inside
+                    hll_x1 = F_Rusanov(h_x1r,vx_x1,vy_x1, H_l,Vx,Vy); // c-1 and c  //
+                else
+                    hll_x1 = F_Rusanov(0,0,0, H_l,Vx,Vy);
+
+                double H_r   = std::max(0.0, H    - std::max(0.0,  dz_x2));
+                double h_x2l = std::max(0.0, h_x2 - std::max(0.0, -dz_x2));
+                if(bc2)
+                    hll_x2 = F_Rusanov(H_r,Vx,Vy, h_x2l,vx_x2,vy_x2); // c and c+1
+                else
+                    hll_x2 = F_Rusanov(H_r,Vx,Vy, 0,0,0);
+
+                double h_y1d = std::max(0.0, h_y1 - std::max(0.0,  dz_y1));
+                double H_u   = std::max(0.0, H    - std::max(0.0, -dz_y1));
+                if (br1)
+                    hll_y1 = F_Rusanov(h_y1d,vy_y1,vx_y1, H_u,Vy,Vx); // r-1 and r
+                else
+                    hll_y1 = F_Rusanov(0,0,0, H_u,Vy,Vx);
+
+                double H_d   = std::max(0.0, H    - std::max(0.0,  dz_y2));
+                double h_y2u = std::max(0.0, h_y2 - std::max(0.0, -dz_y2));
+                if(br2)
+                    hll_y2 = F_Rusanov(H_d,Vy,Vx, h_y2u,vy_y2,vx_y2); // r and r+1
+                else
+                    hll_y2 = F_Rusanov(H_d,Vy,Vx, 0,0,0);
+
+                // determine smallest dt in x and y for each cell
+                double dtx = dx/std::max(hll_x1.v[3],hll_x2.v[3]);
+                double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]); // v[3] is max U and V in x and y
+
+                double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
+                tmc->Drc = dt_req; // dt does not need to be a map, left over from earlier code
+                // if step = 0 do not calculate new fluxes and states yet because the first dt is always dt_max
+                // find a smallest dt of the flow domain first
+
+                //########### after finding the smallest dt, do the st venant eq)
+                if (step > 0) {
+
+                    double tx = dt/dx;
+                    double ty = dt/dy;
+
+                    double hn = std::max(0.0, H + dt/_dx*(hll_x1.v[0]-hll_x2.v[0] + hll_y1.v[0]-hll_y2.v[0]));
+                    // mass balance, hll_....v[0] is the height
+
+                    // momentum balance for cells with water
+                    if(hn > 1e-6) {
+                        double gflow_x = GRAV*0.5*( (H_l-H)*(H_l+H)+(H-H_r)*(H+H_r));
+                        double gflow_y = GRAV*0.5*( (H_u-H)*(H_u+H)+(H-H_d)*(H+H_d));
+                        // graviy term: gh
+
+                        //double qxn = H * Vx - tx*(gflow_x);
+                        //double qyn = H * Vy - ty*(gflow_y);
+                        double qxn = H * Vx - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
+                        double qyn = H * Vy - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
+
+                        double vsq = sqrt(Vx * Vx + Vy * Vy);
+                        double nsq1 = n*n*GRAV/pow(hn,4.0/3.0);//
+                        double nsq = nsq1*vsq*dt;
+
+                        vxn = (qxn/(1.0+nsq))/hn;
+                        vyn = (qyn/(1.0+nsq))/hn;
+                    } else { // hn < ha
+                        hn = H; // if no fluxes then also no change in h
+                        vxn = 0;
+                        vyn = 0;
+                    }
+
+                    // dan maar even met geweld!
+                    if (std::isnan(vxn) || std::isnan(vyn)  )
+                    {
+                        vxn = 0;
+                        vyn = 0;
+                    }
+                    if (FlowBoundaryType == 0 || (FlowBoundaryType == 2 && FlowBoundary->Drc == 0)) {
+
+                        if (DomainEdge->Drc == 4 && vxn < 0) {
+                            vxn = 0;
+                        }
+                        if (DomainEdge->Drc == 6 && vxn > 0) {
+                            vxn = 0;
+                        }
+                        if (DomainEdge->Drc == 2 && vyn > 0) {
+                            vyn = 0;
+                        }
+                        if (DomainEdge->Drc == 8 && vyn < 0) {
+                            vyn = 0;
+                        }
+
+                    }
+                    if (vyn == 0 && vxn == 0)
+                        hn = H;
+
+                    vxn = std::min(Ks,fabs(vxn))*(vxn < 0 ? -1.0 : 1.0);
+                    vyn = std::min(Ks,fabs(vyn))*(vyn < 0 ? -1.0 : 1.0);
+
+                    h->Drc = hn;
+                    u->Drc = vxn;
+                    v->Drc = vyn;
+
+                } // step > 0
+            } // tmd > 0, active cells + 1
+        }}
+
+        // find smallest domain dt
+        #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            dt_req_min = std::min(dt_req_min, tmc->Drc);
+        }}
+
+        dt_req_min = std::min(dt_req_min, _dt-timesum);
+
+        if (step > 0) {
+            timesum += dt_req_min;
+            count++; // nr loops
+        }
+
+        step += 1; // now we have a good dt min, do the real calculations
+
+        stop = timesum > _dt-0.001;
+        if(count > F_MaxIter)
+        stop = true;
+
+    } while (!stop);
+
+    correctMassBalance(sumh, h, 0);
+
+    //qDebug() << _dt/count << count << dt_req_min;
+    iter_n = std::max(1,count);
+    return(count > 0 ? _dt/count : _dt);
+}

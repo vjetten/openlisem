@@ -1,4 +1,4 @@
-﻿/*************************************************************************
+/*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
 **  Copyright (C) 2010,2011, 2020  Victor Jetten
 **  contact: v.g.jetten AD utwente DOT nl
@@ -45,8 +45,7 @@ functions: \n
 //    ( ldd != 0 && ldd != 5 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 
-#define MAX_ITERS 50
-
+#define MAX_ITERS 12
 /*
   local drain direction maps have values for directions as follows:
     7  8  9
@@ -134,17 +133,16 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
  * Newton Rapson iteration for new water flux in cell, based on Ven Te Chow 1987
  *
  * @param Qin : summed Q new from upstream
- * @param Qold : current discharge in the cell Qin in LISEM
- * @param q : infiltration surplus flux (in m2/s), has value <= 0
+ * @param Qold : current discharge in the cell  Qin in LISEM
+ * @param q : infiltration surplus flux (in m2/s), has value <= 0 NOT USED
  * @param alpha : alpha calculated in LISEM from before kinematic wave
  * @param deltaT : dt, timestep
  * @param deltaX : dx, length of the cell  corrected for slope (DX map in LISEM)
  * @return new water discharge
  *
  */
-double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT, double deltaX)
+double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT, double deltaX, double Qm, double Am)
 {
-    /* Using Newton-Raphson Method */
     double  ab_pQ, deltaTX, C;  //auxillary vars
     int   count;
     double Qkx; //iterated discharge, becomes Qnew
@@ -152,62 +150,62 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     double dfQkx;  //derivative
     const double _epsilon = 1e-12;
     const double beta = 0.6;
-    double q = 0;
+    double q = 0; //sink term, not used
 
+    //NOTE Qm is maximum Q in pipes/culverts, Am is max Alpha with max Q, values are -1 if not used
 
-    /* common terms */
-     // ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
+    if ((Qin+Qold+q) == 0)  /* +q CW NEW! */
+        return(0);
+
+    //common terms
+    ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
     // derivative of diagonal average (space-time)
-
     deltaTX = deltaT/deltaX;
     C = deltaTX*Qin + alpha*pow(Qold,beta) + deltaT*q;
+    //C is unit volume of water
     //dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
-    //C is unit volume of water    
-    // can be negative because of q
+    Qkx = (deltaTX*Qin + Qold*ab_pQ) / (deltaTX + ab_pQ);
+    // explicit first guess Qkx
 
-    // if C < 0 than all infiltrates, return 0, if all fluxes 0 then return
-    if (C < 0)
-    {
-        //itercount = -2;
-        return(0);
+    // do a first ietartion step for a better guess of Qkx
+    Qkx   = std::max(Qkx, 1e-30);
+    fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;
+    dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);
+    Qkx   -= fQkx / dfQkx;
+    Qkx   = std::max(Qkx, 1e-30);
+
+    // limit flux and alpha to pipe max Q
+    if (Qm > 0) {
+        Qkx = std::min(Qkx, Qm);
+        if (Qkx == Qm)
+            alpha = Am;
     }
 
-    // pow function sum flux must be > 0
-    if (Qold+Qin > 0)
-    {
-        ab_pQ = alpha*beta*pow((Qold+Qin)/2.0,beta-1);
-        // derivative of diagonal average (space-time), must be > 0 because of pow function
-        Qkx = (deltaTX * Qin + Qold * ab_pQ + deltaT * q) / (deltaTX + ab_pQ);
-        // explicit first guess Qkx, VERY important
-        Qkx = std::max(Qkx, 0.0); // deltaT * q can negative ?
-    }
-    else
-        Qkx =  0;
-
-    Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);
-    if (Qkx < MIN_FLUX)
-        return(0);
-
-    // avoid spurious iteration
     count = 0;
     do {
-        fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   /* Current k */ //m2
-        dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  /* Current k */
-        Qkx   -= fQkx / dfQkx;                                /* Next k */
+        fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   // Current k
+        dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  // Current k
+        Qkx   -= fQkx / dfQkx;                                // Next k
+        Qkx   = std::max(Qkx, 1e-30);
 
-        Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);        
+        // limit flux and alpha to pipe max Q
+        if (Qm > 0) {
+            Qkx = std::min(Qkx, Qm);
+            if (Qkx == Qm) {
+                alpha = Am;
+                count = MAX_ITERS;
+            }
+        }
+
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
-
-   // Qkx = std::min(Qkx, Qmax);
-
-   // itercount = count;
+    itercount = count;
     return Qkx;
 }
 
 //---------------------------------------------------------------------------
 /*LDD_COOR *_crlinked_*/
-void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX)
+void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
 {   
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -234,7 +232,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
 
         if (Qin > 0 || _Q->Drc > 0) {
             itercount = 0;
-            _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc);
+            _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
            // tmb->Drc = itercount;
         }
     }
@@ -278,15 +276,6 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
                 }
             }
         }
-
-
-// NOT FASTER !!!
-//        for(int j = 0; j < _crlinked_[i_].in.size(); j++) {
-//           int rr = _crlinked_[i_].in[j].r;
-//           int cr = _crlinked_[i_].in[j].c;
-//            Qin += _Qn->Drcr;
-//            Sin += _Qsn->Drcr;
-//        }
 
         SinKW->Drc = Sin;
 
@@ -361,17 +350,18 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
                     LDD_COORIN newcr;
                     newcr.r = rowNr;
                     newcr.c = colNr;
+                    // LDD_COORIN *newcr = new LDD_COORIN;
+                    // newcr->r = rowNr;
+                    // newcr->c = colNr;
                     newcr.ldd = (int) _LDD->data[rowNr][colNr];
 
-                  //  newcr.in.clear();
-                    newcr.inn = (LDD_COOR*) malloc(sizeof(LDD_COOR)*9);
+                   // newcr.inn.clear(); // to be sure
+                    //newcr.inn = (LDD_COOR*) malloc(sizeof(LDD_COOR)*9);
                     newcr.nr = 0;
 
                     int j = 0;
                     for (i=1;i<=9;i++)
                     {
-                        newcr.inn[j].r = 0;
-                        newcr.inn[j].c = 0;
                         if (i != 5) {
 
                             int rr = rowNr+dy[i];
@@ -382,14 +372,13 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
                                     ldd = (int) _LDD->Drcr;
                                     if (FLOWS_TO(ldd, rr,cr,rowNr,colNr))
                                     {
-//                                        LDD_COOR incr;
-//                                        incr.r = rr;
-//                                        incr.c = cr;
-//                                        newcr.in << incr;
-                                        newcr.inn[j].r = rr;
-                                        newcr.inn[j].c = cr;
-
-                                        j++;
+                                       LDD_COOR incr;
+                                       incr.r = rr;
+                                       incr.c = cr;
+                                       newcr.inn << incr; // add the point that flows into the cell to inn
+//                                        newcr.inn[j].r = rr;
+//                                        newcr.inn[j].c = cr;
+                                       j++;
                                     }
                                 }
                             }
@@ -411,6 +400,7 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
 
         }
     }
+
     return(_crlinked_);
 }
 
@@ -439,8 +429,7 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
  * @see TWorld::IterateToQnew
  * @see TWorld::LDD
  */
-void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX)
-                       //cTMap *_Qmax)
+void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -461,8 +450,6 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
         int rowNr = list->rowNr;
         int colNr = list->colNr;
 
-        /** put all points that have to be calculated to calculate the current point in the list,
-         before the current point */
         for (i=1; i<=9; i++)
         {
             int r, c;
@@ -526,7 +513,9 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
             QinKW->data[rowNr][colNr] = Qin;
 
             itercount = 0;
-            _Qn->data[rowNr][colNr] = IterateToQnew(QinKW->data[rowNr][colNr], _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]);//, QMax );
+            _Qn->data[rowNr][colNr] =
+                    IterateToQnew(QinKW->data[rowNr][colNr], _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr],
+                                  _Qmax->data[rowNr][colNr], _Amax->data[rowNr][colNr] );
               /* cell rowN, colNr is now done */
 
             temp=list;
@@ -709,6 +698,40 @@ void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
                 tot += _M->data[row][col];
             }
         }
+        out->Drc = tot;
+    }
+
+}
+//---------------------------------------------------------------------------
+void TWorld::upstreamDrain(cTMap *_LDD, cTMap *MaxQ, cTMap *in, cTMap *out)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+    FOR_ROW_COL_MV
+    {
+        double tot = 0;
+        for (int i=1; i<=9; i++)
+        {
+            // this is the current cell
+            if (i==5)
+                continue;
+
+            // look around in 8 directions
+            int row = r+dy[i];
+            int col = c+dx[i];
+            int ldd = 0;
+
+            if (INSIDE(row, col) && !pcr::isMV(_LDD->data[row][col]))
+                ldd = (int) _LDD->data[row][col];
+            else
+                continue;
+
+            if (FLOWS_TO(ldd, row,col,r,c)) {
+                tot += in->data[row][col];
+            }
+        }
+        tot = std::min(MaxQ->Drc, tot);
         out->Drc = tot;
     }
 

@@ -43,6 +43,7 @@
 //}  LDD_COOR;
 
 struct output{
+    int nrRunsDone; // nr runs without closing interface, needed to destroyd old data before start of a new run
     int runstep;
     int printstep;
     int maxstep;
@@ -52,7 +53,7 @@ struct output{
     QList<int> OutletLocationX;
     QList<int> OutletLocationY;
     QList<QVector<double>*> OutletQ;
-    QList<QVector<double>*> OutletQb;
+    QList<QVector<double>*> Wavein;
     QList<QVector<double>*> OutletQs;  //current kg/s
     QList<QVector<double>*> OutletC;   // avg concetration
     QList<QVector<double>*> OutletChannelWH;
@@ -123,16 +124,18 @@ struct output{
 
     bool comboboxset;
     bool has_image;
+    bool SwitchCorrectMB_WH;
 
     QString runfilename;
     QString LisemDir;
+    QString userAppDir;
     QString format;
     QString timeStartRun;
     QString datestamp;
 
     bool doBatchmode;
-    bool hasrunonce;
-    int nrMapsCreated;
+  //  bool hasrunonce;
+  //  int nrMapsCreated;
 };
 
 

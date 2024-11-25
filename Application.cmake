@@ -1,37 +1,28 @@
-cmake_minimum_required(VERSION 3.9)
+# files specific to LISEM
 
-#============ WIN ========================
-
+# Platform-specific configurations
 IF(WIN32)
-   # NOTE: a branch of QWT is used for double axis display:
-   # https://sourceforge.net/p/qwt/code/HEAD/tree/branches/qwt-6.1-multiaxes/
-    SET(QWT_BUILD_DIR "c:/qt/qwt-6.1-ma")          # <= give your own folder names here
-    SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # <= give your own folder names here
-
+    # QWT configuration for double axis display, note a double axis branch of qwt is used
+    SET(QWT_BUILD_DIR "C:/prgc/lisemgit/qwt/git")    # Adjust to your folder names
+    SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # Adjust to your folder names
     SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
-
-    # QWT standard MSYS install
-    #   SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/qwt-qt5")
-    #   SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
-
-    # Lisem uses a QWT branch with quadruple axes support
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
-    SET(QWT_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/qwtlib/libqwt.dll.a")
+    SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
 
-  #  SET(OMP_INCLUDE_DIRS "${MINGW_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32/11.3.0/include")
     FIND_PATH(OMP_INCLUDE_DIRS
         NAMES omp.h
-        PATHS "${MINGW_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32"
+        #PATHS "${MINGW_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32/14.1.0/include"
+        PATHS "${MINGW_BUILD_DIR}/include"
     )
-
 ENDIF()
 
-#============= LINUX ======================
-
-# linux ubuntu, qwt installation should be in usr if you followed the instructions, version nr may be different
+#linux
 IF(UNIX AND NOT CYGWIN)
-    SET(QWT_BUILD_DIR "/usr/local/qwt-6.4.0-svn")
+    SET(QWT_BUILD_DIR "/usr/local/qwt-6.4.0-ma")
+    IF(DEFINED ENV{NIX_QWT})
+         SET(QWT_BUILD_DIR "$ENV{NIX_QWT}")
+    ENDIF()
     SET(CMAKE_SKIP_BUILD_RPATH FALSE)
     SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
     SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -42,8 +33,7 @@ IF(UNIX AND NOT CYGWIN)
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/")
 ENDIF()
 
-#============ INCLDUES ====================
-
+# Include directories
 INCLUDE_DIRECTORIES(
     ${GDAL_INCLUDE_DIRS}
     ${QWT_INCLUDE_DIRS}
@@ -54,25 +44,31 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_BINARY_DIR}/.
 )
 
-#============ OMP ===========================
-
+# Find OpenMP
 find_package(OpenMP REQUIRED)
 
-#============ FLAGS =========================
+#Find GDAL
+find_package(GDAL REQUIRED)
 
-INCLUDE(CheckCXXCompilerFlag)
+# Enable automatic handling of MOC, UIC, and RCC based on file type changes instead of timestamps
+set(CMAKE_AUTOMOC_DEPEND_FILTERS "moc" "*.h")
+set(CMAKE_AUTOUIC_DEPEND_FILTERS "ui" "*.ui")
+set(CMAKE_AUTORCC_DEPEND_FILTERS "qrc" "*.qrc")
 
+# Optionally skip rule dependency checks to avoid timestamp issues
+set(CMAKE_SKIP_RULE_DEPENDENCY TRUE)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set_property(DIRECTORY PROPERTY CMAKE_CONFIGURE_DEPENDS "")
+
+# Compiler flags
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -std=c++11 ${OpenMP_CXX_FLAGS}")
-
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -Wno-var-tracking-assignments -std=c++11 ${OpenMP_CXX_FLAGS}")
     IF(UNIX)
-       SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wl,-rpath=${ORIGIN}./lib")
-       # extra flags for thread and looking for so libs in ./lib
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wl,-rpath=${ORIGIN}./lib")
     ENDIF()
 ENDIF()
 
-#============ sourcecode files ===============
-
+# Source files
 SET(APP_SOURCES
     fixesandbugs.txt
     main.cpp
@@ -82,6 +78,8 @@ SET(APP_SOURCES
     fixture.cpp
     io.cpp
     operation.cpp
+    ui_full/LisUIdialogs.cpp
+    ui_full/LisUIScreenshot.cpp
     ui_full/LisUItreecheck.cpp
     ui_full/LisUIModel.cpp
     ui_full/LisUIrunfile.cpp
@@ -93,17 +91,20 @@ SET(APP_SOURCES
     ui_full/LisUIplot.cpp
     ui_full/LisUImapplot.cpp
     ui_full/LisUImapplot.h
+    ui_full/lismpeg.cpp
+    ui_full/lisUIStyle.cpp
+    ui_full/lismpeg.h
+    ui_full/lisemqt.h
     swatre/swatstep.cpp
     swatre/swatinit.cpp
-    swatre/soillut.cpp
-    swatre/lutio.cpp
     swatre/lookup.cpp
-    swatre/swatinp.cpp    
+    swatre/swatinp.cpp
     lisBoundary.cpp
     lisChannelErosion.cpp
     lisChannelflood.cpp
     lisChannelflow.cpp
     lisDataInit.cpp
+    lisDataFunctions.cpp
     lisErosion.cpp
     lisExtendedChannel.cpp
     lisFlowBarriers.cpp
@@ -123,9 +124,10 @@ SET(APP_SOURCES
     lisRunfile.cpp
     lisSnowmelt.cpp
     lisSurfstor.cpp
-    lisSWOF2D.cpp
+    lisSoilmoisture.cpp
     lisSWOF2Daux.cpp
     lisSWOF2Dopen.cpp
+    lisSWOF2DopenMUSCL.cpp
     lisSWOF2DSediment.cpp
     lisSWOF2DChannel.cpp
     lisTiledrainflow.cpp
@@ -133,6 +135,11 @@ SET(APP_SOURCES
     include/array.h
     include/CsfMap.h
     include/CsfRGBMap.h
+    include/pcrtypes.h
+    include/csf.h
+    include/csfattr.h
+    include/csftypes.h
+    include/csfimpl.h
     include/lerror.h
     include/fixture.h
     include/global.h
@@ -144,103 +151,51 @@ SET(APP_SOURCES
     include/operation.h
     include/option.h
     include/raster.h
-    include/swatre_g.h
     include/swatre_p.h
-    include/swatreLookup.h
-    include/swatremisc.h
-    include/swatresoillut.h
     include/TMmapVariables.h
+    include/VectormapVariables.h
     include/version.h
-    include/pcrtypes.h
-    include/csf.h
-    include/csfattr.h
-    include/csfimpl.h
-    include/csftypes.h
+    PCR/create2.c
+    PCR/mclose.c
+    PCR/ruseas.c
+    PCR/gvalscal.c
+    PCR/gcellrep.c
+    PCR/putsomec.c
+    PCR/setangle.c
+    PCR/kernlcsf.c
+    PCR/gproj.c
+    PCR/csfglob.c
+    PCR/setvtmv.c
+    PCR/dumconv.c
+    PCR/swapio.c
     openlisemico.rc
 )
 
-SET(PCR_SOURCES
-    PCRlib/_getcell.c
-    PCRlib/_getrow.c
-    PCRlib/_gsomece.c
-    PCRlib/_putcell.c
-    PCRlib/_rputrow.c
-    PCRlib/angle.c
-    PCRlib/attravai.c
-    PCRlib/attrsize.c
-    PCRlib/cellsize.c
-    PCRlib/create2.c
-    PCRlib/csfglob.c
-    PCRlib/csfsup.c
-    PCRlib/delattr.c
-    PCRlib/dumconv.c
-    PCRlib/endian.c
-    PCRlib/filename.c
-    PCRlib/gattrblk.c
-    PCRlib/gattridx.c
-    PCRlib/gcellrep.c
-    PCRlib/gdattype.c
-    PCRlib/getattr.c
-    PCRlib/getx0.c
-    PCRlib/gety0.c
-    PCRlib/ggisfid.c
-    PCRlib/gmaxval.c
-    PCRlib/gminval.c
-    PCRlib/gnrcols.c
-    PCRlib/gnrrows.c
-    PCRlib/gproj.c
-    PCRlib/gputproj.c
-    PCRlib/gvalscal.c
-    PCRlib/gvartype.c
-    PCRlib/gversion.c
-    PCRlib/ismv.c
-    PCRlib/kernlcsf.c
-    PCRlib/legend.c
-    PCRlib/mclose.c
-    PCRlib/mopen.c
-    PCRlib/moreattr.c
-    PCRlib/mperror.c
-    PCRlib/pgisfid.c
-    PCRlib/pmaxval.c
-    PCRlib/pminval.c
-    PCRlib/putallmv.c
-    PCRlib/putattr.c
-    PCRlib/putsomec.c
-    PCRlib/putx0.c
-    PCRlib/puty0.c
-    PCRlib/pvalscal.c
-    PCRlib/rattrblk.c
-    PCRlib/rcomp.c
-    PCRlib/rcoords.c
-    PCRlib/rdup2.c
-    PCRlib/reseterr.c
-    PCRlib/rextend.c
-    PCRlib/rmalloc.c
-    PCRlib/rrowcol.c
-    PCRlib/ruseas.c
-    PCRlib/setangle.c
-    PCRlib/setmv.c
-    PCRlib/setvtmv.c
-    PCRlib/strconst.c
-    PCRlib/strpad.c
-    PCRlib/swapio.c
-    PCRlib/trackmm.c
-    PCRlib/vs2.c
-    PCRlib/vsdef.c
-    PCRlib/vsis.c
-    PCRlib/vsvers.c
-    PCRlib/wattrblk.c
+qt6_wrap_cpp(MOC_FILES
+    include/model.h
+    ui_full/lisemqt.h
+    ui_full/lismpeg.h
+    # Add all header files with Q_OBJECT here
 )
-QT5_WRAP_UI(UI_SOURCES ui_full/lisemqt.ui)
 
-QT5_ADD_RESOURCES(RCC_SOURCES resources/openlisem.qrc)
+# Generate UI source files
+qt_wrap_ui(UI_SOURCES ui_full/lisemqt.ui ui_full/lismpeg.ui)
 
+# Generate resource source files
+qt_add_resources(RCC_SOURCES resources/openlisem.qrc)
+
+# Add executable target
 add_executable(Lisem WIN32
     ${UI_SOURCES}
     ${RCC_SOURCES}
     ${APP_SOURCES}
-    ${PCR_SOURCES}
+    ${MOC_FILES}
 )
 
-target_link_libraries(Lisem Qt5::Widgets Qt5::Gui Qt5::Core ${GDAL_LIBRARIES} ${QWT_LIBRARIES} OpenMP::OpenMP_CXX)
+# Link the necessary libraries
+target_link_libraries(Lisem
+    Qt6::Widgets Qt6::Gui Qt6::Core
+    ${GDAL_LIBRARIES} ${QWT_LIBRARIES}
+    OpenMP::OpenMP_CXX
+)
 

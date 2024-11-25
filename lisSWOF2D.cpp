@@ -28,12 +28,7 @@
 #include "operation.h"
 #include "global.h"
 
-#define he_ca 1e-10
-#define ve_ca 1e-10
-
 #define dt_ca 0.001
-
-#define EPSILON 1e-6
 
 #define dtmaxfrac 0.5
 
@@ -310,8 +305,6 @@ void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
             _g2 = g2o->Drc;
             _g3 = g3o->Drc;
         }
-
-
 
         hes->Drc = std::max(0.0, he->Drc - tx*_f1 + tx*f1->Drc - ty*_g1 + ty*g1->Drc);
 

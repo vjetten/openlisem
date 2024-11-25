@@ -1,0 +1,73 @@
+openLISEM: Quick guideline for code development on Linux (Ubuntu)
+=================================================================
+Date: 241111
+
+Introduction:
+openLISEM is developed in the Qt environment for the interface and extension of C++ libs.
+The following steps are needed to compile openLISEM on ubuntu (24.04 LTS).
+
+> The following software is needed:
+- Qt6 is the development environment for the code
+- QWT is a set of libraries for graphical output (https://qwt.sourceforge.io/). HOWEVER: we use a separate branch of this lib.
+- CMAKE is part of the code development and compilation.
+- GIT: to download and manage the openLISEM code from github
+
+-------------- step 1 ---------------
+Install all the software:
+
+# C++, compilers and python etc
+sudo apt install cmake cmake-gui gcc g++ git libboost-all-dev libncurses5-dev libpython3-dev libqwt-qt6-dev libxerces-c-dev libxml2 libxml2-utils libxslt1-dev python3-numpy qt6-base-dev python3-docopt
+
+# opengl:
+sudo apt install libglu1-mesa-dev freeglut3-dev mesa-common-dev
+
+# install gdal (https://mothergeo-py.readthedocs.io/en/latest/development/how-to/gdal-ubuntu-pkg.html)
+sudo apt install gdal-bin libgdal-dev
+
+# add GDAL to paths:
+export CPLUS_INCLUDE_PATH=/usr/include/gdal
+export C_INCLUDE_PATH=/usr/include/gdal
+
+# compile qwt libraries based on this explanation
+- download the qwt with multiaxis from sourceforge:
+- https://sourceforge.net/p/qwt/git/ci/qwt-multiaxes/tree/
+- compile this based on the following instructions: https://qwt.sourceforge.io/qwtinstall.html
+- NOTE. If the module QWTSvg gives an error while compiling. We don't need it so an # can be placed bfore this line in qwtconfig.pri
+#QWT_CONFIG     += QwtSvg
+
+# all software is now installed.
+
+---------------- step 2 ---------------------
+> Download the openLISEM code from github:
+- create an empty directory "lisem" for the code, e.g. ~/prgc/lisem
+- create an empty directory for the compiled executable (do not make it a subdirectory of lisem), e.g. ~/prgc/lisem-bin
+> go into github to the repository: https://github.com/vjetten/openlisem
+click on the green "<> code" tab and copy the address to clone it to your PC: https://github.com/vjetten/openlisem.git
+> clone via git command line or your favorite GUI.
+
+Note: THE MAIN BRANCH is "main_c" !!!! (not main or master)
+Please do NOT merge your code with main_c before consultation with me (v.g.jetten@utwente.nl)!
+
+---------------- step 3 --------------------
+> generate the CMAKE files to compile lisem
+open cmake-gui (should be in your list of programmes after installation). 
+
+In the interface, the first field  ("where is the source code") should point to the folder 'lisem' with the github code.
+The second field ("where to build the binaries") should point to the still empty folder 'lisem-bin'
+
+Press configure, choose "UNIX makefiles" 
+
+-------------- step 4 ---------------
+> compile the code
+
+Open Qtcreator and load the file "CMakeList.txt" in the folder 'lisem'.
+Click on edit in the left bar. You should now see the complete tree structure of the code.
+
+Click on Projects in the left bar and add '-j' to the "build steps" to speed up the compilation.
+
+This should compile OpenLISEM
+
+best of luck!
+Victor Jetten
+
+v.g.jetten AD utwente DOT nl

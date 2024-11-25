@@ -64,6 +64,8 @@
 #include "LisUIoutput.h"
 #include "LisUItreemodel.h"
 #include "LisUImapplot.h"
+#include "lismpeg.h"
+
 
 
 // constants to define the place of the main parts in the map tree structure
@@ -110,13 +112,15 @@ public:
     QHBoxLayout *helpLayout;
 
     QProgressBar *pb;
-  //  void resizeEvent(QResizeEvent* event);
+
+    lismpeg *lisMpeg;
+    QString mencoderDir;
 
     bool darkLISEM;
     bool doBatchmode;
     QString batchRunname;
 
-    bool WhasStopped;
+   // bool WhasStopped;
 
     void initMapTree();
     void DefaultMapnames();
@@ -128,7 +132,10 @@ public:
     void GetStorePath();
     void StorePath();
     void SetStyleUI();
-    int SetStyleUISize();
+    void lightStyleUI();
+    void darkStyleUI();
+    void setOutputTabStyle(QString bc, QString fc);
+    void SetStyleUISize();
     void GetRunfile();
     void ParseInputData();
     void updateModelData();
@@ -159,10 +166,8 @@ public:
     void showPlot();
     void initPlot();
 
-    void initOutputData();
     void showOutputData();
     void showOutputDataZero();
-    void SetTextHydrographs();
     // Map drawing variable
     void setupMapPlot();
     void initMapPlot();
@@ -185,6 +190,7 @@ public:
 
     QwtPlot *MPlot;               // plot in which the raster map is drawn
     QwtText title;
+    //OSMPlot *OSMplot;
     QwtPlotSpectrogram *drawMap;  // raster map drawing
     QwtPlotSpectrogram *baseMap;  // raster map drawing
     QwtPlotSpectrogram *baseMapDEM;  // raster map drawing
@@ -204,10 +210,11 @@ public:
     QwtMatrixRasterData *RDf;
     QwtMatrixRasterData *RImage;
     QList<double> contourLevels;
-    QwtAxisId *axisYL1;
-    QwtAxisId *axisYL2;
-    QwtAxisId *axisYR1;
-    QwtAxisId *axisYR2;
+    // QwtAxisId *axisYL1;
+    // QwtAxisId *axisYL2;
+    // QwtAxisId *axisYR1;
+    // QwtAxisId *axisYR2;
+    // QwtAxisId *axisX;
     QList <QVector <double>> Xa;
     QList <QVector <double>> Ya;
     QList <QVector <double>> Xc;
@@ -257,7 +264,7 @@ public:
 
     QList <QwtComboColorMap*> cmMap;
     QList <QwtComboColorMap*> cmLeg;
-    QList<QwtComboColorMap *> ColorMapList;
+    QList <QwtComboColorMap*> ColorMapList;
     QList<QString> NameList;
     QList<QString> UnitList;
     QList<bool> SymList;
@@ -275,8 +282,8 @@ public:
     QwtPlotCurve *PGraph;
     QwtPlotCurve *QtileGraph;
 
-    bool startplot = true;
-    bool stopplot;
+    bool startplot;
+    bool stoprun;
     QVector <double> times;
     int lastOptionSceen;
 
@@ -296,6 +303,8 @@ public:
     QString ETSatFileDir;
     QString DischargeinDir;
     QString DischargeinFileName;
+    QString WaveinDir;
+    QString WaveinFileName;
     QString SnowmeltFileName;
     QString SnowmeltFileDir;
     QString SwatreTableName;
@@ -308,6 +317,7 @@ public:
     int uiInfilMethod;
     double swatreDT;
     QString screenShotDir;
+    bool doChannelBaseflow;
 
  //   QList<cTMap *> ComboMapsSafe;
 
@@ -332,14 +342,19 @@ public:
     void setDisplayComboBoxes();
     void on_toolButton_help(int page);
     void resetTabOptions();
-    void resetTabErosion();
-    void resetTabFlow();
-    void resetTabCalibration();
-    void resetTabAdvanced();
+    void resetTabRainfall();
     void resetTabInterception();
     void resetTabInfiltration();
+    void resetTabFlow();
+    void resetTabChannel();
+    void resetTabInfra();
+    void resetTabErosion();
+    void resetTabCalibration();
+    void resetTabAdvanced();
+
     void doCheckRainfall(bool);
     void showTextfile(QString name);
+    void showTextfileOld(QString name);
 
 
 public slots:
@@ -349,10 +364,14 @@ public slots:
     void openRunFile();
     void deleteRunFileList();
     void runmodel();
+    void ClearOP();
     void stopmodel();
     void pausemodel();
     void shootScreen();
+    void shootSingleScreen(int options);
+    void shootMultipleScreens();
     void shootMScreen();
+    void convertScreenshotsToVideo();
     void aboutQT();
     void aboutInfo();
     void resetAll();
@@ -370,19 +389,29 @@ public slots:
     //void on_toolButton_ResultDir_clicked();
     void setResultDir();
 
-    void on_toolButton_resetErosion_clicked();
+
+    void doResetAll();
+    void on_toolButton_resetOptions_clicked();
+    void on_toolButton_resetRainfall_clicked();
+    void on_toolButton_resetInterception_clicked();
+    void on_toolButton_resetInfiltration_clicked();
     void on_toolButton_resetFlow_clicked();
+    void on_toolButton_resetChannel_clicked();
+    void on_toolButton_resetInfra_clicked();
+    void on_toolButton_resetErosion_clicked();
     void on_toolButton_resetCalibration_clicked();
+    void on_toolButton_resetAdvanced_clicked();
 
-
-    void on_toolButton_help1_clicked();
-    void on_toolButton_help2_clicked();
-    void on_toolButton_help3_clicked();
-    void on_toolButton_help4_clicked();
-    void on_toolButton_help5_clicked();
-   // void on_toolButton_help6_clicked();
-    void on_toolButton_help7_clicked();
-    void on_toolButton_help8_clicked();
+    void on_toolButton_helpOptions_clicked();
+    void on_toolButton_helpRainfall_clicked();
+    void on_toolButton_helpInterception_clicked();
+    void on_toolButton_helpInfiltration_clicked();
+    void on_toolButton_helpFlow_clicked();
+    void on_toolButton_helpChannel_clicked();
+    void on_toolButton_helpInfra_clicked();
+    void on_toolButton_helpErosion_clicked();
+    void on_toolButton_helpCalibration_clicked();
+    void on_toolButton_helpAdvanced_clicked();
 
     void on_toolButton_RainfallName_clicked();
    // void on_toolButton_DichargeInName_clicked();
@@ -390,10 +419,10 @@ public slots:
     //void on_toolButton_SnowmeltName_clicked();
     void on_toolButton_RainfallShow_clicked();
 //    void on_toolButton_SnowmeltShow_clicked();
-    void on_toolButton_ShowRunfile_clicked();
+//    void on_toolButton_ShowRunfile_clicked();
     void on_toolButton_satImageName_clicked();
     //void on_toolButton_fileOpen_clicked();
-    void on_toolButton_SwatreTableDir_clicked();
+   // void on_toolButton_SwatreTableDir_clicked();
     void on_toolButton_SwatreTableFile_clicked();
     void on_toolButton_SwatreTableShow_clicked();
     void on_E_floodMinHeight_valueChanged(double);
@@ -410,9 +439,8 @@ public slots:
 
     void on_checkFlowBarriers_clicked();
     void on_checkChannelInfil_clicked();
-    void on_checkChannelBaseflow_clicked();
+ //  void on_checkChannelBaseflow_clicked();
     void on_checkDoErosion_clicked();
-    void on_checkOverlandFlow1D_clicked();
     void on_checkIncludeChannel_clicked();
     void on_checkIncludeTiledrains_clicked();
     void on_checkBoxComboMaps_stateChanged(int);
@@ -433,9 +461,9 @@ public slots:
     void on_checkInfilCompact_clicked();
     void on_checkInfilCrust_clicked();
     void on_checkInfilGrass_clicked();
-    void on_checkInfil2layer_clicked();
+    //void on_checkInfil2layer_clicked();
     void on_checkSedtrap_clicked();
-    void on_checkMaterialDepth_clicked();
+ //   void on_checkMaterialDepth_clicked();
 //    void on_E_BulkDens2_editingFinished();
 //    void on_E_BulkDens_editingFinished();
   //  void on_checkSnowmelt_clicked();
@@ -452,15 +480,17 @@ public slots:
     void ssetAlphaRoad(int v);
     void ssetAlphaHouse(int v);
     void ssetAlphaHardSurface(int v);
+    void ssetAlphaHardSurfaceW(int v);
     void ssetAlphaMap(int v);
 
     void setWriteOutputSOBEK(bool);
     void setWriteOutputCSV(bool);
-    void setWriteOutputPCR(bool);
+    //void setWriteOutputPCR(bool);
 
     void setFloodTab(bool);
     void setErosionTab(bool);
 
+    void setBWUI();
     void resizeMap();
     void fontSelect();
     void fontDecrease();
@@ -481,8 +511,6 @@ private slots:
     void worldShow(bool showall);
     void worldDone(const QString &results);
     void worldDebug(const QString &results);
-    void worldTimedb(const QString &results);
-
 
     void on_check2DDiagonalFlow_toggled(bool checked);
 
@@ -498,31 +526,25 @@ private slots:
 
     void on_toolButton_ETsatName_clicked();
 
-    void on_checkIncludeET_toggled(bool checked);
+   // void on_checkIncludeET_toggled(bool checked);
 
     void on_toolButton_ETShow_clicked();
 
-    void on_checkDischargeUser_toggled(bool checked);
+   // void on_checkWaveInUser_toggled(bool checked);
 
     void on_toolButton_DischargeShow_clicked();
 
     void on_toolButton_DischargeName_clicked();
+
+    void on_toolButton_WaveInName_clicked();
+
+    void on_toolButton_WaveShow_clicked();
 
     void on_toolButton_ETmapShow_clicked();
 
     void on_E_EndTimeDay_returnPressed();
 
     void on_E_BeginTimeDay_returnPressed();
-
-    void on_toolButton_help1a_clicked();
-
-    void on_toolButton_resetAdvanced_clicked();
-
-    void on_toolButton_resetInfiltration_clicked();
-
-    void on_toolButton_resetInterception_clicked();
-
-    void on_toolButton_resetOptions_clicked();
 
     void on_checkStationaryBaseflow_toggled(bool checked);
 
@@ -531,6 +553,38 @@ private slots:
     void on_E_EfficiencyDETCH_currentIndexChanged(int index);
 
     void on_checkGWflow_toggled(bool checked);
+
+
+    void on_checkMB_WH_toggled(bool checked);
+
+    void on_checkRainfall_toggled(bool checked);
+
+    void on_checkET_toggled(bool checked);
+
+    void on_checkInterception_toggled(bool checked);
+
+    void on_E_OFWaveType_currentIndexChanged(int index);
+
+    void on_checkIncludeChannel_toggled(bool checked);
+
+    void on_checkDoErosion_toggled(bool checked);
+
+    void on_checkConservation_toggled(bool checked);
+
+    void on_checkInfiltration_toggled(bool checked);
+
+    void on_toolButton_ShowRunfile_clicked();
+
+    void on_checkInfrastructure_toggled(bool checked);
+
+    void on_E_ETName_returnPressed();
+
+    void on_E_RainsatName_returnPressed();
+
+    void on_E_RainfallName_returnPressed();
+
+
+    void on_spinSoilLayers_valueChanged(int arg1);
 
 private:
 
@@ -544,12 +598,14 @@ private:
     QAction *stopAct;
     QAction *shootscreenAct;
     QAction *shootMscreenAct;
+    QAction *makeMovieAct;
     QAction *aboutAct;
     QAction *aboutActI;
-    QAction *restartAct;
+    QAction *resetAllAct;
     QAction *showAllAct;
     QAction *showInfoAct;
     QAction *resizeAct;
+    QAction *setBWAct;
 
     QAction *fontAct;
     QAction *fontIncreaseAct;

@@ -55,7 +55,7 @@ void TWorld::GetFlowBarrierData(QString name)
     {
         S = fff.readLine();
         if (S.contains("\n"))
-            S.remove(S.count()-1,1);
+            S.remove(S.size()-1,1);
         // readLine also reads \n as a character on an empty line!
         if (!S.trimmed().isEmpty())
             BarrierTypes << S.trimmed();
@@ -86,7 +86,7 @@ void TWorld::GetFlowBarrierData(QString name)
 
     for(int i = 0; i < BarrierTypes.length(); i++)
     {
-        QStringList list = BarrierTypes.at(i).split(QRegExp("\\s+"),Qt::SkipEmptyParts );
+        QStringList list = BarrierTypes.at(i).split(QRegularExpression("\\s+"),Qt::SkipEmptyParts );
 
         for(int j = 0; j < 9; j++ )
         {

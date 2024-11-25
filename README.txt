@@ -1,6 +1,8 @@
 openLISEM
+A spatial model for simulation of the full waterbalance, overland flow, flooding and sediment erosion, transport and deposition in all flows.
+
 ============
-Date: 230525
+Date: 241121
 ============
 
 This software is subject to a DISCLAIMER and released under the copyright model GPLv3
@@ -8,8 +10,65 @@ This software is subject to a DISCLAIMER and released under the copyright model 
 For questions contact v.g.jetten AD utwente.nl
 
 NOTE: only a 64bit version exists, 32 bit is not supported
-NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu)
-NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt5, openmp, gdal and pcraster
+NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
+NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6, openmp, gdal and (minimal) pcraster
+
+241121 - v7.4.1
+- Adjusted the noInterface option. No works well on headless systems.
+
+241118 - v7.4
+- major rewrite of MUSCL 2D flow with 2nd order and Heun averaging (see FullSWOF documentation of Delestre et al.)
+- BUG FIX: small bug fixes in 2D flow\
+- BUG FIX: culverts work again, still small MB error but not very much
+
+241114 - v7.3
+- BUG fix: reading of [rainfall/ET/boundary waterheight/user discharge] time string, was malways rounded to whole minutes
+- BUG fix: finding the right timeseries interval with the current time at the end of the series
+- Known BUG: culverts do not work correctly
+- Code made compatble for Linux compile, instructions for compilation updated
+
+241107 - v7.2
+- BUG fix: SWATRE reading of tables
+- BUG fix: cleaning of SWATRE memory structures for rerun
+- rewrite Compile for winmdows for QT6
+
+240916 - v7.1
+- BUG fix: SWATRE is working again
+- TODO: Swatre does not interact with groundwater and may crash
+- Small interface bug fixes and more logical positioning of options
+
+240714 - v7.00
+- BUG fix: Lisem crashed when changing the displayed map after the run was finished
+- Data remains in memory until the next run is started
+- MUSCL option for 2D flow: cell boundary interpolation of water level and velocities (4 types). For high resolution flow.
+- Advanced options: optional overall mass balance correction
+
+Interface
+- Dark mode/Light mode
+- Some repositioning of options
+- Rainfall, interception and infiltration can be switched on/off
+- scrollbars correctly triggered
+
+240523 - v6.99
+- BUG FIX: in erosion causing zero flow detachment (only splash)
+- boundary water level inflow (with whboundary.map and file with water levels), for dike break or coastal zone flooding
+- Better hydraulics subsurface storm drains (sewage system) for urban environments (beta, some mass balance errors)
+Interface
+- Make mpeg movies of screenshot series after the simulation. Needs download MPlayer from http://www.mplayerhq.hu
+
+version 6.95 beta
+- Added boundary water level fluctuation, e.g. dikebreak or large flood
+- Added possibility to make mpeg movie after simulation, install this: http://www.mplayerhq.hu/
+
+version 6.94
+- Improved subsurface storm drains, can be used in urban envrioenments or tile drains in fields, BETA
+
+version 6.90-6.93
+- NOT YET available: Created a new Richard Equation soil water system, multilayered
+- imporved some ET calculations, may still cause mass balance errors
+- small changed to boundary conditions SWOF
+- fixed a bug in Rusanov Riemann solver
+- Improved domain boundary flow detection when open boundary
 
 version 6.898
 - 3 different ways of groundwater flow, for different scales

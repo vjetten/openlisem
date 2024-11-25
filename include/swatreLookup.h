@@ -27,20 +27,20 @@
   \brief SWATRE local structures
 */
 
-double HNode(
-      double theta,
-      const  HORIZON *hor);
+// double HNode(
+//       double theta,
+//       const  HORIZON *hor);
 
-double TheNode(
-		double head,
-		const  HORIZON *hor);
+// double TheNode(
+// 		double head,
+// 		const  HORIZON *hor);
 
-double HcoNode(
-		double head,
-		const HORIZON *hor,
-      double calib);
+// double HcoNode(
+// 		double head,
+// 		const HORIZON *hor,
+//       double calib);
 
-double DmcNode(
-		double head,
-        const  HORIZON *hor);
+// double DmcNode(
+// 		double head,
+//         const  HORIZON *hor);
 

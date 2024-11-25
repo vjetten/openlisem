@@ -1,9 +1,9 @@
-<p><strong>Infiltration options</strong></p>
+<h2><strong>Infiltration options</strong></h2>
 <ul>
-<li>No infiltration = catchment is impermeable</li>
 <li>SWATRE = 1D finite difference multilayer scheme for soil water balance based on the SWATRE model (Richards equations, multilayer Darcy equation solution), needs complex database setup</li>
-<li>Green and Ampt = 1 or 2 layer infiltration based on a simplified solution for the Darcy equation (no iteration)</li>
-<li>Smith and Parlange = 1 or 2 layer infiltration based on an exponential solution of the Darcy equation</li>
+<li>Green and Ampt = 1 to 3 layer infiltration based on a simplified solution for the Darcy equation (no iteration)</li>
+<li>Smith and Parlange = 1 to 3 layer infiltration based on an exponential solution of the Darcy equation, liek a modified Green and Ampt</li>
+<li>Richards equation = multi layer infiltration based a finite volume solution including unsaturated flow. The input is in 1 to 3 layers (same as Green and Ampt) that are subdivided in nodes. EXPERIMENTAL, does not work fully yet</li>
 </ul>
 <p><strong>Impermeable</strong>: the lower soil boundary is impermeable and the soil profile can fill up with water and overflow to create runoff. When impermeable is witched off, there is drainage from the bottom of the soil profile and the soil is infinitely large.</p>
 <p>When SWATRE is used the drainage is the Darcy flux from the bottom node, when G&amp;A or S&amp;P are used, the drainage is the estimated unsaturated conductivity (using the Brooks-Corey equation), assuming a hydraulic gradient dH/dz of 1.</p>

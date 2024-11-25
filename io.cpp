@@ -118,7 +118,7 @@ cTMap readRaster(
 
     MaskedRaster<double> raster_data(nr_rows, nr_cols, north, west, cell_size);
 
-    // All raster values are read into doubles. PCRaster value scales are not
+    // All raster values are read into doubles, GDT_Float64. PCRaster value scales are not
     // taken into account.
     if(band->RasterIO(GF_Read, 0, 0, nr_cols, nr_rows, raster_data[0],
             nr_cols, nr_rows, GDT_Float64, 0, 0) != CE_None) {
@@ -412,29 +412,44 @@ void writePCRasterRaster(
 void writeGDALRaster(
     cTMap const& raster,
     QString const& pathName,
-    GDALDriver& driver)
+    GDALDriver& driver,
+    QString const& format)
 {
     // Create new dataset.
     int const nrRows{raster.nrRows()};
     int const nrCols{raster.nrCols()};
     int const nrBands{1};
+
+    // Initialize options based on the format
+    const char* options[] = {nullptr};
+    if (format == "PCRaster") {
+        options[0] = "PCRASTER_VALUESCALE=VS_SCALAR";
+        options[1] = nullptr;
+    } else {
+        options[0] = nullptr;
+    }
+
     GDALDatasetPtr dataset{driver.Create(pathName.toLatin1().constData(),
-        nrCols, nrRows, nrBands, GDT_Float32, nullptr), close_gdal_dataset};
+                                         nrCols, nrRows, nrBands, GDT_Float32, const_cast<char**>(options)), close_gdal_dataset};
 
     if(!dataset) {
-        Error(QString("Dataset %1 cannot be created.").arg(pathName));
+        Error(QString("Dataset %1 cannot be created. GDAL error: %2")
+                  .arg(pathName)
+                  .arg(CPLGetLastErrorMsg()));
+        return;
     }
 
     MaskedRaster<double> const& raster_data{raster.data};
 
     // Set some metadata.
     double transformation[]{
-        raster_data.west(),
-        raster_data.cell_size(),
-        0.0,
-        raster_data.north(),
-        0.0,
-        raster_data.cell_size()};
+                            raster_data.west(),
+                            raster_data.cell_size(),
+                            0.0,
+                            raster_data.north(),
+                            0.0,
+                            raster_data.cell_size()};
+
     dataset->SetGeoTransform(transformation);
 
     dataset->SetProjection(raster.projection().toLatin1().constData());
@@ -444,7 +459,7 @@ void writeGDALRaster(
     // setting meta data items, this allows for round tripping values scale
     // information back to the PCRaster format, in case the raster is
     // translated to PCRaster format later.
-    dataset->SetMetadataItem("PCRASTER_VALUESCALE", "VS_SCALAR");
+    //dataset->SetMetadataItem("PCRASTER_VALUESCALE", "VS_SCALAR");
 
     // Write values to the raster band.
     auto band = dataset->GetRasterBand(1);
@@ -452,10 +467,11 @@ void writeGDALRaster(
     band->SetNoDataValue(-FLT_MAX);
 
     if(band->RasterIO(GF_Write, 0, 0, nrCols, nrRows,
-            const_cast<double*>(&raster_data.cell(0)),
-            nrCols, nrRows, GDT_Float64, 0, 0) != CE_None) {
+                       const_cast<double*>(&raster_data.cell(0)),
+                       nrCols, nrRows, GDT_Float64, 0, 0) != CE_None) {
         Error(QString("Raster band %1 cannot be written.").arg(pathName));
     }
+
 }
 
 
@@ -475,19 +491,9 @@ void writeRaster(
     QString const& pathName,
     QString const& format)
 {
-//    if(raster.nrRows() == 0 || raster.nrCols() == 0) {
-//        return;
-//    }
-
-//    if(pathName.isEmpty()) {
-//        ErrorString = "Cannot write file, file name empty";
-//        throw 1;
-//    }
-
     if (format == "PCRaster") {
-        // OK, until PCRaster supports Create(), we'll handle writing to
-        // PCRaster format ourselves. Work is underway to add support
-        // for Create() to the GDAL PCRaster driver.
+        // The function writeGDALRaster() can also be used, but it is slower.
+        // So the current implementation with the local PCRlibrary is still used.
         writePCRasterRaster(raster, pathName);
     } else {
         GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(
@@ -502,7 +508,7 @@ void writeRaster(
         bool driverSupportsCreate{CSLFetchBoolean(metadata, GDAL_DCAP_CREATE, FALSE) != FALSE};
         if(driverSupportsCreate) {
             // All is well, write using GDAL.
-            writeGDALRaster(raster, pathName, *driver);
+            writeGDALRaster(raster, pathName, *driver, format);
         } else {
             Error(QString(
                 "Format driver %1 cannot be used to create datasets.").arg(
@@ -511,8 +517,8 @@ void writeRaster(
     }
 }
 
-
 /// makes mapname if (name.map) or mapseries (name0000.001 to name0009.999)
+/// or 'verylongname' to verylongname99.999
 void WriteMapSeries(
     cTMap const& raster,
     QString const& Dir,
@@ -523,15 +529,24 @@ void WriteMapSeries(
     QString path;
     QFileInfo fi(Name);
 
+    // in no extension is given
     if(Name.indexOf(".") < 0) {
         QString nam, dig;
 
-        nam = Name + "00000000";
+        // convert count to digit with a 3 digit extension filled with 0
+        dig = QString("%1").arg(count, 5, 10, QLatin1Char('0'));
+        dig.insert(dig.length()-3, ".");
 
-        nam.remove(7, 10);
-        dig = QString("%1").arg(count, 4, 10, QLatin1Char('0'));
-        dig.insert(1, ".");
+        // if small name fill with 0
+        if (Name.length() < 6) {
+            nam = Name + "0000000000";
+            nam.remove(6, nam.length());
+        }
+
         Name = nam + dig;
+
+        // so wh at count 1020 becomes wh000001.020
+        // and waterheight becomes waterheight01.020
     }
 
     path = Dir + Name;

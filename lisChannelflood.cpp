@@ -49,8 +49,9 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
      //#pragma omp parallel for num_threads(userCores)
      FOR_ROW_COL_MV_CHL {
+         double maxQ = SwitchCulverts ? ChannelMaxQ->Drc  : -1;
 
-         if (ChannelWidth->Drc > 0 && ChannelMaxQ->Drc <= 0)
+         if (ChannelWidth->Drc > 0 && maxQ <= 0)
          {
              double chdepth = ChannelDepth->Drc;
              double dH = std::max(0.0, (ChannelWH->Drc-chdepth));
@@ -176,7 +177,8 @@ void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
     Fill(*tma, 0);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (ChannelWidth->Drc > 0 && ChannelMaxQ->Drc <= 0)
+        double maxQ = SwitchCulverts ? ChannelMaxQ->Drc  : -1;
+        if (ChannelWidth->Drc > 0 && maxQ <= 0)
         {
             double dH = std::max(0.0, (ChannelWH->Drc-ChannelDepth->Drc));
 
@@ -296,17 +298,17 @@ void TWorld::ToFlood()
 {
     #pragma omp parallel for  num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (hmx->Drc > HMIN && WHrunoff->Drc > HMIN && (WHrunoff->Drc > hmx->Drc))
+        if (hmx->Drc > HMIN && WHrunoff->Drc > HMIN) // && (WHrunoff->Drc > hmx->Drc))
         {
             double frac = 1.0;//1-exp(-2.0*hmx->Drc/(WHrunoff->Drc+HMIN));
 
-            //frac = std::max(std::min(frac, 1.0),0.0);
+            frac = std::max(std::min(frac, 1.0),0.0);
             double dwh = frac * WHrunoff->Drc;
 
             hmx->Drc += dwh;
-            WH->Drc -= dwh;
+            WH->Drc = WHstore->Drc;
             WHrunoff->Drc = 0;
-            WHroad->Drc = 0;
+
             hmxWH->Drc = hmx->Drc + WH->Drc;
             WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
 
@@ -319,7 +321,7 @@ void TWorld::ToFlood()
 
                 SWOFSedimentLayerDepth(r,c,hmx->Drc, V->Drc);
                 SWOFSedimentSetConcentration(r,c,hmx);
-                Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
+               // Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
             }
         }
     }}
@@ -352,7 +354,10 @@ void TWorld::FloodMaxandTiming()
             floodVolTotMax += floodHmxMax->Drc*area;
         }
         if (hmxWH->Drc > minReportFloodHeight && floodTimeStart->Drc == 0)  {
-            floodTimeStart->Drc = (time - RainstartTime)/60.0;
+            if (SwitchWaveUser)
+                floodTimeStart->Drc = (time - BeginTime)/60.0;
+            else
+                floodTimeStart->Drc = (time - RainstartTime)/60.0;
             // time since first pixel received rainfall
         }
         if (hmxWH->Drc > minReportFloodHeight) {
@@ -408,17 +413,13 @@ void TWorld::ChannelFlood(void)
         }
     }
 
-    if (SwitchSWOFopen)
-        dtflood = fullSWOF2open(hmx, Uflood, Vflood, DEM);
-    else
-        dtflood = fullSWOF2RO(hmx, Uflood, Vflood, DEM);
-    // 2D dyn flow of hmx water, when using kin wave
+    dtflood = fullSWOF2open(hmx, Uflood, Vflood, DEM);
+    // in kindyn hmx is the channel overflow/flood part of the surface water, the rest is kinwave WHrunoff
 
     //new flood domain
     nrFloodedCells = 0;
     FOR_ROW_COL_MV {
-        if (hmx->Drc > 0)
-        {
+        if (hmx->Drc > 0) {
             FloodDomain->Drc = 1;
             nrFloodedCells += 1.0;
         }
@@ -431,12 +432,10 @@ void TWorld::ChannelFlood(void)
         Qflood->Drc = 0;
         if (FloodDomain->Drc > 0) {
             V->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
-
             Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
-
-            Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
+            Qn->Drc = 0;//V->Drc * WHrunoff->Drc * ChannelAdj->Drc;
+            // ??????????? why, wh
         }
-        // replace V in flood domain with sqrt flood V and U
     }}
 
     Boundary2Ddyn();
@@ -444,10 +443,6 @@ void TWorld::ChannelFlood(void)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-
-        WHroad->Drc = WHrunoff->Drc;
-        // set road to average outflowing wh, no surface storage.
-
         WH->Drc = WHrunoff->Drc+ WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
 

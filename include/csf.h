@@ -14,11 +14,8 @@
  extern "C" {
 #endif 
 
-
-
 #include <stdio.h>
 #include "csfattr.h"
-
 
 /*****************************************************************/
 /*                                                               */
@@ -213,146 +210,148 @@ typedef CSF_RASTER_HEADER CSF_RASTER_LOCATION_ATTRIBUTES;
 /*                  */
 /************************************************************/
 
-MAP *Rcreate(const char *fileName, 
-         size_t nrRows, size_t nrCols, 
-         CSF_CR cellRepr, CSF_VS dataType, 
+MAP *Rcreate(const char *fileName,
+         size_t nrRows, size_t nrCols,
+         CSF_CR cellRepr, CSF_VS dataType,
          CSF_PT projection, REAL8 xUL, REAL8 yUL, REAL8 angle, REAL8 cellSize);
-MAP  *Rdup(const char *toFile , const MAP *from, 
-           CSF_CR cellRepr, CSF_VS dataType);
-void *Rmalloc(const MAP *m, size_t nrOfCells);
+//MAP  *Rdup(const char *toFile , const MAP *from, 
+//           CSF_CR cellRepr, CSF_VS dataType);
+//void *Rmalloc(const MAP *m, size_t nrOfCells);
+
 int RuseAs(MAP *m, CSF_CR useType);
 
-MAP  *Mopen(const char *fname, enum MOPEN_PERM mode);
-enum MOPEN_PERM MopenPerm(const MAP *m);
-
-int Rcompare(const MAP *m1,const MAP *m2);
-int RgetLocationAttributes(
-  CSF_RASTER_LOCATION_ATTRIBUTES *l, /* fill in this struct */
-  const MAP *m); /* map handle to copy from */
-int RcompareLocationAttributes(
-  const CSF_RASTER_LOCATION_ATTRIBUTES *m1, /* */
-  const CSF_RASTER_LOCATION_ATTRIBUTES *m2); /* */
-
+//
+//MAP  *Mopen(const char *fname, enum MOPEN_PERM mode);
+//enum MOPEN_PERM MopenPerm(const MAP *m);
+//
+//int Rcompare(const MAP *m1,const MAP *m2);
+//int RgetLocationAttributes(
+//  CSF_RASTER_LOCATION_ATTRIBUTES *l, /* fill in this struct */
+//  const MAP *m); /* map handle to copy from */
+//int RcompareLocationAttributes(
+//  const CSF_RASTER_LOCATION_ATTRIBUTES *m1, /* */
+//  const CSF_RASTER_LOCATION_ATTRIBUTES *m2); /* */
+//
 int   Mclose(MAP *map);
-void  Merror(int nr);
-void  Mperror(const char *userString);
-void  MperrorExit(const char *userString, int exitCode);
-const char *MstrError(void);
-const char *MgetFileName(const MAP *m);
-void  ResetMerrno(void);
-
-int    RputAllMV(MAP *newMap);
-size_t  RputRow(MAP *map, size_t rowNr, void *buf);
+//void  Merror(int nr);
+//void  Mperror(const char *userString);
+//void  MperrorExit(const char *userString, int exitCode);
+//const char *MstrError(void);
+//const char *MgetFileName(const MAP *m);
+//void  ResetMerrno(void);
+//
+//int    RputAllMV(MAP *newMap);
+//size_t  RputRow(MAP *map, size_t rowNr, void *buf);
 size_t  RputSomeCells (MAP *map, size_t somePlace, size_t nrCells, void *buf);
-size_t  RputCell(MAP *map, size_t rowNr, size_t colNr, void *cellValue);
-size_t  RgetRow(MAP *map, size_t rowNr, void *buf);
-size_t  RgetSomeCells (MAP *map, size_t somePlace, size_t nrCells, void *buf);
-size_t  RgetCell(MAP *map, size_t rowNr, size_t colNr, void *cellValue);
-
-int    RputDoNotChangeValues(const MAP *map);
-int    MnativeEndian(const MAP *map);
-
-
-UINT4  MgetMapDataType(const MAP *map);
-UINT4  MgetVersion(const MAP *map);
-UINT4  MgetGisFileId(const MAP *map);
-UINT4  MputGisFileId(MAP *map,UINT4 gisFileId);
-int    IsMVcellRepr(CSF_CR cellRepr, const void *cellValue);
-int    IsMV(const MAP *map, const void *cellValue);
+//size_t  RputCell(MAP *map, size_t rowNr, size_t colNr, void *cellValue);
+//size_t  RgetRow(MAP *map, size_t rowNr, void *buf);
+//size_t  RgetSomeCells (MAP *map, size_t somePlace, size_t nrCells, void *buf);
+//size_t  RgetCell(MAP *map, size_t rowNr, size_t colNr, void *cellValue);
+//
+//int    RputDoNotChangeValues(const MAP *map);
+//int    MnativeEndian(const MAP *map);
+//
+//
+//UINT4  MgetMapDataType(const MAP *map);
+//UINT4  MgetVersion(const MAP *map);
+//UINT4  MgetGisFileId(const MAP *map);
+//UINT4  MputGisFileId(MAP *map,UINT4 gisFileId);
+//int    IsMVcellRepr(CSF_CR cellRepr, const void *cellValue);
+//int    IsMV(const MAP *map, const void *cellValue);
 CSF_VS RgetValueScale(const MAP *map);
-CSF_VS RputValueScale(MAP *map, CSF_VS valueScale);
-int    RvalueScaleIs(const MAP *m, CSF_VS vs);
-int    RvalueScale2(CSF_VS vs);
-CSF_CR RdefaultCellRepr(CSF_VS vs);
+//CSF_VS RputValueScale(MAP *map, CSF_VS valueScale);
+//int    RvalueScaleIs(const MAP *m, CSF_VS vs);
+//int    RvalueScale2(CSF_VS vs);
+//CSF_CR RdefaultCellRepr(CSF_VS vs);
 CSF_CR RgetCellRepr(const MAP *map);
-CSF_CR RgetUseCellRepr(const MAP *map);
-
-int    RgetMinVal(const MAP *map, void *minVal);
-int    RgetMaxVal(const MAP *map, void *maxVal);
-void   RputMinVal(MAP *map, const void *minVal);
-void   RputMaxVal(MAP *map, const void *maxVal);
-void   RdontTrackMinMax(MAP *m);
-
-REAL8  RgetXUL(const MAP *map);
-REAL8  RgetYUL(const MAP *map);
-REAL8  RputXUL(MAP *map, REAL8 xUL);
-REAL8  RputYUL(MAP *map, REAL8 yUL);
-
-/* old names: 
- */
-#define RgetX0 RgetXUL
-#define RgetY0 RgetYUL
-#define RputX0 RputXUL
-#define RputY0 RputYUL
- 
-
-REAL8  RgetAngle(const MAP *map);
-REAL8  RputAngle(MAP *map, REAL8 Angle);
-
-size_t  RgetNrCols(const MAP *map);
-size_t  RgetNrRows(const MAP *map);
-
-REAL8  RgetCellSize(const MAP *map);
-REAL8  RputCellSize(MAP *map, REAL8 newCellSize);
-
-int RgetCoords( const MAP *m, int inCelPos, size_t row, size_t col, double *x, double *y);
-int RrowCol2Coords(const MAP *m, double row, double col, double *x, double *y);
-void RasterRowCol2Coords(const CSF_RASTER_LOCATION_ATTRIBUTES *m,
-double row, double col, double *x, double *y);
-
+//CSF_CR RgetUseCellRepr(const MAP *map);
+//
+//int    RgetMinVal(const MAP *map, void *minVal);
+//int    RgetMaxVal(const MAP *map, void *maxVal);
+//void   RputMinVal(MAP *map, const void *minVal);
+//void   RputMaxVal(MAP *map, const void *maxVal);
+//void   RdontTrackMinMax(MAP *m);
+//
+//REAL8  RgetXUL(const MAP *map);
+//REAL8  RgetYUL(const MAP *map);
+//REAL8  RputXUL(MAP *map, REAL8 xUL);
+//REAL8  RputYUL(MAP *map, REAL8 yUL);
+//
+///* old names: 
+// */
+//#define RgetX0 RgetXUL
+//#define RgetY0 RgetYUL
+//#define RputX0 RputXUL
+//#define RputY0 RputYUL
+// 
+//
+//REAL8  RgetAngle(const MAP *map);
+//REAL8  RputAngle(MAP *map, REAL8 Angle);
+//
+//size_t  RgetNrCols(const MAP *map);
+//size_t  RgetNrRows(const MAP *map);
+//
+//REAL8  RgetCellSize(const MAP *map);
+//REAL8  RputCellSize(MAP *map, REAL8 newCellSize);
+//
+//int RgetCoords( const MAP *m, int inCelPos, size_t row, size_t col, double *x, double *y);
+//int RrowCol2Coords(const MAP *m, double row, double col, double *x, double *y);
+//void RasterRowCol2Coords(const CSF_RASTER_LOCATION_ATTRIBUTES *m,
+//double row, double col, double *x, double *y);
+//
 CSF_PT MgetProjection(const MAP *map);
-CSF_PT MputProjection(MAP *map, CSF_PT p);
-
-void   SetMV(const MAP *m, void *cell);
-void   SetMVcellRepr(CSF_CR cellRepr, void *cell);
-void   SetMemMV(void *dest,size_t nrElements,CSF_CR type);
-/* historical error, implemented twice 
- *  SetArrayMV => SetMemMV
- */
-
-int MattributeAvail(MAP *m, CSF_ATTR_ID id);
-CSF_ATTR_ID MdelAttribute(MAP *m, CSF_ATTR_ID id);
-
-
-size_t MgetNrLegendEntries(MAP *m);
-int MgetLegend(MAP *m, CSF_LEGEND *l);
-int MputLegend(MAP *m, CSF_LEGEND *l, size_t nrEntries);
-
-size_t MgetHistorySize(MAP *m);
-size_t MgetDescriptionSize(MAP *m);
-size_t MgetNrColourPaletteEntries(MAP *m);
-size_t MgetNrGreyPaletteEntries(MAP *m);
-int MgetDescription(MAP *m, char *des);
-int MgetHistory(MAP *m, char *history);
-int MgetColourPalette(MAP *m, UINT2 *pal);
-int MgetGreyPalette(MAP *m, UINT2 *pal);
-int MputDescription(MAP *m, char *des);
-int MputHistory(MAP *m, char *history);
-int MputColourPalette(MAP *m, UINT2 *pal, size_t nrTupels);
-int MputGreyPalette(MAP *m, UINT2 *pal, size_t nrTupels);
-
-int Rcoords2RowCol( const MAP *m,
-  double x,   double y,  
-  double *row, double *col);
-void RasterCoords2RowCol( const CSF_RASTER_LOCATION_ATTRIBUTES *m,
-  double x,   double y,  
-  double *row, double *col);
-int RasterCoords2RowColChecked( const CSF_RASTER_LOCATION_ATTRIBUTES *m,
-  double x,   double y,  
-  double *row, double *col);
-
-int RgetRowCol(const MAP *m,
-  double x,   double y,  
-  size_t *row, size_t *col);
-
-const char *RstrCellRepr(CSF_CR cr);
-const char *RstrValueScale(CSF_VS vs);
-const char *MstrProjection(CSF_PT p);
-int   RgetValueScaleVersion(const MAP *m);
-
-void RcomputeExtend(REAL8 *xUL, REAL8 *yUL, size_t *nrRows, size_t *nrCols, 
- double x_1, double y_1, double x_2, double y_2, CSF_PT projection, REAL8 cellSize, double rounding);
-
+//CSF_PT MputProjection(MAP *map, CSF_PT p);
+//
+//void   SetMV(const MAP *m, void *cell);
+//void   SetMVcellRepr(CSF_CR cellRepr, void *cell);
+//void   SetMemMV(void *dest,size_t nrElements,CSF_CR type);
+///* historical error, implemented twice 
+// *  SetArrayMV => SetMemMV
+// */
+//
+//int MattributeAvail(MAP *m, CSF_ATTR_ID id);
+//CSF_ATTR_ID MdelAttribute(MAP *m, CSF_ATTR_ID id);
+//
+//
+//size_t MgetNrLegendEntries(MAP *m);
+//int MgetLegend(MAP *m, CSF_LEGEND *l);
+//int MputLegend(MAP *m, CSF_LEGEND *l, size_t nrEntries);
+//
+//size_t MgetHistorySize(MAP *m);
+//size_t MgetDescriptionSize(MAP *m);
+//size_t MgetNrColourPaletteEntries(MAP *m);
+//size_t MgetNrGreyPaletteEntries(MAP *m);
+//int MgetDescription(MAP *m, char *des);
+//int MgetHistory(MAP *m, char *history);
+//int MgetColourPalette(MAP *m, UINT2 *pal);
+//int MgetGreyPalette(MAP *m, UINT2 *pal);
+//int MputDescription(MAP *m, char *des);
+//int MputHistory(MAP *m, char *history);
+//int MputColourPalette(MAP *m, UINT2 *pal, size_t nrTupels);
+//int MputGreyPalette(MAP *m, UINT2 *pal, size_t nrTupels);
+//
+//int Rcoords2RowCol( const MAP *m,
+//  double x,   double y,  
+//  double *row, double *col);
+//void RasterCoords2RowCol( const CSF_RASTER_LOCATION_ATTRIBUTES *m,
+//  double x,   double y,  
+//  double *row, double *col);
+//int RasterCoords2RowColChecked( const CSF_RASTER_LOCATION_ATTRIBUTES *m,
+//  double x,   double y,  
+//  double *row, double *col);
+//
+//int RgetRowCol(const MAP *m,
+//  double x,   double y,  
+//  size_t *row, size_t *col);
+//
+//const char *RstrCellRepr(CSF_CR cr);
+//const char *RstrValueScale(CSF_VS vs);
+//const char *MstrProjection(CSF_PT p);
+//int   RgetValueScaleVersion(const MAP *m);
+//
+//void RcomputeExtend(REAL8 *xUL, REAL8 *yUL, size_t *nrRows, size_t *nrCols, 
+// double x_1, double y_1, double x_2, double y_2, CSF_PT projection, REAL8 cellSize, double rounding);
+//
 #ifdef __cplusplus
  }
 #endif 

@@ -93,17 +93,32 @@ void lisemqt::ssetAlphaHouse(int v)
         MPlot->replot();
 }
 //---------------------------------------------------------------------------
+void lisemqt::ssetAlphaHardSurfaceW(int v)
+{
+//    int v = (int)d;
+    if (checkInfrastructure->isChecked()) {
+        bool doit = (checkHardsurface->isChecked() || checkRoadsystem->isChecked());
+        if (v > 0 && checkHardsurface->isChecked())
+            hardsurfMap->setAlpha(v);
+        if (v > 0 && checkRoadsystem->isChecked())
+            roadMap->setAlpha(v);
+        if (v > 0 && doit)
+            MPlot->replot();
+    }
+}//---------------------------------------------------------------------------
 void lisemqt::ssetAlphaHardSurface(int v)
 {
-    bool doit = (checkHouses->isChecked() || checkHardsurface->isChecked() || checkRoadsystem->isChecked());
-    if (v > 0 && checkHouses->isChecked())
-        houseMap->setAlpha(v);
-    if (v > 0 && checkHardsurface->isChecked())
-        hardsurfMap->setAlpha(v);
-    if (v > 0 && checkRoadsystem->isChecked())
-        roadMap->setAlpha(v);
-    if (v > 0 && doit)
-        MPlot->replot();
+    if (checkInfrastructure->isChecked()) {
+        bool doit = (checkHouses->isChecked() || checkHardsurface->isChecked() || checkRoadsystem->isChecked());
+        if (v > 0 && checkHouses->isChecked())
+            houseMap->setAlpha(v);
+        // if (v > 0 && checkHardsurface->isChecked())
+        //     hardsurfMap->setAlpha(v);
+        // if (v > 0 && checkRoadsystem->isChecked())
+        //     roadMap->setAlpha(v);
+        if (v > 0 && doit)
+            MPlot->replot();
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -131,28 +146,15 @@ void lisemqt::initMapPlot()
 
 void lisemqt::changeSize()
 {
-    double h = MPlot->height();
-    double w = MPlot->width();
+   double h = MPlot->height();
+   double w = MPlot->width();
 
-    MPlot->setAxisScale( MPlot->xBottom, op._llx, op._llx+(double)op._nrRows*op._dx*w/h);//, op._dx*10);
-    MPlot->setAxisScale( MPlot->yLeft, op._lly, op._lly+(double)op._nrRows*op._dx);//, op._dx*10);
+    MPlot->setAxisScale( QwtAxis::XBottom, op._llx, op._llx+(double)op._nrRows*op._dx*w/h);//, op._dx*10);
+    MPlot->setAxisScale( QwtAxis::YLeft, op._lly, op._lly+(double)op._nrRows*op._dx);//, op._dx*10);
+  //  MPlot->setAxisAutoScale(QwtAxis::XBottom, true);
+  //  MPlot->setAxisAutoScale(QwtAxis::YLeft, true);
 
     MPlot->replot();
-
-// from mapedit:
-//    double h = MPlot->height();
-//    double w = MPlot->width();
-
-//    if(_nrCols >= _nrRows ) {
-//        MPlot->setAxisScale( MPlot->xBottom, _llx, _llx+_nrCols*_dx*w/h, _dx*10);
-//        MPlot->setAxisScale( MPlot->yLeft, _lly, _lly+_nrCols*_dx, _dx*10);
-//    } else {
-//        MPlot->setAxisScale( MPlot->xBottom, _llx, _llx+_nrRows*_dx*w/h,_dx*10);
-//        MPlot->setAxisScale( MPlot->yLeft, _lly, _lly+_nrRows*_dx, _dx*10);
-//    }
-//    MPlot->replot();
-
-
 
 }
 
@@ -162,18 +164,18 @@ void lisemqt::setupMapPlot()
 {
     title.setText("Runoff (l/s)");
     title.setFont(QFont("MS Shell Dlg 2",12));
-
     MPlot = new QwtPlot(title, this);
-    // make the plot window
-    maplayout->insertWidget(1, MPlot, 0);
 
-  //  MPlot->setStyleSheet(QString("* { background-color: %1 }").arg("#555555"));
-    // put it on screen
-    MPlot->enableAxis( MPlot->yRight );
-    MPlot->setAxisTitle(MPlot->xBottom, "m");
-    MPlot->setAxisTitle(MPlot->yLeft, "m");
-    MPlot->setAxisLabelRotation(MPlot->yLeft, 270);
-    MPlot->setAxisLabelAlignment(MPlot->yLeft, Qt::AlignVCenter);
+   // make the plot window
+    tabWidget_out->setCurrentIndex(1);
+    maplayout->insertWidget(0, MPlot, 0);
+
+    MPlot->setAxisVisible( QwtAxis::YRight );
+
+    MPlot->setAxisTitle(QwtAxis::XBottom, "m");
+    MPlot->setAxisTitle(QwtAxis::YLeft, "m");
+    MPlot->setAxisLabelRotation(QwtAxis::YLeft, 270);
+    MPlot->setAxisLabelAlignment(QwtAxis::YLeft, Qt::AlignVCenter);
 
     // attach plot to widget in UI
 
@@ -199,24 +201,25 @@ void lisemqt::setupMapPlot()
     baseMap->attach( MPlot );
     // shaded relief
 
-    // 3 data
-    drawMap = new QwtPlotSpectrogram();
-    drawMap->setRenderThreadCount( 0 );
-    drawMap->attach( MPlot );
-    //map for runoff, infil, flood etc
 
-    // 5
+    // 4
     roadMap = new QwtPlotSpectrogram();
     roadMap->setRenderThreadCount( 0 );
     roadMap->attach( MPlot );
     // road map
 
-    // 6
+    // 5
     hardsurfMap = new QwtPlotSpectrogram();
     hardsurfMap->setRenderThreadCount( 0 );
     hardsurfMap->attach( MPlot );
 
-    // 4
+    //6 data
+    drawMap = new QwtPlotSpectrogram();
+    drawMap->setRenderThreadCount( 0 );
+    drawMap->attach( MPlot );
+    //map for runoff, infil, flood etc
+
+    // 3
     houseMap = new QwtPlotSpectrogram();
     houseMap->setRenderThreadCount( 0 );
     houseMap->attach( MPlot );
@@ -246,14 +249,19 @@ void lisemqt::setupMapPlot()
     // raster data to link to plot
 
     rightAxis = new QwtScaleWidget();
-    rightAxis = MPlot->axisWidget( MPlot->yRight );
+    rightAxis = MPlot->axisWidget( QwtAxis::YRight );
     rightAxis->setColorBarEnabled( true );
     rightAxis->setColorBarWidth( 20 );
+    rightAxis->setMargin(8);
+    int startDist, endDist;
+    rightAxis->getBorderDistHint( startDist, endDist );
+    rightAxis->setBorderDist( startDist, endDist+32 );
     // legend to the right of the plot
 
     magnifier = new QwtPlotMagnifier( MPlot->canvas() );
-    magnifier->setAxisEnabled( MPlot->yRight, false );
+    magnifier->setAxisEnabled( QwtAxis::YRight, false );
     // exclude right axis legend from rescaling
+    magnifier->setMouseButton( Qt::NoButton );
     magnifier->setZoomInKey(Qt::Key_Plus, Qt::ShiftModifier);
     magnifier->setZoomOutKey(Qt::Key_Minus, Qt::NoModifier );
     magnifier->setZoomInKey(Qt::Key_Plus, Qt::KeypadModifier);
@@ -265,18 +273,17 @@ void lisemqt::setupMapPlot()
 //    zoomer->setKeyPattern( QwtEventPattern::KeyHome, Qt::Key_Home );
 
     panner = new QwtPlotPanner( MPlot->canvas() );
-    panner->setAxisEnabled( MPlot->yRight, false );
+    panner->setAxisEnabled( QwtAxis::YRight, false );
     // exclude right axis legend from panning
 
     picker = new MyPicker( (QwtPlotCanvas *) MPlot->canvas() );
     picker->setEnabled(true);
 
     mapRescaler = new QwtPlotRescaler( MPlot->canvas() );
- //   mapRescaler->setReferenceAxis( QwtPlot::xBottom );
-    mapRescaler->setAspectRatio( QwtPlot::xBottom, 1.0 );
-    mapRescaler->setAspectRatio( QwtPlot::yLeft, 1.0 );
-    mapRescaler->setAspectRatio( QwtPlot::yRight, 0.0 );
-    mapRescaler->setAspectRatio( QwtPlot::xTop, 1.0 );
+    mapRescaler->setAspectRatio( QwtAxis::XBottom, 1.0 );
+    mapRescaler->setAspectRatio( QwtAxis::YLeft, 1.0 );
+    mapRescaler->setAspectRatio( QwtAxis::YRight, 0.0 );
+    mapRescaler->setAspectRatio( QwtAxis::XTop, 1.0 );
     mapRescaler->setExpandingDirection( QwtPlotRescaler::ExpandUp );
     //mapRescaler->setRescalePolicy( QwtPlotRescaler::Fixed );
 
@@ -320,8 +327,10 @@ double lisemqt::fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_R
     // set intervals for rasterdata, x,y,z min and max
     _RD->setValueMatrix( mapData, _M->nrCols() );
     // set column number to divide vector into rows
-    _RD->setInterval( Qt::XAxis, QwtInterval( op._llx,op._llx+(double)op._nrCols*op._dx, QwtInterval::ExcludeMaximum ) );
-    _RD->setInterval( Qt::YAxis, QwtInterval( op._lly,op._lly+(double)op._nrRows*op._dx, QwtInterval::ExcludeMaximum ) );
+//    _RD->setInterval( Qt::XAxis, QwtInterval( op._llx,op._llx+(double)op._nrCols*op._dx, QwtInterval::ExcludeMaximum ) );
+//    _RD->setInterval( Qt::YAxis, QwtInterval( op._lly,op._lly+(double)op._nrRows*op._dx, QwtInterval::ExcludeMaximum ) );
+    _RD->setInterval( Qt::XAxis, QwtInterval( op._llx,op._llx+(double)op._nrCols*op._dx, QwtInterval::IncludeBorders ) );
+    _RD->setInterval( Qt::YAxis, QwtInterval( op._lly,op._lly+(double)op._nrRows*op._dx, QwtInterval::IncludeBorders ) );
     // set x/y axis intervals
     //qDebug() << sum << maxV;
     if (sum == 0) maxV = -1e-20;
@@ -374,8 +383,10 @@ double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterDa
     _RD->setValueMatrix( RGBData, _M->nrCols() );
     // set column number to divide vector into rows
 
-    _RD->setInterval( Qt::XAxis, QwtInterval( op._llx,op._llx + (double)_M->nrCols()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
-    _RD->setInterval( Qt::YAxis, QwtInterval( op._lly,op._lly + (double)_M->nrRows()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
+//    _RD->setInterval( Qt::XAxis, QwtInterval( op._llx,op._llx + (double)_M->nrCols()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
+//    _RD->setInterval( Qt::YAxis, QwtInterval( op._lly,op._lly + (double)_M->nrRows()*_M->cellSize(), QwtInterval::ExcludeMaximum ) );
+    _RD->setInterval( Qt::XAxis, QwtInterval( op._llx,op._llx + (double)_M->nrCols()*_M->cellSize(), QwtInterval::IncludeBorders ) );
+    _RD->setInterval( Qt::YAxis, QwtInterval( op._lly,op._lly + (double)_M->nrRows()*_M->cellSize(), QwtInterval::IncludeBorders ) );
     // set x/y axis intervals
     return maxV;
 }
@@ -474,9 +485,9 @@ void lisemqt::showMap()
             showComboMap(IndexList1.at(DisplayComboBox2->currentIndex()));
         }
 
-    roadMap->setAlpha(checkMapRoads->isChecked() ? transparencyHardSurface->value() : 0);
+    roadMap->setAlpha(checkMapRoads->isChecked() ? transparencyRoad->value() : 0);
     houseMap->setAlpha(checkMapBuildings->isChecked() ? transparencyHardSurface->value() : 0);
-    hardsurfMap->setAlpha(checkMapHardSurface->isChecked() ? transparencyHardSurface->value() : 0);
+    hardsurfMap->setAlpha(checkMapHardSurface->isChecked() ? transparencyRoad->value() : 0);
 
     // imageMap->setAlpha(0);  // flow barriers for now not used, sat image instead
     if (checksatImage->isChecked()){
@@ -492,6 +503,10 @@ void lisemqt::showMap()
             contourLevels += level;
         contourDEM->setContourLevels( contourLevels );
         contourDEM->setDisplayMode( QwtPlotSpectrogram::ContourMode, nrcontourlevels->value() > 0 );
+    } else {
+        contourLevels.clear();
+        contourDEM->setContourLevels( contourLevels );
+        contourDEM->setDisplayMode( QwtPlotSpectrogram::ContourMode, false);
     }
 
     MPlot->replot();
@@ -506,7 +521,8 @@ void lisemqt::showComboMap(int i)
     // fill vector RD with matrix data and find the new max value
     double MinV;
     double MaxV;
-    double res = fillDrawMapData(op.ComboMapsSafe.at(i), op.ComboScaling.at(i), RD, &MinV, &MaxV);
+    double res = fillDrawMapData(op.ComboMaps.at(i), op.ComboScaling.at(i), RD, &MinV, &MaxV);
+
     if (res <=-1e20)
         return;
     //double MinV = mapMinimum(*op.ComboMaps.at(i));
@@ -597,14 +613,14 @@ void lisemqt::showComboMap(int i)
         mi = (mi == 0 ? std::pow(0.1,3-coef) : mi);
         ma = (ma == 0 ? std::pow(10,coef)    : ma);
 
-        MPlot->setAxisScale( MPlot->yRight, mi, ma );
-        MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLogScaleEngine() );
+        MPlot->setAxisScale( QwtAxis::YRight, mi, ma );
+        MPlot->setAxisScaleEngine( QwtAxis::YRight, new QwtLogScaleEngine() );
     }
     else
     {
 
-        MPlot->setAxisScale( MPlot->yRight, mi, ma);
-        MPlot->setAxisScaleEngine( MPlot->yRight, new QwtLinearScaleEngine() );
+        MPlot->setAxisScale( QwtAxis::YRight, mi, ma);
+        MPlot->setAxisScaleEngine( QwtAxis::YRight, new QwtLinearScaleEngine() );
     }
 
 }
@@ -669,7 +685,7 @@ void lisemqt::showChannelVector(bool yes)
         for (int i = 0; i < rivers.length(); i++) {
             rivers[i]->setPen(pen1);
             rivers[i]->attach( MPlot );
-            rivers[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
+            rivers[i]->setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
         }
 
         QPen pen2;
@@ -681,7 +697,7 @@ void lisemqt::showChannelVector(bool yes)
         for (int i = 0; i < culverts.length(); i++) {
             culverts[i]->setPen(pen2);
             culverts[i]->attach( MPlot );
-            culverts[i]->setAxes(MPlot->xBottom, MPlot->yLeft);
+            culverts[i]->setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
         }
 
         int dxi = spinCulvertSize->value();
@@ -823,8 +839,8 @@ void lisemqt::showChannelVectorNew()
         }
 
         // dot size
-        int dxi = MPlot->invTransform(MPlot->xBottom,dx*1.5);
-        dxi = dxi - MPlot->invTransform(MPlot->xBottom,dx);        
+        int dxi = MPlot->invTransform(QwtAxis::XBottom,dx*1.2);
+        dxi = dxi - MPlot->invTransform(QwtAxis::XBottom,dx);
         dxi = std::min(9,dxi);
         spinCulvertSize->setValue(dxi);
 
@@ -832,14 +848,14 @@ void lisemqt::showChannelVectorNew()
         outlets.setSymbol(new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi )));
         outlets.setPen( Qt::black );
         outlets.setStyle( QwtPlotCurve::NoCurve );
-        outlets.setAxes(MPlot->xBottom, MPlot->yLeft);
+        outlets.setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
         outlets.setSamples(op.EndPointX,op.EndPointY);
 
         // points in outpoint.map
         obspoints.setSymbol(new QwtSymbol( QwtSymbol::Ellipse, Qt::cyan, QPen( Qt::black ), QSize( dxi,dxi )));
         obspoints.setPen( Qt::black );
         obspoints.setStyle( QwtPlotCurve::NoCurve );
-        obspoints.setAxes(MPlot->xBottom, MPlot->yLeft);
+        obspoints.setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
         obspoints.setSamples(op.ObsPointX,op.ObsPointY);
 
         // clear all structures here for the next run of a different area
@@ -889,7 +905,7 @@ void lisemqt::showRoadMap()
     }
 
     if (checkMapRoads->isChecked())
-        roadMap->setAlpha(transparencyHardSurface->value());
+        roadMap->setAlpha(transparencyRoad->value());
     else
         roadMap->setAlpha(0);
 
@@ -933,7 +949,7 @@ void lisemqt::showHardSurfaceMap()
     }
 
     if (checkHardsurface->isChecked())
-        hardsurfMap->setAlpha(transparencyHardSurface->value());
+        hardsurfMap->setAlpha(transparencyRoad->value());
     else
         hardsurfMap->setAlpha(0);
     hardsurfMap->setColorMap(new colorMapRoads());

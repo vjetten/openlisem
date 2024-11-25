@@ -1,4 +1,62 @@
-this file is a list of changes per major commit
+### this file is a list of changes per major commit, for developers only ###
+241118 - v7.4
+- major rewrite of MUSCL 2D flow with 2nd order and Heun averaging (see FullSWOF documentation of Delestre et al.)
+- BUG FIX: small bug fixes in 2D flow
+- BUG FIX: culverts work again, still small MB error but not very much
+
+241114 - v7.3
+- BUG fix: reading of [rainfall/ET/boundary waterheight/user discharge] time string, was malways rounded to whole minutes
+- BUG fix: finding the right timeseries interval with the current time at the end of the series
+- Known BUG: culverts do not work correctly
+- Code made compatble for Linux compile, instructions for compilation updated
+
+241114 - v7.3
+- BUG fix: reading of [rainfall/ET/boundary waterheight/user discharge] time string, was malways rounded to whole minutes
+- BUG fix: finding the right timeseries interval with the current time at the end of the series
+- Known BUG: culverts do not work correctly
+- TODO: look at MUSCL implementation in 2D flow, compare with FUllSWOF (1st versus 2nd order)
+- Code made compatble for Linux compile, instructions for compilation updated
+- Structures for drawing channels were not cleared at the start of a new run
+
+241107 - v7.2
+- BUG fix: SWATRE reading of tables
+- BUG fix: cleaning of SWATRE memory structures for rerun
+
+240916 - v7.1
+- BUG fix: SWATRE is working again
+- Small interface bug fixes and more logical positioning of options
+
+240714 - v7.0
+- BUG fix: Lisem crashed when changing the displayed map after the run was finished
+- Data remains in memory until the next run is started
+- MUSCL option for 2D flow: cell boundary interpolation of water level and velocities (4 types). For high resolution flow.
+- Advanced options: optional overall mass balance correction
+
+Interface
+- Dark mode/Light mode 
+- Some repositioning of options
+- Rainfall, interception and infiltration can be switched on/off
+- scrollbars correctly triggered
+
+240523 - v6.99
+- BUG FIX: in erosion causing zero flow detachment (only splash)
+- boundary water level inflow (with whboundary.map and file with water levels), for dike break or coastal zone flooding
+- Better hydraulics subsurface storm drains (sewage system) for urban environments (beta, some mass balance errors)
+Interface
+- Make mpeg movies of screenshot series after the simulation. Needs download MPlayer from http://www.mplayerhq.hu
+
+231208 - v6.92-v6.94
+- Fixed subsurface drainage code
+- flowboundary crashed, fixed
+- fixed error in Rusanov
+- added Roe?
+231115 - v6.899-v6.92
+- changed emprical equations for thetar etc
+- improved soil water distribution in G&A
+- experimental code SOAP included, not yet working
+- more stable groundwater
+- improved ET
+- fixed bug causing crash when using 1 layer infiltration models
 230623 - v6.899
 - fixing small bugs in channel side inflow from sat soil layer
 - overall soil mass balance correction

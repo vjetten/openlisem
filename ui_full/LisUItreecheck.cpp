@@ -60,9 +60,9 @@ void lisemqt::on_checkFlowBarriers_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_checkDoErosion_clicked()
 {
-    checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
+   // checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
 
-    setErosionMapOutput(checkDoErosion->isChecked());
+    //setErosionMapOutput(checkDoErosion->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkIncludeTiledrains_clicked()
@@ -80,7 +80,7 @@ void lisemqt::on_checkIncludeChannel_clicked()
     checkMapNameModel(CHANNELMAPS, 0, checkIncludeChannel->isChecked());
 
     checkChannelInfil->setEnabled(checkIncludeChannel->isChecked());
-    //checkChannelBaseflow->setEnabled(checkIncludeChannel->isChecked());
+    checkStationaryBaseflow->setEnabled(checkIncludeChannel->isChecked());
     checkChannelCulverts->setEnabled(checkIncludeChannel->isChecked());
 }
 //--------------------------------------------------------------------
@@ -88,30 +88,41 @@ void lisemqt::on_checkChannelInfil_clicked()
 {
     on_checkIncludeChannel_clicked();
 
-    if (checkChannelBaseflow->isChecked())
-        checkChannelBaseflow->setChecked(false);
+    if (checkStationaryBaseflow->isChecked())
+        checkStationaryBaseflow->setChecked(false);
+    doChannelBaseflow = checkStationaryBaseflow->isChecked();
 }
 //--------------------------------------------------------------------
-void lisemqt::on_checkChannelBaseflow_clicked()
-{
-    on_checkIncludeChannel_clicked();
+// void lisemqt::on_checkChannelBaseflow_clicked()
+// {
+//     on_checkIncludeChannel_clicked();
 
-    if (checkChannelInfil->isChecked())
-        checkChannelInfil->setChecked(false);
-}
+//     if (checkChannelInfil->isChecked())
+//         checkChannelInfil->setChecked(false);
+//     doChannelBaseflow = checkStationaryBaseflow->isChecked();
+// }
 //--------------------------------------------------------------------
 //2nd number is number of rows at a level. e.g. green and ampt starts at
 // after swatre, swatre has 11 rows (maps), starting at 0, so G&A starts at 11
 //
 void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int inr)
 {
-    int nr = std::max(0, inr);
-    checkInfil2layer->setEnabled(bool(nr == 2 || nr == 3));
-    groupBox_SwatreOptions->setEnabled(nr == 1);
-    checkBox_OutTheta->setEnabled(bool(nr == 2 || nr == 3));
+    int nr = std::max(0, inr);   
+    bool morelayers = (spinSoilLayers->value() > 1);
+    checkBox_OutTheta->setEnabled(nr > 0);
 
     uiInfilMethod = nr;
     // set runfile var to infil nr
+
+    groupBox_SwatreOptions->setEnabled(nr == 0);
+    if (nr == 0) {
+        spinSoilLayers->setEnabled(false);
+        label_153->setEnabled(false);
+    }else {
+        spinSoilLayers->setEnabled(true);
+        label_153->setEnabled(true);
+    }
+    groupBox_RichardsOptions->setEnabled(nr == 3);
 
     checkMapNameModel(INFILTRATIONMAPS, 0, true);
     checkMapNameModel(INFILTRATIONMAPS, 10, false);//SW
@@ -120,17 +131,14 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int inr)
     checkMapNameModel(INFILTRATIONMAPS, 13, false);//KS
     checkMapNameModel(INFILTRATIONMAPS, 14, false);//SP
 
-    if (nr == 0)
-    {
+    if (nr == 0) {
         checkMapNameModel(INFILTRATIONMAPS, 0, false);
-    }
-    else
-    {
+    } else {
         checkMapNameModel(INFILTRATIONMAPS, 14, checkInfilCrust->isChecked()
                           || checkInfilCompact->isChecked()
                           );
 
-        checkMapNameModel(INFILTRATIONMAPS, 12, checkInfil2layer->isChecked() && checkInfil2layer->isEnabled());
+        checkMapNameModel(INFILTRATIONMAPS, 12, morelayers);
 
         if (nr == 1) checkMapNameModel(INFILTRATIONMAPS, 10, true);
         else
@@ -139,18 +147,8 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int inr)
                 if (nr == 4)
                     checkMapNameModel(INFILTRATIONMAPS, 13, true);
     }
-    groupBox_InfilOptions->setDisabled(bool(nr == 0));
-    checkInfil2layer->setEnabled(bool(nr == 2 || nr == 3));
 
-    groupBox_SwatreOptions->setEnabled(bool(nr == 1));
-    //checkPercolation->setDisabled(bool(nr == 1));
-}
-//--------------------------------------------------------------------
-void lisemqt::on_checkInfil2layer_clicked()
-{
-    if (E_InfiltrationMethod->currentIndex() == 2 ||
-            E_InfiltrationMethod->currentIndex() == 3)
-        checkMapNameModel(INFILTRATIONMAPS, 12, checkInfil2layer->isChecked());
+
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkInfilCompact_clicked()
@@ -171,7 +169,6 @@ void lisemqt::on_checkInfilGrass_clicked()
     checkMapNameModel(CONSERVATIONMAPS, 0, checkSedtrap->isChecked()||checkInfilGrass->isChecked());
     E_GrassStripN->setEnabled(checkInfilGrass->isChecked());
     label_15->setEnabled(checkInfilGrass->isChecked());
-    label_98->setEnabled(checkInfilGrass->isChecked());
 }
 //--------------------------------------------------------------------
 void lisemqt::on_checkSedtrap_clicked()
@@ -188,16 +185,16 @@ void lisemqt::on_checkSedtrap_clicked()
     // groupBoxConservation->setEnabled(checkSedtrap->isChecked());
 }
 //--------------------------------------------------------------------
-void lisemqt::on_checkMaterialDepth_clicked()
-{
-    bool yes = checkMaterialDepth->isChecked();
-    E_DepositedCohesion->setEnabled(yes);
-    E_BulkDens2->setEnabled(yes);
-    label_130->setEnabled(yes);
-    //label_190->setEnabled(yes);
-    //matdepthparams->setEnabled(yes);
-    //label_105->setEnabled(yes);
-}
+// void lisemqt::on_checkMaterialDepth_clicked()
+// {
+//     bool yes = checkMaterialDepth->isChecked();
+//     E_DepositedCohesion->setEnabled(yes);
+//     E_BulkDens2->setEnabled(yes);
+//     label_130->setEnabled(yes);
+//     //label_190->setEnabled(yes);
+//     //matdepthparams->setEnabled(yes);
+//     //label_105->setEnabled(yes);
+// }
 //--------------------------------------------------------------------
 //void lisemqt::on_E_BulkDens2_editingFinished()
 //{
@@ -284,7 +281,7 @@ void lisemqt::RunAllChecks()
     checkMapNameModel(EROSIONMAPS, 0, checkDoErosion->isChecked());
     checkMapNameModel(HOUSESMAPS, 0, checkHouses->isChecked());
 
-    checkMapNameModel(CHANNELMAPS, 12, checkChannelBaseflow->isChecked());
+    checkMapNameModel(CHANNELMAPS, 12, doChannelBaseflow);//checkChannelBaseflow->isChecked());
     checkMapNameModel(CHANNELMAPS, 11, checkChannelInfil->isChecked());
     checkMapNameModel(CHANNELMAPS, 10, checkIncludeChannel->isChecked());
 
@@ -304,8 +301,8 @@ void lisemqt::RunAllChecks()
         checkMapNameModel(INFILTRATIONMAPS, 14, checkInfilCrust->isChecked()
                           || checkInfilCompact->isChecked()
                           );
-
-        checkMapNameModel(INFILTRATIONMAPS, 12, checkInfil2layer->isChecked() && checkInfil2layer->isEnabled());
+        bool morelayers = (spinSoilLayers->value() > 1);
+        checkMapNameModel(INFILTRATIONMAPS, 12, morelayers);
 
         if (nr == 1) checkMapNameModel(INFILTRATIONMAPS, 10, true);
         else
