@@ -1903,8 +1903,6 @@ void TWorld::IntializeData(void)
     if (SwitchChannelBaseflowStationary)
         FindStationaryBaseFlow();
 
-}
-//---------------------------------------------------------------------------
     // load data for pesticide
     SedMassIn = NewMap(0);
     SedAfterSplash = NewMap(0);

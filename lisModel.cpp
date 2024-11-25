@@ -111,9 +111,9 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
             efout.flush();
             efout.close();
         }
-    }
-
+   //   }
 }
+
 //---------------------------------------------------------------------------
 // the actual model with the main loop
 void TWorld::DoModel()

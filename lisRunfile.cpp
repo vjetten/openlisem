@@ -276,8 +276,6 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include GW flow")==0)                   SwitchGWflow  = iii == 1;
         if (p1.compare("GW flow explicit")==0)                  SwitchGW2Dflow  = iii == 1;
         if (p1.compare("GW flow SWOF")==0)                      SwitchGWSWOFflow  = iii == 1;
-        if (p1.compare("Include Pesticides")==0)                SwitchPest = iii == 1;
-        if (p1.compare("Report Pesticides")==0)                 SwitchReportPest = iii == 1;
         if (p1.compare("GW flow LDD")==0)                       SwitchLDDGWflow  = iii == 1;
         if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
 
@@ -326,6 +324,11 @@ void TWorld::ParseRunfileData(void)
             KEParamater_b3 = param[2].toDouble();
         }
         if (p1.compare("KE time based")==0) SwitchKETimebased = iii == 1;
+
+        // pesticides
+        if (p1.compare("Include Pesticides")==0)                SwitchPest = iii == 1;
+        if (p1.compare("Report Pesticides")==0)                 SwitchReportPest = iii == 1;
+
 
         // infrastructure
         if (p1.compare("Include Infrastructure")==0)            SwitchInfrastructure =   iii == 1;
@@ -606,9 +609,9 @@ void TWorld::ParseRunfileData(void)
 
     // empty filenames need to be kept because of the order of names: TODO fix this
     Outrunoff = "ro";
-    OutQ      = "q";
-    OutQn     = "qn";
-    OutQinKW  = "qin";
+    //OutQ      = "q";
+    //OutQn     = "qn";
+    //OutQinKW  = "qin";
     Outconc   = "conc";
     Outwh     = "wh";
     Outrwh    = "";

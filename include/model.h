@@ -822,7 +822,7 @@ public:
     void InitScreenChanNetwork();
     void CorrectDEM(cTMap *h, cTMap * g);
     void DiagonalFlowDEM();
-    void InitPesticide(void);
+    //void InitPesticide(void);
     // <= initiatlisation
 
 
@@ -893,7 +893,7 @@ public:
     //Pesticides
     void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
     double MassPestInitial(void);
-    void InitPesticide(void);
+    //void InitPesticide(void);
     void PesticideCellDynamics(void);
     void PesticideSplashDetachment(void);
     void PesticideFlowDetachment(double rho);

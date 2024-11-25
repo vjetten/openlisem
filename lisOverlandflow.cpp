@@ -78,6 +78,7 @@ void TWorld::OverlandFlow(void)
         if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
             ChannelFlood();
             // st venant channel 2D flooding from channel, only for kyn wave
+        }
     }
 }
 //--------------------------------------------------------------------------------------------
@@ -396,6 +397,7 @@ void TWorld::OverlandFlow1D(void)
             }}
         } else {
             KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
+        }
    }
     // MC - Sed is updated by kinematicSubstance, should conc also be updated? now the conc is still based on the Sed before KW
 
@@ -404,5 +406,5 @@ void TWorld::OverlandFlow1D(void)
         //this function takes care of dissolved and sorbed kinematic wave
         PesticideFlow1D();
      }
-}
+
 }
