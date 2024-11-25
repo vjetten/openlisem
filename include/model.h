@@ -525,7 +525,7 @@ public:
         SwitchChannelKinWave,
         SwitchChannelMaxV;
 
-    // TODO multi class sed
+    /** @todo add multi class sed */
     bool SwitchAdvancedSed,
          SwitchUseMaterialDepth,
          SwitchNoBoundarySed,
@@ -889,7 +889,7 @@ public:
     //QList<cTMap *> F_Advect;
     bool addedbaseflow;
 
-    // TODO PEST stuff, replace with work Meindert
+    /** @todo PEST stuff, replace with work Meindert */
     //Pesticides
     void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
     double MassPestInitial(void);
@@ -944,7 +944,7 @@ public:
 
     double SoilWaterMass();
 
-    // => TODO: SOAP infil model, swatre works better for now
+    /** @todo SOAP infil model, swatre works better for now */
     void cell_Soilwater(long i_); //SOAP
     double calcSinkterm(long i_,  double WH, double *S);
     double calculateDayLength(double latitude, int dayNumber);
@@ -1026,7 +1026,7 @@ public:
     double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     double fullSWOF2openMUSCL(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     void doSWOFLoop(int step, double dt, double dt_max, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
-    void ChannelSWOFopen();  //TODO not used
+    void ChannelSWOFopen();  /** @todo not used so remove? */
     void KinematicSWOFopen(cTMap *_h, cTMap *_V);
     double limiter(double a, double b);
     vec4 F_ROE(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
@@ -1053,7 +1053,7 @@ public:
     double fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     // => groundwater
 
-    void cell_SlopeStability(int r, int c); // TODO
+    void cell_SlopeStability(int r, int c); /** @todo include slope stability */
 
     // => extend channel, not used for now
     void doExtendRow(int r, int c, int n,  double w2, double adx);

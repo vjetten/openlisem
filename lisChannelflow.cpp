@@ -221,8 +221,8 @@ void TWorld::ChannelRainandInfil(void)
     }}
 
     // subtract infiltration, no infil in culverts
-// TODO: no infiltration if moisture content or GW does not allow this
-// TODO: infiltration has to change moisture in surrounding soil
+/** @todo no infiltration if moisture content or GW does not allow this */
+/** @todo infiltration has to change moisture in surrounding soil */
     if (SwitchChannelInfil) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
