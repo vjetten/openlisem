@@ -1190,6 +1190,20 @@ void TWorld::InitChannel(void)
                 ChannelY->Drc = 0;
         }}
     }
+        if (SwitchPest) {
+            ChanInf = NewMap(0);
+            ChanPCmw = NewMap(0);
+            ChanPMmw = NewMap(0);
+            ChanPMms = NewMap(0);
+            ChanPMrw = NewMap(0);
+            ChanPCms = NewMap(0);
+            chanpmwdep = NewMap(0);
+            chanpmwdet = NewMap(0);
+
+            if (SwitchErosion) {
+                ChanPMrss = NewMap(0);
+            }
+        }
 }
 //---------------------------------------------------------------------------
 void TWorld::InitFlood(void)
@@ -1903,7 +1917,7 @@ void TWorld::IntializeData(void)
     if (SwitchChannelBaseflowStationary)
         FindStationaryBaseFlow();
 
-    // load data for pesticide
+    // load data for pesticides
     SedMassIn = NewMap(0);
     SedAfterSplash = NewMap(0);
 
@@ -1956,6 +1970,8 @@ void TWorld::IntializeData(void)
             totalPPlossmap = NewMap(0);
         }
 
+        ChannelPMw = NewMap(0);
+
         // total masses
         PestOutW = 0;
         Pestinf = 0;
@@ -1970,6 +1986,7 @@ void TWorld::IntializeData(void)
 
     }
 }
+
 //---------------------------------------------------------------------------
 //TODO: are all switches and options initialised here?
 //TODO: add calibration factors here to set to 1.0
@@ -2008,9 +2025,6 @@ void TWorld::IntializeOptions(void)
     floodWHmaxFileName= QString("WHmax.map");
     tileWaterVolfilename= QString("drainvol.map");
     //tileQmaxfilename= QString("drainqmax.map");
-
-    //Pesticide
-    resultPestFile= QString("pest.csv");
 
     rainFileName.clear();
     rainFileDir.clear();
@@ -2113,6 +2127,8 @@ void TWorld::IntializeOptions(void)
     SwitchDumpTheta = false;
     SwitchDumpK = false;
 
+    //Pesticide
+    resultPestFile= QString("pest.csv");
     SwitchPest = false;
     SwitchReportPest = false;
 

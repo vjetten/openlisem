@@ -143,6 +143,27 @@ void TWorld::ToChannel()
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r,c);
             }
+
+
+            if (SwitchPest) {
+                double dpestw = fractiontochannel*PMrw->Drc;
+                ChanPMrw->Drc += dpestw;
+                //dissolved pesticides diverted to the channel
+
+                PMrw->Drc -= dpestw;
+                PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
+                // adjust overland flow DP.
+
+                if(SwitchErosion) {
+                    double dpests = fractiontochannel*PMrs->Drc;
+                    ChanPMrss->Drc += dpests;
+                    // particulate pesticides diverted to the channel
+
+                    PMrs->Drc -= dpests;
+                    PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0;;
+                }
+
+            }
         }
     }
    }}

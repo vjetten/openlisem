@@ -72,6 +72,17 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMser
        }
     }}
 
+
+    //add channel outflow
+    if (SwitchIncludeChannel) {
+        FOR_ROW_COL_LDDCH5 {
+            PQrw_dt += ChanPQrw->Drc * _dt;
+            if (SwitchErosion) {
+                PQrs_dt += ChanPQrs->Drc * _dt;
+            }
+        }}
+    }
+
     PestOutW += PQrw_dt; 
     Pestinf += mapTotal(*PMinf);
     //PestPerc += mapTotal(*PMperc);
@@ -137,6 +148,7 @@ double TWorld::MassPestInitial(void)
                       * zs->Drc * rho;
     }}
     pmtot_i = mapTotal(*PMmw) + mapTotal(*PMms) + mapTotal(*PMsoil);
+    // add initial channel mass !!!!!!
     return(pmtot_i);
 }
 

@@ -212,6 +212,18 @@ cTMap
 *PMdep,                     //!< mass deposited sorbed pesticide [mg]
 *totalPPlossmap,             //!< total loss of PP pesticide [mg/m2]
 *totalDPlossmap,             //!< total loss of DP pesticide [mg/m2]
+*ChanPMrw,                 //!< mass of dissolved pesticides in channel water [mg]
+*ChanPMrss,                //!< mass of particulate pesticides in channel suspended sediment [mg]
+*ChanPMmw,                  //!< mass of dissolvd pesticide in channel mixing zone [mg]
+*ChanPMms,                  //!< mass of particulate pesticide in channel mixing zone [mg]
+*ChanInf,                     //!< Volume water infiltration per timestep in channel [m3]
+*ChanPCmw,                  //!< concentration of pesticide in water of channel mixing zone [mg/L]
+*ChanPCms,                  //!< concentration of pesticide in soil of channel mixing zone [mg/kg]
+*ChanPCrw,                  //!< concentration of pesticide in channel water [mg/L]
+*chanpmsdet,                     //!< mass of detached sorbed pesticide in channel [mg]
+*chanpmsdep,                     //!< mass of deposited sorbed pesticide in channel [mg]
+*chanpmwdep,                    //!< mass of deposited dissolved pesticide in channel [mg]
+*chanpmwdet,                     //!< mass of detatched dissolved pesticide in channel [mg]
 *test_map,
 
 

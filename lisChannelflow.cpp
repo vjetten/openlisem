@@ -45,7 +45,9 @@ void TWorld::ChannelFlowandErosion()
 
     SwitchChannelKinWave = true;    // set to false for experimental swof in channel
 
-    ChannelRainandInfil();          // subtract infil, add rainfall    
+    ChannelRainandInfil();          // subtract infil, add rainfall
+
+    PesticideChannelDynamics();     // channel mixinglayer and mass transfer
 
     ChannelBaseflow();              // add stationary and GW baseflow if selected
 
@@ -56,6 +58,8 @@ void TWorld::ChannelFlowandErosion()
     ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
 
     ChannelSedimentFlow();          // kin wave for sediment and substances
+
+    PesticideChannelFlow();         // dissolved and sorbed pesticide transport
 
 }
 //---------------------------------------------------------------------------
@@ -228,6 +232,7 @@ void TWorld::ChannelRainandInfil(void)
                 inf = std::min(ChannelWaterVol->Drc, inf);
                 // cannot be more than there is
                 ChannelWaterVol->Drc -= inf;
+                ChanInf->Drc = inf; // store infiltration for pesticides
                 ChannelInfilVol->Drc += inf;
             }
         }}

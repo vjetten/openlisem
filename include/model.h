@@ -893,7 +893,6 @@ public:
     //Pesticides
     void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
     double MassPestInitial(void);
-    //void InitPesticide(void);
     void PesticideCellDynamics(void);
     void PesticideSplashDetachment(void);
     void PesticideFlowDetachment(double rho);
@@ -1005,6 +1004,8 @@ public:
     void ChannelFlood(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
     void ChannelOverflowIteration(cTMap *_h, cTMap *_V);
+    void PesticideChannelFlow();
+    void PesticideChannelDynamics();
     void TileFlow(void);
     void CalcVelDischRectangular(void);
     void CalcMAXDischRectangular(void);
