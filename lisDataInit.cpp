@@ -1970,7 +1970,7 @@ void TWorld::IntializeData(void)
             totalPPlossmap = NewMap(0);
         }
 
-        ChannelPMw = NewMap(0);
+        //ChannelPMw = NewMap(0);
 
         // total masses
         PestOutW = 0;

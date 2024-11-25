@@ -220,6 +220,8 @@ cTMap
 *ChanPCmw,                  //!< concentration of pesticide in water of channel mixing zone [mg/L]
 *ChanPCms,                  //!< concentration of pesticide in soil of channel mixing zone [mg/kg]
 *ChanPCrw,                  //!< concentration of pesticide in channel water [mg/L]
+*ChanPQrw,                  //!< flux of pesticide in channel water [mg/sec]
+*ChanPQrs,                  //!< flux of pesticide in channel sediment [mg/sec]
 *chanpmsdet,                     //!< mass of detached sorbed pesticide in channel [mg]
 *chanpmsdep,                     //!< mass of deposited sorbed pesticide in channel [mg]
 *chanpmwdep,                    //!< mass of deposited dissolved pesticide in channel [mg]

@@ -47,7 +47,7 @@ void TWorld::ChannelFlowandErosion()
 
     ChannelRainandInfil();          // subtract infil, add rainfall
 
-    PesticideChannelDynamics();     // channel mixinglayer and mass transfer
+    //PesticideChannelDynamics();     // channel mixinglayer and mass transfer
 
     ChannelBaseflow();              // add stationary and GW baseflow if selected
 
@@ -59,7 +59,7 @@ void TWorld::ChannelFlowandErosion()
 
     ChannelSedimentFlow();          // kin wave for sediment and substances
 
-    PesticideChannelFlow();         // dissolved and sorbed pesticide transport
+    //PesticideChannelFlow();         // dissolved and sorbed pesticide transport
 
 }
 //---------------------------------------------------------------------------
