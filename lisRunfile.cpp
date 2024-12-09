@@ -1,6 +1,6 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011, 2020  Victor Jetten
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
 **  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
@@ -10,14 +10,14 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-**  GNU General Public License v3 for more details.
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+**  GNU General Public License for more details.
 **
-**  You should have received a copy of the GNU General Public License GPLv3
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  You should have received a copy of the GNU General Public License
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
@@ -263,7 +263,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =  iii == 1;
         if (p1.compare("Nr input layers")==0)                   SwitchNrLayers =     iii == 1;
         if (p1.compare("Psi user input")==0)                    SwitchPsiUser =      iii == 1;
-        if (p1.compare("Matric head files")==0)                 SwitchDumphead =     iii == 1;
+        if (p1.compare("Swatre output")==0)                     SwitchDumphead =     iii == 1;
 
         //channels and GW
         if (p1.compare("Include main channels")==0)             SwitchIncludeChannel = iii == 1;
@@ -402,7 +402,8 @@ void TWorld::ParseRunfileData(void)
         InfilMethod = INFIL_NONE;
     //prob onsolete: deal with old runfil pre 6.6
     SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
-    swatreDT = _dt * SoilWBdtfactor; //getvaluedouble("SWATRE internal minimum timestep");
+    swatreDT = std::min(SoilWBdtfactor, _dt);
+    //swatreDT = _dt * SoilWBdtfactor; //getvaluedouble("SWATRE internal minimum timestep");
 
     if (!SwitchIncludeChannel)
     {
@@ -444,11 +445,11 @@ void TWorld::ParseRunfileData(void)
 
         if (InfilMethod == INFIL_SWATRE)
         {
-            // if (p1.compare("Table Directory")==0)
-            //     SwatreTableDir = CheckDir(p);
-            if (p1.compare("Table File")==0) {
-                SwatreTableName = p; // this is the complete path
-                SwatreTableDir = QFileInfo(p).absolutePath()+"/";
+            if (p1.compare("Swatre table directory")==0) {
+                SwatreTableDir = CheckDir(p);
+            }
+            if (p1.compare("Swatre profile file")==0) {
+                SwatreTableName = p;
             }
 
             initheadName = getvaluename("inithead");

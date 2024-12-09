@@ -1,7 +1,7 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011,2020  Victor Jetten
-**  contact:
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
+**  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License GPLv3 as published by
@@ -10,14 +10,14 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 **  GNU General Public License for more details.
 **
 **  You should have received a copy of the GNU General Public License
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
@@ -413,10 +413,6 @@ void lisemqt::showOutputData()
     }
 
     QString format;
-    // if(darkLISEM)
-    //     format = QString("<font color=#ffffaa>%2</font>");
-    // else
-    //     format= QString("<font color=#000000>%2</font>");
     format="%2";
 
     if (startplot) {

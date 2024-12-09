@@ -1,6 +1,6 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011, 2020  Victor Jetten
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
 **  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
@@ -10,14 +10,14 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-**  GNU General Public License v3 for more details.
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+**  GNU General Public License for more details.
 **
-**  You should have received a copy of the GNU General Public License GPLv3
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  You should have received a copy of the GNU General Public License
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
@@ -460,7 +460,7 @@ void TWorld::HydrologyProcesses()
                 PCrw->Drc = PMrw->Drc / (WH->Drc * FlowWidth->Drc * DX->Drc * 1000);
             }
         }
-        if (SwitchInfiltration) {
+        if (SwitchInfiltration  && InfilMethod != INFIL_SWATRE) {
             switch (InfilMethod) {
                 case INFIL_SOAP : cell_Soilwater(i_); break;
                 case INFIL_GREENAMPT:
@@ -483,22 +483,17 @@ void TWorld::HydrologyProcesses()
                         Perc->Drc = cell_Percolation(r, c, 1.0);
 
                     break;
-                // case INFIL_SWATRE :
-                // cell_InfilSwatre(r, c); break;
             }
         }
-        // if(std::isnan(Thetaeff->Drc))
-        //     qDebug() << QString("B nan 1 %1 %2").arg(r).arg(c);
     }}
 
 
     if (SwitchInfiltration && InfilMethod == INFIL_SWATRE) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            cell_InfilSwatre(i_, r,c);
-        }}
-        // InfilSwatre();
-
+        // #pragma omp parallel for num_threads(userCores)
+        // FOR_ROW_COL_MV_L {
+        //     cell_InfilSwatre(i_, r,c);
+        // }}
+        InfilSwatre(); // does the same
     }
 
 

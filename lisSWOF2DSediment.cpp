@@ -1,9 +1,7 @@
-﻿
-
-/*************************************************************************
+﻿/*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011,2020  Victor Jetten
-**  contact:
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
+**  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License GPLv3 as published by
@@ -12,18 +10,23 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 **  GNU General Public License for more details.
 **
 **  You should have received a copy of the GNU General Public License
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
+// This particular code uses much of the principles of the FullSWOF model
+// https://arxiv.org/abs/1204.3210
+// https://sourcesup.renater.fr/frs/?group_id=895&release_id=3901#fullswof_2d-_1.10.00-title-content
+// the scheme is made suited for parallel processing
+// LICENCE: http://cecill.info/licences/Licence_CeCILL_V2-en.html
 /*!
   \file lisSWOF2DSediment.cpp
   \brief Sediment transport for the SWOF2D shallow flood model

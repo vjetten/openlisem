@@ -1,10 +1,13 @@
 openLISEM: Quick guideline for code development on Windows
 ==========================================================
-Date: 241106
+Date: 241203
 
 Introduction:
-openLISEM is compiled with MINGW64, the windows port of the native Linux compiler. The advantage is that it is opensource and free, and easy to compile lisem under Linux.
+openLISEM is compiled with MINGW64, the windows port of the native Linux compiler.
+The advantage is that it is opensource and free, and easy to compile lisem under Linux.
 It is developed in the Qt environment for the interface and extension of C++ libs
+
+For linux compile see the file "compile_lisem_linux.txt" in the GitHub repository
 
 > The following software is needed
 - MSYS is the installation environment used for MINGW64 and all libraries needed, such as Qt.
@@ -31,8 +34,8 @@ The window may close, simply open it again
 
 -install qt6 which is for now the version in which lisem is created:
 	pacman -S mingw-w64-x86_64-qt6 mingw-w64-x86_64-qt-creator 
--install openmp and gdal and qwt:
-	pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-gdal mingw-w64-x86_64-qwt-qt6
+-install openmp, gdal, qwt, openssl:
+        pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-gdal mingw-w64-x86_64-qwt-qt6 openssl
 
 note: we are not using this version of qwt but a changed one, but install it anyway for the source code.
 
@@ -89,15 +92,16 @@ the second field ("where to build the binaries") should point to the still empty
 press configure, choose "MingW makefiles" 
 
 -------------- step 4 ---------------
+qtcreator is in the MSYS folder: C:\[your path]\msys64\mingw64\bin\qtcreator.exe
 
 We need a branch of QWT that can display multiple axes for the line graph: https://github.com/cseci/qwt/tree/qwt-multiaxes
-clone this code in an empty repository and load the qwt.pro file in qtcreator and compile it. In the end you should have the compiled libraries of qwt:
+clone this code in an empty repository and load the qwt.pro file in qtcreator and compile it.
+You should have the compiled libraries of qwt somewhere:
 libqwt.dll.a; 
 libqwtd.dll.a; 
 qwt.dll; 
 qwtd.dll;
 
-qtcreator is in the MSYS folder: C:\[your path]\msys64\mingw64\bin\qtcreator.exe
 
 -------------- step 5 ---------------
 
@@ -127,17 +131,14 @@ You can now try to compile for the first time.
 
 
 In order to run lisem you have to copy all necessary dll's into the lisem bin folder:
-- copy ALL dlls from the /msys64/mingw64/bin folder into the lisem bin folder (where lisem.exe is)
-- open a command window in that dfolder
-- set the path to only c:\ with the command 
-path=c:\
-make a subdirectory "platforms" in the lisem bin folder
-copy in there the file "qwindows.dll" from the folder: \msys64\mingw64\share\qt5\plugins\platforms
-
-- open lisem and while it is open and delete all the dlls. The ones that are used by lisem are blocked from deletion
+- copy ALL dlls from  "../msys64/mingw64/bin/*.dll" into the lisem bin directory (where lisem.exe is)
+- make a subdirectory "../lib/ossl-modules" at the same level as the bin directory and copy the file "/msys64/mingw64/lib/ossl-modules/legacy.dll" to that directory
+- make a subdirectory "../bin/platforms" in the bin folder and copy the file "..\msys64\mingw64\share\qt6\plugins\platforms\qwindows.dll" to a that directory
+- make a subdirectory "../bin/tls" in the bin folder and copy the file "..\msys64\mingw64\share\qt6\plugins\tls\qopensslbackend.dll to that directory
+- open a command window in that folder and set the path to only c:\ with the command "path=c:\"
+- open lisem and while it is open got to the command window and and delete all the dlls: "del *.dll". The ones that are used by lisem are blocked from deletion
 
 that should do it
-
 
 
 best of luck!

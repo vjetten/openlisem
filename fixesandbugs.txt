@@ -1,4 +1,10 @@
 ### this file is a list of changes per major commit, for developers only ###
+
+241127 - v7.4.3
+- SWATRE bug fixes:
+  - infiltration did not account for roads and houses! Now included in top node
+  - sign error in code so that wetter soil gave more infiltration!
+
 241118 - v7.4
 - major rewrite of MUSCL 2D flow with 2nd order and Heun averaging (see FullSWOF documentation of Delestre et al.)
 - BUG FIX: small bug fixes in 2D flow

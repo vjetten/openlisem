@@ -1,6 +1,6 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011, 2020  Victor Jetten
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
 **  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
@@ -10,17 +10,18 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-**  GNU General Public License v3 for more details.
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+**  GNU General Public License for more details.
 **
-**  You should have received a copy of the GNU General Public License GPLv3
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  You should have received a copy of the GNU General Public License
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
+
 
 /*!
   \file model.h:
@@ -67,7 +68,7 @@
 #define GRAV_DEM 4.90335
 
 #define Aavg(a,b)  (0.5*(a+b))
-#define Savg(a,b)  qSqrt(a*b)
+#define Savg(a,b)  sqrt(a*b)
 #define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
 #define Mavg(a,b)  std::min(a,b)
 
@@ -483,12 +484,12 @@ public:
         SwitchTwoLayer,
         SwitchThreeLayer,
         //SwitchWaterRepellency,
-        SwitchInterceptionLAI,
+        //SwitchInterceptionLAI,
         SwitchPsiUser,
         SwitchNrLayers,
-        SwitchDumpH,
-        SwitchDumpTheta,
-        SwitchDumpK,
+        //SwitchDumpH,
+        //SwitchDumpTheta,
+        //SwitchDumpK,
         SwitchVanGenuchten,
         SwitchBrooksCorey,
 
@@ -522,6 +523,7 @@ public:
         SwitchChannelKinwaveDt,
         SwitchChannelKinwaveAvg,
         SwitchLinkedList,
+        SwitchPerimeterKW,
         SwitchChannelKinWave,
         SwitchChannelMaxV;
 
@@ -1022,7 +1024,6 @@ public:
     double F_pitValue;
     bool prepareFlood, startFlood;
     int iter_n;
-    int F_SWOFSolution;
     double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     double fullSWOF2openMUSCL(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     void doSWOFLoop(int step, double dt, double dt_max, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
@@ -1172,6 +1173,7 @@ public:
     double HcoNode(double head,const HORIZON *hor);
     double DmcNode(double head,const  HORIZON *hor,bool on_dmch);
     double FindNode(double head,const  HORIZON *hor, int column);
+    double FindValue(double value,const  HORIZON *hor, int colv, int col);
     // <= SWATRE
 
 int showr;// for debugging

@@ -1,8 +1,6 @@
-
-
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011, 2020  Victor Jetten
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
 **  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
@@ -12,14 +10,14 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-**  GNU General Public License v3 for more details.
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+**  GNU General Public License for more details.
 **
-**  You should have received a copy of the GNU General Public License GPLv3
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  You should have received a copy of the GNU General Public License
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
@@ -100,22 +98,7 @@ void TWorld::InfilEffectiveKsat(bool first)
                 Poreeff->Drc = ThetaS1->Drc*(1-GrassFraction->Drc) + PoreGrass->Drc*GrassFraction->Drc;
             }
 
-            if (SwitchHouses) {
-                Ksateff->Drc *= std::max(0.0, 1-HouseCover->Drc);
-             //   Poreeff->Drc *= (1-HouseCover->Drc);
-            }
-
-            //these surfaces are excluded from infiltration so not necessary to adjust Ksat and Pore
-//            // impermeable surfaces
-//            if (SwitchHardsurface) {
-//                Ksateff->Drc *= (1-HardSurface->Drc);
-//             //   Poreeff->Drc *= (1-HardSurface->Drc);
-//            }
-
-            if (SwitchRoadsystem) {
-                Ksateff->Drc *= (1-RoadWidthHSDX->Drc/_dx);
-          //      Poreeff->Drc *= (1-RoadWidthHSDX->Drc/_dx);
-            }
+             Ksateff->Drc *= 1.0-fractionImperm->Drc;
 
             if (Poreeff->Drc <= ThetaR1->Drc)
                 Poreeff->Drc = std::max(ThetaR1->Drc, Poreeff->Drc+0.05);
@@ -140,36 +123,19 @@ void TWorld::InfilEffectiveKsat(bool first)
 
 }
 //---------------------------------------------------------------------------
-/*!
- \brief Main infiltration function, calls infiltration types (SWATRE, Green and Ampt,
-  Smith and Parlange, Ksat subtraction. Calculates effective Ksat based on different
-  surface types (crust, compaction).
-
-  Main infiltration function that calculates\n
-  - Use ksateff which accounts for different surface types: grass strips, compaction, crusting, roads, hard surface
-  - do SWATRE or one of the other methods, SWATRE is a different set of functions
-  - call one of the infiltration functions for the actual infiltration rate
-  - calc infiltration surplus for the kinematic wave
-  - increase of infiltration depth/wetting front, same function for each infiltration model: L1, L2, Fcum
-  - decrease of surface water layer WH and calculate infiltration volume\n
-  */
-
 // this function is not used!
 void TWorld::Infiltration()
 {
     if (!SwitchInfiltration)
         return;
 
-
     //NOTE fact and fpot have a unit of m (not m/s)
     if (InfilMethod == INFIL_SWATRE) {
-        InfilSwatre();
-        /*
-       #pragma omp parallel for num_threads(userCores)
+        //InfilSwatre();
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            cell_InfilSwatre(r, c);
+            cell_InfilSwatre(i_, r, c);
         }}
-        */
     }
     else
     {
@@ -228,7 +194,7 @@ void TWorld::cell_InfilMethods(int r, int c)
                 // sum (weights) / sum (weight/variable)
  //               Ks = Havg(Ksateff->Drc,Ksat2->Drc,SoilDep1,Lw->Drc-SoilDep1);
                 Ks = Lw->Drc/(SoilDep1/Ksateff->Drc+(Lw->Drc-SoilDep1)/Ksat2->Drc);
-                // if wetting front > layer 1 than ksat is determined by smallest ksat1 and ksat2
+                // if wetting front > layer 1 than ksat is determined weighted average (harmonic mean)
                 Psi = Psi2->Drc; //in m
             }
         }
@@ -547,26 +513,35 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
 }
 
 //---------------------------------------------------------------------------
+// NOT USED
 void TWorld::cell_InfilSwatre(long i_, int r, int c)
 {
+    //profile number 0 is impeermeable so no need to do anything
+    double frac = std::min(1.0, RoadWidthHSDX->Drc/_dx + HouseCover->Drc);
+
+    if (ProfileID->Drc <= 0 || frac == 1.0) {
+        fact->Drc = 0;
+        InfilVol->Drc = 0;
+        return;
+    }
+
     if (FloodDomain->Drc == 0)
         tm->Drc = WH->Drc;
     else
         tm->Drc = hmx->Drc;
 
     WHbef->Drc = tm->Drc;
+    tm->Drc *= frac;
 
     SwatreStep(i_, r, c, SwatreSoilModel, tm, TileDrainSoil, thetaTop);
 
     // actual infil is dif between WH before and after
     fact->Drc = std::max(0.0, WHbef->Drc - tm->Drc);
-    InfilVol->Drc = fact->Drc* FlowWidth->Drc * DX->Drc;
 
     if (FloodDomain->Drc == 0)
         WH->Drc = tm->Drc;
     else
         hmx->Drc = tm->Drc;
-
 
     if (CrustFraction->Drc > 0) {
         tm->Drc = WHbef->Drc;
@@ -590,8 +565,7 @@ void TWorld::cell_InfilSwatre(long i_, int r, int c)
         else
             hmx->Drc = wha;
 
-        fact->Drc = (WHbef->Drc - tm->Drc);
-        //fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
+        fact->Drc = (WHbef->Drc - wha);
         thetaTop->Drc = tmb->Drc*CrustFraction->Drc + thetaTop->Drc*(1-CrustFraction->Drc);
     }
 
@@ -618,8 +592,7 @@ void TWorld::cell_InfilSwatre(long i_, int r, int c)
         else
             hmx->Drc = wha;
 
-        fact->Drc = (WHbef->Drc - tm->Drc);
-        //fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
+        fact->Drc = (WHbef->Drc - wha);
         thetaTop->Drc = tmb->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
     }
 
@@ -646,19 +619,30 @@ void TWorld::cell_InfilSwatre(long i_, int r, int c)
         else
             hmx->Drc = wha;
 
-        fact->Drc = (WHbef->Drc - tm->Drc);
-        //fpot->Drc = tma->Drc*GrassFraction->Drc + fpot->Drc*(1-GrassFraction->Drc);
+        fact->Drc = (WHbef->Drc - wha);
         thetaTop->Drc = tmb->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
     }
+
+    InfilVol->Drc = fact->Drc * FlowWidth->Drc * DX->Drc;
+
 }
 
 //---------------------------------------------------------------------------
 /// SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
+/// OBSOLETE we use cell_infilswatre
 void TWorld::InfilSwatre()
 {
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
 
-//#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {        
+        double frac = std::min(1.0, RoadWidthHSDX->Drc/_dx + HouseCover->Drc);
+
+        if (ProfileID->Drc <= 0 || frac == 1.0) {
+            fact->Drc = 0;
+            InfilVol->Drc = 0;
+            continue;
+        }
+
         if (FloodDomain->Drc == 0)
             tm->Drc = WH->Drc;
         else
@@ -667,17 +651,18 @@ void TWorld::InfilSwatre()
         WHbef->Drc = tm->Drc;
 
         SwatreStep(i_, r, c, SwatreSoilModel, tm, TileDrainSoil, thetaTop);
+        // tm = new water level after infiltration
+        // thetatop is not used, meant for pesticides
 
-        // actual infil is dif between WH before and after
         fact->Drc = std::max(0.0, WHbef->Drc - tm->Drc);
-        InfilVol->Drc = fact->Drc* FlowWidth->Drc * DX->Drc;
+        // actual infil is dif between WH before and after
 
         if (FloodDomain->Drc == 0)
             WH->Drc = tm->Drc;
         else
             hmx->Drc = tm->Drc;
 
-
+        //TODO test infil swatre for crusts and compaction
         if (CrustFraction->Drc > 0) {
             tm->Drc = WHbef->Drc;
             tma->Drc = 0;
@@ -691,22 +676,20 @@ void TWorld::InfilSwatre()
                 _wh = WH->Drc;
             else
                 _wh = hmx->Drc;
-            // water level on crusted areas
+            // new water level from regular swatre
 
             double wha = tm->Drc*CrustFraction->Drc + _wh*(1-CrustFraction->Drc);
-            // weighted average
+            // weighed average
             if (FloodDomain->Drc == 0)
                 WH->Drc = wha;
             else
                 hmx->Drc = wha;
 
-            fact->Drc = (WHbef->Drc - tm->Drc);
-            //fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
+            fact->Drc = (WHbef->Drc - wha);
             thetaTop->Drc = tmb->Drc*CrustFraction->Drc + thetaTop->Drc*(1-CrustFraction->Drc);
         }
 
-        if (SwitchInfilCompact)
-        {
+        if (SwitchInfilCompact) {
             tm->Drc = WHbef->Drc;
             tma->Drc = 0;
             tmb->Drc = 0;
@@ -728,13 +711,11 @@ void TWorld::InfilSwatre()
             else
                 hmx->Drc = wha;
 
-            fact->Drc = (WHbef->Drc - tm->Drc);
-            //fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
+            fact->Drc = (WHbef->Drc - wha);
             thetaTop->Drc = tmb->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
         }
 
-        if (SwitchGrassStrip)
-        {
+        if (SwitchGrassStrip) {
             tm->Drc = WHbef->Drc;
             tma->Drc = 0;
             tmb->Drc = 0;
@@ -756,9 +737,13 @@ void TWorld::InfilSwatre()
             else
                 hmx->Drc = wha;
 
-            fact->Drc = (WHbef->Drc - tm->Drc);
-            //fpot->Drc = tma->Drc*GrassFraction->Drc + fpot->Drc*(1-GrassFraction->Drc);
+            fact->Drc = (WHbef->Drc - wha);
             thetaTop->Drc = tmb->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
         }
+
+        InfilVol->Drc = fact->Drc * FlowWidth->Drc * DX->Drc;
+        // calc infilvolume from fact
+
     }}
+
 }

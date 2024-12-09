@@ -1,7 +1,7 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011,2020  Victor Jetten
-**  contact:
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
+**  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License GPLv3 as published by
@@ -10,17 +10,18 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 **  GNU General Public License for more details.
 **
 **  You should have received a copy of the GNU General Public License
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
+
 /*!
   \file swatinp.cpp
   \brief SWATRE: initialize and read profile data
@@ -80,7 +81,7 @@ void TWorld::ReadSwatreInputNew(void)
     swatreProfileDef.clear();
     swatreProfileNr.clear();
 
-    QFile file(SwatreTableName);
+    QFile file(SwatreTableName); // table name has full path
 
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
@@ -98,7 +99,7 @@ void TWorld::ReadSwatreInputNew(void)
 
         file.close();
     } else {
-        Error(QString("SWATRE: Can't open profile definition file %1").arg(SwatreTableName));
+        Error(QString("SWATRE: Can't open profile definition file %1").arg(/*SwatreTableDir +*/SwatreTableName));
         throw 1;
     }
 

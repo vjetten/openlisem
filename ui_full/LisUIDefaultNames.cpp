@@ -1,7 +1,7 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011,2020  Victor Jetten
-**  contact:
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
+**  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License GPLv3 as published by
@@ -10,14 +10,14 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 **  GNU General Public License for more details.
 **
 **  You should have received a copy of the GNU General Public License
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
@@ -370,18 +370,34 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Nr input layers");									 
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Psi user input");
-    namelist[i].value = QString("c:\\");
-    namelist[i++].name = QString("Table Directory");
     namelist[i].value = QString("profile.inp");
-    namelist[i++].name = QString("Table File");
+    namelist[i++].name = QString("Swatre profile file");
+    namelist[i].value = QString("c:\\");
+    namelist[i++].name = QString("Swatre table directory");
+    //namelist[i].value = QString("profile.inp");
+    //namelist[i++].name = QString("Table File");
     //namelist[i].value = QString("0.01");
     //namelist[i++].name = QString("SWATRE internal minimum timestep");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Swatre output");
     namelist[i].value = QString("inithead");
     namelist[i++].name = QString("Matric head files");
     // namelist[i].value = QString("1");
     // namelist[i++].name = QString("Geometric mean Ksat");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include tile drains");
+    namelist[i].value = QString("3");
+    namelist[i++].name = QString("SoilWB nodes 1");
+    namelist[i].value = QString("3");
+    namelist[i++].name = QString("SoilWB nodes 2");
+    namelist[i].value = QString("3");
+    namelist[i++].name = QString("SoilWB nodes 3");
+    namelist[i].value = QString("2");
+    namelist[i++].name = QString("SoilWB dt factor");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Infil Kavg");
+    namelist[i].value = QString("2");
+    namelist[i++].name = QString("Van Genuchten");
 
     //### FLOW
     namelist[i++].name = QString("");
@@ -408,6 +424,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Use 2D Diagonal flow");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood solution");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Flood Heun 2nd order");
 
     //### Channels and GW
     namelist[i++].name = QString("");
@@ -660,6 +678,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Use linked list");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use Perimeter KW");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Use Channel Kinwave dt");
     namelist[i].value = QString("60.0");
     namelist[i++].name = QString("Channel KinWave dt");
@@ -675,19 +695,6 @@ void lisemqt::defaultRunFile()
 //    namelist[i++].name = QString("Channel WF inflow");
 //    namelist[i].value = QString("1");
 //    namelist[i++].name = QString("GW layer change SD");
-    namelist[i++].name = QString("Channel WF inflow");
-    namelist[i].value = QString("3");
-    namelist[i++].name = QString("SoilWB nodes 1");
-    namelist[i].value = QString("3");
-    namelist[i++].name = QString("SoilWB nodes 2");
-    namelist[i].value = QString("3");
-    namelist[i++].name = QString("SoilWB nodes 3");
-    namelist[i].value = QString("30");
-    namelist[i++].name = QString("SoilWB dt factor");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Infil Kavg");
-    namelist[i].value = QString("2");
-    namelist[i++].name = QString("Van Genuchten");												   
 
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Advanced Options");

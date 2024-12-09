@@ -1,23 +1,23 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011, 2020  Victor Jetten
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
 **  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
-**  it under the terms of the GNU General Public License as published by
+**  it under the terms of the GNU General Public License GPLv3 as published by
 **  the Free Software Foundation, either version 3 of the License, or
 **  (at your option) any later version.
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-**  GNU General Public License v3 for more details.
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+**  GNU General Public License for more details.
 **
-**  You should have received a copy of the GNU General Public License GPLv3
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  You should have received a copy of the GNU General Public License
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
@@ -142,6 +142,7 @@ cTMap
 //*RepellencyFraction,         //!< fraction of water repellency of node 1 in Swatre [-]
 //*RepellencyCell,             //!< Cell included in water repellency in Swatre [-]
 *HardSurface,                //!< value 1 if 'hard' surface: no interception, infiltration, detachment [-]
+*fractionImperm,            //!<// 0 is fully permeable, 1 = impermeable [-]
 *runoffTotalCell,
 
 *PlantHeight,                //!< height of vegetation/crops [m]
@@ -451,7 +452,7 @@ cTMap
 *LDDTile,                    //!< LDD network of tile drains, must be connected to outlet
 *TileDrainSoil,              //!< drain volume from layer
 *TileDiameter,                  //!< total width of drains in cell (m)
-//*TileMaxQ,
+*TileArea,                  //!< total width of drains in cell (m)
 *TileWidth,                  //!< total width of drains in cell (m)
 *TileHeight,                 //!< height of drain (m)
 *TileDepth,                  //!< depth of tiles in soil below surface (m)

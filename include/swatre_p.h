@@ -1,6 +1,6 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011, 2020  Victor Jetten
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
 **  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
@@ -10,44 +10,43 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-**  GNU General Public License v3 for more details.
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+**  GNU General Public License for more details.
 **
-**  You should have received a copy of the GNU General Public License GPLv3
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  You should have received a copy of the GNU General Public License
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
 
 
+
 #ifndef SWATRE_P_H
 #define SWATRE_P_H
 
-#include <QtCore> // QVector
+#include <QtCore>
 
 #define MAX_NODES            20
-#define MAX_NODES_P          (MAX_NODES+3)
+//#define MAX_NODES_P          (MAX_NODES+3)
 
 // maximum amount of ponding that is regarded as no ponding (0)
 #define POND_EPS             (1.0E-6)
 // maximum amount of time for which it is not worth doing an iteration
 #define TIME_EPS             (1.0E-6)
 
-#define NrNodes(profile)        (zone->nrNodes)  //profile->zone->nrNodes)
+//#define NrNodes(profile)        (zone->nrNodes)  //profile->zone->nrNodes)
 #define Dz(profile)             (profile->zone->dz)
-#define DistNode(profile)       (profile->zone->disnod)
+#define disnod(profile)       (profile->zone->disnod)
 #define Horizon(profile, node)  (profile->horizon[node])
-// sizeof intermediate arrays is fixed to optimize computation
 
-#define THETA_COL	    0
-#define H_COL           1
-#define K_COL           2
-#define DMCH_COL        3 //not used
-#define DMCC_COL        4
-#define NR_COL          5 //not used
+#define THETA_COL	    0 // moisture content theta (-)
+#define H_COL           1 // suction (-cm)
+#define K_COL           2 // hydraulic conductivity (cm/day)
+#define DMCH_COL        3 // h for differential moisture capacity (cm)
+#define DMCC_COL        4 // theta for differential moisture capacity (-)
 
 //-------------------------------------------------------------
 /// SWATRE structure geometry of profile: node distances etc.
@@ -94,13 +93,14 @@ typedef struct PROFILE {
     QVector <double> KsatCal;
 } PROFILE;
 //---------------------------------------------------------------------------
-typedef double NODE_ARRAY[MAX_NODES_P];
+typedef double NODE_ARRAY[MAX_NODES+3];
 //---------------------------------------------------------------------------
 typedef struct PIXEL_INFO {
     const PROFILE *profile;    /** profile this pixel belongs to */
     QVector <double> h;
     double wh;
     double infil;
+    double impfrac;
     double percolation;
     double theta; // for pesticides?
     double tiledrain;   /** drainage into tiledrin system at a given depth */
@@ -113,7 +113,5 @@ typedef struct SOIL_MODEL {
     double minDt;
 } SOIL_MODEL;
 //---------------------------------------------------------------------------
-
-
 
 #endif // SWATRE_P_H

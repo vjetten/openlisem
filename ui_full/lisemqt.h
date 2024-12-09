@@ -1,7 +1,7 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011,2020  Victor Jetten
-**  contact:
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
+**  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License GPLv3 as published by
@@ -10,17 +10,18 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 **  GNU General Public License for more details.
 **
 **  You should have received a copy of the GNU General Public License
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
+
 
 /*!
  \file lisemqt.h
@@ -35,7 +36,10 @@
 #include <QtWidgets>
 #include <QSystemTrayIcon>
 #include <QTranslator>
+#include <QMessageBox>
+#include <QNetworkAccessManager>
 
+#include <omp.h>
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -65,8 +69,7 @@
 #include "LisUItreemodel.h"
 #include "LisUImapplot.h"
 #include "lismpeg.h"
-
-
+#include "global.h"
 
 // constants to define the place of the main parts in the map tree structure
 #define RAINFALLMAPS 0
@@ -118,9 +121,13 @@ public:
 
     bool darkLISEM;
     bool doBatchmode;
+    bool checkforpatch;
     QString batchRunname;
 
-   // bool WhasStopped;
+    bool isNewVersionAvailable(QString &GitHubVersion);
+    QString getLatestVersionFromGitHub();
+    void downloadPatch(QString latestVersion);
+    void CheckVersion();
 
     void initMapTree();
     void DefaultMapnames();
@@ -140,17 +147,11 @@ public:
     void ParseInputData();
     void updateModelData();
     void defaultRunFile();
-    QString CheckDir(QString p, bool makeit = false);
+    QString CheckDir(QString p, bool makeit);
     void RunAllChecks();
     void savefile(QString name);
     void SetConnections();
     QStringList runfilelist;
-
-
-//    bool doNewPlot;
-//    void newPlot(bool refresh);
-//    void setupNewPlot();
-//    void initNewPlot();
 
     QList <QPointF> dataRain;
     QList <QPointF> dataQ;
@@ -372,7 +373,7 @@ public slots:
     void shootMultipleScreens();
     void shootMScreen();
     void convertScreenshotsToVideo();
-    void aboutQT();
+    //void aboutQT();
     void aboutInfo();
     void resetAll();
     void setOutputScreen();
@@ -385,7 +386,6 @@ public slots:
     QString findValidDir(QString path, bool up);
     //void on_toolButton_MapDir_clicked();
     void setMapDir();
-    void setWorkDir();
     //void on_toolButton_ResultDir_clicked();
     void setResultDir();
 
@@ -414,59 +414,36 @@ public slots:
     void on_toolButton_helpAdvanced_clicked();
 
     void on_toolButton_RainfallName_clicked();
+    void on_toolButton_RainfallShow_clicked();
    // void on_toolButton_DichargeInName_clicked();
 
     //void on_toolButton_SnowmeltName_clicked();
-    void on_toolButton_RainfallShow_clicked();
 //    void on_toolButton_SnowmeltShow_clicked();
 //    void on_toolButton_ShowRunfile_clicked();
     void on_toolButton_satImageName_clicked();
-    //void on_toolButton_fileOpen_clicked();
-   // void on_toolButton_SwatreTableDir_clicked();
-    void on_toolButton_SwatreTableFile_clicked();
+    void on_toolButton_SwatreTableDir_clicked();
+    //void on_toolButton_SwatreTableFile_clicked();
     void on_toolButton_SwatreTableShow_clicked();
     void on_E_floodMinHeight_valueChanged(double);
 
-    void on_DisplayComboBox_currentIndexChanged(int);
-    void on_DisplayComboBox2_currentIndexChanged(int);
-
-   // void doCheckSnowmelt(bool);
-
-    void doCheckPesticides(bool check);
-
-    void on_E_InfiltrationMethod_currentIndexChanged(int inr);
-    void on_E_runFileList_currentIndexChanged(int);
-
-    void on_checkFlowBarriers_clicked();
-    void on_checkChannelInfil_clicked();
- //  void on_checkChannelBaseflow_clicked();
-    void on_checkDoErosion_clicked();
-    void on_checkIncludeChannel_clicked();
-    void on_checkIncludeTiledrains_clicked();
     void on_checkBoxComboMaps_stateChanged(int);
     void on_checkBoxComboMaps2_stateChanged(int);
-    void on_nrUserCores_valueChanged(int d);
+    void on_DisplayComboBox_currentIndexChanged(int);
+    void on_DisplayComboBox2_currentIndexChanged(int);
     void on_ComboMinSpinBox_valueChanged(double);
     void on_ComboMaxSpinBox_valueChanged(double);
     void on_ComboMinSpinBox2_valueChanged(double);
     void on_ComboMaxSpinBox2_valueChanged(double);
+    void setErosionMapOutput(bool doit);
+
+    //void doCheckPesticides(bool check);
+
+    void on_E_runFileList_currentIndexChanged(int);
+
+    void on_nrUserCores_valueChanged(int d);
     void onImageToggled(bool b);
 
-    void setErosionMapOutput(bool doit);
-    //void on_spinBoxPointtoShow_valueChanged(int);
     void on_tabWidget_out_currentChanged(int);
-
-    //houses
-    void on_checkHouses_clicked();
-    void on_checkInfilCompact_clicked();
-    void on_checkInfilCrust_clicked();
-    void on_checkInfilGrass_clicked();
-    //void on_checkInfil2layer_clicked();
-    void on_checkSedtrap_clicked();
- //   void on_checkMaterialDepth_clicked();
-//    void on_E_BulkDens2_editingFinished();
-//    void on_E_BulkDens_editingFinished();
-  //  void on_checkSnowmelt_clicked();
     void on_checkExpandActive_clicked();
     void on_E_MapDir_returnPressed();
     void on_E_ResultDir_returnPressed();
@@ -586,7 +563,15 @@ private slots:
 
     void on_spinSoilLayers_valueChanged(int arg1);
 
+    void on_toolButton_SwatreTableName_clicked();
+
+    //void loadImage();
+    void on_E_InfiltrationMethod_currentIndexChanged(int index);
+
+    void on_toolButton_clicked();
+
 private:
+    QNetworkAccessManager *manager;
 
     QSystemTrayIcon *trayIcon;
     //toolbar actions

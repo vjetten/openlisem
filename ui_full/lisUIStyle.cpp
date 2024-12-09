@@ -1,7 +1,7 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011,2022  Victor Jetten
-**  contact:
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
+**  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License GPLv3 as published by
@@ -10,27 +10,27 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 **  GNU General Public License for more details.
 **
 **  You should have received a copy of the GNU General Public License
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
-
 #include "lisemqt.h"
 #include "global.h"
 
 //---------------------------------------------------------------------------
 void lisemqt::SetStyleUISize()
 {
+    // trying to deal with very high res monitors
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect screenGeometry = screen->geometry();
-    int _H = screenGeometry.height();// * screen->devicePixelRatio();
+    int _H = screenGeometry.height();
     int disp = 3;
     // for (int i = 0; i < screens.size(); ++i) {
     //     QScreen *screen = screens.at(i);
@@ -46,7 +46,7 @@ void lisemqt::SetStyleUISize()
     if(_H < 1280) disp = 1;
     if(_H < 1080) disp = 0;
     if(_H < 800) disp = -1;
-    qDebug() << _H << disp;
+    //qDebug() << _H << disp;
 
     // do a bit of size tweaking for large displays
     QSize iSize = QSize(16,16);
@@ -104,24 +104,23 @@ void lisemqt::SetStyleUISize()
     toolBar_2->setMovable(false);
     toolBar->setMovable(false);
 
-    genfontsize = screen->devicePixelRatio()*(disp+8);
-    //qDebug() << genfontsize << screen->devicePixelRatio();
-    //qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
+    //genfontsize = screen->devicePixelRatio()*(disp+8);
+    qDebug() << genfontsize << screen->devicePixelRatio();
     setfontSize();
 }
 
 // labels in output tab
 void lisemqt::setOutputTabStyle(QString bc, QString fc)
 {
-        label_dx->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
-      label_area->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
-      label_time->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
+    label_dx->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
+    label_area->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
+    label_time->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_endtime->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_raintot->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_ETatot->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_watervoltot->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_stormdraintot->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
-      label_qtot->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
+    label_qtot->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_infiltot->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_surfstor->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_interctot->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
@@ -134,18 +133,17 @@ void lisemqt::setOutputTabStyle(QString bc, QString fc)
     label_dischargesub->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_qpeaksub->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_soillosssub->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
-     label_Qssub->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
+    label_Qssub->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_splashdet->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_flowdet->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_sedvol->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
-       label_dep->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
-     label_detch->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
-     label_depch->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
+    label_dep->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
+    label_detch->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
+    label_depch->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_sedvolch->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_soilloss->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
     label_soillosskgha->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
-       label_SDR->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
-
+    label_SDR->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }").arg(bc).arg(fc));
 }
 //---------------------------------------------------------------------------
 
@@ -223,11 +221,14 @@ void lisemqt::lightStyleUI()
 }
 void lisemqt::darkStyleUI()
 {
+    QString sc = "#dddd55";
     QString sc1 = "#42db00";
     QString sc2 = "#888888";
-    QString sc = "#dddd55";
-    QString bc = "#a28000";
-    QString fc = "#fcfcfc";
+    QString fc = "#f0f0f0";
+    QString fc3 = "#e57537";
+    QString bc = "#464646";
+    QString bc2 = "#2E2F30";
+    QString bc3 = "#1D545C";
 
     tabWidgetOptions->setTabIcon(0,QIcon(":/d_settings2.png"));
     tabWidgetOptions->setTabIcon(1,QIcon(":/d_rain.png"));
@@ -246,50 +247,45 @@ void lisemqt::darkStyleUI()
 
  //   qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
 
-    qApp->setStyleSheet("* { background-color: #2E2F30; color: #D6CF9A;}"
+    qApp->setStyleSheet(QString("* { background-color: %5; color: #D6CF9A;}"
                         "*:disabled { color: #888888; }"
 
-                        "QTreeView, QAbstractItemView *{ background: #2E2F30; background-color: #2E2F30;"
-                            "selection-background-color: #2266aa; selection-color: #f0f0f0;" //#2266aa
-                            "alternate-background-color: #363636;}"
+                        "QTreeView, QAbstractItemView *{ background: %5; background-color: %5;"
+                        "selection-background-color: #2266aa; selection-color: %1;"
+                        "alternate-background-color: #363636;}"
 
-                        //"QComboBox {selection-background-color: #1D545C; selection-color: #f0f0f0;}"
-                        "QComboBox:selected {background-color: #1D545C; color: #f0f0f0;}"
-                        //"QComboBox, QAbstractItemView  *{background-color: #464646; color: #f0f0f0;}"
-                        "QComboBox QAbstractItemView {border: 1px solid #1D545C;selection-background-color: #1D545C;"
-                                "background-color: #464646; color: #f0f0f0;}"
-                        "QComboBox, QLineEdit *{background-color: #464646; color: #f0f0f0}"
-                        "QComboBox, QLineEdit:selected *{border: 1px solid #1D545C;}"
+                        "QComboBox:selected {background-color: %2; color: %1;}"
+                        "QComboBox QAbstractItemView {border: 1px solid %2;selection-background-color: %2;"
+                        "background-color: %4; color: %1;}"
+                        "QComboBox, QLineEdit *{background-color: %4; color: %1}"
+                        "QComboBox, QLineEdit:selected *{border: 1px solid %2;}"
 
-                        "QLineEdit {background-color: #464646; color: #f0f0f0;}"
-                        //"QLineEdit:selected *{border: 1px solid #1D545C;}"
+                        "QLineEdit {background-color: %4; color: %1;}"
 
                         "QGroupBox::title{color: #dddd55;}"
                         "QGroupBox::title:disabled{color: #888888;}"
-                        "QGroupBox#groupBoxOutput::title{color: #e57537;}"
-                        "QGroupBox#groupBoxInput::title{color: #e57537;}"
-                      //  "QGroupBox#groupRainfall::title{color: #e57537;}"
-                        "QGroupBox#groupInfiltration::title{color: #e57537;}"
-                        "QGroupBox#groupI/nterception::title{color: #e57537;}"
+                        "QGroupBox#groupBoxOutput::title{color: %3;}"
+                        "QGroupBox#groupBoxInput::title{color: %3;}"
+                        "QGroupBox#groupInfiltration::title{color: %3;}"
+                        "QGroupBox#groupI/nterception::title{color: %3;}"
 
+                        "QCheckBox::indicator:unchecked{background-color: #606060;border: 1px solid %2; }"
 
-                        "QCheckBox::indicator:unchecked{background-color: #606060;border: 1px solid #1D545C; }"
+                        "QToolBar {background: %4}"
+                        "QToolBar#toolBar QToolButton {background : %4;}"
+                        "QToolBar#toolBar_2 QToolButton {background : %4;}"
+                        "QToolBar#toolBar QToolButton:checked {background : %4;}"
+                        "QToolBar#toolBar_2 QToolButton:checked {background : %4;}"
 
-                        "QToolBar {background: #464646}"
-                        "QToolBar#toolBar QToolButton {background : #464646;}"
-                        "QToolBar#toolBar_2 QToolButton {background : #464646;}"
-                        "QToolBar#toolBar QToolButton:checked {background : #565656;}"
-                        "QToolBar#toolBar_2 QToolButton:checked {background : #565656;}"
-
-                        "QTabWidget#tabWidgetOptions QTabBar::tab:selected {background-color: #1D545C; "
-                                    "height:32px; width: 42px;margin: 0px; padding-top: -15px; padding-bottom: 15px}"
-                        "QTabWidget#tabWidget QTabBar::tab:selected {background-color: #1D545C; color #e57537;}"
+                        "QTabWidget#tabWidgetOptions QTabBar::tab:selected {background-color: %2; "
+                        "height:32px; width: 42px;margin: 0px; padding-top: -15px; padding-bottom: 15px}"
+                        "QTabWidget#tabWidget QTabBar::tab:selected {background-color: %2; color %3;}").arg(fc).arg(bc3).arg(fc3).arg(bc).arg(bc2)
                         );
 
     HPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
     MPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
 
-    checkAdvancedOptions->setStyleSheet("QCheckBox {color: #e57537;}");
+    checkAdvancedOptions->setStyleSheet(QString("QCheckBox {color: %1;}").arg(fc3));
      label_49->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));
      label_55->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));
      label_59->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));
@@ -300,7 +296,7 @@ void lisemqt::darkStyleUI()
      label_10->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));
     label_128->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));
 
-    setOutputTabStyle("#a28000", "#f0f0f0");
+    setOutputTabStyle(bc, fc);
 
 }
 
@@ -308,82 +304,95 @@ void lisemqt::darkStyleUI()
 // general sgtyle things, done once
 void lisemqt::SetStyleUI()
 {
+    trayIcon = new QSystemTrayIcon(this);
+    trayIcon->setIcon(QIcon(":/openLisemN.ico"));
+    trayIcon->show();
 
-   trayIcon = new QSystemTrayIcon(this);
-   trayIcon->setIcon(QIcon(":/openLisemN.ico"));
-   trayIcon->show();
+    helpbox = new QDialog();
+    helpbox->resize(qApp->primaryScreen()->size().height()*2/3,qApp->primaryScreen()->size().height()*2/3);
+    helpbox->setWindowTitle("option help");
+    helpLayout = new QHBoxLayout(helpbox);
+    helptxt = new QTextEdit();
+    helpLayout->addWidget(helptxt);
 
-   tabWidgetOptions->tabBar()->setExpanding(true);
+    Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
+    // put the progress bar into the statusbar
 
-   SetStyleUISize();
+    tabWidgetOptions->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    tabWidgetOptions->setCurrentIndex(0);
+    tabWidget_OutputMaps->setCurrentIndex(0);
 
-   // interface elements that are not visible for now
-   tabWidgetOptions->removeTab(10);
+    tabWidgetOptions->tabBar()->setExpanding(true);
 
-   int w = 80, h = 15;
-   label_dx->setMinimumSize(w,h);
-   label_area->setMinimumSize(w,h);
-   label_time->setMinimumSize(w,h);
-   label_endtime->setMinimumSize(w,h);
-   label_raintot->setMinimumSize(w,h);
-   label_ETatot->setMinimumSize(w,h);
-   label_watervoltot->setMinimumSize(w,h);
-   label_stormdraintot->setMinimumSize(w,h);
-   label_qtot->setMinimumSize(w,h);
-   label_infiltot->setMinimumSize(w,h);
-   label_surfstor->setMinimumSize(w,h);
-   label_interctot->setMinimumSize(w,h);
-   //label_qtotm3->setMinimumSize(w,h);
-   label_qpeaktime->setMinimumSize(w,h);
-   label_ppeaktime->setMinimumSize(w,h);
-   label_QPfrac->setMinimumSize(w,h);
-   //label_discharge->setMinimumSize(w,h);
-   label_floodVolmm->setMinimumSize(w,h);
-   label_watervolchannel->setMinimumSize(w,h);
-   //   label_litterstore->setMinimumSize(w,h);
-   //label_baseflowtot->setMinimumSize(w,h);
+    SetStyleUISize();
 
-   label_qtotm3sub->setMinimumSize(w,h);
-   label_dischargesub->setMinimumSize(w,h);
-   label_qpeaksub->setMinimumSize(w,h);
-   label_soillosssub->setMinimumSize(w,h);
-   label_Qssub->setMinimumSize(w,h);
+    // interface elements that are not visible for now
+    tabWidgetOptions->removeTab(10);
 
-   label_splashdet->setMinimumSize(w,h);
-   label_flowdet->setMinimumSize(w,h);
-   label_sedvol->setMinimumSize(w,h);
-   label_dep->setMinimumSize(w,h);
-   label_detch->setMinimumSize(w,h);
-   label_depch->setMinimumSize(w,h);
-   label_sedvolch->setMinimumSize(w,h);
-   label_soilloss->setMinimumSize(w,h);
-   label_soillosskgha->setMinimumSize(w,h);
-   label_SDR->setMinimumSize(w,h);
+    int w = 80, h = 15;
+    label_dx->setMinimumSize(w,h);
+    label_area->setMinimumSize(w,h);
+    label_time->setMinimumSize(w,h);
+    label_endtime->setMinimumSize(w,h);
+    label_raintot->setMinimumSize(w,h);
+    label_ETatot->setMinimumSize(w,h);
+    label_watervoltot->setMinimumSize(w,h);
+    label_stormdraintot->setMinimumSize(w,h);
+    label_qtot->setMinimumSize(w,h);
+    label_infiltot->setMinimumSize(w,h);
+    label_surfstor->setMinimumSize(w,h);
+    label_interctot->setMinimumSize(w,h);
+    //label_qtotm3->setMinimumSize(w,h);
+    label_qpeaktime->setMinimumSize(w,h);
+    label_ppeaktime->setMinimumSize(w,h);
+    label_QPfrac->setMinimumSize(w,h);
+    //label_discharge->setMinimumSize(w,h);
+    label_floodVolmm->setMinimumSize(w,h);
+    label_watervolchannel->setMinimumSize(w,h);
+    //   label_litterstore->setMinimumSize(w,h);
+    //label_baseflowtot->setMinimumSize(w,h);
 
-   label_MBs->setMinimumSize(w,h);
-   label_MB->setMinimumSize(w,h);
+    label_qtotm3sub->setMinimumSize(w,h);
+    label_dischargesub->setMinimumSize(w,h);
+    label_qpeaksub->setMinimumSize(w,h);
+    label_soillosssub->setMinimumSize(w,h);
+    label_Qssub->setMinimumSize(w,h);
 
-   //Grouped Buttons become mututally exclusive
-   GroupMapDisplay.addButton(checkBoxComboMaps, 1);
-   GroupMapDisplay.addButton(checkBoxComboMaps2, 2);
+    label_splashdet->setMinimumSize(w,h);
+    label_flowdet->setMinimumSize(w,h);
+    label_sedvol->setMinimumSize(w,h);
+    label_dep->setMinimumSize(w,h);
+    label_detch->setMinimumSize(w,h);
+    label_depch->setMinimumSize(w,h);
+    label_sedvolch->setMinimumSize(w,h);
+    label_soilloss->setMinimumSize(w,h);
+    label_soillosskgha->setMinimumSize(w,h);
+    label_SDR->setMinimumSize(w,h);
 
-   //if (checkOverlandFlow2Ddyn->isChecked()) {
-   if (E_OFWaveType->currentIndex() == 2) {
-       label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
-       label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
+    label_MBs->setMinimumSize(w,h);
+    label_MB->setMinimumSize(w,h);
 
-   } else {
-       label_107->setText("Flood mm");
-       label_40->setText("Runoff mm");
-   }
-   bool yes = E_OFWaveType->currentIndex() > 0; // !checkOverlandFlow1D->isChecked();
-   label_floodVolmm->setEnabled(yes);
-   label_107->setEnabled(yes);
+    //Grouped Buttons become mututally exclusive
+    GroupMapDisplay.addButton(checkBoxComboMaps, 1);
+    GroupMapDisplay.addButton(checkBoxComboMaps2, 2);
 
-   if (darkLISEM)
-       darkStyleUI();
-   else
-       lightStyleUI();
+    //if (checkOverlandFlow2Ddyn->isChecked()) {
+    if (E_OFWaveType->currentIndex() == 2) {
+        label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
+        label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
+
+    } else {
+        label_107->setText("Flood mm");
+        label_40->setText("Runoff mm");
+    }
+    bool yes = E_OFWaveType->currentIndex() > 0; // !checkOverlandFlow1D->isChecked();
+    label_floodVolmm->setEnabled(yes);
+    label_107->setEnabled(yes);
+
+    if (darkLISEM)
+        darkStyleUI();
+    else
+        lightStyleUI();
 }
 //---------------------------------------------------------------
 void lisemqt::setBWUI()
