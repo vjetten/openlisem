@@ -94,6 +94,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                          ChannelSSSed->Drc -= sed;
                          SSFlood->Drc += sed;
                      }
+                     /** @todo pesticide */
                  }
              }
              else   // flow to channel
@@ -111,6 +112,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                          ChannelSSSed->Drc += sed;
                          SSFlood->Drc -= sed;
                      }
+                     /** @todo pesticide */
                  }
              }
 
@@ -148,6 +150,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                              ChannelSSSed->Drc += sed;
                          }
                      }
+                     /** @todo pesticide */
 
                  }
                  else
@@ -273,6 +276,7 @@ void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
                             ChannelSSSed->Drc += sed;
                             SSFlood->Drc -= sed;
                         }
+                        /** @todo pesticide */
                     }
                 }
 
@@ -323,6 +327,7 @@ void TWorld::ToFlood()
                 SWOFSedimentSetConcentration(r,c,hmx);
                // Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
             }
+            /** @todo pesticide */
         }
     }}
 }
@@ -401,6 +406,7 @@ void TWorld::ChannelFlood(void)
             RiverSedimentMaxC(r, c);
             // all concentrations, possible ChannelDep when surplus
         }
+        /** @todo pesticide */
     }}
 
     double dtflood = 0;
@@ -466,6 +472,7 @@ void TWorld::ChannelFlood(void)
                 Qsn->Drc += Conc->Drc*Qflood->Drc;
             }
         }
+        /** @todo pesticide */
      }}
 
     FloodMaxandTiming();

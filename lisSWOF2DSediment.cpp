@@ -72,8 +72,9 @@ void TWorld::SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v)
     //sediment detachment or deposition
     SWOFSedimentDetNew(dt, h,u,v);
 
-    // susponded matter
+    // suspended matter
     SWOFSedimentFlowInterpolation(dt, h,u,v, SSFlood, SSCFlood);
+    /** @todo add pesticides */
     // kan ook met pesticden dissolved, deel;tjes in water SSPest, SSCPest, kg + kg/m3
     /* if SwitchPest
      *  SWOFSedimentFlowInterpolation(dt, h,u,v, SSPest, SSCPest);

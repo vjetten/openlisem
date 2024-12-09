@@ -301,6 +301,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             if (SwitchErosion) {
                 SWOFSediment(dt_req_min, h,u,v);
             }
+            /** @todo pesticide */
 
             if (Switch2DDiagonalFlow) {
                 SWOFDiagonalFlowNew(dt_req_min, h, u, v);

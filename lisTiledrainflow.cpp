@@ -36,7 +36,7 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
-//TODO convert flow to linked list
+/** @todo convert flow to linked list */
 
 //---------------------------------------------------------------------------
 //fraction of water and sediment flowing from the surface to the tiledrain system

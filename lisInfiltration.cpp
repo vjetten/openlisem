@@ -43,7 +43,7 @@ functions: \n
 // Done outside timeloop, move inside when crusting is made dynamic!
 void TWorld::InfilEffectiveKsat(bool first)
 {
-    // todo, move to datainit!
+    /** @todo move to datainit! */
     if (first) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {

@@ -148,7 +148,7 @@ double TWorld::MassPestInitial(void)
                       * zs->Drc * rho;
     }}
     pmtot_i = mapTotal(*PMmw) + mapTotal(*PMms) + mapTotal(*PMsoil);
-    // add initial channel mass !!!!!!
+    /** @todo add initial channel mass */
     return(pmtot_i);
 }
 

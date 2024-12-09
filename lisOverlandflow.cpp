@@ -73,7 +73,7 @@ void TWorld::OverlandFlow(void)
 
 
         ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
-        OverlandFlow1D();   // kinematic wave of water and sediment
+        OverlandFlow1D();   // kinematic wave of water and sediment and pesticides
 
         if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
             ChannelFlood();
@@ -144,7 +144,7 @@ void TWorld::ToChannel()
                 RiverSedimentMaxC(r,c);
             }
 
-
+/** @todo check this pesticide implementation */
             if (SwitchPest) {
                 double dpestw = fractiontochannel*PMrw->Drc;
                 ChanPMrw->Drc += dpestw;
@@ -249,11 +249,12 @@ void TWorld::updateWHandHmx(void)
 
             Qsn->Drc = Conc->Drc*Qn->Drc;
         }
+        /** @todo pesticide */
 
     }}
 }
 
-
+//------------------------------------------------------------------------------------
 /**
  * @fn void TWorld::OverlandFlow2Ddyn()
  * @brief Does 2D flow, calling SWOF functions, WHrunoff
@@ -288,6 +289,7 @@ void TWorld::OverlandFlow2Ddyn(void)
                 RiverSedimentMaxC(r, c);
                 // all concentrations, possible ChannelDep when surplus
             }
+            /** @todo pesticide */
         }}
     }
 

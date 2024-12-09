@@ -86,12 +86,12 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
             eout << "runtime\n";
             efout.flush();
             efout.close();
+            /** @todo add chpest options */
 
         }
     }
 
-
- //   if (doError) {
+    //fill file with values
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::Append | QIODevice::Text);
         QTextStream eout(&efout);
@@ -110,8 +110,8 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
             }
             efout.flush();
             efout.close();
+            /** @todo add chpest options */
         }
-   //   }
 }
 
 //---------------------------------------------------------------------------
@@ -287,7 +287,7 @@ void TWorld::DoModel()
         {            
             if (runstep > 0 && runstep % printinterval == 0)
                 printstep++;
-            //TODO this does nothing????
+            /** @todo this does nothing? */
             runstep++;
 
             if(stopRequested) {
@@ -311,7 +311,7 @@ void TWorld::DoModel()
             HydrologyProcesses();  // hydrological processes in one loop, incl splash and pesticides
 
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
-
+//MC - checked for todo pesticide untill here
             // these are all non-threaded
             ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
 
@@ -439,7 +439,7 @@ void TWorld::HydrologyProcesses()
 //            hmxInit->Drc += RainNet->Drc;
 
         if (FloodDomain->Drc > 0) {
-            hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc; // only used in kin wave pluf flood from channel, hmx is flood water
+            hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc; // only used in kin wave plus flood from channel, hmx is flood water
         } else {
             WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;  // used in 2D flow and kin wave
         }
@@ -447,7 +447,7 @@ void TWorld::HydrologyProcesses()
         if (SwitchWaveUser) {
             WHboundRain->Drc += RainNet->Drc;
             if (WHboundarea->Drc > 0) {
-                // WHbound is the forced water level in area with value '1', ples cum rainfall
+                // WHbound is the forced water level in area with value '1', plus cum rainfall
                 WH->Drc = WHbound->Drc + WHboundRain->Drc;
             }
         }
