@@ -28,6 +28,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QSslSocket>
+#include <QSysInfo>
 
 
 // NOTE: on windows for a working version, openssl must be installed in msys. Then the file
@@ -164,7 +165,7 @@ QString lisemqt::getLatestVersionFromGitHub()
 {
     QEventLoop loop;
     manager = new QNetworkAccessManager();
-    QNetworkReply *reply = manager->get(QNetworkRequest(QUrl("https://raw.githubusercontent.com/vjetten/openlisem/main_C/include/version.h")));
+    QNetworkReply *reply = manager->get(QNetworkRequest(QUrl("https://raw.githubusercontent.com/vjetten/openlisem/main_C/ReleaseVersion.txt")));
     QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
 
@@ -172,7 +173,7 @@ QString lisemqt::getLatestVersionFromGitHub()
     if (reply->error() == QNetworkReply::NoError) {
         QByteArray response = reply->readAll();
         QString content(response);
-        QRegularExpression re(R"#(#define VERSIONNR "([^"]+)")#");
+        QRegularExpression re(R"#(VERSIONNR "([^"]+)")#");
         QRegularExpressionMatch match = re.match(content);
         if (match.hasMatch()) {
             latestVersion = match.captured(1);
@@ -193,7 +194,12 @@ void lisemqt::CheckVersion()
 
     if (!latestVersion.isEmpty() && isNewVersionAvailable(latestVersion)) {
 
+#ifdef Q_OS_WIN
         downloadPatch(latestVersion);
+#elif defined(Q_OS_LINUX)
+        QMessageBox::information(nullptr, "Update Available", "A new version is available. "
+                                                              "Please download it manually from the GitHub repository.");
+#endif
 
     } else {
         if (latestVersion.isEmpty()) {
@@ -206,6 +212,7 @@ void lisemqt::CheckVersion()
         }
     }
 }
+
 
 
 

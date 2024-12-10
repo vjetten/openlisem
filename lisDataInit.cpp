@@ -567,7 +567,7 @@ void TWorld::InitSoilInput(void)
     if(InfilMethod != INFIL_SWATRE)
     {
         nrSoilLayers = getvalueint("Nr input layers");
-        SwitchPsiUser = false;
+        //SwitchPsiUser = false; // MC - moved to the section with defaults
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
@@ -598,6 +598,8 @@ void TWorld::InitSoilInput(void)
             //rawls et al., 1982
 
             double ks = log(std::min(1000.0,std::max(0.5,Ksat1->Drc))); //NOTE ln = log, log = log10
+            // see the excel file with the regression equations in auxfiles
+            // the regression fit has cm as output unit.
             lambda1->Drc = 0.0849*ks+0.159;
             lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
 
@@ -613,8 +615,8 @@ void TWorld::InitSoilInput(void)
 //report(*vgn1,"vn.map");
         if (SwitchPsiUser) {
             Psi1 = ReadMap(LDD,getvaluename("psi1"));
-            //calcValue(*Psi1, psiCalibration, MUL); //VJ 110712 calibration of psi
-            calcValue(*Psi1, 0.01, MUL);
+            calcValue(*Psi1, psiCalibration, MUL); //calibration of user input psi
+            calcValue(*Psi1, 0.01, MUL); //cm to m
         } else {
             Psi1 = NewMap(0);
             FOR_ROW_COL_MV_L {
@@ -623,6 +625,7 @@ void TWorld::InitSoilInput(void)
                 //double psiae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
                 Psi1->Drc = std::max(Psi1->Drc, psi1ae->Drc);
             }}
+        // MC - note that this regression can cause very high psi values. In Rawls et al 1983 large ranges of possible values are reported!
         }
         calcValue(*Ksat1, ksatCalibration, MUL);
             // apply calibration after all empirical relations
@@ -2073,7 +2076,7 @@ void TWorld::IntializeOptions(void)
     SwitchEndRun = false;
 
     SwitchAdvancedOptions = false;
-
+    SwitchPsiUser = false;
     SwitchRainfall = true;
     SwitchSnowmelt = false;
     SwitchRoadsystem = false;

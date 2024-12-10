@@ -29,6 +29,7 @@
   Auhtors maintaining code: \n
  - VJ = Victor Jetten, Dept of Earth Systems Analysis, ITC, Twente University, v.g.jetten@utwente.nl\n
  - BB = Bastian van den Bout, Dept of Earth Systems Analysis, ITC, Twente University, b.vandenbout@utwente.nl\n
+ - MC = Meindert Commelin, Soil Physics and Land Management group, Wageningen University, meindert.commelin@wur.nl\n
  - XX = <name, affiliation, email>\n
  */
 

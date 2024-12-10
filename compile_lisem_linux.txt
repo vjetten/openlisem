@@ -16,7 +16,7 @@ The following steps are needed to compile openLISEM on ubuntu (24.04 LTS).
 Install all the software:
 
 # C++, compilers and python etc
-sudo apt install cmake cmake-gui gcc g++ git libboost-all-dev libncurses5-dev libpython3-dev libqwt-qt6-dev libxerces-c-dev libxml2 libxml2-utils libxslt1-dev python3-numpy qt6-base-dev python3-docopt
+sudo apt install cmake cmake-gui gcc g++ git libboost-all-dev libncurses5-dev libpython3-dev libqwt-qt6-dev libxerces-c-dev libxml2 libxml2-utils libxslt1-dev python3-numpy qt6-base-dev python3-docopt openssl
 
 # opengl:
 sudo apt install libglu1-mesa-dev freeglut3-dev mesa-common-dev
