@@ -342,6 +342,7 @@ void TWorld::PesticideFlow1D(void) {
 * @fn double TWorld::KinematicPestDissolved(double perc, double soildep,
 *               double lw, double zm, double dx, double swdx, double pcmw)
 * @brief explicit kinematic wave for dissolved pesticides
+*
 */
 
 void TWorld::KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
