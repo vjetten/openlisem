@@ -1222,6 +1222,9 @@ int showc;
 protected:
     void run();
 
+    //print to console
+    void printProgressBar(int percentage);
+
     // talk to the interface
     QElapsedTimer time_ms;
     double startTime;

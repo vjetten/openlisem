@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
             W->waitRequested = false;
             W->noInterface = noInterface;
             W->start();
-            qDebug() << "\nrunning OpenLISEM with:" << runFileName;
+            qDebug() << "\nRunning OpenLISEM with:" << runFileName;
             return app.exec();
         } else {
             printf("syntax:\nLisem [-ni] -r runfile \n"

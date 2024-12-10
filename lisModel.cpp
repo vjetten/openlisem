@@ -33,6 +33,9 @@
 */
 
 #include <QtGui>
+#include <iostream>
+#include <sys/ioctl.h>
+#include <unistd.h>
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
@@ -186,7 +189,6 @@ void TWorld::DoModel()
         DEBUG("Intialize Database");
         IntializeData();
 
-        // MC - no_ui probalbly this can be skipped for noInterface??
         setupDisplayMaps();
         // reset all display output maps for new job
         // must be done after Initialize Data because then we know how large the map is
@@ -339,11 +341,10 @@ void TWorld::DoModel()
             // show progress in console without GUI
             if (op.doBatchmode) {
                 int x;
-                x = std::round((op.t / op.maxtime) * 100) ;
-                printf("\rprogress: %d %%                     ", x);
-                //fflush(stdout);
+                x = std::round((op.t / op.maxtime) * 100);
+                x = std::max(std::min(100, x), 0);
+                printProgressBar(x);
             }
-             // MC - maybe not the most sophisticated solution but noInterface works again
         }
 
         if (SwitchEndRun)
@@ -529,5 +530,23 @@ void TWorld::HydrologyProcesses()
     }
 }
 //---------------------------------------------------------------------------
+/** @fn void TWorld::printProgressBar(int percentage)
+ * @brief Print a progress bar in the console
+ * @param percentage: The percentage of the progress bar
+ */
+void TWorld::printProgressBar(int percentage) {
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    int barWidth = w.ws_col - 25; // Adjust for the percentage display and brackets
+    if (barWidth < 25) barWidth = 25; // Minimum bar width
 
-
+    std::cout << "Progress: [";
+    int pos = barWidth * percentage / 100;
+    for (int i = 0; i < barWidth; ++i) {
+        if (i < pos) std::cout << "=";
+        else if (i == pos) std::cout << ">";
+        else std::cout << " ";
+    }
+    std::cout << "] " << percentage << "% \r";
+    std::cout.flush();
+}
