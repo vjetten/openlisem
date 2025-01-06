@@ -23,21 +23,17 @@
 *************************************************************************/
 /*!
   \file lookup.cpp
-  \brief SWATRE: computes Theta from head, K from head or Diff Moist Cap from head.
+  \brief SWATRE: search algorithm in LUT tables. Computes Theta from head, K from head, h from theta and Diff Moist Cap from DMCH.
 
   functions:\n
-- double HNode(double theta, const  HORIZON *hor)\n
-- double TheNode(double head, const  HORIZON *hor)\n
-- double HcoNode(double head, const HORIZON *hor, double calib, double SEC)\n
-- double DmcNode(double head, const  HORIZON *hor) \n
-
+- double TWorld::FindValue(double value, const  HORIZON *hor, int colv, int col)\n
+- double TWorld::DmcNode(double head, const  HORIZON *hor, bool on_dmch)\n
 */
 
-//#include <algorithm>
 #include "model.h"
 
 //---------------------------------------------- or ------------------------------------
-// interpolate for h between two values of theta or vK
+// interpolate for h between two values of theta or K
 double TWorld::FindValue(double value, const  HORIZON *hor, int colv, int col)
 {
     LUT *l = hor->lut;
@@ -53,13 +49,15 @@ double TWorld::FindValue(double value, const  HORIZON *hor, int colv, int col)
     } else if (it == l->hydro[colv].end()) {
         return(l->hydro[col].last());
     } else {
-        int lowerIndex = std::distance(l->hydro[colv].begin(), it - 1); // Index of lower bound
-        int upperIndex = std::distance(l->hydro[colv].begin(), it);     // Index of upper bound
-        double lV = *(it - 1); // lower value
-        double uV = *it;       // upper value
+
+        int lowerIndex = std::distance(l->hydro[colv].begin(), it)-1 ; // Index of lower bound
+        int upperIndex = lowerIndex + 1; // Index of upper bound (directly following lower bound)
+
+        double lV = l->hydro[colv][lowerIndex]; // lower value of h
+        double uV = l->hydro[colv][upperIndex]; // upper value of h
 
         if (uV == lV) {
-            return l->hydro[colv][lowerIndex]; // or some default value
+            return l->hydro[col][lowerIndex];
         }
 
         double lR = l->hydro[col][lowerIndex]; // lower result
@@ -68,118 +66,19 @@ double TWorld::FindValue(double value, const  HORIZON *hor, int colv, int col)
         return lR + (value - lV)/(uV-lV) * (uR - lR) ;
     }
 }
-//---------------------------------------------- or ------------------------------------
-// interpolate for h between two values of theta or vK
-double TWorld::FindNode(double head, const  HORIZON *hor, int column)
-{
-    LUT *l = hor->lut;
-
-    if (head >= 0) {
-        return l->hydro[column].last();
-    }
-
-    auto it = std::lower_bound(l->hydro[H_COL].begin(), l->hydro[H_COL].end(), head);
-
-    if (it == l->hydro[H_COL].begin()) {
-        return(l->hydro[column][0]);
-    } else if (it == l->hydro[H_COL].end()) {
-        return(l->hydro[column].last());
-    } else {
-        int lowerIndex = std::distance(l->hydro[H_COL].begin(), it - 1); // Index of lower bound
-        int upperIndex = std::distance(l->hydro[H_COL].begin(), it);     // Index of upper bound
-        double lV = *(it - 1);
-        double uV = *it;
-
-        if (uV == lV) {
-            return l->hydro[H_COL][lowerIndex]; // or some default value
-        }
-
-        double lTh = l->hydro[column][lowerIndex];
-        double uTh = l->hydro[column][upperIndex];
-
-        return lTh + (head - lV) * (uTh - lTh) / (uV-lV);
-    }
-}
-//-----------------------------------------------------------------------------------
-/// head from theta
-double TWorld::HNode(double theta,const  HORIZON *hor)
-{
-    LUT *l = hor->lut;
-
-    auto it = std::lower_bound(l->hydro[THETA_COL].begin(), l->hydro[THETA_COL].end(), theta);
-    if (it == l->hydro[THETA_COL].begin()) {
-        return(l->hydro[H_COL][0]);
-    } else if (it == l->hydro[THETA_COL].end()) {
-        return(l->hydro[H_COL].last());
-    } else {
-        double lH = *(it - 1);
-        double uH = *it;
-        double f = (theta-lH)/(uH-lH);
-
-        int lowerIndex = std::distance(l->hydro[THETA_COL].begin(), it - 1); // Index of lower bound
-        int upperIndex = std::distance(l->hydro[THETA_COL].begin(), it);     // Index of upper bound
-
-        double lTh = l->hydro[H_COL][lowerIndex];
-        double uTh = l->hydro[H_COL][upperIndex];
-        return (lTh + f*(uTh-lTh));
-    }
-}
 //-----------------------------------------------------------------------------------
 /// Differential Moisture Capacity from head
 /// if dmch = true interpolation is done on DMCH (org swatre) else on H
 double TWorld::DmcNode(double head, const  HORIZON *hor, bool on_dmch)
 {
-    LUT *l = hor->lut;
-
-    if (head >= 0)
-        return l->hydro[DMCC_COL].last();
-
-    // DMCC depends on DMCH, original swatre
-    //if (on_dmch) {
-        auto it = std::lower_bound(l->hydro[DMCH_COL].begin(), l->hydro[DMCH_COL].end(), head);
-        if (it == l->hydro[DMCH_COL].begin()) {
-            return(l->hydro[DMCC_COL][0]);
-        } else if (it == l->hydro[DMCH_COL].end()) {
-            return(l->hydro[DMCC_COL].last());
-        } else {
-            int lowerIndex = std::distance(l->hydro[DMCH_COL].begin(), it - 1);
-            int upperIndex = std::distance(l->hydro[DMCH_COL].begin(), it);
-
-            double dmchl = l->hydro[DMCH_COL][lowerIndex]; //*(it-1);
-            double dmchu = l->hydro[DMCH_COL][upperIndex]; //*it;
-
-            double dmccl = l->hydro[DMCC_COL][lowerIndex];
-            double dmccu = l->hydro[DMCC_COL][upperIndex];
-
-            return (dmccl + (head-dmchl)*(dmccu-dmccl)/(dmchu-dmchl));
-        }
-        /*
-    } else {
-        // DMCC depends directly on H
-        auto it = std::lower_bound(l->hydro[H_COL].begin(), l->hydro[H_COL].end(), head);
-        if (it == l->hydro[H_COL].begin()) {
-            return(l->hydro[DMCC_COL][0]);
-        } else if (it == l->hydro[H_COL].end()) {
-            return(l->hydro[DMCC_COL].last());
-        } else {
-            double lH = *(it - 1);
-            double uH = *it;
-            double f = (head-lH)/(uH-lH);
-
-            int lowerIndex = std::distance(l->hydro[H_COL].begin(), it - 1); // Index of lower bound
-            int upperIndex = std::distance(l->hydro[H_COL].begin(), it);     // Index of upper bound
-
-            double lC = l->hydro[DMCC_COL][lowerIndex];
-            double uC = l->hydro[DMCC_COL][upperIndex];
-
-            return (lC+f*(uC-lC));
-        }
-    }
-    */
+    if (on_dmch)
+        return FindValue(head, hor, DMCH_COL, DMCC_COL);
+    else
+        return FindValue(head, hor, H_COL, DMCC_COL);
 }
 //-----------------------------------------------------------------------------------
+/// OBSOLETE
 /// hydraulic conductivity from head
-/// //OBSOLETE
 double TWorld::HcoNode(double head,const HORIZON *hor)
 {
     LUT *l = hor->lut;
@@ -204,9 +103,34 @@ double TWorld::HcoNode(double head,const HORIZON *hor)
         return (lK+f*(uK-lK));
     }
 }
+//---------------------------------------------- or ------------------------------------
+/// OBSOLETE
+/// head from theta
+double TWorld::HNode(double theta,const  HORIZON *hor)
+{
+    LUT *l = hor->lut;
+
+    auto it = std::lower_bound(l->hydro[THETA_COL].begin(), l->hydro[THETA_COL].end(), theta);
+    if (it == l->hydro[THETA_COL].begin()) {
+        return(l->hydro[H_COL][0]);
+    } else if (it == l->hydro[THETA_COL].end()) {
+        return(l->hydro[H_COL].last());
+    } else {
+        double lH = *(it - 1);
+        double uH = *it;
+        double f = (theta-lH)/(uH-lH);
+
+        int lowerIndex = std::distance(l->hydro[THETA_COL].begin(), it) - 1; // Index of lower bound
+        int upperIndex = lowerIndex + 1;    // Index of upper bound
+
+        double lTh = l->hydro[H_COL][lowerIndex];
+        double uTh = l->hydro[H_COL][upperIndex];
+        return (lTh + f*(uTh-lTh));
+    }
+}
 //-----------------------------------------------------------------------------------
+/// OBSOLETE
 /// theta from head
-//OBSOLETE
 double TWorld::TheNode(
         double head,           // current head value of this node
         const  HORIZON *hor)   // parameters of horizon this node belongs to
@@ -225,8 +149,8 @@ double TWorld::TheNode(
         double uH = *it;
         double f = (head-lH)/(uH-lH);
 
-        int lowerIndex = std::distance(l->hydro[H_COL].begin(), it - 1); // Index of lower bound
-        int upperIndex = std::distance(l->hydro[H_COL].begin(), it);     // Index of upper bound
+        int lowerIndex = std::distance(l->hydro[H_COL].begin(), it) - 1; // Index of lower bound
+        int upperIndex = lowerIndex + 1;
 
         double lTh = l->hydro[THETA_COL][lowerIndex];
         double uTh = l->hydro[THETA_COL][upperIndex];

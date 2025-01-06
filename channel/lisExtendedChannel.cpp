@@ -140,8 +140,11 @@ void TWorld::extendCol(int r, int c, int i, double w)
 bool TWorld::ExtendChannelNew()
 {
     /*
+    if(!SwitchIncludeChannel)
+        return false;
+
+     ChannelWidthExtended = NewMap(0.0);
     ChannelDepthExtended = NewMap(0.0);
-    ChannelWidthExtended = NewMap(0.0);
     ChannelMaskExtended = NewMap(0.0);
     ChannelSourceXExtended = NewMap(0.0);
     ChannelSourceYExtended = NewMap(0.0);
@@ -150,10 +153,6 @@ bool TWorld::ExtendChannelNew()
 
     ExtChannel.clear();
 
-    if(!SwitchIncludeChannel)
-    {
-        return false;
-    }
 
     double ww = 0;
     FOR_ROW_COL_MV_CH {

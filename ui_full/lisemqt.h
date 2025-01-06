@@ -493,7 +493,7 @@ private slots:
 
     //void on_checkDiffusion_toggled(bool checked);
 
-    void on_checkHouses_toggled(bool checked);
+   // void on_checkHouses_toggled(bool checked);
 
     void on_toolButton_rainsatName_clicked();
 

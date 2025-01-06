@@ -331,10 +331,10 @@ void TWorld::GetComboMaps()
     if(SwitchInfiltration)
     {
         AddComboMap(0,"Infiltration","mm",InfilmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-        if (InfilMethod > 1) {
+        //if (InfilMethod > 1) {
             // Show a weighed avregae of cell wetting front else it seems partly impermeable surface infiltrate very deep
-            AddComboMap(0,"Average depth wetting front","mm",Lwmm,LegendMap[cl],Legend[cl],false,false,1.0,1.0);  // swatre?
-        }
+        AddComboMap(0,"Average depth wetting front","mm",Lwmm,LegendMap[cl],Legend[cl],false,false,1.0,1.0);  // swatre?
+        //}
 
         if (SwitchGWflow) {
             AddComboMap(0,"Groundwater level","m",GWWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);

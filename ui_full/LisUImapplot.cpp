@@ -838,9 +838,9 @@ void lisemqt::showChannelVectorNew()
         }
 
         // dot size
-        int dxi = MPlot->invTransform(QwtAxis::XBottom,dx*1.2);
-        dxi = dxi - MPlot->invTransform(QwtAxis::XBottom,dx);
-        dxi = std::min(9,dxi);
+        int dxi = 6;//MPlot->invTransform(QwtAxis::XBottom,dx*1.2);
+        // dxi = dxi - MPlot->invTransform(QwtAxis::XBottom,dx);
+        // dxi = std::min(9,dxi);
         spinCulvertSize->setValue(dxi);
 
         // points in outlet.map

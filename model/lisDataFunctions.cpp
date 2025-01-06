@@ -72,11 +72,9 @@ cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
         for (int c = 0; c < _nrCols; c++)
             if (!pcr::isMV(Mask->Drc) && pcr::isMV(_M->Drc))
             {
-                QString sr, sc;
-                sr.setNum(r); sc.setNum(c);
-                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+name+".\n \
-                                                                                                     This is a cell with missing values where a flow network esists (either LDD, Channel LDD, tile drain LDD).";
-                                                                                                     throw 1;
+                // QString sr, sc;
+                // sr.setNum(r); sc.setNum(c);
+                ErrorString = QString("Missing value at row=%1 and col=%2 in map: %3.").arg(r).arg(c).arg(name);
             }
 
     //maplistCTMap[maplistnr].m = _M;

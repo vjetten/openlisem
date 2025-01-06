@@ -183,12 +183,12 @@ void lisemqt::on_toolButton_helpErosion_clicked()
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_helpCalibration_clicked()
 {
-    on_toolButton_help(HELPINFRA);
+    on_toolButton_help(HELPCALIBRATION);
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_helpInfra_clicked()
 {
-    on_toolButton_help(HELPCALIBRATION);
+    on_toolButton_help(HELPINFRA);
 
 }
 //---------------------------------------------------------------
@@ -207,7 +207,7 @@ void lisemqt::on_toolButton_help(int page)
     if (page == HELPFLOW        ) filename = ":/help4.html";
     if (page == HELPCHANNEL     ) filename = ":/help9.html";
     if (page == HELPEROSION     ) filename = ":/help5.html";
-    if (page == HELPINFRA       ) filename = ":/help8.html";
+    if (page == HELPINFRA       ) filename = ":/help10.html";
     if (page == HELPCALIBRATION ) filename = ":/help7.html";
     if (page == HELPADVANCED    ) filename = ":/help8.html";
 
@@ -249,11 +249,11 @@ void lisemqt::on_check2DDiagonalFlow_toggled(bool checked)
 //}
 //--------------------------------------------------------------------
 
-void lisemqt::on_checkHouses_toggled(bool checked)
-{
-    checkRaindrum->setEnabled(checked);
-    label_78->setEnabled(checked);
-}
+// void lisemqt::on_checkHouses_toggled(bool checked)
+// {
+//     checkRaindrum->setEnabled(checked);
+//     label_78->setEnabled(checked);
+// }
 //--------------------------------------------------------------------
 
 // select a file or directory
@@ -377,7 +377,7 @@ void lisemqt::on_toolButton_DischargeShow_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_WaveShow_clicked()
 {
-    qDebug() <<WaveinDir + WaveinFileName;
+    //qDebug() <<WaveinDir + WaveinFileName;
     showTextfile(WaveinDir + WaveinFileName);
 }
 //--------------------------------------------------------------------

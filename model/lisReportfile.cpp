@@ -228,7 +228,7 @@ void TWorld::OutputUI(void)
         COMBO_V->Drc = V->Drc < 1e-5 ? 0 : V->Drc;
         VH->Drc = COMBO_V->Drc * hmxWH->Drc;
         //Lwmm->Drc = Lw->Drc *1000 * SoilWidthDX->Drc/_dx;
-        Lwmm->Drc = Lw->Drc *1000 * FlowWidth->Drc/_dx;
+        Lwmm->Drc = Lw->Drc *1000;// * FlowWidth->Drc/_dx;
     }}
 
     if(SwitchErosion)
@@ -912,6 +912,8 @@ void TWorld::ReportMaps(void)
     report(*WHmax, floodWHmaxFileName);
     // report(*floodHmxMax, floodWHmaxFileName);  // BOTH overland flow and flood for all combinations
 
+    report(*Qm3max,"qm3smax.map");
+
     // max velocity on land in m/s
     report(*floodVMax, floodMaxVFileName);  // BOTH overland flow and flood for all combinations
     report(*floodVHMax, floodMaxVHFileName);  // momentum of all flow
@@ -1032,7 +1034,7 @@ void TWorld::ReportMapSeries(void)
         }}
         report(*tm, Outss);
 
-    }
+}
 
     if (SwitchIncludeTile|| SwitchIncludeStormDrains)
     {

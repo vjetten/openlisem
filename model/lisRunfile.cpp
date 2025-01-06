@@ -45,42 +45,31 @@ functions: \n
 //---------------------------------------------------------------------------
 QString TWorld::getvaluename(QString vname)
 {
-    for (int i = 0; i < nrrunnamelist; i++)
-    {
-        if(vname.toUpper() == runnamelist[i].name.toUpper())
-        {
-            // VJ 110420 special case
+    for (int i = 0; i < nrrunnamelist; i++) {
+        if(vname.toUpper() == runnamelist[i].name.toUpper()) {
             if (InfilMethod == INFIL_SWATRE && runnamelist[i].name.toUpper() == QString("INITHEAD"))
             {
                 QFileInfo info(inputDir + runnamelist[i].value + QString(".001"));
-                if (!info.exists())
-                {
+                if (!info.exists()) {
                     ErrorString = "Filename not found for map \"<I>"+runnamelist[i].name + "\" - " + info.fileName();
                     throw 1;
-                }
-                else
-                {
+                } else {
                     return inputDir + info.baseName();
                 }
-            }
-            else
-            {
+            } else {
                 //qDebug() << runnamelist[i].value << runnamelist[i].name ;
                 QFileInfo info(inputDir + runnamelist[i].value);
-                if (runnamelist[i].value.isEmpty() || !info.exists())
-                {
+                if (runnamelist[i].value.isEmpty() || !info.exists()) {
                     ErrorString = "Filename not found for map (VAR NAME: " +runnamelist[i].value+ ")\"<I>"+runnamelist[i].name + "\" - " + info.fileName();
                     throw 1;
-                }
-                else
-                {
+                } else {
                     return inputDir + info.fileName();
                 }
             }
         }
     }
 
-    ErrorString = QString("Map ID: \"%1\" not found! You could be using an old runfile,\nor a map is not present.").arg(vname);
+    ErrorString = QString("File for map ID: \"%1\" not found! Check your map list.").arg(vname);
     throw 3;
 }
 //---------------------------------------------------------------------------
@@ -258,8 +247,11 @@ void TWorld::ParseRunfileData(void)
 
         //infiltration
         if (p1.compare("Include Infiltration")==0)              SwitchInfiltration = iii == 1;
+        if (p1.compare("Use OM correction")==0)                 SwitchOMCorrection = iii == 1;
+        if (p1.compare("Use Density correction")==0)            SwitchDensCorrection = iii == 1;
         if (p1.compare("Include compacted")==0)                 SwitchInfilCompact = iii == 1;
         if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =   iii == 1;
+        if (p1.compare("Use one matrix potential")==0)          SwitchHinit4all  =  iii == 1;
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =  iii == 1;
         if (p1.compare("Nr input layers")==0)                   SwitchNrLayers =     iii == 1;
         if (p1.compare("Psi user input")==0)                    SwitchPsiUser =      iii == 1;
@@ -415,16 +407,8 @@ void TWorld::ParseRunfileData(void)
          //   SwitchChannelBaseflow = false;
             SwitchChannelBaseflowStationary = false;
         }
-
-      //  if (SwitchGWflow)
-          //  SwitchChannelBaseflow = true;
     }
 
-    //SwitchGWflow = SwitchChannelBaseflow && (SwitchGW2Dflow || SwitchLDDGWflow || SwitchSWATGWflow);
-    // if (!SwitchChannelBaseflow) {
-    //     SwitchGWflow = false;
-    //     SwitchChannelBaseflowStationary = false;
-    // }
     if (SwitchGWflow) {     /*SwitchChannelBaseflow && */
         SwitchImpermeable = false;  //???okay
     }   
@@ -451,8 +435,8 @@ void TWorld::ParseRunfileData(void)
             if (p1.compare("Swatre profile file")==0) {
                 SwatreTableName = p;
             }
-
-            initheadName = getvaluename("inithead");
+            if (!SwitchHinit4all)
+                initheadName = getvaluename("inithead");
         }
 
         if (SwitchRainfall)

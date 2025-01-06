@@ -1,0 +1,22 @@
+<h2>Buildings, infrastructure and conservation measures</h2>
+<p><strong>Include buildings: </strong>decreases infiltration (fraction of gridcell becomes impermeable), decreases flow velocity (increases Manning's n relative to the fraction of the building) and adds interception by roofs, and raindrums if present.</p>
+<ul>
+<li><strong>Addbuilding to DEM</strong>: In case of 2D flow, the larger buildings can be added to the DEM up to a given height (in m) so that water flows around the building (relative to the building fraction in a gridcell). Above that heigth the building is transparent to flow with an increased Maning;s n.</li>
+<li><strong>Include rainwater drums</strong>:a map with pxels that have a rainwater drums with volume in m<sup>3</sup>. If a drum exists in a pixel with a building, the water from the roof is assumed to fill up the drum before adding to overland flow. The durm is assumed to be empty at the start fo the run.</li>
+</ul>
+<p><strong>Include road system: </strong>for hard surface roads. Decreases infiltration (road fraction of gridcell becomes impermeable), increases flow velocity (decreased Manning's n relative to the fraction of the road).</p>
+<ul>
+<li><strong>Include subsurface stromdrains. <em>EPERIMENTAL DOES NOT WORK YET</em></strong> rectangular or pipes. Wat is enetered form the road into a drain and is moved along a network with a kinematic waver. This needs additional maps (see maplist, maps strating with 'tile');</li>
+</ul>
+<p><strong>Include hard surfases: </strong>for parking lots, airport runways etc. Has the same influence on processes as roads..</p>
+<h3>Mitigation measures water</h3>
+<ul>
+<li><strong>Include barriers or buffers</strong>. For 2D flow only. The map "buffers.map" is simply added to the DEM. Positive values (e.g. dikes) increase the elevation, negavtive values (buffers/depressions) decrease the elevation.</li>
+<li><strong>Include flood walls</strong>. Create barriers at the boundary of gridcells that bhave a given height. They have no width! The map "flowbarrier.map" is a map with codes 1,2,3 .... The textfile flowbarrrier.txt tells LISEM what to do for each code. For instance value 1 means a wall to the north, 2 to the east, 6 to the south and the east etc. Every possible combination can be defined by the user, with user defined codes/numbers.</li>
+<li><strong>Sub gridcell retention</strong>. A map "retention.map" additional gridcell retention in m<sup>3 </sup>like a ditch or depression. Water in the retention will not flow until it overflows and will not cause erosion. <em><strong>EXPERIMENTAL, NOT ACTIVE YET</strong> </em></li>
+<li><strong>Grasstrips</strong>.Grassstrips can be defined by additional maps for ksat, porosity and soil cohesion for detachment. A map "grasswid.map" has the with of the grasstrip in m. Manning's n can be set by the user depending on ther quality of the grass cover. nBe aware of diagonal LDD conncentions crossing corners of the grass strip when using te kinematic wave! Grasstrips</li>
+</ul>
+<h3>Conservation measures</h3>
+<ul>
+<li><strong>Sediment trap</strong>: cells that trap all sediment (to simulate e.g. hedgerows or sediment traps) but not water. This uses the map "sedretmax.map", which has the maximum sediemnt retention in m3. The bulk density value is used to convert kg deposition to m3). There is no splash and flow detachment, and the water is slowed down by the mannings n factor given in the interface. When the trap is full the Mannings n returns to normal.</li>
+</ul>

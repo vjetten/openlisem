@@ -105,8 +105,8 @@ void lisemqt::SetStyleUISize()
     toolBar->setMovable(false);
 
     //genfontsize = screen->devicePixelRatio()*(disp+8);
-    qDebug() << genfontsize << screen->devicePixelRatio();
-    setfontSize();
+    //qDebug() << genfontsize << screen->devicePixelRatio();
+    //setfontSize();
 }
 
 // labels in output tab
@@ -410,24 +410,23 @@ void lisemqt::setBWUI()
 //---------------------------------------------------------------
 void lisemqt::fontSelect()
 {
-    // bool ok;
-    QFont font = QFontDialog::getFont(0, qApp->font());
-    //         &ok, QFont("MS Shell Dlg 2", genfontsize), this);
-    //  if (ok) {
-    // the user clicked OK and font is set to the font the user selected
-    qApp->setFont(font);
-    if (darkLISEM)
-        darkStyleUI();
-    else
-        lightStyleUI();
-    //setfontSize();
+//     // bool ok;
+//     QFont font = QFontDialog::getFont(0, qApp->font());
+//     //         &ok, QFont("MS Shell Dlg 2", genfontsize), this);
+//     //  if (ok) {
+//     // the user clicked OK and font is set to the font the user selected
+//     qApp->setFont(font);
+//     if (darkLISEM)
+//         darkStyleUI();
+//     else
+//         lightStyleUI();
+//     //setfontSize();
 }
 //---------------------------------------------------------------
 void lisemqt::fontDecrease()
 {
     genfontsize--;
     genfontsize = std::max(6, genfontsize);
-    //qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
     setfontSize();
 }
 //---------------------------------------------------------------
@@ -435,17 +434,13 @@ void lisemqt::fontIncrease()
 {
     genfontsize++;
     genfontsize = std::min(32, genfontsize);
-    //qApp->setStyleSheet(QString("* { font-size: %1px; }").arg(genfontsize));
     setfontSize();
 }
 //---------------------------------------------------------------
 void lisemqt::setfontSize()
 {
-    // if (darkLISEM)
-    //     darkStyleUI();
-    // else
-    //     lightStyleUI();
     QFont font = qApp->font();
+    QApplication::setFont(font);
     const QWidgetList allWidgets = QApplication::allWidgets();
     for (QWidget *widget : allWidgets) {
         QFont font = widget->font();

@@ -39,10 +39,48 @@ functions: \n
 /** @todo convert flow to linked list */
 
 //---------------------------------------------------------------------------
+// flow in all road cells to tiledrain
 //fraction of water and sediment flowing from the surface to the tiledrain system
-void TWorld::ToTiledrain()//int thread)
+void TWorld::ToTiledrainAll()
 {
-   // ONLY ON ROADS, AFFECTING ROADWH
+
+    if (SwitchIncludeStormDrains)  //SwitchIncludeTile ||
+    {
+        Fill(*RunoffVolinToTile,0);
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_TILEL {
+            //double fractiontotile = std::max(1.0, 2*0.09/CHAdjDX->Drc) * RoadWidthDX->Drc/_dx;
+            //or:
+            double fractiontotile  = std::min(1.0, _dt*V->Drc/(0.09/CHAdjDX->Drc)) * RoadWidthDX->Drc/_dx;;
+            // 30x30cm = 0.09 m2, 2 is both sides of the street
+            //Street inlet is assumed to be a hole in the street
+            // fraction based on surface, simpel! or as velocity
+
+            double MaxVol;
+            if (SwitchStormDrainCircular)
+                MaxVol = DX->Drc*PI*TileDiameter->Drc*TileDiameter->Drc*0.25; //(pi r^2)
+            else
+                MaxVol = DX->Drc*TileWidth->Drc*TileHeight->Drc;
+
+            if (TileWaterVol->Drc >= MaxVol)
+                fractiontotile = 0;
+            else {
+                double vol = fractiontotile*WaterVolall->Drc;
+                double dh = vol/CHAdjDX->Drc;
+                RunoffVolinToTile->Drc = vol;
+                // adjust water height
+                WHrunoff->Drc -= dh;
+                WH->Drc -= dh;
+                WaterVolall->Drc -= vol;
+            }
+        }}
+    }
+}
+//---------------------------------------------------------------------------
+//fraction of water and sediment flowing from the surface to the tiledrain system
+void TWorld::ToTiledrain()
+{
     if (SwitchIncludeStormDrains)  //SwitchIncludeTile ||
     {
         Fill(*RunoffVolinToTile,0);
@@ -96,7 +134,8 @@ void TWorld::CalcVelDischRectangular()
         TileAlpha->Drc  = Area/std::pow(TileQ->Drc, 0.6);
     }}
 }
-
+//---------------------------------------------------------------------------
+// called from dataini, needed in kin wave
 void TWorld::CalcMAXDischRectangular()
 {    
     #pragma omp parallel for num_threads(userCores)
@@ -112,8 +151,8 @@ void TWorld::CalcMAXDischRectangular()
 }
 //---------------------------------------------------------------------------
 // V, alpha and Q in the Tile
-//https://www.engineersedge.com/fluid_flow/partially_full_pipe_flow_calculation/partiallyfullpipeflow_calculation.htm
-//https://www.ajdesigner.com/phphydraulicradius/hydraulic_radius_equation_pipe.php
+// https://www.engineersedge.com/fluid_flow/partially_full_pipe_flow_calculation/partiallyfullpipeflow_calculation.htm
+// https://www.ajdesigner.com/phphydraulicradius/hydraulic_radius_equation_pipe.php
 // Neweton iteration to derive drain water height
 void TWorld::CalcVelDischCircular()
 {
@@ -130,11 +169,11 @@ void TWorld::CalcVelDischCircular()
       double fx, Fx;
       double Ar = 2*Area/(rr*rr);
       for (int k = 0 ; k < 20; k++) {
-                fx = 1-cos(theta);
-                Fx = -sin(theta) + theta - Ar;
-                theta = fx > 0 ? theta - Fx/fx : 0.0;
-                if( Fx < 1e-6)
-                    break;
+            fx = 1-cos(theta);
+            Fx = -sin(theta) + theta - Ar;
+            theta = fx > 0 ? theta - Fx/fx : 0.0;
+            if( Fx < 1e-6)
+                break;
       }
       // newton rapson iteration to get the water height in a circular pipe for the wet perimeter
 
@@ -150,8 +189,8 @@ void TWorld::CalcVelDischCircular()
       TileAlpha->Drc  = Area/std::pow(TileQ->Drc, 0.6);
       //TileAlpha->Drc = std::pow(std::pow(Perim, 2.0/3.0)/gradN , 0.6);
    }}
-}
-
+}//---------------------------------------------------------------------------
+// called from dataini, needed in kin wave
 void TWorld::CalcMAXDischCircular()
 {
    #pragma omp parallel for num_threads(userCores)
@@ -162,7 +201,6 @@ void TWorld::CalcMAXDischCircular()
       double TileV_ = std::pow(0.95*Area/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
 
       TileMaxQ->Drc = Area*TileV_;
-     // TileMaxAlpha->Drc = std::pow(std::pow(Perim, 2.0/3.0)/gradN , 0.6);
       TileMaxAlpha->Drc  = Area/std::pow(TileMaxQ->Drc, 0.6);
 
    }}

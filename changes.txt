@@ -1,7 +1,16 @@
-241207 - v7.4.5
-- Bug fix: Update system, wrong check
-- interface: make update optional and reacitivate in advanced options
-- save fontsize and dark lisem in openlisem.ini
+241223 - v7.4.5
+- BUG FIX: Delete all map and swatre data after no GUI run
+- BUG FIX: Update Lisem, wrong check
+- BUG FIX: Swatre compacted profiles incorrectly named
+- BUG FIX: Swatre impermeable surfaces no longer ignored
+- BUG FIX: check if compacted or crusted porosity is smaller than ninitial moisture
+- BUG FIX: wrong help file shown in certain pages, help text updated
+- Included gridretention (Fanyaa Yuu, trenches etc) in water mitigation measures
+- Swatre input matrix potential as one value or user maps, output as maps of h and theta for each node
+- Added options of dealing with Org.Mat. differences (-2% to 2%) and Density Factor (0.9 to 1.1) in SWATRE and GA infiltration
+- Interface: make LISEM update optional and reacitivate in advanced options
+- Updated help files
+- Save fontsize and dark lisem in openlisem.ini
 
 241203 - v7.4.4
 - Update system: lisem will check online in github if a newer version exists

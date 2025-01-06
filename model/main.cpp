@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
         }
     } else {
         QApplication app(argc, argv); // Use QApplication for GUI mode
-        app.setWindowIcon(QIcon(":/openlisemN.ico"));
+        //app.setWindowIcon(QIcon(":/openlisemN.ico"));
         app.setStyle(QStyleFactory::create("Fusion"));
 
         QString appDataLocalPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);

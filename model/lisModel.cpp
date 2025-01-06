@@ -283,7 +283,7 @@ void TWorld::DoModel()
         GetComboMaps(); // moved to outside timeloop!
 
         if (SwitchInfiltration && InfilMethod != INFIL_SWATRE )
-            InfilEffectiveKsat(true);
+            InfilEffectiveKsat();
 
         for (time = BeginTime; time < EndTime; time += _dt)
         {            
@@ -308,7 +308,8 @@ void TWorld::DoModel()
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
 
-            InfilEffectiveKsat(false);
+            if (SwitchInfilCrust)
+                InfilEffectiveKsat(); // if crusting recalc Ksateff and Poreff becuase of crusting effect
 
             HydrologyProcesses();  // hydrological processes in one loop, incl splash and pesticides
 
@@ -350,16 +351,18 @@ void TWorld::DoModel()
         if (SwitchEndRun)
             ReportMaps();
 
-        //DEBUG("Free data structure memory");
-
-    //    op.hasrunonce = true;
-     //   DestroyData();  // destroy all maps automatically
-     //   op.nrMapsCreated = maplistnr;
-
         emit done("finished");
 
         if (op.doBatchmode)
         {
+            // delete all maps
+            qDeleteAll(maplistCTMap.begin(),maplistCTMap.end());
+            maplistCTMap.clear();
+
+            //delete swatre 3D soil layer structure if exists
+            if (initSwatreStructure)
+                FreeSwatreInfo();
+
             qDebug() << "\nfinished after "<< op.maxtime << "minutes\n";
             if (noInterface)
                 QCoreApplication::quit();
@@ -370,11 +373,6 @@ void TWorld::DoModel()
     }
     catch(...)  // if an error occurred
     {
-
-      //  op.nrMapsCreated = maplistnr;
-      //  DestroyData();
-        // moved to W in interface
-
         emit done("ERROR STOP: "+ErrorString);
         if (op.doBatchmode) {qDebug() << "ERROR STOP "<< ErrorString;
             if (noInterface)
@@ -429,7 +427,7 @@ void TWorld::HydrologyProcesses()
             ETafactor = 1.0;
     }
 
-    // Do all hydrology in one big loop. Not sure if this is faster then a loop per process
+    // Do all hydrology in one big loop. Not sure if this is faster then a loop per process!
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         cell_Interception(r,c);

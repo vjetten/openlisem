@@ -74,8 +74,8 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (tmd->Drc > 0) {
-                double dx = ChannelAdj->Drc;
-                double dy = DX->Drc;
+                double dx = _dx;//ChannelAdj->Drc;
+                double dy = _dx;//DX->Drc;
                 double H, Z, U, V;
                 bool bc1, bc2, br1, br2;
                 double z_x1, z_x2, z_y1, z_y2;
@@ -238,21 +238,21 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     // momentum balance for cells with water
                     if(hn > he_ca) {
                         // SWOF solution, delzc1 = 0 when not MUSCL
-                        double gflow_x = GRAV*0.5*((h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) + delzcx*(hxl+hxr)); // delzcx = 0 is not muscl
-                        double gflow_y = GRAV*0.5*((h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd) + delzcy*(hyu+hyd));
+                        double gflow_x = GRAV*0.5*((h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr));// + delzcx*(hxl+hxr)); // delzcx = 0 is not muscl
+                        double gflow_y = GRAV*0.5*((h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd));// + delzcy*(hyu+hyd));
 
                         double qxn = H * U - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
                         double qyn = H * V - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
 
                         double vsq = sqrt(U*U + V*V);
-                        double nsq1 = (N->Drc)*(N->Drc)*GRAV/pow(hn,4.0/3.0);//
-                        //double nsq1 = (N->Drc)*(N->Drc)*GRAV/std::max(0.0001,pow(hn,4.0/3.0)); //pow(hn,4.0/3.0);//
+                        //double nsq1 = (N->Drc)*(N->Drc)*GRAV/pow(hn,4.0/3.0);//
+                        double nsq1 = (N->Drc)*(N->Drc)*GRAV/std::max(0.0001,pow(hn,4.0/3.0));
                         double nsq = nsq1*vsq*dt;
 
-                        //Un = (qxn/(1.0+nsq))/std::max(0.0001,hn);
-                        //Vn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
-                        Un = (qxn/(1.0+nsq))/hn;
-                        Vn = (qyn/(1.0+nsq))/hn;
+                        Un = (qxn/(1.0+nsq))/std::max(0.0001,hn);
+                        Vn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
+                        //Un = (qxn/(1.0+nsq))/hn;
+                        //Vn = (qyn/(1.0+nsq))/hn;
 
                         if (SwitchTimeavgV) {
                             double fac = 0.5 + 0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);

@@ -44,7 +44,9 @@
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow(void)
 {
-    ToTiledrain();   // fraction going into tiledrain directly from surface, for 1D and 2D flow
+    ToTiledrainAll();
+    // fraction going into tiledrain directly from surface, for 1D and 2D flow
+    // this decreases WHrunoff, WH and watervolall
 
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
         OverlandFlow2Ddyn();
@@ -121,11 +123,6 @@ void TWorld::ToChannel()
             // water diverted to the channel
             ChannelWaterVol->Drc += dvol;
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
-
-//            WaterVolall->Drc -= dvol;
-//            WaterVolall->Drc = std::max(WaterVolall->Drc, MicroStoreVol->Drc);
-//            WHrunoff->Drc = (WaterVolall->Drc - MicroStoreVol->Drc)/CHAdjDX->Drc;
-//            WH->Drc = WHrunoff->Drc + WHstore->Drc;
 
             WHrunoff->Drc -= dwh;
             WH->Drc -= dwh;
@@ -257,7 +254,7 @@ void TWorld::updateWHandHmx(void)
 //------------------------------------------------------------------------------------
 /**
  * @fn void TWorld::OverlandFlow2Ddyn()
- * @brief Does 2D flow, calling SWOF functions, WHrunoff
+ * @brief Does 2D flow, calling SWOF functions, calculates new, Q, V, U, WH, WHrunoff and sediment
  *
  * @return void
   */
@@ -305,10 +302,9 @@ void TWorld::OverlandFlow2Ddyn(void)
             dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
         else
             dtOF = fullSWOF2openMUSCL(WHrunoff, Uflood, Vflood, DEM);
+        // separating muscl saves many checks for muscl in the loop: faster
 
-        // //VJ new average flux over lisem timestep, else last Qn is used
-
-        // calc discharge flux
+        // calc discharge flux form the last flux in the loop
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             V->Drc = sqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
@@ -323,7 +319,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         FloodMaxandTiming();
 
         TIMEDB(QString("Average dynamic timestep in flooded cells (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));
-        // some screen error reporting
+        // some screen reporting
     }
 }
 

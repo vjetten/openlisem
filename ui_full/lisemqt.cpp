@@ -98,7 +98,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     setupMapPlot();
     // set up the raster map drawing
-
     if (!doBatch) {
         GetStorePath();
         // openlisem.ini file, contains runfile list als darkmode and fontsize and checkforpatch
@@ -110,7 +109,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     SetStyleUI();
     // do some style things
 
-    lisMpeg = new lismpeg(this);
+    lisMpeg = new lismpeg(this);    
 
     doBatchmode = doBatch; // save as global var in iface
     //batchRunname = runname;
@@ -851,6 +850,9 @@ void lisemqt::GetStorePath()
             if (line.contains("font=")) {
                 QStringList s = line.split("=");
                 genfontsize = s[1].toInt();
+                if (genfontsize == 0)
+                    genfontsize = 11;
+                setfontSize();
             } else {
                 if (line.contains("patch=")) {
                     QStringList s = line.split("=");
@@ -988,8 +990,8 @@ void lisemqt::resetTabCalibration()
     E_CalibrateN->setValue(1.0);
     E_CalibrateTheta->setValue(1.0);
     E_CalibratePsi->setValue(1.0);
-    E_CalibrateSD1->setValue(1.0);
-    E_CalibrateSD2->setValue(1.0);
+//    E_CalibrateSD1->setValue(1.0);
+//    E_CalibrateSD2->setValue(1.0);
     E_CalibrateChKsat->setValue(1.0);
     E_CalibrateChN->setValue(1.0);
     E_CalibrateWave->setValue(0.0);
@@ -1029,6 +1031,7 @@ void lisemqt::resetTabInfiltration()
     checkInfilCrust->setChecked(false);
     //checkInfil2layer->setChecked(false);
     checkInfilImpermeable->setChecked(false);
+    checkInfilHinit->setChecked(false);
     checkIncludeTiledrains->setChecked(false);
     checkSwatreOutput->setChecked(false);
     //checkGeometric->setChecked(true);

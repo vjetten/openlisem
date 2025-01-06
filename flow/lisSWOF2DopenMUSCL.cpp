@@ -155,8 +155,8 @@ void TWorld::doSWOFLoop(int step, double dt, double dt_max, cTMap *activeCells, 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (activeCells->Drc > 0) {
-            double dx = ChannelAdj->Drc;
-            double dy = DX->Drc;
+            double dx = _dx;//ChannelAdj->Drc;
+            double dy = _dx;//DX->Drc;
             double H, Z, U, V;
             bool bc1, bc2, br1, br2;
             double z_x1, z_x2, z_y1, z_y2;

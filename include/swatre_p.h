@@ -33,14 +33,9 @@
 //#define MAX_NODES_P          (MAX_NODES+3)
 
 // maximum amount of ponding that is regarded as no ponding (0)
-#define POND_EPS             (1.0E-6)
+#define POND_EPS             (1.0E-8)
 // maximum amount of time for which it is not worth doing an iteration
 #define TIME_EPS             (1.0E-6)
-
-//#define NrNodes(profile)        (zone->nrNodes)  //profile->zone->nrNodes)
-#define Dz(profile)             (profile->zone->dz)
-#define disnod(profile)       (profile->zone->disnod)
-#define Horizon(profile, node)  (profile->horizon[node])
 
 #define THETA_COL	    0 // moisture content theta (-)
 #define H_COL           1 // suction (-cm)
@@ -75,15 +70,15 @@ typedef struct ZONE   {
     QVector <double> disnod;   
 } ZONE;
 //---------------------------------------------------------------------------
-/// SWATRE Land use tables, nrRows and nrCols mean rows and cols (3) in the table
+/// SWATRE Land use tables, Rows is nr of lines in table, always 3+2 cols
 typedef struct LUT {
-    int   nrRows, nrCols;
-    QVector<double> hydro[5];
+    int   Rows;
+    QVector<double> hydro[5]; // theta,h,k,dmch,dmcc
 } LUT;
 //---------------------------------------------------------------------------
 typedef struct HORIZON {
     QString name;
-    LUT  *lut;     /** lut of theta, h, k, dmch, dmcc */
+    LUT  *lut;     // lut of theta, h, k, dmch, dmcc
 } HORIZON;
 //---------------------------------------------------------------------------
 typedef struct PROFILE {
@@ -99,13 +94,20 @@ typedef struct PIXEL_INFO {
     const PROFILE *profile;    /** profile this pixel belongs to */
     QVector <double> h;
     double wh;
-    double infil;
     double impfrac;
     double percolation;
     double theta; // for pesticides?
     double tiledrain;   /** drainage into tiledrin system at a given depth */
+    double corrKsOA;
+    double corrKsOB;
+    double corrKsDA;
+    double corrKsDB;
+    double corrPOA;
+    double corrPOB;
+    double corrPDA;
+    double corrPDB;
     int tilenode;    /** nearest node that has the tiledrain */
-    int dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
+   // int dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
 } PIXEL_INFO;
 //---------------------------------------------------------------------------
 typedef struct SOIL_MODEL {

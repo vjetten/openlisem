@@ -1,21 +1,27 @@
 <h2>Advanced parameters</h2>
-<p><strong>Parallel processing</strong></p>
+<h3>Parallel processing</h3>
 <p>All CPUs have more than 1 core that can be activated simultatneously for calculations. If the value is set at 0, all cores present are used. For small catchments this may not be faster (the overhead is more than the gain)!</p>
-<p><strong>Numerical parameters for dynamic flow</p></strong>
+<p>New version: check if a new version is available in GitHub.</p>
+<p>Correct mass balance: for some combination of maps the overall mass balance is not so good. Check this opytion to divide the mass balance error over all pixels that have runoff (this timestep t) and the infiltration of the next timestep (t+1). This artificially spreads the error over all cells with activity.</p>
+<h3>Numerical parameters for dynamic flow</h3>
 <ul>
-    <li>Riemann solver: smoothing functions that gives new states and fluxes on cell boundaries based on pressure and momentum differences. HLL are Harten-Lax-van Leer type solvers (def 4-HLL2c)</li>
-    <li>Flux limiter, only used if 2D flow with MUSCL is used: algorithms to avoid shocks at cell boundaries: minmod takes the smallest pressure and momentum differences accross a boundary, Van Leer and Albeda are smoother functions but less conservative (def 1-minmod).</li>
-    <li>Max iterations: forces break out of n-th flood loop, usually not necessary, better to try different Courant conditions and minimum timesteps in the Flow tab (def 200).</li>
-    <li>Diagonal connections <i>experimental</i>: the 2D solution can see an obstruction in the direction of flow while there is a diagonal outlet according to the LDD. This connection is forced if the water height > value. A value < 0 or a very high value will ignore this effect (default -1 = off).</li>
-    <li>Calculate erosion inside iteration loop for  2D flow: when sitched on all flow erosion is calculated for eacch ieration loop with 2D flow dt, switched off erosion is calculated after the 2D flow is done using the LISEM timestep (default on).</li>
-    <li>Use linked list for kinematic flow: siwtched on means the linked list is recalculated each time kinematic wave is called (default off)</li>
+<li>Riemann solver: smoothing functions that gives new states and fluxes on cell boundaries based on pressure and momentum differences. HLL are Harten-Lax-van Leer type solvers (def 4-HLL2c)</li>
+<li>Use Heun 2nd order and averaiging: used with MUSCL to get a better estimate of water level and velocities (slower)</li>
+<li>Max iterations: forces break out of n-th flood loop, usually not necessary, better to try different Courant conditions and minimum timesteps in the Flow tab (def 200).</li>
+<li>Minimum height: water level (in m) before 2D calculations are done, below this height no flow is assumed</li>
+<li>Time average V: more stable solution of 2D flkow (def on).</li>
 </ul>
-<p><strong>Connecting Overland flow/flood to Channel</p></strong>
-A fraction of the water beside the channel in a channe cell, is diverted to the channel. This fraction is based on the general flow velocity of the water [0], or based on the Manning's velocity using the terrain slope perpendicular to the channel [1].
-<p><strong>Connecting Kinematic Overland flow to flood</p></strong>
+<h3>Kinematic wave<strong><br /></strong></h3>
 <ul>
-<li>Runoff water is slowed down when entering the flood water, simulated by a temporarily increased Manning resistance: n = n_org*(2-exp(-a(flood h))) (def a = 2)</li>
-<li>When using the option 1D kinematic overlandf low with 2D channel flooding, the overland flow and flood water must be mixed. Two parameters are used: an exponential function of the ratio between the two: flood is increased by a fraction of the runoff, where the fraction is calculated as: 1-exp(-b*(flood h)/(runoff h), where b has a value larger than 1 (def b=1)</li>
+<li>Use linked list for kinematic flow: siwtched on means the linked list is recalculated each time kinematic wave is called (default off)</li>
+<li>Perimeter overland flow width+2*height or wisdt only. Very old versions of LISEM had w+2h. In realty perimeter is somewhere between w and w+2h depedning on surface roughness.</li>
 </ul>
+<h3>Channel flow<strong><br /></strong></h3>
+<ul>
+<li>Standard or iterative connection to channel: A fraction of the water beside the channel in a channe cell, is diverted to the channel. This fraction is based on the general flow velocity of the water [0], or based on the Manning's velocity using the terrain slope perpendicular to the channel [1].</li>
+<li>Set channel max velocity: in some cases the channel velocity becomes excessive</li>
+<li>Loop kinematic wave for channel flow is the timestep is more than 60 sec.</li>
+</ul>
+
 
 
