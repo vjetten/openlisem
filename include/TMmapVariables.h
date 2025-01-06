@@ -198,18 +198,19 @@ cTMap
 *Qps,                       //!< pesticide sediment flux based on Qs [mg/sec]
 *PCs,                       //!< concentration of pesticide in pesticide soil layer 1 [mg/kg]
 *Theta_mix,                 //!< theta of the mixing layer [-]
-*pmsdet,                     //!< mass of detached pesticide [mg]
-*pmsdep,                     //!< mass of deposited pesticide [mg]
-*pmwdep,                    //!< mass of deposited pesticide [mg]
-*pmwdet,                     //!< mass of detatched pesticide [mg]
+*pmsdet,                     //!< total mass of detached sorbed pesticide [mg]
+*pmsdep,                     //!< total mass of deposited sorbed pesticide [mg]
+*pmwdep,                    //!< total mass of deposited dissolved pesticide [mg]
+*pmwdet,                     //!< total mass of detached dissolved pesticide [mg]
 *WVji1,                     //!< water volume in cell at j, i+1 [m3]
 *SedMassIn,                  //!< sediment mass in to kinematic wave [kg]
 *SedAfterSplash,             //!< sediment mass in flow after splash [kg]
-*PMsplash,                   //!< mass detached sorbed pesticide by splash erosion [mg]
-*PMflow,                    //!< mass detached sorbed pesticide by flow detachement[mg]
-*PMdep,                     //!< mass deposited sorbed pesticide [mg]
+*PMsplash,                   //!< mass detached sorbed pesticide by splash erosion this timestep[mg]
+*PMflow,                    //!< mass detached sorbed pesticide by flow detachment this timestep[mg]
+*PMdep,                     //!< mass deposited sorbed pesticide this timestep[mg]
 *totalPPlossmap,             //!< total loss of PP pesticide [mg/m2]
 *totalDPlossmap,             //!< total loss of DP pesticide [mg/m2]
+// pesticide in channels
 *ChanPMrw,                 //!< mass of dissolved pesticides in channel water [mg]
 *ChanPMrss,                //!< mass of particulate pesticides in channel suspended sediment [mg]
 *ChanPMmw,                  //!< mass of dissolvd pesticide in channel mixing zone [mg]
@@ -225,13 +226,14 @@ cTMap
 *chanpmwdep,                    //!< mass of deposited dissolved pesticide in channel [mg]
 *chanpmwdet,                     //!< mass of detatched dissolved pesticide in channel [mg]
 
-//FULLSWOF2D for sorbed pesticides
-*SSDepthFlood,
-*SSTCFlood,
-*SSDetFlood,
-*DepFlood,
-*SSCFlood,
-*SSFlood,
+// //FULLSWOF2D for sorbed pesticides
+// *SSDepthFlood,
+// *SSTCFlood,
+// *SSDetFlood,
+// *DepFlood,                  //!< total deposition of pesticides in cell [mg]
+// *PDep,
+// *SSCFlood,
+// *SSFlood,
 
 *test_map,
 

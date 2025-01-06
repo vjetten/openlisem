@@ -466,13 +466,13 @@ void TWorld::SWOFSedimentLayerDepth(int r , int c, double h, double velocity)
 }
 //--------------------------------------------------------------------------------------------
 /**
- * @fn void TWorld::SWOFSedimentDet(double dt, int r,int c)
- * @brief Flow detachment and deposition for flood water
+ * @fn void TWorld::SWOFPestDet(double dt, int r,int c)
+ * @brief Detachment and deposition for sorbed pesticides in runoff
  *
- * Flow detachment and deposition for flood water for a single cell.
+ * Flow detachment and deposition for pesticides in runoff for a single cell.
  * Based on the settling velocity of the grain classes and the
  * transport capacity, erosion and deposition are simulated.
- * for each grain class induvidually.
+ * for each grain class individually.
  * Detachment is taken from the upper soil layer when possible ,and the lower
  * soil layer afterwards. Deposition is added to the upper soil layer.
  * The sediment concentration can not
