@@ -139,6 +139,7 @@ SET(APP_SOURCES
     erosion/lisSWOF2DSediment.cpp
     erosion/lisErosion.cpp
     pest/lisPesticide.cpp
+    pest/lisSWOF2DPesticide.cpp
     include/array.h
     include/CsfMap.h
     include/CsfRGBMap.h

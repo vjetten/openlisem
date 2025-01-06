@@ -326,9 +326,9 @@ void TWorld::SplashDetachment()
  *
  * This function uses the function for overland flow transport capacity to
  * calculate the potential detachment/deposition based on the settling velocity of the sediment.
- * When potential detachment is found, the fuction for taking soil
+ * When potential detachment is found, the function for taking soil
  * from the soil layer is used to find actual detachment.
- * When deposition is found, this sediment is added to the deposited soil layer.
+ * When deposition is found, this sediment is added to the soil (MC - currently no separate deposited soil layer).
  *
  * @see TWorld:OFTC
  * @see TWorld:GetSV

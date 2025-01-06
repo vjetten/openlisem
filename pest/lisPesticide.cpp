@@ -461,7 +461,7 @@ for(long i_ =  0; i_ < _crlinked_.size(); i_++)
         // the suspended sediment concentration - resulting in the adsorbed
         // pesticide concentration in the runoff water. This is suitable to be
         // solved with the explicit Chow equation. And takes flow speed into
-        // acount when reditributing the adsorbed pesticide. The 'simple extrapolation
+        // acount when redistributing the adsorbed pesticide. The simple extrapolation
         // above does not do that and causes extreme concentration peaks at the
         // rising limb of the discharge.
         // mg sec-1 = m3 sec -1 * (mg m-3)
@@ -569,6 +569,7 @@ double TWorld::ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
 /**
 * @fn double TWorld::PesticideDetachment(double rho);
 * @brief Calculate mass exchange by erosion and deposition with soil
+* in the kinematic wave
 */
 
 void TWorld::PesticideFlowDetachment(double rho) {

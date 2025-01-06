@@ -298,8 +298,16 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
         if (step > 0) {
 
+            if (SwitchPest) {
+                SWOFPesticide(dt_req_min, h,u,v);
+                // transport of dissolved pesticide
+            }
             if (SwitchErosion) {
                 SWOFSediment(dt_req_min, h,u,v);
+                if (SwitchPest) {
+                    SWOFPesticideSediment(dt_req_min, h,u,v);
+                    // transport of sorbed pesticide
+                }
             }
             /** @todo pesticide */
 

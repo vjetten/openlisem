@@ -304,7 +304,7 @@ void TWorld::OverlandFlow2Ddyn(void)
             dtOF = fullSWOF2openMUSCL(WHrunoff, Uflood, Vflood, DEM);
         // separating muscl saves many checks for muscl in the loop: faster
 
-        // calc discharge flux form the last flux in the loop
+        // calc discharge flux from the last flux in the loop
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             V->Drc = sqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);

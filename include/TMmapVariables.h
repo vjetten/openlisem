@@ -224,6 +224,15 @@ cTMap
 *chanpmsdep,                     //!< mass of deposited sorbed pesticide in channel [mg]
 *chanpmwdep,                    //!< mass of deposited dissolved pesticide in channel [mg]
 *chanpmwdet,                     //!< mass of detatched dissolved pesticide in channel [mg]
+
+//FULLSWOF2D for sorbed pesticides
+*SSDepthFlood,
+*SSTCFlood,
+*SSDetFlood,
+*DepFlood,
+*SSCFlood,
+*SSFlood,
+
 *test_map,
 
 

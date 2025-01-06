@@ -897,6 +897,7 @@ public:
 
     /** @todo PEST stuff, replace with work Meindert */
     //Pesticides
+    // =>
     void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
     double MassPestInitial(void);
     void PesticideCellDynamics(void);
@@ -916,6 +917,16 @@ public:
     double ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
                        double Pji1, double alpha, double dx, double dt);
     double PesticideEnrichmentRatio(double Emax, double S, double beta);
+
+    void SWOFPestCheckZero(int r, int c, cTMap * h);
+    void SWOFPestSetConcentration(int r, int c, cTMap * h);
+    void SWOFPestDiffusion(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
+    void SWOFPestFlowInterpolation(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
+    void SWOFPestDet(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFPestDetNew(double dt, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFPesticide(double dt, cTMap * h,cTMap * u,cTMap * v);
+    // <= Pesticides
+
 
     // 1D hydro processes
     // => input timeseries
