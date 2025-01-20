@@ -224,6 +224,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Infil Kavg")==0)                    comboBox_Kmean->setCurrentIndex(iii);
         if (p1.compare("Van Genuchten")==0)                 spinSoilPhysics->setValue(valc);
         if (p1.compare("Swatre output")==0)                 checkSwatreOutput->setChecked(check);
+        if (p1.compare("SWATRE internal minimum timestep")==0) E_SWATREDtsecFraction->setValue(valc);
 
         // FLOW
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
@@ -370,6 +371,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use Channel Max V")==0)                 checkChanMaxVelocity->setChecked(check);
         if (p1.compare("Channel Max V")  ==0)                   E_chanMaxVelocity->setValue(valc);
         if (p1.compare("Channel 2D flow connect")==0)           checkChannel2DflowConnect->setChecked(check);
+        if (p1.compare("SWATRE pprecision")==0)                 spinSwatrePrecision->setValue(iii);
         //if (p1.compare("Channel WF inflow")==0)        checkChannelWFinflow->setChecked(check);
 
 
@@ -830,9 +832,8 @@ void lisemqt::updateModelData()
         }
         if (p1.compare("Swatre table directory")==0)         namelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
         if (p1.compare("Swatre profile file")==0)            namelist[j].value = E_SwatreTableName->text();//SwatreTableName;
-        if (p1.compare("SWATRE internal minimum timestep")==0)  {
-            double fraction = E_SWATREDtsecFraction->value();
-            swatreDT = E_Timestep->text().toDouble()*fraction;
+        if (p1.compare("SWATRE internal minimum timestep")==0) {
+            swatreDT = std::min(E_Timestep->text().toDouble(), E_SWATREDtsecFraction->value());
             namelist[j].value.setNum(swatreDT,'g',6);
         }
 
@@ -947,6 +948,9 @@ void lisemqt::updateModelData()
         if (p1.compare("Grassstrip Mannings n")==0)         namelist[j].value = E_GrassStripN->text();
         if (p1.compare("Sediment Trap Mannings n")==0)      namelist[j].value = E_SedTrapN->text();
         if (p1.compare("Include subgridcell retention")==0) namelist[j].value.setNum((int)checkGridRentention->isChecked());
+
+        //advanced
+        if (p1.compare("SWATRE pprecision")==0)             namelist[j].value = spinSwatrePrecision->text();
 
         // miscellaneous
         if (p1.compare("Nr user Cores")==0)                 namelist[j].value.setNum(nrUserCores->value());

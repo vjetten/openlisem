@@ -84,6 +84,8 @@ void TWorld::InitParameters(void)
     rainIDIfactor = getvaluedouble("IDI factor");
 
     HinitValue = getvaluedouble("Initial matrix potential");
+    SoilWBdtfactor = getvaluedouble("SoilWB dt factor"); // not really used, only for soap but soap not working
+    swatreDT = getvaluedouble("SWATRE internal minimum timestep");
 
     GW_recharge = getvaluedouble("GW recharge factor");
     GW_flow = getvaluedouble("GW flow factor");
@@ -159,6 +161,7 @@ void TWorld::InitParameters(void)
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
         SwitchChannelWFinflow = false;//getvalueint("Channel WF inflow") == 1;
+        SwatrePrecision = getvaluedouble("SWATRE precision");
     } else {
         F_MaxIter = 200;
         F_minWH = 0.00001;
@@ -176,9 +179,10 @@ void TWorld::InitParameters(void)
         nN3_ = 6;
         SoilWBdtfactor = 10;
 
-
+        SwatrePrecision = 12;
         //SwitchGWChangeSD = true;
     }
+
     _CHMaxV = 20.0;
     if (SwitchChannelMaxV)
        _CHMaxV =  getvaluedouble("Channel Max V");
@@ -994,7 +998,7 @@ void TWorld::InitChannel(void)
     ChannelWH = NewMap(0);
     //Channelq = NewMap(0);//
     ChannelAlpha = NewMap(0);//
-    ChannelDX = NewMap(0);
+    ChannelDX = NewMap(0); //!!!!!!!!!!!!!!!! dit moet DX zijn
     ChannelInfilVol = NewMap(0);
 
     maxChannelflow = NewMap(0);//
@@ -1059,8 +1063,9 @@ void TWorld::InitChannel(void)
     ChannelWidthO = NewMap(0);
  //   ChannelDepthO = NewMap(0);
 
-    FOR_ROW_COL_MV_CH
-    {
+    FOR_ROW_COL_MV_CH {
+        ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
+
         ChannelWidthO->Drc = ChannelWidth->Drc;
       //  ChannelDepthO->Drc = ChannelDepth->Drc;
 
@@ -1070,8 +1075,7 @@ void TWorld::InitChannel(void)
             ChannelDepth->Drc *= ChannelWidthO->Drc/ChannelWidth->Drc; //(0.95*_dx);
         }
 
-        if (ChannelWidth->Drc <= 0)
-        {
+        if (ChannelWidth->Drc <= 0) {
             ErrorString = QString("Map %1 contains channel cells with width = 0").arg(getvaluename("chanwidth"));
             throw 1;
         }
@@ -1099,6 +1103,12 @@ void TWorld::InitChannel(void)
         ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
         cover(*ChannelKsat, *LDD, 0);
         calcValue(*ChannelKsat, ChKsatCalibration, MUL);
+        // ksat in m3 is does not change during the run
+        ChannelInfM3 = NewMap(0);
+        FOR_ROW_COL_MV_CH {
+            ChannelInfM3->Drc =  ChannelKsat->Drc * _dt/3600000.0 * ChannelDX->Drc * ChannelWidthO->Drc;
+        }
+
         // ChannelStore = NewMap(0.050); // 10 cm deep * 0.5 porosity
         // store not used?
     }
@@ -1142,7 +1152,6 @@ void TWorld::InitChannel(void)
     {
         ChannelWidthMax->Drc = ChannelWidth->Drc; // not used!
         // make always a rectangular channel
-        ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
     }
 
     if (SwitchGWflow) {
@@ -2559,14 +2568,14 @@ void TWorld::InitTiledrains(void)
 
         TileArea = NewMap(0);
         TileDiameter = NewMap(0);
-        TileInlet = ReadMap(LDDTile, getvaluename("tilesink"));
+        //TileInlet = ReadMap(LDDTile, getvaluename("tilesink"));
         TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
         checkMap(*TileGrad, LARGER, 1.0, "Tile drain gradient must be SINE of slope angle (not tangent)");
         calcValue(*TileGrad, 0.001, MAX);
         TileN = ReadMap(LDDTile, getvaluename("tileman"));
         cover(*TileGrad, *LDD, 0);
         cover(*TileN, *LDD, 0);
-        cover(*TileInlet, *LDD, 0);
+        //cover(*TileInlet, *LDD, 0);
         TileWaterVolSoil = NewMap(0);
         TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
         TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
@@ -2578,9 +2587,9 @@ void TWorld::InitTiledrains(void)
         cover(*TileWidth, *LDD, 0);
         cover(*TileHeight, *LDD, 0);
 
-        FOR_ROW_COL_MV_TILE {
-            TileInlet->Drc = std::min(TileInlet->Drc, 0.9*_dx*_dx);
-        }
+        // FOR_ROW_COL_MV_TILE {
+        //     TileInlet->Drc = std::min(TileInlet->Drc, 0.9*_dx*_dx);
+        // }
 
         if (SwitchIncludeTile) {
             TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
@@ -2592,7 +2601,7 @@ void TWorld::InitTiledrains(void)
         if (SwitchIncludeStormDrains && SwitchStormDrainCircular) {
             TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
             FOR_ROW_COL_MV_TILE {
-                double area = (TileDiameter->Drc*0.5)*(TileDiameter->Drc*0.5)*PI;// PI r^2
+                double area = SQR(TileDiameter->Drc*0.5)*PI;// PI r^2
                 TileArea->Drc = area * 2; // two sides of the street
             }
             CalcMAXDischCircular();

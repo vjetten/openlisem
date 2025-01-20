@@ -155,7 +155,7 @@ void lisemqt::DefaultMapnames()
 
     DEFmaps.append("0;Storm drains/Tile drains");
     DEFmaps.append("2;LDD;lddtile.map;LDD of tile drain system (must be one system connected to the outlet);lddtile");
-    DEFmaps.append("2;Sink;tileinlet.map;Sink holes connecting surface to tile drain system (size in m2);tilesink");
+    //DEFmaps.append("2;Sink;tileinlet.map;Sink holes connecting surface to tile drain system (size in m2);tilesink");
     DEFmaps.append("2;Diameter;tilediameter.map;Tile drain pipe diameter (m);tilediameter");
     DEFmaps.append("2;Width;tilewidth.map;Tile drain pipe width, total in cell if more than one drain (m);tilewidth");
     DEFmaps.append("2;Height;tileheight.map;Tile drain pipe height (m);tileheight");
@@ -375,10 +375,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Swatre profile file");
     namelist[i].value = QString("c:\\");
     namelist[i++].name = QString("Swatre table directory");
-    //namelist[i].value = QString("profile.inp");
-    //namelist[i++].name = QString("Table File");
-    //namelist[i].value = QString("0.01");
-    //namelist[i++].name = QString("SWATRE internal minimum timestep");
+    namelist[i].value = QString("2");
+    namelist[i++].name = QString("SWATRE internal minimum timestep");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Swatre output");
     namelist[i].value = QString("inithead");
@@ -532,7 +530,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0.5");
     namelist[i++].name = QString("Sigma diffusion");
 
-    //### COnservation mitigation
+    //### Conservation mitigation
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Conservation]");
     namelist[i].value = QString("0");
@@ -552,7 +550,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0.8");
     namelist[i++].name = QString("Sediment Trap Mannings n");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include subgricell retention");
+    namelist[i++].name = QString("Include subgridcell retention");
 
     //### Calibration
     namelist[i++].name = QString("");
@@ -676,6 +674,9 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel Max V");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Channel 2D flow connect");
+    namelist[i].value = QString("12");
+    namelist[i++].name = QString("SWATRE precision");
+
  //   namelist[i].value = QString("0");
  //   namelist[i++].name = QString("Calculate erosion inside 2D loop");
 //    namelist[i].value = QString("0");

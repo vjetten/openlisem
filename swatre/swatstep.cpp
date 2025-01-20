@@ -82,17 +82,16 @@ void TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap 
         _drain->Drc = s->pixel[i_].tiledrain*0.01;  // in m
     // drained water from the soil, already accounts for drainwidth versus i_l width
 }//--------------------------------------------------------------------------------
-double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int nrNodes, double dtMin)
+double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int nrNodes, double dtMin, double precParam)
 {
-    double precParam = 5.0;
-    // note "5" is a precision factor dewtermining next timestep, set to 5 in old lisem
-    int i;
+   // double precParam = SwatrePrecision;
+    // note "5" is a precision factor determining next timestep, set to 5 in old lisem
+    // higher gives better results!
     double dt = _dt;
-    double accur1 = 0.3 - 0.02 * precParam;
-    double accur2 = 0.03 - 0.002 * precParam;
+    double accur1 = std::max(0.0, 0.3 - 0.02 * precParam);
+    double accur2 = 0.03 - 0.002 * precParam; //SwatrePrecision;//
 
-    for(i=0; i < nrNodes; i++)
-    {
+    for(int i=0; i < nrNodes; i++) {
         double mdih = accur1 + accur2 * std::max(1.0, fabs(h[i]));
         double dih  = fabs(h[i] - hLast[i]);
         // if difference is small
@@ -371,7 +370,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
         }
 
         // estimate new dt within lisemtimestep
-        dt = NewTimeStep(dt, hPrev, h, nN, s->minDt);
+        dt = NewTimeStep(dt, hPrev, h, nN, s->minDt, SwatrePrecision);
 
         if (elapsedTime+dt >= _dt - TIME_EPS)
             dt = _dt - elapsedTime;

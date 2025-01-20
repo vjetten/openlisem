@@ -71,6 +71,7 @@
 #define Savg(a,b)  sqrt(a*b)
 #define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
 #define Mavg(a,b)  std::min(a,b)
+#define SQR(a) ((a)*(a))
 
 #define DEBUG(s) emit debug(QString(s))
 #define TIMEDB(s) emit timedb(QString(s))
@@ -670,6 +671,9 @@ public:
     double Maxsolubility;
     double MaxVup;
 
+    /// swatre
+    double SwatrePrecision;
+
     /// time and dx parameters
     double time, BeginTime, EndTime;
     double _dt, _dx;
@@ -1156,7 +1160,7 @@ public:
     void HeadCalc(const PROFILE *p, double *h, bool *isPonded, bool fltsat,
                   const double *thetaPrev, const double *hPrev, const double *kavg, const double *dimoca,
                   double dt, double pond, double qtop, double qbot);
-    double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes, double dtMin);
+    double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes, double dtMin, double precParam);
 //    double  NewTimeStep(double prevDt, QVector <double> hlast, QVector <double> h, int nrNodes, double dtMin);
 //    void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction);
     void ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction);

@@ -134,25 +134,17 @@ void TWorld::TotalsHydro(void)
 
     //=== infiltration ===//
     if(SwitchInfiltration) {
-        InfilTot += MapTotal(*InfilVol);// + MapTotal(*InfilVolKinWave);
-
-        if (SwitchIncludeChannel && SwitchChannelInfil) {
-            InfilTot += MapTotal(*ChannelInfilVol); //m3
-        }
+        InfilTot += MapTotal(*InfilVol);   //obsolete + MapTotal(*InfilVolKinWave);
         InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
+        // used in reporting
         // infiltration mm and m3
-        // OBSOLETE
-        //InfilKWTot += MapTotal(*InfilVolKinWave);
 
         // flood infil
         // used for reporting only
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            InfilVolCum->Drc += InfilVol->Drc;// + InfilVolKinWave->Drc;// + InfilVolFlood->Drc;
-            if (SwitchIncludeChannel && SwitchChannelInfil)
-                InfilVolCum->Drc += ChannelInfilVol->Drc;
-
-            InfilmmCum->Drc = std::max(0.0, InfilVolCum->Drc*1000.0/(_dx*_dx));
+            InfilVolCum->Drc += InfilVol->Drc;
+            InfilmmCum->Drc = InfilVolCum->Drc*1000.0/(_dx*_dx);
             PercmmCum->Drc += Perc->Drc*1000.0;
         }}
 
@@ -228,14 +220,26 @@ void TWorld::TotalsFlow(void)
     if (SwitchIncludeChannel) {
         ChannelVolTot = MapTotal(*ChannelWaterVol); //m3
         // add channel vol to total
-        if (SwitchGWflow) {
-                BaseFlowTot += MapTotal(*Qbase); // total inflow in m3
 
-                GWlevel = MapTotal(*GWWH);
-                GWleveltot = GWlevel*catchmentAreaFlatMM;
-                GWlevel /= (double)nrValidCells; // avg GW level
-                // BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
-                //qDebug() << BaseFlowTotmm;
+        if (SwitchChannelInfil) {
+            InfilTot += MapTotal(*ChannelInfilVol); //m3
+            InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
+
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                InfilVolCum->Drc += ChannelInfilVol->Drc;
+                InfilmmCum->Drc = InfilVolCum->Drc*1000.0/(_dx*_dx);
+            }}
+        }
+
+        if (SwitchGWflow) {
+            BaseFlowTot += MapTotal(*Qbase); // total inflow in m3
+
+            GWlevel = MapTotal(*GWWH);
+            GWleveltot = GWlevel*catchmentAreaFlatMM;
+            GWlevel /= (double)nrValidCells; // avg GW level
+            // BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
+            //qDebug() << BaseFlowTotmm;
         }
 
         if (SwitchChannelBaseflowStationary)

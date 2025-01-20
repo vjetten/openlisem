@@ -222,16 +222,13 @@ void TWorld::ChannelRainandInfil(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             if (ChannelMaxQ->Drc <= 0) {
-                double inf = ChannelDX->Drc * ChannelKsat->Drc*_dt/3600000.0 * (ChannelWidth->Drc + 2.0*ChannelWH->Drc/cos(atan(ChannelSide->Drc)));
-                // hsat based through entire wet cross section
-                inf = std::min(ChannelWaterVol->Drc, inf);
+                double inf = std::min(ChannelWaterVol->Drc, ChannelInfM3->Drc);
                 // cannot be more than there is
                 ChannelWaterVol->Drc -= inf;
-                ChannelInfilVol->Drc += inf;
+                ChannelInfilVol->Drc = inf; // do not make infiltration cumulative, that is done in totals
             }
         }}
     }
-
 
     // add user channel inflow
     if (SwitchDischargeUser) {

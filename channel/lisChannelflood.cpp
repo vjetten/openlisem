@@ -49,6 +49,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
      //#pragma omp parallel for num_threads(userCores)
      FOR_ROW_COL_MV_CHL {
+        // double sumvol = ChannelWH->Drc*DX->Drc*ChannelWidth->Drc + _h->Drc*CHAdjDX->Drc;
+
          double maxQ = SwitchCulverts ? ChannelMaxQ->Drc  : -1;
 
          if (ChannelWidth->Drc > 0 && maxQ <= 0)
@@ -158,6 +160,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                  }
              }
          }
+        // double sumvol1 = ChannelWH->Drc*DX->Drc*ChannelWidth->Drc + _h->Drc*CHAdjDX->Drc;
+        // qDebug() << sumvol-sumvol1;
      }}
 }
 

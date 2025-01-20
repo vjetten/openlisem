@@ -1153,7 +1153,7 @@ void lisemqt::resetTabAdvanced()
     checkChanMaxVelocity->setChecked(true);
     checkChannel2DflowConnect->setChecked(false);
 }
-/--------------------------------------------------------------------
+//--------------------------------------------------------------------
 
 void lisemqt::resetAll()
 {

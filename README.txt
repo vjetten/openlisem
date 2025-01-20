@@ -13,15 +13,19 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6, openmp, gdal and (minimal) pcraster
 
+LIST OF CHANGES and BUGFIZES:
+
 250113 - v7.4.5
 - BUG FIX: Delete all map and swatre data after no GUI run
 - BUG FIX: Update Lisem, wrong check
 - BUG FIX: Swatre compacted profiles incorrectly named
 - BUG FIX: Swatre impermeable surfaces no longer ignored
+- BUG FIX: Swatre internal timestep and percision saved correctly in run file
 - BUG FIX: check if compacted or crusted porosity is smaller than ninitial moisture
 - BUG FIX: wrong help file shown in certain pages, help text updated
 - BUG FIX: some conservation measures not properly stored in the run file
 - BIG FIX: reset options of certain tabs did not work
+- BUG FIX: channel infioltration not correct;ly added to mass balance
 - Included gridretention (Fanyaa Yuu, trenches etc) in mitigation measures, acts also as sediment trap
 - Swatre input matrix potential as one value or user maps, output as maps of h and theta for each node
 - Added options of dealing with Org.Mat. differences (-2% to 2%) and Density Factor (0.9 to 1.1) in SWATRE and GA infiltration

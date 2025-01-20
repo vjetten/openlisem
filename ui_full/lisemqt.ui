@@ -28,7 +28,7 @@
   </property>
   <property name="font">
    <font>
-    <bold>true</bold>
+    <bold>false</bold>
    </font>
   </property>
   <property name="windowTitle">
@@ -2217,7 +2217,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>5</number>
+                  <number>3</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -4545,7 +4545,7 @@
                             </font>
                            </property>
                            <property name="decimals">
-                            <number>0</number>
+                            <number>1</number>
                            </property>
                            <property name="minimum">
                             <double>1.000000000000000</double>
@@ -4554,7 +4554,7 @@
                             <double>600.000000000000000</double>
                            </property>
                            <property name="singleStep">
-                            <double>1.000000000000000</double>
+                            <double>0.100000000000000</double>
                            </property>
                            <property name="value">
                             <double>2.000000000000000</double>
@@ -10192,6 +10192,45 @@
                          <property name="verticalSpacing">
                           <number>4</number>
                          </property>
+                         <item row="1" column="0">
+                          <widget class="QSpinBox" name="spinSoilPhysics">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="minimum">
+                            <number>1</number>
+                           </property>
+                           <property name="maximum">
+                            <number>2</number>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="2">
+                          <widget class="QLabel" name="label_158">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>of Hydraulic Conductivity K between two nodes</string>
+                           </property>
+                          </widget>
+                         </item>
                          <item row="0" column="0" colspan="2">
                           <widget class="QComboBox" name="comboBox_Kmean">
                            <property name="sizePolicy">
@@ -10230,45 +10269,6 @@
                            </item>
                           </widget>
                          </item>
-                         <item row="0" column="2">
-                          <widget class="QLabel" name="label_158">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>of Hydraulic Conductivity K between two nodes</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="1" column="0">
-                          <widget class="QSpinBox" name="spinSoilPhysics">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="minimum">
-                            <number>1</number>
-                           </property>
-                           <property name="maximum">
-                            <number>2</number>
-                           </property>
-                          </widget>
-                         </item>
                          <item row="1" column="1" colspan="2">
                           <widget class="QLabel" name="label_160">
                            <property name="font">
@@ -10281,6 +10281,42 @@
                            </property>
                            <property name="text">
                             <string>Soil Physics: 1 - Brooks-Corey; 2 - Van Genuchten</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="0">
+                          <widget class="QSpinBox" name="spinSwatrePrecision">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="minimum">
+                            <number>3</number>
+                           </property>
+                           <property name="maximum">
+                            <number>15</number>
+                           </property>
+                           <property name="value">
+                            <number>6</number>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="1" colspan="2">
+                          <widget class="QLabel" name="label_144">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Swatre precision parameter for timestep estimation (higher is more precise)</string>
                            </property>
                           </widget>
                          </item>

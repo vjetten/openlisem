@@ -255,7 +255,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =  iii == 1;
         if (p1.compare("Nr input layers")==0)                   SwitchNrLayers =     iii == 1;
         if (p1.compare("Psi user input")==0)                    SwitchPsiUser =      iii == 1;
-        if (p1.compare("Swatre output")==0)                     SwitchDumphead =     iii == 1;
+        if (p1.compare("Swatre output")==0)                     SwitchDumphead =     iii == 1;        
 
         //channels and GW
         if (p1.compare("Include main channels")==0)             SwitchIncludeChannel = iii == 1;
@@ -338,6 +338,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include flow barriers")==0)             SwitchFlowBarriers = iii == 1;
         if (p1.compare("Flow barrier table filename")==0)       FlowBarriersFileName = p;
         if (p1.compare("Include buffers")==0)                   SwitchBuffers = iii == 1;
+        if (p1.compare("Include subgridcell retention")==0)     SwitchGridRetention = iii == 1;
 
         // advanced
         if (p1.compare("Advanced Options")==0)                  SwitchAdvancedOptions = iii == 1;
@@ -387,10 +388,6 @@ void TWorld::ParseRunfileData(void)
     if (InfilMethod == INFIL_SMITH2) InfilMethod = INFIL_SMITH;
     if (!SwitchInfiltration)
         InfilMethod = INFIL_NONE;
-    //prob onsolete: deal with old runfil pre 6.6
-    SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
-    swatreDT = std::min(SoilWBdtfactor, _dt);
-    //swatreDT = _dt * SoilWBdtfactor; //getvaluedouble("SWATRE internal minimum timestep");
 
     if (!SwitchIncludeChannel)
     {
@@ -417,8 +414,7 @@ void TWorld::ParseRunfileData(void)
 
     // start again and do the rest of the variables, map names etc.
     // choice of options in first loop determines what happens in this loop
-    for (j = 0; j < nrrunnamelist; j++)
-    {
+    for (j = 0; j < nrrunnamelist; j++) {
         QString p1 = runnamelist[j].name;
         QString p = runnamelist[j].value;
 

@@ -52,10 +52,10 @@ void TWorld::ToTiledrainAll()
         FOR_ROW_COL_MV_TILEL {
             //double fractiontotile = std::max(1.0, 2*0.09/CHAdjDX->Drc) * RoadWidthDX->Drc/_dx;
             //or:
-            double fractiontotile  = std::min(1.0, _dt*V->Drc/(0.09/CHAdjDX->Drc)) * RoadWidthDX->Drc/_dx;;
-            // 30x30cm = 0.09 m2, 2 is both sides of the street
+            double fractiontotile  = std::min(1.0, _dt*V->Drc/(2*0.03/CHAdjDX->Drc)) * RoadWidthDX->Drc/_dx;
+            // 10x30cm = 0.03 m2, 2 is both sides of the street
             //Street inlet is assumed to be a hole in the street
-            // fraction based on surface, simpel! or as velocity
+            // fraction based on surface, simpel! or as velocity?
 
             double MaxVol;
             if (SwitchStormDrainCircular)
@@ -78,16 +78,19 @@ void TWorld::ToTiledrainAll()
     }
 }
 //---------------------------------------------------------------------------
+// NOT USED, tileinlet not used
 //fraction of water and sediment flowing from the surface to the tiledrain system
 void TWorld::ToTiledrain()
 {
+    /*
     if (SwitchIncludeStormDrains)  //SwitchIncludeTile ||
     {
         Fill(*RunoffVolinToTile,0);
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_TILEL {
-            if(TileInlet->Drc > 0) {// && WHrunoff->Drc > 1e-6) {
+            //if(TileInlet->Drc > 0) {// &&
+            if (WHrunoff->Drc > 1e-6) {
                 double fractiontotile = 2 * std::max(1.0, std::min(0.0,TileInlet->Drc/CHAdjDX->Drc)) * RoadWidthDX->Drc/_dx;
                 // 2 is both sides of the street
                 // fraction based on surface, simpel!
@@ -108,13 +111,13 @@ void TWorld::ToTiledrain()
                     RunoffVolinToTile->Drc = vol;
                     // adjust water height
                     WHrunoff->Drc -= dh;
-                    //WHroad->Drc -= dh;
                     WH->Drc -= dh;
                     WaterVolall->Drc -= vol;
                 }
             }
         }}
     }
+    */
 }
 //---------------------------------------------------------------------------
 // V, alpha and Q in the Tile
@@ -130,7 +133,7 @@ void TWorld::CalcVelDischRectangular()
         Perim = TileWidth->Drc + Area/TileWidth->Drc; //(=w+2*h)
 
         TileV_ = powl(Area/Perim,_23) * gradN;
-        TileQ->Drc = Area*TileV_;
+        TileMaxQ->Drc = Area*TileV_;
         TileAlpha->Drc  = Area/std::pow(TileQ->Drc, 0.6);
     }}
 }
@@ -144,7 +147,7 @@ void TWorld::CalcMAXDischRectangular()
         double width = Area/TileHeight->Drc;
         double Perim = width+ 2*TileHeight->Drc; // factor 2 width for two drains in a strteet
 
-        double TileV_ = powl(Area/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+        double TileV_ = pow(Area/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
         TileMaxQ->Drc = Area*TileV_;
         TileMaxAlpha->Drc  = Area/std::pow(TileMaxQ->Drc, 0.6);
     }}
