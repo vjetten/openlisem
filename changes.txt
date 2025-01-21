@@ -1,18 +1,25 @@
-250113 - v7.4.5
+Latest fixes and chnages:
+=========================
+250121 - v7.4.5
 - BUG FIX: Delete all map and swatre data after no GUI run
-- BUG FIX: Update Lisem, wrong check
 - BUG FIX: Swatre compacted profiles incorrectly named
 - BUG FIX: Swatre impermeable surfaces no longer ignored
 - BUG FIX: Swatre internal timestep and percision saved correctly in run file
-- BUG FIX: check if compacted or crusted porosity is smaller than ninitial moisture
+- BUG FIX: check if compacted or crusted porosity is smaller than initial moisture
+- BUG FIX: channel infiltration not correctly added to mass balance
+- BUG FIX: soil moisture of topsoil reset to initial moisture for each timestep
+interface:
 - BUG FIX: wrong help file shown in certain pages, help text updated
+- BUG FIX: Update Lisem, wrong check
 - BUG FIX: some conservation measures not properly stored in the run file
 - BIG FIX: reset options of certain tabs did not work
-- BUG FIX: channel infioltration not correct;ly added to mass balance
+Changes:
+- Separated dynamic crustiung from static crusting
 - Included gridretention (Fanyaa Yuu, trenches etc) in mitigation measures, acts also as sediment trap
-- Swatre input matrix potential as one value or user maps, output as maps of h and theta for each node
-- Added options of dealing with Org.Mat. differences (-2% to 2%) and Density Factor (0.9 to 1.1) in SWATRE and GA infiltration
-- Interface: make LISEM update optional and reacitivate in advanced options
+- Swatre input matrix potential as one value or user maps, output as mapseries of h and theta for each node (001 .. 016)
+- Added options for dealing with Org.Mat. differences (-2% to 2%) and Density Factor (0.9 to 1.1) in SWATRE and GA infiltration
+- restored psi from user or calculated as option in Advanced options
+- make LISEM update from server optional, and possible to reacitivate in advanced options
 - Updated help files
 - Save fontsize and dark lisem in openlisem.ini
 
@@ -24,18 +31,3 @@
 - BUG FIX: sign error in Swatre causing invcerse effect of initial h
 - culvert kin wave code extended to subsurface drains, to be tested
 - Interface advanced option: perimeter for overland flow is not just the width but w+2h (compatibility old versions)
-
-241125 - v7.4.2
-- Adjusted the noInterface option. Now works well on headless systems.
-- BUG FIX: Swatre interface small bug fixes
-- BUG FIX: 2nd page interface map list greyed out
-
-241118 - v7.4
-- major rewrite of MUSCL 2D flow with 2nd order and Heun averaging (see FullSWOF documentation of Delestre et al.)
-- BUG FIX: small bug fixes in 2D flow
-- BUG FIX: culverts work again, still small MB error but not very much
-
-241114 - v7.3
-- BUG fix: reading of [rainfall/ET/boundary waterheight/user discharge] time string, was always rounded to whole minutes
-- BUG fix: finding the right timeseries interval with the current time at the end of the series
-- Code made compatble for Linux compile, instructions for compilation updated

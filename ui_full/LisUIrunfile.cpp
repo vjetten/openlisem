@@ -212,6 +212,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use Density correction")==0)        checkInfilDensfactor->setChecked(check);
         if (p1.compare("Include compacted")==0)             checkInfilCompact->setChecked(check);
         if (p1.compare("Include crusts")==0)                checkInfilCrust->setChecked(check);
+        if (p1.compare("Dynamic crusting")==0)              checkDynamicCrusting->setChecked(check);
         if (p1.compare("Use one matrix potential")==0)      checkInfilHinit->setChecked(check);
         if (p1.compare("Initial matrix potential")==0)      spinHinit->setValue(valc);
         if (p1.compare("Impermeable sublayer")==0)          checkInfilImpermeable->setChecked(check);
@@ -841,6 +842,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Use Density correction")==0)        namelist[j].value.setNum((int)checkInfilDensfactor->isChecked());
         if (p1.compare("Include compacted")==0)             namelist[j].value.setNum((int)checkInfilCompact->isChecked());
         if (p1.compare("Include crusts")==0)                namelist[j].value.setNum((int)checkInfilCrust->isChecked());
+        if (p1.compare("Dynamic crusting")==0)                namelist[j].value.setNum((int)checkDynamicCrusting->isChecked());
         if (p1.compare("Use one matrix potential")==0)      namelist[j].value.setNum((int)checkInfilHinit->isChecked());
         if (p1.compare("Initial matrix potential")==0)      namelist[j].value.setNum(spinHinit->value());
         if (p1.compare("Impermeable sublayer")==0)          namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());

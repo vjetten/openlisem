@@ -627,7 +627,7 @@ void TWorld::InitSoilInput(void)
 
         ThetaS1 = ReadMap(LDD,getvaluename("thetas1"));
         ThetaI1 = ReadMap(LDD,getvaluename("thetai1"));
-        calcValue(*ThetaI1, thetaCalibration, MUL);
+        calcValue(* ThetaI1, thetaCalibration, MUL);
         calcMap(*ThetaI1, *ThetaS1, MIN);
         copy(*ThetaI1a, *ThetaI1);
 
@@ -867,18 +867,21 @@ void TWorld::InitSoilInput(void)
             }
         }
 
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            Ksat1->Drc *= _dt/3600000.0; // mm/h to m
-            if (SwitchTwoLayer)
-                Ksat2->Drc *= _dt/3600000.0;
-            if (SwitchThreeLayer)
-                Ksat3->Drc *= _dt/3600000.0;
-            if (SwitchInfilCrust)
-                KsatCrust->Drc *= _dt/3600000.0;
-            if (SwitchInfilCompact)
-                KsatCompact->Drc *= _dt/3600000.0;
-        }}
+        // #pragma omp parallel for num_threads(userCores)
+        // FOR_ROW_COL_MV_L {
+        //     Ksat1->Drc *= _dt/3600000.0; // mm/h to m
+        //     if (SwitchTwoLayer)
+        //         Ksat2->Drc *= _dt/3600000.0;
+        //     if (SwitchThreeLayer)
+        //         Ksat3->Drc *= _dt/3600000.0;
+        //     if (SwitchInfilCrust)
+        //         KsatCrust->Drc *= _dt/3600000.0;
+        //     if (SwitchInfilCompact)
+        //         KsatCompact->Drc *= _dt/3600000.0;
+
+        //     Thetaeff->Drc = std::max(ThetaR1->Drc,ThetaI1->Drc);
+
+        // }}
 
 
     } // not swatre

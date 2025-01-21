@@ -243,8 +243,7 @@ void TWorld::DoModel()
 
         GetComboMaps(); // moved to outside timeloop!
 
-        if (SwitchInfiltration && InfilMethod != INFIL_SWATRE )
-            InfilEffectiveKsat();
+        InfilEffectiveKsat();
 
         for (time = BeginTime; time < EndTime; time += _dt)
         {            
@@ -270,8 +269,7 @@ void TWorld::DoModel()
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
 
-            if (SwitchInfilCrust)
-                InfilEffectiveKsat(); // if crusting recalc Ksateff and Poreff becuase of crusting effect
+            InfilDynamicCrusting(); // if crusting recalc Ksateff and Poreff becuase of crusting effect
 
             HydrologyProcesses();  // hydrological processes in one loop, incl splash
 

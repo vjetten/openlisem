@@ -40,106 +40,126 @@ functions: \n
 #include "operation.h"
 
 //---------------------------------------------------------------------------
-// Calculate effective Ksat based on surface structure, impermeable etc.
 void TWorld::InfilEffectiveKsat()
 {
+    if (!SwitchInfiltration || InfilMethod == INFIL_SWATRE)
+        return;
+
     // moved to datainit!
-    // if (first) {
-    //     #pragma omp parallel for num_threads(userCores)
-    //     FOR_ROW_COL_MV_L {
-    //         Ksat1->Drc *= _dt/3600000.0; // mm/h to m oper timestep
-    //         if (SwitchTwoLayer)
-    //             Ksat2->Drc *= _dt/3600000.0;
-    //         if (SwitchThreeLayer)
-    //             Ksat3->Drc *= _dt/3600000.0;
-    //         if (SwitchInfilCrust)
-    //             KsatCrust->Drc *= _dt/3600000.0;
-    //         if (SwitchInfilCompact)
-    //             KsatCompact->Drc *= _dt/3600000.0;
-    //     }}
-    // }
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        Ksat1->Drc *= _dt/3600000.0; // mm/h to m oper timestep
+        if (SwitchTwoLayer)
+            Ksat2->Drc *= _dt/3600000.0;
+        if (SwitchThreeLayer)
+            Ksat3->Drc *= _dt/3600000.0;
+        if (SwitchInfilCrust)
+            KsatCrust->Drc *= _dt/3600000.0;
+        if (SwitchInfilCompact)
+            KsatCompact->Drc *= _dt/3600000.0;
+    }}
 
-    if (SwitchInfiltration && InfilMethod != INFIL_SWATRE) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            Ksateff->Drc = Ksat1->Drc;
-            Poreeff->Drc = ThetaS1->Drc;
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        Ksateff->Drc = Ksat1->Drc;
+        Poreeff->Drc = ThetaS1->Drc;
+        Thetaeff->Drc = std::max(ThetaR1->Drc,ThetaI1->Drc);  // this resets the thetaeff to thetai1 all the time which is false!
+        // moved to datainit
 
-            // exponential crusting proces with cumulative rainfall
-            if (SwitchInfilCrust) {
-                double factor = 1.0-exp(-0.2*std::max(0.0, RainCum->Drc/1000-5.0));  //
-                // exponential decline until from no crusting to full crusting at ~ 30 mm,
-                //old research Jean Boiffin, multiple rainfall events in a growing season, progressive crusting
+        // static crusted surfaces
+        if (SwitchInfilCrust) {
+            Ksateff->Drc = Ksateff->Drc*(1-CrustFraction->Drc) + KsatCrust->Drc*CrustFraction->Drc;
+            Poreeff->Drc = Poreeff->Drc*(1-CrustFraction->Drc) + PoreCrust->Drc*CrustFraction->Drc;
+        }
 
-                double ksatdiff = std::max(0.0,Ksat1->Drc - KsatCrust->Drc);
-                Ksateff->Drc = KsatCrust->Drc + ksatdiff * factor;
+        // compacted surfaces
+        if (SwitchInfilCompact) {
+            Ksateff->Drc = Ksateff->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
+            Poreeff->Drc = Poreeff->Drc*(1-CompactFraction->Drc) + PoreCompact->Drc*CompactFraction->Drc;
+        }
 
-                double porediff = std::max(0.0,ThetaS1->Drc - PoreCrust->Drc);
-                Poreeff->Drc = PoreCrust->Drc + porediff * factor;
+        // grass strips? old concept?
+        if (SwitchGrassStrip) {
+            Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
+            Poreeff->Drc = ThetaS1->Drc*(1-GrassFraction->Drc) + PoreGrass->Drc*GrassFraction->Drc;
+        }
+
+        // density factor and OM corrections directly in LISEM (instead of dbase creator)
+        // because SWATRE also needs this
+        // these correction come from calculations based on Saxton and Rawls
+        // note ksat is in m/timestep, affects B of the regression eq for Ks, 0.001/3600.0*_dt
+        if (SwitchOMCorrection) {
+            double OM2 = OMcorr->Drc*OMcorr->Drc;
+            double corrKsOA = 0.0026*OM2 + 0.0359*OMcorr->Drc + 1;
+            double corrKsOB = 0.001/3600*_dt*(0.253*OM2 + 2.9368*OMcorr->Drc + 0.0007);
+            double corrPOA  = -0.001*OM2 + 0.1014*OMcorr->Drc + 1.0;
+            double corrPOB  = 0.0006*OM2 - 0.0282*OMcorr->Drc;
+            Ksateff->Drc = corrKsOA*Ksateff->Drc + corrKsOB;
+            Poreeff->Drc = corrPOA*Poreeff->Drc + corrPOB;
+        }
+        if (SwitchDensCorrection) {
+            double D2 = DensFact->Drc*DensFact->Drc;
+            double corrKsDA = 3.1429*D2 - 9.5657*DensFact->Drc + 7.4229;
+            double corrKsDB = 0.001/3600.0*_dt*(135.4*D2 - 311.07*DensFact->Drc + 175.67);
+            double corrPDA  = DensFact->Drc;
+            double corrPDB   = -1.0 * DensFact->Drc + 1.0;
+            Ksateff->Drc = corrKsDA*Ksateff->Drc + corrKsDB;
+            Poreeff->Drc = corrPDA*Poreeff->Drc + corrPDB;
+        }
+        Ksateff->Drc = std::max(0.0, Ksateff->Drc); // ???? waarom
+
+        Ksateff->Drc *= 1.0-fractionImperm->Drc;
+        //fractionImperm was made for SWATRE, total of houses, roads, hard surfaces
+
+        // to avoid pore is less than thetaR else nan in redistribution
+        if (Poreeff->Drc < ThetaR1->Drc)
+            ThetaR1->Drc = 0.5*Poreeff->Drc;
+
+        // may be a problem in for instance redistribution
+        if (SwitchWaveUser) {
+            // when incoming wave, no infil in that area
+            if (WHboundarea->Drc > 0) {
+                Ksateff->Drc = 0;
+                Poreeff->Drc = 0;
+                Ksat1->Drc = 0;
+                Ksat2->Drc = 0;
+                ThetaS1->Drc = 0;
+                ThetaS2->Drc = 0;
+                ThetaI1->Drc = 0;
+                ThetaI2->Drc = 0;
             }
-            Thetaeff->Drc = std::max(ThetaR1->Drc,ThetaI1->Drc);
+        }
 
-            // compacted surfaces
-            if (SwitchInfilCompact) {
-                Ksateff->Drc = Ksateff->Drc*(1-CompactFraction->Drc) + KsatCompact->Drc*CompactFraction->Drc;
-                Poreeff->Drc = Poreeff->Drc*(1-CompactFraction->Drc) + PoreCompact->Drc*CompactFraction->Drc;
-            }
+    }}
+}
+//---------------------------------------------------------------------------
+// Calculate effective Ksat based on surface structure, impermeable etc.
+void TWorld::InfilDynamicCrusting()
+{
 
-            // grass strips? old concept?
-            if (SwitchGrassStrip) {
-                Ksateff->Drc = Ksateff->Drc*(1-GrassFraction->Drc) + KsatGrass->Drc*GrassFraction->Drc;
-                Poreeff->Drc = ThetaS1->Drc*(1-GrassFraction->Drc) + PoreGrass->Drc*GrassFraction->Drc;
-            }
+    if (!SwitchInfiltration || InfilMethod == INFIL_SWATRE)
+        return;
 
-            // density factor and OM corrections directly in LISEM (instead of dbase creator)
-            // because SWATRE also needs this
-            // these correction come from calculations based on Saxton and Rawls
-            // note ksat is in m/timestep, affects B of the regression eq for Ks, 0.001/3600.0*_dt
-            if (SwitchOMCorrection) {
-                double OM2 = OMcorr->Drc*OMcorr->Drc;
-                double corrKsOA = 0.0026*OM2 + 0.0359*OMcorr->Drc + 1;
-                double corrKsOB = 0.001/3600*_dt*(0.253*OM2 + 2.9368*OMcorr->Drc + 0.0007);
-                double corrPOA  = -0.001*OM2 + 0.1014*OMcorr->Drc + 1.0;
-                double corrPOB  = 0.0006*OM2 - 0.0282*OMcorr->Drc;
-                Ksateff->Drc = corrKsOA*Ksateff->Drc + corrKsOB;
-                Poreeff->Drc = corrPOA*Poreeff->Drc + corrPOB;
-            }
-            if (SwitchDensCorrection) {
-                double D2 = DensFact->Drc*DensFact->Drc;
-                double corrKsDA = 3.1429*D2 - 9.5657*DensFact->Drc + 7.4229;
-                double corrKsDB = 0.001/3600.0*_dt*(135.4*D2 - 311.07*DensFact->Drc + 175.67);
-                double corrPDA  = DensFact->Drc;
-                double corrPDB   = -1.0 * DensFact->Drc + 1.0;
-                Ksateff->Drc = corrKsDA*Ksateff->Drc + corrKsDB;
-                Poreeff->Drc = corrPDA*Poreeff->Drc + corrPDB;
-            }
+    if (!SwitchInfilCrust && !SwitchDynamicCrusting)
+        return;
 
-            Ksateff->Drc *= 1.0-fractionImperm->Drc;
-            //fractionImperm was made fopr SWATRE, total of houses, roads, hard surfaces
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        //reset Ksateff and Poreeff
+        Ksateff->Drc = Ksat1->Drc;
+        Poreeff->Drc = ThetaS1->Drc;
 
-            // to avoid pore is less than thetaR else nan in redistribution
-            if (Poreeff->Drc < ThetaR1->Drc)
-                ThetaR1->Drc = 0.5*Poreeff->Drc;
-            Ksateff->Drc = std::max(0.0, Ksateff->Drc);
+        double factor = 1.0-exp(-0.2*std::max(0.0, RainCum->Drc/1000-5.0));  //
+        // exponential crusting proces with cumulative rainfall
+        // from no crusting to full crusting at ~ 30 mm,
+        // old research Jean Boiffin, multiple rainfall events in a growing season, progressive crusting
 
-            // may be a problem in for instance redistribution            
-            if (SwitchWaveUser) {
-                // when incoming wave, no infil in that area
-                if (WHboundarea->Drc > 0) {
-                    Ksateff->Drc = 0;
-                    Poreeff->Drc = 0;
-                    Ksat1->Drc = 0;
-                    Ksat2->Drc = 0;
-                    ThetaS1->Drc = 0;
-                    ThetaS2->Drc = 0;
-                    ThetaI1->Drc = 0;
-                    ThetaI2->Drc = 0;
-                }
-            }
+        double ksatdiff = std::max(0.0,Ksat1->Drc - KsatCrust->Drc);
+        Ksateff->Drc = KsatCrust->Drc + ksatdiff * factor;
 
-        }}
-    } // !swatre
-
+        double porediff = std::max(0.0,ThetaS1->Drc - PoreCrust->Drc);
+        Poreeff->Drc = PoreCrust->Drc + porediff * factor;
+    }}
 }
 //---------------------------------------------------------------------------
 // this function is not used!

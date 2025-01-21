@@ -477,6 +477,7 @@ public:
         // infiltration,
         SwitchInfilCompact,
         SwitchInfilCrust,
+        SwitchDynamicCrusting,
         SwitchGrassStrip,
         SwitchImpermeable,
         SwitchDumphead,
@@ -974,6 +975,7 @@ public:
     double getETaFactor();
     double ETafactor;
     void InfilEffectiveKsat();
+    void InfilDynamicCrusting();
     void InfilSwatre();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
     double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);

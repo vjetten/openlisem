@@ -2,7 +2,7 @@ openLISEM
 A spatial model for simulation of the full waterbalance, overland flow, flooding and sediment erosion, transport and deposition in all flows.
 
 ============
-Date: 250113
+Date: 250121
 ============
 
 This software is subject to a DISCLAIMER and released under the copyright model GPLv3
@@ -15,7 +15,7 @@ NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6, op
 
 LIST OF CHANGES and BUGFIZES:
 
-250113 - v7.4.5
+250121 - v7.4.5
 - BUG FIX: Delete all map and swatre data after no GUI run
 - BUG FIX: Update Lisem, wrong check
 - BUG FIX: Swatre compacted profiles incorrectly named

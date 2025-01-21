@@ -1029,6 +1029,7 @@ void lisemqt::resetTabInfiltration()
 
     checkInfilCompact->setChecked(false);
     checkInfilCrust->setChecked(false);
+    checkDynamicCrusting->setChecked(false);
     //checkInfil2layer->setChecked(false);
     checkInfilImpermeable->setChecked(false);
     checkInfilHinit->setChecked(false);
