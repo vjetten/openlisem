@@ -480,7 +480,7 @@ void TWorld::GetRainfallMapfromStations(double currenttime)
         RainCumFlat->Drc += Rain->Drc;
         // cumulative rainfall
         RainCum->Drc += Rainc->Drc;
-        // cumulative rainfall corrected for slope, used in interception
+        // cumulative rainfall corrected for slope, used in interception, in m
         RainNet->Drc = Rainc->Drc;
         // net rainfall in case of interception
     }}
