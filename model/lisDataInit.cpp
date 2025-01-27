@@ -179,7 +179,7 @@ void TWorld::InitParameters(void)
         nN3_ = 6;
         SoilWBdtfactor = 10;
 
-        SwatrePrecision = 12;
+        SwatrePrecision = 6;
         //SwitchGWChangeSD = true;
     }
 

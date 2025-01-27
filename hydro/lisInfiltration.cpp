@@ -712,7 +712,7 @@ void TWorld::InfilSwatre()
             if (SwitchDynamicCrusting && ProfileIDCrust->Drc > 0) {
                 CrustFraction->Drc = 1.0-exp(-0.2*std::max(0.0, RainCum->Drc*1000-5.0));
             }
-            if (ProfileIDCrust->Drc > 0 &&  CrustFraction->Drc > 0) {
+            if (ProfileIDCrust->Drc > 0 && CrustFraction->Drc > 0) {
                 WHnew->Drc = WHold->Drc;
                 tma->Drc = 0;
                 tmb->Drc = 0;
