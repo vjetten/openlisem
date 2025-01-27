@@ -135,9 +135,15 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
     // QVector <double> h;
     // QVector <double> hPrev;
 
-    memcpy(h, pixel->h.data(), nN * sizeof(double));
-    memcpy(dz, p->zone->dz.data(), nN * sizeof(double));
-    memcpy(disnod, p->zone->disnod.data(), nN * sizeof(double));
+    //memcpy(h, pixel->h.data(), nN * sizeof(double));
+    //memcpy(dz, p->zone->dz.data(), nN * sizeof(double));
+    //memcpy(disnod, p->zone->disnod.data(), nN * sizeof(double));
+
+    for (int i = 0; i < nN; i++) {
+        h[i] = pixel->h[i];
+		dz[i] = p->zone->dz[i];
+		disnod[i] = p->zone->disnod[i];
+    }
 
     while (elapsedTime < _dt) {
 
@@ -380,7 +386,12 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
     } // elapsedTime < lisemTimeStep
 
     //put new h back into h
-    memcpy(pixel->h.data(), h, nN * sizeof(double));
+//    memcpy(pixel->h.data(), h, nN * sizeof(double));
+    for (int i = 0; i < nN; i++) {
+        pixel->h[i] = h[i];
+        //dz[i] = p->zone->dz[i];
+        //disnod[i] = p->zone->disnod[i];
+    }
 
     // these variables can all be direcvtly saved to the maps, inflated pixel structure
     pixel->wh = WH;
