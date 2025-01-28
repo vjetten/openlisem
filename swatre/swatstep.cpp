@@ -93,7 +93,7 @@ double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int
     double accur2 = 0.1*accur1;//0.03 - 0.002 * precParam; //SwatrePrecision;//
 
     for(int i=0; i < nrNodes; i++) {
-        double mdih = accur1 + accur2 * std::max(0.1, fabs(h[i]));
+        double mdih = accur1 + accur2 * std::max(1.0, fabs(h[i]));
         double dih  = fabs(h[i] - hLast[i]);
         // if difference is small
         // dih = e.g. 10 and h = -200 then mdih = 200*0.01 + 0.1 = 2.1
