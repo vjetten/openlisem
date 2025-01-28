@@ -87,12 +87,13 @@ double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int
    // double precParam = SwatrePrecision;
     // note "5" is a precision factor determining next timestep, set to 5 in old lisem
     // higher gives better results!
+   // precParam = 5;
     double dt = _dt;
     double accur1 = std::max(0.0, 0.3 - 0.02 * precParam);
-    double accur2 = 0.03 - 0.002 * precParam; //SwatrePrecision;//
+    double accur2 = 0.1*accur1;//0.03 - 0.002 * precParam; //SwatrePrecision;//
 
     for(int i=0; i < nrNodes; i++) {
-        double mdih = accur1 + accur2 * std::max(1.0, fabs(h[i]));
+        double mdih = accur1 + accur2 * std::max(0.1, fabs(h[i]));
         double dih  = fabs(h[i] - hLast[i]);
         // if difference is small
         // dih = e.g. 10 and h = -200 then mdih = 200*0.01 + 0.1 = 2.1
@@ -135,15 +136,15 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
     // QVector <double> h;
     // QVector <double> hPrev;
 
-    //memcpy(h, pixel->h.data(), nN * sizeof(double));
-    //memcpy(dz, p->zone->dz.data(), nN * sizeof(double));
-    //memcpy(disnod, p->zone->disnod.data(), nN * sizeof(double));
+    memcpy(h, pixel->h.data(), nN * sizeof(double));
+    memcpy(dz, p->zone->dz.data(), nN * sizeof(double));
+    memcpy(disnod, p->zone->disnod.data(), nN * sizeof(double));
 
-    for (int i = 0; i < nN; i++) {
-        h[i] = pixel->h[i];
-		dz[i] = p->zone->dz[i];
-		disnod[i] = p->zone->disnod[i];
-    }
+  //   for (int i = 0; i < nN; i++) {
+  //       h[i] = pixel->h[i];
+        // dz[i] = p->zone->dz[i];
+        // disnod[i] = p->zone->disnod[i];
+  //   }
 
     while (elapsedTime < _dt) {
 
@@ -386,12 +387,10 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
     } // elapsedTime < lisemTimeStep
 
     //put new h back into h
-//    memcpy(pixel->h.data(), h, nN * sizeof(double));
-    for (int i = 0; i < nN; i++) {
-        pixel->h[i] = h[i];
-        //dz[i] = p->zone->dz[i];
-        //disnod[i] = p->zone->disnod[i];
-    }
+    memcpy(pixel->h.data(), h, nN * sizeof(double));
+    // for (int i = 0; i < nN; i++) {
+    //     pixel->h[i] = h[i];
+    // }
 
     // these variables can all be direcvtly saved to the maps, inflated pixel structure
     pixel->wh = WH;

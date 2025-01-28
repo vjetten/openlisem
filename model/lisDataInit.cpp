@@ -161,7 +161,7 @@ void TWorld::InitParameters(void)
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
         SwitchChannelWFinflow = false;//getvalueint("Channel WF inflow") == 1;
-        SwatrePrecision = getvaluedouble("SWATRE precision");
+        SwatrePrecision = 5;// getvaluedouble("SWATRE precision");
     } else {
         F_MaxIter = 200;
         F_minWH = 0.00001;
@@ -179,7 +179,7 @@ void TWorld::InitParameters(void)
         nN3_ = 6;
         SoilWBdtfactor = 10;
 
-        SwatrePrecision = 6;
+        SwatrePrecision = 5;
         //SwitchGWChangeSD = true;
     }
 

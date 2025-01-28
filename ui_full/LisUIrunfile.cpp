@@ -372,7 +372,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use Channel Max V")==0)                 checkChanMaxVelocity->setChecked(check);
         if (p1.compare("Channel Max V")  ==0)                   E_chanMaxVelocity->setValue(valc);
         if (p1.compare("Channel 2D flow connect")==0)           checkChannel2DflowConnect->setChecked(check);
-        if (p1.compare("SWATRE pprecision")==0)                 spinSwatrePrecision->setValue(iii);
+        //if (p1.compare("SWATRE precision")==0)                 spinSwatrePrecision->setValue(iii);
         //if (p1.compare("Channel WF inflow")==0)        checkChannelWFinflow->setChecked(check);
 
 
@@ -952,7 +952,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include subgridcell retention")==0) namelist[j].value.setNum((int)checkGridRentention->isChecked());
 
         //advanced
-        if (p1.compare("SWATRE pprecision")==0)             namelist[j].value = spinSwatrePrecision->text();
+        //if (p1.compare("SWATRE precision")==0)             namelist[j].value = spinSwatrePrecision->text();
 
         // miscellaneous
         if (p1.compare("Nr user Cores")==0)                 namelist[j].value.setNum(nrUserCores->value());
