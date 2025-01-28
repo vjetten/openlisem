@@ -867,23 +867,6 @@ void TWorld::InitSoilInput(void)
             }
         }
 
-        // #pragma omp parallel for num_threads(userCores)
-        // FOR_ROW_COL_MV_L {
-        //     Ksat1->Drc *= _dt/3600000.0; // mm/h to m
-        //     if (SwitchTwoLayer)
-        //         Ksat2->Drc *= _dt/3600000.0;
-        //     if (SwitchThreeLayer)
-        //         Ksat3->Drc *= _dt/3600000.0;
-        //     if (SwitchInfilCrust)
-        //         KsatCrust->Drc *= _dt/3600000.0;
-        //     if (SwitchInfilCompact)
-        //         KsatCompact->Drc *= _dt/3600000.0;
-
-        //     Thetaeff->Drc = std::max(ThetaR1->Drc,ThetaI1->Drc);
-
-        // }}
-
-
     } // not swatre
 
     // SWATRE infiltration read maps and structures

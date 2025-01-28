@@ -45,7 +45,6 @@ void TWorld::InfilEffectiveKsat()
     if (!SwitchInfiltration || InfilMethod == INFIL_SWATRE)
         return;
 
-    // moved to datainit!
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         Ksat1->Drc *= _dt/3600000.0; // mm/h to m oper timestep
