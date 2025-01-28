@@ -679,6 +679,7 @@ void lisemqt::on_E_OFWaveType_currentIndexChanged(int index)
 {
     groupFloodParams->setEnabled(index > 0);
     groupWaveUser->setEnabled(index > 0);
+    groupAdvSWOF->setEnabled(index > 0);
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_checkInfiltration_toggled(bool checked)
@@ -794,7 +795,9 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int index)
 {
     groupBox_SwatreOptions->setEnabled(index == 0);
     groupBox_RichardsOptions->setEnabled(index == 3);
-    groupAdvRichards->setEnabled(true);//index == 0 || index == 3);
+    groupAdvRichards->setEnabled(true);//index == 3);
+    spinSoilLayers->setEnabled(index > 0);
+    label_153->setEnabled(index > 0);
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_toolButton_clicked()
