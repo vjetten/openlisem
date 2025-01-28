@@ -45,7 +45,7 @@ functions: \n
 //    ( ldd != 0 && ldd != 5 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 
-#define MAX_ITERS 12
+#define MAX_ITERS 24
 /*
   local drain direction maps have values for directions as follows:
     7  8  9
@@ -151,45 +151,48 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     double dfQkx;  //derivative
     const double _epsilon = 1e-12;
     const double beta = 0.6;
-    double q = 0; //sink term, not used
+    //double q = 0; //sink term, not used
 
     //NOTE Qm is maximum Q in pipes/culverts, Am is max Alpha with max Q, values are -1 if not used
 
-    if ((Qin+Qold+q) == 0)  /* +q CW NEW! */
+    if (Qin+Qold == 0)
         return(0);
+    // no flow
 
     //common terms
-    ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
+    ab_pQ = alpha*beta*pow(((Qold+Qin)/2.0),beta-1);
     // derivative of diagonal average (space-time)
     deltaTX = deltaT/deltaX;
-    C = deltaTX*Qin + alpha*pow(Qold,beta) + deltaT*q;
-    //C is unit volume of water
-    //dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
+    C = deltaTX*Qin + alpha*pow(Qold,beta);// + deltaT*q;
+    //C is unit volume of water, dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
     Qkx = (deltaTX*Qin + Qold*ab_pQ) / (deltaTX + ab_pQ);
     // explicit first guess Qkx
+    Qkx   = std::max(Qkx, 1e-30);
 
     // do a first ietartion step for a better guess of Qkx
-    Qkx   = std::max(Qkx, 1e-30);
-    fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;
-    dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);
-    Qkx   -= fQkx / dfQkx;
-    Qkx   = std::max(Qkx, 1e-30);
+    // not necessary because the loop starts with this!!!
+    // fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;
+    // dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);
+    // Qkx   -= fQkx / dfQkx;
+    // Qkx   = std::max(Qkx, 1e-30);
 
-    // limit flux and alpha to pipe max Q
-    if (Qm > 0) {
-        Qkx = std::min(Qkx, Qm);
-        if (Qkx == Qm)
-            alpha = Am;
-    }
+    // // limit flux and alpha to pipe max Q
+    // if (Qm > 0) {
+    //     Qkx = std::min(Qkx, Qm);
+    //     if (Qkx == Qm)
+    //         alpha = Am;
+    //     // if max flow set max Alpha
+    // }
 
     count = 0;
     do {
-        fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   // Current k
-        dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  // Current k
-        Qkx   -= fQkx / dfQkx;                                // Next k
+        fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   // Current k function f(Qkx)  where in+out=0 or needs to iterste to 0, i.e. > epsilon
+        dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  // Current k derivative of function df(Qkx)/dt
+        Qkx   -= fQkx / dfQkx;                                // next estimate Newton-Rapson
         Qkx   = std::max(Qkx, 1e-30);
+        // not necessary?
 
-        // limit flux and alpha to pipe max Q
+        // limit flux and alpha to culvert/pipe max
         if (Qm > 0) {
             Qkx = std::min(Qkx, Qm);
             if (Qkx == Qm) {
@@ -200,8 +203,10 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
 
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
-    itercount = count;
-    return Qkx;
+    // stop when mass balance function ~0
+    itercount = count; // not used
+
+    return std::max(0.0, Qkx);
 }
 
 //---------------------------------------------------------------------------

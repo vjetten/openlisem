@@ -140,6 +140,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
     memcpy(dz, p->zone->dz.data(), nN * sizeof(double));
     memcpy(disnod, p->zone->disnod.data(), nN * sizeof(double));
 
+  // the same, maybe slower than memcpy
   //   for (int i = 0; i < nN; i++) {
   //       h[i] = pixel->h[i];
         // dz[i] = p->zone->dz[i];
@@ -169,6 +170,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
             for (int j = 0; j < nN && p->zone->endComp[j] <= 30 && h[j] > -10; j++) {
                 k[j] = pixel->corrKsOA*k[j] + pixel->corrKsOB;
                // theta[j] = pixel->corrPOA*theta[j] + pixel->corrPOB;
+               // theta gives mass balance error because this decouples Theta from H?
             }
         }
 
@@ -207,7 +209,8 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
             Ksat = pixel->corrKsDA*Ksat + pixel->corrKsDB;
 
         kavg[0] = sqrt(Ksat * k[0]);
-        kavg[0] *= (1.0-impfrac);
+     //   kavg[0] *= (1.0-impfrac);
+
         // adjust kavg[0] for roads and houses, impermeable fraction
         // max possible always geometric mean
         // geometric avg of ksat and k[0] => is used for max possible
@@ -217,8 +220,9 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
         // disnod is negative !!!
 
         // check if ponded: 1st compare fluxes, 2nd compare store
-        qtop = -WH/dt;
+        qtop = -WH/dt * (1.0-impfrac);
         // top flux is water/timestep (cm/sec), negative downward
+        // only for non impermeable surfaces. if more than 0.99 impermeable, swatstep is not done in infiltration()!
         isPonded = (qtop < qmax);
         // if more flux then max possible flag ponded is true. both are negative
 
@@ -343,7 +347,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
         percolation += qbot*dt;
 
         if (isPonded || fltsat)
-             qtop = -kavg[0] * ((h[0] - WH)/disnod[0] + 1);
+             qtop = -kavg[0] * ((h[0] - WH)/disnod[0] + 1) * (1.0-impfrac);
 
         WH += qtop*dt;       // decrease pond with top flux
         WH = std::max(WH, 0.0);

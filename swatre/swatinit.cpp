@@ -75,6 +75,7 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
             s->pixel[i_].profile = profileList[profnr];  // pointer to profile
         // profile = <= 0 now set to impermeable
         s->pixel[i_].impfrac = fractionImperm->Drc;
+        // imnpfrac is the fraction impermeable, 1-impfrac is the infiltrating soil
 
         if (SwitchOMCorrection) {
             // these correction come from calculations based on Saxton and rawls
