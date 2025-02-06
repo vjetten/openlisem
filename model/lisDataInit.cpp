@@ -1305,6 +1305,7 @@ void TWorld::InitFlood(void)
     hllx21_2 = NewMap(0);
     hlly21_1 = NewMap(0);
     hlly21_2 = NewMap(0);
+    activeCells = NewMap(0);
 
     iter_n = 0;
 
