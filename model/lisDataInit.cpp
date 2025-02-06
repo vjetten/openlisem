@@ -1295,7 +1295,16 @@ void TWorld::InitFlood(void)
     floodVMax = NewMap(0);//
     floodVHMax = NewMap(0);//
     floodTime = NewMap(0);//
+
     FloodDT = NewMap(0);
+    gflowx = NewMap(0);
+    gflowy = NewMap(0);
+    hllx12_0 = NewMap(0);
+    hlly12_0 = NewMap(0);
+    hllx21_1 = NewMap(0);
+    hllx21_2 = NewMap(0);
+    hlly21_1 = NewMap(0);
+    hlly21_2 = NewMap(0);
 
     iter_n = 0;
 

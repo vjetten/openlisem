@@ -61,6 +61,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             tmc->Drc = v->Drc;
         }}
 
+        // tmd are all wet ceels and one dry cell more in all directions
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (h->Drc > F_minWH) {
@@ -432,68 +433,151 @@ void TWorld::doSWOFLoop(int step, double dt, double dt_max, cTMap *activeCells, 
             // if step = 0 do not calculate new fluxes and states yet because the first dt is always dt_max
             // find a smallest dt of the flow domain first
 
+            gflowx->Drc = GRAV*0.5*( (h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) + delzcx*(hxl+hxr)); // delzcx = 0 is not muscl
+            gflowy->Drc = GRAV*0.5*( (h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd) + delzcy*(hyu+hyd));
+            hllx12_0->Drc = hll_x1.v[0]-hll_x2.v[0];
+            hllx21_1->Drc = hll_x2.v[1] - hll_x1.v[1];
+            hllx21_2->Drc = hll_x2.v[2] - hll_x1.v[2];
+            hlly21_1->Drc = hll_y2.v[1] - hll_y1.v[1];
+            hlly21_2->Drc = hll_y2.v[2] - hll_y1.v[2];
+
             //########### after finding the smallest dt, do saint venant eq)
-            if (step > 0) {
-                double Un, Vn;
-                double tx = dt/dx;
-                double ty = dt/dy;
 
-                double hn = std::max(0.0, H + tx*(hll_x1.v[0]-hll_x2.v[0]) + ty*(hll_y1.v[0]-hll_y2.v[0]));
-                // mass balance, hll_....v[0] is the height
+//             if (step > 0) {
+//                 //vec4 HUVN = do_Flow(dt, H, U, V, delzcx, delzcy, hxl, hxr, hyu, hyd, h_xl, h_xr, h_yu, h_yd, hll_x1, hll_x2, hll_y1, hll_y2);
 
-                // momentum balance for cells with water
-                if(hn > he_ca) {
-                    // SWOF solution, delzc1 = 0 when not MUSCL
-                    double gflow_x = GRAV*0.5*( (h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) + delzcx*(hxl+hxr)); // delzcx = 0 is not muscl
-                    double gflow_y = GRAV*0.5*( (h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd) + delzcy*(hyu+hyd));
+//                 double Un, Vn;
+//                 double tx = dt/dx;
+//                 double ty = dt/dy;
 
-                    double qxn = H * U - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
-                    double qyn = H * V - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
+//                 double hn = std::max(0.0, H + tx*(hll_x1.v[0]-hll_x2.v[0]) + ty*(hll_y1.v[0]-hll_y2.v[0]));
+//                 // mass balance, hll_....v[0] is the height
+//                 // momentum balance for cells with water
+//                 if(hn > he_ca) {
+//                     // SWOF solution, delzc1 = 0 when not MUSCL
+//                     double gflow_x = GRAV*0.5*( (h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) + delzcx*(hxl+hxr)); // delzcx = 0 is not muscl
+//                     double gflow_y = GRAV*0.5*( (h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd) + delzcy*(hyu+hyd));
 
-                    double vsq = sqrt(U*U + V*V);
-                    double nsq1 = (N->Drc)*(N->Drc)*GRAV/pow(hn,4.0/3.0);//std::max(0.0001,pow(hn,4.0/3.0)); //
-                    double nsq = nsq1*vsq*dt;
+//                     double qxn = H * U - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
+//                     double qyn = H * V - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
 
-                    //Un = (qxn/(1.0+nsq))/std::max(0.0001,hn);
-                    //Vn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
-                    Un = (qxn/(1.0+nsq))/hn;
-                    Vn = (qyn/(1.0+nsq))/hn;
+//                     double vsq = sqrt(U*U + V*V);
+//                     double nsq1 = (N->Drc)*(N->Drc)*GRAV/pow(hn,4.0/3.0);//std::max(0.0001,pow(hn,4.0/3.0)); //
+//                     double nsq = nsq1*vsq*dt;
 
-                    if (SwitchTimeavgV) {
-                        double fac = 0.5 + 0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
-                        fac = fac * exp(- std::max(1.0,dt) / nsq1);
-                        Un = fac * U + (1.0-fac) *Un;
-                        Vn = fac * V + (1.0-fac) *Vn;
-                    }
+//                     //Un = (qxn/(1.0+nsq))/std::max(0.0001,hn);
+//                     //Vn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
+//                     Un = (qxn/(1.0+nsq))/hn;
+//                     Vn = (qyn/(1.0+nsq))/hn;
 
-                } else { // hn < ha
-                    hn = H; // if no fluxes then also no change in h
-                    Un = 0;
-                    Vn = 0;
-                }
+//                     if (SwitchTimeavgV) {
+//                         double fac = 0.5 + 0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
+//                         fac = fac * exp(- std::max(1.0,dt) / nsq1);
+//                         Un = fac * U + (1.0-fac) *Un;
+//                         Vn = fac * V + (1.0-fac) *Vn;
+//                     }
 
-                // dan maar even met geweld!
-                if (std::isnan(Un) || std::isnan(Vn)  )
-                {
-                    Un = 0;
-                    Vn = 0;
-                }
-                if (FlowBoundaryType == 0 || (FlowBoundaryType == 2 && FlowBoundary->Drc == 0)) {
-                    if (DomainEdge->Drc == 4 && Un < 0) Un = 0;
-                    if (DomainEdge->Drc == 6 && Un > 0) Un = 0;
-                    if (DomainEdge->Drc == 2 && Vn > 0) Vn = 0;
-                    if (DomainEdge->Drc == 8 && Vn < 0) Vn = 0;
-                }
-                if (Vn == 0 && Un == 0)
-                    hn = H;
+//                 } else { // hn < ha
+//                     hn = H; // if no fluxes then also no change in h
+//                     Un = 0;
+//                     Vn = 0;
+//                 }
 
-                h->Drc = hn;
-                u->Drc = Un;
-                v->Drc = Vn;
+//                 // dan maar even met geweld!
+//                 if (std::isnan(Un) || std::isnan(Vn)  )
+//                 {
+//                     Un = 0;
+//                     Vn = 0;
+//                 }
+//                 if (FlowBoundaryType == 0 || (FlowBoundaryType == 2 && FlowBoundary->Drc == 0)) {
+//                     if (DomainEdge->Drc == 4 && Un < 0) Un = 0;
+//                     if (DomainEdge->Drc == 6 && Un > 0) Un = 0;
+//                     if (DomainEdge->Drc == 2 && Vn > 0) Vn = 0;
+//                     if (DomainEdge->Drc == 8 && Vn < 0) Vn = 0;
+//                 }
+//                 if (Vn == 0 && Un == 0)
+//                     hn = H;
+//                 h->Drc = hn;
+//                 u->Drc = Un;
+//                 v->Drc = Vn;
 
-            } // step > 0
+//             } // step > 0
 
         } // tmd > 0, active cells
     }} // all cells done
 }
 
+
+
+            // vec4 HUVN = do_Flow(dt, H, U, V, delzcx, delzcy, hxl, hxr, hyu, hyd, h_xl, h_xr, h_yu, h_yd, hll_x1, hll_x2, hll_y1, hll_y2);
+
+            //     h->Drc = HUVn.v[0];
+            //     u->Drc = HUVn.v[1];
+            //     v->Drc = HUVn.v[2];
+
+
+vec4 TWorld::do_Flow(double H, double U, double V,double delzcx, double delzcy,
+        double hxl, double hxr,double hyu, double hyd,double h_xl, double h_xr,double h_yu, double h_yd,
+        vec4 hll_x1,vec4 hll_x2,vec4 hll_y1,vec4 hll_y2)
+{
+    double Un, Vn;
+    double tx = dt/dx;
+    double ty = dt/dy;
+    vec4 HUVn;
+
+    double hn = std::max(0.0, H + tx*(hll_x1.v[0]-hll_x2.v[0]) + ty*(hll_y1.v[0]-hll_y2.v[0]));
+    // mass balance, hll_....v[0] is the height
+
+    // momentum balance for cells with water
+    if(hn > he_ca) {
+        // SWOF solution, delzc1 = 0 when not MUSCL
+        double gflow_x = GRAV*0.5*( (h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) + delzcx*(hxl+hxr)); // delzcx = 0 is not muscl
+        double gflow_y = GRAV*0.5*( (h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd) + delzcy*(hyu+hyd));
+
+        double qxn = H * U - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
+        double qyn = H * V - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
+
+        double vsq = sqrt(U*U + V*V);
+        double nsq1 = (N->Drc)*(N->Drc)*GRAV/pow(hn,4.0/3.0);//std::max(0.0001,pow(hn,4.0/3.0)); //
+        double nsq = nsq1*vsq*dt;
+
+        //Un = (qxn/(1.0+nsq))/std::max(0.0001,hn);
+        //Vn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
+        Un = (qxn/(1.0+nsq))/hn;
+        Vn = (qyn/(1.0+nsq))/hn;
+
+        if (SwitchTimeavgV) {
+            double fac = 0.5 + 0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
+            fac = fac * exp(- std::max(1.0,dt) / nsq1);
+            Un = fac * U + (1.0-fac) *Un;
+            Vn = fac * V + (1.0-fac) *Vn;
+        }
+
+    } else { // hn < ha
+        hn = H; // if no fluxes then also no change in h
+        Un = 0;
+        Vn = 0;
+    }
+
+    // dan maar even met geweld!
+    if (std::isnan(Un) || std::isnan(Vn)  )
+    {
+        Un = 0;
+        Vn = 0;
+    }
+    if (FlowBoundaryType == 0 || (FlowBoundaryType == 2 && FlowBoundary->Drc == 0)) {
+        if (DomainEdge->Drc == 4 && Un < 0) Un = 0;
+        if (DomainEdge->Drc == 6 && Un > 0) Un = 0;
+        if (DomainEdge->Drc == 2 && Vn > 0) Vn = 0;
+        if (DomainEdge->Drc == 8 && Vn < 0) Vn = 0;
+    }
+    if (Vn == 0 && Un == 0)
+        hn = H;
+
+    HUVn.v[0] = Hn;
+    HUVn.v[1] = Un;
+    HUVn.v[2] = Vn;
+    HUVn.v[3] = 0;
+
+    return HUVn;
+}

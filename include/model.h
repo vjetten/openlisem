@@ -1025,6 +1025,14 @@ public:
     double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     double fullSWOF2openMUSCL(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     void doSWOFLoop(int step, double dt, double dt_max, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
+
+    vec4 do_Flow(double H, double U, double V,double delzcx, double delzcy,
+            double hxl, double hxr,double hyu, double hyd,double h_xl, double h_xr,double h_yu, double h_yd,
+            vec4 hll_x1,vec4 hll_x2,vec4 hll_y1,vec4 hll_y2);
+
+    void fullSWOFopenSTV(double dt, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v,
+        cTMap *gflowx, cTMap *gflowy, cTMap *hllx12_0, cTMap *hllx21_1, cTMap *hllx21_2, cTMap *hlly21_1, cTMap *hlly21_2);
+
     void ChannelSWOFopen();  //TODO not used
     void KinematicSWOFopen(cTMap *_h, cTMap *_V);
     double limiter(double a, double b);
