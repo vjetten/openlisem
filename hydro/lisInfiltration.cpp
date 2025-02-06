@@ -709,9 +709,11 @@ void TWorld::InfilSwatre()
         //TODO test infil swatre for crusts and compaction
         if (SwitchInfilCrust) {
             if (SwitchDynamicCrusting && ProfileIDCrust->Drc > 0) {
-                CrustFraction->Drc = 1.0-exp(-0.2*std::max(0.0, RainCum->Drc*1000-5.0));
+                CrustFraction->Drc = std::min(1.0, CrustFraction0->Drc + (1.0-exp(-0.2*std::max(0.0, RainCum->Drc*1000-5.0))));
             }
             if (ProfileIDCrust->Drc > 0 && CrustFraction->Drc > 0) {
+                if (r==246 && c == 411)
+                    qDebug() << CrustFraction->Drc << SwitchDynamicCrusting;
                 WHnew->Drc = WHold->Drc;
                 tma->Drc = 0;
                 tmb->Drc = 0;

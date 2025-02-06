@@ -594,8 +594,10 @@ void TWorld::InitSoilInput(void)
     }}
 
     if (SwitchInfilCrust) {
+        CrustFraction0 = NewMap(0);
         CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
         checkMap(*CrustFraction, LARGER, 1.0, "crust fraction cannot be more than 1");
+        copy(*CrustFraction0, *CrustFraction);
     } else {
         CrustFraction = NewMap(0);
     }
@@ -606,13 +608,14 @@ void TWorld::InitSoilInput(void)
     } else {
         CompactFraction = NewMap(0);
     }
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (CrustFraction->Drc + CompactFraction->Drc > 1.0) {
-            CrustFraction->Drc = 1.0-CompactFraction->Drc;
-        }
-    }}
 
+    if (SwitchInfilCompact && SwitchInfilCrust) {
+        FOR_ROW_COL_MV_L {
+            if (CrustFraction->Drc + CompactFraction->Drc > 1.0) {
+                CrustFraction->Drc = 1.0-CompactFraction->Drc;
+            }
+        }}
+    }
     //## infiltration data
     if(InfilMethod != INFIL_SWATRE)
     {

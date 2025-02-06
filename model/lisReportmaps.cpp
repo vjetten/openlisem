@@ -285,6 +285,8 @@ void TWorld::GetComboMaps()
  //   AddComboMap(0,"Flow Velocity","m/s",Vflood,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
  //   AddComboMap(0,"Flow Velocity","m/s",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     AddComboMap(0,"Overland flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.001); //VH
+    cl = 6;
+    AddComboMap(0,"timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     //AddComboMap(0,"boundary","-",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
 
     AddComboMap(0,"Cumulative overland flow","m3",Qm3total,LegendMap[0],Legend[0],false,false,1.0, 1.0);//0.001);
@@ -331,10 +333,11 @@ void TWorld::GetComboMaps()
     if(SwitchInfiltration)
     {
         AddComboMap(0,"Infiltration","mm",InfilmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-        //if (InfilMethod > 1) {
-            // Show a weighed avregae of cell wetting front else it seems partly impermeable surface infiltrate very deep
         AddComboMap(0,"Average depth wetting front","mm",Lwmm,LegendMap[cl],Legend[cl],false,false,1.0,1.0);  // swatre?
-        //}
+        if (SwitchInfilCrust) {
+            cl = 6;
+            AddComboMap(0,"Crust Fraction","-",CrustFraction,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+        }
 
         if (SwitchGWflow) {
             AddComboMap(0,"Groundwater level","m",GWWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);

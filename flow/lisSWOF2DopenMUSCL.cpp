@@ -78,6 +78,8 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         }}
 
         doSWOFLoop(step, dt_req_min, dt_max, tmd, h, u, v, z);
+        // first time step = 0, only to find smallest dt
+        // find new u,v,h
 
         // find smallest domain dt
         #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
@@ -86,38 +88,49 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         }}
         dt_req_min = std::min(dt_req_min, _dt-timesum);
 
-        step += 1; // now we have a good dt min, do the real calculations
+        step++;
+        //increase step
+
+        doSWOFLoop(step, dt_req_min, dt_max, tmd, h, u, v, z);
+        // run again for smallest st, now we have new u,v,h
 
 
         // 2nd order, sort of
         if (SwitchHeun) {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                tma->Drc = h->Drc;
-                tmb->Drc = u->Drc;
-                tmc->Drc = v->Drc;
-            }}
-            double d2 = dt_req_min;
-            doSWOFLoop(step, dt_req_min, dt_max, tmd, h, u, v, z);
+            // #pragma omp parallel for num_threads(userCores)
+            // FOR_ROW_COL_MV_L {
+            //     tma->Drc = h->Drc;
+            //     tmb->Drc = u->Drc;
+            //     tmc->Drc = v->Drc;
+            // }}
+            double dt1 = dt_req_min;
+            // save u,v,h and min dt of first trye
 
+            doSWOFLoop(step, dt1, dt_max, tmd, h, u, v, z);
             #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 dt_req_min = std::min(dt_req_min, FloodDT->Drc);
             }}
             dt_req_min = std::min(dt_req_min, _dt-timesum);
+            // run the whole thing a second time and find a new smallest dt
 
-            if (d2 > dt_req_min) {
+            // if dt has fiurther decreased, take the average
+            if (dt1 > dt_req_min) {
                // qDebug() << d2 << dt_req_min;
                 //Heun, see SWOF doc
                 #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
                 FOR_ROW_COL_MV_L {
-                    double tmp = 0.5*(h->Drc+tma->Drc);
-                    if (tmp>=he_ca){
+                    double havg = 0.5*(tma->Drc + h->Drc); // avg original before loops and second estimation
+                    if (havg >= he_ca){
                       double q1 = 0.5*(tma->Drc*tmb->Drc + h->Drc*u->Drc);
-                      u->Drc = q1/tmp;
+                      u->Drc = q1/havg;
                       double q2 = 0.5*(tma->Drc*tmc->Drc + h->Drc*v->Drc);
-                      v->Drc = q2/tmp;
-                      h->Drc = tmp;
+                      v->Drc = q2/havg;
+                      h->Drc = havg;
+                    } else {
+                        h->Drc = 0.0;
+                        u->Drc = 0.0;
+                        v->Drc = 0.0;
                     }
                 }}
             }
