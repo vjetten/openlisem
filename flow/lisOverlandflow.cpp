@@ -269,9 +269,9 @@ void TWorld::OverlandFlow2Ddyn(void)
     }
 
     if(startFlood) {
-        if (!SwitchMUSCL)
-            dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
-        else
+        // if (!SwitchMUSCL)
+        //     dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
+        // else
             dtOF = fullSWOF2openMUSCL(WHrunoff, Uflood, Vflood, DEM);
         // separating muscl saves many checks for muscl in the loop: faster
 

@@ -38,6 +38,7 @@
 // uses functions in auxillary : lisSWOFaux.cpp
 
 //-------------------------------------------------------------------------------------------------
+// OBSOLETE
 double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     double timesum = 0;
