@@ -112,7 +112,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 }}
                 //dt_req_min = std::min(dt_req_min, _dt-timesum);
                 // run the whole thing a second time and find a new smallest dt
-               qDebug() << step << dt1 << dt_req_min;
+             //  qDebug() << step << dt1 << dt_req_min;
             } while (dt1 > dt_req_min && step < 4);
 
             dt_req_min = std::min(dt_req_min, _dt-timesum);

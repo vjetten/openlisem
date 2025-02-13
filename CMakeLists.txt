@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 
 project(Lisem)
 
+set(CMAKE_C_COMPILER "C:/Qt/msys64/mingw64/bin/cc.exe")
+
 # Instruct CMake to run moc, uic, and rcc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)

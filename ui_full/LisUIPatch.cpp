@@ -149,7 +149,8 @@ bool lisemqt::isNewVersionAvailable(QString &GitHubVersion)
     for (int i = 0; i < qMin(currentParts.size(), latestParts.size()); ++i) {
         int currentPart = currentParts.at(i).toInt();
         int latestPart = latestParts.at(i).toInt();
-
+        if (currentParts.at(i).contains("beta"))
+            return false;
         if (currentPart < latestPart) {
             return true;
         } else if (latestPart > currentPart) {

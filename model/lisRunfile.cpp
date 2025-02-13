@@ -253,7 +253,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =   iii == 1;
         if (p1.compare("Dynamic crusting")==0)                  {
             SwitchDynamicCrusting =   iii == 1;
-            qDebug() << iii << SwitchDynamicCrusting ;
+            //qDebug() << iii << SwitchDynamicCrusting ;
         }
         if (p1.compare("Use one matrix potential")==0)          SwitchHinit4all  =  iii == 1;
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =  iii == 1;
