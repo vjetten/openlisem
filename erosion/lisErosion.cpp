@@ -400,6 +400,7 @@ void TWorld::cell_FlowDetachment(int r, int c)
                         maxTC = 0;
                     }
                 }
+            }
 
             if(SwitchGridRetention) {
                 if (Sed->Drc > 0) {
