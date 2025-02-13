@@ -5,6 +5,8 @@ IF(WIN32)
     # QWT configuration for double axis display, note a double axis branch of qwt is used
     SET(QWT_BUILD_DIR "C:/prgc/lisemgit/qwt/git")    # Adjust to your folder names
     SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # Adjust to your folder names
+    SET(OSSL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgnutls-openssl.dll.a")
+    SET(OSSL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include/openssl")
     SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
@@ -12,10 +14,10 @@ IF(WIN32)
 
     FIND_PATH(OMP_INCLUDE_DIRS
         NAMES omp.h
-        #PATHS "${MINGW_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32/14.1.0/include"
         PATHS "${MINGW_BUILD_DIR}/include"
     )
 ENDIF()
+
 
 #linux
 IF(UNIX AND NOT CYGWIN)
@@ -36,8 +38,10 @@ ENDIF()
 # Include directories
 INCLUDE_DIRECTORIES(
     ${GDAL_INCLUDE_DIRS}
+    #${OSSL_INCLUDE_DIRS}
     ${QWT_INCLUDE_DIRS}
     ${OMP_INCLUDE_DIRS}
+    ${CURL_INCLUDE_DIRS}
     SYSTEM
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/ui_full
@@ -49,6 +53,8 @@ find_package(OpenMP REQUIRED)
 
 #Find GDAL
 find_package(GDAL REQUIRED)
+
+find_package(CURL REQUIRED)
 
 # Enable automatic handling of MOC, UIC, and RCC based on file type changes instead of timestamps
 set(CMAKE_AUTOMOC_DEPEND_FILTERS "moc" "*.h")
@@ -71,13 +77,13 @@ ENDIF()
 # Source files
 SET(APP_SOURCES
     fixesandbugs.txt
-    main.cpp
-    CsfMap.cpp
-    CsfRGBMap.cpp
-    error.cpp
-    fixture.cpp
-    io.cpp
-    operation.cpp
+    maps/CsfMap.cpp
+    maps/CsfRGBMap.cpp
+    maps/error.cpp
+    maps/fixture.cpp
+    maps/io.cpp
+    maps/operation.cpp
+    ui_full/LisUIPatch.cpp
     ui_full/LisUIdialogs.cpp
     ui_full/LisUIScreenshot.cpp
     ui_full/LisUItreecheck.cpp
@@ -99,39 +105,40 @@ SET(APP_SOURCES
     swatre/swatinit.cpp
     swatre/lookup.cpp
     swatre/swatinp.cpp
-    lisBoundary.cpp
-    lisChannelErosion.cpp
-    lisChannelflood.cpp
-    lisChannelflow.cpp
-    lisDataInit.cpp
-    lisDataFunctions.cpp
-    lisErosion.cpp
-    lisExtendedChannel.cpp
-    lisFlowBarriers.cpp
-    lisEvaporation.cpp
-    lisGWflow.cpp
-    lisInfiltration.cpp
-    lisInterception.cpp
-    lisKinematic.cpp
-    lisModel.cpp
-    lisOverlandflow.cpp
-    lisPesticide.cpp
-    lisPercolation.cpp
-    lisRainfall.cpp
-    lisDischargein.cpp
-    lisReportfile.cpp
-    lisReportmaps.cpp
-    lisRunfile.cpp
-    lisSnowmelt.cpp
-    lisSurfstor.cpp
-    lisSoilmoisture.cpp
-    lisSWOF2Daux.cpp
-    lisSWOF2Dopen.cpp
-    lisSWOF2DopenMUSCL.cpp
-    lisSWOF2DSediment.cpp
-    lisSWOF2DChannel.cpp
-    lisTiledrainflow.cpp
-    lisTotalsMB.cpp
+    channel/lisChannelflood.cpp
+    channel/lisChannelflow.cpp
+    channel/lisExtendedChannel.cpp
+    channel/lisSWOF2DChannel.cpp
+    channel/lisDischargein.cpp
+    flow/lisFlowBarriers.cpp
+    flow/lisGWflow.cpp
+    flow/lisKinematic.cpp
+    flow/lisOverlandflow.cpp
+    flow/lisBoundary.cpp
+    hydro/lisInfiltration.cpp
+    hydro/lisInterception.cpp
+    hydro/lisPercolation.cpp
+    hydro/lisSurfstor.cpp
+    hydro/lisSoilmoisture.cpp
+    meteo/lisRainfall.cpp
+    meteo/lisSnowmelt.cpp
+    meteo/lisEvaporation.cpp
+    model/main.cpp
+    model/lisReportfile.cpp
+    model/lisReportmaps.cpp
+    model/lisRunfile.cpp
+    model/lisTotalsMB.cpp
+    model/lisModel.cpp
+    model/lisDataInit.cpp
+    model/lisDataFunctions.cpp
+    flow/lisSWOF2Daux.cpp
+    flow/lisSWOF2Dopen.cpp
+    flow/lisSWOF2DopenMUSCL.cpp
+    flow/lisTiledrainflow.cpp
+    erosion/lisChannelErosion.cpp
+    erosion/lisSWOF2DSediment.cpp
+    erosion/lisErosion.cpp
+    pest/lisPesticide.cpp
     include/array.h
     include/CsfMap.h
     include/CsfRGBMap.h
@@ -194,8 +201,8 @@ add_executable(Lisem WIN32
 
 # Link the necessary libraries
 target_link_libraries(Lisem
-    Qt6::Widgets Qt6::Gui Qt6::Core
-    ${GDAL_LIBRARIES} ${QWT_LIBRARIES}
+    Qt6::Widgets Qt6::Gui Qt6::Core Qt6::Network
+    ${GDAL_LIBRARIES} ${QWT_LIBRARIES} ${OSSL_LIBRARIES}
     OpenMP::OpenMP_CXX
 )
 

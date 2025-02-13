@@ -1,7 +1,7 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2024  Victor Jetten
-**  contact:
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
+**  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License GPLv3 as published by
@@ -10,14 +10,14 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 **  GNU General Public License for more details.
 **
 **  You should have received a copy of the GNU General Public License
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
@@ -45,6 +45,55 @@ void lisemqt::doResetAll()
     op.runfilename.clear();
     E_runFileList->clear();
     resetAll();
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_E_runFileList_currentIndexChanged(int)
+{
+    if (E_runFileList->count() == 0)
+        return;
+    if (E_runFileList->currentText() == "")
+        return;
+    CurrentRunFile = E_runFileList->currentIndex();
+    op.runfilename = E_runFileList->currentText();
+    //RunFileNames.at(CurrentRunFile);
+
+    GetRunfile();   // get the nrunfile and fill namelist
+
+    ParseInputData(); // fill interface with namelist data and fill mapList
+    // also update DEFmaps for map tree view in interface
+
+    initMapTree();  // fill the tree strcuture on page 2 with DEFmaps
+    RunAllChecks(); // activate the maps in the tree parts in response to checks
+}
+//--------------------------------------------------------------------
+void lisemqt::on_E_MapDir_returnPressed()
+{
+    QFileInfo fin(E_MapDir->text());
+    if(!fin.exists())
+    {
+        E_MapDir->setText("");
+        QMessageBox::warning(this,"openLISEM",
+                             QString("Map directory does not exist"));
+    }
+}
+//--------------------------------------------------------------------
+void lisemqt::on_E_ResultDir_returnPressed()
+{
+    if (E_ResultDir->text().isEmpty())
+        return;
+    QFileInfo fin(E_ResultDir->text());
+    if(!fin.exists())
+    {
+        int ret =
+                QMessageBox::question(this, QString("openLISEM"),
+                                      QString("The directory \"%1\"does not exist.\n"
+                                              "Do you want to create it (apply)?")
+                                      .arg(fin.absoluteFilePath()),
+                                      QMessageBox::Apply |QMessageBox::Cancel,QMessageBox::Cancel);
+        if (ret == QMessageBox::Apply)
+            QDir(E_ResultDir->text()).mkpath(E_ResultDir->text());
+
+    }
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetOptions_clicked()
@@ -74,12 +123,12 @@ void lisemqt::on_toolButton_resetFlow_clicked()
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetChannel_clicked()
 {
-   // resetTabChannel();
+   resetTabChannel();
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetInfra_clicked()
 {
-   // resetTabInfra();
+   resetTabInfra();
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetErosion_clicked()
@@ -134,12 +183,12 @@ void lisemqt::on_toolButton_helpErosion_clicked()
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_helpCalibration_clicked()
 {
-    on_toolButton_help(HELPINFRA);
+    on_toolButton_help(HELPCALIBRATION);
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_helpInfra_clicked()
 {
-    on_toolButton_help(HELPCALIBRATION);
+    on_toolButton_help(HELPINFRA);
 
 }
 //---------------------------------------------------------------
@@ -158,7 +207,7 @@ void lisemqt::on_toolButton_help(int page)
     if (page == HELPFLOW        ) filename = ":/help4.html";
     if (page == HELPCHANNEL     ) filename = ":/help9.html";
     if (page == HELPEROSION     ) filename = ":/help5.html";
-    if (page == HELPINFRA       ) filename = ":/help8.html";
+    if (page == HELPINFRA       ) filename = ":/help10.html";
     if (page == HELPCALIBRATION ) filename = ":/help7.html";
     if (page == HELPADVANCED    ) filename = ":/help8.html";
 
@@ -200,11 +249,11 @@ void lisemqt::on_check2DDiagonalFlow_toggled(bool checked)
 //}
 //--------------------------------------------------------------------
 
-void lisemqt::on_checkHouses_toggled(bool checked)
-{
-    checkRaindrum->setEnabled(checked);
-    label_78->setEnabled(checked);
-}
+// void lisemqt::on_checkHouses_toggled(bool checked)
+// {
+//     checkRaindrum->setEnabled(checked);
+//     label_78->setEnabled(checked);
+// }
 //--------------------------------------------------------------------
 
 // select a file or directory
@@ -328,7 +377,7 @@ void lisemqt::on_toolButton_DischargeShow_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_WaveShow_clicked()
 {
-    qDebug() <<WaveinDir + WaveinFileName;
+    //qDebug() <<WaveinDir + WaveinFileName;
     showTextfile(WaveinDir + WaveinFileName);
 }
 //--------------------------------------------------------------------
@@ -463,7 +512,8 @@ void lisemqt::showTextfile(QString name)
 
     dialog.exec();
 }
-
+//--------------------------------------------------------------------
+//OBSOLETE
 void lisemqt::showTextfileOld(QString name)
 {
 
@@ -504,7 +554,7 @@ void lisemqt::showTextfileOld(QString name)
 
     file.close();
 }
-
+//--------------------------------------------------------------------
 void lisemqt::on_E_EndTimeDay_returnPressed()
 {
     int daye = E_EndTimeDay->text().split(":")[0].toInt();
@@ -516,8 +566,7 @@ void lisemqt::on_E_EndTimeDay_returnPressed()
     }
     E_EndTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
 }
-
-
+//--------------------------------------------------------------------
 void lisemqt::on_E_BeginTimeDay_returnPressed()
 {
        int daye = E_BeginTimeDay->text().split(":")[0].toInt();
@@ -529,24 +578,23 @@ void lisemqt::on_E_BeginTimeDay_returnPressed()
        }
        E_BeginTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
 }
-
-
+//--------------------------------------------------------------------
 void lisemqt::on_checkStationaryBaseflow_toggled(bool checked)
 {
     if (checked) checkChannelInfil->setChecked(false);
    // doChannelBaseflow = checked;
 }
-
+//--------------------------------------------------------------------
 void lisemqt::on_checkChannelInfil_toggled(bool checked)
 {
     if (checked) checkStationaryBaseflow->setChecked(false);
 }
-
+//--------------------------------------------------------------------
 void lisemqt::on_E_EfficiencyDETCH_currentIndexChanged(int index)
 {
     E_EfficiencyDirect->setEnabled(index == 3);
 }
-
+//--------------------------------------------------------------------
 void lisemqt::on_checkGWflow_toggled(bool checked)
 {
     GW_widget->setEnabled(checked);
@@ -554,81 +602,44 @@ void lisemqt::on_checkGWflow_toggled(bool checked)
     groupBaseflowParams->setEnabled(checked);
     //qDebug() << checked;
 }
-
 //--------------------------------------------------------------------
 void lisemqt::on_E_floodMinHeight_valueChanged(double)
 {
     label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
     label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
 }
-//--------------------------------------------------------------------
-// this is for the directory with the table files
-// void lisemqt::on_toolButton_SwatreTableDir_clicked()
-// {
-//     QString path;
-//     QString pathin;
 
-//     pathin = findValidDir(E_SwatreTableDir->text(), false);
-
-//     path = QFileDialog::getExistingDirectory(this, QString("Select the directory with the Swatre tables"),
-//                                              pathin,
-//                                              QFileDialog::ShowDirsOnly
-//                                              | QFileDialog::DontResolveSymlinks);
-//     if(!path.isEmpty())
-//     {
-//         E_SwatreTableDir->setText( path );
-//         SwatreTableDir = path;
-//     }
-// }
 //--------------------------------------------------------------------
-// this is for the file profile.inp
-void lisemqt::on_toolButton_SwatreTableFile_clicked()
+void lisemqt::on_toolButton_SwatreTableDir_clicked()
 {
     if (!QFileInfo(SwatreTableDir).exists() || SwatreTableDir.isEmpty())
         SwatreTableDir = currentDir;
 
-    QStringList filters({"profile text file (*.inp)","Any files (*)"});
-    QString sss = getFileorDir(RainFileDir,"Select the SWATRE profile definition fil", filters, 2);
+    QStringList filters({"profile table files (*.tbl)","Any files (*)"});
+    QString sss = getFileorDir(SwatreTableDir,"Select the SWATRE profile tabel directory", filters, 0);
 
     SwatreTableDir = QFileInfo(sss).absolutePath()+"/";
-    SwatreTableName = QFileInfo(sss).fileName(); //baseName();
 
-    E_SwatreTableName->setText(SwatreTableDir+ SwatreTableName);
-/*
-    QString path;
-    path = QFileDialog::getOpenFileName(this,
-                                        QString("Select the SWATRE profile definition file"),
-                                        SwatreTableName,"Profiles (*.inp);;All files (*.*)");
-    if(!path.isEmpty())
-    {
-        SwatreTableName = path;
-        E_SwatreTableName->setText(path);
-    }
-    */
+    E_SwatreTableDir->setText(SwatreTableDir);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_SwatreTableShow_clicked()
 {
-    QFile file(SwatreTableName);
-    if (!file.open(QFile::ReadOnly | QFile::Text))
-    {
-        QMessageBox::warning(this,"openLISEM",
-                             QString("Cannot read file %1:\n%2.")
-                             .arg(SwatreTableName)
-                             .arg(file.errorString()));
-        return;
-    }
+    showTextfile(SwatreTableName);
+}
+//--------------------------------------------------------------------
+void lisemqt::on_toolButton_SwatreTableName_clicked()
+{
+    // if (!QFileInfo(RainFileDir).exists() || RainFileDir.isEmpty())
+    //     RainFileDir = currentDir;
 
-    QTextStream in(&file);
+    QStringList filters({"Text file (*.inp *.txt *.tbl)","Any files (*)"});
+    QString sss = getFileorDir(currentDir,"Select Swatre profile file (def. profile.inp)", filters, 2);
 
-    QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
-    view->setWindowTitle(SwatreTableName);
-    view->setMinimumWidth(400);
-    view->setMinimumHeight(500);
-    view->setAttribute(Qt::WA_DeleteOnClose);
-    view->show();
+    if(sss.isEmpty()) sss = "profile.inp";
+    SwatreTableName = sss;//QFileInfo(sss).fileName(); //baseName();
 
-    file.close();
+    E_SwatreTableName->setText(SwatreTableName);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_satImageName_clicked()
@@ -644,7 +655,7 @@ void lisemqt::on_toolButton_satImageName_clicked()
     {
         QFileInfo fi(path);
         satImageFileName = fi.fileName();
-        satImageFileDir = CheckDir(fi.absolutePath());//Dir().path());
+        satImageFileDir = CheckDir(fi.absolutePath(), false);//Dir().path());
         E_satImageName->setText( satImageFileDir + satImageFileName );
     }
 }
@@ -668,6 +679,7 @@ void lisemqt::on_E_OFWaveType_currentIndexChanged(int index)
 {
     groupFloodParams->setEnabled(index > 0);
     groupWaveUser->setEnabled(index > 0);
+    groupAdvSWOF->setEnabled(index > 0);
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_checkInfiltration_toggled(bool checked)
@@ -680,7 +692,7 @@ void lisemqt::on_checkIncludeChannel_toggled(bool checked)
     groupChannelParams->setEnabled(checked);
     checkMapChannels->setEnabled(checked);
 
-    checkMapNameModel(CHANNELMAPS, 0, checked);
+   // checkMapNameModel(CHANNELMAPS, 0, checked);
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_checkDoErosion_toggled(bool checked)
@@ -777,4 +789,19 @@ void lisemqt::on_spinSoilLayers_valueChanged(int arg1)
         E_CalibrateKsat3->setEnabled(true);
     }
 
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int index)
+{
+    groupBox_SwatreOptions->setEnabled(index == 0);
+    groupBox_RichardsOptions->setEnabled(index == 3);
+    groupAdvRichards->setEnabled(true);//index == 3);
+    spinSoilLayers->setEnabled(index > 0);
+    label_153->setEnabled(index > 0);
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_toolButton_clicked()
+{
+    checkforpatch = true;
+    CheckVersion();
 }

@@ -1,4 +1,33 @@
 ### this file is a list of changes per major commit, for developers only ###
+
+250121 - v7.4.5
+- BUG FIX: Delete all map and swatre data after no GUI run
+- BUG FIX: Swatre compacted profiles incorrectly named
+- BUG FIX: Swatre impermeable surfaces no longer ignored
+- BUG FIX: Swatre internal timestep and percision saved correctly in run file
+- BUG FIX: check if compacted or crusted porosity is smaller than initial moisture
+- BUG FIX: channel infiltration not correctly added to mass balance
+- BUG FIX: soil moisture of topsoil reset to initial moisture for each timestep
+interface:
+- BUG FIX: wrong help file shown in certain pages, help text updated
+- BUG FIX: Update Lisem, wrong check
+- BUG FIX: some conservation measures not properly stored in the run file
+- BIG FIX: reset options of certain tabs did not work
+Changes:
+- Separated dynamic crustiung from static crusting
+- Included gridretention (Fanyaa Yuu, trenches etc) in mitigation measures, acts also as sediment trap
+- Swatre input matrix potential as one value or user maps, output as mapseries of h and theta for each node (001 .. 016)
+- Added options for dealing with Org.Mat. differences (-2% to 2%) and Density Factor (0.9 to 1.1) in SWATRE and GA infiltration
+- restored psi from user or calculated as option in Advanced options
+- make LISEM update from server optional, and possible to reacitivate in advanced options
+- Updated help files
+- Save fontsize and dark lisem in openlisem.ini
+
+241127 - v7.4.3
+- SWATRE bug fixes:
+  - infiltration did not account for roads and houses! Now included in top node
+  - sign error in code so that wetter soil gave more infiltration!
+
 241118 - v7.4
 - major rewrite of MUSCL 2D flow with 2nd order and Heun averaging (see FullSWOF documentation of Delestre et al.)
 - BUG FIX: small bug fixes in 2D flow

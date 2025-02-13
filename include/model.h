@@ -1,6 +1,6 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011, 2020  Victor Jetten
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
 **  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
@@ -10,17 +10,18 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-**  GNU General Public License v3 for more details.
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+**  GNU General Public License for more details.
 **
-**  You should have received a copy of the GNU General Public License GPLv3
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  You should have received a copy of the GNU General Public License
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
+
 
 /*!
   \file model.h:
@@ -67,9 +68,10 @@
 #define GRAV_DEM 4.90335
 
 #define Aavg(a,b)  (0.5*(a+b))
-#define Savg(a,b)  qSqrt(a*b)
+#define Savg(a,b)  sqrt(a*b)
 #define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
 #define Mavg(a,b)  std::min(a,b)
+#define SQR(a) ((a)*(a))
 
 #define DEBUG(s) emit debug(QString(s))
 #define TIMEDB(s) emit timedb(QString(s))
@@ -476,19 +478,23 @@ public:
         // infiltration,
         SwitchInfilCompact,
         SwitchInfilCrust,
+        SwitchDynamicCrusting,
         SwitchGrassStrip,
         SwitchImpermeable,
         SwitchDumphead,
         SwitchGeometric,
         SwitchTwoLayer,
         SwitchThreeLayer,
+        SwitchHinit4all,
+        SwitchOMCorrection,
+        SwitchDensCorrection,
         //SwitchWaterRepellency,
-        SwitchInterceptionLAI,
+        //SwitchInterceptionLAI,
         SwitchPsiUser,
         SwitchNrLayers,
-        SwitchDumpH,
-        SwitchDumpTheta,
-        SwitchDumpK,
+        //SwitchDumpH,
+        //SwitchDumpTheta,
+        //SwitchDumpK,
         SwitchVanGenuchten,
         SwitchBrooksCorey,
 
@@ -502,6 +508,7 @@ public:
         SwitchInfrastructure,
         SwitchRaindrum,
         SwitchAddBuildingsDEM,
+        SwitchGridRetention,
 
         //pesticide
         SwitchPesticide,
@@ -522,6 +529,7 @@ public:
         SwitchChannelKinwaveDt,
         SwitchChannelKinwaveAvg,
         SwitchLinkedList,
+        SwitchPerimeterKW,
         SwitchChannelKinWave,
         SwitchChannelMaxV;
 
@@ -587,7 +595,6 @@ public:
     //Groundwater flow parameters
     double GW_recharge;
     double GW_flow;
-    //double GW_inflow;
     double GW_slope;
     double GW_deep;
     double GW_threshold;
@@ -607,8 +614,8 @@ public:
     double nCalibration;
     double thetaCalibration;
     double psiCalibration;
-    double SD1Calibration;
-    double SD2Calibration;
+//    double SD1Calibration;
+//    double SD2Calibration;
     double ChnCalibration;
     double WaveCalibration;
     double ChnTortuosity;
@@ -657,6 +664,7 @@ public:
     double thetai1tot, thetai2tot, thetai1cur, thetai2cur;
     double maxRainaxis;
     double latitude;
+    double HinitValue;
 
     ///pesticides
     double PMtot, PMerr, PMtotI, PMwerr, PMserr;
@@ -664,6 +672,9 @@ public:
     double PQrw_dt, PQrs_dt;
     double KdPest, KfilmPest, KrPest, rhoPest, ERmaxPest, ERbetaPest;
     QString PestName;
+
+    /// swatre
+    double SwatrePrecision;
 
     /// time and dx parameters
     double time, BeginTime, EndTime;
@@ -975,7 +986,8 @@ public:
     void cell_ETa(int r, int c);
     double getETaFactor();
     double ETafactor;
-    void InfilEffectiveKsat(bool first);
+    void InfilEffectiveKsat();
+    void InfilDynamicCrusting();
     void InfilSwatre();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
     double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);
@@ -992,6 +1004,7 @@ public:
     void ToChannel();//int r, int c);
     void ToFlood();
     void ToTiledrain();
+    void ToTiledrainAll();
     // <= OF
 
     // => 1D flow on network
@@ -1021,7 +1034,6 @@ public:
     double F_pitValue;
     bool prepareFlood, startFlood;
     int iter_n;
-    int F_SWOFSolution;
     double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     double fullSWOF2openMUSCL(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     void doSWOFLoop(int step, double dt, double dt_max, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
@@ -1143,7 +1155,6 @@ public:
     PROFILE **profileList = nullptr;
     HORIZON **horizonList = nullptr;
     ZONE *zone = nullptr;
-    double precision;
     int tnode; //VJ 110122 node nr in profile with tile drains
     SOIL_MODEL *InitSwatre(cTMap *profileMap);//, QString initHeadMaps, cTMap *tiledepthMap, double dtMin);
     void CloseSwatre(SOIL_MODEL *s);
@@ -1160,17 +1171,18 @@ public:
     void checkFileForInvalidLetters(const QString &filePath);
     void cell_InfilSwatre(long i_, int r, int c);
     void SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_drain, cTMap *_theta);
-    void HeadCalc(double *h, const PROFILE *p , bool *isPonded,bool fltsat,
+    void HeadCalc(const PROFILE *p, double *h, bool *isPonded, bool fltsat,
                   const double *thetaPrev, const double *hPrev, const double *kavg, const double *dimoca,
                   double dt, double pond, double qtop, double qbot);
-    double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes,
-                        double precParam, double dtMin, double dtMax);
-    void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction);
-    double HNode(double theta,const  HORIZON *hor);
-    double TheNode(double head,const  HORIZON *hor);
-    double HcoNode(double head,const HORIZON *hor);
+    double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes, double dtMin, double precParam);
+//    double  NewTimeStep(double prevDt, QVector <double> hlast, QVector <double> h, int nrNodes, double dtMin);
+//    void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction);
+    void ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction);
     double DmcNode(double head,const  HORIZON *hor,bool on_dmch);
-    double FindNode(double head,const  HORIZON *hor, int column);
+    double FindValue(double value,const  HORIZON *hor, int colv, int col);
+    double HNode(double theta,const  HORIZON *hor); // obsolete
+    double TheNode(double head,const  HORIZON *hor);// obsolete
+    double HcoNode(double head,const HORIZON *hor); // obsolete
     // <= SWATRE
 
 int showr;// for debugging

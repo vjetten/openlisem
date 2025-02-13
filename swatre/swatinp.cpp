@@ -1,7 +1,7 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011,2020  Victor Jetten
-**  contact:
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
+**  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License GPLv3 as published by
@@ -10,34 +10,28 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 **  GNU General Public License for more details.
 **
 **  You should have received a copy of the GNU General Public License
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
+
 /*!
   \file swatinp.cpp
   \brief SWATRE: initialize and read profile data
 
   functions:
-- void TWorld::InitializeProfile( void )
 - void TWorld::ReadSwatreInputNew(void) \n
 - ZONE * TWorld::ReadNodeDefinitionNew(void) \n
 - PROFILE * TWorld::ReadProfileDefinitionNew(int pos,ZONE *z) \n
-- HORIZON * TWorld::ReadHorizon(const char *tablePath, const char *tableName) \n
+- HORIZON * TWorld::ReadHorizonNew(const char *tablePath, const char *tableName) \n
 - void  TWorld::FreeSwatreInfo(void) \n
-
-- obsolete !!!!!!!!:
-- int TWorld::ReadSwatreInput(QString fileName, QString tablePath) \n
-- ZONE * TWorld::ReadNodeDefinition(FILE *f) \n
-- PROFILE * TWorld::ReadProfileDefinitionNew(FILE *f,ZONE *z,const char *tablePath) \n
-- PROFILE * TWorld::ProfileNr(int profileNr) \n
 
 profile node setup:
     endComp is what is in the profile.inp file, the bottom of the layer
@@ -55,15 +49,11 @@ profile node setup:
     etc.
 */
 
-#include <algorithm>
 #include "lerror.h"
 #include "model.h"
 
 #define LIST_INC	10
 
-/// array of pointers to horizons, nullptr if not allocated
-//static HORIZON **horizonList = nullptr;
-//static int nrHorizonList=0, sizeHorizonList=0;
 
 //----------------------------------------------------------------------------------------------
 /// read and parse profile.inp
@@ -80,7 +70,7 @@ void TWorld::ReadSwatreInputNew(void)
     swatreProfileDef.clear();
     swatreProfileNr.clear();
 
-    QFile file(SwatreTableName);
+    QFile file(SwatreTableName); // table name has full path
 
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
@@ -98,7 +88,7 @@ void TWorld::ReadSwatreInputNew(void)
 
         file.close();
     } else {
-        Error(QString("SWATRE: Can't open profile definition file %1").arg(SwatreTableName));
+        Error(QString("SWATRE: Can't open profile definition file %1").arg(/*SwatreTableDir +*/SwatreTableName));
         throw 1;
     }
 
@@ -182,8 +172,8 @@ void TWorld::ReadSwatreInputNew(void)
             DEBUG(QString("Warning SWATRE: profile id %1 defined more than once").arg(swatreProfileNr[i+1]));
     }
 
-    //profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1)); // why realloc instead of malloc?
-    profileList = (PROFILE **)malloc(sizeof(PROFILE *)*(nrProfileList+1));
+    profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1)); // why realloc instead of malloc?
+ //   profileList = (PROFILE **)malloc(sizeof(PROFILE *)*(nrProfileList+1));
     // profile list is a list of pointers to PROFILE
 
     nrProfileList = 0;
@@ -196,7 +186,6 @@ void TWorld::ReadSwatreInputNew(void)
             nrProfileList++;
         }
     }
-    //qDebug() << "DONE: ReadSwatreInputNew(void)";
 }
 //----------------------------------------------------------------------------------------------
 // for reference:
@@ -254,7 +243,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
         h = ReadHorizonNew(SwatreTableDir, tableName);
 
         // copy horizon info to all nodes of this horizon
-        // add the proper calibration factor (ksat1 cal for hor 1, ksat2cal for hor 2 adn the rest hor 3)
+        // add the proper calibration factor (ksat1 cal for hor 1, ksat2cal for hor 2 adn the rest hor 3)       
         while (i < z->nrNodes && z->endComp[i] <= endHor ) {
             p->horizon[i] = h;
 
@@ -269,7 +258,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
         // if (z->endComp[i-1] != endHor)
         //     Error(QString("SWATRE: Compartment does not end on depth '%1' (found in profile nr %2 for horizon %3)")
         //           .arg(endHor).arg(p->profileId).arg(tableName));
-        //? what does this error mean exactly, hrozions do not have to end on nodes?
+        //? what does this error mean exactly, horizons do not have to end exacvtly on nodes
     }
 
     return(p);
@@ -299,7 +288,6 @@ HORIZON * TWorld::ReadHorizonNew(QString tablePath, QString tableName)
     h->lut = ReadSoilTableNew(tablePath + tableName);
     h->name = tableName;
 
-    //qDebug() << "ReadHorizonNew" << tableName;
     return(h);
 }
 //----------------------------------------------------------------------------------------------
@@ -307,8 +295,6 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
 {
     // read the table in a stringlist
     QStringList list;
-
-   // checkFileForInvalidLetters(fileName);
 
     QRegularExpression regex("[a-df-zA-DF-Z]");
 
@@ -333,7 +319,7 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
         file.close();
     }
     LUT *l = new LUT;
-    l->nrRows = list.count();
+    l->Rows = list.count();
 
     for (int i = 0; i < list.count(); i++) {
         QStringList SL = list[i].split(QRegularExpression("\\s+"),Qt::SkipEmptyParts);
@@ -341,8 +327,7 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
         bool ok;
         SL[0].toDouble(&ok);
         if (!ok || SL.count() < 3) {
-            //qDebug() << "not ok" << SL;
-            l->nrRows--;
+            l->Rows--;
             break; // sometimes table ends with a non empty line with some char code
         }
         l->hydro[THETA_COL].append(SL[THETA_COL].toDouble());
@@ -350,7 +335,7 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
         l->hydro[K_COL].append(SL[K_COL].toDouble()/86400); // cm/day to cm/sec
     }
 
-    for (int i = 0; i < l->nrRows-1; i++) {
+    for (int i = 0; i < l->Rows-1; i++) {
         if (l->hydro[H_COL][i+1] <= l->hydro[H_COL][i])
             Error(QString("matrix head not increasing in table %1 at h = %2.").arg(fileName).arg(l->hydro[H_COL][i]));
         if (l->hydro[THETA_COL][i+1] <= l->hydro[THETA_COL][i])
@@ -359,9 +344,10 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
             Error(QString("Hydraulic conductivity not increasing in table %1 at K = %2.").arg(fileName).arg(l->hydro[K_COL][i]));
     }
 
-    for (int i = 0; i < l->nrRows - 1; i++) {
+    // dimoica
+    for (int i = 0; i < l->Rows - 1; i++) {
         double v = 0.5*(l->hydro[H_COL][i] + l->hydro[H_COL][i+1]);
-        l->hydro[DMCH_COL] << v; // NOTE DMCH_COL is not used!
+        l->hydro[DMCH_COL] << v;
 
         v = (l->hydro[THETA_COL][i+1] - l->hydro[THETA_COL][i])/(l->hydro[H_COL][i+1] - l->hydro[H_COL][i]);
         if (i > 0 && v < l->hydro[DMCC_COL][i-1]) {
@@ -373,14 +359,7 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
 
     // fill l->nrRows-1
     l->hydro[DMCH_COL] << 0;
-    l->hydro[DMCC_COL] << l->hydro[DMCC_COL][l->nrRows-2] + (l->hydro[DMCC_COL][l->nrRows-2] - l->hydro[DMCC_COL][l->nrRows-3]);
-
-    // qDebug() << fileName;
-    // for (int i = 0; i < l->nrRows; i++) {
-    // qDebug() << l->hydro[0][i] <<  l->hydro[1][i] << l->hydro[2][i] << l->hydro[3][i] << l->hydro[4][i];
-    // }
-
-    // WORKS
+    l->hydro[DMCC_COL] << l->hydro[DMCC_COL][l->Rows-2] + (l->hydro[DMCC_COL][l->Rows-2] - l->hydro[DMCC_COL][l->Rows-3]);
 
     return(l);
 }
@@ -404,43 +383,3 @@ void TWorld::checkFileForInvalidLetters(const QString &filePath)
     file.close();
 }
 //----------------------------------------------------------------------------------------------
-// free the zone, luts and profiles, these are only pointers in PIXEL_INFO
-void  TWorld::FreeSwatreInfo(void)
-{
-    if (zone == nullptr)
-       return;
-
-    if (zone != nullptr) {
-        zone->dz.clear();
-        zone->z.clear();
-        zone->endComp.clear();
-        zone->disnod.clear();
-        delete(zone);
-        zone = nullptr;
-    }
-
-    if (profileList != nullptr) {
-        if (profileList[0] != nullptr) {
-            for(int i=0; i < sizeProfileList; i++)
-                if (profileList[i] != nullptr)
-                    free(profileList[i]);
-        }
-        free(profileList);
-        profileList = nullptr;
-    }
-
-    if (horizonList != nullptr) {
-        for(int i=0; i < nrHorizonList; i++)
-        {
-            for(int k = 0; k < 5; k++)
-                horizonList[i]->lut->hydro[k].clear();
-            free(horizonList[i]);
-        }
-        free(horizonList);
-        horizonList = nullptr;
-    }
-
-    nrHorizonList = 0;
-    sizeHorizonList = 0;
-    //qDebug() << "free:" << zone << profileList << horizonList;
-}

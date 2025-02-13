@@ -1,23 +1,23 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011, 2020  Victor Jetten
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
 **  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
-**  it under the terms of the GNU General Public License as published by
+**  it under the terms of the GNU General Public License GPLv3 as published by
 **  the Free Software Foundation, either version 3 of the License, or
 **  (at your option) any later version.
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-**  GNU General Public License v3 for more details.
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+**  GNU General Public License for more details.
 **
-**  You should have received a copy of the GNU General Public License GPLv3
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  You should have received a copy of the GNU General Public License
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
@@ -27,13 +27,11 @@
 \brief List of maps with descriptions and units. Linked directly in the model class.
 */
 
-cTMap
+QVector <cTMap*> *inith; // swatre matrix potential nodes
 
-//*_MASK,
+cTMap
 *DEM,                        //!< DEM [m]
 *MBm,
-//*DEMdz,                        //!< DEM [m]
-//*Shade,                      //!< Shaded relief for display [0-1]
 *ShadeBW,                      //!< Shaded relief for display [0-1]
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
 *CellArea,                   //!< cell area = DX * _dx [m^2]
@@ -49,8 +47,6 @@ cTMap
 *RainZone,                   //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *ETZone,                     //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *Rain,                       //!< map with rain from tis time intervall [m]
-//*IDIw,
-//*noRain,
 *Rainc,                      //!< map with rain from tis time intervall, spread over the surface (corrected or slope) [m]
 *RainCum,                    //!< cumulative rainfall, as spreadoutover slope [m]
 *RainCumFlat,                //!< cumulative rainfall [m]
@@ -80,9 +76,8 @@ cTMap
 *SnowmeltCum,                //!< cumulative showmelt depth [m]
 
 *WH,                         //!< water height on the surface [m]
-*WHbef,                      //!< water height on the surface before infiltration [m]
-//*WHroad,                     //!< water height on the roads [m]
-//*WHrunoffOutput,                     //!< water height on the roads [m]
+*WHold,                      //!< water height on the surface before infiltration [m]
+*WHnew,                      //!< water height on the surface before infiltration [m]
 *WHrunoff,                   //!< water height available for runoff [m]
 *WHmax,                      //!< max runoff wh in m for reporting
 *WHstore,                    //!< water heigth stored in micro depressions [m]
@@ -126,7 +121,7 @@ cTMap
 *Qsn,                        //!< new sediment discharge after kin wave [kg/s]
 *SinKW,                      //!< New Sed flux kinematic wave
 *Qsoutput,                   //!< sediment outflow for screen/file output, sum of overland flow and channel [kg/s]
-*q,                          //!< infiltration surplus going in kin wave (<= 0) [m2/s]
+//*q,                          //!< infiltration surplus going in kin wave (<= 0) [m2/s]
 *R,                          //!< hydraulic radius overland flow [m]
 *N,                          //!< Manning's n
 *Norg,                          //!< Manning's n
@@ -142,7 +137,10 @@ cTMap
 //*RepellencyFraction,         //!< fraction of water repellency of node 1 in Swatre [-]
 //*RepellencyCell,             //!< Cell included in water repellency in Swatre [-]
 *HardSurface,                //!< value 1 if 'hard' surface: no interception, infiltration, detachment [-]
+*fractionImperm,            //!<// 0 is fully permeable, 1 = impermeable [-]
 *runoffTotalCell,
+*hSwatre,
+*thetaSwatre,
 
 *PlantHeight,                //!< height of vegetation/crops [m]
 *Cover,                      //!< vegetation canopy cover fraction [-]
@@ -221,8 +219,8 @@ cTMap
 *FFull,                      //!< map flagging when the soil is full
 *fact,                       //!< actual infiltration rate [m/s]
 //*fpot,                       //!< potential infiltration rate [m/s]
-*InfilVolKinWave,            //!< volume infiltrated in the kin wave (slope and channel) in this timestep [m^3]
-*InfilVol,                   //!< volume of water infiltrated in this timestep [m^3] - without kin wave
+//*InfilVolKinWave,            //!< volume infiltrated in the kin wave (slope and channel) in this timestep [m^3]
+*InfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
 *ChannelInfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
 
 *InfilVolCum,                //!< cumulative infiltration volume for mass balance and map report [m^3]
@@ -296,12 +294,14 @@ cTMap
 
 //swatre
 *thetaTop,                   //!< average theta of node 0 and 1 for water repelency and nutrients
+*OMcorr,
+*DensFact,
 *ProfileID,                  //!< SWATRE profile unit number map
 *ProfileIDCrust,             //!< SWATRE profile unit number map for crusted areas
 *ProfileIDCompact,           //!< SWATRE profile unit number map for compacted areas
 *ProfileIDGrass,             //!< SWATRE profile unit number map for grass strips
 *SwatreOutput,               //!< SWATRE cells flagged for output
-*inith,                      //!< SWATRE inithead in -cm
+//*inith,                      //!< SWATRE inithead in -cm
 
 *LDDChannel,                 //!<
 *LDDbaseflow,
@@ -346,6 +346,7 @@ cTMap
 //*ChannelPerimeter,           //!<
 *ChannelDX,                  //!<
 *ChannelKsat,                //!<
+*ChannelInfM3,                //!<
 *ChannelDetFlow,             //!<
 *ChannelDep,                 //!<
 *ChannelSed,                 //!<
@@ -384,7 +385,7 @@ cTMap
 *hmxflood,
 *FloodDomain,                //!<
 *Buffers,                    //!<
-*BufferNr,                    //!<
+*GridRetention,                    //!<
 *ChannelMaxQ,                //!<
 *ChannelMaxAlpha,                //!<
 *FloodWaterVol,                //!<
@@ -437,11 +438,11 @@ cTMap
 *LDDTile,                    //!< LDD network of tile drains, must be connected to outlet
 *TileDrainSoil,              //!< drain volume from layer
 *TileDiameter,                  //!< total width of drains in cell (m)
-//*TileMaxQ,
+*TileArea,                  //!< total width of drains in cell (m)
 *TileWidth,                  //!< total width of drains in cell (m)
 *TileHeight,                 //!< height of drain (m)
 *TileDepth,                  //!< depth of tiles in soil below surface (m)
-*TileInlet,               //!< sinkhole on surface connecting to tiledrains (m2)
+//*TileInlet,               //!< sinkhole on surface connecting to tiledrains (m2)
 *TileQ,                      //!< water flux in drains m3/s
 *TileMaxQ,                      //!< water flux in drains m3/s
 *TileQn,                     //!< new water flux in drains m3/s

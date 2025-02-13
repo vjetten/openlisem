@@ -2,7 +2,7 @@ openLISEM
 A spatial model for simulation of the full waterbalance, overland flow, flooding and sediment erosion, transport and deposition in all flows.
 
 ============
-Date: 241121
+Date: 250121
 ============
 
 This software is subject to a DISCLAIMER and released under the copyright model GPLv3
@@ -12,6 +12,44 @@ For questions contact v.g.jetten AD utwente.nl
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6, openmp, gdal and (minimal) pcraster
+
+LIST OF CHANGES and BUGFIZES:
+
+250121 - v7.4.5
+- BUG FIX: Delete all map and swatre data after no GUI run
+- BUG FIX: Swatre compacted profiles incorrectly named
+- BUG FIX: Swatre impermeable surfaces no longer ignored
+- BUG FIX: Swatre internal timestep and percision saved correctly in run file
+- BUG FIX: check if compacted or crusted porosity is smaller than initial moisture
+- BUG FIX: channel infiltration not correctly added to mass balance
+- BUG FIX: soil moisture of topsoil reset to initial moisture for each timestep
+interface:
+- BUG FIX: wrong help file shown in certain pages, help text updated
+- BUG FIX: Update Lisem, wrong check
+- BUG FIX: some conservation measures not properly stored in the run file
+- BIG FIX: reset options of certain tabs did not work
+Changes:
+- Separated dynamic crustiung from static crusting
+- Included gridretention (Fanyaa Yuu, trenches etc) in mitigation measures, acts also as sediment trap
+- Swatre input matrix potential as one value or user maps, output as mapseries of h and theta for each node (001 .. 016)
+- Added options for dealing with Org.Mat. differences (-2% to 2%) and Density Factor (0.9 to 1.1) in SWATRE and GA infiltration
+- restored psi from user or calculated as option in Advanced options
+- make LISEM update from server optional, and possible to reacitivate in advanced options
+- Updated help files
+- Save fontsize and dark lisem in openlisem.ini
+
+241203 - v7.4.4
+- Update system: lisem will check online in github if a newer version exists
+
+241125 - v7.4.3
+- BUG FIX: Swatre did not account for impermeable surfaces
+- BUG FIX: sign error in Swatre causing invcerse effect of initial h
+- culvert kin wave code extended to subsurface drains, to be tested
+- Interface advanced option: perimeter for overland flow is not just the width but w+2h (compatibility old versions)
+
+241125 - v7.4.2
+- BUG FIX: Swatre interface small bug fixes
+- BUG FIX: 2nd page interface map list greyed out
 
 241121 - v7.4.1
 - Adjusted the noInterface option. No works well on headless systems.

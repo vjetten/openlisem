@@ -1,41 +1,33 @@
-241118 - v7.4
-- major rewrite of MUSCL 2D flow with 2nd order and Heun averaging (see FullSWOF documentation of Delestre et al.)
-- BUG FIX: small bug fixes in 2D flow\
-- BUG FIX: culverts work again, still small MB error but not very much
+Latest fixes and chnages:
+=========================
+250121 - v7.4.5
+- BUG FIX: Delete all map and swatre data after no GUI run
+- BUG FIX: Swatre compacted profiles incorrectly named
+- BUG FIX: Swatre impermeable surfaces no longer ignored
+- BUG FIX: Swatre internal timestep saved correctly in run file
+- BUG FIX: check if compacted or crusted porosity is smaller than initial moisture
+- BUG FIX: channel infiltration not correctly added to mass balance
+- BUG FIX: soil moisture of topsoil reset to initial moisture for each timestep
+interface:
+- BUG FIX: wrong help file shown in certain pages, help text updated
+- BUG FIX: Update Lisem, wrong check
+- BUG FIX: some conservation measures not properly stored in the run file
+- BIG FIX: reset options of certain tabs did not work
+Changes:
+- Separated dynamic crustiung from static crusting
+- Included gridretention (Fanyaa Yuu, trenches etc) in mitigation measures, acts also as sediment trap
+- Swatre input matrix potential as one value or user maps, output as mapseries of h and theta for each node (001 .. 016)
+- Added options for dealing with Org.Mat. differences (-2% to 2%) and Density Factor (0.9 to 1.1) in SWATRE and GA infiltration
+- restored psi from user or calculated as option in Advanced options
+- make LISEM update from server optional, and possible to reacitivate in advanced options
+- Updated help files
+- Save fontsize and dark lisem in openlisem.ini
 
-241114 - v7.3
-- BUG fix: reading of [rainfall/ET/boundary waterheight/user discharge] time string, was malways rounded to whole minutes
-- BUG fix: finding the right timeseries interval with the current time at the end of the series
-- Known BUG: culverts do not work correctly
-- Code made compatble for Linux compile, instructions for compilation updated
+241203 - v7.4.4
+- Update system: lisem will check online in github if a newer version exists
 
-241107 - v7.2
-- BUG fix: SWATRE reading of tables
-- BUG fix: cleaning of SWATRE memory structures for rerun
-
-241013 - v7.1
-- BUG fix: SWATRE is working again
-- BUG fix: Theta showed NaN in files
-- TODO: Swatre does not interact with groundwater and may crash
-- Small interface bug fixes and more logical positioning of options
-- new option Tab houses, infrastructure and mitigation measures
-- checked reset options of all tabs and overall reset
-
-240714 - v7.00
-- BUG fix: Lisem crashed when changing the displayed map after the run was finished
-- Data remains in memory until the next run is started
-- MUSCL option for 2D flow: cell boundary interpolation of water level and velocities (4 types). For high resolution flow.
-- Advanced options: optional overall mass balance correction
-- Moved to QT6, new libs
-Interface
-- Dark mode/Light mode 
-- Some repositioning of options
-- Rainfall, interception and infiltration can be switched on/off
-- scrollbars correctly triggered
-
-240523 - v6.99
-- BUG FIX: in erosion causing zero flow detachment (only splash)
-- boundary water level inflow (with whboundary.map and file with water levels), for dike break or coastal zone flooding
-- Better hydraulics subsurface storm drains (sewage system) for urban environments (beta, some mass balance errors)
-Interface
-- Make mpeg movies of screenshot series after the simulation. Needs download MPlayer from http://www.mplayerhq.hu
+241125 - v7.4.3
+- BUG FIX: Swatre did not account for impermeable surfaces
+- BUG FIX: sign error in Swatre causing invcerse effect of initial h
+- culvert kin wave code extended to subsurface drains, to be tested
+- Interface advanced option: perimeter for overland flow is not just the width but w+2h (compatibility old versions)
