@@ -118,16 +118,12 @@ int TWorld::getvalueint(QString vname)
 QString TWorld::CheckDir(QString p, bool makeit)
 {
     QString path;
-    path = QDir(p).fromNativeSeparators(p);
-    path = QDir(path).absoluteFilePath(path);
-
-    if (!path.endsWith("/") && !path.endsWith("\\"))
-        path = path + '/';
+    path = QDir(p).fromNativeSeparators(p); // changes "\\" to "/"
+    path = QDir(path).absoluteFilePath(path) + "/"; // absoluteFilePath does not have a sparator at the end, so add it
 
     if (!QDir(path).exists())
     {
-        if (makeit)
-        {
+        if (makeit) {
             QDir(path).mkpath(path);
             DEBUG("NOTE: Result dir created !");
             //qDebug() << "NOTE: Result dir created !";
@@ -139,12 +135,16 @@ QString TWorld::CheckDir(QString p, bool makeit)
     return path;
 }
 //---------------------------------------------------------------------------
+// not used!
 QString TWorld::GetName(QString p)
 {
-    QFileInfo fi(p);
-    QStringList ss = fi.filePath().split("/");
-    int n = ss.count();
-    return(ss[n-1]);
+    // QFileInfo fi(p);
+    // QStringList ss = fi.filePath().split("/");
+    // int n = ss.count();
+    // return(ss[n-1]);
+
+        QFileInfo fileInfo(p);
+        return fileInfo.fileName();
 }
 //---------------------------------------------------------------------------
 QString TWorld::checkOutputMapName(QString p, QString S, int i)
