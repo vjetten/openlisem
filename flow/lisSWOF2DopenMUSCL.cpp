@@ -39,7 +39,7 @@
 double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     double timesum = 0;
-    double dt_max = std::min(_dt/2.0, _dx/2.0);
+    double dt_max = std::min(_dt, _dx*0.75);
     int count = 0;
     double sumh = 0;
     bool stop;
@@ -71,10 +71,10 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 if (r > 0 && !MV(r-1,c)        ) activeCells->data[r-1][c] = 1;
                 if (r < _nrRows-1 && !MV(r+1,c)) activeCells->data[r+1][c] = 1;
 
-                // if (c > 1 && !MV(r,c-2)        ) activeCells->data[r][c-2] = 1;
-                // if (c < _nrCols-2 && !MV(r,c+2)) activeCells->data[r][c+2] = 1;
-                // if (r > 1 && !MV(r-2,c)        ) activeCells->data[r-2][c] = 1;
-                // if (r < _nrRows-2 && !MV(r+2,c)) activeCells->data[r+2][c] = 1;
+                if (c > 1 && !MV(r,c-2)        ) activeCells->data[r][c-2] = 1;
+                if (c < _nrCols-2 && !MV(r,c+2)) activeCells->data[r][c+2] = 1;
+                if (r > 1 && !MV(r-2,c)        ) activeCells->data[r-2][c] = 1;
+                if (r < _nrRows-2 && !MV(r+2,c)) activeCells->data[r+2][c] = 1;
             }
         }}
 
