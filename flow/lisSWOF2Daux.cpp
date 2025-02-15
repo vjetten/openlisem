@@ -195,36 +195,35 @@ if (doit) {
  */
 double TWorld::limiter(double a, double b)
 {
-    double eps = 1.e-15;
-    double rec = 0.;
-    // F_fluxLimiter=1;
+    double eps = 1.e-12;
+
     if (F_fluxLimiter == (int)MINMOD)
     {
         if (a >= 0 && b >= 0)
-            rec = std::min(a, b);
+            return std::min(a, b);
         else
             if (a <= 0 && b <= 0)
-                rec = std::max(a, b);
+                return std::max(a, b);
+            else
+                return 0.;
     }
     else
     {
-        double ab = a*b;
-
         if (F_fluxLimiter == (int)VANLEER)
         {
-            if (ab > 0)
-                return (2*ab/(a+b));
+            if ((a > 0 && b > 0) || (a < 0 && b < 0))
+                return (2*a*b/(a+b));
+            else
+                return 0.;
         }
         else
-            if (F_fluxLimiter == (int)VANALBEDA)
-            {
-                double aa = a*a;
-                double bb = b*b;
-                if (ab > 0)
-                    rec=(a*(bb+eps)+b*(aa+eps))/(aa+bb+2*eps);
+            if (F_fluxLimiter == (int)VANALBEDA) {
+                if (a*b < 0.)
+                    return 0.;
+                else
+                    return  (a*(b*b+eps)+b*(a*a+eps))/(a*a+b*b+2.*eps);
             }
     }
-    return(rec);
 }
 
 

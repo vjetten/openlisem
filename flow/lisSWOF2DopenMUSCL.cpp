@@ -39,7 +39,7 @@
 double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     double timesum = 0;
-    double dt_max = std::min(_dt, _dx*0.75);
+    double dt_max = std::min(_dt, _dx*0.5);
     int count = 0;
     double sumh = 0;
     bool stop;
@@ -51,6 +51,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     //            sumS = getMassSed(SSFlood, 0);
 
     do {
+
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             FloodDT->Drc = dt_max;
@@ -76,6 +77,8 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 if (r < _nrRows-2 && !MV(r+2,c)) tmd->data[r+2][c] = 1;
             }
         }}
+
+        qDebug() << step<< dt_req_min;
 
         doSWOFLoop(step, dt_req_min, dt_max, tmd, h, u, v, z);
         // first time step = 0, only to find smallest dt
@@ -163,7 +166,8 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 //------------------------------------------------------------------------------------------------------
 void TWorld::doSWOFLoop(int step, double dt, double dt_max, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
-    //do all flow and state calculations
+    //do all flow and state calculations    
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (activeCells->Drc > 0) {
@@ -473,8 +477,7 @@ void TWorld::doSWOFLoop(int step, double dt, double dt_max, cTMap *activeCells, 
                 }
 
                 // dan maar even met geweld!
-                if (std::isnan(Un) || std::isnan(Vn)  )
-                {
+                if (std::isnan(Un) || std::isnan(Vn)) {
                     Un = 0;
                     Vn = 0;
                 }
