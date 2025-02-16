@@ -71,10 +71,10 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 if (r > 0 && r != MV(r-1,c)        )  activeCells->data[r-1][c] = 1;
                 if (r < _nrRows-1 && r != MV(r+1,c))  activeCells->data[r+1][c] = 1;
 
-                if (c > 1 && c != MV(r,c-2)        ) activeCells->data[r][c-2] = 1;
-                if (c < _nrCols-2 && c != MV(r,c+2)) activeCells->data[r][c+2] = 1;
-                if (r > 1 && r != MV(r-2,c)        ) activeCells->data[r-2][c] = 1;
-                if (r < _nrRows-2 && r != MV(r+2,c)) activeCells->data[r+2][c] = 1;
+                // if (c > 1 && c != MV(r,c-2)        ) activeCells->data[r][c-2] = 1;
+                // if (c < _nrCols-2 && c != MV(r,c+2)) activeCells->data[r][c+2] = 1;
+                // if (r > 1 && r != MV(r-2,c)        ) activeCells->data[r-2][c] = 1;
+                // if (r < _nrRows-2 && r != MV(r+2,c)) activeCells->data[r+2][c] = 1;
 
                 // if ((c > 0 && c != MV(r,c-1)) && (r > 0 && r != MV(r-1,c))) activeCells->data[r-1][c-1] = 1;
                 // if ((c < _nrCols-1 && c != MV(r,c+1)) && (r > 0 && r != MV(r-1,c))) activeCells->data[r-1][c+1] = 1;
@@ -90,7 +90,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             //         activeCells->Drc = 0;
             // }
         }}
-//report(*activeCells,"cells");
+report(*activeCells,"cells");
         dt_req_min = doSWOFMUSCLdt(dt_max, timesum, activeCells, h, u, v, z);
         // do MUSCL (optional), Riemann etc, get back smallest dt
         // in the original code this is split in reconstruction/MUSCL and maincalcflux
@@ -274,7 +274,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
 
             //======== MUSCL: on the 4 boundaties of a gridcell interpolate from the center values
             // called "reconstruction" in SWOF code
-            if (SwitchMUSCL && DomainEdge->Drc == 0) {
+            if (SwitchMUSCL){// && DomainEdge->Drc == 0) {
                 bool b2c1 ,b2c2 ,b2r1 ,b2r2;
                 double h_xx1, h_xx2, u_xx1, u_xx2, v_xx1, v_xx2;
                 double h_yy1, h_yy2, u_yy1, u_yy2, v_yy1, v_yy2;
