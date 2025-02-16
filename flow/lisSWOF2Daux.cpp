@@ -213,7 +213,7 @@ double TWorld::limiter(double a, double b)
         if (F_fluxLimiter == (int)VANLEER)
         {
             if (ab > 0)
-                return (2*ab/(a+b));
+                rec = (2*ab/(a+b));
         }
         else
             if (F_fluxLimiter == (int)VANALBEDA)
@@ -221,7 +221,7 @@ double TWorld::limiter(double a, double b)
                 double aa = a*a;
                 double bb = b*b;
                 if (ab > 0)
-                    rec=(a*(bb+eps)+b*(aa+eps))/(aa+bb+2*eps);
+                    rec = (a*(bb+eps)+b*(aa+eps))/(aa+bb+2*eps);
             }
     }
     return(rec);

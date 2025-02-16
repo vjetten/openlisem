@@ -477,6 +477,7 @@ cTMap
 *tmb,                        //!< Auxilary map
 *tmc,                        //!< Auxilary map
 *tmd,                        //!< Auxilary map
+*tmshow,
 //display combinations
 *COMBO_V,
 *COMBO_SS,

@@ -70,7 +70,7 @@
        <enum>QTabWidget::TabPosition::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -2181,7 +2181,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>1013</width>
-                <height>749</height>
+                <height>740</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -2217,7 +2217,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>3</number>
+                  <number>9</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -9755,6 +9755,74 @@
                            </property>
                           </widget>
                          </item>
+                         <item row="2" column="0">
+                          <widget class="QSpinBox" name="E_FloodFluxLimiter">
+                           <property name="enabled">
+                            <bool>true</bool>
+                           </property>
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="palette">
+                            <palette>
+                             <active/>
+                             <inactive/>
+                             <disabled/>
+                            </palette>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="toolTip">
+                            <string>Avoiding oscillations in PDE</string>
+                           </property>
+                           <property name="minimum">
+                            <number>1</number>
+                           </property>
+                           <property name="maximum">
+                            <number>3</number>
+                           </property>
+                           <property name="value">
+                            <number>1</number>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="1" colspan="4">
+                          <widget class="QLabel" name="label_100">
+                           <property name="enabled">
+                            <bool>true</bool>
+                           </property>
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <italic>false</italic>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>MUSCL Flux limiter: 1 - Minmod; 2 - van Leer; 3 - van Albeda</string>
+                           </property>
+                           <property name="alignment">
+                            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                           </property>
+                          </widget>
+                         </item>
                         </layout>
                        </widget>
                       </item>
@@ -10308,46 +10376,6 @@
                    <string>Page</string>
                   </attribute>
                   <layout class="QGridLayout" name="gridLayout_56">
-                   <item row="12" column="2">
-                    <widget class="QSpinBox" name="E_FloodFluxLimiter">
-                     <property name="enabled">
-                      <bool>true</bool>
-                     </property>
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="toolTip">
-                      <string>Avoiding oscillations in PDE</string>
-                     </property>
-                     <property name="minimum">
-                      <number>1</number>
-                     </property>
-                     <property name="maximum">
-                      <number>3</number>
-                     </property>
-                     <property name="value">
-                      <number>1</number>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="4" column="0" colspan="2">
                     <widget class="QCheckBox" name="checkChannelWFinflow">
                      <property name="sizePolicy">
@@ -10915,34 +10943,6 @@ p, li { white-space: pre-wrap; }
                        </widget>
                       </item>
                      </layout>
-                    </widget>
-                   </item>
-                   <item row="12" column="1">
-                    <widget class="QLabel" name="label_100">
-                     <property name="enabled">
-                      <bool>true</bool>
-                     </property>
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <italic>false</italic>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>MUSCL Flux limiter: 1 - Minmod; 2 - van Leer; 3 - van Albeda</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-                     </property>
                     </widget>
                    </item>
                    <item row="9" column="2">
