@@ -279,7 +279,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Correct DEM")==0)                       SwitchCorrectDEM = iii == 1;
         if (p1.compare("Use 2D Diagonal flow")==0)              Switch2DDiagonalFlow = iii == 1;
         if (p1.compare("Flow Boundary 2D")==0)                  FlowBoundaryType = iii;
-        if (p1.compare("Flood initial level map")==0)           SwitchFloodInitial     = iii == 1;
+        if (p1.compare("Flood initial level map")==0)           SwitchFloodInitial = iii == 1;
+        if (p1.compare("Flood Solution")==0)                    SwitchMUSCL = iii == 1;
 
         // erosion
         if (p1.compare("Include Erosion simulation")==0)        SwitchErosion =          iii == 1;
@@ -408,6 +409,10 @@ void TWorld::ParseRunfileData(void)
     if (SwitchGWflow) {     /*SwitchChannelBaseflow && */
         SwitchImpermeable = false;  //???okay
     }   
+
+    if (SwitchWaveUser)
+        SwitchMUSCL = false;
+
     if (!SwitchInfrastructure) {
         SwitchRoadsystem = false;
         SwitchHardsurface = false;

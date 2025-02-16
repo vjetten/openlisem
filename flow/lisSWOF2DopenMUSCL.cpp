@@ -61,36 +61,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             // save the originals
         }}
 
-        // activeCells are all wet ceels and one dry cell more in all directions
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            if (h->Drc > F_minWH) {
-                activeCells->Drc = 1;
-                if (c > 0 && c != MV(r,c-1)        )  activeCells->data[r][c-1] = 1;
-                if (c < _nrCols-1 && !c != MV(r,c+1)) activeCells->data[r][c+1] = 1;
-                if (r > 0 && r != MV(r-1,c)        )  activeCells->data[r-1][c] = 1;
-                if (r < _nrRows-1 && r != MV(r+1,c))  activeCells->data[r+1][c] = 1;
-
-                // if (c > 1 && c != MV(r,c-2)        ) activeCells->data[r][c-2] = 1;
-                // if (c < _nrCols-2 && c != MV(r,c+2)) activeCells->data[r][c+2] = 1;
-                // if (r > 1 && r != MV(r-2,c)        ) activeCells->data[r-2][c] = 1;
-                // if (r < _nrRows-2 && r != MV(r+2,c)) activeCells->data[r+2][c] = 1;
-
-                // if ((c > 0 && c != MV(r,c-1)) && (r > 0 && r != MV(r-1,c))) activeCells->data[r-1][c-1] = 1;
-                // if ((c < _nrCols-1 && c != MV(r,c+1)) && (r > 0 && r != MV(r-1,c))) activeCells->data[r-1][c+1] = 1;
-                // if ((r < _nrRows-1 && r != MV(r+1,c)) && (c > 0 && c != MV(r,c-1))) activeCells->data[r+1][c-1] = 1;
-                // if ((r < _nrRows-1 && r != MV(r+1,c)) && (c < _nrCols-1 && c != MV(r,c+1))) activeCells->data[r+1][c+1] = 1;
-            }
-
-            // if (SwitchMUSCL) {
-            //     if ( (c == 0 || c == MV(r,c-1)) ||
-            //          (r == 0 || r == MV(r-1,c)) ||
-            //          (c == _nrCols-1 || c == MV(r,c+1)) ||
-            //          (r == _nrRows-1 || r == MV(r+1,c)) )
-            //         activeCells->Drc = 0;
-            // }
-        }}
-report(*activeCells,"cells");
+      //report(*activeCells,"cells");
         dt_req_min = doSWOFMUSCLdt(dt_max, timesum, activeCells, h, u, v, z);
         // do MUSCL (optional), Riemann etc, get back smallest dt
         // in the original code this is split in reconstruction/MUSCL and maincalcflux
@@ -104,8 +75,7 @@ report(*activeCells,"cells");
         // 2nd order, with avg according to Heun, according to fullswof hean should allways be done!
         int step = 0;
         double dt1;
-        if (SwitchMUSCL && SwitchHeun) {
-
+        if (SwitchMUSCL) {   // && SwitchHeun) {
             do {
                 step++;
                 dt1 = dt_req_min;
@@ -114,7 +84,7 @@ report(*activeCells,"cells");
 
                 //if (dt_req_min == TimestepfloodMin)
                 //    step = 10;
-            } while (dt1 > dt_req_min && step < 3);
+            } while (dt1 > dt_req_min && step < 4);
 
 
             doSWOFStV(dt_req_min, activeCells, h, u, v, gflowx, gflowy, hllx12_0, hllx21_1, hllx21_2, hlly21_1, hlly21_2);
@@ -135,7 +105,7 @@ report(*activeCells,"cells");
                     v->Drc = 0.0;
                 }
             }}
-        }
+        } // MUSCL
 
         if (SwitchErosion) {
             SWOFSediment(dt_req_min, h,u,v);
@@ -164,6 +134,27 @@ report(*activeCells,"cells");
 //------------------------------------------------------------------------------------------------------
 double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
+    // activeCells are all wet cells
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (h->Drc > F_minWH) {
+            activeCells->Drc = 1;
+
+            if (SwitchWaveUser) {
+                // make more activecells bhecause else wave does not go on land
+                //and one dry cell more in all directions
+                if (c > 0 && c != MV(r,c-1)        )  activeCells->data[r][c-1] = 1;
+                if (c < _nrCols-1 && !c != MV(r,c+1)) activeCells->data[r][c+1] = 1;
+                if (r > 0 && r != MV(r-1,c)        )  activeCells->data[r-1][c] = 1;
+                if (r < _nrRows-1 && r != MV(r+1,c))  activeCells->data[r+1][c] = 1;
+                // if (c > 1 && c != MV(r,c-2)        ) activeCells->data[r][c-2] = 1;
+                // if (c < _nrCols-2 && c != MV(r,c+2)) activeCells->data[r][c+2] = 1;
+                // if (r > 1 && r != MV(r-2,c)        ) activeCells->data[r-2][c] = 1;
+                // if (r < _nrRows-2 && r != MV(r+2,c)) activeCells->data[r+2][c] = 1;
+            }
+        }
+    }}
+
     //do all flow and state calculations
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -274,7 +265,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
 
             //======== MUSCL: on the 4 boundaties of a gridcell interpolate from the center values
             // called "reconstruction" in SWOF code
-            if (SwitchMUSCL){// && DomainEdge->Drc == 0) {
+            if (SwitchMUSCL){
                 bool b2c1 ,b2c2 ,b2r1 ,b2r2;
                 double h_xx1, h_xx2, u_xx1, u_xx2, v_xx1, v_xx2;
                 double h_yy1, h_yy2, u_yy1, u_yy2, v_yy1, v_yy2;
@@ -283,7 +274,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
                 double delta_u1, delta_u2, delta_u3, delta_u4;
                 double delta_v1, delta_v2, delta_v3, delta_v4;
 
-                b2c1 = c > 1 && c!= MV(r,c-2)        ;
+                b2c1 = c > 1 && c!= MV(r,c-2)         ;
                 b2c2 = c < _nrCols-2 && c != MV(r,c+2);
                 b2r1 = r > 1 && r != MV(r-2,c)        ;
                 b2r2 = r < _nrRows-2 && r != MV(r+2,c);
@@ -292,24 +283,40 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
                     h_xx1 = h->data[r][c-2];
                     u_xx1 = u->data[r][c-2];
                     v_xx1 = v->data[r][c-2];
+                } else {
+                    h_xx1 = h_x1;
+                    u_xx1 = u_x1;
+                    v_xx1 = v_x1;
                 }
                 if(b2c2) {
                     h_xx2 = h->data[r][c+2];
                     u_xx2 = u->data[r][c+2];
                     v_xx2 = v->data[r][c+2];
+                } else {
+                    h_xx2 = h_x2;
+                    u_xx2 = u_x2;
+                    v_xx2 = v_x2;
                 }
                 if(b2r1) {
                     h_yy1 = h->data[r-2][c];
                     u_yy1 = u->data[r-2][c];
                     v_yy1 = v->data[r-2][c];
+                } else {
+                    h_yy1 = h_y1;
+                    u_yy1 = u_y1;
+                    v_yy1 = v_y1;
                 }
                 if(b2r2) {
                     h_yy2 = h->data[r+2][c];
                     u_yy2 = u->data[r+2][c];
                     v_yy2 = v->data[r+2][c];
+                }else {
+                    h_yy2 = h_y2;
+                    u_yy2 = u_y2;
+                    v_yy2 = v_y2;
                 }
 
-                if(b2c1 && b2c2) {
+           //     if(b2c1 && b2c2) {
                     //horizontal direction, leftn to right
                     // x-1-x-2   x-x-1  x+1-x   x+2-x+1        always right minus left
                     delta_h1 = h_x1 - h_xx1; delta_h2 = H-h_x1; delta_h3 = h_x2-H; delta_h4 = h_xx2-h_x2;
@@ -362,9 +369,9 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
                         ux2l = u_x2 - 0.5*du;
                         vx2l = v_x2 - 0.5*dv;
                     }
-                }
+             //   }
 
-                if (b2r1 && b2r2) {
+            //    if (b2r1 && b2r2) {
                     // vertical, direction from up to down
                     // y-1 - y-2   y-y-1  y+1-y   y+2-y+1        always down minus up
                     delta_h1 = h_y1 - h_yy1; delta_h2 = H-h_y1; delta_h3 = h_y2-H; delta_h4 = h_yy2-h_y2;
@@ -417,7 +424,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
                         uy2u = u_y2 - 0.5*du;
                         vy2u = v_y2 - 0.5*dv;
                     }
-                }
+             //   }
             } //MUSCL
 
             //########### calculate Riemann valaues for all four boundaries of a cell ############
@@ -425,7 +432,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
             // if muscl H and h_x1 etc become Hx1l and hx1r
             // z is blocking to prevent flow when water is flat and Z is not flat, described in article SWOF
             // barrier is ourown additiona, to vcreate flood walls.
-
+    /*
             //left and right hand side of c and c-1 (x and x1)
             if (bc1) {
                 h_x1r = std::max(0.0, hx1r - std::max(0.0,  dz_x1 + fb_x1)); //rechts van c-1
@@ -460,6 +467,26 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
                 h_y2u=vy2u=uy2u=0.0;
             }
             hll_y2 = F_Riemann(h_yd,vyd,uyd, h_y2u,vy2u,uy2u); // r and r+1
+    */
+
+            //left and right hand side of c and c-1 (x and x1)
+            h_x1r = std::max(0.0, hx1r - std::max(0.0,  dz_x1 + fb_x1)); //rechts van c-1
+            h_xl  = std::max(0.0, hxl  - std::max(0.0, -dz_x1 + fb_x1)); //links van het midden
+            hll_x1 = F_Riemann(h_x1r,ux1r,vx1r, h_xl,uxl,vxl); // c-1 (x1 right) and c (x1 left)
+
+            //right and left hand side of c and c+1 (x and x2)
+            h_xr  = std::max(0.0, hxr  - std::max(0.0,  dz_x2 + fb_x2));
+            h_x2l = std::max(0.0, hx2l - std::max(0.0, -dz_x2 + fb_x2));
+            hll_x2 = F_Riemann(h_xr,uxr,vxr, h_x2l,ux2l,vx2l); // c and c+1
+
+            h_y1d = std::max(0.0, hy1d - std::max(0.0,  dz_y1 + fb_y1));
+            h_yu  = std::max(0.0, hyu  - std::max(0.0, -dz_y1 + fb_y1));
+            hll_y1 = F_Riemann(h_y1d,vy1d,uy1d, h_yu,vyu,uyu); // r-1 (y1 down) and r (y up)
+            // v and u chnaged places for y comnpared to x ? why? is also in swof code
+
+            h_yd  = std::max(0.0, hyd  - std::max(0.0,  dz_y2 + fb_y2));
+            h_y2u = std::max(0.0, hy2u - std::max(0.0, -dz_y2 + fb_y2));
+            hll_y2 = F_Riemann(h_yd,vyd,uyd, h_y2u,vy2u,uy2u); // r and r+1
 
             // determine smallest dt in x and y for each cell
             double dtx = courant_factor*dx/std::max(hll_x1.v[3],hll_x2.v[3]);
@@ -484,16 +511,14 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
     double dt_req_min = dt;
     #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (activeCells->Drc == 1)
+       // if (activeCells->Drc == 1)
             dt_req_min = std::min(dt_req_min, FloodDT->Drc);
     }}
     dt_req_min = std::max(TimestepfloodMin, std::min(dt, std::min(dt_req_min, _dt-timesum)));
 
     return dt_req_min;
 }
-
-
-
+//-----------------------------------------------------------------------------------------------------------
 void TWorld::doSWOFStV(double dt, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v,
                         cTMap *gflowx, cTMap *gflowy, cTMap *hllx12_0, cTMap *hllx21_1, cTMap *hllx21_2, cTMap *hlly21_1, cTMap *hlly21_2)
 {
@@ -538,7 +563,7 @@ void TWorld::doSWOFStV(double dt, cTMap *activeCells, cTMap *h, cTMap *u, cTMap 
                Vn = 0;
            }
 
-           // dan maar even met geweld!
+           // komt niet meer voor
            if (std::isnan(Un) || std::isnan(Vn)) {
                Un = 0;
                Vn = 0;
@@ -566,6 +591,7 @@ void TWorld::doSWOFStV(double dt, cTMap *activeCells, cTMap *h, cTMap *u, cTMap 
        } //active cells
     }}
 }
+//-----------------------------------------------------------------------------------------------------------
 
 
 
