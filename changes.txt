@@ -1,5 +1,10 @@
 Latest fixes and chnages:
 =========================
+250216 - v7.4.6 beta
+- BUG FIX: reading pathnames sometimes result in "//"
+- BUG FIX: crusting SWATRE
+- optimized MUSCL 2D flow and 2nd order redone
+
 250121 - v7.4.5
 - BUG FIX: Delete all map and swatre data after no GUI run
 - BUG FIX: Swatre compacted profiles incorrectly named

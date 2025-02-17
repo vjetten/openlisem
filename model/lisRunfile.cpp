@@ -118,16 +118,12 @@ int TWorld::getvalueint(QString vname)
 QString TWorld::CheckDir(QString p, bool makeit)
 {
     QString path;
-    path = QDir(p).fromNativeSeparators(p);
-    path = QDir(path).absoluteFilePath(path);
-
-    if (!path.endsWith("/") && !path.endsWith("\\"))
-        path = path + '/';
+    path = QDir(p).fromNativeSeparators(p); // changes "\\" to "/"
+    path = QDir(path).absoluteFilePath(path) + "/"; // absoluteFilePath does not have a sparator at the end, so add it
 
     if (!QDir(path).exists())
     {
-        if (makeit)
-        {
+        if (makeit) {
             QDir(path).mkpath(path);
             DEBUG("NOTE: Result dir created !");
             //qDebug() << "NOTE: Result dir created !";
@@ -139,12 +135,16 @@ QString TWorld::CheckDir(QString p, bool makeit)
     return path;
 }
 //---------------------------------------------------------------------------
+// not used!
 QString TWorld::GetName(QString p)
 {
-    QFileInfo fi(p);
-    QStringList ss = fi.filePath().split("/");
-    int n = ss.count();
-    return(ss[n-1]);
+    // QFileInfo fi(p);
+    // QStringList ss = fi.filePath().split("/");
+    // int n = ss.count();
+    // return(ss[n-1]);
+
+        QFileInfo fileInfo(p);
+        return fileInfo.fileName();
 }
 //---------------------------------------------------------------------------
 QString TWorld::checkOutputMapName(QString p, QString S, int i)
@@ -253,7 +253,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =   iii == 1;
         if (p1.compare("Dynamic crusting")==0)                  {
             SwitchDynamicCrusting =   iii == 1;
-            qDebug() << iii << SwitchDynamicCrusting ;
+            //qDebug() << iii << SwitchDynamicCrusting ;
         }
         if (p1.compare("Use one matrix potential")==0)          SwitchHinit4all  =  iii == 1;
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =  iii == 1;
@@ -279,7 +279,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Correct DEM")==0)                       SwitchCorrectDEM = iii == 1;
         if (p1.compare("Use 2D Diagonal flow")==0)              Switch2DDiagonalFlow = iii == 1;
         if (p1.compare("Flow Boundary 2D")==0)                  FlowBoundaryType = iii;
-        if (p1.compare("Flood initial level map")==0)           SwitchFloodInitial     = iii == 1;
+        if (p1.compare("Flood initial level map")==0)           SwitchFloodInitial = iii == 1;
+        if (p1.compare("Flood Solution")==0)                    SwitchMUSCL = iii == 1;
 
         // erosion
         if (p1.compare("Include Erosion simulation")==0)        SwitchErosion =          iii == 1;
@@ -408,6 +409,10 @@ void TWorld::ParseRunfileData(void)
     if (SwitchGWflow) {     /*SwitchChannelBaseflow && */
         SwitchImpermeable = false;  //???okay
     }   
+
+    // if (SwitchWaveUser)
+    //     SwitchMUSCL = false;
+
     if (!SwitchInfrastructure) {
         SwitchRoadsystem = false;
         SwitchHardsurface = false;

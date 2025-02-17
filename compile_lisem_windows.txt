@@ -21,7 +21,7 @@ For linux compile see the file "compile_lisem_linux.txt" in the GitHub repositor
 
 > Download MSYS2.0 
 
-Open the MSYS command window and execute the following commands. 
+Open the MSYS MINW64 command window and execute the following commands. 
 (answer "y" when asked.)
 
 update MSYS itself:
@@ -30,16 +30,18 @@ The window may close, simply open it again
 
 -install the following base packages:
 	pacman -S base-devel git mercurial cvs wget p7zip ccache
-	pacman -S perl ruby python mingw-w64-x86_64-toolchain
+	pacman -S perl ruby mingw-w64-x86_64-toolchain
 
 -install qt6 which is for now the version in which lisem is created:
 	pacman -S mingw-w64-x86_64-qt6 mingw-w64-x86_64-qt-creator 
 -install openmp, gdal, qwt, openssl:
         pacman -S mingw-w64-x86_64-openmp mingw-w64-x86_64-gdal mingw-w64-x86_64-qwt-qt6 openssl
+		
+- do again: pacman -Syu
 
 note: we are not using this version of qwt but a changed one, but install it anyway for the source code.
 
-IF SOMETHING GOES WRONG YOU CAN UNINSTALL AND START AGAIN. 
+IF SOMETHING GOES WRONG YOU CAN UNINSTALL MSYS AND START AGAIN. 
 BUT DELETE BY HAND THE MSYS64 FOLDER, THE UNINSTALL PROCESS DOES NOT CLEAN UP EVERYTHING! 
 
 {NOTE: info on pacman options: https://devhints.io/pacman)
@@ -56,6 +58,7 @@ restart your PC after this step!
 > get the GIT and CMAKE software
 Install git latest version: https://git-scm.com/
 Install cmake lastest version: https://cmake.org (do not use cmake from msys2, it gave me problems)
+Add the path to cmake before the path to mingw64 in your environment (C:\Program Files\CMake\bin)
 If you want use Tortoise GIT for an easy integration of GIT commands into the winfows explorer: https://tortoisegit.org/
 
 > Download the openLISEM code from github:

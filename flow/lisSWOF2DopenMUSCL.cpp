@@ -44,7 +44,6 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     double sumh = 0;
     bool stop;
     double dt_req_min = dt_max;
-    int step = 0;
 
     sumh = getMass(h, 0);
     //        if (SwitchErosion)
@@ -55,89 +54,57 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             FloodDT->Drc = dt_max;
-            tmd->Drc = 0;
-
+            activeCells->Drc = 0;
             tma->Drc = h->Drc;
             tmb->Drc = u->Drc;
             tmc->Drc = v->Drc;
+            // save the values at the start of the run for MUSCL
         }}
 
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            if (h->Drc > F_minWH) {
-                tmd->Drc = 1;
-                if (c > 0 && !MV(r,c-1)        ) tmd->data[r][c-1] = 1;
-                if (c < _nrCols-1 && !MV(r,c+1)) tmd->data[r][c+1] = 1;
-                if (r > 0 && !MV(r-1,c)        ) tmd->data[r-1][c] = 1;
-                if (r < _nrRows-1 && !MV(r+1,c)) tmd->data[r+1][c] = 1;
+        dt_req_min = doSWOFMUSCLdt(dt_max, timesum, activeCells, h, u, v, z);
+        // do MUSCL (optional), Riemann etc, get back smallest dt
+        // in the original code this is split in reconstruction/MUSCL and maincalcflux
 
-                if (c > 1 && !MV(r,c-2)        ) tmd->data[r][c-2] = 1;
-                if (c < _nrCols-2 && !MV(r,c+2)) tmd->data[r][c+2] = 1;
-                if (r > 1 && !MV(r-2,c)        ) tmd->data[r-2][c] = 1;
-                if (r < _nrRows-2 && !MV(r+2,c)) tmd->data[r+2][c] = 1;
-            }
-        }}
+        doSWOFStV(dt_req_min, activeCells, h, u, v, gflowx, gflowy, hllx12_0, hllx21_1, hllx21_2, hlly21_1, hlly21_2);
+        // Saint Venand calculations for new h, u, v
+        // called maincalcscheme in fullSWOF
 
-        qDebug() << step<< dt_req_min;
+        //until here is first order ! just one calculation
 
-        doSWOFLoop(step, dt_req_min, dt_max, tmd, h, u, v, z);
-        // first time step = 0, only to find smallest dt
-        // find new u,v,h
+        // 2nd order, with avg according to Heun, according to fullswof hean should allways be done!
+        int step = 0;
+        double dt1;
+        if (SwitchMUSCL) {   // && SwitchHeun) {
+            do {
+                step++;
+                dt1 = dt_req_min;
 
-        // find smallest domain dt
-        #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            dt_req_min = std::min(dt_req_min, FloodDT->Drc);
-        }}
-        dt_req_min = std::min(dt_req_min, _dt-timesum);
+                dt_req_min = doSWOFMUSCLdt(dt1, timesum, activeCells, h, u, v, z);
 
-        step++;
-        //increase step
-
-        doSWOFLoop(step, dt_req_min, dt_max, tmd, h, u, v, z);
-        // run again for smallest st, now we have new u,v,h
+                //if (dt_req_min == TimestepfloodMin)
+                //    step = 10;
+            } while (dt1 > dt_req_min && step < 4);
 
 
-        // 2nd order, sort of
-        if (SwitchHeun) {
-            // #pragma omp parallel for num_threads(userCores)
-            // FOR_ROW_COL_MV_L {
-            //     tma->Drc = h->Drc;
-            //     tmb->Drc = u->Drc;
-            //     tmc->Drc = v->Drc;
-            // }}
-            double dt1 = dt_req_min;
-            // save u,v,h and min dt of first trye
+            doSWOFStV(dt_req_min, activeCells, h, u, v, gflowx, gflowy, hllx12_0, hllx21_1, hllx21_2, hlly21_1, hlly21_2);
 
-            doSWOFLoop(step, dt1, dt_max, tmd, h, u, v, z);
-            #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
+            //Heun, see SWOF doc
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                dt_req_min = std::min(dt_req_min, FloodDT->Drc);
+                double havg = 0.5*(tma->Drc + h->Drc); // avg original before loops and second estimation
+                if (havg >= he_ca){
+                    double q1 = 0.5*(tma->Drc*tmb->Drc + h->Drc*u->Drc);
+                    u->Drc = q1/havg;
+                    double q2 = 0.5*(tma->Drc*tmc->Drc + h->Drc*v->Drc);
+                    v->Drc = q2/havg;
+                    h->Drc = havg;
+                } else {
+                    h->Drc = 0.0;
+                    u->Drc = 0.0;
+                    v->Drc = 0.0;
+                }
             }}
-            dt_req_min = std::min(dt_req_min, _dt-timesum);
-            // run the whole thing a second time and find a new smallest dt
-
-            // if dt has fiurther decreased, take the average
-            if (dt1 > dt_req_min) {
-               // qDebug() << d2 << dt_req_min;
-                //Heun, see SWOF doc
-                #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
-                FOR_ROW_COL_MV_L {
-                    double havg = 0.5*(tma->Drc + h->Drc); // avg original before loops and second estimation
-                    if (havg >= he_ca){
-                      double q1 = 0.5*(tma->Drc*tmb->Drc + h->Drc*u->Drc);
-                      u->Drc = q1/havg;
-                      double q2 = 0.5*(tma->Drc*tmc->Drc + h->Drc*v->Drc);
-                      v->Drc = q2/havg;
-                      h->Drc = havg;
-                    } else {
-                        h->Drc = 0.0;
-                        u->Drc = 0.0;
-                        v->Drc = 0.0;
-                    }
-                }}
-            }
-        }
+        } // MUSCL
 
         if (SwitchErosion) {
             SWOFSediment(dt_req_min, h,u,v);
@@ -164,13 +131,35 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
 }
 //------------------------------------------------------------------------------------------------------
-void TWorld::doSWOFLoop(int step, double dt, double dt_max, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
+double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
-    //do all flow and state calculations    
-
+    /*
+    // activeCells are all wet cells
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (activeCells->Drc > 0) {
+        if (h->Drc > F_minWH) {
+            activeCells->Drc = 1;
+
+            if (SwitchWaveUser) {
+                // make more activecells bhecause else wave does not go on land
+                //and one dry cell more in all directions
+                if (c > 0 && c != MV(r,c-1)        )  activeCells->data[r][c-1] = 1;
+                if (c < _nrCols-1 && !c != MV(r,c+1)) activeCells->data[r][c+1] = 1;
+                if (r > 0 && r != MV(r-1,c)        )  activeCells->data[r-1][c] = 1;
+                if (r < _nrRows-1 && r != MV(r+1,c))  activeCells->data[r+1][c] = 1;
+                // if (c > 1 && c != MV(r,c-2)        ) activeCells->data[r][c-2] = 1;
+                // if (c < _nrCols-2 && c != MV(r,c+2)) activeCells->data[r][c+2] = 1;
+                // if (r > 1 && r != MV(r-2,c)        ) activeCells->data[r-2][c] = 1;
+                // if (r < _nrRows-2 && r != MV(r+2,c)) activeCells->data[r+2][c] = 1;
+            }
+        }
+    }}
+*/
+    //do all flow and state calculations
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        //if (activeCells->Drc > 0) {
+        if (DomainEdge->Drc == 0) {
             double dx = _dx;//ChannelAdj->Drc;
             double dy = _dx;//DX->Drc;
             double H, Z, U, V;
@@ -195,15 +184,15 @@ void TWorld::doSWOFLoop(int step, double dt, double dt_max, cTMap *activeCells, 
             vec4 hll_y1;
             vec4 hll_y2;
 
+            bc1 = c > 0 && c != MV(r,c-1)        ;
+            bc2 = c < _nrCols-1 && r != MV(r,c+1);
+            br1 = r > 0 && c != MV(r-1,c)        ;
+            br2 = r < _nrRows-1 && r != MV(r+1,c);
+
             H = h->Drc;
             Z = z->Drc;
             U = u->Drc;
             V = v->Drc;
-
-            bc1 = c > 0 && !MV(r,c-1)        ;
-            bc2 = c < _nrCols-1 && !MV(r,c+1);
-            br1 = r > 0 && !MV(r-1,c)        ;
-            br2 = r < _nrRows-1 && !MV(r+1,c);
 
             z_x1, z_x2, z_y1, z_y2;
             h_x1, h_x2, h_y1, h_y2;
@@ -277,123 +266,174 @@ void TWorld::doSWOFLoop(int step, double dt, double dt_max, cTMap *activeCells, 
 
             //======== MUSCL: on the 4 boundaties of a gridcell interpolate from the center values
             // called "reconstruction" in SWOF code
+            if (SwitchMUSCL){
+                bool b2c1 ,b2c2 ,b2r1 ,b2r2;
+                double h_xx1, h_xx2, u_xx1, u_xx2, v_xx1, v_xx2;
+                double h_yy1, h_yy2, u_yy1, u_yy2, v_yy1, v_yy2;
+                double dh, du, dv, dz_h;
+                double delta_h1, delta_h2, delta_h3, delta_h4;
+                double delta_u1, delta_u2, delta_u3, delta_u4;
+                double delta_v1, delta_v2, delta_v3, delta_v4;
 
-            //#include "lisMUSCL.in"
-            bool b2c1 ,b2c2 ,b2r1 ,b2r2;
-            double h_xx1, h_xx2, u_xx1, u_xx2, v_xx1, v_xx2;
-            double h_yy1, h_yy2, u_yy1, u_yy2, v_yy1, v_yy2;
-            double dh, du, dv, dz_h;
-            double delta_h1, delta_h2, delta_h3, delta_h4;
-            double delta_u1, delta_u2, delta_u3, delta_u4;
-            double delta_v1, delta_v2, delta_v3, delta_v4;
+                b2c1 = c > 1 && c!= MV(r,c-2)         ;
+                b2c2 = c < _nrCols-2 && c != MV(r,c+2);
+                b2r1 = r > 1 && r != MV(r-2,c)        ;
+                b2r2 = r < _nrRows-2 && r != MV(r+2,c);
 
-            b2c1 = c > 1 && !MV(r,c-2)        ;
-            b2c2 = c < _nrCols-2 && !MV(r,c+2);
-            b2r1 = r > 1 && !MV(r-2,c)        ;
-            b2r2 = r < _nrRows-2 && !MV(r+2,c);
+                if(b2c1) {
+                    h_xx1 = h->data[r][c-2];
+                    u_xx1 = u->data[r][c-2];
+                    v_xx1 = v->data[r][c-2];
+                } else {
+                    h_xx1 = h_x1;
+                    u_xx1 = u_x1;
+                    v_xx1 = v_x1;
+                }
+                if(b2c2) {
+                    h_xx2 = h->data[r][c+2];
+                    u_xx2 = u->data[r][c+2];
+                    v_xx2 = v->data[r][c+2];
+                } else {
+                    h_xx2 = h_x2;
+                    u_xx2 = u_x2;
+                    v_xx2 = v_x2;
+                }
+                if(b2r1) {
+                    h_yy1 = h->data[r-2][c];
+                    u_yy1 = u->data[r-2][c];
+                    v_yy1 = v->data[r-2][c];
+                } else {
+                    h_yy1 = h_y1;
+                    u_yy1 = u_y1;
+                    v_yy1 = v_y1;
+                }
+                if(b2r2) {
+                    h_yy2 = h->data[r+2][c];
+                    u_yy2 = u->data[r+2][c];
+                    v_yy2 = v->data[r+2][c];
+                }else {
+                    h_yy2 = h_y2;
+                    u_yy2 = u_y2;
+                    v_yy2 = v_y2;
+                }
 
-            if(b2c1) {
-                h_xx1 = h->data[r][c-2];
-                u_xx1 = u->data[r][c-2];
-                v_xx1 = v->data[r][c-2];
-            }
-            if(b2c2) {
-                h_xx2 = h->data[r][c+2];
-                u_xx2 = u->data[r][c+2];
-                v_xx2 = v->data[r][c+2];
-            }
-            if(b2r1) {
-                h_yy1 = h->data[r-2][c];
-                u_yy1 = u->data[r-2][c];
-                v_yy1 = v->data[r-2][c];
-            }
-            if(b2r2) {
-                h_yy2 = h->data[r+2][c];
-                u_yy2 = u->data[r+2][c];
-                v_yy2 = v->data[r+2][c];
-            }
+           //     if(b2c1 && b2c2) {
+                    //horizontal direction, leftn to right
+                    // x-1-x-2   x-x-1  x+1-x   x+2-x+1        always right minus left
+                    delta_h1 = h_x1 - h_xx1; delta_h2 = H-h_x1; delta_h3 = h_x2-H; delta_h4 = h_xx2-h_x2;
+                    delta_u1 = u_x1 - u_xx1; delta_u2 = U-u_x1; delta_u3 = u_x2-U; delta_u4 = u_xx2-u_x2;
+                    delta_v1 = v_x1 - v_xx1; delta_v2 = V-v_x1; delta_v3 = v_x2-V; delta_v4 = v_xx2-v_x2;
 
-            if(b2c1 && b2c2) {
+                    // center cell, all boundaries
+                    dh = limiter(delta_h2, delta_h3);
+                    du = limiter(delta_u2, delta_u3);
+                    dv = limiter(delta_v2, delta_v3);
+                    hxl = H - 0.5*dh;
+                    hxr = H + 0.5*dh;
+                    if (H > he_ca) {
+                        uxl = U - 0.5*du*hxl/H;
+                        uxr = U + 0.5*du*hxr/H;
+                        vxl = V - 0.5*dv*hxl/H;
+                        vxr = V + 0.5*dv*hxr/H;
+                    } else {
+                        uxl = U - 0.5*du;
+                        uxr = U + 0.5*du;
+                        vxl = V - 0.5*dv;
+                        vxr = V + 0.5*dv;
+                    }
 
-                // x-1-x-2   x-x-1  x+1-x   x+2-x+1        always right minus left
-                delta_h1 = h_x1 - h_xx1; delta_h2 = H-h_x1; delta_h3 = h_x2-H; delta_h4 = h_xx2-h_x2;
-                delta_u1 = u_x1 - u_xx1; delta_u2 = U-u_x1; delta_u3 = u_x2-U; delta_u4 = u_xx2-u_x2;
-                delta_v1 = v_x1 - v_xx1; delta_v2 = V-v_x1; delta_v3 = v_x2-V; delta_v4 = v_xx2-v_x2;
+                    dz_h = limiter(delta_h2 + (Z-dz_x1), delta_h3 + (dz_x2-Z));
+                    delzcx = (Z+0.5*(dz_h-dh))-(Z+0.5*(dh-dz_h));// = (dz_h-dh)-(dh-dz_h) = 2*dz_h-2*dh; //!!!!2*(dz_h - dh); //
 
-                // center cell
-                dh = limiter(delta_h2, delta_h3);
-                du = limiter(delta_u2, delta_u3);
-                dv = limiter(delta_v2, delta_v3);
-                hxl = H - 0.5*dh;
-                hxr = H + 0.5*dh;
-                uxl = U - 0.5*du*hxl/H;
-                uxr = U + 0.5*du*hxr/H;
-                vxl = V - 0.5*dv*hxl/H;
-                vxr = V + 0.5*dv*hxr/H;
+                    // left hand cell, right boundary
+                    dh = limiter(delta_h1, delta_h2);
+                    du = limiter(delta_u1, delta_u2);
+                    dv = limiter(delta_v1, delta_v2);
+                    hx1r = h_x1 + 0.5*dh;
+                    if (H > he_ca) {
+                        ux1r = u_x1 + 0.5*du*hxl/H;
+                        vx1r = v_x1 + 0.5*dv*hxl/H;
+                    } else {
+                        ux1r = u_x1 + 0.5*du;
+                        vx1r = v_x1 + 0.5*dv;
+                    }
 
-                dz_h = limiter(delta_h2 + (Z-dz_x1), delta_h3 + (dz_x2-Z));
-                delzcx = (Z+0.5*(dz_h-dh))-(Z+0.5*(dh-dz_h));// = (dz_h-dh)-(dh-dz_h) = 2*dz_h-2*dh; //!!!!2*(dz_h - dh); //
+                    // right hand cell, left boundary
+                    dh = limiter(delta_h3, delta_h4);
+                    du = limiter(delta_u3, delta_u4);
+                    dv = limiter(delta_v3, delta_v4);
+                    hx2l = h_x2 - 0.5*dh;
+                    if (H > he_ca) {
+                        ux2l = u_x2 - 0.5*du*hxr/H;
+                        vx2l = v_x2 - 0.5*dv*hxr/H;
+                    } else {
+                        ux2l = u_x2 - 0.5*du;
+                        vx2l = v_x2 - 0.5*dv;
+                    }
+             //   }
 
-                // left hand cell, right boundary
-                dh = limiter(delta_h1, delta_h2);
-                du = limiter(delta_u1, delta_u2);
-                dv = limiter(delta_v1, delta_v2);
-                hx1r = h_x1 + 0.5*dh;
-                ux1r = u_x1 + 0.5*du*hxl/H;
-                vx1r = v_x1 + 0.5*dv*hxl/H;
+            //    if (b2r1 && b2r2) {
+                    // vertical, direction from up to down
+                    // y-1 - y-2   y-y-1  y+1-y   y+2-y+1        always down minus up
+                    delta_h1 = h_y1 - h_yy1; delta_h2 = H-h_y1; delta_h3 = h_y2-H; delta_h4 = h_yy2-h_y2;
+                    delta_u1 = u_y1 - u_yy1; delta_u2 = U-u_y1; delta_u3 = u_y2-U; delta_u4 = u_yy2-u_y2;
+                    delta_v1 = v_y1 - v_yy1; delta_v2 = V-v_y1; delta_v3 = v_y2-V; delta_v4 = v_yy2-v_y2;
 
-                // right hand cell, left boundary
-                dh = limiter(delta_h3, delta_h4);
-                du = limiter(delta_u3, delta_u4);
-                dv = limiter(delta_v3, delta_v4);
-                hx2l = h_x2 - 0.5*dh;
-                ux2l = u_x2 - 0.5*du*hxr/H;
-                vx2l = v_x2 - 0.5*dv*hxr/H;
-            }
+                    // center cell, all boundaries
+                    dh = limiter(delta_h2, delta_h3);
+                    du = limiter(delta_u2, delta_u3);
+                    dv = limiter(delta_v2, delta_v3);
+                    hyu = H - 0.5*dh;
+                    hyd = H + 0.5*dh;
+                    if (H > he_ca) {
+                        uyu = U - 0.5*du*hyu/H;
+                        uyd = U + 0.5*du*hyd/H;
+                        vyu = V - 0.5*dv*hyu/H;
+                        vyd = V + 0.5*dv*hyd/H;
+                    } else {
+                        uyu = U - 0.5*du;
+                        uyd = U + 0.5*du;
+                        vyu = V - 0.5*dv;
+                        vyd = V + 0.5*dv;
+                    }
 
-            if (b2r1 && b2r2) {
-                // vertical, direction from up to down
-                // y-1 - y-2   y-y-1  y+1-y   y+2-y+1        always down minus up
-                delta_h1 = h_y1 - h_yy1; delta_h2 = H-h_y1; delta_h3 = h_y2-H; delta_h4 = h_yy2-h_y2;
-                delta_u1 = u_y1 - u_yy1; delta_u2 = U-u_y1; delta_u3 = u_y2-U; delta_u4 = u_yy2-u_y2;
-                delta_v1 = v_y1 - v_yy1; delta_v2 = V-v_y1; delta_v3 = v_y2-V; delta_v4 = v_yy2-v_y2;
+                    dz_h = limiter(delta_h1 + (Z-dz_y1), delta_h2 + (dz_y2-Z));
+                    delzcy = (Z+0.5*(dz_h-dh))-(Z+0.5*(dh-dz_h));// = (dz_h-dh)-(dh-dz_h) = 2*dz_h-2*dh; //!!!!2*(dz_h-dh);
 
-                // center cell
-                dh = limiter(delta_h2, delta_h3);
-                du = limiter(delta_u2, delta_u3);
-                dv = limiter(delta_v2, delta_v3);
-                hyu = H - 0.5*dh;
-                hyd = H + 0.5*dh;
-                uyu = U - 0.5*du*hyu/H;
-                uyd = U + 0.5*du*hyd/H;
-                vyu = V - 0.5*dv*hyu/H;
-                vyd = V + 0.5*dv*hyd/H;
+                    // upper cell, lower boundary
+                    dh = limiter(delta_h1, delta_h2);
+                    du = limiter(delta_u1, delta_u2);
+                    dv = limiter(delta_v1, delta_v2);
+                    hy1d = h_y1 + 0.5*dh;
+                    if (H > he_ca) {
+                        uy1d = u_y1 + 0.5*du*hyu/H;
+                        vy1d = v_y1 + 0.5*dv*hyu/H;
+                    } else {
+                        uy1d = u_y1 + 0.5*du;
+                        vy1d = v_y1 + 0.5*dv;
+                    }
 
-                dz_h = limiter(delta_h1 + (Z-dz_y1), delta_h2 + (dz_y2-Z));
-                delzcy = (Z+0.5*(dz_h-dh))-(Z+0.5*(dh-dz_h));// = (dz_h-dh)-(dh-dz_h) = 2*dz_h-2*dh; //!!!!2*(dz_h-dh);
+                    // lower cell, up boundary
+                    dh = limiter(delta_h3, delta_h4);
+                    du = limiter(delta_u3, delta_u4);
+                    dv = limiter(delta_v3, delta_v4);
+                    hy2u = h_y2 - 0.5*dh;
+                    if (H > he_ca) {
+                        uy2u = u_y2 - 0.5*du*hyd/H;
+                        vy2u = v_y2 - 0.5*dv*hyd/H;
+                    } else {
+                        uy2u = u_y2 - 0.5*du;
+                        vy2u = v_y2 - 0.5*dv;
+                    }
+             //   }
+            } //MUSCL
 
-                // upper cell, down boundary
-                dh = limiter(delta_h1, delta_h2);
-                du = limiter(delta_u1, delta_u2);
-                dv = limiter(delta_v1, delta_v2);
-                hy1d = h_y1 + 0.5*dh;
-                uy1d = u_y1 + 0.5*du*hyu/H;
-                vy1d = v_y1 + 0.5*dv*hyu/H;
-
-                // lower cell, up boundary
-                dh = limiter(delta_h3, delta_h4);
-                du = limiter(delta_u3, delta_u4);
-                dv = limiter(delta_v3, delta_v4);
-                hy2u = h_y2 - 0.5*dh;
-                uy2u = u_y2 - 0.5*du*hyd/H;
-                vy2u = v_y2 - 0.5*dv*hyd/H;
-            }
             //########### calculate Riemann valaues for all four boundaries of a cell ############
 
             // if muscl H and h_x1 etc become Hx1l and hx1r
             // z is blocking to prevent flow when water is flat and Z is not flat, described in article SWOF
             // barrier is ourown additiona, to vcreate flood walls.
-
+    /*
             //left and right hand side of c and c-1 (x and x1)
             if (bc1) {
                 h_x1r = std::max(0.0, hx1r - std::max(0.0,  dz_x1 + fb_x1)); //rechts van c-1
@@ -428,75 +468,134 @@ void TWorld::doSWOFLoop(int step, double dt, double dt_max, cTMap *activeCells, 
                 h_y2u=vy2u=uy2u=0.0;
             }
             hll_y2 = F_Riemann(h_yd,vyd,uyd, h_y2u,vy2u,uy2u); // r and r+1
+    */
+
+            //left and right hand side of c and c-1 (x and x1)
+            h_x1r = std::max(0.0, hx1r - std::max(0.0,  dz_x1 + fb_x1)); //rechts van c-1
+            h_xl  = std::max(0.0, hxl  - std::max(0.0, -dz_x1 + fb_x1)); //links van het midden
+            hll_x1 = F_Riemann(h_x1r,ux1r,vx1r, h_xl,uxl,vxl); // c-1 (x1 right) and c (x1 left)
+
+            //right and left hand side of c and c+1 (x and x2)
+            h_xr  = std::max(0.0, hxr  - std::max(0.0,  dz_x2 + fb_x2));
+            h_x2l = std::max(0.0, hx2l - std::max(0.0, -dz_x2 + fb_x2));
+            hll_x2 = F_Riemann(h_xr,uxr,vxr, h_x2l,ux2l,vx2l); // c and c+1
+
+            h_y1d = std::max(0.0, hy1d - std::max(0.0,  dz_y1 + fb_y1));
+            h_yu  = std::max(0.0, hyu  - std::max(0.0, -dz_y1 + fb_y1));
+            hll_y1 = F_Riemann(h_y1d,vy1d,uy1d, h_yu,vyu,uyu); // r-1 (y1 down) and r (y up)
+            // v and u chnaged places for y comnpared to x ? why? is also in swof code
+
+            h_yd  = std::max(0.0, hyd  - std::max(0.0,  dz_y2 + fb_y2));
+            h_y2u = std::max(0.0, hy2u - std::max(0.0, -dz_y2 + fb_y2));
+            hll_y2 = F_Riemann(h_yd,vyd,uyd, h_y2u,vy2u,uy2u); // r and r+1
 
             // determine smallest dt in x and y for each cell
-            double dtx = dx/std::max(hll_x1.v[3],hll_x2.v[3]);
-            double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]); // v[3] is max U and V in x and y
-            FloodDT->Drc = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
-            // if step = 0 do not calculate new fluxes and states yet because the first dt is always dt_max
-            // find a smallest dt of the flow domain first
+            double dtx = courant_factor*dx/std::max(hll_x1.v[3],hll_x2.v[3]);
+            double dty = courant_factor*dy/std::max(hll_y1.v[3],hll_y2.v[3]);
+            //FloodDT->Drc = std::max(TimestepfloodMin, std::min(dt_max, std::min(dtx, dty)));
+            FloodDT->Drc = std::min(dtx, dty);
 
-            //########### after finding the smallest dt, do saint venant eq)
-            if (step > 0) {
-                double Un, Vn;
-                double tx = dt/dx;
-                double ty = dt/dy;
-
-                double hn = std::max(0.0, H + tx*(hll_x1.v[0]-hll_x2.v[0]) + ty*(hll_y1.v[0]-hll_y2.v[0]));
-                // mass balance, hll_....v[0] is the height
-
-                // momentum balance for cells with water
-                if(hn > he_ca) {
-                    // SWOF solution, delzc1 = 0 when not MUSCL
-                    double gflow_x = GRAV*0.5*( (h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) + delzcx*(hxl+hxr)); // delzcx = 0 is not muscl
-                    double gflow_y = GRAV*0.5*( (h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd) + delzcy*(hyu+hyd));
-
-                    double qxn = H * U - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
-                    double qyn = H * V - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
-
-                    double vsq = sqrt(U*U + V*V);
-                    double nsq1 = (N->Drc)*(N->Drc)*GRAV/pow(hn,4.0/3.0);//std::max(0.0001,pow(hn,4.0/3.0)); //
-                    double nsq = nsq1*vsq*dt;
-
-                    //Un = (qxn/(1.0+nsq))/std::max(0.0001,hn);
-                    //Vn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
-                    Un = (qxn/(1.0+nsq))/hn;
-                    Vn = (qyn/(1.0+nsq))/hn;
-
-                    if (SwitchTimeavgV) {
-                        double fac = 0.5 + 0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
-                        fac = fac * exp(- std::max(1.0,dt) / nsq1);
-                        Un = fac * U + (1.0-fac) *Un;
-                        Vn = fac * V + (1.0-fac) *Vn;
-                    }
-
-                } else { // hn < ha
-                    hn = H; // if no fluxes then also no change in h
-                    Un = 0;
-                    Vn = 0;
-                }
-
-                // dan maar even met geweld!
-                if (std::isnan(Un) || std::isnan(Vn)) {
-                    Un = 0;
-                    Vn = 0;
-                }
-                if (FlowBoundaryType == 0 || (FlowBoundaryType == 2 && FlowBoundary->Drc == 0)) {
-                    if (DomainEdge->Drc == 4 && Un < 0) Un = 0;
-                    if (DomainEdge->Drc == 6 && Un > 0) Un = 0;
-                    if (DomainEdge->Drc == 2 && Vn > 0) Vn = 0;
-                    if (DomainEdge->Drc == 8 && Vn < 0) Vn = 0;
-                }
-                if (Vn == 0 && Un == 0)
-                    hn = H;
-
-                h->Drc = hn;
-                u->Drc = Un;
-                v->Drc = Vn;
-
-            } // step > 0
+            // these maps are needed in Saint Venand
+            gflowx->Drc = GRAV*0.5*( (h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) + delzcx*(hxl+hxr)); // delzcx = 0 is not muscl
+            gflowy->Drc = GRAV*0.5*( (h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd) + delzcy*(hyu+hyd));
+            hllx12_0->Drc = hll_x1.v[0] - hll_x2.v[0];
+            hlly12_0->Drc = hll_y1.v[0] - hll_y2.v[0];
+            hllx21_1->Drc = hll_x2.v[1] - hll_x1.v[1];
+            hllx21_2->Drc = hll_x2.v[2] - hll_x1.v[2];
+            hlly21_1->Drc = hll_y2.v[1] - hll_y1.v[1];
+            hlly21_2->Drc = hll_y2.v[2] - hll_y1.v[2];
 
         } // tmd > 0, active cells
     }} // all cells done
+
+    //find smallest dt in domain
+    double dt_req_min = dt;
+    #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+       // if (activeCells->Drc == 1)
+            dt_req_min = std::min(dt_req_min, FloodDT->Drc);
+    }}
+    dt_req_min = std::max(TimestepfloodMin, std::min(dt, std::min(dt_req_min, _dt-timesum)));
+
+    return dt_req_min;
 }
+//-----------------------------------------------------------------------------------------------------------
+void TWorld::doSWOFStV(double dt, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v,
+                        cTMap *gflowx, cTMap *gflowy, cTMap *hllx12_0, cTMap *hllx21_1, cTMap *hllx21_2, cTMap *hlly21_1, cTMap *hlly21_2)
+{
+     #pragma omp parallel for num_threads(userCores)
+     FOR_ROW_COL_MV_L {
+     //  if (activeCells->Drc > 0) {
+      //   if (h->Drc > F_minWH) {
+           double dx = _dx;//ChannelAdj->Drc;_dx;//_dx
+           double dy = _dx;//DX->Drc;//
+           double Un = 0, Vn = 0;
+           double tx = dt/dx;
+           double ty = dt/dy;
+
+           double hn = std::max(0.0, h->Drc + tx*(hllx12_0->Drc) + ty*(hlly12_0->Drc));
+           // mass balance, hll_....v[0] is the height
+
+           // momentum balance for cells with water
+           if(hn > he_ca) {
+               // SWOF solution, delzc1 = 0 when not MUSCL
+               double qxn = h->Drc*u->Drc - tx*(hllx21_1->Drc + gflowx->Drc) - ty*hlly21_2->Drc;
+               double qyn = h->Drc*v->Drc - tx*hllx21_2->Drc - ty*(hlly21_1->Drc + gflowy->Drc);
+
+               double vsq = sqrt(u->Drc*u->Drc + v->Drc*v->Drc);
+               double nsq1 = (N->Drc)*(N->Drc)*GRAV/std::pow(hn,4.0/3.0); //std::max(0.0001,std::pow(hn,4.0/3.0));
+               double nsq = nsq1*vsq*dt;
+
+              // Un = (qxn/(1.0+nsq))/std::max(0.0001,hn);
+              // Vn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
+               Un = (qxn/(1.0+nsq))/hn;
+               Vn = (qyn/(1.0+nsq))/hn;
+
+               if (SwitchTimeavgV) {
+                   double fac = 0.5 + 0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn); // if hn > 1 fac = 1
+                   fac = fac * exp(- std::max(1.0,dt) / nsq1);
+                   Un = fac * u->Drc + (1.0-fac) *Un;
+                   Vn = fac * v->Drc + (1.0-fac) *Vn;
+               }
+
+           } else {
+               // hn < ha
+               hn = h->Drc; // if no fluxes then also no change in h
+               Un = 0;
+               Vn = 0;
+           }
+
+           // komt niet meer voor
+           if (std::isnan(Un) || std::isnan(Vn)) {
+               Un = 0;
+               Vn = 0;
+           }
+
+           if (fabs(Vn) <= he_ca)
+               Vn = 0;
+           if (fabs(Un) <= he_ca)
+               Un = 0;
+           if (Vn == 0 && Un == 0)
+               hn = h->Drc;
+
+           // put velocity to zero if not allowed to flow and flow is directed outward according to LDD
+           if (FlowBoundaryType == 0 || (FlowBoundaryType == 2 && FlowBoundary->Drc == 0)) {
+               if (DomainEdge->Drc == 4 && Un < 0) Un = 0;
+               if (DomainEdge->Drc == 6 && Un > 0) Un = 0;
+               if (DomainEdge->Drc == 2 && Vn > 0) Vn = 0;
+               if (DomainEdge->Drc == 8 && Vn < 0) Vn = 0;
+           }
+
+           h->Drc = hn;
+           u->Drc = Un;
+           v->Drc = Vn;
+
+    //    } //active cells
+    }}
+}
+//-----------------------------------------------------------------------------------------------------------
+
+
+
+
 

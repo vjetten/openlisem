@@ -307,12 +307,11 @@ void lisemqt::showPlot()
         HPlot->setAxisScale(axisXB, op.BeginTime, op.EndTime);
 
     int index = OutletIndices.indexOf(this->outletpoint);
-
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
     PGraph->setSamples(op.Time,op.Pmm);
 
-    if (checkWaterUserIn->isChecked())
-        QbGraph->setSamples(op.Time,*op.Wavein[index]);
+    // if (checkWaterUserIn->isChecked())
+    //     QbGraph->setSamples(op.Time,*op.Wavein[index]);
 
     int _j = op.OutletQ[index]->count()-1; // last value index
 

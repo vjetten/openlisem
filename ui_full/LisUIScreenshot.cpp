@@ -72,7 +72,7 @@ void lisemqt::shootMultipleScreens()
         int index = DisplayComboBox->currentIndex();
         if( index > -1 && index < NameList.length())
             name = NameList.at(index);
-        qDebug() <<"shot index" << index << name;
+        //qDebug() <<"shot index" << index << name;
     } else if (checkBoxComboMaps2->isChecked()) {
         int index = DisplayComboBox2->currentIndex()+DisplayComboBox->count();
         //   qDebug() << index;
@@ -148,5 +148,5 @@ void lisemqt::convertScreenshotsToVideo()
     lisMpeg->exec();
 
     mencoderDir = lisMpeg->mencoderDir;
-    qDebug() << "new" << mencoderDir;
+    //qDebug() << "new" << mencoderDir;
 }

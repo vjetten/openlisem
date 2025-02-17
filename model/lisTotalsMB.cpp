@@ -51,7 +51,6 @@ void TWorld::TotalsHydro(void)
     {
         double ptot = MapTotal(*Rain);
         RainAvgmm = ptot*1000.0/nrCells;
-
         RainTotmm += RainAvgmm;
         // spatial avg area rainfall in mm
 

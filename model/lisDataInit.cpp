@@ -143,8 +143,7 @@ void TWorld::InitParameters(void)
     courant_factorSed = std::min(0.2,courant_factor);
     // courant_factor_sed = getvaluedouble("Flooding courant factor diffusive");
     TimestepfloodMin = getvaluedouble("Timestep flood");
-    SwitchMUSCL = getvalueint("Flood Solution") == 1;
-    SwitchHeun = getvalueint("Flood Heun 2nd order") == 1;
+    SwitchHeun = 1;//getvalueint("Flood Heun 2nd order") == 1;
     F_pitValue = getvaluedouble("Pit Value");
 
     SwitchCorrectMB_WH = getvalueint("Correct MB with WH") == 1;
@@ -220,6 +219,7 @@ void TWorld::InitStandardInput(void)
     tmb = NewMap(0); // temp map for aux calculations
     tmc = NewMap(0); // temp map for aux calculations
     tmd = NewMap(0); // temp map for aux calculations
+    tmshow = NewMap(0); // temp map form reporting when debug stuff
 
     nrValidCells = 0;
     FOR_ROW_COL_MV {
@@ -903,6 +903,21 @@ void TWorld::InitBoundary(void)
     BoundaryQs = 0;
 
     // make a 1 cell edge around the domain, used to determine flood at the edge
+    // DomainEdge = NewMap(0);
+    // for (int r = 0; r < _nrRows-1; r++)
+    //     for (int c = 0; c < _nrCols-1; c++)
+    //         if(!pcr::isMV(LDD->data[r][c])) {
+    //             //use ldd logic for clarity, boundary cells always point inward
+    //             if (DomainEdge->Drc == 0 &&(pcr::isMV(LDD->data[r-1][c  ]) || r == 0)) DomainEdge->Drc = 8; // top cell flows downward
+    //             if (DomainEdge->Drc == 0 &&(pcr::isMV(LDD->data[r+1][c  ]) || r == _nrRows-1)) DomainEdge->Drc = 2; // bottom, cell flows upward
+    //             if (DomainEdge->Drc == 0 &&(pcr::isMV(LDD->data[r  ][c-1]) || c == 0)) DomainEdge->Drc = 4;
+    //             if (DomainEdge->Drc == 0 &&(pcr::isMV(LDD->data[r  ][c+1]) || c == _nrCols-1)) DomainEdge->Drc = 6;
+    //         }
+
+    // DomainEdge->Drc == 0 &&
+    // DomainEdge->Drc == 0 &&
+    // DomainEdge->Drc == 0 &&
+    // DomainEdge->Drc == 0 &&
     DomainEdge = NewMap(0);
     for (int r = 1; r < _nrRows-1; r++)
         for (int c = 1; c < _nrCols-1; c++)
@@ -920,7 +935,6 @@ void TWorld::InitBoundary(void)
         if(c == 0)          DomainEdge->Drc = 4;
         if(c == _nrCols-1)  DomainEdge->Drc = 6;
     }
-
     FlowBoundary = NewMap(0);
 
     if(FlowBoundaryType == 1) // potential outflow everywhere
@@ -1295,7 +1309,17 @@ void TWorld::InitFlood(void)
     floodVMax = NewMap(0);//
     floodVHMax = NewMap(0);//
     floodTime = NewMap(0);//
+
     FloodDT = NewMap(0);
+    gflowx = NewMap(0);
+    gflowy = NewMap(0);
+    hllx12_0 = NewMap(0);
+    hlly12_0 = NewMap(0);
+    hllx21_1 = NewMap(0);
+    hllx21_2 = NewMap(0);
+    hlly21_1 = NewMap(0);
+    hlly21_2 = NewMap(0);
+    activeCells = NewMap(0);
 
     iter_n = 0;
 

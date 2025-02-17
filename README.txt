@@ -19,7 +19,7 @@ LIST OF CHANGES and BUGFIZES:
 - BUG FIX: Delete all map and swatre data after no GUI run
 - BUG FIX: Swatre compacted profiles incorrectly named
 - BUG FIX: Swatre impermeable surfaces no longer ignored
-- BUG FIX: Swatre internal timestep and percision saved correctly in run file
+- BUG FIX: Swatre internal timestep saved correctly in run file
 - BUG FIX: check if compacted or crusted porosity is smaller than initial moisture
 - BUG FIX: channel infiltration not correctly added to mass balance
 - BUG FIX: soil moisture of topsoil reset to initial moisture for each timestep

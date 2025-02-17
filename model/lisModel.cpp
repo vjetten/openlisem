@@ -164,7 +164,6 @@ void TWorld::DoModel()
             RainfallSeries.clear();
             RainfallSeriesMaps.clear();
             raintime.clear();
-
             DEBUG("Get Rainfall Data");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
@@ -347,10 +346,12 @@ void TWorld::DoModel()
 void TWorld::GetInputTimeseries()
 {
     // get meteo data
-    if (SwitchRainfallSatellite)
-        GetRainfallMapfromSat(time);         // get rainfall from maps
-    else
-        GetRainfallMapfromStations(time);  // get rainfall from stations
+    if(SwitchRainfall) {
+        if (SwitchRainfallSatellite)
+            GetRainfallMapfromSat(time);         // get rainfall from maps
+        else
+            GetRainfallMapfromStations(time);  // get rainfall from stations
+    }
 
     if (SwitchIncludeET) {
         if (SwitchETSatellite)
