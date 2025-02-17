@@ -410,8 +410,8 @@ void TWorld::ParseRunfileData(void)
         SwitchImpermeable = false;  //???okay
     }   
 
-    if (SwitchWaveUser)
-        SwitchMUSCL = false;
+    // if (SwitchWaveUser)
+    //     SwitchMUSCL = false;
 
     if (!SwitchInfrastructure) {
         SwitchRoadsystem = false;
