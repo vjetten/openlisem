@@ -197,8 +197,7 @@ double TWorld::limiter(double a, double b)
 {
     double eps = 1.e-12;
 
-    if (F_fluxLimiter == (int)MINMOD)
-    {
+    if (F_fluxLimiter == (int)MINMOD) {
         if (a >= 0 && b >= 0)
             return std::min(a, b);
         else
@@ -208,9 +207,7 @@ double TWorld::limiter(double a, double b)
                 return 0.;
     }
     else
-    {
-        if (F_fluxLimiter == (int)VANLEER)
-        {
+        if (F_fluxLimiter == (int)VANLEER) {
             if ((a > 0 && b > 0) || (a < 0 && b < 0))
                 return (2*a*b/(a+b));
             else
@@ -223,7 +220,8 @@ double TWorld::limiter(double a, double b)
                 else
                     return  (a*(b*b+eps)+b*(a*a+eps))/(a*a+b*b+2.*eps);
             }
-    }
+
+    return 0;
 }
 
 
