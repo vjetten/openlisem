@@ -1,5 +1,11 @@
 ### this file is a list of changes per major commit, for developers only ###
 
+250121 - v7.4.6 beta
+- BUG FIX: 2D flow gives MB error because of domain boundary, for now fixed by excluding the boundary
+- BUG FIX: MUSCL gave wrong water heigths and limited flow to neighbours, results similar to 11st order 2D flow
+- BUG FIX: do 2D flow for all cells to prevent arrtificial boundaries, but 2D flow is less narrow
+- Optimization of MUSCL, almost 2x as fast, deleted redundant code, some shifts in the interface
+
 250121 - v7.4.5
 - BUG FIX: Delete all map and swatre data after no GUI run
 - BUG FIX: Swatre compacted profiles incorrectly named

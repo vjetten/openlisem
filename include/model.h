@@ -60,8 +60,8 @@
 #define DO_SEDDEP 0
 #define GRAV 9.8067
 
-#define he_ca 1e-10
-#define ve_ca 1e-10
+#define he_ca 1e-12
+#define ve_ca 1e-12
 
 #define EPSILON 1e-10
 

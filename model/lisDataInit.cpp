@@ -252,7 +252,7 @@ void TWorld::InitStandardInput(void)
     MBm = NewMap(0);
 
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
-    checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
+    //checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
     sqrtGrad = NewMap(0);
     FOR_ROW_COL_MV {
         sqrtGrad->Drc = sqrt(Grad->Drc);

@@ -159,7 +159,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         //if (activeCells->Drc > 0) {
-        if (DomainEdge->Drc == 0) {
+        if (h->Drc > he_ca && DomainEdge->Drc == 0) {
             double dx = _dx;//ChannelAdj->Drc;
             double dy = _dx;//DX->Drc;
             double H, Z, U, V;
@@ -526,7 +526,7 @@ void TWorld::doSWOFStV(double dt, cTMap *activeCells, cTMap *h, cTMap *u, cTMap 
      #pragma omp parallel for num_threads(userCores)
      FOR_ROW_COL_MV_L {
      //  if (activeCells->Drc > 0) {
-      //   if (h->Drc > F_minWH) {
+     //    if (h->Drc > F_minWH) {
            double dx = _dx;//ChannelAdj->Drc;_dx;//_dx
            double dy = _dx;//DX->Drc;//
            double Un = 0, Vn = 0;

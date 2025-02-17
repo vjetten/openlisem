@@ -2,7 +2,7 @@ openLISEM
 A spatial model for simulation of the full waterbalance, overland flow, flooding and sediment erosion, transport and deposition in all flows.
 
 ============
-Date: 250121
+Date: 250217
 ============
 
 This software is subject to a DISCLAIMER and released under the copyright model GPLv3
@@ -13,7 +13,14 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6, openmp, gdal and (minimal) pcraster
 
-LIST OF CHANGES and BUGFIZES:
+LIST OF CHANGES and BUGFIXES:
+
+250217 - v7.4.6 beta
+- BUG FIX: reading pathnames sometimes result in "//"
+- BUG FIX: crusting SWATRE
+- BUG FIX: 2D flow gives MB error because of domain boundary, for now fixed by excluding the boundary
+- BUG FIX: MUSCL gave wrong water heigths and limited flow to neighbours, results now similar to 1st order 2D flow
+- Optimization of MUSCL, almost 2x as fast, deleted redundant code, some shifts in the interface
 
 250121 - v7.4.5
 - BUG FIX: Delete all map and swatre data after no GUI run

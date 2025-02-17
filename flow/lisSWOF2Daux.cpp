@@ -231,6 +231,83 @@ double TWorld::limiter(double a, double b)
 //  2e component: Momentum flux in gelijke richting per meter per tijdseenheid  ( dus (m4/s2)/(m) = m3/s2 = h*u*u)
 //  3d component: Momentum flux in loodrechte richting per meter per tijdseenheid  ( dus (m4/s2)/(m) = m3/s2 = h*u*v)
 
+//f_hllc.cpp in swof
+vec4 TWorld::F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
+{
+    vec4 hll;
+    double f1, f2, f3, cfl;
+    double c;
+    if (h_L < he_ca && h_R < he_ca){
+        c = 0.;
+        f1 = 0.;
+        f2 = 0.;
+        f3 = 0.;
+        cfl = 0.;
+    } else {
+        double grav_h_L = GRAV*h_L;
+        double grav_h_R = GRAV*h_R;
+        double grav_2h_L = GRAV * h_L * h_L*0.5;
+        double grav_2h_R = GRAV * h_R * h_R*0.5;
+        double sqrt_grav_h_L = sqrt(grav_h_L);  // wave velocity
+        double sqrt_grav_h_R = sqrt(grav_h_R);
+        double q_R = u_R*h_R;
+        double q_L = u_L*h_L;
+        double c1;
+        double c2;
+        if(h_L < he_ca) {
+            c1 = u_R - 2*sqrt_grav_h_R;
+        } else {
+            c1 = std::min(u_L-sqrt_grav_h_L, u_R-sqrt_grav_h_R); // as u-sqrt(grav_h) <= u+sqrt(grav_h)
+        }
+        if(h_R < he_ca) {
+            c2 = u_L + 2*sqrt_grav_h_L;//sqrt(GRAV*h_L);
+        } else {
+            c2 = std::max(u_L+sqrt_grav_h_L, u_R+sqrt_grav_h_R); // as u+sqrt(grav_h) >= u-sqrt(grav_h)
+        }
+
+        //cfl is the velocity to calculate the real cfl=max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+        if (fabs(c1) < EPSILON && fabs(c2) < EPSILON) {
+            //dry state
+            f1 = 0.;
+            f2 = 0.;
+            f3 = 0.;
+            cfl = 0.;
+        } else
+            if (c1 >= EPSILON) {
+                //supercritical flow, from left to right : we have max(abs(c1),abs(c2))=c2>0
+                f1 = q_L;
+                f2 = q_L*u_L+grav_2h_L;
+                f3 = q_L*v_L;
+                cfl = c2; //max(fabs(c1),fabs(c2))=c2>0
+            }
+            else
+                if (c2 <= -EPSILON) {
+                    //supercritical flow, from right to left : we have max(abs(c1),abs(c2))=-c1>0
+                    f1 = q_R;
+                    f2 = q_R*u_R+grav_2h_R;
+                    f3 = q_R*v_R;
+                    cfl = fabs(c1); //max(fabs(c1),fabs(c2))=fabs(c1)
+                } else {
+                    //subcritical flow
+                    double c_star = (c1*h_R *(u_R - c2) - c2*h_L *(u_L - c1))/(h_R *(u_R - c2) - h_L *(u_L - c1));
+                    double tmp = 1./(c2-c1);
+                    f1 = (c2*q_L-c1*q_R)*tmp+c1*c2*(h_R-h_L)*tmp;
+                    f2 = (c2*(q_L*u_L+grav_2h_L)-c1*(q_R*u_R+grav_2h_R))*tmp+c1*c2*(q_R-q_L)*tmp;
+                    if (c_star > EPSILON) {
+                        f3 = f1*v_L;
+                    } else {
+                        f3 = f1*v_R;
+                    }
+                    cfl = std::max(fabs(c1), fabs(c2));
+                }
+    }
+    hll.v[0] = f1;
+    hll.v[1] = f2;
+    hll.v[2] = f3;
+    hll.v[3] = cfl;
+    return hll;
+}
+
 //f_hllc2.cpp in swof
 vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
@@ -246,7 +323,6 @@ vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
     }else{
         double grav_h_L = GRAV*h_L;
         double grav_h_R = GRAV*h_R;
-
         double sqrt_grav_h_L = sqrt(grav_h_L);  // wave velocity
         double sqrt_grav_h_R = sqrt(grav_h_R);
         double q_R = u_R*h_R;
@@ -255,12 +331,12 @@ vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
         double c2;
         if(h_L < he_ca) {
             c1 = u_R - 2*sqrt_grav_h_R;//sqrt(GRAV*h_R);
-        }else{
+        } else {
             c1 = std::min(u_L-sqrt_grav_h_L, u_R-sqrt_grav_h_R); // as u-sqrt(grav_h) <= u+sqrt(grav_h)
         }
         if(h_R < he_ca) {
             c2 = u_L + 2*sqrt_grav_h_L;//sqrt(GRAV*h_L);
-        }else{
+        } else {
             c2 = std::max(u_L+sqrt_grav_h_L, u_R+sqrt_grav_h_R); // as u+sqrt(grav_h) >= u-sqrt(grav_h)
         }
         double tmp = 1./(c2-c1);
@@ -285,6 +361,8 @@ vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
     return hll;
 }
 
+
+//F_HLL2.cpp in fullswof
 vec4 TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
     vec4 hll;
@@ -320,6 +398,7 @@ vec4 TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
     return hll;
 }
 
+// F_HLL.cpp in fullswof
 vec4 TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
     vec4 hll;
@@ -401,24 +480,23 @@ vec4 TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
 
 vec4 TWorld::F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R)
 {
-    vec4 rec;// = {0,0,0,0};
-    //    if (F_scheme == 6)
-    //    rec = F_ROE(h_L, u_L, v_L, h_R, u_R, v_R);
-    //    else
-    //    if (F_scheme == 5)
-    //        rec = F_HLL4(h_L, u_L, v_L, h_R, u_R, v_R);
-    //    else
-    if (F_scheme == 4)
-        rec = F_HLL3(h_L, u_L, v_L, h_R, u_R, v_R);
+    vec4 rec;
+
+    if (F_scheme == 5)
+        rec = F_HLL4(h_L, u_L, v_L, h_R, u_R, v_R);
     else
-        if (F_scheme == 3)
-            rec = F_HLL2(h_L, u_L, v_L, h_R, u_R, v_R);
+        if (F_scheme == 4)
+            rec = F_HLL3(h_L, u_L, v_L, h_R, u_R, v_R);
         else
-            if (F_scheme == 2)
-                rec = F_HLL(h_L, u_L, v_L, h_R, u_R, v_R);
+            if (F_scheme == 3)
+                rec = F_HLL2(h_L, u_L, v_L, h_R, u_R, v_R);
             else
-                if (F_scheme == 1)
-                    rec = F_Rusanov( h_L, u_L, v_L, h_R, u_R, v_R);
+                if (F_scheme == 2)
+                    rec = F_HLL(h_L, u_L, v_L, h_R, u_R, v_R);
+                else
+                    if (F_scheme == 1)
+                        rec = F_Rusanov( h_L, u_L, v_L, h_R, u_R, v_R);
+
     return (rec);
 }
 

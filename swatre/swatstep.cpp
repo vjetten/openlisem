@@ -286,7 +286,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
             thoma[i] = -dt*kavg[i]/dz[i]/disnod[i];
             thomc[i] = -dt*kavg[i+1]/dz[i]/disnod[i+1];
             thomb[i] = -thoma[i] - thomc[i] + dimoca[i];
-            thomf[i] = dimoca[i]*h[i] + dt/(-dz[i])*(kavg[i]-kavg[i+1]);
+            thomf[i] = dimoca[i]*h[i] + dt/(-dz[i])*(kavg[i]-kavg[i+1])  // -dt*S[i];!!!! according to Belmans
         }
 
         // last node : nN-1 (include boundary cond. qbot)
