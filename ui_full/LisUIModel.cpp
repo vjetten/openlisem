@@ -295,7 +295,7 @@ void lisemqt::runmodel()
 
     // take a screenshot of all option widgets
     tabWidget->setCurrentIndex(0);
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < tabWidgetOptions->count(); i++) {
         tabWidgetOptions->setCurrentIndex(i);
         shootSingleScreen(1);
     }

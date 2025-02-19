@@ -479,8 +479,11 @@ void TWorld::GetRainfallMapfromStations(double currenttime)
         // correction for slope dx/DX, water spreads out over larger area
         RainCumFlat->Drc += Rain->Drc;
         // cumulative rainfall
-        RainCum->Drc += Rainc->Drc;
+        RainCumInt->Drc += Rainc->Drc;
         // cumulative rainfall corrected for slope, used in interception, in m
+        // can be reset to zero when ETa active and canopy dries out
+        RainCumCrust->Drc += Rainc->Drc;
+        // cumulative rainfall corrected for slope, used in crusting, in m
         RainNet->Drc = Rainc->Drc;
         // net rainfall in case of interception
     }}
@@ -573,8 +576,11 @@ void TWorld::GetRainfallMapfromSat(double currenttime)
         // correction for slope dx/DX, water spreads out over larger area
         RainCumFlat->Drc += Rain->Drc;
         // cumulative rainfall
-        RainCum->Drc += Rainc->Drc;
-        // cumulative rainfall corrected for slope, used in interception
+        RainCumInt->Drc += Rainc->Drc;
+        // cumulative rainfall corrected for slope, used in interception, can be set to zero
+        RainCumCrust->Drc += Rainc->Drc;
+        // cumulative rainfall corrected for slope, used in Crusting
+
         RainNet->Drc = Rainc->Drc;
         // net rainfall in case of interception
     }}

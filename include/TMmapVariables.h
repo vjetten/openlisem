@@ -48,7 +48,8 @@ cTMap
 *ETZone,                     //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *Rain,                       //!< map with rain from tis time intervall [m]
 *Rainc,                      //!< map with rain from tis time intervall, spread over the surface (corrected or slope) [m]
-*RainCum,                    //!< cumulative rainfall, as spreadoutover slope [m]
+*RainCumInt,                 //!< cumulative rainfall, as spreadoutover slope [m], needed for interception
+*RainCumCrust,               //!< cumulative rainfall, as spreadoutover slope [m], needed for crusting
 *RainCumFlat,                //!< cumulative rainfall [m]
 *RainNet,                    //!< net rainfall after interception [m]
 *LeafDrain,                  //!< drainge from canopy, storage overflow [m]
@@ -76,7 +77,7 @@ cTMap
 *SnowmeltCum,                //!< cumulative showmelt depth [m]
 
 *WH,                         //!< water height on the surface [m]
-*WHold,                      //!< water height on the surface before infiltration [m]
+//*WHold,                      //!< water height on the surface before infiltration [m]
 *WHnew,                      //!< water height on the surface before infiltration [m]
 *WHrunoff,                   //!< water height available for runoff [m]
 *WHmax,                      //!< max runoff wh in m for reporting

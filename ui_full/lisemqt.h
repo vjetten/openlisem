@@ -570,6 +570,7 @@ private slots:
 
     void on_toolButton_clicked();
 
+
 private:
     QNetworkAccessManager *manager;
 

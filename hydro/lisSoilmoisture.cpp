@@ -94,51 +94,7 @@ double TWorld::calcSinkterm(long i_, double WH, double *S)
         double ETpshade = ETp_*(1-Cover_)+0.15*ETp_*(Cover_);
        //double eta = 0;
 
-        ETpCum->Drc += ETp_;
-
-       //  interception decrease, drying out canopy
-        double CStor_  = CStor->Drc;
-        if (CStor_ > 0) {
-            double ETa_int = ETp_;
-
-            ETa_int = std::min(ETa_int, CStor_);
-            CStor_ = CStor_- ETa_int;
-
-            RainCum->Drc = std::max(0.0, RainCum->Drc-ETa_int);
-            if (CStor_ < 1e-5)
-               RainCum->Drc = 0;
-
-            // restart the cumulative process when CStor is dried out
-
-            Interc->Drc = Cover_ * CStor_ * AreaSoil;
-            IntercETa->Drc += Cover_ * ETa_int * AreaSoil;
-            CStor->Drc = CStor_;
-        }
-
-        if (SwitchHouses)
-        {
-            double CvH = HouseCover->Drc;
-            double HS = HStor->Drc;
-
-            double ETa_int = std::min(ETp_, HS);
-            HStor->Drc = HS - ETa_int;
-            IntercETa->Drc += CvH * ETa_int * AreaSoil;
-            double roofsurface = (_dx * DX->Drc * CvH); // m2
-            IntercHouse->Drc =  roofsurface * HS;
-        }
-
-        // on ground level energy is shared
-        if (SwitchLitter) {
-            double CvL = Litter->Drc;
-            double LCS = LCStor->Drc;
-
-            double ETa_int = std::min(ETpshade, LCS);
-            LCStor->Drc = LCS - ETa_int;
-            IntercETa->Drc += CvL * ETa_int * CHAdjDX->Drc;
-            LInterc->Drc =  CvL * LCS * CHAdjDX->Drc;
-        }
-
-        //transpiration under Cover from rootzone
+           //transpiration under Cover from rootzone
         for (int j = 0; j < nNodes; j++) {
             // van genuchten H50 = -3.5 m
             double f = 1.0/(1.0+pow(s.h[j]/-3.5,1.5));
@@ -151,7 +107,7 @@ double TWorld::calcSinkterm(long i_, double WH, double *S)
         // add surface evaporation (1-Cover) to top node
         if (!s.ponded) {
            etanet = ETp_*(1-Cover_);
-           if (s.h[0] > -16)
+           if (s.h[0] > -16) // wilting point
                S[0] += (s.theta[0]-s.thetar[0])/(s.pore[0]-s.thetar[0])*etanet;
         } else {
             WH = WH - ETpshade;

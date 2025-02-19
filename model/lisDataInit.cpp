@@ -377,7 +377,8 @@ void TWorld::InitMeteoInput(void)
 
     Rain = NewMap(0);
     Rainc = NewMap(0);
-    RainCum = NewMap(0);
+    RainCumInt = NewMap(0);
+    RainCumCrust = NewMap(0);
     RainCumFlat = NewMap(0);
     RainNet = NewMap(0);
 
@@ -1915,7 +1916,7 @@ void TWorld::IntializeData(void)
     if (InfilMethod == INFIL_SWATRE) {
 
         thetaTop = NewMap(0); // for pesticides
-        WHold= NewMap(0);
+        //WHold= NewMap(0);
         WHnew = NewMap(0);
 
         // VJ 110420 added tiledrain depth for all profiles, is all used in infiltration

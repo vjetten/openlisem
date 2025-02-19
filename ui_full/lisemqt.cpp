@@ -48,6 +48,7 @@ update of the runfile before running:
 
 #include "lisemqt.h"
 #include <iostream>
+#include <QDoubleValidator>
 
 output op;
 // declaration of variable structure between model and interface.
@@ -1138,7 +1139,7 @@ void lisemqt::resetTabInfra()
 void lisemqt::resetTabAdvanced()
 {
     E_FloodMaxIter->setValue(200);
-    E_minWHflow->setText("0.0001");
+    E_minWHflow->setText("1e-12");
     E_FloodReconstruction->setValue(4);  //HLL2 etc
     //E_Z2Dcorrection->setValue(1.0);  //HLL2 etc
     E_FloodFluxLimiter->setValue(1);     //minmod etc
@@ -1300,5 +1301,15 @@ void lisemqt::resizeMap()
             changeSize();
 }
 //---------------------------------------------------------------
+
+
+
+// void lisemqt::on_E_minWHflow_returnPressed()
+// {
+//     QDoubleValidator *validator = new QDoubleValidator(0.0, 1.0e10, 10, E_minWHflow);
+//     validator->setNotation(QDoubleValidator::ScientificNotation);
+//     E_minWHflow->setValidator(validator);
+// }
+
 
 

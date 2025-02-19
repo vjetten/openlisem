@@ -133,14 +133,14 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 //------------------------------------------------------------------------------------------------------
 double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
-    /*
+
     // activeCells are all wet cells
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (h->Drc > F_minWH) {
             activeCells->Drc = 1;
 
-            if (SwitchWaveUser) {
+    //        if (SwitchWaveUser) {
                 // make more activecells bhecause else wave does not go on land
                 //and one dry cell more in all directions
                 if (c > 0 && c != MV(r,c-1)        )  activeCells->data[r][c-1] = 1;
@@ -151,15 +151,16 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
                 // if (c < _nrCols-2 && c != MV(r,c+2)) activeCells->data[r][c+2] = 1;
                 // if (r > 1 && r != MV(r-2,c)        ) activeCells->data[r-2][c] = 1;
                 // if (r < _nrRows-2 && r != MV(r+2,c)) activeCells->data[r+2][c] = 1;
-            }
+         //   }
         }
+        if(DomainEdge->Drc > 0)
+            activeCells->Drc = 0;
     }}
-*/
+
     //do all flow and state calculations
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        //if (activeCells->Drc > 0) {
-        if (h->Drc > he_ca && DomainEdge->Drc == 0) {
+        if (activeCells->Drc > 0) {
             double dx = _dx;//ChannelAdj->Drc;
             double dy = _dx;//DX->Drc;
             double H, Z, U, V;
@@ -525,8 +526,7 @@ void TWorld::doSWOFStV(double dt, cTMap *activeCells, cTMap *h, cTMap *u, cTMap 
 {
      #pragma omp parallel for num_threads(userCores)
      FOR_ROW_COL_MV_L {
-     //  if (activeCells->Drc > 0) {
-     //    if (h->Drc > F_minWH) {
+        if (activeCells->Drc > 0) {
            double dx = _dx;//ChannelAdj->Drc;_dx;//_dx
            double dy = _dx;//DX->Drc;//
            double Un = 0, Vn = 0;
@@ -590,7 +590,7 @@ void TWorld::doSWOFStV(double dt, cTMap *activeCells, cTMap *h, cTMap *u, cTMap 
            u->Drc = Un;
            v->Drc = Vn;
 
-    //    } //active cells
+        } //active cells
     }}
 }
 //-----------------------------------------------------------------------------------------------------------

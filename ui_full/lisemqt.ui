@@ -2350,7 +2350,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>-336</y>
+                <y>0</y>
                 <width>1013</width>
                 <height>807</height>
                </rect>
@@ -10288,7 +10288,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Correct mass balance by changing the surface water level (t) and infiltration (t+1)</string>
+                            <string>Correct mass balance by changing the surface water level</string>
                            </property>
                           </widget>
                          </item>

@@ -42,10 +42,6 @@ functions: \n
 // note: cover already implicit in LAI and Smax, part falling on LAI is cover*rainfall
 void TWorld::cell_Interception(int r, int c)
 {
-
-    if (!SwitchInterception)
-        return;
-
     // all variables are in m
     double Rainc_ = Rainc->Drc;
     double RainNet_ = Rainc_;
@@ -59,7 +55,7 @@ void TWorld::cell_Interception(int r, int c)
         //actual canopy storage in m
 
         double canopen = 1-exp(-0.45*LAI->Drc);
-        CS = Smax*(1-exp(-canopen*RainCum->Drc/Smax));
+        CS = Smax*(1-exp(-canopen*RainCumInt->Drc/Smax));
         // new store of a canopy, not cell
 
         LeafDrain->Drc = std::max(0.0, (Rainc_ - (CS - CStor->Drc)));

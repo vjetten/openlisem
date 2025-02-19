@@ -264,15 +264,12 @@ void TWorld::OverlandFlow2Ddyn(void)
     startFlood = false;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV {
-        if (WHrunoff->Drc > HMIN)
+        if (WHrunoff->Drc > 0)//F_minWH)
             startFlood = true;
     }
 
     if(startFlood) {
-        // if (!SwitchMUSCL)
-        //     dtOF = fullSWOF2open(WHrunoff, Uflood, Vflood, DEM);
-        // else
-            dtOF = fullSWOF2openMUSCL(WHrunoff, Uflood, Vflood, DEM);
+        dtOF = fullSWOF2openMUSCL(WHrunoff, Uflood, Vflood, DEM);
         // separating muscl saves many checks for muscl in the loop: faster
 
         // calc discharge flux form the last flux in the loop
@@ -282,7 +279,7 @@ void TWorld::OverlandFlow2Ddyn(void)
             Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
         }}
 
-        Boundary2Ddyn();  // do the domain boundaries for Q, h and sediment
+        //Boundary2Ddyn();  // do the domain boundaries for Q, h and sediment
 
         updateWHandHmx();
         // update all water levels and volumes and calculate partition flood and runoff for output

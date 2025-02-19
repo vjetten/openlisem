@@ -384,37 +384,40 @@ void TWorld::HydrologyProcesses()
 
     if (SwitchIncludeET) {
         if (SwitchDailyET)
-            ETafactor = getETaFactor();
+            ETafactor = getETaFactor(); // based on daylength is daily values
         else
-            ETafactor = 1.0;
+            ETafactor = 1.0;   // or just as is if ET smaller than day
     }
 
     // Do all hydrology in one big loop. Not sure if this is faster then a loop per process!
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        cell_Interception(r,c);
+        if (SwitchInterception)
+            cell_Interception(r,c);
         // all interception on plants, houses, litter
         // result is rainnet (and leafdrip for erosion)
 
-//        if (SwitchFloodInitial  && hmxInit->Drc > 0)
-//            hmxInit->Drc += RainNet->Drc;
+        if (SwitchIncludeET)
+            cell_ETa(r,c);
+        // interception and soil surface evap, also ET from Green and Ampt, not SWATRE
 
+        // floododmain is used if kinwave + overflow to separate WH runoiff from 2D hmx flood
         if (FloodDomain->Drc > 0) {
-            hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc; // only used in kin wave pluf flood from channel, hmx is flood water
+            hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc; // only used in kin wave plus flood from channel, hmx is flood water
         } else {
             WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;  // used in 2D flow and kin wave
         }
 
+        // incoming wave at boundary
         if (SwitchWaveUser) {
             WHboundRain->Drc += RainNet->Drc;
             if (WHboundarea->Drc > 0) {
-                // WHbound is the forced water level in area with value '1', ples cum rainfall
+                // WHbound is the forced water level in area with value '1', plus cum rainfall
                 WH->Drc = WHbound->Drc + WHboundRain->Drc;
             }
         }
-        // if(std::isnan(Thetaeff->Drc))
-        //     qDebug() << QString("A nan 1 %1 %2").arg(r).arg(c);
 
+        // non SWATRE infiltration, redistribution and percolation
         if (SwitchInfiltration  && InfilMethod != INFIL_SWATRE) {
             switch (InfilMethod) {
                 case INFIL_SOAP : cell_Soilwater(i_); break;
@@ -422,9 +425,6 @@ void TWorld::HydrologyProcesses()
                 case INFIL_SMITH:
                     // Green and Ampt + redistribution
                     cell_InfilMethods(r, c);
-
-                    if (SwitchIncludeET)
-                        cell_ETa(r,c);
 
                     if (SwitchTwoLayer) {
                         cell_Redistribution2(r, c);
@@ -440,17 +440,12 @@ void TWorld::HydrologyProcesses()
                     break;
             }
         }
-    }}
+    }} // hydro loop
 
-
+    // SWATRE infiltration
     if (SwitchInfiltration && InfilMethod == INFIL_SWATRE) {
-        // #pragma omp parallel for num_threads(userCores)
-        // FOR_ROW_COL_MV_L {
-        //     cell_InfilSwatre(i_, r,c);
-        // }}
-        InfilSwatre(); // does the same
+        InfilSwatre();
     }
-
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {

@@ -259,14 +259,13 @@ double TWorld::getETaFactor()
 //---------------------------------------------------------------------------
 void TWorld::cell_ETa(int r, int c)
 {
-    tma->Drc = 0;
     if (Rain->Drc* 3600000.0/_dt > rainfallETa_threshold) {
         ETa->Drc = 0;
         ETp->Drc = 0;
     }
 
   //      if (r==200 && c == 200)
-    //       qDebug() << time/60 << ETp->Drc << ETafactor << Rain->Drc*3600000.0/_dt;
+  //       qDebug() << time/60 << ETp->Drc << ETafactor << Rain->Drc*3600000.0/_dt;
 
     if (ETp->Drc*ETafactor > 0) {
         double AreaSoil = SoilWidthDX->Drc * DX->Drc;
@@ -278,7 +277,7 @@ void TWorld::cell_ETa(int r, int c)
 
         ETpCum->Drc += ETp_;
 
-       //  interception decrease, drying out canopy
+        //  interception decrease, drying out canopy
         double CStor_  = CStor->Drc;
         if (CStor_ > 0) {
             double ETa_int = ETp_;
@@ -286,9 +285,9 @@ void TWorld::cell_ETa(int r, int c)
             ETa_int = std::min(ETa_int, CStor_);
             CStor_ = CStor_- ETa_int;
 
-            RainCum->Drc = std::max(0.0, RainCum->Drc-ETa_int);
+            RainCumInt->Drc = std::max(0.0, RainCumInt->Drc-ETa_int);
             if (CStor_ < 1e-5)
-               RainCum->Drc = 0;
+               RainCumInt->Drc = 0;
 
             // restart the cumulative process when CStor is dried out
 
@@ -325,11 +324,8 @@ void TWorld::cell_ETa(int r, int c)
             LInterc->Drc =  CvL * LCS * CHAdjDX->Drc;
         }
 
-//            if (r==96 && c == 164)
-//                qDebug() << ETp_ << CStor_ << RainCum->Drc << Interc->Drc;
-        bool ponded = hmxWH->Drc > 0.01;
-
-        if (!ponded) {
+        // SWATRE ET is done in SWATRE as sink term
+        if (SwitchInfiltration && WH->Drc <= 0 && InfilMethod != INFIL_SWATRE) {
             double pore = Poreeff->Drc;
             double theta = Thetaeff->Drc;
             double thetar = ThetaR1->Drc;
@@ -371,18 +367,26 @@ void TWorld::cell_ETa(int r, int c)
                 tot = tot + eta;
                 tma->Drc += eta;
             }
-          //  if(c == 200 && r == 200)
-            //    qDebug() << Thetaeff->Drc << ThetaI2->Drc << Lw->Drc << SoilDepth1->Drc;
-
         }
+
         // ETa = ETp for any ponded surfaces
-        if (WHrunoff->Drc > 0.01) {
+        if (WH->Drc > 0) {
             double ETa_pond = ETp_;
             double WHRunoff_ = WHrunoff->Drc;
-            ETa_pond = std::min(ETa_pond, WHRunoff_);
-            WHRunoff_ = WHRunoff_ - ETa_pond;
+            double WH_ = WH->Drc;
+
+            ETa_pond = std::min(ETa_pond, WH_);
+            WH_ = WH_ - ETa_pond;
             eta = ETa_pond;
-            //WHroad->Drc = WHRunoff_;
+
+            if (WH_ < WHstore->Drc) {
+                WHRunoff_ = 0;
+                WHstore->Drc = WH_;
+                MicroStoreVol->Drc = DX->Drc*WHstore->Drc*FlowWidth->Drc;
+            } else {
+                WHRunoff_ = WH_- WHstore->Drc;
+            }
+
             WH->Drc = WHRunoff_ + WHstore->Drc;
             WHrunoff->Drc = WHRunoff_;
             tot = tot + eta;
