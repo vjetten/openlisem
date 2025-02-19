@@ -5,17 +5,31 @@ IF(WIN32)
     # QWT configuration for double axis display, note a double axis branch of qwt is used
     SET(QWT_BUILD_DIR "C:/prgc/lisemgit/qwt/git")    # Adjust to your folder names
     SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # Adjust to your folder names
-    SET(OSSL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgnutls-openssl.dll.a")
-    SET(OSSL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include/openssl")
-    SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
-    SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
 
-    FIND_PATH(OMP_INCLUDE_DIRS
-        NAMES omp.h
-        PATHS "${MINGW_BUILD_DIR}/include"
-    )
+    # find_package takes care of all this
+    #SET(OSSL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgnutls-openssl.dll.a")
+    #SET(OSSL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include/openssl")
+    #SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
+    #SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
+
+    #FIND_PATH(OMP_INCLUDE_DIRS
+    #    NAMES omp.h
+    #    PATHS "${MINGW_BUILD_DIR}/include"
+    #)
+    #FIND_PATH(GDAL_INCLUDE_DIRS
+    #    NAMES gdal.h
+    #    PATHS "${MINGW_BUILD_DIR}/include"
+    #)
+    #FIND_PATH(OSSL_INCLUDE_DIRS
+    #    NAMES ossl_typ.h
+    #    PATHS "${MINGW_BUILD_DIR}/include/openssl"
+    #)
+    #FIND_PATH(CURL_INCLUDE_DIRS
+    #    NAMES ossl_typ.h
+    #    PATHS "${MINGW_BUILD_DIR}/include/curl"
+    #)
 ENDIF()
 
 
@@ -29,16 +43,23 @@ IF(UNIX AND NOT CYGWIN)
     SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
     SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
     SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
-    SET(GDAL_INCLUDE_DIRS "/usr/include/gdal")
+    SET(GDAL_INCLUDE_DIR "/usr/include/gdal")
     SET(GDAL_LIBRARIES "/usr/lib/x86_64-linux-gnu/libgdal.so")
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.so")
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/")
 ENDIF()
 
+
+# Find include dirs and lib dirs
+find_package(OpenSSL REQUIRED)
+find_package(OpenMP REQUIRED)
+find_package(GDAL REQUIRED)
+find_package(CURL REQUIRED)
+
 # Include directories
 INCLUDE_DIRECTORIES(
     ${GDAL_INCLUDE_DIRS}
-    #${OSSL_INCLUDE_DIRS}
+    ${OSSL_INCLUDE_DIRS}
     ${QWT_INCLUDE_DIRS}
     ${OMP_INCLUDE_DIRS}
     ${CURL_INCLUDE_DIRS}
@@ -47,14 +68,6 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}/ui_full
     ${CMAKE_CURRENT_BINARY_DIR}/.
 )
-
-# Find OpenMP
-find_package(OpenMP REQUIRED)
-
-#Find GDAL
-find_package(GDAL REQUIRED)
-
-find_package(CURL REQUIRED)
 
 # Enable automatic handling of MOC, UIC, and RCC based on file type changes instead of timestamps
 set(CMAKE_AUTOMOC_DEPEND_FILTERS "moc" "*.h")

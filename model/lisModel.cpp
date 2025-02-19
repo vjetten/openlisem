@@ -389,7 +389,7 @@ void TWorld::HydrologyProcesses()
             ETafactor = 1.0;   // or just as is if ET smaller than day
     }
 
-    // Do all hydrology in one big loop. Not sure if this is faster then a loop per process!
+    // above ground
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (SwitchInterception)
