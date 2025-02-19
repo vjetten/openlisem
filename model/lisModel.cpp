@@ -244,6 +244,7 @@ void TWorld::DoModel()
 
         InfilEffectiveKsat();
 
+        // ---- THE TIME LOOP ----
         for (time = BeginTime; time < EndTime; time += _dt)
         {            
             // printstep determines report frequency in #define report(...)

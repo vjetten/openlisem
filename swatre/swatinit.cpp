@@ -54,7 +54,7 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
         s->pixel[i].wh = 0;
         s->pixel[i].percolation = 0;
         s->pixel[i].tilenode = -1;      // set tiledrain to 0, and tiledepth to -1 (above surface)        
-        s->pixel[i].impfrac = 0;        // fraction roads, houses etc, for first node
+        //s->pixel[i].impfrac = 0;        // fraction roads, houses etc, for first node
 
         s->pixel[i].corrKsOA = 1.0;
         s->pixel[i].corrKsOB = 0.0;
@@ -74,8 +74,10 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
         if (profnr > 0)
             s->pixel[i_].profile = profileList[profnr];  // pointer to profile
         // profile = <= 0 now set to impermeable
-        s->pixel[i_].impfrac = fractionImperm->Drc;
+        //s->pixel[i_].impfrac = fractionImperm->Drc;
         // imnpfrac is the fraction impermeable, 1-impfrac is the infiltrating soil
+        s->pixel[i_].r = r;
+        s->pixel[i_].c = c;
 
         if (SwitchOMCorrection) {
             // these correction come from calculations based on Saxton and rawls
@@ -169,6 +171,7 @@ void  TWorld::FreeSwatreInfo(void)
         zone->z.clear();
         zone->endComp.clear();
         zone->disnod.clear();
+        zone->rootz.clear();
         delete zone;
         zone = nullptr;
     }

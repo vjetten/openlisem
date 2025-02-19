@@ -68,6 +68,7 @@ typedef struct ZONE   {
     QVector <double> z;
     QVector <double> endComp;
     QVector <double> disnod;   
+    QVector <double> rootz;
 } ZONE;
 //---------------------------------------------------------------------------
 /// SWATRE Land use tables, Rows is nr of lines in table, always 3+2 cols
@@ -93,8 +94,10 @@ typedef double NODE_ARRAY[MAX_NODES+3];
 typedef struct PIXEL_INFO {
     const PROFILE *profile;    /** profile this pixel belongs to */
     QVector <double> h;
+    int r;
+    int c;
     double wh;
-    double impfrac;
+    //double impfrac;
     double percolation;
     double theta; // for pesticides?
     double tiledrain;   /** drainage into tiledrin system at a given depth */

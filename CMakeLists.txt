@@ -5,6 +5,8 @@ project(Lisem)
 set(CMAKE_C_COMPILER "C:/Qt/msys64/mingw64/bin/cc.exe")
 set(CMAKE_CPP_COMPILER "C:/Qt/msys64/mingw64/bin/c++.exe")
 
+set(CMAKE_BUILD_TYPE Release)
+
 # Instruct CMake to run moc, uic, and rcc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -48,11 +50,11 @@ SET(CMAKE_MODULE_PATH
 )
 
 # Enable ccache if available
-#find_program(CCACHE_PROGRAM ccache)
-#if(CCACHE_PROGRAM)
-#    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
-#    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CCACHE_PROGRAM}")
-#endif()
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CCACHE_PROGRAM}")
+endif()
 
 # Include application makefile
 INCLUDE(Application)

@@ -86,15 +86,15 @@ double TWorld::calcSinkterm(long i_, double WH, double *S)
 
     if (ETp->Drc*ETafactor >0 && Rain->Drc* 3600000.0/_dt > rainfallETa_threshold) {
 
-        double AreaSoil = SoilWidthDX->Drc * DX->Drc;
+        double AreaSoil = FlowWidth->Drc * DX->Drc * (1-fractionImperm->Drc);//SoilWidthDX->Drc * DX->Drc;
         double Cover_ = Cover->Drc;
         double ETp_ = ETp->Drc * ETafactor; // potential ETp
         double tot = 0;
         double etanet = ETp_;
         double ETpshade = ETp_*(1-Cover_)+0.15*ETp_*(Cover_);
-       //double eta = 0;
+        //double eta = 0;
 
-           //transpiration under Cover from rootzone
+        //transpiration under Cover from rootzone
         for (int j = 0; j < nNodes; j++) {
             // van genuchten H50 = -3.5 m
             double f = 1.0/(1.0+pow(s.h[j]/-3.5,1.5));

@@ -120,11 +120,11 @@ void TWorld::ReadSwatreInputNew(void)
         zone->z.append(0.0);
         zone->endComp.append(0.0);
         zone->disnod.append(0.0);
+        zone->rootz.append(0.0);
     }
 
     int pos = 2;
-    for (int i = 0; i < zone->nrNodes; i++)
-    {
+    for (int i = 0; i < zone->nrNodes; i++) {
         zone->endComp[i] = swatreProfileDef[i+pos].toDouble(&ok);
         if (!ok)
             Error(QString("SWATRE: Can't read compartment end of node %1").arg(i+pos));
@@ -134,16 +134,28 @@ void TWorld::ReadSwatreInputNew(void)
     zone->dz[0]= -zone->endComp[0];
     zone->z[0]= zone->dz[0]*0.5;
     zone->disnod[0] = zone->z[0];
-    for (int i = 1; i < zone->nrNodes; i++)
-    {
+    zone->rootz[0] = 0;
+    double rootmax = -80;
+    double sum = 0;
+    for (int i = 1; i < zone->nrNodes; i++) {
         zone->dz[i]= (zone->endComp[i-1]-zone->endComp[i]);
         zone->z[i]= zone->z[i-1] + 0.5*(zone->dz[i-1]+zone->dz[i]);
         zone->disnod[i] = zone->z[i] - zone->z[i-1];
+        if (zone->z[i] > rootmax) {
+            zone->rootz[i] = (rootmax - zone->z[i])/rootmax;
+            sum = sum + zone->rootz[i];
+        }
     }
+    for (int i = 1; i < zone->nrNodes; i++) {
+        if (zone->z[i] > rootmax) {
+            zone->rootz[i] /= sum;
+        }
+    }
+
     zone->disnod[zone->nrNodes] = 0.5 * zone->dz[zone->nrNodes-1];
 
- // for (int i = 0; i <= zone->nrNodes; i++)
-   //    qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i];
+  // for (int i = 0; i <= zone->nrNodes; i++)
+  //      qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i] << "root" << zone->rootz[i];
 
     //  count and check valid profiles
     QStringList checkList; // temp list to check for double profile nrs

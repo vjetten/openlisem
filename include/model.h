@@ -947,6 +947,7 @@ public:
     // => TODO: SOAP infil model, swatre works better for now
     void cell_Soilwater(long i_); //SOAP
     double calcSinkterm(long i_,  double WH, double *S);
+    void calcSinktermSWATRE(long i_,  PIXEL_INFO *pixel, double *h, double *S);
     double calculateDayLength(double latitude, int dayNumber);
     void VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
     void BrooksCorey(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
