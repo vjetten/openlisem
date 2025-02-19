@@ -93,7 +93,7 @@ void TWorld::calcSinktermSWATRE(long i_,  PIXEL_INFO *pixel, double *h, double *
 
         //double AreaSoil = FlowWidth->Drc * DX->Drc * (1-fractionImperm->Drc);//SoilWidthDX->Drc * DX->Drc;
         double Cover_ = Cover->Drc;
-        double ETp_ = ETp->Drc * ETafactor; // potential ETp
+        double ETp_ = ETp->Drc * ETafactor * 0.01; // potential ETp in meter!
         double tot = 0;
         double etanet = ETp_;
         const ZONE *zone = pixel->profile->zone;
@@ -116,7 +116,7 @@ void TWorld::calcSinktermSWATRE(long i_,  PIXEL_INFO *pixel, double *h, double *
         if (h[0] > -16000) {
             double the = FindValue(h[0], pixel->profile->horizon[0], H_COL, THETA_COL);
             double theS = FindValue(0, pixel->profile->horizon[0], H_COL, THETA_COL);
-            S[0] += etanet * the/theS;
+            S[0] += etanet * the/theS * 2.4;  //2.4 from mm/h to cm/day
         }
 
         for (int j = 0; j < zone->nrNodes; j++) {
@@ -322,6 +322,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
             thomc[0] = -dt * kavg[1] / (dz[0]*disZ[1]);
             thomb[0] = -thomc[0] + C[0];
             thomf[0] = C[0]*h[0] + dt/(-dz[0]) * (-qtop - kavg[1]) - dt*S[0];
+
         }
 
         // Intermediate nodes: i = 1 to n-2
