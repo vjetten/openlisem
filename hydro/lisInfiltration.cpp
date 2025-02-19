@@ -584,7 +584,7 @@ void TWorld::InfilSwatre()
         else
             WHorig = hmx->Drc;
 
-        WHorig *= (1-fractionImperm->Drc);
+       // WHorig *= (1-fractionImperm->Drc);
         WHnew->Drc = WHorig;
 
         SwatreStep(i_, r, c, SwatreSoilModel, WHnew, TileDrainSoil, thetaTop);

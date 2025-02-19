@@ -123,7 +123,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
     double percolation = 0;
     double Theta = 0;
     int tnode = pixel->tilenode;
-    double impfrac = 1.0;//pixel->impfrac;
+    double impfrac = pixel->impfrac;
     NODE_ARRAY kavg, k, C, theta, thetaPrev, h, hPrev, dz, disZ, S;
     // fixed arrays is fastest
     // vectors is a lot slower!
