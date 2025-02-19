@@ -152,6 +152,7 @@ void TWorld::SurfaceStorage()
 //---------------------------------------------------------------------------
 void TWorld::cell_SurfaceStorage(int r, int c)
 {    
+
     double wh = WH->Drc;
     double WHs = std::max(0.0, std::min(wh, MDS->Drc*(1-exp(-1.875*wh/(0.01*RR->Drc)))));
     // surface storage on rough surfaces

@@ -78,7 +78,7 @@ cTMap
 
 *WH,                         //!< water height on the surface [m]
 //*WHold,                      //!< water height on the surface before infiltration [m]
-*WHnew,                      //!< water height on the surface before infiltration [m]
+//*WHnew,                      //!< water height on the surface before infiltration [m]
 *WHrunoff,                   //!< water height available for runoff [m]
 *WHmax,                      //!< max runoff wh in m for reporting
 *WHstore,                    //!< water heigth stored in micro depressions [m]

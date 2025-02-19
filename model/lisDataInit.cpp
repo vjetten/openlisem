@@ -1917,7 +1917,7 @@ void TWorld::IntializeData(void)
 
         thetaTop = NewMap(0); // for pesticides
         //WHold= NewMap(0);
-        WHnew = NewMap(0);
+        //WHnew = NewMap(0);
 
         // VJ 110420 added tiledrain depth for all profiles, is all used in infiltration
         SwatreSoilModel = InitSwatre(ProfileID);

@@ -61,11 +61,11 @@ dz and disZ are negative distances
 
 //--------------------------------------------------------------------------------
 // units in SWATRE are cm and K cm/sec
-void TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_drain, cTMap *_theta)
+double TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, double _WH, cTMap *_drain, cTMap *_theta)
 {
     double drainfraction = 0;
 
-    s->pixel[i_].wh = _WH->Drc*100;    // WH is in m, convert to cm
+    s->pixel[i_].wh = _WH*100;    // WH is in m, convert to cm
     s->pixel[i_].tiledrain = 0;
 
     if (SwitchIncludeTile)
@@ -74,13 +74,15 @@ void TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap 
     ComputeForPixel(i_, s, drainfraction);
     // estimate new h and theta at the end of dt
 
-    _WH->Drc = s->pixel[i_].wh*0.01; // cm to m
+    double res = s->pixel[i_].wh*0.01; // cm to m
     _theta->Drc = s->pixel[i_].theta; // for pesticides ?
     Perc->Drc = s->pixel[i_].percolation*0.01;
 
     if (SwitchIncludeTile)
         _drain->Drc = s->pixel[i_].tiledrain*0.01;  // in m
     // drained water from the soil, already accounts for drainwidth versus i_l width
+
+    return (res);
 }//--------------------------------------------------------------------------------
 double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int nrNodes, double dtMin, double precParam)
 {
@@ -208,7 +210,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
             Ksat = pixel->corrKsDA*Ksat + pixel->corrKsDB;
 
         kavg[0] = sqrt(Ksat * k[0]);
-     //   kavg[0] *= (1.0-impfrac);
+        kavg[0] *= (1.0-impfrac);
 
         // adjust kavg[0] for roads and houses, impermeable fraction
         // max possible always geometric mean
@@ -219,7 +221,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
         // disZ is negative !!!
 
         // check if ponded: 1st compare fluxes, 2nd compare store
-        qtop = -WH/dt * (1.0-impfrac);
+        qtop = -WH/dt;// * (1.0-impfrac);
         // top flux is water/timestep (cm/sec), negative downward
         // only for non impermeable surfaces. if more than 0.99 impermeable, swatstep is not done in infiltration()!
         isPonded = (qtop < qmax);

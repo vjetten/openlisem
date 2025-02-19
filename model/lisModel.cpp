@@ -416,54 +416,48 @@ void TWorld::HydrologyProcesses()
                 WH->Drc = WHbound->Drc + WHboundRain->Drc;
             }
         }
+    }}
 
+    if (SwitchInfiltration) {
         // non SWATRE infiltration, redistribution and percolation
-        if (SwitchInfiltration  && InfilMethod != INFIL_SWATRE) {
-            switch (InfilMethod) {
-                case INFIL_SOAP : cell_Soilwater(i_); break;
-                case INFIL_GREENAMPT:
-                case INFIL_SMITH:
-                    // Green and Ampt + redistribution
-                    cell_InfilMethods(r, c);
+        if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_SOAP) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                cell_InfilMethods(r, c);
 
-                    if (SwitchTwoLayer) {
-                        cell_Redistribution2(r, c);
-                        //cell_Channelinfow2(r, c);
-                    } else {
-                        cell_Redistribution1(r, c);
-                        //cell_Channelinfow1(r, c);
-                    }
+                if (SwitchTwoLayer) {
+                    cell_Redistribution2(r, c);
+                    //cell_Channelinfow2(r, c);
+                } else {
+                    cell_Redistribution1(r, c);
+                    //cell_Channelinfow1(r, c);
+                }
 
-                    if (!SwitchImpermeable)
-                        Perc->Drc = cell_Percolation(r, c, 1.0);
-
-                    break;
-            }
+                if (!SwitchImpermeable)
+                    Perc->Drc = cell_Percolation(r, c, 1.0);
+           }}
         }
-    }} // hydro loop
 
-    // SWATRE infiltration
-    if (SwitchInfiltration && InfilMethod == INFIL_SWATRE) {
-        InfilSwatre();
+        // SWATRE infiltration
+        if (InfilMethod == INFIL_SWATRE) {
+            InfilSwatre();
+        }
     }
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        // do not do this!
-        //  cell_depositInfil(r,c);
-        // deposit all sediment still in flow when infiltration causes WH to become minimum
-        // gives huge MBs errors!
-
         cell_SurfaceStorage(r, c);
         //calc surf storage and total watervol and WHrunoff
-
-        if (SwitchErosion)
-            cell_SplashDetachment(r, c);
-
-        if (SwitchSlopeStability)
-            cell_SlopeStability(r, c);
     }}
 
+    if (SwitchErosion) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            cell_SplashDetachment(r, c);
+            // if (SwitchSlopeStability)
+            //     cell_SlopeStability(r, c);
+        }}
+    }
     //MoistureContent();
     // double soiltot2 = SoilWaterMass();
     // if (InfilMethod != INFIL_SOAP)
